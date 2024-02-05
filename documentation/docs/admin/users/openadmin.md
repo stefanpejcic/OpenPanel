@@ -28,30 +28,66 @@ To manage admin users that can access OpenAdmin interface use Settings > OpenAdm
 
 From the terminal:
 
-- [opencli admin new](/docs/admin/scripts/admin#create-new-admin)
-- [opencli admin password](/docs/admin/scripts/admin#reset-admin-password)
-- [opencli admin delete](/docs/admin/scripts/admin#delete-admin-user)
+[opencli admin new](/docs/admin/scripts/admin#create-new-admin)
+[opencli admin password](/docs/admin/scripts/admin#reset-admin-password)
+[opencli admin delete](/docs/admin/scripts/admin#delete-admin-user)
 
   </TabItem>
 </Tabs>
 
 ## Reset Admin Password
 
+
+
+
+<Tabs>
+  <TabItem value="openadmin-admin-reset" label="With OpenAdmin" default>
+
 To reset admin password click on the user in Settings > OpenAdmin page, then click on Edit button and set the password.
 
-Or from the terminal: [opencli admin password](/docs/admin/scripts/admin#reset-admin-password)
+  </TabItem>
+  <TabItem value="cli-reset" label="With OpenCLI">
+
+From the terminal: [opencli admin password](/docs/admin/scripts/admin#reset-admin-password)
+
+  </TabItem>
+</Tabs>
+
 
 ## Create new Admin
 
+<Tabs>
+  <TabItem value="openadmin-admin-new" label="With OpenAdmin" default>
+
 To create new admin user click on the 'New' button in Settings > OpenAdmin page, set the username and password and click on save.
 
-Or from the terminal: [opencli admin new](/docs/admin/scripts/admin#create-new-admin)
+  </TabItem>
+  <TabItem value="cli-new" label="With OpenCLI">
+
+From the terminal: [opencli admin new](/docs/admin/scripts/admin#create-new-admin)
+
+  </TabItem>
+</Tabs>
+
+
+
+
 
 ## Delete Admin user
 
+<Tabs>
+  <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
+
 Select the user on Settings > OpenAdmin page and click on the delete button then confirm.
 
-Or from the terminal: [opencli admin delete](/docs/admin/scripts/admin#delete-admin-user)
+  </TabItem>
+  <TabItem value="cli-delete" label="With OpenCLI">
+
+From the terminal: [opencli admin delete](/docs/admin/scripts/admin#delete-admin-user)
+
+  </TabItem>
+</Tabs>
+
 
 :::info
 The Super Admin user can not be deleted.
