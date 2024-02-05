@@ -103,9 +103,16 @@ Step 1.             |  Step 2.
 To reset the password for a OpenPanel user, you can use the `user-password` command:
 
 ```bash
-opencli user-password <USERNAME> <NEW_PASSWORD> --ssh
+opencli user-password <USERNAME> <NEW_PASSWORD>
 ```
+
 Use the `--ssh` flag to also change the password for the SSH user in the container.
+
+Example:
+
+```bash
+opencli user-password filip Ty7_K8_M2 --ssh
+```
 
   </TabItem>
 </Tabs>
@@ -245,11 +252,17 @@ Step 1.             |  Step 2.
   </TabItem>
   <TabItem value="CLI-user-suspend" label="With OpenCLI">
 
-To suspend (temporary disable access) to user, run the follwowing command:
+To suspend (temporary disable access) to user, run the following command:
 
 ```bash
 opencli user-suspend <USERNAME>
 ```
+Example:
+
+```bash
+opencli user-suspend filip
+```
+
 
   </TabItem>
 </Tabs>
@@ -266,10 +279,15 @@ To unsuspend a user click on the Unsuspend button for that user.
   </TabItem>
   <TabItem value="CLI-user-unsuspend" label="With OpenCLI">
     
-To unsuspend (enable access) to user, run the follwowing command:
+To unsuspend (enable access) to user, run the following command:
 
 ```bash
 opencli user-unsuspend <USERNAME>
+```
+
+Example:
+```bash
+opencli user-unsuspend filip
 ```
 
   </TabItem>
@@ -289,25 +307,30 @@ Step 1.             |  Step 2.
   </TabItem>
   <TabItem value="CLI-user-ip" label="With OpenCLI">
 
-To remove dedicated IP address from a user run:
-
-```bash
-opencli user-ip <USERNAME> delete
-```
-
-To assign free IP address to a user run the following command:
+To assign unused IP address to a user run the following command:
 
 ```bash
 opencli user-ip <USERNAME> <IP_ADDRESS>
 ```
 
-To assign IP address **that is currently used by another user** to this user, run the following command:
+To assign IP address **that is currently used by another user** to this user, use the `--y` flag.
 
+Example:
 
 ```bash
-opencli user-ip <USERNAME> <IP_ADDRESS> --y
+opencli user-ip filip 11.128.23.89 --y
 ```
 
+To remove dedicated IP address from a user run:
+
+```bash
+opencli user-ip <USERNAME> delete
+```
+Example:
+
+```bash
+opencli user-ip filip delete
+```
 
   </TabItem>
 </Tabs>
@@ -338,6 +361,11 @@ opencli user-delete <USERNAME>
 ```
 
 add `-y` flag to disable prompt.
+
+Example:
+```bash
+opencli user-delete filip -y
+```
 
   </TabItem>
 </Tabs>
