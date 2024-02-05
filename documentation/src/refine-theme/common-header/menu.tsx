@@ -41,7 +41,7 @@ export const Menu: React.FC = () => {
                                         ))}
                                     </div>
                                     <Link
-                                        to="https://github.com/"
+                                        to="https://github.com/stefanpejcic/openpanel/"
                                         className="no-underline"
                                     >
                                         <div
@@ -97,7 +97,7 @@ export const Menu: React.FC = () => {
                                         </div>
                                         <div className="flex gap-4">
                                             <Link
-                                                to="https://github.com/"
+                                                to="https://github.com/stefanpejcic/openpanel/"
                                                 className={clsx(
                                                     "no-underline",
                                                     "hover:text-inherit",
