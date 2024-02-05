@@ -29,7 +29,7 @@ export const EnterpriseGetInTouchCta: FC<Props> = (props) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Ready to try OpenPanel Enterprise Edition?
+                    Ready to try OpenPanel Enterprise?
                 </h2>
                 <EnterpriseGetInTouchButton />
             </div>

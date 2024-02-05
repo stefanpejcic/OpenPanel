@@ -37,7 +37,7 @@ export const EnterpriseHeroSection = ({
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        public BETA
+                        BETA
                     </span>
                     .
                 </h1>
@@ -49,7 +49,7 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    We're thrilled to announce that OpenPanel is currently available in open Beta! The open beta test will be open to the public between{" "}
+                    We're thrilled to announce that OpenPanel is currently available in closed Beta! The open beta test will be open to the public between{" "}
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
                         January 25th{" "}
                     </span>
