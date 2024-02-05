@@ -2,6 +2,10 @@
 sidebar_position: 1
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
 # OpenAdmin Users
 
 The admin panel has two user roles:
@@ -11,15 +15,25 @@ The admin panel has two user roles:
 
 ## Manage Admin users
 
+
+<Tabs>
+  <TabItem value="openadmin-admin-users" label="With OpenAdmin" default>
+
 To manage admin users that can access OpenAdmin interface use Settings > OpenAdmin page
 
 ![openadmin admin users](/img/admin/openadmin_admin_page.png)
 
-Or from the terminal:
+  </TabItem>
+  <TabItem value="CLI" label="With OpenCLI">
+
+From the terminal:
 
 - [opencli admin new](/docs/admin/scripts/admin#create-new-admin)
 - [opencli admin password](/docs/admin/scripts/admin#reset-admin-password)
 - [opencli admin delete](/docs/admin/scripts/admin#delete-admin-user)
+
+  </TabItem>
+</Tabs>
 
 ## Reset Admin Password
 
