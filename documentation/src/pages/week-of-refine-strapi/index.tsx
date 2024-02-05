@@ -9,7 +9,7 @@ const RefineWeekStrapi = () => {
     return (
         <CommonLayout>
             <div className="refine-prose">
-                <Head title="Week of Refine | Refine">
+                <Head title="SysAdmin Tutorials | OpenPanel">
                     <html data-page="week-of-refine" data-customized="true" />
                 </Head>
 
