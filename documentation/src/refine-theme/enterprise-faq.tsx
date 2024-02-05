@@ -101,17 +101,17 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
 const faq = [
     {
         question: "How does the pricing work for the Enterprise edition?",
-        answer: "The pricing model is customized to fit the specific needs of the project, the size of the development team, and the number of end users.",
+        answer: "The pricing model is based on the number of end users.",
     },
     {
         question:
-            "Are there any limitations regarding the number of projects I can create?",
-        answer: "There is no limit to the number of projects you can create.",
+            "Are there any limitations regarding the number of user accounts I can create?",
+        answer: "Yes, the Community license allows you to create up to 3 user accounts, and Enterprise edition has no limit to the number of user accounts that you can create.",
     },
     {
         question:
-            "Is it possible to purchase individual features or services separately?",
-        answer: "No, the Enterprise edition can only be purchased as a complete package, including all features and services.",
+            "Is it possible to upgrade from the Community edition to Enterprise edition?",
+        answer: "Yes, at any time you can upgrade your license from Commuunity to Enterprise edition and all limits will imediately be lifted, and additional features added.",
     },
     {
         question: "How often does Enterprise edition receive updates?",
@@ -124,12 +124,7 @@ const faq = [
     },
     {
         question: "What is the scope of the professional services you provide?",
-        answer: "Our professional services cover collaborative tasks with internal teams such as onboarding assistance, trainings and code reviews.",
-    },
-    {
-        question:
-            "Can I seamlessly migrate my existing projects from the Community Edition to the Enterprise Edition?",
-        answer: "Although migration is possible, we strongly advise enterprise users to start with the corresponding edition, as the lifecycle of the editions is managed in separate repositories and there may be differences in core features.",
+        answer: "Our professional services cover collaborative tasks with internal teams such as onboarding assistance, trainings and customizing your OpenPanel instance to match your brand.",
     },
     {
         question: "Can I request specific features or customizations?",
