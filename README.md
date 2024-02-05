@@ -17,7 +17,7 @@
 <br/>
 
 <div align="center">
-Deliver a <strong>VPS-like experience;/strong> to your users at a fraction of the cost, with all-inclusive features such as <strong>resource limiting, user isolation, WP Manager, and enhanced security</strong> seamlessly integrated for worry-free hosting.
+Deliver a <strong>VPS-like experience</strong> to your users at a fraction of the cost, with all-inclusive features such as <strong>resource limiting, user isolation, WP Manager, and enhanced security</strong> seamlessly integrated for worry-free hosting.
 
 <br />
 <br />
