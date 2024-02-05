@@ -17,7 +17,7 @@ const siteConfig = {
     url: "https://openpanel.co",
     baseUrl: "/",
     onBrokenLinks: 'ignore',
-    projectName: "docs",
+    projectName: "openpanel",
     organizationName: "stefanpejcic",
     trailingSlash: true,
     favicon: "img/favicon.svg",
@@ -32,7 +32,7 @@ const siteConfig = {
                           path: "./docs",
                           sidebarPath: require.resolve("./sidebars.js"),
                           editUrl:
-                              "https://github.com/stefanpejcic/docs/tree/master/documentation",
+                              "https://github.com/stefanpejcic/openpanel/tree/master/documentation",
                           showLastUpdateAuthor: true,
                           showLastUpdateTime: true,
                           disableVersioning:
