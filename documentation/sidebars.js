@@ -3,7 +3,17 @@
 const mainSidebar = {
    panel: [
     'panel/intro',
-    'panel/dashboard/dashboard',
+      {
+      type: 'category',
+      label: 'Dashboard',
+      className: "category-as-header",
+      items: [
+        {
+          type: 'doc',
+          id: 'panel/dashboard/dashboard',
+        },
+      ],
+    },       
       {
       type: 'category',
       label: 'Applications',
