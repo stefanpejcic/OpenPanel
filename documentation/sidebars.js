@@ -7,6 +7,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Applications',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -25,6 +26,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Domain Management',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -43,6 +45,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Databases',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -69,6 +72,7 @@ const mainSidebar = {
     {
       type: 'category',
       label: 'Files',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -103,6 +107,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Cache & Search',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -125,6 +130,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Analytics',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -143,6 +149,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Advanced',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
@@ -173,6 +180,7 @@ const mainSidebar = {
       {
       type: 'category',
       label: 'Account',
+      className: "category-as-header",
       items: [
         {
           type: 'doc',
