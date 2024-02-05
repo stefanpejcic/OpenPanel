@@ -9,7 +9,7 @@
 <div align="center">
     <a href="https://openpanel.co">Home Page</a> |
     <a href="https://community.openpanel.co/">Forums</a> |
-    <a href="https://openpanel.co/docs/">Documentation</a>
+    <a href="https://openpanel.co/docs/admin/intro/">Documentation</a>
 </div>
 </div>
 
