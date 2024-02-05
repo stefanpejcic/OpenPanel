@@ -29,8 +29,7 @@ Deliver a <strong>VPS-like experience</strong> to your users at a fraction of th
 
 **OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
 
-![openpanel scheme](/documentation/static/img/admin/openpanel_scheme.png)
-
+[![openpanel scheme](/documentation/static/img/admin/openpanel_scheme.png)](https://openpanel.co/docs/panel/intro/)
 
 This panel is the culmination of years of experience in the hosting industry, having spent decades working with various hosting panels we made sure to include all features that simply make sense.
 
@@ -38,12 +37,12 @@ When we designed OpenPanel, we prioritized features that are not only user-frien
 
 Some of the unique features worth mentioning are:
 
-- You can [install PHP versions](/docs/panel/advanced/server_settings#install-php-version) you need, [edit php.ini files](/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
-- Control [MySQL settings](/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](/docs/panel/databases/remote) and much more.
-- [Update system services](/docs/panel/advanced/server_settings#service-status) and even install new services that you need.
-- Manage WordPress websites easily with [WP Manager](/docs/panel/applications/wordpress).
-- Password-less login to [phpMyAdmin](/docs/panel/databases/phpmyadmin) and [Web Terminal](/docs/panel/advanced/terminal).
-- Built-in [REDIS](/docs/panel/caching/Redis) and [Memcached](/docs/panel/caching/Memcached) object caching.
+- You can [install PHP versions](https://openpanel.co/docs/panel/advanced/server_settings#install-php-version) you need, [edit php.ini files](https://openpanel.co/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
+- Control [MySQL settings](https://openpanel.co/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](https://openpanel.co/docs/panel/databases/remote) and much more.
+- [Update system services](https://openpanel.co/docs/panel/advanced/server_settings#service-status) and even install new services that you need.
+- Manage WordPress websites easily with [WP Manager](https://openpanel.co/docs/panel/applications/wordpress).
+- Password-less login to [phpMyAdmin](https://openpanel.co/docs/panel/databases/phpmyadmin) and [Web Terminal](https://openpanel.co/docs/panel/advanced/terminal).
+- Built-in [REDIS](https://openpanel.co/docs/panel/caching/Redis) and [Memcached](https://openpanel.co/docs/panel/caching/Memcached) object caching.
 
 ## OpenPanel vs OpenAdmin
 
