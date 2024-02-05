@@ -3,22 +3,22 @@ import { StrapiWithText, SupabaseWithText } from "../integration-icons";
 
 export const weekOfRefineCards: CardProps[] = [
     {
-        title: "Invoicer",
+        title: "Docker for Beginners",
         imgURL: "https://refine.ams3.cdn.digitaloceanspaces.com/week-of-refine/week-of-refine-invoicer.png",
-        dateRange: "April 10 - April 14, 2023",
+        dateRange: "February 7, 2024",
         description:
-            "We'll be building an Invoice generator internal tool via Refine & Strapi in a week.",
+            "Introduction to Docker and why we decided to use it for OpenPanel.",
         logo: StrapiWithText,
         bgLinearGradient:
             "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
         link: "/week-of-refine-strapi",
     },
     {
-        title: "Pixels!",
+        title: "Troubleshooting DNS",
         imgURL: "https://refine.ams3.cdn.digitaloceanspaces.com/week-of-refine/week-of-refine-pixels.png",
-        dateRange: "February 14 - February 20, 2023",
+        dateRange: "December 14, 2023",
         description:
-            "Stay tuned all week and learn the basics of creating a CRUD app via Refine & Supabase on a fun project in a week.",
+            "Troubleshooting DNS zone problems and solutions.",
         logo: SupabaseWithText,
         bgLinearGradient:
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
