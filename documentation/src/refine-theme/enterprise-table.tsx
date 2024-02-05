@@ -528,7 +528,7 @@ const tableData = [
                 community: <CrossIcon />,
                 enterprise: (
                     <TableText>
-                        Manage accounts from multiple OpenPanel servers
+                        Manage accounts from multiple servers
                     </TableText>
                 ),
                 valueType: {
