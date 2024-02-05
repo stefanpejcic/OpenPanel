@@ -81,7 +81,7 @@ export const footerDescription = `OpenPanel - web hosting panel.`;
 export const socialLinks = [
     {
         icon: FooterGithubIcon,
-        href: "https://github.com/stefanpejcic",
+        href: "https://github.com/stefanpejcic/openpanel",
     },
     {
         icon: FooterDiscordIcon,
