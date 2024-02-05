@@ -16,7 +16,8 @@
 <br/>
 <br/>
 
-<div align="center"><strong>Build your <a href="https://reactjs.org/">React</a>-based CRUD applications, without constraints.</strong><br>An open-source, headless web application framework developed with flexibility in mind.
+<div align="center">
+Deliver a <strong>VPS-like experience</strong>strong> to your users at a fraction of the cost, with all-inclusive features such as <strong>resource limiting, user isolation, WP Manager, and enhanced security</strong>strong> seamlessly integrated for worry-free hosting.
 
 <br />
 <br />
