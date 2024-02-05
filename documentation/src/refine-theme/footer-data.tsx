@@ -15,12 +15,12 @@ export const menuItems = [
                 href: "/docs/admin/intro/",
             },
             {
-                label: "Tutorials",
-                href: "/docs/tutorial/introduction/index/",
+                label: "Support Forums",
+                href: "https://community.openpanel.co/",
             },
             {
-                label: "Blog",
-                href: "/blog",
+                label: "Changelog",
+                href: "/docs/changelog/intro/",
             },
         ],
     },
