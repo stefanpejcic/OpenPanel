@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+    - name: 🚀 Feature Request
+      url: https://community.openpanel.co/t/openadmin
+      about: We would love to hear what you are thinking about. What can we do better? This is the place for you to vote, discuss and share ideas.
+    - name: 💬 Support Question
+      url: https://community.openpanel.co/t/openpanel
+      about: We use GitHub issues only to discuss about OpenPanel bugs.
