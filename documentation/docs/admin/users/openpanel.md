@@ -100,7 +100,12 @@ Step 1.             |  Step 2.
   </TabItem>
   <TabItem value="CLI-users-reset" label="With OpenCLI">
 
-From the terminal: [opencli user-password](/docs/admin/scripts/users#change-password)
+To reset the password for a OpenPanel user, you can use the `user-password` command:
+
+```bash
+opencli user-password <USERNAME> <NEW_PASSWORD> --ssh
+```
+Use the `--ssh` flag to also change the password for the SSH user in the container.
 
   </TabItem>
 </Tabs>
@@ -240,7 +245,11 @@ Step 1.             |  Step 2.
   </TabItem>
   <TabItem value="CLI-user-suspend" label="With OpenCLI">
 
-From the terminal: [opencli user-suspend](/docs/admin/scripts/users#suspend-user)
+To suspend (temporary disable access) to user, run the follwowing command:
+
+```bash
+opencli user-suspend <USERNAME>
+```
 
   </TabItem>
 </Tabs>
@@ -257,7 +266,11 @@ To unsuspend a user click on the Unsuspend button for that user.
   </TabItem>
   <TabItem value="CLI-user-unsuspend" label="With OpenCLI">
     
-From the terminal: [opencli user-unsuspend](/docs/admin/scripts/users#unsuspend-user)
+To unsuspend (enable access) to user, run the follwowing command:
+
+```bash
+opencli user-unsuspend <USERNAME>
+```
 
   </TabItem>
 </Tabs>
@@ -275,8 +288,26 @@ Step 1.             |  Step 2.
 
   </TabItem>
   <TabItem value="CLI-user-ip" label="With OpenCLI">
-    
-From the terminal: [opencli user-ip](/docs/admin/scripts/users#assign--remove-ip-to-user)
+
+To remove dedicated IP address from a user run:
+
+```bash
+opencli user-ip <USERNAME> delete
+```
+
+To assign free IP address to a user run the following command:
+
+```bash
+opencli user-ip <USERNAME> <IP_ADDRESS>
+```
+
+To assign IP address **that is currently used by another user** to this user, run the following command:
+
+
+```bash
+opencli user-ip <USERNAME> <IP_ADDRESS> --y
+```
+
 
   </TabItem>
 </Tabs>
@@ -300,7 +331,13 @@ Step 1.             |  Step 2.
   </TabItem>
   <TabItem value="CLI-user-delete" label="With OpenCLI">
     
-From the terminal: [opencli user-delete](/docs/admin/scripts/users#delete-user)
+To delete a user and all his data run the following command:
+
+```bash
+opencli user-delete <USERNAME>
+```
+
+add `-y` flag to disable prompt.
 
   </TabItem>
 </Tabs>
