@@ -44,7 +44,7 @@ export const EnterpriseIAMServices = ({
                         "font-semibold",
                     )}
                 >
-                    Native Integrations to IAM services
+                    Support for 50+ CMS platforms and technologies
                 </h2>
                 <p
                     className={clsx(
