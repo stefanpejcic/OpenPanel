@@ -11,7 +11,7 @@ Make the most of your OpenPanel deployments, find quick solutions to common prob
 ## Step 1: Search for similar questions
 If your question has been asked before, you might be able to find an answer in minutes and get your problem knocked out before we even know it exists. 
 
-- [Search Documentation](/docs/admin/intro/
+- [Search Documentation](/docs/admin/intro/)
 - [Search Forums](https://community.openpanel.co)
 
 If a search does not provide good answers, proceed to step 2.
