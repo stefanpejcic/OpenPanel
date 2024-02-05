@@ -17,6 +17,10 @@
 <br/>
 
 <div align="center">
+OpenPanel is a powerful and flexible web hosting control panel for Linux systems. Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management. 
+<br />
+<br />
+    
 Deliver a <strong>VPS-like experience</strong> to your users at a fraction of the cost, with all-inclusive features such as <strong>resource limiting, user isolation, WP Manager, and enhanced security</strong> seamlessly integrated for worry-free hosting.
 
 <br />
