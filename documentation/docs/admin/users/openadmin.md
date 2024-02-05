@@ -97,12 +97,12 @@ opencli admin new filip Pyl7_L2M1
 ## Rename Admin user
 
 <Tabs>
-  <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
+  <TabItem value="openadmin-admin-rename" label="With OpenAdmin" default>
 
 To rename an Amdin user, select the user on **Settings > OpenAdmin** page and click on the Edit button and set new username.
 
   </TabItem>
-  <TabItem value="cli-delete" label="With OpenCLI">
+  <TabItem value="cli-rename" label="With OpenCLI">
 
 To rename admin user:
 
@@ -121,13 +121,13 @@ opencli admin rename filip filip2
 ## Suspend Admin user
 
 <Tabs>
-  <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
+  <TabItem value="openadmin-admin-suspend" label="With OpenAdmin" default>
 
 To suspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then **Suspend**.
 
 To unsuspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then **Unsuspend**.
   </TabItem>
-  <TabItem value="cli-delete" label="With OpenCLI">
+  <TabItem value="cli-suspend" label="With OpenCLI">
 
 ```bash
 opencli admin suspend <username>
