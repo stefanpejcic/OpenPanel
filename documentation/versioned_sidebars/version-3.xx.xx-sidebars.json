@@ -1,0 +1,17 @@
+{
+  "someSidebar": [
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "items": [
+        "getting-started/overview",
+        "getting-started/quickstart"
+      ],
+      "collapsed": false
+    },
+    {
+      "type": "doc",
+      "id": "licence"
+    }
+  ]
+}

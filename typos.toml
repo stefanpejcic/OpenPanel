@@ -1,0 +1,50 @@
+[default]
+locale = "en-us"
+
+extend-ignore-re = [
+    "\\.refine",
+    "\\.refine\\.",
+    "refine\\.",
+    "-refine",
+    "run refine",
+    "refineCore",
+    "refine-",
+    "-refine-",
+    "_refine",
+    "/refine",
+    "/refine/",
+    "refine/",
+    "refinedev",
+    "Refine",
+    "refine-themes",
+    "REFINE",
+    "refine3",
+    "\\: refine",
+    "\\`refine",
+    "\"refine\"",
+    "\"refine",
+    "refineTheme"
+]
+
+[files]
+extend-exclude = ["documentation/docs/partials/_partial-translation-file-de.md", "documentation/versioned_docs", "documentation/versioned_sidebars", "*.ts", "*.tsx", "refine-*"]
+ignore-vcs = true
+
+[default.extend-words]
+nin = "nin"
+OT = "OT"
+prev = "prev"
+prepend = "prepend"
+prepended = "prepended"
+goes = "goes"
+IIF = "IIF"
+Preact = "Preact"
+AKS = "AKS"
+ege = "ege"
+nd = "nd"
+DAA = "DAA"
+bare = "bare"
+inovice = "invoice"
+refine = "Refine"
+
+
