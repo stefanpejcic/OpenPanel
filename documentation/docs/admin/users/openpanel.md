@@ -66,7 +66,19 @@ To create a new user, click on the 'New User' button on the Users page. A new se
   </TabItem>
   <TabItem value="CLI-users-new" label="With OpenCLI">
 
-From the terminal: [opencli user-add](/docs/admin/scripts/users#add-user)
+To create a new user run the following command:
+
+```bash
+opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_ID>
+```
+Example: 
+```bash
+opencli user-add filip masdhjkb213g filip@openadmin.co 1
+```
+
+:::tip
+Provide `random` as password to generate a strong random password.
+:::
 
   </TabItem>
 </Tabs>
