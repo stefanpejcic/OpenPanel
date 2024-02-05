@@ -163,7 +163,17 @@ Select the user on Settings > OpenAdmin page and click on the delete button then
   </TabItem>
   <TabItem value="cli-delete" label="With OpenCLI">
 
-From the terminal: [opencli admin delete](/docs/admin/scripts/admin#delete-admin-user)
+From the terminal:
+
+To delete admin user:
+```bash
+opencli admin delete <username>
+```
+
+Example:
+```bash
+opencli admin delete filip
+```
 
   </TabItem>
 </Tabs>
