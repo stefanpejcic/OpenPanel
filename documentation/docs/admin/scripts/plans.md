@@ -35,7 +35,7 @@ opencli plan-list --json
 
 ## Create Plan
 
-To create a new user run the following command:
+To create a new plan run the following command:
 
 ```bash
 opencli plan-create <NAME> <DESCRIPTION> <DOMAINS_LIMIT> <WEBSITES_LIMIT> <DISK_LIMIT> <INODES_LIMITS> <DATABASES_LIMIT> <CPU_LIMIT> <RAM_LIMIT> <DOCKER_IMAGE> <PORT_SPEED_LIMIT>
