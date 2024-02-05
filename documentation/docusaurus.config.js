@@ -178,7 +178,7 @@ const siteConfig = {
             apiKey: '8c38649d5d06ae64c7d6c595b9dcf4ac',
             indexName: 'codex-openpanel',
             contextualSearch: true,
-            replaceSearchResultPathname: {from: '/docs/',to: '/',},
+            //replaceSearchResultPathname: {from: '/docs/',to: '/',},
             searchParameters: {},
             searchPagePath: 'search',
         },
