@@ -9,25 +9,52 @@ OpenPanel currently has only a single user role named **User** that can only man
 
 ## List Users
 
+
+<Tabs>
+  <TabItem value="openadmin-users" label="With OpenAdmin" default>
+
 To access all OpenPanel users, navigate to OpenAdmin > Users.
 
 The Users page displays a table showcasing each user's Gravatar linked to their email address, username, assigned IP Address, hosting plan name, creation date of the account, a login link enabling user impersonation, and an actions dropdown. In the actions dropdown, you can perform actions such as editing, suspending, or deleting the user.
 
 ![openadmin users page](/img/admin/openadmin_users_page.png)
 
-Or from the terminal: [opencli user-list](/docs/admin/scripts/users#list-users)
 
 Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
+  </TabItem>
+  <TabItem value="CLI-users" label="With OpenCLI">
+
+From the terminal: [opencli user-list](/docs/admin/scripts/users#list-users)
+
+  </TabItem>
+</Tabs>
+
+
 ## Create Users
+
+
+<Tabs>
+  <TabItem value="openadmin-users-new" label="With OpenAdmin" default>
 
 To create a new user, click on the 'New User' button on the Users page. A new section will be displayed with a form where you can set the email address, username, generate a strong password, and assign a hosting plan for the user.
 
 ![openadmin users add new](/img/admin/openadmin_add_new_user.png)
 
-Or from the terminal: [opencli user-add](/docs/admin/scripts/users#add-user)
+  </TabItem>
+  <TabItem value="CLI-users-new" label="With OpenCLI">
+
+From the terminal: [opencli user-add](/docs/admin/scripts/users#add-user)
+
+  </TabItem>
+</Tabs>
+
+
 
 ## Reset User Password
+
+<Tabs>
+  <TabItem value="openadmin-users-reset" label="With OpenAdmin" default>
 
 To reset password for a user click on the Edit dropdown in table for that user in OpenAdmin > Users or from the individual User page click on "Edit information" and set the new password in the Password field then save.
 
@@ -35,7 +62,14 @@ Step 1.             |  Step 2.
 :-------------------------:|:-------------------------:
 ![openadmin users reset password step 1](/img/admin/openadmin_users_edit_information.png)  |  ![openadmin users reset password step 2](/img/admin/openadmin_users_edit_information_change_password.png)
 
-Or from the terminal: [opencli user-password](/docs/admin/scripts/users#change-password)
+
+  </TabItem>
+  <TabItem value="CLI-users-reset" label="With OpenCLI">
+
+From the terminal: [opencli user-password](/docs/admin/scripts/users#change-password)
+
+  </TabItem>
+</Tabs>
 
 
 ## Detailed User Information
@@ -158,6 +192,9 @@ The Ports widget displays all ports published in the user's Docker container and
 
 ## Suspend User
 
+<Tabs>
+  <TabItem value="openadmin-user-suspend" label="With OpenAdmin" default>
+
 Suspending an account will immediately disable the user's access to the OpenPanel. This action involves pausing the user's Docker container and revoking access to their email, website, and other associated services. Please be aware of the immediate impact before proceeding.
 
 To suspend a user click on the Suspend button on that user page and click on 'Suspend' on the confirmation modal.
@@ -166,15 +203,35 @@ Step 1.             |  Step 2.
 :-------------------------:|:-------------------------:
 ![openadmin users suspend step 1](/img/admin/openadmin_users_suspend_1.png)  |  ![openadmin users suspend step 2](/img/admin/openadmin_users_suspend_2.png)
 
-Or from the terminal: [opencli user-suspend](/docs/admin/scripts/users#suspend-user)
+  </TabItem>
+  <TabItem value="CLI-user-suspend" label="With OpenCLI">
+
+From the terminal: [opencli user-suspend](/docs/admin/scripts/users#suspend-user)
+
+  </TabItem>
+</Tabs>
 
 ## Unsuspend User
+
+<Tabs>
+  <TabItem value="openadmin-user-unsuspend" label="With OpenAdmin" default>
 
 To unsuspend a user click on the Unsuspend button for that user.
 
 ![openadmin users add new](/img/admin/openadmin_users_unsuspend.png)
 
+  </TabItem>
+  <TabItem value="CLI-user-unsuspend" label="With OpenCLI">
+    
+From the terminal: [opencli user-unsuspend](/docs/admin/scripts/users#unsuspend-user)
+
+  </TabItem>
+</Tabs>
+
 ## Change IP address for User
+
+<Tabs>
+  <TabItem value="openadmin-user-ip" label="With OpenAdmin" default>
 
 To change IP address for a user, click on the 'Edit Information' link for the user, then elect the new IP address and click on 'Save changes'.
 
@@ -182,9 +239,23 @@ Step 1.             |  Step 2.
 :-------------------------:|:-------------------------:
 ![openadmin users change ip address step 1](/img/admin/openadmin_users_edit_information.png)  |  ![openadmin users change ip address step 2](/img/admin/openadmin_users_edit_information_change_ip_address.png)
 
-Or from the terminal: [opencli user-ip](/docs/admin/scripts/users#assign--remove-ip-to-user)
+  </TabItem>
+  <TabItem value="CLI-user-ip" label="With OpenCLI">
+    
+From the terminal: [opencli user-ip](/docs/admin/scripts/users#assign--remove-ip-to-user)
+
+  </TabItem>
+</Tabs>
+
+
+
+
 
 ## Delete User
+
+
+<Tabs>
+  <TabItem value="openadmin-user-delete" label="With OpenAdmin" default>
 
 To delete a user click on the delete button for that user, then type 'delete' in the confirmation modal and finally click on the 'Terminate' button.
 
@@ -192,8 +263,15 @@ Step 1.             |  Step 2.
 :-------------------------:|:-------------------------:
 ![openadmin users delete step 1](/img/admin/openadmin_users_delete_1.png)  |  ![openadmin users deletes step 2](/img/admin/openadmin_users_delete_2.png)
 
-Or from the terminal: [opencli user-delete](/docs/admin/scripts/users#delete-user)
+  </TabItem>
+  <TabItem value="CLI-user-delete" label="With OpenCLI">
+    
+From the terminal: [opencli user-delete](/docs/admin/scripts/users#delete-user)
 
-:::warning
+  </TabItem>
+</Tabs>
+
+
+:::danger
 This action is irreversible and will permanently delete all user data.
 :::
