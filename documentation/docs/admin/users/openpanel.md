@@ -25,7 +25,29 @@ Suspended users are highlighted in red, and no actions can be performed on a sus
   </TabItem>
   <TabItem value="CLI-users" label="With OpenCLI">
 
-From the terminal: [opencli user-list](/docs/admin/scripts/users#list-users)
+To list all users, use the following command:
+
+```bash
+opencli user-list
+```
+
+Example output:
+```bash
+opencli user-list
++----+----------+-----------------+-----------------+---------------------+
+| id | username | email           | plan_name       | registered_date     |
++----+----------+-----------------+-----------------+---------------------+
+| 52 | stefan   | stefan          | cloud_4_nginx_3 | 2023-11-16 19:11:20 |
+| 53 | petar    | petarc@petar.rs | cloud_8_nginx   | 2023-11-17 12:25:44 |
+| 54 | rasa     | rasa@rasa.rs    | cloud_12_nginx  | 2023-11-17 15:09:28 |
++----+----------+-----------------+-----------------+---------------------+
+```
+
+You can also format the data as JSON:
+
+```bash
+opencli user-list --json
+```
 
   </TabItem>
 </Tabs>
