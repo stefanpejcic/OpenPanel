@@ -2,8 +2,8 @@ import React from "react";
 
 export const LandingHeroViteIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
-        width={24}
-        height={24}
+        width="24"
+        height="24"
         viewBox="0 0 213.000000 215.000000"
         style="vertical-align:middle;"
         fill="none"
