@@ -335,13 +335,13 @@ const list = [
         ),
         iconText: "Nginx",
         image1Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/datatables-ui-dark.png",
+            "/img/landing_slider/nginx_dark_large.png",
         image1Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/datatables-ui-light.png",
+            "/img/landing_slider/nginx_white_large.png",
         image2Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/datatables-code-dark.png",
+            "/img/landing_slider/nginx_dark_small.png",
         image2Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/datatables-code.png",
+            "/img/landing_slider/nginx_white_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
@@ -358,13 +358,13 @@ const list = [
         ),
         iconText: "Docker",
         image1Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/list-ui-dark.png",
+            "/img/landing_slider/docker_dark_large.png",
         image1Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/list-ui-light.png",
+            "/img/landing_slider/docker_white_large.png",
         image2Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/list-code-dark.png",
+            "/img/landing_slider/docker_white_small.png",
         image2Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/list-code.png",
+            "/img/landing_slider/docker_dark_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
@@ -379,13 +379,13 @@ const list = [
         ),
         iconText: "MySQL",
         image1Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/charts-ui-dark.png",
+            "/img/landing_slider/mysql_dark_large.png",
         image1Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/charts-ui-light.png",
+            "/img/landing_slider/mysql_white_large.png",
         image2Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/charts-code-dark.png",
+            "/img/landing_slider/mysql_dark_small.png",
         image2Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/charts-code.png",
+            "/img/landing_slider/mysql_white_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-yellow-dark bg-landing-sweet-spot-glow-yellow-light",
     },
@@ -428,13 +428,13 @@ const list = [
         ),
         iconText: "REDIS",
         image1Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/forms-ui-dark.png",
+            "/img/landing_slider/redis_dark_large.png",
         image1Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/forms-ui-light.png",
+            "/img/landing_slider/redis_white_large.png",
         image2Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/forms-code-dark.png",
+            "/img/landing_slider/redis_dark_small.png",
         image2Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/forms-code.png",
+            "/img/landing_slider/redis_white_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-cyan-dark bg-landing-sweet-spot-glow-cyan-light",
     },
@@ -454,13 +454,13 @@ const list = [
         ),
         iconText: "PHP",
         image1Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/wizards-ui-dark.png",
+            "/img/landing_slider/php_dark_large.png",
         image1Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/wizards-ui-light.png",
+            "/img/landing_slider/php_white_large.png",
         image2Dark:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/wizards-code-dark.png",
+            "/img/landing_slider/php_dark_small.png",
         image2Light:
-            "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/sweet-spot/wizards-code.png",
+            "/img/landing_slider/php_white_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
