@@ -2,7 +2,7 @@ import React from "react";
 
 export const LandingHeroGoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
-        width={24}
+        width={64}
         height={64}
         viewBox="0 0 500 1333"
         fill="none"
