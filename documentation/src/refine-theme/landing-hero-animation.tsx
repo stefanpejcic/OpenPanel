@@ -85,7 +85,7 @@ const uiItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
-                style={{ marginLeft: '1.5em' }}
+                style={{ marginRight: '1.5em' }}
             />
         ),
         color: "#007FFF",
@@ -99,7 +99,7 @@ const uiItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
-                style={{ marginLeft: '1.5em' }}
+                style={{ marginRight: '1.5em' }}
             />
         ),
         color: "#148EFF",
@@ -113,7 +113,7 @@ const uiItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
-                style={{ marginLeft: '1.5em' }}
+                style={{ marginRight: '1.5em' }}
             />
         ),
         color: "#29C6B7",
@@ -175,7 +175,7 @@ const authItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
-                style={{ marginLeft: '1.5em' }}
+                style={{ marginRight: '1.5em' }}
             />
         ),
         color: "#EA4335",
@@ -189,7 +189,7 @@ const authItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
-                style={{ marginLeft: '1.5em' }}
+                style={{ marginRight: '1.5em' }}
             />
         ),
         color: "#EB5424",
@@ -206,7 +206,7 @@ const authItems: ItemType[] = [
                         "text-gray-1000 dark:text-gray-0",
                         props.className,
                     )}
-                    style={{ marginLeft: '1.5em' }}
+                    style={{ marginRight: '1.5em' }}
                 />
             </div>
         ),
