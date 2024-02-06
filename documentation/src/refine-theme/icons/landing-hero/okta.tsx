@@ -9,20 +9,7 @@ export const LandingHeroOktaIcon = (props: React.SVGProps<SVGSVGElement>) => (
         xmlns="http://www.w3.org/2000/svg"
         {...props}
     >
-<style type="text/css">
-        .st0 {
-            fill: #1e77bd;
-        }
-        .st1 {
-            fill: #3f95d1;
-        }
-        .st2 {
-            fill: #ffffff;
-        }
-        .st3 {
-            fill: #d8ebf1;
-        }
-    </style>
+
     <path
         class="st0"
         d="M300.1,370c79.9,0,144.6-64.7,144.6-144.6c0-79.9-64.7-144.6-144.6-144.6s-144.6,64.7-144.6,144.6
