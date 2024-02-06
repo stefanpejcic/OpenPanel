@@ -53,7 +53,7 @@ opencli admin new <username> <password>
 To reset the password for an admin user:
 
 ```bash
-opencli admin password <new_password> [username | admin]
+opencli admin password <username> <new_password>
 ```
 
 ## Rename Admin User
