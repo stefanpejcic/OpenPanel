@@ -37,7 +37,7 @@ const platformItems: ItemType[] = [
     {
         name: "OpenAdmin",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroNextjsIcon
+            <LandingHeroViteIcon
                 {...props}
                 className={clsx(
                     "text-gray-1000 dark:text-gray-0",
@@ -51,7 +51,7 @@ const platformItems: ItemType[] = [
     {
         name: "OpenCLI",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroRemixIcon
+            <LandingHeroViteIcon
                 {...props}
                 className={clsx(
                     "text-gray-1000 dark:text-gray-0",
