@@ -5,11 +5,11 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import clsx from "clsx";
 
-const SupportPolicy: React.FC = () => {
+const PrivacyPolicy: React.FC = () => {
     return (
         <CommonLayout>
-            <Head title="Privacy Policy | Refine">
-                <html data-page="privacy_policy" data-customized="true" />
+            <Head title="Support | OpenPanel">
+                <html data-page="support" data-customized="true" />
             </Head>
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
@@ -28,9 +28,7 @@ const SupportPolicy: React.FC = () => {
                     </ul>
                 
                     <p>If a search does not provide good answers, proceed to step 2.</p>
-                
-                    <hr>
-                
+                                
                     <h3>Step 2a: Open a support ticket (Enterprise Edition)</h3>
                     <p>If you need fast and reliable support, open a premium ticket by sending us a new ticket.</p>
                     <p><a href="mailto:info@openpanel.co">Submit a ticket</a></p>
@@ -38,9 +36,7 @@ const SupportPolicy: React.FC = () => {
                     <h3>Step 2b: Post on forums (Community Edition)</h3>
                     <p>If you can wait for answers from our community and don't want to spend any money, ask your question in the forums. Every member of the OpenPanel staff also monitors the forums and tries to help out whenever we can. We generally prioritize paid support queries (we've got bills to pay, after all), but our forums are very active, and our community is knowledgeable.</p>
                     <p><a href="https://community.openpanel.co">Ask the Community</a></p>
-                
-                    <hr>
-                
+                                
                     <h3>Step 3: Found a bug?</h3>
                     <p>If you've found a bug in OpenPanel or OpenAdmin, Community or Enterprise edition, <a
                             href="https://github.com/stefanpejcic/openpanel/issues/new?assignees=&labels=Bug&projects=&template=1_Bug_report.yaml">please
@@ -56,4 +52,4 @@ const SupportPolicy: React.FC = () => {
     );
 };
 
-export default SupportPolicy;
+export default PrivacyPolicy;
