@@ -43,6 +43,7 @@ const platformItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
+                style={{ marginLeft: '1.5em' }}
             />
         ),
         color: "#ffffff",
@@ -57,6 +58,7 @@ const platformItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
+                style={{ marginLeft: '1.5em' }}
             />
         ),
         color: "#ffffff",
