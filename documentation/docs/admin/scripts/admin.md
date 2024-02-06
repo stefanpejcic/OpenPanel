@@ -64,6 +64,22 @@ To rename an existing admin user:
 opencli admin rename <old_username> <new_username>
 ```
 
+## Suspend Admin User
+
+To suspend an existing admin user:
+
+```bash
+opencli admin suspend <username>
+```
+
+## Unsuspend Admin User
+
+To unsuspend an existing admin user:
+
+```bash
+opencli admin unsuspend <username>
+```
+
 ## Delete Admin User
 
 To rename an existing admin user:
