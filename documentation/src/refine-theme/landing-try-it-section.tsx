@@ -92,7 +92,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "landing-sm:max-w-[446px]",
                     )}
                 >
-                    Choose your license and start
+                    Choose OpenPanel Enterprise or Community edition and start
                     hosting websites in minutes.
                 </p>
             </div>
@@ -127,10 +127,6 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                     )}
                 />
             </div>
-            <LandingPlaygroundModal
-                visible={wizardOpen}
-                close={() => setWizardOpen(false)}
-            />
         </div>
     );
 };
@@ -205,7 +201,7 @@ const LandingTryItOptionsSection = ({
                         >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Enterprise license
+                        Try Enterprise
                     </span>
                 </Link>
             </div>
