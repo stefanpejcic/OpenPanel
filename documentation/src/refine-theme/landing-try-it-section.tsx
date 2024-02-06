@@ -6,6 +6,7 @@ import { LandingPlaygroundModal } from "./landing-playground-modal";
 import { useLocation } from "@docusaurus/router";
 import { useColorMode } from "@docusaurus/theme-common";
 import { useInView } from "framer-motion";
+import Link from "@docusaurus/Link";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
     const [wizardOpen, setWizardOpen] = React.useState(false);
