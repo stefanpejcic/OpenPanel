@@ -24,6 +24,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                 "group/showcase",
                 "landing-lg:overflow-hidden",
             )}
+	    style={{ marginTop: "-7px" }}
         >
             <div className={clsx("flex", "w-full", "gap-2")}>
                 <div
