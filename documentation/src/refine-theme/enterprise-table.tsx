@@ -554,6 +554,19 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
+            {
+                description: "Remote Backups",
+                community: <CrossIcon />,
+                enterprise: (
+                    <TableText>
+                        SSH and S3 Destinations
+                    </TableText>
+                ),
+                valueType: {
+                    community: "icon",
+                    enterprise: "text",
+                },
+            },
         ],
     },
     {
@@ -607,10 +620,10 @@ const tableData = [
         ],
     },
     {
-        title: "Professional Services",
+        title: "Integrations",
         items: [
             {
-                description: "Trainings",
+                description: "REST API",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -619,7 +632,7 @@ const tableData = [
                 },
             },
             {
-                description: "Branding & Integration",
+                description: "WHMCS Module",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
