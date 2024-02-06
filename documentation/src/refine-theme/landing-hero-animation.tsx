@@ -124,7 +124,7 @@ const backendItems: ItemType[] = [
     {
         name: "Nginx",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroNestjsIcon
+            <LandingHeroSupabaseIcon
                 {...props}
                 className={clsx(
                     "text-gray-1000 dark:text-gray-0",
