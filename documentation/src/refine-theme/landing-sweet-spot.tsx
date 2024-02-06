@@ -362,9 +362,9 @@ const list = [
         image1Light:
             "/img/landing_slider/docker_white_large.png",
         image2Dark:
-            "/img/landing_slider/docker_white_small.png",
-        image2Light:
             "/img/landing_slider/docker_dark_small.png",
+        image2Light:
+            "/img/landing_slider/docker_white_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
