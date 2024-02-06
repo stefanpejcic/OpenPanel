@@ -7,7 +7,6 @@ export const LandingHeroViteIcon = (props: React.SVGProps<SVGSVGElement>) => (
         viewBox="0 0 213.000000 215.000000"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        style="margin-left: 1.5em;"
         {...props}
     >
     <g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
