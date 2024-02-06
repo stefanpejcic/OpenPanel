@@ -31,7 +31,16 @@ type ItemType = {
 const platformItems: ItemType[] = [
     {
         name: "OpenPanel",
-        icon: LandingHeroViteIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroViteIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#ffa800",
     },
     {
@@ -69,17 +78,44 @@ const platformItems: ItemType[] = [
 const uiItems: ItemType[] = [
     {
         name: "WordPress",
-        icon: LandingHeroMaterialUIIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroMaterialUIIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#007FFF",
     },
     {
         name: "NodeJS",
-        icon: LandingHeroAntdIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroAntdIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#148EFF",
     },
     {
         name: "Python",
-        icon: LandingHeroChakraUIIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroChakraUIIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#29C6B7",
     },
 ];
@@ -87,17 +123,44 @@ const uiItems: ItemType[] = [
 const backendItems: ItemType[] = [
     {
         name: "Nginx",
-        icon: LandingHeroNestjsIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroNestjsIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#3ECF8E",
     },
     {
         name: "Apache",
-        icon: LandingHeroNestjsIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroNestjsIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#E0234E",
     },
     {
         name: "LiteSpeed",
-        icon: LandingHeroAppwriteIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroAppwriteIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#FD366E",
     },
 ];
@@ -105,12 +168,30 @@ const backendItems: ItemType[] = [
 const authItems: ItemType[] = [
     {
         name: "ModSecurity",
-        icon: LandingHeroGoogleIcon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroGoogleIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#EA4335",
     },
     {
         name: "Docker",
-        icon: LandingHeroAuth0Icon,
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroAuth0Icon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
         color: "#EB5424",
     },
     {
@@ -125,6 +206,7 @@ const authItems: ItemType[] = [
                         "text-gray-1000 dark:text-gray-0",
                         props.className,
                     )}
+                    style={{ marginLeft: '1.5em' }}
                 />
             </div>
         ),
