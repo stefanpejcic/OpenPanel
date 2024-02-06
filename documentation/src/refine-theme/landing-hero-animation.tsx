@@ -99,7 +99,6 @@ const uiItems: ItemType[] = [
                     "text-gray-1000 dark:text-gray-0",
                     props.className,
                 )}
-                style={{ marginRight: '1.5em' }}
             />
         ),
         color: "#148EFF",
