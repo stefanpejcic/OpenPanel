@@ -180,34 +180,33 @@ const LandingTryItOptionsSection = ({
                 >
                     Utilize our wizard to determine the licensing plan that best suits your requirements.
                 </p>
-                <button
-                    type="button"
-                    onClick={onClick}
-                    className={clsx(
-                        "appearance-none",
-                        "focus:outline-none",
-                        "self-start",
-                        "rounded-3xl",
-                        "!text-gray-0 dark:!text-gray-900",
-                        "bg-refine-blue dark:bg-refine-cyan-alt",
-                        "py-3",
-                        "px-6",
-                        "flex",
-                        "items-center",
-                        "justify-center",
-                        "gap-2",
-                        "hover:!no-underline",
-                        "hover:brightness-110",
-                        "transition-[filter]",
-                        "duration-150",
-                        "ease-in-out",
-                    )}
-                >
+                        <Link
+                            to="beta"
+                            className={clsx(
+                                "self-start",
+                                "rounded-3xl",
+                                "!text-gray-0 dark:!text-gray-900",
+                                "bg-refine-blue dark:bg-refine-cyan-alt",
+                                "transition-[filter]",
+                                "duration-150",
+                                "ease-in-out",
+                                "hover:brightness-110",
+                                "py-3",
+                                "pl-7 pr-8",
+                                "landing-md:px-8",
+                                "landing-lg:pl-7 landing-lg:pr-8",
+                                "flex",
+                                "items-center",
+                                "justify-center",
+                                "gap-2",
+                                "hover:!no-underline",
+                            )}
+                        >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Choose a license
+                        Enterprise license
                     </span>
-                </button>
+                </Link>
             </div>
             <div
                 className={clsx(
