@@ -2,8 +2,9 @@ import React from "react";
 
 export const LandingHeroAppwriteIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
-        width={64}
-        height={64}
+        width={24}
+        height={24}
+        style="vertical-align:middle;"
         viewBox="0.41999999999999993 0 44.24 57.73"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
