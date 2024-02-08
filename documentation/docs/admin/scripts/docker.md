@@ -6,6 +6,23 @@ sidebar_position: 9
 
 Manage users docker containers and their information.
 
+## Update Images
+
+OpenPanel currently provides two Docker images: `openpanel_apache` and `openpanel_nginx`, which you can utilize for your users. *Support for LiteSpeed will be introduced in upcoming updates.
+
+The script  `opencli docker-update_images` serves the purpose of verifying the availability of newer images on our Docker registry server. If newer images are found, the script proceeds to download and update the existing Docker images locally.
+
+It's important to note that after updating, the newer Docker images will **NOT** modify any settings for existing users; the changes will only apply to new user accounts created with the updated images.
+
+To manually check for the availability of newer Docker images, execute the following command:
+
+```bash
+opencli docker-update_images
+```
+
+In case you encounter any errors, rerun the command with the `--debug` flag. Subsequently, report the issue along with the debug output to [our community forums](https://community.openpanel.co/t/openadmin).
+
+
 ## Collect Stats
 
 The `collect_stats` script periodically checks resource usage for all users using the [docker stats](https://docs.docker.com/engine/reference/commandline/stats/) command.
