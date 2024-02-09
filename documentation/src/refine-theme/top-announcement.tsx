@@ -132,8 +132,8 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                <span className={clsx("font-semibold")}>OpenPanel BETA</span>{" "}
-                is out! Give it a spin and tell us what you think
+                <span className={clsx("font-semibold")}>OpenPanel Community</span>{" "}
+                edition is out! Give it a spin and tell us what you think
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
