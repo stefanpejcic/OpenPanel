@@ -3,7 +3,6 @@ import { FooterDiscordIcon } from "./icons/footer-discord";
 import { FooterGithubIcon } from "./icons/footer-github";
 import { FooterLinkedinIcon } from "./icons/footer-linkedin";
 import { FooterRedditIcon } from "./icons/footer-reddit";
-import { FooterTwitterIcon } from "./icons/footer-twitter";
 import { NewBadgeIcon } from "./icons/popover";
 
 export const menuItems = [
@@ -90,10 +89,6 @@ export const socialLinks = [
     {
         icon: FooterRedditIcon,
         href: "https://www.reddit.com/r/openpanelco/",
-    },
-    {
-        icon: FooterTwitterIcon,
-        href: "https://twitter.com/",
     },
     {
         icon: FooterLinkedinIcon,
