@@ -89,7 +89,7 @@ export const socialLinks = [
     },
     {
         icon: FooterRedditIcon,
-        href: "https://www.reddit.com/r/open-panel/",
+        href: "https://www.reddit.com/r/openpanelco/",
     },
     {
         icon: FooterTwitterIcon,
