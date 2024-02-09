@@ -35,7 +35,7 @@ export const LandingFooter = () => {
                     "text-gray-600 dark:text-gray-400",
                 )}
             >
-                256 Chapman Road STE 105-4 Amsterdam, NL 19702
+             1c Bulevar Belgrade, RS 11160
             </div>
             <a
                 href="mailto:info@openpanel.co"
