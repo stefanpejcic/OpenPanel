@@ -85,7 +85,7 @@ export const socialLinks = [
     },
     {
         icon: FooterDiscordIcon,
-        href: "https://discord.gg/",
+        href: "https://discord.com/invite/7bNY8fANqF",
     },
     {
         icon: FooterRedditIcon,
