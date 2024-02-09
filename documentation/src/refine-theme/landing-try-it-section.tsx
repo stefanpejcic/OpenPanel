@@ -175,7 +175,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    Utilize our wizard to determine the licensing plan that best suits your requirements.
+                    Sign up for OpenPanel Enterprise version and offer premium features to your customers.
                 </p>
                         <Link
                             to="beta"
@@ -201,7 +201,7 @@ const LandingTryItOptionsSection = ({
                         >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Try Enterprise
+                        Go Enterprise
                     </span>
                 </Link>
             </div>
@@ -280,7 +280,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			Try out OpenPanel's trial for free and explore its features for 15 days.
+			Get OpenPanel Community edition now and begin hosting websites within just 5 minutes.
                     </p>
                     <LandingCopyCommandButton />
                 </div>
