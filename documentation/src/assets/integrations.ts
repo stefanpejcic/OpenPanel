@@ -23,6 +23,28 @@ import {
     AdminOff,
     Ports,
     Separate,
+    WHMCS,
+    API,
+    Notifications,
+    Services,
+    Usage,
+    Bolt,
+    Configuration,
+    Download,
+    Domain,
+    Folder,
+    PHP,
+    Python,
+    WP,
+    MySQL,
+    SSL,
+    ServerCog,
+    CronJobs,
+    Cache,
+    DNS,
+    Visitors,
+    Activity,
+    AccountCog,
     Airtable,
     Antd,
     Ably,
@@ -79,7 +101,7 @@ export const integrations: IntegrationsType = {
     "data-provider-packages": [
         {
             name: "Domain Names",
-            icon: Rest,
+            icon: Domain,
             description:
                 "Add domain names with automatic SSL renewals, include aliases and subdomains (Internationalized domains are supported), create redirects, enforce HTTPS, and edit vhost files.",
             url: "/docs/panel/domains/",
@@ -87,7 +109,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "File Manager",
-            icon: Rest,
+            icon: Folder,
             description:
                 "Effortlessly upload multiple files simultaneously without any upload limits. Edit files, adjust permissions, copy or move files, add new files, and perform various file management tasks.",
             url: "/docs/panel/files/",
@@ -95,7 +117,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "PHP versions",
-            icon: Rest,
+            icon: PHP,
             description:
                 "Users can use different PHP versions for each domain, install new versions, set a default version for new domains, change limits by editing php.ini files.",
             url: "/docs/panel/advanced/server_settings/#php-settings",
@@ -103,7 +125,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "NodeJS and Python",
-            icon: Rest,
+            icon: Python,
             description:
                 "Effortlessly create and manage NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
             url: "/docs/panel/applications/pm2/",
@@ -111,14 +133,14 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "WP Manager",
-            icon: Graphql,
+            icon: WP,
             description: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.",
             url: "/docs/panel/applications/wordpress/",
             status: "stable",
         },
         {
             name: "MySQL and phpMyAdmin",
-            icon: Nest,
+            icon: MySQL,
             description:
                 "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
             url: "/docs/panel/databases/",
@@ -126,7 +148,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "SSL certificates",
-            icon: Strapi,
+            icon: SSL,
             description:
                 "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates.",
             url: "/docs/panel/domains/SSL/",
@@ -134,7 +156,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Object Caching",
-            icon: Strapi,
+            icon: Cache,
             description:
                 "Implement object caching using dedicated REDIS and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
             url: "/docs/panel/caching/",
@@ -150,7 +172,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Server settings",
-            icon: Strapi,
+            icon: Configuration,
             description:
                 "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
             url: "/docs/panel/advanced/server_settings/",
@@ -158,7 +180,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Cron Jobs",
-            icon: Strapi,
+            icon: CronJobs,
             description:
                 "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.",
             url: "/docs/panel/advanced/cronjobs/",
@@ -166,7 +188,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "DNS Zone Editor",
-            icon: Strapi,
+            icon: DNS,
             description:
                 "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.",
             url: "/docs/panel/domains/dns/",
@@ -174,7 +196,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Resource usage",
-            icon: Supabase,
+            icon: Usage,
             description:
                 "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
             url: "/docs/panel/analytics/resource_usage/",
@@ -182,7 +204,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Visitor reports",
-            icon: Hasura,
+            icon: Visitors,
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
             url: "/docs/panel/analytics/domain_visitors/",
@@ -190,7 +212,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Activity logs",
-            icon: Hasura,
+            icon: Activity,
             description:
                 "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
             url: "/docs/panel/analytics/account_activity/",
@@ -198,7 +220,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Account settings",
-            icon: Hasura,
+            icon: AccountCog,
             description:
                 "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.",
             url: "/docs/panel/account/",
@@ -208,7 +230,7 @@ export const integrations: IntegrationsType = {
     "community-data-provider-packages": [
         {
             name: "Simple server deployment",
-            icon: Directus,
+            icon: Download,
             description:
                 "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.",
             url: "/docs/admin/intro/#installation",
@@ -216,14 +238,14 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Resource usage management",
-            icon: Firebase,
+            icon: CPU,
             description: "Limit the CPU, I/O bandwidth, IOPS, nproc and memory on a per-user basis to ensure consistent performance for all your hosted websites.",
             url: "/",
             status: "stable",
         },
         {
             name: "Switch web servers",
-            icon: Hygraph,
+            icon: Bolt,
             description:
                 "Currently, only Nginx is supported as the webserver, but upcoming support for LiteSpeed will provide administrators the option to choose their preferred webserver.",
             url: "/",
@@ -231,7 +253,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Edit configuration",
-            icon: Sanity,
+            icon: Configuration,
             description:
                 "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.",
             url: "/docs/category/settings/",
@@ -239,7 +261,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Resource usage statistics",
-            icon: Elide,
+            icon: Usage,
             description:
                 "Monitor CPU and Memory usage, Network and load with real time monitoring.",
             url: "/docs/admin/dashboard/#cpu",
@@ -247,7 +269,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Service management",
-            icon: ElideGraphql,
+            icon: Services,
             description:
                 "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
             url: "/docs/admin/dashboard/#services-status",
@@ -255,7 +277,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Smart Notifications",
-            icon: EntRefine,
+            icon: Notifications,
             description:
                 "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
             url: "/docs/admin/notifications/",
@@ -263,7 +285,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Terminal Commands",
-            icon: EntRefine,
+            icon: Terminal,
             description:
                 "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
             url: "/docs/category/openpanel-cli/",
@@ -461,14 +483,14 @@ export const integrations: IntegrationsType = {
     "community-packages": [
         {
             name: "WHMCS Module",
-            icon: Dp,
+            icon: WHMCS,
             description: "Integrate with the leading web hosting management and billing software.",
             url: "https://community.openpanel.co/",
             status: "stable",
         },
         {
             name: "REST API",
-            icon: Kinde,
+            icon: API,
             description:
                 "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
             url: "/docs/admin/customize/api/",
