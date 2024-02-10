@@ -37,201 +37,149 @@ import {
 export const integrations: IntegrationsType = {
     "ui-framework-packages": [
         {
-            name: "Material UI",
+            name: "Nginx",
             icon: Mui,
             description:
-                "<strong>Material UI</strong> Framework support. 20+ framework-specific hooks and  components  incl. DataGrid (+ Pro), AutoComplete, Menu, Layout, Notification and CRUD components.",
-            url: "https://www.npmjs.com/package/@refinedev/mui",
+                "Run Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
+            url: "/docs/admin/",
             status: "stable",
         },
         {
-            name: "Ant Design",
+            name: "Apache",
             icon: Antd,
             description:
-                "<strong>Ant Design</strong> System UI Framework support. 20+ framework-specific <strong>hooks</strong> and  <strong>components</strong> incl. Table, Form, Select, Menu, Layout, Notification and CRUD components.",
-            url: "https://www.npmjs.com/package/@refinedev/antd",
-            status: "stable",
-        },
-        {
-            name: "Chakra UI",
-            icon: Chakra,
-            description:
-                " <strong>Chakra UI</strong> Framework support. 20+ framework-specific components incl. Layout, Feedback, and CRUD components.",
-            url: "https://www.npmjs.com/package/@refinedev/chakra-ui",
-            status: "stable",
-        },
-        {
-            name: "Mantine UI",
-            icon: Mantine,
-            description:
-                " <strong>Mantine UI</strong> Framework support. 20+ framework-specific hooks and components incl. Table, Form, AutoComplete, Menu, Layout, Notification and CRUD components.",
-            url: "https://www.npmjs.com/package/@refinedev/mantine",
+                "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.",
+            url: "/docs/admin/",
             status: "stable",
         },
     ],
     "data-provider-packages": [
         {
-            name: "REST API",
+            name: "PHP versions",
             icon: Rest,
             description:
-                "Connect any custom <strong>REST API</strong> backend.",
-            url: "https://www.npmjs.com/package/@refinedev/simple-rest",
+                "Users can use different PHP versions for each domain, install new versions, set a default version for new domains, change limits by editing php.ini files.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "GraphQL",
+            name: "WP Manager",
             icon: Graphql,
-            description: "Connect any custom <strong>GraphQL</strong> backend.",
-            url: "https://www.npmjs.com/package/@refinedev/graphql",
+            description: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "NestJsX CRUD",
+            name: "MySQL and phpMyAdmin",
             icon: Nest,
             description:
-                "Consume <strong>REST API's</strong> built with <strong>NestJs</strong>.",
-            url: "https://www.npmjs.com/package/@refinedev/nestjsx-crud",
+                "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "Strapi",
+            name: "SSH and Web Terminal",
             icon: Strapi,
             description:
-                "<strong>Strapi</strong> connector for <strong>v4 REST API</strong>.",
-            url: "https://www.npmjs.com/package/@refinedev/strapi",
+                "Access the terminal remotely through SSH or log in automatically to the Web Terminal. Comes with preinstalled WPCLI and NPM for added convenience!",
+            url: "/",
             status: "stable",
         },
         {
-            name: "Supabase",
+            name: "Resource usage",
             icon: Supabase,
             description:
-                "<strong>Supabase</strong> data provider. Supports <strong>Supabase Realtime</strong> for <strong>live/realtime</strong> projects.",
-            url: "https://www.npmjs.com/package/@refinedev/supabase",
+                "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "Hasura GraphQL",
+            name: "Visitor reports",
             icon: Hasura,
             description:
-                "<strong>Hasura GraphQL</strong> data provider. Supports <strong>GraphQL Subscriptions</strong> for <strong>live/realtime</strong> projects.",
-            url: "https://www.npmjs.com/package/@refinedev/hasura",
+                "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "Nestjs-Query",
+            name: "Advanced Search",
             icon: NestQuery,
             description:
-                "Consume <strong>GraphQL API's</strong> built with <strong>Nestjs-Query</strong>.",
-            url: "https://www.npmjs.com/package/@refinedev/nestjs-query",
+                "Quickly and easily find what you are looking for with a powerful search functionality.",
+            url: "",
             status: "stable",
         },
         {
-            name: "Appwrite",
+            name: "Multi-language support",
             icon: Appwrite,
             description:
-                " Appwrite data provider. Supports <strong>Appwrite Realtime</strong> for <strong>live/realtime</strong> projects.",
-            url: "https://www.npmjs.com/package/@refinedev/appwrite",
+                "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
+            url: "",
             status: "stable",
         },
         {
-            name: "Airtable",
+            name: "Branding",
             icon: Airtable,
-            description: "Use <strong>Airtable</strong> as backend service.",
-            url: "https://www.npmjs.com/package/@refinedev/airtable",
+            description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "Medusa",
+            name: "Fully responsive",
             icon: Medusa,
             description:
-                "<strong>Medusa</strong> connector for your e-commerce projects.",
-            url: "https://www.npmjs.com/package/@refinedev/medusa",
+                "Access OpenPanel on desktop, tablet and mobile without any feature limitations.",
+            url: "/link",
             status: "stable",
         },
     ],
     "community-data-provider-packages": [
         {
-            name: "Directus Data Provider",
+            name: "Simple server deployment",
             icon: Directus,
             description:
-                "Connector for backends created with <strong>Directus</strong>",
-            url: "https://www.npmjs.com/package/@tspvivek/refine-directus",
+                "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "tspvivek",
-                    url: "https://github.com/tspvivek",
-                },
-            ],
         },
         {
-            name: "Firebase Data Provider",
+            name: "Resource usage management",
             icon: Firebase,
-            description: "Support for <strong>Firebase</strong> services.",
-            url: "https://www.npmjs.com/package/refine-firebase",
+            description: "Limit the CPU, I/O bandwidth, IOPS, nproc and memory on a per-user basis to ensure consistent performance for all your hosted websites.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "rturan29",
-                    url: "https://github.com/resulturan",
-                },
-            ],
         },
         {
-            name: "Hygraph Data Provider",
+            name: "Switch web servers",
             icon: Hygraph,
             description:
-                "Connector for backends created with <strong>Hygraph</strong> (GraphQL)",
-            url: "https://github.com/acomagu/refine-hygraph",
+                "Currently, only Nginx is supported as the webserver, but upcoming support for LiteSpeed will provide administrators the option to choose their preferred webserver.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "acomagu",
-                    url: "https://github.com/acomagu",
-                },
-            ],
         },
         {
-            name: "Sanity Data Provider",
+            name: "Dedicated IP address",
             icon: Sanity,
             description:
-                "Connector for backends created with <strong>Sanity</strong>",
-            url: "https://github.com/hirenf14/refine-sanity",
+                "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "hirenf14",
-                    url: "https://github.com/hirenf14/refine-sanity",
-                },
-            ],
         },
         {
-            name: "Elide Data Provider",
+            name: "Resource usage statistics",
             icon: Elide,
             description:
-                "Connector for backends created with <strong>Elide</strong>",
-            url: "https://github.com/chirdeeptomar/refine-elide-rest",
+                "Monitor CPU and Memory usage, Network and load with real time monitoring.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "chirdeeptomar",
-                    url: "https://github.com/chirdeeptomar",
-                },
-            ],
         },
         {
-            name: "Elide GraphQL Data Provider",
+            name: "Service management",
             icon: ElideGraphql,
             description:
-                "Connector for GraphQL backends created with <strong>Elide</strong>",
-            url: "https://github.com/chirdeeptomar/refine-elide-graphql",
+                "monitor services, restart, view logs, and more.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "chirdeeptomar",
-                    url: "https://github.com/chirdeeptomar",
-                },
-            ],
         },
         {
             name: "Ent refine",
@@ -308,66 +256,102 @@ export const integrations: IntegrationsType = {
     ],
     integrations: [
         {
-            name: "React Table",
+            name: "Suspend / Delete accounts",
             icon: React,
             description:
-                "<strong>React Table</strong> integration. Powerful tables & datagrids for your <strong>headless</strong> projects.",
+                "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.",
             url: "https://www.npmjs.com/package/@refinedev/react-table",
             status: "stable",
         },
         {
-            name: "React Hook Form",
+            name: "Upgrade / Downgrade package",
             icon: HookForm,
             description:
-                "<strong>React Hook Form</strong> integration. Extensible forms and validation for your projects.",
-            url: "https://www.npmjs.com/package/@refinedev/react-hook-form",
+                "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "kbar interface",
+            name: "Impersonation",
             icon: Kbar,
-            description: "Add command / crtrl+k interfaces to your project.",
-            url: "https://www.npmjs.com/package/@refinedev/kbar",
+            description: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.",
+            url: "/",
             status: "stable",
         },
     ],
     "live-providers": [
         {
-            name: "Ably Live Provider",
+            name: "User containerisation",
             icon: Ably,
             description:
-                "<strong>Ably</strong> support for for <strong>live/realtime</strong> projects.",
-            url: "https://www.npmjs.com/package/@refinedev/ably",
+                "Every user account is containerised. Containers have no access to other users or server files.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Resource limiting",
+            icon: Ably,
+            description:
+                "Administrators have the ability to set specific limits per plan, including port speed, disk usage, inodes, the number of websites, MySQL databases, and domains.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "SSL / TLS",
+            icon: Ably,
+            description:
+                "Automatically provision Let's Encrypt certificates. Users can generate new certificates and seamlessly redirect all website traffic to HTTPS.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "ModSecurity",
+            icon: Ably,
+            description:
+                "Administrators can activate ModSecurity with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable ModSecurity per domain.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "IP blocking",
+            icon: Ably,
+            description:
+                "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Disable admin panel",
+            icon: Ably,
+            description:
+                "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Separate services",
+            icon: Ably,
+            description:
+                "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.",
+            url: "/",
             status: "stable",
         },
     ],
     "community-packages": [
         {
-            name: "DP Customizer",
+            name: "WHMCS Module",
             icon: Dp,
-            description: " Mix & match different data providers",
+            description: "Integrate with the leading web hosting management and billing software.",
             url: "https://www.npmjs.com/package/data-provider-customizer",
             status: "stable",
-            contributors: [
-                {
-                    name: "umutzd",
-                    url: "https://github.com/umutzd",
-                },
-            ],
         },
         {
-            name: "Kinde Auth Provider",
+            name: "REST API",
             icon: Kinde,
             description:
-                "Auth provider for Refine to integrate <strong>Kinde</strong> authentication",
-            url: "https://github.com/hirenf14/refine-auth-kinde-react",
+                "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "hirenf14",
-                    url: "https://github.com/hirenf14/refine-auth-kinde-react",
-                },
-            ],
         },
     ],
 };

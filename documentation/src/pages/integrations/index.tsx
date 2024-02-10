@@ -115,13 +115,13 @@ const Integrations: React.FC = () => {
             <Title className="mt-20">Backups</Title>
             <List data={frameworks} />
 
-            <Title className="mt-20">Databases</Title>
+            <Title className="mt-20">User management</Title>
             <List data={integrations} />
 
             <Title className="mt-20">Security</Title>
             <List data={liveProviders} />
 
-            <Title className="mt-20">Integrations</Title>
+            <Title className="mt-20">Integrations (Soon)</Title>
             <List data={communityPackages} />
         </IntegrationsLayout>
     );
