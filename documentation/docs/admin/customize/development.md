@@ -19,8 +19,7 @@ Stay tuned for the upcoming addition of our Module Development Guide, providing 
 
 ### Custom CSS
 
-To add custom CSS code to OpenPanel interface, edit file `/usr/local/panel/templates/custom_code/in_header.html` and put your custom code inside. Please note 
-
+To add custom CSS code to the OpenPanel interface, edit the file `/usr/local/panel/templates/custom_code/custom.css`.
 
 ```bash
 nano /usr/local/panel/templates/custom_code/custom.css
@@ -28,7 +27,7 @@ nano /usr/local/panel/templates/custom_code/custom.css
 
 ### Custom JS
 
-
+To add custom JavaScript code to the OpenPanel interface, edit the file `/usr/local/panel/templates/custom_code/custom.js`.
 ```bash
 nano /usr/local/panel/templates/custom_code/custom.js
 ```
