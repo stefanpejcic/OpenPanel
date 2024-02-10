@@ -63,6 +63,14 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "NodeJS and Python",
+            icon: Rest,
+            description:
+                "Effortlessly create and manage NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
+            url: "/",
+            status: "stable",
+        },
+        {
             name: "WP Manager",
             icon: Graphql,
             description: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.",
@@ -99,37 +107,6 @@ export const integrations: IntegrationsType = {
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
             url: "/",
-            status: "stable",
-        },
-        {
-            name: "Advanced Search",
-            icon: NestQuery,
-            description:
-                "Quickly and easily find what you are looking for with a powerful search functionality.",
-            url: "",
-            status: "stable",
-        },
-        {
-            name: "Multi-language support",
-            icon: Appwrite,
-            description:
-                "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
-            url: "",
-            status: "stable",
-        },
-        {
-            name: "Branding",
-            icon: Airtable,
-            description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
-            url: "/",
-            status: "stable",
-        },
-        {
-            name: "Fully responsive",
-            icon: Medusa,
-            description:
-                "Access OpenPanel on desktop, tablet and mobile without any feature limitations.",
-            url: "/link",
             status: "stable",
         },
     ],
@@ -177,80 +154,49 @@ export const integrations: IntegrationsType = {
             name: "Service management",
             icon: ElideGraphql,
             description:
-                "monitor services, restart, view logs, and more.",
+                "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
             url: "/",
             status: "stable",
         },
         {
-            name: "Ent refine",
+            name: "Smart Notifications",
             icon: EntRefine,
             description:
-                "A library that generates fully customizable UI based on Entgo ORM and GraphQL API with Refine.",
-            url: "https://github.com/diazoxide/entrefine",
+                "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
+            url: "/",
             status: "stable",
-            contributors: [
-                {
-                    name: "diazoxide",
-                    url: "https://github.com/diazoxide",
-                },
-            ],
-        },
-        {
-            name: "useGenerated Data Provider",
-            icon: UseGenerated,
-            description:
-                "Connector for backends created with <strong>useGenerated</strong> (GraphQL)",
-            url: "https://github.com/usegen/refine-use-generated",
-            status: "stable",
-            contributors: [
-                {
-                    name: "usegen",
-                    url: "https://github.com/usegen",
-                },
-            ],
-        },
-        {
-            name: "SQLite Data Provider",
-            icon: SQLite,
-            description:
-                "Connector for backends created with <strong>SQLite</strong>",
-            url: "https://github.com/mateusabelli/refine-sqlite",
-            status: "stable",
-            contributors: [
-                {
-                    name: "mateusabelli",
-                    url: "https://github.com/mateusabelli",
-                },
-            ],
-        },
-        {
-            name: "JSON:API Data Provider",
-            icon: JSONApi,
-            description:
-                "Connector for backends created with <strong>JSON:API</strong>",
-            url: "https://github.com/mahirmahdi/refine-jsonapi",
-            status: "stable",
-            contributors: [
-                {
-                    name: "mahirmahdi",
-                    url: "https://github.com/mahirmahdi",
-                },
-            ],
         },
     ],
     frameworks: [
         {
-            name: "Next.js",
-            icon: Nextjs,
-            description: "Router Provider for <strong>Next.js</strong>",
-            url: "https://www.npmjs.com/package/@refinedev/nextjs-router",
+            name: "Branding",
+            icon: Airtable,
+            description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
+            url: "/",
             status: "stable",
         },
         {
-            name: "Remix",
-            icon: Remix,
-            description: "Router Provider for <strong>Remix</strong>",
-            url: "https://www.npmjs.com/package/@refinedev/remix-router",
+            name: "Fully responsive",
+            icon: Medusa,
+            description:
+                "Access OpenPanel on desktop, tablet and mobile without any feature limitations.",
+            url: "/link",
+            status: "stable",
+        },
+        {
+            name: "Advanced Search",
+            icon: NestQuery,
+            description:
+                "Quickly and easily find what you are looking for with a powerful search functionality.",
+            url: "",
+            status: "stable",
+        },
+        {
+            name: "Multi-language support",
+            icon: Appwrite,
+            description:
+                "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
+            url: "",
             status: "stable",
         },
     ],
@@ -309,6 +255,14 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Administrators can activate ModSecurity with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable ModSecurity per domain.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Firewall",
+            icon: Ably,
+            description:
+                "Administrators can manage (UFW) firewall rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/",
             status: "stable",
         },

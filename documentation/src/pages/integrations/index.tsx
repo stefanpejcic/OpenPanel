@@ -104,7 +104,7 @@ const Integrations: React.FC = () => {
             <Title>Web servers</Title>
             <List data={uiPackages} />
 
-            <Title className="mt-20">User interface</Title>
+            <Title className="mt-20">User services</Title>
             <List data={dataProviderPackages} />
 
             <Title className="mt-20">
@@ -112,7 +112,7 @@ const Integrations: React.FC = () => {
             </Title>
             <List data={communityDataProviderPackages} />
 
-            <Title className="mt-20">Backups</Title>
+            <Title className="mt-20">User interface</Title>
             <List data={frameworks} />
 
             <Title className="mt-20">User management</Title>
