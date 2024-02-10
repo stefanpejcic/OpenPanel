@@ -4,6 +4,10 @@ sidebar_position: 9
 
 # API
 
+:::danger
+THIS FEATURE IS STILL EXPERIMENTAL AND NOT YET PRODUCTION READY!
+:::
+
 ## Basic Authentication
 
 OpenPanel API uses JWT tokens for authentication.
