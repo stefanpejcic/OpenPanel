@@ -23,8 +23,9 @@ Explore OpenAdmin & OpenPanel® with no strings attached.
                         {/* First Column */}
                         <div className="w-1/2 pr-4">
                             <a href="https://demo.openpanel.co/openapanel/" target="_blank" rel="noopener noreferrer">
-                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" />
                                 <h2>OpenPanel Demo</h2>
+                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" />
+                                
                             </a>
 
 <p>
@@ -36,8 +37,9 @@ If you are a website owner, then we recommend interacting with the OpenPanel int
                         {/* Second Column */}
                         <div className="w-1/2 pl-4">
                             <a href="https://demo.openpanel.co/openadmin/" target="_blank" rel="noopener noreferrer">
-                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" />
                                 <h2>OpenAdmin Demo</h2>
+                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" />
+                                
                             </a>
 <p>
 If you are a web host, then we recommend interacting with the OpenAdmin interface. This is where you can run and maintain your server.
