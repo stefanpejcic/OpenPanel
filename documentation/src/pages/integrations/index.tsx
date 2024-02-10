@@ -80,7 +80,7 @@ const Integrations: React.FC = () => {
                         "text-xl sm:text-[40px] sm:leading-[56px]",
                     )}
                 >
-                    Seamless integration with your existing ecosystem.
+		The features you need to build exactly what you want.
                 </div>
                 <div
                     className={clsx(
@@ -90,8 +90,7 @@ const Integrations: React.FC = () => {
                         "mt-4 sm:mt-8",
                     )}
                 >
-                    List of packages to extend your Refine project with UI
-                    frameworks, backend connectors and other powerful tools.
+		Tailored for today's hosts, OpenPanel provides a comprehensive set of tools and features you need to build and scale a cluster to meet your needs.
                 </div>
             </div>
 
@@ -102,27 +101,27 @@ const Integrations: React.FC = () => {
                 )}
             />
 
-            <Title>UI Framework Packages</Title>
+            <Title>Web servers</Title>
             <List data={uiPackages} />
 
-            <Title className="mt-20">Data Provider Packages</Title>
+            <Title className="mt-20">User interface</Title>
             <List data={dataProviderPackages} />
 
             <Title className="mt-20">
-                Data Provider Packages by the Community ❤️
+                Server management
             </Title>
             <List data={communityDataProviderPackages} />
 
-            <Title className="mt-20">Frameworks</Title>
+            <Title className="mt-20">Backups</Title>
             <List data={frameworks} />
 
-            <Title className="mt-20">Integrations</Title>
+            <Title className="mt-20">Databases</Title>
             <List data={integrations} />
 
-            <Title className="mt-20">Live Providers</Title>
+            <Title className="mt-20">Security</Title>
             <List data={liveProviders} />
 
-            <Title className="mt-20">Community Packages</Title>
+            <Title className="mt-20">Integrations</Title>
             <List data={communityPackages} />
         </IntegrationsLayout>
     );
