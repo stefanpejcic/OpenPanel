@@ -13,10 +13,14 @@ const SvgKeyboard = (props: SVGProps<SVGSVGElement>) => (
         xmlns="http://www.w3.org/2000/svg"
         {...props}
     >
-  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-  <path d="M20 11v-2a2 2 0 0 0 -2 -2h-12a2 2 0 0 0 -2 2v5a2 2 0 0 0 2 2h5" />
-  <path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
-  <path d="M20.2 20.2l1.8 1.8" />
+  <path d="M2 6m0 2a2 2 0 0 1 2 -2h16a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2z" />
+  <path d="M6 10l0 .01" />
+  <path d="M10 10l0 .01" />
+  <path d="M14 10l0 .01" />
+  <path d="M18 10l0 .01" />
+  <path d="M6 14l0 .01" />
+  <path d="M18 14l0 .01" />
+  <path d="M10 14l4 .01" />
 </svg>
 );
 

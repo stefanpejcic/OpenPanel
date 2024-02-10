@@ -12,6 +12,17 @@ import {
     UserServer,
     UserIP,
     UserLogin,
+    Firewall,
+    SSL,
+    ModSec,
+    Factor,
+    CPU,
+    Box,
+    IPblock,
+    Terminal,
+    AdminOff,
+    Ports,
+    Separate,
     Airtable,
     Antd,
     Ably,
@@ -131,7 +142,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "SSH and Web Terminal",
-            icon: Strapi,
+            icon: Terminal,
             description:
                 "Access the terminal remotely through SSH or log in automatically to the Web Terminal. Comes with preinstalled WPCLI and NPM for added convenience!",
             url: "/docs/panel/advanced/ssh/",
@@ -360,7 +371,7 @@ export const integrations: IntegrationsType = {
     "live-providers": [
         {
             name: "User containerisation",
-            icon: Ably,
+            icon: Box,
             description:
                 "Every user account is containerised. Containers have no access to other users or server files.",
             url: "/docs/panel/intro/",
@@ -368,7 +379,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Resource limiting",
-            icon: Ably,
+            icon: CPU,
             description:
                 "Administrators have the ability to set specific limits per plan, including port speed, disk usage, inodes, the number of websites, MySQL databases, and domains.",
             url: "/docs/admin/plans/hosting_plans/#create-a-plan",
@@ -376,7 +387,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "SSL / TLS",
-            icon: Ably,
+            icon: SSL,
             description:
                 "Automatically provision Let's Encrypt certificates. Users can generate new certificates and seamlessly redirect all website traffic to HTTPS.",
             url: "/docs/panel/domains/SSL/",
@@ -384,7 +395,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "ModSecurity",
-            icon: Ably,
+            icon: ModSec,
             description:
                 "Administrators can activate ModSecurity with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable ModSecurity per domain.",
             url: "/docs/admin/settings/waf/",
@@ -392,7 +403,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Firewall",
-            icon: Ably,
+            icon: Firewall,
             description:
                 "Administrators can manage (UFW) firewall rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/docs/admin/settings/firewall/",
@@ -400,7 +411,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Two-Factor Authentication",
-            icon: Ably,
+            icon: Factor,
             description:
                 "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.",
             url: "/docs/panel/account/2fa/",
@@ -408,7 +419,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Limited shell access",
-            icon: Ably,
+            icon: Terminal,
             description:
                 "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
             url: "/docs/panel/advanced/ssh/",
@@ -416,7 +427,7 @@ export const integrations: IntegrationsType = {
         }, 
         {
             name: "IP blocking",
-            icon: Ably,
+            icon: IPblock,
             description:
                 "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
             url: "",
@@ -424,7 +435,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Disable admin panel",
-            icon: Ably,
+            icon: AdminOff,
             description:
                 "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
             url: "/docs/admin/settings/adminpanel/#enable-features",
@@ -432,7 +443,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Separate services",
-            icon: Ably,
+            icon: Separate,
             description:
                 "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.",
             url: "",
@@ -440,7 +451,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Custom ports",
-            icon: Ably,
+            icon: Ports,
             description:
                 "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
             url: "/docs/admin/settings/openpanel/",
