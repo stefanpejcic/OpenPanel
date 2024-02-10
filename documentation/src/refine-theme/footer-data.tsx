@@ -41,7 +41,7 @@ export const menuItems = [
             },
             {
                 label: "Features",
-                href: "/integrations",
+                href: "/features",
             },
         ],
     },
