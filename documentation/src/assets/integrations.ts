@@ -438,12 +438,14 @@ export const integrations: IntegrationsType = {
     "community-packages": [
         {
             name: "WHMCS Module",
+            icon: Dp,
             description: "Integrate with the leading web hosting management and billing software.",
             url: "https://community.openpanel.co/",
             status: "stable",
         },
         {
             name: "REST API",
+            icon: Kinde,
             description:
                 "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
             url: "/docs/admin/customize/api/",

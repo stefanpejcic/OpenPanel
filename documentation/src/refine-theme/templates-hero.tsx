@@ -42,7 +42,7 @@ export const TemplatesHero: FC<Props> = ({ className }) => {
                 )}
             >
                 <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                    OpenPanel{" "}
+                    Open{" "}
                 </span>
                 <span
                     className={clsx(
@@ -51,7 +51,7 @@ export const TemplatesHero: FC<Props> = ({ className }) => {
                         "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                     )}
                 >
-                    Products
+                    Panel
                 </span>
             </h2>
             <p
@@ -61,10 +61,7 @@ export const TemplatesHero: FC<Props> = ({ className }) => {
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Explore a range of pre-designed Refine templates, perfect for
-                everything from admin panels to dashboards and CRMs. Easily
-                integrate these templates with your data sources and begin
-                customizing to jumpstart your projects.
+		OpenPanel offers a suite of products leveraging modern, lightweight, and proven technologies to ensure  high-performance for website owners and hosting providers.
             </p>
         </div>
     );
