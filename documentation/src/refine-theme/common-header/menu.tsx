@@ -7,7 +7,6 @@ import {
     GithubStarIcon,
     GithubIcon,
     DiscordIcon,
-    RedditIcon,
 } from "../icons/popover";
 import { MenuItem } from "./menu-item";
 import { NavbarItem } from "./navbar-item";
@@ -107,9 +106,6 @@ export const Menu: React.FC = () => {
                                             </Link>
                                             <Link to="https://discord.com/invite/7bNY8fANqF">
                                                 <DiscordIcon />
-                                            </Link>
-                                            <Link to="https://www.reddit.com/r/openpanelco/">
-                                                <RedditIcon />
                                             </Link>
                                         </div>
                                     </div>
