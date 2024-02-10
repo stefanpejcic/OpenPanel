@@ -1,8 +1,12 @@
 import { IntegrationsType } from "../types/integrations";
 import {
-    Ably,
+    Search,
     Languages,
+    Keyboard,
     Dark,
+    ServerInfo,
+    Responsive,
+    Branding
     Airtable,
     Antd,
     Appwrite,
@@ -252,14 +256,14 @@ export const integrations: IntegrationsType = {
     frameworks: [
         {
             name: "Branding",
-            icon: Airtable,
+            icon: Branding,
             description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
             url: "/docs/admin/settings/openpanel/#branding",
             status: "stable",
         },
         {
             name: "Fully responsive",
-            icon: Medusa,
+            icon: Responsive,
             description:
                 "Access OpenPanel on desktop, tablet and mobile without any feature limitations.",
             url: "",
@@ -275,7 +279,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Server Info",
-            icon: NestQuery,
+            icon: ServerInfo,
             description:
                 "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.",
             url: "/docs/panel/dashboard",
@@ -283,7 +287,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Advanced Search",
-            icon: NestQuery,
+            icon: Search,
             description:
                 "Quickly and easily find what you are looking for with a powerful search functionality.",
             url: "/docs/panel/dashboard",
@@ -299,7 +303,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Keyboard Shortcuts",
-            icon: Appwrite,
+            icon: Keyboard,
             description:
                 "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.",
             url: "/docs/panel/dashboard/#keyboard-shortcuts",
