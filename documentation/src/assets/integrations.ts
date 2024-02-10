@@ -55,6 +55,22 @@ export const integrations: IntegrationsType = {
     ],
     "data-provider-packages": [
         {
+            name: "Domain Names",
+            icon: Rest,
+            description:
+                "Add domain names with automatic SSL renewals, include aliases and subdomains (Internationalized domains are supported), create redirects, enforce HTTPS, and edit vhost files.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "File Manager",
+            icon: Rest,
+            description:
+                "Effortlessly upload multiple files simultaneously without any upload limits. Edit files, adjust permissions, copy or move files, add new files, and perform various file management tasks.",
+            url: "/",
+            status: "stable",
+        },
+        {
             name: "PHP versions",
             icon: Rest,
             description:
@@ -94,6 +110,30 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "Server settings",
+            icon: Strapi,
+            description:
+                "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Cron Jobs",
+            icon: Strapi,
+            description:
+                "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "DNS Zone Editor",
+            icon: Strapi,
+            description:
+                "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.",
+            url: "/",
+            status: "stable",
+        },
+        {
             name: "Resource usage",
             icon: Supabase,
             description:
@@ -106,6 +146,14 @@ export const integrations: IntegrationsType = {
             icon: Hasura,
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Activity logs",
+            icon: Hasura,
+            description:
+                "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
             url: "/",
             status: "stable",
         },
@@ -224,6 +272,14 @@ export const integrations: IntegrationsType = {
             url: "/",
             status: "stable",
         },
+        {
+            name: "Apache or nginx per user",
+            icon: React,
+            description:
+                "Administrators can select either Apache or Nginx as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+            url: "/",
+            status: "stable",
+        },
     ],
     "live-providers": [
         {
@@ -266,6 +322,22 @@ export const integrations: IntegrationsType = {
             url: "/",
             status: "stable",
         },
+        {
+            name: "Two-Factor Authentication",
+            icon: Ably,
+            description:
+                "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Limited shell access",
+            icon: Ably,
+            description:
+                "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
+            url: "/",
+            status: "stable",
+        }, 
         {
             name: "IP blocking",
             icon: Ably,
