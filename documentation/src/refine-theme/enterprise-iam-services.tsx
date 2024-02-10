@@ -44,7 +44,7 @@ export const EnterpriseIAMServices = ({
                         "font-semibold",
                     )}
                 >
-                    Support for 50+ CMS platforms and technologies
+                   Run your favorite Applications and Services!
                 </h2>
                 <p
                     className={clsx(
@@ -53,15 +53,7 @@ export const EnterpriseIAMServices = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Official packages tailored for your organization&apos;s
-                    chosen{" "}
-                    <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        identity and access management providers
-                    </span>
-                    . These modules eliminate the need for days of manual work
-                    in developing custom authentication providers, allowing you
-                    to seamlessly integrate your application while following all
-                    security best practices.
+                    We support all your favorite applications and frameworks without any additional configuration.
                 </p>
             </div>
 
@@ -233,49 +225,49 @@ const PackageItem = (props: {
 const list = [
     {
         icon: (props: SVGProps<SVGSVGElement>) => <AwsCognito {...props} />,
-        label: "AWS Cognito",
+        label: "WordPress",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Auth0 {...props} />,
-        label: "Auth0",
+        label: "Magento",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => (
             <AzureActiveDirectory {...props} />
         ),
-        label: "Azure Active Directory",
+        label: "Joomla",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Okta {...props} />,
-        label: "Okta",
+        label: "Drupal",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Clerk {...props} />,
-        label: "Clerk",
+        label: "Laravel",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Atlassian {...props} />,
-        label: "Atlassian",
+        label: "NextCloud",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Google {...props} />,
-        label: "Google Auth",
+        label: "PrestaShop",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <AuthJs {...props} />,
-        label: "Auth.js",
+        label: "Nuxt.js",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Expo {...props} />,
-        label: "Expo",
+        label: "Gridsome",
         tooltip: null,
     },
 ] as const;
