@@ -14,7 +14,41 @@ Stay tuned for the upcoming addition of our Module Development Guide, providing 
 
 
 
-## Running Custom Code
+## Custom Code
+
+
+### Custom CSS
+
+To add custom CSS code to OpenPanel interface, edit file `/usr/local/panel/templates/custom_code/in_header.html` and put your custom code inside. Please note 
+
+
+```bash
+nano /usr/local/panel/templates/custom_code/custom.css
+```
+
+### Custom JS
+
+
+```bash
+nano /usr/local/panel/templates/custom_code/custom.js
+```
+
+### Code in Header
+
+To insert custom code within the `<head>` tag of the OpenPanel interface, modify the content of the file located at `/usr/local/panel/templates/custom_code/in_header.html` and include your custom code within it.
+
+```bash
+nano /usr/local/panel/templates/custom_code/in_header.html
+```
+
+### Code in Footer
+
+To insert custom code within the `<footer>` tag of the OpenPanel interface, modify the content of the file located at `/usr/local/panel/templates/custom_code/in_footer.html` and include your custom code within it.
+
+```bash
+nano /usr/local/panel/templates/custom_code/in_footer.html
+```
+
 
 ### Run custom code on OpenPanel installation
 
