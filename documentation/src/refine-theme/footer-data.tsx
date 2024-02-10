@@ -10,12 +10,16 @@ export const menuItems = [
         label: "Resources",
         items: [
             {
-                label: "Getting Started",
+                label: "Documentation",
                 href: "/docs/admin/intro/",
             },
             {
                 label: "Support Forums",
                 href: "https://community.openpanel.co/",
+            },
+            {
+                label: "Roadmap",
+                href: "https://github.com/stefanpejcic/openpanel/milestones",
             },
             {
                 label: "Changelog",
