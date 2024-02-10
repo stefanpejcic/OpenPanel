@@ -7,7 +7,7 @@ import {
     GithubStarIcon,
     GithubIcon,
     DiscordIcon,
-    TwitterIcon,
+    RedditIcon,
 } from "../icons/popover";
 import { MenuItem } from "./menu-item";
 import { NavbarItem } from "./navbar-item";
@@ -105,11 +105,11 @@ export const Menu: React.FC = () => {
                                             >
                                                 <GithubIcon className="dark:text-gray-400 text-gray-500" />
                                             </Link>
-                                            <Link to="https://discord.com/">
+                                            <Link to="https://discord.com/invite/7bNY8fANqF">
                                                 <DiscordIcon />
                                             </Link>
-                                            <Link to="https://twitter.com/">
-                                                <TwitterIcon />
+                                            <Link to="https://www.reddit.com/r/openpanelco/">
+                                                <RedditIcon />
                                             </Link>
                                         </div>
                                     </div>
