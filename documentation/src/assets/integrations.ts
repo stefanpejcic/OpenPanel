@@ -7,6 +7,11 @@ import {
     ServerInfo,
     Responsive,
     Branding
+    Suspend,
+    Upgrade,
+    UserServer,
+    UserIP,
+    UserLogin,
     Airtable,
     Antd,
     Appwrite,
@@ -313,7 +318,7 @@ export const integrations: IntegrationsType = {
     integrations: [
         {
             name: "Suspend / Delete accounts",
-            icon: React,
+            icon: Suspend,
             description:
                 "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.",
             url: "/docs/admin/users/openpanel/#suspend-user",
@@ -321,7 +326,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Upgrade / Downgrade package",
-            icon: HookForm,
+            icon: Upgrade,
             description:
                 "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
             url: "/docs/admin/users/openpanel/#detailed-user-information",
@@ -329,7 +334,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Dedicated IP address",
-            icon: Sanity,
+            icon: UserIP,
             description:
                 "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
             url: "/docs/admin/users/openpanel/#change-ip-address-for-user",
@@ -337,14 +342,14 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Impersonation",
-            icon: Kbar,
+            icon: UserLogin,
             description: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.",
             url: "/docs/admin/users/openpanel/#detailed-user-information",
             status: "stable",
         },
         {
             name: "Apache or Nginx per user",
-            icon: React,
+            icon: UserServer,
             description:
                 "Administrators can select either Apache or Nginx as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
             url: "/docs/admin/plans/hosting_plans/#create-a-plan",
