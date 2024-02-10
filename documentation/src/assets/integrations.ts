@@ -102,6 +102,22 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "SSL certificates",
+            icon: Strapi,
+            description:
+                "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Object Caching",
+            icon: Strapi,
+            description:
+                "Implement object caching using dedicated REDIS and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
+            url: "/",
+            status: "stable",
+        },
+        {
             name: "SSH and Web Terminal",
             icon: Strapi,
             description:
@@ -157,6 +173,14 @@ export const integrations: IntegrationsType = {
             url: "/",
             status: "stable",
         },
+        {
+            name: "Account settings",
+            icon: Hasura,
+            description:
+                "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.",
+            url: "/",
+            status: "stable",
+        },
     ],
     "community-data-provider-packages": [
         {
@@ -183,10 +207,10 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
-            name: "Dedicated IP address",
+            name: "Edit configuration",
             icon: Sanity,
             description:
-                "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
+                "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.",
             url: "/",
             status: "stable",
         },
@@ -232,6 +256,14 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "Dark Mode",
+            icon: Appwrite,
+            description:
+                "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
+            url: "",
+            status: "stable",
+        },
+        {
             name: "Advanced Search",
             icon: NestQuery,
             description:
@@ -262,6 +294,14 @@ export const integrations: IntegrationsType = {
             icon: HookForm,
             description:
                 "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Dedicated IP address",
+            icon: Sanity,
+            description:
+                "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
             url: "/",
             status: "stable",
         },
@@ -359,6 +399,14 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.",
+            url: "/",
+            status: "stable",
+        },
+        {
+            name: "Custom ports",
+            icon: Ably,
+            description:
+                "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
             url: "/",
             status: "stable",
         },
