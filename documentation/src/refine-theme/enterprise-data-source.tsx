@@ -32,9 +32,9 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        Integrate{" "}
+                        Technology Stack {" "}
                     </span>
-                    with any data source.
+                    for the modern Web
                 </h2>
             </div>
 
@@ -72,15 +72,15 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            Built-in integrations
+                            OpenAdmin Stack
                         </h2>
                         <p
                             className={clsx(
                                 "text-base",
                                 "dark:text-gray-400 text-gray-600",
                             )}
-                        >
-                            15+ native providers incl. GraphQL & Rest API&apos;s
+                        >    
+			We use modern, lightweight, proven technologies to deliver high-performance.
                         </p>
                     </div>
                     <div
@@ -131,7 +131,7 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            Direct database access
+                            OpenPanel Stack
                         </h2>
                         <p
                             className={clsx(
@@ -139,11 +139,7 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Built-in tools for automatic generation of APIs to
-                            connect RDS and NoSQL data sources. Create proxy
-                            APIs instantly using database introspection,
-                            ensuring 100% compatibility with the Refine
-                            front-end.
+                              Get all the latest web technologies under one stack to run any applications at the highest performance. 
                         </p>
                     </div>
                     <div
@@ -315,27 +311,27 @@ const PackageItem = (props: {
 const list1 = [
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Nest {...props} />,
-        label: "NestJS",
+        label: "Nginx",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Strapi {...props} />,
-        label: "Strapi",
+        label: "MySQL",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Supabase {...props} />,
-        label: "Supabase",
+        label: "Docker",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Hasura {...props} />,
-        label: "Hasura",
+        label: "UFW",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Airtable {...props} />,
-        label: "Airtable",
+        label: "Named",
         tooltip: null,
     },
 ] as const;
@@ -343,12 +339,12 @@ const list1 = [
 const list2 = [
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Oracle {...props} />,
-        label: "Oracle",
+        label: "PHP",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <PostgreSql {...props} />,
-        label: "PostgreSQL",
+        label: "NodeJS",
         tooltip: null,
     },
     {
@@ -358,17 +354,42 @@ const list2 = [
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <SQLite {...props} />,
-        label: "SQLite",
+        label: "Apache",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <MsSqlServer {...props} />,
-        label: "MS SQL Server",
+        label: "Nginx",
         tooltip: null,
     },
     {
         icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
-        label: "Mongo DB",
+        label: "REDIS",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        label: "Memcached",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        label: "Elasticsearch",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        label: "phpMyAdmin",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        label: "WP Manager",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        label: "SSH",
         tooltip: null,
     },
 ] as const;

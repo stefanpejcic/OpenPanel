@@ -30,7 +30,7 @@ export const TemplatesHero: FC<Props> = ({ className }) => {
                 )}
                 srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/templates/templates-hero-dark.png"
                 srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/templates/templates-hero-light.png"
-                alt="Refine Templates"
+                alt="OpenPanel Products"
             />
             <h2
                 className={clsx(
