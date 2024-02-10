@@ -31,11 +31,15 @@ const PrivacyPolicy: React.FC = () => {
                                 
                     <h3>Step 2a: Open a support ticket (Enterprise Edition)</h3>
                     <p>If you need fast and reliable support, open a premium ticket by sending us a new ticket.</p>
-                    <p><a href="mailto:info@openpanel.co">Submit a ticket</a></p>
+                    <ul>
+                        <li><a href="mailto:info@openpanel.co">Submit a ticket</a></li>
+                    </ul>
                 
                     <h3>Step 2b: Post on forums (Community Edition)</h3>
                     <p>If you can wait for answers from our community and don't want to spend any money, ask your question in the forums. Every member of the OpenPanel staff also monitors the forums and tries to help out whenever we can. We generally prioritize paid support queries (we've got bills to pay, after all), but our forums are very active, and our community is knowledgeable.</p>
-                    <p><a href="https://community.openpanel.co">Ask the Community</a></p>
+                    <ul>
+                        <li><a href="https://community.openpanel.co">Ask the Community</a></li>
+                    </ul>
                                 
                     <h3>Step 3: Found a bug?</h3>
                     <p>If you've found a bug in OpenPanel or OpenAdmin, Community or Enterprise edition, <a
