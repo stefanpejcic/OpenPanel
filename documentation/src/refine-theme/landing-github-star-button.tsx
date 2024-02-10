@@ -21,7 +21,7 @@ export const LandingGithubStarButton = () => {
         >
 
             <div className={clsx("flex items-center", "w-10 h-6")}>
-                    <span>DEMO</span>
+                    <span>Live Demo</span>
             </div>
         </a>
     );
