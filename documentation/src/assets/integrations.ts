@@ -6,7 +6,7 @@ import {
     Dark,
     ServerInfo,
     Responsive,
-    Branding
+    Branding,
     Suspend,
     Upgrade,
     UserServer,
