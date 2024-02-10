@@ -31,7 +31,7 @@ export const menuItems = [
         label: "Product",
         items: [
             {
-                label: "BETA",
+                label: "Enterprise edition",
                 icon: <NewBadgeIcon />,
                 href: "/beta",
             },
@@ -40,7 +40,7 @@ export const menuItems = [
                 href: "/templates",
             },
             {
-                label: "Technology Stack",
+                label: "Features",
                 href: "/integrations",
             },
         ],
