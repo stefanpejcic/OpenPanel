@@ -2,6 +2,7 @@ import { IntegrationsType } from "../types/integrations";
 import {
     Ably,
     Languages,
+    Dark,
     Airtable,
     Antd,
     Appwrite,
@@ -266,7 +267,7 @@ export const integrations: IntegrationsType = {
         },
         {
             name: "Dark Mode",
-            icon: Appwrite,
+            icon: Dark,
             description:
                 "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
             url: "/docs/panel/dashboard",

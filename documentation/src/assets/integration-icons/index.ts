@@ -1,4 +1,5 @@
 export { default as Languages } from "./languages";
+export { default as Dark } from "./dark";
 export { default as Ably } from "./ably";
 export { default as Airtable } from "./airtable";
 export { default as Antd } from "./antd";
