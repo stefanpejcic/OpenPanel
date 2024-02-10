@@ -59,7 +59,7 @@ export const integrations: IntegrationsType = {
             icon: Rest,
             description:
                 "Add domain names with automatic SSL renewals, include aliases and subdomains (Internationalized domains are supported), create redirects, enforce HTTPS, and edit vhost files.",
-            url: "/",
+            url: "/docs/panel/domains/",
             status: "stable",
         },
         {
@@ -67,7 +67,7 @@ export const integrations: IntegrationsType = {
             icon: Rest,
             description:
                 "Effortlessly upload multiple files simultaneously without any upload limits. Edit files, adjust permissions, copy or move files, add new files, and perform various file management tasks.",
-            url: "/",
+            url: "/docs/panel/files/",
             status: "stable",
         },
         {
@@ -75,7 +75,7 @@ export const integrations: IntegrationsType = {
             icon: Rest,
             description:
                 "Users can use different PHP versions for each domain, install new versions, set a default version for new domains, change limits by editing php.ini files.",
-            url: "/",
+            url: "/docs/panel/advanced/server_settings/#php-settings",
             status: "stable",
         },
         {
@@ -83,14 +83,14 @@ export const integrations: IntegrationsType = {
             icon: Rest,
             description:
                 "Effortlessly create and manage NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
-            url: "/",
+            url: "/docs/panel/applications/pm2/",
             status: "stable",
         },
         {
             name: "WP Manager",
             icon: Graphql,
             description: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.",
-            url: "/",
+            url: "/docs/panel/applications/wordpress/",
             status: "stable",
         },
         {
@@ -98,7 +98,7 @@ export const integrations: IntegrationsType = {
             icon: Nest,
             description:
                 "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
-            url: "/",
+            url: "/docs/panel/databases/",
             status: "stable",
         },
         {
@@ -106,7 +106,7 @@ export const integrations: IntegrationsType = {
             icon: Strapi,
             description:
                 "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates.",
-            url: "/",
+            url: "/docs/panel/domains/SSL/",
             status: "stable",
         },
         {
@@ -114,7 +114,7 @@ export const integrations: IntegrationsType = {
             icon: Strapi,
             description:
                 "Implement object caching using dedicated REDIS and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
-            url: "/",
+            url: "/docs/panel/caching/",
             status: "stable",
         },
         {
@@ -122,7 +122,7 @@ export const integrations: IntegrationsType = {
             icon: Strapi,
             description:
                 "Access the terminal remotely through SSH or log in automatically to the Web Terminal. Comes with preinstalled WPCLI and NPM for added convenience!",
-            url: "/",
+            url: "/docs/panel/advanced/ssh/",
             status: "stable",
         },
         {
@@ -130,7 +130,7 @@ export const integrations: IntegrationsType = {
             icon: Strapi,
             description:
                 "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
-            url: "/",
+            url: "/docs/panel/advanced/server_settings/",
             status: "stable",
         },
         {
@@ -138,7 +138,7 @@ export const integrations: IntegrationsType = {
             icon: Strapi,
             description:
                 "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.",
-            url: "/",
+            url: "/docs/panel/advanced/cronjobs/",
             status: "stable",
         },
         {
@@ -146,7 +146,7 @@ export const integrations: IntegrationsType = {
             icon: Strapi,
             description:
                 "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.",
-            url: "/",
+            url: "/docs/panel/domains/dns/",
             status: "stable",
         },
         {
@@ -154,7 +154,7 @@ export const integrations: IntegrationsType = {
             icon: Supabase,
             description:
                 "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
-            url: "/",
+            url: "/docs/panel/analytics/resource_usage/",
             status: "stable",
         },
         {
@@ -162,7 +162,7 @@ export const integrations: IntegrationsType = {
             icon: Hasura,
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
-            url: "/",
+            url: "/docs/panel/analytics/domain_visitors/",
             status: "stable",
         },
         {
@@ -170,7 +170,7 @@ export const integrations: IntegrationsType = {
             icon: Hasura,
             description:
                 "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
-            url: "/",
+            url: "/docs/panel/analytics/account_activity/",
             status: "stable",
         },
         {
@@ -178,7 +178,7 @@ export const integrations: IntegrationsType = {
             icon: Hasura,
             description:
                 "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.",
-            url: "/",
+            url: "/docs/panel/account/",
             status: "stable",
         },
     ],
@@ -188,7 +188,7 @@ export const integrations: IntegrationsType = {
             icon: Directus,
             description:
                 "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.",
-            url: "/",
+            url: "/docs/admin/intro/#installation",
             status: "stable",
         },
         {
@@ -211,7 +211,7 @@ export const integrations: IntegrationsType = {
             icon: Sanity,
             description:
                 "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.",
-            url: "/",
+            url: "/docs/category/settings/",
             status: "stable",
         },
         {
@@ -219,7 +219,7 @@ export const integrations: IntegrationsType = {
             icon: Elide,
             description:
                 "Monitor CPU and Memory usage, Network and load with real time monitoring.",
-            url: "/",
+            url: "/docs/admin/dashboard/#cpu",
             status: "stable",
         },
         {
@@ -227,7 +227,7 @@ export const integrations: IntegrationsType = {
             icon: ElideGraphql,
             description:
                 "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
-            url: "/",
+            url: "/docs/admin/dashboard/#services-status",
             status: "stable",
         },
         {
@@ -235,7 +235,15 @@ export const integrations: IntegrationsType = {
             icon: EntRefine,
             description:
                 "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
-            url: "/",
+            url: "/docs/admin/notifications/",
+            status: "stable",
+        },
+        {
+            name: "Terminal Commands",
+            icon: EntRefine,
+            description:
+                "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
+            url: "/docs/category/openpanel-cli/",
             status: "stable",
         },
     ],
@@ -244,7 +252,7 @@ export const integrations: IntegrationsType = {
             name: "Branding",
             icon: Airtable,
             description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
-            url: "/",
+            url: "/docs/admin/settings/openpanel/#branding",
             status: "stable",
         },
         {
@@ -252,7 +260,7 @@ export const integrations: IntegrationsType = {
             icon: Medusa,
             description:
                 "Access OpenPanel on desktop, tablet and mobile without any feature limitations.",
-            url: "/link",
+            url: "",
             status: "stable",
         },
         {
@@ -260,7 +268,15 @@ export const integrations: IntegrationsType = {
             icon: Appwrite,
             description:
                 "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
-            url: "",
+            url: "/docs/panel/dashboard",
+            status: "stable",
+        },
+        {
+            name: "Server Info",
+            icon: NestQuery,
+            description:
+                "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.",
+            url: "/docs/panel/dashboard",
             status: "stable",
         },
         {
@@ -268,7 +284,7 @@ export const integrations: IntegrationsType = {
             icon: NestQuery,
             description:
                 "Quickly and easily find what you are looking for with a powerful search functionality.",
-            url: "",
+            url: "/docs/panel/dashboard",
             status: "stable",
         },
         {
@@ -276,7 +292,15 @@ export const integrations: IntegrationsType = {
             icon: Appwrite,
             description:
                 "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
-            url: "",
+            url: "/docs/admin/customize/localization/",
+            status: "stable",
+        },
+        {
+            name: "Keyboard Shortcuts",
+            icon: Appwrite,
+            description:
+                "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.",
+            url: "/docs/panel/dashboard/#keyboard-shortcuts",
             status: "stable",
         },
     ],
@@ -286,7 +310,7 @@ export const integrations: IntegrationsType = {
             icon: React,
             description:
                 "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.",
-            url: "https://www.npmjs.com/package/@refinedev/react-table",
+            url: "/docs/admin/users/openpanel/#suspend-user",
             status: "stable",
         },
         {
@@ -294,7 +318,7 @@ export const integrations: IntegrationsType = {
             icon: HookForm,
             description:
                 "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
-            url: "/",
+            url: "/docs/admin/users/openpanel/#detailed-user-information",
             status: "stable",
         },
         {
@@ -302,22 +326,22 @@ export const integrations: IntegrationsType = {
             icon: Sanity,
             description:
                 "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
-            url: "/",
+            url: "/docs/admin/users/openpanel/#change-ip-address-for-user",
             status: "stable",
         },
         {
             name: "Impersonation",
             icon: Kbar,
             description: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.",
-            url: "/",
+            url: "/docs/admin/users/openpanel/#detailed-user-information",
             status: "stable",
         },
         {
-            name: "Apache or nginx per user",
+            name: "Apache or Nginx per user",
             icon: React,
             description:
                 "Administrators can select either Apache or Nginx as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
-            url: "/",
+            url: "/docs/admin/plans/hosting_plans/#create-a-plan",
             status: "stable",
         },
     ],
@@ -327,7 +351,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Every user account is containerised. Containers have no access to other users or server files.",
-            url: "/",
+            url: "/docs/panel/intro/",
             status: "stable",
         },
         {
@@ -335,7 +359,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Administrators have the ability to set specific limits per plan, including port speed, disk usage, inodes, the number of websites, MySQL databases, and domains.",
-            url: "/",
+            url: "/docs/admin/plans/hosting_plans/#create-a-plan",
             status: "stable",
         },
         {
@@ -343,7 +367,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Automatically provision Let's Encrypt certificates. Users can generate new certificates and seamlessly redirect all website traffic to HTTPS.",
-            url: "/",
+            url: "/docs/panel/domains/SSL/",
             status: "stable",
         },
         {
@@ -351,7 +375,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Administrators can activate ModSecurity with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable ModSecurity per domain.",
-            url: "/",
+            url: "/docs/admin/settings/waf/",
             status: "stable",
         },
         {
@@ -359,7 +383,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Administrators can manage (UFW) firewall rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
-            url: "/",
+            url: "/docs/admin/settings/firewall/",
             status: "stable",
         },
         {
@@ -367,7 +391,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.",
-            url: "/",
+            url: "/docs/panel/account/2fa/",
             status: "stable",
         },
         {
@@ -375,7 +399,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
-            url: "/",
+            url: "/docs/panel/advanced/ssh/",
             status: "stable",
         }, 
         {
@@ -383,7 +407,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
-            url: "/",
+            url: "",
             status: "stable",
         },
         {
@@ -391,7 +415,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
-            url: "/",
+            url: "/docs/admin/settings/adminpanel/#enable-features",
             status: "stable",
         },
         {
@@ -399,7 +423,7 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.",
-            url: "/",
+            url: "",
             status: "stable",
         },
         {
@@ -407,24 +431,22 @@ export const integrations: IntegrationsType = {
             icon: Ably,
             description:
                 "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
-            url: "/",
+            url: "/docs/admin/settings/openpanel/",
             status: "stable",
         },
     ],
     "community-packages": [
         {
             name: "WHMCS Module",
-            icon: Dp,
             description: "Integrate with the leading web hosting management and billing software.",
-            url: "https://www.npmjs.com/package/data-provider-customizer",
+            url: "https://community.openpanel.co/",
             status: "stable",
         },
         {
             name: "REST API",
-            icon: Kinde,
             description:
                 "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
-            url: "/",
+            url: "/docs/admin/customize/api/",
             status: "stable",
         },
     ],
