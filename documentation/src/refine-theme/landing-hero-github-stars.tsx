@@ -6,7 +6,7 @@ export const LandingHeroGithubStars = () => {
 
     return (
         <a
-            href="/docs/changelog/0.1/#015"
+            href="/docs/changelog/0.1/#014"
             target="_blank"
             rel="noopener noreferrer"
             className={clsx(
@@ -94,7 +94,7 @@ export const LandingHeroGithubStars = () => {
                     )}
                 >
                     <span className={clsx("font-semibold")}>
-                            OpenPanel{" "}<span>v0.1.5 BETA</span>
+                            OpenPanel{" "}<span>v0.1.4</span>
                     </span>{" "}
                     <span>is out</span>
                 </span>
