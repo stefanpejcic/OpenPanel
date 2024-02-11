@@ -63,7 +63,7 @@ const About: React.FC = () => {
                         <div className="w-1/2 pr-4">
                             <a href="https://demo.openpanel.co/openapanel/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenPanel Docs</h2>
-                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" style={{ width: 'auto', height: '30%' }} />
+                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" />
                                 
                             </a>
 
@@ -77,7 +77,7 @@ const About: React.FC = () => {
                         <div className="w-1/2 pl-4">
                             <a href="https://demo.openpanel.co/openadmin/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenAdmin Docs</h2>
-                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" style={{ width: 'auto', height: '30%' }} />
+                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" />
                                 
                             </a>
 <p>
