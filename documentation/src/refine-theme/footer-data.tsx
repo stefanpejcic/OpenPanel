@@ -35,10 +35,10 @@ export const menuItems = [
                 icon: <NewBadgeIcon />,
                 href: "/beta",
             },
-            {
-                label: "Products",
-                href: "/templates",
-            },
+            //{
+            //    label: "Products",
+            //    href: "/templates",
+            //},
             {
                 label: "Features",
                 href: "/features",
@@ -54,11 +54,11 @@ export const menuItems = [
             },
             {
                 label: "Become a Partner",
-                href: "/partner",
+                href: "mailto:info@openpanel.co",
             },
             {
                 label: "Contact Us",
-                href: "/contact",
+                href: "mailto:info@openpanel.co",
             },
         ],
     },
