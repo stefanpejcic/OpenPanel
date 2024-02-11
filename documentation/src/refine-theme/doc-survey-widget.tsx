@@ -59,8 +59,10 @@ export const DocSurveyWidget = ({ className }: Props) => {
             return;
         }
 
+        const currentSurveyId = survey?.id || generateRandomSurveyId();
+        
         const data = await updateSurvey({
-            surveyId: survey?.id,
+            surveyId: currentSurveyId,
             body: { response: selectedOption, responseText: text },
         });
         if (!data) return;
@@ -304,7 +306,8 @@ const generateRandomSurveyId = () => {
 };
 
 const createSurvey = async ({ body }: { body: DocSurveyCreateDto }) => {
-    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${generateRandomSurveyId()}`, {
+    const surveyId = generateRandomSurveyId();
+    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${surveyId}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -321,6 +324,7 @@ const createSurvey = async ({ body }: { body: DocSurveyCreateDto }) => {
 };
 
 
+
 const updateSurvey = async ({
     surveyId,
     body,
@@ -328,7 +332,7 @@ const updateSurvey = async ({
     surveyId?: string;
     body: DocSurveyUpdateDto;
 }) => {
-    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${generateRandomSurveyId()}`, {
+    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${surveyId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
@@ -343,6 +347,7 @@ const updateSurvey = async ({
     const data: DocSurveyResponse = await response.json();
     return data;
 };
+
 
 const surveyOptions: {
     value: SurveyOption;
