@@ -151,8 +151,8 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
                 })}
             </div>
 
-            <LandingSectionCtaButtonAlt to="/beta">
-                Check out OpenPanel BETA
+            <LandingSectionCtaButtonAlt to="/features">
+                View all features
             </LandingSectionCtaButtonAlt>
         </div>
     );
