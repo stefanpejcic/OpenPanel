@@ -254,7 +254,7 @@ const Github = (props: { id?: string }) => {
                 <div
                     className={clsx("ml-4", "dark:text-gray-400 text-gray-600")}
                 >
-                    If you like OpenPanel, please help us make it improve it!
+                    If you like OpenPanel, please help us improve it!
                 </div>
             </div>
         </Link>
