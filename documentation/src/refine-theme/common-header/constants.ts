@@ -53,12 +53,12 @@ export const MENU_ITEMS: MenuItemType[] = [
             },
         ],
     },
-    {
-        isPopover: false,
-        label: "BETA",
-        href: "/beta",
-        icon: NewBadgeIcon,
-    },
+   // {
+    //    isPopover: false,
+     //   label: "Enterprise",
+     //   href: "/beta",
+    //    icon: NewBadgeIcon,
+    //},
     {
         isPopover: true,
         label: "Community",
@@ -96,13 +96,13 @@ export const MENU_ITEMS: MenuItemType[] = [
             {
                 label: "Become a Partner",
                 description: "Help us spread the word!",
-                link: "/partner",
+                link: "mailto:info@openpanel.co",
                 icon: StoreIcon,
             },
             {
                 label: "Meet OpenPanel",
                 description: "Call us for any questions",
-                link: "/contact",
+                link: "mailto:info@openpanel.co",
                 icon: MeetIcon,
             },
         ],
