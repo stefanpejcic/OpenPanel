@@ -76,35 +76,35 @@ export const MENU_ITEMS: MenuItemType[] = [
                 icon: ContributeIcon,
             },
             {
-                label: "Contributing",
+                label: "Translations",
                 description: "Help us improve OpenPanel!",
                 link: "https://github.com/stefanpejcic/openpanel-translations",
                 icon: HackathonsIcon,
             },
         ],
     },
-    {
-        isPopover: true,
-        label: "Company",
-        items: [
-            {
-                label: "About Us",
-                description: "Team & company information.",
-                link: "/about",
-                icon: AboutUsIcon,
-            },
-            {
-                label: "Become a Partner",
-                description: "Help us spread the word!",
-                link: "mailto:info@openpanel.co",
-                icon: StoreIcon,
-            },
-            {
-                label: "Meet OpenPanel",
-                description: "Call us for any questions",
-                link: "mailto:info@openpanel.co",
-                icon: MeetIcon,
-            },
-        ],
-    },
+  //  {
+   //     isPopover: true,
+  //      label: "Company",
+  //      items: [
+   //         {
+  //              label: "About Us",
+  //              description: "Team & company information.",
+       //         link: "/about",
+    //            icon: AboutUsIcon,
+  //          },
+     //       {
+    //            label: "Become a Partner",
+      //          description: "Help us spread the word!",
+      //          link: "mailto:info@openpanel.co",
+      //          icon: StoreIcon,
+    //        },
+     //       {
+     //           label: "Meet OpenPanel",
+     //           description: "Call us for any questions",
+     //           link: "mailto:info@openpanel.co",
+     //           icon: MeetIcon,
+     //       },
+    //    ],
+ //   },
 ];
