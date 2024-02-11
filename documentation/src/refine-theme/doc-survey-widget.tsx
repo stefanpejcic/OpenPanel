@@ -299,6 +299,10 @@ const SurveyFinished = (props: {
     );
 };
 
+const generateRandomSurveyId = () => {
+    return Math.random().toString(36).substring(7);
+};
+
 const createSurvey = async ({ body }: { body: DocSurveyCreateDto }) => {
     const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${generateRandomSurveyId()}`, {
         method: "POST",
