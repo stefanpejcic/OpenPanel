@@ -54,30 +54,29 @@ export const DocSurveyWidget = ({ className }: Props) => {
         }
     };
 
-const handleSurveyTextSubmit = async (text: string) => {
-    if (text.trim() === "") {
-        return;
-    }
+    const handleSurveyTextSubmit = async (text: string) => {
+        if (text.trim() === "") {
+            return;
+        }
 
-    const surveyIdToUpdate = survey?.id; // Use the existing survey ID if available
+        const data = await updateSurvey({
+            surveyId: survey.id,
+            body: { response: selectedOption, responseText: text },
+        });
+        if (!data) return;
 
-    const data = await updateSurvey({
-        surveyId: surveyIdToUpdate,
-        body: { response: selectedOption, responseText: text },
-    });
+        setSurvey(data);
+        // when the user submits text feedback, we show a thank you message
+        setIsFinished(true);
 
-    if (!data) return;
-
-    setSurvey(data);
-    setIsFinished(true);
-
-    setTimeout(() => {
-        setSelectedOption(null);
-        setSurvey(null);
-        setIsFinished(false);
-        setIsSurveyTextVisible(false);
-    }, 3000);
-};
+        // reset the survey after N seconds so that the user can submit another survey
+        setTimeout(() => {
+            setSelectedOption(null);
+            setSurvey(null);
+            setIsFinished(false);
+            setIsSurveyTextVisible(false);
+        }, 3000);
+    };
 
     return (
         <div
