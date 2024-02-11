@@ -3,7 +3,6 @@ import { FooterRedditIcon as RedditIcon } from "@site/src/refine-theme/icons/foo
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
-import { Istanbul500Icon } from "@site/src/refine-theme/icons/500";
 import { GithubIcon } from "@site/src/refine-theme/icons/github";
 import { JoinUsIcon } from "@site/src/refine-theme/icons/join-us";
 import { MailIcon } from "@site/src/refine-theme/icons/mail";
@@ -13,8 +12,6 @@ import { DiscordIcon, TwitterIcon } from "@site/src/refine-theme/icons/popover";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
-import { backedBy } from "../../assets/backed-by";
-import { team } from "../../assets/team";
 import { useColorMode } from "@docusaurus/theme-common";
 import { YCombinatorCircleIcon } from "@site/src/refine-theme/icons/ycombinator-circle";
 import { CommonThemedImage } from "@site/src/refine-theme/common-themed-image";
