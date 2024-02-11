@@ -9,8 +9,7 @@ export const CommonGithubStarButton = ({ className }: Props) => {
 
     return (
         <a
-            href="https://community.openpanel.co/"
-            target="_blank"
+            href="/support"
             rel="noreferrer"
             className={clsx(
                 "text-sm",
