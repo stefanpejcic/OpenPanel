@@ -59,45 +59,6 @@ const About: React.FC = () => {
                     </h1>
                 </div>
 
-                <div className={clsx("max-w-[1120px]", "mx-auto w-full")}>
-                    <div
-                        className={clsx(
-                            "flex flex-col xl:flex-row",
-                            "gap-4 xl:gap-16",
-                        )}
-                    >
-                        <div
-                            className={clsx(
-                                "mx-auto flex items-center justify-center",
-                                "w-[328px] sm:w-[480px] md:w-[624px] lg:w-[912px] xl:w-[576px]",
-                            )}
-                        >
-                            <img
-                                className="rounded-[12px]"
-                                src="/img/openpanel.png"
-                            />
-                        </div>
-                        <div
-                            className={clsx(
-                                "mx-auto flex flex-col xl:justify-center",
-                                "w-[328px] sm:w-[480px] md:w-[624px] lg:w-[912px] xl:w-[480px]",
-                                "text-gray-700",
-                            )}
-                        >
-                            <div className={clsx("max-w-[642px]")}>
-                                <p className="text-xs sm:text-base">
-                                    text
-                                </p>
-                                <p className="text-xs sm:text-base">
-                                    dva
-                                </p>
-                                <p className="text-xs sm:text-base">
-                                    tri
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 <div
                     className={clsx(
@@ -144,8 +105,8 @@ const About: React.FC = () => {
                                     <MarkerIcon className="text-refine-orange" />
                                 </div>
                                 <span className="text-gray-700 dark:text-gray-300">
-                                    hidden <br />
-                                    Amsterdam, NL 19702
+                                    1c Bulevar<br />
+                                    Belgrade, RS 11160
                                 </span>
                             </div>
                             <div className="flex justify-center items-center gap-6">
