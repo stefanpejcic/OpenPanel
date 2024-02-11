@@ -59,7 +59,8 @@ const About: React.FC = () => {
                     </h1>
                 </div>
 
-
+<div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
+                
 <div className="flex">
                         {/* First Column */}
                         <div className="w-1/2 pr-4">
@@ -87,7 +88,7 @@ const About: React.FC = () => {
 </p>
                         </div>
                     </div>
-
+</div>
 
 
 
