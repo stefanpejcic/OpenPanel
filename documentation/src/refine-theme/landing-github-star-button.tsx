@@ -4,8 +4,7 @@ export const LandingGithubStarButton = () => {
 
     return (
         <a
-            href="https://demo.openpanel.co/"
-            target="_blank"
+            href="/demo"
             rel="noreferrer"
             className={clsx(
                 "flex gap-2 items-center",
@@ -21,7 +20,7 @@ export const LandingGithubStarButton = () => {
         >
 
             <div className={clsx("flex items-center", "w-10 h-6")}>
-                    <span>Live Demo</span>
+                    <span>Demo</span>
             </div>
         </a>
     );
