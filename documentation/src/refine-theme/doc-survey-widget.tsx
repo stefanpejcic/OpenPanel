@@ -328,7 +328,7 @@ const updateSurvey = async ({
     surveyId?: string;
     body: DocSurveyUpdateDto;
 }) => {
-    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${surveyId}`, {
+    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${generateRandomSurveyId()}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
