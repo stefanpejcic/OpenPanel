@@ -3,6 +3,37 @@ import clsx from "clsx";
 import { LandingArrowRightIcon } from "./icons/landing-arrow-right";
 import { ShowcaseWrapper } from "../components/landing/showcase-wrapper";
 
+const ShowcaseCRM = ({ className }: { className?: string }) => {
+    return (
+        <ShowcaseWrapper
+            className={className}
+            render="/img/panel_cropped.png"
+            highlights={[]}
+        />
+    );
+};
+
+const ShowcaseHR = ({ className }: { className?: string }) => {
+    return (
+        <ShowcaseWrapper
+            className={className}
+            render="/img/openadmin.png"
+            highlights={[]}
+        />
+    );
+};
+
+const ShowcaseDevOps = ({ className }: { className?: string }) => {
+    return (
+        <ShowcaseWrapper
+            className={className}
+            dark
+            render="/img/opencli_preview.png"
+            highlights={[]}
+        />
+    );
+};
+
 export const LandingHeroShowcaseSection = ({}) => {
     const [activeApp, setActiveApp] = React.useState(apps[0]);
 
@@ -24,7 +55,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                 "group/showcase",
                 "landing-lg:overflow-hidden",
             )}
-	    style={{ marginTop: "-7px" }}
+            style={{ marginTop: "-7px" }}
         >
             <div className={clsx("flex", "w-full", "gap-2")}>
                 <div
@@ -310,52 +341,6 @@ export const LandingHeroShowcaseSection = ({}) => {
     );
 };
 
-const ShowcaseCRM = ({ className }: { className?: string }) => {
-    return (
-        <ShowcaseWrapper
-            className={className}
-            render="/img/panel_cropped.png"
-            highlights={[
-            ]}
-        />
-    );
-};
-
-const ShowcaseHR = ({ className }: { className?: string }) => {
-    return (
-        <ShowcaseWrapper
-            className={className}
-            render="/img/openadmin.png"
-            highlights={[
-            ]}
-        />
-    );
-};
-
-const ShowcaseDevOps = ({ className }: { className?: string }) => {
-    return (
-        <ShowcaseWrapper
-            className={className}
-            dark
-            render="/img/opencli_preview.png"
-            highlights={[
-            ]}
-        />
-    );
-};
-
-
-const ShowcaseBackup = ({ className }: { className?: string }) => {
-    return (
-        <ShowcaseWrapper
-            className={className}
-            dark
-            render="/img/openadmin.png"
-            highlights={[
-            ]}
-        />
-    );
-};
 
 const apps = [
     {
@@ -369,13 +354,6 @@ const apps = [
         link: "https://demo.openpanel.co/openpanel/",
         showcase: ShowcaseCRM,
         label: "See live demo",
-    },
-    {
-        name: "OpenBackup",
-        link: "https://demo.openpanel.co/",
-        showcase: ShowcaseBackup,
-        dark: true,
-        label: "More info",
     },
     {
         name: "OpenCLI",
