@@ -66,7 +66,7 @@ const About: React.FC = () => {
                         <div className="w-1/2 pr-4">
                             <a href="https://demo.openpanel.co/openapanel/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenPanel Docs</h2>
-                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" style={{ width: 'auto', height: '350px' }} />
+                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" style={{ width: 'auto', height: '30%' }} />
                                 
                             </a>
 
@@ -80,7 +80,7 @@ const About: React.FC = () => {
                         <div className="w-1/2 pl-4">
                             <a href="https://demo.openpanel.co/openadmin/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenAdmin Docs</h2>
-                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" style={{ width: 'auto', height: '350px' }} />
+                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" style={{ width: 'auto', height: '30%' }} />
                                 
                             </a>
 <p>
@@ -89,180 +89,6 @@ const About: React.FC = () => {
                         </div>
                     </div>
 </div>
-
-
-
-                
-                <div
-                    className={clsx(
-                        "w-[328px] sm:w-[480px] md:w-[624px] lg:w-[912px] xl:w-[1120px]",
-                        "mx-auto mt-10 w-full md:mt-20 lg:mt-32",
-                        "flex flex-col xl:flex-row",
-                        "gap-4 xl:gap-16",
-                    )}
-                >
-                    <div
-                        className={clsx(
-                            "flex justify-center items-center",
-                            "w-[48px] h-[48px]",
-                            "md:w-[64px] md:h-[64px]",
-                            "rounded-full ",
-                            "bg-refine-red bg-opacity-10",
-                            "shrink-0",
-                            "xl:hidden",
-                        )}
-                    >
-                        <OpenSourceIcon className="text-refine-red" />
-                    </div>
-                    <div className="flex flex-col gap-2 lg:flex-row lg:gap-8 xl:gap-16">
-                        <div
-                            className={clsx(
-                                "flex flex-col gap-6 lg:flex-row",
-                                "w-[328px] sm:w-[480px] md:w-[624px] lg:w-[912px] xl:w-[576px]",
-                            )}
-                        >
-                            <div
-                                className={clsx(
-                                    "justify-center items-center",
-                                    "w-[48px] h-[48px]",
-                                    "md:w-[64px] md:h-[64px]",
-                                    "rounded-full ",
-                                    "bg-refine-red bg-opacity-10",
-                                    "shrink-0",
-                                    "hidden xl:flex",
-                                )}
-                            >
-                                <OpenSourceIcon className="text-refine-red" />
-                            </div>
-
-                            <div>
-                                <p className="mb-3 text-sm font-semibold text-gray-900 dark:text-gray-300 md:text-lg lg:text-2xl">
-                                    User-friendly guides
-                                </p>
-
-                                <p className="text-xs sm:text-base text-gray-900 dark:text-gray-300">
-                                    Soon..
-                                </p>
-                            </div>
-                        </div>
-                        <div className="grid w-full shrink-0 grid-cols-2 gap-4 lg:w-[400px]">
-                            <a
-                                target="_blank"
-                                href="/docs/panel/intro/"
-                                className={clsx(
-                                    "flex h-max flex-row justify-start gap-3",
-                                    "dark:bg-gray-900",
-                                    "border border-gray-200 dark:border-gray-700",
-                                    "rounded-xl p-4",
-                                    "no-underline hover:no-underline",
-                                )}
-                                rel="noreferrer"
-                            >
-                                <div>
-                                    <GithubIcon
-                                        className="text-2xl text-gray-900 dark:text-gray-0"
-                                        width="24px"
-                                        height="24px"
-                                    />
-                                </div>
-                                <div className="text-xs md:text-base">
-                                    <div className="mb-0 text-gray-500 dark:text-gray-400">
-                                        Docs for end-users
-                                    </div>
-                                    <div className="font-semibold text-gray-900 dark:text-gray-0 no-underline hover:no-underline">
-                                        OpenPanel
-                                    </div>
-                                </div>
-                            </a>
-                            <a
-                                target="_blank"
-                                href="/docs/admin/intro/"
-                                rel="noreferrer"
-                                className={clsx(
-                                    "flex  h-max flex-row justify-start gap-3",
-                                    "dark:bg-gray-900",
-                                    "border border-gray-200 dark:border-gray-700",
-                                    "p-4 rounded-xl",
-                                    "no-underline hover:no-underline",
-                                )}
-                            >
-                                <div>
-                                    <DiscordIcon
-                                        className="text-2xl"
-                                        width="24px"
-                                        height="24px"
-                                    />
-                                </div>
-                                <div className="text-xs md:text-base">
-                                    <div className="mb-0 text-gray-500 dark:text-gray-400">
-                                        Docs for hosters
-                                    </div>
-                                    <div className="font-semibold text-gray-900 dark:text-gray-0 no-underline hover:no-underline">
-                                        OpenAdmin
-                                    </div>
-                                </div>
-                            </a>
-                            <a
-                                target="_blank"
-                                href="/docs/category/openpanel-cli/"
-                                rel="noreferrer"
-                                className={clsx(
-                                    "flex  h-max flex-row justify-start gap-3",
-                                    "dark:bg-gray-900",
-                                    "border border-gray-200 dark:border-gray-700",
-                                    "p-4 rounded-xl",
-                                    "no-underline hover:no-underline",
-                                )}
-                            >
-                                <div>
-                                    <RedditIcon
-                                        className="text-2xl"
-                                        width="24px"
-                                        height="24px"
-                                        color="#FF4500"
-                                    />
-                                </div>
-                                <div className="text-xs md:text-base">
-                                    <div className="mb-0 text-gray-500 dark:text-gray-400">
-                                        Docs for Admins
-                                    </div>
-                                    <div className="font-semibold text-gray-900 dark:text-gray-0 no-underline hover:no-underline">
-                                       OpenCLI
-                                    </div>
-                                </div>
-                            </a>
-                            <a
-                                target="_blank"
-                                href="/docs/category/advanced/"
-                                rel="noreferrer"
-                                className={clsx(
-                                    "flex  h-max flex-row justify-start gap-3",
-                                    "dark:bg-gray-900",
-                                    "border border-gray-200 dark:border-gray-700",
-                                    "p-4 rounded-xl",
-                                    "no-underline hover:no-underline",
-                                )}
-                            >
-                                <div>
-                                    <TwitterIcon
-                                        className="text-2xl"
-                                        width="24px"
-                                        height="24px"
-                                    />
-                                </div>
-                                <div className="text-xs md:text-base">
-                                    <div className="mb-0 text-gray-500 dark:text-gray-400">
-                                        Docs for Developers
-                                    </div>
-                                    <div className="font-semibold text-gray-900 dark:text-gray-0 no-underline hover:no-underline">
-                                        Advanced
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
 
                 <BlogFooter />
             </div>
