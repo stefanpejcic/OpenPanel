@@ -58,24 +58,16 @@ export const menuItems = [
             },
             {
                 label: "Contact Us",
-                href: "#",
+                href: "/contact",
             },
         ],
     },
 ];
 
 export const secondaryMenuItems = [
-     {
-         label: "Terms & Conditions",
-         href: "/terms",
-     },
     {
         label: "Privacy Policy",
         href: "/privacy-policy",
-    },
-    {
-        label: "License",
-        href: "/LICENSE",
     },
 ];
 
