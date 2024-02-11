@@ -300,7 +300,7 @@ const SurveyFinished = (props: {
 };
 
 const createSurvey = async ({ body }: { body: DocSurveyCreateDto }) => {
-    const response = await fetch(`${DOC_SURVEY_URL}/responses`, {
+    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${generateRandomSurveyId()}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -316,6 +316,7 @@ const createSurvey = async ({ body }: { body: DocSurveyCreateDto }) => {
     return data;
 };
 
+
 const updateSurvey = async ({
     surveyId,
     body,
@@ -323,7 +324,7 @@ const updateSurvey = async ({
     surveyId?: string;
     body: DocSurveyUpdateDto;
 }) => {
-    const response = await fetch(`${DOC_SURVEY_URL}/responses/${surveyId}`, {
+    const response = await fetch(`${DOC_SURVEY_URL}?surveyId=${surveyId}`, {
         method: "PATCH",
         headers: {
             "Content-Type": "application/json",
