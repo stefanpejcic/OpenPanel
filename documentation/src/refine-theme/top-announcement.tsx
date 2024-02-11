@@ -110,8 +110,7 @@ export const TopAnnouncement = () => {
 const Text = () => {
     return (
         <a
-            href="/beta"
-            target="_blank"
+            href="/docs/admin/intro/#installation"
             rel="noreferrer"
             className={clsx(
                 "relative lg:absolute",
@@ -141,7 +140,7 @@ const Text = () => {
                         "ml-2",
                     )}
                 >
-                    Learn More
+                    Installation instructions
                 </span>
             </div>
         </a>
