@@ -80,12 +80,12 @@ export const EnterpriseHeroSection = ({
             >
                 <CommonThemedImage
                     className={clsx(
-                        "landing-md:h-[360px] landing-md:w-[360px]",
-                        "landing-md:h-[360px] landing-md:w-[360px]",
+                        "landing-md:h-[360px] landing-md:w-[326px]",
+                        "landing-md:h-[360px] landing-md:w-[326px]",
                     )}
-                    srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/enterprise-hero-image-dark.png"
-                    srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/enterprise-hero-image-light.png"
-                    alt="refine enterprise image"
+                    srcDark="/img/hero.png"
+                    srcLight="/img/hero.png"
+                    alt="openpanel enterprise image"
                 />
             </div>
         </div>
