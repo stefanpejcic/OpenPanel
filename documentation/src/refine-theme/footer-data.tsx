@@ -18,6 +18,10 @@ export const menuItems = [
                 href: "https://community.openpanel.co/",
             },
             {
+                label: "License Verification",
+                href: "/verify",
+            },
+            {
                 label: "Roadmap",
                 href: "https://github.com/stefanpejcic/openpanel/milestones",
             },
