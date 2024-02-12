@@ -28,7 +28,7 @@ const Verify: React.FC = () => {
                 <CommonHeader hasSticky={true} />
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
-                    <h1>License</h1>
+                    <h1>License Verification</h1>
 
                     <div className="mb-4">
                         <label htmlFor="ipAddress">Enter IP Address:</label>
