@@ -8,9 +8,9 @@ sidebar_class_name: green
 
 ### Next version (Unreleased)
 
-|   |
-|---|
-|__[0.1.5](/docs/changelog/0.1#015-alpha1)__|
+|   |   |
+|---|---|
+|__[0.1.5](/docs/changelog/0.1#015-alpha1)__| __[Roadmap](https://github.com/stefanpejcic/openpanel/milestone/1)__|
 
 ### Current version (Stable)
 
