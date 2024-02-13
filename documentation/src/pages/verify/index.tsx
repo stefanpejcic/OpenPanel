@@ -30,6 +30,13 @@ const Verify: React.FC = () => {
         }
     }, []); // Empty dependency array ensures it only runs once on component mount
 
+    useEffect(() => {
+        // Additional effect to check the license when ipAddress changes (e.g., due to user input)
+        if (ipAddress) {
+            handleCheckLicense();
+        }
+    }, [ipAddress]); // Re-run the effect whenever ipAddress changes
+
     return (
         <CommonLayout>
             <Head title="LICENSE | OpenPanel">
