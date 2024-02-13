@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "@docusaurus/Head";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
@@ -18,6 +18,17 @@ const Verify: React.FC = () => {
             console.error("Error fetching license data:", error);
         }
     };
+
+    useEffect(() => {
+        // Check if there's an 'ip' parameter in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlIpAddress = urlParams.get('ip');
+
+        if (urlIpAddress) {
+            setIpAddress(urlIpAddress);
+            handleCheckLicense(); // Automatically check the license if IP is present in the URL
+        }
+    }, []); // Empty dependency array ensures it only runs once on component mount
 
     return (
         <CommonLayout>
