@@ -25,7 +25,7 @@ export const LandingFooter = () => {
                     "text-gray-900 dark:text-gray-0",
                 )}
             >
-                OpenPanel Co.
+                OPENPANEL B.V.
             </div>
             <div
                 className={clsx(
@@ -35,7 +35,7 @@ export const LandingFooter = () => {
                     "text-gray-600 dark:text-gray-400",
                 )}
             >
-             1c Bulevar Belgrade, RS 11160
+             IJsbaanpad 2, 1076 CV Amsterdam (The Netherlands)
             </div>
             <a
                 href="mailto:info@openpanel.co"
