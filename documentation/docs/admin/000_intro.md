@@ -33,7 +33,7 @@ To install openpanel follow these steps:
 - as a user with sudo privileges and type "sudo -i"
 2. Copy and paste openpanel installation command into the terminal
 ```shell
-cd /root && (curl -sSL -o install https://get.openpanel.co || wget -qO install https://get.openpanel.co) && chmod +x install && ./install
+bash <(curl -sSL https://get.openpanel.co/)
 ```
 
 :::info
