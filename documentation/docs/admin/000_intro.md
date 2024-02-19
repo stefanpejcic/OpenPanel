@@ -76,7 +76,7 @@ cd /root && (curl -sSL -o install https://get.openpanel.co || wget -qO install h
 openpanel will install Docker, MySQL, Nginx, and several other tools on your server. You should install it on a fresh server, otherwise, you risk facing installation errors.
 :::
 
-:::warning
+:::danger
 Port 53, 80, 443 and 2083 must be available and not blocked by your hosting provider firewall.
 :::
 
