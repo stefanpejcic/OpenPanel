@@ -50,8 +50,13 @@ const Roadmap: React.FC = () => {
                             <li key={milestone.id}>
                                 <strong><a href={milestone.html_url} target="_blank" rel="noopener noreferrer">{milestone.title}</a></strong>
                                 <p>{milestone.description}</p>
-                                <p>Scheduled release: {formatDueDate(milestone.due_on)}</p>
+                                <p>Scheduled release: <strong>{formatDueDate(milestone.due_on)}</strong></p>
                                 <p>Progress: {calculateProgress(milestone)}%</p>
+                                
+                                {/* Progress bar */}
+                                <div style={{ width: '100%', height: '8px', backgroundColor: '#ddd', borderRadius: '4px', marginTop: '8px', overflow: 'hidden' }}>
+                                    <div style={{ height: '100%', backgroundColor: '#4caf50', width: `${calculateProgress(milestone)}%`, transition: 'width 0.3s ease-in-out' }}></div>
+                                </div>
                             </li>
                         ))}
                     </ul>
