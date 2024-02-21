@@ -10,7 +10,7 @@ sidebar_class_name: green
 
 |   |   |
 |---|---|
-|__[0.1.5](/docs/changelog/0.1#015-alpha1)__| __[Roadmap](https://github.com/stefanpejcic/openpanel/milestone/1)__|
+|__[0.1.5](/docs/changelog/0.1#015)__| __[Roadmap](/roadmap)__|
 
 ### Current version (Stable)
 
