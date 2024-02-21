@@ -55,7 +55,7 @@ export const integrations: IntegrationsType = {
             icon: Nginx,
             description:
                 "Run Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
-            url: "/docs/admin/",
+            url: "/docs/admin/intro",
             status: "stable",
         },
         {
@@ -63,7 +63,7 @@ export const integrations: IntegrationsType = {
             icon: Apache,
             description:
                 "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.",
-            url: "/docs/admin/",
+            url: "/docs/admin/intro",
             status: "stable",
         },
     ],
