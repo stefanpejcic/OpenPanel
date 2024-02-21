@@ -68,7 +68,7 @@ The installation script also supports optional flags that can be used to install
 Example: Install OpenPanel in debug mode
 
 ```shell
-cd /root && (curl -sSL -o install https://get.openpanel.co || wget -qO install https://get.openpanel.co) && chmod +x install && ./install --debug
+bash <(curl -sSL https://get.openpanel.co/) --debug
 ```
 
 
