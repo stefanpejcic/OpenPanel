@@ -23,7 +23,7 @@ export const menuItems = [
             },
             {
                 label: "Roadmap",
-                href: "https://github.com/stefanpejcic/openpanel/milestones",
+                href: "/roadmap",
             },
             {
                 label: "Changelog",
