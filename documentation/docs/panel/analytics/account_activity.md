@@ -22,5 +22,5 @@ You can search for these actions by IP, username, date, or specific action.
 By default only 25 actions will be shown per page, you can navigate pages using the pagination links or click on 'Show all activity' to display all actions.
 
 :::info
-The default configuration retains a log of the most recent 100 actions, but [the administrator can change this setting](docs/admin/scripts/openpanel_config#activity_items_per_page).
+The default configuration retains a log of the most recent 100 actions, but [the administrator can change this setting](/docs/admin/scripts/openpanel_config#activity_items_per_page).
 :::
