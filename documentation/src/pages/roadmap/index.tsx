@@ -43,17 +43,23 @@ const Roadmap: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Roadmap</h1>
-
+                    <p>Welcome to our OpenPanel Roadmap, where innovation meets transparency! We are excited to share our vision and plans for the future as we continually strive to enhance your hosting experience. This roadmap serves as a dynamic guide, outlining the upcoming features, improvements, and milestones that we are committed to delivering.</p>
+                    <h3>Planned releases</h3>
                     <ul>
                         {milestones.map((milestone) => (
                             <li key={milestone.id}>
-                                <strong>{milestone.title}</strong>
+                                <strong><a href={milestone.html_url} target="_blank" rel="noopener noreferrer">{milestone.title}</a></strong>
                                 <p>{milestone.description}</p>
-                                <p>Scheduled release date: {formatDueDate(milestone.due_on)}</p>
+                                <p>Scheduled release: {formatDueDate(milestone.due_on)}</p>
                                 <p>Progress: {calculateProgress(milestone)}%</p>
                             </li>
                         ))}
                     </ul>
+
+                    <h3>About</h3>
+                    <p>At OPENAPANEL B.V. we believe in the power of collaboration and value the feedback of our community. This roadmap is a testament to our dedication to open communication and customer-centric development. As we embark on this journey together, we invite you to explore the exciting initiatives that lie ahead and join us in shaping the future of hosting.</p>
+                    <p>Discover the roadmap that outlines our commitment to providing a robust, user-friendly hosting panel that not only meets but exceeds your expectations. Your insights and suggestions are invaluable to us, and we look forward to the shared successes that await on this path of innovation. Thank you for being an integral part of our growing community!</p>
+                    
                 </div>
                 <BlogFooter />
             </div>
