@@ -22,6 +22,17 @@ const Roadmap: React.FC = () => {
         fetchMilestones();
     }, []);
 
+    const calculateProgress = (milestone) => {
+        const totalIssues = milestone.open_issues + milestone.closed_issues;
+        const progress = (milestone.closed_issues / totalIssues) * 100;
+        return progress.toFixed(2);
+    };
+
+    const formatDueDate = (dueDate) => {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dueDate).toLocaleDateString(undefined, options);
+    };
+
     return (
         <CommonLayout>
             <Head title="ROADMAP | OpenPanel">
@@ -38,7 +49,8 @@ const Roadmap: React.FC = () => {
                             <li key={milestone.id}>
                                 <strong>{milestone.title}</strong>
                                 <p>{milestone.description}</p>
-                                <p>Due: {milestone.due_on}</p>
+                                <p>Scheduled release date: {formatDueDate(milestone.due_on)}</p>
+                                <p>Progress: {calculateProgress(milestone)}%</p>
                             </li>
                         ))}
                     </ul>
