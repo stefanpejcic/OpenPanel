@@ -22,7 +22,7 @@ Explore OpenAdmin & OpenPanel® with no strings attached.
                     <div className="flex">
                         {/* First Column */}
                         <div className="w-1/2 pr-4">
-                            <a href="https://demo.openpanel.co/openapanel/" target="_blank" rel="noopener noreferrer">
+                            <a href="https://demo.openpanel.co/openpanel/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenPanel Demo</h2>
                                 <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" />
                                 
