@@ -49,17 +49,17 @@ To reset admin password click on the user in Settings > OpenAdmin page, then cli
 To reset the password for an admin user:
 
 ```bash
-opencli admin password <new_password> [username | admin]
+opencli admin password <username> <new_password>
 ```
 
 Example, reset password for Super Admin user:
 ```bash
-opencli admin password Pyl7_L2M1 admin
+opencli admin password admin Pyl7_L2M1
 ```
 
 Example, reset password for regular Admin user:
 ```bash
-opencli admin password Pyl7_L2M1 filip
+opencli admin password filip Pyl7_L2M1
 ```
 
   </TabItem>
