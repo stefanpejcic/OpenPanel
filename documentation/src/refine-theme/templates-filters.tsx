@@ -39,7 +39,7 @@ export const TemplatesFilters: FC<Props> = ({
                     "dark:text-gray-500 text-gray-700",
                 )}
             >
-                UI Frameworks
+                OpenPanel
             </h4>
             <div
                 className={clsx(
@@ -97,7 +97,7 @@ export const TemplatesFilters: FC<Props> = ({
                     "mt-10",
                 )}
             >
-                Backends
+                OpenAdmin
             </h4>
             <div
                 className={clsx(

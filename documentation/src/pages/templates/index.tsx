@@ -143,7 +143,7 @@ const Templates: React.FC = () => {
                                         "pl-4",
                                     )}
                                 >
-                                    Filter Templates
+                                    Filter Products
                                 </h3>
                                 <TemplatesFilters
                                     svgId={"sider"}
@@ -295,9 +295,9 @@ const dataTemplates: {
 }[] = [
     {
         to: "/templates/crm-application",
-        title: "CRM Application",
+        title: "OpenPanel",
         description:
-            "A comprehensive CRM app built using Refine, Ant Design, and GraphQL. It includes authentication, a dashboard, and over 10 CRUD interfaces, ranging from charts and sales kanban boards to user administration.",
+            "The user interface for clients to manage their domains, websites and services.",
         image: "https://refine.ams3.cdn.digitaloceanspaces.com/templates/refine-crm.jpg",
         integrations: [
             {

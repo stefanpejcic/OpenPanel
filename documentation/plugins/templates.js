@@ -37,12 +37,12 @@ exports.default = RefineTemplates;
 const templates = [
     {
         slug: "crm-application",
-        title: "CRM Application",
+        title: "OpenPanel",
         images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-refine-crm.jpg",
+            "/img/panel_cropped.png",
         ],
         runOnYourLocalPath: "app-crm",
-        liveDemo: "https://example.crm.refine.dev/",
+        liveDemo: "https://demo.openpanel.co/openpanel/",
         github: "https://github.com/refinedev/refine/tree/master/examples/app-crm",
         reactPlatform: "Vite",
         uiFramework: "Ant Design",
