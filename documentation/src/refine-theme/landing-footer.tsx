@@ -25,7 +25,7 @@ export const LandingFooter = () => {
                     "text-gray-900 dark:text-gray-0",
                 )}
             >
-                OPENPANEL B.V.
+                OPENPANEL
             </div>
             <div
                 className={clsx(
