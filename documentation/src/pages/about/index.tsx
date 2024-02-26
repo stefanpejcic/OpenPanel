@@ -105,8 +105,8 @@ const About: React.FC = () => {
                                     <MarkerIcon className="text-refine-orange" />
                                 </div>
                                 <span className="text-gray-700 dark:text-gray-300">
-                                    1c Bulevar<br />
-                                    Belgrade, RS 11160
+                                    SOON
+                                    
                                 </span>
                             </div>
                             <div className="flex justify-center items-center gap-6">
