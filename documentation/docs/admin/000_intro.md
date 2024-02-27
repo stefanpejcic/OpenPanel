@@ -22,11 +22,11 @@ Hardware Requirements
 
 Docker and any required Docker images will be installed for you.
 
-All users data resides in `/var` and we recommend, if your disk is partitioned, that this partition contains most of your available space.
+All users data resides in `/home` and all docker data resides in `/var`. If your disk is partitioned, we recommend that these partition contain most of your available space.
 
 ## Installation
 
-To install openpanel follow these steps: 
+The installation process takes about 5 ninutes. To install openpanel follow these steps: 
 
 1. Log in to your new server;
 - as root via SSH or
