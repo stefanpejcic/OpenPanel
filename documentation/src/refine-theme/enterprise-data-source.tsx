@@ -17,7 +17,8 @@ import {
     Docker,
     Named,
     Srvnginx,
-    Srvapache
+    Srvapache,
+    Nodejs
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -349,7 +350,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <PostgreSql {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Nodejs {...props} />,
         label: "NodeJS",
         tooltip: null,
     },
