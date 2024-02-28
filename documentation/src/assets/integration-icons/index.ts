@@ -52,7 +52,7 @@ export { default as Named } from "./named";
 export { default as Ufw } from "./ufw";
 export { default as Srvnginx } from "./srvnginx";
 export { default as Srvnginx } from "./srvapache";
-
+export { default as Nodejs } from "./nodejs";
 
 
 export { default as Ably } from "./ably";
