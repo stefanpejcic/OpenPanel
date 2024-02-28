@@ -3,7 +3,7 @@ import { SVGProps } from "react";
 
 const SvgPhpv = (props: SVGProps<SVGSVGElement>) => (
 
-  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50 50" width="24px" height="24px">
+  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 50 50" width="50px" height="50px">
     <g>
         <path d="M15.333,22h-2.061l-0.755,4h1.71c1.48,0,2.855-0.167,3.084-2.373C17.4,22.77,17.042,22,15.333,22z" />
         <path d="M36.333,22h-2.061l-0.755,4h1.71c1.48,0,2.855-0.167,3.084-2.373C38.4,22.77,38.042,22,36.333,22z" />
