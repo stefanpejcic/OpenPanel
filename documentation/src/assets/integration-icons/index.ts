@@ -57,6 +57,7 @@ export { default as Wordpress } from "./wordpress";
 export { default as Memcached } from "./memcached";
 export { default as ElasticSe } from "./elasticSe";
 export { default as Phpv } from "./phpv";
+export { default as Sshico } from "./sshico";
 
 
 
