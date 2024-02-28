@@ -12,7 +12,10 @@ import {
     MySql,
     MsSqlServer,
     SQLite,
-    Redis
+    Redis,
+    Firewall,
+    Docker,
+    Named
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -321,17 +324,17 @@ const list1 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Supabase {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Docker {...props} />,
         label: "Docker",
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Hasura {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Firewall {...props} />,
         label: "UFW",
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Airtable {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Named {...props} />,
         label: "Named",
         tooltip: null,
     },
