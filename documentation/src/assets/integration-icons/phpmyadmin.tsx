@@ -3,7 +3,7 @@ import { SVGProps } from "react";
 
 const SvgPhpmyadmin = (props: SVGProps<SVGSVGElement>) => (
 
-<svg width="24px" height="24px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="24px" height="24px" viewBox="0 0 48 48" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="24" height="24" fill="white" fill-opacity="0.01"/>
 <path d="M34 12V20V21C31.0449 21 28.3892 22.2818 26.5585 24.3198C24.9678 26.0906 24 28.4323 24 31C24 31.5789 24.0492 32.1463 24.1436 32.6983C24.6579 35.7046 26.5143 38.2529 29.0741 39.7046C26.4116 40.5096 22.8776 41 19 41C10.7157 41 4 38.7614 4 36V28V20V12" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M34 12C34 14.7614 27.2843 17 19 17C10.7157 17 4 14.7614 4 12C4 9.23858 10.7157 7 19 7C27.2843 7 34 9.23858 34 12Z" fill="#2F88FF" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
