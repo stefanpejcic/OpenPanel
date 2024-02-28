@@ -13,7 +13,7 @@ import {
     MsSqlServer,
     SQLite,
     Redis,
-    Firewall,
+    Ufw,
     Docker,
     Named
 } from "../assets/integration-icons";
@@ -329,7 +329,7 @@ const list1 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Firewall {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Ufw {...props} />,
         label: "UFW",
         tooltip: null,
     },
