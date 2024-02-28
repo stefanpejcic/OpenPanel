@@ -44,7 +44,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "font-semibold",
                             )}
                         >
-                            Single Sign On
+                            Match your Brand
                         </h2>
                         <p
                             className={clsx(
@@ -52,8 +52,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Pre-built components and hooks to easily build your
-                            sign-on interfaces.
+                            Customize the OpenPanel interface to match your brand.
                         </p>
                     </div>
                 </div>
