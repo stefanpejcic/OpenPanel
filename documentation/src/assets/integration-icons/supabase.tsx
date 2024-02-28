@@ -4,8 +4,8 @@ import { SVGProps } from "react";
 const SvgSupabase = (props: SVGProps<SVGSVGElement>) => (
     <svg
         width={24}
-        height={24}
-        viewBox="0 0 47 48"
+        height={64}
+        viewBox="0 0 512 512"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         {...props}
