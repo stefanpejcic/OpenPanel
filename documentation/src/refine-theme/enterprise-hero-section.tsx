@@ -49,17 +49,17 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    We're thrilled to announce that OpenPanel is currently available in closed Beta! The open beta test will be open to the public between{" "}
+                    We're thrilled to announce that OpenPanel Enterprise edition is currently available in open Beta! The open beta test will be open to the public between{" "}
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        January 25th{" "}
+                        February 26th{" "}
                     </span>
                     and{" "}
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        February 25th, 2024
+                        July 26th, 2024
                     </span>{" "}
                     Participation is free and available to anyone. To take part, simply{" "}
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        add your email address to the form bellow
+                        install OpenPanel on your server.
                     </span>.
                 </p>
                 <EnterpriseGetInTouchButton
