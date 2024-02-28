@@ -45,6 +45,12 @@ export { default as Cache } from "./cache";
 export { default as Nginx } from "./nginx";
 export { default as Apache } from "./apache";
 
+
+export { default as Redis } from "./redis";
+export { default as Docker } from "./docker";
+export { default as Named } from "./named";
+export { default as Ufw } from "./ufw";
+
 export { default as Ably } from "./ably";
 export { default as Airtable } from "./airtable";
 export { default as Antd } from "./antd";
