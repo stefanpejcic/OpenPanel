@@ -191,7 +191,7 @@ const mainSidebar = {
           id: 'panel/account/login',
         },
       ],
-    }
+    },
     {
         type: "link",
         href: "https://community.openpanel.co",
