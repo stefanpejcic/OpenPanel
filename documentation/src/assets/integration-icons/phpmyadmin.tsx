@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SVGProps } from "react";
 
-const Svg = (props: SVGProps<SVGSVGElement>) => (
+const SvgPhpmyadmin = (props: SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="64">
     <g transform="matrix(.022172 0 0 .022172 16.871951 2.359016)">
         <path
@@ -28,4 +28,4 @@ const Svg = (props: SVGProps<SVGSVGElement>) => (
 </svg>
 );
 
-export default Svg;
+export default SvgPhpmyadmin;
