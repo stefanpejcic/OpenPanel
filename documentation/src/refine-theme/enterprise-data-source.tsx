@@ -12,6 +12,7 @@ import {
     MySql,
     MsSqlServer,
     SQLite,
+    Redis
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -363,7 +364,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Redis {...props} />,
         label: "REDIS",
         tooltip: null,
     },
