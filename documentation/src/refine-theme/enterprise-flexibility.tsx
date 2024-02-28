@@ -78,9 +78,7 @@ export const EnterpriseFlexibility = ({
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Tools, helpers and smart assistants to accelerate
-                            your full-code workflows. No black-box or
-                            proprietary components.
+                            All the necessary features for running a web hosting server are integrated, eliminating the need to purchase additional software for tasks like backups, WordPress management or user isolation.
                         </p>
                     </div>
                 </div>
