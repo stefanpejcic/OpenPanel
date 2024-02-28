@@ -14,8 +14,8 @@ export const UseCases = () => {
             </Head>
             <div className="container max-w-[1040px]">
                 <h1 className="font-montserrat text-[#1890FF] text-center my-8">
-                    YOUR WORK{" "}
-                    <span className="font-normal">OUR INSPIRATION</span>
+                    OpenPanel{" "}
+                    <span className="font-normal">DOCUMENTATION</span>
                 </h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {USE_CASES.map((useCase) => (
@@ -24,7 +24,7 @@ export const UseCases = () => {
                             className="flex flex-col justify-between"
                         >
                             <div>
-                                <Link to={`/use-cases/${useCase.route}`}>
+                                <Link to={`/docs/${useCase.route}/intro`}>
                                     <img
                                         src={useCase.thumbImgURL}
                                         alt={useCase.title}
@@ -43,7 +43,7 @@ export const UseCases = () => {
 
                             <Link
                                 className="shadow-startTiles appearance-none flex items-center justify-center mt-2 mb-4 no-underline font-bold font-montserrat text-sm h-8 w-44 text-[#1890FF] text-center bg-white rounded-[4px] cursor-pointer border border-solid border-[#EDEDEF]"
-                                to={`/use-cases/${useCase.route}`}
+                                to={`/docs/${useCase.route}/intro`}
                             >
                                 Read more
                             </Link>
