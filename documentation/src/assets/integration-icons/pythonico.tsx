@@ -1,9 +1,9 @@
 import * as React from "react";
 import { SVGProps } from "react";
 
-const Svg = (props: SVGProps<SVGSVGElement>) => (
+const SvgPythonico = (props: SVGProps<SVGSVGElement>) => (
 
-<svgPythonico
+<svg
         width={24}
         height={64}
         viewBox="0 0 256 255"
