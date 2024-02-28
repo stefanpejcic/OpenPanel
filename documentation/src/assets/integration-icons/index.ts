@@ -56,6 +56,7 @@ export { default as Nodejs } from "./nodejs";
 export { default as Wordpress } from "./wordpress";
 export { default as Memcached } from "./memcached";
 export { default as Elastic } from "./elastic";
+export { default as Phpv } from "./phpv";
 
 
 
