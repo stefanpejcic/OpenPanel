@@ -1,3 +1,6 @@
+import * as React from "react";
+import { SVGProps } from "react";
+
 const SvgSshico = (props: SVGProps<SVGSVGElement>) => (
 
 <svg fill="#000000" width="24px" height="24px" viewBox="-5.5 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
