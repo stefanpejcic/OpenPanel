@@ -2,14 +2,13 @@ import * as React from "react";
 import { SVGProps } from "react";
 
 const SvgPythonico = (props: SVGProps<SVGSVGElement>) => (
-
-<svg
-        width={24}
-        height={64}
-        viewBox="0 0 256 255"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        {...props}
+        <svg
+                width={24}
+                height={64}
+                viewBox="0 0 256 255"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                {...props}
     >
         <defs>
         <linearGradient x1="12.959%" y1="12.039%" x2="79.639%" y2="78.201%" id="a">
@@ -30,7 +29,6 @@ const SvgPythonico = (props: SVGProps<SVGSVGElement>) => (
         fill="url(#b)"
     />
     </svg>
-  
 );
 
 export default svgPythonico;
