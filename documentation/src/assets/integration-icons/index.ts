@@ -58,7 +58,7 @@ export { default as Memcached } from "./memcached";
 export { default as ElasticSe } from "./elasticSe";
 export { default as Phpv } from "./phpv";
 export { default as Sshico } from "./sshico";
-
+export { default as Phpmyadmin } from "./phpmyadmin";
 
 
 export { default as Ably } from "./ably";
