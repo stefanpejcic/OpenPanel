@@ -24,7 +24,8 @@ import {
     ElasticSe,
     Phpv,
     Sshico,
-    Phpmyadmin
+    Phpmyadmin,
+    Pythonico
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -358,6 +359,11 @@ const list2 = [
     {
         icon: (props: SVGProps<SVGSVGElement>) => <Nodejs {...props} />,
         label: "NodeJS",
+        tooltip: null,
+    },
+    {
+        icon: (props: SVGProps<SVGSVGElement>) => <Pythonico {...props} />,
+        label: "Python",
         tooltip: null,
     },
     {
