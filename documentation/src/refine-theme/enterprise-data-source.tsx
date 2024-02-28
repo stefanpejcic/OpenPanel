@@ -19,7 +19,8 @@ import {
     Srvnginx,
     Srvapache,
     Nodejs,
-    Wordpress
+    Wordpress,
+    Memcached
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -376,7 +377,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Memcached {...props} />,
         label: "Memcached",
         tooltip: null,
     },
