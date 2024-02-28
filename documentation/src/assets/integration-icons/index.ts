@@ -54,7 +54,7 @@ export { default as Srvnginx } from "./srvnginx";
 export { default as Srvapache } from "./srvapache";
 export { default as Nodejs } from "./nodejs";
 export { default as Wordpress } from "./wordpress";
-
+export { default as Wordpress } from "./Memcached";
 
 
 
