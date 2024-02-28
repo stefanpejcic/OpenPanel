@@ -2,7 +2,7 @@
 title: OpenPanel BETA is out!
 description: Public beta is released!
 slug: openpanel-public-beta-released
-authors: yildiray
+authors: stefanpejcic
 tags: [OpenPanel, news, tutorial]
 image: https://refine.ams3.cdn.digitaloceanspaces.com/website/static/img/placeholder.png
 hide_table_of_contents: false
