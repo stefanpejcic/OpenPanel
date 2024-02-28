@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SVGProps } from "react";
 
-const SvgRedis = (props: SVGProps<SVGSVGElement>) => (
+const SvgSrvapache = (props: SVGProps<SVGSVGElement>) => (
 
   <svg
         width={24}
@@ -116,3 +116,5 @@ const SvgRedis = (props: SVGProps<SVGSVGElement>) => (
     </svg>
 
 );
+
+export default SvgSrvapache;
