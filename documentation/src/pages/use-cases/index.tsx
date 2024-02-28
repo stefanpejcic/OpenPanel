@@ -45,7 +45,7 @@ export const UseCases = () => {
                                 className="shadow-startTiles appearance-none flex items-center justify-center mt-2 mb-4 no-underline font-bold font-montserrat text-sm h-8 w-44 text-[#1890FF] text-center bg-white rounded-[4px] cursor-pointer border border-solid border-[#EDEDEF]"
                                 to={`/docs/${useCase.route}/intro`}
                             >
-                                Read more
+                                Visit Docs
                             </Link>
                         </div>
                     ))}
