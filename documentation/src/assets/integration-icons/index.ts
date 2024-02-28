@@ -55,7 +55,7 @@ export { default as Srvapache } from "./srvapache";
 export { default as Nodejs } from "./nodejs";
 export { default as Wordpress } from "./wordpress";
 export { default as Memcached } from "./memcached";
-export { default as Elastic } from "./elasticSe";
+export { default as ElasticSe } from "./elasticSe";
 export { default as Phpv } from "./phpv";
 
 
