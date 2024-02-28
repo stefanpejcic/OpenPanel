@@ -23,7 +23,7 @@ const PrivacyPolicy: React.FC = () => {
                     <p>If your question has been asked before, you might be able to find an answer in minutes and get your problem knocked out before we even know it exists.</p>
                 
                     <ul>
-                        <li><a href="/docs/admin/intro/">Search Documentation</a></li>
+                        <li><a href="/search">Search Documentation</a></li>
                         <li><a href="https://community.openpanel.co">Search Forums</a></li>
                     </ul>
                 
