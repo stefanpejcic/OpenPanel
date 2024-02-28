@@ -21,7 +21,8 @@ import {
     Nodejs,
     Wordpress,
     Memcached,
-    Elastic
+    Elastic,
+    Phpv
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -348,7 +349,7 @@ const list1 = [
 
 const list2 = [
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Oracle {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Phpv {...props} />,
         label: "PHP",
         tooltip: null,
     },
