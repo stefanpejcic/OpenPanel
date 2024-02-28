@@ -20,8 +20,8 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             )}
         >
             <Link
-                href="mailto:info@openpanel.co"
-                target="_blank"
+                href="/docs/admin/intro/#installation"
+                target="_self"
                 rel="noopener noreferrer"
                 className={clsx(
                     "self-start",
@@ -46,7 +46,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             >
                 <GetInTouchIcon />
                 <span className={clsx("text-base", "font-semibold")}>
-                    Signup for BETA
+                    Install OpenPanel
                 </span>
             </Link>
         </div>
