@@ -15,7 +15,8 @@ import {
     Redis,
     Ufw,
     Docker,
-    Named
+    Named,
+    Srvnginx
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
