@@ -39,7 +39,7 @@ export const EnterpriseFlexibility = ({
                 )}
             >
                 <LandingPureReactCode
-                    description={`Clean, well-architectured React application as output. Full control over your styling, business logic and integrations.`}
+                    description={`Don’t settle for overpriced and outdated hosting panels. With OpenPanel, you maintain 100% control over your server and data at all times.`}
                     cta={false}
                 />
                 <div
