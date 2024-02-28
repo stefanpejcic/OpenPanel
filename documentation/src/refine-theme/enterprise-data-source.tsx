@@ -16,7 +16,8 @@ import {
     Ufw,
     Docker,
     Named,
-    Srvnginx
+    Srvnginx,
+    Srvapache
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -358,7 +359,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <SQLite {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Srvapache {...props} />,
         label: "Apache",
         tooltip: null,
     },
