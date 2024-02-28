@@ -65,20 +65,20 @@ export const EnterpriseSecurityFeatures = ({
 const list = [
     {
         icon: <AccessControlIcon />,
-        title: "Achieve fine-grained access control",
+        title: "Secure by default",
         description:
-            "Native integrations to authorization services for out-of-the-box support of common access control models such as ACL, RBAC & ABAC models.",
+            "Enable Two Factor authentification, block IP addresses per domain, control remote MySQL access and SSH access.",
     },
     {
         icon: <SelfHostedIcon />,
-        title: "Self-host for compliance",
+        title: "Limit resource usage",
         description:
-            "Deploy to your own infrastructure without worrying about regulations, performance, and stability. Maintain your current security best practices with no compromises.",
+            "Restrict the number of websites, domains, or databases, while enforcing hard limits on CPU, memory, port speed, disk usage, and inodes.",
     },
     {
         icon: <MonitorIcon />,
-        title: "Effortlessly monitor your application",
+        title: "Monitor your server and users",
         description:
-            "Ready-made providers and components for audit logging and usage analytics.",
+            "Built-in features include logging user activity, visualizing website visitors, and analyzing resource usage.",
     },
 ];
