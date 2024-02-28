@@ -315,7 +315,7 @@ const PackageItem = (props: {
 
 const list1 = [
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Nest {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Srvnginx {...props} />,
         label: "Nginx",
         tooltip: null,
     },
@@ -363,7 +363,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <MsSqlServer {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Srvnginx {...props} />,
         label: "Nginx",
         tooltip: null,
     },
