@@ -315,7 +315,7 @@ const list1 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Strapi {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <MySql {...props} />,
         label: "MySQL",
         tooltip: null,
     },
