@@ -15,7 +15,7 @@ export const UseCases = () => {
             <div className="container max-w-[1040px]">
                 <h1 className="font-montserrat text-[#1890FF] text-center my-8">
                     OpenPanel{" "}
-                    <span className="font-normal">DOCUMENTATION</span>
+                    <span className="font-normal">DOCUMENTATION</span> 
                 </h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {USE_CASES.map((useCase) => (
