@@ -21,7 +21,7 @@ import {
     Nodejs,
     Wordpress,
     Memcached,
-    Elastic,
+    ElasticSe,
     Phpv
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
@@ -384,7 +384,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Elastic {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <ElasticSe {...props} />,
         label: "Elasticsearch",
         tooltip: null,
     },
