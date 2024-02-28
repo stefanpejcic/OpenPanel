@@ -94,8 +94,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Customizable components for implementing any type of
-                            MFA flows.
+                            Enable or enforce MFA for your clients.
                         </p>
                     </div>
                 </div>
