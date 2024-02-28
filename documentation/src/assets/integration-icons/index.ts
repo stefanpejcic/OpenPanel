@@ -51,9 +51,9 @@ export { default as Docker } from "./docker";
 export { default as Named } from "./named";
 export { default as Ufw } from "./ufw";
 export { default as Srvnginx } from "./srvnginx";
-export { default as Srvnginx } from "./srvapache";
+export { default as Srvapache } from "./srvapache";
 export { default as Nodejs } from "./nodejs";
-export { default as Nodejs } from "./wordpress";
+export { default as Wordpress } from "./wordpress";
 
 
 
