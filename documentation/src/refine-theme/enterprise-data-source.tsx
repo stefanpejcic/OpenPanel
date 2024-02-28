@@ -23,7 +23,8 @@ import {
     Memcached,
     ElasticSe,
     Phpv,
-    Sshico
+    Sshico,
+    Phpmyadmin
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -390,7 +391,7 @@ const list2 = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <MongoDB {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Phpmyadmin {...props} />,
         label: "phpMyAdmin",
         tooltip: null,
     },
