@@ -23,7 +23,7 @@ const About: React.FC = () => {
     const { colorMode } = useColorMode();
     return (
         <>
-            <Head title="About | Refine">
+            <Head title="About | OpenPanel Project">
                 <html data-page="about" data-customized="true" />
             </Head>
             <div className="refine-prose">
