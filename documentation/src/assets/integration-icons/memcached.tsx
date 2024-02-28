@@ -3,7 +3,7 @@ import { SVGProps } from "react";
 
 const SvgMemcached = (props: SVGProps<SVGSVGElement>) => (
 
-<svg xmlns="http://www.w3.org/2000/svg" width="24" height="64">
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
     <defs>
         <linearGradient id="A" x1="255.894" x2="255.894" y1="59.789" gradientUnits="userSpaceOnUse" y2="-452">
             <stop stop-color="#574c4a" offset="0%" />
