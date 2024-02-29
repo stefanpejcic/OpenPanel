@@ -59,11 +59,11 @@ export default function BlogPostItems({
                                 "text-gray-500 dark:text-gray-400",
                             )}
                         >
-                            <b>Refine technical blog</b> - a resource for
-                            Refine, front-end ecosystem, and web development.
+                            <b>OpenPanel technical blog</b> - a resource for
+                            OpenPanel, admin and end-users.
                             Here, we publish insightful articles that demystify
                             complex concepts, explore new trends, and provide
-                            helpful tips to enhance your coding journey.
+                            helpful tips to improve your hosting business.
                         </p>
                     </div>
                     <TagsList tags={tags} />

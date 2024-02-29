@@ -6,11 +6,11 @@ import BrowserOnly from "@docusaurus/BrowserOnly";
 const data = [
     {
         description:
-            "Refine is a React Framework used by over monthly 15K developers for building enterprise internal tools, dashboards, and B2B apps",
+            "Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.",
         image: {
-            src: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/banners/banner-tweet.jpg",
-            alt: "X tweet about Refine",
-            href: "https://s.refine.dev/blog-twitter?ref=banner-twitter",
+            src: "https://openpanel.co/img/admin/openadmin_dashboard.png",
+            alt: "OpenPanel Enterprise edition",
+            href: "https://openpanel.co/beta/?ref=banner-admin-panel",
         },
         button: {
             text: "Learn more",

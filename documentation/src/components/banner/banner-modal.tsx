@@ -29,16 +29,16 @@ type Props = {
 };
 
 export const BannerModal: FC<Props> = ({
-    title = "refine's app scaffolder offers +720 customizable CRUD app codebase combinations.",
+    title = "OpenPanel offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it.",
     variant = "purple",
     image = {
-        src: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/banners/playground.gif",
-        alt: "refine App screenshot",
-        href: "https://s.refine.dev/banner-modal?ref=banner-modal",
+        src: "https://openpanel.co/img/admin/openadmin_dashboard.png",
+        alt: "OpenPanel dashboard screenshot",
+        href: "https://openpanel.co/demo?ref=banner-modal",
     },
     button = {
         text: "Try online",
-        href: "https://s.refine.dev/banner-modal?ref=banner-modal",
+        href: "https://openpanel.co/demo?ref=banner-modal",
         onClick: undefined,
     },
 }) => {

@@ -14,11 +14,11 @@ type Props = {
 };
 
 export const BannerExamples: FC<Props> = ({
-    title = "Open-source Retool alternative for enterprise",
-    description = "Build React-based internal tools, dashboards & B2B apps with unmatched flexibility",
+    title = "Next Generation Hosting Panel",
+    description = "Effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and more.",
     button = {
-        text: "Discover Refine",
-        href: "https://s.refine.dev/blog-retool?ref=banner-retool-alternative",
+        text: "Discover OpenPanel",
+        href: "https://openpanel.co/features?ref=banner-openpanel-alternative",
         onClick: undefined,
     },
 }) => {

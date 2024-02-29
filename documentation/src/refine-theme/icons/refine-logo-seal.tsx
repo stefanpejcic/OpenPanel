@@ -6,61 +6,13 @@ export const RefineLogoSeal = (props: SVGProps<SVGSVGElement>) => (
         width={34}
         height={34}
         fill="none"
+	viewBox="0 0 213.000000 215.000000"
         {...props}
     >
-        <g opacity={0.5}>
-            <path
-                fill="url(#a)"
-                fillRule="evenodd"
-                d="M20.834 10a3.5 3.5 0 1 0-7 0v14a3.5 3.5 0 1 0 7 0V10Zm-3.5 2.666a2.667 2.667 0 1 0 0-5.333 2.667 2.667 0 0 0 0 5.333Z"
-                clipRule="evenodd"
-            />
-            <path
-                fill="url(#b)"
-                fillRule="evenodd"
-                d="M33 17c0 8.837-7.163 16-16 16S1 25.837 1 17 8.163 1 17 1s16 7.163 16 16ZM17.334 5a5 5 0 0 0-5 5v14a5 5 0 0 0 10 0V10a5 5 0 0 0-5-5Z"
-                clipRule="evenodd"
-            />
-            <path
-                stroke="url(#c)"
-                strokeOpacity={0.15}
-                d="M21.334 10a4 4 0 0 0-8 0v14a4 4 0 1 0 8 0V10ZM19.5 10a2.167 2.167 0 1 1-4.333 0 2.167 2.167 0 0 1 4.333 0ZM17 33.5c9.113 0 16.5-7.387 16.5-16.5S26.113.5 17 .5.5 7.887.5 17 7.887 33.5 17 33.5ZM12.834 10a4.5 4.5 0 1 1 9 0v14a4.5 4.5 0 1 1-9 0V10Z"
-            />
-        </g>
-        <defs>
-            <linearGradient
-                id="a"
-                x1={17}
-                x2={17}
-                y1={1}
-                y2={33}
-                gradientUnits="userSpaceOnUse"
-            >
-                <stop stopColor="#14141F" />
-                <stop offset={1} stopColor="#14141F" stopOpacity={0.5} />
-            </linearGradient>
-            <linearGradient
-                id="b"
-                x1={17}
-                x2={17}
-                y1={1}
-                y2={33}
-                gradientUnits="userSpaceOnUse"
-            >
-                <stop stopColor="#14141F" />
-                <stop offset={1} stopColor="#14141F" stopOpacity={0.5} />
-            </linearGradient>
-            <linearGradient
-                id="c"
-                x1={17}
-                x2={17}
-                y1={1}
-                y2={33}
-                gradientUnits="userSpaceOnUse"
-            >
-                <stop stopColor="#fff" stopOpacity={0} />
-                <stop offset={1} stopColor="#fff" />
-            </linearGradient>
-        </defs>
+    <g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
+        <path
+            d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"
+        ></path>
+    </g>
     </svg>
 );

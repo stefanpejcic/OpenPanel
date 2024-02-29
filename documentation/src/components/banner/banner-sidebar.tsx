@@ -4,11 +4,11 @@ import { LandingRainbowButton } from "@site/src/refine-theme/landing-rainbow-but
 import clsx from "clsx";
 import React from "react";
 
-const text = "Struggling with internal tools?";
+const text = "Struggling with hosting panels?";
 const description =
-    "Explore refine’s limitless possibilities in crafting CRUD apps, CRM solutions, HR dashboards, and more!";
+    "Boost your hosting service: Try OpenPanel Community edition and elevate your clients experience to new heights!";
 const image =
-    "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/banners/app-crm.png";
+    "https://openpanel.co/img/panel/v1/dashboard/dashboard.png";
 
 export const BannerSidebar = ({ shouldShowBanner }) => {
     React.useEffect(() => {
@@ -40,7 +40,7 @@ export const BannerSidebar = ({ shouldShowBanner }) => {
             )}
         >
             <Link
-                to={"https://s.refine.dev/blog-sidebar?ref=banner-sidebar"}
+                to={"https://openpanel.co/demo?ref=banner-sidebar"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={clsx(
