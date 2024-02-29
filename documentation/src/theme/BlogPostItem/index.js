@@ -26,7 +26,7 @@ export default function BlogPostItem({ className }) {
                 <Link itemProp="url" to={permalink}>
                     <div className="not-prose relative m-0 h-40 hover:brightness-90">
                         <img
-                            src={`https://openapanel.co${frontMatter.image?.replace(
+                            src={`https://openpanel.co${frontMatter.image?.replace(
                                 "https://openpanel.co",
                                 "",
                             )}?h=160`}
