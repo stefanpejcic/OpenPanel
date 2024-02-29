@@ -13,7 +13,8 @@ import {
     Wordpress,
     Joomla,
     Drupal,
-    Magento
+    Magento,
+    Presta
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -258,7 +259,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Google {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Presta {...props} />,
         label: "PrestaShop",
         tooltip: null,
     },
