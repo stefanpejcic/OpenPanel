@@ -10,6 +10,7 @@ import {
     Expo,
     Google,
     Okta,
+    Wordpress
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -224,7 +225,7 @@ const PackageItem = (props: {
 
 const list = [
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <AwsCognito {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Wordpress {...props} />,
         label: "WordPress",
         tooltip: null,
     },
