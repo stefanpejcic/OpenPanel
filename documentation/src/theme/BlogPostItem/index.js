@@ -26,8 +26,8 @@ export default function BlogPostItem({ className }) {
                 <Link itemProp="url" to={permalink}>
                     <div className="not-prose relative m-0 h-40 hover:brightness-90">
                         <img
-                            src={`https://refine-web.imgix.net${frontMatter.image?.replace(
-                                "https://refine.ams3.cdn.digitaloceanspaces.com",
+                            src={`https://openapanel.co${frontMatter.image?.replace(
+                                "https://openpanel.co",
                                 "",
                             )}?h=160`}
                             alt={title}
