@@ -15,7 +15,8 @@ import {
     Drupal,
     Magento,
     Presta,
-    Nextcloud
+    Nextcloud,
+    Nuxtjs
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -265,7 +266,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <AuthJs {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Nuxtjs {...props} />,
         label: "Nuxt.js",
         tooltip: null,
     },
