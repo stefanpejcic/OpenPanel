@@ -217,7 +217,7 @@ const mainSidebar = {
     // Promo
     {
       type: 'link',
-      href: '/beta',
+      href: '/roadmap',
       label: 'Product Roadmap',
       className: 'enterprise-badge',
     },
