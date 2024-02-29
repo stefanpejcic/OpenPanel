@@ -3,7 +3,7 @@ import { SVGProps } from "react";
 
 const SvgNextcloud = (props: SVGProps<SVGSVGElement>) => (
 
-  <svg fill="#1c71d8" width="64px" height="64px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <svg fill="#1c71d8" width="24px" height="24px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
 
 <g id="SVGRepo_bgCarrier" stroke-width="0"/>
 
