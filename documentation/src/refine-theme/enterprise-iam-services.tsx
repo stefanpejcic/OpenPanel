@@ -16,7 +16,9 @@ import {
     Magento,
     Presta,
     Nextcloud,
-    Nuxtjs
+    Nuxtjs,
+    Laravel,
+    Gridsome
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -251,7 +253,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Clerk {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Laravel {...props} />,
         label: "Laravel",
         tooltip: null,
     },
@@ -271,7 +273,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Expo {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Gridsome {...props} />,
         label: "Gridsome",
         tooltip: null,
     },
