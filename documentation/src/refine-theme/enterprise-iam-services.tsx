@@ -14,7 +14,8 @@ import {
     Joomla,
     Drupal,
     Magento,
-    Presta
+    Presta,
+    Nextcloud
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -254,7 +255,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Atlassian {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Nextcloud {...props} />,
         label: "NextCloud",
         tooltip: null,
     },
