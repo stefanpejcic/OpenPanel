@@ -64,7 +64,7 @@ export { default as Joomla } from "./joomla";
 export { default as Drupal } from "./drupal";
 export { default as Magento } from "./magento";
 export { default as Presta } from "./presta";
-
+export { default as Nextcloud } from "./nextcloud";
 export { default as Ably } from "./ably";
 export { default as Airtable } from "./airtable";
 export { default as Antd } from "./antd";
