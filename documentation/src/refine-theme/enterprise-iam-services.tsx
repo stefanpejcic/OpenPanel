@@ -11,7 +11,8 @@ import {
     Google,
     Okta,
     Wordpress,
-    Joomla
+    Joomla,
+    Drupal
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -241,7 +242,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Okta {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Drupal {...props} />,
         label: "Drupal",
         tooltip: null,
     },
