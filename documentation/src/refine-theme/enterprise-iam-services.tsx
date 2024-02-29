@@ -10,7 +10,8 @@ import {
     Expo,
     Google,
     Okta,
-    Wordpress
+    Wordpress,
+    Joomla
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -235,9 +236,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => (
-            <AzureActiveDirectory {...props} />
-        ),
+        icon: (props: SVGProps<SVGSVGElement>) => <Joomla {...props} />,
         label: "Joomla",
         tooltip: null,
     },
