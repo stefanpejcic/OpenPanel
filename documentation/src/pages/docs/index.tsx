@@ -64,7 +64,7 @@ Whether you are a new user or an experienced administrator, our comprehensive do
 <div className="flex">
                         {/* First Column */}
                         <div className="w-1/2 pr-4">
-                            <a href="/docs/panel/intro/" target="_blank" rel="noopener noreferrer">
+                            <a href="/docs/panel/intro/" rel="noopener noreferrer">
                                 <h2>OpenPanel Docs</h2>
                                 <img src="/img/panel/v1/dashboard/dashboard.png" alt="OpenPanel Documentation" />
                                 
@@ -77,7 +77,7 @@ OpenPanel offers a robust interface for end-users aiming to simplify the complex
 
                         {/* Second Column */}
                         <div className="w-1/2 pl-4">
-                            <a href="/docs/admin/intro/" target="_blank" rel="noopener noreferrer">
+                            <a href="/docs/admin/intro/" rel="noopener noreferrer">
                                 <h2>OpenAdmin Docs</h2>
                                 <img src="/img/admin/openadmin_dashboard.png" alt="OpenAdmin Documentation" />
                                 
