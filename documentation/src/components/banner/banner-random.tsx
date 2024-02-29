@@ -14,7 +14,7 @@ const data = [
         },
         button: {
             text: "Learn more",
-            href: "https://s.refine.dev/blog-twitter?ref=banner-twitter",
+            href: "https://openpanel.co/beta/?ref=banner-admin-panel",
         },
         bannerName: "banner-twitter",
     },
