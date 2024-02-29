@@ -102,8 +102,8 @@ export const BlogPostPageView = ({ children }) => {
             <div>
                 <img
                     className="mb-2 w-full rounded-xl"
-                    src={`https://refine-web.imgix.net${frontMatter.image?.replace(
-                        "https://refine.ams3.cdn.digitaloceanspaces.com",
+                    src={`https://openpanel.co${frontMatter.image?.replace(
+                        "https://openpanel.co",
                         "",
                     )}?w=800`}
                     alt={title}
