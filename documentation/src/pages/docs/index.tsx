@@ -56,33 +56,35 @@ const About: React.FC = () => {
                     </h1>
                 </div>
 
-<div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
-                
+<div className="flex-1 flex flex-col pt-4 lg:pt-6 pb-32 max-w-[1040px] w-full mx-auto px-2">
+<p>
+Whether you are a new user or an experienced administrator, our comprehensive documentation is designed to get you up and running quickly, while also providing deep insights into advanced features and customization options. Explore our resources below to make the most out of our products.
+</p>      
+
 <div className="flex">
                         {/* First Column */}
                         <div className="w-1/2 pr-4">
                             <a href="/docs/panel/intro/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenPanel Docs</h2>
-                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" />
+                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="OpenPanel Documentation" />
                                 
                             </a>
 
 <p>
-    
+OpenPanel offers a robust interface for end-users aiming to simplify the complexities of web and server management. From adding domains to managing your websites, our documentation covers everything you need to seamlessly navigate through the interface.
 </p>
-                          
                         </div>
 
                         {/* Second Column */}
                         <div className="w-1/2 pl-4">
                             <a href="/docs/admin/intro/" target="_blank" rel="noopener noreferrer">
                                 <h2>OpenAdmin Docs</h2>
-                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" />
+                                <img src="/img/admin/openadmin_dashboard.png" alt="OpenAdmin Documentation" />
                                 
                             </a>
-<p>
-
-</p>
+                            <p>
+OpenAdmin is tailored for administrators seeking fine-grained control over server configurations and management. Our documentation provides in-depth knowledge to help you customize and secure your server environment.
+                            </p>
                         </div>
                     </div>
 </div>
