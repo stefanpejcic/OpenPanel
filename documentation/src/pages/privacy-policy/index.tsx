@@ -16,11 +16,9 @@ const PrivacyPolicy: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Privacy Policy</h1>
-    <section>
         <p>OpenPanel is committed to protecting your privacy and any personal information you share with us. Accordingly, we have developed this privacy policy in order for you to understand how we collect, use, communicate, disclose and otherwise make use of personal information.</p>
         <p>We have outlined our privacy policy below. It is recommended that you read this privacy policy carefully. If you have additional questions or would like further information on this topic, please feel free to contact us.</p>
-    </section>
-    <section>
+
         <h2>ABOUT OPENPANEL</h2>
         <p>OpenPanel is the controller for the processing of your personal data, as described in this privacy policy. Our company particulars are:</p>
         <address>
@@ -31,12 +29,10 @@ const PrivacyPolicy: React.FC = () => {
             <br>
             Privacy Protection Team: <a href="mailto:privacy@openpanel.co">privacy@openpanel.co</a>
         </address>
-    </section>
-    <section>
+
         <h2>TO WHOM DOES THIS PRIVACY POLICY APPLY?</h2>
         <p>This privacy policy applies when you visit and use the OpenPanel website and OpenPanel products and get in touch with us through the website or otherwise. This privacy policy does not apply to the content and data processed, stored, or hosted by our customers using OpenPanel services.</p>
-    </section>
-    <section>
+
         <h2>HOW DO WE USE YOUR PERSONAL DATA?</h2>
         <p>Below is an overview of the purposes for which OpenPanel processes your personal data. In this overview, OpenPanel indicates the personal data OpenPanel uses for a specific purpose, what the legal basis is for processing these data, and how long OpenPanel stores the data. To keep things organised, we have grouped everything by type of data stream.</p>
         <h3>Legal bases: explanatory note</h3>
@@ -62,8 +58,7 @@ const PrivacyPolicy: React.FC = () => {
         <h3>Server installations log files</h3>
         <p>OpenPanel automatically collects generated data about your installation. This information consists of your server IP address (an unique number, which makes it possible to connect your licence with server); licence activity and updates logs.</p>
         <p>OpenPanel requires this information in order for the serverice to work as optimally as possible, the processing of these personal data is therefore necessary for the purposes of the legitimate interests pursued by OpenPanel (Article 6.1(f) GDPR).</p>
-    </section>
-    <section>
+
         <h2>DOES OPENPANEL SHARE YOUR PERSONAL DATA?</h2>
         <p>When you make a transaction, your transaction data is sent to the relevant payment service provider in order to process your payment. For example:</p>
         <ul>
@@ -71,12 +66,10 @@ const PrivacyPolicy: React.FC = () => {
         </ul>
         <p>If you request OpenPanel to register a domain on your behalf, we need to provide the required data to the corresponding registration service provider.</p>
         <p>In addition, OpenPanel will provide your personal data to external parties, such as police and government institutions if OpenPanel is obliged to do so on the basis applicable laws and / or regulations or by means of a court order or a legal verdict, or has obtained consent from you for the provision to third parties.</p>
-    </section>
-    <section>
+
         <h2>DOES OPENPANEL TRANSFER YOUR PERSONAL DATA OUTSIDE THE EUROPEAN ECONOMIC AREA?</h2>
         <p>To comply with EU data protection laws around international data transfer, OpenPanel only allows its service providers outside the EEA to process your personal data in accordance with a contract entered into between the OpenPanel and the service provider, incorporating the European Commission’s Standard Contractual Clauses, which ensure that adequate data protection arrangements are in place (Article 46.1(c) GDPR). For more information on where and how the relevant document may be accessed or obtained, please contact us.</p>
-    </section>
-    <section>
+
         <h2>WHAT ARE YOUR RIGHTS?</h2>
         <p>Under the GDPR, you have a number of rights with regard to your personal data and the processing thereof:</p>
         <ul>
@@ -90,15 +83,12 @@ const PrivacyPolicy: React.FC = () => {
         </ul>
         <p>OpenPanel shall respond to your request without undue delay and in any event within one month of receipt of the request. That period may be extended by two further months where necessary, taking into account the complexity and number of the requests. OpenPanel shall inform you of any such extension within one month of receipt of the request, together with the reasons for the delay.</p>
         <p>If OpenPanel does not take action on your request, OpenPanel shall inform you without delay and at the latest within one month of receipt of the request of the reasons for not taking action. In that case, you also have the right to lodge a complaint with the supervisory authority and to seek a judicial remedy.</p>
-    </section>
-    <section>
+
         <h2>WHAT ARE COOKIES AND HOW DOES OPENPANEL USE THEM?</h2>
         <p>When using the website or app, various cookies are saved on your computer, mobile device and/or tablet, which can then be accessed. Please consult the OpenPanel cookie policy for more information about how OpenPanel uses cookies.</p>
-    </section>
-    <section>
+
         <h2>COMPLAINTS?</h2>
         <p>In case you suspect a breach of data protection legislation and the matter is not solved amicably between us in negotiations, you also have the right to lodge a complaint with a supervisory authority.</p>
-    </section>
 
                 </div>
                 <BlogFooter />
