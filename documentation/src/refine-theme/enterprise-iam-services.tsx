@@ -12,7 +12,8 @@ import {
     Okta,
     Wordpress,
     Joomla,
-    Drupal
+    Drupal,
+    Magento
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -232,7 +233,7 @@ const list = [
         tooltip: null,
     },
     {
-        icon: (props: SVGProps<SVGSVGElement>) => <Auth0 {...props} />,
+        icon: (props: SVGProps<SVGSVGElement>) => <Magento {...props} />,
         label: "Magento",
         tooltip: null,
     },
