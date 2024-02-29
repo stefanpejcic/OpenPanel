@@ -59,7 +59,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "text-gray-900 dark:text-gray-0",
                             )}
                         >
-                            Next Generation Hosting Panel
+			<span class="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">Next Generation</span> Hosting Panel
                         </h1>
                         <p
                             className={clsx(
