@@ -66,7 +66,8 @@ export { default as Magento } from "./magento";
 export { default as Presta } from "./presta";
 export { default as Nextcloud } from "./nextcloud";
 export { default as Nuxtjs } from "./nuxtjs";
-
+export { default as Laravel } from "./laravel";
+export { default as Gridsome } from "./gridsome";
 
 
 
