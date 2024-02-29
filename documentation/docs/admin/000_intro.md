@@ -16,7 +16,7 @@ Hardware Requirements
 
 | Operating system and version | Processor                                 | RAM                                 | Disk Space                             | Architecture |
 | ---------------------------- | -----------------------------------------| ----------------------------------- | -------------------------------------- | ------------ |
-| [Ubuntu 20.04](https://releases.ubuntu.com/22.04/) or newer            | Minimum: 1.1 GHz<br></br>Recommended: 2 GHz    | Minimum: 1 GB<br></br>Recommended: 4 GB   | Minimum: 12 GB<br></br>Recommended: 20 GB   | 64-bit       |
+| [Ubuntu 22.04](https://releases.ubuntu.com/22.04/) or newer            | Minimum: 1.1 GHz<br></br>Recommended: 2 GHz    | Minimum: 1 GB<br></br>Recommended: 4 GB   | Minimum: 12 GB<br></br>Recommended: 20 GB   | 64-bit       |
 
 
 
