@@ -16,28 +16,26 @@ const PrivacyPolicy: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Privacy Policy</h1>
-                    <p>Last updated: April 04, 2023</p>
+                    <p>Last updated: March 01, 2024</p>
                     <p>
-                        This Privacy Policy describes Our policies and
-                        procedures on the collection, use and disclosure of Your
-                        information when You use the Service and tells You about
-                        Your privacy rights and how the law protects You.
+                        OpenPanel is committed to protecting your privacy and any personal information you share with us. Accordingly, we have developed this privacy policy in order for you to understand how we collect, use, communicate, disclose and otherwise make use of personal information.
                     </p>
                     <p>
-                        We use Your Personal data to provide and improve the
-                        Service. By using the Service, You agree to the
-                        collection and use of information in accordance with
-                        this Privacy Policy.
+                        We have outlined our privacy policy below. It is recommended that you read this privacy policy carefully. If you have additional questions or would like further information on this topic, please feel free to contact us.
                     </p>
-                    <h1>Interpretation and Definitions</h1>
-                    <h2 style={{ marginTop: 0 }}>Interpretation</h2>
+                    </p>
+                    <h2 style={{ marginTop: 0 }}>ABOUT OPENPANEL</h2>
                     <p>
-                        The words of which the initial letter is capitalized
-                        have meanings defined under the following conditions.
-                        The following definitions shall have the same meaning
-                        regardless of whether they appear in singular or in
-                        plural.
+                        OpenPanel is the controller for the processing of your personal data, as described in this privacy policy. Our company particulars are:
                     </p>
+                    <address>
+                        OpenPanel<br>
+                        IJsbaanpad 2<br>
+                        1076 CV Amsterdam<br>
+                        The Netherlands<br>
+                        <br>
+                        Privacy Protection Team: <a href="mailto:privacy@openpanel.co">privacy@openpanel.co</a>
+                    </address>
                     <p>
                         We will let You know via email and/or a prominent notice
                         on Our Service, prior to the change becoming effective
