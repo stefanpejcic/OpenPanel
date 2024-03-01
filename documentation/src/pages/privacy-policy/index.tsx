@@ -28,14 +28,6 @@ const PrivacyPolicy: React.FC = () => {
                     <p>
                         OpenPanel is the controller for the processing of your personal data, as described in this privacy policy. Our company particulars are:
                     </p>
-                    <address>
-                        OpenPanel<br>
-                        IJsbaanpad 2<br>
-                        1076 CV Amsterdam<br>
-                        The Netherlands<br>
-                        <br>
-                        Privacy Protection Team: <a href="mailto:privacy@openpanel.co">privacy@openpanel.co</a>
-                    </address>
                     <p>
                         We will let You know via email and/or a prominent notice
                         on Our Service, prior to the change becoming effective
