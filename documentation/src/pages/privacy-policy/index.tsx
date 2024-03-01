@@ -19,7 +19,10 @@ const PrivacyPolicy: React.FC = () => {
                        <p>
                            OpenPanel is committed to protecting your privacy and any personal information you share with us. Accordingly, we have developed this privacy policy in order for you to understand how we collect, use, communicate, disclose and otherwise make use of personal information.
                        </p>
-                     <h3>Server installations log files</h3>
+                        <p>
+                           We have outlined our privacy policy below. It is recommended that you read this privacy policy carefully. If you have additional questions or would like further information on this topic, please feel free to contact us. 
+                        </p>
+                     <h2>ABOUT OPENPANEL</h2>
                 </div>
                 <BlogFooter />
             </div>
