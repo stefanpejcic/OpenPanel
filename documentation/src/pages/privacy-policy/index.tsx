@@ -7,7 +7,6 @@ import clsx from "clsx";
 
 const PrivacyPolicy: React.FC = () => {
     return (
-        <CommonLayout>
             <Head title="Privacy Policy | OpenPanel">
                 <html data-page="support" data-customized="true" />
             </Head>
@@ -40,7 +39,6 @@ const PrivacyPolicy: React.FC = () => {
                 </div>
                 <BlogFooter />
             </div>
-        </CommonLayout>
     );
 };
 
