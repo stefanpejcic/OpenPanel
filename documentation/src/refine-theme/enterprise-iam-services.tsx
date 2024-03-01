@@ -16,9 +16,9 @@ import {
     Magento,
     Presta,
     Nextcloud,
-    Nuxtjs,
-    Laravel,
-    Gridsome
+    //Nuxtjs,
+    //Gridsome,
+    Laravel
 } from "../assets/integration-icons";
 import { useInView } from "framer-motion";
 
@@ -267,7 +267,7 @@ const list = [
         label: "PrestaShop",
         tooltip: null,
     },
-    {
+/*    {
         icon: (props: SVGProps<SVGSVGElement>) => <Nuxtjs {...props} />,
         label: "Nuxt.js",
         tooltip: null,
@@ -277,4 +277,5 @@ const list = [
         label: "Gridsome",
         tooltip: null,
     },
+    */
 ] as const;
