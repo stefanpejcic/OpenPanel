@@ -23,6 +23,21 @@ const PrivacyPolicy: React.FC = () => {
                            We have outlined our privacy policy below. It is recommended that you read this privacy policy carefully. If you have additional questions or would like further information on this topic, please feel free to contact us. 
                         </p>
                      <h2>ABOUT OPENPANEL</h2>
+                        <p>
+                            OpenPanel is the controller for the processing of your personal data, as described in this privacy policy. Our company particulars are:
+                        </p>
+                        <address>
+                            OpenPanel<br>
+                            IJsbaanpad 2<br>
+                            1076 CV Amsterdam<br>
+                            The Netherlands<br>
+                            <br>
+                            Privacy Protection Team: <a href="mailto:privacy@openpanel.co">privacy@openpanel.co</a>
+                        </address>
+                        <h2>TO WHOM DOES THIS PRIVACY POLICY APPLY?</h2>
+                        <p>
+                            This privacy policy applies when you visit and use the OpenPanel website and OpenPanel products and get in touch with us through the website or otherwise. This privacy policy does not apply to the content and data processed, stored, or hosted by our customers using OpenPanel services.
+                        </p>                    
                 </div>
                 <BlogFooter />
             </div>
