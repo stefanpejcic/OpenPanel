@@ -31,7 +31,6 @@ const PrivacyPolicy: React.FC = () => {
                             IJsbaanpad 2<br>
                             1076 CV Amsterdam<br>
                             The Netherlands<br>
-                            <br>
                             Privacy Protection Team: <a href="mailto:privacy@openpanel.co">privacy@openpanel.co</a>
                         </p>
                         <h2>TO WHOM DOES THIS PRIVACY POLICY APPLY?</h2>
