@@ -1,3 +1,10 @@
+import React from "react";
+import Head from "@docusaurus/Head";
+import { BlogFooter } from "@site/src/refine-theme/blog-footer";
+import { CommonHeader } from "@site/src/refine-theme/common-header";
+import { CommonLayout } from "@site/src/refine-theme/common-layout";
+import clsx from "clsx";
+
 const PrivacyPolicy: React.FC = () => {
     return (
         <CommonLayout>
