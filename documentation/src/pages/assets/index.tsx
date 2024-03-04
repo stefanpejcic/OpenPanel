@@ -7,8 +7,8 @@ import clsx from "clsx";
 
 const Assets: React.FC = () => {
     const assets = [
-        { name: "Logo Icon", svgUrl: "/icon/openpanel_logo.svg", downloadUrl: "/icon/openpanel_logo.svg" },
-        { name: "White Logo Icon", svgUrl: "/icon/openpanel_white_logo.svg", downloadUrl: "/icon/openpanel_white_logo.svg" },
+        { name: "Logo Icon", svgUrl: "/svg/openpanel_logo.svg", downloadUrl: "/svg/openpanel_logo.svg" },
+        { name: "White Logo Icon", svgUrl: "/svg/openpanel_white_logo.svg", downloadUrl: "/svg/openpanel_white_logo.svg" },
         // Amore here..
     ];
 
