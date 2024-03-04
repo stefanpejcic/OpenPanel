@@ -1,21 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import Head from "@docusaurus/Head";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
-import clsx from "clsx";
 
 const Assets: React.FC = () => {
+    const [color, setColor] = useState("#000000"); // Default color set to black
     const assets = [
         { name: "Logo Icon", svgUrl: "/img/svg/openpanel_logo.svg", downloadUrl: "/img/svg/openpanel_logo.svg" },
-        { name: "White Logo Icon", svgUrl: "/img/svg/openpanel_white_logo.svg", downloadUrl: "/img/svg/openpanel_white_logo.svg" },
+        //{ name: "White Logo Icon", svgUrl: "/img/svg/openpanel_white_logo.svg", downloadUrl: "/img/svg/openpanel_white_logo.svg" },
         // more here..
     ];
 
-
-    const handleCopySVGCode = async (svgUrl: string) => {
+    const handleCopySVGCode = async (svgUrl: string, color: string) => {
         const response = await fetch(svgUrl);
-        const svgCode = await response.text();
+        let svgCode = await response.text();
+        svgCode = svgCode.replace(/fill="currentColor"/g, `fill="${color}"`); // Replace fill color
         navigator.clipboard.writeText(svgCode).then(
             () => console.log('SVG code copied to clipboard'),
             (err) => console.error('Error copying SVG code: ', err)
@@ -41,7 +41,13 @@ const Assets: React.FC = () => {
                                 </div>
                                 <div>
                                     <a href={asset.downloadUrl} target="_blank" rel="noopener noreferrer" className="block bg-blue-500 text-white px-4 py-2 mb-2">Download</a>
-                                    <button onClick={() => handleCopySVGCode(asset.svgUrl)} className="bg-gray-500 text-white px-4 py-2">Copy SVG</button>
+                                    <input 
+                                        type="color" 
+                                        value={color} 
+                                        onChange={(e) => setColor(e.target.value)} 
+                                        className="mb-2"
+                                    />
+                                    <button onClick={() => handleCopySVGCode(asset.svgUrl, color)} className="bg-gray-500 text-white px-4 py-2">Copy SVG</button>
                                 </div>
                             </div>
                         ))}
