@@ -12,6 +12,7 @@ const Assets: React.FC = () => {
         // more here..
     ];
 
+
     const handleCopySVGCode = async (svgUrl: string) => {
         const response = await fetch(svgUrl);
         const svgCode = await response.text();
@@ -35,7 +36,9 @@ const Assets: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {assets.map((asset, index) => (
                             <div key={index} className="flex items-center space-x-4">
-                                <img src={asset.svgUrl} alt={asset.name} className="w-20 h-20" />
+                                <div className="bg-[#f8f9fa] p-4 rounded-lg">
+                                    <img src={asset.svgUrl} alt={asset.name} className="w-20 h-20" />
+                                </div>
                                 <div>
                                     <a href={asset.downloadUrl} target="_blank" rel="noopener noreferrer" className="block bg-blue-500 text-white px-4 py-2 mb-2">Download</a>
                                     <button onClick={() => handleCopySVGCode(asset.svgUrl)} className="bg-gray-500 text-white px-4 py-2">Copy SVG</button>
