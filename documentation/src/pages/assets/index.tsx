@@ -5,31 +5,42 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 
 const Assets: React.FC = () => {
-    const [color, setColor] = useState("#000000"); // Default color
     const [assets, setAssets] = useState([
-        { name: "Logo Icon", svgUrl: "/img/svg/openpanel_logo.svg", svgContent: null },
-        //{ name: "White Logo Icon", svgUrl: "/img/svg/openpanel_white_logo.svg", svgContent: null },
+        { name: "Logo Icon", svgUrl: "/img/svg/openpanel_logo.svg", svgCode: '', color: '#000000' },
+        //{ name: "White Logo Icon", svgUrl: "/img/svg/openpanel_white_logo.svg", svgCode: '', color: '#FFFFFF' },
     ]);
 
-    // Fetch SVG content for each asset
+    // Function to fetch and set initial SVG code for each asset
     useEffect(() => {
         assets.forEach((asset, index) => {
             fetch(asset.svgUrl)
                 .then(response => response.text())
-                .then(svgContent => {
+                .then(svgCode => {
                     const updatedAssets = [...assets];
-                    updatedAssets[index] = { ...asset, svgContent: svgContent.replace(/fill="currentColor"/g, `fill="${color}"`) };
+                    updatedAssets[index].svgCode = svgCode;
                     setAssets(updatedAssets);
                 });
         });
-    }, [color]); // Re-fetch when color changes
+    }, []); // Empty dependency array ensures this only runs once on mount
 
-    const handleCopySVGCode = async (svgContent: string) => {
-        const modifiedSVG = svgContent.replace(/fill="#[0-9A-Fa-f]{6}"/g, `fill="${color}"`);
-        navigator.clipboard.writeText(modifiedSVG).then(
-            () => console.log('SVG code copied to clipboard'),
-            (err) => console.error('Error copying SVG code: ', err)
-        );
+    // Function to handle color change and debounce updates
+    const handleColorChange = (color, index) => {
+        const updatedAssets = [...assets];
+        updatedAssets[index].color = color;
+        setAssets(updatedAssets);
+    };
+
+    // Function to download SVG with selected color
+    const downloadSVG = (svgCode, color, name) => {
+        const coloredSvgCode = svgCode.replace(/fill="currentColor"/g, `fill="${color}"`);
+        const blob = new Blob([coloredSvgCode], { type: 'image/svg+xml' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${name}.svg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     return (
@@ -46,16 +57,15 @@ const Assets: React.FC = () => {
                     <div className="grid grid-cols-2 gap-4">
                         {assets.map((asset, index) => (
                             <div key={index} className="flex items-center space-x-4">
-                                <div className="bg-[#f8f9fa] p-4 rounded-lg" dangerouslySetInnerHTML={{ __html: asset.svgContent }} />
+                                <div className="bg-[#f8f9fa] p-4 rounded-lg" dangerouslySetInnerHTML={{ __html: asset.svgCode.replace(/fill="currentColor"/g, `fill="${asset.color}"`) }} />
                                 <div>
-                                    <a href={asset.svgUrl} target="_blank" rel="noopener noreferrer" className="block bg-blue-500 text-white px-4 py-2 mb-2">Download</a>
-                                    <input 
+                                    Icon color: <input 
                                         type="color" 
-                                        value={color} 
-                                        onChange={(e) => setColor(e.target.value)} 
+                                        value={asset.color} 
+                                        onChange={(e) => handleColorChange(e.target.value, index)} 
                                         className="mb-2"
                                     />
-                                    <button onClick={() => handleCopySVGCode(asset.svgContent)} className="bg-gray-500 text-white px-4 py-2">Copy SVG</button>
+                                    <button onClick={() => downloadSVG(asset.svgCode, asset.color, asset.name)} className="bg-gray-500 text-white px-4 py-2">Download</button>
                                 </div>
                             </div>
                         ))}
