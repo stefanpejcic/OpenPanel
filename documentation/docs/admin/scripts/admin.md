@@ -147,5 +147,12 @@ Currently available options for notifications are:
 To check current server info you can use the following command:
 
 ```bash
-opencli server_info 
+opencli opencli report
 ```
+
+To make the report public and get a link that you can share with our support staff, add the `--public` flag:
+```bash
+opencli opencli report --public
+```
+
+
