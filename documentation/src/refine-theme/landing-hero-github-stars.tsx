@@ -1,12 +1,34 @@
-import React from "react";
-import clsx from "clsx";
-import { OrangeStarIcon } from "./icons/orange-star";
+import React, { useState, useEffect } from 'react';
+import clsx from 'clsx';
+import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
+    const [version, setVersion] = useState('0.1'); // Default version
+
+    useEffect(() => {
+        // Function to fetch version information
+        const fetchVersion = async () => {
+            try {
+                const response = await fetch('https://update.openpanel.co/');
+                const data = await response.text();
+                setVersion(data.trim()); // Update the version state
+            } catch (error) {
+                console.error('Failed to fetch version:', error);
+            }
+        };
+
+        fetchVersion();
+    }, []); // after initial render
+
+    // Function to format version for URL
+    const formatVersionForURL = (version) => {
+        const parts = version.split('.');
+        return `${parts[0]}.${parts[1]}/#${parts[1]}${parts[2]}`;
+    };
 
     return (
         <a
-            href="/docs/changelog/0.1/#015"
+            href={`/docs/changelog/${formatVersionForURL(version)}`}
             target="_blank"
             rel="noopener noreferrer"
             className={clsx(
@@ -94,8 +116,8 @@ export const LandingHeroGithubStars = () => {
                     )}
                 >
                     <span className={clsx("font-semibold")}>
-                            OpenPanel{" "}<span>v0.1.5</span>
-                    </span>{" "}
+                            OpenPanel <span>{version}</span>
+                    </span> {" "}
                     <span>is out</span>
                 </span>
             </div>
