@@ -44,7 +44,7 @@ OpenPanel installation process will by default perform the following steps:
 - Check if your OS and available hardware resources meet the bare minimum system requirements
 - Check if existing hosting panel or webserver is already installed
 - Detect your OS and the package manager to be used for installation commands
-- Check if another OpenPanel installaiton is in progress or eas interrupted
+- Check if another OpenPanel installaiton is in progress or was interrupted
 - Update and start installing required packages
 - Configure and start all required system services
 - Download required Docker images
