@@ -6,7 +6,7 @@ export const LandingHeroGithubStars = () => {
 
     return (
         <a
-            href="/docs/changelog/0.1/#014"
+            href="/docs/changelog/0.1/#015"
             target="_blank"
             rel="noopener noreferrer"
             className={clsx(
