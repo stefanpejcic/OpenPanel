@@ -103,12 +103,10 @@ Deliver a VPS-like experience to your users at a fraction of the cost, with all-
                             )}
                         >
                             <LandingStartActionIcon />
-                            <span
-                                className={clsx("text-base", "font-semibold")}
-                            >
-                                Get started
-                            </span>
                         </Link>
+			<LandingCopyCommandButton
+			className={clsx("hidden", "landing-sm:block")}
+			/>
                     </div>
                 </div>
                 <div
