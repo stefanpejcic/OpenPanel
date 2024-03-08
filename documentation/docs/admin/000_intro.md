@@ -137,9 +137,34 @@ Password for user 'admin' changed.
 
 The panel will check for new updates nightly. If available, it will check your local update and patch preferences and update only when enabled.
 
+
+
+<Tabs>
+  <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
+
 To enable or disable updates, navigate to OpenAdmin > General Settings and check or uncheck the 'Auto Updates' and 'Auto Patches'.
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
+
+  </TabItem>
+  <TabItem value="CLI" label="With OpenCLI">
+
+To change update preferences from the terminal use commands:
+
+```bash
+opencli config update autoupdate yes
+```
+
+```bash
+opencli config update autopatch yes
+```
+  </TabItem>
+</Tabs>
+
+
+
+
+
 
 If you want to update manually regardless of the schedule, you can run the following command.
 
