@@ -80,30 +80,6 @@ Deliver a VPS-like experience to your users at a fraction of the cost, with all-
                             "landing-lg:gap-6",
                         )}
                     >
-                        <Link
-                            to="docs/admin/intro/#installation"
-                            className={clsx(
-                                "self-start",
-                                "rounded-3xl",
-                                "!text-gray-0 dark:!text-gray-900",
-                                "bg-refine-blue dark:bg-refine-cyan-alt",
-                                "transition-[filter]",
-                                "duration-150",
-                                "ease-in-out",
-                                "hover:brightness-110",
-                                "py-3",
-                                "pl-7 pr-8",
-                                "landing-md:px-8",
-                                "landing-lg:pl-7 landing-lg:pr-8",
-                                "flex",
-                                "items-center",
-                                "justify-center",
-                                "gap-2",
-                                "hover:!no-underline",
-                            )}
-                        >
-                            <LandingStartActionIcon />
-                        </Link>
 			<LandingCopyCommandButton
 			className={clsx("hidden", "landing-sm:block")}
 			/>
