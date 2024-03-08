@@ -94,7 +94,7 @@ export const LandingHeroGithubStars = () => {
                     )}
                 >
                     <span className={clsx("font-semibold")}>
-                            OpenPanel{" "}<span>v0.1.4</span>
+                            OpenPanel{" "}<span>v0.1.5</span>
                     </span>{" "}
                     <span>is out</span>
                 </span>
