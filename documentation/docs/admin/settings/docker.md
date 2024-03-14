@@ -9,3 +9,8 @@ This feature is still experimental and not yet released.
 :::
 
 ![openadmin docker settings](/img/admin/adminpanel_docker_settings.png)
+
+
+To download Docker images, click the "update images" button.
+
+To remove an unnecessary image, click the delete button next to the image and confirm your action in the pop-up modal.
