@@ -28,7 +28,7 @@ export const LandingHeroGithubStars = () => {
 
     return (
         <a
-            href={`/docs/changelog/${formatVersionForURL(version)}`}
+            href={`/docs/changelog/${version}`}
             target="_blank"
             rel="noopener noreferrer"
             className={clsx(
