@@ -10,24 +10,24 @@ sidebar_class_name: green
 
 |   |   |
 |---|---|
-|__[0.1.6](/docs/changelog/0.1#016)__| __[Roadmap](/roadmap)__|
+|__[0.1.6](/docs/changelog/0.1.6)__| __[Roadmap](/roadmap)__|
 
 ### Current version (Stable)
 
 |   |
 |---|
-|__[0.1.5](/docs/changelog/0.1#015)__|
+|__[0.1.5](/docs/changelog/0.1.5)__|
 
 
 ### Past versions (Not maintained anymore)
 
 | 0.1.X |
 |---|
-| [0.1.4](/docs/changelog/0.1#014) |
-| [0.1.3](/docs/changelog/0.1#013) |
-| [0.1.2](/docs/changelog/0.1#012) |
-| [0.1.1](/docs/changelog/0.1#011) |
-| [0.1.0](/docs/changelog/0.1#010) |
+| [0.1.4](/docs/changelog/0.1.4) |
+| [0.1.3](/docs/changelog/0.1.3) |
+| [0.1.2](/docs/changelog/0.1.2) |
+| [0.1.1](/docs/changelog/0.1.1) |
+| [0.1.0](/docs/changelog/0.1.0) |
 
 :::info
 If version is not in the list, it means that update was done for technical reasons and does not contain any critical changes.
