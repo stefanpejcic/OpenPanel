@@ -5,6 +5,10 @@
       "to": "https://github.com/"
     },
     {
+      "from": "/docs/changelog/0.1/#15",
+      "to": "/docs/changelog/0.1.5"
+    },
+    {
       "from": "/docs/examples34534534",
       "to": "https://github.com/"
     }
