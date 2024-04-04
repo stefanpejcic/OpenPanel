@@ -307,7 +307,7 @@ enabled_modules=phpmyadmin,ssh,crons,backups,wordpress,pm2,disk_usage,inodes,usa
 
 ### autopatch
 
-The `autopatch` option allows Administrator to automatically update OpenPanel to minor versions.
+The `autopatch` option allows Administrator to automatically update OpenPanel to minor versions. MINOR versions include only security updates and bug fixes.
 
 | Autopatch    | Update to minor version  | Update to major version  |
 | -------- | ------- | ------- |
@@ -320,7 +320,7 @@ autopatch=yes
 
 ### autoupdate
 
-The `autoupdate` option allows Aministrator to enable or disable automatic updates.
+The `autoupdate` option allows Aministrator to enable or disable automatic updates. MAJOR versions add new functionality in a backward compatible manner.
 
 | Autoupdate    | Update to minor version  | Update to major version  |
 | -------- | ------- | ------- |
