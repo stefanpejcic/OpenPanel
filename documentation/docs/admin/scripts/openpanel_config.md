@@ -320,7 +320,7 @@ autopatch=yes
 
 ### autoupdate
 
-The `autoupdate` option allows Aministrator to enable or disable automatic updates. MAJOR versions add new functionality in a backward compatible manner.
+The `autoupdate` option allows Aministrator to enable or disable automatic updates to major versions. MAJOR versions add new functionality in a backward compatible manner.
 
 | Autoupdate    | Update to minor version  | Update to major version  |
 | -------- | ------- | ------- |
