@@ -56,6 +56,13 @@ default_php_version=8.2
 [PANEL]
 autoupdate=on
 autopatch=on
+api=off
+dev_mode=off
+template=
+admin_template=
+basic_auth=no
+basic_auth_username=
+basic_auth_password=
 ```
 
 
@@ -353,3 +360,45 @@ The `how_to_guides` option allows Aministrator to enable or disable the How-to g
 how_to_guides=yes
 ```
 If configured as "yes", the system will initially attempt to access a JSON file containing your custom how-to guides. In the event that the file is not available, articles from https://openpanel.co/docs/panel/dashboard/#how-to-guides will be shown instead.
+
+
+
+
+### dev_mode
+The `dev_mode` option allows you to enable/disable compression and minifying html/css/js code from OpenPanel and OpenAdmin templates.
+
+```bash
+dev_mode=off
+```
+
+### template
+
+The `template` option allows you to set a [custom template for OpenPanel](https://dev.openpanel.co/templates/).
+
+```bash
+template=/usr/local/panel/templates/new_template/
+```
+
+
+### admin_template
+
+The `admin_template` option allows you to set a [custom template for OpenAdmin](https://dev.openpanel.co/templates/).
+
+```bash
+admin_template=/usr/local/admin/templates/new_template/
+```
+
+### basic_auth
+
+The `basic_auth` option allows Aministrator to enable or disable [Basic access authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) for OpenAdmin.
+
+```bash
+basic_auth=yes
+```
+
+Both `basic_auth_username` and `basic_auth_password` need also to be set for the basic_auth to be active.
+
+:::warning
+When BasicAuth is enabled, API access is automatically disabled!
+:::
+
