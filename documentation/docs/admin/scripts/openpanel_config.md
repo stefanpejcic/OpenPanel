@@ -398,7 +398,7 @@ basic_auth=yes
 
 Both `basic_auth_username` and `basic_auth_password` need also to be set for the basic_auth to be active.
 
-:::warning
+:::danger
 When BasicAuth is enabled, API access is automatically disabled!
 :::
 
