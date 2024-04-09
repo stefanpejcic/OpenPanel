@@ -14,6 +14,7 @@ OpenPanel records the following actions:
 - server reboot
 - service is inactive
 - update is available
+- admin login from new ip address
 - high memory usage
 - high averageload 
 - high cpu usage
