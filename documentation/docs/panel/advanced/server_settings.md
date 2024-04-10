@@ -121,14 +121,14 @@ Changing the PHP version will stop all the processes on your site. It takes 1-2 
 
 ### Set default PHP version
 
-This option allows you to set the default PHP version that will be used for newly added domains.
+This option allows you to set the default PHP version that will be used for newly added domains and on the terminal.
 
 ![php_change_default_version_for_new_domains.png](/img/panel/v1/advanced/php_change_default_version_for_new_domains.png)
 
 You can also view current default version setting.
 
 :::info
-phpMyAdmin runs by default on the version that you set here, but due to phpMyAdmin's minimum requirements, if the PHP version is less than 8.0, then the [default PHP version defined by the administrator](/docs/admin/settings/openpanel) will be used instead.
+phpMyAdmin runs by default on the version that you set here, but due to phpMyAdmin's minimum requirements, if the PHP version is older than 8.0, then the [default PHP version defined by the administrator](/docs/admin/settings/openpanel) will be used for phpMyAdmin.
 :::
 
 ### Install PHP version
