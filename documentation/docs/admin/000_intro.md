@@ -117,11 +117,11 @@ root@server:/home# opencli admin
 
 To login to admin panel you need a username and password.
 
-Default username for the main Administrator account is **admin** and password is random generated. To set a new password for the admin account run command: `opencli password NEW_PASSWORD_HERE`
+Default username for the main Administrator account is **admin** and password is random generated. To set a new password for the admin account run command: `opencli admin password USER_HERE NEW_PASSWORD_HERE`
 
 Example:
 ```bash
-root@server:/home# opencli admin password ba63vfav7fq36vas
+root@server:/home# opencli admin password admin ba63vfav7fq36vas
 Password for user 'admin' changed.
 
 ===============================================================
