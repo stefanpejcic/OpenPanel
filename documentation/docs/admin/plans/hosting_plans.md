@@ -97,14 +97,7 @@ Please visit [this page](/docs/admin/plans/change-plan-for-user)
 
 To change plan limits click on the edit button for the plan and set the new limits.
 
-The new limits will be applied to new accounts only. To apply the limits to all users on the same plan automatically you can use the `apply limits` script.
-
-When changing the limits for a plan, to apply them to existing users:
-- Domains, Websites, and Databases limits will automatically increase.
-- CPU and RAM limits require the docker container to be rebuilt.
-- Disk space **CAN NOT BE CHANGED**, inodes **CAN NOT LONGER BE SET**.
-- Bandwidth (port speed) limits require a manual intervention.
-
+The new limits will be applied immediately to all accounts.
 
 ## List Users on Plan
 
