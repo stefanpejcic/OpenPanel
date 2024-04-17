@@ -175,14 +175,14 @@ OpenPanel has been built from the ground up with security in mind. Internet hist
 
 ## Security
 
-OpenPanel prioritizes security from its inception. Given the history of security breaches on the internet, we have prioritized modern security measures over outdated software compatibility and insecure authentication methods.
+OpenPanel has been built from the ground up with security in mind. Given the history of security breaches on the internet, we have prioritized modern security measures over outdated software compatibility and insecure authentication methods.
 
 **OpenPanel Security features:**
+- Each user container is isolated by Docker.
 - Two-Factor Authentication (2FA) can be activated by users.
-- Users have the option to change the default port (2083) for the user panel.
-- User files and services are isolated to prevent resource conflicts.
 - phpMyAdmin and WebTerminal offer auto-login using one-time tokens.
 - Users' public services (SSH, MySQL) are accessible via non-standard ports.
+- All user actions on the panel are stored in activity log.
 - Bruteforce protection and rate limiting are implemented for all panel pages.
 - The user panel is segregated from the admin panel and websites.
 - All user panel requests are processed in the backend.
@@ -190,9 +190,12 @@ OpenPanel prioritizes security from its inception. Given the history of security
 **OpenAdmin Security features:**
 - The admin panel can be entirely disabled while retaining all functionality.
 - HTTP Basic Authentication can be enabled for the admin panel.
+- Admins can change the default port (2083) for the user panel.
+- Email alerts and notifications for admin logins from new IP address.
 - Bruteforce protection is enforced for the admin panel.
 - Passwords are stored as salted SHA512 hashes by default (5000 rounds).
 - The admin panel is isolated from the user panel and websites.
+- Separated database software for admin and user accounts.
 
 **Websites:**
 - ModSecurity Web Application Firewall (WAF) can be activated for domains, with the OWASP core ruleset.
