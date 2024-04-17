@@ -196,6 +196,7 @@ OpenPanel has been built from the ground up with security in mind. Internet hist
 **Websites:**
 - ModSecurity Web Application Firewall (WAF) can be activated for domains, with the OWASP core ruleset.
 - IP blocking per domain name.
+- Hotlink protection per domain using vhost files.
 - No outgoing emails, only SMTP!
 - Passwords are stored as salted SHA512 hashes by default (5000 rounds).
 - TLS (Transport Layer Security) is utilized.
