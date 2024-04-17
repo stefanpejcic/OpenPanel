@@ -173,10 +173,6 @@ opencli update
 
 OpenPanel has been built from the ground up with security in mind. Internet history is littered with painful security incidents, so we traded old software compatibility and insecure authentication methods for modern day security measures.
 
-## Security
-
-OpenPanel has been built from the ground up with security in mind. Given the history of security breaches on the internet, we have prioritized modern security measures over outdated software compatibility and insecure authentication methods.
-
 **OpenPanel Security features:**
 - Each user container is isolated by Docker.
 - Two-Factor Authentication (2FA) can be activated by users.
