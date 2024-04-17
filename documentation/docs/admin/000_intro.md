@@ -171,28 +171,31 @@ opencli update
 
 ## Security
 
-OpenPanel has been built from the ground up with security in mind. Internet history is littered with painful security incidents, so we traded old software compatibility and insecure authentication methods for features that meet today's for features that meet modern security requirements.
+OpenPanel has been built from the ground up with security in mind. Internet history is littered with painful security incidents, so we traded old software compatibility and insecure authentication methods.
 
-OpenPanel Security features:
-- 2FA can be enabled by users
-- User panel port can be changed from the default 2083
-- All files and services for users are isolated, preventing resource problems
-- Auto-login for phpMyAdmin and WebTerminal using one-time tokens
-- Users public services (ssh, mysql) are available via non-standard ports
-- Bruteforce protection and rate limiting for all panel pages
-- User panel is isolated from admin oanel and websites
-- All user requests on panel are processed in the backend
+## Security
 
+OpenPanel prioritizes security from its inception. Given the history of security breaches on the internet, we have prioritized modern security measures over outdated software compatibility and insecure authentication methods.
 
-OpenAdmin Security features:
-- Admin panel can be completelly disabled while all functionality remains
-- HTTP BasicAuth can be enabled for admin panel
-- bruteforce protection for admin panel
-- all passwords are by default stored as salted SHA512 hash (5000 rounds)
-- admin panel is isolated from user panel and websites
+**OpenPanel Security features:**
+- Two-Factor Authentication (2FA) can be activated by users.
+- Users have the option to change the default port (2083) for the user panel.
+- User files and services are isolated to prevent resource conflicts.
+- phpMyAdmin and WebTerminal offer auto-login using one-time tokens.
+- Users' public services (SSH, MySQL) are accessible via non-standard ports.
+- Bruteforce protection and rate limiting are implemented for all panel pages.
+- The user panel is segregated from the admin panel and websites.
+- All user panel requests are processed in the backend.
 
-Websites:
-- ModSecurity WAF can be enabled for domains, with OWASP core ruleset
-- no outgoing email spam, period.
-- All passwords are by default stored as salted SHA512 hash (5000 rounds)
-- TLS
+**OpenAdmin Security features:**
+- The admin panel can be entirely disabled while retaining all functionality.
+- HTTP Basic Authentication can be enabled for the admin panel.
+- Bruteforce protection is enforced for the admin panel.
+- Passwords are stored as salted SHA512 hashes by default (5000 rounds).
+- The admin panel is isolated from the user panel and websites.
+
+**Websites:**
+- ModSecurity Web Application Firewall (WAF) can be activated for domains, with the OWASP core ruleset.
+- No outgoing emails, only SMTP!
+- Passwords are stored as salted SHA512 hashes by default (5000 rounds).
+- TLS (Transport Layer Security) is utilized.
