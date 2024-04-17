@@ -161,13 +161,26 @@ opencli config update autopatch yes
   </TabItem>
 </Tabs>
 
-
-
-
-
-
 If you want to update manually regardless of the schedule, you can run the following command.
 
 ```shell
 opencli update
 ```
+
+
+
+## Security
+
+OpenPanel has been built from the ground up with security in mind. Internet history is littered with painful security incidents, so we traded old software compatibility and insecure authentication methods for features that meet today's for features that meet modern security requirements.
+
+Security features:
+- disable admin panel
+- basicauth for admin panel
+- 2fa for user panel
+- change panel ports
+- bruteforce protection for panels
+- modsecurity waf for domains
+- isolated user accounts and services
+- private services
+- no outgoing email spam
+- random ports for services
