@@ -51,6 +51,7 @@ These steps include:
 - Create a hosting plan and create a user account
 - Settings custom nameservers to be used for domains
 - Install and configure ModSecurity WAF for Nginx
+- Schedule remote backups
 
 ## Server List
 
