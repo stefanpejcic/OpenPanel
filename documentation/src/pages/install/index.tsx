@@ -19,6 +19,11 @@ const Install: React.FC = () => {
 
   const [inputValues, setInputValues] = useState({
     // Define initial input values if needed
+    portValue: "",
+    langValue: "",
+    hostnameValue: "",
+    emailValue: "",
+    passwordValue: "",
   });
 
   const handleOptionChange = (option: string) => {
@@ -37,8 +42,16 @@ const Install: React.FC = () => {
   };
 
   const generateInstallCommand = () => {
-    // Implement logic to generate the install command based on selected options and input values
     let command = "Your install command here";
+    // Logic to generate install command based on selected options and input values
+    // For example:
+    if (options.port) {
+      command += ` --port ${inputValues.portValue}`;
+    }
+    if (options.lang) {
+      command += ` --lang ${inputValues.langValue}`;
+    }
+    // Add more options as needed
     return command;
   };
 
@@ -87,6 +100,16 @@ const Install: React.FC = () => {
                   </div>
                   {/* Implement tooltip icon */}
                 </div>
+                {/* Input fields for each option */}
+                {options[option] && (
+                  <input
+                    type="text"
+                    name={`${option}Value`}
+                    value={inputValues[`${option}Value`]}
+                    onChange={handleInputChange}
+                    placeholder={`Enter value for ${option}`}
+                  />
+                )}
               </li>
             ))}
           </ul>
@@ -99,6 +122,8 @@ const Install: React.FC = () => {
           >
             Generate Install Command
           </button>
+          {/* Display the generated command */}
+          <p>{generateInstallCommand()}</p>
         </div>
         <BlogFooter />
       </div>
