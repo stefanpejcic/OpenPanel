@@ -26,8 +26,6 @@ All users data resides in `/home` and all docker data resides in `/var`. If your
 
 ## Installation
 
-<InstallSection />
-
 The installation process takes about 5 minutes. To install openpanel follow these steps: 
 
 1. Log in to your new server;
