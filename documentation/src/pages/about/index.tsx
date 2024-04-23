@@ -60,6 +60,156 @@ const About: React.FC = () => {
                 </div>
 
 
+
+
+
+
+
+
+
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
+          <h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            Our Team
+          </h4>
+
+          <div
+            className={clsx(
+              "grid",
+              "lg:grid-cols-[repeat(4,192px)] lg:gap-12",
+              "md:grid-cols-[repeat(3,176px)]",
+              "sm:grid-cols-[repeat(3,144px)]",
+              "grid-cols-[repeat(2,144px)] gap-6",
+              "align-top",
+              "mt-6 md:mt-12 lg:mt-16",
+            )}
+          >
+            {team.map(({ name, avatar, role1, role2 }) => (
+              <div
+                key={name}
+                className="flex justify-start flex-col text-center not-prose"
+              >
+                <img
+                  srcSet={`${avatar} 1500w`}
+                  src={avatar}
+                  alt={name}
+                  className="w-full m-0 mb-6"
+                />
+                <span
+                  className={clsx(
+                    "text-xs leading-4",
+                    "lg:text-base lg:leading-6",
+                    "text-gray-900 dark:text-gray-0 font-semibold",
+                  )}
+                >
+                  {name}
+                </span>
+                <span
+                  className={clsx(
+                    "text-xs leading-4",
+                    "lg:text-base lg:leading-6",
+                    "text-gray-500 dark:text-gray-400",
+                  )}
+                >
+                  {role1}
+                </span>
+                {role2 && (
+                  <span
+                    className={clsx(
+                      "text-xs leading-4",
+                      "lg:text-base lg:leading-6",
+                      "text-gray-500 dark:text-gray-400",
+                    )}
+                  >
+                    {role2}
+                  </span>
+                )}
+              </div>
+            ))}
+            <div
+              className={clsx(
+                "flex",
+                "flex-col",
+                "justify-between lg:justify-start",
+                "text-center",
+              )}
+            >
+              <div className="w-full not-prose m-0">
+                <JoinUsIcon
+                  className={clsx(
+                    "m-0 w-full lg:mb-6",
+                    "lg:h-[240px]",
+                    "md:h-[220px]",
+                    "h-[180px]",
+                  )}
+                  isDark={colorMode === "dark"}
+                />
+              </div>
+              <div className="flex flex-col items-center justify-center">
+                <a
+                  target="_blank"
+                  href="https://www.linkedin.com/company/openpanel"
+                  className={clsx(
+                    "block",
+                    "text-xs leading-4",
+                    "lg:text-base lg:leading-6",
+                    "no-underline hover:no-underline text-refine-link-light dark:text-refine-link-dark font-semibold mb-0",
+                  )}
+                  rel="noreferrer"
+                >
+                  Join our team!
+                </a>
+                <a
+                  target="_blank"
+                  href="https://www.linkedin.com/company/openpanel"
+                  className={clsx(
+                    "block",
+                    "text-xs leading-4",
+                    "lg:text-base lg:leading-6",
+                    "no-underline hover:no-underline text-refine-link-light dark:text-refine-link-dark m-0",
+                  )}
+                  rel="noreferrer"
+                >
+                  See open positions
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+                
+
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+                
+
                 <div
                     className={clsx(
                         "xl:max-w-[1016px] lg:py-16",
