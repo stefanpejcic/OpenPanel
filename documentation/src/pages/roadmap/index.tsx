@@ -43,7 +43,15 @@ const Roadmap: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Roadmap</h1>
-                    <p>Welcome to our OpenPanel Roadmap, where innovation meets transparency! We are excited to share our vision and plans for the future as we continually strive to enhance your hosting experience. This roadmap serves as a dynamic guide, outlining the upcoming features, improvements, and milestones that we are committed to delivering.</p>
+                    <p>The following is a list of features in the OpenPanel roadmap.</p>
+                    <p>We list these here so that our users can get a better idea of where we are going and can give us feedback on which of these they like best (or least).</p>
+                    <p>Here is a short list; the Github repository has many more.</p>
+                    <ul>
+                        <li>Support for more Linux distros.</li>
+                        <li>More improvements to cluster mode and OpenAdmin.</li>
+                        <li>E-Mail support.</li>
+                        <li>Continued improvements to container isolation.</li>
+                    </ul>
                     <h3>Planned releases</h3>
                     <ul>
                         {milestones.map((milestone) => (
