@@ -68,11 +68,6 @@ const Roadmap: React.FC = () => {
                             </li>
                         ))}
                     </ul>
-
-                    <h3>About</h3>
-                    <p>At OPENPANEL we believe in the power of collaboration and value the feedback of our community. This roadmap is a testament to our dedication to open communication and customer-centric development. As we embark on this journey together, we invite you to explore the exciting initiatives that lie ahead and join us in shaping the future of hosting.</p>
-                    <p>Discover the roadmap that outlines our commitment to providing a robust, user-friendly hosting panel that not only meets but exceeds your expectations. Your insights and suggestions are invaluable to us, and we look forward to the shared successes that await on this path of innovation. Thank you for being an integral part of our growing community!</p>
-                    
                 </div>
                 <BlogFooter />
             </div>
