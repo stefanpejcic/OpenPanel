@@ -14,15 +14,11 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 
 Hardware Requirements
 
-| Operating system and version | Processor                                 | RAM                                 | Disk Space                             | Architecture |
-| ---------------------------- | -----------------------------------------| ----------------------------------- | -------------------------------------- | ------------ |
-| [Ubuntu 22.04](https://releases.ubuntu.com/22.04/) or newer            | Minimum: 1.1 GHz<br></br>Recommended: 2 GHz    | Minimum: 1 GB<br></br>Recommended: 4 GB   | Minimum: 12 GB<br></br>Recommended: 20 GB   | 64-bit       |
 
-
-
-Docker and any required Docker images will be installed for you.
-
-All users data resides in `/home` and all docker data resides in `/var`. If your disk is partitioned, we recommend that these partition contain most of your available space.
+- A blank full virtual machine or a bare metal server
+- Ubuntu 22.04 LTS server
+- A minimum of 4GB RAM and 20GB storage
+- x86_64/amd64 architecture
 
 ## Installation
 
