@@ -30,16 +30,7 @@ const Translations: React.FC = () => {
 
     return (
         <CommonLayout>
-            <div className="refine-prose">
-                <CommonHeader hasSticky={true} />
 
-                <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
-                    <h1>Translations</h1>
-                    {/* Display README content as HTML */}
-                    <div dangerouslySetInnerHTML={renderMarkdown(readmeContent)} />
-                </div>
-                <BlogFooter />
-            </div>
         </CommonLayout>
     );
 };
