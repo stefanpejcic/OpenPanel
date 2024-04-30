@@ -59,17 +59,6 @@ The `docker stats` command is a resource-intensive operation that consumes signi
 :::
 
 
-
-## Is port in use
-
-The `is_port_in_use` script is used by the PM2 (Python / NodeJS Application Manager) when installing a new applicaiton to chekc if specified port is already in use in the docker contianer by another application or process.
-
-
-```bash
-opencli docker-is_port_in_use [username]
-```
-
-
 ## usage_stats_cleanup
 
 The `usage_stats_cleanup` script is used by the AdminPanel to rotate the 'Past Resource Usage' data for each user, with [the setting](https://docs.openpanel.co/docs/admin/scripts/openpanel_config#resource_usage_retention) specified by the Administrator.
