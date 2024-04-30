@@ -30,9 +30,6 @@ const Translations: React.FC = () => {
 
     return (
         <CommonLayout>
-            <Head title="ROADMAP | OpenPanel">
-                <html data-page="roadmap" data-customized="true" />
-            </Head>
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
