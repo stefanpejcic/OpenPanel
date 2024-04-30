@@ -30,8 +30,8 @@ const Translations: React.FC = () => {
 
     return (
         <CommonLayout>
-            <Head title="Translations | OpenPanel">
-                <html data-page="translation" data-customized="true" />
+            <Head title="ROADMAP | OpenPanel">
+                <html data-page="roadmap" data-customized="true" />
             </Head>
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
