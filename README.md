@@ -1,6 +1,6 @@
 <div align="center">
-<a href="https://refine.dev/">
-    <img alt="refine logo" src="/documentation/static/img/openpanel_social.png">
+<a href="https://openpanel.co/">
+    <img alt="website" src="/documentation/static/img/openpanel_social.png">
 </a>
   
 <br/>
@@ -40,9 +40,10 @@ When we designed OpenPanel, we prioritized features that are not only user-frien
 
 Some of the unique features worth mentioning are:
 
-- You can [install PHP versions](https://openpanel.co/docs/panel/advanced/server_settings#install-php-version) you need, [edit php.ini files](https://openpanel.co/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
+- Users can run [Nginx or Apache webserver](https://openpanel.co/docs/admin/plans/hosting_plans/#list-hosting-plans).
+- Users can [install PHP versions](https://openpanel.co/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.co/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
 - Control [MySQL settings](https://openpanel.co/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](https://openpanel.co/docs/panel/databases/remote) and much more.
-- [Update system services](https://openpanel.co/docs/panel/advanced/server_settings#service-status) and even install new services that you need.
+- [Update system services](https://openpanel.co/docs/panel/advanced/server_settings#service-status) and even install new services that they need.
 - Manage WordPress websites easily with [WP Manager](https://openpanel.co/docs/panel/applications/wordpress).
 - Password-less login to [phpMyAdmin](https://openpanel.co/docs/panel/databases/phpmyadmin) and [Web Terminal](https://openpanel.co/docs/panel/advanced/terminal).
 - Built-in [REDIS](https://openpanel.co/docs/panel/caching/Redis) and [Memcached](https://openpanel.co/docs/panel/caching/Memcached) object caching.
