@@ -101,7 +101,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
 const faq = [
     {
         question: "How does the pricing work for the Enterprise edition?",
-        answer: "The pricing model is based on the number of end users.",
+        answer: "Pricing is per server, not per number of end users.",
     },
     {
         question:
