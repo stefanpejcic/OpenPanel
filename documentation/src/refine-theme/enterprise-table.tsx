@@ -490,7 +490,7 @@ const tableData = [
         title: "Pricing",
         items: [
             {
-                description: "$",
+                description: "Pricing",
                 community: (
                     <TableText>forever free</TableText>
                 ),
