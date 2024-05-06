@@ -342,7 +342,6 @@ const siteConfig = {
         LIVE_PREVIEW_URL:
             process.env.LIVE_PREVIEW_URL ?? "http://localhost:3030/preview",
         /** ---- */
-        tutorial: tutorialData,
     },
     webpack: {
         jsLoader: (isServer) => ({
