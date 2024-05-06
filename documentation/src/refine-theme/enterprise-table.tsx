@@ -486,22 +486,31 @@ const TableText = ({ children }) => {
 };
 
 const tableData = [
-    {
-        title: "Support",
+        {
+        title: "Pricing",
         items: [
             {
-                description: "Support Level",
-                community: <TableText>Community Support</TableText>,
-                enterprise: <TableText>Priority Support</TableText>,
+                description: "$",
+                community: (
+                    <TableText>forever free</TableText>
+                ),
+                enterprise: (
+                    <TableText>$20/month</TableText>
+                ),
                 valueType: {
                     community: "text",
                     enterprise: "text",
                 },
             },
+        ],
+    },
+    {
+        title: "Support",
+        items: [
             {
                 description: "Support Channels",
-                community: <TableText>Community Channels</TableText>,
-                enterprise: <TableText>Private Support Channel</TableText>,
+                community: <TableText>Community Forums & Discord</TableText>,
+                enterprise: <TableText>Ticketing & Hands-on support</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -511,7 +520,7 @@ const tableData = [
                 description: "SLA",
                 community: <CrossIcon />,
                 enterprise: (
-                    <TableText>Response time within one business day</TableText>
+                    <TableText>Response time within one hour</TableText>
                 ),
                 valueType: {
                     community: "icon",
@@ -570,7 +579,7 @@ const tableData = [
         ],
     },
     {
-        title: "Number of Accounts",
+        title: "Accounts & Websites",
         items: [
             {
                 description: "Admin Accounts",
@@ -584,6 +593,19 @@ const tableData = [
             {
                 description: "User Accounts",
                 community: <TableText>3</TableText>,
+                enterprise: (
+                    <TableText>
+                        Unlimited
+                    </TableText>
+                ),
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "Websites",
+                community: <TableText>Unlimited</TableText>,
                 enterprise: (
                     <TableText>
                         Unlimited
@@ -633,6 +655,15 @@ const tableData = [
             },
             {
                 description: "WHMCS Module",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "FOSSBilling Module",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
