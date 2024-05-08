@@ -325,9 +325,6 @@ parse_args() {
             --skip-apt-update)
                 SKIP_APT_UPDATE=true
                 ;;
-            --no-locales)
-                LOCALES=false
-                ;;
             --repair)
                 REPAIR=true
                 SKIP_PANEL_CHECK=true
@@ -421,7 +418,6 @@ detect_os_and_package_manager() {
 
 
 install_all_locales() {
-    if [ "$LOCALES" = true ]; then
             
         # OpenPanel translations
         #
@@ -443,8 +439,6 @@ install_all_locales() {
         debug_log "wget -O ${OPENPANEL_DIR}translations/tr/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/tr-tr/messages.pot"
 
         debug_log "pybabel compile -d translations"
-
-    fi
 }
 
 
