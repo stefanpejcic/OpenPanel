@@ -59,7 +59,6 @@ The installation script also supports optional flags that can be used to install
 | `--skip-firewall`   | Do not install UFW and skip setting custom firewall rules.                                                          |
 | `--skip-images`     | Skip building Docker images for Nginx and Apache.                                                                   |
 | `--skip-ssl`        | Do not check if the server hostname is pointed to the IP and set it to be used for OpenPanel; instead, the server IP will be used. |
-| `--skip-plans`      | Skip creating default Nginx and Apache hosting plans.                                                                                   |
 
 Example: Install OpenPanel in debug mode
 
