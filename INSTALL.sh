@@ -421,14 +421,14 @@ detect_os_and_package_manager() {
 
 
 install_all_locales() {
-    if [ -z "$LOCALES" ]; then
+    if [ "$LOCALES" = true ]; then
             
         # OpenPanel translations
         #
         # https://dev.openpanel.co/localization.html
         #
 
-        debug_log "Installing FR, DE, TR locales."
+        echo "Installing FR, DE, TR locales."
 
         # FR
         debug_log "cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l fr"
