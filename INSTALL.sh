@@ -427,18 +427,18 @@ install_all_locales() {
         echo "Installing FR, DE, TR locales."
 
         # FR
-        debug_log "cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l fr"
+        cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l fr
         debug_log "wget -O ${OPENPANEL_DIR}translations/fr/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/fr-fr/messages.pot"
 
         # DE
-        debug_log "cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l de"
+        cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l de
         debug_log "wget -O ${OPENPANEL_DIR}translations/de/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/de-de/messages.pot"
 
         # TR
-        debug_log "cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l tr"
+        cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l tr
         debug_log "wget -O ${OPENPANEL_DIR}translations/tr/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/tr-tr/messages.pot"
 
-        debug_log "pybabel compile -d translations"
+        pybabel compile -d translations
 }
 
 
@@ -650,14 +650,17 @@ run_mysql_docker_container() {
 
 
     # run the container
-    docker pull mysql  > /dev/null 2>&1
     docker run -d -p 3306:3306 --name openpanel_mysql \
         -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+        -e MYSQL_DATABASE=panel \
+        -e MYSQL_USER=panel \
+        -e MYSQL_PASSWORD="$MYSQL_ROOT_PASSWORD" \
         -v openpanel_mysql_data:/var/lib/mysql \
         --memory="1g" --cpus="1" \
         --restart=always \
         --oom-kill-disable \
-        mysql
+        mysql/mysql-server
+    
 
     if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
 
@@ -672,7 +675,9 @@ run_mysql_docker_container() {
         
         # Update configuration files with new password
         sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
+        sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
         sed -i "s/password = \".*\"/password = \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/db.cnf
+        sed -i "s/user = \".*\"/user = \"root\"/g" /usr/local/admin/db.cnf
 
     else
         radovan 1 "Installation failed! Unable to start docker container for MySQL."
