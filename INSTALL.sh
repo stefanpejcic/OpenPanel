@@ -677,7 +677,7 @@ run_mysql_docker_container() {
         sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
         sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
         sed -i "s/password = \".*\"/password = \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/db.cnf
-        sed -i "s/user = \".*\"/user = \"root\"/g" /usr/local/admin/db.cnf
+        sed -i "s/user = \".*\"/user = \"panel\"/g" /usr/local/admin/db.cnf
 
     else
         radovan 1 "Installation failed! Unable to start docker container for MySQL."
