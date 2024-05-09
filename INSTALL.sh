@@ -643,11 +643,11 @@ run_mysql_docker_container() {
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
 
     if [ "$REPAIR" = true ]; then
+        echo "RAPAIR: Removing existing mysql database."
         docker stop openpanel_mysql
         docker rm openpanel_mysql
-        docker volume rm openpanel_mysql
+        docker volume rm openpanel_mysql_data
     fi
-
 
     # run the container
     docker run -d -p 3306:3306 --name openpanel_mysql \
