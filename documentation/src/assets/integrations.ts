@@ -454,7 +454,7 @@ export const integrations: IntegrationsType = {
             name: "WHMCS Module",
             icon: WHMCS,
             description: "Integrate with the leading web hosting management and billing software.",
-            url: "https://community.openpanel.co/",
+            url: "https://openpanel.co/docs/changelog/0.1.7/#whmcs-module",
             status: "stable",
         },
         {
@@ -462,7 +462,7 @@ export const integrations: IntegrationsType = {
             icon: API,
             description:
                 "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
-            url: "/docs/admin/customize/api/",
+            url: "https://dev.openpanel.co/api/",
             status: "stable",
         },
     ],
