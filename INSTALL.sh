@@ -220,7 +220,6 @@ FUNCTIONS=(
     run_mysql_docker_container
     setup_ufw
     setup_opencli
-    set_system_cronjob
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
     download_and_import_docker_images
@@ -228,6 +227,7 @@ FUNCTIONS=(
     configure_mysql
 
     start_services
+    set_system_cronjob
     cleanup
     generate_and_set_ssl_for_panels
     clean_apt_cache
