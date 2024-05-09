@@ -751,7 +751,11 @@ configure_docker() {
     ### to be removed in 0.1.8
     daemon_json_content='{
       "storage-driver": "devicemapper"
-    }'
+      "log-driver": "local",
+      "log-opts": {
+         "max-size": "5m"
+         }
+      }'
     echo "$daemon_json_content" > "$docker_daemon_json_path"
     ###
 
