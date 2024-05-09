@@ -121,7 +121,7 @@ const Integrations: React.FC = () => {
             <Title className="mt-20">Security</Title>
             <List data={liveProviders} />
 
-            <Title className="mt-20">Integrations (Soon)</Title>
+            <Title className="mt-20">Integrations</Title>
             <List data={communityPackages} />
         </IntegrationsLayout>
     );
