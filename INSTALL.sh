@@ -444,7 +444,7 @@ install_all_locales() {
 
 
 check_lock_file_age() {
-    if [ -z "$REPAIR" ]; then
+    if [ "$REPAIR" = true ]; then
         rm "$LOCK_FILE"
         # and if lock file exists
         if [ -e "$LOCK_FILE" ]; then
@@ -764,7 +764,7 @@ configure_modsecurity() {
 
 setup_openpanel() {
 
-    if [ -z "$REPAIR" ]; then
+    if [ "$REPAIR" = true ]; then
         rm -rf $OPENPANEL_DIR
     fi
 
@@ -817,7 +817,7 @@ setup_openadmin() {
     #
     echo "Setting up Admin panel.."
 
-    if [ -z "$REPAIR" ]; then
+    if [ "$REPAIR" = true ]; then
         rm -rf $OPENPADMIN_DIR
     fi
 
@@ -880,7 +880,7 @@ setup_opencli() {
     #
     echo "Setting OpenPanel CLI scripts.."
 
-    if [ -z "$REPAIR" ]; then
+    if [ "$REPAIR" = true ]; then
         rm -rf $OPENCLI_DIR
     fi
 
