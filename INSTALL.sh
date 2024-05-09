@@ -642,6 +642,13 @@ run_mysql_docker_container() {
     # set random password
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
 
+    if [ "$REPAIR" = true ]; then
+        docker stop openpanel_mysql
+        docker rm openpanel_mysql
+        docker volume rm openpanel_mysql
+    fi
+
+
     # run the container
     docker pull mysql  > /dev/null 2>&1
     docker run -d -p 3306:3306 --name openpanel_mysql \
@@ -657,6 +664,10 @@ run_mysql_docker_container() {
         # show password
         echo "Generated MySQL password: $MYSQL_ROOT_PASSWORD"
 
+        if [ "$REPAIR" = true ]; then
+            rm /etc/my.cnf
+        fi
+        
         ln -s /usr/local/admin/db.cnf /etc/my.cnf
         
         # Update configuration files with new password
