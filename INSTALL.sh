@@ -632,6 +632,50 @@ configure_nginx() {
 }
 
 
+
+mysql_for_ubuntu() {
+    # Check if the version is 22.04
+    if [[ "$ubuntu_version" == "22.04" ]]; then
+        #echo "This is Ubuntu 22.04"
+        run_mysql_docker_container
+        configure_mysql
+    elif [[ "$ubuntu_version" == "24.04" ]]; then
+        #echo "This is Ubuntu 24.04"
+        install_mysql_for_ubuntu24
+    else
+        radovan 1 "$ubuntu_version - This version of Ubuntu is not supported. Please use 22.04 or 24.02"
+    fi
+}
+
+
+install_mysql_for_ubuntu24() {
+    echo "Tweaking MySQL configuration.."
+
+    $PACKAGE_MANAGER -qq install mysql-server -y
+    
+    # https://dev.openpanel.co/services/mysql
+
+    debug_log cp -fr ${OPENPANEL_DIR}/conf/mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf 
+    debug_log service mysql start
+
+    echo "Populating the 'panel' database.."
+    generate_random_password() {
+        openssl rand -base64 12 | tr -dc 'a-zA-Z0-9'
+    }
+
+    RANDOM_PASSWORD=$(generate_random_password)
+    SQL_FILE="${OPENPANEL_DIR}DATABASE.sql"
+    mysql -u root -e "CREATE DATABASE panel;"
+    mysql -u root -e "CREATE USER 'panel'@'localhost' IDENTIFIED BY '${RANDOM_PASSWORD}';"
+    mysql -u root -e "GRANT ALL PRIVILEGES ON panel.* TO 'panel'@'localhost';"
+    mysql -u root panel < "${SQL_FILE}"
+    sed -i "s/\"mysql_password\": \"NewPassword\"/\"mysql_password\": \"${RANDOM_PASSWORD}\"/g" ${OPENPADMIN_DIR}config.json
+    sed -i "s/password = \"NewPassword\"/password = \"${RANDOM_PASSWORD}\"/g" ${OPENPADMIN_DIR}db.cnf
+
+    echo -e "${GREEN}Database is ready.${RESET}"
+}
+
+
 run_mysql_docker_container() {
 
     # MySQL
