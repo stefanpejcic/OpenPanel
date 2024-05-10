@@ -609,7 +609,7 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
-    # https://dev.openpanel.co/services/nginx
+    # https://dev.openpanel.co/services.html#Nginx
     debug_log cp -fr ${OPENPANEL_DIR}conf/nginx.conf /etc/nginx/nginx.conf
 
     # dir for domlogs
@@ -653,7 +653,7 @@ install_mysql_for_ubuntu24() {
 
     $PACKAGE_MANAGER -qq install mysql-server -y
     
-    # https://dev.openpanel.co/services/mysql
+    # https://dev.openpanel.co/services.html#MySQL
 
     debug_log cp -fr ${OPENPANEL_DIR}/conf/mysqld.cnf /etc/mysql/mysql.conf.d/mysqld.cnf 
     debug_log service mysql start
