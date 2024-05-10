@@ -720,6 +720,7 @@ configure_mysql() {
 
         # Create database
         mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
+        #mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "GRANT PROCESS ON *.* TO 'panel'@'%';"
         mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
 
         # Check if SQL file was imported successfully
