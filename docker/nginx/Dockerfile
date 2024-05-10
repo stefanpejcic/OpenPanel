@@ -52,7 +52,8 @@ RUN apt-get update && \
         apt-get autoremove -y && \
         rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-
+########## PHP Composer ##########
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 ########## MySQL ##########
 COPY mysqld.cnf /etc/mysql/mysql.conf.d/
