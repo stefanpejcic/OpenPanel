@@ -215,16 +215,12 @@ FUNCTIONS=(
 
     configure_nginx
     configure_modsecurity
-    
 
-    run_mysql_docker_container
     setup_ufw
     setup_opencli
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
     download_and_import_docker_images
-
-    configure_mysql
 
     start_services
     set_system_cronjob
