@@ -1,16 +1,18 @@
 #!/bin/bash
 echo "Container is starting..."
 
-# Get the current container's IP address
+: '
+CONFIGURATION
+On restart grant sudo if set, store random ip
+'
 CONTAINER_IP=$(hostname -i)
-
-# Old IP address to be replaced on docker run
 OLD_IP="tst"
+SUDO="NO"
+
 
 # Configuration files and directories
 memcached_dir="/var/run/memcached/"
 apache_default_site="/etc/apache2/sites-available/000-default.conf"
-service cron start
 
 
 
@@ -127,6 +129,11 @@ else
 fi
 
 
+# sudo
+if grep -q 'SUDO="YES"' /etc/entrypoint.sh; then
+    # Add user with UID 1000 to the sudo group
+    usermod -aG sudo -u 1000 $(getent passwd 1000 | cut -d: -f1)
+fi
 
 # Save the current IP for reuse
 sed -i "s/$OLD_IP/$CONTAINER_IP/g" "$0"
