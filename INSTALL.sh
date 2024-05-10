@@ -215,7 +215,9 @@ FUNCTIONS=(
 
     configure_nginx
     configure_modsecurity
-
+    
+    mysql_for_ubuntu
+    
     setup_ufw
     setup_opencli
     install_all_locales
@@ -630,6 +632,9 @@ configure_nginx() {
 
 
 mysql_for_ubuntu() {
+
+    ubuntu_version=$(lsb_release -rs)
+
     # Check if the version is 22.04
     if [[ "$ubuntu_version" == "22.04" ]]; then
         #echo "This is Ubuntu 22.04"
