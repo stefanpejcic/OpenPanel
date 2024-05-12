@@ -41,6 +41,7 @@ SKIP_IMAGES=false
 REPAIR=false
 LOCALES=true
 NO_SSH=false
+OVERLAY=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -329,6 +330,9 @@ parse_args() {
                 REPAIR=true
                 SKIP_PANEL_CHECK=true
                 SKIP_REQUIREMENTS=true
+                ;;
+                --overlay2)
+                OVERLAY=true
                 ;;
             --skip-firewall)
                 SKIP_FIREWALL=true
@@ -740,13 +744,28 @@ configure_mysql() {
 
 configure_docker() {
 
-    # Docker
 
-    debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
     docker_daemon_json_path="/etc/docker/daemon.json"
-
     debug_log mkdir -p $(dirname "$docker_daemon_json_path")
 
+    # Docker
+if [ "$OVERLAY" = true ]; then
+    debug_log "Setting default storage driver for Docker from to 'overlay2'.."
+
+
+    ### to be removed in 0.1.8
+    daemon_json_content='{
+      "storage-driver": "overlay2",
+      "log-driver": "local",
+      "log-opts": {
+         "max-size": "5m"
+         }
+      }'
+    echo "$daemon_json_content" > "$docker_daemon_json_path"
+    ###
+
+else
+    debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
 
 
     ### to be removed in 0.1.8
@@ -760,9 +779,12 @@ configure_docker() {
     echo "$daemon_json_content" > "$docker_daemon_json_path"
     ###
 
+fi
+
 
     # to be used in 0.1.8+
     #cp /usr/local/panel/conf/docker.daemon.json $docker_daemon_json_path
+
 
     echo -e "${GREEN}Docker is configured.${RESET}"
     debug_log systemctl daemon-reload
