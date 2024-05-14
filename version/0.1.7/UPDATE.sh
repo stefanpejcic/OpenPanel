@@ -20,7 +20,7 @@ SERVICES_DIR="/etc/systemd/system/"
 
 
 # Update source
-REPO_URL="https://get.openpanel.co/downloads/"
+REPO_URL="https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/get.openpanel.co/downloads/"
 CURRENT_PANEL_VERSION=$(< ${OPENPANEL_DIR}/version)
 
 # temporary directories
@@ -459,8 +459,6 @@ download_new_panel() {
         exit 1
     fi
 
-    #echo "wget -O ${TEMP_DIR}openpanel.tar.gz \"${REPO_URL}${NEW_PANEL_VERSION}/openpanel/${current_python_version}/compressed.tar.gz\""
-
     cd ${TEMP_DIR} && tar -xzf openpanel.tar.gz -C $OPENPANEL_DIR
 
     rm ${TEMP_DIR}openpanel.tar.gz
@@ -549,6 +547,8 @@ set_system_cronjob(){
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 }
+
+
 
 
 
