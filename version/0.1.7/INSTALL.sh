@@ -770,6 +770,7 @@ else
 
     ### to be removed in 0.1.8
     daemon_json_content='{
+      "experimental": true,
       "storage-driver": "devicemapper",
       "log-driver": "local",
       "log-opts": {
@@ -836,12 +837,18 @@ setup_openpanel() {
     echo "Installing PIP requirements for User panel.."
 
     # FIX FOR: https://peps.python.org/pep-0668/
-    if [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
+    ubuntu_version=$(lsb_release -r -s)
+    # Check if version is 22
+    if [[ "$ubuntu_version" == "22."* ]]; then
+        debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
+        debug_log pip install -r requirements.txt
+    # Check if version is 24
+    elif [[ "$ubuntu_version" == "24."* ]]; then
         debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
         debug_log pip install -r requirements.txt --break-system-packages
     else
-        debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
-        debug_log pip install -r requirements.txt
+        echo "Unsupported Ubuntu version: $ubuntu_version"
+        exit 1
     fi
 
 
@@ -881,16 +888,27 @@ setup_openadmin() {
     # Fix for: ModuleNotFoundError: No module named 'pyarmor_runtime_000000'
     wget -O ${OPENPADMIN_DIR}service/service.config.py https://gist.githubusercontent.com/stefanpejcic/37805c6781dc3beb1730fec82ee5ae34/raw/d7e8a6c1608c265aed89e97dcecea518b222ac86/service.config.py > /dev/null 2>&1
 
-
     echo "Installing PIP requirements for Admin panel.."
+    
     # FIX FOR: https://peps.python.org/pep-0668/
-    if [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
+    ubuntu_version=$(lsb_release -r -s)
+    # Check if version is 22
+    if [[ "$ubuntu_version" == "22."* ]]; then
+        debug_log "Installing PIP requirements for OpenAdmin without break-system-packages..."
+        debug_log pip install -r requirements.txt
+    # Check if version is 24
+    elif [[ "$ubuntu_version" == "24."* ]]; then
         debug_log "Installing PIP requirements for OpenAdmin with break-system-packages..."
         debug_log pip install -r requirements.txt --break-system-packages
     else
-        debug_log "Installing PIP requirements for OpenAdmin without break-system-packages..."
-        debug_log pip install -r requirements.txt
+        echo "Unsupported Ubuntu version: $ubuntu_version"
+        exit 1
     fi
+
+
+
+
+    
 
     echo "Creating Admin user.."
 
