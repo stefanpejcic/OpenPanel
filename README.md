@@ -70,7 +70,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 |           hhg       | ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white)  |
 |           hhg       |  ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) |
 |           hhg       |  ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) |
-|           hhg       |   |
+|           hhg       |  ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) |
 |           hhg       |   |
 |           hhg       |   |
 |           hhg       |   |
