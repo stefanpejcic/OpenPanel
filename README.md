@@ -71,7 +71,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 |           hhg       |  ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) |
 |           hhg       |  ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) |
 |           hhg       |  ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) |
-|           hhg       |   |
+|           hhg       | ![phpmyadmin](https://img.shields.io/badge/PHPMyAdmin-6.5-blue?logo=phpmyadmin&logoColor=white)  |
 |           hhg       |   |
 |           hhg       |   |
 |           hhg       |   |
