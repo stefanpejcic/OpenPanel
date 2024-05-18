@@ -60,7 +60,8 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 
 ## Technology Stack
 
-![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white)
+![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue)
+![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white) ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white)
 
 ## What do you mean by "open" ?
 
