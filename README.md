@@ -57,6 +57,11 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 [![openpanel-vs-openadmin](/documentation/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.co/docs/admin/intro/)
 
 
+
+## Technology Stack
+
+![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white)
+
 ## What do you mean by "open" ?
 
 Open for business!
