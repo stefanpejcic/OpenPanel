@@ -60,8 +60,24 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 
 ## Technology Stack
 
-![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue)
-![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white) ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white)
+
+| OpenAdmin |  OpenPanel |
+|------------------|---|
+|         ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white)         |  ![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue) |
+|           hhg       | ![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white)  |
+|           hhg       |  ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white)  |
+|           hhg       |  ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) |
+|           hhg       | ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white]  |
+|           hhg       |  ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) |
+|           hhg       |  ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) |
+|           hhg       |   |
+|           hhg       |   |
+|           hhg       |   |
+|           hhg       |   |
+|           hhg       |   |
+|           hhg       |   |
+
+
 
 ## What do you mean by "open" ?
 
