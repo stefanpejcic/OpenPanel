@@ -666,6 +666,107 @@ celebrate() {
 }
 
 
+
+replace_mysql_with_docker() {
+    # MySQL
+
+
+
+# EXPORT DATABASE!
+mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.sql
+
+
+
+    # set random password
+    MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
+
+
+    # run the container
+    docker run -d -p 3306:3306 --name openpanel_mysql \
+        -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+        -e MYSQL_DATABASE=panel \
+        -e MYSQL_USER=panel \
+        -e MYSQL_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+        -v openpanel_mysql_data:/var/lib/mysql \
+        --memory="1g" --cpus="1" \
+        --restart=always \
+        --oom-kill-disable \
+        mysql/mysql-server
+    
+
+    if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
+
+        # show password
+        echo "Generated MySQL password: $MYSQL_ROOT_PASSWORD"
+        
+        ln -s /usr/local/admin/db.cnf /etc/my.cnf
+        
+        # Update configuration files with new password
+        sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
+        sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
+        sed -i "s/password = \".*\"/password = \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/db.cnf
+        sed -i "s/user = \".*\"/user = \"panel\"/g" /usr/local/admin/db.cnf
+
+        # Fix for: ERROR 2013 (HY000): Lost connection to MySQL server at 'reading initial communication packet', system error: 2
+        
+        # Function to check if MySQL is running
+        mysql_is_running() {
+            if mysqladmin --defaults-extra-file="/usr/local/admin/db.cnf" ping &> /dev/null; then
+                return 0 # MySQL is running
+            else
+                return 1 # MySQL is not running
+            fi
+        }
+
+        # Wait for MySQL to start
+        wait_for_mysql() {
+            retries=5
+            while [ $retries -gt 0 ]; do
+                if mysql_is_running; then
+                    return 0 # MySQL is running
+                else
+                    echo "Waiting for MySQL to start..."
+                    sleep 5
+                    retries=$((retries - 1))
+                fi
+            done
+            return 1 # MySQL did not start after retries
+        }
+
+        # Wait for MySQL to start
+        wait_for_mysql
+
+        # Create database
+        mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
+        #mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "GRANT PROCESS ON *.* TO 'panel'@'%';"
+        mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" < /tmp/DATABASE.sql
+
+        # Check if SQL file was imported successfully
+        if mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
+            echo -e "${GREEN}Database is ready.${RESET}"
+        else
+            echo "SQL file import failed or database is not ready."
+            radovan 1 "Installation failed!"
+        fi
+
+    else
+        echo "Docker container 'openpanel_mysql' does not exist. Please make sure the container is running."
+        echo "Installation failed! "
+        exit 1
+    fi
+
+
+
+
+
+
+
+
+    
+
+        
+}
+
 post_install_message() {
 
     # steps to revert the update
