@@ -11,6 +11,7 @@ RUN apt-get update && \
     add-apt-repository ppa:ondrej/php && \
     apt-get update && \
     apt-get install --no-install-recommends -y \
+        msmtp \
         ttyd \
         screen \
         apache2 \
@@ -90,18 +91,12 @@ RUN mkdir -p /var/log/apache2/domlogs/
 
 
 
-RUN sed -i \
-    -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
-    -e 's/^max_input_time = .*/max_input_time = 600/' \
-    -e 's/^memory_limit = .*/memory_limit = -1/' \
-    -e 's/^post_max_size = .*/post_max_size = 1024M/' \
-    -e 's/^max_execution_time = .*/max_execution_time = 600/' \
-    /etc/php/8.2/cli/php.ini
+
+########## PHPMYADMIN ##########
 
 COPY config.inc.php /etc/phpmyadmin/
 COPY pma.php /usr/share/phpmyadmin/pma.php
 
-# PHPMYADMIN
 RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
     && sed -i "s/\(\$dbpass='.*'\)/\$dbpass='$new_password';/" "/etc/phpmyadmin/config-db.php" \
     && pma_file="/usr/share/phpmyadmin/pma.php" \
@@ -129,8 +124,21 @@ RUN sed -i \
     -e 's/^post_max_size = .*/post_max_size = 1024M/' \
     -e 's/^max_execution_time = .*/max_execution_time = 600/' \
     -e 's/^opcache.enable= .*/opcache.enable=1/' \
+    -e 's/^;sendmail_path = .*/sendmail_path = "/usr/bin/msmtp -t"/' \
     /etc/php/8.2/fpm/php.ini
+RUN sed -i \
+    -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
+    -e 's/^max_input_time = .*/max_input_time = 600/' \
+    -e 's/^memory_limit = .*/memory_limit = -1/' \
+    -e 's/^post_max_size = .*/post_max_size = 1024M/' \
+    -e 's/^max_execution_time = .*/max_execution_time = 600/' \
+    -e 's/^opcache.enable= .*/opcache.enable=1/' \
+    -e 's/^;sendmail_path = .*/sendmail_path = "/usr/bin/msmtp -t"/' \
+    /etc/php/8.2/cli/php.ini
 
+
+########## EMAIL ##########
+COPY msmtprc /etc/msmtprc
 
 
 ########## SSH ##########
