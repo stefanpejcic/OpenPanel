@@ -88,18 +88,12 @@ RUN sed -i \
     echo "server { listen 80 default_server; listen [::]:80 default_server; server_name _; deny all; return 444; }" > /etc/nginx/sites-available/default
 
 
-RUN sed -i \
-    -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
-    -e 's/^max_input_time = .*/max_input_time = 600/' \
-    -e 's/^memory_limit = .*/memory_limit = -1/' \
-    -e 's/^post_max_size = .*/post_max_size = 1024M/' \
-    -e 's/^max_execution_time = .*/max_execution_time = 600/' \
-    /etc/php/8.2/cli/php.ini
+
+########## PHPMYADMIN ##########
 
 COPY config.inc.php /etc/phpmyadmin/
 COPY pma.php /usr/share/phpmyadmin/pma.php
 
-# PHPMYADMIN
 RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
     && sed -i "s/\(\$dbpass='.*'\)/\$dbpass='$new_password';/" "/etc/phpmyadmin/config-db.php" \
     && pma_file="/usr/share/phpmyadmin/pma.php" \
