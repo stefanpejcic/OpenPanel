@@ -123,7 +123,8 @@ RUN sed -i \
     -e 's/^max_execution_time = .*/max_execution_time = 600/' \
     -e 's/^opcache.enable= .*/opcache.enable=1/' \
     /etc/php/8.2/fpm/php.ini
-RUN sed -i 's|^;sendmail_path = .*|sendmail_path = "/usr/bin/msmtp -t"|' /etc/php/8.2/fpm/php.ini
+RUN sed -i 's|;sendmail_path = *|sendmail_path = "/usr/bin/msmtp -t"|g' /etc/php/8.2/fpm/php.ini
+
 
 RUN sed -i \
     -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
@@ -133,7 +134,7 @@ RUN sed -i \
     -e 's/^max_execution_time = .*/max_execution_time = 600/' \
     -e 's/^opcache.enable= .*/opcache.enable=1/' \
     /etc/php/8.2/cli/php.ini
-RUN sed -i 's|^;sendmail_path = .*|sendmail_path = "/usr/bin/msmtp -t"|' /etc/php/8.2/cli/php.ini
+RUN sed -i 's|;sendmail_path = *|sendmail_path = "/usr/bin/msmtp -t"|g' /etc/php/8.2/cli/php.ini
 
 
 ########## EMAIL ##########
