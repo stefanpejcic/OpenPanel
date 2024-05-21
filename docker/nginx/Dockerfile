@@ -84,8 +84,9 @@ RUN sed -i \
     -e 's/# worker_connections 768;/worker_connections 10000;/' \
     /etc/nginx/nginx.conf && \
     chmod 700 /etc/nginx/sites-available && \
-    chmod 700 /etc/nginx/sites-enabled && \
-    echo "server { listen 80 default_server; listen [::]:80 default_server; server_name _; deny all; return 444; }" > /etc/nginx/sites-available/default
+    chmod 700 /etc/nginx/sites-enabled
+
+COPY nginx/default /etc/nginx/sites-available/
 
 
 
