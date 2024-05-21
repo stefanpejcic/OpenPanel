@@ -58,7 +58,7 @@ RUN apt-get update && \
 COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 
 ########## MySQL ##########
-COPY mysqld.cnf /etc/mysql/mysql.conf.d/
+COPY mysql/mysqld.cnf /etc/mysql/mysql.conf.d/
 RUN chown mysql:mysql -R /var/lib/mysql
 RUN usermod -d /var/lib/mysql mysql
 RUN chmod a+rwx /run/mysqld
@@ -83,7 +83,7 @@ EXPOSE 22 80 3306 7681 8080
 ########## APACHE ##########
 RUN a2enmod ssl rewrite proxy proxy_http proxy_fcgi remoteip headers
 ENV APACHE_PID_FILE /var/run/apache2/apache2.pid
-COPY apache2.conf /etc/apache2/
+COPY apache/apache2.conf /etc/apache2/
 
 # Allow .htaccess rewrite rules (needed for WP pretty links and wpcli auto login)
 #RUN sed -i '/<Directory \/var\/www\/>/,/AllowOverride None/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
@@ -94,8 +94,8 @@ RUN mkdir -p /var/log/apache2/domlogs/
 
 ########## PHPMYADMIN ##########
 
-COPY config.inc.php /etc/phpmyadmin/
-COPY pma.php /usr/share/phpmyadmin/pma.php
+COPY phpmyadmin/config.inc.php /etc/phpmyadmin/
+COPY phpmyadmin/pma.php /usr/share/phpmyadmin/pma.php
 
 RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
     && sed -i "s/\(\$dbpass='.*'\)/\$dbpass='$new_password';/" "/etc/phpmyadmin/config-db.php" \
@@ -138,7 +138,7 @@ RUN sed -i \
 
 
 ########## EMAIL ##########
-COPY msmtprc /etc/msmtprc
+COPY email/msmtprc /etc/msmtprc
 
 
 ########## SSH ##########
