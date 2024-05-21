@@ -114,6 +114,8 @@ RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
     && mysql -u root < /usr/share/doc/phpmyadmin/examples/create_tables.sql \
     && service mysql stop
 
+
+
 ########## PHP-FPM ##########
 # 8.2
 RUN update-alternatives --set php /usr/bin/php8.2
@@ -124,7 +126,7 @@ RUN sed -i \
     -e 's/^post_max_size = .*/post_max_size = 1024M/' \
     -e 's/^max_execution_time = .*/max_execution_time = 600/' \
     -e 's/^opcache.enable= .*/opcache.enable=1/' \
-    -e 's/^;sendmail_path = .*/sendmail_path = "/usr/bin/msmtp -t"/' \
+    -e 's|^;sendmail_path = .*|sendmail_path = "/usr/bin/msmtp -t"|' \
     /etc/php/8.2/fpm/php.ini
 RUN sed -i \
     -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
@@ -133,7 +135,7 @@ RUN sed -i \
     -e 's/^post_max_size = .*/post_max_size = 1024M/' \
     -e 's/^max_execution_time = .*/max_execution_time = 600/' \
     -e 's/^opcache.enable= .*/opcache.enable=1/' \
-    -e 's/^;sendmail_path = .*/sendmail_path = "/usr/bin/msmtp -t"/' \
+    -e 's|^;sendmail_path = .*|sendmail_path = "/usr/bin/msmtp -t"|' \
     /etc/php/8.2/cli/php.ini
 
 
