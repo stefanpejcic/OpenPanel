@@ -666,16 +666,14 @@ celebrate() {
 }
 
 
-
+# MySQL
 replace_mysql_with_docker() {
-    # MySQL
 
-
-
-# EXPORT DATABASE!
-mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.sql
-
-
+    # EXPORT DATABASE!
+    mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.sql
+    
+    # stop mysql service on the server
+    service mysql stop
 
     # set random password
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
@@ -744,6 +742,11 @@ mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.
         # Check if SQL file was imported successfully
         if mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
             echo -e "${GREEN}Database is ready.${RESET}"
+
+            service mysql disable
+            # leave for next version!
+            # apt-get uninstall -y mysql 
+            
         else
             echo "SQL file import failed or database is not ready."
             radovan 1 "Installation failed!"
@@ -754,18 +757,9 @@ mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.
         echo "Installation failed! "
         exit 1
     fi
-
-
-
-
-
-
-
-
-    
-
-        
 }
+
+
 
 post_install_message() {
 
@@ -780,7 +774,7 @@ post_install_message() {
     echo ""
     echo "   mv /usr/local/admin-${CURRENT_PANEL_VERSION}/ /usr/local/admin ; mv /usr/local/panel-${CURRENT_PANEL_VERSION}/ /usr/local/panel"
     echo ""
-    echo "3. Restart OpenPanel and OpenAdmin serviced:"
+    echo "3. Restart OpenPanel, OpenAdmin and MySQL services:"
     echo ""
     echo "   service panel restart && service admin restart"
     echo ""
