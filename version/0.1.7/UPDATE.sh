@@ -348,7 +348,7 @@ print_header() {
 
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 
-    echo -e "Starting update to OpenPanel version 0.1.7"
+    echo -e "Starting update to OpenPanel version $NEW_PANEL_VERSION"
     echo -e ""
 }
 
