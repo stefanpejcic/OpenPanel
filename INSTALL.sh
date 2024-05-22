@@ -560,7 +560,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("python3-flask" "python3-pip" "docker.io" "mysql-client-core-8.0" "docker-compose" "nginx" "zip" "unzip" "bind9" "gunicorn" "jq" "ufw" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
+    packages=("python3-flask" "python3-pip" "docker.io" "mysql-client-core-8.0" "docker-compose" "nginx" "zip" "unzip" "bind9" "gunicorn" "ufw" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
@@ -600,7 +600,7 @@ install_packages() {
         done     
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
         # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "nginx" "zip" "unzip" "jq" "ufw" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
+        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "nginx" "zip" "unzip" "ufw" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
         
         #utils must be added first, then install from that repo
         dnf install yum-utils  -y
