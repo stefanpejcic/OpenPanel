@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 14.05.2024
+# Last Modified: 22.05.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -41,6 +41,7 @@ SKIP_IMAGES=false
 REPAIR=false
 LOCALES=true
 NO_SSH=false
+INSTALL_FTP=false
 OVERLAY=false
 
 # Paths
@@ -220,6 +221,7 @@ FUNCTIONS=(
 
     run_mysql_docker_container
     setup_ufw
+    setup_ftp
     setup_opencli
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
@@ -355,6 +357,9 @@ parse_args() {
             --no-ssh)
                 NO_SSH=true
                 ;;
+            --enable-ftp)
+                INSTALL_FTP=true
+                ;;
             --post_install=*)
                 # Extract path after "--post_install="
                 post_install_path="${1#*=}"
@@ -478,6 +483,14 @@ clean_apt_cache(){
 
     # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
 }
+
+
+setup_ftp() {
+        if [ "$INSTALL_FTP" = true ]; then
+            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel-FTP/master/setup.sh | bash
+        fi
+}
+
 
 setup_ufw() {
     if [ -z "$SKIP_FIREWALL" ]; then
@@ -770,7 +783,6 @@ else
 
     ### to be removed in 0.1.8
     daemon_json_content='{
-      "experimental": true,
       "storage-driver": "devicemapper",
       "log-driver": "local",
       "log-opts": {
@@ -837,18 +849,12 @@ setup_openpanel() {
     echo "Installing PIP requirements for User panel.."
 
     # FIX FOR: https://peps.python.org/pep-0668/
-    ubuntu_version=$(lsb_release -r -s)
-    # Check if version is 22
-    if [[ "$ubuntu_version" == "22."* ]]; then
-        debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
-        debug_log pip install -r requirements.txt
-    # Check if version is 24
-    elif [[ "$ubuntu_version" == "24."* ]]; then
+    if [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
         debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
         debug_log pip install -r requirements.txt --break-system-packages
     else
-        echo "Unsupported Ubuntu version: $ubuntu_version"
-        exit 1
+        debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
+        debug_log pip install -r requirements.txt
     fi
 
 
@@ -888,27 +894,16 @@ setup_openadmin() {
     # Fix for: ModuleNotFoundError: No module named 'pyarmor_runtime_000000'
     wget -O ${OPENPADMIN_DIR}service/service.config.py https://gist.githubusercontent.com/stefanpejcic/37805c6781dc3beb1730fec82ee5ae34/raw/d7e8a6c1608c265aed89e97dcecea518b222ac86/service.config.py > /dev/null 2>&1
 
+
     echo "Installing PIP requirements for Admin panel.."
-    
     # FIX FOR: https://peps.python.org/pep-0668/
-    ubuntu_version=$(lsb_release -r -s)
-    # Check if version is 22
-    if [[ "$ubuntu_version" == "22."* ]]; then
-        debug_log "Installing PIP requirements for OpenAdmin without break-system-packages..."
-        debug_log pip install -r requirements.txt
-    # Check if version is 24
-    elif [[ "$ubuntu_version" == "24."* ]]; then
+    if [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
         debug_log "Installing PIP requirements for OpenAdmin with break-system-packages..."
         debug_log pip install -r requirements.txt --break-system-packages
     else
-        echo "Unsupported Ubuntu version: $ubuntu_version"
-        exit 1
+        debug_log "Installing PIP requirements for OpenAdmin without break-system-packages..."
+        debug_log pip install -r requirements.txt
     fi
-
-
-
-
-    
 
     echo "Creating Admin user.."
 
