@@ -41,6 +41,7 @@ SKIP_IMAGES=false
 REPAIR=false
 LOCALES=true
 NO_SSH=false
+INSTALL_FTP=false
 OVERLAY=false
 
 # Paths
@@ -220,6 +221,7 @@ FUNCTIONS=(
 
     run_mysql_docker_container
     setup_ufw
+    setup_ftp
     setup_opencli
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
@@ -355,6 +357,9 @@ parse_args() {
             --no-ssh)
                 NO_SSH=true
                 ;;
+            --enable-ftp)
+                INSTALL_FTP=true
+                ;;
             --post_install=*)
                 # Extract path after "--post_install="
                 post_install_path="${1#*=}"
@@ -478,6 +483,14 @@ clean_apt_cache(){
 
     # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
 }
+
+
+setup_ftp() {
+        if [ "$INSTALL_FTP" = true ]; then
+            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel-FTP/master/setup.sh | bash
+        fi
+}
+
 
 setup_ufw() {
     if [ -z "$SKIP_FIREWALL" ]; then
