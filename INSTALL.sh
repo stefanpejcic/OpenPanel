@@ -34,6 +34,7 @@ RED='\033[0;31m'
 RESET='\033[0m'
 
 # Defaults
+CUSTOM_VERSION=false
 INSTALL_TIMEOUT=1800 # 30 min
 DEBUG=false
 SKIP_APT_UPDATE=false
@@ -174,14 +175,16 @@ if [ -z "$current_ip" ]; then
 fi
 
 
-# Fetch the latest version
-version=$(curl -s https://update.openpanel.co/)
-if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
-    version=$version
-else
-    version="0.1.7"
-fi
 
+if [ "$CUSTOM_VERSION" = false ]; then
+    # Fetch the latest version
+    version=$(curl -s https://update.openpanel.co/)
+    if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+        version=$version
+    else
+        version="0.1.7"
+    fi
+fi
 
 # print fullwidth line
 print_space_and_line() {
@@ -363,6 +366,11 @@ parse_args() {
             --post_install=*)
                 # Extract path after "--post_install="
                 post_install_path="${1#*=}"
+                ;;
+            --version=*)
+                # Extract path after "--version="
+                CUSTOM_VERSION=true
+                version="${1#*=}"
                 ;;
             *)
                 echo "Unknown option: $arg"
