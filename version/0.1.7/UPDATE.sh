@@ -122,6 +122,9 @@ FUNCTIONS=(
     # install new opencli version from github
     setup_opencli_new_version
 
+    #most important for this version!
+    replace_mysql_with_docker
+
     # reload admin and panel services
     reload_services
 
@@ -692,7 +695,8 @@ celebrate() {
 replace_mysql_with_docker() {
 
     # EXPORT DATABASE!
-    mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.sql
+    mysqldump -u root panel > /tmp/DATABASE.sql
+    #mysqldump --defaults-extra-file="/usr/local/admin/db.cnf" panel > /tmp/DATABASE.sql
     
     # stop mysql service on the server
     service mysql stop
@@ -718,7 +722,7 @@ replace_mysql_with_docker() {
 
         # show password
         echo "Generated MySQL password: $MYSQL_ROOT_PASSWORD"
-        
+        echo 'protocol = "tcp"' >> /usr/local/admin/db.cnf
         ln -s /usr/local/admin/db.cnf /etc/my.cnf
         
         # Update configuration files with new password
@@ -731,7 +735,7 @@ replace_mysql_with_docker() {
         
         # Function to check if MySQL is running
         mysql_is_running() {
-            if mysqladmin --defaults-extra-file="/usr/local/admin/db.cnf" ping &> /dev/null; then
+            if mysqladmin --protocol=tcp ping &> /dev/null; then
                 return 0 # MySQL is running
             else
                 return 1 # MySQL is not running
@@ -757,17 +761,18 @@ replace_mysql_with_docker() {
         wait_for_mysql
 
         # Create database
-        mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
+        mysql --protocol=tcp -e "CREATE DATABASE IF NOT EXISTS panel;"
         #mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "GRANT PROCESS ON *.* TO 'panel'@'%';"
-        mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" < /tmp/DATABASE.sql
+        mysql --protocol=tcp -D "panel" < /tmp/DATABASE.sql
+        
 
         # Check if SQL file was imported successfully
-        if mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
+        if mysql --protocol=tcp -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
             echo -e "${GREEN}Database is ready.${RESET}"
 
             service mysql disable
             # leave for next version!
-            # apt-get remove -y mysql 
+            # apt-get remove -y mysql-server 
             
         else
             echo "SQL file import failed or database is not ready."
