@@ -135,6 +135,10 @@ FUNCTIONS=(
     # set cronjobs
     set_system_cronjob
 
+
+    # remove goaccess since we now use docker
+    uninstall_goaccess
+    
     # delete temp files and (maybe) old panel versison
     cleanup
 
@@ -414,6 +418,13 @@ run_custom_postupdate_script() {
     fi
 }
 
+
+
+
+uninstall_goaccess() {
+    echo "Removing GoAccess service.."
+    apt-get uninstall goaccess -y 
+}
 
 
 update_services() {
