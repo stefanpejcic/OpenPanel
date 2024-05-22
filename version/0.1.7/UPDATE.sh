@@ -115,11 +115,7 @@ FUNCTIONS=(
 
     # copy configuration files that user modified and other custom data
     move_openadmin_data
-
-    # update images!
-    update_docker_images
     
-
     # install pip requirements for admin panel
     pip_install_for_admin
 
@@ -135,6 +131,9 @@ FUNCTIONS=(
     # set cronjobs
     set_system_cronjob
 
+
+    # update images!
+    update_docker_images
 
     # remove goaccess since we now use docker
     uninstall_goaccess
@@ -354,12 +353,16 @@ print_header() {
 
     echo -e "Starting update to OpenPanel version $NEW_PANEL_VERSION"
     echo -e ""
+    echo -e "Changelog: https://openpanel.co/docs/changelog/$NEW_PANEL_VERSION"        
+    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
+    echo -e ""
 }
 
 
 
 update_docker_images() {
-    opencli docker-update_images
+    #opencli docker-update_images
+    bash /usr/local/admin/scripts/docker/update_images
 }
 
 reload_services() {
@@ -423,7 +426,7 @@ run_custom_postupdate_script() {
 
 uninstall_goaccess() {
     echo "Removing GoAccess service.."
-    apt-get uninstall goaccess -y 
+    apt-get remove goaccess -y 
 }
 
 
@@ -764,7 +767,7 @@ replace_mysql_with_docker() {
 
             service mysql disable
             # leave for next version!
-            # apt-get uninstall -y mysql 
+            # apt-get remove -y mysql 
             
         else
             echo "SQL file import failed or database is not ready."
