@@ -116,6 +116,10 @@ FUNCTIONS=(
     # copy configuration files that user modified and other custom data
     move_openadmin_data
 
+    # update images!
+    update_docker_images
+    
+
     # install pip requirements for admin panel
     pip_install_for_admin
 
@@ -349,6 +353,10 @@ print_header() {
 }
 
 
+
+update_docker_images() {
+    opencli docker-update_images
+}
 
 reload_services() {
     echo "Reloading services.."
