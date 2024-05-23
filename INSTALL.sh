@@ -855,7 +855,6 @@ setup_openpanel() {
     debug_log playwright install
     debug_log playwright install-deps
 
-    mv ${OPENPANEL_DIR}icons/ ${OPENPANEL_DIR}static/images/icons
 }
 
 setup_openadmin() {
