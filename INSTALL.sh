@@ -787,25 +787,10 @@ if [ "$OVERLAY" = true ]; then
 
 else
     debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
-
-
-    ### to be removed in 0.1.8
-    daemon_json_content='{
-      "storage-driver": "devicemapper",
-      "log-driver": "local",
-      "log-opts": {
-         "max-size": "5m"
-         }
-      }'
-    echo "$daemon_json_content" > "$docker_daemon_json_path"
-    ###
+    # added in 0.1.9
+    cp /usr/local/panel/conf/docker.daemon.json $docker_daemon_json_path
 
 fi
-
-
-    # to be used in 0.1.8+
-    #cp /usr/local/panel/conf/docker.daemon.json $docker_daemon_json_path
-
 
     echo -e "${GREEN}Docker is configured.${RESET}"
     debug_log systemctl daemon-reload
