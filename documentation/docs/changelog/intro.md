@@ -16,7 +16,6 @@ sidebar_class_name: green
 
 |   |
 |---|
-
 |__[0.1.8](/docs/changelog/0.1.8)__|
 
 
