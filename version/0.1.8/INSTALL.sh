@@ -495,6 +495,7 @@ clean_apt_cache(){
 
 setup_ftp() {
         if [ "$INSTALL_FTP" = true ]; then
+        echo "Installing experimental FTP service."
             curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel-FTP/master/setup.sh | bash
         fi
 }
