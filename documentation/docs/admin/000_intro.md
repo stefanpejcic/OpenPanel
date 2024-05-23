@@ -53,7 +53,6 @@ The installation script also supports optional flags that can be used to install
 |---------------------|-------------------------------------------------------------------------------------------------------------------|
 | `--version=`     | Specify OpenPanel verison to install intead of the default latest. Example: `--version=0.1.8`                                                   |
 | `--with_modsec`     | Rebuild Nginx with ModSecurity module and set the OWASP core ruleset.                                                   |
-
 | `--debug`           | Display on screen each installation step and output debugging information.                                   |
 | `--skip-requirements`| Do not check if the server meets the minimum recommended requirements for running OpenPanel.                          |
 | `--skip-apt-update`| Do not check if apt is up-to-date and skip udpating it.                                               |
