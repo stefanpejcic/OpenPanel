@@ -51,15 +51,20 @@ The installation script also supports optional flags that can be used to install
 
 | Flag                | What it does                                                                                                      |
 |---------------------|-------------------------------------------------------------------------------------------------------------------|
+| `--version=`     | Specify OpenPanel verison to install intead of the default latest. Example: `--version=0.1.8`                                                   |
 | `--with_modsec`     | Rebuild Nginx with ModSecurity module and set the OWASP core ruleset.                                                   |
+
 | `--debug`           | Display on screen each installation step and output debugging information.                                   |
 | `--skip-requirements`| Do not check if the server meets the minimum recommended requirements for running OpenPanel.                          |
+| `--skip-apt-update`| Do not check if apt is up-to-date and skip udpating it.                                               |
 | `--skip-panel-check`| Do not check if other hosting panels or webservers are installed and overwrite.                                               |
-| `--repair`          | Do not check if OpenPanel installation is already running or previously failed and overwrite configuration.                     |
+| `--repair`          | Do not check if OpenPanel installation is already running or previously failed and retry installation.                     |
 | `--skip-firewall`   | Do not install UFW and skip setting custom firewall rules.                                                          |
 | `--skip-images`     | Skip building Docker images for Nginx and Apache.                                                                   |
 | `--skip-ssl`        | Do not check if the server hostname is pointed to the IP and set it to be used for OpenPanel; instead, the server IP will be used. |
+| `--enable-ftp`          | Experimental feature that will install FTP for all users.  |
 | `--no-ssh`          | Close the default ssh port 22 but whitelist the current ip address of the user running the installation.  |
+| `--post_install=`          | Specify a bash script to be executed after OpenPanel is installed.  |
 
 Example: Install OpenPanel in debug mode
 
