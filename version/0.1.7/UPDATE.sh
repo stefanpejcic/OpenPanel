@@ -770,7 +770,7 @@ replace_mysql_with_docker() {
         if mysql --protocol=tcp -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
             echo -e "${GREEN}Database is ready.${RESET}"
 
-            service mysql disable
+            systemctl disable mysql
             # leave for next version!
             # apt-get remove -y mysql-server 
             
