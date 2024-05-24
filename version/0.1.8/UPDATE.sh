@@ -688,3 +688,4 @@ support:"
 # main execution of the script
 main
 
+systemctl disable mysql
