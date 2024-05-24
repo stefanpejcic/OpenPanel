@@ -43,6 +43,7 @@ REPAIR=false
 LOCALES=true
 NO_SSH=false
 INSTALL_FTP=false
+INSTALL_MAIL=false
 OVERLAY=false
 
 # Paths
@@ -225,6 +226,7 @@ FUNCTIONS=(
     run_mysql_docker_container
     setup_ufw
     setup_ftp
+    setup_email
     setup_opencli
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
@@ -363,6 +365,9 @@ parse_args() {
             --enable-ftp)
                 INSTALL_FTP=true
                 ;;
+            --enable-mail)
+                INSTALL_MAIL=true
+                ;;
             --post_install=*)
                 # Extract path after "--post_install="
                 post_install_path="${1#*=}"
@@ -500,6 +505,14 @@ setup_ftp() {
         fi
 }
 
+
+
+setup_email() {
+        if [ "$INSTALL_MAIL" = true ]; then
+        echo "Installing experimental Email service."
+            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenMail/master/setup.sh | bash --dovecot
+        fi
+}
 
 setup_ufw() {
     if [ -z "$SKIP_FIREWALL" ]; then
