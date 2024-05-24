@@ -164,7 +164,7 @@ opencli config update autopatch yes
 If you want to update manually regardless of the schedule, you can run the following command.
 
 ```shell
-opencli update
+opencli update --force
 ```
 
 
