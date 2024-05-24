@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 22.05.2024
+# Last Modified: 23.05.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -182,7 +182,7 @@ if [ "$CUSTOM_VERSION" = false ]; then
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
-        version="0.1.7"
+        version="0.1.8"
     fi
 fi
 
@@ -495,6 +495,7 @@ clean_apt_cache(){
 
 setup_ftp() {
         if [ "$INSTALL_FTP" = true ]; then
+        echo "Installing experimental FTP service."
             curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel-FTP/master/setup.sh | bash
         fi
 }
@@ -787,10 +788,25 @@ if [ "$OVERLAY" = true ]; then
 
 else
     debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
-    # added in 0.1.9
-    cp /usr/local/panel/conf/docker.daemon.json $docker_daemon_json_path
+
+
+    ### to be removed in 0.1.8
+    daemon_json_content='{
+      "storage-driver": "devicemapper",
+      "log-driver": "local",
+      "log-opts": {
+         "max-size": "5m"
+         }
+      }'
+    echo "$daemon_json_content" > "$docker_daemon_json_path"
+    ###
 
 fi
+
+
+    # to be used in 0.1.8+
+    #cp /usr/local/panel/conf/docker.daemon.json $docker_daemon_json_path
+
 
     echo -e "${GREEN}Docker is configured.${RESET}"
     debug_log systemctl daemon-reload
@@ -855,6 +871,7 @@ setup_openpanel() {
     debug_log playwright install
     debug_log playwright install-deps
 
+    mv ${OPENPANEL_DIR}icons/ ${OPENPANEL_DIR}static/images/icons
 }
 
 setup_openadmin() {
