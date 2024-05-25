@@ -475,7 +475,7 @@ move_openpanel_data() {
 
     # server conf
     cp -r ${OLD_OPENPANEL_DIR}conf/* ${OPENPANEL_DIR}conf/
-
+    sed -i 's/enabled_modules=/enabled_modules=dns,/' /usr/local/panel/conf/panel.config
 
     # users data
     cp -r ${OLD_OPENPANEL_DIR}core/* ${OPENPANEL_DIR}core/
