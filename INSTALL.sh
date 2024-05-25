@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 23.05.2024
+# Last Modified: 25.05.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -45,6 +45,7 @@ NO_SSH=false
 INSTALL_FTP=false
 INSTALL_MAIL=false
 OVERLAY=false
+IPSETS=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -541,6 +542,15 @@ setup_ufw() {
             debug_log ufw allow 22  #ssh
         fi
 
+        # set https://github.com/stefanpejcic/ipset-blacklist
+        if [ "$IPSETS" = true ]; then
+            if [ "$DEBUG" = true ]; then
+                bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh)
+            else
+                bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh) > /dev/null 2>&1
+            fi
+        fi
+        
         if [ "$SUPPORT_IPS" = true ]; then
             # Whitelisting our VPN ip addresses from https://ip.openpanel.co/ips/
             ip_list=$(curl -s https://ip.openpanel.co/ips/)
