@@ -131,7 +131,7 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                <span className={clsx("font-semibold")}>OpenPanel 0.1.7</span>{" "}
+                <span className={clsx("font-semibold")}>OpenPanel 0.1.8</span>{" "}
                 is out! Give it a spin and tell us what you think
                 <span
                     className={clsx(
