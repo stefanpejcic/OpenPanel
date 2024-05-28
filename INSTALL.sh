@@ -947,6 +947,11 @@ setup_openadmin() {
     password_hash=$(python3 ${OPENPADMIN_DIR}core/users/hash $admin_password)
 
     debug_log sqlite3 ${OPENPADMIN_DIR}users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);" "INSERT INTO user (username, password_hash, role) VALUES ('admin', \"$password_hash\", 'admin');"
+
+    # added in 0.1.9
+    cp helpers/welcome.sh /etc/profile.d/welcome.sh
+    chmod +x /etc/profile.d/welcome.sh  
+
 }
 
 
