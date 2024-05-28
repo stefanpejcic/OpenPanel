@@ -988,6 +988,11 @@ setup_opencli() {
     echo -e "${GREEN}opencli commands are now available.${RESET}"
     debug_log chmod +x -R ${OPENCLI_DIR}
 
+
+   # added in 0.1.8
+    mkdir -p /etc/openpanel/openadmin/config/
+    wget -O /etc/openpanel/openadmin/config/forbidden_usernames.txt  https://gist.githubusercontent.com/stefanpejcic/f08e6841fbf953b7aff108a8c154e9eb/raw/9ac3efabbde48faf95435221e7e09e28b46340ae/forbidden_usernames.ttxt
+
     echo "Creating directories for logs.."
     debug_log mkdir -p ${OPENPANEL_ERR_DIR}admin ${OPENPANEL_ERR_DIR}user
     debug_log -e "${GREEN}OpenCLI has been successfully installed.${RESET}"
