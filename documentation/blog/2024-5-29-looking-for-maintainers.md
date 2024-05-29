@@ -4,7 +4,7 @@ description: We need maintainers.
 slug: openpanel-looking-for-maintainers
 authors: stefanpejcic
 tags: [OpenPanel, docs, help, tram]
-image: https://openpanel.co/img/blog/public_beta_released.png
+image: 
 hide_table_of_contents: true
 ---
 
