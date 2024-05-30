@@ -616,8 +616,12 @@ install_packages() {
             else
                 debug_log $PACKAGE_MANAGER -qq install "$package"
                 if [ $? -ne 0 ]; then
-                    echo "Error: Installation of $package failed."
-                    exit 1
+                    echo "Error: Installation of $package failed. Retrying.."
+                    $PACKAGE_MANAGER -qq install "$package"
+                    if [ $? -ne 0 ]; then
+                    echo "ERROR: Installation failed. Please retry installation with '--retry' flag."
+                        exit 1
+                    fi
                 fi
             fi
         done
