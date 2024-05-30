@@ -718,7 +718,7 @@ run_mysql_docker_container() {
         --memory="1g" --cpus="1" \
         --restart=always \
         --oom-kill-disable \
-        mysql/mysql-server
+        mysql/mysql-server > /dev/null 2>&1
     
 
     if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
