@@ -56,7 +56,7 @@ The installation script also supports optional flags that can be used to install
 | `--with_modsec`     | Rebuild Nginx with ModSecurity module and set the OWASP core ruleset.                                                   |
 | `--debug`           | Display on screen each installation step and output debugging information.                                   |
 | `--skip-requirements`| Do not check if the server meets the minimum recommended requirements for running OpenPanel.                          |
-| `--skip-apt-update`| Do not check if apt is up-to-date and skip udpating it.                                               |
+| `--skip-apt-update`| Do not check if apt is up-to-date and skip updating it.                                               |
 | `--skip-panel-check`| Do not check if other hosting panels or webservers are installed and overwrite.                                               |
 | `--repair`          | Do not check if OpenPanel installation is already running or previously failed and retry installation.                     |
 | `--skip-firewall`   | Do not install UFW and skip setting custom firewall rules.                                                          |
