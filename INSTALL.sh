@@ -1175,6 +1175,9 @@ success_message() {
     exec > /dev/tty
     exec 2>&1
 
+    # for 0.1.9
+    echo "$version" > $OPENPANEL_DIR/version
+    
     opencli admin
     echo "Username: admin"
     echo "Password: $admin_password"
