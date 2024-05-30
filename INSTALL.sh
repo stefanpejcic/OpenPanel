@@ -225,11 +225,11 @@ FUNCTIONS=(
     configure_modsecurity
 
     run_mysql_docker_container
+    setup_opencli
     download_and_import_docker_images
     setup_ufw
     setup_ftp
     setup_email
-    setup_opencli
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
 
