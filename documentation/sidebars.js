@@ -206,8 +206,8 @@ const mainSidebar = {
     // Promo
     {
       type: 'link',
-      href: 'https://discord.com/invite/7bNY8fANqF',
-      label: 'Join us on Discord',
+      href: 'https://dev.openpanel.co',
+      label: 'Developer Docs',
       className: 'enterprise-badge',
     },
   ],
