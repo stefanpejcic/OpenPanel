@@ -107,7 +107,7 @@ If you encountered any errors while running the installation script, and **you a
 - [create a package](/docs/admin/plans/hosting_plans#create-a-plan)
 - [create a new user account](/docs/admin/users/openpanel#create-users)
 
-### Access AdminPanel
+### Access OpenAdmin
 
 Run `opencli admin` command to find the address on which AdminPanel is accessible. Example output:
 
