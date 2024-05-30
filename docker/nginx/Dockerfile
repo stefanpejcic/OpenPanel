@@ -86,7 +86,7 @@ RUN sed -i \
     chmod 700 /etc/nginx/sites-available && \
     chmod 700 /etc/nginx/sites-enabled
 
-COPY nginx/default /etc/nginx/sites-available/
+COPY nginx/default.conf /etc/nginx/sites-available/default
 
 
 
