@@ -1057,11 +1057,14 @@ download_and_import_docker_images() {
     echo "Downloading docker images in the background.."
 
     if [ "$SKIP_IMAGES" = false ]; then
-        opencli docker-update_images
-       # stopped working on 0.1.8 :(
-       # opencli docker-update_images &
-       # pid1=$!
-       # disown $pid1
+        # See https://github.com/moby/moby/issues/16106#issuecomment-310781836 for pulling images in parallel
+        # Nohup (no hang up) with trailing ampersand allows running the command in the background
+        # The </dev/null bits redirects the outputs to files rather than strout/err
+        nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P10 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+        # stopped working on 0.1.8 :(
+        # opencli docker-update_images &
+        # pid1=$!
+        # disown $pid1
     fi
 }
 
