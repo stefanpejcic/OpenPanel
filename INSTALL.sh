@@ -619,7 +619,7 @@ install_packages() {
                     echo "Error: Installation of $package failed. Retrying.."
                     $PACKAGE_MANAGER -qq install "$package"
                     if [ $? -ne 0 ]; then
-                    echo "ERROR: Installation failed. Please retry installation with '--retry' flag."
+                    radovan 1 "ERROR: Installation failed. Please retry installation with '--retry' flag."
                         exit 1
                     fi
                 fi
