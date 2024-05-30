@@ -52,6 +52,7 @@ The installation script also supports optional flags that can be used to install
 | Flag                | What it does                                                                                                      |
 |---------------------|-------------------------------------------------------------------------------------------------------------------|
 | `--version=`     | Specify OpenPanel verison to install intead of the default latest. Example: `--version=0.1.8`                                                   |
+| `--hostname=`     | Set a hostname (FQDN) to be used for accessing panels. Example: `--hostname=server.openpanel.site`                                                   |
 | `--with_modsec`     | Rebuild Nginx with ModSecurity module and set the OWASP core ruleset.                                                   |
 | `--debug`           | Display on screen each installation step and output debugging information.                                   |
 | `--skip-requirements`| Do not check if the server meets the minimum recommended requirements for running OpenPanel.                          |
