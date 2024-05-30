@@ -46,6 +46,7 @@ INSTALL_FTP=false
 INSTALL_MAIL=false
 OVERLAY=false
 IPSETS=false
+SET_HOSTNAME_NOW=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -222,22 +223,22 @@ FUNCTIONS=(
 
     configure_nginx
     configure_modsecurity
-    
 
     run_mysql_docker_container
+    download_and_import_docker_images
     setup_ufw
     setup_ftp
     setup_email
     setup_opencli
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
-    download_and_import_docker_images
 
     configure_mysql
 
     start_services
     set_system_cronjob
     cleanup
+    set_custom_hostname
     generate_and_set_ssl_for_panels
     clean_apt_cache
     verify_license
@@ -325,6 +326,11 @@ check_requirements() {
 parse_args() {
     for arg in "$@"; do
         case $arg in
+            --hostname=*)
+                # Extract domain after "--hostname="
+                SET_HOSTNAME_NOW=true
+                new_hostname="${1#*=}"
+                ;;
             --skip-requirements)
                 SKIP_REQUIREMENTS=true
                 ;;
@@ -1053,6 +1059,34 @@ download_and_import_docker_images() {
     fi
 }
 
+
+set_custom_hostname(){
+        if [ "$SET_HOSTNAME_NOW" = true ]; then
+            # Check if the provided hostname is a valid FQDN
+            if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+                # Check if PTR record is set to the provided hostname
+                ptr=$(dig +short -x $current_ip)
+                if [ "$ptr" != "$new_hostname." ]; then
+                    echo "Warning: PTR record is not set to $new_hostname"
+                fi
+                
+                # Check if A record for provided hostname points to server IP
+                a_record_ip=$(dig +short $new_hostname)
+                if [ "$a_record_ip" != "$current_ip" ]; then
+                    echo "WARNING: A record for $new_hostname does not point to server IP: $current_ip"
+                    echo "After pointing the domain run this command to set domain for panel: opencli config update force_domain $new_hostname"
+                else
+                    opencli config update force_domain "$new_hostname"
+                fi
+
+            else
+                echo "Hostname provided: $new_hostname is not a valid FQDN, OpenPanel will use IP address $current_ip for access."
+            fi
+
+            # Set the provided hostname as the system hostname
+            hostnamectl set-hostname $new_hostname
+        fi
+}            
 
 generate_and_set_ssl_for_panels() {
     if [ -z "$SKIP_SSL" ]; then
