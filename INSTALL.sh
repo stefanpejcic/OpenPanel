@@ -1057,9 +1057,11 @@ download_and_import_docker_images() {
     echo "Downloading docker images in the background.."
 
     if [ "$SKIP_IMAGES" = false ]; then
-        opencli docker-update_images &
-        pid1=$!
-        disown $pid1
+        opencli docker-update_images
+       # stopped working on 0.1.8 :(
+       # opencli docker-update_images &
+       # pid1=$!
+       # disown $pid1
     fi
 }
 
