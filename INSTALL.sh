@@ -328,6 +328,31 @@ check_requirements() {
 }
 
 parse_args() {
+    show_help() {
+        echo "Available options:"
+        echo "  --hostname=<hostname>           Set the hostname."
+        echo "  --version=<version>             Set a custom OpenPanel version to be installed."
+        echo "  --skip-requirements             Skip the requirements check."
+        echo "  --skip-panel-check              Skip checking if existing panels are installed."
+        echo "  --skip-apt-update               Skip the APT update."
+        echo "  --overlay2                      Enable overlay2 storage driver instead of device-mapper."
+        echo "  --skip-firewall                 Skip UFW setup UFW - Only do this if you will set another Firewall manually!"
+        echo "  --skip-images                   Skip installing openpanel/nginx and openpanel/apache docker images."
+        echo "  --skip-blacklists               Do not set up IP sets and blacklists."
+        echo "  --skip-ssl                      Skip SSL setup."
+        echo "  --with_modsec                   Enable ModSecurity for Nginx."
+        echo "  --ips                           Whiteliste IP addresses of OpenPanel Support Team."
+        echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
+        echo "  --enable-ftp                    Install FTP (experimental)."
+        echo "  --enable-mail                   Install Mail (experimental)."
+        echo "  --post_install=<path>           Specify the post install script path."
+        echo "  --screenshots=<url>             Set the screenshots API URL."
+        echo "  --debug                         Display debug information during installation."
+        echo "  --repair                        Retry and overwrite everything."
+        echo "  -h, --help                      Show this help message and exit."
+    }
+
+
     for arg in "$@"; do
         case $arg in
             --hostname=*)
@@ -396,7 +421,13 @@ parse_args() {
                 version="${1#*=}"
                 ;;
             *)
+            -h|--help)
+                show_help
+                exit 0
+                ;;
+            *)
                 echo "Unknown option: $arg"
+                show_help
                 exit 1
                 ;;
         esac
