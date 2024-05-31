@@ -124,7 +124,7 @@ print_header() {
     echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
     echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
     echo -e "         | |                                                  "
-    echo -e "         |_|                                                  "
+    echo -e "         |_|                                   version: $version "
 
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
@@ -420,7 +420,6 @@ parse_args() {
                 CUSTOM_VERSION=true
                 version="${1#*=}"
                 ;;
-            *)
             -h|--help)
                 show_help
                 exit 0
