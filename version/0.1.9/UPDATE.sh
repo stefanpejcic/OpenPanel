@@ -359,7 +359,8 @@ print_header() {
 
 update_docker_images() {
     #opencli docker-update_images
-    bash /usr/local/admin/scripts/docker/update_images
+    #bash /usr/local/admin/scripts/docker/update_images
+    nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
 }
 
 reload_services() {
