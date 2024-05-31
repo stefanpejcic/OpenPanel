@@ -115,6 +115,9 @@ FUNCTIONS=(
 
     # copy configuration files that user modified and other custom data
     move_openadmin_data
+
+    #overwrite cronfile
+    set_system_cronjob
     
     # install pip requirements for admin panel
     pip_install_for_admin
@@ -467,6 +470,14 @@ download_new_panel() {
 }
 
 
+set_system_cronjob(){
+
+    echo "Setting cronjobs.."
+    cp /usr/local/panel/conf/cron /etc/cron.d/openpanel
+    chown root:root /etc/cron.d/openpanel
+    chmod 0600 /etc/cron.d/openpanel
+}
+
 
 
 move_openpanel_data() {
@@ -477,9 +488,13 @@ move_openpanel_data() {
     cp -r ${OLD_OPENPANEL_DIR}conf/* ${OPENPANEL_DIR}conf/
     sed -i 's/enabled_modules=/enabled_modules=dns,/' /usr/local/panel/conf/panel.config
 
-    # users data
+    # keep users data
     cp -r ${OLD_OPENPANEL_DIR}core/* ${OPENPANEL_DIR}core/
+
+    # keep locales
     cp -r ${OLD_OPENPANEL_DIR}translations/* ${OPENPANEL_DIR}translations/
+    cd ${OPENPANEL_DIR}
+    pybabel compile -d translations
     #cp -r ${OLD_OPENPANEL_DIR}core/stats/* ${OPENPANEL_DIR}core/stats/
 
 }
@@ -491,29 +506,18 @@ extend_panel_conf_file(){
 config_file="/usr/local/panel/conf/panel.config"
 
 # Check if "api=" exists in the config file
-if grep -q "api=" "$config_file"; then
-    echo "api= exists in the file, skipping adding additional config.."
+if grep -q "screenshots=" "$config_file"; then
+    echo "screenshots= exists in the file, skipping adding additional config.."
 else
     echo "Setting additional config values in panel.config file."
     # Find the line number of "autopatch=" in the file
-    autopatch_line=$(grep -n "autopatch=" "$config_file" | cut -d: -f1)
+    autopatch_line=$(grep -n "basic_auth_password=" "$config_file" | cut -d: -f1)
     if [ -n "$autopatch_line" ]; then
         # Insert after the "autopatch=" line
-        sed -i "${autopatch_line}a\api=off\ndev_mode=off\ntemplate=\nadmin_template=\nbasic_auth=no\nbasic_auth_username=\nbasic_auth_password=\n\n[SMTP]\nmail_server=\nmail_port=465\nmail_use_tls=False\nmail_use_ssl=True\nmail_username=\nmail_password=\nmail_default_sender=\nmail_security_token=$(< /dev/urandom tr -dc A-Za-z0-9 | head -c12)" "$config_file"
+        sed -i "${autopatch_line}a\screenshots=http://screenshots-api.openpanel.co/screenshot" "$config_file"
     else
         echo "ERROR: new conf could not be added to the file."
     fi
-    # Find the line number of "logout_url=" in the file
-    logout_url_line=$(grep -n "logout_url=" "$config_file" | cut -d: -f1)
-    if [ -n "$logout_url_line" ]; then
-        # Insert after the "logout_url=" line
-        sed -i "${logout_url_line}a\email=\n" "$config_file"
-    else
-        echo "ERROR: new conf could not be added to the file."
-    fi
-
-
-
 fi
 
 }
