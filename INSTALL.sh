@@ -45,7 +45,7 @@ NO_SSH=false
 INSTALL_FTP=false
 INSTALL_MAIL=false
 OVERLAY=false
-IPSETS=false
+IPSETS=true
 SET_HOSTNAME_NOW=false
 
 # Paths
@@ -345,7 +345,7 @@ parse_args() {
                 SKIP_PANEL_CHECK=true
                 SKIP_REQUIREMENTS=true
                 ;;
-                --overlay2)
+            --overlay2)
                 OVERLAY=true
                 ;;
             --skip-firewall)
@@ -353,6 +353,9 @@ parse_args() {
                 ;;
             --skip-images)
                 SKIP_IMAGES=true
+                ;;
+            --skip-blacklists)
+                IPSETS=false
                 ;;
             --skip-ssl)
                 SKIP_SSL=true
