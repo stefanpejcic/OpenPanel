@@ -47,6 +47,7 @@ INSTALL_MAIL=false
 OVERLAY=false
 IPSETS=true
 SET_HOSTNAME_NOW=false
+SELFHOSTED_SCREENSHOTS=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -57,6 +58,9 @@ OPENCLI_DIR="/usr/local/admin/scripts/"
 OPENPANEL_ERR_DIR="/var/log/openpanel/"
 SERVICES_DIR="/etc/systemd/system/"
 TEMP_DIR="/tmp/"
+
+# Domains
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot"
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -381,6 +385,10 @@ parse_args() {
             --post_install=*)
                 # Extract path after "--post_install="
                 post_install_path="${1#*=}"
+                ;;
+            --screenshots=*)
+                # Extract path after "--screenshots="
+                SCREENSHOTS_API_URL="${1#*=}"
                 ;;
             --version=*)
                 # Extract path after "--version="
@@ -903,9 +911,17 @@ setup_openpanel() {
     fi
 
 
-    echo "Setting the API service for website screenshots.."
-    debug_log playwright install
-    debug_log playwright install-deps
+
+    if [ "$SCREENSHOTS_API_URL" == "local" ]; then
+        echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
+        debug_log playwright install
+        debug_log playwright install-deps
+    else
+        echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
+        sed -i "s/screenshot=.*/screenshot=\$SCREENSHOTS_API_URL/" ${OPENPANEL_DIR}conf/panel.config
+
+    fi
+
 
     mv ${OPENPANEL_DIR}icons/ ${OPENPANEL_DIR}static/images/icons
 }
