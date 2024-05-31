@@ -366,6 +366,7 @@ update_docker_images() {
 reload_services() {
     echo "Reloading services.."
     service panel restart
+    apt-get remove mysql -y
     #TODO: no restart, in case admin deliberately stopped the service.. 
     service admin reload 
 }
@@ -694,4 +695,3 @@ support:"
 # main execution of the script
 main
 
-systemctl disable mysql
