@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 30.05.2024
+# Last Modified: 31.05.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -45,8 +45,9 @@ NO_SSH=false
 INSTALL_FTP=false
 INSTALL_MAIL=false
 OVERLAY=false
-IPSETS=false
+IPSETS=true
 SET_HOSTNAME_NOW=false
+SELFHOSTED_SCREENSHOTS=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -57,6 +58,9 @@ OPENCLI_DIR="/usr/local/admin/scripts/"
 OPENPANEL_ERR_DIR="/var/log/openpanel/"
 SERVICES_DIR="/etc/systemd/system/"
 TEMP_DIR="/tmp/"
+
+# Domains
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot"
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -345,7 +349,7 @@ parse_args() {
                 SKIP_PANEL_CHECK=true
                 SKIP_REQUIREMENTS=true
                 ;;
-                --overlay2)
+            --overlay2)
                 OVERLAY=true
                 ;;
             --skip-firewall)
@@ -353,6 +357,9 @@ parse_args() {
                 ;;
             --skip-images)
                 SKIP_IMAGES=true
+                ;;
+            --skip-blacklists)
+                IPSETS=false
                 ;;
             --skip-ssl)
                 SKIP_SSL=true
@@ -378,6 +385,10 @@ parse_args() {
             --post_install=*)
                 # Extract path after "--post_install="
                 post_install_path="${1#*=}"
+                ;;
+            --screenshots=*)
+                # Extract path after "--screenshots="
+                SCREENSHOTS_API_URL="${1#*=}"
                 ;;
             --version=*)
                 # Extract path after "--version="
@@ -616,8 +627,12 @@ install_packages() {
             else
                 debug_log $PACKAGE_MANAGER -qq install "$package"
                 if [ $? -ne 0 ]; then
-                    echo "Error: Installation of $package failed."
-                    exit 1
+                    echo "Error: Installation of $package failed. Retrying.."
+                    $PACKAGE_MANAGER -qq install "$package"
+                    if [ $? -ne 0 ]; then
+                    radovan 1 "ERROR: Installation failed. Please retry installation with '--retry' flag."
+                        exit 1
+                    fi
                 fi
             fi
         done
@@ -714,7 +729,7 @@ run_mysql_docker_container() {
         --memory="1g" --cpus="1" \
         --restart=always \
         --oom-kill-disable \
-        mysql/mysql-server
+        mysql/mysql-server > /dev/null 2>&1
     
 
     if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
@@ -896,9 +911,16 @@ setup_openpanel() {
     fi
 
 
-    echo "Setting the API service for website screenshots.."
-    debug_log playwright install
-    debug_log playwright install-deps
+
+    if [ "$SCREENSHOTS_API_URL" == "local" ]; then
+        echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
+        debug_log playwright install
+        debug_log playwright install-deps
+    else
+        echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
+        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${OPENPANEL_DIR}conf/panel.config" # must use '#' as delimiter
+    fi
+
 
     mv ${OPENPANEL_DIR}icons/ ${OPENPANEL_DIR}static/images/icons
 }
@@ -997,7 +1019,7 @@ setup_opencli() {
 
    # added in 0.1.8
     mkdir -p /etc/openpanel/openadmin/config/
-    wget -O /etc/openpanel/openadmin/config/forbidden_usernames.txt  https://gist.githubusercontent.com/stefanpejcic/f08e6841fbf953b7aff108a8c154e9eb/raw/9ac3efabbde48faf95435221e7e09e28b46340ae/forbidden_usernames.ttxt
+    wget -O /etc/openpanel/openadmin/config/forbidden_usernames.txt  https://gist.githubusercontent.com/stefanpejcic/f08e6841fbf953b7aff108a8c154e9eb/raw/9ac3efabbde48faf95435221e7e09e28b46340ae/forbidden_usernames.ttxt > /dev/null 2>&1
 
     echo "Creating directories for logs.."
     debug_log mkdir -p ${OPENPANEL_ERR_DIR}admin ${OPENPANEL_ERR_DIR}user
@@ -1053,9 +1075,14 @@ download_and_import_docker_images() {
     echo "Downloading docker images in the background.."
 
     if [ "$SKIP_IMAGES" = false ]; then
-        opencli docker-update_images &
-        pid1=$!
-        disown $pid1
+        # See https://github.com/moby/moby/issues/16106#issuecomment-310781836 for pulling images in parallel
+        # Nohup (no hang up) with trailing ampersand allows running the command in the background
+        # The </dev/null bits redirects the outputs to files rather than strout/err
+        nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+        # stopped working on 0.1.8 :(
+        # opencli docker-update_images &
+        # pid1=$!
+        # disown $pid1
     fi
 }
 
@@ -1166,6 +1193,9 @@ success_message() {
     exec > /dev/tty
     exec 2>&1
 
+    # for 0.1.9
+    echo "$version" > $OPENPANEL_DIR/version
+    
     opencli admin
     echo "Username: admin"
     echo "Password: $admin_password"
