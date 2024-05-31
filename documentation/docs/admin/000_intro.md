@@ -60,6 +60,7 @@ The installation script also supports optional flags that can be used to install
 | `--skip-panel-check`| Do not check if other hosting panels or webservers are installed and overwrite.                                               |
 | `--repair`          | Do not check if OpenPanel installation is already running or previously failed and retry installation.                     |
 | `--skip-firewall`   | Do not install UFW and skip setting custom firewall rules.                                                          |
+| `--skip-blacklists`   | Do not install [IPset-Blacklist](https://github.com/stefanpejcic/ipset-blacklist)                                                   |
 | `--skip-images`     | Skip building Docker images for Nginx and Apache.                                                                   |
 | `--skip-ssl`        | Do not check if the server hostname is pointed to the IP and set it to be used for OpenPanel; instead, the server IP will be used. |
 | `--enable-ftp`          | Experimental feature that will install FTP for all users.  |
