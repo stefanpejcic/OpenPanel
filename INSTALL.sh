@@ -918,8 +918,7 @@ setup_openpanel() {
         debug_log playwright install-deps
     else
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-        sed -i "s/screenshots=.*/screenshots=\$SCREENSHOTS_API_URL/" ${OPENPANEL_DIR}conf/panel.config
-
+        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${OPENPANEL_DIR}conf/panel.config" # must use '#' as delimiter
     fi
 
 
