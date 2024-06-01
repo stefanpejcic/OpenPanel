@@ -1,5 +1,5 @@
 ---
-title: OpenPanel Advanced installed
+title: OpenPanel Advanced installer
 description: Create custom instlal command
 slug: openpanel-advanced-installer
 authors: stefanpejcic
