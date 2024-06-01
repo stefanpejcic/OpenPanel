@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "@docusaurus/Head";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
@@ -23,10 +23,31 @@ const Install: React.FC = () => {
         enableFTP: false,
         enableMail: false,
         postInstall: "",
-        screenshots: "",
+        screenshots: "local",
         debug: false,
         repair: false,
     });
+
+    const [availableVersions, setAvailableVersions] = useState<string[]>([]);
+
+    useEffect(() => {
+        fetch("https://update.openpanel.co/")
+            .then(response => response.json())
+            .then(data => {
+                // Extract the latest version and versions below it
+                const latestVersion = data.latest_version;
+                const versionsBelow = data.versions_below.slice(0, 5);
+                // Combine the latest version and versions below it
+                const allVersions = [latestVersion, ...versionsBelow];
+                setAvailableVersions(allVersions);
+                // Set default version to the latest version
+                setInstallOptions(prevState => ({
+                    ...prevState,
+                    version: latestVersion,
+                }));
+            })
+            .catch(error => console.error("Error fetching available versions:", error));
+    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -73,14 +94,47 @@ const Install: React.FC = () => {
                             {Object.entries(installOptions).map(([key, value]) => (
                                 <div key={key}>
                                     <label htmlFor={key}>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</label>
-                                    <input
-                                        type={typeof value === "boolean" ? "checkbox" : "text"}
-                                        id={key}
-                                        name={key}
-                                        checked={typeof value === "boolean" ? value : undefined}
-                                        value={typeof value === "boolean" ? undefined : value}
-                                        onChange={handleInputChange}
-                                    />
+                                    {key === "version" && (
+                                        <select
+                                            id={key}
+                                            name={key}
+                                            value={value}
+                                            onChange={handleInputChange}
+                                        >
+                                            {availableVersions.map(version => (
+                                                <option key={version} value={version}>{version}</option>
+                                            ))}
+                                        </select>
+                                    )}
+                                    {key === "screenshots" && (
+                                        <select
+                                            id={key}
+                                            name={key}
+                                            value={value}
+                                            onChange={handleInputChange}
+                                        >
+                                            <option value="local">Local</option>
+                                            <option value="http://screenshots-api.openpanel.co/screenshot">http://screenshots-api.openpanel.co/screenshot</option>
+                                            <option value="custom">Custom</option>
+                                        </select>
+                                    )}
+                                    {typeof value === "boolean" ? (
+                                        <input
+                                            type="checkbox"
+                                            id={key}
+                                            name={key}
+                                            checked={value}
+                                            onChange={handleInputChange}
+                                        />
+                                    ) : (
+                                        <input
+                                            type="text"
+                                            id={key}
+                                            name={key}
+                                            value={value}
+                                            onChange={handleInputChange}
+                                        />
+                                    )}
                                 </div>
                             ))}
                         </div>
