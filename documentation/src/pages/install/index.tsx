@@ -82,7 +82,7 @@ const Install: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Installation</h1>
-                    <p>Connect to your server as root via SSH and run the following command:</p>
+                    <p className="mb-0">Connect to your server as root via SSH and run the following command:</p>
 
                     <div className="mb-0">
                         <pre className="my-0" style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
