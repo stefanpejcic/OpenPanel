@@ -129,8 +129,8 @@ const Install: React.FC = () => {
                                         />
                                     )}
                                     <div>
-                                        <label htmlFor={key} className="mr-2">{key.replace(/-/g, ' ').toUpperCase()} :</label>
-                                        <span>{config.description}</span>
+                                        <label htmlFor={key} className="font-bold">{key.replace(/-/g, ' ').toUpperCase()}</label>
+                                        <div>{config.description}</div>
                                     </div>
                                 </li>
                             ))}
