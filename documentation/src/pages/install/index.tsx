@@ -7,69 +7,64 @@ import clsx from "clsx";
 
 const Install: React.FC = () => {
     const [installOptions, setInstallOptions] = useState({
-        hostname: "",
-        version: "",
-        "--skip-requirements": false,
-        "--skip-panel-check": false,
-        "--skip-apt-update": false,
-        overlay2: false,
-        "--skip-firewall": false,
-        "--skip-images": false,
-        "--skip-blacklists": false,
-        "--skip-ssl": false,
-        "--with-modsec": false,
-        ips: "",
-        "--no-ssh": false,
-        "--enable-ftp": false,
-        "--enable-mail": false,
-        "--post-install": "",
-        "--screenshots": "local",
-        "--debug": false,
-        "--repair": false,
+        hostname: { value: "", description: "Set the hostname." },
+        version: { value: "", description: "Set a custom OpenPanel version to be installed." },
+        skip_requirements: { value: false, description: "Skip the requirements check." },
+        skip_panel_check: { value: false, description: "Skip checking if existing panels are installed." },
+        skip_apt_update: { value: false, description: "Skip the APT update." },
+        overlay2: { value: false, description: "Enable overlay2 storage driver instead of device-mapper." },
+        skip_firewall: { value: false, description: "Skip UFW setup UFW - Only do this if you will set another Firewall manually!" },
+        skip_images: { value: false, description: "Skip installing openpanel/nginx and openpanel/apache docker images." },
+        skip_blacklists: { value: false, description: "Do not set up IP sets and blacklists." },
+        skip_ssl: { value: false, description: "Skip SSL setup." },
+        with_modsec: { value: false, description: "Enable ModSecurity for Nginx." },
+        ips: { value: "", description: "Whitelist IP addresses of OpenPanel Support Team." },
+        no_ssh: { value: false, description: "Disable port 22 and whitelist the IP address of user installing the panel." },
+        enable_ftp: { value: false, description: "Install FTP (experimental)." },
+        enable_mail: { value: false, description: "Install Mail (experimental)." },
+        post_install: { value: "", description: "Specify the post install script path." },
+        screenshots: { value: "local", description: "Set the screenshots API URL." },
+        debug: { value: false, description: "Display debug information during installation." },
+        repair: { value: false, description: "Retry and overwrite everything." },
     });
+
+    const [latestVersion, setLatestVersion] = useState<string>("");
 
     useEffect(() => {
         fetch("https://update.openpanel.co/")
             .then(response => response.text())
             .then(data => {
-                // Extract the version number from the plain text response
-                const latestVersion = data.trim();
+                // Extract the latest version from the plain text
+                setLatestVersion(data.trim());
+                // Set default version to the latest version
                 setInstallOptions(prevState => ({
                     ...prevState,
-                    version: latestVersion,
+                    version: { ...prevState.version, value: data.trim() },
                 }));
             })
-            .catch(error => console.error("Error fetching available version:", error));
+            .catch(error => console.error("Error fetching latest version:", error));
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
         setInstallOptions(prevState => ({
             ...prevState,
-            [name]: type === "checkbox" ? checked : value,
+            [name]: { ...prevState[name], value: type === "checkbox" ? checked : value },
         }));
     };
 
-    const optionDescriptions = {
-        hostname: "Set the hostname.",
-        version: "Set a custom OpenPanel version to be installed.",
-        "--skip-requirements": "Skip the requirements check.",
-        "--skip-panel-check": "Skip checking if existing panels are installed.",
-        "--skip-apt-update": "Skip the APT update.",
-        overlay2: "Enable overlay2 storage driver instead of device-mapper.",
-        "--skip-firewall": "Skip UFW setup UFW - Only do this if you will set another Firewall manually!",
-        "--skip-images": "Skip installing openpanel/nginx and openpanel/apache docker images.",
-        "--skip-blacklists": "Do not set up IP sets and blacklists.",
-        "--skip-ssl": "Skip SSL setup.",
-        "--with-modsec": "Enable ModSecurity for Nginx.",
-        ips: "Whitelist IP addresses of OpenPanel Support Team.",
-        "--no-ssh": "Disable port 22 and whitelist the IP address of user installing the panel.",
-        "--enable-ftp": "Install FTP (experimental).",
-        "--enable-mail": "Install Mail (experimental).",
-        "--post-install": "Specify the post install script path.",
-        "--screenshots": "Set the screenshots API URL.",
-        "--debug": "Display debug information during installation.",
-        "--repair": "Retry and overwrite everything.",
+    const generateInstallCommand = () => {
+        let command = "bash <(curl -sSL https://get.openpanel.co/)";
+        for (const option in installOptions) {
+            if (installOptions[option].value) {
+                if (typeof installOptions[option].value === "boolean") {
+                    command += ` --${option}`;
+                } else {
+                    command += ` --${option}=${installOptions[option].value}`;
+                }
+            }
+        }
+        return command;
     };
 
     return (
@@ -85,43 +80,43 @@ const Install: React.FC = () => {
 
                     <div className="mb-8">
                         <h2>Install Command:</h2>
-                        <pre>
-                            {`bash <(curl -sSL https://get.openpanel.co/) ${
-                                Object.entries(installOptions)
-                                    .filter(([_, value]) => value !== "")
-                                    .map(([key, value]) =>
-                                        typeof value === "boolean" ? `--${key}` : `--${key}=${value}`
-                                    )
-                                    .join(" ")}
-                            `}
-                        </pre>
+                        <pre>{generateInstallCommand()}</pre>
                     </div>
 
                     <div className="mb-8">
                         <h2>Advanced Install Settings:</h2>
-                        <div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Input fields for advanced install settings */}
                             {Object.entries(installOptions).map(([key, value]) => (
-                                <div key={key} className="mb-4">
-                                    <p>
-                                        <strong>{key.replace(/-/g, ' ').toUpperCase()}:</strong>{" "}
-                                        {optionDescriptions[key]}
-                                    </p>
-                                    {typeof value === "boolean" ? (
-                                        <input
-                                            type="checkbox"
-                                            id={key}
-                                            name={key}
-                                            checked={value}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : (
+                                <div key={key}>
+                                    <label htmlFor={key}>{key.replace(/_/g, ' ').toUpperCase()}:</label>
+                                    <span>{value.description}</span>
+                                    {key === "version" ? (
                                         <input
                                             type="text"
                                             id={key}
                                             name={key}
-                                            value={value}
-                                            onChange={handleInputChange}
+                                            value={latestVersion}
+                                            readOnly
                                         />
+                                    ) : (
+                                        typeof value.value === "boolean" ? (
+                                            <input
+                                                type="checkbox"
+                                                id={key}
+                                                name={key}
+                                                checked={value.value}
+                                                onChange={handleInputChange}
+                                            />
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                id={key}
+                                                name={key}
+                                                value={value.value}
+                                                onChange={handleInputChange}
+                                            />
+                                        )
                                     )}
                                 </div>
                             ))}
