@@ -104,13 +104,14 @@ const Install: React.FC = () => {
                         <p className="mt-0">Here you can set what shall be installed and configured when installing OpenPanel:</p>
                         <ul>
                             {Object.entries(installOptions).map(([key, config]) => (
-                                <li key={key}>
+                                <li key={key} className="flex items-center mb-2">
                                     {key === "screenshots" ? (
                                         <select
                                             id={key}
                                             name={key}
                                             value={config.value as string}
                                             onChange={handleInputChange}
+                                            className="mr-2 w-40"
                                         >
                                             {config.options?.map(option => (
                                                 <option key={option} value={option}>{option}</option>
@@ -124,10 +125,13 @@ const Install: React.FC = () => {
                                             checked={typeof config.value === "boolean" ? config.value : undefined}
                                             value={typeof config.value === "string" ? config.value : undefined}
                                             onChange={handleInputChange}
+                                            className="mr-2 w-40"
                                         />
                                     )}
-                                    <label htmlFor={key}>{key.replace(/-/g, ' ').toUpperCase()} :</label>
-                                    <span>{config.description}</span>
+                                    <div>
+                                        <label htmlFor={key} className="mr-2">{key.replace(/-/g, ' ').toUpperCase()} :</label>
+                                        <span>{config.description}</span>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
