@@ -79,14 +79,15 @@ const Install: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Installation</h1>
+                    <p>Connect to your server as root via SSH and run the following command:</p>
 
-                    <div className="mb-8">
-                        <h2>Install Command:</h2>
+                    <div className="mb-2">
                         <pre style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
                     </div>
 
-                    <div className="mb-8">
+                    <div className="mb-2">
                         <h2>Advanced Install Settings:</h2>
+                        <p className="mt-0">Here you can set what shall be installed and configured when installing OpenPanel:</p>
                         <ul>
                             {/* Input fields for advanced install settings */}
                             {Object.entries(installOptions).map(([key, value]) => (
