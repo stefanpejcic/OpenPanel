@@ -57,6 +57,10 @@ export const menuItems = [
                 href: "/about",
             },
             {
+                label: "Blog",
+                href: "/blog",
+            },
+            {
                 label: "Become a Partner",
                 href: "mailto:info@openpanel.co",
             },
