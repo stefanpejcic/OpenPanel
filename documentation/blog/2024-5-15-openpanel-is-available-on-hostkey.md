@@ -8,9 +8,9 @@ image: https://openpanel.co/img/blog/openpanel-is-available-on-hostkey.png
 hide_table_of_contents: true
 ---
 
-OpenPanel can now be installed with a single click on [HostKey VPS and Dedicated servers]().
+OpenPanel can now be installed with a single click on [HostKey VPS and Dedicated servers](https://hostkey.com/apps/hosting-control-panels/).
 
 <!--truncate-->
 
-Documentation: [https://hostkey.com/documentation/marketplace/hosting_control_panels/openpanel/](https://hostkey.com/documentation/marketplace/hosting_control_panels/openpanel/)
+[Documentation](https://hostkey.com/documentation/marketplace/hosting_control_panels/openpanel/)
  
