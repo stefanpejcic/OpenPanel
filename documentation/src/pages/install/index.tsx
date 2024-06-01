@@ -58,7 +58,9 @@ const Install: React.FC = () => {
         for (const option in installOptions) {
             if (option !== "version" || (option === "version" && installOptions[option].value !== latestVersion)) {
                 if (installOptions[option].value) {
-                    if (option === "screenshots" && installOptions[option].value === "local") {
+                    if (option === "screenshots" && installOptions[option].value === "remote") {
+                        command += ``;
+                    } else if (option === "screenshots" && installOptions[option].value === "local") {
                         command += ` --screenshots=local`;
                     } else if (option !== "screenshots") {
                         command += ` --${option.replace(/-/g, '_')}=${installOptions[option].value}`;
@@ -100,7 +102,6 @@ const Install: React.FC = () => {
                                             id={key}
                                             name={key}
                                             value={latestVersion}
-                                            readOnly
                                         />
                                     ) : (
                                         typeof value.value === "boolean" ? (
