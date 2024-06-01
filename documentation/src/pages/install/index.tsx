@@ -9,44 +9,37 @@ const Install: React.FC = () => {
     const [installOptions, setInstallOptions] = useState({
         hostname: "",
         version: "",
-        skipRequirements: false,
-        skipPanelCheck: false,
-        skipAptUpdate: false,
+        "--skip-requirements": false,
+        "--skip-panel-check": false,
+        "--skip-apt-update": false,
         overlay2: false,
-        skipFirewall: false,
-        skipImages: false,
-        skipBlacklists: false,
-        skipSSL: false,
-        with_modsec: false,
+        "--skip-firewall": false,
+        "--skip-images": false,
+        "--skip-blacklists": false,
+        "--skip-ssl": false,
+        "--with-modsec": false,
         ips: "",
-        no_ssh: false,
-        enable_ftp: false,
-        enable_mail: false,
-        post_install: "",
-        screenshots: "local",
-        debug: false,
-        repair: false,
+        "--no-ssh": false,
+        "--enable-ftp": false,
+        "--enable-mail": false,
+        "--post-install": "",
+        "--screenshots": "local",
+        "--debug": false,
+        "--repair": false,
     });
-
-    const [availableVersions, setAvailableVersions] = useState<string[]>([]);
 
     useEffect(() => {
         fetch("https://update.openpanel.co/")
-            .then(response => response.json())
+            .then(response => response.text())
             .then(data => {
-                // Extract the latest version and versions below it
-                const latestVersion = data.latest_version;
-                const versionsBelow = data.versions_below.slice(0, 5);
-                // Combine the latest version and versions below it
-                const allVersions = [latestVersion, ...versionsBelow];
-                setAvailableVersions(allVersions);
-                // Set default version to the latest version
+                // Extract the version number from the plain text response
+                const latestVersion = data.trim();
                 setInstallOptions(prevState => ({
                     ...prevState,
                     version: latestVersion,
                 }));
             })
-            .catch(error => console.error("Error fetching available versions:", error));
+            .catch(error => console.error("Error fetching available version:", error));
     }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,18 +50,26 @@ const Install: React.FC = () => {
         }));
     };
 
-    const generateInstallCommand = () => {
-        let command = "bash <(curl -sSL https://get.openpanel.co/)";
-        for (const option in installOptions) {
-            if (installOptions[option]) {
-                if (typeof installOptions[option] === "boolean") {
-                    command += ` --${option}`;
-                } else {
-                    command += ` --${option}=${installOptions[option]}`;
-                }
-            }
-        }
-        return command;
+    const optionDescriptions = {
+        hostname: "Set the hostname.",
+        version: "Set a custom OpenPanel version to be installed.",
+        "--skip-requirements": "Skip the requirements check.",
+        "--skip-panel-check": "Skip checking if existing panels are installed.",
+        "--skip-apt-update": "Skip the APT update.",
+        overlay2: "Enable overlay2 storage driver instead of device-mapper.",
+        "--skip-firewall": "Skip UFW setup UFW - Only do this if you will set another Firewall manually!",
+        "--skip-images": "Skip installing openpanel/nginx and openpanel/apache docker images.",
+        "--skip-blacklists": "Do not set up IP sets and blacklists.",
+        "--skip-ssl": "Skip SSL setup.",
+        "--with-modsec": "Enable ModSecurity for Nginx.",
+        ips: "Whitelist IP addresses of OpenPanel Support Team.",
+        "--no-ssh": "Disable port 22 and whitelist the IP address of user installing the panel.",
+        "--enable-ftp": "Install FTP (experimental).",
+        "--enable-mail": "Install Mail (experimental).",
+        "--post-install": "Specify the post install script path.",
+        "--screenshots": "Set the screenshots API URL.",
+        "--debug": "Display debug information during installation.",
+        "--repair": "Retry and overwrite everything.",
     };
 
     return (
@@ -84,40 +85,27 @@ const Install: React.FC = () => {
 
                     <div className="mb-8">
                         <h2>Install Command:</h2>
-                        <pre>{generateInstallCommand()}</pre>
+                        <pre>
+                            {`bash <(curl -sSL https://get.openpanel.co/) ${
+                                Object.entries(installOptions)
+                                    .filter(([_, value]) => value !== "")
+                                    .map(([key, value]) =>
+                                        typeof value === "boolean" ? `--${key}` : `--${key}=${value}`
+                                    )
+                                    .join(" ")}
+                            `}
+                        </pre>
                     </div>
 
                     <div className="mb-8">
                         <h2>Advanced Install Settings:</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {/* Input fields for advanced install settings */}
+                        <div>
                             {Object.entries(installOptions).map(([key, value]) => (
-                                <div key={key}>
-                                    <label htmlFor={key}>{key.replace(/_/g, ' ').toUpperCase()}:</label>
-                                    {key === "version" && (
-                                        <select
-                                            id={key}
-                                            name={key}
-                                            value={value}
-                                            onChange={handleInputChange}
-                                        >
-                                            {availableVersions.map(version => (
-                                                <option key={version} value={version}>{version}</option>
-                                            ))}
-                                        </select>
-                                    )}
-                                    {key === "screenshots" && (
-                                        <select
-                                            id={key}
-                                            name={key}
-                                            value={value}
-                                            onChange={handleInputChange}
-                                        >
-                                            <option value="local">Local</option>
-                                            <option value="http://screenshots-api.openpanel.co/screenshot">http://screenshots-api.openpanel.co/screenshot</option>
-                                            <option value="custom">Custom</option>
-                                        </select>
-                                    )}
+                                <div key={key} className="mb-4">
+                                    <p>
+                                        <strong>{key.replace(/-/g, ' ').toUpperCase()}:</strong>{" "}
+                                        {optionDescriptions[key]}
+                                    </p>
                                     {typeof value === "boolean" ? (
                                         <input
                                             type="checkbox"
@@ -139,10 +127,6 @@ const Install: React.FC = () => {
                             ))}
                         </div>
                     </div>
-
-                    <button className="bg-blue-500 text-white px-4 py-2" onClick={generateInstallCommand}>
-                        Generate Install Command
-                    </button>
                 </div>
                 <BlogFooter />
             </div>
