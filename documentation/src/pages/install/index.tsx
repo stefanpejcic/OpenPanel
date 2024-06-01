@@ -115,17 +115,17 @@ const Install: React.FC = () => {
                                             value={value.value}
                                             onChange={handleInputChange}
                                         />
-                                    ) : key === "screenshots" ? ( // Modified
-                                        <select // Modified
-                                            id={key} // Modified
-                                            name={key} // Modified
-                                            value={value.value} // Modified
-                                            onChange={handleInputChange} // Modified
-                                        > // Modified
-                                            {value.options.map(option => ( // Modified
-                                                <option key={option} value={option}>{option}</option> // Modified
-                                            ))} // Modified
-                                        </select> // Modified
+                                    ) : key === "screenshots" ? ( 
+                                        <select 
+                                            id={key} 
+                                            name={key} 
+                                            value={value.value} 
+                                            onChange={handleInputChange} 
+                                        > 
+                                            {value.options.map(option => ( 
+                                                <option key={option} value={option}>{option}</option> 
+                                            ))} 
+                                        </select> 
                                     ) : (
                                         typeof value.value === "boolean" ? (
                                             <input
