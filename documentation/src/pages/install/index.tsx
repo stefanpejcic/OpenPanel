@@ -7,25 +7,25 @@ import clsx from "clsx";
 
 const Install: React.FC = () => {
     const [installOptions, setInstallOptions] = useState({
-        hostname: { value: "", description: "Set the hostname." },
-        version: { value: "", description: "Set a custom OpenPanel version to be installed." },
-        skip_requirements: { value: false, description: "Skip the requirements check." },
-        skip_panel_check: { value: false, description: "Skip checking if existing panels are installed." },
-        skip_apt_update: { value: false, description: "Skip the APT update." },
-        overlay2: { value: false, description: "Enable overlay2 storage driver instead of device-mapper." },
-        skip_firewall: { value: false, description: "Skip UFW setup UFW - Only do this if you will set another Firewall manually!" },
-        skip_images: { value: false, description: "Skip installing openpanel/nginx and openpanel/apache docker images." },
-        skip_blacklists: { value: false, description: "Do not set up IP sets and blacklists." },
-        skip_ssl: { value: false, description: "Skip SSL setup." },
-        with_modsec: { value: false, description: "Enable ModSecurity for Nginx." },
-        ips: { value: "", description: "Whitelist IP addresses of OpenPanel Support Team." },
-        no_ssh: { value: false, description: "Disable port 22 and whitelist the IP address of user installing the panel." },
-        enable_ftp: { value: false, description: "Install FTP (experimental)." },
-        enable_mail: { value: false, description: "Install Mail (experimental)." },
-        post_install: { value: "", description: "Specify the post install script path." },
-        screenshots: { value: "local", description: "Set the screenshots API URL." },
-        debug: { value: false, description: "Display debug information during installation." },
-        repair: { value: false, description: "Retry and overwrite everything." },
+        "hostname": { value: "", description: "Set the hostname." },
+        "version": { value: "", description: "Set a custom OpenPanel version to be installed." },
+        "skip-requirements": { value: false, description: "Skip the requirements check." },
+        "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
+        "skip-apt-update": { value: false, description: "Skip the APT update." },
+        "overlay2": { value: false, description: "Enable overlay2 storage driver instead of device-mapper." },
+        "skip-firewall": { value: false, description: "Skip UFW setup UFW - Only do this if you will set another Firewall manually!" },
+        "skip-images": { value: false, description: "Skip installing openpanel/nginx and openpanel/apache docker images." },
+        "skip-blacklists": { value: false, description: "Do not set up IP sets and blacklists." },
+        "skip-ssl": { value: false, description: "Skip SSL setup." },
+        "with-modsec": { value: false, description: "Enable ModSecurity for Nginx." },
+        "ips": { value: "", description: "Whitelist IP addresses of OpenPanel Support Team." },
+        "no-ssh": { value: false, description: "Disable port 22 and whitelist the IP address of user installing the panel." },
+        "enable-ftp": { value: false, description: "Install FTP (experimental)." },
+        "enable-mail": { value: false, description: "Install Mail (experimental)." },
+        "post-install": { value: "", description: "Specify the post install script path." },
+        "screenshots": { value: "local", description: "Set the screenshots API URL." },
+        "debug": { value: false, description: "Display debug information during installation." },
+        "repair": { value: false, description: "Retry and overwrite everything." },
     });
 
     const [latestVersion, setLatestVersion] = useState<string>("");
@@ -59,15 +59,9 @@ const Install: React.FC = () => {
             if (option !== "version" || (option === "version" && installOptions[option].value !== latestVersion)) {
                 if (installOptions[option].value) {
                     if (option === "screenshots" && installOptions[option].value === "local") {
-                        command += ` --screenshots`;
-                    } else if (option === "screenshots" && installOptions[option].value === "custom") {
-                        command += ` --screenshots=${installOptions[option].value}`;
-                    } else {
-                        if (typeof installOptions[option].value === "boolean") {
-                            command += ` --${option}`;
-                        } else {
-                            command += ` --${option}=${installOptions[option].value}`;
-                        }
+                        command += ` --screenshots=local`;
+                    } else if (option !== "screenshots") {
+                        command += ` --${option.replace(/-/g, '_')}=${installOptions[option].value}`;
                     }
                 }
             }
@@ -97,7 +91,7 @@ const Install: React.FC = () => {
                             {/* Input fields for advanced install settings */}
                             {Object.entries(installOptions).map(([key, value]) => (
                                 <li key={key}>
-                                    <label htmlFor={key}>{key.replace(/_/g, ' ').toUpperCase()}:</label>
+                                    <label htmlFor={key}>{key.replace(/-/g, ' ').toUpperCase()}:</label>
                                     <span>{value.description}</span>
                                     {key === "version" ? (
                                         <input
