@@ -62,6 +62,8 @@ const Install: React.FC = () => {
                 if (installOptions[option].value || ["version", "hostname", "screenshots", "post-install"].includes(option)) {
                     if (option === "screenshots" && installOptions[option].value === "local") {
                         command += ` --screenshots=local`;
+                    } else if (option === "screenshots" && installOptions[option].value === "remote") {
+                        command += ``;
                     } else if (installOptions[option].value !== "" && installOptions[option].value !== false) {
                         command += ` --${option}`;
                         if (installOptions[option].value !== true) {
@@ -94,7 +96,8 @@ const Install: React.FC = () => {
                     <div className="mb-0">
                         <pre className="my-0" style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
                     </div>
-
+                    
+                    <p className="mt-0">Minimum requirements: Ubuntu22, HDD 15GB, RAM 1 Gb, CPU 1 Ghz</p>
                     <div className="mb-2">
                         <h2>Advanced Install Settings:</h2>
                         <p className="mt-0">Here you can set what shall be installed and configured when installing OpenPanel:</p>
