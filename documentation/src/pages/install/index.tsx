@@ -70,18 +70,19 @@ const Install: React.FC = () => {
                         <h2>Advanced Install Settings:</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Input fields for advanced install settings */}
-                            {/* Example for hostname */}
-                            <div>
-                                <label htmlFor="hostname">Hostname:</label>
-                                <input
-                                    type="text"
-                                    id="hostname"
-                                    name="hostname"
-                                    value={installOptions.hostname}
-                                    onChange={handleInputChange}
-                                />
-                            </div>
-                            {/* Repeat similar structure for other options */}
+                            {Object.entries(installOptions).map(([key, value]) => (
+                                <div key={key}>
+                                    <label htmlFor={key}>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</label>
+                                    <input
+                                        type={typeof value === "boolean" ? "checkbox" : "text"}
+                                        id={key}
+                                        name={key}
+                                        checked={typeof value === "boolean" ? value : undefined}
+                                        value={typeof value === "boolean" ? undefined : value}
+                                        onChange={handleInputChange}
+                                    />
+                                </div>
+                            ))}
                         </div>
                     </div>
 
