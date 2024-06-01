@@ -25,7 +25,7 @@ const defaultOptions: InstallOptions = {
     "skip-blacklists": { value: false, description: "Do not set up IP sets and blacklists." },
     "skip-ssl": { value: false, description: "Skip SSL setup." },
     "with-modsec": { value: false, description: "Enable ModSecurity for Nginx." },
-    ips: { value: "", description: "Whitelist IP addresses of OpenPanel Support Team." },
+    ips: { value: false, description: "Whitelist IP addresses of OpenPanel Support Team." },
     "no-ssh": { value: false, description: "Disable port 22 and whitelist the IP address of user installing the panel." },
     "enable-ftp": { value: false, description: "Install FTP (experimental)." },
     "enable-mail": { value: false, description: "Install Mail (experimental)." },
