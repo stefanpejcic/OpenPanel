@@ -63,7 +63,7 @@ const Install: React.FC = () => {
                     if (option === "screenshots" && installOptions[option].value === "local") {
                         command += ` --screenshots=local`;
                     } else {
-                        command += ` --${option.replace(/-/g, '_')}`;
+                        command += ` --${option}`;
                         if (installOptions[option].value !== true) {
                             command += `=${installOptions[option].value}`;
                         }
