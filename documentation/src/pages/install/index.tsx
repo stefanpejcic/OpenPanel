@@ -47,11 +47,11 @@ const Install: React.FC = () => {
             .catch(error => console.error("Error fetching latest version:", error));
     }, []);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => { // Modified
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target;
         setInstallOptions(prevState => ({
             ...prevState,
-            [name]: { ...prevState[name], value: type === "checkbox" ? checked : value }, // Modified
+            [name]: { ...prevState[name], value: type === "checkbox" ? checked : value },
         }));
     };
 
@@ -101,7 +101,8 @@ const Install: React.FC = () => {
                                             type="text"
                                             id={key}
                                             name={key}
-                                            value={latestVersion}
+                                            value={value.value}
+                                            onChange={handleInputChange}
                                         />
                                     ) : key === "screenshots" ? ( // Modified
                                         <select // Modified
