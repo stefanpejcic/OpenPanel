@@ -56,11 +56,19 @@ const Install: React.FC = () => {
     const generateInstallCommand = () => {
         let command = "bash <(curl -sSL https://get.openpanel.co/)";
         for (const option in installOptions) {
-            if (installOptions[option].value) {
-                if (typeof installOptions[option].value === "boolean") {
-                    command += ` --${option}`;
-                } else {
-                    command += ` --${option}=${installOptions[option].value}`;
+            if (option !== "version" || (option === "version" && installOptions[option].value !== latestVersion)) {
+                if (installOptions[option].value) {
+                    if (option === "screenshots" && installOptions[option].value === "local") {
+                        command += ` --screenshots`;
+                    } else if (option === "screenshots" && installOptions[option].value === "custom") {
+                        command += ` --screenshots=${installOptions[option].value}`;
+                    } else {
+                        if (typeof installOptions[option].value === "boolean") {
+                            command += ` --${option}`;
+                        } else {
+                            command += ` --${option}=${installOptions[option].value}`;
+                        }
+                    }
                 }
             }
         }
@@ -80,15 +88,15 @@ const Install: React.FC = () => {
 
                     <div className="mb-8">
                         <h2>Install Command:</h2>
-                        <pre>{generateInstallCommand()}</pre>
+                        <pre style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
                     </div>
 
                     <div className="mb-8">
                         <h2>Advanced Install Settings:</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ul>
                             {/* Input fields for advanced install settings */}
                             {Object.entries(installOptions).map(([key, value]) => (
-                                <div key={key}>
+                                <li key={key}>
                                     <label htmlFor={key}>{key.replace(/_/g, ' ').toUpperCase()}:</label>
                                     <span>{value.description}</span>
                                     {key === "version" ? (
@@ -118,9 +126,9 @@ const Install: React.FC = () => {
                                             />
                                         )
                                     )}
-                                </div>
+                                </li>
                             ))}
-                        </div>
+                        </ul>
                     </div>
                 </div>
                 <BlogFooter />
