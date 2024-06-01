@@ -55,15 +55,16 @@ const Install: React.FC = () => {
         }));
     };
 
+
     const generateInstallCommand = () => {
         let command = "bash <(curl -sSL https://get.openpanel.co/)";
         for (const option in installOptions) {
             if (option !== "version" || (option === "version" && installOptions[option].value !== latestVersion)) {
-                if (installOptions[option].value !== "") {
+                if (installOptions[option].value) {
                     if (option === "screenshots" && installOptions[option].value === "local") {
                         command += ` --screenshots=local`;
-                    } else if (option !== "screenshots") {
-                        command += ` --${option}${installOptions[option].value === true ? '' : `=${installOptions[option].value}`}`;
+                    } else {
+                        command += ` --${option.replace(/-/g, '_')}`;
                     }
                 }
             }
@@ -71,6 +72,7 @@ const Install: React.FC = () => {
         return command;
     };
 
+    
 
     return (
         <CommonLayout>
