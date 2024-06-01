@@ -17,12 +17,12 @@ const Install: React.FC = () => {
         skipImages: false,
         skipBlacklists: false,
         skipSSL: false,
-        withModsec: false,
+        with_modsec: false,
         ips: "",
-        noSSH: false,
-        enableFTP: false,
-        enableMail: false,
-        postInstall: "",
+        no_ssh: false,
+        enable_ftp: false,
+        enable_mail: false,
+        post_install: "",
         screenshots: "local",
         debug: false,
         repair: false,
@@ -93,7 +93,7 @@ const Install: React.FC = () => {
                             {/* Input fields for advanced install settings */}
                             {Object.entries(installOptions).map(([key, value]) => (
                                 <div key={key}>
-                                    <label htmlFor={key}>{key.replace(/([A-Z])/g, ' $1').toUpperCase()}:</label>
+                                    <label htmlFor={key}>{key.replace(/_/g, ' ').toUpperCase()}:</label>
                                     {key === "version" && (
                                         <select
                                             id={key}
