@@ -62,7 +62,7 @@ const Install: React.FC = () => {
                 if (installOptions[option].value || ["version", "hostname", "screenshots", "post-install"].includes(option)) {
                     if (option === "screenshots" && installOptions[option].value === "local") {
                         command += ` --screenshots=local`;
-                    } else {
+                    } else if (installOptions[option].value !== "" && installOptions[option].value !== false) {
                         command += ` --${option}`;
                         if (installOptions[option].value !== true) {
                             command += `=${installOptions[option].value}`;
@@ -73,6 +73,7 @@ const Install: React.FC = () => {
         }
         return command;
     };
+
     
         
 
