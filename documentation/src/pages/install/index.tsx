@@ -14,7 +14,7 @@ interface InstallOption {
 type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
-    hostname: { value: "", description: "Set the hostname." },
+    hostname: { value: "", description: "Set the FQDN hostname." },
     version: { value: "", description: "Set a custom OpenPanel version to be installed." },
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
