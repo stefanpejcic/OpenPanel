@@ -7,10 +7,28 @@ import clsx from "clsx";
 
 const Install: React.FC = () => {
     const [installOptions, setInstallOptions] = useState({
-        // Other options...
-        "screenshots": { value: "local", description: "Set the screenshots API URL.", options: ["local", "remote"] }, // Modified
-        // Other options...
+        "hostname": { value: "", description: "Set the hostname." },
+        "version": { value: "", description: "Set a custom OpenPanel version to be installed." },
+        "skip-requirements": { value: false, description: "Skip the requirements check." },
+        "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
+        "skip-apt-update": { value: false, description: "Skip the APT update." },
+        "overlay2": { value: false, description: "Enable overlay2 storage driver instead of device-mapper." },
+        "skip-firewall": { value: false, description: "Skip UFW setup UFW - Only do this if you will set another Firewall manually!" },
+        "skip-images": { value: false, description: "Skip installing openpanel/nginx and openpanel/apache docker images." },
+        "skip-blacklists": { value: false, description: "Do not set up IP sets and blacklists." },
+        "skip-ssl": { value: false, description: "Skip SSL setup." },
+        "with-modsec": { value: false, description: "Enable ModSecurity for Nginx." },
+        "ips": { value: "", description: "Whitelist IP addresses of OpenPanel Support Team." },
+        "no-ssh": { value: false, description: "Disable port 22 and whitelist the IP address of user installing the panel." },
+        "enable-ftp": { value: false, description: "Install FTP (experimental)." },
+        "enable-mail": { value: false, description: "Install Mail (experimental)." },
+        "post-install": { value: "", description: "Specify the post install script path." },
+        "screenshots": { value: "local", description: "Set the screenshots API URL.", options: ["local", "remote"] }, // select
+        "debug": { value: false, description: "Display debug information during installation." },
+        "repair": { value: false, description: "Retry and overwrite everything." },
     });
+
+    
 
     const [latestVersion, setLatestVersion] = useState<string>("");
 
