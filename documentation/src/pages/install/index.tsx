@@ -98,50 +98,53 @@ const Install: React.FC = () => {
                         <p className="mt-0">Here you can set what shall be installed and configured when installing OpenPanel:</p>
                         <ul>
                             {/* Input fields for advanced install settings */}
-                            {Object.entries(installOptions).map(([key, value]) => (
-                                <li key={key}>
-                                    <label htmlFor={key}>{key.replace(/-/g, ' ').toUpperCase()}:</label>
-                                    <span>{value.description}</span>
-                                    {key === "version" ? (
-                                        <input
-                                            type="text"
-                                            id={key}
-                                            name={key}
-                                            value={value.value}
-                                            onChange={handleInputChange}
-                                        />
-                                    ) : key === "screenshots" ? ( // Modified
-                                        <select // Modified
-                                            id={key} // Modified
-                                            name={key} // Modified
-                                            value={value.value} // Modified
-                                            onChange={handleInputChange} // Modified
-                                        > // Modified
-                                            {value.options.map(option => ( // Modified
-                                                <option key={option} value={option}>{option}</option> // Modified
-                                            ))} // Modified
-                                        </select> // Modified
-                                    ) : (
-                                        typeof value.value === "boolean" ? (
-                                            <input
-                                                type="checkbox"
-                                                id={key}
-                                                name={key}
-                                                checked={value.value}
-                                                onChange={handleInputChange}
-                                            />
-                                        ) : (
-                                            <input
-                                                type="text"
-                                                id={key}
-                                                name={key}
-                                                value={value.value}
-                                                onChange={handleInputChange}
-                                            />
-                                        )
-                                    )}
-                                </li>
-                            ))}
+                            {Object.entries(installOptions).map(([key, value]) => {
+                                if (value.value || ["version", "hostname", "screenshots", "post-install"].includes(key)) {
+                                    if (key === "screenshots" && value.value === "remote") {
+                                        return null; // Don't render screenshots if it's remote
+                                    } else if (key === "version" && value.value === latestVersion) {
+                                        return null; // Don't render version if it's the latest version
+                                    } else {
+                                        return (
+                                            <li key={key}>
+                                                <label htmlFor={key}>{key.replace(/-/g, ' ').toUpperCase()}:</label>
+                                                <span>{value.description}</span>
+                                                {key === "screenshots" ? (
+                                                    <select
+                                                        id={key}
+                                                        name={key}
+                                                        value={value.value}
+                                                        onChange={handleInputChange}
+                                                    >
+                                                        {value.options.map(option => (
+                                                            <option key={option} value={option}>{option}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    typeof value.value === "boolean" ? (
+                                                        <input
+                                                            type="checkbox"
+                                                            id={key}
+                                                            name={key}
+                                                            checked={value.value}
+                                                            onChange={handleInputChange}
+                                                        />
+                                                    ) : (
+                                                        <input
+                                                            type="text"
+                                                            id={key}
+                                                            name={key}
+                                                            value={value.value}
+                                                            onChange={handleInputChange}
+                                                        />
+                                                    )
+                                                )}
+                                            </li>
+                                        );
+                                    }
+                                }
+                                return null; // Don't render if value is falsy and not in the specified list
+                            })}
                         </ul>
                     </div>
                 </div>
