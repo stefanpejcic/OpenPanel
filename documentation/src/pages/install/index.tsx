@@ -23,7 +23,7 @@ const Install: React.FC = () => {
         "enable-ftp": { value: false, description: "Install FTP (experimental)." },
         "enable-mail": { value: false, description: "Install Mail (experimental)." },
         "post-install": { value: "", description: "Specify the post install script path." },
-        "screenshots": { value: "local", description: "Set the screenshots API URL.", options: ["local", "remote"] }, // select
+        "screenshots": { value: "remote", description: "Set the screenshots API URL.", options: ["local", "remote"] }, // select
         "debug": { value: false, description: "Display debug information during installation." },
         "repair": { value: false, description: "Retry and overwrite everything." },
     });
@@ -83,8 +83,8 @@ const Install: React.FC = () => {
                     <h1>Installation</h1>
                     <p>Connect to your server as root via SSH and run the following command:</p>
 
-                    <div className="mb-2">
-                        <pre style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
+                    <div className="mb-0">
+                        <pre className="my-0" style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
                     </div>
 
                     <div className="mb-2">
