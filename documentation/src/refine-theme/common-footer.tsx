@@ -27,7 +27,7 @@ export const CommonFooter = () => {
                         // "mt-4 sm:mt-0",
                     )}
                 >
-                    OpenPanel Co. © 2024
+                    OpenPanel © 2024
                 </div>
 
                 <div
