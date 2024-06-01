@@ -54,7 +54,7 @@ const Install: React.FC = () => {
             [name]: { ...prevState[name], value: type === "checkbox" ? checked : value },
         }));
     };
-
+    
     const generateInstallCommand = () => {
         let command = "bash <(curl -sSL https://get.openpanel.co/)";
         for (const option in installOptions) {
@@ -74,6 +74,7 @@ const Install: React.FC = () => {
         return command;
     };
     
+        
 
     
 
