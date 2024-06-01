@@ -59,17 +59,18 @@ const Install: React.FC = () => {
         let command = "bash <(curl -sSL https://get.openpanel.co/)";
         for (const option in installOptions) {
             if (option !== "version" || (option === "version" && installOptions[option].value !== latestVersion)) {
-                if (installOptions[option].value) {
-                    if (option === "screenshots" && installOptions[option].value === "local") { // Modified
-                        command += ` --screenshots=local`; // Modified
+                if (installOptions[option].value !== "") {
+                    if (option === "screenshots" && installOptions[option].value === "local") {
+                        command += ` --screenshots=local`;
                     } else if (option !== "screenshots") {
-                        command += ` --${option.replace(/-/g, '_')}=${installOptions[option].value}`;
+                        command += ` --${option}${installOptions[option].value === true ? '' : `=${installOptions[option].value}`}`;
                     }
                 }
             }
         }
         return command;
     };
+
 
     return (
         <CommonLayout>
