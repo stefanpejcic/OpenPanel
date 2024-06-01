@@ -34,11 +34,11 @@ export const menuItems = [
     {
         label: "Product",
         items: [
-//            {
-//                label: "Enterprise edition",
-//                icon: <NewBadgeIcon />,
-//                href: "/beta",
-//            },
+            {
+                label: "Enterprise edition",
+                icon: <NewBadgeIcon />,
+                href: "/beta",
+            },
             //{
             //    label: "Products",
             //    href: "/templates",
@@ -46,6 +46,10 @@ export const menuItems = [
             {
                 label: "Features",
                 href: "/features",
+            },
+            {
+                label: "Installation",
+                href: "/install",
             },
         ],
     },
