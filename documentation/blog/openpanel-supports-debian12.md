@@ -6,7 +6,7 @@ authors: stefanpejcic
 tags: [OpenPanel, debian, news]
 image: https://openpanel.co/img/blog/openpanel_supports_debian12.png
 hide_table_of_contents: true
-is_featured: true
+is_featured: false
 ---
 
 OpenPanel 0.2.0 supports Debian 12 🚀
