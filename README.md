@@ -68,21 +68,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 
 | OpenAdmin |  OpenPanel |
 |------------------|---|
-|         ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white)         |  ![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue) |
-|           ![ssl](https://img.shields.io/badge/Let'sEncrypt-green?logo=letsencrypt&logoColor=white)       | ![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white)  |
-|           ![docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white)       |  ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white)  |
-|           ![modsec](https://img.shields.io/badge/ModSecurity-WAF-blue?logo=modsecurity&logoColor=white)       |  ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) |
-|                  | ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white)  |
-|                  |  ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) |
-|                  |  ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) |
-|                  |  ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) |
-|                  | ![phpmyadmin](https://img.shields.io/badge/PHPMyAdmin-6.5-blue?logo=phpmyadmin&logoColor=white)  |
-|                  |   |
-|                  |   |
-|                  |   |
-|                  |   |
-
-
+|         ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![ssl](https://img.shields.io/badge/Let'sEncrypt-green?logo=letsencrypt&logoColor=white) ![docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white) ![modsec](https://img.shields.io/badge/ModSecurity-WAF-blue?logo=modsecurity&logoColor=white)        |  ![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white) ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white) ![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue) ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white) ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) ![phpmyadmin](https://img.shields.io/badge/PHPMyAdmin-6.5-blue?logo=phpmyadmin&logoColor=white) |
 
 ## What do you mean by "open" ?
 
