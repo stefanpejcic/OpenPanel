@@ -591,6 +591,9 @@ setup_ufw() {
 
         # set https://github.com/stefanpejcic/ipset-blacklist
         if [ "$IPSETS" = true ]; then
+            if [ "$REPAIR" = true ]; then
+                rm -rf ipset-blacklist-master
+            fi
             if [ "$DEBUG" = true ]; then
                 bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh)
             else
@@ -631,7 +634,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("python3-flask" "python3-pip" "docker.io" "mysql-client-core-8.0" "docker-compose" "nginx" "zip" "unzip" "bind9" "gunicorn" "ufw" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
+    packages=("python3-flask" "python3-pip" "docker.io" "default-mysql-client" "docker-compose" "nginx" "zip" "unzip" "bind9" "gunicorn" "ufw" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
