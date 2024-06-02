@@ -922,8 +922,26 @@ setup_openpanel() {
     mkdir -p $OPENPANEL_DIR
     mkdir -p ${OPENPANEL_DIR}users
 
+
+    if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
+        debug_log "Detected Debian 12."
+        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/debian/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/debian/compressed.tar.gz"
+    # Check if OS is Ubuntu 22
+    elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
+        debug_log "Detected Ubuntu 22."
+        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"    
+    # Check if OS is Ubuntu 24
+    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
+        debug_log "Detected Ubuntu 24."
+        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
+    # For all other OS
+    else
+        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian12 are supported."
+        echo 0
+    fi
+
     # Clone the git branch for that python version
-    wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
+    #wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
     cd ${TEMP_DIR} && tar -xzf openpanel.tar.gz -C $OPENPANEL_DIR
     rm ${TEMP_DIR}openpanel.tar.gz
 
@@ -993,8 +1011,33 @@ setup_openadmin() {
 
     mkdir -p $OPENPADMIN_DIR
 
+    # Debian12
+    if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
+        debug_log "Detected Debian 12."
+        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/debian/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/debian/compressed.tar.gz"
+    # Ubuntu 22
+    elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
+        debug_log "Detected Ubuntu 22."
+        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
+    # Ubuntu 24
+    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
+        debug_log "Detected Ubuntu 24."
+        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
+    # other
+    else
+        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian12 are supported."
+        echo 0
+    fi
+
+
+
+
+
+
+
+
     # Clone the branch for that python version
-    wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
+    #wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
     debug_log cd ${TEMP_DIR}
     debug_log tar -xzf openadmin.tar.gz -C $OPENPADMIN_DIR
     debug_log unzip ${OPENPADMIN_DIR}static/dist.zip -d ${OPENPADMIN_DIR}static/dist/
