@@ -930,12 +930,32 @@ setup_openpanel() {
     cp -fr services/panel.service ${SERVICES_DIR}panel.service
 
     echo "Installing PIP requirements for User panel.."
-
-    # FIX FOR: https://peps.python.org/pep-0668/
-    if [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
-        debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
-        debug_log pip install -r requirements.txt --break-system-packages
+    
+    
+    # Check if lsb_release command is available
+    if command -v lsb_release &> /dev/null; then
+        # Get the release information
+        release=$(lsb_release -rs)
+    
+        # Check if it's Ubuntu 22
+        if [[ $release == "22."* ]]; then
+            debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
+            debug_log pip install -r requirements.txt
+        # Check if it's Ubuntu 24
+        elif [[ $release == "24."* ]]; then
+            debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
+            debug_log pip install -r requirements.txt --break-system-packages
+        elif [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
+            # FIX FOR: https://peps.python.org/pep-0668/
+            debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
+            debug_log pip install -r requirements.txt --break-system-packages
+        else
+            echo "Unknown Ubuntu version: $release and unsuported python version: $current_python_version"
+            debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
+            debug_log pip install -r requirements.txt
+        fi
     else
+        echo "lsb_release command not found. Unable to determine Ubuntu version."
         debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
         debug_log pip install -r requirements.txt
     fi
