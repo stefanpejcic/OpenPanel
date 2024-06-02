@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 31.05.2024
+# Last Modified: 02.06.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
