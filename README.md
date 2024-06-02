@@ -57,6 +57,11 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 [![openpanel-vs-openadmin](/documentation/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.co/docs/admin/intro/)
 
 
+## Supported OS
+
+- Debian 12
+- Ubuntu 22
+- Ubuntu 24 *(without quotas)
 
 ## Technology Stack
 
