@@ -782,7 +782,10 @@ run_mysql_docker_container() {
         if [ "$REPAIR" = true ]; then
             rm /etc/my.cnf
         fi
-        
+
+        # fix for 0.2.0
+        mkdir -p /etc/openpanel/openadmin/config
+        cp /usr/local/admin/db.cnf /etc/openpanel/openadmin/config/db.cnf
         ln -s /etc/openpanel/openadmin/config/db.cnf /etc/my.cnf
         
         # Update configuration files with new password
@@ -1266,14 +1269,14 @@ set_email_address_and_email_admin_logins(){
                 }
 
                 server_hostname=$(hostname)
-                email_notification "OpenPanel successfully installed on [ $server_hostname ]" "OpenAdmin URL: http://$server_hostname:2087/ | username: admin | password: $admin_password"
+                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://stefan:2087/ | username: admin | password: N2eyODaTfBpfRxRj"
             else
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
         fi
 }        
 
-
+OpenAdmin URL: http://stefan:2087/ | username: admin | password: N2eyODaTfBpfRxRj
 
 generate_and_set_ssl_for_panels() {
     if [ -z "$SKIP_SSL" ]; then
