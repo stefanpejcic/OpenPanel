@@ -47,6 +47,8 @@ INSTALL_MAIL=false
 OVERLAY=false
 IPSETS=true
 SET_HOSTNAME_NOW=false
+SETUP_SWAP_ANYWAY=false
+SWAP_FILE="1"
 SELFHOSTED_SCREENSHOTS=false
 SEND_EMAIL_AFTER_INSTALL=false
 
@@ -351,6 +353,7 @@ parse_args() {
         echo "  --enable-mail                   Install Mail (experimental)."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
+        echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
         echo "  --debug                         Display debug information during installation."
         echo "  --repair                        Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
@@ -423,6 +426,11 @@ parse_args() {
                 # Extract path after "--version="
                 CUSTOM_VERSION=true
                 version="${1#*=}"
+                ;;
+            --swap=*)
+                # Extract path after "--swap="
+                SETUP_SWAP_ANYWAY=true
+                SWAP="${1#*=}"
                 ;;
             --email=*)
                 # Extract path after "--email="
@@ -1322,16 +1330,37 @@ rm_helpers(){
 
 
 setup_swap(){
-    # if ram less than 8GB, create swap
-    memory=$(grep 'MemTotal' /proc/meminfo |tr ' ' '\n' |grep [0-9])
-    if [ -z "$(swapon -s)" ] && [ $memory -lt 8140752 ]; then
-        fallocate -l 1G /swapfile
+    # Function to create swap file
+    create_swap() {
+        fallocate -l ${SWAP_FILE}G /swapfile
         chmod 600 /swapfile
         mkswap /swapfile
         swapon /swapfile
         echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab
+    }
+
+    # Check if swap space already exists
+    if [ -n "$(swapon -s)" ]; then
+        echo "ERROR: Skipping creating swap space as there already exists a swap partition."
+        return
+    fi
+
+    # Check if we should set up swap anyway
+    if [ "$SETUP_SWAP_ANYWAY" = true ]; then
+        create_swap
+    else
+        # Only create swap if RAM is less than 8GB
+        memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
+        memory_gb=$(awk "BEGIN {print $memory_kb/1024/1024}")
+
+        if [ $(awk "BEGIN {print ($memory_gb < 8)}") -eq 1 ]; then
+            create_swap
+        else
+            echo "Total available memory is ${memory_gb}GB, skipping creating swap file."
+        fi
     fi
 }
+
 
 
 support_message() {
