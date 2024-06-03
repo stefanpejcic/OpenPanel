@@ -1269,14 +1269,13 @@ set_email_address_and_email_admin_logins(){
                 }
 
                 server_hostname=$(hostname)
-                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://stefan:2087/ | username: admin | password: N2eyODaTfBpfRxRj"
+                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: admin | password: $admin_password"
             else
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
         fi
 }        
 
-OpenAdmin URL: http://stefan:2087/ | username: admin | password: N2eyODaTfBpfRxRj
 
 generate_and_set_ssl_for_panels() {
     if [ -z "$SKIP_SSL" ]; then
