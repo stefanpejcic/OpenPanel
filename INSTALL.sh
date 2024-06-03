@@ -1258,6 +1258,20 @@ rm_helpers(){
 }
 
 
+
+setup_swap(){
+    # if ram less than 8GB, create swap
+    memory=$(grep 'MemTotal' /proc/meminfo |tr ' ' '\n' |grep [0-9])
+    if [ -z "$(swapon -s)" ] && [ $memory -lt 8140752 ]; then
+        fallocate -l 1G /swapfile
+        chmod 600 /swapfile
+        mkswap /swapfile
+        swapon /swapfile
+        echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab
+    fi
+}
+
+
 support_message() {
     echo ""
     echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
@@ -1346,6 +1360,8 @@ install_started_message
 main
 
 send_install_log
+
+setup_swap
 
 rm_helpers
 
