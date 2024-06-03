@@ -48,6 +48,7 @@ OVERLAY=false
 IPSETS=true
 SET_HOSTNAME_NOW=false
 SELFHOSTED_SCREENSHOTS=false
+SEND_EMAIL_AFTER_INSTALL=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -334,6 +335,7 @@ parse_args() {
         echo "Available options:"
         echo "  --hostname=<hostname>           Set the hostname."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
+        echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
@@ -421,6 +423,11 @@ parse_args() {
                 # Extract path after "--version="
                 CUSTOM_VERSION=true
                 version="${1#*=}"
+                ;;
+            --email=*)
+                # Extract path after "--email="
+                SEND_EMAIL_AFTER_INSTALL=true
+                EMAIL="${1#*=}"
                 ;;
             -h|--help)
                 show_help
@@ -1086,7 +1093,7 @@ set_system_cronjob(){
 
     echo "Setting cronjobs.."
 
-    mv /usr/local/panel/conf/cron /etc/cron.d/openpanel
+    mv ${OPENPANEL_DIR}conf/cron /etc/cron.d/openpanel
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 }
@@ -1217,6 +1224,57 @@ set_custom_hostname(){
         fi
 }            
 
+
+
+
+
+
+set_email_address_and_email_admin_logins(){
+        if [ "$SEND_EMAIL_AFTER_INSTALL" = true ]; then
+            # Check if the provided email is valid
+            if [[ $EMAIL =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+                echo "Setting email address $EMAIL for notifications"
+                opencli config update email "$EMAIL"
+                # Send an email alert
+                
+                generate_random_token_one_time_only() {
+                    local config_file="${OPENPANEL_DIR}conf/panel.config"
+                    TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
+                    local new_value="mail_security_token=$TOKEN_ONE_TIME"
+                    sed -i "s|^mail_security_token=.*$|$new_value|" "${OPENPANEL_DIR}conf/panel.config"
+                }
+
+                
+                email_notification() {
+                  local title="$1"
+                  local message="$2"
+                  generate_random_token_one_time_only
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${OPENPANEL_DIR}conf/panel.config")
+                                
+                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${OPENPANEL_DIR}conf/panel.config")
+                
+                # Determine protocol based on SSL configuration
+                if [ "$SSL" = "yes" ]; then
+                  PROTOCOL="https"
+                else
+                  PROTOCOL="http"
+                fi
+                
+                # Send email using appropriate protocol
+                curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
+                
+                }
+
+                server_hostname=$(hostname)
+                email_notification "OpenPanel successfully installed on [ $server_hostname ]" "OpenAdmin URL: http://$server_hostname:2087/ | username: admin | password: $admin_password"
+            else
+                echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
+            fi
+        fi
+}        
+
+
+
 generate_and_set_ssl_for_panels() {
     if [ -z "$SKIP_SSL" ]; then
         echo "Checking if SSL can be generated for the server hostname.."
@@ -1317,6 +1375,14 @@ success_message() {
     echo "Password: $admin_password"
     echo " "
     print_space_and_line
+    
+    # added in 0.2.0
+    
+    # this will be removed for production
+    wget https://gist.github.com/stefanpejcic/620de2557f7a69aa65a60135dc8d298c/raw -O /usr/local/admin/templates/system/email_template.html
+    
+    # email to user the new logins
+    set_email_address_and_email_admin_logins
 
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
