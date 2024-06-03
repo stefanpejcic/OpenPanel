@@ -774,13 +774,13 @@ run_mysql_docker_container() {
             rm /etc/my.cnf
         fi
         
-        ln -s /usr/local/admin/db.cnf /etc/my.cnf
+        ln -s /etc/openpanel/openadmin/config/db.cnf /etc/my.cnf
         
         # Update configuration files with new password
         sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
         sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
-        sed -i "s/password = \".*\"/password = \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/db.cnf
-        sed -i "s/user = \".*\"/user = \"panel\"/g" /usr/local/admin/db.cnf
+        sed -i "s/password = \".*\"/password = ${MYSQL_ROOT_PASSWORD}/g" /etc/openpanel/openadmin/config/db.cnf
+        sed -i "s/user = \".*\"/user = panel/g" /etc/openpanel/openadmin/config/db.cnf
 
     else
         radovan 1 "Installation failed! Unable to start docker container for MySQL."
@@ -796,7 +796,7 @@ configure_mysql() {
         
         # Function to check if MySQL is running
         mysql_is_running() {
-            if mysqladmin --defaults-extra-file="/usr/local/admin/db.cnf" ping &> /dev/null; then
+            if mysqladmin --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" ping &> /dev/null; then
                 return 0 # MySQL is running
             else
                 return 1 # MySQL is not running
@@ -822,12 +822,12 @@ configure_mysql() {
         wait_for_mysql
 
         # Create database
-        mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
+        mysql --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
         #mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "GRANT PROCESS ON *.* TO 'panel'@'%';"
-        mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
+        mysql --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
 
         # Check if SQL file was imported successfully
-        if mysql --defaults-extra-file="/usr/local/admin/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
+        if mysql --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
             echo -e "${GREEN}Database is ready.${RESET}"
         else
             echo "SQL file import failed or database is not ready."
