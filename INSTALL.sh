@@ -789,10 +789,10 @@ run_mysql_docker_container() {
         ln -s /etc/openpanel/openadmin/config/db.cnf /etc/my.cnf
         
         # Update configuration files with new password
-        sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
-        sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
-        sed -i "s/password = \".*\"/password = ${MYSQL_ROOT_PASSWORD}/g" /etc/openpanel/openadmin/config/db.cnf
-        sed -i "s/user = \".*\"/user = panel/g" /etc/openpanel/openadmin/config/db.cnf
+        #sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
+        #sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
+        sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' /etc/openpanel/openadmin/config/db.cnf
+        #sed -i "s/user = \".*\"/user = panel/g" /etc/openpanel/openadmin/config/db.cnf
 
     else
         radovan 1 "Installation failed! Unable to start docker container for MySQL."
@@ -937,7 +937,7 @@ setup_openpanel() {
 
     if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
         debug_log "Detected Debian 12."
-        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/debian/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/debian/compressed.tar.gz"
+        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
     # Check if OS is Ubuntu 22
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
         debug_log "Detected Ubuntu 22."
@@ -1026,7 +1026,7 @@ setup_openadmin() {
     # Debian12
     if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
         debug_log "Detected Debian 12."
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/debian/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/debian/compressed.tar.gz"
+        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
     # Ubuntu 22
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
         debug_log "Detected Ubuntu 22."
@@ -1379,10 +1379,6 @@ success_message() {
     print_space_and_line
     
     # added in 0.2.0
-    
-    # this will be removed for production
-    wget https://gist.github.com/stefanpejcic/620de2557f7a69aa65a60135dc8d298c/raw -O /usr/local/admin/templates/system/email_template.html
-    
     # email to user the new logins
     set_email_address_and_email_admin_logins
 
