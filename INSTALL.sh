@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 02.06.2024
+# Last Modified: 03.06.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -178,7 +178,9 @@ current_ip=$(curl -s https://ip.openpanel.co || wget -qO- https://ip.openpanel.c
 
 # If site is not available, get the ipv4 from the hostname -I
 if [ -z "$current_ip" ]; then
-    current_ip=$(hostname -I | awk '{print $1}')
+   # current_ip=$(hostname -I | awk '{print $1}')
+    # ip addr command is more reliable then hostname - to avoid getting private ip
+    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
 fi
 
 
