@@ -16,6 +16,7 @@ type InstallOptions = Record<string, InstallOption>;
 const defaultOptions: InstallOptions = {
     hostname: { value: "", description: "Set the FQDN hostname." },
     version: { value: "", description: "Set a custom OpenPanel version to be installed." },
+    email: { value: "", description: "Email address to receive admin logins and future notifications." },
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
@@ -65,7 +66,7 @@ const Install: React.FC = () => {
         let command = "bash <(curl -sSL https://get.openpanel.co/)";
         for (const [option, config] of Object.entries(installOptions)) {
             if (option !== "version" || (option === "version" && config.value !== latestVersion)) {
-                if (config.value || ["version", "hostname", "screenshots", "post-install"].includes(option)) {
+                if (config.value || ["version", "hostname", "email", "screenshots", "post-install"].includes(option)) {
                     if (option === "screenshots" && config.value === "local") {
                         command += ` --screenshots=local`;
                     } else if (option === "screenshots" && config.value === "remote") {
