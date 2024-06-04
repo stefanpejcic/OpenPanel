@@ -194,7 +194,7 @@ if [ "$CUSTOM_VERSION" = false ]; then
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
-        version="0.1.8"
+        version="0.2.0"
     fi
 fi
 
