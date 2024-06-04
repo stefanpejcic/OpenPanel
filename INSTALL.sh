@@ -1333,7 +1333,7 @@ rm_helpers(){
 temp_fix_for_skeleton() {
     echo "Creating 'skeleton' directory with configuration files that will be used for new users.."
     mkdir -p /etc/openpanel/openadmin/skeleton/
-    touch /etc/openpanel/openadmin/skeleton/domains
+    mkdir /etc/openpanel/openadmin/skeleton/domains/
     touch /etc/openpanel/openadmin/skeleton/elastic.lock
     touch /etc/openpanel/openadmin/skeleton/redis.lock
     touch /etc/openpanel/openadmin/skeleton/memcached.lock
