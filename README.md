@@ -60,6 +60,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 ## Supported OS
 
 - Debian 12
+- Debian 11
 - Ubuntu 22
 - Ubuntu 24 *(without quotas)
 
