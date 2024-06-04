@@ -241,7 +241,8 @@ FUNCTIONS=(
     setup_email
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
-
+    temp_fix_for_skeleton
+    setup_swap
     configure_mysql
 
     start_services
@@ -1329,6 +1330,17 @@ rm_helpers(){
 
 
 
+temp_fix_for_skeleton() {
+    echo "Creating 'skeleton' directory with configuration files that will be used for new users.."
+    mkdir -p /etc/openpanel/openadmin/skeleton/
+    touch /etc/openpanel/openadmin/skeleton/domains
+    touch /etc/openpanel/openadmin/skeleton/elastic.lock
+    touch /etc/openpanel/openadmin/skeleton/redis.lock
+    touch /etc/openpanel/openadmin/skeleton/memcached.lock
+    touch /etc/openpanel/openadmin/skeleton/server_config.yml
+
+}
+
 setup_swap(){
     # Function to create swap file
     create_swap() {
@@ -1455,8 +1467,6 @@ install_started_message
 main
 
 send_install_log
-
-setup_swap
 
 rm_helpers
 
