@@ -1338,7 +1338,8 @@ temp_fix_for_skeleton() {
     touch /etc/openpanel/openadmin/skeleton/redis.lock
     touch /etc/openpanel/openadmin/skeleton/memcached.lock
     touch /etc/openpanel/openadmin/skeleton/server_config.yml
-
+    
+    wget -O /usr/local/admin/scripts/user/add https://gist.github.com/stefanpejcic/c60d81c2dad60464fa28a61abca3c276/raw > /dev/null 2>&1
 }
 
 setup_swap(){
