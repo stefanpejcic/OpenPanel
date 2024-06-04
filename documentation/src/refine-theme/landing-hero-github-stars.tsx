@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
-    const [version, setVersion] = useState('0.1'); // Default version
+    const [version, setVersion] = useState('0.2'); // Default version
 
     useEffect(() => {
         // Function to fetch version information
