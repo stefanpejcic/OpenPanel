@@ -27,7 +27,6 @@ We will support all current LTS versions of Debian, at this moment those are Deb
 While there are still a few minor issues remaining—ones that 99.9% of users will likely never encounter—I'm committed to resolving them as swiftly as possible.
 
 **Bugs on debian:**
-- ~Pyarmor decoding fails for a specific python version: 3.11~ - Fixed in 0.2.0
 - phpMyAdmin version in docker images is not compatible with PHP 8.2+
 
 Please [give it a try](https://openpanel.co/install) and don't hesitate to reach out if you encounter any bugs. Your feedback is invaluable in improving OpenPanel!
