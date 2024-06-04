@@ -131,8 +131,8 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                <span className={clsx("font-semibold")}>OpenPanel 0.1.9</span>{" "}
-                is out! Give it a spin and tell us what you think
+                <span className={clsx("font-semibold")}>OpenPanel</span>{" "}
+                now supports Debian! Both Debian 11 and 12 are supported
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
