@@ -946,7 +946,7 @@ setup_openpanel() {
 
     if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
         debug_log "Detected Debian 12."
-        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
+        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openpanel/$current_python_version/compressed.tar.gz"
     # Check if OS is Ubuntu 22
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
         debug_log "Detected Ubuntu 22."
@@ -1035,7 +1035,7 @@ setup_openadmin() {
     # Debian12
     if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
         debug_log "Detected Debian 12."
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
+        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz"
     # Ubuntu 22
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
         debug_log "Detected Ubuntu 22."
@@ -1124,7 +1124,7 @@ setup_opencli() {
 
     debug_log mkdir -p $OPENCLI_DIR
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/compressed.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/opencli/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/opencli/compressed.tar.gz"
 
     debug_log cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C $OPENCLI_DIR
     debug_log rm ${TEMP_DIR}opencli.tar.gz
