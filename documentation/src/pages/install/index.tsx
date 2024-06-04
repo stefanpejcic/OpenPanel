@@ -41,7 +41,7 @@ const Install: React.FC = () => {
     const [latestVersion, setLatestVersion] = useState<string>("");
 
     useEffect(() => {
-        fetch("https://update.openpanel.co/")
+        fetch("https://get.openpanel.co/version")
             .then(response => response.text())
             .then(data => {
                 const version = data.trim();
