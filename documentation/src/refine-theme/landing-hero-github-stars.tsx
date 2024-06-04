@@ -9,7 +9,7 @@ export const LandingHeroGithubStars = () => {
         // Function to fetch version information
         const fetchVersion = async () => {
             try {
-                const response = await fetch('https://update.openpanel.co/');
+                const response = await fetch('https://get.openpanel.co/version');
                 const data = await response.text();
                 setVersion(data.trim()); // Update the version state
             } catch (error) {
