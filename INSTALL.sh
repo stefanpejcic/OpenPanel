@@ -190,7 +190,7 @@ fi
 
 if [ "$CUSTOM_VERSION" = false ]; then
     # Fetch the latest version
-    version=$(curl -s https://update.openpanel.co/)
+    version=$(curl -s https://get.openpanel.co/version)
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
