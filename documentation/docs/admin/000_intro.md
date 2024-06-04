@@ -14,10 +14,9 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 
 Hardware Requirements
 
-
-- A blank full virtual machine or a bare metal server
-- Ubuntu 22.04 LTS server
-- A minimum of 4GB RAM and 20GB storage
+- A blank full virtual machine or bare metal server
+- Debian 11 / Debian 12 / Ubuntu 22 / Ubuntu 24*(without quotas)
+- Minimum of 1GB RAM and 15GB storage
 - x86_64/amd64 architecture
 
 ## Installation
@@ -76,10 +75,6 @@ bash <(curl -sSL https://get.openpanel.co/) --debug
 
 :::info
 openpanel will install Docker, MySQL, Nginx, and several other tools on your server. You should install it on a fresh server, otherwise, you risk facing installation errors.
-:::
-
-:::danger
-Port 53, 80, 443 and 2083 must be available and not blocked by your hosting provider firewall.
 :::
 
 ### Troubleshooting failed installation
