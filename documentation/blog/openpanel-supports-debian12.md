@@ -1,5 +1,5 @@
 ---
-title: OpenPanel supports Debian12
+title: OpenPanel supports Debian
 description: OpenPanel now supports Debian12 🎉
 slug: openpanel-supports-debian12
 authors: stefanpejcic
@@ -9,7 +9,7 @@ hide_table_of_contents: true
 is_featured: false
 ---
 
-OpenPanel 0.2.0 supports Debian 12 🚀
+OpenPanel 0.2.0 supports Debian 🚀
 
 <!--truncate-->
 
@@ -17,7 +17,12 @@ Ever since our launch in late February, I've received questions like: "Why Ubunt
 
 However, with the overwhelming demand from our users on GitHub, forums, and Discord to add Debian support, I've accepted the challenge and began working on the integration.
 
-After a few months of development and some adjustments to our existing logic, I'm thrilled to announce that OpenPanel 0.2.0 now fully supports Debian 12! 🎉
+After a few months of development and some adjustments to our existing logic, I'm thrilled to announce that OpenPanel 0.2.0 now fully supports Debian! 🎉
+
+We will support all current LTS versions of Debian, at this moment those are Debian11 and Debian12:
+
+![debian eol](https://i.postimg.cc/6qYhDh6k/image.png)
+
 
 While there are still a few minor issues remaining—ones that 99.9% of users will likely never encounter—I'm committed to resolving them as swiftly as possible.
 
