@@ -35,23 +35,14 @@ bash <(curl -sSL https://get.openpanel.co/)
 We recommend that you run the installation command within a Linux screen session. The Linux Screen utility allows you to create a shell session that will stay active through a network disruption.
 :::
 
-OpenPanel installation process will by default perform the following steps:
-- Check if your OS and available hardware resources meet the bare minimum system requirements
-- Check if existing hosting panel or webserver is already installed
-- Detect your OS and the package manager to be used for installation commands
-- Check if another OpenPanel installaiton is in progress or was interrupted
-- Update and start installing required packages
-- Configure and start all required system services
-- Download required Docker images
-- Set domain, generate SSL, and configure services
-- Create hosting packages
-
-The installation script also supports optional flags that can be used to install additional services, skip certain installation steps or display debugging information:
+The installation script supports optional flags that can be used to install additional services, skip certain installation steps or display debugging information:
 
 | Flag                | What it does                                                                                                      |
 |---------------------|-------------------------------------------------------------------------------------------------------------------|
 | `--version=`     | Specify OpenPanel verison to install intead of the default latest. Example: `--version=0.1.8`                                                   |
 | `--hostname=`     | Set a hostname (FQDN) to be used for accessing panels. Example: `--hostname=server.openpanel.site`                                                   |
+| `--email=`     | Set an email address to receive admin logins and future notifications. Example: `--email=stefan@pejcic.rs`                                                   |
+| `--swap=`     | Set disk space in GB to allocate to SWAP. Example: `--swap=4`                                                   |
 | `--with_modsec`     | Rebuild Nginx with ModSecurity module and set the OWASP core ruleset.                                                   |
 | `--debug`           | Display on screen each installation step and output debugging information.                                   |
 | `--skip-requirements`| Do not check if the server meets the minimum recommended requirements for running OpenPanel.                          |
