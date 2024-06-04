@@ -944,7 +944,7 @@ setup_openpanel() {
     mkdir -p ${OPENPANEL_DIR}users
 
 
-    if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
+    if [ -f /etc/debian_version ]; then
         debug_log "Detected Debian 12."
         wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openpanel/$current_python_version/compressed.tar.gz"
     # Check if OS is Ubuntu 22
@@ -957,7 +957,7 @@ setup_openpanel() {
         wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
     # For all other OS
     else
-        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian12 are supported."
+        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
         echo 0
     fi
 
@@ -1033,7 +1033,7 @@ setup_openadmin() {
     mkdir -p $OPENPADMIN_DIR
 
     # Debian12
-    if [ -f /etc/debian_version ] && grep -q "bookworm" /etc/os-release; then
+    if [ -f /etc/debian_version ]; then
         debug_log "Detected Debian 12."
         wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz"
     # Ubuntu 22
@@ -1046,7 +1046,7 @@ setup_openadmin() {
         wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
     # other
     else
-        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian12 are supported."
+        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
         echo 0
     fi
 
