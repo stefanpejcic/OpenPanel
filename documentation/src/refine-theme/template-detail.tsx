@@ -4,7 +4,7 @@ import Link from "@docusaurus/Link";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
-import { CommonCircleChevronLeft } from "./common-circle-chevron-left";
+import { CommonCircleChevronRight } from "./common-circle-chevron-right";
 import { ShareIcon } from "./icons/share";
 import * as Icons from "@site/src/assets/integration-icons";
 import ReactMarkdown from "react-markdown";
@@ -33,7 +33,7 @@ type Props = {
 
 export const TemplatesDetail: FC<Props> = ({ data }) => {
     return (
-        <CommonLayout description="Build React-based internal tools, admin panels, dashboards & B2B apps with unmatched flexibility.">
+        <CommonLayout description="Host websites and manage users with unmatched flexibility.">
             <div>
                 <CommonHeader />
                 <div
@@ -50,7 +50,7 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                 >
                     <div>
                         <Link
-                            to="/templates"
+                            to="/products"
                             className={clsx(
                                 "text-base",
                                 "font-semibold",
@@ -64,8 +64,8 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                 "landing-md:px-2 landing-md:py-3",
                             )}
                         >
-                            <CommonCircleChevronLeft />
-                            Back to templates
+                            <CommonCircleChevronRight />
+                            lifetime plan (249€)
                         </Link>
                         <h1
                             className={clsx(
