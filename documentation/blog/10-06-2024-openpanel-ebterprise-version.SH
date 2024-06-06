@@ -1,3 +1,20 @@
+---
+title: OpenPanel Enterprise
+description: OpenPanel Enterprise edition
+slug: openpanel-enterprise-version
+authors: stefanpejcic
+tags: [OpenPanel, news, version]
+image: https://openpanel.co/img/blog/openapnel_enterprise.png
+hide_table_of_contents: true
+---
+
+OpenPanel Enterprise edition
+
+<!--truncate-->
+
+
+
+
 The free version of OpenPanel was released exactly 3 months ago, and we now have over 500 active installs! Thank you all for trying OpenPanel and for your suggestions and contributions.
 
 In these 3 months, we've released 5 updates, added support for Debian, created a WHMCS module, translated to 3 languages, and much more.
