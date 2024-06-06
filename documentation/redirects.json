@@ -1,8 +1,4 @@
 {
   "redirects": [
-        {
-      "from": "/lifetime-plan",
-      "to": "/enterprise"
-    }
   ]
 }
