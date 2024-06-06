@@ -110,7 +110,7 @@ OpenPanel Enterprise edition offers advanced features for user isolation and man
 
 - **Monthly Plan**: $19.95 per month with a price-lock guarantee.
 - **Yearly Plan**: $192 per year (20% savings).
-- **Lifetime Plan**: $248.
+- **Lifetime Plan**: $249.
 
 The Lifetime Plan will be available only this year and is intended to help us accelerate the development of features for the Pro version.
 
