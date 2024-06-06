@@ -314,22 +314,22 @@ const Integrations = (props: {
         <div className={clsx(className)}>
             <IntegrationBadge
                 svgId={props.svgId + "-react"}
-                label="React Platform"
+                label="Features"
                 integration={reactPlatform}
             />
             <IntegrationBadge
                 svgId={props.svgId + "-ui"}
-                label="UI Framework"
+                label="Limits"
                 integration={uiFramework}
             />
             <IntegrationBadge
                 svgId={props.svgId + "-data"}
-                label="Data Provider"
+                label="Integrations"
                 integration={dataProvider}
             />
             <IntegrationBadge
                 svgId={props.svgId + "-auth"}
-                label="Auth Provider"
+                label="Support"
                 integration={authProvider}
             />
         </div>
