@@ -16,7 +16,7 @@ async function RefineTemplates() {
                     );
 
                     addRoute({
-                        path: `/templates/${data.slug}`,
+                        path: `/product/${data.slug}`,
                         component:
                             "@site/src/components/templates-detail-page/index",
                         exact: true,
@@ -277,27 +277,6 @@ We built this template to showcase the efficiency and ease of using the Refine f
         `,
     },
     {
-        slug: "win-95-style-admin-panel",
-        title: "Win95 Style Admin Panel",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-win95.jpg",
-        ],
-        runOnYourLocalPath: "blog-win95",
-        liveDemo: "https://win95.refine.dev/",
-        github: "https://github.com/refinedev/refine/tree/master/examples/blog-win95",
-        tutorial:
-            "https://refine.dev/blog/awesome-react-windows95-ui-with-refine/",
-        reactPlatform: "Vite",
-        uiFramework: "Headless",
-        dataProvider: "Supabase",
-        authProvider: "Supabase",
-        description: `
-This Fun CRUD app example demonstrates how you can customize the Refine app design for specific needs. It is connected to a Supabase backend through Refine’s Supabase data provider and its user interface is developed using [React95](https://github.com/React95/React95).
-
-The source code of the CRUD app is also open-source; feel free to use or inspect it to discover how Refine works along with external UI packages.
-        `,
-    },
-    {
         slug: "react-crud-app",
         title: "Realworld Example",
         images: [
@@ -329,127 +308,5 @@ Since the source code of this RealWorld app is open-source, you have the freedom
 - Favorite articles
 - Follow other users
 `,
-    },
-    {
-        slug: "multitenancy-strapi",
-        title: "Multitenancy App with Strapi",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-multitenancy-strapi.jpg",
-        ],
-        runOnYourLocalPath: "multi-tenancy-strapi",
-        liveDemo: "https://multi-tenancy-strapi.refine.dev",
-        github: "https://github.com/refinedev/refine/tree/master/examples/multi-tenancy-strapi",
-        tutorial:
-            "https://refine.dev/docs/guides-concepts/multi-tenancy/#strapi",
-        reactPlatform: "Vite",
-        uiFramework: "Ant Design",
-        dataProvider: "Strapi",
-        authProvider: "Strapi",
-        description: `
-Multitenancy is a design approach where a single software instance on a server provides services to multiple clients at the same time. This CRUD app template is an excellent example of implementing multitenant architecture in Refine applications. It connects to a Strapi API using a Strapi data provider and features a user interface developed with Ant Design, which is natively supported by Refine.
-
-This template was developed to demonstrate how the Refine framework can simplify and expedite the development of apps with enterprise-level needs. It's a valuable resource that offers insights into Refine's best practices and modern development techniques.
-
-The source code of this multitenancy app is open-source, allowing you to use or inspect it to see how Refine can fulfill enterprise-grade application requirements. 
-        `,
-    },
-    {
-        slug: "multitenancy-appwrite",
-        title: "Multitenancy App with Appwrite",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-multitenancy-appwrite.jpg",
-        ],
-        runOnYourLocalPath: "multi-tenancy-appwrite",
-        liveDemo: "https://multi-tenancy-appwrite.refine.dev",
-        github: "https://github.com/refinedev/refine/tree/master/examples/multi-tenancy-appwrite",
-        tutorial:
-            "https://refine.dev/docs/guides-concepts/multi-tenancy/#appwrite",
-        reactPlatform: "Vite",
-        uiFramework: "Ant Design",
-        dataProvider: "Appwrite",
-        authProvider: "Appwrite",
-        description: `
-Multitenancy is a design approach where a single software instance on a server provides services to multiple clients at the same time. This CRUD app template is an excellent example of implementing multitenant architecture in Refine applications. It connects to a Appwrite API using a Appwrite data provider and features a user interface developed with Ant Design, which is natively supported by Refine.
-
-This template was developed to demonstrate how the Refine framework can simplify and expedite the development of apps with enterprise-level needs. It's a valuable resource that offers insights into Refine's best practices and modern development techniques.
-
-The source code of this multitenancy app is open-source, allowing you to use or inspect it to see how Refine can fulfill enterprise-grade application requirements. 
-        `,
-    },
-    {
-        slug: "ant-design-template",
-        title: "Internal tool template with Ant Design ",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-ant-design-template.jpg",
-        ],
-        runOnYourLocalPath: "auth-antd",
-        liveDemo:
-            "https://codesandbox.io/p/sandbox/github/refinedev/refine/tree/master/examples/auth-antd",
-        github: "https://github.com/refinedev/refine/tree/master/examples/auth-antd",
-        tutorial: "https://refine.dev/docs/tutorial/introduction/index/",
-        reactPlatform: "Vite",
-        uiFramework: "Ant Design",
-        dataProvider: "Rest API",
-        authProvider: "Custom",
-        description: `
-Complete internal tool template built with Material UI. Features authentication and CRUD screens.
-        `,
-    },
-    {
-        slug: "material-ui-template",
-        title: "Generic Internal Tool Template with Material UI",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-material-ui-template.jpg",
-        ],
-        runOnYourLocalPath: "auth-material-ui",
-        liveDemo:
-            "https://codesandbox.io/embed/github/refinedev/refine/tree/master/examples/auth-material-ui",
-        github: "https://github.com/refinedev/refine/tree/master/examples/auth-material-ui",
-        tutorial: "https://refine.dev/docs/tutorial/introduction/index/",
-        reactPlatform: "Vite",
-        uiFramework: "Material UI",
-        dataProvider: "Rest API",
-        authProvider: "Custom",
-        description: `
-Complete internal tool template built with Material UI. Features authentication and CRUD screens.
-        `,
-    },
-    {
-        slug: "mantine-template",
-        title: "Generic Internal Tool Template with Mantine",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-mantine-template.jpg",
-        ],
-        runOnYourLocalPath: "auth-mantine",
-        liveDemo:
-            "https://codesandbox.io/embed/github/refinedev/refine/tree/master/examples/auth-mantine",
-        github: "https://github.com/refinedev/refine/tree/master/examples/auth-mantine",
-        tutorial: "https://refine.dev/docs/tutorial/introduction/index/",
-        reactPlatform: "Vite",
-        uiFramework: "Mantine",
-        dataProvider: "Rest API",
-        authProvider: "Custom",
-        description: `
-Complete internal tool template built with Mantine. Features authentication and CRUD screens.
-        `,
-    },
-    {
-        slug: "chakra-ui-template",
-        title: "Generic Internal Tool Template with Chakra UI",
-        images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-chakra-ui-template.jpg",
-        ],
-        runOnYourLocalPath: "auth-chakra-ui",
-        liveDemo:
-            "https://codesandbox.io/embed/github/refinedev/refine/tree/master/examples/auth-chakra-ui",
-        github: "https://github.com/refinedev/refine/tree/master/examples/auth-chakra-ui",
-        tutorial: "https://refine.dev/docs/tutorial/introduction/index/",
-        reactPlatform: "Vite",
-        uiFramework: "Chakra UI",
-        dataProvider: "Rest API",
-        authProvider: "Custom",
-        description: `
-Complete admin panel template built with Chakra UI. Features authentication and CRUD screens.
-        `,
     },
 ];
