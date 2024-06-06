@@ -7,13 +7,13 @@ const TemplatesDetailPage = (props) => {
 
     return (
         <>
-            <Head title={`${content.title} oberview | OpenPanel`}>
+            <Head title={`${content.title} overview | OpenPanel`}>
                 <html data-page="templates_refine" />
                 <title>{content.title}</title>
                 <meta property="og:title" content={content.title} />
                 <meta
                     name="description"
-                    content={`${content.title} overview | OpenPanel}
+                    content={`${content.title} overview | OpenPanel`}
                 />
                 <meta
                     property="og:description"
