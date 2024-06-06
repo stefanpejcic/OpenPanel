@@ -36,7 +36,7 @@ exports.default = RefineTemplates;
 
 const templates = [
     {
-        slug: "openpanel-community",
+        slug: "openpanel-free-control-panel",
         title: "OpenPanel Community edition",
         images: [
             "/img/panel_cropped.png",
@@ -91,7 +91,7 @@ This CRM app template can be used in for various app requirements like B2B appli
 `,
     },
     {
-        slug: "openpanel-enterprise",
+        slug: "openpanel-premium-control-panel",
         title: "OpenPanel Enterprise edition",
         images: [
             "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-finefoods-ant-design.jpg",
