@@ -43,10 +43,10 @@ const templates = [
         ],
         runOnYourLocalPath: "app-crm",
         github: "https://github.com/refinedev/refine/tree/master/examples/app-crm",
-        reactPlatform: "Vite",
-        uiFramework: "Ant Design",
-        dataProvider: "Nestjs-query",
-        authProvider: "Custom",
+        reactPlatform: "Regular Features",
+        uiFramework: "3 Users, 10 Websites",
+        dataProvider: "No Billing Integrations",
+        authProvider: "Community support",
         description: `
 This  CRM app example, built with Refine, demonstrates a complete solution for enterprise-level CRM internal tool needs. It has a wide range of functionalities for real-use cases, which are extensively utilized by enterprise companies.
 
@@ -98,10 +98,10 @@ This CRM app template can be used in for various app requirements like B2B appli
         runOnYourLocalPath: "--key=xxxxxxxx",
         liveDemo: "https://demo.openpanel.co/openadmin/",
         tutorial: "https://my.openpanel.co/products",
-        reactPlatform: "Vite",
-        uiFramework: "Ant Design",
-        dataProvider: "Rest API",
-        authProvider: "Custom",
+        reactPlatform: "Premium Features",
+        uiFramework: "Unlimited Users & Websites",
+        dataProvider: "Billing Modules",
+        authProvider: "Priority support",
         description: `
 OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.
 
