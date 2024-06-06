@@ -150,7 +150,7 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                                 "text-xs landing-md:text-base",
                                             )}
                                         >
-                                            Tutorial
+                                            Purchase
                                         </span>
                                     </ProjectLink>
                                 )}
@@ -163,7 +163,7 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                                 "text-xs landing-md:text-base",
                                             )}
                                         >
-                                            Source code
+                                            Download
                                         </span>
                                     </ProjectLink>
                                 )}
