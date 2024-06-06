@@ -50,7 +50,7 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                 >
                     <div>
                         <Link
-                            to="/products"
+                            to="/lifetime-plan"
                             className={clsx(
                                 "text-base",
                                 "font-semibold",
