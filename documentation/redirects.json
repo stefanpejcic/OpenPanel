@@ -1,4 +1,8 @@
 {
   "redirects": [
+        {
+      "from": "/lifetime-plan",
+      "to": "https://my.openpanel.co/product/lifetime"
+    }
   ]
 }
