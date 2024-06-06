@@ -61,7 +61,7 @@ The source code of the CRM app is also open-source; feel free to use or inspect 
 ### Key Features:
 
 
-- **Dashboard**: Overview of CRM activities, key metrics, and customer interactions.
+- **Resource Limiting**: Overview of CRM activities, key metrics, and customer interactions.
 - **Calendar**: Manage appointments and events.
 - **Scrumboard-Project Kanban**: Streamline project management and task tracking.
 - **Sales Pipeline**: Visualize sales stages and track lead conversions.
@@ -94,10 +94,10 @@ This CRM app template can be used in for various app requirements like B2B appli
         slug: "openpanel-premium-control-panel",
         title: "Enterprise edition",
         images: [
-            "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-finefoods-ant-design.jpg",
+            "/img/panel_cropped.png",
         ],
         runOnYourLocalPath: "--key=xxxxxxxx",
-        liveDemo: "https://demo.openpanel.co/admin/",
+        liveDemo: "https://demo.openpanel.co/openadmin/",
         github: "https://github.com/refinedev/refine/tree/master/examples/finefoods-antd",
         reactPlatform: "Vite",
         uiFramework: "Ant Design",
