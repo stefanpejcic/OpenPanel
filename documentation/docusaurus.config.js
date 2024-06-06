@@ -72,7 +72,7 @@ const siteConfig = {
                     ],
                 },
                 gtag: {
-                    trackingID: "G-XXXXXX",
+                    trackingID: "G-1QZHSM9RLL",
                 },
                 sitemap: {
                     ignorePatterns: ["**/_*.md"],
