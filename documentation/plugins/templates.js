@@ -128,5 +128,6 @@ The Lifetime Plan will be available only this year and is intended to help us ac
 For hosting providers, we also offer white-label tutorials for your blog/knowledgebase and support ticket options. When clients have technical questions or issues related to OpenPanel, you can direct-message our developers for answers or resolutions with a 30-minute SLA.
 
 Please note that not all features for the Pro version will be immediately available; it will take several months for all planned features to be implemented.
+`,
    },
 ];
