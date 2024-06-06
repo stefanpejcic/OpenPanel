@@ -96,8 +96,8 @@ This CRM app template can be used in for various app requirements like B2B appli
         images: [
             "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-finefoods-ant-design.jpg",
         ],
-        runOnYourLocalPath: "finefoods-antd",
-        liveDemo: "https://example.admin.refine.dev",
+        runOnYourLocalPath: "--key=xxxxxxxx",
+        liveDemo: "https://demo.openpanel.co/admin/",
         github: "https://github.com/refinedev/refine/tree/master/examples/finefoods-antd",
         reactPlatform: "Vite",
         uiFramework: "Ant Design",
@@ -119,7 +119,7 @@ The Lifetime Plan will be available only this year and is intended to help us ac
 - **White-Labeling**: Options to completely brand the panel as your own.
 - **Billing Integrations**: WHMCS, Blesta, HostBill, FossBilling.
 - **Auto-Installers**: 50+ CMS and tools.
-- **Additional Pro Features**: Emails, FTP, clustering, Cloudflare DNS.
+- **Additional Pro Features**: OpenLitespeed, Varnish, Emails, FTP, Clusters, Cloudflare DNS.
 - **Migration Tools**: cPanel2OpenPanel and WordPress2OpenPanel.
 - **Backup Storage**: 100GB of backup storage.
 - **Real-Time Updates**: Immediate bug fixes as soon as they are available.
