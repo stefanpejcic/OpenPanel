@@ -37,7 +37,7 @@ exports.default = RefineTemplates;
 const templates = [
     {
         slug: "openpanel-free-control-panel",
-        title: "OpenPanel Community edition",
+        title: "Community edition",
         images: [
             "/img/panel_cropped.png",
         ],
@@ -92,7 +92,7 @@ This CRM app template can be used in for various app requirements like B2B appli
     },
     {
         slug: "openpanel-premium-control-panel",
-        title: "OpenPanel Enterprise edition",
+        title: "Enterprise edition",
         images: [
             "https://refine.ams3.cdn.digitaloceanspaces.com/templates/detail-finefoods-ant-design.jpg",
         ],
@@ -104,25 +104,29 @@ This CRM app template can be used in for various app requirements like B2B appli
         dataProvider: "Rest API",
         authProvider: "Custom",
         description: `
-This example of a B2B React admin panel, built with Refine, provides a comprehensive solution for the needs of enterprise-level internal tools. It features a full range of functionalities typical in products used by enterprise companies.
+OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.
 
-The admin panel connects to a REST API using a Simple REST data provider. Its user interface is developed with Ant Design, which Refine offers built-in UI framework support.
+### Pricing Options:
 
-We built this template to showcase the efficiency and ease of using the Refine framework in development. It is a valuable resource, offering insights into Refine's best practices and modern development techniques. As it's ready for production, you can use this template as a foundation to build your own React admin panel or implement it as it is.
+- **Monthly Plan**: $19.95 per month with a price-lock guarantee.
+- **Yearly Plan**: $192 per year (20% savings).
+- **Lifetime Plan**: $248.
 
-The template is open-source, so you can freely use or examine it to understand how Refine works.
+The Lifetime Plan will be available only this year and is intended to help us accelerate the development of features for the Pro version.
 
+### Premium features:
 
-### Key Features:
+- **White-Labeling**: Options to completely brand the panel as your own.
+- **Billing Integrations**: WHMCS, Blesta, HostBill, FossBilling.
+- **Auto-Installers**: 50+ CMS and tools.
+- **Additional Pro Features**: Emails, FTP, clustering, Cloudflare DNS.
+- **Migration Tools**: cPanel2OpenPanel and WordPress2OpenPanel.
+- **Backup Storage**: 100GB of backup storage.
+- **Real-Time Updates**: Immediate bug fixes as soon as they are available.
+- **On-Site Support**: TeamViewer/AnyDesk support.
 
-- **Dashboard**: Get an overview of food ordering activities, track product performance, and view insightful charts.
-- **Orders**: Manage, track, and filter all customer orders.
-- **Users**: Administer customer and courier accounts and data.
-- **Stores**: View and manage the list of participating stores.
-- **Categories**: Categorize and organize menu items and store types.
-- **Couriers**: Monitor and manage courier activity and interactions.
-- **Reviews**: Handle customer feedback, review ratings, and respond to comments.
+For hosting providers, we also offer white-label tutorials for your blog/knowledgebase and support ticket options. When clients have technical questions or issues related to OpenPanel, you can direct-message our developers for answers or resolutions with a 30-minute SLA.
 
-This admin panel template can be used in for various app requirements like B2B applications, internal tools, admin panel, dashboard and all CRUD applications, providing a comprehensive platform for managing order interactions, restaurant management, and sales processes.`,
-    },
+Please note that not all features for the Pro version will be immediately available; it will take several months for all planned features to be implemented.
+   },
 ];
