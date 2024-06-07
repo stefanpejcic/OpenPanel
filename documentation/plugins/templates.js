@@ -57,14 +57,14 @@ OpenPanel Community edition is a free hosting control panel for Debian and Ubunt
 - **Multiple WebServers**: Each user has a private instance of Nginx or Apache webserver.
 - **Select PHP versions**: User can install PHP versions, set them on domain-level, edit php.ini.
 - **Advanced Configuration**: Edit MySQL or Nginx/Apache Configuration, Restart services, and more.
-- **File Management**: Organize business contacts with detailed profiles.
+- **File Management**: Responsive File Manager with background uploads processing and bulk actions.
 - **Autoinstallers**: WP Manager, NodeJS and Python Applications.
 - **Usage Overview**: Detailed resource usage reports and beautiful domain access logs.
 - **Detailed Logging**: Every user login and interation is logged.
 
 The free version of OpenPanel includes more features than some paid alternatives, and we're proud of that.
 
-We promise that OpenPanel will always have a free version.
+We promise that OpenPanel will always have a free version. ✌️💯
 `,
     },
     {
@@ -102,7 +102,7 @@ The Lifetime Plan will be available only this year and is intended to help us ac
 - **Real-Time Updates**: Immediate bug fixes as soon as they are available.
 - **On-Site Support**: TeamViewer/AnyDesk support.
 
-For hosting providers, we also offer white-label tutorials for your blog/knowledgebase and support ticket options. When clients have technical questions or issues related to OpenPanel, you can direct-message our developers for answers or resolutions with a 30-minute SLA.
+📢 For hosting providers, we also offer white-label tutorials for your blog/knowledgebase and support ticket options. When clients have technical questions or issues related to OpenPanel, you can direct-message our developers for answers or resolutions with a 30-minute SLA.
 
 Please note that not all features for the Pro version will be immediately available; it will take several months for all planned features to be implemented.
 `,
