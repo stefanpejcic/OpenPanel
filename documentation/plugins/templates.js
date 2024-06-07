@@ -41,7 +41,7 @@ const templates = [
         images: [
             "/img/panel_cropped.png",
         ],
-        runOnYourLocalPath: "",
+        runOnYourLocalPath: " ",
         github: "https://github.com/stefanpejcic/openpanel",
         reactPlatform: "Regular Features",
         uiFramework: "3 Users, 10 Websites",
