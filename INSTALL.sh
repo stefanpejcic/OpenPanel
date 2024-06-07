@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 04.06.2024
+# Last Modified: 07.06.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -337,6 +337,7 @@ check_requirements() {
 parse_args() {
     show_help() {
         echo "Available options:"
+        echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
         echo "  --hostname=<hostname>           Set the hostname."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
