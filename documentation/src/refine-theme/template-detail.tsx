@@ -64,8 +64,8 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                 "landing-md:px-2 landing-md:py-3",
                             )}
                         >
-                            lifetime plan (249€)
                             <CommonCircleChevronRight />
+                            lifetime plan (249€)
                         </Link>
                         <h1
                             className={clsx(
@@ -163,7 +163,7 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                                 "text-xs landing-md:text-base",
                                             )}
                                         >
-                                            Free Download
+                                            Contribute on GitHub
                                         </span>
                                     </ProjectLink>
                                 )}
