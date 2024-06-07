@@ -62,9 +62,9 @@ OpenPanel Community edition is a free hosting control panel for Debian and Ubunt
 - **Usage Overview**: Detailed resource usage reports and beautiful domain access logs.
 - **Detailed Logging**: Every user login and interation is logged.
 
-Free version of OpenPanel offers more features then some paid alternatives, and we are proud of that.
+The free version of OpenPanel includes more features than some paid alternatives, and we're proud of that.
 
-OpenPanel will always have a free version, that is a promise.
+We promise that OpenPanel will always have a free version.
 `,
     },
     {
