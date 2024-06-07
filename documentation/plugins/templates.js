@@ -46,7 +46,7 @@ const templates = [
         reactPlatform: "Regular Features",
         uiFramework: "3 Users, 10 Websites",
         dataProvider: "No Billing Integrations",
-        authProvider: "Community support",
+        authProvider: "Discord & Forums",
         description: `
 Free Hosting Control Panel for Ubuntu and Debian.
 
@@ -94,7 +94,7 @@ This CRM app template can be used in for various app requirements like B2B appli
         reactPlatform: "Premium Features",
         uiFramework: "∞ Users & Websites",
         dataProvider: "WHMCS, HostBill",
-        authProvider: "Priority support",
+        authProvider: "Hands-on Support",
         description: `
 OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.
 
