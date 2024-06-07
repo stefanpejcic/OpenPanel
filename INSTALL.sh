@@ -51,6 +51,7 @@ SETUP_SWAP_ANYWAY=false
 SWAP_FILE="1"
 SELFHOSTED_SCREENSHOTS=false
 SEND_EMAIL_AFTER_INSTALL=false
+SET_PREMIUM=false
 
 # Paths
 LOG_FILE="openpanel_install.log"
@@ -244,7 +245,7 @@ FUNCTIONS=(
     temp_fix_for_skeleton
     setup_swap
     configure_mysql
-
+    set_premium_features
     start_services
     set_system_cronjob
     cleanup
@@ -361,94 +362,94 @@ parse_args() {
     }
 
 
-    for arg in "$@"; do
-        case $arg in
-            --hostname=*)
-                # Extract domain after "--hostname="
-                SET_HOSTNAME_NOW=true
-                new_hostname="${1#*=}"
-                ;;
-            --skip-requirements)
-                SKIP_REQUIREMENTS=true
-                ;;
-            --skip-panel-check)
-                SKIP_PANEL_CHECK=true
-                ;;
-            --skip-apt-update)
-                SKIP_APT_UPDATE=true
-                ;;
-            --repair)
-                REPAIR=true
-                SKIP_PANEL_CHECK=true
-                SKIP_REQUIREMENTS=true
-                ;;
-            --overlay2)
-                OVERLAY=true
-                ;;
-            --skip-firewall)
-                SKIP_FIREWALL=true
-                ;;
-            --skip-images)
-                SKIP_IMAGES=true
-                ;;
-            --skip-blacklists)
-                IPSETS=false
-                ;;
-            --skip-ssl)
-                SKIP_SSL=true
-                ;;
-            --with_modsec)
-                MODSEC=true
-                ;;
-            --debug)
-                DEBUG=true
-                ;;
-            --ips)
-                SUPPORT_IPS=true
-                ;;
-            --no-ssh)
-                NO_SSH=true
-                ;;
-            --enable-ftp)
-                INSTALL_FTP=true
-                ;;
-            --enable-mail)
-                INSTALL_MAIL=true
-                ;;
-            --post_install=*)
-                # Extract path after "--post_install="
-                post_install_path="${1#*=}"
-                ;;
-            --screenshots=*)
-                # Extract path after "--screenshots="
-                SCREENSHOTS_API_URL="${1#*=}"
-                ;;
-            --version=*)
-                # Extract path after "--version="
-                CUSTOM_VERSION=true
-                version="${1#*=}"
-                ;;
-            --swap=*)
-                # Extract path after "--swap="
-                SETUP_SWAP_ANYWAY=true
-                SWAP="${1#*=}"
-                ;;
-            --email=*)
-                # Extract path after "--email="
-                SEND_EMAIL_AFTER_INSTALL=true
-                EMAIL="${1#*=}"
-                ;;
-            -h|--help)
-                show_help
-                exit 0
-                ;;
-            *)
-                echo "Unknown option: $arg"
-                show_help
-                exit 1
-                ;;
-        esac
-    done
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --key=*)
+            SET_PREMIUM=true
+            license_key="${1#*=}"
+            ;;
+        --hostname=*)
+            SET_HOSTNAME_NOW=true
+            new_hostname="${1#*=}"
+            ;;
+        --skip-requirements)
+            SKIP_REQUIREMENTS=true
+            ;;
+        --skip-panel-check)
+            SKIP_PANEL_CHECK=true
+            ;;
+        --skip-apt-update)
+            SKIP_APT_UPDATE=true
+            ;;
+        --repair)
+            REPAIR=true
+            SKIP_PANEL_CHECK=true
+            SKIP_REQUIREMENTS=true
+            ;;
+        --overlay2)
+            OVERLAY=true
+            ;;
+        --skip-firewall)
+            SKIP_FIREWALL=true
+            ;;
+        --skip-images)
+            SKIP_IMAGES=true
+            ;;
+        --skip-blacklists)
+            IPSETS=false
+            ;;
+        --skip-ssl)
+            SKIP_SSL=true
+            ;;
+        --with_modsec)
+            MODSEC=true
+            ;;
+        --debug)
+            DEBUG=true
+            ;;
+        --ips)
+            SUPPORT_IPS=true
+            ;;
+        --no-ssh)
+            NO_SSH=true
+            ;;
+        --enable-ftp)
+            INSTALL_FTP=true
+            ;;
+        --enable-mail)
+            INSTALL_MAIL=true
+            ;;
+        --post_install=*)
+            post_install_path="${1#*=}"
+            ;;
+        --screenshots=*)
+            SCREENSHOTS_API_URL="${1#*=}"
+            ;;
+        --version=*)
+            CUSTOM_VERSION=true
+            version="${1#*=}"
+            ;;
+        --swap=*)
+            SETUP_SWAP_ANYWAY=true
+            SWAP="${1#*=}"
+            ;;
+        --email=*)
+            SEND_EMAIL_AFTER_INSTALL=true
+            EMAIL="${1#*=}"
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            show_help
+            exit 1
+            ;;
+    esac
+    shift
+done
+
 }
 
 detect_installed_panels() {
@@ -1206,6 +1207,15 @@ download_and_import_docker_images() {
         # disown $pid1
     fi
 }
+
+
+set_premium_features(){
+ if [ "$SET_HOSTNAME_NOW" = true ]; then
+    echo "Setting OpenPanel enterprise version license key $license_key"
+    opencli config update key "$license_key"
+ fi
+}
+
 
 
 set_custom_hostname(){
