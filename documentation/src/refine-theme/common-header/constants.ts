@@ -40,15 +40,15 @@ export const MENU_ITEMS: MenuItemType[] = [
         label: "Products",
         items: [
             {
-                label: "OpenPanel",
-                description: "End-user interface for hosting websites and domains.",
-                link: "/docs/panel/intro",
+                label: "Community Edition",
+                description: "Free web hosting panel for VPS and private use.",
+                link: "/product/openpanel-free-control-panel",
                 icon: ExamplesIcon,
             },
             {
-                label: "OpenAdmin",
-                description: "Admin-level interface for managing users and servers.",
-                link: "/docs/admin/intro/",
+                label: "Enterprise Editions",
+                description: "Premium server control panel for shared hosting.",
+                link: "/product/openpanel-premium-control-panel",
                 icon: IntegrationsIcon,
             },
         ],
