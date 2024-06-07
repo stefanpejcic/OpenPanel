@@ -42,20 +42,13 @@ const templates = [
             "/img/panel_cropped.png",
         ],
         runOnYourLocalPath: "",
-        github: "https://github.com/refinedev/refine/tree/master/examples/app-crm",
+        github: "https://github.com/stefanpejcic/openpanel",
         reactPlatform: "Regular Features",
         uiFramework: "3 Users, 10 Websites",
         dataProvider: "No Billing Integrations",
         authProvider: "Community support",
         description: `
-This  CRM app example, built with Refine, demonstrates a complete solution for enterprise-level CRM internal tool needs. It has a wide range of functionalities for real-use cases, which are extensively utilized by enterprise companies.
-
-The app connected to GraphQL API through Refine's Nestjs-query data provider, and its user interface is developed using Ant Design, which Refine offers built-in UI framework support. 
-
-We built this template to demonstrate how the Refine framework simplifies and speeds up development. It is a valuable resource, offering insights into Refine's best practices and modern development techniques.
-
-The source code of the CRM app is also open-source; feel free to use or inspect it to discover how Refine works. Being production-ready, you can either build your own CRM internal tool using it as a code base or directly implement it as is.
-
+Free Hosting Control Panel for Ubuntu and Debian.
 
 ### Key Features:
 
@@ -95,7 +88,7 @@ This CRM app template can be used in for various app requirements like B2B appli
         images: [
             "/img/panel_cropped.png",
         ],
-        runOnYourLocalPath: "",
+        //runOnYourLocalPath: "",
         liveDemo: "https://demo.openpanel.co/openadmin/",
         tutorial: "https://my.openpanel.co/products",
         reactPlatform: "Premium Features",
