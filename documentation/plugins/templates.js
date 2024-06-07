@@ -48,38 +48,23 @@ const templates = [
         dataProvider: "No Billing Integrations",
         authProvider: "Discord & Forums",
         description: `
-Free Hosting Control Panel for Ubuntu and Debian.
+OpenPanel Community edition is a free hosting control panel for Debian and Ubuntu OS, suitable for VPS and private use.
 
 ### Key Features:
 
 
-- **Resource Limiting**: Overview of CRM activities, key metrics, and customer interactions.
-- **Calendar**: Manage appointments and events.
-- **Scrumboard-Project Kanban**: Streamline project management and task tracking.
-- **Sales Pipeline**: Visualize sales stages and track lead conversions.
-- **Companies**: Organize business contacts with detailed profiles.
-- **Contacts**: Efficient management of individual customer interactions.
-- **Quotes**: Create, send, and manage customer quotes.
-- **Administration**: Customize CRM settings, user roles, and permissions.
+- **Resource Limiting**: Limit CPU, Memory, disk usage and port speed.
+- **Multiple WebServers**: Each user has a private instance of Nginx or Apache webserver.
+- **Select PHP versions**: User can install PHP versions, set them on domain-level, edit php.ini.
+- **Advanced Configuration**: Edit MySQL or Nginx/Apache Configuration, Restart services, and more.
+- **File Management**: Organize business contacts with detailed profiles.
+- **Autoinstallers**: WP Manager, NodeJS and Python Applications.
+- **Usage Overview**: Detailed resource usage reports and beautiful domain access logs.
+- **Detailed Logging**: Every user login and interation is logged.
 
+Free version of OpenPanel offers more features then some paid alternatives, and we are proud of that.
 
-This CRM app template can be used in for various app requirements like B2B applications, internal tools, admin panel, dashboard and all CRUD applications, providing a comprehensive platform for: 
-
-- Human Resource Management (HRM) Tools
-- IT Service Management (ITSM) Tools
-- Network Monitoring Tools
-- Risk Management Tools
-- Customer Support Tools
-- Financial Planning Systems
-- Customer Analytics Tools
-- Inventory Management Systems
-- Supply Chain Management Tools
-- Retail Management Systems
-- Business Intelligence Tools
-- Electronic Health Record (EHR) Systems
-- Patient Management Systems
-- Health Information Exchange (HIE) Systems
-- Pharmacy Management Systems
+OpenPanel will always have a free version, that is a promise.
 `,
     },
     {
