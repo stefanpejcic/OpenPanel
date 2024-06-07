@@ -41,7 +41,7 @@ const templates = [
         images: [
             "/img/panel_cropped.png",
         ],
-        //runOnYourLocalPath: "app-crm",
+        runOnYourLocalPath: "",
         github: "https://github.com/refinedev/refine/tree/master/examples/app-crm",
         reactPlatform: "Regular Features",
         uiFramework: "3 Users, 10 Websites",
@@ -95,7 +95,7 @@ This CRM app template can be used in for various app requirements like B2B appli
         images: [
             "/img/panel_cropped.png",
         ],
-        //runOnYourLocalPath: "--key=xxxxxxxx",
+        runOnYourLocalPath: "",
         liveDemo: "https://demo.openpanel.co/openadmin/",
         tutorial: "https://my.openpanel.co/products",
         reactPlatform: "Premium Features",
