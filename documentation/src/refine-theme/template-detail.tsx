@@ -188,11 +188,13 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                     "landing-lg:pl-4 landing-lg:pr-6",
                                 )}
                             >
+                                {data.runOnYourLocalPath && (
                                 <div className={clsx("mb-2 landing-sm:mb-4")}>
                                     <CommonRunLocalPrompt
                                         path={data.runOnYourLocalPath}
                                     />
                                 </div>
+                                )}
                                 <div className={clsx("not-prose")}>
                                     <h2
                                         className={clsx(
