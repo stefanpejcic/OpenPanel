@@ -46,7 +46,7 @@ export const MENU_ITEMS: MenuItemType[] = [
                 icon: ExamplesIcon,
             },
             {
-                label: "Enterprise Editions",
+                label: "Enterprise Edition",
                 description: "Premium server control panel for shared hosting.",
                 link: "/product/openpanel-premium-control-panel",
                 icon: IntegrationsIcon,
