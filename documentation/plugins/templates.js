@@ -71,7 +71,7 @@ We promise that OpenPanel will always have a free version. ✌️💯
         slug: "openpanel-premium-control-panel",
         title: "Enterprise edition",
         images: [
-            "/img/panel_cropped.png",
+            "/img/openpanel_admin.gif",
         ],
         //runOnYourLocalPath: "",
         liveDemo: "https://demo.openpanel.co/openadmin/",
