@@ -11,10 +11,10 @@ export const CommonRunLocalPrompt = ({ path }: Props) => {
     return (
         <CodeBlock
             language="bash"
-            title="Run on your local"
+            title="Install command"
             icon={<TerminalIcon />}
         >
-            {`npm create refine-app@latest -- --example ${path}`}
+            {`bash <(curl -sSL https://get.openpanel.co/) ${path}`}
         </CodeBlock>
     );
 };
