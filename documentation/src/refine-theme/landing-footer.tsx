@@ -145,6 +145,8 @@ export const LandingFooter = () => {
                         >
                             <RefineLogoSingleIcon />
                         </Link>
+                        <iframe src="https://uptime.openpanel.co/badge?theme=dark" width="250" height="30" frameborder="0" scrolling="no">
+                        </iframe>
                     </div>
                     <div
                         className={clsx(
