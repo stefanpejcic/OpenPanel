@@ -41,7 +41,7 @@ const templates = [
         images: [
             "/img/panel_cropped.png",
         ],
-        runOnYourLocalPath: "app-crm",
+        //runOnYourLocalPath: "app-crm",
         github: "https://github.com/refinedev/refine/tree/master/examples/app-crm",
         reactPlatform: "Regular Features",
         uiFramework: "3 Users, 10 Websites",
