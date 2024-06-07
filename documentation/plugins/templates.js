@@ -95,12 +95,12 @@ This CRM app template can be used in for various app requirements like B2B appli
         images: [
             "/img/panel_cropped.png",
         ],
-        runOnYourLocalPath: "--key=xxxxxxxx",
+        //runOnYourLocalPath: "--key=xxxxxxxx",
         liveDemo: "https://demo.openpanel.co/openadmin/",
         tutorial: "https://my.openpanel.co/products",
         reactPlatform: "Premium Features",
-        uiFramework: "Unlimited Users & Websites",
-        dataProvider: "Billing Modules",
+        uiFramework: "∞ Users & Websites",
+        dataProvider: "WHMCS, HostBill",
         authProvider: "Priority support",
         description: `
 OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.
