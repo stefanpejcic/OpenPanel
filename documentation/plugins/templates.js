@@ -86,10 +86,23 @@ OpenPanel Enterprise edition offers advanced features for user isolation and man
 ### Pricing Options:
 
 - [**Monthly Plan**: 14.95€ per month](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1)
-- [**Yearly Plan**: 149.5€ per year (20% savings)](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1)
+- [**Yearly Plan**: 149.50€ per year (20% savings)](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1)
+- [**Lifetime Plan**: 269,19€ one-time payment (20% savings)](https://my.openpanel.co/index.php?rp=/store/openpanel/lifetime-enterprise-license)
 
-Both options come with a price-lock guarantee, ensuring that future price increases will not affect you. You will always pay the price you started with.
+Monthly/yearly options come with a price-lock guarantee, ensuring that future price increases will not affect you. You will always pay the price you started with.
 
+Only 40 Lifetime licenses will be available for purchase until they're sold out, or till 20 December 2024.
+
+Lifetime license includes:
+
+- Premium features
+- Host **unlimited domains + accounts**, no restrictions
+- One license is required per server
+- Forefer free panel updates
+- 1 year of premium support Includes Hands-on support
+- License is transferable
+- License valid for all OpenPanel releases
+- Volume licensing discounts available
 
 ### Premium features:
 
