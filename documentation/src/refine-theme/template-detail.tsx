@@ -49,24 +49,6 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                     )}
                 >
                     <div>
-                        <Link
-                            to="/lifetime-plan"
-                            className={clsx(
-                                "text-base",
-                                "font-semibold",
-                                "dark:text-gray-400 text-gray-500",
-                                "hover:dark:text-gray-400 hover:text-gray-500",
-                                "hover:no-underline",
-                                "flex",
-                                "items-center",
-                                "gap-2",
-                                "px-0 py-0",
-                                "landing-md:px-2 landing-md:py-3",
-                            )}
-                        >
-                            <CommonCircleChevronRight />
-                            lifetime plan (249€)
-                        </Link>
                         <h1
                             className={clsx(
                                 "dark:text-gray-0 text-gray-900",
