@@ -136,19 +136,6 @@ export const TemplatesDetail: FC<Props> = ({ data }) => {
                                         </span>
                                     </ProjectLink>
                                 )}
-                                {data.github && (
-                                    <ProjectLink to={data.github}>
-                                        <GithubIcon width={16} height={16} />
-                                        <span
-                                            className={clsx(
-                                                "font-semibold",
-                                                "text-xs landing-md:text-base",
-                                            )}
-                                        >
-                                            Contribute on GitHub
-                                        </span>
-                                    </ProjectLink>
-                                )}
                             </div>
                             <Integrations
                                 svgId="mobile"
