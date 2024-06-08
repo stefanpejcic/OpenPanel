@@ -1,6 +1,6 @@
 <div align="center">
 <a href="https://openpanel.co/">
-    <img alt="website" src="/documentation/static/img/openadmin.png">
+    <img alt="website" src="/documentation/static/img/openpanel_admin.gif">
 </a>
   
 <br/>
