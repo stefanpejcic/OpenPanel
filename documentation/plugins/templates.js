@@ -85,8 +85,10 @@ OpenPanel Enterprise edition offers advanced features for user isolation and man
 
 ### Pricing Options:
 
-- [**Monthly Plan**: 14.95€ per month with a price-lock guarantee](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1)
+- [**Monthly Plan**: 14.95€ per month](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1)
 - [**Yearly Plan**: 149.5€ per year (20% savings)](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1)
+
+Both options come with a price-lock guarantee, ensuring that future price increases will not affect you. You will always pay the price you started with.
 
 
 ### Premium features:
