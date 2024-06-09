@@ -1,7 +1,7 @@
 ---
 title: How we decreased account creation by 16x
 description: Here are the tips how to drastically decrease bash script execution time
-slug: how-we-decreased-bash-script-execution-by-10x-for-openpanel
+slug: how-we-decreased-bash-script-execution-by-16x-for-openpanel
 authors: stefanpejcic
 tags: [OpenPanel, news, dev]
 image: https://openpanel.co/img/blog/how-we-decreased-bash-script-execution-by-10x-for-openpanel.png
