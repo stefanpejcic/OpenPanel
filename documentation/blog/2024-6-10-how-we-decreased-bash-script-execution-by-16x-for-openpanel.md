@@ -181,7 +181,7 @@ storage_file=$(echo "$cpu_ram_info" | awk '{print $9}' | sed 's/ //;s/B//')
 plan_id=$(echo "$cpu_ram_info" | awk '{print $11}')
 ```
 
-This ends being 6 echo statements of the same thing! To avoid that, we can use [read](https://linuxcommand.org/lc3_man_pages/readh.html) to assign the values from the database results:
+This ends being 6 echo statements! To avoid it, we can use [read](https://linuxcommand.org/lc3_man_pages/readh.html) to assign the values from the database results:
 
 
 
