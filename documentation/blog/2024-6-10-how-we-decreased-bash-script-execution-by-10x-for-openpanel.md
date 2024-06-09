@@ -4,7 +4,7 @@ description: Here are the tips how to drastically decrease bash script execution
 slug: how-we-decreased-bash-script-execution-by-10x-for-openpanel
 authors: stefanpejcic
 tags: [OpenPanel, news, dev]
-image: https://openpanel.co/img/blog/openapnel_enterprise.png
+image: https://openpanel.co/img/blog/how-we-decreased-bash-script-execution-by-10x-for-openpanel.png
 hide_table_of_contents: true
 ---
 
@@ -36,13 +36,17 @@ These processes required meticulous checks and conditional statements to ensure 
 
 To troubleshoot bash scripts we use `bash -x` when running the script, example:
 
-`bash -x /usr/local/admin/scripts/user/add stefan stefan stefan default_plan_nginx --debug`
+```bash
+bash -x /usr/local/admin/scripts/user/add stefan stefan stefan default_plan_nginx --debug
+```
 
 With `-x` we get detailed output and can see where we have recursion steps that can be simplified and where our script takes the most time to execute.
 
 To measure the time needed for the total execution we can prepend the `time` command:
 
-`time bash -x /usr/local/admin/scripts/user/add stefan stefan stefan default_plan_nginx --debug`
+```bash
+time bash -x /usr/local/admin/scripts/user/add stefan stefan stefan default_plan_nginx --debug
+```
 
 This shows that the starting execution speed is 48s which is far from ideal, so lets run the script with `-x` and see what we can improve.
 
