@@ -8,7 +8,7 @@ image: https://openpanel.co/img/blog/how-we-decreased-bash-script-execution-by-1
 hide_table_of_contents: true
 ---
 
-How we decreased Docker account creation time for OpenPanel from an average of 40s to less than 3 seconds
+ere is how we decreased Docker account creation time for OpenPanel from an average of 40s to less than 3 seconds!
 
 <!--truncate-->
 
