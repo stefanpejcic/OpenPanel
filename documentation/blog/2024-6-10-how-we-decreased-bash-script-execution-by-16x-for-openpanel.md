@@ -80,7 +80,7 @@ email="$3"
 plan_name="$4"
 ```
 
-`--debug` can only really be on the 5th position, and by not checking all other, we run only 1 cehck instead of 5 (one per each arg).
+`--debug` can only really be on the 5th position, and by not checking all other, we run only 1 check instead of 5 (one per each arg).
 
 ```bash
 # Parse optional flags to enable debug mode when needed
