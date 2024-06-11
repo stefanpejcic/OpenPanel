@@ -228,11 +228,12 @@ FUNCTIONS=(
     detect_os_and_package_manager
     update_package_manager
     install_packages
+    download_skeleton_directory_from_github
     setup_openpanel
     setup_openadmin
     configure_docker
     setup_services
-
+    
     configure_nginx
     configure_modsecurity
 
@@ -724,6 +725,13 @@ install_packages() {
         echo -e "${RED}Unsupported package manager: $PACKAGE_MANAGER${RESET}"
         return 1
     fi
+}
+
+
+
+download_skeleton_directory_from_github(){
+    echo "Downloading configuration files to ${ETC_DIR}"
+    debug_log git clone https://github.com/stefanpejcic/openpanel-configuration /etc/openpanel > /dev/null 2>&1
 }
 
 
