@@ -244,7 +244,6 @@ FUNCTIONS=(
     setup_email
     install_all_locales
     helper_function_for_nginx_on_aws_and_azure
-    temp_fix_for_skeleton
     setup_swap
     configure_mysql
     set_premium_features
@@ -1086,15 +1085,6 @@ setup_opencli() {
     echo -e "${GREEN}opencli commands are now available.${RESET}"
     debug_log chmod +x -R ${OPENCLI_DIR}
 
-
-   # added in 0.1.8
-    mkdir -p /etc/openpanel/openadmin/config/
-    
-    wget -O /etc/openpanel/openadmin/config/forbidden_usernames.txt  https://gist.githubusercontent.com/stefanpejcic/f08e6841fbf953b7aff108a8c154e9eb/raw/9ac3efabbde48faf95435221e7e09e28b46340ae/forbidden_usernames.ttxt > /dev/null 2>&1
-
-    # added in 0.2.0
-    touch /etc/openpanel/openadmin/config/terms
-
     echo "Creating directories for logs.."
     debug_log mkdir -p ${OPENPANEL_ERR_DIR}admin ${OPENPANEL_ERR_DIR}user
     debug_log -e "${GREEN}OpenCLI has been successfully installed.${RESET}"
@@ -1292,20 +1282,6 @@ send_install_log(){
 
 rm_helpers(){
     rm -rf $PROGRESS_BAR_FILE
-}
-
-
-
-temp_fix_for_skeleton() {
-    echo "Creating 'skeleton' directory with configuration files that will be used for new users.."
-    mkdir -p /etc/openpanel/openadmin/skeleton/
-    mkdir /etc/openpanel/openadmin/skeleton/domains/
-    touch /etc/openpanel/openadmin/skeleton/elastic.lock
-    touch /etc/openpanel/openadmin/skeleton/redis.lock
-    touch /etc/openpanel/openadmin/skeleton/memcached.lock
-    touch /etc/openpanel/openadmin/skeleton/server_config.yml
-    
-    wget -O /usr/local/admin/scripts/user/add https://gist.github.com/stefanpejcic/c60d81c2dad60464fa28a61abca3c276/raw > /dev/null 2>&1
 }
 
 setup_swap(){
