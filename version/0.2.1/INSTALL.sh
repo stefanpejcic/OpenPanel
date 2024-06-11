@@ -794,8 +794,8 @@ run_mysql_docker_container() {
             rm /etc/my.cnf
         fi
 
-        ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf
-        sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' /etc/openpanel/mysql/db.cnf
+        ln -s ${ETC_DIR}mysql/db.cnf /etc/my.cnf
+        sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf
     else
         radovan 1 "Installation failed! Unable to start docker container for MySQL."
     fi
@@ -811,7 +811,7 @@ configure_mysql() {
         
         # Function to check if MySQL is running
         mysql_is_running() {
-            if mysqladmin --defaults-extra-file="/etc/openpanel/mysql/db.cnf" ping &> /dev/null; then
+            if mysqladmin --defaults-extra-file="${ETC_DIR}mysql/db.cnf" ping &> /dev/null; then
                 return 0 # MySQL is running
             else
                 return 1 # MySQL is not running
@@ -837,11 +837,11 @@ configure_mysql() {
         wait_for_mysql
 
         # Create database
-        mysql --defaults-extra-file="/etc/openpanel/mysql/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
-        mysql --defaults-extra-file="/etc/openpanel/mysql/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
+        mysql --defaults-extra-file="${ETC_DIR}mysql/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
+        mysql --defaults-extra-file="${ETC_DIR}mysql/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
 
         # Check if SQL file was imported successfully
-        if mysql --defaults-extra-file="/etc/openpanel/mysql/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
+        if mysql --defaults-extra-file="${ETC_DIR}mysql/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
             echo -e "${GREEN}Database is ready.${RESET}"
         else
             echo "SQL file import failed or database is not ready."
@@ -861,11 +861,11 @@ configure_docker() {
 
     if [ "$OVERLAY" = true ]; then
         debug_log "Setting default storage driver for Docker from to 'overlay2'.."
-        cp /etc/openpanel/docker/overlay2/daemon.json  > "$docker_daemon_json_path"
+        cp ${ETC_DIR}docker/overlay2/daemon.json  > "$docker_daemon_json_path"
         ###
     else
         debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
-        cp /etc/openpanel/docker/devicemapper/daemon.json  > "$docker_daemon_json_path"
+        cp ${ETC_DIR}docker/devicemapper/daemon.json  > "$docker_daemon_json_path"
     fi
 
     echo -e "${GREEN}Docker is configured.${RESET}"
@@ -1100,8 +1100,8 @@ cleanup() {
 
 start_services() {
     echo "Setting OpenPanel and OpenAdmin services.."
-    cp -fr /etc/openpanel/openadmin/service/admin.service ${SERVICES_DIR}admin.service
-    cp -fr /etc/openpanel/openpanel/service/panel.service ${SERVICES_DIR}panel.service
+    cp -fr ${ETC_DIR}openadmin/service/admin.service ${SERVICES_DIR}admin.service
+    cp -fr ${ETC_DIR}openpanel/service/panel.service ${SERVICES_DIR}panel.service
     systemctl daemon-reload
     
     echo "Starting services.."
