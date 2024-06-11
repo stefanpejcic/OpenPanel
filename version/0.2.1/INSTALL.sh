@@ -536,26 +536,14 @@ install_all_locales() {
 
 
 check_lock_file_age() {
-    if [ "$REPAIR" = true ]; then
-        rm "$LOCK_FILE"
-        # and if lock file exists
-        if [ -e "$LOCK_FILE" ]; then
-            local current_time=$(date +%s)
-            local file_time=$(stat -c %Y "$LOCK_FILE")
-            local age=$((current_time - file_time))
-
-            if [ "$age" -ge "$INSTALL_TIMEOUT" ]; then
-                echo -e "${GREEN}Identified a prior interrupted OpenPanel installation; initiating a fresh installation attempt.${RESET}"
-                rm "$LOCK_FILE"  # Remove the old lock file
-            else
-                echo -e "${RED}Detected another OpenPanel installation already running. Exiting.${RESET}"
-                exit 1
-            fi
-        else
-            # Create the lock file
-            touch "$LOCK_FILE"
-            echo "OpenPanel installation started at: $(date)"
-        fi
+    # Use flock to create a lock or exit if the lock is already held
+    exec 200>"$LOCK_FILE"
+    if flock -n 200; then
+        # Inside the lock
+        echo "OpenPanel installation started at: $(date)"
+    else
+        echo -e "${RED}Another instance is running. Exiting.${RESET}"
+        exit 1
     fi
 }
 
@@ -563,7 +551,6 @@ check_lock_file_age() {
 clean_apt_cache(){
     # clear /var/cache/apt/archives/
     apt-get clean
-
     # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
 }
 
@@ -868,11 +855,10 @@ configure_docker() {
     debug_log mkdir -p $(dirname "$docker_daemon_json_path")
 
     if [ "$OVERLAY" = true ]; then
-        debug_log "Setting default storage driver for Docker from to 'overlay2'.."
+        debug_log "Setting 'overlay2' as the default storage driver for Docker.."
         cp ${ETC_DIR}docker/overlay2/daemon.json  > "$docker_daemon_json_path"
-        ###
     else
-        debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
+        debug_log "Setting 'devicemapper' as the default storage driver for Docker.."
         cp ${ETC_DIR}docker/devicemapper/daemon.json  > "$docker_daemon_json_path"
     fi
 
