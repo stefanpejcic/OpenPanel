@@ -247,14 +247,15 @@ FUNCTIONS=(
     helper_function_for_nginx_on_aws_and_azure
     setup_swap
     configure_mysql
-    set_premium_features
     start_services
+    set_premium_features
     set_system_cronjob
     cleanup
     set_custom_hostname
     generate_and_set_ssl_for_panels
     clean_apt_cache
     verify_license
+    set_system_cronjob
 )
 
 TOTAL_STEPS=${#FUNCTIONS[@]}
@@ -802,38 +803,9 @@ configure_mysql() {
     # Check if the Docker container exists
     if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
 
-        # Fix for: ERROR 2013 (HY000): Lost connection to MySQL server at 'reading initial communication packet', system error: 2
-        
-        # Function to check if MySQL is running
-        mysql_is_running() {
-            if mysqladmin --defaults-extra-file="${ETC_DIR}mysql/db.cnf" ping &> /dev/null; then
-                return 0 # MySQL is running
-            else
-                return 1 # MySQL is not running
-            fi
-        }
-
-        # Wait for MySQL to start
-        wait_for_mysql() {
-            retries=5
-            while [ $retries -gt 0 ]; do
-                if mysql_is_running; then
-                    return 0 # MySQL is running
-                else
-                    echo "Waiting for MySQL to start..."
-                    sleep 5
-                    retries=$((retries - 1))
-                fi
-            done
-            return 1 # MySQL did not start after retries
-        }
-
-        # Wait for MySQL to start
-        wait_for_mysql
-
         # Create database
-        mysql --defaults-extra-file="${ETC_DIR}mysql/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
-        mysql --defaults-extra-file="${ETC_DIR}mysql/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
+        mysql -e "CREATE DATABASE IF NOT EXISTS panel;"
+        mysql -D "panel" < DATABASE.sql
 
         # Check if SQL file was imported successfully
         if mysql --defaults-extra-file="${ETC_DIR}mysql/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
@@ -965,7 +937,7 @@ setup_openpanel() {
         debug_log playwright install-deps
     else
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${OPENPANEL_DIR}conf/panel.config" # must use '#' as delimiter
+        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
     fi
 }
 
@@ -1034,17 +1006,18 @@ setup_openadmin() {
 
     echo "Creating Admin user.."
 
-    touch ${OPENPADMIN_DIR}users.db
+    touch ${ETC_DIR}openadmin/users.db
 
     export PYTHONPATH=$OPENPADMIN_DIR:$PYTHONPATH
 
     admin_password=$(openssl rand -base64 12 | tr -d '=+/')
     password_hash=$(python3 ${OPENPADMIN_DIR}core/users/hash $admin_password)
 
-    debug_log sqlite3 ${OPENPADMIN_DIR}users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);" "INSERT INTO user (username, password_hash, role) VALUES ('admin', \"$password_hash\", 'admin');"
+    debug_log sqlite3 ${ETC_DIR}openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);" "INSERT INTO user (username, password_hash, role) VALUES ('admin', \"$password_hash\", 'admin');"
 
     # added in 0.1.9
-    cp helpers/welcome.sh /etc/profile.d/welcome.sh
+    cp ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh
+    
     chmod +x /etc/profile.d/welcome.sh  
 
 }
