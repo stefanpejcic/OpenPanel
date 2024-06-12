@@ -74,8 +74,8 @@ RUN MYSQL_PASSWORD=$(awk -F "=" '/password/ {gsub(/[ \t]+/, "", $2); print $2; e
     mysql -u root -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';"
 
 
-########## PORTOVI ##########
-EXPOSE 22 80 3306 7681 8080
+########## EXPOSED PORTS ##########
+EXPOSE 22 3306 7681 8080
 
 
 ########## NGINX ##########
