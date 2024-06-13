@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: INSTALL.sh
 # Description: Install the latest version of OpenPanel
-# Usage: bash <(curl -sSL https://get.openpanel.co/)
+# Usage: bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel/main/docker/INSTALL.sh)
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 11.06.2024
+# Last Modified: 13.06.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
