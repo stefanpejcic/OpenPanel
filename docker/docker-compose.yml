@@ -52,7 +52,6 @@ services:
           cpus: '1.0'
     restart: always
     privileged: true
-    entrypoint: /usr/local/admin/scripts/admin generate random
 
   # OpenPanel service running on port 2083
   openpanel:
@@ -126,13 +125,13 @@ services:
     oom_kill_disable: true
 
   # User images
-  openpanel_apache:
-    image: openpanel/apache:latest
-    entrypoint: /bin/true
+  #openpanel_apache:
+    #image: openpanel/apache:latest
+    #entrypoint: /bin/true
 
-  openpanel_nginx:
-    image: openpanel/nginx:latest
-    entrypoint: /bin/true
+  #openpanel_nginx:
+    #image: openpanel/nginx:latest
+    #entrypoint: /bin/true
 
 # make the data persistent
 volumes:
