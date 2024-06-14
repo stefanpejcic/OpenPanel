@@ -52,7 +52,7 @@ services:
           cpus: '1.0'
     restart: always
     privileged: true
-    entrypoint: /usr/local/admin/scripts/admin.sh generate random
+    entrypoint: /usr/local/admin/scripts/admin generate random
 
   # OpenPanel service running on port 2083
   openpanel:
