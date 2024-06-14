@@ -30,8 +30,8 @@ services:
     image: openpanel/openadmin
     container_name: openadmin
     depends_on:
-      - openpanel_mysql
-      condition: service_healthy
+     - openpanel_mysql
+    #condition: service_healthy
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
