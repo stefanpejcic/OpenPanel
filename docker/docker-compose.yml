@@ -14,7 +14,7 @@ services:
     volumes:
       - openadmin_mysql:/var/lib/mysql
       - /etc/openpanel/:/etc/openpanel/
-      - ./initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
+      - /root/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
     mem_limit: 1g
     cpus: 1
     oom_kill_disable: true
@@ -43,6 +43,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - openadmin_mysql:/var/lib/mysql
       - /usr/bin/docker:/usr/bin/docker
+      - /usr/local/admin/scripts:/usr/local/admin/scripts
     network_mode: host
     deploy:
       resources:
@@ -76,6 +77,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - openadmin_mysql:/var/lib/mysql
       - /usr/bin/docker:/usr/bin/docker
+      - /usr/local/admin/scripts:/usr/local/admin/scripts
     network_mode: host
     deploy:
       resources:
@@ -118,6 +120,11 @@ services:
         limits:
           memory: 1g
           cpus: '1.0'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: always
     privileged: true
     oom_kill_disable: true
