@@ -18,6 +18,12 @@ services:
     mem_limit: 1g
     cpus: 1
     oom_kill_disable: true
+    healthcheck:
+      test: ["CMD-SHELL", "mysql --user=panel --password=$MYSQL_ROOT_PASSWORD --execute \"SHOW DATABASES;\" || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
 
   # OpenAdmin service running on port 2087
   openadmin:
@@ -25,6 +31,7 @@ services:
     container_name: openadmin
     depends_on:
       - openpanel_mysql
+      condition: service_healthy
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
