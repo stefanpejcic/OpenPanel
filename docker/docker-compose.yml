@@ -125,7 +125,15 @@ services:
     privileged: true
     oom_kill_disable: true
 
+  # User images
+  openpanel_apache:
+    image: openpanel/apache:latest
+    entrypoint: /bin/true
+
+  openpanel_nginx:
+    image: openpanel/nginx:latest
+    entrypoint: /bin/true
+
 # make the data persistent
 volumes:
   openadmin_mysql:
-  
