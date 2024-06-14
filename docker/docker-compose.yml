@@ -28,6 +28,11 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - /lib/modules:/lib/modules:ro
       - /proc:/host/proc:ro
@@ -62,6 +67,11 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
+    healthcheck:
+      test: ["CMD-SHELL", "curl --fail http://localhost:2083/ || curl --fail https://localhost:2083/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     volumes:
       - /lib/modules:/lib/modules:ro
       - /proc:/host/proc:ro
@@ -98,7 +108,7 @@ services:
       - "80:80"
       - "443:443"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost/"]
+      test: ["CMD-SHELL", "curl --fail http://localhost:2087/ || curl --fail https://localhost:2087/ || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
