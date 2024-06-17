@@ -69,11 +69,27 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 
 | OpenAdmin |  OpenPanel |
 |------------------|---|
-|         ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![ssl](https://img.shields.io/badge/Let'sEncrypt-green?logo=letsencrypt&logoColor=white) ![docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white) ![modsec](https://img.shields.io/badge/ModSecurity-WAF-blue?logo=modsecurity&logoColor=white)        |  ![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white) ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white) ![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue) ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white) ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) ![phpmyadmin](https://img.shields.io/badge/PHPMyAdmin-6.5-blue?logo=phpmyadmin&logoColor=white) |
+|         ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![ssl](https://img.shields.io/badge/Let'sEncrypt-green?logo=letsencrypt&logoColor=white) ![docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white) ![modsec](https://img.shields.io/badge/ModSecurity-WAF-blue?logo=modsecurity&logoColor=white)        |  ![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white) ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white) ![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue) ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white) ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) ![phpmyadmin](https://img.shields.io/badge/PHPMyAdmin-
+6.5-blue?logo=phpmyadmin&logoColor=white) |
 
 ## What do you mean by "open" ?
 
 Open for business!
+
+OpenPanel is **not** open-source. The primary reason behind this decision is our commitment to maintaining the highest standards of security for our users. Here are the key reasons:
+
+1. **Enhanced Security**:
+    - Keeping OpenPanel closed-source significantly reduces the risk of exposing vulnerabilities. By limiting access to the source code, we can better protect our users from potential security threats and malicious attacks.
+
+2. **Controlled Access**:
+    - A closed-source model allows us to strictly control who can view and modify the code. This minimizes the risk of unauthorized changes or contributions that could introduce security flaws.
+
+3. **Integrity and Trustworthiness**:
+    - Ensuring the integrity of our software is paramount. By maintaining a closed-source environment, we can guarantee that every release of OpenPanel has undergone thorough security reviews and testing, providing our users with a trustworthy solution.
+
+While OpenPanel itself is not 100% open source, we are committed to transparency and security.
+
+We regularly conduct internal audits, apply the latest security patches, and follow industry best practices to safeguard our users' data.
 
 ## Support
 
