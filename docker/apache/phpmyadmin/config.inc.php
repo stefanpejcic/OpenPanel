@@ -25,10 +25,24 @@ if (check_file_access('/etc/phpmyadmin/config-db.php')) {
 }
 
 if (!empty($dbname)) {
-    /* Authentication type */
-    $cfg['Servers'][$i]['auth_type'] = 'signon';
-    $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
-    $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
+    // Check for HTTPS using the X-Forwarded-Proto header
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
+               (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+    if ($isHttps) {
+        // Use cookie authentication for HTTPS connections
+        error_log("Using cookie authentication for HTTPS");
+        $cfg['Servers'][$i]['auth_type'] = 'cookie';
+        $cfg['Servers'][$i]['user'] = ''; // Username will be entered in the login form
+        $cfg['Servers'][$i]['password'] = '';
+    } else {
+        // Use Single Sign-On (SSO) for the random ip
+        error_log("Using Single Sign-On (SSO) for IP: $allowedIp");
+        $cfg['Servers'][$i]['auth_type'] = 'signon';
+        $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
+        $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
+    }
+
     /* Server parameters */
     if (empty($dbserver)) $dbserver = 'localhost';
     $cfg['Servers'][$i]['host'] = $dbserver;
@@ -74,10 +88,8 @@ $cfg['SaveDir'] = '';
 $cfg['ShowDatabasesNavigationAsTree'] = false;
 
 /* Support additional configurations */
-foreach (glob('/etc/phpmyadmin/conf.d/*.php') as $filename)
-{
+foreach (glob('/etc/phpmyadmin/conf.d/*.php') as $filename) {
     include($filename);
 }
 
 $cfg['SendErrorReports'] = 'never';
-
