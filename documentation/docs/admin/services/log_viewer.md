@@ -4,9 +4,25 @@ sidebar_position: 6
 
 # Log Viewer
 
-The *OpenAdmin > Services > View Log Files* feature enables users to access and monitor logs for both OpenPanel and system services. This functionality supports modularity by allowing customization of the log files displayed in the viewer.
+The *OpenAdmin > Services > View Log Files* feature enables users to access and monitor logs for both OpenPanel and system services.
 
 ![log viewer page](https://i.postimg.cc/zGmWT8L0/errorlof.png)
+
+## How to View Log Files
+
+Navigate to Services > View Log Files
+
+Select the log file you would like to view and optionally number of lines from the file.
+
+After selecting a log file, two new buttons appear under the log content: 
+- *Delete* - will empty the file contents
+- *Download* - will download the entire log file to your browser.
+
+
+## How to add more files to OpenAdmin Log Viewer
+
+This functionality supports modularity by allowing customization of the log files displayed in the viewer.
+
 
 List of default log files: https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/openadmin/config/log_paths.json
 
@@ -42,3 +58,5 @@ To define custom log files for the viewer:
    After saving the changes, navigate to *OpenAdmin > Services > View Log Files* in the interface. The custom log files you specified in log_paths.json should now appear alongside the default logs.
    
 By following these steps, you can effectively customize the log files displayed in the OpenAdmin log viewer according to your specific requirements. This flexibility allows you to monitor logs from both standard services and any custom applications or services you integrate with OpenPanel.
+
+
