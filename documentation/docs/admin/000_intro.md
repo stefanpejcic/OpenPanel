@@ -19,6 +19,10 @@ Hardware Requirements
 - Minimum of 1GB RAM and 15GB storage
 - x86_64/amd64 architecture
 
+:::info
+If you are using external firewall, the following ports should be opened:  `53` `80` `443` `2083` `2087` `32768:60999`
+:::
+
 ## Installation
 
 The installation process takes about 5 minutes. To install openpanel follow these steps: 
