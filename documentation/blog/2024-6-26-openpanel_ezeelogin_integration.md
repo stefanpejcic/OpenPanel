@@ -21,7 +21,43 @@ A big thank you to the Ezeelogin team for enabling support for OpenPanel!
 
 ----
 
-How to upgrade Ezeelogin to the `7.37.11` version that supports OpenPanel:
+### How to add OpenPanel server to Ezeelogin:
+
+In Ezeelogin admin interface navigate to *Settings > Control Panels* and click on the `+` link to add a new control panel.
+
+![ezelogin_openpanel](https://i.postimg.cc/SQ3ryR0K/panel1.png)
+
+In the form make sure to set:
+
+ 
+|  Setting |  Value  |
+|---|---|
+| Port  | **2087**  |
+|  Protocol |  **HTTPS** if you have domain set for OpenAdmin, otherwise **HTTP** |
+|  Request URI  |  **/login** |
+|  Request Method |  **POST** |
+|  Username Field |  **username** |
+|  Password Field |  **password** |
+|  Username |  **admin** or other username |
+|  Cpanel/WHM |  **NO** |
+
+Then click on Save button.
+
+When adding new OpenPanel server, make sure to select **OpenPanel** as Control Panel:
+
+![ezelogin_add_server_openpanel](https://i.postimg.cc/vmZ97wRj/panel2.png)
+
+And set:
+
+|  Setting |  Value  |
+|---|---|
+|  Control Panel User  | admin username  |
+|  Control Panel Password  |  password for your admin user |
+|  Control Panel Host |  domain or IP on which OpenAdmin is accessible |
+
+----
+
+### How to upgrade Ezeelogin to the `7.37.11` version that supports OpenPanel:
 
 1. Run the below command to fully backup the current installation.
 
