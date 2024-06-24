@@ -14,7 +14,7 @@ Ezeelogin 7.37.11 supports auto-login to OpenPanel servers!
 
 We've been relying on [Ezeelogin](https://www.ezeelogin.com/) since 2014 as our SSH Jump Server solution for managing access to Linux hosts, including control panels like cPanel and CyberPanel. However, we encountered issues with auto-login for OpenPanel due to overlapping port usage (2083 and 2087) with cPanel, causing session cookie conflicts.
 
-After contacting Ezeelogin support, they promptly addressed the issue and introduced support for OpenPanel in Ezeelogin version 7.37.11 🎉
+After contacting Ezeelogin support, they promptly addressed the issue and introduced support for OpenPanel in [Ezeelogin version 7.37.11](https://www.ezeelogin.com/user_manual/ChangeLog.html) 🎉
 
 A big thank you to the Ezeelogin team for enabling support for OpenPanel!
 
