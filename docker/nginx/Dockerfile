@@ -75,7 +75,7 @@ RUN MYSQL_PASSWORD=$(awk -F "=" '/password/ {gsub(/[ \t]+/, "", $2); print $2; e
 
 
 ########## EXPOSED PORTS ##########
-EXPOSE 22 3306 7681 8080
+EXPOSE 22 80 3306 7681 8080
 
 
 ########## NGINX ##########
