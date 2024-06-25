@@ -71,7 +71,7 @@ root@gateway ~]# /usr/local/sbin/backup_ezlogin.php
 ```bash
 root@gateway ~]# wget https://downloads.ezeelogin.com/ezlogin_7.37.11_php81.bin
 
-root@gateway ~]# wget https://downloads.ezeelogin.com/ezlogin_7.37.11_php71.bin
+root@gateway ~]# wget https://downloads.ezeelogin.com/ezlogin_7.37.11_php82.bin
 
 ```
 
