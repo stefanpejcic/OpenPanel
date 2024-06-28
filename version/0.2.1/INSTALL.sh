@@ -869,7 +869,7 @@ opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     mkdir -p /usr/local/admin/scripts
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/opencli-main.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/opencli-main.tar.gz"
 
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C /usr/local/admin/scripts
     rm ${TEMP_DIR}opencli.tar.gz
