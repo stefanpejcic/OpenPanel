@@ -868,13 +868,14 @@ set_custom_hostname(){
 
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
+    echo ""
     mkdir -p /usr/local/admin/scripts
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/opencli-main.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz"
 
-    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}/opencli
-    cp -r ${TEMP_DIR}/opencli/opencli-main/ /usr/local/admin/scripts/
-    rm ${TEMP_DIR}opencli.tar.gz ${TEMP_DIR}/opencli
+    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
+    cp -r ${TEMP_DIR}opencli/opencli-main/ /usr/local/admin/scripts/
+    rm ${TEMP_DIR}opencli.tar.gz ${TEMP_DIR}opencli
 
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
@@ -1010,6 +1011,7 @@ verify_license() {
 
 download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
+    echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 }
 
@@ -1121,20 +1123,24 @@ install_openadmin(){
     
     mkdir -p $OPENPADMIN_DIR
 
-    # Debian12
-    if [ -f /etc/debian_version ]; then
-        apt-get install git pip -y > /dev/null 2>&1
-        git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt --break-system-packages
     # Ubuntu 22
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
+    if [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then   
+        echo "Downloading files for Ubuntu22 and python version $current_python_version"
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
         debug_log pip install -r requirements.txt
     # Ubuntu 24
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
+        echo "Downloading files for Ubuntu24 and python version $current_python_version"
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt --break-system-packages
+    # Debian12
+    elif [ -f /etc/debian_version ]; then
+        echo "Installing PIP and Git"
+        apt-get install git pip -y > /dev/null 2>&1
+        echo "Downloading files for Debian and python version $current_python_version"
+        git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
         debug_log pip install -r requirements.txt --break-system-packages
     # other
