@@ -890,12 +890,12 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     echo ""
-    mkdir -p /usr/local/admin/scripts
+    mkdir -p /usr/local/admin/
 
     wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz"
-
+    mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
-    cp -r ${TEMP_DIR}opencli/opencli-main/ /usr/local/admin/scripts/
+    cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
     rm ${TEMP_DIR}opencli.tar.gz ${TEMP_DIR}opencli
 
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
