@@ -694,6 +694,8 @@ setup_ufw() {
 
         debug_log ufw --force enable
         debug_log ufw reload
+
+        debug_log service ufw restart
     fi
 }
 
