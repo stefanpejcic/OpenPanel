@@ -198,14 +198,12 @@ FUNCTIONS=(
 detect_os_and_package_manager
 update_package_manager
 install_packages
-
-download_and_import_docker_images
-
 download_skeleton_directory_from_github
 install_openadmin
 opencli_setup
 add_file_watcher
 configure_docker
+download_and_import_docker_images
 docker_compose_up
 #docker_compose_check_health
 panel_customize
@@ -529,6 +527,8 @@ configure_docker() {
     docker_daemon_json_path="/etc/docker/daemon.json"
     mkdir -p $(dirname "$docker_daemon_json_path")
 
+    
+    
     if [ "$OVERLAY" = true ]; then
         echo "Setting 'overlay2' as the default storage driver for Docker.."
         cp ${ETC_DIR}docker/overlay2/daemon.json "$docker_daemon_json_path"
@@ -896,7 +896,8 @@ opencli_setup(){
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
-    rm ${TEMP_DIR}opencli.tar.gz ${TEMP_DIR}opencli
+    rm ${TEMP_DIR}opencli.tar.gz 
+    rm -rf ${TEMP_DIR}opencli
 
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
@@ -1156,6 +1157,10 @@ install_openadmin(){
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
         debug_log pip install -r requirements.txt --break-system-packages
+
+        # on ubuntu24 we need to use overlay instead of devicemapper!
+        OVERLAY=true
+        
     # Debian12
     elif [ -f /etc/debian_version ]; then
         echo "Installing PIP and Git"
