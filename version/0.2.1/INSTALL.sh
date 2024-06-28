@@ -188,6 +188,7 @@ FUNCTIONS=(
 download_skeleton_directory_from_github
 install_openadmin
 opencli_setup
+add_file_watcher
 configure_docker
 docker_compose_up
 #docker_compose_check_health
@@ -610,6 +611,13 @@ setup_email() {
         fi
 }
 
+
+add_file_watcher(){
+    bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/file-watcher/main/install.sh)
+}
+
+
+
 setup_ufw() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
@@ -881,16 +889,20 @@ opencli_setup(){
 configure_nginx() {
 
     # Nginx
+
     echo "Setting Nginx configuration.."
 
     # https://dev.openpanel.co/services/nginx
-    ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
+    rm /etc/nginx/nginx.conf && ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
 
     # dir for domlogs
     mkdir -p /var/log/nginx/domlogs
 
     # 444 status for domains pointed to the IP but not added to nginx
-    ln -s  /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
+    rm /etc/nginx/sites-available/default 
+    rm /etc/nginx/sites-enabled/default
+    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-available/default
+    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
 
     # Replace IP_HERE with the value of $current_ip
     sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
@@ -900,8 +912,9 @@ configure_nginx() {
 
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
-}
 
+    service nginx restart
+}
 
 
 
@@ -1104,27 +1117,28 @@ install_openadmin(){
 
     # Debian12
     if [ -f /etc/debian_version ]; then
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz"
+        apt-get install git pip -y > /dev/null 2>&1
+        git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt --break-system-packages
     # Ubuntu 22
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
+        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt
     # Ubuntu 24
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
+        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt --break-system-packages
     # other
     else
         echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
         echo 0
     fi
 
-        # TODO SOON
-    # Clone the branch for that python version
-    debug_log cd ${TEMP_DIR}
-    debug_log tar -xzf openadmin.tar.gz -C $OPENPADMIN_DIR
-    debug_log unzip ${OPENPADMIN_DIR}static/dist.zip -d ${OPENPADMIN_DIR}static/dist/
 
-    cd $OPENPADMIN_DIR
-    pip install -r requirements.txt  > /dev/null 2>&1
+    
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     
     systemctl daemon-reload  > /dev/null 2>&1
