@@ -868,12 +868,16 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     mkdir -p /usr/local/admin/scripts
-    git clone https://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@github.com/stefanpejcic/openpanel-docker-cli /usr/local/admin/scripts
-    find /usr/local/admin/scripts/ -type f -name "*.sh" ! -name "install.sh" ! -name "db.sh" -exec bash -c 'for file; do mv "$file" "${file%.sh}"; done' bash {} +
+
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/opencli-main.tar.gz"
+
+    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C /usr/local/admin/scripts
+    rm ${TEMP_DIR}opencli.tar.gz
+
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
     chmod +x -R /usr/local/admin/scripts/
-    opencli commands
+    #opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"/usr/local/admin/scripts/aliases.txt\"
     generate_autocomplete() {
