@@ -549,11 +549,12 @@ docker_compose_check_health(){
 
 
 docker_compose_up(){
-
+    echo "Setting Openpanel and MySQL docker containers.."
+    echo ""
     # install docker compose
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
-    curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+    curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
     chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
     
@@ -871,8 +872,9 @@ opencli_setup(){
 
     wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/opencli/opencli-main.tar.gz"
 
-    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C /usr/local/admin/scripts
-    rm ${TEMP_DIR}opencli.tar.gz
+    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}/opencli
+    cp -r ${TEMP_DIR}/opencli/opencli-main/ /usr/local/admin/scripts/
+    rm ${TEMP_DIR}opencli.tar.gz ${TEMP_DIR}/opencli
 
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
