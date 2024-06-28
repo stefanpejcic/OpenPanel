@@ -598,7 +598,7 @@ docker_compose_up(){
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    wget -O  docker-compose.yml https://gist.githubusercontent.com/stefanpejcic/39c6a2f7d79c13d342601e2b0f14c6b8/raw/4b104d1adb986753f19827bcc37cf0fc39b66586/docker-compose.yml  > /dev/null 2>&1
+    wget -O  docker-compose.yml https://gist.githubusercontent.com/stefanpejcic/2e96bc763d43065b7cbe3149cef38292/raw/a8db84a9c161b452a229fd408f6c74f2e21d7627/new_docker_compose.yml  > /dev/null 2>&1
     
     # start the stack
     docker compose up -d
