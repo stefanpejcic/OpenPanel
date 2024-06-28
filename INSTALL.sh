@@ -936,8 +936,9 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
 
     # Replace IP_HERE with the value of $current_ip
-    sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
-
+    #sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
+    # MAKES PROBLEMS, REWRITE!
+    
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
 
