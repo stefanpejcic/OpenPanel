@@ -184,6 +184,11 @@ source "$PROGRESS_BAR_FILE"
 # Dsiplay progress bar
 FUNCTIONS=(
 #FUNKCIJE
+detect_os_and_package_manager
+update_package_manager
+install_packages
+
+download_and_import_docker_images
 
 download_skeleton_directory_from_github
 install_openadmin
@@ -193,13 +198,18 @@ configure_docker
 docker_compose_up
 #docker_compose_check_health
 panel_customize
-
+set_premium_features
 configure_nginx
-download_and_import_docker_images
+helper_function_for_nginx_on_aws_and_azure
+configure_modsecurity
+setup_email
+setup_ftp
 set_system_cronjob
+generate_and_set_ssl_for_panels
 setup_ufw
-
-
+setup_swap
+clean_apt_cache
+verify_license
 )
 
 
