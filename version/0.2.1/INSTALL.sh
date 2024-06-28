@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 24.06.2024
+# Last Modified: 28.06.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -133,6 +133,17 @@ debug_log() {
         "$@" > /dev/null 2>&1
     fi
 }
+
+# Check if a package is already installed
+is_package_installed() {
+    if [ "$DEBUG" = false ]; then
+    $PACKAGE_MANAGER -qq list "$1" 2>/dev/null | grep -qE "^ii"
+    else
+    $PACKAGE_MANAGER -qq list "$1" | grep -qE "^ii"
+    echo "Updating package manager.."
+    fi
+}
+
 
 
 # Get server ipv4 from ip.openpanel.co
