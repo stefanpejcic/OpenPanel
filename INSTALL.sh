@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 07.06.2024
+# Last Modified: 28.06.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -28,6 +28,7 @@
 # THE SOFTWARE.
 ################################################################################
 
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -35,7 +36,7 @@ RESET='\033[0m'
 
 # Defaults
 CUSTOM_VERSION=false
-INSTALL_TIMEOUT=1800 # 30 min
+INSTALL_TIMEOUT=600 # 10 min
 DEBUG=false
 SKIP_APT_UPDATE=false
 SKIP_IMAGES=false
@@ -54,6 +55,7 @@ SEND_EMAIL_AFTER_INSTALL=false
 SET_PREMIUM=false
 
 # Paths
+ETC_DIR="/etc/openpanel/"
 LOG_FILE="openpanel_install.log"
 LOCK_FILE="/root/openpanel.lock"
 OPENPANEL_DIR="/usr/local/panel/"
@@ -74,48 +76,12 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #####################################################################
 #                                                                   #
 # START helper functions                                            #
 #                                                                   #
 #####################################################################
+
 
 
 # logo
@@ -134,9 +100,10 @@ print_header() {
 }
 
 
+
 install_started_message(){
     echo -e ""
-    echo -e "\nStarting the installation of OpenPanel. This process will take approximately 5-10 minutes."
+    echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     echo -e "- Install necessary services and tools."
     echo -e "- Create an admin account for you."
@@ -177,6 +144,8 @@ is_package_installed() {
     fi
 }
 
+
+
 # Get server ipv4 from ip.openpanel.co
 current_ip=$(curl -s https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
 
@@ -188,16 +157,16 @@ if [ -z "$current_ip" ]; then
 fi
 
 
-
 if [ "$CUSTOM_VERSION" = false ]; then
     # Fetch the latest version
     version=$(curl -s https://get.openpanel.co/version)
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
-        version="0.2.0"
+        version="0.2.1"
     fi
 fi
+
 
 # print fullwidth line
 print_space_and_line() {
@@ -205,6 +174,7 @@ print_space_and_line() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo " "
 }
+
 
 
 # Progress bar script
@@ -224,36 +194,33 @@ source "$PROGRESS_BAR_FILE"
 
 # Dsiplay progress bar
 FUNCTIONS=(
-    detect_os_and_package_manager
-    update_package_manager
-    install_packages
-    setup_openpanel
-    setup_openadmin
-    configure_docker
-
-    configure_nginx
-    configure_modsecurity
-
-    run_mysql_docker_container
-    setup_opencli
-    download_and_import_docker_images
-    setup_ufw
-    setup_ftp
-    setup_email
-    install_all_locales
-    helper_function_for_nginx_on_aws_and_azure
-    temp_fix_for_skeleton
-    setup_swap
-    configure_mysql
-    set_premium_features
-    start_services
-    set_system_cronjob
-    cleanup
-    set_custom_hostname
-    generate_and_set_ssl_for_panels
-    clean_apt_cache
-    verify_license
+#FUNKCIJE
+detect_os_and_package_manager
+update_package_manager
+install_packages
+download_skeleton_directory_from_github
+install_openadmin
+opencli_setup
+add_file_watcher
+configure_docker
+download_and_import_docker_images
+docker_compose_up
+#docker_compose_check_health
+panel_customize
+set_premium_features
+configure_nginx
+helper_function_for_nginx_on_aws_and_azure
+configure_modsecurity
+setup_email
+setup_ftp
+set_system_cronjob
+generate_and_set_ssl_for_panels
+setup_ufw
+setup_swap
+clean_apt_cache
+verify_license
 )
+
 
 TOTAL_STEPS=${#FUNCTIONS[@]}
 CURRENT_STEP=0
@@ -289,10 +256,6 @@ main() {
 
 
 
-
-
-
-
 #####################################################################
 #                                                                   #
 # START main functions                                              #
@@ -311,7 +274,7 @@ check_requirements() {
             exit 1
         fi
 
-        # check if the current user is not root
+        # check if the current user is root
         if [ "$(id -u)" != "0" ]; then
             echo -e "${RED}Error: you must be root to execute this script.${RESET}" >&2
             exit 1
@@ -333,6 +296,7 @@ check_requirements() {
         fi
     fi
 }
+
 
 parse_args() {
     show_help() {
@@ -361,6 +325,11 @@ parse_args() {
         echo "  --repair                        Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
     }
+
+
+
+
+
 
 
 while [[ $# -gt 0 ]]; do
@@ -453,6 +422,9 @@ done
 
 }
 
+
+
+
 detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
@@ -479,6 +451,8 @@ detect_installed_panels() {
         echo -e "${GREEN}No currently installed hosting control panels or webservers found. Proceeding with the installation process.${RESET}"
     fi
 }
+
+
 
 detect_os_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
@@ -507,30 +481,16 @@ detect_os_and_package_manager() {
 }
 
 
-install_all_locales() {
-            
-        # OpenPanel translations
-        #
-        # https://dev.openpanel.co/localization.html
-        #
+download_and_import_docker_images() {
+    echo "Downloading docker images in the background.."
 
-        echo "Installing FR, DE, TR locales."
-
-        # FR
-        cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l fr
-        debug_log "wget -O ${OPENPANEL_DIR}translations/fr/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/fr-fr/messages.pot"
-
-        # DE
-        cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l de
-        debug_log "wget -O ${OPENPANEL_DIR}translations/de/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/de-de/messages.pot"
-
-        # TR
-        cd ${OPENPANEL_DIR} && pybabel init -i messages.pot -d translations -l tr
-        debug_log "wget -O ${OPENPANEL_DIR}translations/tr/LC_MESSAGES/messages.po https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/tr-tr/messages.pot"
-
-        pybabel compile -d translations
+    if [ "$SKIP_IMAGES" = false ]; then
+        # See https://github.com/moby/moby/issues/16106#issuecomment-310781836 for pulling images in parallel
+        # Nohup (no hang up) with trailing ampersand allows running the command in the background
+        # The </dev/null bits redirects the outputs to files rather than strout/err
+        nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+    fi
 }
-
 
 
 check_lock_file_age() {
@@ -558,12 +518,103 @@ check_lock_file_age() {
 }
 
 
+
+
+configure_docker() {
+
+    #########apt-get install docker.io -y
+    
+    docker_daemon_json_path="/etc/docker/daemon.json"
+    mkdir -p $(dirname "$docker_daemon_json_path")
+
+    
+    
+    if [ "$OVERLAY" = true ]; then
+        echo "Setting 'overlay2' as the default storage driver for Docker.."
+        cp ${ETC_DIR}docker/overlay2/daemon.json "$docker_daemon_json_path"
+    else
+        echo "Setting 'devicemapper' as the default storage driver for Docker.."
+        cp ${ETC_DIR}docker/devicemapper/daemon.json "$docker_daemon_json_path"
+    fi
+
+    echo -e "Docker is configured."
+    systemctl daemon-reload
+    systemctl restart docker
+}
+
+
+docker_compose_check_health(){
+    all_healthy=true
+    containers=$(docker ps --format '{{.Names}}\t{{.Status}}')
+
+    while IFS=$'\t' read -r name status; do
+        if [[ "$status" != *"(healthy)"* ]]; then
+            echo "Container $name is not healthy. Status: $status"
+            all_healthy=false
+        fi
+    done <<< "$containers"
+
+    # Proceed if all containers are healthy
+    if $all_healthy; then
+        echo "All containers are healthy. Proceeding with next installation steps..."
+    else
+        echo "Some containers are not healthy. Investigate and retry."
+        exit 1
+    fi
+
+}
+
+
+
+
+
+
+docker_compose_up(){
+    echo "Setting Openpanel and MySQL docker containers.."
+    echo ""
+    # install docker compose
+    DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+    mkdir -p $DOCKER_CONFIG/cli-plugins
+    curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
+    chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+    
+    # TOFO: CHECK WITH 
+    #docker compose version
+    
+    # mysql image needs this!
+    wget -O  /root/initialize.sql https://gist.githubusercontent.com/stefanpejcic/8efe541c2b24b9cd6e1861e5ab7282f1/raw/140e69a5c8c7805bc9a6e6c4fa968f390a6d5c8c/structure.sql  > /dev/null 2>&1
+    
+    # compose doesnt alllow /
+    cd /root
+    
+    # generate random password for mysql
+    MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
+    echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> .env
+    echo ""
+    echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
+    echo ""
+    # save it to /etc/my.cnf
+    ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
+    sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
+    
+    wget -O  docker-compose.yml https://gist.githubusercontent.com/stefanpejcic/39c6a2f7d79c13d342601e2b0f14c6b8/raw/4b104d1adb986753f19827bcc37cf0fc39b66586/docker-compose.yml  > /dev/null 2>&1
+    
+    # start the stack
+    docker compose up -d
+
+}
+
+
+
+
 clean_apt_cache(){
     # clear /var/cache/apt/archives/
     apt-get clean
 
     # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
 }
+
 
 
 setup_ftp() {
@@ -581,6 +632,13 @@ setup_email() {
             curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenMail/master/setup.sh | bash --dovecot
         fi
 }
+
+
+add_file_watcher(){
+    bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/file-watcher/main/install.sh)
+}
+
+
 
 setup_ufw() {
     if [ -z "$SKIP_FIREWALL" ]; then
@@ -626,7 +684,7 @@ setup_ufw() {
             ip_list=$(curl -s https://ip.openpanel.co/ips/)
             ip_list=$(echo "$ip_list" | sed 's/<br \/>/\n/g')
         
-        debug_log "Whitelisting IPs from https://ip.openpanel.co/ips/"
+        echo "Whitelisting IPs from https://ip.openpanel.co/ips/"
 
             while IFS= read -r ip; do
                 ip=$(echo "$ip" | tr -d '[:space:]')
@@ -646,6 +704,9 @@ update_package_manager() {
     fi
 }
 
+
+
+
 install_packages() {
 
     echo "Installing required services.."
@@ -654,7 +715,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("python3-flask" "python3-pip" "docker.io" "default-mysql-client" "docker-compose" "nginx" "zip" "unzip" "bind9" "gunicorn" "ufw" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
+    packages=("docker.io" "default-mysql-client" "nginx" "zip" "bind9" "unzip" "python3-pip" "pip" "gunicorn" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin" "ufw")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
@@ -726,192 +787,7 @@ install_packages() {
 }
 
 
-configure_nginx() {
 
-    # Nginx
-
-    echo "Setting Nginx configuration.."
-
-    # https://dev.openpanel.co/services/nginx
-    debug_log cp -fr ${OPENPANEL_DIR}conf/nginx.conf /etc/nginx/nginx.conf
-
-    # dir for domlogs
-    debug_log mkdir -p /var/log/nginx/domlogs
-
-    # 444 status for domains pointed to the IP but not added to nginx
-    debug_log cp -fr ${OPENPANEL_DIR}conf/default.nginx.conf /etc/nginx/sites-enabled/default
-
-    # Replace IP_HERE with the value of $current_ip
-    debug_log sed -i "s/IP_HERE/$current_ip/" /etc/nginx/sites-enabled/default
-
-    # Setting pretty error pages for nginx, but need to add them inside containers also!
-    debug_log mkdir -p /srv/http/default
-    debug_log git clone https://github.com/denysvitali/nginx-error-pages /srv/http/default   > /dev/null 2>&1
-
-    debug_log mkdir /etc/nginx/snippets/  > /dev/null 2>&1
-
-    debug_log ln -s /srv/http/default/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
-    debug_log ln -s /srv/http/default/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
-}
-
-
-run_mysql_docker_container() {
-
-    # MySQL
-
-    # FIX for Ubuntu24: docker: failed to register layer: devicemapper: Error running deviceSuspend dm_task_run failed.
-    #docker pull --platform linux/amd64 mysql
-
-    # set random password
-    MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
-
-    if [ "$REPAIR" = true ]; then
-        echo "RAPAIR: Removing existing mysql database."
-        docker stop openpanel_mysql
-        docker rm openpanel_mysql
-        docker volume rm openpanel_mysql_data
-    fi
-
-    # run the container
-    docker run -d -p 3306:3306 --name openpanel_mysql \
-        -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
-        -e MYSQL_DATABASE=panel \
-        -e MYSQL_USER=panel \
-        -e MYSQL_PASSWORD="$MYSQL_ROOT_PASSWORD" \
-        -v openpanel_mysql_data:/var/lib/mysql \
-        --memory="1g" --cpus="1" \
-        --restart=always \
-        --oom-kill-disable \
-        mysql/mysql-server > /dev/null 2>&1
-    
-
-    if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
-
-        # show password
-        echo "Generated MySQL password: $MYSQL_ROOT_PASSWORD"
-
-        if [ "$REPAIR" = true ]; then
-            rm /etc/my.cnf
-        fi
-
-        # fix for 0.2.0
-        mkdir -p /etc/openpanel/openadmin/config
-        cp /usr/local/admin/db.cnf /etc/openpanel/openadmin/config/db.cnf
-        ln -s /etc/openpanel/openadmin/config/db.cnf /etc/my.cnf
-        
-        # Update configuration files with new password
-        #sed -i "s/\"mysql_password\": \".*\"/\"mysql_password\": \"${MYSQL_ROOT_PASSWORD}\"/g" /usr/local/admin/config.json
-        #sed -i "s/\"mysql_user\": \".*\"/\"mysql_user\": \"panel\"/g" /usr/local/admin/config.json
-        sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' /etc/openpanel/openadmin/config/db.cnf
-        #sed -i "s/user = \".*\"/user = panel/g" /etc/openpanel/openadmin/config/db.cnf
-
-    else
-        radovan 1 "Installation failed! Unable to start docker container for MySQL."
-    fi
-}
-
-configure_mysql() {
-
-    # Check if the Docker container exists
-    if docker ps -a --format '{{.Names}}' | grep -q "openpanel_mysql"; then
-
-        # Fix for: ERROR 2013 (HY000): Lost connection to MySQL server at 'reading initial communication packet', system error: 2
-        
-        # Function to check if MySQL is running
-        mysql_is_running() {
-            if mysqladmin --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" ping &> /dev/null; then
-                return 0 # MySQL is running
-            else
-                return 1 # MySQL is not running
-            fi
-        }
-
-        # Wait for MySQL to start
-        wait_for_mysql() {
-            retries=5
-            while [ $retries -gt 0 ]; do
-                if mysql_is_running; then
-                    return 0 # MySQL is running
-                else
-                    echo "Waiting for MySQL to start..."
-                    sleep 5
-                    retries=$((retries - 1))
-                fi
-            done
-            return 1 # MySQL did not start after retries
-        }
-
-        # Wait for MySQL to start
-        wait_for_mysql
-
-        # Create database
-        mysql --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" -e "CREATE DATABASE IF NOT EXISTS panel;"
-        #mysql --defaults-extra-file="/usr/local/admin/db.cnf" -e "GRANT PROCESS ON *.* TO 'panel'@'%';"
-        mysql --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" -D "panel" < ${OPENPANEL_DIR}DATABASE.sql
-
-        # Check if SQL file was imported successfully
-        if mysql --defaults-extra-file="/etc/openpanel/openadmin/config/db.cnf" -D "panel" -e "SELECT 1 FROM plans LIMIT 1;" &> /dev/null; then
-            echo -e "${GREEN}Database is ready.${RESET}"
-        else
-            echo "SQL file import failed or database is not ready."
-            radovan 1 "Installation failed!"
-        fi
-
-    else
-        echo "Docker container 'openpanel_mysql' does not exist. Please make sure the container is running."
-        radovan 1 "Installation failed! "
-    fi
-}
-
-
-configure_docker() {
-
-
-    docker_daemon_json_path="/etc/docker/daemon.json"
-    debug_log mkdir -p $(dirname "$docker_daemon_json_path")
-
-    # Docker
-if [ "$OVERLAY" = true ]; then
-    debug_log "Setting default storage driver for Docker from to 'overlay2'.."
-
-
-    ### to be removed in 0.1.8
-    daemon_json_content='{
-      "storage-driver": "overlay2",
-      "log-driver": "local",
-      "log-opts": {
-         "max-size": "5m"
-         }
-      }'
-    echo "$daemon_json_content" > "$docker_daemon_json_path"
-    ###
-
-else
-    debug_log "Changing default storage driver for Docker from 'overlay2' to 'devicemapper'.."
-
-
-    ### to be removed in 0.1.8
-    daemon_json_content='{
-      "storage-driver": "devicemapper",
-      "log-driver": "local",
-      "log-opts": {
-         "max-size": "5m"
-         }
-      }'
-    echo "$daemon_json_content" > "$docker_daemon_json_path"
-    ###
-
-fi
-
-
-    # to be used in 0.1.8+
-    #cp /usr/local/panel/conf/docker.daemon.json $docker_daemon_json_path
-
-
-    echo -e "${GREEN}Docker is configured.${RESET}"
-    debug_log systemctl daemon-reload
-    systemctl restart docker
-}
 
 
 configure_modsecurity() {
@@ -927,243 +803,25 @@ configure_modsecurity() {
     fi
 }
 
-setup_openpanel() {
-
-    if [ "$REPAIR" = true ]; then
-        rm -rf $OPENPANEL_DIR
-    fi
-
-    # OpenPanel
-    #
-    # https://openpanel.co/docs/panel/intro/
-    #
-    echo "Setting up User panel.."
-
-    # check python version again, in case if --skip-requirements or --repair flags are used
-    current_python_version=$(python3 --version 2>&1 | cut -d " " -f 2 | cut -d "." -f 1,2 | tr -d '.')
-    
-    mkdir -p $OPENPANEL_DIR
-    mkdir -p ${OPENPANEL_DIR}users
-
-
-    if [ -f /etc/debian_version ]; then
-        debug_log "Detected Debian 12."
-        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openpanel/$current_python_version/compressed.tar.gz"
-    # Check if OS is Ubuntu 22
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
-        debug_log "Detected Ubuntu 22."
-        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"    
-    # Check if OS is Ubuntu 24
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
-        debug_log "Detected Ubuntu 24."
-        wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
-    # For all other OS
-    else
-        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
-        echo 0
-    fi
-
-    # Clone the git branch for that python version
-    #wget -O ${TEMP_DIR}openpanel.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openpanel/$current_python_version/compressed.tar.gz"
-    cd ${TEMP_DIR} && tar -xzf openpanel.tar.gz -C $OPENPANEL_DIR
-    rm ${TEMP_DIR}openpanel.tar.gz
-
-    export PYTHONPATH=$OPENPANEL_DIR:$PYTHONPATH
-
-    cd $OPENPANEL_DIR
-    cp -fr services/panel.service ${SERVICES_DIR}panel.service
-
-    echo "Installing PIP requirements for User panel.."
-    
-    
-    # Check if lsb_release command is available
-    if command -v lsb_release &> /dev/null; then
-        # Get the release information
-        release=$(lsb_release -rs)
-    
-        # Check if it's Ubuntu 22
-        if [[ $release == "22."* ]]; then
-            debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
-            debug_log pip install -r requirements.txt
-        # Check if it's Ubuntu 24
-        elif [[ $release == "24."* ]]; then
-            debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
-            debug_log pip install -r requirements.txt --break-system-packages
-        elif [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
-            # FIX FOR: https://peps.python.org/pep-0668/
-            debug_log "Installing PIP requirements for OpenPanel with break-system-packages..."
-            debug_log pip install -r requirements.txt --break-system-packages
-        else
-            echo "Unknown Ubuntu version: $release and unsuported python version: $current_python_version"
-            debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
-            debug_log pip install -r requirements.txt
-        fi
-    else
-        echo "lsb_release command not found. Unable to determine Ubuntu version."
-        debug_log "Installing PIP requirements for OpenPanel without break-system-packages..."
-        debug_log pip install -r requirements.txt
-    fi
-
-
-
-    if [ "$SCREENSHOTS_API_URL" == "local" ]; then
-        echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
-        debug_log playwright install
-        debug_log playwright install-deps
-    else
-        echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${OPENPANEL_DIR}conf/panel.config" # must use '#' as delimiter
-    fi
-
-
-    mv ${OPENPANEL_DIR}icons/ ${OPENPANEL_DIR}static/images/icons
-}
-
-setup_openadmin() {
-
-    # OpenAdmin
-    #
-    # https://openpanel.co/docs/admin/intro/
-    #
-    echo "Setting up Admin panel.."
-
-    if [ "$REPAIR" = true ]; then
-        rm -rf $OPENPADMIN_DIR
-    fi
-
-
-    mkdir -p $OPENPADMIN_DIR
-
-    # Debian12
-    if [ -f /etc/debian_version ]; then
-        debug_log "Detected Debian 12."
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/openadmin/$current_python_version/compressed.tar.gz"
-    # Ubuntu 22
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then
-        debug_log "Detected Ubuntu 22."
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
-    # Ubuntu 24
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
-        debug_log "Detected Ubuntu 24."
-        wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
-    # other
-    else
-        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
-        echo 0
-    fi
-
-
-
-
-
-
-
-
-    # Clone the branch for that python version
-    #wget -O ${TEMP_DIR}openadmin.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/openadmin/$current_python_version/compressed.tar.gz"
-    debug_log cd ${TEMP_DIR}
-    debug_log tar -xzf openadmin.tar.gz -C $OPENPADMIN_DIR
-    debug_log unzip ${OPENPADMIN_DIR}static/dist.zip -d ${OPENPADMIN_DIR}static/dist/
-    debug_log rm ${TEMP_DIR}openadmin.tar.gz ${OPENPADMIN_DIR}static/dist.zip
-
-    debug_log cd $OPENPADMIN_DIR
-
-    cp -fr service/admin.service ${SERVICES_DIR}admin.service
-
-    # Fix for: ModuleNotFoundError: No module named 'pyarmor_runtime_000000'
-    wget -O ${OPENPADMIN_DIR}service/service.config.py https://gist.githubusercontent.com/stefanpejcic/37805c6781dc3beb1730fec82ee5ae34/raw/d7e8a6c1608c265aed89e97dcecea518b222ac86/service.config.py > /dev/null 2>&1
-
-
-    echo "Installing PIP requirements for Admin panel.."
-    # FIX FOR: https://peps.python.org/pep-0668/
-    if [[ ($current_python_version == "311" || $current_python_version == "312") ]]; then
-        debug_log "Installing PIP requirements for OpenAdmin with break-system-packages..."
-        debug_log pip install -r requirements.txt --break-system-packages
-    else
-        debug_log "Installing PIP requirements for OpenAdmin without break-system-packages..."
-        debug_log pip install -r requirements.txt
-    fi
-
-    echo "Creating Admin user.."
-
-    touch ${OPENPADMIN_DIR}users.db
-
-    export PYTHONPATH=$OPENPADMIN_DIR:$PYTHONPATH
-
-    admin_password=$(openssl rand -base64 12 | tr -d '=+/')
-    password_hash=$(python3 ${OPENPADMIN_DIR}core/users/hash $admin_password)
-
-    debug_log sqlite3 ${OPENPADMIN_DIR}users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);" "INSERT INTO user (username, password_hash, role) VALUES ('admin', \"$password_hash\", 'admin');"
-
-    # added in 0.1.9
-    cp helpers/welcome.sh /etc/profile.d/welcome.sh
-    chmod +x /etc/profile.d/welcome.sh  
-
-}
-
 
 
 set_system_cronjob(){
-
     echo "Setting cronjobs.."
-
-    mv ${OPENPANEL_DIR}conf/cron /etc/cron.d/openpanel
+    mv ${ETC_DIR}cron /etc/cron.d/openpanel
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 }
 
-setup_opencli() {
 
-    # OpenCLI
-    #
-    # https://dev.openpanel.co/cli/
-    #
-    echo "Setting OpenPanel CLI scripts.."
-
-    if [ "$REPAIR" = true ]; then
-        rm -rf $OPENCLI_DIR
-    fi
-
-    debug_log mkdir -p $OPENCLI_DIR
-
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/opencli/compressed.tar.gz" > /dev/null 2>&1 || radovan 1 "wget failed for https://storage.googleapis.com/openpanel/$version/get.openpanel.co/downloads/$version/debian/opencli/compressed.tar.gz"
-
-    debug_log cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C $OPENCLI_DIR
-    debug_log rm ${TEMP_DIR}opencli.tar.gz
-    debug_log bash ${OPENCLI_DIR}install.sh
-    debug_log source ~/.bashrc
-    echo -e "${GREEN}opencli commands are now available.${RESET}"
-    debug_log chmod +x -R ${OPENCLI_DIR}
-
-
-   # added in 0.1.8
-    mkdir -p /etc/openpanel/openadmin/config/
-    
-    wget -O /etc/openpanel/openadmin/config/forbidden_usernames.txt  https://gist.githubusercontent.com/stefanpejcic/f08e6841fbf953b7aff108a8c154e9eb/raw/9ac3efabbde48faf95435221e7e09e28b46340ae/forbidden_usernames.ttxt > /dev/null 2>&1
-
-    # added in 0.2.0
-    touch /etc/openpanel/openadmin/config/terms
-
-    echo "Creating directories for logs.."
-    debug_log mkdir -p ${OPENPANEL_ERR_DIR}admin ${OPENPANEL_ERR_DIR}user
-    debug_log -e "${GREEN}OpenCLI has been successfully installed.${RESET}"
-
-}
 
 cleanup() {
     echo "Cleaning up.."
     # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     sed -i 's/$nrconf{restart} = '"'"'a'"'"';/#$nrconf{restart} = '"'"'i'"'"';/g' /etc/needrestart/needrestart.conf
-    rm -rf ${OPENPANEL_DIR}INSTALL.sh ${OPENPANEL_DIR}DATABASE.sql ${OPENPANEL_DIR}requirements.txt ${OPENPANEL_DIR}conf/nginx.conf ${OPENPANEL_DIR}conf/mysqld.cnf ${OPENPANEL_DIR}conf/named.conf.options ${OPENPANEL_DIR}conf/default.nginx.conf ${OPENPANEL_DIR}conf/.gitkeep ${OPENPANEL_DIR}templates/dist.zip ${OPENPANEL_DIR}install
-    rm -rf ${OPENPANEL_DIR}services
 }
 
 
-start_services() {
-    echo "Starting services.."
-    systemctl restart panel admin nginx ufw
-    systemctl enable panel admin nginx ufw
-}
+
 
 
 helper_function_for_nginx_on_aws_and_azure(){
@@ -1194,28 +852,6 @@ helper_function_for_nginx_on_aws_and_azure(){
     fi
 }
 
-download_and_import_docker_images() {
-    echo "Downloading docker images in the background.."
-
-    if [ "$SKIP_IMAGES" = false ]; then
-        # See https://github.com/moby/moby/issues/16106#issuecomment-310781836 for pulling images in parallel
-        # Nohup (no hang up) with trailing ampersand allows running the command in the background
-        # The </dev/null bits redirects the outputs to files rather than strout/err
-        nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
-        # stopped working on 0.1.8 :(
-        # opencli docker-update_images &
-        # pid1=$!
-        # disown $pid1
-    fi
-}
-
-
-set_premium_features(){
- if [ "$SET_HOSTNAME_NOW" = true ]; then
-    echo "Setting OpenPanel enterprise version license key $license_key"
-    opencli config update key "$license_key"
- fi
-}
 
 
 
@@ -1249,6 +885,74 @@ set_custom_hostname(){
 
 
 
+
+
+opencli_setup(){
+    echo "Downloading OpenCLI and adding to path.."
+    echo ""
+    mkdir -p /usr/local/admin/
+
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz"
+    mkdir -p ${TEMP_DIR}opencli
+    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
+    cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
+    rm ${TEMP_DIR}opencli.tar.gz 
+    rm -rf ${TEMP_DIR}opencli
+
+    cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
+    chmod +x /usr/local/bin/opencli
+    chmod +x -R /usr/local/admin/scripts/
+    #opencli commands
+    echo "# opencli aliases
+    ALIASES_FILE=\"/usr/local/admin/scripts/aliases.txt\"
+    generate_autocomplete() {
+        awk '{print \$NF}' \"\$ALIASES_FILE\"
+    }
+    complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
+    
+    source ~/.bashrc
+}
+
+
+
+configure_nginx() {
+
+    # Nginx
+
+    echo "Setting Nginx configuration.."
+
+    # https://dev.openpanel.co/services/nginx
+    rm /etc/nginx/nginx.conf && ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
+
+    # dir for domlogs
+    mkdir -p /var/log/nginx/domlogs
+
+    # 444 status for domains pointed to the IP but not added to nginx
+    rm /etc/nginx/sites-available/default 
+    rm /etc/nginx/sites-enabled/default
+    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-available/default
+    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
+
+    # Replace IP_HERE with the value of $current_ip
+    sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
+
+    # Setting pretty error pages for nginx, but need to add them inside containers also!
+    mkdir /etc/nginx/snippets/  > /dev/null 2>&1
+
+    ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
+    ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
+
+    service nginx restart
+}
+
+
+
+set_premium_features(){
+ if [ "$SET_HOSTNAME_NOW" = true ]; then
+    echo "Setting OpenPanel enterprise version license key $license_key"
+    opencli config update key "$license_key"
+ fi
+}
 
 
 
@@ -1297,6 +1001,9 @@ set_email_address_and_email_admin_logins(){
 }        
 
 
+
+
+
 generate_and_set_ssl_for_panels() {
     if [ -z "$SKIP_SSL" ]; then
         echo "Checking if SSL can be generated for the server hostname.."
@@ -1323,6 +1030,16 @@ verify_license() {
     debug_log "echo Response: $response"
 }
 
+
+download_skeleton_directory_from_github(){
+    echo "Downloading configuration files to ${ETC_DIR}"
+    echo ""
+    git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+}
+
+
+
+
 send_install_log(){
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
     exec > /dev/tty
@@ -1340,18 +1057,6 @@ rm_helpers(){
 }
 
 
-
-temp_fix_for_skeleton() {
-    echo "Creating 'skeleton' directory with configuration files that will be used for new users.."
-    mkdir -p /etc/openpanel/openadmin/skeleton/
-    mkdir /etc/openpanel/openadmin/skeleton/domains/
-    touch /etc/openpanel/openadmin/skeleton/elastic.lock
-    touch /etc/openpanel/openadmin/skeleton/redis.lock
-    touch /etc/openpanel/openadmin/skeleton/memcached.lock
-    touch /etc/openpanel/openadmin/skeleton/server_config.yml
-    
-    wget -O /usr/local/admin/scripts/user/add https://gist.github.com/stefanpejcic/c60d81c2dad60464fa28a61abca3c276/raw > /dev/null 2>&1
-}
 
 setup_swap(){
     # Function to create swap file
@@ -1387,6 +1092,7 @@ setup_swap(){
 
 
 
+
 support_message() {
     echo ""
     echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
@@ -1411,23 +1117,104 @@ support_message() {
     echo ""
 }
 
+panel_customize(){
+    if [ "$SCREENSHOTS_API_URL" == "local" ]; then
+        echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
+        debug_log playwright install
+        debug_log playwright install-deps
+        sed -i 's#screenshots=.*#screenshots=''#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
+    else
+        echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
+        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
+    fi
+}
 
 
-success_message() {
 
-    echo -e "${GREEN}OpenPanel installation complete.${RESET}"
+install_openadmin(){
+
+    # OpenAdmin
+    #
+    # https://openpanel.co/docs/admin/intro/
+    #
+    echo "Setting up Admin panel.."
+
+    if [ "$REPAIR" = true ]; then
+        rm -rf $OPENPADMIN_DIR
+    fi
+    
+    mkdir -p $OPENPADMIN_DIR
+
+    # Ubuntu 22
+    if [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then   
+        echo "Downloading files for Ubuntu22 and python version $current_python_version"
+        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt
+    # Ubuntu 24
+    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
+        echo "Downloading files for Ubuntu24 and python version $current_python_version"
+        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt --break-system-packages
+
+        # on ubuntu24 we need to use overlay instead of devicemapper!
+        OVERLAY=true
+        
+    # Debian12
+    elif [ -f /etc/debian_version ]; then
+        echo "Installing PIP and Git"
+        apt-get install git pip -y > /dev/null 2>&1
+        echo "Downloading files for Debian and python version $current_python_version"
+        git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt --break-system-packages
+    # other
+    else
+        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
+        echo 0
+    fi
+
+
+    
+    cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
+    
+    systemctl daemon-reload  > /dev/null 2>&1
+    service admin start  > /dev/null 2>&1
+
+}
+
+
+create_admin_and_show_logins_success_message() {
+
+    #motd
+    ln -s ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh
+    chmod +x /etc/profile.d/welcome.sh  
+
+    #cp version file
+    mkdir -p /usr/local/panel/  > /dev/null 2>&1
+    docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
+    
+    echo -e "${GREEN}OpenPanel [$(cat /usr/local/panel/version)] installation complete.${RESET}"
     echo ""
 
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
     exec > /dev/tty
     exec 2>&1
 
-    # for 0.1.9
-    echo "$version" > $OPENPANEL_DIR/version
+    # not saved in log!
+    wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
+    source /tmp/generate.sh
+    new_username=($random_name)
+    new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
     
+    sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
+
+    opencli admin new "$random_name" "$new_password"  > /dev/null 2>&1 && 
+
     opencli admin
-    echo "Username: admin"
-    echo "Password: $admin_password"
+    echo "Username: $random_name"
+    echo "Password: $new_password"
     echo " "
     print_space_and_line
     
@@ -1442,6 +1229,7 @@ success_message() {
 }
 
 # END main functions
+
 
 
 
@@ -1488,9 +1276,15 @@ support_message
 
 print_space_and_line
 
-success_message
+create_admin_and_show_logins_success_message
 
 run_custom_postinstall_script
 
 
 # END main script execution
+
+
+
+
+
+
