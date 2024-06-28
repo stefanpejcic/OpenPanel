@@ -122,7 +122,7 @@ radovan() {
     echo -e "${RED}Error: $2${RESET}" >&2
     exit $1
 }
-docker
+
 
 # print the command and its output if debug, else run and echo to /dev/null
 debug_log() {
