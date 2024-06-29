@@ -90,6 +90,11 @@ While OpenPanel itself is not 100% open source, we are committed to transparency
 
 We regularly conduct internal audits, apply the latest security patches, and follow industry best practices to safeguard our users' data.
 
+## Installation
+
+- Install command: `bash <(curl -sSL https://get.openpanel.co/)`
+- DigitalOcean Droplet: https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy
+
 ## Support
 
 Our [Community](https://community.openpanel.co/) serves as our virtual Headquater, where the community helps each other.
