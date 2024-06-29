@@ -12,7 +12,7 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 
 ## Requirements
 
-Hardware Requirements
+Mimumum Requirements:
 
 - A blank full virtual machine or bare metal server
 - Debian 11 / Debian 12 / Ubuntu 22 / Ubuntu 24*(without quotas)
