@@ -39,38 +39,8 @@ bash <(curl -sSL https://get.openpanel.co/)
 We recommend that you run the installation command within a Linux screen session. The Linux Screen utility allows you to create a shell session that will stay active through a network disruption.
 :::
 
-The installation script supports optional flags that can be used to install additional services, skip certain installation steps or display debugging information:
+The installation script supports [optional flags](/install) that can be used to install additional services, skip certain installation steps or display debugging information.
 
-| Flag                | What it does                                                                                                      |
-|---------------------|-------------------------------------------------------------------------------------------------------------------|
-| `--version=`     | Specify OpenPanel verison to install intead of the default latest. Example: `--version=0.1.8`                                                   |
-| `--hostname=`     | Set a hostname (FQDN) to be used for accessing panels. Example: `--hostname=server.openpanel.site`                                                   |
-| `--email=`     | Set an email address to receive admin logins and future notifications. Example: `--email=stefan@pejcic.rs`                                                   |
-| `--swap=`     | Set disk space in GB to allocate to SWAP. Example: `--swap=4`                                                   |
-| `--with_modsec`     | Rebuild Nginx with ModSecurity module and set the OWASP core ruleset.                                                   |
-| `--debug`           | Display on screen each installation step and output debugging information.                                   |
-| `--skip-requirements`| Do not check if the server meets the minimum recommended requirements for running OpenPanel.                          |
-| `--skip-apt-update`| Do not check if apt is up-to-date and skip updating it.                                               |
-| `--skip-panel-check`| Do not check if other hosting panels or webservers are installed and overwrite.                                               |
-| `--repair`          | Do not check if OpenPanel installation is already running or previously failed and retry installation.                     |
-| `--skip-firewall`   | Do not install UFW and skip setting custom firewall rules.                                                          |
-| `--skip-blacklists`   | Do not install [IPset-Blacklist](https://github.com/stefanpejcic/ipset-blacklist)                                                   |
-| `--skip-images`     | Skip building Docker images for Nginx and Apache.                                                                   |
-| `--skip-ssl`        | Do not check if the server hostname is pointed to the IP and set it to be used for OpenPanel; instead, the server IP will be used. |
-| `--enable-ftp`          | Experimental feature that will install FTP for all users.  |
-| `--no-ssh`          | Close the default ssh port 22 but whitelist the current ip address of the user running the installation.  |
-| `--post_install=`          | Specify a bash script to be executed after OpenPanel is installed.  |
-
-Example: Install OpenPanel in debug mode
-
-```shell
-bash <(curl -sSL https://get.openpanel.co/) --debug
-```
-
-
-:::info
-openpanel will install Docker, MySQL, Nginx, and several other tools on your server. You should install it on a fresh server, otherwise, you risk facing installation errors.
-:::
 
 ### Troubleshooting failed installation
 
@@ -100,7 +70,7 @@ If you encountered any errors while running the installation script, and **you a
 
 ### Access OpenAdmin
 
-Run `opencli admin` command to find the address on which AdminPanel is accessible. Example output:
+Run `opencli admin` command to find the address on which admin panel is accessible. Example output:
 
 ```bash
 root@server:/home# opencli admin
@@ -109,17 +79,25 @@ root@server:/home# opencli admin
 
 To login to admin panel you need a username and password.
 
-Default username for the main Administrator account is **admin** and password is random generated. To set a new password for the admin account run command: `opencli admin password USER_HERE NEW_PASSWORD_HERE`
+Both username and password are random generated on installation.
+
+To view admin accounts:
+
+```bash
+opencli admin list
+```
+
+To set a new password for the admin account run command: `opencli admin password USER_HERE NEW_PASSWORD_HERE`
 
 Example:
 ```bash
-root@server:/home# opencli admin password admin ba63vfav7fq36vas
-Password for user 'admin' changed.
+root@server:/home# opencli admin password stefan ba63vfav7fq36vas
+Password for user 'stefan' changed.
 
 ===============================================================
 ● AdminPanel is running and is available on: https://server.openpanel.co:2087/
 
-- username: admin
+- username: stefan
 - password: ba63vfav7fq36vas
 
 ===============================================================
@@ -128,8 +106,6 @@ Password for user 'admin' changed.
 ## Updates
 
 The panel will check for new updates nightly. If available, it will check your local update and patch preferences and update only when enabled.
-
-
 
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
@@ -191,3 +167,4 @@ OpenPanel has been built from the ground up with security in mind. Internet hist
 - Hotlink protection per domain using vhost files.
 - No outgoing emails, only SMTP!
 - TLS (Transport Layer Security) is utilized.
+
