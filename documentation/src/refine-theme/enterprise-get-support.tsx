@@ -13,14 +13,6 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                     "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
                 )}
             >
-                <h2
-                    className={clsx(
-                        "font-semibold",
-                        "dark:text-gray-400 text-gray-600",
-                    )}
-                >
-                    How OpenPanel helps hosting providers
-                </h2>
                 <h3 className={clsx("mt-4 landing-sm:mt-10")}>
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
                         Get supported by{" "}
