@@ -49,18 +49,7 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    We're thrilled to announce that OpenPanel Enterprise edition is currently available in open Beta! The open beta test will be open to the public between{" "}
-                    <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        February 26th{" "}
-                    </span>
-                    and{" "}
-                    <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        July 26th, 2024
-                    </span>{" "}
-                    Participation is free and available to anyone. To take part, simply{" "}
-                    <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        install OpenPanel on your server.
-                    </span>.
+                    OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.{" "}
                 </p>
                 <EnterpriseGetInTouchButton
                     className={clsx(
