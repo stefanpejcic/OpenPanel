@@ -214,6 +214,7 @@ configure_modsecurity
 setup_email
 setup_ftp
 set_system_cronjob
+set_custom_hostname
 generate_and_set_ssl_for_panels
 setup_ufw
 setup_swap
