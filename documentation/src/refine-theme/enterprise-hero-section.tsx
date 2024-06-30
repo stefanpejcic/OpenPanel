@@ -37,7 +37,7 @@ export const EnterpriseHeroSection = ({
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        BETA
+                        Enterprise
                     </span>
                     .
                 </h1>
