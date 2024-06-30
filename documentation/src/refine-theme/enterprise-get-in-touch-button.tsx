@@ -46,7 +46,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             >
                 <GetInTouchIcon />
                 <span className={clsx("text-base", "font-semibold")}>
-                    Purchase OpenPanel
+                    Go Enterprise
                 </span>
             </Link>
         </div>
