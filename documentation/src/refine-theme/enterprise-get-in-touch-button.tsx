@@ -20,7 +20,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             )}
         >
             <Link
-                href="/docs/admin/intro/#installation"
+                href="https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1"
                 target="_self"
                 rel="noopener noreferrer"
                 className={clsx(
@@ -46,7 +46,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             >
                 <GetInTouchIcon />
                 <span className={clsx("text-base", "font-semibold")}>
-                    Install OpenPanel
+                    Purchase OpenPanel
                 </span>
             </Link>
         </div>
