@@ -1184,6 +1184,7 @@ install_openadmin(){
     
     systemctl daemon-reload  > /dev/null 2>&1
     service admin start  > /dev/null 2>&1
+    systemctl enable admin  > /dev/null 2>&1
 
 }
 
