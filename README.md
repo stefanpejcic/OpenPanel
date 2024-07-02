@@ -92,8 +92,9 @@ We regularly conduct internal audits, apply the latest security patches, and fol
 
 ## Installation
 
-- Install command: `bash <(curl -sSL https://get.openpanel.co/)`
-- DigitalOcean Droplet: https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy
+```bash
+bash <(curl -sSL https://get.openpanel.co/)`
+```
 
 ## Support
 
