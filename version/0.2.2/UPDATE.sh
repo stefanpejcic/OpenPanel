@@ -14,11 +14,15 @@ RESET='\033[0m'
 # Directories
 OPENADMIN_DIR="/usr/local/admin/"
 OPENCLI_DIR="/usr/local/admin/scripts/"
-OPENPANEL_ERR_DIR="/var/log/openpanel/"
+OPENPANEL_LOG_DIR="/var/log/openpanel/"
 SERVICES_DIR="/etc/systemd/system/"
 
 OPENPANEL_DIR="/usr/local/panel/"
 CURRENT_PANEL_VERSION=$(< ${OPENPANEL_DIR}/version)
+
+
+LOG_FILE="${OPENPANEL_LOG_DIR}admin/notifications.log"
+DEBUG_MODE=0
 
 
 # block updates for older versions!
