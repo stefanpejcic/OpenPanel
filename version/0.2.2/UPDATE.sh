@@ -175,6 +175,7 @@ write_notification() {
 
 cleanup(){
     echo "Cleaning up.."
+    echo ""
 }
 
 
@@ -204,6 +205,7 @@ update_docker_images() {
     #opencli docker-update_images
     #bash /usr/local/admin/scripts/docker/update_images
     echo "Downloading latest Nginx and Apache images from https://hub.docker.com/u/openpanel"
+    echo ""
     nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
 }
 
@@ -211,7 +213,7 @@ update_docker_images() {
 run_custom_postupdate_script() {
 
     echo "Checking if post-update script is provided.."
-
+    echo ""
     # Check if the file /root/openpanel_run_after_update exists
     if [ -f "/root/openpanel_run_after_update" ]; then
         # run the custom script
@@ -229,6 +231,7 @@ download_new_admin() {
 
     mkdir -p $OPENADMIN_DIR
     echo "Updating OpenAdmin from https://github.com/stefanpejcic/openadmin"
+    echo ""
     cd /usr/local/admin/
     git pull
 
@@ -241,12 +244,14 @@ download_new_panel() {
 
     mkdir -p $OPENPANEL_DIR
     echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
+    echo ""
     nohup sh -c "echo openpanel/openpanel:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
 }
 
 set_system_cronjob(){
 
     echo "Updating cronjobs.."
+    echo ""
     wget -O /etc/cron.d/openpanel https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/cron
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
@@ -255,9 +260,10 @@ set_system_cronjob(){
 
 docker_compsoe_up_with_newer_images(){
 
-  echo "Restarting OpenPanel docekr container.."
+  echo "Restarting OpenPanel docker container.."
+  echo ""
   docker stop openpanel &&  docker rm openpanel
-  
+  echo ""
   cd /root  
   docker compose up -d
 
@@ -274,7 +280,7 @@ verify_license() {
     current_ip=$(curl -s https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
 
     echo "Checking OpenPanel license for IP address: $current_ip" 
-
+    echo ""
     server_hostname=$(hostname)
 
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
@@ -294,8 +300,6 @@ celebrate() {
     echo ""
     echo -e "${GREEN}OpenPanel successfully updated to ${NEW_PANEL_VERSION}.${RESET}"
     echo ""
-
-    print_space_and_line
 
     # remove the unread notification that there is new update
     sed -i 's/UNREAD New OpenPanel update is available/READ New OpenPanel update is available/' $LOG_FILE
