@@ -593,6 +593,16 @@ docker_compose_up(){
     # save it to /etc/my.cnf
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
+
+    ######### TEMPORARY
+    #
+    # UNTIL WE PUT THE IMAGE ON DOCKER HUB
+    #
+    cd /root
+    git clone https://github.com/reallyreally/docker-nginx-modsecurity/
+    cd docker-nginx-modsecurity
+    docker build . -t openpanel/nginx_certbot_modsec
+    #########
     
     wget -O  docker-compose.yml https://gist.githubusercontent.com/stefanpejcic/62a102329ef4456b37524903b218fe98/raw/d4310340adda6ff8c833a3dbe76bdecdef0f6de1/compose.yml  > /dev/null 2>&1
     
