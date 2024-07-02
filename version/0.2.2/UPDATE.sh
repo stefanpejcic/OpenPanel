@@ -82,15 +82,26 @@ FUNCTIONS=(
     # update images!
     update_docker_images
 
+    # update admin from github
+    download_new_admin
+
+    # update docker openpanel iamge
+    download_new_panel
+
+    #
+    verify_license
+
+    # new crons added
+    set_system_cronjob
+
+    # openpanel/openpanel should be downloaded now!
+    docker_compsoe_up_with_newer_images
     
     # delete temp files and (maybe) old panel versison
     cleanup
 
     # if user created a post-update script, run it now
     run_custom_postupdate_script
-
-    # send us server info to collect new version data and usage
-    report_status_after_update
 
     # yay! we made it
     celebrate
@@ -216,6 +227,8 @@ download_new_admin() {
     echo "Updating OpenAdmin from https://github.com/stefanpejcic/openadmin"
     cd /usr/local/admin/
     git pull
+
+    service admin restart
 }
 
 
