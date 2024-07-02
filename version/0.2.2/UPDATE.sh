@@ -16,6 +16,7 @@ OPENADMIN_DIR="/usr/local/admin/"
 OPENCLI_DIR="/usr/local/admin/scripts/"
 OPENPANEL_LOG_DIR="/var/log/openpanel/"
 SERVICES_DIR="/etc/systemd/system/"
+TEMP_DIR="/tmp/"
 
 OPENPANEL_DIR="/usr/local/panel/"
 CURRENT_PANEL_VERSION=$(< ${OPENPANEL_DIR}/version)
@@ -86,12 +87,15 @@ FUNCTIONS=(
     # update images!
     update_docker_images
 
-    # update admin from github
-    download_new_admin
-
     # update docker openpanel iamge
     download_new_panel
 
+    # update admin from github
+    download_new_admin
+
+    # update opencli
+    opencli_update
+    
     #
     verify_license
 
@@ -99,7 +103,7 @@ FUNCTIONS=(
     set_system_cronjob
 
     # openpanel/openpanel should be downloaded now!
-    docker_compsoe_up_with_newer_images
+    docker_compose_up_with_newer_images
     
     # delete temp files and (maybe) old panel versison
     cleanup
@@ -210,6 +214,32 @@ update_docker_images() {
 }
 
 
+opencli_update(){
+    echo "Updating OpenCLI commands from https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    echo ""
+    mkdir -p ${TEMP_DIR}opencli
+    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
+    rm -rf /usr/local/admin/scripts/
+    cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
+    rm ${TEMP_DIR}opencli.tar.gz 
+    rm -rf ${TEMP_DIR}opencli
+
+    cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
+    chmod +x /usr/local/bin/opencli
+    chmod +x -R /usr/local/admin/scripts/
+    #opencli commands
+    echo "# opencli aliases
+    ALIASES_FILE=\"/usr/local/admin/scripts/aliases.txt\"
+    generate_autocomplete() {
+        awk '{print \$NF}' \"\$ALIASES_FILE\"
+    }
+    complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
+    
+    source ~/.bashrc
+}
+
+
+
 run_custom_postupdate_script() {
 
     echo "Checking if post-update script is provided.."
@@ -258,7 +288,7 @@ set_system_cronjob(){
 }
 
 
-docker_compsoe_up_with_newer_images(){
+docker_compose_up_with_newer_images(){
 
   echo "Restarting OpenPanel docker container.."
   echo ""
