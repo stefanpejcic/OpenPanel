@@ -110,7 +110,7 @@ export const TopAnnouncement = () => {
 const Text = () => {
     return (
         <a
-            href="/demo/"
+            href="/beta/"
             rel="noreferrer"
             className={clsx(
                 "relative lg:absolute",
@@ -131,8 +131,8 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                <span className={clsx("font-semibold")}>OpenPanel</span>{" "}
-                0.2.1 is out 🎉
+                Unlock powerful features and effortlessly manage users and websites with  
+                <span className={clsx("font-semibold")}>OpenPanel Enterprise</span>{" "}
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
@@ -140,7 +140,7 @@ const Text = () => {
                         "ml-2",
                     )}
                 >
-                    Check the Live Demo
+                    Learn More
                 </span>
             </div>
         </a>
