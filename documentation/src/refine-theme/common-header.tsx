@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import React, { useState } from "react";
 
 import { HamburgerIcon } from "./icons/hamburger";
-import { RefineLogoIcon } from "./icons/refine-logo";
+import { OpenPanelLogoIcon } from "./icons/openpanel-logo";
 
 import { openFigma } from "../utils/open-figma";
 import { Menu } from "./common-header/menu";
@@ -79,10 +79,11 @@ export const CommonHeader = ({ trackProgress }: Props) => {
                             )}
                         >
                             <Link to="/" class="no-underline flex items-center gap-2" onContextMenu={openFigma}>
-                                <RefineLogoIcon className="text-gray-900 dark:text-gray-0" />
+                                <OpenPanelLogoIcon className="text-gray-900 dark:text-gray-0" />
                             
                 <span
                     className={clsx(
+                        "text-[22px]",
                         "text-gray-1000 dark:text-gray-0",
                         "text-base",
                         "font-bold",
