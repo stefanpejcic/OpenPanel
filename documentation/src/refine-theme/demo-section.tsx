@@ -60,7 +60,6 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                 )}
             >
                 <LandingTryItOptionsSection
-                    onClick={onClick}
                     className={clsx(
                         "w-full",
                         "transition-[transform,opacity,margin-bottom]",
@@ -74,10 +73,8 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
 };
 
 const LandingTryItOptionsSection = ({
-    onClick,
     className,
 }: {
-    onClick: () => void;
     className?: string;
 }) => {
     return (
