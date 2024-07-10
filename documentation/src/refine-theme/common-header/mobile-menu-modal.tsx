@@ -6,7 +6,7 @@ import { useColorMode } from "@docusaurus/theme-common";
 import { openFigma } from "@site/src/utils/open-figma";
 import { CloseIcon } from "../icons/close";
 import { GithubStarIcon } from "../icons/popover";
-import { RefineLogoIcon } from "../icons/refine-logo";
+import { OpenPanelLogoIcon } from "../icons/openpanel-logo";
 import { MENU_ITEMS, NavbarItemType } from "./constants";
 import { MenuItem } from "./menu-item";
 import { MobileNavItem } from "./mobile-nav-item";
@@ -87,7 +87,7 @@ const Modal: FC<PropsWithChildren<MobileMenuModalProps>> = ({
                                 "landing-sm:px-8",
                             )}
                         >
-                            <RefineLogoIcon
+                            <OpenPanelLogoIcon
                                 className="dark:text-gray-0 text-gray-900"
                                 onContextMenu={openFigma}
                             />
