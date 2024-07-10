@@ -56,7 +56,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                     "transition-[min-height,height]",
                     "duration-300",
                     "ease-out",
-                    wizardOpen && "min-h-[515px]",
+                    "min-h-[515px]",
                 )}
             >
                 <LandingTryItOptionsSection
@@ -65,15 +65,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "w-full",
                         "transition-[transform,opacity,margin-bottom]",
                         "duration-300",
-                        "ease-in-out",
-                        wizardOpen && [
-                            "pointer-events-none",
-                            "select-none",
-                            "landing-md:-translate-y-[300px]",
-                            "landing-md:opacity-0",
-                            "landing-md:origin-top",
-                            "landing-md:-mb-[272px]",
-                        ],
+                        "ease-in-out"
                     )}
                 />
             </div>
