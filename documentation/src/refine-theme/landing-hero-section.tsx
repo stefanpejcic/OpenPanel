@@ -6,9 +6,17 @@ import { LandingHeroAnimation } from "./landing-hero-animation";
 import { LandingCopyCommandButton } from "./landing-copy-command-button";
 import Link from "@docusaurus/Link";
 import { LandingHeroShowcaseSection } from "./landing-hero-showcase-section";
-import Typical from 'react-typical';
+import { useTypewriter, Cursor } from 'react-simple-typewriter';
 
 export const LandingHeroSection = ({ className }: { className?: string }) => {
+    const [text] = useTypewriter({
+        words: ['Hosting Panel', 'WP Manager', 'User Isolation'],
+        loop: 0, // 0 = infinite
+        typeSpeed: 70,
+        deleteSpeed: 50,
+        delaySpeed: 1000,
+    });
+
     return (
         <div
             className={clsx(
@@ -61,12 +69,11 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                         >
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
                                 Next Generation
-                            </span> 
-                            <Typical
-                                steps={['Hosting Panel', 2000, 'WP Manager', 2000, 'User Isolation', 2000]}
-                                loop={Infinity}
-                                wrapper="span"
-                            />
+                            </span>
+                            <span>
+                                {text}
+                                <Cursor />
+                            </span>
                         </h1>
                         <p
                             className={clsx(
@@ -76,7 +83,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "landing-xs:max-w-[384px]",
                             )}
                         >
-Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.
+                            Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.
                         </p>
                     </div>
                     <div
