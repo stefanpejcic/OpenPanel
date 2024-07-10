@@ -32,7 +32,7 @@ const PrivacyPolicy: React.FC = () => {
                     <h3>Step 2a: Open a support ticket (Enterprise Edition)</h3>
                     <p>If you need fast and reliable support, open a premium ticket by sending us a new ticket.</p>
                     <ul>
-                        <li><a href="mailto:info@openpanel.co">Submit a ticket</a></li>
+                        <li><a href="https://my.openpanel.co/submitticket.php?step=2&deptid=1" target="_blank">Submit a ticket</a></li>
                     </ul>
                 
                     <h3>Step 2b: Post on forums (Community Edition)</h3>
