@@ -74,7 +74,7 @@ export const CommonHeader = ({ trackProgress }: Props) => {
                     >
                         <div
                             className={clsx(
-                                "w-[130px]",
+                                "w-auto",
                                 "landing-lg:w-[200px]",
                             )}
                         >
