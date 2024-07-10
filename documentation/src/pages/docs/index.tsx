@@ -12,7 +12,7 @@ import { DiscordIcon, TwitterIcon } from "@site/src/refine-theme/icons/popover";
 import clsx from "clsx";
 import React from "react";
 import { useColorMode } from "@docusaurus/theme-common";
-import { LandingTryItSection } from "../refine-theme/demo-section";
+import { LandingTryItSection } from "@site/src/refine-theme/demo-section";
 
 const About: React.FC = () => {
     const { colorMode } = useColorMode();
