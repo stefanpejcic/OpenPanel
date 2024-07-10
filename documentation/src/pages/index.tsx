@@ -22,11 +22,6 @@ function Home() {
                 <html data-active-page="index" />
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
-                <link
-                    rel="preload"
-                    href="https://refine.new/embed-form"
-                    as="document"
-                />
             </Head>
             <CommonLayout description="Web Hosting panel powered by Docker">
                 <div className={clsx()}>
