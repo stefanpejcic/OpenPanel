@@ -20,35 +20,6 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
         >
             <div
                 className={clsx(
-                    "flex",
-                    "flex-col",
-                    "gap-4 landing-sm:gap-6",
-                    "px-4 landing-sm:px-10",
-                )}
-            >
-                <h2
-                    className={clsx(
-                        "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
-                        "font-bold",
-                        "text-gray-900 dark:text-gray-0",
-                    )}
-                >
-                    Get started now!
-                </h2>
-                <p
-                    className={clsx(
-                        "text-base",
-                        "font-normal",
-                        "text-gray-600 dark:text-gray-400",
-                        "landing-sm:max-w-[446px]",
-                    )}
-                >
-                    Choose OpenPanel Enterprise or Community edition and start
-                    hosting websites in minutes.
-                </p>
-            </div>
-            <div
-                className={clsx(
                     "w-full",
                     "rounded-2xl landing-md:rounded-3xl",
                     "relative",
