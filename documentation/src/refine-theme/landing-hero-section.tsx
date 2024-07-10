@@ -2,11 +2,11 @@ import React from "react";
 import clsx from "clsx";
 import { LandingHeroGithubStars } from "./landing-hero-github-stars";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
-
 import { LandingHeroAnimation } from "./landing-hero-animation";
 import { LandingCopyCommandButton } from "./landing-copy-command-button";
 import Link from "@docusaurus/Link";
 import { LandingHeroShowcaseSection } from "./landing-hero-showcase-section";
+import Typical from 'react-typical';
 
 export const LandingHeroSection = ({ className }: { className?: string }) => {
     return (
@@ -59,7 +59,14 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "text-gray-900 dark:text-gray-0",
                             )}
                         >
-			<span class="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">Next Generation</span> Hosting Panel
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
+                                Next Generation
+                            </span> 
+                            <Typical
+                                steps={['Hosting Panel', 2000, 'WP Manager', 2000, 'User Isolation', 2000]}
+                                loop={Infinity}
+                                wrapper="span"
+                            />
                         </h1>
                         <p
                             className={clsx(
@@ -69,7 +76,8 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "landing-xs:max-w-[384px]",
                             )}
                         >
-Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.                        </p>
+Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.
+                        </p>
                     </div>
                     <div
                         className={clsx(
@@ -80,9 +88,9 @@ Deliver a VPS-like experience to your users at a fraction of the cost, with all-
                             "landing-lg:gap-6",
                         )}
                     >
-			<LandingCopyCommandButton
-			className={clsx("hidden", "landing-sm:block")}
-			/>
+                        <LandingCopyCommandButton
+                            className={clsx("hidden", "landing-sm:block")}
+                        />
                     </div>
                 </div>
                 <div
