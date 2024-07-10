@@ -57,12 +57,6 @@ const Card = ({
                     <p className="text-gray-700 dark:text-gray-300">
                         {description}
                     </p>
-                    <div className="flex self-end gap-4">
-                        <span className="text-gray-500 dark:text-gray-400">
-                            with
-                        </span>
-                        <Logo />
-                    </div>
                 </div>
             </article>
         </Link>
@@ -96,7 +90,6 @@ const RefineWeek = () => {
                                 "blog-sm:mt-10 blog-sm:mb-20",
                             )}
                         >
-                            <RefineWeekLogoXL className="flex-shrink-0 landing-xl:mr-[116px]" />
                             <p className="text-[32px] leading-10 font-semibold text-gray-800 dark:text-gray-100">
                                 OpenPanel SysAdmin Tutorials - a practical and engaging learning experience
                             </p>
