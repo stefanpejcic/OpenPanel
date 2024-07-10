@@ -9,12 +9,10 @@ import { MailIcon } from "@site/src/refine-theme/icons/mail";
 import { MarkerIcon } from "@site/src/refine-theme/icons/marker";
 import { OpenSourceIcon } from "@site/src/refine-theme/icons/open-source";
 import { DiscordIcon, TwitterIcon } from "@site/src/refine-theme/icons/popover";
-import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
 import { useColorMode } from "@docusaurus/theme-common";
-import { YCombinatorCircleIcon } from "@site/src/refine-theme/icons/ycombinator-circle";
-import { CommonThemedImage } from "@site/src/refine-theme/common-themed-image";
+import { LandingTryItSection } from "../refine-theme/demo-section";
 
 const About: React.FC = () => {
     const { colorMode } = useColorMode();
@@ -61,6 +59,9 @@ const About: React.FC = () => {
 Whether you are a new user or an experienced administrator, our comprehensive documentation is designed to get you up and running quickly, while also providing deep insights into advanced features and customization options. Explore our resources below to make the most out of our products.
 </p>      
 
+<LandingTryItSection />
+
+    
 <div className="flex">
                         {/* First Column */}
                         <div className="w-1/2 pr-4">
