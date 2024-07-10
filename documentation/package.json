@@ -43,6 +43,7 @@
     "react-twitter-embed": "^4.0.4",
     "react-twitter-widgets": "^1.11.0",
     "react-use-cookie": "^1.4.0",
+    "react-typical": "^0.3.1",
     "remark-gfm": "^3.0.0",
     "remark-rehype": "^10.0.0",
     "snarkdown": "^2.0.0",
