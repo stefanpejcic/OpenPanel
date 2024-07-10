@@ -59,7 +59,6 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                     wizardOpen && "min-h-[515px]",
                 )}
             >
-                <LandingTryItWizardSection visible={wizardOpen} />
                 <LandingTryItOptionsSection
                     onClick={onClick}
                     className={clsx(
