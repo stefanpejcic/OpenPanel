@@ -63,6 +63,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 - Debian 11
 - Ubuntu 22
 - Ubuntu 24 *(without quotas)
+- RockyLinux 9.4 *(without quotas)
 
 ## Technology Stack
 
