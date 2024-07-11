@@ -41,6 +41,9 @@ We recommend that you run the installation command within a Linux screen session
 
 The installation script supports [optional flags](/install) that can be used to install additional services, skip certain installation steps or display debugging information.
 
+### Install on DigitalOcean
+
+[![droplet](/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
 
 ### Troubleshooting failed installation
 
