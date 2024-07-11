@@ -495,7 +495,7 @@ const tableData = [
                     <TableText>forever free</TableText>
                 ),
                 enterprise: (
-                    <TableText>$20/month</TableText>
+                    <TableText>14.95€ / month</TableText>
                 ),
                 valueType: {
                     community: "text",
