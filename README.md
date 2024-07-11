@@ -93,9 +93,19 @@ We regularly conduct internal audits, apply the latest security patches, and fol
 
 ## Installation
 
+To install on self-hosted VPS/Dedicated server: 
+
 ```bash
 bash <(curl -sSL https://get.openpanel.co/)`
 ```
+
+For 
+
+----
+
+Spin a 1-click droplet on DigitalOcean: 
+[![droplet](/documentation/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
+
 
 ## Support
 
