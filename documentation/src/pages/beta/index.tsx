@@ -89,9 +89,6 @@ const Enterprise: React.FC = () => {
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
                         </div>
-                        <LandingTrustedByDevelopers
-                            className={clsx(sectionPadding, sectionWidth)}
-                        />
                         <EnterpriseFaq
                             className={clsx(
                                 sectionPadding,
