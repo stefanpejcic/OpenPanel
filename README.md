@@ -99,13 +99,22 @@ To install on self-hosted VPS/Dedicated server:
 bash <(curl -sSL https://get.openpanel.co/)`
 ```
 
-For 
+To configure server on installation, please visit: https://openpanel.co/install 
 
 ----
 
 Spin a 1-click droplet on DigitalOcean: 
+
 [![droplet](/documentation/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
 
+
+DigitalOcean API:
+```bash
+curl -X POST -H 'Content-Type: application/json' \
+     -H 'Authorization: Bearer '$TOKEN'' -d \
+    '{"name":"choose_a_name","region":"nyc3","size":"s-2vcpu-4gb","image":"openpanel"}' \
+    "https://api.digitalocean.com/v2/droplets"
+```
 
 ## Support
 
