@@ -38,7 +38,7 @@ const Demo: React.FC = () => {
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
                             OpenPanel
                         </span>
-                        , and{" "}
+                         and{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#FF9933] to-[#FF4C4D]">
                             OpenAdmin
                         </span>
