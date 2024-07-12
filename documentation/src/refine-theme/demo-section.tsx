@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { OpenPanelLogoIcon } from "./icons/openpanel-logo";
+import { OpenPanelLogoIcon } from "./icons/small-openpanel-logo";
 import Link from "@docusaurus/Link";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
