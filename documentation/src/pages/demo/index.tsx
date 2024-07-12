@@ -4,7 +4,7 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import clsx from "clsx";
-import { LandingTryItSection } from "../refine-theme/landing-try-it-section";
+import { LandingTryItSection } from "@site/src/refine-theme/landing-try-it-section";
 
 const Demo: React.FC = () => {
     return (
