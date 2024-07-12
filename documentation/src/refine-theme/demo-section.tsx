@@ -1,7 +1,6 @@
 import React from "react";
 import clsx from "clsx";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
-import { LandingCopyCommandButton } from "./landing-copy-command-button";
 import Link from "@docusaurus/Link";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
@@ -85,7 +84,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    Sign up for OpenPanel Enterprise version and offer premium features to your customers.
+                    OpenAdmin - Admin level panel
                 </p>
                         <Link
                             to="beta"
@@ -111,7 +110,7 @@ const LandingTryItOptionsSection = ({
                         >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Go Enterprise
+                        Live Preview
                     </span>
                 </Link>
             </div>
@@ -190,10 +189,36 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			Get OpenPanel Community edition now and begin hosting websites within just 5 minutes.
-                    </p>
-                    <LandingCopyCommandButton />
-                </div>
+			OpenPanel - control panel for end-users
+		    </p>
+                        <Link
+                            to="beta"
+                            className={clsx(
+                                "self-start",
+                                "rounded-3xl",
+                                "!text-gray-0 dark:!text-gray-900",
+                                "bg-refine-blue dark:bg-refine-cyan-alt",
+                                "transition-[filter]",
+                                "duration-150",
+                                "ease-in-out",
+                                "hover:brightness-110",
+                                "py-3",
+                                "pl-7 pr-8",
+                                "landing-md:px-8",
+                                "landing-lg:pl-7 landing-lg:pr-8",
+                                "flex",
+                                "items-center",
+                                "justify-center",
+                                "gap-2",
+                                "hover:!no-underline",
+                            )}
+                        >
+                    	<LandingStartActionIcon />
+	                    <span className={clsx("text-base", "font-semibold")}>
+	                        Live Preview
+	                    </span>
+	                </Link>
+		</div>
             </div>
         </div>
     );
