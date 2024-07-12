@@ -84,8 +84,21 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    If you are a website owner, then we recommend interacting with the OpenPanel interface. This is where you can maintain your website.
+                    If you are a website owner, then we recommend interacting with the OpenPanel interface.
                 </p>
+
+                <p
+                    className={clsx(
+                        "text-base landing-sm:text-l landing-md:text-base landing-lg:text-l",
+                        "font-semibold",
+                        "text-gray-600 dark:text-gray-400",
+                        "landing-md:max-w-[318px]",
+                        "landing-lg:max-w-[446px]",
+                    )}
+                >
+                    This is where you can manage your websites.
+                </p>
+		    
                         <Link
                             to="https://demo.openpanel.co/openpanel/"
                             className={clsx(
@@ -189,8 +202,17 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			If you are a web host, then we recommend interacting with the OpenAdmin interface. This is where you can run and maintain your server.
-
+			If you are a web host, then we recommend interacting with the OpenAdmin interface.
+		    </p>
+                    <p
+                        className={clsx(
+                            "text-base landing-sm:text-l landing-md:text-base landing-lg:text-l",
+                            "font-semibold",
+                            "text-gray-600 dark:text-gray-400",
+                            "landing-lg:max-w-[446px]",
+                        )}
+                    >
+			This is where you can manage your server.
 		    </p>
                         <Link
                             to="https://demo.openpanel.co/openadmin/"
