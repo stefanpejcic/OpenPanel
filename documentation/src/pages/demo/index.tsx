@@ -4,7 +4,7 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import clsx from "clsx";
-import { LandingTryItSection } from "@site/src/refine-theme/landing-try-it-section";
+import { LandingTryItSection } from "@site/src/refine-theme/demo-section";
 
 const Demo: React.FC = () => {
     return (
@@ -44,10 +44,13 @@ const Demo: React.FC = () => {
                         </span>
                         .
                     </h1>
+                    
+                    <LandingTryItSection />
+                    
                 </div>
 
 
-                <LandingTryItSection />
+            
 
                 
                 <div className="flex-1 flex flex-col pt-4 lg:pt-6 pb-32 max-w-[1040px] w-full mx-auto px-2">
