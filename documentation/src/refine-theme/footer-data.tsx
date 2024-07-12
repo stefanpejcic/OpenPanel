@@ -11,15 +11,11 @@ export const menuItems = [
         items: [
             {
                 label: "Documentation",
-                href: "/docs/admin/intro/",
+                href: "/docs/",
             },
             {
                 label: "Support Forums",
                 href: "https://community.openpanel.co/",
-            },
-            {
-                label: "License Verification",
-                href: "/verify",
             },
             {
                 label: "Roadmap",
@@ -46,6 +42,10 @@ export const menuItems = [
             {
                 label: "Features",
                 href: "/features",
+            },
+            {
+                label: "Live Preview",
+                href: "/demo",
             },
             {
                 label: "Installation",
