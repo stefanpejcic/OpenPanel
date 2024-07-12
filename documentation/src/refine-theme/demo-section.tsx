@@ -77,17 +77,17 @@ const LandingTryItOptionsSection = ({
             >
                 <p
                     className={clsx(
-                        "text-base landing-sm:text-xl landing-md:text-base landing-lg:text-xl",
+                        "text-base landing-sm:text-l landing-md:text-base landing-lg:text-l",
                         "font-semibold",
                         "text-gray-600 dark:text-gray-400",
                         "landing-md:max-w-[318px]",
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    OpenAdmin - Admin level panel
+                    If you are a website owner, then we recommend interacting with the OpenPanel interface. This is where you can maintain your website.
                 </p>
                         <Link
-                            to="beta"
+                            to="https://demo.openpanel.co/openpanel/"
                             className={clsx(
                                 "self-start",
                                 "rounded-3xl",
@@ -110,7 +110,7 @@ const LandingTryItOptionsSection = ({
                         >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Live Preview
+                        OpenPanel Demo
                     </span>
                 </Link>
             </div>
@@ -183,16 +183,17 @@ const LandingTryItOptionsSection = ({
                 >
                     <p
                         className={clsx(
-                            "text-base landing-sm:text-xl landing-md:text-base landing-lg:text-xl",
+                            "text-base landing-sm:text-l landing-md:text-base landing-lg:text-l",
                             "font-semibold",
                             "text-gray-600 dark:text-gray-400",
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			OpenPanel - control panel for end-users
+			If you are a web host, then we recommend interacting with the OpenAdmin interface. This is where you can run and maintain your server.
+
 		    </p>
                         <Link
-                            to="beta"
+                            to="https://demo.openpanel.co/openadmin/"
                             className={clsx(
                                 "self-start",
                                 "rounded-3xl",
@@ -215,7 +216,7 @@ const LandingTryItOptionsSection = ({
                         >
                     	<LandingStartActionIcon />
 	                    <span className={clsx("text-base", "font-semibold")}>
-	                        Live Preview
+	                        OpenAdmin Demo
 	                    </span>
 	                </Link>
 		</div>
