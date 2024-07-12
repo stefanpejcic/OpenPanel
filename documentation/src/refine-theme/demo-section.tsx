@@ -129,46 +129,6 @@ const LandingTryItOptionsSection = ({
             </div>
             <div
                 className={clsx(
-                    "h-4 landing-md:h-full",
-                    "w-full landing-md:w-0",
-                    "relative",
-                    "flex-shrink-0",
-                )}
-            >
-                <div
-                    className={clsx(
-                        "hidden",
-                        "landing-md:block",
-                        "absolute",
-                        "-left-2",
-                        "skew-x-[14deg]",
-                        "top-0",
-                        "h-[272px]",
-                        "w-2",
-                        "bg-gray-0 dark:bg-gray-900",
-                    )}
-                />
-                <div
-                    className={clsx(
-                        "absolute",
-                        "-top-6 left-8",
-                        "landing-md:top-32 landing-md:-left-1",
-                        "landing-md:-translate-x-1/2",
-                        "landing-md:-translate-y-1/2",
-                        "bg-gray-0 dark:bg-gray-900",
-                        "text-gray-600 dark:text-gray-400",
-                        "w-16 h-16 landing-md:w-[78px] landing-md:h-[78px]",
-                        "rounded-full",
-                        "text-base",
-                        "uppercase",
-                        "flex items-center justify-center",
-                    )}
-                >
-                    or
-                </div>
-            </div>
-            <div
-                className={clsx(
                     "flex-1",
                     "rounded-2xl landing-md:rounded-3xl",
                     "flex flex-col",
