@@ -29,7 +29,7 @@ const Demo: React.FC = () => {
                     <h1
                         className={clsx(
                             "font-semibold",
-                            "!mb-0",
+                            "mb-12",
                             "text-gray-900 dark:text-gray-0",
                             "text-xl md:text-[40px] md:leading-[56px]",
                         )}
