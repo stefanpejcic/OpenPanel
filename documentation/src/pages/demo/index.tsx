@@ -46,41 +46,6 @@ const Demo: React.FC = () => {
                     </h1>
                     
                     <LandingTryItSection />
-                    
-                </div>
-
-
-            
-
-                
-                <div className="flex-1 flex flex-col pt-4 lg:pt-6 pb-32 max-w-[1040px] w-full mx-auto px-2">
-<p>
-Explore OpenAdmin & OpenPanel® with no strings attached.
-</p>
-                    <div className="flex">
-                        {/* First Column */}
-                        <div className="w-1/2 pr-4">
-                            <a href="https://demo.openpanel.co/openpanel/" target="_blank" rel="noopener noreferrer">
-                                <h2>OpenPanel Demo</h2>
-                                <img src="/img/panel/v1/dashboard/dashboard.png" alt="Demo OpenPanel" />
-                            </a>
-                            <p>
-                            If you are a website owner, then we recommend interacting with the OpenPanel interface. This is where you can maintain your website.
-                            </p>
-                          
-                        </div>
-
-                        {/* Second Column */}
-                        <div className="w-1/2 pl-4">
-                            <a href="https://demo.openpanel.co/openadmin/" target="_blank" rel="noopener noreferrer">
-                                <h2>OpenAdmin Demo</h2>
-                                <img src="/img/admin/openadmin_dashboard.png" alt="Demo OpenAdmin" />
-                            </a>
-                            <p>
-                            If you are a web host, then we recommend interacting with the OpenAdmin interface. This is where you can run and maintain your server.
-                            </p>
-                        </div>
-                    </div>
                 </div>
                 <BlogFooter />
             </div>
