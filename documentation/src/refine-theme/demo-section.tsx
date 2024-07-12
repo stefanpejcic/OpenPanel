@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { LandingStartActionIcon } from "./icons/landing-start-action";
+import { OpenPanelLogoIcon } from "./icons/openpanel-logo";
 import Link from "@docusaurus/Link";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
@@ -108,7 +108,7 @@ const LandingTryItOptionsSection = ({
                                 "hover:!no-underline",
                             )}
                         >
-                    <LandingStartActionIcon />
+                    <OpenPanelLogoIcon />
                     <span className={clsx("text-base", "font-semibold")}>
                         OpenPanel Demo
                     </span>
@@ -214,7 +214,7 @@ const LandingTryItOptionsSection = ({
                                 "hover:!no-underline",
                             )}
                         >
-                    	<LandingStartActionIcon />
+                    	<OpenPanelLogoIcon />
 	                    <span className={clsx("text-base", "font-semibold")}>
 	                        OpenAdmin Demo
 	                    </span>
