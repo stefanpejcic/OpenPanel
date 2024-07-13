@@ -745,7 +745,7 @@ const tableData = [
         title: "Integrations",
         items: [
             {
-                description: "REST API",
+                description: "API Access",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
