@@ -684,7 +684,7 @@ const tableData = [
                 community: <TableText>Let's Encrypt</TableText>,
                 enterprise: (
                     <TableText>
-                        Let's Encrypt and Custom SSL
+                        Let's Encrypt & custom SSL
                     </TableText>
                 ),
                 valueType: {
