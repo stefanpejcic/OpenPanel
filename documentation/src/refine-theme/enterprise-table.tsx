@@ -606,7 +606,7 @@ const tableData = [
             {
                 description: "Auto Installers",
                 community: <TableText>WordPress and NodeJS/Python</TableText>,
-                enterprise: <TableText>40+ Scripts</TableText>,
+                enterprise: <TableText>WordPress, NodeJS/Python and 40+ Scripts</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
