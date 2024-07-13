@@ -583,7 +583,7 @@ const tableData = [
         items: [
             {
                 description: "Admin Accounts",
-                community: <TableText>1</TableText>,
+                community: <TableText>Unlimited</TableText>,
                 enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
                     community: "text",
@@ -618,6 +618,52 @@ const tableData = [
             },
         ],
     },
+
+
+
+
+    {
+        title: "Domains",
+        items: [
+            {
+                description: "Total Domains",
+                community: <TableText>50</TableText>,
+                enterprise: <TableText>Unlimited</TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "DNSSEC",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "SSL",
+                community: <TableText>Let's Encrypt</TableText>,
+                enterprise: (
+                    <TableText>
+                        Let's Encrypt and Custom SSL
+                    </TableText>
+                ),
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+        ],
+    },
+
+
+
+
+
+    
     {
         title: "Updates",
         items: [
