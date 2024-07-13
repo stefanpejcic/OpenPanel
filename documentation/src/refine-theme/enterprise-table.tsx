@@ -555,6 +555,15 @@ const tableData = [
                 },
             },
             {
+                description: "Sentinel AI",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Varnish Cache",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
@@ -578,11 +587,6 @@ const tableData = [
             },
         ],
     },
-
-
-
-
-    
     {
         title: "Websites",
         items: [
@@ -619,7 +623,6 @@ const tableData = [
             },
         ],
     },
-
     {
         title: "Accounts",
         items: [
@@ -656,8 +659,6 @@ const tableData = [
             },
         ],
     },
-
-
     {
         title: "Domains",
         items: [
@@ -694,12 +695,29 @@ const tableData = [
             },
         ],
     },
-
-
-
-
-
-    
+    {
+        title: "Emails",
+        items: [
+            {
+                description: "Email Accounts",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Webmail",
+                community: <CrossIcon />,
+                enterprise: <TableText>RouncCube, Sogo</TableText>,
+                valueType: {
+                    community: "icon",
+                    enterprise: "text",
+                },
+            },
+        ],
+    },   
     {
         title: "Updates",
         items: [
