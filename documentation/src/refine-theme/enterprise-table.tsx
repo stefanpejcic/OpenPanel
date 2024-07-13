@@ -578,18 +578,51 @@ const tableData = [
             },
         ],
     },
+
+
+
+
+    
     {
-        title: "Accounts & Websites",
+        title: "Websites",
         items: [
             {
-                description: "Admin Accounts",
+                description: "Websites",
                 community: <TableText>Unlimited</TableText>,
-                enterprise: <TableText>Unlimited</TableText>,
+                enterprise: (
+                    <TableText>
+                        Unlimited
+                    </TableText>
+                ),
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },            
+            {
+                description: "Auto Installers",
+                community: <TableText>WordPress and NodeJS/Python</TableText>,
+                enterprise: <TableText>40+ Scripts</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
                 },
             },
+            {
+                description: "Mautic Manager",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+        ],
+    },
+
+    {
+        title: "Accounts",
+        items: [
             {
                 description: "User Accounts",
                 community: <TableText>3</TableText>,
@@ -604,13 +637,18 @@ const tableData = [
                 },
             },
             {
-                description: "Websites",
+                description: "Resellers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Admin Accounts",
                 community: <TableText>Unlimited</TableText>,
-                enterprise: (
-                    <TableText>
-                        Unlimited
-                    </TableText>
-                ),
+                enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -618,8 +656,6 @@ const tableData = [
             },
         ],
     },
-
-
 
 
     {
