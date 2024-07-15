@@ -942,7 +942,8 @@ configure_nginx() {
     
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
-
+    mkdir /srv/http/  > /dev/null 2>&1
+    ln -s /etc/openpanel/nginx/error_pages /srv/http/default
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
 
