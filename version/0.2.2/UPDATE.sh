@@ -32,7 +32,7 @@ required_version="0.2.1"
 if [[ "$CURRENT_PANEL_VERSION" < "$required_version" ]]; then
     # Version is less than 0.2.1, no update will be performed
     echo ""
-    echo "NO UPDATES FOR VERSIONS =< 0.1.9"
+    echo "NO UPDATES FOR VERSIONS =< 0.1.9 - PLEASE REINSTALL OPENPANEL"
     echo "Annoucement: https://community.openpanel.co/d/65-important-update-openpanel-version-021-announcement"
     echo ""
     exit 0
