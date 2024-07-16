@@ -966,7 +966,7 @@ set_email_address_and_email_admin_logins(){
             # Check if the provided email is valid
             if [[ $EMAIL =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
                 echo "Setting email address $EMAIL for notifications"
-                opencli config update email "$EMAIL"
+                opencli config update email "$EMAIL"  > /dev/null 2>&1
                 # Send an email alert
                 
                 generate_random_token_one_time_only() {
@@ -993,7 +993,7 @@ set_email_address_and_email_admin_logins(){
                 fi
                 
                 # Send email using appropriate protocol
-                curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
+                curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"  > /dev/null 2>&1
                 
                 }
 
