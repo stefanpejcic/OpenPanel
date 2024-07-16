@@ -293,7 +293,8 @@ download_new_panel() {
     mkdir -p $OPENPANEL_DIR
     echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
     echo ""
-    nohup sh -c "echo openpanel/openpanel:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+    #nohup sh -c "echo openpanel/openpanel:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+    docker pull openpanel/openpanel
 }
 
 set_system_cronjob(){
