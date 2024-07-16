@@ -223,9 +223,7 @@ opencli_update(){
     mkdir -p ${TEMP_DIR}opencli
     wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
-    #rm -rf /usr/local/admin/scripts/
-
-    find /usr/local/admin/scripts/ -mindepth 1 -name 'watcher' ! -name 'watcher.sh' -exec rm -rf {} +
+    rm -rf /usr/local/admin/scripts/
     
     cp -r ${TEMP_DIR}opencli/ /usr/local/admin/scripts/
     rm ${TEMP_DIR}opencli.tar.gz 
@@ -313,7 +311,6 @@ docker_compose_up_with_newer_images(){
   docker stop openpanel &&  docker rm openpanel
   echo ""
   cd /root  
-  docker stop openpanel && docker rm openpanel
   docker compose up -d
 
   #cp version file
