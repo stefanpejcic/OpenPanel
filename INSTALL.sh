@@ -225,6 +225,14 @@ setup_ufw
 setup_swap
 clean_apt_cache
 verify_license
+
+print_space_and_line
+support_message
+print_space_and_line
+create_admin_and_show_logins_success_message
+set_email_address_and_email_admin_logins
+run_custom_postinstall_script
+
 )
 
 
@@ -959,7 +967,7 @@ configure_nginx() {
 
 set_premium_features(){
  if [ "$SET_PREMIUM" = true ]; then
-    echo "Setting OpenPanel enterprise version license key $license_key"
+    echo "Adding OpenPanel Enterprise license key $license_key"
     opencli license "$license_key"
  fi
 }
@@ -1013,7 +1021,7 @@ set_email_address_and_email_admin_logins(){
 
                 
             else
-                echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
+                echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent via email."
             fi
         fi
 }        
@@ -1063,7 +1071,7 @@ send_install_log(){
     exec > /dev/tty
     exec 2>&1
     opencli report --public >> "$LOG_FILE"
-    curl -F "file=@/root/$LOG_FILE" http://support.openpanel.co/install_logs.php
+    curl -F "file=@/root/$LOG_FILE" http://support.openpanel.co/install_logs.php > /dev/null 2>&1
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
@@ -1232,10 +1240,6 @@ create_admin_and_show_logins_success_message() {
 
     opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
-    # added in 0.2.0
-    # email to user the new logins
-    set_email_address_and_email_admin_logins
-
     opencli admin
     echo "Username: $new_username"
     echo "Password: $new_password"
@@ -1286,20 +1290,9 @@ install_started_message
 
 main
 
-send_install_log
-
 rm_helpers
 
-print_space_and_line
-
-support_message
-
-print_space_and_line
-
-create_admin_and_show_logins_success_message
-
-run_custom_postinstall_script
-
+send_install_log
 
 # END main script execution
 
