@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 28.06.2024
+# Last Modified: 16.07.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -163,7 +163,7 @@ if [ "$CUSTOM_VERSION" = false ]; then
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
-        version="0.2.1"
+        version="0.2.2"
     fi
 fi
 
@@ -578,13 +578,14 @@ docker_compose_up(){
     mkdir -p $DOCKER_CONFIG/cli-plugins
     curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+    #chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
     
-    # TOFO: CHECK WITH 
+    # TODO: CHECK WITH 
     #docker compose version
     
     # mysql image needs this!
-    wget -O  /root/initialize.sql https://gist.githubusercontent.com/stefanpejcic/8efe541c2b24b9cd6e1861e5ab7282f1/raw/140e69a5c8c7805bc9a6e6c4fa968f390a6d5c8c/structure.sql  > /dev/null 2>&1
+    cp /etc/openpanel/docker/compose/initialize.sql /root/initialize.sql  > /dev/null 2>&1
+    #wget -O  /root/initialize.sql https://gist.githubusercontent.com/stefanpejcic/8efe541c2b24b9cd6e1861e5ab7282f1/raw/140e69a5c8c7805bc9a6e6c4fa968f390a6d5c8c/structure.sql  > /dev/null 2>&1
     
     # compose doesnt alllow /
     cd /root
@@ -599,8 +600,7 @@ docker_compose_up(){
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    wget -O  docker-compose.yml https://gist.githubusercontent.com/stefanpejcic/206d04b2561015734e4b625ee923b4db/raw/e6b5c3b3feba92b6a3fb01ed07838095bf14f478/newer_compose.yml  > /dev/null 2>&1
-    
+    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
     # start the stack
     docker compose up -d
 
@@ -895,19 +895,19 @@ opencli_setup(){
     echo ""
     mkdir -p /usr/local/admin/
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${VERSION}/get.openpanel.co/downloads/${VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${VERSION}/get.openpanel.co/downloads/${VERSION}/opencli/opencli-main.tar.gz"
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
     rm ${TEMP_DIR}opencli.tar.gz 
     rm -rf ${TEMP_DIR}opencli
 
-    cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
+    cp  ${OPENCLI_DIR}opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
-    chmod +x -R /usr/local/admin/scripts/
+    chmod +x -R $OPENCLI_DIR
     #opencli commands
     echo "# opencli aliases
-    ALIASES_FILE=\"/usr/local/admin/scripts/aliases.txt\"
+    ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
     generate_autocomplete() {
         awk '{print \$NF}' \"\$ALIASES_FILE\"
     }
@@ -970,10 +970,10 @@ set_email_address_and_email_admin_logins(){
                 # Send an email alert
                 
                 generate_random_token_one_time_only() {
-                    local config_file="${OPENPANEL_DIR}conf/panel.config"
+                    local config_file="${ETC_DIR}openpanel/conf/openpanel.config"
                     TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
                     local new_value="mail_security_token=$TOKEN_ONE_TIME"
-                    sed -i "s|^mail_security_token=.*$|$new_value|" "${OPENPANEL_DIR}conf/panel.config"
+                    sed -i "s|^mail_security_token=.*$|$new_value|" "${ETC_DIR}openpanel/conf/openpanel.config"
                 }
 
                 
@@ -981,9 +981,9 @@ set_email_address_and_email_admin_logins(){
                   local title="$1"
                   local message="$2"
                   generate_random_token_one_time_only
-                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${OPENPANEL_DIR}conf/panel.config")
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
                                 
-                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${OPENPANEL_DIR}conf/panel.config")
+                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
                 
                 # Determine protocol based on SSL configuration
                 if [ "$SSL" = "yes" ]; then
@@ -998,7 +998,7 @@ set_email_address_and_email_admin_logins(){
                 }
 
                 server_hostname=$(hostname)
-                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: admin | password: $admin_password"
+                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
             else
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
@@ -1216,10 +1216,10 @@ create_admin_and_show_logins_success_message() {
     
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
 
-    opencli admin new "$random_name" "$new_password"  > /dev/null 2>&1 && 
+    opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
     opencli admin
-    echo "Username: $random_name"
+    echo "Username: $new_username"
     echo "Password: $new_password"
     echo " "
     print_space_and_line
