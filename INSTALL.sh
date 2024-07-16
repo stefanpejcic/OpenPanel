@@ -230,7 +230,6 @@ print_space_and_line
 support_message
 print_space_and_line
 create_admin_and_show_logins_success_message
-set_email_address_and_email_admin_logins
 run_custom_postinstall_script
 
 )
@@ -1006,16 +1005,16 @@ set_email_address_and_email_admin_logins(){
                 fi
                 
                 # Send email using appropriate protocol
-                curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"  > /dev/null 2>&1
+                curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
                 
                 }
 
                 server_hostname=$(hostname)
                 
                 if [ "$SET_PREMIUM" = true ]; then
-                    email_notification "OpenPanel Enterprise ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
+                    email_notification "OpenPanel Enterprise ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password" > /dev/null 2>&1
                 else
-                    email_notification "OpenPanel Community ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
+                    email_notification "OpenPanel Community ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password" > /dev/null 2>&1
                 fi
 
 
@@ -1293,7 +1292,7 @@ main
 rm_helpers
 
 send_install_log
-
+set_email_address_and_email_admin_logins
 # END main script execution
 
 
