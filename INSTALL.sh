@@ -1173,6 +1173,7 @@ install_openadmin(){
         echo "Downloading files for Debian and python version $current_python_version"
         git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
+        debug_log pip install -r requirements.txt
         debug_log pip install -r requirements.txt --break-system-packages
     # other
     else
