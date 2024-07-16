@@ -435,7 +435,7 @@ detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
         declare -A paths=(
-            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
+            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force'${RESET} to update OpenPanel."
             ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
@@ -1232,16 +1232,16 @@ create_admin_and_show_logins_success_message() {
 
     opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
+    # added in 0.2.0
+    # email to user the new logins
+    set_email_address_and_email_admin_logins
+
     opencli admin
     echo "Username: $new_username"
     echo "Password: $new_password"
     echo " "
     print_space_and_line
     
-    # added in 0.2.0
-    # email to user the new logins
-    set_email_address_and_email_admin_logins
-
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
