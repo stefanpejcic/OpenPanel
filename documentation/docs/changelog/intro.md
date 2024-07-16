@@ -10,18 +10,19 @@ sidebar_class_name: green
 
 |   |
 |---|
-|__[0.2.1](/docs/changelog/0.2.1)__|
+|__[0.2.2](/docs/changelog/0.2.2)__|
 
 ### Next version (Unreleased)
 
 |   |   |
 |---|---|
-|__[0.2.2](/docs/changelog/0.2.2)__| __[Roadmap](/roadmap)__|
+|__[0.2.3(/docs/changelog/0.2.3)__| __[Roadmap](/roadmap)__|
 
 ### Past versions (Not maintained anymore)
 
 | 0.1.X |
 |---|
+| [0.2.1](/docs/changelog/0.2.1) |
 | [0.2.0](/docs/changelog/0.2.0) |
 | [0.1.9](/docs/changelog/0.1.9) |
 | [0.1.8](/docs/changelog/0.1.8) |
