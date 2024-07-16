@@ -103,7 +103,12 @@ print_header() {
 
 install_started_message(){
     echo -e ""
-    echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
+    
+    if [ "$SET_PREMIUM" = true ]; then
+        echo -e "\nStarting the installation of OpenPanel Enterprise edition. This process will take approximately 3-5 minutes."
+    else
+        echo -e "\nStarting the installation of OpenPanel Community edition. This process will take approximately 3-5 minutes."
+    fi
     echo -e "During this time, we will:"
     echo -e "- Install necessary services and tools."
     echo -e "- Create an admin account for you."
@@ -953,7 +958,7 @@ configure_nginx() {
 
 
 set_premium_features(){
- if [ "$SET_HOSTNAME_NOW" = true ]; then
+ if [ "$SET_PREMIUM" = true ]; then
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli license "$license_key"
  fi
@@ -998,7 +1003,15 @@ set_email_address_and_email_admin_logins(){
                 }
 
                 server_hostname=$(hostname)
-                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
+                
+                if [ "$SET_PREMIUM" = true ]; then
+                    email_notification "OpenPanel Enterprise ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
+                else
+                    email_notification "OpenPanel Community ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
+                fi
+
+
+                
             else
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
