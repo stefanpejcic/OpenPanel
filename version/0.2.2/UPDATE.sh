@@ -317,7 +317,7 @@ docker_compose_up_with_newer_images(){
 
   #cp version file
   mkdir -p /usr/local/panel/  > /dev/null 2>&1
-  docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
+  docker cp openpanel:/usr/local/panel/version /usr/local/panel/version
 }
 
 
