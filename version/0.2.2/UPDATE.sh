@@ -87,6 +87,9 @@ FUNCTIONS=(
     # update images!
     update_docker_images
 
+    #config
+    update_config_files
+
     # update docker openpanel iamge
     download_new_panel
 
@@ -215,7 +218,7 @@ update_docker_images() {
 
 
 opencli_update(){
-    echo "Updating OpenCLI commands from https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    echo "Updating OpenCLI commands from https://storage.googleapis.com/openpanel${NEW_PANEL_VERSION}/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
     echo ""
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
@@ -227,7 +230,7 @@ opencli_update(){
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
     chmod +x -R /usr/local/admin/scripts/
-    #opencli commands
+    opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"/usr/local/admin/scripts/aliases.txt\"
     generate_autocomplete() {
@@ -269,6 +272,16 @@ download_new_admin() {
 }
 
 
+update_config_files() {
+
+    echo "Downloading latest OpenPanel configuration from  https://github.com/stefanpejcic/openpanel-configuration"
+    echo ""
+    cd /etc/openpanel/
+    #git stash
+    git pull
+    #git stash pop
+}
+
 
 download_new_panel() {
 
@@ -282,7 +295,7 @@ set_system_cronjob(){
 
     echo "Updating cronjobs.."
     echo ""
-    wget -O /etc/cron.d/openpanel https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/cron
+    cp /etc/openpanel/cron /etc/cron.d/openpanel
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 }
