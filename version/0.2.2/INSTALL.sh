@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 28.06.2024
+# Last Modified: 16.07.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -163,7 +163,7 @@ if [ "$CUSTOM_VERSION" = false ]; then
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
-        version="0.2.1"
+        version="0.2.2"
     fi
 fi
 
@@ -209,7 +209,8 @@ docker_compose_up
 panel_customize
 set_premium_features
 configure_nginx
-#helper_function_for_nginx_on_aws_and_azure
+helper_function_for_nginx_on_aws_and_azure
+configure_modsecurity
 setup_email
 setup_ftp
 set_system_cronjob
@@ -313,6 +314,7 @@ parse_args() {
         echo "  --skip-images                   Skip installing openpanel/nginx and openpanel/apache docker images."
         echo "  --skip-blacklists               Do not set up IP sets and blacklists."
         echo "  --skip-ssl                      Skip SSL setup."
+        echo "  --with_modsec                   Enable ModSecurity for Nginx."
         echo "  --ips                           Whiteliste IP addresses of OpenPanel Support Team."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --enable-ftp                    Install FTP (experimental)."
@@ -369,6 +371,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-ssl)
             SKIP_SSL=true
+            ;;
+        --with_modsec)
+            MODSEC=true
             ;;
         --debug)
             DEBUG=true
@@ -573,13 +578,14 @@ docker_compose_up(){
     mkdir -p $DOCKER_CONFIG/cli-plugins
     curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-    chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+    #chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
     
-    # TOFO: CHECK WITH 
+    # TODO: CHECK WITH 
     #docker compose version
     
     # mysql image needs this!
-    wget -O  /root/initialize.sql https://gist.githubusercontent.com/stefanpejcic/8efe541c2b24b9cd6e1861e5ab7282f1/raw/140e69a5c8c7805bc9a6e6c4fa968f390a6d5c8c/structure.sql  > /dev/null 2>&1
+    cp /etc/openpanel/docker/compose/initialize.sql /root/initialize.sql  > /dev/null 2>&1
+    #wget -O  /root/initialize.sql https://gist.githubusercontent.com/stefanpejcic/8efe541c2b24b9cd6e1861e5ab7282f1/raw/140e69a5c8c7805bc9a6e6c4fa968f390a6d5c8c/structure.sql  > /dev/null 2>&1
     
     # compose doesnt alllow /
     cd /root
@@ -593,21 +599,11 @@ docker_compose_up(){
     # save it to /etc/my.cnf
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
-
-    ######### TEMPORARY
-    #
-    # UNTIL WE PUT THE IMAGE ON DOCKER HUB
-    #
-    cd /root
-    git clone https://github.com/reallyreally/docker-nginx-modsecurity/
-    cd docker-nginx-modsecurity
-    docker build . -t openpanel/nginx_certbot_modsec
-    #########
     
-    wget -O  docker-compose.yml https://gist.githubusercontent.com/stefanpejcic/62a102329ef4456b37524903b218fe98/raw/d4310340adda6ff8c833a3dbe76bdecdef0f6de1/compose.yml  > /dev/null 2>&1
-    
+    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
     # start the stack
     docker compose up -d
+
 }
 
 
@@ -722,7 +718,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("docker.io" "default-mysql-client" "zip" "bind9" "unzip" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin" "ufw")
+    packages=("docker.io" "default-mysql-client" "nginx" "zip" "bind9" "unzip" "python3-pip" "pip" "gunicorn" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin" "ufw")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
@@ -766,7 +762,7 @@ install_packages() {
         done     
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
         # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "zip" "unzip" "ufw" "sqlite3" "geoip-bin")
+        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "nginx" "zip" "unzip" "ufw" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
         
         #utils must be added first, then install from that repo
         dnf install yum-utils  -y
@@ -797,6 +793,21 @@ install_packages() {
 
 
 
+configure_modsecurity() {
+
+    # ModSecurity
+    #
+    # https://openpanel.co/docs/admin/settings/waf/#install-modsecurity
+    #
+
+    if [ "$MODSEC" ]; then
+        echo "Installing ModSecurity and setting OWASP core ruleset.."
+        debug_log opencli nginx-install_modsec
+    fi
+}
+
+
+
 set_system_cronjob(){
     echo "Setting cronjobs.."
     mv ${ETC_DIR}cron /etc/cron.d/openpanel
@@ -813,6 +824,36 @@ cleanup() {
 }
 
 
+
+
+
+helper_function_for_nginx_on_aws_and_azure(){
+    #
+    # FIX FOR:
+    #
+    # https://stackoverflow.com/questions/3191509/nginx-error-99-cannot-assign-requested-address/13141104#13141104
+    #
+
+    # Check the status of nginx service and capture the output
+    nginx_status=$(systemctl status nginx 2>&1)
+
+    # Search for "Cannot assign requested address" in the output
+    if echo "$nginx_status" | grep -q "Cannot assign requested address"; then
+
+        # If found, append the required line to /etc/sysctl.conf
+        echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
+        
+        # Reload the sysctl configuration
+        sysctl -p /etc/sysctl.conf
+
+        # Change the bind ip in default nginx config
+        sed -i "s/IP_HERE/*/" /etc/nginx/sites-enabled/default
+
+        debug_log "echo Configuration updated and applied."
+    else
+        debug_log "echo Nginx started normally."
+    fi
+}
 
 
 
@@ -854,19 +895,19 @@ opencli_setup(){
     echo ""
     mkdir -p /usr/local/admin/
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/0.2.1/get.openpanel.co/downloads/0.2.1/opencli/opencli-main.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${VERSION}/get.openpanel.co/downloads/${VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${VERSION}/get.openpanel.co/downloads/${VERSION}/opencli/opencli-main.tar.gz"
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
     rm ${TEMP_DIR}opencli.tar.gz 
     rm -rf ${TEMP_DIR}opencli
 
-    cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
+    cp  ${OPENCLI_DIR}opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
-    chmod +x -R /usr/local/admin/scripts/
+    chmod +x -R $OPENCLI_DIR
     #opencli commands
     echo "# opencli aliases
-    ALIASES_FILE=\"/usr/local/admin/scripts/aliases.txt\"
+    ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
     generate_autocomplete() {
         awk '{print \$NF}' \"\$ALIASES_FILE\"
     }
@@ -883,9 +924,30 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
+    # https://dev.openpanel.co/services/nginx
+    rm /etc/nginx/nginx.conf && ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
+
     # dir for domlogs
     mkdir -p /var/log/nginx/domlogs
 
+    # 444 status for domains pointed to the IP but not added to nginx
+    rm /etc/nginx/sites-available/default 
+    rm /etc/nginx/sites-enabled/default
+    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-available/default
+    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
+
+    # Replace IP_HERE with the value of $current_ip
+    #sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
+    # MAKES PROBLEMS, REWRITE!
+    
+    # Setting pretty error pages for nginx, but need to add them inside containers also!
+    mkdir /etc/nginx/snippets/  > /dev/null 2>&1
+    mkdir /srv/http/  > /dev/null 2>&1
+    ln -s /etc/openpanel/nginx/error_pages /srv/http/default
+    ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
+    ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
+
+    service nginx restart
 }
 
 
@@ -908,10 +970,10 @@ set_email_address_and_email_admin_logins(){
                 # Send an email alert
                 
                 generate_random_token_one_time_only() {
-                    local config_file="${OPENPANEL_DIR}conf/panel.config"
+                    local config_file="${ETC_DIR}openpanel/conf/openpanel.config"
                     TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
                     local new_value="mail_security_token=$TOKEN_ONE_TIME"
-                    sed -i "s|^mail_security_token=.*$|$new_value|" "${OPENPANEL_DIR}conf/panel.config"
+                    sed -i "s|^mail_security_token=.*$|$new_value|" "${ETC_DIR}openpanel/conf/openpanel.config"
                 }
 
                 
@@ -919,9 +981,9 @@ set_email_address_and_email_admin_logins(){
                   local title="$1"
                   local message="$2"
                   generate_random_token_one_time_only
-                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${OPENPANEL_DIR}conf/panel.config")
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
                                 
-                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${OPENPANEL_DIR}conf/panel.config")
+                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
                 
                 # Determine protocol based on SSL configuration
                 if [ "$SSL" = "yes" ]; then
@@ -936,7 +998,7 @@ set_email_address_and_email_admin_logins(){
                 }
 
                 server_hostname=$(hostname)
-                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: admin | password: $admin_password"
+                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
             else
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
@@ -1154,10 +1216,10 @@ create_admin_and_show_logins_success_message() {
     
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
 
-    opencli admin new "$random_name" "$new_password"  > /dev/null 2>&1 && 
+    opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
     opencli admin
-    echo "Username: $random_name"
+    echo "Username: $new_username"
     echo "Password: $new_password"
     echo " "
     print_space_and_line
