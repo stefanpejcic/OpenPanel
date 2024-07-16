@@ -229,6 +229,8 @@ opencli_update(){
     rm ${TEMP_DIR}opencli.tar.gz 
     rm -rf ${TEMP_DIR}opencli
 
+    bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/file-watcher/main/install.sh)
+
 
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
