@@ -271,7 +271,7 @@ check_requirements() {
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-            echo -e "${RED}Error: ARM CPU is not supported!${RESET}" >&2
+            echo -e "${RED}Error: ARM CPU is not yet supported!${RESET}" >&2
             exit 1
         fi
 
@@ -899,8 +899,8 @@ opencli_setup(){
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     cp -r ${TEMP_DIR}opencli/* /usr/local/admin/scripts
-    rm ${TEMP_DIR}opencli.tar.gz 
-    rm -rf ${TEMP_DIR}opencli
+    ######rm ${TEMP_DIR}opencli.tar.gz 
+    ######rm -rf ${TEMP_DIR}opencli
 
     cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
