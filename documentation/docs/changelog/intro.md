@@ -16,7 +16,7 @@ sidebar_class_name: green
 
 |   |   |
 |---|---|
-|__[0.2.3(/docs/changelog/0.2.3)__| __[Roadmap](/roadmap)__|
+|__[0.2.3](/docs/changelog/0.2.3)__| __[Roadmap](/roadmap)__|
 
 ### Past versions (Not maintained anymore)
 
