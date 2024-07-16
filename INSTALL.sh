@@ -955,7 +955,7 @@ configure_nginx() {
 set_premium_features(){
  if [ "$SET_HOSTNAME_NOW" = true ]; then
     echo "Setting OpenPanel enterprise version license key $license_key"
-    opencli config update key "$license_key"
+    opencli license "$license_key"
  fi
 }
 
