@@ -309,6 +309,7 @@ docker_compose_up_with_newer_images(){
   docker stop openpanel &&  docker rm openpanel
   echo ""
   cd /root  
+  docker stop openpanel && docker rm openpanel
   docker compose up -d
 
   #cp version file
