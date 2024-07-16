@@ -200,8 +200,8 @@ update_package_manager
 install_packages
 download_skeleton_directory_from_github
 install_openadmin
-opencli_setup
 add_file_watcher
+opencli_setup
 configure_docker
 download_and_import_docker_images
 docker_compose_up
