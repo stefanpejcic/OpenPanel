@@ -271,7 +271,10 @@ download_new_admin() {
     echo "Updating OpenAdmin from https://github.com/stefanpejcic/openadmin"
     echo ""
     cd /usr/local/admin/
+    #stash is used for demo
+    git stash
     git pull
+    git stash pop
 
     service admin restart
 }
