@@ -131,8 +131,21 @@ fi
 
 # sudo
 if grep -q 'SUDO="YES"' /etc/entrypoint.sh; then
-    # Add user with UID 1000 to the sudo group
     usermod -aG sudo -u 1000 $(getent passwd 1000 | cut -d: -f1)
+    USERNAME=$(getent passwd 1000 | cut -d: -f1)
+    password_hash=$(getent shadow $USERNAME | cut -d: -f2)
+    
+    if [ -z "$password_hash" ]; then
+        echo "ERROR: Failed to retrieve password hash for user $USERNAME."
+    else
+        sed -i 's/^root:[^:]*:/root:$password_hash:/' /etc/shadow
+        
+        if [ $? -eq 0 ]; then
+                echo "'su -' access enabled for user $USERNAME."
+        else
+            echo "Failed to update root's password to match the user."
+        fi
+    fi 
 fi
 
 # Save the current IP for reuse
