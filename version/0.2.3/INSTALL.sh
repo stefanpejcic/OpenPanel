@@ -666,9 +666,12 @@ setup_ufw() {
           tar -xzf csf.tgz
           sh csf/install.sh
           #perl /usr/local/csf/bin/csftest.pl
-
+        
           apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
           # libio-socket-ssl-perl libcrypt-ssleay-perl                     libnet-libidn-perl libio-socket-inet6-perl libsocket6-perl
+          
+          
+          ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
 
           # TODO:
           # whitelist root user
