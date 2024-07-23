@@ -767,6 +767,7 @@ setup_firewall_service() {
           csf -r
           systemctl restart docker
           systemctl enable csf
+          service csf enable
           
         
         elif [ "$UFW_SETUP" = true ]; then
