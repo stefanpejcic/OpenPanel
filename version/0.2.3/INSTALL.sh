@@ -314,12 +314,13 @@ parse_args() {
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
         echo "  --overlay2                      Enable overlay2 storage driver instead of device-mapper."
-        echo "  --skip-firewall                 Skip UFW setup UFW - Only do this if you will set another Firewall manually!"
+        echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
+        echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
+        echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
         echo "  --skip-images                   Skip installing openpanel/nginx and openpanel/apache docker images."
         echo "  --skip-blacklists               Do not set up IP sets and blacklists."
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
-        echo "  --ips                           Whiteliste IP addresses of OpenPanel Support Team."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --enable-ftp                    Install FTP (experimental)."
         echo "  --enable-mail                   Install Mail (experimental)."
@@ -391,9 +392,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --debug)
             DEBUG=true
-            ;;
-        --ips)
-            SUPPORT_IPS=true
             ;;
         --no-ssh)
             NO_SSH=true
@@ -723,19 +721,6 @@ setup_ufw() {
               else
                   bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh) > /dev/null 2>&1
               fi
-          fi
-          
-          if [ "$SUPPORT_IPS" = true ]; then
-              # Whitelisting our VPN ip addresses from https://ip.openpanel.co/ips/
-              ip_list=$(curl -s https://ip.openpanel.co/ips/)
-              ip_list=$(echo "$ip_list" | sed 's/<br \/>/\n/g')
-          
-          echo "Whitelisting IPs from https://ip.openpanel.co/ips/"
-  
-              while IFS= read -r ip; do
-                  ip=$(echo "$ip" | tr -d '[:space:]')
-                  debug_log ufw allow from $ip
-              done <<< "$ip_list"
           fi
 
           debug_log ufw --force enable
