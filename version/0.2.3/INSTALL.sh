@@ -35,42 +35,40 @@ RED='\033[0;31m'
 RESET='\033[0m'
 
 # Defaults
-CUSTOM_VERSION=false
-INSTALL_TIMEOUT=600 # 10 min
-DEBUG=false
+CUSTOM_VERSION=false #default is latest
+INSTALL_TIMEOUT=600 # 10 min max
+DEBUG=false #verbose output
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false
+SKIP_IMAGES=false #downloaded on acc creation
 REPAIR=false
-LOCALES=true
-NO_SSH=false
-INSTALL_FTP=false
-INSTALL_MAIL=false
-OVERLAY=false
-IPSETS=true
-SET_HOSTNAME_NOW=false
+LOCALES=true #only en
+NO_SSH=false #deny port 22
+INSTALL_FTP=false #no ui
+INSTALL_MAIL=false #no ui
+OVERLAY=false # needed for ubuntu24 and debian12
+IPSETS=true #currently only with ufw
+SET_HOSTNAME_NOW=false #FQDN
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1"
+SWAP_FILE="1" #calculated based on ram
 SELFHOSTED_SCREENSHOTS=false
-SEND_EMAIL_AFTER_INSTALL=false
-SET_PREMIUM=false
-UFW_SETUP=false
-CSF_SETUP=true
-
-
+SEND_EMAIL_AFTER_INSTALL=false 
+SET_PREMIUM=false #added in 0.2.1
+UFW_SETUP=false #previous default on <0.2.3
+CSF_SETUP=true #default since >0.2.2
+SET_ADMIN_USERNAME=false #random
+SET_ADMIN_PASSWORD=false #random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" #default since 0.2.1
 
 # Paths
-ETC_DIR="/etc/openpanel/"
-LOG_FILE="openpanel_install.log"
-LOCK_FILE="/root/openpanel.lock"
-OPENPANEL_DIR="/usr/local/panel/"
-OPENPADMIN_DIR="/usr/local/admin/"
-OPENCLI_DIR="/usr/local/admin/scripts/"
-OPENPANEL_ERR_DIR="/var/log/openpanel/"
-SERVICES_DIR="/etc/systemd/system/"
-TEMP_DIR="/tmp/"
-
-# Domains
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot"
+ETC_DIR="/etc/openpanel/" #comf files
+LOG_FILE="openpanel_install.log" #install log
+LOCK_FILE="/root/openpanel.lock" # install running
+OPENPANEL_DIR="/usr/local/panel/" #openpanel running successfully
+OPENPADMIN_DIR="/usr/local/admin/" #openadmin files
+OPENCLI_DIR="/usr/local/admin/scripts/" #opencli scripts
+OPENPANEL_ERR_DIR="/var/log/openpanel/" #logs
+SERVICES_DIR="/etc/systemd/system/" #services
+TEMP_DIR="/tmp/" #cleaned at the end
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -325,7 +323,9 @@ parse_args() {
     show_help() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
-        echo "  --hostname=<hostname>           Set the hostname."
+        echo "  --hostname=<hostname>           Set the hostname - must be FQDN, example: server.example.net."
+        echo "  --username=<username>           Set Admin username - random generated if not provided."
+        echo "  --password=<password>           Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
         echo "  --skip-requirements             Skip the requirements check."
@@ -365,6 +365,14 @@ while [[ $# -gt 0 ]]; do
         --hostname=*)
             SET_HOSTNAME_NOW=true
             new_hostname="${1#*=}"
+            ;;
+        --username=*)
+            SET_ADMIN_USERNAME=true
+            custom_username="${1#*=}"
+            ;;
+        --password=*)
+            SET_ADMIN_PASSWORD=true
+            custom_password="${1#*=}"
             ;;
         --skip-requirements)
             SKIP_REQUIREMENTS=true
@@ -1325,11 +1333,21 @@ create_admin_and_show_logins_success_message() {
     exec > /dev/tty
     exec 2>&1
 
-    # not saved in log!
-    wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
-    source /tmp/generate.sh
-    new_username=($random_name)
-    new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    # added in 0.2.3
+    # option to specify logins
+    if [ "$SET_ADMIN_USERNAME" = true ]; then
+       new_username=($custom_username)
+    else
+       wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
+       source /tmp/generate.sh
+       new_username=($random_name)
+    fi
+
+    if [ "$SET_ADMIN_PASSWORD" = true ]; then
+       new_password=($custom_password)
+    else
+       new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    fi
     
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
 
