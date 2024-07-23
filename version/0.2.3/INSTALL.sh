@@ -763,6 +763,7 @@ setup_firewall_service() {
             
           set_csf_email_address
           csf -r
+          systemctl restart docker
           systemctl enable csf
           
         
