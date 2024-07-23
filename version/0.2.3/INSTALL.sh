@@ -169,6 +169,14 @@ if [ "$CUSTOM_VERSION" = false ]; then
     fi
 fi
 
+
+
+# configure apt to retry downloading on error
+if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
+	echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
+fi
+
+
 # helper function used by nginx to edit https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/default.conf
 is_valid_ipv4() {
     local ip=$1
