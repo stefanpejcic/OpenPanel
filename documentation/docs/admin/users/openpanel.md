@@ -69,11 +69,11 @@ To create a new user, click on the 'New User' button on the Users page. A new se
 To create a new user run the following command:
 
 ```bash
-opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_ID>
+opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_NAME>
 ```
 Example: 
 ```bash
-opencli user-add filip masdhjkb213g filip@openadmin.co 1
+opencli user-add filip masdhjkb213g filip@openadmin.co default_plan_apache
 ```
 
 :::tip
