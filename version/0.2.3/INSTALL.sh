@@ -672,6 +672,7 @@ setup_firewall_service() {
 
               # autologin from openpanel
               ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
+              chmod +x /usr/local/admin/modules/security/csf.pl
           }
 
 
