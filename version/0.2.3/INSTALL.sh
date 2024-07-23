@@ -692,7 +692,7 @@ setup_firewall_service() {
                 fi
             }
 
-    
+
             function open_port_csf() {
                 local port=$1
                 local csf_conf="/etc/csf/csf.conf"
@@ -706,6 +706,23 @@ setup_firewall_service() {
                     ports_opened=1
                 else
                     echo "Port ${port} is already open in CSF."
+                fi
+            }
+
+    
+            function open_tcpout_csf() {
+                local port=$1
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_OUT = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
+                    echo "TCP_OUT port ${port} opened in CSF."
+                    ports_opened=1
+                else
+                    echo "TCP_OUT port ${port} is already open in CSF."
                 fi
             }
 
@@ -727,6 +744,7 @@ setup_firewall_service() {
           install_csf
           edit_csf_conf
           open_out_port_csf
+          open_tcpout_csf 3306 #mysql tcp_out only
           open_port_csf 22 #ssh
           open_port_csf 53 #dns
           open_port_csf 80 #http
