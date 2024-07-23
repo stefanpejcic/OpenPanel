@@ -1272,13 +1272,13 @@ install_openadmin(){
         echo "Downloading files for Ubuntu22 and python version $current_python_version"
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt
+        debug_log pip install --default-timeout=3600 -r requirements.txt
     # Ubuntu 24
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
         echo "Downloading files for Ubuntu24 and python version $current_python_version"
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt --break-system-packages
+        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
 
         # on ubuntu24 we need to use overlay instead of devicemapper!
         OVERLAY=true
@@ -1290,7 +1290,7 @@ install_openadmin(){
         echo "Downloading files for Debian and python version $current_python_version"
         git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt --break-system-packages
+        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
     # other
     else
         echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
