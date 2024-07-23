@@ -663,7 +663,9 @@ setup_firewall_service() {
               wget https://download.configserver.com/csf.tgz
               tar -xzf csf.tgz
               rm csf.tgz
-              sh csf/install.sh
+              cd csf
+              sh install.sh
+              cd ..
               rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
 
