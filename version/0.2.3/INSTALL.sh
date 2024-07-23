@@ -367,17 +367,16 @@ while [[ $# -gt 0 ]]; do
         --skip-firewall)
             SKIP_FIREWALL=true
             ;;
+        --csf)
+            SKIP_FIREWALL=false
+            UFW_SETUP=false
+            CSF_SETUP=true
+            ;;
         --ufw)
             SKIP_FIREWALL=false
             UFW_SETUP=true
             CSF_SETUP=false
             ;;
-        --ufw)
-            SKIP_FIREWALL=false
-            UFW_SETUP=false
-            CSF_SETUP=true
-            ;;
-
         --skip-images)
             SKIP_IMAGES=true
             ;;
@@ -675,7 +674,7 @@ setup_ufw() {
 
           # TODO:
           # whitelist root user
-          # open ports
+          opencli firewall-reset
           # enable iset blocklists
           # enable lfd alerts if email is set, otherwise disable
           # set mail continer for smtp
@@ -684,6 +683,11 @@ setup_ufw() {
         
         if [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
+          
+          # set ufw to be monitored instead of csf
+          sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json"  > /dev/null 2>&1 &&  
+          sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/services.json"  > /dev/null 2>&1 &&
+          
           debug_log wget -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
           debug_log chmod +x /usr/local/bin/ufw-docker
 
@@ -697,7 +701,7 @@ setup_ufw() {
           debug_log ufw allow 2083/tcp #openpanel
           debug_log ufw allow 2087/tcp #openadmin 
           
-  
+          
           if [ "$NO_SSH" = false ]; then
   
               # whitelist user running the script
