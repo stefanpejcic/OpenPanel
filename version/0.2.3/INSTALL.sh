@@ -672,7 +672,7 @@ setup_firewall_service() {
           # disable testing
           
         
-        if [ "$UFW_SETUP" = true ]; then
+        elif [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
           
           # set ufw to be monitored instead of csf
@@ -720,6 +720,7 @@ setup_firewall_service() {
           debug_log ufw reload
   
           debug_log service ufw restart
+          fi
     fi
 }
 
