@@ -673,6 +673,13 @@ setup_firewall_service() {
               # autologin from openpanel
               ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
               chmod +x /usr/local/admin/modules/security/csf.pl
+
+
+              # play nice with docker
+              git clone https://github.com/stefanpejcic/csfpost-docker.sh
+              mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
+              chmod +x /usr/local/csf/bin/csfpost.sh
+              rm -rf csfpost-docker.sh             
           }
 
 
