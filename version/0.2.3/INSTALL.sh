@@ -244,6 +244,7 @@ set_system_cronjob
 set_custom_hostname
 generate_and_set_ssl_for_panels
 setup_firewall_service
+tweak_ssh
 setup_swap
 clean_apt_cache
 verify_license
@@ -637,7 +638,22 @@ clean_apt_cache(){
     # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
 }
 
+tweak_ssh(){
+   echo "Tweaking SSH service.."
+   echo ""
 
+   sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
+
+   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
+	   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
+	   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
+		   echo '' >> /etc/ssh/sshd_config # fallback
+		   echo 'DebianBanner no' >> /etc/ssh/sshd_config
+	   fi
+   fi
+
+   systemctl restart ssh
+}
 
 setup_ftp() {
         if [ "$INSTALL_FTP" = true ]; then
