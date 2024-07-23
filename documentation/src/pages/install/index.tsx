@@ -17,6 +17,8 @@ const defaultOptions: InstallOptions = {
     hostname: { value: "", description: "Set the FQDN hostname." },
     version: { value: "", description: "Set a custom OpenPanel version to be installed." },
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
+    username: { value: "", description: "Set admin username (by default random generated)." },
+    email: { value: "", description: "Set admin password (by default random generated)." },
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
