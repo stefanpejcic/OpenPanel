@@ -151,7 +151,7 @@ is_package_installed() {
 
 
 # Get server ipv4 from ip.openpanel.co
-current_ip=$(curl -s https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
+current_ip=$(curl --silent --max-time 15 -4 https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
 
 # If site is not available, get the ipv4 from the hostname -I
 if [ -z "$current_ip" ]; then
@@ -163,7 +163,7 @@ fi
 
 if [ "$CUSTOM_VERSION" = false ]; then
     # Fetch the latest version
-    version=$(curl -s https://get.openpanel.co/version)
+    version=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
     if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
         version=$version
     else
