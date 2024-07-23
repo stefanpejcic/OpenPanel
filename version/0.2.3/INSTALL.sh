@@ -651,25 +651,93 @@ setup_firewall_service() {
         echo "Setting up the firewall.."
 
         if [ "$CSF_SETUP" = true ]; then
-        echo "Setting up ConfigServer Firewall.."
-          wget https://download.configserver.com/csf.tgz
-          tar -xzf csf.tgz
-          sh csf/install.sh
-          #perl /usr/local/csf/bin/csftest.pl
-        
-          apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
-          # libio-socket-ssl-perl libcrypt-ssleay-perl                     libnet-libidn-perl libio-socket-inet6-perl libsocket6-perl
-          
-          
-          ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
+          echo "Setting up ConfigServer Firewall.."
 
-          # TODO:
-          # whitelist root user
-          opencli firewall-reset
-          # enable iset blocklists
-          # enable lfd alerts if email is set, otherwise disable
-          # set mail continer for smtp
-          # disable testing
+
+          read_email_address() {
+              email=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
+              echo "$email"
+          }
+        
+          install_csf() {
+              wget https://download.configserver.com/csf.tgz
+              tar -xzf csf.tgz
+              rm csf.tgz
+              sh csf/install.sh
+              rm -rf csf
+              #perl /usr/local/csf/bin/csftest.pl
+
+              # for csf ui
+              apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+
+              # autologin from openpanel
+              ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
+          }
+
+
+
+            function open_out_port_csf() {
+                port="3306"
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_OUT = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
+                    echo "Port ${port} opened in CSF."
+                else
+                    echo "Port ${port} is already open in CSF."
+                fi
+            }
+
+    
+            function open_port_csf() {
+                local port=$1
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_IN = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
+                    echo "Port ${port} opened in CSF."
+                    ports_opened=1
+                else
+                    echo "Port ${port} is already open in CSF."
+                fi
+            }
+
+          edit_csf_conf() {
+              sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
+              sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
+              sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
+          }
+      
+          set_csf_email_address() {
+              email_address=$(read_email_address)
+              if [[ -n "$email_address" ]]; then
+                  sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
+              fi
+          }
+      
+              
+          read_email_address
+          install_csf
+          edit_csf_conf
+          open_out_port_csf
+          open_port_csf 22 #ssh
+          open_port_csf 53 #dns
+          open_port_csf 80 #http
+          open_port_csf 443 #https
+          open_port_csf 2083 #user
+          open_port_csf 2087 #admin
+          open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") #ssh
+          open_port_csf 32768:60999 #docker
+            
+          set_csf_email_address
+          csf -r
+          systemctl enable csf
           
         
         elif [ "$UFW_SETUP" = true ]; then
