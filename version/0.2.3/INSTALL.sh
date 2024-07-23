@@ -171,6 +171,28 @@ if [ "$CUSTOM_VERSION" = false ]; then
     fi
 fi
 
+# helper function used by nginx to edit https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/default.conf
+is_valid_ipv4() {
+    local ip=$1
+    local IFS=.
+    local -a octets=($ip)
+    
+    if [ ${#octets[@]} -ne 4 ]; then
+        return 1
+    fi
+
+    for octet in "${octets[@]}"; do
+        if ! [[ $octet =~ ^[0-9]+$ ]] || [ $octet -lt 0 ] || [ $octet -gt 255 ]; then
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+
+
+
 
 # print fullwidth line
 print_space_and_line() {
@@ -182,14 +204,11 @@ print_space_and_line() {
 
 
 # Progress bar script
-
 PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 PROGRESS_BAR_FILE="progress_bar.sh"
-
 wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-
 if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-    echo "Failed to download progress_bar.sh"
+    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
     exit 1
 fi
 
@@ -198,7 +217,6 @@ source "$PROGRESS_BAR_FILE"
 
 # Dsiplay progress bar
 FUNCTIONS=(
-#FUNKCIJE
 detect_os_and_package_manager
 update_package_manager
 install_packages
@@ -209,7 +227,6 @@ add_file_watcher
 configure_docker
 download_and_import_docker_images
 docker_compose_up
-#docker_compose_check_health
 panel_customize
 set_premium_features
 configure_nginx
@@ -220,7 +237,7 @@ setup_ftp
 set_system_cronjob
 set_custom_hostname
 generate_and_set_ssl_for_panels
-setup_ufw
+setup_firewall_service
 setup_swap
 clean_apt_cache
 verify_license
@@ -250,6 +267,7 @@ main() {
     done
     destroy_scroll_area
 }
+
 
 
 
@@ -556,31 +574,6 @@ configure_docker() {
 }
 
 
-docker_compose_check_health(){
-    all_healthy=true
-    containers=$(docker ps --format '{{.Names}}\t{{.Status}}')
-
-    while IFS=$'\t' read -r name status; do
-        if [[ "$status" != *"(healthy)"* ]]; then
-            echo "Container $name is not healthy. Status: $status"
-            all_healthy=false
-        fi
-    done <<< "$containers"
-
-    # Proceed if all containers are healthy
-    if $all_healthy; then
-        echo "All containers are healthy. Proceeding with next installation steps..."
-    else
-        echo "Some containers are not healthy. Investigate and retry."
-        exit 1
-    fi
-
-}
-
-
-
-
-
 
 docker_compose_up(){
     echo "Setting Openpanel and MySQL docker containers.."
@@ -653,7 +646,7 @@ add_file_watcher(){
 
 
 
-setup_ufw() {
+setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
 
@@ -863,22 +856,13 @@ helper_function_for_nginx_on_aws_and_azure(){
     #
     # https://stackoverflow.com/questions/3191509/nginx-error-99-cannot-assign-requested-address/13141104#13141104
     #
-
-    # Check the status of nginx service and capture the output
     nginx_status=$(systemctl status nginx 2>&1)
 
     # Search for "Cannot assign requested address" in the output
     if echo "$nginx_status" | grep -q "Cannot assign requested address"; then
-
-        # If found, append the required line to /etc/sysctl.conf
         echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
-        
-        # Reload the sysctl configuration
         sysctl -p /etc/sysctl.conf
-
-        # Change the bind ip in default nginx config
         sed -i "s/IP_HERE/*/" /etc/nginx/sites-enabled/default
-
         debug_log "echo Configuration updated and applied."
     else
         debug_log "echo Nginx started normally."
@@ -967,8 +951,12 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
 
     # Replace IP_HERE with the value of $current_ip
-    #sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
-    # MAKES PROBLEMS, REWRITE!
+    if is_valid_ipv4 "$current_ip"; then
+        sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
+        echo "Disabled access on IP address $current_ip:80 and Nginx will deny access to domains that are not added by users."
+    else
+        echo "WARNING: Invalid IPv4 address: $current_ip - First available domain will be served by Nginx on direct IP access."
+    fi
     
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
