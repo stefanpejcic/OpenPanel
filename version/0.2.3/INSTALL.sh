@@ -449,7 +449,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         --version=*)
             CUSTOM_VERSION=true
-            version="${1#*=}"
+            PANEL_VERSION="${1#*=}"
             ;;
         --swap=*)
             SETUP_SWAP_ANYWAY=true
