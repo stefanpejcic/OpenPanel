@@ -1047,14 +1047,14 @@ opencli_setup(){
     wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
-    cp -r ${TEMP_DIR}opencli/opencli /usr/local/admin/scripts   > /dev/null 2>&1
-    cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts   > /dev/null 2>&1
-    rm ${TEMP_DIR}opencli.tar.gz 
-    rm -rf ${TEMP_DIR}opencli
+    cp -r ${TEMP_DIR}opencli/opencli /usr/local/admin/scripts > /dev/null 2>&1 || cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
+    mkdir -p ${TEMP_DIR}opencli
+    rm ${TEMP_DIR}opencli.tar.gz > /dev/null 2>&1
+    rm -rf ${TEMP_DIR}opencli > /dev/null 2>&1
 
     cp  ${OPENCLI_DIR}opencli /usr/local/bin/opencli
-    chmod +x /usr/local/bin/opencli
-    chmod +x -R $OPENCLI_DIR
+    chmod +x /usr/local/bin/opencli > /dev/null 2>&1
+    chmod +x -R $OPENCLI_DIR > /dev/null 2>&1
     #opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
