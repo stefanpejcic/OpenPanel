@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 23.07.2024
+# Last Modified: 24.07.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -149,7 +149,7 @@ is_package_installed() {
 
 
 # Get server ipv4 from ip.openpanel.co
-current_ip=$(curl --silent --max-time 15 -4 https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
+current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || wget --timeout=2 -qO- https://ip.openpanel.co || curl --silent --max-time 2 -4 https://ifconfig.me)
 
 # If site is not available, get the ipv4 from the hostname -I
 if [ -z "$current_ip" ]; then
