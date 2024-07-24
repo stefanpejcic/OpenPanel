@@ -147,28 +147,32 @@ is_package_installed() {
 }
 
 
+get_server_ipv4(){
 
-# Get server ipv4 from ip.openpanel.co
-current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || wget --timeout=2 -qO- https://ip.openpanel.co || curl --silent --max-time 2 -4 https://ifconfig.me)
+	# Get server ipv4 from ip.openpanel.co
+	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || wget --timeout=2 -qO- https://ip.openpanel.co || curl --silent --max-time 2 -4 https://ifconfig.me)
+	
+	# If site is not available, get the ipv4 from the hostname -I
+	if [ -z "$current_ip" ]; then
+	   # current_ip=$(hostname -I | awk '{print $1}')
+	    # ip addr command is more reliable then hostname - to avoid getting private ip
+	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
+	fi
 
-# If site is not available, get the ipv4 from the hostname -I
-if [ -z "$current_ip" ]; then
-   # current_ip=$(hostname -I | awk '{print $1}')
-    # ip addr command is more reliable then hostname - to avoid getting private ip
-    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
-fi
+}
 
+set_version_to_install(){
 
-if [ "$CUSTOM_VERSION" = false ]; then
-    # Fetch the latest version
-    version=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
-    if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
-        version=$version
-    else
-        version="0.2.3"
-    fi
-fi
-
+	if [ "$CUSTOM_VERSION" = false ]; then
+	    # Fetch the latest version
+	    version=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
+	    if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+	        version=$version
+	    else
+	        version="0.2.3"
+	    fi
+	fi
+}
 
 
 # configure apt to retry downloading on error
@@ -1417,9 +1421,13 @@ create_admin_and_show_logins_success_message() {
 #                                                                   #
 #####################################################################
 
-print_header
-
 parse_args "$@"
+
+get_server_ipv4
+
+set_version_to_install
+
+print_header
 
 check_requirements
 
