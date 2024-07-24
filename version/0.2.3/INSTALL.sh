@@ -68,7 +68,6 @@ OPENPADMIN_DIR="/usr/local/admin/" #openadmin files
 OPENCLI_DIR="/usr/local/admin/scripts/" #opencli scripts
 OPENPANEL_ERR_DIR="/var/log/openpanel/" #logs
 SERVICES_DIR="/etc/systemd/system/" #services
-TEMP_DIR="/tmp/" #cleaned at the end
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -1042,20 +1041,19 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     echo ""
-    mkdir -p /usr/local/admin/
+    mkdir -p /usr/local/admin
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
-    mkdir -p ${TEMP_DIR}opencli
-    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
-    mkdir -p ${OPENCLI_DIR}
-    cp -r ${TEMP_DIR}opencli/ /usr/local/admin/scripts > /dev/null 2>&1 || cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
-    mkdir -p ${TEMP_DIR}opencli
-    rm ${TEMP_DIR}opencli.tar.gz > /dev/null 2>&1
-    rm -rf ${TEMP_DIR}opencli > /dev/null 2>&1
+    wget -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    mkdir -p /tmp/opencli
+    cd /tmp/ && tar -xzf opencli.tar.gz -C /tmp/opencli
+    mkdir -p /usr/local/admin/scripts
+    cp -r /tmp/opencli/* /usr/local/admin/scripts > /dev/null 2>&1 || cp -r /tmp/opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
+    rm /tmp/opencli.tar.gz > /dev/null 2>&1
+    rm -rf /tmp/opencli > /dev/null 2>&1
 
-    cp  ${OPENCLI_DIR}opencli /usr/local/bin/opencli
+    cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli > /dev/null 2>&1
-    chmod +x -R $OPENCLI_DIR > /dev/null 2>&1
+    chmod +x -R /usr/local/admin/scripts/ > /dev/null 2>&1
     #opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
