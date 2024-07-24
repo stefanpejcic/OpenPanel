@@ -96,7 +96,7 @@ print_header() {
     echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
     echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
     echo -e "         | |                                                  "
-    echo -e "         |_|                                   version: $version "
+    echo -e "         |_|                                   version: $PANEL_VERSION "
 
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
@@ -165,11 +165,11 @@ set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
 	    # Fetch the latest version
-	    version=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
-	    if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
-	        version=$version
+	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
+	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        version="0.2.3"
+	        PANEL_VERSION="0.2.3"
 	    fi
 	fi
 }
@@ -399,7 +399,7 @@ while [[ $# -gt 0 ]]; do
         --repair)
             REPAIR=true
             SKIP_PANEL_CHECK=true
-            SKIP_REQUIREMENTS=true
+            #SKIP_REQUIREMENTS=true
             ;;
         --overlay2)
             OVERLAY=true
@@ -1044,7 +1044,7 @@ opencli_setup(){
     echo ""
     mkdir -p /usr/local/admin/
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${VERSION}/get.openpanel.co/downloads/${VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${VERSION}/get.openpanel.co/downloads/${VERSION}/opencli/opencli-main.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
     mkdir -p ${TEMP_DIR}opencli
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     cp -r ${TEMP_DIR}opencli/opencli-main /usr/local/admin/scripts
