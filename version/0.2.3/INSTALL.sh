@@ -772,6 +772,7 @@ setup_firewall_service() {
 
           edit_csf_conf() {
               sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
+	      sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
               sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
               sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
           }
