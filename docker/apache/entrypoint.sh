@@ -116,16 +116,13 @@ chmod 700 /etc/apache2/sites-enabled
 
 sites_available_dir="/etc/apache2/sites-available"
 
-if [ "$(grep 'OLD_IP="tst"' /etc/entrypoint.sh)" ]; then
-    echo "Apache is not started, since there are no websites yet."
-else
-  # if there are any sites, start the service
-  if [ "$(ls -A $sites_available_dir | grep -v 'default')" ]; then
+
+# if there are any sites, start the service
+if [ "$(ls -A $sites_available_dir | grep -v 'default')" ]; then
     service apache2 start
     echo "Apache service started."
-  else
+else
     echo "No websites found in $sites_available_dir. Apache service not started automatically."
-  fi
 fi
 
 
