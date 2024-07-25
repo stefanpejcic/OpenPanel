@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 16.07.2024
+# Last Modified: 24.07.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -35,38 +35,39 @@ RED='\033[0;31m'
 RESET='\033[0m'
 
 # Defaults
-CUSTOM_VERSION=false
-INSTALL_TIMEOUT=600 # 10 min
-DEBUG=false
+CUSTOM_VERSION=false #default is latest
+INSTALL_TIMEOUT=600 # 10 min max
+DEBUG=false #verbose output
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false
+SKIP_IMAGES=false #downloaded on acc creation
 REPAIR=false
-LOCALES=true
-NO_SSH=false
-INSTALL_FTP=false
-INSTALL_MAIL=false
-OVERLAY=false
-IPSETS=true
-SET_HOSTNAME_NOW=false
+LOCALES=true #only en
+NO_SSH=false #deny port 22
+INSTALL_FTP=false #no ui
+INSTALL_MAIL=false #no ui
+OVERLAY=false # needed for ubuntu24 and debian12
+IPSETS=true #currently only with ufw
+SET_HOSTNAME_NOW=false #FQDN
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1"
+SWAP_FILE="1" #calculated based on ram
 SELFHOSTED_SCREENSHOTS=false
-SEND_EMAIL_AFTER_INSTALL=false
-SET_PREMIUM=false
+SEND_EMAIL_AFTER_INSTALL=false 
+SET_PREMIUM=false #added in 0.2.1
+UFW_SETUP=false #previous default on <0.2.3
+CSF_SETUP=true #default since >0.2.2
+SET_ADMIN_USERNAME=false #random
+SET_ADMIN_PASSWORD=false #random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" #default since 0.2.1
 
 # Paths
-ETC_DIR="/etc/openpanel/"
-LOG_FILE="openpanel_install.log"
-LOCK_FILE="/root/openpanel.lock"
-OPENPANEL_DIR="/usr/local/panel/"
-OPENPADMIN_DIR="/usr/local/admin/"
-OPENCLI_DIR="/usr/local/admin/scripts/"
-OPENPANEL_ERR_DIR="/var/log/openpanel/"
-SERVICES_DIR="/etc/systemd/system/"
-TEMP_DIR="/tmp/"
-
-# Domains
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot"
+ETC_DIR="/etc/openpanel/" #comf files
+LOG_FILE="openpanel_install.log" #install log
+LOCK_FILE="/root/openpanel.lock" # install running
+OPENPANEL_DIR="/usr/local/panel/" #openpanel running successfully
+OPENPADMIN_DIR="/usr/local/admin/" #openadmin files
+OPENCLI_DIR="/usr/local/admin/scripts/" #opencli scripts
+OPENPANEL_ERR_DIR="/var/log/openpanel/" #logs
+SERVICES_DIR="/etc/systemd/system/" #services
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -94,7 +95,7 @@ print_header() {
     echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
     echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
     echo -e "         | |                                                  "
-    echo -e "         |_|                                   version: $version "
+    echo -e "         |_|                                   version: $PANEL_VERSION "
 
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
@@ -103,12 +104,7 @@ print_header() {
 
 install_started_message(){
     echo -e ""
-    
-    if [ "$SET_PREMIUM" = true ]; then
-        echo -e "\nStarting the installation of OpenPanel Enterprise edition. This process will take approximately 3-5 minutes."
-    else
-        echo -e "\nStarting the installation of OpenPanel Community edition. This process will take approximately 3-5 minutes."
-    fi
+    echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     echo -e "- Install necessary services and tools."
     echo -e "- Create an admin account for you."
@@ -150,27 +146,61 @@ is_package_installed() {
 }
 
 
+get_server_ipv4(){
 
-# Get server ipv4 from ip.openpanel.co
-current_ip=$(curl -s https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
+	# Get server ipv4 from ip.openpanel.co
+	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || wget --timeout=2 -qO- https://ip.openpanel.co || curl --silent --max-time 2 -4 https://ifconfig.me)
+	
+	# If site is not available, get the ipv4 from the hostname -I
+	if [ -z "$current_ip" ]; then
+	   # current_ip=$(hostname -I | awk '{print $1}')
+	    # ip addr command is more reliable then hostname - to avoid getting private ip
+	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
+	fi
 
-# If site is not available, get the ipv4 from the hostname -I
-if [ -z "$current_ip" ]; then
-   # current_ip=$(hostname -I | awk '{print $1}')
-    # ip addr command is more reliable then hostname - to avoid getting private ip
-    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
+}
+
+set_version_to_install(){
+
+	if [ "$CUSTOM_VERSION" = false ]; then
+	    # Fetch the latest version
+	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
+	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
+	        PANEL_VERSION=$PANEL_VERSION
+	    else
+	        PANEL_VERSION="0.2.3"
+	    fi
+	fi
+}
+
+
+# configure apt to retry downloading on error
+if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
+	echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
 fi
 
 
-if [ "$CUSTOM_VERSION" = false ]; then
-    # Fetch the latest version
-    version=$(curl -s https://get.openpanel.co/version)
-    if [[ $version =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
-        version=$version
-    else
-        version="0.2.2"
+# helper function used by nginx to edit https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/default.conf
+is_valid_ipv4() {
+    local ip=$1
+    local IFS=.
+    local -a octets=($ip)
+    
+    if [ ${#octets[@]} -ne 4 ]; then
+        return 1
     fi
-fi
+
+    for octet in "${octets[@]}"; do
+        if ! [[ $octet =~ ^[0-9]+$ ]] || [ $octet -lt 0 ] || [ $octet -gt 255 ]; then
+            return 1
+        fi
+    done
+
+    return 0
+}
+
+
+
 
 
 # print fullwidth line
@@ -183,14 +213,11 @@ print_space_and_line() {
 
 
 # Progress bar script
-
 PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 PROGRESS_BAR_FILE="progress_bar.sh"
-
 wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-
 if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-    echo "Failed to download progress_bar.sh"
+    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
     exit 1
 fi
 
@@ -199,18 +226,16 @@ source "$PROGRESS_BAR_FILE"
 
 # Dsiplay progress bar
 FUNCTIONS=(
-#FUNKCIJE
 detect_os_and_package_manager
 update_package_manager
 install_packages
 download_skeleton_directory_from_github
 install_openadmin
-add_file_watcher
 opencli_setup
+add_file_watcher
 configure_docker
 download_and_import_docker_images
 docker_compose_up
-#docker_compose_check_health
 panel_customize
 set_premium_features
 configure_nginx
@@ -221,17 +246,11 @@ setup_ftp
 set_system_cronjob
 set_custom_hostname
 generate_and_set_ssl_for_panels
-setup_ufw
+setup_firewall_service
+tweak_ssh
 setup_swap
 clean_apt_cache
 verify_license
-
-print_space_and_line
-support_message
-print_space_and_line
-create_admin_and_show_logins_success_message
-run_custom_postinstall_script
-
 )
 
 
@@ -261,6 +280,7 @@ main() {
 
 
 
+
 # END helper functions
 
 
@@ -283,7 +303,7 @@ check_requirements() {
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-            echo -e "${RED}Error: ARM CPU is not yet supported!${RESET}" >&2
+            echo -e "${RED}Error: ARM CPU is not supported!${RESET}" >&2
             exit 1
         fi
 
@@ -315,19 +335,22 @@ parse_args() {
     show_help() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
-        echo "  --hostname=<hostname>           Set the hostname."
+        echo "  --hostname=<hostname>           Set the hostname - must be FQDN, example: server.example.net."
+        echo "  --username=<username>           Set Admin username - random generated if not provided."
+        echo "  --password=<password>           Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
         echo "  --overlay2                      Enable overlay2 storage driver instead of device-mapper."
-        echo "  --skip-firewall                 Skip UFW setup UFW - Only do this if you will set another Firewall manually!"
+        echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
+        echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
+        echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
         echo "  --skip-images                   Skip installing openpanel/nginx and openpanel/apache docker images."
         echo "  --skip-blacklists               Do not set up IP sets and blacklists."
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
-        echo "  --ips                           Whiteliste IP addresses of OpenPanel Support Team."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --enable-ftp                    Install FTP (experimental)."
         echo "  --enable-mail                   Install Mail (experimental)."
@@ -355,6 +378,14 @@ while [[ $# -gt 0 ]]; do
             SET_HOSTNAME_NOW=true
             new_hostname="${1#*=}"
             ;;
+        --username=*)
+            SET_ADMIN_USERNAME=true
+            custom_username="${1#*=}"
+            ;;
+        --password=*)
+            SET_ADMIN_PASSWORD=true
+            custom_password="${1#*=}"
+            ;;
         --skip-requirements)
             SKIP_REQUIREMENTS=true
             ;;
@@ -367,13 +398,23 @@ while [[ $# -gt 0 ]]; do
         --repair)
             REPAIR=true
             SKIP_PANEL_CHECK=true
-            SKIP_REQUIREMENTS=true
+            #SKIP_REQUIREMENTS=true
             ;;
         --overlay2)
             OVERLAY=true
             ;;
         --skip-firewall)
             SKIP_FIREWALL=true
+            ;;
+        --csf)
+            SKIP_FIREWALL=false
+            UFW_SETUP=false
+            CSF_SETUP=true
+            ;;
+        --ufw)
+            SKIP_FIREWALL=false
+            UFW_SETUP=true
+            CSF_SETUP=false
             ;;
         --skip-images)
             SKIP_IMAGES=true
@@ -389,9 +430,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --debug)
             DEBUG=true
-            ;;
-        --ips)
-            SUPPORT_IPS=true
             ;;
         --no-ssh)
             NO_SSH=true
@@ -410,7 +448,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         --version=*)
             CUSTOM_VERSION=true
-            version="${1#*=}"
+            PANEL_VERSION="${1#*=}"
             ;;
         --swap=*)
             SETUP_SWAP_ANYWAY=true
@@ -442,7 +480,7 @@ detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
         declare -A paths=(
-            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force'${RESET} to update OpenPanel."
+            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
             ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
@@ -556,31 +594,6 @@ configure_docker() {
 }
 
 
-docker_compose_check_health(){
-    all_healthy=true
-    containers=$(docker ps --format '{{.Names}}\t{{.Status}}')
-
-    while IFS=$'\t' read -r name status; do
-        if [[ "$status" != *"(healthy)"* ]]; then
-            echo "Container $name is not healthy. Status: $status"
-            all_healthy=false
-        fi
-    done <<< "$containers"
-
-    # Proceed if all containers are healthy
-    if $all_healthy; then
-        echo "All containers are healthy. Proceeding with next installation steps..."
-    else
-        echo "Some containers are not healthy. Investigate and retry."
-        exit 1
-    fi
-
-}
-
-
-
-
-
 
 docker_compose_up(){
     echo "Setting Openpanel and MySQL docker containers.."
@@ -628,7 +641,22 @@ clean_apt_cache(){
     # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
 }
 
+tweak_ssh(){
+   echo "Tweaking SSH service.."
+   echo ""
 
+   sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
+
+   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
+	   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
+	   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
+		   echo '' >> /etc/ssh/sshd_config # fallback
+		   echo 'DebianBanner no' >> /etc/ssh/sshd_config
+	   fi
+   fi
+
+   systemctl restart ssh
+}
 
 setup_ftp() {
         if [ "$INSTALL_FTP" = true ]; then
@@ -653,62 +681,180 @@ add_file_watcher(){
 
 
 
-setup_ufw() {
+setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
-        debug_log wget -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
-        debug_log chmod +x /usr/local/bin/ufw-docker
+
+        if [ "$CSF_SETUP" = true ]; then
+          echo "Setting up ConfigServer Firewall.."
 
 
-
-        # block all docker ports so we can manually open only what is needed
-        debug_log ufw-docker install
-        debug_log ufw allow 80/tcp #http
-        debug_log ufw allow 53  #dns
-        debug_log ufw allow 443/tcp # https
-        debug_log ufw allow 2083/tcp #openpanel
-        debug_log ufw allow 2087/tcp #openadmin 
+          read_email_address() {
+              email=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
+              echo "$email"
+          }
         
+          install_csf() {
+              wget https://download.configserver.com/csf.tgz
+              tar -xzf csf.tgz
+              rm csf.tgz
+              cd csf
+              sh install.sh
+              cd ..
+              rm -rf csf
+              #perl /usr/local/csf/bin/csftest.pl
 
-        if [ "$NO_SSH" = false ]; then
+              # for csf ui
+              apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
 
-            # whitelist user running the script
-            ip_of_user_running_the_script=$(w -h | grep -m1 -oP '\d+\.\d+\.\d+\.\d+')
-            debug_log ufw allow from $ip_of_user_running_the_script
+              # autologin from openpanel
+              ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
+              chmod +x /usr/local/admin/modules/security/csf.pl
 
-            # close port 22
-            debug_log ufw allow 22  #ssh
-        fi
 
-        # set https://github.com/stefanpejcic/ipset-blacklist
-        if [ "$IPSETS" = true ]; then
-            if [ "$REPAIR" = true ]; then
-                rm -rf ipset-blacklist-master
-            fi
-            if [ "$DEBUG" = true ]; then
-                bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh)
-            else
-                bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh) > /dev/null 2>&1
-            fi
-        fi
+              # play nice with docker
+              git clone https://github.com/stefanpejcic/csfpost-docker.sh
+              mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
+              chmod +x /usr/local/csf/bin/csfpost.sh
+              rm -rf csfpost-docker.sh             
+          }
+
+
+
+            function open_out_port_csf() {
+                port="3306"
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_OUT = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
+                    echo "Port ${port} opened in CSF."
+                else
+                    echo "Port ${port} is already open in CSF."
+                fi
+            }
+
+
+            function open_port_csf() {
+                local port=$1
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_IN = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
+                    echo "Port ${port} opened in CSF."
+                    ports_opened=1
+                else
+                    echo "Port ${port} is already open in CSF."
+                fi
+            }
+
+    
+            function open_tcpout_csf() {
+                local port=$1
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_OUT = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
+                    echo "TCP_OUT port ${port} opened in CSF."
+                    ports_opened=1
+                else
+                    echo "TCP_OUT port ${port} is already open in CSF."
+                fi
+            }
+
+          edit_csf_conf() {
+              sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
+	      sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
+              sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
+              sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
+          }
+      
+          set_csf_email_address() {
+              email_address=$(read_email_address)
+              if [[ -n "$email_address" ]]; then
+                  sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
+              fi
+          }
+      
+              
+          read_email_address
+          install_csf
+          edit_csf_conf
+          open_out_port_csf
+          open_tcpout_csf 3306 #mysql tcp_out only
+          open_port_csf 22 #ssh
+          open_port_csf 53 #dns
+          open_port_csf 80 #http
+          open_port_csf 443 #https
+          open_port_csf 2083 #user
+          open_port_csf 2087 #admin
+          open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") #ssh
+          open_port_csf 32768:60999 #docker
+            
+          set_csf_email_address
+          csf -r
+          systemctl restart docker
+          systemctl enable csf
+          service csf start
+          
         
-        if [ "$SUPPORT_IPS" = true ]; then
-            # Whitelisting our VPN ip addresses from https://ip.openpanel.co/ips/
-            ip_list=$(curl -s https://ip.openpanel.co/ips/)
-            ip_list=$(echo "$ip_list" | sed 's/<br \/>/\n/g')
-        
-        echo "Whitelisting IPs from https://ip.openpanel.co/ips/"
+        elif [ "$UFW_SETUP" = true ]; then
+          echo "Setting up UncomplicatedFirewall.."
+          
+          # set ufw to be monitored instead of csf
+          sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/notifications.ini"  > /dev/null 2>&1
+          sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
+          sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/services.json"  > /dev/null 2>&1
+          
+          debug_log wget -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
+          debug_log chmod +x /usr/local/bin/ufw-docker
 
-            while IFS= read -r ip; do
-                ip=$(echo "$ip" | tr -d '[:space:]')
-                debug_log ufw allow from $ip
-            done <<< "$ip_list"
-        fi
 
-        debug_log ufw --force enable
-        debug_log ufw reload
+  
+          # block all docker ports so we can manually open only what is needed
+          debug_log ufw-docker install
+          debug_log ufw allow 80/tcp #http
+          debug_log ufw allow 53  #dns
+          debug_log ufw allow 443/tcp # https
+          debug_log ufw allow 2083/tcp #openpanel
+          debug_log ufw allow 2087/tcp #openadmin 
+          
+          
+          if [ "$NO_SSH" = false ]; then
+  
+              # whitelist user running the script
+              ip_of_user_running_the_script=$(w -h | grep -m1 -oP '\d+\.\d+\.\d+\.\d+')
+              debug_log ufw allow from $ip_of_user_running_the_script
+  
+              # close port 22
+              debug_log ufw allow 22  #ssh
+          fi
 
-        debug_log service ufw restart
+          # set https://github.com/stefanpejcic/ipset-blacklist
+          if [ "$IPSETS" = true ]; then
+              if [ "$REPAIR" = true ]; then
+                  rm -rf ipset-blacklist-master
+              fi
+              if [ "$DEBUG" = true ]; then
+                  bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh)
+              else
+                  bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh) > /dev/null 2>&1
+              fi
+          fi
+
+          debug_log ufw --force enable
+          debug_log ufw reload
+  
+          debug_log service ufw restart
+          fi
     fi
 }
 
@@ -845,22 +991,13 @@ helper_function_for_nginx_on_aws_and_azure(){
     #
     # https://stackoverflow.com/questions/3191509/nginx-error-99-cannot-assign-requested-address/13141104#13141104
     #
-
-    # Check the status of nginx service and capture the output
     nginx_status=$(systemctl status nginx 2>&1)
 
     # Search for "Cannot assign requested address" in the output
     if echo "$nginx_status" | grep -q "Cannot assign requested address"; then
-
-        # If found, append the required line to /etc/sysctl.conf
         echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
-        
-        # Reload the sysctl configuration
         sysctl -p /etc/sysctl.conf
-
-        # Change the bind ip in default nginx config
         sed -i "s/IP_HERE/*/" /etc/nginx/sites-enabled/default
-
         debug_log "echo Configuration updated and applied."
     else
         debug_log "echo Nginx started normally."
@@ -905,18 +1042,19 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     echo ""
-    mkdir -p /usr/local/admin/
+    mkdir -p /usr/local/admin
 
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${version}/get.openpanel.co/downloads/${version}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${version}/get.openpanel.co/downloads/${version}/opencli/opencli-main.tar.gz"
-    mkdir -p ${TEMP_DIR}opencli
-    cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
-    cp -r ${TEMP_DIR}opencli/* /usr/local/admin/scripts
-    ######rm ${TEMP_DIR}opencli.tar.gz 
-    ######rm -rf ${TEMP_DIR}opencli
+    wget -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    mkdir -p /tmp/opencli
+    cd /tmp/ && tar -xzf opencli.tar.gz -C /tmp/opencli
+    mkdir -p /usr/local/admin/scripts
+    cp -r /tmp/opencli/* /usr/local/admin/scripts > /dev/null 2>&1 || cp -r /tmp/opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
+    rm /tmp/opencli.tar.gz > /dev/null 2>&1
+    rm -rf /tmp/opencli > /dev/null 2>&1
 
     cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
-    chmod +x /usr/local/bin/opencli
-    chmod +x -R $OPENCLI_DIR
+    chmod +x /usr/local/bin/opencli > /dev/null 2>&1
+    chmod +x -R /usr/local/admin/scripts/ > /dev/null 2>&1
     #opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
@@ -949,8 +1087,12 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
 
     # Replace IP_HERE with the value of $current_ip
-    #sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
-    # MAKES PROBLEMS, REWRITE!
+    if is_valid_ipv4 "$current_ip"; then
+        sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
+        echo "Disabled access on IP address $current_ip:80 and Nginx will deny access to domains that are not added by users."
+    else
+        echo "WARNING: Invalid IPv4 address: $current_ip - First available domain will be served by Nginx on direct IP access."
+    fi
     
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
@@ -965,9 +1107,9 @@ configure_nginx() {
 
 
 set_premium_features(){
- if [ "$SET_PREMIUM" = true ]; then
-    echo "Adding OpenPanel Enterprise license key $license_key"
-    opencli license "$license_key"
+ if [ "$SET_HOSTNAME_NOW" = true ]; then
+    echo "Setting OpenPanel enterprise version license key $license_key"
+    opencli config update key "$license_key"
  fi
 }
 
@@ -978,7 +1120,7 @@ set_email_address_and_email_admin_logins(){
             # Check if the provided email is valid
             if [[ $EMAIL =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
                 echo "Setting email address $EMAIL for notifications"
-                opencli config update email "$EMAIL"  > /dev/null 2>&1
+                opencli config update email "$EMAIL"
                 # Send an email alert
                 
                 generate_random_token_one_time_only() {
@@ -1010,17 +1152,9 @@ set_email_address_and_email_admin_logins(){
                 }
 
                 server_hostname=$(hostname)
-                
-                if [ "$SET_PREMIUM" = true ]; then
-                    email_notification "OpenPanel Enterprise ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password" > /dev/null 2>&1
-                else
-                    email_notification "OpenPanel Community ${version} successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password" > /dev/null 2>&1
-                fi
-
-
-                
+                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
             else
-                echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent via email."
+                echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
         fi
 }        
@@ -1070,7 +1204,7 @@ send_install_log(){
     exec > /dev/tty
     exec 2>&1
     opencli report --public >> "$LOG_FILE"
-    curl -F "file=@/root/$LOG_FILE" http://support.openpanel.co/install_logs.php > /dev/null 2>&1
+    curl -F "file=@/root/$LOG_FILE" http://support.openpanel.co/install_logs.php
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
@@ -1175,13 +1309,13 @@ install_openadmin(){
         echo "Downloading files for Ubuntu22 and python version $current_python_version"
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt
+        debug_log pip install --default-timeout=3600 -r requirements.txt
     # Ubuntu 24
     elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
         echo "Downloading files for Ubuntu24 and python version $current_python_version"
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt --break-system-packages
+        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
 
         # on ubuntu24 we need to use overlay instead of devicemapper!
         OVERLAY=true
@@ -1193,8 +1327,9 @@ install_openadmin(){
         echo "Downloading files for Debian and python version $current_python_version"
         git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install -r requirements.txt
-        debug_log pip install -r requirements.txt --break-system-packages
+        debug_log pip install --default-timeout=3600 -r requirements.txt
+        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
+    # other
     # other
     else
         echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
@@ -1229,11 +1364,21 @@ create_admin_and_show_logins_success_message() {
     exec > /dev/tty
     exec 2>&1
 
-    # not saved in log!
-    wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
-    source /tmp/generate.sh
-    new_username=($random_name)
-    new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    # added in 0.2.3
+    # option to specify logins
+    if [ "$SET_ADMIN_USERNAME" = true ]; then
+       new_username=($custom_username)
+    else
+       wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
+       source /tmp/generate.sh
+       new_username=($random_name)
+    fi
+
+    if [ "$SET_ADMIN_PASSWORD" = true ]; then
+       new_password=($custom_password)
+    else
+       new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    fi
     
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
 
@@ -1245,6 +1390,10 @@ create_admin_and_show_logins_success_message() {
     echo " "
     print_space_and_line
     
+    # added in 0.2.0
+    # email to user the new logins
+    set_email_address_and_email_admin_logins
+
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
@@ -1275,9 +1424,13 @@ create_admin_and_show_logins_success_message() {
 #                                                                   #
 #####################################################################
 
-print_header
-
 parse_args "$@"
+
+get_server_ipv4
+
+set_version_to_install
+
+print_header
 
 check_requirements
 
@@ -1289,14 +1442,22 @@ install_started_message
 
 main
 
+send_install_log
+
 rm_helpers
 
-send_install_log
-set_email_address_and_email_admin_logins
+print_space_and_line
+
+support_message
+
+print_space_and_line
+
+create_admin_and_show_logins_success_message
+
+run_custom_postinstall_script
+
+
 # END main script execution
 
-
-
-
-
+service docker restart #needed for debian after csf reload
 
