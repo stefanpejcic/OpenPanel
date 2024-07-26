@@ -1320,16 +1320,15 @@ install_openadmin(){
         # on ubuntu24 we need to use overlay instead of devicemapper!
         OVERLAY=true
         
-    # Debian12
+    # Debian12 and 11
     elif [ -f /etc/debian_version ]; then
         echo "Installing PIP and Git"
-        apt-get install git pip -y > /dev/null 2>&1
+        apt-get install git pip python3-yaml -y > /dev/null 2>&1
         echo "Downloading files for Debian and python version $current_python_version"
         git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
         debug_log pip install --default-timeout=3600 -r requirements.txt
         debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-    # other
     # other
     else
         echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
