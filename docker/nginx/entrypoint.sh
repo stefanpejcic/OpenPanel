@@ -60,7 +60,7 @@ start_service "$PHP81FPM_STATUS" "php8.1-fpm"
 start_service "$PHP82FPM_STATUS" "php8.2-fpm"
 start_service "$PHP83FPM_STATUS" "php8.3-fpm"
 start_service "$PHP84FPM_STATUS" "php8.4-fpm"
-start_service "$MYSQ_STATUS" "mysql"
+start_service "$MYSQL_STATUS" "mysql"
 start_service "$CRON_STATUS" "cron"
 start_service "$NGINX_STATUS" "nginx"
 
