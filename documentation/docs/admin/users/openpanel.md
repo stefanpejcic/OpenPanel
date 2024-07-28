@@ -162,6 +162,21 @@ The Docker tab displays information about the Docker container for the user, inc
 - **Exposed Ports:** Ports inside the Docker container that accept incoming connections (e.g., ports for SSH, MySQL, REDIS, Apache).
 - **Container Created:** Timestamp when the container was started (may be different from the account creation date).
 
+
+
+
+### Disk Usage
+
+![openadmin users single user view du](/img/admin/du_tab.png)
+
+Since Docker does not yet support resizing docker containers, OpenPanel uses storage files that can be extended or shrunk on the fly.
+
+*Disk Usage* section displays real-time disk usage for a user: 
+
+- `/home/username` is used for all website files that user uploads to their home directory.
+- `/var/lib/docker/devicemapper/mnt/..` is the total file system that the user's Docker container is limited to; this includes the OS itself, system services, databases, logs, etc.
+
+
 ----
 
 ### Websites
