@@ -10,28 +10,31 @@ The dashboard page is the hub of the Admin interface and provides the overview o
 
 ![openadmin dashboard](/img/admin/openadmin_dashboard.png)
 
-On top of the pages, you can find the header that contains:
+On top of the pages, header contains:
 
-- **Server name:** If brand name is set, display brand name; otherwise, show server IP address.
-- **Menu** to access the Users, Plans, Backups, and Settings pages.
-- **Links** to the official Documentation and our Community Forums.
+- **Search bar** to search users, domains or settings pages.
 - **Dark mode toggle:** Allows you to switch between dark and light modes.
 - **Notifications indicator:** Displays important server-wide alerts.
 - **Avatar:** Indicates the admin username with options to edit the profile.
 
 
-The dashboard page contains 10 widgets:
+The dashboard page contains 13 widgets:
 
-- **User** widget: Displays the total number of user accounts.
+- **Users** widget: Displays the total number of user accounts.
 - **Backups** widget: Shows the number of backup jobs and indicates backup errors if any.
 - **Plans** widget: Indicates the number of plans available.
 - **Load Averages** widget: Presents real-time server load with color indicators.
 - **Memory Usage** widget: Provides the current memory usage with color indicators.
-- **Activity** widget: Exhibits the latest activities of users and the Administrator.
-- **Server list** widget: Lists connected remote OpenPanel instances.
+- **Activity** widget: Displays the latest activities of all users and the Administrator.
+- **Usage** widget: Displays the historical usage for websites, domains and users.
+- **Quick start guide** widget: Displays recommended steps for the Administrator to perform after installing OpenPanel.
+- **Services status** widget: Displays the status of monitored services and actions to control them.
+- **System Information** widget: Displays server configuration.
+- **Latest News** widget: Displays latest news from [the openpanel.co blog](/blog/).
 - **CPU** widget: Illustrates real-time usage for each CPU core with color indicators.
-- **Services status** widget: Displays the status of relevant services and actions to control them.
 - **Disk usage** widget: Presents server partitions and disk usage for each partition.
+
+To hide a widget click on the "Dismiss" button that appears when hovering over a widget.
 
 ## Activity
 
