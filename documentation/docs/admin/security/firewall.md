@@ -58,8 +58,12 @@ For logs, navigate to the 'Logs' tab.
 ![openadmin firewall logs](/img/admin/adminpanel_firewall_logs.png)
 
 
+## External Firewall
 
+Some cloud providers, like [Hetzner](https://docs.hetzner.com/robot/dedicated-server/firewall/), offer their own external firewalls. If you are using an external firewall, ensure the following ports are open for OpenPanel services to be accessible: `53` `80` `443` `2083` `2087` `32768:60999`
+
+If you are [using a custom port for OpenPanel instead of the default 2083](#), ensure that port is open as well.
 
 ## Restart rules
 
-To re-open all needed ports for OpenPanel services adn users, run command: `opencli firewall-reset`
+To re-open all necessary ports for OpenPanel services and users, run the command: `opencli firewall-reset`
