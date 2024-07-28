@@ -36,11 +36,19 @@ The dashboard page contains 13 widgets:
 
 To hide a widget click on the "Dismiss" button that appears when hovering over a widget.
 
-## Activity
+## User Activity
 
-The OpenAdmin dashboard's activity widget shows a log of actions taken by OpenPanel users, with a focus on those performed by the Administrator. The log is organized from newest to oldest, and active users, who have taken actions in the last 30 minutes, are marked with a green dot on the right side. To view detailed activity information, click on the user icon (avatar) to open their user account page with the Activity tab.
+The OpenAdmin dashboard's 'User Activity' widget shows a log of actions taken by OpenPanel users, with a focus on those performed by the Administrator. The log is organized from newest to oldest, and active users, who have taken actions in the last 30 minutes, are marked with a green dot on the right side. To view detailed activity information, click on the user icon (avatar) to open their user account page with the Activity tab.
 
 ![openadmin dashboard activity widget](/img/admin/openadmin_dashboard_activity_widget.png)
+
+
+## Usage
+
+The OpenAdmin dashboard's 'Usage' widget displays historical resource usage for teh server: number of websites, domains and users.
+
+![openadmin dashboard usage widget](/img/admin/openadmin_dashboard_usage_widget.png)
+
 
 ## Quick start guide
 
@@ -56,13 +64,40 @@ These steps include:
 - Install and configure ModSecurity WAF for Nginx
 - Schedule remote backups
 
-## Server List
 
-:::info 
-Note: This feature is still experimental and is not included in release versions, as it is not yet suitable for production.
-:::
+## Services Status
 
-The Server List shows the current Docker server and connected remote servers where OpenPanel is installed. Install OpenPanel on multiple servers and connect them to manage all from a single OpenAdmin interface.
+The Services Status widget displays a list of services managed by OpenPanel and enables you to check their current status, restart them, or start/stop when needed.
+
+![OpenAdmin Dashboard Services Widget](/img/admin/openadmin_dashboard_services_widget.png)
+
+Services can be configured from [Services > Service Status](/docs/admin/services/status) page.
+
+The Admin service is excluded from the list since stopping that service will disable the OpenAdmin interface. To disable the admin panel, use the 'Disable Admin Panel' option from Settings > OpenAdmin.
+
+
+## System Information
+
+The System Information widget displays overview about your server configuration:
+
+- Hostname
+- Operating System
+- OpenPanel version
+- Current Server Time
+- Kernel version
+- CPU logo and details on hover
+- Uptime
+- Number of running processes
+
+![OpenAdmin Dashboard System information widget](/img/admin/openadmin_dashboard_system_info.png)
+
+## Latest News
+
+The Latest News widget displays last 10 posts from [openpanel.co/blog](/blog/):
+
+![OpenAdmin Dashboard Latest News widget](/img/admin/openadmin_dashboard_latest_news.png)
+
+
 
 ## CPU
 
@@ -72,13 +107,6 @@ The data is auto-refreshed every 1 second to provide real-time updates.
 
 ![openadmin dashboard cpu widget](/img/admin/openadmin_dashboard_cpu_widget.png)
 
-## Services Status
-
-The Services Status widget displays a list of services managed by OpenPanel and enables you to check their current status, restart them, or start/stop when needed.
-
-![OpenAdmin Dashboard Services Widget](/img/admin/openadmin_dashboard_services_widget.png)
-
-The Admin service is excluded from the list since stopping that service will disable the OpenAdmin interface. To disable the admin panel, use the 'Disable Admin Panel' option from Settings > OpenAdmin.
 
 
 ## Disk Usage
