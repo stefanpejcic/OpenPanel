@@ -19,6 +19,8 @@ For instructions on how to use the CSF UI, please refer to [ConfigServer Securit
 
 ![csf firewall](/img/admin/firewall_csf.png)
 
+If you need to re-open all necessary ports for OpenPanel services and users, run the command: `opencli firewall-reset`.
+
 ## UFW
 
 If Uncomplicated Firewall (UFW) is installed, our custom interface will be displayed on **OpenAdmin > Firewall**.
@@ -157,6 +159,3 @@ Some cloud providers, like [Hetzner](https://docs.hetzner.com/robot/dedicated-se
 
 If you are [using a custom port for OpenPanel instead of the default 2083](/docs/admin/settings/general/#change-openpanel-port), ensure that port is open as well.
 
-## Restart rules
-
-To re-open all necessary ports for OpenPanel services and users, run the command: `opencli firewall-reset`
