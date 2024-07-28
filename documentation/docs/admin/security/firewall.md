@@ -25,11 +25,13 @@ If Uncomplicated Firewall (UFW) is installed, our custom interface will be displ
 
 ![openadmin firewall settings](/img/admin/adminpanel_firewall_settings.png)
 
-The firewall settings page provides three tabs:
+The firewall settings page provides multiple tabs:
 
-- IPv4 - that lists all IPv4 firewall rules
-- IPv6 - that lists all IPv6 firewall rules
-- Logs - displays the UFW service log
+- IPv4 - View and manage IPv4 firewall rules
+- IPv6 - View and manage IPv6 firewall rules
+- Settings - Manage UFW settings
+- Blacklists - Enable/disable blaklists
+- Logs - view the UFW service log
 
 ### View existing rules
 
@@ -40,15 +42,29 @@ For IPv6 rules, navigate to the IPv6 tab.
 
 ### Add Rules
 
-To create a new rule click on the 'New Rule' button and in the modal choose 'ALLOW' to allow the IP address or port, and 'DENY' to block access for IP address or port.
+To create a new rule click on the 'Add Rule' button and in the modal choose 'ALLOW' to allow the IP address or port, and 'DENY' to block access for IP address or port.
 
-![openadmin firewall add rule](/img/admin/adminpanel_firewall_add_rule.png)
+![openadmin firewall add rule](/img/admin/openadmin_ufw_ip.png)
 
 ### Delete Rules
 
 To delete a rule click on the 'Delete' link next to it, and in the confirmaiton modal click on 'Delete' button.
 
 ![openadmin firewall delete rule](/img/admin/adminpanel_firewall_delete_rule.png)
+
+
+### Settings
+
+
+
+
+### Blacklists
+
+
+openadmin_ufw_blacklists.png
+
+
+--skip-blacklists
 
 
 ### View logs
