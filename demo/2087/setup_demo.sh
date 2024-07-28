@@ -77,7 +77,27 @@ docker exec openpanel sed -i "$sed_command_password" "$file_path"
 
 
 
+write_fake_data(){
+echo "Creating dummy data.."
+  file_path="/etc/openpanel/openadmin/usage_stats.json"
+  today=$(date +%Y-%m-%d)
+  
+  dates=()
+  for i in {4..0}; do
+      dates+=($(date -d "$today - $i day" +%Y-%m-%d))
+  done
+  
+printf '{"timestamp": "%s", "users": 0, "domains": 0, "websites": 0}\n' "${dates[0]}" > "$file_path"
 
+printf '{"timestamp": "%s", "users": 1, "domains": 1, "websites": 0}\n' "${dates[1]}" >> "$file_path"
+printf '{"timestamp": "%s", "users": 1, "domains": 2, "websites": 2}\n' "${dates[2]}" >> "$file_path"
+printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates[3]}" >> "$file_path"
+printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates[4]}" >> "$file_path"
+
+
+  echo "Usage stats JSON data written to $file_path"
+
+}
 
 
 
@@ -99,9 +119,12 @@ fi
 
 echo "Setting demo..."
 
+write_fake_data
+
 setup_admin_panel
 
 setup_user_panel
+
 
 echo "DONE."
 
