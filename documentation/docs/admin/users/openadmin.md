@@ -19,7 +19,7 @@ The admin panel has two user roles:
 <Tabs>
   <TabItem value="openadmin-admin-users" label="With OpenAdmin" default>
 
-To manage admin users that can access OpenAdmin interface use Settings > OpenAdmin page
+Use *Settings > OpenAdmin* page to manage admin users that can access OpenAdmin interface:
 
 ![openadmin admin users](/img/admin/openadmin_admin_page.png)
 
@@ -41,7 +41,9 @@ opencli admin list
 <Tabs>
   <TabItem value="openadmin-admin-reset" label="With OpenAdmin" default>
 
-To reset admin password click on the user in Settings > OpenAdmin page, then click on Edit button and set the password.
+To reset admin password click on the Edit button for that user from *Settings > OpenAdmin* page, then set the new password.
+
+![openadmin admin password](/img/admin/openadmin_admin_password.png)
 
   </TabItem>
   <TabItem value="cli-reset" label="With OpenCLI">
@@ -71,7 +73,10 @@ opencli admin password filip Pyl7_L2M1
 <Tabs>
   <TabItem value="openadmin-admin-new" label="With OpenAdmin" default>
 
-To create new admin user click on the 'New' button in Settings > OpenAdmin page, set the username and password and click on save.
+To create new admin user click on the 'New' button in *Settings > OpenAdmin* page, set the username and password and click on *Save*.
+
+![openadmin admin new](/img/admin/openadmin_admin_new.png)
+
 
   </TabItem>
   <TabItem value="cli-new" label="With OpenCLI">
@@ -99,7 +104,10 @@ opencli admin new filip Pyl7_L2M1
 <Tabs>
   <TabItem value="openadmin-admin-rename" label="With OpenAdmin" default>
 
-To rename an Amdin user, select the user on **Settings > OpenAdmin** page and click on the Edit button and set new username.
+To rename an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button and set new username.
+
+![openadmin admin rename](/img/admin/openadmin_admin_rename.png)
+
 
   </TabItem>
   <TabItem value="cli-rename" label="With OpenCLI">
@@ -123,7 +131,10 @@ opencli admin rename filip filip2
 <Tabs>
   <TabItem value="openadmin-admin-suspend" label="With OpenAdmin" default>
 
-To suspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then **Suspend**.
+To suspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then uncheck the **Active** status.
+
+![openadmin admin suspend](/img/admin/openadmin_admin_suspend.png)
+
 
 To unsuspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then **Unsuspend**.
   </TabItem>
@@ -158,7 +169,10 @@ opencli admin unsuspend filip
 <Tabs>
   <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
 
-Select the user on Settings > OpenAdmin page and click on the delete button then confirm.
+Select the user on *Settings > OpenAdmin* page and click on the delete button then confirm.
+
+![openadmin admin delete](/img/admin/openadmin_admin_delete.png)
+
 
   </TabItem>
   <TabItem value="cli-delete" label="With OpenCLI">
