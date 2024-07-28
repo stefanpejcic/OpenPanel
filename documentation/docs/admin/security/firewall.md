@@ -15,9 +15,9 @@ Based on the installed firewall, the **OpenAdmin > Firewall** page will display 
 
 If ConfigServer Security & Firewall (CSF) is installed, it's integrated UI will be displayed on **OpenAdmin > Firewall**.
 
-![csf firewall](/img/admin/firewall_csf.png)
-
 For instructions on how to use the CSF UI, please refer to [ConfigServer Security & Firewall official documentation](https://download.configserver.com/csf/readme.txt).
+
+![csf firewall](/img/admin/firewall_csf.png)
 
 ## UFW
 
