@@ -35,7 +35,7 @@ The firewall settings page provides multiple tabs:
 - Blacklists - Enable/disable blaklists
 - Logs - view the UFW service log
 
-### View existing rules
+### View rules
 
 The table shows firewall rules, showcasing information such as rule ID, action, ports, source/destination IP, and the username of the user utilizing the port.
 For IPv6 rules, navigate to the IPv6 tab.
