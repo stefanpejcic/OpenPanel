@@ -77,7 +77,7 @@ The following tools are available:
 
 ### Blacklists
 
-Unless the `--skip-blacklists` flag is provided during the installation of OpenPanel, ipset-blacklists are automatically installed when the `--ufw` flag is used.
+Unless the [`--skip-blacklists` flag](/install) is provided during the installation of OpenPanel, ipset-blacklists are automatically installed when the [`--ufw` flag](/install) is used.
 
 From the **OpenAdmin > Security > Firewall > Blacklists** page, administrators can easily add blacklists to block IP addresses from known malicious sources.
 
