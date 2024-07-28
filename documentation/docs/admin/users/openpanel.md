@@ -167,14 +167,83 @@ The Docker tab displays information about the Docker container for the user, inc
 
 ### Disk Usage
 
-![openadmin users single user view du](/img/admin/du_tab.png)
-
-Since Docker does not yet support resizing docker containers, OpenPanel uses storage files that can be extended or shrunk on the fly.
+<Tabs>
+  <TabItem value="openadmin-user-du" label="With OpenAdmin" default>
 
 *Disk Usage* section displays real-time disk usage for a user: 
 
 - `/home/username` is used for all website files that user uploads to their home directory.
 - `/var/lib/docker/devicemapper/mnt/..` is the total file system that the user's Docker container is limited to; this includes the OS itself, system services, databases, logs, etc.
+
+![openadmin users single user view du](/img/admin/du_tab.png)
+
+  </TabItem>
+  <TabItem value="CLI-user-du" label="With OpenCLI">
+
+To view disk usage summary for a user, run the following command:
+
+```bash
+opencli user-disk <USERNAME> summary
+```
+Example:
+
+```bash
+# opencli user-disk stefan summary
+
+-------------- disk usage --------------
+- 564M  /home/stefan
+- 864M  /var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
+```
+
+
+To view detailed report of current disk usage for a user, run the following command:
+
+```bash
+opencli user-disk <USERNAME> detail
+```
+Example:
+
+```bash
+# opencli user-disk stefan detail
+------------- home directory -------------
+- home directory:        /home/stefan
+- mountpoint:            /home/stefan
+- bytes used:            61440
+- bytes total:           10375548928
+- bytes limit:           true
+- inodes used:           20
+- inodes total:          1000960
+---------------- container ---------------
+- container directory:   /var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
+- bytes used:            1025388544
+- bytes total:           10726932480
+- inodes used:           20905
+- inodes total:          5242880
+- storage driver:        devicemapper
+```
+
+
+To view home directory and docker container paths for a user, run the following command:
+
+
+```bash
+opencli user-disk <USERNAME> path
+```
+Example:
+
+```bash
+# opencli user-disk stefan path
+
+-------------- paths --------------
+- home_directory=/home/stefan
+- docker_container_path=/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
+```
+
+
+
+  </TabItem>
+</Tabs>
+
 
 
 ----
@@ -208,6 +277,10 @@ To view and edit Nginx configuration for a domain, click on the 'VirtualHosts' l
 The Services tab displays a list of all services installed inside the user's Docker container, along with their current status. You have options to start, stop, or restart a service.
 
 ![openadmin users single user view services tab](/img/admin/services_tab.png)
+
+
+Services can be [pre-installed in a Docker image](https://dev.openpanel.co/images/), which is recommended for production to reduce the disk usage required for idle user accounts. Alternatively, they can be [installed later by an administrator](#) or by a user with [granted sudo access](#sudo-access).
+
 
 ----
 
