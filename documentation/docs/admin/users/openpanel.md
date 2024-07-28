@@ -15,10 +15,9 @@ OpenPanel currently has only a single user role named **User** that can only man
 
 To access all OpenPanel users, navigate to OpenAdmin > Users.
 
-The Users page displays a table showcasing each user's Gravatar linked to their email address, username, assigned IP Address, hosting plan name, creation date of the account, a login link enabling user impersonation, and an actions dropdown. In the actions dropdown, you can perform actions such as editing, suspending, or deleting the user.
+The Users page displays a table showcasing each user's Gravatar linked to their email address, username, assigned IP Address, hosting plan name, creation date of the account, a login link enabling user impersonation, and *manage* button to get detailed user overview.
 
 ![openadmin users page](/img/admin/openadmin_users_page.png)
-
 
 Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
@@ -61,7 +60,7 @@ opencli user-list --json
 
 To create a new user, click on the 'New User' button on the Users page. A new section will be displayed with a form where you can set the email address, username, generate a strong password, and assign a hosting plan for the user.
 
-![openadmin users add new](/img/admin/openadmin_add_new_user.png)
+![openadmin users add new](/img/admin/openadmin_add_new_user.gif)
 
   </TabItem>
   <TabItem value="CLI-users-new" label="With OpenCLI">
@@ -120,7 +119,9 @@ opencli user-password filip Ty7_K8_M2 --ssh
 
 ## Detailed User Information
 
-To view detailed information about the account click on the Gravatar image or the username in the users table.
+To view detailed information about a user, click on their Gravatar, username or the *Manage* button in the users table.
+
+![openadmin manage user button](/img/admin/openadmin_manage_button.png)
 
 This page shows detailed information about the account and provides tools to manage it.
 
@@ -128,7 +129,7 @@ This page shows detailed information about the account and provides tools to man
 
 The username is displayed at the top, along with the status of the Docker container for the user. Colors indicate whether the user is suspended or if the Docker container has encountered an error. Next to the username, there are buttons that allow you to suspend/unsuspend the user, delete the user, a configure button to edit user settings inside their Docker container, and a 'Login as user' button that automatically logs you into their OpenPanel interface.
 
-![openadmin users single user view 1](/img/admin/user_1.png)
+![openadmin users single user buttons](/img/admin/manage_single_user_btns.png)
 
 There are 4 widgets on top of the page:
 
@@ -168,9 +169,22 @@ The Docker tab displays information about the Docker container for the user, inc
 The Websites tab will display all domains and websites that the user has inside their Docker container.
 
 - **Domains table** showcases information such as domain name, root directory, and links to view the access log for the domain, edit DNS records, and edit the VirtualHost file for Nginx associated with the domain.
-- **Websites table** displays the website URL, type (WordPress, Node.js, or Python), CMS version, and the time when the user installed or added it to the WP ;anager/PM2 interfaces.
+- **Websites table** displays the website URL, type (WordPress, Node.js, or Python), CMS version, and the time when the user installed or added it to the Site Manager interface.
 
 ![openadmin users single user view websites tab](/img/admin/websites_tab.png)
+
+To view access log for a domain click on the 'View Access Log' link:
+
+![openadmin users single user view domain access log](/img/admin/admin_single_user_access.png)
+
+To view and edit DNS zone for a domain, click on the 'DNS Zone' link:
+
+![openadmin users single user view domain dns zone](/img/admin/admin_single_user_dns.png)
+
+
+To view and edit Nginx configuration for a domain, click on the 'VirtualHosts' link:
+
+![openadmin users single user view domain vhosts file](/img/admin/admin_single_user_vhosts.png)
 
 ----
 
@@ -192,7 +206,7 @@ The Backups tab displays a list of all available backups for the user account, s
 
 ### Usage
 
-The Usage tab will display Docker container stats for the user, including CPU usage, memory percentage used at that moment, network I/O, and total block I/O. This information is the same to what users can view from OpenPanel > Resource Usage.
+The Usage tab will display Docker container stats for the user, including CPU usage, memory percentage used at that moment, network I/O, and total block I/O. This information is the same to what users can view from [OpenPanel > Resource Usage](/docs/panel/analytics/resource_usage/).
 
 ![openadmin users single user view usage tab](/img/admin/usage_tab.png)
 
