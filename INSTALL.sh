@@ -407,12 +407,10 @@ while [[ $# -gt 0 ]]; do
             SKIP_FIREWALL=true
             ;;
         --csf)
-            SKIP_FIREWALL=false
             UFW_SETUP=false
             CSF_SETUP=true
             ;;
         --ufw)
-            SKIP_FIREWALL=false
             UFW_SETUP=true
             CSF_SETUP=false
             ;;
@@ -826,8 +824,8 @@ setup_firewall_service() {
           debug_log ufw allow 443/tcp # https
           debug_log ufw allow 2083/tcp #openpanel
           debug_log ufw allow 2087/tcp #openadmin 
-          
-          
+          debug_log "yes | ufw enable"
+	  
           if [ "$NO_SSH" = false ]; then
   
               # whitelist user running the script
