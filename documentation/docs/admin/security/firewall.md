@@ -114,29 +114,34 @@ To delete a blacklist from the OpenAdmin interface, click the 'Actions' button f
   </TabItem>
   <TabItem value="CLI-yfw-rbl" label="With OpenCLI">
 
-To manage blacklists from the terminal:
-
-- Download new IP addresses for all enabled blocklists:
+  To manage blacklists from the terminal:
+  
+  Download new IP addresses for all enabled blocklists:
   ```bash
   opencli blacklist --fetch
   ```
-- Update all ipsets rules and reload UFW service:
+  
+  Update all ipsets rules and reload UFW service:
   ```bash
   opencli blacklist --update_ufw
   ```
-- Add a new blacklist:
+    
+  Add a new blacklist:
   ```bash
   opencli blacklist --add-blacklist name=<name> url=<url>
   ```
-- Enable a blacklist:
+  
+  Enable a blacklist:
   ```bash
   opencli blacklist --enable-blacklist=<name>
   ```
-- Disable a blacklist:
+  
+  Disable a blacklist:
   ```bash
   opencli blacklist --disable-blacklist=<name>
   ```
-- Delete a blacklist:
+  
+  Delete a blacklist:
   ```bash
   opencli blacklist --delete-blacklist=<name>
   ```
