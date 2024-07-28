@@ -67,7 +67,7 @@ curl -X POST -H 'Content-Type: application/json' \
 ## Post Install Steps
 
 - [access admin panel](/docs/admin/intro#access-openadmin)
-- [set custom nameservers](/docs/admin/intro#set-nameservers)
+- [set custom nameservers](/docs/admin/settings/openpanel/#set-nameservers)
 - [create a package](/docs/admin/plans/hosting_plans#create-a-plan)
 - [create a new user account](/docs/admin/users/openpanel#create-users)
 
