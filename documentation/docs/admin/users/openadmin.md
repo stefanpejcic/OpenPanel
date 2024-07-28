@@ -10,8 +10,12 @@ import TabItem from '@theme/TabItem';
 
 The admin panel has two user roles:
 
-- **Super Admin** that gets created when OpenPanel is installed and can add other users, with full control over the server.
-- **Admin** - sub-admin users that are created by the SuperAdmin and have access to everything that the SuperAdmin has but can not edit the ‘Super Admin’ user.
+
+| Role              | Description                                                               |
+| ------------------ | ------------------------------------------------------------------------- |
+| **Super Admin**    | Has unrestricted privileges, created on OpenPanel installation.                                                 |
+| **Admin**              | Can not edit the SuperAdmin user, created from OpenAdmin or OpenCLI.                                                   |
+
 
 ## Manage Admin users
 
