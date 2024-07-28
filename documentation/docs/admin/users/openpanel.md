@@ -395,6 +395,72 @@ opencli user-unsuspend filip
   </TabItem>
 </Tabs>
 
+
+
+## Rename Username
+
+<Tabs>
+  <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
+
+To Rename a user, click on the 'Edit Information' link for the user, then change the adress in 'Username' field and click on 'Save changes'.
+
+Step 1.             |  Step 2.
+:-------------------------:|:-------------------------:
+![openadmin users change username step 1](/img/admin/openadmin_users_edit_information.png)  |  ![openadmin users change username step 2](/img/admin/openadmin_user_change_username.png)
+
+  </TabItem>
+  <TabItem value="CLI-user-email" label="With OpenCLI">
+
+To change username for a user run the following command:
+
+```bash
+opencli user-rename <old_username> <new_username>
+```
+
+Example:
+
+```bash
+#opencli user-rename stefan pejcic
+User 'stefan' successfully renamed to 'pejcic'.
+```
+  </TabItem>
+</Tabs>
+
+
+
+## Change Email address
+
+<Tabs>
+  <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
+
+To change email address for a user, click on the 'Edit Information' link for the user, then change the adress in 'Email address' field and click on 'Save changes'.
+
+Step 1.             |  Step 2.
+:-------------------------:|:-------------------------:
+![openadmin users change email step 1](/img/admin/openadmin_users_edit_information.png)  |  ![openadmin users change email step 2](/img/admin/openadmin_user_change_email.png)
+
+  </TabItem>
+  <TabItem value="CLI-user-email" label="With OpenCLI">
+
+To change email address for a user run the following command:
+
+```bash
+opencli user-email <USERNAME> <NEW_EMAIL>
+```
+
+Example:
+
+```bash
+#opencli user-email stefan stefan@pejcic.rs
+Email for user stefan updated to stefan@pejcic.rs.
+```
+  </TabItem>
+</Tabs>
+
+
+
+
+
 ## Change IP address for User
 
 <Tabs>
