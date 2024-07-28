@@ -52,10 +52,27 @@ To delete a rule click on the 'Delete' link next to it, and in the confirmaiton 
 
 ![openadmin firewall delete rule](/img/admin/adminpanel_firewall_delete_rule.png)
 
-
 ### Settings
 
+This tab displays the current UFW settings and allows you to configure them.
 
+It shows the current service status and provides options to enable or disable the firewall.
+
+![openadmin firewall settings](/img/admin/openadmin_ufw_settings.png)
+
+The following settings are available:
+
+- **Enable IPV6** - Set to yes to apply rules to support IPv6 (no means only IPv6 on loopback accepted). You will need to 'disable' and then 'enable' the firewall for the changes to take affect.
+- **Default Input Policy** - Set the default input policy to ACCEPT, DROP, or REJECT. Please note that if you change this you will most likely want to adjust your rules.
+- **Default Output Policy** - Set the default input policy to ACCEPT, DROP, or REJECT. Please note that if you change this you will most likely want to adjust your rules.
+- **Allow ping (IPMI)** - By default, UFW allows ping requests. You can leave (icmp) ping requests enabled to diagnose networking problems.
+
+The following tools are available:
+
+- **Export IPv4 rules** - click to download dall existing IPv4 rules form the UFW service.
+- **Export IPv6 rules** - click to download dall existing IPv6 rules form the UFW service.
+- **Restrict access to Cloudflare only** - block access to this server for traffic not coming from [Cloudflare IP addresses](https://www.cloudflare.com/ips/). This will prevent direct access to the server IP and only allow traffic from Cloudflare netwrork. This is useful when your domains are configured to use the Cloudflare proxy, and you want to block direct access that bypasses Cloudflare's protection. **NOTE: This setting affects all users and their services.**
+- **Reset ports for all users** - delete all existing UFW rules and open ports required by OpenPanel, plus custom ports for users.
 
 
 ### Blacklists
