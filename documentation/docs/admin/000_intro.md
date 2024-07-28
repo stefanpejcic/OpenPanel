@@ -27,6 +27,11 @@ If you are using external firewall, the following ports should be opened:  `53` 
 
 The installation process takes about 5 minutes. To install openpanel follow these steps: 
 
+
+
+<Tabs>
+  <TabItem value="openpanel-install-on-dedicated" label="Manual Installation" default>
+
 1. Log in to your new server;
 - as root via SSH or
 - as a user with sudo privileges and type "sudo -i"
@@ -35,13 +40,12 @@ The installation process takes about 5 minutes. To install openpanel follow thes
 bash <(curl -sSL https://get.openpanel.co/)
 ```
 
-:::info
-We recommend that you run the installation command within a Linux screen session. The Linux Screen utility allows you to create a shell session that will stay active through a network disruption.
-:::
+The installation script supports [optional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
 
-The installation script supports [optional flags](/install) that can be used to install additional services, skip certain installation steps or display debugging information.
+If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.co).
 
-### Install on DigitalOcean
+  </TabItem>
+  <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean Droplet">
 
 OpenPanel is available as a 1-Click app (droplet) on DigitalOcean. Click on the button to spin a droplet with OpenPanel already installed:
 
@@ -56,28 +60,13 @@ curl -X POST -H 'Content-Type: application/json' \
     "https://api.digitalocean.com/v2/droplets"
 ```
 
-### Troubleshooting failed installation
-
-In a rare case that the OpenPanel installation process fails you shoud be able to determine the root cause from the error message alone.
-
-You can also run the installation process with the `--debug` flag and afterwards check the installation log file for errors:
-
-```bash
-cat /root/openpanel_install.log
-```
-
-:::tip
-In nearly 99.9% of instances, installation failures result from conflicts with residual services from a previous hosting panel or web server. If a web server was previously installed on the server, it is advisable to reinstall the operating system before attempting to install OpenPanel again.
-:::
-
-### Reporting bugs
-
-If you encountered any errors while running the installation script, and **you are able to again reproduce the error** on another server (or same after reinstalling the OS) then please copy & paste the installation log file to [the community forums](https://community.openpanel.co).
+  </TabItem>
+</Tabs>
 
 
 ## Post Install Steps
 
-- [access admin panel](/docs/admin/intro#access-adminpanel)
+- [access admin panel](/docs/admin/intro#access-openadmin)
 - [set custom nameservers](/docs/admin/intro#set-nameservers)
 - [create a package](/docs/admin/plans/hosting_plans#create-a-plan)
 - [create a new user account](/docs/admin/users/openpanel#create-users)
@@ -92,6 +81,8 @@ root@server:/home# opencli admin
 ```
 
 To login to admin panel you need a username and password.
+
+![openadmin login page](/img/admin/openadmin_login_page.png)
 
 Both username and password are random generated on installation.
 
