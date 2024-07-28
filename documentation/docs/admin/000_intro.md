@@ -172,9 +172,10 @@ When a new update is available, you will receive a notification in the admin pan
 
 To manually update OpenPanel, navigate to **OpenAdmin > General Settings** and click on the "Update Now" button. NOTE: update is visible only if newer version is available.
 
-![openadmin update manually ](/img/admin/admin_jupdate_available.png)
+Step 1.             |  Step 2.
+:-------------------------:|:-------------------------:
+![openadmin update manually ](/img/admin/admin_jupdate_available.png) |  ![openadmin update manually 2 ](/img/admin/admin_jupdate_available2.png)
 
-![openadmin update manually 2 ](/img/admin/admin_jupdate_available2.png)
 
   </TabItem>
   <TabItem value="CLI-update-now" label="With OpenCLI">
