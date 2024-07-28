@@ -43,9 +43,14 @@ setup_admin_panel() {
 setup_user_panel(){
   echo "Creating demo panel user"
   generae_pass=$(opencli user-password stefan random)
-  user_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $6}')
-
-
+  new_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $6}')
+  file_path="/usr/local/panel/templates/user/login.html"
+  
+  # set the data on login form
+  docker exec openpanel sed -i 's|<input type="text" id="username" name="username" required class="form-control" placeholder="{{ _('Enter your panel username') }}" autofocus>|<input type="text" id="username" name="username" required class="form-control" placeholder="{{ _('Enter your panel username') }}" autofocus value="stefan">|' "$file_path"
+  docker exec openpanel sed -i "s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\">|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" value=\"$new_password\">|" "$file_path"
+  
+  docker restart openpanel
 
 }
 
@@ -75,8 +80,9 @@ echo "Setting demo..."
 
 setup_admin_panel
 
+setup_user_panel
 
-
+echo "DONE."
 
 
 
