@@ -44,7 +44,7 @@ To create a new rule click on the 'New Rule' button and in the modal choose 'ALL
 
 ![openadmin firewall add rule](/img/admin/adminpanel_firewall_add_rule.png)
 
-## Delete Rules
+### Delete Rules
 
 To delete a rule click on the 'Delete' link next to it, and in the confirmaiton modal click on 'Delete' button.
 
