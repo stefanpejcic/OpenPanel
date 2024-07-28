@@ -108,21 +108,22 @@ Password for user 'stefan' changed.
 ===============================================================
 ```
 
-## Updates
+### Enable Automatic Updates
 
-The panel will check for new updates nightly. If available, it will check your local update and patch preferences and update only when enabled.
+- `autopatch` option allows Administrator to automatically update OpenPanel to minor versions. MINOR versions include only security updates and bug fixes.
+- `autoupdate` option allows Aministrator to enable or disable automatic updates to major versions. MAJOR versions add new functionality in a backward compatible manner.
 
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To enable or disable updates, navigate to OpenAdmin > General Settings and check or uncheck the 'Auto Updates' and 'Auto Patches'.
+To enable automatic updates, navigate to **OpenAdmin > General Settings** and check both the 'Auto Updates' and 'Auto Patches' options:
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 
   </TabItem>
   <TabItem value="CLI" label="With OpenCLI">
 
-To change update preferences from the terminal use commands:
+To enable automatic updates from the terminal use commands:
 
 ```bash
 opencli config update autoupdate yes
@@ -134,11 +135,77 @@ opencli config update autopatch yes
   </TabItem>
 </Tabs>
 
-If you want to update manually regardless of the schedule, you can run the following command.
 
-```shell
+### Disable Automatic Updates
+
+<Tabs>
+  <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
+
+To disable automatic updates, navigate to **OpenAdmin > General Settings** and uncheck the 'Auto Updates' and 'Auto Patches' options:
+
+![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
+
+  </TabItem>
+  <TabItem value="CLI" label="With OpenCLI">
+
+To disable automatic updates from the terminal use commands:
+
+```bash
+opencli config update autoupdate no
+```
+
+```bash
+opencli config update autopatch no
+```
+  </TabItem>
+</Tabs>
+
+
+
+
+### Manual Updates
+
+When a new update is available, you will receive a notification in the admin panel.
+
+<Tabs>
+  <TabItem value="openadmin-admin-update-now" label="With OpenAdmin" default>
+
+To manually update OpenPanel, navigate to **OpenAdmin > General Settings** and click on the "Update Now" button. NOTE: update is visible only if newer version is available.
+
+![openadmin update manually ](/img/admin/admin_jupdate_available.png)
+
+![openadmin update manually 2 ](/img/admin/admin_jupdate_available2.png)
+
+  </TabItem>
+  <TabItem value="CLI-update-now" label="With OpenCLI">
+
+To update OpenPanel manually from the terminal, run the following command:
+
+```bash
 opencli update --force
 ```
+  </TabItem>
+</Tabs>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
