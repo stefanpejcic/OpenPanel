@@ -74,7 +74,7 @@ opencli plan-list --json
 
 To create a new hosting plan click on the 'Create new plan' nutton and set the desired limits for the plan.
 
-![openadmin create new plan](/img/admin/adminpanel_plans_create_new.gig)
+![openadmin create new plan](/img/admin/adminpanel_plans_create_new.gif)
 
   </TabItem>
   <TabItem value="CLI-plan-new" label="With OpenCLI">
