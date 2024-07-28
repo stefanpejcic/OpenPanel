@@ -25,6 +25,8 @@ setup_admin_panel() {
   new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16) 
   sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
   
+  file_path="/usr/local/admin/templates/login.html"
+  
   opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
   echo " "
   echo "Createad admin user and set data on login form:"
@@ -33,24 +35,43 @@ setup_admin_panel() {
   echo " "
   
   # set the data on login form
-  sed -i -e 's/Type the Username and Password and click Signin./Type the Username <code>$new_username<\/code> and Password <code>$new_password<\/code> and click Signin./' \
-         -e 's/<input type="text" class="form-control" name="username" placeholder="admin" autocomplete="off" required="" autofocus>/<input type="text" class="form-control" name="username" placeholder="admin" autocomplete="off" required="" autofocus value="$new_username">/' \
-         -e 's/<input type="password" name="password" class="form-control" placeholder="\*\*\*\*\*\*\*\*" autocomplete="off">/<input type="password" name="password" class="form-control" placeholder="\*\*\*\*\*\*\*\*" autocomplete="off" value="$new_password">/' \
-      templates/login.html
+sed -i -e "s/Type the Username and Password and click Signin./Type the Username <code>$new_username<\/code> and Password <code>$new_password<\/code> and click Signin./" \
+       -e "s/<input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"admin\" autocomplete=\"off\" required=\"\" autofocus>/<input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"admin\" autocomplete=\"off\" required=\"\" autofocus value=\"$new_username\">/" \
+       -e "s/<input type=\"password\" name=\"password\" class=\"form-control\" placeholder=\"\*\*\*\*\*\*\*\*\" autocomplete=\"off\">/<input type=\"password\" name=\"password\" class=\"form-control\" placeholder=\"\*\*\*\*\*\*\*\*\" autocomplete=\"off\" value=\"$new_password\">/" \
+    $file_path
+
+echo "Restarting admin service for 2087"
+    service admin restart
 }
 
 
 setup_user_panel(){
-  echo "Creating demo panel user"
+echo "Creating demo panel user"
   generae_pass=$(opencli user-password stefan random)
-  new_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $6}')
+new_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $NF}')
+
+echo "Generated password: $new_password"
+
+
+escaped_password=$(printf '%s\n' "$new_password" | sed -e 's/[\/&]/\\&/g')
+  echo "Escaped password: $escaped_password"
+
   file_path="/usr/local/panel/templates/user/login.html"
   
-  # set the data on login form
-  docker exec openpanel sed -i 's|<input type="text" id="username" name="username" required class="form-control" placeholder="{{ _('Enter your panel username') }}" autofocus>|<input type="text" id="username" name="username" required class="form-control" placeholder="{{ _('Enter your panel username') }}" autofocus value="stefan">|' "$file_path"
-  docker exec openpanel sed -i "s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\">|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" value=\"$new_password\">|" "$file_path"
-  
-  docker restart openpanel
+# Prepare sed commands
+sed_command_username="s|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus>|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus value=\"stefan\">|"
+sed_command_password="s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\">|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" value=\"$escaped_password\">|"
+
+  echo "Sed command for username: $sed_command_username"
+  echo ""
+
+echo "Sed command for password: $sed_command_password"
+  echo ""
+docker exec openpanel sed -i "$sed_command_username" "$file_path"
+docker exec openpanel sed -i "$sed_command_password" "$file_path"
+      echo ""
+      echo "Restarting docker container for 2083 panel.."
+    docker restart openpanel
 
 }
 
