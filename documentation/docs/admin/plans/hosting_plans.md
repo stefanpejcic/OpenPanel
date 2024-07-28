@@ -4,7 +4,8 @@ sidebar_position: 1
 
 # Hosting Plans
 
-Hosting plans are used to set services and limits for users.
+Hosting plans outline the available services and limitations for users. [Docker images](https://dev.openpanel.co/images/) specify the pre-installed services for a plan. [Enabled Features](/docs/admin/settings/openpanel/#enable-features) determine which pages users can access from the OpenPanel interface. 
+
 
 ## List hosting plans
 
@@ -19,16 +20,20 @@ To list existing plans navigate to Plans page:
 | Field              | Description                                                               |
 | ------------------ | ------------------------------------------------------------------------- |
 | **ID**             | Unique ID for the plan.                                                    |
-| **Name**           | Display name that users will see in their OpenPanel dashboards.            |
+| **Plan Name**      | Display name that users will see in their OpenPanel dashboards.            |
 | **Description**    | Visible only to administrators.                                           |
-| **Domains Limit**  | Total number of domain names allowed per user on the plan.                  |
-| **Websites Limit** | Total number of websites (WordPress, NodeJS, Python) per user on the plan.   |
-| **Disk Limit**     | Disk space allocated for the user's container           |
-| **Inodes Limit**   | *(DEPRECATED)* Limits the total number of files allowed in the container.   |
-| **Database Limit** | Total number of MySQL databases allowed per user on the plan.              |
+| **Image**          | Name of the Docker image used when creating new accounts on the plan.        |
+| **DOcker Size**     | Disk space allocated for the user's container .          |
+| **Storage**     | Disk space allocated for user's websites files *(/home/user/ directory)*.           |
+| **Domains**  | Total number of domain names allowed per user on the plan.                  |
+| **Websites** | Total number of websites (WordPress, NodeJS, Python) per user on the plan.   |
+| **Databases** | Total number of MySQL databases allowed per user on the plan.              |
 | **CPU**            | Number of CPU cores dedicated to the user on this hosting plan.             |
 | **RAM**            | Physical Memory (RAM) in GB allocated to the user on this hosting plan.     |
-| **Docker Image**   | Name of the Docker image used when creating new accounts on the plan.        |
+| **Port Speed**            | Maximum post speed for users in mbit/s.     |
+| **Inodes Limit**   | *(DEPRECATED)* Limits the total number of files allowed in the container.   |
+
+
 
 
   </TabItem>
@@ -69,7 +74,7 @@ opencli plan-list --json
 
 To create a new hosting plan click on the 'Create new plan' nutton and set the desired limits for the plan.
 
-![openadmin create new plan](/img/admin/adminpanel_plans_create_new.png)
+![openadmin create new plan](/img/admin/adminpanel_plans_create_new.gig)
 
   </TabItem>
   <TabItem value="CLI-plan-new" label="With OpenCLI">
@@ -141,6 +146,10 @@ opencli plan-usage --json
     
 To delete a hosting plan click on the delete button next to the plan name.
 
+Step 1.             |  Step 2.
+:-------------------------:|:-------------------------:
+![openadmin delete plan step 1](/img/admin/admin_delete_plan_1.png)  |  ![openadmin delete plan step 2](/img/admin/admin_delete_plan_2.png)
+
   </TabItem>
   <TabItem value="CLI-plan-delete" label="With OpenCLI">
 
@@ -156,3 +165,6 @@ opencli plan-delete 32
 ```
   </TabItem>
 </Tabs>
+
+NOTE: Plan can not be deleted if it has users assigned. 
+
