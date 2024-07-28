@@ -102,6 +102,11 @@ Please visit [this page](/docs/admin/plans/change-plan-for-user)
 
 To change plan limits click on the edit button for the plan and set the new limits.
 
+
+Step 1.             |  Step 2.
+:-------------------------:|:-------------------------:
+![openadmin edit plan step 1](/img/admin/openadmin_edit_plan_1.png)  |  ![openadmin edit plan step 2](/img/admin/openadmin_edit_plan_2.png)
+
 The new limits will be applied immediately to all accounts.
 
 ## List Users on Plan
