@@ -31,3 +31,11 @@ fi
 
 echo "Setting demo..."
 
+
+# create admin user
+
+echo "Creating demo admin user"
+
+
+
+
