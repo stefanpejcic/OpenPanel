@@ -4,7 +4,7 @@ sidebar_position: 9
 
 # Login and Password Reset
 
-By default, the port on which OpenPanel is accessible is 2083, so you should be able to access your account under `IP:2083` or `DOMAIN:2083`
+By default, the port on which OpenPanel is accessible is 2083, so you should be able to access your account under `http://IP:2083` or `https://DOMAIN:2083`
 
 However, the port can be changed by the administrator, if that is the case, you would log in via `IP:custom-port` or `DOMAIN:custom-port`
 
