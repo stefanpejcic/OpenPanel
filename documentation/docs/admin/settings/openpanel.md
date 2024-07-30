@@ -8,7 +8,7 @@ Edit nameservers, disable features and more.
 
 ![openadmin openpanel settings](/img/admin/adminpanel_openpanel_settings.png)
 
-The OpenPanel Settings page allows you to edit setitngs and features availabnel to users in their OpenPanel interface.
+The OpenPanel Settings page allows you to edit settings and features available to users in their OpenPanel interface.
 
 ## Branding
 
