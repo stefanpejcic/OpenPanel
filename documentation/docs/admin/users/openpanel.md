@@ -76,7 +76,7 @@ opencli user-add filip masdhjkb213g filip@openadmin.co default_plan_apache
 ```
 
 :::tip
-Provide `random` as password to generate a strong random password.
+Provide `generate` as password to generate a strong random password.
 :::
 
   </TabItem>
