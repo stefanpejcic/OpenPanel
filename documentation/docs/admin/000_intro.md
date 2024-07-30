@@ -30,7 +30,7 @@ The installation process takes about 5 minutes. To install openpanel follow thes
 
 
 <Tabs>
-  <TabItem value="openpanel-install-on-dedicated" label="Manual Installation" default>
+  <TabItem value="openpanel-install-on-dedicated" label="Install script" default>
 
 1. Log in to your new server;
 - as root via SSH or
@@ -45,7 +45,7 @@ The installation script supports [optional flags](/install) that can be used to 
 If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.co).
 
   </TabItem>
-  <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean Droplet">
+  <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean">
 
 OpenPanel is available as a 1-Click app (droplet) on DigitalOcean. Click on the button to spin a droplet with OpenPanel already installed:
 
