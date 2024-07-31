@@ -18,6 +18,7 @@ Mimumum Requirements:
 - Debian 11 / Debian 12 / Ubuntu 22 / Ubuntu 24*(without quotas)
 - Minimum of 1GB RAM and 15GB storage
 - x86_64/amd64 architecture
+- IPv4 address
 
 :::info
 If you are using external firewall, the following ports should be opened:  `53` `80` `443` `2083` `2087` `32768:60999`
