@@ -24,24 +24,24 @@ In the form, choose your domain name under 'Application URL'.
 
 In the 'Application Startup File' field, enter domainname/manage.py (replace domainname with your actual domain name).
 
-![2024-08-02-12-07-2.png](https://i.postimg.cc/SKVNwyjv/2024-08-02-12-07-2.png)]
+![2024-08-02-12-07-2.png](https://i.postimg.cc/SKVNwyjv/2024-08-02-12-07-2.png)
 
 In the 'Optional flags' section, set the Django runserver command as follows: `runserver 0.0.0.0:3000` (replace 3000 with your desired port number).
 
-![2024-08-02-12-07-3.png](https://i.postimg.cc/FKhHWfFS/2024-08-02-12-07-3.png)]
+![2024-08-02-12-07-3.png](https://i.postimg.cc/FKhHWfFS/2024-08-02-12-07-3.png)
 
 For the 'Type' field, select **Python**:
 
-![2024-08-02-12-08.png](https://i.postimg.cc/5NFy6dkX/2024-08-02-12-08.png)]
+![2024-08-02-12-08.png](https://i.postimg.cc/5NFy6dkX/2024-08-02-12-08.png)
 
 and in the 'Port' field, enter the same port number you used in the runserver flag (e.g., 3000).
 
-![2024-08-02-12-08-1.png](https://i.postimg.cc/52BtS5J1/2024-08-02-12-08-1.png)]
+![2024-08-02-12-08-1.png](https://i.postimg.cc/52BtS5J1/2024-08-02-12-08-1.png)
 
 
 Click **Create** and wait a few minutes for the process to complete.
 
-![2024-08-02-12-07.png](https://i.postimg.cc/850kztRd/2024-08-02-12-07.png)]
+![2024-08-02-12-07.png](https://i.postimg.cc/850kztRd/2024-08-02-12-07.png)
 
 
 Note: The initial setup might be slow as it installs PM2, Python, Django admin, and other dependencies. Subsequent application setups will be faster.
@@ -50,4 +50,4 @@ Note: The initial setup might be slow as it installs PM2, Python, Django admin, 
 
 Once the installation is complete, open your domain in a web browser to test the setup.
 
-![2024-08-02-12-08-3.png](https://i.postimg.cc/CM2dhLJy/2024-08-02-12-08-3.png)]
+![2024-08-02-12-08-3.png](https://i.postimg.cc/CM2dhLJy/2024-08-02-12-08-3.png)
