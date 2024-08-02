@@ -243,10 +243,10 @@ helper_function_for_nginx_on_aws_and_azure
 configure_modsecurity
 setup_email
 setup_ftp
-set_system_cronjob
 set_custom_hostname
 generate_and_set_ssl_for_panels
 setup_firewall_service
+set_system_cronjob # cron after firewall, otherwise user gets false-positive notification that csf is not running
 tweak_ssh
 setup_swap
 clean_apt_cache
