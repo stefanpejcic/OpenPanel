@@ -5,7 +5,7 @@
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
 # Author: Stefan Pejcic
 # Created: 11.07.2023
-# Last Modified: 24.07.2024
+# Last Modified: 02.08.2024
 # Company: openpanel.co
 # Copyright (c) OPENPANEL
 # 
@@ -168,7 +168,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.3"
+	        PANEL_VERSION="0.2.4"
 	    fi
 	fi
 }
@@ -243,10 +243,10 @@ helper_function_for_nginx_on_aws_and_azure
 configure_modsecurity
 setup_email
 setup_ftp
-set_system_cronjob
 set_custom_hostname
 generate_and_set_ssl_for_panels
 setup_firewall_service
+set_system_cronjob # cron after firewall, otherwise user gets false-positive notification that csf is not running
 tweak_ssh
 setup_swap
 clean_apt_cache
@@ -1457,4 +1457,3 @@ run_custom_postinstall_script
 # END main script execution
 
 service docker restart #needed for debian after csf reload
-
