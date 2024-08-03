@@ -15,7 +15,7 @@ If you need something pre-installed or configured for all users on a plan, like 
 Currently, we provide and maintain 2 Docker images, one that uses Nginx and the other with Apache. Download the image files that you want, either nginx or apache:
 
 For Nginx:
-```
+```bash
 git clone -n --depth=1 --filter=tree:0 \
 https://github.com/stefanpejcic/OpenPanel/tree/main/docker/nginx
 cd OpenPanel
@@ -24,7 +24,7 @@ git checkout
 ```
 
 For Apache:
-```
+```bash
 git clone -n --depth=1 --filter=tree:0 \
 https://github.com/stefanpejcic/OpenPanel/tree/main/docker/apache
 cd OpenPanel
@@ -45,14 +45,14 @@ In this example, we will be adding the ionCube loader PHP extension to the image
 
 Open the **Dockerfile** with a text editor:
 
-``` 
+```bash
 nano Dockerfile
 ```
 
 Inside, include steps to download the ionCube extension and include it in the php.ini file for both CLI and FPM service.
 
 First, add the part to download the extension. Ensure this is added after PHP install: 
-```
+```bash
 #download for PHP 8.3
 RUN mkdir -p /usr/local/lib && curl -sSlL  -o /tmp/ioncube.tar.gz https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz && tar -x --strip-components=1 -C /usr/local/lib -f /tmp/ioncube.tar.gz ioncube/ioncube_loader_lin_8.3.so
 ```
@@ -78,7 +78,7 @@ After adding the commands to download and install the ionCube loader, we now nee
 
 Depending on the downloaded example, replace `nginx` or `apache` in this command:
 
-```
+```bash
 docker build . -t my_custom_nginx_image
 ```
 
@@ -93,13 +93,13 @@ After successfully building the image, the next step is to create a new OpenPane
 Currently, new hosting plans with custom images can only be added from the terminal.
 To create a new plan, run the following command:
 
-```
+```bash
 opencli plan-create <NAME> <DESCRIPTION> <DOMAINS_LIMIT> <WEBSITES_LIMIT> <DISK_LIMIT> <INODES_LIMITS> <DATABASES_LIMIT> <CPU_LIMIT> <RAM_LIMIT> <DOCKER_IMAGE> <PORT_SPEED_LIMIT>
 ```
 
 Example:
 
-```
+```bash
 opencli plan-create cloud_8 "Custom plan with 8GB of RAM&CPU" 0 0 15 500000 0 8 8 my_custom_nxinx_image 200
 ```
 
@@ -107,7 +107,7 @@ opencli plan-create cloud_8 "Custom plan with 8GB of RAM&CPU" 0 0 15 500000 0 8 
 After creating a plan that uses our newly built Docker image, the final step is to create a new user on the plan to test that the ionCube loader is indeed enabled.
 
 Create a new user from the OpenAdmin interface or via terminal:
-```
+```bash
 opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_NAME>
 ```
 
