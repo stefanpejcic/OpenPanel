@@ -53,12 +53,12 @@ export const MENU_ITEMS: MenuItemType[] = [
             },
         ],
     },
-    {
-        isPopover: false,
-        label: "Enterprise",
-        href: "/beta",
-        icon: NewBadgeIcon,
-    },
+  //  {
+   //     isPopover: false,
+   //     label: "Enterprise",
+   //     href: "/beta",
+    // icon: NewBadgeIcon,
+  //  },
     {
         isPopover: true,
         label: "Community",
