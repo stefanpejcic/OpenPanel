@@ -4,7 +4,7 @@ OpenPanel Enterprise edition has billing integrations with WHMCS and FOSSBilling
 
 ## OpenPanel
 
-### Whitelist FOSSBillling on OpenPanel
+### Whitelist FOSSBillling
 
 Before you can setup the OpenPanel server manager in FOSSBilling, you need to first whitelist your FOSSBilling server's IP address inside of OpenAdmin interface, and enable API access. 
 
@@ -18,7 +18,7 @@ Login to OpenAdmin and under **Settings > Firewall** add the FOSSBilling server'
 
 ![whitelist ip](https://i.postimg.cc/433M6LBr/2024-08-04-16-10.png)
 
-### Enable API access on OpenAdmin
+### Enable API access
 
 To enable API access on OpenPanel, navigate to **Settings > API Access** from the OpenAdmin interface and click on 'Enable API access' button:
 
