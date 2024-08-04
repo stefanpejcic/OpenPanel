@@ -21,6 +21,7 @@ After payment, license key is automatically issued and you will see it under the
 
 - From OpenAdmin:
   If you already have OpenPanel Community edition installed, navigate to **OpenAdmin > Try Enterprise** and add the key into the form:
+  
   ![add license key](https://i.postimg.cc/P5VTZwdr/2024-08-04-15-46.png)
 
 - From terminal:
@@ -28,6 +29,7 @@ After payment, license key is automatically issued and you will see it under the
   opencli license enterprise-XXX
   ```
   Replace `enterprise-XXX` with your license key.
+  
   ![opencli license](https://i.imgur.com/rxqjFsy.png)
 
 ### To new installation:
