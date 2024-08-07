@@ -8,6 +8,8 @@ sidebar_position: 3
 
 ### Basic SSH Settings
 
+![screenshot](/img/admin/ssh_access.png)
+
 This page displays:
 
 - **Port** - current SSH port
