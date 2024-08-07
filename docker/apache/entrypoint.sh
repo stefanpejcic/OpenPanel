@@ -126,6 +126,14 @@ else
 fi
 
 
+# pm2
+if [ -s /root/.pm2/dump.pm2 ]; then
+    echo "There are saved NodeJS/Python applications, starting them.."
+    pm2 resurrect
+else
+    echo "No saved NodeJS/Python applications to run. Skipping 'pm2 resurrect'."
+fi
+
 # sudo
 if grep -q 'SUDO="YES"' /etc/entrypoint.sh; then
     usermod -aG sudo -u 1000 $(getent passwd 1000 | cut -d: -f1)
