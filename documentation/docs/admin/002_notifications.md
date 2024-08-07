@@ -83,3 +83,46 @@ If Memory usage is over a treshold:
 
 If system is running out of disk space:
 ![disk](/img/admin/dashboard/disk.png)
+
+### Email alerts
+
+To receive email alerts, simply add your email address to the 'Email for notifications' field or leave it empty to disable email alerts.
+
+If enabled, OpenPanel will send email alerts by default from noreply@openpanel.co
+
+To configure your own smtp for email delivery, you need to update values:
+
+- mail_server - your domain or ip where email is hosted
+- mail_port - outgoing smtp port (default is 465)
+- mail_use_tls - default is False
+- mail_use_ssl - default is True
+- mail_username - email address to use for sending
+- mail_password - password for email address
+- mail_default_sender - email to display, defauls is same as mail_username
+
+Each value is configured using `opencli config update` option. examples:
+
+```bash
+opencli config update mail_server example.net
+```
+```bash
+opencli config update mail_port 465
+```
+```bash
+opencli config update mail_use_tls False
+```
+```bash
+opencli config update mail_use_ssl True
+```
+```bash
+opencli config update mail_username stefan@example.net
+```
+```bash
+opencli config update mail_password strongpass1231
+```
+```bash
+opencli config update mail_default_sender stefan@example.net
+```
+
+
+
