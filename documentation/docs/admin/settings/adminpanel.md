@@ -16,7 +16,7 @@ For options on managing admin users please [visit this page](/docs/admin/users/o
 
 ## Enable Features
 
-To enable a eature check it and click on save.
+To enable a feature check it and click on save.
 
 ## Disable Admin Panel
 As an advanced security measure, you can temporarily disable access to the OpenAdmin interface. This will disable the admin panel and you can turn it back on when needed by executing the command `opencli admin on`
