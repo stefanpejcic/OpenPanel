@@ -87,6 +87,7 @@ export const CommonHeader = ({ trackProgress }: Props) => {
                         "text-gray-1000 dark:text-gray-0",
                         "text-base",
                         "font-bold",
+                        "margin-right: 2",
                     )}
                 >
                     OpenPanel
