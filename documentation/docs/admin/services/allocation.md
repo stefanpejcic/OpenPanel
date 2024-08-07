@@ -8,5 +8,4 @@ sidebar_position: 4
 This feature is still experimental.
 :::
 
-![openadmin docker settings](/img/admin/adminpanel_docker_settings.png)
 
