@@ -15,10 +15,13 @@ OpenPanel records the following actions:
 - service is inactive
 - update is available
 - admin login from new ip address
+- ssh login from new ip address
 - high memory usage
-- high averageload 
+- high average load 
 - high cpu usage
 - high disk usage
+- high swap usage
+- dns changed
 
 Each notification  type can be disabled and treshold limits can be set by the Admin user.
 
