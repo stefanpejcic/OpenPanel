@@ -710,7 +710,7 @@ const tableData = [
             {
                 description: "Webmail",
                 community: <CrossIcon />,
-                enterprise: <TableText>RouncCube, Sogo</TableText>,
+                enterprise: <TableText>RoundCube, Sogo</TableText>,
                 valueType: {
                     community: "icon",
                     enterprise: "text",
