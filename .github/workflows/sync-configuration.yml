@@ -31,8 +31,8 @@ jobs:
       run: |
         rsync -av --delete configuration-repo/ openpanel/configuration/
         cd openpanel
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
+        git config user.name github-actions
+        git config user.email github-actions@github.com
         git add .
         git commit -m "Sync configuration from stefanpejcic/OpenPanel-configuration"
         git push origin main
