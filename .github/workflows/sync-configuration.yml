@@ -35,4 +35,4 @@ jobs:
         git config user.email github-actions@github.com
         git add .
         git commit -m "Sync configuration from stefanpejcic/OpenPanel-configuration"
-        git push origin main
+        git push
