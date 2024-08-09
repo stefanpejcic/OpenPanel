@@ -1,0 +1,34 @@
+name: Sync Configuration Files
+
+on:
+  workflow_dispatch: # manual also
+  repository_dispatch:
+    types: [sync-configuration]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout OpenPanel Repository
+      uses: actions/checkout@v3
+      with:
+        repository: stefanpejcic/OpenPanel
+        token: ${{ secrets.GITHUB_TOKEN }}
+        path: openpanel
+
+    - name: Checkout OpenPanel-Configuration Repository
+      uses: actions/checkout@v3
+      with:
+        repository: stefanpejcic/OpenPanel-configuration
+        token: ${{ secrets.GITHUB_TOKEN }}
+        path: configuration-repo
+
+    - name: Sync Configuration Directory
+      run: |
+        rsync -av --delete configuration-repo/ openpanel/configuration/
+        cd openpanel
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add .
+        git commit -m "Sync configuration from stefanpejcic/OpenPanel-configuration"
+        git push origin main
