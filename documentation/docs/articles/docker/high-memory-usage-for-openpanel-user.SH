@@ -17,6 +17,11 @@ For example, Nginx/Apache are started only after user adds its first domain. MyS
 This allows to minimize resources needed for each user, and allows overselling of resources.
 
 
+## Memory Usage shows High usage
+
+Unlike other panels, all usage data is real-time and shows actuall usage for user. As on other panels, physical memory usage is counted in this total usage. This means that if a service or process used ram and exits, that ram is not automatically returned to the free ram and will still show as used, but in reallity its is cahced ram that can be made available at any time oif needed.
+
+This often confuses users, so we added to periodically safely drop that cached ram after every hour.
 
 ## New Accounts
 
