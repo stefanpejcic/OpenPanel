@@ -110,6 +110,9 @@ FUNCTIONS=(
 
     # logrotate added in 025
     set_logrotate
+
+    # file watcher removed in 025
+    uninstall_watcher_service
     
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
@@ -343,6 +346,20 @@ download_new_admin() {
     service admin restart
 }
 
+
+uninstall_watcher_service(){
+
+systemctl stop watcher.service
+systemctl disable watcher.service
+service watcher stop
+service watcher disable
+rm -rf /usr/local/admin/scripts/watcher
+rm /etc/systemd/system/watcher.service
+
+systemctl daemon-reload
+
+
+}
 
 update_config_files() {
 
