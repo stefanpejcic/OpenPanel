@@ -84,6 +84,9 @@ FUNCTIONS=(
     #notify user we started
     print_header
 
+    # fix for bug with php not autostarting
+    php_fix
+    
     # update images!
     update_docker_images
 
@@ -357,6 +360,16 @@ rm -rf /usr/local/admin/scripts/watcher
 rm /etc/systemd/system/watcher.service
 
 systemctl daemon-reload
+
+
+}
+
+
+php_fix(){
+
+for username in $(opencli user-list --json | awk -F'"' '/username/ {print $4}'); do 
+  docker exec "$username" bash -c 'sed -i "s/PHP82FPM_STATUS=\"off\"/PHP82FPM_STATUS=\"on\"/g" /etc/entrypoint.sh'
+done
 
 
 }
