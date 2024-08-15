@@ -116,6 +116,9 @@ FUNCTIONS=(
 
     # file watcher removed in 025
     uninstall_watcher_service
+
+    #remove nginx and certbot
+    remove_nginx_certbot
     
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
@@ -261,6 +264,30 @@ opencli_update(){
 
 
 
+remove_nginx_certbot(){
+
+
+systemctl stop nginx.service
+systemctl disable nginx.service
+service nginx stop
+service nginx disable
+apt-get remove nginx nginx-common -y
+
+systemctl stop bind9
+apt-get remove bind9 -y
+
+systemctl stop certbot.service
+systemctl disable certbot.service
+service certbot stop
+service certbot disable
+apt-get remove certbot -y
+
+systemctl daemon-reload
+
+}
+
+
+
 nginx_change_in(){
 
     # Check if jq is installed
@@ -285,6 +312,7 @@ done
 
 opencli server-recreate_hosts
 docker exec nginx bash -c "nginx -t && nginx -s reload"
+
 
 }
 
