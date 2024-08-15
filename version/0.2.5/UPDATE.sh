@@ -98,6 +98,9 @@ FUNCTIONS=(
 
     # update opencli
     opencli_update
+
+    # repalce ip with username in nginx container files
+    nginx_change_in
     
     #
     verify_license
@@ -249,6 +252,35 @@ opencli_update(){
     source ~/.bashrc
 }
 
+
+
+
+nginx_change_in(){
+
+    # Check if jq is installed
+    if ! command -v jq &> /dev/null; then
+        # Install jq using apt
+        sudo apt-get update > /dev/null 2>&1
+        sudo apt-get install -y -qq jq > /dev/null 2>&1
+        # Check if installation was successful
+        if ! command -v jq &> /dev/null; then
+            echo "Error: jq installation failed. Please install jq manually and try again."
+            exit 1
+        fi
+    fi
+    
+DOCKER_USERS=$(opencli user-list --json | jq -r '.[].username')
+
+# Loop kroz Docker usere i pokreni skript
+for USERNAME in $DOCKER_USERS; do
+    # Run the user-specific script
+    opencli nginx-update_vhosts $USERNAME
+done
+
+opencli server-recreate_hosts
+docker exec nginx bash -c "nginx -t && nginx -s reload"
+
+}
 
 
 run_custom_postupdate_script() {
