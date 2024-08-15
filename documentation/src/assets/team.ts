@@ -14,7 +14,7 @@ export const team = [
     {
         name: "Radovan Jecmenica",
         avatar: "https://media.licdn.com/dms/image/C5603AQH320bWXbQZXA/profile-displayphoto-shrink_200_200/0/1634293404717?e=2147483647&v=beta&t=5p7E5xoyj_wuI8z_MlfgHAeLAc25kJlOLC2Y6BaGE9k",
-        role1: "Frontend Developer",
+        role1: "Python Developer",
     },
     {
         name: "Petar Curic",
