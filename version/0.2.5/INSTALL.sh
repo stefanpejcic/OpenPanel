@@ -624,8 +624,9 @@ docker_compose_up(){
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
     cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
-    # start the stack
-    docker compose up -d
+    # from 0.2.5 we only start mysql by default
+    #docker compose up -d
+    cd /root && docker compose up -d openpanel_mysql 
 
 }
 
