@@ -232,16 +232,15 @@ install_packages
 download_skeleton_directory_from_github
 install_openadmin
 opencli_setup
-add_file_watcher
 configure_docker
 download_and_import_docker_images
-docker_compose_up
+
 panel_customize
 set_premium_features
-configure_nginx
-helper_function_for_nginx_on_aws_and_azure
+configure_nginx 
+docker_compose_up # must be after nginx setup 
 configure_modsecurity
-setup_email
+##### NOT PRODUCTION READY #setup_email 
 setup_ftp
 set_custom_hostname
 generate_and_set_ssl_for_panels
@@ -674,12 +673,6 @@ setup_email() {
 }
 
 
-add_file_watcher(){
-    bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/file-watcher/main/install.sh)
-}
-
-
-
 setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
@@ -807,7 +800,7 @@ setup_firewall_service() {
         
         elif [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
-          
+          apt-get install ufw  > /dev/null 2>&1 && 
           # set ufw to be monitored instead of csf
           sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/notifications.ini"  > /dev/null 2>&1
           sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
@@ -923,7 +916,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("docker.io" "default-mysql-client" "nginx" "zip" "bind9" "unzip" "python3-pip" "pip" "gunicorn" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin" "ufw")
+    packages=("docker.io" "default-mysql-client" "zip" "unzip" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin" "ufw")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
@@ -967,7 +960,7 @@ install_packages() {
         done     
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
         # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "nginx" "zip" "unzip" "ufw" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
+        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "zip" "unzip" "sqlite3" "geoip-bin")
         
         #utils must be added first, then install from that repo
         dnf install yum-utils  -y
@@ -1006,8 +999,9 @@ configure_modsecurity() {
     #
 
     if [ "$MODSEC" ]; then
-        echo "Installing ModSecurity and setting OWASP core ruleset.."
-        debug_log opencli nginx-install_modsec
+        echo "ModSecurity is temporary disabled and will not be installed."
+	#echo "Installing ModSecurity and setting OWASP core ruleset.."
+        #debug_log opencli nginx-install_modsec
     fi
 }
 
@@ -1027,30 +1021,6 @@ cleanup() {
     # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     sed -i 's/$nrconf{restart} = '"'"'a'"'"';/#$nrconf{restart} = '"'"'i'"'"';/g' /etc/needrestart/needrestart.conf
 }
-
-
-
-
-
-helper_function_for_nginx_on_aws_and_azure(){
-    #
-    # FIX FOR:
-    #
-    # https://stackoverflow.com/questions/3191509/nginx-error-99-cannot-assign-requested-address/13141104#13141104
-    #
-    nginx_status=$(systemctl status nginx 2>&1)
-
-    # Search for "Cannot assign requested address" in the output
-    if echo "$nginx_status" | grep -q "Cannot assign requested address"; then
-        echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
-        sysctl -p /etc/sysctl.conf
-        sed -i "s/IP_HERE/*/" /etc/nginx/sites-enabled/default
-        debug_log "echo Configuration updated and applied."
-    else
-        debug_log "echo Nginx started normally."
-    fi
-}
-
 
 
 
@@ -1121,8 +1091,16 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
+
+    mkdir -p /etc/nginx/sites-available/
+    mkdir -p /etc/nginx/sites-enabled/
+    mkdir -p /etc/letsencrypt/
+    mkdir -p /var/log/nginx/domlogs/
+
+
     # https://dev.openpanel.co/services/nginx
-    rm /etc/nginx/nginx.conf && ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
+    rm /etc/nginx/nginx.conf
+    ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
 
     # dir for domlogs
     mkdir -p /var/log/nginx/domlogs
@@ -1147,8 +1125,6 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/error_pages /srv/http/default
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
-
-    service nginx restart
 }
 
 
