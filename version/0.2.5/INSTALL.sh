@@ -916,7 +916,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("docker.io" "default-mysql-client" "zip" "unzip" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin" "ufw")
+    packages=("docker.io" "default-mysql-client" "zip" "unzip" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
