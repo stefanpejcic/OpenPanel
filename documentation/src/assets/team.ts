@@ -24,7 +24,7 @@ export const team = [
     {
         name: "Dragana Panic",
         avatar: "https://i.imgur.com/Rspdz2w.png",
-        role1: "Marketing",
+        role1: "Marketing Manager",
     },
     {
         name: "Nikola Markovic",
