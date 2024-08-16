@@ -194,7 +194,7 @@ const mainSidebar = {
     },
     {
         type: "link",
-        href: "https://community.openpanel.co",
+        href: "https://community.openpanel.com",
         label: "Join our Community",
         className: "enterprise-badge",
     }
@@ -206,7 +206,7 @@ const mainSidebar = {
     // Promo
     {
       type: 'link',
-      href: 'https://dev.openpanel.co',
+      href: 'https://dev.openpanel.com',
       label: 'Developer Docs',
       className: 'enterprise-badge',
     },
@@ -217,7 +217,7 @@ const mainSidebar = {
     // Promo
     {
       type: 'link',
-      href: 'https://dev.openpanel.co',
+      href: 'https://dev.openpanel.com',
       label: 'Developer Docs',
       className: 'enterprise-badge',
     },
