@@ -257,7 +257,7 @@ export const integrations: IntegrationsType = {
             icon: Terminal,
             description:
                 "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
-            url: "/docs/category/openpanel-cli/",
+            url: "https://dev.openpanel.co/cli/commands.html",
             status: "stable",
         },
     ],
@@ -306,7 +306,7 @@ export const integrations: IntegrationsType = {
             icon: Languages,
             description:
                 "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
-            url: "/docs/admin/customize/localization/",
+            url: "https://dev.openpanel.co/localization.html",
             status: "stable",
         },
         {
@@ -451,12 +451,19 @@ export const integrations: IntegrationsType = {
     ],
     "community-packages": [
         {
-            name: "WHMCS Module",
+            name: "WHMCS",
             icon: WHMCS,
             description: "Integrate with the leading web hosting management and billing software.",
-            url: "https://openpanel.co/docs/changelog/0.1.7/#whmcs-module",
+            url: "/blog/openpanel-whmcs-module/",
             status: "stable",
         },
+        {
+            name: "FOSSBilling",
+            icon: WHMCS,
+            description: "Provision OpenPanel accounts from FOSSBilling software.",
+            url: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/",
+            status: "stable",
+        },        
         {
             name: "REST API",
             icon: API,
