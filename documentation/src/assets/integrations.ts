@@ -389,7 +389,7 @@ export const integrations: IntegrationsType = {
             icon: ModSec,
             description:
                 "Administrators can activate ModSecurity with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable ModSecurity per domain.",
-            url: "/docs/admin/settings/waf/",
+            url: "/docs/admin/security/waf/",
             status: "stable",
         },
         {
@@ -397,7 +397,7 @@ export const integrations: IntegrationsType = {
             icon: Firewall,
             description:
                 "Administrators can manage (UFW) firewall rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
-            url: "/docs/admin/settings/firewall/",
+            url: "/docs/admin/security/firewall/",
             status: "stable",
         },
         {
