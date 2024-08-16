@@ -357,7 +357,7 @@ const apps = [
     },
     {
         name: "OpenCLI",
-        link: "https://dev.openpanel.co/cli/commands.html",
+        link: "https://dev.openpanel.com/cli/commands.html",
         showcase: ShowcaseDevOps,
         dark: true,
         label: "Browse Commands",
