@@ -1,5 +1,5 @@
 <div align="center">
-<a href="https://openpanel.co/">
+<a href="https://openpanel.com/">
     <img alt="website" src="/documentation/static/img/openpanel_admin.gif">
 </a>
   
@@ -7,9 +7,9 @@
 <br/>
 
 <div align="center">
-    <a href="https://openpanel.co">Home Page</a> |
-    <a href="https://community.openpanel.co/">Forums</a> |
-    <a href="https://openpanel.co/docs/admin/intro/">Documentation</a>
+    <a href="https://openpanel.com">Home Page</a> |
+    <a href="https://community.openpanel.com/">Forums</a> |
+    <a href="https://openpanel.com/docs/admin/intro/">Documentation</a>
 </div>
 </div>
 
@@ -32,7 +32,7 @@ OpenPanel is a powerful and flexible web hosting control panel for Linux systems
 
 **OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
 
-[![openpanel scheme](/documentation/static/img/admin/openpanel_scheme.png)](https://openpanel.co/docs/panel/intro/)
+[![openpanel scheme](/documentation/static/img/admin/openpanel_scheme.png)](https://openpanel.com/docs/panel/intro/)
 
 This panel is the culmination of years of experience in the hosting industry, having spent decades working with various hosting panels we made sure to include all features that simply make sense.
 
@@ -40,13 +40,13 @@ When we designed OpenPanel, we prioritized features that are not only user-frien
 
 Some of the unique features worth mentioning are:
 
-- Users can run [Nginx or Apache webserver](https://openpanel.co/docs/admin/plans/hosting_plans/#list-hosting-plans).
-- Users can [install PHP versions](https://openpanel.co/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.co/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
-- Control [MySQL settings](https://openpanel.co/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](https://openpanel.co/docs/panel/databases/remote) and much more.
-- [Update system services](https://openpanel.co/docs/panel/advanced/server_settings#service-status) and even install new services that they need.
-- Manage WordPress websites easily with [WP Manager](https://openpanel.co/docs/panel/applications/wordpress).
-- Password-less login to [phpMyAdmin](https://openpanel.co/docs/panel/databases/phpmyadmin) and [Web Terminal](https://openpanel.co/docs/panel/advanced/terminal).
-- Built-in [REDIS](https://openpanel.co/docs/panel/caching/Redis) and [Memcached](https://openpanel.co/docs/panel/caching/Memcached) object caching.
+- Users can run [Nginx or Apache webserver](https://openpanel.com/docs/admin/plans/hosting_plans/#list-hosting-plans).
+- Users can [install PHP versions](https://openpanel.com/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.com/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
+- Control [MySQL settings](https://openpanel.com/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](https://openpanel.com/docs/panel/databases/remote) and much more.
+- [Update system services](https://openpanel.com/docs/panel/advanced/server_settings#service-status) and even install new services that they need.
+- Manage WordPress websites easily with [WP Manager](https://openpanel.com/docs/panel/applications/wordpress).
+- Password-less login to [phpMyAdmin](https://openpanel.com/docs/panel/databases/phpmyadmin) and [Web Terminal](https://openpanel.com/docs/panel/advanced/terminal).
+- Built-in [REDIS](https://openpanel.com/docs/panel/caching/Redis) and [Memcached](https://openpanel.com/docs/panel/caching/Memcached) object caching.
 
 ## OpenPanel vs OpenAdmin
 
@@ -54,7 +54,7 @@ Some of the unique features worth mentioning are:
 The **OpenAdmin** offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, configuring backups, and editing OpenPanel settings.
 The **OpenPanel** interface is the client-level panel where end-users can manage their enviroment, edit settings, install services, create websites and more.
 
-[![openpanel-vs-openadmin](/documentation/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.co/docs/admin/intro/)
+[![openpanel-vs-openadmin](/documentation/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.com/docs/admin/intro/)
 
 
 ## Supported OS
@@ -99,7 +99,7 @@ To install on self-hosted VPS/Dedicated server:
 bash <(curl -sSL https://get.openpanel.co/)`
 ```
 
-To configure server on installation, please visit: https://openpanel.co/install 
+To configure server on installation, please visit: https://openpanel.com/install 
 
 ----
 
@@ -118,6 +118,6 @@ curl -X POST -H 'Content-Type: application/json' \
 
 ## Support
 
-Our [Community](https://community.openpanel.co/) serves as our virtual Headquater, where the community helps each other.
+Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
