@@ -15,7 +15,7 @@ export const menuItems = [
             },
             {
                 label: "Support Forums",
-                href: "https://community.openpanel.co/",
+                href: "https://community.openpanel.com/",
             },
             {
                 label: "Roadmap",
@@ -66,11 +66,11 @@ export const menuItems = [
             },
             {
                 label: "Become a Partner",
-                href: "mailto:info@openpanel.co",
+                href: "mailto:info@openpanel.com",
             },
             {
                 label: "Contact Us",
-                href: "mailto:info@openpanel.co",
+                href: "mailto:info@openpanel.com",
             },
         ],
     },
