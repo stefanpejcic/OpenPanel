@@ -38,7 +38,7 @@ export const LandingFooter = () => {
              IJsbaanpad 2, 1076 CV Amsterdam (The Netherlands)
             </div>
             <a
-                href="mailto:info@openpanel.co"
+                href="mailto:info@openpanel.com"
                 className={clsx(
                     "font-normal",
                     "text-sm",
@@ -48,7 +48,7 @@ export const LandingFooter = () => {
                     "hover:no-underline",
                 )}
             >
-                info@openpanel.co
+                info@openpanel.com
             </a>
         </div>
     );
