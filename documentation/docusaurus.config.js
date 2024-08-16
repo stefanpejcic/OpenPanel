@@ -14,7 +14,7 @@ const tutorialData = require("./tutorial-units");
 const siteConfig = {
     title: "OpenPanel",
     tagline: 'Unparalleled support. Effortless website hosting. Continuous feature development.',
-    url: "https://openpanel.co",
+    url: "https://openpanel.com",
     baseUrl: "/",
     onBrokenLinks: 'ignore',
     projectName: "openpanel",
@@ -337,7 +337,7 @@ const siteConfig = {
             "OpenPanel Co.",
             "256 Amsterdam, NL 19702",
         ],
-        contactEmail: "info@openpanel.co",
+        contactEmail: "info@openpanel.com",
         /** ---- */
         /** Live Preview */
         LIVE_PREVIEW_URL:
