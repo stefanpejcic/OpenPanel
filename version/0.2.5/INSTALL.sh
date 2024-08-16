@@ -973,9 +973,6 @@ install_packages() {
         # ovo za gunicorn
         dnf install python3-pip python3-devel gcc -y
 
-        # bind radi ovako
-        dnf install bind bind-utils -y
-
         for package in "${packages[@]}"; do
             echo -e "Installing  ${GREEN}$package${RESET}"
             $PACKAGE_MANAGER install "$package" -y
@@ -1218,6 +1215,8 @@ download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
     echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+    mkdir -p /etc/bind/
+    cp -r /etc/openpanel/bind9/* /etc/bind/
 }
 
 
