@@ -1,4 +1,4 @@
-OpenPanel Enterprise edition has billing integrations with WHMCS and FOSSBilling.
+OpenPanel Enterprise edition has billing integrations with WHMCS and [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling).
 
 OpenPanel WHMCS module allows users to integrate billing automations with their OpenPanel server.
 
