@@ -12,14 +12,28 @@ To setup WHMCS to use your OpenPanel server follow these steps:
 
 First make sure that API access is enabled by going to `OpenAdmin > API` or by running `opencli config get api` from the terminal:
 ![enable_api](https://i.postimg.cc/L6vwMQ4t/image.png)
-If API is not enabled, click on the "Enable API access" button or from terminal run `opencli config update api on`.
+If API is not enabled, click on the "Enable API access" button or from terminal run 
+```bash
+opencli config update api on
+```
 
-We recommend creating new Administrator user for API, to create a new user navigate to *OpenAdmin > OpenAdmin Settings* and create new admin user, or from terminal run: `opencli admin new USERNAME_HERE PASSWORD_HERE`
+We recommend creating new Administrator user for API, to create a new user navigate to *OpenAdmin > OpenAdmin Settings* and create new admin user, or from terminal run:
+```bash
+opencli admin new USERNAME_HERE PASSWORD_HERE
+```
 
 ## Whitelist on OpenPanel
 
 On OpenPanel server make sure that the OpenAdmin port 2087 is open on `OpenAdmin > Firewall` or whitelist the IP adress of your WHMCS server.
-to whitelist ip address from terminal run: `csf -a WHMCS_IP_HERE` or is using ufw: `ufw allow from WHMCS_IP_HERE`
+to whitelist ip address from terminal run:
+
+```bash
+csf -a WHMCS_IP_HERE
+```
+or if using UFS:
+```bash
+ufw allow from WHMCS_IP_HERE
+```
 
 ## Create hosting package
 Hosting packages need to be created on both OpenPanel and WHMCS servers.
@@ -31,7 +45,10 @@ On OpenPanel server login to admin panel and on `OpenAdmin > Plans` create hosti
 
 Login to SSH for WHMCS server
 Navigate to `path_to_whmcs/modules/servers`
-Run this command to create a new folder and in it download the module: `git clone https://github.com/stefanpejcic/openpanel-whmcs-module.git openpanel`
+Run this command to create a new folder and in it download the module:
+```bash
+git clone https://github.com/stefanpejcic/openpanel-whmcs-module.git openpanel
+```
 
 ## Whitelist on WHMCS
 
