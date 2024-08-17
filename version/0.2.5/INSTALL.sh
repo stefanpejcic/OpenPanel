@@ -615,7 +615,7 @@ docker_compose_up(){
     
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
-    echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> .env
+    echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
     echo ""
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
     echo ""
