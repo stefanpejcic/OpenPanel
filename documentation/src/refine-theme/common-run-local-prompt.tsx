@@ -14,7 +14,7 @@ export const CommonRunLocalPrompt = ({ path }: Props) => {
             title="Install command"
             icon={<TerminalIcon />}
         >
-            {`bash <(curl -sSL https://get.openpanel.co/) ${path}`}
+            {`bash <(curl -sSL https://openpanel.org) ${path}`}
         </CodeBlock>
     );
 };
