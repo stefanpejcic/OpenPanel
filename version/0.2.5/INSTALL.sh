@@ -1132,9 +1132,14 @@ configure_nginx() {
 
 
 set_premium_features(){
- if [ "$SET_HOSTNAME_NOW" = true ]; then
+ if [ "$SET_PREMIUM" = true ]; then
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
+    
+    #added in 0.2.5 https://community.openpanel.com/d/91-email-support-for-openpanel-enterprise-edition
+    echo "Setting mailserver.." 
+    opencli email-server install
+
  fi
 }
 
