@@ -208,6 +208,7 @@ detect_os_and_package_manager
 update_package_manager
 install_packages
 download_skeleton_directory_from_github
+setup_bind # must run after download_skeleton_directory_from_github
 install_openadmin
 opencli_setup
 configure_docker
@@ -1188,12 +1189,16 @@ download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
     echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
-    mkdir -p /etc/bind/
-    cp -r /etc/openpanel/bind9/* /etc/bind/
 }
 
 
-
+setup_bind(){
+    echo "Setting DNS service.."
+    echo ""
+    mkdir -p /etc/bind/
+    cp -r /etc/openpanel/bind9/* /etc/bind/
+    echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+}
 
 send_install_log(){
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
