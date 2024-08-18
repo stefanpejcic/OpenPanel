@@ -7,7 +7,7 @@ import {
 } from "./changing-text-element";
 import { LandingCopySuccessIcon } from "./icons/landing-copy-success";
 
-const installText = "bash <(curl -sSL https://get.openpanel.co/)";
+const installText = "bash <(curl -sSL https://openpanel.org)";
 const copiedText = "copied to clipboard!";
 
 export const LandingCopyCommandButton = ({
