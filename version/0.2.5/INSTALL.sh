@@ -623,8 +623,8 @@ docker_compose_up(){
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
-    # from 0.2.5 we only start mysql by default
+    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml isntead of docker-compose.yml
+    # from 0.2.5 we only start mysql by default,panel on first user and nginx/dns on first domain
     #docker compose up -d
     cd /root && docker compose up -d openpanel_mysql 
 
@@ -991,6 +991,8 @@ install_packages() {
 
 configure_modsecurity() {
 
+echo "Warning: modsecurity is currently disbaled and will not be installed"
+: '
     # ModSecurity
     #
     # https://openpanel.com/docs/admin/settings/waf/#install-modsecurity
@@ -1001,6 +1003,8 @@ configure_modsecurity() {
 	#echo "Installing ModSecurity and setting OWASP core ruleset.."
         #debug_log opencli nginx-install_modsec
     fi
+'
+
 }
 
 
