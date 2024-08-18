@@ -38,7 +38,7 @@ The installation process takes about 5 minutes. To install openpanel follow thes
 - as a user with sudo privileges and type "sudo -i"
 2. Copy and paste openpanel installation command into the terminal
 ```shell
-bash <(curl -sSL https://get.openpanel.co/)
+bash <(curl -sSL https://openpanel.org)
 ```
 
 The installation script supports [optional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
