@@ -96,7 +96,7 @@ We regularly conduct internal audits, apply the latest security patches, and fol
 To install on self-hosted VPS/Dedicated server: 
 
 ```bash
-bash <(curl -sSL https://get.openpanel.co/)`
+bash <(curl -sSL https://openpanel.org)
 ```
 
 To configure server on installation, please visit: https://openpanel.com/install 
