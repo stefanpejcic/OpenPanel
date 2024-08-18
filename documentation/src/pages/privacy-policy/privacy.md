@@ -15,7 +15,7 @@ OpenPanel is the controller for the processing of your personal data, as describ
 - 1076 CV Amsterdam
 - The Netherlands
 
-- Privacy Protection Team: [privacy@openpanel.co](mailto:privacy@openpanel.co)
+- Privacy Protection Team: [info@openpanel.com](mailto:info@openpanel.com)
 
 
 ## TO WHOM DOES THIS PRIVACY POLICY APPLY?
@@ -48,7 +48,7 @@ To provide customer service, OpenPanel may collect your personal data to respond
 
 ### Newsletters
 
-OpenPanel wishes to inform you on the developments of its products, if you have signed up for OpenPanel’s newsletters. If, at any moment, you do not wish to receive emails of OpenPanel anymore, you can unsubscribe by using the opt-out option that is provided in every email that OpenPanel sends you. You may also unsubscribe by sending an email to [privacy@openpanel.co](mailto:privacy@openpanel.co).
+OpenPanel wishes to inform you on the developments of its products, if you have signed up for OpenPanel’s newsletters. If, at any moment, you do not wish to receive emails of OpenPanel anymore, you can unsubscribe by using the opt-out option that is provided in every email that OpenPanel sends you. You may also unsubscribe by sending an email to [info@openpanel.com](mailto:info@openpanel.com).
 
 To subscribe you have to provide us with your email address. The processing thereof is necessary for the purposes of the legitimate interests pursued by OpenPanel (Article 6.1(f) GDPR), namely direct marketing. OpenPanel retains your e-mail address for as long as you are subscribed to the newsletter and not longer than 1 month after you unsubscribe.
 
