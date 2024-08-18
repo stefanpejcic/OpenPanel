@@ -332,6 +332,11 @@ run_custom_postupdate_script() {
 }
 
 
+
+set_mailserver(){
+    opencli email-server install
+}
+
 set_logrotate(){
 config_file="/etc/openpanel/openpanel/conf/openpanel.config"
 
