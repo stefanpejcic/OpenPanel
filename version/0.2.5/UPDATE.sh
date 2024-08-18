@@ -125,6 +125,9 @@ FUNCTIONS=(
     
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
+
+    # certbot start
+    cd /root && docker compose up -d certbot
     
     # delete temp files and (maybe) old panel versison
     cleanup
