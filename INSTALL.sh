@@ -1386,7 +1386,7 @@ create_admin_and_show_logins_success_message() {
 
     #cp version file
     mkdir -p /usr/local/panel/  > /dev/null 2>&1
-    echo "$PANEL_VERSION" > /usr/local/panel/version > /dev/null 2>&1
+    echo "$PANEL_VERSION" > /usr/local/panel/version
     ######docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
     
     echo -e "${GREEN}OpenPanel [$(cat /usr/local/panel/version)] installation complete.${RESET}"
