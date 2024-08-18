@@ -6,7 +6,7 @@
 # Author: Stefan Pejcic
 # Created: 11.07.2023
 # Last Modified: 02.08.2024
-# Company: openpanel.co
+# Company: openpanel.com
 # Copyright (c) OPENPANEL
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -168,7 +168,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.4"
+	        PANEL_VERSION="0.2.5"
 	    fi
 	fi
 }
@@ -232,21 +232,21 @@ install_packages
 download_skeleton_directory_from_github
 install_openadmin
 opencli_setup
-add_file_watcher
 configure_docker
 download_and_import_docker_images
-docker_compose_up
+
 panel_customize
 set_premium_features
-configure_nginx
-helper_function_for_nginx_on_aws_and_azure
+configure_nginx 
+docker_compose_up # must be after nginx setup 
 configure_modsecurity
-setup_email
+##### NOT PRODUCTION READY #setup_email 
 setup_ftp
 set_custom_hostname
 generate_and_set_ssl_for_panels
 setup_firewall_service
 set_system_cronjob # cron after firewall, otherwise user gets false-positive notification that csf is not running
+set_logrotate
 tweak_ssh
 setup_swap
 clean_apt_cache
@@ -615,7 +615,7 @@ docker_compose_up(){
     
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
-    echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> .env
+    echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
     echo ""
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
     echo ""
@@ -623,9 +623,10 @@ docker_compose_up(){
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
-    # start the stack
-    docker compose up -d
+    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml isntead of docker-compose.yml
+    # from 0.2.5 we only start mysql by default,panel on first user and nginx/dns on first domain
+    #docker compose up -d
+    cd /root && docker compose up -d openpanel_mysql 
 
 }
 
@@ -671,12 +672,6 @@ setup_email() {
             curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenMail/master/setup.sh | bash --dovecot
         fi
 }
-
-
-add_file_watcher(){
-    bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/file-watcher/main/install.sh)
-}
-
 
 
 setup_firewall_service() {
@@ -806,7 +801,7 @@ setup_firewall_service() {
         
         elif [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
-          
+          apt-get install ufw  > /dev/null 2>&1 && 
           # set ufw to be monitored instead of csf
           sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/notifications.ini"  > /dev/null 2>&1
           sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
@@ -864,6 +859,54 @@ update_package_manager() {
 }
 
 
+set_logrotate(){
+
+echo "Setting Logrotate for Nginx.."
+
+bash /usr/local/admin/scripts/server/logrotate
+
+echo "Setting Logrotate for OpenPanel logs.."
+
+cat <<EOF > "/etc/logrotate.d/openpanel"
+/var/log/openpanel/**/*.log {
+    su root adm
+    size 50M
+    rotate 5
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    create 640 root adm
+    postrotate
+    endscript
+}
+EOF
+
+logrotate -f /etc/logrotate.d/openpanel
+
+
+
+echo "Setting Logrotate for Syslogs.."
+
+cat <<EOF > "/etc/logrotate.d/syslog"
+/var/log/syslog {
+    su root syslog
+    weekly
+    rotate 4
+    missingok
+    notifempty
+    compress
+    delaycompress
+    postrotate
+        /usr/bin/systemctl reload rsyslog > /dev/null 2>&1 || true
+    endscript
+}
+EOF
+
+logrotate -f /etc/logrotate.d/syslog
+
+}
 
 
 install_packages() {
@@ -874,7 +917,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("docker.io" "default-mysql-client" "nginx" "zip" "bind9" "unzip" "python3-pip" "pip" "gunicorn" "jc" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin" "ufw")
+    packages=("docker.io" "default-mysql-client" "zip" "unzip" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
@@ -918,7 +961,7 @@ install_packages() {
         done     
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
         # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "nginx" "zip" "unzip" "ufw" "certbot" "python3-certbot-nginx" "sqlite3" "geoip-bin")
+        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "zip" "unzip" "sqlite3" "geoip-bin")
         
         #utils must be added first, then install from that repo
         dnf install yum-utils  -y
@@ -929,9 +972,6 @@ install_packages() {
 
         # ovo za gunicorn
         dnf install python3-pip python3-devel gcc -y
-
-        # bind radi ovako
-        dnf install bind bind-utils -y
 
         for package in "${packages[@]}"; do
             echo -e "Installing  ${GREEN}$package${RESET}"
@@ -951,15 +991,20 @@ install_packages() {
 
 configure_modsecurity() {
 
+echo "Warning: modsecurity is currently disbaled and will not be installed"
+: '
     # ModSecurity
     #
-    # https://openpanel.co/docs/admin/settings/waf/#install-modsecurity
+    # https://openpanel.com/docs/admin/settings/waf/#install-modsecurity
     #
 
     if [ "$MODSEC" ]; then
-        echo "Installing ModSecurity and setting OWASP core ruleset.."
-        debug_log opencli nginx-install_modsec
+        echo "ModSecurity is temporary disabled and will not be installed."
+	#echo "Installing ModSecurity and setting OWASP core ruleset.."
+        #debug_log opencli nginx-install_modsec
     fi
+'
+
 }
 
 
@@ -978,30 +1023,6 @@ cleanup() {
     # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     sed -i 's/$nrconf{restart} = '"'"'a'"'"';/#$nrconf{restart} = '"'"'i'"'"';/g' /etc/needrestart/needrestart.conf
 }
-
-
-
-
-
-helper_function_for_nginx_on_aws_and_azure(){
-    #
-    # FIX FOR:
-    #
-    # https://stackoverflow.com/questions/3191509/nginx-error-99-cannot-assign-requested-address/13141104#13141104
-    #
-    nginx_status=$(systemctl status nginx 2>&1)
-
-    # Search for "Cannot assign requested address" in the output
-    if echo "$nginx_status" | grep -q "Cannot assign requested address"; then
-        echo "net.ipv4.ip_nonlocal_bind = 1" >> /etc/sysctl.conf
-        sysctl -p /etc/sysctl.conf
-        sed -i "s/IP_HERE/*/" /etc/nginx/sites-enabled/default
-        debug_log "echo Configuration updated and applied."
-    else
-        debug_log "echo Nginx started normally."
-    fi
-}
-
 
 
 
@@ -1072,8 +1093,16 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
+
+    mkdir -p /etc/nginx/sites-available/
+    mkdir -p /etc/nginx/sites-enabled/
+    mkdir -p /etc/letsencrypt/
+    mkdir -p /var/log/nginx/domlogs/
+
+
     # https://dev.openpanel.co/services/nginx
-    rm /etc/nginx/nginx.conf && ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
+    rm /etc/nginx/nginx.conf
+    ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
 
     # dir for domlogs
     mkdir -p /var/log/nginx/domlogs
@@ -1098,16 +1127,19 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/error_pages /srv/http/default
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
-
-    service nginx restart
 }
 
 
 
 set_premium_features(){
- if [ "$SET_HOSTNAME_NOW" = true ]; then
+ if [ "$SET_PREMIUM" = true ]; then
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
+    
+    #added in 0.2.5 https://community.openpanel.com/d/91-email-support-for-openpanel-enterprise-edition
+    echo "Setting mailserver.." 
+    opencli email-server install
+
  fi
 }
 
@@ -1173,7 +1205,7 @@ run_custom_postinstall_script() {
         # run the custom script
         echo " "
         echo "Running post install script.."
-        debug_log "https://dev.openpanel.co/customize.html#After-installation"
+        debug_log "https://dev.openpanel.com/customize.html#After-installation"
         debug_log bash $post_install_path
     fi
 }
@@ -1192,6 +1224,8 @@ download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
     echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+    mkdir -p /etc/bind/
+    cp -r /etc/openpanel/bind9/* /etc/bind/
 }
 
 
@@ -1257,18 +1291,18 @@ support_message() {
     echo "Your journey with OpenPanel has just begun, and we're here to help every step of the way."
     echo ""
     echo "To get started, check out our Getting Started guide:"
-    echo "👉 https://openpanel.co/docs/admin/intro/#post-install-steps"
+    echo "👉 https://openpanel.com/docs/admin/intro/#post-install-steps"
     echo ""
     echo "Need assistance or looking to learn more? We've got you covered:"
     echo ""
     echo "📚 Admin Docs: Dive into our comprehensive documentation for all things OpenPanel:"
-    echo "👉 https://openpanel.co/docs/admin/intro/"
+    echo "👉 https://openpanel.com/docs/admin/intro/"
     echo ""
     echo "💬 Forums: Join our community forum to ask questions, share tips, and connect with fellow admins:"
-    echo "👉 https://community.openpanel.co/"
+    echo "👉 https://community.openpanel.com/"
     echo ""
     echo "🎮 Discord: For real-time chat and support, hop into our Discord server:"
-    echo "👉 https://discord.openpanel.co/"
+    echo "👉 https://discord.openpanel.com/"
     echo ""
     echo "We're thrilled to have you with us. Let's make something amazing together! 🚀"
     echo ""
@@ -1292,7 +1326,7 @@ install_openadmin(){
 
     # OpenAdmin
     #
-    # https://openpanel.co/docs/admin/intro/
+    # https://openpanel.com/docs/admin/intro/
     #
     echo "Setting up Admin panel.."
 
@@ -1352,7 +1386,8 @@ create_admin_and_show_logins_success_message() {
 
     #cp version file
     mkdir -p /usr/local/panel/  > /dev/null 2>&1
-    docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
+    echo "$PANEL_VERSION" > /usr/local/panel/version > /dev/null 2>&1
+    ######docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
     
     echo -e "${GREEN}OpenPanel [$(cat /usr/local/panel/version)] installation complete.${RESET}"
     echo ""
