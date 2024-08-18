@@ -2,7 +2,7 @@
 ################################################################################
 # Script Name: INSTALL.sh
 # Description: Install the latest version of OpenPanel
-# Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
+# Usage: bash <(curl -sSL https://openpanel.org)
 # Author: Stefan Pejcic <stefan@pejcic.rs>
 # Created: 11.07.2023
 # Last Modified: 18.08.2024
@@ -164,7 +164,7 @@ set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
 	    # Fetch the latest version
-	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://get.openpanel.co/version)
+	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://openpanel.org/version)
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
@@ -917,7 +917,7 @@ install_packages() {
     
     debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
-    packages=("docker.io" "default-mysql-client" "zip" "unzip" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
+    packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
         #only once..
@@ -961,7 +961,7 @@ install_packages() {
         done     
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
         # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "zip" "unzip" "sqlite3" "geoip-bin")
+        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "sqlite3" "geoip-bin")
         
         #utils must be added first, then install from that repo
         dnf install yum-utils  -y
