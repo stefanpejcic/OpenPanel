@@ -4,7 +4,7 @@ Welcome and thanks for taking interest in OpenPanel!
 
 We are mostly interested in reports by actual OpenPanel users but all high quality contributions are welcome.
 
-If you believe that you have have discovered a vulnerability in OpenPanel, please let our development team know by sending an email to <info@openpanel.co>
+If you believe that you have have discovered a vulnerability in OpenPanel, please let our development team know by sending an email to <info@openpanel.com>
 
 We ask you to include a detailed description of the vulnerability, a list of services involved (e.g. nginx, opencli) and the versions which you've tested, full steps to reproduce the vulnerability, and include your findings and expected results.
 
