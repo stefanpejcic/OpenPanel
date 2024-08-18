@@ -1076,6 +1076,7 @@ configure_nginx() {
     mkdir -p /etc/nginx/sites-available/
     mkdir -p /etc/nginx/sites-enabled/
     mkdir -p /etc/letsencrypt/
+    ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
     mkdir -p /var/log/nginx/domlogs/
     mkdir -p /usr/share/nginx/html/
 
