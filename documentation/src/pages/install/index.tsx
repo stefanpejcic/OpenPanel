@@ -65,7 +65,7 @@ const Install: React.FC = () => {
     };
 
     const generateInstallCommand = () => {
-        let command = "bash <(curl -sSL https://get.openpanel.co/)";
+        let command = "bash <(curl -sSL https://openpanel.org)";
         for (const [option, config] of Object.entries(installOptions)) {
             if (option !== "version" || (option === "version" && config.value !== latestVersion)) {
                 if (config.value || ["version", "hostname", "email", "screenshots", "post-install"].includes(option)) {
