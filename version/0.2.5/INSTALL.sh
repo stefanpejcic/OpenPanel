@@ -1484,9 +1484,6 @@ support_message
 
 print_space_and_line
 
-# fails to pass PANEL_VERSION, so lets run again 
-set_version_to_install
-
 create_admin_and_show_logins_success_message
 
 run_custom_postinstall_script
