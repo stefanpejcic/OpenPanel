@@ -3,9 +3,9 @@
 # Script Name: INSTALL.sh
 # Description: Install the latest version of OpenPanel
 # Usage: cd /home && (curl -sSL https://get.openpanel.co || wget -O - https://get.openpanel.co) | bash
-# Author: Stefan Pejcic
+# Author: Stefan Pejcic <stefan@pejcic.rs>
 # Created: 11.07.2023
-# Last Modified: 02.08.2024
+# Last Modified: 18.08.2024
 # Company: openpanel.com
 # Copyright (c) OPENPANEL
 # 
