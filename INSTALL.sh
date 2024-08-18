@@ -180,28 +180,6 @@ if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
 fi
 
 
-# helper function used by nginx to edit https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/default.conf
-is_valid_ipv4() {
-    local ip=$1
-    local IFS=.
-    local -a octets=($ip)
-    
-    if [ ${#octets[@]} -ne 4 ]; then
-        return 1
-    fi
-
-    for octet in "${octets[@]}"; do
-        if ! [[ $octet =~ ^[0-9]+$ ]] || [ $octet -lt 0 ] || [ $octet -gt 255 ]; then
-            return 1
-        fi
-    done
-
-    return 0
-}
-
-
-
-
 
 # print fullwidth line
 print_space_and_line() {
@@ -1106,21 +1084,7 @@ configure_nginx() {
 
     # dir for domlogs
     mkdir -p /var/log/nginx/domlogs
-
-    # 444 status for domains pointed to the IP but not added to nginx
-    rm /etc/nginx/sites-available/default 
-    rm /etc/nginx/sites-enabled/default
-    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-available/default
-    ln -s /etc/openpanel/nginx/vhosts/default.conf /etc/nginx/sites-enabled/default
-
-    # Replace IP_HERE with the value of $current_ip
-    if is_valid_ipv4 "$current_ip"; then
-        sed -i "s/listen 80;/listen $current_ip:80;/" /etc/nginx/sites-enabled/default
-        echo "Disabled access on IP address $current_ip:80 and Nginx will deny access to domains that are not added by users."
-    else
-        echo "WARNING: Invalid IPv4 address: $current_ip - First available domain will be served by Nginx on direct IP access."
-    fi
-    
+  
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
     mkdir /srv/http/  > /dev/null 2>&1
