@@ -106,7 +106,7 @@ FUNCTIONS=(
     nginx_change_in
 
     # bind9 also
-    bind_also
+    #bind_also
 
     # ping us
     verify_license
@@ -301,8 +301,8 @@ cd /root && docker compose up -d openpanel_dns
 
 nginx_change_in(){
 
-systemctl stop nginx
-systemctl disable nginx
+#systemctl stop nginx
+#systemctl disable nginx
 
     # Check if jq is installed
     if ! command -v jq &> /dev/null; then
@@ -430,6 +430,8 @@ update_config_files() {
     #git stash
     git pull
     #git stash pop
+
+    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml
 }
 
 
