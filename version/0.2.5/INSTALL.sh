@@ -6,7 +6,7 @@
 # Author: Stefan Pejcic
 # Created: 11.07.2023
 # Last Modified: 02.08.2024
-# Company: openpanel.co
+# Company: openpanel.com
 # Copyright (c) OPENPANEL
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -993,7 +993,7 @@ configure_modsecurity() {
 
     # ModSecurity
     #
-    # https://openpanel.co/docs/admin/settings/waf/#install-modsecurity
+    # https://openpanel.com/docs/admin/settings/waf/#install-modsecurity
     #
 
     if [ "$MODSEC" ]; then
@@ -1196,7 +1196,7 @@ run_custom_postinstall_script() {
         # run the custom script
         echo " "
         echo "Running post install script.."
-        debug_log "https://dev.openpanel.co/customize.html#After-installation"
+        debug_log "https://dev.openpanel.com/customize.html#After-installation"
         debug_log bash $post_install_path
     fi
 }
@@ -1282,18 +1282,18 @@ support_message() {
     echo "Your journey with OpenPanel has just begun, and we're here to help every step of the way."
     echo ""
     echo "To get started, check out our Getting Started guide:"
-    echo "👉 https://openpanel.co/docs/admin/intro/#post-install-steps"
+    echo "👉 https://openpanel.com/docs/admin/intro/#post-install-steps"
     echo ""
     echo "Need assistance or looking to learn more? We've got you covered:"
     echo ""
     echo "📚 Admin Docs: Dive into our comprehensive documentation for all things OpenPanel:"
-    echo "👉 https://openpanel.co/docs/admin/intro/"
+    echo "👉 https://openpanel.com/docs/admin/intro/"
     echo ""
     echo "💬 Forums: Join our community forum to ask questions, share tips, and connect with fellow admins:"
-    echo "👉 https://community.openpanel.co/"
+    echo "👉 https://community.openpanel.com/"
     echo ""
     echo "🎮 Discord: For real-time chat and support, hop into our Discord server:"
-    echo "👉 https://discord.openpanel.co/"
+    echo "👉 https://discord.openpanel.com/"
     echo ""
     echo "We're thrilled to have you with us. Let's make something amazing together! 🚀"
     echo ""
@@ -1317,7 +1317,7 @@ install_openadmin(){
 
     # OpenAdmin
     #
-    # https://openpanel.co/docs/admin/intro/
+    # https://openpanel.com/docs/admin/intro/
     #
     echo "Setting up Admin panel.."
 
