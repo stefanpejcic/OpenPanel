@@ -33,7 +33,7 @@ if [[ "$CURRENT_PANEL_VERSION" < "$required_version" ]]; then
     # Version is less than 0.2.1, no update will be performed
     echo ""
     echo "NO UPDATES FOR VERSIONS =< 0.1.9 - PLEASE REINSTALL OPENPANEL"
-    echo "Annoucement: https://community.openpanel.co/d/65-important-update-openpanel-version-021-announcement"
+    echo "Annoucement: https://community.openpanel.com/d/65-important-update-openpanel-version-021-announcement"
     echo ""
     exit 0
 else
@@ -217,7 +217,7 @@ print_header() {
 
     echo -e "Starting update to OpenPanel version $NEW_PANEL_VERSION"
     echo -e ""
-    echo -e "Changelog: https://openpanel.co/docs/changelog/$NEW_PANEL_VERSION"        
+    echo -e "Changelog: https://openpanel.com/docs/changelog/$NEW_PANEL_VERSION"        
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e ""
 }
@@ -325,7 +325,7 @@ run_custom_postupdate_script() {
     if [ -f "/root/openpanel_run_after_update" ]; then
         echo " "
         echo "Running post update script: '/root/openpanel_run_after_update'"
-        echo "https://dev.openpanel.co/customize.html#After-update"
+        echo "https://dev.openpanel.com/customize.html#After-update"
         bash /root/openpanel_run_after_update
 
     fi
@@ -492,9 +492,9 @@ post_install_message() {
     echo -e "\nIf you experience any problems or need further assistance, please do not hesitate to reach out on our community forums or join our Discord server for 
 support:"
     echo ""
-    echo "👉 Forums: https://community.openpanel.co/"
+    echo "👉 Forums: https://community.openpanel.com/"
     echo ""
-    echo "👉 Discord: https://discord.openpanel.co/"
+    echo "👉 Discord: https://discord.openpanel.com/"
     echo ""
     echo "Our community and support team are ready to help you!"
 }
