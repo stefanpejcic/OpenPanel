@@ -104,8 +104,11 @@ FUNCTIONS=(
 
     # repalce ip with username in nginx container files
     nginx_change_in
-    
-    #
+
+    # bind9 also
+    bind_also
+
+    # ping us
     verify_license
 
     # new crons added
@@ -287,8 +290,19 @@ systemctl daemon-reload
 }
 
 
+bind_also(){
+systemctl stop bind9
+systemctl disable bind9
+
+cd /root && docker compose up -d openpanel_dns
+
+}
+
 
 nginx_change_in(){
+
+systemctl stop nginx
+systemctl disable nginx
 
     # Check if jq is installed
     if ! command -v jq &> /dev/null; then
@@ -311,7 +325,8 @@ for USERNAME in $DOCKER_USERS; do
 done
 
 opencli server-recreate_hosts
-docker exec nginx bash -c "nginx -t && nginx -s reload"
+cd /root && docker compose up -d nginx
+#####docker exec nginx bash -c "nginx -t && nginx -s reload"
 
 
 }
