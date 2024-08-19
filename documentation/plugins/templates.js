@@ -74,7 +74,7 @@ We promise that OpenPanel will always have a free version. ✌️💯
             "/img/openpanel_admin.gif",
         ],
         //runOnYourLocalPath: "",
-        liveDemo: "https://demo.openpanel.co/openadmin/",
+        liveDemo: "https://demo.openpanel.org/openadmin/",
         tutorial: "https://my.openpanel.co/cart.php?a=add&pid=1",
         reactPlatform: "Premium Features",
         uiFramework: "∞ Users & Websites",
