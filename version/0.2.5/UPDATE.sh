@@ -107,8 +107,8 @@ FUNCTIONS=(
     # repalce ip with username in nginx container files
     nginx_change_in
 
-    # bind9 also
-    #bind_also
+    # start bind
+    bind_also
 
     # ping us
     verify_license
@@ -290,10 +290,8 @@ systemctl daemon-reload
 
 
 bind_also(){
-systemctl stop bind9
-systemctl disable bind9
 
-cd /root && docker compose up -d openpanel_dns
+cd /root && docker compose up -d bind9
 
 }
 
