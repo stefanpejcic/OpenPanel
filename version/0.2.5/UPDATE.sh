@@ -322,10 +322,6 @@ nginx_change_in(){
             exit 1
         fi
     fi
-
-    
-wget -O /usr/local/admin/scripts/nginx/update_vhosts https://gist.githubusercontent.com/stefanpejcic/7a862d18b2f5bada9e459dcb12e31a39/raw/ce9497a642d98a060b744342aa2c693b4be9082b/update_vhosts.sh
-chmod +x /usr/local/admin/scripts/nginx/update_vhosts
     
 DOCKER_USERS=$(opencli user-list --json | jq -r '.[].username')
 
@@ -335,14 +331,8 @@ for USERNAME in $DOCKER_USERS; do
     opencli nginx-update_vhosts $USERNAME
 done
 
-wget -O /usr/local/admin/scripts/server/recreate_hosts https://gist.githubusercontent.com/stefanpejcic/26a59824da0d239683b476b1c26189ae/raw/90218d75538f44a15304129f4cc784fe1f066d92/recreate.sh
-chmod +x /usr/local/admin/scripts/server/recreate_hosts
-
-# temp fix for 0.2.5
-wget -O /usr/local/admin/scripts/domains/add https://gist.githubusercontent.com/stefanpejcic/425f5a238d688b9d327ebbcccb893b70/raw/6279066fa074a4c01bdf43a8ff8d8b4e66345a74/temp_dom_add_fix_for_apache.sh
-chmod +x /usr/local/admin/scripts/server/recreate_hosts
-
 opencli server-recreate_hosts
+docker exec nginx  nginx -s reload
 cd /root && docker compose up -d nginx
 
 }
