@@ -110,6 +110,9 @@ FUNCTIONS=(
     # start bind
     bind_also
 
+    #remove nginx and certbot
+    remove_nginx_certbot
+
     # setup mail server
     set_mailserver
 
@@ -125,9 +128,6 @@ FUNCTIONS=(
 
     # file watcher removed in 025
     uninstall_watcher_service
-
-    #remove nginx and certbot
-    remove_nginx_certbot
     
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
