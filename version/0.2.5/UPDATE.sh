@@ -307,6 +307,8 @@ nginx_change_in(){
     ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
     openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
 
+    rm /etc/nginx/sites-enabled/default
+    rm /etc/nginx/sites-available/default
 
 
     # Check if jq is installed
