@@ -1049,6 +1049,13 @@ opencli_setup(){
     cp -r /tmp/opencli/* /usr/local/admin/scripts > /dev/null 2>&1 || cp -r /tmp/opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
     rm /tmp/opencli.tar.gz > /dev/null 2>&1
     rm -rf /tmp/opencli > /dev/null 2>&1
+    
+    
+    #TEMP for 0.2.5
+	wget -O /usr/local/admin/scripts/server/recreate_hosts https://gist.githubusercontent.com/stefanpejcic/26a59824da0d239683b476b1c26189ae/raw/90218d75538f44a15304129f4cc784fe1f066d92/recreate.sh  > /dev/null 2>&1
+	wget -O /usr/local/admin/scripts/domains/add https://gist.githubusercontent.com/stefanpejcic/425f5a238d688b9d327ebbcccb893b70/raw/6279066fa074a4c01bdf43a8ff8d8b4e66345a74/temp_dom_add_fix_for_apache.sh  > /dev/null 2>&1
+	
+
 
     cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli > /dev/null 2>&1
