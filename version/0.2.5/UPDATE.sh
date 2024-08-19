@@ -296,6 +296,7 @@ systemctl daemon-reload
 bind_also(){
 
     echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+    service docker restart #Error response from daemon: Get "https://registry-1.docker.io/v2/": dial tcp: lookup registry-1.docker.io on 127.0.0.53:53: read udp 127.0.0.1:51883->127.0.0.53:53: read: connection refused
     cd /root && docker compose up -d bind9
 
 }
