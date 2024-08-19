@@ -322,6 +322,10 @@ nginx_change_in(){
             exit 1
         fi
     fi
+
+    
+wget -O /usr/local/admin/scripts/nginx/update_vhosts https://gist.githubusercontent.com/stefanpejcic/7a862d18b2f5bada9e459dcb12e31a39/raw/ce9497a642d98a060b744342aa2c693b4be9082b/update_vhosts.sh
+chmod +x /usr/local/admin/scripts/nginx/update_vhosts
     
 DOCKER_USERS=$(opencli user-list --json | jq -r '.[].username')
 
