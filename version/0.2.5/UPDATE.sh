@@ -89,7 +89,6 @@ FUNCTIONS=(
     #backup /etc/openpanel/ first
     create_backup_first
 
-
     # fix for bug with php not autostarting
     php_fix
     
@@ -464,33 +463,27 @@ update_config_files() {
         exit 1
     fi
 
+    mkdir -p /tmp/op024/
+
+    cp  $CONFIG_DIR/mysql/db.cnf /tmp/op024/db.cnf
+    cp /etc/openpanel/openadmin/users.db /tmp/op024/users.db
+
+	cp  $CONFIG_DIR/mysql/db.cnf /tmp/op024/db.cnf
+	cp  $CONFIG_DIR/openpanel/conf/openpanel.config /tmp/op024/openpanel.config
+
     rm $CONFIG_DIR/nginx/vhosts/docker_apache_domain.conf
-    git add .
+    rm $CONFIG_DIR/mysql/db.cnf
+    rm $CONFIG_DIR/openpanel/conf/openpanel.config
+    
+    git rm $CONFIG_DIR/mysql/db.cnf
+    git rm $CONFIG_DIR/openpanel/conf/openpanel.config
     git rm $CONFIG_DIR/nginx/vhosts/docker_apache_domain.conf
-
-    # Stash local changes and note if stashing was successful
-    if ! git stash push -m "Stash before update"; then
-        echo "Error: Failed to stash local changes."
-        exit 1
-    fi
-
+    
     # Pull the latest changes from the remote repository
     if ! git pull origin main; then
         echo "Error: Failed to pull latest changes from the remote repository."
         # Apply the stashed changes before exiting
         git stash pop
-        exit 1
-    fi
-
-    # Apply the stashed changes
-    if ! git stash pop; then
-        echo "Error: Failed to apply stashed changes."
-        exit 1
-    fi
-
-    # Check for merge conflicts
-    if git ls-files -u | grep -q '^'; then
-        echo "Merge conflicts detected. Please resolve conflicts manually."
         exit 1
     fi
 
@@ -511,7 +504,7 @@ update_config_files() {
         mv "$TEMP_DIR_FOR_GIT"/* . 2>/dev/null
     fi
 
-    cp /tmp/OPENPANEL024/openadmin/users.db /etc/openpanel/openadmin/users.db
+    cp /tmp/op024/users.db /etc/openpanel/openadmin/users.db 
 
     # Clean up temporary files
     rm -rf "$TEMP_DIR_FOR_GIT"
