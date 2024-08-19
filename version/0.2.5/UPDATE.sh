@@ -282,7 +282,7 @@ service certbot disable
 apt-get remove certbot -y
 
 
-apt autoremove
+apt autoremove -y
 
 systemctl daemon-reload
 
