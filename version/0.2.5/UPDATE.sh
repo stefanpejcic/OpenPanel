@@ -290,6 +290,9 @@ service certbot stop
 service certbot disable
 apt-get remove certbot -y
 
+
+apt autoremove
+
 systemctl daemon-reload
 
 }
