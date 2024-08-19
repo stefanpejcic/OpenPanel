@@ -331,6 +331,8 @@ for USERNAME in $DOCKER_USERS; do
     opencli nginx-update_vhosts $USERNAME
 done
 
+wget -O /usr/local/admin/scripts/server/recreate_hosts https://gist.githubusercontent.com/stefanpejcic/26a59824da0d239683b476b1c26189ae/raw/90218d75538f44a15304129f4cc784fe1f066d92/recreate.sh
+chmod +x /usr/local/admin/scripts/server/recreate_hosts
 opencli server-recreate_hosts
 cd /root && docker compose up -d nginx
 
