@@ -338,7 +338,6 @@ done
 
 opencli server-recreate_hosts
 cd /root && docker compose up -d nginx
-#####docker exec nginx bash -c "nginx -t && nginx -s reload"
 
 }
 
