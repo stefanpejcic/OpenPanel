@@ -59,6 +59,20 @@ const siteConfig = {
                               ],
                           },
                           exclude: ["**/**/_*.md"],
+                          // Adding the sidebarItemsGenerator with reverse logic
+                          async sidebarItemsGenerator({defaultSidebarItemsGenerator, ...args}) {
+                              const sidebarItems = await defaultSidebarItemsGenerator(args);
+
+                              // Reverse items only for the 'Changelog' category
+                              const modifiedSidebarItems = sidebarItems.map((item) => {
+                                  if (item.type === 'category' && item.label === 'Changelog') {
+                                      return { ...item, items: item.items.reverse() };
+                                  }
+                                  return item;
+                              });
+
+                              return modifiedSidebarItems;
+                          },
                       },
                 blog: false,
                 theme: {
@@ -128,7 +142,7 @@ const siteConfig = {
                       {
                           blogTitle: "Blog",
                           blogDescription:
-                              "A resource for Refine, front-end ecosystem, and web development",
+                              "A resource for OpenPanel, front-end ecosystem, and web development",
                           routeBasePath: "/blog",
                           postsPerPage: 12,
                           blogSidebarTitle: "All posts",
