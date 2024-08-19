@@ -131,9 +131,6 @@ FUNCTIONS=(
     # certbot start
     start_certbot
 
-    # delete temp files and (maybe) old panel versison
-    cleanup
-
     # if user created a post-update script, run it now
     run_custom_postupdate_script
 
@@ -201,12 +198,6 @@ write_notification() {
   echo "$current_message" >> "$LOG_FILE"
 }
 
-
-
-cleanup(){
-    echo "Cleaning up.."
-    echo ""
-}
 
 
 # logo
