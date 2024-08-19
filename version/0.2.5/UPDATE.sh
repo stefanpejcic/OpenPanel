@@ -307,6 +307,13 @@ nginx_change_in(){
 #systemctl stop nginx
 #systemctl disable nginx
 
+    mkdir -p /etc/letsencrypt/
+    rm /etc/openpanel/nginx/options-ssl-nginx.conf
+    ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
+    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
+
+
+
     # Check if jq is installed
     if ! command -v jq &> /dev/null; then
         # Install jq using apt
@@ -330,7 +337,6 @@ done
 opencli server-recreate_hosts
 cd /root && docker compose up -d nginx
 #####docker exec nginx bash -c "nginx -t && nginx -s reload"
-
 
 }
 
