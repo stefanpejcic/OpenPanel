@@ -438,10 +438,9 @@ update_config_files() {
     echo "Downloading latest OpenPanel configuration from  https://github.com/stefanpejcic/openpanel-configuration"
     echo ""
     cd /etc/openpanel/
-    git stash
-    git pull
-    git stash pop
-
+    git fetch origin
+    git checkout origin/main -- .
+    git add .
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml
 }
 
@@ -451,7 +450,6 @@ download_new_panel() {
     mkdir -p $OPENPANEL_DIR
     echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
     echo ""
-    #nohup sh -c "echo openpanel/openpanel:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
     docker pull openpanel/openpanel
 }
 
