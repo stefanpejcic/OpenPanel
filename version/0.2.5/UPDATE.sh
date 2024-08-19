@@ -291,7 +291,8 @@ systemctl daemon-reload
 
 bind_also(){
 
-cd /root && docker compose up -d bind9
+    echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+    cd /root && docker compose up -d bind9
 
 }
 
