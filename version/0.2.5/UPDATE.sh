@@ -433,7 +433,7 @@ done
 }
 
 update_config_files() {
-
+    echo ""
     echo "Downloading latest OpenPanel configuration from  https://github.com/stefanpejcic/openpanel-configuration"
     echo ""
     cd /etc/openpanel/
