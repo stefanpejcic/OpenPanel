@@ -437,7 +437,7 @@ update_config_files() {
 
     # Define variables
     CONFIG_DIR="/etc/openpanel"
-    TEMP_DIR="$HOME/temp_untracked_files"
+    TEMP_DIR_FOR_GIT="$HOME/temp_untracked_files"
     DOCKER_COMPOSE_SRC="/etc/openpanel/docker/compose/new-docker-compose.yml"
     DOCKER_COMPOSE_DEST="/root/docker-compose.yml"
 
@@ -478,9 +478,9 @@ update_config_files() {
     fi
 
     # Move any untracked files to a temporary location
-    mkdir -p "$TEMP_DIR"
+    mkdir -p "$TEMP_DIR_FOR_GIT"
     for file in $(git ls-files --others --exclude-standard); do
-        mv "$file" "$TEMP_DIR/"
+        mv "$file" "$TEMP_DIR_FOR_GIT/"
     done
 
     # Copy the new Docker Compose file to the root directory
@@ -490,12 +490,12 @@ update_config_files() {
     fi
 
     # Move untracked files back if they exist
-    if [ "$(ls -A $TEMP_DIR)" ]; then
-        mv "$TEMP_DIR"/* . 2>/dev/null
+    if [ "$(ls -A $TEMP_DIR_FOR_GIT)" ]; then
+        mv "$TEMP_DIR_FOR_GIT"/* . 2>/dev/null
     fi
 
     # Clean up temporary files
-    rm -rf "$TEMP_DIR"
+    rm -rf "$TEMP_DIR_FOR_GIT"
 
     echo "Update complete."
 }
