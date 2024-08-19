@@ -54,7 +54,9 @@ do
 done
 
 
-
+    start_certbot(){
+    cd /root && docker compose up -d certbot
+    }
 # HELPERS
 
 
@@ -127,8 +129,8 @@ FUNCTIONS=(
     docker_compose_up_with_newer_images
 
     # certbot start
-    cd /root && docker compose up -d certbot
-    
+    start_certbot
+
     # delete temp files and (maybe) old panel versison
     cleanup
 
@@ -399,9 +401,9 @@ download_new_admin() {
     echo ""
     cd /usr/local/admin/
     #stash is used for demo
-    #git stash
+    git stash
     git pull
-    #git stash pop
+    git stash pop
 
     service admin restart
 }
@@ -461,6 +463,12 @@ set_system_cronjob(){
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 }
+
+
+start_certbot(){
+    cd /root && docker compose up -d certbot
+}
+
 
 
 docker_compose_up_with_newer_images(){
