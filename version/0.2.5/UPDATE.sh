@@ -437,15 +437,43 @@ done
 
 update_config_files() {
     echo ""
-    echo "Downloading latest OpenPanel configuration from  https://github.com/stefanpejcic/openpanel-configuration"
+    echo "Downloading latest OpenPanel configuration from https://github.com/stefanpejcic/openpanel-configuration"
     echo ""
-    cd /etc/openpanel/
+
+    # Navigate to the OpenPanel configuration directory
+    cd /etc/openpanel/ || { echo "Directory /etc/openpanel/ does not exist."; exit 1; }
+
+    # Stash any local changes
     git stash
-    git fetch origin
-    git rebase origin/main
+
+    # Move untracked files to a temporary location
+    mkdir -p ~/temp_untracked_files
+    mv bind9/named.conf.default-zones bind9/named.conf.local ~/temp_untracked_files/ 2>/dev/null
+
+    # Apply the stashed changes
     git stash pop
+
+    git add .
+
+    # Pull the latest changes from the remote repository
+    git pull origin main
+
+
+    # Move untracked files back if necessary
+    mv ~/temp_untracked_files/* bind9/ 2>/dev/null
+
+    # Copy the new Docker Compose file to the root directory
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml
+
+    # Check for merge conflicts
+    if git ls-files -u | grep -q '^'; then
+        echo "Merge conflicts detected. Please resolve conflicts manually."
+        exit 1
+    fi
+
+    echo "Update complete."
 }
+
 
 
 download_new_panel() {
