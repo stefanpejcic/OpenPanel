@@ -449,6 +449,7 @@ update_config_files() {
     fi
 
     rm $CONFIG_DIR/nginx/vhosts/docker_apache_domain.conf
+    git rm $CONFIG_DIR/nginx/vhosts/docker_apache_domain.conf
     git add .
 
     # Stash local changes and note if stashing was successful
