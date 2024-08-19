@@ -307,8 +307,6 @@ bind_also(){
 
 nginx_change_in(){
 
-#systemctl stop nginx
-#systemctl disable nginx
 
     mkdir -p /etc/letsencrypt/
     rm /etc/openpanel/nginx/options-ssl-nginx.conf
