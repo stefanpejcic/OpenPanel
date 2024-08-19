@@ -394,12 +394,15 @@ download_new_admin() {
     mkdir -p $OPENADMIN_DIR
     echo "Updating OpenAdmin from https://github.com/stefanpejcic/openadmin"
     echo ""
-    cd /usr/local/admin/
+    cd $OPENADMIN_DIR
     #stash is used for demo
     git stash
     git pull
     git stash pop
 
+    # need for csf
+    chmod +x ${OPENADMIN_DIR}modules/security/csf.pl
+    
     service admin restart
 }
 
