@@ -86,6 +86,10 @@ FUNCTIONS=(
     #notify user we started
     print_header
 
+    #backup /etc/openpanel/ first
+    create_backup_first
+
+
     # fix for bug with php not autostarting
     php_fix
     
@@ -109,6 +113,10 @@ FUNCTIONS=(
 
     # start bind
     bind_also
+
+    # setup mail server
+    set_mailserver
+
 
     # ping us
     verify_license
@@ -351,6 +359,15 @@ run_custom_postupdate_script() {
     fi
 }
 
+
+
+create_backup_first(){
+    echo ""
+    echo "Creating a backup of /etc/openpanel/ to  /tmp/OPENPANEL024"
+    echo "Please use this command to restore if update fails: rm -rf /etc/openpanel && cp -r /tmp/OPENPANEL024 /etc/openpanel && cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml && cd /root && docker compose up -d"
+    mkdir -p /tmp/OPENPANEL024/
+    cp -r /etc/openpanel /tmp/OPENPANEL024
+}
 
 
 set_mailserver(){
