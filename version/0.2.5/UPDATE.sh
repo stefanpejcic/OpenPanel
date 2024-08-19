@@ -443,7 +443,7 @@ update_config_files() {
     DOCKER_COMPOSE_SRC="/etc/openpanel/docker/compose/new-docker-compose.yml"
     DOCKER_COMPOSE_DEST="/root/docker-compose.yml"
 
-    mv /etc/openpanel /etc/openpanel024
+    mv /etc/openpanel/ /etc/openpanel024
     mkdir /etc/openpanel
     git clone https://github.com/stefanpejcic/openpanel-configuration /etc/openpanel
     
