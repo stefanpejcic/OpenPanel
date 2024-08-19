@@ -435,35 +435,43 @@ done
 
 }
 
+
 update_config_files() {
     echo ""
     echo "Downloading latest OpenPanel configuration from https://github.com/stefanpejcic/openpanel-configuration"
     echo ""
 
+    # Define variables
+    CONFIG_DIR="/etc/openpanel"
+    TEMP_DIR="$HOME/temp_untracked_files"
+    DOCKER_COMPOSE_SRC="/etc/openpanel/docker/compose/new-docker-compose.yml"
+    DOCKER_COMPOSE_DEST="/root/docker-compose.yml"
+
     # Navigate to the OpenPanel configuration directory
-    cd /etc/openpanel/ || { echo "Directory /etc/openpanel/ does not exist."; exit 1; }
+    if ! cd "$CONFIG_DIR"; then
+        echo "Error: Directory $CONFIG_DIR does not exist."
+        exit 1
+    fi
 
-    # Stash any local changes
-    git stash
-
-    # Move untracked files to a temporary location
-    mkdir -p ~/temp_untracked_files
-    mv bind9/named.conf.default-zones bind9/named.conf.local ~/temp_untracked_files/ 2>/dev/null
-
-    # Apply the stashed changes
-    git stash pop
-
-    git add .
+    # Stash local changes and note if stashing was successful
+    if ! git stash push -m "Stash before update"; then
+        echo "Error: Failed to stash local changes."
+        exit 1
+    fi
 
     # Pull the latest changes from the remote repository
-    git pull origin main
+    if ! git pull origin main; then
+        echo "Error: Failed to pull latest changes from the remote repository."
+        # Apply the stashed changes before exiting
+        git stash pop
+        exit 1
+    fi
 
-
-    # Move untracked files back if necessary
-    mv ~/temp_untracked_files/* bind9/ 2>/dev/null
-
-    # Copy the new Docker Compose file to the root directory
-    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml
+    # Apply the stashed changes
+    if ! git stash pop; then
+        echo "Error: Failed to apply stashed changes."
+        exit 1
+    fi
 
     # Check for merge conflicts
     if git ls-files -u | grep -q '^'; then
@@ -471,8 +479,27 @@ update_config_files() {
         exit 1
     fi
 
+    # Move any untracked files to a temporary location
+    mkdir -p "$TEMP_DIR"
+    mv bind9/named.conf.default-zones bind9/named.conf.local "$TEMP_DIR/" 2>/dev/null
+
+    # Copy the new Docker Compose file to the root directory
+    if ! cp "$DOCKER_COMPOSE_SRC" "$DOCKER_COMPOSE_DEST"; then
+        echo "Error: Failed to copy the Docker Compose file."
+        exit 1
+    fi
+
+    # Move untracked files back if they exist
+    if [ "$(ls -A $TEMP_DIR)" ]; then
+        mv "$TEMP_DIR"/* bind9/ 2>/dev/null
+    fi
+
+    # Clean up temporary files
+    rm -rf "$TEMP_DIR"
+
     echo "Update complete."
 }
+
 
 
 
