@@ -366,7 +366,7 @@ create_backup_first(){
     echo "Creating a backup of /etc/openpanel/ to  /tmp/OPENPANEL_BEFORE_UPDATE_024"
     echo "Please use this command to restore if update fails: rm -rf /etc/openpanel && cp -r /tmp/OPENPANEL_BEFORE_UPDATE_024 /etc/openpanel && cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml && cd /root && docker compose up -d"
     mkdir -p /tmp/OPENPANEL_BEFORE_UPDATE_024/
-    cp -r /etc/openpanel /tmp/OPENPANEL_BEFORE_UPDATE_024
+    cp -r /etc/openpanel/ /tmp/OPENPANEL_BEFORE_UPDATE_024
 }
 
 
