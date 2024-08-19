@@ -100,7 +100,7 @@ const LandingTryItOptionsSection = ({
                 </p>
 		    
                         <Link
-                            to="https://demo.openpanel.co/openpanel/"
+                            to="https://demo.openpanel.org/openpanel/"
                             className={clsx(
                                 "self-start",
                                 "rounded-3xl",
@@ -175,7 +175,7 @@ const LandingTryItOptionsSection = ({
 			This is where you can manage your server.
 		    </p>
                         <Link
-                            to="https://demo.openpanel.co/openadmin/"
+                            to="https://demo.openpanel.org/openadmin/"
                             className={clsx(
                                 "self-start",
                                 "rounded-3xl",
