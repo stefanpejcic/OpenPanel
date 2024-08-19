@@ -438,9 +438,9 @@ update_config_files() {
     echo "Downloading latest OpenPanel configuration from  https://github.com/stefanpejcic/openpanel-configuration"
     echo ""
     cd /etc/openpanel/
-    #git stash
+    git stash
     git pull
-    #git stash pop
+    git stash pop
 
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml
 }
