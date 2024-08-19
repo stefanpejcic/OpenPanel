@@ -1077,6 +1077,7 @@ configure_nginx() {
     mkdir -p /etc/nginx/sites-enabled/
     mkdir -p /etc/letsencrypt/
     ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
+    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 4096
     mkdir -p /var/log/nginx/domlogs/
     mkdir -p /usr/share/nginx/html/
 
@@ -1093,6 +1094,8 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/error_pages /srv/http/default
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages.conf /etc/nginx/snippets/error_pages.conf
     ln -s /etc/openpanel/nginx/error_pages/snippets/error_pages_content.conf /etc/nginx/snippets/error_pages_content.conf
+
+
 }
 
 
