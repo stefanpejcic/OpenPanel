@@ -456,7 +456,7 @@ update_config_files() {
     cp /etc/openpanel024/openadmin/users.db /etc/openpanel/openadmin/users.db
     cp /etc/openpanel024/openpanel/conf/openpanel.config /etc/openpanel/openpanel/conf/openpanel.config
 
-    cp -r /etc/openpanel024/openpanel/core/ /etc/openpanel/openpanel/core
+    cp -r /etc/openpanel024/openpanel/core/* /etc/openpanel/openpanel/core
     cp -r /etc/openpanel024/openpanel/websites/ /etc/openpanel/openpanel/websites
 
     # Copy the new Docker Compose file to the root directory
