@@ -452,64 +452,30 @@ update_config_files() {
 
     # Define variables
     CONFIG_DIR="/etc/openpanel"
-    TEMP_DIR_FOR_GIT="$HOME/temp_untracked_files"
     DOCKER_COMPOSE_SRC="/etc/openpanel/docker/compose/new-docker-compose.yml"
     DOCKER_COMPOSE_DEST="/root/docker-compose.yml"
 
-
-    # Navigate to the OpenPanel configuration directory
-    if ! cd "$CONFIG_DIR"; then
-        echo "Error: Directory $CONFIG_DIR does not exist."
-        exit 1
-    fi
-
-    mkdir -p /tmp/op024/
-
-    cp  $CONFIG_DIR/mysql/db.cnf /tmp/op024/db.cnf
-    cp /etc/openpanel/openadmin/users.db /tmp/op024/users.db
-
-	cp  $CONFIG_DIR/mysql/db.cnf /tmp/op024/db.cnf
-	cp  $CONFIG_DIR/openpanel/conf/openpanel.config /tmp/op024/openpanel.config
-
-    rm $CONFIG_DIR/nginx/vhosts/docker_apache_domain.conf
-    rm $CONFIG_DIR/mysql/db.cnf
-    rm $CONFIG_DIR/openpanel/conf/openpanel.config
+    mv /etc/openpanel /etc/openpanel024
+    mkdir /etc/openpanel
+    git clone https://github.com/stefanpejcic/openpanel-configuration /etc/openpanel
     
-    git rm $CONFIG_DIR/mysql/db.cnf
-    git rm $CONFIG_DIR/openpanel/conf/openpanel.config
-    git rm $CONFIG_DIR/nginx/vhosts/docker_apache_domain.conf
+    echo ""
+    echo "Downloading latest OpenPanel configuration from https://github.com/stefanpejcic/openpanel-configuration"
+    echo ""
     
-    # Pull the latest changes from the remote repository
-    if ! git pull origin main; then
-        echo "Error: Failed to pull latest changes from the remote repository."
-        # Apply the stashed changes before exiting
-        git stash pop
-        exit 1
-    fi
+    cp /etc/openpanel024/mysql/db.cnf /etc/openpanel/mysql/db.cnf
+    cp /etc/openpanel024/openadmin/users.db /etc/openpanel/openadmin/users.db
+    cp /etc/openpanel024/openpanel/conf/openpanel.config /etc/openpanel/openpanel/conf/openpanel.config
 
-    # Move any untracked files to a temporary location
-    mkdir -p "$TEMP_DIR_FOR_GIT"
-    for file in $(git ls-files --others --exclude-standard); do
-        mv "$file" "$TEMP_DIR_FOR_GIT/"
-    done
+    cp -r /etc/openpanel024/openpanel/core/ /etc/openpanel/openpanel/core
+    cp -r /etc/openpanel024/openpanel/websites/ /etc/openpanel/openpanel/websites
 
     # Copy the new Docker Compose file to the root directory
     if ! cp "$DOCKER_COMPOSE_SRC" "$DOCKER_COMPOSE_DEST"; then
         echo "Error: Failed to copy the Docker Compose file."
         exit 1
     fi
-
-    # Move untracked files back if they exist
-    if [ "$(ls -A $TEMP_DIR_FOR_GIT)" ]; then
-        mv "$TEMP_DIR_FOR_GIT"/* . 2>/dev/null
-    fi
-
-    cp /tmp/op024/users.db /etc/openpanel/openadmin/users.db 
-
-    # Clean up temporary files
-    rm -rf "$TEMP_DIR_FOR_GIT"
-
-    echo "Update complete."
+    
 }
 
 
