@@ -1198,7 +1198,11 @@ setup_bind(){
     echo ""
     mkdir -p /etc/bind/
     cp -r /etc/openpanel/bind9/* /etc/bind/
-    echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+    
+    # only on ubuntu systemd-resolved is installed
+    if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
+    	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+     fi
 }
 
 send_install_log(){
