@@ -325,15 +325,17 @@ nginx_change_in(){
     
 DOCKER_USERS=$(opencli user-list --json | jq -r '.[].username')
 
+
+# temp for 0.2.5 only
+wget -O /usr/local/admin/scripts/nginx/update_vhosts https://gist.githubusercontent.com/stefanpejcic/639578b72040ad6f7924bf6ccdc5dc40/raw/07157457886ab951ce446e2656fbf20280b1e229/temp_do.sh
+chmod +x /usr/local/admin/scripts/nginx/update_vhosts
+
 # Loop kroz Docker usere i pokreni skript
 for USERNAME in $DOCKER_USERS; do
     # Run the user-specific script
     opencli nginx-update_vhosts $USERNAME
 done
 
-# temp for 0.2.5 only
-wget -O /usr/local/admin/scripts/nginx/update_vhosts https://gist.githubusercontent.com/stefanpejcic/639578b72040ad6f7924bf6ccdc5dc40/raw/07157457886ab951ce446e2656fbf20280b1e229/temp_do.sh
-chmod +x /usr/local/admin/scripts/nginx/update_vhosts
 
 opencli server-recreate_hosts
 docker exec nginx  nginx -s reload
