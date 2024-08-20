@@ -44,7 +44,6 @@ REPAIR=false
 LOCALES=true #only en
 NO_SSH=false #deny port 22
 INSTALL_FTP=false #no ui
-INSTALL_MAIL=false #no ui
 OVERLAY=false # needed for ubuntu24 and debian12
 IPSETS=true #currently only with ufw
 SET_HOSTNAME_NOW=false #FQDN
@@ -219,7 +218,6 @@ set_premium_features
 configure_nginx 
 docker_compose_up # must be after nginx setup 
 configure_modsecurity
-##### NOT PRODUCTION READY #setup_email 
 setup_ftp
 set_custom_hostname
 generate_and_set_ssl_for_panels
@@ -325,14 +323,13 @@ parse_args() {
         echo "  --overlay2                      Enable overlay2 storage driver instead of device-mapper."
         echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
-        echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
+        echo "  --ufw                           Install and setup Uncomplicated Firewall (was default on <0.2.3)"
         echo "  --skip-images                   Skip installing openpanel/nginx and openpanel/apache docker images."
         echo "  --skip-blacklists               Do not set up IP sets and blacklists."
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --enable-ftp                    Install FTP (experimental)."
-        echo "  --enable-mail                   Install Mail (experimental)."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
@@ -413,9 +410,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --enable-ftp)
             INSTALL_FTP=true
-            ;;
-        --enable-mail)
-            INSTALL_MAIL=true
             ;;
         --post_install=*)
             post_install_path="${1#*=}"
@@ -644,13 +638,6 @@ setup_ftp() {
 }
 
 
-
-setup_email() {
-        if [ "$INSTALL_MAIL" = true ]; then
-        echo "Installing experimental Email service."
-            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenMail/master/setup.sh | bash --dovecot
-        fi
-}
 
 
 setup_firewall_service() {
