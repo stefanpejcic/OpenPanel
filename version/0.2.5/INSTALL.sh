@@ -1082,7 +1082,6 @@ configure_nginx() {
     mkdir -p /usr/share/nginx/html/
 
     # https://dev.openpanel.co/services/nginx
-    rm /etc/nginx/nginx.conf
     ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
 
     # dir for domlogs
