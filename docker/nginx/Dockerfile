@@ -80,7 +80,7 @@ EXPOSE 22 3306 7681 8080
 
 ########## NGINX ##########
 RUN sed -i \
-    -e 's/# server_names_hash_bucket_size 640;/server_names_hash_bucket_size 640;/' \
+    -e 's/# server_names_hash_bucket_size 64;/server_names_hash_bucket_size 640;/' \
     -e 's/# worker_connections 768;/worker_connections 10000;/' \
     /etc/nginx/nginx.conf && \
     chmod 700 /etc/nginx/sites-available && \
