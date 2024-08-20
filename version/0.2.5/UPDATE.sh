@@ -550,6 +550,13 @@ celebrate() {
 
 
 
+
+temp_for_025(){
+    echo -e "\n[!] Backup of previous version is stored in: /etc/openpanel024/"
+    echo ""
+}
+
+
 post_install_message() {
 
     print_space_and_line
@@ -563,6 +570,8 @@ support:"
     echo "👉 Discord: https://discord.openpanel.com/"
     echo ""
     echo "Our community and support team are ready to help you!"
+    
+    temp_for_025
 }
 
 
