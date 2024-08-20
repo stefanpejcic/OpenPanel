@@ -416,6 +416,7 @@ download_new_admin() {
         pip3 install --force-reinstall zope.event
     fi
 
+    mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
     
     service admin restart
 }
