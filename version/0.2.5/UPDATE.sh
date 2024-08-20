@@ -408,6 +408,14 @@ download_new_admin() {
 
     # need for csf
     chmod +x ${OPENADMIN_DIR}modules/security/csf.pl
+
+    # temp fix for 0.2.5
+    if [ -f /etc/debian_version ]; then
+        pip3 install --force-reinstall zope.event --break-system-packages
+    else
+        pip3 install --force-reinstall zope.event
+    fi
+
     
     service admin restart
 }
