@@ -1,0 +1,14 @@
+[Unit]
+Description=Floating IP
+After=docker.service
+BindsTo=docker.service
+ReloadPropagatedFrom=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/user/local/admin/scripts/Nginx/regenerate_hosts
+ExecReload=/user/local/admin/scripts/Nginx/regenerate_hosts
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
