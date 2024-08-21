@@ -1190,6 +1190,14 @@ download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
     echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+
+
+    # FOR 0.2.6 ONLY!
+    #cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
+    #systemctl daemon-reload  > /dev/null 2>&1
+    #service floatingip start  > /dev/null 2>&1
+    #systemctl enable floatingip  > /dev/null 2>&1
+    
 }
 
 
