@@ -419,7 +419,22 @@ download_new_admin() {
     mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
     
     service admin restart
+
+
+
+    echo ""
+    echo "Setting service to auto-fill /etc/hosts"
+    echo ""
+    
+    # FOR 0.2.6 ONLY!
+    cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
+    systemctl daemon-reload  > /dev/null 2>&1
+    service floatingip start  > /dev/null 2>&1
+    systemctl enable floatingip  > /dev/null 2>&1
+
+    
 }
+
 
 
 uninstall_watcher_service(){
@@ -471,17 +486,6 @@ update_config_files() {
     cp /etc/openpanel024/mysql/db.cnf /etc/openpanel/mysql/db.cnf
     cp /etc/openpanel024/openadmin/users.db /etc/openpanel/openadmin/users.db
     cp /etc/openpanel024/openpanel/conf/openpanel.config /etc/openpanel/openpanel/conf/openpanel.config
-
-
-    echo ""
-    echo "Setting service to auto-fill /etc/hosts"
-    echo ""
-    
-    # FOR 0.2.6 ONLY!
-    cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
-    systemctl daemon-reload  > /dev/null 2>&1
-    service floatingip start  > /dev/null 2>&1
-    systemctl enable floatingip  > /dev/null 2>&1
     
     echo ""
     echo "Restoring user data and statistics from /etc/openpanel024/"
