@@ -6,8 +6,8 @@ ReloadPropagatedFrom=docker.service
 
 [Service]
 Type=oneshot
-ExecStart=/user/local/admin/scripts/Nginx/regenerate_hosts
-ExecReload=/user/local/admin/scripts/Nginx/regenerate_hosts
+ExecStart=/usr/local/admin/scripts/server/recreate_hosts
+ExecReload=/usr/local/admin/scripts/server/recreate_hosts
 RemainAfterExit=yes
 
 [Install]
