@@ -465,13 +465,28 @@ update_config_files() {
     git clone https://github.com/stefanpejcic/openpanel-configuration /etc/openpanel
     
     echo ""
-    echo "Downloading latest OpenPanel configuration from https://github.com/stefanpejcic/openpanel-configuration"
+    echo "Restoring settings from /etc/openpanel024/"
     echo ""
-    
+
     cp /etc/openpanel024/mysql/db.cnf /etc/openpanel/mysql/db.cnf
     cp /etc/openpanel024/openadmin/users.db /etc/openpanel/openadmin/users.db
     cp /etc/openpanel024/openpanel/conf/openpanel.config /etc/openpanel/openpanel/conf/openpanel.config
 
+
+    echo ""
+    echo "Setting service to auto-fill /etc/hosts"
+    echo ""
+    
+    # FOR 0.2.6 ONLY!
+    cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
+    systemctl daemon-reload  > /dev/null 2>&1
+    service floatingip start  > /dev/null 2>&1
+    systemctl enable floatingip  > /dev/null 2>&1
+    
+    echo ""
+    echo "Restoring user data and statistics from /etc/openpanel024/"
+    echo ""
+    
     cp -r /etc/openpanel024/openpanel/core/* /etc/openpanel/openpanel/core
     cp -r /etc/openpanel024/openpanel/websites/ /etc/openpanel/openpanel/websites
 
