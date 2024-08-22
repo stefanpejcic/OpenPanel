@@ -705,20 +705,12 @@ setup_firewall_service() {
 
         if [ "$CSF_SETUP" = true ]; then
           echo "Installing ConfigServer Firewall.."
-
-          read_email_address() {
-              email=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
-              echo "$email"
-          }
         
           install_csf() {
               debug_log wget https://download.configserver.com/csf.tgz
-              debug_log tar -xzf csf.tgz
-              rm csf.tgz
-              cd csf
-              debug_log sh install.sh
-              cd ..
-              rm -rf csf
+              debug_log tar -xzf csf.tgz && rm csf.tgz
+              cd csf && debug_log sh install.sh
+              cd .. && rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
 		echo "Setting CSF auto-login from OpenAdmin interface.."
 	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
@@ -797,7 +789,8 @@ setup_firewall_service() {
           }
       
           set_csf_email_address() {
-              email_address=$(read_email_address)
+              email_address=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
+       
               if [[ -n "$email_address" ]]; then
                   sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
               fi
@@ -811,7 +804,6 @@ setup_firewall_service() {
 	}
 
        
-          read_email_address
           install_csf
           edit_csf_conf
           open_out_port_csf
@@ -1433,8 +1425,8 @@ create_admin_and_show_logins_success_message() {
     opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
     opencli admin
-    echo "Username: $new_username"
-    echo "Password: $new_password"
+    echo -e "Username: ${GREEN} ${new_username} ${RESET}"
+    echo -e "Password: ${GREEN} ${new_password} ${RESET}"
     echo " "
     print_space_and_line
     
