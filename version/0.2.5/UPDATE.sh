@@ -54,9 +54,9 @@ do
 done
 
 
-    start_certbot(){
+start_certbot(){
     cd /root && docker compose up -d certbot
-    }
+}
 # HELPERS
 
 
