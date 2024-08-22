@@ -563,10 +563,10 @@ configure_docker() {
 	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker"
  	echo "Please wait."
 
-	sudo dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
-	mkfs.xfs /var/lib/docker.img
-	systemctl stop docker
- 	mount -o loop,pquota /var/lib/docker.img /var/lib/docker
+	debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+	debug_log mkfs.xfs /var/lib/docker.img
+	debug_log systemctl stop docker
+ 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
 	echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
 
         cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
