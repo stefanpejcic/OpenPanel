@@ -126,7 +126,8 @@ radovan() {
 # print the command and its output if debug, else run and echo to /dev/null
 debug_log() {
     if [ "$DEBUG" = true ]; then
-        echo "Running: $@"
+    	local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+     	echo "[$timestamp] COMMAND: $message"
         "$@"
     else
         "$@" > /dev/null 2>&1
@@ -478,7 +479,7 @@ detect_installed_panels() {
             fi
         done
 
-        echo -e "${GREEN}No currently installed hosting control panels or webservers found. Proceeding with the installation process.${RESET}"
+        echo -e "${GREEN}No currently installed hosting control panels or webservers found. Starting the installation process.${RESET}"
     fi
 }
 
@@ -487,28 +488,50 @@ detect_installed_panels() {
 detect_os_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
         . /etc/os-release
-        case "$ID" in
-            "debian"|"ubuntu")
+
+        case $ID in
+            ubuntu)
                 PACKAGE_MANAGER="apt-get"
+                py_enchoded_for_distro="$current_python_version"
                 ;;
-            "centos"|"cloudlinux"|"rhel"|"fedora"|"almalinux"|"rocky")
+            debian)
+                PACKAGE_MANAGER="apt-get"
+                py_enchoded_for_distro="debian-$current_python_version"
+                ;;
+            fedora)
+                PACKAGE_MANAGER="dnf"
+                py_enchoded_for_distro="$current_python_version"
+                ;;
+            rocky)
+                PACKAGE_MANAGER="dnf"
+                py_enchoded_for_distro="$current_python_version"
+                ;;
+            centos)
                 PACKAGE_MANAGER="yum"
-                if [ "$(command -v dnf)" ]; then
-                    PACKAGE_MANAGER="dnf"
-                fi
+                py_enchoded_for_distro="$current_python_version"
+                ;;
+            almalinux|alma)
+                PACKAGE_MANAGER="dnf"
+                py_enchoded_for_distro="$current_python_version"
                 ;;
             *)
-                echo -e "${RED}Unsupported distribution: $ID. Exiting.${RESET}"
+                echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
                 echo -e "${RED}INSTALL FAILED${RESET}"
                 exit 1
                 ;;
         esac
+
+	echo "Detected OS: $NAME $VERSION_ID"
+	echo "Package manager: $PACKAGE_MANAGER"
+ 	echo "Python version: $current_python_version"
+
     else
-        echo -e "${RED}Could not detect Linux distribution. Exiting..${RESET}"
+        echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
     fi
 }
+
 
 
 download_and_import_docker_images() {
@@ -590,8 +613,7 @@ configure_docker() {
 
 
 docker_compose_up(){
-    echo "Setting Openpanel and MySQL docker containers.."
-    echo ""
+    echo "Setting docker-compose.."
     # install docker compose
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
@@ -612,9 +634,7 @@ docker_compose_up(){
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
-    echo ""
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
-    echo ""
     # save it to /etc/my.cnf
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
@@ -622,7 +642,14 @@ docker_compose_up(){
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml isntead of docker-compose.yml
     # from 0.2.5 we only start mysql by default,panel on first user and nginx/dns on first domain
     #docker compose up -d
-    cd /root && docker compose up -d openpanel_mysql 
+    cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
+
+    # check if compose started the mysql container, and if is currently running
+	if [ -z `docker ps -q --no-trunc | grep $(docker-compose ps -q openadmin_mysql)` ]; then
+        	radovan 1 "ERROR: MySQL contianer is not running. Please retry installation with '--retry' flag."
+	else
+	  	echo "MySQL service started successfuly"
+	fi
 
 }
 
@@ -977,13 +1004,7 @@ install_packages() {
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
     
     	# docker.ce for alma and rocky otherwise podman gets installed..
-    	if [ -f /etc/almalinux-release ]; then
-     		        packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
-	elif [ -f /etc/rocky-release ]; then
-      		        packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
- 	else
-         		packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
-	fi
+    	packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
 
         # on some mysql should be repalced with: ysql-client-core-8.0
 	# docker instead of docker-ce for fedora!
@@ -1005,11 +1026,9 @@ install_packages() {
             echo -e "Installing  ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER install "$package" -y
         done 
-        #gunicorn mora preko pip na almi..
+
+        # gunicorn needs to be installed over pip for alma
         debug_log pip3 install gunicorn flask
-    else
-        echo -e "${RED}Unsupported package manager: $PACKAGE_MANAGER${RESET}"
-        return 1
     fi
 }
 
@@ -1228,7 +1247,6 @@ verify_license() {
 
 download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
-    echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
 
@@ -1243,7 +1261,6 @@ download_skeleton_directory_from_github(){
 
 setup_bind(){
     echo "Setting DNS service.."
-    echo ""
     mkdir -p /etc/bind/
     cp -r /etc/openpanel/bind9/* /etc/bind/
     
@@ -1358,45 +1375,11 @@ install_openadmin(){
     
     mkdir -p $OPENPADMIN_DIR
 
-    # UBUNTU 22 & 24
-    if [ -f /etc/os-release ]; then   
-        pretty_os_name="Ubuntu"
-	py_enchoded_for_distro="$current_python_version"
-    # ROCKULINUX
-    elif [ -f /etc/rocky-release ]; then
-        pretty_os_name="Rocky Linux"
-	py_enchoded_for_distro="rocky-$current_python_version"
-     # ALMALINUX
-    elif [ -f /etc/almalinux-release ]; then
-        pretty_os_name="AlmaLinux"
-	py_enchoded_for_distro="alma-$current_python_version"
-    # RHEL
-    elif [ -f /etc/redhat-release ]; then
-        pretty_os_name="RedHat"
-	py_enchoded_for_distro="redhat-$current_python_version"
-    # DEBIAN 12 & 11
-    elif [ -f /etc/debian_version ]; then
-        apt-get install git pip python3-yaml -y > /dev/null 2>&1  # will be removed in future!
-        pretty_os_name="Debian"
-	py_enchoded_for_distro="debian-$current_python_version"
-    # FEDORA
-    elif [ -f /etc/fedora-release ]; then
-        pretty_os_name="Fedora"
-	py_enchoded_for_distro="fedora-$current_python_version"
-    
-    # everything else should fail..
-    else
-        echo "Unsuported OS."
-        echo 0
-    fi
-
-        echo "Downloading files for $pretty_os_name and python version $current_python_version"
+        debug_log echo "Downloading OpenAdmin files for $pretty_os_name OS and Python version $current_python_version"
 
         git clone -b $py_enchoded_for_distro --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt
-	debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-
+        debug_log "pip install --default-timeout=3600 -r requirements.txt | debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages"
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     
