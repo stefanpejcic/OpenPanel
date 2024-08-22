@@ -22,7 +22,6 @@ const defaultOptions: InstallOptions = {
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
-    overlay2: { value: false, description: "Enable overlay2 storage driver instead of device-mapper." },
     "skip-firewall": { value: false, description: "Don't setup UFW (Only if you will set another Firewall manually)" },
     "skip-images": { value: false, description: "Don't install openpanel/nginx and openpanel/apache docker images." },
     "skip-blacklists": { value: false, description: "Do not set up IP sets and blacklists." },
