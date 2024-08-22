@@ -520,10 +520,10 @@ detect_os_and_package_manager() {
                 exit 1
                 ;;
         esac
-
-	echo "DETECTED OS: $NAME $VERSION_ID"
-	echo "PACKAGE MANAGER: ${PACKAGE_MANAGER^^}"
- 	echo "PYTHON VERSION: $current_python_version"
+	
+ 	echo -e "DETECTED OS: ${GREEN} $NAME $VERSION_ID ${RESET}"
+ 	echo -e "PACKAGE MANAGER: ${GREEN} ${PACKAGE_MANAGER} ${RESET}"
+ 	echo -e "PYTHON VERSION: ${GREEN} ${current_python_version} ${RESET}"
 	echo ""
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
@@ -946,12 +946,11 @@ logrotate -f /etc/logrotate.d/syslog
 install_packages() {
 
     echo "Installing required services.."
-    
-    packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-
-	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
+    	packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
+	
+ 	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
         
 	debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
@@ -1001,7 +1000,7 @@ install_packages() {
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
-    	packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+    	packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
 
         # on some mysql should be repalced with: ysql-client-core-8.0
 	# docker instead of docker-ce for fedora!
@@ -1022,6 +1021,7 @@ install_packages() {
         for package in "${packages[@]}"; do
             echo -e "Installing  ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER install "$package" -y
+	    debug_log $PACKAGE_MANAGER -qq install "$package"
         done 
 
         # gunicorn needs to be installed over pip for alma
@@ -1127,21 +1127,14 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
-
-    mkdir -p /etc/nginx/sites-available/
-    mkdir -p /etc/nginx/sites-enabled/
-    mkdir -p /etc/letsencrypt/
+    mkdir -p /etc/nginx/{sites-available,sites-enabled} /etc/letsencrypt /var/log/nginx/domlogs /usr/share/nginx/html
+    
     ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
-    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
-    mkdir -p /var/log/nginx/domlogs/
-    mkdir -p /usr/share/nginx/html/
+    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048   > /dev/null 2>&1
 
     # https://dev.openpanel.co/services/nginx
     ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
-
-    # dir for domlogs
-    mkdir -p /var/log/nginx/domlogs
-  
+    
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
     mkdir /srv/http/  > /dev/null 2>&1
