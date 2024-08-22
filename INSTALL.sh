@@ -128,7 +128,7 @@ radovan() {
 debug_log() {
     if [ "$DEBUG" = true ]; then
     	local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
-     	echo "[$timestamp] COMMAND: $message"
+     	echo "[$timestamp] $message"
         "$@"
     else
         "$@" > /dev/null 2>&1
