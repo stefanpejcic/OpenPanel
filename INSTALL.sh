@@ -275,12 +275,13 @@ main() {
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
 
-        # https://github.com/stefanpejcic/openpanel/issues/63
+        
 
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-            echo -e "${RED}Error: ARM CPU is not supported!${RESET}" >&2
+	    # https://github.com/stefanpejcic/openpanel/issues/63 
+            echo -e "${RED}Error: ARM CPU is not supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}" >&2
             exit 1
         fi
 
@@ -1000,15 +1001,6 @@ set_system_cronjob(){
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 }
-
-
-
-cleanup() {
-    echo "Cleaning up.."
-    # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
-    sed -i 's/$nrconf{restart} = '"'"'a'"'"';/#$nrconf{restart} = '"'"'i'"'"';/g' /etc/needrestart/needrestart.conf
-}
-
 
 
 set_custom_hostname(){
