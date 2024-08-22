@@ -6,6 +6,9 @@
 NEW_PANEL_VERSION="0.2.6"
 
 
+######### sed -i '/www-data/s/^/# /' nginx.conf
+
+
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
