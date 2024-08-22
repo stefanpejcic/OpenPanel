@@ -128,6 +128,9 @@ FUNCTIONS=(
 
     # file watcher removed in 025
     uninstall_watcher_service
+
+    # temp for cahnegs in upcoming 0.2.6
+    disable_update_one_time_only
     
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
@@ -433,6 +436,12 @@ download_new_admin() {
 }
 
 
+
+disable_update_one_time_only(){
+
+    opencli config update autopatch off
+
+}
 
 uninstall_watcher_service(){
     
