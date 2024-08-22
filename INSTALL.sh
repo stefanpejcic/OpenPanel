@@ -750,11 +750,11 @@ setup_firewall_service() {
           echo "Installing ConfigServer Firewall.."
         
           install_csf() {
-              debug_log wget https://download.configserver.com/csf.tgz
+              wget https://download.configserver.com/csf.tgz > /dev/null 2>&1
               debug_log tar -xzf csf.tgz
 	      rm csf.tgz
               cd csf
-	      debug_log sh install.sh
+	      sh install.sh > /dev/null 2>&1
               cd ..
 	      rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
@@ -770,7 +770,7 @@ setup_firewall_service() {
 
 
               # play nice with docker
-              git clone https://github.com/stefanpejcic/csfpost-docker.sh    > /dev/null 2>&1 &&
+              git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
               mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
               chmod +x /usr/local/csf/bin/csfpost.sh
               rm -rf csfpost-docker.sh             
