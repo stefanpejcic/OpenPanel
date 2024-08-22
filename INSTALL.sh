@@ -172,13 +172,6 @@ set_version_to_install(){
 }
 
 
-# configure apt to retry downloading on error
-if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
-	echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
-fi
-
-
-
 # print fullwidth line
 print_space_and_line() {
     echo " "
@@ -187,15 +180,29 @@ print_space_and_line() {
 }
 
 
+setup_progress_bar_script(){
+	# Progress bar script
+	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
+	PROGRESS_BAR_FILE="progress_bar.sh"
+ 
+	# Check if wget is available
+	if command -v wget &> /dev/null; then
+	    wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	# If wget is not available, check if curl is available *(fallback for fedora)
+	elif command -v curl &> /dev/null; then
+	    curl -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	else
+	    echo "Neither wget nor curl is available. Please install one of them to proceed."
+	    exit 1
+	fi
+ 
+	if [ ! -f "$PROGRESS_BAR_FILE" ]; then
+	    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
+	    exit 1
+	fi
+}
 
-# Progress bar script
-PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
-PROGRESS_BAR_FILE="progress_bar.sh"
-wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
-    exit 1
-fi
+setup_progress_bar_script
 
 # Source the progress bar script
 source "$PROGRESS_BAR_FILE"
@@ -226,7 +233,7 @@ set_system_cronjob # cron after firewall, otherwise user gets false-positive not
 set_logrotate
 tweak_ssh
 setup_swap
-clean_apt_cache
+clean_apt_and_dnf_cache
 verify_license
 )
 
@@ -484,7 +491,7 @@ detect_os_and_package_manager() {
             "debian"|"ubuntu")
                 PACKAGE_MANAGER="apt-get"
                 ;;
-            "centos"|"cloudlinux"|"rhel"|"fedora"|"almalinux"|"rockylinux")
+            "centos"|"cloudlinux"|"rhel"|"fedora"|"almalinux"|"rocky")
                 PACKAGE_MANAGER="yum"
                 if [ "$(command -v dnf)" ]; then
                     PACKAGE_MANAGER="dnf"
@@ -545,8 +552,6 @@ check_lock_file_age() {
 
 
 configure_docker() {
-
-    #########apt-get install docker.io -y
     
     docker_daemon_json_path="/etc/docker/daemon.json"
     mkdir -p $(dirname "$docker_daemon_json_path")
@@ -619,11 +624,14 @@ docker_compose_up(){
 
 
 
-clean_apt_cache(){
-    # clear /var/cache/apt/archives/
-    apt-get clean
+clean_apt_and_dnf_cache(){
 
-    # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
+     if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+	    	dnf clean  > /dev/null > /dev/null 2>&1 
+      elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+      		# clear /var/cache/apt/archives/   # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
+      		apt-get clean  > /dev/null > /dev/null 2>&1 
+	fi
 }
 
 tweak_ssh(){
@@ -674,25 +682,29 @@ setup_firewall_service() {
           }
         
           install_csf() {
-              wget https://download.configserver.com/csf.tgz
-              tar -xzf csf.tgz
+              debug_log wget https://download.configserver.com/csf.tgz
+              debug_log tar -xzf csf.tgz
               rm csf.tgz
               cd csf
-              sh install.sh
+              debug_log sh install.sh
               cd ..
               rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
 
-              # for csf ui
-              apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
 
+		 echo "Setting CSF auto-login from OpenAdmin interface.."
+	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+	    	debug_log dnf install -y wget curl unzip yum-utils policycoreutils-python-utils
+	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+              	debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+	    fi
               # autologin from openpanel
               ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
               chmod +x /usr/local/admin/modules/security/csf.pl
 
 
               # play nice with docker
-              git clone https://github.com/stefanpejcic/csfpost-docker.sh
+              git clone https://github.com/stefanpejcic/csfpost-docker.sh    > /dev/null 2>&1 &&
               mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
               chmod +x /usr/local/csf/bin/csfpost.sh
               rm -rf csfpost-docker.sh             
@@ -787,7 +799,15 @@ setup_firewall_service() {
         
         elif [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
-          apt-get install ufw  > /dev/null 2>&1 && 
+	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+	    	dnf makecache --refresh   > /dev/null 2>&1
+      		dnf install -y ufw  > /dev/null 2>&1
+      
+	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+              	apt-get install -y ufw  > /dev/null 2>&1
+	    fi
+   
+
           # set ufw to be monitored instead of csf
           sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/notifications.ini"  > /dev/null 2>&1
           sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
@@ -898,26 +918,26 @@ logrotate -f /etc/logrotate.d/syslog
 install_packages() {
 
     echo "Installing required services.."
-
-    # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
-    
-    debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
     
     packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-        #only once..
-        debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+
+	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
+    	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
         
+	debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+	
+	# configure apt to retry downloading on error
+	if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
+		echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
+	fi
+ 
         echo "Updating certificates.."
-        if [ "$DEBUG" = false ]; then
-        update-ca-certificates > /dev/null 2>&1
-        else
-        update-ca-certificates
-        fi
+        debug_log update-ca-certificates
+
 
         echo -e "Installing services.."
-
         for package in "${packages[@]}"; do
             echo -e "Installing ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER -qq install "$package" -y
@@ -941,30 +961,38 @@ install_packages() {
 
 
     elif [ "$PACKAGE_MANAGER" == "yum" ]; then
-        for package in "${packages[@]}"; do
+
+   	 packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip-bin" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+	
+ 	for package in "${packages[@]}"; do
             echo -e "Installing ${GREEN}$package${RESET}"
-            $PACKAGE_MANAGER install "$package" -y
+            debug_log $PACKAGE_MANAGER install "$package" -y
         done     
+	
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
-        # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "sqlite3" "geoip-bin")
-        
+
+        packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+        # on some mysql should be repalced with: ysql-client-core-8.0
+	
         #utils must be added first, then install from that repo
-        dnf install yum-utils  -y
-        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+	debug_log dnf install yum-utils  -y
+        debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
+	
+ 	# needed for csf
+	dnf --allowerasing install perl -y
 
         #  needed for ufw and gunicorn
         dnf install epel-release
 
-        # ovo za gunicorn
-        dnf install python3-pip python3-devel gcc -y
+        # needed for admin panel
+        debug_log dnf install python3-pip python3-devel gcc -y
 
         for package in "${packages[@]}"; do
             echo -e "Installing  ${GREEN}$package${RESET}"
-            $PACKAGE_MANAGER install "$package" -y
+            debug_log $PACKAGE_MANAGER install "$package" -y
         done 
         #gunicorn mora preko pip na almi..
-        pip3 install gunicorn flask
+        debug_log pip3 install gunicorn flask
     else
         echo -e "${RED}Unsupported package manager: $PACKAGE_MANAGER${RESET}"
         return 1
@@ -1316,34 +1344,40 @@ install_openadmin(){
     
     mkdir -p $OPENPADMIN_DIR
 
-    # Ubuntu 22
-    if [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then   
-        echo "Downloading files for Ubuntu22 and python version $current_python_version"
-        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt
-    # Ubuntu 24
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
-        echo "Downloading files for Ubuntu24 and python version $current_python_version"
-        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-
-    # Debian12 and 11
+    # UBUNTU 22 & 24
+    if [ -f /etc/os-release ]; then   
+        pretty_os_name="Ubuntu"
+	py_enchoded_for_distro="$current_python_version"
+    # ROCKULINUX
+    elif [ -f /etc/rocky-release ]; then
+        pretty_os_name="Rocky Linux"
+	py_enchoded_for_distro="rocky-$current_python_version"
+    # RHEL
+    elif [ -f /etc/redhat-release ]; then
+        pretty_os_name="RedHat"
+	py_enchoded_for_distro="redhat-$current_python_version"
+    # DEBIAN 12 & 11
     elif [ -f /etc/debian_version ]; then
-        echo "Installing PIP and Git"
-        apt-get install git pip python3-yaml -y > /dev/null 2>&1
-        echo "Downloading files for Debian and python version $current_python_version"
-        git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt
-        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-    # other
+        apt-get install git pip python3-yaml -y > /dev/null 2>&1  # will be removed in future!
+        pretty_os_name="Debian"
+	py_enchoded_for_distro="debian-$current_python_version"
+    # FEDORA
+    elif [ -f /etc/fedora-release ]; then
+        pretty_os_name="Fedora"
+	py_enchoded_for_distro="fedora-$current_python_version"
+    
+    # everything else should fail..
     else
-        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
+        echo "Unsuported OS."
         echo 0
     fi
 
+        echo "Downloading files for $pretty_os_name and python version $current_python_version"
+
+        git clone -b $py_enchoded_for_distro --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        debug_log pip install --default-timeout=3600 -r requirements.txt
+	debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
 
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
