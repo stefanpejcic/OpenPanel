@@ -645,7 +645,7 @@ docker_compose_up(){
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
     # check if compose started the mysql container, and if is currently running
-	if [ -z `docker ps -q --no-trunc | grep $(docker-compose ps -q openadmin_mysql)` ]; then
+	if [ -z `docker ps -q --no-trunc | grep $(docker compose ps -q openpanel_mysql)` ]; then
         	radovan 1 "ERROR: MySQL contianer is not running. Please retry installation with '--retry' flag."
 	else
 	  	echo "MySQL service started successfuly"
@@ -1006,8 +1006,9 @@ install_packages() {
         done     
 	
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
-    
-    	# docker.ce for alma and rocky otherwise podman gets installed..
+	# otherwise we get podman..
+	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+ 
     	packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
 
         # on some mysql should be repalced with: ysql-client-core-8.0
@@ -1102,7 +1103,6 @@ set_custom_hostname(){
 
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
-    echo ""
     mkdir -p /usr/local/admin
 
     wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
