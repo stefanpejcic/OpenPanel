@@ -548,6 +548,7 @@ check_lock_file_age() {
 
 
 
+
 configure_docker() {
 
     #########apt-get install docker.io -y
@@ -555,20 +556,31 @@ configure_docker() {
     docker_daemon_json_path="/etc/docker/daemon.json"
     mkdir -p $(dirname "$docker_daemon_json_path")
 
-    
-    
-    if [ "$OVERLAY" = true ]; then
         echo "Setting 'overlay2' as the default storage driver for Docker.."
-        cp ${ETC_DIR}docker/overlay2/daemon.json "$docker_daemon_json_path"
-    else
-        echo "Setting 'devicemapper' as the default storage driver for Docker.."
-        cp ${ETC_DIR}docker/devicemapper/daemon.json "$docker_daemon_json_path"
-    fi
+	# added in 0.2.6
+ 	# overlay is now the default, and
+	# default is 50% of available disk space on / partition
+	available_space=$(df --output=avail / | tail -1)
+	available_gb=$((available_space / 1024 / 1024))
+	gb_size=$((available_gb * 50 / 100))
+
+        echo "Overlay2 docker storage driver requires backing filesystem to use XFS."
+	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker"
+ 	echo "Please wait."
+
+	sudo dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+	mkfs.xfs /var/lib/docker.img
+	systemctl stop docker
+ 	mount -o loop,pquota /var/lib/docker.img /var/lib/docker
+	echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
+
+        cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
+	systemctl daemon-reload
+	systemctl start docker
 
     echo -e "Docker is configured."
-    systemctl daemon-reload
-    systemctl restart docker
 }
+
 
 
 
