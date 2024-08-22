@@ -45,7 +45,6 @@ LOCALES=true #only en
 NO_SSH=false #deny port 22
 INSTALL_FTP=false #no ui
 INSTALL_MAIL=false #no ui
-OVERLAY=false # needed for ubuntu24 and debian12
 IPSETS=true #currently only with ufw
 SET_HOSTNAME_NOW=false #FQDN
 SETUP_SWAP_ANYWAY=false
@@ -322,7 +321,6 @@ parse_args() {
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
-        echo "  --overlay2                      Enable overlay2 storage driver instead of device-mapper."
         echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
@@ -378,9 +376,6 @@ while [[ $# -gt 0 ]]; do
             REPAIR=true
             SKIP_PANEL_CHECK=true
             #SKIP_REQUIREMENTS=true
-            ;;
-        --overlay2)
-            OVERLAY=true
             ;;
         --skip-firewall)
             SKIP_FIREWALL=true
@@ -1341,9 +1336,6 @@ install_openadmin(){
         git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
         debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-
-        # on ubuntu24 we need to use overlay instead of devicemapper!
-        OVERLAY=true
         
     # Debian12 and 11
     elif [ -f /etc/debian_version ]; then
