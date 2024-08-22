@@ -47,6 +47,7 @@ INSTALL_FTP=false                                                    # no ui yet
 INSTALL_MAIL=false                                                   # no ui yet
 IPSETS=true                                                          # currently only works with ufw
 SET_HOSTNAME_NOW=false                                               # must be a FQDN
+CUSTOM_GB_DOCKER=false                                               # space in gb, if not set fallback to 50% of available du
 SETUP_SWAP_ANYWAY=false
 SWAP_FILE="1"                                                        # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
@@ -203,14 +204,49 @@ setup_progress_bar_script(){
 	fi
 }
 
+
+display_what_will_be_installed(){
+ 	echo -e "DETECTED OS:     ${GREEN} $NAME $VERSION_ID ${RESET}"
+ 	echo -e "PACKAGE MANAGER: ${GREEN} ${PACKAGE_MANAGER} ${RESET}"
+ 	echo -e "PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
+ 	echo -e "IPV4 ADDRESS:    ${GREEN} ${current_ip} ${RESET}"
+  	echo ""
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 setup_progress_bar_script
 
 # Source the progress bar script
 source "$PROGRESS_BAR_FILE"
 
+
 # Dsiplay progress bar
 FUNCTIONS=(
 detect_os_and_package_manager
+display_what_will_be_installed
 update_package_manager
 install_packages
 download_skeleton_directory_from_github
@@ -342,6 +378,7 @@ parse_args() {
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
+        echo "  --docker-space=<2>              Set space in GB to be allocated for Docker containers (default 50% of available storage)."
         echo "  --debug                         Display debug information during installation."
         echo "  --repair                        Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
@@ -434,6 +471,10 @@ while [[ $# -gt 0 ]]; do
             SETUP_SWAP_ANYWAY=true
             SWAP="${1#*=}"
             ;;
+        --docker-space=*)
+            CUSTOM_GB_DOCKER=true
+            SPACE_FOR_DOCKER_FILE="${1#*=}"
+            ;;
         --email=*)
             SEND_EMAIL_AFTER_INSTALL=true
             EMAIL="${1#*=}"
@@ -520,11 +561,7 @@ detect_os_and_package_manager() {
                 exit 1
                 ;;
         esac
-	
- 	echo -e "DETECTED OS: ${GREEN} $NAME $VERSION_ID ${RESET}"
- 	echo -e "PACKAGE MANAGER: ${GREEN} ${PACKAGE_MANAGER} ${RESET}"
- 	echo -e "PYTHON VERSION: ${GREEN} ${current_python_version} ${RESET}"
-	echo ""
+	 
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
@@ -581,11 +618,17 @@ configure_docker() {
 
         echo "Setting 'overlay2' as the default storage driver for Docker.."
 	# added in 0.2.6
- 	# overlay is now the default, and
+
+    # disk size to use for XFS storage file
+    if [ "$CUSTOM_GB_DOCKER" = true ]; then
+        gb_size=${SPACE_FOR_DOCKER_FILE}
+    else
 	# default is 50% of available disk space on / partition
 	available_space=$(df --output=avail / | tail -1)
 	available_gb=$((available_space / 1024 / 1024))
 	gb_size=$((available_gb * 50 / 100))
+    fi
+
 
         echo "Overlay2 docker storage driver requires backing filesystem to use XFS."
 	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker"
@@ -600,9 +643,11 @@ configure_docker() {
 	if [ -f /etc/fedora-release ]; then
  		# On Fedora journald handles docker log-driver
 		cp ${ETC_DIR}docker/overlay2/fedora.json "$docker_daemon_json_path"
+  	else
+   		cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
+
  	fi
 
-        cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
 	systemctl daemon-reload
 	systemctl start docker
 
@@ -1293,6 +1338,8 @@ setup_swap(){
         return
     fi
 
+
+
     # Check if we should set up swap anyway
     if [ "$SETUP_SWAP_ANYWAY" = true ]; then
         create_swap
@@ -1491,3 +1538,6 @@ run_custom_postinstall_script
 
 
 # END main script execution
+
+
+
