@@ -26,7 +26,6 @@ const defaultOptions: InstallOptions = {
     "skip-images": { value: false, description: "Don't install openpanel/nginx and openpanel/apache docker images." },
     "skip-blacklists": { value: false, description: "Do not set up IP sets and blacklists." },
     "skip-ssl": { value: false, description: "Skip SSL setup." },
-    "with-modsec": { value: false, description: "Enable ModSecurity for Nginx." },
     ufw: { value: false, description: "Install and setup UFW instead of CSF." },
     "no-ssh": { value: false, description: "Disable port 22 and whitelist administrator IP address." },
     "enable-ftp": { value: false, description: "Install FTP (experimental)." },
