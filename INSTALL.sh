@@ -484,7 +484,7 @@ detect_os_and_package_manager() {
             "debian"|"ubuntu")
                 PACKAGE_MANAGER="apt-get"
                 ;;
-            "centos"|"cloudlinux"|"rhel"|"fedora"|"almalinux")
+            "centos"|"cloudlinux"|"rhel"|"fedora"|"almalinux"|"rockylinux")
                 PACKAGE_MANAGER="yum"
                 if [ "$(command -v dnf)" ]; then
                     PACKAGE_MANAGER="dnf"
