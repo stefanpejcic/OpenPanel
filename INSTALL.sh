@@ -521,9 +521,9 @@ detect_os_and_package_manager() {
                 ;;
         esac
 
-	echo "Detected OS: $NAME $VERSION_ID"
-	echo "Package manager: $PACKAGE_MANAGER"
- 	echo "Python version: $current_python_version"
+	echo "DETECTED OS: $NAME $VERSION_ID"
+	echo "PACKAGE MANAGER: ${PACKAGE_MANAGER^^}"
+ 	echo "PYTHON VERSION: $current_python_version"
 
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
