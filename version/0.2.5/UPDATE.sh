@@ -301,6 +301,8 @@ bind_also(){
 
 nginx_change_in(){
 
+    # backup everything
+    cp -r /etc/nginx/ /etc/nginx024/
 
     mkdir -p /etc/letsencrypt/
     rm /etc/openpanel/nginx/options-ssl-nginx.conf
@@ -469,7 +471,7 @@ update_config_files() {
     CONFIG_DIR="/etc/openpanel"
     DOCKER_COMPOSE_SRC="/etc/openpanel/docker/compose/new-docker-compose.yml"
     DOCKER_COMPOSE_DEST="/root/docker-compose.yml"
-
+        
     mv /etc/openpanel/ /etc/openpanel024
     mkdir /etc/openpanel
     git clone https://github.com/stefanpejcic/openpanel-configuration /etc/openpanel
