@@ -139,7 +139,7 @@ is_package_installed() {
     $PACKAGE_MANAGER -qq list "$1" 2>/dev/null | grep -qE "^ii"
     else
     $PACKAGE_MANAGER -qq list "$1" | grep -qE "^ii"
-    echo "Updating package manager.."
+    echo "Updating $PACKAGE_MANAGER package manager.."
     fi
 }
 
@@ -574,6 +574,11 @@ configure_docker() {
  	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
 	echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
 
+	if [ -f /etc/fedora-release ]; then
+ 		# On Fedora journald handles docker log-driver
+		cp ${ETC_DIR}docker/overlay2/fedora.json "$docker_daemon_json_path"
+ 	fi
+
         cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
 	systemctl daemon-reload
 	systemctl start docker
@@ -859,7 +864,7 @@ setup_firewall_service() {
 
 update_package_manager() {
     if [ "$SKIP_APT_UPDATE" = false ]; then
-        echo "Updating package manager.."
+        echo "Updating $PACKAGE_MANAGER package manager.."
         debug_log $PACKAGE_MANAGER update -y
     fi
 }
@@ -970,19 +975,28 @@ install_packages() {
         done     
 	
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
+    
+    	# docker.ce for alma and rocky otherwise podman gets installed..
+    	if [ -f /etc/almalinux-release ]; then
+     		        packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+	elif [ -f /etc/rocky-release ]; then
+      		        packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+ 	else
+         		packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+	fi
 
-        packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
         # on some mysql should be repalced with: ysql-client-core-8.0
+	# docker instead of docker-ce for fedora!
 	
         #utils must be added first, then install from that repo
 	debug_log dnf install yum-utils  -y
         debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
 	
  	# needed for csf
-	dnf --allowerasing install perl -y
+	debug_log dnf --allowerasing install perl -y
 
         #  needed for ufw and gunicorn
-        dnf install epel-release
+        debug_log dnf install epel-release -y
 
         # needed for admin panel
         debug_log dnf install python3-pip python3-devel gcc -y
@@ -1352,6 +1366,10 @@ install_openadmin(){
     elif [ -f /etc/rocky-release ]; then
         pretty_os_name="Rocky Linux"
 	py_enchoded_for_distro="rocky-$current_python_version"
+     # ALMALINUX
+    elif [ -f /etc/almalinux-release ]; then
+        pretty_os_name="AlmaLinux"
+	py_enchoded_for_distro="alma-$current_python_version"
     # RHEL
     elif [ -f /etc/redhat-release ]; then
         pretty_os_name="RedHat"
