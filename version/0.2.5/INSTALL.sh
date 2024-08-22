@@ -5,7 +5,7 @@
 # Usage: bash <(curl -sSL https://openpanel.org)
 # Author: Stefan Pejcic <stefan@pejcic.rs>
 # Created: 11.07.2023
-# Last Modified: 18.08.2024
+# Last Modified: 22.08.2024
 # Company: openpanel.com
 # Copyright (c) OPENPANEL
 # 
@@ -29,44 +29,43 @@
 ################################################################################
 
 
-# Colors for output
+# COLORS
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
-# Defaults
-CUSTOM_VERSION=false #default is latest
-INSTALL_TIMEOUT=600 # 10 min max
-DEBUG=false #verbose output
+# DEFAULTS
+CUSTOM_VERSION=false                                                 # default version is latest
+INSTALL_TIMEOUT=600                                                  # after 10min, consider the install failed
+DEBUG=false                                                          # verbose output for debugging failed install
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false #downloaded on acc creation
+SKIP_IMAGES=false                                                    # they are auto-pulled on account creation
 REPAIR=false
-LOCALES=true #only en
-NO_SSH=false #deny port 22
-INSTALL_FTP=false #no ui
-INSTALL_MAIL=false #no ui
-IPSETS=true #currently only with ufw
-SET_HOSTNAME_NOW=false #FQDN
+LOCALES=true                                                         # only en
+NO_SSH=false                                                         # deny port 22
+INSTALL_FTP=false                                                    # no ui yet
+INSTALL_MAIL=false                                                   # no ui yet
+IPSETS=true                                                          # currently only works with ufw
+SET_HOSTNAME_NOW=false                                               # must be a FQDN
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1" #calculated based on ram
-SELFHOSTED_SCREENSHOTS=false
+SWAP_FILE="1"                                                        # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
-SET_PREMIUM=false #added in 0.2.1
-UFW_SETUP=false #previous default on <0.2.3
-CSF_SETUP=true #default since >0.2.2
-SET_ADMIN_USERNAME=false #random
-SET_ADMIN_PASSWORD=false #random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" #default since 0.2.1
+SET_PREMIUM=false                                                    # added in 0.2.1
+UFW_SETUP=false                                                      # previous default on <0.2.3
+CSF_SETUP=true                                                       # default since >0.2.2
+SET_ADMIN_USERNAME=false                                             # random
+SET_ADMIN_PASSWORD=false                                             # random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" # default since 0.2.1
 
-# Paths
-ETC_DIR="/etc/openpanel/" #comf files
-LOG_FILE="openpanel_install.log" #install log
-LOCK_FILE="/root/openpanel.lock" # install running
-OPENPANEL_DIR="/usr/local/panel/" #openpanel running successfully
-OPENPADMIN_DIR="/usr/local/admin/" #openadmin files
-OPENCLI_DIR="/usr/local/admin/scripts/" #opencli scripts
-OPENPANEL_ERR_DIR="/var/log/openpanel/" #logs
-SERVICES_DIR="/etc/systemd/system/" #services
+# PATHS
+ETC_DIR="/etc/openpanel/"                                            # https://github.com/stefanpejcic/openpanel-configuration
+LOG_FILE="openpanel_install.log"                                     # install log
+LOCK_FILE="/root/openpanel.lock"                                     # install running
+OPENPANEL_DIR="/usr/local/panel"                                     # currently only used to store version
+OPENPADMIN_DIR="/usr/local/admin/"                                   # https://github.com/stefanpejcic/openadmin/branches
+OPENCLI_DIR="/usr/local/admin/scripts/"                              # https://dev.openpanel.com/cli/commands.html
+OPENPANEL_ERR_DIR="/var/log/openpanel/"                              # https://dev.openpanel.com/logs.html
+SERVICES_DIR="/etc/systemd/system/"                                  # used for admin, sentinel and floatingip services
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -452,7 +451,7 @@ detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
         declare -A paths=(
-            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
+            ["$OPENPANEL_DIR"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
             ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
@@ -1371,11 +1370,11 @@ create_admin_and_show_logins_success_message() {
     chmod +x /etc/profile.d/welcome.sh  
 
     #cp version file
-    mkdir -p /usr/local/panel/  > /dev/null 2>&1
-    echo "$PANEL_VERSION" > /usr/local/panel/version
-    ######docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
+    mkdir -p $OPENPANEL_DIR  > /dev/null 2>&1
+    echo "$PANEL_VERSION" > $OPENPANEL_DIR/version
+    ######docker cp openpanel:$OPENPANEL_DIR/version $OPENPANEL_DIR/version > /dev/null 2>&1
     
-    echo -e "${GREEN}OpenPanel [$(cat /usr/local/panel/version)] installation complete.${RESET}"
+    echo -e "${GREEN}OpenPanel [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
     echo ""
 
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
