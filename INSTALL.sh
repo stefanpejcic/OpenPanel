@@ -5,7 +5,7 @@
 # Usage: bash <(curl -sSL https://openpanel.org)
 # Author: Stefan Pejcic <stefan@pejcic.rs>
 # Created: 11.07.2023
-# Last Modified: 18.08.2024
+# Last Modified: 22.08.2024
 # Company: openpanel.com
 # Copyright (c) OPENPANEL
 # 
@@ -29,45 +29,43 @@
 ################################################################################
 
 
-# Colors for output
+# COLORS
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
-# Defaults
-CUSTOM_VERSION=false #default is latest
-INSTALL_TIMEOUT=600 # 10 min max
-DEBUG=false #verbose output
+# DEFAULTS
+CUSTOM_VERSION=false                                                 # default version is latest
+INSTALL_TIMEOUT=600                                                  # after 10min, consider the install failed
+DEBUG=false                                                          # verbose output for debugging failed install
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false #downloaded on acc creation
+SKIP_IMAGES=false                                                    # they are auto-pulled on account creation
 REPAIR=false
-LOCALES=true #only en
-NO_SSH=false #deny port 22
-INSTALL_FTP=false #no ui
-INSTALL_MAIL=false #no ui
-OVERLAY=false # needed for ubuntu24 and debian12
-IPSETS=true #currently only with ufw
-SET_HOSTNAME_NOW=false #FQDN
+LOCALES=true                                                         # only en
+NO_SSH=false                                                         # deny port 22
+INSTALL_FTP=false                                                    # no ui yet
+INSTALL_MAIL=false                                                   # no ui yet
+IPSETS=true                                                          # currently only works with ufw
+SET_HOSTNAME_NOW=false                                               # must be a FQDN
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1" #calculated based on ram
-SELFHOSTED_SCREENSHOTS=false
+SWAP_FILE="1"                                                        # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
-SET_PREMIUM=false #added in 0.2.1
-UFW_SETUP=false #previous default on <0.2.3
-CSF_SETUP=true #default since >0.2.2
-SET_ADMIN_USERNAME=false #random
-SET_ADMIN_PASSWORD=false #random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" #default since 0.2.1
+SET_PREMIUM=false                                                    # added in 0.2.1
+UFW_SETUP=false                                                      # previous default on <0.2.3
+CSF_SETUP=true                                                       # default since >0.2.2
+SET_ADMIN_USERNAME=false                                             # random
+SET_ADMIN_PASSWORD=false                                             # random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" # default since 0.2.1
 
-# Paths
-ETC_DIR="/etc/openpanel/" #comf files
-LOG_FILE="openpanel_install.log" #install log
-LOCK_FILE="/root/openpanel.lock" # install running
-OPENPANEL_DIR="/usr/local/panel/" #openpanel running successfully
-OPENPADMIN_DIR="/usr/local/admin/" #openadmin files
-OPENCLI_DIR="/usr/local/admin/scripts/" #opencli scripts
-OPENPANEL_ERR_DIR="/var/log/openpanel/" #logs
-SERVICES_DIR="/etc/systemd/system/" #services
+# PATHS
+ETC_DIR="/etc/openpanel/"                                            # https://github.com/stefanpejcic/openpanel-configuration
+LOG_FILE="openpanel_install.log"                                     # install log
+LOCK_FILE="/root/openpanel.lock"                                     # install running
+OPENPANEL_DIR="/usr/local/panel"                                     # currently only used to store version
+OPENPADMIN_DIR="/usr/local/admin/"                                   # https://github.com/stefanpejcic/openadmin/branches
+OPENCLI_DIR="/usr/local/admin/scripts/"                              # https://dev.openpanel.com/cli/commands.html
+OPENPANEL_ERR_DIR="/var/log/openpanel/"                              # https://dev.openpanel.com/logs.html
+SERVICES_DIR="/etc/systemd/system/"                                  # used for admin, sentinel and floatingip services
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -322,7 +320,6 @@ parse_args() {
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
-        echo "  --overlay2                      Enable overlay2 storage driver instead of device-mapper."
         echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
@@ -378,9 +375,6 @@ while [[ $# -gt 0 ]]; do
             REPAIR=true
             SKIP_PANEL_CHECK=true
             #SKIP_REQUIREMENTS=true
-            ;;
-        --overlay2)
-            OVERLAY=true
             ;;
         --skip-firewall)
             SKIP_FIREWALL=true
@@ -457,7 +451,7 @@ detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
         declare -A paths=(
-            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
+            ["$OPENPANEL_DIR"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
             ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
@@ -568,10 +562,10 @@ configure_docker() {
 	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker"
  	echo "Please wait."
 
-	sudo dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
-	mkfs.xfs /var/lib/docker.img
-	systemctl stop docker
- 	mount -o loop,pquota /var/lib/docker.img /var/lib/docker
+	debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+	debug_log mkfs.xfs /var/lib/docker.img
+	debug_log systemctl stop docker
+ 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
 	echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
 
         cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
@@ -1343,9 +1337,6 @@ install_openadmin(){
         cd $OPENPADMIN_DIR
         debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
 
-        # on ubuntu24 we need to use overlay instead of devicemapper!
-        OVERLAY=true
-        
     # Debian12 and 11
     elif [ -f /etc/debian_version ]; then
         echo "Installing PIP and Git"
@@ -1379,11 +1370,11 @@ create_admin_and_show_logins_success_message() {
     chmod +x /etc/profile.d/welcome.sh  
 
     #cp version file
-    mkdir -p /usr/local/panel/  > /dev/null 2>&1
-    echo "$PANEL_VERSION" > /usr/local/panel/version
-    ######docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
+    mkdir -p $OPENPANEL_DIR  > /dev/null 2>&1
+    echo "$PANEL_VERSION" > $OPENPANEL_DIR/version
+    ######docker cp openpanel:$OPENPANEL_DIR/version $OPENPANEL_DIR/version > /dev/null 2>&1
     
-    echo -e "${GREEN}OpenPanel [$(cat /usr/local/panel/version)] installation complete.${RESET}"
+    echo -e "${GREEN}OpenPanel [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
     echo ""
 
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
