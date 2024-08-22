@@ -668,7 +668,6 @@ clean_apt_and_dnf_cache(){
 
 tweak_ssh(){
    echo "Tweaking SSH service.."
-   echo ""
 
    sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
 
@@ -705,8 +704,7 @@ setup_firewall_service() {
         echo "Setting up the firewall.."
 
         if [ "$CSF_SETUP" = true ]; then
-          echo "Setting up ConfigServer Firewall.."
-
+          echo "Installing ConfigServer Firewall.."
 
           read_email_address() {
               email=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
@@ -722,9 +720,7 @@ setup_firewall_service() {
               cd ..
               rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
-
-
-		 echo "Setting CSF auto-login from OpenAdmin interface.."
+		echo "Setting CSF auto-login from OpenAdmin interface.."
 	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
 	    	debug_log dnf install -y wget curl unzip yum-utils policycoreutils-python-utils
 	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
@@ -807,7 +803,14 @@ setup_firewall_service() {
               fi
           }
       
-              
+	function extract_port_from_file() {
+	    local file_path=$1
+	    local pattern=$2
+	    local port=$(grep -Po "(?<=${pattern}[ =])\d+" "$file_path")
+	    echo "$port"
+	}
+
+       
           read_email_address
           install_csf
           edit_csf_conf
@@ -823,7 +826,8 @@ setup_firewall_service() {
           open_port_csf 32768:60999 #docker
             
           set_csf_email_address
-          csf -r
+          csf -r    > /dev/null 2>&1
+	  echo "Restarting CSF service"
           systemctl restart docker
           systemctl enable csf
           service csf start
