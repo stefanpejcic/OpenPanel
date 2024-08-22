@@ -5,7 +5,7 @@
 # Usage: bash <(curl -sSL https://openpanel.org)
 # Author: Stefan Pejcic <stefan@pejcic.rs>
 # Created: 11.07.2023
-# Last Modified: 22.08.2024
+# Last Modified: 23.08.2024
 # Company: openpanel.com
 # Copyright (c) OPENPANEL
 # 
@@ -524,7 +524,7 @@ detect_os_and_package_manager() {
 	echo "DETECTED OS: $NAME $VERSION_ID"
 	echo "PACKAGE MANAGER: ${PACKAGE_MANAGER^^}"
  	echo "PYTHON VERSION: $current_python_version"
-
+	echo ""
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
