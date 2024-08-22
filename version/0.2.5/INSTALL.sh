@@ -1467,5 +1467,3 @@ run_custom_postinstall_script
 
 
 # END main script execution
-
-service docker restart #needed for debian after csf reload
