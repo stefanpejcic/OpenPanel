@@ -245,33 +245,32 @@ source "$PROGRESS_BAR_FILE"
 
 # Dsiplay progress bar
 FUNCTIONS=(
-detect_os_and_package_manager
-display_what_will_be_installed
-update_package_manager
-install_packages
-download_skeleton_directory_from_github
-setup_bind # must run after download_skeleton_directory_from_github
-install_openadmin
-opencli_setup
-configure_docker
-download_and_import_docker_images
-
-panel_customize
-set_premium_features
-configure_nginx 
-docker_compose_up # must be after nginx setup 
-configure_modsecurity
-##### NOT PRODUCTION READY #setup_email 
-setup_ftp
-set_custom_hostname
-generate_and_set_ssl_for_panels
-setup_firewall_service
-set_system_cronjob # cron after firewall, otherwise user gets false-positive notification that csf is not running
-set_logrotate
-tweak_ssh
-setup_swap
-clean_apt_and_dnf_cache
-verify_license
+detect_os_and_package_manager             # detect os and package manager
+display_what_will_be_installed            # display os, version, ip
+update_package_manager                    # update dnf/yum/apt-get
+install_packages                          # install docker, csf/ufw, sqlite, etc.
+download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
+setup_bind                                # must run after -configuration
+install_openadmin                         # set admin interface
+opencli_setup                             # set terminal commands
+configure_docker                          # set overlay2 and xfs backing filesystem 
+download_and_import_docker_images         # openpanel/nginx and openpanel/apache
+panel_customize                           # customizations
+set_premium_features                      # INSTALL ENTERPRISE FEATURES
+configure_nginx                           # setup nginx configuration files
+docker_compose_up                         # must be after nginx setup 
+configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
+#setup_email                              # TEMPORARY OFF FROM 0.2.5
+setup_ftp                                 # setup shared ftp service - NO UI YET!
+set_custom_hostname                       # set hostname if provided
+generate_and_set_ssl_for_panels           # if FQDN then lets setup https
+setup_firewall_service                    # setup firewall
+set_system_cronjob                        # setup drons, must be after csf
+set_logrotate                             # setup logrotate, ignored on fedora
+tweak_ssh                                 # basic ssh
+setup_swap                                # swap space
+clean_apt_and_dnf_cache                   # clear
+verify_license                            # ping our server
 )
 
 
@@ -631,9 +630,8 @@ configure_docker() {
 
 
         echo "Overlay2 docker storage driver requires backing filesystem to use XFS."
-	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker"
- 	echo "Please wait."
-
+	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker - this can take a few minutes.."
+ 
 	debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
 	debug_log mkfs.xfs /var/lib/docker.img
 	debug_log systemctl stop docker
@@ -753,9 +751,12 @@ setup_firewall_service() {
         
           install_csf() {
               debug_log wget https://download.configserver.com/csf.tgz
-              debug_log tar -xzf csf.tgz && rm csf.tgz
-              cd csf && debug_log sh install.sh
-              cd .. && rm -rf csf
+              debug_log tar -xzf csf.tgz
+	      rm csf.tgz
+              cd csf
+	      debug_log sh install.sh
+              cd ..
+	      rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
 		echo "Setting CSF auto-login from OpenAdmin interface.."
 	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
@@ -1033,11 +1034,14 @@ install_packages() {
 
 
     elif [ "$PACKAGE_MANAGER" == "yum" ]; then
-
-   	 packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip-bin" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+    
+	# otherwise we get podman..
+	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+ 
+   	 packages=("git" "docker-ce" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip-bin" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
 	
  	for package in "${packages[@]}"; do
-            echo -e "Installing ${GREEN}$package${RESET}"
+            echo -e "Installing        ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER install "$package" -y
         done     
 	
@@ -1046,11 +1050,7 @@ install_packages() {
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
     	packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
-
-        # on some mysql should be repalced with: ysql-client-core-8.0
-	# docker instead of docker-ce for fedora!
 	
-        #utils must be added first, then install from that repo
 	debug_log dnf install yum-utils  -y
         debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
 	
@@ -1066,7 +1066,7 @@ install_packages() {
         for package in "${packages[@]}"; do
             echo -e "Installing  ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER install "$package" -y
-	    debug_log $PACKAGE_MANAGER -qq install "$package"
+	    debug_log $PACKAGE_MANAGER -y install "$package"
         done 
 
         # gunicorn needs to be installed over pip for alma
