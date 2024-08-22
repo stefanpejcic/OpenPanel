@@ -46,6 +46,7 @@ RUN apt-get update && \
         unzip \
         wget \
         nano \
+        less \
         phpmyadmin \
         openssh-server \
         php-mbstring && \
