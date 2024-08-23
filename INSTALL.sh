@@ -946,7 +946,7 @@ echo "Setting Logrotate for Syslogs.."
 
 cat <<EOF > "/etc/logrotate.d/syslog"
 /var/log/syslog {
-    su root syslog
+    su root adm
     weekly
     rotate 4
     missingok
