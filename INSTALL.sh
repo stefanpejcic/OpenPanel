@@ -1436,8 +1436,14 @@ create_admin_and_show_logins_success_message() {
        new_username=($custom_username)
     else
        wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
-       source /tmp/generate.sh
-       new_username=($random_name)
+       
+       if [ -f "/tmp/generate.sh" ]; then
+	       source /tmp/generate.sh
+	       new_username=($random_name)
+       else
+	       new_username="admin"
+       fi
+       
     fi
 
     if [ "$SET_ADMIN_PASSWORD" = true ]; then
