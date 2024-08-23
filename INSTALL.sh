@@ -1079,9 +1079,9 @@ set_system_cronjob(){
 
 if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
 	# extra steps for SELinux
-	(allow unconfined_t user_cron_spool_t( file ( entrypoint)))
-	semodule -i mycron.cil
-	systemctl restart crond.service 
+ 	restorecon -R /etc/cron.d/ > /dev/null 2>&1
+	restorecon -R /etc/cron.d/openpanel > /dev/null 2>&1
+	systemctl restart crond.service  > /dev/null 2>&1
 fi
 
 
