@@ -763,23 +763,6 @@ setup_firewall_service() {
           }
 
 
-
-            function open_out_port_csf() {
-                port="3306"
-                local csf_conf="/etc/csf/csf.conf"
-                
-                # Check if port is already open
-                port_opened=$(grep "TCP_OUT = .*${port}" "$csf_conf")
-                if [ -z "$port_opened" ]; then
-                    # Open port
-                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
-                    echo "Port ${port} opened in CSF."
-                else
-                    echo "Port ${port} is already open in CSF."
-                fi
-            }
-
-
             function open_port_csf() {
                 local port=$1
                 local csf_conf="/etc/csf/csf.conf"
@@ -789,10 +772,10 @@ setup_firewall_service() {
                 if [ -z "$port_opened" ]; then
                     # Open port
                     sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
-                    echo "Port ${port} opened in CSF."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo "Port ${port} is already open in CSF."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
@@ -806,10 +789,10 @@ setup_firewall_service() {
                 if [ -z "$port_opened" ]; then
                     # Open port
                     sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
-                    echo "TCP_OUT port ${port} opened in CSF."
+                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo "TCP_OUT port ${port} is already open in CSF."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
@@ -838,7 +821,6 @@ setup_firewall_service() {
        
           install_csf
           edit_csf_conf
-          open_out_port_csf
           open_tcpout_csf 3306 #mysql tcp_out only
           open_port_csf 22 #ssh
           open_port_csf 53 #dns
@@ -1034,9 +1016,14 @@ install_packages() {
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
- 
-    	packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
-	
+
+ 	# special case for fedora, 
+	if [ -f /etc/fedora-release ]; then
+    		packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "mysql" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
+    	else
+     		packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+      	fi
+     	
 	debug_log dnf install yum-utils  -y
         debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
 	
@@ -1311,7 +1298,7 @@ rm_helpers(){
 setup_swap(){
     # Function to create swap file
     create_swap() {
-        fallocate -l ${SWAP_FILE}G /swapfile
+        fallocate -l ${SWAP_FILE}G /swapfile > /dev/null 2>&1
         chmod 600 /swapfile
         mkswap /swapfile
         swapon /swapfile
