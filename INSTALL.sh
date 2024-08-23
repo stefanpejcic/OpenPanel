@@ -1076,6 +1076,18 @@ set_system_cronjob(){
     mv ${ETC_DIR}cron /etc/cron.d/openpanel
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
+
+if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
+	# extra steps for SELinux
+	(allow unconfined_t user_cron_spool_t( file ( entrypoint)))
+	semodule -i mycron.cil
+	systemctl restart crond.service 
+fi
+
+
+
+
+    
 }
 
 
