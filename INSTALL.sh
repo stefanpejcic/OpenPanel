@@ -708,7 +708,14 @@ tweak_ssh(){
 	   fi
    fi
 
-   systemctl restart ssh
+
+	# ssh on debian, sshd on rhel
+	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
+	 	systemctl restart sshd  > /dev/null 2>&1
+	else
+		systemctl restart ssh  > /dev/null 2>&1
+	fi
+   
 }
 
 setup_ftp() {
@@ -1077,16 +1084,12 @@ set_system_cronjob(){
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 
-if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
-	# extra steps for SELinux
- 	restorecon -R /etc/cron.d/ > /dev/null 2>&1
-	restorecon -R /etc/cron.d/openpanel > /dev/null 2>&1
-	systemctl restart crond.service  > /dev/null 2>&1
-fi
-
-
-
-
+	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
+		# extra steps for SELinux
+	 	restorecon -R /etc/cron.d/ > /dev/null 2>&1
+		restorecon -R /etc/cron.d/openpanel > /dev/null 2>&1
+		systemctl restart crond.service  > /dev/null 2>&1
+	fi
     
 }
 
