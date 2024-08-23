@@ -1006,7 +1006,7 @@ install_packages() {
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
-   	 packages=("wget" "git" "docker-ce" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip-bin" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+   	 packages=("wget" "git" "docker-ce" "mysql" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip-bin" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
 	
  	for package in "${packages[@]}"; do
             echo -e "Installing        ${GREEN}$package${RESET}"
