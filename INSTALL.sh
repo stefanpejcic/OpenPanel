@@ -1035,7 +1035,7 @@ install_packages() {
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
-    	packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+    	packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
 	
 	debug_log dnf install yum-utils  -y
         debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
