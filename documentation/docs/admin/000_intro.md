@@ -15,10 +15,17 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 Mimumum Requirements:
 
 - A blank full virtual machine or bare metal server
-- Debian 11 / Debian 12 / Ubuntu 22 / Ubuntu 24*(without quotas)
-- Minimum of 1GB RAM and 15GB storage
+- Minimum of 1GB RAM and 15GB storage (4GB RAM and 50GB is recommended)
 - x86_64/amd64 architecture
 - IPv4 address
+
+Supported OS:
+- **AlmaLinux 9.4**
+- **Fedora 40**
+- **RockyLinux 9.4**
+- **CentOS 9**
+- **Ubuntu 22 and 24**
+- **Debian 11 and 12**
 
 :::info
 If you are using external firewall, the following ports should be opened:  `53` `80` `443` `2083` `2087` `32768:60999`
