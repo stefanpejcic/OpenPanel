@@ -4,7 +4,7 @@ description: OpenPanel now supports all major RHEL Distributions: AlmaLinux, Fed
 slug: openpanel-rhel-support
 authors: stefanpejcic
 tags: [OpenPanel, news, version]
-image: https://openpanel.co/img/blog/openpanel_enterprise.png
+image: https://openpanel.co/img/blog/OPENPANEL-BLOG-1500x800.png
 hide_table_of_contents: true
 is_featured: true
 
