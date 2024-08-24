@@ -4,7 +4,7 @@ description: OpenPanel Enterprise edition
 slug: openpanel-enterprise-version
 authors: stefanpejcic
 tags: [OpenPanel, news, version]
-image: https://openpanel.co/img/blog/openpanel_enterprise.png
+image: https://openpanel.co/img/blog/IMG_20240824_112136.png
 hide_table_of_contents: true
 is_featured: true
 
