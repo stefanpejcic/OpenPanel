@@ -1,6 +1,6 @@
 ---
 title: OpenPanel now supports all major RHEL distributions
-description: OpenPanel now supports all major RHEL Distributions: AlmaLinux, Fedora, RockyLinux and CentOS
+description: OpenPanel now supports all major RHEL Distributions
 slug: openpanel-rhel-support
 authors: stefanpejcic
 tags: [OpenPanel, news, version]
