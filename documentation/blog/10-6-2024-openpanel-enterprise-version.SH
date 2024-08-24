@@ -16,7 +16,7 @@ OpenPanel Enterprise edition
 
 
 
-At the time of writing *(July 2024), the free version of OpenPanel was released just 3 months ago, and we are excited to have crossed the 100 active installs treshold! Thank you all for trying OpenPanel and for your suggestions and contributions.
+At the time of writing *(July 2024), the free version of OpenPanel was released just 3 months ago, and we are excited to have crossed the 500 active installs treshold! Thank you all for trying OpenPanel and for your suggestions and contributions.
 
 In these 3 months, we've released 6 updates, added support for Debian, created a WHMCS module, translated to 4 languages, and much more.
 We are now proud to announce the release of **OpenPanel Enterprise version**.
