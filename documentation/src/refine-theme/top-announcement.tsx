@@ -110,7 +110,7 @@ export const TopAnnouncement = () => {
 const Text = () => {
     return (
         <a
-            href="https://www.producthunt.com/posts/openpanel/"
+            href="/blog/openpanel-rhel-support"
             rel="noreferrer"
             className={clsx(
                 "relative lg:absolute",
@@ -131,7 +131,7 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                OpenPanel is launching on ProductHunt on August 21—show your support and upvote us!
+                OpenPanel now supports all major RHEL distributions: AlmaLinux, Fedora, RockyLinux and CentOS
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
