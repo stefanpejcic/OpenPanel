@@ -13,7 +13,6 @@ To customize OpenPanel, you have the following options:
 - Customize any page.
 - Customize login pages.
 - Add custom CSS or JS code to the interface.
-- Create custom functionality and pages in the interface.
 
 
 
@@ -22,6 +21,7 @@ To customize OpenPanel, you have the following options:
 Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface. To activate a feature, navigate to [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#enable-features) and select service name in the "Enable Features" section and click save. 
 
 Once enabled, the feature becomes instantly available to all users, appearing in the OpenPanel interface sidebar, search results, and dashboard icons.
+
 
 
 
@@ -34,6 +34,7 @@ To add a custom service pre-installed for users:
 - [Create a custom docker image](/docs/articles/docker/building_a_docker_image_example_include_php_ioncubeloader/)
 - [Create a new hosting plan with that docker image](/docs/admin/plans/hosting_plans/#create-a-plan)
 - [Create a new user on that plan](/docs/admin/users/openpanel/#create-users)
+
 
 
 ## Localize the interface
@@ -55,6 +56,9 @@ To translate OpenPanel to another language follow these steps:
 3. Translate the `messages.pot` file
 4. Send a [pull request](https://github.com/stefanpejcic/openpanel-translations/pulls)
 
+
+
+
 ## Set custom branding and logo
 
 Custom brand name and logo can be set from [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#branding) page.
@@ -62,9 +66,29 @@ Custom brand name and logo can be set from [OpenAdmnin > Settings > OpenPanel](/
 To set a custom name visible in the OpenPanel sidebar and on login pages, enter the desired name in the "Brand name" option. Alternatively, to display a logo instead, provide the URL in the "Logo image" field and save the changes.
 
 
+
+
 ## Set a custom color scheme
 
-To set a custom color-scheme for OpenPanel interface, edit the 
+To set a custom color-scheme for OpenPanel interface, edit the `/etc/openpanel/openpanel/custom_code/custom.css` file and in it set your preferred color scheme.
+
+```bash
+nano /etc/openpanel/openpanel/custom_code/custom.css
+```
+
+Set the custom css code, save and restart openpanel to apply changes:
+
+```bash
+cd /root && docker compose up -d openpanel
+```
+
+Example:
+
+![custom_css_code](https://i.postimg.cc/YprhHZhg/2024-06-18-15-04.png)
+
+
+
+
 
 ## Replace How-to articles with your knowledge base
 
@@ -122,6 +146,59 @@ For example, to edit the sidebar and hide the OpenPanel logo, follow these steps
 
 ## Customize login page
 
+
+OpenPanel login page template code is located at `/usr/local/panel/templates/user/login.html` inside the docker container.
+
+To edit the login page:
+
+1. Create a new folder/file locally for your modified code.
+   ```bash
+   mkdir /root/custom_template/
+   ```
+2. Copy the existing template code.
+   ```bash
+   docker cp openpanel:/usr/local/panel/templates/user/login.html /root/custom_template/login.html
+   ```
+3. Edit the code.
+
+4. Configure OpenPanel to use your template.
+   Edit the `/root/docker-compose.yml` file and in it setyour file to overwrite the original template:
+   ```bash
+   nano /root/docker-compose.yml
+   ```
+   and in the file under [openpanel > volumes](https://github.com/stefanpejcic/openpanel-configuration/blob/180c781bfb7122c354fd339fbee43c1ce6ec017f/docker/compose/new-docker-compose.yml#L31) set local path and original:
+   ```bash
+   - /root/custom_theme/login.html:/usr/local/panel/templates/user/login.html
+   ```
+6. Restart OpenPanel to apply the new login template.
+   ```bash
+   cd /root && docker compose up -d openpanel
+   ```
+
+
 ## Add custom CSS or JS code
 
-## Create custom pages
+To add custom CSS code to the OpenPanel interface, edit the file `/etc/openpanel/openpanel/custom_code/custom.css`:
+
+```bash
+nano /etc/openpanel/openpanel/custom_code/custom.css
+```
+
+To add custom JavaScript code to the OpenPanel interface, edit the file `/etc/openpanel/openpanel/custom_code/custom.js`:
+
+```bash
+nano /etc/openpanel/openpanel/custom_code/custom.js
+```
+
+To insert custom code within the `<head>` tag of the OpenPanel interface, modify the content of the file located at `/etc/openpanel/openpanel/custom_code/in_header.html` and include your custom code within it:
+
+```bash
+nano /etc/openpanel/openpanel/custom_code/in_header.html
+```
+
+To insert custom code within the `<footer>` tag of the OpenPanel interface, modify the content of the file located at `/etc/openpanel/openpanel/custom_code/in_footer.html` and include your custom code within it:
+
+```bash
+nano /etc/openpanel/openpanel/custom_code/in_footer.html
+```
+
