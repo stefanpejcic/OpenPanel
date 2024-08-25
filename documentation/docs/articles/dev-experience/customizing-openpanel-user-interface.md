@@ -61,14 +61,64 @@ Custom brand name and logo can be set from [OpenAdmnin > Settings > OpenPanel](/
 
 To set a custom name visible in the OpenPanel sidebar and on login pages, enter the desired name in the "Brand name" option. Alternatively, to display a logo instead, provide the URL in the "Logo image" field and save the changes.
 
+
 ## Set a custom color scheme
 
-
+To set a custom color-scheme for OpenPanel interface, edit the 
 
 ## Replace How-to articles with your knowledge base
 
+[OpenPanel Dashboard page](/docs/panel/dashboard) displays [How-to articles](/docs/panel/dashboard/#how-to-guides) from the OpenPanel Docs, however these can be changed to display your knowledgebase articles instead. 
+
+Edit the file `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` and in it set your links:
+
+```json
+{
+    "how_to_topics": [
+        {"title": "How to install WordPress", "link": "https://openpanel.com/docs/panel/applications/wordpress#install-wordpress"},
+        {"title": "Publishing a Python Application", "link": "https://openpanel.com/docs/panel/applications/pm2#python-applications"},
+        {"title": "How to edit Nginx / Apache configuration", "link": "https://openpanel.com/docs/panel/advanced/server_settings#nginx--apache-settings"},
+        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/databases/#create-a-mysql-database"},
+        {"title": "How to add a Cronjob", "link": "https://openpanel.com/docs/panel/advanced/cronjobs#add-a-cronjob"},
+        {"title": "How to change server TimeZone", "link": "https://openpanel.com/docs/panel/advanced/server_settings#server-time"}
+    ],
+    "knowledge_base_link": "https://openpanel.com/docs/panel/intro/?source=openpanel_server"
+}
+```
+
 
 ## Edit any page template
+
+Each OpenPanel template code is open and can easily be edited by just editing the HTML code.
+
+Templates are located inside a Docker container named `openpanel`, so you first need to find the template that has the code that you want to edit.
+
+For example, to edit the sidebar and hide the OpenPanel logo, follow these steps:
+
+1. Create a new folder/file locally for your modified code.
+   ```bash
+   mkdir /root/custom_template/
+   ```
+2. Copy the existing template code.
+   ```bash
+   docker cp openpanel:/usr/local/panel/templates/partials/sidebar.html /root/custom_template/sidebar.html
+   ```
+3. Edit the code.
+
+4. Configure OpenPanel to use your template.
+   Edit the `/root/docker-compose.yml` file and in it setyour file to overwrite the original template:
+   ```bash
+   nano /root/docker-compose.yml
+   ```
+   and in the file under [openpanel > volumes](https://github.com/stefanpejcic/openpanel-configuration/blob/180c781bfb7122c354fd339fbee43c1ce6ec017f/docker/compose/new-docker-compose.yml#L31) set local path and original:
+   ```bash
+   - /root/custom_theme/sidebar.html:/usr/local/panel/templates/partials/sidebar.html
+   ```
+6. Restart OpenPanel to apply the new template.
+   ```bash
+   cd /root && docker compose up -d openpanel
+   ```
+
 
 ## Customize login page
 
