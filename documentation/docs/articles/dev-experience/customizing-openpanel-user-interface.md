@@ -19,7 +19,7 @@ To customize OpenPanel, you have the following options:
 
 ## Enable/disable features
 
-Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface. To activate a feature, navigate to OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#enable-features) and select service name in the "Enable Features" section and click save. 
+Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface. To activate a feature, navigate to [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#enable-features) and select service name in the "Enable Features" section and click save. 
 
 Once enabled, the feature becomes instantly available to all users, appearing in the OpenPanel interface sidebar, search results, and dashboard icons.
 
@@ -38,11 +38,35 @@ To add a custom service pre-installed for users:
 
 ## Localize the interface
 
+OpenPanel is localization ready and can easily be translated into any language.
+
+OpenPanel is shipped with the EN locale, [additional locales can be installed by the Administrator](https://dev.openpanel.com/localization.html#How-to-translate).
+
+To install additional locales (replace `de-de` with your locale):
+
+```bash
+opencli locale de-de
+```
+
+To translate OpenPanel to another language follow these steps:
+
+1. Fork [this repository](https://github.com/stefanpejcic/openpanel-translations).
+2. Copy `en_us` to your locale e.g. `es_es`
+3. Translate the `messages.pot` file
+4. Send a [pull request](https://github.com/stefanpejcic/openpanel-translations/pulls)
+
 ## Set custom branding and logo
+
+Custom brand name and logo can be set from [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#branding) page.
+
+To set a custom name visible in the OpenPanel sidebar and on login pages, enter the desired name in the "Brand name" option. Alternatively, to display a logo instead, provide the URL in the "Logo image" field and save the changes.
 
 ## Set a custom color scheme
 
+
+
 ## Replace How-to articles with your knowledge base
+
 
 ## Edit any page template
 
