@@ -315,6 +315,12 @@ nginx_change_in(){
     rm /etc/nginx/sites-enabled/default
     rm /etc/nginx/sites-available/default
 
+    # temporary on 026 we need to disbale modsec in all files
+    for file in /etc/nginx/sites-available/*.conf; do
+        sed -i '/modsecurity/s/^/# /' "$file"
+    done
+
+
 
     # Check if jq is installed
     if ! command -v jq &> /dev/null; then
