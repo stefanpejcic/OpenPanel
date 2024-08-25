@@ -74,10 +74,13 @@ curl -X POST -H 'Content-Type: application/json' \
 
 ## Post Install Steps
 
+Recommended steps after installing OpenPanel:
 - [access admin panel](/docs/admin/intro#access-openadmin)
+- [set domain for accessing panels](/docs/admin/settings/general/#set-domain-for-openpanel)
 - [set custom nameservers](/docs/admin/settings/openpanel/#set-nameservers)
-- [create a package](/docs/admin/plans/hosting_plans#create-a-plan)
+- [create a hosting plan](/docs/admin/plans/hosting_plans#create-a-plan)
 - [create a new user account](/docs/admin/users/openpanel#create-users)
+- [set admin email for server alerts](/docs/admin/notifications/#email-alerts)
 
 ### Access OpenAdmin
 
