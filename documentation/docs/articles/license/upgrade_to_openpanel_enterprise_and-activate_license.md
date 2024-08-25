@@ -9,7 +9,7 @@ More information: [OpenPanel Community VS Enterprise edition](https://openpanel.
 
 ## Purchase License
 
-To purchase a license for the OpenPanel Enterprise edition [click here](https://my.openpanel.co/cart.php?a=add&pid=1).
+To purchase a license for the OpenPanel Enterprise edition [click here](https://my.openpanel.com/cart.php?a=add&pid=1).
 
 After payment, license key is automatically issued and you will see it under the Services page:
 
