@@ -4,15 +4,15 @@ Everything in OpenPanel is modular and can easily be modified or disabled withou
 
 To customize OpenPanel, you have the following options:
 
-- Enable/disable features and pages from the OpenPanel interface.
-- Set pre-installed services for user.
-- Localize the interface.
-- Set custom branding and logo.
-- Set a custom color scheme.
-- Replace How-to articles with your knowledge base.
-- Customize any page.
-- Customize login pages.
-- Add custom CSS or JS code to the interface.
+- [Enable/disable features and pages from the OpenPanel interface](#enabledisable-features)
+- [Set pre-installed services for users](#set-pre-installed-services)
+- [Localize the interface](#localize-the-interface)
+- [Set custom branding](#set-custom-branding)
+- [Set a custom color scheme](#set-a-custom-color-scheme)
+- [Replace How-to articles with your knowledge base](#replace-how-to-articles-with-your-knowledge-base)
+- [Customize any page](#edit-any-page-template)
+- [Customize login page](#customize-login-page)
+- [Add custom CSS or JS code to the interface](#create-custom-pages)
 
 
 
@@ -25,7 +25,7 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 
 
 
-## Set pre-installed services for user
+## Set pre-installed services
 
 OpenPanel uses [docker images](https://dev.openpanel.com/images/) as the base for each hosting plan. Based on the docker image, different services can be set per plan/user. For examples, we provide 2 docker iamges, one that has nginx pre-installed and another that uses apache. By creating a custom docker image, you can set in that image what to be pre-installed when you create a new user, for exmaple, set mariadb instead of mysql or install php ioncube loader extension.
 
@@ -59,7 +59,7 @@ To translate OpenPanel to another language follow these steps:
 
 
 
-## Set custom branding and logo
+## Set custom branding
 
 Custom brand name and logo can be set from [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#branding) page.
 
