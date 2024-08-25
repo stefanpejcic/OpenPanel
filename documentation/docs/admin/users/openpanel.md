@@ -47,6 +47,14 @@ You can also format the data as JSON:
 ```bash
 opencli user-list --json
 ```
+  </TabItem>
+  <TabItem value="CLI-users" label="via API">
+
+To list all users, use the following api endpoint:
+
+```bash
+curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE"
+```
 
   </TabItem>
 </Tabs>
