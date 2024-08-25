@@ -26,7 +26,7 @@ port       25
 from       USERNAME@HOSTNAME
 ```
 
-[Login as root for that user]() and edit the file. In this file, set the email address and server to be used for all outgoing emails. 
+[Login as root for that user](https://dev.openpanel.com/cli/commands.html#Login-as-User) and edit the file. In this file, set the email address and server to be used for all outgoing emails. 
 
 For example, you can configure Gmail SMTP settings as shown in the [Arch Linux Wiki](https://wiki.archlinux.org/title/Msmtp).
 
