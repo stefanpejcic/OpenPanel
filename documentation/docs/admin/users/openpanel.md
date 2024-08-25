@@ -48,7 +48,7 @@ You can also format the data as JSON:
 opencli user-list --json
 ```
   </TabItem>
-  <TabItem value="CLI-users" label="API">
+  <TabItem value="API-users" label="API">
 
 To list all users, use the following api endpoint:
 
