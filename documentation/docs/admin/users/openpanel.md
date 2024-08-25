@@ -11,7 +11,7 @@ OpenPanel currently has only a single user role named **User** that can only man
 
 
 <Tabs>
-  <TabItem value="openadmin-users" label="With OpenAdmin" default>
+  <TabItem value="openadmin-users" label="OpenAdmin" default>
 
 To access all OpenPanel users, navigate to OpenAdmin > Users.
 
@@ -22,7 +22,7 @@ The Users page displays a table showcasing each user's Gravatar linked to their 
 Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
   </TabItem>
-  <TabItem value="CLI-users" label="With OpenCLI">
+  <TabItem value="CLI-users" label="OpenCLI">
 
 To list all users, use the following command:
 
@@ -48,7 +48,7 @@ You can also format the data as JSON:
 opencli user-list --json
 ```
   </TabItem>
-  <TabItem value="CLI-users" label="via API">
+  <TabItem value="CLI-users" label="API">
 
 To list all users, use the following api endpoint:
 
@@ -64,14 +64,14 @@ curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE
 
 
 <Tabs>
-  <TabItem value="openadmin-users-new" label="With OpenAdmin" default>
+  <TabItem value="openadmin-users-new" label="OpenAdmin" default>
 
 To create a new user, click on the 'New User' button on the Users page. A new section will be displayed with a form where you can set the email address, username, generate a strong password, and assign a hosting plan for the user.
 
 ![openadmin users add new](/img/admin/openadmin_add_new_user.gif)
 
   </TabItem>
-  <TabItem value="CLI-users-new" label="With OpenCLI">
+  <TabItem value="CLI-users-new" label="OpenCLI">
 
 To create a new user run the following command:
 
@@ -86,7 +86,31 @@ opencli user-add filip masdhjkb213g filip@openadmin.co default_plan_apache
 :::tip
 Provide `generate` as password to generate a strong random password.
 :::
+  </TabItem>
+  <TabItem value="API-users-new" label="API">
 
+To create a new user use the following api call:
+
+```bash
+curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer JWT_TOKEN_HERE" -d '{"email": "EMAIL_HERE", "username": "USERNAME_HERE", "password": "PASSWORD_HERE", "plan_name": "PLAN_NAME_HERE"}' http://PANEL:2087/api/users
+```
+
+Example:
+```bash
+curl -X POST "http://PANEL:2087/api/users" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGcBns" -H "Content-Type: application/json" -d '{"username":"stefan","password":"s32dsasaq","email":"stefan@pejcic.rs","plan_name":"default_plan_nginx"}'
+```
+
+Example response:
+
+```json
+{
+  "response": {
+    "message": "Successfully added user stefan password: s32dsasaq"
+  },
+  "success": true
+}
+```
+  
   </TabItem>
 </Tabs>
 
@@ -95,7 +119,7 @@ Provide `generate` as password to generate a strong random password.
 ## Reset User Password
 
 <Tabs>
-  <TabItem value="openadmin-users-reset" label="With OpenAdmin" default>
+  <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
 
 To reset password for a user click on the Edit dropdown in table for that user in OpenAdmin > Users or from the individual User page click on "Edit information" and set the new password in the Password field then save.
 
@@ -105,7 +129,7 @@ Step 1.             |  Step 2.
 
 
   </TabItem>
-  <TabItem value="CLI-users-reset" label="With OpenCLI">
+  <TabItem value="CLI-users-reset" label="OpenCLI">
 
 To reset the password for a OpenPanel user, you can use the `user-password` command:
 
@@ -121,6 +145,14 @@ Example:
 opencli user-password filip Ty7_K8_M2 --ssh
 ```
 
+  </TabItem>
+  <TabItem value="API-users-reset" label="API">
+
+To reset password for an OpenPanel user, use the following api call:
+
+```bash
+curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: application/json" -H "Authorization: Bearer JWT_TOKEN_HERE" -d '{"password": "NEW_PASSWORD_HERE"}'
+```
   </TabItem>
 </Tabs>
 
