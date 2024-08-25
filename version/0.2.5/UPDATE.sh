@@ -104,6 +104,9 @@ FUNCTIONS=(
     # update opencli
     opencli_update
 
+    # set_floating_service
+    set_floating_service
+
     # repalce ip with username in nginx container files
     nginx_change_in
 
@@ -425,7 +428,11 @@ download_new_admin() {
     mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
     
     service admin restart
+}
 
+
+
+set_floating_service(){
 
 
     echo ""
