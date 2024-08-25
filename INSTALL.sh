@@ -1014,7 +1014,7 @@ install_packages() {
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
-   	 packages=("wget" "git" "docker-ce" "mysql" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip-bin" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+   	 packages=("wget" "git" "docker-ce" "mysql" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
 	
  	for package in "${packages[@]}"; do
             echo -e "Installing        ${GREEN}$package${RESET}"
@@ -1029,7 +1029,7 @@ install_packages() {
 	if [ -f /etc/fedora-release ]; then
     		packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "mysql" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
     	else
-     		packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip-bin" "perl-Math-BigInt")
+     		packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
       	fi
      	
 	debug_log dnf install yum-utils  -y
