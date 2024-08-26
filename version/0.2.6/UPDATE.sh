@@ -99,12 +99,15 @@ FUNCTIONS=(
     # update admin from github
     download_new_admin
 
+    # for 026 dns only
+    dns_key_and_reload
+
     # update opencli
     opencli_update
 
     # ping us
     verify_license
-
+    
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
 
@@ -157,7 +160,55 @@ print_space_and_line() {
 
 
 
+dns_key_and_reload(){
+    
+    # generate key
+    docker run -it --rm \
+        -v /etc/bind/:/etc/bind/ \
+        --entrypoint=/bin/sh \
+        ubuntu/bind9:latest \
+        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+    
+    # add to file
+    # Define file paths
+    named_conf_local="/etc/bind/named.conf.local"
+    rndc_key="/etc/bind/rndc.key"
 
+# Check if /etc/bind/rndc.key is already in named.conf.local
+if ! grep -q "$rndc_key" "$named_conf_local"; then
+    # Create a temporary file
+    temp_file=$(mktemp)
+
+    cat << EOF > "$temp_file"
+// It is recommended to create a key and configure Bind to listen to commands
+// sent via rndc. However, it will function just fine without the following
+// four lines.
+include "$rndc_key";
+controls {
+    inet 127.0.0.1 allow { localhost; } keys { "rndc-key"; };
+};
+EOF
+
+    # Append the contents of the original named.conf.local to the temporary file
+    cat "$named_conf_local" >> "$temp_file"
+
+    # Move the temporary file to replace the original named.conf.local
+    mv "$temp_file" "$named_conf_local"
+
+    echo "The necessary configuration has been added to $named_conf_local."
+
+    docker restart openpanel_dns
+    
+    echo "openpanel_dns dontainer restarted to apply the new conf from: $named_conf_local."
+
+    
+else
+    echo "$rndc_key is already configured in $named_conf_local."
+fi
+
+
+
+}
 
 
 
