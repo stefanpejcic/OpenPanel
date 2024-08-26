@@ -1295,6 +1295,14 @@ setup_bind(){
     if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
+
+ # generate unique rndc.key
+docker run -it --rm \
+    -v /etc/bind/:/etc/bind/ \
+    --entrypoint=/bin/sh \
+    ubuntu/bind9:latest \
+    -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+     
 }
 
 send_install_log(){
