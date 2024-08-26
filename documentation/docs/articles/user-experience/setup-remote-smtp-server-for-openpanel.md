@@ -30,8 +30,58 @@ from       USERNAME@HOSTNAME
 
 For example, you can configure Gmail SMTP settings as shown in the [Arch Linux Wiki](https://wiki.archlinux.org/title/Msmtp).
 
-After saving the configuration, test sending emails from a PHP website like WordPress or directly from the terminal.
+Example configuration for Gmail:
 
+```bash
+# Set defaults.
+defaults
+
+# Enable or disable TLS/SSL encryption.
+auth on
+tls on
+tls_certcheck off
+
+# Set up a default account's settings.
+account gmail
+logfile /var/log/msmtp.log
+host "smtp.gmail.com"
+port 587
+user email_account_here@gmail.com
+password "password_here"
+from "email_account_here@gmail.com"
+
+# Set default account
+account default: gmail
+```
+
+Example configuration for OpenPanel MailServer using a specific email account:
+
+```bash
+# Set defaults.
+defaults
+
+# Enable or disable TLS/SSL encryption.
+#auth on
+tls off
+tls_certcheck off
+#auth plain
+
+# Set up a default account's settings.
+account USERNAME
+logfile /home/USERNAME/msmtp.log
+host openadmin_mailserver
+port 25
+user "email_account_here@example.com"
+password "password_here"
+from "email_account_here@example.com"
+
+# Set default account
+account default: USERNAME
+```
+
+
+
+After saving the configuration, test sending emails from a PHP website like WordPress or directly from the terminal: [Simple PHP Mail test](https://conetix.com.au/support/simple-php-mail-test/)
 
 ## Configure SMTP for all existing users
 
