@@ -5,7 +5,7 @@ This happens when a third party user/service restarted docker and the floatingip
 To resolve this issue, run:
 
 ```bash
-opecncli server-recreate_hosts
+opencli server-recreate_hosts
 ```
 
 Then restart Nginx service:
