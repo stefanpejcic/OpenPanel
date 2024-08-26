@@ -1,72 +1,58 @@
 #!/bin/bash
 ################################################################################
-# Script Name: INSTALL.sh
-# Description: Install the latest version of OpenPanel
-# Usage: bash <(curl -sSL https://openpanel.org)
-# Author: Stefan Pejcic <stefan@pejcic.rs>
-# Created: 11.07.2023
-# Last Modified: 18.08.2024
-# Company: openpanel.com
-# Copyright (c) OPENPANEL
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
+#
+# Install the latest version of OpenPanel ✌️
+# https://openpanel.com/install
+#
+# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, Fedora, CentOS
+# Supported Python         3.8 3.9 3.10 3.11 3.12
+#
+# Usage:                   bash <(curl -sSL https://openpanel.org)
+# Author:                  Stefan Pejcic <stefan@pejcic.rs>
+# Created:                 11.07.2023
+# Last Modified:           23.08.2024
+#
 ################################################################################
 
 
-# Colors for output
+# COLORS
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
-# Defaults
-CUSTOM_VERSION=false #default is latest
-INSTALL_TIMEOUT=600 # 10 min max
-DEBUG=false #verbose output
+# DEFAULTS
+CUSTOM_VERSION=false                                                 # default version is latest
+INSTALL_TIMEOUT=600                                                  # after 10min, consider the install failed
+DEBUG=false                                                          # verbose output for debugging failed install
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false #downloaded on acc creation
+SKIP_IMAGES=false                                                    # they are auto-pulled on account creation
 REPAIR=false
-LOCALES=true #only en
-NO_SSH=false #deny port 22
-INSTALL_FTP=false #no ui
-INSTALL_MAIL=false #no ui
-IPSETS=true #currently only with ufw
-SET_HOSTNAME_NOW=false #FQDN
+LOCALES=true                                                         # only en
+NO_SSH=false                                                         # deny port 22
+INSTALL_FTP=false                                                    # no ui yet
+INSTALL_MAIL=false                                                   # no ui yet
+IPSETS=true                                                          # currently only works with ufw
+SET_HOSTNAME_NOW=false                                               # must be a FQDN
+CUSTOM_GB_DOCKER=false                                               # space in gb, if not set fallback to 50% of available du
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1" #calculated based on ram
-SELFHOSTED_SCREENSHOTS=false
+SWAP_FILE="1"                                                        # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
-SET_PREMIUM=false #added in 0.2.1
-UFW_SETUP=false #previous default on <0.2.3
-CSF_SETUP=true #default since >0.2.2
-SET_ADMIN_USERNAME=false #random
-SET_ADMIN_PASSWORD=false #random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" #default since 0.2.1
+SET_PREMIUM=false                                                    # added in 0.2.1
+UFW_SETUP=false                                                      # previous default on <0.2.3
+CSF_SETUP=true                                                       # default since >0.2.2
+SET_ADMIN_USERNAME=false                                             # random
+SET_ADMIN_PASSWORD=false                                             # random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" # default since 0.2.1
 
-# Paths
-ETC_DIR="/etc/openpanel/" #comf files
-LOG_FILE="openpanel_install.log" #install log
-LOCK_FILE="/root/openpanel.lock" # install running
-OPENPANEL_DIR="/usr/local/panel/" #openpanel running successfully
-OPENPADMIN_DIR="/usr/local/admin/" #openadmin files
-OPENCLI_DIR="/usr/local/admin/scripts/" #opencli scripts
-OPENPANEL_ERR_DIR="/var/log/openpanel/" #logs
-SERVICES_DIR="/etc/systemd/system/" #services
+# PATHS
+ETC_DIR="/etc/openpanel/"                                            # https://github.com/stefanpejcic/openpanel-configuration
+LOG_FILE="openpanel_install.log"                                     # install log
+LOCK_FILE="/root/openpanel.lock"                                     # install running
+OPENPANEL_DIR="/usr/local/panel"                                     # currently only used to store version
+OPENPADMIN_DIR="/usr/local/admin/"                                   # https://github.com/stefanpejcic/openadmin/branches
+OPENCLI_DIR="/usr/local/admin/scripts/"                              # https://dev.openpanel.com/cli/commands.html
+OPENPANEL_ERR_DIR="/var/log/openpanel/"                              # https://dev.openpanel.com/logs.html
+SERVICES_DIR="/etc/systemd/system/"                                  # used for admin, sentinel and floatingip services
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -127,7 +113,8 @@ radovan() {
 # print the command and its output if debug, else run and echo to /dev/null
 debug_log() {
     if [ "$DEBUG" = true ]; then
-        echo "Running: $@"
+    	local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+     	echo "[$timestamp] $message"
         "$@"
     else
         "$@" > /dev/null 2>&1
@@ -140,7 +127,7 @@ is_package_installed() {
     $PACKAGE_MANAGER -qq list "$1" 2>/dev/null | grep -qE "^ii"
     else
     $PACKAGE_MANAGER -qq list "$1" | grep -qE "^ii"
-    echo "Updating package manager.."
+    echo "Updating $PACKAGE_MANAGER package manager.."
     fi
 }
 
@@ -173,13 +160,6 @@ set_version_to_install(){
 }
 
 
-# configure apt to retry downloading on error
-if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
-	echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
-fi
-
-
-
 # print fullwidth line
 print_space_and_line() {
     echo " "
@@ -188,47 +168,95 @@ print_space_and_line() {
 }
 
 
+setup_progress_bar_script(){
+	# Progress bar script
+	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
+	PROGRESS_BAR_FILE="progress_bar.sh"
+ 
+	# Check if wget is available
+	if command -v wget &> /dev/null; then
+	    wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	# If wget is not available, check if curl is available *(fallback for fedora)
+	elif command -v curl &> /dev/null; then
+	    curl -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	else
+	    echo "Neither wget nor curl is available. Please install one of them to proceed."
+	    exit 1
+	fi
+ 
+	if [ ! -f "$PROGRESS_BAR_FILE" ]; then
+	    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
+	    exit 1
+	fi
+}
 
-# Progress bar script
-PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
-PROGRESS_BAR_FILE="progress_bar.sh"
-wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
-    exit 1
-fi
+
+display_what_will_be_installed(){
+ 	echo -e "DETECTED OS:     ${GREEN} $NAME $VERSION_ID ${RESET}"
+ 	echo -e "PACKAGE MANAGER: ${GREEN} ${PACKAGE_MANAGER} ${RESET}"
+ 	echo -e "PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
+ 	echo -e "IPV4 ADDRESS:    ${GREEN} ${current_ip} ${RESET}"
+  	echo ""
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setup_progress_bar_script
 
 # Source the progress bar script
 source "$PROGRESS_BAR_FILE"
 
+
 # Dsiplay progress bar
 FUNCTIONS=(
-detect_os_and_package_manager
-update_package_manager
-install_packages
-download_skeleton_directory_from_github
-setup_bind # must run after download_skeleton_directory_from_github
-install_openadmin
-opencli_setup
-configure_docker
-download_and_import_docker_images
-
-panel_customize
-set_premium_features
-configure_nginx 
-docker_compose_up # must be after nginx setup 
-configure_modsecurity
-##### NOT PRODUCTION READY #setup_email 
-setup_ftp
-set_custom_hostname
-generate_and_set_ssl_for_panels
-setup_firewall_service
-set_system_cronjob # cron after firewall, otherwise user gets false-positive notification that csf is not running
-set_logrotate
-tweak_ssh
-setup_swap
-clean_apt_cache
-verify_license
+detect_os_and_package_manager             # detect os and package manager
+display_what_will_be_installed            # display os, version, ip
+update_package_manager                    # update dnf/yum/apt-get
+install_packages                          # install docker, csf/ufw, sqlite, etc.
+download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
+setup_bind                                # must run after -configuration
+install_openadmin                         # set admin interface
+opencli_setup                             # set terminal commands
+configure_docker                          # set overlay2 and xfs backing filesystem 
+download_and_import_docker_images         # openpanel/nginx and openpanel/apache
+panel_customize                           # customizations
+set_premium_features                      # INSTALL ENTERPRISE FEATURES
+configure_nginx                           # setup nginx configuration files
+docker_compose_up                         # must be after nginx setup 
+configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
+#setup_email                              # TEMPORARY OFF FROM 0.2.5
+setup_ftp                                 # setup shared ftp service - NO UI YET!
+set_custom_hostname                       # set hostname if provided
+generate_and_set_ssl_for_panels           # if FQDN then lets setup https
+setup_firewall_service                    # setup firewall
+set_system_cronjob                        # setup drons, must be after csf
+set_logrotate                             # setup logrotate, ignored on fedora
+tweak_ssh                                 # basic ssh
+setup_swap                                # swap space
+clean_apt_and_dnf_cache                   # clear
+verify_license                            # ping our server
 )
 
 
@@ -276,12 +304,13 @@ main() {
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
 
-        # https://github.com/stefanpejcic/openpanel/issues/63
+        
 
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-            echo -e "${RED}Error: ARM CPU is not supported!${RESET}" >&2
+	    # https://github.com/stefanpejcic/openpanel/issues/63 
+            echo -e "${RED}Error: ARM CPU is not supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}" >&2
             exit 1
         fi
 
@@ -334,6 +363,7 @@ parse_args() {
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
+        echo "  --docker-space=<2>              Set space in GB to be allocated for Docker containers (default 50% of available storage)."
         echo "  --debug                         Display debug information during installation."
         echo "  --repair                        Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
@@ -426,6 +456,10 @@ while [[ $# -gt 0 ]]; do
             SETUP_SWAP_ANYWAY=true
             SWAP="${1#*=}"
             ;;
+        --docker-space=*)
+            CUSTOM_GB_DOCKER=true
+            SPACE_FOR_DOCKER_FILE="${1#*=}"
+            ;;
         --email=*)
             SEND_EMAIL_AFTER_INSTALL=true
             EMAIL="${1#*=}"
@@ -452,7 +486,7 @@ detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
         declare -A paths=(
-            ["/usr/local/panel"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
+            ["$OPENPANEL_DIR"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
             ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
@@ -471,7 +505,7 @@ detect_installed_panels() {
             fi
         done
 
-        echo -e "${GREEN}No currently installed hosting control panels or webservers found. Proceeding with the installation process.${RESET}"
+        echo -e "${GREEN}No currently installed hosting control panels or webservers found. Starting the installation process.${RESET}"
     fi
 }
 
@@ -480,28 +514,46 @@ detect_installed_panels() {
 detect_os_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
         . /etc/os-release
-        case "$ID" in
-            "debian"|"ubuntu")
+
+        case $ID in
+            ubuntu)
                 PACKAGE_MANAGER="apt-get"
+                py_enchoded_for_distro="$current_python_version"
                 ;;
-            "centos"|"cloudlinux"|"rhel"|"fedora"|"almalinux")
+            debian)
+                PACKAGE_MANAGER="apt-get"
+                py_enchoded_for_distro="debian-$current_python_version"
+                ;;
+            fedora)
+                PACKAGE_MANAGER="dnf"
+                py_enchoded_for_distro="$current_python_version"
+                ;;
+            rocky)
+                PACKAGE_MANAGER="dnf"
+                py_enchoded_for_distro="$current_python_version"
+                ;;
+            centos)
                 PACKAGE_MANAGER="yum"
-                if [ "$(command -v dnf)" ]; then
-                    PACKAGE_MANAGER="dnf"
-                fi
+                py_enchoded_for_distro="$current_python_version"
+                ;;
+            almalinux|alma)
+                PACKAGE_MANAGER="dnf"
+                py_enchoded_for_distro="$current_python_version"
                 ;;
             *)
-                echo -e "${RED}Unsupported distribution: $ID. Exiting.${RESET}"
+                echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
                 echo -e "${RED}INSTALL FAILED${RESET}"
                 exit 1
                 ;;
         esac
+	 
     else
-        echo -e "${RED}Could not detect Linux distribution. Exiting..${RESET}"
+        echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
     fi
 }
+
 
 
 download_and_import_docker_images() {
@@ -543,33 +595,43 @@ check_lock_file_age() {
 
 
 
-configure_docker() {
 
-    #########apt-get install docker.io -y
+configure_docker() {
     
     docker_daemon_json_path="/etc/docker/daemon.json"
     mkdir -p $(dirname "$docker_daemon_json_path")
 
         echo "Setting 'overlay2' as the default storage driver for Docker.."
-	# cp ${ETC_DIR}docker/overlay2/daemon.json "$docker_daemon_json_path"
 	# added in 0.2.6
- 	# overlay is now the default, and
+
+    # disk size to use for XFS storage file
+    if [ "$CUSTOM_GB_DOCKER" = true ]; then
+        gb_size=${SPACE_FOR_DOCKER_FILE}
+    else
 	# default is 50% of available disk space on / partition
 	available_space=$(df --output=avail / | tail -1)
 	available_gb=$((available_space / 1024 / 1024))
 	gb_size=$((available_gb * 50 / 100))
+    fi
+
 
         echo "Overlay2 docker storage driver requires backing filesystem to use XFS."
-	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker"
- 	echo "Please wait."
-
-	sudo dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
-	mkfs.xfs /var/lib/docker.img
-	systemctl stop docker
- 	mount -o loop,pquota /var/lib/docker.img /var/lib/docker
+	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker - this can take a few minutes.."
+ 
+	debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+	debug_log mkfs.xfs /var/lib/docker.img
+	debug_log systemctl stop docker
+ 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
 	echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
 
-        cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
+	if [ -f /etc/fedora-release ]; then
+ 		# On Fedora journald handles docker log-driver
+		cp ${ETC_DIR}docker/overlay2/fedora.json "$docker_daemon_json_path"
+  	else
+   		cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
+
+ 	fi
+
 	systemctl daemon-reload
 	systemctl start docker
 
@@ -578,9 +640,9 @@ configure_docker() {
 
 
 
+
 docker_compose_up(){
-    echo "Setting Openpanel and MySQL docker containers.."
-    echo ""
+    echo "Setting docker-compose.."
     # install docker compose
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
@@ -601,33 +663,41 @@ docker_compose_up(){
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
-    echo ""
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
-    echo ""
     # save it to /etc/my.cnf
+    rm -rf /etc/my.cnf  > /dev/null 2>&1 # on centos we get default mycnf..
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml isntead of docker-compose.yml
     # from 0.2.5 we only start mysql by default,panel on first user and nginx/dns on first domain
     #docker compose up -d
-    cd /root && docker compose up -d openpanel_mysql 
+    cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
+
+    # check if compose started the mysql container, and if is currently running
+	if [ -z `docker ps -q --no-trunc | grep $(docker compose ps -q openpanel_mysql)` ]; then
+        	radovan 1 "ERROR: MySQL contianer is not running. Please retry installation with '--retry' flag."
+	else
+	  	echo "MySQL service started successfuly"
+	fi
 
 }
 
 
 
 
-clean_apt_cache(){
-    # clear /var/cache/apt/archives/
-    apt-get clean
+clean_apt_and_dnf_cache(){
 
-    # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
+     if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+	    	dnf clean  > /dev/null > /dev/null 2>&1 
+      elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+      		# clear /var/cache/apt/archives/   # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
+      		apt-get clean  > /dev/null > /dev/null 2>&1 
+	fi
 }
 
 tweak_ssh(){
    echo "Tweaking SSH service.."
-   echo ""
 
    sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
 
@@ -639,7 +709,14 @@ tweak_ssh(){
 	   fi
    fi
 
-   systemctl restart ssh
+
+	# ssh on debian, sshd on rhel
+	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
+	 	systemctl restart sshd  > /dev/null 2>&1
+	else
+		systemctl restart ssh  > /dev/null 2>&1
+	fi
+   
 }
 
 setup_ftp() {
@@ -664,55 +741,34 @@ setup_firewall_service() {
         echo "Setting up the firewall.."
 
         if [ "$CSF_SETUP" = true ]; then
-          echo "Setting up ConfigServer Firewall.."
-
-
-          read_email_address() {
-              email=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
-              echo "$email"
-          }
+          echo "Installing ConfigServer Firewall.."
         
           install_csf() {
-              wget https://download.configserver.com/csf.tgz
-              tar -xzf csf.tgz
-              rm csf.tgz
+              wget https://download.configserver.com/csf.tgz > /dev/null 2>&1
+              debug_log tar -xzf csf.tgz
+	      rm csf.tgz
               cd csf
-              sh install.sh
+	      sh install.sh > /dev/null 2>&1
               cd ..
-              rm -rf csf
+	      rm -rf csf
               #perl /usr/local/csf/bin/csftest.pl
-
-              # for csf ui
-              apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
-
+		echo "Setting CSF auto-login from OpenAdmin interface.."
+	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+	    	debug_log dnf install -y wget curl unzip yum-utils policycoreutils-python-utils
+	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+              	debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+	    fi
               # autologin from openpanel
               ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
               chmod +x /usr/local/admin/modules/security/csf.pl
 
 
               # play nice with docker
-              git clone https://github.com/stefanpejcic/csfpost-docker.sh
+              git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
               mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
               chmod +x /usr/local/csf/bin/csfpost.sh
               rm -rf csfpost-docker.sh             
           }
-
-
-
-            function open_out_port_csf() {
-                port="3306"
-                local csf_conf="/etc/csf/csf.conf"
-                
-                # Check if port is already open
-                port_opened=$(grep "TCP_OUT = .*${port}" "$csf_conf")
-                if [ -z "$port_opened" ]; then
-                    # Open port
-                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
-                    echo "Port ${port} opened in CSF."
-                else
-                    echo "Port ${port} is already open in CSF."
-                fi
-            }
 
 
             function open_port_csf() {
@@ -724,10 +780,10 @@ setup_firewall_service() {
                 if [ -z "$port_opened" ]; then
                     # Open port
                     sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
-                    echo "Port ${port} opened in CSF."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo "Port ${port} is already open in CSF."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
@@ -741,10 +797,10 @@ setup_firewall_service() {
                 if [ -z "$port_opened" ]; then
                     # Open port
                     sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
-                    echo "TCP_OUT port ${port} opened in CSF."
+                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo "TCP_OUT port ${port} is already open in CSF."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
@@ -756,17 +812,23 @@ setup_firewall_service() {
           }
       
           set_csf_email_address() {
-              email_address=$(read_email_address)
+              email_address=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
+       
               if [[ -n "$email_address" ]]; then
                   sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
               fi
           }
       
-              
-          read_email_address
+	function extract_port_from_file() {
+	    local file_path=$1
+	    local pattern=$2
+	    local port=$(grep -Po "(?<=${pattern}[ =])\d+" "$file_path")
+	    echo "$port"
+	}
+
+       
           install_csf
           edit_csf_conf
-          open_out_port_csf
           open_tcpout_csf 3306 #mysql tcp_out only
           open_port_csf 22 #ssh
           open_port_csf 53 #dns
@@ -778,7 +840,8 @@ setup_firewall_service() {
           open_port_csf 32768:60999 #docker
             
           set_csf_email_address
-          csf -r
+          csf -r    > /dev/null 2>&1
+	  echo "Restarting CSF service"
           systemctl restart docker
           systemctl enable csf
           service csf start
@@ -786,12 +849,24 @@ setup_firewall_service() {
         
         elif [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
-          apt-get install ufw  > /dev/null 2>&1 && 
+	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+	    	dnf makecache --refresh   > /dev/null 2>&1
+      		dnf install -y ufw  > /dev/null 2>&1
+      
+	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+              	apt-get install -y ufw  > /dev/null 2>&1
+	    fi
+   
+
           # set ufw to be monitored instead of csf
           sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/notifications.ini"  > /dev/null 2>&1
           sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
           sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/services.json"  > /dev/null 2>&1
-          
+
+          # set ufw logs instead of csf
+          sed -i 's/"CSF Deny Log"/"UFW Logs"/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
+	  sed -i 's/\/etc\/csf\/csf.deny/\/var\/log\/ufw.log/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
+   
           debug_log wget -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
           debug_log chmod +x /usr/local/bin/ufw-docker
 
@@ -838,7 +913,7 @@ setup_firewall_service() {
 
 update_package_manager() {
     if [ "$SKIP_APT_UPDATE" = false ]; then
-        echo "Updating package manager.."
+        echo "Updating $PACKAGE_MANAGER package manager.."
         debug_log $PACKAGE_MANAGER update -y
     fi
 }
@@ -876,7 +951,7 @@ echo "Setting Logrotate for Syslogs.."
 
 cat <<EOF > "/etc/logrotate.d/syslog"
 /var/log/syslog {
-    su root syslog
+    su root adm
     weekly
     rotate 4
     missingok
@@ -898,25 +973,24 @@ install_packages() {
 
     echo "Installing required services.."
 
-    # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
-    
-    debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
-    
-    packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin")
-
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-        #only once..
-        debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+    	packages=("docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin" "xfsprogs")
+	
+ 	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
+    	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
         
+	debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+	
+	# configure apt to retry downloading on error
+	if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
+		echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
+	fi
+ 
         echo "Updating certificates.."
-        if [ "$DEBUG" = false ]; then
-        update-ca-certificates > /dev/null 2>&1
-        else
-        update-ca-certificates
-        fi
+        debug_log update-ca-certificates
+
 
         echo -e "Installing services.."
-
         for package in "${packages[@]}"; do
             echo -e "Installing ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER -qq install "$package" -y
@@ -940,33 +1014,48 @@ install_packages() {
 
 
     elif [ "$PACKAGE_MANAGER" == "yum" ]; then
-        for package in "${packages[@]}"; do
-            echo -e "Installing ${GREEN}$package${RESET}"
-            $PACKAGE_MANAGER install "$package" -y
+    
+	# otherwise we get podman..
+	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+ 
+   	 packages=("wget" "git" "docker-ce" "mysql" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+	
+ 	for package in "${packages[@]}"; do
+            echo -e "Installing        ${GREEN}$package${RESET}"
+            debug_log $PACKAGE_MANAGER install "$package" -y
         done     
+	
     elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
-        # MORA DRUGI ZA ALMU..
-        packages=("python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql-client-core-8.0" "containerd.io" "docker-compose-plugin" "sqlite3" "geoip-bin")
-        
-        #utils must be added first, then install from that repo
-        dnf install yum-utils  -y
-        yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+	# otherwise we get podman..
+	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+
+ 	# special case for fedora, 
+	if [ -f /etc/fedora-release ]; then
+    		packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "mysql" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
+    	else
+     		packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
+      	fi
+     	
+	debug_log dnf install yum-utils  -y
+        debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
+	
+ 	# needed for csf
+	debug_log dnf --allowerasing install perl -y
 
         #  needed for ufw and gunicorn
-        dnf install epel-release
+        debug_log dnf install epel-release -y
 
-        # ovo za gunicorn
-        dnf install python3-pip python3-devel gcc -y
+        # needed for admin panel
+        debug_log dnf install python3-pip python3-devel gcc -y
 
         for package in "${packages[@]}"; do
             echo -e "Installing  ${GREEN}$package${RESET}"
-            $PACKAGE_MANAGER install "$package" -y
+            debug_log $PACKAGE_MANAGER install "$package" -y
+	    debug_log $PACKAGE_MANAGER -y install "$package"
         done 
-        #gunicorn mora preko pip na almi..
-        pip3 install gunicorn flask
-    else
-        echo -e "${RED}Unsupported package manager: $PACKAGE_MANAGER${RESET}"
-        return 1
+
+        # gunicorn needs to be installed over pip for alma
+        debug_log pip3 install gunicorn flask
     fi
 }
 
@@ -999,16 +1088,15 @@ set_system_cronjob(){
     mv ${ETC_DIR}cron /etc/cron.d/openpanel
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
+
+	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
+		# extra steps for SELinux
+	 	restorecon -R /etc/cron.d/ > /dev/null 2>&1
+		restorecon -R /etc/cron.d/openpanel > /dev/null 2>&1
+		systemctl restart crond.service  > /dev/null 2>&1
+	fi
+    
 }
-
-
-
-cleanup() {
-    echo "Cleaning up.."
-    # https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
-    sed -i 's/$nrconf{restart} = '"'"'a'"'"';/#$nrconf{restart} = '"'"'i'"'"';/g' /etc/needrestart/needrestart.conf
-}
-
 
 
 set_custom_hostname(){
@@ -1045,10 +1133,9 @@ set_custom_hostname(){
 
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
-    echo ""
     mkdir -p /usr/local/admin
 
-    wget -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
     mkdir -p /tmp/opencli
     cd /tmp/ && tar -xzf opencli.tar.gz -C /tmp/opencli
     mkdir -p /usr/local/admin/scripts
@@ -1078,21 +1165,14 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
-
-    mkdir -p /etc/nginx/sites-available/
-    mkdir -p /etc/nginx/sites-enabled/
-    mkdir -p /etc/letsencrypt/
+    mkdir -p /etc/nginx/{sites-available,sites-enabled} /etc/letsencrypt /var/log/nginx/domlogs /usr/share/nginx/html
+    
     ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
-    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048
-    mkdir -p /var/log/nginx/domlogs/
-    mkdir -p /usr/share/nginx/html/
+    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048   > /dev/null 2>&1
 
     # https://dev.openpanel.co/services/nginx
     ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
-
-    # dir for domlogs
-    mkdir -p /var/log/nginx/domlogs
-  
+    
     # Setting pretty error pages for nginx, but need to add them inside containers also!
     mkdir /etc/nginx/snippets/  > /dev/null 2>&1
     mkdir /srv/http/  > /dev/null 2>&1
@@ -1194,7 +1274,6 @@ verify_license() {
 
 download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
-    echo ""
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
 
@@ -1209,7 +1288,6 @@ download_skeleton_directory_from_github(){
 
 setup_bind(){
     echo "Setting DNS service.."
-    echo ""
     mkdir -p /etc/bind/
     cp -r /etc/openpanel/bind9/* /etc/bind/
     
@@ -1240,7 +1318,7 @@ rm_helpers(){
 setup_swap(){
     # Function to create swap file
     create_swap() {
-        fallocate -l ${SWAP_FILE}G /swapfile
+        fallocate -l ${SWAP_FILE}G /swapfile > /dev/null 2>&1
         chmod 600 /swapfile
         mkswap /swapfile
         swapon /swapfile
@@ -1252,6 +1330,8 @@ setup_swap(){
         echo "ERROR: Skipping creating swap space as there already exists a swap partition."
         return
     fi
+
+
 
     # Check if we should set up swap anyway
     if [ "$SETUP_SWAP_ANYWAY" = true ]; then
@@ -1324,35 +1404,11 @@ install_openadmin(){
     
     mkdir -p $OPENPADMIN_DIR
 
-    # Ubuntu 22
-    if [ -f /etc/os-release ] && grep -q "Ubuntu 22" /etc/os-release; then   
-        echo "Downloading files for Ubuntu22 and python version $current_python_version"
-        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt
-    # Ubuntu 24
-    elif [ -f /etc/os-release ] && grep -q "Ubuntu 24" /etc/os-release; then
-        echo "Downloading files for Ubuntu24 and python version $current_python_version"
-        git clone -b $current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-        
-    # Debian12 and 11
-    elif [ -f /etc/debian_version ]; then
-        echo "Installing PIP and Git"
-        apt-get install git pip python3-yaml -y > /dev/null 2>&1
-        echo "Downloading files for Debian and python version $current_python_version"
-        git clone -b debian-$current_python_version --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-        debug_log pip install --default-timeout=3600 -r requirements.txt
-        debug_log pip install --default-timeout=3600 -r requirements.txt --break-system-packages
-    # other
-    else
-        echo "Unsuported OS. Currently only Ubuntu22-24 and Debian11-12 are supported."
-        echo 0
-    fi
+        debug_log echo "Downloading OpenAdmin files for $pretty_os_name OS and Python version $current_python_version"
 
-
+        git clone -b $py_enchoded_for_distro --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        cd $OPENPADMIN_DIR
+        pip install --default-timeout=3600 -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 -r requirements.txt --break-system-packages  > /dev/null 2>&1
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     
@@ -1370,11 +1426,11 @@ create_admin_and_show_logins_success_message() {
     chmod +x /etc/profile.d/welcome.sh  
 
     #cp version file
-    mkdir -p /usr/local/panel/  > /dev/null 2>&1
-    echo "$PANEL_VERSION" > /usr/local/panel/version
-    ######docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1
+    mkdir -p $OPENPANEL_DIR  > /dev/null 2>&1
+    echo "$PANEL_VERSION" > $OPENPANEL_DIR/version
+    ######docker cp openpanel:$OPENPANEL_DIR/version $OPENPANEL_DIR/version > /dev/null 2>&1
     
-    echo -e "${GREEN}OpenPanel [$(cat /usr/local/panel/version)] installation complete.${RESET}"
+    echo -e "${GREEN}OpenPanel [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
     echo ""
 
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
@@ -1387,8 +1443,14 @@ create_admin_and_show_logins_success_message() {
        new_username=($custom_username)
     else
        wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
-       source /tmp/generate.sh
-       new_username=($random_name)
+       
+       if [ -f "/tmp/generate.sh" ]; then
+	       source /tmp/generate.sh
+	       new_username=($random_name)
+       else
+	       new_username="admin"
+       fi
+       
     fi
 
     if [ "$SET_ADMIN_PASSWORD" = true ]; then
@@ -1402,8 +1464,8 @@ create_admin_and_show_logins_success_message() {
     opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
     opencli admin
-    echo "Username: $new_username"
-    echo "Password: $new_password"
+    echo -e "Username: ${GREEN} ${new_username} ${RESET}"
+    echo -e "Password: ${GREEN} ${new_password} ${RESET}"
     echo " "
     print_space_and_line
     
@@ -1476,4 +1538,4 @@ run_custom_postinstall_script
 
 # END main script execution
 
-service docker restart #needed for debian after csf reload
+
