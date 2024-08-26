@@ -5,7 +5,7 @@
 # new version
 NEW_PANEL_VERSION="0.2.6"
 
-
+# will  do these later when we add alpine docker compose
 ######### sed -i '/www-data/s/^/# /' nginx.conf
 
 
