@@ -21,14 +21,14 @@ export const team = [
         avatar: "https://media.licdn.com/dms/image/v2/D5603AQEy4Mls-Fqo3Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1629923454941?e=1729123200&v=beta&t=HFdsd6n_UNQ_t8acQlF_mty_OaETTn6I3A78x0VReC0",
         role1: "Frontend Developer",
     },
-    {
-        name: "Dragana Panic",
-        avatar: "https://i.imgur.com/Rspdz2w.png",
-        role1: "Marketing Manager",
-    },
-    {
-        name: "Nikola Markovic",
-        avatar: "https://i.imgur.com/LrNZOaS.png",
-        role1: "QA Analyst",
-    },
+//    {
+  //      name: "Dragana Panic",
+    //    avatar: "https://i.imgur.com/Rspdz2w.png",
+   //     role1: "Marketing Manager",
+  //  },
+  //  {
+  //      name: "Nikola Markovic",
+   //     avatar: "https://i.imgur.com/LrNZOaS.png",
+    //    role1: "QA Analyst",
+  //  },
 ];
