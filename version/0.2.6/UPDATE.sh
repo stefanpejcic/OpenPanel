@@ -90,11 +90,8 @@ FUNCTIONS=(
     #notify user we started
     print_header
 
-    # update images!
-    update_docker_images
-
-    #config
-    update_config_files
+    # nothing for 026
+    #update_docker_images
 
     # update docker openpanel iamge
     download_new_panel
@@ -108,9 +105,6 @@ FUNCTIONS=(
     # ping us
     verify_license
 
-    # new crons added
-    set_system_cronjob
-    
     # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
 
@@ -159,6 +153,9 @@ print_space_and_line() {
 
 
 # END helper functions
+
+
+
 
 
 
@@ -257,47 +254,6 @@ run_custom_postupdate_script() {
 }
 
 
-
-update_config_files() {
-    echo ""
-    echo "Downloading latest OpenPanel configuration from https://github.com/stefanpejcic/openpanel-configuration"
-    echo ""
-
-    # Define variables
-    CONFIG_DIR="/etc/openpanel"
-    DOCKER_COMPOSE_SRC="/etc/openpanel/docker/compose/new-docker-compose.yml"
-    DOCKER_COMPOSE_DEST="/root/docker-compose.yml"
-        
-    mv /etc/openpanel/ /etc/openpanel024
-    mkdir /etc/openpanel
-    git clone https://github.com/stefanpejcic/openpanel-configuration /etc/openpanel
-    
-    echo ""
-    echo "Restoring settings from /etc/openpanel024/"
-    echo ""
-
-    cp /etc/openpanel024/mysql/db.cnf /etc/openpanel/mysql/db.cnf
-    cp /etc/openpanel024/openadmin/users.db /etc/openpanel/openadmin/users.db
-    cp /etc/openpanel024/openpanel/conf/openpanel.config /etc/openpanel/openpanel/conf/openpanel.config
-    
-    echo ""
-    echo "Restoring user data and statistics from /etc/openpanel024/"
-    echo ""
-    
-    cp -r /etc/openpanel024/openpanel/core/* /etc/openpanel/openpanel/core
-    cp -r /etc/openpanel024/openpanel/websites/ /etc/openpanel/openpanel/websites
-
-    # Copy the new Docker Compose file to the root directory
-    if ! cp "$DOCKER_COMPOSE_SRC" "$DOCKER_COMPOSE_DEST"; then
-        echo "Error: Failed to copy the Docker Compose file."
-        exit 1
-    fi
-    
-}
-
-
-
-
 download_new_admin() {
 
     mkdir -p $OPENADMIN_DIR
@@ -333,15 +289,6 @@ download_new_panel() {
     echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
     echo ""
     docker pull openpanel/openpanel
-}
-
-set_system_cronjob(){
-
-    echo "Updating cronjobs.."
-    echo ""
-    cp /etc/openpanel/cron /etc/cron.d/openpanel
-    chown root:root /etc/cron.d/openpanel
-    chmod 0600 /etc/cron.d/openpanel
 }
 
 
@@ -397,13 +344,6 @@ celebrate() {
 
 
 
-
-temp_for_025(){
-    echo -e "\n[!] Backup of previous version is stored in: /etc/openpanel024/"
-    echo ""
-}
-
-
 post_install_message() {
 
     print_space_and_line
@@ -417,8 +357,6 @@ support:"
     echo "👉 Discord: https://discord.openpanel.com/"
     echo ""
     echo "Our community and support team are ready to help you!"
-    
-    temp_for_025
 }
 
 
