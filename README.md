@@ -82,20 +82,11 @@ OpenPanel is a truly [agnostic](https://www.techtarget.com/whatis/definition/agn
 
 Open for business!
 
-OpenPanel is **not** open-source. The primary reason behind this decision is our commitment to maintaining the highest standards of security for our users. Here are the key reasons:
+OpenPanel is the first truly modular panel where absolutely everything is customizable and works independently of the rest of the system. It is also OS-agnostic and works the same on all supported systems.
 
-1. **Enhanced Security**:
-    - Keeping OpenPanel closed-source significantly reduces the risk of exposing vulnerabilities. By limiting access to the source code, we can better protect our users from potential security threats and malicious attacks.
-
-2. **Controlled Access**:
-    - A closed-source model allows us to strictly control who can view and modify the code. This minimizes the risk of unauthorized changes or contributions that could introduce security flaws.
-
-3. **Integrity and Trustworthiness**:
-    - Ensuring the integrity of our software is paramount. By maintaining a closed-source environment, we can guarantee that every release of OpenPanel has undergone thorough security reviews and testing, providing our users with a trustworthy solution.
+However, OpenPanel is **not** an open-source project. The primary reason behind this decision is our commitment to maintaining the highest standards of security for our users, which we can only achive with closed-source and controlled contributions.
 
 While OpenPanel itself is not 100% open source, we are committed to transparency and security.
-
-We regularly conduct internal audits, apply the latest security patches, and follow industry best practices to safeguard our users' data.
 
 ## Installation
 
