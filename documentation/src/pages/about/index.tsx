@@ -91,6 +91,131 @@ OpenPanel was born out of frustration with the premium hosting panels we were us
 Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as **our chance to build something better**—something that could truly scale and adapt.
             </p>
 
+
+            <h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            Early stages 
+          </h4>
+<p className="text-xs sm:text-base">
+OpenPanel **started in 2023**, as a basic bootstrap interface with a database schema designed to handle anywhere from 10 to 500 users on a single server without issues. It was initially a LAMP stack with a fancy, yet buggy, GUI. But as we grew, so did our ideas.
+</p>
+            <p className="text-xs sm:text-base">
+One of our more ambitious concepts was to **use Docker containers** to isolate users' websites. However, this approach proved unscalable for shared servers with hundreds of users. Managing the overhead of memory and disk space became a significant challenge, especially when a single WordPress site needed at least three containers (database, PHP, and web server).
+</p>
+
+<p className="text-xs sm:text-base">
+We eventually pivoted to a "**one Docker per user**" approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and **maintain our custom images** rather than using official Docker ones.
+    </p>        
+
+<h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            Our Financing
+          </h4>
+<p className="text-xs sm:text-base">
+Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We **chose to remain independent** and self-funded. Committed to doing something different: **a modular, stable and fairly priced control panel**.
+</p>
+
+
+
+<h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            Why OpenPanel ?
+          </h4>
+<p className="text-xs sm:text-base">
+The name "OpenPanel" itself was initially just a placeholder, but it stuck. The project was first published under .co domain, as the .com and .org were already taken by a similar project almost two decades ago. The OpenPanel you know and use today is **in no way associated with the older openpanel.com project**, but we extend our gratitude to them for their unselfishness in allowing us to take over the openpanel.com domain in August 2024.
+</p>
+
+
+
+<h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            Why not open-sourced ?
+          </h4>
+<p className="text-xs sm:text-base">
+While we considered going fully open-source, we decided to keep certain parts proprietary to ensure we can **guarantee the quality** of our features, expedite the development of new ones, and provide quicker fixes for bugs. This approach also allows us to maintain **a more secure product**, giving our users peace of mind.
+</p>
+
+
+
+<h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            Pricing
+          </h4>
+<p className="text-xs sm:text-base">
+OpenPanel Is available in two options: **Enterprise Edition** that can rival any premium panel in features and flexibility, and a **Community Edition** funded by the Enterprise version, offering all the essential features needed by small agencies, freelancers, and hobby users.
+</p>
+            <p className="text-xs sm:text-base">
+And one promise we stand by—**we will never charge per user or per website**.
+</p>
+
+
+
+
+<h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            What is next ?
+          </h4>
+<p className="text-xs sm:text-base">
+Under the continued leadership of Stefan Pejčić, OpenPanel remains committed to staying ahead of technological trends and addressing the risks that come with them.
+</p>
+            <p className="text-xs sm:text-base">
+We are dedicated to constantly improving our platform to offer **the most advanced, secure, and user-friendly hosting panel** on the market.
+Our journey is far from over, and with your continued support, we’re excited to push the boundaries of what’s possible in server management.
+</p>
+            <p className="text-xs sm:text-base">
+Stay tuned for new features, enhanced performance, and more ways to **make your hosting experience as seamless as possible**. The best is yet to come.
+</p>
+
+            
+            
         </div>
 
 
