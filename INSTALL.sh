@@ -17,6 +17,7 @@
 
 # COLORS
 GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
@@ -80,8 +81,7 @@ print_header() {
     echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
     echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
     echo -e "         | |                                                  "
-    echo -e "         |_|                                   version: $PANEL_VERSION "
-
+    echo -e "         |_|                                   version: ${GREEN}$PANEL_VERSION${RESET} "
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
@@ -110,7 +110,8 @@ radovan() {
 }
 
 
-# print the command and its output if debug, else run and echo to /dev/null
+# if --debug flag then we print each command that is executed and display output on terminal.
+# if debug flag is not provided, we simply run the command and hide all output by redirecting to /dev/null
 debug_log() {
     if [ "$DEBUG" = true ]; then
     	local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
@@ -132,16 +133,35 @@ is_package_installed() {
 }
 
 
-get_server_ipv4(){
+detect_filesystem(){
+	FS_TYPE=$(df -T "/var" | awk 'NR==2 {print $2}')
+}
 
+get_server_ipv4(){
 	# Get server ipv4 from ip.openpanel.co
-	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || wget --timeout=2 -qO- https://ip.openpanel.co || curl --silent --max-time 2 -4 https://ifconfig.me)
-	
+	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || \
+                 wget --timeout=2 -qO- https://ip.openpanel.co || \
+                 curl --silent --max-time 2 -4 https://ifconfig.me)
 	# If site is not available, get the ipv4 from the hostname -I
 	if [ -z "$current_ip" ]; then
 	   # current_ip=$(hostname -I | awk '{print $1}')
 	    # ip addr command is more reliable then hostname - to avoid getting private ip
 	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
+	fi
+
+	    is_valid_ipv4() {
+	        local ip=$1
+	        # Check if IPv4 is valid
+	        [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && \
+	        # Check if IP is not private
+	        ! [[ $ip =~ ^10\. ]] && \
+	        ! [[ $ip =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && \
+	        ! [[ $ip =~ ^192\.168\. ]]
+	    }
+	
+	   
+	if ! is_valid_ipv4 "$current_ip"; then
+	        echo "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
 	fi
 
 }
@@ -154,7 +174,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.5"
+	        PANEL_VERSION="0.2.6"
 	    fi
 	fi
 }
@@ -191,11 +211,18 @@ setup_progress_bar_script(){
 }
 
 
+
+
 display_what_will_be_installed(){
- 	echo -e "DETECTED OS:     ${GREEN} $NAME $VERSION_ID ${RESET}"
- 	echo -e "PACKAGE MANAGER: ${GREEN} ${PACKAGE_MANAGER} ${RESET}"
- 	echo -e "PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
- 	echo -e "IPV4 ADDRESS:    ${GREEN} ${current_ip} ${RESET}"
+ 	echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
+ 	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
+ 	echo -e "[ OK ] INSTALLED PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
+	if [ "$FS_TYPE" = "xfs" ]; then
+ 	echo -e "[ OK ] BACKING FILESYSTEM TYPE:   ${GREEN} ${FS_TYPE^^} ${RESET}"
+	else 
+  	echo -e "[PASS] BACKING FILESYSTEM TYPE:   ${YELLOW} ${FS_TYPE^^} ${RESET}"
+ 	fi
+ 	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${current_ip} ${RESET}"
   	echo ""
 
 }
@@ -600,33 +627,52 @@ configure_docker() {
     
     docker_daemon_json_path="/etc/docker/daemon.json"
     mkdir -p $(dirname "$docker_daemon_json_path")
-
+    
         echo "Setting 'overlay2' as the default storage driver for Docker.."
-	# added in 0.2.6
 
-    # disk size to use for XFS storage file
-    if [ "$CUSTOM_GB_DOCKER" = true ]; then
-        gb_size=${SPACE_FOR_DOCKER_FILE}
-    else
-	# default is 50% of available disk space on / partition
-	available_space=$(df --output=avail / | tail -1)
-	available_gb=$((available_space / 1024 / 1024))
-	gb_size=$((available_gb * 50 / 100))
-    fi
+		create_storage_file_xfs_and_mount(){
+		    # disk size to use for XFS storage file
+		    if [ "$CUSTOM_GB_DOCKER" = true ]; then
+		        gb_size=${SPACE_FOR_DOCKER_FILE}
+		    else
+			# default is 50% of available disk space on / partition
+			available_space=$(df --output=avail / | tail -1)
+			available_gb=$((available_space / 1024 / 1024))
+			gb_size=$((available_gb * 50 / 100))
+		    fi
+  
+		echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker - this can take a few minutes.."
+	 
+		debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+		debug_log mkfs.xfs /var/lib/docker.img
+		debug_log systemctl stop docker
+	 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
+		echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
+  		}
 
 
-        echo "Overlay2 docker storage driver requires backing filesystem to use XFS."
-	echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker - this can take a few minutes.."
+
  
-	debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
-	debug_log mkfs.xfs /var/lib/docker.img
-	debug_log systemctl stop docker
- 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
-	echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
+		# added in 0.2.6     		
+	    if [ "$FS_TYPE" = "xfs" ]; then
+     		if mount | grep -q "pquota"; then
+	    		echo "Backing Filesystem is already XFS with 'pquota' mount. Skipping creating storage file."
+      		else
+			echo "Overlay2 docker storage driver requires the XFS filesystem to be mounted with 'pquota'."
+			create_storage_file_xfs_and_mount
+   		fi
+	    else 
+		echo "Overlay2 docker storage driver requires backing filesystem to use XFS."
+		create_storage_file_xfs_and_mount
+	    fi
+
 
 	if [ -f /etc/fedora-release ]; then
  		# On Fedora journald handles docker log-driver
 		cp ${ETC_DIR}docker/overlay2/fedora.json "$docker_daemon_json_path"
+  
+  		# fix for bug https://github.com/containers/podman/issues/13684
+    		restorecon -R -v /var/lib/docker  >/dev/null 2>&1
   	else
    		cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
 
@@ -634,8 +680,12 @@ configure_docker() {
 
 	systemctl daemon-reload
 	systemctl start docker
-
-    echo -e "Docker is configured."
+ 
+	if command -v docker >/dev/null 2>&1; then
+                echo -e "[${GREEN} OK ${RESET}] Docker is configured."
+   	else
+    		radovan 1 "Docker command is not available!"
+    	fi
 }
 
 
@@ -664,23 +714,26 @@ docker_compose_up(){
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
+    
+    #echo -e "MYSQL_ROOT_PASSWORD = ${GREEN} $MYSQL_ROOT_PASSWORD ${RESET}"
+
+    
     # save it to /etc/my.cnf
     rm -rf /etc/my.cnf  > /dev/null 2>&1 # on centos we get default mycnf..
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml isntead of docker-compose.yml
+    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
     # from 0.2.5 we only start mysql by default,panel on first user and nginx/dns on first domain
     #docker compose up -d
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
     # check if compose started the mysql container, and if is currently running
 	if [ -z `docker ps -q --no-trunc | grep $(docker compose ps -q openpanel_mysql)` ]; then
-        	radovan 1 "ERROR: MySQL contianer is not running. Please retry installation with '--retry' flag."
+        	radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--retry' flag."
 	else
-	  	echo "MySQL service started successfuly"
+		echo -e "[${GREEN} OK ${RESET}] MySQL service started successfuly"
 	fi
-
 }
 
 
@@ -700,12 +753,14 @@ tweak_ssh(){
    echo "Tweaking SSH service.."
 
    sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
-
-   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
-	   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
+   
+   if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 	   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
-		   echo '' >> /etc/ssh/sshd_config # fallback
-		   echo 'DebianBanner no' >> /etc/ssh/sshd_config
+		   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
+		   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
+			   echo '' >> /etc/ssh/sshd_config # fallback
+			   echo 'DebianBanner no' >> /etc/ssh/sshd_config
+		   fi
 	   fi
    fi
 
@@ -845,7 +900,16 @@ setup_firewall_service() {
           systemctl restart docker
           systemctl enable csf
           service csf start
-          
+	  
+   	if command -v csf > /dev/null 2>&1; then
+		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
+	else
+		echo -e "[${RED} X  ${RESET}] ConfigServer Firewall is not installed properly."
+ 	fi
+
+
+
+   
         
         elif [ "$UFW_SETUP" = true ]; then
           echo "Setting up UncomplicatedFirewall.."
@@ -907,6 +971,13 @@ setup_firewall_service() {
           debug_log ufw reload
   
           debug_log service ufw restart
+
+	   	if command -v ufw > /dev/null 2>&1; then
+			echo -e "[${GREEN} OK ${RESET}] UncomplicatedFirewall (UFW) is installed and configured."
+		else
+			echo -e "[${RED} X  ${RESET}] Uncomplicated Firewall (UFW) is not installed properly."
+	 	fi
+   
           fi
     fi
 }
@@ -1155,6 +1226,14 @@ opencli_setup(){
     complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
     
     source ~/.bashrc
+    
+    echo "Testing 'opencli' commands:"
+    if [ -x "/usr/local/bin/opencli" ]; then
+        echo "opencli commands are available."
+    else
+        radovan 1 "'opencli --version' command failed."
+    fi
+    
 }
 
 
@@ -1262,6 +1341,7 @@ run_custom_postinstall_script() {
     fi
 }
 
+
 verify_license() {
     debug_log "echo Current time: $(date +%T)"
     server_hostname=$(hostname)
@@ -1278,10 +1358,18 @@ download_skeleton_directory_from_github(){
 
 
     # FOR 0.2.6 ONLY!
-    #cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
-    #systemctl daemon-reload  > /dev/null 2>&1
-    #service floatingip start  > /dev/null 2>&1
-    #systemctl enable floatingip  > /dev/null 2>&1
+    cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
+    systemctl daemon-reload  > /dev/null 2>&1
+    service floatingip start  > /dev/null 2>&1
+    systemctl enable floatingip  > /dev/null 2>&1
+
+	if [ -f "${ETC_DIR}openpanel/conf/openpanel.config" ]; then
+		echo -e "[${GREEN} OK ${RESET}] Configuration creates successfully."
+  	else
+   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${ETC_DIR}openpanel/conf/openpanel.config is missing."
+   	fi
+
+
     
 }
 
@@ -1296,8 +1384,9 @@ setup_bind(){
     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
 
+echo "Generating rndc.key for DNS zone management." 
  # generate unique rndc.key
-docker run -it --rm \
+debug_log docker run -it --rm \
     -v /etc/bind/:/etc/bind/ \
     --entrypoint=/bin/sh \
     ubuntu/bind9:latest \
@@ -1404,7 +1493,7 @@ install_openadmin(){
     #
     # https://openpanel.com/docs/admin/intro/
     #
-    echo "Setting up Admin panel.."
+    echo "Setting up OpenAdmin panel.."
 
     if [ "$REPAIR" = true ]; then
         rm -rf $OPENPADMIN_DIR
@@ -1423,6 +1512,15 @@ install_openadmin(){
     systemctl daemon-reload  > /dev/null 2>&1
     service admin start  > /dev/null 2>&1
     systemctl enable admin  > /dev/null 2>&1
+
+    echo "Testing if OpenAdmin service is available on default port '2087':"
+    if ss -tuln | grep ':2087' >/dev/null; then
+	echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
+    else
+        radovan 1 "OpenAdmin service is NOT listening on port 2087."
+    fi
+
+
 
 }
 
@@ -1514,6 +1612,8 @@ create_admin_and_show_logins_success_message() {
 parse_args "$@"
 
 get_server_ipv4
+
+detect_filesystem
 
 set_version_to_install
 
