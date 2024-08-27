@@ -1366,7 +1366,7 @@ download_skeleton_directory_from_github(){
     systemctl enable floatingip  > /dev/null 2>&1
 
 	if [ -f "${ETC_DIR}openpanel/conf/openpanel.config" ]; then
-		echo -e "[${GREEN} OK ${RESET}] Configuration creates successfully."
+		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
   	else
    		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${ETC_DIR}openpanel/conf/openpanel.config is missing."
    	fi
