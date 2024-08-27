@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # OpenPanel Users
 
-OpenPanel currently has only a single user role named **User** that can only manage their docker container and inherits settings specified by the Admin user.
+OpenPanel has a single user role named **User** that can only manage their docker container and inherits settings specified by the Admin user.
 
 
 ## List Users
@@ -114,6 +114,8 @@ Example response:
   </TabItem>
 </Tabs>
 
+- The OpenPanel username must be 3 to 16 characters long and can only contain letters and numbers.
+- The OpenPanel password must be 6 to 30 characters long and can include any characters except for single quotes (`'`) and double quotes (`"`).
 
 
 ## Reset User Password
