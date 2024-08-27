@@ -1264,13 +1264,15 @@ configure_nginx() {
 
 set_premium_features(){
  if [ "$SET_PREMIUM" = true ]; then
+    LICENSE="Enterprise"
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
     
     #added in 0.2.5 https://community.openpanel.com/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
     opencli email-server install
-
+ else
+    LICENSE="Community"
  fi
 }
 
@@ -1535,8 +1537,7 @@ create_admin_and_show_logins_success_message() {
     mkdir -p $OPENPANEL_DIR  > /dev/null 2>&1
     echo "$PANEL_VERSION" > $OPENPANEL_DIR/version
     ######docker cp openpanel:$OPENPANEL_DIR/version $OPENPANEL_DIR/version > /dev/null 2>&1
-    
-    echo -e "${GREEN}OpenPanel [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
+    echo -e "${GREEN}OpenPanel ${LICENSE} [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
     echo ""
 
     # Restore normal output to the terminal, so we dont save generated admin password in log file!
