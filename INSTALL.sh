@@ -904,9 +904,9 @@ setup_firewall_service() {
           set_csf_email_address
           csf -r    > /dev/null 2>&1
 	  echo "Restarting CSF service"
-          systemctl restart docker
+          systemctl restart docker # not sure why
           systemctl enable csf
-          service csf start
+          service csf restart # also restarts docker at csfpost.sh
 	  
    	if command -v csf > /dev/null 2>&1; then
 		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
