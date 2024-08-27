@@ -1143,7 +1143,7 @@ install_packages() {
 
 configure_modsecurity() {
 
-echo "Warning: modsecurity is currently disbaled and will not be installed"
+echo "Warning: modsecurity is currently disabled and will not be installed"
 : '
     # ModSecurity
     #
