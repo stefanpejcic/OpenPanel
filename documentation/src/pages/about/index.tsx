@@ -121,7 +121,7 @@ One of our more ambitious concepts was to <b>use Docker containers</b> to isolat
 </p>
 
 <p className="text-xs sm:text-base">
-We eventually pivoted to a "<b>one Docker per user</b>" approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and </b>maintain our custom images</b> rather than using official Docker ones.
+We eventually pivoted to a <b>one Docker per user</b> approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and </b>maintain our custom images</b> rather than using official Docker ones.
     </p>        
 
 
