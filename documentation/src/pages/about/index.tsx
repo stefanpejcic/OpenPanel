@@ -88,10 +88,19 @@ const About: React.FC = () => {
 OpenPanel was born out of frustration with the premium hosting panels we were using at <a href="https://unlimited.rs?utm=openpanel" target="_blank">UNLIMITED.RS</a> for our shared hosting and managed VPS clients. The costs were skyrocketing, yet these solutions lacked the flexibility needed to truly meet our clients' unique needs. During one particularly challenging project, a colleague, Čeda, famously remarked, "Even we could do better." This statement set Stefan Pejčić, our co-founder and CEO, on a path to create what would eventually become OpenPanel.
             </p>
             <p className="text-xs sm:text-base">
-Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as **our chance to build something better**—something that could truly scale and adapt.
+Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as <b>our chance to build something better</b>—something that could truly scale and adapt.
             </p>
 
-
+        </div>
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
             <h4
             className={clsx(
               "text-sm leading-6",
@@ -115,6 +124,20 @@ One of our more ambitious concepts was to **use Docker containers** to isolate u
 We eventually pivoted to a "**one Docker per user**" approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and **maintain our custom images** rather than using official Docker ones.
     </p>        
 
+
+
+        </div>
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
+
+            
 <h4
             className={clsx(
               "text-sm leading-6",
@@ -131,7 +154,16 @@ We eventually pivoted to a "**one Docker per user**" approach, sacrificing some 
 Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We **chose to remain independent** and self-funded. Committed to doing something different: **a modular, stable and fairly priced control panel**.
 </p>
 
-
+        </div>
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
 
 <h4
             className={clsx(
@@ -150,7 +182,18 @@ The name "OpenPanel" itself was initially just a placeholder, but it stuck. The 
 </p>
 
 
+        </div>
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
 
+            
 <h4
             className={clsx(
               "text-sm leading-6",
@@ -168,7 +211,16 @@ While we considered going fully open-source, we decided to keep certain parts pr
 </p>
 
 
-
+        </div>
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
 <h4
             className={clsx(
               "text-sm leading-6",
@@ -190,7 +242,16 @@ And one promise we stand by—**we will never charge per user or per website**.
 
 
 
-
+        </div>
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
 <h4
             className={clsx(
               "text-sm leading-6",
