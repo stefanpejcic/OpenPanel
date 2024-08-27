@@ -80,7 +80,11 @@ OpenPanel is the first truly modular panel where absolutely everything is custom
 
 However, OpenPanel is **not** an open-source project. The primary reason behind this decision is our commitment to maintaining the highest standards of security for our users, which we can only achive with closed-source and controlled contributions.
 
-While OpenPanel itself is not 100% open source, we are committed to transparency and security.
+While OpenPanel itself is not 100% open source, we are committed to transparency and security:
+
+- [Who are we](https://openpanel.com/about)
+- [What are we planning](https://openpanel.com/roadmap)
+- [What we did so far](https://openpanel.com/docs/changelog/intro/)
 
 ## Installation
 
