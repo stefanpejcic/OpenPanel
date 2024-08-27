@@ -63,7 +63,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 
 Supported OS:
 
-OpenPanel is a truly [agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. The current OS are currently supported:
+OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Cutrently supported:
 
 - AlmaLinux 9
 - RockyLinux 9
@@ -71,13 +71,6 @@ OpenPanel is a truly [agnostic](https://www.techtarget.com/whatis/definition/agn
 - CentOS 9.4
 - Debian 11 12
 - Ubuntu 22.04 24.04
-
-## Technology Stack
-
-
-| OpenAdmin |  OpenPanel |
-|------------------|---|
-|         ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![ssl](https://img.shields.io/badge/Let'sEncrypt-green?logo=letsencrypt&logoColor=white) ![docker](https://img.shields.io/badge/Docker-blue?logo=docker&logoColor=white) ![modsec](https://img.shields.io/badge/ModSecurity-WAF-blue?logo=modsecurity&logoColor=white)        |  ![apache](https://img.shields.io/badge/Apache-2.4-7aba03?logo=apache&logoColor=white) ![mysql](https://img.shields.io/badge/MySQL-5.5--8.2-blue?logo=mysql&logoColor=white) ![memcached](https://img.shields.io/badge/Memcached-1.4--1.6-blue) ![nginx](https://img.shields.io/badge/Nginx-1.22--1.26-blue?logo=nginx&logoColor=white) ![redis](https://img.shields.io/badge/Redis-3.0--7.2-blue?logo=redis&logoColor=white) ![php](https://img.shields.io/badge/PHP-5.4--8.3-blue?logo=php&logoColor=white) ![nvm](https://img.shields.io/badge/NVM-1.1.12-7aba03?logo=node.js&logoColor=white) ![python](https://img.shields.io/badge/Python-3.8--3.12-blue?logo=python&logoColor=white) ![phpmyadmin](https://img.shields.io/badge/PHPMyAdmin-6.5-bluelogo=phpmyadmin&logoColor=white) |
 
 ## What do you mean by "open" ?
 
