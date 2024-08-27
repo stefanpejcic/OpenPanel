@@ -62,6 +62,44 @@ const About: React.FC = () => {
 
 
 
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
+          <h4
+            className={clsx(
+              "text-sm leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 0,
+            }}
+          >
+            The Idea
+          </h4>
+
+            <p className="text-xs sm:text-base">
+OpenPanel was born out of frustration with the premium hosting panels we were using at UNLIMITED.RS for our shared hosting and managed VPS clients. The costs were skyrocketing, yet these solutions lacked the flexibility needed to truly meet our clients' unique needs. During one particularly challenging project, a colleague, Čeda, famously remarked, "Even we could do better." This statement set Stefan Pejčić, our co-founder and CEO, on a path to create what would eventually become OpenPanel.
+            </p>
+            <p className="text-xs sm:text-base">
+Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as **our chance to build something better**—something that could truly scale and adapt.
+            </p>
+
+        </div>
+
+
+
+
+
+
+                
+
 
         <div
           className={clsx(
