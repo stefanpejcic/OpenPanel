@@ -52,6 +52,7 @@ Some of the unique features worth mentioning are:
 
 
 The **OpenAdmin** offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, configuring backups, and editing OpenPanel settings.
+
 The **OpenPanel** interface is the client-level panel where end-users can manage their enviroment, edit settings, install services, create websites and more.
 
 [![openpanel-vs-openadmin](/documentation/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.com/docs/admin/intro/)
