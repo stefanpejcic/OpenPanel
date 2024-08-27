@@ -1570,8 +1570,8 @@ create_admin_and_show_logins_success_message() {
     opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
     opencli admin
-    echo -e "Username: ${GREEN} ${new_username} ${RESET}"
-    echo -e "Password: ${GREEN} ${new_password} ${RESET}"
+    echo -e "- Username: ${GREEN} ${new_username} ${RESET}"
+    echo -e "- Password: ${GREEN} ${new_password} ${RESET}"
     echo " "
     print_space_and_line
     
