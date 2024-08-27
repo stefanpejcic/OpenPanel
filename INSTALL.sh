@@ -809,7 +809,14 @@ setup_firewall_service() {
               #perl /usr/local/csf/bin/csftest.pl
 		echo "Setting CSF auto-login from OpenAdmin interface.."
 	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
-	    	debug_log dnf install -y wget curl unzip yum-utils policycoreutils-python-utils
+	    	debug_log dnf install -y wget curl unzip yum-utils policycoreutils-python-utils libwww-perl
+      		# fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module) 
+		if [ -f /etc/fedora-release ]; then
+  			debug_log yum --allowerasing install perl -y
+  		fi
+
+
+      
 	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
               	debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
 	    fi
