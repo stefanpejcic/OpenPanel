@@ -81,7 +81,7 @@ const About: React.FC = () => {
               margin: 0,
             }}
           >
-            The Idea
+            The Idea 💡 
           </h4>
 
             <p className="text-xs sm:text-base">
@@ -111,7 +111,7 @@ Having worked with various hosting panels over the years, we knew their bugs, li
               margin: 0,
             }}
           >
-            Early stages 
+            Early stages 🚧
           </h4>
 <p className="text-xs sm:text-base">
 OpenPanel started in 2023, as a basic bootstrap interface with a database schema designed to handle anywhere from 10 to 500 users on a single server without issues. It was initially a LAMP stack with a fancy, yet buggy, GUI. But as we grew, so did our ideas.
@@ -148,7 +148,7 @@ We eventually pivoted to a  one Docker per user  approach, sacrificing some flex
               margin: 0,
             }}
           >
-            Our Financing
+            Our Financing 💸
           </h4>
 <p className="text-xs sm:text-base">
 Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We  chose to remain independent  and self-funded. Committed to doing something different:  a modular, stable and fairly priced control panel .
@@ -175,7 +175,7 @@ Over the years, we received several offers from competitors and venture capitali
               margin: 0,
             }}
           >
-            Why OpenPanel ?
+            Why OpenPanel ? 🤔
           </h4>
 <p className="text-xs sm:text-base">
 The name "OpenPanel" itself was initially just a placeholder, but it stuck. The project was first published under .co domain, as the .com and .org were already taken by a similar project almost two decades ago. The OpenPanel you know and use today is  in no way associated with the older openpanel.com project , but we extend our gratitude to them for their unselfishness in allowing us to take over the openpanel.com domain in August 2024.
@@ -204,7 +204,7 @@ The name "OpenPanel" itself was initially just a placeholder, but it stuck. The 
               margin: 0,
             }}
           >
-            Why not open-sourced ?
+            Why not open-sourced ? 🤷
           </h4>
 <p className="text-xs sm:text-base">
 While we considered going fully open-source, we decided to keep certain parts proprietary to ensure we can  guarantee the quality  of our features, expedite the development of new ones, and provide quicker fixes for bugs. This approach also allows us to maintain  a more secure product , giving our users peace of mind.
@@ -231,7 +231,7 @@ While we considered going fully open-source, we decided to keep certain parts pr
               margin: 0,
             }}
           >
-            Pricing
+            Pricing 🏷️
           </h4>
 <p className="text-xs sm:text-base">
 OpenPanel Is available in two options:  Enterprise Edition  that can rival any premium panel in features and flexibility, and a  Community Edition  funded by the Enterprise version, offering all the essential features needed by small agencies, freelancers, and hobby users.
@@ -262,7 +262,7 @@ And one promise we stand by— we will never charge per user or per website .
               margin: 0,
             }}
           >
-            What is next ?
+            What is next ? 🔮
           </h4>
 <p className="text-xs sm:text-base">
 Under the continued leadership of Stefan Pejčić, OpenPanel remains committed to staying ahead of technological trends and addressing the risks that come with them.
