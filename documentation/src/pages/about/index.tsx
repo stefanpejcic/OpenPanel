@@ -244,7 +244,9 @@ We eventually pivoted to a{" "}
 <p>
 Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We{" "}
     <b>chose to remain independent</b> 
-    {" "}and self-funded. Committed to doing something different:  a modular, stable and fairly priced control panel .
+    {" "}and self-funded. Committed to doing something different:{" "}
+    <b>a modular, stable and fairly priced control panel</b>
+    .
 </p>
 
         </div>
@@ -451,7 +453,7 @@ Stay tuned for new features, enhanced performance, and more ways to{" "}
                                     <MailIcon className="text-refine-pink" />
                                 </div>
                                 <a
-                                    href="mailto:info@openpanel.co"
+                                    href="mailto:info@openpanel.com"
                                     className="text-gray-700 dark:text-gray-300 hover:no-underline no-underline"
                                 >
                                     info@openpanel.com
