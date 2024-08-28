@@ -13,7 +13,7 @@ export const GitHubStar: React.FC<GitHubStarProps> = ({ isPermanentDark }) => {
     return (
         <Link
             className="flex items-center no-underline"
-            to="https://community.openpanel.co/"
+            to="https://community.openpanel.com/"
         >
             <HeaderGithubIcon
                 className={clsx(
