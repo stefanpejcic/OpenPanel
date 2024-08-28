@@ -55,7 +55,7 @@ const About: React.FC = () => {
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#FF9933] to-[#FF4C4D]">
                             fewer resources
                         </span>
-                        .
+                        . ✌️
                     </h1>
                 </div>
 
@@ -88,7 +88,9 @@ const About: React.FC = () => {
 OpenPanel was born out of frustration with the premium hosting panels we were using at <a href="https://unlimited.rs?utm=openpanel" target="_blank">UNLIMITED.RS</a> for our shared hosting and managed VPS clients. The costs were skyrocketing, yet these solutions lacked the flexibility needed to truly meet our clients' unique needs. During one particularly challenging project, a colleague, Čeda, famously remarked, "Even we could do better." This statement set Stefan Pejčić, our co-founder and CEO, on a path to create what would eventually become OpenPanel.
             </p>
             <p className="text-xs sm:text-base">
-Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as our chance to build something better—something that could truly scale and adapt.
+Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as 
+                <b>our chance to build something better</b>
+                —something that could truly scale and adapt.
             </p>
 
         </div>
