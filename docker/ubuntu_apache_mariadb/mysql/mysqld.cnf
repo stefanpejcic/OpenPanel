@@ -1,0 +1,12 @@
+[mysqld]
+
+user            = mysql
+bind-address            = 127.0.0.1
+mysqlx-bind-address     = 127.0.0.1
+key_buffer_size         = 16M
+myisam-recover-options  = BACKUP
+max_connections        = 151
+table_open_cache       = 4000
+log_error = /var/log/mysql/error.log
+max_binlog_size   = 100M
+expire_logs_days=3
