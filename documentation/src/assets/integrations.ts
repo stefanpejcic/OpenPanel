@@ -396,7 +396,7 @@ export const integrations: IntegrationsType = {
             name: "Firewall",
             icon: Firewall,
             description:
-                "Administrators can manage (UFW) firewall rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
+                "Administrators can manage both CSF or UFW rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/docs/admin/security/firewall/",
             status: "stable",
         },
