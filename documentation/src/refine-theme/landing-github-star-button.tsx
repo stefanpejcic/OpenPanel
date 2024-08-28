@@ -3,9 +3,10 @@ import React from "react";
 export const LandingGithubStarButton = () => {
 
     return (
-                        <Link
-                            to="https://demo.openpanel.org/openpanel/"
-                            className={clsx(
+        <a
+            href="/demo"
+            rel="noreferrer"
+            className={clsx(
                                 "self-start",
                                 "rounded-3xl",
                                 "!text-gray-0 dark:!text-gray-900",
@@ -28,6 +29,6 @@ export const LandingGithubStarButton = () => {
                     <span className={clsx("text-base", "font-semibold")}>
                         Try Demo
                     </span>
-                </Link>
+                </a>
     );
 };
