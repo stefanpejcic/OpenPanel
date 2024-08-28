@@ -62,6 +62,89 @@ const About: React.FC = () => {
 
 
 
+
+
+
+
+        <div
+          className={clsx(
+            "lg:max-w-[912px] lg:py-32",
+            "md:max-w-[624px] md:py-20",
+            "sm:max-w-[480px] py-10",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
+          <h4
+            className={clsx(
+              " leading-6",
+              "md:text-2xl md:leading-8",
+              "text-center text-gray-800 dark:text-gray-200",
+            )}
+            style={{
+              margin: 10,
+            }}
+          >
+            Who are we
+          </h4>
+
+          <div
+            className={clsx(
+              "grid",
+              "lg:grid-cols-[repeat(4,192px)] lg:gap-12",
+              "md:grid-cols-[repeat(3,176px)]",
+              "sm:grid-cols-[repeat(3,144px)]",
+              "grid-cols-[repeat(2,144px)] gap-6",
+              "align-top",
+              "mt-6 md:mt-12 lg:mt-16",
+            )}
+          >
+            {team.map(({ name, avatar, role1, role2 }) => (
+              <div
+                key={name}
+                className="flex justify-start flex-col text-center not-prose"
+              >
+                <img
+                  srcSet={`${avatar} 1500w`}
+                  src={avatar}
+                  alt={name}
+                  className="w-full m-0 mb-6"
+                />
+                <span
+                  className={clsx(
+                    "text-xs leading-4",
+                    "lg:text-base lg:leading-6",
+                    "text-gray-900 dark:text-gray-0 font-semibold",
+                  )}
+                >
+                  {name}
+                </span>
+                <span
+                  className={clsx(
+                    "text-xs leading-4",
+                    "lg:text-base lg:leading-6",
+                    "text-gray-500 dark:text-gray-400",
+                  )}
+                >
+                  {role1}
+                </span>
+                {role2 && (
+                  <span
+                    className={clsx(
+                      "text-xs leading-4",
+                      "lg:text-base lg:leading-6",
+                      "text-gray-500 dark:text-gray-400",
+                    )}
+                  >
+                    {role2}
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+                
+
         <div
           className={clsx(
             "lg:max-w-[912px] lg:py-16",
@@ -310,108 +393,7 @@ Stay tuned for new features, enhanced performance, and more ways to{" "}
         </div>
 
 
-
-
-
-
                 
-
-
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-32",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-          <h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 10,
-            }}
-          >
-            Our Team
-          </h4>
-
-          <div
-            className={clsx(
-              "grid",
-              "lg:grid-cols-[repeat(4,192px)] lg:gap-12",
-              "md:grid-cols-[repeat(3,176px)]",
-              "sm:grid-cols-[repeat(3,144px)]",
-              "grid-cols-[repeat(2,144px)] gap-6",
-              "align-top",
-              "mt-6 md:mt-12 lg:mt-16",
-            )}
-          >
-            {team.map(({ name, avatar, role1, role2 }) => (
-              <div
-                key={name}
-                className="flex justify-start flex-col text-center not-prose"
-              >
-                <img
-                  srcSet={`${avatar} 1500w`}
-                  src={avatar}
-                  alt={name}
-                  className="w-full m-0 mb-6"
-                />
-                <span
-                  className={clsx(
-                    "text-xs leading-4",
-                    "lg:text-base lg:leading-6",
-                    "text-gray-900 dark:text-gray-0 font-semibold",
-                  )}
-                >
-                  {name}
-                </span>
-                <span
-                  className={clsx(
-                    "text-xs leading-4",
-                    "lg:text-base lg:leading-6",
-                    "text-gray-500 dark:text-gray-400",
-                  )}
-                >
-                  {role1}
-                </span>
-                {role2 && (
-                  <span
-                    className={clsx(
-                      "text-xs leading-4",
-                      "lg:text-base lg:leading-6",
-                      "text-gray-500 dark:text-gray-400",
-                    )}
-                  >
-                    {role2}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-
-
-
-     
-                
-
-
-
-
-
-
-
-
-
-
-                
-
 
 
 
