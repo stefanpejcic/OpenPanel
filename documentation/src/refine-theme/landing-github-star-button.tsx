@@ -5,7 +5,6 @@ export const LandingGithubStarButton = () => {
     return (
         <a
             href="/demo"
-            rel="noreferrer"
             className={clsx(
                                 "self-start",
                                 "rounded-3xl",
