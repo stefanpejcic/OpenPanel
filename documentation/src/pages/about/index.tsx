@@ -73,7 +73,7 @@ const About: React.FC = () => {
         >
           <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -105,7 +105,7 @@ Having worked with various hosting panels over the years, we knew their bugs, li
         >
             <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -148,7 +148,7 @@ We eventually pivoted to a{" "}
             
 <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -177,7 +177,7 @@ Over the years, we received several offers from competitors and venture capitali
 
 <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -208,7 +208,7 @@ The name "OpenPanel" itself was initially just a placeholder, but it stuck. The 
             
 <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -237,7 +237,7 @@ While we considered going fully open-source, we decided to keep certain parts pr
         >
 <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -280,7 +280,7 @@ OpenPanel Is available in two options:
         >
 <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -328,7 +328,7 @@ Stay tuned for new features, enhanced performance, and more ways to{" "}
         >
           <h4
             className={clsx(
-              "text-sm leading-6",
+              " leading-6",
               "md:text-2xl md:leading-8",
               "text-center text-gray-800 dark:text-gray-200",
             )}
@@ -429,7 +429,7 @@ Stay tuned for new features, enhanced performance, and more ways to{" "}
                 >
                     <h4
                         className={clsx(
-                            "text-sm leading-6",
+                            " leading-6",
                             "md:text-2xl md:leading-8",
                             "text-center text-gray-800 dark:text-gray-200",
                             "mb-8 lg:mb-16",
