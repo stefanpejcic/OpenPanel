@@ -64,7 +64,7 @@ const About: React.FC = () => {
 
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
@@ -94,7 +94,7 @@ Having worked with various hosting panels over the years, we knew their bugs, li
         </div>
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
@@ -129,7 +129,7 @@ We eventually pivoted to a  one Docker per user  approach, sacrificing some flex
         </div>
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
@@ -157,7 +157,7 @@ Over the years, we received several offers from competitors and venture capitali
         </div>
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
@@ -185,7 +185,7 @@ The name "OpenPanel" itself was initially just a placeholder, but it stuck. The 
         </div>
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
@@ -214,7 +214,7 @@ While we considered going fully open-source, we decided to keep certain parts pr
         </div>
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
@@ -245,7 +245,7 @@ And one promise we stand by— we will never charge per user or per website .
         </div>
         <div
           className={clsx(
-            "lg:max-w-[912px] lg:py-32",
+            "lg:max-w-[912px] lg:py-16",
             "md:max-w-[624px] md:py-20",
             "sm:max-w-[480px] py-10",
             "max-w-[328px]",
