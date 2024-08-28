@@ -2,7 +2,7 @@ FROM ubuntu:latest
 
 LABEL maintainer="stefan@pejcic.rs"
 LABEL author="Stefan Pejcic"
-
+LABEL db="mariadb" webserver="apache" php="php8.2" # required from 0.2.7
 ENV TZ=UTC
 ENV DEBIAN_FRONTEND=noninteractive
 
