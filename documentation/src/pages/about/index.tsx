@@ -116,10 +116,14 @@ Having worked with various hosting panels over the years, we knew their bugs, li
             Early stages 🚧
           </h4>
 <p className="text-xs sm:text-base">
-OpenPanel started in 2023, as a basic bootstrap interface with a database schema designed to handle anywhere from 10 to 500 users on a single server without issues. It was initially a LAMP stack with a fancy, yet buggy, GUI. But as we grew, so did our ideas.
+OpenPanel 
+    <b>started in 2023</b>
+    , as a basic bootstrap interface with a database schema designed to handle anywhere from 10 to 500 users on a single server without issues. It was initially a LAMP stack with a fancy, yet buggy, GUI. But as we grew, so did our ideas.
 </p>
             <p className="text-xs sm:text-base">
-One of our more ambitious concepts was to use Docker containers  to isolate users' websites. However, this approach proved unscalable for shared servers with hundreds of users. Managing the overhead of memory and disk space became a significant challenge, especially when a single WordPress site needed at least three containers (database, PHP, and web server).
+One of our more ambitious concepts was to 
+                <b>use Docker containers to isolate users</b>
+                ' websites. However, this approach proved unscalable for shared servers with hundreds of users. Managing the overhead of memory and disk space became a significant challenge, especially when a single WordPress site needed at least three containers (database, PHP, and web server).
 </p>
 
 <p className="text-xs sm:text-base">
@@ -407,19 +411,10 @@ Stay tuned for new features, enhanced performance, and more ways to  make your h
                             "mb-8 lg:mb-16",
                         )}
                     >
-                        We are Here
+                        Contact Us
                     </h4>
 
                     <div className="flex flex-col md:gap-8 lg:flex-row lg:gap-10 xl:gap-24">
-                        <div className="w-full shrink-0 lg:order-last lg:h-[416px] lg:w-[624px]">
-                            <Link to="https://goo.gl/maps/D4NZ5gn6VsWaRtXT6">
-                                <img
-                                    className="m-0 p-0"
-                                    src="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/about/images/map.png"
-                                    srcSet="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/about/images/map2x.png 1500w"
-                                />
-                            </Link>
-                        </div>
                         <div className="flex justify-start flex-col items-start gap-8 lg:pt-12 pt-6">
                             <div className="flex w-max items-center justify-center gap-6">
                                 <div
@@ -434,8 +429,7 @@ Stay tuned for new features, enhanced performance, and more ways to  make your h
                                     <MarkerIcon className="text-refine-orange" />
                                 </div>
                                 <span className="text-gray-700 dark:text-gray-300">
-                                    SOON
-                                    
+                                    IJsbaanpad 2, 1076 CV Amsterdam (NL)                                    
                                 </span>
                             </div>
                             <div className="flex justify-center items-center gap-6">
@@ -454,7 +448,7 @@ Stay tuned for new features, enhanced performance, and more ways to  make your h
                                     href="mailto:info@openpanel.co"
                                     className="text-gray-700 dark:text-gray-300 hover:no-underline no-underline"
                                 >
-                                    info@openpanel.co
+                                    info@openpanel.com
                                 </a>
                             </div>
                         </div>
