@@ -127,7 +127,9 @@ One of our more ambitious concepts was to
 </p>
 
 <p className="text-xs sm:text-base">
-We eventually pivoted to a  one Docker per user  approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and  maintain our custom images  rather than using official Docker ones.
+We eventually pivoted to a 
+    <b>one Docker per user</b> 
+    approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and  maintain our custom images  rather than using official Docker ones.
     </p>        
 
 
@@ -157,7 +159,9 @@ We eventually pivoted to a  one Docker per user  approach, sacrificing some flex
             Our Financing 💸
           </h4>
 <p className="text-xs sm:text-base">
-Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We  chose to remain independent  and self-funded. Committed to doing something different:  a modular, stable and fairly priced control panel .
+Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We 
+    <b>chose to remain independent</b> 
+    and self-funded. Committed to doing something different:  a modular, stable and fairly priced control panel .
 </p>
 
         </div>
@@ -184,7 +188,9 @@ Over the years, we received several offers from competitors and venture capitali
             Why OpenPanel ? 🤔
           </h4>
 <p className="text-xs sm:text-base">
-The name "OpenPanel" itself was initially just a placeholder, but it stuck. The project was first published under .co domain, as the .com and .org were already taken by a similar project almost two decades ago. The OpenPanel you know and use today is  in no way associated with the older openpanel.com project , but we extend our gratitude to them for their unselfishness in allowing us to take over the openpanel.com domain in August 2024.
+The name "OpenPanel" itself was initially just a placeholder, but it stuck. The project was first published under .co domain, as the .com and .org were already taken by a similar project almost two decades ago. The OpenPanel you know and use today is 
+    <b>in no way associated with the older openpanel.com project</b> 
+        , but we extend our gratitude to them for their unselfishness in allowing us to take over the openpanel.com domain in August 2024.
 </p>
 
 
@@ -213,7 +219,9 @@ The name "OpenPanel" itself was initially just a placeholder, but it stuck. The 
             Why not open-sourced ? 🤷
           </h4>
 <p className="text-xs sm:text-base">
-While we considered going fully open-source, we decided to keep certain parts proprietary to ensure we can  guarantee the quality  of our features, expedite the development of new ones, and provide quicker fixes for bugs. This approach also allows us to maintain  a more secure product , giving our users peace of mind.
+While we considered going fully open-source, we decided to keep certain parts proprietary to ensure we can 
+    <b>guarantee the quality</b> 
+        of our features, expedite the development of new ones, and provide quicker fixes for bugs. This approach also allows us to maintain  a more secure product , giving our users peace of mind.
 </p>
 
 
@@ -240,10 +248,16 @@ While we considered going fully open-source, we decided to keep certain parts pr
             Pricing 🏷️
           </h4>
 <p className="text-xs sm:text-base">
-OpenPanel Is available in two options:  Enterprise Edition  that can rival any premium panel in features and flexibility, and a  Community Edition  funded by the Enterprise version, offering all the essential features needed by small agencies, freelancers, and hobby users.
+OpenPanel Is available in two options:  
+    <a href="/product/openpanel-premium-control-panel/">Enterprise Edition</a> 
+        that can rival any premium panel in features and flexibility, and a 
+    <a href="/product/openpanel-free-control-panel/">Community Edition</a> 
+    funded by the Enterprise version, offering all the essential features needed by small agencies, freelancers, and hobby users.
 </p>
             <p className="text-xs sm:text-base">
-And one promise we stand by— we will never charge per user or per website .
+                And one promise we stand by— 
+                <b>we will never charge per user or per website</b>
+                .
 </p>
 
 
@@ -278,7 +292,9 @@ We are dedicated to constantly improving our platform to offer  the most advance
 Our journey is far from over, and with your continued support, we’re excited to push the boundaries of what’s possible in server management.
 </p>
             <p className="text-xs sm:text-base">
-Stay tuned for new features, enhanced performance, and more ways to  make your hosting experience as seamless as possible . The best is yet to come.
+Stay tuned for new features, enhanced performance, and more ways to 
+                <b>make your hosting experience as seamless as possible</b> 
+                    . The best is yet to come.
 </p>
 
             
