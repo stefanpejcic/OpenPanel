@@ -1400,6 +1400,8 @@ debug_log docker run -it --rm \
     --entrypoint=/bin/sh \
     ubuntu/bind9:latest \
     -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+
+chmod 0666 /etc/bind/rndc.key
      
 }
 
