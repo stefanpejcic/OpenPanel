@@ -16,7 +16,7 @@ RUN apt-get update && \
         ttyd \
         screen \
         nginx \
-        mysql-server \
+        mariadb-server \
         php8.2-fpm \
         php8.2-mysql \
         php8.2-curl \
@@ -64,16 +64,17 @@ RUN chown mysql:mysql -R /var/lib/mysql
 RUN usermod -d /var/lib/mysql mysql
 RUN chmod a+rwx /run/mysqld
 
-# Get MySQL root password from debian.cnf
-RUN MYSQL_PASSWORD=$(awk -F "=" '/password/ {gsub(/[ \t]+/, "", $2); print $2; exit}' /etc/mysql/debian.cnf); \
-    \
-    if [ -z "$MYSQL_PASSWORD" ]; then \
-        echo "Error: Password not found in /etc/mysql/debian.cnf"; \
-        exit 1; \
-    fi; \
-    \
-    service mysql start && \
-    mysql -u root -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '$MYSQL_PASSWORD';"
+
+
+
+
+
+
+
+
+
+
+
 
 
 ########## EXPOSED PORTS ##########
@@ -103,7 +104,7 @@ RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
     && sed -i "s/\(\$_SESSION\['PMA_single_signon_user'] = '\).*\(';.*\)/\1phpmyadmin\2/" "$pma_file" \
     && sed -i "s/\(\$_SESSION\['PMA_single_signon_password'] = '\).*\(';.*\)/\1$new_password\2/" "$pma_file" \
     && sed -i "s/\(\$_SESSION\['PMA_single_signon_host'] = '\).*\(';.*\)/\1localhost\2/" "$pma_file" \
-    && service mysql start \
+    && service mariadb start \
     && mysql -u root -e "CREATE DATABASE IF NOT EXISTS phpmyadmin;" \
     && mysql -u root -e "CREATE USER 'phpmyadmin'@'localhost' IDENTIFIED BY '$new_password';" \
     && mysql -u root -e "GRANT ALL PRIVILEGES ON phpmyadmin.* TO 'phpmyadmin'@'localhost';" \
@@ -112,7 +113,7 @@ RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
     && mysql -u root -e "REVOKE CREATE ON *.* FROM 'phpmyadmin'@'localhost';" \
     && mysql -u root -e "FLUSH PRIVILEGES;" \
     && mysql -u root < /usr/share/doc/phpmyadmin/examples/create_tables.sql \
-    && service mysql stop
+    && service mariadb stop
 
 ########## PHP-FPM ##########
 # 8.2
