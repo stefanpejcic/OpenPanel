@@ -116,6 +116,9 @@ FUNCTIONS=(
     # show to user what was done and how to restore previous version if needed!
     post_install_message
 
+    # must be at the end, otherwise breaks install process from gui
+    service admin restart
+
 )
 
 TOTAL_STEPS=${#FUNCTIONS[@]}
@@ -285,9 +288,7 @@ download_new_admin() {
     pip3 install --force-reinstall zope.event || pip3 install --force-reinstall zope.event --break-system-packages
 
     mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
-    
-    service admin restart
-    
+
 }
 
 
