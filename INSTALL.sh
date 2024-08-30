@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           23.08.2024
+# Last Modified:           30.08.2024
 #
 ################################################################################
 
@@ -174,7 +174,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.6"
+	        PANEL_VERSION="0.2.7"
 	    fi
 	fi
 }
@@ -269,9 +269,9 @@ opencli_setup                             # set terminal commands
 configure_docker                          # set overlay2 and xfs backing filesystem 
 download_and_import_docker_images         # openpanel/nginx and openpanel/apache
 panel_customize                           # customizations
-set_premium_features                      # INSTALL ENTERPRISE FEATURES
 configure_nginx                           # setup nginx configuration files
-docker_compose_up                         # must be after nginx setup 
+docker_compose_up                         # must be after configure_nginx
+set_premium_features                      # must be after docker_compose_up
 configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
 #setup_email                              # TEMPORARY OFF FROM 0.2.5
 setup_ftp                                 # setup shared ftp service - NO UI YET!
@@ -590,7 +590,13 @@ download_and_import_docker_images() {
         # See https://github.com/moby/moby/issues/16106#issuecomment-310781836 for pulling images in parallel
         # Nohup (no hang up) with trailing ampersand allows running the command in the background
         # The </dev/null bits redirects the outputs to files rather than strout/err
-        nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+	if [ "$SET_PREMIUM" = true ]; then
+	    # 4 images
+	    nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest openpanel/nginx-mariadb:latest openpanel/apache-mariadb:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+	else
+	    # 2 images
+	    nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
+	fi
     fi
 }
 
@@ -698,15 +704,15 @@ docker_compose_up(){
     mkdir -p $DOCKER_CONFIG/cli-plugins
     curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-    #chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
-    
-    # TODO: CHECK WITH 
-    #docker compose version
-    
-    # mysql image needs this!
-    cp /etc/openpanel/docker/compose/initialize.sql /root/initialize.sql  > /dev/null 2>&1
-    #wget -O  /root/initialize.sql https://gist.githubusercontent.com/stefanpejcic/8efe541c2b24b9cd6e1861e5ab7282f1/raw/140e69a5c8c7805bc9a6e6c4fa968f390a6d5c8c/structure.sql  > /dev/null 2>&1
-    
+        
+    if [ "$SET_PREMIUM" = true ]; then
+    	# setup 4 plans in database
+    	cp /etc/openpanel/mysql/initialize/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    else
+    	# setup 2 plans in database
+    	cp /etc/openpanel/mysql/initialize/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    fi
+
     # compose doesnt alllow /
     cd /root
     
@@ -714,18 +720,14 @@ docker_compose_up(){
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
-    
-    #echo -e "MYSQL_ROOT_PASSWORD = ${GREEN} $MYSQL_ROOT_PASSWORD ${RESET}"
-
-    
+        
     # save it to /etc/my.cnf
     rm -rf /etc/my.cnf  > /dev/null 2>&1 # on centos we get default mycnf..
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
-    # from 0.2.5 we only start mysql by default,panel on first user and nginx/dns on first domain
-    #docker compose up -d
+    # from 0.2.5 we only start mysql by default
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
     # check if compose started the mysql container, and if is currently running
@@ -1366,7 +1368,7 @@ download_skeleton_directory_from_github(){
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
 
-    # FOR 0.2.6 ONLY!
+    # added in 0.2.6
     cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
     systemctl daemon-reload  > /dev/null 2>&1
     service floatingip start  > /dev/null 2>&1
@@ -1401,7 +1403,7 @@ debug_log docker run -it --rm \
     ubuntu/bind9:latest \
     -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
 
-chmod 0666 /etc/bind/rndc.key
+chmod 0777 -R /etc/bind
      
 }
 
