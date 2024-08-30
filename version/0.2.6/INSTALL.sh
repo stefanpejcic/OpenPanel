@@ -904,9 +904,9 @@ setup_firewall_service() {
           set_csf_email_address
           csf -r    > /dev/null 2>&1
 	  echo "Restarting CSF service"
-          systemctl restart docker
+          systemctl restart docker # not sure why
           systemctl enable csf
-          service csf start
+          service csf restart # also restarts docker at csfpost.sh
 	  
    	if command -v csf > /dev/null 2>&1; then
 		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
@@ -1143,7 +1143,7 @@ install_packages() {
 
 configure_modsecurity() {
 
-echo "Warning: modsecurity is currently disbaled and will not be installed"
+echo "Warning: modsecurity is currently disabled and will not be installed"
 : '
     # ModSecurity
     #
@@ -1400,6 +1400,8 @@ debug_log docker run -it --rm \
     --entrypoint=/bin/sh \
     ubuntu/bind9:latest \
     -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+
+chmod 0666 /etc/bind/rndc.key
      
 }
 
@@ -1514,6 +1516,7 @@ install_openadmin(){
 
         git clone -b $py_enchoded_for_distro --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
+	echo "pyyaml" >> requirements.txt # temp fix for debian12 missing yaml on some builds
         pip install --default-timeout=3600 -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 -r requirements.txt --break-system-packages  > /dev/null 2>&1
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
@@ -1653,5 +1656,6 @@ run_custom_postinstall_script
 
 
 # END main script execution
+
 
 
