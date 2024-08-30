@@ -117,7 +117,7 @@ FUNCTIONS=(
     post_install_message
 
     # must be at the end, otherwise breaks install process from gui
-    service admin restart
+    restart_admin_panel_if_needed
 
 )
 
@@ -161,13 +161,17 @@ print_space_and_line() {
 
 
 
-dns_key_and_reload(){
+dns_key_and_reload() {
     chmod 0777 -R /etc/bind/
 }
 
 
 
+restart_admin_panel_if_needed() {
+    service admin restart
+}
 
+    
 
 # START MAIN FUNCTIONS
 
