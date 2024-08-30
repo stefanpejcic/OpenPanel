@@ -318,18 +318,13 @@ docker_compose_up_with_newer_images(){
 
 
 verify_license() {
-
     # Get server ipv4
-    current_ip=$(curl -s https://ip.openpanel.co || wget -qO- https://ip.openpanel.co)
-
+    current_ip=$(curl -s --max-time 10 https://ip.openpanel.co || wget -qO- --timeout=10 https://ip.openpanel.co)
     echo "Checking OpenPanel license for IP address: $current_ip" 
     echo ""
     server_hostname=$(hostname)
-
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
-
-    response=$(curl -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.co/license-check)
-
+    response=$(curl -s --max-time 10 -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.co/license-check)
     #echo "Response: $response"
 }
 
