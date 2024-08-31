@@ -62,7 +62,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 COPY mysql/mysqld.cnf /etc/mysql/mysql.conf.d/
 RUN chown mysql:mysql -R /var/lib/mysql
 RUN usermod -d /var/lib/mysql mysql
-RUN chmod a+rwx /run/mysqld
+RUN mkdir /run/mysqld && chmod a+rwx /run/mysqld
 
 
 
