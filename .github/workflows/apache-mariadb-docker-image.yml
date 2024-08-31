@@ -1,4 +1,4 @@
-name: Build and Push Apache Docker Image
+name: Build and Push Apache MariaDB Docker Image
 
 on:
   push:
