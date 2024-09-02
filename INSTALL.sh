@@ -649,7 +649,7 @@ configure_docker() {
   
 		echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker - this can take a few minutes.."
 	 
-		debug_log dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+		dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
 		debug_log mkfs.xfs /var/lib/docker.img
 		debug_log systemctl stop docker
 	 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
