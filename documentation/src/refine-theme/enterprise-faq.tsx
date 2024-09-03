@@ -111,7 +111,12 @@ const faq = [
     {
         question:
             "Is it possible to upgrade from the Community edition to Enterprise edition?",
-        answer: "Yes, at any time you can upgrade your license from Commuunity to Enterprise edition and all limits will imediately be lifted, and additional features added.",
+        answer: "Yes, at any time you can upgrade your license from Community to Enterprise edition and all limits will imediately be lifted, and additional features added.",
+    },
+    {
+        question:
+            "Do you offer trial license for the Enterprise edition?",
+        answer: "Yes, we offer a 14 days trial on request.",
     },
     {
         question: "How often does Enterprise edition receive updates?",
