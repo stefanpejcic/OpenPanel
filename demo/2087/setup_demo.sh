@@ -101,6 +101,12 @@ printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates
 
 
 
+get_droplet_id() {
+droplet_id=$(curl http://169.254.169.254/metadata/v1/id)
+echo "droplet id: $droplet_id"
+
+}
+
 
 
 # If no flags are set, ask for user confirmation
@@ -126,7 +132,8 @@ setup_admin_panel
 setup_user_panel
 
 
-echo "DONE."
+#echo "DONE."
 
+get_droplet_id
 
 
