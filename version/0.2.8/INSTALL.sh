@@ -1529,11 +1529,18 @@ install_openadmin(){
         pip install --default-timeout=3600 -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 -r requirements.txt --break-system-packages  > /dev/null 2>&1
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
+    cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
     
     systemctl daemon-reload  > /dev/null 2>&1
+    
     service admin start  > /dev/null 2>&1
     systemctl enable admin  > /dev/null 2>&1
 
+    # added in 0.2.8 for reloading bind9 zones fom withon certbot container - needed for dns validation and wildcard ssl
+    chmod +x /usr/local/admin/service/watcher.sh
+    service watcher start  > /dev/null 2>&1
+    systemctl enable watcher  > /dev/null 2>&1
+    
     echo "Testing if OpenAdmin service is available on default port '2087':"
     if ss -tuln | grep ':2087' >/dev/null; then
 	echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
