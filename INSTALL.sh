@@ -21,6 +21,10 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
 
+# tput: No value for $TERM and no -T specified
+export TERM=xterm-256color
+
+
 # DEFAULTS
 CUSTOM_VERSION=false                                                 # default version is latest
 INSTALL_TIMEOUT=600                                                  # after 10min, consider the install failed
