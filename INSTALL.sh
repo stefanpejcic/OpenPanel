@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           02.09.2024
+# Last Modified:           0.09.2024
 #
 ################################################################################
 
@@ -1237,7 +1237,10 @@ opencli_setup(){
         awk '{print \$NF}' \"\$ALIASES_FILE\"
     }
     complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
-    
+
+    # The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
+    export PATH="/usr/bin:$PATH"
+
     source ~/.bashrc
     
     echo "Testing 'opencli' commands:"
