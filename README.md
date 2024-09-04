@@ -100,7 +100,13 @@ To install on self-hosted VPS/Dedicated server:
 bash <(curl -sSL https://openpanel.org)
 ```
 
-To configure server on installation, please visit: https://openpanel.com/install 
+Sometimes, you might encounter issues when the images (e.g. Docker) were already installed on your server. To prevent such conflicts, it is recommended to use the `--skip-images` flag.
+
+```bash
+bash <(curl -sSL https://openpanel.org) --skip-images
+```
+
+To see more details to configure server on installation, **please visit**: https://openpanel.com/install 
 
 ----
 
