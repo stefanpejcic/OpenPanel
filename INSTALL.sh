@@ -1239,7 +1239,7 @@ opencli_setup(){
     complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
 
     # The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
-    export PATH="/usr/bin:$PATH"
+    export PATH="/usr/local/bin:$PATH"
 
     source ~/.bashrc
     
