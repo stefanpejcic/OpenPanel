@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Update from OpenPanel 0.2.6 to 0.2.7
+# Update from OpenPanel 0.2.7 to 0.2.8
 
 # new version
-NEW_PANEL_VERSION="0.2.7"
+NEW_PANEL_VERSION="0.2.8"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -95,8 +95,8 @@ FUNCTIONS=(
     # update admin from github
     download_new_admin
 
-    # for 026 dns only
-    dns_key_and_reload
+    # for 028 dns only
+    setup_watcher
 
     # update opencli
     opencli_update
@@ -160,9 +160,13 @@ print_space_and_line() {
 
 
 
-
-dns_key_and_reload() {
-    chmod 0777 -R /etc/bind/
+# added in 0.2.8 for reloading bind9 zones fom withon certbot container - needed for dns validation and wildcard ssl
+setup_watcher() {
+    cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
+    systemctl daemon-reload
+    chmod +x /usr/local/admin/service/watcher.sh
+    service watcher start
+    systemctl enable watcher
 }
 
 
