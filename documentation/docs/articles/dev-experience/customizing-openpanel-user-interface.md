@@ -4,6 +4,7 @@ Everything in OpenPanel is modular and can easily be modified or disabled withou
 
 To customize OpenPanel, you have the following options:
 
+- [Display personalized message per user](#personalized-messages)
 - [Enable/disable features and pages from the OpenPanel interface](#enabledisable-features)
 - [Set pre-installed services for users](#set-pre-installed-services)
 - [Localize the interface](#localize-the-interface)
@@ -15,6 +16,11 @@ To customize OpenPanel, you have the following options:
 - [Add custom CSS or JS code to the interface](#create-custom-pages)
 
 
+## Personalized messages
+
+Administrators can set a custom message to be displayed for any OpenPanel user by creating/editing file `/etc/openpanel/openpanel/core/users/USERNAME/custom_message.html` file. Both plain text and HTML code are accepted:
+
+![custom_message_per_user](https://i.postimg.cc/5xTqkddZ/2024-09-05-15-52.png)
 
 ## Enable/disable features
 
