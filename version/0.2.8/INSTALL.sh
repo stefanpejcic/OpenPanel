@@ -88,6 +88,7 @@ OPENPADMIN_DIR="/usr/local/admin/"                                   # https://g
 OPENCLI_DIR="/usr/local/admin/scripts/"                              # https://dev.openpanel.com/cli/commands.html
 OPENPANEL_ERR_DIR="/var/log/openpanel/"                              # https://dev.openpanel.com/logs.html
 SERVICES_DIR="/etc/systemd/system/"                                  # used for admin, sentinel and floatingip services
+CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -172,10 +173,17 @@ detect_filesystem(){
 }
 
 get_server_ipv4(){
-	# Get server ipv4 from ip.openpanel.com
-	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || \
-                 wget --timeout=2 -qO- https://ipv4.openpanel.com || \
-                 curl --silent --max-time 2 -4 https://ifconfig.me)
+	# Get server ipv4
+ 
+	# list of ip servers for checks
+	IP_SERVER_1="https://ip.openpanel.com"
+	IP_SERVER_2="https://ipv4.openpanel.com"
+	IP_SERVER_3="https://ifconfig.me"
+
+	current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || \
+                 wget --timeout=2 -qO- $IP_SERVER_2 || \
+                 curl --silent --max-time 2 -4 $IP_SERVER_3)
+
 	# If site is not available, get the ipv4 from the hostname -I
 	if [ -z "$current_ip" ]; then
 	   # current_ip=$(hostname -I | awk '{print $1}')
@@ -910,7 +918,7 @@ setup_firewall_service() {
           }
       
           set_csf_email_address() {
-              email_address=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
+              email_address=$(grep -E "^e-mail=" $CONFIG_FILE | cut -d "=" -f2)
        
               if [[ -n "$email_address" ]]; then
                   sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
@@ -1333,10 +1341,10 @@ set_email_address_and_email_admin_logins(){
                 # Send an email alert
                 
                 generate_random_token_one_time_only() {
-                    local config_file="${ETC_DIR}openpanel/conf/openpanel.config"
+                    local config_file="${CONFIG_FILE}"
                     TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
                     local new_value="mail_security_token=$TOKEN_ONE_TIME"
-                    sed -i "s|^mail_security_token=.*$|$new_value|" "${ETC_DIR}openpanel/conf/openpanel.config"
+                    sed -i "s|^mail_security_token=.*$|$new_value|" "${CONFIG_FILE}"
                 }
 
                 
@@ -1344,9 +1352,9 @@ set_email_address_and_email_admin_logins(){
                   local title="$1"
                   local message="$2"
                   generate_random_token_one_time_only
-                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")
                                 
-                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
+                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${CONFIG_FILE}")
                 
                 # Determine protocol based on SSL configuration
                 if [ "$SSL" = "yes" ]; then
@@ -1411,10 +1419,10 @@ download_skeleton_directory_from_github(){
     service floatingip start  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
 
-	if [ -f "${ETC_DIR}openpanel/conf/openpanel.config" ]; then
+	if [ -f "${CONFIG_FILE}" ]; then
 		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
   	else
-   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${ETC_DIR}openpanel/conf/openpanel.config is missing."
+   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${CONFIG_FILE} is missing."
    	fi
 
 
@@ -1528,10 +1536,10 @@ panel_customize(){
         echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
         debug_log playwright install
         debug_log playwright install-deps
-        sed -i 's#screenshots=.*#screenshots=''#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
+        sed -i 's#screenshots=.*#screenshots=''#' "${CONFIG_FILE}" # must use '#' as delimiter
     else
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
+        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}" # must use '#' as delimiter
     fi
 }
 
