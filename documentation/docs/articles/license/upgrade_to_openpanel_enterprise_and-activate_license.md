@@ -5,7 +5,7 @@ OpenPanel is available in two editions:
 - **Community** - a free hosting control panel for Debian and Ubuntu OS, suitable for VPS and private use.
 - **Enterprise** - offers advanced features for user isolation and management, suitable for web hosting providers.
 
-More information: [OpenPanel Community VS Enterprise edition](https://openpanel.co/beta)
+More information: [OpenPanel Community VS Enterprise edition](/beta)
 
 ## Purchase License
 
