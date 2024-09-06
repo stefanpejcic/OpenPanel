@@ -77,7 +77,7 @@ UFW_SETUP=false                                                      # previous 
 CSF_SETUP=true                                                       # default since >0.2.2
 SET_ADMIN_USERNAME=false                                             # random
 SET_ADMIN_PASSWORD=false                                             # random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.co/screenshot" # default since 0.2.1
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot"# default since 0.2.1
 
 # PATHS
 ETC_DIR="/etc/openpanel/"                                            # https://github.com/stefanpejcic/openpanel-configuration
@@ -172,9 +172,9 @@ detect_filesystem(){
 }
 
 get_server_ipv4(){
-	# Get server ipv4 from ip.openpanel.co
-	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.co || \
-                 wget --timeout=2 -qO- https://ip.openpanel.co || \
+	# Get server ipv4 from ip.openpanel.com
+	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || \
+                 wget --timeout=2 -qO- https://ipv4.openpanel.com || \
                  curl --silent --max-time 2 -4 https://ifconfig.me)
 	# If site is not available, get the ipv4 from the hostname -I
 	if [ -z "$current_ip" ]; then
@@ -1295,7 +1295,7 @@ configure_nginx() {
     ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
     openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048   > /dev/null 2>&1
 
-    # https://dev.openpanel.co/services/nginx
+    # https://dev.openpanel.com/services/nginx
     ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
     
     # Setting pretty error pages for nginx, but need to add them inside containers also!
