@@ -110,7 +110,7 @@ export const TopAnnouncement = () => {
 const Text = () => {
     return (
         <a
-            href="/blog/openpanel-rhel-support"
+            href="/beta"
             rel="noreferrer"
             className={clsx(
                 "relative lg:absolute",
@@ -131,7 +131,10 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                OpenPanel now supports all major RHEL distributions: AlmaLinux, Fedora, RockyLinux and CentOS
+                Unlock powerful features and effortlessly manage users and websites with  
+                {" "}
+                <span className={clsx("font-semibold")}>OpenPanel Enterprise</span>
+                {" "}
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
