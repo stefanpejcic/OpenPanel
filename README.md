@@ -38,7 +38,7 @@ This panel is the culmination of years of experience in the hosting industry, ha
 
 When we designed OpenPanel, we prioritized features that are not only user-friendly for beginners but also advanced enough to alleviate maintenance tasks for system administrators and hosting support teams.
 
-Some of the unique features worth mentioning are:
+Some of the features worth mentioning are:
 
 - Users can run [Nginx or Apache webserver](https://openpanel.com/docs/admin/plans/hosting_plans/#list-hosting-plans).
 - Users can [install PHP versions](https://openpanel.com/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.com/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
@@ -47,6 +47,20 @@ Some of the unique features worth mentioning are:
 - Manage WordPress websites easily with [WP Manager](https://openpanel.com/docs/panel/applications/wordpress).
 - Password-less login to [phpMyAdmin](https://openpanel.com/docs/panel/databases/phpmyadmin) and [Web Terminal](https://openpanel.com/docs/panel/advanced/terminal).
 - Built-in [REDIS](https://openpanel.com/docs/panel/caching/Redis) and [Memcached](https://openpanel.com/docs/panel/caching/Memcached) object caching.
+
+And unique features that simply made sense 💁 to us:
+- Services auto-start only when needed so resources are not wasted
+- Gooogle PageSpeed data is automatically displayed for every website in Site Manager
+- Users can export DNS zones easily
+- Users can pause cronjobs when not needed
+- Administrators can receive daily usage reports
+- Users can add comments for DNS records
+- Download files from URL in File Manager
+- Users can save pages to Favorites
+- Users can share web terminal session with third-parties
+- Detailed activity log of all actions
+- Admins can add custom message per user
+- and a lot more 🙌
 
 ## OpenPanel vs OpenAdmin
 
