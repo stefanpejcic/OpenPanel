@@ -49,6 +49,7 @@ Some of the features worth mentioning are:
 - Built-in [REDIS](https://openpanel.com/docs/panel/caching/Redis) and [Memcached](https://openpanel.com/docs/panel/caching/Memcached) object caching.
 
 And unique features that simply made sense 💁 to us:
+- User and admin panels are completelly isolated
 - Services auto-start only when needed so resources are not wasted
 - Gooogle PageSpeed data is automatically displayed for every website in Site Manager
 - Users can export DNS zones easily
