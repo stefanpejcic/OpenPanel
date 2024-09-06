@@ -75,7 +75,7 @@ We promise that OpenPanel will always have a free version. ✌️💯
         ],
         //runOnYourLocalPath: "",
         liveDemo: "https://demo.openpanel.org/openadmin/",
-        tutorial: "https://my.openpanel.co/cart.php?a=add&pid=1",
+        tutorial: "https://my.openpanel.com/cart.php?a=add&pid=1",
         reactPlatform: "Premium Features",
         uiFramework: "∞ Users & Websites",
         dataProvider: "WHMCS, HostBill",
@@ -85,9 +85,9 @@ OpenPanel Enterprise edition offers advanced features for user isolation and man
 
 ### Pricing Options:
 
-- [**Monthly Plan**: 14.95€ per month](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1)
-- [**Yearly Plan**: 149.50€ per year (20% savings)](https://my.openpanel.co/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1)
-- [**Lifetime Plan**: 269,19€ one-time payment (20% savings)](https://my.openpanel.co/index.php?rp=/store/openpanel/lifetime-enterprise-license)
+- [**Monthly Plan**: 14.95€ per month](https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1)
+- [**Yearly Plan**: 149.50€ per year (20% savings)](https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1)
+- [**Lifetime Plan**: 269,19€ one-time payment (20% savings)](https://my.openpanel.com/index.php?rp=/store/openpanel/lifetime-enterprise-license)
 
 Monthly/yearly options come with a price-lock guarantee, ensuring that future price increases will not affect you. You will always pay the price you started with.
 
