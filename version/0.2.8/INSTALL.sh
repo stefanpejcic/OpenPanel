@@ -56,39 +56,39 @@ export TERM=xterm-256color
 
 
 # DEFAULTS
-CUSTOM_VERSION=false                                                 # default version is latest
-INSTALL_TIMEOUT=600                                                  # after 10min, consider the install failed
-DEBUG=false                                                          # verbose output for debugging failed install
+CUSTOM_VERSION=false                                                  # default version is latest
+INSTALL_TIMEOUT=600                                                   # after 10min, consider the install failed
+DEBUG=false                                                           # verbose output for debugging failed install
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false                                                    # they are auto-pulled on account creation
+SKIP_IMAGES=false                                                     # they are auto-pulled on account creation
 REPAIR=false
-LOCALES=true                                                         # only en
-NO_SSH=false                                                         # deny port 22
-INSTALL_FTP=false                                                    # no ui yet
-INSTALL_MAIL=false                                                   # no ui yet
-IPSETS=true                                                          # currently only works with ufw
-SET_HOSTNAME_NOW=false                                               # must be a FQDN
-CUSTOM_GB_DOCKER=false                                               # space in gb, if not set fallback to 50% of available du
+LOCALES=true                                                          # only en
+NO_SSH=false                                                          # deny port 22
+INSTALL_FTP=false                                                     # no ui yet
+INSTALL_MAIL=false                                                    # no ui yet
+IPSETS=true                                                           # currently only works with ufw
+SET_HOSTNAME_NOW=false                                                # must be a FQDN
+CUSTOM_GB_DOCKER=false                                                # space in gb, if not set fallback to 50% of available du
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1"                                                        # calculated based on ram
+SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
-SET_PREMIUM=false                                                    # added in 0.2.1
-UFW_SETUP=false                                                      # previous default on <0.2.3
-CSF_SETUP=true                                                       # default since >0.2.2
-SET_ADMIN_USERNAME=false                                             # random
-SET_ADMIN_PASSWORD=false                                             # random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot"# default since 0.2.1
+SET_PREMIUM=false                                                     # added in 0.2.1
+UFW_SETUP=false                                                       # previous default on <0.2.3
+CSF_SETUP=true                                                        # default since >0.2.2
+SET_ADMIN_USERNAME=false                                              # random
+SET_ADMIN_PASSWORD=false                                              # random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
 
 # PATHS
-ETC_DIR="/etc/openpanel/"                                            # https://github.com/stefanpejcic/openpanel-configuration
-LOG_FILE="openpanel_install.log"                                     # install log
-LOCK_FILE="/root/openpanel.lock"                                     # install running
-OPENPANEL_DIR="/usr/local/panel"                                     # currently only used to store version
-OPENPADMIN_DIR="/usr/local/admin/"                                   # https://github.com/stefanpejcic/openadmin/branches
-OPENCLI_DIR="/usr/local/admin/scripts/"                              # https://dev.openpanel.com/cli/commands.html
-OPENPANEL_ERR_DIR="/var/log/openpanel/"                              # https://dev.openpanel.com/logs.html
-SERVICES_DIR="/etc/systemd/system/"                                  # used for admin, sentinel and floatingip services
-CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"
+ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
+LOG_FILE="openpanel_install.log"                                      # install log
+LOCK_FILE="/root/openpanel.lock"                                      # install running
+OPENPANEL_DIR="/usr/local/panel"                                      # currently only used to store version
+OPENPADMIN_DIR="/usr/local/admin/"                                    # https://github.com/stefanpejcic/openadmin/branches
+OPENCLI_DIR="/usr/local/admin/scripts/"                               # https://dev.openpanel.com/cli/commands.html
+OPENPANEL_ERR_DIR="/var/log/openpanel/"                               # https://dev.openpanel.com/logs.html
+SERVICES_DIR="/etc/systemd/system/"                                   # used for admin, sentinel and floatingip services
+CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
