@@ -2,6 +2,13 @@
 
 # Update from OpenPanel 0.2.7 to 0.2.8
 
+
+
+
+###################32fa i domains stats da dodas u novu verziju!
+
+
+
 # new version
 NEW_PANEL_VERSION="0.2.8"
 
