@@ -10,18 +10,19 @@ sidebar_class_name: green
 
 | Version| Released | 
 |---|---|
-|__[0.2.7](/docs/changelog/0.2.7)__| August 30, 2024 | 
+|__[0.2.8](/docs/changelog/0.2.8)__| September 06, 2024 | 
 
 ### Next version (Unreleased)
 
 |   |   |
 |---|---|
-|__[0.2.8](/docs/changelog/0.2.8)__| __[Roadmap](/roadmap)__|
+|__[0.2.9](/docs/changelog/0.2.9)__| __[Roadmap](/roadmap)__|
 
 ### Past versions
 
 | Version | Released |
 |---|---|
+| [0.2.7](/docs/changelog/0.2.7) | 06.09.2024 | 
 | [0.2.6](/docs/changelog/0.2.6) | 28.08.2024 | 
 | [0.2.5](/docs/changelog/0.2.5) | 18.08.2024 | 
 | [0.2.4](/docs/changelog/0.2.4) | 02.08.2024 | 
