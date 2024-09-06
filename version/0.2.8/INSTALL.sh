@@ -1438,6 +1438,9 @@ setup_bind(){
     # only on ubuntu systemd-resolved is installed
     if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+    # debian12 also!
+     elif [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
+     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
 
 echo "Generating rndc.key for DNS zone management." 
