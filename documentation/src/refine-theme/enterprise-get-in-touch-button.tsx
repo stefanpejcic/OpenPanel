@@ -20,7 +20,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             )}
         >
             <Link
-                href="https://my.openpanel.co/index.php?rp=/store/openpanel"
+                href="https://my.openpanel.com/index.php?rp=/store/openpanel"
                 target="_self"
                 rel="noopener noreferrer"
                 className={clsx(
