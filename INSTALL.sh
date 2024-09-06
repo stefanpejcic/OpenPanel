@@ -10,9 +10,38 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           05.09.2024
+# Last Modified:           06.09.2024
 #
 ################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # COLORS
@@ -26,38 +55,39 @@ export TERM=xterm-256color
 
 
 # DEFAULTS
-CUSTOM_VERSION=false                                                 # default version is latest
-INSTALL_TIMEOUT=600                                                  # after 10min, consider the install failed
-DEBUG=false                                                          # verbose output for debugging failed install
+CUSTOM_VERSION=false                                                  # default version is latest
+INSTALL_TIMEOUT=600                                                   # after 10min, consider the install failed
+DEBUG=false                                                           # verbose output for debugging failed install
 SKIP_APT_UPDATE=false
-SKIP_IMAGES=false                                                    # they are auto-pulled on account creation
+SKIP_IMAGES=false                                                     # they are auto-pulled on account creation
 REPAIR=false
-LOCALES=true                                                         # only en
-NO_SSH=false                                                         # deny port 22
-INSTALL_FTP=false                                                    # no ui yet
-INSTALL_MAIL=false                                                   # no ui yet
-IPSETS=true                                                          # currently only works with ufw
-SET_HOSTNAME_NOW=false                                               # must be a FQDN
-CUSTOM_GB_DOCKER=false                                               # space in gb, if not set fallback to 50% of available du
+LOCALES=true                                                          # only en
+NO_SSH=false                                                          # deny port 22
+INSTALL_FTP=false                                                     # no ui yet
+INSTALL_MAIL=false                                                    # no ui yet
+IPSETS=true                                                           # currently only works with ufw
+SET_HOSTNAME_NOW=false                                                # must be a FQDN
+CUSTOM_GB_DOCKER=false                                                # space in gb, if not set fallback to 50% of available du
 SETUP_SWAP_ANYWAY=false
-SWAP_FILE="1"                                                        # calculated based on ram
+SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
-SET_PREMIUM=false                                                    # added in 0.2.1
-UFW_SETUP=false                                                      # previous default on <0.2.3
-CSF_SETUP=true                                                       # default since >0.2.2
-SET_ADMIN_USERNAME=false                                             # random
-SET_ADMIN_PASSWORD=false                                             # random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot"# default since 0.2.1
+SET_PREMIUM=false                                                     # added in 0.2.1
+UFW_SETUP=false                                                       # previous default on <0.2.3
+CSF_SETUP=true                                                        # default since >0.2.2
+SET_ADMIN_USERNAME=false                                              # random
+SET_ADMIN_PASSWORD=false                                              # random
+SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
 
 # PATHS
-ETC_DIR="/etc/openpanel/"                                            # https://github.com/stefanpejcic/openpanel-configuration
-LOG_FILE="openpanel_install.log"                                     # install log
-LOCK_FILE="/root/openpanel.lock"                                     # install running
-OPENPANEL_DIR="/usr/local/panel"                                     # currently only used to store version
-OPENPADMIN_DIR="/usr/local/admin/"                                   # https://github.com/stefanpejcic/openadmin/branches
-OPENCLI_DIR="/usr/local/admin/scripts/"                              # https://dev.openpanel.com/cli/commands.html
-OPENPANEL_ERR_DIR="/var/log/openpanel/"                              # https://dev.openpanel.com/logs.html
-SERVICES_DIR="/etc/systemd/system/"                                  # used for admin, sentinel and floatingip services
+ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
+LOG_FILE="openpanel_install.log"                                      # install log
+LOCK_FILE="/root/openpanel.lock"                                      # install running
+OPENPANEL_DIR="/usr/local/panel"                                      # currently only used to store version
+OPENPADMIN_DIR="/usr/local/admin/"                                    # https://github.com/stefanpejcic/openadmin/branches
+OPENCLI_DIR="/usr/local/admin/scripts/"                               # https://dev.openpanel.com/cli/commands.html
+OPENPANEL_ERR_DIR="/var/log/openpanel/"                               # https://dev.openpanel.com/logs.html
+SERVICES_DIR="/etc/systemd/system/"                                   # used for admin, sentinel and floatingip services
+CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
 
 # Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -142,10 +172,17 @@ detect_filesystem(){
 }
 
 get_server_ipv4(){
-	# Get server ipv4 from ip.openpanel.com
-	current_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || \
-                 wget --timeout=2 -qO- https://ipv4.openpanel.com || \
-                 curl --silent --max-time 2 -4 https://ifconfig.me)
+	# Get server ipv4
+ 
+	# list of ip servers for checks
+	IP_SERVER_1="https://ip.openpanel.com"
+	IP_SERVER_2="https://ipv4.openpanel.com"
+	IP_SERVER_3="https://ifconfig.me"
+
+	current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || \
+                 wget --timeout=2 -qO- $IP_SERVER_2 || \
+                 curl --silent --max-time 2 -4 $IP_SERVER_3)
+
 	# If site is not available, get the ipv4 from the hostname -I
 	if [ -z "$current_ip" ]; then
 	   # current_ip=$(hostname -I | awk '{print $1}')
@@ -178,7 +215,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.7"
+	        PANEL_VERSION="0.2.8"
 	    fi
 	fi
 }
@@ -880,7 +917,7 @@ setup_firewall_service() {
           }
       
           set_csf_email_address() {
-              email_address=$(grep -E "^e-mail=" /etc/openpanel/openpanel/conf/openpanel.config | cut -d "=" -f2)
+              email_address=$(grep -E "^e-mail=" $CONFIG_FILE | cut -d "=" -f2)
        
               if [[ -n "$email_address" ]]; then
                   sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
@@ -1239,7 +1276,7 @@ opencli_setup(){
     complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
 
     # The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
-    export PATH="/usr/local/bin:$PATH"
+    export PATH="/usr/bin:$PATH"
 
     source ~/.bashrc
     
@@ -1303,10 +1340,10 @@ set_email_address_and_email_admin_logins(){
                 # Send an email alert
                 
                 generate_random_token_one_time_only() {
-                    local config_file="${ETC_DIR}openpanel/conf/openpanel.config"
+                    local config_file="${CONFIG_FILE}"
                     TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
                     local new_value="mail_security_token=$TOKEN_ONE_TIME"
-                    sed -i "s|^mail_security_token=.*$|$new_value|" "${ETC_DIR}openpanel/conf/openpanel.config"
+                    sed -i "s|^mail_security_token=.*$|$new_value|" "${CONFIG_FILE}"
                 }
 
                 
@@ -1314,9 +1351,9 @@ set_email_address_and_email_admin_logins(){
                   local title="$1"
                   local message="$2"
                   generate_random_token_one_time_only
-                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")
                                 
-                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${ETC_DIR}openpanel/conf/openpanel.config")
+                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${CONFIG_FILE}")
                 
                 # Determine protocol based on SSL configuration
                 if [ "$SSL" = "yes" ]; then
@@ -1381,10 +1418,10 @@ download_skeleton_directory_from_github(){
     service floatingip start  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
 
-	if [ -f "${ETC_DIR}openpanel/conf/openpanel.config" ]; then
+	if [ -f "${CONFIG_FILE}" ]; then
 		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
   	else
-   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${ETC_DIR}openpanel/conf/openpanel.config is missing."
+   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${CONFIG_FILE} is missing."
    	fi
 
 
@@ -1400,6 +1437,9 @@ setup_bind(){
     # only on ubuntu systemd-resolved is installed
     if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+    # debian12 also!
+     elif [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
+     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
 
 echo "Generating rndc.key for DNS zone management." 
@@ -1411,6 +1451,11 @@ debug_log docker run -it --rm \
     -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
 
 chmod 0777 -R /etc/bind
+
+
+# temporary for 0.2.8 only!
+cd /root && docker compose up -d bind9
+
      
 }
 
@@ -1498,10 +1543,10 @@ panel_customize(){
         echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
         debug_log playwright install
         debug_log playwright install-deps
-        sed -i 's#screenshots=.*#screenshots=''#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
+        sed -i 's#screenshots=.*#screenshots=''#' "${CONFIG_FILE}" # must use '#' as delimiter
     else
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${ETC_DIR}openpanel/conf/openpanel.config" # must use '#' as delimiter
+        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}" # must use '#' as delimiter
     fi
 }
 
@@ -1529,11 +1574,18 @@ install_openadmin(){
         pip install --default-timeout=3600 -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 -r requirements.txt --break-system-packages  > /dev/null 2>&1
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
+    cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
     
     systemctl daemon-reload  > /dev/null 2>&1
+    
     service admin start  > /dev/null 2>&1
     systemctl enable admin  > /dev/null 2>&1
 
+    # added in 0.2.8 for reloading bind9 zones fom withon certbot container - needed for dns validation and wildcard ssl
+    chmod +x /usr/local/admin/service/watcher.sh
+    service watcher start  > /dev/null 2>&1
+    systemctl enable watcher  > /dev/null 2>&1
+    
     echo "Testing if OpenAdmin service is available on default port '2087':"
     if ss -tuln | grep ':2087' >/dev/null; then
 	echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
@@ -1665,6 +1717,5 @@ run_custom_postinstall_script
 
 
 # END main script execution
-
 
 
