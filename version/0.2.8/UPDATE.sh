@@ -96,6 +96,9 @@ FUNCTIONS=(
     # added mariadb images in 027
     update_docker_images
 
+    # in 0.2.8 fix bug with zones
+    edit_serial_in_all_zones
+
     # update docker openpanel iamge
     download_new_panel
 
@@ -176,6 +179,36 @@ setup_watcher() {
     systemctl enable watcher
 }
 
+
+
+edit_serial_in_all_zones(){
+# for 0.2.8 only!
+current_serial=$(date +"%Y%m%d01")
+zone_dir="/etc/bind/zones/"
+
+for zone_file in "$zone_dir"*.zone; do
+  if [[ -f "$zone_file" ]]; then
+    echo "Processing $zone_file..."
+    sed -i "/; Serial number/c\\
+                        $current_serial      ; Serial number" "$zone_file"
+    echo "Updated serial number in $zone_file"
+  else
+    echo "No .zone files found in $zone_dir"
+  fi
+done
+
+
+  echo "Restarting BIND9 docker container.."
+  echo ""
+  docker stop openpanel_dns &&  docker rm openpanel_dns
+  echo ""
+  cd /root  
+  docker compose up -d --no-deps --build bind9
+
+
+
+
+}
 
 
 restart_admin_panel_if_needed() {
