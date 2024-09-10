@@ -11,9 +11,10 @@ body:
       validations:
           required: true
     - type: dropdown
+      id: os
       attributes:
-      label: What OS are you using?
-      description: Choose the OS where OpenPanel is installed
+           label: What OS are you using?
+           description: Choose the OS where OpenPanel is installed
       options:
         - Ubuntu
         - Debian
