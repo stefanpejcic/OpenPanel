@@ -15,13 +15,13 @@ body:
       attributes:
            label: What OS are you using?
            description: Choose the OS where OpenPanel is installed
-      options:
-        - Ubuntu
-        - Debian
-        - CentOS
-        - AlmaLinux
-        - RockyLinux
-        - Fedora
+           options:
+           - Ubuntu
+           - Debian
+           - CentOS
+           - AlmaLinux
+           - RockyLinux
+           - Fedora
       validations:
           required: true
     - type: textarea
