@@ -819,8 +819,16 @@ tweak_ssh(){
 
 setup_ftp() {
         if [ "$INSTALL_FTP" = true ]; then
+	mkdir -p /etc/openpanel/ftp/
+ 	touch /etc/openpanel/ftp/users/all.users
+  	chmod 644 /etc/openpanel/ftp/all.users
+
+   	wget -O /usr/local/admin/scripts/ftp/users https://gist.githubusercontent.com/stefanpejcic/cd63cbfeccce4f38cd16ac558ffa9bc8/raw/a1afb0891cd9d0bda36ef5a78b7f6c1183b031a2/ftp.sh
+	chmod +x /usr/local/admin/scripts/ftp/users
+  	
         echo "Installing experimental FTP service."
-            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel-FTP/master/setup.sh | bash
+            cd /root && docker compose up -d ftp_env_generator
+	    cd /root && docker compose up -d openadmin_ftp
         fi
 }
 
