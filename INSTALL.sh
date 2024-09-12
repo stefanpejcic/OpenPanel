@@ -931,7 +931,7 @@ setup_firewall_service() {
           open_port_csf 32768:60999 #docker
 
 	  open_port_csf 21 #ftp
-	  open_port_csf 21000-21010 #passive ftp
+	  open_port_csf 21000:21010 #passive ftp
 
      
           set_csf_email_address
@@ -984,7 +984,7 @@ setup_firewall_service() {
           debug_log ufw allow 2083/tcp #openpanel
           debug_log ufw allow 2087/tcp #openadmin 
     	  debug_log ufw allow 21/tcp #ftp
-          debug_log ufw allow 21000-21010/tcp #passive ftp
+          debug_log ufw allow 21000:21010/tcp #passive ftp
           debug_log "yes | ufw enable"
 	  
           if [ "$NO_SSH" = false ]; then
