@@ -762,6 +762,16 @@ docker_compose_up(){
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
+    
+    # added in 0.2.9
+    # fix for bug with mysql-server image on Almalinux 9.2
+    os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
+    if [ "$os_name" == "almalinux" ]; then
+        sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
+        echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
+    fi
+
+   
     # from 0.2.5 we only start mysql by default
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
@@ -1564,6 +1574,20 @@ install_openadmin(){
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
+
+ # temporary for 0.2.9
+        # Detect the package manager and install inotifywait-tools
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get install -y -qq inotify-tools > /dev/null 2>&1
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y -q inotify-tools > /dev/null 2>&1
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y -q inotify-tools > /dev/null 2>&1
+        else
+            echo "Error: No compatible package manager found. Please install inotify-tools manually for DNS zone reload to work."
+        fi
+
+
     
     systemctl daemon-reload  > /dev/null 2>&1
     
