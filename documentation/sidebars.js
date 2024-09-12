@@ -230,6 +230,13 @@ const mainSidebar = {
      'changelog/intro',
       {
       type: 'category',
+      label: '0.3.X',
+      items: [
+     'changelog/0.3.0'
+      ],
+      },
+      {
+      type: 'category',
       label: '0.2.X',
       items: [
      'changelog/0.2.9',
