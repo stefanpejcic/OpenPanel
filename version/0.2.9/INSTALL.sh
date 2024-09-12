@@ -762,6 +762,16 @@ docker_compose_up(){
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
     cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
+    
+    # added in 0.2.9
+    # fix for bug with mysql-server image on Almalinux 9.2
+    os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
+    if [ "$os_name" == "almalinux" ]; then
+        sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
+        echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
+    fi
+
+   
     # from 0.2.5 we only start mysql by default
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
