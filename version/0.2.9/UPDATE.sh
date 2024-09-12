@@ -271,10 +271,10 @@ kill_existing_ftp() {
 
 
           open_port_csf 21 > /dev/null 2>&1 #ftp
-    	  open_port_csf 21000-21010 > /dev/null 2>&1 #passive ftp
+    	  open_port_csf 21000:21010 > /dev/null 2>&1 #passive ftp
 
     	  ufw allow 21/tcp > /dev/null 2>&1 #ftp
-          ufw allow 21000-21010/tcp > /dev/null 2>&1 #passive ftp
+          ufw allow 21000:21010/tcp > /dev/null 2>&1 #passive ftp
 
 
         echo "Finished setting FTP server."
