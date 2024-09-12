@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           06.09.2024
+# Last Modified:           12.09.2024
 #
 ################################################################################
 
@@ -215,7 +215,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.8"
+	        PANEL_VERSION="0.2.9"
 	    fi
 	fi
 }
@@ -1465,11 +1465,6 @@ debug_log docker run -it --rm \
     -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
 
 chmod 0777 -R /etc/bind
-
-
-# temporary for 0.2.8 only!
-cd /root && docker compose up -d bind9
-
      
 }
 
