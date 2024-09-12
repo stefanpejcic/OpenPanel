@@ -186,65 +186,65 @@ update_configuration_files() {
     echo "Downloading files for FTP modules.."
     
     mkdir -p /etc/openpanel/ftp
-    wget -O /etc/openpanel/ftp/vsftpd.conf https://gist.githubusercontent.com/stefanpejcic/b0777f7ef39628703f2ccb41f3ab0358/raw/51f535a8758e3c7e714b71daaf120bb001029176/vsftpd.conf
+    wget -O /etc/openpanel/ftp/vsftpd.conf https://gist.githubusercontent.com/stefanpejcic/b0777f7ef39628703f2ccb41f3ab0358/raw/51f535a8758e3c7e714b71daaf120bb001029176/vsftpd.conf > /dev/null 2>&1
 
-    wget -O /etc/openpanel/ftp/start_vsftpd.sh https://gist.githubusercontent.com/stefanpejcic/e4c45848777d12330199dc78e6a6030f/raw/32a3fbcb40cbe5193ab74410052b1c412700814b/start_vsftpd.sh
+    wget -O /etc/openpanel/ftp/start_vsftpd.sh https://gist.githubusercontent.com/stefanpejcic/e4c45848777d12330199dc78e6a6030f/raw/32a3fbcb40cbe5193ab74410052b1c412700814b/start_vsftpd.sh > /dev/null 2>&1
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
 
     touch /etc/openpanel/ftp/all.users
 
-    wget -O /etc/openpanel/ftp/Dockerfile https://gist.githubusercontent.com/stefanpejcic/53718bdbee13b6312223f00627badc98/raw/012af234ba3dee1527e5d0d91a4ba80b53f627a8/Dockerfile
-
+    wget -O /etc/openpanel/ftp/Dockerfile https://gist.githubusercontent.com/stefanpejcic/53718bdbee13b6312223f00627badc98/raw/012af234ba3dee1527e5d0d91a4ba80b53f627a8/Dockerfile > /dev/null 2>&1
 
 DOCKER_COMPOSE_FILE="/root/docker-compose.yml"
 
 # Check if the service 'ftp_env_generator' exists in the file
 if ! grep -q "ftp_env_generator" "$DOCKER_COMPOSE_FILE"; then
-  FTP_CODE="
-# FTP
-  ftp_env_generator:
-    image: alpine:latest
-    container_name: ftp_env_generator
-    volumes:
-      - /etc/openpanel/ftp/:/etc/openpanel/ftp/
-      - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users
-    entrypoint: /bin/sh -c \"/usr/local/admin/scripts/ftp/users\"
-    restart: \"no\"  # Do not restart, we just want it to run once
-
-  openadmin_ftp:
-    build:
-      context: /etc/openpanel/ftp/
-    container_name: openadmin_ftp
-    restart: always
-    ports:
-      - \"21:21\"
-      - \"21000-21010:21000-21010\"
-    volumes:
-      - /home/:/home/
-      - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf
-      - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
-      - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
-      - /etc/openpanel/users/:/etc/openpanel/ftp/users/
-      # uncomment for ssl # - /etc/letsencrypt:/etc/letsencrypt:ro
-    depends_on:
-      - ftp_env_generator
-    env_file:
-      - /etc/openpanel/ftp/all.users
-    # uncomment the following lines for SSL and replace ftp.YOUR_DOMAIN_HERE.com with your domain
-    # environment:
-      # - ADDRESS=ftp.YOUR_DOMAIN_HERE.com
-      # - TLS_CERT=\"/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/fullchain.pem\"
-      # - TLS_KEY=\"/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/privkey.pem\"
-    mem_limit: 0.5g
-    cpus: 0.5
-"
-
-  sed -i "/# make the mysql data persistent/i$FTP_CODE" "$DOCKER_COMPOSE_FILE"
+    echo "Adding FTP server to $DOCKER_COMPOSE_FILE"
+  # Insert the FTP code using a here document
+  sed -i "/# make the mysql data persistent/i\
+  # FTP\n\
+  ftp_env_generator:\n\
+    image: alpine:latest\n\
+    container_name: ftp_env_generator\n\
+    volumes:\n\
+      - /etc/openpanel/ftp/:/etc/openpanel/ftp/\n\
+      - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users\n\
+    entrypoint: /bin/sh -c \"/usr/local/admin/scripts/ftp/users\"\n\
+    restart: \"no\"  # Do not restart, we just want it to run once\n\
+  \n\
+  openadmin_ftp:\n\
+    build:\n\
+      context: /etc/openpanel/ftp/\n\
+    container_name: openadmin_ftp\n\
+    restart: always\n\
+    ports:\n\
+      - \"21:21\"\n\
+      - \"21000-21010:21000-21010\"\n\
+    volumes:\n\
+      - /home/:/home/\n\
+      - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf\n\
+      - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh\n\
+      - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list\n\
+      - /etc/openpanel/users/:/etc/openpanel/ftp/users/\n\
+      # uncomment for ssl # - /etc/letsencrypt:/etc/letsencrypt:ro\n\
+    depends_on:\n\
+      - ftp_env_generator\n\
+    env_file:\n\
+      - /etc/openpanel/ftp/all.users\n\
+    # uncomment the following lines for SSL and replace ftp.YOUR_DOMAIN_HERE.com with your domain\n\
+    # environment:\n\
+    #   - ADDRESS=ftp.YOUR_DOMAIN_HERE.com\n\
+    #   - TLS_CERT=\"/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/fullchain.pem\"\n\
+    #   - TLS_KEY=\"/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/privkey.pem\"\n\
+    mem_limit: 0.5g\n\
+    cpus: 0.5\n\
+    " "$DOCKER_COMPOSE_FILE"
 
   echo "ftp_env_generator and openadmin_ftp services have been added to the docker-compose file."
 else
   echo "ftp_env_generator service already exists in the docker-compose file."
 fi
+
 
 
 
@@ -357,7 +357,8 @@ opencli_update(){
     echo "Updating OpenCLI commands from https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
     echo ""
     mkdir -p ${TEMP_DIR}opencli
-    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"  > /dev/null 2>&1
+
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     rm -rf /usr/local/admin/scripts/
     
