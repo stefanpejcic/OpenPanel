@@ -28,7 +28,6 @@ const defaultOptions: InstallOptions = {
     "skip-ssl": { value: false, description: "Skip SSL setup." },
     ufw: { value: false, description: "Install and setup UFW instead of CSF." },
     "no-ssh": { value: false, description: "Disable port 22 and whitelist administrator IP address." },
-    "enable-ftp": { value: false, description: "Install FTP (experimental)." },
     "post-install": { value: "", description: "Specify the post install script path." },
     screenshots: { value: "remote", description: "Set the screenshots API URL.", options: ["local", "remote"] },
     debug: { value: false, description: "Display debug information during installation." },
