@@ -1564,6 +1564,20 @@ install_openadmin(){
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
+
+ # temporary for 0.2.9
+        # Detect the package manager and install inotifywait-tools
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get install -y -qq inotify-tools > /dev/null 2>&1
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y -q inotify-tools > /dev/null 2>&1
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y -q inotify-tools > /dev/null 2>&1
+        else
+            echo "Error: No compatible package manager found. Please install inotify-tools manually for DNS zone reload to work."
+        fi
+
+
     
     systemctl daemon-reload  > /dev/null 2>&1
     
