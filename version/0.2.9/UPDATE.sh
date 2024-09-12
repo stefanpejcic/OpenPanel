@@ -174,7 +174,37 @@ kill_existing_ftp() {
         echo "Starting new FTP server with commandL: cd /root && docker compose up -d openadmin_ftp"
         cd /root && docker compose up -d openadmin_ftp
 
+        echo "Checking and opening FTP ports on firewall.."
+
+            function open_port_csf() {
+                local port=$1
+                local csf_conf="/etc/csf/csf.conf"
+                
+                # Check if port is already open
+                port_opened=$(grep "TCP_IN = .*${port}" "$csf_conf")
+                if [ -z "$port_opened" ]; then
+                    # Open port
+                    sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
+                    echo -e "Port ${port} is now open."
+                    ports_opened=1
+                else
+                    echo -e "Port ${port} is already open."
+                fi
+            }
+
+
+          open_port_csf 21 > /dev/null 2>&1 #ftp
+    	  open_port_csf 21000-21010 > /dev/null 2>&1 #passive ftp
+
+    	  ufw allow 21/tcp > /dev/null 2>&1 #ftp
+          ufw allow 21000-21010/tcp > /dev/null 2>&1 #passive ftp
+
+
         echo "Finished setting FTP server."
+
+
+
+
         
     fi
 }
