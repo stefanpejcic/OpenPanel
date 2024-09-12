@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           06.09.2024
+# Last Modified:           12.09.2024
 #
 ################################################################################
 
@@ -63,7 +63,6 @@ SKIP_IMAGES=false                                                     # they are
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
-INSTALL_FTP=false                                                     # no ui yet
 INSTALL_MAIL=false                                                    # no ui yet
 IPSETS=true                                                           # currently only works with ufw
 SET_HOSTNAME_NOW=false                                                # must be a FQDN
@@ -215,7 +214,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.8"
+	        PANEL_VERSION="0.2.9"
 	    fi
 	fi
 }
@@ -315,7 +314,6 @@ docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
 configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
 #setup_email                              # TEMPORARY OFF FROM 0.2.5
-setup_ftp                                 # setup shared ftp service - NO UI YET!
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -426,7 +424,6 @@ parse_args() {
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
-        echo "  --enable-ftp                    Install FTP (experimental)."
         echo "  --enable-mail                   Install Mail (experimental)."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
@@ -503,9 +500,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-ssh)
             NO_SSH=true
-            ;;
-        --enable-ftp)
-            INSTALL_FTP=true
             ;;
         --enable-mail)
             INSTALL_MAIL=true
@@ -816,22 +810,6 @@ tweak_ssh(){
 	fi
    
 }
-
-setup_ftp() {
-        if [ "$INSTALL_FTP" = true ]; then
-	mkdir -p /etc/openpanel/ftp/
- 	touch /etc/openpanel/ftp/users/all.users
-  	chmod 644 /etc/openpanel/ftp/all.users
-
-   	wget -O /usr/local/admin/scripts/ftp/users https://gist.githubusercontent.com/stefanpejcic/cd63cbfeccce4f38cd16ac558ffa9bc8/raw/a1afb0891cd9d0bda36ef5a78b7f6c1183b031a2/ftp.sh
-	chmod +x /usr/local/admin/scripts/ftp/users
-  	
-        echo "Installing experimental FTP service."
-            cd /root && docker compose up -d ftp_env_generator
-	    cd /root && docker compose up -d openadmin_ftp
-        fi
-}
-
 
 
 setup_email() {
@@ -1425,7 +1403,9 @@ download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
-
+    # added in 0.2.9
+    chmod +x /etc/openpanel/ftp/start_vsftpd.sh
+    
     # added in 0.2.6
     cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
     systemctl daemon-reload  > /dev/null 2>&1
@@ -1465,11 +1445,6 @@ debug_log docker run -it --rm \
     -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
 
 chmod 0777 -R /etc/bind
-
-
-# temporary for 0.2.8 only!
-cd /root && docker compose up -d bind9
-
      
 }
 
@@ -1731,5 +1706,3 @@ run_custom_postinstall_script
 
 
 # END main script execution
-
-
