@@ -86,8 +86,8 @@ FUNCTIONS=(
     #notify user we started
     print_header
 
-    # added mariadb images in 027
-    update_docker_images
+    # ftp service
+    update_configuration_files
 
     # update docker openpanel iamge
     download_new_panel
@@ -155,6 +155,83 @@ print_space_and_line() {
 
 
 # END helper functions
+
+
+update_configuration_files() {
+    #######cd /etc/openpanel && git pull
+
+    echo "Downloading files for FTP modules.."
+    
+    mkdir -p /etc/openpanel/ftp
+    wget -O /etc/openpanel/ftp/vsftpd.conf https://gist.githubusercontent.com/stefanpejcic/b0777f7ef39628703f2ccb41f3ab0358/raw/51f535a8758e3c7e714b71daaf120bb001029176/vsftpd.conf
+
+    wget -O /etc/openpanel/ftp/start_vsftpd.sh https://gist.githubusercontent.com/stefanpejcic/e4c45848777d12330199dc78e6a6030f/raw/32a3fbcb40cbe5193ab74410052b1c412700814b/start_vsftpd.sh
+    chmod +x /etc/openpanel/ftp/start_vsftpd.sh
+
+    touch /etc/openpanel/ftp/all.users
+
+    wget -O /etc/openpanel/ftp/Dockerfile https://gist.githubusercontent.com/stefanpejcic/53718bdbee13b6312223f00627badc98/raw/012af234ba3dee1527e5d0d91a4ba80b53f627a8/Dockerfile
+
+
+DOCKER_COMPOSE_FILE="/root/docker-compose.yml"
+
+# Check if the service 'ftp_env_generator' exists in the file
+if ! grep -q "ftp_env_generator" "$DOCKER_COMPOSE_FILE"; then
+  FTP_CODE="
+# FTP
+  ftp_env_generator:
+    image: alpine:latest
+    container_name: ftp_env_generator
+    volumes:
+      - /etc/openpanel/ftp/:/etc/openpanel/ftp/
+      - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users
+    entrypoint: /bin/sh -c \"/usr/local/admin/scripts/ftp/users\"
+    restart: \"no\"  # Do not restart, we just want it to run once
+
+  openadmin_ftp:
+    build:
+      context: /etc/openpanel/ftp/
+    container_name: openadmin_ftp
+    restart: always
+    ports:
+      - \"21:21\"
+      - \"21000-21010:21000-21010\"
+    volumes:
+      - /home/:/home/
+      - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf
+      - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
+      - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
+      - /etc/openpanel/users/:/etc/openpanel/ftp/users/
+      # uncomment for ssl # - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - ftp_env_generator
+    env_file:
+      - /etc/openpanel/ftp/all.users
+    # uncomment the following lines for SSL and replace ftp.YOUR_DOMAIN_HERE.com with your domain
+    # environment:
+      # - ADDRESS=ftp.YOUR_DOMAIN_HERE.com
+      # - TLS_CERT=\"/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/fullchain.pem\"
+      # - TLS_KEY=\"/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/privkey.pem\"
+    mem_limit: 0.5g
+    cpus: 0.5
+"
+
+  sed -i "/# make the mysql data persistent/i$FTP_CODE" "$DOCKER_COMPOSE_FILE"
+
+  echo "ftp_env_generator and openadmin_ftp services have been added to the docker-compose file."
+else
+  echo "ftp_env_generator service already exists in the docker-compose file."
+fi
+
+
+
+
+
+    
+}
+
+
+
 
 
 kill_existing_ftp() {
@@ -252,28 +329,6 @@ print_header() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e ""
 }
-
-
-update_docker_images() {
-    #opencli docker-update_images
-    #bash /usr/local/admin/scripts/docker/update_images
-    echo "Downloading latest Nginx and Apache images from https://hub.docker.com/u/openpanel"
-    echo ""
-
-    PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-    key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
-    
-    # install new images
-    if [ -n "$key_value" ]; then
-  	    # 4 images
-  	    nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest openpanel/nginx-mariadb:latest openpanel/apache-mariadb:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
-    else
-  	    # 2 images
-  	    nohup sh -c "echo openpanel/nginx:latest openpanel/apache:latest | xargs -P4 -n1 docker pull" </dev/null >nohup.out 2>nohup.err &
-    fi
-   
-}
-
 
 opencli_update(){
     echo "Updating OpenCLI commands from https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/get.openpanel.co/downloads/${NEW_PANEL_VERSION}/opencli/opencli-main.tar.gz"
