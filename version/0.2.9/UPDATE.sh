@@ -95,6 +95,9 @@ FUNCTIONS=(
     # update admin from github
     download_new_admin
 
+    # 0.2.9 only
+    fix_for_inotifytools
+
     # update opencli
     opencli_update
 
@@ -155,6 +158,26 @@ print_space_and_line() {
 
 
 # END helper functions
+
+
+fix_for_inotifytools() {
+ # temporary for 0.2.9
+
+ 
+        # Detect the package manager and install inotifywait-tools
+        if command -v apt-get &> /dev/null; then
+            sudo apt-get install -y -qq inotify-tools > /dev/null 2>&1
+        elif command -v yum &> /dev/null; then
+            sudo yum install -y -q inotify-tools > /dev/null 2>&1
+        elif command -v dnf &> /dev/null; then
+            sudo dnf install -y -q inotify-tools > /dev/null 2>&1
+        else
+            echo "Error: No compatible package manager found. Please install inotify-tools manually for DNS zone reload to work."
+        fi
+
+        service watcher restart
+}
+
 
 
 update_configuration_files() {
