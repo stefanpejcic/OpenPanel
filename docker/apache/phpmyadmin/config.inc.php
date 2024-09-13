@@ -25,22 +25,19 @@ if (check_file_access('/etc/phpmyadmin/config-db.php')) {
 }
 
 if (!empty($dbname)) {
-    // Check for HTTPS using the X-Forwarded-Proto header
-    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ||
-               (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
-
-    if ($isHttps) {
-        // Use cookie authentication for HTTPS connections
-        error_log("Using cookie authentication for HTTPS");
-        $cfg['Servers'][$i]['auth_type'] = 'cookie';
-        $cfg['Servers'][$i]['user'] = ''; // Username will be entered in the login form
-        $cfg['Servers'][$i]['password'] = '';
-    } else {
-        // Use Single Sign-On (SSO) for the random ip
-        error_log("Using Single Sign-On (SSO) for IP: $allowedIp");
+    $serverPort = $_SERVER['SERVER_PORT'];
+    // AUTOLOGIN FROM OPENPANEL UI
+    if ($serverPort != 80 && $serverPort != 443) {
+        error_log("Using Single Sign-On (SSO) for connections from OpenPanel: $clientIp");
         $cfg['Servers'][$i]['auth_type'] = 'signon';
         $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
         $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
+    // LOGIN FORM ON DOMAIN/phpmyadmin
+    } else {
+        error_log("Using cookie authentication for connection via domain name");
+        $cfg['Servers'][$i]['auth_type'] = 'cookie';
+        $cfg['Servers'][$i]['user'] = '';
+        $cfg['Servers'][$i]['password'] = '';
     }
 
     /* Server parameters */
