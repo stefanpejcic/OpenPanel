@@ -25,10 +25,21 @@ if (check_file_access('/etc/phpmyadmin/config-db.php')) {
 }
 
 if (!empty($dbname)) {
-    /* Authentication type */
-    $cfg['Servers'][$i]['auth_type'] = 'signon';
-    $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
-    $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
+    $serverPort = $_SERVER['SERVER_PORT'];
+    // AUTOLOGIN FROM OPENPANEL UI
+    if ($serverPort != 80 && $serverPort != 443) {
+        error_log("Using Single Sign-On (SSO) for connections from OpenPanel: $clientIp");
+        $cfg['Servers'][$i]['auth_type'] = 'signon';
+        $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
+        $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
+    // LOGIN FORM ON DOMAIN/phpmyadmin
+    } else {
+        error_log("Using cookie authentication for connection via domain name");
+        $cfg['Servers'][$i]['auth_type'] = 'cookie';
+        $cfg['Servers'][$i]['user'] = '';
+        $cfg['Servers'][$i]['password'] = '';
+    }
+
     /* Server parameters */
     if (empty($dbserver)) $dbserver = 'localhost';
     $cfg['Servers'][$i]['host'] = $dbserver;
@@ -68,17 +79,14 @@ $cfg['ShowChgPassword'] = false;
 $cfg['ShowCreateDb'] = false;
 $cfg['SuggestDBName'] = false;
 $cfg['AllowUserDropDatabase'] = false;
-$cfg['AllowUserDropUser'] = false;
 $cfg['PmaNoRelation_DisableWarning'] = true;
 $cfg['UploadDir'] = '';
 $cfg['SaveDir'] = '';
 $cfg['ShowDatabasesNavigationAsTree'] = false;
 
 /* Support additional configurations */
-foreach (glob('/etc/phpmyadmin/conf.d/*.php') as $filename)
-{
+foreach (glob('/etc/phpmyadmin/conf.d/*.php') as $filename) {
     include($filename);
 }
 
 $cfg['SendErrorReports'] = 'never';
-
