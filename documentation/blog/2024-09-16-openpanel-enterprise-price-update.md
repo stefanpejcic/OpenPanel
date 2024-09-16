@@ -1,6 +1,6 @@
 ---
 title: OpenPanel Enterprise Price Update
-description: Important Announcement: OpenPanel Enterprise Price Update
+description: From January 2025 the price of OpenPanel Enterprise will increase to 24.95€/mo
 slug: openpanel-enterprise-price-update
 authors: stefanpejcic
 tags: [OpenPanel, news, price]
