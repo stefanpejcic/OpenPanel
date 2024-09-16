@@ -30,7 +30,6 @@ There will be two product versions:
 ### Pricing Options:
 - [**Monthly Plan**: 14,95 EUR per month with a price-lock guarantee.](https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license)
 - **Yearly Plan**: 149,50 EUR per year (20% savings).
-- [**Lifetime Plan**:  269,19 EUR.](https://my.openpanel.com/index.php?rp=/store/openpanel/lifetime-enterprise-license)
 
 The free version will retain all existing features and continue to receive regular updates. It will include:
 - All existing features.
