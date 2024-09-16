@@ -84,7 +84,7 @@ OpenPanel us available in two editions:
 
 Supported OS:
 
-OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Cutrently supported:
+OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Currently supported:
 
 - AlmaLinux 9
 - RockyLinux 9
