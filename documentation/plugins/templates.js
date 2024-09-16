@@ -87,37 +87,19 @@ OpenPanel Enterprise edition offers advanced features for user isolation and man
 
 - [**Monthly Plan**: 14.95€ per month](https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=monthly&skipconfig=1)
 - [**Yearly Plan**: 149.50€ per year (20% savings)](https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1)
-- [**Lifetime Plan**: 269,19€ one-time payment (20% savings)](https://my.openpanel.com/index.php?rp=/store/openpanel/lifetime-enterprise-license)
 
 Monthly/yearly options come with a price-lock guarantee, ensuring that future price increases will not affect you. You will always pay the price you started with.
-
-Only 40 Lifetime licenses will be available for purchase until they're sold out, or till 20 December 2024.
-
-Lifetime license includes:
-
-- Premium features
-- Host **unlimited domains + accounts**, no restrictions
-- One license is required per server
-- Forefer free panel updates
-- 1 year of premium support Includes Hands-on support
-- License is transferable
-- License valid for all OpenPanel releases
-- Volume licensing discounts available
 
 ### Premium features:
 
 - **White-Labeling**: Options to completely brand the panel as your own.
-- **Billing Integrations**: WHMCS, Blesta, HostBill, FossBilling.
-- **Auto-Installers**: 50+ CMS and tools.
-- **Additional Pro Features**: OpenLitespeed, Varnish, Emails, FTP, Clusters, Cloudflare DNS.
-- **Migration Tools**: cPanel2OpenPanel and WordPress2OpenPanel.
-- **Backup Storage**: 100GB of backup storage.
+- **Billing Integrations**: WHMCS, FossBilling.
+- **Auto-Installers**: WordPress, Mautic, nodeJS, Python..
+- **Additional Pro Features**: Emails, FTP..
+- **Migration Tools**: cPanel account 2 OpenPanel import
 - **Real-Time Updates**: Immediate bug fixes as soon as they are available.
 - **On-Site Support**: TeamViewer/AnyDesk support.
 
-📢 For hosting providers, we also offer white-label tutorials for your blog/knowledgebase and support ticket options. When clients have technical questions or issues related to OpenPanel, you can direct-message our developers for answers or resolutions with a 30-minute SLA.
-
-Please note that not all features for the Pro version will be immediately available; it will take several months for all planned features to be implemented.
 `,
    },
 ];
