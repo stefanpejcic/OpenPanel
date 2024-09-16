@@ -95,7 +95,7 @@ Monthly/yearly options come with a price-lock guarantee, ensuring that future pr
 - **White-Labeling**: Options to completely brand the panel as your own.
 - **Billing Integrations**: WHMCS, FossBilling.
 - **Auto-Installers**: WordPress, Mautic, nodeJS, Python..
-- **Additional Pro Features**: Emails, FTP..
+- **Additional Pro Features**: MariaDB support, Emails, FTP..
 - **Migration Tools**: cPanel account 2 OpenPanel import
 - **Real-Time Updates**: Immediate bug fixes as soon as they are available.
 - **On-Site Support**: TeamViewer/AnyDesk support.
