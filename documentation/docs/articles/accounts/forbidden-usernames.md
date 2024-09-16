@@ -18,6 +18,16 @@ Usernames may **only** use lowercase letters (a–z) and digits (0–9).
 - Usernames cannot contain less than **5** characters.
 - Usernames cannot contain more than **20** characters.
 
+Passwords may **only** use lowercase letters (a–z) and digits (0–9).
+- Usernames cannot contain less than **5** characters.
+- Usernames cannot contain more than **20** characters.
+
+### SSH
+OpenAdmin applies the following rules when you modify an SSH password:
+
+Passwords may **only** use lowercase letters (a–z) and digits (0–9).
+- Passwords cannot contain less than **8** characters.
+- Passwords cannot contain more than **20** characters.
 
 ##  Reserved usernames
 
