@@ -533,28 +533,6 @@ const tableData = [
         title: "Additional Features",
         items: [
             {
-                description: "Cluster",
-                community: <CrossIcon />,
-                enterprise: (
-                    <TableText>
-                        Manage accounts from multiple servers
-                    </TableText>
-                ),
-                valueType: {
-                    community: "icon",
-                    enterprise: "text",
-                },
-            },
-            {
-                description: "LiteSpeed",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
                 description: "Sentinel AI",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
@@ -564,7 +542,7 @@ const tableData = [
                 },
             },
             {
-                description: "Varnish Cache",
+                description: "MariaDB",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
