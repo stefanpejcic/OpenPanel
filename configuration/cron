@@ -1,0 +1,45 @@
+# /etc/cron.d/openpanel: crontab entries for the OpenPanel
+#
+#
+# This file is used by OpenPanel to schedule cronjobs
+#
+# It should NOT be edited manually as it is overwritten on update.
+# To add crons please use the crontab as root user.
+#
+# Important Note!  This cronjob will NOT be executed if you are
+# running systemd as your init system.  If you are running systemd,
+# the cronjob.timer function takes precedence over this cronjob.  For
+# more details, see the systemd.timer manpage, or use systemctl show
+# certbot.timer.
+
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# SSL
+0 */3 * * * root /usr/local/bin/opencli ssl-hostname && echo "$(date) SSL hostname check executed" >> /var/log/openpanel/admin/cron.log
+45 */3 * * * root /usr/local/bin/opencli ssl-user --all --generate && echo "$(date) SSL generation for all domains executed" >> /var/log/openpanel/admin/cron.log
+
+
+# STATISTICS
+0 * * * * root /usr/local/bin/opencli docker-collect_stats && echo "$(date) Docker statistics collected" >> /var/log/openpanel/admin/cron.log
+30 3 * * * root /usr/local/bin/opencli server-stats --save && echo "$(date) Server statistics collected" >> /var/log/openpanel/admin/cron.log
+30 2 * * * root /usr/local/bin/opencli domains-stats && echo "$(date) Domain statistics collected" >> /var/log/openpanel/admin/cron.log
+0 4 * * * root /usr/local/bin/opencli websites-pagespeed --all && echo "$(date) Google PageSpeed data collected for all domains" >> /var/log/openpanel/admin/cron.log
+
+# MAINTENANCE
+*/5 * * * * root /bin/bash /usr/local/admin/scripts/server/recreate_hosts && echo "$(date) /etc/hosts file recreated via cron" >> /var/log/openpanel/admin/cron.log
+* 2 * * * root /usr/local/bin/opencli docker-usage_stats_cleanup && echo "$(date) Docker usage stats cleanup executed" >> /var/log/openpanel/admin/cron.log
+15 0 * * * root /usr/local/bin/opencli update && echo "$(date) System update executed" >> /var/log/openpanel/admin/cron.log
+0 0 12 * * root /usr/local/bin/opencli server-ips && echo "$(date) Server IP listing executed" >> /var/log/openpanel/admin/cron.log
+0 */6 * * * root /usr/local/bin/opencli server-motd && echo "$(date) Server MOTD updated" >> /var/log/openpanel/admin/cron.log
+0 */8 * * * root /usr/local/bin/opencli ftp-users && echo "$(date) FTP users file recreated" >> /var/log/openpanel/admin/cron.log
+
+# BACKUPS
+0 7 * * * root /usr/local/bin/opencli backup-check && echo "$(date) Backup check executed" >> /var/log/openpanel/admin/cron.log
+0 8 * * * root /usr/local/bin/opencli backup-scheduler && echo "$(date) Backup scheduler executed" >> /var/log/openpanel/admin/cron.log
+
+# MONITORING
+*/5 * * * * root /bin/bash /usr/local/admin/service/notifications.sh && echo "$(date) Notifications script executed" >> /var/log/openpanel/admin/cron.log
+45 11 * * * root /bin/bash /usr/local/admin/service/notifications.sh --report && echo "$(date) Daily Usage Report generated" >> /var/log/openpanel/admin/cron.log
+@reboot root /bin/bash /usr/local/admin/service/notifications.sh --startup && echo "$(date) Notifications script executed at startup" >> /var/log/openpanel/admin/cron.log
+@reboot root /usr/local/bin/opencli server-on_startup && echo "$(date) Server startup tasks executed" >> /var/log/openpanel/admin/cron.log

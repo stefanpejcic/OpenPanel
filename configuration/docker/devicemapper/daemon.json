@@ -1,0 +1,7 @@
+{
+	"storage-driver": "devicemapper",
+	"log-driver": "local",
+	"log-opts": {
+		"max-size": "5m"
+         }
+}

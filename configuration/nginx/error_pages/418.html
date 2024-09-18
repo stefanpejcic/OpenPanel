@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="/_errors/main.css"/>
+	<title>Error 418 - %{HOSTNAME}</title>
+	<style>
+		html{
+			background-image:url('/_errors/images/teapot.jpg');
+			background-size: cover;
+			background-position: 50% 50%;
+		}
+
+		body>div.overlay{
+			position: absolute;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			top: 0;
+			left: 0;
+			bottom: 0;
+			right: 0;
+			height: 100vh;
+			width: 100vw;
+			background-color: rgba(20,20,20, 0.5);
+		}
+
+		body>div.overlay>.error-middle{
+			position: relative;
+		}
+
+		body{
+			color: #fefefe;
+		}
+	</style>
+</head>
+
+<body>
+<div class="overlay">
+	<div class="error-middle">
+		<h1>Error 418 - I'm a teapot</h1>
+		<p>I cannot brew your coffee because I'm a teapot.</p>
+	</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,14 @@
+[Unit]
+Description=Floating IP
+After=docker.service
+BindsTo=docker.service
+ReloadPropagatedFrom=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/admin/scripts/server/recreate_hosts --after-docker
+ExecReload=/usr/local/admin/scripts/server/recreate_hosts --after-docker
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

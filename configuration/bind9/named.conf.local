@@ -1,0 +1,11 @@
+// It is recommended to create a key and configure Bind to listen to commands
+// sent via rndc. However, it will function just fine without the following
+// four lines.
+include "/etc/bind/rndc.key";
+controls {
+    inet 127.0.0.1 allow { localhost; } keys { "rndc-key"; };
+};
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";

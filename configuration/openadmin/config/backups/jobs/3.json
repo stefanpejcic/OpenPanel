@@ -1,0 +1,11 @@
+{
+    "name": "Partial backup for each account",
+    "destination": "1",
+    "directory": "/backup",
+    "type": ["partial"],
+    "schedule": "weekly",
+    "retention": "4",
+    "status": "off",
+    "filters": ["files", "entrypoint", "apache-conf", "mysql-data", "mysql-conf", "php-versions", "crontab", "user-data", "core-users", "stats-users", "apache-ssl-conf", "domain-access-reports", "ssh", "timzeone"],
+    "id": "3"
+}

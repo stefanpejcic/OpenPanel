@@ -1,0 +1,116 @@
+services:
+  # Database for OpenPanel users, plans, websites and domains
+  openpanel_mysql:
+    image: mysql/mysql-server
+    container_name: openpanel_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: panel
+      MYSQL_USER: panel
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - openadmin_mysql:/var/lib/mysql
+      - /etc/openpanel/:/etc/openpanel/
+      - /etc/openpanel/docker/compose/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
+    mem_limit: 1g
+    cpus: 1
+    oom_kill_disable: true
+
+  # OpenPanel service running on port 2083
+  openpanel:
+    image: openpanel/openpanel
+    container_name: openpanel
+    depends_on:
+      - openpanel_mysql
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - /etc/nginx/sites-available/:/etc/nginx/sites-available/
+      - /etc/nginx/sites-enabled/:/etc/nginx/sites-enabled/
+      - /etc/bind:/etc/bind
+      - /lib/modules:/lib/modules:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/hostfs:ro
+      - /home:/home
+      - /etc/ufw:/etc/ufw
+      - /usr/local/admin:/usr/local/admin
+      - /usr/local/admin/scripts:/usr/local/admin/scripts
+      - /var/log:/var/log
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /etc/my.cnf:/etc/my.cnf
+      - /etc/openpanel/:/etc/openpanel/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - openadmin_mysql:/var/lib/mysql
+      - /usr/bin/docker:/usr/bin/docker
+    network_mode: host
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+          cpus: '1.0'
+    restart: always
+    privileged: true
+
+  #mailserver:
+  #  image: ghcr.io/docker-mailserver/docker-mailserver:latest
+  #  container_name: openadmin_mailserver
+  #  hostname: mail.openpanel.site
+  #  env_file: mailserver.env
+  #  ports:
+  #    - "25:25"
+  #    - "143:143"
+  #    - "465:465"
+  #    - "587:587"
+  #    - "993:993"
+  #  volumes:
+  #    - ./docker-data/dms/mail-data/:/var/mail/
+  #    - ./docker-data/dms/mail-state/:/var/mail-state/
+  #    - ./docker-data/dms/mail-logs/:/var/log/mail/
+  #    - ./docker-data/dms/config/:/tmp/docker-mailserver/
+  #    - /etc/localtime:/etc/localtime:ro
+  #  restart: always
+  #  stop_grace_period: 1m
+  #  healthcheck:
+  #    test: "ss --listening --tcp | grep -P 'LISTEN.+:smtp' || exit 1"
+  #    timeout: 3s
+  #    retries: 0
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        memory: 1g
+  #        cpus: '1.0'
+  #  networks:
+  #    - openadmin_mail_network
+
+  #roundcube:
+  #  image: roundcube/roundcubemail
+  #  container_name: openadmin_roundcube
+  #  restart: always
+  #  environment:
+  #    - ROUNDCUBEMAIL_DEFAULT_HOST=openadmin_mailserver
+  #    - ROUNDCUBEMAIL_SMTP_SERVER=openadmin_mailserver
+  #  ports:
+  #    - "8080:80"
+  #  networks:
+  #    - openadmin_mail_network
+  #  deploy:
+  #    resources:
+  #      limits:
+  #        memory: 1g
+  #        cpus: '1.0'
+
+
+#networks:
+#  openadmin_mail_network:
+#    driver: bridge
+
+
+
+# make the data persistent
+volumes:
+  openadmin_mysql:

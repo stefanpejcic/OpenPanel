@@ -1,0 +1,164 @@
+services:
+  # Database for OpenPanel users, plans, websites and domains
+  openpanel_mysql:
+    image: mysql/mysql-server
+    container_name: openpanel_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: panel
+      MYSQL_USER: panel
+      MYSQL_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - openadmin_mysql:/var/lib/mysql
+      - /etc/openpanel/:/etc/openpanel/
+      - /root/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
+    mem_limit: 0.5g
+    cpus: 1.0
+    oom_kill_disable: true
+
+  # OpenPanel service running on port 2083
+  openpanel:
+    image: openpanel/openpanel
+    container_name: openpanel
+    depends_on:
+      - openpanel_mysql
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    volumes:
+      - /etc/nginx/sites-available/:/etc/nginx/sites-available/
+      - /etc/nginx/sites-enabled/:/etc/nginx/sites-enabled/
+      - /etc/bind:/etc/bind
+      - /lib/modules:/lib/modules:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/hostfs:ro
+      - /home:/home
+      - /usr/local/admin:/usr/local/admin
+      - /usr/local/admin/scripts:/usr/local/admin/scripts
+      - /var/log:/var/log
+      - /etc/ufw:/etc/ufw
+      - /etc/letsencrypt:/etc/letsencrypt
+      - /etc/my.cnf:/etc/my.cnf
+      - /etc/openpanel/:/etc/openpanel/
+      - /var/run/docker.sock:/var/run/docker.sock
+      - openadmin_mysql:/var/lib/mysql
+      - /usr/bin/docker:/usr/bin/docker
+      - /root/:/root/
+      #  https://dev.openpanel.com/customize.html#Custom-Code
+      - /etc/openpanel/openpanel/custom_code/:/usr/local/panel/templates/custom_code/
+      - /etc/openpanel/openpanel/custom_code/custom.css:/usr/local/panel/static/css/custom.css
+      - /etc/openpanel/openpanel/custom_code/custom.js:/usr/local/panel/static/js/custom.js
+      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
+    network_mode: host
+    mem_limit: 1g
+    cpus: 1.0
+    restart: always
+    privileged: true
+
+  # Webserver from 0.2.5+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    network_mode: "host"
+    volumes:
+        - /etc/openpanel/nginx/nginx.conf:/etc/nginx/nginx.conf
+        - /etc/openpanel/nginx/vhosts/default.conf:/etc/nginx/conf.d/default.conf 
+        - /etc/openpanel/nginx/vhosts/openpanel_proxy.conf:/etc/openpanel/nginx/vhosts/openpanel_proxy.conf
+        - /etc/nginx/sites-available/:/etc/nginx/sites-available/
+        - /etc/nginx/sites-enabled/:/etc/nginx/sites-enabled/
+        - /etc/nginx/ssl/:/etc/nginx/ssl/ # for custom ssl from 0.2.6
+        - /etc/openpanel/nginx/error_pages/snippets/:/etc/nginx/snippets/
+        - /etc/openpanel/nginx/error_pages/:/srv/http/default/
+        - /var/log/nginx/:/var/log/nginx/
+        - /etc/letsencrypt/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf
+        - /etc/letsencrypt/ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem
+        - /etc/letsencrypt/:/etc/letsencrypt/
+        - /etc/openpanel/openpanel/core/users/:/etc/openpanel/openpanel/core/users/
+        - /etc/hosts:/etc/hosts
+        - /usr/share/nginx/html/:/usr/share/nginx/html/
+        - /home/:/home/:ro
+    restart: unless-stopped
+    mem_limit: 1g
+    cpus: 1.0
+    oom_kill_disable: true
+    
+  # SSL status and renewals
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    network_mode: "host"
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt                     # Let's Encrypt certificates
+      - /var/lib/letsencrypt:/var/lib/letsencrypt             # Working directory for Certbot
+      - /etc/nginx/sites-available:/etc/nginx/sites-available # Access to Nginx config for authentication challenges
+      - /etc/nginx/sites-enabled:/etc/nginx/sites-enabled     # Enabled sites for reloading after cert issuance
+    entrypoint: /bin/sh -c 'trap exit TERM; while :; do sleep 6h & wait $${!}; certbot renew; nginx -s reload; done'
+    restart: unless-stopped
+    mem_limit: 0.1g
+    cpus: 0.1
+    oom_kill_disable: true
+
+  # DNS
+  bind9:
+    container_name: openpanel_dns
+    image: ubuntu/bind9:latest
+    environment:
+      - BIND9_USER=root
+      - TZ=America/New_York
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    volumes:
+      - /etc/bind/:/etc/bind/
+    restart: unless-stopped
+    mem_limit: 0.1g
+    cpus: 0.1
+    oom_kill_disable: true
+
+  # FTP
+  ftp_env_generator:
+    image: alpine:latest
+    container_name: ftp_env_generator
+    volumes:
+      - /etc/openpanel/ftp/:/etc/openpanel/ftp/
+      - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users
+    entrypoint: /bin/sh -c "/usr/local/admin/scripts/ftp/users"
+    restart: "no"  # Do not restart, we just want it to run once
+
+  openadmin_ftp:
+    #OLD# image: delfer/alpine-ftp-server
+    build:
+      context: /etc/openpanel/ftp/    
+    container_name: openadmin_ftp
+    restart: always
+    ports:
+      - "21:21"
+      - "21000-21010:21000-21010"
+    volumes:
+      - /home/:/home/
+      - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf
+      - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
+      - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
+      - /etc/openpanel/users/:/etc/openpanel/ftp/users/
+      # uncomment for ssl # - /etc/letsencrypt:/etc/letsencrypt:ro
+    depends_on:
+      - ftp_env_generator
+    env_file:
+      - /etc/openpanel/ftp/all.users
+    # uncomment the following lines for SSL and replace ftp.YOUR_DOMAIN_HERE.com with your domain
+    # environment:
+      # - ADDRESS=ftp.YOUR_DOMAIN_HERE.com
+      # - TLS_CERT="/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/fullchain.pem"
+      # - TLS_KEY="/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/privkey.pem"
+    mem_limit: 0.5g
+    cpus: 0.5
+
+
+
+# make the mysql data persistent
+volumes:
+  openadmin_mysql:

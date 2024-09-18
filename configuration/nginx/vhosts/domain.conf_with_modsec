@@ -1,0 +1,26 @@
+server {
+    listen <LISTEN_IP>;
+    server_name <DOMAIN_NAME> www.<DOMAIN_NAME>;
+    modsecurity on;
+    modsecurity_rules_file /etc/nginx/modsec/main.conf;
+    include snippets/error_pages.conf;
+    access_log /var/log/nginx/domlogs/<DOMAIN_NAME>.log;
+    include /etc/openpanel/openpanel/core/users/<USERNAME>/domains/<DOMAIN_NAME>-block_ips.conf;
+
+    # container
+    location / {
+        if ($scheme = "https") {
+            proxy_pass https://<IP>;
+        }
+        if ($scheme = "http") {
+            proxy_pass http://<IP>;
+        }
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # openpanel
+    include /etc/openpanel/nginx/vhosts/openpanel_proxy.conf;
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenPanel
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/usr/local/panel/
+ExecStart=gunicorn -c /etc/openpanel/openpanel/service/service.config.py app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

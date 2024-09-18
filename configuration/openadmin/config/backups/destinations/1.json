@@ -1,0 +1,9 @@
+{
+    "hostname": "localhost",
+    "password": "your_password",
+    "ssh_port": 22,
+    "ssh_user": "your_username",
+    "ssh_key_path": "/path/to/ssh/key",
+    "storage_limit": "90"
+  }
+  

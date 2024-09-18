@@ -1,0 +1,22 @@
+$TTL 1h
+@       IN      SOA     {ns1}. {ns2}. (
+                        2024091801      ; Serial number
+                        1h              ; Refresh interval
+                        15m             ; Retry interval
+                        1w              ; Expire interval
+                        1h )            ; Minimum TTL
+
+@ IN NS      {ns1}.
+@ IN NS      {ns2}.
+
+ns1     14400     IN      A       {server_ip}
+ns2     14400     IN      A       {server_ip}
+
+{domain}.     14400     IN      A       {server_ip}
+{domain}.     3600     IN      MX       0 {domain}.
+www     14400     IN      CNAME   {domain}.
+
+mail    14400     IN      CNAME   {domain}.
+webmail    14400     IN      CNAME   {domain}.
+
+{domain}.    14400     IN      TXT       "v=spf1 ip4:{server_ip} +a +mx ~all"

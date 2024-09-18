@@ -1,0 +1,11 @@
+{
+    "name": "System configuration only",
+    "destination": "2",
+    "directory": "/backup",
+    "type": ["configuration"],
+    "schedule": "monthly",
+    "retention": "4",
+    "status": "off",
+    "filters": [],
+    "id": "2"
+}

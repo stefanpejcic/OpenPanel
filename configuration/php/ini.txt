@@ -1,0 +1,7 @@
+upload_max_filesize = 1024M
+opcache.enable = 1
+max_input_time = 600
+memory_limit = -1
+post_max_size = 1024M
+sendmail_path = /usr/bin/msmtp -t
+max_execution_time = 600

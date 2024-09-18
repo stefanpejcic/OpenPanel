@@ -1,0 +1,11 @@
+{
+    "name": "Full snapshot for each account",
+    "destination": "1",
+    "directory": "/backup",
+    "type": ["accounts"],
+    "schedule": "daily",
+    "retention": "30",
+    "status": "off",
+    "filters": ["files", "docker", "user-data"],
+    "id": "1"
+}

@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenAdmin
+After=network.target
+
+[Service]
+User=root
+WorkingDirectory=/usr/local/admin/
+ExecStart=gunicorn -c /etc/openpanel/openadmin/service/service.config.py app:app
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
