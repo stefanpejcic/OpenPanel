@@ -1,6 +1,6 @@
 <div align="center">
 <a href="https://openpanel.com/">
-    <img alt="website" src="/documentation/static/img/openpanel_admin.gif">
+    <img alt="website" src="/website/static/img/openpanel_admin.gif">
 </a>
   
 <br/>
@@ -32,7 +32,7 @@ OpenPanel is a powerful and flexible web hosting control panel for Linux systems
 
 **OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
 
-[![openpanel scheme](/documentation/static/img/admin/openpanel_scheme.png)](https://openpanel.com/docs/panel/intro/)
+[![openpanel scheme](/website/static/img/admin/openpanel_scheme.png)](https://openpanel.com/docs/panel/intro/)
 
 This panel is the culmination of years of experience in the hosting industry, having spent decades working with various hosting panels we made sure to include all features that simply make sense.
 
@@ -70,7 +70,7 @@ The **OpenAdmin** offers an administrator-level interface where you can efficien
 
 The **OpenPanel** interface is the client-level panel where end-users can manage their enviroment, edit settings, install services, create websites and more.
 
-[![openpanel-vs-openadmin](/documentation/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.com/docs/admin/intro/)
+[![openpanel-vs-openadmin](/website/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.com/docs/admin/intro/)
 
 ## Community VS Enterprise 
 
@@ -127,7 +127,7 @@ To see more details to configure server on installation, **please visit**: https
 
 Spin a 1-click droplet on DigitalOcean: 
 
-[![droplet](/documentation/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
+[![droplet](/website/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
 
 
 DigitalOcean API:
