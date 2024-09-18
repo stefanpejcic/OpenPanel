@@ -45,7 +45,7 @@ const Roadmap: React.FC = () => {
                     <h1>Roadmap</h1>
                     <p>The following is a list of features in the OpenPanel roadmap.</p>
                     <p>We list these here so that our users can get a better idea of where we are going and can give us feedback on which of these they like best (or least).</p>
-                    <p>Here is a short list; the <a gref="https://roadmap.openpanel.com/" target="_blank">roadmap</a> has many more.</p>
+                    <p>Here is a short list; the <a href="https://roadmap.openpanel.com/" target="_blank">feature requests</a> have many more.</p>
                     <ul>
                         <li>Support for more Linux distros.</li>
                         <li>More improvements to cluster mode and OpenAdmin.</li>
