@@ -32,7 +32,7 @@ const siteConfig = {
                           path: "./docs",
                           sidebarPath: require.resolve("./sidebars.js"),
                           editUrl:
-                              "https://github.com/stefanpejcic/openpanel/tree/master/documentation",
+                              "https://github.com/stefanpejcic/openpanel/tree/master/website",
                           showLastUpdateAuthor: true,
                           showLastUpdateTime: true,
                           disableVersioning:
