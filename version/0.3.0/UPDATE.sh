@@ -273,6 +273,8 @@ download_new_admin() {
     cd $OPENADMIN_DIR
     pip3 install --force-reinstall zope.event || pip3 install --force-reinstall zope.event --break-system-packages
 
+    pip3 install --force-reinstall flask_caching || pip3 install --force-reinstall flask_caching --break-system-packages
+
     mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
 
 }
