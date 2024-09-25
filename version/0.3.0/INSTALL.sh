@@ -1257,19 +1257,16 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     mkdir -p /usr/local/admin
-
-    wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz"
     mkdir -p /tmp/opencli
     cd /tmp/ && tar -xzf opencli.tar.gz -C /tmp/opencli
     mkdir -p /usr/local/admin/scripts
     cp -r /tmp/opencli/* /usr/local/admin/scripts > /dev/null 2>&1 || cp -r /tmp/opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
     rm /tmp/opencli.tar.gz > /dev/null 2>&1
     rm -rf /tmp/opencli > /dev/null 2>&1
-    
     cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli > /dev/null 2>&1
     chmod +x -R /usr/local/admin/scripts/ > /dev/null 2>&1
-    #opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
     generate_autocomplete() {
@@ -1277,7 +1274,7 @@ opencli_setup(){
     }
     complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
 
-    # The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
+    # Fix for: The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
     export PATH="/usr/bin:$PATH"
 
     source ~/.bashrc
