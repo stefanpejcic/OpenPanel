@@ -27,6 +27,6 @@ Some of the unique features worth mentioning are:
 
 ## Support
 
-Our [Community](https://community.openpanel.co/) serves as our virtual Headquater, where the community helps each other.
+Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
