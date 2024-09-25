@@ -72,7 +72,7 @@ export const MENU_ITEMS: MenuItemType[] = [
             {
                 label: "Forums",
                 description: "Join our growing community!",
-                link: "https://community.openpanel.co/",
+                link: "https://community.openpanel.org/",
                 icon: ContributeIcon,
             },
             {
