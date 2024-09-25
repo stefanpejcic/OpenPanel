@@ -4,13 +4,13 @@
 # Install the latest version of OpenPanel ✌️
 # https://openpanel.com/install
 #
-# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, Fedora, CentOS
+# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
 # Supported Python         3.8 3.9 3.10 3.11 3.12
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           12.09.2024
+# Last Modified:           25.09.2024
 #
 ################################################################################
 
@@ -214,7 +214,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.2.9"
+	        PANEL_VERSION="0.3.0"
 	    fi
 	fi
 }
@@ -1257,19 +1257,16 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     mkdir -p /usr/local/admin
-
-    wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/get.openpanel.co/downloads/${PANEL_VERSION}/opencli/opencli-main.tar.gz"
+    wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz"
     mkdir -p /tmp/opencli
     cd /tmp/ && tar -xzf opencli.tar.gz -C /tmp/opencli
     mkdir -p /usr/local/admin/scripts
     cp -r /tmp/opencli/* /usr/local/admin/scripts > /dev/null 2>&1 || cp -r /tmp/opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
     rm /tmp/opencli.tar.gz > /dev/null 2>&1
     rm -rf /tmp/opencli > /dev/null 2>&1
-    
     cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli > /dev/null 2>&1
     chmod +x -R /usr/local/admin/scripts/ > /dev/null 2>&1
-    #opencli commands
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
     generate_autocomplete() {
@@ -1277,7 +1274,7 @@ opencli_setup(){
     }
     complete -W \"\$(generate_autocomplete)\" opencli" >> ~/.bashrc
 
-    # The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
+    # Fix for: The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
     export PATH="/usr/bin:$PATH"
 
     source ~/.bashrc
@@ -1569,25 +1566,10 @@ install_openadmin(){
 
         git clone -b $py_enchoded_for_distro --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
-	echo "pyyaml" >> requirements.txt # temp fix for debian12 missing yaml on some builds
         pip install --default-timeout=3600 -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 -r requirements.txt --break-system-packages  > /dev/null 2>&1
     
     cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
-
- # temporary for 0.2.9
-        # Detect the package manager and install inotifywait-tools
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get install -y -qq inotify-tools > /dev/null 2>&1
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y -q inotify-tools > /dev/null 2>&1
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q inotify-tools > /dev/null 2>&1
-        else
-            echo "Error: No compatible package manager found. Please install inotify-tools manually for DNS zone reload to work."
-        fi
-
-
     
     systemctl daemon-reload  > /dev/null 2>&1
     
