@@ -145,20 +145,21 @@ print_space_and_line() {
 
 
 
-add_server_column_to_mysql(){
+add_server_column_to_mysql() {
+    echo "Adding 'server' column to users table in the database. This column will be used for the Clustering feature in the future."
 
-    echo "Adding 'server' column to users table in the database. This column will be used for Clustering feature in the future."
-    mysql_query="ALTER TABLE users ADD COLUMN `server` VARCHAR(255) DEFAULT 'default';"
-    mysql  -D "panel" -e "$mysql_query"
-    
+    mysql_query="ALTER TABLE users ADD COLUMN server VARCHAR(255) DEFAULT 'default';"
+    mysql -D "panel" -e "$mysql_query"
+
     if [ $? -eq 0 ]; then
-        echo "Successfully added new column 'server' to users table."
+        echo "Successfully added 'server' column to the users table."
     else
-        echo "Error: Data insertion failed."
-        echo "Please run this mysql query manually: ALTER TABLE users ADD COLUMN `server` VARCHAR(255) DEFAULT 'default';"
+        echo "Error: Failed to add 'server' column to the users table."
+        echo "Please run the following MySQL query manually:"
+        echo "$mysql_query"
     fi
-
 }
+
 
 update_configuration_files() {
     echo "Updating configuration files in /etc/openpanel/"
