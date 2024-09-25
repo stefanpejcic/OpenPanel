@@ -124,11 +124,33 @@ install_started_message(){
     echo -e ""
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
-    echo -e "- Install necessary services and tools."
-    echo -e "- Create an admin account for you."
-    echo -e "- Set up the firewall for enhanced security."
+    if [ "$CSF_SETUP" = true ]; then
+    	echo -e "- Install necessary services and tools: CSF, Docker, MySQL, SQLite, Python3, PIP.. "
+    elif [ "$UFW_SETUP" = true ]; then
+    	echo -e "- Install necessary services and tools: UFW, Docker, MySQL, SQLite, Python3, PIP.. "
+    else
+	echo -e "- Install necessary services and tools: Docker, MySQL, SQLite, Python3, PIP.. "
+    fi
+    if [ "$SET_ADMIN_USERNAME" = true ]; then
+        if [ "$SET_ADMIN_PASSWORD" = true ]; then
+		echo -e "- Create an admin account $custom_username with password $custom_password for you."
+	else
+		echo -e "- Create an admin account $custom_username with a strong random password for you."
+  	fi
+    else
+	echo -e "- Create an admin account with random username and strong password for you."
+    fi    
+    if [ "$CSF_SETUP" = true ]; then
+    	echo -e "- Set up ConfigServer Firewall for enhanced security."
+    elif [ "$UFW_SETUP" = true ]; then
+    	echo -e "- Set up Uncomplicated Firewall for enhanced security."
+    fi
     echo -e "- Install needed Docker images."
-    echo -e "- Set up basic hosting plans so you can start right away."
+    if [ "$SET_PREMIUM" = true ]; then
+    	echo -e "- Set up 4 hosting plans (Nginx with MySQL, Nginx with MariaDB, Apache with MySQL, Apache with MariaDB) so you can start right away."
+    else
+    	echo -e "- Set up 2 hosting plans (Nginx and Apache) so you can start right away."
+    fi
     echo -e "\nThank you for your patience. We're setting everything up for your seamless OpenPanel experience!\n"
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e ""
@@ -317,7 +339,7 @@ configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
-set_system_cronjob                        # setup drons, must be after csf
+set_system_cronjob                        # setup crons, must be after csf
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
 setup_swap                                # swap space
@@ -619,7 +641,7 @@ detect_os_and_package_manager() {
 
 
 download_and_import_docker_images() {
-    echo "Downloading docker images in the background.."
+    echo "Started downloading docker images in the background.."
 
     if [ "$SKIP_IMAGES" = false ]; then
         # See https://github.com/moby/moby/issues/16106#issuecomment-310781836 for pulling images in parallel
@@ -682,15 +704,40 @@ configure_docker() {
 			gb_size=$((available_gb * 50 / 100))
 		    fi
   
-		echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for /var/lib/docker - this can take a few minutes.."
-	 
-		dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
-		debug_log mkfs.xfs /var/lib/docker.img
-		debug_log systemctl stop docker
-	 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
-		echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >>  /etc/fstab
-  		}
+	
+		    # for --retry we need to check first
+		    if [ -f /var/lib/docker.img ]; then
+		        echo "/var/lib/docker.img already exists. Skipping creation."
+		    else
+         		echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for Docker - this can take a few minutes.."  
+		        dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+		    fi
+			echo "Creating the XFS filesystem.."
+	  		# todo: add checks
+			debug_log mkfs.xfs /var/lib/docker.img
+	 		echo "Stopping Docker service.."
+			debug_log systemctl stop docker
+			echo "Mounting the /var/lib/docker directory.."
+		 	debug_log mount -o loop,pquota /var/lib/docker.img /var/lib/docker
+			
+		    # for --retry we need to check first
+		    if ! grep -q "/var/lib/docker.img /var/lib/docker" /etc/fstab; then
+      			echo "Adding entry to /etc/fstab for persistence across reboots.."
+		        echo "/var/lib/docker.img /var/lib/docker xfs loop,pquota 0 0" >> /etc/fstab
+		    fi
 
+		
+		    # Check if /var/lib/docker is mounted properly
+		    if mount | grep -q "/var/lib/docker.img"; then
+		        echo -e "[${GREEN} OK ${RESET}] XFS filesystem created and /var/lib/docker is mounted successfully."
+		    else
+		        echo -e "[${RED} ERROR ${RESET}]  /var/lib/docker is not mounted."
+	  		echo "Retry the installation with --retry flag and --debug to view verbose output."
+		        exit 1
+		    fi
+
+  
+  		}
 
 
  
@@ -708,6 +755,8 @@ configure_docker() {
 	    fi
 
 
+
+
 	if [ -f /etc/fedora-release ]; then
  		# On Fedora journald handles docker log-driver
 		cp ${ETC_DIR}docker/overlay2/fedora.json "$docker_daemon_json_path"
@@ -719,6 +768,7 @@ configure_docker() {
 
  	fi
 
+	echo "Starting Docker and checking status.."
 	systemctl daemon-reload
 	systemctl start docker
  
@@ -906,6 +956,7 @@ setup_firewall_service() {
             }
 
           edit_csf_conf() {
+	  echo "Tweaking /etc/csf/csf.conf"
               sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
 	      sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
               sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
@@ -1281,7 +1332,7 @@ opencli_setup(){
     
     echo "Testing 'opencli' commands:"
     if [ -x "/usr/local/bin/opencli" ]; then
-        echo "opencli commands are available."
+        echo -e "[${GREEN} OK ${RESET}] opencli commands are available."
     else
         radovan 1 "'opencli --version' command failed."
     fi
@@ -1320,7 +1371,7 @@ set_premium_features(){
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
     
-    #added in 0.2.5 https://community.openpanel.com/d/91-email-support-for-openpanel-enterprise-edition
+    #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
     opencli email-server install
  else
@@ -1525,7 +1576,7 @@ support_message() {
     echo "👉 https://openpanel.com/docs/admin/intro/"
     echo ""
     echo "💬 Forums: Join our community forum to ask questions, share tips, and connect with fellow admins:"
-    echo "👉 https://community.openpanel.com/"
+    echo "👉 https://community.openpanel.org/"
     echo ""
     echo "🎮 Discord: For real-time chat and support, hop into our Discord server:"
     echo "👉 https://discord.openpanel.com/"
@@ -1602,13 +1653,8 @@ create_admin_and_show_logins_success_message() {
     #cp version file
     mkdir -p $OPENPANEL_DIR  > /dev/null 2>&1
     echo "$PANEL_VERSION" > $OPENPANEL_DIR/version
-    ######docker cp openpanel:$OPENPANEL_DIR/version $OPENPANEL_DIR/version > /dev/null 2>&1
     echo -e "${GREEN}OpenPanel ${LICENSE} [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
     echo ""
-
-    # Restore normal output to the terminal, so we dont save generated admin password in log file!
-    exec > /dev/tty
-    exec 2>&1
 
     # added in 0.2.3
     # option to specify logins
@@ -1631,24 +1677,51 @@ create_admin_and_show_logins_success_message() {
     else
        new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
     fi
+
+
+	display_admin_status_and_logins() {  
+	    # Restore normal output to the terminal, so we dont save generated admin password in log file!
+	    exec > /dev/tty
+	    exec 2>&1
+
+     	    opencli admin
+	    echo -e "- Username: ${GREEN} ${new_username} ${RESET}"
+	    echo -e "- Password: ${GREEN} ${new_password} ${RESET}"
+	    echo " "
+	    print_space_and_line
+	    set_email_address_and_email_admin_logins	
+	
+	    # Redirect again stdout and stderr to the log file
+	    exec > >(tee -a "$LOG_FILE")
+	    exec 2>&1
+     
+	}
+
+
     
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
 
     opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
 
-    opencli admin
-    echo -e "- Username: ${GREEN} ${new_username} ${RESET}"
-    echo -e "- Password: ${GREEN} ${new_password} ${RESET}"
-    echo " "
-    print_space_and_line
-    
-    # added in 0.2.0
-    # email to user the new logins
-    set_email_address_and_email_admin_logins
-
-    # Redirect again stdout and stderr to the log file
-    exec > >(tee -a "$LOG_FILE")
-    exec 2>&1
+	# Check if the user exists in the SQLite database
+	user_exists=$(sqlite3 /etc/openpanel/openadmin/users.db "SELECT COUNT(*) FROM user WHERE username = '$new_username';")
+	
+	if [ "$user_exists" -gt 0 ]; then
+	    echo "User $new_username has been successfully added."
+		display_admin_status_and_logins
+	else
+	    echo "WARNING: Admin user $new_username was not created using opencli. Trying to insert user manually to SQLite database.."  
+	    password_hash=$(python3 /usr/local/admin/core/users/hash $new_password) 
+	    create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
+	    insert_user_sql="INSERT INTO user (username, password_hash) VALUES ('$new_username', '$password_hash');"
+	    output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
+	        if [ $? -ne 0 ]; then
+	            echo "WARNING: Admin user was not created: $output"
+	     	else
+       			display_admin_status_and_logins
+	    	fi
+     
+	fi
 
 }
 
