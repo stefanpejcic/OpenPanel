@@ -241,7 +241,7 @@ const Phone = (props: { className?: string }) => {
 
 const Github = (props: { id?: string }) => {
     return (
-        <Link to="https://community.openpanel.co/" className="no-underline">
+        <Link to="https://community.openpanel.org/" className="no-underline">
             <div
                 className={clsx(
                     "border-t dark:border-gray-700 border-gray-300",
