@@ -8,7 +8,7 @@ image: https://openpanel.co/img/blog/openpanel_enterprise_price_update_2025.png
 hide_table_of_contents: true
 ---
 
-Starting on 31.12.2025, the price of OpenPanel Enterprise will increase to 24.95€/mo. This change will apply to new purchases and **not to subscription renewals**.
+Starting on 31.12.2024, the price of OpenPanel Enterprise will increase to 24.95€/mo. This change will apply to new purchases and **not to subscription renewals**.
 
 <!--truncate-->
 
@@ -43,7 +43,7 @@ We’ve expanded our support team to offer even faster response times and deeper
 To keep up with the increasing load and ensure our platform runs smoothly at scale, we've invested in infrastructure improvements that will benefit all OpenPanel Enterprise users.
 
 ### What’s Changing?
-Starting on 31. December 2025, the price of OpenPanel Enterprise will increase from 14.95€ per month to 24.95€ per month. This change will apply to new purchases and **not to subscription renewals**.
+Starting on 31. December 2024, the price of OpenPanel Enterprise will increase from 14.95€ per month to 24.95€ per month. This change will apply to new purchases and **not to subscription renewals**.
 
 ### How Will This Affect Current Users?
 For existing OpenPanel Enterprise users, any subscription renewals will continue at the current rate of 14.95€ per month.
