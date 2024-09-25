@@ -73,7 +73,7 @@ FUNCTIONS=(
     # /etc/openpanel/
     update_configuration_files
 
-    # update docker openpanel iamge
+    # update docker openpanel image
     download_new_panel
 
     # update admin from github
