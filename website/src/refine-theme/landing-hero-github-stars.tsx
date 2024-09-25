@@ -3,13 +3,13 @@ import clsx from 'clsx';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
-    const [version, setVersion] = useState('0.2'); // Default version
+    const [version, setVersion] = useState('0.3.0'); // Default version
 
     useEffect(() => {
         // Function to fetch version information
         const fetchVersion = async () => {
             try {
-                const response = await fetch('https://get.openpanel.co/version');
+                const response = await fetch('https://openpanel.org/version');
                 const data = await response.text();
                 setVersion(data.trim()); // Update the version state
             } catch (error) {
