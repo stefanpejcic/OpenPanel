@@ -40,7 +40,7 @@ Then click on the same 'Confirm' button.
 
 ![databases_delete_db.png](/img/panel/v1/databases/databases_delete_db.png)
 
-:::warning
+:::danger
 ⚠️ Deleting a MySQL database will permanently delete all tables and data for that database.
 :::
 
@@ -78,6 +78,6 @@ To delete a MySQL user, click on the delete button next to the user in the Users
 
 ![databases_delete_user.png](/img/panel/v1/databases/databases_delete_user.png)
 
-:::warning
+:::danger
 ⚠️ Deleting a MySQL user will immediately remove that user and revoke all privileges to databases.
 :::
