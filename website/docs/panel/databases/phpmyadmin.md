@@ -10,7 +10,7 @@ phpMyAdmin is an advanced MySQL database management tool and is recommended only
 
 To access phpMyAdmin click on **Databases > phpMyAdmin** link in the sidebar. You will be automatically logged into the phpMyAdmin interface where you can view all existing databases and their tables.
 
-:::warning
+:::danger
 Editing and manipulating tables directly from phpMyAdmin could break your site if not done correctly. If you are not comfortable doing this, please check with a developer first.
 :::
 
