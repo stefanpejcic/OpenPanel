@@ -66,4 +66,4 @@ Currently reserved usernames:
 - openpanel
 - openadmin
 
-To reserver a certail username, simply add it to the forbidden_usernames.txt file.
+To reserve a certail username, simply add it to the forbidden_usernames.txt file.
