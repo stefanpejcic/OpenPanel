@@ -94,7 +94,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 
 Open for business!
 
-OpenPanel is the first truly modular panel where absolutely everything is customizable and works independently of the rest of the system. It is also OS-agnostic and works the same on all supported systems.
+OpenPanel is the first truly modular panel where [absolutely everything is customizable](https://openpanel.com/docs/articles/dev-experience/customizing-openpanel-user-interface/) and works independently of the rest of the system. It is also OS-agnostic and works the same on all supported systems.
 
 However, OpenPanel is **not** an open-source project. The primary reason behind this decision is our commitment to maintaining the highest standards of security for our users, which we can only achive with closed-source and controlled contributions.
 
