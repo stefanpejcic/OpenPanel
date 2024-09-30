@@ -59,7 +59,7 @@ FTP User's Passwords must contain **at least one** uppercase letters (`A-Z`), lo
 - Passwords cannot contain less than **8** characters.
 - Passwords cannot contain more than **32** characters.
 
-## Emails
+### Emails
 
 OpenPanel applies the following rules when you create email accounts:
 
