@@ -82,14 +82,10 @@ OpenPanel is available in two editions:
 
 ## Supported OS
 
-
-Supported OS:
-
 OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Currently supported:
 
 - AlmaLinux 9
 - RockyLinux 9
-- Fedora 40
 - CentOS 9.4
 - Debian 11 12
 - Ubuntu 22.04 24.04
