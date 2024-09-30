@@ -41,6 +41,7 @@ When we designed OpenPanel, we prioritized features that are not only user-frien
 Some of the features worth mentioning are:
 
 - Users can run [Nginx or Apache webserver](https://openpanel.com/docs/admin/plans/hosting_plans/#list-hosting-plans).
+- Users can run MySQL or MariaDB
 - Users can [install PHP versions](https://openpanel.com/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.com/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
 - Control [MySQL settings](https://openpanel.com/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](https://openpanel.com/docs/panel/databases/remote) and much more.
 - [Update system services](https://openpanel.com/docs/panel/advanced/server_settings#service-status) and even install new services that they need.
