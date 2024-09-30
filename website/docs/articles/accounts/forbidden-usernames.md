@@ -7,44 +7,71 @@
 
 OpenPanel applies the following rules when you create or modify a OpenPanel username:
 
-Usernames may **only** use lowercase letters (a–z) and digits (0–9).
+Usernames may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **3** characters.
 - Usernames cannot contain more than **16** characters.
 
 ### OpenAdmin
 OpenAdmin applies the following rules when you create or modify an admin username:
 
-Usernames may **only** use lowercase letters (a–z) and digits (0–9).
+Usernames may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **5** characters.
 - Usernames cannot contain more than **20** characters.
 
-Passwords may **only** use lowercase letters (a–z) and digits (0–9).
+Passwords may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **5** characters.
 - Usernames cannot contain more than **20** characters.
 
 ### SSH
 OpenAdmin applies the following rules when you modify an SSH password:
 
-Passwords may **only** use lowercase letters (a–z) and digits (0–9).
+Passwords may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Passwords cannot contain less than **8** characters.
 - Passwords cannot contain more than **20** characters.
 
 ### MySQL / MariaDB
 OpenPanel applies the following rules when you create databases and users:
 
-Database names may **only** use lowercase letters (a–z) and digits (0–9).
+Database names may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Database name cannot contain less than **1** character.
 - Databaase name cannot contain more than **64** characters.
 
 
-Database users may **only** use lowercase letters (a–z) and digits (0–9).
+Database users may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **1** characters.
 - Usernames cannot contain more than **32** characters.
 
 
-Database User's Passwords may **only** use lowercase letters (a–z), underscores (_) and digits (0–9).
+Database User's Passwords may **only** use lowercase letters (`a–z`), underscores (`_`) and digits (`0–9`).
 - Passwords cannot contain less than **8** characters.
 - Passwords cannot contain more than **32** characters.
+
+
+### FTP
+OpenPanel applies the following rules when you create FTP sub-accounts:
+
+FTP sub-users **must end** with dot (`.`) followed by the OpenPanel username - example: `ftpuser.openpaneluser`.
+- Usernames cannot contain less than **3** characters.
+- Usernames cannot contain more than **32** characters.
+
+
+FTP User's Passwords must contain **at least one** uppercase letters (`A-Z`), lowercase letters (`a–z`), digits (`0–9`) and special symbols (`!`, `.`, `,`, `@`, `#`, `_`, `-`).
+- Passwords cannot contain less than **8** characters.
+- Passwords cannot contain more than **32** characters.
+
+## Emails
+
+OpenPanel applies the following rules when you create email accounts:
+
+Email accounts may **only** use lowercase letters (`a–z`), dashes (`-`), underscores (`_`) and digits (`0–9`).
+Email accounts **must contain** `@` symbol followed by the domain name - example: `account@example.net`.
+- Usernames cannot contain less than **1** character.
+- Usernames cannot contain more than **32** characters.
+
+Email accounts passwords can contain **only** uppercase letters (`A-Z`), lowercase letters (`a–z`), underscores (`_`) and digits (`0–9`).
+- Passwords cannot contain less than **8** characters.
+- Passwords cannot contain more than **32** characters.
+
 
 ##  Reserved usernames
 
