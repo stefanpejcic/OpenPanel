@@ -78,7 +78,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 OpenPanel is available in two editions:
 
 - **[Community Edition](https://openpanel.com/product/openpanel-free-control-panel/)** is a free hosting control panel for up to 3 user accounts, suitable for VPS and private use.
-- **[Enterprise Edition](https://openpanel.com/product/openpanel-premium-control-panel/)** is a premiun version that ffers advanced features for user isolation and management, suitable for web hosting providers.
+- **[Enterprise Edition](https://openpanel.com/product/openpanel-premium-control-panel/)** is a premium version that offers advanced features for user isolation and management, suitable for web hosting providers.
 
 ## Supported OS
 
