@@ -130,6 +130,15 @@ Click on the 'Login as Admin' button.
 ![wp_manager_site_login_admin.png](/img/panel/v1/applications/wp_manager_site_login_admin.png)
 
 
+### Preview with temporary link
+
+This option allows you to preview websites using temporary domains provided by OpenPanel, helpful if your domain hasn't been pointed to the server's IP address yet or lacks an SSL certificate. Temporary links are valid for 15 minutes. 
+
+To view website using temporary link, click on the 'Preview' button:
+
+![website_temporary_url_openpanel.gif](/img/panel/v1/applications/website_temporary_url_openpanel.gif)
+
+
 ### Edit WordPress settings
 
 To edit General, Updates and Debugging preferences for a WordPress website click on the pencil icon in top right corner.
@@ -173,17 +182,6 @@ Here you can enable:
 - SAVEQUERIES
 
 ![wp_manager_site_edit_3.png](/img/panel/v1/applications/wp_manager_site_edit_3.png)
-
-
-
-### Preview with temporary link
-
-This option allows you to preview websites using temporary domains provided by OpenPanel, helpful if your domain hasn't been pointed to the server's IP address yet or lacks an SSL certificate. Temporary links are valid for 15 minutes. 
-
-To view website using temporary link, click on the 'Preview' button:
-
-![website_temporary_url_openpanel.gif](/img/panel/v1/applications/website_temporary_url_openpanel.gif)
-
 
 ### Refresh website screenshot
 
