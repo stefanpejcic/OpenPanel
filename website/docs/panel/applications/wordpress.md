@@ -176,7 +176,7 @@ Here you can enable:
 
 
 
-### Preview using temporary link
+### Preview with temporary link
 
 This option allows you to preview websites using temporary domains provided by OpenPanel, helpful if your domain hasn't been pointed to the server's IP address yet or lacks an SSL certificate. Temporary links are valid for 15 minutes. 
 
