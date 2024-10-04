@@ -190,7 +190,7 @@ const siteConfig = {
         algolia: {
             appId: "RK5PNCUHQ1",
             apiKey: '19c5792de80bcc152367636748edfbc5',
-            indexName: 'openpanelsajt',
+            indexName: 'openpanel sajt',
             contextualSearch: true,
             //replaceSearchResultPathname: {from: '/docs/',to: '/',},
             searchParameters: {},
