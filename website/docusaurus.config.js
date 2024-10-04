@@ -189,8 +189,8 @@ const siteConfig = {
         image: "img/openpanel_social.png",
         algolia: {
             appId: "RK5PNCUHQ1",
-            apiKey: '3c4416a97892f781616fd06d9f5c90de',
-            indexName: 'movies_index',
+            apiKey: '19c5792de80bcc152367636748edfbc5',
+            indexName: 'openpanel',
             contextualSearch: true,
             //replaceSearchResultPathname: {from: '/docs/',to: '/',},
             searchParameters: {},
