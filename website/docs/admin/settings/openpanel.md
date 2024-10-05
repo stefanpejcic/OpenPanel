@@ -53,6 +53,86 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 
 ![openpanel enable modules](/img/admin/openpanel_settings_modules.png)
 
+### DNS
+
+DNS feature enables the [Domains > Edit DNS Zone](/docs/panel/domains/dns) feature for users to edit DNS records.
+
+### Favorites
+
+Favorites allows users to bookmark pages to [Favorites](/docs/panel/dashboard/#favorites).
+
+### phpMyAdmin
+
+The phpMyAdmin feature allows users to access [phpMyAdmin](/docs/panel/databases/phpmyadmin/) with automatic login directly from the OpenPanel interface. When enabled, links to phpMyAdmin are added for each website in the [SiteManager](/docs/panel/applications/) and for every database on the [Databases](/docs/panel/databases/) page.
+
+### temporary_links
+
+The temporary_links feature adds a 'Preview' button to websites in the SiteManager allowing users to [preview their site using a temporary openpanel.org subdomain for 15 minutes](/docs/panel/applications/wordpress/#preview-with-temporary-link). This is useful for testing when the domain's DNS is not yet pointed to the server or when the domain lacks an SSL certificate.
+
+### SSH
+
+SSH feature enables the [SSH](//docs/panel/advanced/ssh/) page where users can enable/disable remote SSH access, view ssh port and change root password.
+
+### Crons
+
+Crons feature enables the [Cronjobs](/dodocs/panel/advanced/cronjobs/) page where users can edit cronjobs via interface or directly edit the crontab file via text editor.
+
+### Backups
+
+Backups feature enables users to access the [Files > Backups](/docs/panel/files/backups/) page where they can view current backups, restore or download them.
+
+### WordPress
+
+WordPress feature [adds WordPress to the AutoInstaller](/docs/panel/applications/) and allows users to manage WordPress websites using the [SiteManager interface](/docs/panel/applications/wordpress/#wp-manager-overview). 
+
+### PM2
+
+PM2 feature [adds NodeJS and Python Applications to the AutoInstaller](//docs/panel/applications/pm2/) and allows users to manage Python/NodeJS websites using the SiteManager interface.
+
+
+### Mautic
+
+Mautic feature [adds Mautic to the AutoInstaller](/docs/panel/applications/) and allows users to manage Mautic websites from the SiteManager interface.
+
+### Flarum
+
+Flarum feature [adds Flarum to the AutoInstaller](/docs/panel/applications/) and allows users to manage WordPress websites from the SiteManager interface.
+
+
+### disk_usage
+### inodes
+### usage
+### terminal
+### services
+### webserver
+### fix_permissions
+### process_manager
+### ip_blocker
+### redis
+### memcached
+### login_history
+### activity
+### twofa
+### domains_visitors
+
+### FTP
+
+FTP feature [adds Files > FTP page](/docs/panel/files/FTP/) which allows users to create and manage FTP accounts.
+
+### Flarum
+
+Flarum feature [adds Flarum to the AutoInstaller](/docs/panel/applications/) and allows users to manage WordPress websites from the SiteManager interface.
+
+### malware_scan
+
+malware_scan feature adds [Malware Scanner](/docs/panel/files/malware-scanner/) page to the Files section, where user can scan files using the [ClamAV®](https://www.clamav.net/) scanner.
+
+### elasticsearch
+
+
+
+
+
 ## Other settings
 
 Additional settings available in the Settings > OpenPanel page include:
