@@ -33,6 +33,12 @@ This section displays general server information and current usage for the accou
 
 If enabled, the How-to guides section will display links to articles from the hosting providers knowledgebase RSS feed or the official OpenPanel documentation.
 
+## Favorites
+
+When [Favorites feature]() is enabled by Administrator, users can bookmark up to 10 pages from the OpenPanel interface. These pages will appear in the sidebar menu. To add a page to favorites, simply left-click the star icon in the top-right corner of any page. To remove a page, right-click the same icon.
+
+![favorites](/img/panel/v1/dashboard/favorites.gif)
+
 ## Keyboard Shortcuts
 
 OpenPanel includes keyboard shortcuts to navigate the interface, and you can access them by pressing `Shift + K`. These shortcuts are categorized into Global Shortcuts, applicable across all pages, and page-specific shortcuts that function exclusively on the current page. For instance, while using the File Manager, you'll find shortcuts dedicated to file management that are not applicable on other pages.
