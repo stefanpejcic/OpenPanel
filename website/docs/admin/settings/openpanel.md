@@ -104,7 +104,7 @@ terminal feature enables the [WebTerminal page](/docs/panel/advanced/terminal/) 
 ### Services
 Services feature enables the [Server > Services Status page](docs/panel/advanced/server_settings/#service-status) where users can view their installed services, their current status and versions.
 
-### WebServer Configuration Editor
+### Configuration Editor
 webserver feature enables the [Server > Nginx/Apache Configuration Editor page](/docs/panel/advanced/server_settings/#nginx--apache-settings) where users can edit the main configuration file for their webserver. Users with Nginx can edit nginx.conf file and users with Apache webserver edit the apache2.conf file.
 
 ### Process Manager
