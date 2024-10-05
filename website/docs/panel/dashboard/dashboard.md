@@ -35,7 +35,7 @@ If enabled, the How-to guides section will display links to articles from the ho
 
 ## Favorites
 
-When [Favorites feature]() is enabled by Administrator, users can bookmark up to 10 pages from the OpenPanel interface. These pages will appear in the sidebar menu. To add a page to favorites, simply left-click the star icon in the top-right corner of any page. To remove a page, right-click the same icon.
+When [Favorites feature](/docs/admin/settings/openpanel/#enable-features) is enabled by Administrator, users can bookmark up to 10 pages from the OpenPanel interface. These pages will appear in the sidebar menu. To add a page to favorites, simply left-click the star icon in the top-right corner of any page. To remove a page, right-click the same icon.
 
 ![favorites](/img/panel/v1/dashboard/favorites.gif)
 
