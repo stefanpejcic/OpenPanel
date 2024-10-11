@@ -23,7 +23,7 @@ To list existing plans navigate to Plans page:
 | **Plan Name**      | Display name that users will see in their OpenPanel dashboards.            |
 | **Description**    | Visible only to administrators.                                           |
 | **Image**          | Name of the Docker image used when creating new accounts on the plan.        |
-| **DOcker Size**     | Disk space allocated for the user's container .          |
+| **Docker Size**     | Disk space allocated for the user's container .          |
 | **Storage**     | Disk space allocated for user's websites files *(/home/user/ directory)*.           |
 | **Domains**  | Total number of domain names allowed per user on the plan.                  |
 | **Websites** | Total number of websites (WordPress, NodeJS, Python) per user on the plan.   |
