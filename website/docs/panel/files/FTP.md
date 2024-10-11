@@ -20,6 +20,10 @@ To create a new FTP sub-account, go to `OpenPanel > Files > FTP` from the menu a
 
 Click the **Add Account** button to save your changes.
 
+:::info
+FTP sub-users **must end** with dot (`.`) followed by the OpenPanel username - example: `ftpuser.openpaneluser`. [FTP username requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
+:::
+
 ## Change password
 
 To change password for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Password** button located next to the user. A modal will appear in which you can set new password for the user.
@@ -27,6 +31,10 @@ To change password for an FTP sub-account, go to `OpenPanel > Files > FTP` from 
 ![change ftp user password](/img/panel/v1/files/change_ftp_pass.png)
 
 Click the **Change Password** button to save.
+
+:::info
+FTP User's Passwords must contain **at least one** uppercase letters (`A-Z`), lowercase letters (`a–z`), digits (`0–9`) and special symbols. [FTP passwords requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
+:::
 
 ## Change path
 
