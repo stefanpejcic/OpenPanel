@@ -6,7 +6,9 @@ sidebar_position: 3
 
 Users can create FTP sub-accounts, which share the FTP service among all users on the server. You can connect to FTP using the server IP address and the default port, `21`.
 
-By default, FTP is **not enabled** in OpenPanel. If you don’t see the option in your OpenPanel interface, it means [the server administrator has not enabled it](/docs/admin/settings/openpanel/#ftp). You’ll need to request them to activate FTP before you can use it.
+:::info
+By default, FTP is **not enabled** in OpenPanel. If you don’t see the option in your OpenPanel interface, it means the server administrator has not enabled it]. You’ll need to request them to [activate FTP module](/docs/admin/settings/openpanel/#ftp) before you can use it.
+:::
 
 ## View users
 
