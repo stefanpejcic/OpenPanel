@@ -1357,7 +1357,9 @@ set_premium_features(){
     
     #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
-    opencli email-setup
+    opencli email-server install
+    echo "Enabling Roundcube webmail.."
+    opencli email-webmail roundcube
     
  else
     LICENSE="Community"
