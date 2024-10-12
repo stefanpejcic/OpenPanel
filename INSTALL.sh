@@ -204,18 +204,17 @@ get_server_ipv4(){
                  wget --timeout=2 -qO- $IP_SERVER_2 || \
                  curl --silent --max-time 2 -4 $IP_SERVER_3)
 
-	# If site is not available, get the ipv4 from the hostname -I
+	# If no site is available, get the ipv4 from the hostname -I
 	if [ -z "$current_ip" ]; then
-	   # current_ip=$(hostname -I | awk '{print $1}')
 	    # ip addr command is more reliable then hostname - to avoid getting private ip
 	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
 	fi
 
 	    is_valid_ipv4() {
 	        local ip=$1
-	        # Check if IPv4 is valid
+	        # is it ip
 	        [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && \
-	        # Check if IP is not private
+	        # is it private
 	        ! [[ $ip =~ ^10\. ]] && \
 	        ! [[ $ip =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && \
 	        ! [[ $ip =~ ^192\.168\. ]]
@@ -231,7 +230,6 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    # Fetch the latest version
 	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://openpanel.org/version)
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
@@ -242,7 +240,7 @@ set_version_to_install(){
 }
 
 
-# print fullwidth line
+# prints fullwidth line
 print_space_and_line() {
     echo " "
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
