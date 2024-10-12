@@ -551,11 +551,11 @@ const tableData = [
                 },
             },
             {
-                description: "Remote Backups",
+                description: "Backups",
                 community: <CrossIcon />,
                 enterprise: (
                     <TableText>
-                        SSH and S3 Destinations
+                        SSH Destinations
                     </TableText>
                 ),
                 valueType: {
