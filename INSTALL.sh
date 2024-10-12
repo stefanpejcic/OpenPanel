@@ -1461,6 +1461,13 @@ download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
     git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
+
+	if [ -f "${CONFIG_FILE}" ]; then
+		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
+  	else
+   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${CONFIG_FILE} is missing."
+   	fi
+
     # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
     
@@ -1469,14 +1476,7 @@ download_skeleton_directory_from_github(){
     systemctl daemon-reload  > /dev/null 2>&1
     service floatingip start  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
-
-	if [ -f "${CONFIG_FILE}" ]; then
-		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
-  	else
-   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${CONFIG_FILE} is missing."
-   	fi
-
-
+    
     
 }
 
