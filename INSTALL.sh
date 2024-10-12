@@ -63,7 +63,6 @@ SKIP_IMAGES=false                                                     # they are
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
-INSTALL_MAIL=false                                                    # no ui yet
 IPSETS=true                                                           # currently only works with ufw
 SET_HOSTNAME_NOW=false                                                # must be a FQDN
 CUSTOM_GB_DOCKER=false                                                # space in gb, if not set fallback to 50% of available du
@@ -333,7 +332,6 @@ configure_nginx                           # setup nginx configuration files
 docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
 configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
-#setup_email                              # TEMPORARY OFF FROM 0.2.5
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -444,7 +442,6 @@ parse_args() {
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
-        echo "  --enable-mail                   Install Mail (experimental)."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
@@ -520,9 +517,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-ssh)
             NO_SSH=true
-            ;;
-        --enable-mail)
-            INSTALL_MAIL=true
             ;;
         --post_install=*)
             post_install_path="${1#*=}"
@@ -872,8 +866,8 @@ tweak_ssh(){
 
 setup_email() {
         if [ "$INSTALL_MAIL" = true ]; then
-        echo "Installing experimental Email service."
-            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenMail/master/setup.sh | bash --dovecot
+        echo "Setting email service"
+	opencli email-setup
         fi
 }
 
@@ -1371,7 +1365,8 @@ set_premium_features(){
     
     #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
-    opencli email-server install
+    opencli email-setup
+    
  else
     LICENSE="Community"
  fi
