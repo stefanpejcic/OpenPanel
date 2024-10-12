@@ -864,14 +864,6 @@ tweak_ssh(){
 }
 
 
-setup_email() {
-        if [ "$INSTALL_MAIL" = true ]; then
-        echo "Setting email service"
-	opencli email-setup
-        fi
-}
-
-
 setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
