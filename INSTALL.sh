@@ -1459,25 +1459,37 @@ verify_license() {
 
 download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
-    git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
+    # Retry variables
+    MAX_RETRIES=5
+    RETRY_DELAY=5
+    ATTEMPT=1
 
-	if [ -f "${CONFIG_FILE}" ]; then
-		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
-  	else
-   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${CONFIG_FILE} is missing."
-   	fi
+    while [ $ATTEMPT -le $MAX_RETRIES ]; do
+        git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+
+        if [ -f "${CONFIG_FILE}" ]; then
+            echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
+            break
+        else
+            echo "Attempt $ATTEMPT of $MAX_RETRIES failed. Retrying in $RETRY_DELAY seconds..."
+            ((ATTEMPT++))
+            sleep $RETRY_DELAY
+        fi
+    done
+
+    if [ ! -f "${CONFIG_FILE}" ]; then
+        radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
+    fi
 
     # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
-    
+
     # added in 0.2.6
     cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
     systemctl daemon-reload  > /dev/null 2>&1
     service floatingip start  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
-    
-    
 }
 
 
