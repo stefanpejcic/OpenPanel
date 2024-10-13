@@ -63,7 +63,6 @@ SKIP_IMAGES=false                                                     # they are
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
-INSTALL_MAIL=false                                                    # no ui yet
 IPSETS=true                                                           # currently only works with ufw
 SET_HOSTNAME_NOW=false                                                # must be a FQDN
 CUSTOM_GB_DOCKER=false                                                # space in gb, if not set fallback to 50% of available du
@@ -204,18 +203,17 @@ get_server_ipv4(){
                  wget --timeout=2 -qO- $IP_SERVER_2 || \
                  curl --silent --max-time 2 -4 $IP_SERVER_3)
 
-	# If site is not available, get the ipv4 from the hostname -I
+	# If no site is available, get the ipv4 from the hostname -I
 	if [ -z "$current_ip" ]; then
-	   # current_ip=$(hostname -I | awk '{print $1}')
 	    # ip addr command is more reliable then hostname - to avoid getting private ip
 	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
 	fi
 
 	    is_valid_ipv4() {
 	        local ip=$1
-	        # Check if IPv4 is valid
+	        # is it ip
 	        [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && \
-	        # Check if IP is not private
+	        # is it private
 	        ! [[ $ip =~ ^10\. ]] && \
 	        ! [[ $ip =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && \
 	        ! [[ $ip =~ ^192\.168\. ]]
@@ -231,7 +229,6 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    # Fetch the latest version
 	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://openpanel.org/version)
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
@@ -242,7 +239,7 @@ set_version_to_install(){
 }
 
 
-# print fullwidth line
+# prints fullwidth line
 print_space_and_line() {
     echo " "
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
@@ -335,7 +332,6 @@ configure_nginx                           # setup nginx configuration files
 docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
 configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
-#setup_email                              # TEMPORARY OFF FROM 0.2.5
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -446,7 +442,6 @@ parse_args() {
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
-        echo "  --enable-mail                   Install Mail (experimental)."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
@@ -522,9 +517,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-ssh)
             NO_SSH=true
-            ;;
-        --enable-mail)
-            INSTALL_MAIL=true
             ;;
         --post_install=*)
             post_install_path="${1#*=}"
@@ -869,14 +861,6 @@ tweak_ssh(){
 		systemctl restart ssh  > /dev/null 2>&1
 	fi
    
-}
-
-
-setup_email() {
-        if [ "$INSTALL_MAIL" = true ]; then
-        echo "Installing experimental Email service."
-            curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenMail/master/setup.sh | bash --dovecot
-        fi
 }
 
 
@@ -1374,6 +1358,9 @@ set_premium_features(){
     #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
     opencli email-server install
+    echo "Enabling Roundcube webmail.."
+    opencli email-webmail roundcube
+    
  else
     LICENSE="Community"
  fi
@@ -1459,25 +1446,37 @@ verify_license() {
 
 download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
-    git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+
+    # Retry variables
+    MAX_RETRIES=5
+    RETRY_DELAY=5
+    ATTEMPT=1
+
+    while [ $ATTEMPT -le $MAX_RETRIES ]; do
+        git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+
+        if [ -f "${CONFIG_FILE}" ]; then
+            echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
+            break
+        else
+            echo "Attempt $ATTEMPT of $MAX_RETRIES failed. Retrying in $RETRY_DELAY seconds..."
+            ((ATTEMPT++))
+            sleep $RETRY_DELAY
+        fi
+    done
+
+    if [ ! -f "${CONFIG_FILE}" ]; then
+        radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
+    fi
 
     # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
-    
+
     # added in 0.2.6
     cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
     systemctl daemon-reload  > /dev/null 2>&1
     service floatingip start  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
-
-	if [ -f "${CONFIG_FILE}" ]; then
-		echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
-  	else
-   		radovan 1 "Dowloading configuration files from GitHub failed, main conf file ${CONFIG_FILE} is missing."
-   	fi
-
-
-    
 }
 
 
