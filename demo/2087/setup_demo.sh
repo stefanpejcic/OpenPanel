@@ -1,20 +1,10 @@
 #!/bin/bash
 
-# Parse command line options
-while getopts "yf" opt; do
-  case $opt in
-    y)
-      confirm="yes"
-      ;;
-    f)
-      confirm="force"
-      ;;
-    *)
-      usage
-      ;;
-  esac
-done
-
+# this script is used for creating demo.openpanel.org on every new version release
+# it installs latest version of openpanel, creates dummy accounts with data, and finally adds them on the login pages.
+#
+# todo: generate droplet snapshot when finished, edit existing restore task to use new snapshot and droplet id's.
+#
 
 
 setup_admin_panel() {
@@ -46,7 +36,6 @@ echo "Restarting admin service for 2087"
 
 
 setup_user_panel(){
-echo "Creating demo panel user"
   generae_pass=$(opencli user-password stefan random)
 new_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $NF}')
 
@@ -108,20 +97,26 @@ echo "droplet id: $droplet_id"
 }
 
 
+echo "Installing latest panel version.."
 
-# If no flags are set, ask for user confirmation
-if [ -z "$confirm" ]; then
-  read -p "This will convert your website to host public OpenPanel demo. Do you want to proceed? (y/n) " user_input
-  case $user_input in
-    [Yy]*)
-      #echo "User confirmed to proceed."
-      
-      ;;
-    *)
-      exit 1
-      ;;
-  esac
-fi
+bash <(curl -sSL https://openpanel.org) --hostname=demo.openpanel.org 
+
+
+echo "Creating dummy accounts for demo.."
+
+# real user for 2083 demo
+opencli user-add stefan random stefan@pejcic.rs ubuntu_nginx_mysql
+opencli domains-add openpanel.org stefan
+opencli domains-add pejcic.rs stefan
+opencli domains-add example.net stefan
+opencli domains-add demo.openpanel.org stefan
+
+# todo: install wp on one!
+
+
+# fake suspended user
+opencli user-add another random stefan@netops.rs ubuntu_apache_mysql
+opencli user-suspend another
 
 echo "Setting demo..."
 
