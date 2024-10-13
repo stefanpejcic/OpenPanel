@@ -284,7 +284,6 @@ docker_compose_up_with_newer_images(){
 
   mkdir -p /usr/local/panel/  > /dev/null 2>&1
   docker cp openpanel:/usr/local/panel/version /usr/local/panel/version
-  rm -rf /etc/openpanel/openpanel/core/users/*/data.json # purge cached panel data for all users
 }
 
 
