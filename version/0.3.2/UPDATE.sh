@@ -85,7 +85,6 @@ FUNCTIONS=(
     # ping us
     verify_license
     
-    # openpanel/openpanel should be downloaded now!
     docker_compose_up_with_newer_images
 
     # if user created a post-update script, run it now
