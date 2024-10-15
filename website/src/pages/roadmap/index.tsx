@@ -43,19 +43,19 @@ const Roadmap: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>Roadmap</h1>
-                    <p>The following is a list of features in the OpenPanel roadmap.</p>
-                    <p>We list these here so that our users can get a better idea of where we are going and can give us feedback on which of these they like best (or least).</p>
-                    <p>Here is a short list; the <a href="https://roadmap.openpanel.com/" target="_blank">feature requests</a> have many more.</p>
+                    <p>Below is a glimpse of the features planned for OpenPanel.</p>
+                    <p>We share this roadmap to give our users a clear view of our future direction and to encourage feedback on which features resonate the most (or least).</p>
+                    <p>You can <a href="https://roadmap.openpanel.com/" target="_blank">suggest new features</a>.</p>
                     <ul>
-                        <li>More improvements to cluster mode and OpenAdmin.</li>
-                        <li>Full E-Mail support.</li>
-                        <li>Reseller functionality.</li>
-                        <li>Support for multiple NodeJS and Python versions.</li>
-                        <li>Autoinstallers for 40* CMS/scripts.</li>
-                        <li>S3, partial backups and restore functionality.</li>
-                        <li>Blesta and paymenter.org extensions.</li>
-                        <li>Support for more Linux distros.</li>
-                        <li>Continued improvements to container isolation.</li>
+                        <li>Further enhancements to cluster mode and OpenAdmin.</li>
+                        <li>A complete email management UI.</li>
+                        <li>Reseller account functionality.</li>
+                        <li>Support for multiple Node.js and Python versions.</li>
+                        <li>Autoinstallers for 40+ CMSs/scripts.</li>
+                        <li>Backup and restore support, including S3 integration and partial backups.</li>
+                        <li>Extensions for Blesta and Paymenter.org integration.</li>
+                        <li>Support for additional Linux distributions.</li>
+                        <li>Ongoing improvements in container isolation.</li>
                     </ul>
                     <h3>Planned releases</h3>
                     <ul>
