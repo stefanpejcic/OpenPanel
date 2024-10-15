@@ -47,9 +47,14 @@ const Roadmap: React.FC = () => {
                     <p>We list these here so that our users can get a better idea of where we are going and can give us feedback on which of these they like best (or least).</p>
                     <p>Here is a short list; the <a href="https://roadmap.openpanel.com/" target="_blank">feature requests</a> have many more.</p>
                     <ul>
-                        <li>Support for more Linux distros.</li>
                         <li>More improvements to cluster mode and OpenAdmin.</li>
-                        <li>E-Mail support.</li>
+                        <li>Full E-Mail support.</li>
+                        <li>Reseller functionality.</li>
+                        <li>Support for multiple NodeJS and Python versions.</li>
+                        <li>Autoinstallers for 40* CMS/scripts.</li>
+                        <li>S3, partial backups and restore functionality.</li>
+                        <li>Blesta and paymenter.org extensions.</li>
+                        <li>Support for more Linux distros.</li>
                         <li>Continued improvements to container isolation.</li>
                     </ul>
                     <h3>Planned releases</h3>
