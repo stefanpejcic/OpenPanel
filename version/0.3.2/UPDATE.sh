@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Update from OpenPanel 0.3.0 to 0.3.1
+# Update from OpenPanel 0.3.1 to 0.3.2
 
 # new version
-NEW_PANEL_VERSION="0.3.1"
+NEW_PANEL_VERSION="0.3.2"
 
 # Colors for output
 GREEN='\033[0;32m'
