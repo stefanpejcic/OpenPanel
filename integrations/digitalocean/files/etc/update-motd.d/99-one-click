@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Configured as part of the DigitalOcean 1-Click Image build process
+
+myip=$(hostname -I | awk '{print$1}')
+cat <<EOF
+********************************************************************************
+
+Welcome to DigitalOcean's 1-Click LEMP Droplet.
+To keep this Droplet secure, the UFW firewall is enabled.
+All ports are BLOCKED except 22 (SSH), 80 (HTTP), and 443 (HTTPS).
+
+In a web browser, you can view:
+  * The LEMP 1-Click Quickstart guide: https://do.co/2GOFe5J#start
+  * Your LEMP website: http://$myip
+
+On the server:
+  * The default web root is located at /var/www/html
+  * The MySQL root password is saved in /root/.digitalocean_password
+  * Certbot is preinstalled. Run it to configure HTTPS. See
+    https://do.co/2GOFe5J#enable-https for more detail.
+
+For help and more information, visit https://do.co/2GOFe5J
+
+********************************************************************************
+To delete this message of the day: rm -rf $(readlink -f ${0})
+EOF

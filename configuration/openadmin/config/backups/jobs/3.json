@@ -6,6 +6,6 @@
     "schedule": "weekly",
     "retention": "4",
     "status": "off",
-    "filters": ["files", "entrypoint", "apache-conf", "mysql-data", "mysql-conf", "php-versions", "crontab", "user-data", "core-users", "stats-users", "apache-ssl-conf", "domain-access-reports", "ssh", "timzeone"],
+    "filters": ["files", "entrypoint", "apache-conf", "mysql-data", "mysql-conf", "php-versions", "crontab", "user-data", "core-users", "stats-users", "apache-ssl-conf", "domain-access-reports", "ssh", "timezone"],
     "id": "3"
 }

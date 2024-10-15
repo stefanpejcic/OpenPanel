@@ -1,0 +1,4941 @@
+# Translations template for PROJECT.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-01-23 11:20+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: modules/backups.py:125 modules/domains.py:233
+msgid "Log file not found."
+msgstr ""
+
+#: modules/backups.py:271
+msgid "Databases restored successfully"
+msgstr ""
+
+#: modules/backups.py:289
+msgid "Directory not found"
+msgstr ""
+
+#: modules/crons.py:67 templates/dashboard/dashboard.html:397
+msgid "CronJobs"
+msgstr ""
+
+#: modules/crons.py:92
+msgid "Cron job saved successfully!"
+msgstr ""
+
+#: modules/crons.py:94
+msgid "Error saving cron job."
+msgstr ""
+
+#: modules/crons.py:122
+msgid "Cron job successfully modified."
+msgstr ""
+
+#: modules/crons.py:126
+msgid "Error editing cron job"
+msgstr ""
+
+#: modules/crons.py:137
+msgid "Cron job was successfully deleted."
+msgstr ""
+
+#: modules/crons.py:141
+msgid "Error deleting cron job"
+msgstr ""
+
+#: modules/dashboard.py:92 modules/dashboard.py:95 modules/dashboard.py:188
+#: modules/dashboard.py:207 modules/dashboard.py:265 modules/dashboard.py:431
+#: modules/ip_blocker.py:25 modules/php.py:228 modules/webserver.py:27
+#: modules/webserver.py:109 modules/webserver.py:145 modules/webserver.py:223
+msgid "User not authenticated"
+msgstr ""
+
+#: modules/dashboard.py:166
+msgid "Error fetching country code:"
+msgstr ""
+
+#: modules/dashboard.py:234 modules/dashboard.py:333
+msgid "Error retrieving database count for the user."
+msgstr ""
+
+#: modules/dashboard.py:364 modules/dashboard.py:366 modules/dashboard.py:372
+#: modules/dashboard.py:375 templates/edit_mysql_config.html:179
+#: templates/remote_mysql.html:174 templates/ssh.html:197
+msgid "Unknown"
+msgstr ""
+
+#: modules/databases.py:187
+msgid ""
+"MySQL configuration was saved successfully but MySQL service failed to "
+"start! Please revert the changes to restart MySQL."
+msgstr ""
+
+#: modules/databases.py:191
+msgid ""
+"MySQL Configuration was edited successfully and service restarted to "
+"apply new settings."
+msgstr ""
+
+#: modules/databases.py:221
+msgid "Edit MySQL Config"
+msgstr ""
+
+#: modules/databases.py:238 templates/dashboard/dashboard.html:254
+#: templates/partials/sidebar.html:141
+msgid "MySQL Databases"
+msgstr ""
+
+#: modules/databases.py:263
+msgid "enabled remote MySQL"
+msgstr ""
+
+#: modules/databases.py:265
+msgid "Remote MySQL access is now enabled."
+msgstr ""
+
+#: modules/databases.py:270
+msgid "disabled remote MySQL"
+msgstr ""
+
+#: modules/databases.py:272
+msgid "Remote MySQL access is now disabled."
+msgstr ""
+
+#: modules/databases.py:280
+msgid "ON"
+msgstr ""
+
+#: modules/databases.py:282
+msgid "OFF"
+msgstr ""
+
+#: modules/databases.py:288
+msgid "UNKNOWN"
+msgstr ""
+
+#: modules/databases.py:290 templates/dashboard/dashboard.html:275
+#: templates/partials/sidebar.html:158
+msgid "Remote MySQL"
+msgstr ""
+
+#: modules/databases.py:310
+msgid "MySQL Processes"
+msgstr ""
+
+#: modules/databases.py:432
+msgid "You have reached the maximum number of databases allowed."
+msgstr ""
+
+#: modules/disk_usage.py:84 templates/dashboard/dashboard.html:161
+#: templates/partials/sidebar.html:116
+msgid "Disk Usage"
+msgstr ""
+
+#: modules/domains.py:176
+msgid "Both domain_name and file_name are required."
+msgstr ""
+
+#: modules/domains.py:182 modules/domains.py:235 modules/domains.py:489
+#: modules/domains.py:586 modules/ip_blocker.py:58 modules/webserver.py:157
+#: modules/websites.py:202 modules/websites.py:234 modules/websites.py:304
+#: modules/websites.py:367 modules/websites.py:415 modules/websites.py:450
+#: modules/websites.py:506 modules/websites.py:561
+msgid "The domain does not belong to the user."
+msgstr ""
+
+#: modules/domains.py:190
+msgid "Invalid file_name. Allowed values: browser, ip, type, link."
+msgstr ""
+
+#: modules/domains.py:228 modules/domains.py:244
+msgid "Access Log"
+msgstr ""
+
+#: modules/domains.py:279
+msgid "Invalid data received"
+msgstr ""
+
+#: modules/domains.py:350 templates/_shortcuts.html:143
+#: templates/dashboard/dashboard.html:203
+#: templates/dashboard/dashboard.html:212 templates/partials/sidebar.html:168
+msgid "Domains"
+msgstr ""
+
+#: modules/domains.py:458
+msgid "Row deleted successfully"
+msgstr ""
+
+#: modules/domains.py:509 modules/domains.py:521
+msgid "Edit DNS Zone"
+msgstr ""
+
+#: modules/domains.py:547
+msgid "Zone file not found."
+msgstr ""
+
+#: modules/domains.py:570
+msgid "DNS record added successfully."
+msgstr ""
+
+#: modules/domains.py:596
+msgid "DNS zone saved and DNS service restarted."
+msgstr ""
+
+#: modules/domains.py:598
+msgid "New content not provided."
+msgstr ""
+
+#: modules/domains.py:611
+msgid "Domain name not provided."
+msgstr ""
+
+#: modules/domains.py:615
+msgid "Edit VHosts file"
+msgstr ""
+
+#: modules/domains.py:630
+msgid "Invalid request. Domain name and Vhost content must be provided."
+msgstr ""
+
+#: modules/domains.py:636 modules/domains.py:638
+msgid "Edit Vhosts"
+msgstr ""
+
+#: modules/domains.py:636
+msgid "Virtual host configuration saved successfully."
+msgstr ""
+
+#: modules/domains.py:716
+msgid "Error saving virtual host configuration. Configuration test failed."
+msgstr ""
+
+#: modules/domains.py:722
+msgid "Error saving virtual host configuration. An unexpected error occurred."
+msgstr ""
+
+#: modules/domains.py:905
+msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
+msgstr ""
+
+#: modules/domains.py:1105 modules/ssl.py:256
+msgid ""
+"SSL generation successful. Certificate is present. Modifying Nginx "
+"configuration."
+msgstr ""
+
+#: modules/domains.py:1149 modules/ssl.py:300
+msgid "Nginx configuration modified successfully, restarting nginx.."
+msgstr ""
+
+#: modules/domains.py:1191
+msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
+msgstr ""
+
+#: modules/domains.py:1239 modules/ssl.py:163
+msgid "Unauthorized"
+msgstr ""
+
+#: modules/filemanager.py:360
+msgid "File created successfully"
+msgstr ""
+
+#: modules/filemanager.py:364
+msgid "Filename is missing"
+msgstr ""
+
+#: modules/filemanager.py:392
+msgid "Folder created successfully"
+msgstr ""
+
+#: modules/filemanager.py:396
+msgid "Foldername is missing"
+msgstr ""
+
+#: modules/filemanager.py:425
+msgid "Files uploaded successfully"
+msgstr ""
+
+#: modules/filemanager.py:427
+msgid "No files were uploaded"
+msgstr ""
+
+#: modules/filemanager.py:430
+msgid "Internal server error"
+msgstr ""
+
+#: modules/filemanager.py:491
+msgid "Unsupported file format"
+msgstr ""
+
+#: modules/filemanager.py:495
+msgid "File extracted successfully"
+msgstr ""
+
+#: modules/filemanager.py:567
+msgid "Archive created successfully"
+msgstr ""
+
+#: modules/filemanager.py:638
+msgid "User not authenticated."
+msgstr ""
+
+#: modules/filemanager.py:789
+msgid "File Editor"
+msgstr ""
+
+#: modules/filemanager.py:852 modules/filemanager.py:876
+msgid "The specified directory does not exist."
+msgstr ""
+
+#: modules/filemanager.py:877 modules/filemanager.py:881
+#: templates/_shortcuts.html:131 templates/dashboard/dashboard.html:148
+#: templates/partials/sidebar.html:93 templates/websites.html:1876
+msgid "File Manager"
+msgstr ""
+
+#: modules/fix_permissions.py:69
+msgid "Invalid fix_directory"
+msgstr ""
+
+#: modules/fix_permissions.py:74
+msgid "Success."
+msgstr ""
+
+#: modules/fix_permissions.py:79 templates/dashboard/dashboard.html:193
+#: templates/fix_permissions.html:17 templates/partials/sidebar.html:132
+msgid "Fix Permissions"
+msgstr ""
+
+#: modules/inodes.py:88 templates/dashboard/dashboard.html:177
+#: templates/partials/sidebar.html:124
+msgid "Inodes Explorer"
+msgstr ""
+
+#: modules/malware_scan.py:65
+msgid "Malware Scanner"
+msgstr ""
+
+#: modules/malware_scan.py:74
+msgid "No malware found"
+msgstr ""
+
+#: modules/malware_scan.py:76
+msgid "Malware detected"
+msgstr ""
+
+#: modules/malware_scan.py:78
+msgid "Scan result unknown"
+msgstr ""
+
+#: modules/malware_scan.py:80
+msgid "Connection to ClamAV daemon failed"
+msgstr ""
+
+#: modules/malware_scan.py:94
+msgid "No directory specified for scanning."
+msgstr ""
+
+#: modules/malware_scan.py:104
+msgid "Invalid directory specified for scanning."
+msgstr ""
+
+#: modules/php.py:78
+msgid "Invalid input data"
+msgstr ""
+
+#: modules/php.py:82 modules/php.py:159 modules/php.py:412 modules/php.py:484
+msgid "success"
+msgstr ""
+
+#: modules/php.py:87
+msgid "Configuration file not found"
+msgstr ""
+
+#: modules/php.py:161 modules/php.py:414
+msgid "error"
+msgstr ""
+
+#: modules/php.py:217
+msgid "Error fetching data"
+msgstr ""
+
+#: modules/php.py:278 templates/dashboard/dashboard.html:351
+msgid "PHP.INI Editor"
+msgstr ""
+
+#: modules/php.py:451 templates/dashboard/dashboard.html:334
+#: templates/partials/sidebar.html:318 templates/system/general.html:88
+#: templates/websites.html:2008
+msgid "PHP Settings"
+msgstr ""
+
+#: modules/php.py:504
+msgid "User not logged in"
+msgstr ""
+
+#: modules/php.py:518
+msgid "No log files found"
+msgstr ""
+
+#: modules/php.py:538
+msgid "Log file deleted"
+msgstr ""
+
+#: modules/phpmyadmin.py:100 modules/terminal.py:49 modules/terminal.py:50
+msgid "Error extracting dbuser and dbpass from Docker container."
+msgstr ""
+
+#: modules/phpmyadmin.py:105 modules/terminal.py:53 modules/terminal.py:54
+msgid "Error executing Docker command."
+msgstr ""
+
+#: modules/phpmyadmin.py:119
+msgid "Container port not found for the user."
+msgstr ""
+
+#: modules/process_manager.py:53
+msgid "message"
+msgstr ""
+
+#: modules/process_manager.py:53
+msgid "Process killed successfully"
+msgstr ""
+
+#: modules/process_manager.py:57
+msgid "error_message"
+msgstr ""
+
+#: modules/process_manager.py:91 templates/dashboard/dashboard.html:434
+#: templates/partials/sidebar.html:350
+msgid "Process Manager"
+msgstr ""
+
+#: modules/process_manager.py:95
+msgid "Container not found"
+msgstr ""
+
+#: modules/services.py:52 templates/dashboard/dashboard.html:482
+#: templates/system/general.html:124 templates/system/general.html:127
+#: templates/system/server_info.html:9
+msgid "Server Information"
+msgstr ""
+
+#: modules/services.py:72 templates/dashboard/dashboard.html:474
+msgid "Services Status"
+msgstr ""
+
+#: modules/ssh.py:44
+msgid "Invalid action"
+msgstr ""
+
+#: modules/ssh.py:58 templates/ssh.html:25
+msgid "Password changed successfully."
+msgstr ""
+
+#: modules/ssh.py:69 templates/dashboard/dashboard.html:405
+#: templates/partials/sidebar.html:333
+msgid "SSH Access"
+msgstr ""
+
+#: modules/ssl.py:103
+msgid "Domain: {} - SSL Expiry Date: {}"
+msgstr ""
+
+#: modules/ssl.py:127
+msgid "Domains List:"
+msgstr ""
+
+#: modules/ssl.py:129
+msgid "SSL/TLS Settings"
+msgstr ""
+
+#: modules/ssl.py:146
+msgid "Invalid filename"
+msgstr ""
+
+#: modules/ssl.py:158
+msgid "Domain not found"
+msgstr ""
+
+#: modules/ssl.py:168
+msgid "Invalid file format. Only .pem files are allowed."
+msgstr ""
+
+#: modules/ssl.py:178
+msgid "File not found"
+msgstr ""
+
+#: modules/ssl.py:188
+msgid "Invalid request"
+msgstr ""
+
+#: modules/ssl.py:233 modules/ssl.py:320
+msgid "User ID is missing"
+msgstr ""
+
+#: modules/ssl.py:243 modules/ssl.py:330
+msgid "Domain ID or Domain URL is missing"
+msgstr ""
+
+#: modules/ssl.py:312
+msgid "An error occurred while generating SSL"
+msgstr ""
+
+#: modules/ssl.py:395
+msgid "Nginx SSL configuration removed successfully, restarting nginx.."
+msgstr ""
+
+#: modules/ssl.py:403 modules/ssl.py:407
+msgid "An error occurred while deleting SSL"
+msgstr ""
+
+#: modules/terminal.py:58
+msgid "The ttyd screen session is dead. Cleaning up and starting a new one..."
+msgstr ""
+
+#: modules/terminal.py:64
+msgid "No ttyd screen session found. Starting a new one..."
+msgstr ""
+
+#: modules/terminal.py:68
+msgid "The phpmyadmin screen session is active."
+msgstr ""
+
+#: modules/usage.py:89 templates/dashboard/dashboard.html:425
+#: templates/partials/sidebar.html:290
+msgid "Resource Usage"
+msgstr ""
+
+#: modules/usage.py:169
+msgid "Container name is required"
+msgstr ""
+
+#: modules/usage.py:280
+msgid "Resource Usage History"
+msgstr ""
+
+#: modules/webserver.py:42
+msgid "Nginx Configuration Editor"
+msgstr ""
+
+#: modules/webserver.py:47
+msgid "Apache Configuration Editor"
+msgstr ""
+
+#: modules/webserver.py:106 templates/partials/sidebar.html:358
+msgid "Server Settings"
+msgstr ""
+
+#: modules/webserver.py:141 templates/dashboard/dashboard.html:466
+msgid "ModSecurity Settings"
+msgstr ""
+
+#: modules/website_builder.py:83
+msgid "My Site"
+msgstr ""
+
+#: modules/website_builder.py:84
+msgid "My Simple Site"
+msgstr ""
+
+#: modules/website_builder.py:93
+msgid "Error: .htaccess file already exists. Website creation cannot proceed."
+msgstr ""
+
+#: modules/website_builder.py:128
+msgid "New HTML website was successfully created!"
+msgstr ""
+
+#: modules/website_builder.py:198 modules/websites.py:695
+#: templates/sites.html:53
+msgid "Website Builder"
+msgstr ""
+
+#: modules/websites.py:176
+msgid "expired or not available"
+msgstr ""
+
+#: modules/websites.py:179
+msgid "not found"
+msgstr ""
+
+#: modules/websites.py:182
+msgid "file not found"
+msgstr ""
+
+#: modules/websites.py:342
+msgid "Debugging options updated successfully"
+msgstr ""
+
+#: modules/websites.py:394
+msgid "General options edited successfully"
+msgstr ""
+
+#: modules/websites.py:424 templates/websites.html:1752
+msgid "WordPress updated successfully"
+msgstr ""
+
+#: modules/websites.py:481
+msgid "Update preferences saved successfully"
+msgstr ""
+
+#: modules/websites.py:660 modules/websites.py:825 templates/sites.html:13
+#: templates/sites.html:92
+msgid "Websites"
+msgstr ""
+
+#: modules/websites.py:731
+msgid "Error executing the query:"
+msgstr ""
+
+#: modules/wordpress.py:131 templates/partials/sidebar.html:75
+msgid "WordPress Manager"
+msgstr ""
+
+#: modules/wordpress.py:205
+msgid "Backup restored successfully!"
+msgstr ""
+
+#: modules/wordpress.py:267
+msgid "Backup completed successfully!"
+msgstr ""
+
+#: modules/wordpress.py:270
+msgid "No backup options selected."
+msgstr ""
+
+#: modules/wordpress.py:294
+msgid "Site not found in the database."
+msgstr ""
+
+#: modules/wordpress.py:395
+msgid "WordPress removal completed successfully!"
+msgstr ""
+
+#: modules/wordpress.py:399
+msgid "An error occurred during WordPress removal."
+msgstr ""
+
+#: modules/wordpress.py:424
+msgid "An error occurred during WordPress detachment."
+msgstr ""
+
+#: modules/wordpress.py:610 modules/wordpress.py:787
+msgid ""
+"Scan completed. Found installations:\n"
+"\n"
+msgstr ""
+
+#: modules/wordpress.py:640 templates/wordpress.html:104
+msgid "Scan skipped. WordPress installation is currently running."
+msgstr ""
+
+#: modules/wordpress.py:854
+msgid ""
+"Error: .htaccess file already exists. WordPress installation cannot "
+"proceed!"
+msgstr ""
+
+#: modules/wordpress.py:1027
+msgid "Hooray, WordPress was successfully installed!"
+msgstr ""
+
+#: modules/account/login.py:27 templates/user/account.html:15
+#: templates/user/activity.html:117 templates/user/loginlog.html:12
+#: templates/user/twofa_settings.html:11
+msgid "Login"
+msgstr ""
+
+#: modules/account/login.py:91
+msgid "User does not exist."
+msgstr ""
+
+#: modules/account/login.py:93
+msgid "Error occurred while trying to auto-login."
+msgstr ""
+
+#: modules/account/login.py:97
+msgid "Invalid admin token."
+msgstr ""
+
+#: modules/account/login.py:143
+msgid "Invalid username or password. Please try again."
+msgstr ""
+
+#: modules/account/login.py:169
+msgid "Invalid 2FA code. Please try again."
+msgstr ""
+
+#: modules/account/login_history.py:28 templates/dashboard/dashboard.html:527
+msgid "Login History"
+msgstr ""
+
+#: modules/account/settings.py:98
+msgid "Account Settings"
+msgstr ""
+
+#: modules/account/twofa.py:109
+msgid "Two-Factor Authentication has been enabled."
+msgstr ""
+
+#: modules/account/twofa.py:113
+msgid "Two-Factor Authentication has been disabled."
+msgstr ""
+
+#: modules/account/twofa.py:124 modules/account/twofa.py:127
+msgid "2FA Settings"
+msgstr ""
+
+#: modules/cache/elasticsearch.py:57 modules/cache/elasticsearch.py:63
+msgid "Elasticsearch installed successfully."
+msgstr ""
+
+#: modules/cache/elasticsearch.py:66 modules/cache/elasticsearch.py:70
+msgid "Error: Elasticsearch installation failed."
+msgstr ""
+
+#: modules/cache/elasticsearch.py:82
+msgid "Elasticsearch is now enabled."
+msgstr ""
+
+#: modules/cache/elasticsearch.py:88
+msgid "Elasticsearch service is now disabled."
+msgstr ""
+
+#: modules/cache/elasticsearch.py:103
+msgid "Elasticsearch"
+msgstr ""
+
+#: modules/cache/memcached.py:55 modules/cache/memcached.py:61
+msgid "Memcached installed successfully."
+msgstr ""
+
+#: modules/cache/memcached.py:64 modules/cache/memcached.py:68
+msgid "Error: Memcached installation failed."
+msgstr ""
+
+#: modules/cache/memcached.py:82
+msgid "Memcached service is now enabled."
+msgstr ""
+
+#: modules/cache/memcached.py:88
+msgid "Memcached service is now disabled."
+msgstr ""
+
+#: modules/cache/memcached.py:97
+msgid ""
+"Memory limit for Memcached service successfully changed and service "
+"restarted to apply new limits."
+msgstr ""
+
+#: modules/cache/memcached.py:100 modules/cache/redis.py:106
+msgid "Memory limit is invalid!"
+msgstr ""
+
+#: modules/cache/memcached.py:122 templates/dashboard/dashboard.html:305
+#: templates/partials/sidebar.html:262
+#: templates/system/services_status.html:135
+msgid "Memcached"
+msgstr ""
+
+#: modules/cache/redis.py:61 modules/cache/redis.py:67
+msgid "REDIS installed successfully."
+msgstr ""
+
+#: modules/cache/redis.py:70 modules/cache/redis.py:74
+msgid "Error: REDIS installation failed."
+msgstr ""
+
+#: modules/cache/redis.py:86
+msgid "REDIS service is now enabled."
+msgstr ""
+
+#: modules/cache/redis.py:92
+msgid "REDIS service is now disabled."
+msgstr ""
+
+#: modules/cache/redis.py:103
+msgid ""
+"Memory limit for REDIS service successfully changed and service restarted"
+" to apply new limits."
+msgstr ""
+
+#: modules/cache/redis.py:132 templates/dashboard/dashboard.html:297
+#: templates/partials/sidebar.html:200
+#: templates/system/services_status.html:123
+msgid "REDIS"
+msgstr ""
+
+#: modules/core/search.py:35 modules/core/search.py:72
+msgid "Invalid search query"
+msgstr ""
+
+#: modules/core/search.py:125
+msgid "Error loading JSON data"
+msgstr ""
+
+#: modules/json/databases_size_info.py:37
+msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
+msgstr ""
+
+#: modules/json/helpers.py:111
+msgid "URL parameter is missing"
+msgstr ""
+
+#: modules/json/helpers.py:118
+msgid "Invalid URL provided"
+msgstr ""
+
+#: modules/json/helpers.py:268
+msgid "Unable to retrieve size"
+msgstr ""
+
+#: modules/json/helpers.py:666
+msgid "Error: Invalid log file path. It must end with '.log'."
+msgstr ""
+
+#: templates/_shortcuts.html:6
+msgid "Available Keyboard Shortcuts"
+msgstr ""
+
+#: templates/_shortcuts.html:15
+msgid "File Manager Shortcuts"
+msgstr ""
+
+#: templates/_shortcuts.html:19 templates/_shortcuts.html:80
+#: templates/_shortcuts.html:112
+msgid "Shortcut"
+msgstr ""
+
+#: templates/_shortcuts.html:20 templates/_shortcuts.html:81
+#: templates/databases.html:393 templates/databases.html:431
+msgid "Action"
+msgstr ""
+
+#: templates/_shortcuts.html:25
+msgid "Shift + A"
+msgstr ""
+
+#: templates/_shortcuts.html:26
+msgid "Select All"
+msgstr ""
+
+#: templates/_shortcuts.html:29
+msgid "Shift + N"
+msgstr ""
+
+#: templates/_shortcuts.html:30
+msgid "Create a New Folder"
+msgstr ""
+
+#: templates/_shortcuts.html:33
+msgid "Shift + U"
+msgstr ""
+
+#: templates/_shortcuts.html:34 templates/filemanager.html:2161
+msgid "Upload Files"
+msgstr ""
+
+#: templates/_shortcuts.html:37 templates/_shortcuts.html:86
+msgid "Shift + C"
+msgstr ""
+
+#: templates/_shortcuts.html:38
+msgid "Copy Files"
+msgstr ""
+
+#: templates/_shortcuts.html:41
+msgid "Shift + M"
+msgstr ""
+
+#: templates/_shortcuts.html:42
+msgid "Move Files"
+msgstr ""
+
+#: templates/_shortcuts.html:45
+msgid "DELETE"
+msgstr ""
+
+#: templates/_shortcuts.html:46
+msgid "Delete File"
+msgstr ""
+
+#: templates/_shortcuts.html:49
+msgid "Shift + V"
+msgstr ""
+
+#: templates/_shortcuts.html:50 templates/filemanager.html:2198
+#: templates/ssl.html:65
+msgid "View File"
+msgstr ""
+
+#: templates/_shortcuts.html:53
+msgid "Shift + E"
+msgstr ""
+
+#: templates/_shortcuts.html:54
+msgid "Edit File"
+msgstr ""
+
+#: templates/_shortcuts.html:57
+msgid "Shift + R"
+msgstr ""
+
+#: templates/_shortcuts.html:58
+msgid "Rename Files"
+msgstr ""
+
+#: templates/_shortcuts.html:61
+msgid "Shift + Z"
+msgstr ""
+
+#: templates/_shortcuts.html:62
+msgid "Compress Files"
+msgstr ""
+
+#: templates/_shortcuts.html:65
+msgid "Shift + X"
+msgstr ""
+
+#: templates/_shortcuts.html:66
+msgid "Extract Files"
+msgstr ""
+
+#: templates/_shortcuts.html:69 templates/_shortcuts.html:130
+msgid "Shift + F"
+msgstr ""
+
+#: templates/_shortcuts.html:70 templates/websites.html:173
+msgid "Home"
+msgstr ""
+
+#: templates/_shortcuts.html:76
+msgid "Resource Usage Shortcuts"
+msgstr ""
+
+#: templates/_shortcuts.html:87
+msgid "Current Resource Usage"
+msgstr ""
+
+#: templates/_shortcuts.html:90
+msgid "Shift + O"
+msgstr ""
+
+#: templates/_shortcuts.html:91
+msgid "Historical (older) Usage"
+msgstr ""
+
+#: templates/_shortcuts.html:94
+msgid "Shift + L"
+msgstr ""
+
+#: templates/_shortcuts.html:95
+msgid "View logs"
+msgstr ""
+
+#: templates/_shortcuts.html:107
+msgid "Global Shortcuts"
+msgstr ""
+
+#: templates/_shortcuts.html:113
+msgid "Page"
+msgstr ""
+
+#: templates/_shortcuts.html:118 templates/dashboard/dashboard.html:604
+msgid "/"
+msgstr ""
+
+#: templates/_shortcuts.html:119 templates/base.html:575
+msgid "Search"
+msgstr ""
+
+#: templates/_shortcuts.html:122
+msgid "Shift + H"
+msgstr ""
+
+#: templates/_shortcuts.html:123
+msgid "Dashboard"
+msgstr ""
+
+#: templates/_shortcuts.html:126
+msgid "Shift + W"
+msgstr ""
+
+#: templates/_shortcuts.html:127 templates/base.html:172
+#: templates/base.html:632 templates/dashboard/dashboard.html:119
+#: templates/sites.html:41 templates/wordpress.html:642
+#: templates/wordpress.html:828
+msgid "WordPress"
+msgstr ""
+
+#: templates/_shortcuts.html:134
+msgid "Shift + B"
+msgstr ""
+
+#: templates/_shortcuts.html:135 templates/dashboard/dashboard.html:244
+#: templates/databases.html:368 templates/partials/sidebar.html:136
+msgid "Databases"
+msgstr ""
+
+#: templates/_shortcuts.html:138
+msgid "Shift + P"
+msgstr ""
+
+#: templates/_shortcuts.html:139 templates/partials/sidebar.html:150
+#: templates/system/services_status.html:70 templates/websites.html:1914
+msgid "phpMyAdmin"
+msgstr ""
+
+#: templates/_shortcuts.html:142
+msgid "Shift + D"
+msgstr ""
+
+#: templates/_shortcuts.html:146
+msgid "Shift + Q"
+msgstr ""
+
+#: templates/_shortcuts.html:147 templates/user/account.html:12
+#: templates/user/activity.html:116 templates/user/loginlog.html:11
+#: templates/user/twofa_settings.html:10
+msgid "Activity"
+msgstr ""
+
+#: templates/_shortcuts.html:150
+msgid "Shift + Y"
+msgstr ""
+
+#: templates/_shortcuts.html:151
+msgid "Usage"
+msgstr ""
+
+#: templates/_shortcuts.html:154
+msgid "Shift + S"
+msgstr ""
+
+#: templates/_shortcuts.html:155 templates/system/general.html:52
+msgid "Settings"
+msgstr ""
+
+#: templates/apache_nginx_conf_editor.html:52
+msgid "Success"
+msgstr ""
+
+#: templates/apache_nginx_conf_editor.html:85
+msgid "Here you can edit the main configuration file for your webserver."
+msgstr ""
+
+#: templates/apache_nginx_conf_editor.html:104
+#: templates/domains/domains.html:478 templates/pm2.html:199
+#: templates/system/modsecurity.html:114 templates/websites.html:755
+msgid "Status"
+msgstr ""
+
+#: templates/apache_nginx_conf_editor.html:108 templates/cronjobs.html:716
+#: templates/domains/domains.html:482 templates/domains/edit_dns_zone.html:118
+#: templates/domains/edit_dns_zone.html:346 templates/ftp.html:37
+#: templates/ssl.html:136 templates/wordpress.html:457
+msgid "Actions"
+msgstr ""
+
+#: templates/apache_nginx_conf_editor.html:109 templates/edit_file.html:79
+#: templates/edit_mysql_config.html:183 templates/php_ini_editor.html:80
+msgid "Save Changes"
+msgstr ""
+
+#: templates/backup.html:11 templates/backup.html:154 templates/backup.html:192
+#: templates/websites.html:1411 templates/websites.html:1613
+#: templates/websites.html:2231
+msgid "Restore"
+msgstr ""
+
+#: templates/backup.html:23 templates/backup.html:132
+msgid "Restore Files"
+msgstr ""
+
+#: templates/backup.html:24
+msgid "Restore your files from backup"
+msgstr ""
+
+#: templates/backup.html:32
+msgid "Restore Databases"
+msgstr ""
+
+#: templates/backup.html:32
+msgid "Restore all databases from backup"
+msgstr ""
+
+#: templates/backup.html:42
+msgid "Backup Storage"
+msgstr ""
+
+#: templates/backup.html:53
+msgid "Total Backups"
+msgstr ""
+
+#: templates/backup.html:64
+msgid "Storage Used"
+msgstr ""
+
+#: templates/backup.html:71
+msgid "Destination"
+msgstr ""
+
+#: templates/backup.html:75
+msgid "Backup limit for current hosting plan is 100GB"
+msgstr ""
+
+#: templates/backup.html:87
+msgid "Backup Logs"
+msgstr ""
+
+#: templates/backup.html:99
+msgid "View Full Backup Log"
+msgstr ""
+
+#: templates/backup.html:108
+msgid "Restore History"
+msgstr ""
+
+#: templates/backup.html:120
+msgid "View Full Restore Log"
+msgstr ""
+
+#: templates/backup.html:145 templates/backup.html:178
+msgid "No backups available."
+msgstr ""
+
+#: templates/backup.html:153 templates/backup.html:191
+#: templates/cronjobs.html:779 templates/domains/domains.html:242
+#: templates/domains/domains.html:267 templates/domains/domains.html:451
+#: templates/domains/edit_dns_zone.html:149
+#: templates/domains/edit_dns_zone.html:282 templates/filemanager.html:1818
+#: templates/filemanager.html:1848 templates/filemanager.html:1980
+#: templates/filemanager.html:2000 templates/filemanager.html:2027
+#: templates/filemanager.html:2063 templates/filemanager.html:2102
+#: templates/ftp.html:132 templates/ftp.html:175 templates/websites.html:2162
+#: templates/websites.html:2207 templates/websites.html:2230
+msgid "Cancel"
+msgstr ""
+
+#: templates/backup.html:165
+msgid "Restore MySQL Database"
+msgstr ""
+
+#: templates/backup.html:171
+msgid "Select a backup date:"
+msgstr ""
+
+#: templates/backup.html:183
+msgid "Select a database:"
+msgstr ""
+
+#: templates/base.html:163 templates/base.html:623 templates/sites.html:30
+msgid "What kind of site would you like to create?"
+msgstr ""
+
+#: templates/base.html:208 templates/base.html:667
+msgid "NodeJS / Python"
+msgstr ""
+
+#: templates/base.html:239 templates/base.html:300
+msgid "Copy Path to Clipboard"
+msgstr ""
+
+#: templates/base.html:262
+msgid "Click to display the full path"
+msgstr ""
+
+#: templates/base.html:296
+msgid "Copied to Clipboard!"
+msgstr ""
+
+#: templates/base.html:305
+msgid "Unable to copy path to clipboard"
+msgstr ""
+
+#: templates/base.html:359
+msgid "Navigation"
+msgstr ""
+
+#: templates/base.html:361
+msgid "Search Files & Folders"
+msgstr ""
+
+#: templates/base.html:365
+msgid "Reload"
+msgstr ""
+
+#: templates/base.html:369
+msgid "New File"
+msgstr ""
+
+#: templates/base.html:373
+msgid "New Folder"
+msgstr ""
+
+#: templates/base.html:377 templates/filemanager.html:2171
+msgid "Upload"
+msgstr ""
+
+#: templates/cronjobs.html:29
+msgid ""
+"A cron job is a Linux command used to schedule tasks for future "
+"execution. It allows you to automate repetitive tasks, such as sending "
+"notifications or running scripts at specific intervals."
+msgstr ""
+
+#: templates/cronjobs.html:39
+msgid "Add New Cron Job"
+msgstr ""
+
+#: templates/cronjobs.html:42 templates/cronjobs.html:86
+#: templates/cronjobs.html:300 templates/cronjobs.html:551
+msgid "-- Common Settings --"
+msgstr ""
+
+#: templates/cronjobs.html:45 templates/cronjobs.html:89
+msgid "Once Per Minute"
+msgstr ""
+
+#: templates/cronjobs.html:48 templates/cronjobs.html:95
+msgid "Once Per Five Minutes"
+msgstr ""
+
+#: templates/cronjobs.html:51
+msgid "Twice Per Hour"
+msgstr ""
+
+#: templates/cronjobs.html:54
+msgid "Once Per Hour"
+msgstr ""
+
+#: templates/cronjobs.html:57
+msgid "Twice Per Day"
+msgstr ""
+
+#: templates/cronjobs.html:60
+msgid "Once Per Day"
+msgstr ""
+
+#: templates/cronjobs.html:63
+msgid "Once Per Week"
+msgstr ""
+
+#: templates/cronjobs.html:66 templates/cronjobs.html:359
+msgid "On the 1st and 15th of the Month"
+msgstr ""
+
+#: templates/cronjobs.html:69
+msgid "Once Per Month"
+msgstr ""
+
+#: templates/cronjobs.html:72
+msgid "Once Per Year"
+msgstr ""
+
+#: templates/cronjobs.html:78
+msgid "Minute:"
+msgstr ""
+
+#: templates/cronjobs.html:82 templates/cronjobs.html:298
+#: templates/cronjobs.html:343 templates/cronjobs.html:467
+#: templates/cronjobs.html:549
+msgid "Common Settings:"
+msgstr ""
+
+#: templates/cronjobs.html:92
+msgid "Once Per Two Minutes"
+msgstr ""
+
+#: templates/cronjobs.html:98
+msgid "Once Per Ten Minutes"
+msgstr ""
+
+#: templates/cronjobs.html:101
+msgid "Once Per Fifteen Minutes"
+msgstr ""
+
+#: templates/cronjobs.html:104
+msgid "Once Per Thirty Minutes"
+msgstr ""
+
+#: templates/cronjobs.html:107
+msgid "-- Minutes --"
+msgstr ""
+
+#: templates/cronjobs.html:110
+msgid "At the beginning of the hour."
+msgstr ""
+
+#: templates/cronjobs.html:155
+msgid "At one quarter past the hour."
+msgstr ""
+
+#: templates/cronjobs.html:200
+msgid "At half past the hour."
+msgstr ""
+
+#: templates/cronjobs.html:245
+msgid "At one quarter until the hour."
+msgstr ""
+
+#: templates/cronjobs.html:294
+msgid "Hour:"
+msgstr ""
+
+#: templates/cronjobs.html:301
+msgid "Every Hour"
+msgstr ""
+
+#: templates/cronjobs.html:302
+msgid "Every Other Hour"
+msgstr ""
+
+#: templates/cronjobs.html:303
+msgid "Every Third Hour"
+msgstr ""
+
+#: templates/cronjobs.html:304
+msgid "Every Fourth Hour"
+msgstr ""
+
+#: templates/cronjobs.html:305
+msgid "Every Sixth Hour"
+msgstr ""
+
+#: templates/cronjobs.html:306
+msgid "Every Twelve Hours"
+msgstr ""
+
+#: templates/cronjobs.html:307
+msgid "-- Hours --"
+msgstr ""
+
+#: templates/cronjobs.html:308
+msgid "a.m.Midnight"
+msgstr ""
+
+#: templates/cronjobs.html:309 templates/cronjobs.html:310
+#: templates/cronjobs.html:311 templates/cronjobs.html:312
+#: templates/cronjobs.html:313 templates/cronjobs.html:314
+#: templates/cronjobs.html:315 templates/cronjobs.html:316
+#: templates/cronjobs.html:317 templates/cronjobs.html:318
+#: templates/cronjobs.html:319
+msgid "a.m."
+msgstr ""
+
+#: templates/cronjobs.html:320
+msgid "p.m.Noon"
+msgstr ""
+
+#: templates/cronjobs.html:321 templates/cronjobs.html:322
+#: templates/cronjobs.html:323 templates/cronjobs.html:324
+#: templates/cronjobs.html:325 templates/cronjobs.html:326
+#: templates/cronjobs.html:327 templates/cronjobs.html:328
+#: templates/cronjobs.html:329 templates/cronjobs.html:330
+#: templates/cronjobs.html:331
+msgid "p.m."
+msgstr ""
+
+#: templates/cronjobs.html:339
+msgid "Day:"
+msgstr ""
+
+#: templates/cronjobs.html:347 templates/cronjobs.html:470
+msgid "Common Settings"
+msgstr ""
+
+#: templates/cronjobs.html:351
+msgid "Every Day"
+msgstr ""
+
+#: templates/cronjobs.html:355
+msgid "Every Other Day"
+msgstr ""
+
+#: templates/cronjobs.html:363
+msgid "Days"
+msgstr ""
+
+#: templates/cronjobs.html:464
+msgid "Month:"
+msgstr ""
+
+#: templates/cronjobs.html:473
+msgid "Every Month"
+msgstr ""
+
+#: templates/cronjobs.html:477
+msgid "Every Other Month"
+msgstr ""
+
+#: templates/cronjobs.html:481
+msgid "Every Third Month"
+msgstr ""
+
+#: templates/cronjobs.html:485
+msgid "Every Six Months"
+msgstr ""
+
+#: templates/cronjobs.html:489
+msgid "Months"
+msgstr ""
+
+#: templates/cronjobs.html:492
+msgid "January"
+msgstr ""
+
+#: templates/cronjobs.html:496
+msgid "February"
+msgstr ""
+
+#: templates/cronjobs.html:500
+msgid "March"
+msgstr ""
+
+#: templates/cronjobs.html:504
+msgid "April"
+msgstr ""
+
+#: templates/cronjobs.html:508
+msgid "May"
+msgstr ""
+
+#: templates/cronjobs.html:512
+msgid "June"
+msgstr ""
+
+#: templates/cronjobs.html:516
+msgid "July"
+msgstr ""
+
+#: templates/cronjobs.html:520
+msgid "August"
+msgstr ""
+
+#: templates/cronjobs.html:524
+msgid "September"
+msgstr ""
+
+#: templates/cronjobs.html:528
+msgid "October"
+msgstr ""
+
+#: templates/cronjobs.html:532
+msgid "November"
+msgstr ""
+
+#: templates/cronjobs.html:536
+msgid "December"
+msgstr ""
+
+#: templates/cronjobs.html:545
+msgid "Weekday:"
+msgstr ""
+
+#: templates/cronjobs.html:552
+msgid "Every Day (*)"
+msgstr ""
+
+#: templates/cronjobs.html:553
+msgid "Every Weekday"
+msgstr ""
+
+#: templates/cronjobs.html:554
+msgid "Every Weekend Day"
+msgstr ""
+
+#: templates/cronjobs.html:555
+msgid "Every Monday, Wednesday, and Friday"
+msgstr ""
+
+#: templates/cronjobs.html:556
+msgid "Every Tuesday and Thursday"
+msgstr ""
+
+#: templates/cronjobs.html:557
+msgid " -- Weekdays --"
+msgstr ""
+
+#: templates/cronjobs.html:558
+msgid "Sunday"
+msgstr ""
+
+#: templates/cronjobs.html:559
+msgid "Monday"
+msgstr ""
+
+#: templates/cronjobs.html:560
+msgid "Tuesday"
+msgstr ""
+
+#: templates/cronjobs.html:561
+msgid "Wednesday"
+msgstr ""
+
+#: templates/cronjobs.html:562
+msgid "Thursday "
+msgstr ""
+
+#: templates/cronjobs.html:563
+msgid "Friday"
+msgstr ""
+
+#: templates/cronjobs.html:564
+msgid "Saturday"
+msgstr ""
+
+#: templates/cronjobs.html:569
+msgid "Command:"
+msgstr ""
+
+#: templates/cronjobs.html:574
+msgid "Schedule CronJob"
+msgstr ""
+
+#: templates/cronjobs.html:681
+msgid "Please fill in all fields before submitting."
+msgstr ""
+
+#: templates/cronjobs.html:710
+msgid "Minute"
+msgstr ""
+
+#: templates/cronjobs.html:711
+msgid "Hour"
+msgstr ""
+
+#: templates/cronjobs.html:712
+msgid "Day"
+msgstr ""
+
+#: templates/cronjobs.html:713
+msgid "Month"
+msgstr ""
+
+#: templates/cronjobs.html:714
+msgid "Weekday"
+msgstr ""
+
+#: templates/cronjobs.html:715 templates/processlist.html:17
+msgid "Command"
+msgstr ""
+
+#: templates/cronjobs.html:733 templates/filemanager.html:329
+msgid "Edit"
+msgstr ""
+
+#: templates/cronjobs.html:734 templates/domains/domains.html:454
+#: templates/filemanager.html:314 templates/filemanager.html:2001
+#: templates/filemanager.html:2028 templates/pm2.html:244
+#: templates/ssl.html:194
+msgid "Delete"
+msgstr ""
+
+#: templates/cronjobs.html:751
+msgid "Edit Cron Job"
+msgstr ""
+
+#: templates/cronjobs.html:752 templates/cronjobs.html:759
+#: templates/databases.html:300 templates/domains/domains.html:443
+#: templates/domains/edit_dns_zone.html:246 templates/filemanager.html:1971
+#: templates/ftp.html:53 templates/ftp.html:94 templates/ftp.html:107
+#: templates/php.html:22 templates/ssl.html:66 templates/websites.html:2154
+msgid "Close"
+msgstr ""
+
+#: templates/cronjobs.html:760
+msgid "Save changes"
+msgstr ""
+
+#: templates/cronjobs.html:771 templates/filemanager.html:1991
+msgid "Confirm Deletion"
+msgstr ""
+
+#: templates/cronjobs.html:775
+msgid "Are you sure you want to delete the following cron job?"
+msgstr ""
+
+#: templates/cronjobs.html:780
+msgid "Confirm Delete"
+msgstr ""
+
+#: templates/cronjobs.html:823
+msgid "Error editing cron job."
+msgstr ""
+
+#: templates/cronjobs.html:827
+msgid "AJAX error while editing cron job."
+msgstr ""
+
+#: templates/cronjobs.html:849
+msgid "Error deleting cron job."
+msgstr ""
+
+#: templates/cronjobs.html:853
+msgid "AJAX error while deleting cron job."
+msgstr ""
+
+#: templates/cronjobs.html:866
+msgid "No cronjobs."
+msgstr ""
+
+#: templates/cronjobs.html:876
+msgid "Create CronJob"
+msgstr ""
+
+#: templates/databases.html:26 templates/databases.html:375
+msgid "Database Wizard"
+msgstr ""
+
+#: templates/databases.html:33 templates/databases.html:196
+#: templates/databases.html:390
+msgid "Database Name"
+msgstr ""
+
+#: templates/databases.html:38
+msgid "Random Database Name"
+msgstr ""
+
+#: templates/databases.html:41 templates/databases.html:53
+#: templates/databases.html:63
+msgid "Generate Random"
+msgstr ""
+
+#: templates/databases.html:45 templates/databases.html:225
+#: templates/databases.html:268 templates/databases.html:346
+#: templates/ftp.html:69 templates/user/login.html:36
+msgid "Username"
+msgstr ""
+
+#: templates/databases.html:50
+msgid "Random Username"
+msgstr ""
+
+#: templates/databases.html:58 templates/databases.html:352
+#: templates/ftp.html:73 templates/user/login.html:41
+msgid "Password"
+msgstr ""
+
+#: templates/databases.html:60
+msgid "Random Password"
+msgstr ""
+
+#: templates/databases.html:69
+msgid "Create Database, User, and Grant All Privileges"
+msgstr ""
+
+#: templates/databases.html:81
+msgid "Success!"
+msgstr ""
+
+#: templates/databases.html:86
+msgid "Database Name:"
+msgstr ""
+
+#: templates/databases.html:87 templates/databases.html:341
+#: templates/ssh.html:136 templates/user/account.html:53
+#: templates/websites.html:1287
+msgid "Username:"
+msgstr ""
+
+#: templates/databases.html:88 templates/databases.html:350
+#: templates/ssh.html:140 templates/websites.html:1289
+msgid "Password:"
+msgstr ""
+
+#: templates/databases.html:187
+msgid "Create Database"
+msgstr ""
+
+#: templates/databases.html:201 templates/databases.html:359
+#: templates/pm2.html:182
+msgid "Create"
+msgstr ""
+
+#: templates/databases.html:215
+msgid "Assign user to existing MySQL database"
+msgstr ""
+
+#: templates/databases.html:222 templates/databases.html:264
+msgid "Select user:"
+msgstr ""
+
+#: templates/databases.html:229 templates/databases.html:272
+msgid "Select database:"
+msgstr ""
+
+#: templates/databases.html:232 templates/databases.html:348
+#: templates/processlist.html:15
+msgid "Host"
+msgstr ""
+
+#: templates/databases.html:235 templates/databases.html:278
+#: templates/websites.html:1280
+msgid "Database"
+msgstr ""
+
+#: templates/databases.html:242 templates/databases.html:410
+msgid "Assign"
+msgstr ""
+
+#: templates/databases.html:255
+msgid "Remove user access from database"
+msgstr ""
+
+#: templates/databases.html:285
+msgid "Remove Privileges"
+msgstr ""
+
+#: templates/databases.html:299 templates/databases.html:318
+#: templates/ssh.html:176
+msgid "Change Password"
+msgstr ""
+
+#: templates/databases.html:306
+msgid "Change password for MySQL database user"
+msgstr ""
+
+#: templates/databases.html:307 templates/databases.html:308
+msgid "Database User"
+msgstr ""
+
+#: templates/databases.html:311 templates/databases.html:312
+msgid "New Password"
+msgstr ""
+
+#: templates/databases.html:332
+msgid "Create new MySQL user"
+msgstr ""
+
+#: templates/databases.html:371
+msgid "New DB"
+msgstr ""
+
+#: templates/databases.html:371
+msgid "New Database"
+msgstr ""
+
+#: templates/databases.html:375
+msgid "Wizard"
+msgstr ""
+
+#: templates/databases.html:384
+msgid ""
+"MySQL databases are used to store and manage your website's data, such as"
+" content, user information, and product details, making it accessible and"
+" organized for your web applications. On this page, you can easily create"
+" new databases and efficiently manage existing ones to organize and store"
+" your website's data effectively."
+msgstr ""
+
+#: templates/databases.html:391 templates/filemanager.html:364
+msgid "Size"
+msgstr ""
+
+#: templates/databases.html:392
+msgid "Assigned Users"
+msgstr ""
+
+#: templates/databases.html:405
+msgid "Users"
+msgstr ""
+
+#: templates/databases.html:408 templates/partials/sidebar.html:39
+#: templates/php.html:47 templates/pm2.html:315
+msgid "New"
+msgstr ""
+
+#: templates/databases.html:408 templates/databases.html:430
+#: templates/processlist.html:14
+msgid "User"
+msgstr ""
+
+#: templates/databases.html:410
+msgid "to Database"
+msgstr ""
+
+#: templates/databases.html:413 templates/websites.html:2183
+#: templates/wordpress.html:501
+msgid "Remove"
+msgstr ""
+
+#: templates/databases.html:413
+msgid "from database"
+msgstr ""
+
+#: templates/databases.html:426
+msgid ""
+"MySQL users are essential for controlling who can access and interact "
+"with your databases, ensuring data security and controlled access to your"
+" website's information. Here you can create and manage MySQL user "
+"accounts with specific permissions, ensuring secure access to your "
+"databases."
+msgstr ""
+
+#: templates/disk_usage.html:8
+msgid ""
+"Disk usage is the amount of space that is used by the content of your "
+"sites, this includes databases, files, videos, images, emails and pages."
+msgstr ""
+
+#: templates/disk_usage.html:13
+msgid "Disk usage per directory"
+msgstr ""
+
+#: templates/disk_usage.html:29 templates/inodes.html:30
+msgid "Browse Directories"
+msgstr ""
+
+#: templates/disk_usage.html:46 templates/inodes.html:48
+#: templates/inodes.html:132
+msgid "Up One Level"
+msgstr ""
+
+#: templates/disk_usage.html:73
+msgid "Calculating disk usage for "
+msgstr ""
+
+#: templates/disk_usage.html:200
+msgid "Calculating disk usage for parent directory.."
+msgstr ""
+
+#: templates/edit_file.html:11
+msgid "The specified file does not exist."
+msgstr ""
+
+#: templates/edit_file.html:87
+msgid "Show in folder"
+msgstr ""
+
+#: templates/edit_file.html:125
+msgid ""
+"Are you sure you want to close the file editor without saving your "
+"changes?"
+msgstr ""
+
+#: templates/edit_mysql_config.html:21
+msgid "Saving and restarting MySQL to apply changes..."
+msgstr ""
+
+#: templates/edit_mysql_config.html:82
+msgid ""
+"This tool allows you to make changes to your MySQL configuration. "
+"Modifications made here will prompt a MySQL service restart."
+msgstr ""
+
+#: templates/edit_mysql_config.html:88
+msgid "MySQL Configuration Settings"
+msgstr ""
+
+#: templates/edit_mysql_config.html:129
+msgid "Recommended values:"
+msgstr ""
+
+#: templates/edit_mysql_config.html:179
+msgid "MySQL status:"
+msgstr ""
+
+#: templates/edit_mysql_config.html:179 templates/remote_mysql.html:174
+#: templates/ssh.html:197
+msgid "Enabled"
+msgstr ""
+
+#: templates/edit_mysql_config.html:179 templates/remote_mysql.html:108
+#: templates/remote_mysql.html:174 templates/ssh.html:197
+msgid "Disabled"
+msgstr ""
+
+#: templates/elasticsearch.html:20
+msgid "Enabling Elasticsearch service.."
+msgstr ""
+
+#: templates/elasticsearch.html:23
+msgid "Installing Elasticsearch service.. Please wait"
+msgstr ""
+
+#: templates/elasticsearch.html:26
+msgid "Disabling Elasticsearch service.."
+msgstr ""
+
+#: templates/elasticsearch.html:124 templates/memcached.html:142
+#: templates/redis.html:142
+msgid "Connection Info"
+msgstr ""
+
+#: templates/elasticsearch.html:130 templates/memcached.html:148
+#: templates/redis.html:148 templates/remote_mysql.html:104
+#: templates/ssh.html:197
+msgid "status:"
+msgstr ""
+
+#: templates/elasticsearch.html:131 templates/memcached.html:149
+#: templates/redis.html:149
+msgid "Active"
+msgstr ""
+
+#: templates/elasticsearch.html:139
+msgid "Elasticsearch server:"
+msgstr ""
+
+#: templates/elasticsearch.html:141 templates/memcached.html:159
+#: templates/redis.html:159
+msgid "*or localhost"
+msgstr ""
+
+#: templates/elasticsearch.html:149 templates/memcached.html:167
+#: templates/redis.html:167
+msgid "*Access to the servis is NOT available from other servers."
+msgstr ""
+
+#: templates/elasticsearch.html:154
+msgid "View Elasticsearch service Log"
+msgstr ""
+
+#: templates/elasticsearch.html:161
+msgid "Elasticsearch Settings"
+msgstr ""
+
+#: templates/elasticsearch.html:181
+msgid "Elasticsearch service logs"
+msgstr ""
+
+#: templates/elasticsearch.html:194
+msgid "Elasticsearch is not currently installed."
+msgstr ""
+
+#: templates/elasticsearch.html:195
+msgid "To install Elasticsearch click on the button bellow."
+msgstr ""
+
+#: templates/elasticsearch.html:198
+msgid "INSTALL ELASTICSEARCH"
+msgstr ""
+
+#: templates/elasticsearch.html:204
+msgid "Elasticsearch is currently disabled."
+msgstr ""
+
+#: templates/elasticsearch.html:205
+msgid "To enable Elasticsearch click on the button bellow."
+msgstr ""
+
+#: templates/elasticsearch.html:208
+msgid "START ELASTICSEARCH"
+msgstr ""
+
+#: templates/elasticsearch.html:215
+msgid "Elasticsearch service status is unknown."
+msgstr ""
+
+#: templates/elasticsearch.html:216
+msgid ""
+"Unable to determinate current elasticsearch servise status, try "
+"Start&Stop actions."
+msgstr ""
+
+#: templates/elasticsearch.html:216 templates/memcached.html:253
+#: templates/redis.html:254
+msgid "If the issue persists please contact support."
+msgstr ""
+
+#: templates/elasticsearch.html:219 templates/memcached.html:256
+#: templates/redis.html:257
+msgid "START"
+msgstr ""
+
+#: templates/elasticsearch.html:223 templates/memcached.html:260
+#: templates/redis.html:261
+msgid "STOP"
+msgstr ""
+
+#: templates/elasticsearch.html:272 templates/elasticsearch.html:287
+msgid "Disable Elasticsearch"
+msgstr ""
+
+#: templates/elasticsearch.html:277 templates/elasticsearch.html:291
+msgid "Enable Elasticsearch"
+msgstr ""
+
+#: templates/elasticsearch.html:282
+msgid "Install Elasticsearch"
+msgstr ""
+
+#: templates/filemanager.html:285
+msgid "No items found."
+msgstr ""
+
+#: templates/filemanager.html:286
+msgid "Start creating new folders or uploading a new file!"
+msgstr ""
+
+#: templates/filemanager.html:297
+msgid "Select all"
+msgstr ""
+
+#: templates/filemanager.html:304 templates/filemanager.html:2064
+msgid "Copy"
+msgstr ""
+
+#: templates/filemanager.html:309 templates/filemanager.html:2103
+msgid "Move"
+msgstr ""
+
+#: templates/filemanager.html:319
+msgid "Download"
+msgstr ""
+
+#: templates/filemanager.html:324
+msgid "View"
+msgstr ""
+
+#: templates/filemanager.html:334 templates/filemanager.html:1981
+msgid "Rename"
+msgstr ""
+
+#: templates/filemanager.html:339 templates/filemanager.html:366
+msgid "Permissions"
+msgstr ""
+
+#: templates/filemanager.html:344 templates/filemanager.html:1849
+msgid "Compress"
+msgstr ""
+
+#: templates/filemanager.html:349
+msgid "Extract"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:114
+#: templates/domains/edit_dns_zone.html:125
+#: templates/domains/edit_dns_zone.html:251
+#: templates/domains/edit_dns_zone.html:252 templates/filemanager.html:363
+#: templates/ssl.html:126
+msgid "Name"
+msgstr ""
+
+#: templates/filemanager.html:365
+msgid "Last Modified"
+msgstr ""
+
+#: templates/filemanager.html:365 templates/user/history_usage.html:69
+msgid "Date"
+msgstr ""
+
+#: templates/filemanager.html:395
+msgid "Calculate"
+msgstr ""
+
+#: templates/filemanager.html:1191
+msgid "Change permissions for"
+msgstr ""
+
+#: templates/filemanager.html:1203
+msgid "Please enter a 3-digit numeric value for permissions."
+msgstr ""
+
+#: templates/filemanager.html:1532
+msgid ""
+"Warning: Deleting a directory will remove all its subdirectories and "
+"files."
+msgstr ""
+
+#: templates/filemanager.html:1803
+msgid "Extract File"
+msgstr ""
+
+#: templates/filemanager.html:1807
+msgid "Extract the following file:"
+msgstr ""
+
+#: templates/filemanager.html:1809
+msgid "Please enter extraction path:"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:412 templates/filemanager.html:1819
+#: templates/user/twofa_settings.html:110
+msgid "Confirm"
+msgstr ""
+
+#: templates/filemanager.html:1829
+msgid "Compress Multiple Items"
+msgstr ""
+
+#: templates/filemanager.html:1833
+msgid "Confirm the compression of the following items:"
+msgstr ""
+
+#: templates/filemanager.html:1835
+msgid "Archive Name"
+msgstr ""
+
+#: templates/filemanager.html:1859
+msgid "Set permissions"
+msgstr ""
+
+#: templates/filemanager.html:1873 templates/filemanager.html:1886
+#: templates/filemanager.html:1899
+msgid "Read"
+msgstr ""
+
+#: templates/filemanager.html:1876 templates/filemanager.html:1889
+#: templates/filemanager.html:1902
+msgid "Write"
+msgstr ""
+
+#: templates/filemanager.html:1879 templates/filemanager.html:1892
+#: templates/filemanager.html:1905
+msgid "Execute"
+msgstr ""
+
+#: templates/filemanager.html:1913
+msgid "Enter new Permissions for item"
+msgstr ""
+
+#: templates/filemanager.html:1970
+msgid "Rename Item"
+msgstr ""
+
+#: templates/filemanager.html:1974
+msgid "Enter the new file name to rename the item:"
+msgstr ""
+
+#: templates/filemanager.html:1976
+msgid "New Name"
+msgstr ""
+
+#: templates/filemanager.html:1977
+msgid "New file/folder name"
+msgstr ""
+
+#: templates/filemanager.html:1995
+msgid "Are you sure you want to delete the following"
+msgstr ""
+
+#: templates/filemanager.html:2011
+msgid "Delete Items"
+msgstr ""
+
+#: templates/filemanager.html:2015
+msgid "Confirm the deleting of the following items:"
+msgstr ""
+
+#: templates/filemanager.html:2023
+msgid "Deleting..."
+msgstr ""
+
+#: templates/filemanager.html:2038
+msgid "Copy items"
+msgstr ""
+
+#: templates/filemanager.html:2042
+msgid "Confirm the copy of the following items:"
+msgstr ""
+
+#: templates/filemanager.html:2044 templates/filemanager.html:2082
+msgid "Destination path"
+msgstr ""
+
+#: templates/filemanager.html:2058
+msgid "Copying..."
+msgstr ""
+
+#: templates/filemanager.html:2075
+msgid "Move items"
+msgstr ""
+
+#: templates/filemanager.html:2080
+msgid "Confirm the moving of the following items:"
+msgstr ""
+
+#: templates/filemanager.html:2096
+msgid "Moving..."
+msgstr ""
+
+#: templates/filemanager.html:2113
+msgid "Create New File"
+msgstr ""
+
+#: templates/filemanager.html:2117
+msgid "File Name"
+msgstr ""
+
+#: templates/filemanager.html:2122
+msgid "Create File"
+msgstr ""
+
+#: templates/filemanager.html:2125
+msgid "New file will be created in:"
+msgstr ""
+
+#: templates/filemanager.html:2136
+msgid "Create New Folder"
+msgstr ""
+
+#: templates/filemanager.html:2141
+msgid "Folder Name"
+msgstr ""
+
+#: templates/filemanager.html:2145
+msgid "Create Folder"
+msgstr ""
+
+#: templates/filemanager.html:2149
+msgid "New folder be created in:"
+msgstr ""
+
+#: templates/filemanager.html:2179
+msgid "Uploading..."
+msgstr ""
+
+#: templates/fix_permissions.html:4
+msgid "Fix and reset permissions for files and folders."
+msgstr ""
+
+#: templates/fix_permissions.html:8 templates/malware_scanner.html:12
+msgid "Choose a directory"
+msgstr ""
+
+#: templates/fix_permissions.html:22
+msgid "Working..."
+msgstr ""
+
+#: templates/fix_permissions.html:30
+msgid "Permissions are fixed!"
+msgstr ""
+
+#: templates/fix_permissions.html:61 templates/malware_scanner.html:102
+#: templates/process_manager.html:85
+msgid "Network response was not ok"
+msgstr ""
+
+#: templates/fix_permissions.html:77
+msgid "Fixing permissions failed"
+msgstr ""
+
+#: templates/fix_permissions.html:84
+msgid "Complete"
+msgstr ""
+
+#: templates/ftp.html:28
+msgid "Use your FTP account with an FTP client such as "
+msgstr ""
+
+#: templates/ftp.html:28
+msgid "to transfer files to and from your website."
+msgstr ""
+
+#: templates/ftp.html:34
+msgid "Username (Login)"
+msgstr ""
+
+#: templates/ftp.html:35
+msgid "Path"
+msgstr ""
+
+#: templates/ftp.html:52
+msgid "Add FTP Account"
+msgstr ""
+
+#: templates/ftp.html:77 templates/inodes.html:41
+msgid "Directory"
+msgstr ""
+
+#: templates/ftp.html:95
+msgid "Create FTP Account"
+msgstr ""
+
+#: templates/ftp.html:106
+msgid "Change FTP Password"
+msgstr ""
+
+#: templates/ftp.html:126
+msgid "New password"
+msgstr ""
+
+#: templates/ftp.html:133
+msgid "Change FTP password"
+msgstr ""
+
+#: templates/ftp.html:144
+msgid "Change FTP Path"
+msgstr ""
+
+#: templates/ftp.html:164
+msgid "New path"
+msgstr ""
+
+#: templates/ftp.html:176
+msgid "Change FTP path"
+msgstr ""
+
+#: templates/inodes.html:8
+msgid ""
+"An inode is a data structure that keeps the information about a file on "
+"your hosting account. The number of inodes indicates the number of files "
+"and folders you have. This includes everything on your account, emails, "
+"files, folders, and anything you store on the server."
+msgstr ""
+
+#: templates/inodes.html:14
+msgid "Inodes usage per directory"
+msgstr ""
+
+#: templates/inodes.html:42
+msgid "Inodes"
+msgstr ""
+
+#: templates/inodes.html:76
+msgid "Calculating inodes count for"
+msgstr ""
+
+#: templates/inodes.html:154
+msgid "Inodes Usage"
+msgstr ""
+
+#: templates/inodes.html:171
+msgid "Calculating inodes for parent directory.."
+msgstr ""
+
+#: templates/inodes.html:186
+msgid "Failed to fetch"
+msgstr ""
+
+#: templates/domains/domains.html:479 templates/ip_blocker.html:64
+#: templates/ssl.html:78 templates/system/modsecurity.html:64
+msgid "Search domains"
+msgstr ""
+
+#: templates/domains/domains.html:671 templates/domains/edit_dns_zone.html:174
+#: templates/domains/edit_dns_zone.html:309 templates/ip_blocker.html:113
+#: templates/php.html:64 templates/sites.html:147 templates/ssl.html:134
+#: templates/system/modsecurity.html:113 templates/wordpress.html:453
+msgid "Domain"
+msgstr ""
+
+#: templates/ip_blocker.html:114
+msgid "Blocked IPs"
+msgstr ""
+
+#: templates/domains/domains.html:241 templates/domains/domains.html:266
+#: templates/ip_blocker.html:131 templates/memcached.html:207
+#: templates/redis.html:207
+msgid "Save"
+msgstr ""
+
+#: templates/ip_blocker.html:149 templates/ssl.html:350
+#: templates/system/modsecurity.html:204 templates/wordpress.html:792
+msgid "No Domains"
+msgstr ""
+
+#: templates/ip_blocker.html:151 templates/ssl.html:353
+#: templates/system/modsecurity.html:206 templates/wordpress.html:795
+msgid "Add a Domain Name"
+msgstr ""
+
+#: templates/logs.html:8
+msgid ""
+"Several actions are carried out by OpenPanel when the server is started; "
+"you may check their status and look for any potentional issues here."
+msgstr ""
+
+#: templates/malware_scanner.html:6
+msgid ""
+"The Clam AntiVirus Scanner (ClamAV) antivirus software searches your "
+"files for malicious programs. If the scanner identifies a potential "
+"security threat, it flags the file to allow you to take the appropriate "
+"action."
+msgstr ""
+
+#: templates/malware_scanner.html:21
+msgid "Start Scan"
+msgstr ""
+
+#: templates/malware_scanner.html:26
+msgid "Scanning..."
+msgstr ""
+
+#: templates/malware_scanner.html:38
+msgid "Scan is complete!"
+msgstr ""
+
+#: templates/malware_scanner.html:44
+msgid "Scan Results"
+msgstr ""
+
+#: templates/memcached.html:19
+msgid "Enabling Memcached service.."
+msgstr ""
+
+#: templates/memcached.html:22
+msgid "Installing Memcached service.. Please wait"
+msgstr ""
+
+#: templates/memcached.html:26
+msgid "Disabling Memcached service.."
+msgstr ""
+
+#: templates/memcached.html:83
+msgid "Error fetching log content."
+msgstr ""
+
+#: templates/memcached.html:113
+msgid "Memcached is not currently installed."
+msgstr ""
+
+#: templates/memcached.html:114
+msgid "To install Memcached click on the button bellow."
+msgstr ""
+
+#: templates/memcached.html:117
+msgid "INSTALL MEMCACHED"
+msgstr ""
+
+#: templates/memcached.html:157
+msgid "Memcached server:"
+msgstr ""
+
+#: templates/memcached.html:166 templates/pm2.html:130 templates/redis.html:166
+msgid "Port:"
+msgstr ""
+
+#: templates/memcached.html:172
+msgid "View Memcached service Log"
+msgstr ""
+
+#: templates/memcached.html:179
+msgid "Memcached Memory Allocation"
+msgstr ""
+
+#: templates/memcached.html:187
+msgid "You can allocate RAM to Memcached service."
+msgstr ""
+
+#: templates/memcached.html:192
+msgid "Current Memory limit for Memcached service"
+msgstr ""
+
+#: templates/memcached.html:200 templates/redis.html:200
+msgid "Change Memory Allocation"
+msgstr ""
+
+#: templates/memcached.html:224
+msgid "Memcached service logs"
+msgstr ""
+
+#: templates/memcached.html:243
+msgid "Memcached is currently disabled."
+msgstr ""
+
+#: templates/memcached.html:244
+msgid "To enable Memcached SERVER click on the button bellow."
+msgstr ""
+
+#: templates/memcached.html:247
+msgid "START Memcached"
+msgstr ""
+
+#: templates/memcached.html:252
+msgid "Memcached service status is unknown."
+msgstr ""
+
+#: templates/memcached.html:253
+msgid ""
+"Unable to determinate current Memcached servise status, try Start&Stop "
+"actions."
+msgstr ""
+
+#: templates/memcached.html:307 templates/memcached.html:323
+msgid "Disable Memcached service"
+msgstr ""
+
+#: templates/memcached.html:312 templates/memcached.html:327
+msgid "Enable Memcached service"
+msgstr ""
+
+#: templates/memcached.html:317
+msgid "Install Memcached"
+msgstr ""
+
+#: templates/php.html:18
+msgid "SAVED"
+msgstr ""
+
+#: templates/php.html:20
+msgid "ERROR"
+msgstr ""
+
+#: templates/php.html:41 templates/php.html:44 templates/php.html:50
+msgid "PHP"
+msgstr ""
+
+#: templates/php.html:41
+msgid "versions"
+msgstr ""
+
+#: templates/php.html:44
+msgid "extensions"
+msgstr ""
+
+#: templates/php.html:47
+msgid "default"
+msgstr ""
+
+#: templates/php.html:47
+msgid "Default settings"
+msgstr ""
+
+#: templates/php.html:50
+msgid "options"
+msgstr ""
+
+#: templates/php.html:59
+msgid ""
+"Changing the PHP version will stop all the processes on your site. It "
+"takes 1-2 seconds to complete. Be sure to check your script and plugin "
+"requirements to know which PHP version works best for your website."
+msgstr ""
+
+#: templates/php.html:65
+msgid "Current"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:344 templates/php.html:65
+#: templates/php.html:108
+msgid "PHP Version"
+msgstr ""
+
+#: templates/php.html:66 templates/php.html:108 templates/php.html:152
+msgid "Change"
+msgstr ""
+
+#: templates/php.html:66
+msgid ">PHP version for domain"
+msgstr ""
+
+#: templates/php.html:130
+msgid "Default PHP version:"
+msgstr ""
+
+#: templates/php.html:134
+msgid ""
+"The PHP version that is used by default for newly added domains is the "
+"one that you choose here."
+msgstr ""
+
+#: templates/php.html:136
+msgid "Current default PHP version:"
+msgstr ""
+
+#: templates/php.html:140
+msgid "Change PHP Version to be used for new domains:"
+msgstr ""
+
+#: templates/php.html:145 templates/php.html:194 templates/php.html:316
+msgid "Select PHP Version"
+msgstr ""
+
+#: templates/php.html:173
+msgid "Install a new version"
+msgstr ""
+
+#: templates/php.html:177
+msgid ""
+"For best performance we recommend to only install PHP versions that you "
+"will be activelly using."
+msgstr ""
+
+#: templates/php.html:179
+msgid "Currently installed PHP versions"
+msgstr ""
+
+#: templates/php.html:186
+msgid "Select PHP Version to Install:"
+msgstr ""
+
+#: templates/php.html:202 templates/wordpress.html:828
+msgid "Install"
+msgstr ""
+
+#: templates/php.html:217
+msgid "PHP version installation log"
+msgstr ""
+
+#: templates/php.html:330
+msgid "No PHP versions found."
+msgstr ""
+
+#: templates/php.html:335
+msgid "Error fetching PHP versions."
+msgstr ""
+
+#: templates/php.html:445
+msgid "Edit PHP.INI"
+msgstr ""
+
+#: templates/php.html:449
+msgid "Setting"
+msgstr ""
+
+#: templates/php_ini_editor.html:101
+msgid ""
+"PHP.INI Editor allows you to modify PHP settings stored in the php.ini "
+"configuration file, such as memory limits, error reporting, and extension"
+" settings."
+msgstr ""
+
+#: templates/php_ini_editor.html:105
+msgid "Select PHP Version:"
+msgstr ""
+
+#: templates/php_ini_editor.html:107
+msgid "Select a PHP Version to edit .ini file"
+msgstr ""
+
+#: templates/pm2.html:38
+msgid "available"
+msgstr ""
+
+#: templates/pm2.html:40
+msgid "already in use"
+msgstr ""
+
+#: templates/pm2.html:62
+msgid "file exists"
+msgstr ""
+
+#: templates/pm2.html:64
+msgid "file does not exist!"
+msgstr ""
+
+#: templates/pm2.html:88
+msgid "Create a new Application"
+msgstr ""
+
+#: templates/pm2.html:89
+msgid "Run a NodeJS or Python application."
+msgstr ""
+
+#: templates/pm2.html:93
+msgid "Application URL:"
+msgstr ""
+
+#: templates/pm2.html:101
+msgid "subfolder (optional)"
+msgstr ""
+
+#: templates/pm2.html:106
+msgid "Application Startup file:"
+msgstr ""
+
+#: templates/pm2.html:118
+msgid "Type:"
+msgstr ""
+
+#: templates/pm2.html:120 templates/system/services_status.html:98
+msgid "NodeJS"
+msgstr ""
+
+#: templates/pm2.html:121 templates/system/services_status.html:110
+msgid "Python"
+msgstr ""
+
+#: templates/pm2.html:140
+msgid "Watch:"
+msgstr ""
+
+#: templates/pm2.html:143
+msgid "Automatically restart app on file changes"
+msgstr ""
+
+#: templates/pm2.html:147
+msgid "Enable logs:"
+msgstr ""
+
+#: templates/pm2.html:150
+msgid "Collect logs"
+msgstr ""
+
+#: templates/pm2.html:195
+msgid "Application / Domain Name."
+msgstr ""
+
+#: templates/pm2.html:195 templates/pm2.html:315
+msgid "Application"
+msgstr ""
+
+#: templates/pm2.html:197 templates/system/server_info.html:31
+msgid "Uptime"
+msgstr ""
+
+#: templates/pm2.html:198
+msgid "Restarts"
+msgstr ""
+
+#: templates/pm2.html:199
+msgid "Current status of the application process."
+msgstr ""
+
+#: templates/pm2.html:200 templates/user/stats.html:7
+msgid "CPU"
+msgstr ""
+
+#: templates/pm2.html:201
+msgid "Memory"
+msgstr ""
+
+#: templates/pm2.html:202
+msgid ""
+"If watching is enabled, the application will automatically restart when "
+"its files are edited."
+msgstr ""
+
+#: templates/pm2.html:202
+msgid "Watching"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:116
+#: templates/domains/edit_dns_zone.html:259 templates/pm2.html:205
+#: templates/sites.html:151 templates/websites.html:1240
+msgid "Type"
+msgstr ""
+
+#: templates/pm2.html:206
+msgid "Port that the application is using."
+msgstr ""
+
+#: templates/pm2.html:207
+msgid "Path to the application startup file (app.js)"
+msgstr ""
+
+#: templates/pm2.html:207
+msgid "Startup file"
+msgstr ""
+
+#: templates/pm2.html:232
+msgid "Start"
+msgstr ""
+
+#: templates/pm2.html:236
+msgid "Stop"
+msgstr ""
+
+#: templates/pm2.html:241 templates/system/services_status.html:19
+#: templates/system/services_status.html:20
+#: templates/system/services_status.html:56
+msgid "Restart"
+msgstr ""
+
+#: templates/pm2.html:272
+msgid "No PM2 data available."
+msgstr ""
+
+#: templates/pm2.html:283
+msgid "No existing Applications"
+msgstr ""
+
+#: templates/pm2.html:284
+msgid ""
+"There are no existing applications. You can start a new NodeJS or Python "
+"app below."
+msgstr ""
+
+#: templates/pm2.html:286
+msgid " Create Application"
+msgstr ""
+
+#: templates/process_manager.html:14
+msgid "TIME"
+msgstr ""
+
+#: templates/process_manager.html:17
+msgid "ACTION"
+msgstr ""
+
+#: templates/process_manager.html:33
+msgid "View full command"
+msgstr ""
+
+#: templates/process_manager.html:97
+msgid "Killing PID:"
+msgstr ""
+
+#: templates/process_manager.html:97
+msgid "failed"
+msgstr ""
+
+#: templates/process_manager.html:104
+msgid "terminated"
+msgstr ""
+
+#: templates/processlist.html:6
+msgid ""
+"This interface lists all of the processes that currently run on any "
+"database on your server."
+msgstr ""
+
+#: templates/processlist.html:13
+msgid ""
+"Process ID: a unique identification number assigned by Linux systems to "
+"each process and application."
+msgstr ""
+
+#: templates/processlist.html:14
+msgid "Indicates the MySQL user who executed the process on the database."
+msgstr ""
+
+#: templates/processlist.html:15
+msgid ""
+"Displays the client&apos;s hostname and the port from which the process "
+"was executed (e.g., Host:0000)."
+msgstr ""
+
+#: templates/processlist.html:16
+msgid ""
+"The database on which the process is running. This column will display "
+"NULL if the process is not associated with any database."
+msgstr ""
+
+#: templates/processlist.html:17
+msgid "Type of command issued by the system to the database."
+msgstr ""
+
+#: templates/processlist.html:18
+msgid ""
+"The duration, in seconds, that the process has remained in its current "
+"state."
+msgstr ""
+
+#: templates/processlist.html:18
+msgid "Time"
+msgstr ""
+
+#: templates/processlist.html:19
+msgid ""
+"The action, state, or event of the process. This column will display NULL"
+" for processes in the SHOW PROCESSLIST state."
+msgstr ""
+
+#: templates/processlist.html:19
+msgid "State"
+msgstr ""
+
+#: templates/processlist.html:20
+msgid ""
+"Text of the statement that the process is currently executing. If the "
+"process is not executing a statement, this column displays NULL. It may "
+"also show a statement sent to the server or an inner statement used to "
+"execute other statements."
+msgstr ""
+
+#: templates/processlist.html:20
+msgid "Info"
+msgstr ""
+
+#: templates/redis.html:19
+msgid "Enabling REDIS service.."
+msgstr ""
+
+#: templates/redis.html:22
+msgid "Installing REDIS service.. Please wait"
+msgstr ""
+
+#: templates/redis.html:25
+msgid "Disabling REDIS service.."
+msgstr ""
+
+#: templates/redis.html:113
+msgid "REDIS is not currently installed."
+msgstr ""
+
+#: templates/redis.html:114
+msgid "To install REDIS click on the button bellow."
+msgstr ""
+
+#: templates/redis.html:117
+msgid "INSTALL REDIS"
+msgstr ""
+
+#: templates/redis.html:157
+msgid "REDIS server:"
+msgstr ""
+
+#: templates/redis.html:172
+msgid "View Redis service Log"
+msgstr ""
+
+#: templates/redis.html:179
+msgid "REDIS Memory Allocation"
+msgstr ""
+
+#: templates/redis.html:187
+msgid "You can allocate RAM to REDIS service."
+msgstr ""
+
+#: templates/redis.html:192
+msgid "Current Memory limit for REDIS service"
+msgstr ""
+
+#: templates/redis.html:224
+msgid "REDIS service logs"
+msgstr ""
+
+#: templates/redis.html:243
+msgid "REDIS is currently disabled."
+msgstr ""
+
+#: templates/redis.html:244
+msgid "To enable REDIS SERVER click on the button bellow."
+msgstr ""
+
+#: templates/redis.html:247
+msgid "START REDIS"
+msgstr ""
+
+#: templates/redis.html:253
+msgid "REDIS service status is unknown."
+msgstr ""
+
+#: templates/redis.html:254
+msgid ""
+"Unable to determinate current REDIS servise status, try Start&Stop "
+"actions."
+msgstr ""
+
+#: templates/redis.html:308 templates/redis.html:323
+msgid "Disable REDIS service"
+msgstr ""
+
+#: templates/redis.html:313 templates/redis.html:327
+msgid "Enable REDIS service"
+msgstr ""
+
+#: templates/redis.html:318
+msgid "Install REDIS"
+msgstr ""
+
+#: templates/remote_mysql.html:18
+msgid "Enabling remote MySQL access.."
+msgstr ""
+
+#: templates/remote_mysql.html:19
+msgid "Remote MySQL access is enabled."
+msgstr ""
+
+#: templates/remote_mysql.html:22
+msgid "Disabling remote MySQL access.."
+msgstr ""
+
+#: templates/remote_mysql.html:23
+msgid "Remote MySQL access is disabled."
+msgstr ""
+
+#: templates/remote_mysql.html:97
+msgid ""
+"Remote MySQL access gives you the ability to connect to a MySQL database "
+"on this server from a another (remote) device or location over the "
+"internet."
+msgstr ""
+
+#: templates/remote_mysql.html:106
+msgid "Enabled<"
+msgstr ""
+
+#: templates/remote_mysql.html:110
+msgid " Unknown. Contact Administrator."
+msgstr ""
+
+#: templates/remote_mysql.html:119
+msgid "Server IP address:"
+msgstr ""
+
+#: templates/remote_mysql.html:126
+msgid "MySQL Port:"
+msgstr ""
+
+#: templates/remote_mysql.html:127
+msgid "*Port is random generated and unique to your account."
+msgstr ""
+
+#: templates/remote_mysql.html:143
+msgid "Important Security Notice"
+msgstr ""
+
+#: templates/remote_mysql.html:151
+msgid ""
+"Allowing remote MySQL access opens your database to connections from the "
+"entire internet, which may pose a security risk. Please consider the "
+"following:"
+msgstr ""
+
+#: templates/remote_mysql.html:153
+msgid "Security Vulnerabilities"
+msgstr ""
+
+#: templates/remote_mysql.html:153
+msgid ""
+"Allowing access from the web can expose your database to potential "
+"security vulnerabilities, increasing the risk of unauthorized access, "
+"data breaches, and data loss."
+msgstr ""
+
+#: templates/remote_mysql.html:154
+msgid "Data Privacy"
+msgstr ""
+
+#: templates/remote_mysql.html:154
+msgid ""
+"Your sensitive data may be at risk if not properly secured. Make sure to "
+"use strong passwords and encryption to protect your information."
+msgstr ""
+
+#: templates/remote_mysql.html:155
+msgid "Firewall and Access Control"
+msgstr ""
+
+#: templates/remote_mysql.html:155
+msgid ""
+"It is crucial to set up robust firewall rules and access control to "
+"restrict connections only to trusted IP addresses."
+msgstr ""
+
+#: templates/remote_mysql.html:156
+msgid "Regular Backups"
+msgstr ""
+
+#: templates/remote_mysql.html:156
+msgid ""
+"Ensure that you have regular database backups in place to recover data in"
+" case of any security incidents."
+msgstr ""
+
+#: templates/remote_mysql.html:158
+msgid ""
+"Before enabling remote MySQL access, please review your security "
+"settings, and consider the potential risks carefully. If you're unsure "
+"about the security implications or need assistance, consult with your "
+"system administrator or a security expert."
+msgstr ""
+
+#: templates/remote_mysql.html:160
+msgid ""
+"Your data security is important to us, and we recommend taking the "
+"necessary precautions to protect it."
+msgstr ""
+
+#: templates/remote_mysql.html:181 templates/remote_mysql.html:191
+msgid "Disable Remote MySQL Access"
+msgstr ""
+
+#: templates/remote_mysql.html:186 templates/remote_mysql.html:195
+msgid "Enable Remote MySQL Access"
+msgstr ""
+
+#: templates/sites.html:17
+msgid "New Website"
+msgstr ""
+
+#: templates/sites.html:146
+msgid "Site Name"
+msgstr ""
+
+#: templates/sites.html:148 templates/wordpress.html:455
+msgid "Admin Email"
+msgstr ""
+
+#: templates/sites.html:149 templates/system/server_info.html:82
+msgid "Version"
+msgstr ""
+
+#: templates/sites.html:150
+msgid "Created Date"
+msgstr ""
+
+#: templates/ssh.html:19
+msgid "Enabling SSH access.."
+msgstr ""
+
+#: templates/ssh.html:22
+msgid "Disabling SSH access.."
+msgstr ""
+
+#: templates/ssh.html:102
+msgid "SSH access is currently disabled."
+msgstr ""
+
+#: templates/ssh.html:105
+msgid "SSH service status is unknown. Contact Administrator."
+msgstr ""
+
+#: templates/ssh.html:122
+msgid "SSH Connection Information"
+msgstr ""
+
+#: templates/ssh.html:128
+msgid "IP address:"
+msgstr ""
+
+#: templates/ssh.html:132
+msgid "SSH Port:"
+msgstr ""
+
+#: templates/ssh.html:133
+msgid "CONTAINER NOT RUNNING"
+msgstr ""
+
+#: templates/ssh.html:142
+msgid "Change SSH Password"
+msgstr ""
+
+#: templates/ssh.html:165
+msgid "Change password for SSH user"
+msgstr ""
+
+#: templates/ssh.html:173 templates/user/account.html:57
+msgid "New Password:"
+msgstr ""
+
+#: templates/ssh.html:179
+msgid "Password can not be viewed after changing, please make sure to"
+msgstr ""
+
+#: templates/ssh.html:179
+msgid "copy the new password"
+msgstr ""
+
+#: templates/ssh.html:204 templates/ssh.html:214
+msgid "Disable SSH Access"
+msgstr ""
+
+#: templates/ssh.html:209 templates/ssh.html:218
+msgid "Enable SSH Access"
+msgstr ""
+
+#: templates/ssl.html:126
+msgid "Display"
+msgstr ""
+
+#: templates/ssl.html:127
+msgid "DNS Zone"
+msgstr ""
+
+#: templates/domains/domains.html:206 templates/ssl.html:128
+msgid "Redirect"
+msgstr ""
+
+#: templates/ssl.html:135
+msgid "SSL Status"
+msgstr ""
+
+#: templates/ssl.html:146
+msgid "No SSL installed"
+msgstr ""
+
+#: templates/ssl.html:148
+msgid "AutoSSL Domain Validated"
+msgstr ""
+
+#: templates/ssl.html:149
+msgid "Expires on"
+msgstr ""
+
+#: templates/ssl.html:149
+msgid "View Certificate"
+msgstr ""
+
+#: templates/ssl.html:149
+msgid "Private key"
+msgstr ""
+
+#: templates/ssl.html:152
+msgid "SSL check is in progress.. please click here to refresh."
+msgstr ""
+
+#: templates/ssl.html:185
+msgid "Renew"
+msgstr ""
+
+#: templates/ssl.html:188
+msgid "Exclude"
+msgstr ""
+
+#: templates/ssl.html:202 templates/user/account.html:65
+#: templates/wordpress.html:284
+msgid "Generate"
+msgstr ""
+
+#: templates/ssl.html:242
+msgid "Error fetching file content:"
+msgstr ""
+
+#: templates/ssl.html:255
+msgid "Running AutoSSL renewal..."
+msgstr ""
+
+#: templates/ssl.html:268
+msgid "AutoSSL Renewal Completed"
+msgstr ""
+
+#: templates/ssl.html:275
+msgid "AutoSSL Renewal Complete"
+msgstr ""
+
+#: templates/ssl.html:293
+msgid "Running AutoSSL renewal for "
+msgstr ""
+
+#: templates/ssl.html:309 templates/ssl.html:317
+msgid "Renewal for"
+msgstr ""
+
+#: templates/ssl.html:309 templates/ssl.html:317
+msgid "Completed"
+msgstr ""
+
+#: templates/ssl.html:338
+msgid "Run AutoSSL"
+msgstr ""
+
+#: templates/ssl.html:338 templates/system/modsecurity.html:192
+msgid "for All Domains"
+msgstr ""
+
+#: templates/ssl.html:351
+msgid ""
+"When you create a domain, the system will attempt to secure that domain "
+"with a free Let's Encrypt certificate."
+msgstr ""
+
+#: templates/websites.html:51
+msgid "General"
+msgstr ""
+
+#: templates/websites.html:54
+msgid "Updates"
+msgstr ""
+
+#: templates/websites.html:57
+msgid "Debugging"
+msgstr ""
+
+#: templates/websites.html:60
+msgid "Security"
+msgstr ""
+
+#: templates/websites.html:169
+msgid "Site URL"
+msgstr ""
+
+#: templates/websites.html:180
+msgid "Website Name"
+msgstr ""
+
+#: templates/websites.html:184
+msgid "Blog Description"
+msgstr ""
+
+#: templates/websites.html:191
+msgid "No, registrations are disabled (default)"
+msgstr ""
+
+#: templates/websites.html:198
+msgid "Administrator Email"
+msgstr ""
+
+#: templates/websites.html:204
+msgid "Allow pingbacks and trackbacks from other blogs (default)"
+msgstr ""
+
+#: templates/websites.html:212
+msgid ""
+"I would like my blog to be visible to everyone, including search engines "
+"(default)"
+msgstr ""
+
+#: templates/websites.html:221
+msgid "Update Settings"
+msgstr ""
+
+#: templates/websites.html:228
+msgid "WordPress version:"
+msgstr ""
+
+#: templates/websites.html:229
+msgid "Click to update WordPress core"
+msgstr ""
+
+#: templates/websites.html:268 templates/websites.html:269
+msgid "Minor update available:"
+msgstr ""
+
+#: templates/websites.html:274 templates/websites.html:275
+msgid "Major update available:"
+msgstr ""
+
+#: templates/websites.html:284 templates/websites.html:285
+msgid "Up to date"
+msgstr ""
+
+#: templates/websites.html:291 templates/websites.html:293
+msgid "Bad response from api.wordpress.org"
+msgstr ""
+
+#: templates/websites.html:299 templates/websites.html:301
+msgid "Failed to reach api.wordpress.org"
+msgstr ""
+
+#: templates/websites.html:397
+msgid "Update WordPress Core automattically:"
+msgstr ""
+
+#: templates/websites.html:403 templates/websites.html:425
+#: templates/websites.html:438
+msgid "No, I will update manually when needed"
+msgstr ""
+
+#: templates/websites.html:407
+msgid "Yes, but only minor (security) updates"
+msgstr ""
+
+#: templates/websites.html:407
+msgid "Recommended"
+msgstr ""
+
+#: templates/websites.html:412
+msgid "Yes, all (minor and major) updates"
+msgstr ""
+
+#: templates/websites.html:421
+msgid "Yes, all plugins will be automatically updated"
+msgstr ""
+
+#: templates/websites.html:431
+msgid "Update themes automatically:"
+msgstr ""
+
+#: templates/websites.html:434
+msgid "Yes, all themes will be automatically updated"
+msgstr ""
+
+#: templates/websites.html:442
+msgid "Save Update Preferences"
+msgstr ""
+
+#: templates/websites.html:458
+msgid "Saving update preferences... Please wait."
+msgstr ""
+
+#: templates/websites.html:522
+msgid "Saving general settings... Please wait."
+msgstr ""
+
+#: templates/websites.html:619
+msgid ""
+"The options below allow you to manage the native WordPress debugging "
+"tools, enabling and disabling these tools in the wp-config.php file. It "
+"is not recommended to use these options on production websites since they"
+" are meant for development and test installations. Refer to"
+msgstr ""
+
+#: templates/websites.html:619
+msgid "Debugging in WordPress"
+msgstr ""
+
+#: templates/websites.html:619
+msgid "article for more information on these options."
+msgstr ""
+
+#: templates/websites.html:629
+msgid "WP_DEBUG"
+msgstr ""
+
+#: templates/websites.html:633
+msgid "Enable the main debug mode in WordPress"
+msgstr ""
+
+#: templates/websites.html:639
+msgid "WP_DEBUG_LOG"
+msgstr ""
+
+#: templates/websites.html:643
+msgid "Save all errors to the debug.log file inside the wp-content directory."
+msgstr ""
+
+#: templates/websites.html:649
+msgid "WP_DEBUG_DISPLAY"
+msgstr ""
+
+#: templates/websites.html:653
+msgid "Show debug messages inside the HTML pages"
+msgstr ""
+
+#: templates/websites.html:659
+msgid "SCRIPT_DEBUG"
+msgstr ""
+
+#: templates/websites.html:663
+msgid ""
+"Force WordPress to use the non-minified versions of core CSS and "
+"JavaScript files. This is useful when you are testing changes made to .js"
+" and .css files."
+msgstr ""
+
+#: templates/websites.html:669
+msgid "SAVEQUERIES"
+msgstr ""
+
+#: templates/websites.html:673
+msgid ""
+"Save database queries to an array that can be displayed to help analyze "
+"them."
+msgstr ""
+
+#: templates/websites.html:679
+msgid "Save Debug Options"
+msgstr ""
+
+#: templates/websites.html:696
+msgid "Saving debugging options... Please wait."
+msgstr ""
+
+#: templates/websites.html:753
+msgid "Security Measures"
+msgstr ""
+
+#: templates/websites.html:767
+msgid "Restrict access to files and directories"
+msgstr ""
+
+#: templates/websites.html:773 templates/websites.html:792
+#: templates/websites.html:812 templates/websites.html:832
+#: templates/websites.html:852 templates/websites.html:872
+#: templates/websites.html:892 templates/websites.html:912
+#: templates/websites.html:932 templates/websites.html:952
+#: templates/websites.html:972 templates/websites.html:991
+#: templates/websites.html:1011 templates/websites.html:1031
+#: templates/websites.html:1051 templates/websites.html:1071
+#: templates/websites.html:1091 templates/websites.html:1110
+msgid "STATUS"
+msgstr ""
+
+#: templates/websites.html:786
+msgid "Configure security keys"
+msgstr ""
+
+#: templates/websites.html:805
+msgid "Block access to"
+msgstr ""
+
+#: templates/websites.html:806 templates/websites.html:826
+#: templates/websites.html:846 templates/websites.html:866
+#: templates/websites.html:886 templates/websites.html:906
+#: templates/websites.html:926 templates/websites.html:946
+#: templates/websites.html:966 templates/websites.html:1005
+#: templates/websites.html:1025 templates/websites.html:1045
+#: templates/websites.html:1065 templates/websites.html:1085
+msgid "can be reverted"
+msgstr ""
+
+#: templates/websites.html:825
+msgid "Block directory browsing"
+msgstr ""
+
+#: templates/websites.html:845
+msgid "Forbid execution of PHP scripts in the wp-includes directory"
+msgstr ""
+
+#: templates/websites.html:865
+msgid "Forbid execution of PHP scripts in the wp-content/uploads directory"
+msgstr ""
+
+#: templates/websites.html:885
+msgid "Block access to wp-config.php"
+msgstr ""
+
+#: templates/websites.html:905
+msgid "Disable scripts concatenation for WordPress admin panel"
+msgstr ""
+
+#: templates/websites.html:925
+msgid "Turn off pingbacks"
+msgstr ""
+
+#: templates/websites.html:945
+msgid "Disable PHP execution in cache directories"
+msgstr ""
+
+#: templates/websites.html:965
+msgid "Disable file editing in WordPress Dashboard"
+msgstr ""
+
+#: templates/websites.html:985
+msgid "Change default database table prefix"
+msgstr ""
+
+#: templates/websites.html:1004
+msgid "Enable bot protection"
+msgstr ""
+
+#: templates/websites.html:1024
+msgid "Block access to sensitive files"
+msgstr ""
+
+#: templates/websites.html:1044
+msgid "Block access to potentially sensitive files"
+msgstr ""
+
+#: templates/websites.html:1064
+msgid "Block access to .htaccess and .htpasswd"
+msgstr ""
+
+#: templates/websites.html:1084
+msgid "Block author scans"
+msgstr ""
+
+#: templates/websites.html:1104
+msgid "Change default administrator's username"
+msgstr ""
+
+#: templates/websites.html:1180 templates/websites.html:1219
+#: templates/websites.html:2134 templates/wordpress.html:499
+#: templates/wordpress.html:645
+msgid "Login as Admin"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:140 templates/partials/sidebar.html:88
+#: templates/websites.html:1260
+msgid "Files"
+msgstr ""
+
+#: templates/websites.html:1260 templates/websites.html:1280
+msgid "Calculating size..."
+msgstr ""
+
+#: templates/websites.html:1267 templates/wordpress.html:205
+msgid "Domain:"
+msgstr ""
+
+#: templates/websites.html:1285
+msgid "Database:"
+msgstr ""
+
+#: templates/websites.html:1286
+msgid "Table prefix:"
+msgstr ""
+
+#: templates/websites.html:1314
+msgid "Created"
+msgstr ""
+
+#: templates/websites.html:1375
+msgid "Confirm Restore (Click Again)"
+msgstr ""
+
+#: templates/websites.html:1388
+msgid "Restoring backup... Please wait."
+msgstr ""
+
+#: templates/websites.html:1400
+msgid "Restore request failed."
+msgstr ""
+
+#: templates/websites.html:1436
+msgid "Database and Files Backup"
+msgstr ""
+
+#: templates/websites.html:1438
+msgid "Database Backup"
+msgstr ""
+
+#: templates/websites.html:1440
+msgid "Files Backup"
+msgstr ""
+
+#: templates/websites.html:1442
+msgid "Unknown Backup Type"
+msgstr ""
+
+#: templates/websites.html:1471
+msgid "Generating website backup..."
+msgstr ""
+
+#: templates/websites.html:1486
+msgid "Backup request failed."
+msgstr ""
+
+#: templates/websites.html:1563
+msgid "WP version:"
+msgstr ""
+
+#: templates/websites.html:1566
+msgid "NodeJS version:"
+msgstr ""
+
+#: templates/websites.html:1573
+msgid "PHP version:"
+msgstr ""
+
+#: templates/websites.html:1581
+msgid "MySQL version:"
+msgstr ""
+
+#: templates/websites.html:1608 templates/websites.html:2193
+msgid "Backup"
+msgstr ""
+
+#: templates/websites.html:1617 templates/wordpress.html:479
+#: templates/wordpress.html:606
+msgid "Detach"
+msgstr ""
+
+#: templates/websites.html:1618 templates/wordpress.html:473
+#: templates/wordpress.html:600
+msgid "Uninstall"
+msgstr ""
+
+#: templates/websites.html:1623
+msgid ""
+"Create a manual backup of the WordPress website's files and database for "
+"data protection."
+msgstr ""
+
+#: templates/websites.html:1624
+msgid "Restore the website to a previous state using a previously created backup."
+msgstr ""
+
+#: templates/websites.html:1625
+msgid ""
+"Remove the WordPress website from this manager without actually deleting "
+"any files or database."
+msgstr ""
+
+#: templates/websites.html:1626
+msgid ""
+"Completely remove the WordPress website, including its files, database, "
+"and records from this manager."
+msgstr ""
+
+#: templates/websites.html:1675
+msgid "Expires on:"
+msgstr ""
+
+#: templates/websites.html:1675
+msgid "Valid SSL"
+msgstr ""
+
+#: templates/websites.html:1677
+msgid "SSL not detected"
+msgstr ""
+
+#: templates/websites.html:1741
+msgid "Update in progress..."
+msgstr ""
+
+#: templates/websites.html:1757
+msgid "WordPress updated successfully."
+msgstr ""
+
+#: templates/websites.html:1939
+msgid "Checking SSL status.."
+msgstr ""
+
+#: templates/websites.html:1965
+msgid "Login as admin"
+msgstr ""
+
+#: templates/websites.html:2054
+msgid "Cronjobs"
+msgstr ""
+
+#: templates/websites.html:2082 templates/wordpress.html:706
+msgid "An error occurred while removing WordPress."
+msgstr ""
+
+#: templates/websites.html:2101 templates/wordpress.html:725
+msgid "An error occurred while detaching WordPress."
+msgstr ""
+
+#: templates/websites.html:2124
+msgid "Redirecting..."
+msgstr ""
+
+#: templates/websites.html:2153
+msgid "Confirm WordPress Uninstall"
+msgstr ""
+
+#: templates/websites.html:2157
+msgid "Are you sure you want to permanently remove the WordPress installation for"
+msgstr ""
+
+#: templates/websites.html:2159
+msgid "This will permanently delete all website files and the database."
+msgstr ""
+
+#: templates/websites.html:2163
+msgid "Confirm Uninstall"
+msgstr ""
+
+#: templates/websites.html:2173
+msgid "Confirm WordPress Detach from WP Manager"
+msgstr ""
+
+#: templates/websites.html:2177
+msgid "Are you sure you want to detach the WordPress installation for"
+msgstr ""
+
+#: templates/websites.html:2177
+msgid "from the manager?"
+msgstr ""
+
+#: templates/websites.html:2179
+msgid ""
+"This will only remove the website from the WP Manager without affecting "
+"the files or database"
+msgstr ""
+
+#: templates/websites.html:2198
+msgid "Backup Database"
+msgstr ""
+
+#: templates/websites.html:2202
+msgid "Backup Files"
+msgstr ""
+
+#: templates/websites.html:2208
+msgid "Run Backup"
+msgstr ""
+
+#: templates/websites.html:2218
+msgid "Restore Backup"
+msgstr ""
+
+#: templates/websites.html:2222
+msgid "Select a backup date to restore"
+msgstr ""
+
+#: templates/wordpress.html:39
+msgid "WordPress Installation failed."
+msgstr ""
+
+#: templates/wordpress.html:47
+msgid "WordPress successfully installed."
+msgstr ""
+
+#: templates/wordpress.html:73
+msgid "Scanning started..."
+msgstr ""
+
+#: templates/wordpress.html:92
+msgid "No installations found."
+msgstr ""
+
+#: templates/wordpress.html:133
+msgid "Data refresh in progress..."
+msgstr ""
+
+#: templates/wordpress.html:145
+msgid "Refresh completed."
+msgstr ""
+
+#: templates/wordpress.html:191 templates/wordpress.html:774
+msgid "Install WordPress"
+msgstr ""
+
+#: templates/wordpress.html:192
+msgid "Install WordPress on an existing domain."
+msgstr ""
+
+#: templates/wordpress.html:196
+msgid "Website Name:"
+msgstr ""
+
+#: templates/wordpress.html:200
+msgid "Site Description:"
+msgstr ""
+
+#: templates/wordpress.html:221
+msgid "Admin Email:"
+msgstr ""
+
+#: templates/wordpress.html:275
+msgid "Admin Username:"
+msgstr ""
+
+#: templates/wordpress.html:279
+msgid "Admin Password:"
+msgstr ""
+
+#: templates/wordpress.html:371
+msgid "Start Installation"
+msgstr ""
+
+#: templates/wordpress.html:421
+msgid "Error fetching versions"
+msgstr ""
+
+#: templates/wordpress.html:454
+msgid "WordPress Version"
+msgstr ""
+
+#: templates/wordpress.html:456
+msgid "Created on"
+msgstr ""
+
+#: templates/wordpress.html:471 templates/wordpress.html:598
+msgid "Delete WordPress website"
+msgstr ""
+
+#: templates/wordpress.html:472 templates/wordpress.html:599
+msgid ""
+"This will irreversibly delete the website, permanently deleting all files"
+" and database."
+msgstr ""
+
+#: templates/wordpress.html:477 templates/wordpress.html:604
+msgid "Remove from WP Manager"
+msgstr ""
+
+#: templates/wordpress.html:478 templates/wordpress.html:605
+msgid ""
+"This will just remove the installation from WP Manager but keep the files"
+" and database."
+msgstr ""
+
+#: templates/wordpress.html:500 templates/wordpress.html:632
+msgid "Manage"
+msgstr ""
+
+#: templates/wordpress.html:771
+msgid "No WordPress Installations"
+msgstr ""
+
+#: templates/wordpress.html:772
+msgid ""
+"There are no existing WordPress installations. You can install a new "
+"instance below."
+msgstr ""
+
+#: templates/domains/domains.html:552 templates/wordpress.html:776
+msgid "or"
+msgstr ""
+
+#: templates/wordpress.html:778
+msgid "Scan for existing Installations"
+msgstr ""
+
+#: templates/wordpress.html:793
+msgid "Add a domain name first in order to install WordPress."
+msgstr ""
+
+#: templates/wordpress.html:824
+msgid "Refresh"
+msgstr ""
+
+#: templates/wordpress.html:824
+msgid "Data"
+msgstr ""
+
+#: templates/wordpress.html:832
+msgid "Scan"
+msgstr ""
+
+#: templates/wordpress.html:836
+msgid "Switch to List View - perfect for those with many Websites."
+msgstr ""
+
+#: templates/wordpress.html:839
+msgid ""
+"Switch to Grid View - a visual representation of your Websites and their "
+"content."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:62
+msgid "👋 Welcome to your new hosting account. OpenPanel is here to help!"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:63
+msgid ""
+"To get started, add a domain name to create a new site and unlock a world"
+" of possibilities for your online presence."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:66
+msgid ""
+"To secure your website with a free Let's Encrypt SSL, make sure your "
+"domain's A record is pointed to your dedicated IP address:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:66 templates/dashboard/dashboard.html:68
+msgid "Ready to start?"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:68
+msgid ""
+"To secure your website with a free Let's Encrypt SSL, make sure your "
+"domain's A record is pointed to the server IP address:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:70
+msgid "Add a new domain"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:109 templates/partials/sidebar.html:68
+msgid "Applications"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:128 templates/partials/sidebar.html:84
+msgid "NodeJS & Python"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:154
+msgid "FTP Accounts"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:169 templates/partials/sidebar.html:100
+msgid "Backup & Restore"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:185 templates/partials/sidebar.html:108
+msgid "ClamAV Scanner"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:218 templates/partials/sidebar.html:180
+msgid "DNS Zone Editor"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:224 templates/partials/sidebar.html:187
+msgid "SSL Certificates"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:231
+msgid "Access Logs"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:261
+msgid "PHPMyAdmin"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:269 templates/partials/sidebar.html:165
+msgid "Show Processes"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:286
+msgid "Search & Caching"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:322 templates/partials/sidebar.html:281
+#: templates/system/services_status.html:147
+msgid "ElasticSearch"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:358
+msgid "Install new version"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:365
+msgid "PHP extensions"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:372
+msgid "PHP options"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:385 templates/partials/sidebar.html:312
+msgid "Advanced"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:417 templates/partials/sidebar.html:342
+msgid "Web Terminal"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:443 templates/system/general.html:19
+msgid "Change TimeZone"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:450 templates/system/general.html:73
+msgid "MySQL Configuration"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:458
+msgid "Webserver Configuration"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:495 templates/user/account.html:12
+#: templates/user/activity.html:116 templates/user/loginlog.html:11
+#: templates/user/twofa_settings.html:10
+msgid "Account"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:505
+msgid "Password & Security"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:512
+#: templates/dashboard/dashboard.html:548 templates/user/twofa_settings.html:25
+msgid "Two-Factor Authentication"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:519 templates/partials/sidebar.html:305
+msgid "Account Activity"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:556
+msgid ""
+"2FA is an added layer of security that significantly reduces the risk of "
+"unauthorized access to your account by requiring an additional "
+"verification step beyond just a password"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:560
+msgid "2FA is <b>enabled</b> for your account."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:562 templates/user/twofa_settings.html:39
+msgid "Click to disable 2FA"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:565
+msgid "2FA is <b>disabled</b> for your account."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:569 templates/user/twofa_settings.html:48
+#: templates/user/twofa_settings.html:50
+msgid "Enable 2FA"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:571
+msgid "Click to Enable"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:583
+msgid "Server Information & Statistics"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:593
+msgid "Dedicated IP Address"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:595
+msgid "Server IP Address"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:599
+msgid "Last Login IP Address"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:649
+msgid "Nameservers"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:669
+#: templates/dashboard/dashboard.html:673
+msgid "Websites:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:669
+#: templates/dashboard/dashboard.html:690
+#: templates/dashboard/dashboard.html:711
+msgid "∞"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:690
+#: templates/dashboard/dashboard.html:693
+msgid "Domains:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:708
+msgid ""
+"The number of MySQL, PostgreSQL or MongoDB databases you can have on the "
+"current hosting plan."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:711
+#: templates/dashboard/dashboard.html:715
+msgid "Databases:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:738
+msgid ""
+"Disk usage refers to the amount of storage space occupied by files, "
+"databases, emails, and other data associated with your account."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:741
+msgid "Disk Usage:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:742
+#: templates/dashboard/dashboard.html:765
+msgid "Calculating.."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:761
+msgid ""
+"The number of inodes indicates the number of files and folders you have. "
+"This includes everything on your account, emails, files, folders, and "
+"anything you store on the server."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:764
+msgid "Inodes:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:886
+#: templates/dashboard/dashboard.html:906 templates/system/server_info.html:15
+#: templates/system/server_info.html:24 templates/system/server_info.html:32
+#: templates/system/server_info.html:43 templates/system/server_info.html:64
+#: templates/system/server_info.html:74 templates/system/server_info.html:83
+#: templates/system/server_info.html:92
+msgid "Loading..."
+msgstr ""
+
+#: templates/dashboard/dashboard.html:906
+msgid "Memory Usage:"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:990
+msgid "General How-to"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:1002
+msgid "Visit KnowledgeBase"
+msgstr ""
+
+#: templates/domains/domains.html:102
+msgid "Domain Name:"
+msgstr ""
+
+#: templates/domains/domains.html:109
+msgid "Document Root (folder):"
+msgstr ""
+
+#: templates/domains/domains.html:113
+msgid ""
+"*Document root for now can not be changed, but this feature will soon be "
+"added."
+msgstr ""
+
+#: templates/domains/domains.html:131
+msgid ""
+"When you create a domain or subdomain, the system will attempt to secure "
+"that domain with a free"
+msgstr ""
+
+#: templates/domains/domains.html:131
+msgid "certificate."
+msgstr ""
+
+#: templates/domains/domains.html:133 templates/domains/domains.html:483
+msgid "Add Domain"
+msgstr ""
+
+#: templates/domains/domains.html:143
+msgid "Display: "
+msgstr ""
+
+#: templates/domains/domains.html:143
+msgid " Name"
+msgstr ""
+
+#: templates/domains/domains.html:144
+msgid " DNS Zone"
+msgstr ""
+
+#: templates/domains/domains.html:145
+msgid " Redirect"
+msgstr ""
+
+#: templates/domains/domains.html:154 templates/domains/domains.html:321
+msgid "Showing domains"
+msgstr ""
+
+#: templates/domains/domains.html:154 templates/domains/domains.html:321
+msgid "to"
+msgstr ""
+
+#: templates/domains/domains.html:154 templates/domains/domains.html:321
+msgid "from a total of"
+msgstr ""
+
+#: templates/domains/domains.html:159 templates/domains/domains.html:326
+msgid "Page navigation"
+msgstr ""
+
+#: templates/domains/domains.html:163 templates/domains/domains.html:330
+#: templates/domains/domains.html:331
+msgid "Previous"
+msgstr ""
+
+#: templates/domains/domains.html:164
+msgid " Previous"
+msgstr ""
+
+#: templates/domains/domains.html:185 templates/domains/domains.html:186
+#: templates/domains/domains.html:352 templates/domains/domains.html:353
+msgid "Next"
+msgstr ""
+
+#: templates/domains/domains.html:202
+msgid "Domain Name"
+msgstr ""
+
+#: templates/domains/domains.html:203
+msgid ""
+"The document root refers to the directory where the content of a domain "
+"name is displayed from. It serves as the designated folder where website "
+"files should be stored."
+msgstr ""
+
+#: templates/domains/domains.html:203
+msgid "Document Root"
+msgstr ""
+
+#: templates/domains/domains.html:205
+msgid ""
+"Within the DNS zone, you have the capability to create or oversee various"
+" records, including but not limited to A, AAAA, MX, TXT, and more."
+msgstr ""
+
+#: templates/domains/domains.html:205
+msgid "DNS"
+msgstr ""
+
+#: templates/domains/domains.html:205
+msgid " Zone"
+msgstr ""
+
+#: templates/domains/domains.html:206
+msgid ""
+"Here, you have the option to redirect traffic to a different URL. Once "
+"activated, all query parameters will be transmitted to the specified url."
+msgstr ""
+
+#: templates/domains/domains.html:207
+msgid ""
+"When a domain possesses SSL, Force HTTPS is activated automatically, "
+"redirecting all traffic to utilize the secure https protocol. However, if"
+" a domain lacks an SSL, Force HTTPS cannot be enabled."
+msgstr ""
+
+#: templates/domains/domains.html:207
+msgid "Force "
+msgstr ""
+
+#: templates/domains/domains.html:207
+msgid "HTTPS"
+msgstr ""
+
+#: templates/domains/domains.html:228
+msgid "Edit DNS"
+msgstr ""
+
+#: templates/domains/domains.html:264
+msgid "Enter redirect URL"
+msgstr ""
+
+#: templates/domains/domains.html:270
+msgid "Create Redirect"
+msgstr ""
+
+#: templates/domains/domains.html:296
+msgid "delete-menu"
+msgstr ""
+
+#: templates/domains/domains.html:299
+msgid " Edit VirtualHosts"
+msgstr ""
+
+#: templates/domains/domains.html:304
+msgid " Delete Domain"
+msgstr ""
+
+#: templates/domains/domains.html:442
+msgid "Confirm Domain Deletion"
+msgstr ""
+
+#: templates/domains/domains.html:447
+msgid "Are you sure you want to delete the domain?"
+msgstr ""
+
+#: templates/domains/domains.html:552
+msgid "Invalid domain name. Please enter a valid domain name like"
+msgstr ""
+
+#: templates/domains/domains.html:561
+msgid " Adding domain..."
+msgstr ""
+
+#: templates/domains/domains.html:563
+msgid " Generating SSL certificate..."
+msgstr ""
+
+#: templates/domains/domains.html:565
+msgid "Editing Nginx configuration..."
+msgstr ""
+
+#: templates/domains/domains.html:659
+msgid "Are you sure you want to delete the domain"
+msgstr ""
+
+#: templates/domains/domains.html:671
+msgid "can not be deleted because it is used on websites:"
+msgstr ""
+
+#: templates/domains/domains.html:745
+msgid "Converted to Punycode:"
+msgstr ""
+
+#: templates/domains/domains.html:745
+msgid "(for compatibility with internationalized domain names)"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:25
+msgid ""
+"The DNS Zone Editor feature allows you to create, edit, and delete Domain"
+" Name System (DNS) zone records."
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:109
+msgid "Search records"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:115
+#: templates/domains/edit_dns_zone.html:128
+#: templates/domains/edit_dns_zone.html:255
+#: templates/domains/edit_dns_zone.html:256
+msgid "TTL"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:117
+#: templates/domains/edit_dns_zone.html:144
+#: templates/domains/edit_dns_zone.html:276
+#: templates/domains/edit_dns_zone.html:277
+msgid "Record"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:132
+msgid "A"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:133
+msgid "AAAA"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:134
+msgid "CAA"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:135
+msgid "CNAME"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:136
+msgid "MX"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:137
+msgid "SRV"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:138
+msgid "TXT"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:140
+msgid "IN"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:143
+#: templates/domains/edit_dns_zone.html:272
+#: templates/domains/edit_dns_zone.html:273
+msgid "Priority"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:148
+#: templates/domains/edit_dns_zone.html:281
+msgid "Save Record"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:162
+#: templates/domains/edit_dns_zone.html:165
+#: templates/domains/edit_dns_zone.html:300
+msgid "Address"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:212
+msgid " Edit"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:216
+#: templates/domains/edit_dns_zone.html:474
+msgid " Save"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:220
+#: templates/domains/edit_dns_zone.html:475
+msgid " Cancel"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:245
+msgid "Add DNS Record"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:297
+msgid "IPv4 Address"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:350
+msgid "Add Record"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:354 templates/partials/sidebar.html:44
+msgid "Add"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:362
+msgid ""
+"DNS Zone Editor allows you to manage and edit Domain Name System (DNS) "
+"zone files, which contain critical information for mapping domain names "
+"to IP addresses and managing various DNS records, such as A, CNAME, MX, "
+"and TXT records."
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:367
+msgid "Select domain:"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:369
+msgid "Select a domain name to edit DNS Zone"
+msgstr ""
+
+#: templates/domains/edit_dns_zone.html:421
+msgid " Delete"
+msgstr ""
+
+#: templates/error_pages/404.html:7
+msgid "404 Error Page"
+msgstr ""
+
+#: templates/error_pages/404.html:14
+msgid "Opps!"
+msgstr ""
+
+#: templates/error_pages/404.html:14
+msgid "Page not found."
+msgstr ""
+
+#: templates/error_pages/404.html:15
+msgid "The page you’re looking for doesn’t exist."
+msgstr ""
+
+#: templates/error_pages/404.html:16
+msgid "Go Home"
+msgstr ""
+
+#: templates/error_pages/500.html:7
+msgid "500 Error Page"
+msgstr ""
+
+#: templates/error_pages/500.html:14
+msgid "Server"
+msgstr ""
+
+#: templates/error_pages/500.html:14
+msgid "Error"
+msgstr ""
+
+#: templates/error_pages/500.html:15
+msgid ""
+"Click on the button bellow to reload. If the issue persists please "
+"contact support."
+msgstr ""
+
+#: templates/error_pages/500.html:16
+msgid "Refresh page"
+msgstr ""
+
+#: templates/partials/sidebar.html:27
+msgid "Select"
+msgstr ""
+
+#: templates/partials/sidebar.html:27
+msgid "website"
+msgstr ""
+
+#: templates/partials/sidebar.html:39
+msgid "Website"
+msgstr ""
+
+#: templates/partials/sidebar.html:44
+msgid "your first domain"
+msgstr ""
+
+#: templates/partials/sidebar.html:47
+msgid "Set up your website"
+msgstr ""
+
+#: templates/partials/sidebar.html:173
+msgid "Domain Names"
+msgstr ""
+
+#: templates/partials/sidebar.html:192
+msgid "Caching & Search"
+msgstr ""
+
+#: templates/partials/sidebar.html:285
+msgid "Analytics"
+msgstr ""
+
+#: templates/partials/sidebar.html:298
+msgid "Domain Visitors"
+msgstr ""
+
+#: templates/partials/sidebar.html:325
+msgid "Cron Jobs"
+msgstr ""
+
+#: templates/partials/sidebar.html:386
+msgid "Log Out"
+msgstr ""
+
+#: templates/partials/sidebar.html:405
+msgid "Documentation"
+msgstr ""
+
+#: templates/partials/sidebar.html:406
+msgid "Support Forums"
+msgstr ""
+
+#: templates/partials/sidebar.html:410
+msgid "Toggle dark mode"
+msgstr ""
+
+#: templates/system/general.html:16
+msgid "Server Time"
+msgstr ""
+
+#: templates/system/general.html:17
+msgid ""
+"Set your server’s time zone and synchronize its time with your network’s "
+"time server."
+msgstr ""
+
+#: templates/system/general.html:34
+msgid "Service Status"
+msgstr ""
+
+#: templates/system/general.html:35
+msgid ""
+"Display a list of OpenPanel’s monitored services, their current version "
+"and statuses."
+msgstr ""
+
+#: templates/system/general.html:37
+msgid "Monitor Services"
+msgstr ""
+
+#: templates/system/general.html:53
+msgid "Configure"
+msgstr ""
+
+#: templates/system/general.html:53
+msgid "web server software that handles HTTP requests"
+msgstr ""
+
+#: templates/system/general.html:55
+msgid "Configuration"
+msgstr ""
+
+#: templates/system/general.html:70
+msgid "MySQL Settings"
+msgstr ""
+
+#: templates/system/general.html:71
+msgid "Make changes to your MySQL® or MariaDB® configuration."
+msgstr ""
+
+#: templates/system/general.html:89
+msgid "Make changes to your PHP configuration."
+msgstr ""
+
+#: templates/system/general.html:91
+msgid "PHP Configuration"
+msgstr ""
+
+#: templates/system/general.html:106
+msgid "ModSecurity® Settings"
+msgstr ""
+
+#: templates/system/general.html:107
+msgid "Enable or disable ModSecurity for your domains."
+msgstr ""
+
+#: templates/system/general.html:109
+msgid " ModSecurity Settings"
+msgstr ""
+
+#: templates/system/general.html:125
+msgid "Displays information about your account and the server."
+msgstr ""
+
+#: templates/system/modsecurity.html:192
+msgid "Disable ModSecurity"
+msgstr ""
+
+#: templates/system/server_info.html:14
+msgid "Hostname"
+msgstr ""
+
+#: templates/system/server_info.html:15
+msgid "Hostname (domain name) that this server is labeled."
+msgstr ""
+
+#: templates/system/server_info.html:23
+msgid "Average Load"
+msgstr ""
+
+#: templates/system/server_info.html:24
+msgid "The system&apos;s average load over the last 1, 5, and 15 minutes"
+msgstr ""
+
+#: templates/system/server_info.html:32
+msgid "Time the system has been up and running continuously for."
+msgstr ""
+
+#: templates/system/server_info.html:42
+msgid "IP Address"
+msgstr ""
+
+#: templates/system/server_info.html:43
+msgid "The system&apos;s IPv4 address."
+msgstr ""
+
+#: templates/system/server_info.html:52
+msgid "Panel Version"
+msgstr ""
+
+#: templates/system/server_info.html:53
+msgid "The installed panel software version is"
+msgstr ""
+
+#: templates/system/server_info.html:63
+msgid "OS"
+msgstr ""
+
+#: templates/system/server_info.html:64
+msgid "Operating System (OS)"
+msgstr ""
+
+#: templates/system/server_info.html:73
+msgid "Release"
+msgstr ""
+
+#: templates/system/server_info.html:74
+msgid "OS release"
+msgstr ""
+
+#: templates/system/server_info.html:83
+msgid "Current OS version"
+msgstr ""
+
+#: templates/system/server_info.html:91
+msgid "Processor"
+msgstr ""
+
+#: templates/system/server_info.html:92
+msgid "Server Processor Architecture"
+msgstr ""
+
+#: templates/system/services_status.html:38
+msgid "Default PHP version is"
+msgstr ""
+
+#: templates/system/services_status.html:50
+#: templates/system/services_status.html:56
+msgid "MySQL"
+msgstr ""
+
+#: templates/system/services_status.html:55
+msgid "Restart MySQL service"
+msgstr ""
+
+#: templates/system/services_status.html:68
+msgid ""
+"Even when \"Off\" phpMyAdmin starts automatically when you visit "
+"/phpmyadmin"
+msgstr ""
+
+#: templates/system/services_status.html:233
+msgid "mysql service restart in progress.."
+msgstr ""
+
+#: templates/system/services_status.html:264
+msgid "service restart in progress.."
+msgstr ""
+
+#: templates/system/timezone.html:21
+msgid "Saving TimeZone..."
+msgstr ""
+
+#: templates/system/timezone.html:66
+msgid "Select Timezone:"
+msgstr ""
+
+#: templates/system/timezone.html:73
+msgid "Change Timezone"
+msgstr ""
+
+#: templates/user/account.html:8 templates/user/activity.html:113
+#: templates/user/loginlog.html:8 templates/user/twofa_settings.html:7
+msgid "Profile"
+msgstr ""
+
+#: templates/user/account.html:10 templates/user/twofa_settings.html:9
+msgid "2FA"
+msgstr ""
+
+#: templates/user/account.html:15 templates/user/activity.html:117
+#: templates/user/loginlog.html:12 templates/user/twofa_settings.html:11
+msgid "History"
+msgstr ""
+
+#: templates/user/account.html:24
+msgid "Profile Picture"
+msgstr ""
+
+#: templates/user/account.html:28
+msgid "This image is from Gravatar"
+msgstr ""
+
+#: templates/user/account.html:31
+msgid "Change image on Gravatar"
+msgstr ""
+
+#: templates/user/account.html:44
+msgid "Account Details"
+msgstr ""
+
+#: templates/user/account.html:49
+msgid "Email address:"
+msgstr ""
+
+#: templates/user/account.html:71
+msgid "Confirm New Password:"
+msgstr ""
+
+#: templates/user/account.html:73
+msgid "Confirm New Password"
+msgstr ""
+
+#: templates/user/account.html:77 templates/user/account.html:215
+msgid "Copy Password"
+msgstr ""
+
+#: templates/user/account.html:84
+msgid "Update"
+msgstr ""
+
+#: templates/user/account.html:92
+msgid "Theme"
+msgstr ""
+
+#: templates/user/account.html:212
+msgid "Copied to clipboard"
+msgstr ""
+
+#: templates/user/activity.html:121
+msgid ""
+"Activity Log records all important actions performed by user on the "
+"panel, such as editing or modifying files, deleting websites, enabling "
+"SSH access, etc."
+msgstr ""
+
+#: templates/user/activity.html:147
+msgid "Show all activity"
+msgstr ""
+
+#: templates/user/activity.html:215
+msgid "Last"
+msgstr ""
+
+#: templates/user/history_usage.html:15
+msgid "Historical CPU and Memory Usage:"
+msgstr ""
+
+#: templates/user/history_usage.html:26
+msgid "Historical CPU Usage:"
+msgstr ""
+
+#: templates/user/history_usage.html:34
+msgid "Historical Memory Usage:"
+msgstr ""
+
+#: templates/user/history_usage.html:58
+msgid "Show all data"
+msgstr ""
+
+#: templates/user/history_usage.html:70
+msgid "CPU &#37;"
+msgstr ""
+
+#: templates/user/history_usage.html:71
+msgid "Memory &#37;"
+msgstr ""
+
+#: templates/user/history_usage.html:72
+msgid "Net I/O"
+msgstr ""
+
+#: templates/user/history_usage.html:73 templates/user/stats.html:158
+msgid "Block I/O"
+msgstr ""
+
+#: templates/user/login.html:11
+msgid "UNLIMITED.RS"
+msgstr ""
+
+#: templates/user/login.html:28 templates/user/login.html:62
+msgid "Sign In"
+msgstr ""
+
+#: templates/user/login.html:29
+msgid "Welcome back! Please sign in to continue."
+msgstr ""
+
+#: templates/user/login.html:37
+msgid "Enter your panel username"
+msgstr ""
+
+#: templates/user/login.html:41
+msgid "Forgot password?"
+msgstr ""
+
+#: templates/user/login.html:42
+msgid "Enter your password"
+msgstr ""
+
+#: templates/user/login.html:50
+msgid "Two-Factor Authentication Code"
+msgstr ""
+
+#: templates/user/login.html:51
+msgid "Enter your 2FA code"
+msgstr ""
+
+#: templates/user/loginlog.html:32
+msgid "Click to copy IP"
+msgstr ""
+
+#: templates/user/loginlog.html:33
+msgid "Copied!"
+msgstr ""
+
+#: templates/user/stats.html:11
+msgid "Current CPU usage:"
+msgstr ""
+
+#: templates/user/stats.html:13 templates/user/stats.html:29
+msgid "View top processes"
+msgstr ""
+
+#: templates/user/stats.html:13 templates/user/stats.html:29
+msgid "View past usage"
+msgstr ""
+
+#: templates/user/stats.html:24
+msgid "RAM"
+msgstr ""
+
+#: templates/user/stats.html:27
+msgid "Current Memory usage:"
+msgstr ""
+
+#: templates/user/stats.html:152
+msgid "Network I/O"
+msgstr ""
+
+#: templates/user/stats.html:164
+msgid "PIDs"
+msgstr ""
+
+#: templates/user/twofa_settings.html:28
+msgid "wo-factor authentication"
+msgstr ""
+
+#: templates/user/twofa_settings.html:28
+msgid "also known as"
+msgstr ""
+
+#: templates/user/twofa_settings.html:28
+msgid "2-step verification"
+msgstr ""
+
+#: templates/user/twofa_settings.html:28
+msgid "2-phase authentication"
+msgstr ""
+
+#: templates/user/twofa_settings.html:28
+msgid ""
+"is a way of adding additional security to your account. 2FA requires you "
+"to enter an extra code when you log in or perform some account-sensitive "
+"action. The code is generated from an application on your computer or "
+"mobile phone."
+msgstr ""
+
+#: templates/user/twofa_settings.html:30
+msgid ""
+"To enable 2FA for your account you will need an application that manages "
+"2FA codes, such as"
+msgstr ""
+
+#: templates/user/twofa_settings.html:30
+msgid "Google Authenticator"
+msgstr ""
+
+#: templates/user/twofa_settings.html:30
+msgid "You can install it here:"
+msgstr ""
+
+#: templates/user/twofa_settings.html:36 templates/user/twofa_settings.html:43
+msgid "2FA is currently"
+msgstr ""
+
+#: templates/user/twofa_settings.html:36
+msgid "enabled"
+msgstr ""
+
+#: templates/user/twofa_settings.html:36 templates/user/twofa_settings.html:43
+msgid "for your account."
+msgstr ""
+
+#: templates/user/twofa_settings.html:43
+msgid "disabled"
+msgstr ""
+
+#: templates/user/twofa_settings.html:60
+msgid "QR code"
+msgstr ""
+
+#: templates/user/twofa_settings.html:80
+msgid "Display OTP code"
+msgstr ""
+
+#: templates/user/twofa_settings.html:109
+msgid ""
+"After configuring the OTP code in the 2FA application, kindly confirm by "
+"clicking the button below to permanently delete the OTP secret."
+msgstr ""
+

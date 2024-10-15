@@ -127,10 +127,9 @@ services:
       - /etc/openpanel/ftp/:/etc/openpanel/ftp/
       - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users
     entrypoint: /bin/sh -c "/usr/local/admin/scripts/ftp/users"
-    restart: "no"  # Do not restart, we just want it to run once
+    restart: "no"  # only run once
 
   openadmin_ftp:
-    #OLD# image: delfer/alpine-ftp-server
     build:
       context: /etc/openpanel/ftp/    
     container_name: openadmin_ftp
@@ -144,16 +143,10 @@ services:
       - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
       - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
       - /etc/openpanel/users/:/etc/openpanel/ftp/users/
-      # uncomment for ssl # - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - ftp_env_generator
     env_file:
       - /etc/openpanel/ftp/all.users
-    # uncomment the following lines for SSL and replace ftp.YOUR_DOMAIN_HERE.com with your domain
-    # environment:
-      # - ADDRESS=ftp.YOUR_DOMAIN_HERE.com
-      # - TLS_CERT="/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/fullchain.pem"
-      # - TLS_KEY="/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/privkey.pem"
     mem_limit: 0.5g
     cpus: 0.5
 

@@ -102,6 +102,7 @@ CREATE TABLE `users` (
   `otp_secret` varchar(255) DEFAULT NULL,
   `plan` varchar(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci DEFAULT NULL,
   `registered_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `server` varchar(255) DEFAULT 'default',
   `plan_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 

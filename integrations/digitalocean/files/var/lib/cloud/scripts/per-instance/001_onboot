@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#Generate Mysql root password.
+root_mysql_pass=$(openssl rand -hex 24)
+debian_sys_maint_mysql_pass=$(openssl rand -hex 24)
+
+# Save the passwords
+cat > /root/.digitalocean_password <<EOM
+root_mysql_pass="${root_mysql_pass}"
+EOM
+
+# Configure MySQL root password
+mysqladmin -u root -h localhost password ${root_mysql_pass}
+
+mysql -uroot -p${root_mysql_pass} \
+      -e "ALTER USER 'debian-sys-maint'@'localhost' IDENTIFIED BY '${debian_sys_maint_mysql_pass}'"
+
+cat > /etc/mysql/debian.cnf <<EOM
+# Automatically generated for Debian scripts. DO NOT TOUCH!
+[client]
+host     = localhost
+user     = debian-sys-maint
+password = ${debian_sys_maint_mysql_pass}
+socket   = /var/run/mysqld/mysqld.sock
+[mysql_upgrade]
+host     = localhost
+user     = debian-sys-maint
+password = ${debian_sys_maint_mysql_pass}
+socket   = /var/run/mysqld/mysqld.sock
+EOM
+
+myip=$(hostname -I | awk '{print$1}')
+sed -e "s|server_name localhost|servername ${myip}|g" \
+    -i /etc/nginx/sites-available/00-digitalocean
+
+systemctl restart nginx
+
+# Remove the ssh force logout command
+sed -e '/Match User root/d' \
+    -e '/.*ForceCommand.*droplet.*/d' \
+    -i /etc/ssh/sshd_config
+
+systemctl restart ssh

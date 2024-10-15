@@ -54,6 +54,12 @@
         "real_name": "openpanel_dns"
     },
     {
+        "name": "SSL",
+        "type": "docker",
+        "on_dashboard": false,
+        "real_name": "certbot"
+    },
+    {
         "name": "ConfigServer Firewall",
         "type": "system",
         "on_dashboard": true,

@@ -12,6 +12,7 @@
     "OpenCLI Logs": "/var/log/openpanel/admin/opencli.log",
     "Certbot SSL Logs": "/var/log/letsencrypt/letsencrypt.log",
     "MySQL Logs": "/var/log/mysql.log",
+    "FTP Logs": "/var/log/ftp.log",
     "CSF Deny Log": "/etc/csf/csf.deny",
     "AuthLog": "/var/log/auth.log",
     "DPKG Log": "/var/log/dpkg.log",
