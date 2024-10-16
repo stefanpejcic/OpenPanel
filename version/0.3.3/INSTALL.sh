@@ -784,10 +784,10 @@ docker_compose_up(){
         
     if [ "$SET_PREMIUM" = true ]; then
     	# setup 4 plans in database
-    	cp /etc/openpanel/mysql/initialize/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    	cp /etc/openpanel/mysql/initialize/0.4/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
     else
     	# setup 2 plans in database
-    	cp /etc/openpanel/mysql/initialize/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    	cp /etc/openpanel/mysql/initialize/0.4/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
     fi
 
     # compose doesnt alllow /
