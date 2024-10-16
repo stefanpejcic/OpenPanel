@@ -79,6 +79,11 @@ FUNCTIONS=(
     # update admin from github
     download_new_admin
 
+    # for 0.3.2 only!
+    add_two_columns_to_plans
+    #########################################
+
+    
     # update opencli
     opencli_update
 
@@ -291,6 +296,46 @@ verify_license() {
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
     response=$(curl -s --max-time 10 -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.co/license-check)
 }
+
+
+
+add_two_columns_to_plans() {
+    echo "Checking for the presence of 'email_limit' and 'ftp_limit' columns in the PLANS table of the PANEL database."
+
+    # Check if the columns exist
+    check_query="SHOW COLUMNS FROM plans LIKE 'email_limit';"
+    mysql -D "panel" -e "$check_query" | grep -q 'email_limit'
+
+    if [ $? -ne 0 ]; then
+        # Column 'email_limit' does not exist, check for 'ftp_limit'
+        check_query="SHOW COLUMNS FROM plans LIKE 'ftp_limit';"
+        mysql -D "panel" -e "$check_query" | grep -q 'ftp_limit'
+
+        if [ $? -ne 0 ]; then
+            # Neither column exists, proceed to add them
+            echo "Adding 'email_limit' and 'ftp_limit' columns to the PLANS table."
+
+            mysql_query="ALTER TABLE plans 
+                         ADD COLUMN email_limit int NOT NULL DEFAULT 0 AFTER websites_limit, 
+                         ADD COLUMN ftp_limit int NOT NULL DEFAULT 0 AFTER email_limit;"
+            
+            mysql -D "panel" -e "$mysql_query"
+
+            if [ $? -eq 0 ]; then
+                echo "Successfully added 2 columns to the plans table."
+            else
+                echo "Error: Failed to add columns to the plans table."
+                echo "Please run the following MySQL query manually:"
+                echo "$mysql_query"
+            fi
+        else
+            echo "'ftp_limit' column already exists. No columns added."
+        fi
+    else
+        echo "'email_limit' column already exists. No columns added."
+    fi
+}
+
 
 
 
