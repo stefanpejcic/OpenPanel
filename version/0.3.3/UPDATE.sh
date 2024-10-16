@@ -1,13 +1,6 @@
 #!/bin/bash
 
-# Update from OpenPanel 0.3.1 to 0.3.3
-
-# EDIT https://dev.openpanel.com/cli/plans.html #####################
-#########
-########################
-##################################
-
-
+# Update from OpenPanel 0.3.2 to 0.3.3
 
 # new version
 NEW_PANEL_VERSION="0.3.3"
