@@ -245,9 +245,8 @@ download_new_admin() {
     echo "Updating OpenAdmin from https://github.com/stefanpejcic/openadmin"
     echo ""
     cd $OPENADMIN_DIR
-    #git stash
+    git reset --hard HEAD        # discard all local changes!
     git pull
-    #git stash pop
 
     # needed for csf
     chmod +x ${OPENADMIN_DIR}modules/security/csf.pl
