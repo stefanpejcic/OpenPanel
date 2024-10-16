@@ -117,6 +117,7 @@ Currently only the following actions can be performed for existing applications 
 - [Start / Stop](/docs/panel/applications/pm2#stop)
 - [Restart](/docs/panel/applications/pm2#restart)
 - [Delete](/docs/panel/applications/pm2#delete)
+- [View Logs](/docs/panel/applications/pm2#logs)
 
 ### Restart
 
@@ -137,3 +138,8 @@ To stop the application simply click on the 'Stop' button. This will immediately
 To completely remove an appliaiton click on the 'Delete' button. This will immediately stop the process and delete the Nginx proxy to the port.
 
 ![pm2_app_delete.png](/img/panel/v1/applications/pm2_app_delete.png)
+
+### Logs
+
+To view error logs for an applicaiton, click on the 'Logs' button:
+![pm2_app_logs.png](/img/panel/v1/applications/pm2logs.png)
