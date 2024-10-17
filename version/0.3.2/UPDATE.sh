@@ -240,7 +240,7 @@ run_custom_postupdate_script() {
 
 
 download_new_admin() {
-
+    cp -r ${OPENADMIN_DIR}tempaltes/dashboard/ ${TEMP_DIR}dashboard/
     mkdir -p $OPENADMIN_DIR
     echo "Updating OpenAdmin from https://github.com/stefanpejcic/openadmin"
     echo ""
@@ -252,6 +252,7 @@ download_new_admin() {
     chmod +x ${OPENADMIN_DIR}modules/security/csf.pl
     
     cd $OPENADMIN_DIR
+    cp -r ${TEMP_DIR}dashboard/ ${OPENADMIN_DIR}tempaltes/dashboard/ 
     # for 0.3.1 only!
     pip3 install --force-reinstall zope.event || pip3 install --force-reinstall zope.event --break-system-packages
     pip3 install --force-reinstall flask_caching || pip3 install --force-reinstall flask_caching --break-system-packages
