@@ -11,11 +11,11 @@ export const menuItems = [
         label: "Resources",
         items: [
             {
-                label: "End-user Documentation",
+                label: "End-user Docs",
                 href: "/docs/panel/intro/",
             },
             {
-                label: "Admin Documentation",
+                label: "Admin Docs",
                 href: "/docs/admin/intro/",
             },
             {
@@ -23,11 +23,11 @@ export const menuItems = [
                 href: "/docs/articles/intro/",
             },
             {
-                label: "Terminal Commands",
+                label: "OpenCLI",
                 href: "https://dev.openpanel.com/api/",
             },            
             {
-                label: "API Documentation",
+                label: "API Docs",
                 href: "https://dev.openpanel.com/api/",
             },
             {
