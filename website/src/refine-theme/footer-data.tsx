@@ -11,20 +11,28 @@ export const menuItems = [
         label: "Resources",
         items: [
             {
-                label: "Documentation",
-                href: "/docs/",
+                label: "End-user Documentation",
+                href: "/docs/panel/intro/",
             },
             {
-                label: "Support Forums",
-                href: "https://community.openpanel.com/",
+                label: "Admin Documentation",
+                href: "/docs/admin/intro/",
             },
             {
-                label: "Roadmap",
-                href: "/roadmap",
+                label: "How-to Guides",
+                href: "/docs/articles/intro/",
             },
             {
-                label: "Changelog",
-                href: "/docs/changelog/intro/",
+                label: "Terminal Commands",
+                href: "https://dev.openpanel.com/api/",
+            },            
+            {
+                label: "API Documentation",
+                href: "https://dev.openpanel.com/api/",
+            },
+            {
+                label: "Install Command",
+                href: "/install",
             },
         ],
     },
@@ -36,12 +44,8 @@ export const menuItems = [
                 icon: <NewBadgeIcon />,
                 href: "/beta",
             },
-            //{
-            //    label: "Products",
-            //    href: "/templates",
-            //},
             {
-                label: "Features",
+                label: "Features List",
                 href: "/features",
             },
             {
@@ -49,8 +53,16 @@ export const menuItems = [
                 href: "/demo",
             },
             {
-                label: "Installation",
-                href: "/install",
+                label: "Roadmap",
+                href: "/roadmap",
+            },
+            {
+                label: "Request Features",
+                href: "https://roadmap.openpanel.com/",
+            },
+            {
+                label: "Changelog",
+                href: "/docs/changelog/intro/",
             },
         ],
     },
@@ -58,16 +70,16 @@ export const menuItems = [
         label: "Company",
         items: [
             {
-                label: "About",
+                label: "About Us",
                 href: "/about",
             },
             {
-                label: "Blog",
+                label: "Our Blog",
                 href: "/blog",
             },
             {
                 label: "Become a Partner",
-                href: "mailto:info@openpanel.com",
+                href: "https://my.openpanel.com/submitticket.php?step=2&deptid=3",
             },
             {
                 label: "Contact Us",
