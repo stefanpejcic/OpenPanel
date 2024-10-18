@@ -8,7 +8,7 @@ NEW_PANEL_VERSION="0.3.3"
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-RESET='\033[0m'
+NC='\033[0m'
 
 # Directories
 OPENADMIN_DIR="/usr/local/admin/"
@@ -24,6 +24,20 @@ CURRENT_PANEL_VERSION=$(< ${OPENPANEL_DIR}/version)
 LOG_FILE="${OPENPANEL_LOG_DIR}admin/notifications.log"
 DEBUG_MODE=0
 
+update_blocker() {
+
+    echo -e "${RED}==================================================${NC}"
+    echo -e "${RED}                                                  ${NC}"
+    echo -e "${RED}         THIS UPDATE IS NOT YET RELEASED           ${NC}"
+    echo -e "${RED}                                                  ${NC}"
+    echo -e "${RED}======== DO NOT RUN ON PRODUCTION SERVERS ========${NC}"
+    echo -e "${RED}                                                  ${NC}"
+    echo -e "${RED}==================================================${NC}"
+
+    exit 1
+}
+
+update_blocker
 
 echo "Starting update.."
 
@@ -42,14 +56,6 @@ done
 
 
 # HELPERS
-
-
-# Display error and exit
-radovan() {
-    echo -e "${RED}Error: $2${RESET}" >&2
-    exit $1
-}
-
 
 # Progress bar script
 PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
@@ -363,7 +369,7 @@ celebrate() {
     print_space_and_line
 
     echo ""
-    echo -e "${GREEN}OpenPanel successfully updated to ${NEW_PANEL_VERSION}.${RESET}"
+    echo -e "${GREEN}OpenPanel successfully updated to ${NEW_PANEL_VERSION}.${NC}"
     echo ""
 
     # remove the unread notification that there is new update
