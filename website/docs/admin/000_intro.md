@@ -28,7 +28,7 @@ Supported OS:
 - **Debian 11 and 12**
 
 :::info
-If you are using external firewall, the following ports should be opened:  `53` `80` `443` `2083` `2087` `32768:60999`
+If you are using external firewall, the following ports should be opened:  `53` `80` `443` `465` `2083` `2087` `32768:60999`
 :::
 
 ## Installation
