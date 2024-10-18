@@ -173,9 +173,9 @@ update_configuration_files() {
             echo "No conflicts, but pull failed for another reason."
         fi
     fi
-
+    
     git stash pop # restore local conf
-
+    mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
 }
 
 
@@ -281,8 +281,6 @@ download_new_admin() {
     chmod +x ${OPENADMIN_DIR}modules/security/csf.pl
     
     cd $OPENADMIN_DIR
-    mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
-
 }
 
 
