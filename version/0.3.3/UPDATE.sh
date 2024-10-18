@@ -4,6 +4,7 @@
 
 # new version
 NEW_PANEL_VERSION="0.3.3"
+PREVIOUS_VERSION="0.3.2"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -157,6 +158,8 @@ print_space_and_line() {
 
 update_configuration_files() {
     echo "Updating configuration files in /etc/openpanel/"
+    mkdir -p /etc/openpanel-${PREVIOUS_VERSION}/
+    cp -r /etc/openpanel/ /etc/openpanel-${PREVIOUS_VERSION}/
     cd /etc/openpanel/
 
     git stash # stash local conf
