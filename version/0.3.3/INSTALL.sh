@@ -1027,6 +1027,7 @@ setup_firewall_service() {
           debug_log ufw allow 80/tcp #http
           debug_log ufw allow 53  #dns
           debug_log ufw allow 443/tcp # https
+	  debug_log ufw allow 465/tcp # email
           debug_log ufw allow 2083/tcp #openpanel
           debug_log ufw allow 2087/tcp #openadmin 
     	  debug_log ufw allow 21/tcp #ftp
