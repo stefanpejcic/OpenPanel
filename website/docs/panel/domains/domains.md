@@ -94,6 +94,17 @@ HTTP/2 is an HTTP version that makes applications faster, simpler, and more robu
 
 Starting OpenPanel [version 0.1.4](/docs/changelog/0.1#014) the HTTP/2 support is enabled automatically for all domains that have SSL and no further setting is needed.
 
+
+## HTTP/3
+
+HTTP/3 is the latest version of the HTTP protocol, designed to improve web performance, security, and reliability even further than HTTP/2. It uses QUIC, a transport layer network protocol that reduces latency and improves connection speeds by allowing multiplexed connections over UDP, instead of TCP. This results in faster page loads and smoother browsing experiences, especially on mobile networks.
+
+To enable HTTP/3 for your domain, you need to ensure that your website is running over HTTPS. You can enable the **Force HTTPS** option for that domain to ensure all traffic is served securely.
+
+Starting from OpenPanel [version 0.3.0](/docs/changelog/0.3.0/#-polish), HTTP/3 support is automatically enabled for all domains that have SSL, so no additional configuration is required if you already have SSL set up. This ensures that your website can benefit from the speed and performance improvements of HTTP/3 seamlessly.
+
+
+
 ## Force HTTPS
 
 The force HTTPS option can be enabled for each domain name that has a valid SSL certificate.
