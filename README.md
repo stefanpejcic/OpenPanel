@@ -140,3 +140,13 @@ curl -X POST -H 'Content-Type: application/json' \
 Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
+
+## Looking for Maintainers!
+
+Here’s how you can help:
+
+- **Writing Documentation**: Help make our project easier to understand [by improving and adding to the documentation](https://github.com/stefanpejcic/OpenPanel/tree/main/website/docs).
+- **Translating/Spell-checking Locales**: [Assist with translations or spell-check existing content](https://github.com/stefanpejcic/OpenPanel/tree/main/translations) to make our project more accessible to non-English speakers.
+- **Fixing CSS/JS Bugs**: If you have some experience with front-end development, you can [help squash bugs in our CSS and JavaScript](https://github.com/stefanpejcic/OpenPanel/issues).
+
+No prior experience required — if you’re eager to learn and contribute, we’ll support you along the way! Feel free to message me at: stefan@pejcic.rs
