@@ -89,7 +89,7 @@ If system is running out of disk space:
 To receive email alerts, simply add your email address to the 'Email for notifications' field or leave it empty to disable email alerts.
 
 
-![screenshot](/img/admin/dashboard/service_alert.png)
+![screenshot](img/admin/service_alert.png)
 
 
 If enabled, by default OpenPanel will send email alerts from noreply@openpanel.co
