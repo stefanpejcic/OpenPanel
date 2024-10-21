@@ -13,7 +13,7 @@ To purchase a license for the OpenPanel Enterprise edition [click here](https://
 
 After payment, license key is automatically issued and you will see it under the Services page:
 
-![license key](https://i.postimg.cc/0ybCkTQX/2024-08-04-15-40.png)
+![license key](/static/img/guides/add_license.png)
 
 ## Add License Key
 
@@ -22,7 +22,7 @@ After payment, license key is automatically issued and you will see it under the
 - From OpenAdmin:
   If you already have OpenPanel Community edition installed, navigate to **OpenAdmin > Try Enterprise** and add the key into the form:
   
-  ![add license key](https://i.postimg.cc/P5VTZwdr/2024-08-04-15-46.png)
+  ![add license key](/static/img/guides/add_key.png)
 
 - From terminal:
   ```bash
@@ -30,10 +30,10 @@ After payment, license key is automatically issued and you will see it under the
   ```
   Replace `enterprise-XXX` with your license key.
   
-  ![opencli license](https://i.imgur.com/rxqjFsy.png)
+  ![opencli license](/static/img/guides/key_command.png)
 
 ### To new installation:
 
 If you will be installing OpenPanel Enterprise on another server, copy the install command from your service page and paste it into new server:
 
-![install command](https://i.postimg.cc/3xFDH9jf/2024-08-04-15-43.png)
+![install command](/static/img/guides/key_code.png)
