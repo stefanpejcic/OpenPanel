@@ -133,5 +133,5 @@ opencli config update mail_default_sender stefan@example.net
 
 If email alerts are enabled, you will also receive Usage Reports:
 
-![image](/img/admin/dashboard/daily_report.png)
+![image](/img/admin/daily_report.png)
 
