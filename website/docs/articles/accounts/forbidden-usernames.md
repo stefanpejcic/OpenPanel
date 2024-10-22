@@ -16,11 +16,11 @@ OpenAdmin applies the following rules when you create or modify an admin usernam
 
 Usernames may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **5** characters.
-- Usernames cannot contain more than **20** characters.
+- Usernames cannot contain more than **30** characters.
 
 Passwords may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **5** characters.
-- Usernames cannot contain more than **20** characters.
+- Usernames cannot contain more than **30** characters.
 
 ### SSH
 OpenAdmin applies the following rules when you modify an SSH password:
