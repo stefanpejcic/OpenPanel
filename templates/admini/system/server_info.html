@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row g-3">
+        <!-- col -->
+        <div class="col-xl-12">
+          <div class="card card-one">
+            <div class="card-header">
+              <h6 class="card-title">{{ _('Server Information') }}</h6>
+            </div><!-- card-header -->
+            <div class="card-body p-3">
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1"><span class="fw-medium"><i class="bi bi-rocket"></i> {{ _('Hostname') }}</span>
+    <span id="node" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('Hostname (domain name) that this server is labeled.') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr>
+
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1"><span class="fw-medium"><i class="bi bi-bar-chart"></i> {{ _('Average Load') }}</span>
+    <span id="load" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('The system&apos;s average load over the last 1, 5, and 15 minutes') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr>
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1"><span class="fw-medium"><i class="bi bi-clock-history"></i> {{ _('Uptime') }}</span>
+    <span id="uptime" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('Time the system has been up and running continuously for.') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr>
+
+
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-medium"><i class="bi bi-geo-alt-fill"></i> {{ _('IP Address') }}</span>
+      <span id="ip" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('The system&apos;s IPv4 address.') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr>
+
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-medium"><i class="bi bi-window-fullscreen"></i> {{ _('Panel Version') }}</span>
+      <span class="ff-numerals" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('The installed panel software version is')}} {{ panel_version }}">{{ panel_version }}</span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr>
+
+
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-medium"><i class="bi bi-ubuntu"></i> {{ _('OS') }}</span>
+      <span id="system" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('Operating System (OS)')}}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr>
+
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-medium"><i class="bi bi-question"></i> {{ _('Release') }}</span>
+      <span id="release" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('OS release') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr><span class="desktop-only">
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-medium"><i class="bi bi-question"></i> {{ _('Version') }}</span>
+      <span id="version" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('Current OS version') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>
+    </div>
+  </div><!-- storage-item-body -->
+</div>
+<hr></span>
+<div class="storage-item">
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between mb-1">
+      <span class="fw-medium"><i class="bi bi-cpu-fill"></i> {{ _('Processor') }}</span>
+<span id="processor" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ _('Server Processor Architecture') }}"><div class="spinner-border" role="status"><span class="visually-hidden">{{ _('Loading...') }}</span></div></span>    </div>
+  </div><!-- storage-item-body -->
+</div>
+
+
+
+            </div><!-- card-body -->
+          </div><!-- card -->
+        </div><!-- col -->
+      </div>
+
+
+<script>
+$(document).ready(function() {
+        $.ajax({
+            url: '/system/hosting/info',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                // Display each version independently
+                $('#machine').text(response.machine);
+                $('#node').text(response.node);
+                $('#processor').text(response.processor);
+                $('#release').text(response.release);
+                $('#system').text(response.system);
+                $('#version').text(response.version);
+                $('#ip').text(response.ip);
+                $('#load').text(response.load_avg);
+                $('#uptime').text(response.uptime);
+            },
+            error: function(error) {
+                console.log('Error:', error);
+            }
+        });
+    });
+</script>
+
+{% endblock %}

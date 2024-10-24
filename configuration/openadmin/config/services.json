@@ -54,6 +54,12 @@
         "real_name": "openpanel_dns"
     },
     {
+        "name": "Malware Scanner",
+        "type": "docker",
+        "on_dashboard": false,
+        "real_name": "clamav"
+    },
+    {
         "name": "SSL",
         "type": "docker",
         "on_dashboard": false,

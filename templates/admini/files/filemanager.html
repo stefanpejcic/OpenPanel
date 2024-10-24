@@ -1,0 +1,2385 @@
+<!-- files/filemanager.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<style>
+[data-bs-theme=light] .dark_on_light_theme a {
+    color: #000!important;
+}
+
+[data-bs-theme=dark] .dark_on_light_theme a {
+    color: inherit!important;
+}
+
+</style>
+
+
+
+
+
+<script>
+$(document).ready(function(){
+$('#searchInput').on('input', function() {
+    var searchText = $(this).val().toLowerCase();
+    var dropdownItems = '';
+
+        $.when(
+            $.get('/core/search_filter'),
+            $.get('/core/search_websites'),
+            $.get('/core/search_files', { q: searchText }),
+            $.get('/core/search_folders', { q: searchText })
+        ).done(function(jsonData, websiteData, fileData, folderData) {
+            jsonData = jsonData[0];
+            websiteData = websiteData[0];
+            fileData = fileData[0];
+            folderData = folderData[0];
+
+
+
+
+
+            // Handle fileData
+            fileData.forEach(function(item) {
+                var itemName = item.name || '';
+                var itemPath = item.path || '';
+                var itemBez = itemPath.substring(0, itemPath.lastIndexOf('/'));
+                var itemLink = '/files/' + itemBez;
+                
+                dropdownItems += '<li><h5><a class="dropdown-item" href="' + itemLink + '"><i class="bi bi-file-earmark"></i> ' + itemName + '</a></h5></li>';
+            });
+
+
+            // Handle folderData
+            folderData.forEach(function(item) {
+                var itemName = item.name || '';
+                var itemPath = item.path || '';
+                var itemLink = '/files/' + itemPath;
+                dropdownItems += '<li><h5><a class="dropdown-item" href="' + itemLink + '"><i style="color: orange;" class="bi bi-folder-fill"></i> ' + itemName + '</a></h5></li>';
+            });
+
+
+
+    $.each(jsonData, function(index, item) {
+        var itemName = item.name || '';
+        var linkTarget = '';
+
+        if (itemName.toLowerCase().includes(searchText)) {
+            if (item.link.includes('/phpmyadmin') || item.link.includes('/terminal')) {
+                linkTarget = 'target="_blank"'; // Open in a new tab
+            }
+
+            dropdownItems += '<li style="border-bottom: 1px solid #e2e5ec;"><h5><a class="dropdown-item" href="' + item.link + '" ' + linkTarget + '>' + item.name + '<br><p class="dropdown-item-description" style="font-size: 0.7em;margin-bottom: 0px;">' + item.description + '</p></a></h5></li>';
+        }
+    });
+
+
+        $.each(websiteData, function(index, item) {
+            var itemName = item[0] || ''; // Get the site name from the first element
+            var itemLink = '/sites';       // The link for all websites
+            if (itemName.toLowerCase().includes(searchText)) {
+                dropdownItems += '<li><h5><a class="dropdown-item" href="' + itemLink + '"><i class="bi bi-globe"></i> ' + itemName + '</a></h5></li>';
+            }
+        });
+
+
+
+
+
+
+
+            if (dropdownItems) {
+                $('#filteredDropdown').html(dropdownItems).show();
+            } else {
+                $('#filteredDropdown').html('').hide();
+            }
+    });
+});
+
+
+
+
+
+
+
+            // Hide dropdown when clicking outside
+            $(document).on('click', function(event) {
+                if (!$(event.target).closest('#searchGroup').length) {
+                    $('#filteredDropdown').hide();
+                    var searchBar = document.querySelector('.search-bar');
+                    var searchIcon = document.getElementById('searchIcon');
+                    //searchBar.style.display = 'none';
+                    searchIcon.style.display = 'block';
+                }
+            });
+
+
+});
+</script>
+
+
+
+<style>
+
+@media (max-width: 767px) {
+        .container-fluid {
+            padding-left: 2px;
+            padding-right: 2px;
+        }
+    }
+
+
+body {
+  overflow: hidden; /* Hide scrollbar */
+}
+
+
+a#copy-button.black-white {
+    color: #212830;
+}
+
+
+[data-skin="dark"]
+a#copy-button.black-white {
+    color: white;
+}
+
+
+.media {
+    display: inline-flex;
+}
+
+
+.table-files .media-icon {
+    margin-right: 5px;
+    font-size: 20px;
+}
+	
+.table-files {
+    border-spacing: 0px 2px;
+}
+
+.table-files tbody tr td {
+    vertical-align: middle;
+    height: 30px;
+}
+
+
+.table-responsive, table-responsive {
+    user-select: none;
+    -webkit-user-select: none; /* For older versions of webkit browsers */
+    -moz-user-select: none; /* For older versions of Firefox */
+    -ms-user-select: none; /* For older versions of IE/Edge */
+}
+
+
+.breadcrumb-item+.breadcrumb-item  {
+    padding-left: 2px;
+}
+
+
+
+[data-bs-theme=light] tr.clickable-row.selected-row td {
+    background-color: #dce2f7;
+}
+
+[data-bs-theme=dark] tr.clickable-row.selected-row td {
+    background-color: #168d4375;
+}
+
+
+
+
+
+
+tr.clickable-row.selected-row {
+box-shadow: none;
+}
+
+/* CSS to disable text selection within the table*/
+.prevent-select {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none; /* IE 10 and IE 11 */
+  user-select: none; /* Standard syntax */
+}
+
+
+.text-right {text-align: right;}
+.text-center {text-align: center;}
+
+a.get-folder-size-button {
+    cursor: pointer;    
+}
+
+
+.breadcrumb-item+.breadcrumb-item::before {
+    padding-right: 2px;
+}
+        @media (max-width: 768px) {
+            .mobile-icon {
+                display: inline-block;
+            }
+            .desktop-text {
+                display: none;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .mobile-icon {
+                display: none;
+            }
+            .desktop-text {
+                display: inline-block;
+            }
+        }
+
+
+.nav-sidebar .nav-sub-link {
+    padding: 4px 0px;
+    text-indent: 15px;
+}
+
+.nav-sidebar .nav-sub-link::before {
+    display:none;
+}
+
+.nav-sub-link i.bi.bi-folder, .nav-sub-link i.bi.bi-folder-fill {
+    margin-right: 5px;
+}
+
+
+.table-files tbody tr {
+    border-radius: 0px;
+    box-shadow: none;
+   }
+
+
+.table-files tbody tr td {
+    padding: 0px;
+    vertical-align: middle;
+    border: 0px;
+}
+.table>:not(caption)>*>* {
+    padding: 0px 0.5rem;
+    border-bottom-width: 1px;
+}
+
+    .selection-rectangle {
+    position: absolute;
+    border: 1px dashed #007bff; /* Light blue border */
+    background-color: rgba(0, 123, 255, 0.2); /* Light blue background with transparency */
+    pointer-events: none; /* Prevent the rectangle from blocking interactions with elements underneath */
+    }
+
+    .file-content{
+    overflow: auto;
+
+    }
+
+    
+
+</style>
+
+{% set directories = [] %}
+{% set files = [] %}
+
+{% for info in files_info %}
+{% if info['type'] == 'Directory' %} {% set _ = directories.append(info) %}
+{% else %}{% set _ = files.append(info) %}
+{% endif %}
+{% endfor %}
+
+
+
+<!-- ako nema fajlova, prikazi placeholder sliku samo umesto tabele -->
+{% if directories|length + files|length == 0 %}
+<div class="row text-center">
+    <img src="/static/images/not-found.png" class="text-center" style="max-width:500px;  margin-left: auto; margin-right: auto;">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            {% if category == 'error' %}
+                <div class="fs-1 fw-bolder text-dark mb-4">
+                    {{ message }}
+                </div>
+<div class="fs-6">/home/{{ current_username }}/{{path_param}}</div>
+            {% endif %}
+        {% endfor %}
+        
+        {% if not messages %}
+            <div class="fs-1 fw-bolder text-dark mb-4">{{ _('No items found.') }}</div>
+            <div class="fs-6">{{ _('Start creating new folders or uploading a new file!') }}</div>
+        {% endif %}
+    {% endwith %}
+</div>
+
+{% else %}
+<!-- Ako ima sadrzaja u folderu, prikazi prvo sve dugmice za akcije -->
+<div class="row" style="justify-content:space-between; position: sticky; top: 0px;"><div class="col-auto" style="width:100%;">
+<div class="btn-group" style="width:100%; background: #fafcfe;" role="group">
+
+    <button class="btn rounded-0 btn btn-outline-primary" id="SelectAll-button">
+        <span id="spanAll" class="desktop-text"><i class="bi bi-hand-index"></i> {{ _('Select all') }}</span>
+            <i class="mobile-icon bi bi-hand-index"></i>            
+    </button>
+
+
+
+<button class="btn rounded-0 btn-outline-dark" id="Mcopy-button" data-bs-toggle="modal" data-bs-target="#McopyModal" disabled>
+    <span class="desktop-text"><i class="bi bi-files"></i> {{ _('Copy') }}</span>
+        <i class="mobile-icon bi bi-files"></i>
+</button>
+
+<button class="btn btn-outline-dark" id="Mmove-button" data-bs-toggle="modal" data-bs-target="#MmoveModal" disabled>
+    <span class="desktop-text"><i class="bi bi-arrows-move"></i> {{ _('Move') }}</span>
+    <i class="mobile-icon bi-arrows-move"></i>
+</button>
+
+<button class="btn btn-outline-danger" id="Mdelete-button" data-bs-toggle="modal" data-bs-target="#MdeleteModal" disabled>
+    <span class="desktop-text"><i class="bi bi-trash2"></i> {{ _('Delete') }}</span>
+        <i class="mobile-icon bi bi-trash2"></i>     
+</button>
+
+<button class="btn btn-outline-dark desktop-only" id="Mdownload-button" disabled>
+    <span class="desktop-text"><i class="bi bi-download"></i> {{ _('Download') }}</span>
+        <i class="mobile-icon bi bi-download"></i>
+</button>
+
+<button class="btn btn-outline-dark" id="Mview-button" data-bs-toggle="modal" data-bs-target="#viewModal"disabled>
+    <span class="desktop-text"><i class="bi bi-eye"></i> {{ _('View') }}</span>
+        <i class="mobile-icon bi bi-eye"></i>
+</button>
+
+<button class="btn btn-outline-dark" id="Medit-button" disabled>
+    <span class="desktop-text"><i class="bi bi-pencil"></i> {{ _('Edit') }}</span>
+        <i class="mobile-icon bi bi-pencil"></i>
+</button>
+
+<button class="btn btn-outline-dark" id="Mrename-button" data-bs-toggle="modal" data-bs-target="#renameModal" disabled>
+    <span class="desktop-text"><i class="bi bi-input-cursor-text"></i> {{ _('Rename') }}</span>
+        <i class="mobile-icon bi bi-input-cursor-text"></i>
+</button>
+
+<button class="btn btn-outline-dark" id="Mpermissions-button" data-bs-toggle="modal" data-bs-target="#permissionsModal" disabled>
+    <span class="desktop-text"><i class="bi bi-key"></i> {{ _('Permissions') }}</span>
+        <i class="mobile-icon bi bi-key"></i>
+</button>
+
+<button class="btn btn-outline-dark desktop-only" id="Mcompress-button" data-bs-toggle="modal" data-bs-target="#McompressModal" disabled>
+    <span class="desktop-text"><i class="bi bi-arrows-angle-contract"></i> {{ _('Compress') }}</span>
+        <i class="mobile-icon bi bi-arrows-angle-contract"></i>    
+</button>
+
+<button class="btn rounded-0 btn-outline-dark desktop-only" id="Mextract-button" data-bs-toggle="modal" data-bs-target="#MextractModal" disabled>
+    <span class="desktop-text"><i class="bi bi-arrows-angle-expand"></i> {{ _('Extract') }}</span>
+        <i class="mobile-icon bi bi-arrows-angle-expand"></i>            
+</button>
+
+</div>
+    </div>
+</div>
+
+<!-- tabela sa fajlovima/folderima -->
+
+<div class="table-responsive" style="margin-top:0px;">
+    <table style="margin-top:0px;" class="table table-files table-striped prevent-select" id="fajlovi">
+        <thead>
+            <tr>
+                <th class="sortable">{{ _('Name') }}</th>
+                <th class="sortable">{{ _('Size') }}</th>
+                <th class="sortable"><span class="desktop-text">{{ _('Last Modified') }}</span><span class="mobile-icon">{{ _('Date') }}</span></th>
+                <th class="sortable" style="width:5%;"><span class="desktop-text">{{ _('Permissions') }}</span><i class="mobile-icon bi bi-key"></i></th>
+            </tr>
+        </thead>
+        <tbody>
+{% for info in directories + files %}
+
+
+<!-- red tabele -->
+            <tr data-row-index="{{ loop.index0 }}" class="clickable-row {% if info['selected'] %}selected-row{% endif %}" data-file="{{ info['file'] }}" data-size="{{ info['size'] }}" data-date="{{ info['date'] }}" data-type="{{ info['type'] }}" data-permissions="{{ info['permissions'] }}">
+
+
+                <!-- Prva kolona tabele gde prikazujemo ikonicu foldera/fajla i naziv -->
+                {% if info['type'] == 'Directory' %}
+                <!-- Prva kolona, za foldere -->
+                <td><div class="media">{% if path_param %}<div class="media-icon primary"><i style="color: orange;" class="bi bi-folder-fill"></i></div><h6 class="file-name dark_on_light_theme" style="margin-bottom: 0; line-height: 2;"><a href="{{ url_for('files', path_param=path_param + '/' + info['file']) }}"> {{ info['file'] }}</a></h6></div><!-- media -->
+                {% else %}
+                <div class="media-icon primary"><i style="color: orange;" class="bi bi-folder-fill"></i></div><h6 class="file-name" style="margin-bottom: 0; line-height: 2;"><a href="{{ url_for('files', path_param=info['file']) }}"> {{ info['file'] }}</a></h6></div><!-- media -->
+                {% endif %}</td>
+                {% else %}
+                <!-- Prva kolona, za fajlove -->
+                <td style="display: inline-flex; width: 100%;" data-download-url="{{ url_for('download_file', path_param=path_param, filename=info['file']) }}" data-upload-folder="{{ path_param }}"><div class="media-icon primary"><i class="{{ info['icon_class'] }}"></i></div><h6 class="file-name" style="display: table; margin-bottom: 0; line-height: 2;">{{ info['file'] }}</h6></div><!-- media -->
+                {% endif %}
+                </td>
+                <!-- kraj prve kolone -->
+
+
+                <!-- druga kolona u kojoj prikazujemo velicinu fajla a za foldere Calculate link -->
+                <td>
+                {% if info['type'] == 'Directory' %}
+                <a class="get-folder-size-button" data-folder="{{ info['file'] }}">{{ _('Calculate') }}</a>
+                {% else %}
+                {{ info['size'] }}
+                {% endif %}
+                </td>
+                <!-- kraj druge kolone -->
+
+
+                <!-- treca kolona sa timestamp fajla -->
+                <td>{{ info['date'] }}</td>
+                <!-- kraj trece kolone -->
+
+
+                <!-- cetvrta kolona sa permisijama fajla -->
+                <td class="permissions-cell text-center">{{ info['permissions'] }}
+                </td>
+                <!-- kraj cetvrte kolone -->
+
+
+        </tr>
+{% endfor %}
+        </tbody>
+    </table>
+{% endif %}
+</div>
+<!-- kraj tabele -->
+	
+	<script type="module">
+async function UploadFormAndCalculate() {
+
+    const getFolderSizeButtons = document.querySelectorAll(".get-folder-size-button");
+
+    getFolderSizeButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const folderName = this.getAttribute("data-folder");
+            fetchFolderSizeAndUpdate(folderName, this);
+        });
+    });
+
+
+        const rows = document.querySelectorAll('.clickable-row');
+
+
+// Double click on file name triggers file download, we will reuse the route for system files also
+$('tbody').on('dblclick', '.clickable-row td[data-download-url]', function() {
+    const cell = $(this);
+    const fileType = cell.closest('.clickable-row').data('type');
+    const downloadUrl = cell.data('download-url');
+
+    if (fileType !== 'Directory' && downloadUrl) 
+    {
+        // If it's a non-directory file, trigger the file download
+        window.location.href = downloadUrl;
+    }
+});
+
+
+
+
+
+///////////// ADDED IN 0.2.3
+
+const wgetForm = document.getElementById('wgetForm');
+
+wgetForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const fileInput = document.getElementById('fileWget');
+    const url = fileInput.value.trim();
+
+    if (!url) {
+        alert("Please enter a valid URL.");
+        return;
+    }
+
+    const currentUrl = window.location.href;
+    const pathParam = currentUrl.includes('/files/') ? currentUrl.split('/files/')[1] : '';
+
+    const formData = new FormData();
+    formData.append('url', url);
+    formData.append('path_param', pathParam);
+
+    // Create XMLHttpRequest object
+    const xhr = new XMLHttpRequest();
+
+    // Open a POST request to the server
+    xhr.open('POST', '/wget_files', true);
+
+    toaster({
+        header: `<div id="proghead-wget" class="d-flex align-items-center"> Download in progress...</div>`,
+        body: `<div id="progdiv-wgetcounter" class="progress">  <div id="download-progress-bar-wgetcounter" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"> <span id="download-progress-label-wgetcounter">0%</span> </div> </div>`,
+        autohide: false,
+        placement: "bottom-right",
+    });
+
+    const UprogressBar = document.getElementById('download-progress-bar-wgetcounter');
+
+    // Track download progress
+    xhr.onprogress = function (e) {
+        if (e.lengthComputable) {
+            const percent = (e.loaded / e.total) * 100;
+            UprogressBar.style.width = percent + '%';
+            UprogressBar.setAttribute('aria-valuenow', percent);
+            document.getElementById('download-progress-label-wgetcounter').innerText = Math.round(percent) + '%';
+        }
+    };
+
+    // Handle the response
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log(currentUrl);
+            document.getElementById('proghead-wget').innerHTML = '<span class="d-flex align-items-center"> Download finished successfully.</span>';
+            const progdiv = document.getElementById('progdiv-wgetcounter');
+            progdiv.classList.remove('progress');
+            progdiv.innerHTML = `<a href="${currentUrl}">Click here to view the file</a>`;
+
+            // Schedule deletion of the toast after 5 seconds
+            const toastId = 'toast-wgetcounter';
+            setTimeout(() => {
+                const toastElement = document.getElementById(toastId);
+                if (toastElement) {
+                    toastElement.parentNode.removeChild(toastElement);
+                }
+            }, 5000);
+
+        } else {
+            Toasts.error('Error downloading the file:', xhr.statusText, {
+                placement: "bottom-right",
+            });
+        }
+    };
+
+    // Handle network errors
+    xhr.onerror = function () {
+        Toasts.error('Network error during file download.', {
+            placement: "bottom-right",
+        });
+    };
+
+    // Send the FormData with the URL
+    xhr.send(formData);
+
+    // Revert upload form modal to initial state
+    document.getElementById('form_for_wget_link').style.display = 'none';
+    document.getElementById('uplaod_form_initial').style.display = 'block';
+
+    // Close the modal after the file download is initiated
+    $('#uploadModal').modal('hide');
+});
+
+
+/////////////
+
+
+
+
+const uploadForm = document.getElementById('uploadForm');
+
+// Initialize a counter variable
+let counter = 0;
+
+uploadForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    // Increment counter for each submission
+    counter++;
+
+    const fileInput = document.getElementById('fileUpload');
+    const files = fileInput.files;
+
+    const currentUrl = window.location.href;
+    const pathParam = currentUrl.includes('/files/') ? currentUrl.split('/files/')[1] : '';
+
+    const formData = new FormData();
+    formData.append('path_param', pathParam);
+
+    for (let i = 0; i < files.length; i++) {
+        formData.append('files', files[i]);
+    }
+
+    // Create XMLHttpRequest object
+    const xhr = new XMLHttpRequest();
+
+    // Open a POST request to the server
+    xhr.open('POST', '/upload_files', true);
+
+    toaster({
+        header: `<div id="proghead-${counter}" class="d-flex align-items-center"> Upload in progress...</div>`,
+        body: `<div id="progdiv-${counter}" class="progress">  <div id="upload-progress-bar-${counter}" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">                 <span id="upload-progress-label-${counter}">0%</span>             </div>         </div>`,
+        autohide: false,
+        placement: "bottom-right",
+    });
+
+    const UprogressBar = document.getElementById(`upload-progress-bar-${counter}`);
+
+    // Track upload progress
+    xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable) {
+            const percent = (e.loaded / e.total) * 100;
+            UprogressBar.style.width = percent + '%';
+            UprogressBar.setAttribute('aria-valuenow', percent);
+            document.getElementById(`upload-progress-label-${counter}`).innerText = Math.round(percent) + '%';
+        }
+    };
+
+    // Handle the response
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            console.log(currentUrl);
+            document.getElementById(`proghead-${counter}`).innerHTML = '<span class="d-flex align-items-center"> Upload finished successfully.</span>';
+            const progdiv = document.getElementById(`progdiv-${counter}`);
+            progdiv.classList.remove('progress');
+            progdiv.innerHTML = `<a href="${currentUrl}">Click here to view files</a>`;
+
+            // Schedule deletion of the toast after 5 seconds
+            const toastId = `toast-${counter}`;
+            setTimeout(() => {
+                const toastElement = document.getElementById(toastId);
+                if (toastElement) {
+                    toastElement.parentNode.removeChild(toastElement);
+                }
+            }, 5000);
+
+        } else {
+            Toasts.error('Error uploading files:', xhr.statusText, {
+                placement: "bottom-right",
+            });
+        }
+    };
+
+    // Handle network errors
+    xhr.onerror = function () {
+        Toasts.error('Network error during file upload.', {
+            placement: "bottom-right",
+        });
+    };
+
+    // Send the FormData with the files
+    xhr.send(formData);
+
+    // Close the modal after the file upload is initiated
+    $('#uploadModal').modal('hide');
+});
+
+
+        const createFolderForm = document.getElementById('createFolderForm');
+        
+        createFolderForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const folderName = document.getElementById('folderName').value;
+            
+            // Get the current URL
+            const currentUrl = window.location.href;
+            
+            // Extract the path_param from the URL after "/files/"
+            const pathParam = currentUrl.split('/files/')[1];
+
+// Construct the query parameter string for the fetch request
+let queryParams = `foldername=${folderName}`;
+if (pathParam) {
+    queryParams += `&path_param=${pathParam}`;
+}
+
+
+// Send an AJAX request to create the folder with the appropriate query parameters
+fetch(`/create_folder?${queryParams}`, {
+    method: 'GET'
+})
+            .then(response => response.json())
+            .then(data => {
+                // Reload the page to show the newly created folder
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error creating folder:', error);
+            });
+            
+            // Close the modal
+            $('#createFolderModal').modal('hide');
+        });
+
+        const createFileForm = document.getElementById('createFileForm');
+        
+        createFileForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const fileName = document.getElementById('fileName').value;
+            
+            // Get the current URL
+            const currentUrl = window.location.href;
+            
+// Extract the path_param from the URL after "/files/"
+const pathParam = currentUrl.split('/files/')[1];
+
+// Construct the query parameter string for the fetch request
+let queryParams = `filename=${fileName}`;
+if (pathParam) {
+    queryParams += `&path_param=${pathParam}`;
+}
+
+// Send an AJAX request to create the file with the appropriate query parameters
+fetch(`/create_file?${queryParams}`, {
+    method: 'GET'
+})
+.then(response => response.json())
+
+            .then(data => {
+                // Reload the page to show the newly created file
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Error creating file:', error);
+            });
+            
+            // Close the modal
+            $('#createFileModal').modal('hide');
+        });
+    };
+
+UploadFormAndCalculate();
+
+
+function fetchFolderSizeAndUpdate(folderName, buttonElement) {
+    // Extract the path_param from the URL after "/files/"
+    const currentUrl = window.location.href;
+    const pathParam = currentUrl.split('/files/')[1];
+    const url = pathParam
+  ? `/get-folder-size?folder=${pathParam}/${encodeURIComponent(folderName)}`
+  : `/get-folder-size?folder=${encodeURIComponent(folderName)}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const folderSize = data.size;
+            const cell = buttonElement.closest("td"); // Get the parent cell of the clicked button
+            cell.textContent = folderSize; // Update the cell content with the folder size
+        })
+        .catch(error => {
+            console.error("Error fetching folder size:", error);
+        });
+}
+
+</script>
+	
+<script>
+
+
+function disableButtons()
+{
+    $('#Mview-button, #Medit-button, #Mrename-button, #Mcopy-button, #Mmove-button, #Mdownload-button, #Mdelete-button, #Mpermissions-button, #Mcompress-button, #Mextract-button').prop('disabled', true);
+    $('#Mview-button, #Medit-button, #Mrename-button, #Mcopy-button, #Mmove-button, #Mdownload-button, #Mpermissions-button, #Mcompress-button, #Mextract-button').prop('class', 'btn btn-outline-dark');
+    $('#Mdownload-button').prop('class', 'btn btn-outline-dark desktop-only');
+    $('#Mdelete-button').prop('class', 'btn btn-outline-danger');
+}
+var selectedRows = []; // Initialize an array to store selected row indices
+$(document).ready(function() {
+
+
+
+    //KEYBOARD SHORTCUTS
+    $(document).keydown(function(e) {
+    
+    const areModalsOpen = $('.modal:visible').length > 0;
+    const isInputField = document.activeElement.tagName === "INPUT";
+    const isTextarea = document.activeElement.tagName === "TEXTAREA";
+
+    // If the user is typing in an input field or textarea, do not trigger shortcuts
+    if (isInputField || isTextarea || areModalsOpen) {
+        return;
+    }
+
+        if (e.key === 'ArrowDown') {
+        e.preventDefault(); // Prevent the default behavior of the arrow key
+
+        // Get the selected row
+        var selectedRow = $('#fajlovi .selected-row');
+        var lastIndex = $('#fajlovi tr').length - 2;
+        // If no row is selected, select the row with index 0
+        if (selectedRow.length === 0 || parseInt(selectedRow.attr('data-row-index')) === lastIndex) {
+
+        selectedRow.removeClass('selected-row');
+          $('#fajlovi tr[data-row-index="0"]').addClass('selected-row');
+        } else {
+          // Deselect the current row
+          
+          // Get the next row index
+          var nextIndex = (parseInt(selectedRow.attr('data-row-index')) + 1);
+          if (nextIndex > lastIndex) {
+            nextIndex = 0;
+          }
+          selectedRow.removeClass('selected-row');
+          // Select the next row
+          $('#fajlovi tr[data-row-index="' + nextIndex + '"]').addClass('selected-row');
+        }
+      }
+
+      // Check if the pressed key is the up arrow
+      if (e.key === 'ArrowUp') {
+        e.preventDefault(); // Prevent the default behavior of the arrow key
+
+        // Get the selected row
+        var selectedRow = $('#fajlovi .selected-row');
+        var lastIndex = ($('#fajlovi tr').length - 2);
+
+        // If no row is selected, select the last row
+        if (selectedRow.length === 0 || parseInt(selectedRow.attr('data-row-index')) === 0) {
+            selectedRow.removeClass('selected-row');
+            $('#fajlovi tr[data-row-index="' + lastIndex + '"]').addClass('selected-row');
+        } else {
+          // Deselect the current row
+          
+          // Get the previous row index
+          var currentIndex = parseInt(selectedRow.attr('data-row-index'));
+          prevIndex = currentIndex - 1;
+
+          if (prevIndex < 0) {
+            prevIndex = lastIndex;
+          }
+          // Select the previous row
+          selectedRow.removeClass('selected-row');
+          $('#fajlovi tr[data-row-index="' + prevIndex + '"]').addClass('selected-row');
+        }
+      }
+
+      // Check if the pressed key is 'N' and the Shift key is pressed
+      if (e.key === 'N' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#newFolderButton").trigger("click");
+      }
+
+      if (e.key === 'F' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#newFileButton").trigger("click");
+      }
+
+      if (e.key === 'Delete') {
+        // Trigger a click on the button with the specified ID
+        $("#Mdelete-button").trigger("click");
+      }
+
+      if (e.key === 'U' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#uploadButton").trigger("click");
+      }
+
+      if (e.key === 'C' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#Mcopy-button").trigger("click");
+      }
+
+      if (e.key === 'M' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#Mmove-button").trigger("click");
+      }
+
+      if (e.key === 'E' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        if (!$("#Medit-button").prop("disabled")) {
+        $("#Medit-button").trigger("click");
+        }
+      }
+
+      if (e.key === 'V' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#Mview-button").trigger("click");
+      }
+
+      if (e.key === 'R' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#Mrename-button").trigger("click");
+      }
+
+      if (e.key === 'A' && e.shiftKey) {
+        // Call your function when the shortcut is triggered
+        $("#SelectAll-button").trigger("click");
+      }
+
+
+    });
+
+
+    disableButtons();
+
+
+
+    // Function to sort the table based on a specific column
+    function sortTable(tableId, columnIndex) {
+        var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+        table = document.getElementById(tableId);
+        switching = true;
+        dir = "asc"; // Default sorting direction is ascending
+
+        while (switching) {
+            switching = false;
+            rows = table.getElementsByTagName("tr");
+
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+
+                // Skip sorting if the column is the Actions column
+                if (columnIndex !== rows[i].cells.length - 1) 
+                {
+                    x = rows[i].getElementsByTagName("td")[columnIndex];
+                    y = rows[i + 1].getElementsByTagName("td")[columnIndex];
+
+                    var xValue = x.innerHTML.toLowerCase();
+                    var yValue = y.innerHTML.toLowerCase();
+
+                    if (dir === "asc") 
+                    {
+                        if (xValue > yValue) 
+                        {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    } else if (dir === "desc") 
+                    {
+                        if (xValue < yValue) 
+                        {
+                            shouldSwitch = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (shouldSwitch) 
+            {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+                switchcount++;
+            } else 
+            {
+                if (switchcount === 0 && dir === "asc") 
+                {
+                    dir = "desc";
+                    switching = true;
+                }
+            }
+        }
+
+    }
+
+
+    //selekcija ctrl
+    var $table = $('#fajlovi');
+    $table.find('tbody tr.clickable-row').on('click', function(event) {
+        var $row = $(this);
+        var rowIndex = $row.data('row-index'); // Get the row index from the data attribute
+
+        // Check if the Ctrl key is held down
+        if (event.ctrlKey) 
+        {
+            $row.toggleClass('selected-row'); // Toggle selection
+            var index = selectedRows.indexOf(rowIndex);
+            sveselect = 0;
+            $('#spanAll').html('<i class="bi bi-hand-index"></i> Select All');
+            $('#SelectAll-button').prop('class', 'btn btn-outline-primary');
+            if (index === -1) 
+            {
+                selectedRows.push(rowIndex); // Add the index if not in the array
+            } else 
+            {
+                selectedRows.splice(index, 1); // Remove the index if already in the array
+            }
+        } else 
+        {
+            // Clear selection on other rows
+            $table.find('tbody tr.selected-row').removeClass('selected-row');
+            $row.toggleClass('selected-row');
+            selectedRows = [rowIndex]; // Select only the clicked row
+        }
+        enableDisableButtons();
+        // Log the selected row indices
+        //console.log(selectedRows);
+    });
+
+
+    $table.on('mousedown', function(event) {
+    if (!event.ctrlKey && event.button === 0) {
+        isSelecting = true;
+        wasSelecting = true;
+        sveselect = 0;
+        $('#spanAll').html('<i class="bi bi-hand-index"></i> Select All');
+        $('#SelectAll-button').prop('class', 'btn btn-outline-primary');
+        startRowIndex = endRowIndex = null;
+
+        var startX = event.pageX;
+        var startY = event.pageY;
+
+        var $selectionRectangle = $('<div>')
+            .addClass('selection-rectangle')
+            .css({
+                top: startY,
+                left: startX,
+                'user-select': 'none'
+            })
+            .appendTo('body');
+
+        $(document).on('mousemove', function(event) {
+            if (isSelecting) {
+                var endX = event.pageX;
+                var endY = event.pageY;
+
+                $selectionRectangle.css({
+                    width: Math.abs(endX - startX),
+                    height: Math.abs(endY - startY),
+                    left: (endX < startX) ? endX : startX,
+                    top: (endY < startY) ? endY : startY
+                });
+
+                enableDisableButtons();
+
+                $table.find('tbody tr.clickable-row').each(function() {
+                    var $row = $(this);
+                    var rowOffset = $row.offset();
+
+                    var intersects = !(
+                        rowOffset.left + $row.width() < Math.min(startX, endX) ||
+                        rowOffset.left > Math.max(startX, endX) ||
+                        rowOffset.top + $row.height() < Math.min(startY, endY) ||
+                        rowOffset.top > Math.max(startY, endY)
+                    );
+
+                    if (intersects) {
+                        $row.addClass('selected-row');
+                        var rowIndex = $row.data('row-index');
+                        if (!selectedRows.includes(rowIndex)) {
+                            selectedRows.push(rowIndex);
+                        }
+
+                        if (startRowIndex === null) {
+                            startRowIndex = endRowIndex = rowIndex;
+                        } else {
+                            startRowIndex = Math.min(startRowIndex, rowIndex);
+                            endRowIndex = Math.max(endRowIndex, rowIndex);
+                        }
+                    } else {
+                        $row.removeClass('selected-row');
+                        var rowIndex = $row.data('row-index');
+                        var index = selectedRows.indexOf(rowIndex);
+                        if (index !== -1) {
+                            selectedRows.splice(index, 1);
+                        }
+                    }
+                });
+
+                enableDisableButtons();
+                //console.log(selectedRows);
+            }
+        });
+
+        $(document).on('mouseup', function() {
+            isSelecting = false;
+            wasSelecting = true;
+            $selectionRectangle.remove();
+            $(document).off('mousemove');
+            $(document).off('mouseup');
+            enableDisableButtons();
+        });
+    }
+});
+
+
+var wasSelecting=false;
+
+    //deselect u prazno
+$(document).on('click', function(event) {
+   var $target = $(event.target);
+
+    // Check if the click target is not within the table and is not a button within div.btn-group.mb-3
+    if (!$target.closest('#fajlovi').length && !$target.closest('div.btn-group.mb-3 button').length && !$target.closest('.modal.fade').length && !$target.closest('.btn-group').length && !wasSelecting) 
+    {
+        // Clear selection and empty the array
+        $table.find('tbody tr.selected-row').removeClass('selected-row');
+        selectedRows = [];
+        sveselect = 0;
+        $('#spanAll').html('<i class="bi bi-hand-index"></i> Select All');
+        $('#SelectAll-button').prop('class', 'btn btn-outline-primary');
+        // Log the empty selection
+        disableButtons();
+        //console.log(selectedRows);
+    }
+    wasSelecting=false;
+});
+
+
+
+    // Attach click event listeners to sortable column headers for sorting
+    $("#fajlovi th.sortable").click(function () {
+        var tableId = "fajlovi";
+        var columnIndex = $(this).index();
+        sortTable(tableId, columnIndex);
+    });
+
+
+var sveselect = 0;
+
+$('#SelectAll-button').click(function() {
+    var $table = $('#fajlovi');
+
+    if(!sveselect)
+    {
+        $table.find('tbody tr.clickable-row').addClass('selected-row');
+        sveselect = 1;
+
+        $('#spanAll').html('<i class="bi bi-hand-index-fill"></i> Deselect');
+        $('#SelectAll-button').prop('class', 'btn btn-primary');
+    }
+    else
+    {
+        $table.find('tbody tr.clickable-row').removeClass('selected-row');
+        sveselect=0;
+
+        $('#spanAll').html('<i class="bi bi-hand-index"></i> Select all');
+        $('#SelectAll-button').prop('class', 'btn btn-outline-primary');
+    }
+
+    //update arraya
+    var allRows = document.querySelectorAll('.selected-row');
+    if (allRows.length > 0) {
+        selectedRows = []; // Clear the existing selectedRows array
+
+        // Update the selectedRows array with the indexes of all rows
+        allRows.forEach(function (row, index) {
+            row.classList.add('selected-row');
+            selectedRows.push(index);
+        });
+        //console.log(selectedRows);
+    }
+    else
+    {
+        selectedRows=[];
+        disableButtons();
+        //console.log(selectedRows);
+    }
+    enableDisableButtons();
+    
+});
+
+
+$('#Medit-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;//trebace za proveru unexpected error ako je vise stvari selectovano
+    const row = $table.find('tbody tr.selected-row:first');
+    const currentUrl = window.location.href;
+    const pathParts = currentUrl.split('/files/');
+    let fetchUrl = '/edit_file/';
+
+    if (pathParts.length > 1) 
+    {
+        const pathParam = decodeURIComponent(pathParts[1]);
+        fetchUrl += `${encodeURIComponent(pathParam)}/`;
+    }
+
+    const fileName = row.data('file');
+    
+    // Construct the edit route URL
+    const editRouteUrl = `${fetchUrl}${encodeURIComponent(fileName)}`;
+    
+    // Open the edit route URL in a new tab/window
+    window.open(editRouteUrl, '_blank');
+});
+
+
+// Handle "View" button click event
+$('#Mview-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;//trebace za proveru unexpected error ako je vise stvari selectovano
+    const row = $table.find('tbody tr.selected-row:first');
+    const fileName = row.data('file');
+    const pathParam = '{{ path_param }}';
+
+    // Fetch the file content
+    fetch(`/view_file?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(pathParam)}`)
+        .then(response => response.text())
+        .then(data => {
+            const modalTitle = $('#viewModalLabel');
+            const modalBody = $('#viewModal').find('.modal-body');
+            
+            modalTitle.text(fileName);
+            modalBody.empty();
+
+            // Check if the file is an image
+            if (fileName.toLowerCase().endsWith('.png') || fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg') || fileName.toLowerCase().endsWith('.avif') || fileName.toLowerCase().endsWith('.webp') || fileName.toLowerCase().endsWith('.gif')) 
+            {
+                // Create an image element
+                const image = document.createElement('img');
+                image.src = `data:image/jpeg;base64,${data}`;
+                image.alt = fileName;
+                image.className = 'img-fluid';
+
+                // Append the image to the modal body
+                modalBody.append(image);
+            } else 
+            {
+                // Display the text content
+                const textContent = document.createElement('pre');
+                textContent.textContent = data;
+                modalBody.append(textContent);
+            }
+
+            // Show the view modal
+            //$('#viewModal').modal('show');
+        })
+        .catch(error => {
+            console.error('Error fetching file content:', error);
+            // Handle error case, if needed
+        });
+});
+
+$('#Mextract-button').click(function() {
+    var $table = $('#fajlovi');
+    const row = $table.find('tbody tr.selected-row:first');
+    const fileName = row.data('file');
+    const selectedFile = fileName;
+    const pathParam = '{{path_param}}';
+
+    $('#selectedEFileName').text(fileName);
+    $('#MextractPath').val(pathParam);
+        // Show the "MextractModal"
+        //$('#MextractModal').modal('show'); ide preko buttona
+
+        // Handle "extract Confirm" button click event in the "MextractModal"
+        $('#MextractConfirmButton').click(function() {
+            const extractPath = $('#MextractPath').val();
+
+            // Send a POST request to the /extract_files route
+            $.ajax({
+                type: 'POST',
+                url: '/extract_files',
+                data: {
+                    selectedFile: selectedFile,
+                    extractPath: extractPath,
+                    pathParam: pathParam
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Handle success, if needed
+                        //console.log("Archive extracted successfully!");
+                        location.reload();
+                        // Close the extract modal
+                        $('#MextractModal').modal('hide');
+                    } else {
+                        console.error('Error extracting archive:', response.error);
+                        // Handle error case, if needed
+                    }
+                },
+                error: function(error) {
+                    console.error('Error extracting archive:', error);
+                }
+            });
+        });
+});
+
+
+$('#Mcompress-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;
+    const pathParam = '{{path_param}}';
+
+    if (selectedRowCount > 0) {
+        const selectedItems = [];
+
+        // Collect the names of selected items within the "selected-row" class
+        $('.selected-row').each(function() {
+            const fileName = $(this).data('file');
+            selectedItems.push(fileName);
+        });
+
+        // Populate the "McompressModal" with the list of selected items
+        $('#McompressModal .selected-items-list').empty();
+        selectedItems.forEach(item => {
+            $('#McompressModal .selected-items-list').append(`<li>${item}</li>`);
+        });
+
+        // Show the "McompressModal"
+        //$('#McompressModal').modal('show'); ide preko buttona
+
+        // Handle "Compress Confirm" button click event in the "McompressModal"
+        $('#McompressConfirmButton').click(function() {
+            const archiveName = $('#McompressArchiveName').val();
+            var extension = $("#McompressArchiveFormat").val();
+            // Send a POST request to the /compress_files route
+            $.ajax({
+                type: 'POST',
+                url: '/compress_files',
+                data: {
+                    archiveName: archiveName,
+                    selectedFiles: selectedItems,
+                    pathParam: pathParam,
+                    extension:extension
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Handle success, if needed
+                        //console.log("Archive created successfully!");
+                        // Close the compress modal
+                        location.reload();
+                        $('#McompressModal').modal('hide');
+                    } else {
+                        console.error('Error creating archive:', response.error);
+                        // Handle error case, if needed
+                    }
+                },
+                error: function(error) {
+                    console.error('Error creating archive:', error);
+                }
+            });
+        });
+    }
+});
+
+
+$('#Mpermissions-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;//trebace za proveru unexpected error ako je vise stvari selectovano
+        const row = $table.find('tbody tr.selected-row:first');
+        const fileName = row.data('file');
+        const oldPerms = row.data('permissions');
+        const pathParam = '{{path_param}}';
+        //$('#permissionsItemName').text($table.find('tbody tr.selected-row:first').attr('data-file')); alternativa
+        $('#permFilename').text("{{ _('Change permissions for') }} " + fileName);
+        //$('#c-oct').val(oldPerms);
+        $('#c-oct').val(oldPerms).change();
+
+        //$('#permissionsModal').modal('show'); ide preko buttona
+        // Handle "permissions Confirm" button click event in modal
+        $('#permissionsConfirmButton').click(function() {
+            const permissions = $('#c-oct').val();
+            const isNumeric = /^\d{3}$/.test(permissions);
+            if (!isNumeric) 
+            {
+                // Display an alert if the value is not a 3-digit numeric value
+                alert('{{ _("Please enter a 3-digit numeric value for permissions.") }}');
+                return; // Prevent modal submission
+            }
+            else
+            {
+                let requestUrl = `/change_permissions?filename=${encodeURIComponent(fileName)}&permissions=${encodeURIComponent(permissions)}&path_param=${encodeURIComponent(pathParam)}`;
+                // Send request to Flask route to change permissions for the item
+                fetch(requestUrl, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) 
+                    {
+                        // Handle success, if needed
+                        // Close the permissions modal
+                        $('#permissionsModal').modal('hide');
+                        location.reload();
+                    } else 
+                    {
+                        console.error('Error changing permissions for item:', data.error);
+                        // Handle error case, if needed
+                    }
+                })
+                .catch(error => {
+                    console.error('Error on permission change:', error);
+                });
+                // Close the permissions modal
+                //location.reload();
+                $('#permissionsModal').modal('hide');
+            }
+        });
+});
+
+
+$('#Mrename-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;//trebace za proveru unexpected error ako je vise stvari selectovano
+        const row = $table.find('tbody tr.selected-row:first');
+        const fileName = row.data('file');
+        const fileName2 = row.data('file').replace(/\s/g, ''); 
+        const pathParam = '{{path_param}}';
+        //$('#renameItemName').text($table.find('tbody tr.selected-row:first').attr('data-file')); alternativa
+        $('#renameItemName').text(fileName);
+        $('#newRenameFileName').val(fileName2);
+        //$('#renameModal').modal('show'); ide preko buttona
+        // Handle "rename Confirm" button click event in modal
+        $('#renameConfirmButton').click(function() {
+            const newFileName = $('#newRenameFileName').val();
+            let requestUrl = `/rename_file?old_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(pathParam)}&new_name=${encodeURIComponent(newFileName)}`;
+            if (newFileName.trim() !== '') {
+                requestUrl += `&new_file_name=${encodeURIComponent(newFileName)}`;
+            }
+            // Send request to Flask route to rename the item with the new file name
+            fetch(requestUrl, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) 
+                {
+                    // Handle success, if needed
+                    // Close the rename modal
+                    $('#renameModal').modal('hide');
+                    location.reload();
+                } else 
+                {
+                    console.error('Error renaming item:', data.error);
+                    // Handle error case, if needed
+                }
+            })
+            .catch(error => {
+                console.error('Error renaming item:', error);
+            });
+            // Close the rename modal
+            //location.reload();
+            $('#renameModal').modal('hide'); //ubacicemo rename report pre close
+        });
+});
+
+
+// Function to handle the "Mdelete-button" click event - Multiple items delete !PROVERAVA DA LI JE JEDAN ILI MULTI USTV!
+$('#Mdelete-button').click(function() {
+    var $table = $('#fajlovi');
+    
+        //var realPath = window.location.pathname.replace(/^\/files\//, ''); // Strip "files/" from the beginning of the path
+        //console.log('Real Path:', realPath); // Log the real path
+        const selectedItems = [];
+        const pathParam = '{{path_param}}';
+        // Collect the names of selected items within the "selected-row" class
+        $('.selected-row').each(function() {
+            const fileName = $(this).data('file');
+            selectedItems.push(fileName);
+        });
+
+        // Populate the "Mdeletemodal" with the list of selected items
+        $('#MdeleteModal .selected-items-list').empty();
+        selectedItems.forEach(item => {
+            $('#MdeleteModal .selected-items-list').append(`<li>${item}</li>`);
+        });
+
+        // Show the "Mdeletemodal"
+        //$('#MdeleteModal').modal('show'); sad ide kroz button data-toggle="modal" data-target="#MdeleteModal"
+
+        // Handle "delete Confirm" button click event in the "Mdeletemodal"
+        $('#MdeleteConfirmButton').click(function() {
+    $('#progress-container').show(); // Show progress bar
+    const totalItems = $('.selected-row').length;
+    let successfulDeletions = 0;
+
+    const updateProgress = () => {
+    const progress = (successfulDeletions / totalItems) * 100;
+    $('#progress-bar').css('width', progress + '%').attr('aria-valuenow', progress);
+    $('#progress-label').text(`${Math.round(progress)}%`);
+    };
+
+    const reloadPage = () => {
+        $('#progress-text').text('Deletion complete');
+        $('#progress-bar').css('width', '100%').attr('aria-valuenow', 100);
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+    };
+
+    const handleDeletionResponse = () => {
+        successfulDeletions++;
+        updateProgress();
+
+        if (successfulDeletions === totalItems) {
+            reloadPage();
+        }
+    };
+
+    $('.selected-row').each(function(index, element) {
+        const fileName = $(element).data('file');
+        let requestUrl = `/delete_file?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(pathParam)}`;
+
+        fetch(requestUrl, { method: 'DELETE' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    //console.log("great success!");
+                    handleDeletionResponse();
+                } else {
+                    console.error('Error deleting item:', data.error);
+                    // Handle error case, if needed
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting item:', error);
+            });
+    });
+});
+
+
+});
+
+// Function to handle the "Mmove-button" click event - Multiple items move !PROVERAVA DA LI JE JEDAN ILI MULTI USTV!
+$('#Mmove-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;
+        //var realPath = window.location.pathname.replace(/^\/files\//, ''); // Strip "files/" from the beginning of the path
+        //console.log('Real Path:', realPath); // Log the real path
+        const selectedItems = [];
+        const pathParam = '{{path_param}}';
+        // Collect the names of selected items within the "selected-row" class
+        $('.selected-row').each(function() {
+            const fileName = $(this).data('file');
+            selectedItems.push(fileName);
+        });
+
+        // Populate the "MmoveModal" with the list of selected items
+        $('#MmoveModal .selected-items-list').empty();
+        selectedItems.forEach(item => {
+            $('#MmoveModal .selected-items-list').append(`<li>${item}</li>`);
+        });
+
+        // Show the "MmoveModal"
+        $('#MmoveModal').modal('toggle');
+
+        $('#MmoveConfirmButton').click(function() {
+            const destinationPath = $('#MmoveDestination').val();
+            $('#move-progress-container').show(); // Show progress bar
+            const totalItemsToMove = $('.selected-row').length;
+            let successfulMoves = 0;
+
+            const updateMoveProgress = () => {
+                const progress = (successfulMoves / totalItemsToMove) * 100;
+                $('#move-progress-bar').css('width', progress + '%').attr('aria-valuenow', progress);
+                $('#move-progress-label').text(`${Math.round(progress)}%`);
+            };
+
+            const reloadPageAfterMove = () => {
+                $('#move-progress-text').text('Move complete');
+                $('#move-progress-bar').css('width', '100%').attr('aria-valuenow', 100);
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            };
+
+            $('.selected-row').each(function(index, element) {
+                const fileName = $(element).data('file');
+                const itemType = $(element).data('type');
+                let requestUrl = `/move_item?item_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(pathParam)}&item_type=${encodeURIComponent(itemType)}&destination_path=${encodeURIComponent(destinationPath)}`;
+
+                fetch(requestUrl, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            //console.log("Move success!");
+                            successfulMoves++;
+                            updateMoveProgress();
+                            if (successfulMoves === totalItemsToMove) {
+                                reloadPageAfterMove();
+                            }
+                        } else {
+                            console.error('Error moving item:', data.error);
+                            // Handle error case, if needed
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error moving item:', error);
+                    });
+            });
+});
+
+});
+
+// Function to handle the "Mcopy-button" click event - Multiple items copy !PROVERAVA DA LI JE JEDAN ILI MULTI USTV!
+$('#Mcopy-button').click(function() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;
+        //var realPath = window.location.pathname.replace(/^\/files\//, ''); // Strip "files/" from the beginning of the path
+        //console.log('Real Path:', realPath); // Log the real path
+        const selectedItems = [];
+        const pathParam = '{{path_param}}';
+        // Collect the names of selected items within the "selected-row" class
+        $('.selected-row').each(function() {
+            const fileName = $(this).data('file');
+            selectedItems.push(fileName);
+        });
+
+        // Populate the "McopyModal" with the list of selected items
+        $('#McopyModal .selected-items-list').empty();
+        selectedItems.forEach(item => {
+            $('#McopyModal .selected-items-list').append(`<li>${item}</li>`);
+        });
+
+        // Show the "McopyModal"
+        $('#McopyModal').modal('show');
+
+        // Handle "Copy Confirm" button click event in the "McopyModal"
+        $('#McopyConfirmButton').click(function() {
+            const destinationPath = $('#McopyDestination').val();
+            $('#copy-progress-container').show(); // Show progress bar
+            const totalItemsToCopy = $('.selected-row').length;
+            let successfulCopies = 0;
+
+            const updateCopyProgress = () => {
+                const progress = (successfulCopies / totalItemsToCopy) * 100;
+                $('#copy-progress-bar').css('width', progress + '%').attr('aria-valuenow', progress);
+                $('#copy-progress-label').text(`${Math.round(progress)}%`);
+            };
+
+            const reloadPageAfterCopy = () => {
+                $('#copy-progress-text').text('Copy complete');
+                $('#copy-progress-bar').css('width', '100%').attr('aria-valuenow', 100);
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            };
+
+            $('.selected-row').each(function(index, element) {
+                const fileName = $(element).data('file');
+                const itemType = $(element).data('type');
+                let requestUrl = `/copy_item?item_name=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(pathParam)}&item_type=${encodeURIComponent(itemType)}&destination_path=${encodeURIComponent(destinationPath)}`;
+
+                fetch(requestUrl, { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            //console.log("Copy success!");
+                            successfulCopies++;
+                            updateCopyProgress();
+                            if (successfulCopies === totalItemsToCopy) {
+                            reloadPageAfterCopy();
+                            }
+                        } else {
+                            console.error('Error copying item:', data.error);
+                            // Handle error case, if needed
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error copying item:', error);
+                    });
+    });
+});
+    
+});
+
+$('#Mdownload-button').click(function() {
+    var $table = $('#fajlovi');
+    const row = $table.find('tbody tr.selected-row:first');
+    const cell = row.find('td[data-download-url]');
+    const fileName = row.data('file');
+    const itemType = row.data('type');
+    const downloadUrl = cell.data('download-url');
+
+    if (itemType !== 'Directory' && downloadUrl) 
+    {
+        // If it's a non-directory file, trigger the file download
+        window.location.href = downloadUrl;
+    }
+});
+
+
+
+// Handle "Delete" button click event
+$('.delete-button').click(function() {
+    const button = $(this);
+    const row = button.closest('tr');
+    const fileName = row.data('file');
+    const itemType = row.data('type');
+    const pathParam = '{{ path_param }}';
+    // Set the current file/folder name in the modal
+    $('#deleteItemName').text(fileName);
+    
+    // Set warning message for directories
+    if (itemType === 'Directory') {
+        $('#deleteWarningMessage').text('{{ _("Warning: Deleting a directory will remove all its subdirectories and files.") }}');
+    } else {
+        $('#deleteWarningMessage').text('');
+    }
+
+    // Set type text for directories
+    if (itemType === 'Directory') {
+        $('#deleteWarningType').text('directory');
+    } else {
+        $('#deleteWarningType').text('file');
+    }
+
+    // Show the confirmation modal
+    $('#deleteConfirmationModal').modal('show');
+
+    // Handle "Delete Confirm" button click event in modal
+    $('#deleteConfirmButton').click(function() {
+        // Send request to Flask route to delete the file
+        fetch(`/delete_file?filename=${encodeURIComponent(fileName)}&path_param=${encodeURIComponent(pathParam)}`, {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) 
+            {
+                // Add to-be-deleted class to the row and then remove it after a delay
+                row.addClass('to-be-deleted');
+                setTimeout(function() {
+                    row.remove();
+                }, 1000); // Delay to allow visual effect before removing the row
+            } else 
+            {
+                console.error('Error deleting file:', data.error);
+                // Handle error case, if needed
+            }
+        })
+        .catch(error => {
+            console.error('Error deleting file:', error);
+        });
+
+        // Close the confirmation modal
+        $('#deleteConfirmationModal').modal('hide');
+    });
+
+    // Handle "Delete Cancel" button click event in modal
+    $('#deleteCancelButton').click(function() {
+        // Remove the to-be-deleted class from the row
+        row.removeClass('to-be-deleted');
+
+        // Close the confirmation modal
+        $('#deleteConfirmationModal').modal('hide');
+    });
+});
+
+
+    let currentlyRenamingRow = null; // Track the currently renaming row
+
+    
+    $('#refresh-button').click(function() {
+        location.reload();
+    });
+
+    // Handle "Rename" button click event
+    $('.rename-button').click(function() {
+        const button = $(this);
+        const row = button.closest('tr');
+
+        if (row.hasClass('renaming')) {
+            saveRenamedFile(button);
+        } else 
+        {
+            if (currentlyRenamingRow && currentlyRenamingRow !== row) {
+                cancelRenaming(currentlyRenamingRow.find('.rename-button'));
+            }
+            startRenaming(button);
+        }
+    });
+
+    // Handle Enter key press while renaming
+    $('tbody').on('keydown', '.renaming td:first-child', function(event) {
+        if (event.which === 13) 
+        { // Enter key
+            event.preventDefault();
+            saveRenamedFile($(this).find('.rename-button'));
+        }
+    });
+
+    // Handle blur event when renaming is done or canceled
+    $('tbody').on('blur', '.renaming td:first-child', function() {
+        const button = $(this).find('.rename-button');
+        if (button.hasClass('btn-dark')) {
+            saveRenamedFile(button);
+        } else {
+            cancelRenaming(button);
+        }
+    });
+
+    // Function to start renaming
+    function startRenaming(button) {
+        const row = button.closest('tr');
+        const fileNameCell = row.find('td:first-child');
+
+        if (currentlyRenamingRow && currentlyRenamingRow !== row) 
+        {
+            // Revert the filename for the previously renaming row
+            cancelRenaming(currentlyRenamingRow.find('.rename-button'));
+        }
+
+        fileNameCell.attr('contenteditable', 'true'); // Make the cell editable
+        fileNameCell.focus(); // Focus on the editable cell
+        row.addClass('renaming'); // Add a class to identify renaming rows
+
+        button.text('Save').removeClass('btn-outline').addClass('btn-dark');
+        currentlyRenamingRow = row; // Update the currently renaming row
+    }
+
+    // Function to save the renamed file
+    function saveRenamedFile(button) {
+        const row = button.closest('tr');
+        const fileNameCell = row.find('td:first-child');
+        const newFileName = fileNameCell.text();
+
+        // Perform AJAX request to rename the file
+        const fileName = row.data('file');
+        const pathParam = '{{ path_param }}'; // Add your code to retrieve the path_param
+        fetch(`/rename_file?old_name=${encodeURIComponent(fileName)}&new_name=${encodeURIComponent(newFileName)}&path_param=${encodeURIComponent(pathParam)}`, {
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) 
+            {
+                // Update data attributes and content
+                row.data('file', newFileName); // Update the data attribute
+                fileNameCell.data('original-name', newFileName); // Update the original name data attribute
+                fileNameCell.text(newFileName); // Update the displayed cell content
+
+                row.removeClass('renaming'); // Remove the renaming class
+                fileNameCell.removeAttr('contenteditable'); // Make the cell non-editable
+                button.text('Rename').removeClass('btn-dark').addClass('btn-outline');
+            } else 
+            {
+                console.error('Error renaming file:', data.error);
+                // Handle error case, if needed
+            }
+        })
+        .catch(error => {
+            console.error('Error renaming file:', error);
+        });
+    }
+
+    // Function to cancel renaming
+    function cancelRenaming(button) {
+        const row = button.closest('tr');
+        const fileNameCell = row.find('td:first-child');
+        const originalFileName = fileNameCell.data('original-name');
+
+        fileNameCell.text(originalFileName); // Restore the original file name
+
+        row.removeClass('renaming'); // Remove the renaming class
+        fileNameCell.removeAttr('contenteditable'); // Make the cell non-editable
+
+        button.text('Rename').removeClass('btn-dark').addClass('btn-outline');
+    }
+
+});
+
+function enableDisableButtons() {
+    var $table = $('#fajlovi');
+    var selectedRowCount = selectedRows.length;
+    //console.log($table.find('tbody tr.selected-row:first').attr('data-type')); radi type extract na ovaj fazon
+    if (selectedRowCount === 1) 
+    {
+        if($table.find('tbody tr.selected-row:first').attr('data-type')==='Directory')
+        {
+            //kad je dir
+            $('#Mrename-button, #Mcopy-button, #Mmove-button, #Mdelete-button, #Mpermissions-button, #Mcompress-button').prop('disabled', false);
+            $('#Mview-button, #Medit-button, #Mrename-button, #Mcopy-button, #Mmove-button, #Mpermissions-button, #Mcompress-button, #Mextract-button').prop('class', 'btn btn-dark');
+            $('#Mdelete-button').prop('class', 'btn btn-danger');
+            $('#Mview-button, #Medit-button, #Mdownload-button, #Mextract-button').prop('disabled', true);
+            $('#Mview-button, #Medit-button, #Mextract-button').prop('class', 'btn btn-outline-dark');
+            $('#Mdownload-button').prop('class', 'btn btn-outline-dark desktop-only');
+        }
+        else
+        {
+            // kad je fajl
+            // check extenzije za edit i view
+            var extensions = ['.txt', 'error_log', '.log', 'env', 'htaccess', '.ini', '.php', '.sh', '.html', '.json', '.htm', '.html5', '.xml', '.py', '.php5', '.php7', '.php8', '.sql', '.css', '.js', '.conf','.jpg', '.webp', '.avif', '.jpeg', '.png', '.gif', '.zip', '.tar', '.gz', '.tar.gz'];
+            var slike = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
+            var arhive = ['.zip', '.tar', '.gz', '.tar.gz'];
+            var dataFile = $table.find('tbody tr.selected-row:first').attr('data-file');
+            //provera da l je editable/viewable extenzija
+            var endsWithAnyExtension = extensions.some(function(extension) {
+            return dataFile.endsWith(extension);
+            });
+            //provera da l je slika (nema edit za slike)
+            var endsWithAnyPic = slike.some(function(slika) {
+            return dataFile.endsWith(slika);
+            });
+            var endsWithAnyArch = arhive.some(function(arhiva) {
+            return dataFile.endsWith(arhiva);
+            });
+            if (endsWithAnyExtension)
+            {
+                //ako je arhiva
+                if(endsWithAnyArch)
+                {
+                    $('#Mextract-button').prop('disabled', false);
+                    $('#Mextract-button').prop('class', 'btn btn-dark');
+                    $('#Medit-button, #Mview-button').prop('disabled', true);
+                    $('#Medit-button, #Mview-button').prop('class', 'btn btn-outline-dark');
+                }
+                else
+                {
+                    if (endsWithAnyPic)
+                    {
+                        $('#Mview-button').prop('disabled', false);
+                        $('#Mview-button').prop('class', 'btn btn-dark');
+                        $('#Medit-button, #Mextract-button').prop('disabled', true);
+                        $('#Medit-button, #Mextract-button').prop('class', 'btn btn-outline-dark');
+                    }
+                    else
+                    {
+                        $('#Mview-button, #Medit-button').prop('disabled', false);
+                        $('#Mview-button, #Medit-button').prop('class', 'btn btn-dark');
+                    }
+                    $('#Mextract-button').prop('disabled', true);
+                    $('#Mextract-button').prop('class', 'btn btn-outline-dark');
+                }
+            }
+            else
+            {
+                $('#Mview-button, #Medit-button, #Mextract-button').prop('disabled', true);
+                $('#Mview-button, #Medit-button,#Mextract-button').prop('class', 'btn btn-outline-dark');
+            }
+            // Enable the buttons for a single selected row
+            //console.log("only 1", selectedRows.length);
+            $('#Mrename-button, #Mcopy-button, #Mmove-button, #Mdownload-button, #Mdelete-button, #Mpermissions-button, #Mcompress-button').prop('disabled', false);
+            $('#Mrename-button, #Mcopy-button, #Mmove-button, #Mpermissions-button, #Mcompress-button').prop('class', 'btn btn-dark');
+            $('#Mdownload-button').prop('class', 'btn btn-dark desktop-only');
+            $('#Mdelete-button').prop('class', 'btn btn-danger');
+        }
+    } 
+    else
+    if(selectedRowCount >= 2)
+    {
+        //kad je vise od 1 selectovano
+        // Disable the buttons for multiple selected rows
+        //console.log("multiple", selectedRows.length);
+        $('#Mdelete-button, #Mcopy-button, #Mmove-button, #Mcompress-button').prop('disabled', false);
+        $('#Mcopy-button, #Mmove-button, #Mcompress-button').prop('class', 'btn btn-dark'); 
+        $('#Mdelete-button').prop('class', 'btn btn-danger'); 
+        $('#Mview-button, #Medit-button, #Mrename-button, #Mdownload-button, #Mpermissions-button, #Mextract-button').prop('disabled', true);   
+        $('#Mview-button, #Medit-button, #Mrename-button, #Mpermissions-button, #Mextract-button').prop('class', 'btn btn-outline-dark');  
+        $('#Mdownload-button').prop('class', 'btn btn-outline-dark desktop-only');  
+    }
+
+    // Always enable these buttons
+    //$('#createFileModal, #createFolderModal, #uploadModal').prop('disabled', false);
+}
+
+
+</script>	
+
+
+<!-- 1001 modal -->
+
+<div class="modal fade" id="MextractModal" tabindex="-1" role="dialog" aria-labelledby="MextractModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="MextractModalLabel">{{ _('Extract File') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Extract the following file:') }}</p>
+                <p id="selectedEFileName"></p>
+                <label for="McompressArchiveName">{{ _('Please enter extraction path:') }}</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">/home/{{ current_username }}/</span>
+                    </div>
+                    <input type="text" class="form-control" id="MextractPath" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="MextractConfirmButton">{{ _('Confirm') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="McompressModal" tabindex="-1" role="dialog" aria-labelledby="McompressModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="McompressModalLabel">{{ _('Compress Multiple Items') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Confirm the compression of the following items:') }}</p>
+<ul class="scroller selected-items-list" style="max-height: 200px;overflow-y: auto;border: var(--bs-border-width) solid var(--bs-border-color);"></ul>
+                <label for="McompressArchiveName">{{ _('Archive Name') }}</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="McompressArchiveName" style="height: 32px;" required>
+                    <div class="input-group-append">
+                        <select class="custom-select" id="McompressArchiveFormat" style="height: 32px;">
+                            <option value="zip">.zip</option>
+                            <option value="tar">.tar</option>
+                            <option value="tar.gz">.tar.gz</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="McompressConfirmButton">{{ _('Compress') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="permissionsModal" tabindex="-1" role="dialog" aria-labelledby="permissionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="permFilename" id="permissionsModalLabel">{{ _('Set permissions') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+
+
+<div class="row">
+      <div class="col-11">
+          <div class="row">
+            <div class="col text-right">
+              <div class="form-group">
+                <h6>Owner</h6></div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Read') }} <input class="m" id="c-o-r" type="checkbox"></label>
+              </div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Write') }} <input class="m" id="c-o-w" type="checkbox"></label>
+              </div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Execute') }} <input class="m" id="c-o-x" type="checkbox"></label>
+              </div>
+            </div>
+            <div class="col text-right">
+              <div class="form-group">
+                <h6>Group</h6></div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Read') }} <input class="m" id="c-g-r" type="checkbox"></label>
+              </div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Write') }} <input class="m" id="c-g-w" type="checkbox"></label>
+              </div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Execute') }} <input class="m" id="c-g-x" type="checkbox"></label>
+              </div>
+            </div>
+            <div class="col text-right">
+              <div class="form-group">
+                <h6>Public</h6></div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Read') }} <input class="m" id="c-p-r" type="checkbox"></label>
+              </div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Write') }} <input class="m" id="c-p-w" type="checkbox"></label>
+              </div>
+              <div class="form-group form-group-lg">
+                <label class="control-label">{{ _('Execute') }} <input class="m" id="c-p-x" type="checkbox"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+<form class="form chmod mt-4">
+<div class="form-group">
+<div class="input-group">
+<input type="text" class="form-control input-lg m" id="c-oct" placeholder="{{ _('Enter new Permissions for item') }}"required>
+<input type="text" class="form-control input-lg m" id="c-sym" placeholder="-rw-rw-rw-">
+  <button type="button" class="btn btn-primary" id="permissionsConfirmButton">Change</button>
+</div>
+</div>
+</form>
+
+          
+      </div>
+    </div>
+
+  <script>
+    (function($){$("input[type='checkbox']").prop({checked:false});$("#c-sym").val("");$("#c-oct").val("");$(".m").change(function(e){var target=$(e.target);switch(true){case(target.is("#c-oct")):$("input[type='checkbox']").prop({checked:false});$("#c-sym").val("");var chmod=$.trim(target.val());var chmodLength=chmod.length;var chmodsym='';var valid=true;target.parent().removeClass("has-error");$("#c-sym").parent().removeClass("has-error");if(!isNumber(chmod)){valid=false;}
+    if(chmodLength==3){if(chmod.charAt(0)<0||chmod.charAt(0)>7){valid=false;}
+    if(chmod.charAt(1)<0||chmod.charAt(1)>7){valid=false;}
+    if(chmod.charAt(2)<0||chmod.charAt(2)>7){valid=false;}}else{valid=false;}
+    if(valid){if(chmod>=400){$("#c-o-r").prop("checked",true);chmod-=400;chmodsym+='r';}else{chmodsym+='-';}
+    if(chmod>=200){$("#c-o-w").prop("checked",true);chmod-=200;chmodsym+='w';}else{chmodsym+='-';}
+    if(chmod>=100){$("#c-o-x").prop("checked",true);chmod-=100;chmodsym+='x';}else{chmodsym+='-';}
+    if(chmod>=40){$("#c-g-r").prop("checked",true);chmod-=40;chmodsym+='r';}else{chmodsym+='-';}
+    if(chmod>=20){$("#c-g-w").prop("checked",true);chmod-=20;chmodsym+='w';}else{chmodsym+='-';}
+    if(chmod>=10){$("#c-g-x").prop("checked",true);chmod-=10;chmodsym+='x';}else{chmodsym+='-';}
+    if(chmod>=4){$("#c-p-r").prop("checked",true);chmod-=4;chmodsym+='r';}else{chmodsym+='-';}
+    if(chmod>=2){$("#c-p-w").prop("checked",true);chmod-=2;chmodsym+='w';}else{chmodsym+='-';}
+    if(chmod>=1){$("#c-p-x").prop("checked",true);chmod-=1;chmodsym+='x';}else{chmodsym+='-';}}else{target.parent().addClass("has-error");$("#c-sym").val("");}
+    break;case(target.is("input[type='checkbox']")):var chmodsym='';var chmod=0;$("#c-sym").parent().removeClass("has-error");$("#c-oct").parent().removeClass("has-error");if($("#c-o-r").prop("checked")){chmod+=400;chmodsym+='r';}else{chmodsym+='-';}
+    if($("#c-o-w").prop("checked")){chmod+=200;chmodsym+='w';}else{chmodsym+='-';}
+    if($("#c-o-x").prop("checked")){chmod+=100;chmodsym+='x';}else{chmodsym+='-';}
+    if($("#c-g-r").prop("checked")){chmod+=40;chmodsym+='r';}else{chmodsym+='-';}
+    if($("#c-g-w").prop("checked")){chmod+=20;chmodsym+='w';}else{chmodsym+='-';}
+    if($("#c-g-x").prop("checked")){chmod+=10;chmodsym+='x';}else{chmodsym+='-';}
+    if($("#c-p-r").prop("checked")){chmod+=4;chmodsym+='r';}else{chmodsym+='-';}
+    if($("#c-p-w").prop("checked")){chmod+=2;chmodsym+='w';}else{chmodsym+='-';}
+    if($("#c-p-x").prop("checked")){chmod+=1;chmodsym+='x';}else{chmodsym+='-';}
+    if(chmod<10){chmod='00'+''+chmod;}else if(chmod<100){chmod='0'+''+chmod;}
+    $("#c-oct").val(chmod);$("#c-sym").val(chmodsym);break;case(target.is("#c-sym")):$("input[type='checkbox']").prop({checked:false});var chmod=0;var chmodsym=$.trim(target.val());var chmodsymLength=chmodsym.length;var valid=true;target.parent().removeClass("has-error");$("#c-oct").parent().removeClass("has-error");if(chmodsymLength==10){if(chmodsym.charAt(0)=='d'){chmodsym=chmodsym.substring(1);chmodsymLength=chmodsym.length;}else if(chmodsym.charAt(0)=='-'){chmodsym=chmodsym.substring(1);chmodsymLength=chmodsym.length;}else{valid=false;}}
+    if(chmodsymLength==9){if(chmodsym.charAt(0)=='r'){$("#c-o-r").prop("checked",true);chmod+=400;}else if(chmodsym.charAt(0)!='-'){valid=false;}
+    if(chmodsym.charAt(1)=='w'){$("#c-o-w").prop("checked",true);chmod+=200;}else if(chmodsym.charAt(1)!='-'){valid=false;}
+    if(chmodsym.charAt(2)=='x'){$("#c-o-x").prop("checked",true);chmod+=100;}else if(chmodsym.charAt(2)!='-'){valid=false;}
+    if(chmodsym.charAt(3)=='r'){$("#c-g-r").prop("checked",true);chmod+=40;}else if(chmodsym.charAt(3)!='-'){valid=false;}
+    if(chmodsym.charAt(4)=='w'){$("#c-g-w").prop("checked",true);chmod+=20;}else if(chmodsym.charAt(4)!='-'){valid=false;}
+    if(chmodsym.charAt(5)=='x'){$("#c-g-x").prop("checked",true);chmod+=10;}else if(chmodsym.charAt(5)!='-'){valid=false;}
+    if(chmodsym.charAt(6)=='r'){$("#c-p-r").prop("checked",true);chmod+=4;}else if(chmodsym.charAt(6)!='-'){valid=false;}
+    if(chmodsym.charAt(7)=='w'){$("#c-p-w").prop("checked",true);chmod+=2;}else if(chmodsym.charAt(7)!='-'){valid=false;}
+    if(chmodsym.charAt(8)=='x'){$("#c-p-x").prop("checked",true);chmod+=1;}else if(chmodsym.charAt(8)!='-'){valid=false;}}else{valid=false;}
+    if(valid){$("#c-oct").val(chmod);}else{target.parent().addClass("has-error");$("#c-oct").val("");}
+    break;}});function isNumber(n){return!isNaN(parseFloat(n))&&isFinite(n);}})(jQuery);
+  </script>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="renameModal" tabindex="-1" role="dialog" aria-labelledby="renameModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="renameModalLabel">{{ _('Rename Item') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Enter the new file name to rename the item:') }}</p>
+
+    <label for="newname">{{ _('New Name') }}</label>
+    <input type="text" class="form-control" id="newRenameFileName" placeholder="{{ _('New file/folder name') }}" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="renameConfirmButton">{{ _('Rename') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmationModalLabel">{{ _('Confirm Deletion') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Are you sure you want to delete the following') }} <span id="deleteWarningType"></span>?</p>
+                <p><strong id="deleteItemName"></strong></p>
+                    <small id="deleteWarningMessage" class="text-danger"></small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-danger" id="deleteConfirmButton">{{ _('Delete') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="MdeleteModal" tabindex="-1" role="dialog" aria-labelledby="MdeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="MdeleteModalLabel">{{ _('Delete Items') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-icon modal-warning modal-icon-show"></div>
+                <p>{{ _('Confirm the deleting of the following items:') }}</p>
+<ul class="scroller selected-items-list" style="max-height: 200px;overflow-y: auto;border: var(--bs-border-width) solid var(--bs-border-color);"></ul>
+                <div id="progress-container" style="display:none;">
+                    <div class="progress">
+                        <div id="progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <span id="progress-label">0%</span>
+                        </div>
+                    </div>
+                    <div id="progress-text">{{ _('Deleting...') }}</div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="MdeleteConfirmButton">{{ _('Delete') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="McopyModal" tabindex="-1" role="dialog" aria-labelledby="McopyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="McopyModalLabel">{{ _('Copy items') }}</h5>
+                <button type="button" id="XMcopyModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Confirm the copy of the following items:') }}</p>
+<ul class="scroller selected-items-list" style="max-height: 200px;overflow-y: auto;border: var(--bs-border-width) solid var(--bs-border-color);"></ul>
+                <label for="McopyDestination">{{ _('Destination path') }}</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">/home/{{ current_username }}/</span>
+                    </div>
+                    <input type="text" class="form-control" id="McopyDestination" required>
+                </div>
+
+                <div id="copy-progress-container" style="display:none;">
+                    <div class="progress">
+                        <div id="copy-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <span id="copy-progress-label">0%</span>
+                        </div>
+                    </div>
+                    <div id="copy-progress-text">{{ _('Copying...') }}</div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="McopyConfirmButton">{{ _('Copy') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="MmoveModal" tabindex="-1" role="dialog" aria-labelledby="MmoveModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="MmoveModalLabel">{{ _('Move items') }}</h5>
+                <button type="button" class="btn-close" id="XMmoveModal" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>{{ _('Confirm the moving of the following items:') }}</p>
+<ul class="scroller selected-items-list" style="max-height: 200px;overflow-y: auto;border: var(--bs-border-width) solid var(--bs-border-color);"></ul>
+                <label for="MmoveDestination">{{ _('Destination path') }}</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">/home/{{ current_username }}/</span>
+                    </div>
+                    <input type="text" class="form-control" id="MmoveDestination" required>
+                </div>
+
+                <div id="move-progress-container" style="display:none;">
+                    <div class="progress">
+                        <div id="move-progress-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <span id="move-progress-label">0%</span>
+                        </div>
+                    </div>
+                    <div id="move-progress-text">{{ _('Moving...') }}</div>
+                </div>
+                
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="MmoveConfirmButton">{{ _('Move') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFileModal" tabindex="-1" role="dialog" aria-labelledby="createFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createFileModalLabel">{{ _('Create New File') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+<label for="fileName">{{ _('File Name') }}</label>
+                <form id="createFileForm" method="POST">
+<div class="form-group">
+<div class="input-group">
+<input type="text" class="form-control" id="fileName" name="fileName" placeholder="(ex: file.txt, file.html, file.php)" required>
+  <button type="submit" class="btn btn-dark" type="button">{{ _('Create File') }}</button>
+</div>
+</div>
+                        <small>{{ _('New file will be created in:') }} <b>/home/{{ current_username }}/{{path_param}}</b></small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createFolderModal" tabindex="-1" role="dialog" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createFolderModalLabel">{{ _('Create New Folder') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createFolderForm" method="POST">
+<label for="folderName">{{ _('Folder Name') }}</label>
+                    <div class="form-group">
+<div class="input-group">
+<input type="text" class="form-control" id="folderName" name="folderName" required>
+  <button type="submit" class="btn btn-dark" type="button">{{ _('Create Folder') }}</button>
+</div>
+
+</div>
+                        <small>{{ _('New folder be created in:') }} <b>/home/{{ current_username }}/{{path_param}}</b></small>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Modal -->
+<div class="modal fade" id="uploadModal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="uploadModalLabel">{{ _('Upload Files') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+<div id="uplaod_form_initial">
+    <form id="uploadForm" enctype="multipart/form-data" method="POST">
+    <div class="form-group">
+        <div class="input-group">
+            <input type="file" class="form-control" id="fileUpload" name="fileUpload" multiple required>
+        </div>
+        <button type="submit" class="btn btn-dark" type="button">{{ _('Upload') }}</button>
+        </form>
+    </div>
+    <small>or <a href="#" id="switch_form_to_wget">{{ _('Download from URL ') }}<span class="badge bg-primary" data-bs-original-title="NEW!">{{ _('NEW!') }}</span></a></small>
+</div>
+
+
+<div id="form_for_wget_link" style="display:none;">
+    <form id="wgetForm" enctype="multipart/form-data" method="POST">
+<div class="form-group">
+    <div class="input-group">
+        <input type="url" class="form-control" id="fileWget" name="fileWget" placeholder="https://" required>
+    
+    <button type="submit" class="btn btn-dark" type="button">{{ _('Download') }}</button>
+    </form>
+    </div>
+</div>
+<small>or <a href="#" id="switch_form_to_upload">{{ _('Upload from device') }}</a></small>
+</div>
+
+
+<script>
+    document.getElementById('switch_form_to_wget').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('uplaod_form_initial').style.display = 'none';
+        document.getElementById('form_for_wget_link').style.display = 'block';
+    });
+
+    document.getElementById('switch_form_to_upload').addEventListener('click', function(event) {
+        event.preventDefault();
+        document.getElementById('form_for_wget_link').style.display = 'none';
+        document.getElementById('uplaod_form_initial').style.display = 'block';
+    });
+</script>
+
+
+
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewModalLabel">{{ _('View File') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="fileContent" class="mb-0"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

@@ -1,4 +1,4 @@
-# cPanel 2 OpenPanel user import
+# cPanel 2 OpenPanel account import
 Free OpenPanel module to import cPanel backup in OpenPanel
 
 Maintained by [CodeWithJuber](https://github.com/CodeWithJuber)
@@ -6,43 +6,37 @@ Maintained by [CodeWithJuber](https://github.com/CodeWithJuber)
 ## Features
 
 Currently suported for import:
+```
+├─ DOMAINS:
+│  ├─ Primary domain, Addons, Aliases and Subdomains
+│  ├─ SSL certificates
+│  ├─ Domains access logs (Apache domlogs)
+│  └─ DNS zones
+├─ WEBSITES:
+│  └─ WordPress instalations from WPToolkit & Softaculous 
+├─ DATABASES:
+│    ├─ Remote access to MySQL
+│    └─ MySQL databases, users and grants
+├─ PHP:
+│    └─ Installed version from Cloudlinux PHP Selector
+├─ FILES
+├─ CRONS
+├─ SSH
+│   ├─ Remote SSH access
+│   ├─ SSH password
+│   └─ SSH keys
+└─ ACCOUNT
+    ├─ Notification preferences
+    ├─ cPanel account creation date
+    └─ locale
 
-- files and folders
-- mysql databases, users and grants
-- domains
-- dns zones
-- php version
-- wp sites
-- cronjobs
-
-todo:
-
-- ftp accounts
-- email accounts
-- nodejs/python apps
-- postgresql
-- ssh keys
-- ssl certificates
-
-Steps:
-
-
-# cPanel to OpenPanel Migration Script
-
-This script automates the process of migrating a cPanel backup to OpenPanel server. It handles various cPanel backup formats and restores essential components of the user's account.
-
-## Features
-
-- Supports multiple cPanel backup formats (cpmove, full backup, tar.gz, tgz, tar, zip)
-- Restores user account details, domains, and hosting plan settings
-- Migrates websites, databases, domains, SSL certificates, and DNS zones
-- Handles PHP version settings and cron jobs
-- Restores SSH access and file permissions
+***emails, ftp, nodejs/python, postgres are not yet supported***
+```
 
 
 ## Usage
 
-1. Run the script with sudo privileges:
+Run the script with sudo privileges:
 
 ```
 git clone https://github.com/stefanpejcic/cPanel-to-OpenPanel
@@ -55,7 +49,8 @@ bash cPanel-to-OpenPanel/cp-import.sh --backup-location /path/to/cpanel_backup.f
 ## Parameters
 
 - `--backup-location`: Path to the cPanel backup file (required)
-- `--plan-name`: Name of the hosting plan in OpenPanel (required)
+- `--plan-name`:       Name of the hosting plan in OpenPanel (required)
+- `--dry-run`:         extract archive and display data without actually importing account (optional)
 
 ## Important Notes
 

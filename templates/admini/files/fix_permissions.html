@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <p>{{ _('Fix and reset permissions for files and folders.') }}</p>
+
+    <div class="container">
+        <div class="col-auto">
+            <label class="directory-select-label" for="directory-select">{{ _('Choose a directory') }}</label><br>
+            <div class="input-group">
+                <input type="text" id="directory-select" class="form-control" list="directory-options">
+                <datalist id="directory-options">
+                    {% for directory in directories %}
+                        <option value="{{ directory }}">
+                    {% endfor %}
+                </datalist>
+                <span class="input-group-btn">
+                    <button id="start-scan-btn" class="btn btn-primary" tabindex="-1">{{ _('Fix Permissions') }}</button>
+
+                    <!-- Fixing Spinner Button (Initially hidden) -->
+                    <button id="scanning-btn" class="btn btn-primary" tabindex="-1" type="button" style="display: none;" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        {{ _('Working...') }}
+                    </button>
+                </span>
+            </div>
+        </div>
+
+        <!-- Fix Complete Message (Initially hidden) -->
+        <div id="scan-complete-message" class="alert alert-success mt-3 mb-3" style="display: none;">
+            {{ _('Permissions are fixed!') }}
+        </div>
+
+    </div>
+
+<script>
+    // Function to show the scan complete message
+    function showScanCompleteMessage() {
+        document.getElementById('scan-complete-message').style.display = 'block';
+    }
+
+    // Function to initiate the scan when the "Start Scan" button is clicked
+    document.getElementById('start-scan-btn').addEventListener('click', function () {
+        // Hide the "Start Scan" button and show the scanning spinner button
+        document.getElementById('start-scan-btn').style.display = 'none';
+        document.getElementById('scanning-btn').style.display = 'inline-block';
+
+        // Get the selected directory from the dropdown
+        const selectedDirectory = document.getElementById('directory-select').value;
+
+        const toast = toaster({
+            body: 'Process started',
+            className: 'border-0 text-white bg-primary',
+        });
+
+        document.getElementById('scan-complete-message').style.display = 'none';
+
+        // Send the selected directory to the server for scanning
+    fetch(`/fix-permissions`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `directory=${encodeURIComponent(selectedDirectory)}`,
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('{{ _("Network response was not ok") }}');
+            }
+            return response.text(); // Change to response.text() to read the response body
+        })
+        .then(data => {
+            // Process the response data if needed
+            console.log(data);
+
+            // Show scan complete message
+            showScanCompleteMessage();
+        })
+        .catch(error => {
+            console.error('Fixing permissions failed:', error);
+
+            // Display an error message
+            const toast = toaster({
+                body: '{{ _("Fixing permissions failed") }}',
+                className: 'border-0 text-white bg-error',
+            });
+        })
+        .finally(() => {
+            // Display a success message
+            const toast = toaster({
+                body: '{{ _("Complete") }}',
+                className: 'border-0 text-white bg-success',
+            });
+
+            // Hide the scanning spinner button and show the "Start Scan" button
+            document.getElementById('scanning-btn').style.display = 'none';
+            document.getElementById('start-scan-btn').style.display = 'block';
+        });
+    });
+</script>
+
+{% endblock %}

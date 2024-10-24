@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Settings
+                </div>
+                <h2 class="page-title">
+                  OpenAdmin
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Page body -->
+        <div class="page-body">
+
+<div class="container-xl">
+            <div class="row row-cards">
+              
+            <div class="col-xl-12">
+              <div class="card" style="height:28rem">
+                <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+
+<div class="divide-y">
+
+
+                  <div class="row"><div class="col"><h3 class="card-title">Admin Users</h3></div>
+                  <div class="col-auto"><a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-newuser">New</a></div>
+                  </div>
+
+<table class="table table-vcenter">
+                      <thead>
+                        <tr>
+                          <th>Username</th>
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+{% for user_data in user_info %}
+                        <tr>
+                          <td {% if user_data.is_active %}{% else %}style=" border-left: 0.25rem solid #d63939;"{% endif %}>
+
+<div class="d-flex py-1 align-items-center">
+                            <span class="avatar avatar-sm m-2">{{ user_data.username[0] }}</span>
+                              <div class="flex-fill">
+                                <div class="font-weight-medium">{{ user_data.username }} {% if user_data.role == 'admin' %}<span class="badge bg-green-lt">Super Admin</span>{% endif %}</div>
+                                <div class="text-secondary">{% if user_data.is_active %}
+<span class="badge bg-success"> Active</span>
+{% else %}
+<span class="badge bg-danger"> Suspended</span>
+{% endif %}</div>
+                              </div>
+                            </div>
+
+
+
+
+          
+                          </td>
+                          <td class="w-1 text-nowrap text-secondary">
+<div class="btn-list flex-nowrap">
+
+<a href="#" class="btn" data-bs-toggle="modal" data-bs-target="#modal-edituser" onclick="prefillUsernameAndStatus('{{ user_data.username }}', {% if user_data.is_active %}true{% else %}false{% endif %}, {% if user_data.role != 'admin' %}true{% else %}false{% endif %})"><svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-edit" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path><path d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path><path d="M16 5l3 3"></path></svg> Edit</a>
+
+{% if user_data.role == 'admin' %}
+
+{% else %}
+<span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Delete account">
+
+<a href="#" class="btn btn-danger" data-toggle="modal" data-bs-target="#confirmDeleteUserModal">
+<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+  <path d="M4 7l16 0"></path>
+  <path d="M10 11l0 6"></path>
+  <path d="M14 11l0 6"></path>
+  <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+  <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+</svg> Delete</a>
+</span>
+{% endif %}
+
+
+
+
+
+                </div>
+                              </td>
+                        </tr>
+{% endfor %}
+
+
+                      </tbody>
+                    </table>
+
+
+
+</div>
+               
+                              
+                             
+                </div>
+              </div>
+            </div>
+            <div class="d-none col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <h3 class="card-title">Enable features</h3>
+<p class="card-subtitle">Enable server-wide settings and services that affect all users</p>
+
+<label class="form-check form-switch">
+<input class="form-check-input" type="checkbox" checked="">
+<span class="form-check-label">Enable Backups</span>
+</label>
+<label class="form-check form-switch">
+<input class="form-check-input" type="checkbox" checked="">
+<span class="form-check-label">Generate HTML reports from domains access logs</span>
+</label>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" id="api_status_current_value"  {%if api_status_current_value == 'on' %}checked=""{% endif %} name="api_status_current_value">
+                              <span class="form-check-label">Enable <a href="/settings/api">API access</a></span>
+</label>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" id="basicauth_current_value"  {%if basicauth_current_value == 'yes' %}checked=""{% endif %} name="basicauth_current_value">
+                              <span class="form-check-label">Enable <a href="https://en.wikipedia.org/wiki/Basic_access_authentication" target="_blank">Basic Auth</a> for OpenAdmin panel</span>
+
+<div class="hiderow row {%if basicauth_current_value == 'no' %}d-none{% endif %}">
+
+<div class="col form-floating">
+    <input type="text" class="form-control" id="basic_auth_username" name="basic_auth_username" value="{{basic_auth_username}}">
+                              <label for="basic_auth_username">Username:</label>
+</div>
+
+<div class="col form-floating">
+                              <input type="password" class="form-control" id="basic_auth_password" name="basic_auth_password" value="{{basic_auth_password}}" autocomplete="off">
+                              <label for="basic_auth_password">Password</label>
+</div>
+</div>
+
+
+</label>
+                </div>
+              </div>
+            </div>
+            
+            
+            
+            
+          </div>
+</div>
+       
+              
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const checkbox = document.getElementById("basicauth_current_value");
+        const row = document.querySelector(".hiderow");
+
+        // Function to toggle the visibility of the row
+        function toggleRowVisibility() {
+            if (checkbox.checked) {
+                row.classList.remove("d-none");
+            } else {
+                row.classList.add("d-none");
+            }
+        }
+
+        // Initial visibility state based on checkbox state
+        toggleRowVisibility();
+
+        // Attach event listener to checkbox change event
+        checkbox.addEventListener("change", toggleRowVisibility);
+    });
+</script>
+
+
+
+<div class="container-xl mt-4">
+            <div class="row row-cards">
+              
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <h3 class="card-title">Server Information Report</h3>
+<p class="card-subtitle">Generate a report on server information and service status, and provide it when reaching out for support on <a href="https://community.openpanel.com/" target="_blank">community.openpanel.com</a></p>
+
+      <div class="" id="generated_report_response">&nbsp;</div>  
+
+            <input type="hidden" name="action" value="server_info">
+            <button class="btn btn-primary w-100" id="generate_server_report" type="submit">Generate a new report</button>
+                </div>
+<div class="card-footer">
+                  Learn more about <a href="https://community.openpanel.com/d/2-how-to-ask-for-assistance" target="_blank">How to ask for assistance?</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card">
+                <div class="card-body">
+                  <h3 class="card-title">Disable Admin Panel</h3>
+<p class="card-subtitle">As an advanced security measure, you can temporarily disable access to the OpenAdmin interface. Enable it again when needed from the terminal by executing the command <code>opencli admin on</code></p>
+<div class="" id="empty_space">&nbsp;</div> 
+                    <a href="#" class="btn btn-danger w-100" id="AdminOffButton" data-bs-toggle="modal" data-bs-target="#confirmAdminOffModal">
+                        Disable OpenAdmin
+                      </a>
+                </div>
+                <div class="card-footer">
+                  Learn more about <a href="https://dev.openpanel.com/cli/admin.html#Enable-Disable-AdminPanel" target="_blank">Disabling AdminPanel</a>
+                </div>
+              </div>
+            </div>
+            
+            
+            
+            
+          </div>
+</div>
+
+
+<!-- DISABLE ADMIN Modal -->
+    <div class="modal modal-blur fade" id="confirmAdminOffModal" aria-labelledby="confirmAdminOffModalLabel" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" id="deleteAdminModalxClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-danger"></div>
+          <div class="modal-body text-center py-4">
+            <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+            <h3 id="confirmAdminOffModalLabel">Are you sure you want to disable access to  <b>OpenAdmin</b>?</h3>
+            <div class="text-muted"><small>Disabling OpenAdmin will immediately cut off your panel access. You can restore it later only through the terminal using command <code>opencli admin on</code>. Ensure you can SSH into the server, or you won't be able to restart the service. Exercise caution and fully understand the irreversible consequences before proceeding.</small></div>
+        <!-- Input field for confirmation -->
+        <div class="mt-3 mb-3">
+          <label for="deleteConfirmation" class="form-label">Type "DISABLE" to confirm:</label>
+          <input type="text" class="form-control" id="deleteConfirmation">
+        </div>
+          </div>
+
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col"><a href="#" id="confirmDelete" class="btn btn-danger w-100" style="display: none;">
+                    Disable
+                  </a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+<!-- Delete Admin User Modal -->
+    <div class="modal modal-blur fade" id="confirmAdminDeleteModal" aria-labelledby="confirmAdminDeleteModallLabel" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" id="confirmAdminDeleteModalxClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-danger"></div>
+          <div class="modal-body text-center py-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+            <h3 id="confirmAdminDeleteModalLabel">Are you sure you want to delete admin user <b style="font-weight-medium" id="admin_user_to_delete"></b>?</h3>
+            <div class="text-muted"><small>Deleting an admin user will immediately cut off their panel access.</small></div>
+        <!-- Input field for confirmation -->
+        <div class="mt-3 mb-3">
+          <label for="deleteUserConfirmation" class="form-label">Type "DELETE" to confirm:</label>
+          <input type="text" class="form-control" id="deleteAdminUserConfirmation">
+        </div>
+          </div>
+
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col"><a href="#" id="confirmUserDelete" class="btn btn-danger w-100" style="display: none;">
+                    Delete
+                  </a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+  <div class="modal modal-blur fade" id="modal-newuser" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Admin User</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-6">
+                  <label class="form-label">Username</label>
+                  <input id="admin_username" name="admin_username" type="text" class="form-control">
+              </div>
+        <div class="col-lg-6">
+            <label class="form-label" for="admin_password">Password:</label>
+            <div class="input-group">
+                <input type="password" class="form-control" name="admin_password" id="admin_password">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success" type="button" id="generatePassword">
+                        Generate
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <svg  xmlns="http://www.w3.org/2000/svg" style="margin:0"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+              Cancel
+            </a>
+            <a href="#" onclick="createAdminUser()" class="btn btn-primary ms-auto">
+              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 5l0 14" /><path d="M5 12l14 0" /></svg>
+              Create
+            </a>
+          </div>
+        </div>
+      </div>
+</div>
+
+
+
+
+
+
+
+<script src="{{ url_for('static', filename='pages/admin_panel_settings.js') }}" defer></script>
+
+<script>
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- Delete Admin User Modal -->
+    <div class="modal modal-blur fade" id="confirmAdminDeleteModal" aria-labelledby="confirmAdminDeleteModalLabel" tabindex="-1" role="dialog" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" id="deleteModalxClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-danger"></div>
+          <div class="modal-body text-center py-4">
+            <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+            <h3 id="confirmAdminDeleteModalLabel">Are you sure you want to delete admin user <b id="deleteUsername"></b>?</h3>
+            <div class="text-muted"><small>Deleting admin user will immediately cut off their panel access.</small></div>
+        <!-- Input field for confirmation -->
+        <div class="mt-3 mb-3">
+          <label for="deleteAdminConfirmation" class="form-label">Type "DELETE" to confirm:</label>
+          <input type="text" class="form-control" id="deleteAdminConfirmation">
+        </div>
+          </div>
+
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col"><a href="#" id="confirmAdminDelete" class="btn btn-danger w-100" style="display: none;">
+                    Delete
+                  </a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+  <div class="modal modal-blur fade" id="modal-edituser" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit User <span id="username_to_edit"></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-4">
+                  <label class="form-label">Username</label>
+                  <input id="new_username" name="new_username" type="text" class="form-control">
+              </div>
+        <div class="col-lg-6">
+            <label class="form-label" for="new_password">New password:</label>
+            <div class="input-group">
+                <input type="password" class="form-control" name="new_password" id="new_password">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success" type="button" id="generatePasswordEdit">
+                        Generate
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePasswordEdit">
+                        <svg  xmlns="http://www.w3.org/2000/svg" style="margin:0"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" /></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+              <div class="col-lg-2">
+                  <label class="form-label">Status</label>
+                  <label class="form-check form-switch">
+                  <input class="form-check-input" id="is_active" type="checkbox" checked="" data-original="true">
+                  <span class="form-check-label">Active</span>
+                  </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <a href="#" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+              Cancel
+            </a>
+            <a href="#" onclick="editAdminUser()" class="btn btn-primary ms-auto">
+              Save
+            </a>
+          </div>
+        </div>
+      </div>
+</div>
+
+
+
+<script>
+function prefillUsernameAndStatus(username, isActive, isNotAdmin) {
+    var isActiveCheckbox = document.getElementById('is_active');
+    isActiveCheckbox.value = username;
+    document.getElementById('new_username').value = username;
+    document.getElementById('username_to_edit').textContent = username;
+    if (isNotAdmin) {
+        isActiveCheckbox.checked = isActive;
+        isActiveCheckbox.setAttribute('data-original', isActive ? 'true' : 'false'); // Set data-original attribute
+        isActiveCheckbox.disabled = false;
+    } else {
+        isActiveCheckbox.disabled = true;
+    }
+}
+
+</script>
+
+
+
+{% endblock %}

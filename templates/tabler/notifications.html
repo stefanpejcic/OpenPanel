@@ -1,0 +1,674 @@
+<!-- notifications.html -->
+{% extends 'base.html' %} {% block content %}
+
+<style>
+html {
+  scroll-padding-top: 5rem;
+}
+</style>
+
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <h2 class="page-title">
+                  Notifications
+                </h2>
+              </div>
+<div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <span class="d-none d-sm-inline">
+                    
+                      <div class="input-icon">
+                        <span class="input-icon-addon">
+                          <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+                        </span>
+                        <input type="text" id="userSearchInput" class="form-control" placeholder="Search notifications" aria-label="Search in notifications">
+
+                      </div>
+                  </span>
+
+<form method="POST" action="{{ url_for('mark_notification_as_read', line_number=99999) }}">
+  <input type="hidden" name="command" value="mark_all_as_read">
+  <button class="btn btn-primary d-none d-sm-inline-block" type="submit">    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+      <path d="M5 12l5 5l10 -10"></path>
+    </svg>Mark all as read</button>
+</form>
+
+
+
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+
+
+    </div>
+
+
+
+<div class="page-body">
+          <div class="container-xl">
+            <div class="row g-3">
+              <div class="col">
+                
+{% if notifications %}
+<ul class="timeline">
+        {% for notification in notifications %}
+
+            {% set parts = notification.split(' MESSAGE: ', 1) %}
+            {% set time_and_status_and_title = parts[0].split(' ', 4) %}
+            {% set time = time_and_status_and_title[0] ~ ' ' ~ time_and_status_and_title[1] %}
+            {% set status = time_and_status_and_title[2] %}
+            {% set title = time_and_status_and_title[3:]|join(' ') %}
+            {% set message = parts[1] if parts|length > 1 else '' %}
+
+
+                  <li class="timeline-event">
+{% if status == "UNREAD" %}
+<div class="timeline-event-icon bg-primary-lt">
+                <form method="post" id="notification_{{loop.index}}" action="{{ url_for('mark_notification_as_read', line_number=loop.index) }}"  style="display:inline;">
+	<a style="cursor: pointer;" onclick="document.getElementById('notification_{{loop.index}}').submit();"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg></a>
+                </form>
+
+
+{% elif status == "READ" %}
+<div class="timeline-event-icon">
+{% endif %}
+</div>
+                    <div class="card timeline-event-card">
+                      <div class="card-body">
+                        <div class="text-secondary float-end">{{time}}</div>
+                        {% if "REBOOT" not in title and "accessed from new IP address" not in title and "SSH login" not in title %}<h4 id="{{loop.index}}">{{ title }}</h4>{% endif %}
+
+{% if "Backup Job" in title %}
+<div class="row g-3 align-items-center">
+              <div class="col">
+{% set message_parts = message.split("-") %}
+{% set accounts_count = message_parts[0]|trim|replace('Accounts:', '')|trim %}
+{% set execute_seconds = message_parts[1]|trim|replace('Total execution time:', '')|trim %}
+
+{% set seconds = execute_seconds|float %}
+{% set minutes = seconds // 60 %}
+{% set hours = minutes // 60 %}
+{% set days = hours // 24 %}
+
+                <div class="text-secondary">
+                  <ul class="list-inline list-inline-dots mb-0">
+                    <li class="list-inline-item">Total accounts: <b>{{ accounts_count }}</b></li>
+                    <li class="list-inline-item">Total execution time: 
+                      <b>
+{% if days >= 1 %}
+    {{ days|int }} days, {{ hours|round|int % 24 }} hours
+{% elif hours >= 1 %}
+    {{ hours|int }} hours, {{ minutes|round|int % 60 }} minutes
+{% elif minutes >= 1 %}
+    {{ minutes|int }} minutes, {{ seconds|round|int % 60 }} seconds
+{% else %}
+    {{ seconds|round|int }} seconds
+{% endif %}
+                      </b>
+
+                    </li>
+                    <li class="list-inline-item"><a href="/backups#logs">View Backup Logs</a></li>
+                  </ul>
+                </div>
+              </div>
+              
+</div>
+
+
+{% elif "SSH login" in title %}
+
+    
+    {% set ip_addresses_start_index = message.find("IP addresses:") %}
+    
+    {% if ip_addresses_start_index != -1 %}
+        {% set message_text = message[:ip_addresses_start_index].strip() %}
+        {% set ip_addresses_str = message[ip_addresses_start_index + 13:].strip() %}
+        
+        {% set ip_addresses_list = ip_addresses_str.split() %}
+    {% else %}
+        {% set message_text = message %}
+        {% set ip_addresses_list = [] %}
+    {% endif %}
+
+
+<div class="row g-3 align-items-center">
+    <div class="col">
+        <h4 id="{{loop.index}}" class="page-title">
+            {{ title }}
+        </h4>
+        <div class="text-secondary">
+            <ul class="list-inline list-inline-dots mb-0">
+                <li class="list-inline-item">
+                    <span class="">{{ message_text }}<br>
+                    {% for ip_address in ip_addresses_list %}
+                        <br><strong class="ip-address" data-ip="{{ ip_address }}">{{ ip_address }}</strong><br>
+                    {% endfor %}
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+{% elif "accessed from new IP address" in title %}
+
+{% set message_parts = message.split("Admin account") %}
+{% set username_and_ip = message_parts[1]|trim %}
+{% set username_parts = username_and_ip.split("was accessed from a new IP address:") %}
+{% set username = username_parts[0]|trim %}
+{% set ip = username_parts[1]|trim %}
+
+<div class="row g-3 align-items-center">
+    <div class="col">
+        <h4 id="{{loop.index}}" class="page-title">
+            {{ title }}
+        </h4>
+        <div class="text-secondary">
+            <ul class="list-inline list-inline-dots mb-0">
+                <li class="list-inline-item">
+                    <span class="">Admin account <b>{{ username }}</b> was accessed from a new IP address: <strong class="ip-address" data-ip="{{ ip }}">{{ ip }}</strong></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% elif "REBOOT" in title %}
+
+{% set message_parts = message.split("System was rebooted.") %}
+{% set uptime = message_parts[1]|trim %}
+
+<div class="row g-3 align-items-center">
+              <div class="col-auto">
+                <span class="status-indicator status-red status-indicator-animated">
+                  <span class="status-indicator-circle"></span>
+                  <span class="status-indicator-circle"></span>
+                  <span class="status-indicator-circle"></span>
+                </span>
+              </div>
+              <div class="col">
+                <h4 id="{{loop.index}}" class="page-title">
+                  {{title}}
+                </h4>
+                <div class="text-secondary">
+                  <ul class="list-inline list-inline-dots mb-0">
+                    <li class="list-inline-item"><span class="text-red">Server reboot detected!</span></li>
+                    <li class="list-inline-item">Time: {{uptime}}</li>
+                  </ul>
+                </div>
+              </div>
+              
+            </div>
+
+
+
+{% elif "Disk Space" in title %}
+
+
+
+
+{% set message_parts = message.split("| Partitions:") %}
+{% set before_disk = message_parts[0]|trim %}
+{% set after_disks = message_parts[1]|trim %}
+
+<div>
+
+<div class="d-flex mb-2">
+                      <div>Disk:</div>
+                      <div class="ms-auto">
+                        <span class="text-red d-inline-flex align-items-center lh-1">
+                          {{ before_disk.split(':')[1].strip() }}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 17l6 -6l4 4l8 -8"></path><path d="M14 7l7 0l0 7"></path></svg>
+                        </span>
+                      </div>
+                    </div>
+<div class="progress progress-sm">
+                      <div class="progress-bar bg-primary" style="width: {{ before_disk.split(':')[1].strip() }}" role="progressbar" aria-valuenow="{{ before_disk.split(':')[1].strip() }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ before_disk.split(':')[1].strip() }} Complete">
+                        <span class="visually-hidden">{{ before_disk.split(':')[1].strip() }} Complete</span>
+                      </div>
+                    </div>
+
+
+
+<p class="text-secondary mt-2">Disk usage per partitions:</p>
+<pre style="width:100%;">
+{{ after_disks|replace('\\n', '<br>')|safe }}
+</pre>
+</div>
+
+
+
+
+{% elif "RAM" in message %}
+    {% set ram_info = message.split(', ') %}
+    {% set used_ram = ram_info[0]|replace("Used RAM: ", "")|replace(" MB", "") %}
+    {% set total_ram = ram_info[1]|replace("Total RAM: ", "")|replace(" MB", "") %}
+    {% set usage_percentage = ram_info[2]|replace("Usage: ", "")|replace("%", "")|trim ~ "%" %}
+
+   
+    <div class="row">
+        <div class="col-auto d-flex align-items-center pe-2">
+            <span class="legend me-2 bg-danger"></span>
+            <span>Used</span>
+            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">{{ used_ram }} MB ({{ usage_percentage }})</span>
+        </div>
+        <div class="col-auto d-flex align-items-center px-2">
+            <span class="legend me-2 bg-info"></span>
+            <span>Total</span>
+            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">{{ total_ram }} MB</span>
+        </div>
+        <div class="col-auto d-flex align-items-center ps-2">
+            <span class="legend me-2"></span>
+            <span>Free</span>
+            <span class="d-none d-md-inline d-lg-none d-xxl-inline ms-2 text-secondary">{{ (total_ram|int - used_ram|int) }} MB</span>
+        </div>
+    </div>
+
+    <div class="progress progress-separated mt-3">
+        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ usage_percentage }}" aria-label="Regular"></div>
+    </div>
+
+{% elif "service is not active" in title %}
+
+{% if "Deactivated successfully" in message  or "Processing signal" in message %}
+<div class="alert alert-warning" style="overflow: scroll;" role="alert">
+                      <div class="d-flex">
+                        <div>
+<svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v4"></path><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path><path d="M12 16h.01"></path></svg>
+{% else %}
+<div class="alert alert-danger"  style="overflow: scroll;" role="alert">
+                      <div class="d-flex">
+                        <div>
+<svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 8v4"></path><path d="M12 16h.01"></path></svg>
+{% endif %}
+                        </div>
+                        <div>
+{% if "Deactivated successfully" in message %}
+<h4 class="alert-title" id="{{loop.index}}">Service was disabled by the <b>root</b> user. Last log entries for service:</h4>
+{% elif "No space left on device" in message %}
+<h4 class="alert-title" id="{{loop.index}}">Service failed because the disk is full! Error message:</h4>
+
+{% else %}
+<h4 class="alert-title" id="{{loop.index}}">Service is stopped. Last log entries for service:</h4>
+{% endif %}
+                        <div class="text-secondary">
+<pre>
+{{ message|replace('\\n', '<br>')|safe }}
+</pre>
+                        </div></div>
+                      </div>
+                    </div>
+
+
+
+{% elif "CPU" in title %}
+
+
+{% set message_parts = message.split("| Top Processes:") %}
+{% set before_top_processes = message_parts[0]|trim %}
+{% set after_top_processes = message_parts[1]|trim %}
+
+
+<div>
+
+<div class="d-flex mb-2">
+                      <div>CPU usage:</div>
+                      <div class="ms-auto">
+                        <span class="text-red d-inline-flex align-items-center lh-1">
+                          {{ before_top_processes.split(':')[1].strip() }}
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 17l6 -6l4 4l8 -8"></path><path d="M14 7l7 0l0 7"></path></svg>
+                        </span>
+                      </div>
+                    </div>
+<div class="progress progress-sm">
+                      <div class="progress-bar bg-warning" style="width: {{ before_top_processes.split(':')[1].strip() }}" role="progressbar" aria-valuenow="{{ before_top_processes.split(':')[1].strip() }}" aria-valuemin="0" aria-valuemax="100" aria-label="{{ before_top_processes.split(':')[1].strip() }} Complete">
+                        <span class="visually-hidden">{{ before_top_processes.split(':')[1].strip() }} Complete</span>
+                      </div>
+                    </div>
+
+<p class="text-secondary mt-2">Processes with the highest CPU usage:</p>
+<pre style="width:100%;">
+{{ after_top_processes|replace('\\n', '<br>')|safe }}
+</pre>
+</div>
+{% elif "update is available" in title %}
+<p class="text-secondary mt-2">New version of Openpanel is available. Check the <a href="https://openpanel.com/docs/changelog/intro" target="_blank">changelog</a> to get familiar with the new features, and update when ready from <b>OpenAdmin > General Settings</b> or from terminal by running: <code>opencli update --force</code></p>
+<p class="text-secondary">{{message}}</p>
+{% elif "successfully updated" in title %}
+<p class="text-secondary">{{message}}</p>
+{% else %}
+
+
+
+                        <p class="text-secondary">{{message}}</p>
+
+{% endif %}
+
+
+{% if "Deactivated successfully" in message %}
+{% else %}
+
+
+{% if "Named" in title %}
+<p><b>TIP:</b> Use command <code>named-checkconf /etc/bind/named.conf</code> to check if the main configuration file contains any syntax errors. If it does, edit the file manually, then restart the service from the Dashboard page. If the issue persists, contact support at <a href="https://community.openpanel.co" target="_blank">community.openpanel.co</a></p>
+{% elif "No space left on device" in message %}
+<p><b>TIP:</b> Disk is full! Use command <code>df -h</code> to view which partition is full. Then for that partition, do <code>ncdu /partition</code> to find what is occupying disk space. Delete log files or old backups to free disk space for the service to function properly. After freeing disk space, restart the service from the Dashboard page.</p>
+{% elif "CPU" in title %}
+<p class="mt-2"><b>TIP:</b> <a href="/server/cpu_usage">View active CPU processes </a> to identify services that are using the most %CPU. For each process you can click on the "Trace" link to view what the process is doing. To terminate a process click on the "Kill" link next to the PID.</p>
+
+{% elif "Memory" in title %}
+<p class="mt-2"><b>TIP:</b> Monitor memory usage from the terminal with <a href="https://htop.dev/" target="_blank">htop</a> to identify services that may require optimization; additionally, execute <code>sync && echo 1 > /proc/sys/vm/drop_caches</code> to clear RAM cache.</p>
+
+
+{% endif %}
+{% endif %}
+
+
+
+
+
+
+
+                      </div>
+                    </div>
+{% if "update is available" in title %}
+<div class="ribbon bg-primary" style="bottom: 0.75rem;top: auto;">update available</div>
+{% elif "successfully updated" in title %}
+<div class="ribbon bg-success" style="bottom: 0.75rem;top: auto;">updated successfully!</div>
+{% endif %}
+                  </li>
+
+        {% endfor %}
+
+
+
+
+
+
+                </ul>
+
+{% else %}
+    <p>No notifications available.</p>
+{% endif %}
+
+
+
+              </div>
+              
+
+<div class="col-lg-4">
+                <div class="row row-cards">
+                  
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-body">
+<div class="row">
+
+                        <h2 class="col card-title">Settings</h2>
+
+                <div class="col-auto align-self-center">
+                  <span
+                    class="form-help"
+                    data-bs-toggle="popover"
+                    data-bs-placement="top"
+                    data-bs-content="<p class='mb-0'>Receive notifications for specific events, such as failed services or detection of high resource usage.</p>"
+                    data-bs-html="true"
+                    >?</span
+                  >
+                </div>
+</div>
+
+
+                        <div>
+        <form method="post" id="edit_settings">
+<div class="mb-3">
+  <div class="form-label">Notification Preferences:</div>
+  <label class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" name="reboot" id="reboot" {%if config_data['DEFAULT']['reboot'] == 'yes' %}checked=""{% endif %}>
+    <span class="form-check-label">Server reboot</span>
+  </label>
+  <label class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" name="attack" id="attack" {%if config_data['DEFAULT']['attack'] == 'yes' %}checked=""{% endif %}>
+    <span class="form-check-label">Website under attack</span>
+  </label>
+  <label class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" name="limit" id="limit" {%if config_data['DEFAULT']['limit'] == 'yes' %}checked=""{% endif %}>
+    <span class="form-check-label">User plan limits reached</span>
+  </label>
+  <label class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" name="login" id="login" {%if config_data['DEFAULT']['login'] == 'yes' %}checked=""{% endif %}>
+    <span class="form-check-label">Admin account login from new IP address</span>
+  </label>
+  <label class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" name="backup" id="backup" {%if config_data['DEFAULT']['backup'] == 'yes' %}checked=""{% endif %}>
+    <span class="form-check-label">Backup job failed or partially complete</span>
+  </label>
+  <label class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" name="update" id="update" {%if config_data['DEFAULT']['update'] == 'yes' %}checked=""{% endif %}>
+    <span class="form-check-label">New OpenPanel version available for update</span>
+  </label>
+</div>
+
+<div class="mb-3">
+  <div class="form-label">Email for notifications:</div>
+<div class="form-floating">
+                              <input type="email" class="form-control" name="email" id="email" value="{{ email_address }}" autocomplete="off">
+                              <label for="floating-input">Leave empty to disable</label>
+                            </div>
+</div>
+
+<hr>
+<div class="mb-3">
+  <label class="form-label">Inactive Services:</label>
+<div class="form-selectgroup">
+    <input type="hidden" id="selectedServices" name="services" value="">
+
+    {% for service in ['panel', 'admin', 'nginx', 'mysql', 'docker', 'named', 'csf', 'ufw', 'certbot'] %}
+
+       {% set display_name = service %}
+        
+        {% if service == 'panel' %}
+            {% set display_name = 'OpenPanel' %}
+        {% elif service == 'admin' %}
+            {% set display_name = 'OpenAdmin' %}
+        {% elif service == 'nginx' %}
+            {% set display_name = 'Nginx' %}
+        {% elif service == 'mysql' %}
+            {% set display_name = 'MySQL' %}
+        {% elif service == 'docker' %}
+            {% set display_name = 'Docker' %}
+        {% elif service == 'named' %}
+            {% set display_name = 'BIND9' %}
+        {% elif service == 'csf' %}
+            {% set display_name = 'ConfigServer Firewall' %}
+        {% elif service == 'ufw' %}
+            {% set display_name = 'UFW' %}
+        {% elif service == 'certbot' %}
+            {% set display_name = 'Certbot' %}
+        {% endif %}
+
+
+        <label class="form-selectgroup-item">
+            <input type="checkbox" value="{{ service }}" class="form-selectgroup-input" {% if service in config_data['DEFAULT']['services'].split(',') %}checked{% endif %}>
+            <span class="form-selectgroup-label">{{ display_name }}</span>
+        </label>
+    {% endfor %}
+
+</div>
+
+
+
+
+
+</div>
+
+<hr>
+
+<label class="form-label mb-2">Thresholds for Percentage Usages:</label>
+
+<div class="row">
+
+<div class="mb-3 col-6 row">
+  <label class="col col-form-check-label required" for="averageLoadThreshold">Load Avg.</label>
+  <div class="col-7">
+    <div class="input-group">
+      <input type="number" id="averageLoadThreshold" name="averageLoadThreshold" class="form-control" autocomplete="off" min="1" max="100" value="{{ config_data['DEFAULT']['load'] }}">
+      <span class="input-group-text">%</span>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3 col-6  row">
+  <label class="col col-form-check-label required" for="cpuThreshold">CPU</label>
+  <div class="col-7">
+    <div class="input-group">
+      <input type="number" id="cpuThreshold" name="cpuThreshold" class="form-control" autocomplete="off" min="10" max="100"  value="{{ config_data['DEFAULT']['cpu'] }}">
+      <span class="input-group-text">%</span>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3 col-6  row">
+  <label class="col col-form-check-label required" for="ramThreshold">RAM</label>
+  <div class="col-7">
+    <div class="input-group">
+      <input type="number" id="ramThreshold" name="ramThreshold" class="form-control" autocomplete="off" min="10" max="100"  value="{{ config_data['DEFAULT']['ram'] }}">
+      <span class="input-group-text">%</span>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3 col-6  row">
+  <label class="col col-form-check-label required" for="diskUsageThreshold">Disk Usage</label>
+  <div class="col-7">
+    <div class="input-group">
+      <input type="number" id="diskUsageThreshold" name="diskUsageThreshold" class="form-control" autocomplete="off" min="10" max="100"  value="{{ config_data['DEFAULT']['du'] }}">
+      <span class="input-group-text">%</span>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3 col-6  row">
+  <label class="col col-form-check-label required" for="swapUsageThreshold">SWAP</label>
+  <div class="col-7">
+    <div class="input-group">
+      <input type="number" id="swapUsageThreshold" name="swapUsageThreshold" class="form-control" autocomplete="off" min="10" max="100"  value="{{ config_data['DEFAULT']['swap'] }}">
+      <span class="input-group-text">%</span>
+    </div>
+  </div>
+</div>
+
+
+</div>
+
+                  <button type="submit" class="btn btn-primary">Save</button>
+</form></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+
+
+            </div>
+          </div>
+        </div>
+
+
+        </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='pages/notifications.js') }}" defer></script>
+
+
+
+<script>
+
+detect_flags_now();
+
+function detect_flags_now() {
+    // Select all IP address elements
+    const ipElements = document.querySelectorAll('.ip-address');
+
+    // Create an object to store country codes for each IP address to avoid redundant API calls
+    const countryCodes = {};
+
+    // Create a queue to track IP addresses that need to be checked
+    const ipQueue = [];
+
+    ipElements.forEach((element) => {
+        const ipAddress = element.getAttribute('data-ip'); // Get the IP address from data-ip attribute
+
+        // Check if country code for the current IP address is already fetched
+        if (countryCodes[ipAddress]) {
+            // If country code is already fetched, prepend the flag icon to the IP address
+            prependFlagIcon(element, countryCodes[ipAddress], ipAddress);
+        } else if (!ipQueue.includes(ipAddress)) {
+            // If country code is not fetched and IP address is not in the queue, add it to the queue
+            ipQueue.push(ipAddress);
+        }
+    });
+
+    // Process the IP address queue
+    processQueue(ipQueue, countryCodes);
+}
+
+function processQueue(ipQueue, countryCodes) {
+    // Iterate through the IP address queue
+    ipQueue.forEach(ipAddress => {
+        // Make a GET request to the API for each IP address in the queue
+        fetch(`https://api.country.is/${ipAddress}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.country) {
+                    // Extract the country code from the API response
+                    const countryCode = data.country.toLowerCase();
+
+                    // Store the country code in the countryCodes object
+                    countryCodes[ipAddress] = countryCode;
+
+                    // Select IP address elements with the current IP address
+                    const ipElements = document.querySelectorAll(`.ip-address[data-ip="${ipAddress}"]`);
+
+                    // Prepend the flag icon to each IP address element
+                    ipElements.forEach(element => {
+                        prependFlagIcon(element, countryCode, ipAddress);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching country info:', error);
+            });
+    });
+}
+
+function prependFlagIcon(element, countryCode, ipAddress) {
+    // Prepend the flag icon to the IP address
+    element.innerHTML = `<span class="flag flag-xs flag-country-${countryCode} me-2"></span><a href="https://www.abuseipdb.com/check/${ipAddress}" target="_blank" class="source-link">${ipAddress}</a>`;
+}
+</script>
+
+
+
+
+
+
+
+
+{% endblock %}

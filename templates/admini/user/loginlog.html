@@ -1,0 +1,105 @@
+<!-- loginlog.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-xl">
+    <!-- Account page navigation-->
+    <nav class="nav nav-line mb-4">
+        <a class="nav-link" href="/account" target="">{{ _('Profile') }}</a>
+    <!--<a class="nav-link" href="#">Preferences</a>-->
+        {% if 'twofa' in enabled_modules %}
+        <a class="nav-link" href="/account/2fa">{{ _('2FA') }}</a>
+        {% endif %}
+        {% if 'activity' in enabled_modules %}
+        <a class="nav-link" href="/activity"><span class="desktop-only">{{ _('Account') }} </span>{{ _('Activity') }}</a>
+        {% endif %}
+        <a class="nav-link active" href="/account/login-history"><span class="desktop-only">{{ _('Login') }} </span>{{ _('History') }}</a>
+    <!--<a class="nav-link" href="#">Email Notifications</a>-->
+    </nav>
+
+    <!-- Payment methods card-->
+    <div class="card card-header-actions mb-4">
+        <div class="card-header">
+            Successfull logins
+        </div>
+        <div class="card-body px-0">
+            <!-- Payment method 1-->
+                    {% for login_record in last_login_data %}
+            <div class="d-flex align-items-center justify-content-between px-4">
+                <div class="d-flex align-items-center">
+                            {% with country_code_lower=login_record.country_code|lower %}
+                                    <img src="/static/flags/{{ country_code_lower }}.png" alt="{{ login_record.country_code }}"></img>
+                                   <span class="desktop-only"> &nbsp; {{ login_record.country_code }}</span>
+                            {% endwith %}
+                    <div class="ms-4">
+                        <div class="small">                                {{ login_record.ip }}
+                                <span class="desktop-only"><i class="bi bi-clipboard copy-ip-icon" data-ip="{{ login_record.ip }}" title="{{ _('Click to copy IP') }}" onclick="copyToClipboard(this)"></i></span></div>
+                        <div class="text-xs text-muted tooltip">{{ _('Copied!') }}</div>
+                    </div>
+                </div>
+                <div class="ms-4">
+                    <div class="d-inline-flex p-2 border">{{ login_record.login_time }}</div>
+                    </div>
+            </div>
+            <hr>
+                    {% endfor %}
+
+        </div>
+    </div>
+
+
+    <script>
+        function copyToClipboard(icon) {
+            const originalIconClass = icon.className;
+            const ipToCopy = icon.getAttribute('data-ip');
+            const textarea = document.createElement('textarea');
+            textarea.value = ipToCopy;
+            document.body.appendChild(textarea);
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            icon.className = 'bi bi-clipboard-check-fill';
+
+            const tooltip = icon.nextElementSibling;
+            tooltip.style.visibility = 'visible';
+            tooltip.style.opacity = '1';
+
+            setTimeout(() => {
+                tooltip.style.visibility = 'hidden';
+                tooltip.style.opacity = '0';
+                icon.className = originalIconClass;
+            }, 3000);
+        }
+    </script>
+
+<script>
+    //sortiraj od najnovijeg logina
+    function reverseTableRows() {
+        const table = document.querySelector(".table tbody");
+        const rows = table.querySelectorAll("tr");
+        const reversedRows = Array.from(rows).reverse();
+        table.innerHTML = '';
+        reversedRows.forEach(row => table.appendChild(row));
+    }
+    window.addEventListener("load", reverseTableRows);
+</script>
+    <style>
+        .tooltip {
+            visibility: hidden;
+            position: absolute;
+            top: 50%;
+            left: 172px;
+            transform: translate(-50%, -50%);
+            padding: 5px;
+            background-color: #000;
+            color: #fff;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .position-relative {
+            position: relative;
+        }
+    </style>
+{% endblock %}

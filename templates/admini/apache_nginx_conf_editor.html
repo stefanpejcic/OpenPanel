@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+
+<script type="module">
+  // Function to attach event listeners
+  function attachEventListenersForNginxEditor() {
+
+    var service_file = "{{file_path}}";
+
+    // Select the form and submit button
+    const form = document.querySelector('form');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    // Attach the click event listener to the submit button
+    submitButton.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+
+      const action = submitButton.dataset.action;
+
+      const formData = new FormData(form);
+
+      const toastMessage = `Saving configuration to ` + service_file + ` and restarting service to apply changes...`;
+      const toast = toaster({
+        body: toastMessage,
+        className: `border-0 text-white bg-primary`,
+      });
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(formData).toString(),
+        });
+
+        // Check if the response is JSON
+        if (response.headers.get('content-type').includes('application/json')) {
+          // Parse the JSON response
+          const jsonResponse = await response.json();
+
+          // Display JSON response in a notification
+          const jsonToastMessage = JSON.stringify(jsonResponse);
+          const jsonToast = toaster({
+            body: jsonToastMessage,
+            className: `border-0 text-white bg-danger`,
+          });
+        } else {
+            const toastMessage = `{{ _("Success") }}`;
+            const toast = toaster({
+                body: toastMessage,
+                className: `border-0 text-white bg-success`,
+            });
+          // If the response is HTML, update the content as before
+          const resultHtml = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(resultHtml, 'text/html');
+          const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
+
+          const mainScopeElement = document.getElementById("main-scope");
+          if (mainScopeElement) {
+            mainScopeElement.innerHTML = mainScopeContent || '';
+          }
+
+          attachEventListenersForNginxEditor();
+
+
+        }
+
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  // Attach event listeners initially
+  attachEventListenersForNginxEditor();
+</script>
+
+
+
+<p>{{ _('Here you can edit the main configuration file for your webserver.') }}</p>
+
+<div id="editor-container">
+<form method="post">
+        <textarea id="editor" name="editor_content" rows="40" cols="100">{{ file_content }}</textarea>
+</div>
+
+
+</section>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById('editor'), {
+    mode: "javascript",
+    lineNumbers: true,
+});
+</script> 
+
+<footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="{{ _('Status') }}">
+<label>{{file_path}}</label> 
+</div>
+
+<div class="ms-auto" role="group" aria-label="{{ _('Actions') }}">
+<button type="submit" class="btn btn-primary">{{ _('Save Changes') }}</button></form>
+</div>
+</footer>
+
+
+
+
+
+
+
+
+
+{% endblock %}
+

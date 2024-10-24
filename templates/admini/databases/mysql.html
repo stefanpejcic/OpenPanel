@@ -1,0 +1,743 @@
+{% extends 'base.html' %}
+
+{% block title %}Databases{% endblock %}
+
+{% block content %}
+<style>
+
+thead {
+        border: 1px solid rgb(90 86 86 / 11%);
+}
+th {
+    text-transform: uppercase;
+    font-weight: 400;
+
+}
+
+</style>
+
+<div class="row">
+
+<!-- DatabaseWizard Modal -->
+<div class="modal fade" id="databaseWizardModal" tabindex="-1" role="dialog" aria-labelledby="databaseWizardModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="databaseWizardModalLabel">{{_('Database Wizard')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Database Wizard Form Content -->
+                <form id="databaseWizardForm">
+<div class="form-group">
+<label for="fileName">{{_('Database Name')}}</label>
+<div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">{{current_username}}_</span>
+                        </div>
+<input type="text" name="database_name" id="dbname" class="form-control" min="1" max="{{ 63 - current_username|length }}" minlength="1" maxlength="{{ 63 - current_username|length }}" pattern="[a-zA-Z0-9_]+" title="Can only contain letters, numbers, and underscores. {{ 63 - current_username|length }} characters max." placeholder=" {{ _('Random Database Name') }}" required>
+
+                        <div class="input-group-append">
+                            <button type="button" id="generateDbName" class="btn btn-secondary rounded-0">{{_('Generate Random')}}</button>
+                        </div>
+</div></div>
+<div class="form-group">
+<label for="username">{{_('Username')}}</label>
+<div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">{{current_username}}_</span>
+                        </div>
+<input type="text" name="db_user" id="username" class="form-control" title="Can only contain letters, numbers, and underscores. {{ 31 - current_username|length }} characters max." min="1" max="{{ 31 - current_username|length }}" pattern="[a-zA-Z0-9_]+" minlength="1" maxlength="{{ 31 - current_username|length }}" placeholder=" {{ _('Random Username') }}" required>
+
+                        <div class="input-group-append">
+                            <button type="button" id="generateUsername" class="btn btn-secondary rounded-0">{{_('Generate Random')}}</button>
+                        </div>
+</div>
+</div>
+<div class="form-group">
+<label for="password">{{_('Password')}}</label>
+<div class="input-group">
+<input type="text" name="password" id="password" class="form-control" maxlength="30" title="Can only contain letters, numbers, and underscores. 8-30 characters" min="8" max="30" minlength="8" pattern="[a-zA-Z0-9_]+" placeholder=" {{ _('Random Password') }}" required>
+
+                        <div class="input-group-append">
+                            <button type="button" id="generatePassword" class="btn btn-secondary rounded-0">{{_('Generate Random')}}</button>
+                        </div>
+</div>
+</div>
+</div>
+
+<button type="submit" id="createAndAssign" class="btn btn-primary rounded-0 m-2">{{_('Create Database, User, and Grant All Privileges')}}</button>
+
+</div>
+</form>
+        </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="successModalLabel">{{_('Success!')}}</h5>
+                <button type="button" id="closeSuccessModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+
+            </div>
+            <div class="modal-body">
+                <p>{{_('Database Name:')}} {{ current_username }}_<span id="successDbName"></span></p>
+                <p>{{_('Username:')}} {{ current_username }}_<span id="successUsername"></span></p>
+                <p>{{_('Password:')}} <span id="successPassword"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to generate a random string of specified length
+    function generateRandomString(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let randomString = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            randomString += charset.charAt(randomIndex);
+        }
+        return randomString;
+    }
+
+    function displaySuccessModal() {
+        const dbname = document.getElementById("dbname").value;
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        refreshData();
+
+        document.getElementById("successDbName").textContent = dbname;
+        document.getElementById("successUsername").textContent = username;
+        document.getElementById("successPassword").textContent = password;
+        $('#successModal').modal('show'); // Show the success modal
+    }
+
+
+function validateFormData(formData) {
+    // Retrieve values from the form data
+    const dbname =  document.getElementById("dbname").value;
+    const username = document.getElementById("username").value;
+    const password = formData.get('password');
+
+
+
+    // Check if any field is missing
+    if (!dbname || !username || !password) {
+        return { valid: false, message: 'All fields are required' };
+    }
+
+        // Validate password
+        const passwordPattern = /^[a-zA-Z0-9_]+$/;
+        if (!passwordPattern.test(password)) {
+            return { valid: false, message: 'Password can only contain letters, numbers, and underscores' };
+        }
+
+        if (password.length < 8) { // Ensure password is at least 8 characters long
+            return { valid: false, message: 'Password must be at least 8 characters long' };
+        }
+
+        return { valid: true, message: '' };
+    }
+
+
+
+    // Event listener for the "Create Database, User, and Assign" button
+const createAndAssignButton = document.getElementById("createAndAssign");
+createAndAssignButton.addEventListener("click", function (event) {
+    event.preventDefault();
+    
+    const buttonForWizard = document.getElementById("openDatabaseWizardButton")
+    buttonForWizard.disabled = true;
+    buttonForWizard.innerText = "Creating...";
+
+    const formElement = document.getElementById("databaseWizardForm");
+    const formData = new FormData(formElement);
+   
+
+    // Hide the modal
+    const modal = document.getElementById("databaseWizardModal");
+    modal.style.display = "none";
+    $('.modal-backdrop').remove();
+
+    // Proceed with AJAX requests
+    fetch("{{ url_for('add_database') }}", { method: "POST", body: formData })
+        .then(() => {
+            return fetch("{{ url_for('add_db_user') }}", { method: "POST", body: formData });
+        })
+        .then(() => {
+            return fetch("{{ url_for('add_user_to_db') }}", { method: "POST", body: formData });
+        })
+        .then(() => {
+            // Retrieve form data for success modal
+            const dbname = formData.get('dbname');
+            const username = formData.get('username');
+            const password = formData.get('password');
+
+            // Show the success modal
+            displaySuccessModal(dbname, username, password);
+            buttonForWizard.disabled = false;
+            buttonForWizard.innerText = "Database Wizard";
+        })
+        .catch(error => {
+            buttonForWizard.disabled = false;
+            buttonForWizard.innerText = "Database Wizard";
+            console.error("Error:", error);
+        });
+});
+
+
+    // Event listener for generating a random database name
+    document.getElementById("generateDbName").addEventListener("click", function () {
+        document.getElementById("dbname").value = generateRandomString(8);
+    });
+
+    // Event listener for generating a random username
+    document.getElementById("generateUsername").addEventListener("click", function () {
+        document.getElementById("username").value = generateRandomString(8);
+    });
+
+    // Event listener for generating a random password
+    document.getElementById("generatePassword").addEventListener("click", function () {
+        document.getElementById("password").value = generateRandomString(12);
+    });
+
+    // When the page loads, populate random values for the inputs
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("dbname").value = generateRandomString(8);
+        document.getElementById("username").value = generateRandomString(8);
+        document.getElementById("password").value = generateRandomString(12);
+    });
+</script>
+
+
+
+
+<!-- Create Database Modal -->
+<div class="modal fade" id="createDatabaseModal" tabindex="-1" role="dialog" aria-labelledby="createDatabaseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createDatabaseModalLabel">{{_('Create Database')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Create Database Form Content -->
+                <form method="POST" action="{{ url_for('add_database') }}">
+
+
+<div class="form-group">
+<label for="fileName">{{_('Database Name')}}</label>
+<div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">{{ current_username }}_</span>
+                        </div>
+                        <input type="text" name="database_name" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1" minlength="1" min="1" max="{{ 31 - current_username|length }}" maxlength="{{ 31 - current_username|length }}" pattern="[a-zA-Z0-9_]+" title="Can only contain letters, numbers, and underscores. {{ 31 - current_username|length }} characters max." required>                 <button type="submit" class="btn btn-primary">{{_('Create')}}</button>
+</div>
+</div>    
+</form>  
+           </div>
+        </div>
+    </div>
+</div>
+
+<!-- ADD User Permissions Modal -->
+<div class="modal fade" id="assignUserModal" tabindex="-1" aria-labelledby="assignUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignUserModalLabel">{{_('Assign user to existing MySQL database')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Assign User Form Content -->
+                <form method="POST" action="{{ url_for('add_user_to_db') }}" id="userDbpermsForm">
+<div class="form">
+<label for="db_user">{{_('Select user:')}}</label>
+<div class="input-group">
+        <select name="db_user" class="form-control" required>
+            <option value="">{{_('Username')}}</option>
+        </select>
+</div> 
+<br>
+<label for="database_name">{{_('Select database:')}}</label>
+
+<div class="input-group">
+        <input type="text" name="db_host" class="form-control" placeholder=" {{ _('Host') }}" value="%" hidden required>
+        <br>
+        <select name="database_name" class="form-control" required>
+            <option value="">{{_('Database')}}</option>
+        </select>
+</div>    
+   
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">{{_('Assign')}}</button>
+            </div>
+            </form>  
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- DELETE PERMS User Modal -->
+<div class="modal fade" id="removeUserModal" tabindex="-1" role="dialog" aria-labelledby="removeUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeUserModalLabel">{{_('Remove user access from database')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Remove User Form Content -->
+                <form method="POST" action="{{ url_for('remove_user_from_db') }}" id="userDbForm2">
+
+
+<div class="form">
+<label for="db_user">{{_('Select user:')}}</label>
+<div class="input-group">
+
+        <select name="db_user" class="form-control" required>
+            <option value="">{{_('Username')}}</option>
+        </select>
+</div> 
+<br>
+<label for="database_name">{{_('Select database:')}}</label>
+
+<div class="input-group">
+        <input type="text" name="db_host" class="form-control" placeholder="Host" value="%" hidden required>
+        <br>
+        <select name="database_name" class="form-control" required>
+            <option value="">{{_('Database')}}</option>
+        </select>
+</div>    
+   
+            </div>
+
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">{{_('Remove Privileges')}}</button>
+            </div>
+            </form>  
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="changePasswordModalLabel">{{_('Change Password')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=" {{ _('Close') }}"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Change Password Form Content -->
+                <form id="changePasswordForm" method="POST" action="{{ url_for('change_mysql_user_password') }}">
+                    <div class="form-group">
+                        <label for="db_user">{{_('Change password for MySQL database user')}}</label>
+                        <input type="text" name="db_user" class="form-control" placeholder=" {{ _('Database User') }}" required disabled>
+                        <input type="text" name="db_user" class="form-control" placeholder=" {{ _('Database User') }}" required hidden>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">{{_('New Password')}}</label>
+                        <input type="password" name="new_password" class="form-control" title="Can only contain letters, numbers, and underscores. 8-30 characters" placeholder=" {{ _('New Password') }}" min="8" max="30" minlength="8" maxlength="30" pattern="[a-zA-Z0-9_]+" required>
+                    </div>
+                    <input type="hidden" name="db_host" value="%">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" form="changePasswordForm" class="btn btn-primary">{{_('Change Password')}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<!-- Create User Modal -->
+<div class="modal fade" id="createUserModal" tabindex="-1" role="dialog" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createUserModalLabel">{{_('Create new MySQL user')}}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Create User Form Content -->
+            <form method="POST" action="{{ url_for('add_db_user') }}">
+            <div class="modal-body">
+
+<div class="form">
+<label for="fileName">{{_('Username:')}}</label>
+<div class="input-group">
+<div class="input-group-prepend">
+<span class="input-group-text" id="basic-addon3">{{ current_username }}_</span>
+</div>
+<input type="text" name="db_user" class="form-control" placeholder=" {{ _('Username') }}" title="Can only contain letters, numbers, and underscores. {{ 31 - current_username|length }} characters max." pattern="[a-zA-Z0-9_]+" min="1" max="{{ 31 - current_username|length }}" minlength="1" maxlength="{{ 31 - current_username|length }}"   required>
+</div>
+<input type="text" name="db_host" class="form-control" placeholder=" {{ _('Host') }}" value="%" required hidden>
+</br>
+<label for="fileName">{{_('Password:')}}</label>
+<div class="input-group">
+<input type="password" name="password" class="form-control" min="8" max="30" maxlength="30" minlength="8" pattern="[a-zA-Z0-9_]+" placeholder=" {{ _('Password') }}" title="Can only contain letters, numbers, and underscores. 8-30 characters" required>
+</div>
+</div>    
+   
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">{{_('Create')}}</button>
+            </div>
+            </form>  
+
+        </div>
+    </div>
+</div>
+
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+<div><h5 class="mb-3">{{_('Databases')}} (<b id="databases-count"></b>)</h5></div>
+<div class="d-flex gap-2 mt-3 mt-md-0">
+<button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createDatabaseModal">
+    <i class="bi bi-plus-lg"></i> <span class="mobile-only">{{_('New DB')}}</span><span class="desktop-only">{{_('New Database')}}</span>
+</button>
+
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" id="openDatabaseWizardButton" data-bs-target="#databaseWizardModal">
+    <span class="mobile-only">{{_('Wizard')}}</span><span class="desktop-only">{{_('Database Wizard')}}</span>
+</button>
+
+<!--button type="button" class="btn btn-secondary d-flex align-items-center gap-2" data-toggle="modal" data-target="#repairDBModal">
+    <i class="bi bi-database-fill-gear"></i> Check & Repair
+</button-->
+
+</div></div>
+
+<p class="mb-4">{{_("MySQL databases are used to store and manage your website's data, such as content, user information, and product details, making it accessible and organized for your web applications. On this page, you can easily create new databases and efficiently manage existing ones to organize and store your website's data effectively.")}}</p>
+
+
+    <table class="table table-hover" id="databases-table">
+        <thead style="position: sticky;top: 0;z-index:10;border-top:0px;" class="thead-dark">
+            <tr>
+                <th class="header">{{_('Database Name')}}</th>
+                <th class="header">{{_('Size')}}</th>
+                <th class="header">{{_('Assigned Users')}}</th>
+                <th class="header">{{_('Action')}}</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+
+
+<hr class="mt-5">
+
+<div class="d-flex align-items-center justify-content-between mt-3 mb-3">
+<div><h5 class="mb-3">{{_('Users')}} (<b id="users-count"></b>)</h5></div>
+<div class="d-flex gap-2 mt-3 mt-md-0">
+<button type="button" class="btn btn-primary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#createUserModal">
+    <i class="bi bi-plus-lg"></i> <span class="desktop-only">{{_('New')}}</span>{{_('User')}}
+</button>
+<button type="button" class="btn btn-secondary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#assignUserModal">{{_('Assign')}}<span class="desktop-only">{{_('to Database')}}</span>
+</button>
+<button type="button" class="btn btn-secondary d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#removeUserModal">
+    {{_('Remove')}}<span class="desktop-only">{{_('from database')}}</span>
+</button>
+</div></div>
+
+
+
+    <style> 
+        .header { 
+            position: sticky; 
+            top:0; 
+        } 
+    </style> 
+
+<p class="mb-4">{{_("MySQL users are essential for controlling who can access and interact with your databases, ensuring data security and controlled access to your website's information. Here you can create and manage MySQL user accounts with specific permissions, ensuring secure access to your databases.")}}</p>
+    <table class="table table-hover" id="users-table">
+        <thead style="position: sticky;top: 0;z-index:10;border-top:0px;" class="thead-dark"> 
+            <tr>
+                <th class="header" >{{_('User')}}</th>
+                <th class="header" >{{_('Action')}}</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+
+<script>
+var DBrowCount = 0;
+
+// Function to populate the databases table with sizes
+function populateDatabasesTable(data) {
+
+    var DBrowCount = 0;
+
+    var databasesTable = $('#databases-table tbody');
+    databasesTable.empty();
+
+    // Make an AJAX request to get database sizes
+    $.ajax({
+        url: '/databases_size_info',
+        method: 'GET',
+        dataType: 'json',
+        success: function (sizeResponse) {
+            data.databases.forEach(function (database) {
+                var row = $('<tr>');
+                row.append($('<td>').text(database));
+
+                // Find the size for the current database in the response
+                var databaseSizeInfo = sizeResponse.find(function (item) {
+                    return item.Database === database;
+                });
+
+                // Display the size if found, otherwise display N/A
+                var databaseSizeHere = databaseSizeInfo ? formatBytes(databaseSizeInfo['Size (BYTES)']) : 'N/A';
+                row.append($('<td>').text(databaseSizeHere));
+
+                var assignedUsers = data.assigned_databases.find(function (item) {
+                    return item.database === database;
+                });
+                row.append($('<td>').text(assignedUsers ? assignedUsers.users : ''));
+                
+                // Create a form with the delete button
+                var formHtml =
+                    '<div class="d-flex gap-2 mt-3 mt-md-0">' +
+                    {% if 'phpmyadmin' in enabled_modules %}
+                    '<a href="/phpmyadmin?route=/database/structure&server=1&db=' + database + '" target="_blank" class="btn btn-primary" type="button"> phpMyAdmin <i class="bi bi-box-arrow-up-right"></i></a>' +
+                    {% endif %}
+                    '<form method="POST" action="{{ url_for("delete_database") }}">' +
+                    '<input type="hidden" name="database_name" value="' + database + '">' +
+                    '<button class="btn btn-danger" type="button" onclick="confirmDelete(this);"><i class="bi bi-trash3"></i> Delete</button>' +
+                    '</form>' +
+                    '</div>';
+                row.append($('<td>').html(formHtml));
+                databasesTable.append(row);
+                DBrowCount++;
+            });
+            $('#databases-count').text(DBrowCount);
+        },
+        error: function (error) {
+            console.error('Error fetching database sizes:', error);
+        }
+    });
+}
+
+// Helper function to format bytes into a human-readable format
+function formatBytes(bytes, decimals = 2) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+
+function confirmDelete(button) {
+    var countdown = 5;
+    var countdownActive = true; // Variable to track countdown status
+
+    // Change the button style and text
+    $(button).removeClass('btn-danger').addClass('btn-dark').html('<i class="bi bi-trash3-fill"></i> Confirm <span class="btn-indicator btn-indicator-mini bg-danger">' + countdown + '</span>');
+
+    // Interval to update countdown
+    var intervalId = setInterval(function () {
+        countdown--;
+
+        // Update the countdown value in the button text
+        $(button).find('.btn-indicator-mini').text(countdown);
+
+        // Remove the onclick event to prevent further changes on subsequent clicks
+        $(button).removeAttr('onclick');
+
+        // If countdown reaches 0, revert the button, clear the interval, and set countdownActive to false
+        if (countdown === 0) {
+            clearInterval(intervalId);
+            revertButton(button);
+            countdownActive = false;
+        }
+    }, 1000);
+
+    // Add a click event to the confirm button
+    $(button).on('click', function () {
+        // Check if countdown is active before allowing form submission
+        if (countdownActive) {
+            // Submit the parent form when the button is clicked during the countdown
+            $(button).closest('form').submit();
+        }
+    });
+}
+
+
+// Function to revert the button to its initial state
+function revertButton(button) {
+    $(button).removeClass('btn-dark').addClass('btn-danger').html('<i class="bi bi-trash3"></i> Delete');
+    $(button).attr('onclick', 'confirmDelete(this);');
+}
+
+
+var UsersrowCount = 0;
+
+// Function to populate the users table
+function populateUsersTable(data) {
+    var usersTable = $('#users-table tbody');
+    usersTable.empty();
+
+    UsersrowCount = 0;
+
+    data.users.forEach(function (user) {
+        var row = $('<tr>');
+        row.append($('<td id="databaseUsername">').text(user));
+
+        // Create a form with the delete button
+        var formHtml =
+            '<div class="d-flex gap-2 mt-3 mt-md-0">' +
+            '<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#changePasswordModal"><i class="bi bi-key-fill"></i> Change Password</button>' +
+            '<form method="POST" action="{{ url_for("delete_db_user") }}">' +
+            '<input type="hidden" name="db_user" value="' + user + '">' +
+            '<button class="btn btn-danger" type="button" onclick="confirmUserDelete(this);"><i class="bi bi-trash3"></i> Delete</button>' +
+            '</form>' +
+            '</div>';
+
+        row.append($('<td>').html(formHtml));
+        usersTable.append(row);
+
+        UsersrowCount++;
+    });
+    $('#users-count').text(UsersrowCount);
+}
+
+// Function to handle the confirm delete action for users
+function confirmUserDelete(button) {
+    // Change the button style and text
+    $(button).removeClass('btn-danger').addClass('btn-warning').html('<i class="bi bi-trash3-fill"></i> Confirm');
+
+    // Remove the onclick event to prevent further changes on subsequent clicks
+    $(button).removeAttr('onclick');
+
+    // Add a new click event to the confirm button
+    $(button).on('click', function () {
+        // Submit the parent form when the button is clicked again
+        $(button).closest('form').submit();
+    });
+}
+
+
+function refreshData() {
+    $.ajax({
+        url: '/databases_info',
+        dataType: 'json',
+        success: function (data) {
+
+
+                    populateDatabasesTable(data);
+                    populateUsersTable(data);  
+
+                    // Populate the select dropdowns with data
+                    var userSelect = $("select[name='db_user']");
+                    var databaseSelect = $("select[name='database_name']");
+
+ 
+                             
+                    // Populate the User select dropdown
+                    $.each(data.users, function(index, user) {
+                        userSelect.append($('<option>', {
+                            value: user,
+                            text: user
+                        }));
+                    });
+
+                    // Populate the Database select dropdown
+                    $.each(data.databases, function(index, database) {
+                        databaseSelect.append($('<option>', {
+                            value: database,
+                            text: database
+                        }));
+                    });
+
+
+        },
+        error: function (error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+}
+
+refreshData();
+
+function changePassModal() {
+
+        // Handle the modal show event
+        $('#changePasswordModal').on('show.bs.modal', function (event) {
+            // Get the button that triggered the modal
+            var button = $(event.relatedTarget);
+
+            // Find the closest <tr> element to the button
+            var row = button.closest('tr');
+
+            // Find the <td> element with the id "databaseUsername" and get its text
+            var databaseUsername = row.find('#databaseUsername').text();
+
+            // Set the value of the "Database User" field in the modal
+            $('#changePasswordForm [name="db_user"]').val(databaseUsername);
+        });
+
+};
+
+changePassModal();
+
+// Add an event listener to the "x" button to close the Success Modal
+document.getElementById("closeSuccessModal").addEventListener("click", function () {
+    // Close the Success Modal
+    $('#successModal').modal('hide');
+});
+
+
+// Event listener for opening the Database Wizard Modal
+document.getElementById("openDatabaseWizardButton").addEventListener("click", function () {
+    // Regenerate random values for the inputs
+    document.getElementById("dbname").value = generateRandomString(8);
+    document.getElementById("username").value = generateRandomString(8);
+    document.getElementById("password").value = generateRandomString(12);
+
+});
+
+
+
+// OPEN WIZARD MODAL ON URL HASH
+  function openWizardModalOnURL() {
+    const currentFragment = window.location.hash;
+    const addNewFragment = "#wizard";
+
+    if (currentFragment === addNewFragment) {
+      const modalElement = document.getElementById('databaseWizardModal');
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  // Listen for changes in the URL's fragment identifier
+  window.addEventListener('hashchange', openWizardModalOnURL);
+
+  // Check the initial fragment identifier when the page loads
+  window.addEventListener('load', openWizardModalOnURL);
+
+
+
+
+
+
+</script>
+
+{% endblock %}
+

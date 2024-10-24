@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Stefan Pejcic">
+    <meta name="robots" content="noindex">
+    <link rel="shortcut icon" type="image/x-icon" href="/static/assets/img/favicon.svg">
+    <title>{% if brand_name %}{{brand_name}}{% else %}OpenPanel{% endif %}</title>
+    <style>
+    body {
+      background-image: url("{{ url_for('static', filename='images/bg-body.png') }}");
+      background-repeat: no-repeat;
+      background-position: left; }
+    }
+
+
+
+*,
+*:before,
+*:after{
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
+}
+
+
+
+
+#eye-wrapper{
+	background-color: white;
+	height: 28px;
+	width: 28px;
+	border-radius: 50%;
+	position: absolute;
+	transform: translate(0,-50%);
+	top: 50%;
+	right: 15px;
+	transition: 0.5s;
+	cursor: pointer;
+	z-index: 1;
+}
+#open,#close{
+	position: absolute;
+	margin: auto;
+	left: 0;
+	right: 0;
+	top: 0.5px;
+	width: 25px;
+}
+#open{
+	display: none;
+}
+
+
+
+
+
+
+    </style>
+
+
+    <!-- Template CSS -->
+    <link rel="stylesheet" href="/static/css3/admini.min.css">
+  </head>
+  <body class="mx-auto mwp-480 d-xl-flex align-items-center justify-content-center">
+    <div class="card card-sign">
+      <div class="card-header bg-dark text-center" style="display:inline;">
+        <h3>{{ _('Sign In') }}</h3>
+        <p class="card-text">{{ _('Welcome back! Please sign in to continue.') }}</p>
+      </div><!-- card-header -->	  
+      <div class="card-body">
+<form method="POST" action="{{ url_for('login') }}" onsubmit="convertToLowerCase()">
+    {% if not twofa_enabled %}
+    <!-- Username and password fields only if 2FA is not enabled -->
+    <div class="mb-4">
+        <label class="form-label">{{ _('Username') }}</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
+  <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+</svg>
+                </span>
+                <input type="text" id="username" name="username" required class="form-control" placeholder="{{ _('Enter your panel username') }}" {% if 'Unrecognized' in error_message %} autofocus value="{{username}}"{% elif username %}value="{{username}}"{% else %}autofocus{% endif %}>
+              </div>
+    </div>
+    <div class="mb-4">
+        <label class="form-label d-flex justify-content-between">{{ _('Password') }}{% if password_reset == 'yes' %} <a href="/reset_password" tabindex="-1">{{ _('Forgot password?') }}</a>{% endif %}</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-shield-lock-fill" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M8 0c-.69 0-1.843.265-2.928.56-1.11.3-2.229.655-2.887.87a1.54 1.54 0 0 0-1.044 1.262c-.596 4.477.787 7.795 2.465 9.99a11.8 11.8 0 0 0 2.517 2.453c.386.273.744.482 1.048.625.28.132.581.24.829.24s.548-.108.829-.24a7 7 0 0 0 1.048-.625 11.8 11.8 0 0 0 2.517-2.453c1.678-2.195 3.061-5.513 2.465-9.99a1.54 1.54 0 0 0-1.044-1.263 63 63 0 0 0-2.887-.87C9.843.266 8.69 0 8 0m0 5a1.5 1.5 0 0 1 .5 2.915l.385 1.99a.5.5 0 0 1-.491.595h-.788a.5.5 0 0 1-.49-.595l.384-1.99A1.5 1.5 0 0 1 8 5"/>
+</svg>
+                </span>
+                <input type="password" id="password" name="password" class="form-control" required placeholder="{{ _('Enter your password') }}" {% if username and 'password' in error_message %}autofocus{% endif %}>
+                <div id="eye-wrapper" onclick="toggle()">
+			<img src="{{ url_for('static', filename='image/login/eye-open-01-01.svg') }}" id="open">
+			<img src="{{ url_for('static', filename='image/login/eye-close-01-01.svg') }}" id="close">
+		</div>
+              </div>
+    </div>
+    {% endif %}
+    
+    {% if twofa_enabled %}
+    <!-- 2FA field if 2FA is enabled -->
+    <input type="hidden" name="user_id" value="{{ user_id }}">
+    <div class="mb-4">
+        <label class="form-label">{{ _('Two-Factor Authentication Code') }}</label>
+              <div class="input-group">
+                <span class="input-group-text">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-phone" viewBox="0 0 16 16">
+  <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+  <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
+</svg>
+                </span>
+                <input type="password" autofocus id="twofa_code" name="twofa_code" class="form-control" required placeholder="{{ _('Enter your 2FA code') }}">
+              </div>
+
+
+        
+    </div>
+    {% endif %}
+
+    <button class="btn btn-primary btn-sign w-100" type="submit">{{ _('Sign In') }}</button>
+</form>
+
+<script>
+var state = false;
+function toggle(){	
+	if(state){
+		document.getElementById("password").setAttribute("type","password");
+		document.getElementById("open").style.display= 'none';
+		document.getElementById("close").style.display= 'block';
+		state = false;
+	}
+	else{
+		document.getElementById("password").setAttribute("type","text");
+		document.getElementById("open").style.display= 'block';
+		document.getElementById("close").style.display= 'none';
+		state = true;
+	}
+}
+
+
+
+
+
+    function convertToLowerCase() {
+        var usernameInput = document.getElementById('username');
+        usernameInput.value = usernameInput.value.toLowerCase();
+    }
+</script>
+
+      </div><!-- card-body -->
+
+
+    <!-- Display error messages -->
+    {% if error_message %}
+    <div class="card-footer mb-0 text-danger">
+        {{ error_message }}
+    </div>
+    {% endif %}
+
+
+    </div>
+
+
+
+
+<div class="d-xl-flex align-items-center justify-content-center" style="position:absolute; bottom:0;">
+{% if brand_name %}<a href="." class="mb-4" style="text-decoration: none;"><p class="lead"><b>{{brand_name}}{% else %}<a href="https://openpanel.com?utm=2083_login_page" target="_blank" class="mb-4" style="text-decoration: none;"><p class="lead"><b><svg version="1.0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg> OpenPanel{% endif %}</b></p></a>
+</div>
+
+
+
+    <script src="/static/lib/jquery/jquery.min.js"></script>
+    <script src="/static/lib/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script>
+      'use script'
+
+      var skinMode = localStorage.getItem('skin-mode');
+      if(skinMode) {
+        $('html').attr('data-skin', 'dark');
+      }
+    </script>
+  </body>
+  
+</html>

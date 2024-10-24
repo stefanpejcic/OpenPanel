@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Page header -->
+<div class="page-header mt-0 d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Services
+                </div>
+                <h2 class="page-title">
+                    Log Viewer
+                </h2>
+            </div>
+            <!-- Page title actions -->
+            <div class="col-auto ms-auto mt-0 d-print-none">
+                <div class="btn-list">
+                                <div class="form-floating">
+                                    <select class="form-select" id="log-select">
+                                        <option disabled selected value> -- Select a log file -- </option>
+                                        <optgroup label="OpenAdmin Logs">
+                                            {% for log_file, log_path in log_files.items() %}
+                                                {% if log_file.startswith('OpenAdmin') %}
+                                                    <option value="{{ log_file }}">{{ log_file }} ({{ log_path }})</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                        <optgroup label="OpenPanel Logs">
+                                            {% for log_file, log_path in log_files.items() %}
+                                                {% if log_file.startswith('OpenPanel') %}
+                                                    <option value="{{ log_file }}">{{ log_file }} ({{ log_path }})</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                        <optgroup label="Other Logs">
+                                            {% for log_file, log_path in log_files.items() %}
+                                                {% if not log_file.startswith('OpenAdmin') and not log_file.startswith('OpenPanel') %}
+                                                    <option value="{{ log_file }}">{{ log_file }} ({{ log_path }})</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </optgroup>
+                                    </select>
+                                    <label for="log-select">Select Log File</label>
+                                </div>
+                                <div class="form-floating">
+                                    <select class="form-select" id="lines-select">
+                                        <option value="20">20</option>
+                                        <option value="100">100</option>
+                                        <option value="500">500</option>
+                                        <option selected value="1000">1000</option>
+                                        <option value="2000">2000</option>
+                                        <option value="999999">ALL</option>
+                                    </select>
+                                    <label for="lines-select">Lines</label>
+                                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Page body -->
+<div class="page-body">
+    <div class="">
+        <div class="row row-deck row-cards">
+            <div class="col-lg-12" id="logs">
+                <div class="card">
+                    <pre id="log-content" style="margin:0px!important;white-space: pre-wrap; border: 1px solid #000; padding: 10px;">Select a log file to view its content here.</pre>
+                </div>
+            </div>
+
+
+<div class="btn-list  justify-content-center">
+
+                    <div id="logs-tip" class="alert alert-info alert-dismissible d-none" role="alert">
+                      <div class="d-flex">
+                        <div>
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 9h.01"></path><path d="M11 12h1v4h1"></path></svg>
+                        </div>
+                        <h4 class="alert-title">TIP: &nbsp;</h4>
+                        <div class="text-secondary" id="logs-tip-text">Here is something that you might like to know.</div>
+                      </div>
+                      <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+
+                                <span class="d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Truncate the log file">
+                                    <a href="#" class="btn btn-danger d-none" id="truncate-btn">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M4 7l16 0"></path>
+                                            <path d="M10 11l0 6"></path>
+                                            <path d="M14 11l0 6"></path>
+                                            <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+                                            <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+                                        </svg> Delete
+                                    </a>
+                                </span>
+                                <span class="d-flex" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Download the log file">
+                                    <a href="#" class="btn d-none" id="download-btn"  onclick="downloadLog()">
+                                        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg> Download
+                                    </a>
+                                </span>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='pages/services_logs.js') }}" defer></script>
+
+{% endblock %}

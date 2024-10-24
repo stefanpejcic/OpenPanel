@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row g-3 justify-content-center">
+        <form method="GET">
+            <div class="input-group mb-3">
+                <label class="input-group-text" for="php_version">Select domain:</label>
+                <select class="form-select form-select-lg" id="php_version" name="version" onchange="redirectToSelectedVersion(this)">
+                    <option value="" disabled selected>Select a domain name to view access logs</option> 
+                    {% for domain in domains %}
+                        <option value="{{ domain.username }}/{{ domain.domain_url }}">{{ domain.domain_url }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+        <script>
+        function redirectToSelectedVersion(selectElement) {
+            var selectedVersion = selectElement.value;
+            if (selectedVersion) {
+                var url = `/domains/log/${selectedVersion}`;
+                window.open(url, '_blank');
+            }
+        }
+        </script>
+</div>
+{% endblock %}

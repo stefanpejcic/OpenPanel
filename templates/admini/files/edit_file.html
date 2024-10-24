@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% if file_content == '404_file_not_exsist_error' %}
+
+<div class="row text-center">
+    <img src="/static/images/not-found.png" class="text-center" style="max-width:30%; margin-left: auto; margin-right: auto;">
+    <div class="fs-1 fw-bolder text-dark mb-4">
+        {{_('The specified file does not exist.')}}
+    </div>
+    <div class="fs-6">/home/{{ current_username }}/{{ file_path }}</div>
+</div>
+
+{% else %}
+
+<style>
+    html, body {
+        height: 100%; /* Ensure html and body occupy full height */
+        margin: 0; /* Remove default margin */
+    }
+    .container-fluid {
+        padding:0;
+    }
+    .editor-container {
+        min-height: 90vh; /* Set a minimum height */
+        height: 100%; /* Occupy full height */
+    }
+    #editor-container.fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 9999;
+        background-color: #1e1e1e; /* Monaco Dark Background */
+    }
+    .editor-header {
+        display: flex;
+        padding: 0px 10px;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid #8080801c;
+    }
+    #editor-container.fullscreen h3 { display: none; }
+    #fullscreenButton { margin-left: 10px; }
+</style>
+
+<!-- Include Monaco Editor CSS and JS -->
+<link rel="stylesheet" href="/static/monaco/editor.main.css">
+<script src="/static/monaco/loader.js"></script>
+
+<form method="post">
+    <input type="hidden" name="editor_content" id="editor_content"> <!-- Hidden input to store editor content -->
+    
+    <div id="editor-container">
+        <div class="editor-header">
+            <h6 class="m-0">/home/{{ current_username }}/{{ file_path }}</h6>
+            <div>
+                <button type="submit" class="btn btn-primary" id="editorcontentvalue">{{_('Save')}}</button>
+                <button type="button" class="btn btn-outline" id="fullscreenButton"><i class="bi bi-arrows-fullscreen"></i></button>
+            </div>
+        </div>
+
+        <div class="editor-container" id="editor"></div>
+    </div>
+</form>
+
+<script>
+require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.36.1/min/vs' }});
+require(['vs/editor/editor.main'], function() {
+    const filePath = '{{ file_path }}';
+
+    // Safely inject file content using JSON encoding
+    const fileContent = {{ file_content|tojson|safe }};
+
+    // Function to determine the language based on the file extension
+    function getLanguageFromFileName(fileName) {
+        const extension = fileName.split('.').pop().toLowerCase();
+        const languageMap = {
+            'py': 'python',
+            'js': 'javascript',
+            'html': 'html',
+            'css': 'css',
+            'scss': 'scss',
+            'java': 'java',
+            'c': 'c',
+            'cpp': 'cpp',
+            'php': 'php',
+            'sql': 'sql',
+            'sh': 'shell',
+            'md': 'markdown',
+            'ini': 'ini',
+            'gitconfig': 'ini',
+            'less': 'less',
+            'mysql': 'mysql',
+            'mdx': 'mdx',
+            'perl': 'perl',
+            'pqsql': 'pqsql',
+            'redis': 'redis',
+            'rust': 'rust',
+            'swift': 'swift',
+            'ruby': 'ruby',
+            'twig': 'twig',
+            'typescript': 'typescript',
+            'xml': 'xml',
+            'yaml': 'yaml',
+            'json': 'json',
+        };
+        return languageMap[extension] || 'plaintext'; // Default
+    }
+
+    const language = getLanguageFromFileName(filePath);
+    const editor = monaco.editor.create(document.getElementById('editor'), {
+        value: fileContent,
+        language: language,
+        theme: 'vs-dark', // Set theme to Dark
+        automaticLayout: true,
+        lineNumbers: "on", // Enable line numbers
+    });
+
+    const fullscreenButton = document.getElementById('fullscreenButton');
+    const editorContainer = document.getElementById('editor-container');
+    let isFullscreen = false;
+
+    fullscreenButton.addEventListener('click', () => {
+        if (!isFullscreen) {
+            editorContainer.classList.add('fullscreen');
+            isFullscreen = true;
+        } else {
+            editorContainer.classList.remove('fullscreen');
+            isFullscreen = false;
+        }
+        editor.layout(); // Adjust editor layout when toggling fullscreen
+    });
+
+
+
+    // Update the hidden input with the editor content before form submission
+const saveButton = document.getElementById('editorcontentvalue');
+saveButton.addEventListener('click', () => {
+    // Set the value of the hidden input to the content of the editor
+    document.getElementById('editor_content').value = editor.getValue();
+});
+
+    // Scroll to specific line based on URL fragment (e.g., #42 for line 42)
+    function scrollToLineFromURL() {
+        const hash = window.location.hash;
+        if (hash && hash.startsWith('#')) {
+            const lineNumber = parseInt(hash.substring(1));
+            if (!isNaN(lineNumber)) {
+                editor.revealLineInCenter(lineNumber); // Scroll to line
+                editor.setPosition({ lineNumber: lineNumber, column: 1 }); // Set cursor to start of the line
+                editor.focus();
+            }
+        }
+    }
+
+    // Call scrollToLineFromURL when the page loads
+    scrollToLineFromURL();
+
+    // Optionally, update the URL fragment as the user scrolls or moves the cursor
+    editor.onDidChangeCursorPosition(() => {
+        const position = editor.getPosition();
+        if (position) {
+            const newHash = `#${position.lineNumber}`;
+            if (window.location.hash !== newHash) {
+                history.replaceState(null, null, newHash); // Update the URL fragment without reloading
+            }
+        }
+    });
+
+});
+
+</script>
+
+{% endif %}
+
+{% endblock %}

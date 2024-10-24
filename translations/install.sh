@@ -5,9 +5,9 @@
 #
 # Usage:
 #
-# Installing single locale: bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh) sr-sr
+# Installing single locale: opencli locale sr-sr
 #
-# Installing multiple locales at once: bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh) sr-sr tr-tr
+# Installing multiple locales at once: opencli locale sr-sr tr-tr
 #
 ###
 
@@ -65,7 +65,7 @@ do
     mkdir -p $babel_translations/"$two_letter"/LC_MESSAGES/  &>/dev/null
     echo "Downloading $formatted_locale locale from https://raw.githubusercontent.com/$github_repo/main/$formatted_locale/messages.pot"
     wget -O $babel_translations/"$two_letter"/LC_MESSAGES/messages.pot "https://raw.githubusercontent.com/$github_repo/main/$formatted_locale/messages.pot" &>/dev/null
-    pybabel init -i $babel_translations/$two_letter/LC_MESSAGES/messages.pot -d $babel_translations -l "$two_letter" &>/dev/null
+    docker exec openpanel sh -c "pybabel init -i $babel_translations/$two_letter/LC_MESSAGES/messages.pot -d $babel_translations -l $two_letter &>/dev/null"
     echo ""
   else
     echo "Invalid locale format: $locale. Skipping."
@@ -75,7 +75,7 @@ done
 # Do this only once
 
 echo "Compiling .mo files for all available locales in $babel_translations directory.."
-pybabel compile -f -d $babel_translations  &>/dev/null
+docker exec openpanel sh -c "pybabel compile -f -d $babel_translations  &>/dev/null"
 echo "Restarting OpenPanel to apply translations.."
 docker restart openpanel  &>/dev/null
 echo "DONE"

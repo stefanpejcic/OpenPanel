@@ -1,0 +1,540 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<script type="module" src="https://cdn.jsdelivr.net/gh/lekoala/formidable-elements/dist/flatpickr-input.min.js"></script>
+
+<div class="row g-3">
+
+
+
+     <div class="col">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{ _('Backup Storage') }}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+              <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+              <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+            </nav>
+          </div>
+          <div class="card-body">
+            <div class="row mb-0">
+
+              <div class="col">
+
+              <div class="card card-tile">
+                    <div class="card-badge bg-primary">
+                      <i class="bi bi-info"></i>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-title">{{ _('Queue') }}</div>
+                      <div class="card-text">
+                        <div class="fs-1 mt-1">0</div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+
+              <div class="col">
+
+<div class="card card-tile">
+                    <div class="card-badge bg-danger">
+                      <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-title">{{ _('Total Backups') }}</div>
+                      <div class="card-text">
+                        <div class="fs-1 mt-1">{{ num_backups if num_backups else '0' }}</div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+
+
+              <div class="col">
+
+<div class="card card-tile">
+                    <div class="card-badge bg-primary">
+                     <i class="bi bi-hdd-fill"></i>
+                    </div>
+                    <div class="card-body">
+                      <div class="card-title">{{ _('Total Account usage (GB)') }}</div>
+                      <div class="card-text">
+                        <div class="fs-1 mt-1">14 GB</div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+
+            </div>     
+          </div>
+        </div>
+      </div>
+
+
+
+
+
+
+
+
+
+      <div class="">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{ _('Backups') }}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+              <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+              <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+            </nav>
+          </div>
+          <div class="card-body">
+            <div class="row mb-4">
+        <table class="table table-bordered table-hover" id="backupTable">
+            <thead>
+                <tr>
+                    <th>Created</th>
+                    <th>End Time</th>
+                    <th>Duration</th>
+                    <th>Status</th>
+                    <th>Contains</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rows will be dynamically added here -->
+            </tbody>
+        </table>
+            </div>     
+          </div>
+        </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Fetch backup data using AJAX
+            fetch('/backups/info/')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.backups) {
+                        populateTable(data.backups);
+                    } else {
+                        console.error('No backup data found');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        });
+
+   
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fetch backup data using AJAX
+        fetch('/backups/info/')
+            .then(response => response.json())
+            .then(data => {
+                if (data.backups) {
+                    populateTable(data.backups);
+                } else {
+                    showError('No backup data found');
+                }
+            })
+            .catch(error => {
+                showError('Error fetching data: ' + error.message);
+            });
+    });
+
+    function populateTable(backups) {
+        const tableBody = document.querySelector('#backupTable tbody');
+        tableBody.innerHTML = ''; // Clear the table body
+
+        backups.forEach(backup => {
+            const backupDate = backup.backup_date; // Use the raw backup date
+            const content = backup.content;
+
+            // Create a new row
+            const row = document.createElement('tr');
+
+            // Create table cells for each property
+            //row.appendChild(createTableCell(backupDate));
+            //row.appendChild(createTableCell(content.backup_job_id || '-'));
+            //row.appendChild(createTableCell(content.destination_id || '-'));
+            //row.appendChild(createTableCell(content.destination_directory || '-'));
+            row.appendChild(createTableCell(content.start_time || '-')); // Use raw start time
+            row.appendChild(createTableCell(content.end_time || '-')); // Use raw end time
+            row.appendChild(createTableCell(content.total_exec_time || '-'));
+            row.appendChild(createStatusCell(content.status || 'Unknown')); // Create status cell
+
+            // Create a single cell for all "contains" icons
+            const contains = content.contains ? content.contains.split(',') : [];
+            row.appendChild(createContainsIconsCell(contains));
+
+
+    // Create a cell for the buttons
+    const buttonCell = document.createElement('td');
+
+    // Create Download button
+    const downloadButton = document.createElement('button');
+    downloadButton.textContent = 'Download';
+    downloadButton.className = 'btn btn-secondary';
+    downloadButton.onclick = () => {
+        // todo
+        console.log(`Downloading backup: 
+                      Backup Job ID: ${content.backup_job_id}, 
+                      Destination ID: ${content.destination_id}, 
+                      Destination Directory: ${content.destination_directory}, 
+                      Backup Date: ${backupDate}`);
+        // window.location.href = `download_url/${content.backup_job_id}`;
+    };
+
+    // Create Restore button
+    const restoreButton = document.createElement('button');
+    restoreButton.textContent = 'Restore';
+    restoreButton.className = 'btn btn-primary';
+    restoreButton.onclick = () => {
+        // todo
+        console.log(`Restoring backup: 
+                      Backup Job ID: ${content.backup_job_id}, 
+                      Destination ID: ${content.destination_id}, 
+                      Destination Directory: ${content.destination_directory}, 
+                      Backup Date: ${backupDate}`);
+        // Example restore logic
+    };
+
+    // Append buttons to the button cell
+    buttonCell.appendChild(downloadButton);
+    buttonCell.appendChild(restoreButton);
+
+    // Append the button cell to the row
+    row.appendChild(buttonCell);
+
+
+
+
+
+            // Append the row to the table body
+            tableBody.appendChild(row);
+        });
+
+    }
+
+    // Helper function to create a table cell
+    function createTableCell(text) {
+        const cell = document.createElement('td');
+        cell.textContent = text;
+        return cell;
+    }
+
+    // Helper function to create a status cell with an icon
+    function createStatusCell(status) {
+        const cell = document.createElement('td');
+        const icon = document.createElement('i');
+        let iconClass = '';
+        let statusText = status;
+
+        switch (status) {
+            case 'Completed':
+                iconClass = 'fa-check-circle'; // Check icon
+                break;
+            case 'Partial':
+                iconClass = 'fa-exclamation-circle'; // Warning icon
+                break;
+            case 'In Progress':
+                iconClass = 'fa-spinner fa-spin'; // Spinner icon
+                break;
+            default:
+                iconClass = 'fa-question-circle'; // Question icon
+                statusText = 'Unknown'; // Update the text for unknown status
+        }
+
+        icon.classList.add('fas', iconClass, 'me-2'); // Add icon class and margin
+        cell.appendChild(icon);
+        cell.appendChild(document.createTextNode(statusText)); // Append the status text
+
+        return cell;
+    }
+
+    // Helper function to create a table cell with multiple icons
+    function createContainsIconsCell(containsArray) {
+        const cell = document.createElement('td');
+
+        // Map each contains item to an icon and tooltip
+        const iconMap = {
+            'FILES': 'fa-file',
+            'ENTRYPOINT': 'fa-play',
+            'WEBSERVER_CONF': 'fa-server',
+            'MYSQL_CONF': 'fa-database',
+            'TIMEZONE': 'fa-clock',
+            'PHP_VERSIONS': 'fa-code',
+            'CRONTAB': 'fa-calendar-alt',
+            'MYSQL_DATA': 'fa-database',
+            'USER_DATA': 'fa-users',
+            'CORE_USERS': 'fa-user-shield',
+            'STATS_USERS': 'fa-chart-bar',
+            'APACHE_SSL_CONF': 'fa-lock',
+            'DOMAIN_ACCESS_REPORTS': 'fa-file-alt',
+            'SSH_PASS': 'fa-key',
+            'IMAGE': 'fa-image'
+        };
+
+        containsArray.forEach(item => {
+            if (iconMap[item]) {
+                const icon = document.createElement('i');
+                icon.classList.add('fas', iconMap[item], 'me-2'); // Add icon class and margin
+                icon.setAttribute('title', item); // Set the tooltip text
+                icon.setAttribute('data-bs-toggle', 'tooltip'); // Enable tooltip
+                
+                cell.appendChild(icon);
+            }
+        });
+
+        if (cell.childNodes.length === 0) {
+            cell.textContent = '-'; // If no icons were added, display a dash
+        }
+
+        return cell;
+    }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script> <!-- Font Awesome Icons -->
+
+      </div>
+
+
+
+      <div class="col-auto">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{ _('Restore') }}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+              <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+              <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+            </nav>
+          </div>
+
+          <div class="card-body row row-cols-4">
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#filesModal">
+              <div class="card p-3 d-flex flex-row mb-2">
+                  <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-archive"></i></div>
+                  <div class="ms-3">
+                      <h4 class="card-value mb-1">{{ _('Restore Files') }}</h4>
+                      <p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore your files from backup') }}</p>
+                  </div>
+              </div>
+          </a>
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#databasesModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-database"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Databases') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore MySQL databases and their tables') }}</p>
+               </div>
+            </div>
+          </a>
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#databaseUsersModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-database-lock"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Database Users') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore MySQL database users and privileges') }}</p>
+               </div>
+            </div>
+          </a>
+
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#cronsModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-calendar2-week"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Cron Jobs') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore cronjobs from backup') }}</p>
+               </div>
+            </div>
+          </a>
+
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#dnsModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-geo-alt"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('DNS Zones') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore DNS zones and records') }}</p>
+               </div>
+            </div>
+          </a>
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#domainsModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-globe"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Domains') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore domain names') }}</p>
+               </div>
+            </div>
+          </a>
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#sslModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-lock"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Certificates') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore SSL certificates') }}</p>
+               </div>
+            </div>
+          </a>
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#emailModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-envelope"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Emails') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore email accounts') }}</p>
+               </div>
+            </div>
+          </a>
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#emailModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-folder-symlink"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('FTP') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore FTP accounts') }}</p>
+               </div>
+            </div>
+          </a>
+
+
+          <a href="#" class="col" data-bs-toggle="modal" data-bs-target="#confModal">
+            <div class="card p-3 d-flex flex-row">
+              <div class="card-icon avatar avatar-thumb bg-primary"><i class="bi bi-file"></i></div>
+               <div class="ms-3">
+                <h4 class="card-value mb-1">{{ _('Configuration') }}</h4><p class="fs-xs text-secondary mb-0 lh-4">{{ _('Restore services configuration files') }}</p>
+               </div>
+            </div>
+          </a>
+
+
+
+
+
+
+
+
+
+          </div>
+        </div>
+      </div>
+
+      
+      
+      
+    
+      
+      <div class="col-md-6 col-xl-6">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{ _('Backup Logs') }}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+              <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+              <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+            </nav>
+          </div>
+          <div class="card-body p-0" style="overflow:auto; height:300px">
+            <ul id="backup-list" class="list-group">
+
+            </ul>
+          </div>
+          <!--div class="card-footer d-flex justify-content-center">
+            <a href="" class="fs-sm">{{ _('View Full Backup Log') }}</a>
+          </div-->
+        </div>
+      </div>
+      
+
+      <div class="col-md-6 col-xl-6">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{ _('Restore History') }}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+              <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+              <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+            </nav>
+          </div>
+          <div class="card-body p-0" style="overflow:auto; height:300px">
+            <ul id="restore-list" class="list-group">
+
+            </ul>
+          </div>
+          <!--div class="card-footer d-flex justify-content-center">
+            <a href="" class="fs-sm">{{ _('View Full Restore Log') }}</a>
+          </div-->
+        </div>
+      </div>
+      
+      
+    </div>
+
+<div class="modal fade" id="filesModal" tabindex="-1" role="dialog" aria-labelledby="filesModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="filesModalLabel">{{ _('Restore Files') }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form id="restoreForm">
+                  <div class="form-group">
+                      <label for="backupDate">Select a backup date:</label>
+                      <select class="form-select" id="backupDate" name="backupdate">
+                    {% if backup_dates %}
+                        {% for date in backup_dates %}
+                            <option value="{{ date }}">{{ date }}</option>
+                        {% endfor %}
+                    {% else %}
+                        <p>{{ _('No backups available.') }}</p>
+                    {% endif %}
+                    </select>                                        
+                  </div>
+              </form>
+              <div class="mt-3" id="restoreStatus"></div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+              <button type="button" class="btn btn-primary" id="restoreButton">{{ _('Restore') }}</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="databasesModal" tabindex="-1" role="dialog" aria-labelledby="databasesModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="databasesModalLabel">{{ _('Restore MySQL Database') }}</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="restoreForm">
+                <div class="form-group">
+                    <label for="backupDate">{{ _('Select a backup date:') }}</label>
+                    <select class="form-select" id="backupDbDate" name="backup_date">
+                      {% if backup_dates %}
+                      {% for date in backup_dates %}
+                          <option value="{{ date }}">{{ date }}</option>
+                      {% endfor %}
+                  {% else %}
+                      <p>{{ _('No backups available.') }}</p>
+                  {% endif %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sqlFile">{{ _('Select a database:') }}</label>
+                    <select class="form-select" id="sqlFiles" name="sql_file">
+                    </select>
+                </div>
+            </form>
+        </div>
+        
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+              <button type="button" class="btn btn-primary" id="restoreDbButton">{{ _('Restore') }}</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<script src="/static/js/backup.js?v=1.0.0"></script>
+
+{% endblock %}

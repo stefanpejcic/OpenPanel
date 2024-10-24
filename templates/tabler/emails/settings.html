@@ -1,0 +1,1176 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header mt-0 d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Emails
+                </div>
+                <h2 class="page-title">
+                    Settings
+                </h2>
+            </div>
+           <!-- Page title actions -->
+            <div class="col-auto ms-auto mt-0 d-print-none">
+                <div class="btn-list">
+                </div>
+            </div>
+
+        <!-- Page body -->
+        <div class="page-body">
+          <div class="container-xl">
+            <div class="row row-cards">
+              <div class="col-md-2">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="subheader">MailServer</div>
+                    <div class="h3 m-0" id="mailserver-status">
+{% if mailserver_status == 'running' %}
+<span class="badge bg-success me-1"></span>
+{% elif mailserver_status == 'stopped' %}
+<span class="badge bg-danger me-1"></span>
+{% elif mailserver_status == 'not_installed' %}
+<span class="badge bg-warning me-1"></span>
+{% else %}
+<span class="badge bg-secondary me-1"></span>
+{% endif %} {{mailserver_status}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="subheader">Actions</div>
+     
+                      <div class="btn-list h3 m-0">
+
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Start MailServer" data-bs-original-title="Start MailServer">
+                  <a href="#" onclick="controlNginx('start', 'MailServer')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-play"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg></a></span>
+
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Stop MailServer" data-bs-original-title="Stop MailServer">
+                  <a href="#" onclick="controlNginx('stop', 'MailServer')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-stop"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 5m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /></svg></a></span>
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Restart MailServer" data-bs-original-title="Restart MailServer">
+                  <a href="#" onclick="controlNginx('restart', 'MailServer')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg></a></span>
+
+                      </div>
+
+
+
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Current webmail software" data-bs-original-title="Current webmail software" class="card-body">
+                    <div class="subheader">Webmail software</div>
+                    <div class="h3 m-0">
+                      <span class="row" id="webmail-name">
+{% if webmail_services %}
+{% for service in webmail_services %}
+<span class="col-auto">
+{% if service == 'roundcube' %}
+<svg width="auto" height="25px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="9.14 141.8 573.65 573.65">
+<style type="text/css">
+.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#404F54;}
+.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#E5E5E5;}
+.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#CCCCCC;}
+.st3{fill-rule:evenodd;clip-rule:evenodd;fill:#37BEFF;}
+</style>
+<polygon class="st3" points="582.79,549.77 295.96,384.1 295.96,207.27 582.79,372.95 "/>
+<polygon class="st0" points="9.14,549.77 295.96,384.1 295.96,207.27 9.14,372.95 "/>
+<path class="st2" d="M295.96,141.8c109.56,0,198.41,88.85,198.41,198.41c0,109.56-88.85,198.41-198.41,198.41 c-109.56,0-198.41-88.85-198.41-198.41C97.55,230.65,186.4,141.8,295.96,141.8"/>
+<path class="st1" d="M295.96,141.8c109.6,0,198.48,88.85,198.48,198.41c0,109.56-88.88,198.41-198.48,198.41	c-62.91-42.34-88.94-127.64-88.94-198.3S233.05,184.22,295.96,141.8"/>
+<polygon class="st3" points="582.79,372.95 295.96,538.62 295.96,715.45 582.79,549.77 "/>
+<polygon class="st0" points="9.14,372.95 295.96,538.62 295.96,715.45 9.14,549.77 "/>
+</svg></span>
+<span class="col">Roundcube</span>
+{% elif service == 'sogo' %}
+<svg width="auto" height="25px" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:1.41421;">
+    <g>
+        <g>
+            <g>
+                <path d="M643.711,144.938C633.849,144.938 626.847,137.721 626.847,128.035C626.847,118.341 633.849,111.123 643.711,111.123C653.65,111.123 660.652,118.341 660.652,128.035C660.652,137.721 653.65,144.938 643.711,144.938ZM643.681,94.5835C624.154,94.5835 610.288,108.861 610.288,128.035C610.288,147.2 624.154,161.478 643.681,161.478C663.335,161.478 677.202,147.2 677.202,128.035C677.202,108.861 663.335,94.5835 643.681,94.5835ZM643.652,178.811C614.019,178.811 592.965,157.13 592.965,128.035C592.965,98.9315 614.019,77.2602 643.652,77.2602C673.48,77.2602 694.525,98.9315 694.525,128.035C694.525,157.13 673.48,178.811 643.652,178.811ZM643.613,58.4876C603.032,58.4876 574.212,88.1791 574.212,128.035C574.212,167.882 603.032,197.564 643.613,197.564C684.458,197.564 713.288,167.882 713.288,128.035C713.288,88.1791 684.458,58.4876 643.613,58.4876ZM157.492,182.836L136.653,177.871C117.684,173.513 108.048,168.538 108.048,154.858C108.048,139.307 123.903,133.079 138.21,133.079C152.752,133.079 163.377,140.345 169.635,151.656C169.654,151.704 169.684,151.753 169.723,151.812C169.85,152.057 169.997,152.292 170.124,152.537L170.154,152.517C172.122,155.494 175.432,157.482 178.997,157.482C185.068,157.482 189.465,153.095 189.465,147.024C189.465,144.703 188.966,142.245 187.879,140.394C177.205,122.248 159.607,114.424 139.454,114.424C112.093,114.424 85.6524,128.104 85.6524,158.266C85.6524,185.95 113.023,194.038 122.972,196.516L142.871,201.187C158.109,204.918 170.546,209.903 170.546,224.504C170.546,241.298 153.134,248.77 136.34,248.77C119.241,248.77 106.579,240.025 97.8541,227.118L97.8443,227.118C95.9054,224.288 92.899,222.3 89.2169,222.3C83.2826,222.3 78.5037,227.177 78.7191,233.102C78.8171,235.52 79.6201,237.567 80.854,239.32C94.5246,259.777 114.296,267.425 136.34,267.425C164.641,267.425 192.942,254.362 192.942,222.643C192.942,202.127 177.704,187.507 157.492,182.836ZM296.617,248.682C263.038,248.682 241.886,223.495 241.886,190.846C241.886,158.187 263.038,133 296.617,133C330.52,133 351.662,158.187 351.662,190.846C351.662,223.495 330.52,248.682 296.617,248.682ZM296.617,114.345C251.531,114.345 219.499,146.994 219.499,190.846C219.499,234.688 251.531,267.337 296.617,267.337C342.016,267.337 374.048,234.688 374.048,190.846C374.048,146.994 342.016,114.345 296.617,114.345ZM514.985,232.818C514.221,233.552 513.448,234.277 512.606,234.972C511.509,235.981 510.236,237.068 508.786,238.155C500.032,244.491 488.976,248.163 476.049,248.163C442.46,248.163 421.318,222.976 421.318,190.327C421.318,157.668 442.46,132.481 476.049,132.481C509.942,132.481 531.084,157.668 531.084,190.327C531.084,207.376 525.316,222.369 514.985,232.818ZM464.797,315.733C467.304,315.733 469.899,315.566 472.592,315.233C477.567,314.607 482.101,314.332 486.204,314.332C505.281,314.44 514.995,319.983 520.851,326.387C526.697,332.831 528.95,341.566 528.94,348.989C528.95,352.544 528.391,355.726 527.774,357.636C524.856,366.488 518.961,372.511 509.932,377.045C500.972,381.491 489.015,383.763 476.51,383.743C472.034,383.743 467.481,383.459 462.986,382.921C454.486,381.941 443.244,378.289 435.096,371.923C430.993,368.751 427.614,364.99 425.235,360.534C422.875,356.059 421.406,350.869 421.396,344.23L421.396,343.495C421.651,331.254 427.272,323.126 433.431,317.221C436.477,314.342 439.611,312.198 441.892,310.836C442.255,310.621 442.597,310.425 442.911,310.249C448.953,313.823 456.454,315.762 464.797,315.733ZM476.049,113.826C430.964,113.826 398.922,146.475 398.922,190.327C398.922,219.96 413.562,244.461 436.976,257.241C436.663,257.554 436.359,257.877 436.066,258.2C430.014,264.83 426.919,273.32 426.909,281.909C426.9,285.698 427.526,289.586 428.868,293.307C425.832,295.246 422.209,297.9 418.497,301.386C409.547,309.72 399.921,323.733 399.637,343.123C399.627,343.573 399.627,343.946 399.627,344.23C399.617,354.218 401.987,363.227 406.031,370.778C412.113,382.147 421.582,390.059 431.355,395.338C441.187,400.626 451.44,403.436 460.381,404.533C465.708,405.17 471.114,405.512 476.51,405.512C491.532,405.493 506.514,402.957 519.549,396.572C532.524,390.285 543.678,379.464 548.496,364.285C549.926,359.771 550.689,354.649 550.709,348.989C550.689,337.492 547.389,323.449 537.058,311.855C526.727,300.221 509.638,292.455 486.204,292.563C481.112,292.563 475.687,292.916 469.919,293.63C468.058,293.856 466.354,293.963 464.797,293.963C457.619,293.915 454.016,291.927 451.871,289.899C449.756,287.833 448.698,285.101 448.669,281.909C448.659,278.657 449.942,275.24 452.106,272.909C454.319,270.598 457.071,269.031 461.869,268.972C462.3,268.972 462.761,268.982 463.231,269.021C466.306,269.237 469.292,269.345 472.191,269.345C496.173,269.393 514.212,261.961 526.482,251.737C538.791,241.514 545.294,229.077 548.369,219.255L548.329,219.245C551.669,210.422 553.48,200.688 553.48,190.327C553.48,146.475 521.448,113.826 476.049,113.826Z" style="fill:rgb(80,189,55);fill-rule:nonzero;"/>
+            </g>
+        </g>
+    </g>
+</svg></span>
+<span class="col">SOGo</span>
+{% elif service == 'snappymail' %}
+</span>
+<span class="col">SnappyMail</span>
+        {% else %}
+</span>
+<span class="col">Unknown</span>
+{% endif %}
+{% endfor %}
+{% else %}
+<span class="col">&nbsp;</span>
+{% endif %}
+</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="card">
+                  <div class="card-body" span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Current webmail status" data-bs-original-title="Current webmail status">
+                    <div class="subheader">Webmail</div>
+                    <div class="h3 m-0" id="webmail-status">
+{% if webmail_status == 'running' %}
+<span class="badge bg-success me-1"></span>
+{% elif webmail_status == 'stopped' %}
+<span class="badge bg-danger me-1"></span>
+{% elif webmail_status == 'not_installed' %}
+<span class="badge bg-warning me-1"></span>
+{% else %}
+<span class="badge bg-secondary me-1"></span>
+{% endif %} {{webmail_status}}</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="card">
+                  <div class="card-body" span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The current number of email accounts on the server." data-bs-original-title="The current number of email accounts on the server.">
+                    <div class="subheader">Email accounts</div>
+                    <div class="h3 m-0"><a href="/emails/accounts" id="total-emails-count">{{emails}}</a></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+<div class="card">
+                  <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-general" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">General Settings</a>
+                      </li>
+                      <span  class="ms-auto" style="display:flex;">
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-env" class="nav-link" data-bs-toggle="tab" aria-selected="true" role="tab">mailserver.env</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-compose" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">compose.yml</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-settings-1" class="nav-link" title="Settings" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path></svg>
+                        </a>
+                      </li>
+                      </span>
+                    </ul>
+                  </div>
+<div class="card-body">
+    <div class="tab-content">
+        <div class="tab-pane active show" id="tabs-general" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+                  <div class="mb-2">Configure mailserver and webmail.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                  </div>
+              </div>
+          </div>
+
+
+
+
+
+<div class="row row-cards">
+
+
+
+<div class="col-md-6">
+              <form class="card" id="mailserver-form">
+                <div class="card-header">
+                  <h3 class="card-title">MailServer Stack</h3>
+                </div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_AMAVIS" value="1" {% if config_data.get('ENABLE_AMAVIS', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">Amavis</span>
+                            </label>
+                      <small class="form-hint">
+                        Amavis content filter (used for ClamAV & SpamAssassin)
+                      </small>
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_DNSBL" value="1" {% if config_data.get('ENABLE_DNSBL', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">DNS block lists</span>
+                            </label>
+                      <small class="form-hint">
+                        This enables <a href="#">DNS block lists</a> in Postscreen. 
+                      </small>
+                    </div>
+                  </div>
+
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_RSPAMD" value="1" {% if config_data.get('ENABLE_RSPAMD', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">Rspamd</span>
+                            </label>
+                      <small class="form-hint">
+                        Enable or disable <a href="https://docker-mailserver.github.io/docker-mailserver/latest/config/security/rspamd/" target="_blank">Rspamd</a>.
+                      </small>
+                    </div>
+                  </div>
+
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_SPAMASSASSIN" value="1" {% if config_data.get('ENABLE_SPAMASSASSIN', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">SpamAssassin</span>
+                            </label>
+                      <small class="form-hint">
+                        SpamAssassin analyzes incoming mail and assigns a spam score
+                      </small>
+                    </div>
+                  </div>
+
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_MTA_STS" value="1" {% if config_data.get('ENABLE_SPAMASSASSIN', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">MTA-STS</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables <a href="https://docker-mailserver.github.io/docker-mailserver/latest/config/best-practices/mta-sts/" target="_blank">MTA-STS</a> support for outbound mail.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_OPENDKIM" value="1" {% if config_data.get('ENABLE_OPENDKIM', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">OpenDKIM service</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the OpenDKIM service.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_OPENDMARC" value="1" {% if config_data.get('ENABLE_OPENDMARC', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">OpenDMARC service</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the OpenDMARC service.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_POP3" value="1" {% if config_data.get('ENABLE_POP3', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">POP3</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the POP3 service.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_IMAP" value="1" {% if config_data.get('ENABLE_IMAP', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">IMAP</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the IMAP service.
+                      </small>
+                    </div>
+                  </div>
+
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_CLAMAV" value="1" {% if config_data.get('ENABLE_CLAMAV', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">ClamAV</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the ClamAV service.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_FAIL2BAN" value="1" {% if config_data.get('ENABLE_FAIL2BAN', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">fail2ban</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the fail2ban service to ban IPs.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="SMTP_ONLY" value="1" {% if config_data.get('SMTP_ONLY', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">Only SMTP</span>
+                            </label>
+                      <small class="form-hint">
+                        If enabled, only the Postfix service is started and users can not receive incoming email.
+                      </small>
+                    </div>
+                  </div>
+
+                  <div class="mb-3">
+                    <div>
+<label class="form-check form-switch">
+                              <input class="form-check-input" type="checkbox" name="ENABLE_SRS" value="1" {% if config_data.get('ENABLE_SRS', '0') == '1' %} checked {% endif %}>
+                              <span class="form-check-label">Sender Rewriting Scheme</span>
+                            </label>
+                      <small class="form-hint">
+                        Enables the Sender Rewriting Scheme which is needed if forwarding emails. See <a href="https://github.com/roehling/postsrsd/blob/main/README.rst" target="_blank">postsrsd</a> for further explanation.
+                      </small>
+                    </div>
+                  </div>
+
+
+
+                </div>
+
+
+                <div class="card-footer">
+                  <div class="row align-items-center">
+                    <div class="col">Learn more about <a href="#">MailServer Services</a></div>
+                    <div class="col-auto">
+                      <button type="submit" class="btn btn-primary">Save Stack</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+<script>
+    // Store the initial state of checkboxes
+    const initialStates = {};
+    const form = document.getElementById('mailserver-form');
+
+    Array.from(form.querySelectorAll('input[type="checkbox"]')).forEach(checkbox => {
+        initialStates[checkbox.name] = checkbox.checked;
+    });
+
+    form.onsubmit = function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData();
+
+        // Collect only changed values
+        Array.from(form.querySelectorAll('input[type="checkbox"]')).forEach(checkbox => {
+            const isChecked = checkbox.checked;
+            const name = checkbox.name;
+
+            // Check if the state has changed
+            if (initialStates[name] !== isChecked) {
+                // Add the changed value to FormData
+                formData.append(name, isChecked ? "1" : "0");  // Send "1" if checked, "0" if unchecked
+            }
+        });
+
+        // Send the form data using Fetch API
+        fetch('/emails/settings', {
+            method: 'POST',
+            body: formData
+        })
+.then(response => response.json())
+.then(data => {
+    // Create a new toast element for each notification
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.role = 'alert';
+    toastElement.ariaLive = 'assertive';
+    toastElement.ariaAtomic = 'true';
+    toastElement.setAttribute('data-bs-autohide', 'false');
+
+    // Create the header
+    const toastHeader = document.createElement('div');
+    toastHeader.className = 'toast-header';
+    const strong = document.createElement('strong');
+    strong.className = 'me-auto';
+    strong.innerText = `Email Settings Update`;
+    const small = document.createElement('small');
+    small.innerText = new Date().toLocaleTimeString();
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'ms-2 btn-close';
+    closeButton.setAttribute('data-bs-dismiss', 'toast');
+    closeButton.setAttribute('aria-label', 'Close');
+
+    // Append elements to the header
+    toastHeader.appendChild(strong);
+    toastHeader.appendChild(small);
+    toastHeader.appendChild(closeButton);
+
+    // Create the body
+    const toastBody = document.createElement('div');
+    toastBody.className = 'toast-body';
+    toastBody.innerText = data.success ? data.success : data.error;
+
+    // Append header and body to the toast
+    toastElement.appendChild(toastHeader);
+    toastElement.appendChild(toastBody);
+
+    // Append the toast to the toast container
+    document.querySelector('.toast-container').appendChild(toastElement);
+
+    // Show the toast
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+    // Reload the page after 1 second
+    setTimeout(() => {
+        location.reload();
+    }, 1000);
+})
+.catch(error => {
+    console.error('Error:', error);
+    
+    // Create a new toast for errors
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.role = 'alert';
+    toastElement.ariaLive = 'assertive';
+    toastElement.ariaAtomic = 'true';
+    toastElement.setAttribute('data-bs-autohide', 'false');
+
+    // Create the header
+    const toastHeader = document.createElement('div');
+    toastHeader.className = 'toast-header';
+    const strong = document.createElement('strong');
+    strong.className = 'me-auto';
+    strong.innerText = `Error`;
+    const small = document.createElement('small');
+    small.innerText = new Date().toLocaleTimeString();
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'ms-2 btn-close';
+    closeButton.setAttribute('data-bs-dismiss', 'toast');
+    closeButton.setAttribute('aria-label', 'Close');
+
+    // Append elements to the header
+    toastHeader.appendChild(strong);
+    toastHeader.appendChild(small);
+    toastHeader.appendChild(closeButton);
+
+    // Create the body
+    const toastBody = document.createElement('div');
+    toastBody.className = 'toast-body';
+    toastBody.innerText = 'An error occurred processing the request. Error message:<br>' + error;
+
+    // Append header and body to the toast
+    toastElement.appendChild(toastHeader);
+    toastElement.appendChild(toastBody);
+
+    // Append the toast to the toast container
+    document.querySelector('.toast-container').appendChild(toastElement);
+
+    // Show the toast
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+});
+
+    };
+</script>
+
+            </div>
+
+
+
+
+<div class="col-md-6">
+<form class="card" id="relay-form">
+    <div class="card-header">
+        <h3 class="card-title">Relay Hosts</h3>
+    </div>
+    <div class="card-body">
+        <p>An SMTP relay service (aka relay host / smarthost) is an MTA that relays (forwards) mail on behalf of third parties (it does not manage the mail domains).</p>
+
+        <div class="mb-3">
+            <label class="form-label">DEFAULT_RELAY_HOST</label>
+            <div>
+                <input type="text" id="DEFAULT_RELAY_HOST" name="DEFAULT_RELAY_HOST" class="form-control" placeholder="mail.example.com" value="{{ config_data.get('DEFAULT_RELAY_HOST', '') }}">
+                <small class="form-hint">
+                    Configures a default relay host (should be the same as RELAY_HOST).
+                </small>
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col">
+                <label class="form-label">RELAY_HOST</label>
+                <div>
+                    <input type="text" id="RELAY_HOST" name="RELAY_HOST" class="form-control" placeholder="mail.example.com" value="{{ config_data.get('RELAY_HOST', '') }}">
+                </div>
+            </div>
+
+            <div class="col">
+                <label class="form-label">RELAY_PORT</label>
+                <div>
+                    <input type="number" id="RELAY_PORT" name="RELAY_PORT" class="form-control" min="20" max="35000" placeholder="25" value="{{ config_data.get('RELAY_PORT', '') }}">
+                </div>
+            </div>
+            <small class="form-hint">
+                If configured, all outbound emails will be relayed through this configured host.
+            </small>
+        </div>
+
+        <div class="mb-3 row">
+            <div class="col">
+                <label class="form-label">RELAY_USER (optional)</label>
+                <div>
+                    <input type="text" id="RELAY_USER" name="RELAY_USER" class="form-control" placeholder="relay_user" value="{{ config_data.get('RELAY_USER', '') }}">
+                </div>
+            </div>
+
+            <div class="col">
+                <label class="form-label">RELAY_PASSWORD (optional)</label>
+                <div>
+                    <input type="password" id="RELAY_PASSWORD" name="RELAY_PASSWORD" class="form-control" placeholder="relay_password" value="{{ config_data.get('RELAY_PASSWORD', '') }}">
+                </div>
+            </div>
+            <small class="form-hint">
+                Presently when RELAY_USER + RELAY_PASSWORD are configured, all outbound mail traffic is configured to require a secure connection established and forbids the omission of credentials.
+            </small>
+        </div>
+    </div>
+    <div class="card-footer">
+        <div class="row align-items-center">
+            <div class="col">Learn more about <a href="#">MailServer Email Relays</a></div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Save Relay</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    // Store the initial state of text inputs
+    const initialRelayStates = {};
+    const relayForm = document.getElementById('relay-form');
+
+    // Store initial values of input fields
+    Array.from(relayForm.querySelectorAll('input[type="text"], input[type="number"], input[type="password"]')).forEach(input => {
+        initialRelayStates[input.name] = input.value; // Use 'name' instead of 'id'
+    });
+
+    relayForm.onsubmit = function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData();
+
+        // Collect only changed values
+        Array.from(relayForm.querySelectorAll('input[type="text"], input[type="number"], input[type="password"]')).forEach(input => {
+            const value = input.value;
+            const name = input.name; // Use 'name' to match FormData structure
+
+            // Check if the state has changed
+            if (initialRelayStates[name] !== value) {
+                // Add the changed value to FormData
+                formData.append(name, value);  // Send the updated value
+            }
+        });
+
+        // Send the form data using Fetch API
+        fetch('/emails/settings', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Create a new toast element for notifications
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.setAttribute('data-bs-autohide', 'false');
+
+            // Create the header
+            const toastHeader = document.createElement('div');
+            toastHeader.className = 'toast-header';
+            const strong = document.createElement('strong');
+            strong.className = 'me-auto';
+            strong.innerText = `Relay Settings Update`;
+            const small = document.createElement('small');
+            small.innerText = new Date().toLocaleTimeString();
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'ms-2 btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'toast');
+            closeButton.setAttribute('aria-label', 'Close');
+
+            // Append elements to the header
+            toastHeader.appendChild(strong);
+            toastHeader.appendChild(small);
+            toastHeader.appendChild(closeButton);
+
+            // Create the body
+            const toastBody = document.createElement('div');
+            toastBody.className = 'toast-body';
+            toastBody.innerText = data.success ? data.success : data.error;
+
+            // Append header and body to the toast
+            toastElement.appendChild(toastHeader);
+            toastElement.appendChild(toastBody);
+
+            // Append the toast to the toast container
+            document.querySelector('.toast-container').appendChild(toastElement);
+
+            // Show the toast
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            // Reload the page after 1 second
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Create a new toast for errors
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.setAttribute('data-bs-autohide', 'false');
+
+            // Create the header
+            const toastHeader = document.createElement('div');
+            toastHeader.className = 'toast-header';
+            const strong = document.createElement('strong');
+            strong.className = 'me-auto';
+            strong.innerText = `Error`;
+            const small = document.createElement('small');
+            small.innerText = new Date().toLocaleTimeString();
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'ms-2 btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'toast');
+            closeButton.setAttribute('aria-label', 'Close');
+
+            // Append elements to the header
+            toastHeader.appendChild(strong);
+            toastHeader.appendChild(small);
+            toastHeader.appendChild(closeButton);
+
+            // Create the body
+            const toastBody = document.createElement('div');
+            toastBody.className = 'toast-body';
+            toastBody.innerText = 'An error occurred processing the request. Error message:<br>' + error;
+
+            // Append header and body to the toast
+            toastElement.appendChild(toastHeader);
+            toastElement.appendChild(toastBody);
+
+            // Append the toast to the toast container
+            document.querySelector('.toast-container').appendChild(toastElement);
+
+            // Show the toast
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        });
+    };
+</script>
+            </div>
+
+
+
+            <div class="col-md-6">
+              <form class="card" id="client-form">
+                  <div class="card-body">
+                  <h3 class="card-title">Webmail Client</h3>
+                  <p class="card-subtitle">Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.</p>
+
+                  <select id="webmail-software" name="webmail-software" class="form-select">
+                    <option value="" disabled {% if not webmail_services %}selected{% endif %}>Select Webmail Client</option>
+                    <option value="roundcube" {% if webmail_services == 'roundcube' %}selected{% endif %}>Roundcube</option>
+                    <option value="sogo" {% if webmail_services == 'sogo' %}selected{% endif %}>SOGo</option>
+                    <option value="snappymail" {% if webmail_services == 'snappymail' %}selected{% endif %}>SnappyMail</option>
+                  </select>
+                </div>
+                <div class="card-footer">
+                  <div class="row align-items-center">
+                    <div class="col">Learn more about <a href="#" target="_blank">Webmail Client</a></div>
+                    <div class="col-auto">
+                      <button type="submit" class="btn btn-primary">Save Client</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+<script>
+    // Store the initial state of the select input
+    const initialClientStates = {};
+    const clientForm = document.getElementById('client-form');
+
+    // Store the initial value of the select field
+    Array.from(clientForm.querySelectorAll('select')).forEach(select => {
+        initialClientStates[select.name] = select.value; // Use 'name' instead of 'id'
+    });
+
+    clientForm.onsubmit = function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData();
+
+        // Collect only changed values
+        Array.from(clientForm.querySelectorAll('select')).forEach(select => {
+            const value = select.value;
+            const name = select.name; // Use 'name' to match FormData structure
+
+            // Check if the state has changed
+            if (initialClientStates[name] !== value) {
+                // Add the changed value to FormData
+                formData.append(name, value);  // Send the updated value
+            }
+        });
+
+        // Send the form data using Fetch API
+        fetch('/emails/settings', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Create a new toast element for notifications
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.setAttribute('data-bs-autohide', 'false');
+
+            // Create the header
+            const toastHeader = document.createElement('div');
+            toastHeader.className = 'toast-header';
+            const strong = document.createElement('strong');
+            strong.className = 'me-auto';
+            strong.innerText = `Updating webmail domain`;
+            const small = document.createElement('small');
+            small.innerText = new Date().toLocaleTimeString();
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'ms-2 btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'toast');
+            closeButton.setAttribute('aria-label', 'Close');
+
+            // Append elements to the header
+            toastHeader.appendChild(strong);
+            toastHeader.appendChild(small);
+            toastHeader.appendChild(closeButton);
+
+            // Create the body
+            const toastBody = document.createElement('div');
+            toastBody.className = 'toast-body';
+            toastBody.innerText = data.success ? data.success : data.error;
+
+            // Append header and body to the toast
+            toastElement.appendChild(toastHeader);
+            toastElement.appendChild(toastBody);
+
+            // Append the toast to the toast container
+            document.querySelector('.toast-container').appendChild(toastElement);
+
+            // Show the toast
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            // Reload the page after 1 second
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Create a new toast for errors
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.setAttribute('data-bs-autohide', 'false');
+
+            // Create the header
+            const toastHeader = document.createElement('div');
+            toastHeader.className = 'toast-header';
+            const strong = document.createElement('strong');
+            strong.className = 'me-auto';
+            strong.innerText = `Error`;
+            const small = document.createElement('small');
+            small.innerText = new Date().toLocaleTimeString();
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'ms-2 btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'toast');
+            closeButton.setAttribute('aria-label', 'Close');
+
+            // Append elements to the header
+            toastHeader.appendChild(strong);
+            toastHeader.appendChild(small);
+            toastHeader.appendChild(closeButton);
+
+            // Create the body
+            const toastBody = document.createElement('div');
+            toastBody.className = 'toast-body';
+            toastBody.innerText = 'An error occurred processing the request. Error message:<br>' + error;
+
+            // Append header and body to the toast
+            toastElement.appendChild(toastHeader);
+            toastElement.appendChild(toastBody);
+
+            // Append the toast to the toast container
+            document.querySelector('.toast-container').appendChild(toastElement);
+
+            // Show the toast
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        });
+    };
+</script>
+
+
+
+
+            <div class="col-md-6">
+                <form class="card" id="domain-form">
+                  <div class="card-body">
+                  <h3 class="card-title">Webmail Domain</h3>
+                  <p class="card-subtitle">Configure domain to be used for webmail service. Webmail will be available on this domain and <code>/webmail</code> on every user domain will redirect to this domain.</p>
+                  <input name="webmail-domain" id="webmail-domain" type="text" class="form-control" placeholder="webmail.example.net" value="{{webmail_domain}}">
+                </div>
+                <div class="card-footer">
+                  <div class="row align-items-center">
+                    <div class="col">Learn more about <a href="#" target="_blank">Webmail Domain</a></div>
+                    <div class="col-auto">
+                      <button type="submit" class="btn btn-primary">Save Domain</button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            
+
+
+<script>
+    // Store the initial state of text inputs
+    const initialDomainStates = {};
+    const domainForm = document.getElementById('domain-form');
+
+    // Store initial values of input fields
+    Array.from(domainForm.querySelectorAll('input[type="text"]')).forEach(input => {
+        initialDomainStates[input.name] = input.value; // Use 'name' instead of 'id'
+    });
+
+    domainForm.onsubmit = function(event) {
+        event.preventDefault();
+        
+        const formData = new FormData();
+
+        // Collect only changed values
+        Array.from(domainForm.querySelectorAll('input[type="text"]')).forEach(input => {
+            const value = input.value;
+            const name = input.name; // Use 'name' to match FormData structure
+
+            // Check if the state has changed
+            if (initialDomainStates[name] !== value) {
+                // Add the changed value to FormData
+                formData.append(name, value);  // Send the updated value
+            }
+        });
+
+        // Send the form data using Fetch API
+        fetch('/emails/settings', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Create a new toast element for notifications
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.setAttribute('data-bs-autohide', 'false');
+
+            // Create the header
+            const toastHeader = document.createElement('div');
+            toastHeader.className = 'toast-header';
+            const strong = document.createElement('strong');
+            strong.className = 'me-auto';
+            strong.innerText = `Updating webmail domain`;
+            const small = document.createElement('small');
+            small.innerText = new Date().toLocaleTimeString();
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'ms-2 btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'toast');
+            closeButton.setAttribute('aria-label', 'Close');
+
+            // Append elements to the header
+            toastHeader.appendChild(strong);
+            toastHeader.appendChild(small);
+            toastHeader.appendChild(closeButton);
+
+            // Create the body
+            const toastBody = document.createElement('div');
+            toastBody.className = 'toast-body';
+            toastBody.innerText = data.success ? data.success : data.error;
+
+            // Append header and body to the toast
+            toastElement.appendChild(toastHeader);
+            toastElement.appendChild(toastBody);
+
+            // Append the toast to the toast container
+            document.querySelector('.toast-container').appendChild(toastElement);
+
+            // Show the toast
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+
+            // Reload the page after 1 second
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            
+            // Create a new toast for errors
+            const toastElement = document.createElement('div');
+            toastElement.className = 'toast';
+            toastElement.role = 'alert';
+            toastElement.ariaLive = 'assertive';
+            toastElement.ariaAtomic = 'true';
+            toastElement.setAttribute('data-bs-autohide', 'false');
+
+            // Create the header
+            const toastHeader = document.createElement('div');
+            toastHeader.className = 'toast-header';
+            const strong = document.createElement('strong');
+            strong.className = 'me-auto';
+            strong.innerText = `Error`;
+            const small = document.createElement('small');
+            small.innerText = new Date().toLocaleTimeString();
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'ms-2 btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'toast');
+            closeButton.setAttribute('aria-label', 'Close');
+
+            // Append elements to the header
+            toastHeader.appendChild(strong);
+            toastHeader.appendChild(small);
+            toastHeader.appendChild(closeButton);
+
+            // Create the body
+            const toastBody = document.createElement('div');
+            toastBody.className = 'toast-body';
+            toastBody.innerText = 'An error occurred processing the request. Error message:<br>' + error;
+
+            // Append header and body to the toast
+            toastElement.appendChild(toastHeader);
+            toastElement.appendChild(toastBody);
+
+            // Append the toast to the toast container
+            document.querySelector('.toast-container').appendChild(toastElement);
+
+            // Show the toast
+            const toast = new bootstrap.Toast(toastElement);
+            toast.show();
+        });
+    };
+</script>
+
+
+            
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        </div>
+        <div class="tab-pane" id="tabs-env" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+                  <h4>/usr/local/mail/openmail/mailserver.env</h4>
+                  <div class="mb-2">Main configuration file located in <code>/usr/local/mail/openmail/mailserver.env</code></div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_env" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+          <textarea class="form-control" rows="30" id="env_file"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-compose" role="tabpanel">
+
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/usr/local/mail/openmail/compose.yml</h4>
+            <div class="mb-2">MailServer and Webmail servcies configuration file inside <code>/usr/local/mail/openmail/compose.yml</code>.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_compose" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="compose"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-settings-1" role="tabpanel">
+            <h4>Restore Default Configuration</h4>
+            <div>Download original configuration: <a href="https://github.com/stefanpejcic/OpenMail/blob/main/mailserver.env" target="_blank">mailserver.env</a> and <a href="https://github.com/stefanpejcic/OpenMail/blob/main/compose.yml" target="_blank">compose.yml</a></div>
+        </div>
+    </div>
+</div>
+
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+
+  </div>
+</div>
+
+</div>
+
+
+
+
+
+
+
+<div class="toast-container position-fixed bottom-0 end-0 p-2"></div>
+
+
+<script>
+async function controlNginx(action, displayName) {
+    // Create a new toast element for the notification
+    const toastElement = document.createElement('div');
+    toastElement.className = 'toast';
+    toastElement.role = 'alert';
+    toastElement.ariaLive = 'assertive';
+    toastElement.ariaAtomic = 'true';
+    toastElement.setAttribute('data-bs-autohide', 'false');
+
+    // Create the header
+    const toastHeader = document.createElement('div');
+    toastHeader.className = 'toast-header';
+    const strong = document.createElement('strong');
+    strong.className = 'me-auto';
+    strong.innerText = `${action.charAt(0).toUpperCase() + action.slice(1)}ing ${displayName}`;
+    const small = document.createElement('small');
+    small.innerText = new Date().toLocaleTimeString();
+    const closeButton = document.createElement('button');
+    closeButton.type = 'button';
+    closeButton.className = 'ms-2 btn-close';
+    closeButton.setAttribute('data-bs-dismiss', 'toast');
+    closeButton.setAttribute('aria-label', 'Close');
+
+    // Append elements to the header
+    toastHeader.appendChild(strong);
+    toastHeader.appendChild(small);
+    toastHeader.appendChild(closeButton);
+    
+    // Create the body
+    const toastBody = document.createElement('div');
+    toastBody.className = 'toast-body';
+    toastBody.innerText = 'Processing your request... Please wait.';
+
+    // Append header and body to the toast
+    toastElement.appendChild(toastHeader);
+    toastElement.appendChild(toastBody);
+
+    // Append the toast to the toast container
+    document.querySelector('.toast-container').appendChild(toastElement);
+
+    // Show the toast
+    const toast = new bootstrap.Toast(toastElement);
+    toast.show();
+
+    try {
+        // Make the fetch request to control the service
+        const response = await fetch('/services/control', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ real_name: 'openadmin_mailserver', action: action }),
+        });
+
+        // Parse the JSON response
+        const result = await response.json();
+
+        // Check the result status
+        if (result.status === 'success') {
+            // Show success message
+            toastBody.innerHTML = `${displayName} action completed successfully!<br>Page will refresh to display updated information.`;
+            toast.show();
+            location.reload(); // Refresh the page to update information
+        } else {
+            // Show error message
+            toastBody.innerText = 'Error: ' + result.message;
+            toast.show();
+        }
+    } catch (error) {
+        // Handle any network errors
+        console.error('Error:', error);
+        toastBody.innerHTML = 'An error occurred processing the request. Error message:<br><pre>' + error + '</pre>';
+        toast.show();
+    }
+}
+</script>
+
+<script src="{{ url_for('static', filename='pages/emails_settings.js') }}" defer></script>
+
+{% endblock %}

@@ -1,0 +1,92 @@
+<!-- Content of try_enterprise.html -->
+
+    <style>
+        .dismiss-custom_message-button {
+            display: none;
+        }
+        #custom_message:hover .dismiss-custom_message-button {
+            display: inline-block;
+        }
+    </style>
+
+
+
+
+    <div class="col-md-4 g-3">
+        <div id="custom_message" class="card card-one" style="height:28rem">
+            <div class="card-header">
+                <div class="col">
+                    <form action="{{ url_for('dismiss_dashboard_widget', template_name='try_enterprise') }}" method="post">
+                    <h6 class="card-title">Try Enterprise <button data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Hide and never show option to upgrade to Enterprise again" class="dismiss-custom_message-button btn btn-sm" type="submit">Dismiss</button></h6>
+                    <p class="card-subtitle" ><span id="pricing-container"></span></p>
+                    </form>
+                </div>
+                <div class="col-auto">
+                    <a href="/license" id="purchaselink" class="btn btn-dark">Upgrade Now</a>
+                </div>
+            </div>
+            <div class="card-body">
+
+<p class="text-secondary"><b>OpenPanel Enterprise edition</b> offers advanced features for user isolation and management, suitable for web hosting providers.</p>
+
+<div class="divide-y-2 mt-4" id="features-container"></div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $.ajax({
+        url: 'https://api.openpanel.com/whmcs.php',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.result === 'success' && response.totalresults > 0) {
+                const product = response.products.product[0]; // Get the first product
+                const pricing = product.pricing.EUR; // Get the pricing in EUR
+                
+                // Display price information
+                const pricingHtml = `Starting at ${pricing.monthly} ${pricing.suffix} monthly`;
+                $('#pricing-container').html(pricingHtml);
+
+                // Update the purchase link
+                const productUrl = product.product_url; // Get the product URL
+                $('#purchaselink').attr('href', productUrl); // Set the href attribute
+
+                // Parse the features from the description
+                const featureListMatch = product.description.match(/<ul>(.*?)<\/ul>/s);
+                if (featureListMatch) {
+                    const features = featureListMatch[1].match(/<li>(.*?)<\/li>/g).map(item => item.replace(/<li>|<\/li>/g, '').trim());
+                    const featuresContainer = $('#features-container');
+                    featuresContainer.empty(); // Clear existing features
+
+                    features.forEach(feature => {
+                        const featureHtml = `
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon text-green">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M5 12l5 5l10 -10"></path>
+                                </svg>
+                                ${feature}
+                            </div>
+                        `;
+                        featuresContainer.append(featureHtml);
+                    });
+                } else {
+                    $('#features-container').html('<p>No features found.</p>');
+                }
+            } else {
+                $('#pricing-container').html('<p>No products found.</p>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            $('#pricing-container').html('<p>Error retrieving pricing information.</p>');
+        }
+    });
+});
+</script>
+
+
+</div>
+</div>
+ 

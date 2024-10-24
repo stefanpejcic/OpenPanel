@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container-xl">
+    <div class="row">
+
+<form method="POST" action="{{ url_for('account_notifications') }}">
+    <h4>{{ title }}</h4>
+    <div>
+        <p>Receive email notifications for:</p>
+
+        {% for key, value in notifications.items() %}
+            <div>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" name="{{ key }}" id="{{ key }}" type="checkbox" role="switch" value="1" {% if value == '1' %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ key }}">{{ key[6:].replace('_', ' ') if key.startswith('notify') else key.replace('_', ' ').title() }} </label>
+                          </div>
+            </div>
+        {% endfor %}
+    </div>
+    <button class="btn btn-primary" type="submit">Save Preferences</button>
+</form>
+
+    </div>
+</div>
+
+{% endblock %}

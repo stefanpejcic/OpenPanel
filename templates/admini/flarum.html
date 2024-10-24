@@ -1,0 +1,708 @@
+<!-- flarum.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+   
+{% if domains %}
+<style>
+.toast-header {
+    background-color: #192030;
+    padding: 15px;
+    font-weight: 600;
+    font-size: 15px;
+    margin-bottom: 0;
+    line-height: 1.4;
+    color: rgb(255 255 255 / 84%)!important;
+
+}
+
+.no_link {
+    color: black;
+    text-decoration: none;
+}
+.nije-link {
+        text-decoration: none;
+    color: black;
+    border-bottom: 1px dashed black;
+}
+</style>    
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+{% if "Error" in message %}
+<script type="module">
+const toastMessage = '{{ message }}';
+const toast = toaster({
+body: toastMessage,
+header: `<div class="d-flex align-items-center" style="color: #495057;"><l-i class="bi bi-x-lg" class="me-2" style="color:red;"></l-i> {{ _("Flarum Installation failed.") }}</div>`,
+});
+</script>
+{% else %}
+<script type="module">
+const toastMessage = '{{ message }}';
+const toast = toaster({
+body: toastMessage,
+header: `<div class="d-flex align-items-center" style="color: #495057;"><l-i class="bi bi-check-lg" class="me-2" style="color:green;"></l-i> {{ _("Flarum successfully installed.") }}</div>`,
+});
+</script>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+<!-- END Flash messages -->
+
+<div class="row">
+
+<div class="collapse mb-2" id="collapseExample">
+  <div class="card card-body">
+<!-- Form for adding new containers -->
+<div class="container">
+    <a href="#" class="nije-link" id="cancelLink" style="display: none;"><i class="bi bi-x-lg" style="right: 15px;top: 15px;position: absolute;color: black;padding: 6px 10px;border-radius: 50px;"></i></a>
+
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h2 class="mb-3"><i class="bi bi-download"></i> {{ _("Install Flarum") }}</h2>
+            <p>{{ _("Install Flarum on an existing domain.") }}</p>
+            <form method="post" id="installForm" action="/flarum/install">
+    <div class="form-group row">
+        <div class="col-12">
+            <label for="website_name" class="form-label">{{ _("Website Name:") }}</label>
+            <input type="text" class="form-control" name="website_name" id="website_name" value="My Flarum" required>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="domain_id" class="form-label">{{ _("Domain:") }}</label>
+    <div class="input-group">
+        </select>
+           <select class="form-select" name="domain_id" id="domain_id">
+                {% for domain in domains %}
+                    <option class="punycode" value="{{ domain.domain_id }}">{{ domain.domain_url }}</option>
+                {% endfor %}
+            </select>
+            <div class="input-group-append" style="width:30%;">
+                <input type="text" class="form-control" name="subdirectory" id="subdirectory" placeholder="subfolder">
+            </div>
+    </div>
+
+
+    </div>
+<div class="form-group">
+    <label for="admin_email">{{ _("Admin Email:") }}</label>
+    <input type="email" class="form-control" name="admin_email" id="admin_email" required>
+</div>
+
+
+
+<script>
+    $(document).ready(function() {
+        // Check if the URL contains the parameter "install"
+        const urlParams = new URLSearchParams(window.location.search);
+        const installParam = urlParams.get('install');
+
+        if (installParam || window.location.hash === '#install') {
+            // Show the Bootstrap collapsible element
+            $("#collapseExample").collapse('show');
+        }
+
+
+        // Add event listener to the dropdown
+        $("#domain_id").change(function() {
+            // Get the selected domain URL
+            var selectedDomain = $("#domain_id option:selected").text();
+
+            // Update the admin email input value
+            var adminEmailInput = $("#admin_email");
+            var currentAdminEmail = adminEmailInput.val();
+            var atIndex = currentAdminEmail.indexOf('@');
+            if (atIndex !== -1) {
+                // If '@' exists in the email, replace the part after it with the selected domain
+                adminEmailInput.val(currentAdminEmail.substring(0, atIndex + 1) + selectedDomain);
+            } else {
+                // If '@' doesn't exist in the email, add the selected domain after 'admin@'
+                adminEmailInput.val('admin@' + selectedDomain);
+            }
+        });
+    // Add event listener to the "Install Flarum" button to toggle form and jumbotron
+    $("#collapseExample").on('shown.bs.collapse', function () {
+        $("#jumbotronSection").hide();
+        $("#cancelLink").show();
+    });
+
+    // Add event listener to the "Cancel" link to toggle form and jumbotron
+    $("#cancelLink").click(function() {
+        $("#collapseExample").collapse('hide');
+        $("#jumbotronSection").show();
+        $("#cancelLink").hide();
+    });
+    });
+
+
+
+
+
+
+            var selectedDomain = $("#domain_id option:selected").text();
+
+            // Update the admin email input value
+            var adminEmailInput = $("#admin_email");
+            var currentAdminEmail = adminEmailInput.val();
+            var atIndex = currentAdminEmail.indexOf('@');
+            if (atIndex !== -1) {
+                // If '@' exists in the email, replace the part after it with the selected domain
+                adminEmailInput.val(currentAdminEmail.substring(0, atIndex + 1) + selectedDomain);
+            } else {
+                // If '@' doesn't exist in the email, add the selected domain after 'admin@'
+                adminEmailInput.val('admin@' + selectedDomain);
+            }
+
+
+
+
+
+
+</script>
+
+    <div class="form-group row">
+        <div class="col-md-6">
+            <label for="admin_username" class="form-label">{{ _("Admin Username:") }}</label>
+            <input type="text" class="form-control" name="admin_username" id="admin_username" required>
+        </div>
+        <div class="col-md-6">
+            <label for="admin_password" class="form-label">{{ _("Admin Password:") }}</label>
+            <div class="input-group">
+                <input type="password" class="form-control" name="admin_password" id="admin_password" required>
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success" type="button" id="generatePassword">
+                        {{ _("Generate") }}
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+<script>
+    function generateRandomUsername(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            result += charset.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    function generateRandomStrongPassword(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            result += charset.charAt(randomIndex);
+        }
+        return result;
+    }
+
+    function generateInitiallyUsernameAndPassword() {
+        const generatedUsername = generateRandomUsername(8);
+        const generatedPassword = generateRandomStrongPassword(16);
+
+        document.getElementById("admin_username").value = generatedUsername;
+        document.getElementById("admin_password").value = generatedPassword;
+    };
+
+    generateInitiallyUsernameAndPassword();
+
+    document.getElementById("generatePassword").addEventListener("click", function() {
+        const generatedPassword = generateRandomStrongPassword(16);
+        document.getElementById("admin_password").value = generatedPassword;
+
+        const passwordField = document.getElementById("admin_password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        }
+
+    });
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("admin_password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        } else {
+            passwordField.type = "password";
+        }
+    });
+</script>
+
+<div class="form-group">
+    <label for="flarum_version" class="form-label">Flarum Version:</label>
+    <div class="form-field">
+        <select class="form-select" name="flarum_version" id="flarum_version">
+        </select>
+    </div>
+</div>
+
+
+
+
+ <!-- https://github.com/flarum/flarum/releases -->
+
+
+<br>
+<button type="submit" class="btn btn-primary" id="installButton">{{ _("Start Installation") }}</button>
+</form>
+
+<script>
+    // Fetch the Flarum versions from the GitHub API
+    fetch('https://api.github.com/repos/flarum/flarum/tags')
+        .then(response => response.json())
+        .then(data => {
+            // Extract tag names from the response
+            const versions = data.map(tag => tag.name);
+
+            // Filter out versions if needed (for example, excluding beta or RC versions)
+            const filteredVersions = versions.filter(version => !version.includes('beta') && !version.includes('RC') && !version.includes('-'));
+
+            // Take the latest 10 versions
+            const latestVersions = filteredVersions.slice(0, 1);
+
+            // Populate the select dropdown with options
+            const selectElement = document.getElementById('flarum_version');
+            latestVersions.forEach(version => {
+                const option = document.createElement('option');
+                option.value = version;
+                option.textContent = `${version}`;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching Flarum versions:', error);
+
+            // In case of an error, you might want to display a default option
+            const selectElement = document.getElementById('flarum_version');
+            const option = document.createElement('option');
+            option.value = ''; // Set a value for the default option if needed
+            option.textContent = 'Error fetching versions';
+            selectElement.appendChild(option);
+        });
+
+    // Function to compare two version strings
+    function compareVersions(a, b) {
+        const versionA = a.split('.').map(Number);
+        const versionB = b.split('.').map(Number);
+
+        for (let i = 0; i < Math.max(versionA.length, versionB.length); i++) {
+            const partA = versionA[i] || 0;
+            const partB = versionB[i] || 0;
+
+            if (partA < partB) return -1;
+            if (partA > partB) return 1;
+        }
+
+        return 0;
+    }
+</script>
+
+
+        </div>
+    </div>
+</div>
+
+  </div>
+</div>
+{% if data %}
+{% if view_mode == 'table' %}
+       <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>{{ _("Domain") }}</th>
+                    <th>{{ _("Flarum Version") }}</th>
+                    <th>{{ _("Admin Email") }}</th>
+                    <th>{{ _("Created on") }}</th>
+                    <th>{{ _("Actions") }}</th>
+                </tr>
+            </thead>
+<tbody>
+    {% for row in data %}
+    <div class="modal fade" id="removeModal{{ row[6] }}"  tabindex="-1" role="dialog" aria-labelledby="removeModalLabel{{ row[6] }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeModalLabel{{ row[6] }}">{{ row[0] }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+<div class="col-md-6">
+<h4>{{ _("Delete Flarum website") }}</h4>
+<p>{{ _("This will irreversibly delete the website, permanently deleting all files and database.") }}</p>
+<button type="button" class="btn btn-danger" onclick="confirmRemove('{{ row[6] }}')">{{ _("Uninstall") }}</button>
+</div>
+
+<div class="col-md-6">
+<h4>{{ _("Remove from the Manager") }}</h4>
+<p>{{ _("This will just remove the installation from the Manager but keep the files and database.") }}</p>
+<button type="button" class="btn btn-warning" onclick="confirmDetach('{{ row[6] }}')">{{ _("Detach") }}</button>
+</div>
+
+
+</div>
+<div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+	
+{% set domain_url = row[0]  %}
+        <tr>         
+            <td><a class="punycode no_link domain_link" href="http://{{ row[0] }}" target="_blank"><img src="https://www.google.com/s2/favicons?domain={{ row[0] }}" alt="{{ row[0] }} Favicon" style="width:16px; height:16px; margin-right:5px;">
+ {{ row[0] }} <i class="bi bi-box-arrow-up-right"></i></a></td>
+            <td>{{ row[3] }}</td>
+            <td>{{ row[2] }}</td>
+            <td>{{ row[4] }}</td>
+                        <td>
+<a class="btn btn-secondary mx-2" href="/website?domain={{ row[0] }}">{{ _("Manage") }}</a>
+				<button type="button" class="btn btn-danger" style="border: 0px;" data-bs-toggle="modal" data-bs-target="#removeModal{{ row[1] }}"><i class="bi bi-trash3"></i> {{ _("Remove") }}</button>
+				
+            </td>
+        </tr>
+    {% endfor %}
+</tbody>
+
+        </table>
+{% endif %}
+{% if view_mode == 'cards' %}
+<style>
+  /* Style for the container */
+  .image-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  /* Style for the button */
+  .center-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none; /* Hide the button by default */
+    z-index: 1; /* Ensure the button appears above the image */
+  }
+
+  /* Show the button when hovering over the image container */
+  .image-container:hover .center-button {
+    display: block;
+  }
+
+.card {
+    border: none;
+    border-radius: 10px
+}
+
+.c-details span {
+    font-weight: 300;
+    font-size: 13px
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    background-color: #eee;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 39px
+}
+
+.badge span {
+    background-color: black;
+    width: 80px;
+    height: 20px;
+    padding-bottom: 3px;
+    border-radius: 5px;
+    display: flex;
+    color: white;
+    justify-content: center;
+    align-items: center
+}
+
+.text1 {
+    font-size: 14px;
+    font-weight: 600
+}
+
+.text2 {
+    color: #a5aec0
+}
+
+a.close_button {
+    right: 5px;top: 10px;position: absolute;color: white;padding: 0px 4px;background: indianred;border-radius: 50px; z-index:1;
+
+}
+a.close_button:hover {
+    background: red;
+}
+
+</style>    
+
+
+<div class="container mb-3">
+    <div class="row">
+            {% for row in data %}
+    <div class="modal fade" id="removeModal{{ row[6] }}" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel{{ row[6] }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeModalLabel{{ row[6] }}">{{ row[0] }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body row">
+<div class="col-md-6">
+<h4>{{ _("Delete Flarum website") }}</h4>
+<p>{{ _("This will irreversibly delete the website, permanently deleting all files and database.") }}</p>
+<button type="button" class="btn btn-danger" onclick="confirmRemove('{{ row[6] }}')">{{ _("Uninstall") }}</button>
+</div>
+
+<div class="col-md-6">
+<h4>{{ _("Remove from the Manager") }}</h4>
+<p>{{ _("This will just remove the installation from the Manager but keep the files and database.") }}</p>
+<button type="button" class="btn btn-warning" onclick="confirmDetach('{{ row[6] }}')">{{ _("Detach") }}</button>
+</div>
+
+
+</div>
+<div class="modal-footer">
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <div class="col-md-4">
+            <div class="card bg-light mb-2">
+                <a href="#" class="close_button" data-bs-toggle="modal" data-bs-target="#removeModal{{ row[6] }}"><i class="bi bi-x-lg" style=""></i></a>
+<div class="mt-0">
+
+<div class="image-container">
+    <a href="/website?domain={{ row[0] }}">
+        <img
+            id="screenshot-image-{{ row[0] }}"
+            src="/static/images/placeholder.svg"
+            alt="Screenshot of {{ row[0] }}"
+            class="img-fluid"
+        />
+    </a>
+    <a href="/website?domain={{ row[0] }}" class="center-button btn btn-dark">
+        <i class="bi bi-sliders2-vertical"></i> {{ _("Manage") }}
+    </a>
+</div>
+
+
+  </div>
+                <div class="d-flex p-2 justify-content-between">
+                    <div class="d-flex flex-row align-items-center">
+                        <div class="icon"> <i class=""><svg xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:svg="http://www.w3.org/2000/svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="42px" height="42px" viewBox="0 0 64 64" version="1.1" preserveAspectRatio="xMidYMid" id="svg22" sodipodi:docname="flarum-icon.svg" inkscape:version="0.92.4 (5da689c313, 2019-01-14)"> <metadata id="metadata26"> <rdf:rdf> <cc:work rdf:about=""> <dc:format>image/svg+xml</dc:format> <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"></dc:type> <dc:title></dc:title> </cc:work> </rdf:rdf> </metadata> <sodipodi:namedview pagecolor="#ffffff" bordercolor="#666666" borderopacity="1" objecttolerance="10" gridtolerance="10" guidetolerance="10" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-width="1920" inkscape:window-height="1001" id="namedview24" showgrid="false" inkscape:zoom="2.6484375" inkscape:cx="104.78113" inkscape:cy="7.0183228" inkscape:window-x="-9" inkscape:window-y="-9" inkscape:window-maximized="1" inkscape:current-layer="svg22"></sodipodi:namedview> <defs id="defs12"> <linearGradient x1="39.25486" y1="79.948608" x2="39.25486" y2="1.4437387" id="linearGradient-1" gradientTransform="matrix(0.13724088,0,0,0.27795633,15.103245,19.574026)" gradientUnits="userSpaceOnUse"> <stop stop-color="#D22929" offset="0%" id="stop2"></stop> <stop stop-color="#B71717" offset="100%" id="stop4"></stop> </linearGradient> <linearGradient x1="0.5" y1="0" x2="0.5" y2="1" id="linearGradient-2"> <stop stop-color="#E7762E" offset="0%" id="stop7"></stop> <stop stop-color="#E7562E" offset="100%" id="stop9"></stop> </linearGradient> <linearGradient inkscape:collect="always" xlink:href="#linearGradient-2" id="linearGradient833" x1="45.281994" y1="0" x2="45.281994" y2="90.563988" gradientTransform="matrix(0.20819775,0,0,0.18322471,15.103245,19.574026)" gradientUnits="userSpaceOnUse"></linearGradient> </defs> <g id="g842" transform="matrix(2.8799999,0,0,2.8799999,-38.648859,-56.373193)"> <path d="M 15.10814,34.404271 15.10354,20.58171 c -1.84e-4,-0.556529 0.383134,-0.768017 0.854123,-0.473649 l 9.919955,6.199972 v 15.488216 l -9.293169,-5.640035 c -1.287893,-0.701196 -1.47454,-1.1364 -1.476347,-1.751943 z" id="path14" inkscape:connector-curvature="0" style="fill:url(#linearGradient-1);stroke-width:0.1953125"></path> <path d="m 16.114255,19.574026 c -0.558366,0 -1.01101,0.451467 -1.01101,1.012451 v 13.802364 c 0.02805,0.474415 0.0039,0.969043 1.510295,1.778745 0,0 -1.476019,-1.434143 0.846607,-1.442045 H 33.958464 V 19.574026 Z" id="path16" inkscape:connector-curvature="0" style="fill:url(#linearGradient833);stroke-width:0.1953125"></path> </g> </svg></i> </div>
+                        <div class="ms-2 c-details">
+                            <h6 class="punycode mb-0"><a href="http://{{ row[0] }}" target="_blank" class="nije-link">{{ row[0] }}</a></h6> <span>{{ _("Flarum") }} {{ row[3] }}</span>
+                        </div>
+                    </div>
+                    <div class="badge" style="display: -webkit-box;">
+             <!--div class="dropdown" style="vertical-align: middle;    display: inline;">
+              <a href="" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-three-dots-vertical" style="font-size: 1.3125rem;"></i>
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="more-actions">
+                <li><a class="dropdown-item" href="#">PHP Version</a></li>
+                <li><a class="dropdown-item" href="#">SSL Security</a></li>
+                <li><a class="dropdown-item" href="#">SSL Security</a></li>
+                <hr>
+                <li><a class="dropdown-item" href="#">Refresh Preview</a></li>
+              </ul>
+            </div--></div>
+                    
+                </div>
+                
+            </div>
+
+        </div>
+    {% endfor %}
+
+    </div>
+</div>
+
+<script>
+    // Function to update a screenshot image
+    function updateScreenshot(screenshotImage, screenshotURL) {
+        var imageLoader = new Image();
+        imageLoader.src = screenshotURL;
+        imageLoader.onload = function() {
+            screenshotImage.src = screenshotURL;
+        };
+    }
+
+    // Function to update all screenshot images
+    function updateAllScreenshots() {
+        {% for row in data %}
+            var screenshotImage = document.getElementById("screenshot-image-{{ row[0] }}");
+            var screenshotURL = "/screenshot/{{ row[0] }}";
+            updateScreenshot(screenshotImage, screenshotURL);
+        {% endfor %}
+    }
+
+    updateAllScreenshots();
+</script>
+
+
+{% endif %}
+
+<script>
+    // Function to confirm removal
+    function confirmRemove(id) {
+        // Send an AJAX request to the server to remove Flarum
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/flarum/remove', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Reload the page to update the table
+                    location.reload();
+                } else {
+                    alert('{{ _("An error occurred while removing Flarum.") }}');
+                }
+            }
+        };
+        xhr.send('id=' + id);
+    }
+    
+    // Function to confirm detachment
+    function confirmDetach(id) {
+        // Send an AJAX request to the server to remove Flarum
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/flarum/detach', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Redirect to wp manager page
+                    window.location.href = '/flarum';
+                } else {
+                    alert('{{ _("An error occurred while detaching Flarum.") }}');
+                }
+            }
+        };
+        xhr.send('id=' + id);
+    }
+</script>
+
+
+
+
+
+</div>
+
+<style>
+  .nije-link {
+    text-decoration: none;
+color: black;
+border-bottom: 1px dashed black;
+  }
+
+
+</style>
+{% else %}
+
+  <!-- Display jumbotron for no wp installations -->
+  <div class="jumbotron text-center mt-5" id="jumbotronSection" style="min-height: 70vh;display:block;">
+    <h1>{{ _("No Flarum Installations") }}</h1>
+    <p>{{ _("There are no existing Flarum installations. You can install a new instance below.") }}</p>
+    <button class="btn btn-lg btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+      <i class="bi bi-download"></i> {{ _("Install Flarum") }}
+    </button>
+
+  </div>
+{% endif %}
+
+
+
+
+
+
+{% else %}
+  <!-- Display jumbotron for no domains -->
+<div class="jumbotron text-center mt-5" id="jumbotronSection">
+    <h1>{{ _("No Domains") }}</h1>
+    <p>{{ _("Add a domain name first in order to install Flarum.") }}</p>
+    <a href="/domains#add-new" class="btn btn-lg btn-primary">
+      <i class="bi bi-plus-lg"></i> {{ _("Add a Domain Name") }}
+    </a>
+</div>
+{% endif %}
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/punycode/2.1.1/punycode.min.js"></script>
+
+<script type="module">
+    punnyCodeShouldBeGlobalFunction function() {
+        var punycodeElements = document.querySelectorAll(".punycode");
+        punycodeElements.forEach(function(element) {
+            element.textContent = punycode.toUnicode(element.textContent);
+        });
+    };
+
+punnyCodeShouldBeGlobalFunction();
+</script>
+
+
+</section>
+          <footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="Status">
+</div>
+
+<div class="ms-auto" role="group" aria-label="Actions">
+
+<button class="btn btn-transparent" type="button" aria-expanded="false" id="refreshData">
+    <i class="bi bi-arrow-counterclockwise"></i> {{ _('Refresh') }}<span class="desktop-only"> {{ _('Data') }}</span>
+</button>
+
+<button class="btn btn-primary mx-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseExample" aria-expanded="false" aria-controls="collapseExample">
+    <i class="bi bi-download"></i> {{ _('Install') }}<span class="desktop-only"> {{ _('Flarum') }}</span>
+</button>
+
+
+<span class="desktop-only">{% if view_mode == 'cards' %}
+<a href="{{ url_for('list_flarum', view='table') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ _('Switch to List View - perfect for those with many Websites.') }}"  class="btn btn-outline" style="padding-left: 5px; padding-right: 5px;"><i class="bi bi-table"></i></a>
+{% endif %}
+{% if view_mode == 'table' %}
+<a href="{{ url_for('list_flarum', view='cards') }}" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ _('Switch to Grid View - a visual representation of your Websites and their content.') }}" class="btn btn-outline" style="padding-left: 5px; padding-right: 5px;"><i class="bi bi-view-list"></i></a>
+{% endif %}</span>
+
+<script>
+    // Add an event listener to the links to hide tooltip as its buggy!
+    document.addEventListener('DOMContentLoaded', function () {
+        var links = document.querySelectorAll('.desktop-only a');
+
+        links.forEach(function (link) {
+            link.addEventListener('click', function () {
+                // Hide the tooltip when the link is clicked
+                var tooltip = new bootstrap.Tooltip(link);
+                tooltip.hide();
+            });
+        });
+    });
+</script>
+
+</div>
+</footer>
+
+
+
+{% endblock %}

@@ -1,0 +1,153 @@
+<!-- ip_blocker.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- content for the ssl page -->
+{% if domains %}
+
+<style>
+@media (min-width: 768px) {
+  table.table {
+    table-layout: fixed;
+  }
+  table.table td {
+    word-wrap: break-word;
+  }
+}
+
+@media (max-width: 767px) {
+span.advanced-text {display:none;}
+}
+
+    .hidden {
+        display: none;
+    }
+
+.advanced-settings {
+    align-items: center;
+    text-align: right;
+    color: black;
+}
+
+.advanced-settings i {
+    margin right: 5px;
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease-in-out;
+}
+.domain_link {
+    border-bottom: 1px dashed #999;
+    text-decoration: none;
+    color: black;
+
+}
+.advanced-settings.active i {
+    transform: rotate(0);
+}
+
+thead {
+        border: 1px solid rgb(90 86 86 / 11%);
+}
+th {
+color: rgb(0 0 0 / 65%)!important;
+    background: #fafafa!important;
+    text-transform: uppercase;
+    font-weight: 400;
+
+}
+
+</style>
+
+
+<div class="row">
+        <!-- Search bar -->
+        <div class="input-group mb-3" style="padding-left:0px;padding-right:0px;">
+            <input type="text" class="form-control" placeholder="{{ _('Search domains') }}" id="searchDomainInput">
+        </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Get references to search input and display settings div
+    const searchDomainInput = document.getElementById("searchDomainInput");
+    const displaySettingsDiv = document.querySelector(".display_settings");
+
+    // Get all domain rows to be used for filtering
+    const domainRows = document.querySelectorAll(".domain_row");
+
+  // Handle search input changes
+  searchDomainInput.addEventListener("input", function () {
+    const searchTerm = searchDomainInput.value.trim().toLowerCase();
+
+    // Loop through domain rows and hide/show based on search term
+    domainRows.forEach(function (row) {
+      // Move the definition of domainName inside the loop
+      const domainName = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+
+      // Show row if search term matches domain name or domain URL, otherwise hide it
+      if (domainName.includes(searchTerm)) {
+        row.style.display = "table-row";
+      } else {
+        row.style.display = "none";
+      }
+    });
+  });
+});
+</script>
+
+
+
+        <table class="table" id="ssl_table">
+            <thead>
+                <tr>
+                    <th>{{ _('Domain') }}</th>
+                    <th>{{ _('Blocked IPs') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+{% for domain in domains %}
+    <tr class="domain_row">
+        <td>{{ domain.domain_url }}</td>
+        <td>
+            <div class="d-flex gap-2 mt-3 mt-md-0">
+                <span id="previous_value_for_domain" style="display:none;">{{ domain_data[domain.domain_url] }}</span>
+                <form action="/ip_blocker" method="post">
+                    <div class="form-check form-switch">
+<textarea id="ip_blocker_{{ domain.domain_url }}" name="ip_blocker">
+{{ domain_data[domain.domain_url] }}
+</textarea>
+                    </div>
+                    <input type="hidden" name="domain_name" value="{{ domain.domain_url }}">
+                    <button type="submit" class="btn btn-primary" id="ip_blocker">{{ _('Save') }}</button>
+                </form>      
+            </div>
+        </td>
+    </tr>
+{% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+
+
+
+{% else %}
+
+  <!-- Display jumbotron for no domains -->
+<div class="jumbotron text-center mt-5" id="jumbotronSection">
+    <h1>{{ _('No Domains') }}</h1>
+    <a href="/domains#add-new" class="btn btn-lg btn-primary">
+      <i class="bi bi-plus-lg"></i> {{ _('Add a Domain Name') }}
+    </a>
+</div>
+
+
+{% endif %}
+
+
+
+
+
+
+
+{% endblock %}

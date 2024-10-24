@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-xl">
+    <!-- Account page navigation-->
+ <nav class="nav nav-line mb-4">
+        <a class="nav-link" href="/account" target="">{{ _('Profile') }}</a>
+    <!--<a class="nav-link" href="#">Preferences</a>-->
+        <a class="nav-link active" href="/account/2fa">{{ _('2FA') }}</a>
+        {% if 'activity' in enabled_modules %}
+        <a class="nav-link" href="/activity"><span class="desktop-only">{{ _('Account') }} </span>{{ _('Activity') }}</a>
+        {% endif %}
+        {% if 'login_history' in enabled_modules %}
+        <a class="nav-link" href="/account/login-history"><span class="desktop-only">{{ _('Login') }} </span>{{ _('History') }}</a>
+        {% endif %}
+    <!--<a class="nav-link" href="#">Email Notifications</a>-->
+    </nav>
+
+        <div class="row">
+            {% if success_message %}
+                <div class="alert alert-success" role="alert">
+                    {{ success_message }}
+                </div>
+            {% endif %}
+            
+                <div class="col-lg-8">
+                <!-- Security preferences card-->
+                <div class="card mb-4">
+                    <div class="card-header">{{ _('Two-Factor Authentication') }}</div>
+                    <div class="card-body">
+                        <!-- Account privacy optinos-->
+                        <p class="small text-muted"><a target="_blank" href="https://en.wikipedia.org/wiki/Multi-factor_authentication" rel="noopener noreferrer"><b>T{{ _('wo-factor authentication') }}</b></a> ({{ _('also known as') }} <b>2FA</b>, <b>{{ _('2-step verification') }}</b>, or <b>{{ _('2-phase authentication') }}</b>) {{ _('is a way of adding additional security to your account. 2FA requires you to enter an extra code when you log in or perform some account-sensitive action. The code is generated from an application on your computer or mobile phone.') }} </p>
+
+<p class="small text-muted">{{ _('To enable 2FA for your account you will need an application that manages 2FA codes, such as') }}<a target="_blank" href="https://en.wikipedia.org/wiki/Google_Authenticator" rel="noopener noreferrer">{{ _('Google Authenticator') }}</a>. {{ _('You can install it here:') }}</p>
+<p><a target="_blank" href="https://apps.apple.com/us/app/google-authenticator/id388497605" rel="noopener noreferrer"><img src="{{url_for('static', filename='2fa/badge-example-preferred_2x.png')}}" style="height:45px"></a>&nbsp;&nbsp;&nbsp;
+<a target="_blank" href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2" rel="noopener noreferrer"><img src="{{url_for('static', filename='2fa/badge_new.png')}}" style="height:45px"></a></p>
+
+                        <hr class="my-4">
+{% if twofa_enabled %}
+                            <h5 class="card-title">{{ _('2FA is currently') }} <b>{{ _('enabled') }}</b> {{ _('for your account.') }}</h5>
+
+<form method="POST" action="{{ url_for('twofa_settings') }}">
+<button class="btn btn-warning" type="submit">{{ _('Click to disable 2FA') }}</button>
+</form>
+
+            {% else %}
+<h5 class="card-title">{{ _('2FA is currently') }} <b>{{ _('disabled') }}</b> {{ _('for your account.') }}</h5>
+
+                <form method="POST" action="{{ url_for('twofa_settings') }}">
+                    <div class="form-check mb-3" style="display:none;">
+                        <input class="form-check-input" type="checkbox" id="twofa_active" name="twofa_active" checked>
+                        <label class="form-check-label" for="twofa_active" >{{ _('Enable 2FA') }}</label>
+                    </div>
+                    <button class="btn btn-success btn-lg" type="submit">{{ _('Enable 2FA') }}</button>
+                </form>
+            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+{% if otp_secret %}
+         <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">{{ _('QR code') }}</div>
+                    <div class="card-body">                        
+
+<!-- Include qrcode.min.js from a CDN -->
+<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs@latest/qrcode.min.js"></script>
+
+<p class="card-text" id="qrcode"></p>
+
+<script>
+  var username = '{{ current_username }}';
+  var otp_secret = '{{ otp_secret }}';
+  var otpUri = 'otpauth://totp/' + username + '?secret=' + otp_secret + '&issuer=OpenPanel';
+  var qrcode = new QRCode(document.getElementById('qrcode'), {
+    text: otpUri,
+    width: 128,
+    height: 128,
+  });
+</script>
+
+
+<a href="#" class="nije-link" id="showLink">{{ _('Display OTP code') }}</a>
+<br>
+<pre id="initiallyhiddencode" style="display: none;">{{ otp_secret }}</pre>
+<script>
+    // Wait for the document to be fully loaded
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get references to the link and pre elements
+        var showLink = document.getElementById('showLink');
+        var initiallyHiddenCode = document.getElementById('initiallyhiddencode');
+
+        // Attach a click event listener to the link
+        showLink.addEventListener('click', function (event) {
+            // Prevent the default behavior of the link
+            event.preventDefault();
+
+            // Toggle the display of the OTP secret code
+            if (initiallyHiddenCode.style.display === 'none') {
+                // If currently hidden, show it and populate the OTP secret
+                initiallyHiddenCode.style.display = 'block';
+                // Replace this with the actual OTP secret value you want to display
+            } else {
+                // If currently shown, hide it
+                initiallyHiddenCode.style.display = 'none';
+            }
+        });
+    });
+</script>
+<form method="POST" action="{{ url_for('twofa_settings') }}">
+<input class="form-check-input" type="checkbox" id="setup_confirmed" name="setup_confirmed" checked hidden>
+{{ _('After configuring the OTP code in the 2FA application, kindly confirm by clicking the button below to permanently delete the OTP secret.') }}
+<button class="btn btn-primary" type="submit">{{ _('Confirm') }}</button>
+</form>
+
+                    </div>
+                </div>
+            </div>
+ {% endif %}
+        </div>
+    </div>
+<style>
+
+.card {
+    box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+}
+.card .card-header {
+    font-weight: 500;
+}
+.card-header:first-child {
+    border-radius: 0.35rem 0.35rem 0 0;
+}
+.card-header {
+    padding: 1rem 1.35rem;
+    margin-bottom: 0;
+    background-color: rgba(33, 40, 50, 0.03);
+    border-bottom: 1px solid rgba(33, 40, 50, 0.125);
+}
+.form-control, .dataTable-input {
+    display: block;
+    width: 100%;
+    padding: 0.875rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    color: #69707a;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #c5ccd6;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0.35rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.nav-borders .nav-link.active {
+    color: #0061f2;
+    border-bottom-color: #0061f2;
+}
+.nav-borders .nav-link {
+    color: #69707a;
+    border-bottom-width: 0.125rem;
+    border-bottom-style: solid;
+    border-bottom-color: transparent;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.btn-danger-soft {
+    color: #000;
+    background-color: #f1e0e3;
+    border-color: #f1e0e3;
+}
+
+</style>
+
+
+
+
+
+{% endblock %}

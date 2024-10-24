@@ -1,0 +1,372 @@
+<!-- /user/activity.html -->
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+.activity-group {
+    margin: 0;
+    margin-left: 15px;
+    padding: 0;
+    list-style: none;
+    border-left: 2px solid #e2e5ec
+}
+
+.activity-group li+li {
+    margin-top: 30px
+}
+
+.activity-date {
+    padding-left: 40px;
+    margin-bottom: 10px;
+    font-size: .75rem;
+    font-weight: 500;
+    color: #6e7985;
+    position: relative
+}
+
+.activity-date::before {
+    content: '';
+    position: absolute;
+    top: 7px;
+    left: 0;
+    width: 20px;
+    border-top: 2px solid #e2e5ec
+}
+
+.activity-item {
+    padding-left: 40px;
+    position: relative
+}
+
+.activity-item strong {
+    font-weight: 600
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -17px;
+    width: 32px;
+    height: 32px;
+    border-radius: 100%;
+    background-color: #506fd9;
+    color: rgba(255,255,255,0.75);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-family: 'bootstrap-icons'
+}
+
+.activity-item.comment::before {
+    content: '\F63C';
+    background-color: #f00d0d
+}
+
+.activity-item.post::before {
+    content: '\F272';
+    background-color: #1aba1a
+}
+
+.activity-item.like::before {
+    content: '\F5D8';
+    background-color: #0cb785
+}
+
+.activity-item.search::before {
+    content: '\F0D1';
+    background-color: #ea4c89
+}
+
+.activity-item.logged::before {
+    content: '\F1BD';
+    background-color: #228B22
+}
+
+.activity-item.loggedout::before {
+    content: '\F1BE';
+    background-color: #DC143C
+}
+
+.activity-item.folder::before {
+    content: '\F3D1';
+    background-color: #ffc107
+}
+
+.activity-item.disabled::before {
+    content: '\F5D7';
+    background-color: #020107
+}
+
+.activity-item .avatar {
+    flex-shrink: 0
+}
+
+
+</style>
+
+<div class="container-xl">
+    <!-- Account page navigation-->
+    <nav class="nav nav-line mb-4">
+        <a class="nav-link" href="/account" target="">{{ _('Profile') }}</a>
+    <!--<a class="nav-link" href="#">Preferences</a>-->
+        {% if 'twofa' in enabled_modules %}
+        <a class="nav-link" href="/account/2fa">{{ _('2FA') }}</a>
+        {% endif %}
+        {% if 'activity' in enabled_modules %}
+        <a class="nav-link" href="/activity"><span class="desktop-only">{{ _('Account') }} </span>{{ _('Activity') }}</a>
+        {% endif %}
+        {% if 'login_history' in enabled_modules %}
+        <a class="nav-link" href="/account/login-history"><span class="desktop-only">{{ _('Login') }} </span>{{ _('History') }}</a>
+        {% endif %}
+
+    <!--<a class="nav-link" href="#">Email Notifications</a>-->
+    </nav>
+
+          <p class="text-secondary mb-5">{{ _('Activity Log records all important actions performed by user on the panel, such as editing or modifying files, deleting websites, enabling SSH access, etc.') }}</p>
+
+
+<div class="form-search py-2 mb-4">
+    <i class="ri-search-line"></i>
+    <form action="{{ url_for('view_activity_log') }}?show_all=true" style="width:100%;" method="get">
+        <input type="text" class="form-control" name="search" placeholder="Search activity" value="{{ search_term }}">
+    </form>
+</div><!-- form-search -->
+
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h5 class="section-title mb-0">
+        {% if search_term %}
+            Showing {{ log_content|length }} of {{ total_lines }} items
+        {% else %}
+            Showing {{ items_per_page * (current_page - 1) + 1 }} - {% if items_per_page * current_page > total_lines %}{{ total_lines }}{% else %}{{ items_per_page * current_page }}{% endif %} out of {{ total_lines }} items
+        {% endif %}
+    </h5>
+    {% if search_term %}
+    {% else %}
+    <div class="form-check form-switch">
+        
+        
+        <input class="form-check-input" type="checkbox" role="switch" id="showAllCheckbox" {% if show_all %}checked{% endif %}>
+        <label class="form-check-label text-secondary fs-sm" for="showAllCheckbox">
+            {{ _('Show all activity') }}
+        </label>
+    </div>
+    {% endif %}
+</div>
+    
+<script>
+    // Script to handle toggling the "Show all activity" checkbox
+    const showAllCheckbox = document.getElementById('showAllCheckbox');
+
+    showAllCheckbox.addEventListener('change', () => {
+        const urlSearchParams = new URLSearchParams(window.location.search);
+        if (showAllCheckbox.checked) 
+        {
+            urlSearchParams.set('show_all', 'true');
+            urlSearchParams.delete('page');// Remove the show_all parameter
+        } 
+        else 
+        {
+            urlSearchParams.delete('show_all');// Remove the show_all parameter
+        }
+        // Update the URL with the new query parameters
+        window.location.search = urlSearchParams.toString();
+    });
+
+
+</script>
+
+<!-- navigacija i na vrhu, bukvalno copypaste sa dna da ne mora da se scrolluje-->
+<nav aria-label="Activity Log Navigation">
+  <ul class="pagination justify-content-center">
+    {% if search_term or show_all %}
+      <!-- No pagination controls when searching, uses show_all toggle by default -->
+    {% else %}
+      <li class="page-item{% if current_page == 1 %} disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('view_activity_log', page=1) }}">First</a>
+      </li>
+      {% if current_page > 3 %}
+        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+      {% endif %}
+      {% if current_page <= 3 %}
+        {% for p in range(1, total_pages + 1) %}
+          {% if p == current_page %}
+            <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
+          {% elif p <= 5 %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('view_activity_log', page=p) }}">{{ p }}</a></li>
+          {% elif p == 6 %}
+            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('view_activity_log', page=current_page - 2) }}">{{ current_page - 2 }}</a>
+        </li>
+        <li class="page-item{% if current_page == current_page - 2 %} active{% endif %}">
+          <a class="page-link" href="{{ url_for('view_activity_log', page=current_page - 1) }}">{{ current_page - 1 }}</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">{{ current_page }}</a></li>
+        {% for p in range(current_page + 1, current_page + 3) %}
+          {% if p <= total_pages %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('view_activity_log', page=p) }}">{{ p }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if current_page + 3 < total_pages %}
+          <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+        {% endif %}
+      {% endif %}
+      <li class="page-item{% if current_page == total_pages %} disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('view_activity_log', page=total_pages) }}">{{ _('Last') }}</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
+          <ul class="activity-group mb-5">
+
+            {% for log_entry in log_content %}
+            {% set parts = log_entry.split(' ') %}
+            {% if parts|length >= 6 %}
+                {% set timestamp = parts[0] ~ ' ' ~ parts[1] ~ ' ' ~ parts[2] %}
+                {% set ip = parts[3] %}
+                {% set admin = parts[4] %}
+                {% if "Administrator" in admin %}
+                {% set action_parts = parts[5:] %}
+                {% set action = action_parts|join(' ') %}
+                {% else %}
+                {% set user = parts[5] %}
+                {% set action_parts = parts[6:] %}
+                {% set action = action_parts|join(' ') %}
+        {% endif %}
+                {% set action_classes = "activity-item" %}
+                {% if "accessed" in action %}
+                    {% set action_classes = action_classes ~ " search" %}
+                {% elif "deleted" in action or "edited MySQL configuration" in action %}
+                    {% set action_classes = action_classes ~ " comment" %}
+                {% elif "File Manager" in action %}
+                    {% set action_classes = action_classes ~ " folder" %}
+                {% elif "enabled" in action %}
+                    {% set action_classes = action_classes ~ " like" %}
+                {% elif "disabled" in action %}
+                    {% set action_classes = action_classes ~ " disabled" %}
+                {% elif "logged in" in action %}
+                    {% set action_classes = action_classes ~ " logged" %}
+                {% elif "logged out" in action %}
+                    {% set action_classes = action_classes ~ " loggedout" %}
+                {% elif "wordpress" in action %}
+                    {% set action_classes = action_classes ~ " wordpress" %}
+                {% else %}
+                    {% set action_classes = action_classes ~ " post" %}
+                {% endif %}
+        
+                {% set show_div = "/home/" ~ user in action or "created a" in action or "changed" in action or "edited MySQL configuration" in action  %}
+                <li class="activity-date">{{ timestamp }}</li>
+                <li class="{{ action_classes }}">
+                  {% if "Administrator" in admin %}
+                        <p class="d-sm-flex align-items-center mb-2">
+                        <div class="card card-comment bg-primary">
+                            <div class="card-body">{% if "Administrator" in admin %}{{admin}}{% else%}{{ user }}{% endif %} <strong>{{ action }}</strong></div>
+                        </div>
+                        </p>
+
+                  {% else %}
+                    {% if show_div %}
+                        <p class="d-sm-flex align-items-center mb-2">
+                            {% if gravatar_image_url is not none %}
+                                <a href="" class="avatar avatar-thumb me-2 d-none d-sm-inline"><img src="{{ gravatar_image_url }}" alt=""></a>
+                            {% endif %}
+                            <span class="fs-sm">{{ user }}</span>
+                            <span class="fs-xs text-secondary ms-auto"><a href="/account/login-history">{{ ip }}</a></span>
+                        </p>
+                        <div class="card card-comment">
+                            <div class="card-body">{% if "Administrator" in admin %}{{admin}}{% else%}{{ user }}{% endif %} <strong>{{ action }}</strong></div>
+                        </div>
+                    {% else %}
+                        <p class="d-sm-flex align-items-center mb-0">
+                            {% if gravatar_image_url is not none %}
+                                <a href="" class="avatar avatar-thumb me-2 d-none d-sm-inline"><img src="{{ gravatar_image_url }}" alt=""></a>
+                            {% endif %}
+
+
+                    <span class="fs-sm">{% if "Administrator" in admin %}{{admin}}{% else%}{{ user }}{% endif %} <strong>{{ action }}</strong></span>
+
+
+                            <span class="fs-xs text-secondary ms-auto"><a href="/account/login-history">{{ ip }}</a></span>
+                        </p>
+                    {% endif %}
+                  {% endif %}
+                </li>
+            {% endif %}
+        {% endfor %}
+
+
+          </ul>
+
+
+
+
+
+
+
+
+<nav aria-label="Activity Log Navigation">
+  <ul class="pagination justify-content-center">
+    {% if search_term or show_all %}
+      <!-- No pagination controls when searching, uses show_all toggle by default -->
+    {% else %}
+      <li class="page-item{% if current_page == 1 %} disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('view_activity_log', page=1) }}">First</a>
+      </li>
+      {% if current_page > 3 %}
+        <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+      {% endif %}
+      {% if current_page <= 3 %}
+        {% for p in range(1, total_pages + 1) %}
+          {% if p == current_page %}
+            <li class="page-item active"><a class="page-link" href="#">{{ p }}</a></li>
+          {% elif p <= 5 %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('view_activity_log', page=p) }}">{{ p }}</a></li>
+          {% elif p == 6 %}
+            <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+          {% endif %}
+        {% endfor %}
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="{{ url_for('view_activity_log', page=current_page - 2) }}">{{ current_page - 2 }}</a>
+        </li>
+        <li class="page-item{% if current_page == current_page - 2 %} active{% endif %}">
+          <a class="page-link" href="{{ url_for('view_activity_log', page=current_page - 1) }}">{{ current_page - 1 }}</a>
+        </li>
+        <li class="page-item active"><a class="page-link" href="#">{{ current_page }}</a></li>
+        {% for p in range(current_page + 1, current_page + 3) %}
+          {% if p <= total_pages %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('view_activity_log', page=p) }}">{{ p }}</a></li>
+          {% endif %}
+        {% endfor %}
+        {% if current_page + 3 < total_pages %}
+          <li class="page-item disabled"><a class="page-link" href="#">...</a></li>
+        {% endif %}
+      {% endif %}
+      <li class="page-item{% if current_page == total_pages %} disabled{% endif %}">
+        <a class="page-link" href="{{ url_for('view_activity_log', page=total_pages) }}">Last</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+
+
+
+
+
+
+
+
+
+
+
+            </div>
+{% endblock %}
+

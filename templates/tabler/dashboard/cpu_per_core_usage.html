@@ -1,0 +1,156 @@
+<!-- Content of cpu_per_core_usage.html -->
+
+    <style>
+        .dismiss-cpu_per_core_usage-button {
+            display: none;
+        }
+        #cpu_per_core_usage:hover .dismiss-cpu_per_core_usage-button {
+            display: inline-block;
+        }
+    </style>
+
+
+
+<script>
+       $(document).ready(function() {
+            function fetchData() {
+                $.ajax({
+                    url: '/json/cpu-usage',
+                    type: 'GET',
+                    dataType: 'json',
+                    async: true,
+                    success: function(data) {
+                        var container = $('.container2');
+                        container.empty();
+
+                        $.each(data, function(core, usage) {
+
+                            var coreInfo = '<div><span>' + usage + '%</span></div>';
+                            var coreDiv = $(coreInfo);
+
+                            if (usage >= 90) {
+                                coreDiv.css('background-color', 'crimson');
+                            } else if (usage >= 80) {
+                                coreDiv.css('background-color', 'antiquewhite');
+                            }
+
+                            container.append(coreDiv);
+                        });
+                    },
+                    error: function() {
+                        // Handle any errors here
+                        console.log('Error fetching CPU usage data.');
+                    }
+                });
+            }
+
+            fetchData();
+            setInterval(fetchData, 1000);
+        });
+        
+</script>    
+
+
+
+        <div class="col g-3">
+            <div id="cpu_per_core_usage" class="card card-one">
+            <div class="card-header">
+                <div>
+                    <form action="{{ url_for('dismiss_dashboard_widget', template_name='cpu_per_core_usage') }}" method="post">
+                    <h6 class="card-title">CPU <button data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Hide and never show cpu usage per core again" data-bs-original-title="Hide and never show cpu usage per core again" class="dismiss-cpu_per_core_usage-button btn btn-sm" type="submit">Dismiss</button></h6>
+                    <p class="card-subtitle">Real-time usage per cpu core.</p>
+                    </form>
+                </div>
+                    <nav class="nav nav-icon nav-icon-sm ms-auto"><a data-bs-toggle="collapse" class="nav-link collapsed" href="#cpu_info" role="button" aria-expanded="false" aria-controls="Factor"><i class="bi bi-question-circle"></i></a></nav>            </div>
+                <div class="card-body" style="padding:0">
+                    <div class="collapse p-2" id="cpu_info" style="">
+                        <p>The data being displayed is the usage percentage of each CPU core, with one hexagon per CPU core, and background colors indicating usage levels (default for 0-79%, orange for 80-89%, and red for 90-100%).</p>
+                        <p>The CPU usage percentage represents the amount of the CPU's processing power that is currently being utilized. It indicates how much of the CPU's capacity is in use at a specific moment. For example, a CPU usage of 50% means that
+                            the CPU is operating at half of its maximum processing capacity, while 100% usage indicates that the CPU is fully utilized, and there may be resource constraints or performance issues.</p>
+                        <p>The data is auto-refreshed every 1 second to provide real-time updates.</p>
+                    </div>
+                    <div class="main2">
+                        <a href="{{ url_for('server_cpu_usage') }}">
+                            <div class="container2"></div>
+
+                        </a>
+                    </div>
+                    <style>
+                        .main2 {
+                            display: flex;
+                            --s: 50px;
+                            --m: 2px;
+                            --f: calc(1.732 * var(--s) + 4 * var(--m) - 1px)
+                        }
+
+                        .container2 {
+                            font-size: 0;
+                            margin-bottom: 2rem
+                        }
+
+                        .container2 div {
+                            position: relative;
+                            width: var(--s);
+                            margin: var(--m);
+                            height: calc(var(--s)*1.1547);
+                            display: inline-block;
+                            font-size: initial;
+                            clip-path: polygon(0 25%, 0 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0);
+                            background: #f0f8ff;
+                            margin-bottom: calc(var(--m) - var(--s)*.2885)
+                        }
+
+                        .container2 div span {
+                            vertical-align: middle;
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            transform: translate(-50%, -50%);
+                            font-size: 12px;
+                            font-weight: 700;
+                            color: #000
+                        }
+
+                        .container2::before {
+                            content: "";
+                            width: calc(var(--s)/ 2 + var(--m));
+                            float: left;
+                            height: 120%;
+                            shape-outside: repeating-linear-gradient(#0000 0 calc(var(--f) - 3px), #000 0 var(--f))
+                        }
+                    </style>
+                </div>
+
+
+            </div>
+
+
+
+            <div style="display:none" class="mt-3 card card-one">
+                <div class="card-header">
+                    <div>
+                    <h6 class="card-title">Servers List</h6>
+                    <p class="card-subtitle">List of Docker contexts.</p>
+                    </div>
+                    <nav class="nav nav-icon nav-icon-sm ms-auto"><a data-bs-toggle="collapse" class="nav-link collapsed" href="#cluster_info" role="button" aria-expanded="false" aria-controls="cluster_info"><i class="bi bi-question-circle"></i></a></nav>
+                </div>
+                <div class="card-body" style="padding:0">
+                    <div class="collapse p-2" id="cluster_info" style="">
+                        <p>This table displays information about Docker contexts, which represent different servers or Docker environments. Each row in the table corresponds to a Docker context and provides details about the context's configuration and status.</p>
+                        <p></p>
+                    </div>
+                    <table id="docker-contexts-table" class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Docker Endpoint</th>
+                                <th>Default</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+
+        </div>

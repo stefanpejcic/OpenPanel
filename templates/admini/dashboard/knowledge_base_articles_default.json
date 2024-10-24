@@ -1,0 +1,11 @@
+{
+    "how_to_topics": [
+        {"title": "How to install WordPress", "link": "https://openpanel.com/docs/panel/applications/wordpress#install-wordpress"},
+        {"title": "Publishing a Python Application", "link": "https://openpanel.com/docs/panel/applications/pm2#python-applications"},
+        {"title": "How to edit Nginx / Apache configuration", "link": "https://openpanel.com/docs/panel/advanced/server_settings#nginx--apache-settings"},
+        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/databases/#create-a-mysql-database"},
+        {"title": "How to add a Cronjob", "link": "https://openpanel.com/docs/panel/advanced/cronjobs#add-a-cronjob"},
+        {"title": "How to change server TimeZone", "link": "https://openpanel.com/docs/panel/advanced/server_settings#server-time"}
+    ],
+    "knowledge_base_link": "https://openpanel.com/docs/panel/intro/?source=openpanel_server"
+}

@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Services
+                </div>
+                <h2 class="page-title">
+                  Resource Settings
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+
+    <p>RAM: <b>{{ mem_total }} GB</b></p>
+    <p>CPU Cores: <b>{{ cpu_count }}</b></p>
+    <p>Swap: <b>{{ swap_total }} GB</b></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+        <!-- Page body -->
+        <div class="page-body">
+          <div class="container-xl">
+
+
+
+
+<div class="col-12">
+                <div class="card">
+                  <div class="card-table table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Service</th>
+                          <th>Memory Limit</th>
+                          <th>CPU Limit</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>OpenPanel <small>(user panel)</small></td>
+                          <td>{{ openpanel_limits['mem_limit'] }}</td>
+                          <td>{{ openpanel_limits['cpus'] }}</td>
+                        </tr>
+                        <tr>
+                          <td>Nginx <small>(web server)</small></td>
+                          <td>{{ nginx_limits['mem_limit'] }}</td>
+                          <td>{{ nginx_limits['cpus'] }}</td>
+                        </tr>
+
+
+                        <!--tr>
+                          <td>Dovecot & Proxmox <small>(mail server)</small></td>
+                          <td>{{ mailserver_limits['mem_limit'] }}</td>
+                          <td>{{ mailserver_limits['cpus'] }}</td>
+                        </tr-->
+                        <tr>
+                          <td>MySQL <small>(user database)</small></td>
+                          <td>{{ openpanel_mysql_limits['mem_limit'] }}</td>
+                          <td>{{ openpanel_mysql_limits['cpus'] }}</td>
+                        </tr>
+
+                        <tr>
+                          <td>Bind9 <small>(dns)</small></td>
+                          <td>{{ dns_limits['mem_limit'] }}</td>
+                          <td>{{ dns_limits['cpus'] }}</td>
+                        </tr>
+
+
+                        <tr>
+                          <td>Certbot <small>(SSL)</small></td>
+                          <td>{{ certbot_limits['mem_limit'] }}</td>
+                          <td>{{ certbot_limits['cpus'] }}</td>
+                        </tr>
+
+                        <!--tr>
+                          <td>Roundcube <small>(webmail)</small></td>
+                          <td>{{ roundcube_limits['memory'] }}</td>
+                          <td>{{ roundcube_limits['cpus'] }}</td>
+                        </tr-->
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+          </div>
+        </div>
+
+{% endblock %}
+

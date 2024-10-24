@@ -1,0 +1,1244 @@
+<!-- dashboard.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<style>
+
+.dashboard_icon {
+  font-size: 1.8rem!important;
+  padding-right: 0.3em;
+  vertical-align: middle;
+}
+
+.row>* {
+    padding-right: 0;
+}
+
+.row {
+    --bs-gutter-x: 0;
+}
+
+.dash-links {
+    text-decoration: none;
+    color: #212830;
+}
+
+[data-skin="dark"] div.sidebar-storage.mb-2 i {color: #506fd9;}
+
+div.sidebar-storage.mb-2 i {color: #192030;}
+
+.fullwidth > * {
+  padding-right: 0;
+  padding-left: 0;
+}
+div.d-flex.align-items-center.justify-content-between.mb-4 {
+    display:none!important;
+}
+
+.sidebar-storage .progress {
+    height: 10px;
+}
+
+[data-skin="dark"] .dash-links {
+    color: #fff;
+
+</style> 
+
+
+
+
+<div class="row fullwidth">
+
+<div class="row">
+
+
+<div id="sortable-container" class="col-xl">
+
+
+{% if custom_message %}
+<div class="draggable-card card m-2">
+  <div class="card card-one card-article">
+    <div class="card-body">
+      {{ custom_message|safe }}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+{% set domain_count = maindomains|length %}
+{% if total_domains_count == 0 or domain_count == 0 %}
+
+<div class="draggable-card card m-2">
+    
+<div class="card card-one card-article">
+            <div class="card-body">
+              <h4 class="card-title mb-3">{{ _('👋 Welcome to your new hosting account. OpenPanel is here to help!') }}</h4>
+              <p class="text-secondary mb-4">{{ _('To get started, add a domain name to create a new site and unlock a world of possibilities for your online presence.') }}</p>
+
+{% if dedicated_ip != _("Unknown") %}
+<p class="text-secondary mb-4">{{ _("To secure your website with a free Let's Encrypt SSL, make sure your domain's A record is pointed to your dedicated IP address:") }} <span class="badge bg-secondary fs-xs">{{ dedicated_ip }}</span> {{ _('Ready to start?') }}</p>
+{% else %}
+<p class="text-secondary mb-4">{{ _("To secure your website with a free Let's Encrypt SSL, make sure your domain's A record is pointed to the server IP address:") }} <span class="badge bg-secondary fs-xs">{{ server_ip }}</span> {{ _('Ready to start?') }}</p>
+{% endif %}
+<a href="/domains#add-new" class="btn btn-primary"><i class="bi bi-plus-lg"></i> {{ _('Add a new domain') }}</a>
+</div>
+</div>
+</div>
+
+{% endif %}
+
+
+<script type="module">
+function updateContent(url) {
+  // Send a GET request
+  fetch(url)
+    .then(response => response.text())
+    .then(resultHtml => {
+      // Parse the HTML response
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(resultHtml, 'text/html');
+      const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
+
+      // Replace the content of the element with the ID "main-scope"
+      const mainScopeElement = document.getElementById("main-scope");
+      if (mainScopeElement) {
+        mainScopeElement.innerHTML = mainScopeContent || '';
+      }
+
+      // Update the browser URL
+      history.pushState(null, '', url);
+
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+}
+
+</script>  
+
+                    <div class="draggable-card card m-2">
+                            <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#filesCard" aria-expanded="true"><h6 class="card-title">{{ _('Files') }}</h6></div>
+    <div id="filesCard" class="collapse show">
+                        <div class="card-body">
+                            <div class="row">
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/files">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-folder"></i></h1>
+<p style="display: inline;" class="card-text">{{ _('File Manager') }}</p></a>
+</div></div>
+
+{% if 'ftp' in enabled_modules %} 
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/ftp">
+                            <h1 class="dashboard_icon  card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-folder-symlink"></i></h1>
+<p style="display: inline;" class="card-text">{{ _('FTP Accounts') }}</p></a>
+</div></div>
+{% endif %} 
+
+{% if 'disk_usage' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/disk-usage">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-folder-plus"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Disk Usage') }}</p></a>
+</div></div>
+{% endif %} 
+{% if 'backups' in enabled_modules %} 
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/backups">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-folder-check"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Backup & Restore') }}</p></a>
+</div></div>
+{% endif %} 
+{% if 'ftp' in enabled_modules %} 
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/ftp">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-folder-symlink"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('FTP Accounts') }}</p></a>
+</div></div>
+{% endif %} 
+
+
+{% if 'inodes' in enabled_modules %} 
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/inodes-explorer">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-folder-x"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Inodes Explorer') }}</p></a>
+</div></div>
+{% endif %} 
+{% if 'malware_scan' in enabled_modules %} 
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/malware-scanner">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-upc-scan"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('ClamAV Scanner') }}</p></a>
+</div></div>
+{% endif %} 
+{% if 'fix_permissions' in enabled_modules %} 
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/fix-permissions">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-file-binary-fill"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Fix Permissions') }}</p></a>
+</div></div>
+{% endif %} 
+
+
+                        </div>
+</div></div>
+                    </div>
+                    <div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#domainsCard" aria-expanded="true">
+<h6 class="card-title">{{ _('Domains') }}</h6>
+    </div>
+<div id="domainsCard" class="collapse show">
+                            <div class="card-body">
+                            <div class="row">
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/domains">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-globe"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Domains') }}</p></a>
+</div></div>
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/domains/edit-dns-zone">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-file-text"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('DNS Zone Editor') }}</p></a>
+</div></div>
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/ssl">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-lock"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('SSL Certificates') }}</p></a>
+</div></div>
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/domains/log">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-globe-americas"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Access Logs') }}</p></a>
+</div></div>
+
+<div class="col-md-3">
+</div>
+
+                        </div>
+</div></div>
+                    </div>
+
+
+                    <div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#databasesCard" aria-expanded="true">
+<h6 class="card-title">{{ _('Databases') }}</h6>
+    </div>
+<div id="databasesCard" class="collapse show">
+                                <div class="card-body">
+                            
+                            <div class="row">
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/databases">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-database"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('MySQL Databases') }}</p></a>
+</div></div>
+{% if 'phpmyadmin' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/phpmyadmin" target="_blank">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-database-exclamation"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('PHPMyAdmin') }}</p></a>
+</div></div>
+{% endif %}  
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/databases/processlist">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-database-slash"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Show Processes') }}</p></a>
+</div></div>
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/databases/remote-mysql">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-database-exclamation"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Remote MySQL') }}</p></a>
+</div></div>
+
+                        </div>
+</div></div>
+                    </div>
+
+
+
+{% if 'wordpress' in enabled_modules or 'pm2' in enabled_modules or 'mautic' in enabled_modules or 'flarum' in enabled_modules %}  
+
+<div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#ApplicationsCard" aria-expanded="true"><h6 class="card-title">{{ _('Applications') }}</h6></div>
+<div id="ApplicationsCard" class="collapse show">
+                            <div class="card-body">
+                            
+                            <div class="row">
+{% if 'wordpress' in enabled_modules %}         
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/wordpress">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-wordpress"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('WordPress') }}</p></a>
+</div></div>
+{% endif %}  
+{% if 'pm2' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/pm2">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-app-indicator"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('NodeJS & Python') }}</p></a>
+</div>
+</div>
+{% endif %}  
+
+{% if 'mautic' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/mautic">
+<h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class=""><img src="/static/images/icons/mautic-logo.png" style="width: 30px;"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Mautic') }}</p></a>
+</div>
+</div>
+{% endif %}  
+
+
+
+{% if 'flarum' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/flarum">
+<h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class=""><img src="/static/images/icons/flarum.webp" style="width: 30px;"></i></h1>
+
+                                                         <p style="display: inline;" class="card-text">{{ _('Flarum') }}</p></a>
+</div>
+</div>
+{% endif %}  
+
+                        </div>
+</div></div>
+                    </div>
+{% endif %}
+
+
+
+
+
+
+{% if 'emails' in enabled_modules %}  
+
+<div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#EmailsCard" aria-expanded="true"><h6 class="card-title">{{ _('Emails') }}</h6></div>
+<div id="EmailsCard" class="collapse show">
+                            <div class="card-body">
+                            
+                            <div class="row">    
+
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/emails">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-envelope"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Email Accounts') }}</p></a>
+</div></div>
+
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/webmail">
+<h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-envelope-at"></i></h1>
+
+                                                         <p style="display: inline;" class="card-text">{{ _('Webmail') }}</p></a>
+</div>
+</div>
+
+
+
+                        </div>
+</div></div>
+                    </div>
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% if 'redis' in enabled_modules or 'memcached' in enabled_modules or 'elasticsearch' in enabled_modules %}  
+
+                    <div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#cacheCard" aria-expanded="true">
+<h6 class="card-title">{{ _('Search & Caching') }}</h6>
+    </div>
+<div id="cacheCard" class="collapse show">
+                                <div class="card-body">
+                            
+                            <div class="row">
+{% if 'redis' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/cache/redis">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class=""><svg width="35px" height="33px" viewBox="0 -18 256 256" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet"><path d="M245.97 168.943c-13.662 7.121-84.434 36.22-99.501 44.075-15.067 7.856-23.437 7.78-35.34 2.09-11.902-5.69-87.216-36.112-100.783-42.597C3.566 169.271 0 166.535 0 163.951v-25.876s98.05-21.345 113.879-27.024c15.828-5.679 21.32-5.884 34.79-.95 13.472 4.936 94.018 19.468 107.331 24.344l-.006 25.51c.002 2.558-3.07 5.364-10.024 8.988" fill="#912626"></path><path d="M245.965 143.22c-13.661 7.118-84.431 36.218-99.498 44.072-15.066 7.857-23.436 7.78-35.338 2.09-11.903-5.686-87.214-36.113-100.78-42.594-13.566-6.485-13.85-10.948-.524-16.166 13.326-5.22 88.224-34.605 104.055-40.284 15.828-5.677 21.319-5.884 34.789-.948 13.471 4.934 83.819 32.935 97.13 37.81 13.316 4.881 13.827 8.9.166 16.02" fill="#C6302B"></path><path d="M245.97 127.074c-13.662 7.122-84.434 36.22-99.501 44.078-15.067 7.853-23.437 7.777-35.34 2.087-11.903-5.687-87.216-36.112-100.783-42.597C3.566 127.402 0 124.67 0 122.085V96.206s98.05-21.344 113.879-27.023c15.828-5.679 21.32-5.885 34.79-.95C162.142 73.168 242.688 87.697 256 92.574l-.006 25.513c.002 2.557-3.07 5.363-10.024 8.987" fill="#912626"></path><path d="M245.965 101.351c-13.661 7.12-84.431 36.218-99.498 44.075-15.066 7.854-23.436 7.777-35.338 2.087-11.903-5.686-87.214-36.112-100.78-42.594-13.566-6.483-13.85-10.947-.524-16.167C23.151 83.535 98.05 54.148 113.88 48.47c15.828-5.678 21.319-5.884 34.789-.949 13.471 4.934 83.819 32.933 97.13 37.81 13.316 4.88 13.827 8.9.166 16.02" fill="#C6302B"></path><path d="M245.97 83.653c-13.662 7.12-84.434 36.22-99.501 44.078-15.067 7.854-23.437 7.777-35.34 2.087-11.903-5.687-87.216-36.113-100.783-42.595C3.566 83.98 0 81.247 0 78.665v-25.88s98.05-21.343 113.879-27.021c15.828-5.68 21.32-5.884 34.79-.95C162.142 29.749 242.688 44.278 256 49.155l-.006 25.512c.002 2.555-3.07 5.361-10.024 8.986" fill="#912626"></path><path d="M245.965 57.93c-13.661 7.12-84.431 36.22-99.498 44.074-15.066 7.854-23.436 7.777-35.338 2.09C99.227 98.404 23.915 67.98 10.35 61.497-3.217 55.015-3.5 50.55 9.825 45.331 23.151 40.113 98.05 10.73 113.88 5.05c15.828-5.679 21.319-5.883 34.789-.948 13.471 4.935 83.819 32.934 97.13 37.811 13.316 4.876 13.827 8.897.166 16.017" fill="#C6302B"></path><path d="M159.283 32.757l-22.01 2.285-4.927 11.856-7.958-13.23-25.415-2.284 18.964-6.839-5.69-10.498 17.755 6.944 16.738-5.48-4.524 10.855 17.067 6.391M131.032 90.275L89.955 73.238l58.86-9.035-17.783 26.072M74.082 39.347c17.375 0 31.46 5.46 31.46 12.194 0 6.736-14.085 12.195-31.46 12.195s-31.46-5.46-31.46-12.195c0-6.734 14.085-12.194 31.46-12.194" fill="#FFF"></path><path d="M185.295 35.998l34.836 13.766-34.806 13.753-.03-27.52" fill="#621B1C"></path><path d="M146.755 51.243l38.54-15.245.03 27.519-3.779 1.478-34.791-13.752" fill="#9A2928"></path></svg></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('REDIS') }}</p></a>
+</div></div>
+{% endif %}  
+{% if 'memcached' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/cache/memcached" target="_blank">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class=""><img src="/static/images/icons/memcached.png" style="width: 30px;"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Memcached') }}</p></a>
+</div></div>
+{% endif %}  
+{% if 'elasticsearch' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/search/elasticsearch">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class=""><svg width="30px" height="30px" viewBox="0 0 256 286" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
+		<g>
+				<path d="M14.3443,80.1733 L203.5503,80.1733 C224.4013,80.1733 243.0203,70.6123 255.5133,55.6863 C229.4533,21.8353 188.5523,0.0003 142.5303,0.0003 C86.1783,0.0003 37.4763,32.7113 14.3443,80.1733" fill="#F0BF1A"></path>
+				<path d="M187.5152,102.4438 L5.7552,102.4438 C2.0332,115.1648 0.0002,128.6068 0.0002,142.5298 C0.0002,156.4538 2.0332,169.8968 5.7552,182.6168 L187.5152,182.6168 C209.3402,182.6168 227.6022,164.8008 227.6022,142.5298 C227.6022,120.2598 209.7862,102.4438 187.5152,102.4438" fill="#07A5DE"></path>
+				<path d="M255.9996,228.7548 C243.5856,214.1638 225.1166,204.8868 204.4406,204.8868 L14.3446,204.8868 C37.4766,252.3498 86.1786,285.0598 142.5296,285.0598 C188.8356,285.0598 229.9656,262.9628 255.9996,228.7548" fill="#3EBEB0"></path>
+				<path d="M5.7555,102.4438 C2.0325,115.1648 0.0005,128.6068 0.0005,142.5298 C0.0005,156.4538 2.0325,169.8968 5.7555,182.6168 L124.7135,182.6168 C127.8315,170.5908 129.6125,157.2288 129.6125,142.5298 C129.6125,127.8318 127.8315,114.4698 124.7135,102.4438 L5.7555,102.4438 Z" fill="#231F20"></path>
+				<path d="M70.8199,19.1528 C46.7669,33.4058 26.7239,54.7848 14.2529,80.1738 L119.3689,80.1738 C108.6789,55.6758 91.7539,35.1878 70.8199,19.1528" fill="#D7A229"></path>
+				<path d="M75.274,268.1347 C95.762,251.6547 112.242,229.8297 122.487,204.8867 L14.253,204.8867 C27.615,231.6117 48.995,253.8817 75.274,268.1347" fill="#019B8F"></path>
+		</g>
+</svg></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('ElasticSearch') }}</p></a>
+</div></div>
+{% endif %}
+                        </div>
+</div></div>
+                    </div>
+{% endif %}  
+
+
+
+                    <div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#phpCard" aria-expanded="true">
+<h6 class="card-title">{{ _('PHP Settings') }}</h6>
+    </div>
+<div id="phpCard" class="collapse show">
+                            <div class="card-body">
+                            
+                            <div class="row">
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/php-version">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-code-square"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('PHP Version') }}</p></a>
+</div></div>
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/php/php_ini_editor">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-filetype-php"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('PHP.INI Editor') }}</p></a>
+</div></div>
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/php-version?set#settings">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-file-earmark-plus"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Install new version') }}</p></a>
+</div></div>
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/php-version?ext#extensions">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-file-earmark-spreadsheet"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('PHP extensions') }}</p></a>
+</div></div>
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/php-version?opt#options">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-file-earmark-medical"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('PHP options') }}</p></a>
+</div></div>
+
+
+
+
+                        </div></div>
+                        </div>
+</div>
+
+{% if 'crons' in enabled_modules or 'ssh' in enabled_modules or 'terminal' in enabled_modules or 'usage' in enabled_modules or 'process_manager' in enabled_modules or 'webserver' in enabled_modules%}  
+                    <div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#advancedCard" aria-expanded="true">
+<h6 class="card-title">{{ _('Advanced') }}</h6>
+    </div>
+<div id="advancedCard" class="collapse show">
+                            <div class="card-body">
+                            
+                            <div class="row">
+
+{% if 'crons' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/cronjobs">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-calendar2-week"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('CronJobs') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'ssh' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/ssh">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-terminal"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('SSH Access') }}</p></a>
+</div></div>
+{% endif %}
+
+
+
+
+{% if 'terminal' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/terminal" target="_blank">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-terminal-x"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Web Terminal') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'usage' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/usage">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-speedometer2"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Resource Usage') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'process_manager' in enabled_modules %}  
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/process-manager">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-cpu"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Process Manager') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'webserver' in enabled_modules %}  
+
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/server/timezone">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-clock"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Change TimeZone') }}</p></a>
+</div></div>
+{% endif %}
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/server/mysql_conf">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-database-lock"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('MySQL Configuration') }}</p></a>
+</div></div>
+
+{% if 'webserver' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/server/webserver_conf">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-hdd-network"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Webserver Configuration') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'webserver' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/server/modsecurity">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-shield-lock"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('ModSecurity Settings') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'webserver' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/server/services">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-window-fullscreen"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Services Status') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'webserver' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/server/info">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-info-square"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Server Information') }}</p></a>
+</div></div>
+{% endif %}
+</div>
+<div class="col-md-3">
+</div></div></div>
+
+
+                        </div>
+{% endif %}
+
+                    <div class="draggable-card card m-2">
+    <div class="card-header text-muted text-left" style="cursor: pointer;" data-toggle="collapse" data-target="#accountCard" aria-expanded="true">
+<h6 class="card-title">{{ _('Account') }}</h6>
+    </div>
+<div id="accountCard" class="collapse show">
+                            <div class="card-body">
+                            
+                            <div class="row">
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/account">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-person-gear"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Password & Security') }}</p></a>
+</div></div>
+
+{% if 'twofa' in enabled_modules %}
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/account/2fa">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-fingerprint"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Two-Factor Authentication') }}</p></a>
+</div></div>
+{% endif %}
+{% if 'activity' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/activity">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-activity"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Account Activity') }}</p></a>
+</div></div>
+{% endif %}  
+{% if 'login_history' in enabled_modules %}  
+<div class="col-md-3">
+                        <div class="card-body">
+                            <a class="dash-links" href="/account/login-history">
+                            <h1 class="dashboard_icon card-title" style="display: inline;"><i style="vertical-align: middle;" class="bi bi-person-exclamation"></i></h1>
+                                                         <p style="display: inline;" class="card-text">{{ _('Login History') }}</p></a>
+</div></div>
+{% endif %}  
+
+<div class="col-md-3">
+</div></div>
+<div class="col-md-3">
+</div></div></div>
+
+
+                        </div>
+
+</div>
+
+        <div class="col-md-6 col-lg-7 col-xl-4 col-xxl-3 mt-2">
+
+<div class="col-sm col-xl mb-2">
+{% if 'twofa' in enabled_modules %}
+  {% if twofa_nag == "yes" %}
+
+                      <div class="card card-one mb-0">
+  <div class="card-header">
+                <h6 class="card-title">{{ _('Two-Factor Authentication') }}</h6>
+                <nav class="ms-auto">
+                  <a data-bs-toggle="collapse" class="nav-link" href="#Factor" role="button" aria-expanded="false" aria-controls="Factor"><i class="bi bi-question-circle"></i></a>
+                </nav>
+              </div>
+                                      <div class="card-body">     
+
+  <div class="collapse" id="Factor">
+  <p>{{ _('2FA is an added layer of security that significantly reduces the risk of unauthorized access to your account by requiring an additional verification step beyond just a password') }}</p>
+  </div>
+
+              {% if twofa_enabled %}
+  <p>{{ _('2FA is <b>enabled</b> for your account.') }}</p>
+  <form method="POST" action="{{ url_for('twofa_settings') }}">
+                      <button class="btn btn-warning" type="submit"><i class="bi bi-shield-x"></i> {{ _('Click to disable 2FA') }}</button>
+                  </form>
+              {% else %}
+  <p>{{ _('2FA is <b>disabled</b> for your account.') }}</p>
+                <form method="POST" action="{{ url_for('twofa_settings') }}">
+                      <div class="form-check mb-3" style="display:none;">
+                          <input class="form-check-input" type="checkbox" id="twofa_active" name="twofa_active" checked>
+                          <label class="form-check-label" for="twofa_active" >{{ _('Enable 2FA') }}</label>
+                      </div>
+                      <button class="btn btn-success" style="width:100%;" type="submit"><i class="bi bi-shield-check"></i> {{ _('Click to Enable') }}</button>
+                  </form>
+              {% endif %}
+
+
+
+                          </div>
+                      </div></div>
+  {% endif %}
+{% endif %}
+<div class="col-sm col-xl mb-2">
+          <div class="card card-one mb-0">
+            <div class="card-header">
+              <h6 class="card-title">{{ _('Server Information & Statistics') }}</h6>
+              <nav class="nav nav-icon nav-icon-sm ms-auto">
+                <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+                <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+              </nav>
+            </div><!-- card-header -->
+            <div class="card-body">
+<div class="sidebar-storage mb-2">
+<div class="row" style="width: 100%;"><div class="col">     
+{% if dedicated_ip != _("Unknown") %}
+<small>{{ _('Dedicated IP Address') }}</small><h6 class="performance-value mb-0">{{ dedicated_ip }}</h6>
+{% else %}
+<small>{{ _('Server IP Address') }}</small><h6 class="performance-value mb-0">{{ server_ip }}</h6>
+{% endif %}
+</div>
+<div class="col">
+    <small>{{ _('Last Login IP Address') }}</small>
+    <h6 class="performance-value mb-0" style="align-items: flex-start;" id="last-login-info">
+        {% if last_ip %}
+            <a href="{% if 'login_history' in enabled_modules %}/account/login-history{% else %}#{% endif %}" id="last-ip" style="margin-right:0.3em;">{{ last_ip }}</a>
+        {% else %}
+            {{ _('/') }}
+        {% endif %}
+    </h6>
+</div>
+
+<script type="module">
+async function FlagForIPaddress() {
+        const lastIpElement = document.getElementById("last-ip");
+        const lastLoginInfoElement = document.getElementById("last-login-info");
+
+        if (lastIpElement) {
+            const ip = lastIpElement.textContent.trim();
+            if (ip) {
+                fetch(`https://api.country.is/${ip}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.country) {
+                            const country_code = data.country;
+                            const country_code_lower = country_code.toLowerCase();
+                            const flagImage = document.createElement("img");
+                            flagImage.src = `/static/flags/${country_code_lower}.png`;
+                            flagImage.alt = country_code;
+                            flagImage.style.width = "25px";
+                            lastLoginInfoElement.appendChild(flagImage);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error fetching country code:", error);
+                    });
+            }
+        }
+    };
+FlagForIPaddress();
+</script>
+
+
+  </div>
+        </div>
+{% if ns1 and ns2 %}
+<hr>
+
+<div class="sidebar-storage mb-2">
+<div class="row" style="
+    width: 100%;
+">        <div class="col">
+<label class="card-title fs-sm fw-medium">{{ _('Nameservers') }}</label>
+<h6 class="performance-value">{{ns1}}</h6>
+{% if ns3 and ns4 %}<br>
+<h6 class="performance-value">{{ns3}}</h6>
+{% endif %}
+</div>
+<div class="col"><label class="card-title fs-sm fw-medium">&nbsp;</label>
+<h6 class="performance-value">{{ns2}}</h6>
+{% if ns3 and ns4 %}<br>
+<h6 class="performance-value">{{ns4}}</h6>{% endif %}
+</div>
+</div></div>
+{% endif %}
+<hr>
+
+
+<a href="/sites"><div class="sidebar-storage mb-2">
+          <i class="dashboard_icon bi bi-window-stack"></i>
+          <div class="flex-fill mb-1 ms-2">
+            <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="right" title="The number of distinct websites (WordPress, NodeJS/Python Applications, HTML, etc.) you can have on the current hosting plan." style="font-size: 10px;    right: 15px;    position: absolute;"></i>
+            {% set site_count = user_websites|length %}
+                {% if websites_limit == 0 %}
+<span class="storage-info">{{ _('Websites:') }}</span><small><br><b>{{ site_count }}</b> / <b>{{ _('∞') }}</b></small>
+                {% else %}
+                                {% set loader_percentage = (site_count / websites_limit | int) * 100 %}
+
+            <span class="storage-info">{{ _('Websites:') }}</span><br><small><b>{{site_count}}/{{websites_limit}} ({{loader_percentage | round(2)}}%)</b></small>
+
+ <div class="progress">
+  {% set progress_bar_class %}
+    {% if loader_percentage > 80 %}bg-danger{% elif loader_percentage > 70 %}bg-warning{% else %}bg-success{% endif %}
+{% endset %}    
+            <div class="progress-bar {{progress_bar_class}}" role="progressbar" style="width: {{ loader_percentage }}%" aria-valuenow="{{ loader_percentage}}%" aria-valuemin="0" aria-valuemax="10"></div>
+        </div>
+        {% endif %}
+          </div><!-- flex-fill -->
+        </div></a>
+<hr>
+
+
+
+
+
+
+
+
+
+<a href="/domains"><div class="sidebar-storage mb-2">
+          <i class="dashboard_icon bi bi-globe2"></i>
+          <div class="flex-fill mb-1 ms-2">
+            <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="right" title="The number of individual domain names (not websites) you can host, you can host additional websites within subfolders of any domain." style="font-size: 10px;    right: 15px;    position: absolute;"></i>
+                {% if domains_limit == 0 %}
+<span class="storage-info">{{ _('Domains:') }}</span><br><small><b>{{ domain_count }}</b> / <b>{{ _('∞') }}</b></small>
+                {% else %}
+        {% set loader_percentage = (domain_count / domains_limit | int) * 100 %}
+        <span class="storage-info">{{ _('Domains:') }}</span><br><small><b>{{ domain_count }}</b> / <b>{{ domains_limit }}</b> (<b>{{ loader_percentage | round(2) }}</b>%)</small>
+        
+        <div class="progress">
+            {% set progress_bar_class %}
+                {% if loader_percentage > 80 %}bg-danger{% elif loader_percentage > 70 %}bg-warning{% else %}bg-success{% endif %}
+            {% endset %}
+            <div class="progress-bar {{ progress_bar_class }}" role="progressbar" style="width: {{ loader_percentage }}%" aria-valuenow="{{ loader_percentage }}%" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    {% endif %}
+          </div><!-- flex-fill -->
+        </div></a>
+<hr>
+<a href="/databases"><div class="sidebar-storage mb-2">
+          <i class="dashboard_icon bi bi-database"></i>
+          <div class="flex-fill mb-1 ms-2">
+            <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="right" title="{{ _('The number of MySQL, PostgreSQL or MongoDB databases you can have on the current hosting plan.') }}" style="font-size: 10px;    right: 15px;    position: absolute;"></i>
+ 
+                 {% if db_limit == 0 %}
+<span class="storage-info">{{ _('Databases:') }}</span><br><small><b>{{ db_usage }}</b> / <b>{{ _('∞') }}</b></small>
+                {% else %}
+ 
+                {% set loader_percentage = ((db_usage | int / db_limit | int) * 100) | round(2) %}
+            <span class="storage-info">{{ _('Databases:') }}</span><br><small><b>{{db_usage}}</b> / <b>{{db_limit}}</b> (<b>{{loader_percentage}}</b>%)</small>
+
+ <div class="progress">
+  {% set progress_bar_class %}
+    {% if loader_percentage > 80 %}bg-danger{% elif loader_percentage > 70 %}bg-warning{% else %}bg-success{% endif %}
+{% endset %}    
+            <div class="progress-bar {{progress_bar_class}}" role="progressbar" style="width: {{ loader_percentage }}%" aria-valuenow="{{ loader_percentage}}%" aria-valuemin="0" aria-valuemax="10"></div>
+        </div>
+        {% endif %}
+          </div>
+        </div></a>
+<hr>
+
+
+
+
+
+
+
+
+{% if 'emails' in enabled_modules %} 
+<a href="/emails"><div class="sidebar-storage mb-2">
+          <i class="dashboard_icon bi bi-envelope"></i>
+          <div class="flex-fill mb-1 ms-2">
+            <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="right" title="The number of email addresses you can create on the current hosting plan." style="font-size: 10px;    right: 15px;    position: absolute;"></i>
+                {% if email_limit == 0 %}
+<span class="storage-info">{{ _('Emails:') }}</span><small><br><b>{{ email_count }}</b> / <b>{{ _('∞') }}</b></small>
+                {% else %}
+                                {% set loader_percentage = (email_count / email_limit | int) * 100 %}
+
+            <span class="storage-info">{{ _('Emails:') }}</span><br><small><b>{{email_count}}/{{email_limit}} ({{loader_percentage | round(2)}}%)</b></small>
+
+ <div class="progress">
+  {% set progress_bar_class %}
+    {% if loader_percentage > 80 %}bg-danger{% elif loader_percentage > 70 %}bg-warning{% else %}bg-success{% endif %}
+{% endset %}    
+            <div class="progress-bar {{progress_bar_class}}" role="progressbar" style="width: {{ loader_percentage }}%" aria-valuenow="{{ loader_percentage}}%" aria-valuemin="0" aria-valuemax="10"></div>
+        </div>
+        {% endif %}
+
+          </div><!-- flex-fill -->
+        </div></a>
+<hr>
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+{% if 'ftp' in enabled_modules %} 
+<a href="/ftp"><div class="sidebar-storage mb-2">
+          <i class="dashboard_icon bi bi-folder-symlink"></i>
+          <div class="flex-fill mb-1 ms-2">
+            <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="right" title="The number of FTP sub-accounts you can create on the current hosting plan." style="font-size: 10px;    right: 15px;    position: absolute;"></i>
+                {% if ftp_limit == 0 %}
+<span class="storage-info">{{ _('FTP Accounts:') }}</span><small><br><b>{{ ftp_count }}</b> / <b>{{ _('∞') }}</b></small>
+                {% else %}
+                                {% set loader_percentage = (ftp_count / ftp_limit | int) * 100 %}
+
+            <span class="storage-info">{{ _('FTP Accounts:') }}</span><br><small><b>{{ftp_count}}/{{ftp_limit}} ({{loader_percentage | round(2)}}%)</b></small>
+
+ <div class="progress">
+  {% set progress_bar_class %}
+    {% if loader_percentage > 80 %}bg-danger{% elif loader_percentage > 70 %}bg-warning{% else %}bg-success{% endif %}
+{% endset %}    
+            <div class="progress-bar {{progress_bar_class}}" role="progressbar" style="width: {{ loader_percentage }}%" aria-valuenow="{{ loader_percentage}}%" aria-valuemin="0" aria-valuemax="10"></div>
+        </div>
+        {% endif %}
+
+          </div><!-- flex-fill -->
+        </div></a>
+<hr>
+{% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% if 'disk_usage' in enabled_modules %}
+<a href="/disk-usage">
+{% endif %}
+  <div class="sidebar-storage mb-2">
+    <i class="dashboard_icon bi bi-device-hdd"></i>
+    <div class="flex-fill mb-1 ms-2">
+      <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="right" title="{{ _('Disk usage refers to the amount of storage space occupied by files, databases, emails, and other data associated with your account.') }}" style="font-size: 10px; right: 15px; position: absolute;"></i>
+
+      <span class="storage-info">
+        {{ _('Disk Usage:') }} <br>
+        <small id="disk-usage">{{ _('Calculating..') }}</small>
+      </span>
+
+      <div class="progress">
+        <div id="disk-progress-bar" class="progress-bar w-4" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+  </div>
+{% if 'disk_usage' in enabled_modules %}
+</a>
+{% endif %}
+<hr>
+
+{% if 'inodes' in enabled_modules %}
+<a href="/inodes-explorer">
+{% endif %}
+  <div class="sidebar-storage mb-2">
+    <i class="dashboard_icon bi bi-123"></i>
+    <div class="flex-fill mb-1 ms-2">
+      <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="top" title="{{ _('The number of inodes indicates the number of files and folders you have. This includes everything on your account, emails, files, folders, and anything you store on the server.') }}" style="font-size: 10px; right: 15px; position: absolute;"></i>
+
+      <span class="storage-info">
+        {{ _('Inodes:') }} <br>
+        <small id="inode-usage">{{ _('Calculating..') }}</small>
+      </span>
+
+      <div class="progress">
+        <div id="inode-progress-bar" class="progress-bar w-4" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+  </div>
+{% if 'inodes' in enabled_modules %}
+</a>
+{% endif %}
+
+<script type="module">
+    // Function to format bytes into human-readable format
+    function formatBytes(bytes) {
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+      if (bytes === 0) return '0 B';
+      const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+      return Math.round((bytes / Math.pow(1024, i)) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    function formatBytesToBigger(bytes) {
+      const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+      if (bytes === 0) return '0 B';
+      const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+
+      // Round up for larger values
+      const roundedValue = i > 2 ? Math.ceil(bytes / Math.pow(1024, i)) : Math.round(bytes / Math.pow(1024, i));
+
+      return roundedValue + ' ' + sizes[i];
+    }
+
+
+    // Function to format Inodes total in millions
+    function formatInodes(inodes) {
+      return (inodes / 1e6).toFixed(2) + ' M';
+    }
+
+    // Function to fetch and update disk and inodes values
+    function updateStorageUsage() {
+      fetch('/container/disk_inodes')
+        .then(response => response.json())
+        .then(data => {
+          // Format disk values
+          const formattedDiskUsed = formatBytes(data.disk_used);
+          
+          // Round disk_total only
+          const formattedDiskTotal = formatBytesToBigger(data.disk_total);
+
+          // Format Inodes total in millions
+          const formattedInodesTotal = formatInodes(data.inodes_total);
+
+          // Calculate percentage_used for disk
+          const diskPercentageUsed = (data.disk_used / data.disk_total) * 100;
+
+          // Calculate percentage_used for inodes
+          const inodesPercentageUsed = (data.inodes_used / data.inodes_total) * 100;
+
+          // Round the disk percentage to two decimal places
+          const roundedDiskPercentageUsed = diskPercentageUsed.toFixed(2);
+
+          // Round the inodes percentage to two decimal places
+          const roundedInodesPercentageUsed = inodesPercentageUsed.toFixed(2);
+
+          // Update the disk usage element
+          document.getElementById('disk-usage').innerHTML = `<b>${formattedDiskUsed}</b> used of <b>${formattedDiskTotal}</b> (<b>${roundedDiskPercentageUsed}%</b>)`;
+
+          // Update the inodes usage element
+          document.getElementById('inode-usage').innerHTML = `<b>${data.inodes_used}</b> used of <b>${formattedInodesTotal}</b> (<b>${roundedInodesPercentageUsed}%</b>)`;
+
+          // Update progress bars
+          updateProgressBar('disk-progress-bar', diskPercentageUsed);
+          updateProgressBar('inode-progress-bar', inodesPercentageUsed);
+        })
+        .catch(error => console.error('Error fetching storage usage:', error));
+    }
+
+    // Function to update progress bars
+    function updateProgressBar(barId, percentageUsed) {
+      const progressBar = document.getElementById(barId);
+      progressBar.style.width = `${percentageUsed}%`;
+
+      // Update progress bar class
+      progressBar.className = `progress-bar w-4 ${getProgressBarClass(percentageUsed)}`;
+    }
+
+    // Function to determine progress bar class based on percentage_used
+    function getProgressBarClass(percentageUsed) {
+      if (percentageUsed > 80) {
+        return 'bg-danger';
+      } else if (percentageUsed > 70) {
+        return 'bg-warning';
+      } else {
+        return 'bg-success';
+      }
+    }
+
+    // load with the page
+    updateStorageUsage();
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<hr>
+{% if 'usage' in enabled_modules %}
+<a href="/usage">
+{% endif %}
+  <div class="sidebar-storage mb-2">
+    <i class="dashboard_icon bi bi-cpu"></i>
+    <div class="flex-fill mb-1 ms-2">
+        <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="top" title="CPU % shows how much of your server's processing power is being used right now. Higher percentage means more strain on your server." style="font-size: 10px;    right: 15px;    position: absolute;"></i>      <span class="storage-info">
+        CPU Usage: <br><small id="cpu-usage">{{ _('Loading...') }}</small>
+      </span>
+      <div class="progress">
+        <div id="cpu-progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+  </div>
+{% if 'usage' in enabled_modules %}
+</a>
+{% endif %}
+
+<hr>
+{% if 'usage' in enabled_modules %}
+<a href="/usage">
+{% endif %}
+  <div class="sidebar-storage mb-2">
+    <i class="dashboard_icon bi bi-memory"></i>
+    <div class="flex-fill mb-1 ms-2">
+        <i class="bi bi-question-circle" data-toggle="tooltip" data-placement="top" title="RAM usage refers to the amount of memory being utilized by various processes and applications currently running." style="font-size: 10px;    right: 15px;    position: absolute;"></i>
+      <span class="storage-info">
+        {{ _('Memory Usage:') }} <br><small id="mem-usage">{{ _('Loading...') }}</small>
+      </span>
+      <div class="progress">
+        <div id="memory-progress-bar" class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+      </div>
+    </div>
+  </div>
+{% if 'usage' in enabled_modules %}
+</a>
+{% endif %}
+<script type="module">
+    function updateContainerStats() {
+      $.ajax({
+        url: '/docker_stats',
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+          // Update CPU Usage
+
+          var cpuPercent = response.container_stats['CPU %'];
+          var cpu_limit = '{{cpu_limit}}';
+          var cpu_cores = cpu_limit / 100;
+          updateUsage('#cpu-usage', '#cpu-progress-bar', cpu_cores, cpuPercent, cpu_limit);
+
+          // Update Memory Usage
+          var memPercent = response.container_stats['Memory %'];
+          var memUsage = response.container_stats['Memory Usage'];
+          var memLimit = response.container_stats['Memory Limit'];
+          updateUsage('#mem-usage', '#memory-progress-bar', memPercent, memUsage, memLimit);
+        },
+        error: function(error) {
+          console.error('Error fetching container stats:', error);
+        }
+      });
+    }
+
+    // Function to update usage and progress bar
+    function updateUsage(usageSelector, progressBarSelector, percentageUsed, usageValue, limitValue) {
+
+      if (usageSelector === '#cpu-usage') {
+        let usageNumber = parseFloat(usageValue);
+        let calculatedValue = usageNumber / percentageUsed;
+        $(progressBarSelector).width(calculatedValue + "%");
+        $(usageSelector).html(`<b>${usageValue}</b> used of <b>${limitValue}%</b> (<b>${percentageUsed} cores</b>)`);
+        $(progressBarSelector).removeClass('bg-danger bg-warning bg-success').addClass(getProgressBarClass(usageValue));
+      } else {
+        $(progressBarSelector).width(percentageUsed);
+        $(usageSelector).html(`<b>${usageValue}</b> used of <b>${limitValue}</b> (<b>${percentageUsed}</b>)`);
+        $(progressBarSelector).removeClass('bg-danger bg-warning bg-success').addClass(getProgressBarClass(percentageUsed));
+      }
+      
+    }
+
+    // Function to determine progress bar class based on percentage_used
+    function getProgressBarClass(percentageUsed) {
+      const percentage = parseFloat(percentageUsed.replace('%', ''));
+      if (percentage > 80) {
+        return 'bg-danger';
+      } else if (percentage > 70) {
+        return 'bg-warning';
+      } else {
+        return 'bg-success';
+      }
+    }
+
+    // Call the function initially to populate the stats
+    updateContainerStats();
+</script>
+
+
+
+
+
+
+
+            </div><!-- card-body -->
+
+
+
+
+
+          </div><!-- card -->
+        </div>
+
+
+{% if how_to_guides == "yes" %}
+<div class="col-sm col-xl mb-2">
+    <div class="card card-one mb-0">
+        <div class="card-header">
+            <h6 class="card-title">{{ _('General How-to') }}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+            </nav>
+        </div>
+        <div class="card-body">
+            <nav class="nav nav-classic">
+                {% for topic in how_to_topics %}
+                    <a href="{{ topic.link }}" target="_blank" class="nav-link"><span>{{ _(topic.title) }}</span></a>
+                {% endfor %}
+            </nav>
+        </div>
+        <div class="card-footer text-center" style="padding: 5px;">
+            <a href="{{ knowledge_base_link }}" target="_blank"><small>{{ _('Visit KnowledgeBase') }}</small></a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+        </div><!-- col -->
+
+
+
+
+
+
+
+      </div>
+
+
+
+
+                    </div>
+
+
+<script>
+    $(function() {
+        $("#sortable-container").sortable({
+            axis: "y",
+            handle: ".card-header",
+            containment: "parent",
+            items: ".draggable-card",
+            revert: true 
+        });
+    });
+</script>
+
+<script>
+$(document).ready(function(){
+  $('[data-toggle="tooltip"]').tooltip();   
+});
+</script>
+
+{% endblock %}

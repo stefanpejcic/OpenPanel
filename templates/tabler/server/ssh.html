@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <script>
+        function fetchFullConfig() {
+            fetch('/server/ssh/config')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('full_config').value = data.config;
+                });
+        }
+    </script>
+
+
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Server Configuration
+                </div>
+                <h2 class="page-title">
+                  SSH Access
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+
+
+                    <div class="h3 m-0">status: <span class="{% if status == 'active' %}text-green{% else %}text-red{% endif %}" id="ssh-status">{{ status }}</span></div>
+
+                        <!--form method="POST">
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Enable SSH" data-bs-original-title="Enable SSH">
+                  <button type="submit" name="action" value="start">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-play"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg></button>
+
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Disable SSH" data-bs-original-title="Disable SSH">
+                  <button type="submit" name="action" value="stop">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-stop"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 5m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /></svg></button>
+                        </form-->
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+<div class="page-body">
+          <div class="container-xl">
+            <div class="row row-deck row-cards">
+
+
+<div class="col-lg-12">
+
+
+
+
+
+
+
+<div class="card">
+                  <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs flex-row-reverse" data-bs-toggle="tabs" role="tablist">
+                      {% if pubkey_auth == 'yes' %}
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-keys" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Authorized Keys</a>
+                      </li>
+                      {% endif %}
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-advanced" onclick="fetchFullConfig();" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">Advanced</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-basic" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">Basic</a>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="card-body">
+                    <div class="tab-content">
+                      <div class="tab-pane active show" id="tabs-basic" role="tabpanel">
+                        <h4>Basic SSH Settings</h4>
+                        <form method="POST">
+                          <div class="col-6 mb-3">
+                            <div class="form-floating mb-3">
+                              <form method="POST">
+                              <input type="number" id="port" name="port" class="form-control" min="22" max="10000" value="{{ port }}" autocomplete="off">
+                              <label for="floating-input">SSH Port</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                              <select class="form-select" id="permit_root_login" name="permit_root_login" aria-label="Permit Root Login">
+                                <option {% if permit_root_login == 'yes' %}selected=""{% endif %} value="yes">yes</option>
+                                <option {% if permit_root_login == 'no' %}selected=""{% endif %} value="no">no</option>
+                              </select>
+                              <label for="permit_root_login">Permit Root Login</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                              <select class="form-select" id="password_auth" name="password_auth" aria-label="Password Authentication">
+                                <option {% if password_auth == 'yes' %}selected=""{% endif %} value="yes">yes</option>
+                                <option {% if password_auth == 'no' %}selected=""{% endif %} value="no">no</option>
+                              </select>
+                              <label for="password_auth">Password Authentication</label>
+                            </div>
+
+                            <div class="form-floating mb-3">
+                              <select class="form-select" id="pubkey_auth" name="pubkey_auth" aria-label="Public Key Authentication">
+                                <option {% if pubkey_auth == 'yes' %}selected=""{% endif %} value="yes">yes</option>
+                                <option {% if pubkey_auth == 'no' %}selected=""{% endif %} value="no">no</option>
+                              </select>
+                              <label for="pubkey_auth">Public Key Authentication</label>
+                            </div>
+
+                            <button type="submit" id="save_ssh" class="btn btn-primary">Save</button>
+                            </form>
+                          </div>
+                      </div>
+                      <div class="tab-pane" id="tabs-advanced" role="tabpanel">
+                        <h4>Edit SSH Configuration file</h4>
+                        <form method="POST" action="/server/ssh/config">
+                            <textarea id="full_config" name="config" rows="30" cols="80"></textarea>
+                            <br>
+                            <button class="btn btn-primary mt-2" type="submit">Save Configuration</button>
+                        </form>
+                      </div>
+
+                      <div class="tab-pane" id="tabs-keys" role="tabpanel">
+                        <h4>Authorized SSH Keys</h4>
+                            <ul>
+                              {% if keys %}
+                                {% for key in keys %}
+                                    <li>
+                                        <pre>{{ key }}</pre>
+                                        <form method="POST" style="display:inline;">
+                                            <input type="hidden" name="key_to_remove" value="{{ key }}">
+                                            <button class="btn btn-danger" type="submit">Remove</button>
+                                        </form>
+                                    </li>
+                                {% endfor %}
+                              {% else %}
+                              No authorized keys in <code>/root/.ssh/authorized_keys</code> file.
+                              {% endif %}
+                            </ul>
+                            <br>
+                            <h4 class="mt-3">Add New SSH Key</h4>
+                            <form method="POST">
+                                <textarea name="new_key" rows="5" cols="80" placeholder="Enter new SSH key here"></textarea>
+                                <br>
+                                <button class="btn btn-primary mt-2" type="submit">Add SSH Key</button>
+                            </form>
+                            <br>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+</div>
+
+
+
+
+             
+            </div>
+          </div>
+        <div></div></div>
+
+{% endblock %}

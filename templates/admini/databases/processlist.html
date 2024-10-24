@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="row">
+    
+<p>{{ _('This interface lists all of the processes that currently run on any database on your server.') }}</p>
+
+
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('Process ID: a unique identification number assigned by Linux systems to each process and application.') }}">Id</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('Indicates the MySQL user who executed the process on the database.') }}">{{ _('User') }}</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('Displays the client&apos;s hostname and the port from which the process was executed (e.g., Host:0000).') }}">{{ _('Host') }}</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('The database on which the process is running. This column will display NULL if the process is not associated with any database.') }}">DB</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('Type of command issued by the system to the database.') }}">{{ _('Command') }}</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('The duration, in seconds, that the process has remained in its current state.') }}">{{ _('Time') }}</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('The action, state, or event of the process. This column will display NULL for processes in the SHOW PROCESSLIST state.') }}">{{ _('State') }}</th>
+<th data-toggle="tooltip" data-placement="bottom" title="{{ _('Text of the statement that the process is currently executing. If the process is not executing a statement, this column displays NULL. It may also show a statement sent to the server or an inner statement used to execute other statements.') }}">{{ _('Info') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in processlist_output.split('\n')[2:] %}
+          {% if row %}
+            <tr>
+              {% for column in row.split('\t') %}
+                <td>{{ column }}</td>
+              {% endfor %}
+            </tr>
+          {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </div>
+{% endblock %}

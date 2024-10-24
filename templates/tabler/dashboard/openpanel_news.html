@@ -1,0 +1,131 @@
+<!-- Content of custom_message.html -->
+
+    <style>
+        .dismiss-custom_message-button {
+            display: none;
+        }
+        #custom_message:hover .dismiss-custom_message-button {
+            display: inline-block;
+        }
+    </style>
+
+
+
+
+    <div class="col-md-4 g-3">
+        <div id="custom_message" class="card card-one" style="height:28rem">
+            <div class="card-header">
+                <div>
+                    <form action="{{ url_for('dismiss_dashboard_widget', template_name='openpanel_news') }}" method="post">
+                    <h6 class="card-title">Latest News <button data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Hide and never show news from openpanel.com/blog again" data-bs-original-title="Hide and never show news from openpanel.com/blog again" class="dismiss-custom_message-button btn btn-sm" type="submit">Dismiss</button></h6>
+                    <p class="card-subtitle">from the openpanel.co blog</p>
+                    </form>
+                </div>
+                <div class="ribbon bg-primary">news</div>
+            </div>
+            <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+                <div class="divide-y"  id="news-content">
+                </div>
+                </div>   
+        </div>
+    </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const newsContent = document.getElementById('news-content');
+
+    fetch('https://api.github.com/repos/stefanpejcic/OpenPanel/contents/website/blog')
+        .then(response => response.json())
+        .then(data => {
+            // Filter out non-markdown files and sort by date
+            const markdownFiles = data
+                .filter(file => file.name.endsWith('.md'))
+                .sort((a, b) => {
+                    // Extract dates from file names (yyyy-mm-dd)
+                    const dateA = new Date(a.name.split('-').slice(0, 3).join('-'));
+                    const dateB = new Date(b.name.split('-').slice(0, 3).join('-'));
+                    return dateB - dateA; // Sort descending (latest date first)
+                })
+                .slice(0, 5); // Get only the latest 5 files
+
+            // Function to fetch specific lines (title, description, slug, image)
+            const fetchRequiredLines = async (fileUrl) => {
+                const response = await fetch(fileUrl);
+                const text = await response.text();
+                const lines = text.split('\n');
+                const title = lines.find(line => line.startsWith('title:'))?.replace('title:', '').trim() || 'No Title';
+                const description = lines.find(line => line.startsWith('description:'))?.replace('description:', '').trim() || '';
+                const slug = lines.find(line => line.startsWith('slug:'))?.replace('slug:', '').trim() || '';
+                const image = lines.find(line => line.startsWith('image:'))?.replace('image:', '').trim() || '';
+
+                return { title, description, slug, image };
+            };
+
+            // Fetch and display file content
+            const fetchAndDisplayContent = async (file) => {
+                const fileUrl = `https://raw.githubusercontent.com/stefanpejcic/OpenPanel/main/website/blog/${file.name}`;
+                const { title, description, slug, image } = await fetchRequiredLines(fileUrl);
+
+                const newsItemDiv = document.createElement('div');
+                newsItemDiv.classList.add('row', 'align-items-center');
+
+                // Column for image (linked)
+                const imageDiv = document.createElement('div');
+                imageDiv.classList.add('col-3');
+
+                if (image) {
+                    const imgLink = document.createElement('a');
+                    imgLink.href = `https://openpanel.com/blog/${slug}`;
+                    imgLink.target = '_blank';
+
+                    const img = document.createElement('img');
+                    img.src = image;
+                    img.alt = title;
+                    img.classList.add('rounded');
+                    img.style.maxWidth = '100%';
+
+                    imgLink.appendChild(img);
+                    imageDiv.appendChild(imgLink);
+                }
+
+                // Column for title and description
+                const contentDiv = document.createElement('div');
+                contentDiv.classList.add('col');
+
+                const titleElement = document.createElement('h3');
+                titleElement.classList.add('card-title', 'mb-1');
+
+                const titleLink = document.createElement('a');
+                titleLink.href = `https://openpanel.com/blog/${slug}`;
+                titleLink.target = '_blank';
+                titleLink.classList.add('text-reset');
+                titleLink.textContent = title;
+
+                titleElement.appendChild(titleLink);
+
+                const descriptionElement = document.createElement('div');
+                descriptionElement.classList.add('text-secondary');
+                descriptionElement.textContent = description;
+
+                contentDiv.appendChild(titleElement);
+                contentDiv.appendChild(descriptionElement);
+
+                // Append image and content to newsItemDiv
+                newsItemDiv.appendChild(imageDiv);
+                newsItemDiv.appendChild(contentDiv);
+
+                // Append newsItemDiv to newsContent
+                newsContent.appendChild(newsItemDiv);
+            };
+
+            // Loop through each markdown file and fetch/display content
+            markdownFiles.forEach(file => {
+                fetchAndDisplayContent(file);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching the GitHub API:', error);
+            newsContent.innerHTML = '<p>Error loading news</p>';
+        });
+});
+</script>

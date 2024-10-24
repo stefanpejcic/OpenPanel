@@ -1,0 +1,384 @@
+<!-- ssl.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- content for the ssl page -->
+{% if domains %}
+
+<style>
+@media (min-width: 768px) {
+  table.table {
+    table-layout: fixed;
+  }
+  table.table td {
+    word-wrap: break-word;
+  }
+}
+
+@media (max-width: 767px) {
+span.advanced-text {display:none;}
+}
+
+    .hidden {
+        display: none;
+    }
+
+.advanced-settings {
+    align-items: center;
+    text-align: right;
+    color: black;
+}
+
+.advanced-settings i {
+    margin right: 5px;
+    transform: rotate(-90deg);
+    transition: transform 0.3s ease-in-out;
+}
+.domain_link {
+    border-bottom: 1px dashed #999;
+    text-decoration: none;
+    color: black;
+
+}
+.advanced-settings.active i {
+    transform: rotate(0);
+}
+
+thead {
+        border: 1px solid rgb(90 86 86 / 11%);
+}
+th {
+color: rgb(0 0 0 / 65%)!important;
+    background: #fafafa!important;
+    text-transform: uppercase;
+    font-weight: 400;
+
+}
+
+</style>
+
+
+<div class="modal fade" id="viewModal" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="viewModalLabel">{{ _('View File') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+            </div>
+            <div class="modal-body bg-dark">
+                <div id="fileContent" class="mb-0"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+        <!-- Search bar -->
+        <div class="input-group mb-3" style="padding-left:0px;padding-right:0px;">
+            <input type="text" class="form-control" placeholder="{{ _('Search domains') }}" id="searchDomainInput">
+        </div>
+
+
+<script type="module">
+const searchDomainInput = document.getElementById("searchDomainInput");
+const displaySettingsDiv = document.querySelector(".display_settings");
+const domainRows = document.querySelectorAll(".domain_row");
+
+searchDomainInput.addEventListener("input", function () {
+  const searchTerm = searchDomainInput.value.trim().toLowerCase();
+
+  domainRows.forEach(function (row) {
+    const domainName = row.querySelector("td:nth-child(1)").textContent.toLowerCase();
+
+    if (domainName.includes(searchTerm)) {
+      row.style.display = "table-row";
+    } else {
+      row.style.display = "none";
+    }
+  });
+});
+</script>
+
+
+
+<!-- Add checkboxes to enable/disable columns -->
+<div class="display_settings mb-3" style="display: none;">
+    <label>{{ _('Display') }}: <input type="checkbox" class="column-toggle" data-column="1" checked> {{ _('Name') }}</label>
+    <label><input type="checkbox" class="column-toggle" data-column="3" checked> {{ _('DNS Zone') }}</label>
+    <label><input type="checkbox" class="column-toggle" data-column="4" checked> {{ _('Redirect') }}</label>
+</div>
+
+        <table class="table" id="ssl_table">
+            <thead>
+                <tr>
+                    <th>{{ _('Domain') }}</th>
+                    <th>{{ _('SSL Status') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for domain in domains %}
+                    <tr class="domain_row">
+                        <td>{{ domain.domain_url }}</td>
+                        <td style="vertical-align: middle;">
+                            {% if domain.ssl_expiry_date %}
+                            {% if domain.ssl_expiry_date == 'None' %}
+                                <h6><i class="bi bi-x-circle" style="color:red;"></i> {{ _('No SSL installed') }}</h6>
+                            {% else %}
+                                <h6><i class="bi bi-check-circle-fill" style="color:green;" ></i> {{ _('AutoSSL Domain Validated') }}</h6>
+                                {{ _('Expires on') }}: {{ domain.ssl_expiry_date }}<br><small><button class="btn btn-sm btn-transparent view-button" data-file="{{ domain.domain_url }}" data-type="fullchain">{{ _('View Certificate') }}</button> | <button class="btn btn-sm btn-transparent view-button" data-file="{{ domain.domain_url }}" data-type="privkey">{{ _('Private key') }}</button></small>
+                            {% endif %}
+                            {% else %}
+                                <h6><i class="bi bi-exclamation-circle-fill" style="color:orange;"></i> <a href="" id="refresh_dashboard_data" >{{ _('SSL check is in progress.. please click here to refresh.') }}</a></h6>
+
+
+
+<script type="module">
+function refreshDashboard(event) {
+  event.preventDefault();
+
+  fetch('/dashboard')
+    .then(response => {
+      if (response.ok) {
+        location.reload();
+      } else {
+        console.error('Failed to fetch /dashboard:', response.status, response.statusText);
+      }
+    })
+    .catch(error => {
+      console.error('Error during fetch:', error);
+    });
+}
+
+document.getElementById('refresh_dashboard_data').onclick = refreshDashboard;
+</script>
+
+
+                            {% endif %}
+                        </td>
+                        <td>
+<div class="d-flex gap-2 mt-3 mt-md-0">
+
+{% if domain.ssl_expiry_date != 'None' %}
+<button type="button" class="renewBtn btn btn-success d-flex align-items-center gap-2"><i class="bi bi-shield-shaded"></i> {{ _('Renew') }}</button>
+
+
+          <!--button type="button" class="btn btn-white d-flex align-items-center gap-2"><i class="bi bi-shield-slash"></i> {{ _('Exclude') }}</button-->
+          
+
+                            <form action="/delete_ssl" method="post">
+                                <input type="hidden" name="domain_id" value="{{ domain.domain_id }}">
+                                <input type="hidden" name="domain_name" value="{{ domain.domain_url }}">
+                                <button type="submit" class="btn btn-danger d-flex align-items-center gap-2"><i class="bi bi-trash3"></i> {{ _('Delete') }}</button>
+                            </form>      
+ {% else %}                               
+
+
+                            <form action="/generate_ssl" method="post">
+                                <input type="hidden" name="domain_id" value="{{ domain.domain_id }}">
+                                <input type="hidden" name="domain_name" value="{{ domain.domain_url }}">
+                                <button type="submit" class="btn btn-primary d-flex align-items-center gap-2"><i class="bi bi-shuffle"></i> {{ _('Generate') }}</button>
+                            </form>
+
+<button type="button" class="btn d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#advancedModal"  data-bs-domain="{{ domain.domain_url }}">
+<i class="bi bi-gear"></i> {{ _('Custom') }}
+</button>
+                            
+ {% endif %}  
+
+
+</div>
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="advancedModal" tabindex="-1" aria-labelledby="advancedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="advancedModalLabel">{{ _('Install custom SSL certificate') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+
+
+<form action="/generate_ssl" method="post">
+
+<input type="hidden" class="d-none" name="domain_name" value="">
+
+<div class="d-flex row">
+                    <div class="flex-fill col-6 text-center">
+                        <div class="card">
+                            <div class="card-body">
+ <svg  xmlns="http://www.w3.org/2000/svg"  width="5em"  height="5em"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-certificate"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 15m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" /><path d="M13 17.5v4.5l2 -1.5l2 1.5v-4.5" /><path d="M10 19h-5a2 2 0 0 1 -2 -2v-10c0 -1.1 .9 -2 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -1 1.73" /><path d="M6 9l12 0" /><path d="M6 12l3 0" /><path d="M6 15l2 0" /></svg>
+
+                                <h5 class="card-title">{{ _('Fullchain') }}</h5>
+                                <input type="text" name="fullchain" class="form-control" placeholder="/home/{{current_username}}/path/to/fullchain.pem">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-fill col-6 text-center">
+                        <div class="card">
+                            <div class="card-body">
+<svg  xmlns="http://www.w3.org/2000/svg"  width="5em"  height="5em" viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-key"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0z" /><path d="M15 9h.01" /></svg>
+
+
+                                <h5 class="card-title">{{ _('Private Key') }}</h5>
+                                <input type="text" name="key" class="form-control" placeholder="/home/{{current_username}}/path/to/privkey.pem">
+                            </div>
+                        </div>
+                    </div>
+</div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+        <button type="submit" class="btn btn-primary">{{ _('Install Certificate') }}</button>
+</form>
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+$('html').on('click', '.view-button', function() {
+    const button = $(this);
+    const domain = button.data('file');
+    const type = button.data('type');
+
+    fetch(`/view_ssl_file/${encodeURIComponent(domain)}?filename=${encodeURIComponent(type)}.pem`)
+        .then(response => response.text())
+        .then(data => {
+            const modalTitle = $('#viewModalLabel');
+            const modalBody = $('#viewModal').find('.modal-body');
+
+            modalTitle.text(domain);
+            modalBody.empty();
+
+            const textContent = document.createElement('pre');
+            textContent.textContent = data;
+            modalBody.append(textContent);
+
+            $('#viewModal').modal('show');
+        })
+        .catch(error => {
+            console.error('{{ _("Error fetching file content:") }}', error);
+        });
+});
+
+$('#renewCertificatesBtn').click(function() {
+    const toastMessage = `{{ _("Running AutoSSL renewal...") }}`;
+    const toast = toaster({
+        body: toastMessage,
+        className: `border-0 text-white bg-primary`,
+    });
+
+    $.get('/ssl_renew', function(data) {
+        if (Array.isArray(data) && data.length > 0) {
+            const errorMessage = data.join('\n');
+            const toast = toaster({
+                body: errorMessage, 
+                header: `<div class="d-flex align-items-center"><l-i class="bi bi-lock-fill" class="me-2"></l-i> {{ _("AutoSSL Renewal Completed") }}</div>`,
+            });
+        } else {
+            const toastMessage = JSON.stringify(data, null, 2);
+            const toast = toaster({
+                body: toastMessage,
+                header: `<div class="d-flex align-items-center"><l-i class="bi bi-lock" class="me-2"></l-i> {{ _("AutoSSL Renewal Complete") }}</div>`,
+            });
+        }
+    });
+});
+
+$('.renewBtn').click(function () {
+
+    var domainUrl = $(this).closest('tr').find('td:first').text();
+    const toastMessage = `{{ _("Running AutoSSL renewal for ") }}` + domainUrl;
+    const toast = toaster({
+        body: toastMessage,
+        className: `border-0 text-white bg-primary`,
+    });
+
+    $.get('/ssl_renew/' + domainUrl, function (data) {
+        if (Array.isArray(data) && data.length > 0) {
+            // Join the error messages into a single string for display
+            const errorMessage = data.join('\n').replace(/-/g, '');
+            const toast = toaster({
+                body: errorMessage,
+                header: `<div class="d-flex align-items-center"><l-i class="bi bi-lock-fill" class="me-2"></l-i> {{ _("Renewal for") }} ` + domainUrl + ` {{ _("Completed") }}</div>`,
+            });
+        } else {
+            const toastMessage = JSON.stringify(data, null, 2);
+            const toast = toaster({
+                body: toastMessage,
+                header: `<div class="d-flex align-items-center"><l-i class="bi bi-lock-fill" class="me-2"></l-i> {{ _("Renewal for") }} ` + domainUrl + ` {{ _("Completed") }}</div>`,
+            });
+        }
+    });
+});
+
+var advancedModal = document.getElementById('advancedModal');
+advancedModal.addEventListener('show.bs.modal', function (event) {
+  var button = event.relatedTarget;
+  var recipient = button.getAttribute('data-bs-domain');
+  var modalTitle = advancedModal.querySelector('.modal-title');
+  var modalBodyInput = advancedModal.querySelector('.modal-body input');
+
+  modalTitle.textContent = 'Install custom SSL certificate for ' + recipient;
+  modalBodyInput.value = recipient;
+});
+</script>
+
+
+
+</section>
+<footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="Status">
+</div>
+
+<div class="ms-auto" role="group" aria-label="Actions">
+<button type="submit" class="btn btn-primary" id="renewCertificatesBtn"><i class="bi bi-plus-lg"></i> {{ _('Run AutoSSL') }}<span class="desktop-only"> {{ _('for All Domains') }}</span></button>
+</div>
+
+</div>
+</footer>
+
+
+
+{% else %}
+
+  <!-- Display jumbotron for no domains -->
+<div class="jumbotron text-center mt-5" id="jumbotronSection">
+    <h1>{{ _('No Domains') }}</h1>
+    <p>{{ _("When you create a domain, the system will attempt to secure that domain with a free Let\'s Encrypt certificate.") }}</p>
+    <a href="/domains#add-new" class="btn btn-lg btn-primary">
+      <i class="bi bi-plus-lg"></i> {{ _('Add a Domain Name') }}
+    </a>
+</div>
+
+
+{% endif %}
+
+
+<script>
+window.onload = function() {
+    // Autofocus on the input field
+    document.getElementById('searchDomainInput').focus();
+};
+</script>
+
+
+
+
+
+{% endblock %}

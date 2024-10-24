@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header mt-0 d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Emails
+                </div>
+                <h2 class="page-title">
+                    All Email Accounts
+                </h2>
+            </div>
+            <!-- Page title actions -->
+            <div class="col-auto ms-auto mt-0 d-print-none">
+                <div class="btn-list">
+                    <span class="d-none d-sm-inline">
+                        <div class="input-icon">
+                            <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path><path d="M21 21l-6 -6"></path></svg>
+                            </span>
+                        <input type="text" id="userSearchInput" class="form-control" placeholder="Search email accounts" aria-label="Search email accounts">
+                        </div>
+                    </span>
+                    <button id="addPlanButton" class="d-none btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#modal-report"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 5l0 14"></path><path d="M5 12l14 0"></path></svg>New Email</button></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% if mailserver_status == 'running' %}
+
+<!-- Page body -->
+<div class="page-body">
+    <div class="">
+        <div class="row row-deck row-cards">
+            <div class="col-lg-12" id="domains">
+                <div class="card-body p-0">
+                    <div id="table-default" class="table-responsive">
+                    <table class="table table-vcenter card-table table-striped">
+                        <thead>
+                        <tr>
+                        <th><button class="table-sort" data-sort="sort-id">Email</button></th>
+                        <th><button class="table-sort" data-sort="sort-url">Quota</button></th>
+                        <th>Webmail</th>
+                        <th class="d-none">Advanced</th>
+                        <th></th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-tbody">
+                        {% for email, quota in emails %}
+                        <tr>
+                        <td class="text-secondary sort-url">{{ email }}</td>
+                        <td class="sort-id"><a href="#" target="_blank">{{ quota }}</a></td>
+                        <td><a href="/emails/webmail/{{ email }}" target="_blank" data-domain="{{ email }}"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-mail-forward"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 18h-7a2 2 0 0 1 -2 -2v-10a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v7.5" /><path d="M3 6l9 6l9 -6" /><path d="M15 18h6" /><path d="M18 15l3 3l-3 3" /></svg> Login to Webmail</a></td>
+                        <td class="d-none">Advanced</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--script src="{{ url_for('static', filename='pages/emails.js') }}" defer></script-->
+
+
+{% elif mailserver_status == 'not_installed' %}
+
+{% include 'emails/mailserver_is_not_installed.html' %}
+
+{% elif mailserver_status == 'stopped' %}
+
+{% include 'emails/mailserver_is_stopped.html' %}
+
+
+{% else %}
+
+Mailserver status not detected!
+
+{% endif %}
+
+
+{% endblock %}
+

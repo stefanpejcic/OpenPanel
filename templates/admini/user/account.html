@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Specific content for the account.html page -->
+<div class="container-xl">
+    <!-- Account page navigation-->
+ <nav class="nav nav-line mb-4">
+        <a class="nav-link active" href="/account" target="">{{ _('Profile') }}</a>
+    <!--<a class="nav-link" href="#">Preferences</a>-->
+        {% if 'twofa' in enabled_modules %}
+        <a class="nav-link" href="/account/2fa">{{ _('2FA') }}</a>
+        {% endif %}
+        {% if 'activity' in enabled_modules %}
+        <a class="nav-link" href="/activity"><span class="desktop-only">{{ _('Account') }} </span>{{ _('Activity') }}</a>
+        {% endif %}
+        {% if 'login_history' in enabled_modules %}
+        <a class="nav-link" href="/account/login-history"><span class="desktop-only">{{ _('Login') }} </span>{{ _('History') }}</a>
+        {% endif %}
+    <!--<a class="nav-link" href="#">Email Notifications</a>-->
+    </nav>
+
+    <div class="row">
+        <div class="col-xl-4">
+            <!-- Profile picture card-->
+            <div class="card mb-4 mb-xl-0">
+                <div class="card-header">{{ _('Profile Picture') }}</div>
+                <div class="card-body text-center">
+                    <!-- Profile picture image-->                    
+             {% if avatar_type == 'gravatar' %}
+                    <img class="img-account-profile rounded-circle mb-2" src="{{ gravatar_image_url }}" alt="Gravatar" style="border-radius: 50%; data-toggle="tooltip" data-placement="bottom" title="{{ _('This image is from Gravatar') }}">
+                    <!-- Profile picture upload button-->
+                    <div class="small font-italic text-muted mb-4">{{ email }}</div>
+                    <a href="https://en.gravatar.com/emails" target="_blank" title="Change Gravatar" class="btn btn-sm btn-primary" type="button">{{ _('Change image on Gravatar') }}</a>
+                {% elif avatar_type == 'letter' %}
+              <span class="avatar-initial" style="font-size: xx-large;">{{ current_username[0] }}</span>
+                {% else %}
+                    <i class="bi bi-person-circle" style="font-size: 128px;"></i>
+                    <div class="small font-italic text-muted mb-4">{{ email }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8">
+            <!-- Account details card-->
+            <div class="card mb-4">
+                <div class="card-header">{{ _('Account Details') }}</div>
+                <div class="card-body">
+            <form method="POST">
+
+                <div class="form-group">
+                    <label class="small mb-1" for="email">{{ _('Email address:') }}</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="{{ email }}">
+                </div>
+                <div class="form-group">
+                    <label class="small mb-1" for="email">{{ _('Username:') }}</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="{{ username }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="small mb-1" for="password">{{ _('New Password:') }}</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="password" name="password" placeholder="New Password">
+                        <div class="input-group-append">
+                            <button type="button" class="btn btn-white btn-lg" id="show-hide-password">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button type="button" class="btn btn-success btn-lg" id="generate-password">
+                                {{ _('Generate') }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="small mb-1" for="confirm_password">{{ _('Confirm New Password:') }}</label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" placeholder="{{ _('Confirm New Password') }}">
+                        <div class="input-group-append">
+            <p class="d-none" id="copy-password-link">
+                <a href="#" style="text-decoration:none;" id="copy-password">
+                    &nbsp; <i class="bi bi-clipboard"> </i> {{ _('Copy Password') }}
+                </a>
+            </p>
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <input type="submit" class="btn btn-primary" value="{{ _('Update') }}">
+            </form>
+                </div>
+            </div>
+        </div>
+                <div class="col-xl-4">
+            <!-- dark mode toggle card-->
+            <div class="card mb-4 mb-xl-0">
+                <div class="card-header">{{ _('Language') }}</div>
+                <div class="card-body text-center">
+
+
+        <select class="form-select" id="locale-select" aria-label="Select Language">
+            <option selected disabled>Choose Language</option>
+        </select>
+
+        <script>
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/locales', true);
+
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var locales = response.locales;
+
+                    // Update the HTML with the list of locales as options
+                    var localeSelect = document.getElementById('locale-select');
+                    locales.forEach(function (locale) {
+                        var option = document.createElement('option');
+                        option.value = locale;
+                        option.textContent = locale;
+                        localeSelect.appendChild(option);
+                    });
+
+                    // Add event listener to the select element
+                    localeSelect.addEventListener('change', function () {
+                        var selectedLocale = localeSelect.value;
+                        if (selectedLocale) {
+                            window.location.href = '/change_locale/' + selectedLocale;
+                        }
+                    });
+                }
+            };
+
+            xhr.send();
+        </script>
+                </div>
+            </div>
+            <div class="card mb-4 mb-xl-0">
+                <div class="card-header">{{ _('Theme') }}</div>
+                <div class="card-body text-center">
+                                      <button class="btn js-darkmode-toggle">
+                    <l-i class="bi bi-moon" hidden value="light" style="font-size: large;"></l-i>
+                    <l-i class="bi bi-sun" hidden value="dark" style="color:orange;font-size: large;"></l-i>
+                  </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+//body{margin-top:20px;
+//background-color:#f2f6fc;
+//color:#69707a;
+//}
+.img-account-profile {
+    height: 10rem;
+}
+.rounded-circle {
+    border-radius: 50% !important;
+}
+.card {
+    box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+}
+.card .card-header {
+    font-weight: 500;
+}
+.card-header:first-child {
+    border-radius: 0.35rem 0.35rem 0 0;
+}
+.card-header {
+    padding: 1rem 1.35rem;
+    margin-bottom: 0;
+    background-color: rgba(33, 40, 50, 0.03);
+    border-bottom: 1px solid rgba(33, 40, 50, 0.125);
+}
+.form-control, .dataTable-input {
+    display: block;
+    width: 100%;
+    padding: 0.875rem 1.125rem;
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1;
+    color: #69707a;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #c5ccd6;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border-radius: 0.35rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.nav-borders .nav-link.active {
+    color: #0061f2;
+    border-bottom-color: #0061f2;
+}
+.nav-borders .nav-link {
+    color: #69707a;
+    border-bottom-width: 0.125rem;
+    border-bottom-style: solid;
+    border-bottom-color: transparent;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+</style>
+
+
+    <script>
+// Sve za pass generate, copy to clipboard i hide/show
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById("password");
+            const confirmPasswordInput = document.getElementById("confirm_password");
+            const showHideButton = document.getElementById("show-hide-password");
+            const eyeIcon = showHideButton.querySelector("i");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                confirmPasswordInput.type = "text";
+                eyeIcon.classList.remove("bi-eye");
+                eyeIcon.classList.add("bi-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                confirmPasswordInput.type = "password";
+                eyeIcon.classList.remove("bi-eye-slash");
+                eyeIcon.classList.add("bi-eye");
+            }
+        }
+
+        document.getElementById("show-hide-password").addEventListener("click", togglePasswordVisibility);
+
+        function generateRandomPassword() {
+            const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+            let password = "";
+            for (let i = 0; i < 12; i++) {
+                const randomIndex = Math.floor(Math.random() * characters.length);
+                password += characters.charAt(randomIndex);
+            }
+            return password;
+        }
+
+        function copyToClipboard() {
+            const passwordInput = document.createElement("input");
+            passwordInput.type = "text";
+            passwordInput.value = document.getElementById("password").value;
+            document.body.appendChild(passwordInput);
+            passwordInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(passwordInput);
+
+            const copyLink = document.getElementById("copy-password");
+            copyLink.innerHTML = '<i class="bi bi-check"></i> {{ _("Copied to clipboard") }}';
+
+            setTimeout(() => {
+                copyLink.innerHTML = '<i class="bi bi-clipboard"></i> {{ _("Copy Password") }}';
+            }, 3000);
+        }
+
+        document.getElementById("generate-password").addEventListener("click", function() {
+            const newPassword = generateRandomPassword();
+            const showHideButton = document.getElementById("show-hide-password");
+            const eyeIcon = showHideButton.querySelector("i");
+
+            document.getElementById("password").type = "text";
+            document.getElementById("confirm_password").type = "text";
+            document.getElementById("password").value = newPassword;
+            document.getElementById("confirm_password").value = newPassword;
+            eyeIcon.classList.remove("bi-eye");
+            eyeIcon.classList.add("bi-eye-slash");
+            document.getElementById("copy-password-link").classList.remove("d-none");
+        });
+
+        document.getElementById("copy-password").addEventListener("click", copyToClipboard);
+    </script>
+{% endblock %}

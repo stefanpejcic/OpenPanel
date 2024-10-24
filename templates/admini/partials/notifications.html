@@ -1,0 +1,42 @@
+<!-- START Flash messages as toasts -->
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+    <div aria-live="polite" aria-atomic="true" class="d-flex justify-content-center align-items-center w-100">
+        <div class="toast-container position-fixed top-0 p-3">
+            {% for message in messages %}
+                {% if 'success' in message.lower() %}
+                    {% set toast_class = 'bg-success text-white' %}
+                    {% set toast_icon = 'success' %}
+                    {% set title = 'success' %}
+                {% elif 'error' in message.lower() %}
+                    {% set toast_class = 'bg-danger text-white' %}
+                    {% set toast_icon = 'error' %}
+                    {% set title = 'Error' %}
+                {% elif 'warning' in message.lower() %}
+                    {% set toast_class = 'bg-warning text-white' %}
+                    {% set toast_icon = 'warning' %}
+                    {% set title = 'Warning' %}
+                {% else %}
+                    {% set toast_class = 'bg-primary text-white' %}
+                    {% set toast_icon = 'info' %}
+                    {% set title = 'Notification' %}
+                {% endif %}
+
+                <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="toast-header {{ toast_class }}">
+                        <strong class="me-auto">
+                            {{ title }}
+                        </strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                    <div class="toast-body">
+                        <div class="d-none modal-icon modal-{{toast_icon}} modal-icon-show"></div>
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+{% endwith %}
+<!-- END Flash messages -->

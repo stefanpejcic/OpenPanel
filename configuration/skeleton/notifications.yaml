@@ -1,0 +1,17 @@
+notify_account_login=1
+notify_account_login_for_known_netblock=1
+notify_account_login_notification_disabled=1
+notify_autossl_expiry=0
+notify_autossl_expiry_coverage=0
+notify_autossl_renewal_coverage=0
+notify_autossl_renewal_coverage_reduced=0
+notify_autossl_renewal_uncovered_domains=0
+notify_contact_address_change=1
+notify_contact_address_change_notification_disabled=1
+notify_disk_limit=1
+notify_email_quota_limit=1
+notify_password_change=1
+notify_password_change_notification_disabled=1
+notify_ssl_expiry=1
+notify_twofactorauth_change=1
+notify_twofactorauth_change_notification_disabled=1

@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- Page header -->
+<div class="page-header mt-0 d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                    Services
+                </div>
+                <h2 class="page-title">
+                    Nginx Configuration
+                </h2>
+            </div>
+           <!-- Page title actions -->
+            <div class="col-auto ms-auto mt-0 d-print-none">
+                <div class="btn-list">
+                </div>
+            </div>
+
+        <!-- Page body -->
+        <div class="page-body">
+          <div class="container-xl">
+            <div class="row row-cards">
+              <div class="col-md-2">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="subheader">Status</div>
+                    <div class="h3 m-0" id="nginx-status">active</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="subheader">Version</div>
+                    <div class="h3 m-0"><svg width="24" height="24" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title>file_type_nginx</title><path d="M15.948,2h.065a10.418,10.418,0,0,1,.972.528Q22.414,5.65,27.843,8.774a.792.792,0,0,1,.414.788c-.008,4.389,0,8.777-.005,13.164a.813.813,0,0,1-.356.507q-5.773,3.324-11.547,6.644a.587.587,0,0,1-.657.037Q9.912,26.6,4.143,23.274a.7.7,0,0,1-.4-.666q0-6.582,0-13.163a.693.693,0,0,1,.387-.67Q9.552,5.657,14.974,2.535c.322-.184.638-.379.974-.535" style="fill:#019639"></path><path d="M8.767,10.538q0,5.429,0,10.859a1.509,1.509,0,0,0,.427,1.087,1.647,1.647,0,0,0,2.06.206,1.564,1.564,0,0,0,.685-1.293c0-2.62-.005-5.24,0-7.86q3.583,4.29,7.181,8.568a2.833,2.833,0,0,0,2.6.782,1.561,1.561,0,0,0,1.251-1.371q.008-5.541,0-11.081a1.582,1.582,0,0,0-3.152,0c0,2.662-.016,5.321,0,7.982-2.346-2.766-4.663-5.556-7-8.332A2.817,2.817,0,0,0,10.17,9.033,1.579,1.579,0,0,0,8.767,10.538Z" style="fill:#fff"></path></svg> <span class="" id="nginx-version">&nbsp;</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="subheader">Actions</div>
+     
+                      <div class="btn-list h3 m-0">
+
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Start Nginx" data-bs-original-title="Start Nginx">
+                  <a href="#" onclick="controlNginx('start')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-play"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 4v16l13 -8z" /></svg></a></span>
+
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Stop Nginx" data-bs-original-title="Stop Nginx">
+                  <a href="#" onclick="controlNginx('stop')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-player-stop"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 5m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" /></svg></a></span>
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Restart Nginx" data-bs-original-title="Restart Nginx">
+                  <a href="#" onclick="controlNginx('restart')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg></a></span>
+
+
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Reload Nginx" data-bs-original-title="Reload Nginx">
+                  <a href="#" onclick="controlNginx('reload')" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-reload"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M19.933 13.041a8 8 0 1 1 -9.925 -8.788c3.899 -1 7.935 1.007 9.425 4.747" /><path d="M20 4v5h-5" /></svg></a></span>
+
+    
+                  <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Validate Configuration" data-bs-original-title="Validate Configuration">
+                  <a href="#" onclick="validateConfig()" class="">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 12l5 5l10 -10" /></svg></a></span>
+
+
+                      </div>
+
+
+
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="card">
+                  <div class="card-body" span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The current number of active client connections including Waiting connections." data-bs-original-title="The current number of active client connections including Waiting connections.">
+                    <div class="subheader">Active Connection</div>
+                    <div class="h3 m-0" id="nginx-active-connections">0</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-2">
+                <div class="card">
+                  <div class="card-body" span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The current number of virtualhosts (domain) files." data-bs-original-title="The current number of virtualhosts (domain) files.">
+                    <div class="subheader">Virtual Hosts</div>
+                    <div class="h3 m-0"><a href="/domains" id="nginx-vhosts-count">0</a></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-table table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The current number of connections where nginx is reading the request header." data-bs-original-title="The current number of connections where nginx is reading the request header.">Reading</th>
+                          <th data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The current number of connections where nginx is writing the response back to the client." data-bs-original-title="The current number of connections where nginx is writing the response back to the client.">Writing</th>
+                          <th data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The current number of idle client connections waiting for a request." data-bs-original-title="The current number of idle client connections waiting for a request.">Waiting</th>
+                          <th><span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The total number of accepted client connections." data-bs-original-title="The total number of accepted client connections.">Accepts</span>, <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The total number of handled connections. Generally, the parameter value is the same as accepts unless some resource limits have been reached (for example, the worker_connections limit)." data-bs-original-title="The total number of handled connections. Generally, the parameter value is the same as accepts unless some resource limits have been reached (for example, the worker_connections limit).">Handled</span>, <span data-bs-toggle="tooltip" data-bs-placement="top" aria-label="The total number of client requests." data-bs-original-title="The total number of client requests.">Requests</span></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span id="nginx-reading">&nbsp;</span></td>
+                          <td><span id="nginx-writing">&nbsp;</span></td>
+                          <td><span id="nginx-waiting">&nbsp;</span></td>
+                          <td><span id="nginx-accepts-handled-requests">&nbsp;</span></td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="col-md-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="subheader">Modules</div>
+                    <code class="m-0" id="nginx-modules"></code>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12">
+<div class="card">
+                  <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-nginxconf" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">Main Configuration</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-default" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Default Domain</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-domain" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">New Domain</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-conf_with_modsec" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">New Domain with ModSec</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-docker_nginx_domain" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">New Domain Nginx Docker</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-docker_apache_domain" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">New Domain Apache Docker</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-openpanel_proxy" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">OpenPanel Proxy</a>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <a href="#tabs-error_pages" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Error Pages</a>
+                      </li>
+                      <li class="nav-item ms-auto" role="presentation">
+                        <a href="#tabs-settings-1" class="nav-link" title="Settings" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path><path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path></svg>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+<div class="card-body">
+    <div class="tab-content">
+        <div class="tab-pane active show" id="tabs-nginxconf" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+                  <h4>/etc/openpanel/nginx/nginx.conf</h4>
+                  <div class="mb-2">Main configuration file located in <code>/etc/nginx/nginx.conf</code></div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_nginxconf" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+          <textarea class="form-control" rows="30" id="pre-nginxconf"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-default" role="tabpanel">
+
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/default.conf</h4>
+            <div class="mb-2">The default nginx configuration file inside <code>/etc/nginx/sites-available/default</code>. This file is used for domains that are pointed to the server IP but not currently added by any OpenPanel user.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_default" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="pre-default"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-domain" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/domain.conf</h4>
+            <div class="mb-2">This file is copied for every new domain added by OpenPanel users.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_domain" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="pre-domain"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-conf_with_modsec" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/domain.conf_with_modsec</h4>
+            <div class="mb-2">If ModSecurity is installed on the server, this file is copied for every new domain added by OpenPanel users.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_conf_with_modsec" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="pre-conf_with_modsec"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-docker_nginx_domain" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/docker_nginx_domain.conf</h4>
+            <div class="mb-2">For users with Nginx webserver, this file is copied inside their docker container for every new domain.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_docker_nginx_domain" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="pre-docker_nginx_domain"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-docker_apache_domain" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/docker_apache_domain.conf</h4>
+            <div class="mb-2">For users with Apache webserver, this file is copied inside their docker container for every new domain.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_docker_apache_domain" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="pre-docker_apache_domain"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-openpanel_proxy" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/openpanel_proxy.conf</h4>
+            <div class="mb-2">This file affects all user domains and makes accessing services via user domains: <code>/openpanel</code> <code>/openadmin</code> <code>/phpmyadmin</code> <code>/webmail</code></div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                    <a href="#" id="save_docker_openpanel_proxy" class="btn btn-success">Save</a>
+                  </div>
+              </div>
+          </div>
+            <textarea class="form-control" rows="30" id="pre-openpanel_proxy"></textarea>
+        </div>
+        <div class="tab-pane" id="tabs-error_pages" role="tabpanel">
+          <div class="row g-2 align-items-center">
+              <div class="col">
+            <h4>/etc/openpanel/nginx/vhosts/error_pages/</h4>
+            <div class="mb-2">These error pages are shown to visitors when the domain configuration file is malformed or no response from docker container.</div>
+              </div>
+              <div class="col-auto ms-auto mt-0 d-print-none">
+                  <div class="btn-list">
+                  </div>
+              </div>
+          </div>
+
+<code>/etc/openpanel/nginx/error_pages/400.html</code>
+<code>/etc/openpanel/nginx/error_pages/401.html</code>
+<code>/etc/openpanel/nginx/error_pages/402.html</code>
+<code>/etc/openpanel/nginx/error_pages/403.html</code>
+<code>/etc/openpanel/nginx/error_pages/404.html</code>
+<code>/etc/openpanel/nginx/error_pages/405.html</code>
+<code>/etc/openpanel/nginx/error_pages/406.html</code>
+<code>/etc/openpanel/nginx/error_pages/407.html</code>
+<code>/etc/openpanel/nginx/error_pages/408.html</code>
+<code>/etc/openpanel/nginx/error_pages/409.html</code>
+<code>/etc/openpanel/nginx/error_pages/410.html</code>
+<code>/etc/openpanel/nginx/error_pages/411.html</code>
+<code>/etc/openpanel/nginx/error_pages/412.html</code>
+<code>/etc/openpanel/nginx/error_pages/413.html</code>
+<code>/etc/openpanel/nginx/error_pages/414.html</code>
+<code>/etc/openpanel/nginx/error_pages/415.html</code>
+<code>/etc/openpanel/nginx/error_pages/416.html</code>
+<code>/etc/openpanel/nginx/error_pages/417.html</code>
+<code>/etc/openpanel/nginx/error_pages/418.html</code>
+<code>/etc/openpanel/nginx/error_pages/421.html</code>
+<code>/etc/openpanel/nginx/error_pages/422.html</code>
+<code>/etc/openpanel/nginx/error_pages/423.html</code>
+<code>/etc/openpanel/nginx/error_pages/424.html</code>
+<code>/etc/openpanel/nginx/error_pages/425.html</code>
+<code>/etc/openpanel/nginx/error_pages/426.html</code>
+<code>/etc/openpanel/nginx/error_pages/428.html</code>
+<code>/etc/openpanel/nginx/error_pages/429.html</code>
+<code>/etc/openpanel/nginx/error_pages/431.html</code>
+<code>/etc/openpanel/nginx/error_pages/451.html</code>
+<code>/etc/openpanel/nginx/error_pages/500.html</code>
+<code>/etc/openpanel/nginx/error_pages/501.html</code>
+<code>/etc/openpanel/nginx/error_pages/502.html</code>
+<code>/etc/openpanel/nginx/error_pages/503.html</code>
+<code>/etc/openpanel/nginx/error_pages/504.html</code>
+<code>/etc/openpanel/nginx/error_pages/505.html</code>
+<code>/etc/openpanel/nginx/error_pages/506.html</code>
+<code>/etc/openpanel/nginx/error_pages/507.html</code>
+<code>/etc/openpanel/nginx/error_pages/508.html</code>
+<code>/etc/openpanel/nginx/error_pages/510.html</code>
+<code>/etc/openpanel/nginx/error_pages/511.html</code>
+
+
+        </div>
+        <div class="tab-pane" id="tabs-settings-1" role="tabpanel">
+            <h4>Restore Default Configuration</h4>
+            <div>Download latest configuration from: <a href="https://github.com/stefanpejcic/openpanel-configuration/tree/main/nginx" target="_blank">https://github.com/stefanpejcic/openpanel-configuration/tree/main/nginx</a></div>
+        </div>
+    </div>
+</div>
+
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+        </div>
+
+  </div>
+</div>
+
+</div>
+
+<script src="{{ url_for('static', filename='pages/services_nginx.js') }}" defer></script>
+
+{% endblock %}

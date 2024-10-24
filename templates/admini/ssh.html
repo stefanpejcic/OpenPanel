@@ -1,0 +1,214 @@
+<!-- SSH.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="module">
+  // Function to attach event listeners
+  function attachEventListeners() {
+    document.querySelectorAll("button[type='submit']").forEach((btn) => {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+
+        const action = btn.closest("form").querySelector("input[name='action']").value;
+        let btnClass, toastMessage, requestBody;
+
+        if (action === 'enable') {
+          btnClass = 'success';
+          toastMessage = "{{ _('Enabling SSH access..') }}";
+          requestBody = `action=${action}`;
+        } else if (action === 'disable') {
+          btnClass = 'danger';
+          toastMessage = "{{ _('Disabling SSH access..') }}";
+          requestBody = `action=${action}`;
+        } else if (action === 'change_password') {
+          btnClass = 'success';
+          toastMessage = "{{ _('Password changed successfully.') }}";
+
+          // Close the Bootstrap modal programmatically
+          const modalElement = new bootstrap.Modal(document.getElementById('changePasswordModal'));
+          modalElement.hide();
+
+          // Remove the modal backdrop
+          const modalBackdrop = document.querySelector('.modal-backdrop');
+          if (modalBackdrop) {
+            modalBackdrop.remove();
+          }
+
+          // Get the new password value
+          const newPassword = btn.closest("form").querySelector("#new_password").value;
+
+          // Include the new password in the request body
+          requestBody = `action=${action}&new_password=${encodeURIComponent(newPassword)}`;
+        }
+
+        const toast = toaster({
+          body: toastMessage,
+          className: `border-0 text-white bg-${btnClass}`,
+        });
+
+        try {
+          const response = await fetch(window.location.href, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: requestBody,
+          });
+
+          // get the response HTML content
+          const resultHtml = await response.text();
+
+          // Parse the HTML string to extract the content of the specific element
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(resultHtml, 'text/html');
+          const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
+
+          // Replace the content of the element with the ID "main-scope"
+          const mainScopeElement = document.getElementById("main-scope");
+          if (mainScopeElement) {
+            mainScopeElement.innerHTML = mainScopeContent || '';
+          }
+
+          // Reattach event listeners after updating content
+          attachEventListeners();
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      });
+    });
+  }
+
+  // Attach event listeners initially
+  attachEventListeners();
+</script>
+
+
+
+    <div class="col-12">
+        {% if ssh_status_display == 'ON' %}
+        {% elif ssh_status_display == 'OFF' %}
+<h4 class="text-center mb-0"><i class="bi bi-shield-slash-fill" style="color:green;"></i> {{ _('SSH access is currently disabled.') }}</h4>
+        {% else %}
+<div class="alert alert-warning text-center" role="alert">
+<h4 class="mb-0"><i class="bi bi-shield-shaded"></i> {{ _('SSH service status is unknown. Contact Administrator.') }}</h4>
+</div>
+        {% endif %}
+
+
+
+
+    </div>
+
+
+
+
+{% if ssh_status_display == 'ON' %}
+<div class="row g-3">
+<div class="col-md-6 col-xl-12">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{ _('SSH Connection Information') }}</h6>
+          </div><!-- card-header -->
+<div class="card-body">
+
+<div class="row g-4">
+                <div class="col">
+                  <label class="card-label fs-sm fw-medium mb-1">{{ _('IP address:') }}</label>
+                  <h2 class="card-value mb-0">{{ server_ip }}</h2>
+                </div><!-- col -->
+                <div class="col-5 col-sm">
+                  <label class="card-label fs-sm fw-medium mb-1">{{ _('SSH Port:') }}</label>
+                  <h2 class="card-value mb-0">{% if host_port_mapping %} <b><code>{{ host_port_mapping }}</code></b> {% else %} {{ _("CONTAINER NOT RUNNING") }} {% endif %}</h2>
+                </div><!-- col -->
+                <div class="col">
+                  <label class="card-label fs-sm fw-medium mb-1">{{ _('Username:') }}</label>
+                  <h2 class="card-value mb-0">{{ current_username }}</h2>
+                </div><!-- col -->
+                <div class="col">
+                  <label class="card-label fs-sm fw-medium mb-1">{{ _('Password:') }}</label>
+                  <h2 class="card-value mb-0">**********</h2>
+<button class="btn btn-outline" id="change_ssh_password_modal_button" type="button" data-bs-toggle="modal" data-bs-target="#changePasswordModal">{{ _('Change SSH Password') }}</button></div>
+</div>
+</div>
+<div class="card-footer">
+<div class="text-center"><pre class="mb-0">
+ssh {{current_username}}@{{ server_ip }} -p {{ host_port_mapping }}
+</pre>
+</div>
+</div>
+            </div>
+          </div><!-- col -->
+</div>
+
+
+
+
+
+
+        <!-- Modal for changing password -->
+        <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="changePasswordModalLabel">{{ _('Change password for SSH user') }} {{ current_username }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Form to change password -->
+<form method="post">
+<input type="hidden" name="action" value="change_password">
+<div class="form-group">
+<label for="new_password">{{ _('New Password:') }}</label> 
+<div class="input-group">
+<input type="password" class="form-control" id="new_password" name="new_password" required>
+<button type="submit" class="btn btn-primary">{{ _("Change Password") }}</button>
+</div>
+</div>
+<small>{{ _('Password can not be viewed after changing, please make sure to') }} <b>{{ _('copy the new password') }}</b>.</small>
+</form>
+
+                    </div>
+                </div>
+            </div></div>
+
+
+
+
+
+
+
+{% endif %}
+</section>
+          <footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="Status">
+<label>{{ _('status:') }}</label><b> {% if ssh_status_display == 'ON' %} {{ _('Enabled') }}{% elif ssh_status_display == 'OFF' %} {{ _('Disabled') }}{% else %} {{ _('Unknown') }}{% endif %}</b>   
+</div>
+
+            <div class="ms-auto" role="group" aria-label="Actions">
+{% if ssh_status_display == 'ON' %}
+<form method="post">
+<input type="hidden" name="action" value="disable">
+<button type="submit" class="btn btn-primary d-flex align-items-center gap-2">{{ _('Disable SSH Access') }}</button>
+</form>
+{% elif ssh_status_display == 'OFF' %}
+<form method="post">
+<input type="hidden" name="action" value="enable">
+<button type="submit" class="btn btn-primary d-flex align-items-center gap-2">{{ _('Enable SSH Access') }}</button>
+</form>
+{% else %}
+<form method="post">
+<input type="hidden" name="action" value="disable">
+<button type="submit" class="btn btn-primary d-flex align-items-center gap-2">{{ _('Disable SSH Access') }}</button>
+</form>
+<form method="post">
+<input type="hidden" name="action" value="enable">
+<button type="submit" class="btn btn-primary d-flex align-items-center gap-2">{{ _('Enable SSH Access') }}</button>
+</form>
+{% endif %}
+</div>
+</footer>
+{% endblock %}
+

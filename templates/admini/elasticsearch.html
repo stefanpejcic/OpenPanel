@@ -1,0 +1,280 @@
+<!-- elasticsearch.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<script type="module">
+  // Function to attach event listeners
+  function attachEventListeners() {
+    document.querySelectorAll("button[type='submit']").forEach((btn) => {
+      if (!btn.classList.contains("limits")) {
+        btn.addEventListener("click", async (ev) => {
+          ev.preventDefault();
+
+          const action = btn.closest("form").querySelector("input[name='action']").value;
+          let btnClass, toastMessage;
+
+          if (action === 'enable') {
+            btnClass = 'success';
+            toastMessage = '{{ _("Enabling Elasticsearch service..") }}';
+          } else if (action === 'install_elasticsearch') {
+            btnClass = 'primary';
+            toastMessage = '{{ _("Installing Elasticsearch service.. Please wait") }}';
+          } else if (action === 'disable') {
+            btnClass = 'danger';
+            toastMessage = '{{ _("Disabling Elasticsearch service..") }}';
+          }
+
+          const toast = toaster({
+            body: toastMessage,
+            className: `border-0 text-white bg-${btnClass}`,
+          });
+
+          try {
+            const response = await fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: `action=${action}`,
+            });
+
+            // get the response HTML content
+            const resultHtml = await response.text();
+
+            // Parse the HTML string to extract the content of the specific element
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(resultHtml, 'text/html');
+            const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
+
+            // Replace the content of the element with the ID "main-scope"
+            const mainScopeElement = document.getElementById("main-scope");
+            if (mainScopeElement) {
+              mainScopeElement.innerHTML = mainScopeContent || '';
+            }
+
+            // Reattach event listeners after updating content
+            attachEventListeners();
+
+            // Reinitialize the log script
+            initializeLogScript();
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        });
+      }
+    });
+  }
+
+  // Function to initialize the log script
+  function initializeLogScript() {
+    $(document).ready(function() {
+      $("#service-log").click(function(event) {
+        event.preventDefault();
+        $.ajax({
+          url: "/view-log/var/log/elasticsearch/elasticsearch.log",
+          type: "GET",
+          success: function(data) {
+            $("#log-content").html(data);
+            $("#log-container").show(); // Show the container when data is fetched
+          },
+          error: function() {
+            $("#log-content").html("Error fetching log content.");
+            $("#log-container").show(); // Show the container even on error
+          }
+        });
+      });
+    });
+  }
+
+  // Attach event listeners initially
+  attachEventListeners();
+</script>
+
+
+<div class="row g-3">
+
+{% if elastic_status_display == 'ON' %}
+
+<div class="col-md-4 col-xl-4">
+          <div class="card card-one">
+<div class="card-header">
+            <h6 class="card-title">{{_('Connection Info')}}</h6>
+          </div>
+
+
+            <div class="card-body">
+              <div class="row mt-2 mb-2">
+                <label class="card-title fw-medium text-dark mb-1">{{_('status:')}}</label><div class="col-6">
+                  <h3 class="card-value mb-1"><i class="bi bi-check-circle-fill"></i> {{_('Active')}}</h3>
+                  
+                  
+                </div><!-- col -->
+              </div>
+              <hr>
+              <div class="row mt-2 mb-2">
+                <div class="col-6">
+                  <label class="card-title fw-medium text-dark mb-1">{{_('Elasticsearch server:')}}</label><h3 class="card-value mb-1">127.0.0.1</h3>
+                  
+                  <span class="d-block text-muted fs-11 ff-secondary lh-4">{{_('*or localhost')}}</span>
+                </div><!-- col -->
+              </div>
+              <hr>
+              <div class="row mt-2 mb-2">
+                <div class="col-12">
+                  
+                  <label class="card-title fw-medium text-dark mb-1">Port:</label>
+                  <h3 class="card-value mb-1">9200</h3><span class="d-block text-muted fs-11 ff-secondary lh-4">{{_('*Access to the service is NOT available from other servers.')}}</span>
+                </div><!-- col -->
+              </div><!-- row -->
+            </div><!-- card-body -->
+<div class="card-footer d-flex justify-content-center">
+            <a href="#" class="fs-sm" id="service-log">{{_('View Elasticsearch service Log')}}</a>
+          </div>
+          </div><!-- card-one -->
+        </div>
+<div class="col-md-6 col-xl-8">
+        <div class="card card-one">
+          <div class="card-header">
+            <h6 class="card-title">{{_('Elasticsearch Settings')}}</h6>
+            <nav class="nav nav-icon nav-icon-sm ms-auto">
+              <a href="" class="nav-link"><i class="ri-refresh-line"></i></a>
+              <a href="" class="nav-link"><i class="ri-more-2-fill"></i></a>
+            </nav>
+          </div><!-- card-header -->
+          <div class="card-body">
+          </div>
+            </div>
+          </div><!-- col -->
+
+
+        </div><!-- row -->
+
+
+<div class="row g-3">
+
+    <div class="col-md-6 col-xl-12" style="display: none;" id="log-container">
+        <div class="card card-one">
+            <div class="card-header">
+                <h6 class="card-title">{{_('Elasticsearch service logs')}}</h6>
+                <nav class="nav nav-icon nav-icon-sm ms-auto"></nav>
+            </div><!-- card-header -->
+            <div class="card-body">
+                <pre id="log-content"></pre>
+            </div><!-- card-body -->
+        </div><!-- card -->
+    </div>
+
+</div>
+
+{% elif elastic_status_display  == 'NOT INSTALLED' %}
+<div class="jumbotron text-center mt-5" id="jumbotronSection">
+    <h1><i class="bi bi-x-lg" style="color:red;"></i> {{_('Elasticsearch is not currently installed.')}}</h1>
+    <p>{{_('To install Elasticsearch click on the button bellow.')}}</p>
+        <form method="post">
+            <input type="hidden" name="action" value="install_elasticsearch">
+            <button class="btn btn-lg btn-primary" type="submit">{{_('INSTALL ELASTICSEARCH')}}</button>
+        </form>
+</div>
+
+        {% elif elastic_status_display == 'OFF' %}
+<div class="jumbotron text-center mt-5" id="jumbotronSection">
+    <h1><i class="bi bi-x-lg" style="color:red;"></i> {{_('Elasticsearch is currently disabled.')}}</h1>
+    <p>{{_('To enable Elasticsearch click on the button bellow.')}}</p>
+        <form method="post">
+            <input type="hidden" name="action" value="enable">
+            <button class="btn btn-lg btn-primary" type="submit">{{_('START ELASTICSEARCH')}}</button>
+        </form>
+
+
+</div>
+        {% else %}
+<div class="jumbotron text-center mt-5" id="jumbotronSection">
+    <h1><i class="bi bi-x-lg"></i> {{_('Elasticsearch service status is unknown.')}}</h1>
+    <p>{{_('Unable to determinate current elasticsearch service status, try Start&Stop actions.')}} <br>{{_('If the issue persists please contact support.')}}</p>
+        <form method="post">
+            <input type="hidden" name="action" value="enable">
+            <button class="btn btn-primary d-flex align-items-center gap-2" type="submit">{{_('START')}}</button>
+        </form>
+        <form method="post">
+            <input type="hidden" name="action" value="disable">
+            <button class="btn btn-primary d-flex align-items-center gap-2" type="submit">{{_('STOP')}}</button>
+        </form>
+</div>
+        {% endif %}
+</div>
+
+
+    <script>
+        $(document).ready(function() {
+            $("#service-log").click(function(event) {
+                event.preventDefault();
+                $.ajax({
+                    url: "/view-log/var/log/elasticsearch/elasticsearch.log",
+                    type: "GET",
+                    success: function(data) {
+                        $("#log-content").html(data);
+                        $("#log-container").show(); // Show the container when data is fetched
+                    },
+                    error: function() {
+                        $("#log-content").html("Error fetching log content.");
+                        $("#log-container").show(); // Show the container even on error
+                    }
+                });
+            });
+        });
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</section>
+          <footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="Status">
+<label>status:</label><b> {% if elastic_status_display  == 'ON' %} Enabled{% elif elastic_status_display  == 'OFF' %} Disabled{% elif elastic_status_display  == 'NOT INSTALLED' %} Not Installed{% else %} Unknown{% endif %}</b>   
+</div>
+
+            <div class="ms-auto" role="group" aria-label="Actions">
+{% if elastic_status_display  == 'ON' %}
+<form method="post">
+<input type="hidden" name="action" value="disable">
+<button class="btn btn-danger d-flex align-items-center gap-2" type="submit">{{_('Disable Elasticsearch')}}</button>
+</form>
+{% elif elastic_status_display  == 'OFF' %}
+<form method="post">
+<input type="hidden" name="action" value="enable">
+<button class="btn btn-success d-flex align-items-center gap-2" type="submit">{{_('Enable Elasticsearch')}}</button>
+</form>
+{% elif elastic_status_display  == 'NOT INSTALLED' %}
+<form method="post">
+<input type="hidden" name="action" value="install_elasticsearch">
+<button class="btn btn-success d-flex align-items-center gap-2" type="submit">{{_('Install Elasticsearch')}}</button>
+</form>
+{% else %}
+<form method="post">
+<input type="hidden" name="action" value="disable">
+<button class="btn btn-primary d-flex align-items-center gap-2" type="submit">{{_('Disable Elasticsearch')}}</button>
+</form>
+<form method="post">
+<input type="hidden" name="action" value="enable">
+<button class="btn btn-primary d-flex align-items-center gap-2" type="submit">{{_('Enable Elasticsearch')}}</button>
+</form>
+{% endif %}
+</div>
+</footer>
+
+
+
+
+{% endblock %}
+

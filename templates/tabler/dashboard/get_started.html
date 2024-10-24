@@ -1,0 +1,70 @@
+<!-- Content of get_started.html -->
+
+    <style>
+        .dismiss-button {
+            display: none;
+        }
+        #get_started_content:hover .dismiss-button {
+            display: inline-block;
+        }
+    </style>
+
+
+    <div class="col-md-4 g-3">{% if force_domain and ns1 and ns2 and user_count > 0 and plan_count > 0 and is_modsec_installed == 'YES' and backup_jobs|int > 0 %} {% else %}
+        <div id="get_started_content" class="card card-one" style="min-height:28rem">
+            <div class="card-header">
+                    <div>
+                    <form action="{{ url_for('dismiss_dashboard_widget', template_name='get_started') }}" method="post">
+                <h6 class="card-title">Quick start guide <button data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Hide and never show this quick start guide again" data-bs-original-title="Hide and never show this quick start guide again" class="dismiss-button btn btn-sm" type="submit">Dismiss</button></h6>
+                    <p class="card-subtitle">Recommended steps for new installations.</p>
+                    </form>
+                    </div>
+                <div class="ribbon bg-dark">recommended</div>
+            </div>
+            <div class="card-body">{% if force_domain %}
+                <div class="alert alert-important alert-success" role="alert">
+                    <div class="d-flex">
+                        <div><svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg></div>
+                        <div>Set custom domain instead of IP address</div>
+                    </div>
+                </div>{% else %}
+                <a href="/settings/general">
+                    <div class="alert alert-info" role="alert">Set custom domain instead of IP address</div>
+                </a>{% endif %} {% if ns1 and ns2 %}
+                <div class="alert alert-important alert-success" role="alert">
+                    <div class="d-flex">
+                        <div><svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg></div>
+                        <div>Set custom nameservers to be used for domains</div>
+                    </div>
+                </div>{% else %}
+                <a href="/settings/open-panel">
+                    <div class="alert alert-info" role="alert">Set at least 2 nameservers</div>
+                </a>{% endif %} {% if user_count|int == 0 and plan_count|int == 0 %}
+                <a href="/users">
+                    <div class="alert alert-info" role="alert">Create new Plan and create User account</div>
+                </a>{% elif user_count|int > 0 and plan_count|int > 0 %}
+                <div class="alert alert-important alert-success" role="alert">
+                    <div class="d-flex">
+                        <div><svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg></div>
+                        <div>Create new Plan and create User account</div>
+                    </div>
+                </div>{% elif plan_count|int > 0 and user_count|int == 0 %}
+                <a href="/users">
+                    <div class="alert alert-info" role="alert">Create new Plan and create User account</div>
+                </a>{% elif plan_count|int == 0 and user_count|int > 0 %}
+                <a href="/plans">
+                    <div class="alert alert-info" role="alert">Create new Plan and create User account</div>
+                </a>{% endif %}{% if backup_jobs|int > 0 and backup_jobs|int == 0 %}
+                <div class="alert alert-important alert-success" role="alert">
+                    <div class="d-flex">
+                        <div><svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l5 5l10 -10"></path></svg></div>
+                        <div>Schedule remote Backups</div>
+                    </div>
+                </div>{% else %}
+                <a href="/backups">
+                    <div class="alert alert-info" role="alert">Schedule remote Backups</div>
+                </a>{% endif %}</div>
+
+
+        </div>{% endif %}
+</div>

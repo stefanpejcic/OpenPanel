@@ -1,0 +1,62 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+
+    <title>OpenPanel</title>
+    <style media="screen">
+      @keyframes fa-author-colors {
+        0% { transform: rotateX(17deg) rotateY(9deg); }
+        10% { transform: rotateX(27deg) rotateY(0deg); }
+        30% { transform: rotateX(37deg) rotateY(19deg); }
+        50% { transform: rotateX(-57deg) rotateY(9deg); }
+        70% { transform: rotateX(20deg) rotateY(-10deg); }
+        90% { transform: rotateX(17deg) rotateY(9deg); }
+        100% { transform: rotateX(-32deg) rotateY(19deg); }
+      }
+
+      body {
+        overflow: hidden;
+        background: #1E1F1F;
+        margin: 0;
+        color: #fff;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+      }
+
+      p {
+        font-size: 15px;
+        line-height: 22px;
+        margin: 0;
+      }
+
+      .mCont {
+        text-align: center;
+        perspective: 320px;
+      }
+
+      h1 {
+        font-weight: 700;
+        font-size: 10em;
+        margin: 10% 0 30px;
+        font-family: "Monaco", "Andale Mono", "Lucida Console", "Bitstream Vera Sans Mono", "Courier New", Courier, monospace;
+        transform: rotateX(17deg) rotateY(9deg);
+        transform-style: preserve-3d;
+        animation: fa-author-colors 50s infinite;
+      }
+
+      p span {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px 30px;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mCont">
+      <h1>404</h1>
+      <p><span>That page does not exist</span></p>
+    </div>
+  </body>
+</html>

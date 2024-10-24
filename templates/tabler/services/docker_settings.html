@@ -1,0 +1,387 @@
+{% extends 'base.html' %}
+
+{% block content %}
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Settings
+                </div>
+                <h2 class="page-title">
+                  Docker
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                <div class="btn-list">
+                  <button class="btn btn-transparent" type="button" onclick="getDockerInfo()"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-brand-docker"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M22 12.54c-1.804 -.345 -2.701 -1.08 -3.523 -2.94c-.487 .696 -1.102 1.568 -.92 2.4c.028 .238 -.32 1 -.557 1h-14c0 5.208 3.164 7 6.196 7c4.124 .022 7.828 -1.376 9.854 -5c1.146 -.101 2.296 -1.505 2.95 -2.46z" /><path d="M5 10h3v3h-3z" /><path d="M8 10h3v3h-3z" /><path d="M11 10h3v3h-3z" /><path d="M8 7h3v3h-3z" /><path d="M11 7h3v3h-3z" /><path d="M11 4h3v3h-3z" /><path d="M4.571 18c1.5 0 2.047 -.074 2.958 -.78" /><path d="M10 16l0 .01" /></svg> Docker Info</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+
+{% if images[0]['tags'][0] == 'Docker unavailable' %}
+<div class="page page-center">
+      <div class="container-tight py-4">
+        <div class="empty">
+          <div class="empty-header">Docker is unavailable</div>
+          <p class="empty-title">Docker socket is not responding. Login to the server and check socket status.</p>
+          <p class="d-none empty-subtitle text-secondary">
+          </p>
+          <div class="empty-action">
+          </div>
+        </div>
+      </div>
+    </div>
+{% else %} 
+
+
+
+
+
+
+
+
+<script>
+    function getDockerInfo() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/json/docker-info?format=plain", true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var dockerInfo = xhr.responseText;
+                displayDockerInfo(dockerInfo);
+            }
+        };
+        xhr.send();
+    }
+
+    function displayDockerInfo(info) {
+        var dockerInfoContent = document.getElementById("dockerInfoContent");
+        dockerInfoContent.textContent = info;
+
+        // Show modal
+        var dockerInfoModal = new bootstrap.Modal(document.getElementById('dockerInfoModal'));
+        dockerInfoModal.show();
+    }
+</script>
+
+    <!-- modal for docker info -->
+    <div class="modal fade" id="dockerInfoModal" tabindex="-1" aria-labelledby="dockerInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dockerInfoModalLabel">Docker Info</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="dockerInfoContent"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+        <!-- Page body -->
+        <div class="page-body">
+          <div class="container-xl">
+            <div class="row row-deck row-cards">
+              
+<div class="col-lg-12" id="images">
+                <div class="card">
+                    <div class="card-header">
+                      
+                    <h4 class="card-title">Docker images</h4>
+                    <div class="col-auto align-self-center">
+&nbsp;<span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>Docker images serve as the foundation for OpenPanel user accounts, determining the technology stack available to the user.</p>" data-bs-html="true">?</span>
+                              </div>
+
+
+                    <a id="docker-update-images" href="#" class="btn ms-auto">
+                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>Update images</a>
+<div class="col-auto align-self-center">&nbsp;<span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p>Updating Docker images involves downloading the latest versions from the openpanel servers, and these updated images will be used only for new users.</p><p class='mb-0'>  Existing users' setups will remain unaffected.</p>" data-bs-html="true">?</span>
+                              </div>
+
+
+
+
+
+                  </div>
+                  <div class="card-body">
+
+<div id="update-message" class="alert" style="display:none;" role="alert"></div>
+
+{% if images %}
+
+<div class="row row-cards">
+
+{% set images_total_count = images|length %}
+
+
+         {% for image in images %}
+            {% for tag in image.tags %}
+               {% set tag_parts = tag.split(':') %}
+               {% if tag_parts|length == 2 %}
+                  {% set created_date = image.created.split('.') %}
+                  {% set formatted_date = created_date[0].replace('T', ' ') %}
+
+
+<div class="col-6">
+                        <div class="card">
+                          <div class="card-status-top bg-{% if 'apache' in tag_parts[0] %}red{% elif 'nginx' in tag_parts[0] %}green{% elif 'litespeed' in tag_parts[0] %}blue{% else %}black{% endif %}"></div>
+                          <div class="card-header">
+                            <h3 class="card-title">
+                              {% if '/apache' in tag_parts[0] %}
+                              <img src="{{ url_for('static', filename='images/apache.png') }}" style="height: 1.8em;width: auto;">
+                              {% elif '/nginx' in tag_parts[0] %}
+                              <img src="{{ url_for('static', filename='images/nginx.png') }}" style="height: 1.8em;width: auto;">
+                              {% elif '/litespeed' in tag_parts[0] %}
+                              <img src="{{ url_for('static', filename='images/litespeed.png') }}" style="height: 1.8em;width: auto;">
+                              {% elif 'openpanel/openpanel' in tag_parts[0] %}
+                              <span style="height: 1.8em;width: auto;"><svg version="1.0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg></span>
+                              {% endif %}  
+                               {{ tag_parts[0] }} <span class="badge bg-blue-lt" style="vertical-align: middle;">{{ tag_parts[1] }}</span>
+                              </h3>
+
+                              
+                              <a href="/services/docker/delete/{{ tag_parts[0] }}" class="btn ms-auto {% if 'openpanel/openpanel' in tag_parts[0] %}disabled{% endif %}" id="deleteButton-{{tag_parts[0]}}" data-bs-toggle="modal" data-bs-target="#confirmDeleteUserModal" data-image-name="{{tag_parts[0]}}"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>Delete image</a>
+                          
+
+                          </div>
+                          <div class="card-body">
+{% if 'openpanel/apache' == tag_parts[0] %}
+
+<small>The official Docker image for Apache enables OpenPanel users to utilize the Apache web server for website management. <br><br>Apache natively supports .htaccess files, although restarting Apache is required to activate any modifications made through .htaccess.</small>
+
+{% elif 'openpanel/nginx' == tag_parts[0] %}
+
+<small>The official Docker image for Nginx provides OpenPanel users with the capability to manage websites using the Nginx web server.<br><br> Unlike Apache, Nginx does not natively support .htaccess files. For configuration changes, directly editing the Nginx configuration files is necessary, and requires reloading Nginx.</small>
+
+
+{% elif 'openpanel/litespeed' == tag_parts[0] %}
+
+<small>The official Docker image for OpenLiteSpeed allows OpenPanel users to leverage the OpenLiteSpeed web server for efficient website management. <br><br>OpenLiteSpeed offers native support for .htaccess-like rules through its web administration interface, allowing for the direct application of rewrite rules without the need for file modifications. To apply changes, a graceful restart of OpenLiteSpeed is typically sufficient, avoiding the need for a full server restart.</small>
+
+{% elif 'openpanel/openpanel' == tag_parts[0] %}
+
+<small>The official Docker image for OpenPanel. <br><br></small>
+
+{% else %}
+
+<small>Custom images allow you to tailor the technology stack for your OpenPanel users according to specific requirements. <br><br>These images offer the flexibility to include a customized selection of software and configurations, ensuring that users can fine-tune their web server environment to match their unique application needs. Adjustments to the technology stack can be made to optimize performance, enhance security, or add specific functionalities, providing a tailored web hosting experience.</small>
+
+{% endif %}
+
+
+
+
+                     <p class="mt-3"><span class="text-muted">Checksum:</span> <small>{{ image.id }}</small></p>
+                          </div>
+                        <div class="card-footer">
+                          <div class="row">
+                        <div class="col"><span class="text-muted">Build time:</span> {{ formatted_date }}</div>
+
+
+{% if 'openpanel/apache' == tag_parts[0] or 'openpanel/nginx' == tag_parts[0] or 'openpanel/litespeed' == tag_parts[0] or 'openpanel/openpanel' == tag_parts[0] %}
+<a href="https://dev.openpanel.com/images/browse.html#{{tag_parts[0]}}" target="_blank" style="text-decoration:none;" class="col-auto badge bg-blue text-blue-fg" style="vertical-align: middle;"><svg version="1.0" style="vertical-align:middle;" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 213.000000 215.000000" preserveAspectRatio="xMidYMid meet"><g transform="translate(0.000000,215.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none"><path d="M990 2071 c-39 -13 -141 -66 -248 -129 -53 -32 -176 -103 -272 -158 -206 -117 -276 -177 -306 -264 -17 -50 -19 -88 -19 -460 0 -476 0 -474 94 -568 55 -56 124 -98 604 -369 169 -95 256 -104 384 -37 104 54 532 303 608 353 76 50 126 113 147 184 8 30 12 160 12 447 0 395 -1 406 -22 461 -34 85 -98 138 -317 264 -104 59 -237 136 -295 170 -153 90 -194 107 -275 111 -38 2 -81 0 -95 -5z m205 -561 c66 -38 166 -95 223 -127 l102 -58 0 -262 c0 -262 0 -263 -22 -276 -13 -8 -52 -31 -88 -51 -36 -21 -126 -72 -200 -115 l-135 -78 -3 261 -3 261 -166 95 c-91 52 -190 109 -219 125 -30 17 -52 34 -51 39 3 9 424 256 437 255 3 0 59 -31 125 -69z"></path></g></svg> OpenPanel image</a>
+{% else %}
+<span class="col-auto badge badge-outline text-orange" style="vertical-align: middle;">Custom docker image</span>
+{% endif %}   
+ </div>
+                      </div>
+                        </div>
+
+                      </div>
+               {% endif %}
+            {% endfor %}
+         {% endfor %}
+                    </div>
+
+
+
+
+
+
+<!-- Delete Modal -->
+    <div class="modal modal-blur fade" id="confirmDeleteUserModal" aria-labelledby="confirmDeleteUserModalLabel" tabindex="-1" role="dialog" aria-hidden="true"  data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <button type="button" id="deleteModalxClose" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <div class="modal-status bg-danger"></div>
+          <div class="modal-body text-center py-4">
+            <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon mb-2 text-danger icon-lg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z" /><path d="M12 9v4" /><path d="M12 17h.01" /></svg>
+            <h3 id="confirmDeleteUserModalLabel">Are you sure you want to delete the docker image: <b><span id="nameofimage"></span></b>?</h3>
+            <div class="text-muted">        <small>Deleting an image will not delete plans that use the image. Docker image can not be deleted if is in use by users.            
+            </small></div>
+        <!-- Input field for confirmation -->
+        <div class="mt-3 mb-3">
+          <label for="deleteConfirmation" class="form-label">Type "DELETE" to confirm:</label>
+          <input type="text" class="form-control" id="deleteConfirmation">
+        </div>
+          </div>
+
+          <div class="modal-footer">
+            <div class="w-100">
+              <div class="row">
+                <div class="col"><a href="#" id="confirmDelete" class="btn btn-danger w-100" style="display: none;">
+                    Delete image
+                  </a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+
+
+{% else %}
+
+<div class="row row-cards">
+                      <div class="col-md">
+                        <div class="card">
+                          <div class="card-status-top bg-black"></div>
+                          <div class="card-header">
+                            <h3 class="card-title">
+                              No images<a href="#install" class="btn ms-auto">
+                          </div>
+<div class="card-body p-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-100" preserveAspectRatio="none" width="400" height="200" viewBox="0 0 400 200" fill="transparent" stroke="var(--tblr-border-color, #b8cef1)">
+                              <line x1="0" y1="0" x2="400" y2="200"></line>
+                              <line x1="0" y1="200" x2="400" y2="0"></line>
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+{% endif %}
+
+
+</div>
+</div>
+</div>
+
+
+<form id="dockerSettingsForm" method="POST">
+<input type="hidden" name="action" value="configuration">
+<div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                      <div class="col">
+                    <h4 class="card-title">Docker Resource Usage Settings</h4></div>
+<div class="col-auto align-self-center">
+                    <button type="submit" class="btn btn-primary">Save</button>
+
+                                  <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>You can configure the maximum memory and CPU percentages of server resources available for all users' Docker containers here.</p></br><p>However, we advise against setting it above 90%.</p>" data-bs-html="true">?</span>
+                              </div>
+
+
+                  </div>
+                  <div class="card-body">
+
+ <div class="row">
+
+   <div class="col-lg-6">
+ <div class="mb-3 row">
+                              <label class="col-6 col-form-label">Max CPU usage</label>
+                              <div class="col input-group">
+                              <input name="cpu_usage" type="number" class="form-control" min="1" max="100" placeholder="" autocomplete="off" value="{{ cpu_usage }}">
+                              <span class="input-group-text">
+<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-percentage"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M7 7m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M6 18l12 -12" /></svg>
+                              </span>
+                            </div>
+                    </div>   
+
+ <div class="mb-3 row">
+
+
+                              <label class="col-6 col-form-label">Max Memory usage</label>
+                              <div class="col input-group">
+                              <input name="ram_usage" type="number" class="form-control" min="1" max="100" placeholder="" autocomplete="off" value="{{ ram_usage }}">
+                              <span class="input-group-text">
+<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-percentage"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17 17m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M7 7m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M6 18l12 -12" /></svg>
+                              </span>
+                            </div>
+                    </div>  
+
+   </div> 
+
+</div> 
+
+
+
+
+</div>
+</div>
+</div>
+</form>
+
+<script>
+$(document).ready(function(){
+    $('#dockerSettingsForm').submit(function(e){
+        e.preventDefault();
+
+        // Gather form data
+        var formData = {
+            action: 'configuration',
+            cpu_usage: $('input[name=cpu_usage]').val(),
+            ram_usage: $('input[name=ram_usage]').val()
+        };
+
+        // Send AJAX request
+        $.ajax({
+            type: 'POST',
+            url: '/services/docker',
+            data: JSON.stringify(formData), // formData to JSON string
+            contentType: 'application/json',
+            success: function(response){
+                console.log(response);
+            },
+            error: function(xhr, status, error){
+                console.error(xhr.responseText);
+            }
+        });
+    });
+});
+
+</script>
+
+              
+            </div>
+          </div>
+        </div>
+
+
+
+
+      
+<script src="{{ url_for('static', filename='pages/docker_settings.js') }}" defer></script>
+
+
+
+
+{% endif %}
+
+
+
+
+
+
+
+
+
+{% endblock %}

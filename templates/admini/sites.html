@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+a {
+    text-decoration: none;
+}
+    </style>
+
+        <table class="table table-bordered table-hover">
+            <thead>
+                <tr>
+                    <th>{{ _('Site Name') }}</th>
+                    <th>{{ _('Admin Email') }}</th>
+                    <th>{{ _('Created on') }}</th>
+                    <th>{{ _('Type') }}</th>
+                    <th>{{ _('Version') }}</th>
+                    <th>{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for site in data %}
+                    <tr>
+                        <td><img src="https://www.google.com/s2/favicons?domain={{ site[0] }}" alt="{{ site[0] }} Favicon" style="width:16px; height:16px; margin-right:5px;">{{ site[0] }}</td>
+                        <td>{{ site[2] }}</td>
+                        <td>{{ site[4] }}</td>
+                        <td>{{ site[5] }}</td>
+                        <td>{{ site[3] }}</td>
+                        <td>
+                            {% if 'Static' in site[5] %}
+                            <a href="/files/{{ site[0] }}" class="btn btn-primary"> Manage</a>
+                            {% elif 'WordPress' in site[5] or 'Node' in site[5] or 'Mautic' in site[5] %}
+                            <a href="/website?domain={{ site[0] }}" class="btn btn-primary"> Manage</a>
+                            {% else %}
+                            <a href="/website?domain={{ site[0] }}" class="btn btn-primary"> Manage</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+
+
+
+
+
+</section>
+          <footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="Status">
+</div>
+
+<div class="ms-auto" role="group" aria-label="Actions">
+
+
+<button class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#cardModal"><i class="bi bi-plus-lg"></i>{{ _('New') }}<span class="desktop-only"> {{ _('Website') }}</span>
+</button>
+</div>
+</footer>
+
+
+
+
+
+
+{% endblock %}

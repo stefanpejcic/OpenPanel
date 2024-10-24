@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+    {% if version %}
+<form id="phpiniform" method="POST">
+    <div id="editor-container">
+        <textarea id="editor" name="editor_content" rows="40" cols="100">{{ file_content }}</textarea>
+    </div>
+
+
+
+</section>
+<footer class="main-footer btn-toolbar" role="toolbar">
+
+    <div class="btn-group" role="group" aria-label="Status">  
+    </div>
+
+    <div class="ms-auto" role="group" aria-label="Actions">
+    <button type="submit" class="btn btn-primary">{{ _('Save Changes') }}</button>
+    </div>
+</footer>
+</form>
+<script>
+    const editor = document.getElementById('editor');
+    const codeMirror = CodeMirror.fromTextArea(editor, {
+        lineNumbers: true,
+        mode: "text/x-csrc", // Change the mode to match the syntax highlighting for PHP.ini
+        theme: "dracula", // Change the theme as desired
+    });
+
+</script>
+
+
+
+
+
+
+    {% else %}
+
+<p>{{ _('PHP.INI Editor allows you to modify PHP settings stored in the php.ini configuration file, such as memory limits, error reporting, and extension settings.') }}</p>
+
+    <form method="GET">
+        <div class="input-group mb-3">
+            <label class="input-group-text" for="php_version">{{ _('Select PHP Version:') }}</label>
+            <select class="form-select form-select-lg" id="php_version" name="version" onchange="redirectToSelectedVersion(this)">
+                <option value="" disabled selected>{{ _('Select a PHP Version to edit .ini file') }}</option> <!-- Placeholder -->
+                {% for installed_version in installed_versions %}
+                    <option value="{{ installed_version }}">PHP {{ installed_version }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <script>
+        function redirectToSelectedVersion(selectElement) {
+            var selectedVersion = selectElement.value;
+            if (selectedVersion) {
+                //window.location.href = `/php/php${selectedVersion}.ini/editor`;
+                window.open(`/php/php${selectedVersion}.ini/editor`, '_blank');
+            }
+        }
+    </script>
+
+    {% endif %}
+
+
+{% endblock %}
+

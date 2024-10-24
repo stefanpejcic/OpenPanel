@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- system/timezone.html -->
+
+<script type="module">
+  // Function to attach event listeners
+  function timezoneattachEventListeners() {
+    // Select the form and submit button
+    const form = document.querySelector('form');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    // Attach the click event listener to the submit button
+    submitButton.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+
+      const action = submitButton.dataset.action;
+
+      const formData = new FormData(form);
+
+      const toastMessage = `{{ _('Saving TimeZone...') }}`;
+      const toast = toaster({
+        body: toastMessage,
+        className: `border-0 text-white bg-primary`,
+      });
+
+      try {
+        const response = await fetch(form.action, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams(formData).toString(),
+        });
+
+        // get the response HTML content
+        const resultHtml = await response.text();
+
+        // Parse the HTML string to extract the content of the specific element
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(resultHtml, 'text/html');
+        const mainScopeContent = doc.getElementById("main-scope")?.innerHTML;
+
+        // Replace the content of the element with the ID "main-scope"
+        const mainScopeElement = document.getElementById("main-scope");
+        if (mainScopeElement) {
+          mainScopeElement.innerHTML = mainScopeContent || '';
+        }
+
+        // Reattach event listeners after updating content
+        timezoneattachEventListeners();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    });
+  }
+
+  timezoneattachEventListeners();
+</script>
+
+
+Current timezone: <b>{{ current_timezone_in_docker_container }}</b>
+
+<form method="post" action="{{ url_for('server_timezone_settings') }}" class="mt-3">
+    <div class="form-group">
+        <label for="timezone">{{ _('Select Timezone:') }}</label>
+        <select name="timezone" id="timezone" class="form-control">
+            {% for timezone in available_timezones %}
+                <option value="{{ timezone }}" {% if timezone == selected_zone_goes_here %}selected{% endif %}>{{ timezone }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ _('Change Timezone') }}</button>
+</form>
+
+
+
+{% endblock %}

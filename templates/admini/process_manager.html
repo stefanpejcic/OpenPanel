@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    {% if error_message %}
+        <div class="alert alert-danger mt-3" role="alert">
+            {{ error_message }}
+        </div>
+    {% else %}
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>PID</th>
+                    <th>{{ _('TIME') }}</th>
+                    <th>CPU</th>
+                    <th>CMD</th>
+                    <th>{{ _('ACTION') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for process in process_data %}
+                    {% if '/etc/entrypoint.sh' not in process['CMD'] and 'ps -eo pid,%cpu,time,cmd' not in process['CMD'] and '/dev/null' not in process['CMD'] %}
+                        {# Display the current process #}
+                        <tr>
+                            <td>{{ process['PID'] }}</td>
+                            <td>{{ process['TIME'] }}</td>
+                            <td>{{ process['%CPU'] }}</td>
+    <td>
+        {% if process['CMD']|length > 255 %}
+            <!-- Display shortened CMD with link to show full CMD -->
+            <span id="short_cmd_{{ process['PID'] }}">
+                {{ process['CMD'][:255] }}...
+                <a href="#" onclick="showFullCmd('{{ process['PID'] }}');">{{ _('View full command') }}</a>
+            </span>
+            <span id="full_cmd_{{ process['PID'] }}" style="display:none;">
+                {{ process['CMD'] }}
+            </span>
+        {% else %}
+            <!-- Display full CMD if it's not too long -->
+            {{ process['CMD'] }}
+        {% endif %}
+    </td>
+                            <td><button class="btn btn-danger" type="button" onclick="sendPID('{{ process['PID'] }}');">kill</button></td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+
+
+<script>
+    function showFullCmd(pid) {
+        // Hide shortened CMD and show full CMD
+        $('#short_cmd_' + pid).hide();
+        $('#full_cmd_' + pid).show();
+    }
+</script>
+
+
+<script>
+// Function to initiate the process kill when the "Kill" button is clicked
+function sendPID(pid) {
+    const requestData = {
+        pid_to_kill: pid,
+    };
+
+        const toast = toaster({
+            body: 'Terminating PID: '+ pid,
+            className: 'border-0 text-white bg-primary',
+        });
+
+
+fetch('/process-manager', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestData),
+})
+.then(response => {
+    if (!response.ok) {
+        throw new Error('{{ _("Network response was not ok") }}');
+    }
+    return response.json(); // Use response.json() to parse JSON
+})
+.then(data => {
+    console.log('PID sent successfully');
+    // Access data as a JSON object here
+})
+.catch(error => {
+    console.error('Sending PID failed:', error);
+    // Display an error message
+    const toast = toaster({
+        body: '{{ _("Killing PID:") }} '+ pid +' {{ _("failed") }}',
+        className: 'border-0 text-white bg-error',
+    });
+})
+.finally(() => {
+    // Display a success message
+    const toast = toaster({
+        body: 'PID: '+ pid +' {{ _("terminated") }}',
+        className: 'border-0 text-white bg-success',
+    });
+});
+}
+
+</script>
+
+
+
+{% endblock %}

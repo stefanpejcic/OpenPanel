@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block content %}
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Server Configuration
+                </div>
+                <h2 class="page-title">
+                  OpenPanel Cron Jobs
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                       <form method="POST" action="/server/crons">
+                      <button type="submit" class="btn btn-primary">Update Cron Jobs</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+<div class="page-body">
+          <div class="container-xl">
+            <div class="row row-deck row-cards">
+
+
+<div class="col-lg-12">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="row">
+                      <div class="col-lg-12">
+  
+<p>Here you can view scheduled crons for OpenAdmin and edit their schedule or enable/disable logging to <a href="/services/logs">/etc/openpanel/openadmin/cron.log</a> file.</p>
+
+<div class="alert alert-warning alert-dismissible" role="alert">
+                      <div class="d-flex">
+                        <div>
+                          <!-- Download SVG icon from http://tabler-icons.io/i/alert-triangle -->
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 9v4"></path><path d="M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0z"></path><path d="M12 16h.01"></path></svg>
+                        </div>
+                        <div>
+                          <h4 class="alert-title">We recommend against editing the cronjobs!</h4>
+                          <div class="text-secondary">Editing the schedule or commands is not recommended, as it may render certain features inaccessible. This should only be done in cases where fine-tuning execution on servers with low resources is necessary, or when instructed by the OpenPanel support team. These are crons that OpenPanel uses. If you want to add custom cronjobs, you can safely add them in crontab for the root user.</div>
+                        </div>
+                      </div>
+                      <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+
+
+
+
+                    <div id="table-default" class="table-responsive">
+                    <table class="table table-vcenter card-table table-striped">
+                        <thead>
+                        <tr>
+                        <th>Schedule</th>
+                        <th class="w-50">Command</th>
+                        <th class="w-1 pe-0 text-center" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Enable logging to /etc/openpanel/openadmin/cron.log">Logging</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-tbody">
+                              {% for cron, details in cron_jobs.items() %}
+                          <tr>
+                            <td><input type="text" class="form-control" id="{{ cron }}_time" name="{{ cron }}_time" value="{{ ' '.join(details['time']) }}"></td>
+                            <td><input type="text" class="form-control disabled" id="{{ cron }}_command" name="{{ cron }}_command" value="{{ cron }}" disabled></td>
+                            <td>
+                                    <label class="form-check form-check-single form-switch">
+                                      <input class="form-check-input" type="checkbox" id="{{ cron }}_logging" name="{{ cron }}_logging" {% if details['logging_enabled'] %} checked {% endif %}>
+                                    </label>
+                            </td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                    </table>
+                        </form>
+                            </div>
+
+
+</div>
+
+
+
+
+
+   </div> 
+</div> 
+</div>
+</div>
+
+
+
+
+
+             
+            </div>
+          </div>
+        <div></div></div>
+
+{% endblock %}

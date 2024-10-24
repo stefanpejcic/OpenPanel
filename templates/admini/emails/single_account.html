@@ -1,0 +1,511 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+                    {% set parts = current_emails_list.split(' ') %}
+                    {% set status = parts[0] %}
+                    {% set address = parts[1] %}
+                    {% set quota = ' '.join(parts[2:]) %}
+                    {% set quota_parts = quota.split('[') %}
+                    {% if quota_parts|length > 1 %}
+                        {% set percentage_str = quota_parts[1].split(']')[0] %}
+                    {% else %}
+                        {% set percentage_str = '0' %}
+                    {% endif %}
+
+
+
+<div class="row">
+
+
+  <div class="card card-body">
+    
+    <div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h2 class="mb-3"><i class="bi bi-envelope-exclamation"></i> {{ _("Manage an Email Account") }}</h2>
+            <p>{{ _("Use this page to manage your email account.") }}</p>
+            <form action="/emails/{{address}}" method="post">
+    <div class="form-group">
+        <label for="domain" class="form-label">{{ _("Email Account") }}</label>
+    <div class="input-group">
+        </select>
+
+    <input type="email" class="form-control" name="email_address" value="{{ address }}" readonly="" required>
+
+    </div>
+
+    </div>
+
+<div class="form-group">
+
+    <label for="usage">{{ _("Current Storage Usage") }}</label>
+
+<div style="width:100%;">
+{{ quota }}
+<br>
+<div class="progress" style="height: 10px;">
+                                <div name="usage" class="progress-bar w-4 bg-success" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: {{ percentage_str }};"></div>
+</div>
+                            </div>
+
+
+</div>
+<div class="form-group">
+
+
+    <label for="at_address" data-toggle="tooltip" data-placement="top" title="{{ _('The amount of space that your email account can use to store emails.') }}">{{ _("Allocated Storage Space:") }}</label>
+
+
+    <input type="text" class="form-control" name="email_username" value="{{usage_number}}">
+            <div class="input-group-append">
+                <select class="form-control" style="width: 60px;" name="gb" id="gb">
+                    <option value="GB" selected>GB</option>
+                    <option value="MB">MB</option>
+                    <option value="TB">TB</option>
+                    <option value="PB">PB</option>
+                </select>
+            </div>
+</div>
+
+
+
+
+                 <div class="form-group">
+                    <label for="incoming" class="form-label"  data-toggle="tooltip" data-placement="top" title="{{ _('The system will reject incoming email while the account has incoming emails suspended.') }}">{{ _("Receiving Incoming Mail") }}</label>
+                    <div class="form-field" id="incoming">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="incoming" id="allow_incoming" value="allow" checked="">
+                        <label class="form-check-label" for="allow_incoming">{{ _("Allow") }}</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="incoming" id="suspend_incoming" value="suspend">
+                        <label class="form-check-label" for="suspend_incoming">{{ _("Suspend") }}</label>
+                      </div>
+                    </div>
+                </div>
+
+                 <div class="form-group">
+                    <label for="outgoing" class="form-label"  data-toggle="tooltip" data-placement="top" title="{{ _('The system will reject outgoing email while the account has outgoing emails suspended.') }}">{{ _("Sending Outgoing Email") }}</label>
+                    <div class="form-field" id="outgoing">
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="outgoing" id="allow_outgoing" value="allow" checked="">
+                        <label class="form-check-label" for="allow_outgoing">{{ _("Allow") }}</label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="outgoing" id="suspend_outgoing" value="suspend">
+                        <label class="form-check-label" for="suspend_outgoing">{{ _("Suspend") }}</label>
+                      </div>
+                    </div>
+                </div>
+
+
+
+
+
+
+
+    <div class="form-group">
+            <label for="email_password" class="form-label"  data-toggle="tooltip" data-placement="top" title="{{ _('Set new password for the account or leave empty to not change password.') }}">{{ _("New Password:") }}</label>
+            <div class="input-group">
+                <input type="password" class="form-control" name="email_password" id="email_password">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-success" type="button" id="generatePassword">
+                        {{ _("Generate") }}
+                    </button>
+                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+            </div>
+    </div>
+
+
+
+
+<script>
+
+    function generateRandomStrongPassword(length) {
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+        let result = "";
+        for (let i = 0; i < length; i++) {
+            const randomIndex = Math.floor(Math.random() * charset.length);
+            result += charset.charAt(randomIndex);
+        }
+        return result;
+    }
+
+
+    document.getElementById("generatePassword").addEventListener("click", function() {
+        const generatedPassword = generateRandomStrongPassword(16);
+        document.getElementById("email_password").value = generatedPassword;
+
+        const passwordField = document.getElementById("email_password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        }
+
+    });
+
+    document.getElementById("togglePassword").addEventListener("click", function() {
+        const passwordField = document.getElementById("email_password");
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+        } else {
+            passwordField.type = "password";
+        }
+    });
+</script>
+
+<br>
+<button type="submit" class="btn btn-primary">{{ _("Update Email Settings") }}</button>
+</form>
+
+    </div>
+    </div>
+    </div>
+</div>
+
+
+<div class="accordion" id="accordionExample">
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingOne">
+                        <!-- it needs the collapsed class to start hidden -->
+                        <button class="accordion-button collapsed" id="get_sieve_data" data-email="{{address}}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-controls="collapseOne" aria-expanded="false">
+                          {{ _("Email Filtering") }}
+                        </button>
+                      </h2>
+                      <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample" style="">
+                        <div class="accordion-body">
+                          <div class="form-group">
+                            <p class="form-label"><a href="http://sieve.info/documents" target="_blank">Sieve</a> {{ _("allows to specify filtering rules for incoming emails that allow for example sorting mails into different folders depending on the title of an email.") }}</p>
+                            <div class="row">
+<div class="col-md-6 col-xl-6"><div class="card card-one"><div class="card-header"><h6 class="card-title">{{ _("Current Filters") }}</h6></div><div class="card-body">
+
+{% set domain = address.split('@')[-1] if '@' in address else 'DOMAIN_NAME' %}
+{% set user = address.split('@')[0] if '@' in address else 'USERNAME' %}
+
+<code>/home/{{current_username}}/mail/{{ domain }}/{{user}}/home/.dovecot.sieve</code>
+<div class="block">
+  <textarea id="sieve" name="sieve" rows="20" style="width:100%">
+
+  </textarea>
+</div>
+<script>
+document.getElementById('get_sieve_data').addEventListener('click', function() {
+    var email = this.getAttribute('data-email');
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/filters/' + encodeURIComponent(email), true);
+    xhr.onload = function() {
+        if (xhr.status >= 200 && xhr.status < 300) {
+            var response = JSON.parse(xhr.responseText);
+            document.getElementById('sieve').value = response.content;
+        } else {
+            console.error('Failed to retrieve sieve data');
+        }
+    };
+    xhr.send();
+});
+</script>
+
+
+<script type="module">
+function attachEventListenersForEmailFilter() {
+document.querySelectorAll("button.sieve").forEach((btn) => {
+  btn.addEventListener("click", async (ev) => {
+    ev.preventDefault(); // Prevent form submission
+
+    const address = '{{address}}';
+
+    let btnClass, toastMessage;
+    btnClass = 'primary';
+    const sieveContent = document.getElementById('sieve').value;
+    toastMessage = '{{ _("Saving .dovecot.sieve file.. Please wait") }}';
+
+    // Show initial saving toast
+    const toast = toaster({
+      body: toastMessage,
+      className: `border-0 text-white bg-${btnClass}`,
+    });
+
+    try {
+      const response = await fetch(`/filters/${encodeURIComponent(address)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `new_content=${encodeURIComponent(sieveContent)}`,
+      });
+
+      if (response.ok) {
+        // Show success toast
+        toaster({
+          body: '{{ _("File saved successfully") }}',
+          className: 'border-0 text-white bg-success',
+        });
+      } else {
+        // Handle error response
+        const errorMessage = await response.text();
+        toaster({
+          body: `Error: ${errorMessage}`,
+          className: 'border-0 text-white bg-danger',
+        });
+      }
+    } catch (error) {
+      // Handle fetch error
+      toaster({
+        body: `Error: ${error.message}`,
+        className: 'border-0 text-white bg-danger',
+      });
+    }
+  });
+});
+}
+
+attachEventListenersForEmailFilter();
+</script>
+
+<br>
+<button type="button" class="btn btn-primary sieve">{{ _("Save Filters") }}</button>
+
+
+    </div></div></div>
+
+<div class="col-md-6 col-xl-6"><div class="card card-one"><div class="card-header"><h6 class="card-title">{{ _("Examples") }}</h6></div><div class="card-body">
+<form>
+<div class="form-group">
+
+
+                    <div class="form-field">
+<p>{{ _("An example of a sieve filter that moves mails to a folder ") }}<code>INBOX/spam</code> {{ _("depending on the sender address:") }}</p>
+
+<pre>
+require ["fileinto", "reject"];
+
+if address :contains ["From"] "spam@spam.com" {
+  fileinto "INBOX.spam";
+} else {
+  keep;
+}
+</pre>
+                    </div>
+                  </div>
+
+<div class="form-group">
+
+                    <div class="form-field">
+<p>{{ _("Another example of a sieve filter that forward mails to a different address:") }}</p>
+
+<pre>
+require ["copy"];
+
+redirect :copy "user2@not-example.com";
+</pre>
+
+                    </div>
+                  </div>
+
+
+<div class="form-group">
+
+                    <div class="form-field">
+<p>{{ _("Just forward all incoming emails and do not save them locally:") }}</p>
+
+<pre>
+redirect "user2@not-example.com";
+</pre>
+                    </div>
+                  </div>
+
+<div class="form-group">
+                    <div class="form-field">
+<p>{{ _("It is possible to sort subaddresses such as") }} <code>user+mailing-lists@example.com</code> {{ _("into a corresponding folder") }} (here: <code>INBOX/Mailing-lists</code>) {{ _("automatically.") }}</p>
+
+<pre>
+require ["envelope", "fileinto", "mailbox", "subaddress", "variables"];
+
+if envelope :detail :matches "to" "*" {
+  set :lower :upperfirst "tag" "${1}";
+  if mailboxexists "INBOX.${1}" {
+    fileinto "INBOX.${1}";
+  } else {
+    fileinto :create "INBOX.${tag}";
+  }
+}
+</pre>
+                    </div>
+                  </div>
+
+    </form>
+    </div></div></div>
+
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+
+
+
+
+
+
+
+
+
+
+
+                    <div class="accordion-item">
+                      <h2 class="accordion-header" id="headingTwo">
+                        <!-- it needs the collapsed class to start hidden -->
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-controls="collapseTwo" aria-expanded="false">
+                          {{ _("Mail Client Configuration") }}
+                        </button>
+                      </h2>
+                      <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample" style="">
+                        <div class="accordion-body">
+                          <div class="form-group">
+                            <p class="form-label">{{ _("You can manually configure your mail client using the settings below. We recommend that you use IMAP and SMTP for your email account rather than ActiveSync unless you are on Android and need contacts support or push updates.") }}</p>
+                            <div class="row">
+<div class="col-md-6 col-xl-6"><div class="card card-one"><div class="card-header"><h6 class="card-title">{{ _("Secure SSL/TLS Settings (Recommended)") }}</h6></div><div class="card-body">
+<form>
+<div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Username:</label>
+                    <div class="form-field">
+                      <input type="text" value="{{address}}" class="form-control" readonly="">
+                    </div>
+                  </div>
+
+<div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Password:</label>
+                   <div class="form-field">
+                      <i>Use the email account’s password.</i>
+                    </div>
+                  </div>
+
+
+<div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Incoming Server:</label>
+                    <div class="form-field">
+                      <input type="text" value='{% if dedicated_ip != _("Unknown") %}{{ dedicated_ip }}{% else %}{{ server_ip }}{% endif %}' class="form-control" readonly="">
+                      <div id="imapport" class="form-text">IMAP Port: <b>993</b></div>
+
+                    </div>
+
+
+                  </div>
+
+
+    <div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Outgoing Server:</label>
+                    <div class="form-field">
+                      <input type="text" value='{% if dedicated_ip != _("Unknown") %}{{ dedicated_ip }}{% else %}{{ server_ip }}{% endif %}' class="form-control" readonly="">
+                      <div id="smtpport" class="form-text">SMTP Port: <b>465</b></div>
+
+                    </div>
+                  </div>
+              
+
+IMAP and SMTP require authentication.
+    </form>
+    </div></div></div>
+
+<div class="col-md-6 col-xl-6"><div class="card card-one"><div class="card-header"><h6 class="card-title">{{ _("Non-SSL Settings (NOT Recommended)
+") }}</h6></div><div class="card-body">
+<form>
+<div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Username:</label>
+                    <div class="form-field">
+                      <input type="text" value="{{address}}" class="form-control" readonly="">
+                    </div>
+                  </div>
+
+<div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Password:</label>
+                    <div class="form-field">
+                      <i>Use the email account’s password.</i>
+                    </div>
+                  </div>
+
+
+<div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Incoming Server:</label>
+                    <div class="form-field">
+                      <input type="text" value='{% if dedicated_ip != _("Unknown") %}{{ dedicated_ip }}{% else %}{{ server_ip }}{% endif %}' class="form-control" readonly="">
+                      <div id="nonsslimapport" class="form-text">IMAP Port: <b>143</b></div>
+
+                    </div>
+
+
+                  </div>
+
+
+    <div class="form-group">
+                    <label for="readOnlyFieldReal" class="form-label">Outgoing Server:</label>
+                    <div class="form-field">
+                      <input type="text" value='{% if dedicated_ip != _("Unknown") %}{{ dedicated_ip }}{% else %}{{ server_ip }}{% endif %}' class="form-control" readonly="">
+                      <div id="nonsslsmtpport" class="form-text">SMTP Port: <b>587</b></div>
+
+                    </div>
+                  </div>
+              
+
+IMAP and SMTP require authentication.
+    </form>
+    </div></div></div>
+
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                  </div>
+
+
+
+
+
+
+</section>
+          <footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="Back">
+<a href="/emails" class="btn btn-transparent" type="button" aria-expanded="false"><i class="bi bi-arrow-left-short"></i><span class="desktop-only"> Go Back</span></a>
+</div>
+
+
+
+            <div class="ms-auto" role="group" aria-label="{{ _('Delete') }}">
+
+<button id="scanButton" class="btn btn-danger" type="button"><i class="bi bi-trash3"></i><span class="desktop-only"> Delete</span></button>
+
+
+</div>
+
+
+</footer>
+
+{% endblock %}
+
+

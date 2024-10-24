@@ -1,0 +1,3164 @@
+<!-- websites.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/punycode/2.1.1/punycode.min.js"></script>
+
+    <style>
+.st1 {
+    fill: #192030;
+}
+<form id="updateDebugForm">
+
+/* Style for dark mode svg icons */
+[data-skin="dark"] .st1 {
+    fill: #506fd9;
+}
+    </style>
+
+
+<style>
+  .nije-link {
+    text-decoration: none;
+color: black;
+border-bottom: 1px dashed black;
+  }
+
+.ikona:hover {
+    background: aliceblue;
+}
+
+
+#action_description p {
+  display: none;
+  margin-bottom: 0px;
+  margin-top: 1rem;
+}
+</style>
+{% if current_domain %}
+
+
+<div class="offcanvas offcanvas-end" style="width:600px;" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+  <div class="offcanvas-header">
+    <h4 id="offcanvasRightLabel" class="punycode">{{ current_domain }}</h4>
+    <p></p>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+<ul class="nav nav-pills nav-fill mb-3" id="ex1" role="tablist">
+  <li class="active nav-item" role="presentation">
+    <a data-bs-toggle="tab" href="#general" class="nav-link active" aria-current="page">{{ _('General') }}</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="updates-tab" data-bs-toggle="tab" href="#updates">{{ _('Updates') }}</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" is="debug_info" data-bs-toggle="tab" href="#debugging">{{ _('Debugging') }}</a>
+  </li>
+    <li class="d-none nav-item" role="presentation">
+    <a class="nav-link" data-bs-toggle="tab" href="#security">{{ _('Security') }}</a>
+  </li>
+</ul>
+
+
+<script>
+        // Function to update label text based on checkbox state
+        function updateLabelText(checkboxId, labelId, checkedText, uncheckedText) {
+            $('#' + checkboxId).change(function () {
+                $('#' + labelId).text(this.checked ? checkedText : uncheckedText);
+            });
+        }
+
+        // Update label text for "Users Can Register"
+        updateLabelText('users_can_register', 'users_can_register_label', 'Yes, registrations are enabled', 'No, registrations are disabled (default)');
+
+        // Update label text for "Allow pingbacks and trackbacks"
+        updateLabelText('default_ping_status', 'default_ping_status_label', 'Allow pingbacks and trackbacks from other blogs (default)', 'Disallow pingbacks and trackbacks');
+
+        // Update label text for "Search Engine Visibility"
+        updateLabelText('blog_public', 'blog_public_label', 'I would like my blog to be visible to everyone, including search engines (default)', 'I would like to block search engines, but allow normal visitors');
+
+
+
+
+
+
+
+    // Function to update form fields with the extracted data
+        function updateFormFields(data) {
+            // Update the values in the form fields
+            $("#siteurl").val(data.siteurl);
+            $("#home").val(data.home);
+            $("#blogname").val(data.blogname);
+            $("#blogdescription").val(data.blogdescription);
+            document.getElementById('users_can_register').checked = data.users_can_register === '1';
+            $("#admin_email").val(data.admin_email);
+            document.getElementById('default_ping_status').checked = data.default_ping_status === 'open';
+            document.getElementById('blog_public').checked = data.blog_public === '1';
+            
+            // Update the initial label text based on checkbox state
+            updateLabelText('users_can_register', 'users_can_register_label', 'Yes, registrations are enabled', 'No, registrations are disabled (default)');
+            updateLabelText('default_ping_status', 'default_ping_status_label', 'Disallow pingbacks and trackbacks', 'Allow pingbacks and trackbacks from other blogs (default)');
+            updateLabelText('blog_public', 'blog_public_label', 'I would like to block search engines, but allow normal visitors', 'I would like my blog to be visible to everyone, including search engines (default)');
+        }
+
+
+
+
+
+
+
+    // Handle click event for the element with ID 'now_get_site_data'
+    $("#now_get_site_data").click(function() {
+        // Make an Ajax request to the Flask route
+        $.ajax({
+            url: "/wordpress/site/site_info",
+            type: "GET",
+            data: { selected_domain: "{{ current_domain }}" },
+            success: function(response) {
+                // Handle the success response
+                if ("error" in response) {
+                    // Handle error case
+                    console.error("Error:", response.error);
+                } else {
+                    // Extract values for specific options
+                    var extractedData = {};
+                    var optionsToExtract = [
+                        "siteurl",
+                        "home",
+                        "blogname",
+                        "blogdescription",
+                        "users_can_register",
+                        "admin_email",
+                        "default_ping_status",
+                        "blog_public"
+                    ];
+
+                    // Loop through the response and extract values for specified options
+                    for (var i = 0; i < response.length; i++) {
+                        var option = response[i];
+                        if (optionsToExtract.includes(option.option_name)) {
+                            extractedData[option.option_name] = option.option_value;
+                        }
+                    }
+
+                    // Update the form fields with the extracted data
+                    updateFormFields(extractedData);
+                }
+            },
+            error: function(xhr, status, error) {
+                // Handle the error case
+                console.error("Ajax request failed:", status, error);
+            }
+        });
+    });
+
+
+</script>
+
+<div class="tab-content">
+<div id="general" class="tab-pane active">
+
+<form id="GeneralForm">
+
+<!-- Edit WordPress Options -->
+<div>
+    <div class="row">
+        <div class="col-md-6">
+            <label class="form-label" for="siteurl">{{ _('Site URL') }}</label>
+            <input type="url" class="form-control" id="siteurl" placeholder="" disabled>
+        </div>
+        <div class="col-md-6">
+        <label class="form-label" for="home">{{ _('Home') }}</label>
+        <input type="text" class="form-control" id="home" placeholder="" disabled>
+        </div>
+    </div>
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+        <label class="form-label" for="blogname">{{ _('Website Name') }}</label>
+        <input type="text" class="form-control" id="blogname" placeholder="">
+        </div>
+        <div class="col-md-6">
+        <label class="form-label" for="blogdescription">{{ _('Blog Description') }}</label>
+        <input type="text" class="form-control" id="blogdescription" placeholder="">
+        </div>
+    </div>
+    <br>
+    <!-- Users Can Register -->
+    <div>
+        <label class="form-check-label" for="users_can_register" id="users_can_register_label">{{ _('No, registrations are disabled (default)') }}</label>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="users_can_register" name="users_can_register">
+        </div>
+    </div>
+    <br>
+    <div>
+        <label class="form-label" for="admin_email">{{ _('Administrator Email') }}</label>
+        <input type="email" class="form-control" id="admin_email" placeholder="Email">
+    </div>  
+    <br>
+    <!-- Allow pingbacks and trackbacks -->
+    <div>
+        <label class="form-check-label" for="default_ping_status" id="default_ping_status_label">{{ _('Allow pingbacks and trackbacks from other blogs (default)') }}</label>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="default_ping_status" name="default_ping_status">
+        </div>
+    </div>
+    <br>
+    <!-- Search Engine Visibility -->
+    <div>
+        <label class="form-check-label" for="blog_public" id="blog_public_label">{{ _('I would like my blog to be visible to everyone, including search engines (default)') }}</label>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="blog_public" name="blog_public">
+        </div>
+    </div>
+
+</div>
+
+<br>
+    <button type="button" id="saveGeneralBtn" class="btn btn-primary">{{ _('Update Settings') }}</button>
+</form>
+
+</div>
+
+<div id="updates" class="tab-pane fade">
+
+    <h6 class="card-text">{{ _('WordPress version:') }} <span id="wp-version-4-updates"></span></h6><div id="update-message"></div>  
+<button type="button" id="updateButton" class="btn btn-primary d-none">{{ _('Click to update WordPress core') }}</button>
+<br>
+
+
+
+<script>
+    // Function to check for updates
+    function checkForUpdates() {
+        // Get the current WordPress version
+        var currentVersion = $("#wp-version-4-updates").text();
+        const updateButton = document.getElementById("updateButton");
+
+        // Make an API call to get the latest version
+        $.ajax({
+            url: "https://api.wordpress.org/core/stable-check/1.0/",
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                // Find the latest version in the response
+                var latestVersion;
+                for (var version in data) {
+                    if (data[version] === "latest") {
+                        latestVersion = version;
+                        break;
+                    }
+                }
+
+                if (latestVersion) {
+                    // Check if the current version is not the latest
+                    if (currentVersion.trim() !== latestVersion.trim()) {
+                        // Check if it's a minor or major update
+                        var currentVersionArray = currentVersion.split('.');
+                        var latestVersionArray = latestVersion.split('.');
+
+                        if (
+                            currentVersionArray[0] === latestVersionArray[0] &&
+                            currentVersionArray[1] === latestVersionArray[1]
+                        ) {
+                            // Minor version update
+                            $("#version_check_wp").removeClass().addClass("badge bg-warning").html("{{ _('Minor update available:') }} " + latestVersion);
+                            $("#update-message").removeClass().addClass("badge bg-warning").html("{{ _('Minor update available:') }} " + latestVersion);
+
+                            updateButton.classList.remove('d-none');
+                        } else {
+                            // Major version update
+                            $("#version_check_wp").removeClass().addClass("badge bg-danger").html("{{ _('Major update available:') }} " + latestVersion);
+                            $("#update-message").removeClass().addClass("badge bg-danger").html("{{ _('Major update available:') }} " + latestVersion);
+                            updateButton.classList.remove('d-none');
+                        }
+
+                        // Display the version_check_wp element
+                        $("#version_check_wp").show();
+                        $("#update-message").show();
+                    } else {
+                        // Versions are the same
+                        $("#version_check_wp").removeClass().addClass("badge bg-success").html("{{ _('Up to date') }}");
+                        $("#update-message").removeClass().addClass("badge bg-success").html("{{ _('Up to date') }}");
+                        $("#version_check_wp").show();
+                        $("#update-message").show();
+                    }
+                } else {
+                    // Display an error message if the latest version is not found
+                    $("#version_check_wp").removeClass().addClass("badge bg-secondary").html("{{ _('Bad response from api.wordpress.org') }}");
+                    $("#version_check_wp").show();
+                    $("#update-message").removeClass().addClass("badge bg-secondary").html("{{ _('Bad response from api.wordpress.org') }}");
+                    $("#update-message").show();
+                }
+            },
+            error: function () {
+                // Display an error message if there is an issue fetching the latest version
+                $("#version_check_wp").removeClass().addClass("badge bg-danger").html("{{ _('Failed to reach api.wordpress.org') }}");
+                $("#version_check_wp").show();
+                $("#update-message").removeClass().addClass("badge bg-danger").html("{{ _('Failed to reach api.wordpress.org') }}");
+                $("#update-message").show();
+            }
+        });
+    }
+
+    // Attach a click event handler to the "Updates" link
+    $("#updates-tab").click(function () {
+        // Call the function to check for updates when the link is clicked
+        checkForUpdates();
+        fetchupdatesInfo();
+    });
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+    // Function to update the checkboxes based on the response from the /wordpress/site/update_info endpoint
+    function updateupdatesCheckboxes(response) {
+        document.getElementById('WP_AUTO_UPDATE_PLUGINS_TRUE').checked = response.WP_AUTO_UPDATE_PLUGINS === 'true';
+        document.getElementById('WP_AUTO_UPDATE_PLUGINS_FALSE').checked = response.WP_AUTO_UPDATE_PLUGINS === 'false';
+        document.getElementById('WP_AUTO_UPDATE_THEMES_TRUE').checked = response.WP_AUTO_UPDATE_THEMES === 'true';
+        document.getElementById('WP_AUTO_UPDATE_THEMES_FALSE').checked = response.WP_AUTO_UPDATE_THEMES === 'false';
+        document.getElementById('WP_AUTO_UPDATE_CORE_YES').checked = response.WP_AUTO_UPDATE_CORE === 'true';
+        document.getElementById('WP_AUTO_UPDATE_CORE_MINOR').checked = response.WP_AUTO_UPDATE_CORE === 'minor';
+        document.getElementById('WP_AUTO_UPDATE_CORE_NO').checked = response.WP_AUTO_UPDATE_CORE === 'false';
+    }
+
+    // Function to handle the AJAX request
+    function fetchupdatesInfo() {
+        var selectedDomain = "{{ current_domain }}";
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', `/wordpress/site/update_info?selected_domain=${selectedDomain}`, true);
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                updateupdatesCheckboxes(response);
+            } else {
+                // Handle error here
+                console.error('Error fetching updates info:', xhr.statusText);
+            }
+        };
+
+        xhr.onerror = function () {
+            // Handle network errors here
+            console.error('Network error while fetching updates info');
+        };
+
+        xhr.send();
+    }
+
+</script>
+
+
+
+
+
+ <br>
+    <form id="UpdatesForm">
+        <!-- Update WordPress Automatically -->
+        <div>
+            <input type="hidden" name="selected_domain" value="{{ current_domain }}">
+            <label for="updateWordPress">{{ _('Update WordPress Core automattically:') }}</label>
+    <br>
+
+
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_CORE_NO" name="WP_AUTO_UPDATE_CORE" value="false">
+                <label class="form-check-label" for="WP_AUTO_UPDATE_CORE_NO">{{ _('No, I will update manually when needed') }}</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_CORE_MINOR" name="WP_AUTO_UPDATE_CORE" value="minor">
+                <label class="form-check-label" for="WP_AUTO_UPDATE_CORE_MINOR">{{ _('Yes, but only minor (security) updates') }}</label> <span class="badge rounded-pill bg-warning text-dark">{{ _('Recommended') }}</span>
+
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_CORE_YES" name="WP_AUTO_UPDATE_CORE" value="true">
+                <label class="form-check-label" for="WP_AUTO_UPDATE_CORE_YES">{{ _('Yes, all (minor and major) updates') }}</label>
+            </div>
+        </div>
+<br>
+        <!-- Update Plugins Automatically -->
+        <div>
+            <label for="updatePlugins">Update plugins automatically:</label>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_PLUGINS_TRUE" name="WP_AUTO_UPDATE_PLUGINS" value="true">
+                <label class="form-check-label" for="WP_AUTO_UPDATE_PLUGINS_TRUE">{{ _('Yes, all plugins will be automatically updated') }}</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_PLUGINS_FALSE" name="WP_AUTO_UPDATE_PLUGINS" value="false">
+                <label class="form-check-label" for="WP_AUTO_UPDATE_PLUGINS_FALSE">{{ _('No, I will update manually when needed') }}</label>
+            </div>
+        </div>
+<br>
+        <!-- Update Themes Automatically -->
+        <div>
+            <label for="updateThemes">{{ _('Update themes automatically:') }}</label>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_THEMES_TRUE" name="WP_AUTO_UPDATE_THEMES" value="true">
+                <label class="form-check-label" for="autoUpdateThemes">{{ _('Yes, all themes will be automatically updated') }}</label>
+            </div>
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="WP_AUTO_UPDATE_THEMES_FALSE" name="WP_AUTO_UPDATE_THEMES" value="false">
+                <label class="form-check-label" for="manualUpdateThemes">{{ _('No, I will update manually when needed') }}</label>
+            </div>
+        </div>
+<br>
+        <button type="button" id="saveUpdatesBtn" class="btn btn-primary">{{ _('Save Update Preferences') }}</button>
+</form>       
+<!-- Hidden div for success response -->
+<div id="UpdatesresponseContainer" style="display: none;"></div>
+
+<!-- Hidden div for error response -->
+<div id="UpdateserrorContainer" style="display: none;"></div>
+
+<script>
+
+// Attach a click event to the Save Settings button
+$("#saveUpdatesBtn").on("click", function() {
+    // Serialize the form data
+    var formData = $("#UpdatesForm").serialize();
+
+    // Display a toast message while the AJAX request is being made
+    const toastMessage = "{{ _('Saving update preferences... Please wait.') }}";
+    const toastOptions = {
+        body: toastMessage,
+        className: 'border-0 text-white bg-primary',
+    };
+    const toastInitiation = toaster(toastOptions);
+
+    // Make an AJAX request
+    $.ajax({
+        type: "GET",
+        url: "/wordpress/site/update_update_preferences",
+        data: formData,
+        success: function(response) {
+            // Handle the success response
+            console.log(response);
+
+            // Update the content based on the response
+            if (response.message) {
+                // Show success message
+                const toastSuccess = toaster({
+                    body: `${response.message}`,
+                    className: 'border-0 text-white bg-success',
+                });
+            } else if (response.error) {
+                // Show error message
+                const toastSuccess = toaster({
+                    body: `${response.error}`,
+                    className: 'border-0 text-white bg-danger',
+                });
+            }
+        },
+        error: function(error) {
+                // Show error message
+                const toastError = toaster({
+                    body: `${error.responseText}`,
+                    className: 'border-0 text-white bg-warning',
+                });
+        }
+    });
+});
+
+
+
+
+
+
+
+
+$("#saveGeneralBtn").on("click", function() {
+    var selectedDomain = "{{ current_domain }}";
+
+    // Manually collect form data
+    var formData = {
+        siteurl: $("#siteurl").val(),
+        home: $("#home").val(),
+        blogname: $("#blogname").val(),
+        blogdescription: $("#blogdescription").val(),
+        users_can_register: $("#users_can_register").prop("checked") ? 1 : 0,
+        admin_email: $("#admin_email").val(),
+        default_ping_status: $("#default_ping_status").prop("checked") ? 'open' : 'closed',
+        blog_public: $("#blog_public").prop("checked") ? 1 : 0
+    };
+
+    // Display a toast message while the AJAX request is being made
+    const toastMessage = "{{ _('Saving general settings... Please wait.') }}";
+    const toastOptions = {
+        body: toastMessage,
+        className: 'border-0 text-white bg-primary',
+    };
+    const toastInitiation = toaster(toastOptions);
+
+    // Make an AJAX request
+    $.ajax({
+        type: "GET",
+        url: `/wordpress/site/update_site_information?selected_domain=${selectedDomain}`,
+        data: formData,
+        success: function(response) {
+            // Handle the success response
+            console.log(response);
+
+            // Update the content based on the response
+            if (response.message) {
+                // Show success message
+                const toastSuccess = toaster({
+                    body: `${response.message}`,
+                    className: 'border-0 text-white bg-success',
+                });
+            } else if (response.error) {
+                // Show error message
+                const toastSuccess = toaster({
+                    body: `${response.error}`,
+                    className: 'border-0 text-white bg-danger',
+                });
+            }
+        },
+        error: function(error) {
+            // Show error message
+            const toastError = toaster({
+                body: `${error.responseText}`,
+                className: 'border-0 text-white bg-warning',
+            });
+        }
+    });
+});
+
+
+
+
+
+
+</script>
+
+
+</div>
+
+<div id="debugging" class="tab-pane fade">
+
+<script>
+    // Function to update the checkboxes based on the response from the /wordpress/site/debug_info endpoint
+    function updateCheckboxes(response) {
+        document.getElementById('WP_DEBUG').checked = response.WP_DEBUG === 'true';
+        document.getElementById('WP_DEBUG_LOG').checked = response.WP_DEBUG_LOG === 'true';
+        document.getElementById('WP_DEBUG_DISPLAY').checked = response.WP_DEBUG_DISPLAY === 'true';
+        document.getElementById('SCRIPT_DEBUG').checked = response.SCRIPT_DEBUG === 'true';
+        document.getElementById('SAVEQUERIES').checked = response.SAVEQUERIES === 'true';
+    }
+
+    // Function to handle the AJAX request
+    function fetchDebugInfo() {
+        var selectedDomain = "{{ current_domain }}";
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', `/wordpress/site/debug_info?selected_domain=${selectedDomain}`, true);
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                updateCheckboxes(response);
+            } else {
+                // Handle error here
+                console.error('Error fetching debug info:', xhr.statusText);
+                // Show error message
+                const toastError = toaster({
+                    body: `Error fetching debug info`,
+                    className: 'border-0 text-white bg-warning',
+                });
+            }
+        };
+
+        xhr.onerror = function () {
+            // Handle network errors here
+            console.error('Network error while fetching debug info');
+        };
+
+        xhr.send();
+    }
+
+    var debuggingLink = document.querySelector('a[data-bs-toggle="tab"][href="#debugging"]');
+    debuggingLink.addEventListener('click', fetchDebugInfo);
+</script>
+
+
+    <p class="card-text">{{ _('The options below allow you to manage the native WordPress debugging tools, enabling and disabling these tools in the wp-config.php file. It is not recommended to use these options on production websites since they are meant for development and test installations. Refer to') }} <a href="https://wordpress.org/support/article/debugging-in-wordpress/" target="_blank" rel="noopener noreferrer"><span>{{ _('Debugging in WordPress') }}</span></a> {{ _('article for more information on these options.') }}</p>
+ <br>
+<form id="updateDebugForm">
+
+    <!-- Update WordPress Automatically -->
+
+    <div>
+
+<input type="hidden" name="selected_domain" value="{{ current_domain }}">
+
+        <label for="WP_DEBUG">{{ _('WP_DEBUG') }}</label>
+        <br>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="WP_DEBUG" name="WP_DEBUG">
+            <label class="form-check-label" for="WP_DEBUG">{{ _('Enable the main debug mode in WordPress') }}</label>
+        </div>
+    </div>
+    <br>
+
+    <div>
+        <label for="WP_DEBUG_LOG">{{ _('WP_DEBUG_LOG') }}</label>
+        <br>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="WP_DEBUG_LOG" name="WP_DEBUG_LOG">
+            <label class="form-check-label" for="WP_DEBUG_LOG">{{ _('Save all errors to the debug.log file inside the wp-content directory.') }}</label>
+        </div>
+    </div>
+    <br>
+
+    <div>
+        <label for="WP_DEBUG_DISPLAY">{{ _('WP_DEBUG_DISPLAY') }}</label>
+        <br>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="WP_DEBUG_DISPLAY" name="WP_DEBUG_DISPLAY">
+            <label class="form-check-label" for="WP_DEBUG_DISPLAY">{{ _('Show debug messages inside the HTML pages') }}</label>
+        </div>
+    </div>
+    <br>
+
+    <div>
+        <label for="SCRIPT_DEBUG">{{ _('SCRIPT_DEBUG') }}</label>
+        <br>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="SCRIPT_DEBUG" name="SCRIPT_DEBUG">
+            <label class="form-check-label" for="SCRIPT_DEBUG">{{ _('Force WordPress to use the non-minified versions of core CSS and JavaScript files. This is useful when you are testing changes made to .js and .css files.') }}</label>
+        </div>
+    </div>
+    <br>
+
+    <div>
+        <label for="SAVEQUERIES">{{ _('SAVEQUERIES') }}</label>
+        <br>
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="SAVEQUERIES" name="SAVEQUERIES">
+            <label class="form-check-label" for="SAVEQUERIES">{{ _('Save database queries to an array that can be displayed to help analyze them.') }}</label>
+        </div>
+    </div>
+    <br>
+
+
+    <button type="button" id="saveSettingsBtn" class="btn btn-primary">{{ _('Save Debug Options') }}</button>
+</form>
+
+
+<!-- Hidden div for success response -->
+<div id="responseContainer" style="display: none;"></div>
+
+<!-- Hidden div for error response -->
+<div id="errorContainer" style="display: none;"></div>
+
+<script>
+        // Attach a click event to the Save Settings button
+        $("#saveSettingsBtn").on("click", function() {
+            // Serialize the form data
+            var formData = $("#updateDebugForm").serialize();
+
+        // Display a toast message while the AJAX request is being made
+        const toastMessage = "{{ _('Saving debugging options... Please wait.') }}";
+        const toastOptions = {
+            body: toastMessage,
+            className: 'border-0 text-white bg-primary',
+        };
+        const toastInitiation = toaster(toastOptions);
+
+            // Make an AJAX request
+            $.ajax({
+                type: "GET",
+                url: "/wordpress/site/update_debug",
+                data: formData,
+                success: function(response) {
+                    // Handle the success response
+                    console.log(response);
+
+            // Update the content based on the response
+            if (response.message) {
+                // Show success message
+                const toastSuccess = toaster({
+                    body: `${response.message}`,
+                    className: 'border-0 text-white bg-success',
+                });
+            } else if (response.error) {
+                // Show error message
+                const toastError = toaster({
+                    body: `${response.error}`,
+                    className: 'border-0 text-white bg-danger',
+                });
+            }
+
+                },
+                error: function(error) {
+                    // Handle the error response
+                    console.error("Error occurred:", error.responseText);
+
+                // Show error message
+                const toastError = toaster({
+                    body: `${error.responseText}`,
+                    className: 'border-0 text-white bg-warning',
+                });
+                }
+            });
+        });
+</script>
+
+</div>
+
+<div id="security" class="tab-pane fade">
+<table data-id="security-settings-list">
+    <thead>
+        <tr>
+            <th>
+                <div>
+                    <label><input type="checkbox" /></label>
+                </div>
+            </th>
+            <th><span>{{ _('Security Measures') }}</span></th>
+            <th class="is-sortable is-sorted is-sorted--down">
+                <div class="th__action"><span>{{ _('Status') }}</span></div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="securityPermissions" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Restrict access to files and directories') }}</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="securityKeys" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Configure security keys') }}</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="secureXmlRpc" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block access to') }} xmlrpc.php</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="secureIndexing" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block directory browsing') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="secureIncludes" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Forbid execution of PHP scripts in the wp-includes directory') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="secureContent" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Forbid execution of PHP scripts in the wp-content/uploads directory') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="secureConfig" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block access to wp-config.php') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="scriptsConcatenation" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Disable scripts concatenation for WordPress admin panel') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="pingbacks" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Turn off pingbacks') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="disableScriptInCache" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Disable PHP execution in cache directories') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="disableFileEditing" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Disable file editing in WordPress Dashboard') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="dbPrefix" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Change default database table prefix') }}</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="botProtection" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Enable bot protection') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="blockSensitiveFiles" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block access to sensitive files') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="blockPotentiallySensitiveFiles" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block access to potentially sensitive files') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="blockHtFiles" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block access to .htaccess and .htpasswd') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="blockAuthorsScan" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _('Block author scans') }}</span>
+                <span class="pul-text wpt-mgl-5">(<span>{{ _('can be reverted') }}</span>)</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+        <tr class="">
+            <td>
+                <div>
+                    <label><input type="checkbox" value="adminUsername" /></label>
+                </div>
+            </td>
+            <td>
+                <span>{{ _("Change default administrator's username") }}</span>
+            </td>
+            <td>
+                <span>
+                    <span>
+                        <span>
+                            {{ _('STATUS') }}
+                        </span>
+                    </span>
+                </span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+</div>
+</div>
+  </div>
+</div>
+
+
+
+
+
+<div class="card">
+<div class="row">
+
+   <div class="col-md-auto">
+  
+<div class="card-body screenshot" data-link="http://{{ current_domain }}">
+    <a id="https_link" href="http://{{ current_domain }}" target="_blank">
+        <img id="screenshot-image" style="width: 700px;" src="/static/images/placeholder.svg" alt="Screenshot of {{ current_domain }}" class="img-fluid">
+    </a>
+</div>
+
+<script>
+    // Function to check if the screenshot is ready and update the image source
+    function updateScreenshot() {
+        var screenshotImage = document.getElementById("screenshot-image");
+
+        // Replace this URL with the actual URL to fetch the screenshot image
+        var screenshotURL = "/screenshot/{{ current_domain }}";
+
+        // Create an image element to preload the screenshot
+        var imageLoader = new Image();
+        imageLoader.src = screenshotURL;
+
+        imageLoader.onload = function() {
+            // Screenshot is ready, update the image source
+            screenshotImage.src = screenshotURL;
+        };
+    }
+
+    // Call the updateScreenshot function when the page loads
+    window.onload = updateScreenshot;
+</script>
+        
+    </div>
+
+  <div class="col">
+<a href="#" onclick="updateScreenshot()" id="refresh_site_screenshot">
+        <i class="bi bi-arrow-clockwise" style="left: 15px;top: 15px;position: absolute; padding: 6px 10px;" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Refresh website screenshot"></i>
+    </a>
+
+
+<div class="row">
+      <div class="col">
+<div class="card-body">
+    <small class="card-text">&nbsp;</small>
+    {% if container.type|lower == "wordpress" %}
+    <a href="#"  id="now_get_site_data" data-toggle="modal" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+        <i class="bi bi-pencil" style="right: 15px; top: 15px; position: absolute; color: white; padding: 6px 10px; background: black; border-radius: 50px;"></i>
+    </a>
+    <p class="card-text">
+<a href="#" id="login_button" class="btn btn-primary mb-3">
+    <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+    <span id="button_text">{{ _('Login as Admin') }}<span class="desktop-only"> <i class="bi bi-box-arrow-in-right"></i></span></span>
+</a>
+
+
+<style> 
+/* Styles for desktop */
+@media (min-width: 768px) {
+    #login_button {
+        /* Desktop-specific styles */
+        --bs-btn-padding-y: .5rem;
+        --bs-btn-padding-x: 1rem;
+        --bs-btn-font-size: 1.09375rem;
+        --bs-btn-border-radius: .5rem;
+    }
+}
+</style>
+<script>
+    var loginButton = document.getElementById('login_button');
+    var spinner = document.getElementById('spinner');
+    var buttonText = document.getElementById('button_text');
+
+    // Function to handle the button click
+    loginButton.addEventListener('click', function () {
+        // Disable the button
+        loginButton.disabled = true;
+        // Show the loading spinner
+        spinner.classList.remove('d-none');
+        // Change the button text to "Redirecting.."
+        buttonText.textContent = 'Redirecting..';
+
+        // Send an AJAX request to the server to get the login link
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/get_login_link?domain={{ current_domain }}', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                // Re-enable the button and hide the spinner
+                loginButton.disabled = false;
+                spinner.classList.add('d-none');
+                 buttonText.innerHTML = `{{ _("Login as Admin") }} <i class="bi bi-box-arrow-in-right"></i>`;
+                
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response && response.login_link) {
+                        // Open the login link in a new tab
+                        window.open(response.login_link, '_blank');
+                    }
+                }
+            }
+        };
+        xhr.send();
+    });
+</script>
+
+
+    </p>
+    {% else %}
+    <p class="card-text"></p>
+    {% endif %}
+
+
+
+
+  </div>
+      </div>
+      <div class="col">
+ <div class="card-body">
+    <small class="card-text">{{ _('Type') }}</small>
+    <p class="card-text">
+    {% if container.type|lower == "wordpress" %}
+        <i class="bi bi-wordpress"></i> {{ container.type }}
+    {% elif container.type|lower == "mautic" %}
+        <i class=""><img src="/static/images/icons/mautic.png" style="width: 120px;"></i>
+    {% elif container.type|lower == "flarum" %}
+        <i class=""><img src="/static/images/icons/flarum-text-logo.svg" style="width: 120px;"></i>
+    {% elif container.type|lower == "nodejs" %}
+        <i class=""><img src="/static/images/icons/nodejs.png" style="width: 80px;"></i>
+    {% else %}
+        <i class="bi bi-box-seam"></i> {{ container.type }}
+    {% endif %}
+</p>
+
+  </div> 
+      </div>
+    </div>
+
+
+
+<div class="row">
+      <div class="col">
+<div class="card-body">
+    <small class="card-text">{{ _('Files') }} <span id="filesSize">({{ _('Calculating size...') }})</span></small>
+    <p class="card-text"><a class="nije-link" href="/files/{{ current_domain }}">{{ domain_directory }}</a></p>
+  </div>
+      </div>
+      <div class="col">  
+
+ <div class="card-body">
+    <small class="card-text">{{ _('Domain:') }}</small>
+    <p class="card-text">
+        <span id="favicon"></span> <a class="punycode nije-link" href="/domains">
+            {{ current_domain }}
+        </a>
+    </p>
+
+  </div> 
+</div>
+</div>
+
+
+
+<div class="row">
+
+    {% if container.type|lower == "wordpress" or container.type|lower == "mautic" %}
+     <div class="col">
+<div class="card-body">
+<small class="card-text">
+    <a class="nije-link" data-bs-toggle="collapse" href="#collapseDB" aria-expanded="false" aria-controls="collapseDB">{{ _('Database') }} <span id="databaseSize">({{ _('Calculating size...') }})</span></a>
+</small>
+<p class="card-text">
+<div class="collapse" id="collapseDB">
+    <ul class="list-group">
+        <li class="list-group-item"><small>{{ _('Database:') }}</small> <span><b><span id="database-name"></span></b></span></li>
+        <li class="list-group-item"><small>{{ _('Table prefix:') }}</small> <span><b><span id="database-table-prefix"></span></b></span></li>
+        <li class="list-group-item"><small>{{ _('Username:') }}</small> <span><b><span id="database-user"></span></b></span></li>
+        
+        <li class="list-group-item" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="Click to show/hide"><small>{{ _('Password:') }}</small> <span>                  <b><span id="database-password" style="filter: blur(5px); cursor: pointer;" onclick="revealPassword()"></span></b>
+
+</span></li>
+    </ul>
+</div>
+    <script>
+        function revealPassword() {
+            // Get the span element
+            var passwordSpan = document.getElementById("database-password");
+
+            // Check if the blur is applied (initial state)
+            if (passwordSpan.style.filter === "blur(5px)") {
+                // Remove the blur effect
+                passwordSpan.style.filter = "none";
+            } else {
+                // Add the blur effect
+                passwordSpan.style.filter = "blur(5px)";
+            }
+        }
+    </script>
+      </p> 
+  </div>
+      </div>
+
+    {% elif container.type|lower == "nodejs" %}
+<div class="col"> </div>
+    {% else %}
+<div class="col"> </div>
+    {% endif %}
+
+
+
+ 
+
+
+
+
+
+      <div class="col">
+<div class="card-body">
+    <small class="card-text">{{ _('Created') }} <a data-bs-toggle="tooltip" data-bs-placement="right" data-bs-title="{{ container.created_date }}"><i class="bi bi-info-circle"></i></a></small>
+</button>
+<p class="card-text">
+    <span id="created_date">{{ container.created_date }}</span>
+</p>
+{% if container.type|lower == "wordpress" %}
+<script>
+
+function GetWPdbSize() {
+    const databaseSizeSpan = document.getElementById("databaseSize");
+    const filesSizeSpan = document.getElementById("filesSize");
+
+    const destinationPath = "/home/{{current_username}}";
+    const currentDomain = "{{current_domain}}";
+
+    // Fetch database size and files size one after another
+    fetch(`/get-database-size?destination_path=${encodeURIComponent(destinationPath)}&selected_domain=${encodeURIComponent(currentDomain)}`)
+        .then(response => response.json())
+        .then(data => {
+            databaseSizeSpan.textContent = "(" + data.size + ")";
+            return fetch(`/get-files-size?selected_domain=${encodeURIComponent(currentDomain)}`);
+        })
+        .then(response => response.json())
+        .then(data => {
+            filesSizeSpan.textContent = "(" + data.size + ")";
+        })
+        .catch(error => {
+            console.error("An error occurred:", error);
+        });
+
+
+const restoreButton = document.querySelector('[data-bs-description="restore"]');
+const restoreModal = document.getElementById("restoreModal");
+const restoreBackupDateSelect = document.getElementById("restoreBackupDate");
+const confirmRestoreButton = document.getElementById("confirmRestore");
+const cancelButton = document.getElementById("cancelRestore"); // Cancel button
+
+const restoreDomain = restoreModal.getAttribute("data-selected-domain");
+let restoreConfirmed = false; // Flag to track double confirmation
+
+restoreButton.addEventListener("click", function () {
+    // Fetch available backup dates and populate the select element
+    fetch(`/wordpress/backup/get_dates/${restoreDomain}`)
+        .then(response => response.json())
+        .then(data => {
+            restoreBackupDateSelect.innerHTML = ""; // Clear previous options
+            data.forEach(dateInfo => {
+                const { date, hasDbBackup, hasFilesBackup } = dateInfo;
+
+                const option = document.createElement("option");
+                option.value = date;
+                option.textContent = `${date} (${getBackupTypeLabel(hasDbBackup, hasFilesBackup)})`;
+                restoreBackupDateSelect.appendChild(option);
+            });
+        });
+
+});
+
+confirmRestoreButton.addEventListener("click", function () {
+    if (!restoreConfirmed) {
+        // First click, ask for confirmation
+        confirmRestoreButton.textContent = "{{ _('Confirm Restore (Click Again)') }}";
+        confirmRestoreButton.classList.remove("btn-primary");
+        confirmRestoreButton.classList.add("btn-danger");
+        cancelButton.style.display = "none";
+        confirmRestoreButton.style.width = "100%";
+        restoreConfirmed = true;
+    } else {
+        // Double confirmation, proceed with restore
+        const selectedDate = restoreBackupDateSelect.value;
+
+        cancelButton.click();
+
+        // Display restore status
+        const toastMessage = "{{ _('Restoring backup... Please wait.') }}";
+        const toastInitiation = toaster({
+            body: toastMessage,
+            className: 'border-0 text-white bg-primary',
+        });
+
+        // Send request to restore backup
+        fetch(`/wordpress/backup/restore/${restoreDomain}?backup_date=${selectedDate}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error("{{ _('Restore request failed.') }}");
+            })
+            .then(result => {
+                // Show success message
+                const toastSuccess = toaster({
+                    body: `${result}`,
+                    className: 'border-0 text-white bg-success',
+                });
+
+                setTimeout(() => {
+                    restoreConfirmed = false;
+                    confirmRestoreButton.textContent = "{{ _('Restore') }}";
+                    confirmRestoreButton.classList.remove("btn-danger");
+                    confirmRestoreButton.classList.add("btn-primary");
+                    cancelButton.style.display = "block";
+                    confirmRestoreButton.style.width = "";
+                }, 5000); // Reset button after 5 seconds
+            })
+            .catch(error => {
+                console.error("Error during restore:", error);
+                // Show error message
+                const toastError = toaster({
+                    body: `${error.message}`,
+                    className: 'border-0 text-white bg-danger',
+                });
+            });
+    }
+});
+
+
+
+
+
+// Function to get the backup type label based on hasDbBackup and hasFilesBackup
+function getBackupTypeLabel(hasDbBackup, hasFilesBackup) {
+    if (hasDbBackup && hasFilesBackup) {
+        return "{{ _('Database and Files Backup') }}";
+    } else if (hasDbBackup) {
+        return "{{ _('Database Backup') }}";
+    } else if (hasFilesBackup) {
+        return "{{ _('Files Backup') }}";
+    }
+    return "{{ _('Unknown Backup Type') }}";
+}
+
+
+
+
+
+
+
+
+        const runBackupButton = document.getElementById("runBackup");
+        const backupDatabaseCheckbox = document.getElementById("backupDatabase");
+        const backupFilesCheckbox = document.getElementById("backupFiles");
+        const backupResultMessage = document.getElementById("backupResultMessage");
+
+        const backupModal = document.getElementById("backupModal");
+        const modalFooter = backupModal.querySelector(".modal-footer");
+        const backupDomain = backupModal.getAttribute("data-selected-domain");
+        const closeBtn = backupModal.querySelector(".btn-close");
+
+runBackupButton.addEventListener("click", function () {
+    const backupDatabase = backupDatabaseCheckbox.checked;
+    const backupFiles = backupFilesCheckbox.checked;
+
+    let btnClass, toastMessage;
+
+    // Determine the action based on the button's ID
+    if (runBackupButton.id === 'runBackup') {
+        btnClass = 'primary';
+        toastMessage = "{{ _('Generating website backup...') }}";
+        closeBtn.click();
+    }
+
+    // Display toast message for backup initiation
+    const toastInitiation = toaster({
+        body: toastMessage,
+        className: `border-0 text-white bg-${btnClass}`,
+    });
+
+    fetch(`/wordpress/backup/run/${backupDomain}?backup_database=${backupDatabase}&backup_files=${backupFiles}`)
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error("{{ _('Backup request failed.') }}");
+        })
+        .then(result => {
+            // Display toast message for successful backup
+            const toastSuccess = toaster({
+                body: `${result}`,
+                className: 'border-0 text-white bg-success',
+            });
+        })
+        .catch(error => {
+            // Display toast message for backup error
+            const toastError = toaster({
+                body: `${error.message}`,
+                className: 'border-0 text-white bg-danger',
+            });
+            console.error("Error during backup:", error);
+        });
+});
+
+
+
+
+    var createdDate = document.getElementById('created_date').textContent;
+    var date = new Date(createdDate);
+    var currentDate = new Date();
+    var timeDiff = currentDate.getTime() - date.getTime();
+
+    var secondsAgo = Math.floor(timeDiff / 1000);
+    var minutesAgo = Math.floor(timeDiff / (1000 * 60));
+    var hoursAgo = Math.floor(timeDiff / (1000 * 3600));
+    var daysAgo = Math.floor(timeDiff / (1000 * 3600 * 24));
+    var monthsAgo = Math.floor(timeDiff / (1000 * 3600 * 24 * 30));
+    var yearsAgo = Math.floor(timeDiff / (1000 * 3600 * 24 * 360));
+
+    var content;
+    if (yearsAgo > 0) {
+        content = yearsAgo + (yearsAgo === 1 ? ' year' : ' years') + ' ago';
+    } else if (monthsAgo > 0) {
+        content = monthsAgo + (monthsAgo === 1 ? ' month' : ' months') + ' ago';
+    } else if (daysAgo > 0) {
+        content = daysAgo + (daysAgo === 1 ? ' day' : ' days') + ' ago';
+    } else if (hoursAgo > 0) {
+        content = hoursAgo + (hoursAgo === 1 ? ' hour' : ' hours') + ' ago';
+    } else if (minutesAgo > 0) {
+        content = minutesAgo + (minutesAgo === 1 ? ' minute' : ' minutes') + ' ago';
+    } else {
+        content = secondsAgo + (secondsAgo === 1 ? ' second' : ' seconds') + ' ago';
+    }
+
+    document.getElementById('created_date').textContent = content;
+
+};
+
+GetWPdbSize()
+
+
+</script>
+
+{% elif container.type|lower == "mautic" %}
+<script>
+
+function GetWPdbSize() {
+    const databaseSizeSpan = document.getElementById("databaseSize");
+    const filesSizeSpan = document.getElementById("filesSize");
+
+    const destinationPath = "/home/{{current_username}}";
+    const currentDomain = "{{current_domain}}";
+
+    // Fetch database size and files size one after another
+    fetch(`/get-mautic-database-size?destination_path=${encodeURIComponent(destinationPath)}&selected_domain=${encodeURIComponent(currentDomain)}`)
+        .then(response => response.json())
+        .then(data => {
+            databaseSizeSpan.textContent = "(" + data.size + ")";
+            return fetch(`/get-files-size?selected_domain=${encodeURIComponent(currentDomain)}`);
+        })
+        .then(response => response.json())
+        .then(data => {
+            filesSizeSpan.textContent = "(" + data.size + ")";
+        })
+        .catch(error => {
+            console.error("An error occurred:", error);
+        });
+
+
+const restoreButton = document.querySelector('[data-bs-description="restore"]');
+const restoreModal = document.getElementById("restoreModal");
+const restoreBackupDateSelect = document.getElementById("restoreBackupDate");
+const confirmRestoreButton = document.getElementById("confirmRestore");
+const cancelButton = document.getElementById("cancelRestore"); // Cancel button
+
+const restoreDomain = restoreModal.getAttribute("data-selected-domain");
+let restoreConfirmed = false; // Flag to track double confirmation
+
+restoreButton.addEventListener("click", function () {
+    // Fetch available backup dates and populate the select element
+    fetch(`/mautic/backup/get_dates/${restoreDomain}`)
+        .then(response => response.json())
+        .then(data => {
+            restoreBackupDateSelect.innerHTML = ""; // Clear previous options
+            data.forEach(dateInfo => {
+                const { date, hasDbBackup, hasFilesBackup } = dateInfo;
+
+                const option = document.createElement("option");
+                option.value = date;
+                option.textContent = `${date} (${getBackupTypeLabel(hasDbBackup, hasFilesBackup)})`;
+                restoreBackupDateSelect.appendChild(option);
+            });
+        });
+
+});
+
+confirmRestoreButton.addEventListener("click", function () {
+    if (!restoreConfirmed) {
+        // First click, ask for confirmation
+        confirmRestoreButton.textContent = "{{ _('Confirm Restore (Click Again)') }}";
+        confirmRestoreButton.classList.remove("btn-primary");
+        confirmRestoreButton.classList.add("btn-danger");
+        cancelButton.style.display = "none";
+        confirmRestoreButton.style.width = "100%";
+        restoreConfirmed = true;
+    } else {
+        // Double confirmation, proceed with restore
+        const selectedDate = restoreBackupDateSelect.value;
+
+        cancelButton.click();
+
+        // Display restore status
+        const toastMessage = "{{ _('Restoring backup... Please wait.') }}";
+        const toastInitiation = toaster({
+            body: toastMessage,
+            className: 'border-0 text-white bg-primary',
+        });
+
+        // Send request to restore backup
+        fetch(`/mautic/backup/restore/${restoreDomain}?backup_date=${selectedDate}`)
+            .then(response => {
+                if (response.ok) {
+                    return response.text();
+                }
+                throw new Error("{{ _('Restore request failed.') }}");
+            })
+            .then(result => {
+                // Show success message
+                const toastSuccess = toaster({
+                    body: `${result}`,
+                    className: 'border-0 text-white bg-success',
+                });
+
+                setTimeout(() => {
+                    restoreConfirmed = false;
+                    confirmRestoreButton.textContent = "{{ _('Restore') }}";
+                    confirmRestoreButton.classList.remove("btn-danger");
+                    confirmRestoreButton.classList.add("btn-primary");
+                    cancelButton.style.display = "block";
+                    confirmRestoreButton.style.width = "";
+                }, 5000); // Reset button after 5 seconds
+            })
+            .catch(error => {
+                console.error("Error during restore:", error);
+                // Show error message
+                const toastError = toaster({
+                    body: `${error.message}`,
+                    className: 'border-0 text-white bg-danger',
+                });
+            });
+    }
+});
+
+
+
+
+
+// Function to get the backup type label based on hasDbBackup and hasFilesBackup
+function getBackupTypeLabel(hasDbBackup, hasFilesBackup) {
+    if (hasDbBackup && hasFilesBackup) {
+        return "{{ _('Database and Files Backup') }}";
+    } else if (hasDbBackup) {
+        return "{{ _('Database Backup') }}";
+    } else if (hasFilesBackup) {
+        return "{{ _('Files Backup') }}";
+    }
+    return "{{ _('Unknown Backup Type') }}";
+}
+
+
+
+
+
+
+
+
+        const runBackupButton = document.getElementById("runBackup");
+        const backupDatabaseCheckbox = document.getElementById("backupDatabase");
+        const backupFilesCheckbox = document.getElementById("backupFiles");
+        const backupResultMessage = document.getElementById("backupResultMessage");
+
+        const backupModal = document.getElementById("backupModal");
+        const modalFooter = backupModal.querySelector(".modal-footer");
+        const backupDomain = backupModal.getAttribute("data-selected-domain");
+        const closeBtn = backupModal.querySelector(".btn-close");
+
+runBackupButton.addEventListener("click", function () {
+    const backupDatabase = backupDatabaseCheckbox.checked;
+    const backupFiles = backupFilesCheckbox.checked;
+
+    let btnClass, toastMessage;
+
+    // Determine the action based on the button's ID
+    if (runBackupButton.id === 'runBackup') {
+        btnClass = 'primary';
+        toastMessage = "{{ _('Generating website backup...') }}";
+        closeBtn.click();
+    }
+
+    // Display toast message for backup initiation
+    const toastInitiation = toaster({
+        body: toastMessage,
+        className: `border-0 text-white bg-${btnClass}`,
+    });
+
+    fetch(`/mautic/backup/run/${backupDomain}?backup_database=${backupDatabase}&backup_files=${backupFiles}`)
+        .then(response => {
+            if (response.ok) {
+                return response.text();
+            }
+            throw new Error("{{ _('Backup request failed.') }}");
+        })
+        .then(result => {
+            // Display toast message for successful backup
+            const toastSuccess = toaster({
+                body: `${result}`,
+                className: 'border-0 text-white bg-success',
+            });
+        })
+        .catch(error => {
+            // Display toast message for backup error
+            const toastError = toaster({
+                body: `${error.message}`,
+                className: 'border-0 text-white bg-danger',
+            });
+            console.error("Error during backup:", error);
+        });
+});
+
+
+
+
+    var createdDate = document.getElementById('created_date').textContent;
+    var date = new Date(createdDate);
+    var currentDate = new Date();
+    var timeDiff = currentDate.getTime() - date.getTime();
+
+    var secondsAgo = Math.floor(timeDiff / 1000);
+    var minutesAgo = Math.floor(timeDiff / (1000 * 60));
+    var hoursAgo = Math.floor(timeDiff / (1000 * 3600));
+    var daysAgo = Math.floor(timeDiff / (1000 * 3600 * 24));
+    var monthsAgo = Math.floor(timeDiff / (1000 * 3600 * 24 * 30));
+    var yearsAgo = Math.floor(timeDiff / (1000 * 3600 * 24 * 360));
+
+    var content;
+    if (yearsAgo > 0) {
+        content = yearsAgo + (yearsAgo === 1 ? ' year' : ' years') + ' ago';
+    } else if (monthsAgo > 0) {
+        content = monthsAgo + (monthsAgo === 1 ? ' month' : ' months') + ' ago';
+    } else if (daysAgo > 0) {
+        content = daysAgo + (daysAgo === 1 ? ' day' : ' days') + ' ago';
+    } else if (hoursAgo > 0) {
+        content = hoursAgo + (hoursAgo === 1 ? ' hour' : ' hours') + ' ago';
+    } else if (minutesAgo > 0) {
+        content = minutesAgo + (minutesAgo === 1 ? ' minute' : ' minutes') + ' ago';
+    } else {
+        content = secondsAgo + (secondsAgo === 1 ? ' second' : ' seconds') + ' ago';
+    }
+
+    document.getElementById('created_date').textContent = content;
+
+};
+
+GetWPdbSize()
+
+
+</script>
+
+{% endif %}
+
+
+  </div> 
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+<div class="row">
+      <div class="col">
+<div class="card-body">
+    {% if container.type|lower == "wordpress" %}
+    <small class="card-text">{{ _('WP version:') }}</small>
+    <h4 class="card-text"><span id="wp-version"></span><a href="#" id="version_check_wp"></a></h4>
+    {% elif container.type|lower == "mautic" %}
+    <small class="card-text">{{ _('Mautic version:') }}</small>
+    <h4 class="card-text"><span id="mautic-version"></span><a href="#" id="version_check_mautic"></a></h4>
+    {% elif container.type|lower == "nodejs" %}
+    <small class="card-text">{{ _('NodeJS version:') }}</small>
+    <h4 class="card-text"><span id="node-version"></span></h4>
+    {% endif %}
+  </div>
+      </div><div class="col">
+<div class="card-body">
+    {% if container.type|lower == "wordpress" or container.type|lower == "mautic" %}
+    <small class="card-text">{{ _('PHP version:') }}</small>
+    <h4 class="card-text"><span id="php-version"></span></h4>
+    {% endif %}
+  </div>
+      </div>
+      <div class="col">
+ <div class="card-body">
+    {% if container.type|lower == "wordpress" or container.type|lower == "mautic" %}
+    <small class="card-text">{{ _('MySQL version:') }}</small>
+    <h4 class="card-text"><span id="mysql-version"></span></h4>
+    {% endif %}
+  </div> 
+      </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+</div>
+</div>
+</div>
+      <!--p>domain id: {{ container.domain_id }}</p-->
+
+<div class="row my-4">
+  <div role="group" aria-label="WP Actions" style="width: 100%; margin-top: 0px;" class="btn-group">
+{% if 'temporary_links' in enabled_modules %}  
+<button type="button" class="btn btn-outline-dark btn-lg" data-bs-description="preview" data-selected-domain="{{ current_domain }}" data-bs-toggle="modal" data-bs-target="#previewModal" onclick="sendDataToPreview(event)"><span class="desktop-only">{{ _('Preview') }}</span><span class="mobile-only"><i class="bi bi-box-arrow-up-right"></i></span></button>
+
+<script>
+function sendDataToPreview(event) {
+    const button = event.currentTarget;
+    const domain = button.getAttribute('data-selected-domain');
+
+    fetch(`/domains/temporary-link?domain=${encodeURIComponent(domain)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.link) {
+                window.open(data.link, '_blank');
+            } else {
+                console.error('No link found in the response.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+</script>
+{% endif %}
+
+    <!--button type="button" class="btn btn-outline-primary btn-lg" data-description="clone"><span class="desktop-only">Clone</span><span class="mobile-only"><i class="bi bi-copy"></i></span></button>
+    <button type="button" class="btn btn-outline-primary btn-lg" data-description="staging"><span class="desktop-only">Staging</span><span class="mobile-only"><i class="bi bi-layers"></i></span></button-->
+<button type="button" class="btn btn-outline-primary btn-lg" data-bs-description="backup" data-selected-domain="{{ current_domain }}" data-bs-toggle="modal" data-bs-target="#backupModal"><span class="desktop-only">{{ _('Backup') }}</span><span class="mobile-only"><i class="bi bi-cloud-upload"></i></span></button>
+
+{% if backup_files_available %}
+{% endif %}
+<button type="button" class="btn btn-outline-primary btn-lg" data-bs-description="restore" data-selected-domain="{{ current_domain }}" data-bs-toggle="modal" data-bs-target="#restoreModal">
+<span class="desktop-only">{{ _('Restore') }}</span><span class="mobile-only"><i class="bi bi-cloud-download"></i></span>
+</button>
+
+
+    <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#detachModal{{ container.id }}" data-bs-description="remove"><i class="bi bi-x"></i><span class="desktop-only"> {{ _('Detach') }}</span></button>
+    <button type="button" class="btn btn-danger btn-lg" data-bs-toggle="modal" data-bs-target="#removeModal{{ container.id }}" data-bs-description="uninstall"><i class="bi bi-trash3"></i><span class="desktop-only"> {{ _('Uninstall') }}</span></button>
+  </div>
+
+  {% if container.type|lower == "wordpress" or container.type|lower == "mautic" %}
+  <div id="action_description" class="">
+    <!--p id="clone-description" class="">Create a duplicate copy of the WordPress website for testing or development purposes.</p>
+    <p id="staging-description">Set up a staging environment to safely test changes before deploying them to the live website.</p-->
+    <p id="preview-description">{{ _("Preview website with a temporary domain,") }} <b>{{ _("valid for 15 minutes only!") }}</b> {{ _("Helpful if your domain hasn't been pointed to the server's IP address yet and lacks an SSL certificate.") }}</p>
+    <p id="backup-description">{{ _("Create a manual backup of the ") }} {{container.type}} {{ _("website's files and database for data protection.") }}</p>
+    <p id="restore-description">{{ _('Restore the website to a previous state using a previously created backup.') }}</p>
+    <p id="remove-description">{{ _('Remove the {{container.type}} website from this manager without actually deleting any files or database.') }}</p>
+    <p id="uninstall-description">{{ _('Completely remove the {{container.type}} website, including its files, database, and records from this manager.') }}</p>
+  </div>
+  {% endif %}
+</div>
+
+
+
+{% if container.type|lower == "wordpress" %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  // Function to attach event listeners
+  function GetWPSiteInfo() {
+    // Get the value of the "domain" parameter from the URL
+    var domainParam = new URLSearchParams(window.location.search).get('domain');
+
+    // Use setTimeout to send the AJAX request 100ms after the page loads
+      $.ajax({
+        type: "GET",
+        url: "/website/wp_info/" + domainParam,
+        dataType: "json",
+        success: function(data) {
+          var databaseHost = data.database_info.database_host;
+          var databaseName = data.database_info.database_name;
+          var databasePassword = data.database_info.database_password;
+          var databaseTablePrefix = data.database_info.database_table_prefix;
+          var databaseUser = data.database_info.database_user;
+          var mysqlVersion = data.mysql_version;
+          var phpVersion = data.php_version;
+          var wpVersion = data.wp_version;
+          var sslStatus = data.ssl_status;
+
+          var currentDomain = "{{ current_domain }}";
+
+            // Check if currentDomain is in punycode format
+            if (punycode.toASCII(currentDomain) !== currentDomain) {
+                currentDomain = punycode.toUnicode(currentDomain);
+            }   
+
+          // Update SSL status display based on the response
+          var sslButton;
+          if (sslStatus.includes("VALID")) {
+            var expiryDate = new Date(sslStatus.split(": ")[1]);
+            var day = expiryDate.getDate();
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            var monthName = monthNames[expiryDate.getMonth()];
+            var year = expiryDate.getFullYear();
+            var expiryStatus = day + ' ' + monthName + ' ' + year; 
+            $("#site_link_https").html(`<a href="https://${currentDomain}" target="_blank" class="btn btn-primary d-flex align-items-center gap-2">https://${currentDomain} <i class="bi bi-box-arrow-up-right"></i></a>`);
+            $("#https_link").html(`<a href="https://${currentDomain}" target="_blank"><img id="screenshot-image" style="width: 700px;" src="/screenshot/{{ current_domain }}" alt="Screenshot of {{ current_domain }}" class="img-fluid"></a>`);
+
+
+            sslButton = `<a href="/ssl" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ _('Expires on:') }} ${expiryStatus}"><span style="color:green;"> {{ _('Valid SSL') }}</span></a>`;
+          } else {
+            sslButton = '<a href="/ssl"><span style="color:red;"> {{ _("SSL not detected") }}</span></a>';
+          }
+
+          // Set the HTML content including SSL status and tooltip
+          $("#site-ssl-status").html(sslButton);
+
+          $("#database-host").text(databaseHost);
+          $("#database-name").text(databaseName);
+          $("#database-password").text(databasePassword);
+          $("#database-table-prefix").text(databaseTablePrefix);
+          $("#database-user").text(databaseUser);
+          $("#mysql-version").text(mysqlVersion);
+          $("#php-version").text(phpVersion);
+          $("#wp-version").text(wpVersion);
+          $("#wp-version-4-updates").text(wpVersion);
+          $("#phpmyadminlink").attr("href", `/phpmyadmin?route=/database/structure&server=1&db=${databaseName}`);
+
+
+        },
+        error: function(error) {
+          // Handle any errors here
+          console.error(error);
+        }
+      });
+
+    $('#action_description p').hide();
+
+    // Show corresponding description on hover
+    $('.btn').hover(function() {
+      var descriptionId = $(this).data('bs-description') + '-description';
+      $('#' + descriptionId).show();
+    }, function() {
+      var descriptionId = $(this).data('bs-description') + '-description';
+      $('#' + descriptionId).hide();
+    });
+
+  };
+
+GetWPSiteInfo();
+</script>
+
+
+
+<script>
+  function attachupdatebtnlistener() {
+    const updateButton = document.getElementById("updateButton");
+    var domainName = '{{ current_domain }}';
+    const updateNag = document.getElementById("update-message");
+    const updateNagInitial = document.getElementById("version_check_wp");
+    var updatesTab = document.getElementById('updates-tab');
+    
+
+    if (updateButton) {
+      updateButton.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+
+        updateButton.disabled = true;
+        // Display the toast
+        const updateStartedToast = toaster({
+          body: "{{ _('Update in progress...') }}",
+          className: 'border-0 text-white bg-info',
+        });
+
+        updateButton.classList.add('d-none');
+
+        try {
+          const response = await fetch(`/wordpress/site/update_now?selected_domain=` + domainName, {
+            method: 'GET',
+          });
+        const jsonResponse = await response.json();
+          if (jsonResponse.message === "{{ _('WordPress updated successfully') }}") {
+            //updateNag.style.display = "none";
+            //updateNagInitial.style.display = "none";
+
+            toaster({
+              body: "{{ _('WordPress updated successfully.') }}",
+              className: 'border-0 text-white bg-success',
+            });
+
+            GetWPSiteInfo();
+
+            fetch(`/wordpress/reload_data`, {
+            method: 'GET',
+            });
+          }
+        } catch (error) {
+          console.error('Error:', error);
+
+          // Display error message in a new toast
+          toaster({
+            body: 'Update failed.',
+            className: 'border-0 text-white bg-danger',
+          });
+
+          updateButton.disabled = false;
+          updateButton.classList.remove('d-none');
+        }
+
+        // Check if the element exists
+        if (updatesTab) {
+            updatesTab.click();
+        } else {
+            console.error("Element with id 'updates-tab' not found.");
+        }
+        
+        //checkForUpdates();
+
+      });
+    }
+
+}
+  // Attach event listener to the scanButton initially
+  attachupdatebtnlistener();
+</script>
+
+
+{% elif container.type|lower == "mautic" %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  // Function to attach event listeners
+  function GetWPSiteInfo() {
+    // Get the value of the "domain" parameter from the URL
+    var domainParam = new URLSearchParams(window.location.search).get('domain');
+
+    // Use setTimeout to send the AJAX request 100ms after the page loads
+      $.ajax({
+        type: "GET",
+        url: "/website/mautic_info/" + domainParam,
+        dataType: "json",
+        success: function(data) {
+          var databaseHost = data.database_info.database_host;
+          var databaseName = data.database_info.database_name;
+          var databasePassword = data.database_info.database_password;
+          var databaseTablePrefix = data.database_info.database_table_prefix;
+          var databaseUser = data.database_info.database_user;
+          var mysqlVersion = data.mysql_version;
+          var phpVersion = data.php_version;
+          var mauticVersion = data.mautic_version;
+          var sslStatus = data.ssl_status;
+
+          var currentDomain = "{{ current_domain }}";
+
+            // Check if currentDomain is in punycode format
+            if (punycode.toASCII(currentDomain) !== currentDomain) {
+                currentDomain = punycode.toUnicode(currentDomain);
+            }   
+
+          // Update SSL status display based on the response
+          var sslButton;
+          if (sslStatus.includes("VALID")) {
+            var expiryDate = new Date(sslStatus.split(": ")[1]);
+            var day = expiryDate.getDate();
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            var monthName = monthNames[expiryDate.getMonth()];
+            var year = expiryDate.getFullYear();
+            var expiryStatus = day + ' ' + monthName + ' ' + year; 
+            $("#site_link_https").html(`<a href="https://${currentDomain}" target="_blank" class="btn btn-primary d-flex align-items-center gap-2">https://${currentDomain} <i class="bi bi-box-arrow-up-right"></i></a>`);
+            $("#https_link").html(`<a href="https://${currentDomain}" target="_blank"><img id="screenshot-image" style="width: 700px;" src="/screenshot/{{ current_domain }}" alt="Screenshot of {{ current_domain }}" class="img-fluid"></a>`);
+
+
+            sslButton = `<a href="/ssl" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ _('Expires on:') }} ${expiryStatus}"><span style="color:green;"> {{ _('Valid SSL') }}</span></a>`;
+          } else {
+            sslButton = '<a href="/ssl"><span style="color:red;"> {{ _("SSL not detected") }}</span></a>';
+          }
+
+          // Set the HTML content including SSL status and tooltip
+          $("#site-ssl-status").html(sslButton);
+
+          $("#database-host").text(databaseHost);
+          $("#database-name").text(databaseName);
+          $("#database-password").text(databasePassword);
+          $("#database-table-prefix").text(databaseTablePrefix);
+          $("#database-user").text(databaseUser);
+          $("#mysql-version").text(mysqlVersion);
+          $("#php-version").text(phpVersion);
+          $("#mautic-version").text(mauticVersion);
+          $("#phpmyadminlink").attr("href", `/phpmyadmin?route=/database/structure&server=1&db=${databaseName}`);
+
+
+        },
+        error: function(error) {
+          // Handle any errors here
+          console.error(error);
+        }
+      });
+
+    $('#action_description p').hide();
+
+    // Show corresponding description on hover
+    $('.btn').hover(function() {
+      var descriptionId = $(this).data('bs-description') + '-description';
+      $('#' + descriptionId).show();
+    }, function() {
+      var descriptionId = $(this).data('bs-description') + '-description';
+      $('#' + descriptionId).hide();
+    });
+
+  };
+
+GetWPSiteInfo();
+
+
+
+
+
+</script>
+
+
+{% elif container.type|lower == "nodejs" %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+   // Get the value of the "domain" parameter from the URL
+    var domainParam = new URLSearchParams(window.location.search).get('domain');
+    
+    // Use setTimeout to send the AJAX request 100ms after the page loads
+    setTimeout(function() {
+        $.ajax({
+    type: "GET",
+    url: "/website/node_info/" + domainParam,
+    dataType: "json",
+    success: function(data) {
+        var nodeVersion = data.nodejs_version;
+
+        $("#node-version").text(nodeVersion);
+    },
+    error: function(error) {
+        // Handle any errors here
+        console.error(error);
+    }
+});
+    }, 1); // Delay in milliseconds
+
+
+    $('#action_description p').hide();
+
+    // Show corresponding description on hover
+    $('.btn').hover(function() {
+      var descriptionId = $(this).data('description') + '-description';
+      $('#' + descriptionId).show();
+    }, function() {
+      var descriptionId = $(this).data('description') + '-description';
+      $('#' + descriptionId).hide();
+    });
+  });
+</script>
+
+{% endif %}
+
+
+<hr>
+
+<div class="row mt-3">
+
+<div class="col-md-3">
+                     <div class="card">
+<div class="card-body text-center" id="loading_pagespeed_data">
+    <!-- Loading message -->
+    Loading data...
+</div>
+
+
+<div class="card-body text-center d-none" id="actual_data">
+
+    <style>
+
+
+
+/*
+* Widget basic styling
+*/
+
+.wrapper_ps{
+        width: 148px;
+        height: 148px;
+        font-family: 'Menlo','dejavu sans mono','Consolas','Lucida Console',monospace;
+        position: relative;
+        display: inline-block;
+}
+
+#desktop-meter, #mobile-meter{
+    width: 100%;
+    height: 100%;
+    -webkit-transform: rotate(270deg);
+    -moz-transform: rotate(270deg);
+    -o-transform: rotate(270deg);
+    -ms-transform: rotate(270deg);
+    transform: rotate(270deg);  
+}
+
+.perf_percentage {
+    position: absolute;
+    width: inherit;
+    top: 70px;
+    text-align: center;
+    font-size: 35px;
+    font-weight: 600;
+    line-height: 1.4em;
+}
+
+/*
+* Mobile display 
+*/
+
+@media only screen and (max-width: 600px) {
+    .itps-settings-page .inner-sidebar {
+        width: 100%;
+    }
+
+    .itps-settings-page #post-body-content {
+        margin-right: auto;
+    }
+}
+
+  
+    </style>
+
+
+    <div class="row">
+        <div style="text-align: center; padding-top:10px;">    
+                       
+            <!-- Desktop -->
+            <div class="wrapper_ps desktop">
+                <div style="text-align: center;width: inherit;">Desktop</div>
+                <svg id="desktop-meter">
+                    <circle r="53" cx="50%" cy="50%" stroke="#e8eaed" stroke-width="10" fill="none"></circle>
+                    <circle r="53" cx="50%" cy="50%" stroke="#178239" stroke-width="10" fill="none" class="frontCircle desktop_mainColor"></circle> <!--  transform="rotate(-90,240,240)" -->
+                </svg>
+                <div class="perf_percentage desktop_mainColor" id="desktop-performance_score"></div>
+            </div>
+
+            <!-- Mobile -->
+            <div class="wrapper_ps mobile">
+                <div style="text-align: center;width: inherit;">Mobile</div>
+                <svg id="mobile-meter">
+                    <circle r="53" cx="50%" cy="50%" stroke="#e8eaed" stroke-width="10" fill="none"></circle>
+                    <circle r="53" cx="50%" cy="50%" stroke="#178239" stroke-width="10" fill="none" class="frontCircle mobile_mainColor"></circle> <!--  transform="rotate(-90,240,240)" -->
+                </svg>
+                <div class="perf_percentage mobile_mainColor" id="mobile-performance_score"></div>
+            </div>  
+        </div>
+    </div>
+    <!-- Statistics -->
+    <div id="statistics" style="padding: 10px; font-family: Roboto, Helvetica, Arial, sans-serif; font-size: 14px;">
+        <div class="stat_row" style="border-bottom: 1px solid #ebebeb; display: flex; justify-content: space-between; padding: 8px;">
+            <span>First Contentful Paint</span>
+            <div style="padding-right: 5px; font-weight: bold;">
+                <span class="desktop-mainColor" id="desktop-first_contentful_paint">&nbsp;</span>&nbsp;/&nbsp;<span id="mobile-first_contentful_paint" class="mobile-mainColor">&nbsp;</span>
+            </div>
+        </div>
+        <div class="stat_row" style="border-bottom: 1px solid #ebebeb; display: flex; justify-content: space-between; padding: 8px;">
+            <span>Speed Index</span>
+            <div style="padding-right: 5px; font-weight: bold;">
+                <span class="desktop-mainColor" id="desktop-speed_index"></span>&nbsp;/&nbsp;<span id="mobile-speed_index" class="mobile-mainColor"></span>
+            </div>
+        </div>
+        <div class="stat_row" style="border-bottom: 1px solid #ebebeb; display: flex; justify-content: space-between; padding: 8px;">
+            <span>Time to Interactive</span>
+            <div style="padding-right: 5px; font-weight: bold;">
+                <span class="desktop-mainColor" id="desktop-interactive"></span>&nbsp;/&nbsp;<span id="mobile-interactive" class="mobile-mainColor"></span>
+            </div>
+        </div>
+        <div style="color: #0000008a; font-size: 10px; text-align: right;">
+            Measured at <span id="timestamp">Loading...</span>
+        </div>
+        <div style="margin-top: 10px; font-size: 12px; text-align: center;">
+            <a href="https://developers.google.com/speed/pagespeed/insights/?url=http://{{ current_domain }}" target="_blank" style="outline: 0; text-decoration: none;">View complete results</a> on Google PageSpeed Insights.
+        </div>
+    </div>
+
+<script>
+$(document).ready(function() {
+
+    function fetchDataAndUpdateUI() {
+        var currentDomain = "{{ current_domain }}";
+        $.ajax({
+            url: "/json/page_speed/" + currentDomain,
+            type: "GET",
+            success: function(data) {
+
+                // Handle case where no data is available yet
+                if (data.message === "No data yet, please allow a few minutes for data gathering..") {
+                    setTimeout(fetchDataAndUpdateUI, 15000);  // Retry after 15 seconds
+                    return;
+                }
+
+
+                // Update performance metrics
+                $('#desktop-first_contentful_paint').text(data.desktop_speed.first_contentful_paint);
+                $('#desktop-speed_index').text(data.desktop_speed.speed_index);
+                $('#desktop-interactive').text(data.desktop_speed.interactive);
+                $('#mobile-first_contentful_paint').text(data.mobile_speed.first_contentful_paint);
+                $('#mobile-speed_index').text(data.mobile_speed.speed_index);
+                $('#mobile-interactive').text(data.mobile_speed.interactive);
+                $('#timestamp').text(data.timestamp);
+
+                // Update performance metrics
+                $('#desktop-performance_score').text(Math.round(data.desktop_speed.performance_score * 100));
+                $('#mobile-performance_score').text(Math.round(data.mobile_speed.performance_score * 100));
+
+                // Determine and update colors based on performance scores
+                updateColors(data.desktop_speed.performance_score, 'desktop');
+                updateColors(data.mobile_speed.performance_score, 'mobile');
+
+
+                // Determine color based on score for desktop
+                var desktopScore = Math.round(data.desktop_speed.performance_score * 100);
+                var desktopColor = getColorForScore(desktopScore);
+                $('.desktop-mainColor').css('color', desktopColor);
+
+                // Determine color based on score for mobile
+                var mobileScore = Math.round(data.mobile_speed.performance_score * 100);
+                var mobileColor = getColorForScore(mobileScore);
+                $('.mobile-mainColor').css('color', mobileColor);
+
+                // Switch from loading to actual data
+                $('#loading_pagespeed_data').addClass('d-none');
+                $('#actual_data').removeClass('d-none');
+            },
+            error: function(error) {
+                console.log("Error fetching data:", error);
+            }
+        });
+    }
+
+    // Function to update colors based on performance score
+    function updateColors(score, type) {
+        var color = getColorForScore(Math.round(score * 100));
+        $('.' + type + '-mainColor').css('color', color); // Set text color
+        $('#' + type + '-meter .frontCircle').css('stroke', color); // Set circle stroke color
+    }
+
+
+    function getColorForScore(score) {
+        if (score >= 90) {
+            return '#178239';
+        } else if (score >= 50 && score <= 89) {
+            return '#e67700';
+        } else {
+            return '#c7221f';
+        }
+    }
+
+    // Fetch data and update UI on page load
+    fetchDataAndUpdateUI();
+
+});
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        </div>
+                    </div>
+</div>
+
+<div class="col-md-9">
+    <div class="row">
+
+
+                <div class="col-md-2">
+                     <a style="text-decoration: none;" href="/files/{{ current_domain }}" target="_blank"><div class="card" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('Open website folder in FileManager') }}"">
+                        <div class="card-body ikona text-center">
+                           <?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="filemanager" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+<style type="text/css">
+    .st0{fill:#BFCCE0;}
+    .st1{fill:#192030;}
+</style>
+<path class="st0" d="M52,14H6c-3.3,0-6,2.7000008-6,6v26c0,6.5999985,5.4000001,12,12,12h34c6.5999985,0,12-5.4000015,12-12V20
+    C58,16.7000008,55.2999992,14,52,14z"/>
+<path class="st1" d="M36.0000038,42H21.9999981C20.8999996,42,20,41.1000023,20,40.0000038v-0.0000076
+    C20,38.8999977,20.8999996,38,21.9999981,38h14.0000057C37.1000023,38,38,38.8999977,38,39.9999962v0.0000076
+    C38,41.1000023,37.1000023,42,36.0000038,42z"/>
+<path class="st1" d="M36.0000038,34H21.9999981C20.8999996,34,20,33.1000023,20,32.0000038v-0.0000057
+    C20,30.8999996,20.8999996,30,21.9999981,30h14.0000057C37.1000023,30,38,30.8999996,38,31.9999981v0.0000057
+    C38,33.1000023,37.1000023,34,36.0000038,34z"/>
+<path class="st1" d="M6,14h46c0.3412476,0,0.6739502,0.0354614,1,0.0908813V14v-1V6c0-3.2999878-2.7000122-6-6-6H35
+    c-3.2999878,0-6,2.7000122-6,6v1H11c-3.2999878,0-6,2.7000122-6,6v1.0908813C5.3260498,14.0354614,5.6587524,14,6,14z"/>
+</svg>
+
+<h6 class="card-title">{{ _('File Manager') }}</h6>
+                        </div>
+                    </div></a>
+</div>
+
+
+
+                <div class="col-md-2">
+
+    {% if container.type|lower == "wordpress" or container.type|lower == "mautic" %}
+
+<a style="text-decoration: none;" id="phpmyadminlink" href="/phpmyadmin" target="_blank">
+
+<div class="card" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('Open database in phpMyAdmin') }}">
+                        <div class="card-body ikona text-center">
+
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="DB" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+<style type="text/css">
+    .st0{fill:#BFCCE0;}
+    .st1{fill:#192030;}
+</style>
+<path class="st0" d="M52,16H6c-3.3,0-6-2.6999998-6-6V6c0-3.3,2.7-6,6-6h46c3.2999992,0,6,2.7,6,6v4
+    C58,13.3000002,55.2999992,16,52,16z"/>
+<path class="st1" d="M29.0000019,10H16.9999981C15.8999987,10,15,9.1000013,15,8.0000019V7.9999981
+    C15,6.8999991,15.8999987,6,16.9999981,6h12.0000038C30.1000004,6,31,6.8999991,31,7.9999981v0.0000038
+    C31,9.1000013,30.1000004,10,29.0000019,10z"/>
+<circle class="st1" cx="8" cy="8" r="2"/>
+<path class="st0" d="M52,37H6c-3.3,0-6-2.7000008-6-6v-4c0-3.2999992,2.7-6,6-6h46c3.2999992,0,6,2.7000008,6,6v4
+    C58,34.2999992,55.2999992,37,52,37z"/>
+<path class="st1" d="M29.0000019,31H16.9999981C15.8999987,31,15,30.1000004,15,29.0000019v-0.0000038
+    C15,27.8999996,15.8999987,27,16.9999981,27h12.0000038C30.1000004,27,31,27.8999996,31,28.9999981v0.0000038
+    C31,30.1000004,30.1000004,31,29.0000019,31z"/>
+<circle class="st1" cx="8" cy="29" r="2"/>
+<path class="st0" d="M52,58H6c-3.3,0-6-2.7000008-6-6v-4c0-3.2999992,2.7-6,6-6h46c3.2999992,0,6,2.7000008,6,6v4
+    C58,55.2999992,55.2999992,58,52,58z"/>
+<path class="st1" d="M29.0000019,52H16.9999981C15.8999987,52,15,51.1000023,15,50.0000038v-0.0000076
+    C15,48.8999977,15.8999987,48,16.9999981,48h12.0000038C30.1000004,48,31,48.8999977,31,49.9999962v0.0000076
+    C31,51.1000023,30.1000004,52,29.0000019,52z"/>
+<circle class="st1" cx="8" cy="50" r="2"/>
+</svg>
+
+                            <h6 class="card-title">{{ _('phpMyAdmin') }}</h6>
+                        </div>
+                    </div></a>
+    {% elif container.type|lower == "nodejs" %}
+<a style="text-decoration: none;" id="pm2link" href="/pm2">
+
+<div class="card" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('Go to Applications Manager') }}">
+                        <div class="card-body ikona text-center">
+
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="DB" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+<style type="text/css">
+    .st0{fill:#BFCCE0;}
+    .st1{fill:#192030;}
+</style>
+<path class="st0" d="M52,16H6c-3.3,0-6-2.6999998-6-6V6c0-3.3,2.7-6,6-6h46c3.2999992,0,6,2.7,6,6v4
+    C58,13.3000002,55.2999992,16,52,16z"/>
+<path class="st1" d="M29.0000019,10H16.9999981C15.8999987,10,15,9.1000013,15,8.0000019V7.9999981
+    C15,6.8999991,15.8999987,6,16.9999981,6h12.0000038C30.1000004,6,31,6.8999991,31,7.9999981v0.0000038
+    C31,9.1000013,30.1000004,10,29.0000019,10z"/>
+<circle class="st1" cx="8" cy="8" r="2"/>
+<path class="st0" d="M52,37H6c-3.3,0-6-2.7000008-6-6v-4c0-3.2999992,2.7-6,6-6h46c3.2999992,0,6,2.7000008,6,6v4
+    C58,34.2999992,55.2999992,37,52,37z"/>
+<path class="st1" d="M29.0000019,31H16.9999981C15.8999987,31,15,30.1000004,15,29.0000019v-0.0000038
+    C15,27.8999996,15.8999987,27,16.9999981,27h12.0000038C30.1000004,27,31,27.8999996,31,28.9999981v0.0000038
+    C31,30.1000004,30.1000004,31,29.0000019,31z"/>
+<circle class="st1" cx="8" cy="29" r="2"/>
+<path class="st0" d="M52,58H6c-3.3,0-6-2.7000008-6-6v-4c0-3.2999992,2.7-6,6-6h46c3.2999992,0,6,2.7000008,6,6v4
+    C58,55.2999992,55.2999992,58,52,58z"/>
+<path class="st1" d="M29.0000019,52H16.9999981C15.8999987,52,15,51.1000023,15,50.0000038v-0.0000076
+    C15,48.8999977,15.8999987,48,16.9999981,48h12.0000038C30.1000004,48,31,48.8999977,31,49.9999962v0.0000076
+    C31,51.1000023,30.1000004,52,29.0000019,52z"/>
+<circle class="st1" cx="8" cy="50" r="2"/>
+</svg>
+
+                            <h6 class="card-title">{{ _('PM2') }}</h6>
+                        </div>
+                    </div></a>
+    {% endif %}
+</div>
+
+                <div class="col-md-2">
+                    <div class="card" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('View SSL Certificates') }}">
+                        <a style="text-decoration: none;" href="/ssl" target="_blank">
+                        <div class="card-body ikona text-center">
+                            
+
+<svg version="1.1" id="katanac" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+<style type="text/css">
+    .st0{fill:#BFCCE0;}
+    .st1{fill:#192030;}
+</style>
+<path class="st0" d="M38,58H12C5.4,58,0,52.6,0,46V32c0-6.6,5.4-12,12-12h26c6.6,0,12,5.4,12,12v14C50,52.6,44.6,58,38,58z"/>
+<path class="st1" d="M25,46L25,46c-1.1,0-2-0.9-2-2V34c0-1.1,0.9-2,2-2h0c1.1,0,2,0.9,2,2v10C27,45.1,26.1,46,25,46z"/>
+<path class="st1" d="M12,20h1v-6c0-5.5,4.5-10,10-10h4c5.5,0,10,4.5,10,10v6h1c1,0,2,0.1,3,0.4V14c0-7.7-6.3-14-14-14h-4
+    C15.3,0,9,6.3,9,14v6.4C10,20.1,11,20,12,20z"/>
+</svg>
+
+<h6 class="card-title">
+<span id="site-ssl-status">
+<div class="spinner-border spinner-border-sm" role="status"></div>{{ _('Checking SSL status..') }}</span>
+</h6>
+                        </div></a>
+                    </div>
+                </div>
+
+
+
+
+{% if container.type|lower == "wordpress" %}
+                <div class="col-md-2">
+                    <div class="card" id="loginCard" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('Login to WP ADMIN') }}">      
+                        <div class="card-body ikona text-center" id="cardBody">
+                            
+
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="kljuc" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+    <style type="text/css">
+    .st0{fill:#414954;}
+    .st1{fill:#EBF3FF;}
+</style>
+<circle class="st0" cx="24" cy="17" r="17"></circle>
+<ellipse class="st1" cx="24" cy="49.5" rx="24" ry="8.5"></ellipse>
+<path class="st0" d="M43.4,6.6C45,9.7,46,13.2,46,17c0,6.3-2.6,12-6.9,16c0.1,0,0.3,0,0.4,0C47,33,53,27,53,19.5
+    C53,13.4,48.9,8.2,43.4,6.6z"></path>
+<path class="st1" d="M42.6,38.1c-0.6,0-0.7,0.8-0.2,1C48.9,41.5,53,45.3,53,49.5c0,0.1,0,0.2,0,0.3c3.1-1.3,5-2.9,5-4.8
+    C58,41.5,51.3,38.7,42.6,38.1z"></path>
+</svg>
+
+<h6 class="card-title">{{ _('Login as admin') }}</h6>
+                        </div>
+                    </div>
+                </div>
+{% elif container.type|lower == "nodejs" %}
+
+{% endif %}
+
+
+{% if container.type|lower == "wordpress" or container.type|lower == "mautic" %}
+                <div class="col-md-2">
+                    <div class="card" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('Change PHP version for domain') }}">
+ <a style="text-decoration: none;" href="/php-version" target="_blank">                       <div class="card-body ikona text-center">
+<svg version="1.1" id="PHP" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+<style type="text/css">
+    .st0{fill:#BFCCE0;}
+    .st1{fill:#192030;}
+</style>
+<path class="st0" d="M40,58H18C8.1000004,58,0,49.9000015,0,40V18C0,8.1000004,8.1000004,0,18,0h22c9.9000015,0,18,8.1000004,18,18
+    v22C58,49.9000015,49.9000015,58,40,58z"/>
+<path class="st1" d="M12.1653051,23.2070484h5.9321814c1.741148,0.0145454,3.0028439,0.5140896,3.7850857,1.4977989
+    c0.7822437,0.9837074,1.0403461,2.3273201,0.774725,4.0308342c-0.103159,0.7784061-0.3320255,1.541853-0.6861839,2.2907505
+    c-0.3395443,0.7488995-0.8114796,1.4242363-1.4166412,2.026432c-0.7379723,0.763443-1.5273151,1.248024-2.3684444,1.453743
+    c-0.8411312,0.205719-1.7119141,0.3083687-2.6119308,0.3083687h-2.6562004L12.076766,39H9L12.1653051,23.2070484
+    L12.1653051,23.2070484 M14.7551003,25.7180614l-1.3280993,6.6079311c0.0885391,0.0145454,0.1770802,0.0220261,0.2656193,0.0220261
+    c0.103157,0,0.2067337,0,0.3098907,0c1.4166393,0.0145454,2.597312-0.1246796,3.5416002-0.4185028
+    c0.9442883-0.3083687,1.5791016-1.3801823,1.9036102-3.2158585c0.2656212-1.5418491,0-2.4303875-0.7968597-2.6651974
+    c-0.7822418-0.2348118-1.7632828-0.3449421-2.9439545-0.3303967c-0.1770802,0.0145454-0.3466434,0.022028-0.5091057,0.022028
+    c-0.1474276,0-0.302372,0-0.4648342,0l0.0221348-0.022028"/>
+<path class="st1" d="M26.1621437,19h3.0546284l-0.8632622,4.2070484h2.7447376
+    c1.5051804,0.0295067,2.6265488,0.3378773,3.364521,0.925108c0.7525902,0.5872364,0.973938,1.703516,0.6640511,3.3480186
+    l-1.4830475,7.3348007h-3.0988979l1.4166393-7.0044041c0.1474304-0.7343502,0.1031609-1.2555065-0.1328087-1.5638752
+    c-0.2359695-0.3083706-0.7450733-0.4625568-1.527319-0.4625568l-2.4569836-0.0220242l-1.8150711,9.0528603h-3.0546284L26.1621437,19
+    L26.1621437,19"/>
+<path class="st1" d="M38.4069786,23.2070484h5.9321823c1.7411461,0.0145454,3.0028419,0.5140896,3.7850838,1.4977989
+    c0.7822418,0.9837074,1.0403442,2.3273201,0.7747269,4.0308342c-0.1031609,0.7784061-0.3320274,1.541853-0.6861839,2.2907505
+    c-0.3395462,0.7488995-0.8114777,1.4242363-1.4166412,2.026432c-0.7379684,0.763443-1.5273132,1.248024-2.3684425,1.453743
+    s-1.7119141,0.3083687-2.6119308,0.3083687h-2.6562004L38.3184433,39h-3.076767l3.1653061-15.7929516l0,0 M40.9967766,25.7180614
+    l-1.3281021,6.6079311c0.0885391,0.0145454,0.1770821,0.0220261,0.2656212,0.0220261c0.103157,0,0.2067337,0,0.3098907,0
+    c1.4166374,0.0145454,2.5973129-0.1246796,3.5415955-0.4185028c0.9442902-0.3083687,1.5791016-1.3801823,1.9036102-3.2158585
+    c0.2656212-1.5418491,0-2.4303875-0.7968559-2.6651974c-0.7822456-0.2348118-1.7632828-0.3449421-2.9439583-0.3303967
+    c-0.1770821,0.0145454-0.3466454,0.022028-0.5091057,0.022028c-0.1474266,0-0.302372,0-0.4648361,0l0.0221367-0.022028"/>
+</svg>
+
+<h6 class="card-title">{{ _('PHP Settings') }}</h6>
+                        </div></a>
+                    </div>
+                </div>
+{% elif container.type|lower == "nodejs" %}
+
+{% endif %}
+
+
+
+                <div class="col-md-2">
+                             <a style="text-decoration: none;" href="/cronjobs" target="_blank">                   <div class="card" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="{{ _('Manage cronjobs') }}">
+                        <div class="card-body ikona text-center">
+
+<?xml version="1.0" encoding="utf-8"?>
+
+<svg version="1.1" id="cronovi" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+     viewBox="0 0 54 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 54 58;" xml:space="preserve">
+<style type="text/css">
+    .st0{fill:#BFCCE0;}
+    .st1{fill:#192030;}
+</style>
+<path class="st0" d="M42,58H12C5.4000001,58,0,52.5999985,0,46V21h54v25C54,52.5999985,48.5999985,58,42,58z"/>
+<path class="st1" d="M54,21H0v-3C0,11.3999996,5.4000001,6,12,6h30c6.5999985,0,12,5.3999996,12,12V21z"/>
+<path class="st0" d="M13.0000019,12h-0.0000038C11.8999987,12,11,11.1000013,11,10.0000019V1.999998
+    C11,0.8999991,11.8999987,0,12.9999981,0h0.0000038C14.1000013,0,15,0.8999991,15,1.999998v8.0000038
+    C15,11.1000013,14.1000013,12,13.0000019,12z"/>
+<path class="st0" d="M41.0000038,12h-0.0000076C39.8999977,12,39,11.1000013,39,10.0000019V1.999998
+    C39,0.8999991,39.8999977,0,40.9999962,0h0.0000076C42.1000023,0,43,0.8999991,43,1.999998v8.0000038
+    C43,11.1000013,42.1000023,12,41.0000038,12z"/>
+<path class="st1" d="M28.0000019,35h-2.0000038C24.8999996,35,24,34.1000023,24,33.0000038v-0.0000076
+    C24,31.8999996,24.8999996,31,25.9999981,31h2.0000038C29.1000004,31,30,31.8999996,30,32.9999962v0.0000076
+    C30,34.1000023,29.1000004,35,28.0000019,35z"/>
+<path class="st1" d="M15.0000019,35h-2.0000038C11.8999987,35,11,34.1000023,11,33.0000038v-0.0000076
+    C11,31.8999996,11.8999987,31,12.9999981,31h2.0000038C16.1000004,31,17,31.8999996,17,32.9999962v0.0000076
+    C17,34.1000023,16.1000004,35,15.0000019,35z"/>
+<path class="st1" d="M41.0000038,35h-2.0000076C37.8999977,35,37,34.1000023,37,33.0000038v-0.0000076
+    C37,31.8999996,37.8999977,31,38.9999962,31h2.0000076C42.1000023,31,43,31.8999996,43,32.9999962v0.0000076
+    C43,34.1000023,42.1000023,35,41.0000038,35z"/>
+<path class="st1" d="M28.0000019,47h-2.0000038C24.8999996,47,24,46.1000023,24,45.0000038v-0.0000076
+    C24,43.8999977,24.8999996,43,25.9999981,43h2.0000038C29.1000004,43,30,43.8999977,30,44.9999962v0.0000076
+    C30,46.1000023,29.1000004,47,28.0000019,47z"/>
+<path class="st1" d="M15.0000019,47h-2.0000038C11.8999987,47,11,46.1000023,11,45.0000038v-0.0000076
+    C11,43.8999977,11.8999987,43,12.9999981,43h2.0000038C16.1000004,43,17,43.8999977,17,44.9999962v0.0000076
+    C17,46.1000023,16.1000004,47,15.0000019,47z"/>
+<path class="st1" d="M41.0000038,47h-2.0000076C37.8999977,47,37,46.1000023,37,45.0000038v-0.0000076
+    C37,43.8999977,37.8999977,43,38.9999962,43h2.0000076C42.1000023,43,43,43.8999977,43,44.9999962v0.0000076
+    C43,46.1000023,42.1000023,47,41.0000038,47z"/>
+</svg>
+
+
+                            <h6 class="card-title">{{ _('Cronjobs') }}</h6>
+                        </div>
+                    </div></a>
+                </div>
+
+
+{% if container.type|lower != "nodejs" or container.type|lower != "python" %}
+
+<div class="col-md-2">
+    <div class="card">
+        <a style="text-decoration: none;" id="phpmyadmin-link" href="#" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Manage phpMyAdmin access on {{ current_domain }}/phpmyadmin">
+            <div class="card-body ikona text-center">
+                <svg version="1.1" id="access" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve">
+                    <style type="text/css"> 
+                        .st0{fill:#414954;} 
+                        .st1{fill:#EBF3FF;} 
+                    </style>
+                    <path class="st0" d="M27,0C12.1123047,0,0,12.1123047,0,27s12.1123047,27,27,27s27-12.1123047,27-27S41.8876953,0,27,0z M49.9075928,25H41.956665c-0.2987061-7.671875-2.2993774-14.3659058-5.3508911-18.8901367 C43.9279175,9.4902344,49.180542,16.6054077,49.9075928,25z M25,4.4251709V25h-8.9483643 C16.5040894,14.0232544,20.616333,6.2732544,25,4.4251709z M25,29v20.5748291 C20.616333,47.7267456,16.5040894,39.9767456,16.0516357,29H25z M29,49.5748901V29h8.9483643 C37.4959717,39.9768677,33.3839111,47.7269287,29,49.5748901z M29,25V4.4251099 C33.3839111,6.2730713,37.4959717,14.0231323,37.9483643,25H29z M17.394165,6.1100464 C14.3427124,10.6343384,12.342041,17.3282471,12.043335,25H4.0924072C4.819458,16.6055298,10.0722046,9.4905396,17.394165,6.1100464 z M4.0924072,29h7.9509277c0.2987061,7.6719971,2.2993164,14.3659058,5.350769,18.8900757 C10.0722046,44.5097046,4.819458,37.3947754,4.0924072,29z M36.6057739,47.8901978 C39.6572876,43.3660278,41.657959,36.6720581,41.956665,29h7.9509277 C49.180542,37.3948975,43.9279175,44.5098877,36.6057739,47.8901978z"/>
+                    <circle class="st1" cx="45" cy="45" r="13"/>
+                    <path class="st0" d="M45,50L45,50c-0.5499992,0-1-0.4500008-1-1v-8c0-0.5499992,0.4500008-1,1-1l0,0c0.5499992,0,1,0.4500008,1,1v8 C46,49.5499992,45.5499992,50,45,50z"/>
+                    <path class="st0" d="M50,45L50,45c0,0.5499992-0.4500008,1-1,1h-8c-0.5499992,0-1-0.4500008-1-1l0,0c0-0.5499992,0.4500008-1,1-1h8 C49.5499992,44,50,44.4500008,50,45z"/>
+                </svg>
+                <h6 class="card-title" id="manage_phpmyadmin_public_title">{{ _('/phpmyadmin') }}<br><span id="phpmyadmin_public_status" class="badge bg-dark">{{ _('Checking...') }}</span></h6>
+            </div>
+        </a>
+    </div>
+</div>
+
+<script>
+(function() {
+    const currentDomainForPhpmyAdminChecks = "{{ current_domain }}";
+    const statusElement = document.getElementById('phpmyadmin_public_status');
+    const phpmyadminLink = document.getElementById('phpmyadmin-link');
+
+    // Function to check the current phpMyAdmin status
+    function checkPhpMyAdminStatus() {
+        fetch(`/phpmyadmin/manage/${currentDomainForPhpmyAdminChecks}?action=status`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.phpmyadmin_status === 'on') {
+                    statusElement.textContent = 'Enabled';
+                    statusElement.classList.remove('bg-dark', 'bg-success');
+                    statusElement.classList.add('bg-danger');
+                    phpmyadminLink.href = `/phpmyadmin/manage/${currentDomainForPhpmyAdminChecks}?action=disable`;
+                    phpmyadminLink.setAttribute('data-bs-title', `Disable phpMyAdmin access on ${currentDomainForPhpmyAdminChecks}/phpmyadmin`);
+                } else {
+                    statusElement.textContent = 'Disabled';
+                    statusElement.classList.remove('bg-dark', 'bg-danger');
+                    statusElement.classList.add('bg-success');
+                    phpmyadminLink.href = `/phpmyadmin/manage/${currentDomainForPhpmyAdminChecks}?action=enable`;
+                    phpmyadminLink.setAttribute('data-bs-title', `Enable phpMyAdmin access on ${currentDomainForPhpmyAdminChecks}/phpmyadmin`);
+                }
+
+                const tooltip = new bootstrap.Tooltip(phpmyadminLink);
+                tooltip.enable();
+
+            })
+            .catch(error => {
+                console.error('Error checking phpMyAdmin status:', error);
+                statusElement.textContent = 'Error';
+                statusElement.classList.remove('bg-success', 'bg-danger', 'bg-dark');
+                statusElement.classList.add('bg-warning');
+            });
+    }
+
+    // Function to toggle phpMyAdmin access
+    function togglePhpMyAdmin() {
+        const action = phpmyadminLink.getAttribute('href').split('action=')[1];
+        fetch(`/phpmyadmin/manage/${currentDomainForPhpmyAdminChecks}?action=${action}`, { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    checkPhpMyAdminStatus();  // Reload the status after toggling
+                } else {
+                    console.error('Unexpected response format:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error toggling phpMyAdmin:', error);
+            });
+    }
+
+    checkPhpMyAdminStatus();
+
+    phpmyadminLink.addEventListener('click', function(event) {
+        event.preventDefault();
+        const tooltip = bootstrap.Tooltip.getInstance(phpmyadminLink); // Get the tooltip instance
+        if (tooltip) {
+            tooltip.hide(); // Hide the tooltip
+            tooltip.dispose(); // Dispose of the tooltip instance
+        }
+        togglePhpMyAdmin();      // Call the toggle function
+    });
+})();
+</script>
+
+{% endif %}
+
+
+
+{% if 'malware_scan' in enabled_modules %}  
+<div class="col-md-2">
+    <div class="card">
+        <a style="text-decoration: none;" href="/malware-scanner?path=/home/{{current_username}}/{{ current_domain }}" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Scan website files with ClamAV">
+            <div class="card-body ikona text-center">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="scanner" x="0px" y="0px" viewBox="0 0 58 58" style="width:50px; padding-bottom:1em; enable-background:new 0 0 58 58;" xml:space="preserve"> <style type="text/css"> .st0{fill:#414954;} .st1{fill:#EBF3FF;} </style> <g> <path class="st0" d="M12,37v1c0,5.5,4.5,10,10,10h14c5.5,0,10-4.5,10-10v-1H12z"/> <path class="st0" d="M46,27v-7c0-5.5-4.5-10-10-10H22c-5.5,0-10,4.5-10,10v7H46z"/> </g> <g> <path class="st1" d="M2,14c-1.1,0-2-0.9-2-2C0,5.4,5.4,0,12,0c1.1,0,2,0.9,2,2s-0.9,2-2,2c-4.4,0-8,3.6-8,8C4,13.1,3.1,14,2,14z"/> </g> <g> <path class="st1" d="M12,58C5.4,58,0,52.6,0,46c0-1.1,0.9-2,2-2s2,0.9,2,2c0,4.4,3.6,8,8,8c1.1,0,2,0.9,2,2S13.1,58,12,58z"/> </g> <g> <path class="st1" d="M46,58c-1.1,0-2-0.9-2-2s0.9-2,2-2c4.4,0,8-3.6,8-8c0-1.1,0.9-2,2-2s2,0.9,2,2C58,52.6,52.6,58,46,58z"/> </g> <g> <path class="st1" d="M56,14c-1.1,0-2-0.9-2-2c0-4.4-3.6-8-8-8c-1.1,0-2-0.9-2-2s0.9-2,2-2c6.6,0,12,5.4,12,12   C58,13.1,57.1,14,56,14z"/> </g> <path class="st1" d="M56,34H2c-1.1,0-2-0.9-2-2v0c0-1.1,0.9-2,2-2h54c1.1,0,2,0.9,2,2v0C58,33.1,57.1,34,56,34z"/> </svg>
+                <h6 class="card-title">{{ _('Scanning') }}</h6>
+            </div>
+        </a>
+    </div>
+</div>
+{% endif %}  
+
+
+
+    </div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+{% if container.type|lower == "wordpress" %}
+
+
+
+<script>
+    // Function to confirm removal
+    function confirmRemoveforWP(Id) {
+        // Send an AJAX request to the server to remove WordPress
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/wordpress/remove', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                    // Redirect to wp manager page
+                    window.location.href = '/wordpress';
+            }
+        };
+        xhr.send('id=' + Id);
+    }
+    
+        // Function to confirm detachment
+    function confirmDetach(Id) {
+        // Send an AJAX request to the server to remove WordPress
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/wordpress/detach', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Redirect to wp manager page
+                    window.location.href = '/wordpress';
+                } else {
+                    alert("{{ _('An error occurred while detaching WordPress.') }}");
+                }
+            }
+        };
+        xhr.send('id=' + Id);
+    }
+    
+    var loginCard = document.getElementById('loginCard');
+    var cardBody = document.getElementById('cardBody');
+    var spinner = document.getElementById('spinner');
+    var buttonText = document.getElementById('button_text');
+
+    // Function to handle the card click
+    loginCard.addEventListener('click', function () {
+        loginCard.disabled = true;
+        spinner.classList.remove('d-none');
+        buttonText.textContent = "{{ _('Redirecting...') }}";
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/get_login_link?domain={{ current_domain }}', true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                loginCard.disabled = false;
+                spinner.classList.add('d-none');
+                buttonText.innerHTML = `{{ _("Login as Admin") }} <i class="bi bi-box-arrow-in-right"></i>`;
+
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response && response.login_link) {
+                        // Open the login link in a new tab
+                        window.open(response.login_link, '_blank');
+                    }
+                }
+            }
+        };
+        xhr.send();
+    });
+</script>
+
+
+    <div class="modal fade" id="removeModal{{ container.id }}" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel{{ container.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeModalLabel{{ container.id }}">{{ _('Confirm WordPress Uninstall') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+                </div>
+                <div class="modal-body">
+                    {{ _('Are you sure you want to permanently remove the WordPress installation for') }} {{ container.website_name }} (http://{{ current_domain }})?
+                    <br><br>
+                    <p class="text-danger">{{ _('This will permanently delete all website files and the database.') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmRemoveforWP('{{ container.id }}')">{{ _('Confirm Uninstall') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="detachModal{{ container.id }}" tabindex="-1" role="dialog" aria-labelledby="detachModalLabel{{ container.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detachModalLabel{{ container.id }}">{{ _('Confirm WordPress Detach from WP Manager') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ _('Are you sure you want to detach the WordPress installation for') }} {{ container.website_name }} (http://{{ current_domain }}) {{ _('from the manager?') }}
+                    <br><br>
+                    <p class="text-danger">{{ _('This will only remove the website from the WP Manager without affecting the files or database') }}.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDetach('{{ container.id }}')">{{ _('Remove') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="backupModal" data-selected-domain="{{ current_domain }}" tabindex="-1" role="dialog" aria-labelledby="backupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="backupModalLabel">{{ _('Backup') }} {{ current_domain }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+<div class="modal-body">
+    <label class="checkbox-inline">
+        <input type="checkbox" id="backupDatabase" checked> {{ _('Backup Database') }}
+    </label>
+    <br>
+    <label class="checkbox-inline">
+        <input type="checkbox" id="backupFiles" checked> {{ _('Backup Files') }}
+    </label>
+</div>
+            <div id="backupResultMessage" class="mt-3 text-center"></div> <!-- Result message will be displayed here -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="runBackup">{{ _('Run Backup') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="restoreModal" data-selected-domain="{{ current_domain }}" tabindex="-1" role="dialog" aria-labelledby="restoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="restoreModalLabel">{{ _('Restore Backup') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Select a backup date to restore') }} {{ current_domain }}:</p>
+                <!-- List of available backup dates -->
+                <select class="form-control" id="restoreBackupDate">
+                </select>
+                <!-- Restore status -->
+                <div id="restoreStatus" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelRestore" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="confirmRestore">{{ _('Restore') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif container.type|lower == "mautic" %}
+
+<script>
+    // Function to confirm removal
+    function confirmRemoveForMautic(Id) {
+        // Send an AJAX request to the server to remove Mautic
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/mautic/remove', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Redirect to wp manager page
+                    window.location.href = '/mautic';
+                } else {
+                    alert("{{ _('An error occurred while removing Mautic.') }}");
+                }
+            }
+        };
+        xhr.send('id=' + Id);
+    }
+    
+        // Function to confirm detachment
+    function confirmDetach(Id) {
+        // Send an AJAX request to the server to remove Mautic
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/mautic/detach', true);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    // Redirect to wp manager page
+                    window.location.href = '/mautic';
+                } else {
+                    alert("{{ _('An error occurred while detaching Mautic.') }}");
+                }
+            }
+        };
+        xhr.send('id=' + Id);
+    }
+    
+</script>
+
+
+    <div class="modal fade" id="removeModal{{ container.id }}" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel{{ container.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="removeModalLabel{{ container.id }}">{{ _('Confirm Mautic Uninstall') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+                </div>
+                <div class="modal-body">
+                    {{ _('Are you sure you want to permanently remove the Mautic installation for') }} {{ container.website_name }} (http://{{ current_domain }})?
+                    <br><br>
+                    <p class="text-danger">{{ _('This will permanently delete all website files and the database.') }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmRemoveForMautic('{{ container.id }}')">{{ _('Confirm Uninstall') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="detachModal{{ container.id }}" tabindex="-1" role="dialog" aria-labelledby="detachModalLabel{{ container.id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detachModalLabel{{ container.id }}">{{ _('Confirm Mautic Detach from the Manager') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ _('Are you sure you want to detach the Mautic installation for') }} {{ container.website_name }} (http://{{ current_domain }}) {{ _('from the manager?') }}
+                    <br><br>
+                    <p class="text-danger">{{ _('This will only remove the website from the Mautic Manager without affecting the files or database') }}.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDetach('{{ container.id }}')">{{ _('Remove') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="backupModal" data-selected-domain="{{ current_domain }}" tabindex="-1" role="dialog" aria-labelledby="backupModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="backupModalLabel">{{ _('Backup') }} {{ current_domain }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+<div class="modal-body">
+    <label class="checkbox-inline">
+        <input type="checkbox" id="backupDatabase" checked> {{ _('Backup Database') }}
+    </label>
+    <br>
+    <label class="checkbox-inline">
+        <input type="checkbox" id="backupFiles" checked> {{ _('Backup Files') }}
+    </label>
+</div>
+            <div id="backupResultMessage" class="mt-3 text-center"></div> <!-- Result message will be displayed here -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="runBackup">{{ _('Run Backup') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="restoreModal" data-selected-domain="{{ current_domain }}" tabindex="-1" role="dialog" aria-labelledby="restoreModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="restoreModalLabel">{{ _('Restore Backup') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>{{ _('Select a backup date to restore') }} {{ current_domain }}:</p>
+                <!-- List of available backup dates -->
+                <select class="form-control" id="restoreBackupDate">
+                </select>
+                <!-- Restore status -->
+                <div id="restoreStatus" class="mt-3"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelRestore" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                <button type="button" class="btn btn-primary" id="confirmRestore">{{ _('Restore') }}</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endif %}
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var punycodeElements = document.querySelectorAll(".punycode");
+        punycodeElements.forEach(function(element) {
+            element.textContent = punycode.toUnicode(element.textContent);
+        });
+    });
+
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const domainElement = document.querySelector('.card-text .punycode.nije-link');
+    const faviconElement = document.getElementById('favicon');
+    const currentDomain = '{{ current_domain }}';
+
+    // Create the URL to the favicon
+    const faviconUrl = `https://www.google.com/s2/favicons?domain=${currentDomain}`;
+
+    // Create an img element and set its src to the favicon URL
+    const img = document.createElement('img');
+    img.src = faviconUrl;
+    img.alt = 'Favicon';
+    img.style.width = '16px';  // Optional: set the size of the favicon
+    img.style.height = '16px'; // Optional: set the size of the favicon
+
+    // Append the img element to the favicon span
+    faviconElement.appendChild(img);
+});
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+{% endif %}
+
+
+
+{% endblock %}

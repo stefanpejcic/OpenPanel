@@ -1,0 +1,912 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="input-group mb-3">
+<input type="text" class="form-control" name="new_rule" id="searchUFW" placeholder="Search by User, Port, IP..">
+        <button class="btn btn-primary mx-2" data-bs-toggle="modal" data-bs-target="#addRuleModal"><i class="bi bi-plus-lg"></i> Add Rule</button>
+    </div>
+    
+
+
+<!-- Add New Rule Form -->
+<div class="modal fade" id="addRuleModal" tabindex="-1" role="dialog" aria-labelledby="addRuleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add a new Firewall Rule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+        <form id="addRuleForm" method="POST" action="/security/firewall/add-rule">
+            <div class="form-group">
+                <label for="action">Action:</label>
+                <select class="form-control" id="action" name="action" required>
+                    <option value="allow">Allow</option>
+                    <option value="deny">Deny</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="input_data">Port or IP:</label>
+                <input type="text" class="form-control" id="input_data" name="input_data" required>
+            </div>
+            <div id="error-message" class="alert alert-danger" style="display: none;"></div>
+
+           </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-primary" id="addRuleButton">Add Rule</button>
+
+        </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+<script>
+    // Extract IP address from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const ipParam = urlParams.get('deny');
+    if (ipParam) {
+        // Fill the input field with the extracted IP address
+        document.getElementById('input_data').value = ipParam;
+
+        // Select "Deny" as action
+        document.getElementById('action').value = 'deny';
+
+        // Show the modal
+        const addRuleModal = new bootstrap.Modal(document.getElementById('addRuleModal'));
+        addRuleModal.show();
+    }
+
+</script>
+
+
+<script>
+$(document).ready(function() {
+    // Handle the click event of the "Add Rule" button
+    $('#addRuleButton').click(function() {
+        // Capture the form data
+        var formData = $('#addRuleForm').serialize();
+
+        // Send an AJAX request to add the rule
+        $.ajax({
+            type: 'POST',
+            url: '/security/firewall/add-rule',
+            data: formData,
+            success: function(data) {
+                // Handle success (e.g., display a success message)
+                // Close the modal or update the UI as needed
+                $('#addRuleModal').modal('hide');
+                // Reload the page to update the table
+                window.location.href = window.location.origin + window.location.pathname;
+            },
+            error: function(data) {
+                var errorMessage = "An error occurred: " + error;
+                // Display the error message to the user
+                $('#error-message').text(errorMessage);
+            }
+        });
+    });
+});
+</script>
+
+
+<!-- Bootstrap Tabs -->
+<ul class="nav nav-tabs" id="firewallTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" id="ipv4-tab" data-bs-toggle="tab" href="#ipv4" role="tab" aria-controls="ipv4" aria-selected="true" style="color:var(--bs-heading-color)!important;">IPv4</a>
+    </li>
+{% if is_ipv6_enabled %}
+    <li class="nav-item">
+        <a class="nav-link" id="ipv6-tab" data-bs-toggle="tab" href="#ipv6" role="tab" aria-controls="ipv6" aria-selected="false" style="color:var(--bs-heading-color)!important;">IPv6</a>
+    </li>
+{% endif %}
+
+{% if ipset_blacklist_exists %}
+    <li class="nav-item">
+        <a class="nav-link" id="blacklist-tab" data-bs-toggle="tab" href="#blacklist" role="tab" aria-controls="blacklist" aria-selected="false" style="color:var(--bs-heading-color)!important;">Blacklists <span class="badge badge-sm bg-green-lt text-uppercase ms-auto">New</span></a>
+    </li>
+{% endif %}
+
+    <li class="nav-item">
+        <a class="nav-link" id="settings-tab" data-bs-toggle="tab" href="#settings" role="tab" aria-controls="settings" aria-selected="false" style="color:var(--bs-heading-color)!important;">Settings</a>
+    </li>
+
+    <li class="nav-item">
+        <a class="nav-link" id="logs-tab" data-bs-toggle="tab" href="#logs" role="tab" aria-controls="logs" aria-selected="false" style="color:var(--bs-heading-color)!important;">Logs</a>
+    </li>
+
+</ul>
+
+<div class="tab-content" id="firewallTabsContent">
+    <!-- IPv4 Tab Content -->
+    <div class="tab-pane fade show active" id="ipv4" role="tabpanel" aria-labelledby="ipv4-tab">
+    
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Number</th>
+            <th>Action</th>
+            <!--th>Action Direction</th-->
+            <th>To Ports</th>
+            <th>To IP</th>
+            <th>Comment</th>
+            <th colspan="2">From IP</th>
+        </tr>
+    </thead>
+    <tbody>
+{% if firewall_rules %}
+        {% for rule in firewall_rules if rule.network_protocol == 'ipv4' %}
+        <tr data-rule-index="{{ rule.index }}" class="firewall-rule">
+            <td>{{ rule.index }}</td>
+            <td style="color: {% if rule.action == 'DENY' %}red{% else %}green{% endif %}">{{ rule.action }}</td>
+            <!--td>{{ rule.action_direction }}</td-->
+
+{% if rule.to_port_ranges %}
+        <td>
+            {% for range in rule.to_port_ranges %}
+                {% if range.start != 0 or range.end != 65535 %}
+                    {{ range.start }} - {{ range.end }}
+                    {% if not loop.last %}, {% endif %}
+                {% endif %}
+            {% endfor %}
+        </td>
+{% else %}
+            <td>{{ rule.to_ports|replace('[', '')|replace(']', '') }}</td>
+{% endif %}
+                        <td style="font-weight: {% if rule.to_ip not in ['0.0.0.0', '::'] %}bold{% endif %}">{{ rule.to_ip }}</td>
+
+            <td>
+                {% if rule.comment is not none %}
+                    {% if "Cloudflare IP" in rule.comment %}<img src="{{ url_for('static', filename='images/cf.png') }}" style="height:1em;"> {% endif %}
+                    {{ rule.comment }}
+                {% endif %}
+            </td>
+            <td style="font-weight: {% if rule.from_ip not in ['0.0.0.0', '::'] %}bold{% endif %}">
+{{ rule.from_ip }}{% if rule.from_ip_prefix|string != '0' and rule.from_ip_prefix|string != '32' %}/{{ rule.from_ip_prefix }}{% endif %}
+
+
+            </td>
+<td>
+    <a href="#" class="delete-rule-button" data-rule-index="{{ rule.index }}" data-rule-action="{{ rule.action }}" 
+        data-rule-to-ports="{% if rule.to_port_ranges %}{% for range in rule.to_port_ranges %}{% if range.start != 0 or range.end != 65535 %}{{ range.start }} - {{ range.end }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}{% else %}{{ rule.to_ports|replace('[', '')|replace(']', '') }}{% endif %}" 
+        data-rule-to-ip="{{ rule.to_ip }}" data-rule-comment="{{ rule.comment }}" data-rule-from-ip="{{ rule.from_ip }}">Delete</a>
+</td>
+
+
+        </tr>
+        {% endfor %}
+{% else %}
+                    <tr>
+                        <td colspan="7">
+                            <p>No IPv4 firewall rules found. <a href="#settings" class="open-settings-tab">Click here</a> to open the Settings tab and check if the UFW service is running.</p>
+                        </td>
+                    </tr>
+{% endif %}
+
+
+
+    </tbody>
+</table>
+    </div>
+
+
+{% if is_ipv6_enabled %}
+
+    <!-- IPv6 Tab Content -->
+    <div class="tab-pane fade" id="ipv6" role="tabpanel" aria-labelledby="ipv6-tab">
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Number</th>
+            <th>Action</th>
+            <!--th>Action Direction</th-->
+            <th>To Ports</th>
+            <th>To IP</th>
+            <th>User</th>
+            <th>From IP</th>
+        </tr>
+    </thead>
+    <tbody>
+{% if firewall_rules %}
+
+        {% for rule in firewall_rules if rule.network_protocol == 'ipv6' %}
+        <tr data-rule-index="{{ rule.index }}" class="firewall-rule">
+            <td>{{ rule.index }}</td>
+            <td style="color: {% if rule.action == 'DENY' %}red{% else %}green{% endif %}">{{ rule.action }}</td>
+            <!--td>{{ rule.action_direction }}</td-->
+
+{% if rule.to_port_ranges %}
+        <td>
+            {% for range in rule.to_port_ranges %}
+                {% if range.start != 0 or range.end != 65535 %}
+                    {{ range.start }} - {{ range.end }}
+                    {% if not loop.last %}, {% endif %}
+                {% endif %}
+            {% endfor %}
+        </td>
+{% else %}
+            <td>{{ rule.to_ports|replace('[', '')|replace(']', '') }}</td>
+{% endif %}
+                       <td style="font-weight: {% if rule.to_ip not in ['0.0.0.0', '::'] %}bold{% endif %}">{{ rule.to_ip }}</td>
+            <td>
+                {% if rule.comment is not none %}
+                {% if "Cloudflare IP" in rule.comment %}<img src="{{ url_for('static', filename='images/cf.png') }}" style="height:1em;"> {% endif %}
+                    {{ rule.comment }}
+                {% endif %}
+            </td>
+            <td style="font-weight: {% if rule.from_ip not in ['0.0.0.0', '::'] %}bold{% endif %}">
+{{ rule.from_ip }}{% if rule.from_ip_prefix|string != '0' %}/{{ rule.from_ip_prefix }}{% endif %}
+
+
+            </td>
+<td>
+    <a href="#" class="delete-rule-button" data-rule-index="{{ rule.index }}" data-rule-action="{{ rule.action }}" 
+        data-rule-to-ports="{% if rule.to_port_ranges %}{% for range in rule.to_port_ranges %}{% if range.start != 0 or range.end != 65535 %}{{ range.start }} - {{ range.end }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}{% else %}{{ rule.to_ports|replace('[', '')|replace(']', '') }}{% endif %}" 
+        data-rule-to-ip="{{ rule.to_ip }}" data-rule-comment="{{ rule.comment }}" data-rule-from-ip="{{ rule.from_ip }}">Delete</a>
+</td>
+        </tr>
+        {% endfor %}
+{% else %}
+                    <tr>
+                        <td colspan="7">
+                            <p>No IPv6 firewall rules found. <a href="#settings" class="open-settings-tab">Click here</a> to open the Settings tab and check if the UFW service is running.</p>
+                        </td>
+                    </tr>
+{% endif %}
+
+    </tbody>
+</table>
+    </div>
+{% endif %}
+
+
+{% if ipset_blacklist_exists %}
+    <div class="tab-pane fade" id="blacklist" role="tabpanel" aria-labelledby="blacklist-tab">
+    <div id="blacklists-table"></div>
+    </div>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Function to fetch blacklists data via AJAX
+  function fetchBlacklists() {
+    fetch('/security/firewall/blacklists')
+      .then(response => response.json())
+      .then(data => {
+        if (data.status === 'success') {
+          // Call function to build table
+          buildTable(data.content);
+        } else {
+          console.error('Error fetching blacklists:', data.message);
+        }
+      })
+      .catch(error => console.error('Error fetching blacklists:', error));
+  }
+
+  // Function to build Bootstrap table
+  function buildTable(data) {
+    const table = document.createElement('table');
+    table.classList.add('table');
+    table.classList.add('table-striped');
+
+    // Table header
+    const thead = table.createTHead();
+    const headerRow = thead.insertRow();
+    ['Name', 'URL', 'Status', 'Actions'].forEach(headerText => {
+        const headerCell = document.createElement('th');
+        headerCell.textContent = headerText;
+        headerRow.appendChild(headerCell);
+    });
+
+    // Table body
+    data.forEach(entry => {
+        const row = table.insertRow();
+        row.classList.add('align-middle'); // Add align-middle class to each row
+        ['name', 'url', 'status'].forEach(key => {
+        const cell = row.insertCell();
+        if (key === 'status') {
+            const badge = document.createElement('span');
+            badge.classList.add('badge', 'me-1');
+            if (entry[key] === 'enabled') {
+            badge.classList.add('bg-success');
+            badge.textContent = 'Enabled';
+            } else if (entry[key] === 'disabled') {
+            badge.classList.add('bg-danger');
+            badge.textContent = 'Disabled';
+            }
+            cell.appendChild(badge);
+        } else if (key === 'url' && entry['api_key']) {
+            cell.innerHTML = `<a href="${entry['url']}" target="_blank">${entry['url']}</a><br>API Key: <code>${entry['api_key']}</code>`;
+        } else if (key === 'url') {
+            cell.innerHTML = `<a href="${entry['url']}" target="_blank">${entry['url']}</a>`;
+        } else {
+            cell.textContent = entry[key] || '';
+        }
+        });
+      // Actions cell
+      const actionsCell = row.insertCell();
+      actionsCell.classList.add('text-end');
+      const actionText = entry['status'] === 'enabled' ? 'Disable' : 'Enable';
+      actionsCell.innerHTML = `
+        <span class="dropdown">
+          <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown">Actions</button>
+          <div class="dropdown-menu dropdown-menu-end">
+            <a class="dropdown-item" href="#">${actionText}</a>
+            <a class="dropdown-item" href="#">Delete</a>
+          </div>
+        </span>`;
+    });
+
+    // Clear existing table content
+    const tableContainer = document.getElementById('blacklists-table');
+    tableContainer.innerHTML = '';
+
+    // Append new table
+    tableContainer.appendChild(table);
+  }
+
+  // Function to fetch data when tab is clicked
+  document.getElementById('blacklist-tab').addEventListener('click', function() {
+    fetchBlacklists();
+  });
+
+  // Check URL hash on page load
+  if (window.location.hash === '#blacklist') {
+    fetchBlacklists();
+  }
+});
+</script>
+
+
+{% endif %}
+
+
+
+
+
+
+
+
+<div class="tab-pane fade" id="settings" role="tabpanel" aria-labelledby="settings-tab">
+
+    <div class="row mt-2">
+        <div class="col-md-4 col-lg-4">
+                        <div class="card">
+                        <div class="card-body p-4 text-center">
+                            <span class="avatar avatar-xl mb-3 rounded" id="ufw_status_icon"></span>
+                            <div class="text-secondary">Current firewall status:</div>
+                            <h3 class="m-0 mb-1"><span id="ufw_status"></span></h3>
+                            
+
+                        </div>
+                        <div class="d-flex">
+                            <a id="toggle-ufw" href="#" class="card-btn"></a>                  
+                        </div>
+                        </div>
+        </div>
+        <div class="col-md-4 col-lg-4">
+            <div class="card">
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">Settings</h5>
+                    <form id="ufw-settings-form">
+<div class="row g-2 mb-3">
+<label for="ipv6-input" class="mb-0 form-label">IPV6</label>
+    <div class="col">
+                            <select class="form-select" id="ipv6-input">
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+    </div>
+
+<div class="col-auto align-self-center"><span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-2'>Set to yes to apply rules to support IPv6 (no means only IPv6 on loopback accepted).</p><p class='mb-0'>You will need to 'disable' and then 'enable' the firewall for the changes to take affect.</p>" data-bs-html="true">?</span></div>
+
+</div>
+
+
+
+
+
+<div class="row g-2 mb-3">
+<label for="input-policy-input" class="mb-0 form-label">Default Input Policy</label>
+    <div class="col">
+                            <select class="form-select" id="input-policy-input">
+                                <option value="DROP">DROP</option>
+                                <option value="ACCEPT">ACCEPT</option>
+                                <option value="REJECT">REJECT</option>
+                            </select>
+    </div>
+
+<div class="col-auto align-self-center"><span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-2'>Set the default input policy to ACCEPT, DROP, or REJECT.</p><p class='mb-0'>Please note that if you change this you will most likely want to adjust your rules.</p>" data-bs-html="true">?</span></div>
+
+</div>
+
+
+<div class="row g-2 mb-3">
+<label for="output-policy-input" class="mb-0 form-label">Default Output Policy</label>
+    <div class="col">
+                            <select class="form-select" id="output-policy-input">
+                                <option value="DROP">DROP</option>
+                                <option value="ACCEPT">ACCEPT</option>
+                                <option value="REJECT">REJECT</option>
+                            </select>
+    </div>
+
+<div class="col-auto align-self-center"><span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-2'>Set the default input policy to ACCEPT, DROP, or REJECT.</p><p class='mb-0'>Please note that if you change this you will most likely want to adjust your rules.</p>" data-bs-html="true">?</span></div>
+
+</div>
+
+
+<div class="row g-2 mb-3">
+<label for="ipmi-status-input" class="mb-0 form-label">Allow ping (IPMI)</label>
+    <div class="col">
+                            <select class="form-select" id="ipmi-status-input">
+                                <option value="DROP">DROP</option>
+                                <option value="ACCEPT">ACCEPT</option>
+                            </select>
+    </div>
+
+<div class="col-auto align-self-center"><span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-2'>By default, UFW allows ping requests.</p><p class='mb-0'>You can leave (icmp) ping requests enabled to diagnose networking problems.</p>" data-bs-html="true">?</span></div>
+
+</div>
+
+
+                        <button type="button" class="btn btn-primary" id="save-ufw-settings">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+<div class="col-md-4 col-lg-4"><div class="card"><div class="card-body p-4"><h5 class="card-title mb-4">Tools</h5>
+    <div class="mb-3">
+
+
+    <div class="row g-2 align-items-center">
+                      <div class="col-6 font-weight-semibold">Export IPv4 rules</div>
+                      <div class="col-6 py-3">
+                        <a href="#" id="export-ipv4" class="btn w-100">
+                          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg> Download
+                        </a>
+                      </div>        
+    </div>
+
+    </div>
+    <div class="mb-3">
+
+    <div class="row g-2 align-items-center">
+                      <div class="col-6 font-weight-semibold">Export IPv6 rules</div>
+                      <div class="col-6 py-3">
+                        <a href="#" id="export-ipv6" class="btn w-100">
+                          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg> Download
+                        </a>
+                      </div>        
+    </div>
+
+    </div>
+    <div class="mb-3">
+    <div class="row g-2 align-items-center">
+                      <div class="col-6 font-weight-semibold">Restrict access to Cloudflare only</div>
+                      <div class="col-6 py-3">
+
+                        <a href="#" id="cloudflareButton" class="btn w-100" data-bs-toggle="modal" data-bs-target="#cloudflareModal"><img src="{{ url_for('static', filename='images/cf.png') }}" style="height:1em;"></img>Cloudflare Only
+                        </a>
+                      </div>        
+    </div>
+    </div>
+    <div class="mb-3">
+    <div class="row g-2 align-items-center">
+                      <div class="col-6 font-weight-semibold">Reset ports for all users</div>
+                      <div class="col-6 py-3">
+                        <a href="#" id="reset-user-ports" class="btn w-100">
+                          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-rotate-rectangle"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988" /><path d="M7.05 11.038v-3.988" /></svg> Re-open User ports
+                        </a>
+                      </div>        
+    </div>
+    </div>
+
+<!-- Cloudflare modal form -->
+   <div class="modal modal-blur fade" id="cloudflareModal" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Allow only Cloudflare access to this server and block all other requests</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+
+    {% if cloudflare_status %}
+        <p>Cloudflare rules are enabled in UFW.</p>
+    {% else %}
+Here, you can block access to this server for traffic not coming from Cloudflare IP addresses. This will prevent direct access to the server IP and only allow traffic from <a href="https://www.cloudflare.com/ips/" target="_blank">Cloudflare's IPv4 and IPv6 lists</a>.<br>
+<br>
+<pre>
+                                                          OpenPanel server
+                                                   _____________________________
+    __________________________________            |     |                       |
+   |                                  |           |  F  |                       |
+-->| Traffic comming from Cloudflare  |---------->|  I  |        Websites       |
+   |__________________________________|           |  R  |                       |
+    __________________________________            |  E  |           &           |
+   |                                  |           |  W  |                       |
+-->|    Direct access to server IP    |----------X|  A  |      User services    |
+   |__________________________________|           |  L  |                       |
+                                                  |  L  |                       |
+                                                  |_____|_______________________| 
+</pre>
+
+This is useful when your domains are configured to use the Cloudflare proxy, and you want to block direct access that bypasses Cloudflare's protection.<br>
+<br><b>This setting affects all users and their services</b>.<br>
+<br>Before activating, ensure you whitelist your own IP address <code id="userIP"></code>.
+    {% endif %}
+
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn me-auto" data-bs-dismiss="modal">Cancel</button>
+            <form method="POST" action="/security/firewall">    
+            {% if cloudflare_status %}
+            <script>
+                document.getElementById('cloudflareButton').addEventListener('click', function() {
+                    // Make a request to the IP service
+                    fetch('https://ip.openpanel.com')
+                        .then(response => response.text())
+                        .then(data => {
+                            // Display the user's IP address
+                            document.getElementById('userIP').innerText = data.trim(); // Trim whitespace
+                        })
+                        .catch(error => {
+                            console.error('Error fetching IP:', error);
+                            document.getElementById('userIP').innerText = '';
+                        });
+                });
+            </script>
+   
+            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" name="action" value="disable-cloudflare">Disable Cloudflare restrictions</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary" data-bs-dismiss="modal" name="action" value="enable-cloudflare">Restrict access to Cloudflare only</button>
+        {% endif %}
+        </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+</div></div></div>
+
+    </div>
+
+
+
+
+<script>
+
+$(document).ready(function () {
+    const activeSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shield-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11.46 20.846a12 12 0 0 1 -7.96 -14.846a12 12 0 0 0 8.5 -3a12 12 0 0 0 8.5 3a12 12 0 0 1 -.09 7.06" /><path d="M15 19l2 2l4 -4" /></svg>`;
+    const inactiveSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-shield-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M17.67 17.667a12 12 0 0 1 -5.67 3.333a12 12 0 0 1 -8.5 -15c.794 .036 1.583 -.006 2.357 -.124m3.128 -.926a11.997 11.997 0 0 0 3.015 -1.95a12 12 0 0 0 8.5 3a12 12 0 0 1 -1.116 9.376" /><path d="M3 3l18 18" /></svg>`;
+
+    function updateUfwStatus(status) {
+        $('#ufw_status').text(status);
+        $('#ufw_status_icon').html(status === 'active' ? activeSVG : inactiveSVG);
+        $('#toggle-ufw').text(status === 'active' ? 'Disable UFW' : 'Enable UFW');
+        $('#ufw_status').toggleClass('text-success', status === 'active').toggleClass('text-danger', status !== 'active');
+    }
+        function toggleUfw() {
+            const action = $('#toggle-ufw').text() === 'Enable UFW' ? 'enable' : 'disable';
+            $.ajax({
+                url: '/security/firewall/manage',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ action: action }),
+                success: function (data) {
+                    alert((action === 'enable' ? 'Enabled' : 'Disabled') + ' UFW');
+                    window.location.href = '/security/firewall?ipv4';
+                },
+                error: function (error) {
+                    alert('Error ' + (action === 'enable' ? 'enabling' : 'disabling') + ' UFW');
+                }
+            });
+        }
+
+        $('#toggle-ufw').on('click', toggleUfw);
+
+        $('.open-settings-tab').on('click', function (e) {
+            e.preventDefault();
+            $('#settings-tab').tab('show');
+            $.ajax({
+                url: '/security/firewall/manage',
+                type: 'GET',
+                success: function (data) {
+                    updateUfwStatus(data.ufw.status);
+                    // Fill in settings
+                    const settings = data.ufw.settings;
+                    $('#ipv6-input').val(settings['IPV6']).change();
+                    $('#input-policy-input').val(settings['DEFAULT_INPUT_POLICY']).change();
+                    $('#output-policy-input').val(settings['DEFAULT_OUTPUT_POLICY']).change();
+                    $('#ipmi-status-input').val(settings['IPMI_STATUS']).change();
+
+                },
+                error: function (error) {
+                    $('#ufw_status').text('Error fetching UFW status');
+                }
+            });
+        });
+
+
+        // Fetch initial firewall status and settings
+        $.ajax({
+            url: '/security/firewall/manage',
+            type: 'GET',
+            success: function (data) {
+                updateUfwStatus(data.ufw.status);
+                // Fill in settings
+                const settings = data.ufw.settings;
+                    $('#ipv6-input').val(settings['IPV6']).change();
+                    $('#input-policy-input').val(settings['DEFAULT_INPUT_POLICY']).change();
+                    $('#output-policy-input').val(settings['DEFAULT_OUTPUT_POLICY']).change();
+                    $('#ipmi-status-input').val(settings['IPMI']).change();
+            },
+            error: function (error) {
+                $('#ufw_status').text('Error fetching UFW status');
+            }
+        });
+
+        // Save settings
+        $('#save-ufw-settings').on('click', function () {
+            const ipv6 = $('#ipv6-input').val();
+            const inputPolicy = $('#input-policy-input').val();
+            const outputPolicy = $('#output-policy-input').val();
+            const ipmiStatus = $('#ipmi-status-input').val();
+
+            const settings = {
+                IPV6: ipv6,
+                DEFAULT_INPUT_POLICY: inputPolicy,
+                DEFAULT_OUTPUT_POLICY: outputPolicy,
+                IPMI_STATUS: ipmiStatus
+            };
+
+            $.ajax({
+                url: '/security/firewall/manage',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ settings: settings }),
+                success: function (data) {
+                    alert('Settings saved successfully');
+                    // Optionally, update displayed settings if needed
+                },
+                error: function (error) {
+                    alert('Error saving settings');
+                }
+            });
+        });
+
+
+        // Function to handle AJAX requests
+        function sendRequest(action) {
+            fetch('/security/firewall/manage', {
+                method: 'POST',
+                headers: {
+                    //'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action: action })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                if (action === 'reset-openpanel-user-ports') {
+                    // Show a message indicating the process has started
+                    alert('Started removing existing rules and opening ports for all OpenPanel users. Depending on the number of users, this process can take up to 5 minutes...');
+                } else {
+                    // Generate filename with timestamp
+                    const timestamp = new Date().toISOString().replace(/[-:.]/g, '');
+                    const filename = `${action}_rules_${timestamp}.txt`;
+
+                    // Create a temporary URL for the blob
+                    const url = window.URL.createObjectURL(blob);
+                    // Create a temporary anchor element to trigger the download
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename; // Set the filename
+                    document.body.appendChild(a); // Append anchor to body
+                    a.click(); // Click the anchor to trigger download
+                    // Cleanup
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
+        // Event listeners for each action link
+        document.getElementById('export-ipv4').addEventListener('click', function(event) {
+            event.preventDefault();
+            sendRequest('export_ipv4');
+        });
+
+        document.getElementById('export-ipv6').addEventListener('click', function(event) {
+            event.preventDefault();
+            sendRequest('export_ipv6');
+        });
+
+        document.getElementById('reset-user-ports').addEventListener('click', function(event) {
+            event.preventDefault();
+            sendRequest('reset-openpanel-user-ports');
+        });
+    });
+</script>
+</div>
+
+
+
+    <div class="tab-pane fade" id="logs" role="tabpanel" aria-labelledby="logs-tab">
+<pre id="log-output"></pre>
+
+<script>
+$(document).ready(function () {
+    // Function to filter table rows based on the search input
+    function filterTableRows() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchUFW");
+        filter = input.value.toUpperCase();
+        table = document.querySelector(".tab-pane.active table"); // Select the active table
+        
+        if (table) {
+            tr = table.getElementsByClassName("firewall-rule");
+            
+            if (tr) {
+                for (i = 0; i < tr.length; i++) {
+                    var visible = false;
+                    for (j = 0; j < tr[i].getElementsByTagName("td").length; j++) {
+                        td = tr[i].getElementsByTagName("td")[j];
+                        if (td) {
+                            txtValue = td.textContent || td.innerText;
+                            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                                visible = true;
+                                break; // If a match is found in any td, mark the row as visible and break the inner loop.
+                            }
+                        }
+                    }
+                    tr[i].style.display = visible ? "" : "none";
+                }
+            }
+        }
+    }
+
+    // Function to fetch and update the log content
+    function fetchUfwLog() {
+        $.get('/json/ufw-log', function (data) {
+            // Update the <pre> tag with the log content
+            $('#log-output').text(data.ufw_log.join('\n'));
+        });
+    }
+
+    // Event handler for the "input" event on the search input
+    $("#searchUFW").on("input", function () {
+        // Get the search input value
+        var searchValue = $(this).val();
+
+        // Update the URL with the search query parameter
+        var url = new URL(window.location.href);
+        url.searchParams.set("search", searchValue);
+        history.replaceState(null, null, url.toString());
+
+        // Call the filter function
+        filterTableRows();
+    });
+
+    // Event handler for the "click" event on tabs
+    $('#firewallTabs a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+        // Reset the search input and filter the table
+        $("#searchUFW").val("");
+        filterTableRows();
+    });
+
+    // Event handler for the "Logs" tab
+    $('#logs-tab').click(function (event) {
+        // Prevent the default link behavior (e.g., navigating to another page)
+        event.preventDefault();
+
+        // Fetch the UFW log when the link is clicked
+        fetchUfwLog();
+    });
+
+    // Check for search query parameter in the URL on page load
+    var url = new URL(window.location.href);
+    var searchParam = url.searchParams.get("search");
+    if (searchParam !== null) {
+        // Set the search input value and filter the table
+        $("#searchUFW").val(searchParam);
+        filterTableRows();
+    }
+});
+</script>
+
+
+    </div>
+
+
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="confirmDeleteModalBody">
+                <!-- Rule information will be populated here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// When the "Delete" button is clicked, show the confirmation modal
+$('.delete-rule-button').click(function () {
+    var ruleIndex = $(this).data('rule-index');
+    var ruleAction = $(this).data('rule-action');
+    var ruleToPorts = $(this).data('rule-to-ports');
+    var ruleToIp = $(this).data('rule-to-ip');
+    var ruleComment = $(this).data('rule-comment');
+    var ruleFromIp = $(this).data('rule-from-ip');
+
+    // Populate the modal content with the rule information
+    $('#confirmDeleteModalLabel').text('Confirm Deletion of UFW Rule ' + ruleIndex);
+    $('#confirmDeleteModalBody').html(
+        '<p><strong>Action:</strong> ' + ruleAction + '</p>' +
+        '<p><strong>To Ports:</strong> ' + ruleToPorts + '</p>' +
+        '<p><strong>To IP:</strong> ' + ruleToIp + '</p>' +
+        '<p><strong>User:</strong> ' + ruleComment + '</p>' +
+        '<p><strong>From IP:</strong> ' + ruleFromIp + '</p>'
+    );
+
+    $('#confirmDeleteButton').attr('data-rule-index', ruleIndex); // Store the rule index in the modal
+    $('#confirmDeleteModal').modal('show');
+});
+
+
+    // When the "Delete" button inside the modal is clicked, send the delete request
+    $('#confirmDeleteButton').click(function () {
+        var ruleIndex = $(this).data('rule-index');
+        $.ajax({
+            type: 'POST',
+            url: '/security/firewall/delete-rule/' + ruleIndex,
+            success: function (data) {
+                // Handle success as needed
+                $('#confirmDeleteModal').modal('hide');
+
+                // Remove the deleted row from the table
+                $('tr[data-rule-index="' + ruleIndex + '"]').remove();
+            },
+            error: function (data) {
+                // Handle error if the deletion fails
+                $('#confirmDeleteModal').modal('hide');
+                // Add code to display an error message or handle the error gracefully
+            }
+        });
+    });
+
+
+</script>
+
+
+{% endblock %}

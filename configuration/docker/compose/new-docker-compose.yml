@@ -19,12 +19,26 @@ services:
     cpus: 1.0
     oom_kill_disable: true
 
+  # Malware Scanner used from user panel
+  clamav:
+    image: clamav/clamav:latest
+    container_name: clamav
+    volumes:
+      - /home:/home
+      - ./clamav-db:/var/lib/clamav
+    restart: unless-stopped
+    environment:
+      - CLAMD_STARTUP_DELAY=30
+    mem_limit: 0.25g
+    cpus: 0.25
+
   # OpenPanel service running on port 2083
   openpanel:
     image: openpanel/openpanel
     container_name: openpanel
     depends_on:
       - openpanel_mysql
+      #- clamav
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -53,6 +67,8 @@ services:
       - /etc/openpanel/openpanel/custom_code/custom.css:/usr/local/panel/static/css/custom.css
       - /etc/openpanel/openpanel/custom_code/custom.js:/usr/local/panel/static/js/custom.js
       - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
+      # localization
+      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/
     network_mode: host
     mem_limit: 1g
     cpus: 1.0

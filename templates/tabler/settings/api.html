@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <!-- Page header -->
+        <div class="page-header mt-0 d-print-none">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+                <div class="page-pretitle">
+                  Settings
+                </div>
+                <h2 class="page-title">
+                  API
+                </h2>
+              </div>
+              <!-- Page title actions -->
+              <div class="col-auto ms-auto d-print-none">
+                {% if api_status_current_value == 'on' %}
+                <a href="#" id="post_to_disable_api_access" class="btn btn-primary">
+<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg>Disable API access
+                </a>
+                <button class="btn btn-transparent" type="button" onclick="getDockerInfo()">Examples</button>
+
+
+<script>
+    function getDockerInfo() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "/settings/api/endpoints", true);
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var dockerInfo = xhr.responseText;
+                displayDockerInfo(dockerInfo);
+            }
+        };
+        xhr.send();
+    }
+
+    function displayDockerInfo(info) {
+        var dockerInfoContent = document.getElementById("dockerInfoContent");
+        dockerInfoContent.textContent = info;
+
+        // Show modal
+        var dockerInfoModal = new bootstrap.Modal(document.getElementById('dockerInfoModal'));
+        dockerInfoModal.show();
+    }
+</script>
+
+    <!-- modal for available endpoints -->
+    <div class="modal fade" id="dockerInfoModal" tabindex="-1" aria-labelledby="dockerInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="dockerInfoModalLabel">API Endpoints with examples</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <pre id="dockerInfoContent"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+
+        
+        <!-- Page body -->
+        <div class="page-body">
+
+<div class="container-xl">
+
+{% if basic_auth_enabled == 'on' %}
+
+
+
+<div class="container-xl d-flex flex-column justify-content-center">
+            <div class="empty">
+              <div class="empty-img"><svg  xmlns="http://www.w3.org/2000/svg"  width="128"  height="128"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon-tabler icons-tabler-outline icon-tabler-api-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-4m0 -4h3a2 2 0 0 1 2 2v1c0 .554 -.225 1.055 -.589 1.417m-3.411 .583h-1" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /><path d="M3 3l18 18" /></svg>
+              </div>
+                <p class="empty-title">API Access is Disabled because BasicAuth is enabled</p>
+                <p class="empty-subtitle text-secondary">
+                  To enable API access please first disable Basic Authentication on <a href="/settings/open-admin"> OpenAdmin Settings</a>.
+                </p>
+                <p class="empty-subtitle text-secondary">
+                  Be sure to consult the <a href="https://dev.openpanel.co/api/#troubleshooting" target="_blank">API Documentation</a> before proceeding.
+                </p>
+              <div class="empty-action">
+                <a href="/settings/open-admin" class="btn btn-primary">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-toggle-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M2 6m0 6a6 6 0 0 1 6 -6h8a6 6 0 0 1 6 6v0a6 6 0 0 1 -6 6h-8a6 6 0 0 1 -6 -6z" /></svg>
+                  Disable HTTP BasicAuth
+                </a>
+              </div>
+            </div>
+          </div>
+
+<script src="{{ url_for('static', filename='pages/api_off.js') }}" defer></script>
+
+</div>
+
+
+
+
+{% elif api_status_current_value == 'on' %}
+
+            <div class="row row-cards">
+
+
+
+
+
+
+<div class="col-12">
+    <form id="httpRequestForm">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">HTTP Request</h3>
+                    </div>
+                    <div class="card-body">
+                      <div class="row row-cards">
+                        <div class="mb-3 col-sm-4 col-md-2">
+
+                <div class="row g-2">
+                <div class="col"><label class="form-label required">Method</label></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p>Different methods should be used depending on the action.</p><p class='mb-0'>Please check the <a href='https://dev.openpanel.com/api/#Complete-list-of-API-Endpoints' target='_blank'>API documentation</a>.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+
+
+
+
+                          <select name='method' class="form-select">
+                            <option value="GET">GET</option>
+                            <option value="POST">POST</option>
+                            <option value="PUT">PUT</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="PATCH">PATCH</option>
+                          </select>
+                        </div>
+                        <div class="mb-3 col-sm-8 col-md-10">
+
+                <div class="row g-2">
+                <div class="col"><label class="form-label required">URL</label></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p>Please refer to the API documentation for the specific URL to send the request to.</p><p class='mb-0'>You can find the complete list of API endpoints by clicking on 'Examples' button above.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+
+                            <div class="input-group input-group-flat">
+                              <span class="input-group-text">
+                                /api/
+                              </span>
+                              <input type="text" name="url" class="form-control ps-0" autocomplete="off">
+                            </div>
+                        </div>
+
+                        <div id="username" class="mb-3 col-sm-6 col-md-6" style="display:none;">
+                <div class="row g-2">
+                <div class="col"><label class="form-label">Username</label></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>A username is necessary for authentication and the creation of a JWT token.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+                              <input type="text" name="username" class="form-control" autocomplete="off" value="{{ current_user.username }}">
+                        </div>
+                        <div id="password" class="mb-3 col-sm-6 col-md-6" style="display:none;">
+                <div class="row g-2">
+                <div class="col"><label class="form-label">Password</label></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>A password is required for authentication and to generate a JWT token.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+                              <input type="password" name="password" class="form-control" autocomplete="off">
+                        </div>
+                        <div id="token" class="mb-3 col-sm-12 col-md-12" style="display:none;">
+                <div class="row g-2">
+                <div class="col"><label class="form-label">Token</label></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>A token is required for authentication when making API requests.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+                              <input type="text" name="token" class="form-control" autocomplete="off">
+                        </div>
+                      </div>
+                <div class="row g-2">
+                <div class="col"><label class="form-label">Data</label></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>For POST, PUT, DELETE, and PATCH methods, add <b>key:value</b> pairs.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+                      <textarea class="form-control json_data" rows="5"></textarea>
+                    </div>
+                    <div class="card-footer text-end">
+<button type="submit" id="submit_button" class="btn btn-primary">Send request</button>
+
+<button id="working" style="display:none;" class="btn btn-primary" disabled><span class="spinner-border spinner-border-sm" role="status"></span> Working</button>
+
+
+                    </div>
+                  </div>
+    </form>
+                </div>
+
+          </div>
+</div>
+
+
+<div class="container-xl mt-4">
+            <div class="card">
+              <div class="card-body">
+                <div class="row g-2">
+                <div class="col"><h4>Curl command</h4></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>Execute this command from a remote server to carry out operations on OpenAdmin.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+                    <pre id="requestDetails">GET /api/</pre>
+              </div>
+            </div>
+</div>
+
+
+<div class="container-xl mt-4">
+            <div class="card">
+              <div class="card-body">
+                <div class="row g-2">
+                <div class="col"><h4>Response</h4></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>The actual output from an API call on this server.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+                    <pre id="responseDisplay">
+{
+  "message": "API is working!"
+}
+</pre>
+              </div>
+            </div>
+</div>
+
+
+<div class="container-xl mt-4">
+            <div class="card" style="height: 30rem">
+                    <div class="card-header" style="display: block;">
+                <div class="row g-2">
+                <div class="col"><h3 class="card-title">API logs</h3></div>
+                <div class="col-auto align-self-center">
+                <span class="form-help" data-bs-toggle="popover" data-bs-placement="top" data-bs-content="<p class='mb-0'>Each interaction with the API, including both requests and responses, is documented in a log file.</p>" data-bs-html="true">?</span>
+                </div>
+                </div>
+
+
+                    </div>
+              <div class="card-body card-body-scrollable card-body-scrollable-shadow">
+
+                <div class="divide-y">
+                    <pre id="log_content"></pre>
+                </div>
+              </div>
+            </div>
+</div>
+
+<script src="{{ url_for('static', filename='pages/api_on.js') }}" defer></script>
+
+{% else %}
+
+
+<div class="container-xl d-flex flex-column justify-content-center">
+            <div class="empty">
+              <div class="empty-img"><svg  xmlns="http://www.w3.org/2000/svg"  width="128"  height="128"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon-tabler icons-tabler-outline icon-tabler-api-off"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-4m0 -4h3a2 2 0 0 1 2 2v1c0 .554 -.225 1.055 -.589 1.417m-3.411 .583h-1" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /><path d="M3 3l18 18" /></svg>
+              </div>
+                <p class="empty-title">API Access Disabled</p>
+                <p class="empty-subtitle text-secondary">
+                  Enable API access to create and manage users and plans.
+                </p>
+                <p class="empty-subtitle text-secondary">
+                  Be sure to consult the <a href="https://dev.openpanel.com/api/" target="_blank">API Documentation</a> before proceeding.
+                </p>
+              <div class="empty-action">
+                <a href="#" id="post_to_enable_api_access" class="btn btn-primary">
+                  <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-toggle-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" /><path d="M2 6m0 6a6 6 0 0 1 6 -6h8a6 6 0 0 1 6 6v0a6 6 0 0 1 -6 6h-8a6 6 0 0 1 -6 -6z" /></svg>
+                  Enable API access
+                </a>
+              </div>
+            </div>
+          </div>
+
+<script src="{{ url_for('static', filename='pages/api_off.js') }}" defer></script>
+
+</div>
+
+{% endif %}        
+</div>
+
+{% endblock %}

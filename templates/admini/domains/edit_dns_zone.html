@@ -1,0 +1,752 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div>
+      {% if domain %}
+          <!-- Content to display when domain is provided -->
+<style> 
+.header { position: sticky; top:-1px; z-index:1;} 
+</style> 
+
+  <p>{{ _('The DNS Zone Editor feature allows you to create, edit, and delete Domain Name System (DNS) zone records.') }}</p>
+  
+<input type="text" id="serial_number_current" value="{{ serial }}" hidden>
+
+
+
+{% if view_mode == 'table' %}
+
+
+
+  <script type="module">
+async function DomainNewRow() {
+      // Get references to elements
+      const addRecordButton = document.getElementById("AddDNSRecord");
+      const addRecordRow = document.getElementById("addRecordRow");
+  
+      // Hide the addRecordRow initially
+      addRecordRow.style.display = "none";
+  
+      // Toggle the visibility of addRecordRow when the button is clicked
+      addRecordButton.addEventListener("click", function() {
+          if (addRecordRow.style.display === "none") {
+              addRecordRow.style.display = "table-row";
+          } else {
+              addRecordRow.style.display = "none";
+          }
+      });
+  
+      // Get references to search input and display settings div
+      const searchDomainInput = document.getElementById("searchDomainInput");
+  
+      // Get all domain rows to be used for filtering
+      const domainRows = document.querySelectorAll(".domain_row");
+  
+      // Handle search input changes
+      searchDomainInput.addEventListener("input", function() {
+          const searchTerm = searchDomainInput.value.trim().toLowerCase();
+  
+          // Loop through domain rows and hide/show based on search term
+          domainRows.forEach(function(row) {
+              const domainNameElement = row.querySelector("td:nth-child(1)");
+  
+              // Check if domainNameElement exists before accessing its textContent
+              if (domainNameElement) {
+                  const domainName = domainNameElement.textContent.toLowerCase();
+                  const domainUrl = row.querySelector("td:nth-child(4)").textContent.toLowerCase();
+  
+                  // Show row if search term matches domain name or domain URL, otherwise hide it
+                  if (domainName.includes(searchTerm) || domainUrl.includes(searchTerm)) {
+                      row.style.display = "table-row";
+                  } else {
+                      row.style.display = "none";
+                  }
+              }
+          });
+      });
+  
+      // Get reference to the "CancelDNSRecord" button
+      const cancelDNSRecordButton = document.getElementById("CancelDNSRecord");
+  
+      // Handle click event on the "CancelDNSRecord" button
+      cancelDNSRecordButton.addEventListener("click", function() {
+          // Hide the addRecordRow
+          addRecordRow.style.display = "none";
+  
+          // Clear input fields
+          const inputFields = addRecordRow.querySelectorAll("input");
+          inputFields.forEach(function(inputField) {
+              inputField.value = "";
+          });
+      });
+  
+  
+  };
+
+DomainNewRow();
+
+</script>
+  
+  <style>
+  thead {
+          border: 1px solid rgb(90 86 86 / 11%);
+  }
+  th {
+      text-transform: uppercase;
+      font-weight: 400;
+  
+  }
+  
+  </style>
+          <!-- Search bar -->
+          <div class="input-group mb-3" style="padding-left:0px;padding-right:0px;">
+              <input type="text" class="form-control" placeholder="{{ _('Search records') }}" id="searchDomainInput">
+          </div>
+          <table class="table">
+            <thead>
+                <tr>
+                    <th class="header">{{ _('Name') }}</th>
+                    <th class="header">{{ _('TTL') }}</th>
+                    <th class="header">{{ _('Type') }}</th>
+                    <th class="header">{{ _('Record') }}</th>
+                    <th class="header">{{ _('Actions') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr class="hidden" id="addRecordRow" style="display: none; background: #3c63bb17;">
+                <form method="POST" action="/domains/dns/add-record/">
+                    <td>
+                        <input type="text" name="Name" class="form-control" placeholder="" aria-label="{{ _('Name') }}" aria-describedby="Name" required pattern="^[A-Za-z0-9.@_-]+$">
+                    </td>
+                    <td>
+                        <input type="number" name="TTL" class="form-control" placeholder="" aria-label="{{ _('TTL') }}" aria-describedby="TTL" required min="60" value="14400">
+                    </td>
+                    <td>
+                        <select name="Type" class="form-select" required onchange="updateForm()">
+                            <option value="A">{{ _('A') }}</option>
+                            <option value="AAAA">{{ _('AAAA') }}</option>
+                            <option value="CAA">{{ _('CAA') }}</option>
+                            <option value="CNAME">{{ _('CNAME') }}</option>
+                            <option value="MX">{{ _('MX') }}</option>
+                            <option value="SRV">{{ _('SRV') }}</option>
+                            <option value="TXT">{{ _('TXT') }}</option>
+                        </select>
+                        <input type="text" name="IN" class="form-control" placeholder="" aria-label="{{ _('IN') }}" aria-describedby="IN" required value="IN" hidden>
+                    </td>
+                    <td>
+                        <input type="text" name="Priority" class="form-control" placeholder="0" aria-label="{{ _('Priority') }}" aria-describedby="Priority" style="display:none;">
+                        <input type="text" name="Record" class="form-control" placeholder="" aria-label="{{ _('Record') }}" aria-describedby="Record" required>
+                        <input type="text" name="Domain" class="form-control" placeholder="" aria-label="" aria-describedby="" required value="{{domain}}" hidden>
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-primary" id="save-row">{{ _('Save Record') }}</button>
+                        <button type="button" class="btn btn-transparent cancel-row" id="CancelDNSRecord" style="">{{ _('Cancel') }}</button>            
+                    </td>
+                </form>
+            </tr>
+          
+            <script>
+                function updateForm() {
+                    var selectedType = document.getElementsByName("Type")[0].value;
+                    var recordInput = document.getElementsByName("Record")[0];
+                    var priorityInput = document.getElementsByName("Priority")[0];
+            
+                    if (selectedType === "A") {
+                        recordInput.placeholder = "IPv4 {{ _('Address') }}";
+                        recordInput.pattern = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
+                    } else if (selectedType === "AAAA") {
+                        recordInput.placeholder = "IPv6 {{ _('Address') }}";
+                        recordInput.pattern = "^(?:(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|(?:(?:[0-9A-Fa-f]{1,4}:){6}|::" +
+                                               "(?:[0-9A-Fa-f]{1,4}:){5}|(?:[0-9A-Fa-f]{1,4}:){4}(?::[0-9A-Fa-f]{1,4})?" +
+                                               "|(?:[0-9A-Fa-f]{1,4}:){3}(?::[0-9A-Fa-f]{1,4}){0,2}|(?:[0-9A-Fa-f]{1,4}:){2}" +
+                                               "(?::[0-9A-Fa-f]{1,4}){0,3}|[0-9A-Fa-f]{1,4}:(?:(?::[0-9A-Fa-f]{1,4}){0,4}|" +
+                                               ":...(?::[0-9A-Fa-f]{1,4}){0,3})|:(?:(?::[0-9A-Fa-f]{1,4}){0,5}|" +
+                                               ":...(?::[0-9A-Fa-f]{1,4}){0,2})|::(?:(?::[0-9A-Fa-f]{1,4}){0,6}|" +
+                                               ":...[0-9A-Fa-f]{1,4}))$";
+                    } else if (selectedType === "CNAME") {
+                        recordInput.placeholder = "{{ _('Domain') }}";
+                        recordInput.pattern = "^[A-Za-z0-9.-]+$";
+                    } else if (selectedType === "TXT") {
+                        recordInput.removeAttribute("pattern");
+                    } else {
+                        recordInput.placeholder = "";
+                        recordInput.pattern = "";
+                    }
+            
+                    if (selectedType === "MX") {
+                        priorityInput.style.display = "block";
+                        recordInput.placeholder = "{{ _('Domain') }}";
+                        recordInput.pattern = "^[A-Za-z0-9.-]+$";
+                        priorityInput.value = "0";
+                        priorityInput.required = true;
+                    } else {
+                        priorityInput.style.display = "none";
+                        priorityInput.required = false;
+                    }
+                }
+            
+                // Initial call to set up the form based on the default value of the Type dropdown
+                updateForm();
+            </script>
+
+            
+            
+{% for item in dnszone_with_line_numbers %}
+    {% if item.line %}
+        <tr class="domain_row">
+
+            <!-- Split the line part into values -->
+            {% set values = item.line.split(maxsplit=4) %}
+            
+            <!-- Check if 'SOA' is not present in the third value -->
+            {% if 'SOA' not in values[3] %}
+                <td>
+                    <div class="row" style="align-content: space-between;">
+                        <span class="col" style="font-weight: bold;">{{ values[0] if values|length > 0 else '' }}</span>
+                    {% if item.comment %}
+                        <span class="col-auto" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ item.comment }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M8 9h8"></path>
+                                <path d="M8 13h6"></path>
+                                <path d="M9 18h-3a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-3l-3 3l-3 -3z"></path>
+                            </svg>
+                        </span>
+                    {% endif %}
+                    </div>
+                </td>
+                <td>{{ values[1] if values|length > 1 else '' }}</td>
+                <td>{{ values[3] if values|length > 3 else '' }}</td>
+                <td style="font-weight: bold; width: 50%; overflow: hidden !important; text-overflow: ellipsis; word-break: break-all;">
+                    {% if values|length > 4 %}
+                        {% set last_value = values[4] %}
+                        {{ last_value.strip('"') if last_value.startswith('"') and last_value.endswith('"') else values[4:]|join(' ') }}
+                    {% else %}
+                        {{ values[4] if values|length > 4 else '' }}
+                    {% endif %}
+                </td>
+                <td>
+                    <button class="btn btn-outline-primary edit-button" data-line="{{ item.line }}" data-line-number="{{ item.line_number }}" data-domain="{{ domain }}">
+                        <i class="bi bi-pencil-fill"></i><span class="desktop-only">{{ _(' Edit') }}</span>
+                    </button>
+                    &nbsp
+                    <button class="btn btn-outline-danger delete-button" data-row-id="{{ item.line_number }}" data-domain="{{ domain }}">
+                        <i class="bi bi-trash3"></i><span class="desktop-only"> Delete</span>
+                    </button>
+                    <button class="btn btn-outline-success save-button" style="display: none;" data-line-number="{{ item.line_number }}" data-domain="{{ domain }}">
+                        <i class="bi bi-check"></i><span class="desktop-only">{{ _(' Save') }}</span>
+                    </button>
+                    <button class="btn btn-outline-danger cancel-button" style="display: none;" data-line="{{ item.line }}">
+                        <i class="bi bi-x"></i><span class="desktop-only">{{ _(' Cancel') }}</span>
+                    </button>
+                </td>
+            {% endif %}
+        </tr>
+    {% endif %}
+{% endfor %}
+
+            
+                    </tbody>
+                </table>
+                <br>
+
+
+
+
+
+
+
+
+
+              <!-- Modal -->
+              <div class="modal fade" id="addRecordModal" tabindex="-1" aria-labelledby="addRecordModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="addRecordModalLabel">{{ _('Add DNS Record') }}</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ _('Close') }}"></button>
+                      </div>
+                      <div class="modal-body">
+                          <form method="POST" action="{{ url_for('add_dns_record_to_zone') }}">
+                              <div class="mb-3">
+                                  <label for="Name" class="form-label">{{ _('Name') }}</label>
+                                  <input type="text" name="Name" class="form-control" id="Name" placeholder="{{ _('Name') }}" aria-label="{{ _('Name') }}" aria-describedby="Name" required pattern="^[A-Za-z0-9.@_]+$">
+                              </div>
+                              <div class="mb-3">
+                                  <label for="TTL" class="form-label">{{ _('TTL') }}</label>
+                                  <input type="number" name="TTL" class="form-control" id="TTL" placeholder="{{ _('TTL') }}" aria-label="{{ _('TTL') }}" aria-describedby="TTL" required min="60" value="14400">
+                              </div>
+                              <div class="mb-3">
+                                  <label for="Type" class="form-label">{{ _('Type') }}</label>
+                                  <select name="Type" class="form-select" id="TypeModal" required onchange="updateModalForm()">
+                                      <option value="A">A</option>
+                                      <option value="AAAA">AAAA</option>
+                                      <option value="CAA">CAA</option>
+                                      <option value="CNAME">CNAME</option>
+                                      <option value="MX">MX</option>
+                                      <option value="SRV">SRV</option>
+                                      <option value="TXT">TXT</option>
+                                  </select>
+                              </div>
+                              <input type="text" name="IN" class="form-control" value="IN" hidden>
+                              <div class="mb-3">
+                                  <label for="Priority" id="priorityInputDescription" class="form-label" style="display:none;">{{ _('Priority') }}</label>
+                                  <input type="text" name="Priority" class="form-control" id="PriorityModal" placeholder="0" aria-label="{{ _('Priority') }}" aria-describedby="Priority" style="display:none;">
+                              </div>
+                              <div class="mb-3">
+                                  <label for="Record" class="form-label">{{ _('Record') }}</label>
+                                  <input type="text" name="Record" class="form-control" id="RecordModal" placeholder="{{ _('Record') }}" aria-label="{{ _('Record') }}" aria-describedby="Record" required>
+                              </div>
+                              <input type="text" name="Domain" class="form-control" value="{{ domain }}" hidden>
+                              <div class="modal-footer">
+                                  <button type="submit" class="btn btn-primary">{{ _('Save Record') }}</button>
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ _('Cancel') }}</button>
+                              </div>
+                          </form>
+                      </div>
+                  </div>
+              </div>
+          </div>
+
+<script>
+    function updateModalForm() {
+        var selectedType = document.getElementById("TypeModal").value;
+        var recordInput = document.getElementById("RecordModal");
+        var priorityInput = document.getElementById("PriorityModal");
+        var priorityInputDescription = document.getElementById("priorityInputDescription");
+        if (selectedType === "A") {
+            recordInput.placeholder = "{{ _('IPv4 Address') }}";
+            recordInput.pattern = "^(?:[0-9]{1,3}\\.){3}[0-9]{1,3}$";
+        } else if (selectedType === "AAAA") {
+            recordInput.placeholder = "IPv6 {{ _('Address') }}";
+            recordInput.pattern = "^(?:(?:[0-9A-Fa-f]{1,4}:){7}[0-9A-Fa-f]{1,4}|(?:(?:[0-9A-Fa-f]{1,4}:){6}|::" +
+                                   "(?:[0-9A-Fa-f]{1,4}:){5}|(?:[0-9A-Fa-f]{1,4}:){4}(?::[0-9A-Fa-f]{1,4})?" +
+                                   "|(?:[0-9A-Fa-f]{1,4}:){3}(?::[0-9A-Fa-f]{1,4}){0,2}|(?:[0-9A-Fa-f]{1,4}:){2}" +
+                                   "(?::[0-9A-Fa-f]{1,4}){0,3}|[0-9A-Fa-f]{1,4}:(?:(?::[0-9A-Fa-f]{1,4}){0,4}|" +
+                                   ":...(?::[0-9A-Fa-f]{1,4}){0,3})|:(?:(?::[0-9A-Fa-f]{1,4}){0,5}|" +
+                                   ":...(?::[0-9A-Fa-f]{1,4}){0,2})|::(?:(?::[0-9A-Fa-f]{1,4}){0,6}|" +
+                                   ":...[0-9A-Fa-f]{1,4}))$";
+        } else if (selectedType === "CNAME") {
+            recordInput.placeholder = "{{ _('Domain') }}";
+            recordInput.pattern = "^[A-Za-z0-9.-]+$";
+        // Check if CNAME record already exists
+        var cnameName = recordInput.value;
+        if (cnameName) {
+            checkCnameExists(cnameName);
+        }
+        } else {
+            recordInput.placeholder = "";
+            //recordInput.pattern = "";
+            recordInput.removeAttribute("pattern"); # fixes validation bug on txt
+        }
+
+        if (selectedType === "MX") {
+            priorityInput.style.display = "block";
+            priorityInputDescription.style.display = "block";
+            priorityInput.required = true;
+        } else {
+            priorityInput.style.display = "none";
+            priorityInputDescription.style.display = "none";
+            priorityInput.required = false;
+        }
+        function checkCnameExists(cnameName) {
+        fetch(`/check_cname_exists/${encodeURIComponent(cnameName)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.exists) {
+                alert("CNAME record with this name already exists.");
+                document.getElementById("RecordModal").value = '';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+}
+    }
+
+</script>
+
+
+  </section> 
+  <footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="{{ _('Advanced') }}">
+    <a type="button" href="/domains/edit-dns-zone/{{domain}}?view=code" class="btn">
+<i class="bi bi-pencil"></i> <span class="desktop-only">{{ _('Advanced') }} </span>{{ _('Editor') }}
+</a>
+</div>
+
+  <div class="ms-auto" role="group" aria-label="{{ _('Actions') }}">
+
+<a type="button" href="/domains/export-dns-zone/{{domain}}" target="_blank" class="btn" id="ExportDNSZone">
+<i class="bi bi-file-earmark-arrow-down"></i> <span class="desktop-only">{{ _('Export') }} </span>{{ _('Zone') }}
+</a>
+<button type="button" class="btn btn-primary" id="AddDNSRecord">
+<i class="bi bi-plus-lg"></i> {{ _('Add') }}<span class="desktop-only">{{ _('Record') }}</span>
+</button>
+
+  </div>
+  </footer>
+
+          <script>
+          
+          $(document).ready(function() {
+              // Handle the delete button click
+              $('.delete-button').click(function() {
+                  var deleteButton = $(this);
+                  var rowId = deleteButton.data('row-id');
+                  var domain = deleteButton.data('domain');
+                  var rowToDelete = deleteButton.closest('tr');
+          
+                  // Check if the button text is "Confirm"
+                  if (deleteButton.text() === "Confirm") {
+                      // Send the delete request
+                      sendDeleteRequest(rowId, domain, rowToDelete, deleteButton);
+                  } else {
+                      // Change the button text to "Confirm"
+                      deleteButton.text("{{ _('Confirm') }}");
+                      // Change the button class to remove "outline-" part
+                      deleteButton.removeClass('btn-outline-danger').addClass('btn-danger');
+                      // Remove the "bi bi-trash3" icon
+                      deleteButton.find('i').remove();
+          
+                      // Set a timer to reset the button back to "Delete" after 5 seconds
+                      setTimeout(function() {
+                          // Reset the button text to "Delete"
+                          deleteButton.text("{{ _(' Delete') }}");
+                          // Change the button class back to the original
+                          deleteButton.removeClass('btn-danger').addClass('btn-outline-danger');
+                          // Add back the "bi bi-trash3" icon
+                          deleteButton.prepend('<i class="bi bi-trash3"></i>');
+                      }, 5000);
+                  }
+              });
+          
+              function sendDeleteRequest(rowId, domain, rowToDelete, deleteButton) {
+                  $.post(`/domains/dns/delete-record/${rowId - 1}`, { domain: domain }, function(data) {
+                      if (data.message === "Row deleted successfully") {
+                          // Remove the row from the table
+                          rowToDelete.remove();
+                          window.location.reload();
+                      }
+                  });
+              }
+          
+          
+              // When the "Edit" button is clicked
+              $('.edit-button').click(function() {
+                  var row = $(this).closest('.domain_row');
+                  var line = $(this).data('line');
+                  var lineNumber = $(this).data('line-number');
+                  var domain = $(this).data('domain');
+          
+                  // Save the original line content
+                  row.data('original-line', line);
+          
+                  // Extract the existing values from the table cells
+                  var existingField1 = row.find('td:eq(0)').text().trim().replace(/\.$/, '');
+                  var existingField2 = row.find('td:eq(1)').text();
+                  var existingField3 = row.find('td:eq(2)').text();
+                  var existingField4 = row.find('td:eq(3)').text().trim().replace(/\.$/, '');
+          
+                  // Replace the row content with input fields for editing and populate with existing data
+                  row.html(`
+                      <td><input type="text" class="form-control" name="field1" value="${existingField1}"></td>
+                      <td><input type="text" class="form-control"  name="field2" value="${existingField2}"></td>
+                      <td>
+        <select name="field3" class="form-select" id="Type" required onchange="updateForm()">
+            <option value="A" ${existingField3 === 'A' ? 'selected' : ''}>A</option>
+            <option value="AAAA" ${existingField3 === 'AAAA' ? 'selected' : ''}>AAAA</option>
+            <option value="CAA" ${existingField3 === 'CAA' ? 'selected' : ''}>CAA</option>
+            <option value="CNAME" ${existingField3 === 'CNAME' ? 'selected' : ''}>CNAME</option>
+            <option value="MX" ${existingField3 === 'MX' ? 'selected' : ''}>MX</option>
+            <option value="SRV" ${existingField3 === 'SRV' ? 'selected' : ''}>SRV</option>
+            <option value="TXT" ${existingField3 === 'TXT' ? 'selected' : ''}>TXT</option>
+        </select>
+                      </td>
+                      <td><input type="text" class="form-control" name="field4" id="Record" value="${existingField4}"></td>
+                      <td>
+                          <button class="btn btn-outline-success save-button" data-line-number="${lineNumber}" data-domain="${domain}"><i class="bi bi-check"></i><span class="desktop-only">{{ _(' Save') }}</span></button>
+                          <button class="btn btn-outline-danger cancel-button" data-line="${line}"><i class="bi bi-x"></i><span class="desktop-only">{{ _(' Cancel') }}</span></button>
+                      </td>
+                  `);
+          
+                  // Hide the "Edit" button and show the "Save" and "Cancel" buttons
+                  row.find('.edit-button').hide();
+                  row.find('.save-button, .cancel-button').show();
+              });
+          
+          });
+          
+          
+          
+          $(document).on('click', '.cancel-button', function() {
+              var row = $(this).closest('.domain_row');
+              var originalLine = row.data('original-line');
+          
+              // Use a regular expression to split the original line into components
+              var originalLineArray = originalLine.match(/\S+/g);
+          
+              if (originalLineArray && originalLineArray.length >= 4) {
+                  // Restore the original text content of the row
+                  row.find('td:eq(0)').html('<strong>' + originalLineArray[0] + '</strong>');
+                  row.find('td:eq(1)').text(originalLineArray[1]);
+                  row.find('td:eq(2)').text(originalLineArray[3]);
+                  row.find('td:eq(3)').html('<strong>' + originalLineArray[4] + '</strong>');
+          
+          
+              // Show the "Edit" button and hide the "Save" and "Cancel" buttons
+                  row.find('.edit-button').show();
+                  row.find('.save-button').hide();
+                  row.find('.cancel-button').hide();
+                  row.find('.delete-button').show();
+          
+                  // jer mi ne vrca dugmice..
+          
+                  window.location.reload();
+          
+              }
+          
+          
+          });
+          
+          
+          
+$(document).on('click', '.save-button', function() {
+    console.log("Updating record..");
+    let btnClass, toastMessage;
+    var row = $(this).closest('.domain_row');
+    var lineNumber = $(this).data('line-number');
+    var domain = $(this).data('domain');
+    var updatedField1 = row.find('input[name="field1"]').val();
+    var updatedField2 = row.find('input[name="field2"]').val();
+    var updatedField3 = row.find('select[name="field3"]').val();
+    var updatedField4 = row.find('input[name="field4"]').val();
+
+    // Add a period (.) after record name if it ends with the value of data('domain')
+    if (updatedField1.endsWith(domain)) {
+        updatedField1 += '.';
+    }
+
+    // Add a period (.) after record value if it ends with the value of data('domain')
+    if (updatedField4.endsWith(domain)) {
+        updatedField4 += '.';
+    }
+
+        // If updatedField3 is CNAME, check for duplicates
+    if (updatedField3 === 'CNAME') {
+        let duplicateFound = false;
+
+        $('.domain_row').each(function() {
+            var existingField1 = $(this).find('td:first-child').text().trim(); // Get the first column value
+            var existingField3 = $(this).find('td:nth-child(3)').text().trim(); // Get the type (CNAME)
+
+            // Check if it's a CNAME and has the same first column as updatedField1
+            if (existingField3 === 'CNAME' && existingField1 === updatedField1) {
+                duplicateFound = true;
+                return false; // Break out of the loop
+            }
+        });
+
+        if (duplicateFound) {
+            toastMessage = "A CNAME record with this name already exists.";
+            btnClass = 'danger';
+            const toast = toaster({
+                body: toastMessage,
+                className: `border-0 text-white bg-${btnClass}`,
+            });
+            return; // Stop further execution
+        }
+    }
+
+    // Merge the updated values into a single line separated by spaces
+    var updatedLine = updatedField1 + ' ' + updatedField2 + ' ' + 'IN' + ' ' + updatedField3 + ' ' + updatedField4;
+
+    // Perform an AJAX POST request to update the DNS record
+    $.post('/domains/dns/update-record/' + lineNumber + '/' + domain, 
+    { 
+        newContent: updatedLine, 
+        serial: $('#serial_number_current').val()
+    }, 
+    function(response) {
+        if (response.updated_row) {
+
+            btnClass = 'success';
+            toastMessage = "{{ _('Record updated successfully') }}";
+            // Update the table cell with the new content
+            row.find('td:eq(0)').text(updatedField1);
+            row.find('td:eq(1)').text(updatedField2);
+            row.find('td:eq(2)').text(updatedField3);
+            row.find('td:eq(3)').text(updatedField4);
+
+            // Restore the original line content
+            row.data('original-line', updatedLine);
+
+            // Show the "Edit" button and hide the "Save" and "Cancel" buttons
+            row.find('.edit-button').show();
+            row.find('.save-button, .cancel-button').hide();
+
+            // TODO! update serial and content only!
+            window.location.reload();
+
+        } else if (response.error) {
+            let btnClass = 'danger';
+            let toastMessage = response.error;
+        }
+
+        const toast = toaster({
+            body: toastMessage,
+            className: `border-0 text-white bg-${btnClass}`,
+        });
+
+    }).fail(function(xhr) {
+        // Handle HTTP errors
+        let btnClass = 'danger';
+        let toastMessage = "An unexpected error occurred. Please try again.";
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+            toastMessage = xhr.responseJSON.message;
+        }
+        const toast = toaster({
+            body: toastMessage,
+            className: `border-0 text-white bg-${btnClass}`,
+        });
+    });
+});
+    
+window.onload = function() {
+    // Autofocus on the input field
+    document.getElementById('searchDomainInput').focus();
+};
+</script>
+
+
+
+
+{% elif view_mode == 'code' %}
+
+          <div class="alert alert-warning">
+              <strong>Attention:</strong> Editing DNS file is intended for advanced users only. 
+              This action can potentially lead to server misconfiguration or downtime if not done correctly.
+              <br><br>
+              Please be cautious and make sure you understand the changes you are making.
+          </div>
+          
+           <form method="post" action="/domains/save-dns-zone/{{ domain }}">
+           <textarea style="height:60vh;" class="form-control" id="zone_content" name="zone_content" rows="10" cols="80">{{ zone_content }}</textarea>
+            
+  </section> 
+  <footer class="main-footer btn-toolbar" role="toolbar">
+<div class="btn-group" role="group" aria-label="{{ _('Advanced') }}">
+<a type="button" href="/domains/edit-dns-zone/{{domain}}?view=table" class="btn">
+<i class="bi bi-arrow-left"></i> <span class="desktop-only">{{ _('Go') }} </span>{{ _('Back') }}
+</a>
+</div>
+
+  <div class="ms-auto" role="group" aria-label="{{ _('Actions') }}">
+<button type="button" class="btn btn-primary" id="save_zone_button">
+{{ _('Save') }}<span class="desktop-only"> {{ _('Zone') }}</span>
+</button>
+</form>
+  </div>
+  </footer>
+
+
+
+
+<script>
+document.getElementById('save_zone_button').addEventListener('click', function() {
+    const zoneContent = document.getElementById('zone_content').value;
+    const domain = encodeURIComponent('{{ domain }}');
+
+    console.log("Saving zone..");
+
+    const params = new URLSearchParams();
+    params.append('zone_content', zoneContent);
+
+    fetch(`/domains/save-dns-zone/${domain}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: params.toString()
+    })
+    .then(response => response.text())
+    .then(responseText => {
+        let btnClass, toastMessage;
+
+        if (responseText.includes('saved')) {
+            btnClass = 'success';
+            toastMessage = "{{ _('Zone saved successfully') }}";
+        } else {
+            btnClass = 'danger';
+            toastMessage = responseText;
+        }
+
+          const toast = toaster({
+            body: toastMessage,
+            className: `border-0 text-white bg-${btnClass}`,
+          });
+
+
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        // Handle error case
+            btnClass = 'danger';
+            toastMessage = data.error;
+          const toast = toaster({
+            body: toastMessage,
+            className: `border-0 text-white bg-${btnClass}`,
+          });
+
+
+
+    });
+});
+
+</script>
+
+
+
+{% endif %}
+              {% else %}
+                  <!-- Content to display when domain is not provided -->
+          
+          <p>{{ _('DNS Zone Editor allows you to manage and edit Domain Name System (DNS) zone files, which contain critical information for mapping domain names to IP addresses and managing various DNS records, such as A, CNAME, MX, and TXT records.') }}</p>
+          
+           
+               <form method="GET">
+                  <div class="input-group mb-3">
+                      <label class="input-group-text" for="php_version">{{ _('Select domain:') }}</label>
+                      <select class="form-select form-select-lg" id="php_version" name="version" onchange="redirectToSelectedVersion(this)">
+                          <option value="" disabled selected>{{ _('Select a domain name to edit DNS Zone') }}</option> 
+                      {% for domain in domains %}
+                          <option value="{{ domain.domain_url }}">{{ domain.domain_url }}</option>
+                      {% endfor %}
+                      </select>
+                  </div>
+              </form>
+              <script>
+                  // JavaScript function to redirect to the same page with domain parameter
+                  function redirectToSelectedVersion(selectElement) {
+                      var selectedVersion = selectElement.value;
+                      if (selectedVersion) {
+                          window.location.href = `/domains/edit-dns-zone/${selectedVersion}`;
+                      }
+                  }
+              </script>
+          
+              {% endif %}
+          
+          
+          
+          
+          
+          
+          </div>
+          
+
+         
+          
+      {% endblock %}
+      

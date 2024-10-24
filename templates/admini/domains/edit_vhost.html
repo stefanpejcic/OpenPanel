@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<div>
+    <div class="alert alert-primary">
+        <strong>Attention:</strong> Editing domain file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly.
+        <br><br>
+        Please be cautious and make sure you understand the changes you are making. We use a rollback mechanism to check for errors, and if any issues are detected, we will revert the changes. However, it's important to have a backup of your configurations before proceeding.
+    </div>
+    <form action="/domains/save-vhosts" method="post">
+        <input type="hidden" name="domain_name" value="{{ domain_name }}">
+            <label for="vhost_content">Virtual Host Configuration:</label>
+            <div class="form-group">
+
+            <textarea class="form-control" name="vhost_content" rows="28">{{ vhost_content }}</textarea>
+        </div>
+        <button type="submit" class="btn mt-2 btn-lg btn-success">Save</button>
+    </form>
+</div>
+{% endblock %}
