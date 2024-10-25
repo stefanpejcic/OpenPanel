@@ -86,7 +86,7 @@ FUNCTIONS=(
     # update admin from github
     download_new_admin
 
-    # for 0.3.2 only!
+    # for 0.3.3 only!
     add_two_columns_to_plans
     #########################################
 
