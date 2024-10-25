@@ -390,7 +390,7 @@ post_install_message() {
     echo -e "\nIf you experience any problems or need further assistance, please do not hesitate to reach out on our community forums or join our Discord server for 
 support:"
     echo ""
-    echo "👉 Forums: https://community.openpanel.com/"
+    echo "👉 Forums: https://community.openpanel.org/"
     echo ""
     echo "👉 Discord: https://discord.openpanel.com/"
     echo ""
