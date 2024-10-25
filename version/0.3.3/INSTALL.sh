@@ -120,7 +120,6 @@ print_header() {
 
 
 install_started_message(){
-    echo -e ""
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     if [ "$CSF_SETUP" = true ]; then
