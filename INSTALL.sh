@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           16.10.2024
+# Last Modified:           18.10.2024
 #
 ################################################################################
 
@@ -120,7 +120,6 @@ print_header() {
 
 
 install_started_message(){
-    echo -e ""
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     if [ "$CSF_SETUP" = true ]; then
@@ -233,7 +232,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.3.2"
+	        PANEL_VERSION="0.3.3"
 	    fi
 	fi
 }
@@ -784,10 +783,10 @@ docker_compose_up(){
         
     if [ "$SET_PREMIUM" = true ]; then
     	# setup 4 plans in database
-    	cp /etc/openpanel/mysql/initialize/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    	cp /etc/openpanel/mysql/initialize/0.4/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
     else
     	# setup 2 plans in database
-    	cp /etc/openpanel/mysql/initialize/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    	cp /etc/openpanel/mysql/initialize/0.4/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
     fi
 
     # compose doesnt alllow /
@@ -966,6 +965,7 @@ setup_firewall_service() {
           install_csf
           edit_csf_conf
           open_tcpout_csf 3306 #mysql tcp_out only
+	  pen_tcpout_csf 465 #for emails
           open_port_csf 22 #ssh
           open_port_csf 53 #dns
           open_port_csf 80 #http
@@ -1026,6 +1026,7 @@ setup_firewall_service() {
           debug_log ufw allow 80/tcp #http
           debug_log ufw allow 53  #dns
           debug_log ufw allow 443/tcp # https
+	  debug_log ufw allow 465/tcp # email
           debug_log ufw allow 2083/tcp #openpanel
           debug_log ufw allow 2087/tcp #openadmin 
     	  debug_log ufw allow 21/tcp #ftp
