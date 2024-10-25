@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           18.10.2024
+# Last Modified:           25.10.2024
 #
 ################################################################################
 
@@ -120,7 +120,6 @@ print_header() {
 
 
 install_started_message(){
-    echo -e ""
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     if [ "$CSF_SETUP" = true ]; then
