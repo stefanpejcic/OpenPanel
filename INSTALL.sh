@@ -965,7 +965,7 @@ setup_firewall_service() {
           install_csf
           edit_csf_conf
           open_tcpout_csf 3306 #mysql tcp_out only
-	  pen_tcpout_csf 465 #for emails
+	  open_tcpout_csf 465 #for emails
           open_port_csf 22 #ssh
           open_port_csf 53 #dns
           open_port_csf 80 #http
