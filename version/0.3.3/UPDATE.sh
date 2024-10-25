@@ -77,9 +77,6 @@ FUNCTIONS=(
     #notify user we started
     print_header
 
-    # /etc/openpanel/
-    update_configuration_files
-
     # update docker openpanel image
     download_new_panel
 
@@ -90,7 +87,6 @@ FUNCTIONS=(
     add_two_columns_to_plans
     #########################################
 
-    
     # update opencli
     opencli_update
 
@@ -152,34 +148,6 @@ print_space_and_line() {
 
 
 
-
-
-
-
-update_configuration_files() {
-    echo "Updating configuration files in /etc/openpanel/"
-    mkdir -p /etc/openpanel-${PREVIOUS_VERSION}/
-    cp -r /etc/openpanel/ /etc/openpanel-${PREVIOUS_VERSION}/
-    cd /etc/openpanel/
-
-    git stash # stash local conf
-
-    # update from gh
-    if git pull origin main; then
-        echo "Successfully pulled the latest changes."
-    else
-        echo "There were merge conflicts."
-        if git ls-files -u | grep -q "^"; then
-            echo "Conflicted files:"
-            git ls-files -u
-        else
-            echo "No conflicts, but pull failed for another reason."
-        fi
-    fi
-    
-    git stash pop # restore local conf
-    mv /etc/openpanel/openadmin/config/terms /etc/openpanel/openadmin/config/terms_accepted_on_update
-}
 
 
 
