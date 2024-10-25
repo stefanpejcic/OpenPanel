@@ -1511,7 +1511,7 @@ send_install_log(){
     exec > /dev/tty
     exec 2>&1
     opencli report --public >> "$LOG_FILE"
-    curl -F "file=@/root/$LOG_FILE" http://support.openpanel.co/install_logs.php
+    curl -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
