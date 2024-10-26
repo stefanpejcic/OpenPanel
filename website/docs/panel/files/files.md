@@ -40,6 +40,8 @@ File Manager allows you to upload multiple files at once.
 
 Use your mouse cursor to select multiple files and folders. Click and drag, then click again to release the selection.
 
+To select multiple files, one by one, click and hold `Ctrl` key while clicking on the rows.
+
 To select all files in the directory at once, click on the 'Select All' button. To deselect all files, click on the 'Deselect' button.
 
 ![filemanager_selectall.png](/img/panel/v1/files/filemanager_selectall.png)
