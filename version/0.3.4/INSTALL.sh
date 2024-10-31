@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           25.10.2024
+# Last Modified:           31.10.2024
 #
 ################################################################################
 
@@ -232,7 +232,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.3.3"
+	        PANEL_VERSION="0.3.4"
 	    fi
 	fi
 }
@@ -965,7 +965,7 @@ setup_firewall_service() {
           install_csf
           edit_csf_conf
           open_tcpout_csf 3306 #mysql tcp_out only
-	  pen_tcpout_csf 465 #for emails
+	  open_tcpout_csf 465 #for emails
           open_port_csf 22 #ssh
           open_port_csf 53 #dns
           open_port_csf 80 #http
@@ -1511,7 +1511,7 @@ send_install_log(){
     exec > /dev/tty
     exec 2>&1
     opencli report --public >> "$LOG_FILE"
-    curl -F "file=@/root/$LOG_FILE" http://support.openpanel.co/install_logs.php
+    curl -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
