@@ -39,7 +39,7 @@ const siteConfig = {
                               process.env.DISABLE_VERSIONING === "true",
                           versions: {
                               current: {
-                                  label: "0.3.3",
+                                  label: "0.3.4",
                               },
                           },
                           lastVersion: "current",
