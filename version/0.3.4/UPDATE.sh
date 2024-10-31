@@ -38,7 +38,7 @@ update_blocker() {
     exit 1
 }
 
-update_blocker
+####update_blocker
 
 echo "Starting update.."
 
