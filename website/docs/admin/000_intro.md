@@ -239,13 +239,13 @@ OpenPanel supports both [ConfigServer & Firewall (CSF)](/docs/admin/security/fir
 Each user is provided with a containerized environment similar to a VPS, featuring their own web server (Nginx or Apache) and database (MySQL or MariaDB). This setup prevents resource hogging commonly associated with standard shared hosting.
 
 
-### Two-Factor Authentication (2FA)
+### Two-Factor Authentication
 Users have the option to [enable Two-Factor Authentication (2FA)](/docs/panel/account/2fa/) for added security on their accounts. Administrators can manage this feature at the server level or for individual users.
 
 ### Detailed Logging
 All actions taken by OpenPanel users are recorded in per-user activity logs. This eliminates confusion over issues like file or webmail account deletions—every action is logged and can be reviewed by users.
 
-### Isolated User and Admin Panel
+### Isolated Users and Admin
 OpenPanel and OpenAdmin operate independently from one another. One runs as a systemd service while the other runs as a Docker container. OpenPanel utilizes SQLite for its database, whereas OpenAdmin relies on MySQL. Importantly, users can perform actions on their panel even if the admin panel is unreachable or disabled.
 
 
@@ -254,7 +254,7 @@ For production environments, particularly with the Community edition—which doe
 
 To disable OpenAdmin, navigate to **OpenAdmin > Settings > OpenAdmin** and click on *"Disable Admin Panel"* or use the terminal command `opencli admin off`. This will deactivate the admin panel, and you can re-enable it when necessary with the command `opencli admin on`.
 
-### Limiting Access to the Admin Panel
+### Limiting Access to Admin Panel
 To restrict OpenAdmin access to your team, whitelist your server's IP addresses in CSF/UFW, and then disable port `2087`.
 
 ### HTTP Basic Authentication
