@@ -20,12 +20,11 @@ Mimumum Requirements:
 - IPv4 address
 
 Supported OS:
-- **AlmaLinux 9.4**
-- **Fedora 40**
-- **RockyLinux 9.4**
-- **CentOS 9**
 - **Ubuntu 22 and 24**
 - **Debian 11 and 12**
+- **AlmaLinux 9.4**
+- **RockyLinux 9.4**
+- **CentOS 9**
 
 :::info
 If you are using external firewall, the following ports should be opened:  `53` `80` `443` `465` `2083` `2087` `32768:60999`
