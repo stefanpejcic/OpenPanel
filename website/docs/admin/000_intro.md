@@ -230,29 +230,46 @@ OpenPanel is available in two editions:
 
 OpenPanel has been built from the ground up with security in mind. Internet history is littered with painful security incidents, so we traded old software compatibility and insecure authentication methods for modern day security measures.
 
-**OpenPanel Security features:**
-- Each user container is isolated by Docker.
-- Two-Factor Authentication (2FA) can be activated by users.
-- phpMyAdmin and WebTerminal offer auto-login using one-time tokens.
-- Users' public services (SSH, MySQL) are accessible via non-standard ports.
-- All user actions on the panel are stored in activity log.
-- Bruteforce protection and rate limiting are implemented for all panel pages.
-- The user panel is segregated from the admin panel and websites.
-- All user panel requests are processed in the backend.
 
-**OpenAdmin Security features:**
-- The admin panel can be entirely disabled while retaining all functionality.
-- HTTP Basic Authentication can be enabled for the admin panel.
-- Admins can change the default port (2083) for the user panel.
-- Email alerts and notifications for admin logins from new IP address.
-- Bruteforce protection is enforced for the admin panel.
-- Passwords are stored as salted SHA512 hashes by default (5000 rounds).
-- The admin panel is isolated from the user panel and websites.
-- Separated database software for admin and user accounts.
+### Firewall
+OpenPanel supports both [ConfigServer & Firewall (CSF)](/docs/admin/security/firewall/#csf) and [UncomplicatedFirewall (UFW)](/docs/admin/security/firewall/#ufw).
 
-**Websites:**
-- ModSecurity Web Application Firewall (WAF) can be activated for domains, with the OWASP core ruleset.
-- IP blocking per domain name.
-- Hotlink protection per domain using vhost files.
-- TLS (Transport Layer Security) is utilized.
 
+### Isolated Services
+Each user is provided with a containerized environment similar to a VPS, featuring their own web server (Nginx or Apache) and database (MySQL or MariaDB). This setup prevents resource hogging commonly associated with standard shared hosting.
+
+
+### Two-Factor Authentication (2FA)
+Users have the option to [enable Two-Factor Authentication (2FA)](/docs/panel/account/2fa/) for added security on their accounts. Administrators can manage this feature at the server level or for individual users.
+
+### Detailed Logging
+All actions taken by OpenPanel users are recorded in per-user activity logs. This eliminates confusion over issues like file or webmail account deletions—every action is logged and can be reviewed by users.
+
+### Isolated User and Admin Panel
+OpenPanel and OpenAdmin operate independently from one another. One runs as a systemd service while the other runs as a Docker container. OpenPanel utilizes SQLite for its database, whereas OpenAdmin relies on MySQL. Importantly, users can perform actions on their panel even if the admin panel is unreachable or disabled.
+
+
+### Disabling the Admin Panel
+For production environments, particularly with the Community edition—which does not offer API access and lacks third-party integrations—it is advisable to disable the admin panel after configuring your server. Alternatively, you can restrict access to the admin port `2087` by whitelisting your team's IP addresses.
+
+To disable OpenAdmin, navigate to **OpenAdmin > Settings > OpenAdmin** and click on *"Disable Admin Panel"* or use the terminal command `opencli admin off`. This will deactivate the admin panel, and you can re-enable it when necessary with the command `opencli admin on`.
+
+### Limiting Access to the Admin Panel
+To restrict OpenAdmin access to your team, whitelist your server's IP addresses in CSF/UFW, and then disable port `2087`.
+
+### HTTP Basic Authentication
+As an additional security measure, HTTP Basic Authentication can be enabled for the admin panel.
+
+### Brute-Force Protection
+OpenAdmin includes built-in [rate limiting](https://i.postimg.cc/VfgmKCvx/ratelimiting.png) and [IP blocking](https://i.postimg.cc/053g4dsB/2024-11-01-12-25.png) to protect against brute-force attacks. You can configure the maximum number of failed login attempts allowed per IP (default is `5`) and the total number of failed attempts (default is `20`), after which the offending IP will be temporarily blocked by the firewall for one hour.
+
+Limits are configurable in: `/etc/openpanel/openadmin/config/admin.ini` file:
+```bash
+[PANEL]
+login_ratelimit=5
+login_blocklimit=20
+```
+
+### IP blocking per domain
+
+Users can block IP addresses per domain name.
