@@ -458,6 +458,13 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "Blesta",
+            icon: WHMCS,
+            description: "Provision OpenPanel accounts from blesta.",
+            url: "https://blesta.club/extensions/openpanel",
+            status: "stable",
+        },
+        {
             name: "FOSSBilling",
             icon: WHMCS,
             description: "Provision OpenPanel accounts from FOSSBilling software.",
