@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Required Routes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Login protected routes</h1>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Methods</th>
+                    <th>Login Required</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for route in routes %}
+                {% if 'login_required_view' not in route %}
+                    <tr>
+                        <td>{{ route.endpoint }}</td>
+                        <td>{{ route.methods }}</td>
+                        {% if route.login_required %}
+                        <td>yes</td>
+                        {% elif 'static' in route.endpoint or 'login' in route.endpoint or 'admin_autologin' in route.endpoint or 'logout' in route.endpoint or 'open_panel' in route.endpoint %}
+                        <td style="background-color:orange;">no</td>
+                        {% else %}
+                        <td style="background-color:red;">no</td>
+                        {% endif %}
+                    </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
