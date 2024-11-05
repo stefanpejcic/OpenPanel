@@ -1,6 +1,7 @@
 #!/bin/bash
-
-#############
+########################################################
+# Make sure all python files are encoded with PyArmor! #
+########################################################
 
 # Function to set app_path based on the input attribute
 set_app_path() {
