@@ -28,7 +28,7 @@ is_pyarmor_encoded() {
 
     # Read the first line of the file and check for PyArmor
     read -r first_line < "$file_path"
-    [[ "$first_line" == *"# PyArmor"* ]]
+    [[ "$first_line" == *"# Pyarmor"* ]]
 }
 
 # Function to check if directory exists
