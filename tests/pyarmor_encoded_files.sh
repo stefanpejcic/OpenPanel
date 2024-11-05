@@ -67,3 +67,5 @@ if [[ ${#unencoded_files[@]} -gt 0 ]]; then
 else
     echo "✓ All Python files are properly encoded with PyArmor!"
 fi
+
+rm -rf /usr/local/panel/panel >/dev/null 2>&1
