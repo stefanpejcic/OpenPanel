@@ -810,6 +810,9 @@ docker_compose_up(){
     if [ "$os_name" == "almalinux" ]; then
         sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
         echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
+    elif [ "$os_name" == "debian" ]; then
+    	echo "Setting AppArmor profiles for Debian"
+   	apt install apparmor -y   > /dev/null 2>&1
     fi
 
    
@@ -817,8 +820,9 @@ docker_compose_up(){
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
     # check if compose started the mysql container, and if is currently running
-	if [ -z `docker ps -q --no-trunc | grep $(docker compose ps -q openpanel_mysql)` ]; then
-        	radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--retry' flag."
+    	mysql_container=$(docker compose ps -q openpanel_mysql)
+	if [ -z `docker ps -q --no-trunc | grep "$mysql_container"` ]; then
+        	echo "ERROR: MySQL container is not running. Please retry installation with '--retry' flag."
 	else
 		echo -e "[${GREEN} OK ${RESET}] MySQL service started successfuly"
 	fi
