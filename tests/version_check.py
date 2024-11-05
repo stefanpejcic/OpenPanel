@@ -1,7 +1,11 @@
 import requests
 
+'''
+Check if current panel version is +1 then the latest
+'''
+
 local_version_file = '/usr/local/panel/version'
-latest_version_url = 'https://openpanel.com/version'
+latest_version_url = 'https://openpanel.org/version'
 
 def get_local_version():
     try:
