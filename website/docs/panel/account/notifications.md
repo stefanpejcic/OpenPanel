@@ -31,3 +31,18 @@ Users can set actions for which to receive email notifications:
 
 
 User does not receive notifications for actions performed through the OpenAdmin interface (such as impersonating a user, changing a password, disabling 2FA, etc.) or from API calls (e.g., from WHMCS, Blesta, FOSSBilling).
+
+
+## Emai notifications
+
+![new_login.png](/img/panel/v1/account/new_login.png)
+
+![2fa_disabled.png](/img/panel/v1/account/2fa_disabled.png)
+
+![2fa_enabled.png](/img/panel/v1/account/2fa_enabled.png)
+
+![email_changed.png](/img/panel/v1/account/email_changed.png)
+
+![pass_changed.png](/img/panel/v1/account/pass_changed.png)
+
+![preferences_changed.png](/img/panel/v1/account/preferences_changed.png)
