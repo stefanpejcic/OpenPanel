@@ -29,8 +29,8 @@ services:
     restart: unless-stopped
     environment:
       - CLAMD_STARTUP_DELAY=30
-    mem_limit: 0.25g
-    cpus: 0.25
+    mem_limit: 1g
+    cpus: 1.0
 
   # OpenPanel service running on port 2083
   openpanel:
@@ -55,6 +55,7 @@ services:
       - /usr/local/admin/scripts:/usr/local/admin/scripts
       - /var/log:/var/log
       - /etc/ufw:/etc/ufw
+      - /var/lib/csf/:/var/lib/csf/
       - /etc/letsencrypt:/etc/letsencrypt
       - /etc/my.cnf:/etc/my.cnf
       - /etc/openpanel/:/etc/openpanel/

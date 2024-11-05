@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+
+<script type="module">
+// some js code
+</script>
+
+
+<p>{{ _('Localized text.') }}</p>
+
+<form method="post">
+        <textarea id="editor_file" name="some_editor_content" rows="40" cols="100"></textarea>
+</div>
+
+
+</section>
+
+
+
+<footer class="main-footer btn-toolbar" role="toolbar">
+
+<div class="btn-group" role="group" aria-label="{{ _('Status') }}">
+<label>{{ _('Status') }}</label> 
+</div>
+
+<div class="ms-auto" role="group" aria-label="{{ _('Actions') }}">
+<button type="submit" class="btn btn-primary">{{ _('Save Changes') }}</button></form>
+</div>
+</footer>
+
+
+
+{% endblock %}
+
+
+

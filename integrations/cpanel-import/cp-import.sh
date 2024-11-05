@@ -1236,7 +1236,7 @@ import_domlogs() {
     import_domlogs_for_domain() {
         local ssl_log_file="$1"
         local domain="$2"
-        local destination_file="/etc/nginx/domlogs/${domain}.log"
+        local destination_file="/var/log/nginx/domlogs/${domain}.log"
     
         # Check if the source file exists
         if [[ -e "$ssl_log_file" ]]; then

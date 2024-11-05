@@ -3,7 +3,7 @@
 # Listen on port 6081, administration on localhost:6082, and forward to
 # one nginx server selected by the vcl file, based on the request.
 #
-DAEMON_OPTS="-a 0.0.0.0:6081 \
+DAEMON_OPTS="-a 0.0.0.0:80 \
              -T localhost:6082 \
              -f /etc/varnish/default.vcl \
              -S /etc/varnish/secret \

@@ -108,6 +108,24 @@ CREATE TABLE `users` (
   `plan_id` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+
+--
+-- Table structure for table `active_sessions`
+--
+
+CREATE TABLE `active_sessions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `user_id` int NOT NULL,
+  `session_token` varchar(255) NOT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
 --
 -- Indexes for dumped tables
 --
@@ -143,6 +161,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for dumped tables
 --
 
+
+--
+-- AUTO_INCREMENT for table `active_sessions`
+--
+ALTER TABLE `active_sessions`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
 --
 -- AUTO_INCREMENT for table `domains`
 --
@@ -170,6 +195,14 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+
+--
+-- Constraints for table `active_sessions`
+--
+ALTER TABLE `active_sessions`
+  ADD CONSTRAINT `active_sessions_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
 
 --
 -- Constraints for table `domains`
