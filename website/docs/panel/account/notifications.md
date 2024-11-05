@@ -6,6 +6,9 @@ sidebar_position: 3
 
 Users can set actions for which to receive email notifications:
 
+![notifications.png](/img/panel/v1/account/notifications.png)
+
+
 | Value                                          | Description                                  | Default |
 |------------------------------------------------|----------------------------------------------|---------|
 | notify_account_login                           | Notify on new logins                         | 1       |
@@ -28,5 +31,3 @@ Users can set actions for which to receive email notifications:
 
 
 User does not receive notifications for actions performed through the OpenAdmin interface (such as impersonating a user, changing a password, disabling 2FA, etc.) or from API calls (e.g., from WHMCS, Blesta, FOSSBilling).
-
-![notifications.png](/img/panel/v1/account/notifications.png)
