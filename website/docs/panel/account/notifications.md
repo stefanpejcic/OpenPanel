@@ -8,6 +8,9 @@ Users can set actions for which to receive email notifications:
 
 ![notifications.png](/img/panel/v1/account/notifications.png)
 
+:::info
+If you do not see the Notifications page, ask your provider to enable the [notifications module](/docs/admin/settings/openpanel/#notifications).
+:::
 
 | Value                                          | Description                                  | Default |
 |------------------------------------------------|----------------------------------------------|---------|
