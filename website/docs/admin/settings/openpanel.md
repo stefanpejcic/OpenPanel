@@ -56,6 +56,9 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 ### DNS
 DNS feature enables the [Domains > Edit DNS Zone](/docs/panel/domains/dns) feature for users to edit DNS records.
 
+### Notifications
+Notifications allows users to edit their [Notifications Preferences](/docs/panel/account/notifications/) and receive emails.
+
 ### Favorites
 Favorites allows users to bookmark pages to [Favorites](/docs/panel/dashboard/#favorites).
 
