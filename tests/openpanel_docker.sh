@@ -1,10 +1,16 @@
 #!/bin/bash
 
-IMAGE_NAME="openpanel:openpanel"
+IMAGE_NAME="openpanel"
+REPOSITORY_IMG_NAME="openpanel/openpanel"
 TAG="latest"
 
+echo "Stopping existing OpenPanel container"
+cd /root && docker compose down openpanel
 
-echo "Building the Docker image..."
+echo "Deleting existing image "
+docker image rm $IMAGE_NAME:$TAG
+
+echo "Building the image..."
 cd /root/2083/
 docker build -t $IMAGE_NAME:$TAG .
 
@@ -16,19 +22,15 @@ fi
 echo "Docker image built successfully."
 
 echo "Starting container for testing..."
-docker run -d --name test_openpanel_container -p 2083:2083 $IMAGE_NAME:$TAG
+cd /root && docker compose up -d openpanel
 
 sleep 5
 
 echo "Testing the Flask app..."
 curl -f http://localhost:2083 || {
     echo "Error: Flask app did not start correctly."
-    docker rm -f test_openpanel_container
+    cd /root && docker compose down openpanel
     exit 1
 }
 
 echo "Flask app is running successfully in Docker."
-
-# Clean up
-docker rm -f test_openpanel_container
-echo "Cleaned up test container."
