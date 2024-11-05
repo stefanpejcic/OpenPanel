@@ -1,7 +1,7 @@
 import os
 import yaml
 
-compose_file_path = '/etc/openpanel/docker/new-docker-compose.yml'
+compose_file_path = '/etc/openpanel/docker/compose/new-docker-compose.yml'
 
 def load_compose_file():
     try:
