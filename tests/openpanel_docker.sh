@@ -12,6 +12,7 @@ docker image rm $IMAGE_NAME:$TAG
 
 echo "Building the image..."
 cd /root/2083/
+cp -r /usr/local/admin/scripts /root/2083/scripts
 docker build -t $IMAGE_NAME:$TAG .
 
 if [ $? -ne 0 ]; then
