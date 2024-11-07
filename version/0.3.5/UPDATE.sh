@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Update from OpenPanel 0.3.3 to 0.3.4
+# Update from OpenPanel 0.3.4 to 0.3.5
 
 # new version
 NEW_PANEL_VERSION="0.3.5"
@@ -38,7 +38,7 @@ update_blocker() {
     exit 1
 }
 
-update_blocker
+#update_blocker
 
 echo "Starting update.."
 
@@ -77,6 +77,9 @@ FUNCTIONS=(
     #notify user we started
     print_header
 
+    # 0.3.5 only!
+    instert_sessions
+    
     # update docker openpanel image
     download_new_panel
 
@@ -251,6 +254,51 @@ download_new_admin() {
     cd $OPENADMIN_DIR
 }
 
+
+
+
+instert_sessions() {
+
+
+# SQL query to check if the table exists
+TABLE_EXISTS=$(mysql -e "USE panel; SHOW TABLES LIKE 'active_sessions';" | grep "active_sessions")
+
+# Check if the table exists
+if [ -z "$TABLE_EXISTS" ]; then
+  echo "Table 'active_sessions' does not exist. Creating table..."
+
+  # Create the active_sessions table
+  mysql <<EOF
+  CREATE TABLE \`active_sessions\` (
+    \`id\` int NOT NULL AUTO_INCREMENT,
+    \`user_id\` int NOT NULL,
+    \`session_token\` varchar(255) NOT NULL,
+    \`ip_address\` varchar(45) DEFAULT NULL,
+    \`created_at\` datetime DEFAULT CURRENT_TIMESTAMP,
+    \`expires_at\` timestamp NULL DEFAULT NULL,
+    PRIMARY KEY (\`id\`),
+    KEY \`user_id\` (\`user_id\`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+EOF
+
+  # Add foreign key constraint
+  mysql <<EOF
+  ALTER TABLE \`active_sessions\`
+    ADD CONSTRAINT \`active_sessions_ibfk_1\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`);
+EOF
+
+  # Set auto_increment
+  mysql <<EOF
+  ALTER TABLE \`active_sessions\`
+    MODIFY \`id\` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+EOF
+
+  echo "Table 'active_sessions' created and foreign key added."
+else
+  echo "Table 'active_sessions' already exists."
+fi
+
+}
 
 
 download_new_panel() {
