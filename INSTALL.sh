@@ -1,3 +1,4 @@
+
 #!/bin/bash
 ################################################################################
 #
@@ -10,7 +11,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           05.11.2024
+# Last Modified:           07.11.2024
 #
 ################################################################################
 
@@ -232,7 +233,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.3.4"
+	        PANEL_VERSION="0.3.5"
 	    fi
 	fi
 }
