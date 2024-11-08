@@ -3,7 +3,7 @@ name: Auto Close Invalid Issues
 on:
   schedule:
     - cron: '0 0 * * *' # Runs daily at midnight (UTC)
-  workflow_dispatch:
+  workflow_dispatch: # Allows you to trigger the workflow manually if needed
 
 jobs:
   close_invalid_issues:
@@ -17,7 +17,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const { data: issues } = await github.issues.listForRepo({
+          const issues = await github.rest.issues.listForRepo({
             owner: context.repo.owner,
             repo: context.repo.repo,
             labels: 'invalid',
@@ -27,17 +27,17 @@ jobs:
           const oneDayAgo = new Date();
           oneDayAgo.setHours(oneDayAgo.getHours() - 24);
 
-          for (const issue of issues) {
+          for (const issue of issues.data) {
             const issueCreationDate = new Date(issue.created_at);
             if (issueCreationDate <= oneDayAgo) {
-              await github.issues.createComment({
+              await github.rest.issues.createComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
                 body: 'This issue has been marked as invalid and will be closed after 24 hours. If you believe this is a mistake, please reopen or create a new issue.'
               });
 
-              await github.issues.update({
+              await github.rest.issues.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
