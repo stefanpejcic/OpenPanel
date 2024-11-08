@@ -969,27 +969,24 @@ setup_firewall_service() {
        
           install_csf
           edit_csf_conf
-          open_tcpout_csf 3306 #mysql tcp_out only
-	  open_tcpout_csf 465 #for emails
-          open_port_csf 22 #ssh
-          open_port_csf 53 #dns
-          open_port_csf 80 #http
-          open_port_csf 443 #https
-          open_port_csf 2083 #user
-          open_port_csf 2087 #admin
-          open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") #ssh
-          open_port_csf 32768:60999 #docker
-
-	  open_port_csf 21 #ftp
-	  open_port_csf 21000:21010 #passive ftp
-
-     
+          open_tcpout_csf 3306                                                  # mysql tcp_out only
+	  open_tcpout_csf 465                                                   # for emails
+          open_port_csf 22                                                      # ssh
+          open_port_csf 53                                                      # dns
+          open_port_csf 80                                                      # http
+          open_port_csf 443                                                     # https
+          open_port_csf 2083                                                    # user
+          open_port_csf 2087                                                    # admin
+          open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") # ssh
+          open_port_csf 32768:60999                                             # docker
+	  open_port_csf 21                                                      # ftp
+	  open_port_csf 21000:21010                                             # passive ftp
           set_csf_email_address
           csf -r    > /dev/null 2>&1
 	  echo "Restarting CSF service"
-          systemctl restart docker # not sure why
+          systemctl restart docker                                              # not sure why
           systemctl enable csf
-          service csf restart # also restarts docker at csfpost.sh
+          service csf restart                                                   # also restarts docker at csfpost.sh
 	  
    	if command -v csf > /dev/null 2>&1; then
 		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
@@ -1028,14 +1025,14 @@ setup_firewall_service() {
   
           # block all docker ports so we can manually open only what is needed
           debug_log ufw-docker install
-          debug_log ufw allow 80/tcp #http
-          debug_log ufw allow 53  #dns
-          debug_log ufw allow 443/tcp # https
-	  debug_log ufw allow 465/tcp # email
-          debug_log ufw allow 2083/tcp #openpanel
-          debug_log ufw allow 2087/tcp #openadmin 
-    	  debug_log ufw allow 21/tcp #ftp
-          debug_log ufw allow 21000:21010/tcp #passive ftp
+          debug_log ufw allow 80/tcp                # http
+          debug_log ufw allow 53                    # dns
+          debug_log ufw allow 443/tcp               # https
+	  debug_log ufw allow 465/tcp               # email
+          debug_log ufw allow 2083/tcp              # openpanel
+          debug_log ufw allow 2087/tcp              # openadmin 
+    	  debug_log ufw allow 21/tcp                # ftp
+          debug_log ufw allow 21000:21010/tcp       # passive ftp
           debug_log "yes | ufw enable"
 	  
           if [ "$NO_SSH" = false ]; then
