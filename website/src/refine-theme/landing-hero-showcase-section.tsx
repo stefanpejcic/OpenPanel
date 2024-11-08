@@ -345,13 +345,13 @@ export const LandingHeroShowcaseSection = ({}) => {
 const apps = [
     {
         name: "OpenAdmin",
-        link: "https://demo.openpanel.org/openadmin/",
+        link: "https://demo.openpanel.org:2087/login",
         showcase: ShowcaseHR,
         label: "Admin panel demo",
     },
     {
         name: "OpenPanel",
-        link: "https://demo.openpanel.org/openpanel/",
+        link: "https://demo.openpanel.org:2083/login",
         showcase: ShowcaseCRM,
         label: "User panel demo",
     },
