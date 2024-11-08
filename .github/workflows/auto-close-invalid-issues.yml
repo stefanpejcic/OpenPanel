@@ -1,0 +1,48 @@
+name: Auto Close Invalid Issues
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight (UTC)
+  workflow_dispatch:
+
+jobs:
+  close_invalid_issues:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Close Stale Invalid Issues
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { data: issues } = await github.issues.listForRepo({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: 'invalid',
+            state: 'open'
+          });
+
+          const oneDayAgo = new Date();
+          oneDayAgo.setHours(oneDayAgo.getHours() - 24);
+
+          for (const issue of issues) {
+            const issueCreationDate = new Date(issue.created_at);
+            if (issueCreationDate <= oneDayAgo) {
+              await github.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: 'This issue has been marked as invalid and will be closed after 24 hours. If you believe this is a mistake, please reopen or create a new issue.'
+              });
+
+              await github.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }
+          }
+          
