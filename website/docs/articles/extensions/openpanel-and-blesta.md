@@ -4,4 +4,6 @@ OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/article
 
 ## Blesta extension
 
-Blesta extension is provided by a BlestaClub: https://blesta.club/extensions/openpanel
+OpenPanel Blesta extension allows users to integrate billing automations with their OpenPanel server.
+
+**Blesta extension is provided by BlestaClub**: https://blesta.club/extensions/openpanel
