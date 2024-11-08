@@ -85,6 +85,9 @@ FUNCTIONS=(
 
     # update admin from github
     download_new_admin
+    
+    # only for 0.3.5!!!!!!!!!!!!!!!!!!!
+    install_pip_pack
 
     # update opencli
     opencli_update
@@ -148,12 +151,14 @@ print_space_and_line() {
 
 
 
-
+install_pip_pack() {
+  # TEMPORAY FOR 0.3.5
+    echo "Installing flask_limiter.."
+  pip3 install --force-reinstall flask_limiter || pip3 install --force-reinstall flask_limiter --break-system-packages
+}
 
 
 restart_admin_panel_if_needed() {
-  # TEMPORAY FOR 0.3.5
-    pip3 install --force-reinstall flask_limiter || pip3 install --force-reinstall flask_limiter --break-system-packages
     echo "Restarting OpenAdmin service.."
     service admin restart
 }
