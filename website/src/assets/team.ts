@@ -18,7 +18,7 @@ export const team = [
     },
     {
         name: "Petar Curic",
-        avatar: "https://media.licdn.com/dms/image/v2/D5603AQEy4Mls-Fqo3Q/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1629923454941?e=1729123200&v=beta&t=HFdsd6n_UNQ_t8acQlF_mty_OaETTn6I3A78x0VReC0",
+        avatar: "https://media.licdn.com/dms/image/v2/D5603AQEy4Mls-Fqo3Q/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1629923454941?e=2147483647&v=beta&t=XB0GOUvF4-KfajPrDyLdmLH6abUP-DjooeRBmQUuATE",
         role1: "Frontend Developer",
     },
 //    {
