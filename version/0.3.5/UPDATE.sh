@@ -298,6 +298,8 @@ else
   echo "Table 'active_sessions' already exists."
 fi
 
+echo ""
+
 }
 
 
