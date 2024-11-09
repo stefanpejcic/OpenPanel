@@ -153,6 +153,17 @@ print_space_and_line() {
 
 install_pip_pack() {
   # TEMPORAY FOR 0.3.5
+
+echo "
+[USERS]
+impersonate=no
+
+
+[PANEL]
+login_ratelimit=5
+login_blocklimit=20" > /etc/openpanel/openadmin/config/admin.ini
+
+  
     echo "Installing flask_limiter.."
   pip3 install --force-reinstall flask_limiter || pip3 install --force-reinstall flask_limiter --break-system-packages
 }
