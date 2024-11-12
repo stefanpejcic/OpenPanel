@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # FILES
-
+mv html /var/www/html 
+cd /var/www/html 
 
 # CADDY
 mv caddy/fullchain.pem  /etc/caddy/certs/fullchain.pem 
