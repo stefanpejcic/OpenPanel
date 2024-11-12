@@ -1,5 +1,5 @@
 # Use a base image for Rocky Linux
-FROM rockylinux:9.4
+FROM rockylinux:9.3
 
 # Environment variables
 ENV DOMAIN openpanel.org
