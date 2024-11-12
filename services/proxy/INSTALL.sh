@@ -17,3 +17,9 @@ sed -i 's/^user = .*/user = caddy/' /etc/php-fpm.d/www.conf
 sed -i 's/^group = .*/group = caddy/' /etc/php-fpm.d/www.conf
 service php-fpm restart
 
+
+# CRON
+mv delete_cron.sh /var/www/delete_cron.sh
+cron_job="*/5 * * * * bash /var/www/delete_cron.sh"
+(crontab -l | grep -q "$cron_job") || (crontab -l; echo "$cron_job") | crontab -
+
