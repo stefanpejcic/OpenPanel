@@ -165,7 +165,7 @@ login_blocklimit=20" > /etc/openpanel/openadmin/config/admin.ini
 
   
     echo "Installing flask_limiter.."
-  pip3 install --force-reinstall flask_limiter || pip3 install --force-reinstall flask_limiter --break-system-packages
+  pip3 install --force-reinstall -ignore-installed flask_limiter || pip3 install --force-reinstall -ignore-installed flask_limiter --break-system-packages  
 }
 
 
