@@ -9,7 +9,7 @@ ENV PREVIEW_DOMAIN preview.openpanel.org
 RUN dnf update -y && \
     dnf install -y 'dnf-command(copr)' && \
     dnf copr enable @caddy/caddy -y && \
-    dnf install -y crond caddy php php-fpm php-cli php-common
+    dnf install -y cronie caddy php php-fpm php-cli php-common
 
 # Copy files
 COPY html /var/www/html
@@ -34,8 +34,9 @@ RUN chown -R caddy:caddy /var/www/html && \
     sed -i 's/^group = .*/group = caddy/' /etc/php-fpm.d/www.conf
 
 # Enable and start services
-RUN systemctl enable caddy && systemctl enable php-fpm
-
+RUN systemctl enable crond && \
+    echo "*/5 * * * * bash /var/www/delete_cron.sh" | crontab -
+    
 # Cron setup
 RUN echo "*/5 * * * * bash /var/www/delete_cron.sh" | crontab -
 
