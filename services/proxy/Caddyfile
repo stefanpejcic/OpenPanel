@@ -1,0 +1,83 @@
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+
+{
+    # for ssl
+    email stefan@netops.com
+}
+
+
+
+
+http://preview.openpanel.org {
+    root * /var/www/html
+    php_fastcgi unix//run/php-fpm/www.sock
+    file_server 
+    header {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Headers "Content-Type"
+    }
+}
+
+
+
+
+
+https://preview.openpanel.org {
+    root * /var/www/html
+    php_fastcgi unix//run/php-fpm/www.sock
+    file_server
+    header {
+    Access-Control-Allow-Origin "*"
+    Access-Control-Allow-Headers "Content-Type"
+    }
+
+    tls /etc/caddy/certs/fullchain.pem /etc/caddy/certs/privkey.pem
+}
+
+
+
+
+
+# HTTP block for the domain
+http://*.openpanel.org {
+    root * /var/www/html/domains/{labels.2}/
+    try_files {path} /index.php
+    php_fastcgi unix//run/php-fpm/www.sock
+    file_server
+
+    # Set CORS headers
+    header {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Headers "Content-Type"
+    }
+}
+
+
+
+
+
+# HTTPS block with Cloudflare's certificate
+https://*.openpanel.org {
+    root * /var/www/html/domains/{labels.2}/
+    try_files {path} /index.php
+    php_fastcgi unix//run/php-fpm/www.sock
+    file_server
+
+    # Set CORS headers
+    header {
+        Access-Control-Allow-Origin "*"
+        Access-Control-Allow-Headers "Content-Type"
+    }
+
+    # Use Cloudflare's SSL certificate and key
+    tls /etc/caddy/certs/fullchain.pem /etc/caddy/certs/privkey.pem
+}
