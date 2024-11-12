@@ -49,7 +49,14 @@ service php-fpm restart
 
 
 # CRON
-
 cron_job="*/5 * * * * bash /var/www/delete_cron.sh"
 (crontab -l | grep -q "$cron_job") || (crontab -l; echo "$cron_job") | crontab -
+
+# TEST
+# todo:
+# php info
+# caddy
+# domains
+# proxy
+# curl -s -o /dev/null -w "%{url_effective}\n" -X POST https://preview.openpanel.org/index.php      -d "stefan.openpanel.org" -d "ip=159.223.187.25"
 
