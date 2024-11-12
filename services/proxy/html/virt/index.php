@@ -40,7 +40,7 @@ $response = curl_exec($ch);
 
 if ($response === false) {
     $errorMessage = curl_error($ch);
-    echo "Error connecting to <code>$ip</code> on port <code>80</code> - make sure that domain <b> $domen </b> exists on the server <code>$ip</code> and has SSL certificate.<br>";
+    echo "Error connecting to <code>$ip</code> on port <code>80</code> - make sure that domain <b> $domen </b> exists on the server <code>$ip</code> and that web server is running.<br>";
     if (strpos($errorMessage, 'SSL') !== false) {
         curl_close($ch);
         echo "response: <pre>" . $errorMessage . "</pre>";
