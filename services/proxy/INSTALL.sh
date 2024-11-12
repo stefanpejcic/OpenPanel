@@ -4,9 +4,9 @@
 
 
 # CADDY
-cp caddy/fullchain.pem  /etc/caddy/certs/fullchain.pem 
-cp caddy/privkey.pem /etc/caddy/certs/privkey.pem
-mv Caddyfile /etc/caddy/Caddyfile
+mv caddy/fullchain.pem  /etc/caddy/certs/fullchain.pem 
+mv caddy/privkey.pem /etc/caddy/certs/privkey.pem
+mv caddy/Caddyfile /etc/caddy/Caddyfile
 
 
 service caddy restart
