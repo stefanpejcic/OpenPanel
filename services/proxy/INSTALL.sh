@@ -4,7 +4,11 @@
 
 
 # CADDY
+cp caddy/fullchain.pem  /etc/caddy/certs/fullchain.pem 
+cp caddy/privkey.pem /etc/caddy/certs/privkey.pem
 mv Caddyfile /etc/caddy/Caddyfile
+
+
 service caddy restart
 
 # PHP
