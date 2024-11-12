@@ -9,7 +9,7 @@ ENV PREVIEW_DOMAIN preview.openpanel.org
 RUN dnf update -y && \
     dnf install -y 'dnf-command(copr)' && \
     dnf copr enable @caddy/caddy -y && \
-    dnf install -y caddy php php-fpm php-cli php-common
+    dnf install -y crond caddy php php-fpm php-cli php-common
 
 # Copy files
 COPY html /var/www/html
@@ -28,9 +28,8 @@ RUN find /var/www/html -type f -exec sed -i "s/preview.openpanel.org/$PREVIEW_DO
 RUN chown -R caddy:caddy /var/www/html && \
     chmod -R 755 /var/www/html/domains && \
     chmod +x /var/www/delete_cron.sh && \
-    usermod -aG www-data caddy && \
     usermod -aG caddy caddy && \
-    chown caddy:caddy /run/php-fpm/www.sock && \
+    #####chown caddy:caddy /run/php-fpm/www.sock && \
     sed -i 's/^user = .*/user = caddy/' /etc/php-fpm.d/www.conf && \
     sed -i 's/^group = .*/group = caddy/' /etc/php-fpm.d/www.conf
 
