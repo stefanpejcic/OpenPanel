@@ -169,7 +169,7 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                         >
                             OpenCLI serves as the command line interface, enabling you to execute all actions through the terminal.
                         </p>
-                        <LandingSectionCtaButton to="/docs/category/openpanel-cli/">
+                        <LandingSectionCtaButton to="https://dev.openpanel.com/cli/">
                             All Commands
                         </LandingSectionCtaButton>
                     </div>
