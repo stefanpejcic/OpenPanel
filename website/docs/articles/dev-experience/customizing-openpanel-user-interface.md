@@ -14,6 +14,8 @@ To customize OpenPanel, you have the following options:
 - [Customize any page](#edit-any-page-template)
 - [Customize login page](#customize-login-page)
 - [Add custom CSS or JS code to the interface](#create-custom-pages)
+- [Self-hosted temporary links for SiteManager](/docs/articles/dev-experience/selfhosted-temporary-links-api/)
+- [Self-hosted screenshots for SiteManager](/docs/articles/dev-experience/selfhosted-screenshots-api/)
 
 
 ## Personalized messages
