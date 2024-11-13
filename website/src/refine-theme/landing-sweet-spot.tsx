@@ -428,13 +428,13 @@ const list = [
         ),
         iconText: "REDIS",
         image1Dark:
-            "/img/landing_slider/redis_dark_large.png",
+            "/img/ilustrations/redis_large.png",
         image1Light:
-            "/img/landing_slider/redis_white_large.png",
+            "/img/ilustrations/redis_large.png",
         image2Dark:
-            "/img/landing_slider/redis_dark_small.png",
+            "/img/ilustrations/redis_small.png",
         image2Light:
-            "/img/landing_slider/redis_white_small.png",
+            "/img/ilustrations/redis_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-cyan-dark bg-landing-sweet-spot-glow-cyan-light",
     },
