@@ -551,6 +551,15 @@ const tableData = [
                 },
             },
             {
+                description: "Varnish Caching",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Backups",
                 community: <CrossIcon />,
                 enterprise: (
@@ -583,8 +592,8 @@ const tableData = [
             },            
             {
                 description: "Auto Installers",
-                community: <TableText>WordPress and NodeJS/Python</TableText>,
-                enterprise: <TableText>WordPress, NodeJS/Python and 40+ Scripts</TableText>,
+                community: <TableText>WordPress, NodeJS, Python</TableText>,
+                enterprise: <TableText>WordPress, NodeJS, Python, Java</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -732,12 +741,12 @@ const tableData = [
                 },
             },
             {
-                description: "WHMCS Module",
+                description: "Billing Integrations",
                 community: <CrossIcon />,
-                enterprise: <CheckIcon />,
+                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">WHMCS</a>, <a href="/docs/articles/extensions/openpanel-and-fossbilling/">FOSSBilling</a>, <a href="/docs/articles/extensions/openpanel-and-blesta/">Blesta</a>, Paymenter.org</TableText>,
                 valueType: {
                     community: "icon",
-                    enterprise: "icon",
+                    enterprise: "text",
                 },
             },
             {
