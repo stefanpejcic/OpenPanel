@@ -335,13 +335,13 @@ const list = [
         ),
         iconText: "Nginx",
         image1Dark:
-            "/img/landing_slider/nginx_dark_large.png",
+            "/img/ilustrations/nginx_small.png",
         image1Light:
-            "/img/landing_slider/nginx_white_large.png",
+            "/img/ilustrations/nginx_large.png",
         image2Dark:
-            "/img/landing_slider/nginx_dark_small.png",
+            "/img/ilustrations/nginx_small.png",
         image2Light:
-            "/img/landing_slider/nginx_white_small.png",
+            "/img/ilustrations/nginx_large.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
