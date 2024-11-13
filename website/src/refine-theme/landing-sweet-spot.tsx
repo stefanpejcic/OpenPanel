@@ -335,13 +335,13 @@ const list = [
         ),
         iconText: "Nginx",
         image1Dark:
-            "/img/ilustrations/nginx_small.png",
+            "/img/ilustrations/nginx_large.png",
         image1Light:
             "/img/ilustrations/nginx_large.png",
         image2Dark:
             "/img/ilustrations/nginx_small.png",
         image2Light:
-            "/img/ilustrations/nginx_large.png",
+            "/img/ilustrations/nginx_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
@@ -358,13 +358,13 @@ const list = [
         ),
         iconText: "Docker",
         image1Dark:
-            "/img/ilustrations/docker_small.png",
+            "/img/ilustrations/docker_large.png",
         image1Light:
             "/img/ilustrations/docker_large.png",
         image2Dark:
             "/img/ilustrations/docker_small.png",
         image2Light:
-            "/img/ilustrations/docker_large.png",
+            "/img/ilustrations/docker_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
@@ -454,13 +454,13 @@ const list = [
         ),
         iconText: "PHP",
         image1Dark:
-            "/img/ilustrations/php_small.png",
+            "/img/ilustrations/php_large.png",
         image1Light:
             "/img/ilustrations/php_large.png",
         image2Dark:
             "/img/ilustrations/php_small.png",
         image2Light:
-            "/img/ilustrations/php_large.png",
+            "/img/ilustrations/php_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
