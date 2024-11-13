@@ -18,6 +18,8 @@ Once your Spring Boot application is packaged into a `.jar` file, upload it to y
 4. Specify the **domain** and **port** on which you want the app to run locally.
 5. Click **Create** and wait for the process to complete.
 
+![add java application in OpenPanel](/img/panel/v1/applications/add_java_app.png)
+
 OpenPanel will automatically install the required tools, including **NPM**, **PM2**, **Java**, and **JDK**. It will then start your application, configure a reverse proxy for the domain to the specified port, and ensure that your app starts automatically when the system boots up.
 
 By following these steps, your Spring Boot application will be fully set up and running on OpenPanel.
