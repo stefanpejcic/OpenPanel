@@ -454,13 +454,13 @@ const list = [
         ),
         iconText: "PHP",
         image1Dark:
-            "/img/landing_slider/php_dark_large.png",
+            "/img/ilustrations/php_small.png",
         image1Light:
-            "/img/landing_slider/php_white_large.png",
+            "/img/ilustrations/php_large.png",
         image2Dark:
-            "/img/landing_slider/php_dark_small.png",
+            "/img/ilustrations/php_small.png",
         image2Light:
-            "/img/landing_slider/php_white_small.png",
+            "/img/ilustrations/php_large.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
