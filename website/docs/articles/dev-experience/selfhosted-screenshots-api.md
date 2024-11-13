@@ -24,7 +24,7 @@ Replace `http://screenshots-api.openpanel.com/screenshot` with the URL of the th
 
 If you have multiple OpenPanel servers and want to use your own screenshots API, you can designate one server to generate all the screenshots for domains hosted on other servers.
 
-To do this, set up the [Screenshots API service for OpenPanel](https://github.com/stefanpejcic/OpenPanel/blob/main/services/screenshots/README.md) on one server, add the domain to it, and then update the screenshots service on your OpenPanel servers to use the new instance:
+To do this, set up the [Screenshots API service for OpenPanel](https://github.com/stefanpejcic/OpenPanel/blob/main/services/screenshots/README.md) on one server, add the domain to it, and then update the [screenshots](https://dev.openpanel.com/cli/config.html#screenshots) service on your OpenPanel servers to use the new instance:
 
 ```
 opencli config update screenshots "http://your-screenshots-api.com:5000/screenshot"
