@@ -26,7 +26,7 @@ Administrators can set a custom message to be displayed for any OpenPanel user b
 
 ## Enable/disable features
 
-Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface. To activate a feature, navigate to [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#enable-features) and select service name in the "Enable Features" section and click save. 
+Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface. To activate a feature, navigate to [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#enable-features) and select service name in the "Enable Features" section and click save. 
 
 Once enabled, the feature becomes instantly available to all users, appearing in the OpenPanel interface sidebar, search results, and dashboard icons.
 
