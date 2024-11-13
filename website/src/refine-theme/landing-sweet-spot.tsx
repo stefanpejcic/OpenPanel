@@ -478,13 +478,13 @@ const list = [
         ),
         iconText: "Firewall",
         image1Dark:
-            "/img/landing_slider/firewall_dark_large.png",
+            "/img/ilustrations/firewall_large.png",
         image1Light:
-            "/img/landing_slider/firewall_white_large.png",
+            "/img/ilustrations/firewall_large.png",
         image2Dark:
-            "/img/landing_slider/firewall_dark_small.png",
+            "/img/ilustrations/firewall_small.png",
         image2Light:
-            "/img/landing_slider/firewall_white_small.png",
+            "/img/ilustrations/firewall_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-indigo-dark bg-landing-sweet-spot-glow-indigo-light",
     },
