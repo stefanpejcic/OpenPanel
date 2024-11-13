@@ -17,7 +17,7 @@ const ShowcaseHR = ({ className }: { className?: string }) => {
     return (
         <ShowcaseWrapper
             className={className}
-            render="/img/openadmin.png"
+            render="/img/ilustrations/openadmin_ilustration.png"
             highlights={[]}
         />
     );
