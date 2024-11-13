@@ -379,13 +379,13 @@ const list = [
         ),
         iconText: "MySQL",
         image1Dark:
-            "/img/landing_slider/mysql_dark_large.png",
+            "/img/ilustrations/mysql_large.png",
         image1Light:
-            "/img/landing_slider/mysql_white_large.png",
+            "/img/ilustrations/mysql_large.png",
         image2Dark:
-            "/img/landing_slider/mysql_dark_small.png",
+            "/img/ilustrations/mysql_small.png",
         image2Light:
-            "/img/landing_slider/mysql_white_small.png",
+            "/img/ilustrations/mysql_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-yellow-dark bg-landing-sweet-spot-glow-yellow-light",
     },
