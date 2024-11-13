@@ -358,13 +358,13 @@ const list = [
         ),
         iconText: "Docker",
         image1Dark:
-            "/img/landing_slider/docker_dark_large.png",
+            "/img/ilustrations/docker_small.png",
         image1Light:
-            "/img/landing_slider/docker_white_large.png",
+            "/img/ilustrations/docker_large.png",
         image2Dark:
-            "/img/landing_slider/docker_dark_small.png",
+            "/img/ilustrations/docker_small.png",
         image2Light:
-            "/img/landing_slider/docker_white_small.png",
+            "/img/ilustrations/docker_large.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
