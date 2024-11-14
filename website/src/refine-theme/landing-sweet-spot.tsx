@@ -369,7 +369,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
     {
-        title: "Separate MySQL instances",
+        title: "Separate MySQL or MariaDB servers",
         description: `Each user has their own MySQL or MariaDB instance and can edit configuration settings for their databases.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 -2 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
@@ -439,7 +439,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-cyan-dark bg-landing-sweet-spot-glow-cyan-light",
     },
     {
-        title: "PHP, Python and NodeJS",
+        title: "PHP, Java, Python, NodeJS",
         description: `Each user can install PHP versions, edit .ini files and set versions per domain name.`,
         icon: (props: { active: boolean }) => (
         <svg viewBox="0 0 256 134" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" width="24" height="24">
@@ -465,8 +465,8 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
     {
-        title: "ModSecurity & Firewall",
-        description: `Each user can enable/disable ModSecurity for their websites or block IP addresses per domain name.`,
+        title: "CSF or UFW",
+        description: `OpenPanel supports both Uncomplicated Firewall and ConfigServer Security and Firewall (CSF).`,
         icon: (props: { active: boolean }) => (
              <AuthenticationIcon
                 className={clsx(
