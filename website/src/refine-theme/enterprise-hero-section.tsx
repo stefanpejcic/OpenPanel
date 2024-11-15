@@ -72,7 +72,7 @@ export const EnterpriseHeroSection = ({
                         "landing-md:h-[360px] landing-md:w-[326px]",
                         "landing-md:h-[360px] landing-md:w-[326px]",
                     )}
-                    srcDark="/img/ilustrations/for_dark.png"
+                    srcDark="/img/hero.png"
                     srcLight="/img/hero.png"
                     alt="openpanel enterprise image"
                 />
