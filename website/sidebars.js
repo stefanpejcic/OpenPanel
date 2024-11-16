@@ -267,7 +267,6 @@ const mainSidebar = {
      'changelog/0.1.6',
      'changelog/0.1.5',
      'changelog/0.1.4',
-     'changelog/0.1.4',
      'changelog/0.1.3',
      'changelog/0.1.2',
      'changelog/0.1.1',
