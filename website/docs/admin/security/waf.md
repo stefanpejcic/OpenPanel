@@ -14,7 +14,7 @@ The OWASP ModSecurity Core Rule Set (CRS) is a set of generic attack detection r
 
 Upon the initial access to the ModSecurity page, you will be prompted to install the ModSecurity plugin.
 
-:::warning
+:::danger
 The installation process may require up to 10 minutes and involves rebuilding the Nginx configuration. It's important to note that any customizations to the service will be permanently removed during this process. It is advisable to perform the installation during off-peak hours to minimize the risk of causing downtime for websites.
 :::
 
