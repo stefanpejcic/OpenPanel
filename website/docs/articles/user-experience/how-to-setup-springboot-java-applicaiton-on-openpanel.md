@@ -4,7 +4,11 @@ Running Java applications on OpenPanel is simple and efficient. Follow the steps
 
 ## Step 1: Upload the .jar File
 
-Once your Spring Boot application is packaged into a `.jar` file, upload it to your OpenPanel account. You can do this using one of the following methods:
+Once your Spring Boot application is packaged into a `.jar` file, upload it to your OpenPanel account.
+
+Here is an example [helloworld.jar](https://github.com/stefanpejcic/OpenPanel/tree/main/applications/java) file that you can use for testing.
+
+To upload the.jar file to OpenPanel account use one of the following methods:
 - [**FileManager**](/docs/panel/files/#upload-files) within OpenPanel
 - [**FTP**](/docs/panel/files/FTP/) for remote file transfers
 - [**WebTerminal**](/docs/panel/advanced/terminal/) for terminal-based file uploads
