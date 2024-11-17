@@ -49,7 +49,7 @@ bash <(curl -sSL https://openpanel.org)
 
 The installation script supports [optional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
 
-If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.co).
+If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
 
   </TabItem>
   <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean">
