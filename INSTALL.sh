@@ -11,7 +11,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           16.11.2024
+# Last Modified:           18.11.2024
 #
 ################################################################################
 
@@ -1496,13 +1496,39 @@ setup_bind(){
      	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
 
-echo "Generating rndc.key for DNS zone management." 
- # generate unique rndc.key
-debug_log docker run -it --rm \
-    -v /etc/bind/:/etc/bind/ \
-    --entrypoint=/bin/sh \
-    ubuntu/bind9:latest \
-    -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+	echo "Generating rndc.key for DNS zone management."
+	
+	RNDC_KEY_PATH="/etc/bind/rndc.key"
+	RETRY_LIMIT_FOR_RDNC=5
+	RETRY_COUNT_RDNC=0
+	
+	while [ $RETRY_COUNT_RDNC -lt $RETRY_LIMIT_FOR_RDNC ]; do
+	    debug_log "Attempt $((RETRY_COUNT_RDNC + 1)) to generate rndc.key..."
+	    
+	    # Run the Docker command to generate rndc.key
+	    debug_log docker run -it --rm \
+	        -v /etc/bind/:/etc/bind/ \
+	        --entrypoint=/bin/sh \
+	        ubuntu/bind9:latest \
+	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+	    
+	    # Check if the file exists
+	    if [ -f "$RNDC_KEY_PATH" ]; then
+	        echo "rndc.key successfully generated."
+	    else
+	        debug_log "Error: rndc.key not found after attempt $((RETRY_COUNT_RDNC + 1))."
+	    fi
+	
+	    RETRY_COUNT_RDNC=$((RETRY_COUNT_RDNC + 1))
+	    sleep 2
+	done
+
+
+    if [ -f "$RNDC_KEY_PATH" ]; then
+        :
+    else
+	radovan 1 "Failed to generate rndc.key after $RETRY_LIMIT attempts. Exiting."
+    fi
 
 chmod 0777 -R /etc/bind
      
