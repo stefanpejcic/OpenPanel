@@ -11,7 +11,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           18.11.2024
+# Last Modified:           19.11.2024
 #
 ################################################################################
 
