@@ -15,6 +15,10 @@ jobs:
     env:
       DOCKER_BUILDKIT: 1
 
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]  # Build for both x86_64 and ARM
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -28,9 +32,10 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Nginx image
+    - name: Build and push Nginx MariaDB image
       uses: docker/build-push-action@v3
       with:
         context: ./docker/ubuntu_nginx_mariadb
         push: true
         tags: openpanel/nginx-mariadb:latest
+        platforms: ${{ matrix.platform }}  # Specify the platform from the matrix
