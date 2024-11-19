@@ -863,6 +863,12 @@ docker_compose_up(){
    	apt install apparmor -y   > /dev/null 2>&1
     fi
 
+
+    if [ "$REPAIR" = true ]; then
+    	echo "Deleting all existing MySQL data in volume root_openadmin_mysql due to the '--repair' flag."
+        docker volume rm root_openadmin_mysql > /dev/null 2>&1
+    fi
+
    
     # from 0.2.5 we only start mysql by default
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
