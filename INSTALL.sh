@@ -274,6 +274,15 @@ setup_progress_bar_script(){
 
 display_what_will_be_installed(){
  	echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
+    	if [ -z "$SKIP_REQUIREMENTS" ]; then
+	if [ "$architecture" == "x86_64" ]; then
+  	echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
+	elif [ "$architecture" == "aarch64" ]; then
+  	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+   	else
+      	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+ 	fi
+  	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
  	echo -e "[ OK ] INSTALLED PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
 	if [ "$FS_TYPE" = "xfs" ]; then
@@ -392,8 +401,13 @@ check_requirements() {
 
         if [ "$architecture" == "aarch64" ]; then
 	    # https://github.com/stefanpejcic/openpanel/issues/63 
-            echo -e "${RED}Error: ARM CPU is not supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}" >&2
-            exit 1
+            echo -e "${YELLOW}WARNING: ARM CPU architecture is not yet fully supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}"
+	    echo -e "- user panel and all other services such as Nginx, DNS, MySQL, CSF, etc. will work as usual."
+     	    echo -e "- ${RED}admin panel will not work${RESET}, meaning that you will have to perform all actions from the terminal: https://dev.openpanel.com/cli/"
+      	    echo -e ""
+	    echo -e "To have the OpenAdmin panel, please use a server with ${GREEN}x86_64${RESET} CPU architecture instead."
+            echo -e ""
+            #exit 1
         fi
 
         # check if the current user is root
@@ -1728,14 +1742,17 @@ install_openadmin(){
     chmod +x /usr/local/admin/service/watcher.sh
     service watcher start  > /dev/null 2>&1
     systemctl enable watcher  > /dev/null 2>&1
-    
-    echo "Testing if OpenAdmin service is available on default port '2087':"
-    if ss -tuln | grep ':2087' >/dev/null; then
-	echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
-    else
-        radovan 1 "OpenAdmin service is NOT listening on port 2087."
-    fi
 
+    if [ "$architecture" == "x86_64" ]; then    
+	    echo "Testing if OpenAdmin service is available on default port '2087':"
+	    if ss -tuln | grep ':2087' >/dev/null; then
+		echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
+	    else
+	        radovan 1 "OpenAdmin service is NOT listening on port 2087."
+	    fi
+    else
+    echo "WARNING: OpenAdmin might not work on your CPU architecture! please use x86_64 instead."
+    fi
 
 
 }
