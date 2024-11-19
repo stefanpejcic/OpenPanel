@@ -1551,11 +1551,12 @@ setup_bind(){
      	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
 
-	echo "Generating rndc.key for DNS zone management."
-	
 	RNDC_KEY_PATH="/etc/bind/rndc.key"
 	RETRY_LIMIT_FOR_RDNC=5
 	RETRY_COUNT_RDNC=0
+ 
+     if [ ! -f "$RNDC_KEY_PATH" ]; then
+	echo "Generating rndc.key for DNS zone management."
 	
 	while [ $RETRY_COUNT_RDNC -lt $RETRY_LIMIT_FOR_RDNC ]; do
 	    debug_log "Attempt $((RETRY_COUNT_RDNC + 1)) to generate rndc.key..."
@@ -1577,12 +1578,13 @@ setup_bind(){
 	    RETRY_COUNT_RDNC=$((RETRY_COUNT_RDNC + 1))
 	    sleep 2
 	done
-
-
-    if [ -f "$RNDC_KEY_PATH" ]; then
-        echo "rndc.key successfully generated."
+	    if [ -f "$RNDC_KEY_PATH" ]; then
+	        echo "rndc.key successfully generated."
+	    else
+		radovan 1 "Failed to generate rndc.key after $RETRY_LIMIT attempts. Exiting."
+	    fi
     else
-	radovan 1 "Failed to generate rndc.key after $RETRY_LIMIT attempts. Exiting."
+    	echo "rndc.key already exists."
     fi
 
 chmod 0777 -R /etc/bind
