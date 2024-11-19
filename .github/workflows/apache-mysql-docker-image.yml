@@ -15,6 +15,10 @@ jobs:
     env:
       DOCKER_BUILDKIT: 1
 
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]  # Build for both x86_64 and ARM
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -34,3 +38,4 @@ jobs:
         context: ./docker/apache
         push: true
         tags: openpanel/apache:latest
+        platforms: ${{ matrix.platform }}  # Specify the platform from the matrix
