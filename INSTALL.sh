@@ -401,13 +401,8 @@ check_requirements() {
 
         if [ "$architecture" == "aarch64" ]; then
 	    # https://github.com/stefanpejcic/openpanel/issues/63 
-            echo -e "${YELLOW}WARNING: ARM CPU architecture is not yet fully supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}"
-	    echo -e "- user panel and all other services such as Nginx, DNS, MySQL, CSF, etc. will work as usual."
-     	    echo -e "- ${RED}admin panel will not work${RESET}, meaning that you will have to perform all actions from the terminal: https://dev.openpanel.com/cli/"
-      	    echo -e ""
-	    echo -e "To have the OpenAdmin panel, please use a server with ${GREEN}x86_64${RESET} CPU architecture instead."
-            echo -e ""
-            #exit 1
+            echo -e "${RED}ERROR: ARM CPU architecture is not yet supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}"
+	    exit 1
         fi
 
         # check if the current user is root
@@ -844,16 +839,14 @@ docker_compose_up(){
 
  
     if [ "$SET_PREMIUM" = true ]; then
-    	# setup 4 plans in database
     	cp /etc/openpanel/mysql/initialize/0.4/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
     else
-    	# setup 2 plans in database
     	cp /etc/openpanel/mysql/initialize/0.4/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
     fi
 
     # compose doesnt alllow /
     cd /root
-    rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default mycnf, and on repair we already have symlink and .env
+    rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default my.cnf, and on repair we already have symlink and .env
 
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
