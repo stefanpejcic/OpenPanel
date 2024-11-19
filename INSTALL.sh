@@ -1513,7 +1513,7 @@ setup_bind(){
 	    
 	    # Check if the file exists
 	    if [ -f "$RNDC_KEY_PATH" ]; then
-	        echo "rndc.key successfully generated."
+	 	:
 	    else
 	        debug_log "Error: rndc.key not found after attempt $((RETRY_COUNT_RDNC + 1))."
 	    fi
@@ -1524,7 +1524,7 @@ setup_bind(){
 
 
     if [ -f "$RNDC_KEY_PATH" ]; then
-        :
+        echo "rndc.key successfully generated."
     else
 	radovan 1 "Failed to generate rndc.key after $RETRY_LIMIT attempts. Exiting."
     fi
