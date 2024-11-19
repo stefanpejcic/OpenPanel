@@ -866,7 +866,8 @@ docker_compose_up(){
 
     if [ "$REPAIR" = true ]; then
     	echo "Deleting all existing MySQL data in volume root_openadmin_mysql due to the '--repair' flag."
-        docker volume rm root_openadmin_mysql > /dev/null 2>&1
+	cd /root && docker compose down > /dev/null 2>&1          # in case mysql was running
+        docker volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
 
    
