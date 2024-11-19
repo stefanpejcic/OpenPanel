@@ -1,4 +1,4 @@
-name: Build and Push Nginc Docker Image
+name: Build and Push Nginx Docker Image
 
 on:
   push:
