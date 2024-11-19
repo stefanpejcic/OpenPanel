@@ -388,8 +388,6 @@ main() {
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
 
-        
-
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
@@ -411,13 +409,14 @@ check_requirements() {
             echo -e "${RED}Error: running openpanel inside a container is not supported.${RESET}" >&2
             exit 1
         fi
-        # check if python version is supported
-        current_python_version=$(python3 --version 2>&1 | cut -d " " -f 2 | cut -d "." -f 1,2 | tr -d '.')
-        allowed_versions=("39" "310" "311" "312" "38")
-        if [[ ! " ${allowed_versions[@]} " =~ " ${current_python_version} " ]]; then
-            echo -e "${RED}Error: Unsupported Python version $current_python_version. No corresponding branch available.${RESET}" >&2
-            exit 1
-        fi
+    fi
+    
+    # check if python version is supported
+    current_python_version=$(python3 --version 2>&1 | cut -d " " -f 2 | cut -d "." -f 1,2 | tr -d '.')
+    allowed_versions=("39" "310" "311" "312" "38")
+    if [[ ! " ${allowed_versions[@]} " =~ " ${current_python_version} " ]]; then
+       echo -e "${RED}Error: Unsupported Python version $current_python_version. No corresponding branch available.${RESET}" >&2
+       exit 1
     fi
 }
 
