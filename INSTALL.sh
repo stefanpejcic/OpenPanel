@@ -839,14 +839,14 @@ docker_compose_up(){
 
     # compose doesnt alllow /
     cd /root
-    
+    rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default mycnf, and on repair we already have symlink and .env
+
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
         
     # save it to /etc/my.cnf
-    rm -rf /etc/my.cnf  > /dev/null 2>&1 # on centos we get default mycnf, and on repair we already have symlink
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
