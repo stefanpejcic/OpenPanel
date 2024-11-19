@@ -1,19 +1,23 @@
-name: Build and Push Apache MariaDB Docker Image
+name: Build and Push Nginx MariaDB Docker Image
 
 on:
   push:
     paths:
-      - 'docker/ubuntu_apache_mariadb/**'
+      - 'docker/ubuntu_nginx_mariadb/**'
   pull_request:
     paths:
-      - 'docker/ubuntu_apache_mariadb/**'
+      - 'docker/ubuntu_nginx_mariadb/**'
 
 jobs:
-  build-and-push-apache:
+  build-and-push-nginx:
     runs-on: ubuntu-latest
 
     env:
       DOCKER_BUILDKIT: 1
+
+    strategy:
+      matrix:
+        platform: [linux/amd64, linux/arm64]  # Build for both x86_64 and ARM
 
     steps:
     - name: Checkout repository
@@ -28,9 +32,10 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Build and push Apache image
+    - name: Build and push Nginx MariaDB image
       uses: docker/build-push-action@v3
       with:
-        context: ./docker/ubuntu_apache_mariadb
+        context: ./docker/ubuntu_nginx_mariadb
         push: true
-        tags: openpanel/apache-mariadb:latest
+        tags: openpanel/nginx-mariadb:latest
+        platforms: ${{ matrix.platform }}  # Specify the platform from the matrix
