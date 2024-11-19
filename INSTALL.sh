@@ -775,12 +775,60 @@ configure_docker() {
 
 docker_compose_up(){
     echo "Setting docker-compose.."
-    # install docker compose
+    # install docker compose on dnf
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
     curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-        
+
+        architecture=$(lscpu | grep Architecture | awk '{print $2}')
+
+	if [ "$architecture" == "aarch64" ]; then
+		# need to download compose and add it as alias
+		debug_log curl -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
+		debug_log chmod +x /usr/bin/docker-compose   
+
+		function_to_insert='docker() {
+		  if [[ $1 == "compose" ]]; then
+		    /usr/local/bin/docker-compose "${@:2}"
+		  else
+		    command docker "$@"
+		  fi
+		}'
+		
+		# Check which shell configuration file to edit
+		if [ -f "$HOME/.bashrc" ]; then
+		    config_file="$HOME/.bashrc"
+		elif [ -f "$HOME/.zshrc" ]; then
+		    config_file="$HOME/.zshrc"
+		else
+		    radovan 1 "ERROR: Neither .bashrc nor .zshrc file found. Exiting."
+		fi
+		
+		# Check if the function already exists in the config file
+		if grep -q "docker() {" "$config_file"; then
+		    :
+		else
+		    # Add the function to the configuration file
+		    echo "$function_to_insert" >> "$config_file"
+		    debug_log "Function 'docker' has been added to $config_file."
+		    source "$config_file"
+		fi
+  
+        fi
+
+
+
+
+
+
+
+
+
+
+
+ 
     if [ "$SET_PREMIUM" = true ]; then
     	# setup 4 plans in database
     	cp /etc/openpanel/mysql/initialize/0.4/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
@@ -1333,10 +1381,12 @@ configure_nginx() {
 
     echo "Setting Nginx configuration.."
 
-    mkdir -p /etc/nginx/{sites-available,sites-enabled} /etc/letsencrypt /var/log/nginx/domlogs /usr/share/nginx/html
-    
+    mkdir -p /etc/nginx/{sites-available,sites-enabled} /etc/letsencrypt /var/log/nginx/domlogs /usr/share/nginx/html    
     ln -s /etc/openpanel/nginx/options-ssl-nginx.conf /etc/letsencrypt/options-ssl-nginx.conf
-    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048   > /dev/null 2>&1
+    dhparams_file="/etc/letsencrypt/ssl-dhparams.pem"
+    if [ ! -f "$dhparams_file" ]; then
+	openssl dhparam -out "$file" 2048 > /dev/null 2>&1
+    fi
 
     # https://dev.openpanel.com/services/nginx
     ln -s /etc/openpanel/nginx/nginx.conf /etc/nginx/nginx.conf
