@@ -846,7 +846,7 @@ docker_compose_up(){
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
         
     # save it to /etc/my.cnf
-    rm -rf /etc/my.cnf  > /dev/null 2>&1 # on centos we get default mycnf..
+    rm -rf /etc/my.cnf  > /dev/null 2>&1 # on centos we get default mycnf, and on repair we already have symlink
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
