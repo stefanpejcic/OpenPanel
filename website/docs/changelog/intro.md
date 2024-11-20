@@ -10,18 +10,19 @@ sidebar_class_name: green
 
 | Version| Released | 
 |---|---|
-|__[0.3.5](/docs/changelog/0.3.5)__| November 08, 2024 | 
+|__[0.3.6](/docs/changelog/0.3.6)__| November 20, 2024 | 
 
 ### Next version (Unreleased)
 
 |   |   |
 |---|---|
-|__[0.3.6](/docs/changelog/0.3.6)__| __[Roadmap](/roadmap)__|
+|__[0.3.7](/docs/changelog/0.3.7)__| __[Roadmap](/roadmap)__|
 
 ### Past versions
 
 | Version | Released | Highlight |
 |---|---|---|
+| [0.3.5](/docs/changelog/0.3.5) | 08.11.2024 | [fix several vulnerabilities](https://openpanel.com/docs/changelog/0.3.5/#%EF%B8%8F-security-fixes) |
 | [0.3.4](/docs/changelog/0.3.4) | 31.10.2024 | Bug fixes |
 | [0.3.3](/docs/changelog/0.3.3) | 25.10.2024 | Support for PIP and NPM commands |
 | [0.3.2](/docs/changelog/0.3.2) | 16.10.2024 | Bug fixes |
