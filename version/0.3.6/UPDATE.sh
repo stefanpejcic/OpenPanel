@@ -238,7 +238,7 @@ docker_compose_up_with_newer_images(){
 
 verify_license() {
     # Get server ipv4
-    current_ip=$(curl -s --max-time 10 https://ip.openpanel.co || wget -qO- --timeout=10 https://ip.openpanel.co)
+    current_ip=$(curl -s --max-time 10 https://ip.openpanel.com || wget -qO- --timeout=10 https://ip.openpanel.com)
     echo "Checking OpenPanel license for IP address: $current_ip" 
     echo ""
     server_hostname=$(hostname)
