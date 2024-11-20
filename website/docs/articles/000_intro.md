@@ -6,6 +6,7 @@ sidebar_position: 1
 
 - [Import account from cPanel backup](/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
 - [How to change PHP execution limit for phpMyAdmin in OpenPanel](/docs/articles/databases/how-to-increase-php-execution-limit-for-phpmyadmin-in-openpanel/)
+- [How to setup a Spring Boot Java Application on OpenPanel](/docs/articles/user-experience/how-to-setup-springboot-java-applicaiton-on-openpanel/)
 - [Building a Custom Docker image: pre-install IonCube Loader](/docs/articles/docker/building_a_docker_image_example_include_php_ioncubeloader/)
 - [Upgrading to OpenPanel Enterprise and activating License](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
 - [Setup Remote SMTP Server for OpenPanel](/docs/articles/user-experience/setup-remote-smtp-server-for-openpanel/#whitelist-the-remote-smtp-server)
