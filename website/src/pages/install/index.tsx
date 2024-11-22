@@ -19,6 +19,7 @@ const defaultOptions: InstallOptions = {
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
     username: { value: "", description: "Set admin username (by default random generated)." },
     password: { value: "", description: "Set admin password (by default random generated)." },
+    "docker-space": { value: "", description: "Specify the size in GB to allocate to Docker." },
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
@@ -64,7 +65,7 @@ const Install: React.FC = () => {
         let command = "bash <(curl -sSL https://openpanel.org)";
         for (const [option, config] of Object.entries(installOptions)) {
             if (option !== "version" || (option === "version" && config.value !== latestVersion)) {
-                if (config.value || ["version", "hostname", "email", "screenshots", "post-install"].includes(option)) {
+                if (config.value || ["version", "hostname", "email", "screenshots", "docker-space", "post-install"].includes(option)) {
                     if (option === "screenshots" && config.value === "local") {
                         command += ` --screenshots=local`;
                     } else if (option === "screenshots" && config.value === "remote") {
