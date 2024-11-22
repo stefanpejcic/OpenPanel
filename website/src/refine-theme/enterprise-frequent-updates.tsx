@@ -104,7 +104,7 @@ export const EnterpriseFrequentUpdates = ({
                         "h-[232px] landing-sm:h-[360px]",
                     )}
                     srcDark="/img/svg/openpanel_dark_logo_ilustration.png"
-                    srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/refine-git-history-logo-light.png"
+                    srcLight="/img/svg/openpanel_dark_logo_ilustration.png"
                 />
             </div>
         </div>
