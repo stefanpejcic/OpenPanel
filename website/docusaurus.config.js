@@ -339,7 +339,7 @@ const siteConfig = {
             },
         },
         colorMode: {
-            defaultMode: "light",
+            defaultMode: "dark",
         },
     },
     customFields: {
