@@ -16,13 +16,13 @@ Mimumum Requirements:
 
 - A blank full virtual machine or bare metal server
 - Minimum of 1GB RAM and 15GB storage (4GB RAM and 50GB is recommended)
-- x86_64/amd64 architecture
+- x86_64/amd64 architecture **[support for ARM (AArch64) is in progress](https://github.com/stefanpejcic/OpenPanel/issues/63)*
 - IPv4 address
 
 Supported OS:
 - **Ubuntu 22 and 24**
 - **Debian 11 and 12**
-- **AlmaLinux 9.4**
+- **AlmaLinux 9.2, 9.4**
 - **RockyLinux 9.4**
 - **CentOS 9**
 
