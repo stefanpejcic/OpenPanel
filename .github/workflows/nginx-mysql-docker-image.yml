@@ -1,4 +1,4 @@
-name: Build and Push Nginx Docker Image
+name: Build and Push Nginx MySQL Docker Image
 
 on:
   push:
