@@ -32,9 +32,11 @@ If you are using external firewall, the following ports should be opened:  `53` 
 
 ## Installation
 
+OpenPanel can be installed on both VPS and bare-metal servers. 
+
+### Install OpenPanel on VPS
+
 The installation process takes about 5 minutes. To install openpanel follow these steps: 
-
-
 
 <Tabs>
   <TabItem value="openpanel-install-on-dedicated" label="Install script" default>
@@ -52,7 +54,7 @@ The installation script supports [optional flags](/install) that can be used to 
 If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
 
   </TabItem>
-  <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean">
+  <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean Droplet">
 
 OpenPanel is available as a 1-Click app (droplet) on DigitalOcean. Click on the button to spin a droplet with OpenPanel already installed:
 
@@ -69,6 +71,39 @@ curl -X POST -H 'Content-Type: application/json' \
 
   </TabItem>
 </Tabs>
+
+### Installing OpenPanel on a bare-metal server
+
+When installing OpenPanel on a bare-metal server, it is recommended to format the disk with the XFS filesystem and enable the 'pquota' mount option. This is required for Docker's OverlayFS storage driver to function properly, as it allows setting user quotas and limiting container sizes on newer kernels. More details on these requirements can be found in the [Docker OverlayFS documentation](https://docs.docker.com/engine/storage/drivers/overlayfs-driver/#prerequisites).
+
+If your disk is not formatted with XFS, the OpenPanel installation script will automatically allocate 50% of the available storage. It will then create an XFS storage file and mount it at `/var/lib/docker/`. This process may take a considerable amount of time on servers with large storage capacities (e.g., several terabytes). In such cases, we recommend manually setting the filesystem to XFS or adjusting the storage file size. Alternatively, you can specify a custom size during installation by using the `--docker-space` flag. For instance, to allocate only 100GB for Docker, you can use: `--docker-space=100`.
+
+To install OpenPanel on a bare-metal server:
+
+
+<Tabs>
+  <TabItem value="openpanel-install-on-baremetal" label="Allocate 50% of disk to Docker" default>
+
+```shell
+bash <(curl -sSL https://openpanel.org)
+```
+
+  </TabItem>
+  <TabItem value="openpanel-install-on-baremetal-size" label="Set disk size for Docker (faster install)">
+
+*replace `250` with the disk size in GB to allocate to Docker.
+
+```shell
+bash <(curl -sSL https://openpanel.org) --docker-space=250
+```
+
+  </TabItem>
+</Tabs>
+
+
+The installation script supports [additional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
+
+If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
 
 
 ## Post Install Steps
