@@ -11,7 +11,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           20.11.2024
+# Last Modified:           25.11.2024
 #
 ################################################################################
 
@@ -756,17 +756,21 @@ configure_docker() {
 
 
 
-
 	if [ -f /etc/fedora-release ]; then
- 		# On Fedora journald handles docker log-driver
 		cp ${ETC_DIR}docker/overlay2/fedora.json "$docker_daemon_json_path"
-  
   		# fix for bug https://github.com/containers/podman/issues/13684
     		restorecon -R -v /var/lib/docker  >/dev/null 2>&1
   	else
    		cp ${ETC_DIR}docker/overlay2/xfs_file.json "$docker_daemon_json_path"
-
  	fi
+
+   	dockerd --validate --config-file ${docker_daemon_json_path}
+	if [[ $? -eq 0 ]]; then
+		echo "Docker configuration valid, proceeding to reload daemon"
+	else
+		radovan 1 "File ${docker_daemon_json_path} contains syntax errors. Retry the install with '--retry' flag."
+	fi
+
 
 	echo "Starting Docker and checking status.."
 	systemctl daemon-reload
