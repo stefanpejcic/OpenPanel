@@ -69,6 +69,33 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 # ======================================================================
 # Helper functions that are not mandatory and should not be modified
 
+setup_terminal() {
+  TPUT_RESET=""
+  TPUT_WHITE=""
+  TPUT_BGRED=""
+  TPUT_BGGREEN=""
+  TPUT_BOLD=""
+  TPUT_DIM=""
+
+  test -t 2 || return 1
+
+  if command -v tput > /dev/null 2>&1; then
+    if num_colors=$(tput colors 2> /dev/null) && [ "${num_colors:-0}" -ge 8 ]; then
+      TPUT_RESET="$(tput sgr 0)"
+      TPUT_WHITE="$(tput setaf 7)"
+      TPUT_BGRED="$(tput setab 1)"
+      TPUT_BGGREEN="$(tput setab 2)"
+      TPUT_BOLD="$(tput bold)"
+      TPUT_DIM="$(tput dim)"
+    fi
+  fi
+
+  echo "${TPUT_RESET}"
+
+  return 0
+}
+
+
 # logo
 print_header() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
@@ -124,8 +151,9 @@ install_started_message(){
 
 # Display error and exit
 radovan() {
-    echo -e "${RED}Error: $2${RESET}" >&2
-    exit $1
+    printf >&2 "%s\n\n" "${TPUT_BGRED}${TPUT_WHITE}${TPUT_BOLD} FAILED ${TPUT_RESET}"
+    echo -e "Error: $2$" >&2
+    exit 1
 }
 
 
@@ -1813,6 +1841,7 @@ create_admin_and_show_logins_success_message() {
 # ======================================================================
 # Main program
 
+setup_terminal || echo > /dev/null
 # shellcheck disable=SC2068
 parse_args "$@"
 get_server_ipv4
