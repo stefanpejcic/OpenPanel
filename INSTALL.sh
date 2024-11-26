@@ -11,7 +11,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           25.11.2024
+# Last Modified:           26.11.2024
 #
 ################################################################################
 
@@ -1009,11 +1009,39 @@ setup_firewall_service() {
             }
 
           edit_csf_conf() {
-	  echo "Tweaking /etc/csf/csf.conf"
-              sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
-	      sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
-              sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
-              sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
+	  	echo "Tweaking /etc/csf/csf.conf"
+	  	sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
+	  	sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
+	  	sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
+	  	sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
+	  	
+    		echo "Blocking known TOR and PROXY blacklists"
+		blocklist_exists() {
+		    local section_name=$1
+		    grep -qF "Name: $section_name" /etc/csf/csf.blocklists
+		}
+		
+		# Check if the sections exist, add them if missing
+		if ! blocklist_exists "PROXYSPY"; then
+		    echo -e "# Name: PROXYSPY\n# Information: Open proxies (updated hourly)\nPROXYSPY|86400|0|http://txt.proxyspy.net/proxy.txt\n" >> /etc/csf/csf.blocklists
+		fi
+		
+		if ! blocklist_exists "XROXY"; then
+		    echo -e "# Name: XROXY\n# Information: Open proxies (this list is composed using an RSS feed)\nXROXY|86400|0|http://www.xroxy.com/proxyrss.xml\n" >> /etc/csf/csf.blocklists
+		fi
+		
+		if ! blocklist_exists "PROXYLISTS"; then
+		    echo -e "# Name: PROXYLISTS\n# Information: Open proxies (this list is composed using an RSS feed)\nPROXYLISTS|86400|0|http://www.proxylists.net/proxylists.xml\n" >> /etc/csf/csf.blocklists
+		fi
+		
+		if ! blocklist_exists "BI_PROXY_2_30D"; then
+		    echo -e "# Name: BI_PROXY_2_30D\n# Information: Bad IPs in category proxy with score above 2 and age less than 30d\nBI_PROXY_2_30D|172800|0|https://www.badips.com/get/list/proxy/2?age=30d\n" >> /etc/csf/csf.blocklists
+		fi
+		
+		if ! blocklist_exists "TOR Exit nodes"; then
+		    echo -e "# Name: TOR Exit nodes\n# Information: Blocks known TOR exit notes\nTOR|86400|0|https://www.dan.me.uk/torlist/\n" >> /etc/csf/csf.blocklists
+		fi
+     
           }
       
           set_csf_email_address() {
