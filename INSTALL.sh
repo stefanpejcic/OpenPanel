@@ -17,45 +17,16 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# COLORS
+# ======================================================================
+# Constants
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
+export TERM=xterm-256color                                            # bug fix: tput: No value for $TERM and no -T specified
 
-# tput: No value for $TERM and no -T specified
-export TERM=xterm-256color
-
-
-# DEFAULTS
+# ======================================================================
+# Defaults for environment variables
 CUSTOM_VERSION=false                                                  # default version is latest
 INSTALL_TIMEOUT=600                                                   # after 10min, consider the install failed
 DEBUG=false                                                           # verbose output for debugging failed install
@@ -77,7 +48,8 @@ SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
 SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
 
-# PATHS
+# ======================================================================
+# PATHs used throughout the script
 ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
 LOG_FILE="openpanel_install.log"                                      # install log
 LOCK_FILE="/root/openpanel.lock"                                      # install running
@@ -94,15 +66,8 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 
 
 
-
-
-#####################################################################
-#                                                                   #
-# START helper functions                                            #
-#                                                                   #
-#####################################################################
-
-
+# ======================================================================
+# Helper functions that are not mandatory and should not be modified
 
 # logo
 print_header() {
@@ -298,33 +263,11 @@ display_what_will_be_installed(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# ======================================================================
+# Core program logic
 setup_progress_bar_script
+source "$PROGRESS_BAR_FILE"               # Source the progress bar script
 
-# Source the progress bar script
-source "$PROGRESS_BAR_FILE"
-
-
-# Dsiplay progress bar
 FUNCTIONS=(
 detect_os_and_package_manager             # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
@@ -363,36 +306,18 @@ update_progress() {
 }
 
 main() {
-    # Make sure that the progress bar is cleaned up when user presses ctrl+c
-    enable_trapping
-    
-    # Create progress bar
-    setup_scroll_area
+    enable_trapping                       # clean on CTRL+C
+    setup_scroll_area                     # load progress bar
     for func in "${FUNCTIONS[@]}"
     do
-        # Execute each function
-        $func
-        update_progress
+        $func                             # Execute each function
+        update_progress                   # update progress after each
     done
     destroy_scroll_area
 }
 
 
 
-
-# END helper functions
-
-
-
-
-
-
-
-#####################################################################
-#                                                                   #
-# START main functions                                              #
-#                                                                   #
-#####################################################################
 
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
@@ -431,6 +356,9 @@ check_requirements() {
 
 
 parse_args() {
+
+# ======================================================================
+# Usage info
     show_help() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
@@ -464,7 +392,8 @@ parse_args() {
 
 
 
-
+# ======================================================================
+# Change defaults
 while [[ $# -gt 0 ]]; do
     case $1 in
         --key=*)
@@ -1686,28 +1615,48 @@ setup_swap(){
 
 
 
+
 support_message() {
-    echo ""
-    echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
-    echo ""
-    echo "Your journey with OpenPanel has just begun, and we're here to help every step of the way."
-    echo ""
-    echo "To get started, check out our Getting Started guide:"
-    echo "👉 https://openpanel.com/docs/admin/intro/#post-install-steps"
-    echo ""
-    echo "Need assistance or looking to learn more? We've got you covered:"
-    echo ""
-    echo "📚 Admin Docs: Dive into our comprehensive documentation for all things OpenPanel:"
-    echo "👉 https://openpanel.com/docs/admin/intro/"
-    echo ""
-    echo "💬 Forums: Join our community forum to ask questions, share tips, and connect with fellow admins:"
-    echo "👉 https://community.openpanel.org/"
-    echo ""
-    echo "🎮 Discord: For real-time chat and support, hop into our Discord server:"
-    echo "👉 https://discord.openpanel.com/"
-    echo ""
-    echo "We're thrilled to have you with us. Let's make something amazing together! 🚀"
-    echo ""
+	
+	DISCORD_INVITE_URL="https://discord.openpanel.com/"
+	FORUMS_LINK="https://community.openpanel.org/"
+	DOCS_LINK="https://openpanel.com/docs/admin/intro/"
+ 	DOCS_GET_STARTED_LINK="https://openpanel.com/docs/admin/intro/#post-install-steps"
+	GITHUB_LINK="https://github.com/stefanpejcic/OpenPanel/"
+ 	TICKETS_URL="https://my.openpanel.com/submitticket.php?step=2&deptid=2"
+
+	support_message_for_enterprise() {
+	    echo ""
+	    echo "🎉 Welcome aboard and thank you for choosing OpenPanel Enterprise edition! 🎉"
+	    echo ""
+	    echo "Need assistance or looking to learn more? We've got you covered:"
+	    echo "  - Check the Admin Docs: $DOCS_LINK"
+     	    echo "  - Open Support Ticket: $TICKETS_URL"
+	    echo "  - Chat with us on Discord: $DISCORD_INVITE_URL"
+     	    echo ""
+	}
+
+	support_message_for_community() {
+	    echo ""
+	    echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
+	    echo ""
+	    echo "To get started, check out our Post Install Steps:"
+	    echo "👉 $DOCS_GET_STARTED_LINK"
+	    echo ""
+	    echo "Join our community and connect with us on::"
+	    echo "  - Github: $GITHUB_LINK"
+	    echo "  - Discord: $DISCORD_INVITE_URL"
+	    echo "  - Our community forums: $FORUMS_LINK"
+	    echo ""
+	}
+
+	if [[ "$LICENSE" == "Enterprise" ]]; then
+ 		support_message_for_enterprise
+	else
+ 		support_message_for_community
+   	fi
+
+    
 }
 
 panel_customize(){
@@ -1860,63 +1809,25 @@ create_admin_and_show_logins_success_message() {
 
 }
 
-# END main functions
 
+# ======================================================================
+# Main program
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#####################################################################
-#                                                                   #
-# START main script execution                                       #
-#                                                                   #
-#####################################################################
-
+# shellcheck disable=SC2068
 parse_args "$@"
-
 get_server_ipv4
-
 detect_filesystem
-
 set_version_to_install
-
 print_header
-
 check_requirements
-
 detect_installed_panels
-
 check_lock_file_age
-
 install_started_message
-
 main
-
 rm_helpers
-
 print_space_and_line
-
 support_message
-
 print_space_and_line
-
 send_install_log
-
 create_admin_and_show_logins_success_message
-
 run_custom_postinstall_script
-
-
-# END main script execution
