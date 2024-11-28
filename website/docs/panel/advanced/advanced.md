@@ -6,7 +6,7 @@ sidebar_position: 1
 
 The Advanced page allows you to view and edit server configuration. 
 
-:::warning
+:::danger
 This section is for advanced users only. Exercise caution while making changes, as improper configurations can impact server performance and functionality."
 :::
 
