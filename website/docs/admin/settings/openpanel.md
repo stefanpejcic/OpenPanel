@@ -114,7 +114,7 @@ webserver feature enables the [Server > Nginx/Apache Configuration Editor page](
 process_manager feature enables the  [Advanced > Process Manager](/docs/panel/advanced/process_manager/) page where users can view all running processes and kill (force stop the process).
 
 ### IP Blocker
-ip_blocker feature enables the [IP Blocker](/#) page where users can block IP addresses per domain name.
+ip_blocker feature enables the [IP Blocker](/docs/panel/advanced/ip_blocker) page where users can block IP addresses per domain name.
 
 ### Login History
 login_history feature enables the [Account > Login History page](/docs/panel/account/login_history/) where users can view up to 10 last logins.
