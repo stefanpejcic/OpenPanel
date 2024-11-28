@@ -166,6 +166,10 @@ const mainSidebar = {
         },
          {
           type: 'doc',
+          id: 'panel/advanced/ip_blocker',
+        },
+         {
+          type: 'doc',
           id: 'panel/advanced/server_settings',
         },
       ],
@@ -188,13 +192,17 @@ const mainSidebar = {
         },
          {
           type: 'doc',
+          id: 'panel/account/notifications',
+        },
+         {
+          type: 'doc',
           id: 'panel/account/login',
         },
       ],
     },
     {
         type: "link",
-        href: "https://community.openpanel.com",
+        href: "https://community.openpanel.org",
         label: "Join our Community",
         className: "enterprise-badge",
     }
