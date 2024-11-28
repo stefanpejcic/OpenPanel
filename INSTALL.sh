@@ -659,6 +659,12 @@ configure_docker() {
 			available_space=$(df --output=avail / | tail -1)
 			available_gb=$((available_space / 1024 / 1024))
 			gb_size=$((available_gb * 50 / 100))
+   			USE_50_PERCENT=true
+			# and if 400G+ on the server, then limit it to 200G for faster install!
+   			if ((gb_size > 200)); then
+			    gb_size=200
+       				USE_50_PERCENT=false
+			fi	
 		    fi
   
 	
@@ -666,8 +672,18 @@ configure_docker() {
 		    if [ -f /var/lib/docker.img ]; then
 		        echo "/var/lib/docker.img already exists. Skipping creation."
 		    else
-         		echo "Creating a storage file of ${gb_size}GB (50% of available disk) to be used for Docker - this can take a few minutes.."  
+      			if [ "$CUSTOM_GB_DOCKER" = true ]; then
+         			echo "Creating a storage file of ${gb_size}GB (user specified value) to be used for Docker - this can take a few minutes.."  
+	   		else
+        			if [ "$USE_50_PERCENT" = true ]; then
+         				echo "Creating a storage file of ${gb_size}GB (50% of available storage) to be used for Docker - this can take a few minutes.."  
+	 			else
+         				echo "Creating a storage file of ${gb_size}GB (for faster install process) to be used for Docker - this can take a few minutes.."  
+	 			fi
+	 		fi
+    
 		        dd if=/dev/zero of=/var/lib/docker.img bs=1G count=${gb_size} status=progress
+	  
 		    fi
 			echo "Creating the XFS filesystem.."
 	  		# todo: add checks
