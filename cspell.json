@@ -27,6 +27,7 @@
     "devicemapper",
     "modsec",
     "TTFB",
+    "ipsets",
     "Mautic",
     "Flarum",
     "mountpoint",
