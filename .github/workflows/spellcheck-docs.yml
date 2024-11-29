@@ -32,14 +32,18 @@ jobs:
     - name: Run cspell
       run: |
         if [ -n "${{ github.event.inputs.directory }}" ]; then
-          cspell "${{ github.event.inputs.directory }}/**/*.md" "${{ github.event.inputs.directory }}/**/*.mdx"
+          cspell "${{ github.event.inputs.directory }}/**/*.md" "${{ github.event.inputs.directory }}/**/*.mdx" > report.txt || true
         else
-          cspell "website/docs/**/*.md" "website/docs/**/*.mdx"
+          cspell "website/docs/**/*.md" "website/docs/**/*.mdx" > report.txt || true
         fi
 
     - name: Upload Spell Check Report
-      if: failure()
       uses: actions/upload-artifact@v3
       with:
         name: spell-check-report
         path: report.txt
+        if-no-files-found: warn
+
+    - name: Fail Workflow on Errors
+      if: failure()
+      run: exit 1
