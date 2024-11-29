@@ -35,6 +35,12 @@
     "ioncube",
     "doveadm",
     "inodes",
-    "clamav"
+    "clamav",
+    "strongpass",
+    "Spamhaus",
+    "strongpass",
+    "smarthost",
+    "Roundcube",
+    "pejcic"
   ]
 }
