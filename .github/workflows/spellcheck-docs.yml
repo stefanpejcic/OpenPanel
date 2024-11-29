@@ -3,15 +3,15 @@ name: Spell Check
 on:
   pull_request:
     paths:
-      - 'website/**/*.md'
-      - 'website/**/*.mdx'
+      - 'website/docs/**/*.md'
+      - 'website/docs/**/*.mdx'
 
   workflow_dispatch:
     inputs:
       directory:
         description: 'Directory to check'
         required: false
-        default: 'website'
+        default: 'website/docs'
 
 jobs:
   spell-check:
@@ -34,7 +34,7 @@ jobs:
         if [ -n "${{ github.event.inputs.directory }}" ]; then
           cspell "${{ github.event.inputs.directory }}/**/*.md" "${{ github.event.inputs.directory }}/**/*.mdx"
         else
-          cspell "website/**/*.md" "website/**/*.mdx"
+          cspell "website/docs/**/*.md" "website/docs/**/*.mdx"
         fi
 
     - name: Upload Spell Check Report
