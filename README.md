@@ -150,3 +150,6 @@ Here’s how you can help:
 - **Fixing CSS/JS Bugs**: If you have some experience with front-end development, you can [help squash bugs in our CSS and JavaScript](https://github.com/stefanpejcic/OpenPanel/issues).
 
 No prior experience required — if you’re eager to learn and contribute, we’ll support you along the way! Feel free to message me at: stefan@pejcic.rs
+
+![issue resolution time](https://isitmaintained.com/badge/resolutionstefanpejcic/OpenPanel.svg)
+![open issue percentage](https://isitmaintained.com/badge/open/stefanpejcic/OpenPanel.svg)
