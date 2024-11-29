@@ -1,0 +1,22 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "ignorePaths": [
+    "node_modules",
+    "build",
+    "dist",
+    ".git",
+    "website/build"
+  ],
+  "dictionaries": [
+    "typescript",
+    "javascript",
+    "html",
+    "markdown"
+  ],
+  "words": [
+    "Docusaurus",
+    "inodes",
+    "clamav"
+  ]
+}
