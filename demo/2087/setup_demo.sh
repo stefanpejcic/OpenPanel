@@ -137,7 +137,36 @@ upload_wp_site_files() {
 }
 
 
+create_db_user_import_wpdb() {
+  # step 1. start mysql
+  docker exec stefan bash -c "service mysql start"
 
+  # step 2. create user, db and privileges
+  db_name="stefan_wp"
+  db_user="stefan_wp"
+  db_password="9823bdbds6732fdsw232rsd"
+  run_command_in_user_container() {}
+    command="$1"
+    docker exec stefan bash -c "mysql -u root -e '$command;'"
+  }
+  create_db_command="CREATE DATABASE $db_name"
+  create_user_command="CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_password'"
+  privileges_command="GRANT ALL PRIVILEGES ON $db_name TO '$db_user'@'%'"
+  flush_command="FLUSH PRIVILEGES"
+  phpmyadmin_also="GRANT ALL ON *.* TO 'phpmyadmin'@'localhost'"
+  
+  create_db_user_import_wpdb $create_db_command
+  create_db_user_import_wpdb $create_user_command
+  create_db_user_import_wpdb $privileges_command
+  create_db_user_import_wpdb $phpmyadmin_also
+  create_db_user_import_wpdb $flush_command
+
+
+  # TODO REST FROM > https://git.devnet.rs/stefan/2083/-/blob/main/modules/wordpress.py
+  # step 3. todo: test connection
+
+  # step 4. import wp tables
+}
 
 
 ##########################################
