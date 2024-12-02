@@ -126,6 +126,19 @@ setup_admin_panel
 
 setup_user_panel
 
+# TODO: also some helloworld py or node app
+
+# upload wp files from external - maybe git or download latest wp
+upload_wp_site_files
+
+# create db for user, import wp or inicialize with wpcli
+create_db_user_import_wpdb
+
+# test it
+test_site_curl
+
+# scan to add site in wpmanager for the demo user
+opencli websites-scan -all
 
 #echo "DONE."
 
