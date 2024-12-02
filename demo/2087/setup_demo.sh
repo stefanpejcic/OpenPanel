@@ -3,13 +3,6 @@
 # this script is used for creating demo.openpanel.org on every new version release
 # it installs latest version of openpanel, creates dummy accounts with data, and finally adds them on the login pages.
 #
-#
-: '
-wget -O /root/demo.sh https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/demo/2087/setup_demo.sh && \
-export DIGITALOCEAN_TOKEN="XXXXXXXXXXXXXXXXXXX" && \
-bash <(curl -sSL https://openpanel.org) --hostname=demo.openpanel.org --post_install=/root/demo.sh
-'
-#
 # todo: edit existing restore task to use new snapshot and droplet id's.
 #
 
@@ -210,30 +203,12 @@ connect_wpdb_and_files() {
     docker exec ${username} bash -c "wp config shuffle-salts --path=/home/${username}/${domain}/ --allow-root"
 }
 
-create_snapshot() {
-  
-  # get panel version
-  version=(opencli version)
-  
-  # Create snapshot
-  response=$(curl -s -X POST \
-    -H "Content-Type: application/json" \
-    -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" \
-    -d "{\"type\":\"snapshot\",\"name\":\"${version} demo snapshot\"}" \
-    "https://api.digitalocean.com/v2/droplets/$droplet_id/actions")
-  
-  # Extract the snapshot ID from the response
-  snapshot_id=$(echo "$response" | jq -r '.action.resource_id')
-  
-  # Output the snapshot ID
-  if [ "$snapshot_id" != "null" ] && [ -n "$snapshot_id" ]; then
-    echo "Snapshot ID: $snapshot_id"
-  else
-    echo "Failed to retrieve snapshot ID."
-  fi
-
+cleanup() {
+  rm -rf /root/demo.sh
+  history -c
+  history -w
+  > ~/.bash_history
 }
-
 
 
 ##########################################
@@ -264,10 +239,9 @@ echo "get droplet id"
 get_droplet_id
 
 echo "cleaning up.."
-rm -rf /root/demo.sh
+cleanup
 
 echo "creating snapshot"
-create_snapshot
 
 
 # todo: change snapshot id in the file for job!
