@@ -120,6 +120,28 @@ opencli user-suspend another
 
 echo "Setting demo..."
 
+##########################################
+
+
+upload_wp_site_files() {
+  local wp_site_path="/home/stefan/demo.openpanel.org"
+  local wp_archive="https://wordpress.org/wordpress-latest.tar.gz"
+  
+  rm -rf /tmp/wp-site
+  mkdir -p /tmp/wp-site
+  cd /tmp/wp-site
+  wget $wp_archive
+  tar -xzvf $wp_archive
+  cp -r wordpress/ $wp_site_path/
+  rm -rf /tmp/wp-site
+}
+
+
+
+
+
+##########################################
+
 write_fake_data
 
 setup_admin_panel
@@ -130,7 +152,6 @@ setup_user_panel
 
 # upload wp files from external - maybe git or download latest wp
 upload_wp_site_files
-
 # create db for user, import wp or inicialize with wpcli
 create_db_user_import_wpdb
 
