@@ -169,6 +169,38 @@ create_db_user_import_wpdb() {
 }
 
 
+connect_wpdb_and_files() {
+    # edit wpconfig
+    wp_config_file="wp-config.php"
+    cd /home/stefan/demo.openpanel.org
+    mv wp-config-sample.php "$wp_config_file"
+    sed -i "s/database_name_here/$db_name/g" "$wp_config_file"
+    sed -i "s/username_here/$db_user/g" "$wp_config_file"
+    sed -i "s/password_here/$db_password/g" "$wp_config_file"
+
+    docker exec stefan bash -c 'wp core install --url=https://demo.openpanel.org --title="Demo Site" --admin_user=stefan --admin_password="ash732vfadsf" --admin_email=admin@openpanel.org --path=/home/stefan/demo.openpanel.org --allow-root'
+
+    # autologin
+    docker exec stefan bash -c 'wp package install aaemnnosttv/wp-cli-login-command --path=/home/stefan/demo.openpanel.org --allow-root'
+
+    # prettylinks
+    echo "
+    # BEGIN WordPress
+    RewriteEngine On
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    RewriteBase /
+    RewriteRule ^index\\.php$ - [L]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /index.php [L]
+    # END WordPress
+    " > /home/stefan/demo.openpanel.org/.htaccess
+
+    # permissions
+    chown -R 1000:33 /home/stefan/demo.openpanel.org/
+    
+}
+
 ##########################################
 
 write_fake_data
@@ -179,15 +211,9 @@ setup_user_panel
 
 # TODO: also some helloworld py or node app
 
-# upload wp files from external - maybe git or download latest wp
 upload_wp_site_files
-# create db for user, import wp or inicialize with wpcli
 create_db_user_import_wpdb
-
-# test it
-test_site_curl
-
-# scan to add site in wpmanager for the demo user
+connect_wpdb_and_files
 opencli websites-scan -all
 
 #echo "DONE."
