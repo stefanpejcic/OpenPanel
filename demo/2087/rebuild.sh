@@ -38,4 +38,27 @@ if [[ $? -ne 0 ]]; then
   exit 1
 fi
 
+
+# Step 3. create a snapshot
+version=(opencli version)
+
+response=$(curl -s -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" \
+  -d "{\"type\":\"snapshot\",\"name\":\"${version} demo snapshot\"}" \
+  "https://api.digitalocean.com/v2/droplets/$droplet_id/actions")
+  
+snapshot_id=$(echo "$response" | jq -r '.action.resource_id')
+  
+if [ "$snapshot_id" != "null" ] && [ -n "$snapshot_id" ]; then
+  echo "Snapshot ID: $snapshot_id"
+else
+  echo "Failed to retrieve snapshot ID."
+fi
+
+
+# step 4. set the job to restore it
+# TODO!!!!!
+
+
 echo "Panel installation and demo setup completed successfully."
