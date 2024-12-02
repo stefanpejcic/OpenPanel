@@ -3,7 +3,14 @@
 # this script is used for creating demo.openpanel.org on every new version release
 # it installs latest version of openpanel, creates dummy accounts with data, and finally adds them on the login pages.
 #
-# todo: generate droplet snapshot when finished, edit existing restore task to use new snapshot and droplet id's.
+#
+: '
+wget -O /root/demo.sh https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/demo/2087/setup_demo.sh && \
+export DIGITALOCEAN_TOKEN="XXXXXXXXXXXXXXXXXXX" && \
+bash <(curl -sSL https://openpanel.org) --hostname=demo.openpanel.org --post_install=/root/demo.sh
+'
+#
+# todo: edit existing restore task to use new snapshot and droplet id's.
 #
 
 
@@ -24,50 +31,50 @@ setup_admin_panel() {
   echo "Password: $new_password"
   echo " "
   
-  # set the data on login form
-sed -i -e "s/Type the Username and Password and click Signin./Type the Username <code>$new_username<\/code> and Password <code>$new_password<\/code> and click Signin./" \
-       -e "s/<input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"admin\" autocomplete=\"off\" required=\"\" autofocus>/<input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"admin\" autocomplete=\"off\" required=\"\" autofocus value=\"$new_username\">/" \
-       -e "s/<input type=\"password\" name=\"password\" class=\"form-control\" placeholder=\"\*\*\*\*\*\*\*\*\" autocomplete=\"off\">/<input type=\"password\" name=\"password\" class=\"form-control\" placeholder=\"\*\*\*\*\*\*\*\*\" autocomplete=\"off\" value=\"$new_password\">/" \
-    $file_path
+    # set the data on login form
+  sed -i -e "s/Type the Username and Password and click Signin./Type the Username <code>$new_username<\/code> and Password <code>$new_password<\/code> and click Signin./" \
+         -e "s/<input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"admin\" autocomplete=\"off\" required=\"\" autofocus>/<input type=\"text\" class=\"form-control\" name=\"username\" placeholder=\"admin\" autocomplete=\"off\" required=\"\" autofocus value=\"$new_username\">/" \
+         -e "s/<input type=\"password\" name=\"password\" class=\"form-control\" placeholder=\"\*\*\*\*\*\*\*\*\" autocomplete=\"off\">/<input type=\"password\" name=\"password\" class=\"form-control\" placeholder=\"\*\*\*\*\*\*\*\*\" autocomplete=\"off\" value=\"$new_password\">/" \
+      $file_path
 
-echo "Restarting admin service for 2087"
+    echo "Restarting admin service for 2087"
     service admin restart
 }
 
 
 setup_user_panel(){
   generae_pass=$(opencli user-password stefan random)
-new_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $NF}')
+  new_password=$(echo "$generae_pass" | grep "new generated password is:" | awk '{print $NF}')
+  
+  echo "Generated password: $new_password"
 
-echo "Generated password: $new_password"
 
-
-escaped_password=$(printf '%s\n' "$new_password" | sed -e 's/[\/&]/\\&/g')
+  escaped_password=$(printf '%s\n' "$new_password" | sed -e 's/[\/&]/\\&/g')
   echo "Escaped password: $escaped_password"
 
   file_path="/usr/local/panel/templates/user/login.html"
   
-# Prepare sed commands
-sed_command_username="s|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus>|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus value=\"stefan\">|"
-sed_command_password="s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\">|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" value=\"$escaped_password\">|"
+  # Prepare sed commands
+  sed_command_username="s|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus>|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus value=\"stefan\">|"
+  sed_command_password="s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\">|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" value=\"$escaped_password\">|"
 
   echo "Sed command for username: $sed_command_username"
   echo ""
 
-echo "Sed command for password: $sed_command_password"
+  echo "Sed command for password: $sed_command_password"
   echo ""
-docker exec openpanel sed -i "$sed_command_username" "$file_path"
-docker exec openpanel sed -i "$sed_command_password" "$file_path"
+  docker exec openpanel sed -i "$sed_command_username" "$file_path"
+  docker exec openpanel sed -i "$sed_command_password" "$file_path"
       echo ""
       echo "Restarting docker container for 2083 panel.."
     docker restart openpanel
 
 }
-
+  
 
 
 write_fake_data(){
-echo "Creating dummy data.."
+  echo "Creating dummy data.."
   file_path="/etc/openpanel/openadmin/usage_stats.json"
   today=$(date +%Y-%m-%d)
   
@@ -75,13 +82,13 @@ echo "Creating dummy data.."
   for i in {4..0}; do
       dates+=($(date -d "$today - $i day" +%Y-%m-%d))
   done
+    
+  printf '{"timestamp": "%s", "users": 0, "domains": 0, "websites": 0}\n' "${dates[0]}" > "$file_path"
   
-printf '{"timestamp": "%s", "users": 0, "domains": 0, "websites": 0}\n' "${dates[0]}" > "$file_path"
-
-printf '{"timestamp": "%s", "users": 1, "domains": 1, "websites": 0}\n' "${dates[1]}" >> "$file_path"
-printf '{"timestamp": "%s", "users": 1, "domains": 2, "websites": 2}\n' "${dates[2]}" >> "$file_path"
-printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates[3]}" >> "$file_path"
-printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates[4]}" >> "$file_path"
+  printf '{"timestamp": "%s", "users": 1, "domains": 1, "websites": 0}\n' "${dates[1]}" >> "$file_path"
+  printf '{"timestamp": "%s", "users": 1, "domains": 2, "websites": 2}\n' "${dates[2]}" >> "$file_path"
+  printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates[3]}" >> "$file_path"
+  printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates[4]}" >> "$file_path"
 
 
   echo "Usage stats JSON data written to $file_path"
@@ -91,15 +98,10 @@ printf '{"timestamp": "%s", "users": 2, "domains": 3, "websites": 4}\n' "${dates
 
 
 get_droplet_id() {
-droplet_id=$(curl http://169.254.169.254/metadata/v1/id)
-echo "droplet id: $droplet_id"
-
+  droplet_id=$(curl http://169.254.169.254/metadata/v1/id)
+  echo "droplet id: $droplet_id"
 }
 
-
-echo "Installing latest panel version.."
-
-bash <(curl -sSL https://openpanel.org) --hostname=demo.openpanel.org 
 
 
 echo "Creating dummy accounts for demo.."
@@ -131,8 +133,8 @@ upload_wp_site_files() {
   mkdir -p /tmp/wp-site
   cd /tmp/wp-site
   wget $wp_archive
-  tar -xzvf $wp_archive
-  cp -r wordpress/ $wp_site_path/
+  tar -xzvf wordpress-latest.tar.gz
+  cp -r wordpress/. $wp_site_path
   rm -rf /tmp/wp-site
 }
 
@@ -141,47 +143,52 @@ create_db_user_import_wpdb() {
   # step 1. start mysql
   docker exec stefan bash -c "service mysql start"
 
-  # step 2. create user, db and privileges
+  # Define variables
   db_name="stefan_wp"
   db_user="stefan_wp"
   db_password="9823bdbds6732fdsw232rsd"
-  run_command_in_user_container() {}
-    command="$1"
-    docker exec stefan bash -c "mysql -u root -e '$command;'"
-  }
-  create_db_command="CREATE DATABASE $db_name"
-  create_user_command="CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_password'"
-  privileges_command="GRANT ALL PRIVILEGES ON $db_name TO '$db_user'@'%'"
-  flush_command="FLUSH PRIVILEGES"
-  phpmyadmin_also="GRANT ALL ON *.* TO 'phpmyadmin'@'localhost'"
   
-  create_db_user_import_wpdb $create_db_command
-  create_db_user_import_wpdb $create_user_command
-  create_db_user_import_wpdb $privileges_command
-  create_db_user_import_wpdb $phpmyadmin_also
-  create_db_user_import_wpdb $flush_command
+  # Function to run a command in the Docker container
+  run_command_in_user_container() {
+      command="$1"
+      docker exec stefan bash -c "mysql -u root -e \"$command\""
+  }
+  
+  # Define SQL commands
+  create_db_command="CREATE DATABASE $db_name;"
+  create_user_command="CREATE USER '$db_user'@'%' IDENTIFIED BY '$db_password';"
+  privileges_command="GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user'@'%';"
+  phpmyadmin_also="GRANT ALL ON *.* TO 'phpmyadmin'@'localhost';"
+  flush_command="FLUSH PRIVILEGES;"
+  
+  # Execute SQL commands
+  run_command_in_user_container "$create_db_command"
+  run_command_in_user_container "$create_user_command"
+  run_command_in_user_container "$privileges_command"
+  run_command_in_user_container "$phpmyadmin_also"
+  run_command_in_user_container "$flush_command"
 
 
   # TODO REST FROM > https://git.devnet.rs/stefan/2083/-/blob/main/modules/wordpress.py
-  # step 3. todo: test connection
-
-  # step 4. import wp tables
 }
 
 
 connect_wpdb_and_files() {
     # edit wpconfig
     wp_config_file="wp-config.php"
+    domain="demo.openpanel.org"
+    username="stefan"
     cd /home/stefan/demo.openpanel.org
-    mv wp-config-sample.php "$wp_config_file"
+    mv /home/stefan/demo.openpanel.org/wp-config-sample.php /home/stefan/demo.openpanel.org/$wp_config_file
     sed -i "s/database_name_here/$db_name/g" "$wp_config_file"
     sed -i "s/username_here/$db_user/g" "$wp_config_file"
     sed -i "s/password_here/$db_password/g" "$wp_config_file"
-
-    docker exec stefan bash -c 'wp core install --url=https://demo.openpanel.org --title="Demo Site" --admin_user=stefan --admin_password="ash732vfadsf" --admin_email=admin@openpanel.org --path=/home/stefan/demo.openpanel.org --allow-root'
+    
+    # install
+    docker exec stefan bash -c 'wp core install --url=https://${domain} --title="Demo Site" --admin_user=${username} --admin_password="ash732vfadsf" --admin_email=admin@${domain} --path=/home/${username}/${domain} --allow-root'
 
     # autologin
-    docker exec stefan bash -c 'wp package install aaemnnosttv/wp-cli-login-command --path=/home/stefan/demo.openpanel.org --allow-root'
+    docker exec stefan bash -c 'wp package install aaemnnosttv/wp-cli-login-command --path=/home/${username}/${domain} --allow-root'
 
     # prettylinks
     echo "
@@ -194,30 +201,79 @@ connect_wpdb_and_files() {
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule . /index.php [L]
     # END WordPress
-    " > /home/stefan/demo.openpanel.org/.htaccess
+    " > /home/${username}/${domain}/.htaccess
 
     # permissions
-    chown -R 1000:33 /home/stefan/demo.openpanel.org/
-    
+    chown -R 1000:33 /home/${username}/${domain}/
+
+    # salts
+    docker exec ${username} bash -c "wp config shuffle-salts --path=/home/${username}/${domain}/ --allow-root"
 }
 
-##########################################
+create_snapshot() {
+  
+  # get panel version
+  version=(opencli version)
+  
+  # Create snapshot
+  response=$(curl -s -X POST \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $DIGITALOCEAN_TOKEN" \
+    -d "{\"type\":\"snapshot\",\"name\":\"${version} demo snapshot\"}" \
+    "https://api.digitalocean.com/v2/droplets/$droplet_id/actions")
+  
+  # Extract the snapshot ID from the response
+  snapshot_id=$(echo "$response" | jq -r '.action.resource_id')
+  
+  # Output the snapshot ID
+  if [ "$snapshot_id" != "null" ] && [ -n "$snapshot_id" ]; then
+    echo "Snapshot ID: $snapshot_id"
+  else
+    echo "Failed to retrieve snapshot ID."
+  fi
 
+}
+
+
+
+##########################################
+echo "creating fake data for admin dashbord"
+# todo: activity log and access, docker stats
 write_fake_data
 
+echo "configuring admin panel on port 2087"
 setup_admin_panel
 
+echo "configuring user panel on port 2083"
 setup_user_panel
 
 # TODO: also some helloworld py or node app
-
+echo "download wp files"
 upload_wp_site_files
+
+echo "Creating db and user"
 create_db_user_import_wpdb
+
+echo "connect files to database"
 connect_wpdb_and_files
+
+echo "add site to wpmanager"
 opencli websites-scan -all
 
-#echo "DONE."
-
+echo "get droplet id"
 get_droplet_id
+
+echo "cleaning up.."
+rm -rf /root/demo.sh
+
+echo "creating snapshot"
+create_snapshot
+
+
+# todo: change snapshot id in the file for job!
+# test in 1hr
+# $snapshot_id
+
+
 
 
