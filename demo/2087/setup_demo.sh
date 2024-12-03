@@ -46,10 +46,11 @@ setup_user_panel(){
   echo "Escaped password: $escaped_password"
 
   file_path="/usr/local/panel/templates/user/login.html"
+
   
   # Prepare sed commands
-  sed_command_username="s|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus>|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" autofocus value=\"stefan\">|"
-  sed_command_password="s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\">|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" value=\"$escaped_password\">|"
+  sed_command_username="s|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" {% if 'Unrecognized' in error_message %} autofocus value=\"{{username}}\"{% elif username %}value=\"{{username}}\"{% else %}autofocus{% endif %}>|<input type=\"text\" id=\"username\" name=\"username\" required class=\"form-control\" placeholder=\"{{ _('Enter your panel username') }}\" {% if 'Unrecognized' in error_message %} autofocus value=\"{{username}}\"{% elif username %}value=\"{{username}}\"{% else %}autofocus{% endif %} value=\"stefan\">|"
+  sed_command_password="s|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" {% if username and 'password' in error_message %}autofocus{% endif %}>|<input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" required placeholder=\"{{ _('Enter your password') }}\" {% if username and 'password' in error_message %}autofocus{% endif %} value=\"$escaped_password\">|"
 
   echo "Sed command for username: $sed_command_username"
   echo ""
