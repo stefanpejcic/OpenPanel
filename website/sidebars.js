@@ -240,7 +240,8 @@ const mainSidebar = {
       type: 'category',
       label: '0.3.X',
       items: [
-     'changelog/0.3.7',
+     'changelog/0.3.8',
+      'changelog/0.3.7',
      'changelog/0.3.6',
      'changelog/0.3.5',
      'changelog/0.3.4',
