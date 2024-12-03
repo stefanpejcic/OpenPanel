@@ -4,8 +4,6 @@ on:
   workflow_dispatch: # manual trigger
   repository_dispatch:
     types: [sync-configuration]
-  schedule:
-    - cron: '15 3 * * *'
     
 jobs:
   sync:
