@@ -1,4 +1,4 @@
-name: Trigger Rebuild on Version Update
+name: Rebuild OpenPanel demo for new version
 
 on:
   push:
