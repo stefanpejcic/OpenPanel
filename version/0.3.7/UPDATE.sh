@@ -284,8 +284,7 @@ post_install_message() {
     print_space_and_line
 
     # Instructions for seeking help
-    echo -e "\nIf you experience any problems or need further assistance, please do not hesitate to reach out on our community forums or join our Discord server for 
-support:"
+    echo -e "\nIf you experience any problems or need further assistance, please do not hesitate to reach out on our community forums or join our Discord server for support:"
     echo ""
     echo "👉 Forums: https://community.openpanel.org/"
     echo ""
