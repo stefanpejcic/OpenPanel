@@ -43,7 +43,7 @@ response=$(curl -s -X POST \
   -d "{\"type\":\"snapshot\",\"name\":\"${version} demo snapshot\"}" \
   "https://api.digitalocean.com/v2/droplets/$droplet_id/actions")
   
-snapshot_id=$(echo "$response" | jq -r '.action.resource_id')
+snapshot_id=$(echo "$response" | jq -r '.action.id')
   
 if [ "$snapshot_id" != "null" ] && [ -n "$snapshot_id" ]; then
   echo "Snapshot ID: $snapshot_id"
