@@ -231,6 +231,16 @@ To update OpenPanel manually from the terminal, run the following command:
 opencli update --force
 ```
   </TabItem>
+
+  <TabItem value="github-update-now" label="from GitHub">
+
+To update OpenPanel manually from GitHub:
+
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/UPDATE.sh)
+```
+  </TabItem>
+  
 </Tabs>
 
 
