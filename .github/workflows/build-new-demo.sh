@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'version/latest'
+  workflow_dispatch:
 
 env:
   DROPLET_IP: ${{ secrets.DROPLET_IP }}
