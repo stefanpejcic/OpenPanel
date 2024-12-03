@@ -23,7 +23,7 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_KEY_PATH }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: Run Rebuild Script and Capture Snapshot ID
@@ -47,23 +47,3 @@ jobs:
           git add demo/SNAPSHOT_ID.env
           git commit -m "Demo rebuilt with new version - snapshot id: ${{ env.snapshot_id }}"
           git push
-
-
-
-
-
-
-
-
-
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      # Run the rebuild script
-      - name: Rebuilding the demo site for new OpenPanel version
-        run: |
-          chmod +x demo/rebuild.sh
-          ./demo/rebuild.sh
