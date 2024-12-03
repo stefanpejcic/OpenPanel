@@ -101,6 +101,8 @@ echo "Creating dummy accounts for demo.."
 
 # real user for 2083 demo
 opencli user-add stefan random stefan@pejcic.rs ubuntu_nginx_mysql
+cd /root && docker compose up -d nginx
+# ln -s /etc/nginx/sites-available/*.conf /etc/nginx/sites-enabled/
 opencli domains-add openpanel.org stefan
 opencli domains-add pejcic.rs stefan
 opencli domains-add example.net stefan
