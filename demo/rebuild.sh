@@ -2,7 +2,6 @@
 DROPLET_IMAGE="ubuntu-24-04-x64"
 SSH_KEY="~/.ssh/id_rsa"
 PANEL_HOSTNAME="demo.openpanel.org"
-DEMO_SCRIPT="https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/demo/2087/setup_demo.sh"
 
 
 # Step 1: Rebuild the droplet
@@ -26,14 +25,13 @@ sleep 300
 # Step 2: SSH to the droplet and run commands
 echo "Connecting to the droplet via SSH to set up the panel..."
 ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" root@$DROPLET_IP <<EOF
-  wget -O /root/demo.sh $DEMO_SCRIPT
-  bash <(curl -sSL https://openpanel.org) --hostname=$PANEL_HOSTNAME --post_install=/root/demo.sh
+  wget -O /root/demo.sh https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/demo/2087/setup_demo.sh
 EOF
 
-if [[ $? -ne 0 ]]; then
-  echo "Failed to connect or execute commands on the droplet."
-  exit 1
-fi
+
+ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" root@$DROPLET_IP <<EOF
+  bash <(curl -sSL https://openpanel.org) --hostname=demo.openpanel.org --post_install=/root/demo.sh
+EOF
 
 
 # Step 3. create a snapshot
