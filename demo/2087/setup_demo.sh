@@ -173,17 +173,17 @@ connect_wpdb_and_files() {
     wp_config_file="wp-config.php"
     domain="demo.openpanel.org"
     username="stefan"
-    cd /home/stefan/demo.openpanel.org
-    mv /home/stefan/demo.openpanel.org/wp-config-sample.php /home/stefan/demo.openpanel.org/$wp_config_file
+    cd /home/$username/$domain
+    mv /home/$username/$domain/wp-config-sample.php /home/$username/$domain/$wp_config_file
     sed -i "s/database_name_here/$db_name/g" "$wp_config_file"
     sed -i "s/username_here/$db_user/g" "$wp_config_file"
     sed -i "s/password_here/$db_password/g" "$wp_config_file"
     
     # install
-    docker exec stefan bash -c 'wp core install --url=https://${domain} --title="Demo Site" --admin_user=${username} --admin_password="ash732vfadsf" --admin_email=admin@${domain} --path=/home/${username}/${domain} --allow-root'
+    docker exec stefan bash -c "wp core install --url=https://\${domain} --title=\"Demo Site\" --admin_user=\${username} --admin_password=\"ash732vfadsf\" --admin_email=admin@\${domain} --path=/home/\${username}/\${domain} --allow-root"
 
     # autologin
-    docker exec stefan bash -c 'wp package install aaemnnosttv/wp-cli-login-command --path=/home/${username}/${domain} --allow-root'
+    docker exec stefan bash -c "wp package install aaemnnosttv/wp-cli-login-command --path=/home/\${username}/\${domain} --allow-root"
 
     # prettylinks
     echo "
@@ -202,7 +202,7 @@ connect_wpdb_and_files() {
     chown -R 1000:33 /home/${username}/${domain}/
 
     # salts
-    docker exec ${username} bash -c "wp config shuffle-salts --path=/home/${username}/${domain}/ --allow-root"
+    docker exec ${username} bash -c "wp config shuffle-salts --path=/home/\${username}/\${domain}/ --allow-root"
 }
 
 cleanup() {
