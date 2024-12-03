@@ -16,5 +16,5 @@ jobs:
         env:
           DIGITALOCEAN_TOKEN: ${{ secrets.DIGITALOCEAN_TOKEN }}
         run: |
-          chmod +x ./demo/2087/rebuild.sh
-          ./demo/2087/rebuild.sh
+          chmod +x ./demo/restore-snapshot.sh
+          ./demo/restore-snapshot.sh
