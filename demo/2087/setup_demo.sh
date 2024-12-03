@@ -167,6 +167,11 @@ create_db_user_import_wpdb() {
   # TODO REST FROM > https://git.devnet.rs/stefan/2083/-/blob/main/modules/wordpress.py
 }
 
+everything_else() {
+
+  wget -O /home/stefan/599.jpg https://http.cat/images/599.jpg
+  wget -O /home/stefan/204.jpg https://http.cat/images/204.jpg
+}
 
 connect_wpdb_and_files() {
     # edit wpconfig
@@ -236,6 +241,9 @@ connect_wpdb_and_files
 
 echo "add site to wpmanager"
 opencli websites-scan -all
+
+# other demo stuff
+everything_else
 
 echo "get droplet id"
 get_droplet_id
