@@ -1688,7 +1688,7 @@ support_message() {
 	    echo "To get started, check out our Post Install Steps:"
 	    echo "👉 $DOCS_GET_STARTED_LINK"
 	    echo ""
-	    echo "Join our community and connect with us on::"
+	    echo "Join our community and connect with us on:"
 	    echo "  - Github: $GITHUB_LINK"
 	    echo "  - Discord: $DISCORD_INVITE_URL"
 	    echo "  - Our community forums: $FORUMS_LINK"
