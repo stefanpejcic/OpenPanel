@@ -151,7 +151,7 @@ install_started_message(){
 
 # Display error and exit
 radovan() {
-    printf >&2 "%s\n\n" "${TPUT_BGRED}${TPUT_WHITE}${TPUT_BOLD} FAILED ${TPUT_RESET}"
+    #printf >&2 "%s\n\n" "${TPUT_BGRED}${TPUT_WHITE}${TPUT_BOLD} FAILED ${TPUT_RESET}"
     echo -e "Error: $2$" >&2
     exit 1
 }
@@ -1594,7 +1594,7 @@ setup_bind(){
 	    if [ -f "$RNDC_KEY_PATH" ]; then
 	        echo "rndc.key successfully generated."
 	    else
-		radovan 1 "Failed to generate rndc.key after $RETRY_LIMIT attempts. Exiting."
+		radovan 1 "Failed to generate rndc.key after $RETRY_COUNT_RDNC attempts. Exiting."
 	    fi
     else
     	echo "rndc.key already exists."
