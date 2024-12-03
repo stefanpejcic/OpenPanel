@@ -1,7 +1,7 @@
 name: Sync Configuration Files
 
 on:
-  workflow_dispatch: # manual also
+  workflow_dispatch: # manual trigger
   repository_dispatch:
     types: [sync-configuration]
 
@@ -30,9 +30,19 @@ jobs:
     - name: Sync Configuration Directory
       run: |
         rsync -av --delete configuration-repo/ openpanel/configuration/
+
+    - name: Set up Git for commit signing
+      run: |
+        git config --global user.name "github-actions"
+        git config --global user.email "github-actions@github.com"
+        git config --global commit.gpgSign true
+        git config --global user.signingkey ${{ secrets.GITHUB_TOKEN }}
+      
+    - name: Commit and push changes
+      run: |
         cd openpanel
-        git config user.name github-actions
-        git config user.email github-actions@github.com
         git add .
         git commit -m "Sync configuration from stefanpejcic/OpenPanel-configuration"
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
