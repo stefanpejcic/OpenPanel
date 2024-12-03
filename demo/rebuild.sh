@@ -1,9 +1,6 @@
 #!/bin/bash
-
-DROPLET_ID="442891520"
-DROPLET_IP="45.55.60.4"
 DROPLET_IMAGE="ubuntu-24-04-x64"
-SSH_KEY_PATH="~/.ssh/id_rsa"
+SSH_KEY="~/.ssh/id_rsa"
 PANEL_HOSTNAME="demo.openpanel.org"
 DEMO_SCRIPT="https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/demo/2087/setup_demo.sh"
 
@@ -28,7 +25,7 @@ sleep 300
 
 # Step 2: SSH to the droplet and run commands
 echo "Connecting to the droplet via SSH to set up the panel..."
-ssh -o StrictHostKeyChecking=no -i "$SSH_KEY_PATH" root@$DROPLET_IP <<EOF
+ssh -o StrictHostKeyChecking=no -i "$SSH_KEY" root@$DROPLET_IP <<EOF
   wget -O /root/demo.sh $DEMO_SCRIPT
   bash <(curl -sSL https://openpanel.org) --hostname=$PANEL_HOSTNAME --post_install=/root/demo.sh
 EOF
