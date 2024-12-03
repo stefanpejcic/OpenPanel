@@ -1,0 +1,30 @@
+services:  
+  # WEB TERMINAL FOR OPENADMIN
+  ttyd:
+    image: tsl0922/ttyd
+    container_name: ttyd
+    #ports:
+    #  - "7681:7681"
+    network_mode: "host"
+    command: ttyd -o -W bash
+    restart: no
+    stdin_open: true
+    tty: true
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+      - openadmin_mysql:/var/lib/mysql
+      - /etc/:/etc/
+      - /home/:/home/
+      - /var/:/var/
+      - /root/:/root/
+      - /usr/local/bin/opencli:/usr/local/bin/opencli
+      - /usr/local/csf:/usr/local/csf
+      - /usr/sbin/:/usr/sbin/      
+      - /usr/bin/docker:/usr/bin/docker
+      - /usr/bin/awk:/usr/bin/awk
+      - /usr/local/admin/:/usr/local/admin/
+    mem_limit: 1g
+    cpus: 1.0
+    oom_kill_disable: true
+    privileged: true

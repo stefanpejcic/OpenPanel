@@ -70,6 +70,8 @@ services:
       - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
       # localization
       - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/
+      # emails
+      - /usr/local/mail/openmail/:/usr/local/mail/openmail/
     network_mode: host
     mem_limit: 1g
     cpus: 1.0

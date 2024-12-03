@@ -1,0 +1,22 @@
+{
+  "schema": "1.0",
+  "type": "whmcs-servers",
+  "name": "OpenPanel",
+  "license": "proprietary",
+  "category": "provisioning",
+  "description": {
+    "name": "OpenPanel",
+    "tagline": "A Linux hosting control panel based on Docker.",
+    "long": ""
+  },
+  "support": {
+    "homepage": "https://openpanel.co/",
+    "docs_url": "https://dev.openpanel.co/api"
+  },
+  "authors": [
+    {
+      "name": "OPENPANEL",
+      "homepage": "https:\/\/openpanel.co\/"
+    }
+  ]
+}

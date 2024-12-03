@@ -1,0 +1,73 @@
+DAILY_REPORT:
+  title: "Daily Usage Report"
+  message: "Daily usage report."
+
+REBOOT:
+  title: "🚨 URGENT - SYSTEM REBOOT"
+  message: "System was rebooted. Uptime: "
+
+SWAP_USAGE:
+  title: "⚠️ SWAP usage alert!"
+  message: ""
+
+RAM_USAGE:
+  title: "🚨 High Memory Usage!"
+  message: ""
+
+LOAD_USAGE:
+  title: "🚨 High System Load!"
+  message: ""
+
+CPU_USAGE:
+  title: "🚨 High CPU Usage!"
+  message: ""
+
+DISK_USAGE:
+  title: "⚠️ Running out of Disk Space!"
+  message: ""
+
+SSH_LOGIN:
+  title: "Suspicious SSH login detected"
+  message: "SSH users currently logged-in that have not accessed OpenAdmin interface. IP addresses: "
+
+ADMIN_LOGIN:
+  title: "Admin account accessed from new IP address"
+  message: "Admin account was accessed from a new IP address: "
+
+MYSQL_DOWN:
+  title: "⚠️ WARNING - MySQL service is not active. Users are unable to log into OpenPanel!"
+  message: ""
+
+NGINX_DOWN:
+  title: "Nginx service is not active. Users' websites are not working!"
+  message: ""
+
+CSF_DOWN:
+  title: "ConfigService Firewall (CSF) is not active. Server and websites are not protected!"
+  message: ""
+
+UFW_DOWN:
+  title: "Uncomplicated Firewall (UFW) is not active. Server and websites are not protected!"
+  message: ""
+
+ADMIN_DOWN:
+  title: "Admin service is not active. OpenAdmin service is not accessible!"
+  message: ""
+
+DOCKER_DOWN:
+  title: "Docker service is not active. User websites are down!"
+  message: ""
+
+PANEL_DOWN:
+  title: "OpenPanel docker container is not running. Users are unable to access the OpenPanel interface!"
+  message: ""
+
+CERTBOT_DOWN:
+  title: "Certbot service is not running. SSL certificates will not renew automatically!"
+  message: ""
+
+BIND_DOWN:
+  title: "Named (BIND9) service is not active. DNS resolving of domains is not working!"
+  message: ""
+  
+
