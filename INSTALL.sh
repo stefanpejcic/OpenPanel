@@ -60,11 +60,7 @@ OPENPANEL_ERR_DIR="/var/log/openpanel/"                               # https://
 SERVICES_DIR="/etc/systemd/system/"                                   # used for admin, sentinel and floatingip services
 CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
 
-# Redirect output to the log file
 exec > >(tee -a "$LOG_FILE") 2>&1
-
-
-
 
 # ======================================================================
 # Helper functions that are not mandatory and should not be modified
@@ -157,14 +153,17 @@ radovan() {
 }
 
 
-# if --debug flag then we print each command that is executed and display output on terminal.
-# if debug flag is not provided, we simply run the command and hide all output by redirecting to /dev/null
 debug_log() {
+    local timestamp
+    timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+
     if [ "$DEBUG" = true ]; then
-    	local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
-     	echo "[$timestamp] $message"
-        "$@"
+        # Show both on terminal and log file
+        echo "[$timestamp] $message" | tee -a "$LOG_FILE"
+        "$@" 2>&1 | tee -a "$LOG_FILE"
     else
+        # No terminal output, only log file
+        echo "[$timestamp] COMMAND: $@" >> "$LOG_FILE"
         "$@" > /dev/null 2>&1
     fi
 }
@@ -765,7 +764,7 @@ docker_compose_up(){
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
     curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
-    chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
