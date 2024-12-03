@@ -225,7 +225,7 @@ set_version_to_install(){
 	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
 	        PANEL_VERSION=$PANEL_VERSION
 	    else
-	        PANEL_VERSION="0.3.6"
+	        PANEL_VERSION="0.3.7"
 	    fi
 	fi
 }
