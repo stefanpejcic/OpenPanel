@@ -1,8 +1,12 @@
 #!/bin/bash
 # Fallback method to update OpenPanel to the latest version directly from GitHub
 
-# STEP 1. get the latest OpenPanel version
-version=$(curl -s https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/latest)
+# STEP 1. use user-provided version or check latest OpenPanel version
+if [[ "$1" == "--version" && -n "$2" ]]; then
+    version=$2
+else
+    version=$(curl -s https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/latest)
+fi
 
 # STEP 2. download update script
 wget -O /tmp/openpanel-update-$version https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/$version/UPDATE.sh
