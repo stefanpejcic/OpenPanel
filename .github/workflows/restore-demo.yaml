@@ -1,4 +1,4 @@
-name: Hourly Job
+name: Restore OpenPanel demo site
 
 on:
   schedule:
