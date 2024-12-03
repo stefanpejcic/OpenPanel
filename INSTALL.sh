@@ -1554,6 +1554,7 @@ download_skeleton_directory_from_github(){
 setup_bind(){
     echo "Setting DNS service.."
     mkdir -p /etc/bind/
+    chmod 777 /etc/bind/
     cp -r /etc/openpanel/bind9/* /etc/bind/
     
     # only on ubuntu systemd-resolved is installed
