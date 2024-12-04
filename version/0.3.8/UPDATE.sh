@@ -136,9 +136,56 @@ update_nginx_conf() {
     wget -O /etc/openpanel/nginx/vhosts/domain.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/vhosts/domain.conf
     wget -O  /etc/openpanel/nginx/vhosts/domain.conf_with_modsec https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/domain.conf_with_modsec
 
+    file="/root/docker-compose.yml"
+    line_to_add="        - /etc/openpanel/nginx/vhosts/:/etc/openpanel/nginx/vhosts/ # for custom suspended pages from 0.3.8"
+    reference_line="        - /etc/openpanel/nginx/vhosts/openpanel_proxy.conf:/etc/openpanel/nginx/vhosts/openpanel_proxy.conf"
+    conf_dir="/etc/nginx/sites-available"
+    new_config_block='
+        # custom templates
+        set $suspended_user 0;
+        set $suspended_website 0;
+    
+        location /suspended_website.html {
+            root /etc/openpanel/nginx/;
+            internal;
+        }
+    
+        location /suspended_user.html {
+            root /etc/openpanel/nginx/;
+            internal;
+        }
+    
+        # container
+        location / {
+            if ($suspended_user) {
+                rewrite ^ /suspended_user.html last;
+            }
+            if ($suspended_website) {
+                rewrite ^ /suspended_website.html last;
+            }
+        }
+    '
+    
+    for conf_file in "$conf_dir"/*.conf; do
+        # Check if the file contains the "# custom templates" line
+        if ! grep -Fq "# custom templates" "$conf_file"; then
+            if grep -Fq "# container" "$conf_file" && grep -Fq "location / {" "$conf_file"; then
+                sed -i '/# container/,/location \//c\'"$new_config_block" "$conf_file"
+                echo "Configuration updated in $conf_file"
+            else
+                echo "WARNING: Either # container or location / { section not found in $conf_file"
+            fi
+        else
+            echo "Skipping domain $conf_file"
+        fi
+    done
 
-
-
+    if grep -Fxq "$reference_line" "$file" && ! grep -Fxq "$line_to_add" "$file"; then
+      sed -i "/$reference_line/a \\$line_to_add" "$file"
+      echo "/etc/openpanel/nginx/vhosts/ successfully added in docker compose file, reloading nginx.."
+      cd /root && docker compose down nginx && docker compose up -d nginx
+    fi
+    
 }
 
 # print fullwidth line
