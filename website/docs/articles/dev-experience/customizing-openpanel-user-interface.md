@@ -7,6 +7,7 @@ To customize OpenPanel, you have the following options:
 - [Display personalized message per user](#personalized-messages)
 - [Enable/disable features and pages from the OpenPanel interface](#enabledisable-features)
 - [Set pre-installed services for users](#set-pre-installed-services)
+- [Customize Default, Suspended User and Suspended Domain pages](@customize-templates)
 - [Localize the interface](#localize-the-interface)
 - [Set custom branding](#set-custom-branding)
 - [Set a custom color scheme](#set-a-custom-color-scheme)
@@ -14,8 +15,10 @@ To customize OpenPanel, you have the following options:
 - [Customize any page](#edit-any-page-template)
 - [Customize login page](#customize-login-page)
 - [Add custom CSS or JS code to the interface](#create-custom-pages)
+- [Create a custom module for OpenPanel](#create-custom-module)
 - [Self-hosted temporary links for SiteManager](/docs/articles/dev-experience/selfhosted-temporary-links-api/)
 - [Self-hosted screenshots for SiteManager](/docs/articles/dev-experience/selfhosted-screenshots-api/)
+
 
 
 ## Personalized messages
@@ -75,6 +78,19 @@ To set a custom name visible in the OpenPanel sidebar and on login pages, enter 
 
 
 
+## Customize Templates
+
+You can customize all templates that are displayed to users:
+
+- [Domain VHost Template](/docs/admin/services/nginx/#domain-vhost-template)
+- [Default Landing Page](/docs/admin/services/nginx/#default-landing-page)
+- [Suspended User Template](/docs/admin/services/nginx/#suspended-user-template)
+- [Suspended Domain Template](/docs/admin/services/nginx/#suspended-domain-template)
+- [Error Pages](/docs/admin/services/nginx/#error-pages)
+
+## Create OpenPanel Module
+
+To create a custom module (plugin) for OpenPanel follow this guide: [Example Module](https://dev.openpanel.com/modules/#Example-Module)
 
 ## Set a custom color scheme
 
