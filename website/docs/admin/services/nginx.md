@@ -141,7 +141,7 @@ These error pages are shown to visitors when the domain configuration file is ma
 ```bash
 /etc/openpanel/nginx/vhosts/error_pages/
 ```
-![error_pages](/img/admin/nginx/error_pages.png.png)
+![error_pages](/img/admin/nginx/error_pages.png)
 
 
 
