@@ -82,7 +82,9 @@ FUNCTIONS=(
 
     # update opencli
     opencli_update
-
+    
+    update_nginx_conf
+    
     # ping us
     verify_license
     
@@ -127,7 +129,17 @@ main() {
     destroy_scroll_area
 }
 
+# for 0.3.8 only!
+update_nginx_conf() {
+    wget -O /etc/openpanel/nginx/suspended_user.html https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/suspended_user.html
+    wget -O /etc/openpanel/nginx/suspended_website.html https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/suspended_website.html
+    wget -O /etc/openpanel/nginx/vhosts/domain.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/vhosts/domain.conf
+    wget -O  /etc/openpanel/nginx/vhosts/domain.conf_with_modsec https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/domain.conf_with_modsec
 
+
+
+
+}
 
 # print fullwidth line
 print_space_and_line() {
