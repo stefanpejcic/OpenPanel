@@ -107,12 +107,6 @@ If ModSecurity is installed on the server, this file is copied for every new dom
 ```
 ![nginx domain modsec](/img/admin/nginx/nginx_domainmodsec.png)
 
-### Domain ModSecurity VHost Template
-If ModSecurity is installed on the server, this file is copied for every new domain added by OpenPanel users.
-```bash
-/etc/openpanel/nginx/vhosts/domain.conf_with_modsec
-```
-![nginx domain modsec](/img/admin/nginx/nginx_domainmodsec.png)
 
 ### Domain Nginx Docker VHost Template
 For users with Nginx webserver, this file is copied inside their docker container for every new domain.
