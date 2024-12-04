@@ -114,21 +114,21 @@ If ModSecurity is installed on the server, this file is copied for every new dom
 ```
 ![nginx domain modsec](/img/admin/nginx/nginx_domainmodsec.png)
 
-## Domain Nginx Docker VHost Template
+### Domain Nginx Docker VHost Template
 For users with Nginx webserver, this file is copied inside their docker container for every new domain.
 ```bash
 /etc/openpanel/nginx/vhosts/docker_nginx_domain.conf
 ```
 ![docker_nginx_domain](/img/admin/nginx/docker_nginx_domain.png)
 
-## Domain Apache Docker VHost Template
+### Domain Apache Docker VHost Template
 For users with Apache webserver, this file is copied inside their docker container for every new domain.
 ```bash
 /etc/openpanel/nginx/vhosts/docker_apache_domain.conf
 ```
 ![docker_apache_domain](/img/admin/nginx/docker_apache_domain.png)
 
-## OpenPanel Proxy
+### OpenPanel Proxy
 This file affects all user domains and makes accessing services via user domains: `/openpanel` `/openadmin` `/webmail`
 ```bash
 /etc/openpanel/nginx/vhosts/openpanel_proxy.conf
@@ -136,7 +136,7 @@ This file affects all user domains and makes accessing services via user domains
 ![openpanel_proxy](/img/admin/nginx/openpanel_proxy.png)
 
 
-## OpenPanel Proxy
+### Error Pages
 These error pages are shown to visitors when the domain configuration file is malformed or no response from docker container.
 ```bash
 /etc/openpanel/nginx/vhosts/error_pages/
