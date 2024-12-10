@@ -1,36 +1,29 @@
-<div align="center">
-<a href="https://openpanel.com/">
-    <img alt="website" src="/website/static/img/openpanel_admin.gif">
-</a>
-  
-<br/>
-<br/>
+![openpanel logo](/website/static/assets/logo/openpanel.png)
 
 <div align="center">
-    <a href="https://openpanel.com">Website</a> |
-    <a href="https://community.openpanel.com/">Forums</a> |
-    <a href="https://openpanel.com/docs/admin/intro/">Documentation</a>
-</div>
-</div>
 
-<br/>
-<br/>
-
-<div align="center"> 
-    
-Deliver a <strong>VPS-like experience</strong> to your users at a fraction of the cost, with all-inclusive features such as <strong>resource limiting, user isolation, WP Manager, and enhanced security</strong> seamlessly integrated for worry-free hosting.
-
-<br />
-<br />
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3) [![version](https://img.shields.io/badge/version-0.3.7-brightgreen.svg?style=flat-square)](https://openpanel.com/docs/changelog/intro/) [![license](https://img.shields.io/badge/license-GPL%203.0-important.svg?style=flat-square)](https://github.com/stefanpejcic/OpenPanel/blob/main/LICENSE) 
+[![Website](https://img.shields.io/badge/Website-Click%20here-blue.svg?style=flat-square)](https://openpanel.com/) [![Forums](https://img.shields.io/badge/Forums-Click%20here-red.svg?style=flat-square)](https://community.openpanel.com/) [![Documenatation](https://img.shields.io/badge/Documenation-Click%20here-yellow.svg?style=flat-square)](https://openpanel.com/docs/) 
 
 </div>
-<br/>
+<hr>
+
+> ### Looking for Maintainers!
+> Here’s how you can help:
+>- **Writing Documentation**: Help make our project easier to understand [by improving and adding to the documentation](https://github.com/stefanpejcic/OpenPanel/tree/main/website/docs).
+>- **Translating/Spell-checking Locales**: [Assist with translations or spell-check existing content](https://github.com/stefanpejcic/OpenPanel/tree/main/translations) to make our project more accessible to non-English speakers.
+>- **Fixing CSS/JS Bugs**: If you have some experience with front-end development, you can [help squash bugs in our CSS and JavaScript](https://github.com/stefanpejcic/OpenPanel/issues).
+> No prior experience required — if you’re eager to learn and contribute, we’ll support you along the way! Feel free to message me at: stefan@pejcic.rs
+<hr> 
 
 ## What is OpenPanel
 
 OpenPanel is a powerful and flexible web hosting control panel for Linux systems. Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
 
 **OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
+
+Deliver a **VPS-like experience** to your users at a fraction of the cost, with all-inclusive features such as **resource limiting, user isolation, WP Manager, and enhanced security** seamlessly integrated for worry-free hosting.
+
 
 [![openpanel scheme](/website/static/img/admin/openpanel_scheme.png)](https://openpanel.com/docs/panel/intro/)
 
@@ -88,9 +81,9 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 - RockyLinux 9
 - CentOS 9.4
 - Debian 11 12
-- Ubuntu 22.04 24.04
+- Ubuntu 22.04 & 24.04
 
-## What do you mean by "open" ?
+## What do you mean by 'open' ?
 
 Open for business!
 
@@ -141,15 +134,6 @@ Our [Community](https://community.openpanel.com/) serves as our virtual Headquat
 
 **Learn, share** and **discuss** with other community members your questions.
 
-## Looking for Maintainers!
 
-Here’s how you can help:
 
-- **Writing Documentation**: Help make our project easier to understand [by improving and adding to the documentation](https://github.com/stefanpejcic/OpenPanel/tree/main/website/docs).
-- **Translating/Spell-checking Locales**: [Assist with translations or spell-check existing content](https://github.com/stefanpejcic/OpenPanel/tree/main/translations) to make our project more accessible to non-English speakers.
-- **Fixing CSS/JS Bugs**: If you have some experience with front-end development, you can [help squash bugs in our CSS and JavaScript](https://github.com/stefanpejcic/OpenPanel/issues).
 
-No prior experience required — if you’re eager to learn and contribute, we’ll support you along the way! Feel free to message me at: stefan@pejcic.rs
-
-![issue resolution time](https://isitmaintained.com/badge/resolution/stefanpejcic/OpenPanel.svg)
-![open issue percentage](https://isitmaintained.com/badge/open/stefanpejcic/OpenPanel.svg)
