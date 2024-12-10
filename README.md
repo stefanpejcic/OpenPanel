@@ -1,4 +1,4 @@
-![openpanel logo](/website/static/assets/logo/openpanel.png)
+![openpanel logo](/website/static/assets/logos/openpanel.png)
 
 <div align="center">
 
