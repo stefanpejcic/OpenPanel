@@ -27,6 +27,13 @@ Deliver a **VPS-like experience** to your users at a fraction of the cost, with 
 
 
 [![openpanel scheme](/website/static/img/admin/openpanel_scheme.png)](https://openpanel.com/docs/panel/intro/)
+#### Short video about OpenPanel :)
+<div align="center">
+<a href="https://openpanel.com/">
+    <img alt="website" src="/website/static/img/openpanel_admin.gif">
+</a>
+</div>
+<br>
 
 This panel is the culmination of years of experience in the hosting industry, having spent decades working with various hosting panels we made sure to include all features that simply make sense.
 
