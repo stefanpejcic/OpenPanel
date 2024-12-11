@@ -11,7 +11,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           03.12.2024
+# Last Modified:           11.12.2024
 #
 ################################################################################
 
@@ -1580,16 +1580,27 @@ setup_bind(){
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
 	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
-	    
-	    # Check if the file exists
-	    if [ -f "$RNDC_KEY_PATH" ]; then
-	 	:
-	    else
-	        debug_log "Error: rndc.key not found after attempt $((RETRY_COUNT_RDNC + 1))."
-	    fi
+	
+	    if [ $? -ne 0 ]; then
+	        echo "Error: Generating rndc.key failed." | tee -a "$LOG_FILE"
+	        if grep -q "Unable to find image 'ubuntu/bind9:latest' locally" "$LOG_FILE" &&
+	           grep -q "dial tcp: lookup registry-1.docker.io" "$LOG_FILE"; then
+		    radovan 1 "Failed to connect to Docker Registry on port 53 - try setting Google DNS nameservers as suggested in: https://github.com/stefanpejcic/OpenPanel/issues/294 and then retry the installation."
+	        else
+	            echo "Unknown error occurred. Please check the log for details." | tee -a "$LOG_FILE"
+	        fi
+	 
+		    # Check if the file exists
+		    if [ -f "$RNDC_KEY_PATH" ]; then
+		 	:
+		    else
+		        debug_log "Error: rndc.key not found after attempt $((RETRY_COUNT_RDNC + 1))."
+		    fi
 	
 	    RETRY_COUNT_RDNC=$((RETRY_COUNT_RDNC + 1))
 	    sleep 2
+	    fi
+
 	done
 	    if [ -f "$RNDC_KEY_PATH" ]; then
 	        echo "rndc.key successfully generated."
