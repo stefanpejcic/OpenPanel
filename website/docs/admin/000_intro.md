@@ -12,7 +12,7 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 
 ## Requirements
 
-Mimumum Requirements:
+Minimum Requirements:
 
 - A blank full virtual machine or bare metal server
 - Minimum of 1GB RAM and 15GB storage (4GB RAM and 50GB is recommended)
@@ -156,7 +156,7 @@ Password for user 'stefan' changed.
 ### Enable Automatic Updates
 
 - `autopatch` option allows Administrator to automatically update OpenPanel to minor versions. MINOR versions include only security updates and bug fixes.
-- `autoupdate` option allows Aministrator to enable or disable automatic updates to major versions. MAJOR versions add new functionality in a backward compatible manner.
+- `autoupdate` option allows Administrator to enable or disable automatic updates to major versions. MAJOR versions add new functionality in a backward compatible manner.
 
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
