@@ -21,7 +21,7 @@ The status of the Mail Server service is displayed at the top of the page, where
 
 The current status of the webmail client is shown under "Webmail Software," along with the total number of email accounts.
 
-![maila ctions](/img/admin/mail_actions.png)
+![mail_actions](/img/admin/mail_actions.png)
 
 ## MailServer Stack
 
@@ -29,7 +29,7 @@ Administrators can set and configure different services based on their needs:
 
 ![mailserver stack](/img/admin/mailserver_stack.png)
 
-Changes to this services will interupt current email traffic and restart the mailserver.
+Changes to this service will interrupt current email traffic and restart the mailserver.
 
 Advanced users can edit the `/usr/local/mail/openmail/mailserver.env` and `/usr/local/mail/openmail/compose.yml` files directly through the interface.
 
@@ -40,7 +40,7 @@ Advanced users can edit the `/usr/local/mail/openmail/mailserver.env` and `/usr/
 
 An SMTP relay service (aka relay host / smarthost) is an MTA that relays (forwards) mail on behalf of third parties (it does not manage the mail domains).
 
-You should only configur this when you have some external service for outgoing emails, like SMTP2GO or self-hosted Proxmox Mail Gateway.
+You should only configure this when you have some external service for outgoing emails, like SMTP2GO or self-hosted Proxmox Mail Gateway.
 
 ![relay hosts](/img/admin/relay_hosts.png)
 
