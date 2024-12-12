@@ -38,7 +38,7 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 
 ## Set pre-installed services
 
-OpenPanel uses [docker images](https://dev.openpanel.com/images/) as the base for each hosting plan. Based on the docker image, different services can be set per plan/user. For examples, we provide 2 docker iamges, one that has nginx pre-installed and another that uses apache. By creating a custom docker image, you can set in that image what to be pre-installed when you create a new user, for exmaple, set mariadb instead of mysql or install php ioncube loader extension.
+OpenPanel uses [docker images](https://dev.openpanel.com/images/) as the base for each hosting plan. Based on the docker image, different services can be set per plan/user. For examples, we provide 2 docker images, one that has nginx pre-installed and another that uses apache. By creating a custom docker image, you can set in that image what to be pre-installed when you create a new user, for example, set mariadb instead of mysql or install php ioncube loader extension.
 
 To add a custom service pre-installed for users:
 
@@ -72,7 +72,7 @@ To translate OpenPanel to another language follow these steps:
 
 ## Set custom branding
 
-Custom brand name and logo can be set from [OpenAdmnin > Settings > OpenPanel](/docs/admin/settings/openpanel/#branding) page.
+Custom brand name and logo can be set from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#branding) page.
 
 To set a custom name visible in the OpenPanel sidebar and on login pages, enter the desired name in the "Brand name" option. Alternatively, to display a logo instead, provide the URL in the "Logo image" field and save the changes.
 
@@ -154,7 +154,7 @@ For example, to edit the sidebar and hide the OpenPanel logo, follow these steps
 3. Edit the code.
 
 4. Configure OpenPanel to use your template.
-   Edit the `/root/docker-compose.yml` file and in it setyour file to overwrite the original template:
+   Edit the `/root/docker-compose.yml` file and in it set your file to overwrite the original template:
    ```bash
    nano /root/docker-compose.yml
    ```
@@ -186,7 +186,7 @@ To edit the login page:
 3. Edit the code.
 
 4. Configure OpenPanel to use your template.
-   Edit the `/root/docker-compose.yml` file and in it setyour file to overwrite the original template:
+   Edit the `/root/docker-compose.yml` file and in it set your file to overwrite the original template:
    ```bash
    nano /root/docker-compose.yml
    ```
