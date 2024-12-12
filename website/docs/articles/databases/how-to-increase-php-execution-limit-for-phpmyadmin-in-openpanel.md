@@ -20,7 +20,7 @@ Login to phpMyAdmin from the OpenPanel interface and note the version under 'Ser
 
 Login to OpenPanel and navigate to Process Manager to view under which PHP version is the phpMyAdmin interface running.
 
-![process manager check php verison](https://i.postimg.cc/2jXTJRQ5/2024-08-02-19-07.png)
+![process manager check php version](https://i.postimg.cc/2jXTJRQ5/2024-08-02-19-07.png)
 
 ### Step 2. Edit php.ini file
 
