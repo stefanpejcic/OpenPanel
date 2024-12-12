@@ -273,6 +273,8 @@ run_custom_postupdate_script() {
 
 
 download_new_admin() {
+        touch /etc/openpanel/openadmin/config/admin.ini
+        
   cd $OPENADMIN_DIR
   git pull
 
