@@ -28,7 +28,7 @@ Here are tutorials for some popular domain providers:
 - [GoDaddy](https://uk.godaddy.com/help/add-custom-hostnames-12320)
 - [NameCheap](https://www.namecheap.com/support/knowledgebase/article.aspx/768/10/how-do-i-register-personal-nameservers-for-my-domain/#:~:text=Click%20on%20the%20Manage%20option,5.)
 
-To add nameservers from OpenAdmin navgiate to Settings > OpenPanel and set nameservers in ns1 and ns2 fields and click on save:
+To add nameservers from OpenAdmin navigate to Settings > OpenPanel and set nameservers in ns1 and ns2 fields and click on save:
 
 ![openpanel add nameservers](/img/admin/openadmin_add_ns.png)
 
@@ -39,9 +39,9 @@ opencli config update ns2 your_ns2.domain.com
 ```
 
 :::info
-After creating nameservers it can take up to 12h for the records to be globally accessible. Use a tool sush as [whatsmydns.net](https://www.whatsmydns.net/) to monitor the status.
+After creating nameservers it can take up to 12h for the records to be globally accessible. Use a tool such as [whatsmydns.net](https://www.whatsmydns.net/) to monitor the status.
 
-If you still experience problems after the propagation process, then please check this guide: [dns server not responding to reqeuests](https://community.openpanel.co/d/5-dns-server-does-not-respond-to-request-for-domain-zone).
+If you still experience problems after the propagation process, then please check this guide: [dns server not responding to requests](https://community.openpanel.co/d/5-dns-server-does-not-respond-to-request-for-domain-zone).
 :::
 
 
@@ -96,7 +96,7 @@ Redis feature enables the [REDIS page](/docs/panel/caching/Redis/) where users c
 Memcached feature enables the [Memcached page](/docs/panel/caching/Memcached/) where users can view Memcached port (`11211`), view logs, set memory limits and enable/disable service.
 
 ### ElasticSearch
-Memcached feature enables the [ElasticSearch page](/docs/panel/caching/elasticsearch/) where users can view WlasticSearch port (`9200`), view logs, set memory limits and enable/disable service.
+Memcached feature enables the [ElasticSearch page](/docs/panel/caching/elasticsearch/) where users can view ElasticSearch port (`9200`), view logs, set memory limits and enable/disable service.
 
 ### Resource Usage
 usage feature enables the [Resource Usage page](/docs/panel/analytics/resource_usage/) where users can view real-time information about the server's CPU and RAM usage.
