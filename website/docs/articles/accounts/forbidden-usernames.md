@@ -34,7 +34,7 @@ OpenPanel applies the following rules when you create databases and users:
 
 Database names may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Database name cannot contain less than **1** character.
-- Databaase name cannot contain more than **64** characters.
+- Database name cannot contain more than **64** characters.
 
 
 Database users may **only** use lowercase letters (`a–z`) and digits (`0–9`).
@@ -110,4 +110,4 @@ Currently reserved usernames:
 - openpanel
 - openadmin
 
-To reserve a certail username, simply add it to the forbidden_usernames.txt file.
+To reserve a certain username, simply add it to the forbidden_usernames.txt file.
