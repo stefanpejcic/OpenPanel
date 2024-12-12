@@ -52,7 +52,7 @@ The OpenAdmin dashboard's 'Usage' widget displays historical resource usage for 
 
 ## Quick start guide
 
-Quick start guide highlights the recommended steps for the Administrator to perform uppon installing OpenPanel.
+Quick start guide highlights the recommended steps for the Administrator to perform upon installing OpenPanel.
 
 ![openadmin dashboard quick_start_guide](/img/admin/dashboard/quick_start_guide.png)
 
