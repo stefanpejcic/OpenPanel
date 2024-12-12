@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.com/invite/26vT9wt3n3) [![version](https://img.shields.io/badge/version-0.3.7-brightgreen.svg?style=flat-square)](https://openpanel.com/docs/changelog/intro/)
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.openpanel.com) [![version](https://img.shields.io/badge/version-0.3.7-brightgreen.svg?style=flat-square)](https://openpanel.com/docs/changelog/intro/)
 <br>
 [![Website](https://img.shields.io/badge/Website-Click%20here-blue.svg?style=flat-square)](https://openpanel.com/) [![Forums](https://img.shields.io/badge/Forums-Click%20here-red.svg?style=flat-square)](https://community.openpanel.com/) [![Documentation](https://img.shields.io/badge/Documenation-Click%20here-yellow.svg?style=flat-square)](https://openpanel.com/docs/) 
 
