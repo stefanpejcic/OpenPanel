@@ -72,7 +72,7 @@ opencli plan-list --json
 <Tabs>
   <TabItem value="openadmin-plan-new" label="With OpenAdmin" default>
 
-To create a new hosting plan click on the 'Create new plan' nutton and set the desired limits for the plan.
+To create a new hosting plan click on the 'Create new plan' button and set the desired limits for the plan.
 
 ![openadmin create new plan](/img/admin/adminpanel_plans_create_new.gif)
 
@@ -132,7 +132,7 @@ opencli plan-usage 2
 | id | username | email | plan_name      | registered_date     |
 +----+----------+-------+----------------+---------------------+
 |  2 | rasa     | rasa  | cloud_4_apache | 2023-11-30 10:33:52 |
-|  3 | aas      | sasa  | cloud_4_apache | 2023-11-30 12:01:49 |
+|  3 | aas      | aas  | cloud_4_apache | 2023-11-30 12:01:49 |
 +----+----------+-------+----------------+---------------------+
 ```
 

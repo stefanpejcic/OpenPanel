@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Notifications
 
-Notifications are accesible from the notification icon in upper right corner. 
+Notifications are accessible from the notification icon in upper right corner. 
 
 ![notifications center](/img/admin/notifications_center.png)
 
@@ -23,7 +23,7 @@ OpenPanel records the following actions:
 - high swap usage
 - dns changed
 
-Each notification  type can be disabled and treshold limits can be set by the Admin user.
+Each notification  type can be disabled and threshold limits can be set by the Admin user.
 
 <Tabs>
   <TabItem value="openadmin-notifications-view" label="With OpenAdmin" default>
@@ -72,13 +72,13 @@ On Server Reboot
 If service is inactive:
 ![service](/img/admin/dashboard/service.png)
 
-If CPU usage is over a treshold:
+If CPU usage is over a threshold:
 ![cpu](/img/admin/dashboard/cpu.png)
 
 If new version of OpenPanel is available:
 ![update](/img/admin/dashboard/update.png)
 
-If Memory usage is over a treshold:
+If Memory usage is over a threshold:
 ![ram](/img/admin/dashboard/ram.png)
 
 If system is running out of disk space:
@@ -102,7 +102,7 @@ To configure your own SMTP for email delivery, you need to update values:
 - mail_use_ssl - default is True
 - mail_username - email address to use for sending
 - mail_password - password for email address
-- mail_default_sender - email to display, defauls is same as mail_username
+- mail_default_sender - email to display, defaults is same as mail_username
 
 Each value is configured using `opencli config update` option. examples:
 

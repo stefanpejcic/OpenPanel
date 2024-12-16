@@ -1,6 +1,6 @@
 # All Domains show Nginx 502 error
 
-This happens when a third party user/service restarted docker and the floatingip service failed to reload the `/etc/hosts` file with new docker private IP addresses.
+This happens when a third party user/service restarted docker and the floating ip service failed to reload the `/etc/hosts` file with new docker private IP addresses.
 
 To resolve this issue, run:
 

@@ -32,7 +32,7 @@ The firewall settings page provides multiple tabs:
 - IPv4 - View and manage IPv4 firewall rules
 - IPv6 - View and manage IPv6 firewall rules
 - Settings - Manage UFW settings
-- Blacklists - Enable/disable blaklists
+- Blacklists - Enable/disable blacklists
 - Logs - view the UFW service log
 
 ### View rules
@@ -50,7 +50,7 @@ To create a new rule click on the 'Add Rule' button and in the modal choose 'ALL
 
 ### Delete Rules
 
-To delete a rule click on the 'Delete' link next to it, and in the confirmaiton modal click on 'Delete' button.
+To delete a rule click on the 'Delete' link next to it, and in the confirmation modal click on 'Delete' button.
 
 ![openadmin firewall delete rule](/img/admin/adminpanel_firewall_delete_rule.png)
 
@@ -71,9 +71,9 @@ The following settings are available:
 
 The following tools are available:
 
-- **Export IPv4 rules** - click to download dall existing IPv4 rules form the UFW service.
-- **Export IPv6 rules** - click to download dall existing IPv6 rules form the UFW service.
-- **Restrict access to Cloudflare only** - block access to this server for traffic not coming from [Cloudflare IP addresses](https://www.cloudflare.com/ips/). This will prevent direct access to the server IP and only allow traffic from Cloudflare netwrork. This is useful when your domains are configured to use the Cloudflare proxy, and you want to block direct access that bypasses Cloudflare's protection. **NOTE: This setting affects all users and their services.**
+- **Export IPv4 rules** - click to download all existing IPv4 rules form the UFW service.
+- **Export IPv6 rules** - click to download all existing IPv6 rules form the UFW service.
+- **Restrict access to Cloudflare only** - block access to this server for traffic not coming from [Cloudflare IP addresses](https://www.cloudflare.com/ips/). This will prevent direct access to the server IP and only allow traffic from Cloudflare network. This is useful when your domains are configured to use the Cloudflare proxy, and you want to block direct access that bypasses Cloudflare's protection. **NOTE: This setting affects all users and their services.**
 - **Reset ports for all users** - delete all existing UFW rules and open ports required by OpenPanel, plus custom ports for users.
 
 
@@ -94,7 +94,7 @@ Default blacklists:
 | AbuseIPDB (DISABLED)       | [https://api.abuseipdb.com/api/v2/blacklist](https://api.abuseipdb.com/api/v2/blacklist) |
 | OpenPanel       | [https://api.openpanel.co/blocklist.txt](https://api.openpanel.co/blocklist.txt) |
 | Spamhaus DROP   | [https://www.spamhaus.org/drop/drop.lasso](https://www.spamhaus.org/drop/drop.lasso) |
-| Spamhaus EDROP  | [https://www.spamhaus.org/drop/edrop.lasso](https://www.spamhaus.org/drop/edrop.lasso) |
+| Spamhaus DROP  | [https://www.spamhaus.org/drop/edrop.lasso](https://www.spamhaus.org/drop/edrop.lasso) |
 | DShield         | [https://www.dshield.org/feeds/suspiciousdomains_Low.txt](https://www.dshield.org/feeds/suspiciousdomains_Low.txt) |
 | FireHOL level1  | [https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset](https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level1.netset) |
 | FireHOL level2  | [https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset](https://raw.githubusercontent.com/firehol/blocklist-ipsets/master/firehol_level2.netset) |

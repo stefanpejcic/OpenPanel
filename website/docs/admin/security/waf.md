@@ -42,7 +42,7 @@ You can follow user-friendly guides to easily customize ModSecurity rules, adapt
 
 ## Enable ModSecurity for existing domains
 
-After installing ModSecurioty only new domains that users add will by default have ModSecurity activate, and for existing users this process can be performed by the administrator from this page or from each user panel individually. To enable ModSecurity on all domains owneed by a user, select the user anc click on 'Enable' button.
+After installing ModSecurity only new domains that users add will by default have ModSecurity activate, and for existing users this process can be performed by the administrator from this page or from each user panel individually. To enable ModSecurity on all domains owned by a user, select the user anc click on 'Enable' button.
 
 ![openadmin modsec settings](/img/admin/adminpanel_modsec_use.png)
 

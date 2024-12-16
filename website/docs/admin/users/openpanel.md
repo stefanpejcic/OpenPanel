@@ -444,7 +444,7 @@ opencli user-unsuspend filip
 <Tabs>
   <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
 
-To Rename a user, click on the 'Edit Information' link for the user, then change the adress in 'Username' field and click on 'Save changes'.
+To Rename a user, click on the 'Edit Information' link for the user, then change the address in 'Username' field and click on 'Save changes'.
 
 Step 1.             |  Step 2.
 :-------------------------:|:-------------------------:
@@ -475,7 +475,7 @@ User 'stefan' successfully renamed to 'pejcic'.
 <Tabs>
   <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
 
-To change email address for a user, click on the 'Edit Information' link for the user, then change the adress in 'Email address' field and click on 'Save changes'.
+To change email address for a user, click on the 'Edit Information' link for the user, then change the address in 'Email address' field and click on 'Save changes'.
 
 Step 1.             |  Step 2.
 :-------------------------:|:-------------------------:
@@ -568,7 +568,7 @@ Step 1.             |  Step 2.
 To allow users to install new services and have unrestricted access inside their container, run the following command:
 
 ```bash
-opencli user-sudo <USERNAME> <ENABLE/DIASBLE/STATUS>
+opencli user-sudo <USERNAME> <ENABLE/DISABLE/STATUS>
 ```
 
 Example:

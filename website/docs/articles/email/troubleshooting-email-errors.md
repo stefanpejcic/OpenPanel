@@ -2,7 +2,7 @@
 
 Email communication is crucial for any organization, but issues can arise that disrupt this essential service. This guide provides practical steps to diagnose and resolve common email errors encountered in [OpenPanel Enterprise edition](/product/openpanel-premium-control-panel/), ensuring your email systems run smoothly and efficiently.
 
-## ERROR listmailuser: '/tmp/docker-mailserver/postfix-accounts.cf' does not exist
+## ERROR list mail user: '/tmp/docker-mailserver/postfix-accounts.cf' does not exist
 
 Dovecot is not started until the first email account is created, therefor listing email accounts with the command `opencli email-setup email list` before creating any email accounts, will produce error:
 ```bash

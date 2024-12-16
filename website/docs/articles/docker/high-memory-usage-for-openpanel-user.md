@@ -4,7 +4,7 @@ OpenPanel uses Docker images as a base for every user. We provide and maintain f
 
 These images are optimized for both speed and performance, and new idle accounts will use from 10-150mb of RAM - depending if using Debian or Ubuntu as server OS.
 
-If you want to fine tune the performanse and lower RAM usage for idle accounts, you can create a custom Docker image that will have only the services that you offer pre-installed.
+If you want to fine tune the performance and lower RAM usage for idle accounts, you can create a custom Docker image that will have only the services that you offer pre-installed.
 
 [Here is an example guide on creating a custom docker image](/docs/articles/docker/building_a_docker_image_example_include_php_ioncubeloader/).
 
@@ -19,7 +19,7 @@ This allows to minimize resources needed for each user, and allows overselling o
 
 ## Memory Usage shows High usage
 
-Unlike other panels, all usage data is real-time and shows actuall usage for user. As on other panels, **cached memory is counted in the total memory usage**. This means that if a service or process used ram and exits, that ram is not automatically returned to the free ram and will still show as used, but in reallity it is cached ram that can be made available at any time if needed.
+Unlike other panels, all usage data is real-time and shows actual usage for user. As on other panels, **cached memory is counted in the total memory usage**. This means that if a service or process used ram and exits, that ram is not automatically returned to the free ram and will still show as used, but in reality it is cached ram that can be made available at any time if needed.
 
 This means that the memory usage displayed for current processes is lower than the memory usage reported in OpenPanel dashboard page.
-Bacause this often confuses users, OpenPanel will periodically safely drop all cached ram at the beginning of an hour.
+Because this often confuses users, OpenPanel will periodically safely drop all cached ram at the beginning of an hour.

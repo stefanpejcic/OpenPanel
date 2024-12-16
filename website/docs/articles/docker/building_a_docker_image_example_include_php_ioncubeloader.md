@@ -100,7 +100,7 @@ opencli plan-create <NAME> <DESCRIPTION> <DOMAINS_LIMIT> <WEBSITES_LIMIT> <DISK_
 Example:
 
 ```bash
-opencli plan-create cloud_8 "Custom plan with 8GB of RAM&CPU" 0 0 15 500000 0 8 8 my_custom_nxinx_image 200
+opencli plan-create cloud_8 "Custom plan with 8GB of RAM&CPU" 0 0 15 500000 0 8 8 my_custom_nginx_image 200
 ```
 
 ### Create new user
