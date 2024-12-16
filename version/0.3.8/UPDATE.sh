@@ -82,6 +82,7 @@ FUNCTIONS=(
 
     # only for 0.3.8
     add_mysql_container_table
+    add_mysql_homedir_table
 
     # update opencli
     opencli_update
@@ -311,6 +312,32 @@ add_mysql_container_table() {
     fi
   else
     echo "Column 'container' already exists."
+  fi
+  echo ""
+}
+
+
+
+add_mysql_homedir_table() {
+  COLUMN_EXISTS=$(mysql -N -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'panel' AND TABLE_NAME = 'users' AND COLUMN_NAME = 'homedir';")
+  if [ "$COLUMN_EXISTS" -eq 0 ]; then
+    echo "Column 'homedir' does not exist. Creating column..."
+    timeout 5s mysql -e "ALTER TABLE \`users\` ADD COLUMN \`homedir\` VARCHAR(255) DEFAULT NULL;"
+    if [ $? -eq 124 ]; then
+      echo "Warning: Timeout occurred while creating the column 'homedir' - retrying.."
+      cd /root && docker compose down openpanel_mysql && docker compose up -d openpanel_mysql
+      timeout 5s mysql -e "ALTER TABLE \`users\` ADD COLUMN \`homedir\` VARCHAR(255) DEFAULT NULL;"
+        if [ $? -eq 124 ]; then
+          echo "ERROR: Unable to add 'homedir' column, please restart mysql and run manually the query: ALTER TABLE users ADD COLUMN homedir VARCHAR(255) DEFAULT NULL;"
+          exit 1
+        else
+          echo "Column 'homedir' created after restarting mysql."
+        fi
+    else
+      echo "Column 'homedir' created."
+    fi
+  else
+    echo "Column 'homedir' already exists."
   fi
   echo ""
 }
