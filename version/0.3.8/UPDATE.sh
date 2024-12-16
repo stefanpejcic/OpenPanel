@@ -80,6 +80,9 @@ FUNCTIONS=(
     # update docker openpanel image
     download_new_panel
 
+    # only for 0.3.8
+    add_mysql_container_table
+
     # update opencli
     opencli_update
     
@@ -286,6 +289,33 @@ download_new_admin() {
  restart_admin_panel_if_needed
    
 }
+
+
+add_mysql_container_table() {
+  COLUMN_EXISTS=$(mysql -N -e "SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = 'panel' AND TABLE_NAME = 'users' AND COLUMN_NAME = 'container';")
+  if [ "$COLUMN_EXISTS" -eq 0 ]; then
+    echo "Column 'container' does not exist. Creating column..."
+    timeout 5s mysql -e "ALTER TABLE \`users\` ADD COLUMN \`container\` VARCHAR(255) DEFAULT NULL;"
+    if [ $? -eq 124 ]; then
+      echo "Warning: Timeout occurred while creating the column 'container' - retrying.."
+      cd /root && docker compose down openpanel_mysql && docker compose up -d openpanel_mysql
+      timeout 5s mysql -e "ALTER TABLE \`users\` ADD COLUMN \`container\` VARCHAR(255) DEFAULT NULL;"
+        if [ $? -eq 124 ]; then
+          echo "ERROR: Unable to add 'container' column, please restart mysql and run manually the query: ALTER TABLE users ADD COLUMN container VARCHAR(255) DEFAULT NULL;"
+          exit 1
+        else
+          echo "Column 'container' created after restarting mysql."
+        fi
+    else
+      echo "Column 'container' created."
+    fi
+  else
+    echo "Column 'container' already exists."
+  fi
+  echo ""
+}
+
+
 
 
 download_new_panel() {
