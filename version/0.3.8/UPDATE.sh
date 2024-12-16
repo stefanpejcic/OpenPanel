@@ -25,6 +25,14 @@ CURRENT_PANEL_VERSION=$(< ${OPENPANEL_DIR}/version)
 LOG_FILE="${OPENPANEL_LOG_DIR}admin/notifications.log"
 DEBUG_MODE=0
 
+all_success=true
+
+
+
+
+
+
+
 update_blocker() {
 
     echo -e "${RED}==================================================${NC}"
@@ -97,13 +105,6 @@ FUNCTIONS=(
     # yay! we made it
     celebrate
 
-    post_install_message
-
-    # admin panel
-    download_new_admin
-
-    # if user created a post-update script, run it now
-    run_custom_postupdate_script
 
 )
 
@@ -351,6 +352,13 @@ download_new_panel() {
     echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
     echo ""
     docker pull openpanel/openpanel
+    task1_result=$?
+    if [ $task1_result -ne 0 ]; then
+        all_success=false
+    fi
+
+
+    
 }
 
 
@@ -384,15 +392,28 @@ celebrate() {
 
     print_space_and_line
 
-    echo ""
-    echo -e "${GREEN}OpenPanel successfully updated to ${NEW_PANEL_VERSION}.${NC}"
-    echo ""
+    # Final status check
+    if [ "$all_success" = true ]; then
+        echo ""
+        echo -e "${GREEN}OpenPanel successfully updated to ${NEW_PANEL_VERSION}.${NC}"
+        echo ""
+    
+        
+        sed -i 's/UNREAD New OpenPanel update is available/READ New OpenPanel update is available/' $LOG_FILE # remove the unread notification that there is new update
+        write_notification "OpenPanel successfully updated!" "OpenPanel successfully updated from $CURRENT_PANEL_VERSION to $NEW_PANEL_VERSION" # add notification that update was successful
+        post_install_message # more text
+        download_new_admin # this will restart from admin panel and break progress - so do it at the end!
+        run_custom_postupdate_script  # if user created a post-update script, run it now
+    else
+        echo ""
+        echo -e "${RED}OpenPanel update failed!${NC}"
+        echo ""
+        sed -i 's/UNREAD New OpenPanel update is available/READ New OpenPanel update is available/' $LOG_FILE
+        # TODO: in main update script exclude this version from future updates!
+        write_notification "OpenPanel update failed!" "Error updating OpenPanel from $CURRENT_PANEL_VERSION to $NEW_PANEL_VERSION - please retry manually."
 
-    # remove the unread notification that there is new update
-    sed -i 's/UNREAD New OpenPanel update is available/READ New OpenPanel update is available/' $LOG_FILE
+    fi
 
-    # add notification that update was successful
-    write_notification "OpenPanel successfully updated!" "OpenPanel successfully updated from $CURRENT_PANEL_VERSION to $NEW_PANEL_VERSION"
 }
 
 
