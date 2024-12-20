@@ -1,5 +1,5 @@
 name: 🐛 OpenPanel (user interface) Bug Report
-description: Report bugs with the OpenPanel UI 
+description: Report bugs with the OpenPanel UI (running on port :2083)
 labels: Bug
 
 body:
