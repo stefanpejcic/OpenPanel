@@ -1,5 +1,5 @@
-name: 🐛 Bug Report
-description: ⚠️ NEVER report security issues! Send us an email to stefan[at]openpanel.com
+name: 🐛 OpenAdmin (Administrator interface) Bug Report
+description: Report bugs with the OpenAdmin UI 
 labels: Bug
 
 body:
