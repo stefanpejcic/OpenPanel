@@ -1,5 +1,5 @@
 name: 🐛 OpenCLI (terminal commands) and OS related problems Report
-description: OS related, API and [command line](https://dev.openpanel.com/cli/) errors
+description: OS related, API and command line errors
 labels: Bug
 
 body:
