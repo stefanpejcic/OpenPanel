@@ -37,18 +37,8 @@ body:
           label: How to reproduce
           description: |
             ⚠️  This is the most important part of the report ⚠️
+            
             Without a way to easily reproduce your issue, there is little chance we will be able to help you and work on a fix.
             Please, take the time to show us some code and/or screenshot that is needed for others to reproduce the problem easily.
       validations:
           required: true
-    - type: textarea
-      id: possible-solution
-      attributes:
-          label: Possible Solution
-          description: |
-            Optional: only if you have suggestions on a fix/reason for the bug
-    - type: textarea
-      id: additional-context
-      attributes:
-          label: Additional Context
-          description: "Optional: any other context about the problem: log messages, screenshots, etc."
