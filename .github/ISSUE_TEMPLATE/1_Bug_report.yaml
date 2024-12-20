@@ -27,7 +27,7 @@ body:
     - type: dropdown
       id: demo
       attributes:
-           label: Are you able to reproduce the problem on the demo site https://demo.openpanel.org:2083/ ?
+           label: Are you able to reproduce the problem on the demo site https://demo.openpanel.org:2087/ ?
            description: Demo site runs latest OpenPanel version and is restarted every hour. Please try to reproduce any bugs there before reporting them.
            options:
            - 'No'
