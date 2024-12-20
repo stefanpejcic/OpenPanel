@@ -1,5 +1,5 @@
 name: 🐛 OpenAdmin (Administrator interface) Bug Report
-description: Report bugs with the OpenAdmin UI 
+description: Report bugs with the OpenAdmin UI (running on port :2087)
 labels: Bug
 
 body:
