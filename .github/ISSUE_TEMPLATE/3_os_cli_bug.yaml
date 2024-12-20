@@ -3,13 +3,6 @@ description: OS related, API and command line errors
 labels: Bug
 
 body:
-    - type: input
-      id: affected-versions
-      attributes:
-          label: OpenPanel version(s) affected
-          placeholder: x.y.z
-      validations:
-          required: true
     - type: dropdown
       id: os
       attributes:
