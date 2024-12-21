@@ -12,7 +12,7 @@ SUDO="NO"
 
 # Configuration files and directories
 memcached_dir="/var/run/memcached/"
-apache_default_site="/etc/apache2/sites-available/000-default.conf"
+
 
 
 
@@ -39,7 +39,7 @@ PHP83FPM_STATUS="off"
 PHP84FPM_STATUS="off"
 MYSQL_STATUS="off"
 CRON_STATUS="off"
-APACHE_STATUS="off"
+LITESPEED_STATUS="off"
 
 start_service() {
     if [ "$1" == "on" ]; then
@@ -66,7 +66,7 @@ start_service "$PHP83FPM_STATUS" "php8.3-fpm"
 start_service "$PHP84FPM_STATUS" "php8.4-fpm"
 start_service "$MYSQL_STATUS" "mysql"
 start_service "$CRON_STATUS" "cron"
-start_service "$APACHE_STATUS" "apache2"
+start_service "$LITESPEED_STATUS" "lsws"
 
 
 
