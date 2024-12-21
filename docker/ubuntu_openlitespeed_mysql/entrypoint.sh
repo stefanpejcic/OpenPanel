@@ -83,46 +83,29 @@ chown :crontab /var/spool/cron/crontabs/
 
 
 : '
-APACHE
-Enable all user websites and create directory for access logs.
+LITESPEED
+Enable all user websites.
 '
 
+if [ -z "$(ls -A -- "/usr/local/lsws/conf/")" ]; then
+	cp -R /usr/local/lsws/.conf/* /usr/local/lsws/conf/
+fi
+if [ -z "$(ls -A -- "/usr/local/lsws/admin/conf/")" ]; then
+	cp -R /usr/local/lsws/admin/.conf/* /usr/local/lsws/admin/conf/
+fi
+chown 994:994 /usr/local/lsws/conf -R
+chown 994:1001 /usr/local/lsws/admin/conf -R
 
-#Make domlogs
-mkdir -p /var/log/apache2/domlogs
-
-# Replace the old IP address with the containers new IP in nginx config files and enable website
-replace_ip_in_sites() {
-    if [ -n "$OLD_IP" ]; then
-        local site_files="/etc/apache2/sites-available"
-        for file in $site_files; do
-            if [ -f "$file" ]; then
-                echo "Updating IP in $file..."
-                sed -i "s/$OLD_IP/$CONTAINER_IP/g" "$file"
-                echo "Added $file to apache2 sites-enabled..."
-                a2ensite "$file"
-            fi
-        done
-    fi
-}
-
-# (OLD_IP Has value only on re-run)
-replace_ip_in_sites
-
-# to prevent users from editing the files..
-chmod 700 /etc/apache2/sites-available
-chmod 700 /etc/apache2/sites-enabled
-
-
-sites_available_dir="/etc/apache2/sites-available"
+sites_available_dir="/usr/local/lsws/conf"
 
 
 # if there are any sites, start the service
-if [ "$(ls -A $sites_available_dir | grep -v 'default')" ]; then
-    service apache2 start
-    echo "Apache service started."
+if [ "$(ls -A $sites_available_dir | grep -v 'default.conf')" ]; then
+    #service lsws start
+    /usr/local/lsws/bin/lswsctrl start
+    echo "Litespeed service started."
 else
-    echo "No websites found in $sites_available_dir. Apache service not started automatically."
+    echo "No websites found in $sites_available_dir. Litespeed service not started automatically."
 fi
 
 
