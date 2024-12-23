@@ -146,7 +146,7 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 
 
 ########## SSL #############
-RUN mkdir -p /etc/apache2/ssl/ && cd /etc/apache2/ssl/ && openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=GB/ST=London/L=London/O=Global Security/OU=R&D Department/CN=openpanel.co"  -keyout cert.key  -out cert.crt
+RUN mkdir -p /etc/litespeed/ssl/ && cd /etc/litespeed/ssl/ && openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=GB/ST=London/L=London/O=Global Security/OU=R&D Department/CN=openpanel.co"  -keyout cert.key  -out cert.crt
 
 
 ########## TERMINAL #############
