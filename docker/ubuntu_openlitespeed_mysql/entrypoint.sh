@@ -44,7 +44,11 @@ LITESPEED_STATUS="off"
 start_service() {
     if [ "$1" == "on" ]; then
         echo "Starting $2..."
-        service "$2" start
+	if [ "$2" == "lsws" ]; then
+ 		/usr/local/lsws/bin/lswsctrl start
+ 	else
+        	service "$2" start
+	fi
     fi
 }
 
