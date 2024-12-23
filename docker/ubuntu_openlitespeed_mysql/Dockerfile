@@ -86,7 +86,7 @@ ADD litespeed/docker.xml /usr/local/lsws/conf/templates/docker.xml
 ADD litespeed/setup_docker.sh /usr/local/lsws/bin/setup_docker.sh
 ADD litespeed/htpasswd /usr/local/lsws/admin/conf/htpasswd
 
-RUN /usr/local/lsws/bin/setup_docker.sh && rm /usr/local/lsws/bin/setup_docker.sh
+RUN bash /usr/local/lsws/bin/setup_docker.sh && rm /usr/local/lsws/bin/setup_docker.sh
 RUN chown 994:994 /usr/local/lsws/conf -R
 RUN cp -RP /usr/local/lsws/conf/ /usr/local/lsws/.conf/
 RUN cp -RP /usr/local/lsws/admin/conf /usr/local/lsws/admin/.conf/
