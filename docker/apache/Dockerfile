@@ -5,6 +5,7 @@ LABEL author="Stefan Pejcic"
 
 ENV TZ=UTC
 ENV DEBIAN_FRONTEND=noninteractive
+LABEL db="mysql" webserver="apache" php="php8.2"
 
 RUN apt-get update && \
     apt-get install -y software-properties-common && \
