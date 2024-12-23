@@ -69,7 +69,7 @@ RUN wget https://openlitespeed.org/packages/openlitespeed-$OLS_VERSION.tgz && \
 
 RUN wget -O - https://repo.litespeed.sh | bash
 
-RUN install -y $PHP_VERSION $PHP_VERSION-common $PHP_VERSION-mysql $PHP_VERSION-opcache \
+RUN apt-get install -y $PHP_VERSION $PHP_VERSION-common $PHP_VERSION-mysql $PHP_VERSION-opcache \
     $PHP_VERSION-curl $PHP_VERSION-imagick $PHP_VERSION-redis $PHP_VERSION-memcached $PHP_VERSION-intl
     
 RUN ["/bin/bash", "-c", "if [[ $PHP_VERSION == lsphp7* ]]; then apt-get install $PHP_VERSION-json -y; fi"]
