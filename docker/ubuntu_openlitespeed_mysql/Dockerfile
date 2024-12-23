@@ -5,7 +5,7 @@ ARG PHP_VERSION
 
 LABEL maintainer="stefan@pejcic.rs"
 LABEL author="Stefan Pejcic"
-
+LABEL db="mysql" webserver="litespeed" php="php8.3"
 ENV TZ=UTC
 ENV DEBIAN_FRONTEND=noninteractive
 
