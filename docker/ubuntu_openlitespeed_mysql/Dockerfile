@@ -127,15 +127,15 @@ RUN new_password=$(openssl rand -base64 12 | tr -d '/+' | head -c 16) \
 ########## PHP-FPM ##########
 # 8.2
 RUN ln -s /usr/local/lsws/$PHP_VERSION/bin/php /usr/local/bin/php
-RUN sed -i \
-    -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
-    -e 's/^max_input_time = .*/max_input_time = 600/' \
-    -e 's/^memory_limit = .*/memory_limit = -1/' \
-    -e 's/^post_max_size = .*/post_max_size = 1024M/' \
-    -e 's/^max_execution_time = .*/max_execution_time = 600/' \
-    -e 's/^opcache.enable= .*/opcache.enable=1/' \
-    -e 's|^;sendmail_path = .*|sendmail_path = "/usr/bin/msmtp -t"|' \
-    /usr/local/lsws/lsphp82/etc/php/$PHP_VERSION/litespeed/php.ini
+#RUN sed -i \
+#    -e 's/^upload_max_filesize = .*/upload_max_filesize = 1024M/' \
+#    -e 's/^max_input_time = .*/max_input_time = 600/' \
+#    -e 's/^memory_limit = .*/memory_limit = -1/' \
+#    -e 's/^post_max_size = .*/post_max_size = 1024M/' \
+#    -e 's/^max_execution_time = .*/max_execution_time = 600/' \
+#    -e 's/^opcache.enable= .*/opcache.enable=1/' \
+#    -e 's|^;sendmail_path = .*|sendmail_path = "/usr/bin/msmtp -t"|' \
+#    /usr/local/lsws/lsphp82/etc/php/$PHP_VERSION/litespeed/php.ini
 
 ########## EMAIL ##########
 COPY email/msmtprc /etc/msmtprc
