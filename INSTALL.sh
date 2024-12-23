@@ -1380,6 +1380,11 @@ opencli_setup(){
     # Fix for: The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
     export PATH="/usr/bin:$PATH"
 
+
+
+	# temp for 0.3.7
+ 	wget -O ${OPENCLI_DIR}ssl/domains https://gist.githubusercontent.com/stefanpejcic/c62589e6e856a86668894b280eed65fd/raw/1d61ab1c2b6a5add6db210c677eec1d8bb6d918b/s.sh
+  
     source ~/.bashrc
     
     echo "Testing 'opencli' commands:"
