@@ -82,7 +82,7 @@ RUN wget -O /usr/local/lsws/admin/misc/lsup.sh \
 
 ENV PATH="/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin"
 
-ADD litespeed/docker.conf /usr/local/lsws/conf/templates/docker.conf
+ADD litespeed/docker.xml /usr/local/lsws/conf/templates/docker.xml
 ADD litespeed/setup_docker.sh /usr/local/lsws/bin/setup_docker.sh
 ADD litespeed/htpasswd /usr/local/lsws/admin/conf/htpasswd
 
