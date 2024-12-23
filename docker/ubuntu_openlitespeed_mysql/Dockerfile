@@ -81,9 +81,9 @@ RUN wget -O /usr/local/lsws/admin/misc/lsup.sh \
 
 ENV PATH="/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/bin"
 
-ADD docker.conf /usr/local/lsws/conf/templates/docker.conf
-ADD setup_docker.sh /usr/local/lsws/bin/setup_docker.sh
-ADD htpasswd /usr/local/lsws/admin/conf/htpasswd
+ADD litespeed/docker.conf /usr/local/lsws/conf/templates/docker.conf
+ADD litespeed/setup_docker.sh /usr/local/lsws/bin/setup_docker.sh
+ADD litespeed/htpasswd /usr/local/lsws/admin/conf/htpasswd
 
 RUN /usr/local/lsws/bin/setup_docker.sh && rm /usr/local/lsws/bin/setup_docker.sh
 RUN chown 994:994 /usr/local/lsws/conf -R
