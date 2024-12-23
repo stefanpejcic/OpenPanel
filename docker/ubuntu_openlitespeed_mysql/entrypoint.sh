@@ -100,11 +100,10 @@ fi
 chown 994:994 /usr/local/lsws/conf -R
 chown 994:1001 /usr/local/lsws/admin/conf -R
 
-sites_available_dir="/usr/local/lsws/conf"
-
+sites_available_dir="/usr/local/lsws/conf/vhosts"
 
 # if there are any sites, start the service
-if [ "$(ls -A $sites_available_dir | grep -v 'default.conf')" ]; then
+if [ "$(ls $sites_available_dir/*.conf 2>/dev/null)" ]; then
     #service lsws start
     /usr/local/lsws/bin/lswsctrl start
     echo "Litespeed service started."
