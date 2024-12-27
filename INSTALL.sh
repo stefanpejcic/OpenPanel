@@ -1580,7 +1580,7 @@ setup_bind(){
 	    debug_log "Attempt $((RETRY_COUNT_RDNC + 1)) to generate rndc.key..."
 	    
 	    # Run the Docker command to generate rndc.key
-	    debug_log docker run -it --rm \
+	    debug_log timeout 30 docker run -it --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
