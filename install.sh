@@ -6,7 +6,6 @@
 # https://openpanel.com/install
 #
 # Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
-# Supported Python         3.8 3.9 3.10 3.11 3.12
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
@@ -34,7 +33,6 @@ SKIP_APT_UPDATE=false                                                   # they a
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
-IPSETS=true                                                           # currently only works with ufw
 SET_HOSTNAME_NOW=false                                                # must be a FQDN                                          # space in gb, if not set fallback to 50% of available du
 SETUP_SWAP_ANYWAY=false
 SWAP_FILE="1"                                                         # calculated based on ram
@@ -214,12 +212,7 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    PANEL_VERSION=$(curl --silent --max-time 10 -4 https://openpanel.org/version)
-	    if [[ $PANEL_VERSION =~ [0-9]+\.[0-9]+\.[0-9]+ ]]; then
-	        PANEL_VERSION=$PANEL_VERSION
-	    else
-	        PANEL_VERSION="0.3.7"
-	    fi
+	    PANEL_VERSION="1.0.0"
 	fi
 }
 
@@ -295,7 +288,6 @@ opencli_setup                             # set terminal commands
 panel_customize                           # customizations
 docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
-configure_modsecurity                     # TEMPORARY OFF FROM 0.2.5
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -385,9 +377,7 @@ parse_args() {
         echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
-        echo "  --skip-blacklists               Do not set up IP sets and blacklists."
         echo "  --skip-ssl                      Skip SSL setup."
-        echo "  --with_modsec                   Enable ModSecurity for Nginx."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
@@ -448,14 +438,8 @@ while [[ $# -gt 0 ]]; do
             UFW_SETUP=true
             CSF_SETUP=false
             ;;
-        --skip-blacklists)
-            IPSETS=false
-            ;;
         --skip-ssl)
             SKIP_SSL=true
-            ;;
-        --with_modsec)
-            MODSEC=true
             ;;
         --debug)
             DEBUG=true
@@ -952,18 +936,6 @@ setup_firewall_service() {
               debug_log ufw allow 22  #ssh
           fi
 
-          # set https://github.com/stefanpejcic/ipset-blacklist
-          if [ "$IPSETS" = true ]; then
-              if [ "$REPAIR" = true ]; then
-                  rm -rf ipset-blacklist-master
-              fi
-              if [ "$DEBUG" = true ]; then
-                  bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh)
-              else
-                  bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/ipset-blacklist/master/setup.sh) > /dev/null 2>&1
-              fi
-          fi
-
           debug_log ufw --force enable
           debug_log ufw reload
   
@@ -1125,28 +1097,6 @@ install_packages() {
         # gunicorn needs to be installed over pip for alma
         debug_log pip3 install gunicorn flask
     fi
-}
-
-
-
-
-
-configure_modsecurity() {
-
-echo "Warning: modsecurity is currently disabled and will not be installed"
-: '
-    # ModSecurity
-    #
-    # https://openpanel.com/docs/admin/settings/waf/#install-modsecurity
-    #
-
-    if [ "$MODSEC" ]; then
-        echo "ModSecurity is temporary disabled and will not be installed."
-	#echo "Installing ModSecurity and setting OWASP core ruleset.."
-        #debug_log opencli nginx-install_modsec
-    fi
-'
-
 }
 
 
