@@ -176,11 +176,6 @@ is_package_installed() {
     fi
 }
 
-
-detect_filesystem(){
-	FS_TYPE=$(df -T "/var" | awk 'NR==2 {print $2}')
-}
-
 get_server_ipv4(){
 	# Get server ipv4
  
@@ -275,11 +270,6 @@ display_what_will_be_installed(){
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
  	echo -e "[ OK ] INSTALLED PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
-	if [ "$FS_TYPE" = "xfs" ]; then
- 	echo -e "[ OK ] BACKING FILESYSTEM TYPE:   ${GREEN} ${FS_TYPE^^} ${RESET}"
-	else 
-  	echo -e "[PASS] BACKING FILESYSTEM TYPE:   ${YELLOW} ${FS_TYPE^^} ${RESET}"
- 	fi
  	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${current_ip} ${RESET}"
   	echo ""
 
@@ -1655,7 +1645,6 @@ setup_terminal || echo > /dev/null
 # shellcheck disable=SC2068
 parse_args "$@"
 get_server_ipv4
-detect_filesystem
 set_version_to_install
 print_header
 check_requirements
