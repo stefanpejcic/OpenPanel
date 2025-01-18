@@ -30,8 +30,7 @@ export TERM=xterm-256color                                            # bug fix:
 CUSTOM_VERSION=false                                                  # default version is latest
 INSTALL_TIMEOUT=600                                                   # after 10min, consider the install failed
 DEBUG=false                                                           # verbose output for debugging failed install
-SKIP_APT_UPDATE=false
-SKIP_IMAGES=false                                                     # they are auto-pulled on account creation
+SKIP_APT_UPDATE=false                                                   # they are auto-pulled on account creation
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
@@ -397,7 +396,6 @@ parse_args() {
         echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
-        echo "  --skip-images                   Skip installing openpanel/nginx and openpanel/apache docker images."
         echo "  --skip-blacklists               Do not set up IP sets and blacklists."
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --with_modsec                   Enable ModSecurity for Nginx."
@@ -460,9 +458,6 @@ while [[ $# -gt 0 ]]; do
         --ufw)
             UFW_SETUP=true
             CSF_SETUP=false
-            ;;
-        --skip-images)
-            SKIP_IMAGES=true
             ;;
         --skip-blacklists)
             IPSETS=false
