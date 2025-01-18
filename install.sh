@@ -35,8 +35,7 @@ REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
 IPSETS=true                                                           # currently only works with ufw
-SET_HOSTNAME_NOW=false                                                # must be a FQDN
-CUSTOM_GB_DOCKER=false                                                # space in gb, if not set fallback to 50% of available du
+SET_HOSTNAME_NOW=false                                                # must be a FQDN                                          # space in gb, if not set fallback to 50% of available du
 SETUP_SWAP_ANYWAY=false
 SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
@@ -487,10 +486,6 @@ while [[ $# -gt 0 ]]; do
         --swap=*)
             SETUP_SWAP_ANYWAY=true
             SWAP="${1#*=}"
-            ;;
-        --docker-space=*)
-            CUSTOM_GB_DOCKER=true
-            SPACE_FOR_DOCKER_FILE="${1#*=}"
             ;;
         --email=*)
             SEND_EMAIL_AFTER_INSTALL=true
