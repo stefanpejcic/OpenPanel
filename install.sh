@@ -128,7 +128,6 @@ install_started_message(){
     elif [ "$UFW_SETUP" = true ]; then
     	echo -e "- Set up Uncomplicated Firewall for enhanced security."
     fi
-    echo -e "- Install needed Docker images."
     if [ "$SET_PREMIUM" = true ]; then
     	echo -e "- Set up 4 hosting plans (Nginx with MySQL, Nginx with MariaDB, Apache with MySQL, Apache with MariaDB) so you can start right away."
     else
@@ -1489,7 +1488,7 @@ install_openadmin(){
 
 
     
-    cp -fr /usr/local/admin/service/admin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
+    cp -fr /etc/openpanel/openadmin/service/openadmin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
     
     systemctl daemon-reload  > /dev/null 2>&1
