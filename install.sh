@@ -1001,7 +1001,7 @@ install_packages() {
     echo "Installing required services.."
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-    	packages=("git" "docker.io" "default-mysql-client" "python3-pip" "pip" "gunicorn" "jc" "sqlite3" "geoip-bin" "xfsprogs")
+    	packages=("git" "docker.io" "default-mysql-client" "python3-pip" "pip" "jc" "sqlite3" "geoip-bin" "xfsprogs")
 	
  	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
@@ -1045,7 +1045,7 @@ install_packages() {
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
-   	 packages=("wget" "git" "docker-ce" "mysql" "python3-pip" "pip" "gunicorn" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+   	 packages=("wget" "git" "docker-ce" "mysql" "pip" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
 	
  	for package in "${packages[@]}"; do
             echo -e "Installing        ${GREEN}$package${RESET}"
@@ -1080,9 +1080,7 @@ install_packages() {
             debug_log $PACKAGE_MANAGER install "$package" -y
 	    debug_log $PACKAGE_MANAGER -y install "$package"
         done 
-
-        # gunicorn needs to be installed over pip for alma
-        debug_log pip3 install gunicorn flask
+	
     fi
 }
 
