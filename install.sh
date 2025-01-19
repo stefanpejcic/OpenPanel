@@ -262,7 +262,6 @@ display_what_will_be_installed(){
  	fi
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
- 	echo -e "[ OK ] INSTALLED PYTHON VERSION:  ${GREEN} ${current_python_version} ${RESET}"
  	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${current_ip} ${RESET}"
   	echo ""
 
@@ -280,6 +279,7 @@ FUNCTIONS=(
 detect_os_and_package_manager             # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
 update_package_manager                    # update dnf/yum/apt-get
+install_python312
 install_packages                          # install docker, csf/ufw, sqlite, etc.
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
 setup_bind                                # must run after -configuration
@@ -349,13 +349,6 @@ check_requirements() {
         fi
     fi
     
-    # check if python version is supported
-    current_python_version=$(python3 --version 2>&1 | cut -d " " -f 2 | cut -d "." -f 1,2 | tr -d '.')
-    allowed_versions=("39" "310" "311" "312" "38")
-    if [[ ! " ${allowed_versions[@]} " =~ " ${current_python_version} " ]]; then
-       echo -e "${RED}Error: Unsupported Python version $current_python_version. No corresponding branch available.${RESET}" >&2
-       exit 1
-    fi
 }
 
 
@@ -519,27 +512,21 @@ detect_os_and_package_manager() {
         case $ID in
             ubuntu)
                 PACKAGE_MANAGER="apt-get"
-                py_enchoded_for_distro="$current_python_version"
                 ;;
             debian)
                 PACKAGE_MANAGER="apt-get"
-                py_enchoded_for_distro="debian-$current_python_version"
                 ;;
             fedora)
                 PACKAGE_MANAGER="dnf"
-                py_enchoded_for_distro="$current_python_version"
                 ;;
             rocky)
                 PACKAGE_MANAGER="dnf"
-                py_enchoded_for_distro="$current_python_version"
                 ;;
             centos)
                 PACKAGE_MANAGER="yum"
-                py_enchoded_for_distro="$current_python_version"
                 ;;
             almalinux|alma)
                 PACKAGE_MANAGER="dnf"
-                py_enchoded_for_distro="$current_python_version"
                 ;;
             *)
                 echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
@@ -1173,10 +1160,6 @@ opencli_setup(){
     export PATH="/usr/bin:$PATH"
 
 
-
-	# temp for 0.3.7
- 	wget -O ${OPENCLI_DIR}ssl/domains https://gist.githubusercontent.com/stefanpejcic/c62589e6e856a86668894b280eed65fd/raw/1d61ab1c2b6a5add6db210c677eec1d8bb6d918b/s.sh
-  
     source ~/.bashrc
     
     echo "Testing 'opencli' commands:"
@@ -1451,6 +1434,28 @@ panel_customize(){
 
 
 
+install_python312() {
+if command -v python3.12 &> /dev/null; then
+	echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
+else
+	echo "Installing Python 3.12"
+	debug_log $PACKAGE_MANAGER install -y software-properties-common
+	debug_log add-apt-repository -y ppa:deadsnakes/ppa
+	debug_log $PACKAGE_MANAGER update
+	debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
+	
+	if python3.12 --version &> /dev/null; then
+	    :
+	else
+	    radovan 1 "Python 3.12 installation failed."
+	fi
+fi
+
+
+}
+
+
+
 install_openadmin(){
 
     # OpenAdmin
@@ -1465,10 +1470,11 @@ install_openadmin(){
     
     mkdir -p $OPENPADMIN_DIR
 
-        debug_log echo "Downloading OpenAdmin files for $pretty_os_name OS and Python version $current_python_version"
-
-        git clone -b $py_enchoded_for_distro --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        debug_log echo "Downloading OpenAdmin files"
+	
+        git clone -b 312 --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
+	python3.12 -m venv ${OPENPADMIN_DIR}venv
         pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
 
      # on debian12 yaml is also needed to read conf files!
