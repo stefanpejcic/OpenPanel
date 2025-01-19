@@ -33,8 +33,9 @@ SKIP_APT_UPDATE=false                                                   # they a
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
-SET_HOSTNAME_NOW=false                                                # must be a FQDN                                          # space in gb, if not set fallback to 50% of available du
+SET_HOSTNAME_NOW=false                                                # must be a FQDN
 SETUP_SWAP_ANYWAY=false
+MODSEC=true                                                           # install modsecurity, unless user provices --no-modsecurity flag
 SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false 
 SET_PREMIUM=false                                                     # added in 0.2.1
@@ -287,6 +288,7 @@ opencli_setup                             # set terminal commands
 panel_customize                           # customizations
 docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
+configure_modsecurity			  # download modsec coreruleset or change docker image
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -370,6 +372,7 @@ parse_args() {
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
         echo "  --skip-ssl                      Skip SSL setup."
+        echo "  --no-modsecurity                Do not configure ModSecurity with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
@@ -432,6 +435,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-ssl)
             SKIP_SSL=true
+            ;;
+        --no-modsecurity)
+            MODSEC=false
             ;;
         --debug)
             DEBUG=true
@@ -1458,6 +1464,20 @@ fi
 
 }
 
+
+configure_modsecurity() {
+
+	if [ "$MODSEC" = true ]; then
+		echo "Installing ModSecurity and setting OWASP core ruleset.."
+		debug_log mkdir -p /etc/openpanel/caddy/
+		debug_log wget https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
+		debug_log git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/	
+	else
+ 		echo "Disabling ModSecurity: setting caddy:latest docker image instead of openpanel/caddy-coraza"
+		sed -i 's|image: .*caddy.*|image: caddy:latest|' /root/docker-compose.yml
+	fi
+ 
+}
 
 
 install_openadmin(){
