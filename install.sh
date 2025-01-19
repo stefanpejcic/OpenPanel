@@ -1000,7 +1000,7 @@ install_packages() {
     echo "Installing required services.."
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-    	packages=("git" "docker.io" "default-mysql-client" "python3-pip" "pip" "jc" "sqlite3" "geoip-bin" "xfsprogs")
+    	packages=("git" "docker.io" "default-mysql-client" "python3-pip" "pip" "jc" "sqlite3" "geoip-bin")
 	
  	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
