@@ -1479,6 +1479,8 @@ install_openadmin(){
         git clone -b 312 --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
 	python3.12 -m venv ${OPENPADMIN_DIR}venv
+
+	source ${OPENPADMIN_DIR}venv/bin/activate
         pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
 
      # on debian12 yaml is also needed to read conf files!
