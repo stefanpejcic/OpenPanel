@@ -683,6 +683,10 @@ docker_compose_up(){
 	else
 		echo -e "[${GREEN} OK ${RESET}] MySQL service started successfuly"
 	fi
+
+
+ 	# needed from 1.0.0 for docker contexts to work both inside openpanel ui contianer nad host os
+	 ln -s / /hostfs
 }
 
 
