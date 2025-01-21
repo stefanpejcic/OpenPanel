@@ -281,6 +281,7 @@ display_what_will_be_installed            # display os, version, ip
 update_package_manager                    # update dnf/yum/apt-get
 install_python312
 install_packages                          # install docker, csf/ufw, sqlite, etc.
+edit_fstab                                # enable quotas
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
 setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
@@ -1005,9 +1006,10 @@ install_packages() {
 
     echo "Installing required services.."
 
+
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-    	packages=("git" "docker.io" "default-mysql-client" "python3-pip" "pip" "jc" "sqlite3" "geoip-bin")
-	
+    	packages=("curl" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
+
  	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
         
@@ -1050,8 +1052,8 @@ install_packages() {
 	# otherwise we get podman..
 	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
  
-   	 packages=("wget" "git" "docker-ce" "mysql" "pip" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
-	
+   	 packages=("wget" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap"  "docker-ce" "mysql" "pip" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
+ 
  	for package in "${packages[@]}"; do
             echo -e "Installing        ${GREEN}$package${RESET}"
             debug_log $PACKAGE_MANAGER install "$package" -y
@@ -1063,9 +1065,9 @@ install_packages() {
 
  	# special case for fedora, 
 	if [ -f /etc/fedora-release ]; then
-    		packages=("git" "wget" "python3-flask" "python3-pip" "docker" "docker-compose" "mysql" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
+    		packages=("git" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker" "docker-compose" "mysql" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
     	else
-     		packages=("git" "wget" "python3-flask" "python3-pip" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
+     		packages=("git" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
       	fi
      	
 	debug_log dnf install yum-utils  -y
@@ -1089,6 +1091,36 @@ install_packages() {
     fi
 }
 
+
+edit_fstab() {
+
+echo "Setting quotas for disk limits of user files"
+fstab_file="/etc/fstab"
+root_entry=$(grep -E '^\S+\s+/.*' "$fstab_file")
+
+if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
+    echo "Success, usrquota and grpquota are already set for /"
+else
+    # Add usrquota and grpquota to the fstab entry (only for the root entry)
+    sudo sed -i 's|^\(LABEL=cloudimg-rootfs\s*/\s*ext4\s*[^,]*\)|\1,usrquota,grpquota|' "$fstab_file"
+
+    echo "Success, usrquota and grpquota have been added to / entry in fstab, remounting.."
+fi
+    systemctl daemon-reload	
+    quotaoff -a
+    mount -o remount,usrquota,grpquota /
+    mount /dev/vda1 /mnt
+    cd /mnt
+    chmod 600 aquota.user aquota.group
+    quotacheck -cum / -f
+    quotaon -a
+    repquota /
+    quota -v
+    
+    echo "Testing quotas.."
+    repquota -u / > /etc/openpanel/openpanel/core/users/repquota
+
+}
 
 
 set_system_cronjob(){
