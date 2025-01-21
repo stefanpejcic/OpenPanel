@@ -959,26 +959,45 @@ update_package_manager() {
 
 
 create_rdnc() {
+    echo "Setting DNS service.."
+    mkdir -p /etc/bind/
+    chmod 777 /etc/bind/
+    cp -r /etc/openpanel/bind9/* /etc/bind/
+    
+    # only on ubuntu systemd-resolved is installed
+    if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
+    	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+    # debian12 also!
+     elif [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
+     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
+     fi
+
 	RNDC_KEY_PATH="/etc/bind/rndc.key"
 	RETRY_LIMIT_FOR_RDNC=5
 	RETRY_COUNT_RDNC=0
  
      if [ ! -f "$RNDC_KEY_PATH" ]; then
-	log "Generating rndc.key for DNS zone management."
+	echo "Generating rndc.key for DNS zone management."
 	
 	while [ $RETRY_COUNT_RDNC -lt $RETRY_LIMIT_FOR_RDNC ]; do
-	    log "Attempt $((RETRY_COUNT_RDNC + 1)) to generate rndc.key..."
+	    debug_log "Attempt $((RETRY_COUNT_RDNC + 1)) to generate rndc.key..."
 	    
 	    # Run the Docker command to generate rndc.key
-	    timeout 30 docker run -it --rm \
+	    debug_log timeout 30 docker run -it --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
 	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
 	
 	    if [ $? -ne 0 ]; then
-	        echo "Error: Generating rndc.key failed. DNS service is not started."
-	        
+	        echo "Error: Generating rndc.key failed." | tee -a "$LOG_FILE"
+	        if grep -q "Unable to find image 'ubuntu/bind9:latest' locally" "$LOG_FILE" &&
+	           grep -q "dial tcp: lookup registry-1.docker.io" "$LOG_FILE"; then
+		    radovan 1 "Failed to connect to Docker Registry on port 53 - try setting Google DNS nameservers as suggested in: https://github.com/stefanpejcic/OpenPanel/issues/294 and then retry the installation."
+	        else
+	            echo "Unknown error occurred. Please check the log for details." | tee -a "$LOG_FILE"
+	        fi
+	 
 		    # Check if the file exists
 		    if [ -f "$RNDC_KEY_PATH" ]; then
 		 	:
@@ -989,14 +1008,18 @@ create_rdnc() {
 	    RETRY_COUNT_RDNC=$((RETRY_COUNT_RDNC + 1))
 	    sleep 2
 	    fi
+
 	done
 	    if [ -f "$RNDC_KEY_PATH" ]; then
-	        log "rndc.key successfully generated."
-	        chmod 0777 -R /etc/bind
+	        echo "rndc.key successfully generated."
 	    else
-		log "Failed to generate rndc.key after $RETRY_LIMIT attempts. DNS not started."
+		radovan 1 "Failed to generate rndc.key after $RETRY_LIMIT attempts. Exiting."
 	    fi
+    else
+    	echo "rndc.key already exists."
     fi
+
+chmod 0777 -R /etc/bind
 
 }
 
