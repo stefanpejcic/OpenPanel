@@ -1648,7 +1648,7 @@ create_admin_and_show_logins_success_message() {
 		display_admin_status_and_logins
 	else
 	    echo "WARNING: Admin user $new_username was not created using opencli. Trying to insert user manually to SQLite database.."  
-	    password_hash=$(python3 /usr/local/admin/core/users/hash $new_password) 
+	    password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash $new_password) 
 	    create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
 	    insert_user_sql="INSERT INTO user (username, password_hash) VALUES ('$new_username', '$password_hash');"
 	    output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
