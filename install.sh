@@ -286,6 +286,7 @@ download_skeleton_directory_from_github   # download configuration to /etc/openp
 setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
+setup_redis_service                       # for redis container
 panel_customize                           # customizations
 docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
@@ -634,9 +635,9 @@ docker_compose_up(){
 
  
     if [ "$SET_PREMIUM" = true ]; then
-    	cp /etc/openpanel/mysql/initialize/0.4/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    	cp /etc/openpanel/mysql/initialize/1.0/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
     else
-    	cp /etc/openpanel/mysql/initialize/0.4/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
+    	cp /etc/openpanel/mysql/initialize/1.0/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
     fi
 
     # compose doesnt alllow /
@@ -652,7 +653,7 @@ docker_compose_up(){
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    cp /etc/openpanel/docker/compose/new-docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
+    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
     
     # added in 0.2.9
     # fix for bug with mysql-server image on Almalinux 9.2
@@ -1283,6 +1284,12 @@ generate_and_set_ssl_for_panels() {
         echo "Checking if SSL can be generated for the server hostname.."
         debug_log opencli ssl-hostname
     fi
+}
+
+
+setup_redis_service() {
+	mkdir -p /tmp/redis
+	chmod 777 /tmp/redis
 }
 
 run_custom_postinstall_script() {
