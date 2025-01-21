@@ -1327,6 +1327,10 @@ download_skeleton_directory_from_github(){
         radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
     fi
 
+
+# for 1.0.0 only!
+cp /etc/openpanel/openadmin/config/1.0.0/services.json /etc/openpanel/openadmin/config/services.json
+
     # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
 
@@ -1335,6 +1339,9 @@ download_skeleton_directory_from_github(){
     systemctl daemon-reload  > /dev/null 2>&1
     service floatingip start  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
+
+
+    
 }
 
 
