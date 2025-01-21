@@ -286,6 +286,7 @@ setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
 setup_redis_service                       # for redis container
+create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
 docker_compose_up                         # must be after configure_nginx
 set_premium_features                      # must be after docker_compose_up
@@ -953,6 +954,50 @@ update_package_manager() {
         echo "Updating $PACKAGE_MANAGER package manager.."
         debug_log $PACKAGE_MANAGER update -y
     fi
+}
+
+
+
+create_rdnc() {
+	RNDC_KEY_PATH="/etc/bind/rndc.key"
+	RETRY_LIMIT_FOR_RDNC=5
+	RETRY_COUNT_RDNC=0
+ 
+     if [ ! -f "$RNDC_KEY_PATH" ]; then
+	log "Generating rndc.key for DNS zone management."
+	
+	while [ $RETRY_COUNT_RDNC -lt $RETRY_LIMIT_FOR_RDNC ]; do
+	    log "Attempt $((RETRY_COUNT_RDNC + 1)) to generate rndc.key..."
+	    
+	    # Run the Docker command to generate rndc.key
+	    timeout 30 docker run -it --rm \
+	        -v /etc/bind/:/etc/bind/ \
+	        --entrypoint=/bin/sh \
+	        ubuntu/bind9:latest \
+	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+	
+	    if [ $? -ne 0 ]; then
+	        echo "Error: Generating rndc.key failed. DNS service is not started."
+	        
+		    # Check if the file exists
+		    if [ -f "$RNDC_KEY_PATH" ]; then
+		 	:
+		    else
+		        debug_log "Error: rndc.key not found after attempt $((RETRY_COUNT_RDNC + 1))."
+		    fi
+	
+	    RETRY_COUNT_RDNC=$((RETRY_COUNT_RDNC + 1))
+	    sleep 2
+	    fi
+	done
+	    if [ -f "$RNDC_KEY_PATH" ]; then
+	        log "rndc.key successfully generated."
+	        chmod 0777 -R /etc/bind
+	    else
+		log "Failed to generate rndc.key after $RETRY_LIMIT attempts. DNS not started."
+	    fi
+    fi
+
 }
 
 
