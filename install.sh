@@ -1496,7 +1496,7 @@ install_openadmin(){
 
         debug_log echo "Downloading OpenAdmin files"
 	
-        git clone -b 312 --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
+        git clone -b 100 --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
         cd $OPENPADMIN_DIR
 	python3.12 -m venv ${OPENPADMIN_DIR}venv
 
