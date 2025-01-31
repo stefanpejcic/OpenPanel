@@ -1324,8 +1324,11 @@ generate_and_set_ssl_for_panels() {
 	HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
 
 	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
-	    echo "Hostname Domain: $HOSTNAME"
-     		cd /root && docker compose up -d caddy
+	    debug_log "Detected Hostname Domain: $HOSTNAME"
+     	    cd /root && docker compose up -d caddy               # start and generate ssl
+	    debug_log curl https://$HOSTNAME:2087                # let caddy genetate ssl
+            # todo: check if ssl files exist, then restatt admin panel
+            debug_log service admin restart                      # will start with domain and ssl automatically 
 	fi
     fi
 }
