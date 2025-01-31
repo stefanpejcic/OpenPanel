@@ -361,7 +361,7 @@ parse_args() {
     show_help() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
-        echo "  --hostname=<hostname>           Set the hostname - must be FQDN, example: server.example.net."
+        echo "  --domain=<domain>               Set the server hostname and domain for accessing panel."
         echo "  --username=<username>           Set Admin username - random generated if not provided."
         echo "  --password=<password>           Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
@@ -397,7 +397,7 @@ while [[ $# -gt 0 ]]; do
             SET_PREMIUM=true
             license_key="${1#*=}"
             ;;
-        --hostname=*)
+        --domain=*)
             SET_HOSTNAME_NOW=true
             new_hostname="${1#*=}"
             ;;
