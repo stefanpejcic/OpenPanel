@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           21.01.2025
+# Last Modified:           31.01.2025
 #
 ################################################################################
 
@@ -1349,7 +1349,13 @@ set_email_address_and_email_admin_logins(){
 generate_and_set_ssl_for_panels() {
     if [ -z "$SKIP_SSL" ]; then
         echo "Checking if SSL can be generated for the server hostname.."
-        debug_log opencli ssl-hostname
+	CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+	HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
+
+	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
+	    echo "Hostname Domain: $HOSTNAME"
+     		cd /root && docker compose up -d caddy
+	fi
     fi
 }
 
