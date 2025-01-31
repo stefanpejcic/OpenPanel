@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           31.01.2025
+# Last Modified:           01.02.2025
 #
 ################################################################################
 
@@ -47,8 +47,7 @@ SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default 
 # ======================================================================
 # PATHs used throughout the script
 ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
-LOG_FILE="openpanel_install.log"                                      # install log
-LOCK_FILE="/root/openpanel.lock"                                      # install running
+LOG_FILE="openpanel_install.log"                                      # install log                                      # install running
 OPENPANEL_DIR="/usr/local/panel"                                      # currently only used to store version
 OPENPADMIN_DIR="/usr/local/admin/"                                    # https://github.com/stefanpejcic/openadmin/branches
 OPENCLI_DIR="/usr/local/admin/scripts/"                               # https://dev.openpanel.com/cli/commands.html
@@ -548,34 +547,6 @@ detect_os_and_package_manager() {
         exit 1
     fi
 }
-
-
-check_lock_file_age() {
-    if [ "$REPAIR" = true ]; then
-        rm "$LOCK_FILE"
-        # and if lock file exists
-        if [ -e "$LOCK_FILE" ]; then
-            local current_time=$(date +%s)
-            local file_time=$(stat -c %Y "$LOCK_FILE")
-            local age=$((current_time - file_time))
-
-            if [ "$age" -ge "$INSTALL_TIMEOUT" ]; then
-                echo -e "${GREEN}Identified a prior interrupted OpenPanel installation; initiating a fresh installation attempt.${RESET}"
-                rm "$LOCK_FILE"  # Remove the old lock file
-            else
-                echo -e "${RED}Detected another OpenPanel installation already running. Exiting.${RESET}"
-                exit 1
-            fi
-        else
-            # Create the lock file
-            touch "$LOCK_FILE"
-            echo "OpenPanel installation started at: $(date)"
-        fi
-    fi
-}
-
-
-
 
 
 docker_compose_up(){
@@ -1746,6 +1717,8 @@ create_admin_and_show_logins_success_message() {
 # ======================================================================
 # Main program
 
+(
+flock -s 200
 setup_terminal || echo > /dev/null
 # shellcheck disable=SC2068
 parse_args "$@"
@@ -1754,7 +1727,6 @@ set_version_to_install
 print_header
 check_requirements
 detect_installed_panels
-check_lock_file_age
 install_started_message
 main
 rm_helpers
@@ -1764,3 +1736,4 @@ print_space_and_line
 send_install_log
 create_admin_and_show_logins_success_message
 run_custom_postinstall_script
+)200>root/openpanel_install.lock
