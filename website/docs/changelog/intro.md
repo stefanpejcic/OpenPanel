@@ -6,22 +6,19 @@ sidebar_class_name: green
 
 # Changelog
 
-### Current version (Stable)
+### Upcoming version
 
 | Version| Released | 
 |---|---|
-|__[0.3.7](/docs/changelog/0.3.7)__| December 03, 2024 | 
+|__[1.0.0](/docs/changelog/1.0.0)__| February 07, 2024 | 
 
-### Next version (Unreleased)
-
-|   |   |
-|---|---|
-|__[0.3.8](/docs/changelog/0.3.8)__| __[Roadmap](/roadmap)__|
 
 ### Past versions
 
 | Version | Released | Highlight |
 |---|---|---|
+| [0.3.8](/docs/changelog/0.3.8) | | |
+| [0.3.7](/docs/changelog/0.3.7) | 03.12.2024 | |
 | [0.3.6](/docs/changelog/0.3.6) | 20.11.2024 | [Support for Java Applications](/docs/articles/user-experience/how-to-setup-springboot-java-applicaiton-on-openpanel/)  |
 | [0.3.5](/docs/changelog/0.3.5) | 08.11.2024 | [🚨 fix several vulnerabilities](https://openpanel.com/docs/changelog/0.3.5/#%EF%B8%8F-security-fixes) |
 | [0.3.4](/docs/changelog/0.3.4) | 31.10.2024 | Bug fixes |
