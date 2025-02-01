@@ -1,21 +1,8 @@
-![openpanel logo](/website/static/assets/logos/openpanel.png)
-
 <div align="center">
 
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.openpanel.com) [![version](https://img.shields.io/badge/version-0.3.7-brightgreen.svg?style=flat-square)](https://openpanel.com/docs/changelog/intro/)
-<br>
-[![Website](https://img.shields.io/badge/Website-Click%20here-blue.svg?style=flat-square)](https://openpanel.com/) [![Forums](https://img.shields.io/badge/Forums-Click%20here-red.svg?style=flat-square)](https://community.openpanel.com/) [![Documentation](https://img.shields.io/badge/Documenation-Click%20here-yellow.svg?style=flat-square)](https://openpanel.com/docs/) 
+[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.openpanel.com) [![Website](https://img.shields.io/badge/Website-Click%20here-blue.svg?style=flat-square)](https://openpanel.com/) [![Forums](https://img.shields.io/badge/Forums-Click%20here-red.svg?style=flat-square)](https://community.openpanel.org/) [![Documentation](https://img.shields.io/badge/Documenation-Click%20here-yellow.svg?style=flat-square)](https://openpanel.com/docs/) 
 
 </div>
-<hr>
-
-> ### Looking for Maintainers!
-> Here’s how you can help:
->- **Writing Documentation**: Help make our project easier to understand [by improving and adding to the documentation](https://github.com/stefanpejcic/OpenPanel/tree/main/website/docs).
->- **Translating/Spell-checking Locales**: [Assist with translations or spell-check existing content](https://github.com/stefanpejcic/OpenPanel/tree/main/translations) to make our project more accessible to non-English speakers.
->- **Fixing CSS/JS Bugs**: If you have some experience with front-end development, you can [help squash bugs in our CSS and JavaScript](https://github.com/stefanpejcic/OpenPanel/issues).
-> No prior experience required — if you’re eager to learn and contribute, we’ll support you along the way! Feel free to message me at: stefan@pejcic.rs
-<hr> 
 
 ## What is OpenPanel
 
@@ -25,15 +12,7 @@ OpenPanel is a powerful and flexible web hosting control panel for Linux systems
 
 Deliver a **VPS-like experience** to your users at a fraction of the cost, with all-inclusive features such as **resource limiting, user isolation, WP Manager, and enhanced security** seamlessly integrated for worry-free hosting.
 
-
 [![openpanel scheme](/website/static/img/admin/openpanel_scheme.png)](https://openpanel.com/docs/panel/intro/)
-#### Short video about OpenPanel :)
-<div align="center">
-<a href="https://openpanel.com/">
-    <img alt="website" src="/website/static/img/openpanel_admin.gif">
-</a>
-</div>
-<br>
 
 This panel is the culmination of years of experience in the hosting industry, having spent decades working with various hosting panels we made sure to include all features that simply make sense.
 
@@ -51,15 +30,18 @@ Some of the features worth mentioning are:
 - Built-in [REDIS](https://openpanel.com/docs/panel/caching/Redis) and [Memcached](https://openpanel.com/docs/panel/caching/Memcached) object caching.
 
 And unique features that simply made sense 💁 to us:
-- User and admin panels are completelly isolated
+- User and admin panels are completelly isolated when needed
+- SSL is automatically generated and renewed
 - Services auto-start only when needed so resources are not wasted
 - Gooogle PageSpeed data is automatically displayed for every website in Site Manager
 - Users can export DNS zones easily
 - Users can pause cronjobs when not needed
+- Users can suspend websites
 - Administrators can receive daily usage reports
 - Users can add comments for DNS records
 - Download files from URL in File Manager
 - Users can save pages to Favorites
+- Users can view all active sessions
 - Users can share web terminal session with third-parties
 - Detailed activity log of all actions
 - Admins can add custom message per user
@@ -79,7 +61,7 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 OpenPanel is available in two editions:
 
 - **[Community Edition](https://openpanel.com/product/openpanel-free-control-panel/)** is a free hosting control panel for up to 3 user accounts, suitable for VPS and private use.
-- **[Enterprise Edition](https://openpanel.com/product/openpanel-premium-control-panel/)** is a premium version that offers advanced features for user isolation and management, suitable for web hosting providers.
+- **[Enterprise Edition](https://openpanel.com/product/openpanel-premium-control-panel/)** is a premium version that rootlesss docker for more isolation, suitable for web hosting providers.
 
 ## Supported OS
 
@@ -113,12 +95,6 @@ To install on self-hosted VPS/Dedicated server:
 bash <(curl -sSL https://openpanel.org)
 ```
 
-Sometimes, you might encounter issues when the images (e.g. Docker) were already installed on your server. To prevent such conflicts, it is recommended to use the `--skip-images` flag.
-
-```bash
-bash <(curl -sSL https://openpanel.org) --skip-images
-```
-
 To see more details to configure server on installation, **please visit**: https://openpanel.com/install 
 
 ----
@@ -141,7 +117,5 @@ curl -X POST -H 'Content-Type: application/json' \
 Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
-
-
 
 
