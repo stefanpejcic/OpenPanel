@@ -15,7 +15,7 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 Minimum Requirements:
 
 - A blank full virtual machine or bare metal server
-- Minimum of 1GB RAM and 15GB storage (4GB RAM and 50GB is recommended)
+- Minimum of 1GB RAM and 10GB storage (4GB RAM and 50GB is recommended)
 - x86_64/amd64 architecture **[support for ARM (AArch64) is in progress](https://github.com/stefanpejcic/OpenPanel/issues/63)*
 - IPv4 address
 
@@ -27,14 +27,12 @@ Supported OS:
 - **CentOS 9**
 
 :::info
-If you are using external firewall, the following ports should be opened:  `53` `80` `443` `465` `2083` `2087` `32768:60999`
+If you are using external firewall, the following ports should be opened:  `25` `53` `80` `443` `465` `993` `2083` `2087` `32768:60999`
 :::
 
 ## Installation
 
 OpenPanel can be installed on both VPS and bare-metal servers. 
-
-### Install OpenPanel on VPS
 
 The installation process takes about 5 minutes. To install openpanel follow these steps: 
 
@@ -72,39 +70,6 @@ curl -X POST -H 'Content-Type: application/json' \
   </TabItem>
 </Tabs>
 
-### Installing OpenPanel on a bare-metal server
-
-When installing OpenPanel on a bare-metal server, it is recommended to format the disk with the XFS filesystem and enable the 'pquota' mount option. This is required for Docker's OverlayFS storage driver to function properly, as it allows setting user quotas and limiting container sizes on newer kernels. More details on these requirements can be found in the [Docker OverlayFS documentation](https://docs.docker.com/engine/storage/drivers/overlayfs-driver/#prerequisites).
-
-If your disk is not formatted with XFS, the OpenPanel installation script will automatically allocate 50% of the available storage. It will then create an XFS storage file and mount it at `/var/lib/docker/`. This process may take a considerable amount of time on servers with large storage capacities (e.g., several terabytes). In such cases, we recommend manually setting the filesystem to XFS or adjusting the storage file size. Alternatively, you can specify a custom size during installation by using the `--docker-space` flag. For instance, to allocate only 100GB for Docker, you can use: `--docker-space=100`.
-
-To install OpenPanel on a bare-metal server:
-
-
-<Tabs>
-  <TabItem value="openpanel-install-on-baremetal" label="Allocate 50% of disk to Docker" default>
-
-```shell
-bash <(curl -sSL https://openpanel.org)
-```
-
-  </TabItem>
-  <TabItem value="openpanel-install-on-baremetal-size" label="Set disk size for Docker (faster install)">
-
-*replace `250` with the disk size in GB to allocate to Docker.
-
-```shell
-bash <(curl -sSL https://openpanel.org) --docker-space=250
-```
-
-  </TabItem>
-</Tabs>
-
-
-The installation script supports [additional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
-
-If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
-
 
 ## Post Install Steps
 
@@ -122,7 +87,7 @@ Run `opencli admin` command to find the address on which admin panel is accessib
 
 ```bash
 root@server:/home# opencli admin
-● AdminPanel is running and is available on: https://server.openpanel.co:2087/
+● OpenAdmin is running and is available on: https://server.openpanel.org:2087/
 ```
 
 To login to admin panel you need a username and password.
@@ -145,7 +110,7 @@ root@server:/home# opencli admin password stefan ba63vfav7fq36vas
 Password for user 'stefan' changed.
 
 ===============================================================
-● AdminPanel is running and is available on: https://server.openpanel.co:2087/
+● OpenAdmin is running and is available on: https://server.openpanel.co:2087/
 
 - username: stefan
 - password: ba63vfav7fq36vas
@@ -279,10 +244,15 @@ OpenPanel has been built from the ground up with security in mind. Internet hist
 ### Firewall
 OpenPanel supports both [ConfigServer & Firewall (CSF)](/docs/admin/security/firewall/#csf) and [UncomplicatedFirewall (UFW)](/docs/admin/security/firewall/#ufw).
 
+### Rootless Docker
+Each user runs docker in rootless mode, ensuring containers can not commmunicate using docker networks and providing more issolation.
 
 ### Isolated Services
 Each user is provided with a containerized environment similar to a VPS, featuring their own web server (Nginx or Apache) and database (MySQL or MariaDB). This setup prevents resource hogging commonly associated with standard shared hosting.
 
+### CorazaWAF
+
+OpenPanel uses CprazaWAF compatible with OWASP CoreRuleset. Each user can enable/disable WAF fpr their domains.
 
 ### Two-Factor Authentication
 Users have the option to [enable Two-Factor Authentication (2FA)](/docs/panel/account/2fa/) for added security on their accounts. Administrators can manage this feature at the server level or for individual users.
@@ -290,7 +260,7 @@ Users have the option to [enable Two-Factor Authentication (2FA)](/docs/panel/ac
 ### Detailed Logging
 All actions taken by OpenPanel users are recorded in per-user activity logs. This eliminates confusion over issues like file or webmail account deletions—every action is logged and can be reviewed by users.
 
-### Isolated Users and Admin
+### Isolated UIs
 OpenPanel and OpenAdmin operate independently from one another. One runs as a systemd service while the other runs as a Docker container. OpenPanel utilizes SQLite for its database, whereas OpenAdmin relies on MySQL. Importantly, users can perform actions on their panel even if the admin panel is unreachable or disabled.
 
 
