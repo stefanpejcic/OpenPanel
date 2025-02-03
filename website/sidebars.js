@@ -134,10 +134,6 @@ const mainSidebar = {
           type: 'doc',
           id: 'panel/analytics/domain_visitors',
         },
-        {
-          type: 'doc',
-          id: 'panel/analytics/account_activity',
-        },
       ],
     },
       {
@@ -197,6 +193,10 @@ const mainSidebar = {
          {
           type: 'doc',
           id: 'panel/account/login',
+        },
+        {
+          type: 'doc',
+          id: 'panel/account/account_activity',
         },
       ],
     },
