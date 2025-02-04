@@ -1703,6 +1703,8 @@ create_admin_and_show_logins_success_message() {
 # ======================================================================
 # Main program
 
+# touch /root/openpanel_install.lock
+
 (
 flock -s 200
 setup_terminal || echo > /dev/null
@@ -1722,4 +1724,4 @@ print_space_and_line
 send_install_log
 create_admin_and_show_logins_success_message
 run_custom_postinstall_script
-)200>root/openpanel_install.lock
+)200>/root/openpanel_install.lock
