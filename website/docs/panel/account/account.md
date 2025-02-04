@@ -4,10 +4,15 @@ sidebar_position: 1
 
 # Account
 
-The Account page allows you to change email and password, toggle [Dark Mode](/docs/panel/dashboard/dark-mode), enable [2FA](/docs/panel/account/2fa) and view account [Login History](/docs/panel/account/login_history).
+Account section allows you to manage your OpenPanel user account:
 
-![account_1.png](/img/panel/v1/account/account_1.png)
-
-To enable Dark Mode click on the icon:
-
-![account_2.png](/img/panel/v1/account/account_2.png)
+- Change email address
+- Change password
+- Enable 2FA
+- Change Language
+- Change Theme
+- View current active sessions
+- View login history
+- View account activity log
+- Change Email notification preferences
+- View and remove Favorites (bookmarks)
