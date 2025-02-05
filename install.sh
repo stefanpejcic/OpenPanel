@@ -22,7 +22,7 @@ YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
 export TERM=xterm-256color                                            # bug fix: tput: No value for $TERM and no -T specified
-
+export DEBIAN_FRONTEND=noninteractive
 # ======================================================================
 # Defaults for environment variables
 CUSTOM_VERSION=false                                                  # default version is latest
