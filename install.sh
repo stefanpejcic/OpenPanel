@@ -1713,7 +1713,7 @@ create_admin_and_show_logins_success_message() {
 # touch /root/openpanel_install.lock
 
 (
-flock -s 200
+flock -n 200 || { echo "Error: Another instance of the install script is already running. Exiting."; exit 1; }
 setup_terminal || echo > /dev/null
 # shellcheck disable=SC2068
 parse_args "$@"
