@@ -43,7 +43,7 @@ CSF_SETUP=true                                                        # default 
 SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
 SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
-
+post_install_path=""                                                  # not to run
 # ======================================================================
 # PATHs used throughout the script
 ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
@@ -1721,7 +1721,7 @@ rm_helpers
 print_space_and_line
 support_message
 print_space_and_line
-send_install_log
+# temp off! send_install_log
 create_admin_and_show_logins_success_message
 run_custom_postinstall_script
 )200>/root/openpanel_install.lock
