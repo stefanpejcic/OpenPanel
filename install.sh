@@ -276,8 +276,8 @@ source "$PROGRESS_BAR_FILE"               # Source the progress bar script
 FUNCTIONS=(
 detect_os_and_package_manager             # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
-update_package_manager                    # update dnf/yum/apt-get
 install_python312
+update_package_manager                    # update dnf/yum/apt-get
 install_packages                          # install docker, csf/ufw, sqlite, etc.
 edit_fstab                                # enable quotas
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
