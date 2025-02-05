@@ -1077,10 +1077,10 @@ install_packages() {
             if is_package_installed "$package"; then
                 echo -e "${GREEN}$package is already installed. Skipping.${RESET}"
             else
-                debug_log $PACKAGE_MANAGER -qq install "$package"
+                debug_log $PACKAGE_MANAGER -qq install "$package" -y
                 if [ $? -ne 0 ]; then
                     echo "Error: Installation of $package failed. Retrying.."
-                    $PACKAGE_MANAGER -qq install "$package"
+                    $PACKAGE_MANAGER -qq install "$package" -y
                     if [ $? -ne 0 ]; then
                     radovan 1 "ERROR: Installation failed. Please retry installation with '--retry' flag."
                         exit 1
