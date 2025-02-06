@@ -288,6 +288,7 @@ setup_redis_service                       # for redis container
 #create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
 docker_compose_up                         # must be after configure_nginx
+docker_cpu_limiting			  # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
 configure_modsecurity			  # download modsec coreruleset or change docker image
 set_custom_hostname                       # set hostname if provided
@@ -1132,6 +1133,21 @@ install_packages() {
         done 
 	
     fi
+}
+
+
+docker_cpu_limiting() {
+	# https://docs.docker.com/engine/security/rootless/#limiting-resources
+
+	mkdir -p /etc/systemd/system/user@.service.d
+	
+	cat > /etc/systemd/system/user@.service.d/delegate.conf << EOF
+[Service]
+Delegate=cpu cpuset io memory pids
+EOF
+	
+	debug_log systemctl daemon-reload
+ 
 }
 
 
