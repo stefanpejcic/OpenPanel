@@ -1162,22 +1162,20 @@ if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
 else
     # Add usrquota and grpquota to the fstab entry (only for the root entry)
     sudo sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
-
-    echo "Success, usrquota and grpquota have been added to / entry in fstab, remounting.."
 fi
-    systemctl daemon-reload	
-    quotaoff -a
-    mount -o remount,usrquota,grpquota /
-    mount /dev/vda1 /mnt
-    cd /mnt
-    chmod 600 aquota.user aquota.group
-    quotacheck -cum / -f
-    quotaon -a
-    repquota /
-    quota -v
-    
-    echo "Testing quotas.."
-    repquota -u / > /etc/openpanel/openpanel/core/users/repquota
+	systemctl daemon-reload >/dev/null 2>&1
+	quotaoff -a >/dev/null 2>&1
+	mount -o remount,usrquota,grpquota / >/dev/null 2>&1
+	mount /dev/vda1 /mnt >/dev/null 2>&1
+	cd /mnt >/dev/null 2>&1
+	chmod 600 aquota.user aquota.group >/dev/null 2>&1
+	quotacheck -cum / -f >/dev/null 2>&1
+	quotaon -a >/dev/null 2>&1
+	repquota / >/dev/null 2>&1
+	quota -v >/dev/null 2>&1
+	    
+    debug_log echo "Testing quotas.."
+    repquota -u / > /etc/openpanel/openpanel/core/users/repquota >/dev/null 2>&1
 
 }
 
