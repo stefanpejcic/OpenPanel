@@ -1542,7 +1542,8 @@ panel_customize(){
 
 install_python312() {
 if command -v python3.12 &> /dev/null; then
-	echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
+	#echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
+	echo "Installing python3.12-venv.."
 	# install venv only!
 	debug_log $PACKAGE_MANAGER install -y software-properties-common
 	debug_log add-apt-repository -y ppa:deadsnakes/ppa
