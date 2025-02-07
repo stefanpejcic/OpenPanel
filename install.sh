@@ -1152,41 +1152,33 @@ EOF
 
 
 edit_fstab() {
-    echo "Setting quotas for disk limits of user files"
-    fstab_file="/etc/fstab"
-    backup_file="/etc/fstab.bak"
-    
-    # Backup the original fstab file
-    cp "$fstab_file" "$backup_file"
-    
-    # Check if usrquota and grpquota are already set
-    if grep -qE '^[^#]\S+\s+/\s+\S+\s+.*usrquota.*grpquota' "$fstab_file"; then
-        echo "Success, usrquota and grpquota are already set for /"
-    else
-        echo "Adding usrquota and grpquota to / entry in fstab..."
-        
-        # Modify the / entry to include usrquota,grpquota correctly
-        sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
-        
-        echo "Success, usrquota and grpquota have been added to / entry in fstab, remounting.."
-    fi
-    
-    # Apply changes
-    systemctl daemon-reload    
+
+echo "Setting quotas for disk limits of user files"
+fstab_file="/etc/fstab"
+root_entry=$(grep -E '^\S+\s+/.*' "$fstab_file")
+
+if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
+    echo "Success, usrquota and grpquota are already set for /"
+else
+    # Add usrquota and grpquota to the fstab entry (only for the root entry)
+    sudo sed -i 's|^\(LABEL=cloudimg-rootfs\s*/\s*ext4\s*[^,]*\)|\1,usrquota,grpquota|' "$fstab_file"
+
+    echo "Success, usrquota and grpquota have been added to / entry in fstab, remounting.."
+fi
+    systemctl daemon-reload	
     quotaoff -a
     mount -o remount,usrquota,grpquota /
-    
-    # Ensure quota files exist
-    touch /aquota.user /aquota.group
-    chmod 600 /aquota.user /aquota.group
+    mount /dev/vda1 /mnt
+    cd /mnt
+    chmod 600 aquota.user aquota.group
     quotacheck -cum / -f
     quotaon -a
-    
-    # Generate quota report
-    repquota / > /etc/openpanel/openpanel/core/users/repquota
-    
-    echo "Testing quotas..."
+    repquota /
     quota -v
+    
+    echo "Testing quotas.."
+    repquota -u / > /etc/openpanel/openpanel/core/users/repquota
+
 }
 
 set_system_cronjob(){
