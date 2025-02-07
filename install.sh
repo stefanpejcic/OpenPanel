@@ -1161,7 +1161,7 @@ if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
     echo "Success, usrquota and grpquota are already set for /"
 else
     # Add usrquota and grpquota to the fstab entry (only for the root entry)
-    sudo sed -i 's|^\(LABEL=cloudimg-rootfs\s*/\s*ext4\s*[^,]*\)|\1,usrquota,grpquota|' "$fstab_file"
+    sudo sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
 
     echo "Success, usrquota and grpquota have been added to / entry in fstab, remounting.."
 fi
