@@ -11,7 +11,7 @@ The Account Activity page provides a log record of all your actions performed on
 
 Logged Activities Include:
 
-- Account: Logging in and logging out.
+- Account: Username and password chanhe, new logins.
 - Domains: Adding and deleting domains.
 - File Manager: Deleting, moving, copying, and creating files.
 - Services: Enabling or disabling 2FA, Memcached, REDIS, PHP, and more.
