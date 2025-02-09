@@ -1531,33 +1531,58 @@ panel_customize(){
 
 
 install_python312() {
-if command -v python3.12 &> /dev/null; then
-	#echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
-	echo "Installing python3.12-venv.."
-	# install venv only!
-	debug_log $PACKAGE_MANAGER install -y software-properties-common
-	debug_log add-apt-repository -y ppa:deadsnakes/ppa
-	debug_log $PACKAGE_MANAGER update
-	debug_log $PACKAGE_MANAGER install -y python3.12-venv
-
- 
-else
-	echo "Installing Python 3.12"
-	debug_log $PACKAGE_MANAGER install -y software-properties-common
-	debug_log add-apt-repository -y ppa:deadsnakes/ppa
-	debug_log $PACKAGE_MANAGER update
-	debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
-	
-	if python3.12 --version &> /dev/null; then
-	    :
-	else
-	    radovan 1 "Python 3.12 installation failed."
-	fi
-fi
-
-
+    OS=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+    
+    if command -v python3.12 &> /dev/null; then
+        #echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
+        echo "Installing python3.12-venv.."
+        # install venv only!
+        debug_log $PACKAGE_MANAGER install -y software-properties-common
+        
+        if [ "$OS" == "ubuntu" ]; then
+            debug_log add-apt-repository -y ppa:deadsnakes/ppa
+        elif [ "$OS" == "debian" ]; then
+            echo "Debian detected, adding backports repository."
+            wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
+Types: deb
+URIs: http://deb.pascalroeleven.nl/python3.12
+Suites: bookworm-backports
+Components: main
+Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
+EOF
+        fi
+        debug_log $PACKAGE_MANAGER update
+        debug_log $PACKAGE_MANAGER install -y python3.12-venv
+        
+    else
+        echo "Installing Python 3.12"
+        debug_log $PACKAGE_MANAGER install -y software-properties-common
+        
+        if [ "$OS" == "ubuntu" ]; then
+            debug_log add-apt-repository -y ppa:deadsnakes/ppa
+        elif [ "$OS" == "debian" ]; then
+            echo "Debian detected, adding backports repository."
+            wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
+Types: deb
+URIs: http://deb.pascalroeleven.nl/python3.12
+Suites: bookworm-backports
+Components: main
+Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
+EOF
+        fi
+        
+        debug_log $PACKAGE_MANAGER update
+        debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
+        
+        if python3.12 --version &> /dev/null; then
+            :
+        else
+            radovan 1 "Python 3.12 installation failed."
+        fi
+    fi
 }
-
 
 configure_coraza() {
 
