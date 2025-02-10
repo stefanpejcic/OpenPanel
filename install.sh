@@ -1569,6 +1569,10 @@ EOF
         
         if [ "$OS" == "ubuntu" ]; then
             debug_log add-apt-repository -y ppa:deadsnakes/ppa
+	    debug_log $PACKAGE_MANAGER update -y
+	    debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
+
+     
         elif [ "$OS" == "debian" ]; then
             echo "adding backports repository."
             wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
