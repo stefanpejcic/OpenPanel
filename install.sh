@@ -279,8 +279,8 @@ display_what_will_be_installed            # display os, version, ip
 install_python312
 update_package_manager                    # update dnf/yum/apt-get
 install_packages                          # install docker, csf/ufw, sqlite, etc.
-edit_fstab                                # enable quotas
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
+edit_fstab                                # enable quotas
 setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
@@ -1174,8 +1174,14 @@ fi
 	repquota / >/dev/null 2>&1
 	quota -v >/dev/null 2>&1
 	    
-    debug_log echo "Testing quotas.."
-    repquota -u / > /etc/openpanel/openpanel/core/users/repquota >/dev/null 2>&1
+    debug_log "Testing quotas.."
+    repquota -u / > /etc/openpanel/openpanel/core/users/repquota 2>/dev/null
+    if [ $? -eq 0 ]; then
+        echo -e "[${GREEN} OK ${RESET}] Quotas are now enabled for users."
+    else
+        echo -e "[${RED} FAIL ${RESET}] Quota check failed."
+    fi
+
 
 }
 
