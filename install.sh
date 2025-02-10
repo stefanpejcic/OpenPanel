@@ -1566,7 +1566,7 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
         fi
         debug_log $PACKAGE_MANAGER update -y
-        debug_log $PACKAGE_MANAGER install -y python3.12-venv
+        debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
         
     else
         echo "Installing Python 3.12"
