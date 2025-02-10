@@ -1534,8 +1534,7 @@ install_python312() {
     OS=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
     
     if command -v python3.12 &> /dev/null; then
-        #echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
-        echo "Installing python3.12-venv.."
+        echo "Python 3.12 is already installed, installing python3.12-venv.."
 
  
         # install venv only!
@@ -1554,7 +1553,7 @@ Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
         fi
-        debug_log $PACKAGE_MANAGER update
+        debug_log $PACKAGE_MANAGER update -y
         debug_log $PACKAGE_MANAGER install -y python3.12-venv
         
     else
@@ -1578,7 +1577,7 @@ EOF
 
 	dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
 
-        debug_log $PACKAGE_MANAGER update
+        debug_log $PACKAGE_MANAGER update -y
         debug_log $PACKAGE_MANAGER install -y python3.12   # venv is included!
  
    	fi
