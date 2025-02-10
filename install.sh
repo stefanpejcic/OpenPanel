@@ -1548,8 +1548,7 @@ install_python312() {
     if command -v python3.12 &> /dev/null; then
         echo "Python 3.12 is already installed, installing python3.12-venv.."
 
- 
-        # install venv only!
+         # install venv only!
         debug_log $PACKAGE_MANAGER install -y software-properties-common
         
         if [ "$OS" == "ubuntu" ]; then
@@ -1566,8 +1565,12 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
         fi
         debug_log $PACKAGE_MANAGER update -y
-        debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
-        
+        debug_log $PACKAGE_MANAGER install -y python3.12-venv
+
+
+
+
+ 
     else
         echo "Installing Python 3.12"
         debug_log $PACKAGE_MANAGER install -y software-properties-common
@@ -1585,8 +1588,11 @@ Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
 
-	elif [[ "$OS" == "almalinux" || "$OS" == "rocky" || "$OS" == "centos" ]]; then
 
+        debug_log $PACKAGE_MANAGER update -y
+        debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
+
+	elif [[ "$OS" == "almalinux" || "$OS" == "rocky" || "$OS" == "centos" ]]; then
 
 	dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
 
