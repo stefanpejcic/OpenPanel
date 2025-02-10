@@ -297,6 +297,7 @@ setup_firewall_service                    # setup firewall
 set_system_cronjob                        # setup crons, must be after csf
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
+log_dirs				  # for almalinux
 setup_swap                                # swap space
 clean_apt_and_dnf_cache                   # clear
 verify_license                            # ping our server
@@ -1267,6 +1268,11 @@ set_premium_features(){
  else
     LICENSE="Community"
  fi
+}
+
+
+log_dirs() {
+	chmod -R 755 $OPENPANEL_ERR_DIR
 }
 
 
