@@ -1585,7 +1585,8 @@ Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
 
-	elif [ "$OS" == "almalinux" ]; then
+	elif [[ "$OS" == "almalinux" || "$OS" == "rocky" || "$OS" == "centos" ]]; then
+
 
 	dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
 
