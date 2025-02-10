@@ -795,16 +795,8 @@ setup_firewall_service() {
 		    echo -e "# Name: PROXYSPY\n# Information: Open proxies (updated hourly)\nPROXYSPY|86400|0|http://txt.proxyspy.net/proxy.txt\n" >> /etc/csf/csf.blocklists
 		fi
 		
-		if ! blocklist_exists "XROXY"; then
-		    echo -e "# Name: XROXY\n# Information: Open proxies (this list is composed using an RSS feed)\nXROXY|86400|0|http://www.xroxy.com/proxyrss.xml\n" >> /etc/csf/csf.blocklists
-		fi
-		
 		if ! blocklist_exists "PROXYLISTS"; then
 		    echo -e "# Name: PROXYLISTS\n# Information: Open proxies (this list is composed using an RSS feed)\nPROXYLISTS|86400|0|http://www.proxylists.net/proxylists.xml\n" >> /etc/csf/csf.blocklists
-		fi
-		
-		if ! blocklist_exists "BI_PROXY_2_30D"; then
-		    echo -e "# Name: BI_PROXY_2_30D\n# Information: Bad IPs in category proxy with score above 2 and age less than 30d\nBI_PROXY_2_30D|172800|0|https://www.badips.com/get/list/proxy/2?age=30d\n" >> /etc/csf/csf.blocklists
 		fi
 		
 		if ! blocklist_exists "TOR Exit nodes"; then
