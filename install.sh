@@ -1536,6 +1536,8 @@ install_python312() {
     if command -v python3.12 &> /dev/null; then
         #echo "Python 3.12 is already installed. Version: $(python3.12 --version)"
         echo "Installing python3.12-venv.."
+
+ 
         # install venv only!
         debug_log $PACKAGE_MANAGER install -y software-properties-common
         
@@ -1562,7 +1564,7 @@ EOF
         if [ "$OS" == "ubuntu" ]; then
             debug_log add-apt-repository -y ppa:deadsnakes/ppa
         elif [ "$OS" == "debian" ]; then
-            echo "Debian detected, adding backports repository."
+            echo "adding backports repository."
             wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
             cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
@@ -1571,17 +1573,26 @@ Suites: bookworm-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
-        fi
-        
+
+	elif [ "$OS" == "almalinux" ]; then
+
+	dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
+
         debug_log $PACKAGE_MANAGER update
-        debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
-        
-        if python3.12 --version &> /dev/null; then
-            :
-        else
-            radovan 1 "Python 3.12 installation failed."
-        fi
-    fi
+        debug_log $PACKAGE_MANAGER install -y python3.12   # venv is included!
+ 
+   	fi
+
+
+
+if python3.12 --version &> /dev/null; then
+	:
+else
+	radovan 1 "Python 3.12 installation failed."
+fi
+
+	fi
+    
 }
 
 configure_coraza() {
