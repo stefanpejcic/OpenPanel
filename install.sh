@@ -955,8 +955,9 @@ create_rdnc() {
     if [ -f "$RNDC_KEY_PATH" ]; then
         echo "rndc.key successfully generated."
     else
-        echo "Error: Failed to generate rndc.key. Check logs for details."
-        exit 1
+	echo "Warning: Unable to generate rndc.key."
+	echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
+	echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
     fi
 
     chmod 0777 -R /etc/bind
