@@ -1180,7 +1180,7 @@ fi
 
 set_system_cronjob(){
     echo "Setting cronjobs.."
-    mv ${ETC_DIR}cron /etc/cron.d/openpanel
+    mv ${ETC_DIR}v1_cron /etc/cron.d/openpanel    #v1_cron for v1!
     chown root:root /etc/cron.d/openpanel
     chmod 0600 /etc/cron.d/openpanel
 
