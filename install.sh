@@ -285,7 +285,7 @@ setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
 setup_redis_service                       # for redis container
-#create_rdnc                               # generate rdnc key for managing domains
+create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
 docker_compose_up                         # must be after configure_nginx
 docker_cpu_limiting			  # https://docs.docker.com/engine/security/rootless/#limiting-resources
