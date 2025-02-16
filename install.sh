@@ -1552,8 +1552,14 @@ EOF
         
         if [ "$OS" == "ubuntu" ]; then
             debug_log add-apt-repository -y ppa:deadsnakes/ppa
+
 	    debug_log $PACKAGE_MANAGER update -y
+	  	# https://almalinux.pkgs.org/8/almalinux-appstream-x86_64/python3.12-3.12.1-4.el8.x86_64.rpm.html
 	    debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
+ 
+	elif [ "$OS" == "alma" ]; then
+	    debug_log $PACKAGE_MANAGER update -y
+	    debug_log $PACKAGE_MANAGER install -y python3.12
 
      
         elif [ "$OS" == "debian" ]; then
