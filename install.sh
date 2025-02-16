@@ -615,14 +615,15 @@ docker_compose_up(){
 
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
-    echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" > .env
-    echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
+    sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
+    #echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
         
     # save it to /etc/my.cnf
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1 # from 0.2.5  new-docker-compose.yml instead of docker-compose.yml
+    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
+    cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1 
     
     # added in 0.2.9
     # fix for bug with mysql-server image on Almalinux 9.2
