@@ -1020,7 +1020,15 @@ install_packages() {
 
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+
+	if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
+    
     	packages=("curl" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
+	else
+ 	# debian has linux-image-amd64 instead of generic
+    	packages=("curl" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
+
+  	fi
 
  	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
