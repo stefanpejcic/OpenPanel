@@ -1192,6 +1192,7 @@ opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
     git clone https://github.com/stefanpejcic/opencli
+    chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
