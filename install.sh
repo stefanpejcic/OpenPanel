@@ -48,10 +48,6 @@ post_install_path=""                                                  # not to r
 # PATHs used throughout the script
 ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
 LOG_FILE="openpanel_install.log"                                      # install log                                      # install running
-OPENPANEL_DIR="/usr/local/panel"                                      # currently only used to store version
-OPENPADMIN_DIR="/usr/local/admin/"                                    # https://github.com/stefanpejcic/openadmin/branches
-OPENCLI_DIR="/usr/local/admin/scripts/"                               # https://dev.openpanel.com/cli/commands.html
-OPENPANEL_ERR_DIR="/var/log/openpanel/"                               # https://dev.openpanel.com/logs.html
 SERVICES_DIR="/etc/systemd/system/"                                   # used for admin, sentinel and floatingip services
 CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
 
@@ -488,7 +484,7 @@ detect_installed_panels() {
     if [ -z "$SKIP_PANEL_CHECK" ]; then
         # Define an associative array with key as the directory path and value as the error message
         declare -A paths=(
-            ["$OPENPANEL_DIR"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
+            ["/usr/local/admin/"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
             ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
             ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
@@ -968,7 +964,7 @@ set_logrotate(){
 
 echo "Setting Logrotate for Nginx.."
 
-bash /usr/local/admin/scripts/server/logrotate
+opencli server-logrotate
 
 echo "Setting Logrotate for OpenPanel logs.."
 
@@ -1194,17 +1190,9 @@ set_custom_hostname(){
 
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
-    mkdir -p /usr/local/admin
-    wget --timeout=30 -O /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz" > /dev/null 2>&1 ||  curl --silent --max-time 20 -4 -o /tmp/opencli.tar.gz "https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz" ||  radovan 1 "download failed for https://storage.googleapis.com/openpanel/${PANEL_VERSION}/opencli-main.tar.gz"
-    mkdir -p /tmp/opencli
-    cd /tmp/ && tar -xzf opencli.tar.gz -C /tmp/opencli
-    mkdir -p /usr/local/admin/scripts
-    cp -r /tmp/opencli/* /usr/local/admin/scripts > /dev/null 2>&1 || cp -r /tmp/opencli/opencli-main /usr/local/admin/scripts > /dev/null 2>&1 || radovan 1 "Fatal error extracting OpenCLI.."
-    rm /tmp/opencli.tar.gz > /dev/null 2>&1
-    rm -rf /tmp/opencli > /dev/null 2>&1
-    cp  /usr/local/admin/scripts/opencli /usr/local/bin/opencli
-    chmod +x /usr/local/bin/opencli > /dev/null 2>&1
-    chmod +x -R /usr/local/admin/scripts/ > /dev/null 2>&1
+    cd /usr/local
+    git clone https://github.com/stefanpejcic/opencli
+    ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
     ALIASES_FILE=\"${OPENCLI_DIR}aliases.txt\"
     generate_autocomplete() {
@@ -1214,7 +1202,6 @@ opencli_setup(){
 
     # Fix for: The command could not be located because '/usr/local/bin' is not included in the PATH environment variable.
     export PATH="/usr/bin:$PATH"
-
 
     source ~/.bashrc
     
@@ -1247,8 +1234,9 @@ set_premium_features(){
 
 
 log_dirs() {
-	mkdir -p ${OPENPANEL_ERR_DIR} ${OPENPANEL_ERR_DIR}user ${OPENPANEL_ERR_DIR}admin
-	chmod -R 755 $OPENPANEL_ERR_DIR
+	local error_dir="/var/log/openpanel/"                               # https://dev.openpanel.com/logs.html
+	mkdir -p ${error_dir} ${error_dir}user ${error_dir}admin
+	chmod -R 755 $error_dir
 }
 
 
@@ -1622,19 +1610,21 @@ install_openadmin(){
     #
     echo "Setting up OpenAdmin panel.."
 
+    local openadmin_dir="/usr/local/admin/"
+
     if [ "$REPAIR" = true ]; then
-        rm -rf $OPENPADMIN_DIR
+        rm -rf $openadmin_dir
     fi
     
-    mkdir -p $OPENPADMIN_DIR
+    mkdir -p $openadmin_dir
 
         debug_log echo "Downloading OpenAdmin files"
 	
-        git clone -b 100 --single-branch https://github.com/stefanpejcic/openadmin $OPENPADMIN_DIR
-        cd $OPENPADMIN_DIR
-	python3.12 -m venv ${OPENPADMIN_DIR}venv
+        git clone -b 100 --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
+        cd $openadmin_dir
+	python3.12 -m venv ${openadmin_dir}venv
 
-	source ${OPENPADMIN_DIR}venv/bin/activate
+	source ${openadmin_dir}venv/bin/activate
         pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
 
      # on debian12 yaml is also needed to read conf files!
@@ -1678,10 +1668,7 @@ create_admin_and_show_logins_success_message() {
     ln -s ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh
     chmod +x /etc/profile.d/welcome.sh  
 
-    #cp version file
-    mkdir -p $OPENPANEL_DIR  > /dev/null 2>&1
-    echo "$PANEL_VERSION" > $OPENPANEL_DIR/version
-    echo -e "${GREEN}OpenPanel ${LICENSE} [$(cat $OPENPANEL_DIR/version)] installation complete.${RESET}"
+    echo -e "${GREEN}OpenPanel ${LICENSE} $PANEL_VERSION installation complete.${RESET}"
     echo ""
 
     # added in 0.2.3
