@@ -15,7 +15,7 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 Minimum Requirements:
 
 - A blank full virtual machine or bare metal server
-- Minimum of 1GB RAM and 10GB storage (4GB RAM and 50GB is recommended)
+- Minimum of 1GB RAM and 5GB storage (4GB RAM and 50GB is recommended)
 - x86_64/amd64 architecture **[support for ARM (AArch64) is in progress](https://github.com/stefanpejcic/OpenPanel/issues/63)*
 - IPv4 address
 
