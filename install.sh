@@ -378,7 +378,7 @@ parse_args() {
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
         echo "  --docker-space=<2>              Set space in GB to be allocated for Docker containers (default 50% of available storage)."
         echo "  --debug                         Display debug information during installation."
-        echo "  --repair                        Retry and overwrite everything."
+        echo "  --repair OR --retry             Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
     }
 
@@ -415,12 +415,7 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-apt-update)
             SKIP_APT_UPDATE=true
-            ;;
-        --repair)
-            REPAIR=true
-            SKIP_PANEL_CHECK=true
-            #SKIP_REQUIREMENTS=true
-            ;;
+            ;;    
         --skip-firewall)
             SKIP_FIREWALL=true
             ;;
@@ -461,6 +456,18 @@ while [[ $# -gt 0 ]]; do
         --email=*)
             SEND_EMAIL_AFTER_INSTALL=true
             EMAIL="${1#*=}"
+            ;;
+        --repair)
+            REPAIR=true
+            SKIP_PANEL_CHECK=true
+	    SKIP_APT_UPDATE=true
+            #SKIP_REQUIREMENTS=true
+            ;;
+        --retry)
+            REPAIR=true
+            SKIP_PANEL_CHECK=true
+	    SKIP_APT_UPDATE=true
+            #SKIP_REQUIREMENTS=true
             ;;
         -h|--help)
             show_help
@@ -611,7 +618,11 @@ docker_compose_up(){
 
     # compose doesnt alllow /
     cd /root
+    
     rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default my.cnf, and on repair we already have symlink and .env
+    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
+
+    cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1 
 
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
@@ -622,8 +633,7 @@ docker_compose_up(){
     ln -s /etc/openpanel/mysql/db.cnf /etc/my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/db.cnf  > /dev/null 2>&1
     
-    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
-    cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1 
+
     
     # added in 0.2.9
     # fix for bug with mysql-server image on Almalinux 9.2
@@ -650,7 +660,7 @@ docker_compose_up(){
     # check if compose started the mysql container, and if is currently running
     	mysql_container=$(docker compose ps -q openpanel_mysql)
 	if [ -z `docker ps -q --no-trunc | grep "$mysql_container"` ]; then
-        	radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--retry' flag."
+        	radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
 	else
 		echo -e "[${GREEN} OK ${RESET}] MySQL service started successfuly"
 	fi
@@ -1056,7 +1066,7 @@ install_packages() {
                     echo "Error: Installation of $package failed. Retrying.."
                     $PACKAGE_MANAGER -qq install "$package" -y
                     if [ $? -ne 0 ]; then
-                    radovan 1 "ERROR: Installation failed. Please retry installation with '--retry' flag."
+                    radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
                         exit 1
                     fi
                 fi
