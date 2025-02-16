@@ -1557,7 +1557,7 @@ EOF
 	  	# https://almalinux.pkgs.org/8/almalinux-appstream-x86_64/python3.12-3.12.1-4.el8.x86_64.rpm.html
 	    debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
  
-	elif [ "$OS" == "alma" ]; then
+	elif [ "$OS" == "alma" ] || [ "$OS" == "rocky" ] || [ "$OS" == "centos" ]; then
 	    debug_log $PACKAGE_MANAGER update -y
 	    debug_log $PACKAGE_MANAGER install -y python3.12
 
