@@ -650,7 +650,7 @@ docker_compose_up(){
     # check if compose started the mysql container, and if is currently running
     	mysql_container=$(docker compose ps -q openpanel_mysql)
 	if [ -z `docker ps -q --no-trunc | grep "$mysql_container"` ]; then
-        	echo "ERROR: MySQL container is not running. Please retry installation with '--retry' flag."
+        	radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--retry' flag."
 	else
 		echo -e "[${GREEN} OK ${RESET}] MySQL service started successfuly"
 	fi
