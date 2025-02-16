@@ -1247,6 +1247,7 @@ set_premium_features(){
 
 
 log_dirs() {
+	mkdir -p ${OPENPANEL_ERR_DIR} ${OPENPANEL_ERR_DIR}user ${OPENPANEL_ERR_DIR}admin
 	chmod -R 755 $OPENPANEL_ERR_DIR
 }
 
