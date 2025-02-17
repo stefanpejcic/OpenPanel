@@ -1206,7 +1206,7 @@ opencli_setup(){
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
-    ALIASES_FILE=\"$/usr/local/opencli/aliases.txt\"
+    ALIASES_FILE=\"/usr/local/opencli/aliases.txt\"
     generate_autocomplete() {
         awk '{print \$NF}' \"\$ALIASES_FILE\"
     }
