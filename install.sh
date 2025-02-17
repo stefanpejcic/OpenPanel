@@ -295,7 +295,7 @@ set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
 log_dirs				  # for almalinux
 setup_swap                                # swap space
-clean_apt_and_dnf_cache                   # clear
+#####clean_apt_and_dnf_cache                   # clear
 verify_license                            # ping our server
 )
 
@@ -705,7 +705,9 @@ tweak_ssh(){
 	else
 		systemctl restart ssh  > /dev/null 2>&1
 	fi
-   
+
+ 	echo -e "[${GREEN} OK ${RESET}] SSH service is configured."
+
 }
 
 
@@ -952,7 +954,7 @@ create_rdnc() {
 
     echo "Generating rndc.key for DNS zone management."
 
-    timeout 30 docker run --rm \
+    debug_log timeout 30 docker run --rm \
         -v /etc/bind/:/etc/bind/ \
         --entrypoint=/bin/sh \
         ubuntu/bind9:latest \
@@ -960,9 +962,9 @@ create_rdnc() {
 
     # Check if rndc.key was successfully generated
     if [ -f "$RNDC_KEY_PATH" ]; then
-        echo "rndc.key successfully generated."
+	echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
     else
-	echo "Warning: Unable to generate rndc.key."
+ 	echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
 	echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
 	echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
     fi
@@ -1180,6 +1182,12 @@ set_system_cronjob(){
 		restorecon -R /etc/cron.d/openpanel > /dev/null 2>&1
 		systemctl restart crond.service  > /dev/null 2>&1
 	fi
+
+        if [ -f "/etc/cron.d/openpanel" ]; then
+            echo -e "[${GREEN} OK ${RESET}] Cronjobs configured."
+	fi
+
+ 
     
 }
 
@@ -1338,7 +1346,7 @@ verify_license() {
     debug_log "echo Current time: $(date +%T)"
     server_hostname=$(hostname)
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
-    response=$(curl -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.co/license-check)
+    response=$(curl -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.com/license-check)
     debug_log "echo Checking OpenPanel license for IP address: $current_ip"
     debug_log "echo Response: $response"
 }
@@ -1431,6 +1439,8 @@ setup_swap(){
         mkswap /swapfile
         swapon /swapfile
         echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab
+
+ 	echo -e "[${GREEN} OK ${RESET}] Created SWAP file of ${SWAP_FILE}G."
     }
 
     # Check if swap space already exists
