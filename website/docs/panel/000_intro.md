@@ -25,6 +25,16 @@ Some of the unique features worth mentioning are:
 
 ---
 
+## Accessing OpenPanel  
+
+OpenPanel is the end-user control panel, accessible by default via the server's IP address and port `2083`. Administrators can configure a custom domain and modify the default port if needed.  
+
+To access your OpenPanel account, use the link provided by your hosting provider.  
+
+Log in using your assigned username and password.
+
+---
+
 ## Support
 
 Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
