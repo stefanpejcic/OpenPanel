@@ -908,10 +908,9 @@ update_package_manager() {
 
 create_rdnc() {
     echo "Setting remote name daemon control (rndc) for DNS.."
-    mkdir -p /etc/bind/
-    chmod 777 /etc/bind/
+    mkdir -p /etc/bind/  
     cp -r /etc/openpanel/bind9/* /etc/bind/
-    
+        
     # Only on Ubuntu and Debian 12, systemd-resolved is installed
     if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then
         echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
@@ -922,7 +921,6 @@ create_rdnc() {
 
     if [ -f "$RNDC_KEY_PATH" ]; then
         echo "rndc.key already exists."
-        chmod 0777 -R /etc/bind
         return 0
     fi
 
@@ -943,7 +941,8 @@ create_rdnc() {
 	echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
     fi
 
-    chmod 0777 -R /etc/bind
+    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
+    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
 }
 
 
