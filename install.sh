@@ -907,7 +907,7 @@ update_package_manager() {
 
 
 create_rdnc() {
-    echo "Setting DNS service.."
+    echo "Setting remote name daemon control (rndc) for DNS.."
     mkdir -p /etc/bind/
     chmod 777 /etc/bind/
     cp -r /etc/openpanel/bind9/* /etc/bind/
