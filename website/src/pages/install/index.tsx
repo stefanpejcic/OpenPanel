@@ -37,21 +37,6 @@ const defaultOptions: InstallOptions = {
 
 const Install: React.FC = () => {
     const [installOptions, setInstallOptions] = useState<InstallOptions>(defaultOptions);
-    const [latestVersion, setLatestVersion] = useState<string>("");
-
-    useEffect(() => {
-        fetch("https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/latest")
-            .then(response => response.text())
-            .then(data => {
-                const version = data.trim();
-                setLatestVersion(version);
-                setInstallOptions(prevState => ({
-                    ...prevState,
-                    version: { ...prevState.version, value: version },
-                }));
-            })
-            .catch(error => console.error("Error fetching latest version:", error));
-    }, []);
 
     const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target;
