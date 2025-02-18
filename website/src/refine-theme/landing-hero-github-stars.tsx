@@ -3,22 +3,39 @@ import clsx from 'clsx';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
-    const [version, setVersion] = useState('0.3.0'); // Default version
+    const [version, setVersion] = useState('1.0.0'); // Default version
 
     useEffect(() => {
-        // Function to fetch version information
+        // Function to fetch the latest version tag from Docker Hub
         const fetchVersion = async () => {
             try {
-                const response = await fetch('https://openpanel.org/version');
-                const data = await response.text();
-                setVersion(data.trim()); // Update the version state
+                const response = await fetch('https://registry.hub.docker.com/v1/repositories/openpanel/openpanel/tags');
+                const data = await response.json();
+                
+                // Filter out 'latest' and sort the tags to find the highest version number
+                const versions = data
+                    .map(tag => tag.name)
+                    .filter(tag => /^\d+\.\d+\.\d+$/.test(tag)) // Only keep valid version tags
+                    .sort((a, b) => {
+                        // Compare versions numerically
+                        const [majorA, minorA, patchA] = a.split('.').map(Number);
+                        const [majorB, minorB, patchB] = b.split('.').map(Number);
+                        
+                        if (majorA !== majorB) return majorB - majorA;
+                        if (minorA !== minorB) return minorB - minorA;
+                        return patchB - patchA;
+                    });
+                
+                if (versions.length > 0) {
+                    setVersion(versions[0]); // Set the latest version (highest number)
+                }
             } catch (error) {
                 console.error('Failed to fetch version:', error);
             }
         };
 
         fetchVersion();
-    }, []); // after initial render
+    }, []); // After initial render
 
     // Function to format version for URL
     const formatVersionForURL = (version) => {
@@ -116,7 +133,7 @@ export const LandingHeroGithubStars = () => {
                     )}
                 >
                     <span className={clsx("font-semibold")}>
-                            OpenPanel <span>{version}</span>
+                        OpenPanel <span>{version}</span>
                     </span> {" "}
                     <span>is out</span>
                 </span>
