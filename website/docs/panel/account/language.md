@@ -4,3 +4,12 @@ sidebar_position: 2
 
 # Change Language
 
+You can customize your experience by selecting your preferred language.  
+
+## Changing Your Language  
+1. Navigate to **Accoun > Change Language**.
+1. Select your desired language from the dropdown menu.  
+2. The interface will **immediately update** to reflect your selection.  
+
+## Missing a Language?  
+If your language is not available, you can help translate OpenPanel [here](https://dev.openpanel.com/localization.html) to improve accessibility for everyone.
