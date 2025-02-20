@@ -261,6 +261,7 @@ docker_compose_up                         # must be after configure_nginx
 docker_cpu_limiting			  # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
 configure_coraza			  # download corazawaf coreruleset or change docker image
+extra_step_for_caddy                      # so that webmail domain works without any setups!
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -1160,7 +1161,6 @@ set_system_cronjob(){
             echo -e "[${GREEN} OK ${RESET}] Cronjobs configured."
 	fi
 
- 
     
 }
 
@@ -1581,6 +1581,16 @@ fi
 	fi
     
 }
+
+
+
+extra_step_for_caddy() {
+	sed -i "s/example\.net/$current_ip/g" /etc/openpanel/caddy/redirects.conf > /dev/null 2>&1
+}
+
+
+
+
 
 configure_coraza() {
 
