@@ -270,7 +270,7 @@ As an additional security measure, HTTP Basic Authentication can be enabled for 
 
 Both user and admin interfaces have a built-in rate limiting and IP address blocking to protect against brute-force attacks. You can configure the maximum number of failed login attempts allowed per IP (default is `5` per minute) and the total number of failed attempts (default is `20`), after which the offending IP will be temporarily blocked by the firewall for one hour.
 
-For user panel imits are configurable in: `/etc/openpanel/openpanel/conf/openpanel.config` file:
+For user panel imits are configurable in: /etc/openpanel/openpanel/conf/openpanel.config file:
 ```bash
 [USERS]
 login_ratelimit=5
@@ -279,7 +279,7 @@ login_blocklimit=20
 
 ![user ratelimit](/img/panel/v1/user_block.png)
 
-For admin panel imits are configurable in: `/etc/openpanel/openadmin/config/admin.ini` file:
+For admin panel imits are configurable in: /etc/openpanel/openadmin/config/admin.ini file:
 ```bash
 [PANEL]
 login_ratelimit=5
