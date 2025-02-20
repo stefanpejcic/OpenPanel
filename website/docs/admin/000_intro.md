@@ -196,15 +196,6 @@ To update OpenPanel manually from the terminal, run the following command:
 opencli update --force
 ```
   </TabItem>
-
-  <TabItem value="github-update-now" label="from GitHub">
-
-To update OpenPanel manually from GitHub:
-
-```bash
-bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/UPDATE.sh)
-```
-  </TabItem>
   
 </Tabs>
 
@@ -252,7 +243,7 @@ Each user is provided with a containerized environment similar to a VPS, featuri
 
 ### CorazaWAF
 
-OpenPanel uses CprazaWAF compatible with OWASP CoreRuleset. Each user can enable/disable WAF fpr their domains.
+OpenPanel uses CorazaWAF compatible with OWASP CoreRuleset. Each user can enable/disable WAF fpr their domains.
 
 ### Two-Factor Authentication
 Users have the option to [enable Two-Factor Authentication (2FA)](/docs/panel/account/2fa/) for added security on their accounts. Administrators can manage this feature at the server level or for individual users.
@@ -269,7 +260,7 @@ For production environments, particularly with the Community edition—which doe
 
 To disable OpenAdmin, navigate to **OpenAdmin > Settings > OpenAdmin** and click on *"Disable Admin Panel"* or use the terminal command `opencli admin off`. This will deactivate the admin panel, and you can re-enable it when necessary with the command `opencli admin on`.
 
-### Limiting Access to Admin Panel
+### Limit Access to Admin Panel
 To restrict OpenAdmin access to your team, whitelist your server's IP addresses in CSF/UFW, and then disable port `2087`.
 
 ### HTTP Basic Authentication
