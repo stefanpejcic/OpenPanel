@@ -1721,7 +1721,7 @@ create_admin_and_show_logins_success_message() {
     
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
 
-    opencli admin new "$new_username" "$new_password"  > /dev/null 2>&1 && 
+    opencli admin new "$new_username" "$new_password" --super > /dev/null 2>&1 && 
 
 	# Check if the user exists in the SQLite database
 	user_exists=$(sqlite3 /etc/openpanel/openadmin/users.db "SELECT COUNT(*) FROM user WHERE username = '$new_username';")
@@ -1733,7 +1733,7 @@ create_admin_and_show_logins_success_message() {
 	    echo "WARNING: Admin user $new_username was not created using opencli. Trying to insert user manually to SQLite database.."  
 	    password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash $new_password) 
 	    create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
-	    insert_user_sql="INSERT INTO user (username, password_hash) VALUES ('$new_username', '$password_hash');"
+	    insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$new_username', '$password_hash', 'admin');"
 	    output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
 	        if [ $? -ne 0 ]; then
 	            echo "WARNING: Admin user was not created: $output"
