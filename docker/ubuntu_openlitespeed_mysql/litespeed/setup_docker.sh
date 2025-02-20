@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 LS_FD='/usr/local/lsws'
-PHP_VER='lsphp74'
+PHP_VER='lsphp83'
 
 check_php_input(){
     if [ -z "${1}" ]; then
