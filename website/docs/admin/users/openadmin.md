@@ -8,13 +8,14 @@ import TabItem from '@theme/TabItem';
 
 # OpenAdmin Users
 
-The admin panel has two user roles:
+The admin panel has three user roles:
 
 
 | Role              | Description                                                               |
 | ------------------ | ------------------------------------------------------------------------- |
-| **Super Admin**    | Has unrestricted privileges, created on OpenPanel installation.                                                 |
-| **Admin**              | Can not edit the SuperAdmin user, created from OpenAdmin or OpenCLI.                                                   |
+| **Super Admin**    | Has unrestricted privileges, created on OpenPanel installation. |
+| **Admin**          | Has unrestricted privileges, but can not edit the SuperAdmin user. |
+| **Reseller**       | Has restrited privileges. |
 
 
 ## Manage Admin users
