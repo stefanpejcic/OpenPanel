@@ -15,7 +15,6 @@ type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
     domain: { value: "", description: "Set the domain to be used for accessing panels." },
-    version: { value: "", description: "Set a custom OpenPanel version to be installed." },
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
     username: { value: "", description: "Set admin username (by default random generated)." },
     password: { value: "", description: "Set admin password (by default random generated)." },
