@@ -321,7 +321,7 @@ The Services tab displays a list of all services installed inside the user's Doc
 ![openadmin users single user view services tab](/img/admin/services_tab.png)
 
 
-Services can be [pre-installed in a Docker image](https://dev.openpanel.co/images/), which is recommended for production to reduce the disk usage required for idle user accounts. Alternatively, they can be [installed later by an administrator](#) or by a user with [granted sudo access](#sudo-access).
+Services can be [pre-installed in a Docker image](https://dev.openpanel.co/images/), which is recommended for production to reduce the disk usage required for idle user accounts. Alternatively, they can be [installed later by an administrator](#) or by a user.
 
 
 ----
@@ -544,69 +544,6 @@ opencli user-ip filip delete
 
   </TabItem>
 </Tabs>
-
-
-
-
-
-## Grant Sudo Access
-
-<Tabs>
-  <TabItem value="openadmin-user-ip" label="With OpenAdmin" default>
-
-To allow users to install new services and have unrestricted access inside their container, click on the 'Configuration' button for the user, then check the 'Sudo Access' option.
-
-This will allow user to use the `su -` command and switch to root user inside their container.
-
-Step 1.             |  Step 2.
-:-------------------------:|:-------------------------:
-![openadmin users grant sudo step 1](/img/admin/openadmin_users_sudo1.png)  |  ![openadmin users grant sudo step 2](/img/admin/openadmin_users_sudo2.png)
-
-  </TabItem>
-  <TabItem value="CLI-user-ip" label="With OpenCLI">
-
-To allow users to install new services and have unrestricted access inside their container, run the following command:
-
-```bash
-opencli user-sudo <USERNAME> <ENABLE/DISABLE/STATUS>
-```
-
-Example:
-
-```bash
-# opencli user-sudo stefan enable
-'su -' access enabled for user stefan.
-```
-
-To remove sudo access from user:
-
-```bash
-opencli user-ip <USERNAME> disable
-```
-Example:
-
-```bash
-# opencli user-sudo stefan disable
-'su -' access disabled for user stefan.
-```
-
-To check current sudo status for user:
-
-```bash
-opencli user-ip <USERNAME> status
-```
-Example:
-
-```bash
-# opencli user-sudo stefan status
-'su -' is enabled for user stefan.
-```
-
-
-  </TabItem>
-</Tabs>
-
-
 
 
 ## Delete User
