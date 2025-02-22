@@ -1,0 +1,40 @@
+services:
+  os:
+    image: ${OS}
+    container_name: ${USERNAME}
+    hostname: ${HOSTNAME}
+    restart: unless-stopped
+    ports:
+      - "${SSH_PORT}"
+      - "${TTYD_PORT}"
+    deploy:
+      resources:
+        limits:
+          cpus: "${CPU}"
+          memory: "${RAM}"
+    volumes:
+      - /etc/openpanel/skeleton/motd:/etc/motd:ro         # SSH welcome message
+      - /home/${CONTEXT}/mail/:/var/mail/                 # Mail storage
+      - webserver_data:/etc/${path}/                      # Nginx/Apache data
+      - pg_data:/var/lib/postgresql/data                  # Postgres data
+      - mysql_data:/var/lib/mysql                         # MySQL data      
+      - html_data:/var/www/html/                          # Website files
+      - /home/${CONTEXT}/sockets/:/var/run/              # Sockets
+    networks:
+      - default
+    command: [ "tail", "-f", "/dev/null" ]
+
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local
+  html_data:
+    driver: local
+  webserver_data:
+    driver: local
+  pg_data:
+    driver: local
