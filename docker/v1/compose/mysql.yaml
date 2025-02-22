@@ -1,0 +1,33 @@
+services:
+  mysql:
+    image: mysql:${MYSQL_VERSION:-latest}
+    container_name: mysql
+    restart: always
+    user: "${UID:-0}"
+    environment:
+     MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}       
+    ports:
+      - "${MYSQL_PORT}"
+    volumes:
+      - mysql_data:/var/lib/mysql                         # MySQL data
+      - /home/${CONTEXT}/sockets/mysqld:/var/run/mysqld   # MySQL socket
+    deploy:
+      resources:
+        limits:
+          cpus: "${MYSQL_CPU:-0.5}"
+          memory: "${MYSQL_RAM:-0.5G}"  
+    networks:
+      - default    
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h localhost']
+      interval: 1s
+      timeout: 5s
+      retries: 10
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  mysql_data:
+    driver: local      
