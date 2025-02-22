@@ -10,8 +10,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${CPU}"
-          memory: "${RAM}"
+          cpus: "${OS_CPU}"
+          memory: "${OS_RAM}"
     volumes:
       - /etc/openpanel/skeleton/motd:/etc/motd:ro         # SSH welcome message
       - /home/${CONTEXT}/mail/:/var/mail/                 # Mail storage
