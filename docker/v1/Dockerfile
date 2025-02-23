@@ -12,7 +12,6 @@ RUN apt-get update && \
         ttyd \
         curl \
         cron \
-        pwgen \
         zip \
         unzip \
         wget \
