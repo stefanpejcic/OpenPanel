@@ -3,7 +3,6 @@ FROM ubuntu:latest
 LABEL maintainer="stefan@pejcic.rs"
 LABEL author="Stefan Pejcic"
 LABEL db="mysql" webserver="nginx" php="php8.2"
-ENV TZ=UTC
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
