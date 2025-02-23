@@ -40,10 +40,8 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 
 
 ########## SSL #############
-#  openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=GB/ST=London/L=London/O=Global Security/OU=R&D Department/CN=openpanel.com"  -keyout cert.key  -out cert.crt
 RUN mkdir -p /etc/nginx/ssl/ 
-COPY  cert.key /etc/nginx/ssl/cert.key
-COPY  cert.crt /etc/nginx/ssl/cert.crt
+COPY certs/ /etc/nginx/ssl/
 
 ########## TERMINAL #############
 # fix for webterminal: bash: permission denied: /home/user/.bashrc
