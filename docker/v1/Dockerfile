@@ -40,7 +40,8 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 
 ########## SSL #############
 RUN mkdir -p /etc/nginx/ssl/ 
-COPY certs/ /etc/nginx/ssl/
+COPY certs/cert.crt /etc/nginx/ssl/cert.crt
+COPY certs/cert.key /etc/nginx/ssl/cert.key
 
 ########## TERMINAL #############
 # fix for webterminal: bash: permission denied: /home/user/.bashrc
