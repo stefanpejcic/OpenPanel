@@ -25,7 +25,7 @@ A big thank you to the Ezeelogin team for enabling support for OpenPanel!
 
 In Ezeelogin admin interface navigate to *Settings > Control Panels* and click on the `+` link to add a new control panel.
 
-![ezelogin_openpanel](https://i.postimg.cc/SQ3ryR0K/panel1.png)
+![ezelogin_openpanel](/img/blog/panel1.png)
 
 In the form make sure to set:
 
