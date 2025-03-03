@@ -22,7 +22,7 @@ const defaultOptions: InstallOptions = {
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
     "skip-firewall": { value: false, description: "Don't setup UFW (Only if you will set another Firewall manually)" },
-    "skip-images": { value: false, description: "Don't install openpanel/nginx and openpanel/apache docker images." },
+    "skip-dns-server": { value: false, description: "Don't setup DNS server (Only if you will use external NS like Cloudflare)" },
     "skip-blacklists": { value: false, description: "Do not set up IP sets and blacklists." },
     "skip-ssl": { value: false, description: "Skip SSL setup." },
     ufw: { value: false, description: "Install and setup UFW instead of CSF." },
