@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           16.02.2025
+# Last Modified:           03.03.2025
 #
 ################################################################################
 
@@ -96,11 +96,9 @@ install_started_message(){
     elif [ "$UFW_SETUP" = true ]; then
     	echo -e "- Set up Uncomplicated Firewall for enhanced security."
     fi
-    if [ "$SET_PREMIUM" = true ]; then
-    	echo -e "- Set up 4 hosting plans (Nginx with MySQL, Nginx with MariaDB, Apache with MySQL, Apache with MariaDB) so you can start right away."
-    else
-    	echo -e "- Set up 2 hosting plans (Nginx and Apache) so you can start right away."
-    fi
+
+    echo -e "- Set up 2 hosting plans so you can start right away."
+
     echo -e "\nThank you for your patience. We're setting everything up for your seamless OpenPanel experience!\n"
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e ""
@@ -180,7 +178,7 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    PANEL_VERSION="1.0.0"
+	    PANEL_VERSION="1.1.0"
 	fi
 }
 
@@ -585,11 +583,7 @@ docker_compose_up(){
 
 
  
-    if [ "$SET_PREMIUM" = true ]; then
-    	cp /etc/openpanel/mysql/initialize/1.0/mariadb_plans.sql /root/initialize.sql  > /dev/null 2>&1
-    else
-    	cp /etc/openpanel/mysql/initialize/1.0/mysql_plans.sql /root/initialize.sql  > /dev/null 2>&1
-    fi
+    cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 
     # compose doesnt alllow /
     cd /root
@@ -642,7 +636,7 @@ docker_compose_up(){
 
 
  	# needed from 1.0.0 for docker contexts to work both inside openpanel ui contianer nad host os
-	 ln -s / /hostfs
+	 ln -s / /hostfs > /dev/null 2>&1
 }
 
 
@@ -1183,7 +1177,7 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
-    git clone https://github.com/stefanpejcic/opencli
+    git clone -b 1.1 --single-branch  https://github.com/stefanpejcic/opencli.git
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
@@ -1350,9 +1344,6 @@ download_skeleton_directory_from_github(){
         radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
     fi
 
-
-# for 1.0.0 only!
-cp /etc/openpanel/openadmin/config/1.0.0/services.json /etc/openpanel/openadmin/config/services.json
 
     # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
@@ -1624,8 +1615,9 @@ install_openadmin(){
     mkdir -p $openadmin_dir
 
         debug_log echo "Downloading OpenAdmin files"
-	
-        git clone -b 100 --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
+
+	git clone -b 110 --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
+
         cd $openadmin_dir
 	python3.12 -m venv ${openadmin_dir}venv
 
@@ -1638,12 +1630,11 @@ install_openadmin(){
      fi
 
 
-    
     cp -fr /etc/openpanel/openadmin/service/openadmin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
-    
+
     systemctl daemon-reload  > /dev/null 2>&1
-    
+
     service admin start  > /dev/null 2>&1
     systemctl enable admin  > /dev/null 2>&1
 
