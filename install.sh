@@ -347,6 +347,7 @@ parse_args() {
         echo "  --skip-ssl                      Skip SSL setup."
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
+        echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
