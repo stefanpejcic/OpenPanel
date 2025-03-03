@@ -28,7 +28,8 @@ export DEBIAN_FRONTEND=noninteractive
 CUSTOM_VERSION=false                                                  # default version is latest
 INSTALL_TIMEOUT=600                                                   # after 10min, consider the install failed
 DEBUG=false                                                           # verbose output for debugging failed install
-SKIP_APT_UPDATE=false                                                   # they are auto-pulled on account creation
+SKIP_APT_UPDATE=false                                                 # they are auto-pulled on account creation
+SKIP_DNS_SERVER=false
 REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
@@ -388,7 +389,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-apt-update)
             SKIP_APT_UPDATE=true
-            ;;    
+            ;; 
+        --skip-dns-server)
+            SKIP_DNS_SERVER=true
+            ;;   
         --skip-firewall)
             SKIP_FIREWALL=true
             ;;
@@ -846,6 +850,13 @@ setup_firewall_service() {
           sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
           sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/services.json"  > /dev/null 2>&1
 
+	  # https://github.com/stefanpejcic/OpenPanel/issues/340
+   	if [ "$SKIP_DNS_SERVER" = true ]; then
+    	  echo "Removing BIND service from monitoring due to the '--skip-dns-server' flag."
+	  sed -i 's/,named//' "${ETC_DIR}openadmin/config/openadmin/config/admin.ini" > /dev/null 2>&1
+	fi
+
+
           # set ufw logs instead of csf
           sed -i 's/"CSF Deny Log"/"UFW Logs"/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
 	  sed -i 's/\/etc\/csf\/csf.deny/\/var\/log\/ufw.log/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
@@ -858,7 +869,12 @@ setup_firewall_service() {
           # block all docker ports so we can manually open only what is needed
           debug_log ufw-docker install
           debug_log ufw allow 80/tcp                # http
-          debug_log ufw allow 53                    # dns
+	  
+	  if [ "$SKIP_DNS_SERVER" = true ]; then
+   	     echo "Port 53 is skipped due to the '--skip-dns-server' flag."
+	  else
+             debug_log ufw allow 53                 # dns
+	  fi
           debug_log ufw allow 443/tcp               # https
 	  debug_log ufw allow 465/tcp               # email
           debug_log ufw allow 2083/tcp              # openpanel
@@ -902,42 +918,46 @@ update_package_manager() {
 
 
 create_rdnc() {
-    echo "Setting remote name daemon control (rndc) for DNS.."
-    mkdir -p /etc/bind/  
-    cp -r /etc/openpanel/bind9/* /etc/bind/
-        
-    # Only on Ubuntu and Debian 12, systemd-resolved is installed
-    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then
-        echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
-        systemctl restart systemd-resolved
-    fi
-
-    RNDC_KEY_PATH="/etc/bind/rndc.key"
-
-    if [ -f "$RNDC_KEY_PATH" ]; then
-        echo "rndc.key already exists."
-        return 0
-    fi
-
-    echo "Generating rndc.key for DNS zone management."
-
-    debug_log timeout 30 docker run --rm \
-        -v /etc/bind/:/etc/bind/ \
-        --entrypoint=/bin/sh \
-        ubuntu/bind9:latest \
-        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
-
-    # Check if rndc.key was successfully generated
-    if [ -f "$RNDC_KEY_PATH" ]; then
-	echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
-    else
- 	echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
-	echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
-	echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
-    fi
-
-    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
-    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
+    if [ "$SKIP_DNS_SERVER" = false ]; then
+	    echo "Setting remote name daemon control (rndc) for DNS.."
+	    mkdir -p /etc/bind/  
+	    cp -r /etc/openpanel/bind9/* /etc/bind/
+	        
+	    # Only on Ubuntu and Debian 12, systemd-resolved is installed
+	    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then
+	        echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
+	        systemctl restart systemd-resolved
+	    fi
+	
+	    RNDC_KEY_PATH="/etc/bind/rndc.key"
+	
+	    if [ -f "$RNDC_KEY_PATH" ]; then
+	        echo "rndc.key already exists."
+	        return 0
+	    fi
+	
+	    echo "Generating rndc.key for DNS zone management."
+	
+	    debug_log timeout 30 docker run --rm \
+	        -v /etc/bind/:/etc/bind/ \
+	        --entrypoint=/bin/sh \
+	        ubuntu/bind9:latest \
+	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+	
+	    # Check if rndc.key was successfully generated
+	    if [ -f "$RNDC_KEY_PATH" ]; then
+		echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
+	    else
+	 	echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
+		echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
+		echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
+	    fi
+	
+	    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
+	    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
+	else
+		echo "Skipping rndc.key generation due to the '--skip-dns-server' flag."
+ 	fi
 }
 
 
@@ -1360,6 +1380,7 @@ download_skeleton_directory_from_github(){
 
 
 setup_bind(){
+    if [ "$SKIP_DNS_SERVER" = false ]; then
     echo "Setting DNS service.."
     mkdir -p /etc/bind/
     chmod 777 /etc/bind/
@@ -1372,9 +1393,11 @@ setup_bind(){
      elif [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
      	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
      fi
-
-chmod 0777 -R /etc/bind
      
+     chmod 0777 -R /etc/bind
+	else
+		echo "Skipping BIND setup due to the '--skip-dns-server' flag."
+ 	fi     
 }
 
 send_install_log(){
@@ -1638,10 +1661,13 @@ install_openadmin(){
     service admin start  > /dev/null 2>&1
     systemctl enable admin  > /dev/null 2>&1
 
-    # added in 0.2.8 for reloading bind9 zones fom withon certbot container - needed for dns validation and wildcard ssl
-    chmod +x /usr/local/admin/service/watcher.sh
-    service watcher start  > /dev/null 2>&1
-    systemctl enable watcher  > /dev/null 2>&1
+	if [ "$SKIP_DNS_SERVER" = false ]; then
+	    chmod +x /usr/local/admin/service/watcher.sh
+	    service watcher start  > /dev/null 2>&1
+	    systemctl enable watcher  > /dev/null 2>&1
+	else
+	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
+ 	fi
 
     if [ "$architecture" == "x86_64" ]; then    
 	    echo "Testing if OpenAdmin service is available on default port '2087':"
