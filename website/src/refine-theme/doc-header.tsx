@@ -102,7 +102,7 @@ export const Mobile = () => {
 export const DocHeader = () => {
     return (
         <>
-            <TopAnnouncement />
+            
             <div
                 className={clsx(
                     "flex items-center",
