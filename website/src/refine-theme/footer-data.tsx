@@ -32,6 +32,7 @@ export const menuItems = [
             },
             {
                 label: "Install Command",
+                icon: <NewBadgeIcon />,
                 href: "/install",
             },
         ],
@@ -39,11 +40,6 @@ export const menuItems = [
     {
         label: "Product",
         items: [
-            {
-                label: "Enterprise edition",
-                icon: <NewBadgeIcon />,
-                href: "/beta",
-            },
             {
                 label: "Features List",
                 href: "/features",
@@ -76,10 +72,6 @@ export const menuItems = [
             {
                 label: "Our Blog",
                 href: "/blog",
-            },
-            {
-                label: "Become a Partner",
-                href: "https://my.openpanel.com/submitticket.php?step=2&deptid=3",
             },
             {
                 label: "Contact Us",
