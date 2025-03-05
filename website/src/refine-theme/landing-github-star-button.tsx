@@ -4,13 +4,13 @@ export const LandingGithubStarButton = () => {
 
     return (
         <a
-            href="https://my.openpanel.com/clientarea.php"
+            href="/demo"
             className={clsx(
                                 "hover:!no-underline",
                             )}
                         >
                     <span className={clsx("text-base", "font-semibold")}>
-                        Account Login
+                        Try Demo
                     </span>
                 </a>
     );
