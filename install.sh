@@ -44,6 +44,7 @@ CSF_SETUP=true                                                        # default 
 SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
 SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
+DEV_MODE=false
 post_install_path=""                                                  # not to run
 # ======================================================================
 # PATHs used throughout the script
@@ -261,6 +262,7 @@ docker_cpu_limiting			  # https://docs.docker.com/engine/security/rootless/#limi
 set_premium_features                      # must be after docker_compose_up
 configure_coraza			  # download corazawaf coreruleset or change docker image
 extra_step_for_caddy                      # so that webmail domain works without any setups!
+enable_dev_mode                           # https://dev.openpanel.com/cli/config.html#dev-mode
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -350,8 +352,8 @@ parse_args() {
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
-        echo "  --docker-space=<2>              Set space in GB to be allocated for Docker containers (default 50% of available storage)."
         echo "  --debug                         Display debug information during installation."
+        echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
     }
@@ -443,6 +445,12 @@ while [[ $# -gt 0 ]]; do
 	    SKIP_APT_UPDATE=true
             #SKIP_REQUIREMENTS=true
             ;;
+
+        --enable-dev-mode)
+            DEV_MODE=true
+            ;;
+
+     
         -h|--help)
             show_help
             exit 0
@@ -1218,6 +1226,14 @@ opencli_setup(){
     
 }
 
+
+
+enable_dev_mode() {
+ if [ "$DEV_MODE" = true ]; then
+    echo "Enabling dev_mode"
+    opencli config update dev_mode "on" > /dev/null 2>&1
+ fi
+}
 
 set_premium_features(){
  if [ "$SET_PREMIUM" = true ]; then
