@@ -344,7 +344,6 @@ parse_args() {
         echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
-        echo "  --skip-ssl                      Skip SSL setup."
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
@@ -404,9 +403,6 @@ while [[ $# -gt 0 ]]; do
         --ufw)
             UFW_SETUP=true
             CSF_SETUP=false
-            ;;
-        --skip-ssl)
-            SKIP_SSL=true
             ;;
         --no-waf)
             CORAZA=false
@@ -1298,7 +1294,7 @@ set_email_address_and_email_admin_logins(){
 
 
 generate_and_set_ssl_for_panels() {
-    if [ -z "$SKIP_SSL" ]; then
+    if [ "$SET_HOSTNAME_NOW" = true ]; then
         echo "Checking if SSL can be generated for the server hostname.."
 	CADDYFILE="/etc/openpanel/caddy/Caddyfile"
 	HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
