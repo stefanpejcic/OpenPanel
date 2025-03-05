@@ -9,7 +9,7 @@ export const LandingHeroGithubStars = () => {
         // Function to fetch the latest version tag from Docker Hub
         const fetchVersion = async () => {
             try {
-                const response = await fetch('https://hub.docker.com/v2/repositories/openpanel/openpanel/tags');
+                const response = await fetch('https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags');
                 const data = await response.json();
                 
                 // Extract tags, filter out 'latest', sort, and get the latest numeric version
