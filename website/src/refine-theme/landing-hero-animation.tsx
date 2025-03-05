@@ -167,7 +167,7 @@ const backendItems: ItemType[] = [
 
 const authItems: ItemType[] = [
     {
-        name: "ModSecurity",
+        name: "CorazaWAF",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
             <LandingHeroGoogleIcon
                 {...props}
