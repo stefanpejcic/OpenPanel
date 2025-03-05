@@ -859,6 +859,7 @@ setup_firewall_service() {
    	if [ "$SKIP_DNS_SERVER" = true ]; then
     	  echo "Removing BIND service from monitoring due to the '--skip-dns-server' flag."
 	  sed -i 's/,named//' "${ETC_DIR}openadmin/config/openadmin/config/admin.ini" > /dev/null 2>&1
+          sed -i 's/,dns//' "$CONFIG_FILE"  > /dev/null 2>&1
 	fi
 
 
