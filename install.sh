@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           03.03.2025
+# Last Modified:           09.03.2025
 #
 ################################################################################
 
