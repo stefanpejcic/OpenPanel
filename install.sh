@@ -833,7 +833,7 @@ setup_firewall_service() {
 	  echo "Restarting CSF service"
           systemctl restart docker                                              # not sure why
           systemctl enable csf
-          service csf restart                                                   # also restarts docker at csfpost.sh
+          systemctl restart csf                                                   # also restarts docker at csfpost.sh
 	  
    	if command -v csf > /dev/null 2>&1; then
 		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
@@ -909,7 +909,7 @@ setup_firewall_service() {
           debug_log ufw --force enable
           debug_log ufw reload
   
-          debug_log service ufw restart
+          debug_log systemctl restart ufw
 
 	   	if command -v ufw > /dev/null 2>&1; then
 			echo -e "[${GREEN} OK ${RESET}] UncomplicatedFirewall (UFW) is installed and configured."
@@ -1327,8 +1327,8 @@ generate_and_set_ssl_for_panels() {
 	    debug_log "Detected Hostname Domain: $HOSTNAME"
      	    cd /root && docker compose up -d caddy               # start and generate ssl
 	    debug_log curl https://$HOSTNAME:2087                # let caddy genetate ssl
-            # todo: check if ssl files exist, then restatt admin panel
-            debug_log service admin restart                      # will start with domain and ssl automatically 
+            # todo: check if ssl files exist, then restart admin panel
+            debug_log systemctl restart admin                      # will start with domain and ssl automatically 
 	fi
     fi
 }
@@ -1392,7 +1392,7 @@ download_skeleton_directory_from_github(){
     # added in 0.2.6
     cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
     systemctl daemon-reload  > /dev/null 2>&1
-    service floatingip start  > /dev/null 2>&1
+    systemctl start floatingip  > /dev/null 2>&1
     systemctl enable floatingip  > /dev/null 2>&1
 
 
@@ -1679,12 +1679,12 @@ install_openadmin(){
 
     systemctl daemon-reload  > /dev/null 2>&1
 
-    service admin start  > /dev/null 2>&1
+    systemctl start admin  > /dev/null 2>&1
     systemctl enable admin  > /dev/null 2>&1
 
 	if [ "$SKIP_DNS_SERVER" = false ]; then
 	    chmod +x /usr/local/admin/service/watcher.sh
-	    service watcher start  > /dev/null 2>&1
+	    systemctl start watcher  > /dev/null 2>&1
 	    systemctl enable watcher  > /dev/null 2>&1
 	else
 	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
