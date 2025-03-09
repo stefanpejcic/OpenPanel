@@ -20,7 +20,7 @@ Minimum Requirements:
 - IPv4 address
 
 Supported OS:
-- **Ubuntu 22 and 24**
+- **Ubuntu 24** (Recommended)
 - **Debian 11 and 12**
 - **AlmaLinux 9.2, 9.4**
 - **RockyLinux 9.4**
