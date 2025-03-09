@@ -180,7 +180,7 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    PANEL_VERSION="1.1.0"
+	    PANEL_VERSION="1.1.2"
 	fi
 }
 
