@@ -605,7 +605,7 @@ docker_compose_up(){
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
-    #echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
+    echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
 
     # save it to /etc/my.cnf
     ln -s /etc/openpanel/mysql/host_my.cnf /etc/my.cnf  > /dev/null 2>&1
