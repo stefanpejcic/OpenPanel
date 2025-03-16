@@ -4,7 +4,7 @@ description: OpenPanel now supports Debian12 🎉
 slug: openpanel-supports-debian12
 authors: stefanpejcic
 tags: [OpenPanel, debian, news]
-image: https://openpanel.co/img/blog/openpanel_supports_debian12.png
+image: https://openpanel.com/img/blog/openpanel_supports_debian12.png
 hide_table_of_contents: true
 is_featured: false
 ---
@@ -26,10 +26,8 @@ We will support all current LTS versions of Debian, at this moment those are Deb
 
 While there are still a few minor issues remaining—ones that 99.9% of users will likely never encounter—I'm committed to resolving them as swiftly as possible.
 
-**Bugs on debian:**
-- phpMyAdmin version in docker images is not compatible with PHP 8.2+
 
-Please [give it a try](https://openpanel.co/install) and don't hesitate to reach out if you encounter any bugs. Your feedback is invaluable in improving OpenPanel!
+Please [give it a try](https://openpanel.com/install) and don't hesitate to reach out if you encounter any bugs. Your feedback is invaluable in improving OpenPanel!
 
 ---
 
