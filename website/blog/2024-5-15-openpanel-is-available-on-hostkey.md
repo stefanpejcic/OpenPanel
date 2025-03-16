@@ -4,7 +4,7 @@ description: OpenPanel can now be installed with a single click on HostKey VPS a
 slug: openpanel-is-available-on-hostkey
 authors: stefanpejcic
 tags: [OpenPanel, news, hostkey]
-image: https://openpanel.co/img/blog/openpanel-is-available-on-hostkey.png
+image: https://openpanel.com/img/blog/openpanel-is-available-on-hostkey.png
 hide_table_of_contents: true
 ---
  
