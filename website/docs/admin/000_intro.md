@@ -20,11 +20,7 @@ Minimum Requirements:
 - IPv4 address
 
 Supported OS:
-- **Ubuntu 22.04 and 24.04** (Recommended)
-- **Debian 11 and 12**
-- **AlmaLinux 9.2, 9.4**
-- **RockyLinux 9.4**
-- **CentOS 9**
+- **Ubuntu 24.04**
 
 :::info
 If you are using external firewall, the following ports should be opened:  `25` `53` `80` `443` `465` `993` `2083` `2087` `32768:60999`
