@@ -1,14 +1,9 @@
-<div align="center">
-
-[![discord](https://img.shields.io/badge/discord-join%20our%20server-5865F2.svg?style=flat-square&logo=discord)](https://discord.openpanel.com) [![Website](https://img.shields.io/badge/Website-Click%20here-blue.svg?style=flat-square)](https://openpanel.com/) [![Forums](https://img.shields.io/badge/Forums-Click%20here-red.svg?style=flat-square)](https://community.openpanel.org/) [![Documentation](https://img.shields.io/badge/Documenation-Click%20here-yellow.svg?style=flat-square)](https://openpanel.com/docs/) 
-
-</div>
 
 ## What is OpenPanel
 
 OpenPanel is a powerful and flexible web hosting control panel for Linux systems. Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
 
-**OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
+**OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly run multiple PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
 
 Deliver a **VPS-like experience** to your users at a fraction of the cost, with all-inclusive features such as **resource limiting, user isolation, WP Manager, and enhanced security** seamlessly integrated for worry-free hosting.
 
@@ -49,29 +44,26 @@ And unique features that simply made sense 💁 to us:
 
 ## OpenPanel vs OpenAdmin
 
-
 The **OpenAdmin** offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, configuring backups, and editing OpenPanel settings.
 
 The **OpenPanel** interface is the client-level panel where end-users can manage their enviroment, edit settings, install services, create websites and more.
 
 [![openpanel-vs-openadmin](/website/static/img/admin/openpanel_vs_openadmin.svg)](https://openpanel.com/docs/admin/intro/)
 
-## Community VS Enterprise 
-
-OpenPanel is available in two editions:
-
-- **[Community Edition](https://openpanel.com/product/openpanel-free-control-panel/)** is a free hosting control panel for up to 3 user accounts, suitable for VPS and private use.
-- **[Enterprise Edition](https://openpanel.com/product/openpanel-premium-control-panel/)** is a premium version that rootlesss docker for more isolation, suitable for web hosting providers.
-
 ## Supported OS
 
-OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Currently supported:
+OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel.
 
-- AlmaLinux 9
-- RockyLinux 9
-- CentOS 9.4
-- Debian 11 12
-- Ubuntu 22.04 & 24.04
+| **Officially Supported OS** | **Community Supported OS**                                   |
+|-----------------------------|---------------------------------------------------------------|
+| Ubuntu 24.04                | Ubuntu 22.04 *(Looking for maintainers)*                     |
+|                             | AlmaLinux 9 *(Looking for maintainers)*                      |
+|                             | RockyLinux 9 *(Looking for maintainers)*                     |
+|                             | CentOS 9.4 *(Looking for maintainers)*                       |
+|                             | Debian 11 12 *(Looking for maintainers)*                     |
+
+
+
 
 ## What do you mean by 'open' ?
 
