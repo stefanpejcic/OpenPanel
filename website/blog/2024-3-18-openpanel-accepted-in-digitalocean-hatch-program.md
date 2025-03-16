@@ -4,7 +4,7 @@ description: OpenPanel is now accepted in the DigitalOcean's hatch startups prog
 slug: openpanel-accepted-in-digitalocean-hatch-program
 authors: stefanpejcic
 tags: [OpenPanel, news, digitalocean]
-image: https://openpanel.co/img/blog/openpanel-accepted-in-digitalocean-hatch-program.png
+image: https://openpanel.com/img/blog/openpanel-accepted-in-digitalocean-hatch-program.png
 hide_table_of_contents: true
 ---
 
