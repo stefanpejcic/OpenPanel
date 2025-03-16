@@ -12,5 +12,5 @@ https://openpanel.com/install page allows you to customize the OpenPanel install
 
 <!--truncate-->
 
-[Advanced OpenPanel installer](https://openpanel.com/install) is now available and you can use it to view all the available flags when installing OpenPanel, install optional features anc change the configuration.
+[Advanced OpenPanel installer](https://openpanel.com/install) is now available and you can use it to view all the available flags when installing OpenPanel, install optional features and change the configuration.
 
