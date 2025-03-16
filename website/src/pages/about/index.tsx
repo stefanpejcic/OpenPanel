@@ -330,49 +330,6 @@ While we considered going fully open-source, we decided to keep certain parts pr
               margin: 0,
             }}
           >
-            Pricing 🏷️
-          </h4>
-<p>
-OpenPanel Is available in two options:  
-    <ul>
-        <li>
-        <a href="/product/openpanel-premium-control-panel/">Enterprise Edition</a> 
-            {" "}that can rival any premium panel in features and flexibility; 
-        </li>
-        <li>
-        <a href="/product/openpanel-free-control-panel/">Community Edition</a> 
-            {" "} funded by the Enterprise version, offering all the essential features needed by small agencies, freelancers, and hobby users.
-        </li>
-    </ul>
-</p>
-            <p>
-                And one promise we stand by—
-                <b>we will never charge per user or per website</b>
-                .
-</p>
-
-
-
-        </div>
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-<h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
             What is next ? 🔮
           </h4>
 <p>
