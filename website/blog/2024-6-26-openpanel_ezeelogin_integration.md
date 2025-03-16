@@ -4,7 +4,7 @@ description: Ezeelogin now supports auto-login to OpenPanel servers
 slug: openpanel-ezeelogin-integration
 authors: stefanpejcic
 tags: [OpenPanel, news, ezeelogin]
-image: https://openpanel.co/img/blog/openpanel_ezeelogin_integration.png
+image: https://openpanel.com/img/blog/openpanel_ezeelogin_integration.png
 hide_table_of_contents: true
 ---
 
