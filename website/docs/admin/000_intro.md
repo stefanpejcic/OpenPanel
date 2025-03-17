@@ -122,7 +122,7 @@ Password for user 'stefan' changed.
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To enable automatic updates, navigate to **OpenAdmin > General Settings** and check both the 'Auto Updates' and 'Auto Patches' options:
+To enable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Both':
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 
@@ -147,7 +147,7 @@ opencli config update autopatch yes
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
 
-To disable automatic updates, navigate to **OpenAdmin > General Settings** and uncheck the 'Auto Updates' and 'Auto Patches' options:
+To disable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Never':
 
 ![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
 
@@ -176,12 +176,7 @@ When a new update is available, you will receive a notification in the admin pan
 <Tabs>
   <TabItem value="openadmin-admin-update-now" label="With OpenAdmin" default>
 
-To manually update OpenPanel, navigate to **OpenAdmin > General Settings** and click on the "Update Now" button. NOTE: update is visible only if newer version is available.
-
-Step 1.             |  Step 2.
-:-------------------------:|:-------------------------:
-![openadmin update manually ](/img/admin/admin_jupdate_available.png) |  ![openadmin update manually 2 ](/img/admin/admin_jupdate_available2.png)
-
+To manually update OpenPanel, navigate to **OpenAdmin > Settings > Update Preferences** and click on the "Update Now" button. NOTE: update is visible only if newer version is available.
 
   </TabItem>
   <TabItem value="CLI-update-now" label="With OpenCLI">
