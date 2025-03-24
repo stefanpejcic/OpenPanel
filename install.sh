@@ -5,6 +5,7 @@
 # https://openpanel.com/install
 #
 # Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
+# Supported Architecture:  x86_64, aarch64
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
