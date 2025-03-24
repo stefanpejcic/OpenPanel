@@ -1,6 +1,8 @@
 #!/bin/bash
 # env added to pip and services files edited to remove lock files on startup
 
+cd /usr/local/admin/
+
 source /usr/local/admin/venv/bin/activate
 pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
 
