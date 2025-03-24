@@ -13,20 +13,13 @@ for dir in /home/*; do
             sed -i "/Listen 80/a \\
 $INSERT_TEXT" "$file"
             echo "Updated: $file"
-        else
-            echo "Text already exists in: $file, skipping update."
+    
+            if docker --context "$user" ps --format '{{.Names}}' | grep "apache"; then
+                cd /home/"$user"
+                docker --context "$user" compose down apache   
+                docker --context "$user" compose up -d apache
+                echo "Apache restarted for user: $user"
+            fi
         fi
     fi
-    cd /home/"$user"
-    if docker --context "$user" ps --format '{{.Names}}' | grep "apache"; then
-        docker --context "$user" compose down apache
-        #docker --context "$user" stop apache
-        #docker --context "$user" rm apache
-    
-        docker --context "$user" compose up -d apache
-        echo "Apache started for user: $user"
-    else
-        echo "Apache is not running for user: $user, skipping restart."
-    fi
-
 done
