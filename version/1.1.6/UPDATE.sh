@@ -17,11 +17,11 @@ $INSERT_TEXT" "$file"
             echo "Text already exists in: $file, skipping update."
         fi
     fi
-    
+    cd /home/"$user"
     if docker --context "$user" ps --format '{{.Names}}' | grep "apache"; then
         docker --context "$user" compose down apache
-        docker --context "$user" stop apache
-        docker --context "$user" rm apache
+        #docker --context "$user" stop apache
+        #docker --context "$user" rm apache
     
         docker --context "$user" compose up -d apache
         echo "Apache started for user: $user"
