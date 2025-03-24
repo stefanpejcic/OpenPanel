@@ -222,13 +222,13 @@ setup_progress_bar_script(){
 display_what_will_be_installed(){
  	echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
     	if [ -z "$SKIP_REQUIREMENTS" ]; then
-	if [ "$architecture" == "x86_64" ]; then
-  	echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
-	elif [ "$architecture" == "aarch64" ]; then
-  	echo -e "[OK] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
-   	else
-      	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
- 	fi
+		if [ "$architecture" == "x86_64" ]; then
+	  	echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
+		elif [ "$architecture" == "aarch64" ]; then
+	  	echo -e "[OK] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
+	   	else
+	      	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+	 	fi
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
  	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${current_ip} ${RESET}"
@@ -245,7 +245,7 @@ setup_progress_bar_script
 source "$PROGRESS_BAR_FILE"               # Source the progress bar script
 
 FUNCTIONS=(
-detect_os_and_package_manager             # detect os and package manager
+detect_os_cpu_and_package_manager             # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
 install_python312
 update_package_manager                    # update dnf/yum/apt-get
@@ -491,7 +491,7 @@ detect_installed_panels() {
 
 
 
-detect_os_and_package_manager() {
+detect_os_cpu_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
         . /etc/os-release
 
@@ -520,6 +520,11 @@ detect_os_and_package_manager() {
                 exit 1
                 ;;
         esac
+
+
+	architecture=$(lscpu | grep Architecture | awk '{print $2}')
+
+ 
 	 
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
@@ -618,8 +623,6 @@ docker_compose_up(){
 	cd /root && docker compose down > /dev/null 2>&1          # in case mysql was running
         docker --context default volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
-
-        architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
 		sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
