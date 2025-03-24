@@ -225,7 +225,7 @@ display_what_will_be_installed(){
 	if [ "$architecture" == "x86_64" ]; then
   	echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
 	elif [ "$architecture" == "aarch64" ]; then
-  	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+  	echo -e "[OK] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
    	else
       	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
  	fi
@@ -302,14 +302,6 @@ main() {
 
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
-
-        architecture=$(lscpu | grep Architecture | awk '{print $2}')
-
-        if [ "$architecture" == "aarch64" ]; then
-	    # https://github.com/stefanpejcic/openpanel/issues/63 
-            echo -e "${RED}ERROR: ARM CPU architecture is not yet supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}"
-	    exit 1
-        fi
 
         # check if the current user is root
         if [ "$(id -u)" != "0" ]; then
@@ -545,12 +537,10 @@ docker_compose_up(){
     curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 
-        architecture=$(lscpu | grep Architecture | awk '{print $2}')
-
-	if [ "$architecture" == "aarch64" ]; then
 		# need to download compose and add it as alias
 		debug_log curl -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
+  		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
 		debug_log chmod +x /usr/bin/docker-compose   
 
 		function_to_insert='docker() {
@@ -580,14 +570,6 @@ docker_compose_up(){
 		    source "$config_file"
 		fi
   
-        fi
-
-
-
-
-
-
-
 
 
 
@@ -634,20 +616,36 @@ docker_compose_up(){
     if [ "$REPAIR" = true ]; then
     	echo "Deleting all existing MySQL data in volume root_openadmin_mysql due to the '--repair' flag."
 	cd /root && docker compose down > /dev/null 2>&1          # in case mysql was running
-        docker volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
+        docker --context default volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
 
+        architecture=$(lscpu | grep Architecture | awk '{print $2}')
+
+        if [ "$architecture" == "aarch64" ]; then
+		sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
+  		# todo: replace in docker-compose.yml if needed!
+ 	fi
+	
    
     # from 0.2.5 we only start mysql by default
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
     # check if compose started the mysql container, and if is currently running
-    	mysql_container=$(docker compose ps -q openpanel_mysql)
-	if [ -z `docker ps -q --no-trunc | grep "$mysql_container"` ]; then
-        	radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
-	else
-		echo -e "[${GREEN} OK ${RESET}] MySQL service started successfuly"
+	mysql_container=$(docker compose ps -q openpanel_mysql)
+	
+	# Check if the container ID is found
+	if [ -z "$mysql_container" ]; then
+	    radovan 1 "ERROR: MySQL container not found. Please ensure Docker Compose is set up correctly."
+	    exit 1
 	fi
+	
+	# Check if the container is running
+	if ! docker --context default ps -q --no-trunc | grep -q "$mysql_container"; then
+	    radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
+	else
+	    echo -e "[${GREEN}OK${RESET}] MySQL service started successfully."
+	fi
+	
 
 
  	# needed from 1.0.0 for docker contexts to work both inside openpanel ui contianer nad host os
@@ -957,7 +955,7 @@ create_rdnc() {
 	
 	    echo "Generating rndc.key for DNS zone management."
 	
-	    debug_log timeout 30 docker run --rm \
+	    debug_log timeout 30 docker --context default run --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
@@ -1331,7 +1329,7 @@ generate_and_set_ssl_for_panels() {
 
 	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
 	    debug_log "Detected Hostname Domain: $HOSTNAME"
-     	    cd /root && docker compose up -d caddy               # start and generate ssl
+     	    cd /root && docker --context default compose up -d caddy               # start and generate ssl
 	    debug_log curl https://$HOSTNAME:2087                # let caddy genetate ssl
             # todo: check if ssl files exist, then restart admin panel
             debug_log systemctl restart admin                      # will start with domain and ssl automatically 
@@ -1666,7 +1664,14 @@ install_openadmin(){
 
         debug_log echo "Downloading OpenAdmin files"
 
-	git clone -b 110 --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
+
+        if [ "$architecture" == "aarch64" ]; then
+		branch="armcpu"
+  	else
+   		branch="110"
+ 	fi
+
+	git clone -b $branch --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
 
         cd $openadmin_dir
 	python3.12 -m venv ${openadmin_dir}venv
@@ -1696,17 +1701,12 @@ install_openadmin(){
 	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
  	fi
 
-    if [ "$architecture" == "x86_64" ]; then    
 	    echo "Testing if OpenAdmin service is available on default port '2087':"
 	    if ss -tuln | grep ':2087' >/dev/null; then
 		echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
 	    else
 	        radovan 1 "OpenAdmin service is NOT listening on port 2087."
 	    fi
-    else
-    echo "WARNING: OpenAdmin might not work on your CPU architecture! please use x86_64 instead."
-    fi
-
 
 }
 
