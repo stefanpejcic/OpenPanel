@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           09.03.2025
+# Last Modified:           24.03.2025
 #
 ################################################################################
 
@@ -222,12 +222,10 @@ setup_progress_bar_script(){
 display_what_will_be_installed(){
  	echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
     	if [ -z "$SKIP_REQUIREMENTS" ]; then
-		if [ "$architecture" == "x86_64" ]; then
-	  	echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
-		elif [ "$architecture" == "aarch64" ]; then
-	  	echo -e "[OK] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
+		if [ "$architecture" == "x86_64" ] || [ "$architecture" == "aarch64" ]; then
+	  		echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
 	   	else
-	      	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+	      		echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
 	 	fi
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
