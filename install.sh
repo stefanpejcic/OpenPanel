@@ -563,8 +563,11 @@ docker_compose_up(){
 		else
 		    radovan 1 "ERROR: Neither .bashrc nor .zshrc file found. Exiting."
 		fi
-		
-		# Check if the function already exists in the config file
+
+  		# for armcpu, or if user did sudo su to switch..
+		source ~/.bashrc
+
+  		# Check if the function already exists in the config file
 		if grep -q "docker() {" "$config_file"; then
 		    :
 		else
