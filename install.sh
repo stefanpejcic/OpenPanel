@@ -126,6 +126,7 @@ debug_log() {
         echo "[$timestamp] $message" | tee -a "$LOG_FILE"
         "$@" 2>&1 | tee -a "$LOG_FILE"
     else
+    # ❯❯❯
         # No terminal output, only log file
         echo "[$timestamp] COMMAND: $@" >> "$LOG_FILE"
         "$@" > /dev/null 2>&1
