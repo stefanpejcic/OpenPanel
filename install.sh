@@ -1257,6 +1257,7 @@ set_premium_features(){
     LICENSE="Enterprise"
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
+    systemctl restart admin > /dev/null 2>&1
     
     #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
