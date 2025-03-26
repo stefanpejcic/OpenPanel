@@ -1591,9 +1591,9 @@ EOF
 
      
         elif [ "$OS" == "debian" ]; then
-            echo "adding backports repository."
-            wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
-            cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
+            debug_log "adding backports repository."
+            debug_log wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            debug_log cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
 Suites: bookworm-backports
@@ -1607,7 +1607,7 @@ EOF
 
 	elif [[ "$OS" == "almalinux" || "$OS" == "rocky" || "$OS" == "centos" ]]; then
 
-	dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
+	debug_log dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
 
         debug_log $PACKAGE_MANAGER update -y
         debug_log $PACKAGE_MANAGER install -y python3.12   # venv is included!
