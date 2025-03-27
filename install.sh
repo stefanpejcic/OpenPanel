@@ -182,7 +182,7 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    PANEL_VERSION="1.1.6"
+	    PANEL_VERSION="1.1.7"
 	fi
 }
 
@@ -596,7 +596,6 @@ docker_compose_up(){
 	sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
     fi    
     
-
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
