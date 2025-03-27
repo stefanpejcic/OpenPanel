@@ -21,6 +21,3 @@ sidebar_position: 1
 - [OpenPanel and WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
 - [Building a Custom Docker image: pre-install IonCube Loader](/docs/articles/docker/building_a_docker_image_example_include_php_ioncubeloader/)
 
-
-# Troubleshooting
-- [High physical memory usage for OpenPanel account](/docs/articles/docker/high-memory-usage-for-openpanel-user/)
