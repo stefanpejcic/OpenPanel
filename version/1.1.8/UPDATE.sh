@@ -22,4 +22,10 @@ $INSERT_TEXT" "$file"
             fi
         fi
     fi
+
+    file="$dir/docker-compose.yml"
+    if [[ -f "$file" ]]; then
+        sed -i '/^\s*php-fpm\s*$/s/php-fpm/php-fpm --allow-to-run-as-root/' $file       
+    fi
+
 done
