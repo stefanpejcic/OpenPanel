@@ -348,6 +348,7 @@ parse_args() {
         echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
+        echo "  --uninstall                     Uninstall OpenPanel."
     }
 
 
@@ -441,7 +442,10 @@ while [[ $# -gt 0 ]]; do
         --enable-dev-mode)
             DEV_MODE=true
             ;;
-
+        --uninstall)
+            uninstall_openpanel
+            exit 0
+            ;;
      
         -h|--help)
             show_help
@@ -774,7 +778,7 @@ setup_firewall_service() {
                     echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
+                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
@@ -1794,6 +1798,72 @@ create_admin_and_show_logins_success_message() {
 
 }
 
+
+uninstall_openpanel() {
+    echo -e "${YELLOW}Starting OpenPanel uninstallation...${RESET}"
+
+    # Stop and disable services
+    echo -e "${YELLOW}Stopping and disabling services...${RESET}"
+    systemctl stop admin watcher floatingip > /dev/null 2>&1
+    systemctl disable admin watcher floatingip > /dev/null 2>&1
+
+    # Remove services
+    echo -e "${YELLOW}Removing service files...${RESET}"
+    rm -f /etc/systemd/system/admin.service
+    rm -f /etc/systemd/system/watcher.service
+    rm -f /etc/systemd/system/floatingip.service
+    systemctl daemon-reload
+
+    # Remove OpenPanel directories
+    echo -e "${YELLOW}Removing OpenPanel directories...${RESET}"
+    rm -rf /usr/local/admin
+    rm -rf /etc/openpanel
+    rm -rf /var/log/openpanel
+
+    # Remove Docker containers and volumes
+    echo -e "${YELLOW}Removing Docker containers and volumes...${RESET}"
+    docker compose -f /root/docker-compose.yml down --volumes > /dev/null 2>&1
+    docker volume rm root_openadmin_mysql > /dev/null 2>&1
+
+    # Remove additional configurations
+    echo -e "${YELLOW}Removing additional configurations...${RESET}"
+    rm -f /etc/cron.d/openpanel
+    rm -f /etc/profile.d/welcome.sh
+    rm -f /etc/logrotate.d/openpanel
+    rm -f /etc/logrotate.d/syslog
+    rm -f /etc/my.cnf
+    rm -f /hostfs
+
+    # Remove firewall rules
+    echo -e "${YELLOW}Removing firewall rules...${RESET}"
+    if command -v csf > /dev/null 2>&1; then
+        csf -f > /dev/null 2>&1
+        systemctl stop csf > /dev/null 2>&1
+        systemctl disable csf > /dev/null 2>&1
+        rm -rf /etc/csf
+    elif command -v ufw > /dev/null 2>&1; then
+        ufw disable > /dev/null 2>&1
+        rm -f /usr/local/bin/ufw-docker
+    fi
+
+    # Remove swap file if created
+    if grep -q "/swapfile" /etc/fstab; then
+        echo -e "${YELLOW}Removing swap file...${RESET}"
+        swapoff /swapfile > /dev/null 2>&1
+        rm -f /swapfile
+        sed -i '/\/swapfile/d' /etc/fstab
+    fi
+
+    # Final cleanup
+    echo -e "${YELLOW}Performing final cleanup...${RESET}"
+    rm -f /root/docker-compose.yml
+    rm -f /root/.env
+    rm -f /root/initialize.sql
+    rm -f /root/openpanel_install.lock
+    rm -f /root/openpanel_install.log
+
+    echo -e "${GREEN}OpenPanel has been successfully uninstalled.${RESET}"
+}
 
 # ======================================================================
 # Main program
