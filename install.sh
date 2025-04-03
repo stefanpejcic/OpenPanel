@@ -348,7 +348,6 @@ parse_args() {
         echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
-        echo "  --uninstall                     Uninstall OpenPanel and its associated files."
     }
 
 
@@ -441,11 +440,6 @@ while [[ $# -gt 0 ]]; do
 
         --enable-dev-mode)
             DEV_MODE=true
-            ;;
-
-        --uninstall)
-            uninstall_openpanel
-            exit 0
             ;;
 
      
@@ -780,7 +774,7 @@ setup_firewall_service() {
                     echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is already open."
+                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
@@ -838,10 +832,10 @@ setup_firewall_service() {
           open_port_csf 443                                                     # https
           open_port_csf 2083                                                    # user
           open_port_csf 2087                                                    # admin
-    	  open_port_csf 21                                                      # ftp
-          open_port_csf 21000:21010                                             # passive ftp
           open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") # ssh
           open_port_csf 32768:60999                                             # docker
+	  open_port_csf 21                                                      # ftp
+	  open_port_csf 21000:21010                                             # passive ftp
           set_csf_email_address
           csf -r    > /dev/null 2>&1
 	  echo "Restarting CSF service"
@@ -1682,7 +1676,7 @@ install_openadmin(){
    		branch="main"
  	fi
 
-	git clone -b $branch --single-branch https://github.com/getsuperhost/OpenPanel $openadmin_dir
+	git clone -b $branch --single-branch https://github.com/getsuperhost/openadmin $openadmin_dir
 
         cd $openadmin_dir
 	python3.12 -m venv ${openadmin_dir}venv
@@ -1800,71 +1794,6 @@ create_admin_and_show_logins_success_message() {
 
 }
 
-
-uninstall_openpanel() {
-    echo "Uninstalling OpenPanel..."
-
-    # Stop and remove Docker containers
-    if command -v docker &> /dev/null; then
-        echo "Stopping and removing Docker containers..."
-        docker compose down --volumes --remove-orphans > /dev/null 2>&1
-    fi
-
-    # Remove OpenPanel directories
-    echo "Removing OpenPanel directories..."
-    rm -rf /etc/openpanel /usr/local/admin /root/docker-compose.yml /root/.env /root/initialize.sql
-
-    # Remove services
-    echo "Removing OpenPanel services..."
-    systemctl stop admin watcher floatingip > /dev/null 2>&1
-    systemctl disable admin watcher floatingip > /dev/null 2>&1
-    rm -f /etc/systemd/system/admin.service /etc/systemd/system/watcher.service /etc/systemd/system/floatingip.service
-    systemctl daemon-reload
-
-    # Remove firewall rules
-    if command -v csf &> /dev/null; then
-        echo "Removing ConfigServer Firewall (CSF)..."
-        csf -f > /dev/null 2>&1
-        rm -rf /etc/csf
-    elif command -v ufw &> /dev/null; then
-        echo "Removing Uncomplicated Firewall (UFW) rules..."
-        ufw disable > /dev/null 2>&1
-    fi
-
-    # Remove cron jobs
-    echo "Removing OpenPanel cron jobs..."
-    rm -f /etc/cron.d/openpanel
-
-    # Remove swap file if created
-    if grep -q "/swapfile" /etc/fstab; then
-        echo "Removing swap file..."
-        swapoff /swapfile > /dev/null 2>&1
-        rm -f /swapfile
-        sed -i '/\/swapfile/d' /etc/fstab
-    fi
-
-    # Remove logrotate configurations
-    echo "Removing logrotate configurations..."
-    rm -f /etc/logrotate.d/openpanel /etc/logrotate.d/syslog
-
-    # Remove OpenCLI
-    echo "Removing OpenCLI..."
-    rm -rf /usr/local/opencli /usr/local/bin/opencli
-
-    # Remove MOTD and SSH tweaks
-    echo "Removing MOTD and SSH tweaks..."
-    rm -f /etc/profile.d/welcome.sh
-    rm -f /etc/ssh/sshd_config.d/99-ssh-openpanel-users-settings.conf
-    systemctl restart sshd > /dev/null 2>&1
-
-    echo -e "${GREEN}OpenPanel has been successfully uninstalled.${RESET}"
-}
-
-# Parse arguments for uninstall
-if [[ "$1" == "--uninstall" ]]; then
-    uninstall_openpanel
-    exit 0
-fi
 
 # ======================================================================
 # Main program
