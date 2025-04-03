@@ -1,4 +1,3 @@
-
 ## What is OpenPanel
 
 OpenPanel is a powerful and flexible web hosting control panel for Linux systems. Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
@@ -103,6 +102,16 @@ curl -X POST -H 'Content-Type: application/json' \
     '{"name":"choose_a_name","region":"nyc3","size":"s-2vcpu-4gb","image":"openpanel"}' \
     "https://api.digitalocean.com/v2/droplets"
 ```
+
+## Uninstallation
+
+To uninstall OpenPanel from your server, run the following command:
+
+```bash
+bash /path/to/install.sh --uninstall
+```
+
+This will remove all OpenPanel-related files, services, and configurations from your system.
 
 ## Support
 
