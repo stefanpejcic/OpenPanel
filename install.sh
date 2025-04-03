@@ -738,7 +738,7 @@ setup_firewall_service() {
 
 
               # play nice with docker
-              git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
+              git clone https://github.com/getsuperhost/csfpost-docker.sh > /dev/null 2>&1
               mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
               chmod +x /usr/local/csf/bin/csfpost.sh
               rm -rf csfpost-docker.sh             
@@ -1218,7 +1218,7 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
-    git clone -b 1.1 --single-branch  https://github.com/stefanpejcic/opencli.git
+    git clone -b 1.1 --single-branch  https://github.com/getsuperhost/opencli.git
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
@@ -1378,7 +1378,7 @@ download_skeleton_directory_from_github(){
     ATTEMPT=1
 
     while [ $ATTEMPT -le $MAX_RETRIES ]; do
-        git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+        git clone https://github.com/getsuperhost/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
         if [ -f "${CONFIG_FILE}" ]; then
             echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
@@ -1673,10 +1673,10 @@ install_openadmin(){
         if [ "$architecture" == "aarch64" ]; then
 		branch="armcpu"
   	else
-   		branch="110"
+   		branch="main"
  	fi
 
-	git clone -b $branch --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
+	git clone -b $branch --single-branch https://github.com/getsuperhost/OpenPanel $openadmin_dir
 
         cd $openadmin_dir
 	python3.12 -m venv ${openadmin_dir}venv
