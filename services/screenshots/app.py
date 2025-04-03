@@ -54,35 +54,20 @@ scheduler = BackgroundScheduler()
 scheduler.add_job(delete_old_screenshots, 'interval', days=1, start_date='2023-09-30 01:00:00')  # Runs daily at 1 AM
 scheduler.start()
 
-@app.route('/screenshot/<path:domain>', methods=['GET', 'DELETE'])
-def handle_screenshot(domain):
-    screenshot_filename = f'{md5(domain.encode()).hexdigest()}.png'
-    screenshot_path = os.path.join(CACHE_DIR, screenshot_filename)
-
-    if request.method == 'GET':
-        screenshot_path = capture_screenshot(domain)
-        if screenshot_path and os.path.exists(screenshot_path):
-            try:
-                os.utime(screenshot_path, None)  # Update access time
-                print(f"Sending screenshot file: {screenshot_path}")
-                return send_file(screenshot_path, mimetype='image/png')
-            except Exception as e:
-                print(f"Error sending file: {e}")
-                return jsonify({'error': 'Failed to send screenshot', 'details': str(e)}), 500
-        else:
-            return jsonify({'error': 'Failed to capture screenshot'}), 500
-
-    elif request.method == 'DELETE':
-        if os.path.exists(screenshot_path):
-            try:
-                os.remove(screenshot_path)
-                print(f"Deleted screenshot: {screenshot_path}")
-                return jsonify({'message': 'Screenshot deleted successfully'}), 200
-            except Exception as e:
-                print(f"Error deleting screenshot: {e}")
-                return jsonify({'error': 'Failed to delete screenshot', 'details': str(e)}), 500
-        else:
-            return jsonify({'error': 'Screenshot not found'}), 404
+@app.route('/screenshot/<path:domain>')
+def get_screenshot(domain):
+    screenshot_path = capture_screenshot(domain)
+    if screenshot_path and os.path.exists(screenshot_path):
+        try:
+            os.utime(screenshot_path)
+            print(f"Sending screenshot file: {screenshot_path}")
+            return send_file(screenshot_path, mimetype='image/png')
+        except Exception as e:
+            print(f"Error sending file: {e}")
+            return jsonify({'error': 'Failed to send screenshot', 'details': str(e)}), 500
+    else:
+        print(f"Screenshot path does not exist: {screenshot_path}")
+        return jsonify({'error': 'Failed to capture screenshot'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
