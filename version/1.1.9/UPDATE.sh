@@ -10,12 +10,12 @@ for dir in /home/*; do
         cp /etc/openpanel/ofelia/users.ini $dir/crons.ini
     fi
 
-    # todo: edit compose.yml file and .env for use
-    #
-    #
-    #  
+    : '
+    todo: edit compose.yml file and .env for use
+    
+    https://github.com/stefanpejcic/openpanel-configuration/commit/348eb898657d9d4443e37a79e79796e4d3a6306c
 
-
-
+    https://github.com/stefanpejcic/openpanel-configuration/commit/5230e2e90056ca669f8c83f79bbb2fd018728140
+    '
 
 done
