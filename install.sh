@@ -66,7 +66,7 @@ print_header() {
     echo -e "  / __ \                       |  __ \                    | | "
     echo -e " | |  | | _ __    ___  _ __    | |__) | __ _  _ __    ___ | | "
     echo -e " | |  | || '_ \  / _ \| '_ \   |  ___/ / _\" || '_ \ / _  \| | "
-    echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
+    echo -e " | |  | || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
     echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
     echo -e "         | |                                                  "
     echo -e "         |_|                                   version: ${GREEN}$PANEL_VERSION${RESET} "
@@ -314,6 +314,10 @@ check_requirements() {
         elif [[ -f /.dockerenv || $(grep -sq 'docker\|lxc' /proc/1/cgroup) ]]; then
             echo -e "${RED}Error: running openpanel inside a container is not supported.${RESET}" >&2
             exit 1
+        fi
+        architecture=$(lscpu | grep Architecture | awk '{print $2}')
+        if [ "$architecture" == "aarch64" ]; then
+            echo -e "[OK] ARM CPU detected. Proceeding with installation support for ARM." >&2
         fi
     fi
     

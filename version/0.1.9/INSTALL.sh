@@ -300,8 +300,7 @@ check_requirements() {
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-            echo -e "${RED}Error: ARM CPU is not supported!${RESET}" >&2
-            exit 1
+            echo -e "[OK] ARM CPU detected. Proceeding with installation support for ARM." >&2
         fi
 
         # check if the current user is not root

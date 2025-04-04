@@ -297,3 +297,5 @@ post_install_message() {
 
 # main execution of the script
 main
+
+# Placeholder: Add update logic for version 0.3.7 here.

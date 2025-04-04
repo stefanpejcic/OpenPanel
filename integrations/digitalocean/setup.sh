@@ -15,6 +15,9 @@
 # install latest panel!
 bash <(curl -sSL https://openpanel.org) --hostname=demo.openpanel.org 
 
+# Integrate consolidated build routine for Docker and docker-compose setup
+bash /home/getsuper/OpenPanel/scripts/build_common.sh
+
 # remove admin accounts
 truncate -s 0 /etc/openpanel/openadmin/users.db
 

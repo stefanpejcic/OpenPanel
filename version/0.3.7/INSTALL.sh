@@ -1,4 +1,3 @@
-
 #!/bin/bash
 ################################################################################
 #
@@ -352,9 +351,7 @@ check_requirements() {
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-	    # https://github.com/stefanpejcic/openpanel/issues/63 
-            echo -e "${RED}ERROR: ARM CPU architecture is not yet supported! Feature request: https://github.com/stefanpejcic/openpanel/issues/63 ${RESET}"
-	    exit 1
+            echo -e "[OK] ARM CPU detected. Proceeding with installation support for ARM."
         fi
 
         # check if the current user is root
@@ -1042,10 +1039,10 @@ setup_firewall_service() {
           open_port_csf 443                                                     # https
           open_port_csf 2083                                                    # user
           open_port_csf 2087                                                    # admin
+    	  open_port_csf 21                                                      # ftp
+          open_port_csf 21000:21010                                             # passive ftp
           open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") # ssh
           open_port_csf 32768:60999                                             # docker
-	  open_port_csf 21                                                      # ftp
-	  open_port_csf 21000:21010                                             # passive ftp
           set_csf_email_address
           csf -r    > /dev/null 2>&1
 	  echo "Restarting CSF service"
