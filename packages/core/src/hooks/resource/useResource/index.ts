@@ -88,111 +88,31 @@ export function useResource(
   args?: UseResourceLegacyProps | UseResourceParam,
 ): UseResourceReturnType {
   const { resources } = useContext(ResourceContext);
-
   const routerType = useRouterType();
-
   const params = useParsed();
 
-  const oldProps = {
-    resourceName: args && typeof args !== "string" ? args.resourceName : args,
-    resourceNameOrRouteName:
-      args && typeof args !== "string" ? args.resourceNameOrRouteName : args,
-    recordItemId:
-      args && typeof args !== "string" ? args.recordItemId : undefined,
-  };
-
-  const select = <T extends boolean = true>(
-    resourceName: string,
-    force = true,
-  ): SelectReturnType<T> => {
+  const selectResource = (resourceName: string, force = true) => {
     const isLegacy = routerType === "legacy";
     const pickedResource = pickResource(resourceName, resources, isLegacy);
-
     if (pickedResource) {
-      return {
-        resource: pickedResource,
-        identifier: pickedResource.identifier ?? pickedResource.name,
-      } as SelectReturnType<T>;
+      return { resource: pickedResource, identifier: pickedResource.identifier ?? pickedResource.name };
     }
-
     if (force) {
-      const resource: IResourceItem = {
-        name: resourceName,
-        identifier: resourceName,
-      };
-
-      const identifier = resource.identifier ?? resource.name;
-
-      return {
-        resource,
-        identifier,
-      } as SelectReturnType<T>;
+      const fallbackResource = { name: resourceName, identifier: resourceName };
+      return { resource: fallbackResource, identifier: fallbackResource.identifier };
     }
-
-    return undefined as SelectReturnType<T>;
+    return undefined;
   };
 
-  /**
-   * Legacy Router - Start
-   *
-   * using `useParams` and `route` to match resource and get params.
-   */
-  const resourceWithRoute = useResourceWithRoute();
-
-  const { useParams } = useRouterContext();
-
-  const legacyParams = useParams<Partial<ResourceRouterParams>>();
-
+  // Legacy Router Logic
   if (routerType === "legacy") {
-    const resourceKeyToCheck = oldProps.resourceNameOrRouteName
-      ? oldProps.resourceNameOrRouteName
-      : legacyParams.resource;
-
-    const legacyResource = resourceKeyToCheck
-      ? resourceWithRoute(resourceKeyToCheck)
-      : undefined;
-    const legacyId = oldProps?.recordItemId ?? legacyParams.id;
-    const legacyAction = legacyParams.action;
-    const legacyResourceName = oldProps?.resourceName ?? legacyResource?.name;
-    const legacyIdentifier = legacyResource?.identifier ?? legacyResource?.name;
-
-    return {
-      resources,
-      resource: legacyResource,
-      resourceName: legacyResourceName,
-      id: legacyId,
-      action: legacyAction,
-      select,
-      identifier: legacyIdentifier,
-    };
-  }
-  /** Legacy Router - End */
-
-  /** New Router */
-  let resource: IResourceItem | undefined = undefined;
-  // we try to pick the resource from props first
-  const identifier =
-    typeof args === "string" ? args : oldProps?.resourceNameOrRouteName;
-  if (identifier) {
-    const pickedFromProps = pickResource(identifier, resources);
-    if (pickedFromProps) {
-      resource = pickedFromProps;
-    } else {
-      resource = {
-        name: identifier as string,
-      };
-    }
-  } else if (params?.resource) {
-    resource = params.resource;
+    const legacyResource = selectResource(params.resource ?? args?.resourceNameOrRouteName);
+    return { ...legacyResource, resources, id: params.id, action: params.action };
   }
 
-  return {
-    resources,
-    resource,
-    resourceName: resource?.name,
-    id: params.id,
-    action: params.action,
-    select,
-    identifier: resource?.identifier ?? resource?.name,
-  };
+  // New Router Logic
+  const identifier = typeof args === "string" ? args : args?.resourceNameOrRouteName;
+  const resource = identifier ? selectResource(identifier)?.resource : undefined;
+
+  return { resources, resource, id: params.id, action: params.action, identifier: resource?.identifier };
 }

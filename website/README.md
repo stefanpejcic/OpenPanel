@@ -31,3 +31,7 @@ GIT_USER=<Your GitHub username> USE_SSH=true yarn deploy
 ```
 
 If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+
+### Optimization Tip
+
+To speed up builds during deployment, consider enabling caching for dependencies and build artifacts. For example, use a CI/CD system that supports caching, such as GitHub Actions or CircleCI.

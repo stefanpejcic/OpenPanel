@@ -443,8 +443,7 @@ while [[ $# -gt 0 ]]; do
             DEV_MODE=true
             ;;
         --uninstall)
-            uninstall_openpanel
-            exit 0
+            UNINSTALL=true
             ;;
      
         -h|--help)
@@ -462,7 +461,12 @@ done
 
 }
 
-
+# After parsing options, check for uninstall flag:
+if [ "$UNINSTALL" = true ]; then
+    echo "Uninstall option detected. Running uninstall script..."
+    bash /OpenPanel/uninstall.sh
+    exit 0
+fi
 
 
 detect_installed_panels() {
@@ -497,48 +501,33 @@ detect_installed_panels() {
 detect_os_cpu_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
         . /etc/os-release
-
         case $ID in
-            ubuntu)
+            ubuntu|debian)
                 PACKAGE_MANAGER="apt-get"
                 ;;
-            debian)
-                PACKAGE_MANAGER="apt-get"
-                ;;
-            fedora)
-                PACKAGE_MANAGER="dnf"
-                ;;
-            rocky)
-                PACKAGE_MANAGER="dnf"
-                ;;
-            centos)
-                PACKAGE_MANAGER="yum"
-                ;;
-            almalinux|alma)
-                PACKAGE_MANAGER="dnf"
+            fedora|rocky|almalinux|centos|rhel|sles)
+                if command -v dnf >/dev/null 2>&1; then
+                    PACKAGE_MANAGER="dnf"
+                else
+                    PACKAGE_MANAGER="yum"
+                fi
                 ;;
             *)
                 echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
-                echo -e "${RED}INSTALL FAILED${RESET}"
                 exit 1
                 ;;
         esac
-
-
-	architecture=$(lscpu | grep Architecture | awk '{print $2}')
-
- 
-	 
+        architecture=$(lscpu | grep Architecture | awk '{print $2}' | tr '[:lower:]' '[:upper:]')
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
-        echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
     fi
 }
 
 
 docker_compose_up(){
-    echo "Setting docker-compose.."
+    # Dependency: Ensure docker-compose is installed and aliased
+    echo "[DEPENDENCY] Setting docker-compose.."
     # install docker compose on dnf
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
@@ -742,7 +731,7 @@ setup_firewall_service() {
 
 
               # play nice with docker
-              git clone https://github.com/getsuperhost/csfpost-docker.sh > /dev/null 2>&1
+              git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
               mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
               chmod +x /usr/local/csf/bin/csfpost.sh
               rm -rf csfpost-docker.sh             
@@ -1222,7 +1211,7 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
-    git clone -b 1.1 --single-branch  https://github.com/getsuperhost/opencli.git
+    git clone -b 1.1 --single-branch  https://github.com/stefanpejcic/opencli.git
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
@@ -1382,7 +1371,7 @@ download_skeleton_directory_from_github(){
     ATTEMPT=1
 
     while [ $ATTEMPT -le $MAX_RETRIES ]; do
-        git clone https://github.com/getsuperhost/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+        git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
         if [ -f "${CONFIG_FILE}" ]; then
             echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
@@ -1589,7 +1578,7 @@ EOF
 	  	# https://almalinux.pkgs.org/8/almalinux-appstream-x86_64/python3.12-3.12.1-4.el8.x86_64.rpm.html
 	    debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
  
-	elif [ "$OS" == "alma" ] || [ "$OS" == "rocky" ] || [ "$OS" == "centos" ]; then
+	elif [ "$OS" == "alma" ] || [ "$OS" == "rocky" || [ "$OS" == "centos" ]; then
 	    debug_log $PACKAGE_MANAGER update -y
 	    debug_log $PACKAGE_MANAGER install -y python3.12
 
@@ -1677,10 +1666,10 @@ install_openadmin(){
         if [ "$architecture" == "aarch64" ]; then
 		branch="armcpu"
   	else
-   		branch="main"
+   		branch="110"
  	fi
 
-	git clone -b $branch --single-branch https://github.com/getsuperhost/openadmin $openadmin_dir
+	git clone -b $branch --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
 
         cd $openadmin_dir
 	python3.12 -m venv ${openadmin_dir}venv
@@ -1798,72 +1787,6 @@ create_admin_and_show_logins_success_message() {
 
 }
 
-
-uninstall_openpanel() {
-    echo -e "${YELLOW}Starting OpenPanel uninstallation...${RESET}"
-
-    # Stop and disable services
-    echo -e "${YELLOW}Stopping and disabling services...${RESET}"
-    systemctl stop admin watcher floatingip > /dev/null 2>&1
-    systemctl disable admin watcher floatingip > /dev/null 2>&1
-
-    # Remove services
-    echo -e "${YELLOW}Removing service files...${RESET}"
-    rm -f /etc/systemd/system/admin.service
-    rm -f /etc/systemd/system/watcher.service
-    rm -f /etc/systemd/system/floatingip.service
-    systemctl daemon-reload
-
-    # Remove OpenPanel directories
-    echo -e "${YELLOW}Removing OpenPanel directories...${RESET}"
-    rm -rf /usr/local/admin
-    rm -rf /etc/openpanel
-    rm -rf /var/log/openpanel
-
-    # Remove Docker containers and volumes
-    echo -e "${YELLOW}Removing Docker containers and volumes...${RESET}"
-    docker compose -f /root/docker-compose.yml down --volumes > /dev/null 2>&1
-    docker volume rm root_openadmin_mysql > /dev/null 2>&1
-
-    # Remove additional configurations
-    echo -e "${YELLOW}Removing additional configurations...${RESET}"
-    rm -f /etc/cron.d/openpanel
-    rm -f /etc/profile.d/welcome.sh
-    rm -f /etc/logrotate.d/openpanel
-    rm -f /etc/logrotate.d/syslog
-    rm -f /etc/my.cnf
-    rm -f /hostfs
-
-    # Remove firewall rules
-    echo -e "${YELLOW}Removing firewall rules...${RESET}"
-    if command -v csf > /dev/null 2>&1; then
-        csf -f > /dev/null 2>&1
-        systemctl stop csf > /dev/null 2>&1
-        systemctl disable csf > /dev/null 2>&1
-        rm -rf /etc/csf
-    elif command -v ufw > /dev/null 2>&1; then
-        ufw disable > /dev/null 2>&1
-        rm -f /usr/local/bin/ufw-docker
-    fi
-
-    # Remove swap file if created
-    if grep -q "/swapfile" /etc/fstab; then
-        echo -e "${YELLOW}Removing swap file...${RESET}"
-        swapoff /swapfile > /dev/null 2>&1
-        rm -f /swapfile
-        sed -i '/\/swapfile/d' /etc/fstab
-    fi
-
-    # Final cleanup
-    echo -e "${YELLOW}Performing final cleanup...${RESET}"
-    rm -f /root/docker-compose.yml
-    rm -f /root/.env
-    rm -f /root/initialize.sql
-    rm -f /root/openpanel_install.lock
-    rm -f /root/openpanel_install.log
-
-    echo -e "${GREEN}OpenPanel has been successfully uninstalled.${RESET}"
-}
 
 # ======================================================================
 # Main program

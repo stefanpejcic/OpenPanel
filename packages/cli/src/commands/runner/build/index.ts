@@ -22,26 +22,17 @@ const build = (program: Command) => {
             ),
         )
         .argument("[args...]")
-        .action(action);
-};
+        .action(async (args: string[], { platform }: { platform: ProjectTypes }) => {
+            const projectType = getProjectType(platform);
+            const binPath = projectScripts[projectType].getBin("build");
+            const command = projectScripts[projectType].getBuild(args);
 
-const action = async (
-    args: string[],
-    { platform }: { platform: ProjectTypes },
-) => {
-    const projectType =  getProjectType(platform);
+            // Run update notifier only if not already checked
+            await updateNotifier();
 
-    const binPath = projectScripts[projectType].getBin("build");
-    const command = projectScripts[projectType].getBuild(args);
-
-
-    await updateNotifier();
-
-    try {
-        await runScript(binPath, command);
-    } catch (error) {
-        process.exit(1);
-    }
+            // Execute the build script
+            await runScript(binPath, command);
+        });
 };
 
 export default build;

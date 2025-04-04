@@ -35,9 +35,9 @@
   ],
   "scripts": {
     "attw": "attw --pack .",
-    "build": "pnpm build:client && tsup && node ../shared/generate-declarations.js",
+    "build": "pnpm build:client && tsup --parallel && node ../shared/generate-declarations.js",
     "build:client": "cross-env NODE_ENV=production tsc && vite build --config src/client/vite.config.ts",
-    "dev": "pnpm dev:client & tsup --watch",
+    "dev": "pnpm dev:client & tsup --watch --parallel",
     "dev:client": "vite build --watch --config src/client/vite.config.ts",
     "prepare": "pnpm build",
     "publint": "publint --strict=true --level=suggestion",

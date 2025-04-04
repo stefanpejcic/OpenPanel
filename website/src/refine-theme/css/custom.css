@@ -154,7 +154,7 @@ html[data-theme="dark"] .refine-prose a.hash-link::before {
 }
 
 .refine-prose table {
-    @apply prose-table:border-none;
+    @apply table-auto border-collapse w-full;
 }
 
 .refine-prose table tr {
@@ -163,9 +163,7 @@ html[data-theme="dark"] .refine-prose a.hash-link::before {
 
 .refine-prose table th,
 .refine-prose table td {
-    @apply border border-gray-300 px-2 py-2 text-gray-800 dark:border-gray-600 dark:text-gray-100;
-    @apply text-base leading-6;
-    @apply align-top;
+    @apply border px-4 py-2;
 }
 
 .refine-prose table th {
@@ -230,6 +228,23 @@ p:has(> code) code {
 
 li a:has(> code) code {
     @apply !mx-0 !align-baseline;
+}
+
+/* Consolidated styles for admonitions */
+.admonition {
+    @apply rounded-lg p-4;
+}
+
+.admonition-info {
+    @apply bg-blue-100 text-blue-800;
+}
+
+.admonition-warning {
+    @apply bg-yellow-100 text-yellow-800;
+}
+
+.admonition-danger {
+    @apply bg-red-100 text-red-800;
 }
 
 /* admonition overrides */
