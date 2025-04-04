@@ -301,6 +301,9 @@ check_requirements() {
 
         if [ "$architecture" == "aarch64" ]; then
             echo -e "[OK] ARM CPU detected. Proceeding with installation support for ARM." >&2
+            echo "YES"
+        else
+            echo "NO"
         fi
 
         # check if the current user is not root
@@ -1260,3 +1263,5 @@ run_custom_postinstall_script
 
 
 # END main script execution
+
+# Placeholder: Installation script for OpenPanel version 0.1.9 remains to be implemented.

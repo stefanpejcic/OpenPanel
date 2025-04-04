@@ -21,7 +21,6 @@ TEMP_DIR="/tmp/"
 OPENPANEL_DIR="/usr/local/panel/"
 CURRENT_PANEL_VERSION=$(< ${OPENPANEL_DIR}/version)
 
-
 LOG_FILE="${OPENPANEL_LOG_DIR}admin/notifications.log"
 DEBUG_MODE=0
 
@@ -51,11 +50,6 @@ do
     fi
 done
 
-
-
-
-
-
 # HELPERS
 
 # Progress bar script
@@ -71,10 +65,10 @@ fi
 # Source the progress bar script
 source "$PROGRESS_BAR_FILE"
 
-# Dsiplay progress bar
+# Display progress bar
 FUNCTIONS=(
 
-    #notify user we started
+    # notify user we started
     print_header
 
     # update docker openpanel image
@@ -85,7 +79,7 @@ FUNCTIONS=(
 
     # ping us
     verify_license
-    
+
     docker_compose_up_with_newer_images
 
     # yay! we made it
@@ -110,52 +104,34 @@ update_progress() {
     draw_progress_bar $PERCENTAGE
 }
 
-
-
 main() {
     # Make sure that the progress bar is cleaned up when user presses ctrl+c
     enable_trapping
-    
-    # Create progress bar
     setup_scroll_area
     for func in "${FUNCTIONS[@]}"
     do
-        # Execute each function
         $func
         update_progress
     done
     destroy_scroll_area
 }
 
-
-
 # print fullwidth line
 print_space_and_line() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
-
-
 # END helper functions
-
-    
 
 # START MAIN FUNCTIONS
 
-
-
-# Function to write notification to log file
 write_notification() {
   local title="$1"
   local message="$2"
   local current_message="$(date '+%Y-%m-%d %H:%M:%S') UNREAD $title MESSAGE: $message"
-
   echo "$current_message" >> "$LOG_FILE"
 }
 
-
-
-# logo
 print_header() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e "   ____                         _____                      _  "
@@ -166,9 +142,7 @@ print_header() {
     echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
     echo -e "         | |                                                  "
     echo -e "         |_|                                                  "
-
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-
     echo -e "Starting update to OpenPanel version $NEW_PANEL_VERSION"
     echo -e ""
     echo -e "Changelog: https://openpanel.com/docs/changelog/$NEW_PANEL_VERSION"        
@@ -181,14 +155,11 @@ opencli_update(){
     echo ""
     mkdir -p ${TEMP_DIR}opencli
     wget -O ${TEMP_DIR}opencli.tar.gz "https://storage.googleapis.com/openpanel/${NEW_PANEL_VERSION}/opencli-main.tar.gz"  > /dev/null 2>&1
-
     cd ${TEMP_DIR} && tar -xzf opencli.tar.gz -C ${TEMP_DIR}opencli
     rm -rf /usr/local/admin/scripts/
-    
     cp -r ${TEMP_DIR}opencli/ /usr/local/admin/scripts/
     rm ${TEMP_DIR}opencli.tar.gz 
     rm -rf ${TEMP_DIR}opencli
-
     cp /usr/local/admin/scripts/opencli /usr/local/bin/opencli
     chmod +x /usr/local/bin/opencli
     chmod +x -R /usr/local/admin/scripts/
@@ -196,63 +167,50 @@ opencli_update(){
     source ~/.bashrc
 }
 
-
-
 run_custom_postupdate_script() {
-
     echo "Checking if post-update script is provided.."
     echo ""
-    # Check if the file /root/openpanel_run_after_update exists
     if [ -f "/root/openpanel_run_after_update" ]; then
         echo " "
         echo "Running post update script: '/root/openpanel_run_after_update'"
         echo "https://dev.openpanel.com/customize.html#After-update"
         bash /root/openpanel_run_after_update
-
     fi
 }
-
 
 download_new_admin() {
   cd $OPENADMIN_DIR
   git pull
-
   restart_admin_panel_if_needed() {
       echo "Restarting OpenAdmin service.."
       service admin restart
   }
-  
-  restart_admin_panel_if_needed # yes is needed in 0.3.7
-   
+  restart_admin_panel_if_needed
 }
-
 
 download_new_panel() {
-
     mkdir -p $OPENPANEL_DIR
-    echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
-    echo ""
-    docker pull openpanel/openpanel
+    if [ "$(uname -m)" = "aarch64" ]; then
+        echo "ARM (AArch64) detected. Pulling ARM-compatible OpenPanel image..."
+        docker pull openpanel/openpanel-arm || docker pull openpanel/openpanel
+    else
+        echo "Downloading latest OpenPanel image from https://hub.docker.com/r/openpanel/openpanel"
+        docker pull openpanel/openpanel
+    fi
 }
 
-
 docker_compose_up_with_newer_images(){
-
   echo "Restarting OpenPanel docker container.."
   echo ""
-  docker stop openpanel &&  docker rm openpanel
+  docker stop openpanel && docker rm openpanel
   echo ""
   cd /root  
   docker compose up -d --no-deps --build openpanel
-
-  mkdir -p /usr/local/panel/  > /dev/null 2>&1
+  mkdir -p /usr/local/panel/ > /dev/null 2>&1
   docker cp openpanel:/usr/local/panel/version /usr/local/panel/version
 }
 
-
-
 verify_license() {
-    # Get server ipv4
     current_ip=$(curl -s --max-time 10 https://ip.openpanel.com || wget -qO- --timeout=10 https://ip.openpanel.com)
     echo "Checking OpenPanel license for IP address: $current_ip" 
     echo ""
@@ -261,29 +219,17 @@ verify_license() {
     response=$(curl -s --max-time 10 -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.co/license-check)
 }
 
-
 celebrate() {
-
     print_space_and_line
-
     echo ""
     echo -e "${GREEN}OpenPanel successfully updated to ${NEW_PANEL_VERSION}.${NC}"
     echo ""
-
-    # remove the unread notification that there is new update
     sed -i 's/UNREAD New OpenPanel update is available/READ New OpenPanel update is available/' $LOG_FILE
-
-    # add notification that update was successful
     write_notification "OpenPanel successfully updated!" "OpenPanel successfully updated from $CURRENT_PANEL_VERSION to $NEW_PANEL_VERSION"
 }
 
-
-
 post_install_message() {
-
     print_space_and_line
-
-    # Instructions for seeking help
     echo -e "\nIf you experience any problems or need further assistance, please do not hesitate to reach out on our community forums or join our Discord server for support:"
     echo ""
     echo "👉 Forums: https://community.openpanel.org/"
@@ -292,8 +238,6 @@ post_install_message() {
     echo ""
     echo "Our community and support team are ready to help you!"
 }
-
-
 
 # main execution of the script
 main

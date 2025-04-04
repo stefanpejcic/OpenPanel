@@ -270,6 +270,8 @@ display_what_will_be_installed(){
   	echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
 	elif [ "$architecture" == "aarch64" ]; then
   	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+	model=$(lscpu | grep 'Model name:' | cut -d ':' -f2 | xargs)
+	echo -e "[INFO] Detected ARM CPU Model:    ${GREEN}${model}${RESET}"
    	else
       	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
  	fi
@@ -351,7 +353,9 @@ check_requirements() {
         architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
         if [ "$architecture" == "aarch64" ]; then
-            echo -e "[OK] ARM CPU detected. Proceeding with installation support for ARM."
+            echo -e "[OK] ARM CPU detected: YES" >&2
+        else
+            echo -e "[INFO] ARM CPU detected: NO" >&2
         fi
 
         # check if the current user is root
@@ -973,7 +977,7 @@ setup_firewall_service() {
                     echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open."
                     ports_opened=1
                 else
-                    echo -e "Port ${GREEN} ${port} ${RESET} is already open."
+                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is already open."
                 fi
             }
 
