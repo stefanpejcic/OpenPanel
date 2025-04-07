@@ -1,0 +1,49 @@
+name: Update Version
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up jq
+        run: sudo apt-get install -y jq
+
+      - name: Fetch latest Docker image version
+        id: get_version
+        run: |
+          response=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
+          PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
+          echo "PANEL_VERSION=$PANEL_VERSION" >> $GITHUB_ENV
+
+      - name: Check if version is valid and update files
+        if: startsWith(env.PANEL_VERSION, 'v') == false && env.PANEL_VERSION =~ '^[0-9]+\.[0-9]+\.[0-9]+$'
+        run: |
+          echo "Version is valid: $PANEL_VERSION"
+          
+          # Write version to version/LATEST
+          echo $PANEL_VERSION > version/LATEST
+          
+          # Update the version label in website/docusaurus.config.js
+          # This ensures we only update the label inside versions.current
+          sed -i "/versions: {/ , /}/s/label: \".*\"/label: \"$PANEL_VERSION\"/" website/docusaurus.config.js
+          
+          # Commit the changes
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add version/LATEST website/docusaurus.config.js
+          git commit -m "Update version to $PANEL_VERSION"
+          git push origin main
+
+      - name: Fail if version format is invalid
+        if: startsWith(env.PANEL_VERSION, 'v') == false && env.PANEL_VERSION !~ '^[0-9]+\.[0-9]+\.[0-9]+$'
+        run: |
+          echo "Invalid version format: $PANEL_VERSION"
+          exit 1
