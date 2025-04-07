@@ -18,7 +18,7 @@ To explore a inodes for a specific directory, click on the directory name in the
 
 To navigate to the parent directory, click on "Up One Level."
 
-![inodes_explorer_navigate.png](/img/panel/v2/files/inodes_explored-a16c510f178057359e2ac1673ed2813a.png)
+![inodes_explorer_navigate.png](/img/panel/v2/inodes_explored-a16c510f178057359e2ac1673ed2813a.png)
 
 ## Usage Example
 
