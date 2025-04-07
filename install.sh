@@ -1299,15 +1299,15 @@ set_email_address_and_email_admin_logins(){
                   local message="$2"
                   generate_random_token_one_time_only
                   TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")
-                                
-                  SSL=$(awk -F'=' '/^ssl/ {print $2}' "${CONFIG_FILE}")
-                
-                # Determine protocol based on SSL configuration
-                if [ "$SSL" = "yes" ]; then
-                  PROTOCOL="https"
-                else
-                  PROTOCOL="http"
-                fi
+		  
+                PROTOCOL="http"
+	        if [ "$SET_HOSTNAME_NOW" = true ]; then
+		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+	                 if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
+	                	PROTOCOL="https
+			fi
+	            fi
+	        fi
                 
                 # Send email using appropriate protocol
                 curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
