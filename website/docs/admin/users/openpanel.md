@@ -17,7 +17,7 @@ To access all OpenPanel users, navigate to OpenAdmin > Users.
 
 The Users page displays a table showcasing each user's Gravatar linked to their email address, username, assigned IP Address, hosting plan name, creation date of the account, a login link enabling user impersonation, and *manage* button to get detailed user overview.
 
-![openadmin users page](/img/admin/openadmin_users_page.png)
+![openadmin users page](/img/admin/openadmin_users_list.gif)
 
 Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
