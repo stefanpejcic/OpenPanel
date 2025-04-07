@@ -4,10 +4,6 @@ sidebar_position: 5
 
 # Inodes
 
-![inodes_explored.png](/img/panel/v1/files/inodes_explored.png)
-
-## Introduction to Inode Usage
-
 Inode usage is a critical aspect of managing your hosting environment. Inodes are data structures that store information about files and directories on your server. Monitoring and optimizing inode usage is vital to prevent issues related to inode limits.
 
 ## Inode Usage Chart
@@ -22,7 +18,7 @@ To explore a inodes for a specific directory, click on the directory name in the
 
 To navigate to the parent directory, click on "Up One Level."
 
-![inodes_explorer_navigate.png](/img/panel/v1/files/inodes_explorer_navigate.png)
+![inodes_explorer_navigate.png](/img/panel/v2/files/inodes_explored-a16c510f178057359e2ac1673ed2813a.png)
 
 ## Usage Example
 
