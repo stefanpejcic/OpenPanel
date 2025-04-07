@@ -1304,7 +1304,7 @@ set_email_address_and_email_admin_logins(){
 	        if [ "$SET_HOSTNAME_NOW" = true ]; then
 		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
 	                 if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
-	                	PROTOCOL="https
+	                	PROTOCOL="https"
 			fi
 	            fi
 	        fi
