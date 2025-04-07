@@ -9,3 +9,5 @@ Assign a PHP version to each domain. Changing the version updates the domain's c
 For each version, the current development status is displayed, highlighting domains using outdated or unsupported PHP versions that may require an update.
 
 Ensure you check your site's requirements before selecting the appropriate PHP version.
+
+![change version for domains](/img/panel/v2/openpanel_change_default_php.gif)
