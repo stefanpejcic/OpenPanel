@@ -24,7 +24,7 @@ jobs:
           echo "PANEL_VERSION=$PANEL_VERSION" >> $GITHUB_ENV
 
       - name: Check if version is valid and update files
-        if: startsWith(env.PANEL_VERSION, 'v') == false && env.PANEL_VERSION =~ '^[0-9]+\.[0-9]+\.[0-9]+$'
+        if: ${{ env.PANEL_VERSION != '' && (env.PANEL_VERSION != 'null') && (env.PANEL_VERSION | contains('.')) }}
         run: |
           echo "Version is valid: $PANEL_VERSION"
           
@@ -43,7 +43,7 @@ jobs:
           git push origin main
 
       - name: Fail if version format is invalid
-        if: startsWith(env.PANEL_VERSION, 'v') == false && env.PANEL_VERSION !~ '^[0-9]+\.[0-9]+\.[0-9]+$'
+        if: ${{ env.PANEL_VERSION == '' || env.PANEL_VERSION == 'null' }}
         run: |
           echo "Invalid version format: $PANEL_VERSION"
           exit 1
