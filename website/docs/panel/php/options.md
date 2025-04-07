@@ -8,7 +8,7 @@ The PHP Options page lets you modify the PHP version settings by editing the PHP
 
 Options are limited to the options that Administrator permitted.
 
-![ph options page](/static/img/panel/v2/php_options.png)
+![ph options page](/img/panel/v2/php_options.png)
 
 For more advanced users, the PHP.INI Editor can be used, if available.
 
