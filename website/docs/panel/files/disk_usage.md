@@ -4,7 +4,7 @@ sidebar_position: 4
 
 # Disk Usage
 
-![disk_usage.png](/img/panel/v1/files/disk_usage.png)
+![disk_usage.png](/img/panel/v2/disk_usage-1efbc5d2ebaeba60e4d2e1d8d903a36a.png)
 
 ## Introduction to Disk Usage
 
