@@ -182,7 +182,11 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-	    PANEL_VERSION="1.1.8"
+     	    response=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
+     	    PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
+     	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+     	    	PANEL_VERSION="1.2.0" # fallback if hub.docker.com unreachable!
+     	    fi    
 	fi
 }
 
