@@ -24,7 +24,7 @@ jobs:
           echo "PANEL_VERSION=$PANEL_VERSION" >> $GITHUB_ENV
 
       - name: Check if version is valid and update files
-        if: ${{ env.PANEL_VERSION != '' && (env.PANEL_VERSION != 'null') && (env.PANEL_VERSION | contains('.')) }}
+        if: ${{ env.PANEL_VERSION != '' && env.PANEL_VERSION != 'null' && contains(env.PANEL_VERSION, '.') }}
         run: |
           echo "Version is valid: $PANEL_VERSION"
           
