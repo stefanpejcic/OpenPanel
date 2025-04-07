@@ -4,6 +4,7 @@ sidebar_position: 2
 
 # Set Default PHP Version  
 
-Configure the default PHP version for new domains, terminal commands, and phpMyAdmin.  
+Configure the default PHP version for new domains.
 
-You can choose from installed PHP versions. To install a new version, visit the [Install PHP Version](/docs/panel/php/install) page.
+
+![change default](/img/panel/v2/openpanel_cahnge_default_php_version.gif)
