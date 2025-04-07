@@ -64,26 +64,6 @@ Updated load to 10
     
 To confirm receipt of a notification, select the checkmark icon located in front of it. Once a notification is confirmed, subsequent notifications of the same type will be logged if the issue persists. For instance, if a service is unavailable, the system will generate an initial notification. However, if you acknowledge the notification and the service remains unrecovered, the next time the check is executed, it will log another notification.
 
-Example notifications:
-
-On Server Reboot
-![reboot](/img/admin/dashboard/reboot.png)
-
-If service is inactive:
-![service](/img/admin/dashboard/service.png)
-
-If CPU usage is over a threshold:
-![cpu](/img/admin/dashboard/cpu.png)
-
-If new version of OpenPanel is available:
-![update](/img/admin/dashboard/update.png)
-
-If Memory usage is over a threshold:
-![ram](/img/admin/dashboard/ram.png)
-
-If system is running out of disk space:
-![disk](/img/admin/dashboard/disk.png)
-
 ### Email alerts
 
 To receive email alerts, simply add your email address to the 'Email for notifications' field or leave it empty to disable email alerts.
