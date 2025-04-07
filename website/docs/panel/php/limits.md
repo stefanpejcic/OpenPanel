@@ -4,6 +4,6 @@ sidebar_position: 4
 
 # Limits  
 
-View the current limits for installed PHP versions.  
+Overwrite php.ini values for any installed version.
 
-Limits can be modified in the `php.ini` file for each version using the PHP INI editor.
+![openpanel_edit_php_limits](/img/panel/v2/openpanel_edit_php_limits.gif)
