@@ -10,13 +10,13 @@ sidebar_class_name: green
 
 | Version| Release date | 
 |---|---|
-|__[1.2.0](/docs/changelog/1.2.0)__| April 14, 2025 | 
+|__[1.2.1](/docs/changelog/1.2.1)__| April 17, 2025 | 
 
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[1.1.9](/docs/changelog/1.1.9)__| April 05, 2025 | 
+|__[1.2.0](/docs/changelog/1.2.0)__| April 08, 2025 | 
 
 
 
@@ -24,6 +24,7 @@ sidebar_class_name: green
 
 | Version| Release date | 
 |---|---|
+|__[1.1.9](/docs/changelog/1.1.9)__| April 05, 2025 | 
 |__[1.1.8](/docs/changelog/1.1.8)__| April 01, 2025 | 
 |__[1.1.7](/docs/changelog/1.1.7)__| March 27, 2025 | 
 |__[1.1.6](/docs/changelog/1.1.6)__| March 24, 2025 | 
