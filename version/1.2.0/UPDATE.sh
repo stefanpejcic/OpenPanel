@@ -36,8 +36,30 @@ $INSERT_TEXT" "$file"
         cp "$file" "$BACKUP_FILE"
         echo "Backup created at $BACKUP_FILE"
         
-        cp /etc/openpanel/docker/compose/1.0/docker-compose.yml $file
-        # OVDE
+        
+        for dir in /home/*; do
+            # Extract the user name from the directory path
+            user=$(basename "$dir")
+        
+            # Change to the user's directory
+            cd /home/$user || continue
+        
+            # List the services for the user's Docker context
+            services=$(docker --context $user compose ps --services)
+
+            cp /etc/openpanel/docker/compose/1.0/docker-compose.yml $file
+        
+            # If services are found, proceed with stopping and restarting them
+            if [ -n "$services" ]; then
+                # Stop the services
+                docker --context $user compose down $services
+        
+                # Start the services in detached mode
+                docker --context $user compose up -d $services
+            else
+                echo "No services found for user $user"
+            fi
+        done
     fi
 
 done
