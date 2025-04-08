@@ -23,6 +23,14 @@ $INSERT_TEXT" "$file"
                 echo "Nginx restarted for user: $user"
             fi
         fi
+
+    # step 2. 
+    BACKUP_FILE="${file}.120_bak"
+    
+    # Create a backup before modifying
+    cp "$file" "$BACKUP_FILE"
+    echo "Backup created at $BACKUP_FILE"
+    # OVDE
     fi
 
 done
