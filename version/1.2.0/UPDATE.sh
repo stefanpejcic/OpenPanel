@@ -35,6 +35,8 @@ $INSERT_TEXT" "$file"
         BACKUP_FILE="${file}.120_bak"
         cp "$file" "$BACKUP_FILE"
         echo "Backup created at $BACKUP_FILE"
+        
+        cp /etc/openpanel/docker/compose/1.0/docker-compose.yml $file
         # OVDE
     fi
 
