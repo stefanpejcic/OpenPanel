@@ -596,9 +596,7 @@ docker_compose_up(){
 
     cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1 
     
-    if [ "$CUSTOM_VERSION" = true ]; then
-	sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
-    fi    
+    sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
     
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
