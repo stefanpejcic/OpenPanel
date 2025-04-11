@@ -1693,7 +1693,7 @@ install_openadmin(){
 	python3.12 -m venv ${openadmin_dir}venv
 
 	source ${openadmin_dir}venv/bin/activate
-        pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=3600 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
+        pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
 
      # on debian12 yaml is also needed to read conf files!
      if [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
