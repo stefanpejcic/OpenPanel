@@ -1405,6 +1405,8 @@ download_skeleton_directory_from_github(){
         radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
     fi
 
+    # added in 1.2.1
+    chmod a+x ${ETC_DIR}wordpress/wp-cli.phar
 
     # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
