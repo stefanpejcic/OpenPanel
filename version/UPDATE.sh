@@ -16,3 +16,7 @@ chmod +x /tmp/openpanel-update-$version && bash /tmp/openpanel-update-$version
 
 # STEP 4. clean up by removing the update script
 rm -rf /tmp/openpanel-update-$version
+
+# Fix for https://github.com/stefanpejcic/OpenPanel/issues/411
+chmod a+x /etc/openpanel/wordpress/wp-cli.phar
+
