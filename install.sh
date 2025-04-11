@@ -153,7 +153,7 @@ get_server_ipv4(){
 	IP_SERVER_3="https://ifconfig.me"
 
 	current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || \
-                 wget --timeout=2 -qO- $IP_SERVER_2 || \
+                 wget --inet4-only --timeout=2 -qO- $IP_SERVER_2 || \
                  curl --silent --max-time 2 -4 $IP_SERVER_3)
 
 	# If no site is available, get the ipv4 from the hostname -I
@@ -182,7 +182,7 @@ get_server_ipv4(){
 set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
-     	    response=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
+     	    response=$(curl -4 -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
      	    PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
      	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
      	    	PANEL_VERSION="1.2.0" # fallback if hub.docker.com unreachable!
@@ -203,20 +203,29 @@ setup_progress_bar_script(){
 	# Progress bar script
 	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 	PROGRESS_BAR_FILE="progress_bar.sh"
- 
+
 	# Check if wget is available
 	if command -v wget &> /dev/null; then
-	    wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	    wget --timeout=5 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	    if [ $? -ne 0 ]; then
+	        echo "ERROR: wget failed or timed out after 5 seconds while downloading from github"
+	 	echo "repeat with --debug flag to see where errored."
+	        exit 1
+	    fi
 	# If wget is not available, check if curl is available *(fallback for fedora)
-	elif command -v curl &> /dev/null; then
-	    curl -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	elif command -v curl -4 &> /dev/null; then
+	    curl -4 --max-time 5 -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	    if [ $? -ne 0 ]; then
+	        echo "ERROR: curl failed or timed out after 5 seconds while downloading progress_bar.sh"
+	        exit 1
+	    fi
 	else
 	    echo "Neither wget nor curl is available. Please install one of them to proceed."
 	    exit 1
 	fi
- 
+
 	if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-	    echo "ERROR: Failed to download progress_bar.sh - Github is not reachable by your server: https://raw.githubusercontent.com"
+	    echo "ERROR: Failed to download progress_bar.sh - Github may be unreachable from your server: $PROGRESS_BAR_URL"
 	    exit 1
 	fi
 }
@@ -542,11 +551,11 @@ docker_compose_up(){
     # install docker compose on dnf
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
-    curl -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
+    curl -4 -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
     debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 
 		# need to download compose and add it as alias
-		debug_log curl -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
 		debug_log chmod +x /usr/bin/docker-compose   
@@ -713,7 +722,7 @@ setup_firewall_service() {
           echo "Installing ConfigServer Firewall.."
         
           install_csf() {
-              wget https://download.configserver.com/csf.tgz > /dev/null 2>&1
+              wget --inet4-only https://download.configserver.com/csf.tgz > /dev/null 2>&1
               debug_log tar -xzf csf.tgz
 	      rm csf.tgz
               cd csf
@@ -884,7 +893,7 @@ setup_firewall_service() {
           sed -i 's/"CSF Deny Log"/"UFW Logs"/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
 	  sed -i 's/\/etc\/csf\/csf.deny/\/var\/log\/ufw.log/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
    
-          debug_log wget -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
+          debug_log wget --inet4-only -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
           debug_log chmod +x /usr/local/bin/ufw-docker
 
 
@@ -1312,7 +1321,7 @@ set_email_address_and_email_admin_logins(){
 	        fi
                 
                 # Send email using appropriate protocol
-                curl -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
+                curl -4 -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
                 
                 }
 
@@ -1337,7 +1346,7 @@ generate_and_set_ssl_for_panels() {
 	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
 	    debug_log "Detected Hostname Domain: $HOSTNAME"
      	    cd /root && docker --context default compose up -d caddy               # start and generate ssl
-	    debug_log curl https://$HOSTNAME:2087                # let caddy genetate ssl
+	    debug_log curl -4 https://$HOSTNAME:2087                # let caddy genetate ssl
             # todo: check if ssl files exist, then restart admin panel
             debug_log systemctl restart admin                      # will start with domain and ssl automatically 
 	fi
@@ -1365,7 +1374,7 @@ verify_license() {
     debug_log "echo Current time: $(date +%T)"
     server_hostname=$(hostname)
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
-    response=$(curl -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.com/license-check)
+    response=$(curl -4 -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.com/license-check)
     debug_log "echo Checking OpenPanel license for IP address: $current_ip"
     debug_log "echo Response: $response"
 }
@@ -1437,7 +1446,7 @@ send_install_log(){
     exec > /dev/tty
     exec 2>&1
     opencli report --public >> "$LOG_FILE"
-    curl -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php
+    curl -4 -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
@@ -1560,7 +1569,7 @@ install_python312() {
             debug_log add-apt-repository -y ppa:deadsnakes/ppa
         elif [ "$OS" == "debian" ]; then
             echo "Debian detected, adding backports repository."
-            wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
             cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
@@ -1594,7 +1603,7 @@ EOF
      
         elif [ "$OS" == "debian" ]; then
             debug_log "adding backports repository."
-            debug_log wget -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            debug_log wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
             debug_log cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
@@ -1643,7 +1652,7 @@ configure_coraza() {
 	if [ "$CORAZA" = true ]; then
 		echo "Installing CorazaWAF and setting OWASP core ruleset.."
 		debug_log mkdir -p /etc/openpanel/caddy/
-		debug_log wget https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
+		debug_log wget --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
 		debug_log git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/	
 	else
  		echo "Disabling CorazaWAF: setting caddy:latest docker image instead of openpanel/caddy-coraza"
@@ -1732,7 +1741,7 @@ create_admin_and_show_logins_success_message() {
     if [ "$SET_ADMIN_USERNAME" = true ]; then
        new_username=($custom_username)
     else
-       wget -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
+       wget --inet4-only -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
        
        if [ -f "/tmp/generate.sh" ]; then
 	       source /tmp/generate.sh
