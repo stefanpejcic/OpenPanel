@@ -28,3 +28,44 @@ for dir in /home/*; do
         sed -i 's/- APP_GROUP=${CONTEXT:-root}/- APP_GROUP=root/g' $file
     fi   
 done
+
+
+: '
+apt update && apt install msmtp msmtp-mta -y
+chmod a+x /usr/bin/msmtp
+
+Add 
+      - /usr/bin/msmtp:/usr/bin/msmtp:ro
+for each php service!
+
+
+
+create `/etc/msmtprc` for each user
+
+```
+# /etc/msmtprc
+defaults
+auth       off
+tls        off
+logfile    /var/log/msmtp.log
+
+account    default
+host       PUBLIC_IPV4_HERE
+port       25
+from       OPENPANEL_USERNAME@SERVER_HOSTNAME
+```
+
+edit ini files:
+
+replace
+```
+; sendmail_path = 
+```
+with
+
+```
+sendmail_path = /usr/bin/msmtp -t
+```
+
+reload those php services!
+'
