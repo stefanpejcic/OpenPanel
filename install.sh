@@ -21,6 +21,8 @@
 GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 RESET='\033[0m'
 export TERM=xterm-256color                                            # bug fix: tput: No value for $TERM and no -T specified
 export DEBIAN_FRONTEND=noninteractive
@@ -61,16 +63,55 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 
 # logo
 print_header() {
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo -e "   ____                         _____                      _  "
-    echo -e "  / __ \                       |  __ \                    | | "
-    echo -e " | |  | | _ __    ___  _ __    | |__) | __ _  _ __    ___ | | "
-    echo -e " | |  | || '_ \  / _ \| '_ \   |  ___/ / _\" || '_ \ / _  \| | "
-    echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
-    echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
-    echo -e "         | |                                                  "
-    echo -e "         |_|                                   version: ${GREEN}$PANEL_VERSION${RESET} "
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
+    local cols=$(tput cols)
+    local blue="\033[1;34m"
+    local cyan="\033[1;36m"
+    local white="\033[1;37m"
+    local reset="\033[0m"
+
+    clear
+
+    # Draw top border
+    printf "${blue}%*s${reset}\n" "$cols" '' | tr ' ' '='
+
+    # Logo with 3D effect using proper spacing and escaping
+    echo -e "${blue}   ██████╗ ██████╗ ███████╗███╗   ██╗    ██████╗  █████╗ ███╗   ██╗███████╗██╗      ${reset}"
+    echo -e "${blue}  ██╔═══██╗██╔══██╗██╔════╝████╗  ██║    ██╔══██╗██╔══██╗████╗  ██║██╔════╝██║      ${reset}"
+    echo -e "${blue}  ██║   ██║██████╔╝█████╗  ██╔██╗ ██║    ██████╔╝███████║██╔██╗ ██║█████╗  ██║      ${reset}"
+    echo -e "${blue}  ██║   ██║██╔═══╝ ██╔══╝  ██║╚██╗██║    ██╔═══╝ ██╔══██║██║╚██╗██║██╔══╝  ██║      ${reset}"
+    echo -e "${blue}  ╚██████╔╝██║     ███████╗██║ ╚████║    ██║     ██║  ██║██║ ╚████║███████╗███████╗ ${reset}"
+    echo -e "${blue}   ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═══╝    ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═══╝╚══════╝╚══════╝ ${reset}"
+
+    # Draw middle border
+    printf "${blue}%*s${reset}\n" "$cols" '' | tr ' ' '-'
+
+    # Version info box with 3D effect
+    echo -e "${cyan}   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓${reset}"
+    echo -e "${cyan}   ┃                3D Enhanced User Interface                ┃${reset}"
+    echo -e "${cyan}   ┃                Version: ${white}$PANEL_VERSION${cyan}                      ┃${reset}"
+    echo -e "${cyan}   ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛${reset}"
+
+    # Bottom border
+    printf "${blue}%*s${reset}\n" "$cols" '' | tr ' ' '='
+
+    # Simple loading animation
+    echo ""
+    for i in {0..100..10}; do
+        completed=$((i / 5))
+        remaining=$((20 - completed))
+
+        # Create progress bar
+        progress_bar="["
+        for ((j=0; j<completed; j++)); do progress_bar+="█"; done
+        for ((j=0; j<remaining; j++)); do progress_bar+="░"; done
+        progress_bar+="]"
+
+        printf "\r${cyan}   ⟫ Loading system... ${i}%% ${blue}${progress_bar}${reset}"
+        sleep 0.1
+    done
+
+    printf "\r${cyan}   ✓ System initialization complete                        ${reset}\n"
+    echo ""
 }
 
 
