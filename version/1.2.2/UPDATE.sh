@@ -8,7 +8,6 @@ for dir in /home/*; do
     user=$(basename "$dir")
 
     if [[ -f "$file" ]]; then
-        
         cp /etc/openpanel/varnish/default.vcl file="$dir/default.vcl"
         echo "- Updated Varnish default.vcl template for user: $user"
         
@@ -17,7 +16,15 @@ for dir in /home/*; do
 # CRONJOBS\nCRON_CPU="0.1"\nCRON_RAM="0.25G"' "$file"
 
             echo "- Updated $file for user: $user to add CRON limits"
-        fi
+        fi       
     fi
-    
+
+    file="$dir/docker-compose.yml"
+    user=$(basename "$dir")
+
+    if [[ -f "$file" ]]; then
+        echo "Fixing permission issues in PHP containers.. You should restart services manually to re-apply changes."
+        sed -i 's/- APP_USER=${CONTEXT:-root}/- APP_USER=root/g' $file
+        sed -i 's/- APP_GROUP=${CONTEXT:-root}/- APP_GROUP=root/g' $file
+    fi   
 done
