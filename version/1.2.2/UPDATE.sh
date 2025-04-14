@@ -30,17 +30,18 @@ for dir in /home/*; do
 done
 
 
+
+
 : '
+
+1. check if enterprise license and mailserver running
+
+2. install 
 apt update && apt install msmtp msmtp-mta -y
 chmod a+x /usr/bin/msmtp
 
-Add 
-      - /usr/bin/msmtp:/usr/bin/msmtp:ro
-for each php service!
 
-
-
-create `/etc/msmtprc` for each user
+3. for all existing users create `/etc/msmtprc`
 
 ```
 # /etc/msmtprc
@@ -55,7 +56,13 @@ port       25
 from       OPENPANEL_USERNAME@SERVER_HOSTNAME
 ```
 
-edit ini files:
+4. update compsoe files:
+Add 
+      - /usr/bin/msmtp:/usr/bin/msmtp:ro
+      - ./msmtprc:/etc/msmtprc:ro
+for each php service!
+
+5. edit ini files:
 
 replace
 ```
@@ -67,5 +74,6 @@ with
 sendmail_path = /usr/bin/msmtp -t
 ```
 
-reload those php services!
+6. reload those php services!
+
 '
