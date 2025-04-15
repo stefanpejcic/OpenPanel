@@ -1,4 +1,3 @@
-
 ## What is OpenPanel
 
 OpenPanel is a powerful and flexible web hosting control panel for Linux systems. Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
@@ -56,14 +55,13 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 
 | **Officially Supported OS** | **Community Supported OS**                                   |
 |-----------------------------|---------------------------------------------------------------|
-| Ubuntu 24.04                | Ubuntu 22.04 *(Looking for maintainers)*                     |
-|                             | AlmaLinux 9 *(Looking for maintainers)*                      |
-|                             | RockyLinux 9 *(Looking for maintainers)*                     |
+| Ubuntu 24.04 (x86_64, ARM) | Ubuntu 22.04 *(Looking for maintainers)*                     |
+|                             | AlmaLinux 9 *(Looking for maintainers, ARM support in progress)* |
+|                             | RockyLinux 9 *(Looking for maintainers, ARM support in progress)* |
 |                             | CentOS 9.4 *(Looking for maintainers)*                       |
-|                             | Debian 11 12 *(Looking for maintainers)*                     |
+|                             | Debian 11 12 *(Looking for maintainers, ARM support in progress)* |
 
-
-
+> **Note**: ARM (AArch64) support is under active development. Some features may require additional testing or adjustments.
 
 ## What do you mean by 'open' ?
 
@@ -81,17 +79,17 @@ While OpenPanel itself is not 100% open source, we are committed to transparency
 
 ## Installation
 
-To install on self-hosted VPS/Dedicated server: 
+To install on self-hosted VPS/Dedicated server:
 
 ```bash
 bash <(curl -sSL https://openpanel.org)
 ```
 
-To see more details to configure server on installation, **please visit**: https://openpanel.com/install 
+To see more details to configure server on installation, **please visit**: https://openpanel.com/install
 
 ----
 
-Spin a 1-click droplet on DigitalOcean: 
+Spin a 1-click droplet on DigitalOcean:
 
 [![droplet](/website/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
 
@@ -109,5 +107,3 @@ curl -X POST -H 'Content-Type: application/json' \
 Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
-
-
