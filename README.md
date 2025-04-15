@@ -24,6 +24,7 @@ Some of the features worth mentioning are:
 - Built-in [REDIS](https://openpanel.com/docs/panel/caching/Redis) and [Memcached](https://openpanel.com/docs/panel/caching/Memcached) object caching.
 
 And unique features that simply made sense 💁 to us:
+
 - User and admin panels are completelly isolated when needed
 - SSL is automatically generated and renewed
 - Services auto-start only when needed so resources are not wasted
@@ -85,7 +86,7 @@ To install on self-hosted VPS/Dedicated server:
 bash <(curl -sSL https://openpanel.org)
 ```
 
-To see more details to configure server on installation, **please visit**: https://openpanel.com/install
+To see more details to configure server on installation, **please visit**: <https://openpanel.com/install>
 
 ----
 
@@ -93,8 +94,8 @@ Spin a 1-click droplet on DigitalOcean:
 
 [![droplet](/website/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
 
-
 DigitalOcean API:
+
 ```bash
 curl -X POST -H 'Content-Type: application/json' \
      -H 'Authorization: Bearer '$TOKEN'' -d \
