@@ -8,7 +8,7 @@ import {
 import { LandingHeroCenterSvg } from "./icons/landing-hero-center";
 import { LandingHeroGridSvg } from "./icons/landing-hero-grid";
 import { LandingHeroAntdIcon } from "./icons/landing-hero/antd";
-import { LandingHeroAppwriteIcon } from "./icons/landing-hero/appwrite";
+import { LandingHeroOpenRestyIcon } from "./icons/landing-hero/openresty";
 import { LandingHeroAuth0Icon } from "./icons/landing-hero/auth0";
 import { LandingHeroChakraUIIcon } from "./icons/landing-hero/chakra";
 import { LandingHeroGoogleIcon } from "./icons/landing-hero/google";
@@ -152,7 +152,7 @@ const backendItems: ItemType[] = [
     {
         name: "LiteSpeed",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroAppwriteIcon
+            <LandingHeroOpenRestyIcon
                 {...props}
                 className={clsx(
                     "text-gray-1000 dark:text-gray-0",
