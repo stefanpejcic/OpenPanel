@@ -27,7 +27,6 @@ export DEBIAN_FRONTEND=noninteractive
 # ======================================================================
 # Defaults for environment variables
 CUSTOM_VERSION=false                                                  # default version is latest
-# Removed unused INSTALL_TIMEOUT variable as it was not used in the script.
 DEBUG=false                                                           # verbose output for debugging failed install
 SKIP_APT_UPDATE=false                                                 # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
