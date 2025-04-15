@@ -1,7 +1,9 @@
 #!/bin/bash
 
 echo "Donwloading template for OpenResty"
+
 wget -O /etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/1.1/docker_openresty_domain.conf
+mkdir -p /etc/openpanel/openresty/
 wget -O /etc/openpanel/openresty/nginx.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openresty/nginx.conf
 
 
