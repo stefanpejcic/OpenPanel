@@ -150,7 +150,7 @@ const backendItems: ItemType[] = [
         color: "#E0234E",
     },
     {
-        name: "LiteSpeed",
+        name: "OpenResty",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
             <LandingHeroOpenRestyIcon
                 {...props}
