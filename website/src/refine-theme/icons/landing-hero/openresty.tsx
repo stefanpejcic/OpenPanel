@@ -13,7 +13,6 @@ export const LandingHeroOpenRestyIcon = (props: React.SVGProps<SVGSVGElement>) =
         xmlns="http://www.w3.org/2000/svg"
         {...props}
     >
-    <use xlink:href="#A" x=".5" y=".5" />
     <symbol id="A" overflow="visible">
         <g stroke-linejoin="miter" stroke-width=".5">
             <path d="M4.568 45.44c12.649.29 17.036.87 26.321 1.753 5.127 10.439 4.91 8.245 7.066 20.469-8.34-9.485-20.866-19.538-33.769-22.304" fill="#b1db9e" stroke="#b1db9e" />
