@@ -598,7 +598,7 @@ docker_compose_up(){
     cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 
     # compose doesnt alllow /
-    cd /root || exit
+    cd /root || radovan 1 "ERROR: Failed to change directory to /root."
 
     rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default my.cnf, and on repair we already have symlink and .env
     cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
