@@ -1,7 +1,15 @@
 #!/bin/bash
 
+echo "Donwloading template for OpenResty"
+wget -O /etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/1.1/docker_openresty_domain.conf
+wget -O /etc/openpanel/openresty/nginx.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openresty/nginx.conf
+
+
 echo "Updating template: /etc/openpanel/varnish/default.vcl"
 wget -O /etc/openpanel/varnish/default.vcl https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl
+
+
+
 
 for dir in /home/*; do
     file="$dir/.env"
@@ -17,6 +25,12 @@ for dir in /home/*; do
 
             echo "- Updated $file for user: $user to add CRON limits"
         fi       
+
+        cp /etc/openpanel/openresty/nginx.conf file="$dir/openresty.conf"
+        echo "- Created openresty settings  template for user: $user" 
+        # TODO:
+        # edit .env
+        # and edit docker-compose.yml
     fi
 
     file="$dir/docker-compose.yml"
