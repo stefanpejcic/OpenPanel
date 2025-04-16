@@ -11,7 +11,8 @@ echo "Updating template: /etc/openpanel/varnish/default.vcl"
 wget -O /etc/openpanel/varnish/default.vcl https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl
 
 
-
+echo "Extending list of forbidden usernames: /etc/openpanel/openadmin/config/forbidden_usernames.txt "
+wget -O /etc/openpanel/openadmin/config/forbidden_usernames.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/forbidden_usernames.txt
 
 for dir in /home/*; do
     file="$dir/.env"
