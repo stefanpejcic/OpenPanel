@@ -9,7 +9,7 @@ OpenPanel applies the following rules when you create or modify a OpenPanel user
 
 Usernames may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain less than **3** characters.
-- Usernames cannot contain more than **16** characters.
+- Usernames cannot contain more than **20** characters.
 
 ### OpenAdmin
 OpenAdmin applies the following rules when you create or modify an admin username:
