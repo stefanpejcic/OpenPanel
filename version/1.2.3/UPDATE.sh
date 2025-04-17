@@ -1,19 +1,6 @@
 #!/bin/bash
 
-echo "repeating steps from 1.2.2 doe to bug in update script not downloading these extra steps on 1.2.2"
-echo ""
-echo "Purging old openpanel/openpanel-ui images.."
-all_images=$(docker --context default images --format "{{.Repository}} {{.ID}}" | grep "^openpanel/openpanel-ui" | awk '{print $2}')
-used_images=$(docker --context default ps --format "{{.Image}}" | xargs -n1 docker inspect --format '{{.Id}}' 2>/dev/null | sort | uniq)
-for img in $all_images; do
-    if echo "$used_images" | grep -q "$img"; then
-        echo "⏩ Skipping in-use image: $img"
-    else
-        echo "🗑️ Deleting unused image: $img"
-        docker rmi "$img"
-    fi
-done
-
+echo "repeating steps from 1.2.2 due to bug in update script not downloading these extra steps on 1.2.2"
 
 echo ""
 echo "Downloading template for OpenResty"
