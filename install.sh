@@ -281,8 +281,9 @@ set_system_cronjob                        # setup crons, must be after csf
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
 log_dirs				  # for almalinux
+download_ui_image                         # pull openpanel-ui image
 setup_swap                                # swap space
-#####clean_apt_and_dnf_cache                   # clear
+clean_apt_and_dnf_cache                   # clear
 verify_license                            # ping our server
 )
 
@@ -1340,6 +1341,15 @@ generate_and_set_ssl_for_panels() {
 	fi
     fi
 }
+
+
+
+download_ui_image() {
+        # added in 0.2.2 to pre-pull image so its ready on acocunt create
+        debug_log "Pulling OpenPanel image in background (not starting the service).."
+        nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
+}
+
 
 
 setup_redis_service() {
