@@ -37,6 +37,6 @@ Log in using your assigned username and password.
 
 ## Support
 
-Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
+Our [Community](https://community.openpanel.org/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
