@@ -99,6 +99,7 @@ read -r -d '' OPENRESTY_BLOCK <<'EOF'
           memory: "${OPENRESTY_RAM:-0.5G}"
     networks:
       - www
+
 EOF
 
 INDENTED_BLOCK=$(echo "$OPENRESTY_BLOCK" | sed 's/^/  /')
