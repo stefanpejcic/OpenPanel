@@ -85,29 +85,59 @@ OpenPanel checks the following file to determine whether to reserve or restrict 
 
 Currently reserved usernames:
 
-- test
-- restart
-- reboot
-- shutdown
-- exec
-- root
-- admin
-- ftp
-- lsws
-- litespeed
+
+
 - 1000
-- vsftpd
-- httpd
-- apache2
+- admin
 - apache
+- apache2
+- backup
+- busybox
+- cron
 - docker
-- podman
-- nginx
-- php
+- elasticsearch
+- exec
+- filebrowser
+- ftp
+- httpd
+- litespeed
+- lsws
+- mariadb
+- memcached
+- minecraft
+- mssql
 - mysql
 - mysqld
-- www-data
-- openpanel
+- nginx
 - openadmin
+- openpanel
+- openresty
+- opensearch
+- pgadmin
+- php
+- php-fpm-5.6
+- php-fpm-7.0
+- php-fpm-7.1
+- php-fpm-7.2
+- php-fpm-7.3
+- php-fpm-7.4
+- php-fpm-8.0
+- php-fpm-8.1
+- php-fpm-8.2
+- php-fpm-8.3
+- php-fpm-8.4
+- phpmyadmin
+- podman
+- postgres
+- reboot
+- redis
+- restart
+- root
+- shutdown
+- test
+- user_service
+- varnish
+- vsftpd
+- www-data
 
 To reserve a certain username, simply add it to the forbidden_usernames.txt file.
