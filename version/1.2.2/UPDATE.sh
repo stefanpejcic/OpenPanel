@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Donwloading template for OpenResty"
+echo "Downloading template for OpenResty"
 
 wget -O /etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf https://github.com/stefanpejcic/openpanel-configuration/blob/main/nginx/vhosts/1.1/docker_openresty_domain.conf
 mkdir -p /etc/openpanel/openresty/
@@ -31,9 +31,34 @@ for dir in /home/*; do
 
         cp /etc/openpanel/openresty/nginx.conf file="$dir/openresty.conf"
         echo "- Created openresty settings  template for user: $user" 
-        # TODO:
-        # edit .env
-        # and edit docker-compose.yml
+
+                # Check if the file already contains OPENRESTY config
+                    if grep -q '^VARNISH_VERSION=' "$file" && \
+                       grep -q '^VARNISH_CPU=' "$file" && \
+                       grep -q '^VARNISH_RAM=' "$file" && \
+                       ! grep -q '^OPENRESTY_VERSION=' "$file" && \
+                       ! grep -q '^OPENRESTY_CPU=' "$file" && \
+                       ! grep -q '^OPENRESTY_RAM=' "$file"; then
+                    
+                        awk '
+                            BEGIN { inserted=0 }
+                            {
+                                print
+                                if ($0 ~ /^VARNISH_RAM=/ && inserted == 0) {
+                                    print "# OPENRESTY"
+                                    print "OPENRESTY_VERSION=\"bullseye-fat\""
+                                    print "OPENRESTY_CPU=\"0.5\""
+                                    print "OPENRESTY_RAM=\"0.5G\""
+                                    inserted=1
+                                }
+                            }
+                        ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+                    
+                        echo "- Inserted OPENRESTY config after VARNISH_RAM in $file for user: $user"
+                    else
+                        echo "- Skipped OPENRESTY config for $user (missing VARNISH or already has OPENRESTY)"
+                    fi
+
     fi
 
     file="$dir/docker-compose.yml"
@@ -44,8 +69,69 @@ for dir in /home/*; do
         echo "Fixing permission issues in PHP containers.. You should restart services manually to re-apply changes."
         sed -i 's/- APP_USER=${CONTEXT:-root}/- APP_USER=root/g' $file
         sed -i 's/- APP_GROUP=${CONTEXT:-root}/- APP_GROUP=root/g' $file
+
+
+        # Check if 'openresty:' already exists
+        if grep -q "^  openresty:" "$file"; then
+            echo "✅ 'openresty' service already exists in $file."
+            exit 0
+        fi
+
+# Define the openresty service block
+read -r -d '' OPENRESTY_BLOCK <<'EOF'
+  openresty:
+    image: openresty/openresty:${OPENRESTY_VERSION:-bullseye-fat}
+    container_name: openresty
+    restart: always
+    ports:
+      - "${PROXY_HTTP_PORT:-${HTTP_PORT}}"
+      - "${HTTPS_PORT}"
+    working_dir: /var/www/html
+    volumes:
+      # - ./openresty.conf:/etc/openresty/nginx.conf:ro # TODO
+      - webserver_data:/etc/nginx/conf.d
+      - html_data:/var/www/html/                          # Website files
+      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs
+    deploy:
+      resources:
+        limits:
+          cpus: "${OPENRESTY_CPU:-0.5}"
+          memory: "${OPENRESTY_RAM:-0.5G}"
+    networks:
+      - www
+EOF
+
+# Find the line number where 'nginx:' is defined
+NGINX_LINE=$(grep -n "^  nginx:" "$file" | cut -d: -f1)
+
+if [ -z "$NGINX_LINE" ]; then
+    echo "❌ 'nginx:' service not found. Cannot determine insertion point."
+    exit 1
+fi
+
+# Insert the openresty block above the nginx line
+awk -v insert_line="$NGINX_LINE" -v new_block="$OPENRESTY_BLOCK" '
+NR == insert_line { print new_block }
+{ print }
+' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
+
+        echo "✅ 'openresty' service added in file $file"
+       
     fi   
 done
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 echo "Purging old openpanel/openpanel-ui images.."
