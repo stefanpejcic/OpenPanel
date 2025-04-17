@@ -29,7 +29,7 @@ for dir in /home/*; do
             echo "- Updated $file for user: $user to add CRON limits"
         fi       
 
-        cp /etc/openpanel/openresty/nginx.conf file="$dir/openresty.conf"
+        cp /etc/openpanel/openresty/nginx.conf $dir/openresty.conf
         echo "- Created openresty settings  template for user: $user" 
 
                 # Check if the file already contains OPENRESTY config
@@ -101,7 +101,7 @@ read -r -d '' OPENRESTY_BLOCK <<'EOF'
       - www
 EOF
 
-# Find the line number where 'nginx:' is defined
+INDENTED_BLOCK=$(echo "$OPENRESTY_BLOCK" | sed 's/^/  /')
 NGINX_LINE=$(grep -n "^  nginx:" "$file" | cut -d: -f1)
 
 if [ -z "$NGINX_LINE" ]; then
@@ -110,7 +110,7 @@ if [ -z "$NGINX_LINE" ]; then
 fi
 
 # Insert the openresty block above the nginx line
-awk -v insert_line="$NGINX_LINE" -v new_block="$OPENRESTY_BLOCK" '
+awk -v insert_line="$NGINX_LINE" -v new_block="$INDENTED_BLOCK" '
 NR == insert_line { print new_block }
 { print }
 ' "$file" > "${file}.tmp" && mv "${file}.tmp" "$file"
