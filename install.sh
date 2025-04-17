@@ -1446,7 +1446,7 @@ send_install_log(){
     exec > /dev/tty
     exec 2>&1
     opencli report --public >> "$LOG_FILE"
-    curl -4 -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php
+    curl -4 --max-time 15 -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php
     # Redirect again stdout and stderr to the log file
     exec > >(tee -a "$LOG_FILE")
     exec 2>&1
@@ -1835,7 +1835,7 @@ rm_helpers
 print_space_and_line
 support_message
 print_space_and_line
-# temp off! send_install_log
+send_install_log
 create_admin_and_show_logins_success_message
 run_custom_postinstall_script
 )200>/root/openpanel_install.lock
