@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           11.05.2025
+# Last Modified:           17.05.2025
 #
 ################################################################################
 
@@ -27,7 +27,6 @@ export DEBIAN_FRONTEND=noninteractive
 # ======================================================================
 # Defaults for environment variables
 CUSTOM_VERSION=false                                                  # default version is latest
-INSTALL_TIMEOUT=600                                                   # after 10min, consider the install failed
 DEBUG=false                                                           # verbose output for debugging failed install
 SKIP_APT_UPDATE=false                                                 # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
@@ -38,7 +37,7 @@ SET_HOSTNAME_NOW=false                                                # must be 
 SETUP_SWAP_ANYWAY=false
 CORAZA=true                                                           # install CorazaWAF, unless user provices --no-waf flag
 SWAP_FILE="1"                                                         # calculated based on ram
-SEND_EMAIL_AFTER_INSTALL=false 
+SEND_EMAIL_AFTER_INSTALL=false                                        # send admin logins to specified email
 SET_PREMIUM=false                                                     # added in 0.2.1
 UFW_SETUP=false                                                       # previous default on <0.2.3
 CSF_SETUP=true                                                        # default since >0.2.2
@@ -93,7 +92,7 @@ install_started_message(){
   	fi
     else
 	echo -e "- Create an admin account with random username and strong password for you."
-    fi    
+    fi
     if [ "$CSF_SETUP" = true ]; then
     	echo -e "- Set up ConfigServer Firewall for enhanced security."
     elif [ "$UFW_SETUP" = true ]; then
@@ -171,8 +170,7 @@ get_server_ipv4(){
 	        ! [[ $ip =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && \
 	        ! [[ $ip =~ ^192\.168\. ]]
 	    }
-	
-	   
+
 	if ! is_valid_ipv4 "$current_ip"; then
 	        echo "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
 	fi
@@ -186,7 +184,7 @@ set_version_to_install(){
      	    PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
      	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
      	    	PANEL_VERSION="1.2.0" # fallback if hub.docker.com unreachable!
-     	    fi    
+     	    fi
 	fi
 }
 
@@ -396,10 +394,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-apt-update)
             SKIP_APT_UPDATE=true
-            ;; 
+            ;;
         --skip-dns-server)
             SKIP_DNS_SERVER=true
-            ;;   
+            ;;
         --skip-firewall)
             SKIP_FIREWALL=true
             ;;
@@ -558,7 +556,7 @@ docker_compose_up(){
 		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
-		debug_log chmod +x /usr/bin/docker-compose   
+		debug_log chmod +x /usr/bin/docker-compose
 
 		function_to_insert='docker() {
 		  if [[ $1 == "compose" ]]; then
@@ -589,22 +587,16 @@ docker_compose_up(){
 		    debug_log "Function 'docker' has been added to $config_file."
 		    source "$config_file"
 		fi
-  
-
-
-
-
- 
+   
     cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 
     # compose doesnt alllow /
-    cd /root
+    cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory."
     
     rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default my.cnf, and on repair we already have symlink and .env
     cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
+    cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1
 
-    cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1 
-    
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
     
     # generate random password for mysql
@@ -617,7 +609,6 @@ docker_compose_up(){
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/host_my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/container_my.cnf  > /dev/null 2>&1
 
-    
     # added in 0.2.9
     # fix for bug with mysql-server image on Almalinux 9.2
     os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
@@ -635,36 +626,33 @@ docker_compose_up(){
 	cd /root && docker compose down > /dev/null 2>&1          # in case mysql was running
         docker --context default volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
+    
+    if [ "$architecture" == "aarch64" ]; then
+    	sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
+     	# todo: replace in docker-compose.yml if needed!
+    fi
 
-        if [ "$architecture" == "aarch64" ]; then
-		sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
-  		# todo: replace in docker-compose.yml if needed!
- 	fi
-	
-   
     # from 0.2.5 we only start mysql by default
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
 
     # check if compose started the mysql container, and if is currently running
-	mysql_container=$(docker compose ps -q openpanel_mysql)
-	
-	# Check if the container ID is found
-	if [ -z "$mysql_container" ]; then
+    mysql_container=$(docker compose ps -q openpanel_mysql)
+    
+    # Check if the container ID is found
+    if [ -z "$mysql_container" ]; then
 	    radovan 1 "ERROR: MySQL container not found. Please ensure Docker Compose is set up correctly."
 	    exit 1
-	fi
+    fi
 	
-	# Check if the container is running
-	if ! docker --context default ps -q --no-trunc | grep -q "$mysql_container"; then
-	    radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
-	else
-	    echo -e "[${GREEN}OK${RESET}] MySQL service started successfully."
-	fi
+    # Check if the container is running
+    if ! docker --context default ps -q --no-trunc | grep -q "$mysql_container"; then
+        radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
+    else
+        echo -e "[${GREEN}OK${RESET}] MySQL service started successfully."
+    fi
 	
-
-
- 	# needed from 1.0.0 for docker contexts to work both inside openpanel ui contianer nad host os
-	 ln -s / /hostfs > /dev/null 2>&1
+    # needed from 1.0.0 for docker contexts to work both inside openpanel ui container and host os
+    ln -s / /hostfs > /dev/null 2>&1
 }
 
 
@@ -1557,6 +1545,14 @@ panel_customize(){
 }
 
 
+check_permissions_in_root_dir() {
+	local root_dir="/root"
+	# Check if user has read and write permissions
+	if ! [ -r "$root_dir" ] || ! [ -w "$root_dir" ]; then
+	    radovan 1 "User $(whoami) does NOT have read and write permissions on $root_dir"
+	    exit 1
+	fi
+}
 
 install_python312() {
     OS=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
@@ -1655,7 +1651,7 @@ configure_coraza() {
 		echo "Installing CorazaWAF and setting OWASP core ruleset.."
 		debug_log mkdir -p /etc/openpanel/caddy/
 		debug_log wget --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
-		debug_log git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/	
+		debug_log git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
 	else
  		echo "Disabling CorazaWAF: setting caddy:latest docker image instead of openpanel/caddy-coraza"
 		sed -i 's|image: .*caddy.*|image: caddy:latest|' /root/docker-compose.yml
@@ -1817,6 +1813,7 @@ create_admin_and_show_logins_success_message() {
 flock -n 200 || { echo "Error: Another instance of the install script is already running. Exiting."; exit 1; }
 # shellcheck disable=SC2068
 parse_args "$@"
+check_permissions_in_root_dir
 get_server_ipv4
 set_version_to_install
 print_header
