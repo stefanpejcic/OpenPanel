@@ -1747,7 +1747,7 @@ create_admin_and_show_logins_success_message() {
     # added in 0.2.3
     # option to specify logins
     if [ "$SET_ADMIN_USERNAME" = true ]; then
-       new_username=($custom_username)
+       new_username="${custom_username}"
     else
        wget --inet4-only -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
        
@@ -1761,7 +1761,7 @@ create_admin_and_show_logins_success_message() {
     fi
 
     if [ "$SET_ADMIN_PASSWORD" = true ]; then
-       new_password=($custom_password)
+       new_password="${custom_password}"
     else
        new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
     fi
