@@ -75,7 +75,7 @@ for dir in /home/*; do
     user=$(basename "$dir")
 
     if [[ -f "$file" ]]; then
-        cp $file $dir/122_docker-compose.yml
+        cp $file $dir/123_docker-compose.yml
         echo "- Fixing permission issues in PHP containers.. You should restart services manually to re-apply changes."
         sed -i 's/- APP_USER=${CONTEXT:-root}/- APP_USER=root/g' $file
         sed -i 's/- APP_GROUP=${CONTEXT:-root}/- APP_GROUP=root/g' $file
