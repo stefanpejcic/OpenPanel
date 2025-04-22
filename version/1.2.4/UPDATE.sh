@@ -6,6 +6,14 @@ sed -i 's#/usr/local/panel/#/#g' /root/docker-compose.yml
 cd /root
 docker compose down openpanel && docker compose up -d openpanel
 
+
+echo ""
+echo "Updating docker compose and env templates for future users.."
+wget -O /etc/openpanel/docker/compose/1.0/docker-compose.yml https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/compose/1.0/docker-compose.yml
+
+echo ""
+echo "Adding PIDs limit to 40 per service for all user services.."
+
 for dir in /home/*; do
     file="$dir/docker-compose.yml"
     user=$(basename "$dir")
@@ -27,6 +35,9 @@ for dir in /home/*; do
             fi
         done < "$file"
         mv "$temp_file" "$file"
-        echo "Docker Compose file has been updated to limit PIDs per service to 40."
+        echo "updated $file"
     fi
 done
+
+echo ""
+echo "DONE"
