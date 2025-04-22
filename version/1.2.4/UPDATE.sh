@@ -11,6 +11,12 @@ echo ""
 echo "Updating docker compose and env templates for future users.."
 wget -O /etc/openpanel/docker/compose/1.0/docker-compose.yml https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/compose/1.0/docker-compose.yml
 
+
+echo ""
+echo "Updating template: /etc/openpanel/varnish/default.vcl"
+wget -O /etc/openpanel/varnish/default.vcl https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/varnish/default.vcl
+
+
 echo ""
 echo "Adding PIDs limit to 40 per service for all user services.."
 
@@ -22,6 +28,14 @@ for dir in /home/*; do
         echo ""
         echo "---------------------------------------------------------------"
         echo "user: $user"
+        
+        varnish_file="$dir/default.vcl"
+        if [[ -f "$varnish_file" ]]; then
+       
+            cp /etc/openpanel/varnish/default.vcl $varnish_file
+            echo "- Updated Varnish default.vcl template for user: $user"
+        fi
+
         cp $file $dir/024-docker-compose.yml
         temp_file=$(mktemp)
         while IFS= read -r line; do
