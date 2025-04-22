@@ -20,9 +20,9 @@ wget -O /etc/openpanel/varnish/default.vcl https://raw.githubusercontent.com/ste
 echo ""
 echo "Adding PIDs limit to 40 per service for all user services.."
 
-for dir in /home/*; do
+for dir in /home/*/openpanel; do
+    user=$(basename "$(dirname "$dir")")
     file="$dir/docker-compose.yml"
-    user=$(basename "$dir")
 
     if [[ -f "$file" ]]; then
         echo ""
@@ -31,27 +31,48 @@ for dir in /home/*; do
         
         varnish_file="$dir/default.vcl"
         if [[ -f "$varnish_file" ]]; then
-       
-            cp /etc/openpanel/varnish/default.vcl $varnish_file
+            cp /etc/openpanel/varnish/default.vcl "$varnish_file"
             echo "- Updated Varnish default.vcl template for user: $user"
         fi
 
-        cp $file $dir/024-docker-compose.yml
+        cp "$file" "$dir/024-docker-compose.yml"
+
+        # Create a temp file for processing
         temp_file=$(mktemp)
+
+        # Add pids: 40 after memory line
         while IFS= read -r line; do
+            echo "$line" >> "$temp_file"
             if [[ "$line" =~ memory:\ \" ]]; then
-                echo "$line" >> "$temp_file"
                 indent=$(echo "$line" | sed 's/^\([[:space:]]*\).*/\1/')
-                # pids: ${OS_PIDS:-100} # https://github.com/docker/cli/issues/5009
                 echo "${indent}pids: 40" >> "$temp_file"
-            else
-                echo "$line" >> "$temp_file"
             fi
         done < "$file"
-        mv "$temp_file" "$file"
+
+        # Now remove 'pids: 40' only from varnish block
+        final_file=$(mktemp)
+        service="varnish"
+        awk -v service="$service" '
+          BEGIN { in_service = 0 }
+          {
+            if ($0 ~ /^[^[:space:]]/ && $1 == service ":") {
+              in_service = 1
+            } else if ($0 ~ /^[^[:space:]]/ && in_service) {
+              in_service = 0
+            }
+
+            if (in_service && $1 == "pids:" && $2 == "40") {
+              next  # Skip this line
+            }
+
+            print
+          }
+        ' "$temp_file" > "$final_file"
+
+        mv "$final_file" "$file"
+        rm "$temp_file"
         echo "updated $file"
     fi
 done
-
 echo ""
 echo "DONE"
