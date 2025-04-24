@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mkdir -p /var/log/caddy/coraza_waf
+
 echo ""
 echo "Adding fix for custom files not loading.. - issue #444"
 sed -i 's#/usr/local/panel/#/#g' /root/docker-compose.yml 
@@ -21,7 +23,9 @@ echo "Modifying WAF settings in all *.conf files under $CONF_DIR"
 cp -r $CONF_DIR /etc/openpanel/caddy/024-domains
 
 for file in "$CONF_DIR"/*.conf; do
-    echo "Processing $file"
+
+    DOMAIN_NAME=$(basename "$file" .conf)
+    echo "Processing $DOMAIN_NAME"
 
     # Check if all target lines already exist
     if grep -q 'SecAuditEngine RelevantOnly' "$file" &&
@@ -52,14 +56,12 @@ for file in "$CONF_DIR"/*.conf; do
         echo "  -> 'SecAuditLogParts ABIJDEFHZ' not found in $file, skipping log format addition"
     fi
 
+  touch /var/log/caddy/coraza_waf/"$DOMAIN_NAME".log
+  sed -i "s|coraza_audit.log|/coraza_waf/$DOMAIN_NAME.log|g" "$conf_file"
+
 done
 echo ""
 echo "Done processing domains, backup is created in /etc/openpanel/caddy/024-domains"
-
-
-
-
-
 
 
 
