@@ -6,6 +6,11 @@ sed -i 's#/usr/local/panel/#/#g' /root/docker-compose.yml
 cd /root
 docker compose down openpanel && docker compose up -d openpanel
 
+: '
+echo ""
+echo "Updating domain vhost files to log coraza rules.."
+sed -i 's/ABIJDEFHZ\([^K]\|K[^X]\)/ABIJDEFHZKX\1/g' "$file"
+'
 
 echo ""
 echo "Updating docker compose and env templates for future users.."
