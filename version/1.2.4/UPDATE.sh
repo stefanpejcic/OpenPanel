@@ -10,6 +10,58 @@ echo ""
 echo "Updating docker compose and env templates for future users.."
 wget -O /etc/openpanel/docker/compose/1.0/docker-compose.yml https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/compose/1.0/docker-compose.yml
 
+echo ""
+echo "Updating tempaltes for new domains.."
+wget -O /etc/openpanel/caddy/templates/domain.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/caddy/templates/domain.conf
+wget -O /etc/openpanel/caddy/templates/domain.conf_with_modsec https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/caddy/templates/domain.conf_with_modsec
+
+CONF_DIR="/etc/openpanel/caddy/domains"
+echo ""
+echo "Modifying WAF settings in all *.conf files under $CONF_DIR"
+cp -r $CONF_DIR /etc/openpanel/caddy/024-domains
+
+for file in "$CONF_DIR"/*.conf; do
+    echo "Processing $file"
+
+    # Check if all target lines already exist
+    if grep -q 'SecAuditEngine RelevantOnly' "$file" &&
+       grep -q 'SecRuleRemoveById 007' "$file" &&
+       grep -q 'SecRuleRemoveByTag example' "$file" &&
+       grep -q 'SecAuditLogFormat json' "$file"; then
+        echo "  -> Skipping $file (already contains all target lines)"
+        continue
+    fi
+
+    # Append WAF directives after 'SecRuleEngine On'
+    if grep -q 'SecRuleEngine On' "$file"; then
+        sed -i '/SecRuleEngine On/ a\
+            SecAuditEngine RelevantOnly \
+            SecRuleRemoveById 007 \
+            SecRuleRemoveByTag example' "$file"
+        echo "  -> WAF rule additions added after 'SecRuleEngine On'"
+    else
+        echo "  -> 'SecRuleEngine On' not found in $file, skipping WAF additions"
+    fi
+
+    # Append log format after 'SecAuditLogParts ABIJDEFHZ'
+    if grep -q 'SecAuditLogParts ABIJDEFHZ' "$file"; then
+        sed -i '/SecAuditLogParts ABIJDEFHZ/ a\
+            SecAuditLogFormat json' "$file"
+        echo "  -> 'SecAuditLogFormat json' added after 'SecAuditLogParts ABIJDEFHZ'"
+    else
+        echo "  -> 'SecAuditLogParts ABIJDEFHZ' not found in $file, skipping log format addition"
+    fi
+
+done
+echo ""
+echo "Done processing domains, backup is created in /etc/openpanel/caddy/024-domains"
+
+
+
+
+
+
+
 
 echo ""
 echo "Updating template: /etc/openpanel/varnish/default.vcl"
