@@ -11,7 +11,6 @@ for dir in /home/*; do
     USER_CONF="/etc/openpanel/$username/users.ini"
 
     if [ -d "$CONF_PATH" ]; then
-        echo "Found directory: $CONF_PATH - removing and creating a file."
         rm -rf "$CONF_PATH" && touch "$CONF_PATH"
     fi
 done
