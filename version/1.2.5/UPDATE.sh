@@ -2,7 +2,7 @@
 
 echo ""
 echo "Downloading crons.ini template.."
-mkdir -p "/etc/openpanel/ofelia/"
+mkdir -p /etc/openpanel/ofelia/
 wget -O "/etc/openpanel/ofelia/users.ini" "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ofelia/users.ini"
 
 for dir in /home/*; do
