@@ -2,7 +2,7 @@
 
 echo ""
 echo "Downloading crons.ini template.."
-wget -q -O "/etc/openpanel/ofelia/users.ini" "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ofelia/users.ini"
+wget -O "/etc/openpanel/ofelia/users.ini" "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ofelia/users.ini"
 
 for dir in /home/*; do
     username=$(basename "$dir")
