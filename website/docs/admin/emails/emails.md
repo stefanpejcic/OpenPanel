@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Emails
+# Email Accounts
 
 Emails page displays all email addresses on the server.
 
