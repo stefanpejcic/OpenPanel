@@ -12,5 +12,4 @@ By click on the 'New Website' button in the sidebar a new popup will appear allo
 
 Available pages:
 
-- [PM2](/docs/panel/applications/pm2)
 - [WP Manager](/docs/panel/applications/wordpress)
