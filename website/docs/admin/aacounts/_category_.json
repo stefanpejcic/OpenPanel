@@ -1,6 +1,6 @@
 {
-  "label": "Users",
-  "position": 2,
+  "label": "Accounts",
+  "position": 3,
   "link": {
     "type": "generated-index"
   }
