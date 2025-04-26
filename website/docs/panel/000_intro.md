@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Get Started with OpenPanel
+# Get Started
 
 OpenPanel offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that you enjoy full control over your environment, simillar to a VPS experience. You can effortlessly install new PHP versions, modify server configurations, view domain logs, restart services, and perform numerous other advanced tasks.
 
