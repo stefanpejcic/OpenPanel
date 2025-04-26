@@ -16,7 +16,7 @@ With that, good luck hacking us ;)
 
 | Version | Supported          |
 | ------- | ------------------ |
-| Latest  | :white_check_mark: |
+| [Latest](https://openpanel.com/docs/changelog/intro/#latest)  | :white_check_mark: |
 
 ## Qualifying Vulnerabilities
 
