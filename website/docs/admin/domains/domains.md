@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Domains
+# Manage Domains
 
 Domains page displays all domains currently hosted on server.
 
