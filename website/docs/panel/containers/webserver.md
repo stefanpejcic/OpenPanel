@@ -2,5 +2,5 @@
 sidebar_position: 4
 ---
 
-# Change webserver
+# Switch webserver
 
