@@ -55,25 +55,9 @@ NOTE: Changing admin port from 2087 is currently not possible, as external tools
 
 ![openadmin set port for openadmin](/img/admin/openadmin_settings.png)
 
-
-# Force HTTPS
-
-Enabling the "Force HTTPS" option ensures that the panels are accessible via HTTPS, recommended for enhanced security features like CORS and header checks in the OpenPanel interface.
-To activate HTTPS, select the "Force HTTPS" option; to deactivate, simply uncheck it.
-
 # Change /openpanel
 
 By default, when users add a domain, the addition of "/openpanel" to the domain URL will redirect them to the OpenPanel interface. However, you have the flexibility to customize this, such as changing it to "/awesome," allowing users to access their OpenPanel via "their-domain.com/awesome".
 
 To change the "/openpanel" to something else, simply set the value for the "OpenPanel is also available on:" field and click on save. Changes take effect instantly without service interruption.
 ![openadmin set custom path](/img/admin/openpanel_settings_available_on_openpanel.png)
-
-## Enable Updates
-
-The Update Preferences section provides the option to enable or disable Auto updates and Auto patches. Patches involve minor updates aimed at fixing bugs without introducing new features. On the other hand, Updates encompass major updates that introduce new features, potentially impacting existing functionality.
-
-![openadmin set update preferences](/img/admin/openpanel_settings_updates.png)
-
-Examples:
-- Autoupdate: 1.0.2 will **NOT** be updated to 1.0.3 BUT 1.0.2 will be updated to 2.0.0
-- Autopatch:  1.0.2 will be updated to 1.0.3 BUT 1.0.2 will **NOT** be updated to 2.0.0
