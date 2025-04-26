@@ -89,24 +89,9 @@ bash <(curl -sSL https://openpanel.org)
 
 To see more details to configure server on installation, **please visit**: https://openpanel.com/install 
 
-----
-
-Spin a 1-click droplet on DigitalOcean: 
-
-[![droplet](/website/static/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
-
-
-DigitalOcean API:
-```bash
-curl -X POST -H 'Content-Type: application/json' \
-     -H 'Authorization: Bearer '$TOKEN'' -d \
-    '{"name":"choose_a_name","region":"nyc3","size":"s-2vcpu-4gb","image":"openpanel"}' \
-    "https://api.digitalocean.com/v2/droplets"
-```
-
 ## Support
 
-Our [Community](https://community.openpanel.com/) serves as our virtual Headquater, where the community helps each other.
+Our [Community](https://community.openpanel.org/) serves as our virtual Headquater, where the community helps each other.
 
 **Learn, share** and **discuss** with other community members your questions.
 
