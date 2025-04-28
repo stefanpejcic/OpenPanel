@@ -10,9 +10,9 @@ The Update Settings page in OpenPanel allows you to manage and control how updat
 ## Current Version
 This section displays information about the version of OpenPanel currently installed on your system, as well as the latest available version.
 
-**Installed Version:** Shows the version of OpenPanel currently running.
+- **Installed Version:** Shows the version of OpenPanel currently running.
 
-**Latest Version:** Shows the most recent version available for update.
+- **Latest Version:** Shows the most recent version available for update.
 
 If the installed version matches the latest version, OpenPanel is fully up to date. If not, you can initiate a manual update via a button to upgrade to the latest version.
 
