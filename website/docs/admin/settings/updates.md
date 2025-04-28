@@ -35,8 +35,3 @@ Choosing the appropriate auto-update setting ensures that OpenPanel remains as s
 ## Update Logs
 The Update Logs section provides a record of all updates that have been applied to OpenPanel.
 
-![openadmin set update preferences](/img/admin/openpanel_settings_updates.png)
-
-Examples:
-- Autoupdate: 1.0.2 will **NOT** be updated to 1.0.3 BUT 1.0.2 will be updated to 2.0.0
-- Autopatch:  1.0.2 will be updated to 1.0.3 BUT 1.0.2 will **NOT** be updated to 2.0.0
