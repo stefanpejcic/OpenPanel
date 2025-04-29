@@ -8,6 +8,10 @@ wget -q -O "/etc/openpanel/ofelia/users.ini" "https://raw.githubusercontent.com/
 
 
 echo ""
+echo "Downloading backups conf for new users.."
+wget -O /etc/openpanel/backups/backup.env https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/backups/backup.env
+
+echo ""
 echo "Updating docker compose template for new users.."
 cp /etc/openpanel/docker/compose/1.0/docker-compose.yml /etc/openpanel/docker/compose/1.0/125-docker-compose.yml
 wget -O /etc/openpanel/docker/compose/1.0/docker-compose.yml https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/compose/1.0/docker-compose.yml
