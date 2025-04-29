@@ -6,8 +6,7 @@ sidebar_position: 7
 
 The Account Activity page provides a log record of all your actions performed on the OpenPanel, along with the timestamp and IP address from which the action was executed. The primary objective of this page is to offer insights into who carried out specific actions, such as deleting a file, adding domains, resetting WordPress admin passwords, and more.
 
-![account_activity_log.png](/img/panel/v1/analytics/account_activity_log.png)
-
+![account_activity_log.png](/img/panel/v2/activity.png)
 
 Logged Activities Include:
 
