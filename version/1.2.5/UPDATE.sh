@@ -6,6 +6,17 @@ mkdir -p /etc/openpanel/ofelia/
 wget -q -O "/etc/openpanel/ofelia/users.ini" "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ofelia/users.ini" && \
     echo "✔ Template downloaded to /etc/openpanel/ofelia/users.ini"
 
+
+echo ""
+echo "Updating docker compose template for new users.."
+cp /etc/openpanel/docker/compose/1.0/docker-compose.yml /etc/openpanel/docker/compose/1.0/125-docker-compose.yml
+wget -O /etc/openpanel/docker/compose/1.0/docker-compose.yml https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/compose/1.0/docker-compose.yml
+
+echo ""
+echo "Downloading script to dump databases.."
+wget -O /etc/openpanel/mysql/scripts/dump.sh https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/scripts/dump.sh
+chmod +x /etc/openpanel/mysql/scripts/dump.sh
+
 echo ""
 echo "🛠 Creating crons.ini files for each user in /home.."
 for dir in /home/*; do
