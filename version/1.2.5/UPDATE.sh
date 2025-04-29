@@ -101,25 +101,20 @@ for dir in /home/*/; do
         echo "→ Modifying $env_file for $user"
 
         # Only insert if BACKUP_CPU not already in the file
-     if ! grep -q "BACKUP_CPU=" "$env_file"; then
+        if ! grep -q "BACKUP_CPU=" "$env_file"; then
             awk '
-                BEGIN { found = 0 }
                 {
-                    print
-                    if ($0 ~ /^# WEBSERVER$/ && found == 0) {
-                        found = 1
-                        print "WEB_SERVER=\"nginx\""
-                        print "HTTP_PORT=\"0:80\""
-                        print "HTTPS_PORT=\"0:443\""
-                        print "PROXY_HTTP_PORT=\"\""
-                        print ""
+                    if ($0 ~ /^# FILE MANAGER$/ && !inserted) {
                         print "# BACKUP"
                         print "BACKUP_CPU=\"1.0\""
                         print "BACKUP_RAM=\"1.0G\""
+                        print ""
+                        inserted = 1
                     }
+                    print
                 }
             ' "$env_file" > "$env_file.tmp" && mv "$env_file.tmp" "$env_file"
-            echo "  ✔ Backup config inserted after WEBSERVER block"
+            echo "  ✔ Backup config inserted before # FILE MANAGER"
         else
             echo "  ✔ Backup config already present"
         fi
