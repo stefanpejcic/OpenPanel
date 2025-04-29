@@ -590,6 +590,9 @@ docker_compose_up(){
 		fi
    
     cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
+	
+ 	# added in 1.2.5 for dumping dbs
+  	chmod +x /etc/openpanel/mysql/scripts/dump.sh
 
     # compose doesnt alllow /
     cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory."
