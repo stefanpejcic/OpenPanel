@@ -8,8 +8,6 @@ OpenPanel is renowned for its modularity, giving you full control to tailor the 
 
 The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
 
-##Available customization options include:
-
 ## Custom CSS
 Inject your own CSS styles that will be applied across all pages of the OpenPanel UI.
 
