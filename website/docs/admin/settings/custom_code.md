@@ -19,7 +19,7 @@ Add custom JavaScript to all pages. This is ideal for extending UI functionality
 [View Documentation](https://dev.openpanel.com/customize.html#Custom-JS)
 
 ## Code in Header
-Insert custom code directly into the <head> tag of every page. Useful for meta tags, analytics scripts, and global settings.
+Insert custom code directly into the head tag of every page. Useful for meta tags, analytics scripts, and global settings.
 
 [View Documentation](https://dev.openpanel.com/customize.html#Code-in-Header)
 
