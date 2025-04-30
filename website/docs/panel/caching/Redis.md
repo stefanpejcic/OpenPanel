@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # REDIS
 
-![redis_disabled.png](/img/panel/v1/caching/redis_disabled.png)
+![redis_disabled.png](/img/panel/v2/redismain.png)
 
 REDIS stands as a robust and persistent object cache solution, purpose-built to efficiently retain frequently accessed website data within the RAM memory.
 
@@ -12,19 +12,22 @@ With its capability to store and serve data from RAM, it minimizes the need for 
 
 ## Enable / Disable
 
-You have the option to enable or disable the REDIS service as necessary. Choosing to disable it will promptly clear (delete) all existing Redis data from memory.
+You have the option to enable or disable the REDIS service container as necessary. Choosing to disable it will promptly clear (delete) all existing Redis data from memory.
 
-Enabling the REDIS service will initiate the Redis service on the default port, which is _6379_.
+Enabling the REDIS service container will initiate the Redis container service on the default port, which is _6379_.
 
-![redis_enabled.png](/img/panel/v1/caching/redis_enabled.png)
+![redis_enabled.png](/img/panel/v2/redisenabled.png)
 
 ## Set Memory Limits
 
-By default, Redis has no memory limits set and can utilize all available RAM memory, as indicated by the ∞ symbol. To avoid Redis from consuming all available memory, it is advisable to establish a maximum memory limit.
-You can set this limit to a maximum of 2GB for the Redis service.
+Upon initialization the Redis container has default memory limits set, it is advisable to set memory limits appropriate to your use case and needs.
+
+You can set these limits on the /containers interface which is accessible through the user panel navigation on Docker/containers .
+
+![redis_limits.png](/img/panel/v2/redislimits.png)
 
 :::info
-Modifying the memory limit will require the service to reload to apply the new restrictions, resulting in the removal of all existing data from the cache.
+Modifying the memory limit will require the Redis container to be restarted to apply the new restrictions, resulting in the removal of all existing data from the cache.
 :::
 
 ## Connect to REDIS
@@ -84,4 +87,4 @@ To incorporate REDIS caching into your WordPress website, a WordPress plugin is 
 
 You have the option to view the REDIS service logs. By doing so, you can identify any service errors or, for instance, determine whether memory limits have been reached.
 
-![redis_log.png](/img/panel/v1/caching/redis_log.png)
+![redis_log.png](/img/panel/v2/redislogs.png)
