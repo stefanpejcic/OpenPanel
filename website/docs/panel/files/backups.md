@@ -117,6 +117,92 @@ Once backup is selected, it's options are available on **Backups > Settings page
 Important: If you chose `App folder` access during the creation of your Dropbox app in step 1 above, `DROPBOX_REMOTE_PATH` will be a relative path under the App folder! (For example, DROPBOX_REMOTE_PATH=/somedir means the backup file will be uploaded to /Apps/myapp/somedir) On the other hand if you chose Full Dropbox access, the value for `DROPBOX_REMOTE_PATH` will represent an absolute path inside your Dropbox storage area. (Still considering the same example above, the backup file will be uploaded to /somedir in your Dropbox root)
 
 
+
+## Encryption
+
+Bakcup encryption is by default disbaled and needs to be enabled by the Administrator first.
+
+All of the encryption options are mutually exclusive. Provide a single option for the encryption scheme of your choice.
+
+
+| Setting | Description |
+|----------|----------|
+| **GPG_PASSPHRASE**    | Backups can be encrypted symmetrically using gpg in case a passphrase is given. |
+| **GPG_PUBLIC_KEY_RING**    |  Backups can be encrypted asymmetrically using gpg in case publickeys are given. You can use pipe syntax to pass a multiline value. |
+| **AGE_PASSPHRASE**    | Backups can be encrypted symmetrically using age in case a passphrase is given. |
+| **AGE_PUBLIC_KEYS**    | Backups can be encrypted asymmetrically using age in case publickeys are given. Multiple keys need to be provided as a comma separated list. Right now, this supports `age` and `ssh` keys. |
+
+## Rotation
+
+:::warning
+**IMPORTANT, PLEASE READ THIS BEFORE USING THIS FEATURE**:
+The mechanism used for pruning old backups is not very sophisticated and applies its rules to **all files in the target directory** by default, which means that if you are storing your backups next to other files, these might become subject to deletion too. When using this option make sure the backup files are stored in a directory used exclusively for such files, or to configure `BACKUP_PRUNING_PREFIX` to limit removal to certain files.
+:::
+
+| Setting | Description |
+|----------|----------|
+| **BACKUP_RETENTION_DAYS**    | Pass zero or a positive integer value to enable automatic rotation of old backups. The value declares the number of days for which a backup is kept. Default: `-1` |
+| **BACKUP_PRUNING_LEEWAY**    | In case the duration a backup takes fluctuates noticeably in your setup you can adjust this setting to make sure there are no race conditions between the backup sit on the edge of the time window. Set this value to a duration finishing and the rotation not deleting backups that that is expected to be bigger than the maximum difference of backups. Valid values have a suffix of (s)econds, (m)inutes or (h)ours. By default, one minute is used. |
+| **BACKUP_PRUNING_PREFIX**    | In case your target bucket or directory contains other files than the ones managed by this container, you can limit the scope of rotation by setting a prefix value. This would usually be the non-parametrized part of your BACKUP_FILENAME. E.g. if BACKUP_FILENAME is `db-backup-%Y-%m-%dT%H-%M-%S.tar.gz`, you can set BACKUP_PRUNING_PREFIX to `db-backup-` and make sure unrelated files are not affected by the rotation mechanism. |
+
+## Type
+
+By default, everything will be backed up. In case you need to backup only a specific data, set `BACKUP_SOURCES`.
+
+Available options are:
+
+| Setting | Description |
+|----------|----------|
+| **All**    |  Backups content of all docker volumes: website files, mysql/mariadb databases, minecraft, postgre databases, vhosts files. |
+| **Files**    |  Backups only website files inside `/var/www/html/` directory. |
+| **Emails**    |  Backups only email files inside `/var/mail/` directory. |
+| **MySQL Databases**    |  Backups only MySQL/MariaDB databases. |
+| **Postgres Databases**    |  Backups only PostgreSQL databases. |
+| **MsSQL Databases**    |  Backups only MsSQL databases. |
+| **VirtualHosts**    |  Backups only Apache/Nginx VirtualHosts for domains. |
+| **Minecraft Data**    |  Backups only `/data` folder from Minecraft container. |
+
+
+## Schedule
+
+Backups can be run on fixed scheduled that are defined as a cron expression.
+`BACKUP_CRON_EXPRESSION` is used to schedule the backup job, a cron expression represents a set of times, using 5 or 6 space-separated fields.
+
+| Field name   | Mandatory? | Allowed values  | Allowed special characters |
+| ----------   | ---------- | --------------  | -------------------------- |
+| Seconds      | No         | 0-59            | `* / , -` |
+| Minutes      | Yes        | 0-59            | `* / , -` |
+| Hours        | Yes        | 0-23            | `* / , -` |
+| Day of month | Yes        | 1-31            | `* / , - ?` |
+| Month        | Yes        | 1-12 or JAN-DEC | `* / , -` |
+| Day of week  | Yes        | 0-6 or SUN-SAT  | `* / , - ?` |
+
+
+Month and Day-of-week field values are case insensitive. "SUN", "Sun", and "sun" are equally accepted. Refer to sites like [crontab.guru](https://crontab.guru) for help.
+
+If no value is set, `@daily` will be used, which runs every day at midnight.
+
+## Compression
+
+
+| Setting | Description |
+|----------|----------|
+| `BACKUP_COMPRESSION`    |  The compression algorithm used in conjunction with tar. Valid options are: "gz" (Gzip), "zst" (Zstd) or "none" (tar only).  Default is "gz". Note that the selection affects the file extension. |
+| `GZIP_PARALLELISM`    | Parallelism level for "gz" (Gzip) compression. Defines how many blocks of data are concurrently processed. Higher values result in faster compression. No effect on decompression. Default = `1`. Setting this to 0 will use all available threads. |
+
+## Names
+
+Options here are available byt disabled by defuatl and need to be manually enabled by the Administrator first.
+
+| Setting | Description |
+|----------|----------|
+| `BACKUP_FILENAME`    |  The desired name of the backup file including the extension. Format verbs will be replaced as in `strftime`. Omitting all verbs will result in the same filename for every backup run, which means previous versions will be overwritten on subsequent runs. Extension can be defined literally or via `{{ .Extension }}` template,  in which case it will become either "tar.gz", "tar.zst" or ".tar" (depending on your `BACKUP_COMPRESSION` setting). The default `backup-%Y-%m-%dT%H-%M-%S.{{ .Extension }}` results in filenames like: `backup-2021-08-29T04-00-00.tar.gz`. |
+
+
+## Exclude
+
+`BACKUP_EXCLUDE_REGEXP` - When a value is given, all files in `BACKUP_SOURCES` whose full path matches the regular expression will be excluded from the archive. Regular Expressions can be used as from [the Go standard library](https://pkg.go.dev/regexp). Example: `\.log$`.
+
 ## Notifications
 
 Notifications (email, Slack, etc.) can be sent out when a backup run finishes.
