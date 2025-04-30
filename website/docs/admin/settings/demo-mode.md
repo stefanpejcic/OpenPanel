@@ -4,11 +4,15 @@ sidebar_position: 8
 
 # Demo Mode
 
-Demo mode allows users to log in with read-only access—no changes can be made. It's designed for hosting providers to showcase their features and plans in a public demo environment. This applies to both the admin and user panels.
+Enable Demo Mode to lock both the OpenPanel and OpenAdmin interfaces in read-only mode.
 
-Once enabled, it can't be turned off from the admin panel. To disable it, run the following command in the terminal:
+This mode is ideal for hosting providers who want to showcase OpenPanel in a secure, public demo environment. Users will be able to explore the UI, but no changes can be made—all actions are disabled across both the admin and user panels.
+
+⚠️ Once enabled, Demo Mode cannot be turned off via the admin panel.
+To disable it, run the following command in your terminal:
 ```
 opencli config update demo_mode off
 ```
 
-Be sure to set up the demo content beforehand and properly secure the server before enabling this feature.
+Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#Demo-mode)
+
