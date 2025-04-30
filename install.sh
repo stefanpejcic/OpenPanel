@@ -845,7 +845,11 @@ setup_firewall_service() {
           systemctl restart docker                                              # not sure why
           systemctl enable csf
           systemctl restart csf                                                   # also restarts docker at csfpost.sh
-	  
+
+          # https://github.com/stefanpejcic/OpenPanel/issues/338
+          touch /usr/sbin/sendmail
+          chmod +x /usr/sbin/sendmail
+   
    	if command -v csf > /dev/null 2>&1; then
 		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
 	else
