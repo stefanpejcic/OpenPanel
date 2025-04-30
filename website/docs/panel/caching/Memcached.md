@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Memcached
 
-![memcached_disabled.png](/img/panel/v1/caching/memcached_disabled.png)
+![memcached_disabled.png](/img/panel/v2/memcmain.png)
 
 Memcached is a high-performance, distributed memory caching system. It is often used to speed up dynamic database-driven websites and applications by caching data in memory.
 
@@ -16,15 +16,19 @@ You have the options to enable or disable the Memcached service as needed. Disab
 
 Enabling the Memcached service will start the service using the default Memcached port, which is _11211_.
 
-![memcached_enabled.png](/img/panel/v1/caching/memcached_enabled.png)
+![memcached_enabled.png](/img/panel/v2/memcenabled.png)
 
 ## Set Memory Limits
 
-Memcached, by default, does not impose memory limits and can utilize available RAM memory without constraints. To prevent Memcached from consuming all available memory, it is recommended to establish a maximum memory limit.
+Upon initialization the Memcached container has default memory limits set, it is advisable to set memory limits appropriate to your use case and needs.
+
+You can set these limits on the /containers interface which is accessible through the user panel navigation on Docker/containers .
 
 :::info
 Changing the memory limit will necessitate the service to restart to apply the new restrictions, resulting in the removal of all existing cache data.
 :::
+
+![memcached_limits.png](/img/panel/v2/memclimits.png)
 
 ## Connect to Memcached
 
@@ -84,5 +88,5 @@ To implement Memcached caching for your WordPress website, you'll need a dedicat
 
 You have the option to access the Memcached service logs. By doing so, you can identify any service errors or check for memory usage and limits.
 
-![memcached_log.png](/img/panel/v1/caching/memcached_log.png)
+![memcached_log.png](/img/panel/v2/memclogs.png)
 
