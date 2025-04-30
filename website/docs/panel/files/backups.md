@@ -4,24 +4,22 @@ sidebar_position: 6
 
 # Backups
 
-![backups.png](/img/panel/v2/backups.png)
-
-## Introduction to Backups
-
 In OpenPanel, backups are configurable directly **by the panel users**, unlike other panels where backups are managed by the admin.
 
 This empowers users to define their own backup schedules, choose exactly what to back up, and select from a wide range of supported destinations.
 As a result, administrators have fewer tasks to manage, and users gain greater control and flexibility.
 
+![backups.png](/img/panel/v2/backups.png)
+
 ## Destinations
 
 OpenPanel supports the following destinations:
 
-- **S3 storage** - AWS S3, Filebase, MinIO, etc.
-- **WebDAV** - Remote backups using WebDAV.
-- **SSH** - Remote backups via SSH to another server.
-- **Azure** - Remote backups to Azure Blob Storage.
-- **Dropbox** - Remote backups to Dropbox cloud storage.
+- [**S3 storage**](#s3) - AWS S3, Filebase, MinIO, etc.
+- [**WebDAV**](#webdav) - Remote backups using WebDAV.
+- [**SSH**](#azure) - Remote backups via SSH to another server.
+- [**Azure**](#azure) - Remote backups to Azure Blob Storage.
+- [**Dropbox**](/#dropbox) - Remote backups to Dropbox cloud storage.
 
 User can select destination from **Backups > Destinations** page.
 
@@ -90,7 +88,7 @@ Once backup is selected, it's options are available on **Backups > Settings page
 | **DROPBOX_REFRESH_TOKEN**    |  Refresh token to request new short-lived tokens (OAuth2) |
 
 
-#### Set up Dropbox storage backend
+Set up Dropbox storage backend:
 
 1. Create a new Dropbox App in the [App Console](https://www.dropbox.com/developers/apps)
 2. Open your new Dropbox App and copy the `DROPBOX_APP_KEY` and `DROPBOX_APP_SECRET`
@@ -116,8 +114,9 @@ Once backup is selected, it's options are available on **Backups > Settings page
 *Note*: Using the “Generated access token” in the app console is not supported, as it is only very short lived and therefore not suitable for an automatic backup solution. The refresh token handles this automatically - the setup procedure above is only needed once.
 :::
 
+:::danger
 Important: If you chose `App folder` access during the creation of your Dropbox app in step 1 above, `DROPBOX_REMOTE_PATH` will be a relative path under the App folder! (For example, DROPBOX_REMOTE_PATH=/somedir means the backup file will be uploaded to /Apps/myapp/somedir) On the other hand if you chose Full Dropbox access, the value for `DROPBOX_REMOTE_PATH` will represent an absolute path inside your Dropbox storage area. (Still considering the same example above, the backup file will be uploaded to /somedir in your Dropbox root)
-
+:::
 
 
 ## Encryption
@@ -136,7 +135,7 @@ All of the encryption options are mutually exclusive. Provide a single option fo
 
 ## Rotation
 
-:::warning
+:::danger
 **IMPORTANT, PLEASE READ THIS BEFORE USING THIS FEATURE**:
 The mechanism used for pruning old backups is not very sophisticated and applies its rules to **all files in the target directory** by default, which means that if you are storing your backups next to other files, these might become subject to deletion too. When using this option make sure the backup files are stored in a directory used exclusively for such files, or to configure `BACKUP_PRUNING_PREFIX` to limit removal to certain files.
 :::
@@ -147,7 +146,7 @@ The mechanism used for pruning old backups is not very sophisticated and applies
 | **BACKUP_PRUNING_LEEWAY**    | In case the duration a backup takes fluctuates noticeably in your setup you can adjust this setting to make sure there are no race conditions between the backup sit on the edge of the time window. Set this value to a duration finishing and the rotation not deleting backups that that is expected to be bigger than the maximum difference of backups. Valid values have a suffix of (s)econds, (m)inutes or (h)ours. By default, one minute is used. |
 | **BACKUP_PRUNING_PREFIX**    | In case your target bucket or directory contains other files than the ones managed by this container, you can limit the scope of rotation by setting a prefix value. This would usually be the non-parametrized part of your BACKUP_FILENAME. E.g. if BACKUP_FILENAME is `db-backup-%Y-%m-%dT%H-%M-%S.tar.gz`, you can set BACKUP_PRUNING_PREFIX to `db-backup-` and make sure unrelated files are not affected by the rotation mechanism. |
 
-## Type
+## Source
 
 By default, everything will be backed up. In case you need to backup only a specific data, set `BACKUP_SOURCES`.
 
@@ -215,9 +214,9 @@ Configuration is provided as a comma-separated list of URLs as consumed by [shou
 
 | Service      | URL format                                                                                           |
 |--------------|------------------------------------------------------------------------------------------------------|
-| Bark         | `bark://devicekey@host`                                                                              |
-| Discord      | `discord://token@id`                                                                                 |
-| Email        | `smtp://username:password@host:port/?from=fromAddress&to=recipient1[,recipient2,...]`               |
+| [Bark](#bark)         | `bark://devicekey@host`                                                                              |
+| [Discord](#discord)      | `discord://token@id`                                                                                 |
+| [Email](#email)        | `smtp://username:password@host:port/?from=fromAddress&to=recipient1[,recipient2,...]`               |
 | Gotify       | `gotify://gotify-host/token`                                                                         |
 | Google Chat  | `googlechat://chat.googleapis.com/v1/spaces/FOO/messages?key=bar&token=baz`                         |
 | IFTTT        | `ifttt://key/?events=event1[,event2,...]&value1=value1&value2=value2&value3=value3`                  |
