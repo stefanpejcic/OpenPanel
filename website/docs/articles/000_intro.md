@@ -19,5 +19,4 @@ sidebar_position: 1
 # Extending OpenPanel
 - [OpenPanel and FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
 - [OpenPanel and WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
-- [Building a Custom Docker image: pre-install IonCube Loader](/docs/articles/docker/building_a_docker_image_example_include_php_ioncubeloader/)
 
