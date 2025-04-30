@@ -25,6 +25,8 @@ OpenPanel supports the following destinations:
 
 User can select destination from **Backups > Destinations** page.
 
+![destinations.png](/img/panel/v2/destinations.png)
+
 Once backup is selected, it's options are available on **Backups > Settings page**.
 
 ### SSH/SFTP
