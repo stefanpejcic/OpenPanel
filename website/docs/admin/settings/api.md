@@ -14,18 +14,18 @@ Toggle the Enable API Access option to activate the interface for testing API re
 2. **Fill the Request Form**
 Once enabled, you will see a form with the following fields:
 
-- **GET** – Choose the HTTP method (currently supports GET).
+  - **GET** – Choose the HTTP method (currently supports GET).
 
-- **URL** – Enter the API endpoint you wish to call.
+  - **URL** – Enter the API endpoint you wish to call.
 
-- **TOKEN** – Paste your authentication token for authorization.
+  - **TOKEN** – Paste your authentication token for authorization.
 
-- **DATA** – (Optional) Provide any data or parameters required by the endpoint.
+  - **DATA** – (Optional) Provide any data or parameters required by the endpoint.
 
 3. Send Request
 Click the Send Request button to execute the API call.
 
-5. View API Logs and Curl command
+4. View API Logs and Curl command
 After making a request, the response, curl command and log details will appear at the bottom. This includes request info, server response, status codes, and any error messages.
 
 For full API reference and additional endpoints, please visit our detailed documentation: https://dev.openpanel.com/api/
