@@ -67,6 +67,17 @@ Set the name for the plan **same as on OpenPanel hosting plan** and click on 'Cr
 
 ![add plan](https://i.postimg.cc/02LsZqL7/2024-08-04-15-23.png)
 
+
+You can also set mysql type and webserver as additional parameters:
+
+| Parameter    | Values |
+| -------- | ------- |
+| `mysql_type`  | `apache` `nginx` `openresty` `apache+varnish`  `nginx+varnish` `openresty+varnish`  |
+| `webserver` | `mysql` `mariadb`     |
+
+![additional parameters](https://i.postimg.cc/S4DGnS4S/2025-05-01-10-33.png)
+
+
 ### Assign OpenPanel Server to product
 
 From your FOSSBilling admin panel go to **Products -> Products & Services** from within the navigation bar, then click on the edit icon for the plan:
