@@ -11,7 +11,7 @@ Before you can setup the OpenPanel server manager in FOSSBilling, you need to fi
 To enable access to the FOSSBilling server's IP, first check the ip address on that server, from terminal you can run:
 
 ```bash
-curl ip.openpanel.co
+curl ip.openpanel.com
 ```
 
 Login to OpenAdmin and under **Settings > Firewall** add the FOSSBilling server's IP under **Allow IP address**:
