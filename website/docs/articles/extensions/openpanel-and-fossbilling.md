@@ -72,7 +72,7 @@ You can also set mysql type and webserver as additional parameters:
 
 | Parameter    | Values |
 | -------- | ------- |
-| `mysql_type`  | `apache` `nginx` `openresty` `apache+varnish`  `nginx+varnish` `openresty+varnish`  |
+| `mysql_type`  | `apache` `nginx` `openresty` `varnish+apache`  `varnish+nginx` `varnish+openresty`  |
 | `webserver` | `mysql` `mariadb`     |
 
 ![additional parameters](https://i.postimg.cc/S4DGnS4S/2025-05-01-10-33.png)
