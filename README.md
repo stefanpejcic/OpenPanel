@@ -15,13 +15,12 @@ When we designed OpenPanel, we prioritized features that are not only user-frien
 
 Some of the features worth mentioning are:
 
-- Users can run [Nginx or Apache webserver](https://openpanel.com/docs/admin/plans/hosting_plans/#list-hosting-plans).
+- Users can run [Nginx, Apache, OpenResty or Varnish webserver](https://openpanel.com/docs/admin/plans/hosting_plans/#list-hosting-plans).
 - Users can run [MySQL or MariaDB](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
-- Users can [install PHP versions](https://openpanel.com/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.com/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
+- Users can [run any PHP versions](https://openpanel.com/docs/panel/advanced/server_settings#install-php-version) they need, [edit php.ini files](https://openpanel.com/docs/panel/advanced/server_settings#phpini-editor) and set desired limits.
 - Control [MySQL settings](https://openpanel.com/docs/panel/advanced/server_settings#mysql-settings), set limits, [enable remote mysql access](https://openpanel.com/docs/panel/databases/remote) and much more.
 - [Update system services](https://openpanel.com/docs/panel/advanced/server_settings#service-status) and even install new services that they need.
 - Manage WordPress websites easily with [WP Manager](https://openpanel.com/docs/panel/applications/wordpress).
-- Password-less login to [phpMyAdmin](https://openpanel.com/docs/panel/databases/phpmyadmin) and [Web Terminal](https://openpanel.com/docs/panel/advanced/terminal).
 - Built-in [REDIS](https://openpanel.com/docs/panel/caching/Redis) and [Memcached](https://openpanel.com/docs/panel/caching/Memcached) object caching.
 
 And unique features that simply made sense 💁 to us:
