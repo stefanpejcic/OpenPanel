@@ -53,10 +53,6 @@ export const menuItems = [
                 href: "/roadmap",
             },
             {
-                label: "Request Features",
-                href: "https://roadmap.openpanel.com/",
-            },
-            {
                 label: "Changelog",
                 href: "/docs/changelog/intro/",
             },
