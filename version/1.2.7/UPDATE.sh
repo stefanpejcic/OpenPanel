@@ -28,3 +28,7 @@ echo "📥 Updating docker-compose.yml file for new domains.."
 
 cp /etc/openpanel/docker/compose/1.0/.env /etc/openpanel/docker/compose/1.0/127.env
 wget -O /etc/openpanel/docker/compose/1.0/.env https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/compose/1.0/.env
+
+echo ""
+echo "Changing collation to domains table to allow IDN characters.."
+mysql -e "ALTER TABLE domains CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
