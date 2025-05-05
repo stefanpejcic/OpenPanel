@@ -16,15 +16,15 @@ Domains page displays all domains currently hosted on server.
 To list all current domains navigate to Domains page:
 
 
-| Field              | Description                                                               |
-| ------------------ | ------------------------------------------------------------------------- |
-| **ID**             | ID of the domain in database.                                                    |
-| **Domain Name**      | The domain name.            |
-| **Owner**    | User that added the domain.                                           |
-| **DNS Zone**          | View and edit DNS zone for domain.        |
-| **Virtual Hosts**     | View and edit Nginx configuration for a domain.          |
-| **Access Logs**     | View live access log for the domain.           |
-| **Visitors Report**  | Total number of domain names allowed per user on the plan.                  |
+| Field           | Description                                                       |
+|-----------------|-------------------------------------------------------------------|
+| **Domain**      | The domain name.                                                  |
+| **Status**      | Indicates whether the domain is active or suspended.              |
+| **PHP Version** | The PHP version configured for the domain.                        |
+| **SSL**         | Shows whether SSL is enabled for the domain.                      |
+| **WAF**         | Indicates if Coraza WAF is enabled or disabled for the domain.    |
+| **Owner**       | The user who added or owns the domain.                            |
+| **Analytics**   | View analytics data and reports for the domain.                   |
 
 
   </TabItem>
