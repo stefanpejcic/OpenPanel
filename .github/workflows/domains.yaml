@@ -1,0 +1,37 @@
+name: Check domains
+
+on:
+  schedule:
+    - cron:  '0 8 * * *'
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    name: Check domain
+    strategy:
+      matrix:
+        domain:
+          - https://openpanel.com
+          - https://openpanel.org
+    steps:
+      - name: Check domain SSL and registry expire date
+        id: check-domain
+        uses: codex-team/action-check-domain@v1
+        with:
+          url: ${{ matrix.domain }}
+
+      - name: Create an issue if paid till number is below limit 
+        if: ${{ steps.check-domain.outputs.paid-till-days-left && steps.check-domain.outputs.paid-till-days-left < 10 }}
+        uses: rishabhgupta/git-action-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: ⚠️ ${{ matrix.domain }} — registry expiries in ${{ steps.check-domain.outputs.paid-till-days-left }} days
+          body: 'Paid till: `${{ steps.check-domain.outputs.paid-till-date }}`'
+
+      - name: Create an issue if SSL lifespan days number is below limit 
+        if: ${{ steps.check-domain.outputs.ssl-expire-days-left && steps.check-domain.outputs.ssl-expire-days-left < 10 }}
+        uses: rishabhgupta/git-action-issue@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: 🧨 ${{ matrix.domain }} — SSL cert expires in ${{ steps.check-domain.outputs.ssl-expire-days-left }} days
+          body: 'Valid till: `${{ steps.check-domain.outputs.ssl-expire-date }}`'
