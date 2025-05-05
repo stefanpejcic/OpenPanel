@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# Services Status
+# Service Status
 
-The Services Status section allows you to view and control the status of system services and containers running on your server.
+The Service Status section allows you to view and control the status of system services and containers running on your server.
 
 This table provides key details for each service:
 
