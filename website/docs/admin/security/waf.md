@@ -4,48 +4,30 @@ sidebar_position: 1
 
 # WAF
 
-Install ModSecurity and enable it for user domains.
+The WAF section allows you to manage CorazaWAF, a powerful Web Application Firewall integrated into OpenPanel.
 
-The Settings > ModSecurity page allows you to install ModSecurity for Nginx and configures the [OWASP core ruleset](https://owasp.org/www-project-modsecurity-core-rule-set/)
+Use this interface to enhance security by enabling protection against common web threats such as SQL injection, XSS, and other malicious behavior.
 
-The OWASP ModSecurity Core Rule Set (CRS) is a set of generic attack detection rules for use with ModSecurity that will increase the security of user domains and websites.
+## Enable
+Toggle the Web Application Firewall on or off.
+When enabled, CorazaWAF actively inspects incoming requests and blocks suspicious activity based on configured rules.
 
-## Install ModSecurity
+## Rule Sets
+Manage the rule sets that CorazaWAF uses to protect your applications.
 
-Upon the initial access to the ModSecurity page, you will be prompted to install the ModSecurity plugin.
+**Active:** Displays the number of currently active rule sets (e.g., 21 / 23).
 
-:::danger
-The installation process may require up to 10 minutes and involves rebuilding the Nginx configuration. It's important to note that any customizations to the service will be permanently removed during this process. It is advisable to perform the installation during off-peak hours to minimize the risk of causing downtime for websites.
-:::
+Click **Manage Rules** to enable or disable individual WAF rule sets according to your security needs.
 
-To install ModSecurity click on the 'Install' button.
+The rule set table includes the following columns:
 
-![openadmin modsec install](/img/admin/adminpanel_modsec_install.png)
+- **Name** – The name or identifier of the rule set.
 
-Or from terminal run: [opencli nginx-install_modsec](/docs/admin/scripts/webserver#install-modsecurity)
+- **Number of Rules** – Total number of rules contained within the set.
 
-## Activate ModSecurity
+- **Status** – Indicates whether the rule set is currently enabled or disabled.
 
-Upon ModSecurity installation, all new domains will have ModSecurity enabled by default. However, individual users can choose to disable ModSecurity for their domains at any time through their OpenPanel interface. [More information](/docs/panel/advanced/server_settings#modsecurity-settings)
+- **Actions** – Options to View rule details or Disable the rule set.
 
-
-## Customize ModSecurity rules
-
-Adjusting ModSecurity rules means fine-tuning security settings for your specific needs, giving administrators the power to better protect against specific threats and reduce false positives.
-
-You can follow user-friendly guides to easily customize ModSecurity rules, adapting security settings to your specific needs.
-
-- [Nginx Docs: Using the OWASP CRS with the NGINX ModSecurity WAF](https://docs.nginx.com/nginx-waf/admin-guide/nginx-plus-modsecurity-waf-owasp-crs/)
-- [Nginx Docs: Using the ModSecurity Rules from Trustwave SpiderLabs with the NGINX ModSecurity WAF](https://docs.nginx.com/nginx-waf/admin-guide/nginx-plus-modsecurity-waf-trustwave-spiderlabs-rules/)
-- [ModSecurity Documentation](https://github.com/SpiderLabs/ModSecurity/wiki)
-- [ProSec Blog: Modsecurity Core Rule Sets and Custom Rules](https://www.prosec-networks.com/en/blog/modsecurity-core-rule-sets-und-eigene-regeln/)
-
-## Enable ModSecurity for existing domains
-
-After installing ModSecurity only new domains that users add will by default have ModSecurity activate, and for existing users this process can be performed by the administrator from this page or from each user panel individually. To enable ModSecurity on all domains owned by a user, select the user anc click on 'Enable' button.
-
-![openadmin modsec settings](/img/admin/adminpanel_modsec_use.png)
-
-Or from terminal run: [opencli domains-enable_modsec](/docs/admin/scripts/domains#enable-modsecurity)
-
+Properly configuring WAF rules helps maintain a balance between strong protection and minimizing false positives.
 
