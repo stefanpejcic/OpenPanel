@@ -32,3 +32,11 @@ wget -O /etc/openpanel/docker/compose/1.0/.env https://raw.githubusercontent.com
 echo ""
 echo "Changing collation to domains table to allow IDN characters.."
 mysql -e "ALTER TABLE domains CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+
+echo ""
+echo "📥 Downloading daemon.json template for new users.."
+mkdir -p /etc/openpanel/docker/daemon/
+wget -O /etc/openpanel/docker/daemon/rootless.json https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/docker/daemon/rootless.json
+
+# todo: sed for existing users!
