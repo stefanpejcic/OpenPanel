@@ -588,6 +588,14 @@ docker_compose_up(){
 		    debug_log "Function 'docker' has been added to $config_file."
 		    source "$config_file"
 		fi
+
+	# https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
+	testing_docker=$(docker run --rm alpine echo "Hello from Alpine!")
+	if [ "$testing_docker" != "Hello from Alpine!" ]; then
+		radovan 1: "ERROR: Unable to run the Alpine Docker image! This suggests an issue with connecting to Docker Hub or with the Docker installation itself. To troubleshoot, try running the following command manually: 'docker run --rm alpine'."
+	fi
+
+
    
     cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 	
