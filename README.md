@@ -71,15 +71,13 @@ The **OpenPanel** interface is the client-level panel where end-users can manage
 
 OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel.
 
-| **Officially Supported OS** | **Community Supported OS**                                   |
-|-----------------------------|---------------------------------------------------------------|
-| Ubuntu 24.04                | Ubuntu 22.04 *(Looking for maintainers)*                     |
-|                             | AlmaLinux 9 *(Looking for maintainers)*                      |
-|                             | RockyLinux 9 *(Looking for maintainers)*                     |
-|                             | CentOS 9.4 *(Looking for maintainers)*                       |
-|                             | Debian 11 12 *(Looking for maintainers)*                     |
 
-
+Supported OS:
+- Ubuntu 22.04 and 24.04 (recommended)
+- Debian 11 and 12
+- AlmaLinux 9.5 *(recommended for ARM cpu)
+- RockyLinux 9
+- CentOS 9.5
 
 ## Installation
 
