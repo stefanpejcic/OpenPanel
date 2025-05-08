@@ -7,7 +7,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 
-CACHE_DIR = '/home/screenshot/screenshot_cache'
+CACHE_DIR = 'screenshots_cache'
 
 def capture_screenshot(domain):
     url = f'http://{domain}'
