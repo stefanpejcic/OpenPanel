@@ -550,8 +550,15 @@ docker_compose_up(){
     # install docker compose on dnf
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
-    curl -4 -SL https://github.com/docker/compose/releases/download/v2.27.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
-    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+
+        if [ "$architecture" == "aarch64" ]; then
+		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
+  	else
+   		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
+ 	fi
+    
+	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
+	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 
 		# need to download compose and add it as alias
 		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
