@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           29.05.2025
+# Last Modified:           14.05.2025
 #
 ################################################################################
 
@@ -597,7 +597,7 @@ docker_compose_up(){
 		fi
 
 	# https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
-	testing_docker=$(docker run --rm alpine echo "Hello from Alpine!")
+	testing_docker=$(timeout 10 docker run --rm alpine echo "Hello from Alpine!")
 	if [ "$testing_docker" != "Hello from Alpine!" ]; then
 		radovan 1: "ERROR: Unable to run the Alpine Docker image! This suggests an issue with connecting to Docker Hub or with the Docker installation itself. To troubleshoot, try running the following command manually: 'docker run --rm alpine'."
 	fi
