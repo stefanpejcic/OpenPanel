@@ -11,8 +11,8 @@ jobs:
     strategy:
       matrix:
         domain:
-          - https://openpanel.com
-          - https://openpanel.org
+          - openpanel.com
+          - openpanel.org
     steps:
       - name: Check domain SSL and registry expire date
         id: check-domain
