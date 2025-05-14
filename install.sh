@@ -265,6 +265,7 @@ edit_fstab                                # enable quotas
 setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
+extra_step_on_hetzner                     # run it here, then csf install does docker restart later
 setup_redis_service                       # for redis container
 create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
@@ -1021,6 +1022,18 @@ create_rdnc() {
 	else
 		echo "Skipping rndc.key generation due to the '--skip-dns-server' flag."
  	fi
+}
+
+
+extra_step_on_hetzner() {
+if [ -f /etc/hetzner-build ]; then
+    echo "Hetzner provider detected, adding Google DNS resolvers..."
+    echo "info: https://github.com/stefanpejcic/OpenPanel/issues/471"
+
+    mv /etc/resolv.conf /etc/resolv.conf.bak
+    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+fi
 }
 
 
