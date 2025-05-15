@@ -5,8 +5,8 @@ export const CiscoIcon = (props: SVGProps<SVGSVGElement>) => (
 
    <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={138.41}
-        height={29.000002}
+        width={187}
+        height={80}
         viewBox="0 0 138.41 29.000002"
         fill="none"
         {...props}
