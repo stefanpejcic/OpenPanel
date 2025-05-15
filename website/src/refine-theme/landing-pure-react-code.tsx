@@ -196,28 +196,28 @@ const code = `
 services:
 
   uptimekuma:
-    image: louislam/uptime-kum:${UPTIMEKUMA_VERSION}
+    image: louislam/uptime-kum:UPTIMEKUMA_VERSION
     container_name: uptimekuma
     volumes:
       - ./data:/app/data
-      - /hostfs/run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
+      - /hostfs/run/user/USER_ID/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
     deploy:
       resources:
         limits:
-          cpus: "${UPTIMEKUMA_CPU}"
-          memory: "${UPTIMEKUMA_RAM}"   
+          cpus: "UPTIMEKUMA_CPU"
+          memory: "UPTIMEKUMA_RAM"   
           pids: 100
     networks:
       - www
 
   openresty:
-    image: openresty/openresty:${OPENRESTY_VERSION}
+    image: openresty/openresty:OPENRESTY_VERSION
     container_name: openresty
     restart: always
     ports:
-      - "${PROXY_HTTP_PORT}"
-      - "${HTTPS_PORT}"
+      - "PROXY_HTTP_PORT"
+      - "HTTPS_PORT"
     working_dir: /var/www/html
     volumes:
       - ./openresty.conf:/etc/openresty/nginx.conf:ro
@@ -228,21 +228,21 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${OPENRESTY_CPU}"
-          memory: "${OPENRESTY_RAM}"   
+          cpus: "OPENRESTY_CPU"
+          memory: "OPENRESTY_RAM"   
           pids: 100
     depends_on:
-      - "php-fpm-${DEFAULT_PHP_VERSION}"
+      - "php-fpm-DEFAULT_PHP_VERSION"
     networks:
       - www
 
   nginx:
-    image: nginx:${NGINX_VERSION}
+    image: nginx:NGINX_VERSION
     container_name: nginx
     restart: always
     ports:
-      - "${PROXY_HTTP_PORT}"
-      - "${HTTPS_PORT}"
+      - "PROXY_HTTP_PORT"
+      - "HTTPS_PORT"
     working_dir: /var/www/html
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
@@ -253,22 +253,22 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${NGINX_CPU}"
-          memory: "${NGINX_RAM}"   
+          cpus: "NGINX_CPU"
+          memory: "NGINX_RAM"   
           pids: 100
     depends_on:
-      - "php-fpm-${DEFAULT_PHP_VERSION}"
+      - "php-fpm-DEFAULT_PHP_VERSION"
     networks:
       - www
 
 
   apache:
-    image: httpd:${APACHE_VERSION}
+    image: httpd:APACHE_VERSION
     container_name: apache
     restart: always
     ports:
-      - "${PROXY_HTTP_PORT}"
-      - "${HTTPS_PORT}"
+      - "PROXY_HTTP_PORT"
+      - "HTTPS_PORT"
     working_dir: /var/www/html
     volumes:
       - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
@@ -279,34 +279,34 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${APACHE_CPU}"
-          memory: "${APACHE_RAM}"
+          cpus: "APACHE_CPU"
+          memory: "APACHE_RAM"
           pids: 100
     depends_on:
-      - "php-fpm-${DEFAULT_PHP_VERSION}"
+      - "php-fpm-DEFAULT_PHP_VERSION"
     networks:
       - www
 
   varnish:
-    image: varnish:${VARNISH_VERSION}
+    image: varnish:VARNISH_VERSION
     container_name: varnish
     environment:
-      WEB_SERVER: "${WEB_SERVER}"
-      VARNISH_SIZE: "${VARNISH_SIZE}"
+      WEB_SERVER: "WEB_SERVER"
+      VARNISH_SIZE: "VARNISH_SIZE"
     command: [ "-n", "/var/lib/varnish" ]
     volumes:
       - ./default.vcl:/etc/varnish/default.vcl.template:ro  
     ports:
-      - "${HTTP_PORT}"
+      - "HTTP_PORT"
     tmpfs:
       - /var/lib/varnish:exec
     deploy:
       resources:
         limits:
-          cpus: "${VARNISH_CPU}"
-          memory: "${VARNISH_RAM}"       
+          cpus: "VARNISH_CPU"
+          memory: "VARNISH_RAM"       
     depends_on:
-      - "${WEB_SERVER}"
+      - "WEB_SERVER"
     networks:
       - www
 
@@ -315,23 +315,23 @@ services:
     container_name: cron
     command: daemon --config=/crons.ini
     volumes:
-      - /hostfs/run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
-      - /hostfs/home/${CONTEXT}/crons.ini:/crons.ini:ro
+      - /hostfs/run/user/USER_ID/docker.sock:/var/run/docker.sock:ro
+      - /hostfs/home/CONTEXT/crons.ini:/crons.ini:ro
     deploy:
       resources:
         limits:
-          cpus: "${CRON_CPU}"
-          memory: "${CRON_RAM}"
+          cpus: "CRON_CPU"
+          memory: "CRON_RAM"
           pids: 100
           
   mysql:
-    image: mysql:${MYSQL_VERSION}
+    image: mysql:MYSQL_VERSION
     container_name: mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
     ports:
-      - "${MYSQL_PORT}"     
+      - "MYSQL_PORT"     
     volumes:
       - mysql_data:/var/lib/mysql
       - mysql_dumps:/tmp/dumps/
@@ -345,8 +345,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${MYSQL_CPU}"
-          memory: "${MYSQL_RAM}"
+          cpus: "MYSQL_CPU"
+          memory: "MYSQL_RAM"
           pids: 100
     networks:
       - db
@@ -357,13 +357,13 @@ services:
       retries: 10
 
   mariadb:
-    image: mariadb:${MYSQL_VERSION}
+    image: mariadb:MYSQL_VERSION
     container_name: mariadb
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
     ports:
-      - "${MYSQL_PORT}"
+      - "MYSQL_PORT"
     volumes:
       - mysql_data:/var/lib/mysql
       - mysql_dumps:/tmp/dumps/
@@ -377,8 +377,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${MARIADB_CPU}"
-          memory: "${MARIADB_RAM}"
+          cpus: "MARIADB_CPU"
+          memory: "MARIADB_RAM"
           pids: 100
     networks:
       - db
@@ -391,30 +391,30 @@ services:
   phpmyadmin:
     container_name: phpmyadmin 
     depends_on:
-      - "${MYSQL_TYPE}"
+      - "MYSQL_TYPE"
     image: phpmyadmin
     restart: always
     volumes:
       - html_data:/html/
     ports:
-      - "${PMA_PORT}"
+      - "PMA_PORT"
     deploy:
       resources:
         limits:
-          cpus: "${PMA_CPU}"
-          memory: "${PMA_RAM}"                
+          cpus: "PMA_CPU"
+          memory: "PMA_RAM"                
           pids: 100
     environment:
-      PMA_HOST: ${MYSQL_TYPE}
+      PMA_HOST: MYSQL_TYPE
       PMA_UPLOADDIR: "/html/"
       PMA_SAVEDIR: "/html/"
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
     networks:
       - db
 
 
   redis:
-    image: redis:${REDIS_VERSION}
+    image: redis:REDIS_VERSION
     container_name: redis
     restart: unless-stopped
     command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379"]
@@ -423,8 +423,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${REDIS_CP}"
-          memory: "${REDIS_RAM}" 
+          cpus: "REDIS_CP"
+          memory: "REDIS_RAM" 
           pids: 100
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -446,14 +446,14 @@ services:
     environment:
       - APP_USER=root
       - APP_GROUP=root
-      - APP_UID=${USER_ID}
-      - APP_GID=${USER_ID}
+      - APP_UID=USER_ID
+      - APP_GID=USER_ID
       - ENABLE_TUNING_FPM=1
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_5_6_CPU}"
-          memory: "${PHP_FPM_5_6_RAM}"
+          cpus: "PHP_FPM_5_6_CPU"
+          memory: "PHP_FPM_5_6_RAM"
           pids: 100
     networks:
       - www
@@ -472,14 +472,14 @@ services:
     environment:
       - APP_USER=root
       - APP_GROUP=root
-      - APP_UID=${USER_ID}
-      - APP_GID=${USER_ID}
+      - APP_UID=USER_ID
+      - APP_GID=USER_ID
       - ENABLE_TUNING_FPM=1
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_4_CPU}"
-          memory: "${PHP_FPM_8_4_RAM}"
+          cpus: "PHP_FPM_8_4_CPU"
+          memory: "PHP_FPM_8_4_RAM"
           pids: 100
     networks:
       - www
@@ -502,34 +502,34 @@ services:
       - webserver_data:/backup/vhosts:ro
       - pg_data:/backup/postgres:ro
       - mc_data:/backup/minecraft:ro
-      - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
+      - /run/user/USER_ID/docker.sock:/var/run/docker.sock:ro
     deploy:
       resources:
         limits:
-          cpus: "${BACKUP_CPU}"
-          memory: "${BACKUP_RAM}"
+          cpus: "BACKUP_CPU"
+          memory: "BACKUP_RAM"
           pids: 100
     command: [ "backup" ]
     restart: unless-stopped
       
   minecraft:
-    image: itzg/minecraft-server:${MINECRAFT_VERSION}
+    image: itzg/minecraft-server:MINECRAFT_VERSION
     container_name: minecraft
     tty: true
     stdin_open: true
     ports:
-      - "${MINECRAFT_PORT}:25565"
+      - "MINECRAFT_PORT:25565"
     environment:
       EULA: "TRUE"
-      ENABLE_QUERY: "${MINECRAFT_ENABLE_QUERY}"
-      QUERY_PORT: "${MINECRAFT_PORT}"
+      ENABLE_QUERY: "MINECRAFT_ENABLE_QUERY"
+      QUERY_PORT: "MINECRAFT_PORT"
     volumes:
       - mc_data:/data
     deploy:
       resources:
         limits:
-          cpus: "${MINECRAFT_CPU}"
-          memory: "${MINECRAFT_RAM}"
+          cpus: "MINECRAFT_CPU"
+          memory: "MINECRAFT_RAM"
           pids: 100
     healthcheck:
       test: mc-health
