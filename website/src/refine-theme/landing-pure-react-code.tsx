@@ -345,7 +345,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${MYSQL_CPU"
+          cpus: "${MYSQL_CPU}"
           memory: "${MYSQL_RAM}"
           pids: 100
     networks:
