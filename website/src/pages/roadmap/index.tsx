@@ -46,10 +46,8 @@ const Roadmap: React.FC = () => {
                     <p>Below is a glimpse of the features planned for OpenPanel.</p>
                     <p>We share this roadmap to give our users a clear view of our future direction and to encourage feedback on which features resonate the most (or least).</p>
                     <ul>
-                        <li>Further enhancements to cluster mode and OpenAdmin.</li>
+                        <li>Further enhancements to clustering and OpenAdmin.</li>
                         <li>Autoinstallers for 40+ CMSs/scripts.</li>
-                        <li>Extensions for Blesta and Paymenter.org integration.</li>
-                        <li>Support for additional Linux distributions.</li>
                         <li>Ongoing improvements in container isolation.</li>
                     </ul>
                     <h3>Planned releases</h3>
