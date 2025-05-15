@@ -2,10 +2,10 @@
 sidebar_position: 4
 ---
 
-# Update Settings
+# Update Preferences
 
 
-The Update Settings page in OpenPanel allows you to manage and control how updates are applied. It is organized into three sections: Current Version, Auto Updates, and Update Logs.
+The Update Preferences page in OpenPanel allows you to manage and control how updates are applied. It is organized into three sections: Current Version, Auto Updates, and Update Logs.
 
 ## Current Version
 This section displays information about the version of OpenPanel currently installed on your system, as well as the latest available version.
