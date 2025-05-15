@@ -6,7 +6,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 
-# Users
+# Administrators
 
 The admin panel has three user roles:
 
