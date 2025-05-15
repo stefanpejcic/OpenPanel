@@ -98,13 +98,13 @@ export const MENU_ITEMS: MenuItemType[] = [
         label: "Forums",
         description: "Join our Community forums!",
         link: "https://community.openpanel.org/",
-        icon: DiscordIcon,
+        icon: AwesomeIcon,
       },
       {
         label: "Discord",
         description: "Join us on Discord.",
         link: "https://discord.openpanel.com",
-        icon: StoreIcon,
+        icon: ExamplesIcon,
       },
       {
         label: "Contacy Us",
