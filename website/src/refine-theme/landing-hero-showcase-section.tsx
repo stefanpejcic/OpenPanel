@@ -7,7 +7,7 @@ const ShowcaseCRM = ({ className }: { className?: string }) => {
     return (
         <ShowcaseWrapper
             className={className}
-            render="/img/ilustrations/openpanel_ilustration.png"
+            render="/img/user_dark.png"
             highlights={[]}
         />
     );
@@ -17,7 +17,7 @@ const ShowcaseHR = ({ className }: { className?: string }) => {
     return (
         <ShowcaseWrapper
             className={className}
-            render="/img/ilustrations/openadmin_ilustration.png"
+            render="/img/admin_dark.png"
             highlights={[]}
         />
     );
