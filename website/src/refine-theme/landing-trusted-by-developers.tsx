@@ -2,7 +2,7 @@ import clsx from "clsx";
 import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
 import {
     UnlimitedIcon,
-    SalesforceIcon,
+    HostkeyIcon,
     AltusHostIcon,
     DeloitteIcon,
     DigitalOceanIcon,
@@ -154,7 +154,7 @@ const list: IList = [
         id: 1,
     },
     {
-        icon: <SalesforceIcon />,
+        icon: <HostkeyIcon />,
         id: 2,
     },
     {
