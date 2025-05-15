@@ -5,7 +5,7 @@ import {
     SalesforceIcon,
     CiscoIcon,
     DeloitteIcon,
-    IbmIcon,
+    DigitalOceanIcon,
     MetaIcon,
     AtlassianIcon,
     JpMorganIcon,
