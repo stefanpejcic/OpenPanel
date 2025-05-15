@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# OpenPanel Users
+# Users
 
 OpenPanel has a single user role named **User** that can only manage their docker container and inherits settings specified by the Admin user.
 
