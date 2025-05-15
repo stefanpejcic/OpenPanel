@@ -288,7 +288,7 @@ services:
       - www
 
   varnish:
-    image: varnish:${VARNISH_VERSIONe}
+    image: varnish:${VARNISH_VERSION}
     container_name: varnish
     environment:
       WEB_SERVER: "${WEB_SERVER}"
@@ -303,8 +303,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${VARNISH_CPU"
-          memory: "${VARNISH_RAM"       
+          cpus: "${VARNISH_CPU}"
+          memory: "${VARNISH_RAM}"       
     depends_on:
       - "${WEB_SERVER}"
     networks:
