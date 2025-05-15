@@ -110,7 +110,7 @@ export const TopAnnouncement = () => {
 const Text = () => {
     return (
         <a
-            href="/beta"
+            href="/docs/admin/intro/#requirements"
             rel="noreferrer"
             className={clsx(
                 "relative lg:absolute",
@@ -131,9 +131,9 @@ const Text = () => {
             )}
         >
             <div className={clsx("ml-2", "not-prose")}>
-                Unlock powerful features and effortlessly manage users and websites with  
+                OpenPanel now offers full support for  
                 {" "}
-                <span className={clsx("font-semibold")}>OpenPanel Enterprise</span>
+                <span className={clsx("font-semibold")}>ARM CPUs (Aarch64)</span>
                 {" "}
                 <span
                     className={clsx(
@@ -142,7 +142,7 @@ const Text = () => {
                         "ml-2",
                     )}
                 >
-                    Learn More
+                    Install Now
                 </span>
             </div>
         </a>
