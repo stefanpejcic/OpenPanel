@@ -3,20 +3,14 @@ import { SVGProps } from "react";
 
 export const CiscoIcon = (props: SVGProps<SVGSVGElement>) => (
 
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   width="138.41"
-   height="29.000002"
-   viewBox="0 0 138.41 29.000002"
-   fill="none"
-   version="1.1"
-   id="svg384"
-   sodipodi:docname="logowiki_white.svg"
-   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
+   <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={138.41}
+        height={29.000002}
+        viewBox="0 0 138.41 29.000002"
+        fill="none"
+        {...props}
+    >
   <defs
      id="defs388" />
   <sodipodi:namedview
