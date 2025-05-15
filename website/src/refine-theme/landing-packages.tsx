@@ -324,15 +324,15 @@ const listOne = [
         tooltip: "opencli report",
     },
     {
-        label: "Lists all domains",
+        label: "List all domains",
         tooltip: "opencli domains-all",
     },
     {
-        label: "Reset Password",
+        label: "Reset user password",
         tooltip: "opencli user-password <USERNAME> <NEW_PASSWORD>",
     },
     {
-        label: "Suspend a domain name",
+        label: "Suspend a domain",
         tooltip: "opencli domains-suspend <DOMAIN-NAME>",
     },
     {
@@ -348,8 +348,8 @@ const listOne = [
         tooltip: "opencli user-2fa <USERNAME> disable",
     },
     {
-        label: "Create Backup Job",
-        tooltip: "opencli backup-job create",
+        label: "Enable DEV_MODE",
+        tooltip: "opencli config update dev_mode on",
     },
     {
         label: "List all Websites",
@@ -361,14 +361,14 @@ const listOne = [
     },
     {
         label: "Check updates",
-        tooltip: "opencli update [--check | --force]",
+        tooltip: "opencli update --check",
     },
     {
-        label: "Rename username",
+        label: "Rename user",
         tooltip: "opencli user-rename <old_username> <new_username>",
     },
     {
-        label: "View default PHP version",
+        label: "Check default PHP version",
         tooltip: "opencli php-default <username>",
     },
     {
@@ -376,7 +376,7 @@ const listOne = [
         tooltip: "opencli waf <setting>",
     },
     {
-        label: "Collect docker usage information",
+        label: "Collect docker stats",
         tooltip: "opencli docker-collect_stats",
     },
     {
@@ -387,40 +387,40 @@ const listOne = [
 
 const listTwo = [
     {
-        label: "View / change backup settings",
-        tooltip: "opencli backup-config get <setting_name>",
+        label: "List all API endpoints",
+        tooltip: "opencli api-list",
     },
     {
-        label: "Add Backup Destination",
-        tooltip: "opencli backup-destination create <HOSTNAME> <PASSWORD> <PORT> <USER> <PATH_TO_SSH_KEY_FILE> <STORAGE_PERCENTAGE>",
+        label: "Install a locale",
+        tooltip: "opencli locale sr-sr",
     },
     {
-        label: "View / change configuration for users and set defaults for new accounts.",
-        tooltip: "opencli config <setting_name>",
+        label: "Display error information",
+        tooltip: "opencli error ID_HERE",
     },
     {
         label: "View Login Log",
         tooltip: "opencli user-loginlog <USERNAME>",
     },
     {
-        label: "Manage mailserver",
-        tooltip: "opencli email-server <install|start|restart|stop|uninstall> [--debug]",
+        label: "Check server configuration",
+        tooltip: "opencli sentinel",
     },
     {
         label: "List user domains",
         tooltip: "opencli domains-user <USERNAME>",
     },
     {
-        label: "Fix permissions for users",
-        tooltip: "opencli files-fix_permissions [USERNAME] [PATH]",
+        label: "Change 2083 to custom port",
+        tooltip: "opencli port set <PORT>",
     },
     {
-        label: "Re-index backups",
-        tooltip: "opencli backup-index <ID>",
+        label: "Check DNS for a domain",
+        tooltip: "opencli domains-dns check",
     },
     {
-        label: "Display all active FTP connection",
-        tooltip: "opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME>",
+        label: "Collect Google PageSpeed for website",
+        tooltip: "opencli websites-pagespeed <WEBSITE>",
     },
     {
         label: "Flush mail queue",
@@ -431,8 +431,8 @@ const listTwo = [
         tooltip: "opencli php-domain <DOMAIN-NAME>",
     },
     {
-        label: "Restore from backup",
-        tooltip: "opencli backup-restore <DATE> <USER> --all",
+        label: "Disable admin panel",
+        tooltip: "opencli admin off",
     },
     {
         label: "Delete mail from queue",
