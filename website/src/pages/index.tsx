@@ -44,7 +44,7 @@ function Home() {
                             )}
                         >
                           <LandingHeroSection />
-
+                        </div>
                         <LandingSweetSpot />
                         <div
                             className={clsx(
