@@ -79,7 +79,7 @@ export const LandingSweetSpot: FC<Props> = ({ className }) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Every OpenPanel user enjoys a dedicated and isolated environment where they can install services, define PHP limits, install new versions, and configure various components such as Redis and Elasticsearch.
+                    Every OpenPanel user enjoys a dedicated and isolated environment where they can run services, define PHP/MySQL limits, and configure various components such as Varnish, Redis and Elasticsearch.
                 </p>
             </div>
 
@@ -319,8 +319,8 @@ export const LandingSweetSpot: FC<Props> = ({ className }) => {
 
 const list = [
     {
-        title: "Nginx or Apache web server",
-        description: `For each user you can choose to use Nginx or Apache web server.`,
+        title: "Nginx, Apache, Varnish",
+        description: `For each user you can choose to use Nginx, Apache, OpenResty or Varnish.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="-17.5 0 291 291" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
             <g>
@@ -346,8 +346,8 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
     {
-        title: "Isolated user accounts with Docker",
-        description: `Each user account is an isolated Docker container where user can install services and edit configuration.`,
+        title: "Isolated services with Docker",
+        description: `Each service is an isolated Docker container that is fully configurable by the user.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none">
             <path
@@ -369,7 +369,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
     {
-        title: "Separate MySQL or MariaDB servers",
+        title: "MySQL or MariaDB servers",
         description: `Each user has their own MySQL or MariaDB instance and can edit configuration settings for their databases.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 -2 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
@@ -439,8 +439,8 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-cyan-dark bg-landing-sweet-spot-glow-cyan-light",
     },
     {
-        title: "PHP, Java, Python, NodeJS",
-        description: `Each user can install PHP versions, edit .ini files and set versions per domain name.`,
+        title: "PHP, Python, NodeJS",
+        description: `Each user can run multiple PHP versions, edit .ini files and set version per domain name.`,
         icon: (props: { active: boolean }) => (
         <svg viewBox="0 0 256 134" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" width="24" height="24">
             <g fill-rule="evenodd">
@@ -465,8 +465,8 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
     {
-        title: "CSF or UFW",
-        description: `OpenPanel supports both Uncomplicated Firewall and ConfigServer Security and Firewall (CSF).`,
+        title: "CSF and CorazaWAF",
+        description: `OpenPanel fully supports ConfigServer Security and Firewall (CSF) and comes with built-in WAF.`,
         icon: (props: { active: boolean }) => (
              <AuthenticationIcon
                 className={clsx(
