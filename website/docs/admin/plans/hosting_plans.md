@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Hosting Plans
+# User Packages
 
 Hosting plans outline the available services and limitations for users. [Docker images](https://dev.openpanel.co/images/) specify the pre-installed services for a plan. [Enabled Features](/docs/admin/settings/openpanel/#enable-features) determine which pages users can access from the OpenPanel interface. 
 
