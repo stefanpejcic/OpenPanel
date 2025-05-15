@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
 import {
-    OracleIcon,
+    UnlimitedIcon,
     SalesforceIcon,
     CiscoIcon,
     DeloitteIcon,
@@ -150,7 +150,7 @@ type IList = {
 
 const list: IList = [
     {
-        icon: <OracleIcon />,
+        icon: <UnlimitedIcon />,
         id: 1,
     },
     {
