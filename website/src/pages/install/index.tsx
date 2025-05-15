@@ -77,7 +77,7 @@ const Install: React.FC = () => {
                     <p className="mb-0">Connect to your server as root via SSH and run the following command:</p>
 
                     <div className="mb-0">
-                        <pre className="my-0" style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
+                        <pre style={{ whiteSpace: "pre-wrap" }}>{generateInstallCommand()}</pre>
                     </div>
                     
                     <div className="mb-2">
@@ -92,7 +92,7 @@ const Install: React.FC = () => {
                                             name={key}
                                             value={config.value as string}
                                             onChange={handleInputChange}
-                                            className="mr-2 w-40"
+                                            className="mr-2 w-40 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
                                         >
                                             {config.options?.map(option => (
                                                 <option key={option} value={option}>{option}</option>
