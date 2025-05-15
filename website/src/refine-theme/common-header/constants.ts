@@ -36,28 +36,9 @@ export type MenuItemType = NavbarPopoverItemType | NavbarItemType;
 
 export const MENU_ITEMS: MenuItemType[] = [
     {
-        isPopover: true,
-        label: "Resources",
-        items: [
-            {
-                label: "How-to Guides",
-                description: "Everything you need to get started.",
-                link: "/docs/articles/intro/",
-                icon: ExamplesIcon,
-            },
-            {
-                label: "Install Command",
-                description: "Customize installation.",
-                link: "https://community.openpanel.org/",
-                icon: AwesomeIcon,
-            },
-            {
-                label: "Changelog",
-                description: "Latest version and updates.",
-                link: "/docs/changelog/intro/",
-                icon: BlogIcon,
-            },
-        ],
+       isPopover: false,
+       label: "Features",
+       href: "/features",
     },
     {
        isPopover: false,
