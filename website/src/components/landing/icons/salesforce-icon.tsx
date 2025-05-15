@@ -2,7 +2,15 @@ import * as React from "react";
 import { SVGProps } from "react";
 
 export const SalesforceIcon = (props: SVGProps<SVGSVGElement>) => (
-    <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 732.08 180.42">
+
+   <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={732.08}
+        height={180.42}
+        viewBox="0 0 732.08 180.42"
+        fill="none"
+        {...props}
+    >
         <defs>
             <style>
                 .cls-1,
