@@ -320,24 +320,24 @@ const PackageItem = (props: {
 
 const listOne = [
     {
-        label: "Disable admin panel",
-        tooltip: "opencli admin off",
+        label: "Generate system report.",
+        tooltip: "opencli report",
     },
     {
-        label: "List Users",
-        tooltip: "opencli user-list",
+        label: "Lists all domains",
+        tooltip: "opencli domains-all",
     },
     {
         label: "Reset Password",
         tooltip: "opencli user-password <USERNAME> <NEW_PASSWORD>",
     },
     {
-        label: "Set nameservers",
-        tooltip: "opencli config update ns1 <NAMESERVER>",
+        label: "Suspend a domain name",
+        tooltip: "opencli domains-suspend <DOMAIN-NAME>",
     },
     {
-        label: "View logout URL",
-        tooltip: "opencli config get logout_url",
+        label: "Manage OpenAdmin service",
+        tooltip: "opencli admin <setting_name>",
     },
     {
         label: "List plans",
@@ -360,24 +360,24 @@ const listOne = [
         tooltip: "opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_ID>",
     },
     {
-        label: "List backups",
-        tooltip: "opencli backup-list <USERNAME>",
+        label: "Check updates",
+        tooltip: "opencli update [--check | --force]",
     },
     {
-        label: "Set brand name",
-        tooltip: "opencli config update brand_name <NAME>",
+        label: "Rename username",
+        tooltip: "opencli user-rename <old_username> <new_username>",
     },
     {
-        label: "Change PHP version for domain",
-        tooltip: "opencli php-domain_php <DOMAIN-NAME> --update <PHP-VERSION>",
+        label: "View default PHP version",
+        tooltip: "opencli php-default <username>",
     },
     {
-        label: "Who owns Domain",
-        tooltip: "opencli domains-whoowns <DOMAIN-NAME>",
+        label: "Manage CorazaWAF",
+        tooltip: "opencli waf <setting>",
     },
     {
-        label: "Assign IP",
-        tooltip: "opencli user-ip <USERNAME> <IP_ADDRESS>",
+        label: "Collect docker usage information",
+        tooltip: "opencli docker-collect_stats",
     },
     {
         label: "Enable Memcached",
@@ -387,44 +387,44 @@ const listOne = [
 
 const listTwo = [
     {
-        label: "Change OpenPanel port",
-        tooltip: "opencli config update port <NEW-PORT>",
+        label: "View / change backup settings",
+        tooltip: "opencli backup-config get <setting_name>",
     },
     {
         label: "Add Backup Destination",
         tooltip: "opencli backup-destination create <HOSTNAME> <PASSWORD> <PORT> <USER> <PATH_TO_SSH_KEY_FILE> <STORAGE_PERCENTAGE>",
     },
     {
-        label: "Generate hostname SSL",
-        tooltip: "opencli ssl-hostname",
+        label: "View / change configuration for users and set defaults for new accounts.",
+        tooltip: "opencli config <setting_name>",
     },
     {
         label: "View Login Log",
         tooltip: "opencli user-loginlog <USERNAME>",
     },
     {
-        label: "Install new PHP version",
-        tooltip: "opencli php-install_php_version <USERNAME> <PHP-VERSION>",
+        label: "Manage mailserver",
+        tooltip: "opencli email-server <install|start|restart|stop|uninstall> [--debug]",
     },
     {
         label: "List user domains",
         tooltip: "opencli domains-user <USERNAME>",
     },
     {
-        label: "Suspend user",
-        tooltip: "opencli user-suspend <USERNAME>",
+        label: "Fix permissions for users",
+        tooltip: "opencli files-fix_permissions [USERNAME] [PATH]",
     },
     {
         label: "Re-index backups",
         tooltip: "opencli backup-index <ID>",
     },
     {
-        label: "Get PHP version for domain",
-        tooltip: "opencli php-domain_php <DOMAIN-NAME>",
+        label: "Display all active FTP connection",
+        tooltip: "opencli ftp-add <NEW_USERNAME> <NEW_PASSWORD> <FOLDER> <OPENPANEL_USERNAME>",
     },
     {
-        label: "Check Resource Usage",
-        tooltip: "opencli docker-collect_stats",
+        label: "Flush mail queue",
+        tooltip: "opencli email-server flush",
     },
     {
         label: "Login to User",
@@ -435,11 +435,11 @@ const listTwo = [
         tooltip: "opencli backup-restore <DATE> <USER> --all",
     },
     {
-        label: "Fix Permissions",
-        tooltip: "opencli files-fix_permissions [USERNAME] [PATH]",
+        label: "Delete mail from queue",
+        tooltip: "opencli email-server delete <queue id> [<queue id>]",
     },
     {
-        label: "Install ModSecurity",
-        tooltip: "opencli nginx-install_modsec",
+        label: "Install the email server",
+        tooltip: "opencli email-server install",
     },
 ];
