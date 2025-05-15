@@ -26,7 +26,7 @@ export const LandingGithubStarButton = () => {
                             )}
                         >
                     <span className={clsx("text-base", "font-semibold")}>
-                        Account Login
+                        Account
                     </span>
                 </a>
     );
