@@ -205,8 +205,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${UPTIMEKUMA_CPU:-0.35}"
-          memory: "${UPTIMEKUMA_RAM:-0.35G}"   
+          cpus: "${UPTIMEKUMA_CPU}"
+          memory: "${UPTIMEKUMA_RAM}"   
           pids: 100
     networks:
       - www
@@ -216,7 +216,7 @@ services:
     container_name: openresty
     restart: always
     ports:
-      - "${PROXY_HTTP_PORT:-${HTTP_PORT}}"
+      - "${PROXY_HTTP_PORT}"
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
