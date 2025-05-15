@@ -23,7 +23,7 @@ function Home() {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="Web Hosting panel powered by Docker">
+            <CommonLayout description="A highly customizable web hosting control panel built around containers.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div
