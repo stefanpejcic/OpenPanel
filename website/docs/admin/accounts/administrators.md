@@ -6,7 +6,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
 
-# OpenAdmin Users
+# Users
 
 The admin panel has three user roles:
 
