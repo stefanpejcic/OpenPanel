@@ -3,7 +3,7 @@ import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
 import {
     UnlimitedIcon,
     SalesforceIcon,
-    CiscoIcon,
+    AltusHostIcon,
     DeloitteIcon,
     DigitalOceanIcon,
     MetaIcon,
@@ -158,7 +158,7 @@ const list: IList = [
         id: 2,
     },
     {
-        icon: <CiscoIcon />,
+        icon: <AltusHostIcon />,
         id: 3,
     },
     {
