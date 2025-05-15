@@ -51,19 +51,35 @@ import {
 export const integrations: IntegrationsType = {
     "ui-framework-packages": [
         {
-            name: "Nginx",
-            icon: Nginx,
-            description:
-                "Run Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
-            url: "/docs/admin/intro",
-            status: "stable",
-        },
-        {
             name: "Apache",
             icon: Apache,
             description:
                 "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.",
-            url: "/docs/admin/intro",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            status: "stable",
+        },
+        {
+            name: "Nginx",
+            icon: Nginx,
+            description:
+                "Run Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            status: "stable",
+        },
+             {
+            name: "Varnish",
+            icon: Apache,
+            description:
+                "Varnish can be integrated with Nginx, Apache, or OpenResty to enhance caching and performance. Users can enable or disable caching on a per-domain basis.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            status: "stable",
+        },
+        {
+            name: "OpenResty",
+            icon: Nginx,
+            description:
+                "OpenResty allows per-user customization by defining user-specific location blocks or dynamic Lua logic in the main config. Configuration is centralized and preloaded for performance ",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
     ],
@@ -88,7 +104,7 @@ export const integrations: IntegrationsType = {
             name: "PHP versions",
             icon: PHP,
             description:
-                "Users can use different PHP versions for each domain, install new versions, set a default version for new domains, change limits by editing php.ini files.",
+                "Users can use different PHP versions for each domain, run multiple versions, set a default version for new domains, change limits by editing php.ini files.",
             url: "/docs/panel/advanced/server_settings/#php-settings",
             status: "stable",
         },
@@ -96,7 +112,7 @@ export const integrations: IntegrationsType = {
             name: "NodeJS and Python",
             icon: Python,
             description:
-                "Effortlessly create and manage NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
+                "Effortlessly create and manage containerized NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
             url: "/docs/panel/applications/pm2/",
             status: "stable",
         },
@@ -351,20 +367,28 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
-            name: "Apache or Nginx per user",
+            name: "Nginx or Apache per user",
             icon: UserServer,
             description:
-                "Administrators can select either Apache or Nginx as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
-            url: "/docs/admin/plans/hosting_plans/#create-a-plan",
+                "Administrators can select Apache, Nginx, OpenResty or Varnish as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            status: "stable",
+        },
+        {
+            name: "MySQL or MariaDB per user",
+            icon: UserServer,
+            description:
+                "Administrators can select either MySQL or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
     ],
     "live-providers": [
         {
-            name: "User containerisation",
+            name: "Containerized services",
             icon: Box,
             description:
-                "Every user account is containerised. Containers have no access to other users or server files.",
+                "Every user service is containerised. Containers have no access to other users or server files.",
             url: "/docs/panel/intro/",
             status: "stable",
         },
@@ -380,15 +404,15 @@ export const integrations: IntegrationsType = {
             name: "SSL / TLS",
             icon: SSL,
             description:
-                "Automatically provision Let's Encrypt certificates. Users can generate new certificates and seamlessly redirect all website traffic to HTTPS.",
+                "Automatically provision and renewal of Let's Encrypt certificates.",
             url: "/docs/panel/domains/SSL/",
             status: "stable",
         },
         {
-            name: "ModSecurity",
+            name: "CorazaWAF",
             icon: ModSec,
             description:
-                "Administrators can activate ModSecurity with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable ModSecurity per domain.",
+                "Administrators can activate CorazaWAF with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable WAF per domain or disable certain rules.",
             url: "/docs/admin/security/waf/",
             status: "stable",
         },
@@ -396,7 +420,7 @@ export const integrations: IntegrationsType = {
             name: "Firewall",
             icon: Firewall,
             description:
-                "Administrators can manage both CSF or UFW rules directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
+                "Administrators can manage ConfigServer Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/docs/admin/security/firewall/",
             status: "stable",
         },
@@ -409,7 +433,7 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
-            name: "Limited shell access",
+            name: "Shell access DEPRECATED",
             icon: Terminal,
             description:
                 "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
@@ -417,7 +441,7 @@ export const integrations: IntegrationsType = {
             status: "stable",
         }, 
         {
-            name: "IP blocking",
+            name: "IP blocking DEPRECATED",
             icon: IPblock,
             description:
                 "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
@@ -476,7 +500,7 @@ export const integrations: IntegrationsType = {
             icon: API,
             description:
                 "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
-            url: "https://dev.openpanel.co/api/",
+            url: "https://dev.openpanel.com/api/",
             status: "stable",
         },
     ],
