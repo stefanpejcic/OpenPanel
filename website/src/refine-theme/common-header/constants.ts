@@ -37,19 +37,25 @@ export type MenuItemType = NavbarPopoverItemType | NavbarItemType;
 export const MENU_ITEMS: MenuItemType[] = [
     {
         isPopover: true,
-        label: "Products",
+        label: "Resources",
         items: [
             {
-                label: "Community Edition",
-                description: "Free web hosting panel for VPS and private use.",
-                link: "/docs",
+                label: "How-to Guides",
+                description: "Everything you need to get started.",
+                link: "/docs/articles/intro/",
                 icon: ExamplesIcon,
             },
             {
-                label: "Enterprise Edition",
-                description: "Premium server control panel for shared hosting.",
-                link: "/blog",
-                icon: IntegrationsIcon,
+                label: "Install Command",
+                description: "Customize installation.",
+                link: "https://community.openpanel.org/",
+                icon: AwesomeIcon,
+            },
+            {
+                label: "Changelog",
+                description: "Latest version and updates.",
+                link: "/docs/changelog/intro/",
+                icon: BlogIcon,
             },
         ],
     },
@@ -57,6 +63,11 @@ export const MENU_ITEMS: MenuItemType[] = [
        isPopover: false,
        label: "Enterprise",
        href: "/beta",
+    },
+    {
+       isPopover: false,
+       label: "Live Demo",
+       href: "/demo",
    icon: NewBadgeIcon,
     },
     {
