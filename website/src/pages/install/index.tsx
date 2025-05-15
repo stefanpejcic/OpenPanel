@@ -106,7 +106,7 @@ const Install: React.FC = () => {
                                             checked={typeof config.value === "boolean" ? config.value : undefined}
                                             value={typeof config.value === "string" ? config.value : undefined}
                                             onChange={handleInputChange}
-                                            className="mr-2 w-40"
+                                            className="mr-2 w-40 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
                                         />
                                     )}
                                     <div>
