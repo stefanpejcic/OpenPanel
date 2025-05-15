@@ -1,40 +1,38 @@
 import {
-    DocumentsIcon,
-    IntegrationsIcon,
-    TutorialIcon,
-    ExamplesIcon,
-    AwesomeIcon,
-    DiscordIcon,
-    ContributeIcon,
-    RefineWeekIcon,
-    HackathonsIcon,
-    AboutUsIcon,
-    StoreIcon,
-    MeetIcon,
-    BlogIcon,
-    NewBadgeIcon,
+  DocumentsIcon,
+  IntegrationsIcon,
+  TutorialIcon,
+  ExamplesIcon,
+  AwesomeIcon,
+  ContributeIcon,
+  RefineWeekIcon,
+  HackathonsIcon,
+  AboutUsIcon,
+  StoreIcon,
+  MeetIcon,
+  BlogIcon,
+  NewBadgeIcon,
 } from "../icons/popover";
 
 export type NavbarPopoverItemType = {
-    isPopover: true;
+  isPopover: true;
+  label: string;
+  items: {
     label: string;
-    items: {
-        label: string;
-        description: string;
-        link: string;
-        icon: React.FC;
-    }[];
+    description: string;
+    link: string;
+    icon: React.FC;
+  }[];
 };
 
 export type NavbarItemType = {
-    isPopover?: false;
-    label: string;
-    icon?: React.FC;
-    href?: string;
+  isPopover?: false;
+  label: string;
+  icon?: React.FC;
+  href?: string;
 };
 
 export type MenuItemType = NavbarPopoverItemType | NavbarItemType;
-
 
 export const MENU_ITEMS: MenuItemType[] = [
   {
