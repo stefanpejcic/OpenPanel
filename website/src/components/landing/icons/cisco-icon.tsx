@@ -13,30 +13,6 @@ export const CiscoIcon = (props: SVGProps<SVGSVGElement>) => (
     >
   <defs
      id="defs388" />
-  <sodipodi:namedview
-     id="namedview386"
-     pagecolor="currentColor"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     fit-margin-top="12"
-     fit-margin-left="0"
-     fit-margin-right="5"
-     fit-margin-bottom="8"
-     inkscape:zoom="2.7622948"
-     inkscape:cx="99.554905"
-     inkscape:cy="32.038578"
-     inkscape:window-width="1600"
-     inkscape:window-height="837"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg384"
-     inkscape:showpageshadow="2"
-     inkscape:deskcolor="#d1d1d1" />
   <g
      id="g416"
      style="fill:currentColor">
