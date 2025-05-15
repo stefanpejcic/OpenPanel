@@ -162,7 +162,7 @@ const list: IList = [
         id: 3,
     },
     {
-        icon: <IbmIcon />,
+        icon: <DigitalOceanIcon />,
         id: 4,
     },
     {
