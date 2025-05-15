@@ -299,12 +299,6 @@ Services can be [pre-installed in a Docker image](https://dev.openpanel.co/image
 
 ----
 
-### Backups
-
-The Backups tab displays a list of all available backups for the user account, showcasing backup content and sizes.
-
-----
-
 ### Usage
 
 The Usage tab will display Docker container stats for the user, including CPU usage, memory percentage used at that moment, network I/O, and total block I/O. This information is the same to what users can view from [OpenPanel > Resource Usage](/docs/panel/analytics/resource_usage/).
