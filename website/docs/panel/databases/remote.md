@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Remote MySQL
 
-![databases_remote_mydql_enabled.png](/img/panel/v1/databases/databases_remote_mydql_disabled.png)
+![databases_remote_mysql.png](/img/panel/v2/databases_remotedis.png)
 
 Remote MySQL access gives you the ability to connect to a MySQL database on this server from an another (remote) device or location over the internet.
 
@@ -27,7 +27,7 @@ To enable remote access to your databases, click on the "Enable Remote MySQL Acc
 
 Once enabled, you will be provided with an IP address and a port that you can utilize to establish a secure connection to the MySQL service from a remote server.
 
-![databases_remote_mydql_enabled.png](/img/panel/v1/databases/databases_remote_mydql_enabled.png)
+![databases_remote_mysql_enabled.png](/img/panel/v2/databases_remoten.png)
 
 :::info
 The displayed port is randomly generated and unique to your MySQL instance. Avoid using the standard port `3306` for remote access, as it will not function.
@@ -101,4 +101,4 @@ define('DB_HOST', 'IP_ADDRESS:PORT');
 
 If you wish to disable access, simply click on the "Disable Remote MySQL Access" button, and it will immediately deactivate remote access in your MySQL configuration. Please be aware that this action will also necessitate a MySQL service restart to apply the new setting.
 
-![databases_remote_mydql_disabled.png](/img/panel/v1/databases/databases_remote_mydql_disabled.png)
+![databases_remote_mysql_disabled.png](/img/panel/v2/databases_remotedis.png)
