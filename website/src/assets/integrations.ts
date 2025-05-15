@@ -147,14 +147,14 @@ export const integrations: IntegrationsType = {
             url: "/docs/panel/caching/",
             status: "stable",
         },
-        {
-            name: "SSH and Web Terminal",
-            icon: Terminal,
-            description:
-                "Access the terminal remotely through SSH or log in automatically to the Web Terminal. Comes with preinstalled WPCLI and NPM for added convenience!",
-            url: "/docs/panel/advanced/ssh/",
-            status: "stable",
-        },
+        //{
+        //    name: "SSH and Web Terminal",
+        //    icon: Terminal,
+       //     description:
+       //         "Access the terminal remotely through SSH or log in automatically to the Web Terminal. Comes with preinstalled WPCLI and NPM for added convenience!",
+       //     url: "/docs/panel/advanced/ssh/",
+       //     status: "stable",
+       // },
         {
             name: "Server settings",
             icon: Configuration,
@@ -432,22 +432,22 @@ export const integrations: IntegrationsType = {
             url: "/docs/panel/account/2fa/",
             status: "stable",
         },
-        {
-            name: "Shell access DEPRECATED",
-            icon: Terminal,
-            description:
-                "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
-            url: "/docs/panel/advanced/ssh/",
-            status: "stable",
-        }, 
-        {
-            name: "IP blocking DEPRECATED",
-            icon: IPblock,
-            description:
-                "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
-            url: "",
-            status: "stable",
-        },
+       // {
+       //     name: "Shell access DEPRECATED",
+       //     icon: Terminal,
+       //     description:
+       //         "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
+       //     url: "/docs/panel/advanced/ssh/",
+       //     status: "stable",
+       // }, 
+       // {
+       //     name: "IP blocking DEPRECATED",
+       //     icon: IPblock,
+       //     description:
+       //         "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
+       //     url: "",
+       //    status: "stable",
+       // },
         {
             name: "Disable admin panel",
             icon: AdminOff,
