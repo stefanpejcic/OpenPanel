@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SVGProps } from "react";
 
-export const CiscoIcon = (props: SVGProps<SVGSVGElement>) => (
+export const AltusHostIcon = (props: SVGProps<SVGSVGElement>) => (
 
    <svg
         xmlns="http://www.w3.org/2000/svg"
