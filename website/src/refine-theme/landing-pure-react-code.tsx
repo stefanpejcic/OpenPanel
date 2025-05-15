@@ -391,7 +391,7 @@ services:
   phpmyadmin:
     container_name: phpmyadmin 
     depends_on:
-      - "${MYSQL_TYPE"
+      - "${MYSQL_TYPE}"
     image: phpmyadmin
     restart: always
     volumes:
