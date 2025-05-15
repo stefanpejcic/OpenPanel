@@ -348,12 +348,12 @@ const listOne = [
         tooltip: "opencli user-2fa <USERNAME> disable",
     },
     {
-        label: "View Backup Jobs",
-        tooltip: "opencli backup-job list",
+        label: "Create Backup Job",
+        tooltip: "opencli backup-job create",
     },
     {
-        label: "List SSLs",
-        tooltip: "opencli ssl-user <USERNAME>",
+        label: "List all Websites",
+        tooltip: "opencli websites-all",
     },
     {
         label: "Add a new user",
@@ -427,8 +427,8 @@ const listTwo = [
         tooltip: "opencli email-server flush",
     },
     {
-        label: "Login to User",
-        tooltip: "opencli user-login <USERNAME>",
+        label: "Check PHP version for domain",
+        tooltip: "opencli php-domain <DOMAIN-NAME>",
     },
     {
         label: "Restore from backup",
@@ -439,7 +439,7 @@ const listTwo = [
         tooltip: "opencli email-server delete <queue id> [<queue id>]",
     },
     {
-        label: "Install the email server",
-        tooltip: "opencli email-server install",
+        label: "Fix permissions for directory",
+        tooltip: "opencli files-fix_permissions <USERNAME> <PATH>",
     },
 ];
