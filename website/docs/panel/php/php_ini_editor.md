@@ -14,3 +14,6 @@ You can increase limits, enable new defaults, or adjust settings as needed. Chan
 ---
 
 Note: PHP.INI Editor is only available if `php_ini` feature is enabled by Administrator.
+
+The Allocation variables for the php containers such as CPU and MEM should also be adjusted for your needs, this can be done at OpenPanel > Docker > Containers , these limits are written to the users .env file.
+
