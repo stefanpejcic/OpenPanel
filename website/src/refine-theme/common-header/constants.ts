@@ -4,6 +4,7 @@ import {
     TutorialIcon,
     ExamplesIcon,
     AwesomeIcon,
+    DiscordIcon,
     ContributeIcon,
     RefineWeekIcon,
     HackathonsIcon,
@@ -97,7 +98,7 @@ export const MENU_ITEMS: MenuItemType[] = [
         label: "Forums",
         description: "Join our Community forums!",
         link: "https://community.openpanel.org/",
-        icon: AboutUsIcon,
+        icon: DiscordIcon,
       },
       {
         label: "Discord",
