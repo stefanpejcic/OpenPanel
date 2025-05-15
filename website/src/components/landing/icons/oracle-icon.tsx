@@ -4,8 +4,8 @@ import { SVGProps } from "react";
 export const OracleIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={201.33}
-    height={800}
+    width={187}
+    height={80}
     viewBox="0 0 800 201.333"
     fill="none"
     {...props}
