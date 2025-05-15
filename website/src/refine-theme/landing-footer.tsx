@@ -318,7 +318,7 @@ export const LandingFooter = () => {
                         )}
                     >
                         {
-                            "© 2024, OpenPanel  - made with  "
+                            "© 2025, OpenPanel  - made with  "
                         }
                         <HeartOutlinedIcon
                             className={clsx(
