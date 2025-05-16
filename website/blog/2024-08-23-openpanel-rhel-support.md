@@ -6,7 +6,7 @@ authors: stefanpejcic
 tags: [OpenPanel, news, version]
 image: https://openpanel.co/img/blog/OPENPANEL-BLOG-1500x800.png
 hide_table_of_contents: true
-is_featured: true
+is_featured: false
 
 ---
 
