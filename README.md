@@ -76,7 +76,7 @@ Supported OS:
 - Ubuntu 22.04 and 24.04 (recommended)
 - Debian 11 and 12
 - AlmaLinux 9.5 *(recommended for ARM cpu)
-- RockyLinux 9
+- RockyLinux 9.3
 - CentOS 9.5
 
 ## Installation
