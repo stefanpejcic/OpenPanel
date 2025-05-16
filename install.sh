@@ -1210,7 +1210,7 @@ if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
     echo "Success, usrquota and grpquota are already set for /"
 else
     # Add usrquota and grpquota to the fstab entry (only for the root entry)
-    sudo sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
+    sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
 fi
 	systemctl daemon-reload >/dev/null 2>&1
 	quotaoff -a >/dev/null 2>&1
@@ -1632,8 +1632,8 @@ install_python312() {
             debug_log add-apt-repository -y ppa:deadsnakes/ppa
         elif [ "$OS" == "debian" ]; then
             echo "Debian detected, adding backports repository."
-            wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
-            cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
+            wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            cat <<EOF | tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
 Suites: bookworm-backports
@@ -1641,6 +1641,7 @@ Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
         fi
+	
         debug_log $PACKAGE_MANAGER update -y
         debug_log $PACKAGE_MANAGER install -y python3.12-venv
 
@@ -1666,8 +1667,8 @@ EOF
      
         elif [ "$OS" == "debian" ]; then
             debug_log "adding backports repository."
-            debug_log wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | sudo tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
-            debug_log cat <<EOF | sudo tee /etc/apt/sources.list.d/pascalroeleven.sources
+            debug_log wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
+            debug_log cat <<EOF | tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
 Suites: bookworm-backports
