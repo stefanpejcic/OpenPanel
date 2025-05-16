@@ -1002,7 +1002,7 @@ create_rdnc() {
 	
 	    echo "Generating rndc.key for DNS zone management."
 	
-	    debug_log timeout 30 docker --context default run --rm \
+	    debug_log timeout 90 docker --context default run --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
