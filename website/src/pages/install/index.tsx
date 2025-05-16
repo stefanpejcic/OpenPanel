@@ -99,12 +99,30 @@ const Install: React.FC = () => {
                                         </select>
                                     ) : (
                                         <input
-                                            type={typeof config.value === "boolean" ? "checkbox" : "text"}
+                                            type={
+                                                key === "email" ? "email" :
+                                                typeof config.value === "boolean" ? "checkbox" : "text"
+                                            }
                                             id={key}
                                             name={key}
-                                            checked={typeof config.value === "boolean" ? config.value : undefined}
-                                            value={typeof config.value === "string" ? config.value : undefined}
+                                            {...(typeof config.value === "boolean"
+                                                ? { checked: config.value }
+                                                : { value: config.value })}
                                             onChange={handleInputChange}
+                                            pattern={
+                                                key === "username" || key === "password"
+                                                    ? "^[a-zA-Z0-9]+$"
+                                                    : key === "domain"
+                                                    ? "^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.[A-Za-z]{2,6}$"
+                                                    : undefined
+                                            }
+                                            title={
+                                                key === "username" || key === "password"
+                                                    ? "Only letters and numbers are allowed"
+                                                    : key === "domain"
+                                                    ? "Enter a valid domain, e.g. openpanel.server.com"
+                                                    : undefined
+                                            }
                                             className="mr-2 w-40 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
                                         />
                                     )}
