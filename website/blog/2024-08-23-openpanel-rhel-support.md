@@ -17,9 +17,8 @@ OpenPanel now supports all major RHEL Distributions: AlmaLinux, Fedora, RockyLin
 
 Starting from OpenPanel [0.2.6](/docs/changelog/0.2.6/) the following OS are supported:
 
-- **AlmaLinux 9.4**
-- **Fedora 40**
-- **RockyLinux 9.4**
+- **AlmaLinux 9.5**
+- **RockyLinux 9.3**
 - **CentOS 9**
 - **Ubuntu 22 and 24**
 - **Debian 11 and 12**
