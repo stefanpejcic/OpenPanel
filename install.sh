@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           16.05.2025
+# Last Modified:           17.05.2025
 #
 ################################################################################
 
@@ -183,7 +183,7 @@ set_version_to_install(){
      	    response=$(curl -4 -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
      	    PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
      	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-     	    	PANEL_VERSION="1.2.9" # fallback if hub.docker.com unreachable to first tag that supports arm
+     	    	PANEL_VERSION="1.3.0" # fallback if hub.docker.com unreachable to first tag that supports arm
      	    fi
 	fi
 }
