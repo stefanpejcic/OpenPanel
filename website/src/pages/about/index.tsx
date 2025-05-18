@@ -203,18 +203,6 @@ OpenPanel{" "}
     <b>started in 2023</b>
     , as a basic bootstrap interface with a database schema designed to handle anywhere from 10 to 500 users on a single server without issues. It was initially a LAMP stack with a fancy, yet buggy, GUI. But as we grew, so did our ideas.
 </p>
-            <p>
-One of our more ambitious concepts was to{" "}
-                <b>use Docker containers to isolate users</b>
-                ' websites. However, this approach proved unscalable for shared servers with hundreds of users. Managing the overhead of memory and disk space became a significant challenge, especially when a single WordPress site needed at least three containers (database, PHP, and web server).
-</p>
-
-<p>
-We eventually pivoted to a{" "}
-    <b>one Docker per user</b> 
-    {" "}approach, sacrificing some flexibility but gaining a more stable environment. This method allowed hosting providers to manage resources more effectively, although it requires us to build and  maintain our custom images  rather than using official Docker ones.
-    </p>        
-
 
 
         </div>
@@ -333,7 +321,7 @@ While we considered going fully open-source, we decided to keep certain parts pr
             What is next ? 🔮
           </h4>
 <p>
-Under the continued leadership of Stefan Pejčić, OpenPanel remains committed to staying ahead of technological trends and addressing the risks that come with them.
+Under the continued leadership of Stefan Pejcic, OpenPanel remains committed to staying ahead of technological trends and addressing the risks that come with them.
 </p>
             <p>
 We are dedicated to constantly improving our platform to offer{" "}
