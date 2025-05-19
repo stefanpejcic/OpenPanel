@@ -6,7 +6,7 @@ wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubuse
 systemctl restart admin  > /dev/null 2>&1
 
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-MODULES_TO_CHECK=("mysql" "filemanager" "php")
+MODULES_TO_CHECK=("mysql" "domains" "filemanager" "php")
 
 # Check if the config file exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
