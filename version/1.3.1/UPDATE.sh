@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-MODULES_TO_CHECK=("mysql" "filemanager")
+MODULES_TO_CHECK=("mysql" "filemanager" "php")
 
 # Check if the config file exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
