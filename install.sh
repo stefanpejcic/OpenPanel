@@ -39,7 +39,6 @@ CORAZA=true                                                           # install 
 SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false                                        # send admin logins to specified email
 SET_PREMIUM=false                                                     # added in 0.2.1
-UFW_SETUP=false                                                       # previous default on <0.2.3
 CSF_SETUP=true                                                        # default since >0.2.2
 SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
@@ -79,8 +78,6 @@ install_started_message(){
     echo -e "During this time, we will:"
     if [ "$CSF_SETUP" = true ]; then
     	echo -e "- Install necessary services and tools: CSF, Docker, MySQL, SQLite, Python3, PIP.. "
-    elif [ "$UFW_SETUP" = true ]; then
-    	echo -e "- Install necessary services and tools: UFW, Docker, MySQL, SQLite, Python3, PIP.. "
     else
 	echo -e "- Install necessary services and tools: Docker, MySQL, SQLite, Python3, PIP.. "
     fi
@@ -95,8 +92,6 @@ install_started_message(){
     fi
     if [ "$CSF_SETUP" = true ]; then
     	echo -e "- Set up ConfigServer Firewall for enhanced security."
-    elif [ "$UFW_SETUP" = true ]; then
-    	echo -e "- Set up Uncomplicated Firewall for enhanced security."
     fi
 
     echo -e "- Set up 2 hosting plans so you can start right away."
@@ -263,7 +258,7 @@ detect_os_cpu_and_package_manager             # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
 install_python312
 update_package_manager                    # update dnf/yum/apt-get
-install_packages                          # install docker, csf/ufw, sqlite, etc.
+install_packages                          # install docker, csf, sqlite, etc.
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
 edit_fstab                                # enable quotas
 setup_bind                                # must run after -configuration
@@ -352,9 +347,8 @@ parse_args() {
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
-        echo "  --skip-firewall                 Skip installing UFW or CSF - Only do this if you will set another external firewall!"
+        echo "  --skip-firewall                 Skip installing CSF - Only do this if you will set another external firewall!"
         echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
-        echo "  --ufw                           Install and setup Uncomplicated Firewall (was default in <0.2.3)"
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
@@ -408,12 +402,7 @@ while [[ $# -gt 0 ]]; do
             SKIP_FIREWALL=true
             ;;
         --csf)
-            UFW_SETUP=false
             CSF_SETUP=true
-            ;;
-        --ufw)
-            UFW_SETUP=true
-            CSF_SETUP=false
             ;;
         --no-waf)
             CORAZA=false
@@ -895,84 +884,6 @@ setup_firewall_service() {
 	else
 		echo -e "[${RED} X  ${RESET}] ConfigServer Firewall is not installed properly."
  	fi
-
-
-
-   
-        
-        elif [ "$UFW_SETUP" = true ]; then
-          echo "Setting up UncomplicatedFirewall.."
-	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
-	    	dnf makecache --refresh   > /dev/null 2>&1
-      		dnf install -y ufw  > /dev/null 2>&1
-      
-	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-              	apt-get install -y ufw  > /dev/null 2>&1
-	    fi
-   
-
-          # set ufw to be monitored instead of csf
-          sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/notifications.ini"  > /dev/null 2>&1
-          sed -i 's/ConfigServer Firewall/Uncomplicated Firewall/g' "${ETC_DIR}openadmin/config/services.json" > /dev/null 2>&1
-          sed -i 's/csf/ufw/g' "${ETC_DIR}openadmin/config/services.json"  > /dev/null 2>&1
-
-	  # https://github.com/stefanpejcic/OpenPanel/issues/340
-   	if [ "$SKIP_DNS_SERVER" = true ]; then
-    	  echo "Removing BIND service from monitoring due to the '--skip-dns-server' flag."
-	  sed -i 's/,named//' "${ETC_DIR}openadmin/config/openadmin/config/admin.ini" > /dev/null 2>&1
-          sed -i 's/,dns//' "$CONFIG_FILE"  > /dev/null 2>&1
-	  sed -i 's|^- /etc/bind:/etc/bind|#&|' /root/docker-compose.yml > /dev/null 2>&1
-	fi
-
-
-          # set ufw logs instead of csf
-          sed -i 's/"CSF Deny Log"/"UFW Logs"/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
-	  sed -i 's/\/etc\/csf\/csf.deny/\/var\/log\/ufw.log/' "${ETC_DIR}openadmin/config/log_paths.json"  > /dev/null 2>&1
-   
-          debug_log wget --inet4-only -qO /usr/local/bin/ufw-docker https://github.com/chaifeng/ufw-docker/raw/master/ufw-docker  > /dev/null 2>&1 && 
-          debug_log chmod +x /usr/local/bin/ufw-docker
-
-
-  
-          # block all docker ports so we can manually open only what is needed
-          debug_log ufw-docker install
-          debug_log ufw allow 80/tcp                # http
-	  
-	  if [ "$SKIP_DNS_SERVER" = true ]; then
-   	     echo "Port 53 is skipped due to the '--skip-dns-server' flag."
-	  else
-             debug_log ufw allow 53                 # dns
-	  fi
-          debug_log ufw allow 443/tcp               # https
-	  debug_log ufw allow 465/tcp               # email
-          debug_log ufw allow 2083/tcp              # openpanel
-          debug_log ufw allow 2087/tcp              # openadmin 
-    	  debug_log ufw allow 21/tcp                # ftp
-          debug_log ufw allow 21000:21010/tcp       # passive ftp
-          debug_log "yes | ufw enable"
-	  
-          if [ "$NO_SSH" = false ]; then
-  
-              # whitelist user running the script
-              ip_of_user_running_the_script=$(w -h | grep -m1 -oP '\d+\.\d+\.\d+\.\d+')
-              debug_log ufw allow from $ip_of_user_running_the_script
-  
-              # close port 22
-              debug_log ufw allow 22  #ssh
-          fi
-
-          debug_log ufw --force enable
-          debug_log ufw reload
-  
-          debug_log systemctl restart ufw
-
-	   	if command -v ufw > /dev/null 2>&1; then
-			echo -e "[${GREEN} OK ${RESET}] UncomplicatedFirewall (UFW) is installed and configured."
-		else
-			echo -e "[${RED} X  ${RESET}] Uncomplicated Firewall (UFW) is not installed properly."
-	 	fi
-   
-          fi
     fi
 }
 
@@ -1173,7 +1084,7 @@ install_packages() {
  	# needed for csf
 	debug_log dnf --allowerasing install perl -y
 
-        #  needed for ufw and gunicorn
+        #  needed for gunicorn
         debug_log dnf install epel-release -y
 
         # needed for admin panel
