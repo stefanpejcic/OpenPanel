@@ -181,7 +181,11 @@ set_version_to_install(){
 
 	if [ "$CUSTOM_VERSION" = false ]; then
      	    response=$(curl -4 -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
-     	    PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
+     	    if command -v jq &> /dev/null; then
+     	    	PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
+     	    else
+     	    	PANEL_VERSION=$(echo "$response" | grep -o '"name":"[^"]*"' | head -n 1 | sed 's/"name":"\([^"]*\)"/\1/')
+     	    fi
      	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
      	    	PANEL_VERSION="1.3.0" # fallback if hub.docker.com unreachable to first tag that supports arm
      	    fi
