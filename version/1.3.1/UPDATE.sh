@@ -57,3 +57,11 @@ if is_container_running "openpanel"; then
 else
     echo "Container 'openpanel' is not running. Skipping restart."
 fi
+
+
+
+
+echo ""
+echo "📥 Changing branch from '1.1' to 'main' for OpenCLI scripts.."
+rm -rf /usr/local/opencli
+cd /usr/local/ && git clone https://github.com/stefanpejcic/opencli
