@@ -885,6 +885,7 @@ setup_firewall_service() {
 		echo -e "[${RED} X  ${RESET}] ConfigServer Firewall is not installed properly."
  	fi
     fi
+    fi
 }
 
 update_package_manager() {
