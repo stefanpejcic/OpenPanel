@@ -1,4 +1,4 @@
-## 🔑 OpenAdmin Keyboard Shortcuts
+# 🔑 OpenAdmin Keyboard Shortcuts
 
 Openadmin can be navigated using keyboard shortcuts:
 
