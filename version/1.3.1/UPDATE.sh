@@ -3,7 +3,12 @@
 echo ""
 echo "📥 Updating openadmin service.."
 wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
-systemctl restart admin  > /dev/null 2>&1
+
+echo ""
+echo "📥 Installing features for openadmin.."
+wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json
+
+systemctl restart admin > /dev/null 2>&1
 
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 MODULES_TO_CHECK=("mysql" "domains" "filemanager" "php")
