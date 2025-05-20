@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+
+opencli config update session_duration 100
+
 echo ""
 echo "📥 Updating openadmin service.."
 wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
