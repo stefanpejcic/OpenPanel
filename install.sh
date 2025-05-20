@@ -1189,7 +1189,7 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
-    git clone -b 1.1 --single-branch  https://github.com/stefanpejcic/opencli.git
+    git clone https://github.com/stefanpejcic/opencli.git
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
