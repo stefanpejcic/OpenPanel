@@ -147,14 +147,14 @@ export const integrations: IntegrationsType = {
             url: "/docs/panel/caching/",
             status: "stable",
         },
-        //{
-        //    name: "SSH and Web Terminal",
-        //    icon: Terminal,
-       //     description:
-       //         "Access the terminal remotely through SSH or log in automatically to the Web Terminal. Comes with preinstalled WPCLI and NPM for added convenience!",
-       //     url: "/docs/panel/advanced/ssh/",
-       //     status: "stable",
-       // },
+        {
+            name: "Web Terminal",
+            icon: Terminal,
+            description:
+                "Run commands inside Docker containers easily with WebTerminal — a simple interface to access and manage containers directly from your browser.",
+            url: "/docs/panel/containers/terminal/",
+            status: "stable",
+        },
         {
             name: "Server settings",
             icon: Configuration,
