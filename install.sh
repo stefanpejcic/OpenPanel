@@ -1272,16 +1272,19 @@ set_email_address_and_email_admin_logins(){
                   TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")
 		  
                 PROTOCOL="http"
+		admin_domain="127.0.0.1"
+  
 	        if [ "$SET_HOSTNAME_NOW" = true ]; then
 		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
 	                 if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
 	                	PROTOCOL="https"
+		  		admin_domain="$new_hostname"
 			fi
 	            fi
 	        fi
                 
                 # Send email using appropriate protocol
-                curl -4 -k -X POST "$PROTOCOL://127.0.0.1:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
+                curl -4 -k -X POST "$PROTOCOL://$admin_domain:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
                 
                 }
 
@@ -1303,12 +1306,29 @@ generate_and_set_ssl_for_panels() {
 	CADDYFILE="/etc/openpanel/caddy/Caddyfile"
 	HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
 
-	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
-	    debug_log "Detected Hostname Domain: $HOSTNAME"
+ 	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then    
      	    cd /root && docker --context default compose up -d caddy               # start and generate ssl
-	    debug_log curl -4 https://$HOSTNAME:2087                # let caddy genetate ssl
-            # todo: check if ssl files exist, then restart admin panel
-            debug_log systemctl restart admin                      # will start with domain and ssl automatically 
+
+		MAX_RETRIES=5
+		SLEEP_SECONDS=5
+		SUCCESS=0
+		for ((i=1; i<=MAX_RETRIES; i++)); do
+		    debug_log echo "Attempt $i to generate SSL for $HOSTNAME..."
+		    if curl -4 -sf -o /dev/null "https://$HOSTNAME"; then
+			debug_log echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
+			SUCCESS=1
+   			debug_log systemctl restart admin
+			break
+		    else
+			debug_log echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
+			debug_log docker restart caddy
+			sleep $SLEEP_SECONDS
+		    fi
+		done
+		if [ $SUCCESS -ne 1 ]; then
+		    echo "Failed to generate SSL certificate after $MAX_RETRIES attempts. OpenAdmin fallback to using HTTP protocol."
+		    exit 1
+		fi
 	fi
     fi
 }
