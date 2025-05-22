@@ -15,7 +15,7 @@ wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercont
 systemctl restart admin > /dev/null 2>&1
 
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-MODULES_TO_CHECK=("mysql" "domains" "filemanager" "php")
+MODULES_TO_CHECK=("mysql" "domains" "autoinstaller" "filemanager" "php")
 
 # Check if the config file exists
 if [[ ! -f "$CONFIG_FILE" ]]; then
