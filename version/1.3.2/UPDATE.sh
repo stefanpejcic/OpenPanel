@@ -3,8 +3,6 @@
 
 mkdir -p /etc/openpanel/openpanel/features
 
-opencli config update session_duration 100
-
 echo ""
 echo "📥 Downloading dfault feature set for new users.."
 wget -O /etc/openpanel/openpanel/features/default.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/default.txt
