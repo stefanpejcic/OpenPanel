@@ -13,7 +13,6 @@ echo "📥 Installing features for openadmin.."
 wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json
 
 systemctl restart admin > /dev/null 2>&1
-
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 MODULES_TO_CHECK=("mysql" "domains" "autoinstaller" "filemanager" "php")
 
@@ -23,15 +22,23 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
     exit 1
 fi
 
-# Get the current enabled_modules line
-current_modules=$(grep "^enabled_modules=" "$CONFIG_FILE" | cut -d= -f2)
+# Extract the current enabled_modules (strip quotes)
+current_modules=$(grep "^enabled_modules=" "$CONFIG_FILE" | cut -d= -f2 | sed 's/^"\(.*\)"$/\1/')
 
-# Keep track of changes
+# Convert to array
+IFS=',' read -ra current_array <<< "$current_modules"
+
+# Create a set for quick lookup
+declare -A current_set
+for mod in "${current_array[@]}"; do
+    current_set["$mod"]=1
+done
+
 modules_modified=false
 
 # Loop through each required module
 for module in "${MODULES_TO_CHECK[@]}"; do
-    if echo "$current_modules" | grep -qw "$module"; then
+    if [[ -n "${current_set[$module]}" ]]; then
         echo "'$module' is already enabled."
     else
         echo "Adding '$module' to enabled_modules..."
@@ -40,11 +47,12 @@ for module in "${MODULES_TO_CHECK[@]}"; do
     fi
 done
 
-# Update the file only if we added new modules
+# Update the config file only if changed
 if [ "$modules_modified" = true ]; then
-    sed -i "s/^enabled_modules=.*/enabled_modules=\"${current_modules}\"/" "$CONFIG_FILE"
+    sed -i "s|^enabled_modules=.*|enabled_modules=\"${current_modules}\"|" "$CONFIG_FILE"
     echo "Updated enabled_modules in config file."
 fi
+
 
 # Function to check if a Docker container is running
 is_container_running() {
