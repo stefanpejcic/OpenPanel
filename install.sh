@@ -182,7 +182,7 @@ set_version_to_install(){
      	    	PANEL_VERSION=$(echo "$response" | grep -o '"name":"[^"]*"' | head -n 1 | sed 's/"name":"\([^"]*\)"/\1/')
      	    fi
      	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-     	    	PANEL_VERSION="1.3.0" # fallback if hub.docker.com unreachable to first tag that supports arm
+     	    	PANEL_VERSION="1.3.1" # fallback if hub.docker.com unreachable
      	    fi
 	fi
 }
