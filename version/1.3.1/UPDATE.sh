@@ -36,6 +36,7 @@ if [[ $modules_modified -eq 1 ]]; then
     updated_modules=$(IFS=','; echo "${enabled_array[*]}")
     # Use double quotes around the value when writing back
     sed -i "s/^enabled_modules=\".*\"/enabled_modules=\"${updated_modules}\"/" "$CONFIG_FILE"
+    sed -i "s/^enabled_modules=\(.*\)$/enabled_modules=\"\1\"/" "$CONFIG_FILE"
     echo "Updated enabled_modules in config file."
 fi
 
