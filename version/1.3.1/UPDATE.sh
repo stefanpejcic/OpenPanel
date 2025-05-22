@@ -17,31 +17,30 @@ systemctl restart admin > /dev/null 2>&1
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 MODULES_TO_CHECK=("mysql" "domains" "autoinstaller" "filemanager" "php")
 
-# Check if the config file exists
-if [[ ! -f "$CONFIG_FILE" ]]; then
-    echo "Config file not found: $CONFIG_FILE"
-    exit 1
-fi
+current_modules=$(grep "^enabled_modules=" "$CONFIG_FILE" | sed -E 's/^enabled_modules="(.*)"/\1/')
+modules_modified=0
 
-# Get the current enabled_modules line
-current_modules=$(grep "^enabled_modules=" "$CONFIG_FILE" | cut -d= -f2)
+IFS=',' read -r -a enabled_array <<< "$current_modules"
 
-# Keep track of changes
-modules_modified=false
-
-# Loop through each required module
 for module in "${MODULES_TO_CHECK[@]}"; do
-    if echo "$current_modules" | grep -qw "$module"; then
+    if printf '%s\n' "${enabled_array[@]}" | grep -qx "$module"; then
         echo "'$module' is already enabled."
     else
         echo "Adding '$module' to enabled_modules..."
-        current_modules="${current_modules},$module"
-        modules_modified=true
+        enabled_array+=("$module")
+        modules_modified=1
     fi
 done
 
+if [[ $modules_modified -eq 1 ]]; then
+    updated_modules=$(IFS=','; echo "${enabled_array[*]}")
+    # Use double quotes around the value when writing back
+    sed -i "s/^enabled_modules=\".*\"/enabled_modules=\"${updated_modules}\"/" "$CONFIG_FILE"
+    echo "Updated enabled_modules in config file."
+fi
+
 # Update the file only if we added new modules
-if [ "$modules_modified" = true ]; then
+if [ "$modules_modified" -eq 1 ]; then
     sed -i "s/^enabled_modules=.*/enabled_modules=${current_modules}/" "$CONFIG_FILE"
     echo "Updated enabled_modules in config file."
 fi
