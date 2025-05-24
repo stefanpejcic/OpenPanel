@@ -4,7 +4,7 @@
 mkdir -p /etc/openpanel/openpanel/features
 
 echo ""
-echo "📥 Downloading dfault feature set for new users.."
+echo "📥 Downloading default feature set for new users.."
 wget -O /etc/openpanel/openpanel/features/default.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/default.txt
 
 echo ""
