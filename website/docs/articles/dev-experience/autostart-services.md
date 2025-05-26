@@ -9,7 +9,7 @@ Upon installing OpenPanel, only the following services are started:
 - **OpenAdmin** – For managing the entire server and users.
 - **Docker** – Needed for all other containerized services and user accounts.
 - **Database** – MySQL database is created and initialized. This database holds Plans, Websites, Domains, and Users.
-- **Firewall** – CSF or UFW are installed and started.
+- **Firewall** – CSF is installed and started.
 
 Other services are installed and started only when required.
 
@@ -37,8 +37,7 @@ Services that auto-start for each user:
 
 | Service            | Installed | Auto-start                                         |
 |--------------------|-----------|---------------------------------------------------|
-| Apache / Nginx     | ✔       | After the user adds the first domain               |
-| SSH                | ✘        | After the user enables remote SSH access           |
+| Apache / Nginx     | ✔       | After the user adds the first domain               |       |
 | REDIS              | ✘        | After the user installs and activates it           |
 | Memcached          | ✘        | After the user installs and activates it           |
 | Elasticsearch      | ✘        | After the user installs and activates it           |
