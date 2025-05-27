@@ -700,8 +700,6 @@ tweak_ssh(){
 
 	#echo "Generating MOTD for users.. *(auto-refreshed every 10hrs)"
 	opencli server-motd   > /dev/null 2>&1
-	#ln -s /etc/openpanel/ssh/99-ssh-openpanel-users-settings.conf /etc/ssh/sshd_config.d/99-ssh-openpanel-users-settings.conf  > /dev/null 2>&1
-	chmod +x /etc/openpanel/ssh/lazydocker.sh > /dev/null 2>&1
 
 	# ssh on debian, sshd on rhel
 	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
