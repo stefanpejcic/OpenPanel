@@ -10,12 +10,13 @@ sidebar_class_name: green
 
 | Version| Release date | 
 |---|---|
-|__[1.3.3](/docs/changelog/1.3.3)__| June 10, 2025 | 
+|__[1.3.4](/docs/changelog/1.3.4)__| June 10, 2025 | 
 
 ### Latest
 
 | Version| Release date | 
 |---|---|
+|__[1.3.3](/docs/changelog/1.3.3)__| May 28, 2025 | 
 |__[1.3.2](/docs/changelog/1.3.2)__| May 25, 2025 | 
 
 
