@@ -699,7 +699,7 @@ tweak_ssh(){
 
 
 	#echo "Generating MOTD for users.. *(auto-refreshed every 10hrs)"
-	opencli server-motd   > /dev/null 2>&1
+	#opencli server-motd   > /dev/null 2>&1   #user has no access to check version: {"error": "Docker image or .env files are missing."}
 
 	# ssh on debian, sshd on rhel
 	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
