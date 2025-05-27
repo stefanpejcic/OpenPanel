@@ -20,7 +20,7 @@ echo "Setting default feature set for all existing users.."
 for dir in /home/*; do
   if [ -d "$dir" ]; then
     if [ -f "$dir/.env" ]; then
-      ln -sf /etc/openpanel/openpanel/features/default.txt "$dir/features.txt"
+      rm -rf "$dir/features.txt"
       echo "- Default feature set applied for user $dir"
     fi
   fi
