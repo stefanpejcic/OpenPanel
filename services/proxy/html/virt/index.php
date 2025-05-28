@@ -31,6 +31,10 @@ $ch = curl_init($targetUrl);
 
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true); // -L
+
+//$proxy = 'http://IP_HERE:3128';  // proxy site!
+//curl_setopt($ch, CURLOPT_PROXY, $proxy);
+
 curl_setopt($ch, CURLOPT_HEADER, false);
 curl_setopt($ch, CURLOPT_HTTPHEADER, ['X-Forwarded-For: ' . $ip]);
 curl_setopt($ch, CURLOPT_RESOLVE, ["$domainOnly:80:$ip"]); // :443 to require ssl
