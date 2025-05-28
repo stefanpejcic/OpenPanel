@@ -285,7 +285,3 @@ login_blocklimit=20
 
 If a user successfully logs in, the counter for `login_blocklimit` will reset.
 Failed login attempts and blocked IP addresses are logged in the `/var/log/openpanel/admin/failed_login.log` file for OpenAdmin and in the `/var/log/openpanel/user/failed_login.log` file for OpenPanel.
-
-### IP blocking per domain
-
-Users can block IP addresses per domain name.
