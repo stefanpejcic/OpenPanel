@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json
 
 wget -O /etc/openpanel/openpanel/features/default.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/default.txt
@@ -12,6 +13,14 @@ if grep -q "^ *admin off" "$CADDYFILE"; then
 else
     echo "No 'admin off' line found or it's already commented."
 fi
+
+
+
+
+wget -O /tmp/tailwind.css http://185.119.90.220:2083/static/dist/output.css
+docker cp /tmp/tailwind.css openpanel:/static/dist/output.css
+rm -rf /tmp/tailwind.css
+
 
 
 
