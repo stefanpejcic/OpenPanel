@@ -27,7 +27,7 @@ export const LandingHeroGithubStars = () => {
                     });
 
                 // Get the latest version from the sorted list
-                const latestVersion = filteredTags.length > 0 ? filteredTags[0] : '1.2.0';  // new verzija tag
+                const latestVersion = filteredTags.length > 0 ? filteredTags[0] : '1.3.4';  // new verzija tag
                 setVersion(latestVersion); // Update the version state
             } catch (error) {
                 console.error('Failed to fetch version:', error);
