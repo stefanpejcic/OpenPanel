@@ -52,7 +52,29 @@ The installation script supports [optional flags](/install) that can be used to 
 If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
 
   </TabItem>
+  <TabItem value="openpanel-install-on-absible" label="Ansible">
+
+```bash
+---
+- name: Install OpenPanel on target machine
+  hosts: all
+  become: true
+  vars:
+    openpanel_install_flags: "--debug --username=admin --password=super123"  # Customize your flags here, full list: https://openpanel.com/install
+
+  tasks:
+    - name: Download and run OpenPanel installer 
+      shell: |
+        curl -sSL https://openpanel.org | bash -s -- {{ openpanel_install_flags }}
+      args:
+        executable: /bin/bash
+```
+
+  </TabItem>
   <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean Droplet">
+
+
+**THIS DROPLET MAGE IS OUTDATED - LOOKING FOR MAINTAINERS**
 
 OpenPanel is available as a 1-Click app (droplet) on DigitalOcean. Click on the button to spin a droplet with OpenPanel already installed:
 
