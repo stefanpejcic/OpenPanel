@@ -41,7 +41,7 @@ modules_modified=false
 
 # Loop through each required module
 for module in "${MODULES_TO_CHECK[@]}"; do
-    if [[ -n "${current_set[$module]}" ]]; then
+    if [[ ",$current_modules," == *",$module,"* ]]; then
         echo "'$module' is already enabled."
     else
         echo "Adding '$module' to enabled_modules..."
