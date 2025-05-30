@@ -29,15 +29,17 @@ On the main WP Manager page you can:
 
 ### Install WordPress
 
-You can quickly install any of the latest 10 WordPress versions with just a few clicks. Each WordPress installation is sourced directly from wp.org, and OpenPanel handles all additional steps, including creating a MySQL database and user, connecting it with the files, configuring the domain based on your choice of Nginx or Apache WebServer, and setting up WordPress.
+You can quickly install any of the latest 10 WordPress versions with just a few clicks. 
+
+Each WordPress installation is sourced directly from wp.org and OpenPanel handles all of the additional steps, including creating a MySQL database and user, connecting it with the files, configuring the domain based on your choice of Nginx or Apache WebServer, and setting up WordPress.
 
 To install WordPress you need to first add a domain name.
 
-After adding a domain name, click on the 'New Website' button in the sidebar and on popup click on WordPress
+After adding a domain name, click on the 'Site Manager' button in the sidebar to access the Auto Installer tool.
 
-![new_site_popup.png](/img/panel/v1/applications/new_site_popup.png)
+To create a new WordPress installation click on the "+ New website" button and choose to Install WordPress.
 
-Same page can be accessed by navigating to WordPress Manager and clicking on the Install button. 
+![new_site_popup.png](/img/panel/v2/site_manager_new.png)
 
 In the install form set:
 
@@ -50,8 +52,9 @@ In the install form set:
 
 and click on the 'Start Installation' button.
 
-![wp_install_domain.png](/img/panel/v1/applications/wp_install_domain.png)
+![wp_install_domain.png](/img/panel/v2/wordpress_new.png)
 
+![wp_install.png](/img/panel/v2/wordpress_install.png)
 
 ### Scan (Import) Installations
 
