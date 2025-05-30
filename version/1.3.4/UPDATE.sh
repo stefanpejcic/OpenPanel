@@ -25,7 +25,16 @@ UPDATE users SET user_domains = '0' WHERE user_domains = '';
 -- Step 2: Modify the column to INT
 ALTER TABLE users MODIFY COLUMN user_domains INT NOT NULL DEFAULT 0;
 
--- Step 3: Create trigger for insert
+-- Step 3: Recalculate user_domains count
+UPDATE users u
+LEFT JOIN (
+    SELECT user_id, COUNT(*) AS domain_count
+    FROM domains
+    GROUP BY user_id
+) d ON u.id = d.user_id
+SET u.user_domains = COALESCE(d.domain_count, 0);
+
+-- Step 4: Create triggers
 DELIMITER //
 
 CREATE TRIGGER increment_user_domains
@@ -36,7 +45,6 @@ BEGIN
 END;
 //
 
--- Step 4: Create trigger for delete
 CREATE TRIGGER decrement_user_domains
 AFTER DELETE ON domains
 FOR EACH ROW
