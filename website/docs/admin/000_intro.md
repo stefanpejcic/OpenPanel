@@ -250,7 +250,7 @@ OpenPanel has been built from the ground up with security in mind. Internet hist
 
 
 ### Firewall
-OpenPanel supports both [ConfigServer & Firewall (CSF)](/docs/admin/security/firewall/#csf) and [UncomplicatedFirewall (UFW)](/docs/admin/security/firewall/#ufw).
+OpenPanel supports [ConfigServer & Firewall (CSF)](/docs/admin/security/firewall/#csf).
 
 ### Rootless Docker
 Each user runs docker in rootless mode, ensuring containers can not commmunicate using docker networks and providing more issolation.
