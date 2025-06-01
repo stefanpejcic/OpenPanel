@@ -20,7 +20,7 @@ fi
 wget -O /tmp/tailwind.css http://185.119.90.220:2083/static/dist/output.css
 docker cp /tmp/tailwind.css openpanel:/static/dist/output.css
 rm -rf /tmp/tailwind.css
-
+docker restart openpanel
 
 
 
