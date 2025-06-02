@@ -100,7 +100,7 @@ Recommended steps after installing OpenPanel:
 - [set domain for accessing panels](/docs/admin/settings/general/#set-domain-for-openpanel)
 - [set custom nameservers](/docs/admin/settings/openpanel/#set-nameservers)
 - [create a hosting plan](/docs/admin/plans/hosting_plans#create-a-plan)
-- [create a new user account](/docs/admin/users/openpanel#create-users)
+- [create a new user account](/docs/admin/accounts/users/#create-users)
 - [set admin email for server alerts](/docs/admin/notifications/#email-alerts)
 
 ### Access OpenAdmin
