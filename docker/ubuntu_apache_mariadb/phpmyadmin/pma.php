@@ -26,6 +26,6 @@ if ($providedToken === $fileToken) {
     header("Location: ./index.php?$query_params_str");
 } else {
     // Handle invalid token (e.g., show an error message)
-    echo "Invalid token: $fileToken";
+    echo "Invalid token: $providedToken";
 }
 ?>
