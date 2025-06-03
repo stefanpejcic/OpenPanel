@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Domain Management
+# Domains
 
 To create a website, it's necessary to first [add a domain name](/docs/panel/domains/#adding-domains).
 
