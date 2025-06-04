@@ -48,6 +48,7 @@ To ensure successful SSL generation:
 * The **A record** for the domain must point to the server's **IPv4 address**.
 * The DNS must be **fully propagated**. Use tools like [whatsmydns.net](https://www.whatsmydns.net/#A) to check.
 * The domain must be accessed via `https://` at least once to trigger certificate generation. Open the domain in a browser using `https`.
+
 If:
 
 * The domain was just added,
