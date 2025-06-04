@@ -41,7 +41,7 @@ export const menuItems = [
         label: "Product",
         items: [
             {
-                label: "Features List",
+                label: "Features",
                 href: "/features",
             },
             {
@@ -59,18 +59,14 @@ export const menuItems = [
         ],
     },
     {
-        label: "Company",
+        label: "About",
         items: [
             {
-                label: "About Us",
-                href: "/about",
-            },
-            {
-                label: "Our Blog",
+                label: "Blog",
                 href: "/blog",
             },
             {
-                label: "Contact Us",
+                label: "Contact",
                 href: "mailto:info@openpanel.com",
             },
         ],
