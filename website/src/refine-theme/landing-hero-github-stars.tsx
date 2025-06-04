@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
-    const [version, setVersion] = useState('1.2.9'); // Default version
+    const [version, setVersion] = useState('1.3.6'); // Default version
 
     useEffect(() => {
         // Function to fetch the latest version tag from Docker Hub
