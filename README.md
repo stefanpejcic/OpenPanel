@@ -44,7 +44,7 @@ Some of the features worth mentioning are:
 - Users configure their own backup destinations.
 
 And unique features that simply made sense 💁 to us:
-- User and admin panels are completelly isolated when needed
+- User and admin panels are completelly isolated
 - SSL is automatically generated and renewed
 - Services auto-start only when needed so resources are not wasted
 - Gooogle PageSpeed data is automatically displayed for every website in Site Manager
@@ -52,9 +52,9 @@ And unique features that simply made sense 💁 to us:
 - Users can suspend websites
 - Administrators can receive daily usage reports
 - Users can add comments for DNS records
-- Download files from URL in File Manager
-- Users can save pages to Favorites
-- Users can view their active sessions
+- Download files from URL and drag-and-drop file upload in File Manager
+- Users can save pages to Favorites for quick navigation
+- Users can view/terminate their active sessions
 - Detailed activity log of all actions
 - Admins can add custom message per user
 - and a lot more 🙌
