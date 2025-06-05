@@ -3,9 +3,9 @@
 
 mkdir -p /etc/openpanel/openpanel/features
 
-wget -O /etc/openpanel/openpanel/features/default.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/default.txt
-wget -O /etc/openpanel/openpanel/features/basic.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/basic.txt
-wget -O /etc/openpanel/openpanel/features/mysql_only.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/mysql_only.txt
+wget --inet4-only -O /etc/openpanel/openpanel/features/default.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/default.txt
+wget --inet4-only -O /etc/openpanel/openpanel/features/basic.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/basic.txt
+wget --inet4-only -O /etc/openpanel/openpanel/features/mysql_only.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/features/mysql_only.txt
 
 
 
