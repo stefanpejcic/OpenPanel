@@ -8,8 +8,6 @@ The OpenAdmin offers an administrator-level interface where you can efficiently 
 
 The dashboard page is the hub of the Admin interface and provides the overview of the current server performance, services and usage.
 
-![openadmin dashboard](/img/admin/openadmin_dashboard.png)
-
 On top of the pages, header contains:
 
 - **Search bar** to search users, domains or settings pages.
@@ -40,21 +38,15 @@ To hide a widget click on the "Dismiss" button that appears when hovering over a
 
 The OpenAdmin dashboard's 'User Activity' widget shows a log of actions taken by OpenPanel users, with a focus on those performed by the Administrator. The log is organized from newest to oldest, and active users, who have taken actions in the last 30 minutes, are marked with a green dot on the right side. To view detailed activity information, click on the user icon (avatar) to open their user account page with the Activity tab.
 
-![openadmin dashboard activity widget](/img/admin/openadmin_dashboard_activity_widget.png)
-
 
 ## Usage
 
 The OpenAdmin dashboard's 'Usage' widget displays historical resource usage for teh server: number of websites, domains and users.
 
-![openadmin dashboard usage widget](/img/admin/openadmin_dashboard_usage_widget.png)
-
 
 ## Quick start guide
 
 Quick start guide highlights the recommended steps for the Administrator to perform upon installing OpenPanel.
-
-![openadmin dashboard quick_start_guide](/img/admin/dashboard/quick_start_guide.png)
 
 These steps include:
 
@@ -68,8 +60,6 @@ These steps include:
 ## Services Status
 
 The Services Status widget displays a list of services managed by OpenPanel and enables you to check their current status, restart them, or start/stop when needed.
-
-![OpenAdmin Dashboard Services Widget](/img/admin/openadmin_dashboard_services_widget.png)
 
 Services can be configured from [Services > Service Status](/docs/admin/services/status) page.
 
@@ -89,13 +79,10 @@ The System Information widget displays overview about your server configuration:
 - Uptime
 - Number of running processes
 
-![OpenAdmin Dashboard System information widget](/img/admin/openadmin_dashboard_system_info.png)
 
 ## Latest News
 
 The Latest News widget displays last 10 posts from [openpanel.co/blog](/blog/):
-
-![OpenAdmin Dashboard Latest News widget](/img/admin/openadmin_dashboard_latest_news.png)
 
 
 
