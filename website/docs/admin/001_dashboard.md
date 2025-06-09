@@ -4,95 +4,38 @@ sidebar_position: 2
 
 # Dashboard
 
-The OpenAdmin offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, configuring backups, and editing OpenPanel settings.
+The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
 
-The dashboard page is the hub of the Admin interface and provides the overview of the current server performance, services and usage.
-
-
-On top of the pages, header contains:
-
-- **Search bar** to search users, domains or settings pages.
-- **Dark mode toggle:** Allows you to switch between dark and light modes.
-- **Notifications indicator:** Displays important server-wide alerts.
-- **Avatar:** Indicates the admin username with options to edit the profile.
-
+![openadmin dashboard widget](/img/admin/dashboard/openadmin_dashboard_widget.gif)
 
 The dashboard page contains 13 widgets:
 
-- **Users** widget: Displays the total number of user accounts.
-- **Backups** widget: Shows the number of backup jobs and indicates backup errors if any.
-- **Plans** widget: Indicates the number of plans available.
-- **Load Averages** widget: Presents real-time server load with color indicators.
-- **Memory Usage** widget: Provides the current memory usage with color indicators.
-- **Activity** widget: Displays the latest activities of all users and the Administrator.
-- **Usage** widget: Displays the historical usage for websites, domains and users.
-- **Quick start guide** widget: Displays recommended steps for the Administrator to perform after installing OpenPanel.
-- **Services status** widget: Displays the status of monitored services and actions to control them.
-- **System Information** widget: Displays server configuration.
-- **Latest News** widget: Displays latest news from [the openpanel.co blog](/blog/).
-- **CPU** widget: Illustrates real-time usage for each CPU core with color indicators.
-- **Disk usage** widget: Presents server partitions and disk usage for each partition.
-
-To hide a widget click on the "Dismiss" button that appears when hovering over a widget.
-
-## User Activity
-
-The OpenAdmin dashboard's 'User Activity' widget shows a log of actions taken by OpenPanel users, with a focus on those performed by the Administrator. The log is organized from newest to oldest, and active users, who have taken actions in the last 30 minutes, are marked with a green dot on the right side. To view detailed activity information, click on the user icon (avatar) to open their user account page with the Activity tab.
+- **Overview** widget: Displays the total number of nodes (servers), containers, users, domains, websites, hosting packages and email accounts.
+- **Resource Usage** widget: Shows the real-time server resource usage for: Average Load, CPU% per core, Used and Free Memory, and Disk Usage.
+- **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
+- **Latest News Activity** widget: Displays blog articles from the OpenPanel blog.
+- **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
 
 
-## Usage
+## Dark Mode
 
-The OpenAdmin dashboard's 'Usage' widget displays historical resource usage for teh server: number of websites, domains and users.
+To enable Dark Mode, click your username in the bottom-left corner and select the Moon icon. To switch back to Light Mode, click the Sun icon.
 
+![openadmin dark mode](/img/admin/dashboard/openadmin_dark_mode_toggle.gif)
 
-## Quick start guide
+## Menu
 
-Quick start guide highlights the recommended steps for the Administrator to perform upon installing OpenPanel.
+OpenAdmin menu lists all available options in the OpenAdmin interface. Simply click on a menu item to open it.
 
-These steps include:
+## Search
 
-- Set domain name instead of IP address for accessing OpenPanel
-- Create a hosting plan and create a user account
-- Settings custom nameservers to be used for domains
-- Install and configure ModSecurity WAF for Nginx
-- Schedule remote backups
+Search returns:
 
-
-## Services Status
-
-The Services Status widget displays a list of services managed by OpenPanel and enables you to check their current status, restart them, or start/stop when needed.
-
-Services can be configured from [Services > Service Status](/docs/admin/services/status) page.
-
-The Admin service is excluded from the list since stopping that service will disable the OpenAdmin interface. To disable the admin panel, use the 'Disable Admin Panel' option from Settings > OpenAdmin.
+- OpenPanel users with login link for their OpenPanel
+- Webiste/Domains of users
+- Features/pages in the Admin interface
 
 
-## System Information
+## Logout
 
-The System Information widget displays overview about your server configuration:
-
-- Hostname
-- Operating System
-- OpenPanel version
-- Current Server Time
-- Kernel version
-- CPU logo and details on hover
-- Uptime
-- Number of running processes
-
-## Latest News
-
-The Latest News widget displays last 10 posts from [openpanel.co/blog](/blog/):
-
-
-## CPU
-
-The CPU usage percentage represents the amount of the CPU's processing power that is currently being utilized. It indicates how much of the CPU's capacity is in use at a specific moment. For example, a CPU usage of 50% means that the CPU is operating at half of its maximum processing capacity, while 100% usage indicates that the CPU is fully utilized, and there may be resource constraints or performance issues.
-
-The data is auto-refreshed every 1 second to provide real-time updates.
-
-
-## Disk Usage
-
-The Disk Usage widget provides an overview of your system's disk usage. It displays information about each mounted disk partition, including details such as the device, mount point, filesystem type, and the amount of space used and available in a human-readable format (in gigabytes, GB or terabytes, TB). The 'Usage Percentage' column indicates the percentage of disk space currently in use.
-
+To log out of the OpenAdmin account, click your username in the bottom-left corner and select 'Sign out' option.
