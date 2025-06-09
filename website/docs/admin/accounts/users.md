@@ -33,13 +33,14 @@ opencli user-list
 Example output:
 ```bash
 opencli user-list
-+----+----------+-----------------+-----------------+---------------------+
-| id | username | email           | plan_name       | registered_date     |
-+----+----------+-----------------+-----------------+---------------------+
-| 52 | stefan   | stefan          | cloud_4_nginx_3 | 2023-11-16 19:11:20 |
-| 53 | petar    | petarc@petar.rs | cloud_8_nginx   | 2023-11-17 12:25:44 |
-| 54 | rasa     | rasa@rasa.rs    | cloud_12_nginx  | 2023-11-17 15:09:28 |
-+----+----------+-----------------+-----------------+---------------------+
++----+----------------------------------+----------------------+----------------+------------------+-------+---------------------+
+| id | username                         | email                | plan_name      | server           | owner | registered_date     |
++----+----------------------------------+----------------------+----------------+------------------+-------+---------------------+
+|  3 | forums                           | stefan@openpanel.com | Standard plan  | forums           | NULL  | 2025-05-08 19:25:47 |
+|  7 | pcx3                             | stefan@pejcic.rs     | Developer Plus | pcx3             | NULL  | 2025-05-09 12:26:20 |
+|  9 | openpanelwebsite                 | info@openpanel.com   | Standard plan  | openpanelwebsite | NULL  | 2025-05-09 14:47:27 |
+| 19 | SUSPENDED_20250529173435_radovan | radovan@jecmenica.rs | Standard plan  | radovan          | NULL  | 2025-05-29 07:47:15 |
++----+----------------------------------+----------------------+----------------+------------------+-------+---------------------+
 ```
 
 You can also format the data as JSON:
@@ -67,6 +68,8 @@ curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE
   <TabItem value="openadmin-users-new" label="OpenAdmin" default>
 
 To create a new user, click on the 'New User' button on the Users page. A new section will be displayed with a form where you can set the email address, username, generate a strong password, and assign a hosting plan for the user.
+
+![add new user openadmin](/img/admin/2025-06-09_08-20.png)
 
   </TabItem>
   <TabItem value="CLI-users-new" label="OpenCLI">
@@ -121,7 +124,9 @@ Example response:
 <Tabs>
   <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
 
-To reset password for a user click on the Edit dropdown in table for that user in OpenAdmin > Users or from the individual User page click on "Edit information" and set the new password in the Password field then save.
+To reset password for a user click on the user in *OpenAdmin > Users *or from the individual User page click on "Edit" tab and set the new password in the Password field then click Save.
+
+![add new user openadmin](/img/admin/reset_password.png)
 
 
   </TabItem>
@@ -153,187 +158,83 @@ curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: applic
 </Tabs>
 
 
-## Detailed User Information
+## Single User
 
-To view detailed information about a user, click on their Gravatar, username or the *Manage* button in the users table.
-
-This page shows detailed information about the account and provides tools to manage it.
-
-The username is displayed at the top, along with the status of the Docker container for the user. Colors indicate whether the user is suspended or if the Docker container has encountered an error. Next to the username, there are buttons that allow you to suspend/unsuspend the user, delete the user, a configure button to edit user settings inside their Docker container, and a 'Login as user' button that automatically logs you into their OpenPanel interface.
-
-There are 4 widgets on top of the page:
+To view detailed information about a user, and edit their settings, click on their username in the users table.
 
 
-- **CPU Usage:** Shows the current CPU usage of all processes by the user, represented in percentage with color indicators.
-- **Memory Usage:** Displays the current memory usage of the Docker container, represented in percentage with color indicators.
-- **Disk Usage:** Shows the current disk usage of the user's Docker container, represented in percentage with color indicators.
-- **IP Address:** Displays the public IPv4 address for the user, indicating whether the user has a Dedicated IP address assigned.
+### Statistics 
 
-----
+Statistics is the default tab, displays current usage statistics:
 
-The next section is divided into two parts: tabs and widgets.
+- Storage used
+- Inodes used
+- CPU usage
+- Memoru usage
+- Number of running containers
+- Disk I/O
+- Network I/O
+- Number of PIDs
+- Time statistics usage was last update
+- Historical usage
 
-There are 6 tabs that allow you to view relevant information about the user's Docker container:
+![user statistics](/img/admin/user_usage.png)
 
-### Docker
-
-The Docker tab displays information about the Docker container for the user, including:
-
-- **Server:** Server on which the container is running.
-- **Private IP:** Private IP address within the plan network that the container is using.
-- **ID:** Unique container ID for that user container.
-- **Memory Allocated:** RAM allocated to the user container (can be manually extended even beyond the plan limit).
-- **CPU:** Number of CPU cores allocated to the container (can also be increased outside the plan limits).
-- **Docker Image:** The name of the image (Nginx or Apache) that the container is using and the OS in the image (Debian or Ubuntu).
-- **Hostname:** Hostname that the user sees via SSH in their Docker container (same as your server name).
-- **Exposed Ports:** Ports inside the Docker container that accept incoming connections (e.g., ports for SSH, MySQL, REDIS, Apache).
-- **Container Created:** Timestamp when the container was started (may be different from the account creation date).
-
-
-
-
-### Disk Usage
-
-<Tabs>
-  <TabItem value="openadmin-user-du" label="With OpenAdmin" default>
-
-*Disk Usage* section displays real-time disk usage for a user: 
-
-- `/home/username` is used for all website files that user uploads to their home directory.
-- `/var/lib/docker/devicemapper/mnt/..` is the total file system that the user's Docker container is limited to; this includes the OS itself, system services, databases, logs, etc.
-
-
-  </TabItem>
-  <TabItem value="CLI-user-du" label="With OpenCLI">
-
-To view disk usage summary for a user, run the following command:
-
-```bash
-opencli user-disk <USERNAME> summary
-```
-Example:
-
-```bash
-# opencli user-disk stefan summary
-
--------------- disk usage --------------
-- 564M  /home/stefan
-- 864M  /var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
-```
-
-
-To view detailed report of current disk usage for a user, run the following command:
-
-```bash
-opencli user-disk <USERNAME> detail
-```
-Example:
-
-```bash
-# opencli user-disk stefan detail
-------------- home directory -------------
-- home directory:        /home/stefan
-- mountpoint:            /home/stefan
-- bytes used:            61440
-- bytes total:           10375548928
-- bytes limit:           true
-- inodes used:           20
-- inodes total:          1000960
----------------- container ---------------
-- container directory:   /var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
-- bytes used:            1025388544
-- bytes total:           10726932480
-- inodes used:           20905
-- inodes total:          5242880
-- storage driver:        devicemapper
-```
-
-
-To view home directory and docker container paths for a user, run the following command:
-
-
-```bash
-opencli user-disk <USERNAME> path
-```
-Example:
-
-```bash
-# opencli user-disk stefan path
-
--------------- paths --------------
-- home_directory=/home/stefan
-- docker_container_path=/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184
-```
-
-
-
-  </TabItem>
-</Tabs>
-
-
-
-----
-
-### Websites
-
-The Websites tab will display all domains and websites that the user has inside their Docker container.
-
-- **Domains table** showcases information such as domain name, root directory, and links to view the access log for the domain, edit DNS records, and edit the VirtualHost file for Nginx associated with the domain.
-- **Websites table** displays the website URL, type (WordPress, Node.js, or Python), CMS version, and the time when the user installed or added it to the Site Manager interface.
-
-
-To view access log for a domain click on the 'View Access Log' link.
-
-To view and edit DNS zone for a domain, click on the 'DNS Zone' link.
-
-To view and edit Nginx configuration for a domain, click on the 'VirtualHosts' link.
-
-----
 
 ### Services
 
-The Services tab displays a list of all services installed inside the user's Docker container, along with their current status. You have options to start, stop, or restart a service.
+Services page displays all user services (docker containers):
 
-Services can be [pre-installed in a Docker image](https://dev.openpanel.co/images/), which is recommended for production to reduce the disk usage required for idle user accounts. Alternatively, they can be [installed later by an administrator](#) or by a user.
+- Service name
+- Docker Image name and tag
+- Current CPU usage
+- Allocated CPU for the service
+- Current Memory usage
+- Allocated Memory for the service
+- Current status: Enabled or Disabled
+- Terminal link to run docker exec commands in that service.
 
+![docker services](/img/admin/docker_services.png)
 
-----
+### Overview
 
-### Usage
+Overview page displays detailed user inforamtion and allows Administrator to set a custom message specifically for this user.
 
-The Usage tab will display Docker container stats for the user, including CPU usage, memory percentage used at that moment, network I/O, and total block I/O. This information is the same to what users can view from [OpenPanel > Resource Usage](/docs/panel/analytics/resource_usage/).
+![user overview](/img/admin/2025-06-09_08-34.png)
 
-----
+Displayed information:
+
+- User ID
+- Email Address
+- IP Address
+- Geo Location for the IP
+- Server Name
+- Docker Context
+- 2FA status
+- Setup Time
+- Custom Message for user
+
 
 ### Activity
 
-The Activity tab shows the user's account activity log, providing the same information users can view from OpenPanel > Account Activity page.
+Displays [users activity log](/docs/panel/account/account_activity/).
 
-----
+- Date
+- Action performed
+- IP Address
 
-### General information
+![user activity](/img/admin/login_log.png)
 
-General information widget displays the general information about the user and their container:
+### Edit
+From the Edit tab, Administrators can edit user information:
 
-- **User ID:** Unique ID for the user account.
-- **Email Address:** Current email address for the user.
-- **Two Factor:** Indicates whether 2FA is enabled by the user.
-- **Hosting Plan:** Name of the hosting plan assigned to the user.
-- **IP Address:** Public IPv4 address for the user.
-- **Server Location:** Flag and country name indicating the geolocation of the IP address.
-- **Private IP:** Private IP address for the Docker container used in internal networking.
-- **Setup Date:** Date when the user account was created.
-- **Domains:** Number of domains that the user has added.
-- **Websites:** Number of websites that the user has added.
+- Username
+- Email address
+- Password
+- IP address
+- Hosting Package
 
-To edit any information for the user, click on the 'Edit Information' link, and a new modal will be displayed where you can change the username, email, plan, IP, or password.
-
-----
-
-### Ports
-
-The Ports widget displays all ports published in the user's Docker container and corresponding randomly generated ports for the user on the host server machine.
-
+![user edit](/img/admin/edit_user.png)
 
 ## Suspend User
 
@@ -342,8 +243,9 @@ The Ports widget displays all ports published in the user's Docker container and
 
 Suspending an account will immediately disable the user's access to the OpenPanel. This action involves pausing the user's Docker container and revoking access to their email, website, and other associated services. Please be aware of the immediate impact before proceeding.
 
-To suspend a user click on the Suspend button on that user page and click on 'Suspend' on the confirmation modal.
+To suspend a user click on the Suspend link on that user page and type the username to confirm, then click on 'Suspend account' button.
 
+![suspend user](/img/admin/openadmin_suspend_user.gif)
 
   </TabItem>
   <TabItem value="CLI-user-suspend" label="With OpenCLI">
