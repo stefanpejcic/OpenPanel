@@ -6,8 +6,6 @@ sidebar_position: 6
 
 Notifications are accessible from the notification icon in upper right corner. 
 
-![notifications center](/img/admin/notifications_center.png)
-
 
 OpenPanel records the following actions:
 
@@ -64,32 +62,9 @@ Updated load to 10
     
 To confirm receipt of a notification, select the checkmark icon located in front of it. Once a notification is confirmed, subsequent notifications of the same type will be logged if the issue persists. For instance, if a service is unavailable, the system will generate an initial notification. However, if you acknowledge the notification and the service remains unrecovered, the next time the check is executed, it will log another notification.
 
-Example notifications:
-
-On Server Reboot
-![reboot](/img/admin/dashboard/reboot.png)
-
-If service is inactive:
-![service](/img/admin/dashboard/service.png)
-
-If CPU usage is over a threshold:
-![cpu](/img/admin/dashboard/cpu.png)
-
-If new version of OpenPanel is available:
-![update](/img/admin/dashboard/update.png)
-
-If Memory usage is over a threshold:
-![ram](/img/admin/dashboard/ram.png)
-
-If system is running out of disk space:
-![disk](/img/admin/dashboard/disk.png)
-
 ### Email alerts
 
 To receive email alerts, simply add your email address to the 'Email for notifications' field or leave it empty to disable email alerts.
-
-
-![screenshot](/img/admin/service_alert.png)
 
 
 If enabled, by default OpenPanel will send email alerts from noreply@openpanel.co
@@ -132,6 +107,4 @@ opencli config update mail_default_sender stefan@example.net
 ### Daily Usage Reports
 
 If email alerts are enabled, you will also receive Usage Reports:
-
-![image](/img/admin/daily_report.png)
 
