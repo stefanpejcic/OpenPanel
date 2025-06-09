@@ -28,8 +28,9 @@ Each notification  type can be disabled and threshold limits can be set by the A
 <Tabs>
   <TabItem value="openadmin-notifications-view" label="With OpenAdmin" default>
 
-To view current notification settings, click on the bell icon in the top menu.
-You can view the current settings, and modify them.
+To view current notification settings, click on the 'Settings' button on the Notification page.
+
+![openadmin notifications settings](/img/admin/openadmin_notifications_settings.png)
 
   </TabItem>
   <TabItem value="CLI-notifications-view" label="With OpenCLI">
