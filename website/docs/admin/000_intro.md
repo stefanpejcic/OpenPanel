@@ -4,11 +4,7 @@ sidebar_position: 1
 
 # Get Started
 
-The OpenAdmin offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, configuring backups, and editing OpenPanel settings.
-
-![openpanel vs openadmin](/img/admin/openadmin_vs_openpanel_what_is_the_difference.png)
-
-
+The OpenAdmin offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, enabling featrues, and editing OpenPanel settings.
 
 ## Requirements
 
