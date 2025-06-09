@@ -8,6 +8,4 @@ Use the Server Time section to update the system-wide timezone for both the host
 
 Changing the timezone ensures that logs, scheduled tasks, and UI timestamps align with your desired regional time settings.
 
-After applying a new timezone, it is recommended to restart the server, or at minimum, restart the following services to apply changes correctly:
-
-```systemctl restart admin cron```
+:::info After changing timezone, we recommend to restart the server or at least the OpenAdmin and Cron services: systemctl restart admin cron. :::
