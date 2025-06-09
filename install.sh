@@ -1,16 +1,16 @@
 #!/bin/bash
 ################################################################################
 #
-# Install the latest version of OpenPanel ✌️
+# OpenPanel Installer ✌️
 # https://openpanel.com/install
 #
 # Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
-# Supported Architecture:  x86_64, aarch64
+# Supported Architecture:  x86_64(AMD64), AArch64(ARM64)
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           08.06.2025
+# Last Modified:           09.06.2025
 #
 ################################################################################
 
