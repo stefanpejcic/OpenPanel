@@ -6,7 +6,7 @@ To customize OpenPanel, you have the following options:
 
 - [Display personalized message per user](#personalized-messages)
 - [Enable/disable features and pages from the OpenPanel interface](#enabledisable-features)
-- [Set pre-installed services for users](#set-pre-installed-services)
+- [Add custom icons in Dashboard page](/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard)
 - [Customize Default, Suspended User and Suspended Domain pages](@customize-templates)
 - [Localize the interface](#localize-the-interface)
 - [Set custom branding](#set-custom-branding)
