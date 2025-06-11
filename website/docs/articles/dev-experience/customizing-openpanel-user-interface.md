@@ -23,29 +23,19 @@ To customize OpenPanel, you have the following options:
 
 ## Personalized messages
 
-Administrators can set a custom message to be displayed for any OpenPanel user by creating/editing file `/etc/openpanel/openpanel/core/users/USERNAME/custom_message.html` file. Both plain text and HTML code are accepted:
+Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Users** page.
 
-![custom_message_per_user](https://i.postimg.cc/5xTqkddZ/2024-09-05-15-52.png)
+![custom img](https://i.postimg.cc/9CCgHGG2/2025-06-11-12-26.png)
 
 ## Enable/disable features
 
-Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface. To activate a feature, navigate to [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#enable-features) and select service name in the "Enable Features" section and click save. 
+Administrators have the ability to enable or disable each feature (page) in the OpenPanel interface per plan or per-user base. 
 
 Once enabled, the feature becomes instantly available to all users, appearing in the OpenPanel interface sidebar, search results, and dashboard icons.
 
-
-
-
 ## Set pre-installed services
 
-OpenPanel uses [docker images](https://dev.openpanel.com/images/) as the base for each hosting plan. Based on the docker image, different services can be set per plan/user. For examples, we provide 2 docker images, one that has nginx pre-installed and another that uses apache. By creating a custom docker image, you can set in that image what to be pre-installed when you create a new user, for example, set mariadb instead of mysql or install php ioncube loader extension.
-
-To add a custom service pre-installed for users:
-
-- [Create a custom docker image](/docs/articles/docker/building_a_docker_image_example_include_php_ioncubeloader/)
-- [Create a new hosting plan with that docker image](/docs/admin/plans/hosting_plans/#create-a-plan)
-- [Create a new user on that plan](/docs/admin/users/openpanel/#create-users)
-
+OpenPanel uses docker compose files as the base for each user. Based on the docker images in that compose filese, different services can be set per plan/user. 
 
 
 ## Localize the interface
@@ -54,28 +44,12 @@ OpenPanel is localization ready and can easily be translated into any language.
 
 OpenPanel is shipped with the EN locale, [additional locales can be installed by the Administrator](https://dev.openpanel.com/localization.html#How-to-translate).
 
-To install additional locales (replace `de-de` with your locale):
-
-```bash
-opencli locale de-de
-```
-
-To translate OpenPanel to another language follow these steps:
-
-1. Fork [this repository](https://github.com/stefanpejcic/openpanel-translations).
-2. Copy `en_us` to your locale e.g. `es_es`
-3. Translate the `messages.pot` file
-4. Send a [pull request](https://github.com/stefanpejcic/openpanel-translations/pulls)
-
-
-
 
 ## Set custom branding
 
 Custom brand name and logo can be set from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#branding) page.
 
 To set a custom name visible in the OpenPanel sidebar and on login pages, enter the desired name in the "Brand name" option. Alternatively, to display a logo instead, provide the URL in the "Logo image" field and save the changes.
-
 
 
 ## Customize Templates
