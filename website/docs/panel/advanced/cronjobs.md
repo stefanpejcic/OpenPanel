@@ -45,7 +45,7 @@ The second field allows you to set a predefined (common) schedule:
 
 To edit an existing cronjob, click on the 'Edit' button next to it. This action will open a modal displaying the current cronjob as saved in the crontab file.
 
-![cronjobs_edit.png](/img/panel/v1/advanced/cronjobs_edit.png)
+![cronjobs_edit.gif](/img/panel/v2/cron_edit.gif)
 
 To modify the schedule for when the script is executed, update the first part of the script. You can configure the schedule using a tool such as https://crontab.guru/
 
