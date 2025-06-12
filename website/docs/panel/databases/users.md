@@ -1,9 +1,3 @@
-
-
-(/img/panel/v2/databases_usrpw.png
-(
-(
-(/img/panel/v2/databases_new_user.png
 ---
 sidebar_position: 2
 ---
