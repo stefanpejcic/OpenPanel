@@ -55,4 +55,4 @@ When you're done click on the 'Save' button to update the crontab file with your
 
 To delete a cronjob, click on the 'Delete' button next to it. This action will open a modal asking you to confirm the deletion.
 
-![cronjobs_delete.png](/img/panel/v1/advanced/cronjobs_delete.png)
+![cronjobs_delete.gif](/img/panel/v2/cron_delete.gif)
