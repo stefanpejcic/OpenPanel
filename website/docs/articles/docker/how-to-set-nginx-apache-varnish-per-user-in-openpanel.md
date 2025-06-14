@@ -10,3 +10,7 @@ When creating a user, you can set webserver type to be used:
 - OpenResty + Varnish
 
 Users also have an option *Change Webserver Type* that allows them to switch form one type to another.
+
+
+
+Administrators can select hte webserver to be used from *OpenAdmin > Settings > User Defaults* page.
