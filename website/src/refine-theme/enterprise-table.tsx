@@ -559,19 +559,6 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
-            {
-                description: "Backups",
-                community: <CrossIcon />,
-                enterprise: (
-                    <TableText>
-                        SSH Destinations
-                    </TableText>
-                ),
-                valueType: {
-                    community: "icon",
-                    enterprise: "text",
-                },
-            },
         ],
     },
     {
@@ -592,15 +579,15 @@ const tableData = [
             },            
             {
                 description: "Auto Installers",
-                community: <TableText>WordPress, NodeJS, Python</TableText>,
-                enterprise: <TableText>WordPress, NodeJS, Python, Java</TableText>,
+                community: <TableText>WordPress</TableText>,
+                enterprise: <TableText>WordPress, NodeJS, Python</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
                 },
             },
             {
-                description: "Mautic Manager",
+                description: "Temporary Domains",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -668,11 +655,22 @@ const tableData = [
                 },
             },
             {
+                description: "Clustering",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+
+            
+            {
                 description: "SSL",
                 community: <TableText>Let's Encrypt</TableText>,
                 enterprise: (
                     <TableText>
-                        Let's Encrypt & custom SSL
+                        Let's Encrypt & Custom SSL
                     </TableText>
                 ),
                 valueType: {
@@ -697,7 +695,7 @@ const tableData = [
             {
                 description: "Webmail",
                 community: <CrossIcon />,
-                enterprise: <TableText>RoundCube, Sogo</TableText>,
+                enterprise: <TableText>RoundCube</TableText>,
                 valueType: {
                     community: "icon",
                     enterprise: "text",
@@ -747,15 +745,6 @@ const tableData = [
                 valueType: {
                     community: "icon",
                     enterprise: "text",
-                },
-            },
-            {
-                description: "FOSSBilling Module",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
                 },
             },
         ],
