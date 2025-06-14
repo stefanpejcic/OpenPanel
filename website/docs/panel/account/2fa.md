@@ -8,7 +8,7 @@ The Two-Factor Authentication is a recommended security feature that allows you 
 
 ## Enable 2FA
 
-To enable 2FA for your acocunt click on the 'Enable 2FA' button.
+To enable 2FA for your account click on the 'Enable 2FA' button.
 
 ![2fa enable on openpanel](/img/panel/v2/openpanel_enable_2fa.gif)
 
