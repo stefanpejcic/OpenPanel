@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # Files
 
-The File Manager interface allows you to manage files in your home directory `/home/$username/`
+The File Manager interface allows you to manage files in your website directory `/var/www/html/`
 
 ![filemanager.png](/img/panel/v1/files/filemanager.png)
 
