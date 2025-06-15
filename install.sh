@@ -49,7 +49,7 @@ post_install_path=""                                                  # not to r
 # PATHs used throughout the script
 ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
 LOG_FILE="openpanel_install.log"                                      # install log                                      # install running
-SERVICES_DIR="/etc/systemd/system/"                                   # used for admin, sentinel and floatingip services
+SERVICES_DIR="/etc/systemd/system/"                                   # used for admin and sentinel services
 CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
 
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -1392,19 +1392,9 @@ download_skeleton_directory_from_github(){
         radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
     fi
 
-    # added in 1.2.1
     chmod a+x ${ETC_DIR}wordpress/wp-cli.phar
-
-    # added in 0.2.9
     chmod +x /etc/openpanel/ftp/start_vsftpd.sh
-
-    # added in 0.2.6
-    cp -fr /etc/openpanel/services/floatingip.service ${SERVICES_DIR}floatingip.service  > /dev/null 2>&1
     systemctl daemon-reload  > /dev/null 2>&1
-    systemctl start floatingip  > /dev/null 2>&1
-    systemctl enable floatingip  > /dev/null 2>&1
-
-
     
 }
 
