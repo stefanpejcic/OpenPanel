@@ -12,6 +12,6 @@ You don’t need to be a developer to make a meaningful impact. Here are some gr
 * **[Report UI bugs](https://github.com/stefanpejcic/OpenPanel/issues/new/choose)** directly using the **"Report a Bug"** link at the bottom of the page in OpenPanel or OpenAdmin UI
 * **Test integrations** like [cPanel](https://github.com/stefanpejcic/cPanel-to-OpenPanel) account import, [WHMCS](https://github.com/stefanpejcic/openpanel-whmcs-module), [FOSSBilling](https://github.com/stefanpejcic/FOSSBilling-OpenPanel), [paymenter.org](https://github.com/stefanpejcic/openpanel-paymenter.org) and more
 
-💡 **As a thank you, active contributors receive a free lifetime Enterprise license** — our way of saying thank you for supporting OpenPanel's growth!
+💡 **As a thank you, active contributors can apply for a free lifetime Enterprise license** — our way of saying thank you for supporting OpenPanel's growth!
 
 Jump in — every bit helps!
