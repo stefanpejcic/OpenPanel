@@ -10,7 +10,7 @@ You don’t need to be a developer to make a meaningful impact. Here are some gr
 * **[Improve documentation](https://openpanel.com/docs/panel/intro/#log-in-to-openpanel)** to help others get started: simply click on 'Edit this page' link at the bottom of page
 * **Support others** on [Discord](https://discord.com/invite/7bNY8fANqF) or in the [Community Forums](https://community.openpanel.org/)
 * **[Report UI bugs](https://github.com/stefanpejcic/OpenPanel/issues/new/choose)** directly using the **"Report a Bug"** link at the bottom of the page in OpenPanel or OpenAdmin UI
-* **Test integrations** like [cPanel](https://github.com/stefanpejcic/cPanel-to-OpenPanel) account import, WHMCS, FOSSBilling, and more
+* **Test integrations** like [cPanel](https://github.com/stefanpejcic/cPanel-to-OpenPanel) account import, [WHMCS](https://github.com/stefanpejcic/openpanel-whmcs-module), [FOSSBilling](https://github.com/stefanpejcic/FOSSBilling-OpenPanel), [paymenter.org](https://github.com/stefanpejcic/openpanel-paymenter.org) and more
 
 💡 **As a thank you, active contributors receive a free lifetime Enterprise license** — our way of saying thank you for supporting OpenPanel's growth!
 
