@@ -91,6 +91,14 @@ Our [Community](https://community.openpanel.org/) serves as our virtual Headquat
 
 **Learn, share** and **discuss** with other community members your questions.
 
+## Contributing
+
+We welcome and appreciate all contributions - technical or not!
+
+You don’t need to be a developer to make a meaningful impact.
+Plese see [CONTRIBUTING.md](https://github.com/stefanpejcic/OpenPanel/blob/main/CONTRIBUTING.md)
+
+
 ## Repo Activity
 
 ![Alt](https://repobeats.axiom.co/api/embed/9904d020c32812f0aff8d8d69f52643d16f85007.svg "Repobeats analytics image")
