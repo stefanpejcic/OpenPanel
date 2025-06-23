@@ -4,7 +4,7 @@ We welcome and appreciate all contributions - technical or not!
 
 You don’t need to be a developer to make a meaningful impact. Here are some great ways to get involved:
 
-* **Edit translations** to help make OpenPanel accessible globally
+* **[Edit](https://github.com/stefanpejcic/openpanel-translations) or [create new translations](https://github.com/stefanpejcic/openpanel-translations?tab=readme-ov-file#how-can-you-provide-a-translation-for-openpanel)** to help make OpenPanel accessible globally
 * **Write a blog post** about your experience using OpenPanel and link back to the project
 * **Install and test** it on your VPS — report any bugs or errors you find
 * **Improve documentation** to help others get started: simply click on 'Edit' link at the bottom of page
