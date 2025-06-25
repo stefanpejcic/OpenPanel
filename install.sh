@@ -1362,7 +1362,7 @@ verify_license() {
     debug_log "echo Current time: $(date +%T)"
     server_hostname=$(hostname)
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
-    response=$(curl -4 -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.com/license/)
+    response=$(curl -4 -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.com/license/index.php)
     debug_log "echo Checking OpenPanel license for IP address: $current_ip"
     debug_log "echo Response: $response"
 }
