@@ -421,3 +421,16 @@ Creating a Webhook in Discord:
 
 By default, notifications would only be sent out when a backup run fails. To receive notifications for every run, set `NOTIFICATION_LEVEL` to `info` instead of the default `error`.
 
+
+## Triggering a Backup
+
+You can manually trigger a backup at any time, regardless of the scheduled settings.
+To do this, ensure the Docker feature is enabled. Then:
+
+1. Navigate to **Containers > Terminal**.
+2. Select the **Backup** container.
+3. In the terminal, type the following command and press Enter:
+
+```bash
+backup
+```
