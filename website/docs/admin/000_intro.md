@@ -67,25 +67,6 @@ If you encountered any errors while running the installation script, please copy
 ```
 
   </TabItem>
-  <TabItem value="openpanel-install-on-digitalocean" label="DigitalOcean Droplet">
-
-
-**THIS DROPLET MAGE IS OUTDATED - LOOKING FOR MAINTAINERS**
-
-OpenPanel is available as a 1-Click app (droplet) on DigitalOcean. Click on the button to spin a droplet with OpenPanel already installed:
-
-[![droplet](/img/do-btn-blue.svg)](https://marketplace.digitalocean.com/apps/openpanel?refcode=6498bfc47cd6&action=deploy)
-
-or with DigitalOcean api:
-
-```bash
-curl -X POST -H 'Content-Type: application/json' \
-     -H 'Authorization: Bearer '$TOKEN'' -d \
-    '{"name":"choose_a_name","region":"nyc3","size":"s-2vcpu-4gb","image":"openpanel"}' \
-    "https://api.digitalocean.com/v2/droplets"
-```
-
-  </TabItem>
 </Tabs>
 
 
