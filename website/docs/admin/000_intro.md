@@ -17,7 +17,7 @@ Minimum Requirements:
 
 Supported OS:
 - **Ubuntu 24.04** (recommended)
-- **Debian 11 and 12**
+- **Debian [10](https://voidnull.es/instalacion-de-openpanel-en-debian-10/), 11 and 12**
 - **AlmaLinux 9.5** (recommended for ARM cpu)
 - **RockyLinux 9**
 - **CentOS 9.5**
