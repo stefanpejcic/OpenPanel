@@ -147,8 +147,8 @@ const messages = [
                 with a lifetime fixed price guarantee.
             </>
         ),
-        href: "https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license",
-        cta: "Purchase",
+        href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
+        cta: "",
     },
 ];
 
