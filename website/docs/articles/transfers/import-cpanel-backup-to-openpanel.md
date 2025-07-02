@@ -11,12 +11,18 @@ Create a cPanel account backup using backup wizard or download a backup from Jet
 Transfer the generated backup to your server
 
 ## Import backup
-To start import from OpenPanel, navigate to OpenAdmin > Users and click on 'Import User' tab.
-![import cpanel bakcup in openpanel](https://i.postimg.cc/MGPsynBG/2.png)
+To start import from OpenPanel, access OpenAdmin and click on 'Import cPanel Account' within the Advanced section of the sidebar.
+![import cpanel bakcup in openpanel](/img/panel/v2/cpanelimport.png)
 
-Insert full path to the cp backup archive, select a plan to use for that user and click on 'Import from Backup'.
+Insert full path to the uploaded cPanel backup archive, select a plan for the imported user and click on 'Import from Backup'.
+
+![import cpanel bakcup in openpanel2](/img/panel/v2/cpanelimport2.png)
 
 ## That's it
 Import is running in background
 
-![import progress in openpanel](https://i.postimg.cc/YCxDCnqY/3.png)
+![import cpanel bakcup in openpanel3](/img/panel/v2/cpanelimport3.png)
+
+You can trace progress and view the import log on this page.
+
+![import cpanel bakcup in openpanel4](/img/panel/v2/cpanelimport4.png)
