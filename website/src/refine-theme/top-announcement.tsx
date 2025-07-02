@@ -107,10 +107,60 @@ export const TopAnnouncement = () => {
     );
 };
 
+
+const messages = [
+    {
+        text: (
+            <>
+                OpenPanel now offers full support for{" "}
+                <span className="font-semibold">ARM CPUs (Aarch64)</span>
+            </>
+        ),
+        href: "/docs/admin/intro/#requirements",
+        cta: "Install Now",
+    },
+    {
+        text: (
+            <>
+                Check out the new{" "}
+                <span className="font-semibold">Modules System</span> in OpenAdmin.
+            </>
+        ),
+        href: "https://demo.openpanel.org:2087/settings/modules",
+        cta: "View Demo",
+    },
+    {
+        text: (
+            <>
+                Check out the new{" "}
+                <span className="font-semibold">Redesigned OpenPanel UI</span>.
+            </>
+        ),
+        href: "https://demo.openpanel.org:2083/dashboard",
+        cta: "View Demo",
+    },
+    {
+        text: (
+            <>
+                Get <span className="font-semibold">17% off</span> the{" "}
+                <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
+                with a lifetime fixed price guarantee.
+            </>
+        ),
+        href: "https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license",
+        cta: "Purchase",
+    },
+];
+
+
+
+
 const Text = () => {
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
     return (
         <a
-            href="/docs/admin/intro/#requirements"
+            href={randomMessage.href}
             rel="noreferrer"
             className={clsx(
                 "relative lg:absolute",
@@ -130,24 +180,22 @@ const Text = () => {
                 "not-prose",
             )}
         >
-            <div className={clsx("ml-2", "not-prose")}>
-                OpenPanel now offers full support for  
-                {" "}
-                <span className={clsx("font-semibold")}>ARM CPUs (Aarch64)</span>
-                {" "}
+            <div className="ml-2 not-prose">
+                {randomMessage.text}
                 <span
                     className={clsx(
                         "text-refine-cyan-alt hover:text-refine-cyan-alt",
                         "font-semibold",
-                        "ml-2",
+                        "ml-2"
                     )}
                 >
-                    Install Now
+                    {randomMessage.cta}
                 </span>
             </div>
         </a>
     );
 };
+
 
 const GlowSmall = (props: SVGProps<SVGSVGElement>) => (
     <svg
