@@ -16,7 +16,7 @@ import { EnterpriseTable } from "@site/src/refine-theme/enterprise-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 
 const Enterprise: React.FC = () => {
-    const title = "OpenPanel BETA | Next Generation Hosting Panel";
+    const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
 
     return (
         <>
