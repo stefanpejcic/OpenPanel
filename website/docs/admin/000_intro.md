@@ -195,20 +195,6 @@ opencli update --force
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## License
 
 OpenPanel is available in two editions:
@@ -218,44 +204,3 @@ OpenPanel is available in two editions:
 
 
 [OpenPanel Community VS Enterprise](/beta/)
-
-
-
-## Security
-
-OpenPanel has been built from the ground up with security in mind. Internet history is littered with painful security incidents, so we traded old software compatibility and insecure authentication methods for modern day security measures.
-
-
-### Firewall
-OpenPanel supports [ConfigServer & Firewall (CSF)](/docs/admin/security/firewall/#csf).
-
-### Rootless Docker
-Each user runs docker in rootless mode, ensuring containers can not commmunicate using docker networks and providing more issolation.
-
-### Isolated Services
-Each user is provided with a containerized environment similar to a VPS, featuring their own web server (Nginx or Apache) and database (MySQL or MariaDB). This setup prevents resource hogging commonly associated with standard shared hosting.
-
-### CorazaWAF
-
-OpenPanel uses CorazaWAF compatible with OWASP CoreRuleset. Each user can enable/disable WAF fpr their domains.
-
-### Two-Factor Authentication
-Users have the option to [enable Two-Factor Authentication (2FA)](/docs/panel/account/2fa/) for added security on their accounts. Administrators can manage this feature at the server level or for individual users.
-
-### Detailed Logging
-All actions taken by OpenPanel users are recorded in per-user activity logs. This eliminates confusion over issues like file or webmail account deletions—every action is logged and can be reviewed by users.
-
-### Isolated UIs
-OpenPanel and OpenAdmin operate independently from one another. One runs as a systemd service while the other runs as a Docker container. OpenPanel utilizes SQLite for its database, whereas OpenAdmin relies on MySQL. Importantly, users can perform actions on their panel even if the admin panel is unreachable or disabled.
-
-
-### Disabling the Admin Panel
-For production environments, particularly with the Community edition—which does not offer API access and lacks third-party integrations—it is advisable to disable the admin panel after configuring your server. Alternatively, you can restrict access to the admin port `2087` by whitelisting your team's IP addresses.
-
-To disable OpenAdmin, navigate to **OpenAdmin > Settings > OpenAdmin** and click on *"Disable Admin Panel"* or use the terminal command `opencli admin off`. This will deactivate the admin panel, and you can re-enable it when necessary with the command `opencli admin on`.
-
-### Limit Access to Admin Panel
-To restrict OpenAdmin access to your team, whitelist your server's IP addresses in CSF/UFW, and then disable port `2087`.
-
-### HTTP Basic Authentication
-As an additional security measure, HTTP Basic Authentication can be enabled for the admin panel.
