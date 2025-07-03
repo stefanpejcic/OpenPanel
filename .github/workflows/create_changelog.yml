@@ -1,0 +1,45 @@
+name: Create Changelog on Milestone
+
+on:
+  milestone:
+    types: [created]
+
+jobs:
+  create-changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Generate changelog file
+        run: |
+          VERSION="${{ github.event.milestone.title }}"
+          # Ensure valid version format N.N.N
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Milestone title is not a valid version. Skipping."
+            exit 0
+          fi
+          DIR="website/docs/changelog"
+          FILE="$DIR/$VERSION.md"
+          mkdir -p "$DIR"
+          if [ -f "$FILE" ]; then
+            echo "Changelog file already exists: $FILE"
+            exit 0
+          fi
+          cat <<EOF > "$FILE"
+Not yet released.
+
+### 🐛 Bug fixes
+- 
+
+EOF
+
+      - name: Commit and push changelog
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add website/docs/changelog/*.md
+          git commit -m "chore: add changelog for version ${{ github.event.milestone.title }}" || exit 0
+          git push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
