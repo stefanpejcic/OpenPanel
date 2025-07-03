@@ -34,7 +34,6 @@ jobs:
           echo "Not yet released.
 
 ### 🐛 Bug fixes
-- 
 " > "$FILE"
 
       - name: Commit and push changelog
