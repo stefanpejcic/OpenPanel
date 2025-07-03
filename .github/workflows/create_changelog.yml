@@ -15,29 +15,25 @@ jobs:
         shell: bash
         run: |
           VERSION="${{ github.event.milestone.title }}"
-          # Ensure valid version format N.N.N
           if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Milestone title is not a valid version. Skipping."
             exit 0
           fi
-
           DIR="website/docs/changelog"
           FILE="$DIR/$VERSION.md"
-
           mkdir -p "$DIR"
-
           if [ -f "$FILE" ]; then
             echo "Changelog file already exists: $FILE"
             exit 0
           fi
-
           echo "Not yet released.
-
 ### 🐛 Bug fixes
 " > "$FILE"
 
       - name: Commit and push changelog
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ github.event.milestone.title }}"
           git config user.name "github-actions[bot]"
@@ -45,5 +41,3 @@ jobs:
           git add "website/docs/changelog/$VERSION.md"
           git commit -m "chore: add changelog for version $VERSION" || exit 0
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
