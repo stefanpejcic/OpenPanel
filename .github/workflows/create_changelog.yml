@@ -31,15 +31,14 @@ jobs:
             exit 0
           fi
 
-          cat <<EOF > "$FILE"
-Not yet released.
+          echo "Not yet released.
 
 ### 🐛 Bug fixes
 - 
-
-EOF
+" > "$FILE"
 
       - name: Commit and push changelog
+        shell: bash
         run: |
           VERSION="${{ github.event.milestone.title }}"
           git config user.name "github-actions[bot]"
