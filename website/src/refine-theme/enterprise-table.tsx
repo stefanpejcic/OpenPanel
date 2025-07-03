@@ -587,7 +587,39 @@ const tableData = [
                 },
             },
             {
+                description: "Website Builder",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "Temporary Domains",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+        ],
+    },
+    {
+        title: "Files",
+        items: [         
+            {
+                description: "FTP",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Malware Scanner",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -655,7 +687,7 @@ const tableData = [
                 },
             },
             {
-                description: "Clustering",
+                description: "DNS Clustering",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -663,7 +695,15 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
-
+            {
+                description: "WAF",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
             
             {
                 description: "SSL",
