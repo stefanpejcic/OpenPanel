@@ -7,7 +7,7 @@ sidebar_position: 3
 The Email Settings section allows you to configure various parameters for the MailServer stack to ensure efficient and secure email management. 
 
 :::info
-Emails are only available on [OpenPanel Enterprise edition](/beta)
+Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 :::
 
 
