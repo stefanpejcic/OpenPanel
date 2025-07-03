@@ -43,7 +43,7 @@ export const MENU_ITEMS: MenuItemType[] = [
     {
        isPopover: false,
        label: "Enterprise",
-       href: "/beta",
+       href: "/enterprise",
     },
     {
        isPopover: false,
