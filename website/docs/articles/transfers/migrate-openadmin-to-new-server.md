@@ -1,4 +1,4 @@
-# Migrate OpenPanel to new server
+# Migrate OpenAdmin to new server
 
 Migrate to new server
 
