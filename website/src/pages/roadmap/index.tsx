@@ -50,6 +50,15 @@ const Roadmap: React.FC = () => {
                         <li>Autoinstallers for 40+ CMSs/scripts.</li>
                         <li>Ongoing improvements in container isolation.</li>
                     </ul>
+
+                    <h3>Request a Feature</h3>
+                    <p>Submit an idea on <strong><a href="https://github.com/stefanpejcic/OpenPanel/discussions/new?category=ideas" target="_blank" rel="noopener noreferrer">Github Discussions</a></strong>.</p>
+
+                    <h3>Vote for a Feature</h3>
+                    <p>Vote for existing feature requests on <strong><a href="https://github.com/stefanpejcic/OpenPanel/discussions/categories/ideas" target="_blank" rel="noopener noreferrer">Github Discussions</a></strong>.</p>
+                    
+
+                    
                     <h3>Planned releases</h3>
                     <ul>
                         {milestones.map((milestone) => (
