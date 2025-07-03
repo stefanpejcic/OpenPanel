@@ -1,12 +1,8 @@
 {
   "redirects": [
     {
-      "from": "/docs/examples454",
-      "to": "https://github.com/"
-    },
-    {
-      "from": "/docs/changelog/0.1/#15",
-      "to": "/docs/changelog/0.1.5"
+      "from": "/beta",
+      "to": "/enterprise"
     },
     {
       "from": "/docs/examples34534534",
