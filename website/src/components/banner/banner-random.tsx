@@ -10,11 +10,11 @@ const data = [
         image: {
             src: "https://openpanel.co/img/admin/openadmin_dashboard.png",
             alt: "OpenPanel Enterprise edition",
-            href: "https://openpanel.co/beta/?ref=banner-admin-panel",
+            href: "https://openpanel.co/enterprise/?ref=banner-admin-panel",
         },
         button: {
             text: "Learn more",
-            href: "https://openpanel.co/beta/?ref=banner-admin-panel",
+            href: "https://openpanel.co/enterprise/?ref=banner-admin-panel",
         },
         bannerName: "banner-twitter",
     },
