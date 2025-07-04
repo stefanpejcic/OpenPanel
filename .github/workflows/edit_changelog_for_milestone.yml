@@ -1,0 +1,56 @@
+name: Update Changelog Release Date on Milestone Close
+
+on:
+  milestone:
+    types: [closed]
+
+jobs:
+  update-changelog-release-date:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Update release date in changelog
+        shell: bash
+        run: |
+          VERSION="${{ github.event.milestone.title }}"
+          CLOSED_AT="${{ github.event.milestone.closed_at }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Milestone title is not a valid version. Skipping."
+            exit 0
+          fi
+
+          if [ -z "$CLOSED_AT" ]; then
+            echo "No closed_at date on milestone. Skipping."
+            exit 0
+          fi
+
+          DIR="website/docs/changelog"
+          FILE="$DIR/$VERSION.md"
+
+          if [ ! -f "$FILE" ]; then
+            echo "Changelog file does not exist: $FILE"
+            exit 0
+          fi
+
+          # Convert ISO date (2025-07-01T12:34:56Z) to "July 01, 2025"
+          RELEASE_DATE=$(date -u -d "$CLOSED_AT" "+%B %d, %Y")
+          RELEASE_LINE="Released on $RELEASE_DATE"
+
+          # Replace 'Not yet released' (with optional trailing backtick) with the formatted release line
+          sed -i "s/Not yet released\.\`*/$RELEASE_LINE/" "$FILE"
+
+      - name: Commit and push changelog update
+        shell: bash
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          VERSION="${{ github.event.milestone.title }}"
+          DIR="website/docs/changelog"
+          FILE="$DIR/$VERSION.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "$FILE"
+          git commit -m "chore: update changelog for version $VERSION with release date" || exit 0
+          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
