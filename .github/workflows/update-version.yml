@@ -42,13 +42,11 @@ jobs:
           sed -i -E "s/(const \[version, setVersion\] = useState\(')[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
           sed -i -E "s/(const latestVersion = filteredTags.length > 0 \? filteredTags\[0\] : ')[^']*(';  \/\/ new verzija tag)/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
 
-
       - name: Update fallback PANEL_VERSION in install.sh
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          sed -i -E "s/^PANEL_VERSION=\"[^\"]+\" # fallback if hub.docker.com unreachable$/PANEL_VERSION=\"$PANEL_VERSION\" # fallback if hub.docker.com unreachable/" install.sh
-
+          sed -i -E 's/(PANEL_VERSION=")[^"]+(" # fallback if hub.docker.com unreachable)/\1'"$PANEL_VERSION"'\2/' install.sh
 
       - name: Commit and push changes if any
         env:
