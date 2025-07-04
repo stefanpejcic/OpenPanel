@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          sed -i -E "s/(\*\*)[0-9]+\.[0-9]+\.[0-9]+(\*\* - \[View Changelog\]\(https:\/\/openpanel\.com\/docs\/changelog\/)[0-9]+\.[0-9]+\.[0-9]+(\))/\1$PANEL_VERSION\2$PANEL_VERSION\3/" README.md
+          sed -i -E "s#^Latest OpenPanel version is:.*#Latest OpenPanel version is: **${PANEL_VERSION}** - [View Changelog](https://openpanel.com/docs/changelog/${PANEL_VERSION}/)#" README.md
 
       - name: Commit and push changes if any
         env:
