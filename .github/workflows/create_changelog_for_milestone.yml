@@ -159,3 +159,14 @@ jobs:
           git add "website/docs/changelog/$VERSION.md" "website/docs/changelog/intro.md"
           git commit -m "chore: add changelog for version $VERSION and update intro.md" || exit 0
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+
+
+  notify-discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Notification
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{\"content\": \"🚀 OpenPanel **${{ github.event.milestone.title }}** is out! 🚀\n\n🔗 Changelog: https://openpanel.com/docs/changelog/${{ github.event.milestone.title }}\"}" \
+          "${{ secrets.DISCORD_WEBHOOK }}"
