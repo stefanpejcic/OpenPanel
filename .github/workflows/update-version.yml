@@ -51,19 +51,35 @@ jobs:
           sed -i -E 's/(PANEL_VERSION=")[^"]+(" # fallback if hub.docker.com unreachable)/\1'"$PANEL_VERSION"'\2/' install.sh
           git diff install.sh || true
 
-      - name: Commit and push changes if any
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
+
+      - name: Replace folders in OpenPanel repo
         shell: bash
         run: |
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+          cd OpenPanel
+
+          # Clean existing folders
+          rm -rf translations configuration opencli
+
+          # Clone replacements
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-translations translations-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-configuration configuration-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/opencli opencli-tmp
+
+          # Move contents only (not the .git folder)
+          mv translations-tmp translations
+          mv configuration-tmp configuration
+          mv opencli-tmp opencli
+
+          rm -rf translations/.git configuration/.git opencli/.git
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add website/docusaurus.config.js website/src/refine-theme/landing-hero-github-stars.tsx
 
-          # Only commit if changes present
+          git add translations configuration opencli
           if ! git diff --cached --quiet; then
-            git commit -m "chore: update panel version to ${{ steps.fetch_version.outputs.version }}"
-            git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+            git commit -m "chore: update panel version to ${{ steps.fetch_version.outputs.version }} and sync folders from upstream"
+            git push origin main
           else
             echo "No changes to commit."
           fi
