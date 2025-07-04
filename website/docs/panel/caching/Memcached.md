@@ -34,7 +34,7 @@ Changing the memory limit will necessitate the service to restart to apply the n
 
 To establish a connection to your Memcached instance, use the following details:
 
-- Server address: **127.0.0.1**
+- Server address: **memcached** (not 127.0.0.1)
 - Port: **11211** (the default Memcached port)
 
 For testing the connection to the Memcached server, you can use the following tools or scripts.
@@ -49,7 +49,7 @@ For testing the connection to the Memcached server, you can use the following to
 <?php 
    // Connect to Memcached server on localhost 
    $memcached = new Memcached(); 
-   $memcached->addServer('127.0.0.1', 11211); 
+   $memcached->addServer('memcached', 11211); 
    echo "Connection to server successful"; 
    // Check whether the server is running or not 
    echo "Server is running: ".$memcached->getVersion(); 
@@ -59,23 +59,6 @@ For testing the connection to the Memcached server, you can use the following to
 Access your website in a browser and append /memcached-test.php. For example, if your website is example.com, you should open example.com/memcached-test.php
 
 You should see the "Server is running.." message, indicating that the Memcached service is active, and the connection is established.
-
-### Test Connection Using Telnet
-
-To connect to the Memcached service from the terminal you can run the telnet command and specify the hostname and port of the Memcached service:
-
-```bash
-telnet localhost 11211
-```
-
-The command will display the diagnostic message, showing that it's connecting to the hostname. If the connection is successful, you will see two additional lines, confirming that the connection is established.
-
-```bash
-$ telnet localhost 11211
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-```
 
 
 ### WordPress Plugins
