@@ -4,13 +4,13 @@ sidebar_position: 2
 
 # Add new domain
 
-To add a new domain name, simply input the domain name and click on 'Add Domain':
+To add a new domain, simply enter the domain name and click **Add Domain**:
 
 ![add domain](/img/panel/v2/openpanel_add_domain.gif)
 
-Optionally, you can set different Document Root - folder where webiste files will be stored.
+Optionally, you can specify a custom **Document Root** - folder where webiste files will be stored.
 
-When adding a domain, detailed log is displayed of all actions performed, example:
+Once submitted, OpenPanel will display a detailed log of all actions performed. Example:
 
 ```bash
 Using document root: /var/www/html/another-website
@@ -32,3 +32,6 @@ Adding the newly created zone file to the DNS server
 Starting container for the default PHP version 8.4
 Domain another.com added successfully
 ```
+
+Because OpenPanel starts services on demand to conserve resources, adding your first domain may take slightly longer - it will start the necessary webserver and PHP containers.
+Subsequent domains will be added much faster.
