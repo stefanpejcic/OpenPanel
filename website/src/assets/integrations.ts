@@ -128,7 +128,7 @@ export const integrations: IntegrationsType = {
             icon: MySQL,
             description:
                 "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
-            url: "/docs/panel/databases/",
+            url: "/docs/panel/mysql/",
             status: "stable",
         },
         {
