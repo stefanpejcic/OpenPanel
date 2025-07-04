@@ -34,7 +34,7 @@ Modifying the memory limit will require the Redis container to be restarted to a
 
 To establish a connection to your REDIS instance, use the following details:
 
-- Server address: **127.0.0.1**
+- Server address: **redis** (not 127.0.0.1)
 - Port: **6379** (the default REDIS port)
 
 For testing the connection to the REDIS server, you can use the 'telnet' command in your terminal or refer to example scripts bellow.
@@ -48,7 +48,7 @@ For testing the connection to the REDIS server, you can use the 'telnet' command
 <?php 
    //Connecting to Redis server on localhost 
    $redis = new Redis(); 
-   $redis->connect('127.0.0.1', 6379); 
+   $redis->connect('redis', 6379); 
    echo "Connection to server sucessfully"; 
    //check whether server is running or not 
    echo "Server is running: ".$redis->ping(); 
@@ -59,22 +59,6 @@ For testing the connection to the REDIS server, you can use the 'telnet' command
 
 You should see the _Server is running message.._ indicating that the REDIS service is active and connection is established.
 
-### Test connection using telnet
-
-To connect to the Redis service, you can run the telnet command and specify the hostname and port of the Redis service:
-
-```bash
-telnet localhost 6379
-```
-
-The command always prints the first line of the diagnostic message, stating that it’s connecting to the hostname. Then, if the connection is successful, you will see two additional lines, the first additional line confirms that connection is established:
-
-```bash
-$ telnet localhost 6379
-Trying 127.0.0.1...
-Connected to localhost.
-Escape character is '^]'.
-```
 
 ### WordPress plugins
 
