@@ -1,0 +1,116 @@
+name: Update Changelog from Milestones
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # every day at 2am UTC
+  workflow_dispatch:
+
+jobs:
+  update-changelog:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyGithub
+        run: pip install PyGithub
+
+      - name: Generate changelog intro.md from milestones
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          import os
+          import re
+          from github import Github
+          from datetime import datetime
+
+          REPO = os.environ["GITHUB_REPOSITORY"]
+          g = Github(os.environ["GH_TOKEN"])
+          repo = g.get_repo(REPO)
+
+          sidebar = '''---
+sidebar_position: 1
+sidebar_label: RELEASES
+sidebar_class_name: green
+---
+
+# Changelog
+'''
+
+          # Helper to format date as "Month DD, YYYY"
+          def fmt_date(dt):
+              if not dt:
+                  return ''
+              return dt.strftime('%B %d, %Y')
+
+          # Get milestones
+          milestones = list(repo.get_milestones(state="all"))
+
+          # Parse and sort milestones by due date, then by title (version)
+          def parse_version(title):
+              # Accepts 1.2.3 or 1.2.3-beta etc, returns tuple for sort
+              m = re.match(r'^(\d+)\.(\d+)\.(\d+)(.*)?$', title)
+              if m:
+                  return tuple(map(int, m.group(1,2,3))) + (m.group(4) or '',)
+              return (0, 0, 0, title)
+
+          # Separate open and closed milestones, and filter for valid versions
+          def valid_version(title):
+              return re.match(r'^\d+\.\d+\.\d+.*$', title)
+
+          open_milestones = [m for m in milestones if m.state == 'open' and valid_version(m.title)]
+          closed_milestones = [m for m in milestones if m.state == 'closed' and valid_version(m.title)]
+
+          # Sort open milestones by due date ASC, then version DESC
+          open_milestones = sorted(open_milestones, key=lambda m: (m.due_on or datetime.max, tuple(-x for x in parse_version(m.title))))
+          # Sort closed milestones by due date DESC, then version DESC
+          closed_milestones = sorted(closed_milestones, key=lambda m: ((m.due_on or datetime.min), parse_version(m.title)), reverse=True)
+
+          # Prepare table rows
+          def row(m):
+              link = f"/docs/changelog/{m.title}"
+              date_fmt = fmt_date(m.due_on)
+              return f"|__[{'%s' % m.title}]({link})__| {date_fmt} |"
+
+          # Compose blocks
+          upcoming_rows = [row(m) for m in open_milestones]
+          latest_row = row(closed_milestones[0]) if closed_milestones else ''
+          previous_rows = [row(m) for m in closed_milestones[1:]] if len(closed_milestones) > 1 else []
+
+          # Write markdown tables
+          def block(title, rows):
+              if not rows:
+                  return f"### {title}\n\n_No releases_\n"
+              hdr = "| Version| Release date | \n|---|---|"
+              return f"### {title}\n\n{hdr}\n" + "\n".join(rows) + "\n"
+
+          md = sidebar
+          md += "\n" + block("Upcoming version", upcoming_rows)
+          md += "\n" + block("Latest", [latest_row] if latest_row else [])
+          md += "\n" + block("Previous versions", previous_rows)
+          md += '''
+:::info
+If version is not in the list, it means that update was done for technical reasons and does not contain any critical changes.
+:::
+'''
+
+          with open("website/docs/changelog/intro.md", "w") as f:
+              f.write(md.strip() + "\n")
+
+      - name: Commit and push updated intro.md
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add website/docs/changelog/intro.md
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "chore: update changelog intro.md from milestones"
+          git push
