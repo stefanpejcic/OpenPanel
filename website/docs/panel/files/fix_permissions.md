@@ -16,19 +16,18 @@ Clicking the **Fix Permissions** button will:
   - Folders: `755`
 - Fix common permission problems for known CMS directories like `wp-content`, `storage`, `cache`, etc.
 
-## When to use it
-You should use the **Fix Permissions** option only when:
-
-- Your website is showing permission-related errors.
-- You've uploaded or modified files manually (e.g., via FTP or File Manager).
-- Your CMS (WordPress, Joomla, etc.) cannot write to certain folders.
-- You suspect ownership or permission issues after a migration or manual edit.
-
 ## Caution
 
 - Custom permissions or advanced configurations may be overridden.
 - If you're running custom scripts that require different permissions (e.g., executable `.sh` files), you'll need to reapply those settings manually after using this tool.
 
 ## Recommended Usage
+
+You should use the **Fix Permissions** option only when:
+
+- Your website is showing permission-related errors.
+- You've uploaded or modified files manually (e.g., via FTP or File Manager).
+- Your CMS (WordPress, Joomla, etc.) cannot write to certain folders.
+- You suspect ownership or permission issues after a migration or manual edit.
 
 Use this tool only when you’re experiencing issues. Frequent, unnecessary use is not required and may revert intentional permission changes.
