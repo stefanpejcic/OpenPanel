@@ -31,7 +31,124 @@ jobs:
 
           cp .github/GIT_TEMPLATE/changelog-template.md "$FILE"
 
-      - name: Commit and push changelog
+      - name: Update intro.md for changelog
+        shell: bash
+        run: |
+          set -e
+          INTRO_FILE="website/docs/changelog/intro.md"
+          VERSION="${{ github.event.milestone.title }}"
+          DUE_DATE="${{ github.event.milestone.due_on }}"
+          # Format the due date to "Month DD, YYYY"
+          if [[ -n "$DUE_DATE" ]]; then
+            # DUE_DATE is in ISO format (e.g. 2025-07-07T00:00:00Z)
+            DATE_FMT=$(date -d "${DUE_DATE}" +"%B %d, %Y")
+          else
+            DATE_FMT=""
+          fi
+
+          LINK="__[${VERSION}](/docs/changelog/${VERSION})__| ${DATE_FMT} |"
+          # Escape slashes for sed
+          LINK_ESCAPED=$(echo "$LINK" | sed 's/\//\\\//g')
+
+          # Ensure intro.md exists
+          if [ ! -f "$INTRO_FILE" ]; then
+            echo "intro.md not found!"
+            exit 1
+          fi
+
+          # Check if the version already exists in intro.md
+          if grep -q "/docs/changelog/${VERSION}" "$INTRO_FILE"; then
+            echo "Version $VERSION already in intro.md, skipping update."
+            exit 0
+          fi
+
+          # Read the current Upcoming and Latest entries
+          # Save current intro for manipulation
+          cp "$INTRO_FILE" "${INTRO_FILE}.bak"
+
+          # Extract the existing Upcoming version row (if any)
+          UPCOMING_ROW=$(awk '/\|__\[.*\]\/docs\/changelog\// && NR>0 {print NR; exit}' "$INTRO_FILE")
+          if [ -n "$UPCOMING_ROW" ]; then
+            CURRENT_UPCOMING=$(awk 'BEGIN{found=0}/### Upcoming version/{found=1; next}/###/{found=0}found && /\|__\[.*\]\/docs\/changelog\//{print $0}' "$INTRO_FILE")
+          fi
+
+          # Extract the existing Latest version row (if any)
+          LATEST_ROW=$(awk '/### Latest/{found=1; next}/###/{found=0}found && /\|__\[.*\]\/docs\/changelog\//{print NR; exit}' "$INTRO_FILE")
+          CURRENT_LATEST=$(awk 'BEGIN{found=0}/### Latest/{found=1; next}/###/{found=0}found && /\|__\[.*\]\/docs\/changelog\//{print $0}' "$INTRO_FILE")
+
+          # Extract the previous versions block
+          PREV_VERSIONS_BLOCK=$(awk 'BEGIN{found=0}/### Previous versions/{found=1; next}found{print $0}' "$INTRO_FILE")
+
+          # Remove all rows from Upcoming, Latest, and Previous that reference the same version (prevent duplicates)
+          sed -i "/\/docs\/changelog\/${VERSION}/d" "$INTRO_FILE"
+
+          # Remove all rows from Upcoming, Latest, and Previous that reference the row being promoted
+          if [ -n "$CURRENT_UPCOMING" ]; then
+            UPCOMING_VERSION=$(echo "$CURRENT_UPCOMING" | grep -oP '(?<=changelog\/)[0-9]+\.[0-9]+\.[0-9]+')
+            sed -i "/\/docs\/changelog\/${UPCOMING_VERSION}/d" "$INTRO_FILE"
+          fi
+          if [ -n "$CURRENT_LATEST" ]; then
+            LATEST_VERSION=$(echo "$CURRENT_LATEST" | grep -oP '(?<=changelog\/)[0-9]+\.[0-9]+\.[0-9]+')
+            sed -i "/\/docs\/changelog\/${LATEST_VERSION}/d" "$INTRO_FILE"
+          fi
+
+          # Insert the new Upcoming row (only this one should be present in Upcoming)
+          awk -v link="$LINK" '
+            BEGIN { upcoming=0 }
+            /### Upcoming version/ { print; upcoming=1; next }
+            /### Latest/ {
+              if (upcoming) {
+                print "| Version| Release date |"
+                print "|---|---|"
+                print "|", link
+                upcoming=0
+              }
+              print
+              next
+            }
+            {
+              if (!upcoming) print
+            }
+          ' "$INTRO_FILE" > "${INTRO_FILE}.tmp"
+
+          # Promote current Upcoming to Latest, and latest to Previous
+          # (Upcoming row is now only the new version)
+          # Insert the old Upcoming row (if exists) as Latest, and push the old Latest to Previous versions
+
+          LATEST_INSERT="$CURRENT_UPCOMING"
+          PREV_INSERT="$CURRENT_LATEST"
+
+          awk -v latest="$LATEST_INSERT" -v prev="$PREV_INSERT" '
+            BEGIN { latest_section=0; prev_section=0 }
+            /### Latest/ { print; latest_section=1; next }
+            /### Previous versions/ {
+              if (latest_section) {
+                print "| Version| Release date |"
+                print "|---|---|"
+                if (latest != "") print latest
+                latest_section=0
+              }
+              print
+              prev_section=1
+              next
+            }
+            /---/ {
+              if (prev_section && !seen_header) {
+                print
+                seen_header=1
+                if (prev != "") print prev
+                next
+              }
+            }
+            {
+              print
+            }
+          ' "${INTRO_FILE}.tmp" > "${INTRO_FILE}.patched"
+
+          mv "${INTRO_FILE}.patched" "$INTRO_FILE"
+          rm -f "${INTRO_FILE}.tmp" "${INTRO_FILE}.bak"
+
+      - name: Commit and push changelog and intro.md
         shell: bash
         env:
           TOKEN: ${{ secrets.TOKEN }}
@@ -39,7 +156,6 @@ jobs:
           VERSION="${{ github.event.milestone.title }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add "website/docs/changelog/$VERSION.md"
-          git commit -m "chore: add changelog for version $VERSION" || exit 0
+          git add "website/docs/changelog/$VERSION.md" "website/docs/changelog/intro.md"
+          git commit -m "chore: add changelog for version $VERSION and update intro.md" || exit 0
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
-
