@@ -67,3 +67,31 @@ jobs:
           else
             echo "No changes to commit."
           fi
+
+      - name: Checkout openpanel-configuration repo
+        uses: actions/checkout@v4
+        with:
+          repository: stefanpejcic/openpanel-configuration
+          token: ${{ secrets.TOKEN }}
+          path: openpanel-configuration
+
+      - name: Update VERSION in openpanel-configuration
+        shell: bash
+        run: |
+          cd openpanel-configuration
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+          
+          echo "Updating VERSION to $PANEL_VERSION in docker/compose/.env"
+          sed -i -E 's/^(VERSION=)".*"/\1"'"$PANEL_VERSION"'"/' docker/compose/.env
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add docker/compose/.env
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update OpenPanel VERSION to $PANEL_VERSION"
+            git push origin main
+          else
+            echo "No changes to commit in openpanel-configuration repo."
+          fi
+
