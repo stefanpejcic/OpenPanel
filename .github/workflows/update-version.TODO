@@ -1,49 +1,72 @@
-name: Update Version
+name: Update Panel Version Daily
 
 on:
-  push:
-    branches:
-      - main
+  schedule:
+    - cron: '0 2 * * *'   # daily at 02:00 UTC
   workflow_dispatch:
 
 jobs:
   update-version:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Set up jq
-        run: sudo apt-get install -y jq
-
-      - name: Fetch latest Docker image version
-        id: get_version
+      - name: Fetch latest Docker Hub tag version
+        id: fetch_version
+        shell: bash
         run: |
-          response=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags")
-          PANEL_VERSION=$(echo $response | jq -r '.results[0].name')
-          echo "PANEL_VERSION=$PANEL_VERSION" >> $GITHUB_ENV
+          # Fetch tags, get names, filter by semver N.N.N, sort descending, pick biggest
+          TAGS_JSON=$(curl -s "https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags?page_size=100")
+          VERSIONS=$(echo "$TAGS_JSON" | jq -r '.results[].name' | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -Vr)
+          PANEL_VERSION=$(echo "$VERSIONS" | head -n1)
 
-      - name: Check if version is valid and update files
-        if: ${{ env.PANEL_VERSION != '' && env.PANEL_VERSION != 'null' && contains(env.PANEL_VERSION, '.') }}
+          if [[ -z "$PANEL_VERSION" ]]; then
+            echo "No valid version found."
+            exit 1
+          fi
+
+          echo "Latest version detected: $PANEL_VERSION"
+          echo "version=$PANEL_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Update website/docusaurus.config.js with new version
+        shell: bash
         run: |
-          echo "Version is valid: $PANEL_VERSION"
-          
-          # Write version to version/LATEST
-          echo $PANEL_VERSION > version/LATEST
-          
-          # Update the version label in website/docusaurus.config.js
-          # This ensures we only update the label inside versions.current
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
           sed -i "/versions: {/ , /}/s/label: \".*\"/label: \"$PANEL_VERSION\"/" website/docusaurus.config.js
-          
-          # Commit the changes
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add version/LATEST website/docusaurus.config.js
-          git commit -m "Update version to $PANEL_VERSION"
-          git push origin main
 
-      - name: Fail if version format is invalid
-        if: ${{ env.PANEL_VERSION == '' || env.PANEL_VERSION == 'null' }}
+      - name: Update website/src/refine-theme/landing-hero-github-stars.tsx with new version
+        shell: bash
         run: |
-          echo "Invalid version format: $PANEL_VERSION"
-          exit 1
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+
+          # Replace version in useState('...')
+          sed -i "s/\(const \[version, setVersion\] = useState('\)[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
+
+          # Replace version in latestVersion assignment line
+          sed -i "s/\(const latestVersion = filteredTags.length > 0 ? filteredTags\[0\] : '\)[^']*\(';  \/\/ new verzija tag\)/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
+
+
+      - name: Update fallback PANEL_VERSION in install.sh
+        shell: bash
+        run: |
+          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+          sed -i -E "s/^PANEL_VERSION=\"[^\"]+\" # fallback if hub.docker.com unreachable$/PANEL_VERSION=\"$PANEL_VERSION\" # fallback if hub.docker.com unreachable/" install.sh
+
+
+      - name: Commit and push changes if any
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add website/docusaurus.config.js website/src/refine-theme/landing-hero-github-stars.tsx
+
+          # Only commit if changes present
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: update panel version to ${{ steps.fetch_version.outputs.version }}"
+            git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
+          else
+            echo "No changes to commit."
+          fi
