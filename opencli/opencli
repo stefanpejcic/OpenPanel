@@ -1,0 +1,189 @@
+#!/bin/bash
+
+OPENCLI_VERSION="202.507.003"
+################################################################################
+# Script Name: /usr/local/bin/opencli
+# Description: Makes all OpenCLI commands available on the terminal.
+# Usage: opencli <COMMAND-NAME> <ATTRIBUTES>
+# Author: Stefan Pejcic
+# Created: 15.11.2023
+# Last Modified: 18.02.2025
+# Company: openpanel.com
+# Copyright (c) openpanel.com
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+################################################################################
+
+LOG_FILE="/var/log/openpanel/admin/opencli.log" 
+
+
+about() {
+  echo "About:"
+  echo "  Documentation:                    https://dev.openpanel.com/cli/"
+  echo "  Version:                          $OPENCLI_VERSION"
+  echo "  Author:                           Stefan Pejcic <stefan@pejcic.rs>"
+  echo "  License:                          MIT"
+  echo ""
+}
+
+
+history() {
+  if [ ! -f "$LOG_FILE" ]; then
+    echo "Warning: log file $LOG_FILE not found."
+  else
+    echo "Recently used commands:"
+    tail -n 100 "$LOG_FILE" | grep -o 'opencli [^ ]*' | sort | uniq | tail -n 5 | sed 's/^/  /'
+    echo ""
+    echo "Most commonly used commands:"
+    awk -F ' \\| ' '!($2 ~ /^[0-9]+$/) {print "  " $2}' "$LOG_FILE" | sort | uniq | head -n 5
+    echo ""
+  fi
+}
+
+usage() {
+  echo ""
+  echo "Usage: opencli <COMMAND> [additional_arguments]"
+  echo ""
+  echo "Suggested commands:"
+  echo "  opencli faq                       Display frequently asked questions and answers."
+  echo "  opencli commands                  List all available OpenCLI commands and their usage."
+  echo ""
+}
+
+if [ "$EUID" -ne 0 ]; then
+  echo "OpenCLI scripts must be run as root user."
+  exit 1
+fi
+
+
+# Check if the correct number of arguments is provided
+if [ "$#" -lt 1 ]; then
+  usage
+  history
+  about
+  exit 1
+fi
+
+log_command() {
+  { echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $binary_name" >> "$LOG_FILE"; } 2>/dev/null
+}
+
+
+
+
+# scripts dir
+script_dir="/usr/local/opencli"
+
+# bash -x script.sh
+if [ "$1" = "-x" ]; then
+  debug_flag="-x"
+  shift
+else
+   debug_flag=""
+fi
+
+# path/filename
+binary_name="$1"
+
+
+
+
+# '-v' is alias for '--version'
+if [ "$binary_name" = "-v" ]; then
+  binary_name="--version"
+fi
+
+
+# opencli error ID
+if [ "$binary_name" = "error" ]; then
+  shift
+  if [ "$#" -gt 0 ]; then
+    python3 /usr/local/opencli/error.py "$@"
+  else
+    python3 /usr/local/opencli/error.py
+  fi
+ exit 0
+fi
+
+
+# LOCALES
+if [ "$binary_name" = "locale" ]; then
+  shift
+  if [ "$#" -gt 0 ]; then
+    bash $debug_flag <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh) "$@"
+  else
+    bash $debug_flag <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh)
+  fi
+ exit 0
+fi
+
+
+# pre and post hooks added in 1.2.9
+pre_hook_file="/etc/openpanel/openpanel/hooks/pre_$binary_name"
+post_hook_file="/etc/openpanel/openpanel/hooks/post_$binary_name"
+
+
+
+# Replace '-' with '/' in the name
+binary_command="${binary_name//-//}"
+binary_path="$script_dir/$binary_command.sh" # add .sh to each command, opencli <1.0 had no .sh
+
+if [ "$binary_name" = "blacklist" ]; then
+  binary_path="/usr/ipset-blacklist.sh"
+fi
+
+if [ "$binary_name" = "sentinel" ]; then
+  binary_path="/usr/local/admin/service/notifications.sh"
+fi
+
+if [ -f "$binary_path" ]; then
+  shift
+  log_command
+
+  #run pre-hook, wait for it to complete
+  if [ -f "$pre_hook_file" ]; then
+    if [ "$#" -gt 0 ]; then
+      bash $debug_flag "$pre_hook_file" "$@" </dev/null >nohup.out 2>nohup.err
+    else
+      bash $debug_flag "$pre_hook_file" </dev/null >nohup.out 2>nohup.err
+    fi
+  fi
+
+  if [ "$#" -gt 0 ]; then
+    bash $debug_flag "$binary_path" "$@"
+  else
+    bash $debug_flag "$binary_path"
+  fi
+
+  #run post-hook in background
+  if [ -f "$post_hook_file" ]; then
+    if [ "$#" -gt 0 ]; then
+      nohup bash "$post_hook_file" "$@" </dev/null >nohup.out 2>nohup.err &
+    else
+      nohup bash "$post_hook_file" </dev/null >nohup.out 2>nohup.err &
+    fi
+  fi
+
+else
+  echo "Error: Command '$binary_command' not found - file '$binary_path' does not exist."
+  usage
+  history
+  about
+  exit 1
+fi

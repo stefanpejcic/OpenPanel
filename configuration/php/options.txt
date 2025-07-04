@@ -1,0 +1,17 @@
+allow_url_fopen
+date.timezone
+disable_functions
+display_errors
+error_reporting
+file_uploads
+log_errors
+max_execution_time
+max_input_time
+max_input_vars
+memory_limit
+open_basedir
+output_buffering
+post_max_size
+short_open_tag
+upload_max_filesize
+zlib.output_compression

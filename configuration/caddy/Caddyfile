@@ -1,0 +1,29 @@
+# general
+{   
+    #admin off
+    on_demand_tls {
+        ask "http://localhost/check"
+    }
+}
+
+# START HOSTNAME DOMAIN #
+example.net {
+    reverse_proxy localhost:2087
+}
+
+http://example.net {
+    reverse_proxy localhost:2087
+}
+# END HOSTNAME DOMAIN #
+
+# START WEBMAIL DOMAIN #
+webmail.example.net {
+    reverse_proxy localhost:8080
+}
+# END WEBMAIL DOMAIN #
+
+# import /check route
+import /etc/openpanel/caddy/check.conf
+
+# import all sites
+import /etc/openpanel/caddy/domains/*

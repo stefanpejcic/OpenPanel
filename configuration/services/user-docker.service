@@ -1,0 +1,14 @@
+[Unit]
+Description=Docker Application Container Engine (Rootless)
+After=network.target
+			
+[Service]
+Environment=PATH=/home/<USERNAME>/bin:$PATH
+Environment=DOCKER_HOST=unix://%t/docker.sock
+ExecStart=/home/<USERNAME>/bin/dockerd-rootless.sh
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+			
+[Install]
+WantedBy=default.target

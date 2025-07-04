@@ -1,0 +1,7 @@
+account
+locale
+mysql
+remote_mysql
+mysql_import
+mysql_conf
+phpmyadmin

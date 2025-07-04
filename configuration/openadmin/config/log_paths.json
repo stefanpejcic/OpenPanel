@@ -1,6 +1,4 @@
 {
-    "Nginx Access Log": "/var/log/nginx/access.log",
-    "Nginx Error Log": "/var/log/nginx/access.log",
     "OpenAdmin Access Log": "/var/log/openpanel/admin/access.log",
     "OpenAdmin Error Log": "/var/log/openpanel/admin/error.log",
     "OpenAdmin API Log": "/var/log/openpanel/admin/api.log",
@@ -10,7 +8,7 @@
     "OpenPanel Access Log": "/var/log/openpanel/user/access.log",
     "OpenPanel Error Log": "/var/log/openpanel/user/error.log",
     "OpenCLI Logs": "/var/log/openpanel/admin/opencli.log",
-    "Certbot SSL Logs": "/var/log/letsencrypt/letsencrypt.log",
+    "Caddy Logs": "/var/log/caddy.log",
     "MySQL Logs": "/var/log/mysql.log",
     "FTP Logs": "/var/log/ftp.log",
     "CSF Deny Log": "/etc/csf/csf.deny",

@@ -1,0 +1,6550 @@
+# Translations template for PROJECT.
+# Copyright (C) 2025 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-03-09 15:38+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.15.0\n"
+
+#: app.py:558 templates/dashboard/dashboard.html:974
+#: templates/partials/sidebar.html:1653 templates/user/locale.html:12
+msgid "Change Language"
+msgstr "切换语言"
+
+#: modules/autoinstaller.py:94 templates/manager/autoinstaller.html:9
+#: templates/partials/sidebar.html:428
+msgid "Auto Installer"
+msgstr "自动安装程序"
+
+#: modules/crons.py:49 modules/process_manager.py:49 modules/usage.py:51
+msgid ""
+"system container is not running. Please allow a few moments for the "
+"initialization.."
+msgstr "系统容器未运行。请稍等片刻以进行初始化.."
+
+#: modules/crons.py:61
+msgid "CronJobs File Editor"
+msgstr "定时任务文件编辑器"
+
+#: modules/crons.py:74
+msgid "CronJobs"
+msgstr "定时任务"
+
+#: modules/crons.py:86
+msgid "New CronJob"
+msgstr "新的CronJob"
+
+#: modules/crons.py:112
+msgid "Error executing the cron job addition command: "
+msgstr "执行添加cron作业的命令时出错："
+
+#: modules/crons.py:121
+msgid "Error restarting the cron service: "
+msgstr "重启计划任务服务时出错："
+
+#: modules/crons.py:130
+msgid "Error enabling cron on startup: "
+msgstr "启动时启用计划任务失败："
+
+#: modules/crons.py:134
+msgid "Cron job created successfully!"
+msgstr "定时任务创建成功！"
+
+#: modules/crons.py:137
+msgid "Error saving cron job: "
+msgstr "错误保存计划任务："
+
+#: modules/crons.py:181
+msgid "Crontab file saved successfully!"
+msgstr "计划任务表已成功保存！"
+
+#: modules/crons.py:184
+msgid "Error editing crontab file."
+msgstr "编辑crontab文件时出错。"
+
+#: modules/crons.py:191
+msgid "No cron job or cronfile content provided."
+msgstr "未提供cron作业或cronfile内容。"
+
+#: modules/crons.py:241
+msgid "Cron job successfully modified."
+msgstr "定时任务已成功修改。"
+
+#: modules/crons.py:246
+msgid "Error saving cronjob, please try again."
+msgstr "保存计划任务失败，请重试。"
+
+#: modules/crons.py:273 modules/crons.py:342
+msgid "Cron job was successfully disabled."
+msgstr "已成功禁用计划任务。"
+
+#: modules/crons.py:275
+msgid ""
+"Error disabling cron job, please try again. If the issue persists use the"
+" File Editor instead."
+msgstr ""
+
+#: modules/crons.py:344
+msgid "Error disabling cron job."
+msgstr "禁用定时任务时出错。"
+
+#: modules/crons.py:359
+msgid "Cron job was successfully deleted."
+msgstr "定时任务已成功删除。"
+
+#: modules/crons.py:362
+msgid "Error deleting cron job"
+msgstr "删除定时任务时出错"
+
+#: modules/dashboard.py:43 modules/dashboard.py:71 modules/dashboard.py:171
+#: modules/dashboard.py:191 modules/dashboard.py:260 modules/dashboard.py:505
+#: modules/docker.py:429 modules/docker.py:446 modules/ip_blocker.py:38
+#: modules/php.py:238 modules/php.py:287 modules/timezone.py:23
+#: modules/waf.py:24 modules/webserver_conf.py:23
+msgid "User not authenticated"
+msgstr "用户未认证"
+
+#: modules/dashboard.py:48 modules/dashboard.py:76
+msgid "User ID not found."
+msgstr "用户ID未找到。"
+
+#: modules/dashboard.py:60
+msgid "Failed to retrieve system data"
+msgstr "检索系统数据失败。"
+
+#: modules/dashboard.py:62
+msgid "Invalid JSON output from Docker command"
+msgstr "Docker命令输出无效的JSON格式。"
+
+#: modules/dashboard.py:86
+msgid "Failed to retrieve disk usage information."
+msgstr "获取磁盘使用信息失败。"
+
+#: modules/dashboard.py:90
+msgid "Disk usage data not found."
+msgstr "磁盘使用数据未找到。"
+
+#: modules/dashboard.py:156
+msgid "Error fetching country code:"
+msgstr "获取国家/地区代码时出错："
+
+#: modules/dashboard.py:219 modules/dashboard.py:350
+msgid "0"
+msgstr "0"
+
+#: modules/dashboard.py:392 modules/dashboard.py:394 modules/emails.py:393
+#: modules/emails.py:395 modules/emails.py:568 modules/emails.py:570
+#: modules/emails.py:580 modules/files/ftp.py:77 modules/files/ftp.py:79
+#: templates/cache/elasticsearch.html:104 templates/cache/memcached.html:103
+#: templates/cache/redis.html:105 templates/dashboard/get_started.html:15
+#: templates/dashboard/information.html:40
+#: templates/dashboard/information.html:54 templates/files/ftp.html:16
+#: templates/mysql/phpmyadmin.html:94 templates/mysql/remote_mysql.html:89
+#: templates/system/ssh.html:52
+msgid "Unknown"
+msgstr "未知"
+
+#: modules/dns.py:213
+msgid "Row deleted successfully"
+msgstr "记录已成功删除。"
+
+#: modules/dns.py:285 modules/dns.py:385 modules/dns.py:502
+#: modules/domains.py:298 modules/domains.py:360 modules/domains.py:421
+#: modules/domains.py:487 modules/domains.py:514 modules/ip_blocker.py:47
+#: modules/sitemanager/temporary_links.py:45 modules/waf.py:37
+#: modules/websites.py:513 modules/websites.py:576 modules/websites.py:625
+#: modules/websites.py:701 modules/websites.py:733 modules/websites.py:768
+#: modules/websites.py:806 modules/websites.py:850 modules/websites.py:877
+#: modules/websites.py:904 modules/websites.py:931 modules/websites.py:959
+#: modules/websites.py:1021 modules/websites.py:1071 modules/websites.py:1104
+#: modules/websites.py:1160 modules/websites.py:1213 modules/websites.py:1600
+msgid "The domain does not belong to the user."
+msgstr "该域名不属于用户所有。"
+
+#: modules/dns.py:327 modules/dns.py:343 templates/domains/domains.html:189
+msgid "Edit DNS Zone"
+msgstr "编辑DNS区域"
+
+#: modules/dns.py:329 templates/domains/dns.html:84
+#: templates/domains/dns.html:100
+msgid "Edit DNS File"
+msgstr "编辑DNS文件"
+
+#: modules/dns.py:358
+msgid "DNS zone restarted successfully."
+msgstr "DNS区域已成功重启。"
+
+#: modules/dns.py:361
+msgid "Failed to restart DNS zone: "
+msgstr "重启DNS区域失败："
+
+#: modules/dns.py:364
+msgid "The domain does not belong to the user.."
+msgstr "该域名不属于用户所有。"
+
+#: modules/dns.py:367 modules/dns.py:368 modules/dns.py:434
+msgid "Please provide a domain name."
+msgstr "請提供域名。"
+
+#: modules/dns.py:452
+msgid "Zone file not found."
+msgstr "区域文件未找到。"
+
+#: modules/dns.py:476
+msgid "CNAME record with this name already exists."
+msgstr "此名称的CNAME记录已存在。"
+
+#: modules/dns.py:487
+msgid "DNS record added successfully."
+msgstr "DNS记录添加成功。"
+
+#: modules/dns.py:512
+msgid "DNS zone saved and DNS service restarted."
+msgstr "DNS区域已保存，DNS服务已重启。"
+
+#: modules/dns.py:514
+msgid "New content not provided."
+msgstr "新内容未提供。"
+
+#: modules/docker.py:220 templates/dashboard/dashboard.html:694
+#: templates/dashboard/dashboard.html:717 templates/docker/containers.html:8
+#: templates/docker/volumes_TODO.html:9 templates/partials/sidebar.html:1359
+msgid "Containers"
+msgstr "容器"
+
+#: modules/docker.py:394
+msgid "Change docker image"
+msgstr "更改Docker镜像"
+
+#: modules/docker.py:420
+msgid "Select docker image"
+msgstr "选择Docker镜像"
+
+#: modules/docker.py:450 modules/ssh.py:30
+msgid "Invalid action"
+msgstr "无效操作"
+
+#: modules/domain_logs.py:109
+msgid "Access Logs"
+msgstr "访问日志"
+
+#: modules/domains.py:191 templates/dashboard/dashboard.html:163
+#: templates/dashboard/dashboard.html:186
+#: templates/dashboard/statistics.html:51
+#: templates/dashboard/statistics.html:63 templates/domains/domains.html:12
+msgid "Domains"
+msgstr "域名"
+
+#: modules/domains.py:234
+msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
+msgstr "错误：已达到此托管计划允许的最大域名数量。"
+
+#: modules/domains.py:271
+msgid "Add a New Domain"
+msgstr "添加新域名"
+
+#: modules/domains.py:287 modules/domains.py:354 modules/domains.py:415
+msgid "Invalid request. Domain name must be provided."
+msgstr "无效请求。必须提供域名。"
+
+#: modules/domains.py:293 templates/domains/docroot.html:64
+#: templates/domains/domains.html:195 templates/partials/sidebar.html:946
+msgid "Change docroot"
+msgstr "更改文档根目录"
+
+#: modules/domains.py:308
+msgid "docroot must be provided."
+msgstr "必须提供docroot。"
+
+#: modules/domains.py:315
+msgid "Docroot must be inside '/var/www/html/' directory."
+msgstr "Docroot必须位于 '/var/www/html/' 目录下。"
+
+#: modules/domains.py:388
+msgid "Suspend Domain"
+msgstr "暂停域名"
+
+#: modules/domains.py:449
+msgid "Unsuspend Domain"
+msgstr "恢复域名"
+
+#: modules/domains.py:481
+msgid "Invalid request. Domain name and Vhost content must be provided."
+msgstr "无效请求。必须提供域名和Vhost内容。"
+
+#: modules/domains.py:587 modules/domains.py:600
+msgid "Error saving virtual host configuration. Configuration test failed."
+msgstr "保存虚拟主机配置时出错。配置测试失败。"
+
+#: modules/domains.py:606
+msgid "Error saving virtual host configuration. An unexpected error occurred."
+msgstr "保存虚拟主机配置时出错。 发生意外错误。"
+
+#: modules/domains.py:751
+msgid "Unauthorized"
+msgstr "未授权"
+
+#: modules/domains.py:798 modules/sitemanager/temporary_links.py:40
+msgid "Domain name not provided."
+msgstr "域名未提供。"
+
+#: modules/domains.py:814
+msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
+msgstr "无效网址。请提供带有“http://”或“https://”前缀的网址。"
+
+#: modules/domains.py:850
+msgid "Create a Redirect"
+msgstr "创建重定向"
+
+#: modules/emails.py:112 modules/emails.py:541 modules/emails.py:558
+msgid "Error: Invalid email address."
+msgstr "错误：无效的电子邮件地址。"
+
+#: modules/emails.py:148
+msgid "Filter edited successfully."
+msgstr "筛选已成功编辑。"
+
+#: modules/emails.py:152
+msgid "Error editing filter."
+msgstr "编辑过滤器时出错。"
+
+#: modules/emails.py:156
+msgid "Email Filter"
+msgstr "电子邮件过滤器"
+
+#: modules/emails.py:240
+msgid ""
+"Webmail service is not yet started, please contact Administrator to "
+"enable it."
+msgstr ""
+
+#: modules/emails.py:318
+msgid "Domain not provided"
+msgstr "域名未提供"
+
+#: modules/emails.py:323 templates/emails/new.html:7
+msgid "Create an Email"
+msgstr "创建电子邮件"
+
+#: modules/emails.py:507 templates/dashboard/dashboard.html:467
+#: templates/dashboard/dashboard.html:490 templates/partials/sidebar.html:700
+msgid "Email Accounts"
+msgstr "电子邮件账户"
+
+#: modules/emails.py:544
+msgid "Delete Email address"
+msgstr "删除电子邮件地址"
+
+#: modules/emails.py:582
+msgid "Email Server Info"
+msgstr "邮件服务器信息"
+
+#: modules/flarum.py:106
+msgid "Flarum Manager"
+msgstr "论坛管理员"
+
+#: modules/flarum.py:246 modules/mautic.py:246 modules/wordpress.py:194
+msgid "Backup restored successfully!"
+msgstr "备份已成功恢复！"
+
+#: modules/flarum.py:312 modules/mautic.py:312 modules/wordpress.py:252
+msgid "Backup completed successfully!"
+msgstr "备份完成成功！"
+
+#: modules/flarum.py:315 modules/mautic.py:315 modules/wordpress.py:254
+msgid "No backup options selected."
+msgstr "未选择备份选项。"
+
+#: modules/flarum.py:336 modules/mautic.py:336
+msgid "Site not found in the database."
+msgstr "数据库中未找到该网站。"
+
+#: modules/flarum.py:443
+msgid "Flarum removal completed successfully!"
+msgstr "Flarum已成功移除！"
+
+#: modules/flarum.py:445
+msgid "An error occurred during Flarum removal."
+msgstr "Flarum删除过程中发生错误。"
+
+#: modules/flarum.py:465
+msgid "An error occurred during Flarum detachment."
+msgstr "Flarum分离过程中发生错误。"
+
+#: modules/flarum.py:602
+msgid "Error: .htaccess file already exists. Flarum installation cannot proceed!"
+msgstr "错误：.htaccess文件已存在。无法继续Flarum安装！"
+
+#: modules/flarum.py:818
+msgid "Hooray, Flarum was successfully installed!"
+msgstr "太棒了，Flarum已成功安装！"
+
+#: modules/goaccess.py:70 modules/pm2.py:882 modules/wordpress.py:1035
+msgid "You do not own this domain."
+msgstr "您不拥有此域名。"
+
+#: modules/goaccess.py:77
+msgid "GoAccess Logs"
+msgstr "GoAccess日志"
+
+#: modules/info.py:33 templates/dashboard/dashboard.html:925
+#: templates/partials/sidebar.html:1525 templates/system/server_info.html:10
+msgid "Server Information"
+msgstr "服务器信息"
+
+#: modules/info.py:61
+msgid "Error occurred while fetching service status."
+msgstr "获取服务状态时发生错误。"
+
+#: modules/info.py:75
+msgid "Services Status"
+msgstr "服务状态"
+
+#: modules/ip_blocker.py:63
+msgid "Invalid IP address(es):"
+msgstr "无效的IP地址："
+
+#: modules/ip_blocker.py:79
+msgid "IP(s) blocked successfully for {domain_name}"
+msgstr "IP(s) 已成功阻止针对 {domain_name}"
+
+#: modules/ip_blocker.py:83
+msgid "Error saving blocked IP's for domain {domain_name}"
+msgstr "为域名 {domain_name} 保存阻止的IP地址时出错。"
+
+#: modules/mautic.py:107
+msgid "Mautic Manager"
+msgstr "Mautic管理"
+
+#: modules/mautic.py:463
+msgid "Mautic removal completed successfully!"
+msgstr "Mautic已成功移除！"
+
+#: modules/mautic.py:465
+msgid "An error occurred during Mautic removal."
+msgstr "Mautic删除过程中发生错误。"
+
+#: modules/mautic.py:485
+msgid "An error occurred during Mautic detachment."
+msgstr "Mautic分离过程中发生错误。"
+
+#: modules/mautic.py:636
+msgid "Error: .htaccess file already exists. Mautic installation cannot proceed!"
+msgstr "错误：.htaccess文件已存在。Mautic安装无法继续！"
+
+#: modules/mautic.py:785
+msgid "Hooray, Mautic was successfully installed!"
+msgstr "太棒了，Mautic已成功安装！"
+
+#: modules/mysql.py:261
+msgid "You have reached the maximum number of databases allowed."
+msgstr "您已达到允许的最大数据库数量。"
+
+#: modules/mysql.py:287
+msgid "New MySQL Database"
+msgstr "新的MySQL数据库"
+
+#: modules/mysql.py:308
+msgid "This username is not allowed."
+msgstr "此用户名不允许。"
+
+#: modules/mysql.py:328
+msgid "New MySQL User"
+msgstr "新MySQL用户"
+
+#: modules/mysql.py:341 modules/mysql.py:796 modules/mysql.py:896
+msgid "This is a system username that can not be edited."
+msgstr "这是一个系统用户名，不可编辑。"
+
+#: modules/mysql.py:344
+msgid "Update Password for User"
+msgstr "更新用户密码"
+
+#: modules/mysql.py:357 templates/dashboard/dashboard.html:322
+#: templates/mysql/databases.html:126 templates/mysql/wizard.html:8
+#: templates/partials/sidebar.html:793
+msgid "Database Wizard"
+msgstr "数据库向导"
+
+#: modules/mysql.py:384
+msgid "This is a system database that can not be used."
+msgstr "这是一个不可用的系统数据库。"
+
+#: modules/mysql.py:405
+msgid "Assign User to MySQL Database"
+msgstr "将用户分配到MySQL数据库"
+
+#: modules/mysql.py:416
+msgid "Remove User from MySQL Database"
+msgstr "从MySQL数据库中移除用户"
+
+#: modules/mysql.py:498
+msgid "Error fetching databases from the container."
+msgstr "从容器中获取数据库时出错。"
+
+#: modules/mysql.py:510 templates/dashboard/dashboard.html:275
+#: templates/dashboard/dashboard.html:298 templates/mysql/databases.html:10
+msgid "MySQL Databases"
+msgstr "MySQL数据库"
+
+#: modules/mysql.py:552
+msgid "Error checking users form the container."
+msgstr "验证用户表单来自容器。"
+
+#: modules/mysql.py:563 templates/dashboard/dashboard.html:310
+#: templates/mysql/users.html:9
+msgid "MySQL Users"
+msgstr "MySQL用户"
+
+#: modules/mysql.py:591
+msgid "enabled remote MySQL"
+msgstr "启用远程MySQL"
+
+#: modules/mysql.py:594
+msgid "Remote MySQL access is now enabled."
+msgstr "远程MySQL访问已启用。"
+
+#: modules/mysql.py:597
+msgid "Remote MySQL access is already disabled."
+msgstr "远程MySQL访问已禁用。"
+
+#: modules/mysql.py:600
+msgid "disabled remote MySQL"
+msgstr "禁用远程MySQL"
+
+#: modules/mysql.py:602
+msgid "Remote MySQL access is now disabled."
+msgstr "远程MySQL访问已禁用。"
+
+#: modules/mysql.py:611
+msgid "OFF"
+msgstr "关"
+
+#: modules/mysql.py:613
+msgid "ON"
+msgstr "开"
+
+#: modules/mysql.py:624 templates/dashboard/dashboard.html:361
+#: templates/partials/sidebar.html:839
+msgid "Remote MySQL"
+msgstr "远程MySQL"
+
+#: modules/mysql.py:659
+msgid "changed MySQL root user password"
+msgstr "更改了MySQL root用户密码"
+
+#: modules/mysql.py:661
+msgid "Successfully changed root password."
+msgstr "成功更改了root密码。"
+
+#: modules/mysql.py:663
+msgid "Error changing MySQL root password - is mysql running?"
+msgstr "修改MySQL root密码时出错 - mysql是否正在运行？"
+
+#: modules/mysql.py:665
+msgid "Change Root Password"
+msgstr "更改根密码"
+
+#: modules/mysql.py:694 templates/mysql/processlist.html:9
+msgid "MySQL Processes"
+msgstr "MySQL进程"
+
+#: modules/mysql.py:759
+msgid "This is a system username that can not be deleted."
+msgstr "这是一个不可删除的系统用户名。"
+
+#: modules/mysql.py:892
+msgid "This is a system database that can not be edited."
+msgstr "这是一个不可编辑的系统数据库。"
+
+#: modules/php.py:94
+msgid "Invalid input data"
+msgstr "无效的输入数据"
+
+#: modules/php.py:102 modules/php.py:167 modules/php.py:566
+msgid "success"
+msgstr "成功"
+
+#: modules/php.py:106
+msgid "Configuration file not found"
+msgstr "配置文件未找到"
+
+#: modules/php.py:113
+msgid "Set Default PHP version"
+msgstr "设置默认PHP版本"
+
+#: modules/php.py:169 modules/php.py:568
+msgid "error"
+msgstr "错误"
+
+#: modules/php.py:235 templates/dashboard/dashboard.html:641
+#: templates/partials/sidebar.html:1307
+msgid "PHP Options"
+msgstr "PHP选项"
+
+#: modules/php.py:267
+msgid ""
+"Configuration edited successfully and service restarted to apply new "
+"settings."
+msgstr ""
+
+#: modules/php.py:284 templates/dashboard/dashboard.html:654
+#: templates/partials/sidebar.html:1316
+msgid "PHP.INI Editor"
+msgstr "PHP.INI编辑器"
+
+#: modules/php.py:421 templates/php/limits.html:11
+msgid "PHP Limits"
+msgstr "PHP限制"
+
+#: modules/php.py:450 modules/php.py:598 templates/dashboard/dashboard.html:593
+#: templates/manager/flarum.html:544
+msgid "PHP Settings"
+msgstr "PHP设置"
+
+#: modules/php.py:608
+msgid "User not logged in"
+msgstr "用户未登录"
+
+#: modules/php.py:619
+msgid "No log files found"
+msgstr "未找到日志文件"
+
+#: modules/php.py:639
+msgid "Log file deleted"
+msgstr "日志已删除"
+
+#: modules/phpmyadmin.py:62
+msgid "phpMyAdmin service is now enabled."
+msgstr "phpMyAdmin服务现已启用。"
+
+#: modules/phpmyadmin.py:64
+msgid "Failed to start the phpMyAdmin service. Try restart."
+msgstr "未能启动phpMyAdmin服务。请尝试重启。"
+
+#: modules/phpmyadmin.py:69
+msgid "phpMyAdmin service is now disabled."
+msgstr "phpMyAdmin服务现已禁用。"
+
+#: modules/phpmyadmin.py:71
+msgid "Failed to stop the phpMyAdmin service. Try restart."
+msgstr "未能停止phpMyAdmin服务。请尝试重启。"
+
+#: modules/phpmyadmin.py:110
+msgid "Limits saved ({}) - restarting phpMyAdmin service to apply changes"
+msgstr "已保存限制 ({}) - 重启phpMyAdmin服务以应用更改"
+
+#: modules/phpmyadmin.py:112
+msgid "Limits saved ({}) - but phpMyAdmin failed to start. Try reverting changes."
+msgstr "已保存限制 ({}) - 但phpMyAdmin启动失败。请尝试撤销更改。"
+
+#: modules/phpmyadmin.py:114
+msgid "No changes or invalid data provided. Try again."
+msgstr "No changes or invalid data provided. Try again."
+
+#: modules/phpmyadmin.py:147 templates/dashboard/dashboard.html:336
+#: templates/manager/flarum.html:476 templates/manager/wordpress.html:1828
+#: templates/mysql/phpmyadmin.html:14 templates/partials/sidebar.html:781
+msgid "phpMyAdmin"
+msgstr "phpMyAdmin"
+
+#: modules/phpmyadmin.py:182
+msgid "Container port not found for the user."
+msgstr "用户未找到容器端口。"
+
+#: modules/pm2.py:64
+msgid "File path is missing"
+msgstr "文件路径缺失"
+
+#: modules/pm2.py:69
+msgid "Invalid file extension. Only .jar, .py, or .js are allowed."
+msgstr "无效的文件扩展名。仅允许.jar、.py或 .js文件。"
+
+#: modules/pm2.py:290 templates/manager/pm2_install.html:8
+msgid "Install Application"
+msgstr "安装应用程序"
+
+#: modules/process_manager.py:85 templates/dashboard/dashboard.html:855
+#: templates/partials/sidebar.html:1450 templates/system/process_manager.html:9
+msgid "Process Manager"
+msgstr "流程经理"
+
+#: modules/ssh.py:53
+msgid "Password changed successfully."
+msgstr "密码修改成功。"
+
+#: modules/ssh.py:56
+msgid "Failed to change password."
+msgstr "修改密码失败。"
+
+#: modules/ssh.py:59
+msgid "New password cannot be empty."
+msgstr "新密码不能为空。"
+
+#: modules/ssh.py:86 templates/dashboard/dashboard.html:815
+#: templates/partials/sidebar.html:1428 templates/system/ssh.html:13
+msgid "SSH Access"
+msgstr "SSH访问"
+
+#: modules/terminal.py:124
+msgid "Failed to start or access ttyd session."
+msgstr "启动或访问ttyd会话失败。"
+
+#: modules/timezone.py:34
+msgid "Error changing timezone: invalid timezone selected."
+msgstr "时区更改错误：选择了无效的时区。"
+
+#: modules/timezone.py:45
+msgid "Error reading current timezone from docker container: "
+msgstr "从Docker容器读取当前时区时出错："
+
+#: modules/timezone.py:65
+msgid "Error changing timezone inside the docker container: "
+msgstr "Docker容器内部更改时区时出错："
+
+#: modules/usage.py:81 templates/dashboard/dashboard.html:842
+#: templates/partials/sidebar.html:1513 templates/user/stats.html:20
+msgid "Resource Usage"
+msgstr "资源使用情况"
+
+#: modules/usage.py:98
+msgid "Container name is required"
+msgstr "容器名称是必需的。"
+
+#: modules/usage.py:105
+msgid ", "
+msgstr ","
+
+#: modules/usage.py:200
+msgid "Resource Usage History"
+msgstr "资源使用历史"
+
+#: modules/waf.py:20 templates/dashboard/dashboard.html:910
+#: templates/partials/sidebar.html:1501 templates/system/waf.html:8
+msgid "WAF"
+msgstr "WAF"
+
+#: modules/waf.py:93
+msgid "Domain not found or unauthorized"
+msgstr "域名未找到或未授权"
+
+#: modules/webserver_conf.py:34
+msgid "Nginx Configuration Editor"
+msgstr "Nginx配置编辑器"
+
+#: modules/webserver_conf.py:36
+msgid "Apache Configuration Editor"
+msgstr "Apache配置编辑器"
+
+#: modules/webserver_conf.py:38
+msgid "Web Server Configuration Editor"
+msgstr "Web服务器配置编辑器"
+
+#: modules/websites.py:545
+msgid "Data gathering started. Please allow a few minutes for completion."
+msgstr "数据收集已开始。请耐心等待几分钟以完成。"
+
+#: modules/websites.py:652 modules/websites.py:1520
+msgid "Unable to detect docroot for the domain."
+msgstr "无法检测到域名的文档根目录。"
+
+#: modules/websites.py:660 modules/websites.py:1528
+msgid ""
+"Error connecting to database, please try again. If the issue persists "
+"contact support."
+msgstr ""
+
+#: modules/websites.py:998
+msgid "Debugging options updated successfully"
+msgstr "调试选项已成功更新。"
+
+#: modules/websites.py:1049
+msgid "General options edited successfully"
+msgstr "常规选项编辑成功"
+
+#: modules/websites.py:1080 templates/manager/wordpress.html:2175
+msgid "WordPress updated successfully"
+msgstr "WordPress已成功更新。"
+
+#: modules/websites.py:1136
+msgid "Update preferences saved successfully"
+msgstr "偏好设置已成功保存。"
+
+#: modules/websites.py:1311 templates/dashboard/statistics.html:26
+#: templates/dashboard/statistics.html:38
+msgid "Websites"
+msgstr "网站"
+
+#: modules/websites.py:1327 templates/manager/new.html:10
+msgid "New Website"
+msgstr "新网站"
+
+#: modules/websites.py:1362
+msgid "Website Builder"
+msgstr "网站构建器"
+
+#: modules/websites.py:1397
+msgid "Error executing the query:"
+msgstr "执行查询时出错："
+
+#: modules/wordpress.py:111
+msgid "WordPress Manager"
+msgstr "WordPress托管"
+
+#: modules/wordpress.py:278
+msgid "No data found for the provided site ID"
+msgstr "提供的站点ID未找到相关数据。"
+
+#: modules/wordpress.py:288
+msgid "WordPress installation not found in the database"
+msgstr "数据库中未找到WordPress安装。"
+
+#: modules/wordpress.py:318
+msgid "Database name or user not found in wp-config.php"
+msgstr "wp-config.php文件中未找到数据库名称或用户。"
+
+#: modules/wordpress.py:386
+msgid "WordPress uninstalled successfully!"
+msgstr "WordPress已成功卸载！"
+
+#: modules/wordpress.py:389
+msgid "WordPress removal completed successfully!"
+msgstr "WordPress移除已成功完成！"
+
+#: modules/wordpress.py:391
+msgid "An error occurred during WordPress uninstall."
+msgstr "WordPress卸载过程中发生错误。"
+
+#: modules/wordpress.py:393
+msgid "An error occurred during WordPress removal."
+msgstr "WordPress卸载过程中发生错误。"
+
+#: modules/wordpress.py:419
+msgid "WordPress installation detached from Manager."
+msgstr "WordPress安装已从管理器分离。"
+
+#: modules/wordpress.py:423
+msgid "An error occurred during WordPress detachment. Pelase try again."
+msgstr "WordPress分离过程中发生错误。请重试。"
+
+#: modules/wordpress.py:426
+msgid "An error occurred during WordPress detachment."
+msgstr "WordPress分离过程中发生错误。"
+
+#: modules/wordpress.py:589 modules/wordpress.py:714
+msgid ""
+"Scan completed. Found installations:\n"
+"\n"
+msgstr ""
+
+#: modules/wordpress.py:622 templates/wordpress.html:447
+msgid "Scan skipped. WordPress installation is currently running."
+msgstr "扫描跳过。WordPress安装正在进行中。"
+
+#: modules/wordpress.py:739 templates/manager/wordpress_install.html:9
+msgid "Install WordPress"
+msgstr "安装WordPress"
+
+#: modules/wordpress.py:1056
+msgid "Domain not found."
+msgstr "域名未找到。"
+
+#: modules/account/login.py:33
+msgid "Login"
+msgstr "登录"
+
+#: modules/account/login.py:175
+msgid "User does not exist."
+msgstr "用户不存在。"
+
+#: modules/account/login.py:177
+msgid "Error occurred while trying to auto-login."
+msgstr "尝试自动登录时发生错误。"
+
+#: modules/account/login.py:181
+msgid "Invalid admin token."
+msgstr "无效的管理员令牌。"
+
+#: modules/account/login.py:232
+msgid "Invalid password. Please try again."
+msgstr "密码错误。请重试。"
+
+#: modules/account/login.py:240
+msgid "Your account is suspended. Please contact support."
+msgstr "您的账户已被暂停。请联系客服。"
+
+#: modules/account/login.py:245
+msgid "Unrecognized account. Please check username."
+msgstr "无法识别的账户。请检查用户名。"
+
+#: modules/account/login.py:253
+msgid "Unable to connect to the database. Please contact support."
+msgstr "无法连接到数据库。请联系支持。"
+
+#: modules/account/login.py:287
+msgid "Invalid 2FA code. Please try again."
+msgstr "无效的2FA验证码。请重试。"
+
+#: modules/account/login_history.py:21 templates/dashboard/dashboard.html:1055
+#: templates/partials/sidebar.html:1717 templates/user/loginlog.html:11
+msgid "Login History"
+msgstr "登录历史记录"
+
+#: modules/account/notifications.py:184
+msgid "Notification Preferences"
+msgstr "通知偏好设置"
+
+#: modules/account/restart_TODO.py:29
+msgid "Restart container"
+msgstr "重启容器"
+
+#: modules/account/sessions.py:20 modules/account/sessions.py:46
+#: templates/dashboard/dashboard.html:1014 templates/partials/sidebar.html:1684
+#: templates/user/active_sessions.html:12
+msgid "Active Sessions"
+msgstr "活动会话"
+
+#: modules/account/settings.py:115
+msgid "Account Settings"
+msgstr "账户设置"
+
+#: modules/account/twofa.py:34
+msgid ""
+"OTP code removed and Two-Factor Authentication is now required on new "
+"logins."
+msgstr ""
+
+#: modules/account/twofa.py:38
+msgid ""
+"Setup started: Set up the app or save the OTP code, then confirm to "
+"remove it and activate 2FA."
+msgstr ""
+
+#: modules/account/twofa.py:42
+msgid "Two-Factor Authentication is now disabled."
+msgstr "双重身份验证已禁用。"
+
+#: modules/account/twofa.py:52
+msgid "enableddisabled"
+msgstr "启用/禁用"
+
+#: modules/account/twofa.py:59
+msgid "2FA Settings"
+msgstr "双重验证设置"
+
+#: modules/cache/elasticsearch.py:36
+msgid "Elasticsearch service is now enabled."
+msgstr "Elasticsearch服务现已启用。"
+
+#: modules/cache/elasticsearch.py:38
+msgid "Failed to start the Elasticsearch service. Try restart."
+msgstr "未能启动Elasticsearch服务。请尝试重启。"
+
+#: modules/cache/elasticsearch.py:43
+msgid "Elasticsearch service is now disabled."
+msgstr "Elasticsearch服务现已禁用。"
+
+#: modules/cache/elasticsearch.py:45
+msgid "Failed to stop the Elasticsearch service. Try restart."
+msgstr "未能停止Elasticsearch服务。请重启。"
+
+#: modules/cache/elasticsearch.py:63 templates/cache/elasticsearch.html:13
+msgid "Elasticsearch"
+msgstr "Elasticsearch"
+
+#: modules/cache/memcached.py:40
+msgid "Memcached service is now enabled."
+msgstr "Memcached服务现已启用。"
+
+#: modules/cache/memcached.py:42
+msgid "Failed to start the Memcached service. Try restart."
+msgstr "未能启动Memcached服务。请尝试重启。"
+
+#: modules/cache/memcached.py:47
+msgid "Memcached service is now disabled."
+msgstr "Memcached服务目前已禁用。"
+
+#: modules/cache/memcached.py:49
+msgid "Failed to stop the Memcached service. Try restart."
+msgstr "未能停止Memcached服务。请尝试重启。"
+
+#: modules/cache/memcached.py:67 templates/cache/memcached.html:13
+#: templates/dashboard/dashboard.html:551 templates/partials/sidebar.html:1215
+msgid "Memcached"
+msgstr "Memcached"
+
+#: modules/cache/redis.py:33
+msgid "REDIS service is now enabled."
+msgstr "Redis服务现已启用。"
+
+#: modules/cache/redis.py:35
+msgid "Failed to start the REDIS service. Try restart."
+msgstr "未能启动REDIS服务。请尝试重启。"
+
+#: modules/cache/redis.py:40
+msgid "REDIS service is now disabled."
+msgstr "Redis服务现已禁用。"
+
+#: modules/cache/redis.py:42
+msgid "Failed to stop the REDIS service. Try restart."
+msgstr "未能停止REDIS服务。请尝试重启。"
+
+#: modules/cache/redis.py:62 templates/cache/redis.html:14
+#: templates/dashboard/dashboard.html:539 templates/partials/sidebar.html:1042
+msgid "REDIS"
+msgstr "Redis"
+
+#: modules/cache/varnish.py:66
+msgid "Varnish"
+msgstr "清漆"
+
+#: modules/core/search.py:24 modules/core/search.py:61
+msgid "Invalid search query"
+msgstr "无效的搜索查询"
+
+#: modules/core/search.py:114
+msgid "Error loading JSON data"
+msgstr "加载JSON数据时出错"
+
+#: modules/files/backups.py:135
+msgid "Log file not found."
+msgstr "未找到日志文件。"
+
+#: modules/files/disk_usage.py:66 templates/dashboard/dashboard.html:85
+#: templates/files/disk_usage.html:13 templates/partials/sidebar.html:646
+msgid "Disk Usage"
+msgstr "磁盘使用情况"
+
+#: modules/files/filemanager.py:74
+msgid "File created successfully."
+msgstr "文件创建成功。"
+
+#: modules/files/filemanager.py:88
+msgid "Filename is missing"
+msgstr "文件名缺失"
+
+#: modules/files/filemanager.py:112
+msgid "Folder created successfully."
+msgstr "文件夹创建成功。"
+
+#: modules/files/filemanager.py:123
+msgid "Foldername is missing"
+msgstr "文件夹名称缺失"
+
+#: modules/files/filemanager.py:180
+msgid "Files uploaded successfully."
+msgstr "文件已成功上传。"
+
+#: modules/files/filemanager.py:182
+msgid "No files were uploaded"
+msgstr "未上传任何文件。"
+
+#: modules/files/filemanager.py:185
+msgid "Error uploading files: {str(e)}"
+msgstr "文件上传出错：{str(e)}"
+
+#: modules/files/filemanager.py:259
+msgid "File extracted successfully"
+msgstr "文件提取成功"
+
+#: modules/files/filemanager.py:315
+msgid "File downloaded from URL and extracted successfully"
+msgstr "文件已从URL下载并成功提取。"
+
+#: modules/files/filemanager.py:325
+msgid "No URL provided"
+msgstr "未提供URL"
+
+#: modules/files/filemanager.py:328
+msgid "Failed to download the file"
+msgstr "文件下载失败。"
+
+#: modules/files/filemanager.py:331
+msgid "Internal server error"
+msgstr "内部服务器错误"
+
+#: modules/files/filemanager.py:378
+msgid "Archive created successfully"
+msgstr "存档创建成功。"
+
+#: modules/files/filemanager.py:458
+msgid "Permissions changed."
+msgstr "权限已更改。"
+
+#: modules/files/filemanager.py:517
+msgid "User not authenticated."
+msgstr "用户未认证。"
+
+#: modules/files/filemanager.py:565
+msgid "File saved successfully"
+msgstr "文件保存成功。"
+
+#: modules/files/filemanager.py:569
+msgid "Error saving file: "
+msgstr "保存文件时出错："
+
+#: modules/files/filemanager.py:587
+msgid "Error reading file"
+msgstr "读取文件时出错"
+
+#: modules/files/filemanager.py:629
+msgid "File size exceeds 500MB limit. Download aborted."
+msgstr "文件大小超过500MB限制。下载已中止。"
+
+#: modules/files/filemanager.py:660
+msgid "Error retrieving file from container."
+msgstr "从容器中检索文件时出错。"
+
+#: modules/files/filemanager.py:662
+msgid "Invalid file size retrieved. Possible issue with file."
+msgstr "获取的文件大小无效。文件可能存在问题。"
+
+#: modules/files/filemanager.py:664
+msgid "An error occurred while processing the request."
+msgstr "处理请求时发生错误。"
+
+#: modules/files/filemanager.py:732
+msgid "The specified directory does not exist."
+msgstr "指定的目录不存在。"
+
+#: modules/files/filemanager.py:816
+msgid "Error accessing the specified directory."
+msgstr "访问指定目录时出错。"
+
+#: modules/files/filemanager.py:817 modules/files/filemanager.py:823
+#: templates/dashboard/dashboard.html:58 templates/files/disk_usage.html:101
+#: templates/files/filemanager.html:9 templates/files/inodes.html:102
+#: templates/manager/flarum.html:434 templates/partials/sidebar.html:577
+msgid "File Manager"
+msgstr "文件管理器"
+
+#: modules/files/fix_permissions.py:34
+msgid "Invalid fix_directory"
+msgstr "无效的fix_directory"
+
+#: modules/files/fix_permissions.py:39
+msgid "Success."
+msgstr "成功。"
+
+#: modules/files/fix_permissions.py:46 templates/dashboard/dashboard.html:141
+#: templates/files/fix_permissions.html:13
+#: templates/files/fix_permissions.html:49 templates/partials/sidebar.html:670
+msgid "Fix Permissions"
+msgstr "修复权限"
+
+#: modules/files/ftp.py:114 modules/files/ftp.py:188 modules/files/ftp.py:222
+#: modules/files/ftp.py:259
+msgid "FTP service is not yet started, please contact Administrator to enable it."
+msgstr "FTP服务尚未启动，请联系管理员以启用它。"
+
+#: modules/files/inodes.py:48 templates/dashboard/dashboard.html:113
+#: templates/files/inodes.html:13 templates/partials/sidebar.html:659
+msgid "Inodes Explorer"
+msgstr "inodes探索器"
+
+#: modules/files/malware_scan.py:50
+msgid "Malware Scanner"
+msgstr "恶意软件扫描器"
+
+#: modules/files/malware_scan.py:79
+msgid "Malware Quarantine"
+msgstr "恶意软件隔离"
+
+#: modules/files/malware_scan.py:89
+msgid "No malware found"
+msgstr "未检测到恶意软件。"
+
+#: modules/files/malware_scan.py:91
+msgid "Malware detected"
+msgstr "检测到恶意软件"
+
+#: modules/files/malware_scan.py:93
+msgid "Scan result unknown"
+msgstr "扫描结果未知"
+
+#: modules/files/malware_scan.py:95
+msgid "Connection to ClamAV container failed"
+msgstr "ClamAV容器连接失败"
+
+#: modules/files/malware_scan.py:109
+msgid "No directory specified for scanning."
+msgstr "未指定扫描目录。"
+
+#: modules/files/malware_scan.py:119
+msgid "Invalid directory specified for scanning."
+msgstr "扫描指定的目录无效。"
+
+#: modules/json/databases_size_info.py:27
+msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
+msgstr "无效的单位参数。使用“字节”、“KB”、“MB”或“GB”。"
+
+#: modules/json/helpers.py:369
+msgid "Unable to retrieve size"
+msgstr "无法获取尺寸"
+
+#: modules/json/helpers.py:374
+msgid "Database configuration not found"
+msgstr "数据库配置未找到"
+
+#: templates/flarum.html:42
+msgid "Flarum Installation failed."
+msgstr "Flarum安装失败。"
+
+#: templates/flarum.html:55
+msgid "Flarum successfully installed."
+msgstr "Flarum安装成功。"
+
+#: templates/flarum.html:76 templates/flarum.html:637
+msgid "Install Flarum"
+msgstr "安装Flarum"
+
+#: templates/flarum.html:77
+msgid "Install Flarum on an existing domain."
+msgstr "在现有域名上安装Flarum。"
+
+#: templates/flarum.html:81 templates/manager/mautic.html:83
+msgid "Website Name:"
+msgstr "网站名称："
+
+#: templates/flarum.html:86 templates/manager/flarum.html:161
+#: templates/manager/mautic.html:88 templates/manager/pm2_install.html:111
+#: templates/manager/wordpress_install.html:41
+msgid "Domain:"
+msgstr "域名"
+
+#: templates/flarum.html:102 templates/manager/mautic.html:101
+#: templates/manager/wordpress_install.html:64
+msgid "Admin Email:"
+msgstr "管理邮件："
+
+#: templates/flarum.html:179 templates/manager/mautic.html:178
+#: templates/manager/wordpress_install.html:142
+msgid "Admin Username:"
+msgstr "管理员用户名："
+
+#: templates/flarum.html:183 templates/manager/mautic.html:182
+#: templates/manager/wordpress_install.html:153
+msgid "Admin Password:"
+msgstr "管理员密码："
+
+#: templates/files/ftp_password.html:28 templates/flarum.html:188
+#: templates/manager/mautic.html:187
+#: templates/manager/wordpress_install.html:158
+msgid "Generate"
+msgstr "生成"
+
+#: templates/flarum.html:268 templates/manager/mautic.html:267
+#: templates/manager/pm2_install.html:352
+#: templates/manager/wordpress_install.html:353
+msgid "Start Installation"
+msgstr "开始安装"
+
+#: templates/domains/dns.html:189 templates/domains/dns.html:200
+#: templates/domains/new.html:32 templates/emails/new.html:19
+#: templates/flarum.html:334 templates/manager/mautic.html:333
+#: templates/php/settings.html:155 templates/system/ip_blocker.html:107
+#: templates/wordpress.html:95
+msgid "Domain"
+msgstr "域名"
+
+#: templates/flarum.html:335
+msgid "Flarum Version"
+msgstr "Flarum版本"
+
+#: templates/flarum.html:336 templates/manager/mautic.html:335
+#: templates/manager/sites.html:87 templates/wordpress.html:97
+msgid "Admin Email"
+msgstr "管理邮件"
+
+#: templates/flarum.html:337 templates/manager/mautic.html:336
+#: templates/manager/pm2.html:77 templates/manager/sites.html:90
+#: templates/wordpress.html:98
+msgid "Created on"
+msgstr "创建于"
+
+#: templates/domains/dns.html:128 templates/domains/domains.html:55
+#: templates/files/backup.html:120 templates/files/clamav/quarantine.html:72
+#: templates/files/disk_usage.html:68 templates/files/ftp.html:65
+#: templates/files/ftp2.html:56 templates/files/inodes.html:69
+#: templates/flarum.html:338 templates/manager/bun.html:478
+#: templates/manager/java.html:429 templates/manager/mautic.html:337
+#: templates/manager/nodejs.html:478 templates/manager/pm2.html:78
+#: templates/manager/python.html:479 templates/manager/ruby.html:429
+#: templates/manager/sites.html:104 templates/mysql/databases.html:147
+#: templates/mysql/users.html:88 templates/system/cronjobs.html:114
+#: templates/system/ip_blocker.html:109
+#: templates/system/services_status.html:26
+#: templates/user/active_sessions.html:62 templates/user/favorites.html:55
+#: templates/wordpress.html:99
+msgid "Actions"
+msgstr "行动"
+
+#: templates/flarum.html:352 templates/flarum.html:479
+msgid "Delete Flarum website"
+msgstr "删除Flarum网站"
+
+#: templates/flarum.html:353 templates/flarum.html:480
+#: templates/manager/mautic.html:352 templates/manager/mautic.html:479
+msgid ""
+"This will irreversibly delete the website, permanently deleting all files"
+" and database."
+msgstr ""
+
+#: templates/flarum.html:354 templates/flarum.html:481
+#: templates/manager/flarum.html:302 templates/manager/mautic.html:353
+#: templates/manager/mautic.html:480 templates/manager/wordpress.html:1517
+#: templates/wordpress.html:130 templates/wordpress.html:193
+msgid "Uninstall"
+msgstr "卸载"
+
+#: templates/flarum.html:358 templates/flarum.html:485
+#: templates/manager/mautic.html:357 templates/manager/mautic.html:484
+msgid "Remove from the Manager"
+msgstr "从管理员移除"
+
+#: templates/flarum.html:359 templates/flarum.html:486
+#: templates/manager/mautic.html:358 templates/manager/mautic.html:485
+msgid ""
+"This will just remove the installation from the Manager but keep the "
+"files and database."
+msgstr ""
+
+#: templates/flarum.html:360 templates/flarum.html:487
+#: templates/manager/flarum.html:301 templates/manager/mautic.html:359
+#: templates/manager/mautic.html:486 templates/manager/wordpress.html:1498
+#: templates/wordpress.html:127 templates/wordpress.html:190
+msgid "Detach"
+msgstr "分离"
+
+#: templates/flarum.html:381 templates/flarum.html:513
+#: templates/manager/mautic.html:380 templates/manager/mautic.html:512
+#: templates/manager/pm2.html:151 templates/wordpress.html:118
+msgid "Manage"
+msgstr "管理"
+
+#: templates/flarum.html:382 templates/manager/bun.html:140
+#: templates/manager/bun.html:175 templates/manager/flarum.html:690
+#: templates/manager/java.html:139 templates/manager/java.html:167
+#: templates/manager/mautic.html:381 templates/manager/nodejs.html:140
+#: templates/manager/nodejs.html:175 templates/manager/python.html:141
+#: templates/manager/python.html:176 templates/manager/ruby.html:139
+#: templates/manager/ruby.html:167
+msgid "Remove"
+msgstr "移除"
+
+#: templates/dashboard/dashboard.html:452 templates/flarum.html:523
+#: templates/flarum.html:694
+msgid "Flarum"
+msgstr "Flarum"
+
+#: templates/flarum.html:588
+msgid "An error occurred while removing Flarum."
+msgstr "移除Flarum时发生错误。"
+
+#: templates/flarum.html:607
+msgid "An error occurred while detaching Flarum."
+msgstr "在分离Flarum时发生错误。"
+
+#: templates/flarum.html:634
+msgid "No Flarum Installations"
+msgstr "无Flarum安装"
+
+#: templates/flarum.html:635
+msgid ""
+"There are no existing Flarum installations. You can install a new "
+"instance below."
+msgstr ""
+
+#: templates/flarum.html:652 templates/manager/mautic.html:656
+#: templates/system/ip_blocker.html:147
+msgid "No Domains"
+msgstr "无域名"
+
+#: templates/flarum.html:653
+msgid "Add a domain name first in order to install Flarum."
+msgstr "首先，需要添加一个域名才能安装Flarum。"
+
+#: templates/flarum.html:656 templates/manager/mautic.html:660
+#: templates/system/ip_blocker.html:149
+msgid "Add a Domain Name"
+msgstr "添加域名"
+
+#: templates/flarum.html:690 templates/manager/mautic.html:694
+msgid "Refresh"
+msgstr "刷新"
+
+#: templates/flarum.html:690 templates/manager/mautic.html:694
+msgid "Data"
+msgstr "数据"
+
+#: templates/flarum.html:694 templates/manager/mautic.html:698
+#: templates/node/install.html:61 templates/php/install.html:63
+msgid "Install"
+msgstr "安装"
+
+#: templates/flarum.html:699 templates/manager/mautic.html:703
+msgid "Switch to List View - perfect for those with many Websites."
+msgstr "切换至列表视图 — 尤其适合拥有众多网站的用户。"
+
+#: templates/flarum.html:702 templates/manager/mautic.html:706
+msgid ""
+"Switch to Grid View - a visual representation of your Websites and their "
+"content."
+msgstr ""
+
+#: templates/wordpress.html:10
+msgid "Manage WordPress websites"
+msgstr "管理WordPress网站"
+
+#: templates/manager/pm2.html:11 templates/wordpress.html:12
+msgid "Total installations:"
+msgstr "总安装量："
+
+#: templates/manager/pm2.html:18 templates/wordpress.html:19
+msgid "New Installation"
+msgstr "全新安装"
+
+#: templates/wordpress.html:22
+msgid "Scan for Existing Installations"
+msgstr "扫描现有安装情况"
+
+#: templates/manager/pm2.html:50 templates/user/stats.html:27
+#: templates/wordpress.html:54
+msgid "Refresh Data"
+msgstr "刷新数据"
+
+#: templates/wordpress.html:57
+msgid "Switch to Table view"
+msgstr "切换至表格视图"
+
+#: templates/wordpress.html:59
+msgid "Display websites in a table"
+msgstr "以表格显示网站"
+
+#: templates/wordpress.html:63
+msgid "Switch to Cards view"
+msgstr "切换至卡片视图"
+
+#: templates/wordpress.html:65
+msgid "Display websites in a grid"
+msgstr "以网格显示网站"
+
+#: templates/manager/pm2.html:67 templates/manager/pm2_install.html:167
+#: templates/manager/sites.html:96 templates/manager/wordpress.html:505
+#: templates/system/server_info.html:134 templates/wordpress.html:96
+msgid "Version"
+msgstr "版本"
+
+#: templates/manager/wordpress.html:42 templates/manager/wordpress.html:1696
+#: templates/wordpress.html:117 templates/wordpress.html:210
+msgid "Login as Admin"
+msgstr "以管理员身份登录"
+
+#: templates/dashboard/dashboard.html:413 templates/wordpress.html:202
+msgid "WordPress"
+msgstr "WordPress"
+
+#: templates/wordpress.html:270
+msgid "An error occurred while removing WordPress."
+msgstr "移除WordPress时发生错误。"
+
+#: templates/manager/wordpress.html:1551 templates/wordpress.html:279
+msgid "WordPress detach process started. Please wait."
+msgstr "WordPress分离过程已开始。请耐心等待。"
+
+#: templates/manager/wordpress.html:1559 templates/wordpress.html:287
+msgid "WordPress installation detached successfully."
+msgstr "WordPress安装已成功分离。"
+
+#: templates/manager/wordpress.html:1562 templates/wordpress.html:290
+msgid "An error occurred while detaching WordPress. Please try again."
+msgstr "与WordPress断开连接时发生错误。请重试。"
+
+#: templates/wordpress.html:389
+msgid "No WordPress Installations"
+msgstr "无WordPress安装"
+
+#: templates/wordpress.html:391
+msgid ""
+"No WordPress sites managed via OpenPanel. Install a new WordPress site or"
+" scan to find existing installations."
+msgstr ""
+
+#: templates/manager/pm2.html:202 templates/mysql/phpmyadmin.html:116
+#: templates/wordpress.html:393
+msgid "View Documentation"
+msgstr "查看文档"
+
+#: templates/wordpress.html:422
+msgid "Scanning started..."
+msgstr "扫描开始..."
+
+#: templates/wordpress.html:439
+msgid "No installations found."
+msgstr "未找到任何安装。"
+
+#: templates/wordpress.html:455
+msgid "Error occurred during scan. Try again."
+msgstr "扫描过程中出现错误。请重试。"
+
+#: templates/wordpress.html:465
+msgid "Data refresh in progress... Please wait."
+msgstr "数据正在刷新...请稍候。"
+
+#: templates/wordpress.html:475
+msgid "Refresh completed."
+msgstr "刷新完成。"
+
+#: templates/wordpress.html:482
+msgid "Error occurred during refresh."
+msgstr "刷新时发生错误。"
+
+#: templates/cache/elasticsearch.html:14
+msgid ""
+"The leading distributed, RESTful, open source search and analytics engine"
+" designed for speed and reliability."
+msgstr ""
+
+#: templates/cache/elasticsearch.html:20
+msgid "Install Elasticsearch"
+msgstr "安装Elasticsearch"
+
+#: templates/cache/elasticsearch.html:29 templates/cache/elasticsearch.html:83
+#: templates/cache/memcached.html:29 templates/cache/memcached.html:82
+#: templates/cache/redis.html:30 templates/cache/redis.html:84
+#: templates/mysql/phpmyadmin.html:73 templates/mysql/remote_mysql.html:68
+msgid "Click to Disable"
+msgstr "点击以禁用"
+
+#: templates/cache/elasticsearch.html:34 templates/cache/elasticsearch.html:96
+#: templates/cache/memcached.html:34 templates/cache/memcached.html:95
+#: templates/cache/redis.html:35 templates/cache/redis.html:97
+#: templates/dashboard/twofa.html:32 templates/mysql/phpmyadmin.html:86
+#: templates/mysql/remote_mysql.html:81
+msgid "Click to Enable"
+msgstr "点击启用"
+
+#: templates/cache/elasticsearch.html:48
+msgid "Elasticsearch is not currently installed."
+msgstr "Elasticsearch当前未安装。"
+
+#: templates/cache/elasticsearch.html:50
+msgid "To install Elasticsearch click on the button above."
+msgstr "要安装Elasticsearch，请点击上方按钮。"
+
+#: templates/cache/elasticsearch.html:69 templates/cache/memcached.html:68
+#: templates/cache/redis.html:70 templates/docker/containers.html:68
+#: templates/domains/logs.html:180 templates/domains/logs.html:222
+#: templates/files/backup.html:119 templates/manager/pm2.html:70
+#: templates/manager/wordpress.html:1060 templates/mysql/phpmyadmin.html:59
+#: templates/mysql/remote_mysql.html:54
+#: templates/system/services_status.html:23 templates/system/ssh.html:26
+#: templates/system/waf.html:46 templates/user/active_sessions.html:59
+msgid "Status"
+msgstr "状态"
+
+#: templates/cache/elasticsearch.html:70
+msgid "Enable/disable Elasticsearch service."
+msgstr "启用/禁用Elasticsearch服务。"
+
+#: templates/cache/elasticsearch.html:80 templates/cache/memcached.html:79
+#: templates/cache/redis.html:81 templates/mysql/phpmyadmin.html:70
+#: templates/mysql/remote_mysql.html:65 templates/system/ssh.html:37
+msgid "Enabled"
+msgstr "已启用"
+
+#: templates/cache/elasticsearch.html:93 templates/cache/memcached.html:92
+#: templates/cache/redis.html:94 templates/mysql/phpmyadmin.html:83
+#: templates/mysql/remote_mysql.html:78 templates/system/cronjobs.html:158
+#: templates/system/ssh.html:45
+msgid "Disabled"
+msgstr "残疾"
+
+#: templates/cache/elasticsearch.html:107 templates/cache/memcached.html:106
+#: templates/cache/redis.html:108 templates/mysql/phpmyadmin.html:97
+#: templates/mysql/remote_mysql.html:92
+msgid "Click to Restart"
+msgstr "点击重新开始"
+
+#: templates/cache/elasticsearch.html:119 templates/cache/memcached.html:118
+#: templates/cache/redis.html:120 templates/manager/pm2.html:75
+#: templates/mysql/phpmyadmin.html:153 templates/mysql/remote_mysql.html:104
+#: templates/system/ssh.html:62
+msgid "Port"
+msgstr "港口"
+
+#: templates/cache/elasticsearch.html:120
+msgid "IP and Port for accessing the Elasticsearch service."
+msgstr "访问Elasticsearch服务的IP和端口。"
+
+#: templates/cache/elasticsearch.html:125 templates/cache/memcached.html:124
+#: templates/cache/redis.html:126 templates/mysql/phpmyadmin.html:159
+#: templates/mysql/remote_mysql.html:110 templates/system/ssh.html:68
+msgid "Server:"
+msgstr "服务器："
+
+#: templates/cache/elasticsearch.html:126
+msgid "elasticsearch"
+msgstr "Elasticsearch"
+
+#: templates/cache/elasticsearch.html:129 templates/cache/memcached.html:128
+#: templates/cache/redis.html:130 templates/manager/pm2_install.html:197
+#: templates/mysql/phpmyadmin.html:163 templates/mysql/remote_mysql.html:114
+#: templates/system/ssh.html:72
+msgid "Port:"
+msgstr "端口："
+
+#: templates/cache/elasticsearch.html:147
+msgid "View Elasticsearch service logs."
+msgstr "查看Elasticsearch服务日志。"
+
+#: templates/cache/elasticsearch.html:153 templates/cache/memcached.html:150
+#: templates/cache/redis.html:151
+msgid "View service log"
+msgstr "查看服务日志"
+
+#: templates/cache/memcached.html:14
+msgid ""
+"An in-memory key-value store for small chunks of arbitrary data (strings,"
+" objects) from results of database calls or page rendering."
+msgstr ""
+
+#: templates/cache/memcached.html:20
+msgid "Install Memcached"
+msgstr "安装Memcached"
+
+#: templates/cache/memcached.html:48
+msgid "Memcached is not currently installed."
+msgstr "Memcached当前未安装。"
+
+#: templates/cache/memcached.html:50
+msgid "To install Memcached click on the button above."
+msgstr "要安装Memcached，请点击上方按钮。"
+
+#: templates/cache/memcached.html:69
+msgid "Enable/disable Memcached service."
+msgstr "启用/禁用Memcached服务。"
+
+#: templates/cache/memcached.html:119
+msgid "IP and Port for accessing the Memcached service."
+msgstr "Memcached服务访问的IP地址和端口。"
+
+#: templates/cache/memcached.html:125
+msgid "memcached"
+msgstr "memcached"
+
+#: templates/cache/memcached.html:144
+msgid "View Memcached service logs."
+msgstr "查看Memcached服务日志。"
+
+#: templates/cache/redis.html:15
+msgid ""
+"Redis (Remote DIctionary Server) is an in-memory, key/value store that is"
+" used primarily as an application cache or quick-response database."
+msgstr ""
+
+#: templates/cache/redis.html:21
+msgid "Install REDIS"
+msgstr "安装REDIS"
+
+#: templates/cache/redis.html:49
+msgid "REDIS is not currently installed."
+msgstr "Redis当前未安装。"
+
+#: templates/cache/redis.html:51
+msgid "To install REDIS click on the button above."
+msgstr "要安装REDIS，请点击上方按钮。"
+
+#: templates/cache/redis.html:71
+msgid "Enable/disable REDIS service."
+msgstr "启用/禁用REDIS服务。"
+
+#: templates/cache/redis.html:121
+msgid "IP and Port for accessing the REDIS service."
+msgstr "访问REDIS服务的IP地址和端口。"
+
+#: templates/cache/redis.html:127
+msgid "redis"
+msgstr "Redis"
+
+#: templates/cache/redis.html:145
+msgid "View REDIS service logs."
+msgstr "查看REDIS服务日志。"
+
+#: templates/dashboard/dashboard.html:35 templates/manager/bun.html:628
+#: templates/manager/flarum.html:154 templates/manager/java.html:579
+#: templates/manager/nodejs.html:628 templates/manager/python.html:629
+#: templates/manager/ruby.html:579 templates/manager/wordpress.html:1644
+msgid "Files"
+msgstr "文件"
+
+#: templates/dashboard/dashboard.html:71
+#: templates/dashboard/statistics.html:134
+#: templates/dashboard/statistics.html:146 templates/files/ftp.html:13
+#: templates/partials/sidebar.html:612
+msgid "FTP Accounts"
+msgstr "FTP账户"
+
+#: templates/dashboard/dashboard.html:99 templates/files/backup.html:13
+#: templates/partials/sidebar.html:623
+msgid "Backup & Restore"
+msgstr "备份与恢复"
+
+#: templates/dashboard/dashboard.html:127
+#: templates/files/clamav/scanner.html:14 templates/partials/sidebar.html:633
+msgid "ClamAV Scanner"
+msgstr "ClamAV扫描仪"
+
+#: templates/dashboard/dashboard.html:198 templates/partials/sidebar.html:900
+msgid "Redirects"
+msgstr "重定向"
+
+#: templates/dashboard/dashboard.html:211 templates/domains/dns.html:662
+#: templates/partials/sidebar.html:910
+msgid "DNS Zone Editor"
+msgstr "DNS区域编辑器"
+
+#: templates/dashboard/dashboard.html:224
+msgid "Edit VHosts File"
+msgstr "编辑VHosts文件"
+
+#: templates/dashboard/dashboard.html:237 templates/domains/goaccess.html:12
+#: templates/partials/sidebar.html:967
+msgid "GoAccess"
+msgstr "GoAccess"
+
+#: templates/dashboard/dashboard.html:251 templates/partials/sidebar.html:957
+msgid "Raw Access Logs"
+msgstr "原始访问日志"
+
+#: templates/dashboard/dashboard.html:349 templates/partials/sidebar.html:856
+msgid "Show Processes"
+msgstr "显示流程"
+
+#: templates/dashboard/dashboard.html:373 templates/mysql/configuration.html:13
+msgid "MySQL Configuration"
+msgstr "MySQL配置"
+
+#: templates/dashboard/dashboard.html:389
+#: templates/dashboard/dashboard.html:426
+msgid "Applications"
+msgstr "申请"
+
+#: templates/dashboard/dashboard.html:439 templates/manager/mautic.html:527
+#: templates/manager/mautic.html:698
+msgid "Mautic"
+msgstr "Mautic"
+
+#: templates/dashboard/dashboard.html:501 templates/partials/sidebar.html:717
+msgid "Webmail"
+msgstr "网页邮件"
+
+#: templates/dashboard/dashboard.html:516
+msgid "Search & Caching"
+msgstr "搜索与缓存"
+
+#: templates/dashboard/dashboard.html:574 templates/partials/sidebar.html:1264
+msgid "ElasticSearch"
+msgstr "Elasticsearch"
+
+#: templates/dashboard/dashboard.html:616 templates/partials/sidebar.html:1289
+msgid "Select PHP version"
+msgstr "选择PHP版本"
+
+#: templates/dashboard/dashboard.html:629
+msgid "Default Version"
+msgstr "默认版本"
+
+#: templates/dashboard/dashboard.html:666
+msgid "Limits"
+msgstr "限制"
+
+#: templates/dashboard/dashboard.html:678 templates/partials/sidebar.html:1335
+msgid "Extensions"
+msgstr "扩展"
+
+#: templates/dashboard/dashboard.html:730
+msgid "Change Image tag"
+msgstr "更改图片标签"
+
+#: templates/dashboard/dashboard.html:743
+msgid "Change webserver"
+msgstr "更换服务器"
+
+#: templates/dashboard/dashboard.html:756
+msgid "Change MySQL Type"
+msgstr "更改MySQL数据类型"
+
+#: templates/dashboard/dashboard.html:778
+#: templates/dashboard/get_started.html:57
+msgid "Advanced"
+msgstr "高级"
+
+#: templates/dashboard/dashboard.html:801 templates/partials/sidebar.html:1418
+#: templates/system/cronjobs.html:28
+msgid "Cron Jobs"
+msgstr "定时任务"
+
+#: templates/dashboard/dashboard.html:829 templates/partials/sidebar.html:1439
+#: templates/system/terminal/landing.html:13
+#: templates/system/terminal/running.html:11
+#: templates/system/terminal/running.html:169
+msgid "Web Terminal"
+msgstr "网页终端"
+
+#: templates/dashboard/dashboard.html:868
+msgid "Change TimeZone"
+msgstr "更改时区"
+
+#: templates/dashboard/dashboard.html:883
+msgid "Webserver Configuration"
+msgstr "服务器配置"
+
+#: templates/dashboard/dashboard.html:897 templates/partials/sidebar.html:1487
+msgid "IP Blocker"
+msgstr "IP拦截器"
+
+#: templates/dashboard/dashboard.html:939
+msgid "Account"
+msgstr "账户"
+
+#: templates/dashboard/dashboard.html:962 templates/partials/sidebar.html:1645
+#: templates/user/account.html:13
+msgid "Email & Password"
+msgstr "电子邮件 & 密码"
+
+#: templates/dashboard/dashboard.html:987 templates/partials/sidebar.html:1662
+#: templates/user/notifications.html:11
+msgid "Email Notifications"
+msgstr "电子邮件通知"
+
+#: templates/dashboard/dashboard.html:1001 templates/dashboard/twofa.html:9
+#: templates/partials/sidebar.html:1673 templates/user/twofa_settings.html:11
+msgid "Two-Factor Authentication"
+msgstr "双因素认证"
+
+#: templates/dashboard/dashboard.html:1027 templates/partials/sidebar.html:1694
+msgid "Favorite Pages"
+msgstr "最受欢迎的页面"
+
+#: templates/dashboard/dashboard.html:1041 templates/partials/sidebar.html:1705
+msgid "Account Activity"
+msgstr "账户活动"
+
+#: templates/dashboard/dashboard.html:1068 templates/partials/sidebar.html:1728
+msgid "Log out"
+msgstr "退出"
+
+#: templates/dashboard/get_started.html:7
+msgid "👋 Welcome to your new hosting account. OpenPanel is here to help!"
+msgstr "👋 欢迎来到您的新主机帐户。OpenPanel随时为您提供帮助！"
+
+#: templates/dashboard/get_started.html:13
+#: templates/dashboard/get_started.html:24
+#: templates/dashboard/get_started.html:29
+msgid "Add domain"
+msgstr "添加域名"
+
+#: templates/dashboard/get_started.html:16
+msgid ""
+"To secure your website with a free SSL, make sure your domain's A record "
+"is pointed to your dedicated IP address:"
+msgstr ""
+
+#: templates/dashboard/get_started.html:18
+msgid ""
+"To secure your website with a free SSL, make sure your domain's A record "
+"is pointed to the server IP address:"
+msgstr ""
+
+#: templates/dashboard/get_started.html:37
+msgid "Connect Application"
+msgstr "连接应用程序"
+
+#: templates/dashboard/get_started.html:38
+msgid "Bring your existing installation or create a new one."
+msgstr "自带现有安装或创建新安装。"
+
+#: templates/dashboard/get_started.html:44
+#: templates/dashboard/get_started.html:50
+msgid "Manage Websites"
+msgstr "管理网站"
+
+#: templates/dashboard/get_started.html:58
+msgid "Manage updates, schedule backups, control firewall and more."
+msgstr "管理更新、安排备份、控制防火墙及更多。"
+
+#: templates/dashboard/get_started.html:64
+#: templates/dashboard/get_started.html:70
+msgid "Advanced Options"
+msgstr "高级选项"
+
+#: templates/dashboard/howto.html:6
+msgid "General How-to"
+msgstr "通用指南"
+
+#: templates/dashboard/information.html:5 templates/manager/bun.html:188
+#: templates/manager/java.html:180 templates/manager/nodejs.html:188
+#: templates/manager/python.html:189 templates/manager/ruby.html:180
+msgid "Information"
+msgstr "信息"
+
+#: templates/dashboard/information.html:23 templates/emails/new.html:38
+#: templates/files/ftp.html:59 templates/files/ftp2.html:53
+#: templates/files/ftp_new.html:29 templates/mysql/mysql_user.html:25
+#: templates/mysql/password.html:24 templates/mysql/users.html:85
+#: templates/system/terminal/running.html:26 templates/user/account.html:68
+#: templates/user/login.html:77
+msgid "Username"
+msgstr "用户名"
+
+#: templates/dashboard/information.html:41
+msgid "Dedicated IP Address"
+msgstr "专属IP地址"
+
+#: templates/dashboard/information.html:43
+msgid "Server IP Address"
+msgstr "服务器IP地址"
+
+#: templates/dashboard/information.html:47
+msgid "Last Login IP Address"
+msgstr "最后登录IP地址"
+
+#: templates/dashboard/information.html:95
+msgid "/"
+msgstr "/"
+
+#: templates/dashboard/information.html:113
+#: templates/system/server_info.html:157
+msgid "Nameservers"
+msgstr "名称服务器"
+
+#: templates/dashboard/statistics.html:5
+msgid "Statistics"
+msgstr "统计数据"
+
+#: templates/dashboard/statistics.html:28
+#: templates/dashboard/statistics.html:53
+#: templates/dashboard/statistics.html:78
+#: templates/dashboard/statistics.html:105
+#: templates/dashboard/statistics.html:136
+msgid "∞"
+msgstr "∞"
+
+#: templates/dashboard/statistics.html:76
+#: templates/dashboard/statistics.html:88 templates/partials/sidebar.html:762
+msgid "Databases"
+msgstr "数据库"
+
+#: templates/dashboard/statistics.html:103
+#: templates/dashboard/statistics.html:118 templates/emails/accounts.html:12
+msgid "Emails"
+msgstr "邮件"
+
+#: templates/dashboard/statistics.html:171
+msgid "Storage"
+msgstr "存储"
+
+#: templates/dashboard/statistics.html:176
+#: templates/dashboard/statistics.html:186 templates/manager/bun.html:667
+#: templates/manager/java.html:618 templates/manager/nodejs.html:667
+#: templates/manager/python.html:668 templates/manager/ruby.html:618
+#: templates/manager/wordpress.html:1738 templates/manager/wordpress.html:1784
+msgid "Calculating.."
+msgstr "计算中…"
+
+#: templates/dashboard/statistics.html:181 templates/files/inodes.html:66
+msgid "Inodes"
+msgstr "inodes"
+
+#: templates/dashboard/statistics.html:292 templates/docker/containers.html:62
+msgid "CPU Usage"
+msgstr "CPU使用率"
+
+#: templates/dashboard/statistics.html:297
+#: templates/dashboard/statistics.html:306
+msgid "Loading.."
+msgstr "正在加载..."
+
+#: templates/dashboard/statistics.html:300 templates/docker/containers.html:65
+msgid "Memory Usage"
+msgstr "内存使用情况"
+
+#: templates/dashboard/twofa.html:21
+msgid "2FA is <b>enabled</b> for your account."
+msgstr "您的账户已启用<b>双重验证</b>。"
+
+#: templates/dashboard/twofa.html:23 templates/user/twofa_settings.html:25
+msgid "Click to disable 2FA"
+msgstr "点击禁用双重验证"
+
+#: templates/dashboard/twofa.html:26
+msgid "2FA is <b>disabled</b> for your account."
+msgstr "您的账户的2FA已 <b>禁用</b>."
+
+#: templates/dashboard/twofa.html:30
+msgid "Enable 2FA"
+msgstr "启用双重验证"
+
+#: templates/docker/change_mysql.html:9
+msgid "Change mysql server for new databases."
+msgstr "更改MySQL服务器以用于新数据库。"
+
+#: templates/docker/change_mysql.html:13
+#: templates/docker/change_webserver.html:13
+msgid "Current:"
+msgstr "当前："
+
+#: templates/docker/change_mysql.html:28
+msgid "The following conditions must be met in order to switch the mysql server:"
+msgstr "为了切换MySQL服务器，必须满足以下条件："
+
+#: templates/docker/change_mysql.html:30
+msgid "All existing databases and users must be removed."
+msgstr "必须删除所有现有数据库和用户。"
+
+#: templates/docker/change_mysql.html:31
+#: templates/docker/change_webserver.html:31
+msgid "container must be stopped before starting:"
+msgstr "容器必须先停止后才能启动："
+
+#: templates/docker/change_mysql.html:47
+#: templates/docker/change_webserver.html:47
+msgid "Back to Containers"
+msgstr "返回容器"
+
+#: templates/docker/change_mysql.html:53
+#: templates/docker/change_webserver.html:53
+msgid "Switch to"
+msgstr "切换到"
+
+#: templates/docker/change_webserver.html:9
+msgid "Change webserver for new domains."
+msgstr "更换网络服务器以用于新域名。"
+
+#: templates/docker/change_webserver.html:28
+msgid "The following conditions must be met in order to switch the web server:"
+msgstr "为了切换Web服务器，必须满足以下条件："
+
+#: templates/docker/change_webserver.html:30
+msgid "All existing domains must be removed."
+msgstr "所有现有域名必须移除。"
+
+#: templates/docker/containers.html:9
+msgid "Running containers:"
+msgstr "运行容器："
+
+#: templates/docker/containers.html:13
+msgid "Total CPU:"
+msgstr "总CPU："
+
+#: templates/docker/containers.html:14
+msgid "Total Memory:"
+msgstr "总内存："
+
+#: templates/docker/containers.html:42 templates/system/cronjobs.html:81
+msgid "Create New"
+msgstr "创建新内容"
+
+#: templates/docker/containers.html:56 templates/domains/dns.html:116
+#: templates/domains/dns.html:137 templates/files/filemanager.html:243
+msgid "Name"
+msgstr "名称"
+
+#: templates/docker/containers.html:59 templates/system/server_info.html:70
+msgid "Ports"
+msgstr "端口"
+
+#: templates/docker/containers.html:214
+msgid "Checking containers runtime metrics.."
+msgstr "检查容器运行时指标。"
+
+#: templates/docker/containers.html:222
+msgid "No container are currently running."
+msgstr "目前没有正在运行的容器。"
+
+#: templates/docker/containers.html:318
+msgid "Error fetching docker stats for containers."
+msgstr "获取容器的Docker统计信息时出错。"
+
+#: templates/docker/images.html:13
+msgid "Change image tag for"
+msgstr "更改图像标签为"
+
+#: templates/docker/images.html:14
+msgid "Select docker image tag from"
+msgstr "选择Docker镜像标签来自"
+
+#: templates/docker/images.html:42
+msgid "New image tag:"
+msgstr "新图片标签："
+
+#: templates/docker/images.html:66
+msgid "Back to Images"
+msgstr "返回图片"
+
+#: templates/docker/images.html:72
+msgid "Change tag"
+msgstr "更改标签"
+
+#: templates/docker/images.html:95
+msgid "Change docker image tag"
+msgstr "更改Docker镜像标签"
+
+#: templates/docker/images.html:96
+msgid "Change docker images tag in order to use specific service versions."
+msgstr "为了使用特定的服务版本，请更改Docker镜像标签。"
+
+#: templates/docker/images.html:115
+msgid "Select service"
+msgstr "选择服务"
+
+#: templates/docker/volumes_TODO.html:10
+msgid "Total volumes:"
+msgstr "总计数量："
+
+#: templates/domains/delete.html:12
+msgid "Delete domain"
+msgstr "删除域名"
+
+#: templates/domains/delete.html:13
+msgid ""
+"Deleting the domain name will stop any services associated with this "
+"domain from working, however all existing data such as emails and files "
+"will remain on disk."
+msgstr ""
+
+#: templates/domains/delete.html:31
+msgid "websites"
+msgstr "网站"
+
+#: templates/domains/delete.html:31
+msgid "website"
+msgstr "网站"
+
+#: templates/domains/delete.html:31
+msgid "associated with this domain."
+msgstr "与此域名相关。"
+
+#: templates/domains/delete.html:31
+msgid "Please remove the websites first in order to delete the domain name."
+msgstr "请先移除网站，以便删除域名。"
+
+#: templates/domains/delete.html:32
+msgid "Websites that use this domain:"
+msgstr "使用此域名的网站："
+
+#: templates/domains/delete.html:48
+msgid "Folder"
+msgstr "文件夹"
+
+#: templates/domains/delete.html:48
+msgid "and all associated data will be kept."
+msgstr "所有关联数据将被保存。"
+
+#: templates/domains/delete.html:50
+msgid "FTP accounts that have a path under this domain document root will remain."
+msgstr "在此域名文档根目录下拥有路径的FTP账户将保持不变。"
+
+#: templates/domains/delete.html:52
+msgid "Websites that use this domain name will immediately stop working."
+msgstr "使用此域名网站的将会立即停止运作。"
+
+#: templates/domains/delete.html:54
+msgid "All"
+msgstr "全部"
+
+#: templates/domains/delete.html:54
+msgid "email accounts will be deleted, but the messages remain on disk."
+msgstr "电子邮件账户将被删除，但消息仍保留在磁盘上。"
+
+#: templates/domains/delete.html:56
+msgid "DNS zone with all its records will be permanently deleted."
+msgstr "DNS区域及其所有记录将被永久删除。"
+
+#: templates/domains/delete.html:57
+msgid "SSL certificate for the domain will immediately be revoked."
+msgstr "域名SSL证书将立即被撤销。"
+
+#: templates/domains/delete.html:74 templates/domains/docroot.html:58
+#: templates/domains/new.html:73 templates/domains/redirect.html:64
+#: templates/domains/suspend.html:43 templates/domains/unsuspend.html:42
+msgid "Back to Domains"
+msgstr "返回域名"
+
+#: templates/domains/delete.html:78
+msgid "Delete Domain"
+msgstr "删除域名"
+
+#: templates/domains/dns.html:12
+msgid "Confirm DNS zone reset"
+msgstr "确认DNS区域重置"
+
+#: templates/domains/dns.html:19
+msgid "Are you sure you want to reset the DNS zone for this domain?"
+msgstr "您确定要重置此域名的DNS区域吗？"
+
+#: templates/domains/dns.html:20
+msgid ""
+"This acton is irreversible and will delete all existing DNS records, then"
+" restore the default zone records."
+msgstr ""
+
+#: templates/domains/dns.html:22 templates/domains/dns.html:164
+#: templates/domains/dns.html:374 templates/domains/domains.html:115
+#: templates/domains/domains.html:144 templates/emails/delete.html:33
+#: templates/manager/flarum.html:669 templates/manager/flarum.html:714
+#: templates/manager/flarum.html:737 templates/manager/wordpress.html:388
+msgid "Cancel"
+msgstr "取消"
+
+#: templates/domains/dns.html:23
+msgid "Continue"
+msgstr "继续"
+
+#: templates/domains/dns.html:36
+msgid "Edit DNS for"
+msgstr "编辑DNS用于"
+
+#: templates/domains/dns.html:37
+msgid "Total DNS records:"
+msgstr "DNS记录总数："
+
+#: templates/domains/dns.html:74
+msgid "New Record"
+msgstr "新记录"
+
+#: templates/domains/dns.html:88 templates/domains/dns.html:102
+msgid "Export Zone"
+msgstr "出口专区"
+
+#: templates/domains/dns.html:92 templates/domains/dns.html:578
+#: templates/user/restart.html:70
+msgid "Reset"
+msgstr "重置"
+
+#: templates/domains/dns.html:104 templates/domains/dns.html:590
+msgid "Reset Zone"
+msgstr "重置区域"
+
+#: templates/domains/dns.html:119 templates/domains/dns.html:140
+msgid "TTL"
+msgstr "TTL"
+
+#: templates/domains/dns.html:122 templates/files/backup.html:117
+#: templates/manager/flarum.html:139 templates/manager/pm2.html:74
+#: templates/manager/sites.html:93
+msgid "Type"
+msgstr "类型"
+
+#: templates/domains/dns.html:125 templates/domains/dns.html:156
+msgid "Record"
+msgstr "记录"
+
+#: templates/domains/dns.html:144
+msgid "A"
+msgstr "A"
+
+#: templates/domains/dns.html:145
+msgid "AAAA"
+msgstr "AAAA"
+
+#: templates/domains/dns.html:146
+msgid "CAA"
+msgstr "CAA"
+
+#: templates/domains/dns.html:147
+msgid "CNAME"
+msgstr "CNAME"
+
+#: templates/domains/dns.html:148
+msgid "MX"
+msgstr "MX"
+
+#: templates/domains/dns.html:149
+msgid "SRV"
+msgstr "SRV"
+
+#: templates/domains/dns.html:150
+msgid "TXT"
+msgstr "TXT"
+
+#: templates/domains/dns.html:152
+msgid "IN"
+msgstr "IN"
+
+#: templates/domains/dns.html:155
+msgid "Priority"
+msgstr "优先级别"
+
+#: templates/domains/dns.html:162 templates/domains/dns.html:372
+#: templates/domains/domains.html:113 templates/domains/domains.html:142
+#: templates/files/edit_file.html:76 templates/system/cronjobs.html:177
+#: templates/system/ip_blocker.html:127
+msgid "Save"
+msgstr "保存"
+
+#: templates/domains/dns.html:177 templates/domains/dns.html:180
+msgid "Address"
+msgstr "地址"
+
+#: templates/domains/dns.html:253 templates/domains/dns.html:376
+msgid " Edit"
+msgstr "编辑"
+
+#: templates/domains/dns.html:257
+msgid " Save"
+msgstr "保存"
+
+#: templates/domains/dns.html:259
+msgid " Cancel"
+msgstr "取消"
+
+#: templates/domains/dns.html:286 templates/files/filemanager.html:1521
+#: templates/user/twofa_settings.html:127
+msgid "Confirm"
+msgstr "确认"
+
+#: templates/domains/dns.html:295
+msgid " Delete"
+msgstr "删除"
+
+#: templates/domains/dns.html:306
+msgid "Deleting record, please wait."
+msgstr "正在删除记录，请稍候。"
+
+#: templates/domains/dns.html:311
+msgid "Record deleted successfully."
+msgstr "记录已成功删除。"
+
+#: templates/domains/dns.html:330
+msgid ""
+"Error occured deleting the record. Please refresh the page and try again."
+" If the issue persists, try editing the zone file directly."
+msgstr ""
+
+#: templates/domains/dns.html:401
+msgid "Edit Cancelled."
+msgstr "编辑 取消"
+
+#: templates/domains/dns.html:415
+msgid "Edit Cancelled. Relaoding the page."
+msgstr "编辑 取消。 正在重新加载页面。"
+
+#: templates/domains/dns.html:474
+msgid "Record updated successfully."
+msgstr "记录已成功更新。"
+
+#: templates/domains/dns.html:555
+msgid "Edit DNS File for"
+msgstr "编辑DNS文件以用于"
+
+#: templates/domains/dns.html:556 templates/domains/vhost.html:76
+msgid "Attention:"
+msgstr "注意："
+
+#: templates/domains/dns.html:556
+msgid ""
+"Editing DNS file is intended for advanced users only. This action can "
+"potentially lead to server misconfiguration or downtime if not done "
+"correctly."
+msgstr ""
+
+#: templates/domains/dns.html:556
+msgid ""
+"Please be cautious and make sure you understand the changes you are "
+"making."
+msgstr ""
+
+#: templates/domains/dns.html:560 templates/domains/vhost.html:34
+#: templates/mysql/configuration.html:34 templates/mysql/phpmyadmin.html:117
+#: templates/php/ini_editor.html:37 templates/php/options.html:35
+#: templates/system/apache_nginx_conf_editor.html:32
+#: templates/system/cronjobs.html:45
+msgid "Save Changes"
+msgstr "保存更改"
+
+#: templates/domains/dns.html:570
+msgid "Table View"
+msgstr "表格视图"
+
+#: templates/domains/dns.html:574 templates/domains/dns.html:588
+msgid "Download File"
+msgstr "下载文件"
+
+#: templates/domains/dns.html:586
+msgid "Edit as Table"
+msgstr "编辑为表格"
+
+#: templates/domains/dns.html:621
+msgid "Saving zone file for domain"
+msgstr "域名保存区域文件"
+
+#: templates/domains/dns.html:621 templates/domains/new.html:214
+msgid "Please wait for the process to finish."
+msgstr "请等待流程完成。"
+
+#: templates/domains/dns.html:635
+msgid "Zone file saved successfully"
+msgstr "区域文件保存成功"
+
+#: templates/domains/dns.html:663
+msgid ""
+"Manage and edit Domain Name System (DNS) zone files, which contain "
+"critical information for mapping domain names to IP addresses and "
+"managing various DNS records, such as A, CNAME, MX, and TXT records."
+msgstr ""
+
+#: templates/domains/dns.html:682 templates/domains/docroot.html:96
+#: templates/domains/goaccess.html:31 templates/domains/logs.html:350
+#: templates/domains/redirect.html:104 templates/domains/suspend.html:83
+#: templates/domains/unsuspend.html:82 templates/domains/vhost.html:92
+msgid "Select domain"
+msgstr "选择域名"
+
+#: templates/domains/docroot.html:10
+msgid "Change docroot for"
+msgstr "更改文档根目录"
+
+#: templates/domains/docroot.html:11 templates/domains/docroot.html:80
+msgid "Change docroot (directory) for domain"
+msgstr "更改域名文档根目录"
+
+#: templates/domains/docroot.html:34 templates/domains/new.html:49
+msgid "Document Root (folder):"
+msgstr "文档根目录（文件夹）："
+
+#: templates/domains/docroot.html:79
+msgid "Select Domain to change docroot"
+msgstr "选择域名以更改文档根目录"
+
+#: templates/domains/domains.html:13
+msgid "Total domains:"
+msgstr "总域名数："
+
+#: templates/domains/domains.html:37 templates/domains/new.html:11
+msgid "New Domain"
+msgstr "新域名"
+
+#: templates/domains/domains.html:50 templates/system/waf.html:43
+msgid "Domain Name"
+msgstr "域名"
+
+#: templates/domains/domains.html:51
+msgid "Document Root"
+msgstr "文档根目录"
+
+#: templates/domains/domains.html:52
+msgid "Redirect"
+msgstr "重定向"
+
+#: templates/domains/domains.html:54
+msgid "SSL"
+msgstr "SSL"
+
+#: templates/domains/domains.html:138
+msgid "Enter redirect URL"
+msgstr "输入重定向URL"
+
+#: templates/domains/domains.html:148
+msgid "Create Redirect"
+msgstr "创建重定向"
+
+#: templates/domains/domains.html:159
+msgid ""
+"OpenPanel will automatically generate and renew SSL certificate for this "
+"domain."
+msgstr ""
+
+#: templates/domains/domains.html:166
+msgid ""
+"OpenPanel does not manage SSL for this domain. Custom SSL is added and "
+"should be manually renewed in the future."
+msgstr ""
+
+#: templates/domains/domains.html:172
+msgid "No SSL is detected for this domain."
+msgstr "此域名未检测到SSL。"
+
+#: templates/domains/domains.html:199
+msgid "Edit VirtualHosts"
+msgstr "编辑虚拟主机"
+
+#: templates/domains/domains.html:205
+msgid "Unsuspend"
+msgstr "恢复暂停"
+
+#: templates/domains/domains.html:209 templates/emails/single_account.html:100
+#: templates/emails/single_account.html:122
+msgid "Suspend"
+msgstr "暂停"
+
+#: templates/domains/domains.html:214 templates/emails/delete.html:10
+#: templates/emails/single_account.html:34 templates/files/filemanager.html:193
+#: templates/files/filemanager.html:1402 templates/manager/bun.html:375
+#: templates/manager/java.html:326 templates/manager/nodejs.html:375
+#: templates/manager/pm2.html:162 templates/manager/python.html:376
+#: templates/manager/ruby.html:326 templates/mysql/users.html:106
+msgid "Delete"
+msgstr "删除"
+
+#: templates/domains/domains.html:270
+msgid "Showing domains"
+msgstr "显示域名"
+
+#: templates/domains/domains.html:270 templates/mysql/users.html:72
+msgid "to"
+msgstr "到"
+
+#: templates/domains/domains.html:270
+msgid "from a total of"
+msgstr "从总计"
+
+#: templates/domains/domains.html:275
+msgid "Page navigation"
+msgstr "页面导航"
+
+#: templates/domains/domains.html:279 templates/domains/domains.html:280
+#: templates/domains/logs.html:303 templates/user/activity.html:99
+msgid "Previous"
+msgstr "上一页"
+
+#: templates/domains/domains.html:301 templates/domains/domains.html:302
+#: templates/domains/logs.html:313 templates/user/activity.html:109
+msgid "Next"
+msgstr "下一页"
+
+#: templates/domains/goaccess.html:13
+msgid "View html reports generated from domain access logs."
+msgstr "查看来自域名访问日志生成的HTML报告。"
+
+#: templates/domains/logs.html:12
+msgid "Domain Logs for"
+msgstr "域名日志，适用于"
+
+#: templates/domains/logs.html:13
+msgid "Showing"
+msgstr "展示"
+
+#: templates/domains/logs.html:13
+msgid "out of"
+msgstr "超出"
+
+#: templates/domains/logs.html:13 templates/domains/logs.html:20
+msgid "rows"
+msgstr "行"
+
+#: templates/domains/logs.html:20
+msgid "Show all"
+msgstr "显示所有"
+
+#: templates/domains/logs.html:99
+msgid "Show Columns"
+msgstr "显示列"
+
+#: templates/domains/logs.html:113 templates/domains/logs.html:215
+#: templates/user/activity.html:50
+msgid "Timestamp"
+msgstr "时间戳"
+
+#: templates/domains/logs.html:122 templates/domains/logs.html:216
+msgid "Level"
+msgstr "等级"
+
+#: templates/domains/logs.html:131 templates/domains/logs.html:217
+msgid "Logger"
+msgstr "记录器"
+
+#: templates/domains/logs.html:140 templates/domains/logs.html:218
+msgid "Message"
+msgstr "消息"
+
+#: templates/domains/logs.html:149 templates/domains/logs.html:219
+msgid "Client IP"
+msgstr "客户端IP"
+
+#: templates/domains/logs.html:160 templates/domains/logs.html:220
+msgid "Method"
+msgstr "方法"
+
+#: templates/domains/logs.html:170 templates/domains/logs.html:221
+msgid "URI"
+msgstr "URI"
+
+#: templates/domains/logs.html:189 templates/domains/logs.html:223
+#: templates/files/disk_usage.html:65 templates/files/filemanager.html:244
+#: templates/mysql/databases.html:141
+msgid "Size"
+msgstr "尺寸"
+
+#: templates/domains/logs.html:198 templates/domains/logs.html:224
+#: templates/files/backup.html:118
+msgid "Duration"
+msgstr "时长"
+
+#: templates/domains/logs.html:330
+msgid "Domain Logs"
+msgstr "域名日志"
+
+#: templates/domains/logs.html:331
+msgid "View webserver raw access logs for domains."
+msgstr "查看域名原始访问日志。"
+
+#: templates/domains/new.html:12
+msgid "Add a new domain name to be used for websites, emails, etc."
+msgstr "添加一个新的域名，用于网站、电子邮件等。"
+
+#: templates/domains/new.html:80
+msgid "Add Domain"
+msgstr "添加域名"
+
+#: templates/domains/new.html:175
+msgid "Invalid domain name. Please enter a valid domain name like"
+msgstr "无效域名。请输入有效的域名，例如"
+
+#: templates/domains/new.html:175 templates/manager/wordpress.html:1456
+#: templates/manager/wordpress.html:1511
+msgid "or"
+msgstr "或"
+
+#: templates/domains/new.html:214
+msgid "Adding domain"
+msgstr "添加域名"
+
+#: templates/domains/new.html:225 templates/domains/new.html:269
+msgid "Error adding domain name"
+msgstr "添加域名时出错"
+
+#: templates/domains/new.html:225
+msgid "Network response from backend was not ok. Please contact support."
+msgstr "后端网络响应不正常。请联系支持。"
+
+#: templates/domains/new.html:258
+msgid "Domain name"
+msgstr "域名"
+
+#: templates/domains/new.html:258
+msgid "added successfully."
+msgstr "添加成功。"
+
+#: templates/domains/new.html:269
+msgid "Please check the output below."
+msgstr "Please provide the English content you want me to translate. I'm ready when you are."
+
+#: templates/domains/new.html:343
+msgid "Converted to Punycode:"
+msgstr "转换为Punycode:"
+
+#: templates/domains/new.html:343
+msgid "(for compatibility with internationalized domain names)"
+msgstr "(为与国际化域名兼容)"
+
+#: templates/domains/redirect.html:13
+msgid "Edit Redirect for"
+msgstr "编辑重定向给"
+
+#: templates/domains/redirect.html:13
+msgid "Create Redirect for"
+msgstr "创建重定向用于"
+
+#: templates/domains/redirect.html:14
+msgid "Edit or delete URL redirect for domain"
+msgstr "编辑或删除域名网址重定向"
+
+#: templates/domains/redirect.html:14
+msgid "Redirect domain to URL."
+msgstr "重定向域名至网址。"
+
+#: templates/domains/redirect.html:28
+msgid "https://"
+msgstr "https://"
+
+#: templates/domains/redirect.html:42
+msgid "Save Redirect"
+msgstr "保存 重定向"
+
+#: templates/domains/redirect.html:53
+msgid "Delete Redirect"
+msgstr "删除重定向"
+
+#: templates/domains/redirect.html:85
+msgid "Redirect Domain to URL"
+msgstr "重定向域名至网址"
+
+#: templates/domains/redirect.html:86
+msgid ""
+"Redirecting a domain will immediately redirect all traffic to the new "
+"URL, while Email and other services remain operational."
+msgstr ""
+
+#: templates/domains/suspend.html:8
+msgid "Suspend domain"
+msgstr "暂停域名"
+
+#: templates/domains/suspend.html:9 templates/domains/suspend.html:65
+msgid ""
+"Suspending the domain will immediately disable website access, while "
+"Email and other services remain operational."
+msgstr ""
+
+#: templates/domains/suspend.html:22
+msgid "Confirm suspend of domain:"
+msgstr "确认暂停域名："
+
+#: templates/domains/suspend.html:47
+msgid "Confirm Suspend"
+msgstr "确认挂起"
+
+#: templates/domains/suspend.html:64
+msgid "Select Domain to Suspend"
+msgstr "选择要暂停的域名"
+
+#: templates/domains/unsuspend.html:9
+msgid "Unsuspend domain"
+msgstr "恢复域名"
+
+#: templates/domains/unsuspend.html:10 templates/domains/unsuspend.html:64
+msgid "Unsuspending a domain will immediately restore access to the website."
+msgstr "取消域名暂停状态将立即恢复网站访问权限。"
+
+#: templates/domains/unsuspend.html:21
+msgid "Confirm unsuspend of domain:"
+msgstr "确认解除域名冻结："
+
+#: templates/domains/unsuspend.html:46
+msgid "Confirm Unsuspend"
+msgstr "确认解冻"
+
+#: templates/domains/unsuspend.html:63
+msgid "Select Domain to Unsuspend"
+msgstr "选择域名以恢复暂停"
+
+#: templates/domains/vhost.html:29 templates/domains/vhost.html:30
+#: templates/domains/vhost.html:67 templates/files/filemanager.html:208
+#: templates/system/cronjobs.html:174
+msgid "Edit"
+msgstr "编辑"
+
+#: templates/domains/vhost.html:29 templates/domains/vhost.html:67
+msgid "VirtualHosts File"
+msgstr "虚拟主机文件"
+
+#: templates/domains/vhost.html:30
+msgid "VirtualHosts file for the domain name"
+msgstr "域名虚拟主机文件"
+
+#: templates/domains/vhost.html:68
+msgid "Select domain name to edit"
+msgstr "选择域名以进行编辑"
+
+#: templates/domains/vhost.html:68
+msgid "VirtualHosts file for."
+msgstr "VirtualHosts文件。"
+
+#: templates/domains/vhost.html:76
+msgid ""
+"Editing the domain file is intended for advanced users only. This action "
+"can potentially lead to server misconfiguration or downtime if not done "
+"correctly."
+msgstr ""
+
+#: templates/domains/vhost.html:78
+msgid ""
+"Please be cautious and make sure you understand the changes you are "
+"making. We use a rollback mechanism to check for errors, and if any "
+"issues are detected, we will revert the changes. However, it's important "
+"to have a backup of your configurations before proceeding."
+msgstr ""
+
+#: templates/emails/accounts.html:13
+msgid "Total emails:"
+msgstr "总邮件数："
+
+#: templates/emails/accounts.html:38
+msgid "New Email"
+msgstr "新邮件"
+
+#: templates/emails/accounts.html:55
+msgid "Account @ Domain"
+msgstr "账户 @ 域名"
+
+#: templates/emails/accounts.html:56
+msgid "Storage Used"
+msgstr "已用存储空间"
+
+#: templates/emails/accounts.html:57
+msgid "Options"
+msgstr "选项"
+
+#: templates/emails/accounts.html:120
+msgid "Webmail for "
+msgstr "适用于"
+
+#: templates/emails/accounts.html:120
+msgid " opened in new window."
+msgstr "在新窗口中打开。"
+
+#: templates/emails/delete.html:11
+msgid "Delete email account and all it's data."
+msgstr "删除电子邮件账户及其所有数据。"
+
+#: templates/emails/delete.html:21
+msgid ""
+"Click on the button below to permanently delete the account and all it's "
+"emails."
+msgstr ""
+
+#: templates/emails/delete.html:38
+msgid "Confirm Delete"
+msgstr "确认删除"
+
+#: templates/emails/delete.html:76 templates/emails/filter.html:58
+msgid "Select Email"
+msgstr "选择邮件"
+
+#: templates/emails/delete.html:77
+msgid "Select email address to delete."
+msgstr "选择要删除的电子邮件地址。"
+
+#: templates/emails/delete.html:91 templates/emails/filter.html:73
+msgid "Select address"
+msgstr "选择地址"
+
+#: templates/emails/filter.html:11
+msgid "Email Filters"
+msgstr "邮件过滤器"
+
+#: templates/emails/filter.html:12
+msgid "Sieve filters for email"
+msgstr "电子邮件筛滤器"
+
+#: templates/emails/filter.html:27
+msgid "Current Filters"
+msgstr "当前筛选条件"
+
+#: templates/emails/filter.html:40 templates/emails/info.html:63
+#: templates/emails/new.html:186 templates/emails/single_account.html:160
+msgid "Back to Emails"
+msgstr "返回邮件"
+
+#: templates/emails/filter.html:44
+msgid "Save Filter"
+msgstr "保存筛选"
+
+#: templates/emails/filter.html:59
+msgid "Select email address to edit filters."
+msgstr "选择电子邮件地址以编辑过滤器。"
+
+#: templates/emails/info.html:8
+msgid "Connect Devices"
+msgstr "连接设备"
+
+#: templates/emails/info.html:9
+msgid "View email server information."
+msgstr "查看邮件服务器信息。"
+
+#: templates/emails/info.html:18
+msgid "Secure SSL/TLS Settings (Recommended)"
+msgstr "安全SSL/TLS设置 (推荐)"
+
+#: templates/emails/info.html:23 templates/emails/info.html:42
+msgid "Incoming Server"
+msgstr "接收服务器"
+
+#: templates/emails/info.html:27 templates/emails/info.html:46
+msgid "IMAP Port"
+msgstr "IMAP端口"
+
+#: templates/emails/info.html:31 templates/emails/info.html:50
+msgid "POP3 Port"
+msgstr "POP3端口"
+
+#: templates/emails/info.html:37
+msgid "Non-SSL Settings (NOT Recommended)"
+msgstr "非SSL设置 (不推荐)"
+
+#: templates/emails/new.html:8
+msgid "Create a new Email account."
+msgstr "创建新的电子邮件帐户。"
+
+#: templates/emails/new.html:40
+msgid "info"
+msgstr "信息"
+
+#: templates/emails/new.html:110 templates/emails/single_account.html:131
+#: templates/files/ftp_new.html:42 templates/mysql/mysql_user.html:38
+#: templates/mysql/wizard.html:47 templates/mysql/wizard.html:49
+#: templates/system/terminal/running.html:47 templates/user/account.html:76
+#: templates/user/account.html:95 templates/user/login.html:81
+msgid "Password"
+msgstr "密码"
+
+#: templates/emails/new.html:112 templates/mysql/mysql_user.html:40
+msgid "Random Password"
+msgstr "随机密码"
+
+#: templates/emails/new.html:190
+msgid "Create Email"
+msgstr "创建电子邮件"
+
+#: templates/emails/single_account.html:30
+msgid "Edit Email account"
+msgstr "编辑电子邮件帐户"
+
+#: templates/emails/single_account.html:47 templates/user/account.html:60
+msgid "Email address"
+msgstr "电子邮件地址"
+
+#: templates/emails/single_account.html:55
+msgid "Current Usage"
+msgstr "当前使用情况"
+
+#: templates/emails/single_account.html:66
+msgid "Allocated Storage Space"
+msgstr "已分配存储空间"
+
+#: templates/emails/single_account.html:85
+msgid "Receiving Incoming Mail"
+msgstr "接收来信"
+
+#: templates/emails/single_account.html:93
+#: templates/emails/single_account.html:115
+msgid "Allow"
+msgstr "允许"
+
+#: templates/emails/single_account.html:107
+msgid "Sending Outgoing Mail"
+msgstr "发送外发邮件"
+
+#: templates/emails/single_account.html:133
+#: templates/files/ftp_password.html:18 templates/mysql/password.html:32
+#: templates/mysql/password.html:35 templates/mysql/root_password.html:26
+msgid "New Password"
+msgstr "新密码"
+
+#: templates/emails/single_account.html:164
+msgid "Update Email Settings"
+msgstr "更新电子邮件设置"
+
+#: templates/error_pages/404.html:1
+msgid "That page does not exist"
+msgstr "该页面不存在。"
+
+#: templates/error_pages/500.html:7
+msgid "Error - 500"
+msgstr "错误 - 500"
+
+#: templates/error_pages/500.html:15
+msgid "Server"
+msgstr "服务器"
+
+#: templates/error_pages/500.html:15
+msgid "Error"
+msgstr "错误"
+
+#: templates/error_pages/500.html:18
+msgid "We are sorry, but something went wrong on our end."
+msgstr "我们很抱歉，我们的系统出现了一些问题。"
+
+#: templates/error_pages/500.html:21
+msgid "Go Back"
+msgstr "返回"
+
+#: templates/error_pages/500.html:25
+msgid "Please click the button to go back and try again."
+msgstr "请点击按钮返回并重试。"
+
+#: templates/error_pages/500.html:29
+msgid "If the issue continues, contact support with the error ID:"
+msgstr "如果问题持续，请联系支持，并提供错误ID："
+
+#: templates/files/backup.html:15
+msgid "View existing full-account backups and restore."
+msgstr "查看并恢复现有完整账户备份。"
+
+#: templates/files/backup.html:116 templates/files/filemanager.html:247
+#: templates/user/history_usage.html:149
+msgid "Date"
+msgstr "日期"
+
+#: templates/files/backup.html:255
+msgid "Restore History"
+msgstr "恢复历史"
+
+#: templates/files/confirm_restore.html:15
+msgid "Confirm data restore to"
+msgstr "确认数据恢复至"
+
+#: templates/files/confirm_restore.html:17
+msgid "This will delete all data and restore the state from the backup."
+msgstr "这将删除所有数据，并从备份恢复到之前的状态。"
+
+#: templates/files/confirm_restore.html:39
+msgid ""
+"All files will be reverted to the state they were in at the time of the "
+"backup."
+msgstr ""
+
+#: templates/files/confirm_restore.html:42
+msgid ""
+"FTP accounts will be restored, and any files added after the backup will "
+"be removed."
+msgstr ""
+
+#: templates/files/confirm_restore.html:45
+msgid "Domain settings and configurations will be reverted to their backup state."
+msgstr "域名设置和配置将恢复到备份状态。"
+
+#: templates/files/confirm_restore.html:46
+msgid ""
+"Websites, their databases, and files will be restored, undoing any "
+"changes made after the backup."
+msgstr ""
+
+#: templates/files/confirm_restore.html:49
+msgid ""
+"Email accounts will be restored, and any emails received after the backup"
+" will be lost."
+msgstr ""
+
+#: templates/files/confirm_restore.html:65
+msgid "Back to Backups"
+msgstr "备份恢复"
+
+#: templates/files/confirm_restore.html:68
+msgid "Confirm and start restore"
+msgstr "确认并开始恢复"
+
+#: templates/files/disk_usage.html:15
+msgid ""
+"Disk usage is the amount of space that is used by the content of your "
+"sites, this includes databases, files, videos, images, emails and pages."
+msgstr ""
+
+#: templates/files/disk_usage.html:25 templates/files/inodes.html:26
+msgid "Reload Data"
+msgstr "重新加载数据"
+
+#: templates/files/disk_usage.html:62 templates/files/inodes.html:63
+msgid "Directory"
+msgstr "目录"
+
+#: templates/files/disk_usage.html:77 templates/files/inodes.html:78
+#: templates/files/inodes.html:139
+msgid "Up One Level"
+msgstr "上一级"
+
+#: templates/files/disk_usage.html:213
+msgid "Calculating disk usage for parent directory.."
+msgstr "正在计算父目录的磁盘使用情况。"
+
+#: templates/files/edit_file.html:11 templates/files/edit_file.html:72
+msgid "Edit File"
+msgstr "编辑文件"
+
+#: templates/files/edit_file.html:22
+msgid "The specified file does not exist."
+msgstr "指定的文件不存在。"
+
+#: templates/files/filemanager.html:121
+msgid "New File"
+msgstr "新文件"
+
+#: templates/files/filemanager.html:124
+msgid "New Folder"
+msgstr "新建文件夹"
+
+#: templates/files/filemanager.html:127 templates/files/upload_file.html:41
+msgid "Upload"
+msgstr "上传"
+
+#: templates/files/filemanager.html:163
+msgid "No items found."
+msgstr "未找到任何项目。"
+
+#: templates/files/filemanager.html:164
+msgid "Start creating new folders or uploading a new file!"
+msgstr "开始创建新文件夹或上传新文件！"
+
+#: templates/files/filemanager.html:178
+msgid "Select all"
+msgstr "选择全部"
+
+#: templates/files/filemanager.html:183 templates/files/filemanager.html:1294
+msgid "Copy"
+msgstr "复制"
+
+#: templates/files/filemanager.html:188 templates/files/filemanager.html:1352
+msgid "Move"
+msgstr "移动"
+
+#: templates/files/filemanager.html:198 templates/files/upload_file.html:75
+msgid "Download"
+msgstr "下载"
+
+#: templates/files/filemanager.html:203
+msgid "View"
+msgstr "查看"
+
+#: templates/files/filemanager.html:213 templates/files/filemanager.html:1452
+msgid "Rename"
+msgstr "重命名"
+
+#: templates/files/filemanager.html:218 templates/files/filemanager.html:250
+msgid "Permissions"
+msgstr "权限"
+
+#: templates/files/filemanager.html:223 templates/files/filemanager.html:1586
+msgid "Compress"
+msgstr "压缩"
+
+#: templates/files/filemanager.html:228 templates/files/filemanager.html:1652
+msgid "Extract"
+msgstr "提取"
+
+#: templates/files/filemanager.html:246
+msgid "Last Modified"
+msgstr "最后修改"
+
+#: templates/files/filemanager.html:321
+msgid "Calculate"
+msgstr "计算"
+
+#: templates/files/filemanager.html:1093
+msgid "Change permissions for"
+msgstr "更改权限为"
+
+#: templates/files/filemanager.html:1105
+msgid "Please enter a 3-digit numeric value for permissions."
+msgstr "请输入一个三位数的数值用于权限设置。"
+
+#: templates/files/filemanager.html:1248
+msgid "Copy items"
+msgstr "复制项目"
+
+#: templates/files/filemanager.html:1270
+msgid "Copy to:"
+msgstr "复制到："
+
+#: templates/files/filemanager.html:1287
+msgid "Copying..."
+msgstr "复制中…"
+
+#: templates/files/filemanager.html:1328
+msgid "Where to:"
+msgstr "去哪儿："
+
+#: templates/files/filemanager.html:1345
+msgid "moving..."
+msgstr "移动中..."
+
+#: templates/files/filemanager.html:1395
+msgid "deleting..."
+msgstr "删除中..."
+
+#: templates/files/filemanager.html:1439
+msgid "Name:"
+msgstr "名称："
+
+#: templates/files/filemanager.html:1467
+msgid "Set permissions"
+msgstr "设置权限"
+
+#: templates/files/filemanager.html:1490 templates/files/filemanager.html:1496
+#: templates/files/filemanager.html:1502
+msgid "Read"
+msgstr "阅读"
+
+#: templates/files/filemanager.html:1491 templates/files/filemanager.html:1497
+#: templates/files/filemanager.html:1503
+msgid "Write"
+msgstr "写"
+
+#: templates/files/filemanager.html:1492 templates/files/filemanager.html:1498
+#: templates/files/filemanager.html:1504
+msgid "Execute"
+msgstr "执行"
+
+#: templates/files/filemanager.html:1554
+msgid "Archive path"
+msgstr "归档路径"
+
+#: templates/files/filemanager.html:1579
+msgid "compressing..."
+msgstr "压缩中..."
+
+#: templates/files/filemanager.html:1619
+msgid "Archive name:"
+msgstr "档案名称："
+
+#: templates/files/filemanager.html:1628
+msgid "Extract destinaton:"
+msgstr "提取目的地："
+
+#: templates/files/filemanager.html:1645
+msgid "Extracting..."
+msgstr "提取中…"
+
+#: templates/files/filemanager.html:1717
+msgid "Create New File"
+msgstr "创建新文件"
+
+#: templates/files/filemanager.html:1728
+msgid "File Name"
+msgstr "文件名称"
+
+#: templates/files/filemanager.html:1736
+msgid "Open in File Editor after creation"
+msgstr "创建后在文件编辑器中打开"
+
+#: templates/files/filemanager.html:1736
+msgid "New"
+msgstr "新的"
+
+#: templates/files/filemanager.html:1751
+msgid "New file will be created in:"
+msgstr "新文件将创建于："
+
+#: templates/files/filemanager.html:1757 templates/files/filemanager.html:1798
+msgid "Create"
+msgstr "创建"
+
+#: templates/files/filemanager.html:1772
+msgid "Create New Folder"
+msgstr "创建新文件夹"
+
+#: templates/files/filemanager.html:1780
+msgid "Folder Name"
+msgstr "文件夹名称"
+
+#: templates/files/filemanager.html:1790
+msgid "New folder will be created in:"
+msgstr "新文件夹将创建于："
+
+#: templates/files/fix_permissions.html:14
+msgid "Fix and reset permissions for files and folders under"
+msgstr "修复并重置位于以下文件和文件夹的权限。"
+
+#: templates/files/clamav/scanner.html:36
+#: templates/files/fix_permissions.html:30
+msgid "Choose a directory:"
+msgstr "选择一个目录："
+
+#: templates/files/fix_permissions.html:58
+msgid "Working..."
+msgstr "正在加载…"
+
+#: templates/files/fix_permissions.html:67
+msgid "Permissions are fixed!"
+msgstr "权限已修复！"
+
+#: templates/files/fix_permissions.html:86
+msgid ""
+"The process has started. This may take a few minutes depending on the "
+"number of files and folders in the specified path. Please wait."
+msgstr ""
+
+#: templates/files/clamav/scanner.html:137
+#: templates/files/fix_permissions.html:101
+msgid "Network response was not ok"
+msgstr "网络响应不正常。"
+
+#: templates/files/fix_permissions.html:114
+msgid "Fixing permissions failed"
+msgstr "修复权限失败"
+
+#: templates/files/fix_permissions.html:118
+msgid ""
+"Permissions successfully fixed for all files and subdirectories inside "
+"the directory"
+msgstr ""
+
+#: templates/files/ftp.html:14
+msgid "Total accounts:"
+msgstr "总账户数："
+
+#: templates/files/ftp.html:16
+msgid "FTP Server:"
+msgstr "FTP服务器："
+
+#: templates/files/ftp.html:16
+msgid "FTP Port:"
+msgstr "FTP端口："
+
+#: templates/files/ftp.html:46
+msgid "New Account"
+msgstr "新帐户"
+
+#: templates/files/ftp.html:62
+msgid "Path"
+msgstr "路径"
+
+#: templates/files/ftp2.html:13
+msgid "FTP accounts"
+msgstr "FTP账户"
+
+#: templates/files/ftp2.html:14
+msgid "Total ftp accounts:"
+msgstr "总FTP账户数："
+
+#: templates/files/ftp2.html:38 templates/files/ftp_new.html:11
+msgid "New FTP Account"
+msgstr "新FTP账户"
+
+#: templates/files/ftp2.html:54 templates/files/ftp_new.html:68
+msgid "Path (folder)"
+msgstr "路径 (文件夹)"
+
+#: templates/files/ftp2.html:55
+msgid "Usage / Quota"
+msgstr "使用 / 配额"
+
+#: templates/files/ftp_new.html:12
+msgid "Create a new FTP account."
+msgstr "创建新的FTP账户。"
+
+#: templates/files/ftp_new.html:87
+msgid "Back to FTP Accounts"
+msgstr "返回FTP帐户"
+
+#: templates/files/ftp_new.html:91
+msgid "Create Account"
+msgstr "创建账户"
+
+#: templates/files/ftp_password.html:6 templates/files/ftp_password.html:39
+#: templates/mysql/password.html:64 templates/mysql/root_password.html:56
+#: templates/mysql/users.html:103
+msgid "Change Password"
+msgstr "修改密码"
+
+#: templates/files/ftp_password.html:7 templates/files/ftp_path.html:8
+#: templates/manager/flarum.html:661
+msgid "Close"
+msgstr "关闭"
+
+#: templates/files/ftp_password.html:13 templates/files/ftp_path.html:14
+msgid "FTP user"
+msgstr "FTP用户"
+
+#: templates/files/ftp_password.html:14 templates/files/ftp_password.html:15
+#: templates/files/ftp_path.html:15 templates/files/ftp_path.html:16
+#: templates/mysql/processlist.html:79 templates/user/activity.html:47
+msgid "User"
+msgstr "用户"
+
+#: templates/files/ftp_path.html:7 templates/files/ftp_path.html:34
+msgid "Change Path"
+msgstr "更改路径"
+
+#: templates/files/ftp_path.html:19
+msgid "Current Path"
+msgstr "当前路径"
+
+#: templates/files/ftp_path.html:23
+msgid "New Path"
+msgstr "新路径"
+
+#: templates/files/ftp_path.html:26
+msgid "Path must be under"
+msgstr "路径必须在"
+
+#: templates/files/inodes.html:15
+msgid ""
+"An inode is a data structure that keeps the information about a file on "
+"your hosting account. The number of inodes indicates the number of files "
+"and folders you have."
+msgstr ""
+
+#: templates/files/inodes.html:16
+msgid ""
+"This includes everything on your account, emails, files, folders, and "
+"anything you store on the server."
+msgstr ""
+
+#: templates/files/inodes.html:161
+msgid "Inodes Usage"
+msgstr "节点使用情况"
+
+#: templates/files/inodes.html:178
+msgid "Calculating inodes count for parent directory.."
+msgstr "正在计算父目录的inode计数。"
+
+#: templates/files/inodes.html:189
+msgid "Failed to fetch"
+msgstr "获取失败"
+
+#: templates/files/upload_file.html:10
+msgid "File Upload"
+msgstr "文件上传"
+
+#: templates/files/upload_file.html:10 templates/partials/sidebar.html:601
+msgid "Download from URL"
+msgstr "从URL下载"
+
+#: templates/files/upload_file.html:37
+msgid "Download from URL instead"
+msgstr "从URL下载代替"
+
+#: templates/files/upload_file.html:71
+msgid "Upload from device instead"
+msgstr "从设备上传"
+
+#: templates/files/clamav/quarantine.html:13
+msgid "Quarantine"
+msgstr "隔离"
+
+#: templates/files/clamav/quarantine.html:17
+msgid "Quarantined files:"
+msgstr "隔离文件："
+
+#: templates/files/clamav/quarantine.html:21
+msgid "Files that were detected by ClamAV as malicious and placed in quarantine."
+msgstr "ClamAV检测到的并已隔离的可疑文件。"
+
+#: templates/files/clamav/quarantine.html:45
+msgid "Run Scan"
+msgstr "运行扫描"
+
+#: templates/files/clamav/quarantine.html:58
+msgid "No quarantined files"
+msgstr "无隔离文件"
+
+#: templates/files/clamav/quarantine.html:59
+msgid ""
+"No malicious files have been detected or the scan has not been initiated "
+"yet."
+msgstr ""
+
+#: templates/files/clamav/quarantine.html:71
+msgid "File"
+msgstr "文件"
+
+#: templates/files/clamav/scanner.html:15
+msgid ""
+"Scan files for malicious programs with the Clam AntiVirus Scanner "
+"(ClamAV) antivirus software."
+msgstr ""
+
+#: templates/files/clamav/scanner.html:20
+msgid "View Quarantine"
+msgstr "查看隔离措施"
+
+#: templates/files/clamav/scanner.html:55
+msgid "Start Scan"
+msgstr "开始扫描"
+
+#: templates/files/clamav/scanner.html:64
+msgid "Scanning..."
+msgstr "扫描中…"
+
+#: templates/files/clamav/scanner.html:78
+msgid "Scan is complete!"
+msgstr "扫描完成！"
+
+#: templates/files/clamav/scanner.html:84
+msgid "Scan Results"
+msgstr "扫描结果"
+
+#: templates/manager/autoinstaller.html:10
+msgid "Quickly install a variety of applications such as"
+msgstr "快速安装各种应用程序，例如"
+
+#: templates/manager/autoinstaller.html:11
+msgid "and others."
+msgstr "及其他。"
+
+#: templates/manager/bun.html:54 templates/manager/java.html:54
+#: templates/manager/nodejs.html:54 templates/manager/python.html:55
+#: templates/manager/ruby.html:54
+msgid "Status:"
+msgstr "状态："
+
+#: templates/manager/bun.html:85
+msgid "Bun:"
+msgstr "包"
+
+#: templates/manager/bun.html:105 templates/manager/java.html:105
+#: templates/manager/nodejs.html:105 templates/manager/python.html:106
+#: templates/manager/ruby.html:105
+msgid "CPU usage:"
+msgstr "CPU使用率："
+
+#: templates/manager/bun.html:114 templates/manager/java.html:114
+#: templates/manager/nodejs.html:114 templates/manager/python.html:115
+#: templates/manager/ruby.html:114
+msgid "Memory usage:"
+msgstr "内存使用情况："
+
+#: templates/manager/bun.html:137 templates/manager/bun.html:154
+#: templates/manager/java.html:137 templates/manager/java.html:153
+#: templates/manager/nodejs.html:137 templates/manager/nodejs.html:154
+#: templates/manager/python.html:138 templates/manager/python.html:155
+#: templates/manager/ruby.html:137 templates/manager/ruby.html:153
+msgid "Overview"
+msgstr "概述"
+
+#: templates/manager/bun.html:138 templates/manager/bun.html:161
+#: templates/manager/nodejs.html:138 templates/manager/nodejs.html:161
+#: templates/manager/python.html:139 templates/manager/python.html:162
+msgid "Install Requirements"
+msgstr "安装要求"
+
+#: templates/manager/bun.html:139 templates/manager/bun.html:169
+#: templates/manager/java.html:138 templates/manager/java.html:161
+#: templates/manager/nodejs.html:139 templates/manager/nodejs.html:169
+#: templates/manager/python.html:140 templates/manager/python.html:170
+#: templates/manager/ruby.html:138 templates/manager/ruby.html:161
+msgid "Logs"
+msgstr "日志"
+
+#: templates/manager/bun.html:193 templates/manager/java.html:185
+#: templates/manager/nodejs.html:193 templates/manager/python.html:194
+#: templates/manager/ruby.html:185
+msgid "Uptime:"
+msgstr "正常运行时间："
+
+#: templates/manager/bun.html:200 templates/manager/java.html:192
+#: templates/manager/nodejs.html:200 templates/manager/python.html:201
+#: templates/manager/ruby.html:192
+msgid "Restarts:"
+msgstr "重启："
+
+#: templates/manager/bun.html:209 templates/manager/java.html:201
+#: templates/manager/nodejs.html:209 templates/manager/python.html:210
+#: templates/manager/ruby.html:201
+msgid "Watching:"
+msgstr "观看："
+
+#: templates/manager/bun.html:213 templates/manager/java.html:205
+#: templates/manager/nodejs.html:213 templates/manager/python.html:214
+#: templates/manager/ruby.html:205 templates/system/cronjobs.html:184
+msgid "Enable"
+msgstr "启用"
+
+#: templates/manager/bun.html:214 templates/manager/java.html:206
+#: templates/manager/nodejs.html:214 templates/manager/python.html:215
+#: templates/manager/ruby.html:206
+msgid "Restart app with '--watch' flag"
+msgstr "使用 '--watch' 标志重启应用"
+
+#: templates/manager/bun.html:229 templates/manager/bun.html:594
+#: templates/manager/java.html:221 templates/manager/java.html:545
+#: templates/manager/nodejs.html:229 templates/manager/nodejs.html:594
+#: templates/manager/python.html:230 templates/manager/python.html:595
+#: templates/manager/ruby.html:221 templates/manager/ruby.html:545
+msgid "Application restart in progress. Please wait."
+msgstr "应用正在重启。请稍候。"
+
+#: templates/manager/bun.html:233 templates/manager/java.html:225
+#: templates/manager/nodejs.html:233 templates/manager/python.html:234
+#: templates/manager/ruby.html:225
+msgid "Application restarted successfully and Watching is now enabled."
+msgstr "应用程序已成功重启，并且观看功能现已启用。"
+
+#: templates/manager/bun.html:236 templates/manager/java.html:228
+#: templates/manager/nodejs.html:236 templates/manager/python.html:237
+#: templates/manager/ruby.html:228
+msgid "Error restarting application, Watching is not disabled."
+msgstr "重启应用程序时出错，观看功能未禁用。"
+
+#: templates/manager/bun.html:246 templates/manager/java.html:238
+#: templates/manager/nodejs.html:246 templates/manager/python.html:247
+#: templates/manager/ruby.html:238 templates/system/cronjobs.html:190
+msgid "Disable"
+msgstr "禁用"
+
+#: templates/manager/bun.html:247 templates/manager/java.html:239
+#: templates/manager/nodejs.html:247 templates/manager/python.html:248
+#: templates/manager/ruby.html:239
+msgid "Stop app with '--watch' flag"
+msgstr "停止带有 `--watch` 标志的应用程序。"
+
+#: templates/manager/bun.html:261 templates/manager/java.html:253
+#: templates/manager/nodejs.html:261 templates/manager/python.html:262
+#: templates/manager/ruby.html:253
+msgid "Stoppping applicaiton. Please wait."
+msgstr "停止应用程序。请等待。"
+
+#: templates/manager/bun.html:264 templates/manager/java.html:256
+#: templates/manager/nodejs.html:264 templates/manager/python.html:265
+#: templates/manager/ruby.html:256
+msgid "Application successfully stopped and Watching is now disabled."
+msgstr "应用已成功停止，观看功能现已禁用。"
+
+#: templates/manager/bun.html:268 templates/manager/java.html:260
+#: templates/manager/nodejs.html:268 templates/manager/python.html:269
+#: templates/manager/ruby.html:260
+msgid "Error stopping application, Watching is not disabled."
+msgstr "停止应用程序时出错，观看功能未禁用。"
+
+#: templates/manager/bun.html:293 templates/manager/nodejs.html:293
+#: templates/manager/python.html:294
+msgid "requirements.txt file content:"
+msgstr "requirements.txt文件内容："
+
+#: templates/manager/bun.html:316 templates/manager/nodejs.html:316
+msgid "Run NPM install"
+msgstr "运行NPM安装"
+
+#: templates/manager/bun.html:319 templates/manager/nodejs.html:319
+msgid "Edit package.json file"
+msgstr "编辑package.json文件"
+
+#: templates/manager/bun.html:334 templates/manager/java.html:285
+#: templates/manager/nodejs.html:334 templates/manager/python.html:335
+#: templates/manager/ruby.html:285
+msgid "Loading application log.."
+msgstr "正在加载应用程序日志。"
+
+#: templates/manager/bun.html:356 templates/manager/java.html:307
+#: templates/manager/nodejs.html:356 templates/manager/python.html:357
+#: templates/manager/ruby.html:307
+msgid "Error fetching pm2 logs for application."
+msgstr "应用程序获取pm2日志时出错。"
+
+#: templates/manager/bun.html:358 templates/manager/java.html:309
+#: templates/manager/nodejs.html:358 templates/manager/python.html:359
+#: templates/manager/ruby.html:309
+msgid "Error fetching pm2 logs for applicaiton:"
+msgstr "应用程序获取pm2日志时出错："
+
+#: templates/manager/bun.html:376 templates/manager/java.html:327
+#: templates/manager/nodejs.html:376 templates/manager/python.html:377
+#: templates/manager/ruby.html:327
+msgid "Stop the application and delete it from Site Manager."
+msgstr "停止应用程序并在站点管理器中删除它。"
+
+#: templates/manager/bun.html:378 templates/manager/java.html:329
+#: templates/manager/nodejs.html:378 templates/manager/python.html:379
+#: templates/manager/ruby.html:329 templates/manager/wordpress.html:1500
+msgid "All website data such as files and database remains."
+msgstr "所有网站数据，例如文件和数据库，均保持不变。"
+
+#: templates/manager/bun.html:385 templates/manager/java.html:336
+#: templates/manager/nodejs.html:385 templates/manager/python.html:386
+#: templates/manager/ruby.html:336
+msgid "Remove Application"
+msgstr "移除应用"
+
+#: templates/manager/bun.html:392 templates/manager/java.html:343
+#: templates/manager/nodejs.html:392 templates/manager/python.html:393
+#: templates/manager/ruby.html:343
+msgid "Application removal started. Please wait."
+msgstr "应用卸载已开始。请稍候。"
+
+#: templates/manager/bun.html:449 templates/manager/java.html:400
+#: templates/manager/nodejs.html:449 templates/manager/python.html:450
+#: templates/manager/ruby.html:400 templates/manager/wordpress.html:1613
+msgid "Administration"
+msgstr "管理"
+
+#: templates/manager/bun.html:490 templates/manager/java.html:441
+#: templates/manager/nodejs.html:490 templates/manager/python.html:491
+#: templates/manager/ruby.html:441
+msgid "Open Applications Manager"
+msgstr "打开应用程序管理器"
+
+#: templates/manager/bun.html:503 templates/manager/java.html:454
+#: templates/manager/nodejs.html:503 templates/manager/pm2.html:140
+#: templates/manager/python.html:504 templates/manager/ruby.html:454
+msgid "Start"
+msgstr "开始"
+
+#: templates/manager/bun.html:517 templates/manager/java.html:468
+#: templates/manager/nodejs.html:517 templates/manager/python.html:518
+#: templates/manager/ruby.html:468
+msgid "Starting application. Please wait."
+msgstr "正在启动应用程序。请稍候。"
+
+#: templates/manager/bun.html:522 templates/manager/java.html:473
+#: templates/manager/nodejs.html:522 templates/manager/python.html:523
+#: templates/manager/ruby.html:473
+msgid "Application started successfully."
+msgstr "应用已成功启动。"
+
+#: templates/manager/bun.html:525 templates/manager/java.html:476
+#: templates/manager/nodejs.html:525 templates/manager/python.html:526
+#: templates/manager/ruby.html:476
+msgid "Error starting application."
+msgstr "启动应用程序时出错。"
+
+#: templates/manager/bun.html:538 templates/manager/java.html:489
+#: templates/manager/nodejs.html:538 templates/manager/pm2.html:144
+#: templates/manager/python.html:539 templates/manager/ruby.html:489
+msgid "Stop"
+msgstr "停止"
+
+#: templates/manager/bun.html:554 templates/manager/java.html:505
+#: templates/manager/nodejs.html:554 templates/manager/python.html:555
+#: templates/manager/ruby.html:505
+msgid "Stopping application. Please wait."
+msgstr "停止应用程序。请等待。"
+
+#: templates/manager/bun.html:559 templates/manager/java.html:510
+#: templates/manager/nodejs.html:559 templates/manager/python.html:560
+#: templates/manager/ruby.html:510
+msgid "Application stopped successfully."
+msgstr "应用已成功停止。"
+
+#: templates/manager/bun.html:562 templates/manager/java.html:513
+#: templates/manager/nodejs.html:562 templates/manager/python.html:563
+#: templates/manager/ruby.html:513
+msgid "Error stopping application."
+msgstr "停止应用程序时出错。"
+
+#: templates/manager/bun.html:578 templates/manager/java.html:529
+#: templates/manager/nodejs.html:578 templates/manager/pm2.html:148
+#: templates/manager/python.html:579 templates/manager/ruby.html:529
+msgid "Restart"
+msgstr "重启"
+
+#: templates/manager/bun.html:597 templates/manager/java.html:548
+#: templates/manager/nodejs.html:597 templates/manager/python.html:598
+#: templates/manager/ruby.html:548
+msgid "Application restarted successfully."
+msgstr "应用已成功重启。"
+
+#: templates/manager/bun.html:601 templates/manager/java.html:552
+#: templates/manager/nodejs.html:601 templates/manager/python.html:602
+#: templates/manager/ruby.html:552
+msgid "Error restarting application."
+msgstr "重新启动应用程序时出错。"
+
+#: templates/manager/bun.html:643 templates/manager/java.html:594
+#: templates/manager/nodejs.html:643 templates/manager/python.html:644
+#: templates/manager/ruby.html:594 templates/manager/wordpress.html:1659
+msgid "Open folder in File Manager"
+msgstr "在文件管理器中打开文件夹"
+
+#: templates/manager/bun.html:655 templates/manager/java.html:606
+#: templates/manager/nodejs.html:655 templates/manager/python.html:656
+#: templates/manager/ruby.html:606 templates/manager/wordpress.html:1726
+msgid "Folder:"
+msgstr "文件夹："
+
+#: templates/manager/bun.html:665 templates/manager/java.html:616
+#: templates/manager/nodejs.html:665 templates/manager/python.html:666
+#: templates/manager/ruby.html:616 templates/manager/wordpress.html:1736
+msgid "Folder Size:"
+msgstr "文件夹大小："
+
+#: templates/manager/bun.html:675 templates/manager/java.html:626
+#: templates/manager/nodejs.html:675 templates/manager/pm2_install.html:132
+#: templates/manager/python.html:676 templates/manager/ruby.html:626
+msgid "Startup file:"
+msgstr "启动文件："
+
+#: templates/manager/bun.html:686 templates/manager/nodejs.html:686
+#: templates/manager/python.html:687
+msgid "Requirements file:"
+msgstr "需求文件："
+
+#: templates/manager/bun.html:688 templates/manager/nodejs.html:688
+#: templates/manager/python.html:689 templates/partials/phpmyadmin_link.html:16
+msgid "Checking..."
+msgstr "正在检测..."
+
+#: templates/manager/bun.html:726 templates/manager/flarum.html:218
+#: templates/manager/java.html:666 templates/manager/nodejs.html:726
+#: templates/manager/python.html:727 templates/manager/ruby.html:666
+#: templates/manager/wordpress.html:2020
+msgid "Created"
+msgstr "创建"
+
+#: templates/manager/bun.html:765 templates/manager/java.html:705
+#: templates/manager/nodejs.html:765 templates/manager/python.html:766
+#: templates/manager/ruby.html:705 templates/manager/wordpress.html:2237
+msgid "An error occurred fetching folder size from the container."
+msgstr "从容器获取文件夹大小时发生错误。"
+
+#: templates/manager/bun.html:821 templates/manager/nodejs.html:821
+msgid "Running npm install. Please wait."
+msgstr "正在运行npm install。请稍候。"
+
+#: templates/manager/bun.html:832 templates/manager/nodejs.html:832
+msgid "Error running npm install for application."
+msgstr "应用程序运行npm install时出错。"
+
+#: templates/manager/bun.html:834 templates/manager/nodejs.html:834
+#: templates/manager/python.html:835
+msgid "Error running pip install for application:"
+msgstr "应用程序pip安装出错："
+
+#: templates/manager/flarum.html:62 templates/manager/flarum.html:109
+msgid "Purge Cache"
+msgstr "清除缓存"
+
+#: templates/manager/flarum.html:154
+msgid "Calculating size..."
+msgstr "计算尺寸..."
+
+#: templates/manager/flarum.html:180 templates/manager/wordpress.html:1757
+#: templates/mysql/users.html:72 templates/mysql/users.html:74
+msgid "Database"
+msgstr "数据库"
+
+#: templates/manager/flarum.html:185 templates/manager/wordpress.html:1799
+msgid "Database:"
+msgstr "数据库："
+
+#: templates/manager/flarum.html:186 templates/manager/wordpress.html:1805
+msgid "Table prefix:"
+msgstr "表前缀："
+
+#: templates/manager/flarum.html:187 templates/system/ssh.html:92
+msgid "Username:"
+msgstr "用户名："
+
+#: templates/manager/flarum.html:189 templates/manager/wordpress.html:1818
+#: templates/manager/wordpress_install.html:301 templates/system/ssh.html:98
+msgid "Password:"
+msgstr "密码："
+
+#: templates/manager/flarum.html:235
+msgid "Flarum version:"
+msgstr "Flarum版本："
+
+#: templates/manager/flarum.html:242 templates/manager/wordpress.html:85
+msgid "PHP version:"
+msgstr "PHP版本："
+
+#: templates/manager/flarum.html:248 templates/manager/wordpress.html:105
+msgid "MySQL version:"
+msgstr "MySQL版本："
+
+#: templates/manager/flarum.html:262
+msgid "Preview"
+msgstr "预览"
+
+#: templates/manager/flarum.html:291 templates/manager/flarum.html:700
+msgid "Backup"
+msgstr "备份"
+
+#: templates/manager/flarum.html:297 templates/manager/flarum.html:738
+#: templates/manager/flarum.html:864
+msgid "Restore"
+msgstr "恢复"
+
+#: templates/manager/flarum.html:308
+msgid "Preview website with a temporary domain,"
+msgstr "预览网站，使用临时域名。"
+
+#: templates/manager/flarum.html:308
+msgid "valid for 15 minutes only!"
+msgstr "15分钟内有效！"
+
+#: templates/manager/flarum.html:308
+msgid ""
+"Helpful if your domain hasn't been pointed to the server's IP address yet"
+" and lacks an SSL certificate."
+msgstr ""
+
+#: templates/manager/flarum.html:309
+msgid "Create a manual backup of the "
+msgstr "创建手动备份"
+
+#: templates/manager/flarum.html:309
+msgid "website's files and database for data protection."
+msgstr "网站文件和数据库的数据保护。"
+
+#: templates/manager/flarum.html:310
+msgid "Restore the website to a previous state using a previously created backup."
+msgstr "使用先前创建的备份，将网站恢复到之前的状态。"
+
+#: templates/manager/flarum.html:311 templates/manager/wordpress.html:1499
+msgid "Remove the"
+msgstr "移除"
+
+#: templates/manager/flarum.html:311
+msgid "website from this manager without actually deleting any files or database."
+msgstr "网站由这位管理员管理，而无需删除任何文件或数据库。"
+
+#: templates/manager/flarum.html:312
+msgid "Completely remove the"
+msgstr "完全移除"
+
+#: templates/manager/flarum.html:312
+msgid "website, including its files, database, and records from this manager."
+msgstr "网站，包括此管理员的全部文件、数据库和记录。"
+
+#: templates/manager/flarum.html:359
+msgid "Expires on:"
+msgstr "到期日："
+
+#: templates/manager/flarum.html:359
+msgid "Valid SSL"
+msgstr "有效SSL"
+
+#: templates/manager/flarum.html:361
+msgid "SSL not detected"
+msgstr "SSL未检测到"
+
+#: templates/manager/flarum.html:413
+msgid "Open website folder in FileManager"
+msgstr "在文件管理器中打开网站文件夹。"
+
+#: templates/manager/flarum.html:446 templates/manager/wordpress.html:1843
+msgid "Open database in phpMyAdmin"
+msgstr "在phpMyAdmin中打开数据库"
+
+#: templates/manager/flarum.html:484
+msgid "View SSL Certificates"
+msgstr "查看SSL证书"
+
+#: templates/manager/flarum.html:502
+msgid "Checking SSL status.."
+msgstr "正在检查SSL状态。"
+
+#: templates/manager/flarum.html:510
+msgid "Change PHP version for domain"
+msgstr "更改域名PHP版本"
+
+#: templates/manager/flarum.html:550
+msgid "Manage cronjobs"
+msgstr "管理cron作业"
+
+#: templates/manager/flarum.html:590
+msgid "Cronjobs"
+msgstr "定时任务"
+
+#: templates/manager/flarum.html:604
+msgid "Scanning"
+msgstr "扫描"
+
+#: templates/manager/flarum.html:647
+msgid "An error occurred while detaching flarum."
+msgstr "在分离Flarum时发生错误。"
+
+#: templates/manager/flarum.html:660
+msgid "Confirm Flarum Uninstall"
+msgstr "确认卸载Flarum"
+
+#: templates/manager/flarum.html:664
+msgid "Are you sure you want to permanently remove the Flarum installation for"
+msgstr "您确定要永久移除适用于 的Flarum安装吗？"
+
+#: templates/manager/flarum.html:666
+msgid "This will permanently delete all website files and the database."
+msgstr "这将永久删除所有网站文件和数据库。"
+
+#: templates/manager/flarum.html:670
+msgid "Confirm Uninstall"
+msgstr "确认卸载"
+
+#: templates/manager/flarum.html:680
+msgid "Confirm Flarum Detach from SiteManager"
+msgstr "确认Flarum与 SiteManager断开连接"
+
+#: templates/manager/flarum.html:684
+msgid "Are you sure you want to detach the Flarum installation for"
+msgstr "您确定要取消与Flarum安装的关联吗？"
+
+#: templates/manager/flarum.html:684
+msgid "from the manager?"
+msgstr "来自经理？"
+
+#: templates/manager/flarum.html:686
+msgid ""
+"This will only remove the website from the SiteManager without affecting "
+"the files or database"
+msgstr ""
+
+#: templates/manager/flarum.html:705 templates/manager/wordpress.html:1438
+msgid "Backup Database"
+msgstr "备份数据库"
+
+#: templates/manager/flarum.html:709 templates/manager/wordpress.html:1443
+msgid "Backup Files"
+msgstr "备份文件"
+
+#: templates/manager/flarum.html:715
+msgid "Run Backup"
+msgstr "运行备份"
+
+#: templates/manager/flarum.html:725
+msgid "Restore Backup"
+msgstr "恢复备份"
+
+#: templates/manager/flarum.html:729
+msgid "Select a backup date to restore"
+msgstr "选择备份日期以进行恢复。"
+
+#: templates/manager/flarum.html:834
+msgid "Confirm Restore (Click Again)"
+msgstr "确认恢复 (再次点击)"
+
+#: templates/manager/flarum.html:847 templates/manager/wordpress.html:2315
+msgid "Restoring backup... Please wait."
+msgstr "正在恢复备份... 请稍候。"
+
+#: templates/manager/flarum.html:856 templates/manager/wordpress.html:2323
+msgid "Restore request failed."
+msgstr "恢复请求失败。"
+
+#: templates/manager/flarum.html:885 templates/manager/wordpress.html:2367
+msgid "Database and Files Backup"
+msgstr "数据库和文件备份"
+
+#: templates/manager/flarum.html:887 templates/manager/wordpress.html:2369
+msgid "Database Backup"
+msgstr "数据库备份"
+
+#: templates/manager/flarum.html:889 templates/manager/wordpress.html:2371
+msgid "Files Backup"
+msgstr "文件备份"
+
+#: templates/manager/flarum.html:891 templates/manager/wordpress.html:2373
+msgid "Unknown Backup Type"
+msgstr "未知备份类型"
+
+#: templates/manager/flarum.html:919
+msgid "Generating website backup..."
+msgstr "正在生成网站备份..."
+
+#: templates/manager/flarum.html:931 templates/manager/wordpress.html:2401
+msgid "Backup request failed."
+msgstr "备份请求失败。"
+
+#: templates/manager/java.html:85
+msgid "Java:"
+msgstr "Java:"
+
+#: templates/manager/mautic.html:43
+msgid "Mautic Installation failed."
+msgstr "Mautic安装失败。"
+
+#: templates/manager/mautic.html:57
+msgid "Mautic successfully installed."
+msgstr "Mautic安装成功。"
+
+#: templates/manager/mautic.html:78 templates/manager/mautic.html:641
+msgid "Install Mautic"
+msgstr "安装Mautic"
+
+#: templates/manager/mautic.html:79
+msgid "Install Mautic on an existing domain."
+msgstr "在现有域名上安装Mautic。"
+
+#: templates/manager/mautic.html:334
+msgid "Mautic Version"
+msgstr "Mautic版本"
+
+#: templates/manager/mautic.html:351 templates/manager/mautic.html:478
+msgid "Delete Mautic website"
+msgstr "删除Mautic网站"
+
+#: templates/manager/mautic.html:592
+msgid "An error occurred while removing Mautic."
+msgstr "移除Mautic时发生错误。"
+
+#: templates/manager/mautic.html:611
+msgid "An error occurred while detaching Mautic."
+msgstr "在分离Mautic时发生错误。"
+
+#: templates/manager/mautic.html:638
+msgid "No Mautic Installations"
+msgstr "无Mautic安装"
+
+#: templates/manager/mautic.html:639
+msgid ""
+"There are no existing Mautic installations. You can install a new "
+"instance below."
+msgstr ""
+
+#: templates/manager/mautic.html:657
+msgid "Add a domain name first in order to install Mautic."
+msgstr "首先，为了安装Mautic，需要添加一个域名。"
+
+#: templates/manager/new.html:11
+msgid "AutoInstall"
+msgstr "自动安装"
+
+#: templates/manager/new.html:11
+msgid "applications."
+msgstr "应用程序"
+
+#: templates/manager/new.html:73
+msgid "What kind of website would you like to create?"
+msgstr "您希望创建什么样的网站？"
+
+#: templates/manager/new.html:75
+msgid "What kind of site would you like to create?"
+msgstr "您想创建什么样的网站？"
+
+#: templates/manager/new.html:92
+msgid "1-Click Install Applications"
+msgstr "一键安装应用程序"
+
+#: templates/manager/new.html:98
+msgid "Upload Files"
+msgstr "上传文件"
+
+#: templates/manager/nodejs.html:85
+msgid "NodeJS:"
+msgstr "NodeJS:"
+
+#: templates/manager/pm2.html:10
+msgid "Manage Applications"
+msgstr "管理应用程序"
+
+#: templates/manager/pm2.html:65 templates/mysql/processlist.html:76
+msgid "ID"
+msgstr "ID"
+
+#: templates/manager/pm2.html:66
+msgid "Application"
+msgstr "申请"
+
+#: templates/manager/pm2.html:68 templates/system/server_info.html:51
+msgid "Uptime"
+msgstr "正常运行时间"
+
+#: templates/manager/pm2.html:69
+msgid "Restarts"
+msgstr "重启"
+
+#: templates/manager/pm2.html:71 templates/system/process_manager.html:59
+#: templates/user/stats.html:49
+msgid "CPU"
+msgstr "CPU"
+
+#: templates/manager/pm2.html:72
+msgid "Memory"
+msgstr "记忆"
+
+#: templates/manager/pm2.html:73
+msgid "Watching"
+msgstr "观看"
+
+#: templates/manager/pm2.html:76
+msgid "Startup File"
+msgstr "创业文件"
+
+#: templates/manager/pm2.html:198
+msgid "No Applications Installed"
+msgstr "未安装任何应用程序"
+
+#: templates/manager/pm2.html:200
+msgid ""
+"No Applications managed via OpenPanel. Install a new application to get "
+"started."
+msgstr ""
+
+#: templates/manager/pm2_install.html:9
+msgid "Create a new application."
+msgstr "创建新的应用程序。"
+
+#: templates/manager/pm2_install.html:30
+msgid "available"
+msgstr "可用"
+
+#: templates/manager/pm2_install.html:32
+msgid "already in use"
+msgstr "已在使用"
+
+#: templates/manager/pm2_install.html:60 templates/manager/pm2_install.html:68
+msgid "Incorrect file extension - Please use"
+msgstr "文件扩展名不正确 - 请使用"
+
+#: templates/manager/pm2_install.html:60 templates/manager/pm2_install.html:68
+msgid "for"
+msgstr "为了"
+
+#: templates/manager/pm2_install.html:82
+msgid "file exists"
+msgstr "文件已存在"
+
+#: templates/manager/pm2_install.html:84
+msgid "file does not exist!"
+msgstr "文件不存在！"
+
+#: templates/manager/pm2_install.html:116
+#: templates/manager/wordpress_install.html:46
+msgid "Select a domain"
+msgstr "选择一个域名"
+
+#: templates/manager/pm2_install.html:144
+msgid "Optional flags:"
+msgstr "可选标志："
+
+#: templates/manager/pm2_install.html:154
+msgid "Type:"
+msgstr "类型："
+
+#: templates/manager/pm2_install.html:157
+msgid "NodeJS"
+msgstr "NodeJS"
+
+#: templates/manager/pm2_install.html:158
+msgid "Python"
+msgstr "Python"
+
+#: templates/manager/pm2_install.html:159
+msgid "Bun"
+msgstr "包"
+
+#: templates/manager/pm2_install.html:160
+msgid "Ruby"
+msgstr "Ruby"
+
+#: templates/manager/pm2_install.html:161
+msgid "Java"
+msgstr "Java"
+
+#: templates/manager/pm2_install.html:216
+msgid "Automatically restart app on file changes"
+msgstr "文件更改时自动重启应用"
+
+#: templates/manager/pm2_install.html:221
+msgid "Collect logs"
+msgstr "收集日志"
+
+#: templates/manager/pm2_install.html:228
+msgid "Application files will be stored in folder:"
+msgstr "申请文件将存储在文件夹："
+
+#: templates/manager/pm2_install.html:347
+#: templates/manager/wordpress_install.html:348
+msgid "Back to AutoInstaller"
+msgstr "返回自动安装程序"
+
+#: templates/manager/pm2_install.html:377
+#: templates/manager/wordpress_install.html:378
+msgid "Please select a domain name."
+msgstr "請選擇一個域名。"
+
+#: templates/manager/pm2_install.html:383
+msgid "Application setup started. Please wait for the process to finish."
+msgstr "应用设置已开始。请等待流程完成。"
+
+#: templates/manager/pm2_install.html:434
+#: templates/manager/wordpress_install.html:434
+msgid "Error, please check the install log bellow the form."
+msgstr "错误，请检查表单下方的安装日志。"
+
+#: templates/manager/pm2_install.html:451
+#: templates/manager/wordpress_install.html:451
+msgid "Fetch error. Please try again."
+msgstr "获取失败。请重试。"
+
+#: templates/manager/python.html:86
+msgid "Python:"
+msgstr "Python:"
+
+#: templates/manager/python.html:317
+msgid "Run PIP install"
+msgstr "运行PIP安装"
+
+#: templates/manager/python.html:320
+msgid "Edit requirements.txt file"
+msgstr "编辑requirements.txt文件"
+
+#: templates/manager/python.html:822
+msgid "Running pip install. Please wait."
+msgstr "正在运行pip install。请稍候。"
+
+#: templates/manager/python.html:833
+msgid "Error running pip install for application."
+msgstr "应用安装时pip install执行出错。"
+
+#: templates/manager/ruby.html:85
+msgid "Ruby:"
+msgstr "Ruby"
+
+#: templates/manager/sites.html:7 templates/partials/sidebar.html:420
+msgid "Site Manager"
+msgstr "网站管理员"
+
+#: templates/manager/sites.html:8
+msgid ""
+"The Site Manager page allows users to view a list of all connected sites "
+"and manage their settings directly from the panel, providing an intuitive"
+" interface for site administration and configuration."
+msgstr ""
+
+#: templates/manager/sites.html:84 templates/manager/wordpress.html:276
+#: templates/manager/wordpress.html:282
+msgid "Site Name"
+msgstr "网站名称"
+
+#: templates/manager/sites.html:100 templates/partials/pagespeed.html:4
+msgid "Speed"
+msgstr "速度"
+
+#: templates/manager/sites.html:323
+msgid "No websites yet"
+msgstr "目前还没有网站。"
+
+#: templates/manager/sites.html:324
+msgid "Create your first website to get started"
+msgstr "开始创建您的第一个网站，立即开始！"
+
+#: templates/manager/sites.html:330
+msgid "New website"
+msgstr "新网站"
+
+#: templates/manager/wordpress.html:67
+msgid "WP version:"
+msgstr "WP版本："
+
+#: templates/manager/wordpress.html:240
+#: templates/system/terminal/running.html:68
+msgid "URL"
+msgstr "网址"
+
+#: templates/manager/wordpress.html:241
+msgid "Site and Homepage URLs"
+msgstr "网站和主页网址"
+
+#: templates/manager/wordpress.html:246
+msgid "Site URL"
+msgstr "网站网址"
+
+#: templates/manager/wordpress.html:259
+msgid "Homepage URL"
+msgstr "首页网址"
+
+#: templates/manager/wordpress.html:277
+msgid "Site Name and Description"
+msgstr "网站名称及描述"
+
+#: templates/manager/wordpress.html:293
+msgid "Blog Description"
+msgstr "博客描述"
+
+#: templates/manager/wordpress.html:309
+msgid "Email Settings"
+msgstr "邮件设置"
+
+#: templates/manager/wordpress.html:310
+msgid "Email address to receive admin emails"
+msgstr "接收管理邮件的邮箱地址"
+
+#: templates/manager/wordpress.html:315
+msgid "Administrator Email"
+msgstr "管理员邮箱"
+
+#: templates/manager/wordpress.html:326
+msgid "You will receive confirmation email on this address, and need to confirm."
+msgstr "您将收到发送至此地址的确认邮件，并需要确认。"
+
+#: templates/manager/wordpress.html:335
+msgid "New Registrations"
+msgstr "新注册"
+
+#: templates/manager/wordpress.html:336
+msgid "Enable or disable registration of new users"
+msgstr "启用或禁用新用户注册"
+
+#: templates/manager/wordpress.html:341
+msgid "User Registration"
+msgstr "用户注册"
+
+#: templates/manager/wordpress.html:343
+msgid "No, registrations are disabled (default)"
+msgstr "不，注册已禁用（默认）"
+
+#: templates/manager/wordpress.html:353
+msgid "SEO Visibility"
+msgstr "搜索引擎可见性"
+
+#: templates/manager/wordpress.html:354
+msgid "Search Engine visibility"
+msgstr "搜索引擎可见性"
+
+#: templates/manager/wordpress.html:359
+msgid "Website Visibility"
+msgstr "网站可见性"
+
+#: templates/manager/wordpress.html:361
+msgid ""
+"I would like my blog to be visible to everyone, including search engines "
+"(default)"
+msgstr ""
+
+#: templates/manager/wordpress.html:370
+msgid "Pingbacks"
+msgstr "互链接通知"
+
+#: templates/manager/wordpress.html:371
+msgid "Enable or disable pingbacks from other websites"
+msgstr "启用或禁用来自其他网站的回馈链接"
+
+#: templates/manager/wordpress.html:378
+msgid "Allow pingbacks and trackbacks from other blogs (default)"
+msgstr "允许其他博客的pingback和trackback（默认）"
+
+#: templates/manager/wordpress.html:389
+msgid "Update Settings"
+msgstr "更新设置"
+
+#: templates/manager/wordpress.html:506
+msgid "Current WP version."
+msgstr "当前WP版本。"
+
+#: templates/manager/wordpress.html:511
+msgid "Installed WordPress version:"
+msgstr "已安装的WordPress版本："
+
+#: templates/manager/wordpress.html:518
+msgid "Latest WordPress version:"
+msgstr "最新WordPress版本："
+
+#: templates/manager/wordpress.html:521
+msgid "Click to update WordPress core"
+msgstr "点击更新WordPress核心"
+
+#: templates/manager/wordpress.html:596
+msgid "Core"
+msgstr "核心"
+
+#: templates/manager/wordpress.html:597
+msgid "Update preferences for WP core."
+msgstr "更新WP核心偏好设置。"
+
+#: templates/manager/wordpress.html:603
+msgid "Update WordPress automatically:"
+msgstr "自动更新WordPress："
+
+#: templates/manager/wordpress.html:608 templates/manager/wordpress.html:648
+#: templates/manager/wordpress.html:676
+msgid "No, I will update manually when needed"
+msgstr "不，我会在需要时手动更新。"
+
+#: templates/manager/wordpress.html:611
+msgid "Yes, but only minor (security) updates"
+msgstr "是的，但仅有小规模的安全更新。"
+
+#: templates/manager/wordpress.html:611
+msgid "Recommended"
+msgstr "推荐"
+
+#: templates/manager/wordpress.html:615
+msgid "Yes, all (minor and major) updates"
+msgstr "是的，所有（小修小补和重大）更新。"
+
+#: templates/manager/wordpress.html:633
+msgid "Plugins"
+msgstr "插件"
+
+#: templates/manager/wordpress.html:634
+msgid "Update preferences for WP plugins."
+msgstr "更新WP插件偏好设置。"
+
+#: templates/manager/wordpress.html:640
+msgid "Update plugins automatically:"
+msgstr "自动更新插件："
+
+#: templates/manager/wordpress.html:645
+msgid "Yes, all plugins will be automatically updated"
+msgstr "是的，所有插件都将自动更新。"
+
+#: templates/manager/wordpress.html:663
+msgid "Themes"
+msgstr "主题"
+
+#: templates/manager/wordpress.html:664
+msgid "Update preferences for WP themes."
+msgstr "更新WP主题偏好设置。"
+
+#: templates/manager/wordpress.html:669
+msgid "Update themes automatically:"
+msgstr "自动更新主题："
+
+#: templates/manager/wordpress.html:672
+msgid "Yes, all themes will be automatically updated"
+msgstr "是的，所有主题都将自动更新。"
+
+#: templates/manager/wordpress.html:693
+msgid "Save Update Preferences"
+msgstr "保存更新偏好设置"
+
+#: templates/manager/wordpress.html:711
+msgid "Saving update preferences... Please wait."
+msgstr "正在保存更新偏好设置... 请稍候。"
+
+#: templates/manager/wordpress.html:764
+msgid "Saving general settings... Please wait."
+msgstr "正在保存常规设置... 请稍候。"
+
+#: templates/manager/wordpress.html:832
+msgid "Error fetching debug info. Refresh the page."
+msgstr "获取调试信息时出错。请刷新页面。"
+
+#: templates/manager/wordpress.html:849
+msgid ""
+"The options below allow you to manage the native WordPress debugging "
+"tools, enabling and disabling these tools in the wp-config.php file. It "
+"is not recommended to use these options on production websites since they"
+" are meant for development and test installations. Refer to"
+msgstr ""
+
+#: templates/manager/wordpress.html:849
+msgid "Debugging in WordPress"
+msgstr "WordPress调试"
+
+#: templates/manager/wordpress.html:849
+msgid "article for more information on these options."
+msgstr "有关这些选项的更多信息，请参阅文章。"
+
+#: templates/manager/wordpress.html:865 templates/manager/wordpress.html:872
+msgid "WP_DEBUG"
+msgstr "WP_DEBUG"
+
+#: templates/manager/wordpress.html:866
+msgid "WordPress debug mode."
+msgstr "WordPress调试模式"
+
+#: templates/manager/wordpress.html:875
+msgid "Enable WP_DEBUG mode"
+msgstr "启用WP_DEBUG模式"
+
+#: templates/manager/wordpress.html:893 templates/manager/wordpress.html:900
+msgid "WP_DEBUG_LOG"
+msgstr "WP_DEBUG_LOG"
+
+#: templates/manager/wordpress.html:894
+msgid "Save all errors to the debug.log file inside the wp-content directory."
+msgstr "将所有错误保存到wp-content目录下的debug.log文件中。"
+
+#: templates/manager/wordpress.html:903
+msgid "Enable WP_DEBUG_LOG"
+msgstr "启用WP_DEBUG_LOG"
+
+#: templates/manager/wordpress.html:919 templates/manager/wordpress.html:926
+msgid "WP_DEBUG_DISPLAY"
+msgstr "WP_DEBUG_DISPLAY"
+
+#: templates/manager/wordpress.html:920
+msgid "Show debug messages inside the HTML pages"
+msgstr "在HTML页面中显示调试消息。"
+
+#: templates/manager/wordpress.html:929
+msgid "Enable WP_DEBUG_DISPLAY"
+msgstr "啟用WP_DEBUG_DISPLAY"
+
+#: templates/manager/wordpress.html:945 templates/manager/wordpress.html:952
+msgid "SCRIPT_DEBUG"
+msgstr "调试脚本"
+
+#: templates/manager/wordpress.html:946
+msgid ""
+"Force WordPress to use the non-minified versions of core CSS and "
+"JavaScript files. This is useful when you are testing changes made to .js"
+" and .css files."
+msgstr ""
+
+#: templates/manager/wordpress.html:955
+msgid "Enable SCRIPT_DEBUG"
+msgstr "启用SCIPT_DEBUG"
+
+#: templates/manager/wordpress.html:971 templates/manager/wordpress.html:978
+msgid "SAVEQUERIES"
+msgstr "SAVEQUERIES"
+
+#: templates/manager/wordpress.html:972
+msgid ""
+"Save database queries to an array that can be displayed to help analyze "
+"them."
+msgstr ""
+
+#: templates/manager/wordpress.html:981
+msgid "Enable SAVEQUERIES"
+msgstr "启用SAVEQUERIES"
+
+#: templates/manager/wordpress.html:994
+msgid "Save Debugging"
+msgstr "保存调试"
+
+#: templates/manager/wordpress.html:1015
+msgid "Saving debugging options... Please wait."
+msgstr "保存调试选项... 请稍候。"
+
+#: templates/manager/wordpress.html:1058
+msgid "Security Measures"
+msgstr "安全措施"
+
+#: templates/manager/wordpress.html:1072
+msgid "Restrict access to files and directories"
+msgstr "限制对文件和目录的访问"
+
+#: templates/manager/wordpress.html:1078 templates/manager/wordpress.html:1097
+#: templates/manager/wordpress.html:1117 templates/manager/wordpress.html:1137
+#: templates/manager/wordpress.html:1157 templates/manager/wordpress.html:1177
+#: templates/manager/wordpress.html:1197 templates/manager/wordpress.html:1217
+#: templates/manager/wordpress.html:1237 templates/manager/wordpress.html:1257
+#: templates/manager/wordpress.html:1277 templates/manager/wordpress.html:1296
+#: templates/manager/wordpress.html:1316 templates/manager/wordpress.html:1336
+#: templates/manager/wordpress.html:1356 templates/manager/wordpress.html:1376
+#: templates/manager/wordpress.html:1396 templates/manager/wordpress.html:1415
+msgid "STATUS"
+msgstr "状态"
+
+#: templates/manager/wordpress.html:1091
+msgid "Configure security keys"
+msgstr "配置安全密钥"
+
+#: templates/manager/wordpress.html:1110
+msgid "Block access to"
+msgstr "阻止访问"
+
+#: templates/manager/wordpress.html:1111 templates/manager/wordpress.html:1131
+#: templates/manager/wordpress.html:1151 templates/manager/wordpress.html:1171
+#: templates/manager/wordpress.html:1191 templates/manager/wordpress.html:1211
+#: templates/manager/wordpress.html:1231 templates/manager/wordpress.html:1251
+#: templates/manager/wordpress.html:1271 templates/manager/wordpress.html:1310
+#: templates/manager/wordpress.html:1330 templates/manager/wordpress.html:1350
+#: templates/manager/wordpress.html:1370 templates/manager/wordpress.html:1390
+msgid "can be reverted"
+msgstr "可以恢复。"
+
+#: templates/manager/wordpress.html:1130
+msgid "Block directory browsing"
+msgstr "禁止目录浏览"
+
+#: templates/manager/wordpress.html:1150
+msgid "Forbid execution of PHP scripts in the wp-includes directory"
+msgstr "禁止在wp-includes目录中执行PHP脚本。"
+
+#: templates/manager/wordpress.html:1170
+msgid "Forbid execution of PHP scripts in the wp-content/uploads directory"
+msgstr "禁止在wp-content/uploads目录下执行PHP脚本。"
+
+#: templates/manager/wordpress.html:1190
+msgid "Block access to wp-config.php"
+msgstr "阻止对wp-config.php文件的访问。"
+
+#: templates/manager/wordpress.html:1210
+msgid "Disable scripts concatenation for WordPress admin panel"
+msgstr "禁用WordPress后台脚本合并"
+
+#: templates/manager/wordpress.html:1230
+msgid "Turn off pingbacks"
+msgstr "关闭Pingback"
+
+#: templates/manager/wordpress.html:1250
+msgid "Disable PHP execution in cache directories"
+msgstr "禁用缓存目录中的PHP执行。"
+
+#: templates/manager/wordpress.html:1270
+msgid "Disable file editing in WordPress Dashboard"
+msgstr "禁用WordPress后台文件编辑"
+
+#: templates/manager/wordpress.html:1290
+msgid "Change default database table prefix"
+msgstr "更改默认数据库表前缀"
+
+#: templates/manager/wordpress.html:1309
+msgid "Enable bot protection"
+msgstr "启用机器人防护"
+
+#: templates/manager/wordpress.html:1329
+msgid "Block access to sensitive files"
+msgstr "阻止访问敏感文件"
+
+#: templates/manager/wordpress.html:1349
+msgid "Block access to potentially sensitive files"
+msgstr "阻止访问潜在敏感文件"
+
+#: templates/manager/wordpress.html:1369
+msgid "Block access to .htaccess and .htpasswd"
+msgstr "阻止对 .htaccess和 .htpasswd文件的访问"
+
+#: templates/manager/wordpress.html:1389
+msgid "Block author scans"
+msgstr "区块作者扫描"
+
+#: templates/manager/wordpress.html:1409
+msgid "Change default administrator's username"
+msgstr "更改默认管理员用户名"
+
+#: templates/manager/wordpress.html:1432
+msgid "Create a Backup"
+msgstr "创建备份"
+
+#: templates/manager/wordpress.html:1433
+msgid "Create a new backup of WordPress files and/or database."
+msgstr "创建WordPress文件和/或数据库的新备份。"
+
+#: templates/manager/wordpress.html:1451
+msgid "Generate Backup"
+msgstr "生成备份"
+
+#: templates/manager/wordpress.html:1461
+msgid "Restore from Backups"
+msgstr "从备份恢复"
+
+#: templates/manager/wordpress.html:1462
+msgid "Restore website files and/or database from a previous backup."
+msgstr "从之前的备份中恢复网站文件和/或数据库。"
+
+#: templates/manager/wordpress.html:1472
+msgid "Display Backups"
+msgstr "显示备份"
+
+#: templates/manager/wordpress.html:1476
+msgid "Select a backup date:"
+msgstr "选择备份日期："
+
+#: templates/manager/wordpress.html:1488 templates/manager/wordpress.html:2330
+msgid "Start Restore"
+msgstr "开始恢复"
+
+#: templates/manager/wordpress.html:1499
+msgid "website from this manager without actually deleting any files."
+msgstr "网站来自这位管理者，而无需实际删除任何文件。"
+
+#: templates/manager/wordpress.html:1506
+msgid "Detach WordPress"
+msgstr "移除WordPress"
+
+#: templates/manager/wordpress.html:1518
+msgid "Uninstall WordPress and delete all website files and the database."
+msgstr "卸载WordPress并删除所有网站文件和数据库。"
+
+#: templates/manager/wordpress.html:1520
+msgid ""
+"All WordPress data will be permanently deleted. There is no coming back "
+"after you press delete."
+msgstr ""
+
+#: templates/manager/wordpress.html:1527
+msgid "Uninstall WordPress"
+msgstr "卸载WordPress"
+
+#: templates/manager/wordpress.html:1534
+msgid "WordPress uninstall process started. Please wait."
+msgstr "WordPress卸载过程已开始。请耐心等待。"
+
+#: templates/manager/wordpress.html:1540
+msgid "WordPress uninstalled successfully."
+msgstr "WordPress已成功卸载。"
+
+#: templates/manager/wordpress.html:1772
+msgid "Manage MySQL databases"
+msgstr "管理MySQL数据库"
+
+#: templates/manager/wordpress.html:1782
+msgid "Database Size:"
+msgstr "数据库大小："
+
+#: templates/manager/wordpress.html:1789
+msgid "Database Host:"
+msgstr "数据库主机："
+
+#: templates/manager/wordpress.html:1791
+msgid "localhost"
+msgstr "localhost"
+
+#: templates/manager/wordpress.html:1793
+msgid ""
+"Remote MySQL host detected in wp-config.php file. Database size "
+"unavailable."
+msgstr ""
+
+#: templates/manager/wordpress.html:1811
+msgid "Database User:"
+msgstr "数据库用户："
+
+#: templates/manager/wordpress.html:1850
+msgid "Enable public access on"
+msgstr "开启公众访问于"
+
+#: templates/manager/wordpress.html:1858
+msgid "Public access:"
+msgstr "公共访问："
+
+#: templates/manager/wordpress.html:1864
+msgid "Login link:"
+msgstr "登录链接："
+
+#: templates/manager/wordpress.html:1896
+msgid "/phpmyadmin status is now enabled on website."
+msgstr "/phpmyadmin状态已在网站上启用。"
+
+#: templates/manager/wordpress.html:1910
+msgid "/phpmyadmin status is now disabled on website."
+msgstr "/phpmyadmin的状态现已在网站上禁用。"
+
+#: templates/manager/wordpress.html:1921
+msgid "Changing /phpmyadmin public access on the website. Please wait."
+msgstr "更改网站上的/phpmyadmin公共访问权限。请稍候。"
+
+#: templates/manager/wordpress.html:1930
+msgid "Error changing /phpmyadmin status for the website. Please try again."
+msgstr "网站更改 /phpmyadmin状态时出错。请重试。"
+
+#: templates/manager/wordpress.html:1953
+msgid ""
+"Error changing /phpmyadmin status for the website. Unexpected response "
+"format."
+msgstr ""
+
+#: templates/manager/wordpress.html:1958
+msgid "Error toggling /phpmyadmin status for the website."
+msgstr "网站切换/phpmyadmin状态时出错。"
+
+#: templates/manager/wordpress.html:2051
+msgid "An error occurred fetching DB size from WP-CLI."
+msgstr "从WP-CLI获取数据库大小时发生错误。"
+
+#: templates/manager/wordpress.html:2169
+msgid "Update in progress..."
+msgstr "正在更新..."
+
+#: templates/manager/wordpress.html:2176
+msgid "WordPress updated successfully."
+msgstr "WordPress已成功更新。"
+
+#: templates/manager/wordpress.html:2287
+msgid "Click again to confirm"
+msgstr "再次点击以确认"
+
+#: templates/manager/wordpress.html:2387
+msgid ""
+"No options selected to backup. Please ensure that at least one of the "
+"Database or Files is selected."
+msgstr ""
+
+#: templates/manager/wordpress.html:2393
+msgid "Generating website backup.. Please wait."
+msgstr "正在生成网站备份。请稍候。"
+
+#: templates/manager/wordpress_install.html:10
+msgid "Install WordPress CMS in a few clicks."
+msgstr "几步点击即可安装WordPress CMS。"
+
+#: templates/manager/wordpress_install.html:25
+msgid "Website Name"
+msgstr "网站名称"
+
+#: templates/manager/wordpress_install.html:27
+msgid "My Blog"
+msgstr "我的博客"
+
+#: templates/manager/wordpress_install.html:32
+msgid "Description"
+msgstr "描述"
+
+#: templates/manager/wordpress_install.html:34
+msgid "My WordPress Blog"
+msgstr "我的WordPress博客"
+
+#: templates/manager/wordpress_install.html:221
+msgid "WordPress version:"
+msgstr "WordPress版本："
+
+#: templates/manager/wordpress_install.html:231
+msgid "Website files will be stored in folder:"
+msgstr "网站文件将存储在文件夹："
+
+#: templates/manager/wordpress_install.html:280
+msgid "Database Name:"
+msgstr "数据库名称："
+
+#: templates/manager/wordpress_install.html:287
+msgid "Table Prefix:"
+msgstr "表前缀："
+
+#: templates/manager/wordpress_install.html:294
+msgid "Database Username:"
+msgstr "数据库用户名："
+
+#: templates/manager/wordpress_install.html:384
+msgid "WordPress install started. Please wait for the process to finish."
+msgstr "WordPress安装已开始。请耐心等待流程完成。"
+
+#: templates/manager/wordpress_install.html:497
+msgid "Error fetching WordPress versions from WP.ORG API. Please refresh page."
+msgstr "从WP.ORG API获取WordPress版本时出错。请刷新页面。"
+
+#: templates/manager/wordpress_install.html:504
+msgid "Error fetching versions"
+msgstr "获取版本信息失败。"
+
+#: templates/mysql/assign.html:10 templates/mysql/assign.html:65
+msgid "Assign User to Database"
+msgstr "分配用户至数据库"
+
+#: templates/mysql/assign.html:11
+msgid ""
+"Assign a user to an existing MySQL database to manage database "
+"permissions and enable access for executing queries, modifying tables, or"
+" managing data within the specified database."
+msgstr ""
+
+#: templates/mysql/assign.html:24 templates/mysql/remove.html:23
+msgid "Select user:"
+msgstr "选择用户："
+
+#: templates/mysql/assign.html:37 templates/mysql/remove.html:35
+msgid "Select database:"
+msgstr "选择数据库："
+
+#: templates/mysql/assign.html:39 templates/mysql/processlist.html:82
+#: templates/mysql/remove.html:37
+msgid "Host"
+msgstr "主办方"
+
+#: templates/mysql/assign.html:61 templates/mysql/new.html:48
+#: templates/mysql/remove.html:58 templates/mysql/root_password.html:52
+#: templates/mysql/wizard.html:72
+msgid "Back to Databases"
+msgstr "返回数据库"
+
+#: templates/mysql/configuration.html:14
+msgid ""
+"View and modify the MySQL service configuration. Any changes will restart"
+" the service."
+msgstr ""
+
+#: templates/mysql/configuration.html:46 templates/php/limits.html:48
+msgid "Setting"
+msgstr "设置"
+
+#: templates/mysql/configuration.html:47 templates/php/options.html:48
+msgid "Value"
+msgstr "价值"
+
+#: templates/mysql/databases.html:11
+msgid "Total databases:"
+msgstr "总数据库数："
+
+#: templates/mysql/databases.html:18
+msgid "Show system databases"
+msgstr "显示系统数据库"
+
+#: templates/mysql/databases.html:22
+msgid "Size in:"
+msgstr "尺寸："
+
+#: templates/mysql/databases.html:123
+msgid "New Database"
+msgstr "新数据库"
+
+#: templates/mysql/databases.html:138 templates/mysql/new.html:21
+#: templates/mysql/wizard.html:20 templates/mysql/wizard.html:23
+msgid "Database Name"
+msgstr "数据库名称"
+
+#: templates/mysql/databases.html:144
+msgid "Assigned Users"
+msgstr "已分配用户"
+
+#: templates/mysql/mysql_user.html:11
+msgid "Create MySQL User"
+msgstr "创建MySQL用户"
+
+#: templates/mysql/mysql_user.html:12
+msgid ""
+"Create a new MySQL user with a unique username and password to securely "
+"manage access and permissions for interacting with databases or the MySQL"
+" server."
+msgstr ""
+
+#: templates/mysql/mysql_user.html:27
+msgid "Random Username"
+msgstr "随机用户名"
+
+#: templates/mysql/mysql_user.html:64 templates/mysql/password.html:60
+msgid "Back to Users"
+msgstr "返回用户"
+
+#: templates/mysql/mysql_user.html:68 templates/mysql/users.html:69
+msgid "Create User"
+msgstr "创建用户"
+
+#: templates/mysql/new.html:7
+msgid "Create a Database"
+msgstr "创建数据库"
+
+#: templates/mysql/new.html:8
+msgid ""
+"Create a new MySQL database to store and organize data, providing a "
+"foundational structure for applications to manage and retrieve "
+"information efficiently."
+msgstr ""
+
+#: templates/mysql/new.html:23
+msgid "Random Database Name"
+msgstr "随机数据库名称"
+
+#: templates/mysql/new.html:53
+msgid "Create Database"
+msgstr "创建数据库"
+
+#: templates/mysql/password.html:10
+msgid "Change User Password"
+msgstr "更改用户密码"
+
+#: templates/mysql/password.html:11
+msgid "Change password for a MySQL database user."
+msgstr "更改MySQL数据库用户的密码。"
+
+#: templates/mysql/phpmyadmin.html:15 templates/mysql/phpmyadmin.html:60
+msgid "Enable/disable phpMyAdmin service."
+msgstr "启用/禁用phpMyAdmin服务。"
+
+#: templates/mysql/phpmyadmin.html:25
+msgid "phpMyAdmin Login"
+msgstr "phpMyAdmin登录"
+
+#: templates/mysql/phpmyadmin.html:38
+msgid "phpmyadmin is not currently installed."
+msgstr "phpmyadmin当前未安装。"
+
+#: templates/mysql/phpmyadmin.html:40
+msgid "To install phpMyAdmin click on the button above."
+msgstr "要安装phpMyAdmin，请点击上方按钮。"
+
+#: templates/mysql/phpmyadmin.html:115
+msgid "Settings"
+msgstr "设置"
+
+#: templates/mysql/phpmyadmin.html:116
+msgid "PHP limits for the phpMyAdmin container."
+msgstr "phpMyAdmin容器的PHP限制。"
+
+#: templates/mysql/phpmyadmin.html:123
+msgid "Max execution time:"
+msgstr "最大执行时间："
+
+#: templates/mysql/phpmyadmin.html:127
+msgid "Memory limit:"
+msgstr "内存限制："
+
+#: templates/mysql/phpmyadmin.html:131
+msgid "Upload limit:"
+msgstr "上传限制："
+
+#: templates/mysql/phpmyadmin.html:136
+msgid "Version:"
+msgstr "版本："
+
+#: templates/mysql/phpmyadmin.html:154
+msgid "IP and Port for accessing the phpMyAdmin service."
+msgstr "phpMyAdmin服务访问的IP地址和端口。"
+
+#: templates/mysql/phpmyadmin.html:178
+msgid "View phpMyAdmin service logs."
+msgstr "查看phpMyAdmin服务日志。"
+
+#: templates/mysql/phpmyadmin.html:184
+msgid "View container log"
+msgstr "查看容器日志"
+
+#: templates/mysql/processlist.html:10
+msgid ""
+"List of all current processes running on the MySQL server, providing "
+"insights into ongoing queries, operations, and their associated details "
+"for better performance monitoring."
+msgstr ""
+
+#: templates/mysql/processlist.html:40 templates/system/process_manager.html:40
+msgid "Refresh Processes"
+msgstr "刷新流程"
+
+#: templates/mysql/processlist.html:43
+msgid "Restart MySQL"
+msgstr "重启MySQL"
+
+#: templates/mysql/processlist.html:51
+msgid "MySQL service restart in progress.."
+msgstr "MySQL服务正在重启。"
+
+#: templates/mysql/processlist.html:85
+msgid "DB"
+msgstr "DB"
+
+#: templates/mysql/processlist.html:88 templates/system/cronjobs.html:111
+msgid "Command"
+msgstr "命令"
+
+#: templates/mysql/processlist.html:91
+msgid "Time"
+msgstr "时间"
+
+#: templates/mysql/processlist.html:94
+msgid "State"
+msgstr "州"
+
+#: templates/mysql/processlist.html:97
+msgid "Info"
+msgstr "信息"
+
+#: templates/mysql/remote_mysql.html:14
+msgid "Remote MySQL Access"
+msgstr "远程MySQL访问"
+
+#: templates/mysql/remote_mysql.html:15
+msgid ""
+"Connect to a MySQL database on this server from a another (remote) device"
+" or location over the internet."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:22 templates/mysql/remote_mysql.html:32
+msgid "Disable Remote MySQL Access"
+msgstr "禁用远程MySQL访问"
+
+#: templates/mysql/remote_mysql.html:27 templates/mysql/remote_mysql.html:36
+msgid "Enable Remote MySQL Access"
+msgstr "启用远程MySQL访问"
+
+#: templates/mysql/remote_mysql.html:55
+msgid "Current status of remote mysql."
+msgstr "远程MySQL的当前状态。"
+
+#: templates/mysql/remote_mysql.html:105
+msgid "IP and unique port for MySQL access."
+msgstr "MySQL访问的IP地址和唯一端口。"
+
+#: templates/mysql/remove.html:10
+msgid "Remove User access from Database"
+msgstr "从数据库中移除用户访问权限"
+
+#: templates/mysql/remove.html:11
+msgid ""
+"Remove a user from an existing MySQL database to revoke their permissions"
+" and prevent access to executing queries, modifying tables, or managing "
+"data within the specified database."
+msgstr ""
+
+#: templates/mysql/remove.html:62
+msgid "Remove User from Database"
+msgstr "从数据库移除用户"
+
+#: templates/mysql/root_password.html:11
+msgid "Change MySQL root password"
+msgstr "更改MySQL root密码"
+
+#: templates/mysql/root_password.html:12
+msgid "Change MySQL root user password and restart mysql service."
+msgstr "更改MySQL root用户密码并重启MySQL服务。"
+
+#: templates/mysql/users.html:10
+msgid "Total users:"
+msgstr "总用户数："
+
+#: templates/mysql/users.html:17
+msgid "Show system users"
+msgstr "显示系统用户"
+
+#: templates/mysql/users.html:72
+msgid "Assign User"
+msgstr "分配用户"
+
+#: templates/mysql/users.html:74
+msgid "Remove User"
+msgstr "移除用户"
+
+#: templates/mysql/users.html:74
+msgid "from"
+msgstr "从"
+
+#: templates/mysql/wizard.html:9
+msgid ""
+"Create a new MySQL database, set up a user with a secure password, and "
+"assign it to the database with all necessary privileges."
+msgstr ""
+
+#: templates/mysql/wizard.html:34 templates/mysql/wizard.html:36
+msgid "Database User"
+msgstr "数据库用户"
+
+#: templates/mysql/wizard.html:77
+msgid "Create DB, User, and Grant Privileges"
+msgstr "创建数据库、用户和授予权限"
+
+#: templates/node/install.html:13
+msgid "Install new NodeJS version"
+msgstr "安装新的NodeJS版本"
+
+#: templates/node/install.html:14
+msgid "Install new NodeJS versions"
+msgstr "安装新的NodeJS版本"
+
+#: templates/node/install.html:17
+msgid "Currently installed Node versions"
+msgstr "当前已安装的Node版本"
+
+#: templates/node/install.html:31
+msgid "Select Node Version to be installed:"
+msgstr "选择要安装的节点版本："
+
+#: templates/node/install.html:35 templates/php/install.html:37
+msgid "Select version"
+msgstr "选择版本"
+
+#: templates/node/install.html:57
+msgid "Back to PM2"
+msgstr "返回PM2"
+
+#: templates/node/install.html:72 templates/php/install.html:74
+msgid "Install log:"
+msgstr "安装日志："
+
+#: templates/partials/header.html:57
+msgid "Dark theme activated."
+msgstr "深色主题已启用。"
+
+#: templates/partials/header.html:58
+msgid "Light theme activated."
+msgstr "浅色主题已启用。"
+
+#: templates/partials/header.html:101
+msgid "Left-click to add to Favorites"
+msgstr "左键单击添加到收藏夹"
+
+#: templates/partials/header.html:143
+msgid "This page is not in your favorites! Left-click to add it."
+msgstr "此页面不在您的收藏夹！左键单击以添加。"
+
+#: templates/partials/header.html:166
+msgid "Successfully removed from favorites!"
+msgstr "已从收藏夹中移除！"
+
+#: templates/partials/header.html:178
+msgid "Failed to remove favorite."
+msgstr "删除收藏失败。"
+
+#: templates/partials/header.html:188
+msgid "This page is already in your favorites! Right-click to remove it."
+msgstr "这个页面已经添加至您的收藏夹！右键单击以移除它。"
+
+#: templates/partials/header.html:225
+msgid "Successfully added to favorites!"
+msgstr "已成功添加到收藏夹！"
+
+#: templates/partials/header.html:239
+msgid "Failed to add favorite."
+msgstr "添加收藏失败。"
+
+#: templates/partials/pagespeed.html:21
+msgid "Loading Google PageSpeed data"
+msgstr "加载Google PageSpeed数据"
+
+#: templates/partials/pagespeed.html:22
+msgid "Data refreshes every 24 hours."
+msgstr "数据每24小时刷新一次。"
+
+#: templates/partials/pagespeed.html:55 templates/partials/pagespeed.html:98
+msgid "Desktop"
+msgstr "桌面"
+
+#: templates/partials/pagespeed.html:84 templates/partials/pagespeed.html:99
+msgid "Mobile"
+msgstr "移动设备"
+
+#: templates/partials/pagespeed.html:104
+msgid "First Contentful Paint:"
+msgstr "首次内容绘制："
+
+#: templates/partials/pagespeed.html:109
+msgid "Speed Index:"
+msgstr "速度指数："
+
+#: templates/partials/pagespeed.html:114
+msgid "Time to Interactive:"
+msgstr "互动时间："
+
+#: templates/partials/pagespeed.html:119
+msgid "Measured at"
+msgstr "测量于"
+
+#: templates/partials/pagespeed.html:135
+msgid "No data to show"
+msgstr "暂无数据展示。"
+
+#: templates/partials/pagespeed.html:136
+msgid "May take 24h for data to be shown."
+msgstr "数据展示可能需要24小时。"
+
+#: templates/partials/pagespeed.html:201
+msgid ""
+"No Google PageSpeed data for domain yet. Please allow a few minutes for "
+"data gathering.."
+msgstr ""
+
+#: templates/partials/pagespeed.html:210
+msgid "The site's Google PageSpeed data has been successfully collected."
+msgstr "网站的Google PageSpeed数据已成功收集。"
+
+#: templates/partials/pagespeed.html:217
+msgid ""
+"Error fetching Google PageSpeed data for the domain. Please refresh the "
+"page. If the issue continues, contact support for assistance."
+msgstr ""
+
+#: templates/partials/phpmyadmin_link.html:16
+msgid "/phpmyadmin"
+msgstr "/phpmyadmin"
+
+#: templates/partials/screenshot.html:19
+msgid "Refresh website screenshot"
+msgstr "刷新网站截图"
+
+#: templates/partials/sidebar.html:411
+msgid "Dashboard"
+msgstr "仪表盘"
+
+#: templates/partials/sidebar.html:484 templates/user/favorites.html:13
+msgid "Favorites"
+msgstr "最喜爱内容"
+
+#: templates/partials/sidebar.html:585
+msgid "File Editor"
+msgstr "文件编辑器"
+
+#: templates/partials/sidebar.html:593
+msgid "Upload from device"
+msgstr "从设备上传"
+
+#: templates/partials/sidebar.html:708
+msgid "Create New Account"
+msgstr "创建新帐户"
+
+#: templates/partials/sidebar.html:726
+msgid "Manage Filters"
+msgstr "管理筛选器"
+
+#: templates/partials/sidebar.html:734
+msgid "Delete Accounts"
+msgstr "删除账户"
+
+#: templates/partials/sidebar.html:772
+msgid "Users"
+msgstr "用户"
+
+#: templates/partials/sidebar.html:803
+msgid "Create New Database"
+msgstr "创建新数据库"
+
+#: templates/partials/sidebar.html:812
+msgid "Create New User"
+msgstr "创建新用户"
+
+#: templates/partials/sidebar.html:822
+msgid "Assign User to DB"
+msgstr "分配用户至数据库"
+
+#: templates/partials/sidebar.html:831
+msgid "Remove User from DB"
+msgstr "从数据库移除用户"
+
+#: templates/partials/sidebar.html:848
+msgid "Change root password"
+msgstr "更改root密码"
+
+#: templates/partials/sidebar.html:859
+msgid "MySQL Settings"
+msgstr "MySQL设置"
+
+#: templates/partials/sidebar.html:883
+msgid "Domain Names"
+msgstr "域名"
+
+#: templates/partials/sidebar.html:892
+msgid "Add New Domain"
+msgstr "添加新域名"
+
+#: templates/partials/sidebar.html:920
+msgid "VHosts File Editor"
+msgstr "虚拟主机文件编辑器"
+
+#: templates/partials/sidebar.html:929
+msgid "Suspend a Domain"
+msgstr "暂停域名"
+
+#: templates/partials/sidebar.html:937
+msgid "Unsuspend a Domain"
+msgstr "恢复域名"
+
+#: templates/partials/sidebar.html:1298
+msgid "Default version"
+msgstr "默认版本"
+
+#: templates/partials/sidebar.html:1325
+msgid "View PHP Limits"
+msgstr "查看PHP限制"
+
+#: templates/partials/sidebar.html:1368
+msgid "Volumes"
+msgstr "卷数"
+
+#: templates/partials/sidebar.html:1376
+msgid "Change image tag"
+msgstr "更改图片标签"
+
+#: templates/partials/sidebar.html:1385
+msgid "Switch WebServer"
+msgstr "切换Web服务器"
+
+#: templates/partials/sidebar.html:1393
+msgid "Switch MySQL Type"
+msgstr "切换MySQL类型"
+
+#: templates/partials/sidebar.html:1462
+msgid "Server Time"
+msgstr "服务器时间"
+
+#: templates/partials/sidebar.html:1475
+msgid "WebServer Settings"
+msgstr "服务器设置"
+
+#: templates/partials/temp_link.html:2
+msgid "Live Preview"
+msgstr "实时预览"
+
+#: templates/partials/temp_link.html:7
+msgid "Preview website on temporary .openpanel.org subdomain"
+msgstr "在临时 .openpanel.org子域名上预览网站。"
+
+#: templates/partials/waf.html:5
+msgid "Firewall"
+msgstr "防火墙"
+
+#: templates/partials/waf.html:14
+msgid "Control Coraza WAF for the domain"
+msgstr "控制Coraza WAF用于该域名"
+
+#: templates/partials/waf.html:30
+msgid "Checking Firewall status.."
+msgstr "正在检查防火墙状态。"
+
+#: templates/php/default.html:14
+msgid "Default PHP version\n"
+msgstr "默认PHP版本"
+
+#: templates/php/default.html:16 templates/php/install.html:14
+msgid ""
+"Set the default PHP version to be used for new domains.\n"
+"\n"
+msgstr ""
+
+#: templates/php/default.html:21
+msgid "Current default version:"
+msgstr "当前默认版本："
+
+#: templates/php/default.html:34
+msgid "Change PHP Version to be used for new domains:"
+msgstr "更改用于新域的PHP版本："
+
+#: templates/php/default.html:38 templates/php/ini_editor.html:93
+#: templates/php/options.html:129
+msgid "Select PHP Version"
+msgstr "选择PHP版本"
+
+#: templates/php/default.html:56 templates/php/ini_editor.html:111
+#: templates/php/install.html:59 templates/php/options.html:147
+msgid "Back to PHP versions"
+msgstr "返回PHP版本"
+
+#: templates/php/default.html:60 templates/php/settings.html:250
+#: templates/system/ssh.html:112 templates/system/timezone.html:55
+msgid "Change"
+msgstr "改变"
+
+#: templates/php/extensions.html:12
+msgid "PHP Extensions"
+msgstr "PHP扩展"
+
+#: templates/php/extensions.html:13
+msgid "View active extensions for each PHP version."
+msgstr "查看每个PHP版本的活动扩展。"
+
+#: templates/php/extensions.html:56
+msgid "Extension"
+msgstr "扩展"
+
+#: templates/php/ini_editor.html:32
+msgid ""
+"Edit PHP.INI file\n"
+" for version"
+msgstr ""
+
+#: templates/php/ini_editor.html:34 templates/php/ini_editor.html:72
+msgid ""
+"Modify PHP settings stored in the php.ini configuration file, such as "
+"memory limits, error reporting, and extension settings."
+msgstr ""
+
+#: templates/php/ini_editor.html:70
+msgid "Edit PHP.INI file\n"
+msgstr "编辑PHP.INI文件"
+
+#: templates/php/ini_editor.html:89 templates/php/options.html:125
+msgid "Select PHP version:"
+msgstr "选择PHP版本："
+
+#: templates/php/ini_editor.html:115
+msgid "Open Editor"
+msgstr "打开编辑器"
+
+#: templates/php/install.html:13
+msgid "Install new PHP version"
+msgstr "安装新的PHP版本"
+
+#: templates/php/install.html:19
+msgid "Currently installed PHP versions"
+msgstr "目前已安装的PHP版本"
+
+#: templates/php/install.html:33
+msgid "Select PHP Version to be installed:"
+msgstr "选择要安装的PHP版本："
+
+#: templates/php/limits.html:13
+msgid "View current limits for each PHP version."
+msgstr "查看每个PHP版本的当前限制。"
+
+#: templates/php/options.html:15
+msgid "Edit options for this PHP version. Any changes will restart the service."
+msgstr "编辑此PHP版本的选项。任何更改都将重启服务。"
+
+#: templates/php/options.html:47
+msgid "Option"
+msgstr "选项"
+
+#: templates/php/options.html:106
+msgid "Edit PHP options\n"
+msgstr "编辑PHP选项"
+
+#: templates/php/options.html:108
+msgid ""
+"Modify PHP options such as memory limits, error reporting, and extension "
+"settings."
+msgstr ""
+
+#: templates/php/options.html:151
+msgid "Edit Options"
+msgstr "编辑选项"
+
+#: templates/php/settings.html:12
+msgid "PHP version for domains"
+msgstr "域名PHP版本"
+
+#: templates/php/settings.html:13
+msgid ""
+"Changing the PHP version will stop all the processes on your site. It "
+"takes 1-2 seconds to complete."
+msgstr ""
+
+#: templates/php/settings.html:14
+msgid ""
+"Be sure to check your script and plugin requirements to know which PHP "
+"version works best for your website."
+msgstr ""
+
+#: templates/php/settings.html:156
+msgid "Current PHP Version"
+msgstr "当前PHP版本"
+
+#: templates/php/settings.html:157
+msgid "Change version"
+msgstr "更改版本"
+
+#: templates/system/apache_nginx_conf_editor.html:29
+msgid "Edit main webserver configuration file:"
+msgstr "编辑主Web服务器配置文件："
+
+#: templates/system/cronjobs.html:29
+msgid "A cron job is a Linux command used to schedule tasks for future execution."
+msgstr "一个cron作业是Linux命令，用于安排任务以供未来执行。"
+
+#: templates/system/cronjobs.html:30
+msgid ""
+"It allows you to automate repetitive tasks, such as sending notifications"
+" or running scripts at specific intervals."
+msgstr ""
+
+#: templates/system/cronjobs.html:33
+msgid "Crontab File Editor"
+msgstr "Cron任务表编辑器"
+
+#: templates/system/cronjobs.html:34
+msgid ""
+"Editing crontab file is intended for advanced users only. If you mistyped"
+" the cron entry in the file, you will not be warned as opposed to when "
+"saving cronjobs in table mode."
+msgstr ""
+
+#: templates/system/cronjobs.html:35
+msgid ""
+"Prepend # before the line to pause cronjob. To create a comment, prepend "
+"# followed by space: '# '."
+msgstr ""
+
+#: templates/system/cronjobs.html:47
+msgid "Switch to Table"
+msgstr "切换至表格"
+
+#: templates/system/cronjobs.html:83 templates/system/cronjobs_new.html:16
+msgid "Switch to File Editor"
+msgstr "切换至文件编辑器"
+
+#: templates/system/cronjobs.html:96
+msgid "Minute"
+msgstr "分钟"
+
+#: templates/system/cronjobs.html:99
+msgid "Hour"
+msgstr "小时"
+
+#: templates/system/cronjobs.html:102
+msgid "Day"
+msgstr "日"
+
+#: templates/system/cronjobs.html:105
+msgid "Month"
+msgstr "月份"
+
+#: templates/system/cronjobs.html:108
+msgid "Weekday"
+msgstr "工作日"
+
+#: templates/system/cronjobs.html:196
+msgid "Run Now"
+msgstr "立即运行"
+
+#: templates/system/cronjobs.html:226
+msgid "No cronjobs."
+msgstr "无定时任务。"
+
+#: templates/system/cronjobs.html:228
+msgid "No cronjobs yet, to create a cron click on the button above."
+msgstr "目前暂无定时任务，如需创建定时任务，请点击上方按钮。"
+
+#: templates/system/cronjobs_new.html:11
+msgid "Create Cron Job"
+msgstr "创建定时任务"
+
+#: templates/system/cronjobs_new.html:12
+msgid "Schedule a new cron job."
+msgstr "安排一个新的cron作业。"
+
+#: templates/system/cronjobs_new.html:31
+msgid "Common schedules:"
+msgstr "常见时间表："
+
+#: templates/system/cronjobs_new.html:34 templates/system/cronjobs_new.html:78
+#: templates/system/cronjobs_new.html:292
+#: templates/system/cronjobs_new.html:541
+msgid "-- Common Settings --"
+msgstr "-- 常用设置 --"
+
+#: templates/system/cronjobs_new.html:37 templates/system/cronjobs_new.html:81
+msgid "Once Per Minute"
+msgstr "每分钟一次"
+
+#: templates/system/cronjobs_new.html:40 templates/system/cronjobs_new.html:87
+msgid "Once Per Five Minutes"
+msgstr "每五分钟一次"
+
+#: templates/system/cronjobs_new.html:43
+msgid "Twice Per Hour"
+msgstr "每小时两次"
+
+#: templates/system/cronjobs_new.html:46
+msgid "Once Per Hour"
+msgstr "每小时一次"
+
+#: templates/system/cronjobs_new.html:49
+msgid "Twice Per Day"
+msgstr "每日两次"
+
+#: templates/system/cronjobs_new.html:52
+msgid "Once Per Day"
+msgstr "每天一次"
+
+#: templates/system/cronjobs_new.html:55
+msgid "Once Per Week"
+msgstr "每周一次"
+
+#: templates/system/cronjobs_new.html:58 templates/system/cronjobs_new.html:349
+msgid "On the 1st and 15th of the Month"
+msgstr "每月初一和十五日"
+
+#: templates/system/cronjobs_new.html:61
+msgid "Once Per Month"
+msgstr "每月一次"
+
+#: templates/system/cronjobs_new.html:64
+msgid "Once Per Year"
+msgstr "一年一次"
+
+#: templates/system/cronjobs_new.html:70
+msgid "Minute:"
+msgstr "分钟："
+
+#: templates/system/cronjobs_new.html:74 templates/system/cronjobs_new.html:290
+#: templates/system/cronjobs_new.html:333
+#: templates/system/cronjobs_new.html:457
+#: templates/system/cronjobs_new.html:539
+msgid "Common Settings:"
+msgstr "常见设置："
+
+#: templates/system/cronjobs_new.html:84
+msgid "Once Per Two Minutes"
+msgstr "每两分钟一次"
+
+#: templates/system/cronjobs_new.html:90
+msgid "Once Per Ten Minutes"
+msgstr "每十分钟一次"
+
+#: templates/system/cronjobs_new.html:93
+msgid "Once Per Fifteen Minutes"
+msgstr "每十五分钟一次"
+
+#: templates/system/cronjobs_new.html:96
+msgid "Once Per Thirty Minutes"
+msgstr "每三十分钟一次"
+
+#: templates/system/cronjobs_new.html:99
+msgid "-- Minutes --"
+msgstr "-- 纪要 --"
+
+#: templates/system/cronjobs_new.html:102
+msgid "At the beginning of the hour."
+msgstr "每小时的开始时。"
+
+#: templates/system/cronjobs_new.html:147
+msgid "At one quarter past the hour."
+msgstr "一刻十五分。"
+
+#: templates/system/cronjobs_new.html:192
+msgid "At half past the hour."
+msgstr "差半小时。"
+
+#: templates/system/cronjobs_new.html:237
+msgid "At one quarter until the hour."
+msgstr "差一刻四点。"
+
+#: templates/system/cronjobs_new.html:286
+msgid "Hour:"
+msgstr "小时："
+
+#: templates/system/cronjobs_new.html:293
+msgid "Every Hour"
+msgstr "每小时"
+
+#: templates/system/cronjobs_new.html:294
+msgid "Every Other Hour"
+msgstr "每隔两个小时"
+
+#: templates/system/cronjobs_new.html:295
+msgid "Every Third Hour"
+msgstr "每三个小时"
+
+#: templates/system/cronjobs_new.html:296
+msgid "Every Fourth Hour"
+msgstr "每四小时"
+
+#: templates/system/cronjobs_new.html:297
+msgid "Every Sixth Hour"
+msgstr "每六小时"
+
+#: templates/system/cronjobs_new.html:298
+msgid "Every Twelve Hours"
+msgstr "每十二小时"
+
+#: templates/system/cronjobs_new.html:299
+msgid "-- Hours --"
+msgstr "-- 时长 --"
+
+#: templates/system/cronjobs_new.html:300
+msgid "a.m.Midnight"
+msgstr "a.m. 凌晨"
+
+#: templates/system/cronjobs_new.html:301
+#: templates/system/cronjobs_new.html:302
+#: templates/system/cronjobs_new.html:303
+#: templates/system/cronjobs_new.html:304
+#: templates/system/cronjobs_new.html:305
+#: templates/system/cronjobs_new.html:306
+#: templates/system/cronjobs_new.html:307
+#: templates/system/cronjobs_new.html:308
+#: templates/system/cronjobs_new.html:309
+#: templates/system/cronjobs_new.html:310
+#: templates/system/cronjobs_new.html:311
+msgid "a.m."
+msgstr "上午"
+
+#: templates/system/cronjobs_new.html:312
+msgid "p.m.Noon"
+msgstr "下午
+中午"
+
+#: templates/system/cronjobs_new.html:313
+#: templates/system/cronjobs_new.html:314
+#: templates/system/cronjobs_new.html:315
+#: templates/system/cronjobs_new.html:316
+#: templates/system/cronjobs_new.html:317
+#: templates/system/cronjobs_new.html:318
+#: templates/system/cronjobs_new.html:319
+#: templates/system/cronjobs_new.html:320
+#: templates/system/cronjobs_new.html:321
+#: templates/system/cronjobs_new.html:322
+#: templates/system/cronjobs_new.html:323
+msgid "p.m."
+msgstr "下午"
+
+#: templates/system/cronjobs_new.html:329
+msgid "Day:"
+msgstr "日期："
+
+#: templates/system/cronjobs_new.html:337
+#: templates/system/cronjobs_new.html:460
+msgid "Common Settings"
+msgstr "常用设置"
+
+#: templates/system/cronjobs_new.html:341
+msgid "Every Day"
+msgstr "每天"
+
+#: templates/system/cronjobs_new.html:345
+msgid "Every Other Day"
+msgstr "隔天"
+
+#: templates/system/cronjobs_new.html:353
+msgid "Days"
+msgstr "天数"
+
+#: templates/system/cronjobs_new.html:454
+msgid "Month:"
+msgstr "月份："
+
+#: templates/system/cronjobs_new.html:463
+msgid "Every Month"
+msgstr "每月"
+
+#: templates/system/cronjobs_new.html:467
+msgid "Every Other Month"
+msgstr "每隔两个月"
+
+#: templates/system/cronjobs_new.html:471
+msgid "Every Third Month"
+msgstr "每三个月"
+
+#: templates/system/cronjobs_new.html:475
+msgid "Every Six Months"
+msgstr "每六个月"
+
+#: templates/system/cronjobs_new.html:479
+msgid "Months"
+msgstr "月份"
+
+#: templates/system/cronjobs_new.html:482
+msgid "January"
+msgstr "一月"
+
+#: templates/system/cronjobs_new.html:486
+msgid "February"
+msgstr "二月"
+
+#: templates/system/cronjobs_new.html:490
+msgid "March"
+msgstr "三月"
+
+#: templates/system/cronjobs_new.html:494
+msgid "April"
+msgstr "四月"
+
+#: templates/system/cronjobs_new.html:498
+msgid "May"
+msgstr "五月"
+
+#: templates/system/cronjobs_new.html:502
+msgid "June"
+msgstr "六月"
+
+#: templates/system/cronjobs_new.html:506
+msgid "July"
+msgstr "七月"
+
+#: templates/system/cronjobs_new.html:510
+msgid "August"
+msgstr "八月"
+
+#: templates/system/cronjobs_new.html:514
+msgid "September"
+msgstr "九月"
+
+#: templates/system/cronjobs_new.html:518
+msgid "October"
+msgstr "十月"
+
+#: templates/system/cronjobs_new.html:522
+msgid "November"
+msgstr "十一月"
+
+#: templates/system/cronjobs_new.html:526
+msgid "December"
+msgstr "十二月"
+
+#: templates/system/cronjobs_new.html:535
+msgid "Weekday:"
+msgstr "工作日："
+
+#: templates/system/cronjobs_new.html:542
+msgid "Every Day (*)"
+msgstr "每天 (*)"
+
+#: templates/system/cronjobs_new.html:543
+msgid "Every Weekday"
+msgstr "每周工作日"
+
+#: templates/system/cronjobs_new.html:544
+msgid "Every Weekend Day"
+msgstr "每个周末"
+
+#: templates/system/cronjobs_new.html:545
+msgid "Every Monday, Wednesday, and Friday"
+msgstr "每周一、周三和周五"
+
+#: templates/system/cronjobs_new.html:546
+msgid "Every Tuesday and Thursday"
+msgstr "每周二和每周四"
+
+#: templates/system/cronjobs_new.html:547
+msgid " -- Weekdays --"
+msgstr "-- 工作日 --"
+
+#: templates/system/cronjobs_new.html:548
+msgid "Sunday"
+msgstr "星期天"
+
+#: templates/system/cronjobs_new.html:549
+msgid "Monday"
+msgstr "星期一"
+
+#: templates/system/cronjobs_new.html:550
+msgid "Tuesday"
+msgstr "星期二"
+
+#: templates/system/cronjobs_new.html:551
+msgid "Wednesday"
+msgstr "星期三"
+
+#: templates/system/cronjobs_new.html:552
+msgid "Thursday "
+msgstr "周四"
+
+#: templates/system/cronjobs_new.html:553
+msgid "Friday"
+msgstr "星期五"
+
+#: templates/system/cronjobs_new.html:554
+msgid "Saturday"
+msgstr "星期六"
+
+#: templates/system/cronjobs_new.html:559
+msgid "Command:"
+msgstr "命令："
+
+#: templates/system/cronjobs_new.html:575
+msgid "Back to CronJobs"
+msgstr "返回CronJobs"
+
+#: templates/system/cronjobs_new.html:577
+msgid "Schedule CronJob"
+msgstr "安排CronJob"
+
+#: templates/system/cronjobs_new.html:679
+msgid "Please fill in all fields before submitting."
+msgstr "请在提交前填写所有字段。"
+
+#: templates/system/ip_blocker.html:64
+msgid "Search domains"
+msgstr "搜索域名"
+
+#: templates/system/ip_blocker.html:108
+msgid ""
+"IP addresses added here will be denied from accessing the domain. One IP "
+"per line or comma separated list."
+msgstr ""
+
+#: templates/system/ip_blocker.html:108
+msgid "Blocked IPs"
+msgstr "被阻止的IP地址"
+
+#: templates/system/process_manager.html:10
+msgid "View and manage currently running processes on the server."
+msgstr "查看并管理服务器上当前正在运行的进程。"
+
+#: templates/system/process_manager.html:53
+msgid "PID"
+msgstr "PID"
+
+#: templates/system/process_manager.html:56
+msgid "TIME"
+msgstr "时间"
+
+#: templates/system/process_manager.html:62
+msgid "CMD"
+msgstr "CMD"
+
+#: templates/system/process_manager.html:65
+msgid "ACTION"
+msgstr "行动"
+
+#: templates/system/process_manager.html:82
+msgid "View full command"
+msgstr "查看完整命令"
+
+#: templates/system/process_manager.html:92
+msgid "kill"
+msgstr "杀"
+
+#: templates/system/server_info.html:11
+msgid "View current server specification and system usage."
+msgstr "查看当前服务器配置和系统使用情况。"
+
+#: templates/system/server_info.html:31
+msgid "Hostname"
+msgstr "主机名"
+
+#: templates/system/server_info.html:34 templates/system/server_info.html:43
+#: templates/system/server_info.html:54 templates/system/server_info.html:63
+#: templates/system/server_info.html:115 templates/system/server_info.html:125
+#: templates/system/server_info.html:137 templates/system/server_info.html:149
+#: templates/system/server_info.html:162 templates/system/server_info.html:202
+#: templates/system/server_info.html:212 templates/system/server_info.html:221
+#: templates/system/server_info.html:230 templates/system/server_info.html:239
+#: templates/system/server_info.html:249 templates/system/server_info.html:259
+#: templates/system/server_info.html:268 templates/system/server_info.html:279
+#: templates/system/server_info.html:288 templates/system/server_info.html:297
+#: templates/system/server_info.html:306 templates/system/server_info.html:315
+msgid "Loading..."
+msgstr "正在加载..."
+
+#: templates/system/server_info.html:40
+msgid "Average Load"
+msgstr "平均负载"
+
+#: templates/system/server_info.html:60 templates/user/active_sessions.html:53
+#: templates/user/activity.html:49
+msgid "IP Address"
+msgstr "IP地址"
+
+#: templates/system/server_info.html:78
+msgid "Remote MySQL port"
+msgstr "远程MySQL端口"
+
+#: templates/system/server_info.html:84
+msgid "Local MySQL port"
+msgstr "本地MySQL端口"
+
+#: templates/system/server_info.html:90
+msgid "phpMyAdmin port"
+msgstr "phpMyAdmin端口"
+
+#: templates/system/server_info.html:96
+msgid "Remote SSH port"
+msgstr "远程SSH端口"
+
+#: templates/system/server_info.html:102
+msgid "WebTerminal port"
+msgstr "WebTerminal端口"
+
+#: templates/system/server_info.html:112
+msgid "OS"
+msgstr "操作系统"
+
+#: templates/system/server_info.html:122
+msgid "Release"
+msgstr "发布"
+
+#: templates/system/server_info.html:146
+msgid "Processor"
+msgstr "处理器"
+
+#: templates/system/server_info.html:181
+msgid "Hosting Plan Information"
+msgstr "托管计划信息"
+
+#: templates/system/server_info.html:189
+msgid "Hosting Plan Name"
+msgstr "托管计划名称"
+
+#: templates/system/server_info.html:199
+msgid "Plan Description"
+msgstr "方案描述"
+
+#: templates/system/server_info.html:209
+msgid "Context"
+msgstr "背景"
+
+#: templates/system/server_info.html:218
+msgid "Bandwidth Limit"
+msgstr "带宽限制"
+
+#: templates/system/server_info.html:227
+msgid "CPU Limit"
+msgstr "CPU限制"
+
+#: templates/system/server_info.html:236
+msgid "Database Limit"
+msgstr "数据库限制"
+
+#: templates/system/server_info.html:246
+msgid "Websites Limit"
+msgstr "网站限制"
+
+#: templates/system/server_info.html:256
+msgid "Disk Limit"
+msgstr "磁盘限制"
+
+#: templates/system/server_info.html:265
+msgid "Domains Limit"
+msgstr "域名限制"
+
+#: templates/system/server_info.html:276
+msgid "Email Limit"
+msgstr "邮件数量限制"
+
+#: templates/system/server_info.html:285
+msgid "FTP Limit"
+msgstr "FTP传输限制"
+
+#: templates/system/server_info.html:294
+msgid "Inodes Limit"
+msgstr "Inode限制"
+
+#: templates/system/server_info.html:303
+msgid "MySQL Server"
+msgstr "MySQL服务器"
+
+#: templates/system/server_info.html:312
+msgid "Web Server"
+msgstr "Web服务器"
+
+#: templates/system/server_info.html:328
+msgid "OpenPanel Information"
+msgstr "OpenPanel信息"
+
+#: templates/system/server_info.html:334
+msgid "OpenPanel Version"
+msgstr "OpenPanel版本"
+
+#: templates/system/server_info.html:347
+msgid "Enabled Modules"
+msgstr "已启用模块"
+
+#: templates/system/services_status.html:8
+msgid "Services"
+msgstr "服务"
+
+#: templates/system/services_status.html:9
+msgid "View current services status and their versions."
+msgstr "查看当前服务状态及其版本。"
+
+#: templates/system/services_status.html:20
+msgid "Service"
+msgstr "服务"
+
+#: templates/system/services_status.html:39
+msgid "Active"
+msgstr "活跃"
+
+#: templates/system/services_status.html:41
+msgid "Inactive"
+msgstr "未激活"
+
+#: templates/system/ssh.html:14
+msgid "SSH login information for managing containers via"
+msgstr "通过以下方式管理容器的SSH登录信息："
+
+#: templates/system/ssh.html:27
+msgid "Current ssh service status."
+msgstr "当前SSH服务状态。"
+
+#: templates/system/ssh.html:63
+msgid "Server IP and SSH service port."
+msgstr "服务器IP地址和SSH服务端口。"
+
+#: templates/system/ssh.html:85
+msgid "Credentials"
+msgstr "资质证书"
+
+#: templates/system/ssh.html:86
+msgid "SSH username and password."
+msgstr "SSH用户名和密码。"
+
+#: templates/system/ssh.html:103
+msgid "Click to change"
+msgstr "点击更改"
+
+#: templates/system/timezone.html:11
+msgid "Change Timezone"
+msgstr "更改时区"
+
+#: templates/system/timezone.html:12
+msgid "Change system timezone."
+msgstr "更改系统时区。"
+
+#: templates/system/timezone.html:16
+msgid "Current timezone:"
+msgstr "当前时区："
+
+#: templates/system/timezone.html:31
+msgid "Change system timezone:"
+msgstr "更改系统时区："
+
+#: templates/system/timezone.html:44
+msgid "Can't find your timezone?"
+msgstr "找不到您的时区？"
+
+#: templates/system/timezone.html:44
+msgid "List of tz database time zones"
+msgstr "tz数据库时区列表"
+
+#: templates/system/waf.html:9
+msgid ""
+"Enable or disable OWASP Coraza Web Application Firewall protection for "
+"domains."
+msgstr ""
+
+#: templates/system/terminal/landing.html:14
+msgid ""
+"Open a web terminal for yourself or create a temporary account with a "
+"one-time login to share with a third party."
+msgstr ""
+
+#: templates/system/terminal/landing.html:17
+msgid "Access Web Terminal"
+msgstr "访问网络终端"
+
+#: templates/system/terminal/landing.html:23
+msgid "Temporary Share Access"
+msgstr "临时共享访问"
+
+#: templates/system/terminal/running.html:14
+msgid ""
+"Created a temporary account with a one-time login to share with a third "
+"party."
+msgstr ""
+
+#: templates/system/terminal/running.html:172
+msgid "Session already running."
+msgstr "会话已在进行中。"
+
+#: templates/system/terminal/running.html:181
+msgid "Terminal Session is Already Running"
+msgstr "终端会话已运行。"
+
+#: templates/system/terminal/running.html:183
+msgid ""
+"Currently only one active web terminal session is supported. You need to "
+"either wait for the existing user to exit their web terminal session or "
+"terminate their session by killing the 'ttyd' process"
+msgstr ""
+
+#: templates/system/terminal/running.html:186
+msgid "Open Process Manager"
+msgstr "开放流程管理器"
+
+#: templates/user/account.html:14
+msgid ""
+"Update email address to receive notifications or change the password for "
+"logging into your account, ensuring secure and up-to-date access."
+msgstr ""
+
+#: templates/user/account.html:70
+msgid ""
+"Username must be between 3 and 20 characters, and only contain letters "
+"and numbers (no spaces, hyphens, or underscores)."
+msgstr ""
+
+#: templates/user/account.html:117
+msgid "Update"
+msgstr "更新"
+
+#: templates/user/active_sessions.html:13
+msgid "View all currently active sessions for your account."
+msgstr "查看您账户当前所有活动会话。"
+
+#: templates/user/active_sessions.html:56
+msgid "Created On"
+msgstr "创建于"
+
+#: templates/user/active_sessions.html:75 templates/user/loginlog.html:78
+msgid "View activity log for IP "
+msgstr "查看IP的活动记录"
+
+#: templates/user/active_sessions.html:75
+msgid "View activity logs"
+msgstr "查看活动记录"
+
+#: templates/user/active_sessions.html:85
+msgid "Terminate"
+msgstr "终止"
+
+#: templates/user/activity.html:16
+msgid "Activity Log"
+msgstr "活动记录"
+
+#: templates/user/activity.html:18
+msgid "View recent user activity and system events."
+msgstr "查看最近的用户活动和系统事件。"
+
+#: templates/user/activity.html:48 templates/user/loginlog.html:51
+msgid "Action"
+msgstr "行动"
+
+#: templates/user/favorites.html:14
+msgid ""
+"Add a page to favorites by left-clicking the star in the top-right corner"
+" of any page and remove it either from this page or by right-clicking the"
+" same star."
+msgstr ""
+
+#: templates/user/favorites.html:53
+msgid "Title"
+msgstr "标题"
+
+#: templates/user/favorites.html:54
+msgid "Link"
+msgstr "链接"
+
+#: templates/user/favorites.html:112
+msgid "Favorites are not enabled by the Administrator."
+msgstr "管理员未启用收藏功能。"
+
+#: templates/user/favorites.html:113
+msgid ""
+"The Favorites feature is currently disabled by the administrator; please "
+"contact your administrator to enable it."
+msgstr ""
+
+#: templates/user/history_usage.html:20 templates/user/history_usage.html:56
+msgid "Historical CPU and Memory Usage"
+msgstr "历史CPU和内存使用情况"
+
+#: templates/user/history_usage.html:22
+msgid "View past CPU and Memory usage."
+msgstr "查看历史CPU和内存使用情况。"
+
+#: templates/user/history_usage.html:76
+msgid "History CPU Usage"
+msgstr "历史CPU使用率"
+
+#: templates/user/history_usage.html:89
+msgid "History Memory Usage"
+msgstr "历史内存使用情况"
+
+#: templates/user/history_usage.html:127
+msgid "Show all data"
+msgstr "显示所有数据"
+
+#: templates/user/history_usage.html:151
+msgid "CPU &#37;"
+msgstr "CPU &#37;"
+
+#: templates/user/history_usage.html:153
+msgid "Memory &#37;"
+msgstr "记忆百分比"
+
+#: templates/user/history_usage.html:154
+msgid "Net I/O"
+msgstr "网络I/O"
+
+#: templates/user/history_usage.html:155 templates/user/stats.html:129
+msgid "Block I/O"
+msgstr "块I/O"
+
+#: templates/user/history_usage.html:180
+msgid "First"
+msgstr "首先"
+
+#: templates/user/history_usage.html:217
+msgid "Last"
+msgstr "最后"
+
+#: templates/user/locale.html:13
+msgid "Change locale for your account."
+msgstr "更改您的账户地区设置。"
+
+#: templates/user/locale.html:33
+msgid "Choose Language"
+msgstr "选择语言"
+
+#: templates/user/login.html:68
+msgid "Sign in to your account"
+msgstr "登录您的账户"
+
+#: templates/user/login.html:78
+msgid "Enter your panel username"
+msgstr "请输入您的面板用户名"
+
+#: templates/user/login.html:81
+msgid "Forgot password?"
+msgstr "忘记密码？"
+
+#: templates/user/login.html:90
+msgid "Two-Factor Authentication Code"
+msgstr "双因素身份验证码"
+
+#: templates/user/login.html:95
+msgid "Sign In"
+msgstr "登录"
+
+#: templates/user/loginlog.html:12
+msgid "Overview of successful logins on your account."
+msgstr "您的账户成功登录概览。"
+
+#: templates/user/loginlog.html:49
+msgid "Country and IP address"
+msgstr "国家和IP地址"
+
+#: templates/user/loginlog.html:50
+msgid "Login Time"
+msgstr "登录时间"
+
+#: templates/user/loginlog.html:66
+msgid "Click to copy IP"
+msgstr "点击复制IP"
+
+#: templates/user/notifications.html:12
+msgid "Select events for which to receive email notifications."
+msgstr "选择您希望接收电子邮件通知的活动。"
+
+#: templates/user/notifications.html:27
+msgid "Receive email notifications for"
+msgstr "接收电子邮件通知"
+
+#: templates/user/notifications.html:46
+msgid "Save Preferences"
+msgstr "保存偏好设置"
+
+#: templates/user/restart.html:13
+msgid "Reset Account"
+msgstr "重置账户"
+
+#: templates/user/restart.html:14
+msgid "Restart container and cleanup data."
+msgstr "重启容器并清理数据。"
+
+#: templates/user/restart.html:48
+msgid "Password is needed to proceed:"
+msgstr "密码是继续所需的："
+
+#: templates/user/stats.html:22
+msgid "View current resource usage for all websites and services."
+msgstr "查看所有网站和服务的当前资源使用情况。"
+
+#: templates/user/stats.html:30
+msgid "View Usage History"
+msgstr "查看使用记录"
+
+#: templates/user/stats.html:55
+msgid "Current CPU usage:"
+msgstr "当前CPU使用率："
+
+#: templates/user/stats.html:64 templates/user/stats.html:95
+msgid "View top processes"
+msgstr "查看顶级进程"
+
+#: templates/user/stats.html:67
+msgid "Top processes by current CPU usage"
+msgstr "当前CPU使用率最高的进程"
+
+#: templates/user/stats.html:81
+msgid "RAM"
+msgstr "内存"
+
+#: templates/user/stats.html:87
+msgid "Current Memory usage:"
+msgstr "当前内存使用情况："
+
+#: templates/user/stats.html:98
+msgid "Top processes by current memory usage"
+msgstr "当前内存使用量最高的进程"
+
+#: templates/user/stats.html:127
+msgid "Network I/O"
+msgstr "网络I/O"
+
+#: templates/user/stats.html:132
+msgid "PIDs"
+msgstr "进程ID"
+
+#: templates/user/stats.html:173
+msgid "Displaying real-time information"
+msgstr "实时信息显示"
+
+#: templates/user/stats.html:175
+msgid "Last refreshed at"
+msgstr "最后更新于"
+
+#: templates/user/twofa_settings.html:13
+msgid "2FA is currently"
+msgstr "双因素认证目前是"
+
+#: templates/user/twofa_settings.html:15
+msgid "enabled"
+msgstr "已启用"
+
+#: templates/user/twofa_settings.html:17
+msgid "disabled"
+msgstr "残疾"
+
+#: templates/user/twofa_settings.html:19
+msgid "for your account."
+msgstr "为您的账户。"
+
+#: templates/user/twofa_settings.html:29
+msgid "Click to Cancel"
+msgstr "点击取消"
+
+#: templates/user/twofa_settings.html:35
+msgid "Click to enable 2FA"
+msgstr "点击启用双重验证"
+
+#: templates/user/twofa_settings.html:57
+msgid "Step 1. Scan QR Code"
+msgstr "步骤1. 扫描二维码"
+
+#: templates/user/twofa_settings.html:60
+msgid "Step 2. Remove OTP code"
+msgstr "步骤2. 移除OTP验证码"
+
+#: templates/user/twofa_settings.html:72
+msgid ""
+"Scan the QR code with your 2FA device or click on the button bellow to "
+"display OTP code instead."
+msgstr ""
+
+#: templates/user/twofa_settings.html:87
+msgid "Click here to display OTP code"
+msgstr "点击此处显示OTP验证码"
+
+#: templates/user/twofa_settings.html:125
+msgid ""
+"I confirm that the OTP code is configured in my application and confirm "
+"to permanently delete the OTP secret."
+msgstr ""
+
+#: templates/user/twofa_settings.html:148
+msgid ""
+"To enable 2FA for your account you will need an application that manages "
+"2FA codes, such as"
+msgstr ""
+
+#: templates/user/twofa_settings.html:148
+msgid "Google Authenticator"
+msgstr "Google验证器"
+
+#: templates/user/twofa_settings.html:148
+msgid "You can install it here:"
+msgstr "您可以在这里安装它："
+

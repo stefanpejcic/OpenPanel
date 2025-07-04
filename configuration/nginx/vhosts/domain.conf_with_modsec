@@ -7,8 +7,30 @@ server {
     access_log /var/log/nginx/domlogs/<DOMAIN_NAME>.log;
     include /etc/openpanel/openpanel/core/users/<USERNAME>/domains/<DOMAIN_NAME>-block_ips.conf;
 
+    # custom templates
+    set $suspended_user 0;
+    set $suspended_website 0;
+
+    location /suspended_website.html {
+        root /etc/openpanel/nginx/;
+        internal;
+    }
+
+    location /suspended_user.html {
+        root /etc/openpanel/nginx/;
+        internal;
+    }
+
+
     # container
     location / {
+        if ($suspended_user) {
+            rewrite ^ /suspended_user.html last;
+        }
+        if ($suspended_website) {
+            rewrite ^ /suspended_website.html last;
+        }
+
         if ($scheme = "https") {
             proxy_pass https://<IP>;
         }

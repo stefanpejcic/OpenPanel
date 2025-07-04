@@ -1,0 +1,418 @@
+[
+  {
+    "name": "notifications",
+    "title": "Email Notifications",
+    "description": "If enabled, users can configure notification preferences from their account and they will receive emails.",
+    "link": "/account/notifications",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "account",
+    "title": "Settings (Email & Password Change)",
+    "description": "If enabled, users can change username, password and email address for the account in their user panel.",
+    "link": "/account/settings",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "sessions",
+    "title": "Active Sessions",
+    "description": "If enabled, users can view all active sessions for their account, in their user panel.",
+    "link": "/account/sessions",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "locale",
+    "title": "Locales (Language Change)",
+    "description": "If enabled, users can switch languages in their user panel.",
+    "link": "/account/languages",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "favorites",
+    "title": "Favorites (Bookmarks)",
+    "description": "If enabled, users can add panel pages to favorites and manage them from their account.",
+    "link": "/account/favorites",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "varnish",
+    "title": "Varnish Caching",
+    "description": "If enabled, users can use Vanrish Caching and enable/disable cache per domain.",
+    "link": "/cache/varnish",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "docker",
+    "title": "Docker (Containers)",
+    "description": "If enabled, users can allocate resources to their containers and start/stop them when needed.",
+    "link": "/containers",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "ftp",
+    "title": "FTP accounts",
+    "description": "If enabled, users can create and manage FTP accounts. The FTP server must be configured separately.",
+    "link": "/ftp",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "emails",
+    "title": "Email accounts",
+    "description": "If enabled, users can create and manage email accounts. The Mail server must be configured separately.",
+    "link": "/emails",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "mysql",
+    "title": "MySQL",
+    "description": "If enabled, users can manage MySql databases and users.",
+    "link": "/mysql",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "remote_mysql",
+    "title": "Remote MySQL",
+    "description": "If enabled, users can enable/disable remote access to MySQL databases.",
+    "link": "/mysql/remote-mysql",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "mysql_import",
+    "title": "Import MySQL Databases",
+    "description": "If enabled, users can import .sql files into MySQL databases from their user panel.",
+    "link": "/mysql/import",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "mysql_conf",
+    "title": "MySQL Configuration",
+    "description": "If enabled, users can edit MySQL Configuration from their user panel.",
+    "link": "/mysql/configuration",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "postgresql",
+    "title": "PostgreSQL",
+    "description": "If enabled, users can manage PostgreSQL databases and users.",
+    "link": "/postgresql",
+    "type": "beta",
+    "help_link": ""
+  },
+  {
+    "name": "remote_postgresql",
+    "title": "Remote PostgreSQL",
+    "description": "If enabled, users can enable/disable remote access to PostgreSQL databases.",
+    "link": "/postgresql/remote-postgresql",
+    "type": "beta",
+    "help_link": ""
+  },
+  {
+    "name": "postgresql_import",
+    "title": "Import PostgreSQL Databases",
+    "description": "If enabled, users can import .sql files into PostgreSQL databases from their user panel.",
+    "link": "/postgresql/import",
+    "type": "beta",
+    "help_link": ""
+  },
+  {
+    "name": "postgresql_conf",
+    "title": "PostgreSQL Configuration",
+    "description": "If enabled, users can edit PostgreSQL Configuration from their user panel.",
+    "link": "/postgresql/configuration",
+    "type": "beta",
+    "help_link": ""
+  },
+    {
+    "name": "pgamin",
+    "title": "pgAdmin",
+    "description": "If enabled, users can manage pgAmin and use it to connect to their Postgres databases.",
+    "link": "/postgresql/pgamin",
+    "type": "beta",
+    "help_link": ""
+  },
+  {
+    "name": "php",
+    "title": "PHP",
+    "description": "If enabled, users can change PHP version for domains, set limits and set default version for new domains.",
+    "link": "/php",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "php_options",
+    "title": "PHP Options",
+    "description": "If enabled, users can edit configured PHP.INI directives using the Options page.",
+    "link": "/php/options",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "php_ini",
+    "title": "PHP.INI Editor",
+    "description": "If enabled, users can edit directly the PHP.INI file for any PHP version from their OpenPanel.",
+    "link": "/php/ini",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "phpmyadmin",
+    "title": "phpMyAdmin",
+    "description": "If enabled, users can manage phpMyAdmin and use it to connect to their MySQL databases.",
+    "link": "/mysql/phpmyadmin",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "crons",
+    "title": "Cronjobs",
+    "description": "If enabled, users can configure cronjobs.",
+    "link": "/cronjobs",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "backups",
+    "title": "Backups",
+    "description": "If enabled, users can configure backups.",
+    "link": "/backups",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "wordpress",
+    "title": "WordPress",
+    "description": "If enabled, WordPress can be installed using the Autoinstaller and users can use the WP Manager to manage websites.",
+    "link": "/wordpress",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "website_builder",
+    "title": "Website Builder",
+    "description": "If enabled, users can create HTML websites using the GrapeJS drag-drop editor.",
+    "link": "/website-builder",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "pm2",
+    "title": "Applications",
+    "description": "If enabled, containerized NodeJS and Python applications can be setup from the Autoinstaller.",
+    "link": "/pm2",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "autoinstaller",
+    "title": "AutoInstaller",
+    "description": "If enabled, users can use the Auto-Installer page to manage websites and install applications.",
+    "link": "/auto-installer",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "disk_usage",
+    "title": "Disk Usage Explorer",
+    "description": "If enabled, users can access the Disk Usage page to browse current disk usage per directories.",
+    "link": "/disk-usage",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "inodes",
+    "title": "Inodes Explorer",
+    "description": "If enabled, users can access the Inodes Usage page to browse current inodes usage per directories.",
+    "link": "/inodes-explorer",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "usage",
+    "title": "Resources Usage",
+    "description": "If enabled, docker stats are collected for containers and users can browse the data using the Resource Usage page",
+    "link": "/usage",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "info",
+    "title": "Server Info",
+    "description": "If enabled, users can view their hosting plan limits and server information on Server Information page.",
+    "link": "/server/info",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "webserver_conf",
+    "title": "Apache/Nginx Configuration",
+    "description": "If enabled, users can edit the Nginx/Apache configuration for their webserver containers.",
+    "link": "/server/webserver_conf",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "waf",
+    "title": "Coraza WAF",
+    "description": "If enabled, CorazaWAF is automatically enabled for new domains and users can enable/disable the protection per domain.",
+    "link": "/waf",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "filemanager",
+    "title": "File Manager",
+    "description": "If enabled, users have access to the File Manager interface to manage website files (/var/www/html/ directory). Disable this feature for  'Email-only' or 'DNS-only' plans.",
+    "link": "/files",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "fix_permissions",
+    "title": "Fix Permissions",
+    "description": "If enabled, users have access to the Fix Permisisons tool to change owner and permissions for website files.",
+    "link": "/fix-permissions",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "dns",
+    "title": "DNS",
+    "description": "If enabled, BIND9 server is run locally and DNS zone is created for new domains. Users can manage the records via Zone Editor interface.",
+    "link": "/dns",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "redirects",
+    "title": "Domain Redirects",
+    "description": "If enabled, users can create and manage redirects for their domains.",
+    "link": "/domains/redirects",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "domains",
+    "title": "Domains",
+    "description": "If enabled, users can add and manage domains. Disable this feature for  'Email-only' or 'DB-only' plans.",
+    "link": "/domains",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "capitalize_domains",
+    "title": "Capitalize Domains",
+    "description": "If enabled, users can capitalize letters in their domains.",
+    "link": "/domains/capitalize",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "malware_scan",
+    "title": "Malware Scanner",
+    "description": "If enabled, ClamAV is run locally and domain's docroots are automatically scanned for malicious files. Users can exclude directories and view quarantined files.",
+    "link": "/malware-scanner",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "domain_logs",
+    "title": "Domain Logs",
+    "description": "If enabled, userc can view raw webserver access logs for their domains.",
+    "link": "/domains/log",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "goaccess",
+    "title": "GoAccess",
+    "description": "If enabled, GoAccess is run on schedule to generate HTML reports from Caddy domain logs. Users can view the reports from the Domain Logs page.",
+    "link": "/domains/stats",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "process_manager",
+    "title": "Process Manager",
+    "description": "If enabled, users can view/kill process from the Process Manager page.",
+    "link": "/process-manager",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "redis",
+    "title": "Redis",
+    "description": "If enabled, users can configure Redis from their user panel.",
+    "link": "/cache/redis",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "memcached",
+    "title": "Memcached",
+    "description": "If enabled, users can configure Memcached from their user panel.",
+    "link": "/cache/memcached",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "elasticsearch",
+    "title": "Elasticsearch",
+    "description": "If enabled, users can configure Elasticsearch from their user panel.",
+    "link": "/cache/elasticsearch",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "opensearch",
+    "title": "Opensearch",
+    "description": "If enabled, users can configure Opensearch from their user panel.",
+    "link": "/cache/opensearch",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "temporary_links",
+    "title": "Temporary Links",
+    "description": "If enabled, users can test their websites using temporary openpanel.org subdomains. Links expire after 15m.",
+    "link": "/websites",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "login_history",
+    "title": "Login History",
+    "description": "If enabled, users can view last 20 IPs that logged into their account.",
+    "link": "/account/loginlog",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "twofa",
+    "title": "2FA",
+    "description": "If enabled, users enable Two-Factor Authentication (2FA) for their account.",
+    "link": "/account/2fa",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "activity",
+    "title": "Activity Log",
+    "description": "If enabled, users can browse all recorded actions for their account.",
+    "link": "/account/activity",
+    "type": "community",
+    "help_link": ""
+  }
+]

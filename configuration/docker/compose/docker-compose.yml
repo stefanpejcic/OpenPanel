@@ -12,121 +12,146 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - openadmin_mysql:/var/lib/mysql
+      - mysql:/var/lib/mysql
       - /etc/openpanel/:/etc/openpanel/
       - /root/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
-    mem_limit: 0.5g
-    cpus: 1.0
     oom_kill_disable: true
+    networks:
+      - openpanel_network
+    deploy:
+      resources:
+        limits:
+          cpus: "${MYSQL_CPUS:-1.0}"
+          memory: "${MYSQL_RAM:-0.5G}"
+          pids: 200
+
+  # Malware Scanner used from user panel
+  clamav:
+    image: clamav/clamav:${CLAMAV_VERSION}
+    container_name: clamav
+    volumes:
+      - /home:/home
+      - ./clamav-db:/var/lib/clamav
+    restart: unless-stopped
+    network_mode: ${CLAMAV_DB_AUTOUPDATE} # needed to update db daily
+    environment:
+      - CLAMD_STARTUP_DELAY=${CLAMD_STARTUP_DELAY}
+    deploy:
+      resources:
+        limits:
+          cpus: "${CLAMAV_CPUS:-1.0}"
+          memory: "${CLAMAV_RAM:-1.0G}"
+          pids: 200
+
+# used by panel ui to store user sessions and counters
+  openpanel_redis:
+    image: redis:latest
+    container_name: openpanel_redis
+    command: ["redis-server", "--unixsocket", "/tmp/redis/redis.sock", "--unixsocketperm", "770"]
+    volumes:
+      - ${REDIS_SOCKET}:/tmp/redis
+    restart: always
+    networks:
+      - openpanel_network
+    deploy:
+      resources:
+        limits:
+          cpus: "${REDIS_CPUS:-0.5}"
+          memory: "${REDIS_RAM:-0.5G}"
+          pids: 100
 
   # OpenPanel service running on port 2083
   openpanel:
-    image: openpanel/openpanel
+    image: openpanel/openpanel-ui:${VERSION}
     container_name: openpanel
     depends_on:
       - openpanel_mysql
+      - openpanel_redis
+      #- clamav
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
+    ports:
+      - "${PORT}:2083/tcp"
     volumes:
-      - /etc/nginx/sites-available/:/etc/nginx/sites-available/
-      - /etc/nginx/sites-enabled/:/etc/nginx/sites-enabled/
       - /etc/bind:/etc/bind
       - /lib/modules:/lib/modules:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /:/hostfs:ro
+      - /:/hostfs #:ro off for ssh pass change!
       - /home:/home
       - /usr/local/admin:/usr/local/admin
-      - /usr/local/admin/scripts:/usr/local/admin/scripts
+      - /usr/local/bin/opencli:/usr/local/bin/opencli
+      - /usr/local/opencli:/usr/local/opencli
       - /var/log:/var/log
-      - /etc/ufw:/etc/ufw
-      - /etc/letsencrypt:/etc/letsencrypt
-      - /etc/my.cnf:/etc/my.cnf
+      - /var/lib/csf/:/var/lib/csf/
+      - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf
       - /etc/openpanel/:/etc/openpanel/
       - /var/run/docker.sock:/var/run/docker.sock
-      - openadmin_mysql:/var/lib/mysql
+      - mysql:/var/lib/mysql
       - /usr/bin/docker:/usr/bin/docker
       - /root/:/root/
+      - ${REDIS_SOCKET}:/tmp/redis/
       #  https://dev.openpanel.com/customize.html#Custom-Code
-      - /etc/openpanel/openpanel/custom_code/:/usr/local/panel/templates/custom_code/
-      - /etc/openpanel/openpanel/custom_code/custom.css:/usr/local/panel/static/css/custom.css
-      - /etc/openpanel/openpanel/custom_code/custom.js:/usr/local/panel/static/js/custom.js
+      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/
+      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css
+      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js
       - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
-    network_mode: host
-    mem_limit: 1g
-    cpus: 1.0
+      # localization
+      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/
+      # emails
+      - /usr/local/mail/openmail/:/usr/local/mail/openmail/
+      # time
+      - /etc/localtime:/etc/localtime:ro      
     restart: always
     privileged: true
+    networks:
+      - openpanel_network
+    deploy:
+      resources:
+        limits:
+          pids: 300
 
-  # Webserver from 0.2.5+
-  nginx:
-    image: openpanel/waf # openpanel/waf for modsecurity or nginx:alpine
-    container_name: nginx
-    network_mode: "host"
+  # Webserver from 1.0.0
+  caddy:
+    image: ${CADDY_IMAGE}
+    container_name: caddy
+    cap_add:
+      - NET_ADMIN
     volumes:
-        - /etc/openpanel/nginx/nginx.conf:/usr/local/nginx/conf/nginx.conf                  # for modsecurity
-        # - /etc/openpanel/nginx/nginx.conf:/etc/nginx/nginx.conf                           # for standalone nginx
-        - /etc/openpanel/nginx/vhosts/default.conf:/etc/nginx/conf.d/default.conf 
-        - /etc/openpanel/nginx/vhosts/openpanel_proxy.conf:/etc/openpanel/nginx/vhosts/openpanel_proxy.conf
-        - /etc/nginx/sites-available/:/etc/nginx/sites-available/
-        - /etc/nginx/sites-enabled/:/etc/nginx/sites-enabled/
-        - /etc/nginx/ssl/:/etc/nginx/ssl/ # for custom ssl from 0.2.6
-        - /etc/openpanel/nginx/error_pages/snippets/:/usr/local/nginx/conf/snippets/
-        - /etc/openpanel/nginx/error_pages/:/srv/http/default/
-        - /var/log/nginx/:/var/log/nginx/
-        - /etc/letsencrypt/options-ssl-nginx.conf:/etc/letsencrypt/options-ssl-nginx.conf
-        - /etc/letsencrypt/ssl-dhparams.pem:/etc/letsencrypt/ssl-dhparams.pem
-        - /etc/letsencrypt/:/etc/letsencrypt/
-        - /etc/openpanel/openpanel/core/users/:/etc/openpanel/openpanel/core/users/
-        - /etc/hosts:/etc/hosts
-        - /usr/share/nginx/html/:/usr/share/nginx/html/
-        - /home/:/home/:ro
-        # start modsecurity #
-        - /etc/openpanel/nginx/modsecurity/modsec_includes.conf:/usr/local/nginx/conf/modsec_includes.conf
-        - /etc/openpanel/nginx/modsecurity/modsecurity.conf:/usr/local/nginx/conf/modsecurity.conf
-        - /etc/openpanel/nginx/modsecurity/crs-setup.conf:/usr/local/nginx/conf/rules/crs-setup.conf
-        - /etc/openpanel/nginx/modsecurity/rules/:/usr/local/nginx/conf/rules/
-        - /etc/openpanel/nginx/modsecurity/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf:/usr/local/nginx/conf/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
-        - /etc/openpanel/nginx/modsecurity/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf:/usr/local/nginx/conf/rules/REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf
-        #   end modsecurity #
+      - /etc/openpanel/caddy/Caddyfile:/etc/caddy/Caddyfile                           # Caddy config
+      - /etc/openpanel/caddy/ssl:/data/caddy/certificates                             # Custom SSL certificates
+      - /etc/openpanel/caddy/:/etc/openpanel/caddy/                                   # domain files, templates 
+      - /etc/openpanel/caddy/coraza_rules.conf:/etc/openpanel/caddy/coraza_rules.conf # default rules
+      - /var/log/caddy/:/var/log/caddy/
     restart: unless-stopped
-    mem_limit: 1g
-    cpus: 1.0
+    mem_limit: ${CADDY_RAM}
+    cpus: ${CADDY_CPUS}
     oom_kill_disable: true
-    
-  # SSL status and renewals
-  certbot:
-    image: certbot/certbot:latest
-    container_name: certbot
-    network_mode: "host"
-    volumes:
-      - /etc/letsencrypt:/etc/letsencrypt                     # Let's Encrypt certificates
-      - /var/lib/letsencrypt:/var/lib/letsencrypt             # Working directory for Certbot
-      - /etc/nginx/sites-available:/etc/nginx/sites-available # Access to Nginx config for authentication challenges
-      - /etc/nginx/sites-enabled:/etc/nginx/sites-enabled     # Enabled sites for reloading after cert issuance
-    entrypoint: /bin/sh -c 'trap exit TERM; while :; do sleep 6h & wait $${!}; certbot renew; nginx -s reload; done'
-    restart: unless-stopped
-    mem_limit: 0.1g
-    cpus: 0.1
-    oom_kill_disable: true
+    network_mode: host
 
   # DNS
   bind9:
     container_name: openpanel_dns
-    image: ubuntu/bind9:latest
+    image: ubuntu/bind9:${BIND9_VERSION}
     environment:
       - BIND9_USER=root
-      - TZ=America/New_York
+      - TZ=${BIND_TIMEZONE}
     ports:
       - "53:53/tcp"
       - "53:53/udp"
     volumes:
       - /etc/bind/:/etc/bind/
     restart: unless-stopped
-    mem_limit: 0.1g
-    cpus: 0.1
     oom_kill_disable: true
+    networks:
+      - openpanel_network
+    deploy:
+      resources:
+        limits:
+          cpus: "${BIND9_CPUS:-0.5}"
+          memory: "${BIND9_RAM:-0.5G}"
+          pids: 100
 
   # FTP
   ftp_env_generator:
@@ -136,38 +161,53 @@ services:
       - /etc/openpanel/ftp/:/etc/openpanel/ftp/
       - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users
     entrypoint: /bin/sh -c "/usr/local/admin/scripts/ftp/users"
-    restart: "no"  # Do not restart, we just want it to run once
+    restart: "no"  # only run once
+    networks:
+      - openpanel_network
+    deploy:
+      resources:
+        limits:
+          pids: 10
 
   openadmin_ftp:
-    #OLD# image: delfer/alpine-ftp-server
     build:
       context: /etc/openpanel/ftp/    
     container_name: openadmin_ftp
     restart: always
     ports:
       - "21:21"
-      - "21000-21010:21000-21010"
+      - "${FTP_PORT_RANGE}:21000-21010"
     volumes:
       - /home/:/home/
       - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf
       - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
       - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
       - /etc/openpanel/users/:/etc/openpanel/ftp/users/
-      # uncomment for ssl # - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - ftp_env_generator
     env_file:
       - /etc/openpanel/ftp/all.users
-    # uncomment the following lines for SSL and replace ftp.YOUR_DOMAIN_HERE.com with your domain
-    # environment:
-      # - ADDRESS=ftp.YOUR_DOMAIN_HERE.com
-      # - TLS_CERT="/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/fullchain.pem"
-      # - TLS_KEY="/etc/letsencrypt/live/ftp.YOUR_DOMAIN_HERE.com/privkey.pem"
-    mem_limit: 0.5g
-    cpus: 0.5
-
-
+    networks:
+      - openpanel_network
+    deploy:
+      resources:
+        limits:
+          cpus: "${FTP_CPUS:-0.5}"
+          memory: "${FTP_RAM:-0.5G}"
+          pids: 100
 
 # make the mysql data persistent
 volumes:
-  openadmin_mysql:
+  mysql:
+    labels:
+      description: "This volume holds the openpanel database."
+      purpose: "configuration"
+
+# define custom network
+networks:
+  openpanel_network:
+    driver: bridge
+    labels:
+      description: "This network allows OpenPanel UI to communicate to system containers."
+      purpose: "internal"
+  

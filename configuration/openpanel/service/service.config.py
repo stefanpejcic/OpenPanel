@@ -3,55 +3,101 @@
 # https://docs.gunicorn.org/en/stable/settings.html
 
 import multiprocessing
-from gunicorn.config import Config
-import configparser
 import os
+import re
+import yaml  # pip install pyyaml
 from pathlib import Path
+import subprocess
 
-CONFIG_FILE_PATH = '/etc/openpanel/openpanel/conf/openpanel.config'
+# From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
+# we create a flag file (/root/openadmin_restart_needed) and remind the user via the GUI that a restart 
+# is needed to apply the changes. 
+# Here, on restart, we check and remove that flag to ensure it’s cleared.
+RESTART_FILE_PATH = '/root/openpanel_restart_needed'
 
-def read_config():
-    config = configparser.ConfigParser()
-    if os.path.exists(CONFIG_FILE_PATH):
-        config.read(CONFIG_FILE_PATH)
-    return config
+# Function to check if the file exists and remove it
+def check_and_remove_restart_file():
+    if os.path.exists(RESTART_FILE_PATH):
+        try:
+            os.remove(RESTART_FILE_PATH)
+            print(f"Removed the restart-needed flag for OpenPanel UI.")
+        except Exception as e:
+            print(f"Error removing {RESTART_FILE_PATH}: {e}")
 
-def get_custom_port():
-    config = read_config()
-    return int(config.get('DEFAULT', 'port', fallback=2083))
+# Call the function before starting the Gunicorn server
+check_and_remove_restart_file()
 
-def get_ssl_status():
-    config = read_config()
-    return config.getboolean('DEFAULT', 'ssl', fallback=False)
 
-if get_ssl_status():
+# File paths
+CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
+CADDY_CERT_DIR = "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
+
+def get_domain_from_caddyfile():
+    domain = None
+    in_block = False
+    
+    # Check if the Caddyfile exists first
+    if not os.path.exists(CADDYFILE_PATH):
+        print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
+        return None
+
+    try:
+        with open(CADDYFILE_PATH, "r") as file:
+            for line in file:
+                line = line.strip()
+
+                if "# START HOSTNAME DOMAIN #" in line:
+                    in_block = True
+                    continue
+
+                if "# END HOSTNAME DOMAIN #" in line:
+                    break
+
+                if in_block:
+                    match = re.match(r"^([\w.-]+) \{", line)
+                    if match:
+                        domain = match.group(1)
+                        break
+    except Exception as e:
+        print(f"Error reading Caddyfile: {e}")
+
+    return domain
+
+
+def check_ssl_exists(domain):
+    cert_path = os.path.join(CADDY_CERT_DIR, domain)
+    return os.path.exists(cert_path) and os.listdir(cert_path)
+
+
+DOMAIN = get_domain_from_caddyfile()
+PORT = "2083"
+
+if DOMAIN and check_ssl_exists(DOMAIN):
     import ssl
-    import socket
-    hostname = socket.gethostname()
+    certfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.crt')
+    keyfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.key')
 
-    certfile = f'/etc/letsencrypt/live/{hostname}/fullchain.pem'
-    keyfile = f'/etc/letsencrypt/live/{hostname}/privkey.pem'
-    ssl_version = 'TLS'
-    ca_certs = f'/etc/letsencrypt/live/{hostname}/fullchain.pem'
+    keyfile = keyfile
+    certfile = certfile
+    ssl_version = ssl.PROTOCOL_TLS
     cert_reqs = ssl.CERT_NONE
     ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
 
-bind = ["0.0.0.0:" + str(get_custom_port())]
+bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
 max_workers = 10
 workers = min(calculated_workers, max_workers)
 worker_class = 'gevent'
 worker_connections = 1000
-timeout = 30
-graceful_timeout = 30
+timeout = 10
+graceful_timeout = 10
 keepalive = 2
 max_requests = 1000
 max_requests_jitter = 50
 pidfile = 'openpanel'
-# BUG https://github.com/benoitc/gunicorn/issues/2382
-#errorlog = "-"   # Log to stdout
-#accesslog = "-"
+
 errorlog = "/var/log/openpanel/user/error.log"
 accesslog = "/var/log/openpanel/user/access.log"
 
@@ -73,6 +119,19 @@ def pre_exec(server):
 
 def when_ready(server):
     server.log.info("Server is ready. Spawning workers")
+
+    try:
+        cmd = [
+            "docker", "--context=default", "exec", "openpanel_redis",
+            "bash", "-c",
+            "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL"
+        ]
+        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        server.log.info("Redis cache cleared:\n%s", result.stdout.strip())
+    except subprocess.CalledProcessError as e:
+        server.log.error("Failed to clear Redis cache:\n%s", e.stderr.strip())
+    except Exception as e:
+        server.log.error("Unexpected error clearing Redis cache: %s", str(e))
 
 def worker_int(worker):
     worker.log.info("worker received INT or QUIT signal")

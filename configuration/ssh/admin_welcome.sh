@@ -11,8 +11,12 @@
 # Author: Stefan Pejcic (stefan@pejcic.rs)                                               #
 ##########################################################################################
 
-VERSION=$(cat /usr/local/panel/version)
+[ "$(id -u)" -ne 0 ] && return
+
+VERSION=$(opencli version)
 CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
+CADDY_FILE="/etc/openpanel/caddy/Caddyfile"
+CADDY_CERT_DIR="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
 GITHUB_CONF_REPO="https://github.com/stefanpejcic/openpanel-configuration"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -40,11 +44,6 @@ read_config() {
     ' "$CONFIG_FILE_PATH"
 }
 
-get_ssl_status() {
-    config=$(read_config "DEFAULT")
-    ssl_status=$(echo "$config" | grep -i 'ssl' | cut -d'=' -f2)
-    [[ "$ssl_status" == "yes" ]] && echo true || echo false
-}
 
 get_license() {
     config=$(read_config "LICENSE")
@@ -60,19 +59,9 @@ get_license() {
     echo "$LICENSE"
 }
 
-get_force_domain() {
-    config=$(read_config "DEFAULT")
-    force_domain=$(echo "$config" | grep -i 'force_domain' | cut -d'=' -f2)
-
-    if [ -z "$force_domain" ]; then
-        ip=$(get_public_ip)
-        force_domain="$ip"
-    fi
-    echo "$force_domain"
-}
 
 get_public_ip() {
-    ip=$(curl --silent --max-time 1 -4 https://ip.openpanel.co || wget --timeout=1 -qO- https://ip.openpanel.co || curl --silent --max-time 1 -4 https://ifconfig.me)
+    ip=$(curl --silent --max-time 1 -4 https://ip.openpanel.com || wget --timeout=1 -qO- https://ipv4.openpanel.com || curl --silent --max-time 1 -4 https://ifconfig.me)
     
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
@@ -81,13 +70,30 @@ get_public_ip() {
     echo "$ip"
 }
 
-if [ "$(get_ssl_status)" == true ]; then
-    hostname=$(get_force_domain)
-    admin_url="https://${hostname}:2087/"
-else
-    ip=$(get_public_ip)
-    admin_url="http://${ip}:2087/"
-fi
+
+get_admin_url() {
+    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$CADDY_FILE")
+    domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
+    domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
+    domain=$(echo "$domain" | sed 's|^http[s]*://||')
+        
+    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
+        ip=$(get_public_ip)
+        admin_url="http://${ip}:2087/"
+    else
+        if [ -f "${CADDY_CERT_DIR}/${domain}/${domain}.crt" ] && [ -f "${CADDY_CERT_DIR}/${domain}/${domain}.key" ]; then
+            admin_url="https://${domain}:2087/"
+        else
+            ip=$(get_public_ip)
+            admin_url="http://${ip}:2087/"
+        fi
+    fi
+    
+    echo "$admin_url"    
+}
+
+
+admin_url=$(get_admin_url)
 
 regex="^[0-9]+\.[0-9]+\.[0-9]+$"
 if [[ $VERSION =~ $regex ]]; then
@@ -105,10 +111,16 @@ echo -e  ""
 echo -e  "OPENADMIN LINK: ${GREEN}${admin_url}${RESET}"
 echo -e  ""
 echo -e  "Need assistance or looking to learn more? We've got you covered:"
-echo -e  "        - 📚 Admin Docs: https://openpanel.com/docs/admin/intro/"
-echo -e  "        - 💬 Forums:     https://community.openpanel.org/"
-echo -e  "        - 👉 Discord:    https://discord.openpanel.com/"
+
+# todo: remove color codes form output to match this!
+if [[ "$LICENSE" == "Enterprise" ]]; then
+    echo -e  "        - 📚 Admin Docs: https://openpanel.com/docs/admin/intro/"
+    echo -e  "        - 💬 Ticketing:  https://my.openpanel.com/submitticket.php?step=2&deptid=2"
+else
+    echo -e  "        - 📚 Admin Docs: https://openpanel.com/docs/admin/intro/"
+    echo -e  "        - 💬 Forums:     https://community.openpanel.org/"
+    echo -e  "        - 👉 Discord:    https://discord.openpanel.org/"
+fi
+
 echo -e  ""
 echo -e  "================================================================"
-
-timeout 1 docker cp openpanel:/usr/local/panel/version /usr/local/panel/version > /dev/null 2>&1 #1 sec max

@@ -10,6 +10,9 @@ options {
         recursion yes;
         allow-recursion { trusted; };
 
+        // allow-transfer { };
+        // also-notify { };
+
         forwarders {
         8.8.8.8;
         8.8.4.4;

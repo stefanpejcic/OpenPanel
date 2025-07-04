@@ -6,32 +6,91 @@ import multiprocessing
 from gunicorn.config import Config
 import configparser
 import os
+import re
 from pathlib import Path
 
-CONFIG_FILE_PATH = '/etc/openpanel/openpanel/conf/openpanel.config'
 
-def read_config():
-    config = configparser.ConfigParser()
-    if os.path.exists(CONFIG_FILE_PATH):
-        config.read(CONFIG_FILE_PATH)
-    return config
+# From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
+# we create a flag file (/root/openadmin_restart_needed) and remind the user via the GUI that a restart 
+# is needed to apply the changes. 
+# Here, on restart, we check and remove that flag to ensure it’s cleared.
+RESTART_FILE_PATH = '/root/openadmin_restart_needed'
 
-def get_ssl_status():
-    config = read_config()
-    return config.getboolean('DEFAULT', 'ssl', fallback=False)
+# From version 1.2.8, we have an option for admin to ompletelly disable admin panel, if done so,
+# we create a flag file (/root/openadmin_is_disabled) and exit 
+# Here, on startup, we check if that file exists.
+DISABLE_FILE_PATH = '/root/openadmin_is_disabled'
 
-if get_ssl_status():
+# Function to check if the file exists and remove it
+def check_and_remove_restart_file():
+    if os.path.exists(RESTART_FILE_PATH):
+        try:
+            os.remove(RESTART_FILE_PATH)
+            print(f"Removed the restart-needed flag for OpenAdmin panel.")
+        except Exception as e:
+            print(f"Error removing {RESTART_FILE_PATH}: {e}")
+
+# Call the function before starting the Gunicorn server
+check_and_remove_restart_file()
+
+if os.path.exists(DISABLE_FILE_PATH):
+    print(f"OpenAdmin is disabled! enable it from terminal with 'opencli admin on' or by removing the flag file: {DISABLE_FILE_PATH}")
+    sys.exit(1)
+
+# File paths
+CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
+CADDY_CERT_DIR = "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
+
+
+def get_domain_from_caddyfile():
+    domain = None
+    in_block = False
+    
+    # Check if the Caddyfile exists first
+    if not os.path.exists(CADDYFILE_PATH):
+        print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
+        return None
+
+    try:
+        with open(CADDYFILE_PATH, "r") as file:
+            for line in file:
+                line = line.strip()
+
+                if "# START HOSTNAME DOMAIN #" in line:
+                    in_block = True
+                    continue
+
+                if "# END HOSTNAME DOMAIN #" in line:
+                    break
+
+                if in_block:
+                    match = re.match(r"^([\w.-]+) \{", line)
+                    if match:
+                        domain = match.group(1)
+                        break
+    except Exception as e:
+        print(f"Error reading Caddyfile: {e}")
+
+    return domain
+
+
+def check_ssl_exists(domain):
+    cert_path = os.path.join(CADDY_CERT_DIR, domain)
+    return os.path.exists(cert_path) and os.listdir(cert_path)
+
+
+
+DOMAIN = get_domain_from_caddyfile()
+
+if DOMAIN and check_ssl_exists(DOMAIN):
     import ssl
-    import socket
-    hostname = socket.gethostname()
-
-    certfile = f'/etc/letsencrypt/live/{hostname}/fullchain.pem'
-    keyfile = f'/etc/letsencrypt/live/{hostname}/privkey.pem'
-    ssl_version = 'TLS'
-    ca_certs = f'/etc/letsencrypt/live/{hostname}/fullchain.pem'
+    certfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.crt')
+    keyfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.key')    
+    #ssl_version = 'TLS'
+    #ca_certs = f'/etc/letsencrypt/live/{hostname}/fullchain.pem'
     cert_reqs = ssl.CERT_NONE
     ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
-
 
 bind = ["0.0.0.0:2087"]
 backlog = 2048
