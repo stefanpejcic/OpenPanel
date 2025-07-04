@@ -3,13 +3,15 @@
 ### Upcoming version
 | Version| Release date |
 |---|---|
-| __[1.4.9](/docs/changelog/1.4.9)__| July 31, 2025 |
+| __[1.4.8](/docs/changelog/1.4.8)__| July 18, 2025 |
 ### Latest
 
 | Version| Release date | 
 |---|---|
 |__[1.4.6](/docs/changelog/1.4.6)__| July 10, 2025 |
 
+| Version| Release date |
+|---|---|
 | Version| Release date |
 |---|---|
 ### Previous versions
