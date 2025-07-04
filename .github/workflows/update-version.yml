@@ -2,7 +2,7 @@ name: Update Panel Version Daily
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # daily at 02:00 UTC
+    - cron: '0 1 * * *'   # daily at 01:00 UTC
   workflow_dispatch:
 
 jobs:
