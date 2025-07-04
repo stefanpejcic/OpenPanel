@@ -88,22 +88,23 @@ jobs:
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-translations translations-tmp
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-configuration configuration-tmp
           git clone --depth=1 https://github.com/stefanpejcic/opencli opencli-tmp
+          
           git clone --depth=1 https://github.com/stefanpejcic/cPanel-to-OpenPanel cpanel-tmp
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-whmcs-module whmcs-tmp
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-paymenter.org paymenter-tmp
           git clone --depth=1 https://github.com/stefanpejcic/FOSSBilling-OpenPanel fossbilling-tmp
-          
 
           # Move contents only (not the .git folder)
           mv translations-tmp translations
           mv configuration-tmp configuration
           mv opencli-tmp opencli
+          
           mv cpanel-tmp integrations/cpanel-import
           mv whmcs-tmp integrations/whmcs
           mv paymenter-tmp integrations/paymenter.org
           mv fossbilling-tmp integrations/fossbilling
 
-          rm -rf translations/.git configuration/.git opencli/.git integrations/cpanel-import/.git integrations/whmcs/.git integrations/paymenter.org/.git integrations/fossbilling/.git
+          rm -rf translations/.git configuration/.git configuration/.github opencli/.git opencli/.github  integrations/cpanel-import/.git integrations/whmcs/.git integrations/paymenter.org/.git integrations/fossbilling/.git
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
