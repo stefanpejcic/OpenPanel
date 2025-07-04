@@ -1,0 +1,110 @@
+name: Update Changelog on Issue Close
+
+on:
+  issues:
+    types: [closed]
+
+jobs:
+  update-changelog:
+    if: github.event.issue.milestone != null && github.event.issue.state == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check if issue has completed label
+        id: check_completed_label
+        run: |
+          labels=("${{ toJSON(github.event.issue.labels) }}")
+          # Use jq to check labels names
+          has_completed=$(echo "${labels}" | jq -r '.[] | select(.name == "completed") | .name' || echo "")
+          if [[ "$has_completed" == "completed" ]]; then
+            echo "completed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "completed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Stop if issue not completed
+        if: steps.check_completed_label.outputs.completed != 'true'
+        run: |
+          echo "Issue is closed but not marked as completed. Skipping."
+          exit 0
+
+      - name: Check milestone status
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          MILESTONE_TITLE="${{ github.event.issue.milestone.title }}"
+          MILESTONE_URL="${{ github.event.issue.milestone.url }}"
+
+          # Check if milestone is still open
+          STATUS=$(curl -s -H "Authorization: token $GH_TOKEN" "$MILESTONE_URL" | jq -r .state)
+          echo "Milestone status: $STATUS"
+          if [[ "$STATUS" != "open" ]]; then
+            echo "Milestone is closed. Skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "version=$MILESTONE_TITLE" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Append closed issue to changelog
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          FILE="website/docs/changelog/${VERSION}.md"
+
+          if [[ ! -f "$FILE" ]]; then
+            echo "Changelog file not found: $FILE"
+            exit 1
+          fi
+
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          ISSUE_URL=${{ github.event.issue.html_url }}
+
+          ENTRY="- [${ISSUE_TITLE} #${ISSUE_NUMBER}](${ISSUE_URL})"
+
+          # Insert under '### 🐛 Bug Fixes'
+          TMP_FILE="${FILE}.tmp"
+          awk -v entry="$ENTRY" '
+            BEGIN { inserted=0 }
+            /^### 🐛 Bug Fixes/ {
+              print; getline;
+              if ($0 ~ /^-/ || $0 ~ /^\s*$/) {
+                print entry;
+                inserted=1;
+              }
+              print;
+              next
+            }
+            /^### / && !inserted && $0 != "### 🐛 Bug Fixes" {
+              if (!inserted && prev == "Not yet released.") {
+                print "### 🐛 Bug Fixes"
+                print entry
+                inserted=1
+              }
+            }
+            { print; prev=$0 }
+            END {
+              if (!inserted) {
+                print "### 🐛 Bug Fixes"
+                print entry
+              }
+            }
+          ' "$FILE" > "$TMP_FILE"
+
+          mv "$TMP_FILE" "$FILE"
+
+      - name: Commit and push changelog update
+        if: steps.check.outputs.skip == 'false'
+        env:
+          TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          VERSION="${{ steps.check.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add "website/docs/changelog/$VERSION.md"
+          git commit -m "chore: update changelog $VERSION for issue #${{ github.event.issue.number }}" || exit 0
+          git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
