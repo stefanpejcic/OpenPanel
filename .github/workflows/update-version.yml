@@ -46,7 +46,10 @@ jobs:
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
+          echo "PANEL_VERSION: $PANEL_VERSION"
+          ls -l install.sh
           sed -i -E 's/(PANEL_VERSION=")[^"]+(" # fallback if hub.docker.com unreachable)/\1'"$PANEL_VERSION"'\2/' install.sh
+          git diff install.sh || true
 
       - name: Commit and push changes if any
         env:
