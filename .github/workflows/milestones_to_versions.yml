@@ -85,11 +85,6 @@ jobs:
           md += "\n" + block("Upcoming version", upcoming_rows)
           md += "\n" + block("Latest", [latest_row] if latest_row else [])
           md += "\n" + block("Previous versions", previous_rows)
-          md += '''
-:::info
-If version is not in the list, it means that update was done for technical reasons and does not contain any critical changes.
-:::
-'''
 
           with open("website/docs/changelog/intro.md", "w") as f:
               f.write(md.strip() + "\n")
