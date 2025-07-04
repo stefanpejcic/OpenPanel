@@ -12,6 +12,10 @@ def fmt_date(dt):
         return ''
     return dt.strftime('%B %d, %Y')
 
+# Convert offset-aware datetime to naive
+def to_naive(dt):
+    return dt.replace(tzinfo=None) if dt else None
+
 milestones = list(repo.get_milestones(state="all"))
 
 def parse_version(title):
@@ -26,16 +30,15 @@ def valid_version(title):
 open_milestones = [m for m in milestones if m.state == 'open' and valid_version(m.title)]
 closed_milestones = [m for m in milestones if m.state == 'closed' and valid_version(m.title)]
 
-# Safe version for sorting, to avoid TypeError when subtracting strings
-def sort_version(m):
-    version = parse_version(m.title)
-    return (m.due_on or datetime.max, version)
-
-open_milestones = sorted(open_milestones, key=sort_version)
+# Safe version for sorting with naive datetime
+open_milestones = sorted(
+    open_milestones,
+    key=lambda m: (to_naive(m.due_on) or datetime.max, parse_version(m.title))
+)
 
 closed_milestones = sorted(
     closed_milestones,
-    key=lambda m: ((m.due_on or datetime.min), parse_version(m.title)),
+    key=lambda m: (to_naive(m.due_on) or datetime.min, parse_version(m.title)),
     reverse=True
 )
 
