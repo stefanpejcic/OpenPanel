@@ -4,9 +4,6 @@ sidebar_position: 4
 
 # Disk Usage
 
-![disk_usage.png](/img/panel/v2/disk_usage-1efbc5d2ebaeba60e4d2e1d8d903a36a.png)
-
-## Introduction to Disk Usage
 
 Disk usage refers to the amount of space occupied by the content of your websites, including databases, files, videos, images, emails, and web pages. Monitoring disk usage is crucial to ensure efficient resource management and to prevent storage-related issues.
 
