@@ -1,4 +1,4 @@
 Not yet released.
 
-### 🐛 Bug fixes
+### 🐛 Bug Fixes
 - 
