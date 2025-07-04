@@ -4,133 +4,92 @@ sidebar_position: 1
 
 # Domains
 
-To create a website, it's necessary to first [add a domain name](/docs/panel/domains/#adding-domains).
+To create a website, the first step is to [add a domain name](/docs/panel/domains/#create-a-new-domain).
 
-![domains.png](/img/panel/v1/domains/domains.png)
+If the **Domains** module is enabled on the server and your user account has access to it, you'll see a table listing all current domains, the total number of domains, a search bar, and an option to add a new domain.
+
+From this interface, you can view:
+
+* **Domain Status**: Active or Suspended
+* **Document Root** (folder where website files will be stored)
+* **SSL Settings**: Automatic or Custom
+* **Domain Management Options**: Based on enabled features
 
 ## Available Actions
 
-Through the Domains interface, you have the ability to perform various domain-related actions, including:
+Depending on the features enabled on your server, the following actions are available per domain:
 
-- **Add a Domain Name**: add a new domain name, either a subdomain or top-level domain.
-- **Delete a Domain Name**: delete a domain name permanently removes it from the account.
-- **Redirect to Another Domain**: set up a domain redirection, specifying that one domain should redirect to another.
-- **Edit DNS Records**: modify DNS records associated with the domain.
-- **Edit Virtual Hosts File**: capability to edit the virtual hosts configuration file for the domain.
-- **Force HTTPS**: if domain has SSL Certificate installed you can force all incoming traffic trough https.
+* **Edit DNS Zone** — if the DNS feature is enabled
+* **Manage WAF** — if the WAF feature is enabled
+* **Change Document Root**
+* **Edit VirtualHosts**
+* **Redirect** — if the Redirect feature is enabled
+* **Capitalize** — if the Capitalize feature is enabled
+* **Suspend / Unsuspend Domain**
+* **Delete Domain**
 
+## Create a New Domain
 
-  
-## Adding a Domain
+To add a new domain:
 
+1. Click the **"Add Domain"** button.
+2. Enter the domain name.
+3. Click **"Add Domain"** to save.
 
-To add a new domain, click on the 'Add Domain' button, enter the domain name, and then click on the 'Add Domain' button.
+Unlike other panels, OpenPanel treats all domains equally. From this single interface, you can add **primary domains**, **addon domains**, or **subdomains**.
 
-![add_domain.png](/img/panel/v1/domains/add_domain.png)
-
-Unlike other hosting panels, OpenPanel has a single interface 'Domains' where you can add your primary domain, addon domains or subdomains.
-
-When new domain name is added, the system will automatically try to generate a free [Let's Encrypt](https://letsencrypt.org/getting-started/) certificate. If successful, the certificate is automatically applied.
-
-:::info
-OpenPanel supports [Internationalized domain names (IDNs)](https://en.wikipedia.org/wiki/Internationalized_domain_name), and if such a domain is added, it will be automatically converted to [punycode](https://en.wikipedia.org/wiki/Punycode).
-:::
+Once added, the system will automatically attempt to issue a free [Let’s Encrypt](https://letsencrypt.org/getting-started/) SSL certificate. If successful, the certificate will be applied immediately.
 
 ## Delete a Domain
 
-To delete a domain name click on the 'Delete domain' button in the dropdown options for the domain.
+To delete a domain:
 
-![delete_domain_1.png](/img/panel/v1/domains/delete_domain_1.png)
+1. Click the **"Delete Domain"** option from the domain's dropdown menu.
+2. A confirmation page will appear. Click **"Delete"** to proceed.
 
-A new modal will appear, asking you to confirm the deletion process by clicking on the 'Delete' button. Upon clicking the button, the domain will be instantly deleted.
+> If the domain is linked to active applications (e.g. [PM2](/docs/panel/applications/pm2) or [WP Manager](/docs/panel/applications/wordpress)), deletion will be blocked until those applications are removed.
+> This prevents accidental removal of domains tied to running websites.
 
-![delete_domain_2.png](/img/panel/v1/domains/delete_domain_2.png)
-
-If the domain name has websites associated with it, for instance, in the [PM2](/docs/panel/applications/pm2) or [WP Manager](/docs/panel/applications/wordpress) interfaces, the system will block the deletion of the domain name until the listed websites are deleted first.
-
-This is a fallback mechanisam designed to prevent users from accidentally deleting domains that have running webistes.
-
-![delete_domain_3.png](/img/panel/v1/domains/delete_domain_3.png)
-
-Deleting a domain name will also permanently delete the following files:
+Deleting a domain will **permanently remove** the following:
 
 1. Nginx configuration file
 2. DNS zone file
 3. SSL certificate
-4. IP Blocker configuration for the domain
-5. Redirects for the domain
-
-:::info
-It's important to note that domain deletion does not affect any website files or databases associated with the domain. Those assets remain intact and are not impacted by the domain removal process.
-:::
-
+4. IP Blocker rules for the domain
+5. Redirects associated with the domain
 
 ## Redirects
 
+### Add Redirect
 
-### Add redirect
+To create a redirect:
 
-To redirect a domain name to another URL, click on the 'Create Redirect' button next to it. In the field, set the URL to redirect to, ensuring that the redirect starts with either the `http://` or `https://` prefix.
-
-To save, click on the 'Save' button, and to discard, click on the 'Cancel' button.
-
-![domain_redirect_1.png](/img/panel/v1/domains/domain_redirect_1.png)
+1. Click the **"Create Redirect"** button next to the domain.
+2. Enter the full URL (must start with `http://` or `https://`).
+3. Click **"Save"** to apply or **"Cancel"** to discard.
 
 ### Edit Redirect
 
-To edit an existing redirect, click on the pencil icon next to the redirect URL for that domain.
-![domain_redirect_2.png](/img/panel/v1/domains/domain_redirect_2.png)
+Click the **pencil icon** next to an existing redirect URL to modify it.
 
 ### Delete Redirect
 
-To delete a redirect, click on the cross icon next to the redirect URL for that domain.
+Click the **cross icon** next to the redirect URL to remove it.
 
-![domain_redirect_2.png](/img/panel/v1/domains/domain_redirect_2.png)
+## Edit VirtualHosts File
 
-## HTTP/2
+The **VirtualHosts** file defines the configuration for the domain within Nginx or Apache. It includes settings such as:
 
+* Access logs
+* PHP version
+* Application runners
+* Redirect rules
+* Custom directives
 
-HTTP/2 is an HTTP version that makes applications faster, simpler, and more robust in comparison with HTTP/1. To be able to use HTTP/2 you need to set up the connection through HTTPS. To make your website support HTTPS, enable the option Force HTTPS fot that domain.
+To edit this file:
 
-Starting OpenPanel [version 0.1.4](/docs/changelog/0.1#014) the HTTP/2 support is enabled automatically for all domains that have SSL and no further setting is needed.
+1. Click **"Edit VirtualHosts"** from the domain’s dropdown menu.
+2. A new page will open with the Vhost file content.
+3. Make your changes and click **"Save"**.
 
-
-## HTTP/3
-
-HTTP/3 is the latest version of the HTTP protocol, designed to improve web performance, security, and reliability even further than HTTP/2. It uses QUIC, a transport layer network protocol that reduces latency and improves connection speeds by allowing multiplexed connections over UDP, instead of TCP. This results in faster page loads and smoother browsing experiences, especially on mobile networks.
-
-To enable HTTP/3 for your domain, you need to ensure that your website is running over HTTPS. You can enable the **Force HTTPS** option for that domain to ensure all traffic is served securely.
-
-Starting from OpenPanel [version 0.3.0](/docs/changelog/0.3.0/#-polish), HTTP/3 support is automatically enabled for all domains that have SSL, so no additional configuration is required if you already have SSL set up. This ensures that your website can benefit from the speed and performance improvements of HTTP/3 seamlessly.
-
-
-
-## Force HTTPS
-
-The force HTTPS option can be enabled for each domain name that has a valid SSL certificate.
-
-When enable, the option will automatically upgrade all http requests for the domain to https protocol.
-
-To force https for a domain check the force https toggle next to it.
-
-
-## Edit VirtualHosts file
-
-The VirtualHosts file serves as the configuration file for the domain within Nginx or Apache webservers. This file contains essential information about access logs, the PHP version in use, redirects, running applications, and other relevant settings.
-
-To edit the Vhost file for a domain click on the 'Edit VirtualHosts' button in the dropdown for that domain:
-
-![domain_edit_vhost_1.png](/img/panel/v1/domains/domain_edit_vhost_1.png)
-
-
-A new page will open with the content of the VirtualHosts file for the domain. Make the necessary changes and click on the 'Save' button when finished.
-
-Upon saving, Nginx/Apache service restart will be triggered to immediately apply the changes.
-
-![domain_edit_vhost_2.png](/img/panel/v1/domains/domain_edit_vhost_2.png)
-
-:::danger
-Editing VirtualHosts file is intended for advanced users only. This action can potentially lead to server misconfiguration or downtime if not done correctly.
-
-Please be cautious and make sure you understand the changes you are making. OpenPanel uses a rollback mechanism to check for errors, and if any issues are detected, system will try to revert the changes. However, it's important to have a backup of your configurations before making any changes.
-:::
+Once saved, OpenPanel will automatically restart the webserver to apply changes.
