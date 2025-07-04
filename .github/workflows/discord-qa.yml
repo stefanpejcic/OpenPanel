@@ -1,0 +1,16 @@
+name: New Question Discussion to Discord
+on:
+  discussion:
+    types: [created]
+
+jobs:
+  notify-discord:
+    if: github.event.discussion.category.slug == 'q-a'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord Notification
+        run: |
+          curl -H "Content-Type: application/json" \
+          -X POST \
+          -d "{\"content\": \"❓ **New question asked:** ${{ github.event.discussion.title }}\n🔗 ${{ github.event.discussion.html_url }}\"}" \
+          "${{ secrets.DISCORD_WEBHOOK }}"
