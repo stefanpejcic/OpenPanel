@@ -39,12 +39,8 @@ jobs:
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-
-          # Replace version in useState('...')
-          sed -i "s/\(const \[version, setVersion\] = useState('\)[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
-
-          # Replace version in latestVersion assignment line
-          sed -i "s/\(const latestVersion = filteredTags.length > 0 ? filteredTags\[0\] : '\)[^']*\(';  \/\/ new verzija tag\)/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
+          sed -i -E "s/(const \[version, setVersion\] = useState\(')[^']*(')/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
+          sed -i -E "s/(const latestVersion = filteredTags.length > 0 \? filteredTags\[0\] : ')[^']*(';  \/\/ new verzija tag)/\1$PANEL_VERSION\2/" website/src/refine-theme/landing-hero-github-stars.tsx
 
 
       - name: Update fallback PANEL_VERSION in install.sh
