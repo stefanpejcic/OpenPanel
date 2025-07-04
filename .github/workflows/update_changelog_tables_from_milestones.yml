@@ -35,15 +35,6 @@ jobs:
           g = Github(os.environ["GH_TOKEN"])
           repo = g.get_repo(REPO)
 
-          sidebar = '''---
-sidebar_position: 1
-sidebar_label: RELEASES
-sidebar_class_name: green
----
-
-# Changelog
-'''
-
           # Helper to format date as "Month DD, YYYY"
           def fmt_date(dt):
               if not dt:
@@ -55,7 +46,6 @@ sidebar_class_name: green
 
           # Parse and sort milestones by due date, then by title (version)
           def parse_version(title):
-              # Accepts 1.2.3 or 1.2.3-beta etc, returns tuple for sort
               m = re.match(r'^(\d+)\.(\d+)\.(\d+)(.*)?$', title)
               if m:
                   return tuple(map(int, m.group(1,2,3))) + (m.group(4) or '',)
@@ -91,7 +81,7 @@ sidebar_class_name: green
               hdr = "| Version| Release date | \n|---|---|"
               return f"### {title}\n\n{hdr}\n" + "\n".join(rows) + "\n"
 
-          md = sidebar
+          md = "# Changelog\n"
           md += "\n" + block("Upcoming version", upcoming_rows)
           md += "\n" + block("Latest", [latest_row] if latest_row else [])
           md += "\n" + block("Previous versions", previous_rows)
