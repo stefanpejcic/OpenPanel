@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Files
+# File Manager 
 
 The **File Manager** interface allows you to manage files for all your domains located inside the `/var/www/html/` directory.
 
