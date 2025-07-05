@@ -9,11 +9,6 @@ Available in an community-supported version, and a more feature-filled version w
 
 **OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that your users enjoy full control over their environment, simillar to a VPS experience. They can effortlessly run multiple PHP versions, modify server configurations, view domain logs, restart services, set limits, configure backups and perform numerous other advanced tasks.
 
-- all domains have automatic SSL.
-- WordPress autoinstaller and manager.
-- nodejs and python apps
-- standard stuff: DNS, emails, crons, phpMyAdmin, FTP..
-
 ## Why use OpenPanel for your hosting business?
 
 - focus on security.
