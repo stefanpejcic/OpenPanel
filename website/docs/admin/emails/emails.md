@@ -11,9 +11,7 @@ Use this interface to review usage, access webmail, and manage user-level email 
 The table includes the following information:
 
 - **Email** – The full email address of the account.
-
 - **Quota** – The storage limit assigned to the account.
-
 - **Webmail** – A quick-access button to log in directly to the webmail interface for that account.
 
 This section is useful for monitoring email resource usage and offering users easy access to their inbox.
