@@ -24,9 +24,16 @@ The admin panel has three user roles:
 <Tabs>
   <TabItem value="openadmin-admin-users" label="With OpenAdmin" default>
 
-Use *Settings > OpenAdmin* page to manage admin users that can access OpenAdmin interface:
+Manage administrative users with access to the OpenAdmin interface via the **Accounts > Administrators** page.
 
-![openadmin admin users](/img/admin/openadmin_admin_page.png)
+For each admin user, you can view and manage the following details:
+
+* **Username**
+* **Status** – Active or Suspended
+* **Role** – Admin or Super Admin
+* **Last Login IP**
+* **Last Login Time**
+* **Actions** – Rename, change password, suspend/unsuspend, or delete the account.
 
   </TabItem>
   <TabItem value="CLI" label="With OpenCLI">
@@ -46,9 +53,7 @@ opencli admin list
 <Tabs>
   <TabItem value="openadmin-admin-reset" label="With OpenAdmin" default>
 
-To reset admin password click on the Edit button for that user from *Settings > OpenAdmin* page, then set the new password.
-
-![openadmin admin password](/img/admin/openadmin_admin_password.png)
+To reset admin password click on the Edit for that user from *Settings > Accounts > Administrators* page, then set the new password.
 
   </TabItem>
   <TabItem value="cli-reset" label="With OpenCLI">
@@ -59,14 +64,9 @@ To reset the password for an admin user:
 opencli admin password <username> <new_password>
 ```
 
-Example, reset password for Super Admin user:
+Example, reset password for and Admin user:
 ```bash
 opencli admin password admin Pyl7_L2M1
-```
-
-Example, reset password for regular Admin user:
-```bash
-opencli admin password filip Pyl7_L2M1
 ```
 
   </TabItem>
@@ -78,9 +78,7 @@ opencli admin password filip Pyl7_L2M1
 <Tabs>
   <TabItem value="openadmin-admin-new" label="With OpenAdmin" default>
 
-To create new admin user click on the 'New' button in *Settings > OpenAdmin* page, set the username and password and click on *Save*.
-
-![openadmin admin new](/img/admin/openadmin_admin_new.png)
+To create new admin user click on the 'Create New' button in *Settings > Accounts > Administrators* page, set the username and password and click on *Save*.
 
 
   </TabItem>
@@ -109,7 +107,7 @@ opencli admin new filip Pyl7_L2M1
 <Tabs>
   <TabItem value="openadmin-admin-rename" label="With OpenAdmin" default>
 
-To rename an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button and set new username.
+To rename an Admin user, select it on **Settings > Accounts > Administrators** page and click on the Edit button and set new username.
 
 ![openadmin admin rename](/img/admin/openadmin_admin_rename.png)
 
@@ -136,12 +134,8 @@ opencli admin rename filip filip2
 <Tabs>
   <TabItem value="openadmin-admin-suspend" label="With OpenAdmin" default>
 
-To suspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then uncheck the **Active** status.
+To unsuspend an Admin user, select the user on **Settings > Accounts > Administrators** page and click on the Edit button, then **Unsuspend**.
 
-![openadmin admin suspend](/img/admin/openadmin_admin_suspend.png)
-
-
-To unsuspend an Admin user, select the user on **Settings > OpenAdmin** page and click on the Edit button, then **Unsuspend**.
   </TabItem>
   <TabItem value="cli-suspend" label="With OpenCLI">
 
@@ -174,10 +168,7 @@ opencli admin unsuspend filip
 <Tabs>
   <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
 
-Select the user on *Settings > OpenAdmin* page and click on the delete button then confirm.
-
-![openadmin admin delete](/img/admin/openadmin_admin_delete.png)
-
+Select the user on **Settings > Accounts > Administrators** page and click on the delete button then confirm.
 
   </TabItem>
   <TabItem value="cli-delete" label="With OpenCLI">
