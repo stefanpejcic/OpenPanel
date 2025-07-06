@@ -14,8 +14,6 @@ For instructions on how to use the CSF UI, please refer to [ConfigServer Securit
 
 ![csf firewall](/img/admin/firewall_csf.png)
 
-If you need to re-open all necessary ports for OpenPanel services and users, run the command: `opencli firewall-reset`.
-
 
 ## External Firewall
 
