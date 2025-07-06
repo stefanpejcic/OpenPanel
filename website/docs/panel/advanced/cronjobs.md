@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# CronJobs
+# Cron Jobs
 
 A cron job is a Linux command used to schedule tasks for future execution. It allows you to automate repetitive tasks, such as sending notifications or running scripts at specific intervals.
 
