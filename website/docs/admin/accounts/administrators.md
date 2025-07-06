@@ -28,12 +28,12 @@ Manage administrative users with access to the OpenAdmin interface via the **Acc
 
 For each admin user, you can view and manage the following details:
 
-* **Username**
-* **Status** – Active or Suspended
-* **Role** – Admin or Super Admin
-* **Last Login IP**
-* **Last Login Time**
-* **Actions** – Rename, change password, suspend/unsuspend, or delete the account.
+- **Username**
+- **Status** – Active or Suspended
+- **Role** – Admin or Super Admin
+- **Last Login IP**
+- **Last Login Time**
+- **Actions** – Rename, change password, suspend/unsuspend, or delete the account.
 
   </TabItem>
   <TabItem value="CLI" label="With OpenCLI">
