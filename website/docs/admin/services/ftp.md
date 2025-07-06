@@ -2,6 +2,7 @@
 sidebar_position: 2
 ---
 
+
 # FTP Accounts
 
 The FTP Accounts section allows you to view and manage all FTP sub-accounts associated with OpenPanel users.
