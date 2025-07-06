@@ -8,6 +8,13 @@ The **Containers** page in OpenPanel allows you to manage Docker services define
 
 This section provides a clear overview of your containerized services and their resource usage.
 
+## Requirements
+
+To access this feature:
+
+- The **Docker** module must be enabled **server-wide** by an Administrator.
+- Your account must have the **Docker** feature enabled.
+
 ## Overview
 
 At the top of the page, you'll see:
