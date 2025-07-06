@@ -32,7 +32,7 @@ OpenAdmin menu lists all available options in the OpenAdmin interface. Simply cl
 Search returns:
 
 - OpenPanel users with login link for their OpenPanel
-- Webiste/Domains of users
+- Website/Domains of users
 - Features/pages in the Admin interface
 
 
