@@ -9,9 +9,9 @@ Configure OpenAdmin notifications and Email alerts settings.
 <Tabs>
   <TabItem value="openadmin-notifications-view" label="With OpenAdmin" default>
 
-To view or edit current notification settings, go to **OpenAdmin > Settings > Notifications** or click the 'Edit Settings' button on the Notification page.
-
-![openadmin notifications settings](/img/admin/openadmin_notifications_settings.png)
+  To view or edit current notification settings, go to **OpenAdmin > Settings > Notifications** or click the 'Edit Settings' button on the Notification page.
+  
+  ![openadmin notifications settings](/img/admin/openadmin_notifications_settings.png)
 
   </TabItem>
   <TabItem value="CLI-notifications-view" label="With OpenCLI">
