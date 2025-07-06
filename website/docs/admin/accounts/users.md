@@ -345,6 +345,9 @@ To change a package for a user run the following command:
 ```bash
 opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 ```
+  </TabItem>
+</Tabs>
+
 
 ### Change Email
 
@@ -375,9 +378,8 @@ Email for user stefan updated to stefan@pejcic.rs.
 
 ### Login to OpenPanel
 
-To auto-login to a OpenPanel account, click on the *OpenPanel* button in top-right corner of the page.
+To auto-login to a OpenPanel account, click on the **OpenPanel** button in top-right corner of the page.
  
-
 
 ### Delete User
 
