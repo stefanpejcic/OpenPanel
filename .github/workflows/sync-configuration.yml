@@ -1,48 +1,54 @@
-name: Sync Configuration Files
+name: Merge remote repos to main
 
 on:
-  workflow_dispatch: # manual trigger
-  repository_dispatch:
-    types: [sync-configuration]
-    
+  schedule:
+    - cron: '0 2 * * *'   # daily at 02:00 UTC
+  workflow_dispatch:
+
 jobs:
-  sync:
+  update-version:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
     steps:
-    - name: Checkout OpenPanel Repository
-      uses: actions/checkout@v3
-      with:
-        repository: stefanpejcic/OpenPanel
-        token: ${{ secrets.GITHUB_TOKEN }}
-        path: openpanel
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Checkout OpenPanel-Configuration Repository
-      uses: actions/checkout@v3
-      with:
-        repository: stefanpejcic/OpenPanel-configuration
-        token: ${{ secrets.GITHUB_TOKEN }}
-        path: configuration-repo
+      - name: Replace folders in OpenPanel repo
+        shell: bash
+        run: |
+          cd OpenPanel
+          
+          # Clean existing folders
+          rm -rf translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import
 
-    - name: Sync Configuration Directory
-      run: |
-        rsync -av --delete configuration-repo/ openpanel/configuration/
+          # Clone replacements
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-translations translations-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-configuration configuration-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/opencli opencli-tmp
+          
+          git clone --depth=1 https://github.com/stefanpejcic/cPanel-to-OpenPanel cpanel-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-whmcs-module whmcs-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-paymenter.org paymenter-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/FOSSBilling-OpenPanel fossbilling-tmp
 
-    - name: Set up Git for commit signing
-      run: |
-        git config --global user.name "github-actions"
-        git config --global user.email "github-actions@github.com"
-        git config --global commit.gpgSign true
-        git config --global user.signingkey ${{ secrets.GITHUB_TOKEN }}
-      
-    - name: Commit and push changes
-      run: |
-        cd openpanel
-        git add .
-        git commit -m "Sync configuration from stefanpejcic/OpenPanel-configuration"
-        git push
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Move contents only (not the .git folder)
+          mv translations-tmp translations
+          mv configuration-tmp configuration
+          mv opencli-tmp opencli
+          
+          mv cpanel-tmp integrations/cpanel-import
+          mv whmcs-tmp integrations/whmcs
+          mv paymenter-tmp integrations/paymenter.org
+          mv fossbilling-tmp integrations/fossbilling
+
+          rm -rf translations/.git configuration/.git configuration/.github opencli/.git opencli/.github  integrations/cpanel-import/.git integrations/whmcs/.git integrations/paymenter.org/.git integrations/fossbilling/.git
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add translations configuration opencli
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: sync folders from upstream"
+            git push origin main
+          else
+            echo "No changes to commit."
+          fi
