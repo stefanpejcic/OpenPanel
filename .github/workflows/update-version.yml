@@ -71,57 +71,6 @@ jobs:
             echo "No changes to commit."
           fi
 
-      - name: Checkout OpenPanel repo
-        uses: actions/checkout@v4
-        with:
-          repository: stefanpejcic/OpenPanel
-          token: ${{ secrets.TOKEN }}
-          path: OpenPanel
-
-      - name: Replace folders in OpenPanel repo
-        shell: bash
-        run: |
-          PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          cd OpenPanel
-          
-          # Clean existing folders
-          rm -rf translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import
-
-          # Clone replacements
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-translations translations-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-configuration configuration-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/opencli opencli-tmp
-          
-          git clone --depth=1 https://github.com/stefanpejcic/cPanel-to-OpenPanel cpanel-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-whmcs-module whmcs-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/openpanel-paymenter.org paymenter-tmp
-          git clone --depth=1 https://github.com/stefanpejcic/FOSSBilling-OpenPanel fossbilling-tmp
-
-          # Move contents only (not the .git folder)
-          mv translations-tmp translations
-          mv configuration-tmp configuration
-          mv opencli-tmp opencli
-          
-          mv cpanel-tmp integrations/cpanel-import
-          mv whmcs-tmp integrations/whmcs
-          mv paymenter-tmp integrations/paymenter.org
-          mv fossbilling-tmp integrations/fossbilling
-
-          rm -rf translations/.git configuration/.git configuration/.github opencli/.git opencli/.github  integrations/cpanel-import/.git integrations/whmcs/.git integrations/paymenter.org/.git integrations/fossbilling/.git
-
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-          git add translations configuration opencli
-          if ! git diff --cached --quiet; then
-            git commit -m "chore: sync folders from upstream"
-            git push origin main
-          else
-            echo "No changes to commit."
-          fi
-
-
-
       - name: Checkout openpanel-configuration repo
         uses: actions/checkout@v4
         with:
