@@ -1,7 +1,14 @@
 ---
-sidebar_position: 3
+sidebar_position: 4
 ---
 
-# Images
+# Image Updates
 
-Change docker images tag in order to use specific service versions.
+The **Docker > Image Updates** page allows you to check if image updates are available for your images.
+
+## Requirements
+
+To access this feature:
+
+- The **Docker** module must be enabled **server-wide** by an Administrator.
+- Your account must have the **Docker** feature enabled.
