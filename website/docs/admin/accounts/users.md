@@ -19,34 +19,8 @@ OpenPanel has a single user role named **User** that can only manage their docke
   
   ![openadmin users page](/img/admin/openadmin_users_list.gif)
   
-  **Default Columns Displayed:**
-  
-  - Username
-  - Status
-  - Memory Allocated
-  - CPU Allocated
-  - Disk Allocated
-  - Inodes Allocated
-  - Current Usage
-  - Created Date
-  - Login to OpenPanel
-  
-  **Additional Columns Available via 'Show Columns':**
-  
-  Users can choose to display the following additional columns:
-  
-  - Email Address
-  - 2FA Status
-  - IP Address
-  - Number of Domains
-  - Docker Context Name
-  - Number of Running Containers
-  - Network I/O
-  - Number of PIDs
-  - Owner/Reseller Name
-  - Quick Actions (Edit, Suspend, Delete)
-  
-  
+  Additional Columns can be displayed using the 'Show Columns' button.
+
   Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
   </TabItem>
