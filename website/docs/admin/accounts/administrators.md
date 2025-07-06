@@ -26,15 +26,8 @@ The admin panel has three user roles:
   
   Manage administrative users with access to the OpenAdmin interface via the **Accounts > Administrators** page.
   
-  For each admin user, you can view and manage the following details:
-  
-  - **Username**
-  - **Status** – Active or Suspended
-  - **Role** – Admin or Super Admin
-  - **Last Login IP**
-  - **Last Login Time**
-  - **Actions** – Rename, change password, suspend/unsuspend, or delete the account.
-  
+  For each admin user, you can view and manage the following details: Username, Status Role, Last Login IP, Last Login Time, Actions.
+
   </TabItem>
 
   <TabItem value="CLI" label="With OpenCLI">
