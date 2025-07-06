@@ -146,6 +146,37 @@ Example:
 
 ```
 
+## PageSpeed API Key
+
+If set, this API key will be used to fetch data from Google PageSpeed Insights.
+[Learn more](https://pcx3.com/openpanel/api-error-quota-exceeded-for-quota-metric-queries-and-limit-queries-per-day-of-service-pagespeedonline-googleapis-com-for-consumer-project_number5837973/)
+
+---
+
+## WordPress Plugins Set
+
+List the WordPress plugins you want to automatically install on all new WordPress sites.
+Enter one item per row. Supported formats:
+
+* **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
+* **URL** — a direct link to a `.zip` plugin file hosted online
+
+## WordPress Themes Set
+
+List the WordPress themes to automatically install for all new WordPress sites.
+Enter one item per row. Supported formats:
+
+* **wp\_org\_slug** — the theme slug from the WordPress.org themes page
+* **URL** — a direct link to a `.zip` theme file hosted online
+
+## Forbidden Usernames
+
+List of usernames that can not be used.
+
+## Restricted Domains
+
+List of domains that can not be used.
+
 ## After Update
 Define custom bash commands that will automatically run after each OpenPanel update. Ideal for restoring customizations or triggering automation scripts.
 
