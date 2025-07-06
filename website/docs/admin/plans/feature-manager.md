@@ -4,122 +4,81 @@ sidebar_position: 2
 
 # Feature Manager
 
-The Feature Manager allows administrators to enable or disable specific features (pages) within the OpenPanel user interface. This is useful for customizing the control panel experience based on user roles, security policies, or hosting plans.
+The Feature Manager allows administrators to enable or disable specific features (pages) within the OpenPanel UI. This is useful for customizing the control panel experience based on user roles, security policies, or hosting plans.
 
 Each feature can be toggled individually via the interface. Once activated, the feature becomes visible and accessible to all users. Deactivating a feature hides it from the panel and disables its functionality.
-
-> **Note**: Enable only the features your users need for a cleaner, more secure experience.
 
 ---
 
 ## Available Features
+Here is the rewritten information in a table format with the requested columns:
 
-### Email Notifications (`/account/notifications`)
-Allows users to manage their email notification preferences. Emails are sent based on their selections.
+| **Name**                   | **Link**                 | **Description**                                          | **Note**                                       |
+| -------------------------- | ------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
+| Email Notifications        | `/account/notifications` | Manage email notification preferences.                   | Emails are sent based on selected preferences. |
+| Locales (Language Change)  | `/account/languages`     | Change the panel interface language.                     |                                                |
+| Favorites (Bookmarks)      | `/account/favorites`     | Bookmark frequently used pages.                          |                                                |
+| Varnish Caching            | `/cache/varnish`         | Manage Varnish caching per domain.                       |                                                |
+| Docker (Containers)        | `/containers`            | Allocate resources and manage container lifecycles.      |                                                |
+| FTP Accounts               | `/ftp`                   | Create and manage FTP accounts.                          | Requires separate FTP server configuration.    |
+| Email Accounts             | `/emails`                | Manage email accounts.                                   | Requires separate mail server configuration.   |
+| Remote MySQL               | `/mysql/remote-mysql`    | Allow or block remote MySQL connections.                 |                                                |
+| MySQL Configuration        | `/mysql/configuration`   | Modify MySQL settings from the panel.                    |                                                |
+| PHP Options                | `/php/options`           | Edit PHP directives via a user-friendly page.            |                                                |
+| PHP.INI Editor             | `/php/ini`               | Directly edit the `php.ini` file.                        | Applies to any configured PHP version.         |
+| phpMyAdmin                 | `/mysql/phpmyadmin`      | Manage databases with phpMyAdmin.                        |                                                |
+| Cronjobs                   | `/cronjobs`              | Create, edit, and schedule cron jobs.                    |                                                |
+| WordPress                  | `/wordpress`             | Install and manage WordPress sites.                      | Managed via WP Manager.                        |
+| Disk Usage Explorer        | `/disk-usage`            | Visually explore disk usage across directories.          |                                                |
+| Inodes Explorer            | `/inodes-explorer`       | View inode usage per directory.                          |                                                |
+| Resources Usage            | `/usage`                 | View Docker container resource usage.                    |                                                |
+| Server Info                | `/server/info`           | View hosting limits and server details.                  |                                                |
+| Apache/Nginx Configuration | `/server/webserver_conf` | Modify webserver (Apache/Nginx) container configuration. |                                                |
+| Change Timezone            | `/server/timezone`       | Update system timezone settings for containers.          |                                                |
+| Coraza WAF                 | `/waf`                   | Manage Coraza WAF per domain.                            | Enabled by default for new domains.            |
+| Fix Permissions            | `/fix-permissions`       | Fix file ownership and permissions for websites.         |                                                |
+| DNS                        | `/dns`                   | Manage DNS records with a zone editor.                   | Requires BIND9 server.                         |
+| Domain Redirects           | `/domains/redirects`     | Manage domain-level redirects.                           |                                                |
+| Malware Scanner            | `/malware-scanner`       | Scan for malware using ClamAV.                           | Directory exclusions can be configured.        |
+| GoAccess                   | `/domains/logs`          | View GoAccess-generated log reports.                     |                                                |
+| Process Manager            | `/process-manager`       | View and terminate system processes.                     |                                                |
+| Redis                      | `/cache/redis`           | Configure Redis per user.                                |                                                |
+| Memcached                  | `/cache/memcached`       | Configure Memcached per user.                            |                                                |
+| Elasticsearch              | `/cache/elasticsearch`   | Configure Elasticsearch from the panel.                  |                                                |
+| Opensearch                 | `/cache/opensearch`      | Configure Opensearch from the panel.                     |                                                |
+| Temporary Links            | `/websites`              | Test websites using temporary OpenPanel subdomains.      | Links expire after 15 minutes.                 |
+| Login History              | `/account/loginlog`      | View history of the last 20 IP logins.                   |                                                |
+| 2FA                        | `/account/2fa`           | Enable Two-Factor Authentication.                        |                                                |
+| Activity Log               | `/account/activity`      | Review all recorded account actions.                     |                                                |
 
-### Locales (Language Change) (`/account/languages`)
-Enables users to change the interface language in their panel.
+## Use Cases
 
-### Favorites (Bookmarks) (`/account/favorites`)
-Allows users to bookmark frequently used pages for quick access.
+**Feature Sets** are used to control which UI features users can access based on their assigned hosting package. This allows for clear separation between user types and service levels.
 
-### Varnish Caching (`/cache/varnish`)
-Enables users to manage Varnish caching per domain.
+### Example 1: Database-Only Plans
 
-### Docker (Containers) (`/containers`)
-Lets users allocate resources and manage container lifecycles.
+Create a feature set named **"MySQL Only"** and enable only MySQL-related features within it.
+Assign this feature set to all database-focused hosting packages. For instance:
 
-### FTP Accounts (`/ftp`)
-Allows users to create and manage FTP accounts.  
-> Requires separate configuration of the FTP server.
+* One package allows up to **10 databases**.
+* Another package allows **unlimited databases** (`0` for no limit).
 
-### Email Accounts (`/emails`)
-Lets users manage email accounts.  
-> Requires separate configuration of the mail server.
+Despite the difference in limits, all users under these plans will see **only MySQL-related pages** in the UI.
 
-### Remote MySQL (`/mysql/remote-mysql`)
-Provides toggle access to allow or block remote MySQL connections.
+### Example 2: Beginner vs. Advanced Users
 
-### MySQL Configuration (`/mysql/configuration`)
-Lets users modify MySQL configuration settings from their panel.
+Create two separate feature sets:
 
-### PHP Options (`/php/options`)
-Enables editing of PHP directives via a user-friendly options page.
+* **Advanced Users Set**:
+  Enable features like **Docker** and **PHP.INI Editor** to give experienced users full control—such as setting custom resource limits, restarting services, etc.
 
-### PHP.INI Editor (`/php/ini`)
-Allows direct editing of the `php.ini` file for any configured PHP version.
+* **Beginner Users Set**:
+  Do **not** enable advanced features. Instead, allow access to a **PHP selector** with limited options. This keeps the UI simple and safe for users with minimal technical experience.
 
-### phpMyAdmin (`/mysql/phpmyadmin`)
-Enables database management using the phpMyAdmin interface.
 
-### Cronjobs (`/cronjobs`)
-Lets users create, edit, and schedule cron jobs.
+## Feature not showing?
 
-### WordPress (`/wordpress`)
-Enables WordPress installation and site management via WP Manager.
+Features are accessible to users only if the corresponding **Module** is active. Modules control which OpenPanel features are available, while **Feature Sets** determine access based on the user's hosting package.
 
-### Disk Usage Explorer (`/disk-usage`)
-Lets users explore disk usage across directories visually.
+For example, adding the "Docker" feature to a plan does **not** grant access to the Docker (Containers) pages in the UI unless the **Docker module** is also activated under **OpenAdmin > Settings > Modules**.
 
-### Inodes Explorer (`/inodes-explorer`)
-View inode usage per directory.
-
-### Resources Usage (`/usage`)
-Visual interface for viewing Docker container resource consumption.
-
-### Server Info (`/server/info`)
-Shows hosting limits and server information.
-
-### Apache/Nginx Configuration (`/server/webserver_conf`)
-Allows users to modify webserver (Apache/Nginx) container configuration.
-
-### Change Timezone (`/server/timezone`)
-Users can update system timezone settings for their containers.
-
-### Coraza WAF (`/waf`)
-Enables CorazaWAF by default for new domains. Users can manage it per domain.
-
-### Fix Permissions (`/fix-permissions`)
-Provides a tool to fix ownership and permissions for website files.
-
-### DNS (`/dns`)
-Lets users manage DNS records via a zone editor.  
-> Requires BIND9 server to be installed.
-
-### Domain Redirects (`/domains/redirects`)
-Enables domain-level redirection management.
-
-### Malware Scanner (`/malware-scanner`)
-Allows malware scanning with ClamAV and directory exclusion management.
-
-### GoAccess (`/domains/logs`)
-Enables viewing of GoAccess-generated log reports for domains.
-
-### Process Manager (`/process-manager`)
-Users can view system processes and terminate them if needed.
-
-### Redis (`/cache/redis`)
-Enables Redis configuration per user.
-
-### Memcached (`/cache/memcached`)
-Enables Memcached configuration per user.
-
-### Elasticsearch (`/cache/elasticsearch`)
-Enables Elasticsearch configuration from the panel.
-
-### Opensearch (`/cache/opensearch`)
-Enables Opensearch configuration from the panel.
-
-### Temporary Links (`/websites`)
-Allows testing sites with temporary OpenPanel subdomains (expire after 15 minutes).
-
-### Login History (`/account/loginlog`)
-Users can view a history of the last 20 IP logins.
-
-### 2FA (`/account/2fa`)
-Enables Two-Factor Authentication for user accounts.
-
-### Activity Log (`/account/activity`)
-Allows users to review all recorded actions tied to their account.
-
-Enable only the features your users need for a cleaner, more secure experience.
