@@ -15,9 +15,36 @@ OpenPanel has a single user role named **User** that can only manage their docke
 
 To access all OpenPanel users, navigate to OpenAdmin > Users.
 
-The Users page displays a table showcasing each user's Gravatar linked to their email address, username, assigned IP Address, hosting plan name, creation date of the account, a login link enabling user impersonation, and *manage* button to get detailed user overview.
+The Users page displays a table with user information and buttons to manage it.
 
 ![openadmin users page](/img/admin/openadmin_users_list.gif)
+
+**Default Columns Displayed:**
+
+* Username
+* Status
+* Memory Allocated
+* CPU Allocated
+* Disk Allocated
+* Inodes Allocated
+* Current Usage
+* Created Date
+* Login to OpenPanel
+
+**Additional Columns Available via 'Show Columns':**
+Users can choose to display the following additional columns:
+
+* Email Address
+* 2FA Status
+* IP Address
+* Number of Domains
+* Docker Context Name
+* Number of Running Containers
+* Network I/O
+* Number of PIDs
+* Owner/Reseller Name
+* Quick Actions (Edit, Suspend, Delete)
+
 
 Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
@@ -178,12 +205,14 @@ Statistics is the default tab, displays current usage statistics:
 - Time statistics usage was last update
 - Historical usage
 
+Clicking on 'Load Docker Usage History' will display a table with past resource usage for the user: Date, number of running containers, CPU% and Memory%, Net I/O and Block I/O.
+
 ![user statistics](/img/admin/user_usage.png)
 
 
 ### Services
 
-Services page displays all user services (docker containers):
+Services tab displays all user services (docker containers):
 
 - Service name
 - Docker Image name and tag
@@ -195,6 +224,14 @@ Services page displays all user services (docker containers):
 - Terminal link to run docker exec commands in that service.
 
 ![docker services](/img/admin/docker_services.png)
+
+### Storage
+
+Storage tab displays data from the [docker system df](https://docs.docker.com/reference/cli/docker/system/df/) command.
+
+- Volumes
+- Containers
+- Images
 
 ### Overview
 
