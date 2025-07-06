@@ -24,7 +24,7 @@ The admin panel has three user roles:
 <Tabs>
   <TabItem value="openadmin-admin-users" label="With OpenAdmin" default>
   
-  Manage administrative users with access to the OpenAdmin interface via the **Accounts > Administrators** page.
+  Manage administrative users with access to the OpenAdmin interface via the **Administrators** page.
   
   For each admin user, you can view and manage the following details: Username, Status Role, Last Login IP, Last Login Time, Actions.
 
