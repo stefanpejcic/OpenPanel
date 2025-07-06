@@ -146,45 +146,6 @@ Example response:
 - The OpenPanel password must be 6 to 30 characters long and can include any characters except for single quotes (`'`) and double quotes (`"`).
 
 
-## Reset User Password
-
-<Tabs>
-  <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
-
-To reset password for a user click on the user in *OpenAdmin > Users *or from the individual User page click on "Edit" tab and set the new password in the Password field then click Save.
-
-![add new user openadmin](/img/admin/reset_password.png)
-
-
-  </TabItem>
-  <TabItem value="CLI-users-reset" label="OpenCLI">
-
-To reset the password for a OpenPanel user, you can use the `user-password` command:
-
-```bash
-opencli user-password <USERNAME> <NEW_PASSWORD>
-```
-
-Use the `--ssh` flag to also change the password for the SSH user in the container.
-
-Example:
-
-```bash
-opencli user-password filip Ty7_K8_M2 --ssh
-```
-
-  </TabItem>
-  <TabItem value="API-users-reset" label="API">
-
-To reset password for an OpenPanel user, use the following api call:
-
-```bash
-curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: application/json" -H "Authorization: Bearer JWT_TOKEN_HERE" -d '{"password": "NEW_PASSWORD_HERE"}'
-```
-  </TabItem>
-</Tabs>
-
-
 ## Single User
 
 To view detailed information about a user, and edit their settings, click on their username in the users table.
@@ -327,8 +288,47 @@ opencli user-unsuspend filip
 </Tabs>
 
 
+### Reset Password
 
-## Rename User
+<Tabs>
+  <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
+
+To reset password for a user click on the user in *OpenAdmin > Users *or from the individual User page click on "Edit" tab and set the new password in the Password field then click Save.
+
+![add new user openadmin](/img/admin/reset_password.png)
+
+
+  </TabItem>
+  <TabItem value="CLI-users-reset" label="OpenCLI">
+
+To reset the password for a OpenPanel user, you can use the `user-password` command:
+
+```bash
+opencli user-password <USERNAME> <NEW_PASSWORD>
+```
+
+Use the `--ssh` flag to also change the password for the SSH user in the container.
+
+Example:
+
+```bash
+opencli user-password filip Ty7_K8_M2 --ssh
+```
+
+  </TabItem>
+  <TabItem value="API-users-reset" label="API">
+
+To reset password for an OpenPanel user, use the following api call:
+
+```bash
+curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: application/json" -H "Authorization: Bearer JWT_TOKEN_HERE" -d '{"password": "NEW_PASSWORD_HERE"}'
+```
+  </TabItem>
+</Tabs>
+
+
+
+### Rename User
 
 <Tabs>
   <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
@@ -355,7 +355,7 @@ User 'stefan' successfully renamed to 'pejcic'.
 </Tabs>
 
 
-## Change Package
+### Change Package
 
 <Tabs>
   <TabItem value="openadmin-user-plan" label="With OpenAdmin" default>
@@ -371,7 +371,7 @@ To change a package for a user run the following command:
 opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 ```
 
-## Change Email address
+### Change Email address
 
 <Tabs>
   <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
@@ -399,7 +399,7 @@ Email for user stefan updated to stefan@pejcic.rs.
 
 
 
-## Delete User
+### Delete User
 
 
 <Tabs>
@@ -434,7 +434,7 @@ This action is irreversible and will permanently delete all user data.
 
 
 
-## Login to OpenPanel
+### Login to OpenPanel
 
 To auto-login to user's OpenPanel account, click on the **OpenPanel** button in top-right corner of the page.
 
