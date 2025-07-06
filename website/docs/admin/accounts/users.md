@@ -13,7 +13,7 @@ OpenPanel has a single user role named **User** that can only manage their docke
 <Tabs>
   <TabItem value="openadmin-users" label="OpenAdmin" default>
   
-  To access all OpenPanel users, navigate to OpenAdmin > Users.
+  To access all OpenPanel users, navigate to  Users.
   
   The Users page displays a table with user information and buttons to manage it.
   
@@ -268,7 +268,7 @@ opencli user-unsuspend filip
 <Tabs>
   <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
 
-To reset password for a user click on the user in *OpenAdmin > Users *or from the individual User page click on "Edit" tab and set the new password in the Password field then click Save.
+To reset password for a user click on the user in *OpenAdmin > Users* or from the individual User page click on "Edit" tab and set the new password in the Password field then click Save.
 
 ![add new user openadmin](/img/admin/reset_password.png)
 
