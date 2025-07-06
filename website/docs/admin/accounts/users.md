@@ -21,29 +21,30 @@ The Users page displays a table with user information and buttons to manage it.
 
 **Default Columns Displayed:**
 
-* Username
-* Status
-* Memory Allocated
-* CPU Allocated
-* Disk Allocated
-* Inodes Allocated
-* Current Usage
-* Created Date
-* Login to OpenPanel
+- Username
+- Status
+- Memory Allocated
+- CPU Allocated
+- Disk Allocated
+- Inodes Allocated
+- Current Usage
+- Created Date
+- Login to OpenPanel
 
 **Additional Columns Available via 'Show Columns':**
+
 Users can choose to display the following additional columns:
 
-* Email Address
-* 2FA Status
-* IP Address
-* Number of Domains
-* Docker Context Name
-* Number of Running Containers
-* Network I/O
-* Number of PIDs
-* Owner/Reseller Name
-* Quick Actions (Edit, Suspend, Delete)
+- Email Address
+- 2FA Status
+- IP Address
+- Number of Domains
+- Docker Context Name
+- Number of Running Containers
+- Network I/O
+- Number of PIDs
+- Owner/Reseller Name
+- Quick Actions (Edit, Suspend, Delete)
 
 
 Suspended users are highlighted in red, and no actions can be performed on a suspended user.
