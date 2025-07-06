@@ -373,6 +373,11 @@ Email for user stefan updated to stefan@pejcic.rs.
 
 
 
+### Login to OpenPanel
+
+To auto-login to a OpenPanel account, click on the *OpenPanel* button in top-right corner of the page.
+ 
+
 
 ### Delete User
 
@@ -407,9 +412,3 @@ opencli user-delete filip -y
 This action is irreversible and will permanently delete all user data.
 :::
 
-
-
-### Login to OpenPanel
-
-To auto-login to a OpenPanel account, click on the 'OpenPanel' button in top-right corner of the page.
- 
