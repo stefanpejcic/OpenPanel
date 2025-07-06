@@ -328,7 +328,7 @@ opencli user-unsuspend filip
 
 
 
-## Rename Username
+## Rename User
 
 <Tabs>
   <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
@@ -355,6 +355,21 @@ User 'stefan' successfully renamed to 'pejcic'.
 </Tabs>
 
 
+## Change Package
+
+<Tabs>
+  <TabItem value="openadmin-user-plan" label="With OpenAdmin" default>
+
+To change a package for a user, click on the 'Edit' link for the user, then select the new package and click on 'Save changes'.
+
+  </TabItem>
+  <TabItem value="CLI-user-plan" label="With OpenCLI">
+
+To change a package for a user run the following command:
+
+```bash
+opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
+```
 
 ## Change Email address
 
