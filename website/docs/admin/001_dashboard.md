@@ -52,7 +52,11 @@ The **System Informations** widget displays information about your server:
 
 The **Try Enterprise** widget is displayed on Community Editio only and displays features for Enterprise edition and options to upgrade.
 
+## Found a Bug
 
+By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
+
+For the OpenPanel UI, administrators can disable this link by going to **OpenAdmin > Settings > OpenPanel** and toggling off the **"Display link to report bugs"** option.
 
 ## Dark Mode
 
@@ -71,6 +75,7 @@ Search returns:
 - OpenPanel users with login link for their OpenPanel
 - Website/Domains of users
 - Features/pages in the Admin interface
+
 
 
 ## Logout
