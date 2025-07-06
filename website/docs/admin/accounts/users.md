@@ -268,7 +268,7 @@ opencli user-unsuspend filip
 <Tabs>
   <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
 
-To reset password for a user click on the user in *OpenAdmin > Users* or from the individual User page click on "Edit" tab and set the new password in the Password field then click Save.
+To reset password for a user, click on "Edit" tab and set the new password in the Password field then click Save.
 
 ![add new user openadmin](/img/admin/reset_password.png)
 
