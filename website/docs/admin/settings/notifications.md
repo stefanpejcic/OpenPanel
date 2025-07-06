@@ -104,14 +104,14 @@ To use your own SMTP server for email delivery, configure the following:
 <Tabs>
   <TabItem value="openadmin-notifications-smtp" label="With OpenAdmin" default>
 
-- **Server:** Your SMTP server domain or IP
-- **Port:** Outgoing SMTP port (default: 465)
-- **Use TLS:** Default is False (SSL is used instead)
-- **Use SSL:** Default is True
-- **Username:** Email address used for sending
-- **Password:** Password for the email account
-- **Default sender:** Email displayed as sender (defaults to username)
-- **Store Emails:** Enable to save sent emails in `/var/log/openpanel/admin/emails`
+  - **Server:** Your SMTP server domain or IP
+  - **Port:** Outgoing SMTP port (default: 465)
+  - **Use TLS:** Default is False (SSL is used instead)
+  - **Use SSL:** Default is True
+  - **Username:** Email address used for sending
+  - **Password:** Password for the email account
+  - **Default sender:** Email displayed as sender (defaults to username)
+  - **Store Emails:** Enable to save sent emails in `/var/log/openpanel/admin/emails`
 
   </TabItem>
   <TabItem value="CLI-notifications-smtp" label="With OpenCLI">
