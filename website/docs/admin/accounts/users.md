@@ -12,42 +12,42 @@ OpenPanel has a single user role named **User** that can only manage their docke
 
 <Tabs>
   <TabItem value="openadmin-users" label="OpenAdmin" default>
-
-To access all OpenPanel users, navigate to OpenAdmin > Users.
-
-The Users page displays a table with user information and buttons to manage it.
-
-![openadmin users page](/img/admin/openadmin_users_list.gif)
-
-**Default Columns Displayed:**
-
-- Username
-- Status
-- Memory Allocated
-- CPU Allocated
-- Disk Allocated
-- Inodes Allocated
-- Current Usage
-- Created Date
-- Login to OpenPanel
-
-**Additional Columns Available via 'Show Columns':**
-
-Users can choose to display the following additional columns:
-
-- Email Address
-- 2FA Status
-- IP Address
-- Number of Domains
-- Docker Context Name
-- Number of Running Containers
-- Network I/O
-- Number of PIDs
-- Owner/Reseller Name
-- Quick Actions (Edit, Suspend, Delete)
-
-
-Suspended users are highlighted in red, and no actions can be performed on a suspended user.
+  
+  To access all OpenPanel users, navigate to OpenAdmin > Users.
+  
+  The Users page displays a table with user information and buttons to manage it.
+  
+  ![openadmin users page](/img/admin/openadmin_users_list.gif)
+  
+  **Default Columns Displayed:**
+  
+  - Username
+  - Status
+  - Memory Allocated
+  - CPU Allocated
+  - Disk Allocated
+  - Inodes Allocated
+  - Current Usage
+  - Created Date
+  - Login to OpenPanel
+  
+  **Additional Columns Available via 'Show Columns':**
+  
+  Users can choose to display the following additional columns:
+  
+  - Email Address
+  - 2FA Status
+  - IP Address
+  - Number of Domains
+  - Docker Context Name
+  - Number of Running Containers
+  - Network I/O
+  - Number of PIDs
+  - Owner/Reseller Name
+  - Quick Actions (Edit, Suspend, Delete)
+  
+  
+  Suspended users are highlighted in red, and no actions can be performed on a suspended user.
 
   </TabItem>
   <TabItem value="CLI-users" label="OpenCLI">
