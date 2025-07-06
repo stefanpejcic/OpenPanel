@@ -1,6 +1,6 @@
 #!/bin/bash
 
-OPENCLI_VERSION="202.507.003"
+OPENCLI_VERSION="202.507.004"
 ################################################################################
 # Script Name: /usr/local/bin/opencli
 # Description: Makes all OpenCLI commands available on the terminal.

@@ -5,7 +5,7 @@
 # Usage: opencli webistes/google_index --domain [DOMAIN]
 # Author: Stefan Pejcic
 # Created: 03.06.2025
-# Last Modified: 03.07.2025
+# Last Modified: 04.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

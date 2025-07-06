@@ -1,6 +1,6 @@
 $TTL 1h
 @       IN      SOA     {ns1}. {ns2}. (
-                        2025070401      ; Serial number
+                        2025070601      ; Serial number
                         1h              ; Refresh interval
                         15m             ; Retry interval
                         1w              ; Expire interval

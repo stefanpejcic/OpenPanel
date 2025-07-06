@@ -6,7 +6,7 @@
 #        opencli webserver-get_webserver_for_user <USERNAME> --update
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 03.07.2025
+# Last Modified: 04.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
