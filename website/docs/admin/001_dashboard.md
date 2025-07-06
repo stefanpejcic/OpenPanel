@@ -11,10 +11,47 @@ The dashboard page is the hub of the OpenAdmin interface and provides the overvi
 The dashboard page contains 13 widgets:
 
 - **Overview** widget: Displays the total number of nodes (servers), containers, users, domains, websites, hosting packages and email accounts.
-- **Resource Usage** widget: Shows the real-time server resource usage for: Average Load, CPU% per core, Used and Free Memory, and Disk Usage.
+- **Resource Usage** widget: Shows the real-time server resource usage for: Load, CPU%, Memory, SWAP, Disk usage and Netowrk I/O.
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
 - **Latest News Activity** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
+
+## Resource Usage
+
+The **Resource Usage** widget provides real-time monitoring of server resources, including:
+
+* **Average Load** – Displays the system's current average load.
+* **Memory Usage** – Shows current RAM and swap usage, with options to drop cached memory and clear swap space.
+* **CPU Usage** – Displays the total CPU usage percentage and usage per individual core.
+* **Disk Usage** – Provides details on free, used, and total disk space, device name, filesystem type, and in-depth disk I/O statistics.
+* **Network I/O** – Shows real-time input and output data per network interface.
+
+## User Activity
+
+The **User Activity** widget provides a combined list of latest actions from all OpenPanel users (their activity logs).
+
+## Latest News
+
+The **Latest News** widget displays news from [OpenPanel Blog](https://openpanel.com/blog).
+
+## System Information
+
+The **System Informations** widget displays information about your server:
+
+- Hostname
+- OS
+- OpenPanel version
+- Server Time
+- Kernel version
+- CPU model
+- Uptime
+- Number of running processes
+- Available Package updates
+
+## Try Enterprise
+
+The **Try Enterprise** widget is displayed on Community Editio only and displays features for Enterprise edition and options to upgrade.
+
 
 
 ## Dark Mode
