@@ -15,33 +15,20 @@ Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 
 The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
 
-## Total Email Accounts
+## Accounts
 
 Displays the total number of email accounts currently active on the server. This includes all accounts across all domains configured on the system.
 
 
-## Webmail Client
+## Webmail
 
-Administrators can choose the Webmail client for their users to use on configured domain.
-
-Available options are:
-
-- Roundcube
-- SOGo
-- SnappyMail
-
-Only one service can be active at a time.
-
-## Webmail Domain
-
-By default the webmail client is available on `IP:8080`. Administrators can set a custom domain name to be used for the webmail.
-
-Domain should be added in format `name.tld` example: webmail.hosting.com or webmail-hosting.com - without the http or https prefix.
-
-`/webmail` on every domain added to the server will redirect to this webmail domain.
+- Status - displays current webmail service status
+- Current Software - displays curent seleted client
+- Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
+- Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
 
 
-## MailServer Stack
+## Enable Services
 
 Administrators can set and configure different services based on their needs.
 
@@ -75,10 +62,6 @@ The **Relay Hosts** feature allows you to configure an SMTP relay service (also 
 
 This feature is useful for organizations that need to route their outgoing email traffic through a trusted third-party service or SMTP server for better deliverability and security.
 
----
-
-### Configuration Parameters
-
 The following parameters are used to configure the relay host settings:
 
 - **DEFAULT_RELAY_HOST**  
@@ -102,8 +85,6 @@ The following parameters are used to configure the relay host settings:
   - Example: `relay_password`
 
 When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mail traffic will require a secure connection and the credentials will be mandatory.
-
----
 
 Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
 
