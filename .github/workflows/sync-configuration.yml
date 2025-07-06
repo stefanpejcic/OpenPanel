@@ -15,8 +15,7 @@ jobs:
       - name: Replace folders in OpenPanel repo
         shell: bash
         run: |
-          cd OpenPanel
-          
+         
           # Clean existing folders
           rm -rf translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import
 
