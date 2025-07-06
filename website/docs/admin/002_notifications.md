@@ -28,7 +28,7 @@ Each notification  type can be disabled and threshold limits can be set by the A
 <Tabs>
   <TabItem value="openadmin-notifications-view" label="With OpenAdmin" default>
 
-To view current notification settings, click on the 'Settings' button on the Notification page.
+To view current notification settings, click on the 'Edit Settings' button on the Notification page, or navigate to **OpenAdmin > Settings > Notifications**.
 
 ![openadmin notifications settings](/img/admin/openadmin_notifications_settings.png)
 
@@ -112,7 +112,7 @@ opencli config update mail_default_sender stefan@example.net
 
 ### Daily Usage Reports
 
-If email alerts are enabled, you will also receive Usage Reports:
+If email address is provided, you will also receive daily Usage Reports:
 
 ![image](/img/admin/daily_report.png)
 
