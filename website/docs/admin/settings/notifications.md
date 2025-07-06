@@ -103,7 +103,7 @@ To use your own SMTP server for email delivery, configure the following:
 
 <Tabs>
   <TabItem value="openadmin-notifications-smtp" label="With OpenAdmin" default>
-    From **OpenAdmin > Settings > Notifications** set server port, TLS or SSL, Username and Password to use for authentication.
+    Set server port, TLS or SSL, Username and Password to use for authentication.
   </TabItem>
   <TabItem value="CLI-notifications-smtp" label="With OpenCLI">
 
