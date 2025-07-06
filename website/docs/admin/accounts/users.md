@@ -431,3 +431,11 @@ opencli user-delete filip -y
 :::danger
 This action is irreversible and will permanently delete all user data.
 :::
+
+
+
+## Login to OpenPanel
+
+To auto-login to user's OpenPanel account, click on the **OpenPanel** button in top-right corner of the page.
+
+ 
