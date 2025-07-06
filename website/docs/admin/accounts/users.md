@@ -234,7 +234,7 @@ From the Edit tab, Administrators can edit user information:
 
 ![user edit](/img/admin/edit_user.png)
 
-## Suspend User
+## Suspend
 
 <Tabs>
   <TabItem value="openadmin-user-suspend" label="With OpenAdmin" default>
@@ -263,7 +263,7 @@ opencli user-suspend filip
   </TabItem>
 </Tabs>
 
-## Unsuspend User
+## Unsuspend
 
 <Tabs>
   <TabItem value="openadmin-user-unsuspend" label="With OpenAdmin" default>
@@ -328,7 +328,7 @@ curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: applic
 
 
 
-### Rename User
+### Rename
 
 <Tabs>
   <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
@@ -371,7 +371,7 @@ To change a package for a user run the following command:
 opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 ```
 
-### Change Email address
+### Change Email
 
 <Tabs>
   <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
