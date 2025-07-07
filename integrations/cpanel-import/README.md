@@ -10,7 +10,6 @@ Currently suported for import:
 ├─ DOMAINS:
 │  ├─ Primary domain, Addons, Aliases and Subdomains
 │  ├─ SSL certificates
-│  ├─ Domains access logs (Apache domlogs)
 │  └─ DNS zones
 ├─ WEBSITES:
 │  └─ WordPress instalations from WPToolkit & Softaculous 
@@ -21,14 +20,10 @@ Currently suported for import:
 │    └─ Installed version from Cloudlinux PHP Selector
 ├─ FILES
 ├─ CRONS
-├─ SSH
-│   ├─ Remote SSH access
-│   ├─ SSH password
-│   └─ SSH keys
 └─ ACCOUNT
     ├─ Notification preferences
     ├─ cPanel account creation date
-    └─ locale
+    └─ cPanel account password
 
 ***emails, ftp, nodejs/python, postgres are not yet supported***
 ```
