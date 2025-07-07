@@ -6,7 +6,7 @@ on:
 
 jobs:
   update-changelog:
-    if: github.event.issue.milestone != null && github.event.issue.state == 'closed'
+    if: "github.event.issue.milestone != null && github.event.issue.state == 'closed'"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
