@@ -10,13 +10,13 @@
 
 | Version| Release date | 
 |---|---|
-|__[1.4.6](/docs/changelog/1.4.6)__| July 10, 2025 |
+|__[1.4.7](/docs/changelog/1.4.7)__| July 04, 2025 |
 
 ### Previous versions
 
 | Version| Release date | 
 |---|---|
-|__[1.4.7](/docs/changelog/1.4.7)__| July 04, 2025 |
+|__[1.4.6](/docs/changelog/1.4.6)__| July 01, 2025 |
 |__[1.4.5](/docs/changelog/1.4.5)__| July 01, 2025 |
 |__[1.4.4](/docs/changelog/1.4.4)__| June 24, 2025 |
 |__[1.4.1](/docs/changelog/1.4.1)__| June 15, 2025 |
