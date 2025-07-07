@@ -1011,10 +1011,10 @@ install_packages() {
 
 	if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
     
-    	packages=("curl" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
+    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
 	else
  	# debian has linux-image-amd64 instead of generic
-    	packages=("curl" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
+    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" "jc" "sqlite3" "geoip-bin")
 
   	fi
 
