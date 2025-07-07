@@ -15,7 +15,11 @@ jobs:
       - name: Check if issue has completed label
         id: check_completed_label
         run: |
-          has_completed=$(echo '${{ toJSON(github.event.issue.labels) }}' | jq -r '.[] | select(.name == "completed") | .name' || echo "")
+          has_completed=$(jq -r '.[] | select(.name == "completed") | .name' <<EOF
+      ${{ toJSON(github.event.issue.labels) }}
+      EOF
+          )
+      
           if [[ "$has_completed" == "completed" ]]; then
             echo "completed=true" >> "$GITHUB_OUTPUT"
           else
