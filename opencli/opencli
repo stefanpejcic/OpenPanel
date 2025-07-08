@@ -1,13 +1,12 @@
 #!/bin/bash
 
-OPENCLI_VERSION="202.507.007"
 ################################################################################
 # Script Name: /usr/local/bin/opencli
 # Description: Makes all OpenCLI commands available on the terminal.
 # Usage: opencli <COMMAND-NAME> <ATTRIBUTES>
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 18.02.2025
+# Last Modified: 08.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,160 +29,208 @@ OPENCLI_VERSION="202.507.007"
 # THE SOFTWARE.
 ################################################################################
 
-LOG_FILE="/var/log/openpanel/admin/opencli.log" 
+set -euo pipefail
 
+# Constants
+readonly OPENCLI_VERSION="202.507.007"
+readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
+readonly SCRIPT_DIR="/usr/local/opencli"
+readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
 
-about() {
-  echo "About:"
-  echo "  Documentation:                    https://dev.openpanel.com/cli/"
-  echo "  Version:                          $OPENCLI_VERSION"
-  echo "  Author:                           Stefan Pejcic <stefan@pejcic.rs>"
-  echo "  License:                          MIT"
-  echo ""
+# Special command mappings
+declare -A SPECIAL_COMMANDS=(
+    ["blacklist"]="/usr/ipset-blacklist.sh"
+    ["sentinel"]="/usr/local/admin/service/notifications.sh"
+)
+
+# Functions
+show_about() {
+    cat <<EOF
+About:
+  Documentation:                    https://dev.openpanel.com/cli/
+  Version:                          ${OPENCLI_VERSION}
+  Author:                           Stefan Pejcic <stefan@pejcic.rs>
+  License:                          MIT
+
+EOF
 }
 
-
-history() {
-  if [ ! -f "$LOG_FILE" ]; then
-    echo "Warning: log file $LOG_FILE not found."
-  else
+show_history() {
+    if [[ ! -f "$LOG_FILE" ]]; then
+        echo "Warning: log file $LOG_FILE not found."
+        return
+    fi
+    
     echo "Recently used commands:"
     tail -n 100 "$LOG_FILE" | grep -o 'opencli [^ ]*' | sort | uniq | tail -n 5 | sed 's/^/  /'
     echo ""
+    
     echo "Most commonly used commands:"
     awk -F ' \\| ' '!($2 ~ /^[0-9]+$/) {print "  " $2}' "$LOG_FILE" | sort | uniq | head -n 5
     echo ""
-  fi
 }
 
-usage() {
-  echo ""
-  echo "Usage: opencli <COMMAND> [additional_arguments]"
-  echo ""
-  echo "Suggested commands:"
-  echo "  opencli faq                       Display frequently asked questions and answers."
-  echo "  opencli commands                  List all available OpenCLI commands and their usage."
-  echo ""
+show_usage() {
+    cat <<EOF
+
+Usage: opencli <COMMAND> [additional_arguments]
+
+Suggested commands:
+  opencli faq                       Display frequently asked questions and answers.
+  opencli commands                  List all available OpenCLI commands and their usage.
+
+EOF
 }
 
-if [ "$EUID" -ne 0 ]; then
-  echo "OpenCLI scripts must be run as root user."
-  exit 1
-fi
-
-
-# Check if the correct number of arguments is provided
-if [ "$#" -lt 1 ]; then
-  usage
-  history
-  about
-  exit 1
-fi
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo "OpenCLI scripts must be run as root user." >&2
+        exit 1
+    fi
+}
 
 log_command() {
-  { echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $binary_name" >> "$LOG_FILE"; } 2>/dev/null
+    local command="$1"
+    {
+        echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $command" >> "$LOG_FILE"
+    } 2>/dev/null
 }
 
-
-
-
-# scripts dir
-script_dir="/usr/local/opencli"
-
-# bash -x script.sh
-if [ "$1" = "-x" ]; then
-  debug_flag="-x"
-  shift
-else
-   debug_flag=""
-fi
-
-# path/filename
-binary_name="$1"
-
-
-
-
-# '-v' is alias for '--version'
-if [ "$binary_name" = "-v" ]; then
-  binary_name="--version"
-fi
-
-
-# opencli error ID
-if [ "$binary_name" = "error" ]; then
-  shift
-  if [ "$#" -gt 0 ]; then
-    python3 /usr/local/opencli/error.py "$@"
-  else
-    python3 /usr/local/opencli/error.py
-  fi
- exit 0
-fi
-
-
-# LOCALES
-if [ "$binary_name" = "locale" ]; then
-  shift
-  if [ "$#" -gt 0 ]; then
-    bash $debug_flag <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh) "$@"
-  else
-    bash $debug_flag <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh)
-  fi
- exit 0
-fi
-
-
-# pre and post hooks added in 1.2.9
-pre_hook_file="/etc/openpanel/openpanel/hooks/pre_$binary_name"
-post_hook_file="/etc/openpanel/openpanel/hooks/post_$binary_name"
-
-
-
-# Replace '-' with '/' in the name
-binary_command="${binary_name//-//}"
-binary_path="$script_dir/$binary_command.sh" # add .sh to each command, opencli <1.0 had no .sh
-
-if [ "$binary_name" = "blacklist" ]; then
-  binary_path="/usr/ipset-blacklist.sh"
-fi
-
-if [ "$binary_name" = "sentinel" ]; then
-  binary_path="/usr/local/admin/service/notifications.sh"
-fi
-
-if [ -f "$binary_path" ]; then
-  shift
-  log_command
-
-  #run pre-hook, wait for it to complete
-  if [ -f "$pre_hook_file" ]; then
-    if [ "$#" -gt 0 ]; then
-      bash $debug_flag "$pre_hook_file" "$@" </dev/null >nohup.out 2>nohup.err
-    else
-      bash $debug_flag "$pre_hook_file" </dev/null >nohup.out 2>nohup.err
+run_hook() {
+    local hook_type="$1"
+    local command="$2"
+    shift 2
+    local args=("$@")
+    
+    local hook_file="${HOOKS_DIR}/${hook_type}_${command}"
+    
+    if [[ ! -f "$hook_file" ]]; then
+        return 0
     fi
-  fi
-
-  if [ "$#" -gt 0 ]; then
-    bash $debug_flag "$binary_path" "$@"
-  else
-    bash $debug_flag "$binary_path"
-  fi
-
-  #run post-hook in background
-  if [ -f "$post_hook_file" ]; then
-    if [ "$#" -gt 0 ]; then
-      nohup bash "$post_hook_file" "$@" </dev/null >nohup.out 2>nohup.err &
-    else
-      nohup bash "$post_hook_file" </dev/null >nohup.out 2>nohup.err &
+    
+    local hook_args=()
+    if [[ ${#args[@]} -gt 0 ]]; then
+        hook_args=("${args[@]}")
     fi
-  fi
+    
+    case "$hook_type" in
+        "pre")
+            # Run pre-hook synchronously
+            bash ${debug_flag:+"$debug_flag"} "$hook_file" "${hook_args[@]}" </dev/null >nohup.out 2>nohup.err
+            ;;
+        "post")
+            # Run post-hook asynchronously
+            nohup bash "$hook_file" "${hook_args[@]}" </dev/null >nohup.out 2>nohup.err &
+            ;;
+    esac
+}
 
-else
-  echo "Error: Command '$binary_command' not found - file '$binary_path' does not exist."
-  usage
-  history
-  about
-  exit 1
-fi
+handle_special_command() {
+    local command="$1"
+    shift
+    local args=("$@")
+    
+    case "$command" in
+        "error")
+            local error_script="/usr/local/opencli/error.py"
+            if [[ ${#args[@]} -gt 0 ]]; then
+                python3 "$error_script" "${args[@]}"
+            else
+                python3 "$error_script"
+            fi
+            exit 0
+            ;;
+        "locale")
+            local locale_url="https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh"
+            if [[ ${#args[@]} -gt 0 ]]; then
+                bash ${debug_flag:+"$debug_flag"} <(curl -sSL "$locale_url") "${args[@]}"
+            else
+                bash ${debug_flag:+"$debug_flag"} <(curl -sSL "$locale_url")
+            fi
+            exit 0
+            ;;
+    esac
+}
+
+get_binary_path() {
+    local command="$1"
+    
+    # Check for special command mappings
+    if [[ -n "${SPECIAL_COMMANDS[$command]:-}" ]]; then
+        echo "${SPECIAL_COMMANDS[$command]}"
+        return
+    fi
+    
+    # Replace '-' with '/' in the command name and add .sh extension
+    local binary_command="${command//-//}"
+    echo "${SCRIPT_DIR}/${binary_command}.sh"
+}
+
+execute_command() {
+    local command="$1"
+    shift
+    local args=("$@")
+    
+    local binary_path
+    binary_path=$(get_binary_path "$command")
+    
+    if [[ ! -f "$binary_path" ]]; then
+        echo "Error: Command '$command' not found - file '$binary_path' does not exist." >&2
+        show_usage
+        show_history
+        show_about
+        exit 1
+    fi
+    
+    log_command "$command"
+    
+    # Run pre-hook
+    run_hook "pre" "$command" "${args[@]}"
+    
+    # Execute main command
+    if [[ ${#args[@]} -gt 0 ]]; then
+        bash ${debug_flag:+"$debug_flag"} "$binary_path" "${args[@]}"
+    else
+        bash ${debug_flag:+"$debug_flag"} "$binary_path"
+    fi
+    
+    # Run post-hook
+    run_hook "post" "$command" "${args[@]}"
+}
+
+main() {
+    check_root
+    
+    # Check if sufficient arguments provided
+    if [[ $# -lt 1 ]]; then
+        show_usage
+        show_history
+        show_about
+        exit 1
+    fi
+    
+    # Parse debug flag
+    local debug_flag=""
+    if [[ "$1" == "-x" ]]; then
+        debug_flag="-x"
+        shift
+    fi
+    
+    # Get command name
+    local command="$1"
+    shift
+    
+    # Handle version alias
+    if [[ "$command" == "-v" ]]; then
+        command="--version"
+    fi
+    
+    # Handle special commands
+    handle_special_command "$command" "$@"
+    
+    # Execute regular command
+    execute_command "$command" "$@"
+}
+
+# Script entry point
+main "$@"

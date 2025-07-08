@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ################################################################################
 # Script Name: commands.sh
 # Description: Lists all available OpenCLI commands.
@@ -28,54 +29,155 @@
 # THE SOFTWARE.
 ################################################################################
 
-SCRIPTS_DIR="/usr/local/opencli"
-ALIAS_FILE="$SCRIPTS_DIR/aliases.txt"
+set -euo pipefail
 
-# delete exisitng aliases first
-> "$ALIAS_FILE"
+# Constants
+readonly SCRIPTS_DIR="/usr/local/opencli"
+readonly ALIAS_FILE="${SCRIPTS_DIR}/aliases.txt"
 
-GREEN='\033[0;32m'
-RESET='\033[0m'
+# Colors
+readonly GREEN='\033[0;32m'
+readonly RESET='\033[0m'
 
-# Loop through all scripts from https://github.com/stefanpejcic/openpanel-docker-cli/
-find "$SCRIPTS_DIR" -type f \
-  ! -path "$SCRIPTS_DIR/.git/*" \
-  ! -path "$SCRIPTS_DIR/.github/*" \
-  ! -name "error.py" \
-  ! -name "db.sh" \
-  ! -name "aliases.txt" \
-  ! -name "send_mail.sh" \
-  ! -name "LICENSE.md" \
-  ! -name "README.md" \
-  ! -name "*README.md" \
-  ! -name "*TODO*" | while read -r script; do
-        script_name=$(basename "$script" | sed 's/\(\.sh\|\.py\)$//') # rm extensions
-        dir_name=$(dirname "$script" | sed 's:.*/::') # folder name without the full path
+# Files to exclude from command listing
+readonly EXCLUDE_PATTERNS=(
+    ".git/*"
+    ".github/*"
+    "error.py"
+    "db.sh"
+    "aliases.txt"
+    "send_mail.sh"
+    "LICENSE.md"
+    "README.md"
+    "*README.md"
+    "*TODO*"
+)
 
-        if [ "$dir_name" = "opencli" ]; then
-            dir_name=""
-        else
-            dir_name="${dir_name}-"
+# Functions
+check_scripts_directory() {
+    if [[ ! -d "$SCRIPTS_DIR" ]]; then
+        echo "Error: Scripts directory '$SCRIPTS_DIR' not found." >&2
+        exit 1
+    fi
+}
+
+initialize_alias_file() {
+    # Clear existing aliases file
+    > "$ALIAS_FILE"
+    
+    if [[ ! -w "$ALIAS_FILE" ]]; then
+        echo "Error: Cannot write to alias file '$ALIAS_FILE'." >&2
+        exit 1
+    fi
+}
+
+build_find_excludes() {
+    local exclude_args=()
+    
+    for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+        exclude_args+=("!" "-path" "${SCRIPTS_DIR}/${pattern}")
+    done
+    
+    echo "${exclude_args[@]}"
+}
+
+extract_script_info() {
+    local script="$1"
+    local -n info_ref=$2
+    
+    # Extract description and usage from script comments
+    info_ref[description]=$(grep -E "^# Description:" "$script" 2>/dev/null | sed 's/^# Description: //' || true)
+    info_ref[usage]=$(grep -E "^# Usage:" "$script" 2>/dev/null | sed 's/^# Usage: //' || true)
+}
+
+generate_alias_name() {
+    local script="$1"
+    local script_name dir_name alias_name
+    
+    # Remove file extensions
+    script_name=$(basename "$script" | sed 's/\(\.sh\|\.py\)$//')
+    
+    # Get directory name without full path
+    dir_name=$(dirname "$script" | sed 's:.*/::')
+    
+    # Handle root opencli directory
+    if [[ "$dir_name" == "opencli" ]]; then
+        alias_name="$script_name"
+    else
+        alias_name="${dir_name}-${script_name}"
+    fi
+    
+    echo "$alias_name"
+}
+
+display_command_info() {
+    local full_alias="$1"
+    local script="$2"
+    declare -A script_info
+    
+    extract_script_info "$script" script_info
+    
+    echo -e "${GREEN}${full_alias}${RESET} # for ${script}"
+    
+    if [[ -n "${script_info[description]:-}" ]]; then
+        echo "Description: ${script_info[description]}"
+    fi
+    
+    if [[ -n "${script_info[usage]:-}" ]]; then
+        echo "Usage: ${script_info[usage]}"
+    fi
+    
+    echo "------------------------"
+}
+
+process_scripts() {
+    local exclude_args
+    declare -a commands_list=()
+    
+    exclude_args=$(build_find_excludes)
+    
+    # Use process substitution to avoid subshell issues
+    while IFS= read -r -d '' script; do
+        if [[ ! -r "$script" ]]; then
+            echo "Warning: Cannot read script '$script'" >&2
+            continue
         fi
-
-        alias_name="${dir_name}${script_name}"
+        
+        local alias_name full_alias
+        alias_name=$(generate_alias_name "$script")
         full_alias="opencli $alias_name"
-	description=$(grep -E "^# Description:" "$script" | sed 's/^# Description: //') # extract description if available
-	usage=$(grep -E "^# Usage:" "$script" | sed 's/^# Usage: //') # extract usage if available
- 
-	echo -e "${GREEN}$full_alias${RESET}` #for $script`"
+        
+        # Display command information
+        display_command_info "$full_alias" "$script"
+        
+        # Collect commands for sorting
+        commands_list+=("$full_alias")
+        
+    done < <(find "$SCRIPTS_DIR" -type f ${exclude_args[@]} -print0)
+    
+    # Write sorted commands to alias file
+    if [[ ${#commands_list[@]} -gt 0 ]]; then
+        printf '%s\n' "${commands_list[@]}" | sort > "$ALIAS_FILE"
+    fi
+}
 
-	if [ -n "$description" ]; then
-		echo "Description: $description"
-	fi
-	if [ -n "$usage" ]; then
-		echo "Usage: $usage"
-	fi
- 
-	echo "------------------------"
- 
-	echo "$full_alias" >> "$ALIAS_FILE" # add to file
-done
+show_summary() {
+    local command_count
+    
+    if [[ -f "$ALIAS_FILE" ]]; then
+        command_count=$(wc -l < "$ALIAS_FILE")
+        echo ""
+        echo "Total commands found: $command_count"
+        echo "Aliases saved to: $ALIAS_FILE"
+    fi
+}
 
-# Sort the aliases in the file by names
-sort -o "$ALIAS_FILE" "$ALIAS_FILE"
+main() {
+    check_scripts_directory
+    initialize_alias_file
+    process_scripts
+    show_summary
+}
+
+# Script entry point
+main "$@"
