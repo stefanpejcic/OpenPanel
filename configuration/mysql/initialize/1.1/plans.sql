@@ -85,7 +85,7 @@ CREATE TABLE `sites` (
   `version` varchar(20) DEFAULT NULL,
   `created_date` datetime DEFAULT CURRENT_TIMESTAMP,
   `type` varchar(50) DEFAULT NULL,
-  `ports` int DEFAULT NULL,
+  `ports` VARCHAR(255) DEFAULT NULL,
   `path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
