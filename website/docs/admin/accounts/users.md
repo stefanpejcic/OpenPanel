@@ -209,7 +209,7 @@ From the Edit tab, Administrators can edit user information:
 
 ![user edit](/img/admin/edit_user.png)
 
-## Suspend
+### Suspend
 
 <Tabs>
   <TabItem value="openadmin-user-suspend" label="With OpenAdmin" default>
@@ -238,7 +238,7 @@ opencli user-suspend filip
   </TabItem>
 </Tabs>
 
-## Unsuspend
+### Unsuspend
 
 <Tabs>
   <TabItem value="openadmin-user-unsuspend" label="With OpenAdmin" default>
