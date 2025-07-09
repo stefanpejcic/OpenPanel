@@ -12,7 +12,9 @@ To create a new website using [GrapeJS](https://grapesjs.com/) access the Site M
 
 ![websitebuilder_wiz.png](/img/panel/v2/websitebuilder_wiz.png)
 
-The first step is choosing a domain and a subdirectory where your new website will be installed, when done click on the "Open Website Builder" button to finish setup and start creating with website builder.
+The first step is choosing a domain and a subdirectory where your new website will be installed.
+
+When you're done click on the "Open Website Builder" button to finish setup and start creating with website builder.
 
 For additional information on how the [GrapeJS](https://grapesjs.com/) website builder works we recommend consulting the official documentation here - https://grapesjs.com/docs/ .
 
