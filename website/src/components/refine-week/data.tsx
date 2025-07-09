@@ -39,15 +39,16 @@ export const data = {
         timeline: [
             {
                 date: "February 14, Monday",
-                title: "Pilot & Refine architecture",
-                description: `Overview about <strong className="font-bold">Refine</strong> and <strong className="font-bold">Supabase</strong> the app we built during the article series.`,
+                title: "Enable API access in OpenAdmin",
+                description: `
+                First make sure that API access is enabled by going to <strong className="font-bold">OpenAdmin > API</strong> or by running <strong className="font-bold">opencli config get api</strong> from the terminal`,
                 link: "https://refine.dev/blog/refine-pixels-1/",
                 image: "/week-of-refine/supabase-timeline-1.jpg",
                 image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
             },
             {
                 date: "Februrary 15, Tuesday",
-                title: "Setting Up the Client App",
+                title: "Whitelist WHMCS server on Firewall",
                 description: `We start with setting up the Pixels client app using create <strong className="font-bold">refine-app</strong> by choosing <strong className="font-bold">Ant Design</strong> as a UI framework and <strong className="font-bold">supabase</strong> as a dataprovider.`,
                 link: "https://refine.dev/blog/refine-pixels-2/",
                 image: "/week-of-refine/supabase-timeline-2.jpg",
@@ -55,7 +56,7 @@ export const data = {
             },
             {
                 date: "Februrary 16, Wednesday",
-                title: "Adding CRUD Actions & Authentication",
+                title: "Install OpenPanel Module on WHMC",
                 description: `We start implementing CRUD functionalities like creating, showing a canvas, drawing pixels and user authentication using <strong className="font-bold">supabase</strong>.`,
                 link: "https://refine.dev/blog/refine-pixels-3/",
                 image: "/week-of-refine/supabase-timeline-3.jpg",
@@ -63,7 +64,7 @@ export const data = {
             },
             {
                 date: "Februrary 17, Thursday",
-                title: "Adding Realtime Collaboration",
+                title: "Setup Server and Plan on WHMCS",
                 description: `Adding <strong className="font-bold">supabase</strong> as live provider to the project in order that multiple users drawing on the same canvas can see each other's paintings in real-time.`,
                 link: "https://refine.dev/blog/refine-pixels-4/",
                 image: "/week-of-refine/supabase-timeline-4.jpg",
