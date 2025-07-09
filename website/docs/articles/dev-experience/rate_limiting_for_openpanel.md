@@ -1,4 +1,4 @@
-# How to configure rate limiting for login attempts in OpenPanel?
+# Limit OpenPanel
 
 Both OpenPanel and OpenAdmin interfaces have a built-in rate limiting and IP address blocking to protect against brute-force attacks.
 
