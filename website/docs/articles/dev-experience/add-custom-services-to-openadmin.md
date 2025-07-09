@@ -1,4 +1,4 @@
-# Add custom services to OpenAdmin
+# Custom Services
 
 Custom services can be added to OpenAdmin to be run and monitored from the admin panel.
 
