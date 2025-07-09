@@ -2,20 +2,57 @@
 sidebar_position: 1
 ---
 
-# Guides and How-to's
+# Getting Started
+- [Test latest OpenPanel Demo](docs/articles/support/how-to-access-openpanel-demo/)
+- [How to access OpenAdmin UI](/docs/articles/dev-experience/how-to-access-openadmin/)
 
+# Billing Integrations
+- [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
+- [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
+- [Blesta](/docs/articles/extensions/openpanel-and-blesta/)
+
+# Transfers
 - [Import account from cPanel backup](/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
-- [How to change PHP execution limit for phpMyAdmin in OpenPanel](/docs/articles/databases/how-to-increase-php-execution-limit-for-phpmyadmin-in-openpanel/)
-- [How to setup a Spring Boot Java Application on OpenPanel](/docs/articles/user-experience/how-to-setup-springboot-java-applicaiton-on-openpanel/)
-- [Configuring MySQL or MariaDB per user in OpenPanel](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- [Transfer OpenPanel accounts to another server](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)
+- [Migrate all data to another server](/docs/articles/transfers/migrate-openadmin-to-new-server/)
+
+
+# Accounts
+- [Configure MySQL or MariaDB per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- [Configure Apache, Nginx, Varnish per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+
+# Configuration
+- [Branding and White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
+- [Add Custom section with icons in Dashboard](m/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard/)
+
+# Enterprise
+- [OpenPanel Pricing](/docs/articles/license/pricing/)
 - [Upgrading to OpenPanel Enterprise and activating License](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
-- [How to Install Older Versions of Ioncube Loader Extensions for PHP](/docs/articles/user-experience/install-older-ioncube-loader-extensions/)
-- [Disable PHP errors or increase upload limits per website](/docs/articles/user-experience/disable-php-errors-or-increase-upload-limits-per-website/)
+- [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
+
+# Services
+- [How to configure FTP server](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
+- [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
+
+# Security
+- [Rate-limiting access to OpenPanel or OpenAdmin](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
+- [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
+
+# Emails
+- [Troubleshooting Email Errors](/docs/articles/email/troubleshooting-email-errors/)
+
+# Updates
+- [Check Installed Version](/docs/articles/install-update/how-to-check-openpanel-version/)
+- [Enable Automatic Updates](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
+- [Disable Automatic Updates](/docs/articles/install-update/how-to-disable-auto-update-openpanel/)
+- [Update Manually](/docs/articles/install-update/how-to-manually-update-openpanel/)
+- [Skip a specific version](/docs/articles/install-update/skip-specific-openpanel-version-update/)
+
+
+# Advanced
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
-- [Customizing OpenPanel Interface (Branding and White-Label)](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
+- [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
+- [Keyboard Shortcuts for OpenAdmin UI](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/)
+- [Uninstall OpenPanel](/docs/articles/support/how-to-unlinstall-openpanel/)
 
-
-# Extending OpenPanel
-- [OpenPanel and FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
-- [OpenPanel and WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
 
