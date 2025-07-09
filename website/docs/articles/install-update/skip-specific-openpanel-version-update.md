@@ -1,4 +1,4 @@
-# Skip a Specific OpenPanel Version Update
+# Skip Update
 
 OpenPanel can be updated either **automatically** or **manually**, depending on your preferences.
 
