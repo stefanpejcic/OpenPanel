@@ -1,4 +1,4 @@
-# Customizing OpenPanel Interface (Branding and White-Label)
+# Branding & White-Label
 
 Everything in OpenPanel is modular and can easily be modified or disabled without breaking the rest of the functionalities.
 
