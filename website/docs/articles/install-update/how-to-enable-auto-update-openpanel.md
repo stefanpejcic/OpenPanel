@@ -1,4 +1,4 @@
-### Enable Automatic Updates for OpenPanel
+# Enable Automatic Updates for OpenPanel
 
 - `autopatch` option allows Administrator to automatically update OpenPanel to minor versions. MINOR versions include only security updates and bug fixes.
 - `autoupdate` option allows Administrator to enable or disable automatic updates to major versions. MAJOR versions add new functionality in a backward compatible manner.
