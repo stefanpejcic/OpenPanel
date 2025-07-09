@@ -1,4 +1,4 @@
-# Manually Update OpenPanel
+# Manually Update
 
 When a new update is available, you will receive a notification in the OpenAdmin panel.
 
