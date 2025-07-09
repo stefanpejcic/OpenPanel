@@ -1,4 +1,6 @@
-# How to get a discount for OpenPanel licenses for educational or non-profit organizations
+# Wducational or NPO
+
+How to get a discount for OpenPanel licenses for educational or non-profit organizations:
 
 Are there discounts on OpenPanel Enterprise licenses for educational institutions or non-profit organizations?
 
