@@ -1,4 +1,4 @@
-# Configuring MySQL or MariaDB per user in OpenPanel
+# MySQL or MariaDB
 
 When creating a user, you can set mysql type to be used:
 
