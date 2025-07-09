@@ -33,6 +33,7 @@ sidebar_position: 1
 # Services
 - [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
 - [How to configure FTP server](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
+- [How to configure a DNS Cluster](/docs/articles/user-experience/how-to-setup-dns-cluster-in-openpanel)
 - [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
 
 # Security
