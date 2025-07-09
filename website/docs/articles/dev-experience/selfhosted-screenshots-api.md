@@ -1,4 +1,4 @@
-# Self-hosted Screenshots API for OpenPanel SiteManager
+# Screenshots API
 
 [OpenPanel SiteManager](/docs/panel/applications/) displays a website screenshot for each website. These screenshots are generated using our hosted API.
 
