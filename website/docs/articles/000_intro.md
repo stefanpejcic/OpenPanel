@@ -3,7 +3,7 @@ sidebar_position: 1
 ---
 
 # Getting Started
-- [Test latest OpenPanel Demo](docs/articles/support/how-to-access-openpanel-demo/)
+- [Test OpenPanel Demo](docs/articles/support/how-to-access-openpanel-demo/)
 - [How to access OpenAdmin UI](/docs/articles/dev-experience/how-to-access-openadmin/)
 
 # Billing Integrations
@@ -30,17 +30,20 @@ sidebar_position: 1
 - [Upgrading to OpenPanel Enterprise and activating License](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
 - [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
 
-# Services
-- [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
+# Domains
+- [How to configure Nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
+- [How to configure a DNS Cluster](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel)
+- [Troubleshooting DNS](/docs/articles/domains/troubleshooting-dns)
+
+# Files
 - [How to configure FTP server](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
-- [How to configure a DNS Cluster](/docs/articles/user-experience/how-to-setup-dns-cluster-in-openpanel)
-- [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
 
 # Security
 - [Rate-limiting access to OpenPanel or OpenAdmin](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
 
 # Emails
+- [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
 - [Troubleshooting Email Errors](/docs/articles/email/troubleshooting-email-errors/)
 
 # Updates
@@ -50,8 +53,8 @@ sidebar_position: 1
 - [Update Manually](/docs/articles/install-update/how-to-manually-update-openpanel/)
 - [Skip a specific version](/docs/articles/install-update/skip-specific-openpanel-version-update/)
 
-
 # Advanced
+- [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
 - [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
 - [Keyboard Shortcuts for OpenAdmin UI](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/)
