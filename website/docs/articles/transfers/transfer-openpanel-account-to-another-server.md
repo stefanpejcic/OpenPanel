@@ -1,2 +1,3 @@
-# Transfer OpenPanel account to another server
+# Transfer account
 
+Transfer OpenPanel account to another server
