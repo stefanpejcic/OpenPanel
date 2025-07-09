@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 07.07.2025
+# Last Modified: 08.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -509,6 +509,7 @@ vhost_files_create() {
 
        log "Creating ${domain_name}.conf" #$vhost_in_docker_file
        cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
+       chown $context_uid:$context_uid $vhost_in_docker_file > /dev/null 2>&1
        php_version=$(opencli php-default $user | grep -oP '\d+\.\d+')
 
 	sed -i \
