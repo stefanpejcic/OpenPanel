@@ -1,4 +1,4 @@
-# Upgrading to OpenPanel Enterprise and activating License
+# Upgrade to Enterprise
 
 OpenPanel is available in two editions:
 
