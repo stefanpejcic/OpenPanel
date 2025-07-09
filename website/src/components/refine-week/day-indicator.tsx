@@ -65,7 +65,7 @@ export const DayIndicator = ({
                     fill="currentColor"
                     fillOpacity={0.5}
                 >
-                    DAY
+                    STEP
                 </text>
                 <text
                     className={clsx({
