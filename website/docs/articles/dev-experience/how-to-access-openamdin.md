@@ -1,4 +1,4 @@
-# How to access OpenAdmin UI
+# Access OpenAdmin
 
 Run `opencli admin` command to find the address on which admin panel is accessible. Example output:
 
