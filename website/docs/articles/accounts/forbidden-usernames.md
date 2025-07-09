@@ -1,4 +1,4 @@
-# Reserved and Invalid Usernames
+# Reserved Usernames
 
 ## Basic restrictions
 
