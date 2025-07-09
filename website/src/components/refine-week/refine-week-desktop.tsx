@@ -99,7 +99,7 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                     "font-bold",
                 )}
             >
-                Timeline
+                Configuration
             </div>
 
             <div
@@ -147,13 +147,6 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                                 />
 
                                 <div className={clsx("no-prose")}>
-                                    <div
-                                        className={clsx(
-                                            "text-gray-600 dark:text-gray-400",
-                                        )}
-                                    >
-                                        {item.date}
-                                    </div>
                                     <div
                                         className={clsx(
                                             "text-gray-700 dark:text-gray-200",
