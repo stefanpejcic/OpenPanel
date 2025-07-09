@@ -4,7 +4,8 @@ sidebar_position: 1
 
 # Getting Started
 - [Test OpenPanel Demo](docs/articles/support/how-to-access-openpanel-demo/)
-- [How to access OpenAdmin UI](/docs/articles/dev-experience/how-to-access-openadmin/)
+- [How to access OpenAdmin](/docs/articles/dev-experience/how-to-access-openadmin/)
+- [How to access Openpanel](/docs/articles/dev-experience/how-to-access-openpanel/)
 
 # Billing Integrations
 - [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
