@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # WordPress Manager
 
-![wp_manager_grid.png](/img/panel/v1/applications/wp_manager_grid.png)
+![wp_manager_grid.png](/img/panel/v2/wpmanager.png)
 
 WordPress Manager is a powerful tool integrated into OpenPanel, enabling you to easily install and manage WordPress websites directly from your hosting panel.
 
@@ -39,7 +39,7 @@ After adding a domain name, click on the 'Site Manager' button in the sidebar to
 
 To create a new WordPress installation click on the "+ New website" button and choose to Install WordPress.
 
-![new_site_popup.png](/img/panel/v2/site_manager_new.png)
+![new_site_popup.png](/img/panel/v2/wpinstall.png)
 
 In the install form set:
 
@@ -52,28 +52,26 @@ In the install form set:
 
 and click on the 'Start Installation' button.
 
-![wp_install_domain.png](/img/panel/v2/wordpress_new.png)
-
-![wp_install.png](/img/panel/v2/wordpress_install.png)
+![wp_install.png](/img/panel/v2/wpinstall2.png)
 
 ### Scan (Import) Installations
 
 By performing a scan you can import existing WordPress installations into the WP Manager interface.
 The tool will search all your files for wp-config.php (main WordPress configuration file) and import all websites that it finds.
 
-![wp_manager_scan.png](/img/panel/v1/applications/wp_manager_scan.png)
+![wp_manager_scan.png](/img/panel/v2/wpscan.png)
 
 ### Refresh existing data
 
 In cases when you manually updated WordPress core or changed the admin email address outside the WP Manager interface, the tool will display out-of-date information. To update the data inside the WP Manager database for your websites simply click on the 'Refresh data' button.
 
-![wp_manager_refresh_data.png](/img/panel/v1/applications/wp_manager_refresh_data.png)
+![wp_manager_refresh_data.png](/img/panel/v2/wprefresh.png)
 
 ### Grid VS Tabular view
 
 Websites can be viewed in grid mode with screenshots or tabular (table) mode. 
 To change the view to table mode click on the button in bottom right corner of the screen:
-![wp_manager_table.png](/img/panel/v1/applications/wp_manager_table.png)
+![wp_manager_table.png](/img/panel/v2/wptable.png)
 
 
 ---
@@ -81,7 +79,7 @@ To change the view to table mode click on the button in bottom right corner of t
 ## Managing a website
 
 
-![wp_manager_site.png](/img/panel/v1/applications/wp_manager_site.png)
+![wp_manager_site.png](/img/panel/v2/wpmanage.png)
 
 ### General Information
 
@@ -104,12 +102,10 @@ For each WordPress installation you can view:
 
 ### View database information
 
-To view database login information for a WordPress website from the WP Manager click on the Database link:
-
-![wp_manager_site_database.png](/img/panel/v1/applications/wp_manager_site_database.png)
+Database login information for a WordPress website from the WP Manager is displayed at the bottom of the page:
 
 To reveal the password click on the blured password field:
-![wp_manager_site_database_password.png](/img/panel/v1/applications/wp_manager_site_database_password.png)
+![wp_manager_site_database_password.png](/img/panel/v2/wpunblur.png)
 
 ### Detach a website
 
@@ -117,11 +113,11 @@ Use the Detach option to remove a WordPress website from the WP Manager interfac
 
 Click on the 'Detach' button:
 
-![wp_manager_site_detach_1.png](/img/panel/v1/applications/wp_manager_site_detach_1.png)
+![wp_manager_site_detach_1.png](/img/panel/v2/wpdetach.png)
 
 On the popup click on 'Remove' button to confirm:
 
-![wp_manager_site_detach_2.png](/img/panel/v1/applications/wp_manager_site_detach_2.png)
+![wp_manager_site_detach_2.png](/img/panel/v2/wpdetach2.png)
 
 
 
@@ -130,7 +126,7 @@ Use the single sign-on option to auto login securely to your wp-admin dashboard 
 
 Click on the 'Login as Admin' button.
 
-![wp_manager_site_login_admin.png](/img/panel/v1/applications/wp_manager_site_login_admin.png)
+![wp_manager_site_login_admin.png](/img/panel/v2/wpautolog.png)
 
 
 ### Preview with temporary link
@@ -139,7 +135,7 @@ This option allows you to preview websites using temporary domains provided by O
 
 To view website using temporary link, click on the 'Preview' button:
 
-![website_temporary_url_openpanel.gif](/img/panel/v1/applications/website_temporary_url_openpanel.gif)
+![website_temporary_url_openpanel.gif](/img/panel/v2/wppreview.png)
 
 
 ### Edit WordPress settings
