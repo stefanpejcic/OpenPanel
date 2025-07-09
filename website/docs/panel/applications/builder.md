@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Website Builder
 
-[GrapeJS](https://grapesjs.com/) is a website builder that you can use to create static HTML websites with [tailwindcss](https://tailwindcss.com/).
+[GrapeJS](https://grapesjs.com/) is an accessible website builder integrated into OpenPanel that you can use to create static HTML websites with [tailwindcss](https://tailwindcss.com/).
 
 ![websitebuilder_new.png](/img/panel/v2/websitebuilder.png)
 
