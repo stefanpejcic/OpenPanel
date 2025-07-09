@@ -73,7 +73,7 @@ If you encountered any errors while running the installation script, please copy
 ## Post Install Steps
 
 Recommended steps after installing OpenPanel:
-- [access admin panel](/docs/admin/intro#access-openadmin)
+- [access admin panel](/docs/articles/dev-experience/how-to-access-openadmin)
 - [set domain for accessing panels](/docs/admin/settings/general/#set-domain-for-openpanel)
 - [configure nameservers](/docs/admin/settings/openpanel/#set-nameservers)
 - [create a hosting plan](/docs/admin/plans/hosting_plans#create-a-plan)
