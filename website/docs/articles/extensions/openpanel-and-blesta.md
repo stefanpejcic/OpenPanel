@@ -1,4 +1,4 @@
-# OpenPanel and Blesta
+# Blesta
 
 OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/), [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/) and Blesta.
 
