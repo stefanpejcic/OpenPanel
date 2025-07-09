@@ -1,4 +1,4 @@
-# How to check OpenPanel version
+# Check Version
 
 To check OpenPanel version from terminal:
 
