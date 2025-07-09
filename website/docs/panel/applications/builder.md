@@ -16,5 +16,7 @@ The first step is choosing a domain and a subdirectory where your new website wi
 
 When you're done click on the "Open Website Builder" button to finish setup and start creating with website builder.
 
+You can access the website builder to edit your websites at any time through Site Manager on your OpenPanel account
+
 For additional information on how the [GrapeJS](https://grapesjs.com/) website builder works we recommend consulting the official documentation here - https://grapesjs.com/docs/ .
 
