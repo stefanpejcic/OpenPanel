@@ -1,4 +1,4 @@
-# Disable Automatic Updates for OpenPanel
+# Disable Updates
 
 <Tabs>
   <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
