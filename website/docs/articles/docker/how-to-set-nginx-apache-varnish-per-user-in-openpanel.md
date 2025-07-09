@@ -1,4 +1,6 @@
-# Configuring Nginx, Apache, OpenResty or Varnish per user in OpenPanel
+# Apache or Nginx
+
+Configuring Nginx, Apache, OpenResty or Varnish per user in OpenPanel
 
 When creating a user, you can set webserver type to be used:
 
