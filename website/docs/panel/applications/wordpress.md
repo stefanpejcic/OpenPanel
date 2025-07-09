@@ -153,7 +153,7 @@ General settigns that can be edited for a website:
 - Allow/Block pingbacks from other websites that mention you
 - Block/Allow search engines like Google, Bing, etc.
 
-![wp_manager_site_edit_1.png](/img/panel/v1/applications/wp_manager_site_edit_1.png)
+![wp_manager_site_edit_1.png](/img/panel/v2/wpgeneral.png)
 
 #### Update Preferences
 
@@ -161,7 +161,7 @@ Here you can set the update preferences for WordPress core, plugins and themes.
 
 By default only WordPress core updates to minor versions are enabled.
 
-![wp_manager_site_edit_2.png](/img/panel/v1/applications/wp_manager_site_edit_2.png)
+![wp_manager_site_edit_2.png](/img/panel/v2/wpupdate.png)
 
 #### Update WordPress core
 
@@ -180,7 +180,7 @@ Here you can enable:
 - SHOW_DEBUG
 - SAVEQUERIES
 
-![wp_manager_site_edit_3.png](/img/panel/v1/applications/wp_manager_site_edit_3.png)
+![wp_manager_site_edit_3.png](/img/panel/v2/wpdebug.png)
 
 ### Refresh website screenshot
 
@@ -193,11 +193,11 @@ Website screenshots are periodically re-generated every 24h, if you need to manu
 
 To uninstall WordPress and permanently delete all website files and database, click on the 'Uninstall' button.
 
-![wp_manager_site_uninstall_1.png](/img/panel/v1/applications/wp_manager_site_uninstall_1.png)
+![wp_manager_site_remove_1.png](/img/panel/v2/wpdetach.png)
 
-On the modal click on the 'Confirm Uninstall' button to confirm.
+On the popup click on 'Confirm Uninstall' button to confirm:
 
-![wp_manager_site_uninstall_2.png](/img/panel/v1/applications/wp_manager_site_uninstall_2.png)
+![wp_manager_site_remove_2.png](/img/panel/v2/wpdetach2.png)
 
 
 ### Backup and Restore
@@ -207,7 +207,7 @@ You have the options to perform manual backups of WordPress files or databases a
 
 To generate a new backup click on the 'Backup' button.
 
-![wp_manager_site_backup_1.png](/img/panel/v1/applications/wp_manager_site_backup_1.png)
+![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
 
 On the modal select to backup both files and database, just a database or just files.
 Click on the 'Run Backup' to start the backup process:
@@ -235,3 +235,19 @@ After selecting a date, confirm the restore process by clicking on the 'Confirm 
 When the restore process is complete you will receive a notification:
 
 ![wp_manager_site_restore_done.png](/img/panel/v1/applications/wp_manager_site_restore_done.png)
+
+
+### Maintenance mode
+
+Using WordPress manager you can enable and disable Maintenance mode for your website and also view the current website status regarding maintenance.
+
+You can also begin editing the maintenance.php file through WordPress manager.
+
+![wp_manager_maintenance.png](/img/panel/v2/wpmaint.png)
+
+### Security
+
+Within the security tab you can shuffle WordPress salts, check the integrity of WordPress core files and also reinstall the core files if needed.
+
+![wp_manager_security.png](/img/panel/v2/wpsec.png)
+
