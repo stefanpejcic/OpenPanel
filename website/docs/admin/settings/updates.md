@@ -39,4 +39,4 @@ For more information about updates, check:
 - [How to Disable Automatic Updates for OpenPanel](/docs/articles/install-update/how-to-disable-auto-update-openpanel/)
 - [How to Manually Update OpenPanel](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
 - [How to Skip a Specific OpenPanel Version Update](/docs/articles/install-update/skip-specific-openpanel-version-update)
-- [How to Check OpenPanel Version frm Terminal](/docs/articles/install-update/how-to-check-openpanel-version)
+- [How to Check OpenPanel Version from Terminal](/docs/articles/install-update/how-to-check-openpanel-version)
