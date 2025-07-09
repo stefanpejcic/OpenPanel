@@ -115,7 +115,7 @@ Click on the 'Detach' button:
 
 ![wp_manager_site_detach_1.png](/img/panel/v2/wpdetach.png)
 
-On the popup click on 'Remove' button to confirm:
+On the popup click on 'Confirm detach' button to confirm:
 
 ![wp_manager_site_detach_2.png](/img/panel/v2/wpdetach2.png)
 
