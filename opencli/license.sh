@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 07.07.2025
+# Last Modified: 08.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
