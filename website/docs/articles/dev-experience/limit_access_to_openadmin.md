@@ -1,4 +1,4 @@
-# How to limit access to OpenAdmin
+# Restrict OpenAdmin
 
 To restrict OpenAdmin access only to your team, whitelist your server's IP addresses on the firewall, and then disable port `2087`.
 
