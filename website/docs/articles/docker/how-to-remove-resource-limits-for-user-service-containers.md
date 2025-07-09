@@ -1,4 +1,4 @@
-# How to remove resource limits for user service containers
+# Unlimited CPU&RAM
 
 Unlimited resources for all user services can be achieved by setting 0 for both CPU and RAM on that plan:
 
