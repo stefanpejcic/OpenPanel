@@ -18,5 +18,5 @@ When you're done click on the "Open Website Builder" button to finish setup and 
 
 You can access the website builder to edit your websites at any time through Site Manager on your OpenPanel account
 
-For additional information on how the [GrapeJS](https://grapesjs.com/) website builder works we recommend consulting the official documentation here - https://grapesjs.com/docs/ .
+For additional information on how the [GrapeJS](https://grapesjs.com/) website builder works we recommend consulting the official documentation - https://grapesjs.com/docs/ .
 
