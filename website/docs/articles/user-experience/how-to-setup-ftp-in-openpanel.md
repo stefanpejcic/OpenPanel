@@ -1,4 +1,4 @@
-# How to setup FTP in OpenPanel
+# Setup FTP
 
 [OpenPanel Enterprise](https://openpanel.com/enterprise/) supports FTP access. Once enabled, a shared FTP server becomes available for all users.
 
