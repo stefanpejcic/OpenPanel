@@ -1,4 +1,4 @@
-# Migrate OpenAdmin to new server
+# Migrate server
 
 OpenPanel is a truly OS-agnostic hosting panel, meaning it runs seamlessly on any Linux distribution. This makes migrating the panel along with all user data - from one server to another straightforward and efficient.
 
