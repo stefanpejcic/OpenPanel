@@ -1,4 +1,6 @@
-# How to find OpenPanel version
+# How to check OpenPanel version
+
+To check OpenPanel version from terminal:
 
 ```bash
 opencli --version 
