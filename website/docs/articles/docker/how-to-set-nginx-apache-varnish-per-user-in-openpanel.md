@@ -15,4 +15,4 @@ Users also have an option *Change Webserver Type* that allows them to switch for
 
 
 
-Administrators can select hte webserver to be used from *OpenAdmin > Settings > User Defaults* page.
+Administrators can select the webserver to be used from *OpenAdmin > Settings > User Defaults* page.
