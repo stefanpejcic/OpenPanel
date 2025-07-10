@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.co/
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 08.07.2025
+# Last Modified: 09.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -51,14 +51,41 @@ for arg in "$@"; do
     esac
 done
 
+
+# Validate the path
+validate_path() {
+    if [[ "$path" != /var/www/html/* ]]; then
+        echo "ERROR: Invalid path. It must start with /var/www/html/"
+        exit 1
+    fi
+
+    if [[ "$path" == *".."* ]]; then
+        echo "ERROR: Path traversal detected (.. is not allowed)."
+        exit 1
+    fi
+
+    if [[ "$path" == *"//"* ]]; then
+        echo "ERROR: Double slashes are not allowed in the path."
+        exit 1
+    fi
+
+    if [[ "$path" == *"|"* ]]; then
+        echo "ERROR: The path cannot contain the '|' character."
+        exit 1
+    fi
+}
+
+
+
+
 # Function to add or update the FTP path
 change_path() {
 
         docker exec openadmin_ftp sh -c "usermod -d ${path} ${username}"
         
             if [ $? -eq 0 ]; then
-                sed -i "/^${username}|[^|]*|/s|/[^|]*$|${path}|" /etc/openpanel/ftp/users/${openpanel_username}/users.list
-
+                sed -i "/^${username}|/s|/var/www/html/[^|]*|${path}|" /etc/openpanel/ftp/users/$openpanel_username/users.list
+                
                 # TODO EDIT THIS USER FILE ALSO!
                 echo "Success: FTP path for user '$username' changed successfully."
             else
@@ -75,6 +102,6 @@ change_path() {
 
 # Ensure the paths.list file exists
 mkdir -p /etc/openpanel/ftp/users/${openpanel_username}
-touch /etc/openpanel/ftp/users/${openpanel_username}/paths.list
 
+validate_path
 change_path

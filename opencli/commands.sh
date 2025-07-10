@@ -6,7 +6,7 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 08.07.2025
+# Last Modified: 09.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

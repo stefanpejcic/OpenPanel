@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 08.07.2025
+# Last Modified: 09.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -53,18 +53,28 @@ done
 
 # Function to update the user's password
 update_password() {
-    docker exec openadmin_ftp sh -c "echo -e '${new_password}\n${new_password}' | passwd ${username}"
-    
+    # Generate hashed password using Python crypt SHA-512 inside Docker
+
+	PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
+	HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
+
+    # Apply the new hashed password
+    docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"
+
     if [ $? -eq 0 ]; then
-        # Update the password in the users.list file
-        sed -i "/^$username|/d" /etc/openpanel/ftp/users/${openpanel_username}/users.list
-        echo "$username|$new_password|/home/$openpanel_username/$username" >> /etc/openpanel/ftp/users/${openpanel_username}/users.list
+        # Update users.list with new hashed password
+awk -F'|' -v user="$username" -v newpass="$HASHED_PASS" '
+    $1 == user { $2 = newpass }
+    { print $1 "|" $2 "|" $3 "|" $4 "|" $5 }
+' /etc/openpanel/ftp/users/$openpanel_username/users.list > /tmp/$openpanel_username.ftp_users.list.tmp && \
+mv /tmp/$openpanel_username.ftp_users.list.tmp /etc/openpanel/ftp/users/$openpanel_username/users.list
+
         echo "Success: FTP user '$username' password updated successfully."
     else
         if [ "$DEBUG" = true ]; then
             echo "ERROR: Failed to update FTP user password with command:"
             echo ""
-            echo "docker exec openadmin_ftp sh -c 'echo -e ${new_password}\n${new_password} | passwd ${username}'"
+            echo "docker exec openadmin_ftp sh -c 'usermod -p <hash> $username'"
             echo ""
             echo "Run the command manually to check for errors."
         else
@@ -73,6 +83,7 @@ update_password() {
         exit 1
     fi
 }
+
 
 # Check if the FTP user exists
 user_exists() {
