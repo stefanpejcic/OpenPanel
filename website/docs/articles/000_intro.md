@@ -23,6 +23,7 @@ sidebar_position: 1
 
 # Databases
 - [Configure MySQL or MariaDB per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- [Import MySQL Database](/website/docs/articles/docker/import-database)
 
 # Configuration
 - [Branding and White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
