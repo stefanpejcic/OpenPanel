@@ -4,20 +4,20 @@ OpenPanel is *probably* the most customizable web hosting control panel.
 
 Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
 
-
 ## Why use OpenPanel to host websites?
 
-**OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that your users enjoy full control over their environment, simillar to a VPS experience. They can effortlessly run multiple PHP versions, modify server configurations, view domain logs, restart services, set limits, configure backups and perform numerous other advanced tasks.
+**OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that your users enjoy full control over their environment, simillar to a VPS experience. They can effortlessly run multiple PHP versions, modify server configurations, view domain logs, restart services, set limits, configure backups and more.
 
 ## Why use OpenPanel for your hosting business?
 
-- focus on security.
-- WHMCS, FOSSBilling, Blesta, paymenter.org integrations.
-- dedicated MySQL/MariaDB per user.
+- focus on security
+- billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/)
+- dedicated [MySQL or MariaDB per user](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- dedicated [Apache or Nginx + Varnish per user](https://openpanel.com/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - detailed activity log of all user actions.
-- low maintenance: each user manages their own services and backups.
-- import cpanel accounts.
-- white label
+- low maintenance: each user manages their own services and [backups](https://openpanel.com/docs/panel/files/backups/)
+- [import cPanel accounts](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
+- [white label](https://openpanel.com/docs/articles/dev-experience/customizing-openpanel-user-interface/)
 
 
 ----
