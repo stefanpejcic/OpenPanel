@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 08.07.2025
+# Last Modified: 09.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,19 +29,37 @@
 # THE SOFTWARE.
 ################################################################################
 
-
-openpanel_username="$1"
 users_dir="/etc/openpanel/ftp/users"
-users_file="${users_dir}/${openpanel_username}/users.list"
 
-# Check if the file exists
-if [ ! -f "$users_file" ]; then
-    echo "ERROR: Users list file does not exist for '$openpanel_username'."
-    exit 1
+if [ -z "$1" ]; then
+    # No argument provided, loop over all users directories
+    for openpanel_username in "$users_dir"/*; do
+        # Only directories
+        if [ -d "$openpanel_username" ]; then
+            user_dir_name=$(basename "$openpanel_username")
+            users_file="${openpanel_username}/users.list"
+            if [ ! -f "$users_file" ]; then
+                echo "ERROR: Users list file does not exist for '$user_dir_name'."
+                continue
+            fi
+            echo "FTP sub-users for '$user_dir_name':"
+            while IFS='|' read -r username password directory; do
+                echo "$username | $directory"
+            done < "$users_file"
+            echo
+        fi
+    done
+else
+    openpanel_username="$1"
+    users_file="${users_dir}/${openpanel_username}/users.list"
+
+    if [ ! -f "$users_file" ]; then
+        echo "ERROR: Users list file does not exist for '$openpanel_username'."
+        exit 1
+    fi
+
+    echo "FTP sub-users for '$openpanel_username':"
+    while IFS='|' read -r username password directory; do
+        echo "$username | $directory"
+    done < "$users_file"
 fi
-
-# List users from the file
-echo "FTP sub-ssers for '$openpanel_username':"
-cat "$users_file" | while IFS='|' read -r username password directory; do
-    echo "$username | $directory"
-done

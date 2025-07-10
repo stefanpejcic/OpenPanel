@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 11.09.2024
-# Last Modified: 08.07.2025
+# Last Modified: 09.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -36,4 +36,4 @@ fi
 
 # Define the container name
 CONTAINER_NAME="openadmin_ftp"
-docker logs "$CONTAINER_NAME"
+docker --context=default logs "$CONTAINER_NAME"

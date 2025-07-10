@@ -154,21 +154,6 @@ services:
           pids: 100
 
   # FTP
-  ftp_env_generator:
-    image: alpine:latest
-    container_name: ftp_env_generator
-    volumes:
-      - /etc/openpanel/ftp/:/etc/openpanel/ftp/
-      - /usr/local/admin/scripts/ftp/users:/usr/local/admin/scripts/ftp/users
-    entrypoint: /bin/sh -c "/usr/local/admin/scripts/ftp/users"
-    restart: "no"  # only run once
-    networks:
-      - openpanel_network
-    deploy:
-      resources:
-        limits:
-          pids: 10
-
   openadmin_ftp:
     build:
       context: /etc/openpanel/ftp/    
@@ -182,9 +167,8 @@ services:
       - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf
       - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
       - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
-      - /etc/openpanel/users/:/etc/openpanel/ftp/users/
-    depends_on:
-      - ftp_env_generator
+      - /etc/openpanel/ftp/all.users:/etc/openpanel/ftp/all.users
+      - /etc/openpanel/ftp/users/:/etc/openpanel/ftp/users/
     env_file:
       - /etc/openpanel/ftp/all.users
     networks:

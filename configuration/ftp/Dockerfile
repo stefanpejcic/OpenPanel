@@ -17,7 +17,7 @@ RUN apk --no-cache add alpine-sdk \
 FROM $BASE_IMG
 
 COPY --from=pidproxy /usr/bin/pidproxy /usr/bin/pidproxy
-RUN apk --no-cache add vsftpd tini shadow
+RUN apk --no-cache add vsftpd tini
 
 COPY start_vsftpd.sh /bin/start_vsftpd.sh
 COPY vsftpd.conf /etc/vsftpd/vsftpd.conf
