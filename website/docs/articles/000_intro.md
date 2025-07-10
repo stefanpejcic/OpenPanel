@@ -17,10 +17,12 @@ sidebar_position: 1
 - [Transfer OpenPanel accounts to another server](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)
 - [Migrate all data to another server](/docs/articles/transfers/migrate-openadmin-to-new-server/)
 
-
-# Accounts
-- [Configure MySQL or MariaDB per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+# Websites
 - [Configure Apache, Nginx, Varnish per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+- [WordPress HTTPS behind Varnish Cache](docs/articles/docker/https-wordpress-behind-varnish-proxy/)
+
+# Databases
+- [Configure MySQL or MariaDB per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 
 # Configuration
 - [Branding and White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
