@@ -13,6 +13,6 @@ When creating a user, you can set webserver type to be used:
 
 Users also have an option *Change Webserver Type* that allows them to switch form one type to another.
 
+---
 
-
-Administrators can select the webserver to be used from *OpenAdmin > Settings > User Defaults* page.
+Administrators can select the default webserver to be used from [*OpenAdmin > Settings > User Defaults*](/docs/admin/settings/defaults/) page.
