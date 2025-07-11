@@ -15,7 +15,6 @@ import {
 export type CardProps = {
     title: string;
     imgURL: string;
-    dateRange: string;
     description: string;
     logo: React.FC<React.SVGProps<SVGSVGElement>>;
     bgLinearGradient: string;
@@ -25,7 +24,6 @@ export type CardProps = {
 const Card = ({
     title,
     imgURL,
-    dateRange,
     description,
     logo,
     bgLinearGradient,
@@ -48,12 +46,6 @@ const Card = ({
                     <img src={imgURL} alt={title} />
                 </div>
                 <div className={clsx("flex flex-col gap-4", "p-6")}>
-                    <div className="flex items-center gap-3">
-                        <DateIcon />
-                        <span className="text-gray-500 dark:text-gray-400">
-                            {dateRange}
-                        </span>
-                    </div>
                     <p className="text-gray-700 dark:text-gray-300">
                         {description}
                     </p>
