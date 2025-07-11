@@ -9,7 +9,7 @@ const RefineWeekSupabase = () => {
     return (
         <CommonLayout>
             <div className="refine-prose">
-                <Head title="SysAdmin Tutorials: Troubleshooting DNS | OpenPanel">
+                <Head title="WHMCS module for OpenPanel | OpenPanel">
                     <html data-page="week-of-refine" data-customized="true" />
                 </Head>
 
