@@ -91,7 +91,7 @@ const RefineWeek = () => {
                             )}
                         >
                             <p className="text-[32px] leading-10 font-semibold text-gray-800 dark:text-gray-100">
-                                OpenPanel SysAdmin Tutorials - a practical and engaging learning experience
+                                Supported Billing Software Integrations - OpenPanel Account provisioning
                             </p>
                         </div>
 
