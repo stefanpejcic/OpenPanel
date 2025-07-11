@@ -111,7 +111,7 @@ export const data = {
         coverAlt: "Refine week",
         title: "strapi",
         description:
-            "Setup <strong>FoSSBilling & OpenPanel</strong> account provisioning in just 5 minutes.",
+            "Setup <strong>FOSSBilling & OpenPanel</strong> account provisioning in just 5 minutes.",
         date: "April 10 - April 14, 2023",
         timeline: [
             {
