@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { WeekData, WeekVariants } from "./data";
-import { RefineWeekLogo } from "@site/src/assets/week-of-refine/icons";
+import { RefineLogoIcon } from "@site/src/refine-theme/icons/refine-logo";
 import { LetsStartButton } from "./lets-start-button";
 import { TwitterButton } from "./twitter-button";
 import { DayIndicator } from "./day-indicator";
@@ -30,7 +30,7 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                     "py-10 sm:py-20",
                 )}
             >
-                <RefineWeekLogo />
+                <RefineLogoIcon /> refine-logo
                 <span className={clsx("text-gray-500 dark:text-gray-400")}>
                     with
                 </span>
