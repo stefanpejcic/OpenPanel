@@ -38,7 +38,7 @@ Some of the basic operations available are Stopping, Restarting and Removing the
 
 Within the overview tab of the manager you can change your application's startup settings such as it's Startup file, Work directory and whether NPM/PIP install will run on startup. 
 
-Here you can also change the version of Node.js or Python that is used and the application's assigned resources such as CPU core and Memory limits.
+Here you can change the version of Node.js or Python that is used and the application's assigned resources such as CPU core and Memory limits.
 
 NPM/PIP install can also be ran manually through the manager and there's a shortcut to open the appropriate package.json/requirements.txt file inside file editor.
 
