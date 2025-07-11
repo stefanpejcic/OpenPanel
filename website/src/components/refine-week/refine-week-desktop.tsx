@@ -34,15 +34,6 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                     </span>
                     <Logo />
                 </div>
-                <div
-                    className={clsx(
-                        "text-gray-500 dark:text-gray-400",
-                        "flex items-center gap-2",
-                    )}
-                >
-                    <CalendarIcon />
-                    <span>{data.date}</span>
-                </div>
             </div>
 
             <div className={clsx("flex gap-12")}>
