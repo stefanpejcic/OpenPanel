@@ -34,7 +34,7 @@ export const data = {
         coverAlt: "refine week",
         title: "supabase",
         description:
-            "Stay tuned all week and learn the basics of creating a CRUD app via <strong>Refine & Supabase</strong> on a fun project in a week.",
+            "Setup <strong>WHMCS & OpenPanel</strong> account provisioning in just 5 minutes.",
         date: "February 14 - February 20, 2023",
         timeline: [
             {
@@ -120,7 +120,7 @@ export const data = {
         coverAlt: "Refine week",
         title: "strapi",
         description:
-            "Stay tuned all week and learn the basics of creating a CRUD app via <strong>Refine & strapi</strong> on a fun project in a week.",
+            "Setup <strong>FoSSBilling & OpenPanel</strong> account provisioning in just 5 minutes.",
         date: "April 10 - April 14, 2023",
         timeline: [
             {
