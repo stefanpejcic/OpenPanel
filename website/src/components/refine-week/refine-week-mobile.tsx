@@ -192,7 +192,7 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                                     )}
                                 >
                                     <ShareIcon />
-                                    <span>Read article</span>
+                                    <span>Instructions</span>
                                 </a>
                             </div>
                         </div>
