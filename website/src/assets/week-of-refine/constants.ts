@@ -11,17 +11,17 @@ export const weekOfRefineCards: CardProps[] = [
         logo: StrapiWithText,
         bgLinearGradient:
             "bg-week-of-refine-strapi-card-light dark:bg-week-of-refine-strapi-card",
-        link: "/week-of-refine-strapi",
+        link: "/fossbilling-module",
     },
     {
         title: "WHMCS",
         imgURL: "https://refine.ams3.cdn.digitaloceanspaces.com/week-of-refine/week-of-refine-pixels.png",
         dateRange: "December 14, 2023",
         description:
-            "OpenPanel Account provisioning module for WHMCS.",
+            "WHMCS module for OpenPanel.",
         logo: SupabaseWithText,
         bgLinearGradient:
             "bg-week-of-refine-supabase-card-light dark:bg-week-of-refine-supabase-card",
-        link: "/week-of-refine-supabase",
+        link: "/whmcs-module",
     },
 ];
