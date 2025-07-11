@@ -4,11 +4,11 @@ sidebar_position: 2
 
 # NodeJS and Python
 
-Contianerized [Node.js](https://nodejs.org) and [Python](https://python.org/) applications can be created and managed on OpenPanel with the help of our integrated pm2 manager.
+Contianerized [Node.js](https://nodejs.org) and [Python](https://python.org/) applications can be created and managed on OpenPanel with the help of our integrated [pm2](https://pm2.io/) manager.
 
 ---
 
-## Create an Application
+## Create a new Application
 
 To create a new Node.js or Python application using pm2, first access the **Auto Installer** page and under Node.js or Python click on the "Setup Node.js/Python Application" button.
 
