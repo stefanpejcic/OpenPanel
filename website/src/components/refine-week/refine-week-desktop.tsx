@@ -170,7 +170,7 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                                         )}
                                     >
                                         <ShareIcon />
-                                        <span>Read article</span>
+                                        <span>View Instructions</span>
                                     </a>
                                 </div>
 
