@@ -42,11 +42,11 @@ Available in an community-supported version, and a more feature-filled version w
 └─────────────────────────────────┘ └─────────────────────────────────┘ └─────────────────────────────────┘
 ```
 
-## Why use OpenPanel to host websites?
+## Why use OpenPanel?
 
 **OpenPanel** offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. This ensures that your users enjoy full control over their environment, simillar to a VPS experience. They can effortlessly run multiple PHP versions, modify server configurations, view domain logs, restart services, set limits, configure backups and more.
 
-## Why use OpenPanel for your hosting business?
+**Why use OpenPanel for your hosting business?**
 
 - focus on security
 - billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/)
