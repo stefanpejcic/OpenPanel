@@ -2,6 +2,72 @@
 
 OpenPanel is *probably* the most customizable web hosting control panel.
 
+
+```
+╔════════════════════════════════════════════════════════════════╗
+║                      🖥️  HOST SERVER                          ║
+╠════════════════════════════════════════════════════════════════╣
+║  Management Layer:                                             ║
+║  • 🎛️  OpenPanel (Control Panel)                              ║
+║  • ⚙️  OpenAdmin (Admin Interface)                            ║
+║                                                                ║
+║  Infrastructure Services:                                      ║
+║  • 🌐 Caddy (Reverse Proxy & SSL Termination)                 ║
+║  • 🔍 BIND9 (DNS Server)                                      ║
+║  • 🗄️  Global MySQL (User Management & Metadata)             ║
+║  • 🐳 Docker Engine (Container Orchestration)                 ║
+╚════════════════════════════════════════════════════════════════╝
+                                   │
+        ┌──────────────────────────┼──────────────────────────┐
+        │                          │                          │
+        ▼                          ▼                          ▼
+┌─────────────────────────────────┐  ┌─────────────────────────────────┐  ┌─────────────────────────────────┐
+│        👤 USER 1 TENANT         │  │        👤 USER 2 TENANT         │  │        👤 USER 3 TENANT         │
+│     🐳 Docker Context           │  │     🐳 Docker Context           │  │     🐳 Docker Context           │
+├─────────────────────────────────┤  ├─────────────────────────────────┤  ├─────────────────────────────────┤
+│                                 │  │                                 │  │                                 │
+│  🌐 Web Server Layer:           │  │  🌐 Web Server Layer:           │  │  🌐 Web Server Layer:           │
+│  • Nginx (Load Balancer)        │  │  • Apache (HTTP Server)         │  │  • OpenResty (Nginx + Lua)      │
+│  • Varnish (HTTP Cache)         │  │  • Varnish (HTTP Cache)         │  │  • Varnish (HTTP Cache)         │
+│                                 │  │                                 │  │                                 │
+│  ⚡ Application Layer:          │  │  ⚡ Application Layer:          │  │  ⚡ Application Layer:          │
+│  🐘 PHP containers:   │  │  🐘 PHP containers:   │  │  🐘 PHP containers:   │
+│  • PHP 8.4 (php84-fpm)         │  │  • PHP 7.4 (php74-fpm)         │  │  • PHP 5.6 (php56-fpm)         │
+│  • PHP 8.2 (php82-fpm)         │  │                                 │  │  • PHP 7.0 (php70-fpm)         │
+│  • PHP 7.0 (php70-fpm)         │  │  📱 Node.js Applications:        │  │  • PHP 8.1 (php81-fpm)         │
+│                                 │  │  • Node.js App 1 (v18.17.0)    │  │                                 │
+│  🎯 Application Routing:        │  │  • Node.js App 2 (v20.5.1)     │  │  🐍 Python Environment:         │
+│  • site1.com → PHP 8.4         │  │                                 │  │  • Python 3.11 (Flask/Django)  │
+│  • site2.com → PHP 8.2         │  │  🎯 Application Routing:        │  │                                 │
+│  • legacy.com → PHP 7.0        │  │  • api.site.com → Node.js App1 │  │  🎯 Application Routing:        │
+│                                 │  │  • app.site.com → Node.js App2 │  │  • modern.com → PHP 8.1        │
+│  📦 Version Management:         │  │  • main.site.com → PHP 7.4     │  │  • classic.com → PHP 7.0       │
+│  • phpbrew (PHP switcher)       │  │                                 │  │  • vintage.com → PHP 5.6       │
+│  • Composer (per PHP version)   │  │  📦 Version Management:         │  │  • api.site.com → Python App   │
+│                                 │  │  • nvm (Node Version Manager)   │  │                                 │
+│                                 │  │  • npm/yarn (Package Managers)  │  │  📦 Version Management:         │
+│                                 │  │  • Composer (PHP 7.4)          │  │  • phpbrew (PHP switcher)       │
+│                                 │  │  • PM2 (Process Manager)        │  │  • pyenv (Python versions)      │
+│                                 │  │                                 │  │  • pip/poetry (Python packages) │
+│                                 │  │                                 │  │  • Composer (per PHP version)   │
+│                                 │  │                                 │  │                                 │
+│  🗄️  Database Layer:            │  │  🗄️  Database Layer:            │  │  🗄️  Database Layer:            │
+│  • MySQL 8.0 (Primary DB)      │  │  • MariaDB 10.11 (Primary DB)  │  │  • MySQL 5 (Primary DB)      │
+│  • phpMyAdmin (DB Management)  │  │  • phpMyAdmin (DB Management)  │  │  • phpMyAdmin (DB Management)  │
+│                                 │  │  • MongoDB (NoSQL for Node.js) │  │  • PostgreSQL (Python apps)    │
+│                                 │  │                                 │  │                                 │
+│  🔧 Operations Layer:           │  │  🔧 Operations Layer:           │  │  🔧 Operations Layer:           │
+│  • Backup Tool (Automated)     │  │  • Backup Tool (Automated)     │  │  • Backup Tool (Automated)     │
+│  • Cron Jobs (Task Scheduler)  │  │  • Cron Jobs (Task Scheduler)  │  │  • Cron Jobs (Task Scheduler)  │
+│                                 │  │                                 │  │                                 │
+│  📊 Resource Limits:            │  │  📊 Resource Limits:            │  │  📊 Resource Limits:            │
+│  • CPU: 2 cores                │  │  • CPU: 4 cores                │  │  • CPU: 1 core                 │
+│  • RAM: 4GB                    │  │  • RAM: 8GB                    │  │  • RAM: 2GB                    │
+│  • Storage: 50GB SSD           │  │  • Storage: 100GB SSD          │  │  • Storage: 25GB SSD           │
+│                                 │  │                                 │  │                                 |
+└─────────────────────────────────┘  └─────────────────────────────────┘  └─────────────────────────────────┘
+```
+
 Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
 
 ## Why use OpenPanel to host websites?
