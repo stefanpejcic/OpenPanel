@@ -82,7 +82,7 @@ export const data = {
             {
                 date: "Februrary 19, Saturday",
                 title: "Test",
-                description: `Create a new order to test OpenAdmin API.`,
+                description: `Create a new order on WHMCS to test if the OpenAdmin API account provisioning is functioning properly.`,
                 link: "",
                 image: "/week-of-refine/supabase-timeline-6.jpg",
                 image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
@@ -151,7 +151,7 @@ export const data = {
             {
                 date: "Februrary 18, Friday",
                 title: "Create Hosting Plans",
-                description: `Create a new hosting plan.`,
+                description: `From FOSSBilling <strong className="font-bold">System > Hosting plans and servers</strong> click on <strong className="font-bold">New hosting plan</strong> and set the plan name to match that from <strong className="font-bold">OpenAdmin</strong>.`,
                 link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/#add-hosting-plan-for-openpanel",
                 image: "/week-of-refine/supabase-timeline-5.jpg",
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
@@ -167,7 +167,7 @@ export const data = {
             {
                 date: "Februrary 19, Saturday",
                 title: "Test",
-                description: `Create a new order to test OpenAdmin API.`,
+                description: `Create a new order on FOSSBilling to test if the OpenAdmin API account provisioning is functioning properly.`,
                 link: "",
                 image: "/week-of-refine/supabase-timeline-6.jpg",
                 image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
