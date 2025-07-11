@@ -60,53 +60,23 @@ Available in an community-supported version, and a more feature-filled version w
 
 ----
 
-This panel is the culmination of years of experience in the hosting industry, having spent decades working with various hosting panels we made sure to include all features that simply make sense.
-
-When we designed OpenPanel, we prioritized features that are not only user-friendly for beginners but also advanced enough to alleviate maintenance tasks for system administrators and hosting support teams.
-
-Some of the features worth mentioning are:
-
-- All services are containerized.
-- Webserver per user: Nginx, Apache, OpenResty and/or Varnish
-- MySQL or MariaDB per user.
-- Users can switch webserver and mysql type.
-- Users set PHP version per domain.
-- Users set CPU and Memory limits for services.
-- Users configure their own backup destinations.
-
-And unique features that simply made sense 💁 to us:
-- User and admin panels are completelly isolated
-- SSL is automatically generated and renewed
-- Services auto-start only when needed so resources are not wasted
-- Gooogle PageSpeed data is automatically displayed for every website in Site Manager
-- Users can export DNS zones easily
-- Users can suspend websites
-- Administrators can receive daily usage reports
-- Users can add comments for DNS records
-- Download files from URL and drag-and-drop file upload in File Manager
-- Users can save pages to Favorites for quick navigation
-- Users can view/terminate their active sessions
-- Detailed activity log of all actions
-- Admins can add custom message per user
-- and a lot more 🙌
-
 ## OpenPanel vs OpenAdmin
 
-The **OpenAdmin** offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, and editing OpenPanel settings.
-
-The **OpenPanel** interface is the client-level panel where end-users can manage their containers: edit settings, configure limits, manage backups, create websites and more.
+- The **OpenAdmin** offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, and editing OpenPanel settings.
+- The **OpenPanel** interface is the client-level panel where end-users can manage their containers: edit settings, configure limits, manage backups, create websites and more.
 
 ## Supported OS
 
-OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel.
+OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Supported OS:
 
+| Operating System       | Versions                             | Notes                                |
+|------------------------|--------------------------------------|--------------------------------------|
+| Ubuntu                 | 22.04, 24.04                         | **Recommended**                      |
+| Debian                 | [10](https://voidnull.es/instalacion-de-openpanel-en-debian-10/), 11, 12 | [The repository 'bookworm-backports InRelease' is not signed. #495](https://github.com/stefanpejcic/OpenPanel/issues/495)|
+| AlmaLinux              | 9.5                                  | *Recommended for ARM CPU*           |
+| RockyLinux            | 9.3                                  |                                      |
+| CentOS                 | 9.5                                  |                                      |
 
-Supported OS:
-- Ubuntu 22.04 and 24.04 (recommended)
-- Debian [10](https://voidnull.es/instalacion-de-openpanel-en-debian-10/), 11 and 12
-- AlmaLinux 9.5 *(recommended for ARM cpu)
-- RockyLinux 9.3
-- CentOS 9.5
 
 ## Installation
 
@@ -117,6 +87,13 @@ bash <(curl -sSL https://openpanel.org)
 ```
 
 To see more details to configure server on installation, **please visit**: https://openpanel.com/install 
+
+## Documentation
+
+- [OpenAdmin - Admin panel documentation](https://openpanel.com/docs/admin/intro/)
+- [OpenPanel - End-user panel documentation](https://openpanel.com/docs/panel/intro/)
+- [Guides and How-to](https://openpanel.com/docs/articles/intro/)
+- [OpenCLI - Terminal commands](https://dev.openpanel.com/cli/)
 
 ## Support
 
