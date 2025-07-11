@@ -14,11 +14,15 @@ To create a new Node.js or Python application using pm2, first access the **Auto
 
 The next step is choosing an internal name for your new application, this name is only visible on the backend and is used to identify the container.
 
-After naming your application you'll need to choose a domain and optionally a subdirectory where your new application will be installed, on this page you can also choose which version of Node.js or Python to install.
+After naming your application you'll need to choose a domain and optionally a subdirectory where your new application will be installed.
+
+On this page you can also choose which version of Node.js or Python to install.
 
 If your application hasn't been built yet, you can check a box that tells the installer to run NPM or PIP install before starting your application.
 
-With this option enabled, the installer will first run npm install using the package.json file or pip install using the requirements.txt file. If your application is already built, you can skip this step and leave the box unchecked.
+With this option enabled, the installer will first run npm install using the package.json file or pip install using the requirements.txt file. 
+
+If your application is already built, you can skip this step and leave the box unchecked.
 
 When you're done configuring click on the "Start Installation" button to run the AutoInstaller, the installation log will be displayed below.
 
