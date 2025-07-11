@@ -30,7 +30,9 @@ When you're done configuring click on the "Start Installation" button to run the
 
 ## Manage your Application
 
-On the **Site Manager** page of your OpenPanel account you can find basic details about your applications and access a management panel for each app by clicking on the "Manage" button besides your application.
+On the **Site Manager** page of your OpenPanel account you can find basic details about your applications.
+
+Here you can access a management panel for each app by clicking on the "Manage" button besides your application.
 
 Some of the basic operations available are Stopping, Restarting and Removing the application, there is also a Live preview feature along with a recent screenshot of your app and a PageSpeed statistics graph.
 
