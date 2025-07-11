@@ -67,17 +67,6 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
             >
                 <div
                     className={clsx(
-                        "text-gray-500 dark:text-gray-400",
-                        "mt-6 sm:mt-20",
-                        "flex items-center gap-2",
-                    )}
-                >
-                    <CalendarIcon />
-                    <span>{data.date}</span>
-                </div>
-
-                <div
-                    className={clsx(
                         "text-[32px] leading-[40px]",
                         "text-gray-800 dark:text-gray-100",
                         "mt-10",
@@ -133,24 +122,6 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                                 "rounded-lg",
                             )}
                         >
-                            <DayIndicator
-                                id={`mobile-${index}`}
-                                variant={variant}
-                                day={index + 1}
-                                className={clsx(
-                                    "absolute top-[-8px] left-[-8px] sm:top-[-16px] sm:left-[-16px]",
-                                )}
-                            />
-                            <div
-                                className={clsx(
-                                    "text-gray-600 dark:text-gray-400",
-                                    "h-14",
-                                    "ml-24 pt-2",
-                                )}
-                            >
-                                {item.date}
-                            </div>
-
                             <div
                                 className={clsx(
                                     "flex flex-col gap-6",
