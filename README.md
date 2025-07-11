@@ -2,6 +2,8 @@
 
 OpenPanel is *probably* the most customizable web hosting control panel.
 
+Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
+
 ```
 ╔════════════════════════════════════════════════════════════════╗
 ║                     🖥️  OPENPANEL SERVER                       ║
@@ -39,8 +41,6 @@ OpenPanel is *probably* the most customizable web hosting control panel.
 │  • Storage: 50 GB SSD           │ │  • Storage: 100 GB SSD          │ │  • Storage: 25 GB SSD           │
 └─────────────────────────────────┘ └─────────────────────────────────┘ └─────────────────────────────────┘
 ```
-
-Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
 
 ## Why use OpenPanel to host websites?
 
