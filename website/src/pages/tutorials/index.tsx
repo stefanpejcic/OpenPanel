@@ -83,7 +83,7 @@ const RefineWeek = () => {
                             )}
                         >
                             <p className="text-[32px] leading-10 font-semibold text-gray-800 dark:text-gray-100">
-                                Supported Billing Software Integrations - OpenPanel Account provisioning
+                                Supported Billing Software Integrations
                             </p>
                         </div>
 
