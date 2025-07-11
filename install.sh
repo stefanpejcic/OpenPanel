@@ -321,10 +321,32 @@ check_requirements() {
         # check if OS is MacOS
         elif [ "$(uname)" = "Darwin" ]; then
             echo -e "${RED}Error: MacOS is not currently supported.${RESET}" >&2
+	    echo ""
+     	    echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
             exit 1
         # check if running inside a container
         elif [[ -f /.dockerenv || $(grep -sq 'docker\|lxc' /proc/1/cgroup) ]]; then
             echo -e "${RED}Error: running openpanel inside a container is not supported.${RESET}" >&2
+            exit 1
+        fi
+
+        # Check if total RAM is at least 1GB
+        total_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
+        total_mb=$((total_kb / 1024))
+        if [ "$total_mb" -lt 1024 ]; then
+            echo -e "${RED}Error: at least 1GB of RAM is required. Detected: ${total_mb}MB${RESET}" >&2
+	    echo ""
+     	    echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
+            exit 1
+        fi
+
+        # Check if available storage in / is at least 5GB
+        available_kb=$(df / --output=avail | tail -1)
+        available_mb=$((available_kb / 1024))
+        if [ "$available_mb" -lt 5120 ]; then
+            echo -e "${RED}Error: at least 5GB of free disk space is required on /. Detected: ${available_mb}MB${RESET}" >&2
+	    echo ""
+     	    echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
             exit 1
         fi
     fi
