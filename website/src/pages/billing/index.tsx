@@ -59,7 +59,7 @@ const RefineWeek = () => {
     return (
         <CommonLayout>
             <div className="not-prose">
-                <Head title="RefineWeek | Refine">
+                <Head title="Billing Software Integrations for OpenPanel | OpenPanel">
                     <html data-page="week-of-refine" data-customized="true" />
                 </Head>
 
