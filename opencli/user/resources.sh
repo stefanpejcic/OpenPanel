@@ -5,7 +5,7 @@
 # Usage: opencli user-resources <CONTEXT> [--activate=<SERVICE_NAME>] [--deactivate=<SERVICE_NAME>] [--update_cpu=<FLOAT>] [--update_ram=<FLOAT>] [--service=<NAME>] [--json]
 # Author: Stefan Pejcic
 # Created: 26.02.2025
-# Last Modified: 09.07.2025
+# Last Modified: 11.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -160,8 +160,11 @@ TOTAL_USED_RAM=0
 RUNNING_SERVICES=$(docker --context "$context" ps --format '{{.Names}}')
 for service in $RUNNING_SERVICES; do
     norm_name=$(normalize_service_name "$service")
-    cpu="${!norm_name"_CPU"}"
-    ram="${!norm_name"_RAM"}"
+    cpu_var="${norm_name}_CPU"
+    ram_var="${norm_name}_RAM"
+    
+    cpu="${!cpu_var}"
+    ram="${!ram_var}"
     ram=${ram//[gG]/}
 
     TOTAL_USED_CPU=$(awk "BEGIN {print $TOTAL_USED_CPU + $cpu}")

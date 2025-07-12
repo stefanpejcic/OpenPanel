@@ -1,14 +1,14 @@
 #!/bin/bash
 ################################################################################
 # Script Name: server/ips.sh
-# Description: Generates a file that contians a list of users with dedicated IPs
+# Description: Generates a file with a list of users with their dedicated IPs
 # Usage: opencli server-ips
 #        opencli server-ips <USERNAME>
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 09.07.2025
-# Company: openpanel.co
-# Copyright (c) openpanel.co
+# Last Modified: 11.07.2025
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -66,9 +66,24 @@ create_ip_file() {
     echo "{ \"ip\": \"$IP\" }" > "$JSON_FILE"
 }
 
+
+get_webserver_for_user(){
+        local USER=$1
+        output=$(opencli webserver-get_webserver_for_user "$USER")
+
+        case "$output" in
+        *nginx*) ws="nginx" ;;
+        *apache*) ws="apache" ;;
+        *openresty*) ws="openresty" ;;
+        *) exit 1 ;;
+        esac
+}
+
+
 for username in $usernames; do
-    get_context_for_user $username
-    user_ip=$(docker --context $context exec "$username" bash -c "curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3")
+    get_context_for_user "$username"
+    get_webserver_for_user "$username"
+    user_ip=$(docker --context=$context exec "$ws" bash -c "curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3")
     echo $username - $user_ip
     if [[ "$user_ip" != "$current_server_main_ip" ]]; then
         create_ip_file "$username" "$user_ip"

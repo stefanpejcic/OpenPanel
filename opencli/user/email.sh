@@ -1,14 +1,14 @@
 #!/bin/bash
 ################################################################################
-# Script Name: user/change_email.sh
+# Script Name: user/email.sh
 # Description: Change email for user
 # Usage: opencli user-email <USERNAME> <NEW_EMAIL>
 # Docs: https://docs.openpanel.com
 # Author: Radovan Jecmenica
 # Created: 06.12.2023
-# Last Modified: 09.07.2025
-# Company: openpanel.co
-# Copyright (c) openpanel.co
+# Last Modified: 11.07.2025
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,36 +28,111 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ################################################################################
-# Source the database connection script
-source /usr/local/opencli/db.sh
 
-# Function to change email in the database
-change_email_in_db() {
-    USERNAME=$1
-    NEW_EMAIL=$2
+set -euo pipefail  # Exit on error, undefined vars, pipe failures
+
+# Source database configuration
+readonly DB_CONFIG="/usr/local/opencli/db.sh"
+if [[ ! -f "$DB_CONFIG" ]]; then
+    echo "Error: Database configuration file not found: $DB_CONFIG" >&2
+    exit 1
+fi
+
+# shellcheck source=/usr/local/opencli/db.sh
+source "$DB_CONFIG"
+
+# Validate email format
+validate_email() {
+    local email="$1"
+    local email_regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
     
-    # Update the username in the database with the suspended prefix
-    mysql_query="UPDATE users SET email='$NEW_EMAIL' WHERE username='$USERNAME';"
-    
-    mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
+    if [[ ! "$email" =~ $email_regex ]]; then
+        echo "Error: Invalid email format: $email" >&2
+        return 1
+    fi
 }
 
-# Check if the correct number of arguments is provided
-if [ "$#" -ne 2 ]; then
-  echo "Usage: $0 <USERNAME> <NEW_EMAIL>"
-  exit 1
-fi
+# Check if user exists in database
+user_exists() {
+    local username="$1"
+    local count
+    
+    count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
+        -sN -e "SELECT COUNT(*) FROM users WHERE username = '$username';")
+    
+    [[ "$count" -eq 1 ]]
+}
 
-# Extract arguments
-USERNAME=$1
-NEW_EMAIL=$2
+# Update email in database with proper error handling
+update_user_email() {
+    local username="$1"
+    local new_email="$2"
+    
+    # Check if user exists
+    if ! user_exists "$username"; then
+        echo "Error: User '$username' not found in database" >&2
+        return 1
+    fi
+    
+    # Validate email format
+    if ! validate_email "$new_email"; then
+        return 1
+    fi
+    
+    # Check if email is already in use
+    local existing_user
+    existing_user=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
+        -sN -e "SELECT username FROM users WHERE email = '$new_email' AND username != '$username';")
+    
+    if [[ -n "$existing_user" ]]; then
+        echo "Error: Email '$new_email' is already in use by user '$existing_user'" >&2
+        return 1
+    fi
+    
+    # Perform the update
+    mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
+        -e "UPDATE users SET email = '$new_email' WHERE username = '$username';"
+}
 
-# Call the function to change email in the database
-change_email_in_db "$USERNAME" "$NEW_EMAIL"
+# Display usage information
+show_usage() {
+    echo "Usage: opencli user-email <USERNAME> <NEW_EMAIL>"
+    echo ""
+    echo "Updates the email address for a specified account."
+    echo ""
+    echo "Arguments:"
+    echo "  USERNAME   - The username of the user to update"
+    echo "  NEW_EMAIL  - The new email address to assign"
+    echo ""
+    echo "Example:"
+    echo "  opencli user-email john john.doe@newdomain.com"
+}
 
-# Check if the function executed successfully
-if [ $? -eq 0 ]; then
-  echo "Email for user $USERNAME updated to $NEW_EMAIL."
-else
-  echo "Error: Failed to update email for user $USERNAME."
-fi
+# Main execution
+main() {
+    # Check argument count
+    if [[ $# -ne 2 ]]; then
+        show_usage
+        exit 1
+    fi
+    
+    local username="$1"
+    local new_email="$2"
+    
+    # Validate required database variables
+    if [[ -z "${config_file:-}" ]] || [[ -z "${mysql_database:-}" ]]; then
+        echo "Error: Database configuration variables not properly set" >&2
+        exit 1
+    fi
+    
+    # Perform the email update
+    if update_user_email "$username" "$new_email"; then
+        echo "Success: Email for user '$username' updated to '$new_email'"
+    else
+        echo "Error: Failed to update email for user '$username'" >&2
+        exit 1
+    fi
+}
+
+# Execute main function with all arguments
+main "$@"

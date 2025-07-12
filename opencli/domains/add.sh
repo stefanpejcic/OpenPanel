@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 09.07.2025
+# Last Modified: 11.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -280,9 +280,6 @@ fi
 
 get_server_ipv4_or_ipv6() {
 
-
-
-
 	# IP SERVERS
 	SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
  	log "Checking IPv4 address for the account"
@@ -341,7 +338,7 @@ get_server_ipv4_or_ipv6() {
 
 
 
-	json_file="/etc/openpanel/openpanel/core/users/$new_username/ip.json"
+	json_file="/etc/openpanel/openpanel/core/users/$user/ip.json"
 	
 	if [ -e "$json_file" ]; then
 	    dedicated_ip=$(jq -r '.ip' "$json_file")
