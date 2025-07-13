@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 11.07.2025
+# Last Modified: 12.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1272,7 +1272,7 @@ if [[ -n "$webserver" ]]; then
         log "Setting varnish caching and $webserver as webserver for the user.."
         sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" \
 	-e "s|^#PROXY_HTTP_PORT|PROXY_HTTP_PORT|g" "/home/$username/.env"
-    elif [[ "$webserver" =~ ^nginx$ || "$webserver" =~ ^apache$ ]]; then
+    elif [[ "$webserver" =~ ^(nginx|apache|openresty)$ ]]; then
         log "Setting $webserver as webserver for the user.."
         sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" "/home/$username/.env"
         VARNISH=false
