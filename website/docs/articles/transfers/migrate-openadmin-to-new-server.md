@@ -33,7 +33,7 @@ Click on the 'Start Migration' button and wait for the process to complete:
 ### Using Terminal
 
 ```bash
-bash <(curl -sSL https://openpanel.org) -h NEW_SERVER_IP --user root --password NEW_SERVER_ROOT_PASSWORD
+opencli server-migrate -h NEW_SERVER_IP --user root --password NEW_SERVER_ROOT_PASSWORD
 ```
 
 Allow the migration process to finish.
