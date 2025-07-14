@@ -5,7 +5,7 @@
 # Usage: opencli user-varnish <USERNAME> [on|off]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 12.07.2025
+# Last Modified: 13.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

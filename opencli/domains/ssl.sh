@@ -5,7 +5,7 @@
 # Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 12.07.2025
+# Last Modified: 13.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
