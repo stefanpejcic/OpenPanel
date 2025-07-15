@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: domains/all.sh
 # Description: Lists all domain names currently hosted on the server.
-# Usage: opencli domains-all
+# Usage: opencli domains-all [--docroot|--php_version]
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 13.07.2025
+# Last Modified: 14.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -33,16 +33,40 @@
 source /usr/local/opencli/db.sh
 
 get_all_domains() {
-    
+    local include_docroot=false
+    local include_php_version=false
+
+    # Parse optional flags
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --docroot)
+                include_docroot=true
+                ;;
+            --php_version)
+                include_php_version=true
+                ;;
+            *)
+                echo "Unknown option: $1"
+                exit 1
+                ;;
+        esac
+        shift
+    done
+
     # Check if the config file exists
     if [ ! -f "$config_file" ]; then
         echo "Config file $config_file not found."
         exit 1
     fi
-    
-    # Query to fetch all domain names
-    all_domains="SELECT domain_url FROM domains"
+
+    # Build the SELECT fields
+    query_fields="domain_url"
+    $include_docroot && query_fields+=", docroot"
+    $include_php_version && query_fields+=", php_version"
+
+    all_domains="SELECT $query_fields FROM domains"
     domains=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$all_domains" -sN)
+
     if [ -z "$domains" ]; then
         echo "No domains found in the database."
     else
@@ -50,4 +74,5 @@ get_all_domains() {
     fi
 }
 
-get_all_domains
+get_all_domains "$@"
+

@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: domains/add.sh
 # Description: Add a domain name for user.
-# Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] --debug
+# Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 13.07.2025
+# Last Modified: 14.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -58,6 +58,11 @@ hs_ed25519_secret_key=""
 
 debug_mode=false
 docroot=""
+php_version=""
+SKIP_VHOST_CREATE=false
+SKIP_CADDY_CREATE=false
+SKIP_DNS_ZONE=false
+SKIP_STARTING_CONTAINERS=false
 REMOTE_SERVER=""
 PANEL_CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
 
@@ -67,12 +72,41 @@ while [[ $# -gt 0 ]]; do
             debug_mode=true
             shift
             ;;
+        --skip_caddy)
+            SKIP_CADDY_CREATE=true
+            shift
+            ;;
+        --skip_vhost)
+            SKIP_VHOST_CREATE=true
+            shift
+            ;;
+        --skip_dns)
+            SKIP_DNS_ZONE=true
+            shift
+            ;;    
+        --skip_containers)
+            SKIP_STARTING_CONTAINERS=true
+            shift
+            ;;    
         --docroot)
             if [[ -n "$2" ]]; then
                 docroot="$2"
                 shift 2
             else
                 echo "FATAL ERROR: Missing value for --docroot"
+                exit 1
+            fi
+            ;;
+        --php_version)
+            if [[ -n "$2" ]]; then
+                php_version="$2"
+	        if [[ ! "$php_version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+	            echo "FATAL ERROR: Invalid PHP version format '$php_version'. Expected format: N.N (e.g., 8.2)"
+	            exit 1
+	        fi
+                shift 2
+            else
+                echo "FATAL ERROR: Missing value for --php_version"
                 exit 1
             fi
             ;;
@@ -507,8 +541,7 @@ vhost_files_create() {
        log "Creating ${domain_name}.conf" #$vhost_in_docker_file
        cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
        chown $context_uid:$context_uid $vhost_in_docker_file > /dev/null 2>&1
-       php_version=$(opencli php-default $user | grep -oP '\d+\.\d+')
-
+       
 	sed -i \
 	  -e "s|<DOMAIN_NAME>|$domain_name|g" \
 	  -e "s|<USER>|$user|g" \
@@ -825,7 +858,9 @@ dns_stuff() {
 
 
 get_php_version() {
-	php_version=$(opencli php-default $user | grep -oP '\d+\.\d+')
+       if [[ -z "$php_version" ]]; then
+       		php_version=$(opencli php-default $user | grep -oP '\d+\.\d+')
+       fi
 }
 
 # Add domain to the database
@@ -844,19 +879,46 @@ add_domain() {
     
     	clear_cache_for_user                         # rm cached file for ui
     	make_folder                                  # create dirs on host server
-    	get_webserver_for_user                       # nginx or apache
-    	get_server_ipv4_or_ipv6                      # get outgoing ip     
+     	if $SKIP_VHOST_CREATE; then 
+      		log "Skipping VirtualHost file creation due to '--skip_dns' flag."
+      	else
+           	get_webserver_for_user                       # nginx or apache
+        fi
      
-	vhost_files_create                           # create file in container
+    	get_server_ipv4_or_ipv6                      # get outgoing ip     
+
+     	if $SKIP_VHOST_CREATE; then 
+      		log "Skipping VirtualHost file creation due to '--skip_dns' flag."
+      	else
+           	vhost_files_create                       # create file in container
+        fi
 
  	if $onion_domain; then
 		setup_tor_for_user		     # create conf files
 		start_tor_for_user		     # actually run service
     	else
-		create_domain_file                   # create file on host
-		dns_stuff
+		
+	     	if $SKIP_CADDY_CREATE; then 
+	      		log "Skipping Reverse Proxy file creation due to '--skip_caddy' flag."
+	      	else
+	           	create_domain_file                   # create file on host
+	        fi
+
+
+	     	if $SKIP_DNS_ZONE; then 
+	      		log "Skipping DNS zone file creation due to '--skip_dns' flag."
+	      	else
+	           	dns_stuff
+	        fi
+  	
  	fi
-	start_default_php_fpm_service                # start phpX.Y-fpm service
+  
+	if $SKIP_STARTING_CONTAINERS; then 
+		log "Skipping starting PHP service due to '--skip_containers' flag."
+	else
+		start_default_php_fpm_service                # start phpX.Y-fpm service
+	fi
+	
  
 	if $onion_domain; then
  		:

@@ -1,0 +1,147 @@
+; widows
+#BLEXBot
+8484 boston project
+a href=
+adsarobot
+advanced email extractor
+agdm79@mail.ru
+amiga-aweb/3.4
+atomic_email_hunter
+atspider
+attache
+autoemailspider
+backdoor
+bitdiscovery
+black hole
+botversion
+butch__2.1.1
+bwh3_user_agent
+cheesebot
+cherrypicker
+china local browse 2.
+chinaclaw
+compatible ; msie
+compatible ;.
+compatible-
+concealed defense
+contactbot/
+contentsmartz
+converacrawler
+copyguard
+copyrightcheck
+core-project/1
+crescent internet toolpak
+datacha0s
+digimarc webreader
+digout4uagent
+dts agent
+ecollector
+educate search vxb
+eirgrabber
+email
+email extractor
+emailcollect
+emailharvest
+emailmagnet
+emailreaper
+emailsiphon
+emailwolf
+eo browse
+extractorpro
+fantombrowser
+fastlwspider
+faxobot
+fiddler
+floodgate
+foobar/
+franklin locator
+full web bot
+gameBoy, powered by nintendo
+gecko/2525
+grub crawler
+grub-client
+hanzoweb
+hash grabber
+hhjhj@yahoo
+hl_ftien_spider
+injection
+internet exploiter sux
+internet ninja
+internet-exprorer
+isc systems irc search 2.1
+kenjin spider
+larbin@unspecified
+mailto:craftbot@yahoo.com
+microsoft internet explorer/5.0
+microsoft url
+microsoft url control
+missigua
+morfeus fucking scanner
+morzilla
+mosiac 1
+mozilla/3.mozilla/2.01
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.59 Safari/537.36
+Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0
+Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1985.143 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.125 Safari/537.36
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36 Edge/16.16299
+Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36 Edg/115.0.1901.203
+Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36
+murzillo compatible
+nameofagent
+nessus
+neuralbot/0.2
+newt activeX; win32
+nikto
+no browser
+nokia-waptoolkit
+packrat
+panscient.com
+pcbrowser
+pe 1.4
+pleasecrawl/1.
+pmafind
+poe-component-client
+production bot
+program shareware 1.0.
+prowebwalker
+psurf
+psycheclone
+rsync
+s.t.a.l.k.e.r.
+safexplorer tl
+searchbot admin@google
+security scan
+shai
+sitesnagger
+stress test
+surveybot
+takeout
+teleport pro
+telesoft
+this is an exploit
+toata dragostea mea pentru diavola
+turing machine
+under the rainbow 2.
+vadixbot
+via
+voideye
+w3mir
+web by mail
+web downloader
+webaltbot
+webbandit
+webemailextrac
+webemailextract
+webmole
+webroot
+webster pro
+webvulnscan
+wells search ii
+wep Search 00
+windows-update-agent
+wisebot
+wisenutbot
+www.weblogs.com
+xmlrpc exploit
+zeus
