@@ -4,7 +4,7 @@
 
 | Version| Release date | 
 |---|---|
-|__[1.5.0](/docs/changelog/1.5.0)__| July 24, 2025 |
+|__[1.5.0](/docs/changelog/1.5.0)__| July 31, 2025 |
 
 ### Latest
 
