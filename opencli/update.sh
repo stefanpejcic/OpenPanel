@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 13.07.2025
+# Last Modified: 14.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -567,6 +567,7 @@ run_update_immediately() {
     if [[ -d /usr/local/admin ]]; then
         cd /usr/local/admin && git pull 2>&1 | tee -a "$log_file"
         chmod +x /usr/local/admin/modules/security/csf.pl 2>/dev/null || true
+        chmod a+x /etc/openpanel/wordpress/wp-cli.phar 2>/dev/null || true
         ln -sf /etc/csf/ui/images/ /usr/local/admin/static/configservercsf 2>/dev/null || true
     fi
     
