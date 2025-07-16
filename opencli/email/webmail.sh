@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: 27.08.2024
 # Created: 18.08.2024
-# Last Modified: 14.07.2025
+# Last Modified: 15.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,10 +34,11 @@ usage() {
     echo "Usage: opencli email-webmail {roundcube|snappymail|sogo}"
     echo
     echo "Examples:"
-    echo "  opencli email-webmail               # Display webmail domain."
-    echo "  opencli email-webmail roundcube     # Set RoundCube as webmail."
-    echo "  opencli email-webmail snappymail    # Set SnappyMail as webmail."
-    echo "  opencli email-webmail sogo          # Set SoGo as webmail."
+    echo "  opencli email-webmail                            # Display webmail domain."
+    echo "  opencli email-webmail domain webmail.example.com # Set webmail.example.com as domain."
+    echo "  opencli email-webmail roundcube                  # Set RoundCube as webmail."
+    echo "  opencli email-webmail snappymail                 # Set SnappyMail as webmail [DEPRECATED]."
+    echo "  opencli email-webmail sogo                       # Set SoGo as webmail [DEPRECATED]."
     echo ""
     exit 1
 }
@@ -73,6 +74,81 @@ else
 fi
 
 
+is_valid_domain() {
+    local domain="$1"
+    [[ "$domain" =~ ^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$ ]]
+}
+
+update_webmail_domain() {
+    # basic
+    if ! is_valid_domain "$new_domain"; then
+        log_error "Invalid domain format. Please provide a valid domain."
+        usage
+        exit 1
+    fi
+    
+    if [[ ! -f "$PROXY_FILE" ]]; then
+        echo "Error: Caddy file not found at $PROXY_FILE"
+        exit 1
+    fi
+
+    if grep -q "^redir @webmail" "$PROXY_FILE"; then
+        if [[ "$DEBUG" = true ]]; then
+            echo "Updating webmail redirect domain to: $new_domain"
+        fi
+        # Determine protocol
+        if [[ "$new_domain" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            proto="http"
+        else
+            proto="https"
+        fi
+
+        sed -i -E "s|^redir @webmail https?://[^ ]+|redir @webmail ${proto}://${new_domain}|" "$PROXY_FILE"
+   
+        readonly DOMAINS_DIR="/etc/openpanel/caddy/domains/"
+        readonly CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+
+        mkdir -p "$DOMAINS_DIR"
+        touch "${DOMAINS_DIR}${new_domain}.conf" # so caddy can generate le
+
+        if [[ -f "$CADDYFILE" ]]; then
+            if grep -q "# START WEBMAIL DOMAIN #" "$CADDYFILE"; then
+                if [[ "$DEBUG" = true ]]; then
+                    echo "Updating Caddyfile webmail block to: ${new_domain}"
+                fi
+        
+                # Escape dots for sed
+                escaped_domain=$(echo "$new_domain" | sed 's/\./\\./g')
+        
+                # Replace the domain inside the block
+sed -i "/# START WEBMAIL DOMAIN #/,/# END WEBMAIL DOMAIN #/c\\
+# START WEBMAIL DOMAIN #\\
+${new_domain} {\\
+    reverse_proxy localhost:8080\\
+}\\
+# END WEBMAIL DOMAIN #" "$CADDYFILE"
+
+
+            else
+                echo "Warning: Webmail domain block not found in $CADDYFILE"
+            fi
+        else
+            echo "Warning: $CADDYFILE does not exist"
+        fi
+
+        echo "Webmail domain updated to ${proto}://${new_domain}"
+
+        # Restart Caddy
+        cd /root && docker --context default compose down caddy >/dev/null 2>&1
+        cd /root && docker --context default compose up -d caddy >/dev/null 2>&1
+        # TODO: RELOAD!
+        exit 0
+    else
+        echo "Error: No redir @webmail line found in $PROXY_FILE"
+        exit 1
+    fi
+}
+
 
 while [[ "$#" -gt 0 ]]; do
     case $1 in
@@ -81,6 +157,16 @@ while [[ "$#" -gt 0 ]]; do
             echo "----------------- DISPLAY DEBUG INFORMATION ------------------"
             echo ""
             DEBUG=true
+            ;;
+        domain)
+            shift
+            if [[ -z "$1" ]]; then
+                echo "Error: No domain specified after 'domain'."
+                echo "Usage: opencli email-webmail domain mail.example.com"
+                exit 1
+            fi
+            new_domain="$1"
+            update_webmail_domain "$new_domain"
             ;;
         roundcube)
             echo "Setting RoundCube as Webmail software:"
@@ -207,7 +293,7 @@ if command -v csf >/dev/null 2>&1; then
     open_port_csf $WEBMAIL_PORT    
 else
       if [ "$DEBUG" = true ]; then
-          echo "Warning: CSF is not installerd. In order for Webmail to work, make sure port 8080 is opened on external firewall.."
+          echo "Warning: CSF is not installed. In order for Webmail to work, make sure port 8080 is opened on external firewall.."
       else
           :
       fi

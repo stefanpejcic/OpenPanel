@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: user/transfer.sh
 # Description: Transfers a single user account from this server to another.
-# Usage: opencli user-transfer -h <DESTINATION_IP> --user <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD>
+# Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 14.07.2025
+# Last Modified: 15.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,47 +29,76 @@
 ################################################################################
 
 : '
-Usage: opencli user-transfer -h <remote_host> -u <account_name> [--password <password>] [--force]
+Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 '
 
 USERNAME=""
 REMOTE_HOST=""
 REMOTE_USER="root"
+REMOTE_PORT="22"
 REMOTE_PASS=""
 FORCE=0
+LIVE_TRANSFER=false
 
-# Parse arguments
 while [[ $# -gt 0 ]]; do
-    case $1 in
+    case "$1" in
         -h|--host)
             REMOTE_HOST="$2"
             shift 2
             ;;
         -u|--username)
+            REMOTE_USER="$2"
+            shift 2
+            ;;
+        --account)
             USERNAME="$2"
             shift 2
             ;;
         --password)
             REMOTE_PASS="$2"
             shift 2
-	    ;;
+            ;;
+        --port)
+            REMOTE_PORT="$2"
+            shift 2
+            ;;
         --force)
             FORCE=1
             shift
             ;;
+        --live-transfer)
+            LIVE_TRANSFER=true
+            shift
+            ;;
         *)
-            echo "Unknown option: $1"
+            echo "[ERROR] Unknown option: $1"
+            echo "Use --help to see available options"
             exit 1
             ;;
     esac
 done
 
+
 if [[ -z "$REMOTE_HOST" || -z "$USER" ]]; then
-    echo "Usage: opencli user-transfer -h <remote_host> -u <OPENPANEL_USERNAME> [--password <ssh_password>] [--force]"
+    echo "Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]"
     exit 1
 fi
 
 RSYNC_OPTS="-az" #--progress
+
+timestamp="$(date +'%Y-%m-%d_%H-%M-%S')" #used by log file name
+base_name="$(basename "$USERNAME")"
+log_dir="/var/log/openpanel/admin/transfers"
+mkdir -p $log_dir
+log_file="$log_dir/${base_name}_${timestamp}.log"
+
+echo "Import started, log file: $log_file"
+
+log() {
+    local message="$1"
+    local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
+    echo "[$timestamp] $message" | tee -a "$log_file"
+}
 
 install_sshpass() {
 	if [[ -x "$(command -v apt-get)" ]]; then
@@ -82,7 +111,7 @@ install_sshpass() {
 	elif [[ -x "$(command -v pacman)" ]]; then
 	    sudo pacman -Sy sshpass
 	else
-	    echo "Package manager not supported. Please install sshpass manually."
+	    log "Package manager not supported. Please install sshpass manually."
 	    exit 2
 	fi
 }
@@ -92,7 +121,7 @@ format_commands() {
 	# If a password is provided, use sshpass for rsync/scp
 	if [[ -n "$REMOTE_PASS" ]]; then
 	    if ! command -v sshpass &>/dev/null; then
-	        echo "sshpass not found. Installing..."
+	        log "sshpass not found. Installing..."
 	 	install_sshpass
 	    fi
 	    RSYNC_CMD="sshpass -p '$REMOTE_PASS' rsync $RSYNC_OPTS -e 'ssh -o StrictHostKeyChecking=no'"
@@ -103,14 +132,12 @@ format_commands() {
 	fi
 
 	# test
-	echo "Testing SSH connection to $REMOTE_USER@$REMOTE_HOST..."
+	log "Testing SSH connection to $REMOTE_USER@$REMOTE_HOST..."
 	if $SSH_CMD "echo 'SSH connection established, starting transfer process..'" >/dev/null 2>&1; then
-	    echo "SSH connection established, starting transfer process.."
+	    log "SSH connection established, starting transfer process.."
 	else
-	    echo "[✘] SSH connection to $REMOTE_HOST failed. Please check credentials or SSH keys."
-            echo ""
-	    echo "Command used:"
-     	    echo $SSH_CMD
+	    log "[✘] SSH connection to $REMOTE_HOST failed. Please check credentials or SSH keys."
+            log ""
 	    exit 1
 	fi
  
@@ -145,7 +172,7 @@ get_server_ipv4(){
 	    }
 
 	if ! is_valid_ipv4 "$current_ip"; then
-	        echo "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
+	        log "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
 	fi
 
 }
@@ -159,7 +186,7 @@ get_users_count_on_destination() {
     user_count=$($SSH_CMD "mysql --defaults-extra-file=$config_file -D $mysql_database -e \"$user_count_query\" -sN")
  
         if [ $? -ne 0 ]; then
-            echo "[✘] ERROR: Unable to check users from remote server. Is OpenPanel installed?"
+            log "[✘] ERROR: Unable to check users from remote server. Is OpenPanel installed?"
             exit 1
         fi
 
@@ -167,8 +194,8 @@ get_users_count_on_destination() {
     :
     else
         if [ "$user_count" -gt 2 ]; then
-            echo "[✘] ERROR: OpenPanel Community edition has a limit of 3 user accounts - which should be enough for private use."
-	          echo "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
+            log "[✘] ERROR: OpenPanel Community edition has a limit of 3 user accounts - which should be enough for private use."
+	          log "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
             exit 1
         fi
     fi
@@ -182,12 +209,12 @@ check_username_exists() {
  
     # Check if successful
     if [ $? -ne 0 ]; then
-        echo "[✘] Error: Unable to check username existence in the database. Is mysql running?"
+        log "[✘] Error: Unable to check username existence in the database. Is mysql running?"
         exit 1
     fi
 
     # Return the count of usernames found
-    echo "$user_count"
+    log "$user_count"
 }
 
 
@@ -195,7 +222,9 @@ check_username_exists() {
 copy_user_account() {
     USERNAME="$1"
     TMPDIR=$(mktemp -d)
-    echo "Creating system user on remote server ..."
+    log "Creating system user on remote server ..."
+
+    # Pripremi passwd, group i shadow za korisnika
     awk -F: -v user="$USERNAME" '$1 == user {print}' /etc/passwd > "$TMPDIR/passwd.user"
     awk -F: -v user="$USERNAME" 'BEGIN{gid=""}
         $1 == user {gid=$4}
@@ -203,16 +232,21 @@ copy_user_account() {
         $1 == user {print}' /etc/group > "$TMPDIR/group.user"
     grep -F -w "^$USERNAME:" /etc/shadow > "$TMPDIR/shadow.user"
 
-    eval $RSYNC_CMD "$TMPDIR/passwd.user" "$TMPDIR/group.user" "$TMPDIR/shadow.user" ${REMOTE_USER}@${REMOTE_HOST}:/root/
+    # Pošalji fajlove na remote
+    eval $RSYNC_CMD "$TMPDIR/passwd.user" "$TMPDIR/group.user" "$TMPDIR/shadow.user" "${REMOTE_USER}@${REMOTE_HOST}:/root/"
     rm -rf "$TMPDIR" >/dev/null
 
-    $SSH_CMD <<'EOF' >/dev/null 2>&1
+    # Udaljena komanda (heredoc BEZ navodnika da bismo interpolirali USERNAME)
+    $SSH_CMD <<EOF
+export USERNAME="$USERNAME"
+
 USER_PASSWD="/root/passwd.user"
 USER_GROUP="/root/group.user"
 USER_SHADOW="/root/shadow.user"
+UID_MAP_FILE="/root/\${USERNAME}_uid_map.txt"
 
 user_exists() {
-    id "$1" &>/dev/null
+    id "\$1" &>/dev/null
 }
 
 get_used_uids() {
@@ -221,47 +255,63 @@ get_used_uids() {
 
 # Find a free UID >= 1000 and not in use
 find_free_uid() {
-    used_uids=$(get_used_uids)
-    uid=$1
-    while echo "$used_uids" | grep -qw "$uid"; do
-        uid=$((uid + 1))
+    used_uids=\$(get_used_uids)
+    uid=\$1
+    while echo "\$used_uids" | grep -qw "\$uid"; do
+        uid=\$((uid + 1))
     done
-    echo "$uid"
+    echo "\$uid"
 }
 
-# Find a free username by appending number suffix
-
-# Add groups (same as before)
-cut -d: -f1,3 "$USER_GROUP" | while IFS=: read -r group gid; do
-    if ! getent group "$group" > /dev/null; then
-        groupadd -g "$gid" "$group"
+# Dodaj grupe
+cut -d: -f1,3 "\$USER_GROUP" | while IFS=: read -r group gid; do
+    if ! getent group "\$group" > /dev/null; then
+        groupadd -g "\$gid" "\$group"
     fi
 done
 
-# Read original user info, create user with new username and free UID
+# Kreiraj UID map fajl
+> "\$UID_MAP_FILE"
+
+# Kreiraj korisnika i upiši mapiranje ako treba
 while IFS=: read -r user uid gid comment home shell; do
+    free_uid=\$(find_free_uid "\$uid")
+    CHOWN_HOMEDIR=false
 
-    free_uid=$(find_free_uid "$uid")
-
-    if user_exists "$user"; then
-        echo "System user $user already exists, skipping creation."
+    if user_exists "\$user"; then
+        echo "System user \$user already exists, skipping creation."
     else
-        useradd -u "$free_uid" -g "$gid" -c "$comment" -d "$home" -s "$shell" "$user"
-    fi
-done < <(cut -d: -f1,3,4,5,6,7 "$USER_PASSWD")
+        if [[ "\$free_uid" != "\$uid" ]]; then
+            echo "UID for \$user changed from \$uid to \$free_uid"
+            CHOWN_HOMEDIR=true
+        fi
 
-# Set password for the new user(s)
-cut -d: -f1,2 "$USER_SHADOW" | while IFS=: read -r user hash; do
-    if [ -n "$hash" ]; then
-        usermod -p "$hash" "$user"
+        useradd -u "\$free_uid" -g "\$gid" -c "\$comment" -d "\$home" -s "\$shell" "\$user"
+        echo "\$user:\$uid:\$free_uid:\$gid:\$home" >> "\$UID_MAP_FILE"
+
+        if [[ "\$CHOWN_HOMEDIR" == "true" && -d "\$home" ]]; then
+            echo "Changing ownership of home directory \$home to \$user"
+            chown -R "\$user:\$gid" "\$home"
+        fi
+    fi
+done < <(cut -d: -f1,3,4,5,6,7 "\$USER_PASSWD")
+
+# Postavi šifru
+cut -d: -f1,2 "\$USER_SHADOW" | while IFS=: read -r user hash; do
+    if [[ -n "\$hash" ]]; then
+        usermod -p "\$hash" "\$user"
     fi
 done
 
-rm -rf $USER_PASSWD $USER_GROUP $USER_SHADOW
-
+# Obriši privremene fajlove
+rm -f "\$USER_PASSWD" "\$USER_GROUP" "\$USER_SHADOW"
 EOF
 
+    # Preuzmi UID map fajl lokalno i obriši ga sa remote strane
+    $SSH_CMD "cat /root/${USERNAME}_uid_map.txt" > "/tmp/${USERNAME}_uid_map.txt"
+    $SSH_CMD "rm -f /root/${USERNAME}_uid_map.txt"
 }
+
 
 
 store_running_containers_for_user() {
@@ -270,7 +320,7 @@ output_file="/tmp/docker_containers_names.txt"
 
 compose_file="/home/$USERNAME/docker-compose.yml"
 if [ -f "$compose_file" ]; then
-    echo "Checking docker context ...."
+    log "Checking docker context ...."
     containers=$(docker --context="$USERNAME" ps -a --format "{{.Names}}" 2>/dev/null)
     if [ -n "$containers" ]; then
         containers_single_line=$(echo "$containers" | tr '\n' ' ' | sed 's/ $//')
@@ -283,6 +333,26 @@ fi
 eval $RSYNC_CMD $output_file ${REMOTE_USER}@${REMOTE_HOST}:$output_file
 }
 
+sync_openpanel_features() {
+    LOCAL_FEATURES_DIR="/etc/openpanel/openpanel/features"
+    REMOTE_FEATURES_DIR="/etc/openpanel/openpanel/features"
+
+    log "Listing features on remote server ..."
+    REMOTE_FILES=$($SSH_CMD "ls -1 $REMOTE_FEATURES_DIR 2>/dev/null" || true)
+    REMOTE_FILE_SET=$(echo "$REMOTE_FILES" | tr '\n' ' ')
+
+    log "Syncing features to remote server ..."
+    for file in "$LOCAL_FEATURES_DIR"/*; do
+        filename=$(basename "$file")
+        if [[ "$REMOTE_FILE_SET" == *" $filename "* ]]; then
+            log "[SKIP] $filename already exists on remote"
+        else
+            log "[COPY] $filename -> $REMOTE_HOST"
+            eval $RSYNC_CMD "$file" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FEATURES_DIR}/"
+        fi
+    done
+}
+
 restore_running_containers_for_user() {
 output_file="/tmp/docker_containers_names.txt"
 
@@ -293,11 +363,11 @@ while IFS=: read -r username containers <&3; do
     username=$(echo "$username" | xargs)
 
     if [[ -z "$username" ]] || [[ "$containers" =~ no\ containers ]]; then
-        echo "No containers running for user"
+        log "No containers running for user"
         continue
     fi
 
-    echo "Starting containers inside docker context on remote server ..."
+    log "Starting containers inside docker context on remote server ..."
     $SSH_CMD "docker --context=$username compose -f /home/$username/docker-compose.yml down >/dev/null 2>&1 && docker --context=$username compose -f /home/$username/docker-compose.yml up -d $containers >/dev/null 2>&1"
 done
 
@@ -401,7 +471,7 @@ USER_ID=$(mysql --defaults-extra-file=$config_file -D $mysql_database -N -s \
   -e "SELECT id FROM users WHERE username = '$USERNAME';")
 
 if [[ -z "$USER_ID" ]]; then
-  echo "[ERROR] No user found with username '$USERNAME'"
+  log "[ERROR] No user found with username '$USERNAME'"
   exit 1
 fi
 
@@ -483,21 +553,100 @@ eval $RSYNC_CMD $TMP_DIR/plan_${USERNAME}_autoinc.sql ${REMOTE_USER}@${REMOTE_HO
 
 }
 
+sync_local_dns_zone() {
+    local domain="$1"
+    local zone_file="/etc/bind/zones/$domain.zone"
+
+    if [[ -f "$zone_file" ]]; then
+        echo "[LIVE] Updating DNS zone for $domain locally"
+        sed -i "s/$current_ip/$REMOTE_HOST/g" "$zone_file"
+    else
+        echo "[WARNING] Local DNS zone file not found for $domain"
+    fi
+}
+
+NAMESERVERS=()
+
+get_remote_nameservers() {
+    REMOTE_CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
+    
+    echo "Checking NS configuration on remote server..."
+
+    $SSH_CMD "[ -f '$REMOTE_CONFIG' ]" || {
+        echo "[ERROR] Configuration file not found on remote: $REMOTE_CONFIG"
+        exit 1
+    }
+
+    NS1=$($SSH_CMD "grep '^ns1=' '$REMOTE_CONFIG' | cut -d'=' -f2")
+    NS2=$($SSH_CMD "grep '^ns2=' '$REMOTE_CONFIG' | cut -d'=' -f2")
+    NS3=$($SSH_CMD "grep '^ns3=' '$REMOTE_CONFIG' | cut -d'=' -f2")
+    NS4=$($SSH_CMD "grep '^ns4=' '$REMOTE_CONFIG' | cut -d'=' -f2")
+
+    if [[ -z "$NS1" || -z "$NS2" ]]; then
+        echo "[ERROR] ns1 and ns2 must be set on remote server!"
+        exit 1
+    fi
+
+    NAMESERVERS=("$NS1" "$NS2")
+    [[ -n "$NS3" ]] && NAMESERVERS+=("$NS3")
+    [[ -n "$NS4" ]] && NAMESERVERS+=("$NS4")
+
+    echo "[INFO] Remote NS: ${NAMESERVERS[*]}"
+}
+
+
+update_zone_file() {
+    local zone_file="$1"
+    local tmp_file
+    tmp_file=$(mktemp)
+
+    if [[ ! -f "$zone_file" ]]; then
+        echo "[WARNING] Zone file not found: $zone_file"
+        return
+    fi
+
+    echo "[INFO] Updating NS records in: $zone_file"
+
+    grep -v '^[^;].*IN[[:space:]]*NS[[:space:]]*' "$zone_file" > "$tmp_file"
+
+    for ns in "${NAMESERVERS[@]}"; do
+        echo "@ IN NS $ns." >> "$tmp_file"
+    done
+
+    cat "$tmp_file" > "$zone_file"
+    rm "$tmp_file"
+}
 
 
 rsync_files_for_user() {
-    echo "Syncing files for user ..."
+    log "Syncing files for user $USERNAME ..."
     RSYNC_OUTPUT=$(eval $RSYNC_CMD /home/$USERNAME "${REMOTE_USER}@${REMOTE_HOST}:/home/" 2>&1)
     RSYNC_EXIT=$?
-    echo "$RSYNC_OUTPUT"
+    log "$RSYNC_OUTPUT"
     if [[ $RSYNC_EXIT -eq 0 ]]; then
-        :
-	#todo: chown to $free_uid only if it changed!
+        MAPPING_FILE="/tmp/${USERNAME}_uid_map.txt"
+
+        if [[ -f "$MAPPING_FILE" ]]; then
+            MAPPING_LINE=$(grep "^$USERNAME:" "$MAPPING_FILE")
+            if [[ -n "$MAPPING_LINE" ]]; then
+                IFS=':' read -r name old_uid new_uid gid home <<< "$MAPPING_LINE"
+                if [[ "$old_uid" != "$new_uid" ]]; then
+                    log "UID changed for $USERNAME (from $old_uid to $new_uid), performing chown on remote host ..."
+                    $SSH_CMD "chown -R $new_uid:$gid /home/$USERNAME"
+                fi
+            else
+                log "[WARNING] No UID mapping found in file for $USERNAME"
+            fi
+            rm -f "$MAPPING_FILE"
+        else
+            log "[WARNING] UID mapping file not found for $USERNAME"
+        fi
     else
-        echo "[ERROR] Rsync failed! Output:"
-        echo "$RSYNC_OUTPUT"
+        log "[ERROR] Rsync failed! Output:"
+        log "$RSYNC_OUTPUT"
         exit 1
     fi
+
 
     CADDY_STATS="/var/log/caddy/stats/$USERNAME"
     if [ -d "$CADDY_STATS" ]; then
@@ -505,15 +654,19 @@ rsync_files_for_user() {
     fi
 
     ALL_DOMAINS=$(opencli domains-user "$USERNAME" --docroot --php_version)
+        
+if [[ "$ALL_DOMAINS" == *"No domains found for user '$USERNAME'"* ]]; then
+        log "No domains found for user $USERNAME. Skipping."
+else	
     while IFS=$'\t ' read -r domain docroot php_version; do
     whoowns_output=$($SSH_CMD "opencli domains-whoowns $domain")
     owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain': " '{print $2}')
-
+    
     if [ -z "$owner" ]; then
 	    	# add domain on remote
 	        $SSH_CMD "opencli domains-add $domain $USERNAME --docroot $docroot --php_version $php_version --skip_caddy --skip_vhost --skip_containers --skip_dns"
 	        if [ $? -ne 0 ]; then
-		    echo "[✘] ERROR: Failed to import domain $domain"
+		    log "[✘] ERROR: Failed to import domain $domain"
 		    exit 1
 		fi
     
@@ -544,13 +697,19 @@ rsync_files_for_user() {
 grep -q "$domain" /etc/bind/named.conf.local || \
 echo 'zone "$domain" IN { type master; file "/etc/bind/zones/$domain.zone"; };' >> /etc/bind/named.conf.local
 EOF
+# Ako je live transfer, uradi isto i lokalno
+if [[ "$LIVE_TRANSFER" == true ]]; then
+    sync_local_dns_zone "$domain"
+    get_remote_nameservers
+    update_zone_file "/etc/bind/zones/$domain.zone"
+fi
 		fi
 
 
 	        DOMAIN_CADDY_SSL="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain"
 	        if [ -d "$DOMAIN_CADDY_SSL" ]; then
-				eval $RSYNC_CMD $DOMAIN_CADDY_SSL ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/
-		    fi
+	 		eval $RSYNC_CMD $DOMAIN_CADDY_SSL ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/
+		fi
 	
 	
 	        DOMAIN_CADDY_CUSTOM_SSL="/etc/openpanel/caddy/ssl/certs/$domain"
@@ -558,8 +717,12 @@ EOF
 				eval $RSYNC_CMD $DOMAIN_CADDY_CUSTOM_SSL ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/ssl/certs/
 		fi
  	fi
- 
  done <<< "$ALL_DOMAINS"
+
+docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
+cd /root && docker --context default compose up -d bind9  >/dev/null 2>&1
+ 
+ fi
 
 }
 
@@ -585,26 +748,26 @@ copy_docker_context() {
         REMOTE_UID=$($SSH_CMD "id -u $USERNAME" 2>/dev/null)
 
         if [[ -z "$REMOTE_UID" ]]; then
-            echo "FATAL ERROR: Failed to get UID for user $USERNAME on remote server"
+            log "FATAL ERROR: Failed to get UID for user $USERNAME on remote server"
             exit 1
         else
-            echo "Creating Docker context: $USERNAME on destination ..."
+            log "Creating Docker context: $USERNAME on destination ..."
             $SSH_CMD "docker context create $USERNAME --docker 'host=unix:///hostfs/run/user/${REMOTE_UID}/docker.sock' --description '$USERNAME'" >/dev/null 2>&1 || \
-                echo "Failed context for $USERNAME"
+                log "Failed context for $USERNAME"
         fi
 
-        echo "Configuring docker service ..."
+        log "Configuring docker service ..."
 
         $SSH_CMD "loginctl enable-linger $USERNAME" \
-            >/dev/null 2>&1 || echo "Failed to enable linger for $USERNAME"
+            >/dev/null 2>&1 || log "Failed to enable linger for $USERNAME"
 
         $SSH_CMD "machinectl shell ${USERNAME}@ /bin/bash -c 'systemctl --user daemon-reload'" \
-            >/dev/null 2>&1 || echo "Failed to reload daemon for $USERNAME"
+            >/dev/null 2>&1 || log "Failed to reload daemon for $USERNAME"
 
         $SSH_CMD "machinectl shell ${USERNAME}@ /bin/bash -c 'systemctl --user --quiet restart docker'" \
-            >/dev/null 2>&1 || echo "Failed to restart docker for $USERNAME"
+            >/dev/null 2>&1 || log "Failed to restart docker for $USERNAME"
     else
-        echo "No .docker directory for $USERNAME on source!"
+        log "No .docker directory for $USERNAME on source!"
         exit 1
     fi
 	# Close FD 3
@@ -612,11 +775,11 @@ copy_docker_context() {
 }
 
 restart_services_on_target() {
-            echo "Reloading services on ${REMOTE_HOST} server ..."
+            log "Reloading services on ${REMOTE_HOST} server ..."
 	    $SSH_CMD "cd /root && docker compose up -d openpanel bind9 caddy >/dev/null 2>&1 && systemctl restart admin >/dev/null 2>&1"
 
 	if [[ $COMPOSE_START_MAIL -eq 1 ]]; then
-            echo "Reloading mailserver and webmail on ${REMOTE_HOST} server ..."
+            log "Reloading mailserver and webmail on ${REMOTE_HOST} server ..."
             $SSH_CMD "cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1"  
 	fi
 
@@ -625,7 +788,7 @@ restart_services_on_target() {
 }
 
 refresh_quotas() {
-            echo "Recalculating disk and inodes usage for all users on ${REMOTE_HOST} ..."
+            log "Recalculating disk and inodes usage for all users on ${REMOTE_HOST} ..."
             $SSH_CMD "quotacheck -avm >/dev/null 2>&1 && repquota -u / > /etc/openpanel/openpanel/core/users/repquota"
 }
 
@@ -643,16 +806,17 @@ get_users_count_on_destination
 username_exists_count=$(check_username_exists)
 if [ "$username_exists_count" -gt 0 ]; then\
     if [[ $FORCE -eq 0 ]]; then
-      echo "[✘] Error: Username '$USERNAME' is already taken on destination server."
+      log "[✘] Error: Username '$USERNAME' is already taken on destination server."
       exit 1
     else
-      echo "[!] Warning: Username '$USERNAME' is already taken on destination server but will be overwritten due to the --force flag."
+      log "[!] Warning: Username '$USERNAME' is already taken on destination server but will be overwritten due to the --force flag."
     fi
 fi
 
 
 export_mysql
 import_mysql
+sync_openpanel_features
 copy_user_account $USERNAME
 rsync_files_for_user
 copy_docker_context # create context on dest, start service
@@ -662,7 +826,7 @@ $SSH_CMD "mkdir -p /var/log/caddy/stats/ /var/log/caddy/domlogs/ /var/log/caddy/
 
 # todo: folder just for that user!
 if [ -n "$key_value" ]; then
-  echo "Syncing /var/mail ..."
+  log "Syncing /var/mail ..."
   eval $RSYNC_CMD /usr/local/mail/openmail ${REMOTE_USER}@${REMOTE_HOST}:/usr/local/mail/openmail
   COMPOSE_START_MAIL=1
 fi
@@ -674,8 +838,12 @@ eval $RSYNC_CMD /etc/openpanel/openpanel/core/users/$USERNAME/ ${REMOTE_USER}@${
 
 
 store_running_containers_for_user         # export running contianers on source and copy to dest
+
+if [[ "$LIVE_TRANSFER" == true ]]; then
+	opencli user-suspend $USERNAME > /dev/null 2>&1 &
+fi
 restore_running_containers_for_user       # start containers on dest
 restart_services_on_target                # restart openpanel, webserver and admin on dest
 refresh_quotas                            # recalculate user usage on dest
 
-echo "[✔] Transfer for user $USERNAME complete"
+log "[✔] Transfer for user $USERNAME complete"

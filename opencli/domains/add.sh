@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 14.07.2025
+# Last Modified: 15.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -403,7 +403,7 @@ clear_cache_for_user() {
 make_folder() {
 	log "Creating document root directory $docroot"
  	local stripped_docroot="${docroot#/var/www/html/}"
- 	local context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
+ 	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
 
 	if [ -z "$context_uid" ]; then
 	log "Warning: failed detecting user id, permissions issue!"
@@ -417,7 +417,6 @@ make_folder() {
   	# https://github.com/stefanpejcic/OpenPanel/issues/472
 	chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/
 	chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/
-  
 }
 
 
@@ -540,7 +539,10 @@ vhost_files_create() {
 
        log "Creating ${domain_name}.conf" #$vhost_in_docker_file
        cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
-       chown $context_uid:$context_uid $vhost_in_docker_file > /dev/null 2>&1
+       # https://github.com/stefanpejcic/OpenPanel/issues/567
+  	chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_webserver_data/
+	chown $context_uid:$context_uid -R /hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/
+
        
 	sed -i \
 	  -e "s|<DOMAIN_NAME>|$domain_name|g" \
