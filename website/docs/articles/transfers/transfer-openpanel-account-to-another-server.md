@@ -28,10 +28,6 @@ Once initiated, the transfer process will begin. A log file will be generated - 
 
 ---
 
-Here’s a rewritten and polished version of your text:
-
----
-
 ### Using Terminal
 
 To transfer an OpenPanel account to another server from the terminal, use the following command:
