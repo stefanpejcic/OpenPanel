@@ -1,13 +1,12 @@
 # Setup Fail2ban for Mailserver
 
-
 Ensure that you're running the [**Enterprise edition**](https://openpanel.com/enterprise/) of OpenPanel. Email support is only available in this version.
 
 Follow [this guide](/docs/articles/user-experience/how-to-setup-email-in-openpanel/) to enable Emails in OpenPanel.
 
 ---
 
-Fail2ban is an intrusion prevention software framework. Written in the Python programming language, it is designed to prevent against brute-force attacks. It is able to run on POSIX systems that have an interface to a packet-control system or firewall installed locally, such as [NFTables] or TCP Wrapper. [More Information](https://en.wikipedia.org/wiki/Fail2ban)
+Fail2ban is an intrusion prevention software framework. Written in the Python programming language, it is designed to prevent against brute-force attacks. It is able to run on POSIX systems that have an interface to a packet-control system or firewall installed locally, such as NFTables or TCP Wrapper. [More Information](https://en.wikipedia.org/wiki/Fail2ban)
 
 Enabling Fail2Ban support requires granting at least the `NET_ADMIN` capability to the mailserver in order to interact with the kernel and ban IP addresses.
 
