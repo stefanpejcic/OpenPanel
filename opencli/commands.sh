@@ -6,7 +6,7 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 15.07.2025
+# Last Modified: 16.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -72,13 +72,10 @@ initialize_alias_file() {
 }
 
 build_find_excludes() {
-    local exclude_args=()
-    
+    exclude_args=()
     for pattern in "${EXCLUDE_PATTERNS[@]}"; do
         exclude_args+=("!" "-path" "${SCRIPTS_DIR}/${pattern}")
     done
-    
-    echo "${exclude_args[@]}"
 }
 
 extract_script_info() {
@@ -131,12 +128,11 @@ display_command_info() {
 }
 
 process_scripts() {
-    local exclude_args
+    declare -a exclude_args
     declare -a commands_list=()
-    
-    exclude_args=$(build_find_excludes)
-    
-    # Use process substitution to avoid subshell issues
+
+    build_find_excludes  # Fills the array 'exclude_args'
+
     while IFS= read -r -d '' script; do
         if [[ ! -r "$script" ]]; then
             echo "Warning: Cannot read script '$script'" >&2
@@ -153,7 +149,7 @@ process_scripts() {
         # Collect commands for sorting
         commands_list+=("$full_alias")
         
-    done < <(find "$SCRIPTS_DIR" -type f ${exclude_args[@]} -print0)
+    done < <(find "$SCRIPTS_DIR" -type f "${exclude_args[@]}" -print0)
     
     # Write sorted commands to alias file
     if [[ ${#commands_list[@]} -gt 0 ]]; then
