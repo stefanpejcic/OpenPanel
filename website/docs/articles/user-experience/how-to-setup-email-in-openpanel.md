@@ -68,7 +68,7 @@ To restart:
 
 ---
 
-## ✅ Email Setup Complete
+## Done
 
 Email is now enabled for all hosting plans that include the **emails** feature. Affected users can access Webmail an Email accounts form access it under **OpenPanel > Emails**.
 
