@@ -45,9 +45,13 @@ sidebar_position: 1
 # Security
 - [Rate-limiting access to OpenPanel or OpenAdmin](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
+- [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf)
+- [CSF Blocklists](/docs/articles/security/csf-blocklists/)
 
 # Emails
 - [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
+- [Setup DKIM for Mailserver](/docs/articles/email/how-to-setup-dkim-for-mailserver/)
+- [Setup Fail2ban for Mailserver](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/)
 - [Troubleshooting Email Errors](/docs/articles/email/troubleshooting-email-errors/)
 
 # Updates
