@@ -27,7 +27,7 @@ Fail2ban requires that the mailserver container is stopped, and start again in o
 
 ---
 
-## Default Configuration
+## Edit Configuration
 
 Mailserver will automatically ban IP addresses of hosts that have generated **6** failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use `mode = extra`.
 
