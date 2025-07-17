@@ -30,9 +30,59 @@ Fail2ban requires that the mailserver container is stopped, and start again in o
 
 Mailserver will automatically ban IP addresses of hosts that have generated **6** failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use `mode = extra`.
 
-This following configuration files inside the docker-data/dms/config/ volume will be copied inside the container during startup
+This following configuration files inside the docker-data/dms/config/ volume will be copied inside the container during startup. To customize the configuration, simply create a new file and edit the exmaples:
 
-- `docker-data/dms/config/fail2ban-jail.cf` - you can adjust the configuration of individual jails and their defaults, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf)
-- `docker-data/dms/config/fail2ban-fail2ban.cf` - you can adjust F2B behavior in general, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf)
+- `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-jail.cf` - adjust the configuration of individual jails and their defaults, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf)
+- `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-fail2ban.cf` - adjust F2B behavior in general, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf)
 
-## 
+## Examples
+
+To modify the number of failed logins before IP is blocked (default: 6), or change the bantime (default: 1w):
+
+- create file `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-jail.cf`
+- in it, paste [this example](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf)
+- change the `maxretry` and `bantime` values:
+
+```yaml
+[DEFAULT]
+
+# "bantime" is the number of seconds that a host is banned.
+bantime = 1w
+
+# A host is banned if it has generated "maxretry" during the last "findtime"
+# seconds.
+findtime = 1w
+
+# "maxretry" is the number of failures before a host get banned.
+maxretry = 6
+
+# "ignoreip" can be a list of IP addresses, CIDR masks or DNS hosts. Fail2ban
+# will not ban a host which matches an address in this list. Several addresses
+# can be defined using space (and/or comma) separator.
+ignoreip = 127.0.0.1/8
+
+# default ban action
+# nftables-multiport: block IP only on affected port
+# nftables-allports:  block IP on all ports
+banaction = nftables-allports
+
+[dovecot]
+enabled = true
+
+[postfix]
+enabled = true
+# For a reference on why this mode was chose, see
+# https://github.com/docker-mailserver/docker-mailserver/issues/3256#issuecomment-1511188760
+mode = extra
+
+[postfix-sasl]
+enabled = true
+
+# This jail is used for manual bans.
+# To ban an IP address use: setup.sh fail2ban ban <IP>
+[custom]
+enabled = true
+bantime = 180d
+port = smtp,pop3,pop3s,imap,imaps,submission,submissions,sieve
+```
+
