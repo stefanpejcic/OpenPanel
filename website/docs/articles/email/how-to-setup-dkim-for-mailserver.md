@@ -50,7 +50,7 @@ Add the TXT record to your **remote server's DNS zone**:
 | **Type**  | `TXT`                                                                          |
 | **Name**  | `mail._domainkey`                                                              |
 | **TTL**   | Default value (or `3600` seconds)                                              |
-| **Data**  | Contents of the file inside parentheses `(...)`,<br>formatted as advised below |
+| **Data**  | Contents of the file inside parentheses - formatted as advised below           |
 
 **Formatting the TXT record value correctly:**
 `TXT` records with values that are longer than 255 characters need to be split into multiple parts. This is why the generated `mail.txt` file (containing your public key for use with DKIM) has multiple value parts wrapped within double-quotes between `(` and `)`.
