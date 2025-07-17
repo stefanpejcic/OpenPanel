@@ -1,4 +1,4 @@
-# Setup DKIM for Mailserver
+# Setup DKIM
 
 Ensure that you're running the [**Enterprise edition**](https://openpanel.com/enterprise/) of OpenPanel. Email support is only available in this version.
 
