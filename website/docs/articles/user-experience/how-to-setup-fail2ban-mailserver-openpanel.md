@@ -80,7 +80,7 @@ mode = extra
 enabled = true
 
 # This jail is used for manual bans.
-# To ban an IP address use: setup.sh fail2ban ban <IP>
+# To ban an IP address use: opencli email-setup fail2ban ban <IP>
 [custom]
 enabled = true
 bantime = 180d
