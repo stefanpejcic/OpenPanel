@@ -35,7 +35,7 @@ This following configuration files inside the docker-data/dms/config/ volume wil
 - `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-jail.cf` - adjust the configuration of individual jails and their defaults, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf)
 - `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-fail2ban.cf` - adjust F2B behavior in general, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf)
 
-## Examples
+**Example:**
 
 To modify the number of failed logins before IP is blocked (default: 6), or change the bantime (default: 1w):
 
@@ -86,3 +86,12 @@ bantime = 180d
 port = smtp,pop3,pop3s,imap,imaps,submission,submissions,sieve
 ```
 
+---
+
+## View and Manage Bans
+
+- `opencli email-setup fail2ban` - shows all banned IP addresses
+- `opencli email-setup fail2ban status` - shows more detailed status
+- `opencli email-setup fail2ban ban <IP>` - ban an IP address
+- `opencli email-setup fail2ban unban <IP>` - unban an IP address
+- `opencli email-setup fail2ban log` - view fail2ban log file
