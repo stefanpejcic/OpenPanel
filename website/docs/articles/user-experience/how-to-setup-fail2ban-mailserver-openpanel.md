@@ -23,13 +23,15 @@ To enable Fail2ban, navigate to **OpenAdmin > Emails > Settings** and under 'Ena
 
 Fail2ban requires that the mailserver container is stopped, and start again in order to activate. Navigate to **OpenAdmin > Services > Status** and click 'Stop' for mailserver, then again 'Start'.
 
+[![2025-07-17-15-37.png](https://i.postimg.cc/d3hgY01F/2025-07-17-15-37.png)](https://postimg.cc/ctNF70wk)
+
 ---
 
 ## Default Configuration
 
 Mailserver will automatically ban IP addresses of hosts that have generated **6** failed attempts over the course of the last week. The bans themselves last for one week. The Postfix jail is configured to use `mode = extra`.
 
-This following configuration files inside the docker-data/dms/config/ volume will be copied inside the container during startup. To customize the configuration, simply create a new file and edit the exmaples:
+If created, the following configuration files will be copied inside the container during startup. To customize the configuration, simply create a new file and customize the examples:
 
 - `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-jail.cf` - adjust the configuration of individual jails and their defaults, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-jail.cf)
 - `/usr/local/mail/openmail/docker-data/dms/config/fail2ban-fail2ban.cf` - adjust F2B behavior in general, [example file](https://github.com/docker-mailserver/docker-mailserver/blob/master/config-examples/fail2ban-fail2ban.cf)
