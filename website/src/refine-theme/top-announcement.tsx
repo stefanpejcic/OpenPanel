@@ -123,11 +123,11 @@ const messages = [
         text: (
             <>
                 Check out the new{" "}
-                <span className="font-semibold">Modules System</span> in OpenAdmin.
+                <span className="font-semibold">Transfer account</span> feature.
             </>
         ),
-        href: "https://demo.openpanel.org:2087/settings/modules",
-        cta: "View Demo",
+        href: "/docs/articles/transfers/transfer-openpanel-account-to-another-server/",
+        cta: "View Docs",
     },
     {
         text: (
