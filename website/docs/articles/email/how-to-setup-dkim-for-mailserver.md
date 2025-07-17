@@ -48,16 +48,16 @@ Add the TXT record to your **remote server's DNS zone**:
 | **Field** | **Value**                                                                      |
 | --------- | ------------------------------------------------------------------------------ |
 | **Type**  | `TXT`                                                                          |
-| **Name**  | `<selector>._domainkey`<br>(default: `mail._domainkey`)                        |
+| **Name**  | `mail._domainkey`                                                              |
 | **TTL**   | Default value (or `3600` seconds)                                              |
 | **Data**  | Contents of the file inside parentheses `(...)`,<br>formatted as advised below |
 
-**<selector>.txt - Formatting the TXT record value correctly:**
-`TXT` records with values that are longer than 255 characters need to be split into multiple parts. This is why the generated `<selector>.txt` file (containing your public key for use with DKIM) has multiple value parts wrapped within double-quotes between `(` and `)`.
+**Formatting the TXT record value correctly:**
+`TXT` records with values that are longer than 255 characters need to be split into multiple parts. This is why the generated `mail.txt` file (containing your public key for use with DKIM) has multiple value parts wrapped within double-quotes between `(` and `)`.
 
 A DNS web-interface may handle this separation internally instead, and [could expect the value provided all as a single line](https://serverfault.com/questions/763815/route-53-doesnt-allow-adding-dkim-keys-because-length-is-too-long) instead of split. When that is required, you'll need to manually format the value as described below.
 
-Your generated DNS record file (<selector>.txt) should look similar to this:
+Your generated DNS record file (mail.txt) should look similar to this:
 
 ```
 mail._domainkey IN TXT ( "v=DKIM1; k=rsa; "
