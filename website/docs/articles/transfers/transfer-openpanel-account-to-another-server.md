@@ -22,6 +22,4 @@ To migrate all users and files at once, please refer to the, please refer to the
 
 6. Click **Start Transfer**.
 
-Once initiated, the transfer process will begin. A log file will be generated—click on its name to view live progress.
-
----
+Once initiated, the transfer process will begin. A log file will be generated - click on its name to view live progress.
