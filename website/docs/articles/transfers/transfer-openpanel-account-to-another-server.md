@@ -4,7 +4,9 @@ This feature allows administrators to transfer (copy) individual accounts from o
 
 To migrate all users and files at once, please refer to the, please refer to the [Server Migration Documentation](/docs/articles/transfers/migrate-openadmin-to-new-server/).
 
-### How to Transfer an Account
+## How to Transfer an Account
+
+### Using OpenAdmin
 
 1. Navigate to **OpenAdmin > Users**.
 2. Click on the user you want to transfer.
@@ -23,3 +25,29 @@ To migrate all users and files at once, please refer to the, please refer to the
 6. Click **Start Transfer**.
 
 Once initiated, the transfer process will begin. A log file will be generated - click on its name to view live progress.
+
+---
+
+Here’s a rewritten and polished version of your text:
+
+---
+
+### Using Terminal
+
+To transfer an OpenPanel account to another server from the terminal, use the following command:
+
+```bash
+opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
+```
+
+If the destination server uses a custom SSH port, include the `--port` flag, for example:
+
+```bash
+--port 2222
+```
+
+To use SSH key authentication instead of a password, simply omit the `--password` flag. Ensure that your SSH key is already configured on the destination server and verify the connection by running:
+
+```bash
+ssh root@<DESTINATION_IP>
+```
