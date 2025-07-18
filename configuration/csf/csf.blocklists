@@ -1,0 +1,55 @@
+# CSF BLOCKLISTS OPENPANEL
+# Format: NAME|INTERVAL|URL
+# NAME must be unique
+# INTERVAL is how often to fetch (in minutes)
+# URL is the downloadable list (IP/CIDR per line)
+
+# === Reputation ===
+# ABUSEIPDB|3600|https://api.abuseipdb.com/api/v2/blacklist?key=YOUR_API_KEY&plaintext=1
+# CIARMY|3600|https://cinsscore.com/list/ci-badguys.txt
+# BDS_ATIF|3600|https://www.binarydefense.com/banlist.txt
+
+# === Attacks ===
+# BDE|3600|https://api.blocklist.de/getlast.php?time=3600
+# UNLIMITED_RS|3600|https://blacklist.unl.rs
+# BDEALL|3600|https://lists.blocklist.de/lists/all.txt
+# DARKLIST_DE|3600|https://www.darklist.de/raw.php
+# DSHIELD|3600|https://feeds.dshield.org/block.txt
+# ET_BLOCK|3600|https://rules.emergingthreats.net/fwrules/emerging-Block-IPs.txt
+# ET_COMPROMISED|3600|https://rules.emergingthreats.net/blockrules/compromised-ips.txt
+# INTERSERVER_2D|3600|https://sigs.interserver.net/ipslim.txt
+# INTERSERVER_7D|3600|https://sigs.interserver.net/ip.txt
+# INTERSERVER_ALL|3600|https://sigs.interserver.net/iprbl.txt
+# GREENSNOW|3600|https://blocklist.greensnow.co/greensnow.txt
+# HONEYPOT|3600|https://www.projecthoneypot.org/list_of_ips.php?t=d&rss=1
+# BFB|3600|https://danger.rulez.sk/projects/bruteforceblocker/blist.php
+
+# === Abuse ===
+# BLOCKLIST_NET_UA|3600|https://blocklist.net.ua/blocklist.csv
+# BOTSCOUT|3600|https://botscout.com/last_caught_cache.htm
+# SBLAM|3600|https://sblam.com/blacklist.txt
+# STOPFORUMSPAM|1440|https://www.stopforumspam.com/downloads/bannedips.zip
+# STOPFORUMSPAM_1D|1440|https://www.stopforumspam.com/downloads/listed_ip_1.zip
+# STOPFORUMSPAM_7D|1440|https://www.stopforumspam.com/downloads/listed_ip_7.zip
+# STOPFORUMSPAM_30D|1440|https://www.stopforumspam.com/downloads/listed_ip_30.zip
+# STOPFORUMSPAM_90D|1440|https://www.stopforumspam.com/downloads/listed_ip_90.zip
+# STOPFORUMSPAM_180D|1440|https://www.stopforumspam.com/downloads/listed_ip_180.zip
+# STOPFORUMSPAM_365D|1440|https://www.stopforumspam.com/downloads/listed_ip_365.zip
+# STOPFORUMSPAM_TOXIC|1440|https://www.stopforumspam.com/downloads/toxic_ip_cidr.txt
+
+# === Spam ===
+# SPAMDROP|1440|https://www.spamhaus.org/drop/drop.lasso
+# SPAMDROPV6|1440|https://www.spamhaus.org/drop/dropv6.txt
+# SPAMEDROP|1440|https://www.spamhaus.org/drop/edrop.lasso
+
+# === Malware ===
+# FEODO|3600|https://feodotracker.abuse.ch/blocklist/?download=ipblocklist
+# SSLBL|3600|https://sslbl.abuse.ch/blacklist/sslipblacklist.csv
+# SSLBL_AGGRESSIVE|3600|https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.csv
+
+# === Anonymizers ===
+# TOR|1440|https://check.torproject.org/cgi-bin/TorBulkExitList.py?ip=1.2.3.4
+# ET_TOR|3600|https://rules.emergingthreats.net/blockrules/emerging-tor.rules
+
+# === Unroutable ===
+# BOGON|1440|https://www.team-cymru.org/Services/Bogons/bogon-bn-agg.txt

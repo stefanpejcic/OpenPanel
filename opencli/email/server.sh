@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 16.07.2025
+# Last Modified: 17.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -226,6 +226,44 @@ pflogsumm_get_data() {
 
 
 
+set_ssl_for_mailserver() {
+	readonly MAILSERVER_ENV="/usr/local/mail/openmail/mailserver.env"	
+	current_hostname=$(opencli domain)
+	
+	if [[ $current_hostname =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+	    # an IP
+	    echo "Configuring mailserver to use IP address for IMAP/SMTP ..."
+	    sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
+	    sed -i '/^SSL_CERT_PATH=/d' "$MAILSERVER_ENV"
+	    sed -i '/^SSL_KEY_PATH=/d' "$MAILSERVER_ENV"
+	else
+	    # a domain
+		cert_path="/etc/letsencrypt/live/${current_hostname}/${current_hostname}.crt"
+		key_path="/etc/letsencrypt/live/${current_hostname}/${current_hostname}.key"
+		
+		if [[ -f "$cert_path" && -f "$key_path" ]]; then
+		    echo "Configuring mailserver to use domain $current_hostname for IMAP/SMTP ..."
+
+		    sed -i '/^SSL_TYPE=/c\SSL_TYPE=manual' "$MAILSERVER_ENV"
+
+		    grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV" \
+		        && sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path|" "$MAILSERVER_ENV" \
+		        || echo "SSL_CERT_PATH=$cert_path" >> "$MAILSERVER_ENV"
+
+		    grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV" \
+		        && sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path|" "$MAILSERVER_ENV" \
+		        || echo "SSL_KEY_PATH=$key_path" >> "$MAILSERVER_ENV"
+		else
+		    echo "Warning: Domain $current_hostname is configured for panel access but has no SSL, it will not be used for mailserver IMAP/SMTP ..."
+		    [[ ! -f "$cert_path" ]] && echo "- Missing: $cert_path"
+		    [[ ! -f "$key_path" ]] && echo "- Missing: $key_path"
+		fi
+	fi
+ }
+
+
+
+
 # INSTALL
 install_mailserver(){
   if [ "$DEBUG" = true ]; then
@@ -236,24 +274,25 @@ install_mailserver(){
       echo ""
       mkdir -p /usr/local/mail/
       cd /usr/local/mail/ && git clone $GITHUB_REPO
+      set_ssl_for_mailserver
       mkdir -p /etc/openpanel/email/snappymail
       cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube
   else
       mkdir -p /usr/local/mail/  >/dev/null 2>&1
       cd /usr/local/mail/ && git clone $GITHUB_REPO >/dev/null 2>&1
+      set_ssl_for_mailserver
       mkdir -p /etc/openpanel/email/snappymail >/dev/null 2>&1
       cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1
   fi
 
   enable_emails_if_not_yet
-
+  configure_csf_ports
 
   if [ "$DEBUG" = true ]; then
       echo ""
       echo "----------------- CONFIGURING FIREWALL ------------------"
       echo ""
   fi
-  
   
   function open_port_csf() {
       local port=$1
@@ -435,6 +474,21 @@ stop_mailserver_if_running(){
   	echo "MailServer stopped succesfully."
   fi
   
+}
+
+
+open_port_csf() {
+    local port=$1
+    local conf="/etc/csf/csf.conf"
+    grep -q "TCP_IN = .*${port}" "$conf" || sed -i "s/TCP_IN = \"/TCP_IN = \",${port}/" "$conf"
+}
+
+configure_csf_ports() {
+    if command -v csf &>/dev/null; then
+        for p in 25 143 465 587 993; do open_port_csf "$p"; done
+    else
+        echo "Warning: CSF not installed. Ensure email ports are open externally."
+    fi
 }
 
 # UNINSTALL
