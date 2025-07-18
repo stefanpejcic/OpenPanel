@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 16.07.2025
+# Last Modified: 17.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -27,6 +27,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ################################################################################
+
+pid=$$
+script_dir=$(dirname "$0")
+start_time=$(date +%s) #used to calculate elapsed time at the end
 
 : '
 Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
@@ -90,7 +94,7 @@ timestamp="$(date +'%Y-%m-%d_%H-%M-%S')" #used by log file name
 base_name="$(basename "$USERNAME")"
 log_dir="/var/log/openpanel/admin/transfers"
 mkdir -p $log_dir
-log_file="$log_dir/${base_name}_${timestamp}.log"
+log_file="$log_dir/${base_name}_${REMOTE_HOST}_${timestamp}.log"
 
 echo "Import started, log file: $log_file"
 
@@ -98,6 +102,23 @@ log() {
     local message="$1"
     local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
     echo "[$timestamp] $message" | tee -a "$log_file"
+}
+
+
+log_paths_are() {
+    log "Log file: $log_file"
+    log "PID: $pid"
+}
+
+success_message() {
+    end_time=$(date +%s)
+    elapsed=$(( end_time - start_time ))
+    hours=$(( elapsed / 3600 ))
+    minutes=$(( (elapsed % 3600) / 60 ))
+    seconds=$(( elapsed % 60 ))
+
+    log "Elapsed time: ${hours}h ${minutes}m ${seconds}s"
+    log "SUCCESS: Transfer process for user $USERNAME completed."
 }
 
 install_sshpass() {
@@ -117,19 +138,26 @@ install_sshpass() {
 }
 
 
+whitelist_remote_srv() {
+	csf -ta $REMOTE_HOST &>/dev/null
+}
+
 format_commands() {
 	# If a password is provided, use sshpass for rsync/scp
 	if [[ -n "$REMOTE_PASS" ]]; then
 	    if ! command -v sshpass &>/dev/null; then
 	        log "sshpass not found. Installing..."
-	 	install_sshpass
+	        install_sshpass
 	    fi
-	    RSYNC_CMD="sshpass -p '$REMOTE_PASS' rsync $RSYNC_OPTS -e 'ssh -o StrictHostKeyChecking=no'"
-	    SSH_CMD="sshpass -p $REMOTE_PASS ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR ${REMOTE_USER}@${REMOTE_HOST}"
+	    RSYNC_CMD="sshpass -p '$REMOTE_PASS' rsync $RSYNC_OPTS -e 'ssh -p $REMOTE_PORT -o StrictHostKeyChecking=no'"
+	    SSH_CMD="sshpass -p $REMOTE_PASS ssh -p $REMOTE_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR ${REMOTE_USER}@${REMOTE_HOST}"
 	else
-	    RSYNC_CMD="rsync $RSYNC_OPTS"
-	    SSH_CMD="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR ${REMOTE_USER}@${REMOTE_HOST}" # for ssh keys!
+	    RSYNC_CMD="rsync $RSYNC_OPTS -e 'ssh -p $REMOTE_PORT -o StrictHostKeyChecking=no'"
+	    SSH_CMD="ssh -p $REMOTE_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR ${REMOTE_USER}@${REMOTE_HOST}" # for ssh keys!
 	fi
+
+ 	# csf
+  	whitelist_remote_srv
 
 	# test
 	log "Testing SSH connection to $REMOTE_USER@$REMOTE_HOST..."
@@ -137,7 +165,8 @@ format_commands() {
 	    log "SSH connection established, starting transfer process.."
 	else
 	    log "[✘] SSH connection to $REMOTE_HOST failed. Please check credentials or SSH keys."
-            log ""
+	    log "Command attempted:"
+	    log "$SSH_CMD echo 'SSH connection established, starting transfer process..'"
 	    exit 1
 	fi
  
@@ -213,8 +242,7 @@ check_username_exists() {
         exit 1
     fi
 
-    # Return the count of usernames found
-    log "$user_count"
+    echo "$user_count"
 }
 
 
@@ -333,25 +361,25 @@ fi
 eval $RSYNC_CMD $output_file ${REMOTE_USER}@${REMOTE_HOST}:$output_file
 }
 
-sync_openpanel_features() {
-    LOCAL_FEATURES_DIR="/etc/openpanel/openpanel/features"
-    REMOTE_FEATURES_DIR="/etc/openpanel/openpanel/features"
+copy_feature_set() {
+    local PLAN_FEATURE_SET
+    PLAN_FEATURE_SET=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -s -e "SELECT feature_set FROM plans WHERE id = $PLAN_ID;")
+    
+    local FEATURE_FILE="${PLAN_FEATURE_SET}.txt"
+    local FEATURES_DIR="/etc/openpanel/openpanel/features"
 
     log "Listing features on remote server ..."
-    REMOTE_FILES=$($SSH_CMD "ls -1 $REMOTE_FEATURES_DIR 2>/dev/null" || true)
-    REMOTE_FILE_SET=$(echo "$REMOTE_FILES" | tr '\n' ' ')
+    local REMOTE_FILES
+    REMOTE_FILES=$($SSH_CMD "ls -1 \"$FEATURES_DIR\" 2>/dev/null" || true)
 
-    log "Syncing features to remote server ..."
-    for file in "$LOCAL_FEATURES_DIR"/*; do
-        filename=$(basename "$file")
-        if [[ "$REMOTE_FILE_SET" == *" $filename "* ]]; then
-            log "[SKIP] $filename already exists on remote"
-        else
-            log "[COPY] $filename -> $REMOTE_HOST"
-            eval $RSYNC_CMD "$file" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_FEATURES_DIR}/"
-        fi
-    done
+    if echo "$REMOTE_FILES" | grep -Fxq "$FEATURE_FILE"; then
+        log "Feature set '$FEATURE_FILE' already exists on remote server"
+    else
+        log "Copying feature set '$FEATURE_FILE' to remote server"
+        eval "$RSYNC_CMD \"$FEATURES_DIR/$FEATURE_FILE\" \"${REMOTE_USER}@${REMOTE_HOST}:${FEATURES_DIR}/\""
+    fi
 }
+
 
 restore_running_containers_for_user() {
 output_file="/tmp/docker_containers_names.txt"
@@ -633,9 +661,7 @@ rsync_files_for_user() {
                 if [[ "$old_uid" != "$new_uid" ]]; then
                     log "UID changed for $USERNAME (from $old_uid to $new_uid), performing chown on remote host ..."
                     $SSH_CMD "chown -R $new_uid:$gid /home/$USERNAME"
-                fi
-            else
-                log "[WARNING] No UID mapping found in file for $USERNAME"
+		fi
             fi
             rm -f "$MAPPING_FILE"
         else
@@ -775,8 +801,8 @@ copy_docker_context() {
 }
 
 restart_services_on_target() {
-            log "Reloading services on ${REMOTE_HOST} server ..."
-	    $SSH_CMD "cd /root && docker compose up -d openpanel bind9 caddy >/dev/null 2>&1 && systemctl restart admin >/dev/null 2>&1"
+        log "Reloading services on ${REMOTE_HOST} server ..."
+	$SSH_CMD "cd /root && docker compose up -d openpanel bind9 caddy >/dev/null 2>&1 && systemctl restart admin >/dev/null 2>&1"
 
 	if [[ $COMPOSE_START_MAIL -eq 1 ]]; then
             log "Reloading mailserver and webmail on ${REMOTE_HOST} server ..."
@@ -784,7 +810,6 @@ restart_services_on_target() {
 	fi
 
 	#todo: ftp, clamav 
-  
 }
 
 refresh_quotas() {
@@ -800,6 +825,9 @@ DB_CONFIG_FILE="/usr/local/opencli/db.sh"
 
 ssh-keygen -f '/root/.ssh/known_hosts' -R $REMOTE_HOST > /dev/null
 format_commands # creates rsync and sshpass commands, installs sshpass if missing
+
+log_paths_are                                                              # where will we store the progress
+
 get_server_ipv4 
 get_users_count_on_destination
 
@@ -816,7 +844,7 @@ fi
 
 export_mysql
 import_mysql
-sync_openpanel_features
+copy_feature_set
 copy_user_account $USERNAME
 rsync_files_for_user
 copy_docker_context # create context on dest, start service
@@ -834,9 +862,6 @@ fi
 # logs and stuff
 eval $RSYNC_CMD /etc/openpanel/openpanel/core/users/$USERNAME/ ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/openpanel/core/users/$USERNAME
 
-# todo: mysql data for user!!!!!
-
-
 store_running_containers_for_user         # export running contianers on source and copy to dest
 
 if [[ "$LIVE_TRANSFER" == true ]]; then
@@ -845,5 +870,5 @@ fi
 restore_running_containers_for_user       # start containers on dest
 restart_services_on_target                # restart openpanel, webserver and admin on dest
 refresh_quotas                            # recalculate user usage on dest
-
-log "[✔] Transfer for user $USERNAME complete"
+success_message
+exit 0
