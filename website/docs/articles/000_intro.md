@@ -65,6 +65,7 @@ sidebar_position: 1
 - [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
 - [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
+- [Create a custom plugin](/docs/articles/dev-experience/custom-plugins/)
 - [Keyboard Shortcuts for OpenAdmin UI](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/)
 - [Uninstall OpenPanel](/docs/articles/support/how-to-unlinstall-openpanel/)
 
