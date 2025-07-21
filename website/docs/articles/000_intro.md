@@ -52,6 +52,7 @@ sidebar_position: 1
 - [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
 - [Setup DKIM for Mailserver](/docs/articles/email/how-to-setup-dkim-for-mailserver/)
 - [Setup Fail2ban for Mailserver](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/)
+- [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop)
 - [Troubleshooting Email Errors](/docs/articles/email/troubleshooting-email-errors/)
 
 # Updates
