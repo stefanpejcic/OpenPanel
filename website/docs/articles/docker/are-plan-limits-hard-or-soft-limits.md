@@ -1,4 +1,4 @@
-## Hard Limits
+# Hard Limits
 
 Each user plan has fixed resource usage limits - these are **hard limits**, meaning users cannot exceed them under any circumstances.
 
