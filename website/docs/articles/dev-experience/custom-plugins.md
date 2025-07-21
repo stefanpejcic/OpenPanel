@@ -2,15 +2,18 @@
 
 OpenPanel version 1.5.0 nad newer support custom plugins.
 
-[Traceroute](https://github.com/stefanpejcic/traceroute) is a sample OpenPanel plugin that serves as a starter template for integrating third-party products and services into OpenPanel as plugins.
-
-## Example
+## Requirements
 
 Currently, plugins have a few requirements and limitations:
 
 * A readme.txt file must be present for the plugin to be loaded by OpenPanel.
 * The Python (.py) file name must match the plugin's folder name.
 * Installing additional pip modules is not supported.
+
+## Example
+
+[Traceroute](https://github.com/stefanpejcic/traceroute) is a sample OpenPanel plugin that serves as a starter template for integrating third-party products and services into OpenPanel as plugins.
+
 
 ### readme.txt
 
@@ -260,4 +263,10 @@ It is recommended to install plugins via Git for easy updating. To install the `
 cd /etc/openpanel/modules/ && git clone https://github.com/stefanpejcic/traceroute
 ```
 
-After installation, restart the OpenPanel UI to load the new plugin. Then, use the OpenAdmin UI to add the plugin’s features to the desired Feature Sets.
+After installation, use the OpenAdmin UI to add the plugin’s features to the desired Feature Sets.
+
+[![2025-07-21-14-59.png](https://i.postimg.cc/g2r5JQFq/2025-07-21-14-59.png)](https://postimg.cc/yD4npfNk)
+
+And finally, restart the OpenPanel UI to load the new plugin. 
+
+[![2025-07-21-14-34.png](https://i.postimg.cc/X7cTZdzx/2025-07-21-14-34.png)](https://postimg.cc/w7MWZyHs)
