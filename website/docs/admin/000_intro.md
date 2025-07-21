@@ -73,10 +73,11 @@ If you encountered any errors while running the installation script, please copy
 ## Post Install Steps
 
 Recommended steps after installing OpenPanel:
-- [access admin panel](/docs/articles/dev-experience/how-to-access-openadmin)
-- [set domain for accessing panels](/docs/admin/settings/general/#set-domain-for-openpanel)
-- [configure nameservers](/docs/admin/settings/openpanel/#set-nameservers)
-- [create a hosting plan](/docs/admin/plans/hosting_plans#create-a-plan)
-- [create a new user account](/docs/admin/accounts/users/#create-users)
-- [set admin email for server alerts](/docs/admin/notifications/#email-alerts)
-- [change update preferenced](/docs/admin/settings/updates)
+- [Access the Admin panel](/docs/articles/dev-experience/how-to-access-openadmin)
+- [Configure Domain and SSL for OpenPanel](/docs/admin/settings/general/#set-domain-for-openpanel)
+- [Configure Custom Nameservers](/docs/admin/settings/openpanel/#set-nameservers)
+- [Create Hosting Packages](/docs/admin/plans/hosting_plans#create-a-plan)
+- [Create New User Accounts](/docs/admin/accounts/users/#create-users)
+- [Set Email address to receive Alerts](/docs/admin/notifications/#email-alerts)
+- [Change Update Preferences](/docs/admin/settings/updates)
+- [Secure OpenPanel for Production Use](/docs/articles/security/securing-openpanel/)
