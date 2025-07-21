@@ -28,7 +28,7 @@ export const menuItems = [
             },            
             {
                 label: "API Docs",
-                href: "https://dev.openpanel.com/api/",
+                href: "https://dev.openpanel.com/openadmin-api/",
             },
             {
                 label: "Install Command",
