@@ -14,7 +14,7 @@ Currently, plugins have a few requirements and limitations:
 
 ### readme.txt
 
-| **Key**           | ** Example Value**                                    | **Explanation**                                                  |
+| **Key**           | **Example Value**                                    | **Explanation**                                                  |
 |------------------|--------------------------------------------------------|------------------------------------------------------------------|
 | `name`           | `traceroute`                                           | Folder and plugin name.                                          |
 | `title`          | `Traceroute`                                           | Display title shown on Dashboard, sidebar and search.            |
