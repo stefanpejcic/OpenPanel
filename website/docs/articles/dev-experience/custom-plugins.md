@@ -20,7 +20,7 @@ Currently, plugins have a few requirements and limitations:
 | `title`          | `Traceroute`                                           | Display title shown on Dashboard, sidebar and search.            |
 | `description`    | `Run traceroute to IP or hostname.`                    | Short description of what the plugin does.                       |
 | `link`           | `/advanced/traceroute`                                 | URL route to access the plugin from UI.                          |
-| `version`        | `1.0.0`                                                | Version number of the plugin       .                             |
+| `version`        | `1.0.0`                                                | Version number of the plugin.                                    |
 | `author`         | `Stefan Pejcic`                                        | Author or developer of the plugin.                               |
 | `category`       | `advanced`                                             | Section in Dashboard and sidebar menu under which to display.    |
 | `icon`           | `bi bi-person`                                         | Bootstrap Icon class name to use for Dashboard icons.            |
