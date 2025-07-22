@@ -530,43 +530,11 @@ const tableData = [
         ],
     },
     {
-        title: "Additional Features",
-        items: [
-            {
-                description: "Sentinel AI",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "MariaDB",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "Varnish Caching",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-        ],
-    },
-    {
         title: "Websites",
         items: [
             {
                 description: "Websites",
-                community: <TableText>Unlimited</TableText>,
+                community: <TableText>50</TableText>,
                 enterprise: (
                     <TableText>
                         Unlimited
@@ -604,13 +572,40 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
+            {
+                description: "Varnish Caching",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
     },
     {
         title: "Files",
-        items: [         
+        items: [     
+            {
+                description: "File Manager",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
             {
                 description: "FTP",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Backups",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -629,6 +624,66 @@ const tableData = [
             },
         ],
     },
+
+    {
+        title: "Databases",
+        items: [
+            {
+                description: "MySQL",
+                community: <TableText>MySQL</TableText>,
+                enterprise: <TableText>MySQL and MariaDB</TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "phpMyAdmin",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PostgreSQL",
+                community: <CrossIcon />,
+                enterprise: <TableText>BETA</TableText>,
+                valueType: {
+                    community: "icon",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "pgAdmin",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Import Databases",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Remote MySQL Access",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },           
+        ],
+    },
     {
         title: "Accounts",
         items: [
@@ -644,7 +699,28 @@ const tableData = [
                     community: "text",
                     enterprise: "text",
                 },
-            },
+            },      
+            {
+                description: "Transfer Accounts between Servers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },   
+            {
+                description: "Import from cPanel Backup",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },   
+            
             {
                 description: "Resellers",
                 community: <CrossIcon />,
@@ -655,7 +731,7 @@ const tableData = [
                 },
             },
             {
-                description: "Admin Accounts",
+                description: "Administrator Accounts",
                 community: <TableText>Unlimited</TableText>,
                 enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
@@ -672,6 +748,28 @@ const tableData = [
                 description: "Total Domains",
                 community: <TableText>50</TableText>,
                 enterprise: <TableText>Unlimited</TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "Coraza WAF",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "SSL",
+                community: <TableText>Let's Encrypt</TableText>,
+                enterprise: (
+                    <TableText>
+                        Let's Encrypt & Custom SSL
+                    </TableText>
+                ),
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -696,26 +794,12 @@ const tableData = [
                 },
             },
             {
-                description: "WAF",
+                description: ".onion Domains",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
                     enterprise: "icon",
-                },
-            },
-            
-            {
-                description: "SSL",
-                community: <TableText>Let's Encrypt</TableText>,
-                enterprise: (
-                    <TableText>
-                        Let's Encrypt & Custom SSL
-                    </TableText>
-                ),
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
                 },
             },
         ],
@@ -790,18 +874,77 @@ const tableData = [
         ],
     },
     {
+        title: "System",
+        items: [
+            {
+                description: "User Isolation",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },   
+            {
+                description: "Services Isolation",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },  
+            {
+                description: "Support for ARM CPUs (Aarch64)",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Supported OS",
+                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu 24.04</a></TableText>,
+                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS</a></TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+             {
+                description: "Available on Cloud/VPS",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Available on Metal/Dedicated",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+        ],
+    },    
+    {
         title: "Licensing",
         items: [
             {
                 description: "License",
                 community: (
                     <div className={clsx("h-full")}>
-                        <TableText>MIT license</TableText>
+                        <TableText>forever free</TableText>
                     </div>
                 ),
                 enterprise: (
                     <div className={clsx("flex flex-col", "gap-6", "w-full")}>
-                        <TableText>OpenPanel commercial license</TableText>
+                        <TableText>14.95€ / month</TableText>
                         <EnterpriseGetInTouchButton
                             className={clsx("hidden landing-sm:block")}
                             linkClassName={clsx("w-full")}
