@@ -492,7 +492,7 @@ const tableData = [
             {
                 description: "Monthly Pricing",
                 community: (
-                    <TableText><span class="landing-sm:mx-auto">forever free</span></TableText>
+                    <TableText>forever free</TableText>
                 ),
                 enterprise: (
                     <TableText>14.95€ / month</TableText>
@@ -509,8 +509,8 @@ const tableData = [
         items: [
             {
                 description: "Support Channels",
-                community: <TableText><span class="landing-sm:mx-auto">Community Forums & Discord</span></TableText>,
-                enterprise: <TableText><span class="landing-sm:mx-auto">Ticketing & Hands-on support</span></TableText>,
+                community: <TableText>Community Forums & Discord</TableText>,
+                enterprise: <TableText>Ticketing & Hands-on support</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -520,7 +520,7 @@ const tableData = [
                 description: "SLA",
                 community: <CrossIcon />,
                 enterprise: (
-                    <TableText><span class="landing-sm:mx-auto">Response time within one hour</span></TableText>
+                    <TableText>Response time within one hour</TableText>
                 ),
                 valueType: {
                     community: "icon",
@@ -534,10 +534,10 @@ const tableData = [
         items: [
             {
                 description: "Websites",
-                community: <TableText><span class="landing-sm:mx-auto">50</span></TableText>,
+                community: <TableText>50</TableText>,
                 enterprise: (
                     <TableText>
-                        <span class="landing-sm:mx-auto">Unlimited</span>
+                        Unlimited
                     </TableText>
                 ),
                 valueType: {
@@ -547,7 +547,16 @@ const tableData = [
             },            
             {
                 description: "WordPress Manager",
-                community: <CrossIcon />,
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Website Builder",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -573,8 +582,17 @@ const tableData = [
                 },
             },
             {
-                description: "Website Builder",
+                description: "PHP Selector",
                 community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PHP.INI Editor",
+                community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -640,6 +658,33 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
+            {
+                description: "Download from URL",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Disk Usage Explorer",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Inodes Explorer",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
     },
 
@@ -648,15 +693,33 @@ const tableData = [
         items: [
             {
                 description: "MySQL",
-                community: <TableText><span class="landing-sm:mx-auto">MySQL</span></TableText>,
-                enterprise: <TableText><span class="landing-sm:mx-auto">MySQL and MariaDB</span></TableText>,
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
                 valueType: {
-                    community: "text",
-                    enterprise: "text",
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MariaDB",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
                 },
             },
             {
                 description: "phpMyAdmin",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Microsoft SQL Server",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -667,7 +730,7 @@ const tableData = [
             {
                 description: "PostgreSQL",
                 community: <CrossIcon />,
-                enterprise: <TableText><span class="landing-sm:mx-auto">BETA</span></TableText>,
+                enterprise: <TableText>BETA</TableText>,
                 valueType: {
                     community: "icon",
                     enterprise: "text",
@@ -707,10 +770,10 @@ const tableData = [
         items: [
             {
                 description: "User Accounts",
-                community: <TableText><span class="landing-sm:mx-auto">3</span></TableText>,
+                community: <TableText>3</TableText>,
                 enterprise: (
                     <TableText>
-                        <span class="landing-sm:mx-auto">Unlimited</span>
+                        Unlimited
                     </TableText>
                 ),
                 valueType: {
@@ -750,8 +813,8 @@ const tableData = [
             },
             {
                 description: "Administrator Accounts",
-                community: <TableText><span class="landing-sm:mx-auto">Unlimited</span></TableText>,
-                enterprise: <TableText><span class="landing-sm:mx-auto">Unlimited</span></TableText>,
+                community: <TableText>Unlimited</TableText>,
+                enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -764,16 +827,16 @@ const tableData = [
         items: [
             {
                 description: "Total Domains",
-                community: <TableText><span class="landing-sm:mx-auto">50</span></TableText>,
-                enterprise: <TableText><span class="landing-sm:mx-auto">Unlimited</span></TableText>,
+                community: <TableText>50</TableText>,
+                enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
                 },
             },
             {
-                description: "Coraza WAF",
-                community: <CrossIcon />,
+                description: "Let's Encrypt",
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -781,8 +844,8 @@ const tableData = [
                 },
             },
             {
-                description: "Let's Encrypt",
-                community: <CheckIcon />,
+                description: "Coraza WAF",
+                community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -809,6 +872,15 @@ const tableData = [
             },
             {
                 description: "DNS Clustering",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Domain Redirects",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -850,29 +922,6 @@ const tableData = [
             },
         ],
     },   
-    {
-        title: "Updates",
-        items: [
-            {
-                description: "Release Frequency",
-                community: <TableText><span class="landing-sm:mx-auto">Monthly</span></TableText>,
-                enterprise: <TableText><span class="landing-sm:mx-auto">Continuous</span></TableText>,
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
-                },
-            },
-            {
-                description: "Container Updates",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-        ],
-    },
     {
         title: "Integrations",
         items: [
@@ -937,8 +986,8 @@ const tableData = [
             },
             {
                 description: "Supported OS",
-                community: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/" class="landing-sm:mx-auto">Ubuntu 24.04</a></TableText>,
-                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/" class="landing-sm:mx-auto">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
+                community: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu 24.04</a></TableText>,
+                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -971,7 +1020,7 @@ const tableData = [
                 description: "Yearly Pricing",
                 community: (
                     <div className={clsx("h-full")}>
-                        <TableText><span class="landing-sm:mx-auto">forever free</span></TableText>
+                        <TableText>forever free</TableText>
                     </div>
                 ),
                 enterprise: (
