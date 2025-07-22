@@ -132,12 +132,12 @@ const messages = [
     {
         text: (
             <>
-                Check out the new{" "}
-                <span className="font-semibold">Redesigned OpenPanel UI</span>.
+                OpenPanel now supports{" "}
+                <span className="font-semibold">Custom Plugins</span>.
             </>
         ),
-        href: "https://demo.openpanel.org:2083/dashboard",
-        cta: "View Demo",
+        href: "/docs/articles/dev-experience/custom-plugins/",
+        cta: "View Docs",
     },
     {
         text: (
