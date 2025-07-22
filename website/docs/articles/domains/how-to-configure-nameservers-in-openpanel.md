@@ -26,6 +26,4 @@ Currently, you can add up to 4 nameservers.
 
 :::info
 After creating nameservers it can take up to 12h for the records to be globally accessible. Use a tool such as [whatsmydns.net](https://www.whatsmydns.net/) to monitor the status.
-
-If you still experience problems after the propagation process, then please check this guide: [Troubleshooting DNS](/docs/articles/troubleshooting-dns.md).
 :::
