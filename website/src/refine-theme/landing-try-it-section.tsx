@@ -178,7 +178,7 @@ const LandingTryItOptionsSection = ({
                     Sign up for OpenPanel Enterprise version and offer premium features to your customers.
                 </p>
                         <Link
-                            to="beta"
+                            to="enterprise"
                             className={clsx(
                                 "self-start",
                                 "rounded-3xl",
