@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 17.07.2025
+# Last Modified: 21.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -202,23 +202,26 @@ configure_mailserver() {
         sed -i '/^SSL_KEY_PATH=/d' "$MAILSERVER_ENV"
     else
         log_debug "Configuring mailserver for TLS/SSL authentication with domain"
-        
-        local cert_path="/etc/letsencrypt/live/${new_hostname}/${new_hostname}.crt"
-        local key_path="/etc/letsencrypt/live/${new_hostname}/${new_hostname}.key"
-        
-        sed -i "/^SSL_TYPE=/c\SSL_TYPE=manual" "$MAILSERVER_ENV"
-        
-        # Update or add SSL paths
-        if grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV"; then
-            sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path|" "$MAILSERVER_ENV"
+
+        local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.crt"
+        local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.key"
+
+        if [[ -f "$cert_path_on_hosts" && -f "$key_path_on_hosts" ]]; then
+            sed -i "/^SSL_TYPE=/c\SSL_TYPE=manual" "$MAILSERVER_ENV"
+            # Update or add SSL paths
+            if grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV"; then
+                sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path_on_hosts|" "$MAILSERVER_ENV"
+            else
+                echo "SSL_CERT_PATH=$cert_path_on_hosts" >> "$MAILSERVER_ENV"
+            fi
+            
+            if grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV"; then
+                sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path_on_hosts|" "$MAILSERVER_ENV"
+            else
+                echo "SSL_KEY_PATH=$key_path_on_hosts" >> "$MAILSERVER_ENV"
+            fi
         else
-            echo "SSL_CERT_PATH=$cert_path" >> "$MAILSERVER_ENV"
-        fi
-        
-        if grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV"; then
-            sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path|" "$MAILSERVER_ENV"
-        else
-            echo "SSL_KEY_PATH=$key_path" >> "$MAILSERVER_ENV"
+            log_debug "WARNING: SSL files dont exists for domain, will not be configured for mailserver!"
         fi
     fi
     
@@ -239,11 +242,20 @@ configure_roundcube() {
         sed -i 's|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=|' "$ROUNDCUBE_COMPOSE"
     else
         log_debug "Configuring Roundcube for TLS/SSL authentication"
-        
-        sed -i "s|ROUNDCUBEMAIL_DEFAULT_HOST=.*|ROUNDCUBEMAIL_DEFAULT_HOST=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
-        sed -i "s|ROUNDCUBEMAIL_DEFAULT_PORT=.*|ROUNDCUBEMAIL_DEFAULT_PORT=993|" "$ROUNDCUBE_COMPOSE"
-        sed -i "s|ROUNDCUBEMAIL_SMTP_SERVER=.*|ROUNDCUBEMAIL_SMTP_SERVER=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
-        sed -i "s|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=465|" "$ROUNDCUBE_COMPOSE"
+            #local cert_path="/etc/letsencrypt/live/${new_hostname}/${new_hostname}.crt"
+            #local key_path="/etc/letsencrypt/live/${new_hostname}/${new_hostname}.key"
+
+            local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.crt"
+            local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.key"
+
+            if [[ -f "$cert_path_on_hosts" && -f "$key_path_on_hosts" ]]; then
+                sed -i "s|ROUNDCUBEMAIL_DEFAULT_HOST=.*|ROUNDCUBEMAIL_DEFAULT_HOST=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
+                sed -i "s|ROUNDCUBEMAIL_DEFAULT_PORT=.*|ROUNDCUBEMAIL_DEFAULT_PORT=993|" "$ROUNDCUBE_COMPOSE"
+                sed -i "s|ROUNDCUBEMAIL_SMTP_SERVER=.*|ROUNDCUBEMAIL_SMTP_SERVER=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
+                sed -i "s|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=465|" "$ROUNDCUBE_COMPOSE"
+            else
+                log_debug "WARNING: SSL files dont exists for domain, will not be configured for roundcube!"
+            fi
     fi
     
     log_debug "Restarting Roundcube to apply new configuration"
@@ -302,10 +314,10 @@ update_domain() {
     # Execute all update steps
     update_caddyfile || return 1
     create_mv_file || return 1
-    configure_mailserver || return 1
-    configure_roundcube || return 1
     update_redirects || return 1
     restart_services "$@" || return 1
+    configure_mailserver || return 1
+    configure_roundcube || return 1    
     show_success_message
 }
 
@@ -334,6 +346,36 @@ parse_arguments() {
     done
 }
 
+
+check_domain_not_added_by_user(){
+
+    compare_with_forbidden_domains_list() {
+        local CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/domain_restriction.txt'
+        local domain_name="$1"
+        local forbidden_domains=()
+    
+        # Check forbidden domains list
+        if [ -f "forbidden_domains.txt" ]; then
+            log "Checking domain against forbidden_domains list"
+            mapfile -t forbidden_domains < forbidden_domains.txt
+            if [[ " ${forbidden_domains[@]} " =~ " ${domain_name} " ]]; then
+                echo "ERROR: $domain_name is a forbidden domain."
+                exit 1
+            fi    
+        fi
+    }
+
+if opencli domains-whoowns "$new_hostname" | grep -q "not found in the database."; then
+    compare_with_forbidden_domains_list $new_hostname
+    # todo: also check https://github.com/stefanpejcic/opencli/blob/9bf6ef2567160ac8086652e70aac73e8f7bc03e2/domains/add.sh#L255
+else
+    echo "ERROR: Domain $new_hostname is already in used by an OpenPanel account."
+    exit 1
+fi
+    
+}
+
+
 # Main function
 main() {
     parse_arguments "$@"
@@ -356,6 +398,7 @@ main() {
             fi
             
             new_hostname="$2"
+            check_domain_not_added_by_user
             log_debug "Setting domain to: $new_hostname"
             update_domain "$@"
             ;;

@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 17.07.2025
+# Last Modified: 21.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -109,6 +109,7 @@ hard_cleanup() {
   rm -rf /etc/openpanel/openpanel/core/users/$username
   docker context rm $username  > /dev/null 2>&1
   quotacheck -avm >/dev/null 2>&1
+  mkdir -p /etc/openpanel/openpanel/core/users/
   repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
   exit 1
 }
@@ -1439,6 +1440,7 @@ send_email_to_new_user() {
 
 reload_user_quotas() {
     quotacheck -avm >/dev/null 2>&1
+    mkdir -p /etc/openpanel/openpanel/core/users/
     repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
 }
 

@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: user/transfer.sh
 # Description: Transfers a single user account from this server to another.
-# Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
+# Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 17.07.2025
+# Last Modified: 21.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -596,6 +596,8 @@ sync_local_dns_zone() {
 NAMESERVERS=()
 
 get_remote_nameservers() {
+
+if [[ "$LIVE_TRANSFER" == true ]]; then
     REMOTE_CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
     
     echo "Checking NS configuration on remote server..."
@@ -611,15 +613,16 @@ get_remote_nameservers() {
     NS4=$($SSH_CMD "grep '^ns4=' '$REMOTE_CONFIG' | cut -d'=' -f2")
 
     if [[ -z "$NS1" || -z "$NS2" ]]; then
-        echo "[ERROR] ns1 and ns2 must be set on remote server!"
-        exit 1
+        echo "[ERROR] ns1 and ns2 are not set on remote serverm - Live transfer will not forward DNS!"
+    else
+	    NAMESERVERS=("$NS1" "$NS2")
+	    [[ -n "$NS3" ]] && NAMESERVERS+=("$NS3")
+	    [[ -n "$NS4" ]] && NAMESERVERS+=("$NS4")
+	
+	    echo "[INFO] Remote NS: ${NAMESERVERS[*]}"
     fi
+fi
 
-    NAMESERVERS=("$NS1" "$NS2")
-    [[ -n "$NS3" ]] && NAMESERVERS+=("$NS3")
-    [[ -n "$NS4" ]] && NAMESERVERS+=("$NS4")
-
-    echo "[INFO] Remote NS: ${NAMESERVERS[*]}"
 }
 
 
@@ -726,7 +729,6 @@ EOF
 # Ako je live transfer, uradi isto i lokalno
 if [[ "$LIVE_TRANSFER" == true ]]; then
     sync_local_dns_zone "$domain"
-    get_remote_nameservers
     update_zone_file "/etc/bind/zones/$domain.zone"
 fi
 		fi
@@ -846,6 +848,7 @@ export_mysql
 import_mysql
 copy_feature_set
 copy_user_account $USERNAME
+get_remote_nameservers
 rsync_files_for_user
 copy_docker_context # create context on dest, start service
 $SSH_CMD "systemctl daemon-reload" 
