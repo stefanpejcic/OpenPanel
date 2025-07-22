@@ -18,13 +18,13 @@ Backups can be configured either by the system administrator (admin-configured) 
 | Admin access to backups    | Full                           | None                                  |
 
 
-### 1. Admin-Configured Backups
+### 1. Admin-Configured
 
 In this mode, the **admin has full control** over backup scheduling, retention, and destination settings. End users are **not allowed** to modify any backup configurations.
 
 ---
 
-#### Step 1: Disable the Backups Module for Users
+#### 1: Disable Backups Module
 
 To prevent users from changing backup settings, disable the **Backups** module from the admin interface.
 
@@ -34,7 +34,7 @@ To prevent users from changing backup settings, disable the **Backups** module f
 
 ---
 
-#### Step 2: Edit the Default Backup Template
+#### 2: Edit Template
 
 Modify the backup configuration template that applies to new accounts. This file defines default backup settings, such as remote storage destinations.
 
@@ -71,7 +71,7 @@ SSH_PASSWORD="NotSoStrongP@ssword"
 
 ---
 
-#### Step 3: Configure the Backup Schedule
+#### 3: Edit Schedule
 
 To set the backup frequency, go to:
 
@@ -88,7 +88,7 @@ Adjust the schedule as needed. This command will trigger backups according to yo
 
 ---
 
-### 2. User-Configured Backups
+### 2. User-Configured
 
 In this mode, the **Backups module is enabled** to allow users to configure their own backups based on their needs.
 
@@ -102,6 +102,8 @@ In this mode, the **Backups module is enabled** to allow users to configure thei
   * Backup schedule (when backups run)
   * What data to back up (files, databases, or both)
   * Resource limits (e.g., bandwidth or CPU used during backup)
+
+> 🔗 For end-user configuration, see [Backups Documentation](/docs/panel/files/backups/)
 
 **Notes:**
 
