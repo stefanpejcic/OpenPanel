@@ -3,7 +3,7 @@
 
 mkdir -p /etc/openpanel/modules/ /etc/openpanel/caddy/security
 
-file="/etc/openpanel/docker/compose/docker-compose.yml"
+file="/root/docker-compose.yml"
 line_to_add="      - /etc/openpanel/modules/:/modules/plugins/"
 after_line="- /etc/localtime:/etc/localtime:ro"
 
@@ -25,5 +25,15 @@ else
     }' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 
     echo "Line added successfully. Backup saved as $file.bak"
+    changed=1
+        if [[ "$changed" -eq 1 ]]; then
+            echo "- Restarting Openpanel container"
+            docker restart openpanel 2>/dev/null && \
+                echo "- Restarted successfully." || \
+                echo "Could not restart openpanel container"
+        fi
+    else
+        echo "No docker-compose.yml found skipping."
+    fi
 fi
 
