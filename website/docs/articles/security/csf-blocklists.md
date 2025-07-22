@@ -1,13 +1,36 @@
 # CSF Blocklists
 
-CSF/LFD supports downloading and applying blocklists of IPs and CIDRs from public sources. These are managed in the file: `/etc/csf/csf.blocklists`
+CSF/LFD supports downloading and applying blocklists of IPs and CIDRs from public sources. 
+
+OpenPanel does **not** enable any IP blocklists by default upon installation.
+
+## from OpenAdmin
+
+To enable a blocklist from OpenAdmin interface, navigate to **Security > Firewall** then scroll down and click on the 'LFD Blocklists':
+
+[![2025-07-22-17-06.png](https://i.postimg.cc/LsdV3g1b/2025-07-22-17-06.png)](https://postimg.cc/CRNDF1JG)
+
+**Uncomment** the line that starts with the desired blocklist, by removing the `#` before it, then click on 'Change':
+
+[![2025-07-22-17-06-1.png](https://i.postimg.cc/jjz4gq6d/2025-07-22-17-06-1.png)](https://postimg.cc/sBgW1r0t)
+
+Finally click on 'Restart csf+lfd':
+
+[![2025-07-22-17-07.png](https://i.postimg.cc/KYrt7qF1/2025-07-22-17-07.png)](https://postimg.cc/nsrsp1Xx)
+
+
+## from Terminal
 
 To enable a specific blocklist:
 
-1. **Uncomment** the line that starts with the rule name.
-2. **Restart CSF**, then **restart LFD**.
+1. Open file `/etc/csf/csf.blocklists`
+2. **Uncomment** the line that starts with the desired blocklist.
+3. Save the file.
+4. **Restart CSF**, then **restart LFD**: `csf -ra && serfice lfd restart`
 
-OpenPanel does **not** enable any IP blocklists by default upon installation.
+
+
+
 
 ## Format
 
