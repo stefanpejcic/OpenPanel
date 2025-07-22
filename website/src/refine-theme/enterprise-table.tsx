@@ -490,9 +490,9 @@ const tableData = [
         title: "Pricing",
         items: [
             {
-                description: "Pricing",
+                description: "Monthly Pricing",
                 community: (
-                    <TableText>forever free</TableText>
+                    <TableText><span class="landing-sm:mx-auto">forever free</span></TableText>
                 ),
                 enterprise: (
                     <TableText>14.95€ / month</TableText>
@@ -509,8 +509,8 @@ const tableData = [
         items: [
             {
                 description: "Support Channels",
-                community: <TableText>Community Forums & Discord</TableText>,
-                enterprise: <TableText>Ticketing & Hands-on support</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">Community Forums & Discord</span></TableText>,
+                enterprise: <TableText><span class="landing-sm:mx-auto">Ticketing & Hands-on support</span></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -520,7 +520,7 @@ const tableData = [
                 description: "SLA",
                 community: <CrossIcon />,
                 enterprise: (
-                    <TableText>Response time within one hour</TableText>
+                    <TableText><span class="landing-sm:mx-auto">Response time within one hour</span></TableText>
                 ),
                 valueType: {
                     community: "icon",
@@ -534,10 +534,10 @@ const tableData = [
         items: [
             {
                 description: "Websites",
-                community: <TableText>50</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">50</span></TableText>,
                 enterprise: (
                     <TableText>
-                        Unlimited
+                        <span class="landing-sm:mx-auto">Unlimited</span>
                     </TableText>
                 ),
                 valueType: {
@@ -546,17 +546,35 @@ const tableData = [
                 },
             },            
             {
-                description: "Auto Installers",
-                community: <TableText>WordPress</TableText>,
-                enterprise: <TableText>WordPress, NodeJS, Python</TableText>,
+                description: "WordPress Manager",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
                 valueType: {
-                    community: "text",
-                    enterprise: "text",
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "NodeJS Applications",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Python Applications",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
                 },
             },
             {
                 description: "Website Builder",
-                community: <CrossIcon />,
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -630,8 +648,8 @@ const tableData = [
         items: [
             {
                 description: "MySQL",
-                community: <TableText>MySQL</TableText>,
-                enterprise: <TableText>MySQL and MariaDB</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">MySQL</span></TableText>,
+                enterprise: <TableText><span class="landing-sm:mx-auto">MySQL and MariaDB</span></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -649,7 +667,7 @@ const tableData = [
             {
                 description: "PostgreSQL",
                 community: <CrossIcon />,
-                enterprise: <TableText>BETA</TableText>,
+                enterprise: <TableText><span class="landing-sm:mx-auto">BETA</span></TableText>,
                 valueType: {
                     community: "icon",
                     enterprise: "text",
@@ -689,10 +707,10 @@ const tableData = [
         items: [
             {
                 description: "User Accounts",
-                community: <TableText>3</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">3</span></TableText>,
                 enterprise: (
                     <TableText>
-                        Unlimited
+                        <span class="landing-sm:mx-auto">Unlimited</span>
                     </TableText>
                 ),
                 valueType: {
@@ -732,8 +750,8 @@ const tableData = [
             },
             {
                 description: "Administrator Accounts",
-                community: <TableText>Unlimited</TableText>,
-                enterprise: <TableText>Unlimited</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">Unlimited</span></TableText>,
+                enterprise: <TableText><span class="landing-sm:mx-auto">Unlimited</span></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -746,8 +764,8 @@ const tableData = [
         items: [
             {
                 description: "Total Domains",
-                community: <TableText>50</TableText>,
-                enterprise: <TableText>Unlimited</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">50</span></TableText>,
+                enterprise: <TableText><span class="landing-sm:mx-auto">Unlimited</span></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -763,16 +781,21 @@ const tableData = [
                 },
             },
             {
-                description: "SSL",
-                community: <TableText>Let's Encrypt</TableText>,
-                enterprise: (
-                    <TableText>
-                        Let's Encrypt & Custom SSL
-                    </TableText>
-                ),
+                description: "Let's Encrypt",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
                 valueType: {
-                    community: "text",
-                    enterprise: "text",
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Custom SSL",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
                 },
             },
             {
@@ -832,8 +855,8 @@ const tableData = [
         items: [
             {
                 description: "Release Frequency",
-                community: <TableText>Monthly</TableText>,
-                enterprise: <TableText>Continuous</TableText>,
+                community: <TableText><span class="landing-sm:mx-auto">Monthly</span></TableText>,
+                enterprise: <TableText><span class="landing-sm:mx-auto">Continuous</span></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -895,6 +918,15 @@ const tableData = [
                 },
             },  
             {
+                description: "User manages Containers",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },  
+            {
                 description: "Support for ARM CPUs (Aarch64)",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
@@ -905,8 +937,8 @@ const tableData = [
             },
             {
                 description: "Supported OS",
-                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu 24.04</a></TableText>,
-                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS</a></TableText>,
+                community: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/" class="landing-sm:mx-auto">Ubuntu 24.04</a></TableText>,
+                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/" class="landing-sm:mx-auto">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -933,18 +965,18 @@ const tableData = [
         ],
     },    
     {
-        title: "Licensing",
+        title: "Pricing",
         items: [
             {
-                description: "License",
+                description: "Yearly Pricing",
                 community: (
                     <div className={clsx("h-full")}>
-                        <TableText>forever free</TableText>
+                        <TableText><span class="landing-sm:mx-auto">forever free</span></TableText>
                     </div>
                 ),
                 enterprise: (
                     <div className={clsx("flex flex-col", "gap-6", "w-full")}>
-                        <TableText>14.95€ / month</TableText>
+                        <TableText>149.50€ / year (17% OFF)</TableText>
                         <EnterpriseGetInTouchButton
                             className={clsx("hidden landing-sm:block")}
                             linkClassName={clsx("w-full")}
