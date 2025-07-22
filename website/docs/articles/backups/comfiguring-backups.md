@@ -20,21 +20,71 @@ Backups can be configured either by the system administrator (admin-configured) 
 
 ### 1. Admin-Configured Backups
 
-In this mode, the **admin fully controls** backup scheduling, retention, and destination settings. End users do **not** have access to modify backup configurations.
+In this mode, the **admin has full control** over backup scheduling, retention, and destination settings. End users are **not allowed** to modify any backup configurations.
 
-**Setup:**
+---
 
-* The admin must **disable the Backups module** in the user interface to prevent users from changing backup settings.
-* All backup configuration is managed via the `backups.env` file. This file defines:
+#### Step 1: Disable the Backups Module for Users
 
-  * Backup schedule (e.g., daily, weekly)
-  * Retention policy (how many backups to keep)
-  * Destination (local path, remote storage, etc.)
+To prevent users from changing backup settings, disable the **Backups** module from the admin interface.
 
-**Notes:**
+**Path:**
+`OpenAdmin > Settings > Modules`
+**Action:** Deactivate the **Backups** module.
 
-* Users cannot configure or trigger backups in this mode.
-* The admin is responsible for monitoring and maintaining backup integrity.
+---
+
+#### Step 2: Edit the Default Backup Template
+
+Modify the backup configuration template that applies to new accounts. This file defines default backup settings, such as remote storage destinations.
+
+**File path:**
+`/etc/openpanel/backups/backups.env`
+
+To enable and configure a remote SSH destination, uncomment and update the following variables:
+
+```env
+########### SSH/SFTP STORAGE
+# SSH_HOST_NAME=""
+# SSH_PORT="22"
+# SSH_REMOTE_PATH=""
+# SSH_USER=""
+# SSH_PASSWORD=""
+# SSH_IDENTITY_FILE="/var/www/html/id_rsa"
+# SSH_IDENTITY_PASSPHRASE=""
+```
+
+**Example:**
+
+```env
+########### SSH/SFTP STORAGE
+SSH_HOST_NAME="185.119.22.54"
+SSH_PORT="22"
+SSH_REMOTE_PATH="/backups/"
+SSH_USER="root"
+SSH_PASSWORD="NotSoStrongP@ssword"
+# SSH_IDENTITY_FILE="/var/www/html/id_rsa"
+# SSH_IDENTITY_PASSPHRASE=""
+```
+
+> 🔗 For more destination types and examples, see [Backups Documentation](/docs/panel/files/backups/#destinations)
+
+---
+
+#### Step 3: Configure the Backup Schedule
+
+To set the backup frequency, go to:
+
+**Path:**
+`OpenAdmin > Advanced > System Cron Jobs`
+
+Locate the cron job for the command:
+
+```bash
+opencli docker-backup
+```
+
+Adjust the schedule as needed. This command will trigger backups according to your defined schedule for **all active users** on the server.
 
 ---
 
