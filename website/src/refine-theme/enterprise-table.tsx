@@ -1020,7 +1020,7 @@ const tableData = [
                 description: "Yearly Pricing",
                 community: (
                     <div className={clsx("h-full")}>
-                        <TableText>forever free</TableText>
+                        <TableText></TableText>
                     </div>
                 ),
                 enterprise: (
