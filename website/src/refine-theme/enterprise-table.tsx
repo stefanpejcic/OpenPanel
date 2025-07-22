@@ -29,6 +29,7 @@ export const EnterpriseTable = ({ className }: { className?: string }) => {
                 )}
             >
                 <h2
+                    id="compare" 
                     className={clsx(
                         "font-semibold",
                         "dark:text-gray-400 text-gray-600",
