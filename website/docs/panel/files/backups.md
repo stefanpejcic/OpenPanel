@@ -434,3 +434,11 @@ To do this, ensure the Docker feature is enabled. Then:
 ```bash
 backup
 ```
+
+## Troubleshooting
+
+Error *error copying archive: ssh.(*sshStorage).Copy: error creating file: file does not exist* indicates that the configured directory does not exist on destination:
+
+```
+time=2025-07-22T11:21:05.117Z level=ERROR msg="Fatal error running command: file does not exist" error="main.(*command).runAsCommand: error running script: main.runScript.func4: error running script: main.(*script).copyArchive: error copying archive: ssh.(*sshStorage).Copy: error creating file: file does not exist"
+```
