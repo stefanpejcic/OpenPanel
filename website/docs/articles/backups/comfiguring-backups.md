@@ -1,6 +1,6 @@
 # Configuring OpenPanel Backups
 
-OpenPanel has a unique feature where end-users can configure their remote backups. This provides users with more freedom and control over the schedule, what to backup and finally mire privacy as Admin does not have access to their destination.
+OpenPanel has a unique feature where end-users can configure their remote backups. This provides users with more freedom and control over the schedule, what to backup and finally more privacy as Admin does not have access to their destination.
 
 Backups can be configured either by the system administrator (admin-configured) or by end users (user-configured). Each mode has distinct setup and restore procedures.
 
