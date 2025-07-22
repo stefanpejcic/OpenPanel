@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 17.07.2025
+# Last Modified: 21.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -40,6 +40,7 @@ usage() {
     echo "  domain DOMAIN_NAME disable                          Disable CorazaWAF for a domain."
     echo "  tags                                                Display all tags from enabled sets."
     echo "  ids                                                 Display all rule IDs from enabled sets."
+    echo "  update                                              Update OWASP CRS."
     echo "  stats <country|agent|hourly|ip|request|path> Display top requests by countr, ip, path, etc."
     echo ""
     echo "Examples:"
@@ -178,6 +179,26 @@ get_count_from_file() {
 }
 
 
+update_owasp_rules() {
+  cd /etc/openpanel/caddy/coreruleset/ || { echo "Failed to enter modsec directory: /etc/openpanel/caddy/coreruleset/"; return 1; }
+  
+  for f in rules/*.conf.disabled; do
+    original="${f%.disabled}"
+    echo "- Excluding disabled ruleset $original"
+    git update-index --assume-unchanged "$original"
+  done
+
+  echo "Updating OWASP CRS.."
+  
+  if git pull --quiet; then
+    echo "Update successful."
+  else
+    echo "Update failed."
+    return 1
+  fi
+}
+
+
 
 # MAIN
 case "$1" in
@@ -213,6 +234,21 @@ case "$1" in
     "disable")
         disable_coraza_waf
         ;;
+    "update")
+        if [[ -z "$2" ]]; then    
+            update_owasp_rules
+        else
+            case "$2" in
+                "log")
+                    cd /etc/openpanel/caddy/coreruleset/ && git log --oneline
+                    ;;
+                *)
+                    echo "Invalid action, available: opencli waf-update and opencli waf-update log"
+                    exit 1
+                    ;;
+            esac
+        fi      
+        ;;        
     "stats")
         get_stats_from_file $2
         ;;

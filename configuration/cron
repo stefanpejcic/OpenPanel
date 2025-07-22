@@ -29,6 +29,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 45 1 * * * root /usr/local/bin/opencli email-server pflogsumm && echo "$(date) Generated email summary report for OpenAdmin > Emails > Summary Reports" >> /var/log/openpanel/admin/cron.log
 45 3 * * * root /usr/local/bin/opencli docker-images --all && echo "$(date) Executed docker cup for all users" >> /var/log/openpanel/admin/cron.log
 45 4 * * * root /usr/local/bin/opencli files-purge_trash && echo "$(date) Executed purging Trash folder for all users" >> /var/log/openpanel/admin/cron.log
+0 0 1 * * root /usr/local/bin/opencli waf-update && echo "$(date) Executed OWASP CRS update - view logs with: opencli waf-update log" >> /var/log/openpanel/admin/cron.log
 
 @reboot root mkdir -p /tmp/redis && chmod 777 /tmp/redis
 

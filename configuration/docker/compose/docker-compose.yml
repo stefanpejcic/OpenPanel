@@ -102,7 +102,9 @@ services:
       # emails
       - /usr/local/mail/openmail/:/usr/local/mail/openmail/
       # time
-      - /etc/localtime:/etc/localtime:ro      
+      - /etc/localtime:/etc/localtime:ro
+      # plugins
+      - /etc/openpanel/modules/:/modules/plugins/
     restart: always
     privileged: true
     networks:
