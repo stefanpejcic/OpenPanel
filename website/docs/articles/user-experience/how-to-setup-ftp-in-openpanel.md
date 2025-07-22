@@ -67,7 +67,7 @@ To restart:
 
 ---
 
-## ✅ FTP Setup Complete
+## FTP Setup Complete
 
 FTP is now enabled for all hosting plans that include the **ftp** feature. Affected users can access it under **OpenPanel > Files > FTP Accounts**.
 
@@ -75,7 +75,7 @@ FTP is now enabled for all hosting plans that include the **ftp** feature. Affec
 
 ---
 
-## ⚠️ Troubleshooting
+## Troubleshooting
 
 If a user sees the following error:
 
