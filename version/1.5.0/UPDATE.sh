@@ -26,14 +26,11 @@ else
 
     echo "Line added successfully. Backup saved as $file.bak"
     changed=1
-        if [[ "$changed" -eq 1 ]]; then
-            echo "- Restarting Openpanel container"
-            docker restart openpanel 2>/dev/null && \
-                echo "- Restarted successfully." || \
-                echo "Could not restart openpanel container"
-        fi
-    else
-        echo "No docker-compose.yml found skipping."
+    if [[ "$changed" -eq 1 ]]; then
+        echo "- Restarting Openpanel container"
+        docker restart openpanel 2>/dev/null && \
+            echo "- Restarted successfully." || \
+            echo "Could not restart openpanel container"
     fi
 fi
 
