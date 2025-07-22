@@ -5,6 +5,10 @@
       "to": "/enterprise"
     },
     {
+      "from": "/beta/",
+      "to": "/enterprise/"
+    },
+    {
       "from": "/docs/examples34534534",
       "to": "https://github.com/"
     }
