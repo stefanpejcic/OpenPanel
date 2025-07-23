@@ -753,6 +753,8 @@ services:
   backup:
     image: offen/docker-volume-backup:v2
     container_name: backup
+    environment:
+      - USERNAME=${CONTEXT}
     env_file:
       - ./backup.env
     volumes:

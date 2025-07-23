@@ -6,7 +6,7 @@
 #        opencli config update <setting_name> <new_value>
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 21.07.2025
+# Last Modified: 22.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -31,55 +31,6 @@
 
 
 config_file="/etc/openpanel/openpanel/conf/openpanel.config"
-
-
-########################## UPDATE NGINX PROXY FILE FOR DOMAINS ##########################
-proxy_conf_file="/etc/openpanel/nginx/vhosts/openpanel_proxy.conf"
-
-# Function to update SSL configuration in proxy_conf_file
-update_ssl_config() {
-    ssl_value="$1"
-
-    if [ "$ssl_value" = "yes" ]; then
-        # Update https to http in the proxy_conf_file if it's not already present
-        if grep -q 'return 301[[:space:]]\+http://' "$proxy_conf_file"; then
-            sed -i 's|return 301[[:space:]]\+http:|return 301 https:|' "$proxy_conf_file"
-        else
-            :
-            #echo "SSL is already configured as 'https' in $proxy_conf_file"
-        fi
-    elif [ "$ssl_value" = "no" ]; then
-        # Update http to https in the proxy_conf_file if it's not already present
-        if grep -q 'return 301[[:space:]]\+https://' "$proxy_conf_file"; then
-            sed -i 's|return 301[[:space:]]\+https:|return 301 http:|' "$proxy_conf_file"
-        else
-            :
-            #echo "SSL is already configured as 'http' in $proxy_conf_file"
-        fi
-    fi
-
-    #echo "Updated SSL configuration in $proxy_conf_file"
-}
-
-
-# Function to update port configuration in proxy_conf_file
-update_port_config() {
-    new_port="$1"
-    sed -Ei "s|(return 301 https://[^:]+:)([0-9]+;)|\1$new_port;|;s|(return 301 http://[^:]+:)([0-9]+;)|\1$new_port;|" "$proxy_conf_file"
-    #echo "Updated port configuration in $proxy_conf_file to $new_port"
-}
-
-# Function to update openpanel_proxy configuration in proxy_conf_file
-update_openpanel_proxy_config() {
-    new_value="$1"
-    # Update the value in the 2nd line after "location /$$$$ {"
-    sed -i "0,/location \/openpanel/{n;s|/[^[:space:]]*|/$new_value|}" "$proxy_conf_file"
-    #echo "Updated openpanel_proxy configuration in $proxy_conf_file to $new_value"
-}
-
-##############################################################################
-
-
 
 # Function to get the current configuration value for a parameter
 get_config() {
@@ -108,7 +59,7 @@ update_config() {
 
         # Restart the panel service for all settings except autoupdate and autopatch
         if [ "$param_name" != "autoupdate" ] && [ "$param_name" != "autopatch" ]; then
-            docker restart openpanel &> /dev/null &                        # run in bg, and dont show error if panel not running
+            docker --context=default restart openpanel &> /dev/null &                        # run in bg, and dont show error if panel not running
             rm -rf /etc/openpanel/openpanel/core/users/*/data.json         # remove data.json files for all users
         fi
         
@@ -132,27 +83,23 @@ case "$command" in
         ;;
     update)
         if [ "$#" -ne 3 ]; then
-            echo "Usage: $0 update <parameter_name> <new_value>"
+            echo "Usage: opencli config update <parameter_name> <new_value>"
             exit 1
         fi
         new_value="$3"
         update_config "$param_name" "$new_value"
         
         case "$param_name" in
-            ssl)
-                update_ssl_config "$new_value"
-                ;;
-            port)
-                update_port_config "$new_value"
-                ;;
-            openpanel_proxy)
-                update_openpanel_proxy_config "$new_value"
-                docker restart nginx &> /dev/null &
+            email)
+                # update email for csf also! 
+                if [[ "$new_value" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+                    sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$new_value\"/" /etc/csf/csf.conf
+                fi
                 ;;
         esac
         ;;
     *)
-        echo "Invalid command. Usage: $0 [get|update] <parameter_name> [new_value]"
+        echo "Invalid command. Usage: opencli config [get|update] <parameter_name> [new_value]"
         exit 1
         ;;
 esac
