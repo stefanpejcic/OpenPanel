@@ -112,6 +112,8 @@ services:
     deploy:
       resources:
         limits:
+          cpus: "${OPENPANEL_CPUS:-1.0}"
+          memory: "${OPENPANEL_RAM:-1.0G}"
           pids: 300
 
   # Webserver from 1.0.0
@@ -171,6 +173,7 @@ services:
       - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
       - /etc/openpanel/ftp/all.users:/etc/openpanel/ftp/all.users
       - /etc/openpanel/ftp/users/:/etc/openpanel/ftp/users/
+      - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro #ssl
     env_file:
       - /etc/openpanel/ftp/all.users
     networks:
