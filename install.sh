@@ -764,11 +764,6 @@ setup_firewall_service() {
 	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
               	debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
 	    fi
-              # autologin from openpanel
-              ln -s /etc/csf/ui/images/ /usr/local/admin/static/configservercsf
-              chmod +x /usr/local/admin/modules/security/csf.pl
-
-
               # play nice with docker
               git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
               mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
@@ -1399,8 +1394,6 @@ download_skeleton_directory_from_github(){
         radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
     fi
 
-    chmod a+x ${ETC_DIR}wordpress/wp-cli.phar
-    chmod +x /etc/openpanel/ftp/start_vsftpd.sh
     systemctl daemon-reload  > /dev/null 2>&1
     
 }
@@ -1410,7 +1403,6 @@ setup_bind(){
     if [ "$SKIP_DNS_SERVER" = false ]; then
     echo "Setting DNS service.."
     mkdir -p /etc/bind/
-    chmod 777 /etc/bind/
     cp -r /etc/openpanel/bind9/* /etc/bind/
     
     # only on ubuntu systemd-resolved is installed
@@ -1751,7 +1743,7 @@ create_admin_and_show_logins_success_message() {
 	    if [[ "$custom_password" =~ ^[A-Za-z0-9]{6,16}$ ]]; then
 	        new_password="${custom_password}"
 	    else
-	        echo "Warning: custom_password is invalid (must be alphanumeric and 6–16 characters). Generating a secure password."
+	        echo "Warning: provided password is invalid (must be alphanumeric and 6–16 characters). Generating a secure password."
 	        new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 	    fi
 	else
