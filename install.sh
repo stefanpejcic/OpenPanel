@@ -503,6 +503,7 @@ detect_installed_panels() {
             ["/usr/local/httpd"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
             ["/usr/local/apache2"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
             ["/usr/sbin/httpd"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
+            ["/sbin/httpd"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
             ["/usr/lib/nginx"]="Nginx WebServer is already installed. OpenPanel only supports servers without any webservers installed."
         )
 
