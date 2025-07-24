@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 22.07.2025
+# Last Modified: 23.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -226,7 +226,7 @@ configure_mailserver() {
     fi
     
     log_debug "Restarting mailserver to apply new configuration"
-    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default restart openadmin_mailserver" </dev/null >nohup.out 2>nohup.err &
+    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down mailserver && docker --context default compose up -d mailserver" </dev/null >nohup.out 2>nohup.err &
 }
 
 # Configure Roundcube
@@ -259,7 +259,7 @@ configure_roundcube() {
     fi
     
     log_debug "Restarting Roundcube to apply new configuration"
-    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default restart roundcube" </dev/null >nohup.out 2>nohup.err &
+    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down roundcube && docker --context default compose up -d roundcube" </dev/null >nohup.out 2>nohup.err &
 }
 
 # Restart services
