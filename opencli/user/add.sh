@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 22.07.2025
+# Last Modified: 23.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -152,7 +152,7 @@ check_if_default_slave_server_is_set() {
 		 if [[ -n "$default_ssh_key_path" ]]; then
 	              server=$default_node
 		      key=$default_ssh_key_path
-	              echo 'Using default node "$server" and ssh key path'
+	              echo "Using default node "$server" and ssh key path"
 		 fi
 	fi
 
@@ -511,33 +511,35 @@ fi
 sshfs_mounts() {
     if [ -n "$node_ip_address" ]; then
 
-        ssh -q $key_flag root@$node_ip_address << EOF
+	ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address << 'EOF' 2>/dev/null
 if [ ! -d "/etc/openpanel/openpanel" ]; then
     echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
     echo "AuthorizedKeysFile     .ssh/authorized_keys" >> /etc/ssh/sshd_config
-    service ssh restart
+    service ssh restart > /dev/null 2>&1
 fi
 EOF
 
+
         sleep 5
 
-        ssh -q $key_flag root@$node_ip_address << EOF
+	ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address << 'EOF' 2>/dev/null
 if [ ! -d "/etc/openpanel/openpanel" ]; then
     echo "Node is not yet configured to be used as an OpenPanel slave server. Configuring.."
 
     if command -v apt-get &> /dev/null; then
         export DEBIAN_FRONTEND=noninteractive
-        apt-get update > /dev/null 2>&1 && apt-get -yq install systemd-container uidmap
+        apt-get update > /dev/null 2>&1 && apt-get -yq install systemd-container uidmap > /dev/null 2>&1
     elif command -v dnf &> /dev/null; then
-        dnf install -y systemd-container uidmap
+        dnf install -y systemd-container uidmap > /dev/null 2>&1
     elif command -v yum &> /dev/null; then
-        yum install -y systemd-container uidmap
+        yum install -y systemd-container uidmap > /dev/null 2>&1
     else
         echo "[✘] ERROR: Unable to setup the slave server. Contact support."
         exit 1
     fi
 fi
 EOF
+
 
         ssh -q $key_flag root@$node_ip_address << 'EOF'
 if [ ! -d "/etc/openpanel/openpanel" ]; then
@@ -575,7 +577,8 @@ EOF
             fi
         fi
 
-        sshfs -o IdentityFile=~/.ssh/$node_ip_address root@$node_ip_address:/home/$username /home/$username
+	sshfs -o IdentityFile="/root/.ssh/$node_ip_address",StrictHostKeyChecking=no root@$node_ip_address:/home/$username /home/$username
+
     fi
 }
 
@@ -651,14 +654,13 @@ setup_ssh_key(){
 	log "Setting ssh key.."
  
  	public_key=$(ssh-keygen -y -f "$key")
-ssh $key_flag root@$node_ip_address << EOF
-  mkdir -p /home/$username/.ssh/ > /dev/null 2>&1
-  touch  /home/$username/.ssh/authorized_keys > /dev/null 2>&1
-  chown $username -R /home/$username/.ssh > /dev/null 2>&1
-  if ! grep -q "$public_key" /home/$username/.ssh/authorized_keys; then
-    echo "$public_key" >> /home/$username/.ssh/authorized_keys
-  fi
-  
+ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address << EOF 2>/dev/null
+mkdir -p /home/$username/.ssh > /dev/null 2>&1
+touch /home/$username/.ssh/authorized_keys > /dev/null 2>&1
+chown $username -R /home/$username/.ssh > /dev/null 2>&1
+if ! grep -q "$public_key" /home/$username/.ssh/authorized_keys 2>/dev/null; then
+  echo "$public_key" >> /home/$username/.ssh/authorized_keys
+fi
 EOF
 
 mkdir ~/.ssh  > /dev/null 2>&1
@@ -699,11 +701,13 @@ validate_ssh_login(){
     	if [ "$DEBUG" = true ]; then
 	        if [ -f "$key" ]; then	
 	            if [ "$(stat -c %a "$key")" -eq 600 ]; then	                
-	                ssh -i "$key" "$node_ip_address" "exit" &> /dev/null
+	                ssh -i "$key_flag" "$node_ip_address" "exit" &> /dev/null
 	                if [ $? -eq 0 ]; then
 	                    log "SSH connection successfully established"
+	                    csf -a "$node_ip_address" > /dev/null 2>&1
+	                    # TODO: whitelist on remote also
 	                else
-	                    echo 'ERROR: SSH connection failed to $node_ip_address'
+	                    echo "ERROR: SSH connection failed to $node_ip_address"
 		     	    exit 1
 	                fi
 	            else
@@ -711,7 +715,7 @@ validate_ssh_login(){
 	                chmod 600 "$key"
 	            fi
 	        else
-	            echo 'ERROR: Provided ssh key path: "$key" does not exist.'
+	            echo "ERROR: Provided ssh key path: "$key" does not exist."
 	     	# TODO: GENERATE OTHERWISE!
 		#ssh-keygen -t rsa -b 4096 -f ~/.ssh/${username}context
 		# ssh-copy-id $username@$hostname+IPPPPP      
@@ -798,13 +802,15 @@ create_remote_user() {
  	fi
   	
    	if [ -n "$node_ip_address" ]; then
-                    log "Creating user $username on server $node_ip_address"
-                    ssh $key_flag "root@$node_ip_address" "useradd -m -s /bin/bash -d /home/$username $id_flag $username" #-s /bin/bash needed for sourcing 
-		    user_id=$(ssh $key_flag "root@$node_ip_address" "id -u $username")
-			if [ $? -ne 0 ]; then
-			    echo "Error: Failed creating linux user $username on node: $node_ip_address"
-			    exit 1
-			fi
+                log "Creating user $username on server $node_ip_address"
+		ssh -o LogLevel=ERROR $key_flag "root@$node_ip_address" "useradd -m -s /bin/bash -d /home/$username $id_flag $username" >/dev/null 2>&1
+		
+		user_id=$(ssh -o LogLevel=ERROR $key_flag "root@$node_ip_address" "id -u $username" 2>/dev/null)
+		
+		if [ $? -ne 0 ]; then
+		    echo "Error: Failed creating linux user $username on node: $node_ip_address"
+		    exit 1
+      		fi
 	fi
  
 
@@ -828,6 +834,33 @@ create_user_set_quota_and_password() {
  	create_local_user
        	create_remote_user $user_id
 	set_user_quota
+}
+
+install_docker_and_add_user() {
+    log "Checking if Docker is installed on $node_ip_address..."
+
+    ssh $key_flag root@"$node_ip_address" "command -v docker >/dev/null 2>&1"
+    if [ $? -ne 0 ]; then
+        log "Docker is not installed. Installing Docker on $node_ip_address..."
+        ssh $key_flag root@"$node_ip_address" bash -c "'
+          set -e
+          apt update
+          apt install -y docker.io
+          systemctl enable --now docker
+        '"
+        log "Docker installed on destination server."
+    else
+        log "Docker is already installed on destination server."
+    fi
+
+    log "Adding user '$username' to docker group on $node_ip_address..."
+    ssh $key_flag root@"$node_ip_address" bash -c "'
+      if id -nG \"$username\" | grep -qw docker; then
+        :
+      else
+        usermod -aG docker \"$username\" && echo \"User $username added to docker group.\"
+      fi
+    '"
 }
 
 
@@ -883,7 +916,7 @@ sed -i '1i export PATH=/home/'"$username"'/bin:$PATH' /home/"$username"/.bashrc
 
    	if [ -n "$node_ip_address" ]; then
 log "Setting AppArmor profile.."
-ssh $key_flag root@$node_ip_address <<'EOF1'
+ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address <<'EOF1' 2>/dev/null
 
 cat > "/etc/apparmor.d/home.$username.bin.rootlesskit" <<'EOT1'
 abi <abi/4.0>,
@@ -1123,25 +1156,12 @@ run_docker() {
       
       local found_ports=()
                   
-        if [ -n "$node_ip_address" ]; then
-            # TODO: Use a custom user or configure SSH instead of using root
-            ssh $key_flag "root@$node_ip_address" '
-		declare -a found_ports=()
-		for ((i=1; i<=7; i++)); do
-		    port=$((min_port + i))
-		    found_ports+=("$port")
-		done
-		        
-              echo "${found_ports[@]}"
-            '
-        else
-		declare -a found_ports=()
-		for ((i=1; i<=7; i++)); do
-		    port=$((min_port + i))
-		    found_ports+=("$port")
-		done
-            echo "${found_ports[@]}"
-        fi
+	declare -a found_ports=()
+	for ((i=1; i<=7; i++)); do
+	    port=$((min_port + i))
+	    found_ports+=("$port")
+	done
+        echo "${found_ports[@]}"
 
 
 
@@ -1176,13 +1196,25 @@ run_docker() {
 
     # todo: better validation!
     if validate_port "$FIRST_NEXT_AVAILABLE" && validate_port "$SECOND_NEXT_AVAILABLE" && validate_port "$THIRD_NEXT_AVAILABLE" && validate_port "$FOURTH_NEXT_AVAILABLE" && validate_port "$FIFTH_NEXT_AVAILABLE" && validate_port "$SIXTH_NEXT_AVAILABLE" && validate_port "$SEVENTH_NEXT_AVAILABLE"; then
-	port_1="$FIRST_NEXT_AVAILABLE:22"
-	port_2="$SECOND_NEXT_AVAILABLE:3306"
-	port_3="$THIRD_NEXT_AVAILABLE:7681"
-	port_4="$FOURTH_NEXT_AVAILABLE:80"
-	port_5="127.0.0.1:$FIFTH_NEXT_AVAILABLE:80"
-        port_6="127.0.0.1:$SIXTH_NEXT_AVAILABLE:443"
-	port_7="127.0.0.1:$SEVENTH_NEXT_AVAILABLE:80"
+
+	if [ -n "$node_ip_address" ]; then
+		port_1="$node_ip_address:$FIRST_NEXT_AVAILABLE:22"
+		port_2="$node_ip_address:$SECOND_NEXT_AVAILABLE:3306"
+		port_3="$node_ip_address:$THIRD_NEXT_AVAILABLE:7681"
+		port_4="$node_ip_address:$FOURTH_NEXT_AVAILABLE:80"
+		port_5="$node_ip_address:$FIFTH_NEXT_AVAILABLE:80"
+	        port_6="$node_ip_address:$SIXTH_NEXT_AVAILABLE:443"
+		port_7="$node_ip_address:$SEVENTH_NEXT_AVAILABLE:80"
+	  else
+		port_1="$FIRST_NEXT_AVAILABLE:22"
+		port_2="$SECOND_NEXT_AVAILABLE:3306"
+		port_3="$THIRD_NEXT_AVAILABLE:7681"
+		port_4="$FOURTH_NEXT_AVAILABLE:80"
+		port_5="127.0.0.1:$FIFTH_NEXT_AVAILABLE:80"
+	        port_6="127.0.0.1:$SIXTH_NEXT_AVAILABLE:443"
+		port_7="127.0.0.1:$SEVENTH_NEXT_AVAILABLE:80"
+	fi
+ 
     else
 	port_1=""
 	port_2=""
@@ -1469,6 +1501,7 @@ validate_ssh_login                           # test ssh logins for cluster membe
 create_user_set_quota_and_password           # create user
 sshfs_mounts                                 # mount /home/user
 setup_ssh_key                                # set key for the user
+install_docker_and_add_user
 docker_rootless                              # install 
 docker_compose                               # magic happens here
 create_context                               # on master
