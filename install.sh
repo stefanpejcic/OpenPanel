@@ -853,9 +853,19 @@ setup_firewall_service() {
 	    echo "$port"
 	}
 
+	disable_firewalld() {
+	 	echo "Stopping and disabling firewalld..."
+		if systemctl is-active --quiet firewalld; then
+		    systemctl stop firewalld
+		fi
+		systemctl disable firewalld
+  	}
+
+
        
           install_csf
-          edit_csf_conf
+          edit_csf_conf 
+	  disable_firewalld    # https://github.com/stefanpejcic/OpenPanel/issues/582
           open_tcpout_csf 3306                                                  # mysql tcp_out only
 	  open_tcpout_csf 465                                                   # for emails
 	  open_tcpout_csf 2087                                                  # for openadmin api
