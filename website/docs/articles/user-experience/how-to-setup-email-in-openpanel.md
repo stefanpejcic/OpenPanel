@@ -18,7 +18,7 @@ Ensure that you're running the **Enterprise Edition** of OpenPanel. Email suppor
 
 OpenPanel uses a modular system where features can be individually enabled or disabled.
 
-To enable the FTP module:
+To enable the Email module:
 
 * Go to **OpenAdmin > Settings > Modules**
 * Find the **Emails** module and click **Activate**
