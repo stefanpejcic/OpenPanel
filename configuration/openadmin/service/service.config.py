@@ -43,6 +43,38 @@ CADDY_CERT_DIR = "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-director
 DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
 
 
+##############
+
+# added in 1.5.1 to chmod+x files on startup
+import stat
+def make_executable_if_exists(path):
+    if os.path.exists(path):
+        st = os.stat(path)
+        # chmod +x
+        if not (st.st_mode & stat.S_IXUSR and st.st_mode & stat.S_IXGRP and st.st_mode & stat.S_IXOTH):
+            try:
+                os.chmod(path, st.st_mode | 0o111)  # chmod a+x
+                print(f"Made {path} executable (+x)")
+            except Exception as e:
+                print(f"Failed to set +x on {path}: {e}")
+
+def symlink_force(target, link_name):
+    try:
+        if os.path.islink(link_name) or os.path.exists(link_name):
+            os.remove(link_name)  # Remove existing file or symlink
+        os.symlink(target, link_name)
+        print(f"Created symlink: {link_name} -> {target}")
+    except Exception as e:
+        print(f"Failed to create symlink {link_name} -> {target}: {e}")
+
+make_executable_if_exists("/etc/openpanel/wordpress/wp-cli.phar")     # wpcli for php containers
+make_executable_if_exists("/usr/local/admin/modules/security/csf.pl") # csf gui
+make_executable_if_exists("/usr/local/admin/service/watcher.sh")      # reload dns zones
+make_executable_if_exists("/etc/openpanel/ftp/start_vsftpd.sh")       # start ftp
+
+symlink_force("/etc/csf/ui/images/", "/usr/local/admin/static/configservercsf")
+
+##############
 def get_domain_from_caddyfile():
     domain = None
     in_block = False

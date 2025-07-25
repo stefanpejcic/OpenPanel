@@ -196,6 +196,11 @@ execute_command() {
     
     # Run post-hook
     run_hook "post" "$command" "${args[@]}"
+
+    # purge cache for UI
+    docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:html' | xargs -r redis-cli DEL" > /dev/null 2>&1 &
+    #docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:json' | xargs -r redis-cli DEL" > /dev/null 2>&1 &
+
 }
 
 main() {
