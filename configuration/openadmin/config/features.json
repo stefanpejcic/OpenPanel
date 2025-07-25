@@ -304,6 +304,14 @@
     "help_link": ""
   },
   {
+    "name": "edit_vhost",
+    "title": "Edit VirtualHosts",
+    "description": "If enabled, users can edit Virtual Hosts files for their domains.",
+    "link": "/domains/vhosts",
+    "type": "enterprise",
+    "help_link": ""
+  },  
+  {
     "name": "domains",
     "title": "Domains",
     "description": "If enabled, users can add and manage domains. Disable this feature for  'Email-only' or 'DB-only' plans.",

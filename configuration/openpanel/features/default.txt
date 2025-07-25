@@ -39,6 +39,7 @@ dns
 redirects
 domains
 capitalize_domains
+edit_vhost
 domain_logs
 goaccess
 process_manager

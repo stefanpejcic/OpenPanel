@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 23.07.2025
+# Last Modified: 24.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -46,6 +46,7 @@ readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly BLUE='\033[0;34m'
+readonly CYAN='\033[0;36m'
 readonly NC='\033[0m' # No Color
 
 # Logging functions
@@ -64,6 +65,12 @@ log_error() {
 log_debug() {
     echo -e "${BLUE}[DEBUG]${NC} $1"
 }
+
+print_header() {
+    local title="$1"
+    echo -e "${BLUE}===== ${title} =====${NC}"
+}
+
 
 # Display usage information
 usage() {
@@ -99,7 +106,7 @@ install_package() {
         local output_redirect="> /dev/null 2>&1"
     else
         local output_redirect=""
-        log_info "Installing $package..."
+        log_info "Installing $package"
     fi
     
     if command_exists apt-get; then
@@ -117,7 +124,7 @@ install_package() {
 # Ensure jq is installed
 ensure_jq_installed() {
     if ! command_exists jq; then
-        log_info "Installing jq..."
+        log_info "Installing jq"
         if ! install_package jq true; then
             log_error "Failed to install jq. Please install it manually."
             exit 1
@@ -270,7 +277,7 @@ install_required_tools() {
     local distro
     distro=$(detect_system)
     
-    log_info "Installing required system tools..."
+    log_info "Installing required system tools"
     
     case $distro in
         debian)
@@ -292,7 +299,7 @@ remove_old_kernels() {
     
     case $distro in
         debian)
-            log_info "Removing old kernels (Debian/Ubuntu)..."
+            log_info "Removing old kernels (Debian/Ubuntu)"
             local current_kernel
             current_kernel=$(uname -r)
             
@@ -306,7 +313,7 @@ remove_old_kernels() {
             fi
             ;;
         dnf|yum)
-            log_info "Removing old kernels (RHEL/CentOS)..."
+            log_info "Removing old kernels (RHEL/CentOS)"
             if command_exists package-cleanup; then
                 package-cleanup --oldkernels --count=$KEEP_KERNELS -y >> "$log_file" 2>&1
             fi
@@ -318,7 +325,7 @@ update_system_packages() {
     local distro
     distro=$(detect_system)
     
-    log_info "Updating system packages..."
+    log_info "Updating system packages"
     
     case $distro in
         debian)
@@ -326,7 +333,7 @@ update_system_packages() {
             apt upgrade -y >> "$log_file" 2>&1
             apt full-upgrade -y >> "$log_file" 2>&1
             
-            log_info "Cleaning up packages..."
+            log_info "Cleaning up packages"
             apt autoremove -y >> "$log_file" 2>&1
             apt autoclean -y >> "$log_file" 2>&1
             apt clean >> "$log_file" 2>&1
@@ -343,7 +350,7 @@ update_system_packages() {
             local pkg_mgr="$distro"
             $pkg_mgr -y update >> "$log_file" 2>&1
             
-            log_info "Cleaning up packages..."
+            log_info "Cleaning up packages"
             $pkg_mgr -y autoremove >> "$log_file" 2>&1
             $pkg_mgr clean all >> "$log_file" 2>&1
             
@@ -356,7 +363,7 @@ update_system_packages() {
 }
 
 check_reboot_required() {
-    log_info "Checking if reboot is required..."
+    log_info "Checking if reboot is required"
     
     local distro
     distro=$(detect_system)
@@ -379,7 +386,7 @@ check_reboot_required() {
 
 # Docker management functions
 purge_previous_images() {
-    log_info "Cleaning up old Docker images..."
+    log_info "Cleaning up old Docker images"
     
     local all_images
     all_images=$(docker --context "$DOCKER_CONTEXT" images --format "{{.Repository}} {{.ID}}" | grep "^$IMAGE_NAME" | awk '{print $2}')
@@ -398,7 +405,7 @@ purge_previous_images() {
 }
 
 update_docker_compose() {
-    log_info "Checking Docker Compose version..."
+    log_info "Checking Docker Compose version"
     
     local dest="$HOME/.docker/cli-plugins/docker-compose"
     local backup="${dest}.bak"
@@ -427,7 +434,7 @@ update_docker_compose() {
     
     # Compare versions
     if [[ "$(printf "%s\n%s" "$latest_version" "$local_version" | sort -V | tail -n1)" != "$local_version" ]]; then
-        log_info "Updating Docker Compose to $latest_version..."
+        log_info "Updating Docker Compose to $latest_version"
         
         # Determine architecture
         local arch
@@ -463,7 +470,7 @@ update_docker_compose() {
                 log_info "Docker Compose updated successfully"
                 [[ -f "$backup" ]] && rm -f "$backup"
             else
-                log_error "Docker Compose update failed! Reverting..."
+                log_error "Docker Compose update failed! Reverting"
                 if [[ -f "$backup" ]]; then
                     mv "$backup" "$dest"
                     log_info "Reverted to previous version"
@@ -496,7 +503,7 @@ run_version_specific_script() {
     local version="$1"
     local url="https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/$version/UPDATE.sh"
     
-    log_info "Checking for version-specific update script..."
+    log_info "Checking for version-specific update script"
     
     if wget --spider -q "$url" 2>/dev/null; then
         log_info "Downloading and executing version-specific script: $url"
@@ -531,77 +538,85 @@ run_update_immediately() {
     
     touch "$log_file"
     
-    # Enhanced logging function that writes to both file and terminal
+    # both in file and terminal
     log() {
         echo "" >> "$log_file"
-        echo "$1" | tee -a "$log_file"
+        echo -e "${CYAN}---- ${1} ----${NC}" | tee -a "$log_file"
     }
     
-    log_info "Starting update to version $version"
+    print_header "Starting update to version $version"
     log_info "Update log: $log_file"
     
     write_notification "OpenPanel update started" "Started update to version $version - Log file: $log_file"
     
     # Update OpenPanel Docker image
-    log "Updating OpenPanel Docker image..."
+    log "Updating OpenPanel Docker image"
     if ! docker image pull "${IMAGE_NAME}:${version}" 2>&1 | tee -a "$log_file"; then
         log_error "Failed to pull Docker image"
         return 1
     fi
     
     # Update version in .env file
-    log "Updating version in /root/.env..."
+    log "Updating version in /root/.env"
     if [[ -f /root/.env ]]; then
         sed -i "s/^VERSION=.*$/VERSION=\"$version\"/" /root/.env
     fi
     
     # Update OpenCLI
-    log "Updating OpenCLI..."
+    log "Updating OpenCLI"
     if [[ -d /usr/local/opencli ]]; then
         rm -f /usr/local/opencli/aliases.txt
         cd /usr/local/opencli && git reset --hard origin/main && git pull 2>&1 | tee -a "$log_file"
     fi
     
     # Update OpenAdmin
-    log "Updating OpenAdmin..."
+    log "Updating OpenAdmin"
     if [[ -d /usr/local/admin ]]; then
-        cd /usr/local/admin && git pull 2>&1 | tee -a "$log_file"
+        cd /usr/local/admin
+        # https://github.com/stefanpejcic/openadmin/branches
+        default_branch=$(git remote show origin | awk '/HEAD branch/ {print $NF}') 
+        git fetch origin
+        git reset --hard origin/"$default_branch"
+        git pull origin "$default_branch" 2>&1 | tee -a "$log_file"
+        : '
+        # these have been moved to https://github.com/stefanpejcic/openpanel-configuration/edit/main/openadmin/service/service.config.py
         chmod +x /usr/local/admin/modules/security/csf.pl 2>/dev/null || true
         chmod a+x /etc/openpanel/wordpress/wp-cli.phar 2>/dev/null || true
         ln -sf /etc/csf/ui/images/ /usr/local/admin/static/configservercsf 2>/dev/null || true
+        :
     fi
     
     # Restart OpenPanel service
-    log "Restarting OpenPanel service..."
+    log "Restarting OpenPanel service"
     if [[ -f /root/docker-compose.yml ]] || [[ -f /root/compose.yml ]]; then
         cd /root && docker --context "$DOCKER_CONTEXT" compose down openpanel && \
         docker --context "$DOCKER_CONTEXT" compose up -d openpanel 2>&1 | tee -a "$log_file"
     fi
     
     # Update OpenCLI commands
-    log "Updating OpenCLI commands..."
+    log "Updating OpenCLI commands"
     opencli commands &>/dev/null || true
     
     # Clean up old images
-    log "Cleaning up old Docker images..."
+    log "Cleaning up old Docker images"
     purge_previous_images
     
     # Run version-specific scripts
     run_version_specific_script "$version"
     
     # System updates
-    log "Updating system packages..."
+    log "Updating system packages"
     install_required_tools
     update_system_packages
     remove_old_kernels
     check_reboot_required
     
     # Update Docker Compose
-    log "Updating Docker Compose..."
+    log "Updating Docker Compose"
     update_docker_compose
     
     # Run custom post-update script
-    log "Checking for custom post-update scripts..."
+    log "Checking for custom post-update scripts"
     run_custom_postupdate_script
     
     # Clean up notifications
@@ -614,7 +629,7 @@ run_update_immediately() {
     log "Update completed successfully!"
     
     # Restart OpenAdmin service
-    log "Restarting OpenAdmin service..."
+    log "Restarting OpenAdmin service"
     systemctl restart admin 2>&1 | tee -a "$log_file" || service admin restart 2>&1 | tee -a "$log_file" || true
 }
 
@@ -668,7 +683,7 @@ check_update() {
     
     if [[ $comparison -eq -1 || "$force_update" == "true" ]]; then
         if [[ "$autoupdate" == "off" && "$force_update" == "false" ]]; then
-            log_info "Update available, but only autopatch is enabled. Installing patch..."
+            log_info "Update available, but only autopatch is enabled. Installing patch"
         else
             log_info "Update available and will be automatically installed"
         fi

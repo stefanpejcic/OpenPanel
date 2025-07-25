@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 23.07.2025
+# Last Modified: 24.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -166,11 +166,11 @@ verify_onion_files() {
 start_tor_for_user() {
 	if [ $(docker --context $context ps -q -f name=tor) ]; then
  	    log "Tor service is already running, restarting to apply new service configuration"
-		docker --context $context restart tor >/dev/null 2>&1
+  		nohup sh -c "cd /hostfs/home/$context/ && docker --context $context restart tor" </dev/null >nohup.out 2>nohup.err &
 	else
 	    log "Starting Tor service.."
 	    nohup sh -c "cd /hostfs/home/$context/ && docker --context $context  compose up -d tor" </dev/null >nohup.out 2>nohup.err &
-     	fi  
+     	fi
 }
 
 
@@ -529,13 +529,12 @@ vhost_files_create() {
 	
  	get_varnish_for_user
   	
-   	if [ "$VARNISH" = true ]; then
-	       log "Starting $ws and Varnish containers.."
-	       docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d $ws varnish > /dev/null 2>&1 
-       else
-	       log "Starting $ws container.."
-	       docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d $ws > /dev/null 2>&1     
-       fi
+	if [ "$VARNISH" = true ]; then
+	    log "Starting $ws and Varnish containers.."
+            nohup sh -c "docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d ${ws} varnish" </dev/null >nohup.out 2>nohup.err &
+	else
+            nohup sh -c "docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d ${ws}" </dev/null >nohup.out 2>nohup.err &
+	fi
 
        log "Creating ${domain_name}.conf" #$vhost_in_docker_file
        cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
@@ -551,8 +550,7 @@ vhost_files_create() {
 	  -e "s|<DOCUMENT_ROOT>|$docroot|g" \
 	  $vhost_in_docker_file
        
-       docker --context $context restart $ws > /dev/null 2>&1
-
+       nohup sh -c "cd /hostfs/home/$context/ && docker --context $context restart $ws" </dev/null >nohup.out 2>nohup.err &
  
 }
 
@@ -823,7 +821,7 @@ create_mail_mountpoint(){
         if [ -f "$COMPOSE_FILE" ]; then
             log "Creating directory $DOMAIN_DIR for emails"
             mkdir -p "$DOMAIN_DIR"
-            log "Adding mountpoint to the mail-server in background"
+            log "Configuring mailserver in background.."
             volume_to_add="      - $DOMAIN_DIR:/var/mail/$domain_name/"
 
             # Check if the volume is already in the compose file
