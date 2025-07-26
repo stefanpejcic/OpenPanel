@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 24.07.2025
+# Last Modified: 25.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -578,12 +578,6 @@ run_update_immediately() {
         git fetch origin
         git reset --hard origin/"$default_branch"
         git pull origin "$default_branch" 2>&1 | tee -a "$log_file"
-        : '
-        # these have been moved to https://github.com/stefanpejcic/openpanel-configuration/edit/main/openadmin/service/service.config.py
-        chmod +x /usr/local/admin/modules/security/csf.pl 2>/dev/null || true
-        chmod a+x /etc/openpanel/wordpress/wp-cli.phar 2>/dev/null || true
-        ln -sf /etc/csf/ui/images/ /usr/local/admin/static/configservercsf 2>/dev/null || true
-        :
     fi
     
     # Restart OpenPanel service
