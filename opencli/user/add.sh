@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 25.07.2025
+# Last Modified: 26.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -40,6 +40,7 @@ password="$2"
 email="$3"
 plan_name="$4"
 DEBUG=false             # Default value for DEBUG
+SKIP_IMAGE_PULL=false
 SEND_EMAIL=false        # Don't send email by default
 server=""               # Default value for context
 key_flag=""
@@ -173,6 +174,9 @@ check_if_default_slave_server_is_set         # we run it before parse_flags so i
 	        --send-email)
 	            SEND_EMAIL=true
 	            ;;
+	        --skip-images)
+	            SKIP_IMAGE_PULL=true
+	            ;;	     
 	        --reseller=*)
 	            reseller="${arg#*=}"
 		    ;;
@@ -648,6 +652,85 @@ get_plan_info_and_check_requirements() {
 
 
 
+download_images() {
+	if [ "$SKIP_IMAGE_PULL" = false ]; then
+	
+	    local sql_type=""
+	    local ws_type=""
+	    local php_version=""
+	    local env_file="/home/$username/.env"
+	
+	    if [[ ! -f "$env_file" ]]; then
+	        echo "Warning: $env_file not found"
+	        return 1
+	    fi
+		
+		get_env_value() {
+		    local key=$1
+		    local val
+		    val=$(grep -E "^$key=" "$env_file" | cut -d '=' -f2-)
+		    # Remove leading and trailing quotes (single or double)
+		    val="${val%\"}"   # Remove trailing double quote
+		    val="${val#\"}"   # Remove leading double quote
+		    val="${val%\'}"   # Remove trailing single quote
+		    val="${val#\'}"   # Remove leading single quote
+		    echo "$val"
+		}
+	
+	php_version=$(get_env_value "DEFAULT_PHP_VERSION")
+	php_image=""
+	if [[ -n "$php_version" ]]; then
+	    if [[ "$php_version" =~ ^[0-9]+\.[0-9]+$ ]]; then
+	        php_image="php-fpm-$php_version"
+	    else
+	        echo "Warning: DEFAULT_PHP_VERSION must be N.N format, got '$php_version'"
+	    fi
+	else
+	    echo "Warning: DEFAULT_PHP_VERSION is not set"
+	fi
+	
+	sql_type=$(get_env_value "MYSQL_TYPE")
+	valid_sql_types=("mysql" "mariadb")
+	if [[ -n "$sql_type" ]]; then
+	    if [[ ! " ${valid_sql_types[*]} " =~ " $sql_type " ]]; then
+	        echo "Warning: MYSQL_TYPE must be 'mysql' or 'mariadb', got '$sql_type'"
+	        sql_type=""
+	    fi
+	else
+	    echo "Warning: MYSQL_TYPE is not set"
+	    sql_type=""
+	fi
+	
+	ws_type=$(get_env_value "WEB_SERVER")
+	valid_ws_types=("nginx" "apache" "openresty")
+	if [[ -n "$ws_type" ]]; then
+	    if [[ ! " ${valid_ws_types[*]} " =~ " $ws_type " ]]; then
+	        echo "Warning: WEB_SERVER must be 'nginx', 'apache', or 'openresty', got '$ws_type'"
+	        ws_type=""
+	    fi
+	else
+	    echo "Warning: WEB_SERVER is not set"
+	    ws_type=""
+	fi
+	
+	images_to_pull=()
+	[[ -n "$ws_type" ]] && images_to_pull+=("$ws_type")
+	[[ -n "$sql_type" ]] && images_to_pull+=("$sql_type")
+	[[ -n "$php_image" ]] && images_to_pull+=("$php_image")
+	
+	if [[ ${#images_to_pull[@]} -eq 0 ]]; then
+	    echo "Warning: No valid images to pull."
+	    return 1
+	fi
+	
+	echo "Starting pull for images: ${images_to_pull[*]} in background..."
+	nohup sh -c "cd /home/$username/ && docker --context=$username compose pull ${images_to_pull[*]}" </dev/null >nohup.out 2>nohup.err &
+	else
+	    echo "Skipping image pull due to the '--skip-images' flag."
+	fi  
+}
+
+
 
 setup_ssh_key(){
      if [ -n "$node_ip_address" ]; then
@@ -837,6 +920,7 @@ create_user_set_quota_and_password() {
 }
 
 install_docker_and_add_user() {
+if [ -n "$node_ip_address" ]; then
     log "Checking if Docker is installed on $node_ip_address..."
 
     ssh $key_flag root@"$node_ip_address" "command -v docker >/dev/null 2>&1"
@@ -861,6 +945,7 @@ install_docker_and_add_user() {
         usermod -aG docker \"$username\" && echo \"User $username added to docker group.\"
       fi
     '"
+fi
 }
 
 
@@ -1381,23 +1466,23 @@ get_php_version() {
 
 
 start_panel_service() {
-	# from 0.2.5 panel service is not started until acc is created
-	log "Checking if OpenPanel service is already running, or starting it in background.."
+    # from 0.2.5 panel service is not started until account is created
+    if docker --contet=default compose -f /root/docker-compose.yml ps --services --filter "status=running" | grep -q "^openpanel$"; then
+        log "OpenPanel service is already running."
+    else
+        log "OpenPanel service is not running. Starting it now..."
         nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >nohup.out 2>nohup.err &
+        log "OpenPanel service has been started in the background."
+    fi
 }
 
 
+
 create_context() {
-
-    if [ -n "$node_ip_address" ]; then
-
-	docker context create $username \
-	  --docker "host=ssh://$username" \
-	  --description "$username"
+   if [ -n "$node_ip_address" ]; then
+	docker context create $username --docker "host=ssh://$username" --description "$username"
    else
-   	docker context create $username \
-			  --docker "host=unix:///hostfs/run/user/${user_id}/docker.sock" \
-		   	  --description "$username"
+   	docker context create $username --docker "host=unix:///hostfs/run/user/${user_id}/docker.sock" --description "$username"
    fi
 }
 
@@ -1432,15 +1517,6 @@ save_user_to_db() {
     fi
 
 }
-
-create_backup_dirs_for_each_index() {
-    log "Creating backup jobs directories for the user"
-    for dir in /etc/openpanel/openadmin/config/backups/index/*/; do
-      mkdir -p "${dir}${username}"
-    done
-}
-
-
 
 
 send_email_to_new_user() {
@@ -1511,7 +1587,7 @@ run_docker                                   # run docker container
 reload_user_quotas                           # refresh their quotas
 generate_user_password_hash
 copy_skeleton_files                          # get webserver, php version and mysql type for user
-create_backup_dirs_for_each_index            # added in 0.3.1 so that new users immediately show with 0 backups in :2087/backups#restore
+download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
 collect_stats                                # must be after insert in db
