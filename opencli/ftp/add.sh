@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 26.07.2025
+# Last Modified: 28.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -101,7 +101,8 @@ create_user() {
 	HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
 
  	# Create user without password
-	docker exec openadmin_ftp sh -c "adduser -h '${new_directory}' -s /sbin/nologin ${GROUP_OPT} --disabled-password --gecos '' '${username}'" >/dev/null 2>&1
+	docker exec openadmin_ftp sh -c "adduser -h '${new_directory}' -s /sbin/nologin ${GROUP_OPT} --disabled-password --gecos '' '${username}'"
+
 
 
 	# Set the hashed password
@@ -114,8 +115,9 @@ create_user() {
 	    chmod +rx "/hostfs/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
 	    chmod +rx "/hostfs/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
 	
-	    USER_UID=$(docker exec openadmin_ftp id -u "$username")
-	    USER_GID=$(docker exec openadmin_ftp id -g "$username")
+	USER_UID=$(docker exec openadmin_ftp id -u "$username")
+	USER_GID=$(grep "^$openpanel_username:" /hostfs/etc/group | cut -d: -f3)
+	
 	
 	    echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${openpanel_username}/users.list"
 	    echo "Success: FTP user '$username' created successfully (UID: $USER_UID, GID: $USER_GID)."

@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 26.07.2025
+# Last Modified: 28.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -46,13 +46,6 @@ if ! [[ "$domain_name" =~ ^(xn--[a-z0-9-]+\.[a-z0-9-]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{
     exit 1
 fi
 
-
-if [[ "$domain_name" =~ ^[a-zA-Z0-9]{16}\.onion$ ]]; then
-    onion_domain=true
-    log ".onion address - Tor will be configured.."
-    verify_onion_files
-fi
-
 hs_ed25519_public_key=""
 hs_ed25519_secret_key=""
 
@@ -65,6 +58,7 @@ SKIP_DNS_ZONE=false
 SKIP_STARTING_CONTAINERS=false
 REMOTE_SERVER=""
 PANEL_CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
+USE_PARENT_DNS_ZONE=false
 
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -196,8 +190,8 @@ setup_tor_for_user() {
 	cp $hs_public_key $tor_dir/$folder_name/hs_ed25519_public_key
 	cp $hs_secret_key $tor_dir/$folder_name/hs_ed25519_secret_key
 
- 	chown $context_uid:$context_uid /hostfs/home/$context/tor
-	chmod 0600 /hostfs/home/$context/tor/torrc
+ 	chown $context_uid:$context_uid "/hostfs/home/$context/tor"
+	chmod 0600 "/hostfs/home/$context/tor/torrc"
 
 	if [ "$VARNISH" = true ]; then
 		proxy_ws="varnish"
@@ -267,15 +261,74 @@ compare_with_system_domains() {
 
 
 # Check if domain already exists
+check_subdomain_existing_onion() {
+if [[ "$domain_name" =~ ^[a-zA-Z0-9]{16}\.onion$ ]]; then
+    onion_domain=true
+    log ".onion address - Tor will be configured.."
+    verify_onion_files
+else
+    tld="${domain_name##*.}"
+    tld_lower=$(echo "$tld" | tr '[:upper:]' '[:lower:]')
+    tld_file="/etc/openpanel/openpanel/conf/public_suffix_list.dat"
+    update_tlds=false
+    if [[ ! -f "$tld_file" ]]; then
+        log "TLD list not found, downloading from IANA..."
+        update_tlds=true
+    elif [[ $(find "$tld_file" -mtime +6 2>/dev/null) ]]; then
+        log "TLD list older than 7 days, refreshing from IANA..."
+        update_tlds=true
+    fi
+
+    if [[ "$update_tlds" == true ]]; then
+        mkdir -p "$(dirname "$tld_file")"
+        wget -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
+        if [[ $? -ne 0 ]]; then
+            log "Failed to download TLD list from IANA"
+        fi
+    fi
+
+    if grep -qx "$tld_lower" "$tld_file"; then
+        #log "Valid domain with recognized TLD: .$tld_lower"
+    	domain_base="${domain_name%.*}"
+    	if [[ "$domain_base" == *.* ]]; then
+	    is_subdomain=true
+	    apex_domain="${domain_name##*.}"                           # TLD
+	    second_level="${domain_name%.*}"                           # Remove TLD
+	    second_level="${second_level##*.}"                         # Extract SLD
+	    apex_domain="${second_level}.${tld}"                       # Combine SLD + TLD
+	    log "Domain '$domain_base' is a subdomain of '$apex_domain'."
+    	fi
+    else
+	echo "ERROR: Invalid domain or unrecognized TLD: .$tld_lower"
+	exit 1
+    fi
+fi
+
 log "Checking if domain already exists on the server"
+
 if opencli domains-whoowns "$domain_name" | grep -q "not found in the database."; then
     compare_with_forbidden_domains_list            # dont allow admin-defined domains
     compare_with_system_domains                    # hostname, ns or webmail takeover
+    if [[ "$is_subdomain" == true ]]; then
+	  whoowns_output=$(opencli domains-whoowns "$apex_domain")
+	  existing_user=$(echo "$whoowns_output" | awk -F "Owner of '$apex_domain': " '{print $2}')
+	  if [ -n "$existing_user" ]; then
+	    if [ "$existing_user" == "$user" ]; then
+	        log "User $existing_user already owns the apex domain $apex_domain - adding subdomain.."
+	 	USE_PARENT_DNS_ZONE=true
+	    else
+	        echo "Another user owns the domain: $apex_domain - can't add subdomain: $domain_name"
+	        exit 1
+	    fi
+	  else
+	      echo "Apex domain: $apex_domain does not exist on this server. "
+	  fi
+    fi
 else
     echo "ERROR: Domain $domain_name already exists."
     exit 1
 fi
-
+}
 
 # get user ID from the database
 get_user_info() {
@@ -297,17 +350,10 @@ result=$(get_user_info "$user")
 user_id=$(echo "$result" | cut -d',' -f1)
 context=$(echo "$result" | cut -d',' -f2)
 
-#echo "User ID: $user_id"
-#echo "Context: $context"
-
-
-
 if [ -z "$user_id" ]; then
     echo "FATAL ERROR: user $user does not exist."
     exit 1
 fi
-
-
 
 
 
@@ -406,17 +452,19 @@ make_folder() {
  	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
 
 	if [ -z "$context_uid" ]; then
-	log "Warning: failed detecting user id, permissions issue!"
+		log "Warning: failed detecting user id, permissions issue!"
+	else
+		local full_path="/hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
+		mkdir -p "$full_path" && chown $context_uid:$context_uid "$full_path" && chmod -R g+w "$full_path"
+	
+		local ws_files="/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
+		mkdir -p "$ws_files" && chown $context_uid:$context_uid "$ws_files" && chmod -R g+w "$ws_files"
+	  
+	  	# when it is first domain!
+	  	# https://github.com/stefanpejcic/OpenPanel/issues/472
+		chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/
+		chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/
 	fi
- 
-	local full_path="/hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
-	mkdir -p $full_path && \
- 	chown $context_uid:$context_uid $full_path && chmod -R g+w $full_path
-
- 	# when it is first domain!
-  	# https://github.com/stefanpejcic/OpenPanel/issues/472
-	chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/
-	chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/
 }
 
 
@@ -501,10 +549,10 @@ start_default_php_fpm_service() {
 
     enabled_modules_line=$(grep '^enabled_modules=' "$PANEL_CONFIG_FILE")
     if [[ $enabled_modules_line == *"php"* ]]; then  
-        log "Starting container for the default PHP version ${php_version}"
+        log "Starting container for the PHP version ${php_version}"
  	nohup sh -c "docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d php-fpm-${php_version}" </dev/null >nohup.out 2>nohup.err &
     else
-        log "'php' module is disabled, skip starting container for the default PHP version ${php_version}"
+        log "'php' module is disabled, skip starting container for the PHP version ${php_version}"
     fi
 
  
@@ -539,8 +587,8 @@ vhost_files_create() {
        log "Creating ${domain_name}.conf" #$vhost_in_docker_file
        cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
        # https://github.com/stefanpejcic/OpenPanel/issues/567
-  	chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_webserver_data/
-	chown $context_uid:$context_uid -R /hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/
+  	chown $context_uid:$context_uid "/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/"
+	chown $context_uid:$context_uid -R "/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
 
        
 	sed -i \
@@ -699,19 +747,22 @@ get_slave_dns_option() {
 update_named_conf() {
     ZONE_FILE_DIR='/etc/bind/zones/'
     NAMED_CONF_LOCAL='/etc/bind/named.conf.local'
-    log "Adding the newly created zone file to the DNS server"
-   
-    local config_line="zone \"$domain_name\" IN { type master; file \"$ZONE_FILE_DIR$domain_name.zone\"; };"
-
-    # Check if the domain already exists in named.conf.local
-    # fix for: https://github.com/stefanpejcic/OpenPanel/issues/95
-    if grep -q "zone \"$domain_name\"" "$NAMED_CONF_LOCAL"; then
-        log "Domain '$domain_name' already exists in $NAMED_CONF_LOCAL"
-        return
+    if $USE_PARENT_DNS_ZONE; then
+	    if grep -q "zone \"$apex_domain\"" "$NAMED_CONF_LOCAL"; then
+	        return
+	    fi
+	    local config_line="zone \"$apex_domain\" IN { type master; file \"$ZONE_FILE_DIR$domain_name.zone\"; };"
+	    echo "$config_line" >> "$NAMED_CONF_LOCAL"
+    else
+	    log "Adding the newly created zone file to the DNS server"
+	    local config_line="zone \"$domain_name\" IN { type master; file \"$ZONE_FILE_DIR$domain_name.zone\"; };"
+	    # fix for: https://github.com/stefanpejcic/OpenPanel/issues/95
+	    if grep -q "zone \"$domain_name\"" "$NAMED_CONF_LOCAL"; then
+	        log "Domain '$domain_name' already exists in $NAMED_CONF_LOCAL"
+	        return
+	    fi
+	    echo "$config_line" >> "$NAMED_CONF_LOCAL"
     fi
-
-    # Append the new zone configuration to named.conf.local
-    echo "$config_line" >> "$NAMED_CONF_LOCAL"
 }
 
 
@@ -721,14 +772,26 @@ create_zone_file() {
     
     ZONE_FILE_DIR='/etc/bind/zones/'
     CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
+    mkdir -p "$ZONE_FILE_DIR"
+    
+	if $USE_PARENT_DNS_ZONE; then 
+		log "Adding records to existing DNS zone for apex domain: $ZONE_FILE_DIR$apex_domain.zone"
+    		echo "$domain_name    14400     IN      A       $current_ip" >> "$ZONE_FILE_DIR$apex_domain.zone"
 
-	if [ "$IPV4" == "yes" ]; then
- 		ZONE_TEMPLATE_PATH='/etc/openpanel/bind9/zone_template.txt'
-    		log "Creating DNS zone file with A records: $ZONE_FILE_DIR$domain_name.zone"
+		if [ "$IPV4" == "yes" ]; then
+    			echo "$domain_name    14400     IN      TXT       'v=spf1 ip4:$current_ip +a +mx ~all'" >> "$ZONE_FILE_DIR$apex_domain.zone"
+		else
+    			echo "$domain_name    14400     IN      TXT       'v=spf1 ip6:$current_ip +a +mx ~all'" >> "$ZONE_FILE_DIR$apex_domain.zone"
+		fi     
 	else
-  		ZONE_TEMPLATE_PATH='/etc/openpanel/bind9/zone_template_ipv6.txt'
-        	log "Creating DNS zone file with AAAA records: $ZONE_FILE_DIR$domain_name.zone"
-	fi
+		if [ "$IPV4" == "yes" ]; then
+	 		ZONE_TEMPLATE_PATH='/etc/openpanel/bind9/zone_template.txt'
+	    		log "Creating DNS zone file with A records: $ZONE_FILE_DIR$domain_name.zone"
+		else
+	  		ZONE_TEMPLATE_PATH='/etc/openpanel/bind9/zone_template_ipv6.txt'
+	        	log "Creating DNS zone file with AAAA records: $ZONE_FILE_DIR$domain_name.zone"
+		fi
+
 
    zone_template=$(<"$ZONE_TEMPLATE_PATH")
    
@@ -772,10 +835,8 @@ create_zone_file() {
                                            -e "s|YYYYMMDD|$timestamp|g")
     fi
 
- 
-    mkdir -p "$ZONE_FILE_DIR"
     echo "$zone_content" > "$ZONE_FILE_DIR$domain_name.zone"
-
+  fi
 
 
     # Reload BIND service
@@ -792,8 +853,10 @@ create_zone_file() {
 
 notify_slave(){
 
+if $USE_PARENT_DNS_ZONE; then
+:
+else
     echo "Notifying Slave DNS server ($SLAVE_IP): Adding new zone for domain $domain_name"
-
 ssh -T root@$SLAVE_IP <<EOF
     if ! grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
         echo "zone \"$domain_name\" { type slave; masters { $MASTER_IP; }; file \"/etc/bind/zones/$domain_name.zone\"; };" >> /etc/bind/named.conf.local
@@ -803,6 +866,8 @@ ssh -T root@$SLAVE_IP <<EOF
         echo "Zone $domain_name already exists on the slave server."
     fi
 EOF
+fi
+
 
 
 }
@@ -933,6 +998,6 @@ add_domain() {
     fi
 }
 
-
+check_subdomain_existing_onion
 get_php_version
 add_domain "$user_id" "$domain_name"

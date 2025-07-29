@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 26.07.2025
+# Last Modified: 28.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -81,13 +81,18 @@ if [ -n "$owner" ]; then
         if [ -n "$php_version" ]; then
             if [ "$update_flag" == true ]; then
                 if [ -n "$new_php_version" ]; then
-                
-                        #echo "Updating PHP version in the domain configuration file..."
+                        # in vhost file
                         sed -i "s/php-fpm-[0-9.]\+/php-fpm-$new_php_version/g" "$domain_path_in_volume"
-                        nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
-                        docker --context $context restart nginx > /dev/null 2>&1
-                        docker --context $context restart apache > /dev/null 2>&1
-                        docker --context $context restart openresty > /dev/null 2>&1
+
+                        # start php version
+                        nohup sh -c "opencli user-resources $owner --activate=php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
+
+                        # restart webservers
+                        nohup sh -c "docker --context $context restart nginx" </dev/null >nohup.out 2>nohup.err &
+                        nohup sh -c "docker --context $context restart openresty" </dev/null >nohup.out 2>nohup.err &
+                        nohup sh -c "docker --context $context restart apache" </dev/null >nohup.out 2>nohup.err &
+
+                        # save in db
                         update_query="UPDATE domains SET php_version='$new_php_version' WHERE domain_url='$domain';"
                         mysql -e "$update_query"
                     
