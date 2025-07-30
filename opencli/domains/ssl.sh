@@ -5,7 +5,7 @@
 # Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -111,8 +111,8 @@ check_and_use_tls() {
  	if openssl x509 -noout -checkend 0 -in "$real_cert_path" >/dev/null 2>&1; then
 	    mkdir -p $hostfs_domain_tls_dir
 
-	    cp /hostfs${real_cert_path} $hostfs_domain_tls_dir/fullchain.pem
-	    cp /hostfs${real_key_path} $hostfs_domain_tls_dir/key.pem
+	    cp ${real_cert_path} $hostfs_domain_tls_dir/fullchain.pem
+	    cp ${real_key_path} $hostfs_domain_tls_dir/key.pem
 	    
 		if grep -qE "tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem" "$CONFIG_FILE"; then
 		    echo "Custom SSL already configured for $DOMAIN. Updating certificate and key.."
@@ -137,8 +137,8 @@ cat_certificate_files() {
     		cat $hostfs_domain_tls_dir/fullchain.pem
     		cat $hostfs_domain_tls_dir/key.pem
     	else
-    		local cert="/hostfs/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.crt"
-          	local key="/hostfs/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.key"
+    		local cert="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.crt"
+          	local key="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.key"
       		if [ -f "$cert" ]; then
 			cat $cert
 		fi

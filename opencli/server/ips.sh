@@ -6,7 +6,7 @@
 #        opencli server-ips <USERNAME>
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,7 +30,7 @@
 ################################################################################
 
 # IP SERVERS
-SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
+SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
 if [ -f "$SCRIPT_PATH" ]; then
     source "$SCRIPT_PATH"
 else

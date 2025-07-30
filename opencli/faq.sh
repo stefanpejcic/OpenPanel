@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -37,7 +37,7 @@ CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 service_name="admin"
 
 # IP SERVERS
-SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
+SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
 if [ -f "$SCRIPT_PATH" ]; then
     source "$SCRIPT_PATH"
 else

@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -89,7 +89,7 @@ clear_cache_for_user() {
 
 remove_onion_files() {
     if $onion_domain; then
-        hostfs_path="/hostfs/home/$context/tor"
+        hostfs_path="/home/$context/tor"
         onion_dir=$(grep -rlE '\.onion$' "$hostfs_path" | grep '/hostname$' | xargs -n1 dirname)
         for dir in $onion_dir; do
             dir_name=$(basename "$dir")

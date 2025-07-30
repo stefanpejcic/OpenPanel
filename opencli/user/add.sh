@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1467,7 +1467,7 @@ get_php_version() {
 
 start_panel_service() {
     # from 0.2.5 panel service is not started until account is created
-    if docker --contet=default compose -f /root/docker-compose.yml ps --services --filter "status=running" | grep -q "^openpanel$"; then
+    if docker --context=default compose -f /root/docker-compose.yml ps --services --filter "status=running" | grep -q "^openpanel$"; then
         log "OpenPanel service is already running."
     else
         log "OpenPanel service is not running. Starting it now..."
@@ -1543,12 +1543,20 @@ reload_user_quotas() {
 
 
 generate_user_password_hash() {
-    if [ "$password" = "generate" ]; then
-        password=$(openssl rand -base64 12)
-        log "Generated password: $password" 
-    fi
+	if [ "$password" = "generate" ]; then
+		password=$(openssl rand -base64 12)
+		log "Generated password: $password" 
+	fi
 
-    hashed_password=$("/usr/local/admin/venv/bin/python3" -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
+	# Hash password
+	hashed_password=$(docker --context=default compose run --rm -e PASSWORD="$password" hash)
+	
+	if [[ $hashed_password == scrypt* ]]; then
+	  :
+	else
+	  # deprecated and works ONLY outside of container!
+	  hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
+	fi
 }
 
 

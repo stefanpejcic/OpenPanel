@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -76,64 +76,78 @@ get_docker_context_for_user(){
 
 # Function to read users from users.list files and create them
 create_user() {
-	get_docker_context_for_user
- 
-	real_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/"
-	relative_path="${directory##/var/www/html/}"
-	new_directory="${real_path}${relative_path}"
- 
-	GID=$(grep "$openpanel_username" /hostfs/etc/group | cut -d: -f3)
-	GROUP=$(docker exec openadmin_ftp sh -c  "getent group \"$GID\" | cut -d: -f1")
-	if [ -n "$GROUP" ]; then
-	    GROUP_OPT="-g $GROUP"
-	elif [ -n "$GID" ]; then
-	    addgroup -g "$GID" "$openpanel_username"
-	    GROUP_OPT="-g $openpanel_username"
-	    chmod +rx "/home/$openpanel_username"
-	    chmod +rx "/home/$openpanel_username/docker-data"
-	    chmod +rx "/home/$openpanel_username/docker-data/volumes"
-	    chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
-	    chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
+    get_docker_context_for_user
+
+    real_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/"
+    relative_path="${directory##/var/www/html/}"
+    new_directory="${real_path}${relative_path}"
+	
+	# Get GID of openpanel_username from host
+	GID=$(grep "^$openpanel_username:" /hostfs/etc/group | cut -d: -f3)
+ 	EXISTING_GROUP=$(docker exec openadmin_ftp sh -c "getent group '$GID' | cut -d: -f1")
+	
+	# If GID is NOT a number, run fallback command
+	if [[ -z "$EXISTING_GROUP" ]]; then
+	    docker exec openadmin_ftp addgroup -g "$GID" "$openpanel_username"
 	fi
 
-	PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
-	
-	HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
 
- 	# Create user without password
-	docker exec openadmin_ftp sh -c "adduser -h '${new_directory}' -s /sbin/nologin ${GROUP_OPT} --disabled-password --gecos '' '${username}'"
+    # Fix permissions for shared group access on host
+    chmod +rx "/home/$openpanel_username"
+    chmod +rx "/home/$openpanel_username/docker-data"
+    chmod +rx "/home/$openpanel_username/docker-data/volumes"
+    chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
+    chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
 
+    # Find Python path
+    PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
 
+    # Generate hashed password (SHA512)
+    HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
 
-	# Set the hashed password
-	if docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"; then
-	    mkdir -p "/hostfs$new_directory"
-	    chown "${openpanel_username}:${openpanel_username}" "/hostfs$new_directory"
-	    chmod +rx "/hostfs/home/$openpanel_username"
-	    chmod +rx "/hostfs/home/$openpanel_username/docker-data"
-	    chmod +rx "/hostfs/home/$openpanel_username/docker-data/volumes"
-	    chmod +rx "/hostfs/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
-	    chmod +rx "/hostfs/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
-	
-	USER_UID=$(docker exec openadmin_ftp id -u "$username")
-	USER_GID=$(grep "^$openpanel_username:" /hostfs/etc/group | cut -d: -f3)
-	
-	
-	    echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${openpanel_username}/users.list"
-	    echo "Success: FTP user '$username' created successfully (UID: $USER_UID, GID: $USER_GID)."
-	else
-	    if [ "$DEBUG" = true ]; then
-	        echo "ERROR: Failed to create FTP user with command:"     
-	        echo ""
-	        echo "docker exec openadmin_ftp sh -c 'adduser -h $new_directory -s /sbin/nologin $username'"
-	        echo ""
-	        echo "Run the command manually to check for errors."
-	    else
-	        echo "ERROR: Failed to create FTP user. To debug run this command on terminal: opencli ftp-add $username $password '$new_directory' $openpanel_username --debug"  
-	    fi
-	    exit 1
-	fi
+    # Create user inside container with shared group (GID), auto-assigned UID
+    docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$openpanel_username" "$username"
+
+    # Set password inside container
+    if docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"; then
+        # Create directory on host side if it doesn't exist
+        mkdir -p "$new_directory"
+
+        # Set owner and group on directory (important!)
+        chown -R "$openpanel_username:$openpanel_username" "$new_directory"
+
+        # Set proper permissions: read/write for group, +setgid for inheritance
+        chmod -R 2775 "$new_directory"
+
+        # Fix execute permissions for traversing up the tree
+        chmod +rx "/home/$openpanel_username"
+        chmod +rx "/home/$openpanel_username/docker-data"
+        chmod +rx "/home/$openpanel_username/docker-data/volumes"
+        chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
+        chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
+
+        # Get UID and GID from container
+        USER_UID=$(docker exec openadmin_ftp id -u "$username")
+        USER_GID=$(docker exec openadmin_ftp id -g "$username")
+
+        # Record in users.list
+        echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${openpanel_username}/users.list"
+
+        echo "Success: FTP user '$username' created successfully (UID: $USER_UID, GID: $USER_GID)."
+    else
+        if [ "$DEBUG" = true ]; then
+            echo "ERROR: Failed to create FTP user with command:"
+            echo "docker exec openadmin_ftp useradd -d $new_directory -s /sbin/nologin -g $openpanel_username $username"
+        else
+            echo "ERROR: Failed to create FTP user. To debug, run: opencli ftp-add $username $password '$new_directory' $openpanel_username --debug"
+        fi
+        exit 1
+    fi
 }
+
+
+
+
 
 
 validate_data() {
