@@ -55,8 +55,7 @@ CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main con
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 
-
-echo "# restart_flag" > "/root/openpanel_restart_needed"
+echo "" > openpanel_restart_needed
 
 # ======================================================================
 # Helper functions that are not mandatory and should not be modified
