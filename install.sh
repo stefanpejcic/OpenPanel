@@ -688,7 +688,7 @@ docker_compose_up(){
     fi
 	
     # needed from 1.0.0 for docker contexts to work both inside openpanel ui container and host os
-    ln -s / /hostfs > /dev/null 2>&1
+    #ln -s / /hostfs > /dev/null 2>&1
 }
 
 
