@@ -970,7 +970,7 @@ fi
 
 set_logrotate(){
 
-echo "Setting Logrotate for Nginx.."
+echo "Setting Logrotate for Caddy webserver.."
 
 opencli server-logrotate
 
