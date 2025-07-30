@@ -5,7 +5,7 @@
 # Usage: opencli files-fix_permissions [USERNAME] [PATH]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -87,10 +87,10 @@ apply_permissions_in_container() {
                 path="${path#/var/www/html/}"
             fi
     
-            directory="/hostfs/home/${context}/docker-data/volumes/${context}_html_data/_data/$path"
+            directory="/home/${context}/docker-data/volumes/${context}_html_data/_data/$path"
             fake_directory="/var/www/html/$path"
         else   
-            directory="/hostfs/home/${context}/docker-data/volumes/${context}_html_data/_data/"     
+            directory="/home/${context}/docker-data/volumes/${context}_html_data/_data/"     
             fake_directory="/var/www/html/"
         fi
     

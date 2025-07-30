@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.co/
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -80,24 +80,25 @@ validate_path() {
 
 # Function to add or update the FTP path
 change_path() {
+    real_path="/home/${openpanel_username}/docker-data/volumes/${openpanel_username}_html_data/_data/"
+    relative_path="${path##/var/www/html/}"
+    container_path="${real_path}${relative_path}"
 
-        docker exec openadmin_ftp sh -c "usermod -d ${path} ${username}"
-        
-            if [ $? -eq 0 ]; then
-                sed -i "/^${username}|/s|/var/www/html/[^|]*|${path}|" /etc/openpanel/ftp/users/$openpanel_username/users.list
-                
-                # TODO EDIT THIS USER FILE ALSO!
-                echo "Success: FTP path for user '$username' changed successfully."
-            else
-                if [ "$DEBUG" = true ]; then
-                    echo "ERROR: Failed to change FTP path with sed command:"
-                    echo ""
-                    echo "Run the command manually to check for errors."
-                else
-                    echo "ERROR: Failed to change FTP path. To debug, run this command on terminal: opencli ftp-path $username $path $openpanel_username --debug"
-                fi
-                exit 1
-            fi
+    docker exec openadmin_ftp sh -c "usermod -d '${container_path}' '${username}'"
+    
+    if [ $? -eq 0 ]; then
+        sed -i "/^${username}|/s|/var/www/html/[^|]*|${path}|" /etc/openpanel/ftp/users/$openpanel_username/users.list
+
+        echo "Success: FTP path for user '$username' changed successfully."
+    else
+        if [ "$DEBUG" = true ]; then
+            echo "ERROR: Failed to change FTP path with usermod command:"
+            echo "docker exec openadmin_ftp sh -c 'usermod -d ${container_path} ${username}'"
+        else
+            echo "ERROR: Failed to change FTP path. To debug, run this command on terminal: opencli ftp-path $username $path $openpanel_username --debug"
+        fi
+        exit 1
+    fi
 }
 
 # Ensure the paths.list file exists

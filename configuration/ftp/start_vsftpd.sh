@@ -49,27 +49,43 @@ get_ip_address() {
 
 # Function to read users from users.list files and create them
 create_users() {
+  echo "[*] Checking for existing users..."
   USER_LIST_FILES=$(find /etc/openpanel/ftp/users/ -name 'users.list')
+  TOTAL_USER_COUNT=0
+  for USER_LIST_FILE in $USER_LIST_FILES; do
+    while IFS='|' read -r NAME _; do
+      [ -z "$NAME" ] && continue  # empty
+      TOTAL_USER_COUNT=$((TOTAL_USER_COUNT + 1))
+    done < "$USER_LIST_FILE"
+  done
+
+  if [ "$TOTAL_USER_COUNT" -gt 0 ]; then
+    echo "[*] Total users that will be created: $TOTAL_USER_COUNT"
+  else
+    echo "[*] No users found to create."
+    return
+  fi
 
   USER_COUNT=0
   echo "[*] Creating users from users.list files..."
+  
   for USER_LIST_FILE in $USER_LIST_FILES; do
-    echo "[*] Processing user list file: $USER_LIST_FILE"
     BASE_DIR=$(dirname "$USER_LIST_FILE")
+    OPENPANEL_USER=$(basename "$BASE_DIR")
+    echo "[!] Processing users for OpenPanel account: $OPENPANEL_USER"
     while IFS='|' read -r NAME HASHED_PASS FOLDER UID GID; do
+      USER_COUNT=$((USER_COUNT + 1))
       [ -z "$NAME" ] && continue  # Skip empty lines
-
-      echo "[*] Creating user: $NAME"
-
-      GROUP=$NAME
-
+      GROUP="${NAME#*.}"
+      echo "[+] Creating user ${NAME} [${USER_COUNT}/${TOTAL_USER_COUNT}]"
+      FAKE_FOLDER="$FOLDER" # used for display only!
       if [ -z "$FOLDER" ]; then
-        FOLDER="/ftp/$NAME"
+        FOLDER="/var/www/html/"
         echo "    - No folder specified, using default: $FOLDER"
       fi
 
       # Replace legacy path if needed
-      FOLDER=$(echo "$FOLDER" | sed "s|/var/www/html/|/home/${NAME%%.*}/docker-data/volumes/${NAME%%.*}_html_data/_data/|g")
+      FOLDER=$(echo "$FOLDER" | sed "s|/var/www/html/|/home/${GROUP}/docker-data/volumes/${GROUP}_html_data/_data/|g")
 
       # Validate folder starts with /home
       case "$FOLDER" in
@@ -88,28 +104,34 @@ create_users() {
       fi
 
       if [ -n "$GID" ]; then
-        GROUP=$(getent group "$GID" | cut -d: -f1)
-        if [ -n "$GROUP" ]; then
-          GROUP_OPT="-G $GROUP"
+        EXISTING_GROUP=$(getent group "$GID" | cut -d: -f1)
+        if [ -n "$EXISTING_GROUP" ]; then
+          echo "    - Group $EXISTING_GROUP already exists with GID $GID"
+          GROUP_OPT="-G $EXISTING_GROUP"
         else
-          echo "    - Creating group $NAME with GID $GID"
-          addgroup -g "$GID" "$NAME"
-          GROUP_OPT="-G $NAME"
+          echo "    - Creating group $GROUP with GID $GID"
+          addgroup -g "$GID" "$GROUP"
+          GROUP_OPT="-G $GROUP"
         fi
       fi
 
-      echo "    - Adding user with home folder $FOLDER"
+      echo "    - Adding user with home directory: $FAKE_FOLDER"
       adduser -h "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT --disabled-password --gecos "" "$NAME"
 
-      echo "    - Setting encrypted password"
-      usermod -p "$HASHED_PASS" "$NAME"
+      echo "    - Setting encrypted password '$HASHED_PASS'"
+      if usermod -p "$HASHED_PASS" "$NAME"; then
+          echo "    - Password set successfully"
+      else
+          echo "    - Failed to set password, removing user $NAME"
+          userdel "$NAME"
+          continue
+      fi
 
-      echo "    - Ensuring folder exists and ownership is correct"
+      echo "    - Ensuring folder exists and ownership is correct (${UID}:${GID})"
       mkdir -p "$FOLDER"
-      chown "$NAME:$GROUP" "$FOLDER"
+      chown "${UID}:${GID}" "$FOLDER"
 
-      USER_COUNT=$((USER_COUNT + 1))
-
+      echo ""
       unset NAME HASHED_PASS FOLDER UID GID GROUP UID_OPT GROUP_OPT
     done < "$USER_LIST_FILE"
   done
@@ -161,6 +183,7 @@ else
   echo "[*] No TLS certificates found, running without TLS"
 fi
 
+
 # Used to run custom commands inside container
 if [ -n "$1" ]; then
   echo "[*] Executing custom command: $*"
@@ -170,5 +193,6 @@ else
   vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT $ADDR_OPT $TLS_OPT /etc/vsftpd/vsftpd.conf
   [ -d /var/run/vsftpd ] || mkdir /var/run/vsftpd
   pgrep vsftpd | tail -n 1 > /var/run/vsftpd/vsftpd.pid
+  echo "-------------------------------------------"
   exec pidproxy /var/run/vsftpd/vsftpd.pid true
 fi

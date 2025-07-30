@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 30.11.2023
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -85,7 +85,16 @@ fi
 #Insert data into the database
 
 # Hash password
-hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$new_password'))")
+hashed_password=$(docker --context=default compose run --rm -e PASSWORD="$new_password" hash)
+
+if [[ $hashed_password == scrypt* ]]; then
+  :
+else
+  # deprecated and works ONLY outside of container!
+  hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$new_password'))")
+fi
+
+
 
 # Insert hashed password into MySQL database
 mysql_query="UPDATE users SET password='$hashed_password' WHERE username='$username';"

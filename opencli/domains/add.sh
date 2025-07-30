@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 28.07.2025
+# Last Modified: 29.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -146,8 +146,8 @@ verify_onion_files() {
 		    exit 1
 		fi
 	
-	 	hs_public_key="/hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_public_key#/var/www/html/}"
-	   	hs_secret_key="/hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_secret_key#/var/www/html/}"
+	 	hs_public_key="/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_public_key#/var/www/html/}"
+	   	hs_secret_key="/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_secret_key#/var/www/html/}"
 		
 		if [ ! -f "$hs_public_key" ] || [ ! -f "$hs_secret_key" ]; then
 		    echo "FATAL ERROR: hs_ed25519_public_key or hs_ed25519_secret_key do not exist!"
@@ -160,16 +160,16 @@ verify_onion_files() {
 start_tor_for_user() {
 	if [ $(docker --context $context ps -q -f name=tor) ]; then
  	    log "Tor service is already running, restarting to apply new service configuration"
-  		nohup sh -c "cd /hostfs/home/$context/ && docker --context $context restart tor" </dev/null >nohup.out 2>nohup.err &
+  		nohup sh -c "cd /home/$context/ && docker --context $context restart tor" </dev/null >nohup.out 2>nohup.err &
 	else
 	    log "Starting Tor service.."
-	    nohup sh -c "cd /hostfs/home/$context/ && docker --context $context  compose up -d tor" </dev/null >nohup.out 2>nohup.err &
+	    nohup sh -c "cd /home/$context/ && docker --context $context  compose up -d tor" </dev/null >nohup.out 2>nohup.err &
      	fi
 }
 
 
 setup_tor_for_user() {
-	local tor_dir="/hostfs/home/$context/tor"
+	local tor_dir="/home/$context/tor"
 	if [ ! -d "$tor_dir/hidden_service" ] || [ ! -f "$tor_dir/torrc" ]; then
  		folder_name="hidden_service"
 	else
@@ -190,8 +190,8 @@ setup_tor_for_user() {
 	cp $hs_public_key $tor_dir/$folder_name/hs_ed25519_public_key
 	cp $hs_secret_key $tor_dir/$folder_name/hs_ed25519_secret_key
 
- 	chown $context_uid:$context_uid "/hostfs/home/$context/tor"
-	chmod 0600 "/hostfs/home/$context/tor/torrc"
+ 	chown $context_uid:$context_uid "/home/$context/tor"
+	chmod 0600 "/home/$context/tor/torrc"
 
 	if [ "$VARNISH" = true ]; then
 		proxy_ws="varnish"
@@ -361,7 +361,7 @@ fi
 get_server_ipv4_or_ipv6() {
 
 	# IP SERVERS
-	SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
+	SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
  	log "Checking IPv4 address for the account"
 	if [ -f "$SCRIPT_PATH" ]; then
 	    source "$SCRIPT_PATH"
@@ -454,16 +454,16 @@ make_folder() {
 	if [ -z "$context_uid" ]; then
 		log "Warning: failed detecting user id, permissions issue!"
 	else
-		local full_path="/hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
+		local full_path="/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
 		mkdir -p "$full_path" && chown $context_uid:$context_uid "$full_path" && chmod -R g+w "$full_path"
 	
-		local ws_files="/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
+		local ws_files="/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
 		mkdir -p "$ws_files" && chown $context_uid:$context_uid "$ws_files" && chmod -R g+w "$ws_files"
 	  
 	  	# when it is first domain!
 	  	# https://github.com/stefanpejcic/OpenPanel/issues/472
-		chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/
-		chown $context_uid:$context_uid /hostfs/home/$context/docker-data/volumes/${context}_html_data/_data/
+		chown $context_uid:$context_uid /home/$context/docker-data/volumes/${context}_html_data/
+		chown $context_uid:$context_uid /home/$context/docker-data/volumes/${context}_html_data/_data/
 	fi
 }
 
@@ -474,7 +474,7 @@ check_and_create_default_file() {
     log "Checking if default configuration file exists for Nginx"
     
     # Check if the file exists
-    if [ ! -e "/hostfs/home/$context/nginx.conf" ]; then
+    if [ ! -e "/home/$context/nginx.conf" ]; then
         log "Creating default vhost file for Nginx: /etc/nginx/nginx.conf"
 
         # Create the Nginx configuration file
@@ -499,7 +499,7 @@ http {
     #gzip  on;
 
     include /etc/nginx/conf.d/*.conf;
-}" > "/hostfs/home/$context/nginx.conf"
+}" > "/home/$context/nginx.conf"
     fi
 }
 
@@ -524,7 +524,7 @@ get_webserver_for_user(){
 
 get_varnish_for_user(){
 	VARNISH=false
- 	if grep -qE "^PROXY_HTTP_PORT=" "/hostfs/home/$context/.env"; then
+ 	if grep -qE "^PROXY_HTTP_PORT=" "/home/$context/.env"; then
 	  VARNISH=true
 	fi
 
@@ -550,7 +550,7 @@ start_default_php_fpm_service() {
     enabled_modules_line=$(grep '^enabled_modules=' "$PANEL_CONFIG_FILE")
     if [[ $enabled_modules_line == *"php"* ]]; then  
         log "Starting container for the PHP version ${php_version}"
- 	nohup sh -c "docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d php-fpm-${php_version}" </dev/null >nohup.out 2>nohup.err &
+ 	nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d php-fpm-${php_version}" </dev/null >nohup.out 2>nohup.err &
     else
         log "'php' module is disabled, skip starting container for the PHP version ${php_version}"
     fi
@@ -564,14 +564,14 @@ start_default_php_fpm_service() {
 vhost_files_create() {
 	
 	if [[ $ws == *apache* ]]; then
-		vhost_in_docker_file="/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
+		vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
 		vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_apache_domain.conf"
 	elif [[ $ws == *nginx* ]]; then
 		vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_nginx_domain.conf"
-		vhost_in_docker_file="/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
+		vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
 	elif [[ $ws == *openresty* ]]; then
 		vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf"
-		vhost_in_docker_file="/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
+		vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
 	fi
 
 	
@@ -579,16 +579,16 @@ vhost_files_create() {
   	
 	if [ "$VARNISH" = true ]; then
 	    log "Starting $ws and Varnish containers.."
-            nohup sh -c "docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d ${ws} varnish" </dev/null >nohup.out 2>nohup.err &
+            nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d ${ws} varnish" </dev/null >nohup.out 2>nohup.err &
 	else
-            nohup sh -c "docker --context $context compose -f /hostfs/home/$context/docker-compose.yml up -d ${ws}" </dev/null >nohup.out 2>nohup.err &
+            nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d ${ws}" </dev/null >nohup.out 2>nohup.err &
 	fi
 
        log "Creating ${domain_name}.conf" #$vhost_in_docker_file
        cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
        # https://github.com/stefanpejcic/OpenPanel/issues/567
-  	chown $context_uid:$context_uid "/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/"
-	chown $context_uid:$context_uid -R "/hostfs/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
+  	chown $context_uid:$context_uid "/home/$context/docker-data/volumes/${context}_webserver_data/"
+	chown $context_uid:$context_uid -R "/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
 
        
 	sed -i \
@@ -598,7 +598,7 @@ vhost_files_create() {
 	  -e "s|<DOCUMENT_ROOT>|$docroot|g" \
 	  $vhost_in_docker_file
        
-       nohup sh -c "cd /hostfs/home/$context/ && docker --context $context restart $ws" </dev/null >nohup.out 2>nohup.err &
+       nohup sh -c "cd /home/$context/ && docker --context $context restart $ws" </dev/null >nohup.out 2>nohup.err &
  
 }
 
@@ -613,7 +613,7 @@ create_domain_file() {
 	mkdir -p $waf_dir && touch $waf_dir/${domain_name}.log
 	#docker_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $user) #from 025 ips are not used
  
-	local env_file="/hostfs/home/${context}/.env"
+	local env_file="/home/${context}/.env"
  	source $env_file
 
 	    # Check if the file exists
@@ -881,7 +881,7 @@ create_mail_mountpoint(){
 
     # Check if 'enterprise edition'
     if [ -n "$key_value" ]; then
-        DOMAIN_DIR="/hostfs/home/$context/mail/$domain_name/"
+        DOMAIN_DIR="/home/$context/mail/$domain_name/"
         COMPOSE_FILE="/usr/local/mail/openmail/compose.yml"
         if [ -f "$COMPOSE_FILE" ]; then
             log "Creating directory $DOMAIN_DIR for emails"

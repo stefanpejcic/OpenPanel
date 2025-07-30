@@ -147,7 +147,7 @@ for ($i = 1; isset($hosts[$i - 1]); $i++) {
     $forceLogin = isset($_GET['loginform']) ? $_GET['loginform'] : '';
 
     if ($forceLogin) {
-        error_log("Using cookie authentication for connection via domain name");
+        error_log("Using cookie authentication - username and password are required");
         $cfg['Servers'][$i]['auth_type'] = 'cookie';
         $cfg['Servers'][$i]['user'] = '';
         $cfg['Servers'][$i]['password'] = '';
