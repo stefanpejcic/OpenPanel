@@ -859,9 +859,9 @@ setup_firewall_service() {
 	disable_firewalld() {
 	 	echo "Stopping and disabling firewalld..."
 		if systemctl is-active --quiet firewalld; then
-		    systemctl stop firewalld
+		    systemctl stop firewalld > /dev/null 2>&1
 		fi
-		systemctl disable firewalld
+		systemctl disable firewalld > /dev/null 2>&1
   	}
 
 
