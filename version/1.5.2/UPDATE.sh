@@ -12,7 +12,7 @@ wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubuse
 set -e
 
 file="/root/docker-compose.yml"
-backup="${file}.bak"
+backup="${file}.152_bak"
 
 # Backup the original file
 cp "$file" "$backup"
@@ -135,13 +135,8 @@ awk -v ftp_block="$ftp_block" -v openpanel_block="$openpanel_block" '
 cd /root
 
 echo "Stopping openpanel..."
-docker compose down openpanel
+docker --context=default compose down openpanel
 echo "Starting openpanel..."
-docker compose up openpanel -d
-
-echo "Stopping openadmin_ftp..."
-docker compose down openadmin_ftp
-echo "Starting openadmin_ftp..."
-docker compose up openadmin_ftp -d
+docker --context=default compose up openpanel -d
 
 echo "Done!"
