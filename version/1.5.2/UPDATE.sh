@@ -2,6 +2,13 @@
 
 #wget -O /etc/openpanel/ftp/start_vsftpd.sh https://raw.githubusercontent.com/stefanpejcic/OpenPanel-FTP/refs/heads/master/start_vsftpd.sh
 
+
+touch /root/openpanel_restart_needed
+wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/service/service.config.py
+
+
+
+
 set -e
 
 file="/root/docker-compose.yml"
@@ -76,6 +83,7 @@ read -r -d '' openpanel_block << 'EOF'
       - /usr/bin/docker:/usr/bin/docker
       - /root/.ssh/:/root/.ssh/:ro
       - /root/.docker/:/root/.docker/
+      - /root/openpanel_restart_needed:/root/openpanel_restart_needed #flag
       - /root/.env:/root/.env
       - /root/docker-compose.yml:/root/docker-compose.yml
       - ${REDIS_SOCKET}:/tmp/redis/
