@@ -805,28 +805,28 @@ setup_firewall_service() {
             function open_tcpout_csf() {
                 local port=$1
                 local csf_conf="/etc/csf/csf.conf"
-                
-                # IPv4
-                port_opened_v4=$(grep "TCP_OUT = .*${port}" "$csf_conf")
-                if [ -z "$port_opened_v4" ]; then
-                    sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
-                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open in IPv4."
-                    ports_opened=1
-                else
-                    echo -e "Port ${GREEN} ${port} ${RESET} is already open in IPv4."
-                fi
-
- 		# IPv6
-                port_opened_v6=$(grep "TCP6_OUT = .*${port}" "$csf_conf")
-                if [ -z "$port_opened_v6" ]; then
-                    sed -i "s/TCP6_OUT = \"\(.*\)\"/TCP6_OUT = \"\1,${port}\"/" "$csf_conf"
-                    echo -e "Outgoing Port ${GREEN} ${port} ${RESET} is now open in IPv6."
-                    ports_opened=1
-                else
-                    echo -e "Port ${GREEN} ${port} ${RESET} is already open in IPv6."
-                fi
-
+                local v4_status=""
+		local v6_status=""
   
+                # IPv4
+		if grep -q "TCP_OUT = .*${port}" "$csf_conf"; then
+                     v4_status="IPv4:already open"
+		else
+                     sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
+		     v4_status="IPv4:opened"
+                     ports_opened=1
+                fi
+
+                # IPv6
+                if grep -q "TCP6_OUT = .*${port}" "$csf_conf"; then
+                     v6_status="IPv6:already open"
+                else
+                     sed -i "s/TCP6_OUT = \"\(.*\)\"/TCP6_OUT = \"\1,${port}\"/" "$csf_conf"
+                     v6_status="IPv6:opened"
+		     ports_opened=1
+                fi
+
+                echo -e "Port ${GREEN}${port}${RESET} → $v4_status, $v6_status"
             }
 
           edit_csf_conf() {
