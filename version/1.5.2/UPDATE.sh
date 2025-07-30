@@ -18,11 +18,11 @@ backup="${file}.152_bak"
 cp "$file" "$backup"
 
 # New FTP block
-read -r -d '' ftp_block << 'EOF'
+ftp_block=$(cat << 'EOF'
   # FTP
   openadmin_ftp:
     build:
-      context: /etc/openpanel/ftp/    
+      context: /etc/openpanel/ftp/
     container_name: openadmin_ftp
     restart: always
     ports:
@@ -45,9 +45,9 @@ read -r -d '' ftp_block << 'EOF'
           memory: "${FTP_RAM:-0.5G}"
           pids: 100
 EOF
+)
 
-# New OpenPanel block
-read -r -d '' openpanel_block << 'EOF'
+openpanel_block=$(cat << 'EOF'
   # OpenPanel service running on port 2083
   openpanel:
     image: openpanel/openpanel-ui:${VERSION}
@@ -106,6 +106,7 @@ read -r -d '' openpanel_block << 'EOF'
           memory: "${OPENPANEL_RAM:-1.0G}"
           pids: 300
 EOF
+)
 
 # Replace blocks
 awk -v ftp_block="$ftp_block" -v openpanel_block="$openpanel_block" '
