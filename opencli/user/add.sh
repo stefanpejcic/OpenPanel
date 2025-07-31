@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 29.07.2025
+# Last Modified: 30.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1547,18 +1547,20 @@ generate_user_password_hash() {
 		password=$(openssl rand -base64 12)
 		log "Generated password: $password" 
 	fi
-
-	# Hash password
-	hashed_password=$(docker --context=default compose run --rm -e PASSWORD="$password" hash)
-	
-	if [[ $hashed_password == scrypt* ]]; then
-	  :
-	else
-	  # deprecated and works ONLY outside of container!
+ 
+ 	if [ -x /usr/local/admin/venv/bin/python3 ]; then
 	  hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
+	elif command -v python3 &>/dev/null; then
+	  hashed_password=$(python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
+	else
+	  echo "Warning: No Python 3 interpreter found. Please install Python 3 or check the virtual environment."
+	  exit 1
 	fi
 }
 
+permisisons_do() {
+	chown -R $username:$username /home/$username/ >/dev/null 2>&1
+}
 
 collect_stats() {
   local file="/etc/openpanel/openpanel/core/users/$username/docker_usage.txt"
@@ -1600,4 +1602,5 @@ start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
+permisisons_do
 )200>/var/lock/openpanel_user_add.lock

@@ -78,7 +78,7 @@ services:
       - /lib/modules:/lib/modules:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /:/hostfs #:ro off for ssh pass change!
+      - /:/hostfs:ro
       - /home:/home
       - /usr/local/admin:/usr/local/admin
       - /usr/local/bin/opencli:/usr/local/bin/opencli
@@ -182,17 +182,6 @@ services:
           cpus: "${FTP_CPUS:-0.5}"
           memory: "${FTP_RAM:-0.5G}"
           pids: 100
-
-  # helper for password hashing
-  hash:
-    image: openpanel/werkzeug-hasher
-    entrypoint:
-      - python3
-      - -c
-      - |
-        from werkzeug.security import generate_password_hash
-        import os
-        print(generate_password_hash(os.environ['PASSWORD']))
 
 # make the mysql data persistent
 volumes:

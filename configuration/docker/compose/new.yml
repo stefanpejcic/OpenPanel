@@ -30,7 +30,7 @@ services:
     image: clamav/clamav:${CLAMAV_VERSION}
     container_name: clamav
     volumes:
-      - /home:/home
+      - /home/:/home/
       - ./clamav-db:/var/lib/clamav
     restart: unless-stopped
     network_mode: ${CLAMAV_DB_AUTOUPDATE} # needed to update db daily
@@ -43,7 +43,7 @@ services:
           memory: "${CLAMAV_RAM:-1.0G}"
           pids: 200
 
-  # used by panel ui to store user sessions and counters
+# used by panel ui to store user sessions and counters
   openpanel_redis:
     image: redis:latest
     container_name: openpanel_redis
@@ -68,34 +68,48 @@ services:
       - openpanel_mysql
       - openpanel_redis
       #- clamav
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
     ports:
       - "${PORT}:2083/tcp"
     volumes:
       - /etc/bind:/etc/bind
-      - /etc/group:/hostfs/etc/group:ro                         # ftp read group ids
-      - /etc/passwd:/hostfs/etc/passwd:ro                       # domain create
-      - /run/:/hostfs/run/:ro                                   # read docker sockets
-      - /root/:/hostfs/root/:ro
+      - /lib/modules:/lib/modules:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      #- /run/user/:/hostfs/run/user/
+      #- /etc/passwd:/hostfs/etc/passwd:ro     # get uid for op user
+      #- /etc/group:/hostfs/etc/group:ro       # get guid for op user
+      - /:/hostfs:ro #todo!
       - /home:/home
-      - /usr/local/bin/opencli:/usr/local/bin/opencli:ro
-      - /usr/local/opencli:/usr/local/opencli:ro
-      - /var/log:/var/log
-      - /var/lib/csf/:/var/lib/csf/       # todo check!
-      - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf:ro
+      - /usr/local/admin:/usr/local/admin
+      - /usr/local/bin/opencli:/usr/local/bin/opencli
+      - /usr/local/opencli:/usr/local/opencli
+      - /var/log/caddy:/var/log/caddy
+      - /var/log/openpanel:/var/log/openpanel
+      - /var/lib/csf/:/var/lib/csf/
+      - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf
       - /etc/openpanel/:/etc/openpanel/
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
       - mysql:/var/lib/mysql
-      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/bin/docker:/usr/bin/docker
+      - /root/.ssh/:/root/.ssh/:ro # for remote contexts
+      - /root/.docker/:/root/.docker/ # allows contexts editing
+      - /root/openpanel_restart_needed:/root/openpanel_restart_needed #
+      - /root/.env:/root/.env #
+      - /root/docker-compose.yml:/root/docker-compose.yml
       - ${REDIS_SOCKET}:/tmp/redis/
-      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/
+      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/ #https://dev.openpanel.com/customize.html#Custom-Code
       - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css
       - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js
       - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
-      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/
-      - /usr/local/mail/openmail/:/usr/local/mail/openmail/
+      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/ # localization
+      - /usr/local/mail/openmail/:/usr/local/mail/openmail/ # emails
       - /etc/localtime:/etc/localtime:ro
-      - /etc/openpanel/modules/:/modules/plugins/
+      - /etc/openpanel/modules/:/modules/plugins/ # plugins
     restart: always
+    privileged: true
     networks:
       - openpanel_network
     deploy:
@@ -171,18 +185,6 @@ services:
           cpus: "${FTP_CPUS:-0.5}"
           memory: "${FTP_RAM:-0.5G}"
           pids: 100
-
-  # helper for password hashing
-  # https://github.com/stefanpejcic/opencli/issues/28
-  hash:
-    image: openpanel/werkzeug-hasher
-    entrypoint:
-      - python3
-      - -c
-      - |
-        from werkzeug.security import generate_password_hash
-        import os
-        print(generate_password_hash(os.environ['PASSWORD']))
 
 # make the mysql data persistent
 volumes:

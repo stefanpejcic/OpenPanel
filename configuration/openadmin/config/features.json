@@ -136,10 +136,10 @@
     "help_link": ""
   },
     {
-    "name": "pgamin",
+    "name": "pgadmin",
     "title": "pgAdmin",
-    "description": "If enabled, users can manage pgAmin and use it to connect to their Postgres databases.",
-    "link": "/postgresql/pgamin",
+    "description": "If enabled, users can manage pgAdmin and use it to connect to their Postgres databases.",
+    "link": "/postgresql/pgadmin",
     "type": "beta",
     "help_link": ""
   },
