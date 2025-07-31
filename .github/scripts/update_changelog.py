@@ -44,7 +44,8 @@ closed_milestones = sorted(
 
 def row(m):
     link = f"/docs/changelog/{m.title}"
-    date_fmt = fmt_date(m.due_on)
+    date = m.closed_at if m.state == "closed" else m.due_on
+    date_fmt = fmt_date(date)
     return f"|__[{'%s' % m.title}]({link})__| {date_fmt} |"
 
 upcoming_rows = [row(m) for m in open_milestones]
