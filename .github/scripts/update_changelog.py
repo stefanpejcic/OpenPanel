@@ -38,7 +38,7 @@ open_milestones = sorted(
 
 closed_milestones = sorted(
     closed_milestones,
-    key=lambda m: (to_naive(m.due_on) or datetime.min, parse_version(m.title)),
+    key=lambda m: parse_version(m.title),
     reverse=True
 )
 
