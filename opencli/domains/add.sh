@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 29.07.2025
+# Last Modified: 30.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -275,7 +275,7 @@ else
         log "TLD list not found, downloading from IANA..."
         update_tlds=true
     elif [[ $(find "$tld_file" -mtime +6 2>/dev/null) ]]; then
-        log "TLD list older than 7 days, refreshing from IANA..."
+        #log "TLD list older than 7 days, refreshing from IANA..."
         update_tlds=true
     fi
 

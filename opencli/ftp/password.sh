@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 29.07.2025
+# Last Modified: 30.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -57,13 +57,19 @@ update_password() {
 
     PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
 
-    # Generate hashed password (SHA512)
-    HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
+    # Generate hashed password (SHA512) using environment variable to avoid special character issues
+    HASHED_PASS=$(
+        PASSWORD="$new_password" $PYTHON_PATH -W ignore -c '
+import crypt, random, string, os
+salt = "".join(random.choices(string.ascii_letters + string.digits, k=16))
+print(crypt.crypt(os.environ["PASSWORD"], "$6$" + salt))
+    '
+    )
 
     docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"
-
+    
     if [ $? -eq 0 ]; then
-        # Update users.list with new hashed password
+# Update users.list with new hashed password
 awk -F'|' -v user="$username" -v newpass="$HASHED_PASS" '
     $1 == user { $2 = newpass }
     { print $1 "|" $2 "|" $3 "|" $4 "|" $5 }

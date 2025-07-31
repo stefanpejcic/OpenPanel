@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 29.07.2025
+# Last Modified: 30.07.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -83,7 +83,11 @@ create_user() {
     new_directory="${real_path}${relative_path}"
 	
 	# Get GID of openpanel_username from host
-	GID=$(grep "^$openpanel_username:" /hostfs/etc/group | cut -d: -f3)
+	if [ -f /hostfs/etc/group ]; then
+	    GID=$(grep "^$openpanel_username:" /hostfs/etc/group | cut -d: -f3)
+	else
+	    GID=$(grep "^$openpanel_username:" /etc/group | cut -d: -f3)
+	fi 	
  	EXISTING_GROUP=$(docker exec openadmin_ftp sh -c "getent group '$GID' | cut -d: -f1")
 	
 	# If GID is NOT a number, run fallback command
@@ -91,7 +95,8 @@ create_user() {
 	    docker exec openadmin_ftp addgroup -g "$GID" "$openpanel_username"
 	fi
 
-
+    mkdir -p "$new_directory"
+    chown -R "$openpanel_username:$openpanel_username" "$new_directory"
     # Fix permissions for shared group access on host
     chmod +rx "/home/$openpanel_username"
     chmod +rx "/home/$openpanel_username/docker-data"

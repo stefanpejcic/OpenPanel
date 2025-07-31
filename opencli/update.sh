@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 29.07.2025
+# Last Modified: 30.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -555,13 +555,7 @@ run_update_immediately() {
         log_error "Failed to pull Docker image"
         return 1
     fi
-    
-    # Update version in .env file
-    log "Updating version in /root/.env"
-    if [[ -f /root/.env ]]; then
-        sed -i "s/^VERSION=.*$/VERSION=\"$version\"/" /root/.env
-    fi
-    
+
     # Update OpenCLI
     log "Updating OpenCLI"
     if [[ -d /usr/local/opencli ]]; then
@@ -574,10 +568,11 @@ run_update_immediately() {
     if [[ -d /usr/local/admin ]]; then
         cd /usr/local/admin
         # https://github.com/stefanpejcic/openadmin/branches
-        default_branch=$(git remote show origin | awk '/HEAD branch/ {print $NF}') 
-        git fetch origin
-        git reset --hard origin/"$default_branch"
-        git pull origin "$default_branch" 2>&1 | tee -a "$log_file"
+        #default_branch=$(git remote show origin | awk '/HEAD branch/ {print $NF}') 
+        #git fetch origin
+        #git reset --hard origin/"$default_branch"
+        #git pull origin "$default_branch" 2>&1 | tee -a "$log_file"
+        git pull
     fi
     
     # Restart OpenPanel service
@@ -594,20 +589,32 @@ run_update_immediately() {
     # Clean up old images
     log "Cleaning up old Docker images"
     purge_previous_images
+
+    # Update version in .env file
+    log "Updating version in /root/.env"
+    if [[ -f /root/.env ]]; then
+        sed -i "s/^VERSION=.*$/VERSION=\"$version\"/" /root/.env
+    fi
     
     # Run version-specific scripts
     run_version_specific_script "$version"
     
     # System updates
-    log "Updating system packages"
-    install_required_tools
-    update_system_packages
-    remove_old_kernels
-    check_reboot_required
+    #
+    # TODO: add flags, run periodically for major v only
+    #
+    #log "Updating system packages"
+    #install_required_tools
+    #update_system_packages
+    #remove_old_kernels
+    #check_reboot_required
     
     # Update Docker Compose
-    log "Updating Docker Compose"
-    update_docker_compose
+    #
+    # TODO: add flags, run periodically for major v only
+    #
+    #log "Updating Docker Compose"
+    #update_docker_compose
     
     # Run custom post-update script
     log "Checking for custom post-update scripts"
