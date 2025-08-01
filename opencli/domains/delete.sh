@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 30.07.2025
+# Last Modified: 31.07.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -148,7 +148,7 @@ rm_domain_to_clamav_list(){
 	# from 0.3.4 we have optional script to run clamav scan for all files in domains dirs, this adds new domains to list of directories to monitor
  	if [ -f $domains_list ]; then
       	log "ClamAV Upload Scanner is enabled - Removing $domain_path for monitoring"
-        sed -i '/$domain_path/d' $domains_list
+	sed -i "\|$domain_path|d" "$domains_list"
  	fi
 }
 
@@ -245,6 +245,65 @@ update_named_conf() {
 }
 
 
+remove_dns_entries_from_apex_zone() {
+    local tld_file="/etc/openpanel/openpanel/conf/public_suffix_list.dat"
+
+    tld="${domain_name##*.}"
+    tld_lower=$(echo "$tld" | tr '[:upper:]' '[:lower:]')
+    update_tlds=false
+
+    if [[ ! -f "$tld_file" ]]; then
+        log "TLD list not found, downloading from IANA..."
+        update_tlds=true
+    elif [[ $(find "$tld_file" -mtime +6 2>/dev/null) ]]; then
+        update_tlds=true
+    fi
+
+    if [[ "$update_tlds" == true ]]; then
+        mkdir -p "$(dirname "$tld_file")"
+        wget -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
+        if [[ $? -ne 0 ]]; then
+            log "Failed to download TLD list from IANA"
+        fi
+    fi
+
+    if grep -qx "$tld_lower" "$tld_file"; then
+        domain_base="${domain_name%.*}"
+        if [[ "$domain_base" == *.* ]]; then
+            is_subdomain=true
+            apex_tld="${domain_name##*.}"
+            second_level="${domain_name%.*}"
+            second_level="${second_level##*.}"
+            apex_domain="${second_level}.${apex_tld}"
+            subdomain="${domain_name%%.$apex_domain}"
+
+            log "Detected subdomain: $subdomain of apex domain: $apex_domain"
+
+            zone_file="/etc/bind/zones/${apex_domain}.zone"
+            if [[ -f "$zone_file" ]]; then
+                log "Removing DNS records for subdomain $subdomain from $zone_file"
+		# Escape domain name for sed
+		escaped_domain_name=$(printf '%s' "$domain_name" | sed 's/[.[\*^$/]/\\&/g')
+		
+		# Delete all lines that start with the subdomain, with or without trailing dot
+		sed -i "/^${escaped_domain_name}[[:space:]]/d" "$zone_file"
+		sed -i "/^${escaped_domain_name}\.[[:space:]]/d" "$zone_file"
+
+
+                # Reload BIND if container is running
+                if docker ps -q -f name=openpanel_dns >/dev/null 2>&1; then
+                    log "Reloading BIND DNS to apply changes"
+                    docker exec openpanel_dns rndc reconfig >/dev/null 2>&1
+                fi
+            else
+                log "Zone file for apex domain $apex_domain not found."
+            fi
+        fi
+    else
+        echo "ERROR: Invalid domain or unrecognized TLD: .$tld_lower"
+        exit 1
+    fi
+}
 
 
 # Function to create a zone file
@@ -335,7 +394,7 @@ delete_domain_from_mysql(){
 
 
 dns_stuff() {
-    enabled_features=$(grep '^enabled_features=' "$PANEL_CONFIG_FILE")
+    enabled_features_line=$(grep '^enabled_features=' "$PANEL_CONFIG_FILE")
     if [[ $enabled_features_line == *"dns"* ]]; then  
         delete_zone_file                             # create zone
         update_named_conf                            # include zone
@@ -348,7 +407,7 @@ delete_domain() {
     local user="$1"
     local domain_name="$2"
     
-    delete_websites $domain_name                     # delete sites associated with domain id
+    delete_websites $domain_name                   # delete sites associated with domain id
     # TODO: delete pm2 apps associated with it.
     delete_domain_from_mysql $domain_name            # delete
 
@@ -360,6 +419,7 @@ delete_domain() {
         clear_cache_for_user                         # rm cached file for ui
         get_webserver_for_user                       # nginx, openresty or apache
         vhost_files_delete                           # delete file in container
+	remove_dns_entries_from_apex_zone	     # subdomain-specific DNS cleanup
 
 	if $onion_domain; then
 		remove_onion_files		     # delete conf files
