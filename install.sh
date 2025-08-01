@@ -1703,7 +1703,7 @@ install_openadmin(){
 
 
     cp -fr /etc/openpanel/openadmin/service/openadmin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
-    cp -fr /usr/local/admin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
+    cp -fr /etc/openpanel/openadmin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
 
     systemctl daemon-reload  > /dev/null 2>&1
 
