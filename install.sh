@@ -1711,7 +1711,7 @@ install_openadmin(){
     systemctl enable admin  > /dev/null 2>&1
 
 	if [ "$SKIP_DNS_SERVER" = false ]; then
-	    chmod +x /usr/local/admin/service/watcher.sh
+	    chmod +x /etc/openpanel/openadmin/service/watcher.sh
 	    systemctl start watcher  > /dev/null 2>&1
 	    systemctl enable watcher  > /dev/null 2>&1
 	else
