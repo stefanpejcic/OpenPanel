@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 31.07.2025
+# Last Modified: 01.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -117,6 +117,7 @@ get_userid_from_db() {
 
 
     reload_user_quotas() {
+    	touch /etc/openpanel/openpanel/core/users/repquota
     	quotacheck -avm >/dev/null 2>&1
     	repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
     }

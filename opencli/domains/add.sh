@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 31.07.2025
+# Last Modified: 01.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -480,8 +480,10 @@ make_folder() {
  	local stripped_docroot="${docroot#/var/www/html/}"
  	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
 
+
 	if [ -z "$context_uid" ]; then
 		log "Warning: failed detecting user id, permissions issue!"
+
 	else
 		local full_path="/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
 		mkdir -p "$full_path" && chown $context_uid:$context_uid "$full_path" && chmod -R g+w "$full_path"
@@ -495,6 +497,9 @@ make_folder() {
 		chown $context_uid:$context_uid /home/$context/docker-data/volumes/${context}_html_data/_data/
 	fi
 }
+
+
+
 
 
 
