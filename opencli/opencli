@@ -40,7 +40,6 @@ readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
 # Special command mappings
 declare -A SPECIAL_COMMANDS=(
     ["blacklist"]="/usr/ipset-blacklist.sh"
-    ["sentinel"]="/usr/local/admin/service/notifications.sh"
 )
 
 # Functions

@@ -1,0 +1,13 @@
+[Unit]
+Description=Watch DNS zones for changes
+After=network.target
+
+[Service]
+User=root
+Group=root
+ExecStart=/usr/local/admin/service/watcher.sh
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

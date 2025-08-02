@@ -69,7 +69,7 @@ def symlink_force(target, link_name):
 
 make_executable_if_exists("/etc/openpanel/wordpress/wp-cli.phar")     # wpcli for php containers
 make_executable_if_exists("/usr/local/admin/modules/security/csf.pl") # csf gui
-make_executable_if_exists("/usr/local/admin/service/watcher.sh")      # reload dns zones
+make_executable_if_exists("/etc/openpanel/services/watcher.sh")      # reload dns zones
 make_executable_if_exists("/etc/openpanel/ftp/start_vsftpd.sh")       # start ftp
 
 symlink_force("/etc/csf/ui/images/", "/usr/local/admin/static/configservercsf")
