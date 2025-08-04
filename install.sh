@@ -34,8 +34,9 @@ REPAIR=false
 LOCALES=true                                                          # only en
 NO_SSH=false                                                          # deny port 22
 SET_HOSTNAME_NOW=false                                                # must be a FQDN
-SETUP_SWAP_ANYWAY=false
+SETUP_SWAP_ANYWAY=false                                               # setup swapfile regardless of server ram
 CORAZA=true                                                           # install CorazaWAF, unless user provices --no-waf flag
+IMUNIFY_AV=true                                                       # setup imunifyav
 SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false                                        # send admin logins to specified email
 SET_PREMIUM=false                                                     # added in 0.2.1
@@ -285,6 +286,7 @@ set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
 log_dirs				  # for almalinux
 download_ui_image                         # pull openpanel-ui image
+setup_imunifyav                           # setum imunifyav and enable autologin from openadmin
 setup_swap                                # swap space
 clean_apt_and_dnf_cache                   # clear
 verify_license                            # ping our server
@@ -369,6 +371,7 @@ parse_args() {
         echo "  --password=<password>           Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
+        echo "  --skip-imunifyav                Skip ImunifyAV setup."	
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
@@ -426,6 +429,9 @@ while [[ $# -gt 0 ]]; do
         --skip-firewall)
             SKIP_FIREWALL=true
             ;;
+        --skip-imunifyav)
+            IMUNIFY_AV=false
+            ;;	    
         --csf)
             CSF_SETUP=true
             ;;
@@ -914,6 +920,16 @@ update_package_manager() {
     fi
 }
 
+
+setup_imunifyav() {
+    if [ "$IMUNIFY_AV" = true ]; then
+        echo "Installing ImunifyAV"
+        debug_log opencli imunify install
+        debug_log opencli imunify start
+    else
+        echo "Skipping ImunifyAV setup due to the '--skip-imunifyav' flag."
+    fi
+}
 
 
 create_rdnc() {
