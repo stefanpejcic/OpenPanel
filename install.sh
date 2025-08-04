@@ -170,7 +170,7 @@ get_server_ipv4(){
 	    }
 
 	if ! is_valid_ipv4 "$current_ip"; then
-	        echo "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
+	        echo "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind domains configuration files."
 	fi
 
 }
@@ -185,7 +185,7 @@ set_version_to_install(){
      	    	PANEL_VERSION=$(echo "$response" | grep -o '"name":"[^"]*"' | head -n 1 | sed 's/"name":"\([^"]*\)"/\1/')
      	    fi
      	    if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-     	    	PANEL_VERSION="1.5.2" # fallback if hub.docker.com unreachable
+     	    	PANEL_VERSION="1.5.3" # fallback if hub.docker.com unreachable
      	    fi
 	fi
 }
@@ -271,7 +271,7 @@ extra_step_on_hetzner                     # run it here, then csf install does d
 setup_redis_service                       # for redis container
 create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
-docker_compose_up                         # must be after configure_nginx
+docker_compose_up                         # 
 docker_cpu_limiting			  # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
 configure_coraza			  # download corazawaf coreruleset or change docker image
@@ -493,31 +493,36 @@ done
 
 
 detect_installed_panels() {
-    if [ -z "$SKIP_PANEL_CHECK" ]; then
-        # Define an associative array with key as the directory path and value as the error message
-        declare -A paths=(
-            ["/usr/local/admin/"]="You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
-            ["/usr/local/cpanel/whostmgr"]="cPanel WHM is installed. OpenPanel only supports servers without any hosting control panel installed."
-            ["/opt/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
-            ["/usr/local/psa/version"]="Plesk is installed. OpenPanel only supports servers without any hosting control panel installed."
-            ["/usr/local/CyberPanel"]="CyberPanel is installed. OpenPanel only supports servers without any hosting control panel installed."
-            ["/usr/local/directadmin"]="DirectAdmin is installed. OpenPanel only supports servers without any hosting control panel installed."
-            ["/usr/local/cwpsrv"]="CentOS Web Panel (CWP) is installed. OpenPanel only supports servers without any hosting control panel installed."
-            ["/usr/local/httpd"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
-            ["/usr/local/apache2"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
-            ["/usr/sbin/httpd"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
-            ["/sbin/httpd"]="Apache WebServer is already installed. OpenPanel only supports servers without any webservers installed."
-            ["/usr/lib/nginx"]="Nginx WebServer is already installed. OpenPanel only supports servers without any webservers installed."
-        )
+    if [ -n "$SKIP_PANEL_CHECK" ]; then return; fi
 
-        for path in "${!paths[@]}"; do
-            if [ -d "$path" ] || [ -e "$path" ]; then
-                radovan 1 "${paths[$path]}"
+    declare -A panels=(
+        ["/usr/local/admin/"]="OpenPanel"
+        ["/usr/local/cpanel/whostmgr"]="cPanel WHM"
+        ["/opt/psa/version"]="Plesk"
+        ["/usr/local/psa/version"]="Plesk"
+        ["/usr/local/CyberPanel"]="CyberPanel"
+        ["/usr/local/directadmin"]="DirectAdmin"
+        ["/usr/local/cwpsrv"]="CentOS Web Panel (CWP)"
+        ["/usr/local/httpd"]="Apache WebServer"
+        ["/usr/local/apache2"]="Apache WebServer"
+        ["/usr/sbin/httpd"]="Apache WebServer"
+        ["/sbin/httpd"]="Apache WebServer"
+        ["/usr/lib/nginx"]="Nginx WebServer"
+    )
+
+    for path in "${!panels[@]}"; do
+        if [ -e "$path" ]; then
+            if [ "${panels[$path]}" = "OpenPanel" ]; then
+                radovan 1 "You already have OpenPanel installed. ${RESET}\nInstead, did you want to update? Run ${GREEN}'opencli update --force' to update OpenPanel."
+            elif [[ "${panels[$path]}" == *"WebServer"* ]]; then
+                radovan 1 "${panels[$path]} is already installed. OpenPanel only supports servers without any webservers installed."
+            else
+                radovan 1 "${panels[$path]} is installed. OpenPanel only supports servers without any hosting control panel installed."
             fi
-        done
+        fi
+    done
 
-        echo -e "${GREEN}No currently installed hosting control panels or webservers found. Starting the installation process.${RESET}"
-    fi
+    echo -e "${GREEN}No currently installed hosting control panels or webservers found. Starting the installation process.${RESET}"
 }
 
 
