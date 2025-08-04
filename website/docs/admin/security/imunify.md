@@ -28,7 +28,7 @@ opencli imunify start
 
 ## Login
 
-Access the Imunify GUI from **OpenAdmin > Security > Imunify** using your SSH credentials (typically the `root` username and its password).
+Access the Imunify GUI from **OpenAdmin > Security > Imunify**.
 
 ## Manage
 
