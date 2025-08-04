@@ -34,11 +34,3 @@ Access the Imunify GUI from **OpenAdmin > Security > Imunify** using your SSH cr
 
 Imunify allows you to scan user files and detect any malicious content.
 
-Important: Avoid scanning the entire `/home` directory, as this may generate excessive false positives.
-Instead, scan the following path:
-
-```
-/home/*/docker-data/volumes/*_html_data/_data/
-```
-
-This path corresponds to each user's `/var/www/html/` directory.
