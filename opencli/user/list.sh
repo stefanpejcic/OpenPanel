@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 16.10.2023
-# Last Modified: 01.08.2025
+# Last Modified: 04.08.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -144,17 +144,55 @@ ensure_jq_installed() {
 
 # Get users information
 if [ "$json_output" = true ]; then
-    # For JSON output without --table option
     ensure_jq_installed
-    users_data=$(mysql --defaults-extra-file=$config_file -D $mysql_database -e "SELECT users.id, users.username, users.email, plans.name AS plan_name, users.server, users.owner, users.registered_date FROM users INNER JOIN plans ON users.plan_id = plans.id;" | tail -n +2)
-    json_output=$(echo "$users_data" | jq -R 'split("\n") | map(split("\t") | {id: .[0], username: .[1], email: .[2], plan_name: .[3], server: .[4], owner: .[5], registered_date: .[6]})' )
-    echo "$json_output"
+
+
+users_data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "
+    SELECT
+        users.username,
+        users.server,
+        IF(users.owner IS NULL OR users.owner = '', 'root', users.owner) AS owner,
+        plans.name AS package_name,
+        IF(users.owner IS NULL OR users.owner = '', 'root', users.owner) AS package_owner,
+        users.email,
+        'EN_us' AS locale_code
+    FROM users
+    INNER JOIN plans ON users.plan_id = plans.id;
+" | tail -n +2)
+
+uid_mapped_data=""
+while IFS=$'\t' read -r username server owner package_name package_owner email locale_code; do
+    uid=$(id -u "$server" 2>/dev/null || echo "null")
+    uid_mapped_data+=$uid$'\t'$username$'\t'$server$'\t'$owner$'\t'$package_name$'\t'$package_owner$'\t'$email$'\t'$locale_code$'\n'
+done <<< "$users_data"
+
+json_output=$(echo "$uid_mapped_data" | jq -R -s '
+    split("\n") | map(select(length > 0)) |
+    map(split("\t") | {
+        id: (.[0] | if . == "null" then null else tonumber end),
+        username: .[1],
+        context: .[2],
+        owner: .[3],
+        package: {
+            name: .[4],
+            owner: .[5]
+        },
+        email: .[6],
+        locale_code: .[7]
+    }) | {
+        data: .,
+        metadata: {
+            result: "ok"
+        }
+    }
+')
+
+echo "$json_output"
+
+    exit 0
 else
-    # For Terminal output with --table option
     users_data=$(mysql --defaults-extra-file=$config_file -D $mysql_database --table -e "SELECT users.id, users.username, users.email, plans.name AS plan_name, users.server, users.owner, users.registered_date FROM users INNER JOIN plans ON users.plan_id = plans.id;")
-    # Check if any data is retrieved
     if [ -n "$users_data" ]; then
-        # Display data in tabular format
         echo "$users_data"
     else
         echo "No users."
