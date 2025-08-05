@@ -10,7 +10,9 @@ sidebar_position: 5
 
 ## Install
 
-ImunifyAV is **not** included with OpenPanel by default. To install it, run:
+Starting version 1.5.4 - ImunifyAV is included with OpenPanel by default.
+
+If you are using an older version, to install, run:
 
 ```bash
 opencli imunify install
