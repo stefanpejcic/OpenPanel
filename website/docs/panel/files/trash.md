@@ -4,7 +4,8 @@ sidebar_position: 9
 
 # Trash
 
-The **Trash** page allows you to manage files inside the Trash folder/
+When deleting files you can select to permanently delete them, or to plae them in the Trash (default option).
+The **Trash** page allows you to manage deleted.
 
 In the table, you can see the following information:
 
