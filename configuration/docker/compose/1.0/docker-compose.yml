@@ -406,8 +406,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"    
+    command: php-fpm --allow-to-run-as-root  
 
   php-fpm-7.0:
     image: shinsenter/php:7.0-fpm
@@ -439,8 +438,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"   
+    command: php-fpm --allow-to-run-as-root 
       
   php-fpm-7.1:
     image: shinsenter/php:7.1-fpm
@@ -472,8 +470,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"   
+    command: php-fpm --allow-to-run-as-root 
       
 
   php-fpm-7.2:

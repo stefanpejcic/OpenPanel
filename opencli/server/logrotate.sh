@@ -13,32 +13,29 @@ get_config_value() {
     grep -E "^${key}=" "$CONFIG_FILE" | awk -F'=' '{print $2}' | tr -d ' ' || echo "$default_value"
 }
 
+# Check and install logrotate if missing
 if ! command -v logrotate &> /dev/null; then
-    echo "logrotate is not installed. Installing.."
+    echo "logrotate is not installed. Installing..."
 
-        # Detect the package manager and install logrotate
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get update > /dev/null 2>&1
-            sudo apt-get install -y -qq logrotate > /dev/null 2>&1
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y -q logrotate > /dev/null 2>&1
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q logrotate > /dev/null 2>&1
-        else
-            echo "Error: No compatible package manager found. Please install logrotate manually and try again."
-            exit 1
-        fi
+    if command -v apt-get &> /dev/null; then
+        sudo apt-get update > /dev/null 2>&1
+        sudo apt-get install -y -qq logrotate > /dev/null 2>&1
+    elif command -v yum &> /dev/null; then
+        sudo yum install -y -q logrotate > /dev/null 2>&1
+    elif command -v dnf &> /dev/null; then
+        sudo dnf install -y -q logrotate > /dev/null 2>&1
+    else
+        echo "Error: No compatible package manager found. Please install logrotate manually."
+        exit 1
+    fi
 
-        # Check if installation was successful
-        if ! command -v logrotate &> /dev/null; then
-            echo "Error: logrotate installation failed. Please install logrotate manually and try again."
-            exit 1
-        fi
-
-
-    
+    if ! command -v logrotate &> /dev/null; then
+        echo "Error: logrotate installation failed. Please install manually."
+        exit 1
+    fi
 fi
 
+# Load config values or use defaults
 logrotate_enable=$(get_config_value "logrotate_enable" "$logrotate_enable")
 logrotate_size_limit=$(get_config_value "logrotate_size_limit" "$logrotate_size_limit")
 logrotate_retention=$(get_config_value "logrotate_retention" "$logrotate_retention")
@@ -49,11 +46,11 @@ if [ "$logrotate_enable" != "yes" ]; then
     exit 0
 fi
 
-LOGROTATE_CONF="/etc/logrotate.d/nginx-domlogs"
+LOGROTATE_CONF="/etc/logrotate.d/caddy-logs"
 
+# Write logrotate config for caddy logs (including subdirs)
 cat <<EOF > "$LOGROTATE_CONF"
-/var/log/nginx/domlogs/*.log {
-    su root adm
+/var/log/caddy/**/*.log {
     size $logrotate_size_limit
     rotate $logrotate_retention
     daily
@@ -64,12 +61,13 @@ cat <<EOF > "$LOGROTATE_CONF"
     copytruncate
     create 640 root adm
     postrotate
-        /usr/sbin/nginx -s reopen
+        docker exec caddy kill -USR1 1
     endscript
     maxage $logrotate_keep_days
 }
 EOF
 
+# Force logrotate to apply the config now
 /usr/sbin/logrotate --force "$LOGROTATE_CONF"
 
-echo "Log rotation configuration applied successfully."
+echo "Caddy log rotation configuration applied successfully."

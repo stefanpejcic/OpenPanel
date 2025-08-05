@@ -5,7 +5,7 @@
 # Usage: opencli domains-all [--docroot|--php_version]
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 01.08.2025
+# Last Modified: 04.08.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -32,9 +32,11 @@
 # DB
 source /usr/local/opencli/db.sh
 
+
 get_all_domains() {
     local include_docroot=false
     local include_php_version=false
+    local output_json=false
 
     # Parse optional flags
     while [[ $# -gt 0 ]]; do
@@ -44,6 +46,9 @@ get_all_domains() {
                 ;;
             --php_version)
                 include_php_version=true
+                ;;
+            --json)
+                output_json=true
                 ;;
             *)
                 echo "Unknown option: $1"
@@ -69,10 +74,95 @@ get_all_domains() {
 
     if [ -z "$domains" ]; then
         echo "No domains found in the database."
+        exit 0
+    fi
+
+
+    if $output_json; then
+        # Always select domain_url, docroot, php_version, username (owner), and server
+        query_fields="d.domain_url, d.docroot, d.php_version, u.username, u.server"
+        query="
+            SELECT $query_fields
+            FROM domains d
+            LEFT JOIN users u ON d.user_id = u.id
+        "
     else
+        query_fields="domain_url"
+        $include_docroot && query_fields+=", docroot"
+        $include_php_version && query_fields+=", php_version"
+        query="SELECT $query_fields FROM domains"
+    fi
+
+    domains=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN)
+
+    if [ -z "$domains" ]; then
+        echo "No domains found in the database."
+        exit 0
+    fi
+
+    if ! $output_json; then
         echo "$domains"
+    else
+        echo -n '{"data":{'
+
+        first=true
+        while IFS=$'\t' read -r domain docroot php_version owner server; do
+            dot_count=$(grep -o "\." <<<"$domain" | wc -l)
+            is_main=false
+
+            [ -z "$docroot" ] && docroot=""
+            [ -z "$php_version" ] && php_version=""
+            [ -z "$owner" ] && owner="null" || owner=$(printf '%s' "$owner" | sed 's/"/\\"/g')
+            [ -z "$server" ] && server=""
+
+            # Replace /var/www/html/ prefix if present
+            prefix="/var/www/html/"
+            if [[ "$docroot" == "$prefix"* && -n "$server" ]]; then
+                replacement="/home/$server/docker-data/volumes/${server}_html_data/_data/"
+                docroot="${docroot/#$prefix/$replacement}"
+            fi
+
+            $first && first=false || echo -n ','
+
+            esc_domain=$(echo "$domain" | sed 's/"/\\"/g')
+            esc_docroot=$(echo "$docroot" | sed 's/"/\\"/g')
+            php_version_id="$php_version"
+            php_ver_num=$(echo "$php_version" | grep -oE '[0-9]+' | tr -d '\n\r ' || echo "")
+            
+            if [[ "$php_ver_num" =~ ^([0-9])([0-9])$ ]]; then
+                php_version_formatted="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}"
+            else
+                php_version_formatted="$php_ver_num"
+            fi
+            
+            # Also clean ini_path in case
+            ini_path=""
+            if [ -n "$server" ] && [ -n "$php_version_formatted" ]; then
+                ini_path="/home/$server/php.ini/${php_version_formatted}.ini"
+                ini_path=$(echo "$ini_path" | tr -d '\n\r ')
+            fi
+            
+            echo -n "\"$esc_domain\":{"
+            echo -n "\"document_root\":\"$esc_docroot\","
+            echo -n "\"php\":{"
+            echo -n "\"php_version_id\":\"$php_version_id\","
+            echo -n "\"version\":\"$php_version_formatted\","
+            echo -n "\"ini_path\":\"$ini_path\","
+            echo -n "\"is_native\":true,"
+            echo -n "\"handler\":\"php-fpm\""
+            echo -n "},"
+            echo -n "\"is_main\":$is_main,"
+            if [ "$owner" = "null" ]; then
+                echo -n "\"owner\":null"
+            else
+                echo -n "\"owner\":\"$owner\""
+            fi
+            echo -n "}"
+
+        done <<< "$domains"
+
+        echo '}, "metadata": {"result": "ok"}}'
     fi
 }
 
 get_all_domains "$@"
-

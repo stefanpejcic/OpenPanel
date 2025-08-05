@@ -5,7 +5,7 @@
 # Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 01.08.2025
+# Last Modified: 04.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
