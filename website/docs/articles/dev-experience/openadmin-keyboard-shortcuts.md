@@ -15,7 +15,8 @@ OpenAdmin UI can be navigated using keyboard shortcuts:
 | `Ctrl` + `Shift` + `D`      | Domains                          | `/domains`                   |
 | `Ctrl` + `Shift` + `E`      | Email Accounts                   | `/emails/accounts`           |
 | `Ctrl` + `Shift` + `S`      | Services Status                  | `/services`                  |
-| `Ctrl` + `Shift` + `C`      | ConfigServer Firewall (CSF)      | `/security/firewall`         |
+| `Ctrl` + `Shift` + `I`      | ConfigServer Firewall (CSF)      | `/security/imunify`         |
+| `Ctrl` + `Shift` + `C`      | ImunifyAV                        | `/security/firewall`         |
 | `Ctrl` + `Shift` + `W`      | CorazaWAF Settings               | `/security/waf`              |
 | `Ctrl` + `Shift` + `L`      | View Logs                        | `/services/logs`             |
 | `Ctrl` + `Shift` + `B`      | Basic Auth                       | `/security/basic_auth`       |
