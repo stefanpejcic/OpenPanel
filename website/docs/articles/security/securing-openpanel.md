@@ -14,6 +14,7 @@ For Server Administrators (OpenAdmin):
 - [Restricting access to Features based on Hosting Plans](/docs/admin/plans/feature-manager/#use-cases)
 - [Setup Fail2ban for email](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/)
 - [Setup DKIM for emails](/docs/articles/email/how-to-setup-dkim-for-mailserver/)
+- [Setup ImunifyAV](/docs/articles/security/setup-imunifyav/)
 - [Enable CSF Blocklists](/docs/articles/security/csf-blocklists/)
 - [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf/)
 - [Rate-limiting failed Openpanel logins](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
