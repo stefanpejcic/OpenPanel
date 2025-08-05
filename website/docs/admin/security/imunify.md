@@ -36,3 +36,7 @@ Access the Imunify GUI from **OpenAdmin > Security > Imunify**.
 
 Imunify allows you to scan user files and detect any malicious content.
 
+----
+
+> For more usage examples refer to [How-to Guides > Setting Up ImunifyAV](/docs/articles/security/setup-imunifyav/).
+
