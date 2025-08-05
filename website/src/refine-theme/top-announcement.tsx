@@ -114,7 +114,6 @@ const messages = [
             <>
                 🎉 Get <span className="font-semibold">2 FREE months</span> when you upgrade to an{" "}
                 <span className="font-semibold">OpenPanel Enterprise Annual License</span>. 
-                Limited time only!
             </>
         ),
         href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
