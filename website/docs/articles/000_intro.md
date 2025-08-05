@@ -43,6 +43,7 @@ sidebar_position: 1
 - [How to configure FTP server](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
 
 # Security
+- [Configuring ImunifyAV](/docs/articles/security/setup-imunifyav/)
 - [Rate-limiting access to OpenPanel or OpenAdmin](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
 - [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf)
