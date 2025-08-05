@@ -968,8 +968,17 @@ const tableData = [
                 },
             },  
             {
-                description: "User manages Containers",
-                community: <CheckIcon />,
+                description: "Users can manage Containers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            }, 
+            {
+                description: "Users can add Containers",
+                community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -987,8 +996,8 @@ const tableData = [
             },
             {
                 description: "Supported OS",
-                community: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu 24.04</a></TableText>,
-                enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
+                community: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu 24.04</a></TableText>,
+                enterprise: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
