@@ -43,7 +43,7 @@ imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"interval": "none"}}
 
 Execute the following command on your server to activate the Imunify AV+ license.  **If you plan on using Imunify AV free version you can skip this step**.
 
-## Activation using an activation key
+**Activation using an activation key**:
 To activate your ImunifyAV+ license using the activation key, run the following commands:
 
 ```
@@ -53,7 +53,7 @@ imunify-antivirus register YOUR_KEY
 
 Where `YOUR_KEY` is your license key, replace it with the actual key – trial or purchased. Key format is: `IMAVPXXXXXXXXXXXXXXX`.
 
-## Activation with IP-based license
+**Activation with IP-based license**:
 If you have an IP-based license, run the following commands:
 
 ```
