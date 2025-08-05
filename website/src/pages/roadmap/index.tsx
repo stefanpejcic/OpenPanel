@@ -50,7 +50,8 @@ const Roadmap: React.FC = () => {
                         <li>Autoinstallers for 40+ CMSs/scripts.</li>
                         <li>Ongoing improvements in container isolation.</li>
                     </ul>
-
+                    <p>View all planned features on:<strong><a href="https://github.com/users/stefanpejcic/projects/2/views/4" target="_blank" rel="noopener noreferrer">Github</a></strong>.</p>
+                    
                     <h3>Request a Feature</h3>
                     <p>Submit an idea on <strong><a href="https://github.com/stefanpejcic/OpenPanel/discussions/new?category=ideas" target="_blank" rel="noopener noreferrer">Github Discussions</a></strong>.</p>
 
