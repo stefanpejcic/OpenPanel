@@ -64,6 +64,10 @@ jobs:
           VERSION="${{ github.event.milestone.title }}"
           DIR="website/docs/changelog"
           FILE="$DIR/$VERSION.md"
+      
+          echo "Sending Discord notification for version: $VERSION"
+          echo "Changelog file: $FILE"
+          echo "Webhook: ${{ secrets.DISCORD_WEBHOOK }}"
 
           if [ ! -f "$FILE" ]; then
             echo "Changelog file does not exist: $FILE"
