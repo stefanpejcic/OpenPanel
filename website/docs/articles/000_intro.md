@@ -18,6 +18,7 @@ sidebar_position: 1
 - [Migrate all data to another server](/docs/articles/transfers/migrate-openadmin-to-new-server/)
 
 # Websites
+- [How to set or increase PHP INI memory_limit or other values?](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/)
 - [Configure Apache, Nginx, Varnish per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [WordPress HTTPS behind Varnish Cache](docs/articles/docker/https-wordpress-behind-varnish-proxy/)
 
