@@ -4,20 +4,66 @@ sidebar_position: 3
 
 # Options  
 
-The PHP Options page lets you modify the PHP version settings by editing the PHP.INI file for that version and restarting the service to immediately apply the changes to all websites using it.
+The PHP Options page allows you to modify PHP settings stored in the `php.ini` file.
 
-Options are limited to the options that Administrator permitted.
+![php options page](/img/panel/v2/php_options.png)
 
-![ph options page](/img/panel/v2/php_options.png)
-
-For more advanced users, the PHP.INI Editor can be used, if available.
+For more advanced users, the [**PHP.INI Editor**](/docs/panel/php/php_ini_editor/) can be used - if available.
 
 ---
 
-Options are limited to the options that Administrator permitted, only configured keys from the .ini file will be applied.
+## How to Change PHP Options
 
-Administrators can configure options:
+1. Open **OpenPanel** and navigate to **PHP > PHP Options**.
+2. Select the desired **PHP version** from the dropdown.
+3. Modify the options you want to change.
+4. Click **Save** to apply changes.
 
-- for all users: `/etc/openpanel/php/options.txt` , if these are set by the administrator they are applied for all users .
-- for a specific user: `/home/USERNAME/php.ini/options.txt` , if global options are not set by the administrator these will be applied instead.
-- if per user options file does not exist, system will fallback to these defaults: https://github.com/stefanpejcic/openpanel-configuration/blob/main/php/options.txt
+Settings will be saved to the `php.ini` file for the selected PHP version, and the PHP container will restart to apply changes immediately. These settings apply to **all domains** using that PHP version.
+
+---
+
+## Available Options
+
+The list of configurable PHP options is determined by the system administrator. By default, the following options are available:
+
+- `allow_url_fopen`
+- `date.timezone`
+- `disable_functions`
+- `display_errors`
+- `error_reporting`
+- `file_uploads`
+- `log_errors`
+- `max_execution_time`
+- `max_input_time`
+- `max_input_vars`
+- `memory_limit`
+- `open_basedir`
+- `output_buffering`
+- `post_max_size`
+- `short_open_tag`
+- `upload_max_filesize`
+- `zlib.output_compression`
+
+**Customizing Available Options**
+
+Administrators can customize the available options:
+
+- **For all new users**: Edit `/etc/openpanel/php/options.txt`
+- **For a specific user**: Edit `/home/USERNAME/php.ini/options.txt`
+
+---
+
+## Important Notes
+
+Some PHP options cannot be configured from this page. Instead, they must be set on the [**PHP Limits** page](/docs/panel/php/options):
+
+- `max_execution_time`
+- `max_input_time`
+- `max_input_vars`
+- `memory_limit`
+- `post_max_size`
+- `upload_max_filesize`
+
+These limits are enforced at the container level and require a different configuration method.
+
