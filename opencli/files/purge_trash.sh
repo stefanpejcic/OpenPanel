@@ -5,7 +5,7 @@
 # Usage: opencli files-purge_trash --user [USERNAME]
 # Author: Stefan Pejcic
 # Created: 03.06.2025
-# Last Modified: 04.08.2025
+# Last Modified: 06.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -83,48 +83,65 @@ purge_user_trash() {
   local user_home="$1"
   local user_name
   user_name=$(basename "$user_home")
-  local trash_info_dir="$user_home/.local/share/Trash/info"
-  local trash_files_dir="$user_home/.local/share/Trash/files"
+  local trash_dir="$user_home/.local/share/Trash"
+  local restore_file="$trash_dir/.trash_restore"
   local freed=0
 
-  [[ -d "$trash_info_dir" ]] || exit 0
+  [[ -d "$trash_dir" ]] || return 0
+  [[ -f "$restore_file" ]] || touch "$restore_file"
 
-  for info_file in "$trash_info_dir"/*.trashinfo; do
-    [[ -f "$info_file" ]] || continue
+# FORCE MODE: Remove everything & recreate .trash_restore empty
+if $FORCE_PURGE; then
+  if $DRY_RUN; then
+    freed=$(du -sb "$trash_dir" 2>/dev/null | cut -f1)
+    echo "[DRY-RUN] Would purge ALL trash for user: $user_name"
+  else
+    freed=$(du -sb "$trash_dir" 2>/dev/null | cut -f1)
+    shopt -s dotglob nullglob
+    rm -rf -- "${trash_dir:?}"/*
+    shopt -u dotglob
+    touch "$restore_file"
+  fi
+  echo "$freed" > "$TMP_DIR/$user_name"
+  return
+fi
 
-    file_base=$(basename "$info_file" .trashinfo)
-    file_path="$trash_files_dir/$file_base"
+  # NORMAL & DRY-RUN MODE
+  while IFS= read -r line; do
+    [[ -z "$line" ]] && continue
+    local file_name file_path deletion_date deletion_epoch age file_size
 
-    if [[ -e "$file_path" ]]; then
-      file_size=$(du -sb "$file_path" 2>/dev/null | cut -f1)
-    else
-      file_size=0
-    fi
+    # Extract parts
+    file_name="${line%%=*}"                                      # name inside trash dir
+    file_path="${line#*=}"                                       # original file path
+    file_path="${file_path%%|deletion_date=*}"
+    deletion_date="${line#*deletion_date=}"
+    deletion_epoch=$(date -d "$deletion_date" +%s 2>/dev/null || echo 0)
 
-    should_delete=false
+    [[ $deletion_epoch -eq 0 ]] && continue
 
-    if $FORCE_PURGE; then
-      should_delete=true
-    else
-      deletion_date=$(grep "^DeletionDate=" "$info_file" | cut -d'=' -f2)
-      deletion_epoch=$(date -d "$deletion_date" +%s 2>/dev/null)
-      [[ -z "$deletion_epoch" ]] && continue
-      age=$((now_epoch - deletion_epoch))
-      if (( age > max_age_seconds )); then
-        should_delete=true
-      fi
-    fi
+    age=$((now_epoch - deletion_epoch))
 
-    if $should_delete; then
-      freed=$((freed + file_size))
-      if $DRY_RUN; then
-        echo "[DRY-RUN] Would delete: $file_base (user: $user_name)"
+    if (( age > max_age_seconds )); then
+      local trash_file="$trash_dir/$file_name"
+      if [[ -e "$trash_file" ]]; then
+        file_size=$(du -sb "$trash_file" 2>/dev/null | cut -f1)
       else
-        [[ "$file_path" == "$trash_files_dir/"* ]] && rm -rf -- "$file_path"
-        rm -f -- "$info_file"
+        file_size=0
+      fi
+      freed=$((freed + file_size))
+
+      if $DRY_RUN; then
+        echo "[DRY-RUN] Would delete: $trash_file (user: $user_name)"
+      else
+        rm -rf -- "$trash_file"
+        # Remove line from .trash_restore (exact match)
+        tmpfile="${restore_file}.tmp"
+        grep -Fxv -- "$line" "$restore_file" > "$tmpfile" || true
+        mv "$restore_file.tmp" "$restore_file"
       fi
     fi
-  done
+  done < "$restore_file"
 
   echo "$freed" > "$TMP_DIR/$user_name"
 }
@@ -159,7 +176,11 @@ for stat_file in "$TMP_DIR"/*; do
   bytes=$(cat "$stat_file")
   total_freed=$((total_freed + bytes))
   hr=$(numfmt --to=iec "$bytes")B
-  echo "  - $user: $hr ${DRY_RUN:+(would be) }freed"
+  if $DRY_RUN; then
+    echo "  - $user: $hr (would be) freed"
+  else
+    echo "  - $user: $hr freed"
+  fi
 done
 
 hr_total=$(numfmt --to=iec "$total_freed")B

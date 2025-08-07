@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 04.08.2025
+# Last Modified: 06.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1569,6 +1569,11 @@ collect_stats() {
   echo "$timestamp $data" > "$file"
 }
 
+create_volume() {
+	local vol_path="/home/$username/docker-data/volumes/${username}_html_data/_data/"
+	mkdir -p "$vol_path" && chown $username:$username "$vol_path" && chmod -R g+w "$vol_path"
+}
+
 
 ##########################################################
 ########################## MAIN ##########################
@@ -1603,4 +1608,5 @@ save_user_to_db                              # save user to mysql db
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
 permisisons_do
+create_volume				     # initializing user home dir
 )200>/var/lock/openpanel_user_add.lock
