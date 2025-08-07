@@ -10,7 +10,7 @@ Depending on which modules are enabled, users can manage PHP settings using one 
 - **PHP.INI Editor** – Available when the `php_ini` module is enabled. Provides full access to edit the php.ini file.
 - **PHP Options** – Available with the `php_options` module. Lets users edit only pre-configured options from the ini file.
 
-### Setting the Default PHP Version
+### Default PHP Version
 
 The default PHP version used for new domains can be configured via:
 
