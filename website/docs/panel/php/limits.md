@@ -17,5 +17,5 @@ The following limits are configurable via PHP Limits page:
 - `post_max_size`
 - `upload_max_filesize`
 
-> NOTE: Settings on 'PHP Limits' page will overwrite any settings in *PHP.INI Editor* or *PHP Options* pages.
+> NOTE: Settings on 'PHP Limits' page will overwrite any settings in [*PHP.INI Editor*](/docs/panel/php/php_ini_editor/) or [*PHP Options*](/docs/panel/php/options/) pages.
 
