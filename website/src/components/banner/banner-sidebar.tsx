@@ -8,7 +8,7 @@ const text = "Struggling with hosting panels?";
 const description =
     "Boost your hosting service: Try OpenPanel Community edition and elevate your clients experience to new heights!";
 const image =
-    "https://openpanel.co/img/panel/v1/dashboard/dashboard.png";
+    "https://openpanel.com/img/panel/v1/dashboard/dashboard.png";
 
 export const BannerSidebar = ({ shouldShowBanner }) => {
     React.useEffect(() => {
@@ -40,7 +40,7 @@ export const BannerSidebar = ({ shouldShowBanner }) => {
             )}
         >
             <Link
-                to={"https://openpanel.co/demo?ref=banner-sidebar"}
+                to={"https://openpanel.com/demo?ref=banner-sidebar"}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={clsx(
@@ -62,7 +62,7 @@ export const BannerSidebar = ({ shouldShowBanner }) => {
             <LandingRainbowButton
                 className={clsx("w-max")}
                 buttonClassname={clsx("!px-4", "!py-2")}
-                href={"https://openpanel.co/demo?ref=banner-sidebar"}
+                href={"https://openpanel.com/demo?ref=banner-sidebar"}
                 target="_blank"
                 rel="noopener noreferrer"
             >
