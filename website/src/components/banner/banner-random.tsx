@@ -8,13 +8,13 @@ const data = [
         description:
             "Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.",
         image: {
-            src: "https://openpanel.co/img/admin/openadmin_dashboard.png",
+            src: "https://openpanel.com/img/admin/openadmin_dashboard.png",
             alt: "OpenPanel Enterprise edition",
-            href: "https://openpanel.co/enterprise/?ref=banner-admin-panel",
+            href: "https://openpanel.com/enterprise/?ref=banner-admin-panel",
         },
         button: {
             text: "Learn more",
-            href: "https://openpanel.co/enterprise/?ref=banner-admin-panel",
+            href: "https://openpanel.com/enterprise/?ref=banner-admin-panel",
         },
         bannerName: "banner-twitter",
     },
