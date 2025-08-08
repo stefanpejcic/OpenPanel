@@ -11,7 +11,7 @@ const Verify: React.FC = () => {
 
     const handleCheckLicense = async () => {
         try {
-            const response = await fetch(`https://verify.openpanel.co/?ip=${ipAddress}`);
+            const response = await fetch(`https://verify.openpanel.com/?ip=${ipAddress}`);
             const data = await response.json();
             setResponseData(data);
         } catch (error) {
