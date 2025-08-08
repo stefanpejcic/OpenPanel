@@ -419,4 +419,4 @@ export type DocSurveyResponse = {
 
 export type SurveyMetaData = Record<string, any>;
 
-const DOC_SURVEY_URL = `https://api.openpanel.co/surveys/documentation-pages-survey.php`;
+const DOC_SURVEY_URL = `https://api.openpanel.com/surveys/documentation-pages-survey.php`;
