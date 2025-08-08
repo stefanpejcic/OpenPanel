@@ -10,7 +10,7 @@ WordPress Manager is a powerful tool integrated into OpenPanel, enabling you to 
 
 **Key Features:**
 - [Single-click login to wp-admin](/docs/panel/applications/wordpress#auto-login-to-wp-admin)
-- [Change DEBUG/Update preferences](https://docs.openpanel.co/docs/panel/applications/wordpress#update-preferences)
+- [Change DEBUG/Update preferences](https://docs.openpanel.com/docs/panel/applications/wordpress#update-preferences)
 - [Backup and Restore](/docs/panel/applications/wordpress#backup-and-restore)
 
 ## Manage WordPress sites
