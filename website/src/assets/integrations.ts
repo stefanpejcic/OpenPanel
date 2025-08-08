@@ -273,7 +273,7 @@ export const integrations: IntegrationsType = {
             icon: Terminal,
             description:
                 "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
-            url: "https://dev.openpanel.co/cli/commands.html",
+            url: "https://dev.openpanel.com/cli/commands.html",
             status: "stable",
         },
     ],
@@ -322,7 +322,7 @@ export const integrations: IntegrationsType = {
             icon: Languages,
             description:
                 "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
-            url: "https://dev.openpanel.co/localization.html",
+            url: "https://dev.openpanel.com/localization.html",
             status: "stable",
         },
         {
