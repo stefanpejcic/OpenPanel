@@ -1,6 +1,6 @@
 # How to Install WordPress® With OpenPanel
 
-WordPress®, a web-based content management system, allows users to easily create a website or blog. This document describes how to install WordPress on your cPanel account.
+WordPress®, a web-based content management system, allows users to easily create a website or blog. This document describes how to install WordPress on your OpenPanel account.
 
 ## Install WordPress from WP Manager
 
