@@ -27,27 +27,29 @@ OpenPanel's Site Manager lets you install WordPress in just a few clicks.
 
 The easiest way to download the official WordPress installation archive is through OpenPanel's File Manager tool.
 
-![Manually_1.png](/img/panel/v2/wpgManual1.png)
-
 First access the folder of your domain where you'll install a new WordPress instance.
 
-![Manually_2.png](/img/panel/v2/wpgManual2.png)
+![Manually_1.png](/img/panel/v2/wpgManual1.png)
 
 When you're inside the domains directory press the Upload button on the top right.
 
-![Manually_3.png](/img/panel/v2/wpgManual3.png)
+![Manually_2.png](/img/panel/v2/wpgManual2.png)
 
 On the Upload page press the "Download from URL Instead" button.
+
+![Manually_3.png](/img/panel/v2/wpgManual3.png)
+
+Paste the link https://wordpress.org/latest.zip to the URL field and press the "Download" button.
 
 ![Manually_4.png](/img/panel/v2/wpgManual4.png)
 
 ![Manually_5.png](/img/panel/v2/wpgManual5.png)
 
-Paste the link https://wordpress.org/latest.zip to the URL field and press the "Download" button.
+When the download finishes return to File Manager and extract the archive.
 
 ![Manually_6.png](/img/panel/v2/wpgManual6.png)
 
-When the download finishes return to File Manager and extract the archive.
+Access the "wordpress" folder, select All files using the "Select All" button and move them into your new domain's directory using the "Move" button.
 
 ![Manually_7.png](/img/panel/v2/wpgManual7.png)
 
@@ -57,25 +59,23 @@ When the download finishes return to File Manager and extract the archive.
 
 ![Manually_10.png](/img/panel/v2/wpgManual10.png)
 
-Access the "wordpress" folder, select All files using the "Select All" button and move them into your new domain's directory using the "Move" button.
+Create a new database and database user with the Database Wizard tool, more info in our Database Wizard guide -> https://openpanel.com/docs/panel/mysql/wizard/ .
 
 ![Manually_11.png](/img/panel/v2/wpgManual11.png)
 
-Create a new database and database user with the Database Wizard tool, more info in our Database Wizard guide -> https://openpanel.com/docs/panel/mysql/wizard/ .
+Start editing the wp-config-sample.php file by selecting it and pressing the "Edit" button.
 
 ![Manually_12.png](/img/panel/v2/wpgManual12.png)
 
-Start editing the wp-config-sample.php file by selecting it and pressing the "Edit" button.
+Swap the vaules of DB_NAME, DB_USER and DB_PASSWORD with values you've set inside the Database Wizard, set the value of DB_HOST to 'mysql' and save the changes on the top right.
 
 ![Manually_config.png](/img/panel/v2/wpgManualFinal.png)
 
-Swap the vaules of DB_NAME, DB_USER and DB_PASSWORD with values you've set inside the Database Wizard, set the value of DB_HOST to 'mysql' and save the changes on the top right.
+Finally, rename the wp-config-sample.php file to wp-config.php using the Rename button within the File Manager.
 
 ![Manually_configR.png](/img/panel/v2/wpgManualRename.png)
 
 ![Manually_configR2.png](/img/panel/v2/wpgManualRename2.png)
-
-Finally, rename the wp-config-sample.php file to wp-config.php using the Rename button within the File Manager.
 
 Your new WordPress instance is now created!
 
