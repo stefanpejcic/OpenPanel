@@ -21,7 +21,7 @@ sidebar_position: 1
 - [How to Install WordPress® With OpenPanel](/docs/articles/websites/how-to-install-wordpress-with-openpanel/)
 - [How to set or increase PHP INI memory_limit or other values?](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/)
 - [Configure Apache, Nginx, Varnish per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
-- [WordPress HTTPS behind Varnish Cache](docs/articles/docker/https-wordpress-behind-varnish-proxy/)
+- [WordPress HTTPS behind Varnish Cache](/docs/articles/docker/https-wordpress-behind-varnish-proxy/)
 
 # Databases
 - [Configure MySQL or MariaDB per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
