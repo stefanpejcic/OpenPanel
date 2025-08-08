@@ -32,13 +32,13 @@ export const BannerModal: FC<Props> = ({
     title = "OpenPanel offers a distinct advantage over other hosting panels by providing each user with an isolated environment and tools to fully manage it. ",
     variant = "purple",
     image = {
-        src: "https://openpanel.co/img/panel/v1/dashboard/dashboard.png",
+        src: "https://openpanel.com/img/panel/v1/dashboard/dashboard.png",
         alt: "OpenPanel interface screenshot",
-        href: "https://openpanel.co/demo?ref=banner-modal",
+        href: "https://openpanel.com/demo?ref=banner-modal",
     },
     button = {
         text: "Try online",
-        href: "https://openpanel.co/demo?ref=banner-modal",
+        href: "https://openpanel.com/demo?ref=banner-modal",
         onClick: undefined,
     },
 }) => {
