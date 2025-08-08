@@ -209,7 +209,7 @@
   },
   {
     "name": "pm2",
-    "title": "Applications",
+    "title": "Python&NodeJS Applications",
     "description": "If enabled, containerized NodeJS and Python applications can be setup from the Autoinstaller.",
     "link": "/pm2",
     "type": "enterprise",
