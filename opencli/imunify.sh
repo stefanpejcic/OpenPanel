@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 06.08.2025
+# Last Modified: 07.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -181,11 +181,24 @@ imunify-antivirus config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
 
 echo "Installing PHP if not present..."
 if ! command -v php >/dev/null 2>&1; then
-  apt-get update
-  apt-get install -y php
+  if command -v apt-get >/dev/null 2>&1; then
+    apt-get update
+    apt-get install -y php-cli
+  elif command -v yum >/dev/null 2>&1; then
+    yum update
+    yum install -y php-cli
+  else
+      echo "Unsupported package manager. Only apt-get and yum are supported."
+      exit 1
+  fi
 else
   echo "PHP already installed."
 fi
+
+
+
+
+
 
 
 
