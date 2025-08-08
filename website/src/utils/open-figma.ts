@@ -1,5 +1,5 @@
 export const openFigma = () => {
     return window
-        .open("https://openpanel.co/assets", "_blank")
+        .open("https://openpanel.com/assets", "_blank")
         ?.focus();
 };
