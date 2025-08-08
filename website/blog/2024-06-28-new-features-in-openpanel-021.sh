@@ -4,7 +4,7 @@ description: OpenPanel 0.2.1 brings a lot of new features and security enhanceme
 slug: new-features-in-openpanel-021
 authors: stefanpejcic
 tags: [OpenPanel, news, install]
-image: https://openpanel.co/img/blog/new-features-in-openpanel-02.png
+image: https://openpanel.com/img/blog/new-features-in-openpanel-02.png
 hide_table_of_contents: true
 ---
 
