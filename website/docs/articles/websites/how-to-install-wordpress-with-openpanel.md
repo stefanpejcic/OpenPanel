@@ -1,30 +1,27 @@
 # How to Install WordPress® With OpenPanel
 
-WordPress®, a web-based content management system, allows users to easily create a website or blog. This document describes how to install WordPress on your OpenPanel account.
+WordPress® is a powerful, web-based content management system (CMS) that makes it easy to build websites and blogs. This guide walks you through two methods for installing WordPress on your OpenPanel account: **automatic installation via WP Manager** and **manual installation**.
+
+Before installing WordPress, make sure you've added a domain where the WordPress site will be hosted.
+
+To add a domain:
+**OpenPanel > Domains > Add New Domain**
 
 ![newDomain.png](/img/panel/v2/wpgDomain.png)
 
-Before installing WordPress make sure you've added a domain that the WordPress website will be using, you can add a new domain on OpenPanel > Domains > Add New Domain.
+## Install WordPress via WP Manager
 
-## Install WordPress from WP Manager
+OpenPanel's Site Manager lets you install WordPress in just a few clicks.
 
-OpenPanel's Site Manager feature allows you to install a new WordPress instance in a few simple steps:
-
-![SiteManager_1.png](/img/panel/v2/wpgSitemanager1.png)
-
-Access the Site Manager and press the "+New Website" button to begin.
-
-![SiteManager_2.png](/img/panel/v2/wpgSitemanager2.png)
-
-Choose WordPress by pressing the "Install WordPress" button.
-
-![SiteManager_3.png](/img/panel/v2/wpgSitemanager3.png)
-
-Choose a Website name, Description and the domain of your new WordPress website and press the "Start Installation" button to run the installer, the install log will be displayed below.
-
-![SiteManager_4.png](/img/panel/v2/wpgSitemanager4.png)
-
-When the manager is finished installing your new WordPress website you'll be redirected to the WordPress manager page where you can view and manage all of your WordPress websites.
+1. **Open Site Manager** and press the **+New Website"** button.
+   ![SiteManager_1.png](/img/panel/v2/wpgSitemanager1.png)
+2. Click **Install WordPress**.
+   ![SiteManager_2.png](/img/panel/v2/wpgSitemanager2.png)
+3. Fill in the **Website Name**, optionally add a **Site Description**, and choose your domain.
+   Click **Start Installation** to begin.
+   ![SiteManager_3.png](/img/panel/v2/wpgSitemanager3.png)
+5. Once the installation is complete, you'll be redirected to the **WP Manager**, where you can manage all of your installed WordPress sites.
+   ![SiteManager_4.png](/img/panel/v2/wpgSitemanager4.png)
 
 ## Install WordPress manually
 
