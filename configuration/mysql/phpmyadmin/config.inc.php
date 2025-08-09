@@ -144,19 +144,10 @@ if (! empty($_ENV['PMA_SOCKET'])) {
 /* Server settings */
 for ($i = 1; isset($hosts[$i - 1]); $i++) {
 
-    $forceLogin = isset($_GET['loginform']) ? $_GET['loginform'] : '';
-
-    if ($forceLogin) {
-        error_log("Using cookie authentication - username and password are required");
-        $cfg['Servers'][$i]['auth_type'] = 'cookie';
-        $cfg['Servers'][$i]['user'] = '';
-        $cfg['Servers'][$i]['password'] = '';
-    } else {
-        error_log("Using Single Sign-On (SSO) for connections from OpenPanel: $clientIp");
-        $cfg['Servers'][$i]['auth_type'] = 'signon';
-        $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
-        $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
-    }
+    error_log("Using Single Sign-On (SSO) for connections from OpenPanel: $clientIp");
+    $cfg['Servers'][$i]['auth_type'] = 'signon';
+    $cfg['Servers'][$i]['SignonSession'] = 'OPENPANEL_PHPMYADMIN';
+    $cfg['Servers'][$i]['SignonURL'] = 'pma.php';
     
     if (isset($ssls[$i - 1]) && $ssls[$i - 1] === '1') {
         $cfg['Servers'][$i]['ssl'] = $ssls[$i - 1];

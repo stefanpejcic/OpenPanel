@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 07.08.2025
+# Last Modified: 08.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -551,8 +551,8 @@ run_update_immediately() {
     
     # Update OpenPanel Docker image
     log "Updating OpenPanel Docker image"
-    if ! docker image pull "${IMAGE_NAME}:${version}" 2>&1 | tee -a "$log_file"; then
-        log_error "Failed to pull Docker image"
+    if ! timeout 60 docker image pull "${IMAGE_NAME}:${version}" 2>&1 | tee -a "$log_file"; then
+        log_error "Failed to pull Docker image or command timed out"
         return 1
     fi
 
