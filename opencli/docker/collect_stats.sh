@@ -5,7 +5,7 @@
 # Usage: opencli docker-collect_stats
 # Author: Petar Curic, Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 07.08.2025
+# Last Modified: 08.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -89,7 +89,44 @@ current_usage=$(docker --context $context stats --no-stream --format '{{json .}}
     if .unit == "GiB" then (.value | tonumber * 1024)
     elif .unit == "KiB" then (.value | tonumber / 1024)
     else (.value | tonumber) end) | add // 0 | .*100 | round / 100),
-  total_mem_precent: (map(.MemPerc | sub("%";"") | tonumber // 0) | add // 0 | .*100 | round / 100),
+
+
+total_mem_precent: (
+  (
+    map(
+      .MemUsage 
+      | capture("(?<value>\\d+\\.?\\d*)(?<unit>[KMGT]?iB) / (?<limit>\\d+\\.?\\d*)(?<limit_unit>[KMGT]?iB)") 
+      // {"value": "0", "unit": "MiB", "limit": "1", "limit_unit": "MiB"}
+      | {
+          usage_mib: (
+            if .unit == "GiB" then (.value | tonumber * 1024)
+            elif .unit == "KiB" then (.value | tonumber / 1024)
+            elif .unit == "TiB" then (.value | tonumber * 1024 * 1024)
+            else (.value | tonumber)
+            end
+          ),
+          limit_mib: (
+            if .limit_unit == "GiB" then (.limit | tonumber * 1024)
+            elif .limit_unit == "KiB" then (.limit | tonumber / 1024)
+            elif .limit_unit == "TiB" then (.limit | tonumber * 1024 * 1024)
+            else (.limit | tonumber)
+            end
+          )
+        }
+    )
+    | reduce .[] as $item ({"usage":0, "limit":0};
+        {
+          usage: (.usage + $item.usage_mib),
+          limit: (.limit + $item.limit_mib)
+        }
+    )
+    | if .limit > 0 then (.usage / .limit * 100) else 0 end
+    | .*100 | round / 100
+  )
+),
+
+
+  
   total_pids: (map(.PIDs | tonumber // 0) | add // 0),
   total_net_rx: (map(.NetIO | capture("(?<rx>\\d+\\.?\\d*)([KMGT]?B) / .*") | .rx // "0" | tonumber) | add // 0 | .*100 | round / 100),
   total_containers: (map(.Container) | unique | length),

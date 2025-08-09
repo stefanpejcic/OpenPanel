@@ -1,6 +1,6 @@
 {
     "how_to_topics": [
-        {"title": "How to install WordPress", "link": "https://openpanel.com/docs/panel/applications/wordpress#install-wordpress"},
+        {"title": "How to install WordPress", "link": "https://openpanel.com/docs/articles/websites/how-to-install-wordpress-with-openpanel/"},
         {"title": "How to set or increase PHP INI memory_limit or other values?", "link": "https://openpanel.com/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/"},
         {"title": "How to enable REDIS Caching", "link": "https://openpanel.com/docs/panel/caching/Redis/#connect-to-redis"},
         {"title": "How to create DNS records", "link": "https://openpanel.com/docs/panel/domains/dns/#create-record"},

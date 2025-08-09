@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 07.08.2025
+# Last Modified: 08.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -64,7 +64,7 @@ status_av() {
 configure_av_limits_and_email() {
 
 echo "Configuring ImunifyAV notifications to use 'OpenAdmin > Settings > Notifications'..."
-wget -O /etc/sysconfig/imunify360/iav_hook.sh https://gist.githubusercontent.com/stefanpejcic/2318eae67c6833bb313eae7476aaa22f/raw/04bb0b6b4af7ff4515d17abaed891c50ff4f36d4/imav_email.sh
+wget --inet4-only -O /etc/sysconfig/imunify360/iav_hook.sh https://gist.githubusercontent.com/stefanpejcic/2318eae67c6833bb313eae7476aaa22f/raw/04bb0b6b4af7ff4515d17abaed891c50ff4f36d4/imav_email.sh
 chmod +x /etc/sysconfig/imunify360/iav_hook.sh
 imunify-antivirus notifications-config update '{"rules": {"USER_SCAN_MALWARE_FOUND": {"SCRIPT": {"scripts": ["/etc/sysconfig/imunify360/iav_hook.sh"], "enabled": true}}}}'
 imunify-antivirus notifications-config update '{"rules": {"CUSTOM_SCAN_MALWARE_FOUND": {"SCRIPT": {"scripts": ["/etc/sysconfig/imunify360/iav_hook.sh"], "enabled": true}}}}'
@@ -158,7 +158,7 @@ fi
 DEPLOY_SCRIPT="imav-deploy.sh"
 if [ ! -f "$DEPLOY_SCRIPT" ]; then
   echo "Downloading deploy script..."
-  wget https://repo.imunify360.cloudlinux.com/defence360/imav-deploy.sh -O "$DEPLOY_SCRIPT"
+  wget --inet4-only https://repo.imunify360.cloudlinux.com/defence360/imav-deploy.sh -O "$DEPLOY_SCRIPT"
 else
   echo "$DEPLOY_SCRIPT already downloaded, skipping..."
 fi

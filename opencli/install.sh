@@ -5,7 +5,7 @@
 # Usage: opencli install
 # Author: Stefan Pejcic
 # Created: 08.10.2023
-# Last Modified: 07.08.2025
+# Last Modified: 08.08.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.com
 # 
@@ -32,10 +32,6 @@
 ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
 
 chmod +x -R /usr/local/opencli/
-
-# https://openpanel.co/docs/changelog/0.1.9/#cloudflare-only
-wget -O /usr/local/opencli/cloudflare https://raw.githubusercontent.com/stefanpejcic/ipset-cloudflare/main/run.sh
-
 
 # Generate a list of commands for the opencli
 #opencli commands
