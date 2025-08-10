@@ -25,6 +25,7 @@ You can include the following variables in your DNS zone templates:
 | `{ns3}`         | Hostname of the tertiary nameserver.                                       |
 | `{ns4}`         | Hostname of the quaternary nameserver.                                     |
 | `{server_ip}`   | IP address of the domain (either IPv4 or IPv6, depending on the template). |
+| `{rpemail}`     | Contact email address from OpenAdmin, or `root@domain`.                    |
 
 ---
 
