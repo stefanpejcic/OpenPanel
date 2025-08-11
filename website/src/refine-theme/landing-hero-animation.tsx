@@ -9,7 +9,6 @@ import { LandingHeroCenterSvg } from "./icons/landing-hero-center";
 import { LandingHeroGridSvg } from "./icons/landing-hero-grid";
 import { LandingHeroAntdIcon } from "./icons/landing-hero/antd";
 import { LandingHeroOpenRestyIcon } from "./icons/landing-hero/openresty";
-import { LandingHeroVarnishIcon } from "./icons/landing-hero/varnish";
 import { LandingHeroAuth0Icon } from "./icons/landing-hero/auth0";
 import { LandingHeroChakraUIIcon } from "./icons/landing-hero/chakra";
 import { LandingHeroGoogleIcon } from "./icons/landing-hero/google";
@@ -149,20 +148,6 @@ const backendItems: ItemType[] = [
             />
         ),
         color: "#E0234E",
-    },
-    {
-        name: "Varnish",
-        icon: (props: React.SVGProps<SVGSVGElement>) => (
-            <LandingHeroVarnishIcon
-                {...props}
-                className={clsx(
-                    "text-gray-1000 dark:text-gray-0",
-                    props.className,
-                )}
-                style={{ marginLeft: '1.5em' }}
-            />
-        ),
-        color: "#FD366E",
     },
     {
         name: "OpenResty",
