@@ -52,10 +52,11 @@ sidebar_position: 1
 - [CSF Blocklists](/docs/articles/security/csf-blocklists/)
 
 # Emails
+- [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop)
 - [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
+- [How to enable and access RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/)
 - [Setup DKIM for Mailserver](/docs/articles/email/how-to-setup-dkim-for-mailserver/)
 - [Setup Fail2ban for Mailserver](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/)
-- [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop)
 - [Troubleshooting Email Errors](/docs/articles/email/troubleshooting-email-errors/)
 
 # Updates
