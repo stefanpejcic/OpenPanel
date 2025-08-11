@@ -66,14 +66,6 @@ export const integrations: IntegrationsType = {
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
-             {
-            name: "Varnish",
-            icon: Apache,
-            description:
-                "Varnish can be integrated with Nginx, Apache, or OpenResty to enhance caching and performance. Users can enable or disable caching on a per-domain basis.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
-            status: "stable",
-        },
         {
             name: "OpenResty",
             icon: Nginx,
