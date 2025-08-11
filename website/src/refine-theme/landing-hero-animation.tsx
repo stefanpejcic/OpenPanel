@@ -151,6 +151,20 @@ const backendItems: ItemType[] = [
         color: "#E0234E",
     },
     {
+        name: "Varnish",
+        icon: (props: React.SVGProps<SVGSVGElement>) => (
+            <LandingHeroVarnishIcon
+                {...props}
+                className={clsx(
+                    "text-gray-1000 dark:text-gray-0",
+                    props.className,
+                )}
+                style={{ marginLeft: '1.5em' }}
+            />
+        ),
+        color: "#FD366E",
+    },
+    {
         name: "OpenResty",
         icon: (props: React.SVGProps<SVGSVGElement>) => (
             <LandingHeroOpenRestyIcon
