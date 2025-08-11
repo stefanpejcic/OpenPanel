@@ -22,3 +22,6 @@ Finally, open your website and confirm the changes:
 * For any PHP site, you can check via `phpinfo()`.
 * For WordPress, go to **Tools > Site Health** and verify the new limits are applied.
 
+---
+
+> **NOTE**: Since the `.user.ini` is read from public directories, it's contents will be served to anyone requesting it and potientially show them sensitive configuration settings. Block access to it using .htaccess file in Apache, or via Vhost Editor for Nginx/OpenResty.
