@@ -330,7 +330,7 @@ export const integrations: IntegrationsType = {
             icon: Keyboard,
             description:
                 "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.",
-            url: "/docs/panel/dashboard/#keyboard-shortcuts",
+            url: "/docs/articles/dev-experience/openadmin-keyboard-shortcuts/",
             status: "stable",
         },
     ],
@@ -422,6 +422,14 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators can manage ConfigServer Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/docs/admin/security/firewall/",
+            status: "stable",
+        },
+        {
+            name: "ImunifyAV",
+            icon: Services,
+            description:
+                "OpenAdmin fully supoorts ImunifyAV.",
+            url: "/docs/admin/security/imunify/",
             status: "stable",
         },
         {
