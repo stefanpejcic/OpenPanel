@@ -9,6 +9,7 @@ import { LandingHeroCenterSvg } from "./icons/landing-hero-center";
 import { LandingHeroGridSvg } from "./icons/landing-hero-grid";
 import { LandingHeroAntdIcon } from "./icons/landing-hero/antd";
 import { LandingHeroOpenRestyIcon } from "./icons/landing-hero/openresty";
+import { LandingHeroVarnishIcon } from "./icons/landing-hero/varnish";
 import { LandingHeroAuth0Icon } from "./icons/landing-hero/auth0";
 import { LandingHeroChakraUIIcon } from "./icons/landing-hero/chakra";
 import { LandingHeroGoogleIcon } from "./icons/landing-hero/google";
