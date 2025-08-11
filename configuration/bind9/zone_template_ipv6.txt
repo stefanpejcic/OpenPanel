@@ -1,5 +1,5 @@
 $TTL 1h
-@       IN      SOA     {ns1}. {ns2}. (
+@       IN      SOA     {ns1}. {rpemail}. (
                         2024121101      ; Serial number
                         1h              ; Refresh interval
                         15m             ; Retry interval
