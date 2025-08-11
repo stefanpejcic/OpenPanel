@@ -24,11 +24,7 @@ Migration can be performed via OpenAdmin UI or from the terminal:
 
 On the old server, login to **OpenAdmin** and navigate to *Advanced > Migration*, provide the new server’s IP address and root credentials:
 
-![migrate server form](https://pcx3.com/wp-content/uploads/2025/06/2025-06-26_11-44.png)
-
 Click on the 'Start Migration' button and wait for the process to complete:
-
-![migration running](https://pcx3.com/wp-content/uploads/2025/06/2025-06-26_12-55.png)
 
 ### Using Terminal
 
