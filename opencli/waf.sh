@@ -45,9 +45,9 @@ usage() {
     echo ""
     echo "Examples:"
     echo "  opencli waf status"
-    echo "  opencli waf domain pcx3.com"
-    echo "  opencli waf domain pcx3.com enable"
-    echo "  opencli waf domain pcx3.com disable"
+    echo "  opencli waf domain pejcic.rs"
+    echo "  opencli waf domain pejcic.rs enable"
+    echo "  opencli waf domain pejcic.rs disable"
     echo "  opencli waf stats ip"
     echo "  opencli waf stats hourly"
     exit 1
