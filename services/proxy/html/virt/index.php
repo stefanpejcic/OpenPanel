@@ -15,7 +15,7 @@ if (empty($ip) || empty($domen)) {
     header("Location: https://preview.openpanel.org/#expired");
     exit;
 } else {
-    $domainOnly = strtok($domen, '/'); # pcx3.com/blog and pcx3.com
+    $domainOnly = strtok($domen, '/'); # pejcic.rs/blog and pejcic.rs
 }
 
 
