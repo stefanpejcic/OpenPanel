@@ -42,7 +42,6 @@ opencli domains-all
 stefan.openpanel.org
 pejcic.rs
 nesto.com
-pcx3.com
 ```
 
   </TabItem>
