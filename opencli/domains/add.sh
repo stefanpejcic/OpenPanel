@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 10.08.2025
+# Last Modified: 11.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -549,6 +549,8 @@ get_webserver_for_user(){
 	        ws="openresty"
 	    elif [[ $output == *apache* ]]; then
 	        ws="apache"
+	    elif [[ $output == *openlitespeed* ]]; then
+	        ws="openlitespeed"
 	    else
 	        ws="unknown"
 	    fi
@@ -605,6 +607,9 @@ vhost_files_create() {
 		vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
 	elif [[ $ws == *openresty* ]]; then
 		vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf"
+		vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
+	elif [[ $ws == *openlitespeed* ]]; then
+		vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_openlitespeed_domain.conf"
 		vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
 	fi
 
@@ -990,7 +995,7 @@ add_domain() {
      	if $SKIP_VHOST_CREATE; then 
       		log "Skipping VirtualHost file creation due to '--skip_dns' flag."
       	else
-           	get_webserver_for_user                       # nginx or apache
+           	get_webserver_for_user                       # detect
         fi
      
     	get_server_ipv4_or_ipv6                      # get outgoing ip     
@@ -1024,7 +1029,9 @@ add_domain() {
 	if $SKIP_STARTING_CONTAINERS; then 
 		log "Skipping starting PHP service due to '--skip_containers' flag."
 	else
-		start_default_php_fpm_service                # start phpX.Y-fpm service
+		if [[ $ws == *apache* ]] || [[ $ws == *nginx* ]] || [[ $ws == *openresty* ]]; then
+		    start_default_php_fpm_service                # sdont start it for litespeed!
+		fi
 	fi
 	
  

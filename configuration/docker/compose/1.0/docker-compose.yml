@@ -18,7 +18,29 @@ services:
       - www
       - db
 
-
+  openlitespeed:
+    image: litespeedtech/openlitespeed:${OPENLITESPEED_VERSION:-latest}
+    container_name: openlitespeed
+    restart: unless-stopped
+    ports:
+      - "${PROXY_HTTP_PORT:-${HTTP_PORT}}"
+      - "${HTTPS_PORT}"
+    working_dir: /var/www/html
+    volumes:
+      - /etc/openpanel/openlitespeed/start.sh:/usr/local/lsws/start.sh:ro # generates main vhost file for litespeed
+      - webserver_data:/usr/local/lsws/conf/vhosts/ # vhosts
+      - html_data:/var/www/html/                          # Website files
+      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs
+    deploy:
+      resources:
+        limits:
+          cpus: "${OPENLITESPEED_CPU:-0.5}"
+          memory: "${OPENLITESPEED_RAM:-0.5G}"   
+          pids: 100
+    networks:
+      - www
+    entrypoint: ["/bin/bash", "/usr/local/lsws/start.sh"]
+      
   openresty:
     image: openresty/openresty:${OPENRESTY_VERSION:-bullseye-fat}
     container_name: openresty
@@ -28,8 +50,8 @@ services:
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
-      - ./openresty.conf:/etc/openresty/nginx.conf:ro
-      - webserver_data:/etc/nginx/conf.d
+      - ./openresty.conf:/etc/openresty/nginx.conf:ro     # main conf
+      - webserver_data:/etc/nginx/conf.d                  # vhosts
       - html_data:/var/www/html/                          # Website files     
       - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs    
       - /etc/openpanel/nginx/default_page.html:/etc/nginx/default_page.html:ro

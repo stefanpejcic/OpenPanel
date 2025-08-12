@@ -1,6 +1,6 @@
 [
     {
-        "name": "OpenAdmin",
+        "name": "OpenAdmin UI",
         "type": "system",
         "real_name": "admin"
     },
@@ -10,7 +10,7 @@
         "real_name": "docker"
     },
     {
-        "name": "OpenPanel",
+        "name": "OpenPanel UI",
         "type": "docker",
         "real_name": "openpanel"
     },
@@ -25,32 +25,32 @@
         "real_name": "openadmin_mailserver"
     },
     {
-        "name": "Roundcube",
+        "name": "Roundcube (Webmail)",
         "type": "docker",
         "real_name": "openadmin_roundcube"
     },
     {
-        "name": "Database",
+        "name": "MySQL (Database)",
         "type": "docker",
         "real_name": "openpanel_mysql"
     },
     {
-        "name": "FTP",
+        "name": "vsftpd (FTP server)",
         "type": "docker",
         "real_name": "openadmin_ftp"
     },
     {
-        "name": "DNS",
+        "name": "BIND9 (DNS server)",
         "type": "docker",
         "real_name": "openpanel_dns"
     },
     {
-        "name": "Malware Scanner",
+        "name": "ClamAV Scanner",
         "type": "docker",
         "real_name": "clamav"
     },
     {
-        "name": "ConfigServer Firewall",
+        "name": "ConfigServer Security & Firewall",
         "type": "system",
         "real_name": "csf"
     }
