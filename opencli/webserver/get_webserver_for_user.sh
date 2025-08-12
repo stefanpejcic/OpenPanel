@@ -6,7 +6,7 @@
 #        opencli webserver-get_webserver_for_user <USERNAME> --update
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 10.08.2025
+# Last Modified: 11.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -35,8 +35,8 @@ determine_web_server() {
         echo "apache"
     elif [[ "$container_name" == *"openresty"* ]]; then
         echo "openresty"
-    elif [[ "$container_name" == *"litespeed"* ]]; then
-        echo "litespeed"
+    elif [[ "$container_name" == *"openlitespeed"* ]]; then
+        echo "openlitespeed"
     else
         echo "unknown"
     fi

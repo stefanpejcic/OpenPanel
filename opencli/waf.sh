@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 10.08.2025
+# Last Modified: 11.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -45,9 +45,9 @@ usage() {
     echo ""
     echo "Examples:"
     echo "  opencli waf status"
-    echo "  opencli waf domain pejcic.rs"
-    echo "  opencli waf domain pejcic.rs enable"
-    echo "  opencli waf domain pejcic.rs disable"
+    echo "  opencli waf domain pcx3.com"
+    echo "  opencli waf domain pcx3.com enable"
+    echo "  opencli waf domain pcx3.com disable"
     echo "  opencli waf stats ip"
     echo "  opencli waf stats hourly"
     exit 1
