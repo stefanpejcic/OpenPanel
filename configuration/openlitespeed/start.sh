@@ -1,70 +1,25 @@
 #!/bin/bash
-set -e
 
-CONF_DIR=/usr/local/lsws/conf
-VHOST_DIR=$CONF_DIR/vhosts
-OUTPUT_CONF=$CONF_DIR/httpd_config.conf
+if [ -d "/vhosts" ] && [ "$(ls -A /vhosts)" ]; then
+  cp -R /vhosts/* /usr/local/lsws/conf/vhosts/
+fi
 
-echo "Generating OpenLiteSpeed main config..."
+# Ensure permissions
+chown -R 994:994 /usr/local/lsws/conf
+chown -R 994:1001 /usr/local/lsws/admin/conf
 
-# Start server block and listen section
-cat > $OUTPUT_CONF <<EOL
-server {
-  listen 80 {
-    address *:80
-    secure 0
-  }
+# Ensure main config includes vhosts
+grep -q "include conf/vhosts/*.conf" /usr/local/lsws/conf/httpd_config.conf || \
+  echo "include conf/vhosts/*.conf" >> /usr/local/lsws/conf/httpd_config.conf
 
-  listener Default {
-    address *:80
-    secure 0
-EOL
+# Start the server
+/usr/local/lsws/bin/lswsctrl start
+$@
 
-# Loop through vhost conf files to add domain -> vhost mappings
-for f in $VHOST_DIR/*.conf; do
-  # Extract domain line (strip spaces, commas)
-  domain_line=$(grep -oP '(?<=domain\s)[^\n]+' "$f" | tr -d ' ')
-  # Extract virtual host name from <virtualHost name>
-  vhname=$(grep -oP '(?<=<virtualHost\s)[^>]+(?=>)' "$f")
-
-  if [[ -n "$domain_line" && -n "$vhname" ]]; then
-    # Split domains by comma and map each
-    IFS=',' read -ra domains <<< "$domain_line"
-    for d in "${domains[@]}"; do
-      echo "    map $d $vhname" >> $OUTPUT_CONF
-    done
+# Keep container running and monitor
+while true; do
+  if ! /usr/local/lsws/bin/lswsctrl status | /usr/bin/grep 'litespeed is running with PID *' > /dev/null; then
+    break
   fi
+  sleep 60
 done
-
-# Close listener block
-echo "  }" >> $OUTPUT_CONF
-
-# Add errorLog and accessLog sections
-cat >> $OUTPUT_CONF <<EOL
-
-  errorLog {
-    file \$SERVER_ROOT/logs/error.log
-    rollingSize 10M
-  }
-
-  accessLog {
-    file \$SERVER_ROOT/logs/access.log
-    rollingSize 10M
-  }
-
-EOL
-
-# Append all virtual host configs into main config
-for f in $VHOST_DIR/*.conf; do
-  echo "" >> $OUTPUT_CONF
-  cat "$f" >> $OUTPUT_CONF
-  echo "" >> $OUTPUT_CONF
-done
-
-# Close server block
-echo "}" >> $OUTPUT_CONF
-
-echo "Generated $OUTPUT_CONF successfully."
-
-echo "Starting OpenLiteSpeed..."
-exec /usr/local/lsws/bin/lswsctrl start && tail -f /usr/local/lsws/logs/error.log
