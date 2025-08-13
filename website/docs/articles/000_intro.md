@@ -20,7 +20,7 @@ sidebar_position: 1
 # Websites
 - [How to Install WordPress® With OpenPanel](/docs/articles/websites/how-to-install-wordpress-with-openpanel/)
 - [How to set or increase PHP INI memory_limit or other values?](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/)
-- [403 Error Troubleshooting Guide](/docs/articles/domains/403-error-on-website-disable-coraza-waf/)
+- [403 Error Troubleshooting Guide](/docs/articles/domains/error-on-website-disable-coraza-waf/)
 - [Configure Apache, Nginx, Varnish per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [WordPress HTTPS behind Varnish Cache](/docs/articles/docker/https-wordpress-behind-varnish-proxy/)
 
@@ -38,6 +38,7 @@ sidebar_position: 1
 - [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
 
 # Domains
+- [Domain Shows Default Page](/docs/articles/domains/domain-shows-default-page/)
 - [How to configure Nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 - [How to configure a DNS Cluster](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel)
 - [Troubleshooting DNS](/docs/articles/domains/troubleshooting-dns)
