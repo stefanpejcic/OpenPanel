@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 11.08.2025
+# Last Modified: 12.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -379,11 +379,10 @@ result=$(get_user_info "$user")
 user_id=$(echo "$result" | cut -d',' -f1)
 context=$(echo "$result" | cut -d',' -f2)
 
-if [ -z "$user_id" ]; then
-    echo "FATAL ERROR: user $user does not exist."
+if [ -z "$user_id" ] || [ -z "$context" ]; then
+    echo "FATAL ERROR: Missing user ID or context for user $user."
     exit 1
 fi
-
 
 
 
@@ -650,14 +649,13 @@ create_domain_file() {
  	local waf_dir="/var/log/caddy/coraza_waf"
 	mkdir -p $logs_dir && touch $logs_dir/access.log
 	mkdir -p $waf_dir && touch $waf_dir/${domain_name}.log
-	#docker_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $user) #from 025 ips are not used
  
 	local env_file="/home/${context}/.env"
  	source $env_file
 
 	    # Check if the file exists
 	    if [[ ! -f "$env_file" ]]; then
-	        echo "Error: .env file not found for user $username"
+	        echo "Warning: .env file not found!"
 	        return 1
 	    fi
 	
@@ -668,14 +666,13 @@ create_domain_file() {
  		ip_format_for_nginx="$current_ip"
    	else
 		ip_format_for_nginx="[$current_ip]"
-    	fi
+    fi
 
      # todo: include only if dedi ip in caddy file!
-
-mkdir -p /etc/openpanel/caddy/domains/
-
-domains_file="/etc/openpanel/caddy/domains/$domain_name.conf"
-touch $domains_file
+	mkdir -p /etc/openpanel/caddy/domains/
+	
+	domains_file="/etc/openpanel/caddy/domains/$domain_name.conf"
+	touch $domains_file
 
 
 
@@ -1009,20 +1006,19 @@ add_domain() {
  	if $onion_domain; then
 		setup_tor_for_user		     # create conf files
 		start_tor_for_user		     # actually run service
-    	else
+    else
 		
-	     	if $SKIP_CADDY_CREATE; then 
-	      		log "Skipping Reverse Proxy file creation due to '--skip_caddy' flag."
-	      	else
-	           	create_domain_file                   # create file on host
-	        fi
+		if $SKIP_CADDY_CREATE; then 
+			log "Skipping Reverse Proxy file creation due to '--skip_caddy' flag."
+		else
+			create_domain_file                   # create file on host
+		fi
 
-
-	     	if $SKIP_DNS_ZONE; then 
-	      		log "Skipping DNS zone file creation due to '--skip_dns' flag."
-	      	else
-	           	dns_stuff
-	        fi
+		if $SKIP_DNS_ZONE; then 
+			log "Skipping DNS zone file creation due to '--skip_dns' flag."
+		else
+			dns_stuff
+		fi
   	
  	fi
   
@@ -1030,7 +1026,7 @@ add_domain() {
 		log "Skipping starting PHP service due to '--skip_containers' flag."
 	else
 		if [[ $ws == *apache* ]] || [[ $ws == *nginx* ]] || [[ $ws == *openresty* ]]; then
-		    start_default_php_fpm_service                # sdont start it for litespeed!
+		    start_default_php_fpm_service                # skip for litespeed!
 		fi
 	fi
 	
