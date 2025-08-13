@@ -29,3 +29,14 @@ echo ""
 echo "Editing tempalte used for new users.."
 sed -i '/command: >/{N;s/command: >\n *sh -c "php-fpm --allow-to-run-as-root"/command: php-fpm --allow-to-run-as-root/}' /etc/openpanel/docker/compose/1.0/docker-compose.yml
 
+
+
+# LITESPEED
+
+mkdir -p /etc/openpanel/openlitespeed
+wget -O /etc/openpanel/nginx/vhosts/1.1/docker_openlitespeed_domain.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/vhosts/1.1/docker_openlitespeed_domain.conf
+wget -O /etc/openpanel/openlitespeed/httpd_config.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openlitespeed/httpd_config.conf
+wget -O /etc/openpanel/openlitespeed/start.sh https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openlitespeed/start.sh
+chmod +x /etc/openpanel/openlitespeed/start.sh
+
+
