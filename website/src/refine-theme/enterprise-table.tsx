@@ -688,7 +688,6 @@ const tableData = [
             },
         ],
     },
-
     {
         title: "Databases",
         items: [
@@ -766,6 +765,59 @@ const tableData = [
             },           
         ],
     },
+
+
+
+    {
+        title: "Web servers",
+        items: [
+            {
+                description: "Apache",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Nginx",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "OpenResty",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "OpenLitespeed",
+                community: <CrossIcon />,
+                enterprise: <TableText>BETA</TableText>,
+                valueType: {
+                    community: "icon",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "Varnish",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },          
+        ],
+    },    
     {
         title: "Accounts",
         items: [
