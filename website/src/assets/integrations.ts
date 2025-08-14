@@ -74,6 +74,22 @@ export const integrations: IntegrationsType = {
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
+        {
+            name: "OpenLiteSpeed",
+            icon: Apache,
+            description:
+                "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.",
+            url: "/docs/articles/docker/how-to-set-openlitespeed-per-user-in-openpanel/",
+            status: "stable",
+        },
+        {
+            name: "Varnish",
+            icon: Nginx,
+            description:
+                "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
+            url: "/docs/articles/docker/how-to-set-varnish-per-user-in-openpanel/",
+            status: "stable",
+         },
     ],
     "data-provider-packages": [
         {
