@@ -6,7 +6,7 @@ sidebar_position: 7
 
 On the **Edit MySQL Configuration** page, you can modify settings for your database service (MySQL or MariaDB).
 
-Leaving a field empty means the system will use the default value for your database version.
+> **NOTE**: Leaving a field empty means the system will use the default value for your database version.
 
 The configurable options include:
 
