@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 12.08.2025
+# Last Modified: 13.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -616,7 +616,7 @@ vhost_files_create() {
  	get_varnish_for_user
   	
 	if [ "$VARNISH" = true ]; then
-	    log "Starting $ws and Varnish containers.."
+	    log "Starting $ws and varnish containers.."
             nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d ${ws} varnish" </dev/null >nohup.out 2>nohup.err &
 	else
             nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d ${ws}" </dev/null >nohup.out 2>nohup.err &
