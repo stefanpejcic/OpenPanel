@@ -19,6 +19,7 @@ sidebar_position: 1
 - [Migrate all data to another server](/docs/articles/transfers/migrate-openadmin-to-new-server/)
 
 # Websites
+- [Hosting a Static Website with OpenPanel](/docs/articles/websites/hosting-a-static-website-with-openpanel/)
 - [How to Install WordPress® With OpenPanel](/docs/articles/websites/how-to-install-wordpress-with-openpanel/)
 - [How to set or increase PHP INI memory_limit or other values?](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/)
 - [403 Error Troubleshooting Guide](/docs/articles/domains/error-on-website-disable-coraza-waf/)
