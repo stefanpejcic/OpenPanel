@@ -6,7 +6,7 @@
 #        opencli webserver-get_webserver_for_user <USERNAME> --update
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 12.08.2025
+# Last Modified: 13.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -27,7 +27,7 @@ determine_web_server() {
 
 
     
-    # Check which container is running nginx, apache, or litespeed
+    # Check which container is running nginx, apache, or openlitespeed
     container_name=$(docker --context "$context" ps --filter "status=running" --format "{{.Names}}")
     if [[ "$container_name" == *"nginx"* ]]; then
         echo "nginx"

@@ -27,10 +27,13 @@ services:
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
+      - ./openlitespeed.conf:/usr/local/lsws/conf/httpd_config.conf     # main conf
       - /etc/openpanel/openlitespeed/start.sh:/entrypoint.sh:ro # chmod +x first!
+      - ./sockets/mysqld:/var/run/mysqld           # MySQL socket
       - webserver_data:/usr/local/lsws/conf/vhosts/ # vhosts
       - html_data:/var/www/html/                          # Website files
       - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/bin/wp 
     deploy:
       resources:
         limits:
@@ -39,6 +42,7 @@ services:
           pids: 100
     networks:
       - www
+      - db
       
   openresty:
     image: openresty/openresty:${OPENRESTY_VERSION:-bullseye-fat}
@@ -524,8 +528,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"
+    command: php-fpm --allow-to-run-as-root
       
 
 
@@ -559,8 +562,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root" 
+    command: php-fpm --allow-to-run-as-root
       
 
   php-fpm-7.4:
@@ -593,8 +595,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root" 
+    command: php-fpm --allow-to-run-as-root
       
   php-fpm-8.0:
     image: shinsenter/php:8.0-fpm
@@ -626,8 +627,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"
+    command: php-fpm --allow-to-run-as-root
    
       
 
@@ -661,8 +661,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"
+    command: php-fpm --allow-to-run-as-root
   
 
       
@@ -697,8 +696,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"
+    command: php-fpm --allow-to-run-as-root
       
 
   php-fpm-8.3:
@@ -731,8 +729,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"
+    command: php-fpm --allow-to-run-as-root
       
   php-fpm-8.4:
     image: shinsenter/php:8.4-fpm
@@ -764,8 +761,7 @@ services:
     networks:
       - www
       - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root" 
+    command: php-fpm --allow-to-run-as-root
 
 
   backup:

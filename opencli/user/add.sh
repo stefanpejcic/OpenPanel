@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: user/add.sh
 # Description: Create a new user with the provided plan_name.
-# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|varnish+nginx|varnish+apache|varnish+openresty>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>]
+# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>]
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 12.08.2025
+# Last Modified: 13.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -702,10 +702,10 @@ download_images() {
 	fi
 	
 	ws_type=$(get_env_value "WEB_SERVER")
-	valid_ws_types=("nginx" "apache" "openresty")
+	valid_ws_types=("nginx" "apache" "openresty" "openlitespeed")
 	if [[ -n "$ws_type" ]]; then
 	    if [[ ! " ${valid_ws_types[*]} " =~ " $ws_type " ]]; then
-	        echo "Warning: WEB_SERVER must be 'nginx', 'apache', or 'openresty', got '$ws_type'"
+	        echo "Warning: WEB_SERVER must be 'nginx', 'apache', 'openlitespeed', or 'openresty', got '$ws_type'"
 	        ws_type=""
 	    fi
 	else
@@ -1378,12 +1378,12 @@ if [[ -n "$webserver" ]]; then
         log "Setting varnish caching and $webserver as webserver for the user.."
         sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" \
 	-e "s|^#PROXY_HTTP_PORT|PROXY_HTTP_PORT|g" "/home/$username/.env"
-    elif [[ "$webserver" =~ ^(nginx|apache|openresty)$ ]]; then
+    elif [[ "$webserver" =~ ^(nginx|apache|openresty|openlitespeed)$ ]]; then
         log "Setting $webserver as webserver for the user.."
         sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" "/home/$username/.env"
         VARNISH=false
     else
-        log "Warning: invalid webserver type selected: $webserver. Must be 'nginx', 'apache', 'openresty', 'varnish+nginx', 'varnish+apache' or 'varnish+openresty'. Using the default instead.."
+        log "Warning: invalid webserver type selected: $webserver. Must be 'nginx', 'apache', 'openresty', 'openlitespeed' 'varnish+nginx', 'varnish+apache', 'varnish+openresty', or 'varnish+openlitespeed'. Using the default instead.."
     fi
 fi
 
@@ -1403,6 +1403,7 @@ mkdir -p /home/$username/sockets/{mysqld,postgres,redis,memcached}
 cp /etc/openpanel/mysql/user.cnf /home/${username}/custom.cnf
 cp /etc/openpanel/nginx/user-nginx.conf /home/$username/nginx.conf  # added in 1.2.2
 cp /etc/openpanel/openresty/nginx.conf /home/$username/openresty.conf
+cp /etc/openpanel/openlitespeed/httpd_config.conf /home/$username/openlitespeed.conf # added in 1.5.6
 cp /etc/openpanel/apache/httpd.conf /home/$username/httpd.conf
 cp /etc/openpanel/varnish/default.vcl /home/$username/default.vcl
 cp /etc/openpanel/ofelia/users.ini /home/$username/crons.ini  > /dev/null 2>&1 # added in 1.2.1
