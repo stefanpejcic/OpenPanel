@@ -6,6 +6,7 @@ sidebar_position: 1
 - [Test OpenPanel Demo](/docs/articles/support/how-to-access-openpanel-demo/)
 - [How to access OpenAdmin](/docs/articles/dev-experience/how-to-access-openadmin/)
 - [How to access Openpanel](/docs/articles/dev-experience/how-to-access-openpanel/)
+- [How to Reset a OpenPanel Account Password](/docs/articles/accounts/how-to-reset-openpanel-account-password)
 
 # Billing Integrations
 - [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling/)
