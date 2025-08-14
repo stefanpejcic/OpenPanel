@@ -23,11 +23,11 @@ Available in an community-supported version, and a more feature-filled version w
 │           👤 USER 1             │ │           👤 USER 2             │ │           👤 USER 3             │ 
 ├─────────────────────────────────┤ ├─────────────────────────────────┤ ├─────────────────────────────────┤
 │  🌐 Web Server:                 │ │  🌐 Web Server:                 │ │  🌐 Web Server:                 │
-│  • Nginx + Varnish              │ │  • Apache                       │ │  • OpenResty + Varnish          │
+│  • Nginx + Varnish              │ │  • OpenLitespeed                │ │  • Apache + Varnish             │
 │                                 │ │                                 │ │                                 │
 │  ⚡ Applications:               │ │  ⚡ Applications:               │ │  ⚡ Applications:               │
 │  • site1.com → PHP 8.4          │ │  • api.site.com → Node.js 20.1  │ │  • classic.com → PHP 7.0        │
-│  • site2.com → PHP 8.2          │ │  • main.site.com → PHP 7.4      │ │  • modern.com → PHP 8.1         │
+│  • site2.com → PHP 8.2          │ │  • main.site.com → PHP 8.3      │ │  • modern.com → PHP 8.1         │
 │  • legacy.com → PHP 7.0         │ │                                 │ │  • vintage.com → PHP 5.6        │
 │                                 │ │                                 │ │  • api.site.com → Python 3.11   │
 │                                 │ │                                 │ │                                 │
