@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Getting Started
+# Start Here
 - [Test OpenPanel Demo](/docs/articles/support/how-to-access-openpanel-demo/)
 - [How to access OpenAdmin](/docs/articles/dev-experience/how-to-access-openadmin/)
 - [How to access Openpanel](/docs/articles/dev-experience/how-to-access-openpanel/)
@@ -31,7 +31,8 @@ sidebar_position: 1
 
 # Configuration
 - [Branding and White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
-- [Add Custom section with icons in Dashboard](m/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard/)
+- [Add a Custom Message for OpenPanel User](/docs/articles/accounts/how-to-add-custom-message-in-openpanel/)
+- [Add Custom section with icons in Dashboard](/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard/)
 
 # Enterprise
 - [OpenPanel Pricing](/docs/articles/license/pricing/)
