@@ -320,7 +320,7 @@ export const LandingSweetSpot: FC<Props> = ({ className }) => {
 const list = [
     {
         title: "Nginx, Apache, Varnish",
-        description: `For each user you can choose to use Nginx, Apache, OpenResty or Varnish.`,
+        description: `For each user you can choose to use Nginx, OpenLitespeed, Apache, OpenResty or Varnish.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="-17.5 0 291 291" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
             <g>
