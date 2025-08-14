@@ -34,10 +34,9 @@ credentials-file: /etc/cloudflared/<TUNNEL-ID>.json
 
 ingress:
   - hostname: site1.example.com
-    service: http://localhost:8080
+    service: http://localhost
   - hostname: site2.example.com
-    service: http://localhost:8081
-  - service: http_status:404
+    service: http://localhost
 ```
 
 ---
