@@ -1,5 +1,11 @@
 #!/bin/bash
 
+
+# https://github.com/stefanpejcic/OpenPanel/issues/640
+CONFIG_FILE="/etc/openpanel/mysql/container_my.cnf"
+LINE="skip-ssl"
+grep -qxF "$LINE" "$CONFIG_FILE" || echo "$LINE" >> "$CONFIG_FILE"
+
 # https://my.openpanel.com/adminad/supporttickets.php?action=view&id=3937
 mysql --database=panel -e "
 ALTER TABLE domains CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
