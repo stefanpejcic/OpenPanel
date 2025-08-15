@@ -40,3 +40,9 @@ wget -O /etc/openpanel/openlitespeed/start.sh https://raw.githubusercontent.com/
 chmod +x /etc/openpanel/openlitespeed/start.sh
 
 
+# for sse
+wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
+
+
+
+
