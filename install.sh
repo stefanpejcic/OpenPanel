@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           14.08.2025
+# Last Modified:           15.08.2025
 #
 ################################################################################
 
@@ -639,7 +639,11 @@ docker_compose_up(){
 	
  	# added in 1.2.5 for dumping dbs
   	chmod +x /etc/openpanel/mysql/scripts/dump.sh
-
+   
+   
+ 	# added in 1.5.6 for openlitespeed
+  	chmod +x /etc/openpanel/openlitespeed/start.sh
+   
     # compose doesnt alllow /
     cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory."
     
