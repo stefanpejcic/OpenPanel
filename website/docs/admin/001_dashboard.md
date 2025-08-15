@@ -6,8 +6,6 @@ sidebar_position: 2
 
 The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
 
-![openadmin dashboard widget](/img/admin/dashboard/openadmin_dashboard_widget.gif)
-
 The dashboard page contains 13 widgets:
 
 - **Overview** widget: Displays the total number of nodes (servers), containers, users, domains, websites, hosting packages and email accounts.
@@ -16,7 +14,23 @@ The dashboard page contains 13 widgets:
 - **Latest News Activity** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
 
+## SSE Usage
+
+In the top-right corner of every page in **OpenAdmin**, administrators can monitor real-time resource usage, including **Load**, **Memory**, **CPU**, and **Disk**.
+
+Hovering over each metric provides detailed information:
+
+* **Load** – Average system load over 1, 5, and 15 minutes
+* **Memory** – Usage of physical memory and SWAP
+* **CPU** – Usage per CPU core
+* **Disk** – Usage per disk partition
+
+![SSE Widget](https://i.postimg.cc/9Q9DMPH0/openadmin-sse.gif)
+
 ## Resource Usage
+
+![openadmin dashboard widget](/img/admin/dashboard/openadmin_dashboard_widget.gif)
+
 
 The **Resource Usage** widget provides real-time monitoring of server resources, including:
 
