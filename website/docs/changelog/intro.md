@@ -10,10 +10,6 @@
 |---|---|
 |__[1.5.5](/docs/changelog/1.5.5)__| August 08, 2025 |
 
-| Version| Release date |
-|---|---|
-### Previous versions
-
 | Version| Release date | 
 |---|---|
 |__[1.5.4](/docs/changelog/1.5.4)__| August 07, 2025 |
