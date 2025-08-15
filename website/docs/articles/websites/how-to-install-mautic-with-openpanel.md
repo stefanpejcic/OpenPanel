@@ -1,6 +1,6 @@
 # How to Install Mautic® With OpenPanel
 
-Mautic provides free and open source marketing automation software available to everyone. Free email marketing and lead management software.
+[Mautic](https://mautic.org/) provides free and open source marketing automation software available to everyone. Free email marketing and lead management software.
 
 Before installing Mautic, make sure you've added a domain where the Mautic site will be hosted.
 
