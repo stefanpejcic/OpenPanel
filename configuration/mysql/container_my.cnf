@@ -3,3 +3,4 @@ user = panel
 database = panel
 password = NewPassword
 host = openpanel_mysql
+skip-ssl

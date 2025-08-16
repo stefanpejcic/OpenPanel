@@ -134,11 +134,11 @@ workers = min(calculated_workers, max_workers)
 worker_class = 'gevent'
 worker_connections = 1000
 timeout = 30
-graceful_timeout = 30
+graceful_timeout = 10
 keepalive = 2
 max_requests = 1000
 max_requests_jitter = 50
-pidfile = 'adminpanel'
+pidfile = 'openadmin'
 
 # BUG https://github.com/benoitc/gunicorn/issues/2382
 #errorlog = "-"   # Log to stdout
