@@ -50,7 +50,8 @@ LOGROTATE_CONF="/etc/logrotate.d/caddy-logs"
 
 # Write logrotate config for caddy logs (including subdirs)
 cat <<EOF > "$LOGROTATE_CONF"
-/var/log/caddy/**/*.log {
+/var/log/caddy/domlogs/coraza_waf/*.log
+/var/log/caddy/domlogs/domlogs/*/access.log {
     size $logrotate_size_limit
     rotate $logrotate_retention
     daily
@@ -61,7 +62,7 @@ cat <<EOF > "$LOGROTATE_CONF"
     copytruncate
     create 640 root adm
     postrotate
-        docker exec caddy kill -USR1 1
+        docker --context=default exec caddy bash -c "caddy validate && caddy reload" >/dev/null 2>&1
     endscript
     maxage $logrotate_keep_days
 }

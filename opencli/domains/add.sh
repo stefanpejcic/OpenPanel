@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 14.08.2025
+# Last Modified: 15.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1044,7 +1044,32 @@ add_domain() {
     fi
 }
 
+check_and_fix_FTP_permissions() {
+
+    # Get only the FTP list rows (skip the header)
+    real_path="/home/${user}/docker-data/volumes/${user}_html_data/_data/"
+    relative_path="${directory##/var/www/html/}"
+    new_directory="${real_path}${relative_path}"
+    # Check if docroot exists in the list
+	if opencli ftp-list "$user" \
+	    | tail -n +2 \
+	    | cut -d'|' -f2 \
+	    | sed 's/^ *//;s/ *$//' \
+	    | grep -Fxq "$docroot"; then
+
+        chown -R "$user:$user" "$new_directory"
+
+        chmod +rx "/home/$user"
+        chmod +rx "/home/$user/docker-data"
+        chmod +rx "/home/$user/docker-data/volumes"
+        chmod +rx "/home/$user/docker-data/volumes/${user}_html_data"
+        chmod +rx "/home/$user/docker-data/volumes/${user}_html_data/_data"
+    fi
+}
+
+
 check_subdomain_existing_onion
 get_php_version
 verify_docroot
 add_domain "$user_id" "$domain_name"
+check_and_fix_FTP_permissions
