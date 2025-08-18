@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           15.08.2025
+# Last Modified:           18.08.2025
 #
 ################################################################################
 
@@ -465,14 +465,12 @@ while [[ $# -gt 0 ]]; do
         --repair)
             REPAIR=true
             SKIP_PANEL_CHECK=true
-	    SKIP_APT_UPDATE=true
-            #SKIP_REQUIREMENTS=true
+	    	SKIP_APT_UPDATE=true
             ;;
         --retry)
             REPAIR=true
             SKIP_PANEL_CHECK=true
-	    SKIP_APT_UPDATE=true
-            #SKIP_REQUIREMENTS=true
+	    	SKIP_APT_UPDATE=true
             ;;
 
         --enable-dev-mode)
@@ -626,6 +624,11 @@ docker_compose_up(){
 		    debug_log "Function 'docker' has been added to $config_file."
 		    source "$config_file"
 		fi
+
+
+	if [ "$REPAIR" = true ]; then
+ 		systemctl start docker # needed after --retry
+  	fi
 
 	# https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
 	testing_docker=$(timeout 10 docker run --rm alpine echo "Hello from Alpine!")
@@ -1229,6 +1232,11 @@ opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
     git clone https://github.com/stefanpejcic/opencli.git
+
+	if [ ! -d "/usr/local/opencli" ]; then
+	 	radovan 1 "Failed to clone OpenCLI from Github - please retry install with '--retry --debug' flags."
+	fi
+ 
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
@@ -1410,27 +1418,14 @@ verify_license() {
 
 download_skeleton_directory_from_github(){
     echo "Downloading configuration files to ${ETC_DIR}"
+    git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
 
-    # Retry variables
-    MAX_RETRIES=5
-    RETRY_DELAY=5
-    ATTEMPT=1
-
-    while [ $ATTEMPT -le $MAX_RETRIES ]; do
-        git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
-
-        if [ -f "${CONFIG_FILE}" ]; then
-            echo -e "[${GREEN} OK ${RESET}] Configuration created successfully."
-            break
-        else
-            echo "Attempt $ATTEMPT of $MAX_RETRIES failed. Retrying in $RETRY_DELAY seconds..."
-            ((ATTEMPT++))
-            sleep $RETRY_DELAY
-        fi
-    done
+	if [ ! -d "$ETC_DIR" ]; then
+	 	radovan 1 "Failed to clone OpenPanel Configuration from Github - please retry install with '--retry --debug' flags."
+	fi
 
     if [ ! -f "${CONFIG_FILE}" ]; then
-        radovan 1 "Downloading configuration files from GitHub failed after $MAX_RETRIES attempts, main conf file ${CONFIG_FILE} is missing."
+        radovan 1 "Downloading configuration files from GitHub worked, but main conf file ${CONFIG_FILE} is missing."
     fi
 
     systemctl daemon-reload  > /dev/null 2>&1
@@ -1707,7 +1702,7 @@ install_openadmin(){
         debug_log echo "Downloading OpenAdmin files"
 
 
-        if [ "$architecture" == "aarch64" ]; then
+    if [ "$architecture" == "aarch64" ]; then
 		branch="armcpu"
   	else
    		branch="110"
@@ -1715,7 +1710,11 @@ install_openadmin(){
 
 	git clone -b $branch --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
 
-        cd $openadmin_dir
+	if [ ! -d "$openadmin_dir" ]; then
+	 	radovan 1 "Failed to clone OpenAdmin from Github - please retry install with '--retry --debug' flags."
+	fi
+
+    cd $openadmin_dir
 	python3.12 -m venv ${openadmin_dir}venv
 
 	source ${openadmin_dir}venv/bin/activate
