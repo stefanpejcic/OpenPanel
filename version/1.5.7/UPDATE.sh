@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Adding Mautic module.."
+echo "Adding Mautic, SSL and Docroot modules.."
 wget -O /etc/openpanel/openadmin/config/features.json  https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json
 
 
