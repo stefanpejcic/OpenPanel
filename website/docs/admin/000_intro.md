@@ -19,7 +19,7 @@ Supported OS:
 - **Ubuntu 24.04** (recommended)
 - **Debian [10](https://voidnull.es/instalacion-de-openpanel-en-debian-10/), 11 and 12**
 - **AlmaLinux 9.5** (recommended for ARM cpu)
-- **RockyLinux 9**
+- **RockyLinux 9.6**
 - **CentOS 9.5**
 
 :::info
