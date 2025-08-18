@@ -1,0 +1,176 @@
+---
+title: OpenPanel - cPanel Alternative
+description: Public beta is released!
+slug: openpanel-public-beta-released
+authors: stefanpejcic
+tags: [OpenPanel, news, version]
+image: https://openpanel.com/img/blog/public_beta_released.png
+hide_table_of_contents: true
+---
+
+OpenPanel BETA version is released! 🎉 🎉 
+
+<!--truncate-->
+
+
+
+### Web server
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Isolation**               | webserver per user                 | shared for all users                  |
+| **Apache**               | per user                 | shared                  |
+| **Nginx**               | per user                 | shared - only for caching                  |
+| **OpenLitespeed**               | per user                 | not supported                  |
+| **Varnish**               | per user                 | not supported                  |
+| **OpenResty**               | per user                 | not supported                  |
+| **User can edit configuration**               | yes                 | no                  |
+
+
+
+### Account
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **User can Change Username**               | yes                 | no                  |
+| **Feature sets**               | per user, per plan and global                 | per plan                  |
+| **Login log**               | detailed                 | IP and Timestamp                  |
+| **Activity log**               | visible by user                 | visible by administrator only                  |
+| **View Sessions**               | user can view all current sessions                 | no                  |
+
+
+### Pricing
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Ease of Use**               | 5/5                 | 5/5                  |
+| **Monthly Price**             | 14.95 EUR           | From 24.57 EUR to 200+ |
+
+
+### Crons
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Edit cron file**               | yes                 | no                  |
+| **View cron logs**               | yes                 | no                  |
+| **Format**               | named schedule + standard                 | standard                  |
+| **PHP version**               | name                 | path required                  |
+| **Minimum schedule**               | second                 | minute                  |
+| **Skip if already running**               | yes                 | no                  |
+| **Name/comment**               | yes                 | no                  |
+
+
+### System
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **ARM architesture**               | supported                 | [no](https://support.cpanel.net/hc/en-us/articles/1500000445202-Can-you-install-cPanel-WHM-on-ARM-architectures)                  |
+| **Isolated user and admin panels**               | yes                 | no                  |
+| **Set custom ports**               | yes                 | no, only: `2083` and `2087`                  |
+| **Process Manager**               | yes                 | no                  |
+| **Resource Usage**               | yes                 | only with Cloudlinux                  |
+| **Server Information**               | detailed                 | basic                  |
+
+
+### Caching
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Redis**               | yes                 | no, only with Litespeed                  |
+| **Memcached**               | yes                 | no                  |
+| **Varnish**               | yes                 | no                  |
+| **OpenLitespeed**               | yes                 | [not supported](https://support.cpanel.net/hc/en-us/articles/1500012917481-Can-I-install-Open-LiteSpeed-on-my-cPanel-server)                  |
+| **ElasticSearch**               | yes                 | no                  |
+| **OpenSearch**               | yes                 | no                  |
+
+
+### Domains
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **WAF per domain**               | yes                 | no                  |
+| **Exclude WAF rules per domain**               | yes                 | no                  |
+| **Varnish Caching per domain**               | yes                 | no                  |
+| **IDN Support**         | yes                 | no |
+| **Change Docroot**         | yes                 | not posible for primary domain                  |
+| **SSL**         | Generated on first `https://` request                | Needs to be pre-generated                  |
+| **Suspend Domains**         | yes                 | no                  |
+| **Edit VirtualHosts**         | yes                 | no                  |
+| **Reset DNS Zone**         | yes                 | no                  |
+| **Export DNS Zone**         | yes                 | no                  |
+| **Add comments to records**         | yes                 | no                  |
+| **Zone file editor**         | yes                 | no                  |
+| **Statistics**         | GoAccess                 | AWStats                  |
+
+
+
+### Databases
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Import Database**         | yes                 | no |
+| **Multiple versions**         | MySQL or MariaDB per user                 | no |
+| **Isolation**         | service per user                 | shared service |
+| **User can set MySQL limits**         | yes                 | no |
+| **User can set phpMyAdmin limits**         | yes                 | no |
+| **User can change version**         | yes                 | no |
+| **User can view process list**         | yes                 | no |
+| **`root` access**         | yes                 | no |
+| **`Remote Access**         | per user                 | global |
+| **Database prefix needed**         | no                | yes |
+| **Database Size in**         | B,K,M,G,T                | G |
+| **Disable database**         | yes                | no |
+
+
+### PHP
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Multiple PHP Versions**     | yes                 | yes                  |
+| **PHP Version per user**         | yes                 | no                  |
+| **Supported PHP Versions**     | 5.6 - 8.5          | [8.1+](https://support.cpanel.net/hc/en-us/articles/4412144152855-What-versions-of-PHP-does-cPanel-support)                  |
+| **PHP.INI Editor**         | yes                 | yes                  |
+| **Select PHP Version**         | yes                 | only with Cloudlinux                  |
+
+
+### NodeJS and Python
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Isolation**     | Containers                 | venv                  |
+| **Limit resource for app**     | yes                 | no                  |
+| **Supported NodeJS Versions**     | 6 - 24          | [18+](https://support.cpanel.net/hc/en-us/articles/360052155074-What-version-of-NodeJS-does-cPanel-offer)                  |
+| **Supported Python Versions**     | 2.7+          | [2.7+](https://support.cpanel.net/hc/en-us/articles/4404945911191-What-Versions-Of-Python-Are-Available-In-System-Repositories)                  |
+
+
+### File Manager
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Drag & drop upload**     | yes                 | no                  |
+| **Multiple file upload**     | yes                 | no                  |
+| **Download from URL**     | yes                 | no                  |
+| **README-md preview**     | yes                 | no                  |
+| **File Editor**     | yes                 | basic                  |
+| **Display Folder Size**     | yes                 | no                  |
+| **Edit wp-config.php behind Cloudflare**     | yes                 | no                  |
+| **Explore Inodes usage**     | yes                 | no                  |
+
+
+### Terminal
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Web Terminal**     | yes                 | yes                 |
+| **SSH**     | no                 | yes                  |
+
+
+
+### UX
+
+| Feature                      | OpenPanel              | cPanel               |
+|------------------------------|---------------------|----------------------|
+| **Dark Mode**     | yes                 | no                  |
+| **Keyboard Shortcuts**     | yes                 | no                  |
+| **Custom messages**     | per user                 | global                  |
+| **Add pages to Favorites**               | yes                 | no                  |
