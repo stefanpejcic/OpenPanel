@@ -328,6 +328,22 @@
     "help_link": ""
   },
   {
+    "name": "ssl",
+    "title": "SSL",
+    "description": "If enabled, users can view SSL configuration for domains and add custom certificates.",
+    "link": "/domains/ssl",
+    "type": "enterprise",
+    "help_link": ""
+  },
+    {
+    "name": "docroot",
+    "title": "Docroot",
+    "description": "If enabled, users can set and change document root (folder) for their domains.",
+    "link": "/domains/docroot",
+    "type": "community",
+    "help_link": ""
+  },
+  {
     "name": "capitalize_domains",
     "title": "Capitalize Domains",
     "description": "If enabled, users can capitalize letters in their domains.",

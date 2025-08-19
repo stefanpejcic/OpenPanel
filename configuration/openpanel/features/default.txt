@@ -37,6 +37,8 @@ fix_permissions
 malware_scan
 dns
 redirects
+ssl
+docroot
 domains
 capitalize_domains
 edit_vhost

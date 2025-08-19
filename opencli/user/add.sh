@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 15.08.2025
+# Last Modified: 18.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1267,7 +1267,7 @@ run_docker() {
 	}
 
     # Find available ports
-    log "Checking available ports to use for the docker container"
+    log "Checking available ports to use for the user"
     AVAILABLE_PORTS=$(find_available_ports)
 
     # Split the ports into variables

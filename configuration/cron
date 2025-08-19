@@ -36,6 +36,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 
 # MONITORING
-*/5 * * * * root /bin/bash /usr/local/opencli sentinel && echo "$(date) Notifications script executed" >> /var/log/openpanel/admin/cron.log
-45 11 * * * root /bin/bash /usr/local/opencli sentinel --report && echo "$(date) Daily Usage Report generated" >> /var/log/openpanel/admin/cron.log
-@reboot root /bin/bash /usr/local/opencli sentinel --startup && echo "$(date) Notifications script executed at startup" >> /var/log/openpanel/admin/cron.log
+*/5 * * * * root /usr/local/bin/opencli sentinel && echo "$(date) Notifications script executed" >> /var/log/openpanel/admin/cron.log
+45 11 * * * root /usr/local/bin/opencli sentinel --report && echo "$(date) Daily Usage Report generated" >> /var/log/openpanel/admin/cron.log
+@reboot root root /usr/local/bin/opencli sentinel --startup && echo "$(date) Notifications script executed at startup" >> /var/log/openpanel/admin/cron.log
