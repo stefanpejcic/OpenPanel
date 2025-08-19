@@ -24,7 +24,7 @@ for vhfile in /usr/local/lsws/conf/vhosts/*.conf; do
     echo "[✓] $domain already exists"
     continue
   fi
-    "echo [!] Creating include section for domain: $domain"
+    echo "[!] Creating include section for domain: $domain"
 
   # Build block with real newlines
   new_blocks+=$'vhTemplate '"$domain"' {\n'
