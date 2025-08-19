@@ -74,7 +74,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | Ubuntu                 | 22.04, 24.04                         | **Recommended for AMD CPU**  |
 | Debian                 | [10](https://voidnull.es/instalacion-de-openpanel-en-debian-10/), 11, 12 | [The repository 'bookworm-backports InRelease' is not signed. #495](https://github.com/stefanpejcic/OpenPanel/issues/495)|
 | AlmaLinux              | 9.5                                  | *Rrecommended for ARM CPU* |
-| RockyLinux            | 9.3                                  |                                      |
+| RockyLinux            | 9.6                                  |                                      |
 | CentOS                 | 9.5                                  |                                      |
 
 
