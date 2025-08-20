@@ -786,60 +786,23 @@ setup_firewall_service() {
           }
 
 
-            function open_port_csf() {
-                local port=$1
-                local csf_conf="/etc/csf/csf.conf"
-                
-                # IPv4
-                port_opened_v4=$(grep "TCP_IN = .*${port}" "$csf_conf")
-                if [ -z "$port_opened_v4" ]; then
-                    sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
-                    echo -e "Port ${GREEN} ${port} ${RESET} is now open in IPv4."
-                    ports_opened=1
-                else
-                    echo -e "Port ${GREEN} ${port} ${RESET} is already open for IPv4."
-                fi
-		# IPv6
-                port_opened_v6=$(grep "TCP_IN = .*${port}" "$csf_conf")
-                if [ -z "$port_opened_v6" ]; then
-                    sed -i "s/TCP6_IN = \"\(.*\)\"/TCP6_IN = \"\1,${port}\"/" "$csf_conf"
-                    echo -e "Port ${GREEN} ${port} ${RESET} is now open in IPv6."
-                    ports_opened=1
-                else
-                    echo -e "Port ${GREEN} ${port} ${RESET} is already open in IPv6."
-                fi
-  
-            }
+	
+	open_csf_port() {
+	    local type=$1   # TCP_IN or TCP_OUT
+	    local port=$2
+	    local csf_conf="/etc/csf/csf.conf"
+	
+	    for dir in "$type" "${type/4/6}"; do
+	        if grep -q "${dir} = .*${port}" "$csf_conf"; then
+	            echo "Port $port already open in $dir"
+	        else
+	            sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$csf_conf"
+	            echo "Port $port opened in $dir"
+	        fi
+	    done
+	}
 
-    
-            function open_tcpout_csf() {
-                local port=$1
-                local csf_conf="/etc/csf/csf.conf"
-                local v4_status=""
-		local v6_status=""
-  
-                # IPv4
-		if grep -q "TCP_OUT = .*${port}" "$csf_conf"; then
-                     v4_status="IPv4:already open"
-		else
-                     sed -i "s/TCP_OUT = \"\(.*\)\"/TCP_OUT = \"\1,${port}\"/" "$csf_conf"
-		     v4_status="IPv4:opened"
-                     ports_opened=1
-                fi
-
-                # IPv6
-                if grep -q "TCP6_OUT = .*${port}" "$csf_conf"; then
-                     v6_status="IPv6:already open"
-                else
-                     sed -i "s/TCP6_OUT = \"\(.*\)\"/TCP6_OUT = \"\1,${port}\"/" "$csf_conf"
-                     v6_status="IPv6:opened"
-		     ports_opened=1
-                fi
-
-                echo -e "Port ${GREEN}${port}${RESET} → $v4_status, $v6_status"
-            }
-
-          edit_csf_conf() {
+    edit_csf_conf() {
 	  	echo "Tweaking /etc/csf/csf.conf"
 	  	sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
 	  	sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
@@ -859,9 +822,9 @@ setup_firewall_service() {
               fi
           }
       
-	function extract_port_from_file() {
-	    local file_path=$1
-	    local pattern=$2
+	function sshd_port() {
+	    local file_path="/etc/ssh/sshd_config"
+	    local pattern='Port'
 	    local port=$(grep -Po "(?<=${pattern}[ =])\d+" "$file_path")
 	    echo "$port"
 	}
@@ -876,32 +839,31 @@ setup_firewall_service() {
 
 
        
-          install_csf
-          edit_csf_conf 
-	  disable_firewalld    # https://github.com/stefanpejcic/OpenPanel/issues/582
-          open_tcpout_csf 3306                                                  # mysql tcp_out only
-	  open_tcpout_csf 465                                                   # for emails
-	  open_tcpout_csf 2087                                                  # for openadmin api
-          open_port_csf 22                                                      # ssh
-          open_port_csf 53                                                      # dns
-          open_port_csf 80                                                      # http
-          open_port_csf 443                                                     # https
-          open_port_csf 2083                                                    # user
-          open_port_csf 2087                                                    # admin
-          open_port_csf $(extract_port_from_file "/etc/ssh/sshd_config" "Port") # ssh
-          open_port_csf 32768:60999                                             # docker
-	  open_port_csf 21                                                      # ftp
-	  open_port_csf 21000:21010                                             # passive ftp
-          set_csf_email_address
-          csf -r    > /dev/null 2>&1
+        install_csf
+        edit_csf_conf 
+	  	disable_firewalld    # https://github.com/stefanpejcic/OpenPanel/issues/582
+   
+		# OUT ports
+		for p in 3306 465 2087; do
+		    open_csf_port TCP_OUT "$p"
+		done
+		
+		# IN ports
+		for p in 22 53 80 443 2083 2087 32768:60999 21 21000:21010 \
+  				$(sshd_port); do
+		    open_csf_port TCP_IN "$p"
+		done
+  
+	  set_csf_email_address
+	  csf -r    > /dev/null 2>&1
 	  echo "Restarting CSF service"
-          systemctl restart docker                                              # not sure why
-          systemctl enable csf
-          systemctl restart csf                                                   # also restarts docker at csfpost.sh
+	  systemctl restart docker                                              # not sure why
+	  systemctl enable csf
+	  systemctl restart csf                                                   # also restarts docker at csfpost.sh
 
-          # https://github.com/stefanpejcic/OpenPanel/issues/338
-          touch /usr/sbin/sendmail
-          chmod +x /usr/sbin/sendmail
+	  # https://github.com/stefanpejcic/OpenPanel/issues/338
+	  touch /usr/sbin/sendmail
+	  chmod +x /usr/sbin/sendmail
    
    	if command -v csf > /dev/null 2>&1; then
 		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
