@@ -11,7 +11,7 @@ interface ApiData {
   last_updated: string;
 }
 
-const Demo: React.FC = () => {
+const Stats: React.FC = () => {
   const [data, setData] = useState<ApiData | null>(null);
 
   useEffect(() => {
@@ -109,4 +109,4 @@ const Demo: React.FC = () => {
   );
 };
 
-export default Demo;
+export default Stats;
