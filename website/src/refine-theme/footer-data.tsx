@@ -32,7 +32,6 @@ export const menuItems = [
             },
             {
                 label: "Install Command",
-                icon: <NewBadgeIcon />,
                 href: "/install",
             },
         ],
@@ -65,6 +64,11 @@ export const menuItems = [
                 label: "Blog",
                 href: "/blog",
             },
+            {
+                label: "Statistics",
+                icon: <NewBadgeIcon />,
+                href: "/statistics",
+            },            
             {
                 label: "Contact",
                 href: "mailto:info@openpanel.com",
