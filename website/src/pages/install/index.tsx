@@ -14,6 +14,7 @@ interface InstallOption {
 type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
+    key: { value: "", description: "Set Enterprise license key." },
     domain: { value: "", description: "Set the domain to be used for accessing panels." },
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
     username: { value: "", description: "Set admin username (by default random generated)." },
@@ -115,6 +116,8 @@ const Install: React.FC = () => {
                                                     ? "^[a-zA-Z0-9]+$"
                                                     : key === "domain"
                                                     ? "^(?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.[A-Za-z]{2,6}$"
+                                                    : key === "key"
+                                                    ? "^enterprise-.*$"
                                                     : undefined
                                             }
                                             title={
@@ -122,6 +125,8 @@ const Install: React.FC = () => {
                                                     ? "Only letters and numbers are allowed"
                                                     : key === "domain"
                                                     ? "Enter a valid domain, e.g. openpanel.server.com"
+                                                    : key === "key"
+                                                    ? "License key must start with 'enterprise-'"
                                                     : undefined
                                             }
                                             className="mr-2 w-40 px-1 py-2 text-sm dark:placeholder-gray-500 placeholder-gray-400 dark:text-gray-500 text-gray-400 dark:bg-gray-900 bg-white border dark:border-gray-700 border-gray-300 rounded-lg resize-none"
