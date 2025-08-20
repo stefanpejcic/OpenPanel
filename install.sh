@@ -40,7 +40,6 @@ IMUNIFY_AV=true                                                       # setup im
 SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false                                        # send admin logins to specified email
 SET_PREMIUM=false                                                     # added in 0.2.1
-CSF_SETUP=true                                                        # default since >0.2.2
 SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
 SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
@@ -80,7 +79,7 @@ print_header() {
 install_started_message(){
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
-    if [ "$CSF_SETUP" = true ]; then
+    if [ "$SKIP_FIREWALL" = false ]; then
     	echo -e "- Install necessary services and tools: CSF, Docker, MySQL, SQLite, Python3, PIP.. "
     else
 	echo -e "- Install necessary services and tools: Docker, MySQL, SQLite, Python3, PIP.. "
@@ -94,7 +93,7 @@ install_started_message(){
     else
 	echo -e "- Create an admin account with random username and strong password for you."
     fi
-    if [ "$CSF_SETUP" = true ]; then
+    if [ "$SKIP_FIREWALL" = false ]; then
     	echo -e "- Set up ConfigServer Firewall for enhanced security."
     fi
 
@@ -431,9 +430,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-imunifyav)
             IMUNIFY_AV=false
-            ;;	    
-        --csf)
-            CSF_SETUP=true
             ;;
         --no-waf)
             CORAZA=false
@@ -761,7 +757,6 @@ setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
 
-        if [ "$CSF_SETUP" = true ]; then
           echo "Installing ConfigServer Firewall.."
         
           install_csf() {
@@ -779,8 +774,6 @@ setup_firewall_service() {
       		# fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module) 
 		if [ -f /etc/fedora-release ]; then
   			debug_log yum --allowerasing install perl -y
-  		fi
-
 
       
 	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
