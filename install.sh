@@ -375,7 +375,6 @@ parse_args() {
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
         echo "  --skip-firewall                 Skip installing CSF - Only do this if you will set another external firewall!"
-        echo "  --csf                           Install and setup ConfigServer Firewall  (default from >0.2.3)"
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
