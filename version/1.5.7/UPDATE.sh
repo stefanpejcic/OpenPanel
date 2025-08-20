@@ -10,3 +10,12 @@ echo "Fix for crons page..
 FILE="/etc/cron.d/openpanel"
 sed -i 's|root /bin/bash |root |' "$FILE"
 sed -i 's|/usr/local/opencli|/usr/local/bin/opencli|g' "$FILE"
+
+
+echo "OpenLitespeed.."
+
+mkdir -p /etc/openpanel/openlitespeed
+wget -O /etc/openpanel/nginx/vhosts/1.1/docker_openlitespeed_domain.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/vhosts/1.1/docker_openlitespeed_domain.conf
+wget -O /etc/openpanel/openlitespeed/httpd_config.conf https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openlitespeed/httpd_config.conf
+wget -O /etc/openpanel/openlitespeed/start.sh https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openlitespeed/start.sh
+chmod +x /etc/openpanel/openlitespeed/start.sh
