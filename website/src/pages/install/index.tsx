@@ -28,6 +28,7 @@ const defaultOptions: InstallOptions = {
     "no-ssh": { value: false, description: "Disable port 22 and whitelist administrator IP address." },
     "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
     "post-install": { value: "", description: "Specify the post install script path." },
+    "swap": { value: "", description: "Set size in GB for the swap partition." },
     screenshots: { value: "remote", description: "Set the screenshots API URL.", options: ["local", "remote"] },
     debug: { value: false, description: "Display debug information during installation." },
     repair: { value: false, description: "Retry and overwrite everything." },
@@ -47,17 +48,15 @@ const Install: React.FC = () => {
     const generateInstallCommand = () => {
         let command = "bash <(curl -sSL https://openpanel.org)";
         for (const [option, config] of Object.entries(installOptions)) {
-            if (option !== "version") {
-                if (config.value || ["version", "hostname", "email", "screenshots", "docker-space", "post-install"].includes(option)) {
-                    if (option === "screenshots" && config.value === "local") {
-                        command += ` --screenshots=local`;
-                    } else if (option === "screenshots" && config.value === "remote") {
-                        command += ``;
-                    } else if (config.value !== "" && config.value !== false) {
-                        command += ` --${option}`;
-                        if (config.value !== true) {
-                            command += `=${config.value}`;
-                        }
+            if (config.value || ["hostname", "email", "screenshots", "docker-space", "post-install"].includes(option)) {
+                if (option === "screenshots" && config.value === "local") {
+                    command += ` --screenshots=local`;
+                } else if (option === "screenshots" && config.value === "remote") {
+                    command += ``;
+                } else if (config.value !== "" && config.value !== false) {
+                    command += ` --${option}`;
+                    if (config.value !== true) {
+                        command += `=${config.value}`;
                     }
                 }
             }
