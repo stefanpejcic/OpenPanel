@@ -389,87 +389,37 @@ parse_args() {
 # Change defaults
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --key=*)
-            SET_PREMIUM=true
-            license_key="${1#*=}"
+        --key=*|--domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*)
+            opt="${1%%=*}"
+            val="${1#*=}"
+            case "$opt" in
+                --key)         SET_PREMIUM=true;          license_key="$val" ;;
+                --domain)      SET_HOSTNAME_NOW=true;     new_hostname="$val" ;;
+                --username)    SET_ADMIN_USERNAME=true;   custom_username="$val" ;;
+                --password)    SET_ADMIN_PASSWORD=true;   custom_password="$val" ;;
+                --post_install) post_install_path="$val" ;;
+                --screenshots) SCREENSHOTS_API_URL="$val" ;;
+                --version)     CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
+                --swap)        SETUP_SWAP_ANYWAY=true;    SWAP="$val" ;;
+                --email)       SEND_EMAIL_AFTER_INSTALL=true; EMAIL="$val" ;;
+            esac
             ;;
-        --domain=*)
-            SET_HOSTNAME_NOW=true
-            new_hostname="${1#*=}"
-            ;;
-        --username=*)
-            SET_ADMIN_USERNAME=true
-            custom_username="${1#*=}"
-            ;;
-        --password=*)
-            SET_ADMIN_PASSWORD=true
-            custom_password="${1#*=}"
-            ;;
-        --skip-requirements)
-            SKIP_REQUIREMENTS=true
-            ;;
-        --skip-panel-check)
+        --skip-requirements)   SKIP_REQUIREMENTS=true ;;
+        --skip-panel-check)    SKIP_PANEL_CHECK=true ;;
+        --skip-apt-update)     SKIP_APT_UPDATE=true ;;
+        --skip-dns-server)     SKIP_DNS_SERVER=true ;;
+        --skip-firewall)       SKIP_FIREWALL=true ;;
+        --skip-imunifyav)      IMUNIFY_AV=false ;;
+        --no-waf)              CORAZA=false ;;
+        --debug)               DEBUG=true ;;
+        --no-ssh)              NO_SSH=true ;;
+        --repair|--retry)
+            REPAIR=true
             SKIP_PANEL_CHECK=true
-            ;;
-        --skip-apt-update)
             SKIP_APT_UPDATE=true
             ;;
-        --skip-dns-server)
-            SKIP_DNS_SERVER=true
-            ;;
-        --skip-firewall)
-            SKIP_FIREWALL=true
-            ;;
-        --skip-imunifyav)
-            IMUNIFY_AV=false
-            ;;
-        --no-waf)
-            CORAZA=false
-            ;;
-        --debug)
-            DEBUG=true
-            ;;
-        --no-ssh)
-            NO_SSH=true
-            ;;
-        --post_install=*)
-            post_install_path="${1#*=}"
-            ;;
-        --screenshots=*)
-            SCREENSHOTS_API_URL="${1#*=}"
-            ;;
-        --version=*)
-            CUSTOM_VERSION=true
-            PANEL_VERSION="${1#*=}"
-            ;;
-        --swap=*)
-            SETUP_SWAP_ANYWAY=true
-            SWAP="${1#*=}"
-            ;;
-        --email=*)
-            SEND_EMAIL_AFTER_INSTALL=true
-            EMAIL="${1#*=}"
-            ;;
-        --repair)
-            REPAIR=true
-            SKIP_PANEL_CHECK=true
-	    	SKIP_APT_UPDATE=true
-            ;;
-        --retry)
-            REPAIR=true
-            SKIP_PANEL_CHECK=true
-	    	SKIP_APT_UPDATE=true
-            ;;
-
-        --enable-dev-mode)
-            DEV_MODE=true
-            ;;
-
-     
-        -h|--help)
-            show_help
-            exit 0
-            ;;
+        --enable-dev-mode)     DEV_MODE=true ;;
+        -h|--help)             show_help; exit 0 ;;
         *)
             echo "Unknown option: $1"
             show_help
@@ -478,7 +428,6 @@ while [[ $# -gt 0 ]]; do
     esac
     shift
 done
-
 }
 
 
