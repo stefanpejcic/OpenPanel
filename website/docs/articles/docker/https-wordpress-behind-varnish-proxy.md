@@ -7,3 +7,6 @@ For WordPress, adding the following code in wp-config.php is enough:
 ```
 define('FORCE_SSL_ADMIN', true); if ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') $_SERVER['HTTPS']='on';
 ```
+
+
+> **EDIT**: From version 1.5.7 this is automatically added for new WP installations.
