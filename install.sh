@@ -697,122 +697,115 @@ tweak_ssh(){
 setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
         echo "Setting up the firewall.."
+        echo "Installing ConfigServer Firewall.."
 
-          echo "Installing ConfigServer Firewall.."
-        
-          install_csf() {
-              wget --inet4-only https://download.configserver.com/csf.tgz > /dev/null 2>&1
-              debug_log tar -xzf csf.tgz
-	      rm csf.tgz
-              cd csf
-	      sh install.sh > /dev/null 2>&1
-              cd ..
-	      rm -rf csf
-              #perl /usr/local/csf/bin/csftest.pl
-		echo "Setting CSF auto-login from OpenAdmin interface.."
-	    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
-	    	debug_log dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
-      		# fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module) 
-		if [ -f /etc/fedora-release ]; then
-  			debug_log yum --allowerasing install perl -y
+        install_csf() {
+            wget --inet4-only https://download.configserver.com/csf.tgz > /dev/null 2>&1
+            debug_log tar -xzf csf.tgz
+            rm csf.tgz
+            cd csf
+            sh install.sh > /dev/null 2>&1
+            cd ..
+            rm -rf csf
+            #perl /usr/local/csf/bin/csftest.pl
+            echo "Setting CSF auto-login from OpenAdmin interface.."
+            if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+                debug_log dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
+                # fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module) 
+                if [ -f /etc/fedora-release ]; then
+                    debug_log yum --allowerasing install perl -y
+                elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+                   debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+                fi
+                # play nice with docker
+                git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
+                mv csfpost-docker.sh/csfpost.sh /usr/local/csf/bin/csfpost.sh
+                chmod +x /usr/local/csf/bin/csfpost.sh
+                rm -rf csfpost-docker.sh
+            fi
+        }
 
-      
-	    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-              	debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
-	    fi
-              # play nice with docker
-              git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
-              mv csfpost-docker.sh/csfpost.sh  /usr/local/csf/bin/csfpost.sh
-              chmod +x /usr/local/csf/bin/csfpost.sh
-              rm -rf csfpost-docker.sh             
-          }
+        open_csf_port() {
+            local type=$1   # TCP_IN or TCP_OUT
+            local port=$2
+            local csf_conf="/etc/csf/csf.conf"
 
+            for dir in "$type" "${type/4/6}"; do
+                if grep -q "${dir} = .*${port}" "$csf_conf"; then
+                    echo "Port $port already open in $dir"
+                else
+                    sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$csf_conf"
+                    echo "Port $port opened in $dir"
+                fi
+            done
+        }
 
-	
-	open_csf_port() {
-	    local type=$1   # TCP_IN or TCP_OUT
-	    local port=$2
-	    local csf_conf="/etc/csf/csf.conf"
-	
-	    for dir in "$type" "${type/4/6}"; do
-	        if grep -q "${dir} = .*${port}" "$csf_conf"; then
-	            echo "Port $port already open in $dir"
-	        else
-	            sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$csf_conf"
-	            echo "Port $port opened in $dir"
-	        fi
-	    done
-	}
+        edit_csf_conf() {
+            echo "Tweaking /etc/csf/csf.conf"
+            sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
+            sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
+            sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
+            sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
 
-    edit_csf_conf() {
-	  	echo "Tweaking /etc/csf/csf.conf"
-	  	sed -i 's/TESTING = "1"/TESTING = "0"/' /etc/csf/csf.conf
-	  	sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
-	  	sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
-	  	sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
-	  	
-    		echo "Copying CSF blocklists"
-    		# https://github.com/stefanpejcic/OpenPanel/issues/573
-		cp /etc/openpanel/csf/csf.blocklists /etc/csf/csf.blocklists
-          }
-      
-          set_csf_email_address() {
-              email_address=$(grep -E "^e-mail=" $CONFIG_FILE | cut -d "=" -f2)
-       
-              if [[ -n "$email_address" ]]; then
-                  sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
-              fi
-          }
-      
-	function sshd_port() {
-	    local file_path="/etc/ssh/sshd_config"
-	    local pattern='Port'
-	    local port=$(grep -Po "(?<=${pattern}[ =])\d+" "$file_path")
-	    echo "$port"
-	}
+            echo "Copying CSF blocklists"
+            # https://github.com/stefanpejcic/OpenPanel/issues/573
+            cp /etc/openpanel/csf/csf.blocklists /etc/csf/csf.blocklists
+        }
 
-	disable_firewalld() {
-	 	echo "Stopping and disabling firewalld..."
-		if systemctl is-active --quiet firewalld; then
-		    systemctl stop firewalld > /dev/null 2>&1
-		fi
-		systemctl disable firewalld > /dev/null 2>&1
-  	}
+        set_csf_email_address() {
+            email_address=$(grep -E "^e-mail=" $CONFIG_FILE | cut -d "=" -f2)
 
+            if [[ -n "$email_address" ]]; then
+                sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
+            fi
+        }
 
-       
+        function sshd_port() {
+            local file_path="/etc/ssh/sshd_config"
+            local pattern='Port'
+            local port=$(grep -Po "(?<=${pattern}[ =])\d+" "$file_path")
+            echo "$port"
+        }
+
+        disable_firewalld() {
+            echo "Stopping and disabling firewalld..."
+            if systemctl is-active --quiet firewalld; then
+                systemctl stop firewalld > /dev/null 2>&1
+            fi
+            systemctl disable firewalld > /dev/null 2>&1
+        }
+
         install_csf
         edit_csf_conf 
-	  	disable_firewalld    # https://github.com/stefanpejcic/OpenPanel/issues/582
-   
-		# OUT ports
-		for p in 3306 465 2087; do
-		    open_csf_port TCP_OUT "$p"
-		done
-		
-		# IN ports
-		for p in 22 53 80 443 2083 2087 32768:60999 21 21000:21010 \
-  				$(sshd_port); do
-		    open_csf_port TCP_IN "$p"
-		done
-  
-	  set_csf_email_address
-	  csf -r    > /dev/null 2>&1
-	  echo "Restarting CSF service"
-	  systemctl restart docker                                              # not sure why
-	  systemctl enable csf
-	  systemctl restart csf                                                   # also restarts docker at csfpost.sh
+        disable_firewalld    # https://github.com/stefanpejcic/OpenPanel/issues/582
 
-	  # https://github.com/stefanpejcic/OpenPanel/issues/338
-	  touch /usr/sbin/sendmail
-	  chmod +x /usr/sbin/sendmail
-   
-   	if command -v csf > /dev/null 2>&1; then
-		echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
-	else
-		echo -e "[${RED} X  ${RESET}] ConfigServer Firewall is not installed properly."
- 	fi
-    fi
+        # OUT ports
+        for p in 3306 465 2087; do
+            open_csf_port TCP_OUT "$p"
+        done
+
+        # IN ports
+        for p in 22 53 80 443 2083 2087 32768:60999 21 21000:21010 \
+            $(sshd_port); do
+            open_csf_port TCP_IN "$p"
+        done
+
+        set_csf_email_address
+        csf -r    > /dev/null 2>&1
+        echo "Restarting CSF service"
+        systemctl restart docker                                                # not sure why
+        systemctl enable csf
+        systemctl restart csf                                                   # also restarts docker at csfpost.sh
+
+        # https://github.com/stefanpejcic/OpenPanel/issues/338
+        touch /usr/sbin/sendmail
+        chmod +x /usr/sbin/sendmail
+
+        if command -v csf > /dev/null 2>&1; then
+            echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
+        else
+            echo -e "[${RED} X  ${RESET}] ConfigServer Firewall is not installed properly."
+        fi
     fi
 }
 
