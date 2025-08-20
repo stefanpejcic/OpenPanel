@@ -4,29 +4,43 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 
+interface ApiData {
+  active_install: number;
+  recent_updates: number;
+  latest_version: string;
+  last_updated: string;
+}
+
 const Demo: React.FC = () => {
-  const [version, setVersion] = useState("8000"); // default/fallback
+  const [data, setData] = useState<ApiData | null>(null);
 
   useEffect(() => {
-    const fetchVersion = async () => {
+    const fetchData = async () => {
       try {
         const response = await fetch(
           "https://usage-api.openpanel.org/active_install"
         );
-        const data = await response.json();
-        if (data && data.active_install) {
-          setVersion(data.active_install);
-        }
+        const json = await response.json();
+        setData(json);
       } catch (err) {
         console.error("Failed to fetch data:", err);
       }
     };
-    fetchVersion();
+    fetchData();
   }, []);
+
+  // Format the last_updated date
+  const formattedDate = data
+    ? new Date(data.last_updated).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      })
+    : "";
 
   return (
     <CommonLayout>
-      <Head title="Active Installations Counter | OpenPanel">
+      <Head title="Usage Statistics | OpenPanel">
         <html data-page="docs" data-customized="true" />
       </Head>
 
@@ -40,17 +54,51 @@ const Demo: React.FC = () => {
             style={{ scrollMarginTop: "6rem" }}
           >
             <div className="w-full rounded-2xl landing-md:rounded-3xl relative overflow-hidden transition-[min-height,height] duration-300 ease-out min-h-[515px]">
-              <div className="relative flex flex-col landing-md:flex-row w-full transition-[transform,opacity,margin-bottom] duration-300 ease-in-out">
-                <div className="flex-1 rounded-2xl landing-md:rounded-3xl landing-md:rounded-tr-none landing-md:rounded-br-none flex flex-col gap-6 landing-sm:gap-10 pt-4 landing-sm:pt-10 landing-md:pt-16 px-4 landing-sm:px-10 pb-14 landing-sm:pb-20 landing-md:pb-16 bg-gray-50 dark:bg-gray-800 landing-md:bg-landing-wizard-option-bg-light dark:landing-md:bg-landing-wizard-option-bg-dark landing-md:bg-landing-wizard-option-left landing-md:bg-landing-wizard-option"
-                     style={{ backgroundRepeat: "no-repeat, repeat" }}>
-                  <p className="text-[32px] leading-[40px] tracking-[-0.5%] landing-sm:text-[56px] landing-sm:leading-[72px] landing-sm:tracking-[-2%] font-extrabold text-gray-900 dark:text-gray-0">
-                    {version}
-                  </p>
-                  <div class="text-[24px] landing-sm:mt-6 text-base dark:text-gray-400 text-gray-600">
-                      Active Installations 🎉
-                  </div>
+              {data && (
+                <div className="grid grid-cols-1 landing-sm:grid-cols-2 gap-4 landing-sm:gap-6">
+                  <a 
+                    href="https://openpanel.com/docs/changelog/{data.latest_version}"
+                    className="block not-prose p-4 landing-sm:py-4 landing-sm:px-10 dark:bg-landing-noise dark:bg-gray-800 bg-gray-50 rounded-2xl landing-sm:rounded-3xl no-underline">
+                    <div className="whitespace-nowrap text-[40px] leading-[48px] landing-sm:text-[64px] landing-sm:leading-[72px] dark:bg-landing-stats-text-dark bg-landing-stats-text bg-clip-text text-transparent font-bold drop-shadow-2xl">
+                      {data.latest_version}
+                    </div>
+                    <div className="mt-2 landing-sm:mt-6 text-base dark:text-gray-400 text-gray-600">
+                      Latest Version
+                    </div>
+                  </a>
+
+                  <a className="block not-prose p-4 landing-sm:py-4 landing-sm:px-10 dark:bg-landing-noise dark:bg-gray-800 bg-gray-50 rounded-2xl landing-sm:rounded-3xl no-underline">
+                    <div className="whitespace-nowrap text-[40px] leading-[48px] landing-sm:text-[64px] landing-sm:leading-[72px] dark:bg-landing-stats-text-dark bg-landing-stats-text bg-clip-text text-transparent font-bold drop-shadow-2xl">
+                      {formattedDate}
+                    </div>
+                    <div className="mt-2 landing-sm:mt-6 text-base dark:text-gray-400 text-gray-600">
+                      Latest Update
+                    </div>
+                  </a>
+
+                  <a
+                    className="block not-prose p-4 landing-sm:py-4 landing-sm:px-10 dark:bg-landing-noise dark:bg-gray-800 bg-gray-50 rounded-2xl landing-sm:rounded-3xl no-underline"
+                  >
+                    <div className="whitespace-nowrap text-[40px] leading-[48px] landing-sm:text-[64px] landing-sm:leading-[72px] dark:bg-landing-stats-text-dark bg-landing-stats-text bg-clip-text text-transparent font-bold drop-shadow-2xl">
+                      {data.active_install}
+                    </div>
+                    <div className="mt-2 landing-sm:mt-6 text-base dark:text-gray-400 text-gray-600">
+                      Active Installations
+                    </div>
+                  </a>
+
+                  <a 
+                    href="/docs/changelog/intro/"
+                    className="block not-prose p-4 landing-sm:py-4 landing-sm:px-10 dark:bg-landing-noise dark:bg-gray-800 bg-gray-50 rounded-2xl landing-sm:rounded-3xl no-underline">
+                    <div className="whitespace-nowrap text-[40px] leading-[48px] landing-sm:text-[64px] landing-sm:leading-[72px] dark:bg-landing-stats-text-dark bg-landing-stats-text bg-clip-text text-transparent font-bold drop-shadow-2xl">
+                      {data.recent_updates}
+                    </div>
+                    <div className="mt-2 landing-sm:mt-6 text-base dark:text-gray-400 text-gray-600">
+                      Updates in last 30 days
+                    </div>
+                  </a>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
