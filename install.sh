@@ -1237,38 +1237,35 @@ set_email_address_and_email_admin_logins(){
 
 
 
-
-
 generate_and_set_ssl_for_panels() {
     if [ "$SET_HOSTNAME_NOW" = true ]; then
         echo "Checking if SSL can be generated for the server hostname.."
-	CADDYFILE="/etc/openpanel/caddy/Caddyfile"
-	HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
+        CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+        HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
 
- 	if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then    
-     	    cd /root && docker --context default compose up -d caddy               # start and generate ssl
+        if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
+            cd /root && docker --context default compose up -d caddy               # start and generate ssl
 
-		MAX_RETRIES=5
-		SLEEP_SECONDS=5
-		SUCCESS=0
-		for ((i=1; i<=MAX_RETRIES; i++)); do
-		    debug_log echo "Attempt $i to generate SSL for $HOSTNAME..."
-		    if curl -4 -sf -o /dev/null "https://$HOSTNAME"; then
-			debug_log echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
-			SUCCESS=1
-   			debug_log systemctl restart admin
-			break
-		    else
-			debug_log echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
-			debug_log docker restart caddy
-			sleep $SLEEP_SECONDS
-		    fi
-		done
-		if [ $SUCCESS -ne 1 ]; then
-		    echo "Failed to generate SSL certificate after $MAX_RETRIES attempts. OpenAdmin fallback to using HTTP protocol."
-		    exit 1
-		fi
-	fi
+            MAX_RETRIES=5
+            SLEEP_SECONDS=5
+            SUCCESS=0
+            for ((i=1; i<=MAX_RETRIES; i++)); do
+                debug_log echo "Attempt $i to generate SSL for $HOSTNAME..."
+                if curl -4 -sf -o /dev/null "https://$HOSTNAME"; then
+                    debug_log echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
+                    SUCCESS=1
+                    debug_log systemctl restart admin
+                    break
+                else
+                    debug_log echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
+                    debug_log docker restart caddy
+                    sleep $SLEEP_SECONDS
+                fi
+            done
+            if [ $SUCCESS -ne 1 ]; then
+                echo "Failed to generate SSL certificate after $MAX_RETRIES attempts. OpenAdmin fallback to using HTTP protocol."
+            fi
+        fi
     fi
 }
 
