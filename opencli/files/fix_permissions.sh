@@ -1,11 +1,11 @@
 #!/bin/bash
 ################################################################################
 # Script Name: files/fix_permissions.sh
-# Description: Fix permissions for users /home directory files inside the container.
-# Usage: opencli files-fix_permissions [USERNAME] [PATH]
+# Description: Fix permissions for users /home directory files inside the container or FTP.
+# Usage: opencli files-fix_permissions [USERNAME] [PATH] [--ftp]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 18.08.2025
+# Last Modified: 20.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -54,6 +54,50 @@ ensure_jq_installed() {
         fi
     fi
 }
+
+check_and_fix_FTP_permissions() {
+    local user="$1"
+
+    local base_path="/home/${user}/docker-data/volumes/${user}_html_data/_data"
+
+    # Iterate over each FTP docroot (relative path)
+    opencli ftp-list "$user" \
+        | tail -n +2 \
+        | cut -d'|' -f2 \
+        | sed 's/^ *//;s/ *$//' \
+        | grep -v "^/var/www/html$" \
+        | while read -r directory; do
+
+            # Skip empty lines
+            [ -z "$directory" ] && continue
+
+            # Remove leading /var/www/html if present
+            relative_path="${directory#/var/www/html/}"
+            relative_path="${relative_path#/var/www/html}"
+
+            # Skip if relative_path is empty
+            [ -z "$relative_path" ] && continue
+
+            new_directory="${base_path}/${relative_path}"
+
+            if [ -d "$new_directory" ]; then
+                echo "[*] Fixing ownership for $new_directory"
+                chown -R "$user:$user" "$new_directory"
+            else
+                echo "[!] Directory $new_directory not found, skipping..."
+            fi
+        done
+
+    # Fix base paths permissions
+    chmod +rx "/home/$user" \
+              "/home/$user/docker-data" \
+              "/home/$user/docker-data/volumes" \
+              "/home/$user/docker-data/volumes/${user}_html_data" \
+              "/home/$user/docker-data/volumes/${user}_html_data/_data"
+    docker restart openadmin_ftp
+}
+
+
 
 # Function to apply permissions and ownership changes within a Docker container
 apply_permissions_in_container() {
@@ -120,41 +164,77 @@ apply_permissions_in_container() {
 
 # Check if the --all flag is provided
 if [ "$1" == "--all" ]; then
-  if [ $# -le 2 ]; then
+  if [ $# -le 3 ]; then
     ensure_jq_installed # Ensure jq is installed
     
-    # Handle optional --debug flag
-    [ "$2" == "--debug" ] && verbose="-v"
+    # Flags
+    verbose=""
+    ftp_mode=false
+
+    # Parse optional flags
+    shift
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --debug)
+          verbose="-v"
+          ;;
+        --ftp)
+          ftp_mode=true
+          ;;
+      esac
+      shift
+    done
 
     # Apply changes to all active users
     for container in $(opencli user-list --json | jq -r '.[].username'); do
-      apply_permissions_in_container "$container"
+      if [ "$ftp_mode" = true ]; then
+        check_and_fix_FTP_permissions "$container"
+      else
+        apply_permissions_in_container "$container"
+      fi
     done
   else
-    echo "Usage: opencli files-fix_permissions --all [--debug]"
+    echo "Usage: opencli files-fix_permissions --all [--debug] [--ftp]"
     exit 1
   fi
 else
   # Fix permissions for a single user
   if [ $# -ge 1 ]; then
     username="$1"
+    shift
+    ftp_mode=false
+    path=""
 
-    # Check if $2 is a path or --debug
-    if [ "$2" == "--debug" ]; then
-      verbose="-v"
-      path=""
+    # Parse args
+    while [ $# -gt 0 ]; do
+      case "$1" in
+        --debug)
+          verbose="-v"
+          ;;
+        --ftp)
+          ftp_mode=true
+          ;;
+        *)
+          path="$1"
+          ;;
+      esac
+      shift
+    done
+
+    if [ "$ftp_mode" = true ]; then
+      check_and_fix_FTP_permissions "$username" "$path"
     else
-      path="$2"
-      [ "$3" == "--debug" ] && verbose="-v"
+      apply_permissions_in_container "$username" "$path"
     fi
-
-    apply_permissions_in_container "$username" "$path"
   else
     echo "Usage:"
     echo "opencli files-fix_permissions <USERNAME> [--debug]          Fix permissions for all files owned by single user."
     echo "opencli files-fix_permissions <USERNAME> [PATH] [--debug]   Fix permissions for the specified path owned by user."
+    echo "opencli files-fix_permissions <USERNAME> [--ftp]            Fix permissions for all FTP accounts."
     echo "opencli files-fix_permissions --all [--debug]               Fix permissions for all active users."
+    echo "opencli files-fix_permissions --all [--debug] [--ftp]       Fix permissions for all active users FTP accounts."
     exit 1
   fi
 fi
+
 

@@ -4,7 +4,7 @@ script_dir=$(dirname "$0")
 timestamp="$(date +'%Y-%m-%d_%H-%M-%S')" #used by log file name
 start_time=$(date +%s) #used to calculate elapsed time at the end
 
-set -eo pipefail
+#set -eo pipefail
 
 DEBUG=true
 
