@@ -15,30 +15,29 @@ echo "[*] Checking include sections for all VHosts files.."
 
 # Collect all missing vhTemplate blocks
 new_blocks=""
+domains=()
 for vhfile in /usr/local/lsws/conf/vhosts/*.conf; do
   [ -e "$vhfile" ] || continue
   domain=$(basename "$vhfile" .conf)
+  domains+=("$domain")
 
-  # Skip if already exists
-  if grep -q "vhTemplate $domain {" "$HTTPD_CONF"; then
+  if grep -q "virtualhost $domain {" "$HTTPD_CONF"; then
     echo "[✓] $domain already exists"
     continue
   fi
-    echo "[!] Creating include section for domain: $domain"
 
-  # Build block with real newlines
-  new_blocks+=$'vhTemplate '"$domain"' {\n'
-  new_blocks+=$'  templateFile            conf/vhosts/'"$domain"'.conf\n'
-  new_blocks+=$'  listeners               HTTP, HTTPS\n'
-  new_blocks+=$'  note                    '"$domain"$'\n'
-  new_blocks+=$'\n'
-  new_blocks+=$'  member localhost {\n'
-  new_blocks+=$'    vhDomain              '"$domain"$'\n'
-  new_blocks+=$'  }\n'
+  echo "[!] Creating include section for domain: $domain"
+  new_blocks+=$'virtualhost '"$domain"' {\n'
+  new_blocks+=$'  vhRoot            /var/www/html/\n'
+  new_blocks+=$'  configFile            /usr/local/lsws/conf/vhosts/'"$domain"'.conf\n'
+  new_blocks+=$'  allowSymbolLink                    1\n'
+  new_blocks+=$'  enableScript                    1\n'
+  new_blocks+=$'  restrained                    1\n'
+  new_blocks+=$'  setUIDMode                    2\n'
   new_blocks+=$'}\n\n'
 done
 
-# Insert before 'vhTemplate docker {' without rename()
+# Insert new vhost blocks
 if [ -n "$new_blocks" ]; then
   tmpfile=$(mktemp)
   awk -v block="$new_blocks" '
@@ -49,13 +48,53 @@ if [ -n "$new_blocks" ]; then
   rm "$tmpfile"
 fi
 
-echo "[*] Starting LSWS process.."
+echo "[*] Updating listener mappings.."
 
-# Start the server
+update_listener_maps() {
+  listener=$1
+  tmpfile=$(mktemp)
+
+  awk -v lst="$listener" -v domains="${domains[*]}" '
+    BEGIN {
+      split(domains, d_arr, " ")
+      in_listener = 0
+    }
+    {
+      if ($1 == "listener" && $2 == lst && $3 == "{") {
+        in_listener = 1
+        map_lines = ""
+      }
+      
+      if (in_listener) {
+        if ($1 == "map") {
+          existing_map[$2] = 1
+        }
+        if ($1 == "}") {
+          # Before closing brace, add missing maps
+          for (i in d_arr) {
+            if (!(d_arr[i] in existing_map)) {
+              print "  map                     " d_arr[i] " " d_arr[i]
+            }
+          }
+          in_listener = 0
+        }
+      }
+
+      print
+    }
+  ' "$HTTPD_CONF" > "$tmpfile"
+
+  cat "$tmpfile" > "$HTTPD_CONF"
+  rm "$tmpfile"
+}
+
+update_listener_maps "HTTP"
+update_listener_maps "HTTPS"
+
+echo "[*] Starting LSWS process.."
 /usr/local/lsws/bin/lswsctrl start
 "$@"
 
-# Keep container running and monitor
 while true; do
   if ! /usr/local/lsws/bin/lswsctrl status | grep 'litespeed is running with PID' > /dev/null; then
     break

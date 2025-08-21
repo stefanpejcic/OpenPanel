@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 18.08.2025
+# Last Modified: 20.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1594,6 +1594,7 @@ create_user_set_quota_and_password           # create user
 sshfs_mounts                                 # mount /home/user
 setup_ssh_key                                # set key for the user
 install_docker_and_add_user
+create_volume				                 # initializing user home dir
 docker_rootless                              # install 
 docker_compose                               # magic happens here
 create_context                               # on master
@@ -1609,5 +1610,4 @@ save_user_to_db                              # save user to mysql db
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
 permisisons_do
-create_volume				     # initializing user home dir
 )200>/var/lock/openpanel_user_add.lock

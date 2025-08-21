@@ -16,18 +16,17 @@ import subprocess
 RESTART_FILE_PATH = '/root/openpanel_restart_needed'
 
 # Function to check the file content and empty it in place
-def delete_the_flag_file():
+def empty_flag_file():
     if os.path.exists(RESTART_FILE_PATH):
         try:
             with open(RESTART_FILE_PATH, 'r+'):
                 pass
             with open(RESTART_FILE_PATH, 'w') as f:
                 f.truncate(0)
-            print(f"Flag file {RESTART_FILE_PATH} emptied")
         except Exception as e:
             print(f"Error clearing {RESTART_FILE_PATH}: {e}")
 
-delete_the_flag_file()
+empty_flag_file()
 
 # File paths
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
