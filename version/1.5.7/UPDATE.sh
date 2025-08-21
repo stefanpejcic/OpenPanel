@@ -26,9 +26,9 @@ chmod +x /etc/openpanel/openlitespeed/start.sh
 ENV_FILE="/etc/openpanel/docker/compose/1.0/.env"
 DEFAULTS='
 # OPENLITESPEED
-OPENLLITESPEED_VERSION="latest"
-OPENLLITESPEED_CPU="1.0"
-OPENLLITESPEED_RAM="1.0G"
+OPENLITESPEED_VERSION="latest"
+OPENLITESPEED_CPU="1.0"
+OPENLITESPEED_RAM="1.0G"
 '
 
 if ! grep -q "OPENLITESPEED" "$ENV_FILE"; then
