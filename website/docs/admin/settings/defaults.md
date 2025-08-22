@@ -4,7 +4,14 @@ sidebar_position: 3
 
 # Defaults
 
-From **OpenAdmin > Hosting Plans > Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
+From **OpenAdmin > Settings > Defaults** Administrators can edit values for the `docker-compose.yml` and `.env` files used for new users.
+
+![defaults](https://i.postimg.cc/YMrrp6vR/admin-defaults.png)
+
+---
+
+Using the 'Advanced' option you can directly edit the files.
+
 
 In these files you can configure additional services (docker containers) and change defaults for existing services.
 
