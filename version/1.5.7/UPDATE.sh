@@ -8,6 +8,17 @@ wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubuse
 
 wget -O /etc/openpanel/openpanel/conf/blacklist_useragents.txt  https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/conf/blacklist_useragents.txt
 
+echo "Enabling rule ID logging for WAF.."
+sed -i 's/ABIJDEFHZ/ABIJDEFHKZ/g' /etc/openpanel/caddy/templates/domain.conf_with_modsec
+sed -i 's/ABIJDEFHZ/ABIJDEFHKZ/g' /etc/openpanel/caddy/templates/domain.conf
+
+for file in /etc/openpanel/caddy/domains/*.conf; do
+    sed -i 's/ABIJDEFHZ/ABIJDEFHKZ/g' "$file"
+done
+
+
+
+
 docker restart openpanel
 
 echo "Fix for crons page bug in OpenAdmin.."
