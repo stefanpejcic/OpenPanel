@@ -92,7 +92,7 @@ const Stats: React.FC = () => {
                 </a>
 
                 <div className="block not-prose p-4 landing-sm:py-4 landing-sm:px-10 dark:bg-landing-noise dark:bg-gray-800 bg-gray-50 rounded-2xl landing-sm:rounded-3xl">
-                  <div className="whitespace-nowrap text-[40px] leading-[48px] landing-sm:text-[64px] landing-sm:leading-[72px] dark:bg-landing-stats-text-dark bg-landing-stats-text bg-clip-text text-transparent font-bold drop-shadow-2xl">
+                  <div className="whitespace-nowrap text-[40px] leading-[48px] landing-sm:text-[60px] landing-sm:leading-[72px] dark:bg-landing-stats-text-dark bg-landing-stats-text bg-clip-text text-transparent font-bold drop-shadow-2xl">
                     {formattedDate}
                   </div>
                   <div className="mt-2 landing-sm:mt-6 text-base dark:text-gray-400 text-gray-600">
