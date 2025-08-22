@@ -2,10 +2,9 @@
 sidebar_position: 9
 ---
 
+# WAF
 
-# WAF - Web Application Firewall
-
-The WAF interface allows openpanel users to toggle wether the Coraza WAF is active for each of their domains individually, this function is also available on the Domain Names interface.
+The Web Application Firewall (WAF) interface allows openpanel users to toggle wether the Coraza WAF is active for each of their domains individually, this function is also available on the Domain Names interface.
 
 ![waf.png](/img/panel/v2/waf.png)
 
