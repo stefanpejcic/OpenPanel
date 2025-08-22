@@ -19,6 +19,9 @@ done
 
 
 
+mkdir -p /etc/openpanel/wordpress
+wget -O /etc/openpanel/wordpress/mu-plugin.php https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/wordpress/mu-plugin.php
+
 docker restart openpanel
 
 echo "Fix for crons page bug in OpenAdmin.."
