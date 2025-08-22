@@ -54,11 +54,10 @@ CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main con
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
-
 echo "" > /root/openpanel_restart_needed
 
 # ======================================================================
-# Helper functions that are not mandatory and should not be modified
+# Helper functions that are not mandatory but still should not be modified
 
 # logo
 print_header() {
@@ -104,9 +103,6 @@ install_started_message(){
     echo -e ""
 }
 
-
-
-# Display error and exit
 radovan() {
     echo -e "${RED}INSTALLATION FAILED${RESET}"
     echo ""
@@ -114,24 +110,20 @@ radovan() {
     exit 1
 }
 
-
 debug_log() {
     local timestamp
     timestamp=$(date +'%Y-%m-%d %H:%M:%S')
 
     if [ "$DEBUG" = true ]; then
-        # Show both on terminal and log file
         echo "[$timestamp] $message" | tee -a "$LOG_FILE"
         "$@" 2>&1 | tee -a "$LOG_FILE"
     else
-    # ❯❯❯
-        # No terminal output, only log file
+    	# ❯❯❯
         echo "[$timestamp] COMMAND: $@" >> "$LOG_FILE"
         "$@" > /dev/null 2>&1
     fi
 }
 
-# Check if a package is already installed
 is_package_installed() {
     if [ "$DEBUG" = false ]; then
     $PACKAGE_MANAGER -qq list "$1" 2>/dev/null | grep -qE "^ii"
@@ -141,53 +133,40 @@ is_package_installed() {
     fi
 }
 
-get_server_ipv4(){
-	IP_SERVER_1="https://ip.openpanel.com"
-	IP_SERVER_2="https://ipv4.openpanel.com"
-	IP_SERVER_3="https://ifconfig.me"
+get_server_ipv4() {
+    local services=("https://ip.openpanel.com" "https://ipv4.openpanel.com" "https://ifconfig.me")
+    local ip
 
-	current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || \
-                 wget --inet4-only --timeout=2 -qO- $IP_SERVER_2 || \
-                 curl --silent --max-time 2 -4 $IP_SERVER_3)
+    for url in "${services[@]}"; do
+        ip=$(curl -s --max-time 2 -4 "$url" || wget -qO- --timeout=2 --inet4-only "$url")
+        [ -n "$ip" ] && break
+    done
 
-	if [ -z "$current_ip" ]; then
-	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
-	fi
- 
-	is_valid_ipv4() {
-		local ip=$1
-		[[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && \
-		! [[ $ip =~ ^10\. ]] && \
-		! [[ $ip =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && \
-		! [[ $ip =~ ^192\.168\. ]]
-	}
+    if [ -z "$ip" ]; then
+        ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
+    fi
 
-	if ! is_valid_ipv4 "$current_ip"; then
-	        echo "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind domains configuration files."
-	fi
-
+    if ! [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || \
+         [[ "$ip" =~ ^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\. ]]; then
+        echo "Invalid or private IPv4 address: $ip. OpenPanel requires a public IPv4 address to bind domains configuration files."
+    fi
 }
 
-set_version_to_install(){
+set_version_to_install() {
+    if [ "$CUSTOM_VERSION" = false ]; then
+        response=$(curl -4 -s "https://usage-api.openpanel.org/latest_version")
 
-	if [ "$CUSTOM_VERSION" = false ]; then
-		response=$(curl -4 -s "https://usage-api.openpanel.org/latest_version")
-		
-		if command -v jq &> /dev/null; then
-		    PANEL_VERSION=$(echo "$response" | jq -r '.latest_version')
-		else
-		    PANEL_VERSION=$(echo "$response" | grep -o '"latest_version":"[^"]*"' | head -n 1 | sed 's/"latest_version":"\([^"]*\)"/\1/')
-		fi
-		
-		# fallback if the Worker is unreachable or returned invalid version
-		if [[ ! "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-		    PANEL_VERSION="1.5.6"
-		fi
-	fi
+        if command -v jq &> /dev/null; then
+            PANEL_VERSION=$(echo "$response" | jq -r '.latest_version')
+        else
+            PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+')
+        fi
+
+        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="1.5.6"
+    fi
 }
 
 
-# prints fullwidth line
 print_space_and_line() {
     echo " "
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
@@ -196,11 +175,9 @@ print_space_and_line() {
 
 
 setup_progress_bar_script(){
-	# Progress bar script
 	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 	PROGRESS_BAR_FILE="progress_bar.sh"
 
-	# Check if wget is available
 	if command -v wget &> /dev/null; then
 	    wget --timeout=5 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 	    if [ $? -ne 0 ]; then
@@ -208,8 +185,7 @@ setup_progress_bar_script(){
 	 	echo "repeat with --debug flag to see where errored."
 	        exit 1
 	    fi
-	# If wget is not available, check if curl is available *(fallback for fedora)
-	elif command -v curl -4 &> /dev/null; then
+	elif command -v curl -4 &> /dev/null; then # fallback for fedora
 	    curl -4 --max-time 5 -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 	    if [ $? -ne 0 ]; then
 	        echo "ERROR: curl failed or timed out after 5 seconds while downloading progress_bar.sh"
@@ -231,29 +207,27 @@ setup_progress_bar_script(){
 
 display_what_will_be_installed(){
  	echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
-    	if [ -z "$SKIP_REQUIREMENTS" ]; then
+    if [ -z "$SKIP_REQUIREMENTS" ]; then
 		if [ "$architecture" == "x86_64" ] || [ "$architecture" == "aarch64" ]; then
 	  		echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
 	   	else
-	      		echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
+	      	echo -e "[PASS] CPU ARCHITECTURE:          ${YELLOW} ${architecture^^} ${RESET}"
 	 	fi
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
  	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${current_ip} ${RESET}"
   	echo ""
-
 }
 
 
 
 
 # ======================================================================
-# Core program logic
 setup_progress_bar_script
 source "$PROGRESS_BAR_FILE"               # Source the progress bar script
 
 FUNCTIONS=(
-detect_os_cpu_and_package_manager             # detect os and package manager
+detect_os_cpu_and_package_manager         # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
 install_python312
 update_package_manager                    # update dnf/yum/apt-get
@@ -268,9 +242,9 @@ setup_redis_service                       # for redis container
 create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
 docker_compose_up                         # 
-docker_cpu_limiting			  # https://docs.docker.com/engine/security/rootless/#limiting-resources
+docker_cpu_limiting			              # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
-configure_coraza			  # download corazawaf coreruleset or change docker image
+configure_coraza			              # download corazawaf coreruleset or change docker image
 extra_step_for_caddy                      # so that webmail domain works without any setups!
 enable_dev_mode                           # https://dev.openpanel.com/cli/config.html#dev-mode
 set_custom_hostname                       # set hostname if provided
@@ -279,7 +253,7 @@ setup_firewall_service                    # setup firewall
 set_system_cronjob                        # setup crons, must be after csf
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
-log_dirs				  # for almalinux
+log_dirs				                  # for almalinux
 download_ui_image                         # pull openpanel-ui image
 setup_imunifyav                           # setum imunifyav and enable autologin from openadmin
 setup_swap                                # swap space
@@ -314,41 +288,48 @@ main() {
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
 
-        # check if the current user is root
-        if [ "$(id -u)" != "0" ]; then
-            echo -e "${RED}Error: you must be root to execute this script.${RESET}" >&2
-            exit 1
-        # check if OS is MacOS
-        elif [ "$(uname)" = "Darwin" ]; then
-            echo -e "${RED}Error: MacOS is not currently supported.${RESET}" >&2
-	    echo ""
-     	    echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
-            exit 1
-        # check if running inside a container
-        elif [[ -f /.dockerenv || $(grep -sq 'docker\|lxc' /proc/1/cgroup) ]]; then
-            echo -e "${RED}Error: running openpanel inside a container is not supported.${RESET}" >&2
-            exit 1
-        fi
+		check_requirement() {
+		    local value=$1
+		    local min=$2
+		    local unit=$3
+		    local message=$4
+		
+		    if [ "$value" -lt "$min" ]; then
+		        echo -e "${RED}Error: ${message}. Detected: ${value}${unit}${RESET}" >&2
+		        echo ""
+		        echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
+		        exit 1
+		    fi
+		}
+		
+		check_condition() {
+		    local condition=$1
+		    local message=$2
+		    local show_link=$3
+		
+		    if eval "$condition"; then
+		        echo -e "${RED}Error: ${message}${RESET}" >&2
+		        [ "$show_link" = true ] && echo -e "\nRequirements: https://openpanel.com/docs/admin/intro/#requirements"
+		        exit 1
+		    fi
+		}
+		
+		# Check if running as root
+		check_condition '[ "$(id -u)" != "0" ]' "you must be root to execute this script" false
 
-        # Check if total RAM is at least 1GB
-        total_kb=$(grep MemTotal /proc/meminfo | awk '{print $2}')
-        total_mb=$((total_kb / 1024))
-        if [ "$total_mb" -lt 1024 ]; then
-            echo -e "${RED}Error: at least 1GB of RAM is required. Detected: ${total_mb}MB${RESET}" >&2
-	    echo ""
-     	    echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
-            exit 1
-        fi
+		# Check OS
+		check_condition '[ "$(uname)" = "Darwin" ]' "MacOS is not currently supported" true
 
-        # Check if available storage in / is at least 5GB
-        available_kb=$(df / --output=avail | tail -1)
-        available_mb=$((available_kb / 1024))
-        if [ "$available_mb" -lt 5120 ]; then
-            echo -e "${RED}Error: at least 5GB of free disk space is required on /. Detected: ${available_mb}MB${RESET}" >&2
-	    echo ""
-     	    echo "Requirements: https://openpanel.com/docs/admin/intro/#requirements"
-            exit 1
-        fi
+		# Check if running inside a container
+		check_condition '[[ -f /.dockerenv || $(grep -sq "docker\|lxc" /proc/1/cgroup) ]]' "running inside a container is not supported" false
+
+		# Check RAM
+		total_mb=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1024 ))
+		check_requirement "$total_mb" 1024 "MB" "at least 1GB of RAM is required"
+
+		# Check available disk space on /
+		available_mb=$(( $(df / --output=avail | tail -1) / 1024 ))
+		check_requirement "$available_mb" 5120 "MB" "at least 5GB of free disk space is required on /"
     fi
     
 }
@@ -501,11 +482,8 @@ detect_os_cpu_and_package_manager() {
                 ;;
         esac
 
-
 	architecture=$(lscpu | grep Architecture | awk '{print $2}')
 
- 
-	 
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
@@ -583,7 +561,6 @@ docker_compose_up(){
  	# added in 1.2.5 for dumping dbs
   	chmod +x /etc/openpanel/mysql/scripts/dump.sh
    
-   
  	# added in 1.5.6 for openlitespeed
   	chmod +x /etc/openpanel/openlitespeed/start.sh
    
@@ -595,7 +572,7 @@ docker_compose_up(){
     cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
-    
+
     # generate random password for mysql
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
@@ -606,7 +583,6 @@ docker_compose_up(){
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/host_my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/container_my.cnf  > /dev/null 2>&1
 
-    # added in 0.2.9
     # fix for bug with mysql-server image on Almalinux 9.2
     os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
     if [ "$os_name" == "almalinux" ]; then
@@ -614,19 +590,18 @@ docker_compose_up(){
         echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
     elif [ "$os_name" == "debian" ]; then
     	echo "Setting AppArmor profiles for Debian"
-   	apt install apparmor -y   > /dev/null 2>&1
+   		apt install apparmor -y   > /dev/null 2>&1
     fi
 
 
     if [ "$REPAIR" = true ]; then
     	echo "Deleting all existing MySQL data in volume root_openadmin_mysql due to the '--repair' flag."
-	cd /root && docker compose down > /dev/null 2>&1          # in case mysql was running
+		cd /root && docker compose down > /dev/null 2>&1                            # in case mysql was running
         docker --context default volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
     
     if [ "$architecture" == "aarch64" ]; then
     	sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
-     	# todo: replace in docker-compose.yml if needed!
     fi
 
     # from 0.2.5 we only start mysql by default
@@ -634,20 +609,20 @@ docker_compose_up(){
 
     # check if compose started the mysql container, and if is currently running
     mysql_container=$(docker compose ps -q openpanel_mysql)
-    
+
     # Check if the container ID is found
     if [ -z "$mysql_container" ]; then
 	    radovan 1 "ERROR: MySQL container not found. Please ensure Docker Compose is set up correctly."
 	    exit 1
     fi
-	
+
     # Check if the container is running
     if ! docker --context default ps -q --no-trunc | grep -q "$mysql_container"; then
         radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
     else
         echo -e "[${GREEN}OK${RESET}] MySQL service started successfully."
     fi
-	
+
     # needed from 1.0.0 for docker contexts to work both inside openpanel ui container and host os
     ln -s / /hostfs > /dev/null 2>&1
 }
@@ -656,20 +631,17 @@ docker_compose_up(){
 
 
 clean_apt_and_dnf_cache(){
-
-     if [ "$PACKAGE_MANAGER" == "dnf" ]; then
-	    	dnf clean  > /dev/null > /dev/null 2>&1 
-      elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-      		# clear /var/cache/apt/archives/   # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
-      		apt-get clean  > /dev/null > /dev/null 2>&1 
+    if [ "$PACKAGE_MANAGER" == "dnf" ]; then
+		dnf clean  > /dev/null > /dev/null 2>&1 
+    elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+		# clear /var/cache/apt/archives/   # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
+  		apt-get clean  > /dev/null > /dev/null 2>&1 
 	fi
 }
 
 tweak_ssh(){
    echo "Tweaking SSH service.."
-
    sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
-   
    if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 	   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
 		   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
@@ -680,11 +652,6 @@ tweak_ssh(){
 	   fi
    fi
 
-
-
-	#echo "Generating MOTD for users.. *(auto-refreshed every 10hrs)"
-	#opencli server-motd   > /dev/null 2>&1   #user has no access to check version: {"error": "Docker image or .env files are missing."}
-
 	# ssh on debian, sshd on rhel
 	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
 	 	systemctl restart sshd  > /dev/null 2>&1
@@ -693,7 +660,6 @@ tweak_ssh(){
 	fi
 
  	echo -e "[${GREEN} OK ${RESET}] SSH service is configured."
-
 }
 
 
@@ -710,7 +676,6 @@ setup_firewall_service() {
             sh install.sh > /dev/null 2>&1
             cd ..
             rm -rf csf
-            #perl /usr/local/csf/bin/csftest.pl
             echo "Setting CSF auto-login from OpenAdmin interface.."
             if [ "$PACKAGE_MANAGER" == "dnf" ]; then
                 debug_log dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
@@ -879,7 +844,6 @@ extra_step_on_hetzner() {
 if [ -f /etc/hetzner-build ]; then
     echo "Hetzner provider detected, adding Google DNS resolvers..."
     echo "info: https://github.com/stefanpejcic/OpenPanel/issues/471"
-
     mv /etc/resolv.conf /etc/resolv.conf.bak
     echo "nameserver 8.8.8.8" >> /etc/resolv.conf
     echo "nameserver 8.8.4.4" >> /etc/resolv.conf
@@ -1084,39 +1048,28 @@ fi
 
 }
 
-set_system_cronjob(){
-    echo "Setting cronjobs.."
-    mv ${ETC_DIR}cron /etc/cron.d/openpanel
-    chown root:root /etc/cron.d/openpanel
-    chmod 0600 /etc/cron.d/openpanel
+set_system_cronjob() {
+    echo "Setting cronjobs..."
+    install -m 600 -o root -g root "${ETC_DIR}cron" /etc/cron.d/openpanel
 
-	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
-		# extra steps for SELinux
-	 	restorecon -R /etc/cron.d/ > /dev/null 2>&1
-		restorecon -R /etc/cron.d/openpanel > /dev/null 2>&1
-		systemctl restart crond.service  > /dev/null 2>&1
-	fi
+    if [[ "$PACKAGE_MANAGER" == "dnf" || "$PACKAGE_MANAGER" == "yum" ]]; then                       # Handle SELinux if using dnf or yum
+        restorecon -R /etc/cron.d >/dev/null 2>&1
+        systemctl restart crond.service >/dev/null 2>&1
+    fi
 
-        if [ -f "/etc/cron.d/openpanel" ]; then
-            echo -e "[${GREEN} OK ${RESET}] Cronjobs configured."
-	fi
-
-    
+    [ -f /etc/cron.d/openpanel ] && echo -e "[${GREEN} OK ${RESET}] Cronjobs configured."
 }
 
 
 set_custom_hostname(){
         if [ "$SET_HOSTNAME_NOW" = true ]; then
-            # Check if the provided hostname is a valid domain
-	    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-                 sed -i "s/example\.net/$new_hostname/g" /etc/openpanel/caddy/Caddyfile
-            else
-                echo "Hostname provided: $new_hostname is not a valid FQDN, OpenPanel will use IP address $current_ip for access."
+		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+	            sed -i "s/example\.net/$new_hostname/g" /etc/openpanel/caddy/Caddyfile
+	        else
+                echo "Hostname provided: $new_hostname is not a valid domain name, OpenPanel will use IP address $current_ip for access."
             fi
         fi
-}            
-
-
+}
 
 
 
@@ -1149,16 +1102,15 @@ opencli_setup(){
     else
         radovan 1 "'opencli --version' command failed."
     fi
-    
 }
 
 
 
 enable_dev_mode() {
- if [ "$DEV_MODE" = true ]; then
-    echo "Enabling dev_mode"
-    opencli config update dev_mode "on" > /dev/null 2>&1
- fi
+	if [ "$DEV_MODE" = true ]; then
+	    echo "Enabling dev_mode"
+	    opencli config update dev_mode "on" > /dev/null 2>&1
+	fi
 }
 
 set_premium_features(){
@@ -1173,7 +1125,6 @@ set_premium_features(){
     timeout 60 opencli email-server install
     echo "Enabling Roundcube webmail.."
     timeout 60 opencli email-webmail roundcube
-    
  else
     LICENSE="Community"
  fi
@@ -1181,20 +1132,16 @@ set_premium_features(){
 
 
 log_dirs() {
-	local error_dir="/var/log/openpanel/"                               # https://dev.openpanel.com/logs.html
-	mkdir -p ${error_dir} ${error_dir}user ${error_dir}admin
-	chmod -R 755 $error_dir
+    local log_dir="/var/log/openpanel"  # https://dev.openpanel.com/logs.html
+    install -d -m 755 "$log_dir" "$log_dir/user" "$log_dir/admin"
 }
-
 
 
 set_email_address_and_email_admin_logins(){
         if [ "$SEND_EMAIL_AFTER_INSTALL" = true ]; then
-            # Check if the provided email is valid
             if [[ $EMAIL =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
                 echo "Setting email address $EMAIL for notifications"
                 opencli config update email "$EMAIL"
-                # Send an email alert
                 
                 generate_random_token_one_time_only() {
                     local config_file="${CONFIG_FILE}"
@@ -1203,28 +1150,24 @@ set_email_address_and_email_admin_logins(){
                     sed -i "s|^mail_security_token=.*$|$new_value|" "${CONFIG_FILE}"
                 }
 
-                
                 email_notification() {
                   local title="$1"
                   local message="$2"
                   generate_random_token_one_time_only
                   TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")
 		  
-                PROTOCOL="http"
-		admin_domain="127.0.0.1"
-  
-	        if [ "$SET_HOSTNAME_NOW" = true ]; then
-		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-	                 if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
-	                	PROTOCOL="https"
-		  		admin_domain="$new_hostname"
-			fi
-	            fi
-	        fi
-                
-                # Send email using appropriate protocol
-                curl -4 -k -X POST "$PROTOCOL://$admin_domain:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
-                
+                  PROTOCOL="http"
+                  admin_domain="127.0.0.1"
+	  
+                  if [ "$SET_HOSTNAME_NOW" = true ]; then
+                  	if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+                  		if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
+                  			PROTOCOL="https"
+                  			admin_domain="$new_hostname"
+                  		fi
+                  	fi
+                  fi
+                  curl -4 -k -X POST "$PROTOCOL://$admin_domain:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
                 }
 
                 server_hostname=$(hostname)
@@ -1272,16 +1215,14 @@ generate_and_set_ssl_for_panels() {
 
 
 download_ui_image() {
-        # added in 0.2.2 to pre-pull image so its ready on acocunt create
+        # added in 0.2.2 to pre-pull image so its ready on account create
         debug_log "Pulling OpenPanel image in background (not starting the service).."
         nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
 }
 
 
-
 setup_redis_service() {
-	mkdir -p /tmp/redis
-	chmod 777 /tmp/redis
+	install -d -m 777 /tmp/redis
 }
 
 run_custom_postinstall_script() {
@@ -1304,42 +1245,35 @@ verify_license() {
     debug_log "echo Response: $response"
 }
 
+download_skeleton_directory_from_github() {
+    local repo_url="https://github.com/stefanpejcic/openpanel-configuration"
 
-download_skeleton_directory_from_github(){
-    echo "Downloading configuration files to ${ETC_DIR}"
-    git clone https://github.com/stefanpejcic/openpanel-configuration ${ETC_DIR} > /dev/null 2>&1
+    echo "Downloading configuration files to ${ETC_DIR}..."
+    git clone "$repo_url" "$ETC_DIR" >/dev/null 2>&1 || \
+        radovan 1 "Failed to clone OpenPanel Configuration from GitHub - retry with '--retry --debug'."
 
-	if [ ! -d "$ETC_DIR" ]; then
-	 	radovan 1 "Failed to clone OpenPanel Configuration from Github - please retry install with '--retry --debug' flags."
-	fi
-
-    if [ ! -f "${CONFIG_FILE}" ]; then
-        radovan 1 "Downloading configuration files from GitHub worked, but main conf file ${CONFIG_FILE} is missing."
-    fi
-
-    systemctl daemon-reload  > /dev/null 2>&1
-    
+    [ -f "$CONFIG_FILE" ] || radovan 1 "Main configuration file ${CONFIG_FILE} is missing."
+    systemctl daemon-reload >/dev/null 2>&1
 }
 
 
 setup_bind(){
-    if [ "$SKIP_DNS_SERVER" = false ]; then
-    echo "Setting DNS service.."
-    mkdir -p /etc/bind/
-    cp -r /etc/openpanel/bind9/* /etc/bind/
-    
-    # only on ubuntu systemd-resolved is installed
-    if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
-    	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
-    # debian12 also!
-     elif [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
-     	echo " DNSStubListener=no" >>  /etc/systemd/resolved.conf  && systemctl restart systemd-resolved
-     fi
-     
-     chmod 0777 -R /etc/bind
-	else
-		echo "Skipping BIND setup due to the '--skip-dns-server' flag."
- 	fi     
+    if [ "$SKIP_DNS_SERVER" = true ]; then
+        echo "Skipping BIND setup due to the '--skip-dns-server' flag."
+        return
+    fi
+
+    echo "Setting up DNS service..."
+	install -d -m 755 /etc/bind
+	cp -r /etc/openpanel/bind9/* /etc/bind/
+	
+	if [ -f /etc/os-release ] && grep -Eq "Ubuntu|Debian" /etc/os-release; then
+		grep -q "^DNSStubListener=no" /etc/systemd/resolved.conf || \
+			echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
+		systemctl restart systemd-resolved # systemd-resolved is installed on debian based
+	fi
+ 
+	chmod -R 755 /etc/bind
 }
 
 send_install_log(){
@@ -1361,7 +1295,7 @@ rm_helpers(){
 
 
 setup_swap(){
-    # Function to create swap file
+
     create_swap() {
         fallocate -l ${SWAP_FILE}G /swapfile > /dev/null 2>&1
         chmod 600 /swapfile
@@ -1369,22 +1303,17 @@ setup_swap(){
         swapon /swapfile
         echo "/swapfile   none    swap    sw    0   0" >> /etc/fstab
 
- 	echo -e "[${GREEN} OK ${RESET}] Created SWAP file of ${SWAP_FILE}G."
+ 		echo -e "[${GREEN} OK ${RESET}] Created SWAP file of ${SWAP_FILE}G."
     }
 
-    # Check if swap space already exists
     if [ -n "$(swapon -s)" ]; then
         echo "ERROR: Skipping creating swap space as there already exists a swap partition."
         return
     fi
 
-
-
-    # Check if we should set up swap anyway
     if [ "$SETUP_SWAP_ANYWAY" = true ]; then
         create_swap
     else
-        # Only create swap if RAM is less than 8GB
         memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
         memory_gb=$(awk "BEGIN {print $memory_kb/1024/1024}")
 
@@ -1398,51 +1327,48 @@ setup_swap(){
 
 
 
-
-
 support_message() {
-	
-	DISCORD_INVITE_URL="https://discord.openpanel.com/"
-	FORUMS_LINK="https://community.openpanel.org/"
-	DOCS_LINK="https://openpanel.com/docs/admin/intro/"
- 	DOCS_GET_STARTED_LINK="https://openpanel.com/docs/admin/intro/#post-install-steps"
-	GITHUB_LINK="https://github.com/stefanpejcic/OpenPanel/"
- 	TICKETS_URL="https://my.openpanel.com/submitticket.php?step=2&deptid=2"
+    local discord_invite_url="https://discord.openpanel.com/"
+    local forums_link="https://community.openpanel.org/"
+    local docs_link="https://openpanel.com/docs/admin/intro/"
+    local docs_get_started_link="https://openpanel.com/docs/admin/intro/#post-install-steps"
+    local github_link="https://github.com/stefanpejcic/OpenPanel/"
+    local tickets_url="https://my.openpanel.com/submitticket.php?step=2&deptid=2"
 
-	support_message_for_enterprise() {
-	    echo ""
-	    echo "🎉 Welcome aboard and thank you for choosing OpenPanel Enterprise edition! 🎉"
-	    echo ""
-	    echo "Need assistance or looking to learn more? We've got you covered:"
-	    echo "  - Check the Admin Docs: $DOCS_LINK"
-     	    echo "  - Open Support Ticket: $TICKETS_URL"
-	    echo "  - Chat with us on Discord: $DISCORD_INVITE_URL"
-     	    echo ""
-	}
+    local enterprise_msg() {
+        echo ""
+        echo "🎉 Welcome aboard and thank you for choosing OpenPanel Enterprise edition! 🎉"
+        echo ""
+        echo "Need assistance or looking to learn more? We've got you covered:"
+        echo "  - Check the Admin Docs: $docs_link"
+        echo "  - Open Support Ticket: $tickets_url"
+        echo "  - Chat with us on Discord: $discord_invite_url"
+        echo ""
+    }
 
-	support_message_for_community() {
-	    echo ""
-	    echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
-	    echo ""
-	    echo "To get started, check out our Post Install Steps:"
-	    echo "👉 $DOCS_GET_STARTED_LINK"
-	    echo ""
-	    echo "Join our community and connect with us on:"
-	    echo "  - Github: $GITHUB_LINK"
-	    echo "  - Discord: $DISCORD_INVITE_URL"
-	    echo "  - Our community forums: $FORUMS_LINK"
-	    echo ""
-	}
+    local community_msg() {
+        echo ""
+        echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
+        echo ""
+        echo "To get started, check out our Post Install Steps:"
+        echo "👉 $docs_get_started_link"
+        echo ""
+        echo "Join our community and connect with us on:"
+        echo "  - Github: $github_link"
+        echo "  - Discord: $discord_invite_url"
+        echo "  - Our community forums: $forums_link"
+        echo ""
+    }
 
-	if [[ "$LICENSE" == "Enterprise" ]]; then
- 		support_message_for_enterprise
-	else
- 		support_message_for_community
-   	fi
-
-    
+    # Show the appropriate message based on license
+    if [[ "$LICENSE" == "Enterprise" ]]; then
+        enterprise_msg
+    else
+        community_msg
+    fi
 }
 
+ 
 panel_customize(){
     if [ "$SCREENSHOTS_API_URL" == "local" ]; then
         echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
@@ -1458,10 +1384,8 @@ panel_customize(){
 
 check_permissions_in_root_dir() {
 	local root_dir="/root"
-	# Check if user has read and write permissions
 	if ! [ -r "$root_dir" ] || ! [ -w "$root_dir" ]; then
-	    radovan 1 "User $(whoami) does NOT have read and write permissions on $root_dir"
-	    exit 1
+		radovan 1 "User $(whoami) does NOT have read and write permissions on $root_dir"
 	fi
 }
 
@@ -1521,29 +1445,21 @@ Suites: bookworm-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
-
-
         debug_log $PACKAGE_MANAGER update -y
         debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
-
 	elif [[ "$OS" == "almalinux" || "$OS" == "rocky" || "$OS" == "centos" ]]; then
-
-	debug_log dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
-
+		debug_log dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
         debug_log $PACKAGE_MANAGER update -y
         debug_log $PACKAGE_MANAGER install -y python3.12   # venv is included!
- 
    	fi
 
-
-
-if python3.12 --version &> /dev/null; then
-	:
-else
-	radovan 1 "Python 3.12 installation failed."
-fi
-
+	if python3.12 --version &> /dev/null; then
+		:
+	else
+		radovan 1 "Python 3.12 installation failed."
 	fi
+
+ fi
     
 }
 
@@ -1558,7 +1474,6 @@ extra_step_for_caddy() {
 
 
 configure_coraza() {
-
 	if [ "$CORAZA" = true ]; then
 		echo "Installing CorazaWAF and setting OWASP core ruleset.."
 		debug_log mkdir -p /etc/openpanel/caddy/
@@ -1568,83 +1483,63 @@ configure_coraza() {
  		echo "Disabling CorazaWAF: setting caddy:latest docker image instead of openpanel/caddy-coraza"
 		sed -i 's|image: .*caddy.*|image: caddy:latest|' /root/docker-compose.yml
 	fi
- 
 }
 
 
 install_openadmin(){
-
-    # OpenAdmin
-    #
-    # https://openpanel.com/docs/admin/intro/
-    #
     echo "Setting up OpenAdmin panel.."
-
     local openadmin_dir="/usr/local/admin/"
 
-    if [ "$REPAIR" = true ]; then
-        rm -rf $openadmin_dir
-    fi
-    
+    [ "$REPAIR" = true ] && rm -rf "$openadmin_dir"
+
     mkdir -p $openadmin_dir
+    debug_log echo "Downloading OpenAdmin files"
 
-        debug_log echo "Downloading OpenAdmin files"
+    local branch="110"
+    [ "$architecture" = "aarch64" ] && branch="armcpu"
 
+    git clone -b "$branch" --single-branch https://github.com/stefanpejcic/openadmin "$openadmin_dir" || {
+        radovan 1 "Failed to clone OpenAdmin from Github - please retry install with '--retry --debug' flags."
+    }
 
-    if [ "$architecture" == "aarch64" ]; then
-		branch="armcpu"
-  	else
-   		branch="110"
- 	fi
-
-	git clone -b $branch --single-branch https://github.com/stefanpejcic/openadmin $openadmin_dir
-
-	if [ ! -d "$openadmin_dir" ]; then
-	 	radovan 1 "Failed to clone OpenAdmin from Github - please retry install with '--retry --debug' flags."
-	fi
-
-    cd $openadmin_dir
+    cd "$openadmin_dir" || exit 1
+	
 	python3.12 -m venv ${openadmin_dir}venv
-
 	source ${openadmin_dir}venv/bin/activate
-        pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt  > /dev/null 2>&1 || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages  > /dev/null 2>&1
+ 
+    pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt > /dev/null 2>&1 \
+        || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages > /dev/null 2>&1
 
      # on debian12 yaml is also needed to read conf files!
      if [ -f /etc/os-release ] && grep -q "Debian" /etc/os-release; then
      	apt install python3-yaml -y  > /dev/null 2>&1
      fi
 
-
     cp -fr /etc/openpanel/openadmin/service/openadmin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
     cp -fr /etc/openpanel/openadmin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
 
     systemctl daemon-reload  > /dev/null 2>&1
-
-    systemctl start admin  > /dev/null 2>&1
-    systemctl enable admin  > /dev/null 2>&1
+    systemctl enable --now admin > /dev/null 2>&1
 
 	if [ "$SKIP_DNS_SERVER" = false ]; then
 	    chmod +x /etc/openpanel/openadmin/service/watcher.sh
-	    systemctl start watcher  > /dev/null 2>&1
-	    systemctl enable watcher  > /dev/null 2>&1
+	    systemctl enable --now watcher > /dev/null 2>&1
 	else
 	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
  	fi
 
-	    echo "Testing if OpenAdmin service is available on default port '2087':"
-	    if ss -tuln | grep ':2087' >/dev/null; then
+	echo "Testing if OpenAdmin service is available on default port '2087':"
+	if ss -tuln | grep ':2087' >/dev/null; then
 		echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
-	    else
-	        radovan 1 "OpenAdmin service is NOT listening on port 2087."
-	    fi
-
+	else
+		radovan 1 "OpenAdmin service is NOT listening on port 2087."
+	fi
 }
 
 
 create_admin_and_show_logins_success_message() {
 
-    #motd
-    ln -s ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh
+    ln -s ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh   #motd
     chmod +x /etc/profile.d/welcome.sh  
 
     echo -e "${GREEN}OpenPanel ${LICENSE} $PANEL_VERSION installation complete.${RESET}"
@@ -1683,7 +1578,7 @@ create_admin_and_show_logins_success_message() {
 	    exec > /dev/tty
 	    exec 2>&1
 
-     	    opencli admin
+     	opencli admin
 	    echo -e "- Username: ${GREEN} ${new_username} ${RESET}"
 	    echo -e "- Password: ${GREEN} ${new_password} ${RESET}"
 	    echo " "
@@ -1693,18 +1588,11 @@ create_admin_and_show_logins_success_message() {
 	    # Redirect again stdout and stderr to the log file
 	    exec > >(tee -a "$LOG_FILE")
 	    exec 2>&1
-     
 	}
 
-
-    
     sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
-
     opencli admin new "$new_username" "$new_password" --super > /dev/null 2>&1 && 
-
-	# Check if the user exists in the SQLite database
 	user_exists=$(sqlite3 /etc/openpanel/openadmin/users.db "SELECT COUNT(*) FROM user WHERE username = '$new_username';")
-	
 	if [ "$user_exists" -gt 0 ]; then
 	    echo "User $new_username has been successfully added."
 		display_admin_status_and_logins
@@ -1714,14 +1602,12 @@ create_admin_and_show_logins_success_message() {
 	    create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
 	    insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$new_username', '$password_hash', 'admin');"
 	    output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
-	        if [ $? -ne 0 ]; then
-	            echo "WARNING: Admin user was not created: $output"
-	     	else
-       			display_admin_status_and_logins
-	    	fi
-     
+		if [ $? -ne 0 ]; then
+			echo "WARNING: Admin user was not created: $output"
+		else
+			display_admin_status_and_logins
+		fi
 	fi
-
 }
 
 
