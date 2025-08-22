@@ -103,9 +103,9 @@ Our [Community](https://community.openpanel.org/) serves as our virtual Headquat
 
 ## Version
 
-Latest OpenPanel version is: **1.5.6** - [View Changelog](https://openpanel.com/docs/changelog/1.5.6/)
+Latest OpenPanel version is: **1.5.7** - [View Changelog](https://openpanel.com/docs/changelog/1.5.7/)
 
-![Alt](https://repobeats.axiom.co/api/embed/9904d020c32812f0aff8d8d69f52643d16f85007.svg "Repobeats analytics image")
+[![Alt](https://repobeats.axiom.co/api/embed/9904d020c32812f0aff8d8d69f52643d16f85007.svg "Repobeats analytics image")](https://openpanel.com/statistics)
 
 ## Copyright & license
 
