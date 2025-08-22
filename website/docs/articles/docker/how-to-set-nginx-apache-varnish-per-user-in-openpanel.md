@@ -10,8 +10,8 @@ When creating a user, you can set webserver type to be used:
 - Nginx + Varnish
 - OpenResty
 - OpenResty + Varnish
-- OpenLitespeed (BETA support)
-- OpenLitespeed + Varnish (BETA support)
+- OpenLitespeed
+- OpenLitespeed + Varnish
 
 
 Users also have an option *Change Webserver Type* that allows them to switch form one type to another.
