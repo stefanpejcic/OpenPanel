@@ -27,13 +27,19 @@ services:
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
-      - ./openlitespeed.conf:/usr/local/lsws/conf/httpd_config.conf     # main conf
-      - /etc/openpanel/openlitespeed/start.sh:/entrypoint.sh:ro # chmod +x first!
-      - ./sockets/mysqld:/var/run/mysqld           # MySQL socket
-      - webserver_data:/usr/local/lsws/conf/vhosts/ # vhosts
-      - html_data:/var/www/html/                          # Website files
-      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/bin/wp 
+      - ./openlitespeed.conf:/usr/local/lsws/conf/httpd_config.conf # main conf
+      - /etc/openpanel/openlitespeed/start.sh:/entrypoint.sh:ro     # chmod +x first!
+      - ./sockets/mysqld:/var/run/mysqld                            # MySQL socket
+      - webserver_data:/usr/local/lsws/conf/vhosts/                 # vhosts
+      - html_data:/var/www/html/                                    # Website files
+      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/                 # SSLs - not used atm
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/bin/wp            # wpcli
+      - ./php.ini/7.4.ini:/usr/local/lsws/lsphp74/etc/php/7.4/litespeed/php.ini
+      - ./php.ini/8.0.ini:/usr/local/lsws/lsphp80/etc/php/8.0/litespeed/php.ini
+      - ./php.ini/8.1.ini:/usr/local/lsws/lsphp81/etc/php/8.1/litespeed/php.ini
+      - ./php.ini/8.2.ini:/usr/local/lsws/lsphp82/etc/php/8,2/litespeed/php.ini
+      - ./php.ini/8.3.ini:/usr/local/lsws/lsphp83/etc/php/8.3/litespeed/php.ini
+      - ./php.ini/8.4.ini:/usr/local/lsws/lsphp84/etc/php/8.4/litespeed/php.ini
     deploy:
       resources:
         limits:

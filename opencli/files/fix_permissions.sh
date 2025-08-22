@@ -1,11 +1,11 @@
 #!/bin/bash
 ################################################################################
 # Script Name: files/fix_permissions.sh
-# Description: Fix permissions for users /home directory files inside the container or FTP.
-# Usage: opencli files-fix_permissions [USERNAME] [PATH] [--ftp]
+# Description: Fix permissions for users /home directory files inside the container.
+# Usage: opencli files-fix_permissions <USERNAME> [PATH]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 20.08.2025
+# Last Modified: 21.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,26 +28,22 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Set verbose to null
 verbose=""
 
 ensure_jq_installed() {
-    # Check if jq is installed
     if ! command -v jq &> /dev/null; then
-        # Detect the package manager and install jq
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update > /dev/null 2>&1
-            sudo apt-get install -y -qq jq > /dev/null 2>&1
+            apt-get update > /dev/null 2>&1
+            apt-get install -y -qq jq > /dev/null 2>&1
         elif command -v yum &> /dev/null; then
-            sudo yum install -y -q jq > /dev/null 2>&1
+            yum install -y -q jq > /dev/null 2>&1
         elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q jq > /dev/null 2>&1
+            dnf install -y -q jq > /dev/null 2>&1
         else
             echo "Error: No compatible package manager found. Please install jq manually and try again."
             exit 1
         fi
 
-        # Check if installation was successful
         if ! command -v jq &> /dev/null; then
             echo "Error: jq installation failed. Please install jq manually and try again."
             exit 1
@@ -57,10 +53,8 @@ ensure_jq_installed() {
 
 check_and_fix_FTP_permissions() {
     local user="$1"
-
     local base_path="/home/${user}/docker-data/volumes/${user}_html_data/_data"
-
-    # Iterate over each FTP docroot (relative path)
+    local found=0
     opencli ftp-list "$user" \
         | tail -n +2 \
         | cut -d'|' -f2 \
@@ -68,33 +62,29 @@ check_and_fix_FTP_permissions() {
         | grep -v "^/var/www/html$" \
         | while read -r directory; do
 
-            # Skip empty lines
             [ -z "$directory" ] && continue
+            found=1
 
-            # Remove leading /var/www/html if present
             relative_path="${directory#/var/www/html/}"
             relative_path="${relative_path#/var/www/html}"
 
-            # Skip if relative_path is empty
             [ -z "$relative_path" ] && continue
 
             new_directory="${base_path}/${relative_path}"
 
             if [ -d "$new_directory" ]; then
-                echo "[*] Fixing ownership for $new_directory"
-                chown -R "$user:$user" "$new_directory"
-            else
-                echo "[!] Directory $new_directory not found, skipping..."
+                echo "[*] Fixing ownership for FTP path: $new_directory"
+                chown -R "$uid:$uid" "$new_directory"
             fi
         done
 
-    # Fix base paths permissions
-    chmod +rx "/home/$user" \
-              "/home/$user/docker-data" \
-              "/home/$user/docker-data/volumes" \
-              "/home/$user/docker-data/volumes/${user}_html_data" \
-              "/home/$user/docker-data/volumes/${user}_html_data/_data"
-    docker restart openadmin_ftp
+    if [ "$found" -eq 1 ]; then
+        chmod +rx "/home/$user" \
+                  "/home/$user/docker-data" \
+                  "/home/$user/docker-data/volumes" \
+                  "/home/$user/docker-data/volumes/${user}_html_data" \
+                  "/home/$user/docker-data/volumes/${user}_html_data/_data"
+    fi
 }
 
 
@@ -139,10 +129,12 @@ apply_permissions_in_container() {
         fi
     
 
+        # get uid first!
+        uid="$(grep -E "^${context}:" /hostfs/etc/passwd | cut -d: -f3)"
 
         # USERNAME OWNER
-        chown -R $verbose $context:$context $directory
-        find $directory -print0 | xargs -0 chown $verbose $context:$context > /dev/null 2>&1
+        #chown -R $verbose $uid:$uid $directory
+        find $directory -print0 | xargs -0 chown $verbose $uid:$uid > /dev/null 2>&1
         owner_result=$?
         
         # FILES
@@ -153,88 +145,44 @@ apply_permissions_in_container() {
         find $directory -type d -print0 | xargs -0 chmod $verbose 775
         folders_result=$?
 
+        check_and_fix_FTP_permissions "$container_name"
+        ftp_result=$?
+
         # CHECK ALL 4
-            if [ $owner_result -eq 0 ] && [ $files_result -eq 0 ] && [ $folders_result -eq 0 ]; then
-                echo "Permissions applied successfully to $fake_directory"
-            else
-                echo "Error applying permissions to $fake_directory"
-            fi
+        if [ $owner_result -eq 0 ] && [ $files_result -eq 0 ] && [ $folders_result -eq 0 ] && [ $ftp_result -eq 0 ]; then
+            echo "Permissions applied successfully to $fake_directory"
+        else
+            echo "Error applying permissions to $fake_directory"
+        fi
 }
 
 
-# Check if the --all flag is provided
-if [ "$1" == "--all" ]; then
-  if [ $# -le 3 ]; then
-    ensure_jq_installed # Ensure jq is installed
-    
-    # Flags
-    verbose=""
-    ftp_mode=false
 
-    # Parse optional flags
+# FLAGS
+parse_flags() {
+  local args=()
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --debug) verbose="-v" ;;
+      *) args+=("$1") ;;
+    esac
     shift
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        --debug)
-          verbose="-v"
-          ;;
-        --ftp)
-          ftp_mode=true
-          ;;
-      esac
-      shift
-    done
+  done
+  echo "${args[@]}"
+}
 
-    # Apply changes to all active users
-    for container in $(opencli user-list --json | jq -r '.[].username'); do
-      if [ "$ftp_mode" = true ]; then
-        check_and_fix_FTP_permissions "$container"
-      else
-        apply_permissions_in_container "$container"
-      fi
-    done
-  else
-    echo "Usage: opencli files-fix_permissions --all [--debug] [--ftp]"
-    exit 1
-  fi
+args=($(parse_flags "$@"))
+
+# ALL USERS
+if [ "${args[0]}" == "--all" ]; then
+  ensure_jq_installed
+  for username in $(opencli user-list --json | jq -r '.[].username'); do
+    apply_permissions_in_container "$username"
+  done
 else
-  # Fix permissions for a single user
-  if [ $# -ge 1 ]; then
-    username="$1"
-    shift
-    ftp_mode=false
-    path=""
-
-    # Parse args
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        --debug)
-          verbose="-v"
-          ;;
-        --ftp)
-          ftp_mode=true
-          ;;
-        *)
-          path="$1"
-          ;;
-      esac
-      shift
-    done
-
-    if [ "$ftp_mode" = true ]; then
-      check_and_fix_FTP_permissions "$username" "$path"
-    else
-      apply_permissions_in_container "$username" "$path"
-    fi
-  else
-    echo "Usage:"
-    echo "opencli files-fix_permissions <USERNAME> [--debug]          Fix permissions for all files owned by single user."
-    echo "opencli files-fix_permissions <USERNAME> [PATH] [--debug]   Fix permissions for the specified path owned by user."
-    echo "opencli files-fix_permissions <USERNAME> [--ftp]            Fix permissions for all FTP accounts."
-    echo "opencli files-fix_permissions --all [--debug]               Fix permissions for all active users."
-    echo "opencli files-fix_permissions --all [--debug] [--ftp]       Fix permissions for all active users FTP accounts."
-    exit 1
-  fi
+# SINGLE USER
+  username="${args[0]}"
+  path="${args[1]:-}"
+  [ -z "$username" ] && { echo "Username required"; exit 1; }
+  apply_permissions_in_container "$username"
 fi
-
-
