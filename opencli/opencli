@@ -101,9 +101,15 @@ run_hook() {
     shift 2
     local args=("$@")
     
-    local hook_file="${HOOKS_DIR}/${hook_type}_${command}"
+    local hook_file_base="${HOOKS_DIR}/${hook_type}_${command}"
+    local hook_file=""
     
-    if [[ ! -f "$hook_file" ]]; then
+    if [[ -f "${hook_file_base}" ]]; then
+        hook_file="${hook_file_base}"
+    elif [[ -f "${hook_file_base}.sh" ]]; then
+        hook_file="${hook_file_base}.sh"
+    else
+        # Neither file exists
         return 0
     fi
     
