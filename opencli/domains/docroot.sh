@@ -5,7 +5,7 @@
 # Usage: opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
 # Author: Stefan Pejcic
 # Created: 10.02.2025
-# Last Modified: 21.08.2025
+# Last Modified: 22.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -126,7 +126,8 @@ make_folder() {
 
 get_webserver_for_user(){
 	    log "Checking webserver configuration"
-	    ws=$(opencli webserver-get_webserver_for_user $user)
+	    output=$(opencli webserver-get_webserver_for_user $user)		
+		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
 }
 
 
