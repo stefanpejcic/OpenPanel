@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           20.08.2025
+# Last Modified:           23.08.2025
 #
 ################################################################################
 
@@ -1519,11 +1519,14 @@ install_openadmin(){
     cp -fr /etc/openpanel/openadmin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
 
     systemctl daemon-reload  > /dev/null 2>&1
-    systemctl enable --now admin > /dev/null 2>&1
+    systemctl start admin > /dev/null 2>&1
+    systemctl enable admin > /dev/null 2>&1
 
 	if [ "$SKIP_DNS_SERVER" = false ]; then
 	    chmod +x /etc/openpanel/services/watcher.sh
-	    systemctl enable --now watcher > /dev/null 2>&1
+	    systemctl start watcher > /dev/null 2>&1
+ 	    systemctl enable watcher > /dev/null 2>&1
+
 	else
 	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
  	fi
