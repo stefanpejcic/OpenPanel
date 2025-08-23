@@ -1076,6 +1076,7 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
+	[ "$REPAIR" = true ] && rm -rf /usr/local/opencli
     git clone https://github.com/stefanpejcic/opencli.git
 
 	if [ ! -d "/usr/local/opencli" ]; then
@@ -1248,9 +1249,7 @@ verify_license() {
 download_skeleton_directory_from_github() {
     local repo_url="https://github.com/stefanpejcic/openpanel-configuration"
 
-	if [ "$REPAIR" = true ]; then
- 		rm -rf "$ETC_DIR"
-  	fi
+	[ "$REPAIR" = true ] && rm -rf "$ETC_DIR"
 
     echo "Downloading configuration files to ${ETC_DIR}..."
     git clone "$repo_url" "$ETC_DIR" >/dev/null 2>&1 || \
@@ -1482,6 +1481,7 @@ configure_coraza() {
 		echo "Installing CorazaWAF and setting OWASP core ruleset.."
 		debug_log mkdir -p /etc/openpanel/caddy/
 		debug_log wget --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
+  		[ "$REPAIR" = true ] && rm -rf /etc/openpanel/caddy/coreruleset/
 		debug_log git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
 	else
  		echo "Disabling CorazaWAF: setting caddy:latest docker image instead of openpanel/caddy-coraza"
