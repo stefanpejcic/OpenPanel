@@ -59,7 +59,6 @@ echo "" > /root/openpanel_restart_needed
 # ======================================================================
 # Helper functions that are not mandatory but still should not be modified
 
-# logo
 print_header() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e "   ____                         _____                      _  "
@@ -73,15 +72,13 @@ print_header() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
-
-
 install_started_message(){
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     if [ "$SKIP_FIREWALL" = false ]; then
     	echo -e "- Install necessary services and tools: CSF, Docker, MySQL, SQLite, Python3, PIP.. "
     else
-	echo -e "- Install necessary services and tools: Docker, MySQL, SQLite, Python3, PIP.. "
+		echo -e "- Install necessary services and tools: Docker, MySQL, SQLite, Python3, PIP.. "
     fi
     if [ "$SET_ADMIN_USERNAME" = true ]; then
         if [ "$SET_ADMIN_PASSWORD" = true ]; then
@@ -90,7 +87,7 @@ install_started_message(){
 		echo -e "- Create an admin account $custom_username with a strong random password for you."
   	fi
     else
-	echo -e "- Create an admin account with random username and strong password for you."
+		echo -e "- Create an admin account with random username and strong password for you."
     fi
     if [ "$SKIP_FIREWALL" = false ]; then
     	echo -e "- Set up ConfigServer Firewall for enhanced security."
@@ -428,6 +425,8 @@ detect_installed_panels() {
         ["/usr/local/CyberPanel"]="CyberPanel"
         ["/usr/local/directadmin"]="DirectAdmin"
         ["/usr/local/cwpsrv"]="CentOS Web Panel (CWP)"
+        ["/usr/local/vesta"]="VestaCP"
+        ["/usr/local/hestia"]="HestiaCP"  
         ["/usr/local/httpd"]="Apache WebServer"
         ["/usr/local/apache2"]="Apache WebServer"
         ["/usr/sbin/httpd"]="Apache WebServer"
@@ -456,35 +455,25 @@ detect_os_cpu_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
         . /etc/os-release
 
-        case $ID in
-            ubuntu)
-                PACKAGE_MANAGER="apt-get"
-                ;;
-            debian)
-                PACKAGE_MANAGER="apt-get"
-                ;;
-            fedora)
-                PACKAGE_MANAGER="dnf"
-                ;;
-            rocky)
-                PACKAGE_MANAGER="dnf"
-                ;;
-            centos)
-                PACKAGE_MANAGER="yum"
-                ;;
-            almalinux|alma)
-                PACKAGE_MANAGER="dnf"
-                ;;
-            *)
-                echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
-                echo -e "${RED}INSTALL FAILED${RESET}"
-                exit 1
-                ;;
-        esac
+		case "$ID" in
+		    ubuntu|debian)
+		        PACKAGE_MANAGER="apt-get"
+		        ;;
+		    fedora|rocky|almalinux|alma)
+		        PACKAGE_MANAGER="dnf"
+		        ;;
+		    centos)
+		        PACKAGE_MANAGER="yum"
+		        ;;
+		    *)
+		        echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
+		        echo -e "${RED}INSTALL FAILED${RESET}"
+		        exit 1
+		        ;;
+		esac
 
-	architecture=$(lscpu | grep Architecture | awk '{print $2}')
-
-    else
+		architecture=$(lscpu | grep Architecture | awk '{print $2}')
+	else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
@@ -538,9 +527,8 @@ docker_compose_up(){
  		systemctl start docker                                          # needed after --retry
   	fi
 
-	# https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
 	testing_docker=$(timeout 10 docker run --rm alpine echo "Hello from Alpine!")
-	if [ "$testing_docker" != "Hello from Alpine!" ]; then
+	if [ "$testing_docker" != "Hello from Alpine!" ]; then              # https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
 		radovan 1: "ERROR: Unable to run the Alpine Docker image! This suggests an issue with connecting to Docker Hub or with the Docker installation itself. To troubleshoot, try running the following command manually: 'docker run --rm alpine'."
 	fi
 
@@ -622,11 +610,10 @@ tweak_ssh(){
 			   echo 'DebianBanner no' >> /etc/ssh/sshd_config
 		   fi
 	   fi
-   fi
+	fi
 
-	# ssh on debian, sshd on rhel
-	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then
-	 	systemctl restart sshd  > /dev/null 2>&1
+	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then # ssh on debian, sshd on rhel
+		systemctl restart sshd  > /dev/null 2>&1 
 	else
 		systemctl restart ssh  > /dev/null 2>&1
 	fi
@@ -637,8 +624,7 @@ tweak_ssh(){
 
 setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
-        echo "Setting up the firewall.."
-        echo "Installing ConfigServer Firewall.."
+        echo "Installing ConfigServer Firewall & Security.."
 
         install_csf() {
             wget --inet4-only https://download.configserver.com/csf.tgz > /dev/null 2>&1
@@ -657,7 +643,6 @@ setup_firewall_service() {
                 elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
                    debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
                 fi
-                # play nice with docker
                 git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
                 mv csfpost-docker.sh/csfpost.sh /usr/local/csf/bin/csfpost.sh
                 chmod +x /usr/local/csf/bin/csfpost.sh
@@ -686,15 +671,12 @@ setup_firewall_service() {
             sed -i 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' /etc/csf/csf.conf
             sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
             sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
-
-            echo "Copying CSF blocklists"
-            # https://github.com/stefanpejcic/OpenPanel/issues/573
+            echo "Copying CSF blocklists" # https://github.com/stefanpejcic/OpenPanel/issues/573
             cp /etc/openpanel/csf/csf.blocklists /etc/csf/csf.blocklists
         }
 
         set_csf_email_address() {
             email_address=$(grep -E "^e-mail=" $CONFIG_FILE | cut -d "=" -f2)
-
             if [[ -n "$email_address" ]]; then
                 sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email_address\"/" /etc/csf/csf.conf
             fi
@@ -736,10 +718,7 @@ setup_firewall_service() {
         systemctl restart docker                                                # not sure why
         systemctl enable csf
         systemctl restart csf                                                   # also restarts docker at csfpost.sh
-
-        # https://github.com/stefanpejcic/OpenPanel/issues/338
-        touch /usr/sbin/sendmail
-        chmod +x /usr/sbin/sendmail
+        install -m 755 /dev/null /usr/sbin/sendmail                             # https://github.com/stefanpejcic/OpenPanel/issues/338
 
         if command -v csf > /dev/null 2>&1; then
             echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
@@ -773,35 +752,31 @@ create_rdnc() {
 	    echo "Setting remote name daemon control (rndc) for DNS.."
 	    mkdir -p /etc/bind/  
 	    cp -r /etc/openpanel/bind9/* /etc/bind/
-	        
-	    # Only on Ubuntu and Debian 12, systemd-resolved is installed
-	    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then
+
+	    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then            # Only on Ubuntu and Debian 12, systemd-resolved is installed
 	        echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
 	        systemctl restart systemd-resolved
 	    fi
 	
 	    RNDC_KEY_PATH="/etc/bind/rndc.key"
-	
 	    if [ -f "$RNDC_KEY_PATH" ]; then
 	        echo "rndc.key already exists."
 	        return 0
 	    fi
 	
 	    echo "Generating rndc.key for DNS zone management."
-	
 	    debug_log timeout 90 docker --context default run --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
 	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
-	
-	    # Check if rndc.key was successfully generated
-	    if [ -f "$RNDC_KEY_PATH" ]; then
-		echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
+	    
+	    if [ -f "$RNDC_KEY_PATH" ]; then                                                       # Check if rndc.key was successfully generated
+			echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
 	    else
-	 	echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
-		echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
-		echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
+	 		echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
+			echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
+			echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
 	    fi
 	
 	    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
@@ -813,24 +788,21 @@ create_rdnc() {
 
 
 extra_step_on_hetzner() {
-if [ -f /etc/hetzner-build ]; then
-    echo "Hetzner provider detected, adding Google DNS resolvers..."
-    echo "info: https://github.com/stefanpejcic/OpenPanel/issues/471"
-    mv /etc/resolv.conf /etc/resolv.conf.bak
-    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
-fi
+	if [ -f /etc/hetzner-build ]; then
+	    echo "Hetzner provider detected, adding Google DNS resolvers..."
+	    echo "info: https://github.com/stefanpejcic/OpenPanel/issues/471"
+	    mv /etc/resolv.conf /etc/resolv.conf.bak
+	    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
+	    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+	fi
 }
 
 
 set_logrotate(){
 
-echo "Setting Logrotate for Caddy webserver.."
-
-opencli server-logrotate
-
-echo "Setting Logrotate for OpenPanel logs.."
-
+	echo "Setting Logrotate for Caddy webserver.."
+	opencli server-logrotate
+	echo "Setting Logrotate for OpenPanel logs.."
 cat <<EOF > "/etc/logrotate.d/openpanel"
 /var/log/openpanel/**/*.log {
     su root adm
@@ -848,9 +820,6 @@ cat <<EOF > "/etc/logrotate.d/openpanel"
 EOF
 
 logrotate -f /etc/logrotate.d/openpanel
-
-
-
 echo "Setting Logrotate for Syslogs.."
 
 cat <<EOF > "/etc/logrotate.d/syslog"
@@ -867,108 +836,78 @@ cat <<EOF > "/etc/logrotate.d/syslog"
     endscript
 }
 EOF
-
 logrotate -f /etc/logrotate.d/syslog
-
 }
 
 
 install_packages() {
     echo "Installing required services.."
 
-    if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-
-		if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
-	    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "jq" "sqlite3" "geoip-bin")
-		else
-	 		# debian has linux-image-amd64 instead of generic
-	    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" "jc" "jq" "sqlite3" "geoip-bin")
-	  	fi
-
- 		# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
-    	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
-        
-		debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
-	
-		# configure apt to retry downloading on error
-		if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
-			echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
-		fi
- 
-        echo "Updating certificates.."
-        debug_log update-ca-certificates
-
-        echo -e "Installing services.."
-        for package in "${packages[@]}"; do
-            echo -e "Installing ${GREEN}$package${RESET}"
-            debug_log $PACKAGE_MANAGER -qq install "$package" -y
-        done   
-
-        for package in "${packages[@]}"; do
-            if is_package_installed "$package"; then
-                echo -e "${GREEN}$package is already installed. Skipping.${RESET}"
+    case "$PACKAGE_MANAGER" in
+        apt-get)
+            if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
+                packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
+                          "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" \
+                          "jc" "jq" "sqlite3" "geoip-bin")
             else
-                debug_log $PACKAGE_MANAGER -qq install "$package" -y
-                if [ $? -ne 0 ]; then
-                    echo "Error: Installation of $package failed. Retrying.."
-                    $PACKAGE_MANAGER -qq install "$package" -y
-                    if [ $? -ne 0 ]; then
-                    radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
-                        exit 1
-                    fi
-                fi
+                packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
+                          "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" \
+                          "jc" "jq" "sqlite3" "geoip-bin")
             fi
-        done
 
+            debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' \
+                      /etc/needrestart/needrestart.conf
+            debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+            echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
+            debug_log update-ca-certificates
+            ;;
+        
+        yum)
+            dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+            packages=("wget" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
+                      "quota" "quotatool" "uidmap" "docker-ce" "mysql" "pip" "jc" "sqlite" \
+                      "geoip" "perl-Math-BigInt")
+            ;;
+        
+        dnf)
+            dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
 
-    elif [ "$PACKAGE_MANAGER" == "yum" ]; then
-    
-	# otherwise we get podman..
-	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
- 
-   	 packages=("wget" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap"  "docker-ce" "mysql" "pip" "jc" "sqlite" "geoip" "perl-Math-BigInt") #sqlite for almalinux and perl-Math-BigInt is needed for csf
- 
- 	for package in "${packages[@]}"; do
-            echo -e "Installing        ${GREEN}$package${RESET}"
-            debug_log $PACKAGE_MANAGER install "$package" -y
-        done     
-	
-    elif [ "$PACKAGE_MANAGER" == "dnf" ]; then
-	# otherwise we get podman..
-	dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+            if [ -f /etc/fedora-release ]; then
+                packages=("git" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
+                          "quota" "quotatool" "uidmap" "docker" "docker-compose" "mysql" \
+                          "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
+            else
+                packages=("git" "ncurses" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
+                          "quota" "quotatool" "uidmap" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" \
+                          "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
+            fi
 
- 	# special case for fedora, 
-	if [ -f /etc/fedora-release ]; then
-    		packages=("git" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker" "docker-compose" "mysql" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
-    	else
-     		packages=("git" "ncurses" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
-      	fi
-     	
-	debug_log dnf install yum-utils  -y
-        debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y  # need confirm on alma, rocky and centos
-	
- 	# needed for csf
-	debug_log dnf --allowerasing install perl -y
+            debug_log dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
+            debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
+            ;;
+    esac
 
-        #  needed for gunicorn
-        debug_log dnf install epel-release -y
-
-        # needed for admin panel
-        debug_log dnf install python3-pip python3-devel gcc -y
-
-        for package in "${packages[@]}"; do
-            echo -e "Installing  ${GREEN}$package${RESET}"
-            debug_log $PACKAGE_MANAGER install "$package" -y
-	    debug_log $PACKAGE_MANAGER -y install "$package"
-        done 
-	
-    fi
+    echo -e "Installing $PACKAGE_MANAGER services.."
+    for package in "${packages[@]}"; do
+        echo -e "Installing ${GREEN}$package${RESET}"
+        if ! is_package_installed "$package"; then
+            debug_log $PACKAGE_MANAGER install -y "$package" || {
+                echo "Error: Installation of $package failed. Retrying.."
+                $PACKAGE_MANAGER install -y "$package" || {
+                    radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
+                    exit 1
+                }
+            }
+        else
+            echo -e "${GREEN}$package is already installed. Skipping.${RESET}"
+        fi
+    done
 }
 
 
 docker_cpu_limiting() {
-	# https://docs.docker.com/engine/security/rootless/#limiting-resources
 
+	# https://docs.docker.com/engine/security/rootless/#limiting-resources
 	mkdir -p /etc/systemd/system/user@.service.d
 	
 	cat > /etc/systemd/system/user@.service.d/delegate.conf << EOF
@@ -976,8 +915,7 @@ docker_cpu_limiting() {
 Delegate=cpu cpuset io memory pids
 EOF
 	
-	debug_log systemctl daemon-reload
- 
+	debug_log systemctl daemon-reload 
 }
 
 
@@ -1087,10 +1025,8 @@ set_premium_features(){
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
     systemctl restart admin > /dev/null 2>&1
-    
-    #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Setting mailserver.." 
-    timeout 60 opencli email-server install
+    timeout 60 opencli email-server install #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Enabling Roundcube webmail.."
     timeout 60 opencli email-webmail roundcube
  else
@@ -1183,10 +1119,9 @@ generate_and_set_ssl_for_panels() {
 
 
 download_ui_image() {
-        # added in 0.2.2 to pre-pull image so its ready on account create
-        debug_log "Pulling OpenPanel image in background (not starting the service).."
-        nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
-}
+        echo "Pulling OpenPanel image in background (not starting the service).."
+		nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
+  }
 
 
 setup_redis_service() {
@@ -1195,10 +1130,7 @@ setup_redis_service() {
 
 run_custom_postinstall_script() {
     if [ -n "$post_install_path" ]; then
-        # run the custom script
-        echo " "
         echo "Running post install script.."
-        debug_log "https://dev.openpanel.com/customize.html#After-installation"
         debug_log bash $post_install_path
     fi
 }
@@ -1305,7 +1237,7 @@ support_message() {
     local github_link="https://github.com/stefanpejcic/OpenPanel/"
     local tickets_url="https://my.openpanel.com/submitticket.php?step=2&deptid=2"
 
-    enterprise_msg() {
+    if [[ "$LICENSE" == "Enterprise" ]]; then
         echo ""
         echo "🎉 Welcome aboard and thank you for choosing OpenPanel Enterprise edition! 🎉"
         echo ""
@@ -1314,9 +1246,7 @@ support_message() {
         echo "  - Open Support Ticket: $tickets_url"
         echo "  - Chat with us on Discord: $discord_invite_url"
         echo ""
-    }
-
-    community_msg() {
+    else
         echo ""
         echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
         echo ""
@@ -1328,13 +1258,6 @@ support_message() {
         echo "  - Discord: $discord_invite_url"
         echo "  - Our community forums: $forums_link"
         echo ""
-    }
-
-    # Show the appropriate message based on license
-    if [[ "$LICENSE" == "Enterprise" ]]; then
-        enterprise_msg
-    else
-        community_msg
     fi
 }
 
@@ -1423,11 +1346,7 @@ EOF
         debug_log $PACKAGE_MANAGER install -y python3.12   # venv is included!
    	fi
 
-	if python3.12 --version &> /dev/null; then
-		:
-	else
-		radovan 1 "Python 3.12 installation failed."
-	fi
+	python3.12 --version &>/dev/null || radovan 1 "Python 3.12 installation failed."
 
  fi
     
@@ -1519,8 +1438,6 @@ create_admin_and_show_logins_success_message() {
     echo -e "${GREEN}OpenPanel ${LICENSE} $PANEL_VERSION installation complete.${RESET}"
     echo ""
 
-    # added in 0.2.3
-    # option to specify logins
     if [ "$SET_ADMIN_USERNAME" = true ]; then
        new_username="${custom_username}"
     else
@@ -1587,8 +1504,6 @@ create_admin_and_show_logins_success_message() {
 
 # ======================================================================
 # Main program
-
-# touch /root/openpanel_install.lock
 
 (
 flock -n 200 || { echo "Error: Another instance of the install script is already running. Exiting."; exit 1; }
