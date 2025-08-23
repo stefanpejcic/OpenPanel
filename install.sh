@@ -494,11 +494,10 @@ detect_os_cpu_and_package_manager() {
 
 docker_compose_up(){
     echo "Setting docker-compose.."
-    # install docker compose on dnf
     DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
 
-        if [ "$architecture" == "aarch64" ]; then
+    if [ "$architecture" == "aarch64" ]; then
 		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
   	else
    		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
@@ -506,8 +505,6 @@ docker_compose_up(){
     
 	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
 	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-
-		# need to download compose and add it as alias
 		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
@@ -520,8 +517,7 @@ docker_compose_up(){
 		    command docker "$@"
 		  fi
 		}'
-		
-		# Check which shell configuration file to edit
+
 		if [ -f "$HOME/.bashrc" ]; then
 		    config_file="$HOME/.bashrc"
 		elif [ -f "$HOME/.zshrc" ]; then
@@ -530,22 +526,16 @@ docker_compose_up(){
 		    radovan 1 "ERROR: Neither .bashrc nor .zshrc file found. Exiting."
 		fi
 
-  		# for armcpu, or if user did sudo su to switch..
-		source ~/.bashrc
+		source ~/.bashrc                                               # for armcpu, or if user did sudo su to switch..
 
-  		# Check if the function already exists in the config file
-		if grep -q "docker() {" "$config_file"; then
-		    :
-		else
-		    # Add the function to the configuration file
+		if ! grep -q "docker() {" "$config_file"; then
 		    echo "$function_to_insert" >> "$config_file"
 		    debug_log "Function 'docker' has been added to $config_file."
 		    source "$config_file"
 		fi
 
-
 	if [ "$REPAIR" = true ]; then
- 		systemctl start docker # needed after --retry
+ 		systemctl start docker                                          # needed after --retry
   	fi
 
 	# https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
@@ -554,39 +544,28 @@ docker_compose_up(){
 		radovan 1: "ERROR: Unable to run the Alpine Docker image! This suggests an issue with connecting to Docker Hub or with the Docker installation itself. To troubleshoot, try running the following command manually: 'docker run --rm alpine'."
 	fi
 
-
-   
     cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 	
- 	# added in 1.2.5 for dumping dbs
-  	chmod +x /etc/openpanel/mysql/scripts/dump.sh
+  	chmod +x /etc/openpanel/mysql/scripts/dump.sh                       # added in 1.2.5 for dumping dbs
+  	chmod +x /etc/openpanel/openlitespeed/start.sh                      # added in 1.5.6 for openlitespeed
    
- 	# added in 1.5.6 for openlitespeed
-  	chmod +x /etc/openpanel/openlitespeed/start.sh
-   
-    # compose doesnt alllow /
-    cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory."
+    cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory." # compose doesnt alllow /
     
-    rm -rf /etc/my.cnf .env > /dev/null 2>&1 # on centos we get default my.cnf, and on repair we already have symlink and .env
+    rm -rf /etc/my.cnf .env > /dev/null 2>&1                            # on centos we get default my.cnf, and on repair we already have symlink and .env
     cp /etc/openpanel/docker/compose/new.yml /root/docker-compose.yml > /dev/null 2>&1
     cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
 
-    # generate random password for mysql
-    MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)
+    MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)                  # generate random password for mysql
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
-
-    # save it to /etc/my.cnf
-    ln -s /etc/openpanel/mysql/host_my.cnf /etc/my.cnf  > /dev/null 2>&1
+    ln -s /etc/openpanel/mysql/host_my.cnf /etc/my.cnf  > /dev/null 2>&1 # save it to /etc/my.cnf
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/host_my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/container_my.cnf  > /dev/null 2>&1
-
-    # fix for bug with mysql-server image on Almalinux 9.2
     os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
     if [ "$os_name" == "almalinux" ]; then
-        sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
+        sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml   # fix for bug with mysql-server image on Almalinux 9.2
         echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
     elif [ "$os_name" == "debian" ]; then
     	echo "Setting AppArmor profiles for Debian"
@@ -604,27 +583,20 @@ docker_compose_up(){
     	sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
     fi
 
-    # from 0.2.5 we only start mysql by default
-    cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1
-
-    # check if compose started the mysql container, and if is currently running
+    cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1               # from 0.2.5 we only start mysql by default
+	
     mysql_container=$(docker compose ps -q openpanel_mysql)
-
-    # Check if the container ID is found
     if [ -z "$mysql_container" ]; then
 	    radovan 1 "ERROR: MySQL container not found. Please ensure Docker Compose is set up correctly."
-	    exit 1
     fi
 
-    # Check if the container is running
     if ! docker --context default ps -q --no-trunc | grep -q "$mysql_container"; then
         radovan 1 "ERROR: MySQL container is not running. Please retry installation with '--repair' flag."
     else
         echo -e "[${GREEN}OK${RESET}] MySQL service started successfully."
     fi
 
-    # needed from 1.0.0 for docker contexts to work both inside openpanel ui container and host os
-    ln -s / /hostfs > /dev/null 2>&1
+    ln -s / /hostfs > /dev/null 2>&1                                                 # needed from 1.0.0 for docker contexts to work both inside openpanel ui container and host os
 }
 
 
@@ -902,34 +874,29 @@ logrotate -f /etc/logrotate.d/syslog
 
 
 install_packages() {
-
     echo "Installing required services.."
-
 
     if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 
-	if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
-    
-    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "jq" "sqlite3" "geoip-bin")
-	else
- 	# debian has linux-image-amd64 instead of generic
-    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" "jc" "jq" "sqlite3" "geoip-bin")
+		if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
+	    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" "jc" "jq" "sqlite3" "geoip-bin")
+		else
+	 		# debian has linux-image-amd64 instead of generic
+	    	packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" "jc" "jq" "sqlite3" "geoip-bin")
+	  	fi
 
-  	fi
-
- 	# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
+ 		# https://www.faqforge.com/linux/fixed-ubuntu-apt-get-upgrade-auto-restart-services/
     	debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
         
-	debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+		debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
 	
-	# configure apt to retry downloading on error
-	if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
-		echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
-	fi
+		# configure apt to retry downloading on error
+		if [ ! -f /etc/apt/apt.conf.d/80-retries ]; then
+			echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
+		fi
  
         echo "Updating certificates.."
         debug_log update-ca-certificates
-
 
         echo -e "Installing services.."
         for package in "${packages[@]}"; do
