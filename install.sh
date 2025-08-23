@@ -1248,6 +1248,10 @@ verify_license() {
 download_skeleton_directory_from_github() {
     local repo_url="https://github.com/stefanpejcic/openpanel-configuration"
 
+	if [ "$REPAIR" = true ]; then
+ 		rm -rf "$ETC_DIR"
+  	fi
+
     echo "Downloading configuration files to ${ETC_DIR}..."
     git clone "$repo_url" "$ETC_DIR" >/dev/null 2>&1 || \
         radovan 1 "Failed to clone OpenPanel Configuration from GitHub - retry with '--retry --debug'."
