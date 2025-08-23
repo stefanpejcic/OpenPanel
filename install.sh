@@ -523,9 +523,7 @@ docker_compose_up(){
 		    source "$config_file"
 		fi
 
-	if [ "$REPAIR" = true ]; then
- 		systemctl start docker                                          # needed after --retry
-  	fi
+ 	systemctl start docker
 
 	testing_docker=$(timeout 10 docker run --rm alpine echo "Hello from Alpine!")
 	if [ "$testing_docker" != "Hello from Alpine!" ]; then              # https://community.openpanel.org/d/157-issue-with-installation-script-error-mysql-container-not-found
@@ -877,9 +875,9 @@ install_packages() {
                           "quota" "quotatool" "uidmap" "docker" "docker-compose" "mysql" \
                           "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             else
-                packages=("git" "ncurses" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
-                          "quota" "quotatool" "uidmap" "docker-ce" "docker-compose" "docker-ce-cli" "mysql" \
-                          "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "geoip" "perl-Math-BigInt")
+                packages=("git" "ncurses" "wget" "gnupg" "systemd" "dbus" "systemd-container" \
+                          "quota" "quotatool" "shadow-utils" "docker-ce" "docker-ce-cli" "mysql" \
+                          "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             fi
 
             debug_log dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
