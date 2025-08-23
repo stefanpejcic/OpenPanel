@@ -1522,7 +1522,7 @@ install_openadmin(){
     systemctl enable --now admin > /dev/null 2>&1
 
 	if [ "$SKIP_DNS_SERVER" = false ]; then
-	    chmod +x /etc/openpanel/openadmin/service/watcher.sh
+	    chmod +x /etc/openpanel/services/watcher.sh
 	    systemctl enable --now watcher > /dev/null 2>&1
 	else
 	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
