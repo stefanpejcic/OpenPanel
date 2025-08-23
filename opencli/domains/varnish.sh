@@ -5,7 +5,7 @@
 # Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 21.08.2025
+# Last Modified: 22.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,18 +34,15 @@ if [[ -z "$1" ]]; then
     exit 1
 fi
 
-
 # Check for the --short flag
 JSON_OUTPUT=false
 if [[ "$2" == "--short" || "$3" == "--short" ]]; then
     JSON_OUTPUT=true
 fi
 
-
 DOMAIN="$1"
 CONF_FILE="/etc/openpanel/caddy/domains/$DOMAIN.conf"
 
-# Check if the configuration file exists
 if [[ ! -f "$CONF_FILE" ]]; then
         if $JSON_OUTPUT; then
 		echo "error"
@@ -71,70 +68,44 @@ else
         fi    
 fi
 
-
-
-
 ACTION="$2"
+
 
 get_context() {
 	get_domain_owner=$(opencli domains-whoowns "$DOMAIN" --context)
 	context=$(echo "$get_domain_owner" | awk '{print $2}')
 }
 
-
 reload_caddy() {
-		# Reload Caddy container
-		docker --context default restart caddy  > /dev/null
-
-
-	    if $JSON_OUTPUT; then
-	    	:
-	    else
+	docker --context default restart caddy  > /dev/null	
+	if ! $JSON_OUTPUT; then
 		echo "Caddy container reloaded."
-	    fi
+	fi
 }
 
 start_varnish() {
-	
 	get_context
-	
 	if docker --context $context ps -q -f name="varnish" > /dev/null; then
-	    if $JSON_OUTPUT; then
-	    	:
-	    else
-	    	echo "The Varnish ontainer is running."
-	    fi
+		if ! $JSON_OUTPUT; then
+		    echo "The Varnish ontainer is running."
+		fi
 	else
-	    if $JSON_OUTPUT; then
-	    	:
-	    else	
+		if ! $JSON_OUTPUT; then
 	    	echo "Varnish is not running, starting.."
 	    fi
 	    cd /home/$context/ && docker --context $context compose up -d varnish > /dev/null
 	fi
 }
 
-
 if [[ "$ACTION" == "on" ]]; then
-    # Comment the lines under "Handle HTTPS traffic (port 443) with on_demand SSL"
-    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^/#/' "$CONF_FILE"
-
-    # Uncomment the lines under "Terminate TLS and pass to Varnish"
-    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$CONF_FILE"
-    
+    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^/#/' "$CONF_FILE" # Comment the lines under "Handle HTTPS traffic (port 443) with on_demand SSL"
+    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$CONF_FILE"                  # Uncomment the lines under "Terminate TLS and pass to Varnish"
     start_varnish
-    
     reload_caddy
-
-elif [[ "$ACTION" == "off" ]]; then
-    # Uncomment the lines under "Handle HTTPS traffic (port 443) with on_demand SSL"
-    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^#//' "$CONF_FILE"
-
-    # Comment the lines under "Terminate TLS and pass to Varnish"
-    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^/#/' "$CONF_FILE"
-    
-    reload_caddy
+elif [[ "$ACTION" == "off" ]]; then 
+    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^#//' "$CONF_FILE" # Uncomment the lines under "Handle HTTPS traffic (port 443) with on_demand SSL"
+    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^/#/' "$CONF_FILE"                  # Comment the lines under "Terminate TLS and pass to Varnish"
+    reload_caddy 
 fi
 
-
-
+exit 0
