@@ -1335,7 +1335,7 @@ support_message() {
     local github_link="https://github.com/stefanpejcic/OpenPanel/"
     local tickets_url="https://my.openpanel.com/submitticket.php?step=2&deptid=2"
 
-    local enterprise_msg() {
+    enterprise_msg() {
         echo ""
         echo "🎉 Welcome aboard and thank you for choosing OpenPanel Enterprise edition! 🎉"
         echo ""
@@ -1346,7 +1346,7 @@ support_message() {
         echo ""
     }
 
-    local community_msg() {
+    community_msg() {
         echo ""
         echo "🎉 Welcome aboard and thank you for choosing OpenPanel! 🎉"
         echo ""
