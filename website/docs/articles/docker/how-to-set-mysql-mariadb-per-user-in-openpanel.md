@@ -13,7 +13,7 @@ Administrators can configure the default database type for new users from [**Ope
 
 ## MySQL
 
-MySQL can be assigned either to all new users by default or to individual users during creation.
+[MySQL](https://www.mysql.com/) can be assigned either to all new users by default or to individual users during creation.
 
 ### Set for a Single User
 
@@ -36,7 +36,7 @@ To make MySQL the default for all newly created users:
 
 ## MariaDB
 
-MariaDB can be assigned either to all new users by default or to individual users during creation.
+[MariaDB](https://mariadb.org/) can be assigned either to all new users by default or to individual users during creation.
 
 ### Set for a Single User
 
@@ -60,7 +60,7 @@ To make MariaDB the default for all newly created users:
 
 ## Percona
 
-Percona is a drop-in replacement for MySQL. It can be set by changing the Docker image from `mysql` to `percona`. The interface and all actions remain fully compatible.
+[Percona](https://www.percona.com/mysql/software) is a drop-in replacement for MySQL. It can be set by changing the Docker image from `mysql` to `percona`. The interface and all actions remain fully compatible.
 
 ### Set for a Single User
 
