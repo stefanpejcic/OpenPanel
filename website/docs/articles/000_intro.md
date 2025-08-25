@@ -29,7 +29,7 @@ sidebar_position: 1
 - [WordPress HTTPS behind Varnish Cache](/docs/articles/docker/https-wordpress-behind-varnish-proxy/)
 
 # Databases
-- [Configure MySQL or MariaDB per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- [Configure MySQL, MariaDB or Percona per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - [Import MySQL Database](/website/docs/articles/docker/import-database)
 - [Use `mysql` or `mariadb` as DB_HOST instead of *localhost*](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/)
 
