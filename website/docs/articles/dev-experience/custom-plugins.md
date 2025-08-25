@@ -10,7 +10,7 @@ Currently, plugins have a few requirements and limitations:
 * The Python (.py) file name must match the plugin's folder name.
 * Installing additional pip modules is not supported.
 
-## Example
+## Example: Traceroute
 
 [Traceroute](https://github.com/stefanpejcic/traceroute) is a sample OpenPanel plugin that serves as a starter template for integrating third-party products and services into OpenPanel as plugins.
 
