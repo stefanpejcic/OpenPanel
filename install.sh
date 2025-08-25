@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           23.08.2025
+# Last Modified:           25.08.2025
 #
 ################################################################################
 
@@ -960,7 +960,13 @@ set_system_cronjob() {
         systemctl restart crond.service >/dev/null 2>&1
     fi
 
-    [ -f /etc/cron.d/openpanel ] && echo -e "[${GREEN} OK ${RESET}] Cronjobs configured."
+    if systemctl is-active --quiet crond 2>/dev/null || systemctl is-active --quiet cron 2>/dev/null; then
+        echo -e "[${GREEN} OK ${RESET}] ."
+		[ -f /etc/cron.d/openpanel ] && echo -e "[${GREEN} OK ${RESET}] Cron service is running and crontab configured."
+    else
+        echo -e "[${RED} FAIL ${RESET}] Cron service is NOT running!"
+    fi
+ 
 }
 
 
