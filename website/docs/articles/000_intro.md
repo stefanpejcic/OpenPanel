@@ -79,6 +79,8 @@ sidebar_position: 1
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
 - [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
 - [Create a custom plugin](/docs/articles/dev-experience/custom-plugins/)
+- [Network Isolation in OpenPanel](/docs/articles/docker/network-isolation-openpanel/)
+- [Volume Management in OpenPanel](/docs/articles/docker/volume-management-openpanel/)
 - [Keyboard Shortcuts for OpenAdmin UI](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/)
 - [Uninstall OpenPanel](/docs/articles/support/how-to-unlinstall-openpanel/)
 
