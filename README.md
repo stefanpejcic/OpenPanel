@@ -77,7 +77,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | RockyLinux            | 9.6                                  |                                      |
 | CentOS                 | 9.5                                  |                                      |
 
-## Installation
+## 📥 Installation
 
 To install on self-hosted VPS/Dedicated server: 
 ```bash
