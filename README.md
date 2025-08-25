@@ -32,8 +32,8 @@ Available in an community-supported version, and a more feature-filled version w
 │                                 │ │                                 │ │  • api.site.com → Python 3.11   │
 │                                 │ │                                 │ │                                 │
 │  🗄️  Databases:                 │ │  🗄️  Databases:                 │ │  🗄️  Databases:                 │
-│  • MySQL 8.0                    │ │  • MariaDB 10.11                │ │  • PostgreSQL                   │
-│  • phpMyAdmin                   │ │  • phpMyAdmin                   │ │                                 │
+│  • MySQL 8.0                    │ │  • MariaDB 10.11                │ │  • Percona MySQL                │
+│  • phpMyAdmin                   │ │  • phpMyAdmin                   │ │  • PostgreSQL                   │
 ├─────────────────────────────────┤ ├─────────────────────────────────┤ ├─────────────────────────────────┤
 │  📊 Resource Limits:            │ │  📊 Resource Limits:            │ │  📊 Resource Limits:            │
 │  • CPU: 2 cores                 │ │  • CPU: 4 cores                 │ │  • CPU: 1 core                  │
@@ -50,7 +50,7 @@ Available in an community-supported version, and a more feature-filled version w
 
 - focus on [security](https://openpanel.com/docs/articles/security/securing-openpanel/)
 - billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/)
-- dedicated [MySQL or MariaDB per user](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+- dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - detailed activity log of all user actions.
 - low maintenance: each user manages their own services and [backups](https://openpanel.com/docs/panel/files/backups/)
