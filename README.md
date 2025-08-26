@@ -49,7 +49,7 @@ Available in an community-supported version, and a more feature-filled version w
 **Why use OpenPanel for your hosting business?**
 
 - focus on [security](https://openpanel.com/docs/articles/security/securing-openpanel/)
-- billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/)
+- billing integrations: [FOSSBilling](https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/), [WHMCS](https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/), [Blesta](https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/) paymenter.org[^1]
 - dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - detailed activity log of all user actions.
@@ -57,6 +57,8 @@ Available in an community-supported version, and a more feature-filled version w
 - [import cPanel accounts](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
 - [white label](https://openpanel.com/docs/articles/dev-experience/customizing-openpanel-user-interface/)
 
+
+[^1]: not actively maintained
 
 ----
 
