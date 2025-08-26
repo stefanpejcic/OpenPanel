@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
-    const [version, setVersion] = useState('1.5.7');
+    const [version, setVersion] = useState('1.5.8');
 
     useEffect(() => {
         // Function to fetch the latest version tag from Docker Hub
@@ -26,7 +26,7 @@ export const LandingHeroGithubStars = () => {
                         return patchB - patchA;
                     });
 
-                const latestVersion = filteredTags.length > 0 ? filteredTags[0] : '1.5.7';  // new verzija tag
+                const latestVersion = filteredTags.length > 0 ? filteredTags[0] : '1.5.8';  // new verzija tag
                 setVersion(latestVersion);
             } catch (error) {
                 console.error('Failed to fetch version:', error);
