@@ -37,7 +37,7 @@ services:
       - ./php.ini/7.4.ini:/usr/local/lsws/lsphp74/etc/php/7.4/litespeed/php.ini
       - ./php.ini/8.0.ini:/usr/local/lsws/lsphp80/etc/php/8.0/litespeed/php.ini
       - ./php.ini/8.1.ini:/usr/local/lsws/lsphp81/etc/php/8.1/litespeed/php.ini
-      - ./php.ini/8.2.ini:/usr/local/lsws/lsphp82/etc/php/8,2/litespeed/php.ini
+      - ./php.ini/8.2.ini:/usr/local/lsws/lsphp82/etc/php/8.2/litespeed/php.ini
       - ./php.ini/8.3.ini:/usr/local/lsws/lsphp83/etc/php/8.3/litespeed/php.ini
       - ./php.ini/8.4.ini:/usr/local/lsws/lsphp84/etc/php/8.4/litespeed/php.ini
     deploy:

@@ -354,7 +354,7 @@
   {
     "name": "malware_scan",
     "title": "Malware Scanner",
-    "description": "If enabled, ClamAV is run locally and domain's docroots are automatically scanned for malicious files. Users can exclude directories and view quarantined files.",
+    "description": "If enabled, ClamAV is run locally and domain's docroots are automatically scanned for malicious files. Users can exclude directories and view quarantined files. NOTE: ARM CPU is not supported",
     "link": "/malware-scanner",
     "type": "enterprise",
     "help_link": ""
