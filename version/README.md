@@ -6,6 +6,6 @@ This directory contains additional update files that are executed after each ver
 2. Update OpenCLI
 3. Update the admin panel
 4. Update the system
-5. Check for additional update scripts
+5. Check for additional update scripts **FROM THIS DIRECTORY**
 6. Check for post-update hooks created by the admin
 7. Restart OpenAdmin
