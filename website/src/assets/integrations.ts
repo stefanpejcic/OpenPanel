@@ -55,15 +55,15 @@ export const integrations: IntegrationsType = {
             icon: Apache,
             description:
                 "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#apache",
             status: "stable",
         },
         {
             name: "Nginx",
             icon: Nginx,
             description:
-                "Run Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+                "Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#nginx",
             status: "stable",
         },
         {
@@ -71,7 +71,7 @@ export const integrations: IntegrationsType = {
             icon: Nginx,
             description:
                 "OpenResty allows per-user customization by defining user-specific location blocks or dynamic Lua logic in the main config. Configuration is centralized and preloaded for performance ",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openresty",
             status: "stable",
         },
         {
@@ -79,7 +79,7 @@ export const integrations: IntegrationsType = {
             icon: Apache,
             description:
                 "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.",
-            url: "/docs/articles/docker/how-to-set-openlitespeed-per-user-in-openpanel/",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openlitespeed",
             status: "stable",
         },
         {
@@ -87,7 +87,7 @@ export const integrations: IntegrationsType = {
             icon: Nginx,
             description:
                 "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
-            url: "/docs/articles/docker/how-to-set-varnish-per-user-in-openpanel/",
+            url: "docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
          },
     ],
