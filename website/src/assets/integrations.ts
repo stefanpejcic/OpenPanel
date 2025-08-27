@@ -314,7 +314,7 @@ export const integrations: IntegrationsType = {
             icon: ServerInfo,
             description:
                 "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.",
-            url: "/docs/panel/dashboard",
+            url: "/docs/panel/advanced/server_info/",
             status: "stable",
         },
         {
@@ -348,7 +348,7 @@ export const integrations: IntegrationsType = {
             icon: Suspend,
             description:
                 "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.",
-            url: "/docs/admin/users/openpanel/#suspend-user",
+            url: "/docs/admin/accounts/users/#suspend",
             status: "stable",
         },
         {
@@ -356,7 +356,7 @@ export const integrations: IntegrationsType = {
             icon: Upgrade,
             description:
                 "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
-            url: "/docs/admin/users/openpanel/#detailed-user-information",
+            url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
         {
@@ -364,14 +364,14 @@ export const integrations: IntegrationsType = {
             icon: UserIP,
             description:
                 "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
-            url: "/docs/admin/users/openpanel/#change-ip-address-for-user",
+            url: "/docs/admin/accounts/users/#edit",
             status: "stable",
         },
         {
             name: "Impersonation",
             icon: UserLogin,
             description: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.",
-            url: "/docs/admin/users/openpanel/#detailed-user-information",
+            url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
         {
