@@ -156,7 +156,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            Onboarding assistance and training
+                            Basic features
                         </h2>
                         <p
                             className={clsx(
@@ -164,8 +164,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Our acceleration program to help plan, architect and
-                            build your hosting business.
+                            Basic features to manage up to 3 user accounts and 50 websites.
                         </p>
                     </div>
                 </div>
