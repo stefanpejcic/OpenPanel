@@ -133,7 +133,7 @@ Statistics is the default tab, displays current usage statistics:
 - Storage used
 - Inodes used
 - CPU usage
-- Memoru usage
+- Memory usage
 - Number of running containers
 - Disk I/O
 - Network I/O
