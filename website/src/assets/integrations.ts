@@ -469,7 +469,7 @@ export const integrations: IntegrationsType = {
             icon: AdminOff,
             description:
                 "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
-            url: "/docs/admin/settings/adminpanel/#enable-features",
+            url: "/docs/admin/security/disable-admin/",
             status: "stable",
         },
         {
