@@ -4,7 +4,7 @@ sidebar_position: 1
 
 # General Settings
 
-From this page Administrators can configure the domain to acces sboth OpenPanel and OpenAdmin interfaces, as well asposrt for those services.
+From this page Administrators can configure the domain to access both OpenPanel and OpenAdmin interfaces, as well as hostname for those services.
 
 ![openadmin general panel settings](/img/admin/adminpanel_general_settings.png)
 
