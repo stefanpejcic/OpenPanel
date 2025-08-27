@@ -8,7 +8,7 @@ For Server Administrators (OpenAdmin):
 - [Configure CorazaWAF rules](/docs/admin/security/waf/)
 - [Change OpenPanel or OpenAdmin ports](/docs/admin/settings/general/#ports)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
-- [Check passwords agains weakpass.com lists](/docs/admin/settings/openpanel/#display)
+- [Check passwords against weakpass.com lists](/docs/admin/settings/openpanel/#display)
 - [Changing the OpenPanel Administrator Username](/docs/admin/accounts/administrators/#create-new-admin)
 - [Securing OpenPanel and the Mail Server With SSL/TLS Certificates](/docs/admin/settings/general/#domain)
 - [Restricting access to Features based on Hosting Plans](/docs/admin/plans/feature-manager/#use-cases)
