@@ -67,9 +67,9 @@ Incorrect file ownership or permissions can also trigger 403 errors.
 
 ---
 
-## 4. Nginx or Apache Restrictions
+## 4. Sensitive files
 
-By default, **Nginx** and **Apache** block access to sensitive files:
+By default, webserver blocks access to sensitive files:
 
 ```
 .git
