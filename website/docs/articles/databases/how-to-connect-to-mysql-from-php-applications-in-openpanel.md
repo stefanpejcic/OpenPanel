@@ -22,7 +22,7 @@ When setting up WordPress inside OpenPanel, use the following database configura
 DB_HOST=mysql
 ```
 
-Here, `DB_HOST` is set to `mysql`, so WordPress can reach the MySQL container. If you are using MariaDB, then repalce `mysql` with `mariadb`.
+Here, `DB_HOST` is set to `mysql`, so WordPress can reach the MySQL container. If you are using MariaDB, then replace `mysql` with `mariadb`.
 
 ---
 
