@@ -10,6 +10,9 @@ From **OpenAdmin > Settings > Defaults** Administrators can edit values for the 
 
 These files determine services and limits for new users.
 
+> [How to setup Apache, Nginx, OpenResty, OpenLiteSpeed, and Varnish as default webserver](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+> [How to setup MySQL, MariaDB or Percona for default database type](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
+
 ---
 
 Using the 'Advanced' option you can directly edit the files.
