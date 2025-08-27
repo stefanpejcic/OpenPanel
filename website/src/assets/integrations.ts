@@ -306,7 +306,7 @@ export const integrations: IntegrationsType = {
             icon: Dark,
             description:
                 "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
-            url: "/docs/panel/dashboard",
+            url: "/docs/panel/dashboard/dark-mode/",
             status: "stable",
         },
         {
