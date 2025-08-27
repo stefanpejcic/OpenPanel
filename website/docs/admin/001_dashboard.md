@@ -9,7 +9,7 @@ The dashboard page is the hub of the OpenAdmin interface and provides the overvi
 The dashboard page contains 13 widgets:
 
 - **Overview** widget: Displays the total number of nodes (servers), containers, users, domains, websites, hosting packages and email accounts.
-- **Resource Usage** widget: Shows the real-time server resource usage for: Load, CPU%, Memory, SWAP, Disk usage and Netowrk I/O.
+- **Resource Usage** widget: Shows the real-time server resource usage for: Load, CPU%, Memory, SWAP, Disk usage and Network I/O.
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
 - **Latest News Activity** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
