@@ -200,7 +200,7 @@ export const integrations: IntegrationsType = {
             icon: Visitors,
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
-            url: "/docs/panel/analytics/domain_visitors/",
+            url: "/docs/panel/domains/goaccess/",
             status: "stable",
         },
         {
