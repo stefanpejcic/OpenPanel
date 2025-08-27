@@ -171,7 +171,7 @@ Storage tab displays data from the [docker system df](https://docs.docker.com/re
 
 ### Overview
 
-Overview page displays detailed user inforamtion and allows Administrator to set a custom message specifically for this user.
+Overview page displays detailed user information and allows Administrator to set a custom message specifically for this user.
 
 ![user overview](/img/admin/2025-06-09_08-34.png)
 
