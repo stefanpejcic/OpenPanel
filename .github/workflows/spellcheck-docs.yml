@@ -13,6 +13,9 @@ on:
         required: false
         default: 'website/docs'
 
+  schedule:
+    - cron: '0 0 * * 0'  # Every Sunday at 00:00 UTC
+
 jobs:
   spell-check:
     runs-on: ubuntu-latest
