@@ -4,7 +4,7 @@ sidebar_position: 9
 
 # Trash
 
-When deleting files you can select to permanently delete them, or to plae them in the Trash (default option).
+When deleting files you can select to permanently delete them, or to place them in the Trash (default option).
 The **Trash** page allows you to manage deleted.
 
 In the table, you can see the following information:
