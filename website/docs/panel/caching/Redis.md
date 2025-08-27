@@ -49,7 +49,7 @@ For testing the connection to the REDIS server, you can use the 'telnet' command
    //Connecting to Redis server on localhost 
    $redis = new Redis(); 
    $redis->connect('redis', 6379); 
-   echo "Connection to server sucessfully"; 
+   echo "Connection to server successfully"; 
    //check whether server is running or not 
    echo "Server is running: ".$redis->ping(); 
 ?>
