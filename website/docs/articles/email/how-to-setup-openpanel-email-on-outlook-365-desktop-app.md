@@ -1,25 +1,36 @@
-# How to setup email on Outlook 365 desktop app
+# How to Set Up Email on Outlook 365 (Desktop App)
 
-📬 This guide will explain how to set up your OpePanel created email account in the Outlook 365 desktop app.
+This guide explains how to set up your **OpenPanel-created email account** in the Microsoft Outlook 365 desktop app.
 
-Open **Microsoft Outlook -> Tools -> Accounts -> Click plus icon + -> New Account**
+---
 
-Enter your Email Address, and on the next screen, *'Not Office 365'*, then click *'IMAP'*.
+## Add a New Account
 
+1. Open **Microsoft Outlook**  
+   Go to:  
+   **Tools → Accounts → ➕ (Add) → New Account**
 
-Incoming Mail Settings
-| Setting          | Description                                      | Example                          |
-|------------------|--------------------------------------------------|----------------------------------|
-| Username         | Your full email address                          | user@domain.tld                  |
-| Password         | Your email account password                      | ********                         |
-| Server           | Incoming mail server address                     | mail.domain.tld                  |
-| Port             | Port number for incoming mail                    | 993                              |
-| Security Type    | Encryption method for secure connection          | SSL/TLS                          |
-| Authentication   | Authentication method used to log in             | Normal Password                  |
+2. Enter your **email address**  
 
- 
+3. On the next screen, select **"Not Office 365"**, then choose **IMAP**  
 
-Outgoing Mail Settings
+---
+
+## Incoming Mail Settings
+
+| Setting        | Description                                      | Example                          |
+|----------------|--------------------------------------------------|----------------------------------|
+| Username       | Your full email address                          | user@domain.tld                  |
+| Password       | Your email account password                      | ********                         |
+| Server         | Incoming mail server address                     | mail.domain.tld                  |
+| Port           | Port number for incoming mail                    | 993                              |
+| Security Type  | Encryption method for secure connection          | SSL/TLS                          |
+| Authentication | Authentication method used to log in             | Normal Password                  |
+
+---
+
+## Outgoing Mail Settings (SMTP)
+
 | Setting        | Description                                      | Example                          |
 |----------------|--------------------------------------------------|----------------------------------|
 | Username       | Your full email address                          | user@domain.tld                  |
@@ -29,6 +40,8 @@ Outgoing Mail Settings
 | Security Type  | Encryption method for secure connection          | SSL/TLS                          |
 | Authentication | Authentication method used to log in             | Password                         |
 
- 
-Click **Add Account**
+Once all details are entered, click **Add Account**.  
 
+----
+
+Your OpenPanel email account is now set up in Outlook 365.  
