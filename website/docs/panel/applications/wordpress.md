@@ -104,7 +104,7 @@ For each WordPress installation you can view:
 
 Database login information for a WordPress website from the WP Manager is displayed at the bottom of the page:
 
-To reveal the password click on the blured password field:
+To reveal the password click on the blurred password field:
 ![wp_manager_site_database_password.png](/img/panel/v2/wpunblur.png)
 
 ### Detach a website
@@ -144,7 +144,7 @@ To edit General, Updates and Debugging preferences for a WordPress website click
 
 #### General Settings
 
-General settigns that can be edited for a website:
+General settings that can be edited for a website:
 
 - Website name
 - Blog Description
