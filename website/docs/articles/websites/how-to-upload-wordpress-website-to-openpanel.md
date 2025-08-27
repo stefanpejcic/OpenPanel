@@ -49,7 +49,7 @@ There are two ways to upload a database:
 
 **2.3 Import SQL file using phpMyAdmin**:
 
-For uploading SQL files using phpMyAdmin interface, pelase follow this guide: [How to Import SQL Files](/docs/panel/mysql/phpmyadmin/#import-sql-files)
+For uploading SQL files using phpMyAdmin interface, please follow this guide: [How to Import SQL Files](/docs/panel/mysql/phpmyadmin/#import-sql-files)
 
 ---
 
@@ -60,7 +60,7 @@ For uploading SQL files using phpMyAdmin interface, pelase follow this guide: [H
 Before uploading, ensure your backup is archived (`.zip`, `.tar` or `.tar.gz`). If it isn’t, compress the files into one archive first.
 
 1. Open **File Manager** in OpenPanel.
-2. Navigate to your domain’s root directory (e.g., `/var/www/html/pejic.rs/`).
+2. Navigate to your domain’s root directory (e.g., `/var/www/html/pejcic.rs/`).
 3. Click the **Upload** button.
 4. Select and upload your backup archive.
 5. Once uploaded, go back to **File Manager**, select the archive, and click **Extract** → confirm extraction.
@@ -80,7 +80,7 @@ Before uploading, ensure your backup is archived (`.zip`, `.tar` or `.tar.gz`). 
    define('DB_PASSWORD', 'your_database_password');
    define('DB_HOST', 'mysql'); // mariadb or mysql - depending on your current setting
    ```
-   ![exmaple wp config ph](https://i.postimg.cc/3NtJLhdS/edit-wp-config-file.png)
+   ![example wp config ph](https://i.postimg.cc/3NtJLhdS/edit-wp-config-file.png)
 3. Save changes.
 
 ---
