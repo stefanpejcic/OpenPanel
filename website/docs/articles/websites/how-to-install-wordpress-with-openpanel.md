@@ -67,7 +67,7 @@ Start editing the wp-config-sample.php file by selecting it and pressing the "Ed
 
 ![Manually_12.png](/img/panel/v2/wpgManual12.png)
 
-Swap the vaules of DB_NAME, DB_USER and DB_PASSWORD with values you've set inside the Database Wizard, set the value of DB_HOST to 'mysql' and save the changes on the top right.
+Swap the values of DB_NAME, DB_USER and DB_PASSWORD with values you've set inside the Database Wizard, set the value of DB_HOST to 'mysql' and save the changes on the top right.
 
 ![Manually_config.png](/img/panel/v2/wpgManualFinal.png)
 
