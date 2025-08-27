@@ -42,7 +42,7 @@ Click the **Change Path** button to save.
 
 ## Delete user
 
-To delete an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Delete** button located next to the user. The button will swich to text 'Confirm', click it again to confirm the deletion.
+To delete an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Delete** button located next to the user. The button will switch to text 'Confirm', click it again to confirm the deletion.
 
 ## View Connections
 
