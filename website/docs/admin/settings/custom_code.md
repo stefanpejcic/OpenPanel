@@ -64,7 +64,7 @@ custom section supports the following fields:
   * `before_files`
   * `before_domains`
   * `before_mysql`
-  * `before_postgreql`
+  * `before_postgresql`
   * `before_applications`
   * `before_emails`
   * `before_cache`
