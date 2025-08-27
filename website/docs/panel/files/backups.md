@@ -121,7 +121,7 @@ Important: If you chose `App folder` access during the creation of your Dropbox 
 
 ## Encryption
 
-Bakcup encryption is by default disbaled and needs to be enabled by the Administrator first.
+Backup encryption is by default disabled and needs to be enabled by the Administrator first.
 
 All of the encryption options are mutually exclusive. Provide a single option for the encryption scheme of your choice.
 
@@ -193,7 +193,7 @@ If no value is set, `@daily` will be used, which runs every day at midnight.
 
 ## Names
 
-Options here are available byt disabled by defuatl and need to be manually enabled by the Administrator first.
+Options here are available byt disabled by default and need to be manually enabled by the Administrator first.
 
 | Setting | Description |
 |----------|----------|
