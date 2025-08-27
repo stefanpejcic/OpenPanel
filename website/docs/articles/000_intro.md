@@ -30,7 +30,7 @@ sidebar_position: 1
 
 # Databases
 - [Configure MySQL, MariaDB or Percona per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
-- [Import MySQL Database](/website/docs/articles/docker/import-database)
+- [Import MySQL Database](/docs/articles/docker/import-database)
 - [Use `mysql` or `mariadb` as DB_HOST instead of *localhost*](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/)
 
 # Configuration
@@ -63,7 +63,7 @@ sidebar_position: 1
 - [How to setup email on iPhone](/docs/articles/email/how-to-setup-email-on-iphone)
 - [How to setup email on Android](/docs/articles/email/how-to-setup-email-on-android)
 - [How to setup email on Apple Mail app](/docs/articles/email/how-to-setup-email-on-apple-mail-app)
-- [How to setup email on Thunderbird](/website/docs/articles/email/how-to-setup-email-on-thunderbird)
+- [How to setup email on Thunderbird](/docs/articles/email/how-to-setup-email-on-thunderbird)
 - [How to setup email on Outlook 365 desktop app](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
 - [How to setup email on Gmail using desktop / browser](/docs/articles/email/how-to-setup-email-in-gmail)
 - [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop)
