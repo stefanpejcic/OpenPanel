@@ -50,7 +50,7 @@ The **Latest News** widget displays news from [OpenPanel Blog](https://openpanel
 
 ## System Information
 
-The **System Informations** widget displays information about your server:
+The **System Information** widget displays information about your server:
 
 - Hostname
 - OS
@@ -64,7 +64,7 @@ The **System Informations** widget displays information about your server:
 
 ## Try Enterprise
 
-The **Try Enterprise** widget is displayed on Community Editio only and displays features for Enterprise edition and options to upgrade.
+The **Try Enterprise** widget is displayed on Community Edition only and displays features for Enterprise edition and options to upgrade.
 
 ## Found a Bug
 
