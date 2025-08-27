@@ -26,7 +26,7 @@ To enable a specific blocklist:
 1. Open file `/etc/csf/csf.blocklists`
 2. **Uncomment** the line that starts with the desired blocklist.
 3. Save the file.
-4. **Restart CSF**, then **restart LFD**: `csf -ra && serfice lfd restart`
+4. **Restart CSF**, then **restart LFD**: `csf -ra && service lfd restart`
 
 
 
