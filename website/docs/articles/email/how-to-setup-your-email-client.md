@@ -9,4 +9,4 @@ This page contains links to specific guides on how to set an email client using 
 - [How to setup email on Apple Mail app](/docs/articles/email/how-to-setup-email-on-apple-mail-app)
 - [How to setup email on Thunderbird](/website/docs/articles/email/how-to-setup-email-on-thunderbird)
 - [How to setup email on Outlook 365 desktop app](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
-  
+- [How to setup email on Gmail using desktop / browser](/docs/articles/email/how-to-setup-email-in-gmail)
