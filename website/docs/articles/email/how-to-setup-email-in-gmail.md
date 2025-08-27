@@ -1,4 +1,4 @@
-# How to Set Up OpenPanel Email in Gmail (Desktop / Browser)
+# How to Set Up OpenPanel Email in Gmail
 
 This guide explains how to add your **OpenPanel-created email account** to Gmail using a web browser.
 
