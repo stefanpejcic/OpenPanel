@@ -494,7 +494,7 @@ export const integrations: IntegrationsType = {
             name: "WHMCS",
             icon: WHMCS,
             description: "Integrate with the leading web hosting management and billing software.",
-            url: "/blog/openpanel-whmcs-module/",
+            url: "/docs/articles/extensions/openpanel-and-whmcs/",
             status: "stable",
         },
         {
