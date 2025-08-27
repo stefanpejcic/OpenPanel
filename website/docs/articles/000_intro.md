@@ -60,6 +60,12 @@ sidebar_position: 1
 - [CSF Blocklists](/docs/articles/security/csf-blocklists/)
 
 # Emails
+- [How to setup email on iPhone](/docs/articles/email/how-to-setup-email-on-iphone)
+- [How to setup email on Android](/docs/articles/email/how-to-setup-email-on-android)
+- [How to setup email on Apple Mail app](/docs/articles/email/how-to-setup-email-on-apple-mail-app)
+- [How to setup email on Thunderbird](/website/docs/articles/email/how-to-setup-email-on-thunderbird)
+- [How to setup email on Outlook 365 desktop app](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
+- [How to setup email on Gmail using desktop / browser](/docs/articles/email/how-to-setup-email-in-gmail)
 - [IMAP vs POP3 - which to use?](/docs/articles/email/imap-vs-pop)
 - [How to configure Email server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/)
 - [How to enable and access RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/)
