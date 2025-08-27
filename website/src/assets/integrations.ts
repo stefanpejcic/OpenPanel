@@ -512,10 +512,10 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },        
         {
-            name: "REST API",
+            name: "API",
             icon: API,
             description:
-                "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
+                "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
             url: "https://dev.openpanel.com/openadmin-api/",
             status: "stable",
         },
