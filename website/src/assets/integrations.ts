@@ -375,19 +375,19 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
-            name: "Nginx or Apache per user",
+            name: "Webserver per user",
             icon: UserServer,
             description:
-                "Administrators can select Apache, Nginx, OpenResty or Varnish as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+                "Administrators can select Apache, Nginx, OpenResty or OpenLitespeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
         {
-            name: "MySQL or MariaDB per user",
+            name: "Database server per user",
             icon: UserServer,
             description:
-                "Administrators can select either MySQL or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+                "Administrators can select either MySQL, Percona or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
+            url: "/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/",
             status: "stable",
         },
     ],
