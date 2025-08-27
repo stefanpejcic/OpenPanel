@@ -15,7 +15,7 @@ The admin panel has three user roles:
 | ------------------ | ------------------------------------------------------------------------- |
 | **Super Admin**    | Has unrestricted privileges, created on OpenPanel installation. |
 | **Admin**          | Has unrestricted privileges, but can not edit the SuperAdmin user. |
-| **Reseller**       | Has restrited privileges. |
+| **Reseller**       | Has restricted privileges. |
 
 
 ## Manage Admin users
