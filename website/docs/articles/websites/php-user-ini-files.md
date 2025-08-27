@@ -24,4 +24,4 @@ Finally, open your website and confirm the changes:
 
 ---
 
-> **NOTE**: Since the `.user.ini` is read from public directories, it's contents will be served to anyone requesting it and potientially show them sensitive configuration settings. Block access to it using .htaccess file in Apache, or via Vhost Editor for Nginx/OpenResty.
+> **NOTE**: Since the `.user.ini` is read from public directories, it's contents will be served to anyone requesting it and potentially show them sensitive configuration settings. Block access to it using .htaccess file in Apache, or via Vhost Editor for Nginx/OpenResty.
