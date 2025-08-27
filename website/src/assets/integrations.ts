@@ -113,7 +113,7 @@ export const integrations: IntegrationsType = {
             icon: PHP,
             description:
                 "Users can use different PHP versions for each domain, run multiple versions, set a default version for new domains, change limits by editing php.ini files.",
-            url: "/docs/panel/advanced/server_settings/#php-settings",
+            url: "/docs/panel/php/domains/",
             status: "stable",
         },
         {
@@ -136,7 +136,7 @@ export const integrations: IntegrationsType = {
             icon: MySQL,
             description:
                 "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
-            url: "/docs/panel/mysql/",
+            url: "/docs/panel/mysql/databases/",
             status: "stable",
         },
         {
@@ -168,7 +168,7 @@ export const integrations: IntegrationsType = {
             icon: Configuration,
             description:
                 "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
-            url: "/docs/panel/advanced/server_settings/",
+            url: "/docs/panel/advanced/webserver_settings/",
             status: "stable",
         },
         {
@@ -192,7 +192,7 @@ export const integrations: IntegrationsType = {
             icon: Usage,
             description:
                 "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
-            url: "/docs/panel/analytics/resource_usage/",
+            url: "/docs/panel/advanced/resource_usage/",
             status: "stable",
         },
         {
@@ -208,7 +208,7 @@ export const integrations: IntegrationsType = {
             icon: Activity,
             description:
                 "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
-            url: "/docs/panel/analytics/account_activity/",
+            url: "/docs/panel/account/account_activity/",
             status: "stable",
         },
         {
@@ -256,8 +256,8 @@ export const integrations: IntegrationsType = {
             name: "Resource usage statistics",
             icon: Usage,
             description:
-                "Monitor CPU and Memory usage, Network and load with real time monitoring.",
-            url: "/docs/admin/dashboard/#cpu",
+                "Monitor CPU, Memory usage, Network, Disk and load with real time monitoring.",
+            url: "/docs/admin/dashboard/#sse-usage",
             status: "stable",
         },
         {
@@ -265,7 +265,7 @@ export const integrations: IntegrationsType = {
             icon: Services,
             description:
                 "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
-            url: "/docs/admin/dashboard/#services-status",
+            url: "/docs/admin/services/status/",
             status: "stable",
         },
         {
@@ -413,7 +413,7 @@ export const integrations: IntegrationsType = {
             icon: SSL,
             description:
                 "Automatically provision and renewal of Let's Encrypt certificates.",
-            url: "/docs/panel/domains/SSL/",
+            url: "/docs/panel/domains/ssl/",
             status: "stable",
         },
         {
