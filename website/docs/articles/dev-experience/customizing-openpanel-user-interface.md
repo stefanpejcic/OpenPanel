@@ -35,7 +35,7 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 
 ## Set pre-installed services
 
-OpenPanel uses docker compose files as the base for each user. Based on the docker images in that compose filese, different services can be set per plan/user. 
+OpenPanel uses docker compose files as the base for each user. Based on the docker images in that compose files, different services can be set per plan/user. 
 
 
 ## Localize the interface
