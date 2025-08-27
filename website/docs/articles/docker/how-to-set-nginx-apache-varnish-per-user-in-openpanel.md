@@ -42,7 +42,7 @@ Administrators can select the default webserver to be used from [*OpenAdmin > Se
 
 ## Apache
 
-Apache can be assigned either to all new users by default or to individual users during account creation.
+[Apache](https://httpd.apache.org/) can be assigned either to all new users by default or to individual users during account creation.
 
 ### Set for a Single User
 
@@ -66,6 +66,8 @@ To make Apache the default for all newly created users:
 
 ## Nginx
 
+[Nginx](https://httpd.apache.org/) can be assigned either to all new users by default or to individual users during account creation.
+
 ### Set for a Single User
 
 1. Open the **New User** form.
@@ -83,6 +85,9 @@ To make Apache the default for all newly created users:
 
 ## OpenResty
 
+[OpenResty](https://openresty.org/) can be assigned either to all new users by default or to individual users during account creation.
+
+
 ### Set for a Single User
 
 1. Open the **New User** form.
@@ -99,6 +104,8 @@ To make Apache the default for all newly created users:
 ---
 
 ## OpenLiteSpeed
+
+[OpenLiteSpeed](https://openlitespeed.org/) can be assigned either to all new users by default or to individual users during account creation.
 
 ### Set for a Single User
 
