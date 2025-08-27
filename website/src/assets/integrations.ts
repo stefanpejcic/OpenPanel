@@ -436,7 +436,7 @@ export const integrations: IntegrationsType = {
             name: "ImunifyAV",
             icon: Services,
             description:
-                "OpenAdmin fully supoorts ImunifyAV.",
+                "OpenAdmin fully supports ImunifyAV.",
             url: "/docs/admin/security/imunify/",
             status: "stable",
         },
