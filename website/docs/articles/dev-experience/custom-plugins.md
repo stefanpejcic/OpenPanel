@@ -58,7 +58,7 @@ from flask_babel import Babel, _
 # Import stuff from OpenPanel core
 from app import app, inject_data, get_openpanel_ip, login_required_route
 
-# custom funtion example
+# custom function example
 def get_client_ip():
     if request.headers.getlist("X-Forwarded-For"):
         client_ip = request.headers.getlist("X-Forwarded-For")[0].split(',')[0].strip()
@@ -69,7 +69,7 @@ def get_client_ip():
 
 
 
-# you can not run pip install for additional tools, and since mtr is not available in OpenPanel UI contianer, we need to use vanila python to simulate traceroute output
+# you can not run pip install for additional tools, and since mtr is not available in OpenPanel UI container, we need to use vanilla python to simulate traceroute output
 def simple_traceroute(dest_name, max_hops=30, timeout=1):
     try:
         dest_addr = socket.gethostbyname(dest_name)
@@ -139,7 +139,7 @@ def traceroute():
             # use _( ) to allow localization of the text
             result = _("Please enter a valid IP address or hostname.")
 
-    # this is needed for tempaltes to overwrite global templates folder
+    # this is needed for templates to overwrite global templates folder
     #exit the html file name accordingly
     template_path = os.path.join(os.path.dirname(__file__), 'traceroute.html')
     with open(template_path) as f:
@@ -148,7 +148,7 @@ def traceroute():
     # return ip address for openpanel account
     current_username = inject_data().get('current_username') # returns username of the current openpanel account
     server_ip = get_openpanel_ip(current_username) # returns IP for the current openpanel account
-    client_ip = get_client_ip() # returns ip form our cusotm function
+    client_ip = get_client_ip() # returns ip form our custom function
 
     return render_template_string(
         template,
