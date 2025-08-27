@@ -23,7 +23,7 @@ Displays the total number of email accounts currently active on the server. This
 ## Webmail
 
 - Status - displays current webmail service status
-- Current Software - displays curent seleted client
+- Current Software - displays current selected client
 - Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
 - Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
 
