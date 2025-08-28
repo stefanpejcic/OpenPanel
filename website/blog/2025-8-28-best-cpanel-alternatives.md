@@ -29,7 +29,7 @@ While cPanel is powerful, it comes with some drawbacks:
 
 Here are some of the best options you can use instead of cPanel this year:
 
-### 1. **OpenPanel (Best Overall Choice)**
+### 1. **OpenPanel (Best Choice)**
 
 ![openpanel screenshot](https://i.postimg.cc/ZJtHVSW-v/slika.png)
 
