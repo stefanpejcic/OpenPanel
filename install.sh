@@ -1081,7 +1081,7 @@ set_email_address_and_email_admin_logins(){
                   		fi
                   	fi
                   fi
-                  curl -4 -k -X POST "$PROTOCOL://$admin_domain:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message"
+                  curl -4 -k -X POST "$PROTOCOL://$admin_domain:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message" --max-time 15
                 }
 
                 server_hostname=$(hostname)
