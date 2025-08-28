@@ -1,6 +1,6 @@
 # Installing OpenPanel
 
-Before starting, ensure your server meets [the minimum requirements](https://openpanel.com/docs/admin/intro/#requirements) and runs a supported distribution.
+Before starting, ensure your server meets [the minimum requirements](/docs/admin/intro/#requirements) and runs a supported distribution.
 
 To install OpenPanel on your server:
 
