@@ -483,7 +483,7 @@ detect_os_cpu_and_package_manager() {
 
 docker_compose_up(){
     echo "Setting docker-compose.."
-    DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+    DOCKER_CONFIG=${DOCKER_CONFIG:-/root/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
 
     if [ "$architecture" == "aarch64" ]; then
@@ -507,10 +507,10 @@ docker_compose_up(){
 		  fi
 		}'
 
-		if [ -f "$HOME/.bashrc" ]; then
-		    config_file="$HOME/.bashrc"
-		elif [ -f "$HOME/.zshrc" ]; then
-		    config_file="$HOME/.zshrc"
+		if [ -f "/root/.bashrc" ]; then
+		    config_file="/root/.bashrc"
+		elif [ -f "/root/.zshrc" ]; then
+		    config_file="/root/.zshrc"
 		else
 		    radovan 1 "ERROR: Neither .bashrc nor .zshrc file found. Exiting."
 		fi
