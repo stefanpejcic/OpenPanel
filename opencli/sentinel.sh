@@ -381,8 +381,7 @@ check_ssh_logins() {
 
       #echo "Number of IPs in the SSH sessions but not in the login log file: $counter"
 
-      # Prepare the message
-      message="$counter ${result[1]} "
+      #message="$counter ${result[1]} "
       for unmatched_ip in "${suspecious_ips[@]}"; do
           message+="  $unmatched_ip"
       done
