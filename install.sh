@@ -876,7 +876,7 @@ install_packages() {
                           "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             else
                 packages=("git" "ncurses" "wget" "gnupg" "systemd" "dbus" "systemd-container" \
-                          "quota" "quotatool" "shadow-utils" "docker-ce" "docker-ce-cli" "mysql" \
+                          "quota" "quotatool" "shadow-utils" "docker-ce" "docker-ce-cli" "mariadb" \
                           "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             fi
 
