@@ -1288,7 +1288,8 @@ check_permissions_in_root_dir() {
 
 install_python312() {
     OS=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    
+    CODENAME=$(grep '^VERSION_CODENAME=' /etc/os-release | cut -d= -f2 | tr -d '"')
+	
     if command -v python3.12 &> /dev/null; then
         echo "Python 3.12 is already installed, installing python3.12-venv.."
 
@@ -1298,12 +1299,12 @@ install_python312() {
         if [ "$OS" == "ubuntu" ]; then
             debug_log add-apt-repository -y ppa:deadsnakes/ppa
         elif [ "$OS" == "debian" ]; then
-            echo "Debian detected, adding backports repository."
+            echo "Debian ($CODENAME) detected, adding backports repository."
             wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
             cat <<EOF | tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: bookworm-backports
+Suites: ${CODENAME}-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
@@ -1333,12 +1334,12 @@ EOF
 
      
         elif [ "$OS" == "debian" ]; then
-            debug_log "adding backports repository."
+            echo "Debian ($CODENAME) detected, adding backports repository."
             debug_log wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
             debug_log cat <<EOF | tee /etc/apt/sources.list.d/pascalroeleven.sources
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: bookworm-backports
+Suites: ${CODENAME}-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF
