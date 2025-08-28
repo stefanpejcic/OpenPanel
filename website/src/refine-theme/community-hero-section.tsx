@@ -1,6 +1,6 @@
 import React from "react";
 import clsx from "clsx";
-import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
+import { EnterpriseGetInTouchButton } from "./community-download-button";
 import { CommonThemedImage } from "./common-themed-image";
 
 export const EnterpriseHeroSection = ({
