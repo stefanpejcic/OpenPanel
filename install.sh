@@ -891,11 +891,17 @@ install_packages() {
         if ! is_package_installed "$package"; then
             debug_log $PACKAGE_MANAGER install -y "$package" || {
                 echo "Error: Installation of $package failed. Retrying.."
-                $PACKAGE_MANAGER install -y "$package" || {
-                    radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
-                    exit 1
-                }
-            }
+				if [[ "$package" == "quota" || "$package" == "quotatool" ]]; then
+					$PACKAGE_MANAGER install -y "$package" || {
+						echo "WARNING: Installation of '$package' failed. You may need to install it manually."
+					}
+				else
+					$PACKAGE_MANAGER install -y "$package" || {
+						radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
+						exit 1
+					}
+				fi
+             }
         else
             echo -e "${GREEN}$package is already installed. Skipping.${RESET}"
         fi
