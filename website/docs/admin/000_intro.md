@@ -48,25 +48,32 @@ The installation script supports [optional flags](/install) that can be used to 
 If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
 
   </TabItem>
-  <TabItem value="openpanel-install-on-ansible" label="Ansible">
+  <TabItem value="openpanel-install-on-cloud" label="Cloud">
 
-```bash
----
-- name: Install OpenPanel on target machine
-  hosts: all
-  become: true
-  vars:
-    openpanel_install_flags: "--debug --username=admin --password=super123"  # Customize your flags here, full list: https://openpanel.com/install
+- **[Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)**  
+  Launch an EC2 instance with Ubuntu or Debian, configure network settings, associate an Elastic IP, and run the OpenPanel installer.
 
-  tasks:
-    - name: Download and run OpenPanel installer 
-      shell: |
-        curl -sSL https://openpanel.org | bash -s -- {{ openpanel_install_flags }}
-      args:
-        executable: /bin/bash
-```
+- **[DigitalOcean](/docs/articles/install-update/install-on-digitalocean)**  
+  Create a Droplet, assign a Reserved IP, connect via SSH, and run the OpenPanel installer.
+
+- **[Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud)**  
+  Create a VM instance, assign a static IP, configure firewall rules, connect via SSH, and run the installer.
+
+- **[Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)**  
+  Create a Virtual Machine, set up SSH authentication, allow TCP traffic via firewall rules, connect, and run the installer.
+
+- **[Vultr](/docs/articles/install-update/install-on-vultr)**  
+  Deploy a server instance, configure SSH keys, and run the OpenPanel installer.
 
   </TabItem>
+  </TabItem>
+  <TabItem value="openpanel-install-on-other" label="Other">
+
+- **[Virtualizor)](/docs/articles/install-update/install-on-virtualizor)**
+- **[CloudInit](/docs/articles/install-update/install-using-cloudinit)**
+- **[Ansible](/docs/articles/install-update/install-using-ansible)**
+
+  </TabItem>  
 </Tabs>
 
 
