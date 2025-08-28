@@ -5,7 +5,9 @@ When a new update is available, you will receive a notification in the OpenAdmin
 <Tabs>
   <TabItem value="openadmin-admin-update-now" label="With OpenAdmin" default>
 
-To manually update OpenPanel, navigate to **OpenAdmin > Settings > Update Preferences** and click on the "Update Now" button. NOTE: update is visible only if newer version is available.
+To manually update OpenPanel, navigate to **OpenAdmin > Settings > Update Preferences** and click on the "Update Now" button.
+
+NOTE: update is visible only if newer version is available.
 
   </TabItem>
   <TabItem value="CLI-update-now" label="With OpenCLI">
