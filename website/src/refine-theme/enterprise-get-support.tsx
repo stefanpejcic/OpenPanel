@@ -139,8 +139,8 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                             "rounded-2xl landing-sm:rounded-3xl",
                             "landing-lg:h-[360px]",
                         )}
-                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/onboarding-dark.png"
-                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/onboarding-light.png"
+                        srcDark="/img/ilustrations/enterprise_modules.png"
+                        srcLight="/img/ilustrations/enterprise_modules_light.png"
                     />
                     <div
                         className={clsx(
@@ -157,7 +157,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            Onboarding assistance and training
+                            Premium Features
                         </h2>
                         <p
                             className={clsx(
@@ -165,8 +165,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Our acceleration program to help plan, architect and
-                            build your hosting business.
+                            Premium features for your hosting business: Emails, FTP, Docker, OpenLitespeed, Varnish Caching, and much more.
                         </p>
                     </div>
                 </div>
