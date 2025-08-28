@@ -6,6 +6,7 @@ authors: stefanpejcic
 tags: [OpenPanel, Enterprise, free trial, hosting panel]
 image: https://openpanel.com/img/blog/openpanel-enterprise-trial.png
 hide_table_of_contents: true
+is_featured: true
 ---
 
 # Try OpenPanel Enterprise Free for 1 Month  
