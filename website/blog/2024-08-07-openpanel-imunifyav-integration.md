@@ -6,6 +6,7 @@ authors: stefanpejcic
 tags: [OpenPanel, ImunifyAV, security, malware, hosting panel]
 image: https://openpanel.com/img/blog/openpanel_imunifyav.png
 hide_table_of_contents: true
+is_featured: true
 ---
 
 
