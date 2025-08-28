@@ -17,7 +17,7 @@ Minimum Requirements:
 
 Supported OS:
 - **Ubuntu 24.04** (recommended)
-- **Debian [10](https://voidnull.es/instalacion-de-openpanel-en-debian-10/), 11 and 12**
+- **Debian 10, 11 and 12**
 - **AlmaLinux 9.5 and 10** (recommended for ARM cpu)
 - **RockyLinux 9.6**
 - **CentOS 9.5**
@@ -50,27 +50,18 @@ If you encountered any errors while running the installation script, please copy
   </TabItem>
   <TabItem value="openpanel-install-on-cloud" label="Cloud">
 
-- **[Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)**  
-  Launch an EC2 instance with Ubuntu or Debian, configure network settings, associate an Elastic IP, and run the OpenPanel installer.
-
-- **[DigitalOcean](/docs/articles/install-update/install-on-digitalocean)**  
-  Create a Droplet, assign a Reserved IP, connect via SSH, and run the OpenPanel installer.
-
-- **[Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud)**  
-  Create a VM instance, assign a static IP, configure firewall rules, connect via SSH, and run the installer.
-
-- **[Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)**  
-  Create a Virtual Machine, set up SSH authentication, allow TCP traffic via firewall rules, connect, and run the installer.
-
-- **[Vultr](/docs/articles/install-update/install-on-vultr)**  
-  Deploy a server instance, configure SSH keys, and run the OpenPanel installer.
+- [Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)
+- [DigitalOcean](/docs/articles/install-update/install-on-digitalocean)
+- [Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud)
+- [Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)
+- [Vultr](/docs/articles/install-update/install-on-vultr)
 
   </TabItem>
   <TabItem value="openpanel-install-on-other" label="Other">
 
-- **[CloudInit](/docs/articles/install-update/install-using-cloudinit)**
-- **[Ansible](/docs/articles/install-update/install-using-ansible)**
-- **[Virtualizor)](/docs/articles/install-update/install-on-virtualizor)**
+- [CloudInit](/docs/articles/install-update/install-using-cloudinit)
+- [Ansible](/docs/articles/install-update/install-using-ansible)
+- [Virtualizor)](/docs/articles/install-update/install-on-virtualizor)
 
   </TabItem>  
 </Tabs>
