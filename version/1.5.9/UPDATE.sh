@@ -1,5 +1,11 @@
 #!/bin/bash
 
+
+
+echo "Changing ScreenshotsAPI URL.."
+sed -i 's|http://screenshots-api.openpanel.com/screenshot|http://screenshots-v2.openpanel.com/api/screenshot|g' /etc/openpanel/openpanel/conf/openpanel.config
+
+
 echo "Adding Mautic, SSL and Docroot modules.."
 wget -O /etc/openpanel/openadmin/config/features.json  https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json
 
