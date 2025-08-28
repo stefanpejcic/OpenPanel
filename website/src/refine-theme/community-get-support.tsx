@@ -135,7 +135,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                 >
                     <CommonThemedImage
                         style={{
-                            object-fit: "none",
+                            objectFit: "none",
                         }}
                         className={clsx(
                             "rounded-2xl landing-sm:rounded-3xl",
