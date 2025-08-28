@@ -50,20 +50,11 @@ If you encountered any errors while running the installation script, please copy
   </TabItem>
   <TabItem value="openpanel-install-on-cloud" label="Cloud">
 
-- **[Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)**  
-  Launch an EC2 instance with Ubuntu or Debian, configure network settings, associate an Elastic IP, and run the OpenPanel installer.
-
+- **[Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)** 
 - **[DigitalOcean](/docs/articles/install-update/install-on-digitalocean)**  
-  Create a Droplet, assign a Reserved IP, connect via SSH, and run the OpenPanel installer.
-
 - **[Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud)**  
-  Create a VM instance, assign a static IP, configure firewall rules, connect via SSH, and run the installer.
-
 - **[Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)**  
-  Create a Virtual Machine, set up SSH authentication, allow TCP traffic via firewall rules, connect, and run the installer.
-
 - **[Vultr](/docs/articles/install-update/install-on-vultr)**  
-  Deploy a server instance, configure SSH keys, and run the OpenPanel installer.
 
   </TabItem>
   </TabItem>
