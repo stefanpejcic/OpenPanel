@@ -29,7 +29,7 @@ Here are some of the biggest reasons developers and website owners go for free s
 
 Here are the top options you should consider:
 
-### 1. **OpenPanel (Best Free Edition)**
+### 1. **OpenPanel**
 
 ![openpanel demo](https://i.postimg.cc/ZJtHVSW-v/slika.png)
 
@@ -41,7 +41,7 @@ Here are the top options you should consider:
 
 ---
 
-### 2. **CyberPanel (Free Core Edition)**
+### 2. **CyberPanel**
 
 * Free, open-source version available with premium upgrades.
 * Built on OpenLiteSpeed web server for strong WordPress performance.
