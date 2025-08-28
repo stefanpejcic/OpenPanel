@@ -42,7 +42,7 @@ SEND_EMAIL_AFTER_INSTALL=false                                        # send adm
 SET_PREMIUM=false                                                     # added in 0.2.1
 SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
-SCREENSHOTS_API_URL="http://screenshots-api.openpanel.com/screenshot" # default since 0.2.1
+SCREENSHOTS_API_URL="http://screenshots-v2.openpanel.com/api/screenshot" # default since 0.5.9
 DEV_MODE=false
 post_install_path=""                                                  # not to run
 # ======================================================================
