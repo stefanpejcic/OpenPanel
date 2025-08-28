@@ -138,8 +138,8 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                             "rounded-2xl landing-sm:rounded-3xl",
                             "landing-lg:h-[360px]",
                         )}
-                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/onboarding-dark.png"
-                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/onboarding-light.png"
+                        srcDark="/img/ilustrations/community_modules.png"
+                        srcLight="/img/ilustrations/community_modules_light.png"
                     />
                     <div
                         className={clsx(
