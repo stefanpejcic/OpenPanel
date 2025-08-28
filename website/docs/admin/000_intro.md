@@ -50,19 +50,19 @@ If you encountered any errors while running the installation script, please copy
   </TabItem>
   <TabItem value="openpanel-install-on-cloud" label="Cloud">
 
-- **[Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)** 
-- **[DigitalOcean](/docs/articles/install-update/install-on-digitalocean)**  
-- **[Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud)**  
-- **[Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)**  
-- **[Vultr](/docs/articles/install-update/install-on-vultr)**  
+- [Amazon Web Services (AWS)](/docs/articles/install-update/install-on-aws)
+- [DigitalOcean](/docs/articles/install-update/install-on-digitalocean)
+- [Google Cloud Platform (GCP)](/docs/articles/install-update/install-on-google-cloud) 
+- [Microsoft Azure](/docs/articles/install-update/install-on-microsoft-azure)
+- [Vultr](/docs/articles/install-update/install-on-vultr) 
 
   </TabItem>
   </TabItem>
   <TabItem value="openpanel-install-on-other" label="Other">
 
-- **[Virtualizor)](/docs/articles/install-update/install-on-virtualizor)**
-- **[CloudInit](/docs/articles/install-update/install-using-cloudinit)**
-- **[Ansible](/docs/articles/install-update/install-using-ansible)**
+- [Virtualizor)](/docs/articles/install-update/install-on-virtualizor)
+- [CloudInit](/docs/articles/install-update/install-using-cloudinit)
+- [Ansible](/docs/articles/install-update/install-using-ansible)
 
   </TabItem>  
 </Tabs>
