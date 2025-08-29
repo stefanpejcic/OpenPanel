@@ -97,7 +97,7 @@ Receive notifications when specific actions occur:
 
 ## Daily Usage Reports
 
-If email address si set, daily usage report will be sent to the address, schedule is configurable from 'Advanced > System Cron Jobs'.
+If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Advanced > System Cron Jobs'.
 
 ![report example](https://i.postimg.cc/KG2X0zcp/2025-08-25-13-23.png)
 
