@@ -333,7 +333,7 @@ const list = [
             </g>
         </svg>
         ),
-        iconText: "Nginx",
+        iconText: "Nginx & OpenLitespeed",
         image1Dark:
             "/img/ilustrations/defaults_dark.png",
         image1Light:
@@ -356,7 +356,7 @@ const list = [
             />
         </svg>
         ),
-        iconText: "Docker",
+        iconText: "Containerized services",
         image1Dark:
             "/img/ilustrations/docker_dark.png",
         image1Light:
@@ -369,7 +369,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
     {
-        title: "MySQL, MariaDB, Percona",
+        title: "Database server per user",
         description: `Each user has their own MySQL or MariaDB instance and can edit configuration settings for their databases.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 -2 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
@@ -377,7 +377,7 @@ const list = [
             <path d="M58.1864892,43.0222644 C55.2286063,43.0222644 53.1417305,43.3715526 51.0537447,43.8932806 C51.0537447,43.8923744 51.0537447,44.0679225 51.0537447,44.2414633 L51.4019319,44.2414633 C52.794658,47.0247034 55.2286154,48.9391485 56.968414,51.3741978 C58.3611446,54.1574389 59.5781143,56.9417945 60.9708449,59.7261412 C61.1443766,59.5514948 61.3179175,59.3779585 61.3179175,59.3779585 C63.7551915,57.6370498 64.9721657,54.8538087 64.9721657,50.6789426 C63.9276177,49.4608583 63.7540769,48.2427786 62.8841798,47.0246944 C61.8407374,45.283782 59.5781052,44.414995 58.1864892,43.0222644 L58.1864892,43.0222644 L58.1864892,43.0222644 Z" fill="#00546B"></path>
         </svg>
         ),
-        iconText: "MySQL",
+        iconText: "MySQL, MariaDB, Percona",
         image1Dark:
             "/img/ilustrations/databases_dark.png",
         image1Light:
@@ -426,7 +426,7 @@ const list = [
             <path d="M146.755 51.243l38.54-15.245.03 27.519-3.779 1.478-34.791-13.752" fill="#9A2928" />
         </svg>
         ),
-        iconText: "REDIS",
+        iconText: "REDIS & Varnish",
         image1Dark:
             "/img/ilustrations/redis_dark.png",
         image1Light:
@@ -452,7 +452,7 @@ const list = [
             </g>
         </svg>
         ),
-        iconText: "PHP",
+        iconText: "Multiple PHP versions",
         image1Dark:
             "/img/ilustrations/php_dark.png",
         image1Light:
@@ -465,7 +465,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
     {
-        title: "CSF and CorazaWAF",
+        title: "CSF, CorazaWAF and ImunifyAV",
         description: `OpenPanel fully supports ConfigServer Security and Firewall (CSF) and comes with built-in WAF.`,
         icon: (props: { active: boolean }) => (
              <AuthenticationIcon
@@ -476,7 +476,7 @@ const list = [
                 )}
             />
         ),
-        iconText: "Firewall",
+        iconText: "CorazaWAF and ImunifyAV",
         image1Dark:
             "/img/ilustrations/waf_dark.png",
         image1Light:
