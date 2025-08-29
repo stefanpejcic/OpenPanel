@@ -12,6 +12,8 @@ WordPress powers over 40% of all websites, making it the world’s most popular 
 
 <!--truncate-->
 
+![wp-manager](https://i.postimg.cc/bpRjSrKG/slika.png)
+
 ## One-Click WordPress Installs
 
 Setting up WordPress has never been easier. OpenPanel lets you:
