@@ -49,11 +49,14 @@ Updated load to 10
 
 ## Email
 
-To receive email alerts, enter your email address in the **Email for notifications** field. Leave it empty to disable email alerts.
+Configure email address to be used for receiving system notifications and alerts.
 
-Providing an email will also enable daily Usage Reports:
+Enter your email address in the **Email for notifications** field. Leave it empty to disable email alerts.
 
-![image](/img/admin/daily_report.png)
+If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Advanced > System Cron Jobs'.
+
+![report example](/img/admin/daily_report.png)
+
 
 ---
 
@@ -92,14 +95,6 @@ Receive notifications when specific actions occur:
 * User reaches plan limit
 * OpenAdmin accessed from a new IP address
 * New OpenPanel update available
-
----
-
-## Daily Usage Reports
-
-If email address is set, daily usage report will be sent to the address, schedule is configurable from 'Advanced > System Cron Jobs'.
-
-![report example](https://i.postimg.cc/KG2X0zcp/2025-08-25-13-23.png)
 
 ---
 
