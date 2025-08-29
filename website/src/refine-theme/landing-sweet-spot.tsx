@@ -383,7 +383,7 @@ const list = [
         image1Light:
             "/img/ilustrations/databases.png",
         image2Dark:
-            "/img/ilustrations/mysql_small.png",
+            "/img/ilustrations/mysql_small_dark.png",
         image2Light:
             "/img/ilustrations/mysql_small.png",
         backgroundImage:
