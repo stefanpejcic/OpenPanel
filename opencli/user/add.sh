@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 27.08.2025
+# Last Modified: 28.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -702,7 +702,7 @@ download_images() {
 	fi
 	
 	ws_type=$(get_env_value "WEB_SERVER")
-	valid_ws_types=("nginx" "apache" "openresty" "openlitespeed", "litespeed")
+	valid_ws_types=("nginx" "apache" "openresty" "openlitespeed" "litespeed")
 	if [[ -n "$ws_type" ]]; then
 	    if [[ ! " ${valid_ws_types[*]} " =~ " $ws_type " ]]; then
 	        echo "Warning: WEB_SERVER must be 'nginx', 'apache', 'openlitespeed', 'litespeed', or 'openresty', got '$ws_type'"
