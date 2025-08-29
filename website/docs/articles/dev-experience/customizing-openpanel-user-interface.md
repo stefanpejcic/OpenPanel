@@ -200,3 +200,8 @@ To insert custom code within the `<footer>` tag of the OpenPanel interface, modi
 nano /etc/openpanel/openpanel/custom_code/in_footer.html
 ```
 
+
+## Customize Email templates
+
+How to modify the email template used for user notifications: https://community.openpanel.org/d/189-customizing-the-email-template-used-for-user-notifications
+
