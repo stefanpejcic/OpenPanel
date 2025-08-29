@@ -2,6 +2,9 @@
 
 ⚠️ Currently, adding custom SSL certificates for OpenPanel and Webmail is only possible from the terminal.
 
+- Let's Encrypt certificates are stored in `/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/`
+- Custom certificates must be placed in `/etc/openpanel/caddy/ssl/custom/`
+
 ---
 
 ## Custom SSL for OpenAdmin and OpenPanel
@@ -10,8 +13,13 @@ Follow these steps to configure a custom SSL certificate for OpenAdmin and OpenP
 
 ### 1. Add the certificate
 
-Create a directory for your domain inside `/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/`:
+Create a directory `custom` in `/etc/openpanel/caddy/ssl/`:
 
+```bash
+mkdir -p /etc/openpanel/caddy/ssl/custom/
+```
+
+Then create directory name same as your doamin
 ```bash
 mkdir -p /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/YOUR_DOMAIN_HERE/
 ```
@@ -24,26 +32,24 @@ Upload your SSL files to this directory and name them:
 **Example:**
 
 ```
-/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.crt
-/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.key
+/etc/openpanel/caddy/ssl/custom/srv.openpanel.com/srv.openpanel.com.crt
+/etc/openpanel/caddy/ssl/custom/srv.openpanel.com/srv.openpanel.com.key
 ```
 
-### 2. Assign the domain
+### 2. Set the domain
 
 ```bash
 opencli set domain <DOMAIN_NAME>
 ```
 
 **Example:**
-
 ```bash
-opencli set domain srv.openpanel.com
+opencli domain set srv.openpanel.com
 ```
 
 ### 3. Configure Caddy
 
 Open the **Caddyfile**:
-
 ```bash
 nano /etc/openpanel/caddy/Caddyfile
 ```
@@ -60,7 +66,7 @@ example.net {
 Add the `tls` line after `reverse_proxy`:
 
 ```
-tls /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.crt /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.key
+tls /etc/openpanel/caddy/ssl/custom/srv.openpanel.com/srv.openpanel.com.crt /etc/openpanel/caddy/ssl/custom/srv.openpanel.com/srv.openpanel.com.key
 ```
 
 👉 Replace `srv.openpanel.com` with your actual domain.
@@ -80,7 +86,7 @@ docker restart caddy
 Create a directory for your domain:
 
 ```bash
-mkdir -p /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/YOUR_DOMAIN_HERE/
+mkdir -p /etc/openpanel/caddy/ssl/custom/YOUR_DOMAIN_HERE/
 ```
 
 Upload your SSL files and name them:
@@ -91,8 +97,8 @@ Upload your SSL files and name them:
 **Example:**
 
 ```
-/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.crt
-/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.key
+/etc/openpanel/caddy/ssl/custom/webmail.openpanel.com/webmail.openpanel.com.crt
+/etc/openpanel/caddy/ssl/custom/webmail.openpanel.com/webmail.openpanel.com.key
 ```
 
 ### 2. Assign the domain
@@ -104,7 +110,7 @@ opencli email-webmail <DOMAIN_NAME>
 **Example:**
 
 ```bash
-opencli email-webmail srv.openpanel.com
+opencli email-webmail webmail.openpanel.com
 ```
 
 ### 3. Configure Caddy
@@ -128,10 +134,10 @@ webmail.example.net {
 Add the `tls` line after `reverse_proxy`:
 
 ```
-tls /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.crt /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/srv.openpanel.com/srv.openpanel.com.key
+tls /etc/openpanel/caddy/ssl/custom/webmail.openpanel.com/webmail.openpanel.com.crt /etc/openpanel/caddy/ssl/custom/webmail.openpanel.com/webmail.openpanel.com.key
 ```
 
-👉 Replace `srv.openpanel.com` with your domain.
+👉 Replace `webmail.openpanel.com` with your domain.
 
 Restart Caddy to apply the changes:
 
