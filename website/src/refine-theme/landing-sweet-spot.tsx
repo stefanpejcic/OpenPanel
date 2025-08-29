@@ -335,9 +335,9 @@ const list = [
         ),
         iconText: "Nginx",
         image1Dark:
-            "/img/ilustrations/nginx_large.png",
+            "/img/ilustrations/defaults_dark.png",
         image1Light:
-            "/img/ilustrations/nginx_large.png",
+            "/img/ilustrations/defaults.png",
         image2Dark:
             "/img/ilustrations/nginx_small.png",
         image2Light:
@@ -358,9 +358,9 @@ const list = [
         ),
         iconText: "Docker",
         image1Dark:
-            "/img/ilustrations/docker_large.png",
+            "/img/ilustrations/docker_dark.png",
         image1Light:
-            "/img/ilustrations/docker_large.png",
+            "/img/ilustrations/docker.png",
         image2Dark:
             "/img/ilustrations/docker_small.png",
         image2Light:
@@ -369,7 +369,7 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
     {
-        title: "MySQL or MariaDB servers",
+        title: "MySQL, MariaDB, Percona",
         description: `Each user has their own MySQL or MariaDB instance and can edit configuration settings for their databases.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 -2 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
@@ -379,9 +379,9 @@ const list = [
         ),
         iconText: "MySQL",
         image1Dark:
-            "/img/ilustrations/mysql_large.png",
+            "/img/ilustrations/databases_dark.png",
         image1Light:
-            "/img/ilustrations/mysql_large.png",
+            "/img/ilustrations/databases.png",
         image2Dark:
             "/img/ilustrations/mysql_small.png",
         image2Light:
@@ -428,9 +428,9 @@ const list = [
         ),
         iconText: "REDIS",
         image1Dark:
-            "/img/ilustrations/redis_large.png",
+            "/img/ilustrations/redis_dark.png",
         image1Light:
-            "/img/ilustrations/redis_large.png",
+            "/img/ilustrations/redis.png",
         image2Dark:
             "/img/ilustrations/redis_small.png",
         image2Light:
@@ -454,9 +454,9 @@ const list = [
         ),
         iconText: "PHP",
         image1Dark:
-            "/img/ilustrations/php_large.png",
+            "/img/ilustrations/php_dark.png",
         image1Light:
-            "/img/ilustrations/php_large.png",
+            "/img/ilustrations/php.png",
         image2Dark:
             "/img/ilustrations/php_small.png",
         image2Light:
@@ -478,9 +478,9 @@ const list = [
         ),
         iconText: "Firewall",
         image1Dark:
-            "/img/ilustrations/firewall_large.png",
+            "/img/ilustrations/waf_dark.png",
         image1Light:
-            "/img/ilustrations/firewall_large.png",
+            "/img/ilustrations/waf.png",
         image2Dark:
             "/img/ilustrations/firewall_small.png",
         image2Light:
