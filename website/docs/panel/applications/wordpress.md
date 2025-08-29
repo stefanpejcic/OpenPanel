@@ -8,11 +8,6 @@ sidebar_position: 1
 
 WordPress Manager is a powerful tool integrated into OpenPanel, enabling you to easily install and manage WordPress websites directly from your hosting panel.
 
-**Key Features:**
-- [Single-click login to wp-admin](/docs/panel/applications/wordpress#auto-login-to-wp-admin)
-- [Change DEBUG/Update preferences](https://docs.openpanel.com/docs/panel/applications/wordpress#update-preferences)
-- [Backup and Restore](/docs/panel/applications/wordpress#backup-and-restore)
-
 ## Manage WordPress sites
 
 Using the manager, you can modify WordPress settings without the need to log in to the actual website. This feature is especially handy for managing multiple websites, as you can efficiently manage options in bulk, create backups, update plugins, enable automatic WordPress core updates, enable debugging, and much more—all from the OpenPanel interface.
