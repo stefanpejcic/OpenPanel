@@ -358,13 +358,13 @@ const list = [
         ),
         iconText: "Containerized services",
         image1Dark:
-            "/img/ilustrations/docker_dark.png",
+            "/img/ilustrations/containers_dark.png",
         image1Light:
-            "/img/ilustrations/docker.png",
+            "/img/ilustrations/containers.png",
         image2Dark:
-            "/img/ilustrations/docker_small.png",
+            "/img/ilustrations/containers_mini_dark.png",
         image2Light:
-            "/img/ilustrations/docker_small.png",
+            "/img/ilustrations/containers_mini.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
