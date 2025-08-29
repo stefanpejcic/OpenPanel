@@ -2,7 +2,8 @@
 
 This guide explains how to set up your **OpenPanel-created email account** in the Apple Mail app on macOS.
 
-> **Note:** If you are setting up email on a different device or service, see the main guide: [How to setup your email client](/docs/articles/email/how-to-setup-your-email-client)
+> **Note:** If you are setting up email on a different device or service, see the main guide:
+> [How to setup your email client](/docs/articles/email/how-to-setup-your-email-client)
 
 ---
 
