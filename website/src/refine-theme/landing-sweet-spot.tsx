@@ -335,9 +335,9 @@ const list = [
         ),
         iconText: "Nginx & OpenLitespeed",
         image1Dark:
-            "/img/ilustrations/defaults_dark.png",
+            "/img/ilustrations/ws_transparent_dark.png",
         image1Light:
-            "/img/ilustrations/defaults.png",
+            "/img/ilustrations/ws_transparent.png",
         image2Dark:
             "/img/ilustrations/ws_dark.png",
         image2Light:
