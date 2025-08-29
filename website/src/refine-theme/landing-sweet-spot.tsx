@@ -339,9 +339,9 @@ const list = [
         image1Light:
             "/img/ilustrations/defaults.png",
         image2Dark:
-            "/img/ilustrations/nginx_small.png",
+            "/img/ilustrations/ws_dark.png",
         image2Light:
-            "/img/ilustrations/nginx_small.png",
+            "/img/ilustrations/ws_white.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
