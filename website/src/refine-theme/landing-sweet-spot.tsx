@@ -335,13 +335,13 @@ const list = [
         ),
         iconText: "Nginx & OpenLitespeed",
         image1Dark:
-            "/img/ilustrations/ws_transparent_dark.png",
+            "/img/ilustrations/defaults_dark.png",
         image1Light:
-            "/img/ilustrations/ws_transparent.png",
+            "/img/ilustrations/defaults.png",
         image2Dark:
-            "/img/ilustrations/ws_dark.png",
+            "/img/ilustrations/ws_transparent_dark.png",
         image2Light:
-            "/img/ilustrations/ws_white.png",
+            "/img/ilustrations/ws_transparent.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
