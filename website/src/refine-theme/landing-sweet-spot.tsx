@@ -458,7 +458,7 @@ const list = [
         image1Light:
             "/img/ilustrations/php.png",
         image2Dark:
-            "/img/ilustrations/php_small.png",
+            "/img/ilustrations/php_small_dark.png",
         image2Light:
             "/img/ilustrations/php_small.png",
         backgroundImage:
