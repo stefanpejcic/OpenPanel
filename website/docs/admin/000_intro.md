@@ -61,7 +61,7 @@ If you encountered any errors while running the installation script, please copy
 
 [CloudInit](/docs/articles/install-update/install-using-cloudinit)
 [Ansible](/docs/articles/install-update/install-using-ansible)
-[Virtualizor)](/docs/articles/install-update/install-on-virtualizor)
+[Virtualizor](/docs/articles/install-update/install-on-virtualizor)
 
   </TabItem>  
 </Tabs>
