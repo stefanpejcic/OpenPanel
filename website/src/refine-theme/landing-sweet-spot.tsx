@@ -482,9 +482,9 @@ const list = [
         image1Light:
             "/img/ilustrations/waf.png",
         image2Dark:
-            "/img/ilustrations/firewall_small.png",
+            "/img/ilustrations/waf_small_dark.png",
         image2Light:
-            "/img/ilustrations/firewall_small.png",
+            "/img/ilustrations/waf_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-indigo-dark bg-landing-sweet-spot-glow-indigo-light",
     },
