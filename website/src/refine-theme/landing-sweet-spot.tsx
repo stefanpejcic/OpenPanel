@@ -442,7 +442,7 @@ const list = [
         title: "PHP, Python, NodeJS",
         description: `Each user can run multiple PHP versions, edit .ini files and set version per domain name.`,
         icon: (props: { active: boolean }) => (
-        <svg viewBox="0 0 256 134" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" width="24" height="24">
+        <svg viewBox="0 0 256 134" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" width="24" height="15">
             <g fill-rule="evenodd">
                 <ellipse fill="#8993BE" cx="128" cy="66.63" rx="128" ry="66.63" />
                 <path
