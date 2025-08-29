@@ -24,4 +24,4 @@ OpenPanel tracks and notifies you of these events:
 
 Each notification type can be individually disabled, and admins can set custom threshold limits.
 
-To manage notification settings, click the **Edit Settings** button on the Notification page or navigate to **OpenAdmin > Settings > Notifications**.
+To manage notification settings, click the **Settings** button on the Notifications page or navigate to: [Settings > Notifications](/docs/admin/settings/notifications).
