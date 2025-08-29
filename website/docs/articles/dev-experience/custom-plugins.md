@@ -32,7 +32,7 @@ Currently, plugins have a few requirements and limitations:
 | `help_link`      | `https://github.com/stefanpejcic/traceroute/`          | Link to help or documentation for the plugin.                    |
 ****
 
-### Python file
+### P.py
 
 ```py
 # traceroute.py
@@ -160,7 +160,7 @@ def traceroute():
 ```
 
 
-### HTML Template
+### template
 
 Flask templates documentation: https://flask.palletsprojects.com/en/stable/tutorial/templates/
 
