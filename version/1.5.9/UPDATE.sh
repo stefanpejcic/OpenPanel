@@ -2,6 +2,10 @@
 
 
 
+# mailserver
+sed -i 's|/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/:/etc/letsencrypt/live/:ro|/etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro|g' /usr/local/mail/openmail/compose.yml
+
+
 echo "Changing ScreenshotsAPI URL.."
 sed -i 's|http://screenshots-api.openpanel.com/screenshot|http://screenshots-v2.openpanel.com/api/screenshot|g' /etc/openpanel/openpanel/conf/openpanel.config
 
