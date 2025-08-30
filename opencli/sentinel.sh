@@ -977,7 +977,7 @@ else
   fi
 
 
-  SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+  SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget -4 --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
 
   # If server IP is not available from external service, use local IP
   if [ -z "$SERVER_IP" ]; then
@@ -1259,7 +1259,7 @@ summary(){
 PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 PROGRESS_BAR_FILE="progress_bar.sh"
 
-wget "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+wget -4 "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 
 if [ ! -f "$PROGRESS_BAR_FILE" ]; then
     echo "Failed to download progress_bar.sh"

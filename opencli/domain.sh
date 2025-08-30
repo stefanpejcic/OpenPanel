@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 28.08.2025
+# Last Modified: 29.08.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -206,23 +206,34 @@ configure_mailserver() {
         local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.crt"
         local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.key"
 
+        # custom paths!
+        local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${new_hostname}/${new_hostname}.crt"
+        local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${new_hostname}/${new_hostname}.key"
+        
         if [[ -f "$cert_path_on_hosts" && -f "$key_path_on_hosts" ]]; then
-            sed -i "/^SSL_TYPE=/c\SSL_TYPE=manual" "$MAILSERVER_ENV"
-            # Update or add SSL paths
-            if grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV"; then
-                sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path_on_hosts|" "$MAILSERVER_ENV"
-            else
-                echo "SSL_CERT_PATH=$cert_path_on_hosts" >> "$MAILSERVER_ENV"
-            fi
-            
-            if grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV"; then
-                sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path_on_hosts|" "$MAILSERVER_ENV"
-            else
-                echo "SSL_KEY_PATH=$key_path_on_hosts" >> "$MAILSERVER_ENV"
-            fi
+            log_debug "Using Let's Encrypt certs for $new_hostname"
+        elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
+            log_debug "Using custom certs for $new_hostname"
+            cert_path_on_hosts="$fallback_cert_path"
+            key_path_on_hosts="$fallback_key_path"
         else
-            log_debug "WARNING: SSL files dont exists for domain, will not be configured for mailserver!"
+            log_debug "WARNING: SSL files don’t exist for domain $new_hostname, will not be configured for mailserver!"
+            return 0
         fi
+
+        sed -i "/^SSL_TYPE=/c\SSL_TYPE=manual" "$MAILSERVER_ENV"
+        if grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV"; then
+            sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path_on_hosts|" "$MAILSERVER_ENV"
+        else
+            echo "SSL_CERT_PATH=$cert_path_on_hosts" >> "$MAILSERVER_ENV"
+        fi
+        
+        if grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV"; then
+            sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path_on_hosts|" "$MAILSERVER_ENV"
+        else
+            echo "SSL_KEY_PATH=$key_path_on_hosts" >> "$MAILSERVER_ENV"
+        fi
+
     fi
     
     log_debug "Restarting mailserver to apply new configuration"
@@ -242,20 +253,30 @@ configure_roundcube() {
         sed -i 's|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=|' "$ROUNDCUBE_COMPOSE"
     else
         log_debug "Configuring Roundcube for TLS/SSL authentication"
-            #local cert_path="/etc/letsencrypt/live/${new_hostname}/${new_hostname}.crt"
-            #local key_path="/etc/letsencrypt/live/${new_hostname}/${new_hostname}.key"
 
+	        # a letsencrypt
             local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.crt"
             local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.key"
-
+        
+            # custom
+            local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${new_hostname}/${new_hostname}.crt"
+            local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${new_hostname}/${new_hostname}.key"
+            
             if [[ -f "$cert_path_on_hosts" && -f "$key_path_on_hosts" ]]; then
-                sed -i "s|ROUNDCUBEMAIL_DEFAULT_HOST=.*|ROUNDCUBEMAIL_DEFAULT_HOST=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
-                sed -i "s|ROUNDCUBEMAIL_DEFAULT_PORT=.*|ROUNDCUBEMAIL_DEFAULT_PORT=993|" "$ROUNDCUBE_COMPOSE"
-                sed -i "s|ROUNDCUBEMAIL_SMTP_SERVER=.*|ROUNDCUBEMAIL_SMTP_SERVER=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
-                sed -i "s|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=465|" "$ROUNDCUBE_COMPOSE"
+                log_debug "Using Let's Encrypt certificate files"
+            elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
+                log_debug "Using custom certificate files"
+                cert_path_on_hosts="$fallback_cert_path"
+                key_path_on_hosts="$fallback_key_path"
             else
-                log_debug "WARNING: SSL files dont exists for domain, will not be configured for roundcube!"
+                og_debug "WARNING: SSL files dont exists for domain, will not be configured for roundcube!"
+                return 0
             fi
+
+            sed -i "s|ROUNDCUBEMAIL_DEFAULT_HOST=.*|ROUNDCUBEMAIL_DEFAULT_HOST=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
+            sed -i "s|ROUNDCUBEMAIL_DEFAULT_PORT=.*|ROUNDCUBEMAIL_DEFAULT_PORT=993|" "$ROUNDCUBE_COMPOSE"
+            sed -i "s|ROUNDCUBEMAIL_SMTP_SERVER=.*|ROUNDCUBEMAIL_SMTP_SERVER=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
+            sed -i "s|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=465|" "$ROUNDCUBE_COMPOSE"
     fi
     
     log_debug "Restarting Roundcube to apply new configuration"

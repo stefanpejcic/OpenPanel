@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-08-25 22:49+0200\n"
+"POT-Creation-Date: 2025-08-29 16:40+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -2575,8 +2575,8 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#: templates/dashboard/information.html:35 templates/emails/info.html:37
-#: templates/emails/info.html:53 templates/emails/new.html:40
+#: templates/dashboard/information.html:35 templates/emails/info.html:34
+#: templates/emails/info.html:50 templates/emails/new.html:40
 #: templates/files/ftp.html:58 templates/files/ftp_new.html:31
 #: templates/mysql/mysql_user.html:27 templates/mysql/password.html:26
 #: templates/mysql/users.html:85 templates/psql/mysql_user.html:27
@@ -3882,8 +3882,8 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: templates/emails/confirm_import.html:45 templates/emails/info.html:38
-#: templates/emails/info.html:54 templates/emails/new.html:124
+#: templates/emails/confirm_import.html:45 templates/emails/info.html:35
+#: templates/emails/info.html:51 templates/emails/new.html:124
 #: templates/emails/single_account.html:145 templates/files/ftp_new.html:56
 #: templates/files/ftp_password.html:46 templates/mysql/mysql_user.html:52
 #: templates/mysql/mysql_user.html:62 templates/mysql/password.html:46
@@ -3967,7 +3967,7 @@ msgid "Current Filters"
 msgstr ""
 
 #: templates/emails/filter.html:41 templates/emails/import.html:42
-#: templates/emails/info.html:75 templates/emails/new.html:296
+#: templates/emails/info.html:72 templates/emails/new.html:296
 #: templates/emails/single_account.html:270
 msgid "Back to Emails"
 msgstr ""
@@ -3997,39 +3997,45 @@ msgstr ""
 msgid "View email server information for account"
 msgstr ""
 
-#: templates/emails/info.html:35
+#: templates/emails/info.html:14
+msgid ""
+"How to setup your email client\n"
+"        "
+msgstr ""
+
+#: templates/emails/info.html:32
 msgid "Secure SSL/TLS Settings"
 msgstr ""
 
-#: templates/emails/info.html:38 templates/emails/info.html:54
+#: templates/emails/info.html:35 templates/emails/info.html:51
 msgid "Use the email account’s password."
 msgstr ""
 
-#: templates/emails/info.html:40 templates/emails/info.html:55
+#: templates/emails/info.html:37 templates/emails/info.html:52
 msgid "Incoming Server"
 msgstr ""
 
-#: templates/emails/info.html:41 templates/emails/info.html:56
+#: templates/emails/info.html:38 templates/emails/info.html:53
 msgid "IMAP Port"
 msgstr ""
 
-#: templates/emails/info.html:42 templates/emails/info.html:57
+#: templates/emails/info.html:39 templates/emails/info.html:54
 msgid "POP3 Port"
 msgstr ""
 
-#: templates/emails/info.html:43 templates/emails/info.html:58
+#: templates/emails/info.html:40 templates/emails/info.html:55
 msgid "Outgoing Server"
 msgstr ""
 
-#: templates/emails/info.html:44 templates/emails/info.html:59
+#: templates/emails/info.html:41 templates/emails/info.html:56
 msgid "SMTP Port"
 msgstr ""
 
-#: templates/emails/info.html:47 templates/emails/info.html:61
+#: templates/emails/info.html:44 templates/emails/info.html:58
 msgid "IMAP, POP3, and SMTP require authentication."
 msgstr ""
 
-#: templates/emails/info.html:51
+#: templates/emails/info.html:48
 msgid "Non-SSL Settings"
 msgstr ""
 
