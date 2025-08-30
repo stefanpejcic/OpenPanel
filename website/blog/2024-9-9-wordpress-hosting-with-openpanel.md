@@ -90,6 +90,17 @@ Get enterprise-level speed without extra setup.
 
 ---
 
+## Built-In Google PageSpeed Monitoring
+
+Performance testing is built right into OpenPanel with **Google PageSpeed integration**:
+
+* Automatic daily PageSpeed Insights reports for each site.
+* Add your own **Google PageSpeed API key** for unlimited checks.
+
+This makes it easy to stay on top of site performance, client reporting, and SEO improvements.
+
+---
+
 ## Why Choose OpenPanel for WordPress?
 
 OpenPanel gives WordPress hosting a modern edge:
