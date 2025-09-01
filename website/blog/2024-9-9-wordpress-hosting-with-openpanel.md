@@ -68,7 +68,7 @@ Example plans:
 ![screenshot](https://i.postimg.cc/RVZsgH66/create-wp-plan.png)
 
 
-## Step 4: Create User Accounts
+### Step 4: Create User Accounts
 
 After setting up plans, you can create WordPress hosting accounts manually via OpenAdmin, through the terminal, or via third-party billing systems like WHMCS or FOSSBilling. OpenPanel supports OpenLiteSpeed, MariaDB, and Varnish to maximize server performance.  
 
