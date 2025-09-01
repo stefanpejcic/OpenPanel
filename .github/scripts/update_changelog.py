@@ -27,8 +27,22 @@ def parse_version(title):
 def valid_version(title):
     return re.match(r'^\d+\.\d+\.\d+.*$', title)
 
-open_milestones = [m for m in milestones if m.state == 'open' and valid_version(m.title)]
-closed_milestones = [m for m in milestones if m.state == 'closed' and valid_version(m.title)]
+def is_min_version(title, min_version=(1, 0, 0)):
+    """Return True if milestone title is >= min_version."""
+    if not valid_version(title):
+        return False
+    v = parse_version(title)
+    return v[:3] >= min_version  # compare only major.minor.patch
+
+# Filter milestones (only >= 1.0.0)
+open_milestones = [
+    m for m in milestones
+    if m.state == 'open' and is_min_version(m.title)
+]
+closed_milestones = [
+    m for m in milestones
+    if m.state == 'closed' and is_min_version(m.title)
+]
 
 # Safe version for sorting with naive datetime
 open_milestones = sorted(
