@@ -1,6 +1,6 @@
 # Managing User Containers from the Terminal
 
-In OpenPanel, each user has their own [Docker context](https://docs.docker.com/engine/manage-resources/contexts/) running in rootless mode. If you are familiar with Docker, you can manage a user’s files and services directly from the terminal.
+In OpenPanel, each user has their own [Docker context](https://docs.docker.com/engine/manage-resources/contexts/) running in [rootless mode](https://docs.docker.com/engine/security/rootless/). If you are familiar with Docker, you can manage a user’s files and services directly from the terminal.
 
 SSH access as the **root user** on the server is required to switch between Docker contexts.
 
