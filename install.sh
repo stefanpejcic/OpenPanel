@@ -625,7 +625,7 @@ setup_firewall_service() {
         echo "Installing ConfigServer Firewall & Security.."
 
         install_csf() {
-            wget --inet4-only https://download.configserver.com/csf.tgz > /dev/null 2>&1
+            wget --inet4-only https://raw.githubusercontent.com/stefanpejcic/sentinelfw/main/csf.tgz > /dev/null 2>&1
             debug_log tar -xzf csf.tgz
             rm csf.tgz
             cd csf
