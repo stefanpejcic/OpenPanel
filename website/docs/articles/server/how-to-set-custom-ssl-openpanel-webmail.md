@@ -39,7 +39,7 @@ Upload your SSL files to this directory and name them:
 ### 2. Set the domain
 
 ```bash
-opencli set domain <DOMAIN_NAME>
+opencli domain set <DOMAIN_NAME>
 ```
 
 **Example:**
@@ -104,13 +104,13 @@ Upload your SSL files and name them:
 ### 2. Assign the domain
 
 ```bash
-opencli email-webmail <DOMAIN_NAME>
+opencli email-webmail domain <DOMAIN_NAME>
 ```
 
 **Example:**
 
 ```bash
-opencli email-webmail webmail.openpanel.com
+opencli email-webmail domain webmail.openpanel.com
 ```
 
 ### 3. Configure Caddy
