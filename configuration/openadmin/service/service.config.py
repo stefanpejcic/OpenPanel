@@ -39,7 +39,10 @@ if os.path.exists(DISABLE_FILE_PATH):
 
 # File paths
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
-CADDY_CERT_DIR = "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+CADDY_CERT_DIRS = [
+    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
+    "/etc/openpanel/caddy/ssl/custom/"
+]
 DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
 
 
@@ -69,8 +72,9 @@ def symlink_force(target, link_name):
 
 make_executable_if_exists("/etc/openpanel/wordpress/wp-cli.phar")     # wpcli for php containers
 make_executable_if_exists("/usr/local/admin/modules/security/csf.pl") # csf gui
-make_executable_if_exists("/etc/openpanel/services/watcher.sh")      # reload dns zones
-make_executable_if_exists("/etc/openpanel/ftp/start_vsftpd.sh")       # start ftp
+make_executable_if_exists("/etc/openpanel/services/watcher.sh")       # reload dns zones
+make_executable_if_exists("/etc/openpanel/mysql/scripts/dump.sh")     # mysql export script for backups
+make_executable_if_exists("/etc/openpanel/openlitespeed/start.sh")    # overwrites ols entrypoint
 
 symlink_force("/etc/csf/ui/images/", "/usr/local/admin/static/configservercsf")
 
@@ -108,8 +112,11 @@ def get_domain_from_caddyfile():
 
 
 def check_ssl_exists(domain):
-    cert_path = os.path.join(CADDY_CERT_DIR, domain)
-    return os.path.exists(cert_path) and os.listdir(cert_path)
+    for base_dir in CADDY_CERT_DIRS:
+        cert_path = os.path.join(base_dir, domain)
+        if os.path.exists(cert_path) and os.listdir(cert_path):
+            return cert_path
+    return None
 
 
 

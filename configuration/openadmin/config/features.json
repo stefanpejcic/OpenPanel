@@ -42,7 +42,7 @@
   {
     "name": "varnish",
     "title": "Varnish Caching",
-    "description": "If enabled, users can use Vanrish Caching and enable/disable cache per domain.",
+    "description": "If enabled, users can use Varnish Caching and enable/disable cache per domain.",
     "link": "/cache/varnish",
     "type": "community",
     "help_link": ""
