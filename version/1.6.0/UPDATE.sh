@@ -6,22 +6,19 @@ echo "Adding support for custom SSL on OpenPanel GUI.."
 wget -4 -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/fc1b6503cc62e3d61abab6473e42175e63fb7436/openpanel/service/service.config.py
 docker restart openpanel
 
+
 echo "Adding support for custom SSL on OpenAdmin GUI.."
 wget -4 -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
 service admin restart
 
 
-
 echo "Fixing 403 error on phpmyamdin autologin for users created before 1.4.5"
 wget -4 -O /etc/openpanel/mysql/phpmyadmin/pma.php https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/pma.php
 
-: '
-
-for user in /home
-check if pma.php exists and not a dir
-
-rm if DIR
-
-cp /etc/openpanel/mysql/phpmyadmin/pma.php /home/USERNAME/pma.php
-
-'
+for path in /home/*/pma.php; do
+    if [ -d "$path" ]; then
+        rm -rf "$path"
+        cp /etc/openpanel/mysql/phpmyadmin/pma.php "$path"
+        echo "- Fix applied to: $path"
+    fi
+done
