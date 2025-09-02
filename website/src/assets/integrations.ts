@@ -87,7 +87,7 @@ export const integrations: IntegrationsType = {
             icon: Nginx,
             description:
                 "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
-            url: "docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
          },
     ],
