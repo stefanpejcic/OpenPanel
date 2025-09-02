@@ -30,7 +30,10 @@ empty_flag_file()
 
 # File paths
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
-CADDY_CERT_DIR = "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+CADDY_CERT_DIRS = [
+    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
+    "/etc/openpanel/caddy/ssl/custom/"
+]
 DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
 
 def get_domain_from_caddyfile():
@@ -66,18 +69,23 @@ def get_domain_from_caddyfile():
 
 
 def check_ssl_exists(domain):
-    cert_path = os.path.join(CADDY_CERT_DIR, domain)
-    return os.path.exists(cert_path) and os.listdir(cert_path)
+    for base_dir in CADDY_CERT_DIRS:
+        cert_path = os.path.join(base_dir, domain)
+        if os.path.exists(cert_path) and os.listdir(cert_path):
+            return cert_path
+    return None
 
 
 DOMAIN = get_domain_from_caddyfile()
 PORT = "2083"
+ssl_cert_path = None
+if DOMAIN:
+    ssl_cert_path = check_ssl_exists(DOMAIN)
 
 if DOMAIN and check_ssl_exists(DOMAIN):
     import ssl
-    certfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.crt')
-    keyfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.key')
-
+    certfile = os.path.join(ssl_cert_path, f"{DOMAIN}.crt")
+    keyfile = os.path.join(ssl_cert_path, f"{DOMAIN}.key")
     keyfile = keyfile
     certfile = certfile
     ssl_version = ssl.PROTOCOL_TLS
