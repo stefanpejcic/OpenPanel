@@ -14,7 +14,10 @@
 VERSION=$(opencli version)
 CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 CADDY_FILE="/etc/openpanel/caddy/Caddyfile"
-CADDY_CERT_DIR="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+CADDY_CERT_DIR=(
+    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory"
+    "/etc/openpanel/caddy/ssl/custom"
+)
 OUTPUT_FILE='/etc/openpanel/skeleton/motd'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -23,6 +26,7 @@ RESET='\033[0m'
 DOCS_LINK="https://openpanel.com/docs/user/intro/"
 FORUM_LINK="https://community.openpanel.org/"
 DISCORD_LINK="https://discord.openpanel.org/"
+
 
 read_config() {
     local section="$1"

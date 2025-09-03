@@ -5,7 +5,7 @@
 # Usage: opencli user-check <USERNAME>
 # Author: Stefan Pejcic
 # Created: 26.07.2025
-# Last Modified: 29.08.2025
+# Last Modified: 02.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -284,7 +284,7 @@ check_files() {
     quota_output=$(quota -u "$context" 2>/dev/null)
     
     if echo "$quota_output" | grep -q "none"; then
-        print_result "FAIL" "No quota set for user."
+        print_result "WARN" "No quota set for user."
     else
         line=$(echo "$quota_output" | grep '^[[:space:]]*/')
         if [ -z "$line" ]; then
