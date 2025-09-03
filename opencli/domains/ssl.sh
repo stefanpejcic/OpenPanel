@@ -5,7 +5,7 @@
 # Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 29.08.2025
+# Last Modified: 02.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -47,8 +47,8 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 
 
-hostfs_domain_tls_dir="/etc/openpanel/caddy/ssl/$DOMAIN"
-domain_tls_dir="/data/caddy/certificates/$DOMAIN"
+hostfs_domain_tls_dir="/etc/openpanel/caddy/ssl/custom/$DOMAIN"
+domain_tls_dir="/data/caddy/certificates/custom/$DOMAIN"
 
 get_user() {
   whoowns_output=$(opencli domains-whoowns "$DOMAIN")
@@ -122,9 +122,7 @@ check_and_use_tls() {
 tls $domain_tls_dir/fullchain.pem $domain_tls_dir/key.pem
 " "$CONFIG_FILE"
 		fi 
-
 	    docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null
-
 	else
 	    echo "Error: $cert_path is not valid or expired!"
 	    exit 1
@@ -132,20 +130,18 @@ tls $domain_tls_dir/fullchain.pem $domain_tls_dir/key.pem
 }
 
 
+
 cat_certificate_files() {
     	if grep -q "fullchain.pem" "$CONFIG_FILE" && grep -q "key.pem" "$CONFIG_FILE"; then
+	 		# custom ssl
     		cat $hostfs_domain_tls_dir/fullchain.pem
     		cat $hostfs_domain_tls_dir/key.pem
     	else
+	 		# letsencrypt
     		local cert="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.crt"
           	local key="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.key"
-      		if [ -f "$cert" ]; then
-			cat $cert
-		fi
-      		if [ -f "$key" ]; then
-			cat $key
-		fi
-
+			[ -f "$cert" ] && cat "$cert"
+			[ -f "$key" ] && cat "$key"
     	fi    
 }
 

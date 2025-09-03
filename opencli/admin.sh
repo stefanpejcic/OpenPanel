@@ -5,7 +5,7 @@
 # Usage: opencli admin <setting_name> 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 29.08.2025
+# Last Modified: 02.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -146,7 +146,12 @@ get_ssl_status() {
 
 get_admin_url() {
     caddyfile="/etc/openpanel/caddy/Caddyfile"
-    CADDY_CERT_DIR="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+	local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
+	local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
+
+	# custom paths!
+	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
+	local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
 
     domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
@@ -157,14 +162,15 @@ get_admin_url() {
         ip=$(get_public_ip)
         admin_url="http://${ip}:2087/"
     else
-        if [ -f "${CADDY_CERT_DIR}/${domain}/${domain}.crt" ] && [ -f "${CADDY_CERT_DIR}/${domain}/${domain}.key" ]; then
-            admin_url="https://${domain}:2087/"
+		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
+		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+		    admin_url="https://${domain}:2087/"
         else
             ip=$(get_public_ip)
             admin_url="http://${ip}:2087/"
         fi
     fi
-    
+
     echo "$admin_url"    
 }
 
