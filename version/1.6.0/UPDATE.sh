@@ -12,7 +12,11 @@ wget -4 -O /etc/openpanel/openadmin/service/service.config.py https://raw.github
 service admin restart
 
 
-echo "Fixing 403 error on phpmyamdin autologin for users created before 1.4.5"
+echo "Adding support for custom SSL on OpenAdmin and OpenPanel.."
+wget -O  /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
+
+
+echo "Fixing 403 error on phpmyadmin autologin for users created before 1.4.5"
 wget -4 -O /etc/openpanel/mysql/phpmyadmin/pma.php https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/pma.php
 
 for path in /home/*/pma.php; do
