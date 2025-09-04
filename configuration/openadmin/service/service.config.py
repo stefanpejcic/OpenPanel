@@ -40,8 +40,8 @@ if os.path.exists(DISABLE_FILE_PATH):
 # File paths
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
 CADDY_CERT_DIRS = [
-    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
-    "/etc/openpanel/caddy/ssl/custom/"
+    "/etc/openpanel/caddy/ssl/custom/",
+    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"   
 ]
 DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
 
@@ -113,23 +113,32 @@ def get_domain_from_caddyfile():
 
 def check_ssl_exists(domain):
     for base_dir in CADDY_CERT_DIRS:
-        cert_path = os.path.join(base_dir, domain)
-        if os.path.exists(cert_path) and os.listdir(cert_path):
-            return cert_path
-    return None
-
+        cert_dir = os.path.join(base_dir, domain)
+        cert_file = os.path.join(cert_dir, f'{domain}.crt')
+        key_file = os.path.join(cert_dir, f'{domain}.key')
+        if os.path.exists(cert_file) and os.path.exists(key_file):
+            cert_type = "letsencrypt" if "letsencrypt" in base_dir else "custom"
+            return cert_file, key_file, cert_type            
+    return None, None, None
 
 
 DOMAIN = get_domain_from_caddyfile()
 
-if DOMAIN and check_ssl_exists(DOMAIN):
-    import ssl
-    certfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.crt')
-    keyfile = os.path.join(CADDY_CERT_DIR, DOMAIN, f'{DOMAIN}.key')    
-    #ssl_version = 'TLS'
-    #ca_certs = f'/etc/letsencrypt/live/{hostname}/fullchain.pem'
-    cert_reqs = ssl.CERT_NONE
-    ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+certfile, keyfile, type = (None, None, None)
+if DOMAIN:
+    certfile, keyfile, cert_type = check_ssl_exists(DOMAIN)
+    if certfile and keyfile:
+        print(f"HTTPS - {cert_type} certificate is configured.")
+        import ssl
+        #ssl_version = 'TLS'
+        cert_reqs = ssl.CERT_NONE
+        ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+    else:
+        print("HTTP - Domain is set but no certificate exists, point domain A record to issue LetsEcrypt SSL or add custom cert: https://openpanel.com/docs/articles/server/how-to-set-custom-ssl-openpanel-webmail/")
+else:
+    print(f"HTTP - Using IP address for panel access, use 'opencli domain <DOMAIN_NAME>' to set a domain.")
+
+
 
 bind = ["0.0.0.0:2087"]
 backlog = 2048
