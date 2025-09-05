@@ -21,6 +21,18 @@ for path in /home/*/pma.php; do
 done
 
 echo "Fixing syntax of Nginx VHosts template causing 400 error when Elementor is used on WP with pretty-permalinks.."
-sed -i 's/index\.php\$is_args\?\$args/index.php?\$args/g' file.txt
+sed -i 's/index\.php\$is_args\?\$args/index.php?\$args/g' /etc/openpanel/nginx/vhosts/1.1/docker_nginx_domain.conf
+sed -i 's/index\.php\$is_args\?\$args/index.php?\$args/g' /etc/openpanel/nginx/vhosts/1.1/docker_openresty_domain.conf
 
-# todo for temaplte.
+for userdir in /home/*/; do
+    username=$(basename "$userdir")
+    target_dir="$userdir/docker-data/volumes/${username}_webserver_data/_data"
+    if [ -d "$target_dir" ]; then
+        echo "Processing $target_dir..."
+        for conf_file in "$target_dir"/*.conf; do
+            [ -f "$conf_file" ] || continue
+            echo "  Checking VHosts file: $conf_file"
+            sed -i 's/index\.php\$is_args\?\$args/index.php?\$args/g' "$conf_file"
+        done
+    fi
+done
