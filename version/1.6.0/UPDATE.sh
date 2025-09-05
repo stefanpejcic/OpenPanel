@@ -19,3 +19,8 @@ for path in /home/*/pma.php; do
         echo "- Fix applied to: $path"
     fi
 done
+
+echo "Fixing syntax of Nginx VHosts template causing 400 error when Elementor is used on WP with pretty-permalinks.."
+sed -i 's/index\.php\$is_args\?\$args/index.php?\$args/g' file.txt
+
+# todo for temaplte.
