@@ -887,7 +887,7 @@ install_packages() {
             	if [[ "$package" == "docker.io" ]]; then
 	                echo "Trying to install docker-ce instead..."
 	                $PACKAGE_MANAGER install -y docker-ce || {
-	                    radovan 1 "ERROR: Installation of both docker.io and docker-ce failed. Please install manually and thjen proceed with openpanel installation."
+	                    radovan 1 "ERROR: Installation of both docker.io and docker-ce failed. Please install manually and then proceed with openpanel installation."
 					}
 				elif [[ "$package" == "quota" || "$package" == "quotatool" ]]; then
 					$PACKAGE_MANAGER install -y "$package" || {
