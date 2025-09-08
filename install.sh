@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           25.08.2025
+# Last Modified:           08.09.2025
 #
 ################################################################################
 
@@ -381,7 +381,7 @@ while [[ $# -gt 0 ]]; do
                 --post_install) post_install_path="$val" ;;
                 --screenshots) SCREENSHOTS_API_URL="$val" ;;
                 --version)     CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
-                --swap)        SETUP_SWAP_ANYWAY=true;    SWAP="$val" ;;
+                --swap)        SETUP_SWAP_ANYWAY=true;    SWAP_FILE="$val" ;;
                 --email)       SEND_EMAIL_AFTER_INSTALL=true; EMAIL="$val" ;;
             esac
             ;;
