@@ -226,7 +226,7 @@ source "$PROGRESS_BAR_FILE"               # Source the progress bar script
 FUNCTIONS=(
 detect_os_cpu_and_package_manager         # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
-install_python312
+install_python
 update_package_manager                    # update dnf/yum/apt-get
 install_packages                          # install docker, csf, sqlite, etc.
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
@@ -238,10 +238,10 @@ extra_step_on_hetzner                     # run it here, then csf install does d
 setup_redis_service                       # for redis container
 create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
-docker_compose_up                         # 
-docker_cpu_limiting			              # https://docs.docker.com/engine/security/rootless/#limiting-resources
+docker_compose_up                         #
+docker_cpu_limiting                       # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
-configure_coraza			              # download corazawaf coreruleset or change docker image
+configure_coraza                          # download corazawaf coreruleset or change docker image
 extra_step_for_caddy                      # so that webmail domain works without any setups!
 enable_dev_mode                           # https://dev.openpanel.com/cli/config.html#dev-mode
 set_custom_hostname                       # set hostname if provided
@@ -250,7 +250,7 @@ setup_firewall_service                    # setup firewall
 set_system_cronjob                        # setup crons, must be after csf
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
-log_dirs				                  # for almalinux
+log_dirs                                  # for almalinux
 download_ui_image                         # pull openpanel-ui image
 setup_imunifyav                           # setum imunifyav and enable autologin from openadmin
 setup_swap                                # swap space
@@ -290,7 +290,7 @@ check_requirements() {
 		    local min=$2
 		    local unit=$3
 		    local message=$4
-		
+
 		    if [ "$value" -lt "$min" ]; then
 		        echo -e "${RED}Error: ${message}. Detected: ${value}${unit}${RESET}" >&2
 		        echo ""
@@ -298,19 +298,19 @@ check_requirements() {
 		        exit 1
 		    fi
 		}
-		
+
 		check_condition() {
 		    local condition=$1
 		    local message=$2
 		    local show_link=$3
-		
+
 		    if eval "$condition"; then
 		        echo -e "${RED}Error: ${message}${RESET}" >&2
 		        [ "$show_link" = true ] && echo -e "\nRequirements: https://openpanel.com/docs/admin/intro/#requirements"
 		        exit 1
 		    fi
 		}
-		
+
 		# Check if running as root
 		check_condition '[ "$(id -u)" != "0" ]' "you must be root to execute this script" false
 
@@ -328,7 +328,7 @@ check_requirements() {
 		available_mb=$(( $(df / --output=avail | tail -1) / 1024 ))
 		check_requirement "$available_mb" 5120 "MB" "at least 5GB of free disk space is required on /"
     fi
-    
+
 }
 
 
@@ -344,7 +344,7 @@ parse_args() {
         echo "  --password=<password>           Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
-        echo "  --skip-imunifyav                Skip ImunifyAV setup."	
+        echo "  --skip-imunifyav                Skip ImunifyAV setup."
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
@@ -426,7 +426,7 @@ detect_installed_panels() {
         ["/usr/local/directadmin"]="DirectAdmin"
         ["/usr/local/cwpsrv"]="CentOS Web Panel (CWP)"
         ["/usr/local/vesta"]="VestaCP"
-        ["/usr/local/hestia"]="HestiaCP"  
+        ["/usr/local/hestia"]="HestiaCP"
         ["/usr/local/httpd"]="Apache WebServer"
         ["/usr/local/apache2"]="Apache WebServer"
         ["/usr/sbin/httpd"]="Apache WebServer"
@@ -491,7 +491,7 @@ docker_compose_up(){
   	else
    		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
  	fi
-    
+
 	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
 	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
 		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
@@ -531,12 +531,12 @@ docker_compose_up(){
 	fi
 
     cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
-	
+
   	chmod +x /etc/openpanel/mysql/scripts/dump.sh                       # added in 1.2.5 for dumping dbs
   	chmod +x /etc/openpanel/openlitespeed/start.sh                      # added in 1.5.6 for openlitespeed
-   
+
     cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory." # compose doesnt alllow /
-    
+
     rm -rf /etc/my.cnf .env > /dev/null 2>&1                            # on centos we get default my.cnf, and on repair we already have symlink and .env
     cp /etc/openpanel/docker/compose/new.yml /root/docker-compose.yml > /dev/null 2>&1
     cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1
@@ -564,13 +564,13 @@ docker_compose_up(){
 		cd /root && docker compose down > /dev/null 2>&1                            # in case mysql was running
         docker --context default volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
-    
+
     if [ "$architecture" == "aarch64" ]; then
     	sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
     fi
 
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1               # from 0.2.5 we only start mysql by default
-	
+
     mysql_container=$(docker compose ps -q openpanel_mysql)
     if [ -z "$mysql_container" ]; then
 	    radovan 1 "ERROR: MySQL container not found. Please ensure Docker Compose is set up correctly."
@@ -590,10 +590,10 @@ docker_compose_up(){
 
 clean_apt_and_dnf_cache(){
     if [ "$PACKAGE_MANAGER" == "dnf" ]; then
-		dnf clean  > /dev/null > /dev/null 2>&1 
+		dnf clean  > /dev/null > /dev/null 2>&1
     elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 		# clear /var/cache/apt/archives/   # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
-  		apt-get clean  > /dev/null > /dev/null 2>&1 
+  		apt-get clean  > /dev/null > /dev/null 2>&1
 	fi
 }
 
@@ -611,7 +611,7 @@ tweak_ssh(){
 	fi
 
 	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then # ssh on debian, sshd on rhel
-		systemctl restart sshd  > /dev/null 2>&1 
+		systemctl restart sshd  > /dev/null 2>&1
 	else
 		systemctl restart ssh  > /dev/null 2>&1
 	fi
@@ -635,7 +635,7 @@ setup_firewall_service() {
             echo "Setting CSF auto-login from OpenAdmin interface.."
             if [ "$PACKAGE_MANAGER" == "dnf" ]; then
                 debug_log dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
-                # fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module) 
+                # fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module)
                 if [ -f /etc/fedora-release ]; then
                     debug_log yum --allowerasing install perl -y
                 elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
@@ -688,7 +688,7 @@ setup_firewall_service() {
         }
 
         install_csf
-        edit_csf_conf 
+        edit_csf_conf
 
         # OUT ports
         for p in 3306 465 2087; do
@@ -709,7 +709,7 @@ setup_firewall_service() {
 		systemctl restart docker                                                # not sure why
 
         install -m 755 /dev/null /usr/sbin/sendmail                             # https://github.com/stefanpejcic/OpenPanel/issues/338
-		
+
 
         if command -v csf > /dev/null 2>&1; then
             echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
@@ -741,27 +741,27 @@ setup_imunifyav() {
 create_rdnc() {
     if [ "$SKIP_DNS_SERVER" = false ]; then
 	    echo "Setting remote name daemon control (rndc) for DNS.."
-	    mkdir -p /etc/bind/  
+	    mkdir -p /etc/bind/
 	    cp -r /etc/openpanel/bind9/* /etc/bind/
 
 	    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then            # Only on Ubuntu and Debian 12, systemd-resolved is installed
 	        echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
 	        systemctl restart systemd-resolved
 	    fi
-	
+
 	    RNDC_KEY_PATH="/etc/bind/rndc.key"
 	    if [ -f "$RNDC_KEY_PATH" ]; then
 	        echo "rndc.key already exists."
 	        return 0
 	    fi
-	
+
 	    echo "Generating rndc.key for DNS zone management."
 	    debug_log timeout 90 docker --context default run --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
 	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
-	    
+
 	    if [ -f "$RNDC_KEY_PATH" ]; then                                                       # Check if rndc.key was successfully generated
 			echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
 	    else
@@ -769,7 +769,7 @@ create_rdnc() {
 			echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
 			echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
 	    fi
-	
+
 	    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
 	    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
 	else
@@ -852,14 +852,14 @@ install_packages() {
             echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
             debug_log update-ca-certificates
             ;;
-        
+
         yum)
             dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
             packages=("wget" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
                       "quota" "quotatool" "uidmap" "docker-ce" "mysql" "pip" "jc" "sqlite" \
                       "geoip" "perl-Math-BigInt")
             ;;
-        
+
         dnf)
             dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
 
@@ -910,13 +910,13 @@ docker_cpu_limiting() {
 
 	# https://docs.docker.com/engine/security/rootless/#limiting-resources
 	mkdir -p /etc/systemd/system/user@.service.d
-	
+
 	cat > /etc/systemd/system/user@.service.d/delegate.conf << EOF
 [Service]
 Delegate=cpu cpuset io memory pids
 EOF
-	
-	debug_log systemctl daemon-reload 
+
+	debug_log systemctl daemon-reload
 }
 
 
@@ -942,7 +942,7 @@ fi
 	quotaon -a >/dev/null 2>&1
 	repquota / >/dev/null 2>&1
 	quota -v >/dev/null 2>&1
-	    
+
     debug_log "Testing quotas.."
     repquota -u / > /etc/openpanel/openpanel/core/users/repquota 2>/dev/null
     if [ $? -eq 0 ]; then
@@ -969,7 +969,7 @@ set_system_cronjob() {
     else
         echo -e "[${RED} FAIL ${RESET}] Cron service is NOT running!"
     fi
- 
+
 }
 
 
@@ -994,7 +994,7 @@ opencli_setup(){
 	if [ ! -d "/usr/local/opencli" ]; then
 	 	radovan 1 "Failed to clone OpenCLI from Github - please retry install with '--retry --debug' flags."
 	fi
- 
+
     chmod +x -R /usr/local/opencli
     ln -s /usr/local/opencli/opencli /usr/local/bin/opencli
     echo "# opencli aliases
@@ -1008,7 +1008,7 @@ opencli_setup(){
     export PATH="/usr/bin:$PATH"
 
     source ~/.bashrc
-    
+
     echo "Testing 'opencli' commands:"
     if [ -x "/usr/local/bin/opencli" ]; then
         echo -e "[${GREEN} OK ${RESET}] opencli commands are available."
@@ -1032,7 +1032,7 @@ set_premium_features(){
     echo "Setting OpenPanel enterprise version license key $license_key"
     opencli config update key "$license_key"
     systemctl restart admin > /dev/null 2>&1
-    echo "Setting mailserver.." 
+    echo "Setting mailserver.."
     timeout 60 opencli email-server install #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
     echo "Enabling Roundcube webmail.."
     timeout 60 opencli email-webmail roundcube
@@ -1053,7 +1053,7 @@ set_email_address_and_email_admin_logins(){
             if [[ $EMAIL =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
                 echo "Setting email address $EMAIL for notifications"
                 opencli config update email "$EMAIL"
-                
+
                 generate_random_token_one_time_only() {
                     local config_file="${CONFIG_FILE}"
                     TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
@@ -1066,10 +1066,10 @@ set_email_address_and_email_admin_logins(){
                   local message="$2"
                   generate_random_token_one_time_only
                   TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")
-		  
+
                   PROTOCOL="http"
                   admin_domain="127.0.0.1"
-	  
+
                   if [ "$SET_HOSTNAME_NOW" = true ]; then
                   	if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
                   		if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
@@ -1087,7 +1087,7 @@ set_email_address_and_email_admin_logins(){
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
         fi
-}        
+}
 
 
 
@@ -1175,13 +1175,13 @@ setup_bind(){
     echo "Setting up DNS service..."
 	install -d -m 755 /etc/bind
 	cp -r /etc/openpanel/bind9/* /etc/bind/
-	
+
 	if [ -f /etc/os-release ] && grep -Eq "Ubuntu|Debian" /etc/os-release; then
 		grep -q "^DNSStubListener=no" /etc/systemd/resolved.conf || \
 			echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
 		systemctl restart systemd-resolved # systemd-resolved is installed on debian based
 	fi
- 
+
 	chmod -R 755 /etc/bind
 }
 
@@ -1268,7 +1268,7 @@ support_message() {
     fi
 }
 
- 
+
 panel_customize(){
     if [ "$SCREENSHOTS_API_URL" == "local" ]; then
         echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
@@ -1289,75 +1289,129 @@ check_permissions_in_root_dir() {
 	fi
 }
 
-install_python312() {
+
+install_python() {
     OS=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
     CODENAME=$(grep '^VERSION_CODENAME=' /etc/os-release | cut -d= -f2 | tr -d '"')
-	
-    if command -v python3.12 &> /dev/null; then
-        echo "Python 3.12 is already installed, installing python3.12-venv.."
 
-         # install venv only!
-        debug_log $PACKAGE_MANAGER install -y software-properties-common
-        
-        if [ "$OS" == "ubuntu" ]; then
-            debug_log add-apt-repository -y ppa:deadsnakes/ppa
-        elif [ "$OS" == "debian" ]; then
-            echo "Debian ($CODENAME) detected, adding backports repository."
-            wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
-            cat <<EOF | tee /etc/apt/sources.list.d/pascalroeleven.sources
-Types: deb
-URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: ${CODENAME}-backports
-Components: main
-Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
-EOF
+    # Default
+    local chosen_py="python3"
+
+    # Helper to install venv package for apt-based systems (when using distro python)
+    install_venv_pkg() {
+        if [ "$PACKAGE_MANAGER" = "apt-get" ]; then
+            debug_log $PACKAGE_MANAGER install -y python3-venv || true
         fi
-	
+    }
+
+    if [ "$OS" = "debian" ] && [ "$CODENAME" = "trixie" ]; then
+        # Debian 13 ships Python 3.13 (cgi removed). Build latest Python 3.12.x from source to keep compatibility.
+        echo "Building latest Python 3.12.x from source for Debian 13 (trixie) … will take approximately 3-10 minutes."
         debug_log $PACKAGE_MANAGER update -y
-        debug_log $PACKAGE_MANAGER install -y python3.12-venv
+        # Minimal deps (no tk/X11)
+        debug_log $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils \
+            libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
+            libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
 
+        # Ensure curl exists even on very minimal images
+        if ! command -v curl >/dev/null 2>&1; then
+            debug_log $PACKAGE_MANAGER install -y curl ca-certificates
+        fi
 
+        SRCDIR=/usr/local/src
+        debug_log mkdir -p "$SRCDIR"
 
+        # Detect latest 3.12.x from python.org; fallback to 3.12.7 if detection fails
+        LATEST_312="$(curl -fsSL https://www.python.org/ftp/python/ \
+            | grep -Po 'href=\"3\\.12\\.\\d+/' \
+            | grep -Po '3\\.12\\.\\d+' \
+            | sort -V | tail -1 || true)"
+        if [ -z "$LATEST_312" ]; then
+            LATEST_312="3.12.7"
+        fi
 
- 
+        PREFIX="/opt/python/${LATEST_312}"
+        TARBALL="Python-${LATEST_312}.tgz"
+        URL="https://www.python.org/ftp/python/${LATEST_312}/${TARBALL}"
+
+        debug_log bash -lc "cd '$SRCDIR' && curl -fsSL -o '${TARBALL}' '${URL}' && \
+            rm -rf 'Python-${LATEST_312}' && \
+            tar -xzf '${TARBALL}' && cd 'Python-${LATEST_312}' && \
+            ./configure --prefix='${PREFIX}' --enable-optimizations --with-ensurepip=install && \
+            make -j\"$(nproc)\" && make altinstall"
+
+        chosen_py="${PREFIX}/bin/python3.12"
+        [ -x "$chosen_py" ] || radovan 1 "Custom Python not found at $chosen_py (build may have failed)."
+        # Ensure pip tooling is up to date for the custom build
+        $chosen_py -m ensurepip -U || true
+        $chosen_py -m pip install --upgrade pip setuptools wheel || true
+
     else
-        echo "Installing Python 3.12"
-        debug_log $PACKAGE_MANAGER install -y software-properties-common
-        
-        if [ "$OS" == "ubuntu" ]; then
-            debug_log add-apt-repository -y ppa:deadsnakes/ppa
+        # Legacy behavior for other distros – prefer 3.x from system repos
+        if command -v python3.12 &>/dev/null; then
+            chosen_py="python3.12"
+            install_venv_pkg
+        else
+            echo "Installing distro Python and venv tooling …"
+            if [ "$PACKAGE_MANAGER" = "apt-get" ]; then
+                debug_log $PACKAGE_MANAGER install -y software-properties-common || true
+            fi
 
-	    debug_log $PACKAGE_MANAGER update -y
-	  	# https://almalinux.pkgs.org/8/almalinux-appstream-x86_64/python3.12-3.12.1-4.el8.x86_64.rpm.html
-	    debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
- 
-	elif [ "$OS" == "alma" ] || [ "$OS" == "rocky" ] || [ "$OS" == "centos" ]; then
-	    debug_log $PACKAGE_MANAGER update -y
-	    debug_log $PACKAGE_MANAGER install -y python3.12
+            if [ "$OS" = "ubuntu" ]; then
+                debug_log add-apt-repository -y ppa:deadsnakes/ppa
+                debug_log $PACKAGE_MANAGER update -y
+                debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                if command -v python3.12 &>/dev/null; then
+                    chosen_py="python3.12"
+                else
+                    chosen_py="python3"
+                    install_venv_pkg
+                fi
 
-     
-        elif [ "$OS" == "debian" ]; then
-            echo "Debian ($CODENAME) detected, adding backports repository."
-            debug_log wget --inet4-only -qO- https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg &> /dev/null
-            debug_log cat <<EOF | tee /etc/apt/sources.list.d/pascalroeleven.sources
+            elif [ "$OS" = "debian" ]; then
+                # Older Debian – try backports for 3.12; fall back to system python3
+                debug_log install -d -m 0755 /etc/apt/keyrings
+                debug_log bash -lc 'curl -fsSL --ipv4 https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg >/dev/null' || true
+                debug_log bash -lc 'cat >> /etc/apt/sources.list.d/pascalroeleven.sources <<EOF
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: ${CODENAME}-backports
+Suites: '"${CODENAME}"'-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
-EOF
-        debug_log $PACKAGE_MANAGER update -y
-        debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv
-	elif [[ "$OS" == "almalinux" || "$OS" == "rocky" || "$OS" == "centos" ]]; then
-		debug_log dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm  &> /dev/null
-        debug_log $PACKAGE_MANAGER update -y
-        debug_log $PACKAGE_MANAGER install -y python3.12   # venv is included!
-   	fi
+EOF' || true
+                debug_log $PACKAGE_MANAGER update -y
+                debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                if command -v python3.12 &>/dev/null; then
+                    chosen_py="python3.12"
+                else
+                    chosen_py="python3"
+                    install_venv_pkg
+                fi
 
-	python3.12 --version &>/dev/null || radovan 1 "Python 3.12 installation failed."
+            elif [ "$OS" = "almalinux" ] || [ "$OS" = "alma" ] || [ "$OS" = "rocky" ] || [ "$OS" = "centos" ]; then
+                debug_log $PACKAGE_MANAGER update -y
+                if command -v dnf >/dev/null 2>&1; then
+                    debug_log dnf install -y epel-release || true
+                    debug_log dnf config-manager --set-enabled crb || debug_log dnf config-manager --set-enabled powertools || true
+                fi
+                debug_log $PACKAGE_MANAGER install -y python3.12 || true
+                if command -v python3.12 &>/dev/null; then
+                    chosen_py="python3.12"
+                else
+                    chosen_py="python3"
+                fi
 
- fi
-    
+            else
+                # Fallback
+                chosen_py="python3"
+                install_venv_pkg
+            fi
+        fi
+    fi
+
+    # Sanity & export for downstream steps
+    $chosen_py --version &>/dev/null || radovan 1 "Python installation failed for ${chosen_py}."
+    export PYTHON_BIN="$chosen_py"
 }
 
 
@@ -1401,10 +1455,10 @@ install_openadmin(){
     }
 
     cd "$openadmin_dir" || exit 1
-	
-	python3.12 -m venv ${openadmin_dir}venv
+
+	${PYTHON_BIN:-python3} -m venv ${openadmin_dir}venv
 	source ${openadmin_dir}venv/bin/activate
- 
+
     pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt > /dev/null 2>&1 \
         || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages > /dev/null 2>&1
 
@@ -1441,7 +1495,7 @@ install_openadmin(){
 create_admin_and_show_logins_success_message() {
 
     ln -s ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh   #motd
-    chmod +x /etc/profile.d/welcome.sh  
+    chmod +x /etc/profile.d/welcome.sh
 
     echo -e "${GREEN}OpenPanel ${LICENSE} $PANEL_VERSION installation complete.${RESET}"
     echo ""
@@ -1450,14 +1504,14 @@ create_admin_and_show_logins_success_message() {
        new_username="${custom_username}"
     else
        wget --inet4-only -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
-       
+
        if [ -f "/tmp/generate.sh" ]; then
 	       source /tmp/generate.sh
 	       new_username=($random_name)
        else
 	       new_username="admin"
        fi
-       
+
     fi
 
 	if [ "$SET_ADMIN_PASSWORD" = true ]; then
@@ -1472,7 +1526,7 @@ create_admin_and_show_logins_success_message() {
 	fi
 
 
-	display_admin_status_and_logins() {  
+	display_admin_status_and_logins() {
 	    # Restore normal output to the terminal, so we dont save generated admin password in log file!
 	    exec > /dev/tty
 	    exec 2>&1
@@ -1482,22 +1536,22 @@ create_admin_and_show_logins_success_message() {
 	    echo -e "- Password: ${GREEN} ${new_password} ${RESET}"
 	    echo " "
 	    print_space_and_line
-	    set_email_address_and_email_admin_logins	
-	
+	    set_email_address_and_email_admin_logins
+
 	    # Redirect again stdout and stderr to the log file
 	    exec > >(tee -a "$LOG_FILE")
 	    exec 2>&1
 	}
 
-    sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 && 
-    opencli admin new "$new_username" "$new_password" --super > /dev/null 2>&1 && 
+    sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 &&
+    opencli admin new "$new_username" "$new_password" --super > /dev/null 2>&1 &&
 	user_exists=$(sqlite3 /etc/openpanel/openadmin/users.db "SELECT COUNT(*) FROM user WHERE username = '$new_username';")
 	if [ "$user_exists" -gt 0 ]; then
 	    echo "User $new_username has been successfully added."
 		display_admin_status_and_logins
 	else
-	    echo "WARNING: Admin user $new_username was not created using opencli. Trying to insert user manually to SQLite database.."  
-	    password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash $new_password) 
+	    echo "WARNING: Admin user $new_username was not created using opencli. Trying to insert user manually to SQLite database.."
+	    password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash $new_password)
 	    create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
 	    insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$new_username', '$password_hash', 'admin');"
 	    output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
