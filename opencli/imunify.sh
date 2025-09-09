@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 02.09.2025
+# Last Modified: 08.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,9 +34,12 @@ readonly SERVICE_NAME="ImunifyAV"
 
 
 update_version() {
-  local PANEL_INFO_JSON="/etc/sysconfig/imunify360/get-panel-info.json"
-opencli_version=$(opencli version)
-  cat <<EOF > "$PANEL_INFO_JSON"
+  local PANEL_INFO_SH="/etc/sysconfig/imunify360/get-panel-info.sh"
+
+  cat <<'EOF' > "$PANEL_INFO_SH"
+#!/usr/bin/env bash
+opencli_version="$(opencli version 2>/dev/null || echo unknown)"
+cat <<JSON
 {
   "data": {
     "name": "OpenPanel",
@@ -46,7 +49,10 @@ opencli_version=$(opencli version)
     "result": "ok"
   }
 }
+JSON
 EOF
+
+  chmod 0755 "$PANEL_INFO_SH"
 }
 
 status_av() {
