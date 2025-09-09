@@ -17,7 +17,7 @@ To access this feature:
 
 ## Usage
 
-Before switching the databse type, please ensure the following:
+Before switching the database type, please ensure the following:
 
 - **All existing databases and users must be removed.**
 - The current mysql container must be **stopped** before the new one can be started.

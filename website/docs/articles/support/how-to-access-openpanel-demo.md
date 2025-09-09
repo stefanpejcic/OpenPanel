@@ -1,4 +1,4 @@
-# How to access OpenPanel demo?
+# Access demo
 
 How to access OpenPanel demo servers?
 

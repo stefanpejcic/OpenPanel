@@ -95,7 +95,7 @@ opencli plan-create 'name' 'description' email_limit ftp_limit domains_limit web
 
 Example:
 ```bash
-opencli plan-create 'Amother Plan' 'this plan is used for X' 0 0 10 10 50 1000000 25 2 4 100 'default'
+opencli plan-create Another Plan' 'this plan is used for X' 0 0 10 10 50 1000000 25 2 4 100 'default'
 ```
 
   </TabItem>

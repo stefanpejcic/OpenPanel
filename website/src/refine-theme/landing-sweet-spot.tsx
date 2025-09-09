@@ -320,7 +320,7 @@ export const LandingSweetSpot: FC<Props> = ({ className }) => {
 const list = [
     {
         title: "Nginx, Apache, Varnish",
-        description: `For each user you can choose to use Nginx, Apache, OpenResty or Varnish.`,
+        description: `For each user you can choose to use Nginx, OpenLitespeed, Apache, OpenResty or Varnish.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="-17.5 0 291 291" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
             <g>
@@ -333,15 +333,15 @@ const list = [
             </g>
         </svg>
         ),
-        iconText: "Nginx",
+        iconText: "Nginx & OpenLitespeed",
         image1Dark:
-            "/img/ilustrations/nginx_large.png",
+            "/img/ilustrations/defaults_dark.png",
         image1Light:
-            "/img/ilustrations/nginx_large.png",
+            "/img/ilustrations/defaults.png",
         image2Dark:
-            "/img/ilustrations/nginx_small.png",
+            "/img/ilustrations/ws_transparent_dark.png",
         image2Light:
-            "/img/ilustrations/nginx_small.png",
+            "/img/ilustrations/ws_transparent.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
@@ -356,20 +356,20 @@ const list = [
             />
         </svg>
         ),
-        iconText: "Docker",
+        iconText: "Containerized services",
         image1Dark:
-            "/img/ilustrations/docker_large.png",
+            "/img/ilustrations/containers_dark.png",
         image1Light:
-            "/img/ilustrations/docker_large.png",
+            "/img/ilustrations/containers.png",
         image2Dark:
-            "/img/ilustrations/docker_small.png",
+            "/img/ilustrations/containers_mini_dark.png",
         image2Light:
-            "/img/ilustrations/docker_small.png",
+            "/img/ilustrations/containers_mini.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-orange-dark bg-landing-sweet-spot-glow-orange-light",
     },
     {
-        title: "MySQL or MariaDB servers",
+        title: "Database server per user",
         description: `Each user has their own MySQL or MariaDB instance and can edit configuration settings for their databases.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 -2 256 256" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid">
@@ -377,13 +377,13 @@ const list = [
             <path d="M58.1864892,43.0222644 C55.2286063,43.0222644 53.1417305,43.3715526 51.0537447,43.8932806 C51.0537447,43.8923744 51.0537447,44.0679225 51.0537447,44.2414633 L51.4019319,44.2414633 C52.794658,47.0247034 55.2286154,48.9391485 56.968414,51.3741978 C58.3611446,54.1574389 59.5781143,56.9417945 60.9708449,59.7261412 C61.1443766,59.5514948 61.3179175,59.3779585 61.3179175,59.3779585 C63.7551915,57.6370498 64.9721657,54.8538087 64.9721657,50.6789426 C63.9276177,49.4608583 63.7540769,48.2427786 62.8841798,47.0246944 C61.8407374,45.283782 59.5781052,44.414995 58.1864892,43.0222644 L58.1864892,43.0222644 L58.1864892,43.0222644 Z" fill="#00546B"></path>
         </svg>
         ),
-        iconText: "MySQL",
+        iconText: "MySQL, MariaDB, Percona",
         image1Dark:
-            "/img/ilustrations/mysql_large.png",
+            "/img/ilustrations/databases_dark.png",
         image1Light:
-            "/img/ilustrations/mysql_large.png",
+            "/img/ilustrations/databases.png",
         image2Dark:
-            "/img/ilustrations/mysql_small.png",
+            "/img/ilustrations/mysql_small_dark.png",
         image2Light:
             "/img/ilustrations/mysql_small.png",
         backgroundImage:
@@ -426,15 +426,15 @@ const list = [
             <path d="M146.755 51.243l38.54-15.245.03 27.519-3.779 1.478-34.791-13.752" fill="#9A2928" />
         </svg>
         ),
-        iconText: "REDIS",
+        iconText: "REDIS & Varnish",
         image1Dark:
-            "/img/ilustrations/redis_large.png",
+            "/img/ilustrations/redis_dark.png",
         image1Light:
-            "/img/ilustrations/redis_large.png",
+            "/img/ilustrations/redis.png",
         image2Dark:
-            "/img/ilustrations/redis_small.png",
+            "/img/ilustrations/varnish_small_dark.png",
         image2Light:
-            "/img/ilustrations/redis_small.png",
+            "/img/ilustrations/varnish_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-cyan-dark bg-landing-sweet-spot-glow-cyan-light",
     },
@@ -442,7 +442,7 @@ const list = [
         title: "PHP, Python, NodeJS",
         description: `Each user can run multiple PHP versions, edit .ini files and set version per domain name.`,
         icon: (props: { active: boolean }) => (
-        <svg viewBox="0 0 256 134" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" width="24" height="24">
+        <svg viewBox="0 0 256 134" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMinYMin meet" width="24" height="15">
             <g fill-rule="evenodd">
                 <ellipse fill="#8993BE" cx="128" cy="66.63" rx="128" ry="66.63" />
                 <path
@@ -452,20 +452,20 @@ const list = [
             </g>
         </svg>
         ),
-        iconText: "PHP",
+        iconText: "Multiple PHP versions",
         image1Dark:
-            "/img/ilustrations/php_large.png",
+            "/img/ilustrations/php_dark.png",
         image1Light:
-            "/img/ilustrations/php_large.png",
+            "/img/ilustrations/php.png",
         image2Dark:
-            "/img/ilustrations/php_small.png",
+            "/img/ilustrations/php_small_dark.png",
         image2Light:
             "/img/ilustrations/php_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-blue-dark bg-landing-sweet-spot-glow-blue-light",
     },
     {
-        title: "CSF and CorazaWAF",
+        title: "CSF, CorazaWAF and ImunifyAV",
         description: `OpenPanel fully supports ConfigServer Security and Firewall (CSF) and comes with built-in WAF.`,
         icon: (props: { active: boolean }) => (
              <AuthenticationIcon
@@ -476,15 +476,15 @@ const list = [
                 )}
             />
         ),
-        iconText: "Firewall",
+        iconText: "CorazaWAF and ImunifyAV",
         image1Dark:
-            "/img/ilustrations/firewall_large.png",
+            "/img/ilustrations/waf_dark.png",
         image1Light:
-            "/img/ilustrations/firewall_large.png",
+            "/img/ilustrations/waf.png",
         image2Dark:
-            "/img/ilustrations/firewall_small.png",
+            "/img/ilustrations/waf_small_dark.png",
         image2Light:
-            "/img/ilustrations/firewall_small.png",
+            "/img/ilustrations/waf_small.png",
         backgroundImage:
             "dark:bg-landing-sweet-spot-glow-indigo-dark bg-landing-sweet-spot-glow-indigo-light",
     },

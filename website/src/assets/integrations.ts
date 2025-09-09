@@ -55,23 +55,15 @@ export const integrations: IntegrationsType = {
             icon: Apache,
             description:
                 "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#apache",
             status: "stable",
         },
         {
             name: "Nginx",
             icon: Nginx,
             description:
-                "Run Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
-            status: "stable",
-        },
-             {
-            name: "Varnish",
-            icon: Apache,
-            description:
-                "Varnish can be integrated with Nginx, Apache, or OpenResty to enhance caching and performance. Users can enable or disable caching on a per-domain basis.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+                "Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#nginx",
             status: "stable",
         },
         {
@@ -79,9 +71,25 @@ export const integrations: IntegrationsType = {
             icon: Nginx,
             description:
                 "OpenResty allows per-user customization by defining user-specific location blocks or dynamic Lua logic in the main config. Configuration is centralized and preloaded for performance ",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openresty",
             status: "stable",
         },
+        {
+            name: "OpenLiteSpeed",
+            icon: Apache,
+            description:
+                "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openlitespeed",
+            status: "stable",
+        },
+        {
+            name: "Varnish",
+            icon: Nginx,
+            description:
+                "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
+            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+            status: "stable",
+         },
     ],
     "data-provider-packages": [
         {
@@ -105,7 +113,7 @@ export const integrations: IntegrationsType = {
             icon: PHP,
             description:
                 "Users can use different PHP versions for each domain, run multiple versions, set a default version for new domains, change limits by editing php.ini files.",
-            url: "/docs/panel/advanced/server_settings/#php-settings",
+            url: "/docs/panel/php/domains/",
             status: "stable",
         },
         {
@@ -128,7 +136,7 @@ export const integrations: IntegrationsType = {
             icon: MySQL,
             description:
                 "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
-            url: "/docs/panel/mysql/",
+            url: "/docs/panel/mysql/databases/",
             status: "stable",
         },
         {
@@ -160,7 +168,7 @@ export const integrations: IntegrationsType = {
             icon: Configuration,
             description:
                 "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
-            url: "/docs/panel/advanced/server_settings/",
+            url: "/docs/panel/advanced/webserver_settings/",
             status: "stable",
         },
         {
@@ -184,7 +192,7 @@ export const integrations: IntegrationsType = {
             icon: Usage,
             description:
                 "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
-            url: "/docs/panel/analytics/resource_usage/",
+            url: "/docs/panel/advanced/resource_usage/",
             status: "stable",
         },
         {
@@ -192,7 +200,7 @@ export const integrations: IntegrationsType = {
             icon: Visitors,
             description:
                 "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
-            url: "/docs/panel/analytics/domain_visitors/",
+            url: "/docs/panel/domains/goaccess/",
             status: "stable",
         },
         {
@@ -200,7 +208,7 @@ export const integrations: IntegrationsType = {
             icon: Activity,
             description:
                 "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
-            url: "/docs/panel/analytics/account_activity/",
+            url: "/docs/panel/account/account_activity/",
             status: "stable",
         },
         {
@@ -248,8 +256,8 @@ export const integrations: IntegrationsType = {
             name: "Resource usage statistics",
             icon: Usage,
             description:
-                "Monitor CPU and Memory usage, Network and load with real time monitoring.",
-            url: "/docs/admin/dashboard/#cpu",
+                "Monitor CPU, Memory usage, Network, Disk and load with real time monitoring.",
+            url: "/docs/admin/dashboard/#sse-usage",
             status: "stable",
         },
         {
@@ -257,7 +265,7 @@ export const integrations: IntegrationsType = {
             icon: Services,
             description:
                 "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
-            url: "/docs/admin/dashboard/#services-status",
+            url: "/docs/admin/services/status/",
             status: "stable",
         },
         {
@@ -273,7 +281,7 @@ export const integrations: IntegrationsType = {
             icon: Terminal,
             description:
                 "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
-            url: "https://dev.openpanel.co/cli/commands.html",
+            url: "https://dev.openpanel.com/cli/commands.html",
             status: "stable",
         },
     ],
@@ -298,7 +306,7 @@ export const integrations: IntegrationsType = {
             icon: Dark,
             description:
                 "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
-            url: "/docs/panel/dashboard",
+            url: "/docs/panel/dashboard/dark-mode/",
             status: "stable",
         },
         {
@@ -306,7 +314,7 @@ export const integrations: IntegrationsType = {
             icon: ServerInfo,
             description:
                 "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.",
-            url: "/docs/panel/dashboard",
+            url: "/docs/panel/advanced/server_info/",
             status: "stable",
         },
         {
@@ -322,7 +330,7 @@ export const integrations: IntegrationsType = {
             icon: Languages,
             description:
                 "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
-            url: "https://dev.openpanel.co/localization.html",
+            url: "https://dev.openpanel.com/localization.html",
             status: "stable",
         },
         {
@@ -330,7 +338,7 @@ export const integrations: IntegrationsType = {
             icon: Keyboard,
             description:
                 "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.",
-            url: "/docs/panel/dashboard/#keyboard-shortcuts",
+            url: "/docs/articles/dev-experience/openadmin-keyboard-shortcuts/",
             status: "stable",
         },
     ],
@@ -340,7 +348,7 @@ export const integrations: IntegrationsType = {
             icon: Suspend,
             description:
                 "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.",
-            url: "/docs/admin/users/openpanel/#suspend-user",
+            url: "/docs/admin/accounts/users/#suspend",
             status: "stable",
         },
         {
@@ -348,7 +356,7 @@ export const integrations: IntegrationsType = {
             icon: Upgrade,
             description:
                 "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
-            url: "/docs/admin/users/openpanel/#detailed-user-information",
+            url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
         {
@@ -356,30 +364,30 @@ export const integrations: IntegrationsType = {
             icon: UserIP,
             description:
                 "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
-            url: "/docs/admin/users/openpanel/#change-ip-address-for-user",
+            url: "/docs/admin/accounts/users/#edit",
             status: "stable",
         },
         {
             name: "Impersonation",
             icon: UserLogin,
             description: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.",
-            url: "/docs/admin/users/openpanel/#detailed-user-information",
+            url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
         {
-            name: "Nginx or Apache per user",
+            name: "Webserver per user",
             icon: UserServer,
             description:
-                "Administrators can select Apache, Nginx, OpenResty or Varnish as the web server for each user. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+                "Administrators can select Apache, Nginx, OpenResty or OpenLitespeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
         {
-            name: "MySQL or MariaDB per user",
+            name: "Database server per user",
             icon: UserServer,
             description:
-                "Administrators can select either MySQL or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
-            url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
+                "Administrators can select either MySQL, Percona or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
+            url: "/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/",
             status: "stable",
         },
     ],
@@ -405,7 +413,7 @@ export const integrations: IntegrationsType = {
             icon: SSL,
             description:
                 "Automatically provision and renewal of Let's Encrypt certificates.",
-            url: "/docs/panel/domains/SSL/",
+            url: "/docs/panel/domains/ssl/",
             status: "stable",
         },
         {
@@ -422,6 +430,14 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators can manage ConfigServer Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/docs/admin/security/firewall/",
+            status: "stable",
+        },
+        {
+            name: "ImunifyAV",
+            icon: Services,
+            description:
+                "OpenAdmin fully supports ImunifyAV.",
+            url: "/docs/admin/security/imunify/",
             status: "stable",
         },
         {
@@ -453,7 +469,7 @@ export const integrations: IntegrationsType = {
             icon: AdminOff,
             description:
                 "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
-            url: "/docs/admin/settings/adminpanel/#enable-features",
+            url: "/docs/admin/security/disable-admin/",
             status: "stable",
         },
         {
@@ -478,7 +494,7 @@ export const integrations: IntegrationsType = {
             name: "WHMCS",
             icon: WHMCS,
             description: "Integrate with the leading web hosting management and billing software.",
-            url: "/blog/openpanel-whmcs-module/",
+            url: "/docs/articles/extensions/openpanel-and-whmcs/",
             status: "stable",
         },
         {
@@ -496,11 +512,11 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },        
         {
-            name: "REST API",
+            name: "API",
             icon: API,
             description:
-                "Our powerful RESTful API allows you to integrate with 3rd party systems you already use.",
-            url: "https://dev.openpanel.com/api/",
+                "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
+            url: "https://dev.openpanel.com/openadmin-api/",
             status: "stable",
         },
     ],

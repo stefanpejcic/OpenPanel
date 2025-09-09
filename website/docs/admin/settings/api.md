@@ -31,4 +31,4 @@ To begin:
 
    After making a request, the response, curl command and log details will appear at the bottom. This includes request info, server response, status codes, and any error messages.
 
-For full API reference and additional endpoints, please visit our detailed documentation: https://dev.openpanel.com/api/
+For full API reference and additional endpoints, please visit our detailed documentation: https://dev.openpanel.com/openadmin-api/

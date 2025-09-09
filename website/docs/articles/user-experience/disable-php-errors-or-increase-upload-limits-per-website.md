@@ -1,4 +1,4 @@
-# Disable PHP errors or increase upload limits per website
+# user.ini
 
 If you have multiple websites in the same domain folder and only want to enable or disable php settings for a certain website, create a file `.user.ini` inside the website folder.
 
@@ -18,4 +18,4 @@ error_reporting = E_ALL
 display_errors = on
 ```
 
-After editingq restart the php service. Navigate to PHP.INI editor and select the php version that your domain is using. Simply click on the save button and the service will be restarted, immediately applying settings from the .user.ini file.
+After editing restart the php service. Navigate to PHP.INI editor and select the php version that your domain is using. Simply click on the save button and the service will be restarted, immediately applying settings from the .user.ini file.

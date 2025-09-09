@@ -17,7 +17,7 @@ jobs:
         run: |
          
           # Clean existing folders
-          rm -rf translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import
+          rm -rf translations configuration opencli integrations/fossbilling integrations/paymenter.org integrations/whmcs integrations/cpanel-import integrations/virtualizor
 
           # Clone replacements
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-translations translations-tmp
@@ -26,6 +26,7 @@ jobs:
           
           git clone --depth=1 https://github.com/stefanpejcic/cPanel-to-OpenPanel cpanel-tmp
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-whmcs-module whmcs-tmp
+          git clone --depth=1 https://github.com/stefanpejcic/openpanel-virtualizor virtualizor-tmp
           git clone --depth=1 https://github.com/stefanpejcic/openpanel-paymenter.org paymenter-tmp
           git clone --depth=1 https://github.com/stefanpejcic/FOSSBilling-OpenPanel fossbilling-tmp
 
@@ -36,15 +37,16 @@ jobs:
           
           mv cpanel-tmp integrations/cpanel-import
           mv whmcs-tmp integrations/whmcs
+          mv virtualizor-tmp integrations/virtualizor
           mv paymenter-tmp integrations/paymenter.org
           mv fossbilling-tmp integrations/fossbilling
 
-          rm -rf translations/.git configuration/.git configuration/.github opencli/.git opencli/.github  integrations/cpanel-import/.git integrations/whmcs/.git integrations/paymenter.org/.git integrations/fossbilling/.git
+          rm -rf translations/.git configuration/.git configuration/.github opencli/.git opencli/.github  integrations/cpanel-import/.git integrations/whmcs/.git virtualizor/whmcs/.git integrations/paymenter.org/.git integrations/fossbilling/.git
 
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add translations configuration opencli
+          git add translations configuration opencli integrations
           if ! git diff --cached --quiet; then
             git commit -m "chore: sync folders from upstream"
             git push origin main

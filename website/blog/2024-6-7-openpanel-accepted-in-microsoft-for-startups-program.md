@@ -4,7 +4,7 @@ description: OpenPanel was selected to join the renowned “Microsoft for Startu
 slug: openpanel-selected-to-join-microsoft-for-startups-program
 authors: stefanpejcic
 tags: [OpenPanel, news, microsoft]
-image: https://openpanel.co/img/blog/openpanel-part-of-the-microsoft-for-startups-program.png
+image: https://openpanel.com/img/blog/openpanel-part-of-the-microsoft-for-startups-program.png
 hide_table_of_contents: true
 ---
 

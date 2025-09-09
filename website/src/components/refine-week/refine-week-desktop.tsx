@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { WeekData, WeekVariants } from "./data";
-import { RefineWeekLogo } from "@site/src/assets/week-of-refine/icons";
+import { RefineLogoIcon } from "@site/src/refine-theme/icons/refine-logo";
 import { LetsStartButton } from "./lets-start-button";
 import { TwitterButton } from "./twitter-button";
 import { DayIndicator } from "./day-indicator";
@@ -28,20 +28,10 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
             <CoverBgShadowDesktop variant={variant} />
             <div className={clsx("flex justify-between items-center", "py-20")}>
                 <div className={clsx("flex items-center gap-4")}>
-                    <RefineWeekLogo />
+                    <RefineLogoIcon />
                     <span className={clsx("text-gray-500 dark:text-gray-400")}>
-                        with
+                        Enterprise
                     </span>
-                    <Logo />
-                </div>
-                <div
-                    className={clsx(
-                        "text-gray-500 dark:text-gray-400",
-                        "flex items-center gap-2",
-                    )}
-                >
-                    <CalendarIcon />
-                    <span>{data.date}</span>
                 </div>
             </div>
 
@@ -99,7 +89,7 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                     "font-bold",
                 )}
             >
-                Timeline
+                Configuration
             </div>
 
             <div
@@ -149,13 +139,6 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                                 <div className={clsx("no-prose")}>
                                     <div
                                         className={clsx(
-                                            "text-gray-600 dark:text-gray-400",
-                                        )}
-                                    >
-                                        {item.date}
-                                    </div>
-                                    <div
-                                        className={clsx(
                                             "text-gray-700 dark:text-gray-200",
                                             "text-2xl font-bold",
                                             "mt-2",
@@ -186,7 +169,7 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                                         )}
                                     >
                                         <ShareIcon />
-                                        <span>Read article</span>
+                                        <span>View Instructions</span>
                                     </a>
                                 </div>
 

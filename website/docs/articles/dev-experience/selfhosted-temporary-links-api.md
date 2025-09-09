@@ -1,4 +1,4 @@
-# Self-hosted Temporary Links API for OpenPanel SiteManager
+# Temporary Links API
 
 [OpenPanel SiteManager](/docs/panel/applications/) has a temporary-links option that allows user to test website from the server IP, prior to changing DNS. Proxy domains are subdomains on our hosted api `.openpanel.org`.
 

@@ -21,7 +21,7 @@ If you do not see the Notifications page, ask your provider to enable the [notif
 | notify_autossl_expiry_coverage                 | Notify when SSL certificate is expired       | 0       |
 | notify_autossl_renewal_coverage                | Notify when certificate renewal failed   | 0       |
 | notify_autossl_renewal_coverage_reduced        | Notify when certificate renewal failed   | 0       |
-| notify_autossl_renewal_uncovered_domains       | Notify when certificate renewal failes for custom SSL| 0   |
+| notify_autossl_renewal_uncovered_domains       | Notify when certificate renewal fails for custom SSL| 0   |
 | notify_contact_address_change                  | Notify when email address is changed             | 1       |
 | notify_contact_address_change_notification_disabled | Notify when notifications for email address change are disabled | 1   |
 | notify_disk_limit                              | Notify when account reached disk limit                         | 1       |

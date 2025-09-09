@@ -1,6 +1,6 @@
-# 🔑 OpenAdmin Keyboard Shortcuts
+# Keyboard Shortcuts
 
-Openadmin can be navigated using keyboard shortcuts:
+OpenAdmin UI can be navigated using keyboard shortcuts:
 
 | Shortcut                     | Action                          | URL Path                      |
 |-----------------------------|----------------------------------|-------------------------------|

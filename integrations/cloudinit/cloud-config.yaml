@@ -1,0 +1,7 @@
+packages:
+  - curl
+  - lsb-release
+  - gnupg
+
+runcmd:
+  - curl -fsSL https://openpanel.org/ | bash

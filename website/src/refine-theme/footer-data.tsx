@@ -28,11 +28,10 @@ export const menuItems = [
             },            
             {
                 label: "API Docs",
-                href: "https://dev.openpanel.com/api/",
+                href: "https://dev.openpanel.com/openadmin-api/",
             },
             {
                 label: "Install Command",
-                icon: <NewBadgeIcon />,
                 href: "/install",
             },
         ],
@@ -65,6 +64,11 @@ export const menuItems = [
                 label: "Blog",
                 href: "/blog",
             },
+            {
+                label: "Statistics",
+                icon: <NewBadgeIcon />,
+                href: "/statistics",
+            },            
             {
                 label: "Contact",
                 href: "mailto:info@openpanel.com",

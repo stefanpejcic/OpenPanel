@@ -64,7 +64,7 @@ custom section supports the following fields:
   * `before_files`
   * `before_domains`
   * `before_mysql`
-  * `before_postgreql`
+  * `before_postgresql`
   * `before_applications`
   * `before_emails`
   * `before_cache`
@@ -149,8 +149,6 @@ Example:
 ## PageSpeed API Key
 
 If set, this API key will be used to fetch data from Google PageSpeed Insights.
-[Learn more](https://pcx3.com/openpanel/api-error-quota-exceeded-for-quota-metric-queries-and-limit-queries-per-day-of-service-pagespeedonline-googleapis-com-for-consumer-project_number5837973/)
-
 ---
 
 ## WordPress Plugins Set

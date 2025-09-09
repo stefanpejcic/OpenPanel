@@ -1,4 +1,4 @@
-# Customizing OpenPanel Interface (Branding and White-Label)
+# Branding & White-Label
 
 Everything in OpenPanel is modular and can easily be modified or disabled without breaking the rest of the functionalities.
 
@@ -35,7 +35,7 @@ Once enabled, the feature becomes instantly available to all users, appearing in
 
 ## Set pre-installed services
 
-OpenPanel uses docker compose files as the base for each user. Based on the docker images in that compose filese, different services can be set per plan/user. 
+OpenPanel uses docker compose files as the base for each user. Based on the docker images in that compose files, different services can be set per plan/user. 
 
 
 ## Localize the interface
@@ -199,4 +199,9 @@ To insert custom code within the `<footer>` tag of the OpenPanel interface, modi
 ```bash
 nano /etc/openpanel/openpanel/custom_code/in_footer.html
 ```
+
+
+## Customize Email templates
+
+How to modify the email template used for user notifications: https://community.openpanel.org/d/189-customizing-the-email-template-used-for-user-notifications
 

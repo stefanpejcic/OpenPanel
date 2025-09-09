@@ -6,25 +6,10 @@ export const LandingHeroGithubStars = () => {
     const [version, setVersion] = useState('1.5.9');
 
     useEffect(() => {
-        // Function to fetch the latest version tag from Docker Hub
         const fetchVersion = async () => {
             try {
-                const response = await fetch('https://hub.docker.com/v2/repositories/openpanel/openpanel-ui/tags');
+                const response = await fetch('https://usage-api.openpanel.org/latest_version');
                 const data = await response.json();
-                
-                // Extract tags, filter out 'latest', sort, and get the latest numeric version
-                const tags = data.results.map(tag => tag.name);
-                const filteredTags = tags
-                    .filter(tag => /^\d+\.\d+\.\d+$/.test(tag))  // Only valid version tags
-                    .sort((a, b) => {
-                        // Compare versions numerically
-                        const [majorA, minorA, patchA] = a.split('.').map(Number);
-                        const [majorB, minorB, patchB] = b.split('.').map(Number);
-                        
-                        if (majorA !== majorB) return majorB - majorA;
-                        if (minorA !== minorB) return minorB - minorA;
-                        return patchB - patchA;
-                    });
 
                 const latestVersion = filteredTags.length > 0 ? filteredTags[0] : '1.5.9';  // new verzija tag
                 setVersion(latestVersion);
@@ -34,7 +19,7 @@ export const LandingHeroGithubStars = () => {
         };
 
         fetchVersion();
-    }, []); // After initial render
+    }, []);
 
     return (
         <a
@@ -50,9 +35,7 @@ export const LandingHeroGithubStars = () => {
                 "w-auto",
                 "bg-gray-200 dark:bg-gray-700",
             )}
-            style={{
-                transform: "translateZ(0)",
-            }}
+            style={{ transform: "translateZ(0)" }}
         >
             <div
                 className={clsx(
@@ -60,11 +43,8 @@ export const LandingHeroGithubStars = () => {
                     "inset-0",
                     "overflow-hidden",
                     "rounded-3xl",
-                    "",
                 )}
-                style={{
-                    transform: "translateZ(0)",
-                }}
+                style={{ transform: "translateZ(0)" }}
             >
                 <div
                     className={clsx(
@@ -125,9 +105,9 @@ export const LandingHeroGithubStars = () => {
                         "dark:bg-landing-hero-github-stars-text-dark",
                     )}
                 >
-                    <span className={clsx("font-semibold")}>
+                    <span className="font-semibold">
                         OpenPanel <span>{version}</span>
-                    </span> {" "}
+                    </span>{" "}
                     <span>is out</span>
                 </span>
             </div>

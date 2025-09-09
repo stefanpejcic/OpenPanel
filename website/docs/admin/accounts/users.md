@@ -133,7 +133,7 @@ Statistics is the default tab, displays current usage statistics:
 - Storage used
 - Inodes used
 - CPU usage
-- Memoru usage
+- Memory usage
 - Number of running containers
 - Disk I/O
 - Network I/O
@@ -171,7 +171,7 @@ Storage tab displays data from the [docker system df](https://docs.docker.com/re
 
 ### Overview
 
-Overview page displays detailed user inforamtion and allows Administrator to set a custom message specifically for this user.
+Overview page displays detailed user information and allows Administrator to set a custom message specifically for this user.
 
 ![user overview](/img/admin/2025-06-09_08-34.png)
 
@@ -209,7 +209,7 @@ From the Edit tab, Administrators can edit user information:
 
 ![user edit](/img/admin/edit_user.png)
 
-## Suspend
+### Suspend
 
 <Tabs>
   <TabItem value="openadmin-user-suspend" label="With OpenAdmin" default>
@@ -238,7 +238,7 @@ opencli user-suspend filip
   </TabItem>
 </Tabs>
 
-## Unsuspend
+### Unsuspend
 
 <Tabs>
   <TabItem value="openadmin-user-unsuspend" label="With OpenAdmin" default>

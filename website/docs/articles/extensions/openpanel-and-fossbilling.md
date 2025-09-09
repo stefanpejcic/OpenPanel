@@ -1,10 +1,10 @@
-# OpenPanel and FOSSBilling
+# FOSSBilling
 
 OpenPanel Enterprise edition has billing integrations with [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/) and FOSSBilling.
 
 ## OpenPanel
 
-### Whitelist FOSSBillling
+### Whitelist FOSSBilling
 
 Before you can setup the OpenPanel server manager in FOSSBilling, you need to first whitelist your FOSSBilling server's IP address inside of OpenAdmin interface, and enable API access. 
 

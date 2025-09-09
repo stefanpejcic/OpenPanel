@@ -13,6 +13,9 @@ on:
         required: false
         default: 'website/docs'
 
+  schedule:
+    - cron: '0 0 * * 0'  # Every Sunday at 00:00 UTC
+
 jobs:
   spell-check:
     runs-on: ubuntu-latest
@@ -38,7 +41,7 @@ jobs:
         fi
 
     - name: Upload Spell Check Report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: spell-check-report
         path: report.txt

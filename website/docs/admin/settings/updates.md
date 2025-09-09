@@ -16,7 +16,6 @@ This section displays information about the version of OpenPanel currently insta
 
 If the installed version matches the latest version, OpenPanel is fully up to date. If not, you can initiate a manual update via a button to upgrade to the latest version.
 
-
 ## Auto Updates
 The Auto Updates section lets you configure how OpenPanel should handle updates automatically.
 You can select the update policy that best fits your needs:
@@ -34,3 +33,10 @@ Choosing the appropriate auto-update setting ensures that OpenPanel remains as s
 ## Update Logs
 The Update Logs section provides a record of all updates that have been applied to OpenPanel.
 
+## Control Updates
+For more information about updates, check:
+- [How to Enable Automatic Updates for OpenPanel](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
+- [How to Disable Automatic Updates for OpenPanel](/docs/articles/install-update/how-to-disable-auto-update-openpanel/)
+- [How to Manually Update OpenPanel](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
+- [How to Skip a Specific OpenPanel Version Update](/docs/articles/install-update/skip-specific-openpanel-version-update)
+- [How to Check OpenPanel Version from Terminal](/docs/articles/install-update/how-to-check-openpanel-version)

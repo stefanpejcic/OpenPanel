@@ -55,25 +55,27 @@ jobs:
           git commit -m "chore: update changelog for version $VERSION with release date" || exit 0
           git push https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git
 
-
+  
   notify-discord:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+  
       - name: Send Discord Notification
         run: |
           VERSION="${{ github.event.milestone.title }}"
           DIR="website/docs/changelog"
           FILE="$DIR/$VERSION.md"
-
+  
           if [ ! -f "$FILE" ]; then
             echo "Changelog file does not exist: $FILE"
             exit 0
           fi
-
+  
           curl -H "Content-Type: application/json" \
-          -X POST \
-          -d "{\"content\": \"🚀 OpenPanel version **${{ github.event.milestone.title }}** is out! 🚀\n\n🔗 Changelog: https://openpanel.com/docs/changelog/${{ github.event.milestone.title }}\"}" \
-          "${{ secrets.DISCORD_WEBHOOK }}"
-
-
+            -X POST \
+            -d "{\"content\": \"🚀 OpenPanel version **${VERSION}** is out! 🚀\n\n🔗 Changelog: https://openpanel.com/docs/changelog/${VERSION}\"}" \
+            "${{ secrets.DISCORD_WEBHOOK }}"
+  
 

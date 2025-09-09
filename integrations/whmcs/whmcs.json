@@ -10,13 +10,13 @@
     "long": ""
   },
   "support": {
-    "homepage": "https://openpanel.co/",
-    "docs_url": "https://dev.openpanel.co/api"
+    "homepage": "https://openpanel.com/",
+    "docs_url": "https://dev.openpanel.com/api"
   },
   "authors": [
     {
       "name": "OPENPANEL",
-      "homepage": "https:\/\/openpanel.co\/"
+      "homepage": "https:\/\/openpanel.com\/"
     }
   ]
 }

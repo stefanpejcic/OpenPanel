@@ -29,6 +29,7 @@ export const EnterpriseTable = ({ className }: { className?: string }) => {
                 )}
             >
                 <h2
+                    id="compare" 
                     className={clsx(
                         "font-semibold",
                         "dark:text-gray-400 text-gray-600",
@@ -490,7 +491,7 @@ const tableData = [
         title: "Pricing",
         items: [
             {
-                description: "Pricing",
+                description: "Monthly Pricing",
                 community: (
                     <TableText>forever free</TableText>
                 ),
@@ -530,10 +531,41 @@ const tableData = [
         ],
     },
     {
-        title: "Additional Features",
+        title: "Websites",
         items: [
             {
-                description: "Sentinel AI",
+                description: "Websites",
+                community: <TableText>50</TableText>,
+                enterprise: (
+                    <TableText>
+                        Unlimited
+                    </TableText>
+                ),
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },            
+            {
+                description: "WordPress Manager",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Website Builder",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "NodeJS Applications",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -542,7 +574,34 @@ const tableData = [
                 },
             },
             {
-                description: "MariaDB",
+                description: "Python Applications",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PHP Selector",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PHP.INI Editor",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Temporary Domains",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -562,55 +621,28 @@ const tableData = [
         ],
     },
     {
-        title: "Websites",
-        items: [
-            {
-                description: "Websites",
-                community: <TableText>Unlimited</TableText>,
-                enterprise: (
-                    <TableText>
-                        Unlimited
-                    </TableText>
-                ),
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
-                },
-            },            
-            {
-                description: "Auto Installers",
-                community: <TableText>WordPress</TableText>,
-                enterprise: <TableText>WordPress, NodeJS, Python</TableText>,
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
-                },
-            },
-            {
-                description: "Website Builder",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "Temporary Domains",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-        ],
-    },
-    {
         title: "Files",
-        items: [         
+        items: [     
+            {
+                description: "File Manager",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
             {
                 description: "FTP",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Backups",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -627,8 +659,165 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
+            {
+                description: "Download from URL",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Disk Usage Explorer",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Inodes Explorer",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
         ],
     },
+    {
+        title: "Databases",
+        items: [
+            {
+                description: "MySQL",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MariaDB",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "phpMyAdmin",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Microsoft SQL Server",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "PostgreSQL",
+                community: <CrossIcon />,
+                enterprise: <TableText>BETA</TableText>,
+                valueType: {
+                    community: "icon",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "pgAdmin",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Import Databases",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Remote MySQL Access",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },           
+        ],
+    },
+
+
+
+    {
+        title: "Web servers",
+        items: [
+            {
+                description: "Apache",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Nginx",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "OpenResty",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "OpenLitespeed",
+                community: <CrossIcon />,
+                enterprise: <TableText>BETA</TableText>,
+                valueType: {
+                    community: "icon",
+                    enterprise: "text",
+                },
+            },
+            {
+                description: "Varnish",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },          
+        ],
+    },    
     {
         title: "Accounts",
         items: [
@@ -644,7 +833,28 @@ const tableData = [
                     community: "text",
                     enterprise: "text",
                 },
-            },
+            },      
+            {
+                description: "Transfer Accounts between Servers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },   
+            {
+                description: "Import from cPanel Backup",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },   
+            
             {
                 description: "Resellers",
                 community: <CrossIcon />,
@@ -655,7 +865,7 @@ const tableData = [
                 },
             },
             {
-                description: "Admin Accounts",
+                description: "Administrator Accounts",
                 community: <TableText>Unlimited</TableText>,
                 enterprise: <TableText>Unlimited</TableText>,
                 valueType: {
@@ -678,6 +888,33 @@ const tableData = [
                 },
             },
             {
+                description: "Let's Encrypt",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Coraza WAF",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Custom SSL",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
                 description: "DNSSEC",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
@@ -696,7 +933,7 @@ const tableData = [
                 },
             },
             {
-                description: "WAF",
+                description: "Domain Redirects",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -704,18 +941,13 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
-            
             {
-                description: "SSL",
-                community: <TableText>Let's Encrypt</TableText>,
-                enterprise: (
-                    <TableText>
-                        Let's Encrypt & Custom SSL
-                    </TableText>
-                ),
+                description: ".onion Domains",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
                 valueType: {
-                    community: "text",
-                    enterprise: "text",
+                    community: "icon",
+                    enterprise: "icon",
                 },
             },
         ],
@@ -744,29 +976,6 @@ const tableData = [
         ],
     },   
     {
-        title: "Updates",
-        items: [
-            {
-                description: "Release Frequency",
-                community: <TableText>Monthly</TableText>,
-                enterprise: <TableText>Continuous</TableText>,
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
-                },
-            },
-            {
-                description: "Container Updates",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-        ],
-    },
-    {
         title: "Integrations",
         items: [
             {
@@ -790,18 +999,95 @@ const tableData = [
         ],
     },
     {
-        title: "Licensing",
+        title: "System",
         items: [
             {
-                description: "License",
+                description: "User Isolation",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },   
+            {
+                description: "Services Isolation",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },  
+            {
+                description: "Users can manage Containers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            }, 
+            {
+                description: "Users can add Containers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },  
+            {
+                description: "Support for ARM CPUs (Aarch64)",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Supported OS",
+                community: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu 24.04</a></TableText>,
+                enterprise: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+             {
+                description: "Available on Cloud/VPS",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Available on Metal/Dedicated",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+        ],
+    },    
+    {
+        title: "Pricing",
+        items: [
+            {
+                description: "Yearly Pricing",
                 community: (
                     <div className={clsx("h-full")}>
-                        <TableText>MIT license</TableText>
+                        <TableText></TableText>
                     </div>
                 ),
                 enterprise: (
                     <div className={clsx("flex flex-col", "gap-6", "w-full")}>
-                        <TableText>OpenPanel commercial license</TableText>
+                        <TableText>149.50€ / year (17% OFF)</TableText>
                         <EnterpriseGetInTouchButton
                             className={clsx("hidden landing-sm:block")}
                             linkClassName={clsx("w-full")}

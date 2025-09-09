@@ -4,21 +4,19 @@ sidebar_position: 2
 
 # FTP
 
-Users can create FTP sub-accounts, which share the FTP service among all users on the server. You can connect to FTP using the server IP address and the default port, `21`.
+OpenPanel accounts can create FTP users, which share the FTP service with all other FTP users on the server. You can connect to FTP using the server IP address and the default port, `21`.
 
 :::info
-By default, FTP is **not enabled** in OpenPanel. If you don’t see the option in your OpenPanel interface, it means the server administrator has not enabled it]. You’ll need to request them to [enable FTP module](/docs/admin/settings/openpanel/#ftp) before you can use it.
+FTP is available in the [OpenPanel Enterprise](/enterprise/) edition, guide for Administrators on [How to setup FTP in OpenPanel](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
 :::
 
 ## View users
 
-To view FTP connection information and manage existing users—such as changing passwords, modifying their FTP path (the directory they are limited to), or deleting accounts—navigate to `OpenPanel > Files > FTP`.
+To view FTP connection information and manage existing users—such as changing passwords, modifying their FTP path (the directory they are limited to), or deleting accounts-navigate to `OpenPanel > Files > FTP`.
 
 ## Create user
 
-To create a new FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Add Account** button located in the bottom right corner of the screen. A new section will appear above the existing users table, where you can set the FTP username, password, and path.
-
-![add ftp user](/img/panel/v1/files/add_ftp_acc.png)
+To create a new FTP sub-user, go to `OpenPanel > Files > FTP` from the menu and click the **Add Account** button. A new section will appear, where you can set the FTP username, password, and path.
 
 Click the **Add Account** button to save your changes.
 
@@ -28,9 +26,7 @@ FTP sub-users **must end** with dot (`.`) followed by the OpenPanel username - e
 
 ## Change password
 
-To change password for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Password** button located next to the user. A modal will appear in which you can set new password for the user.
-
-![change ftp user password](/img/panel/v1/files/change_ftp_pass.png)
+To change password for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Password** button located next to the user. On the next page set the new password for the user.
 
 Click the **Change Password** button to save.
 
@@ -40,13 +36,14 @@ FTP User's Passwords must contain **at least one** uppercase letters (`A-Z`), lo
 
 ## Change path
 
-To change path (directory user is restricted to) for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Path** button located next to the user. A modal will appear in which you can set new path for the user.
-
-![change ftp user password](/img/panel/v1/files/change_ftp_pass.png)
+To change path (directory user is restricted to) for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Path** button located next to the user. On the next page set new path for the user.
 
 Click the **Change Path** button to save.
 
 ## Delete user
 
-To delete an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Delete** button located next to the user. The button will swich to text 'Confirm', click it again to confirm the deletion.
+To delete an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Delete** button located next to the user. The button will switch to text 'Confirm', click it again to confirm the deletion.
 
+## View Connections
+
+To view active connections (sessions), go to `OpenPanel > Files > FTP` from the menu, then click on 'View Connections' link on top right of the page.

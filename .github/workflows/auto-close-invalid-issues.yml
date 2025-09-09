@@ -34,7 +34,7 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: issue.number,
-                body: 'This issue has been marked as invalid and will be closed after 24 hours. If you believe this is a mistake, please reopen or create a new issue.'
+                body: 'This issue has been marked as invalid and is automatically closed. If you believe this is a mistake, please reopen or create a new issue.'
               });
 
               await github.rest.issues.update({

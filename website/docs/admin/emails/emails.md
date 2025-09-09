@@ -17,5 +17,5 @@ The table includes the following information:
 This section is useful for monitoring email resource usage and offering users easy access to their inbox.
 
 :::info
-Emails are only available on [OpenPanel Enterprise edition](/beta)
+Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 :::

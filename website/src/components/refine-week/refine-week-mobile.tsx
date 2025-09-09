@@ -1,7 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { WeekData, WeekVariants } from "./data";
-import { RefineWeekLogo } from "@site/src/assets/week-of-refine/icons";
+import { RefineLogoIcon } from "@site/src/refine-theme/icons/refine-logo";
 import { LetsStartButton } from "./lets-start-button";
 import { TwitterButton } from "./twitter-button";
 import { DayIndicator } from "./day-indicator";
@@ -30,7 +30,7 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                     "py-10 sm:py-20",
                 )}
             >
-                <RefineWeekLogo />
+                <RefineLogoIcon /> refine-logo
                 <span className={clsx("text-gray-500 dark:text-gray-400")}>
                     with
                 </span>
@@ -65,17 +65,6 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                     "z-[1]",
                 )}
             >
-                <div
-                    className={clsx(
-                        "text-gray-500 dark:text-gray-400",
-                        "mt-6 sm:mt-20",
-                        "flex items-center gap-2",
-                    )}
-                >
-                    <CalendarIcon />
-                    <span>{data.date}</span>
-                </div>
-
                 <div
                     className={clsx(
                         "text-[32px] leading-[40px]",
@@ -133,24 +122,6 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                                 "rounded-lg",
                             )}
                         >
-                            <DayIndicator
-                                id={`mobile-${index}`}
-                                variant={variant}
-                                day={index + 1}
-                                className={clsx(
-                                    "absolute top-[-8px] left-[-8px] sm:top-[-16px] sm:left-[-16px]",
-                                )}
-                            />
-                            <div
-                                className={clsx(
-                                    "text-gray-600 dark:text-gray-400",
-                                    "h-14",
-                                    "ml-24 pt-2",
-                                )}
-                            >
-                                {item.date}
-                            </div>
-
                             <div
                                 className={clsx(
                                     "flex flex-col gap-6",
@@ -221,7 +192,7 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                                     )}
                                 >
                                     <ShareIcon />
-                                    <span>Read article</span>
+                                    <span>Instructions</span>
                                 </a>
                             </div>
                         </div>

@@ -5,7 +5,7 @@
 # Source: https://github.com/stefanpejcic/openpanel-whmcs-module
 # Author: Stefan Pejcic
 # Created: 01.05.2024
-# Last Modified: 09.10.2024
+# Last Modified: 03.06.2025
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic
 #
@@ -442,29 +442,15 @@ function openpanel_ChangePackage($params) {
         $apiProtocol = getApiProtocol($params["serverhostname"]);
         $changePlanEndpoint = $apiProtocol . $params["serverhostname"] . ':2087/api/users/' . $params["username"];
 
-        // Fetch the stored plan ID
-        $storedPlanId = $params['configoption1'];
+        $packageId = $params['pid'];
 
-        // Retrieve available plans from the server
-        $plans = getAvailablePlans($params);
-
-        if (is_string($plans)) {
-            logModuleCall('openpanel', 'ChangePackage', $params, "Error retrieving plans: $plans");
-            return "Error retrieving plans: $plans";
-        }
-
-        // Find the actual plan name using the stored plan ID
-        $planName = null;
-        foreach ($plans as $plan) {
-            if ($plan['id'] == $storedPlanId) {
-                $planName = $plan['name'];
-                break;
-            }
-        }
+        $result = select_query("tblproducts", "name", array("id" => $packageId));
+        $data = mysql_fetch_array($result);
+        $planName = $data['name'];
 
         if (!$planName) {
-            logModuleCall('openpanel', 'ChangePackage', $params, "No matching plan name found for stored plan ID: $storedPlanId");
-            return "Error: No matching plan name found for stored plan ID: $storedPlanId";
+            logModuleCall('openpanel', 'ChangePackage', $params, "No matching plan name found for stored plan ID: $planName");
+            return "Error: No matching plan name found for stored plan ID: $planName";
         }
 
         // Prepare data for changing plan

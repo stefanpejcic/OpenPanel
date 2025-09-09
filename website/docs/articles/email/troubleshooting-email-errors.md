@@ -1,6 +1,11 @@
-# Troubleshooting Email Errors
+# Email Errors
 
 Email communication is crucial for any organization, but issues can arise that disrupt this essential service. This guide provides practical steps to diagnose and resolve common email errors encountered in [OpenPanel Enterprise edition](/product/openpanel-premium-control-panel/), ensuring your email systems run smoothly and efficiently.
+
+## Not able to send emails
+
+Cloud hsting providers such as Hetzner block sending emials using `25` and `465` ports. Make sure that your provider does not block these ports.
+
 
 ## ERROR list mail user: '/tmp/docker-mailserver/postfix-accounts.cf' does not exist
 

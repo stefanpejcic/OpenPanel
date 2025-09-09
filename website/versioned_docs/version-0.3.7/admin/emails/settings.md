@@ -7,7 +7,7 @@ sidebar_position: 3
 Email Settings allow Administrator to monitor email traffic and manage mail server.
 
 :::info
-Emails are only available on [OpenPanel Enterprise edition](/beta)
+Emails are only available on [OpenPanel Enterprise edition](/enterprise)
 :::
 
 

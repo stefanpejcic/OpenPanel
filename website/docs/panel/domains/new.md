@@ -8,7 +8,7 @@ To add a new domain, simply enter the domain name and click **Add Domain**:
 
 ![add domain](/img/panel/v2/openpanel_add_domain.gif)
 
-Optionally, you can specify a custom **Document Root** - folder where webiste files will be stored.
+Optionally, you can specify a custom **Document Root** - folder where website files will be stored.
 
 Once submitted, OpenPanel will display a detailed log of all actions performed. Example:
 

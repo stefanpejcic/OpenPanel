@@ -43,10 +43,11 @@ Clicking **Manage** for an account opens the management screen where you can:
 
 Click **Connect Devices** to view the email server settings for that account.
 
-### Secure SSL/TLS Settings (Recommended)
-- Incoming Server  
-- IMAP Port
+Specific guides on how to set an email client using a specific device or service:
 
-### Non-SSL Settings (Not Recommended)
-- Incoming Server  
-- IMAP Port
+- [How to setup email on iPhone](/docs/articles/email/how-to-setup-email-on-iphone)
+- [How to setup email on Android](/docs/articles/email/how-to-setup-email-on-android)
+- [How to setup email on Apple Mail app](/docs/articles/email/how-to-setup-email-on-apple-mail-app)
+- [How to setup email on Thunderbird](/docs/articles/email/how-to-setup-email-on-thunderbird)
+- [How to setup email on Outlook 365 desktop app](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
+- [How to setup email on Gmail using desktop / browser](/docs/articles/email/how-to-setup-email-in-gmail)

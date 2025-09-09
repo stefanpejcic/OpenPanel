@@ -112,33 +112,23 @@ const messages = [
     {
         text: (
             <>
-                OpenPanel now offers full support for{" "}
-                <span className="font-semibold">ARM CPUs (Aarch64)</span>
+                🎉 Get <span className="font-semibold">2 FREE months</span> when you upgrade to an{" "}
+                <span className="font-semibold">OpenPanel Enterprise Annual License</span>. 
             </>
         ),
-        href: "/docs/admin/intro/#requirements",
-        cta: "Install Now",
+        href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
+        cta: "Claim Your Free Months",
     },
     {
         text: (
             <>
-                Check out the new{" "}
-                <span className="font-semibold">Modules System</span> in OpenAdmin.
+                🚀 Unlock <span className="font-semibold">Premium Features</span> with the{" "}
+                <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
             </>
         ),
-        href: "https://demo.openpanel.org:2087/settings/modules",
-        cta: "View Demo",
-    },
-    {
-        text: (
-            <>
-                Check out the new{" "}
-                <span className="font-semibold">Redesigned OpenPanel UI</span>.
-            </>
-        ),
-        href: "https://demo.openpanel.org:2083/dashboard",
-        cta: "View Demo",
-    },
+        href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
+        cta: "Secure Your Discount",
+    },    
     {
         text: (
             <>
@@ -148,7 +138,7 @@ const messages = [
             </>
         ),
         href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "",
+        cta: "Get Started Now",
     },
 ];
 

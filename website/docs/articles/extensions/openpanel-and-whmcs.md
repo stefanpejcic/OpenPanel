@@ -1,4 +1,4 @@
-# OpenPanel and WHMCS
+# WHMCS
 
 OpenPanel Enterprise edition has billing integrations with WHMCS and [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling).
 
@@ -24,7 +24,7 @@ opencli admin new USERNAME_HERE PASSWORD_HERE
 
 ## Whitelist on OpenPanel
 
-On OpenPanel server make sure that the OpenAdmin port 2087 is open on `OpenAdmin > Firewall` or whitelist the IP adress of your WHMCS server.
+On OpenPanel server make sure that the OpenAdmin port 2087 is open on `OpenAdmin > Firewall` or whitelist the IP address of your WHMCS server.
 to whitelist ip address from terminal run:
 
 ```bash
@@ -37,11 +37,11 @@ ufw allow from WHMCS_IP_HERE
 
 ## Create hosting package
 Hosting packages need to be created on both OpenPanel and WHMCS servers.
-On OpenPanel server login to admin panel and on `OpenAdmin > Plans` create hosting packages that you will be assinging to users on WHMCS.
+On OpenPanel server login to admin panel and on `OpenAdmin > Plans` create hosting packages that you will be assigning to users on WHMCS.
 
 # WHMCS
 
-## Install OpenPanel WHMC Module
+## Install OpenPanel WHMCS Module
 
 Login to SSH for WHMCS server
 Navigate to `path_to_whmcs/modules/servers`
@@ -56,7 +56,7 @@ On WHMCS server also make sure that the 2087 port is opened or whitelist the IP 
 
 ## WHMCS Module Setup
 
-From WHMS navigate to: *System Settings > Products & Services > Servers*
+From WHMCS navigate to: *System Settings > Products & Services > Servers*
 ![screenshot](https://i.postimg.cc/MHWpL3tc/image.png)
 Click on *Create New Server* and under module select **OpenPanel** then add OpenPanel server IP, username and password for the OpenAdmin panel:
 ![create_whmcs_group](https://i.postimg.cc/3Jh3nqWY/image.png)

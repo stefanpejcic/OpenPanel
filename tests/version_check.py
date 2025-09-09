@@ -1,11 +1,12 @@
 import requests
+import json
 
 '''
-Check if current panel version is +1 then the latest
+Check if current panel version is +1 than the latest
 '''
 
 local_version_file = '/usr/local/panel/version'
-latest_version_url = 'https://openpanel.org/version'
+latest_version_url = 'https://usage-api.openpanel.org/latest_version'
 
 def get_local_version():
     try:
@@ -19,9 +20,13 @@ def get_remote_version():
     try:
         response = requests.get(latest_version_url)
         response.raise_for_status()
-        return response.text.strip()
+        data = response.json()
+        return data.get("latest_version")
     except requests.exceptions.RequestException as e:
         print(f"Error fetching remote version: {e}")
+        return None
+    except (ValueError, KeyError) as e:
+        print(f"Error parsing remote version: {e}")
         return None
 
 def is_version_incremented(local, remote):
@@ -52,4 +57,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-  
+    

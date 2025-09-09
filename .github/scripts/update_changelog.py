@@ -27,8 +27,22 @@ def parse_version(title):
 def valid_version(title):
     return re.match(r'^\d+\.\d+\.\d+.*$', title)
 
-open_milestones = [m for m in milestones if m.state == 'open' and valid_version(m.title)]
-closed_milestones = [m for m in milestones if m.state == 'closed' and valid_version(m.title)]
+def is_min_version(title, min_version=(1, 0, 0)):
+    """Return True if milestone title is >= min_version."""
+    if not valid_version(title):
+        return False
+    v = parse_version(title)
+    return v[:3] >= min_version  # compare only major.minor.patch
+
+# Filter milestones (only >= 1.0.0)
+open_milestones = [
+    m for m in milestones
+    if m.state == 'open' and is_min_version(m.title)
+]
+closed_milestones = [
+    m for m in milestones
+    if m.state == 'closed' and is_min_version(m.title)
+]
 
 # Safe version for sorting with naive datetime
 open_milestones = sorted(
@@ -38,13 +52,14 @@ open_milestones = sorted(
 
 closed_milestones = sorted(
     closed_milestones,
-    key=lambda m: (to_naive(m.due_on) or datetime.min, parse_version(m.title)),
+    key=lambda m: parse_version(m.title),
     reverse=True
 )
 
 def row(m):
     link = f"/docs/changelog/{m.title}"
-    date_fmt = fmt_date(m.due_on)
+    date = m.closed_at if m.state == "closed" else m.due_on
+    date_fmt = fmt_date(date)
     return f"|__[{'%s' % m.title}]({link})__| {date_fmt} |"
 
 upcoming_rows = [row(m) for m in open_milestones]

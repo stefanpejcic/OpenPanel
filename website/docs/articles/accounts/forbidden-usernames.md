@@ -1,4 +1,4 @@
-# Reserved and Invalid Usernames
+# Reserved Usernames
 
 ## Basic restrictions
 
@@ -20,7 +20,7 @@ Usernames may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 
 Passwords may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Passwords cannot contain less than **5** characters.
-- Passwords cannot contain more than **30** characters.
+- Passwords cannot contain more than **16** characters.
 
 ### SSH
 OpenAdmin applies the following rules when you modify an SSH password:

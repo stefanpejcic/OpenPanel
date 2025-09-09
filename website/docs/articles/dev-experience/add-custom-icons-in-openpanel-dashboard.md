@@ -1,4 +1,4 @@
-# Add custom icons in OpenPanel Dashboard
+# Custom Section
 
 To add custom section in *OpenPanel > Dashboard* page, navigate to **OpenAdmin > Settings > Custom Code** and edit the 'Custom Section'.
 

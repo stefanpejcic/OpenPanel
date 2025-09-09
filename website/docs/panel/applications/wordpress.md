@@ -4,14 +4,9 @@ sidebar_position: 1
 
 # WordPress Manager
 
-![wp_manager_grid.png](/img/panel/v1/applications/wp_manager_grid.png)
+![wp_manager_grid.png](/img/panel/v2/wpmanager.png)
 
 WordPress Manager is a powerful tool integrated into OpenPanel, enabling you to easily install and manage WordPress websites directly from your hosting panel.
-
-**Key Features:**
-- [Single-click login to wp-admin](/docs/panel/applications/wordpress#auto-login-to-wp-admin)
-- [Change DEBUG/Update preferences](https://docs.openpanel.co/docs/panel/applications/wordpress#update-preferences)
-- [Backup and Restore](/docs/panel/applications/wordpress#backup-and-restore)
 
 ## Manage WordPress sites
 
@@ -39,7 +34,7 @@ After adding a domain name, click on the 'Site Manager' button in the sidebar to
 
 To create a new WordPress installation click on the "+ New website" button and choose to Install WordPress.
 
-![new_site_popup.png](/img/panel/v2/site_manager_new.png)
+![new_site_popup.png](/img/panel/v2/wpinstall.png)
 
 In the install form set:
 
@@ -52,28 +47,26 @@ In the install form set:
 
 and click on the 'Start Installation' button.
 
-![wp_install_domain.png](/img/panel/v2/wordpress_new.png)
-
-![wp_install.png](/img/panel/v2/wordpress_install.png)
+![wp_install.png](/img/panel/v2/wpinstall2.png)
 
 ### Scan (Import) Installations
 
 By performing a scan you can import existing WordPress installations into the WP Manager interface.
 The tool will search all your files for wp-config.php (main WordPress configuration file) and import all websites that it finds.
 
-![wp_manager_scan.png](/img/panel/v1/applications/wp_manager_scan.png)
+![wp_manager_scan.png](/img/panel/v2/wpscan.png)
 
 ### Refresh existing data
 
 In cases when you manually updated WordPress core or changed the admin email address outside the WP Manager interface, the tool will display out-of-date information. To update the data inside the WP Manager database for your websites simply click on the 'Refresh data' button.
 
-![wp_manager_refresh_data.png](/img/panel/v1/applications/wp_manager_refresh_data.png)
+![wp_manager_refresh_data.png](/img/panel/v2/wprefresh.png)
 
 ### Grid VS Tabular view
 
 Websites can be viewed in grid mode with screenshots or tabular (table) mode. 
 To change the view to table mode click on the button in bottom right corner of the screen:
-![wp_manager_table.png](/img/panel/v1/applications/wp_manager_table.png)
+![wp_manager_table.png](/img/panel/v2/wptable.png)
 
 
 ---
@@ -81,7 +74,7 @@ To change the view to table mode click on the button in bottom right corner of t
 ## Managing a website
 
 
-![wp_manager_site.png](/img/panel/v1/applications/wp_manager_site.png)
+![wp_manager_site.png](/img/panel/v2/wpmanage.png)
 
 ### General Information
 
@@ -104,12 +97,10 @@ For each WordPress installation you can view:
 
 ### View database information
 
-To view database login information for a WordPress website from the WP Manager click on the Database link:
+Database login information for a WordPress website from the WP Manager is displayed at the bottom of the page:
 
-![wp_manager_site_database.png](/img/panel/v1/applications/wp_manager_site_database.png)
-
-To reveal the password click on the blured password field:
-![wp_manager_site_database_password.png](/img/panel/v1/applications/wp_manager_site_database_password.png)
+To reveal the password click on the blurred password field:
+![wp_manager_site_database_password.png](/img/panel/v2/wpunblur.png)
 
 ### Detach a website
 
@@ -117,11 +108,11 @@ Use the Detach option to remove a WordPress website from the WP Manager interfac
 
 Click on the 'Detach' button:
 
-![wp_manager_site_detach_1.png](/img/panel/v1/applications/wp_manager_site_detach_1.png)
+![wp_manager_site_detach_1.png](/img/panel/v2/wpdetach.png)
 
-On the popup click on 'Remove' button to confirm:
+On the popup click on 'Confirm Detach' button to confirm:
 
-![wp_manager_site_detach_2.png](/img/panel/v1/applications/wp_manager_site_detach_2.png)
+![wp_manager_site_detach_2.png](/img/panel/v2/wpdetach2.png)
 
 
 
@@ -130,7 +121,7 @@ Use the single sign-on option to auto login securely to your wp-admin dashboard 
 
 Click on the 'Login as Admin' button.
 
-![wp_manager_site_login_admin.png](/img/panel/v1/applications/wp_manager_site_login_admin.png)
+![wp_manager_site_login_admin.png](/img/panel/v2/wpautolog.png)
 
 
 ### Preview with temporary link
@@ -139,7 +130,7 @@ This option allows you to preview websites using temporary domains provided by O
 
 To view website using temporary link, click on the 'Preview' button:
 
-![website_temporary_url_openpanel.gif](/img/panel/v1/applications/website_temporary_url_openpanel.gif)
+![website_temporary_url_openpanel.gif](/img/panel/v2/wppreview.png)
 
 
 ### Edit WordPress settings
@@ -148,7 +139,7 @@ To edit General, Updates and Debugging preferences for a WordPress website click
 
 #### General Settings
 
-General settigns that can be edited for a website:
+General settings that can be edited for a website:
 
 - Website name
 - Blog Description
@@ -157,7 +148,7 @@ General settigns that can be edited for a website:
 - Allow/Block pingbacks from other websites that mention you
 - Block/Allow search engines like Google, Bing, etc.
 
-![wp_manager_site_edit_1.png](/img/panel/v1/applications/wp_manager_site_edit_1.png)
+![wp_manager_site_edit_1.png](/img/panel/v2/wpgeneral.png)
 
 #### Update Preferences
 
@@ -165,7 +156,7 @@ Here you can set the update preferences for WordPress core, plugins and themes.
 
 By default only WordPress core updates to minor versions are enabled.
 
-![wp_manager_site_edit_2.png](/img/panel/v1/applications/wp_manager_site_edit_2.png)
+![wp_manager_site_edit_2.png](/img/panel/v2/wpupdate.png)
 
 #### Update WordPress core
 
@@ -184,7 +175,7 @@ Here you can enable:
 - SHOW_DEBUG
 - SAVEQUERIES
 
-![wp_manager_site_edit_3.png](/img/panel/v1/applications/wp_manager_site_edit_3.png)
+![wp_manager_site_edit_3.png](/img/panel/v2/wpdebug.png)
 
 ### Refresh website screenshot
 
@@ -197,11 +188,11 @@ Website screenshots are periodically re-generated every 24h, if you need to manu
 
 To uninstall WordPress and permanently delete all website files and database, click on the 'Uninstall' button.
 
-![wp_manager_site_uninstall_1.png](/img/panel/v1/applications/wp_manager_site_uninstall_1.png)
+![wp_manager_site_remove_1.png](/img/panel/v2/wpdetach.png)
 
-On the modal click on the 'Confirm Uninstall' button to confirm.
+On the popup click on 'Confirm Uninstall' button to confirm:
 
-![wp_manager_site_uninstall_2.png](/img/panel/v1/applications/wp_manager_site_uninstall_2.png)
+![wp_manager_site_remove_2.png](/img/panel/v2/wpdetach2.png)
 
 
 ### Backup and Restore
@@ -211,7 +202,7 @@ You have the options to perform manual backups of WordPress files or databases a
 
 To generate a new backup click on the 'Backup' button.
 
-![wp_manager_site_backup_1.png](/img/panel/v1/applications/wp_manager_site_backup_1.png)
+![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
 
 On the modal select to backup both files and database, just a database or just files.
 Click on the 'Run Backup' to start the backup process:
@@ -239,3 +230,19 @@ After selecting a date, confirm the restore process by clicking on the 'Confirm 
 When the restore process is complete you will receive a notification:
 
 ![wp_manager_site_restore_done.png](/img/panel/v1/applications/wp_manager_site_restore_done.png)
+
+
+### Maintenance mode
+
+Using WordPress manager you can enable and disable Maintenance mode for your website and also view the current website status regarding maintenance.
+
+You can also begin editing the maintenance.php file through WordPress manager.
+
+![wp_manager_maintenance.png](/img/panel/v2/wpmaint.png)
+
+### Security
+
+Within the security tab you can shuffle WordPress salts, check the integrity of WordPress core files and also reinstall the core files if needed.
+
+![wp_manager_security.png](/img/panel/v2/wpsec.png)
+

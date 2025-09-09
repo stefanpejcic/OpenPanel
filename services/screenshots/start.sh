@@ -1,6 +1,6 @@
 #!/bin/bash
 RUN_COMMAND="venv/bin/python -m flask run --host=0.0.0.0"
-HEALTHCHECK_URL="http://localhost:5000/screenshot/pcx3.com"
+HEALTHCHECK_URL="http://localhost:5000/screenshot/pejcic.rs"
 #LOGFILE="flask_app.log"
 LOGFILE="/dev/null"
 

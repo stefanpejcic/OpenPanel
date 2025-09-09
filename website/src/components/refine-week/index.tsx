@@ -1,9 +1,8 @@
 import React from "react";
 import clsx from "clsx";
-import { additionalSources, data as weekData } from "./data";
+import { data as weekData } from "./data";
 import { RefineWeekDesktop } from "./refine-week-desktop";
 import { RefineWeekMobile } from "./refine-week-mobile";
-import { Tweet } from "react-twitter-widgets";
 
 type Props = {
     variant: "strapi" | "supabase";
@@ -25,7 +24,7 @@ export const RefineWeek = ({ variant }: Props) => {
 
             <div
                 className={clsx(
-                    "max-w-[620px] lg:max-w-[944px] ",
+                    "max-w-[620px] lg:max-w-[944px]",
                     "mx-auto mt-20",
                 )}
             >
@@ -37,78 +36,55 @@ export const RefineWeek = ({ variant }: Props) => {
                         "text-gray-700 dark:text-gray-300",
                     )}
                 >
-                    Additional Sources
+                    Supported Billing Integrations
                 </div>
 
                 <div
                     className={clsx(
-                        "no-prose",
                         "flex flex-wrap gap-4 justify-center items-center",
                         "mt-6 lg:mt-10",
                     )}
                 >
-                    {additionalSources.map((item) => {
-                        return (
-                            <a
-                                key={item.label}
-                                href={item.link}
-                                target="_blank"
-                                rel="noreferrer"
-                                className={clsx(
-                                    "no-underline",
-                                    "flex items-start gap-4",
-                                    "w-[160px] sm:w-[192px]",
-                                    "p-4",
-                                    "rounded-2xl",
-                                    "border border-gray-200 dark:border-gray-700",
-                                    "text-xs sm:text-base",
-                                )}
-                            >
-                                <div className={clsx("mt-[2px]")}>
-                                    {item.icon}
-                                </div>
-                                <div className={"flex flex-col"}>
-                                    <div
-                                        className={clsx(
-                                            "text-gray-500 dark:text-gray-400",
-                                        )}
-                                    >
-                                        {item.title}
-                                    </div>
-                                    <div
-                                        className={clsx(
-                                            "text-gray-900 dark:text-gray-0",
-                                            "font-semibold",
-                                        )}
-                                    >
-                                        {item.label}
-                                    </div>
-                                </div>
-                            </a>
-                        );
-                    })}
-                </div>
-
-                <div
-                    className={clsx(
-                        "hidden lg:block",
-                        "mt-20",
-                        "text-start lg:text-center",
-                        "text-[32px] leading-[40px]",
-                        "text-gray-700 dark:text-gray-300",
-                    )}
-                >
-                    #refineweek
-                </div>
-
-                <div className="mx-6 mt-8 hidden lg:grid min-w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                    {weekData[variant].tweetIDList.map((id) => {
-                        return (
-                            <div key={id} className="w-full">
-                                <Tweet tweetId={id} />
+                    {[
+                        {
+                            title: "FOSSBilling",
+                            label: "openpanel.com",
+                            link: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/",
+                        },
+                        {
+                            title: "WHMCS",
+                            label: "openpanel.com",
+                            link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/",
+                        },
+                        {
+                            title: "Blesta",
+                            label: "openpanel.com",
+                            link: "https://openpanel.com/docs/articles/extensions/openpanel-and-blesta/",
+                        },
+                    ].map((item) => (
+                        <a
+                            key={item.title}
+                            href={item.link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={clsx(
+                                "no-underline",
+                                "flex flex-col gap-1 justify-start",
+                                "w-[160px] sm:w-[192px]",
+                                "p-4",
+                                "rounded-2xl",
+                                "border border-gray-200 dark:border-gray-700",
+                                "text-xs sm:text-base",
+                            )}
+                        >
+                            <div className="text-gray-500 dark:text-gray-400">
+                                {item.title}
                             </div>
-                        );
-                    })}
+                            <div className="text-gray-900 dark:text-gray-0 font-semibold">
+                                {item.label}
+                            </div>
+                        </a>
+                    ))}
                 </div>
             </div>
         </div>

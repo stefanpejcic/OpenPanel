@@ -1,4 +1,4 @@
-# Add custom services to OpenAdmin
+# Custom Services
 
 Custom services can be added to OpenAdmin to be run and monitored from the admin panel.
 
@@ -73,7 +73,7 @@ For this, we need to add the netdata service in `/etc/openpanel/openadmin/config
 ```
 `real_name` is the service/container name, and `name` is the human-readable name displayed in OpenAdmin services.
 
-Save the file and refresh the page in OpenAdmin - service is immeditelly visible and we can start/stop it from the panel.
+Save the file and refresh the page in OpenAdmin - service is immediately visible and we can start/stop it from the panel.
 
 ![services](https://i.postimg.cc/qpTMgY8r/2025-04-30-16-33.png)
 

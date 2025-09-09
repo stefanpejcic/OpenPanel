@@ -14,8 +14,7 @@ use Symfony\Contracts\HttpClient\Exception\HttpExceptionInterface;
 
 /**
  * OpenPanel API.
- *
- * @see https://dev.openpanel.co/api/
+ * @see https://dev.openpanel.com/api/
  */
 class Server_Manager_Openpanel extends Server_Manager
 {
@@ -35,14 +34,14 @@ class Server_Manager_Openpanel extends Server_Manager
                             'name' => 'username',
                             'type' => 'text',
                             'label' => 'Username',
-                            'placeholder' => 'Username used to connect to the server',
+                            'placeholder' => 'Username used to login to OpenAdmin',
                             'required' => true,
                         ],
                         [
                             'name' => 'password',
-                            'type' => 'text',
-                            'label' => 'Password / Login Key',
-                            'placeholder' => 'Password or login key used to connect to the server',
+                            'type' => 'password',
+                            'label' => 'Password',
+                            'placeholder' => 'Password for the OpenAdmin user',
                             'required' => true,
                         ],
                     ],
@@ -84,94 +83,109 @@ class Server_Manager_Openpanel extends Server_Manager
 
 
 
+function getAuthToken() {
+    $apiProtocol = $this->_config['secure'] ? 'https://' : 'http://';
+    $host = $this->_config['host'];
+    $username = $this->_config['username'];
+    $password = $this->_config['password'];
+    $port = $this->getPort();
+    $authEndpoint = "{$apiProtocol}{$host}:{$port}/api/";
 
-    
-    
-    function getAuthToken() {
-        $apiProtocol = $this->_config['secure'] ? 'https://' : 'http://';
-        $host = $this->_config['host'];
-        $username = $this->_config['username'];
-        $password = $this->_config['password'];
-        $authEndpoint = $apiProtocol . $host . ':' . $this->getPort() . '/api/';
-               
-        // Prepare cURL request to authenticate
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $authEndpoint,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_POSTFIELDS => json_encode(array(
-                'username' => $username,
-                'password' => $password
-            )),
-            CURLOPT_HTTPHEADER => array(
-                "Content-Type: application/json"
-            ),
-        ));
-    
-        // Execute cURL request to authenticate
-        $response = curl_exec($curl);
-    
-        // Check for errors
-        if (curl_errno($curl)) {
-            $token = false;
-            $error = "cURL Error: " . curl_error($curl);
-        } else {
-            // Decode the response JSON to get the token
-            $responseData = json_decode($response, true);
-            $token = isset($responseData['access_token']) ? $responseData['access_token'] : false;
-            $error = $token ? null : "Token not found in response";
-        }
-    
-        // Close cURL session
-        curl_close($curl);
-    
-        return $token;
-    }
-    
-    function makeApiRequest($endpoint, $data = null, $method = 'GET') {
-        $apiProtocol = $this->_config['secure'] ? 'https://' : 'http://';
-        $host = $this->_config['host'];
-        $baseUrl = $apiProtocol . $host . ':' . $this->getPort() . '/api/';
-               
+    //error_log("Username: $username");
 
+    $postData = json_encode(array(
+        'username' => $username,
+        'password' => $password
+    ));
 
-        $url = $baseUrl . $endpoint;
-      
-        $token = $this->getAuthToken();
-         
-        if (!$token) {
-            error_log("Failed to retrieve auth token");
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $authEndpoint,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_SSL_VERIFYPEER => 0,
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => $postData,
+        CURLOPT_HTTPHEADER => array(
+            "Content-Type: application/json"
+        ),
+        CURLOPT_TIMEOUT => 10,
+    ));
+
+    $response = curl_exec($curl);
+    $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+    //error_log("HTTP Status Code: $httpCode");
+
+    if (curl_errno($curl)) {
+        $error = "cURL Error: " . curl_error($curl);
+        error_log($error);
+        $token = false;
+    } else {
+        //error_log("Raw Response: $response");
+        $responseData = json_decode($response, true);
+        //error_log("Decoded response: " . print_r($responseData, true));
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            error_log("JSON Decode Error: " . json_last_error_msg());
+            curl_close($curl);
             return false;
         }
-      
-        $curl = curl_init();
-      
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_POSTFIELDS => $data,
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $token
-            ),
-        ));
-      
+
+        $token = isset($responseData['access_token']) ? $responseData['access_token'] : false;
         
-      
-        $response = curl_exec($curl);
-      
-        curl_close($curl);
-          
-        return $response;
-      }
-      
+        if (!$token) {
+            error_log("API is working, but JWT not found in response!");
+        }
+        //error_log("JWT: " . $token);
+    }
+
+    curl_close($curl);
+    return $token;
+}
+
+    
+    
+
+function makeApiRequest($endpoint, $data = null, $method = 'GET') {
+    $apiProtocol = $this->_config['secure'] ? 'https://' : 'http://';
+    $host = $this->_config['host'];
+    $baseUrl = $apiProtocol . $host . ':' . $this->getPort() . '/api/';
+
+    $url = $baseUrl . $endpoint;
+
+    error_log("URL: $url");
+
+    $token = $this->getAuthToken();
+        
+    if (!$token) {
+        error_log("Failed to retrieve auth token");
+        return false;
+    }
+  
+    $curl = curl_init();
+  
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => $method,
+        CURLOPT_POSTFIELDS => $data,
+        //CURLOPT_RESOLVE => array("HOST_HERE:PORT_HERE:IP_HERE"),
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $token
+        ),
+    ));
+
+    $response = curl_exec($curl);
+    curl_close($curl);
+
+    return $response;
+}
+
       
 
 
@@ -237,25 +251,41 @@ class Server_Manager_Openpanel extends Server_Manager
     
     /**
      * Tests the connection to the OpenPanel server.
-     * Sends a request to the OpenPanel server to get its version.
+     * Sends a request to the OpenPanel server to check if api is working
      *
      * @return true if the connection was successful
      *
      * @throws Server_Exception if an error occurs during the request
      */
-    public function testConnection(): bool
-    {   
+public function testConnection(): bool
+{
+    // Construct the request URL directly
+    $apiProtocol = $this->_config['secure'] ? 'https://' : 'http://';
+    $host = $this->_config['host'];
+    $baseUrl = $apiProtocol . $host . ':' . $this->getPort() . '/api/';
+    $url = $baseUrl;  // As no endpoint is provided, it's just the base URL
+
+    // Make the API request
+    $response = $this->makeApiRequest(null);
         
-
-        $response = $this->makeApiRequest(null);
-        $response = json_decode($response);
-
-        if($response->message === "API is working!") {
-            return true;
-        }
-        throw new Server_Exception('Can\'t connect to the server');
-        return false;
+    if (!$response) {
+        // Log the error and include the URL in the exception message
+        throw new Server_Exception("Can't connect to $url Possible invalid credentials or unreachable host.");
     }
+
+    $decoded = json_decode($response);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        throw new Server_Exception("Can't connect to the server: Invalid JSON - " . json_last_error_msg() . ". Response was: " . $response);
+    }
+
+    if (isset($decoded->message) && $decoded->message === "API is working!") {
+        return true;
+    }
+
+    $errorMessage = isset($decoded->message) ? $decoded->message : 'Unexpected API response';
+    throw new Server_Exception("Can't connect to the server: {$errorMessage}. Full response: " . json_encode($decoded));
+}
+
 
     /**
      * Generates a username for a new account on the OpenPanel server.
@@ -318,17 +348,22 @@ class Server_Manager_Openpanel extends Server_Manager
             "plan_name" => $package->getName()
 
         ));
+    
 
-        $response = $this->makeApiRequest("users" , $data, 'POST');
-        $response = json_decode($response);
-
-
-        if (!empty($response->success)) {
+        $rawResponse = $this->makeApiRequest("users", $data, 'POST');
+        $response = json_decode($rawResponse);
+    
+        if (is_object($response) && !empty($response->success)) {
             return true;
-        
         }
-        
-        throw new Server_Exception('Error when creating ' . $client->getUsername() . ': ' . $response->error);
+    
+        // https://github.com/stefanpejcic/FOSSBilling-OpenPanel/issues/2
+        if (strpos($rawResponse, 'Successfully added user') !== false) {
+            return true;
+        }
+    
+        $errorMsg = is_object($response) && isset($response->error) ? $response->error : $rawResponse;
+        throw new Server_Exception('Error when creating ' . $client->getUsername() . ': ' . $errorMsg);
         
     }
         
@@ -495,7 +530,8 @@ class Server_Manager_Openpanel extends Server_Manager
      */
     public function changeAccountUsername(Server_Account $account, string $newUsername): bool
     {
-        throw new Server_Exception('OpenPanel does not supporting changing username');
+
+        throw new Server_Exception('Error: Changing username is not enabled on OpenPanel server.');
     }
 
     /**
@@ -510,7 +546,7 @@ class Server_Manager_Openpanel extends Server_Manager
      */
     public function changeAccountDomain(Server_Account $account, string $newDomain): bool
     {
-        throw new Server_Exception('OpenPanel does not supporting account domain');
+        throw new Server_Exception('Error: OpenPanel does not have a concept of primary domains.');
 
     }
 
