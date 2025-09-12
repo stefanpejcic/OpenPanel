@@ -5,7 +5,7 @@
 # Usage: opencli user-varnish <USERNAME> [on|off]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 08.09.2025
+# Last Modified: 11.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -71,46 +71,66 @@ stop_webserver(){
 }
 
 stop_varnish(){
-  cd /home/$USER && docker --context $USER compose down varnish > /dev/null;
+  cd /home/$USER && docker --context $USER compose down varnish #> /dev/null;
 }
 
 start_varnish(){
-  cd /home/$USER && docker --context $USER compose up -d varnish > /dev/null;
+  cd /home/$USER && docker --context $USER compose up -d varnish #> /dev/null;
 }
 
 start_webserver(){
   cd /home/$USER && docker --context $USER compose up -d $ws > /dev/null;
 }
 
+check_varnish() {
+  local action="$1"
+  local running=1
+
+  if cd "/home/$USER" && docker --context "$USER" compose ps -q varnish | grep -q .; then
+    running=0
+  fi
+
+  case "$action" in
+    start)
+      [[ $running -eq 0 ]] && echo "Varnish Cache is now enabled." || echo "Failed to enable Varnish Cache."
+      ;;
+    stop)
+      [[ $running -ne 0 ]] && echo "Varnish Cache is now disabled." || echo "Failed to disable Varnish Cache."
+      ;;
+    status)
+      [[ $running -eq 0 ]] && echo "Varnish Cache is enabled." || echo "Varnish Cache is disabled."
+      ;;
+    *)
+      echo "Usage: status_varnish {start|stop|status}"
+      return 1
+      ;;
+  esac
+}
 
 
-: '
-# TODO
-for domain in user domains run:
-opencli domains-varnish <DOMAIN-NAME> [on|off]
-'
 
 if [ -n "$ACTION" ]; then
-
     get_webserver_for_user
-    
     case "$ACTION" in
         enable)
             stop_webserver
             sed -i 's/^#PROXY_HTTP_PORT=/PROXY_HTTP_PORT=/' "$ENV_FILE"
             start_webserver
             start_varnish
-            echo "Varnish Cache is now enabled."
+            check_varnish start
             ;;
         disable)
             stop_webserver
             sed -i 's/^PROXY_HTTP_PORT=/#PROXY_HTTP_PORT=/' "$ENV_FILE"
             stop_varnish
             start_webserver
-            echo "Varnish Cache is now disabled."
+			check_varnish stop
             ;;
+        status)
+			check_varnish status
+            ;;			
         *)
-            echo "Invalid action. Use 'enable' or 'disable'."
+            echo "Invalid action. Use 'status', 'enable' or 'disable'."
             exit 1
             ;;
     esac

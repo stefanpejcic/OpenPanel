@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 08.09.2025
+# Last Modified: 11.09.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -69,21 +69,44 @@ get_force_domain() {
 
 get_public_ip() {
     ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
-    
-    # Check if IP is empty or not a valid IPv4
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
     fi
     echo "$ip"
 }
 
-if [ "$(get_ssl_status)" == true ]; then
-        hostname=$(get_force_domain)
-        admin_url="https://${hostname}:2087/"
-else
+get_admin_url() {
+    caddyfile="/etc/openpanel/caddy/Caddyfile"
+	local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
+	local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
+
+	# custom paths!
+	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
+	local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
+
+    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
+    domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
+    domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
+    domain=$(echo "$domain" | sed 's|^http[s]*://||')
+        
+    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
         admin_url="http://${ip}:2087/"
-fi
+    else
+		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
+		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+		    admin_url="https://${domain}:2087/"
+        else
+            ip=$(get_public_ip)
+            admin_url="http://${ip}:2087/"
+        fi
+    fi
+
+    echo "$admin_url"    
+}
+
+
+admin_url=$(get_admin_url)
 
 echo -e "
 Frequently Asked Questions

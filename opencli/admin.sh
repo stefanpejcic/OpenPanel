@@ -5,7 +5,7 @@
 # Usage: opencli admin <setting_name> 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 08.09.2025
+# Last Modified: 11.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -121,28 +121,14 @@ backup=yes
 update=yes
 login=yes
 services=panel,admin,nginx,docker,mysql,named,csf,certbot
-load=20
+load=10
 cpu=90
 ram=85
 du=85
 swap=40
-
-
-
-
-    
+   
 }
 
-read_config() {
-    config=$(awk -F '=' '/\[DEFAULT\]/{flag=1; next} /\[/{flag=0} flag{gsub(/^[ \t]+|[ \t]+$/, "", $1); gsub(/^[ \t]+|[ \t]+$/, "", $2); print $1 "=" $2}' $CONFIG_FILE_PATH)
-    echo "$config"
-}
-
-get_ssl_status() {
-    config=$(read_config)
-    ssl_status=$(echo "$config" | grep -i 'ssl' | cut -d'=' -f2)
-    [[ "$ssl_status" == "yes" ]] && echo true || echo false
-}
 
 get_admin_url() {
     caddyfile="/etc/openpanel/caddy/Caddyfile"
@@ -177,8 +163,6 @@ get_admin_url() {
 
 get_public_ip() {
     ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
-        
-    # Check if IP is empty or not a valid IPv4
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
     fi
