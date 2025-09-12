@@ -159,7 +159,7 @@ set_version_to_install() {
             PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+')
         fi
 
-        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="1.5.9"
+        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="1.6.0"
     fi
 }
 
