@@ -36,7 +36,7 @@ NO_SSH=false                                                          # deny por
 SET_HOSTNAME_NOW=false                                                # must be a FQDN
 SETUP_SWAP_ANYWAY=false                                               # setup swapfile regardless of server ram
 CORAZA=true                                                           # install CorazaWAF, unless user provices --no-waf flag
-IMUNIFY_AV=true                                                       # setup imunifyav
+IMUNIFY_AV=false                                                      # https://community.openpanel.org/d/193-dont-install-imunifyav-by-default
 SWAP_FILE="1"                                                         # calculated based on ram
 SEND_EMAIL_AFTER_INSTALL=false                                        # send admin logins to specified email
 SET_PREMIUM=false                                                     # added in 0.2.1
@@ -344,7 +344,7 @@ parse_args() {
         echo "  --password=<password>           Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
-        echo "  --skip-imunifyav                Skip ImunifyAV setup."
+        echo "  --imunifyav                     Install and setup ImunifyAV."
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
@@ -390,7 +390,7 @@ while [[ $# -gt 0 ]]; do
         --skip-apt-update)     SKIP_APT_UPDATE=true ;;
         --skip-dns-server)     SKIP_DNS_SERVER=true ;;
         --skip-firewall)       SKIP_FIREWALL=true ;;
-        --skip-imunifyav)      IMUNIFY_AV=false ;;
+        --imunifyav)      IMUNIFY_AV=true ;;
         --no-waf)              CORAZA=false ;;
         --debug)               DEBUG=true ;;
         --no-ssh)              NO_SSH=true ;;
@@ -732,8 +732,6 @@ setup_imunifyav() {
         echo "Installing ImunifyAV"
         debug_log opencli imunify install
         debug_log opencli imunify start
-    else
-        echo "Skipping ImunifyAV setup due to the '--skip-imunifyav' flag."
     fi
 }
 
