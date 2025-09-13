@@ -457,7 +457,7 @@ detect_os_cpu_and_package_manager() {
         . /etc/os-release
 
 		case "$ID" in
-		    ubuntu|debian|zorin)
+		    ubuntu|debian)
 		        PACKAGE_MANAGER="apt-get"
 		        ;;
 		    fedora|rocky|almalinux|alma)
@@ -599,25 +599,21 @@ clean_apt_and_dnf_cache(){
 }
 
 tweak_ssh(){
-   echo "Tweaking SSH service.."
-   sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
-   if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-	   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
-		   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
+   if [ -f /etc/ssh/sshd_config ]; then
+   	   echo "Tweaking SSH service.."   
+	   sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/g" /etc/ssh/sshd_config
+	   if [ "$PACKAGE_MANAGER" == "apt-get" ]; then
 		   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
-			   echo '' >> /etc/ssh/sshd_config # fallback
-			   echo 'DebianBanner no' >> /etc/ssh/sshd_config
+			   sed -i '/^[#]Banner .*/a DebianBanner no' /etc/ssh/sshd_config
+			   if [ -z "$(grep "^DebianBanner no" /etc/ssh/sshd_config)" ]; then
+				   echo '' >> /etc/ssh/sshd_config # fallback
+				   echo 'DebianBanner no' >> /etc/ssh/sshd_config
+			   fi
 		   fi
 	   fi
-	fi
-
-	if [ "$PACKAGE_MANAGER" == "dnf" ] || [ "$PACKAGE_MANAGER" == "yum" ]; then # ssh on debian, sshd on rhel
-		systemctl restart sshd  > /dev/null 2>&1
-	else
-		systemctl restart ssh  > /dev/null 2>&1
-	fi
-
- 	echo -e "[${GREEN} OK ${RESET}] SSH service is configured."
+	   systemctl restart sshd >/dev/null 2>&1 || systemctl restart ssh >/dev/null 2>&1
+	   echo -e "[${GREEN} OK ${RESET}] SSH service is configured."
+   fi
 }
 
 
@@ -892,6 +888,13 @@ install_packages() {
 					$PACKAGE_MANAGER install -y "$package" || {
 						echo "WARNING: Installation of '$package' failed. You may need to install it manually."
 					}
+				elif [[ "$package" == "linux-image-amd64" || "$package" == "linux-image" ]]; then
+	                $PACKAGE_MANAGER install -y linux-image || {
+				 		echo "WARNING: Installation of both linux-image-amd64 and linux-image failed. You may need to install it manually."
+					}	
+					$PACKAGE_MANAGER install -y "$package" || {
+						echo "WARNING: Installation of '$package' failed. You may need to install it manually."
+					}	 
 				else
 					$PACKAGE_MANAGER install -y "$package" || {
 						radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
