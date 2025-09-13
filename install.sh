@@ -204,7 +204,7 @@ setup_progress_bar_script(){
 
 
 display_what_will_be_installed(){
- 	echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
+    echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
     if [ -z "$SKIP_REQUIREMENTS" ]; then
 		if [ "$architecture" == "x86_64" ] || [ "$architecture" == "aarch64" ]; then
 	  		echo -e "[ OK ] CPU ARCHITECTURE:          ${GREEN} ${architecture^^} ${RESET}"
@@ -473,8 +473,20 @@ detect_os_cpu_and_package_manager() {
 		        ;;
 		esac
 
-		architecture=$(lscpu | grep Architecture | awk '{print $2}')
-	else
+        # Locale-agnostic CPU architecture detection
+        arch_raw="$(uname -m)"
+        case "$arch_raw" in
+            x86_64|amd64)
+                architecture="x86_64"   # 64-bit x86
+                ;;
+            aarch64|arm64)
+                architecture="aarch64"  # 64-bit ARM
+                ;;
+            *)
+                architecture="$arch_raw" # Fallback: keep raw value
+                ;;
+        esac
+    else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
