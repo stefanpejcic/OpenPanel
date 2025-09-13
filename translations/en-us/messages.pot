@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-08-29 16:40+0200\n"
+"POT-Creation-Date: 2025-09-12 12:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -128,8 +128,8 @@ msgstr ""
 msgid "Disk usage data not found."
 msgstr ""
 
-#: modules/dashboard.py:187 modules/dashboard.py:204 modules/dashboard.py:427
-#: modules/docker.py:1078 modules/docker.py:1094 modules/phpd/php_ini.py:19
+#: modules/dashboard.py:187 modules/dashboard.py:204 modules/dashboard.py:429
+#: modules/docker.py:1074 modules/docker.py:1090 modules/phpd/php_ini.py:19
 #: modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr ""
@@ -209,69 +209,69 @@ msgstr ""
 msgid "New content not provided."
 msgstr ""
 
-#: modules/docker.py:228 templates/dashboard/dashboard.html:175
+#: modules/docker.py:225 templates/dashboard/dashboard.html:175
 #: templates/dashboard/usage.html:289 templates/docker/containers.html:8
 #: templates/docker/volumes_TODO.html:9
 msgid "Containers"
 msgstr ""
 
-#: modules/docker.py:363
+#: modules/docker.py:360
 msgid "Add service"
 msgstr ""
 
-#: modules/docker.py:375 modules/docker.py:560
+#: modules/docker.py:372 modules/docker.py:557
 msgid ""
 "Invalid service name. Must start with a letter, contain only lowercase "
 "letters and digits, and be at least 3 characters long."
 msgstr ""
 
-#: modules/docker.py:402 modules/docker.py:576
+#: modules/docker.py:399 modules/docker.py:573
 msgid "CPU limit must be a positive number."
 msgstr ""
 
-#: modules/docker.py:414 modules/docker.py:588
+#: modules/docker.py:411 modules/docker.py:585
 msgid ""
 "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
 " or 1.5G)."
 msgstr ""
 
-#: modules/docker.py:549
+#: modules/docker.py:546
 msgid "Service name cannot be changed."
 msgstr ""
 
-#: modules/docker.py:662
+#: modules/docker.py:659
 msgid "Container updated successfully."
 msgstr ""
 
-#: modules/docker.py:735
+#: modules/docker.py:732
 msgid "Delete service"
 msgstr ""
 
-#: modules/docker.py:935 templates/dashboard/dashboard.html:178
+#: modules/docker.py:931 templates/dashboard/dashboard.html:178
 #: templates/docker/images.html:12
 msgid "Image Updates"
 msgstr ""
 
-#: modules/docker.py:983
+#: modules/docker.py:979
 msgid "Change docker image"
 msgstr ""
 
-#: modules/docker.py:1007
+#: modules/docker.py:1003
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1069 templates/dashboard/dashboard.html:177
+#: modules/docker.py:1065 templates/dashboard/dashboard.html:177
 #: templates/manager/python_node_apps.html:141
 #: templates/manager/python_node_apps.html:171 templates/manager/ruby.html:138
 #: templates/manager/ruby.html:161
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1098 modules/websites.py:477
+#: modules/docker.py:1094 modules/websites.py:477
 msgid "Invalid action"
 msgstr ""
 
-#: modules/docker.py:1349
+#: modules/docker.py:1344
 msgid "Select Docker service"
 msgstr ""
 
@@ -331,7 +331,9 @@ msgstr ""
 
 #: modules/emails.py:296 modules/mysqld/mysql_import.py:60
 #: modules/mysqld/mysql_import.py:63 modules/mysqld/mysql_import.py:66
-#: modules/mysqld/mysql_import.py:79 templates/psql/databases.html:164
+#: modules/mysqld/mysql_import.py:79 modules/psql/postgresql_import.py:59
+#: modules/psql/postgresql_import.py:63 modules/psql/postgresql_import.py:66
+#: modules/psql/postgresql_import.py:77 templates/psql/databases.html:164
 msgid "Import"
 msgstr ""
 
@@ -470,7 +472,7 @@ msgstr ""
 
 #: modules/mysql.py:115 modules/mysql.py:272 modules/mysql.py:542
 #: modules/mysql.py:735 modules/postgresql.py:78 modules/postgresql.py:266
-#: modules/postgresql.py:523 modules/postgresql.py:762
+#: modules/postgresql.py:522 modules/postgresql.py:761
 msgid "Database name is required."
 msgstr ""
 
@@ -481,8 +483,8 @@ msgstr ""
 
 #: modules/mysql.py:190 modules/mysql.py:265 modules/mysql.py:584
 #: modules/mysql.py:628 modules/mysql.py:728 modules/postgresql.py:166
-#: modules/postgresql.py:259 modules/postgresql.py:564
-#: modules/postgresql.py:615 modules/postgresql.py:755
+#: modules/postgresql.py:259 modules/postgresql.py:563
+#: modules/postgresql.py:614 modules/postgresql.py:754
 msgid "User name is required."
 msgstr ""
 
@@ -498,15 +500,15 @@ msgid "Create User"
 msgstr ""
 
 #: modules/mysql.py:232 modules/mysql.py:637 modules/mysql.py:751
-#: modules/postgresql.py:228 modules/postgresql.py:635
-#: modules/postgresql.py:797
+#: modules/postgresql.py:228 modules/postgresql.py:634
+#: modules/postgresql.py:796
 msgid "This is a system username that can not be edited."
 msgstr ""
 
 #: modules/mysql.py:235 modules/postgresql.py:231 templates/files/ftp.html:110
 #: templates/mysql/password.html:174 templates/mysql/root_password.html:161
 #: templates/mysql/users.html:103 templates/psql/password.html:168
-#: templates/psql/users.html:103
+#: templates/psql/users.html:120
 #: templates/user/reset_password/set_new_password.html:55
 msgid "Change Password"
 msgstr ""
@@ -535,7 +537,7 @@ msgstr ""
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:456 modules/postgresql.py:471
+#: modules/mysql.py:456 modules/postgresql.py:470
 #: templates/dashboard/dashboard.html:121
 #: templates/dashboard/dashboard.html:133
 msgid "Users"
@@ -557,17 +559,17 @@ msgstr ""
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:514 modules/postgresql.py:496
+#: modules/mysql.py:514 modules/postgresql.py:495
 #: templates/dashboard/dashboard.html:126
 #: templates/dashboard/dashboard.html:137
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:593 modules/postgresql.py:584
+#: modules/mysql.py:593 modules/postgresql.py:583
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:747 modules/postgresql.py:793
+#: modules/mysql.py:747 modules/postgresql.py:792
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -733,21 +735,17 @@ msgstr ""
 msgid "You have reached the maximum number of databases allowed."
 msgstr ""
 
-#: modules/postgresql.py:325 modules/postgresql.py:441
+#: modules/postgresql.py:327 modules/postgresql.py:440
 msgid ""
 "Postgres container is not running. Please allow a few moments for the "
 "initialization.."
 msgstr ""
 
-#: modules/postgresql.py:403
-msgid "Error fetching databases from the container."
-msgstr ""
-
-#: modules/postgresql.py:415
+#: modules/postgresql.py:412
 msgid "PostgreSQL databases"
 msgstr ""
 
-#: modules/postgresql.py:460
+#: modules/postgresql.py:459
 msgid "Error checking users from the container."
 msgstr ""
 
@@ -761,7 +759,7 @@ msgstr ""
 msgid "Resource Usage"
 msgstr ""
 
-#: modules/usage.py:154 templates/dashboard/dashboard.html:189
+#: modules/usage.py:128 templates/dashboard/dashboard.html:189
 msgid "Resource Usage History"
 msgstr ""
 
@@ -1634,7 +1632,7 @@ msgstr ""
 msgid "Database configuration not found"
 msgstr ""
 
-#: modules/mysqld/mysql_import.py:65
+#: modules/mysqld/mysql_import.py:65 modules/psql/postgresql_import.py:65
 msgid "No database file uploaded!"
 msgstr ""
 
@@ -1658,11 +1656,11 @@ msgstr ""
 msgid "Remote MySQL access is now disabled."
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:81
+#: modules/mysqld/remote_mysql.py:81 modules/psql/remote_postgresql.py:47
 msgid "OFF"
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:83
+#: modules/mysqld/remote_mysql.py:83 modules/psql/remote_postgresql.py:47
 msgid "ON"
 msgstr ""
 
@@ -1677,6 +1675,52 @@ msgstr ""
 #: modules/phpd/php_options.py:122 templates/emails/accounts.html:57
 #: templates/manager/wordpress.html:138 templates/manager/wordpress.html:165
 msgid "Options"
+msgstr ""
+
+#: modules/psql/postgresql_conf.py:116
+msgid ""
+"PostgreSQL configuration was saved successfully but postgres service "
+"failed to start! Please revert the changes to restart postgres."
+msgstr ""
+
+#: modules/psql/postgresql_conf.py:118
+msgid ""
+"PostgreSQL Configuration was edited successfully and service restarted to"
+" apply new settings."
+msgstr ""
+
+#: modules/psql/postgresql_conf.py:121 modules/psql/postgresql_import.py:22
+msgid ""
+"postgres container is not running. Please allow a few moments for "
+"initialization.."
+msgstr ""
+
+#: modules/psql/postgresql_conf.py:138
+msgid "Edit PostgreSQL configuration"
+msgstr ""
+
+#: modules/psql/remote_postgresql.py:31
+msgid "enabled remote PostgreSQL"
+msgstr ""
+
+#: modules/psql/remote_postgresql.py:33
+msgid "Remote PostgreSQL access is now enabled."
+msgstr ""
+
+#: modules/psql/remote_postgresql.py:36
+msgid "Remote PostgreSQL access is already disabled."
+msgstr ""
+
+#: modules/psql/remote_postgresql.py:39
+msgid "disabled remote PostgreSQL"
+msgstr ""
+
+#: modules/psql/remote_postgresql.py:41
+msgid "Remote PostgreSQL access is now disabled."
+msgstr ""
+
+#: modules/psql/remote_postgresql.py:62
+msgid "Remote PostgreSQL"
 msgstr ""
 
 #: templates/base.html:220 templates/user/favorites.html:13
@@ -1842,7 +1886,7 @@ msgstr ""
 msgid "Created on"
 msgstr ""
 
-#: templates/docker/containers.html:68 templates/domains/dns.html:139
+#: templates/docker/containers.html:76 templates/domains/dns.html:139
 #: templates/domains/domains.html:160 templates/domains/domains.html:214
 #: templates/files/clamav/quarantine.html:72 templates/files/disk_usage.html:68
 #: templates/files/ftp.html:77 templates/files/inodes.html:69
@@ -2146,7 +2190,7 @@ msgstr ""
 #: templates/cache/elasticsearch.html:75 templates/cache/memcached.html:74
 #: templates/cache/opensearch.html:76 templates/cache/redis.html:76
 #: templates/cache/varnish.html:76 templates/cache/varnish.html:145
-#: templates/docker/containers.html:64 templates/domains/domains.html:92
+#: templates/docker/containers.html:72 templates/domains/domains.html:92
 #: templates/domains/domains.html:195 templates/domains/logs.html:180
 #: templates/domains/logs.html:222 templates/domains/ssl.html:27
 #: templates/manager/wordpress.html:1135 templates/mysql/phpmyadmin.html:59
@@ -2636,7 +2680,7 @@ msgstr ""
 msgid "Inodes"
 msgstr ""
 
-#: templates/dashboard/usage.html:198 templates/docker/containers.html:57
+#: templates/dashboard/usage.html:198 templates/docker/containers.html:65
 msgid "CPU Usage"
 msgstr ""
 
@@ -2656,7 +2700,7 @@ msgstr ""
 msgid "Cores"
 msgstr ""
 
-#: templates/dashboard/usage.html:243 templates/docker/containers.html:60
+#: templates/dashboard/usage.html:243 templates/docker/containers.html:68
 msgid "Memory Usage"
 msgstr ""
 
@@ -2917,22 +2961,26 @@ msgstr ""
 msgid "Total Memory:"
 msgstr ""
 
-#: templates/docker/containers.html:53 templates/domains/dns.html:127
+#: templates/docker/containers.html:45
+msgid "New Service"
+msgstr ""
+
+#: templates/docker/containers.html:61 templates/domains/dns.html:127
 #: templates/domains/dns.html:150 templates/files/filemanager.html:101
 #: templates/files/filemanager/table.html:6
 #: templates/files/filemanager/table_trash.html:6 templates/files/trash.html:53
 msgid "Name"
 msgstr ""
 
-#: templates/docker/containers.html:264
+#: templates/docker/containers.html:272
 msgid "Checking containers runtime metrics.."
 msgstr ""
 
-#: templates/docker/containers.html:281
+#: templates/docker/containers.html:289
 msgid "No container are currently running."
 msgstr ""
 
-#: templates/docker/containers.html:389
+#: templates/docker/containers.html:397
 msgid "Error fetching docker stats for containers."
 msgstr ""
 
@@ -3444,7 +3492,7 @@ msgstr ""
 #: templates/files/trash.html:36 templates/manager/python_node_apps.html:561
 #: templates/manager/ruby.html:328 templates/manager/websitebuilder.html:231
 #: templates/mysql/users.html:108 templates/psql/databases.html:173
-#: templates/psql/users.html:108
+#: templates/psql/users.html:125
 msgid "Delete"
 msgstr ""
 
@@ -6350,8 +6398,8 @@ msgstr ""
 msgid "Enable/disable phpMyAdmin service."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:25 templates/psql/pgadmin.html:25
-msgid "phpMyAdmin Login"
+#: templates/mysql/phpmyadmin.html:25
+msgid "Open phpMyAdmin Login"
 msgstr ""
 
 #: templates/mysql/phpmyadmin.html:38 templates/psql/pgadmin.html:38
@@ -6856,6 +6904,10 @@ msgstr ""
 
 #: templates/psql/password.html:11
 msgid "Change password for a PostgreSQL database user."
+msgstr ""
+
+#: templates/psql/pgadmin.html:25
+msgid "phpMyAdmin Login"
 msgstr ""
 
 #: templates/psql/processlist.html:9
@@ -7663,11 +7715,11 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
-#: templates/user/favorites.html:112
+#: templates/user/favorites.html:113
 msgid "Favorites are not enabled by the Administrator."
 msgstr ""
 
-#: templates/user/favorites.html:113
+#: templates/user/favorites.html:114
 msgid ""
 "The Favorites feature is currently disabled by the administrator; please "
 "contact your administrator to enable it."
