@@ -147,6 +147,7 @@ get_server_ipv4() {
          [[ "$ip" =~ ^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\. ]]; then
         echo "Invalid or private IPv4 address: $ip. OpenPanel requires a public IPv4 address to bind domains configuration files."
     fi
+	current_ip=$ip
 }
 
 set_version_to_install() {
@@ -456,7 +457,7 @@ detect_os_cpu_and_package_manager() {
         . /etc/os-release
 
 		case "$ID" in
-		    ubuntu|debian)
+		    ubuntu|debian|zorin)
 		        PACKAGE_MANAGER="apt-get"
 		        ;;
 		    fedora|rocky|almalinux|alma)
