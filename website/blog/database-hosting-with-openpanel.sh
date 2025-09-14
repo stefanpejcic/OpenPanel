@@ -14,7 +14,7 @@ From one-click database creation to user management, phpMyAdmin access, and secu
 
 <!--truncate-->
 
-![database-manager](https://i.postimg.cc/4yPn6Db9/databases.png)
+![database-manager]()
 
 ---
 
