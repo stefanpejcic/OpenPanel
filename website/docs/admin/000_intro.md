@@ -17,7 +17,7 @@ Minimum Requirements:
 
 Supported OS:
 - **Ubuntu 24.04** (recommended)
-- **Debian 10, 11 and 12**
+- **Debian 10, 11, 12, 13**
 - **AlmaLinux 9.5 and 10** (recommended for ARM cpu)
 - **RockyLinux 9.6**
 - **CentOS 9.5**
