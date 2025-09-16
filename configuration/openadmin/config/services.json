@@ -50,6 +50,11 @@
         "real_name": "clamav"
     },
     {
+        "name": "SSH",
+        "type": "system",
+        "real_name": "ssh"
+    },    
+    {
         "name": "ConfigServer Security & Firewall",
         "type": "system",
         "real_name": "csf"
