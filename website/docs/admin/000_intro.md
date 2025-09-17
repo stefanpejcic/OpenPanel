@@ -19,7 +19,7 @@ Supported OS:
 - **Ubuntu 24.04** (recommended)
 - **Debian 10, 11, 12, 13**
 - **AlmaLinux 9.5 and 10** (recommended for ARM cpu)
-- **RockyLinux 9.6**
+- **RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
 - **CentOS 9.5**
 
 :::info
