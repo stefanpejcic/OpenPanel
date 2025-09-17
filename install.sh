@@ -846,11 +846,11 @@ install_packages() {
             if [ -f /etc/os-release ] && grep -q "Ubuntu" /etc/os-release; then
                 packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
                           "quota" "quotatool" "uidmap" "docker.io" "linux-generic" "default-mysql-client" \
-                          "jc" "jq" "sqlite3" "geoip-bin")
+                          "jc" "jq" "sqlite3")
             else
                 packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
                           "quota" "quotatool" "uidmap" "docker.io" "linux-image-amd64" "default-mysql-client" \
-                          "jc" "jq" "sqlite3" "geoip-bin")
+                          "jc" "jq" "sqlite3")
             fi
 
             debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' \
@@ -864,7 +864,7 @@ install_packages() {
             dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
             packages=("wget" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
                       "quota" "quotatool" "uidmap" "docker-ce" "mysql" "pip" "jc" "sqlite" \
-                      "geoip" "perl-Math-BigInt")
+                      "perl-Math-BigInt")
             ;;
 
         dnf)
@@ -907,6 +907,21 @@ install_packages() {
 					$PACKAGE_MANAGER install -y "$package" || {
 						echo "WARNING: Installation of '$package' failed. You may need to install it manually."
 					}	 
+				elif [[ "$package" == "dbus-user-session" || "$package" == "dbus" ]]; then
+	                $PACKAGE_MANAGER install -y dbus || {
+				 		echo "WARNING: Installation of both dbus-user-session and dbus failed. You may need to install it manually."
+					}	
+					$PACKAGE_MANAGER install -y "$package" || {
+						echo "WARNING: Installation of '$package' failed. You may need to install it manually."
+					}	
+				elif [[ "$package" == "uidmap" || "$package" == "shadow-utils" ]]; then
+	                $PACKAGE_MANAGER install -y shadow-utils || {
+				 		echo "WARNING: Installation of both uidmap and shadow-utils failed. You may need to install it manually."
+					}	
+					$PACKAGE_MANAGER install -y "$package" || {
+						echo "WARNING: Installation of '$package' failed. You may need to install it manually."
+					}	
+  
 				else
 					$PACKAGE_MANAGER install -y "$package" || {
 						radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
