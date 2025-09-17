@@ -32,7 +32,7 @@ Currently, plugins have a few requirements and limitations:
 | `help_link`      | `https://github.com/stefanpejcic/traceroute/`          | Link to help or documentation for the plugin.                    |
 ****
 
-### P.py
+### Python
 
 ```py
 # traceroute.py
