@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 15.09.2025
+# Last Modified: 16.09.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -246,9 +246,9 @@ set_ssl_for_mailserver() {
         local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.key"
         
         if [[ -f "$cert_path" && -f "$key_path" ]]; then
-            log_debug "Using Let's Encrypt certs for $current_hostname"
+            echo "Using Let's Encrypt certs for $current_hostname"
         elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
-            log_debug "Using custom certs for $current_hostname"
+            echo "Using custom certs for $current_hostname"
             cert_path="$fallback_cert_path"
             key_path="$fallback_key_path"
         else

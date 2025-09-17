@@ -9,6 +9,32 @@ import yaml  # pip install pyyaml
 from pathlib import Path
 import subprocess
 
+
+
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("openpanel")
+
+# Redirect prints to logger
+class StreamToLogger:
+    def __init__(self, logger, log_level=logging.INFO):
+        self.logger = logger
+        self.log_level = log_level
+
+    def write(self, buf):
+        for line in buf.rstrip().splitlines():
+            self.logger.log(self.log_level, line.rstrip())
+
+    def flush(self):
+        pass
+
+sys.stdout = StreamToLogger(logger, logging.INFO)
+sys.stderr = StreamToLogger(logger, logging.ERROR)
+
+
+
 # From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
 # we create a flag file (/root/openadmin_restart_needed) and remind the user via the GUI that a restart 
 # is needed to apply the changes. 
@@ -64,7 +90,8 @@ def get_domain_from_caddyfile():
                         break
     except Exception as e:
         print(f"Error reading Caddyfile: {e}")
-
+    
+    print(f"Domain name set for OpenPanel: {domain}")
     return domain
 
 
@@ -83,11 +110,14 @@ if DOMAIN:
     ssl_cert_path = check_ssl_exists(DOMAIN)
 
 if DOMAIN and check_ssl_exists(DOMAIN):
+    print(f"Custom domain is set and certificate exists, HTTPS will be used.")
     import ssl
     certfile = os.path.join(ssl_cert_path, f"{DOMAIN}.crt")
     keyfile = os.path.join(ssl_cert_path, f"{DOMAIN}.key")
     keyfile = keyfile
     certfile = certfile
+    print(f"Certificate file: {certfile}")
+    print(f"Certificate key:  {keyfile}")
     ssl_version = ssl.PROTOCOL_TLS
     cert_reqs = ssl.CERT_NONE
     ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
@@ -113,6 +143,7 @@ def ensure_directory(file_path):
     directory = Path(file_path).parent
     directory.mkdir(parents=True, exist_ok=True)
 
+print(f"Creating log files..")
 ensure_directory(errorlog)
 ensure_directory(accesslog)
 
