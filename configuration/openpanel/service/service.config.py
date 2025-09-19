@@ -1,6 +1,13 @@
-# Gunicorn configuration file
-# https://docs.gunicorn.org/en/stable/configure.html#configuration-file
-# https://docs.gunicorn.org/en/stable/settings.html
+################################### NOTICE ####################################
+#                                                                             #
+# Manually modifying this file is not recommended!                            #
+#                                                                             #
+# This gunicorn configuration file is often overwritten on updates            #
+#                                                                             #
+# https://docs.gunicorn.org/en/stable/configure.html#configuration-file       #
+# https://docs.gunicorn.org/en/stable/settings.html                           #
+#                                                                             #
+###############################################################################
 
 import multiprocessing
 import os
@@ -8,40 +15,61 @@ import re
 import yaml  # pip install pyyaml
 from pathlib import Path
 import subprocess
-
-
-
 import logging
 import sys
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("openpanel")
-
-# Redirect prints to logger
-class StreamToLogger:
-    def __init__(self, logger, log_level=logging.INFO):
-        self.logger = logger
-        self.log_level = log_level
-
-    def write(self, buf):
-        for line in buf.rstrip().splitlines():
-            self.logger.log(self.log_level, line.rstrip())
-
-    def flush(self):
+# ======================================================================
+# If dev_mode=on then redirect all prints to 'docker logs openpanel'
+CONFIG_FILE = "/etc/openpanel/openpanel/conf/openpanel.config"
+def is_dev_mode():
+    if not os.path.exists(CONFIG_FILE):
+        return False
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            for line in f:
+                if line.strip().lower() == "dev_mode=on":
+                    return True
+    except Exception:
         pass
+    return False
 
-sys.stdout = StreamToLogger(logger, logging.INFO)
-sys.stderr = StreamToLogger(logger, logging.ERROR)
+DEV_MODE = is_dev_mode()
+
+if DEV_MODE:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("openpanel")
+
+    class StreamToLogger:
+        def __init__(self, logger, log_level=logging.INFO):
+            self.logger = logger
+            self.log_level = log_level
+
+        def write(self, buf):
+            for line in buf.rstrip().splitlines():
+                self.logger.log(self.log_level, line.rstrip())
+
+        def flush(self):
+            pass
+
+    sys.stdout = StreamToLogger(logger, logging.INFO)
+    sys.stderr = StreamToLogger(logger, logging.ERROR)
+else:
+    class DevNull:
+        def write(self, _): pass
+        def flush(self): pass
+
+    sys.stdout = DevNull()
+    sys.stderr = DevNull()
 
 
 
+# ======================================================================
 # From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
 # we create a flag file (/root/openadmin_restart_needed) and remind the user via the GUI that a restart 
 # is needed to apply the changes. 
-# Here, on restart, we check and remove that flag to ensure it’s cleared.
+# Here, on restart, we check and empty that flag to ensure notification in GUI is cleared.
 RESTART_FILE_PATH = '/root/openpanel_restart_needed'
 
-# Function to check the file content and empty it in place
 def empty_flag_file():
     if os.path.exists(RESTART_FILE_PATH):
         try:
@@ -54,7 +82,8 @@ def empty_flag_file():
 
 empty_flag_file()
 
-# File paths
+# ======================================================================
+# SSL
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
 CADDY_CERT_DIRS = [
     "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
@@ -66,7 +95,6 @@ def get_domain_from_caddyfile():
     domain = None
     in_block = False
     
-    # Check if the Caddyfile exists first
     if not os.path.exists(CADDYFILE_PATH):
         print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
         return None
@@ -122,6 +150,8 @@ if DOMAIN and check_ssl_exists(DOMAIN):
     cert_reqs = ssl.CERT_NONE
     ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
 
+# ======================================================================
+# Performance
 bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
@@ -136,6 +166,8 @@ max_requests = 1000
 max_requests_jitter = 50
 pidfile = 'openpanel'
 
+# ======================================================================
+# Create Log files
 errorlog = "/var/log/openpanel/user/error.log"
 accesslog = "/var/log/openpanel/user/access.log"
 
@@ -147,6 +179,9 @@ print(f"Creating log files..")
 ensure_directory(errorlog)
 ensure_directory(accesslog)
 
+
+# ======================================================================
+# SERVER
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
 
@@ -158,7 +193,6 @@ def pre_exec(server):
 
 def when_ready(server):
     server.log.info("Server is ready. Spawning workers")
-
     try:
         cmd = [
             "docker", "--context=default", "exec", "openpanel_redis",
@@ -175,7 +209,7 @@ def when_ready(server):
 def worker_int(worker):
     worker.log.info("worker received INT or QUIT signal")
 
-
+# ======================================================================
 # Allow specific IP addresses
 #config.allow_ip = ['192.168.1.100']
 forwarded_allow_ips = '*'  # for cloudflare
