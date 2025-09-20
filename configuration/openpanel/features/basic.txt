@@ -15,7 +15,7 @@ filemanager
 fix_permissions
 dns
 domains
-capitalize_domains
+docroot
 goaccess
 redis
 memcached
