@@ -70,6 +70,7 @@ Example plans:
 Accounts can be created via **OpenAdmin**, the **terminal**, or third-party billing systems like WHMCS/FOSSBilling.  
 Each user gets an isolated container running their MySQL/MariaDB service with secure credentials.
 
+You can set different servers: MySQL, Percona or MariaDB and also different versions per user.
 ---
 
 ## Key Features of Database Hosting Plans
