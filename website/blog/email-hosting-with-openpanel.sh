@@ -20,7 +20,18 @@ Not every client needs a full web hosting package. Some businesses only want sec
 
 OpenPanel allows you to define features per plan, making it easy to create **Email-only packages** for clients who only need professional email services.
 
-### Step 1. Enable Modules
+
+### Step 1. Configure Mailserver
+
+Go to **OpenAdmin > License** and isert your OpenPanel Enterprise license code.
+
+Navigate to INSTALL mailserver
+
+Open Emial Settings and set X Y Z
+
+![screenshot]()
+
+### Step . Enable Modules
 
 Go to **OpenAdmin > Settings > Modules** and enable the modules required for email hosting:
 
