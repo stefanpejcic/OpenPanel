@@ -101,7 +101,7 @@ install_started_message(){
 }
 
 radovan() {
-    echo -e "${RED}INSTALLATION FAILED${RESET}"
+    echo -e "${RED}INSTALLATION FAILED${RESET} - Please retry with '--repair' flag"
     echo ""
     echo -e "Error: $2" >&2
     exit 1
