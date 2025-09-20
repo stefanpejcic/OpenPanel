@@ -1,5 +1,5 @@
 ---
-title: Effortless Database Hosting with OpenPanel
+title: Database Only Hosting with OpenPanel
 description: How to setup Database-only Hosting plans with OpenPanel Enterprise edition
 slug: database-hosting-with-openpanel
 authors: radovan
