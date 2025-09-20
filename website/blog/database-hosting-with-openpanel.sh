@@ -29,7 +29,6 @@ Go to **OpenAdmin > Settings > Modules** and enable:
 - **MySQL** – Core database management  
 - **phpMyAdmin** – Web-based database management (optional, advanced users)  
 - **Remote MySQL** – Secure external access to databases (optional)  
-- **File Manager** – Optional for SQL file uploads/imports  
 - **Docker / Terminal** – Optional for advanced imports (>1GB SQL dumps)  
 
 ---
@@ -44,7 +43,6 @@ Create a new feature set for database-only hosting:
    - MySQL  
    - phpMyAdmin (optional)  
    - Remote MySQL (optional)  
-   - File Manager (optional)  
 
 This ensures database users only get access to the tools they need.  
 
@@ -154,8 +152,7 @@ OpenPanel integrates **phpMyAdmin** for advanced database management:
 Users can import `.sql` backups using:
 
 1. **phpMyAdmin** (upload/import file)  
-2. **File Manager + phpMyAdmin** (upload first, then import)  
-3. **Docker Terminal** (for >1GB dumps with `mysql < file.sql`)  
+2. **Import Database** option
 
 ---
 
