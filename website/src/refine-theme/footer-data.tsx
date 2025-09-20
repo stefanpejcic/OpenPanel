@@ -40,9 +40,17 @@ export const menuItems = [
         label: "Product",
         items: [
             {
+                label: "Enterprise edition",
+                href: "/enterprise/#compare",
+            },
+            {
+                label: "NOC Partners",
+                href: "/licenses-for-partners",
+            },
+            {
                 label: "Features",
                 href: "/features",
-            },
+            },            
             {
                 label: "Live Preview",
                 href: "/demo",
