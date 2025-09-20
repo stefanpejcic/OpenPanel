@@ -47,10 +47,10 @@ const NetworkTablePage: React.FC = () => {
             "text-center text-gray-800 dark:text-gray-200"
           )}
         >
-          <p>
+          <p className="text-left">
             If you have your own IP ranges like /24 or any other then you can get OpenPanel Enterprise for all IP’s in the range at the best price.
           </p>
-          <p>            
+          <p className="text-left">
             <a href="https://my.openpanel.com/index.php?rp=/store/partners/noc" target="_blank">OpenPanel NOC Partner package</a> prices based on the Network Prefix Length (see the table bellow).
           </p>
 
