@@ -1,46 +1,46 @@
 import React from "react";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
+import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import Head from "@docusaurus/Head";
 import clsx from "clsx";
 
 const NetworkTablePage: React.FC = () => {
   return (
     <>
-      <Head title="Network Pricing | OpenPanel Project">
+      <Head title="NOC Partners Pricing | OpenPanel Enterprise">
         <html data-page="network-table" />
       </Head>
 
       <div className="refine-prose">
         <CommonHeader hasSticky={true} />
 
-                <div
-                    className={clsx(
-                        "not-prose",
-                        "xl:max-w-[944px] xl:py-16",
-                        "lg:max-w-[912px] lg:py-10",
-                        "md:max-w-[624px] md:text-4xl  md:pb-6 pt-6",
-                        "sm:max-w-[480px] text-xl",
-                        "max-w-[328px]",
-                        "w-full mx-auto",
-                    )}
-                >
-                    <h1
-                        className={clsx(
-                            "font-semibold",
-                            "!mb-0",
-                            "text-gray-900 dark:text-gray-0",
-                            "text-xl md:text-[40px] md:leading-[56px]",
-                        )}
-                    >
-                        OpenPanel Enterprise pricing for{" "}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
-                            NOC partners
-                        </span>
-                    </h1>
-                </div>
+        <div
+          className={clsx(
+            "not-prose",
+            "xl:max-w-[944px] xl:py-16",
+            "lg:max-w-[912px] lg:py-10",
+            "md:max-w-[624px] md:text-4xl md:pb-6 pt-6",
+            "sm:max-w-[480px] text-xl",
+            "max-w-[328px]",
+            "w-full mx-auto",
+          )}
+        >
+          <h1
+            className={clsx(
+              "font-semibold",
+              "!mb-0",
+              "text-gray-900 dark:text-gray-0",
+              "text-xl md:text-[40px] md:leading-[56px]",
+            )}
+          >
+            OpenPanel Enterprise pricing for{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
+              NOC partners
+            </span>
+          </h1>
+        </div>
 
-        
         <div
           className={clsx(
             "max-w-[912px] w-full mx-auto py-4",
@@ -51,7 +51,10 @@ const NetworkTablePage: React.FC = () => {
             If you have your own IP ranges like /24 or any other then you can get OpenPanel Enterprise for all IP’s in the range at the best price.
           </p>
           <p className="text-left">
-            <a href="https://my.openpanel.com/index.php?rp=/store/partners/noc" target="_blank">OpenPanel NOC Partner package</a> prices based on the Network Prefix Length (see the table bellow).
+            <a href="https://my.openpanel.com/index.php?rp=/store/partners/noc" target="_blank">
+              OpenPanel NOC Partner package
+            </a>{" "}
+            prices based on the Network Prefix Length (see the table below).
           </p>
 
           <div className="overflow-x-auto mt-8">
@@ -76,7 +79,7 @@ const NetworkTablePage: React.FC = () => {
                 <tr><td>/21</td><td>255.255.248.0</td><td>8192 (8190)</td><td>2046</td><td>€2.046,00</td></tr>
                 <tr><td>/20</td><td>255.255.240.0</td><td>4096 (4094)</td><td>4094</td><td>€4.094,00</td></tr>
                 <tr><td>/19</td><td>255.255.224.0</td><td>2048 (2046)</td><td>8190</td><td>€8.190,00</td></tr>
-                <tr><td>/18</td><td>255.255.192.0</td><td>1024 (1022)</td><td>16382</td><td>€16.382.00</td></tr>
+                <tr><td>/18</td><td>255.255.192.0</td><td>1024 (1022)</td><td>16382</td><td>€16.382,00</td></tr>
                 <tr><td>/17</td><td>255.255.128.0</td><td>512 (510)</td><td>32766</td><td>€32.766,00</td></tr>
                 <tr><td>/16</td><td>255.255.0.0</td><td>256 (254)</td><td>65534</td><td>€65.534,00</td></tr>
                 <tr><td>/15</td><td>255.254.0.0</td><td>128 (126)</td><td>131070</td><td>€131.070,00</td></tr>
@@ -91,6 +94,9 @@ const NetworkTablePage: React.FC = () => {
             </table>
           </div>
         </div>
+
+        {/* Footer */}
+        <BlogFooter />
       </div>
     </>
   );
