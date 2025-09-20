@@ -33,7 +33,7 @@ const NetworkTablePage: React.FC = () => {
                             "text-xl md:text-[40px] md:leading-[56px]",
                         )}
                     >
-                        OpenPanel pricing for{" "}
+                        OpenPanel Enterprise pricing for{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
                             NOC partners
                         </span>
