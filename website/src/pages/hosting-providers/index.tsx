@@ -71,8 +71,7 @@ const HostingProvidersPage: React.FC = () => {
           <p className="text-left">
             If you want to be on the OpenPanel Hosting Partners list:{" "}
             <a
-              href="https://my.openpanel.com/index.php?rp=/store/partners/noc"
-              target="_blank"
+              href="/licenses-for-partners"
               rel="noopener noreferrer"
               className="text-blue-600 dark:text-blue-400 underline"
             >
