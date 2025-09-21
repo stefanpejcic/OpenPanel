@@ -5,6 +5,25 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import Head from "@docusaurus/Head";
 import clsx from "clsx";
 
+const providers = [
+  {
+    company: "Hostkey",
+    location: "EU",
+    services: "VPS, Dedicated",
+    managedSupport: "No",
+    freeEnterprise: "No",
+    link: "https://hostkey.com",
+  },
+  {
+    company: "Hostigan",
+    location: "EU",
+    services: "VPS, Dedicated",
+    managedSupport: "Yes",
+    freeEnterprise: "Yes",
+    link: "https://hostigan.com",
+  },
+];
+
 const HostingProvidersPage: React.FC = () => {
   return (
     <>
@@ -49,26 +68,54 @@ const HostingProvidersPage: React.FC = () => {
         >
           <p className="text-left">
             If you want to be on the OpenPanel NOC Partner Site list:{" "}
-            <a href="https://my.openpanel.com/index.php?rp=/store/partners/noc" target="_blank">
+            <a
+              href="https://my.openpanel.com/index.php?rp=/store/partners/noc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 underline"
+            >
               OpenPanel NOC Partner package
             </a>
           </p>
-          <div className="overflow-x-auto mt-8">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-gray-100 dark:bg-gray-800">
-                  <th className="border px-4 py-2">Company</th>
-                  <th className="border px-4 py-2">Server Location</th>
-                  <th className="border px-4 py-2">Services</th>
-                  <th className="border px-4 py-2">Managed Support</th>
-                  <th className="border px-4 py-2">Free Enterprise license</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>Hostkey</td><td>EU</td><td>VPS, Dedicated</td><td>No</td><td>No</td></tr>
-                <tr><td>Hostigan</td><td>EU</td><td>VPS, Dedicated</td><td>Yes</td><td>Yes</td></tr>
-              </tbody>
-            </table>
+
+          {/* Grid instead of table */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {providers.map((p, idx) => (
+              <div
+                key={idx}
+                className="border rounded-2xl p-4 shadow-sm bg-white dark:bg-gray-900 flex flex-col justify-between"
+              >
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
+                    {p.company}
+                  </h3>
+                  <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                    <li>
+                      <strong>Server Location:</strong> {p.location}
+                    </li>
+                    <li>
+                      <strong>Services:</strong> {p.services}
+                    </li>
+                    <li>
+                      <strong>Managed Support:</strong> {p.managedSupport}
+                    </li>
+                    <li>
+                      <strong>Free Enterprise license:</strong> {p.freeEnterprise}
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-4">
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#0FBDBD] to-[#26D97F] rounded-xl hover:opacity-90 transition"
+                  >
+                    Visit {p.company}
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
