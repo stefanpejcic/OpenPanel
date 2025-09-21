@@ -13,7 +13,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://hostkey.com/apps/hosting-control-panels/openpanel/",
-    logo: "", //https://cdn.hostadvice.com/2016/04/hostkey_logo-250x75.png
+    logo: "https://cdn.hostadvice.com/2016/04/hostkey_logo-250x75.png",
   },
   {
     company: "UNLIMITED.RS",
