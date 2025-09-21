@@ -57,7 +57,7 @@ const HostingProvidersPage: React.FC = () => {
           >
             OpenPanel{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
-              Hosting partners
+              Hosting Partners
             </span>
           </h1>
         </div>
