@@ -94,15 +94,15 @@ const HostingProvidersPage: React.FC = () => {
                 key={idx}
                 className="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm bg-white dark:bg-gray-900 flex flex-col justify-between"
               >
-                <div>
+                <div className="text-center">
                   {p.logo ? (
                     <img
                       src={p.logo}
                       alt={p.company}
-                      className="h-10 mb-3 object-contain"
+                      className="h-10 mb-3 object-contain mx-auto"
                     />
                   ) : (
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0 mx-auto">
                       {p.company}
                     </h3>
                   )}
