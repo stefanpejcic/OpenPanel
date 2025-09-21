@@ -5,11 +5,32 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import Head from "@docusaurus/Head";
 import clsx from "clsx";
 
-const NetworkTablePage: React.FC = () => {
+const providers = [
+  {
+    company: "Hostkey",
+    location: "EU",
+    services: "VPS, Dedicated",
+    managedSupport: "No",
+    freeEnterprise: "No",
+    link: "https://hostkey.com",
+    logo: "", //https://cdn.hostadvice.com/2016/04/hostkey_logo-250x75.png
+  },
+  {
+    company: "Hostigan",
+    location: "EU",
+    services: "VPS, Dedicated",
+    managedSupport: "Yes",
+    freeEnterprise: "Yes",
+    link: "https://hostigan.com",
+    logo: "", // ssl error
+  },
+];
+
+const HostingProvidersPage: React.FC = () => {
   return (
     <>
-      <Head title="NOC Partners Pricing | OpenPanel Enterprise">
-        <html data-page="network-table" />
+      <Head title="Control Panel for Hosting Providers | OpenPanel Enterprise">
+        <html data-page="partners-table" />
       </Head>
 
       <div className="refine-prose">
@@ -48,50 +69,71 @@ const NetworkTablePage: React.FC = () => {
           )}
         >
           <p className="text-left">
-            If you have your own IP ranges like /24 or any other then you can get OpenPanel Enterprise for all IP’s in the range at the best price.
-          </p>
-          <p className="text-left">
-            <a href="https://my.openpanel.com/index.php?rp=/store/partners/noc" target="_blank">
+            If you want to be on the OpenPanel NOC Partner Site list:{" "}
+            <a
+              href="https://my.openpanel.com/index.php?rp=/store/partners/noc"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 dark:text-blue-400 underline"
+            >
               OpenPanel NOC Partner package
-            </a>{" "}
-            prices based on the Network Prefix Length (see the table below).
+            </a>
           </p>
 
-          <div className="overflow-x-auto mt-8">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="bg-gray-100 dark:bg-gray-800">
-                  <th className="border px-4 py-2">Network Bits</th>
-                  <th className="border px-4 py-2">Subnet Mask</th>
-                  <th className="border px-4 py-2">Number of Subnets</th>
-                  <th className="border px-4 py-2">Number of Hosts</th>
-                  <th className="border px-4 py-2">EUR/Monthly</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>/28</td><td>255.255.255.240</td><td>1048576 (1048574)</td><td>14</td><td>€14,00</td></tr>
-                <tr><td>/27</td><td>255.255.255.224</td><td>524288 (524286)</td><td>30</td><td>€30,00</td></tr>
-                <tr><td>/26</td><td>255.255.255.192</td><td>262144 (262142)</td><td>62</td><td>€62,00</td></tr>
-                <tr><td>/25</td><td>255.255.255.128</td><td>131072 (131070)</td><td>126</td><td>€126,00</td></tr>
-                <tr><td>/24</td><td>255.255.255.0</td><td>65536 (65534)</td><td>254</td><td>€254,00</td></tr>
-                <tr><td>/23</td><td>255.255.254.0</td><td>32768 (32766)</td><td>510</td><td>€510,00</td></tr>
-                <tr><td>/22</td><td>255.255.252.0</td><td>16384 (16382)</td><td>1022</td><td>€1.022,00</td></tr>
-                <tr><td>/21</td><td>255.255.248.0</td><td>8192 (8190)</td><td>2046</td><td>€2.046,00</td></tr>
-                <tr><td>/20</td><td>255.255.240.0</td><td>4096 (4094)</td><td>4094</td><td>€4.094,00</td></tr>
-                <tr><td>/19</td><td>255.255.224.0</td><td>2048 (2046)</td><td>8190</td><td>€8.190,00</td></tr>
-                <tr><td>/18</td><td>255.255.192.0</td><td>1024 (1022)</td><td>16382</td><td>€16.382,00</td></tr>
-                <tr><td>/17</td><td>255.255.128.0</td><td>512 (510)</td><td>32766</td><td>€32.766,00</td></tr>
-                <tr><td>/16</td><td>255.255.0.0</td><td>256 (254)</td><td>65534</td><td>€65.534,00</td></tr>
-                <tr><td>/15</td><td>255.254.0.0</td><td>128 (126)</td><td>131070</td><td>€131.070,00</td></tr>
-                <tr><td>/14</td><td>255.252.0.0</td><td>64 (62)</td><td>262142</td><td>€262.142,00</td></tr>
-                <tr><td>/13</td><td>255.248.0.0</td><td>32 (30)</td><td>524286</td><td></td></tr>
-                <tr><td>/12</td><td>255.240.0.0</td><td>16 (14)</td><td>1048574</td><td></td></tr>
-                <tr><td>/11</td><td>255.224.0.0</td><td>8 (6)</td><td>2097150</td><td></td></tr>
-                <tr><td>/10</td><td>255.192.0.0</td><td>4 (2)</td><td>4194302</td><td></td></tr>
-                <tr><td>/9</td><td>255.128.0.0</td><td>2 (0)</td><td>8388606</td><td></td></tr>
-                <tr><td>/8</td><td>255.0.0.0</td><td>0</td><td>16777214</td><td></td></tr>
-              </tbody>
-            </table>
+          {/* Grid instead of table */}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+            {providers.map((p, idx) => (
+              <div
+                key={idx}
+                className="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm bg-white dark:bg-gray-900 flex flex-col justify-between"
+              >
+                <div>
+                  {/* Logo or fallback company name */}
+                  {p.logo ? (
+                    <img
+                      src={p.logo}
+                      alt={p.company}
+                      className="h-10 mb-3 object-contain"
+                    />
+                  ) : (
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
+                      {p.company}
+                    </h3>
+                  )}
+
+                  {/* Company name below logo (keep text visible as well) */}
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
+                    {p.company}
+                  </h3>
+
+                  {/* Info list */}
+                  <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300 text-left">
+                    <li>
+                      <strong>Server Location:</strong> {p.location}
+                    </li>
+                    <li>
+                      <strong>Services:</strong> {p.services}
+                    </li>
+                    <li>
+                      <strong>Managed Support:</strong> {p.managedSupport}
+                    </li>
+                    <li>
+                      <strong>Free Enterprise license:</strong> {p.freeEnterprise}
+                    </li>
+                  </ul>
+                </div>
+                <div className="mt-4">
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#0FBDBD] to-[#26D97F] rounded-xl hover:opacity-90 transition"
+                  >
+                    Visit {p.company}
+                  </a>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -102,10 +144,10 @@ const NetworkTablePage: React.FC = () => {
   );
 };
 
-export default function NetworkTable() {
+export default function ProvidersTable() {
   return (
     <CommonLayout>
-      <NetworkTablePage />
+      <HostingProvidersPage />
     </CommonLayout>
   );
 }
