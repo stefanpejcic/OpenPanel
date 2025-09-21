@@ -55,9 +55,9 @@ const HostingProvidersPage: React.FC = () => {
               "text-xl md:text-[40px] md:leading-[56px]",
             )}
           >
-            OpenPanel Enterprise pricing for{" "}
+            OpenPanel{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
-              NOC partners
+              Hosting partners
             </span>
           </h1>
         </div>
