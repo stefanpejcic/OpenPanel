@@ -99,10 +99,6 @@ const HostingProvidersPage: React.FC = () => {
                     </h3>
                   )}
 
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
-                    {p.company}
-                  </h3>
-
                   <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300 text-left">
                     <li>
                       <strong>Server Location:</strong> {p.location}
