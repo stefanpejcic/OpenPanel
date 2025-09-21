@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 17.09.2025
+# Last Modified: 20.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -53,6 +53,7 @@ JSON
 EOF
 
   chmod 0755 "$PANEL_INFO_SH"
+  chmod +x "$PANEL_INFO_SH"
 }
 
 status_av() {
@@ -155,11 +156,7 @@ else
 fi
 
 PANEL_INFO_JSON="/etc/sysconfig/imunify360/get-panel-info.json"
-if [ ! -f "$PANEL_INFO_JSON" ]; then
-  update_version
-else
-  echo "$PANEL_INFO_JSON already exists, skipping..."
-fi
+update_version
 
 DEPLOY_SCRIPT="imav-deploy.sh"
 if [ ! -f "$DEPLOY_SCRIPT" ]; then

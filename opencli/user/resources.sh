@@ -5,7 +5,7 @@
 # Usage: opencli user-resources <CONTEXT> [--activate=<SERVICE_NAME>] [--deactivate=<SERVICE_NAME>] [--update_cpu=<FLOAT>] [--update_ram=<FLOAT>] [--service=<NAME>] [--json]
 # Author: Stefan Pejcic
 # Created: 26.02.2025
-# Last Modified: 17.09.2025
+# Last Modified: 20.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -33,6 +33,7 @@ context=$1
 env_file="/home/${context}/.env"
 shift
 
+debug=false
 json_output=false
 FORCE_PULL=false
 message=""
@@ -55,6 +56,7 @@ Options:
   --activate=<service>           Start the specified service.
   --deactivate=<service>         Stop the specified service.
   --force                        Force image pull before activation.
+  --debug                        Display raw output of docker-compsoe commands.
 
 Example:
   opencli user-resources stefan --json
@@ -67,6 +69,7 @@ EOF
 for arg in "$@"; do
     case $arg in
         --json) json_output=true ;;
+        --debug) debug=true ;;        
         --force) FORCE_PULL=true ;;
         --update_cpu=*) update_cpu="${arg#*=}" ;;
         --update_ram=*) update_ram="${arg#*=}" ;;
@@ -120,8 +123,14 @@ update_resource() {
         target=$(normalize_service_name "$service_to_update_cpu_ram")
         var_name="${target}_${type^^}"
         sed -i "s/^$var_name=\".*\"/$var_name=\"$value\"/" "$env_file"
-        message+="<br>Updated $type for $service_to_update_cpu_ram to: $value"
-        message+="<br>Note: disable and enable service to apply new $type limits."
+
+        if [ "$debug" = true ] && ! grep -q "^$var_name=\"$value\"$" "$env_file"; then
+            message+="<br>Failed to update $type for $service_to_update_cpu_ram - Command used: sed -i 's/^$var_name=\'.*\'/$var_name=\"$value\'/' $env_file"
+        else
+            message+="<br>Updated $type for $service_to_update_cpu_ram to: $value"
+            message+="<br>Note: disable and enable service to apply new $type limits."
+        fi
+
     else
         var_name="TOTAL_${type^^}"
         sed -i "s/^$var_name=\".*\"/$var_name=\"$value\"/" "$env_file"
@@ -141,11 +150,21 @@ check_service_running() {
 
 start_service() {
     $FORCE_PULL && docker --context "$context" compose -f "/home/$context/docker-compose.yml" pull "$1" >/dev/null 2>&1
-    docker --context "$context" compose -f "/home/$context/docker-compose.yml" up -d "$1" >/dev/null 2>&1
+    
+    if [ "$debug" = true ]; then
+        docker --context "$context" compose -f "/home/$context/docker-compose.yml" up -d "$1"
+    else
+        docker --context "$context" compose -f "/home/$context/docker-compose.yml" up -d "$1" >/dev/null 2>&1
+    fi
 }
 
+
 stop_service() {
-    docker --context "$context" compose -f "/home/$context/docker-compose.yml" down "$1" >/dev/null 2>&1
+    if [ "$debug" = true ]; then
+        docker --context "$context" compose -f "/home/$context/docker-compose.yml" down "$1"
+    else
+        docker --context "$context" compose -f "/home/$context/docker-compose.yml" down "$1" >/dev/null 2>&1
+    fi
 }
 
 # --- Main Logic ---
@@ -164,9 +183,9 @@ for service in $RUNNING_SERVICES; do
     norm_name=$(normalize_service_name "$service")
     cpu_var="${norm_name}_CPU"
     ram_var="${norm_name}_RAM"
-    
-    cpu="${!cpu_var}"
-    ram="${!ram_var}"
+
+    cpu=${!cpu_var:-0}
+    ram=${!ram_var:-0}
     ram=${ram//[gG]/}
 
     TOTAL_USED_CPU=$(awk "BEGIN {print $TOTAL_USED_CPU + $cpu}")
@@ -185,7 +204,15 @@ if [ -n "$stop_service" ]; then
         exit 1
     }
     stop_service "$stop_service"
-    check_service_running "$stop_service" && message+="<br>Failed to stop $stop_service." || message+="<br>Stopped $stop_service."
+
+    if check_service_running "$stop_service"; then
+        message+="<br>Failed to stop $stop_service."
+        if [ "$debug" = true ]; then
+            message+="<br>Command used: 'docker --context=$context compose -f /home/$context/docker-compose.yml up -d $stop_service'"
+        fi    
+    else
+        message+="<br>Stopped $stop_service."
+    fi
 fi
 
 # START
@@ -198,8 +225,9 @@ if [ -n "$new_service" ]; then
     norm_name=$(normalize_service_name "$new_service")
     cpu_var="${norm_name}_CPU"
     ram_var="${norm_name}_RAM"
-    cpu="${!cpu_var}"
-    ram="${!ram_var}"
+    
+    cpu="${!cpu_var:-0}"
+    ram="${!ram_var:-0}"
 
     ram=${ram//[gG]/}
 
@@ -212,7 +240,15 @@ if [ -n "$new_service" ]; then
         message+="<br>RAM limit exceeded by starting $new_service."
     else
         start_service "$new_service"
-        check_service_running "$new_service" && message+="<br>Started $new_service." || message+="<br>Failed to start $new_service."
+    
+        if check_service_running "$new_service"; then
+            message+="<br>Started $new_service."
+        else
+            message+="<br>Failed to start $new_service."
+            if [ "$debug" = true ]; then
+                message+="<br>Command used: 'docker --context=$context compose -f /home/$context/docker-compose.yml up -d $new_service'"
+            fi    
+        fi
     fi
 fi
 
