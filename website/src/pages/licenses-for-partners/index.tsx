@@ -69,7 +69,7 @@ const HostingProvidersPage: React.FC = () => {
           )}
         >
           <p className="text-left">
-            If you want to be on the OpenPanel NOC Partner Site list:{" "}
+            If you want to be on the OpenPanel Hosting Partners list:{" "}
             <a
               href="https://my.openpanel.com/index.php?rp=/store/partners/noc"
               target="_blank"
@@ -80,7 +80,6 @@ const HostingProvidersPage: React.FC = () => {
             </a>
           </p>
 
-          {/* Grid instead of table */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             {providers.map((p, idx) => (
               <div
@@ -88,7 +87,6 @@ const HostingProvidersPage: React.FC = () => {
                 className="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm bg-white dark:bg-gray-900 flex flex-col justify-between"
               >
                 <div>
-                  {/* Logo or fallback company name */}
                   {p.logo ? (
                     <img
                       src={p.logo}
@@ -101,12 +99,10 @@ const HostingProvidersPage: React.FC = () => {
                     </h3>
                   )}
 
-                  {/* Company name below logo (keep text visible as well) */}
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
                     {p.company}
                   </h3>
 
-                  {/* Info list */}
                   <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300 text-left">
                     <li>
                       <strong>Server Location:</strong> {p.location}
@@ -137,7 +133,6 @@ const HostingProvidersPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <BlogFooter />
       </div>
     </>
