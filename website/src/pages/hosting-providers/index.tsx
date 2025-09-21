@@ -13,6 +13,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://hostkey.com",
+    logo: "", //https://cdn.hostadvice.com/2016/04/hostkey_logo-250x75.png
   },
   {
     company: "Hostigan",
@@ -21,6 +22,7 @@ const providers = [
     managedSupport: "Yes",
     freeEnterprise: "Yes",
     link: "https://hostigan.com",
+    logo: "", // ssl error
   },
 ];
 
@@ -53,9 +55,9 @@ const HostingProvidersPage: React.FC = () => {
               "text-xl md:text-[40px] md:leading-[56px]",
             )}
           >
-            OpenPanel Enterprise pricing for{" "}
+            OpenPanel{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
-              NOC partners
+              Hosting partners
             </span>
           </h1>
         </div>
@@ -67,7 +69,7 @@ const HostingProvidersPage: React.FC = () => {
           )}
         >
           <p className="text-left">
-            If you want to be on the OpenPanel NOC Partner Site list:{" "}
+            If you want to be on the OpenPanel Hosting Partners list:{" "}
             <a
               href="https://my.openpanel.com/index.php?rp=/store/partners/noc"
               target="_blank"
@@ -78,18 +80,30 @@ const HostingProvidersPage: React.FC = () => {
             </a>
           </p>
 
-          {/* Grid instead of table */}
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
             {providers.map((p, idx) => (
               <div
                 key={idx}
-                className="border rounded-2xl p-4 shadow-sm bg-white dark:bg-gray-900 flex flex-col justify-between"
+                className="border border-gray-200 dark:border-gray-700 rounded-2xl p-4 shadow-sm bg-white dark:bg-gray-900 flex flex-col justify-between"
               >
                 <div>
+                  {p.logo ? (
+                    <img
+                      src={p.logo}
+                      alt={p.company}
+                      className="h-10 mb-3 object-contain"
+                    />
+                  ) : (
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
+                      {p.company}
+                    </h3>
+                  )}
+
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-0">
                     {p.company}
                   </h3>
-                  <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+
+                  <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300 text-left">
                     <li>
                       <strong>Server Location:</strong> {p.location}
                     </li>
@@ -119,7 +133,6 @@ const HostingProvidersPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer */}
         <BlogFooter />
       </div>
     </>
