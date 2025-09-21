@@ -123,7 +123,7 @@ const HostingProvidersPage: React.FC = () => {
                     href={p.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-block px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#0FBDBD] to-[#26D97F] rounded-xl hover:opacity-90 transition"
+                    className="inline-block px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-0 bg-gradient-to-r from-[#0FBDBD] to-[#26D97F] rounded-xl hover:opacity-90 transition"
                   >
                     Visit {p.company}
                   </a>
