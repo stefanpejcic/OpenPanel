@@ -7,13 +7,22 @@ import clsx from "clsx";
 
 const providers = [
   {
-    company: "Hostkey",
+    company: "HOSTKEY",
     location: "EU",
     services: "VPS, Dedicated",
     managedSupport: "No",
     freeEnterprise: "No",
-    link: "https://hostkey.com",
+    link: "https://hostkey.com/apps/hosting-control-panels/openpanel/",
     logo: "", //https://cdn.hostadvice.com/2016/04/hostkey_logo-250x75.png
+  },
+  {
+    company: "UNLIMITED.RS",
+    location: "EU",
+    services: "VPS",
+    managedSupport: "No",
+    freeEnterprise: "No",
+    link: "https://unlimited.rs/vps-hosting/",
+    logo: "https://nesto.rs/svg_unlimited_logo.svg",
   },
   {
     company: "Hostigan",
