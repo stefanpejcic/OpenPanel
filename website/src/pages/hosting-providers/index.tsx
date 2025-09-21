@@ -22,7 +22,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://unlimited.rs/vps-hosting/",
-    logo: "https://nesto.rs/svg_unlimited_logo.svg",
+    logo: "https://unlimited.rs/wp-content/themes/unlimited-RS/themeFunctions/media/unlimited.rs_logo.svg",
   },
   {
     company: "Hostigan",
