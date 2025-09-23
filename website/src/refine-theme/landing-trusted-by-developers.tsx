@@ -11,7 +11,7 @@ import {
     JpMorganIcon,
     AutodeskIcon,
     IntelIcon,
-    UpworkIcon,
+    CloudingIcon,
     LogicwebIcon,
 } from "../components/landing/icons";
 import { useInView } from "framer-motion";
@@ -158,7 +158,7 @@ const list: IList = [
     { icon: <JpMorganIcon />, id: 7, href: "https://jpmorgan.com" },
     { icon: <IntelIcon />, id: 8, href: "https://intel.com" },
     { icon: <AtlassianIcon />, id: 9, href: "https://atlassian.com" },
-    { icon: <UpworkIcon />, id: 10, href: "https://upwork.com" },
+    { icon: <CloudingIcon />, id: 10, href: "https://clouding.io" },
     { icon: <AutodeskIcon />, id: 11, href: "https://autodesk.com" },
     { icon: <MetaIcon />, id: 12, href: "https://meta.com" },
     { icon: <LogicwebIcon />, id: 13, href: "https://logicweb.com" },
