@@ -4,7 +4,7 @@ import {
     HostkeyIcon,
     AltusHostIcon,
     DigitalOceanIcon,
-    UnlimitedIcon,
+    LogicwebIcon,
 } from "../components/landing/icons";
 
 type Props = {
@@ -84,6 +84,6 @@ type IList = {
 const list: IList = [
     { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
     { icon: <AltusHostIcon />, id: 2, href: "https://altushost.com" },
-    { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com" },
-    { icon: <UnlimitedIcon />, id: 4, href: "https://unlimited.rs" },
+    { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com/" },
+    { icon: <LogicwebIcon />, id: 4, href: "https://www.logicweb.com/" },
 ];
