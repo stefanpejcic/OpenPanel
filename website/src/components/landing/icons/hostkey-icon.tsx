@@ -4,7 +4,7 @@ import { SVGProps } from "react";
 export const HostkeyIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width={187}
+    width={150}
     height={80}
     viewBox="0 0 800 201.333"
     fill="none"
