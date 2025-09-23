@@ -4,7 +4,6 @@ import {
     HostkeyIcon,
     AltusHostIcon,
     DigitalOceanIcon,
-    CloudingIcon,
 } from "../components/landing/icons";
 import { useInView } from "framer-motion";
 
@@ -147,5 +146,4 @@ const list: IList = [
     { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
     { icon: <AltusHostIcon />, id: 2, href: "https://www.altushost.com/linux-vps/" },
     { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com" },
-    { icon: <CloudingIcon />, id: 4, href: "https://clouding.io" },
 ];
