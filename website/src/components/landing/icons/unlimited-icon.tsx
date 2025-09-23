@@ -12,7 +12,7 @@ export const UnlimitedIcon = (props: SVGProps<SVGSVGElement>) => (
     aria-labelledby="unlimitedIconTitle"
     {...props}
   >
-    <title id="unlimitedIconTitle">unlimited.rs website logo new</title>
+    <title id="unlimitedIconTitle">UNLIMITED.RS</title>
     <defs>
       <clipPath id="clip-path">
         <path
