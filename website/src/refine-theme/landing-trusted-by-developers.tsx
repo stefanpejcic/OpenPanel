@@ -4,7 +4,6 @@ import {
     HostkeyIcon,
     AltusHostIcon,
     DigitalOceanIcon,
-    CloudingIcon,
     UnlimitedIcon,
 } from "../components/landing/icons";
 
@@ -86,6 +85,5 @@ const list: IList = [
     { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
     { icon: <AltusHostIcon />, id: 2, href: "https://altushost.com" },
     { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com/" },
-    { icon: <CloudingIcon />, id: 4, href: "https://clouding.io/" },
-    { icon: <UnlimitedIcon />, id: 5, href: "https://unlimited.rs/" },
+    { icon: <UnlimitedIcon />, id: 4, href: "https://unlimited.rs/" },
 ];
