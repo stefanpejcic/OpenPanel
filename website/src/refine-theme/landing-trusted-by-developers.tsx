@@ -2,6 +2,7 @@ import clsx from "clsx";
 import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
 import {
     HostkeyIcon,
+    LogicwebIcon,
     AltusHostIcon,
     DigitalOceanIcon,
     CloudingIcon,
@@ -145,7 +146,8 @@ type IList = {
 
 const list: IList = [
     { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
-    { icon: <AltusHostIcon />, id: 2, href: "https://www.altushost.com/linux-vps/" },
-    { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com" },
-    { icon: <CloudingIcon />, id: 4, href: "https://clouding.io" },
+    { icon: <LogicwebIcon />, id: 2, href: "https://logicweb.com/" },
+    { icon: <AltusHostIcon />, id: 3, href: "https://www.altushost.com/linux-vps/" },
+    { icon: <DigitalOceanIcon />, id: 4, href: "https://digitalocean.com/" },
+    { icon: <CloudingIcon />, id: 5, href: "https://clouding.io/" },
 ];
