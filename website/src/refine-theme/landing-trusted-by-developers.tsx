@@ -5,6 +5,7 @@ import {
     AltusHostIcon,
     DigitalOceanIcon,
     LogicwebIcon,
+    UnlimitedIcon,
 } from "../components/landing/icons";
 
 type Props = {
@@ -86,4 +87,5 @@ const list: IList = [
     { icon: <AltusHostIcon />, id: 2, href: "https://altushost.com" },
     { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com/" },
     { icon: <LogicwebIcon />, id: 4, href: "https://www.logicweb.com/" },
+    { icon: <UnlimitedIcon />, id: 5, href: "https://unlimited.rs/" },
 ];
