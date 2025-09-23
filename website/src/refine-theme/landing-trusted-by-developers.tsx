@@ -95,7 +95,9 @@ export const LandingTrustedByDevelopers: FC<Props> = ({ className }) => {
                                     "max-w-[187px]",
                                 )}
                             >
+                            <a href={item.href} target="_blank" rel="noopener noreferrer">
                                 {item.icon}
+                            </a>
                             </div>
                         </div>
                     ))}
