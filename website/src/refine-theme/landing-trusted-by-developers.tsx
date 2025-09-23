@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
 import {
-    UnlimitedIcon,
     HostkeyIcon,
     AltusHostIcon,
     DeloitteIcon,
@@ -150,7 +149,6 @@ type IList = {
 }[];
 
 const list: IList = [
-    { icon: <UnlimitedIcon />, id: 1, href: "https://unlimited.rs/en/vps-hosting/" },
     { icon: <HostkeyIcon />, id: 2, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
     { icon: <AltusHostIcon />, id: 3, href: "https://www.altushost.com/linux-vps/" },
     { icon: <DigitalOceanIcon />, id: 4, href: "https://digitalocean.com" },
