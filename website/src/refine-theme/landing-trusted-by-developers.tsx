@@ -5,7 +5,6 @@ import {
     LogicwebIcon,
     AltusHostIcon,
     DigitalOceanIcon,
-    CloudingIcon,
 } from "../components/landing/icons";
 import { useInView } from "framer-motion";
 
@@ -149,5 +148,4 @@ const list: IList = [
     { icon: <LogicwebIcon />, id: 2, href: "https://logicweb.com/" },
     { icon: <AltusHostIcon />, id: 3, href: "https://www.altushost.com/linux-vps/" },
     { icon: <DigitalOceanIcon />, id: 4, href: "https://digitalocean.com/" },
-    { icon: <CloudingIcon />, id: 5, href: "https://clouding.io/" },
 ];
