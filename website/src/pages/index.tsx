@@ -44,6 +44,14 @@ function Home() {
                             )}
                         >
                           <LandingHeroSection />
+                          <LandingTrustedByDevelopers
+                            className={clsx(
+                              "mt-12",
+                              "landing-sm:mt-20",
+                              "landing-md:mt-28",
+                              "landing-lg:mt-10",
+                            )}
+                          />                            
                         </div>
                         <LandingSweetSpot />
                         <div
