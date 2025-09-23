@@ -83,10 +83,9 @@ type IList = {
 }[];
 
 const list: IList = [
-    { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
-    { icon: <AltusHostIcon />, id: 2, href: "https://altushost.com" },
-    { icon: <DigitalOceanIcon />, id: 3, href: "https://digitalocean.com/" },
-    { icon: <UpworkIcon />, id: 4, href: "https://logicweb.com/" },
-    { icon: <UnlimitedIcon />, id: 5, href: "https://clouding.io/" },
-    
+    { icon: <AltusHostIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/?utm_source=openpanel.com" },
+    { icon: <HostkeyIcon />, id: 2, href: "https://altushost.com/?utm_source=openpanel.com" },
+    { icon: <UpworkIcon />, id: 3, href: "https://logicweb.com/?utm_source=openpanel.com" },
+    { icon: <UnlimitedIcon />, id: 4, href: "https://clouding.io/?utm_source=openpanel.com" },
+    { icon: <DigitalOceanIcon />, id: 5, href: "https://digitalocean.com/?utm_source=openpanel.com" },    
 ];
