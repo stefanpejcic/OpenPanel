@@ -3,13 +3,7 @@ import React, { FC, useEffect, useLayoutEffect, useRef } from "react";
 import {
     HostkeyIcon,
     AltusHostIcon,
-    DeloitteIcon,
     DigitalOceanIcon,
-    MetaIcon,
-    AtlassianIcon,
-    JpMorganIcon,
-    AutodeskIcon,
-    IntelIcon,
     CloudingIcon,
     LogicwebIcon,
 } from "../components/landing/icons";
@@ -149,15 +143,9 @@ type IList = {
 }[];
 
 const list: IList = [
-    { icon: <HostkeyIcon />, id: 2, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
+    { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
+    { icon: <LogicwebIcon />, id: 2, href: "https://logicweb.com" },    
     { icon: <AltusHostIcon />, id: 3, href: "https://www.altushost.com/linux-vps/" },
     { icon: <DigitalOceanIcon />, id: 4, href: "https://digitalocean.com" },
-    { icon: <DeloitteIcon />, id: 5, href: "https://deloitte.com" },
-    { icon: <JpMorganIcon />, id: 7, href: "https://jpmorgan.com" },
-    { icon: <IntelIcon />, id: 8, href: "https://intel.com" },
-    { icon: <AtlassianIcon />, id: 9, href: "https://atlassian.com" },
-    { icon: <CloudingIcon />, id: 10, href: "https://clouding.io" },
-    { icon: <AutodeskIcon />, id: 11, href: "https://autodesk.com" },
-    { icon: <MetaIcon />, id: 12, href: "https://meta.com" },
-    { icon: <LogicwebIcon />, id: 13, href: "https://logicweb.com" },
+    { icon: <CloudingIcon />, id: 5, href: "https://clouding.io" },
 ];
