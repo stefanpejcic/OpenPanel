@@ -4,7 +4,7 @@ import { SVGProps } from "react";
 export const DigitalOceanIcon = (props: SVGProps<SVGSVGElement>) => (
     <svg
         xmlns="http://www.w3.org/2000/svg"
-        width={316}
+        width={150}
         height={60}
         viewBox="0 0 316 60"
         fill="none"
