@@ -146,55 +146,20 @@ const changeOneRandomIcon = (
 type IList = {
     icon: React.ReactNode;
     id: number;
+    href: string;
 }[];
 
 const list: IList = [
-    {
-        icon: <UnlimitedIcon />,
-        id: 1,
-    },
-    {
-        icon: <HostkeyIcon />,
-        id: 2,
-    },
-    {
-        icon: <AltusHostIcon />,
-        id: 3,
-    },
-    {
-        icon: <DigitalOceanIcon />,
-        id: 4,
-    },
-    {
-        icon: <DeloitteIcon />,
-        id: 5,
-    },
-    {
-        icon: <JpMorganIcon />,
-        id: 7,
-    },
-    {
-        icon: <IntelIcon />,
-        id: 8,
-    },
-    {
-        icon: <AtlassianIcon />,
-        id: 9,
-    },
-    {
-        icon: <UpworkIcon />,
-        id: 10,
-    },
-    {
-        icon: <AutodeskIcon />,
-        id: 11,
-    },
-    {
-        icon: <MetaIcon />,
-        id: 12,
-    },
-    {
-        icon: <LogicwebIcon />,
-        id: 13,
-    },
+    { icon: <UnlimitedIcon />, id: 1, href: "https://unlimited.rs/en/vps-hosting/" },
+    { icon: <HostkeyIcon />, id: 2, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
+    { icon: <AltusHostIcon />, id: 3, href: "https://www.altushost.com/linux-vps/" },
+    { icon: <DigitalOceanIcon />, id: 4, href: "https://digitalocean.com" },
+    { icon: <DeloitteIcon />, id: 5, href: "https://deloitte.com" },
+    { icon: <JpMorganIcon />, id: 7, href: "https://jpmorgan.com" },
+    { icon: <IntelIcon />, id: 8, href: "https://intel.com" },
+    { icon: <AtlassianIcon />, id: 9, href: "https://atlassian.com" },
+    { icon: <UpworkIcon />, id: 10, href: "https://upwork.com" },
+    { icon: <AutodeskIcon />, id: 11, href: "https://autodesk.com" },
+    { icon: <MetaIcon />, id: 12, href: "https://meta.com" },
+    { icon: <LogicwebIcon />, id: 13, href: "https://logicweb.com" },
 ];
