@@ -94,9 +94,7 @@ export const LandingTrustedByDevelopers: FC<Props> = ({ className }) => {
                                     "max-w-[187px]",
                                 )}
                             >
-                            <a href={item.href} target="_blank" rel="noopener noreferrer">
                                 {item.icon}
-                            </a>
                             </div>
                         </div>
                     ))}
@@ -140,12 +138,11 @@ const changeOneRandomIcon = (
 type IList = {
     icon: React.ReactNode;
     id: number;
-    href: string;
 }[];
 
 const list: IList = [
-    { icon: <HostkeyIcon />, id: 1, href: "https://hostkey.com/apps/hosting-control-panels/openpanel/" },
-    { icon: <AltusHostIcon />, id: 3, href: "https://www.altushost.com/linux-vps/" },
-    { icon: <DigitalOceanIcon />, id: 5, href: "https://digitalocean.com/" },
-    { icon: <UnlimitedIcon />, id: 7, href: "https://unlimited.rs/" },
+    { icon: <HostkeyIcon />, id: 1 },
+    { icon: <AltusHostIcon />, id: 2 },
+    { icon: <DigitalOceanIcon />, id: 3 },
+    { icon: <UnlimitedIcon />, id: 4 },
 ];
