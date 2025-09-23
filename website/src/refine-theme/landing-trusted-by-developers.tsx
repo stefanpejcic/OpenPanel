@@ -12,7 +12,7 @@ import {
     AutodeskIcon,
     IntelIcon,
     UpworkIcon,
-    AmazonIcon,
+    LogicwebIcon,
 } from "../components/landing/icons";
 import { useInView } from "framer-motion";
 
@@ -194,7 +194,7 @@ const list: IList = [
         id: 12,
     },
     {
-        icon: <AmazonIcon />,
+        icon: <LogicwebIcon />,
         id: 13,
     },
 ];
