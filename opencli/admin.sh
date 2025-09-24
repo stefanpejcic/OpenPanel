@@ -5,7 +5,7 @@
 # Usage: opencli admin <setting_name> 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 20.09.2025
+# Last Modified: 23.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -66,7 +66,8 @@ usage() {
     echo "  list                                          List all current admin users."
     echo "  new <user> <pass>                             Add a new user with the specified username and password."
     echo "  password <user> <pass>                        Reset the password for the specified admin user."
-    echo "  rename <old> <new>                            Change the admin username."
+    echo "  update <user> --allowed_plans=[] --max_accounts=<int> Assign plans and set limits for reseller."
+	echo "  rename <old> <new>                            Change the admin username."
     echo "  suspend <user>                                Suspend admin user."
     echo "  unsuspend <user>                              Unsuspend admin user."
     echo "  notifications <command> <param> [value]       Control notification preferences."
@@ -237,7 +238,39 @@ add_new_user() {
 }
 
 
+# Sets max accounts and plans for reseller account
+update_reseller_account() {
+    local username="$1"
+    local allowed_plans="$2"
+    local max_accounts="$3"
 
+    local resellers_dir="/etc/openpanel/openadmin/resellers"
+    local reseller_file="$resellers_dir/$username.json"
+
+    if [[ ! -f "$reseller_file" ]]; then
+        echo "Error: Reseller file $reseller_file not found!"
+        return 1
+    fi
+
+    if [[ -z "$max_accounts" ]]; then
+        max_accounts="unlimited"
+    fi
+
+    allowed_plans="${allowed_plans%,}"
+
+    if [[ -n "$allowed_plans" ]]; then
+        IFS=',' read -r -a plans_array <<< "$allowed_plans"
+        plans_json=$(printf '%s\n' "${plans_array[@]}" | jq -R . | jq -s .)
+    else
+        plans_json="[]"
+    fi
+
+    jq --arg max_accounts "$max_accounts" --argjson allowed_plans "$plans_json" \
+       '.max_accounts = $max_accounts | .allowed_plans = $allowed_plans' \
+       "$reseller_file" > "$reseller_file.tmp" && mv "$reseller_file.tmp" "$reseller_file"
+
+    echo "Reseller $username updated successfully."
+}
 
 
 
@@ -570,7 +603,14 @@ case "$1" in
         # List users
         list_current_users
         ;;
-    "suspend")
+    "update")
+        # Set reseller limits
+        username="$2"
+        allowed_plans="${3#--allowed_plans=}"
+        max_accounts="${4#--max_accounts=}"
+        update_reseller_account "$username" "$allowed_plans" "$max_accounts"
+        ;;   
+	"suspend")
         # List users
         username="$2"
         suspend_user "$username"

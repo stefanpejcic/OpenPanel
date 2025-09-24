@@ -107,7 +107,10 @@ def get_domain_from_caddyfile():
                         break
     except Exception as e:
         print(f"Error reading Caddyfile: {e}")
-
+    # default
+    if domain == "example.net":
+        return None
+    
     return domain
 
 

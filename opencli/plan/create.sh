@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: plan/create.sh
 # Description: Create a new hosting plan (Package) and set its limits.
-# Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> featrue_set=<NAME>
+# Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME>
 # Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default
 # Author: Radovan Jecmenica
 # Created: 06.11.2023
-# Last Modified: 20.09.2025
+# Last Modified: 23.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -79,8 +79,8 @@ insert_plan() {
   local bandwidth="${12}"
   local feature_set="${13}"
   
-# Format disk_limit with 'GB' 
-disk_limit="${disk_limit} GB"
+  # Format disk_limit with 'GB' 
+  disk_limit="${disk_limit} GB"
 
   if [ "$inodes_limit" -lt 0 ]; then
     inodes_limit=0
@@ -94,9 +94,23 @@ disk_limit="${disk_limit} GB"
 
   mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
-    echo "Plan $name created successfully."
+        # if reseller, allow them the new plan id
+        if [[ "$CHECK_PLAN_ID" == true ]]; then
+            plan_id=$(check_plan_exists "$name")
+            if [ -n "$plan_id" ]; then
+                tmpfile=$(mktemp)
+
+                jq --arg plan "$plan_id" \
+                   '.allowed_plans |= (if index($plan) then . else . + [$plan] end)' \
+                   "$reseller_file" > "$tmpfile" && mv "$tmpfile" "$reseller_file"
+            else
+                echo "Warning: failed to retrieve plan ID from the database and assign it to the reseller user."
+            fi
+        fi
+
+    echo "Plan ${name} created successfully."
   else
-    echo "Failed to create plan: $name"
+    echo "Failed to create plan: ${name}"
   fi
 }
 
@@ -197,6 +211,27 @@ validate_fields_first() {
 }
 
 
+check_reseller_user() {
+    reseller_file="/etc/openpanel/openadmin/resellers/${reseller_user}.json"
+
+    if [[ -z "$reseller_user" ]]; then
+        return 1
+    fi
+
+    if [[ ! -f "$reseller_file" ]]; then
+        echo "Error: Configuration file does not exist: $reseller_file"
+        exit 1 #return 1
+    fi
+
+    if jq empty "$reseller_file" >/dev/null 2>&1; then
+        CHECK_PLAN_ID=true
+    else
+        echo "Error: Invalid JSON in $reseller_file"
+        exit 1 #return 1
+    fi
+}
+
+
 # Capture command-line arguments
 name=""
 description=""
@@ -218,6 +253,9 @@ for arg in "$@"; do
     --debug)
         DEBUG=true
       ;;
+    reseller=*)
+      reseller_user="${arg#*=}"
+      ;;      
     name=*)
       name="${arg#*=}"
       ;;
@@ -278,17 +316,18 @@ check_available_ram "$ram"
 # Function to check if the plan name already exists in the database
 check_plan_exists() {
   local name="$1"
-  local sql="SELECT name FROM plans WHERE name='$name';"
+  local sql="SELECT id FROM plans WHERE name='${name}';"
   local result=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -N -B -e "$sql")
   echo "$result"
 }
 
 # Check if the plan name already exists in the database
-existing_plan=$(check_plan_exists "$name")
+existing_plan=$(check_plan_exists "${name}")
 if [ -n "$existing_plan" ]; then
-  echo "Plan name '$name' already exists. Please choose another name."
+  echo "Plan name '${name}' already exists. Please choose another name."
   exit 1
 fi
 
 validate_fields_first "$ftp_limit" "$email_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth"
+check_reseller_user # if no file or invalid json, abort
 insert_plan "$name" "$description" "$email_limit" "$ftp_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set"

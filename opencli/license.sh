@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 20.09.2025
+# Last Modified: 23.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -159,8 +159,10 @@ restart_services() {
     fi
     
     service admin restart > /dev/null
-    docker --context default ps -q -f name=openpanel | grep -q . && \
-        docker --context default restart openpanel > /dev/null &
+    if docker --context default ps -q -f name=openpanel | grep -q .; then
+        docker --context default restart openpanel &> /dev/null &
+    fi
+        
     echo "OpenPanel and OpenAdmin are restarted to apply Enterprise features."
 }
 
@@ -331,7 +333,7 @@ main() {
         "delete")
             delete_license
             ;;
-        "enterprise"|"noc"|"lifetime")
+        enterprise-*|noc-*|lifetime-)
             verify_and_save_license "$command"
             ;;
         *)
