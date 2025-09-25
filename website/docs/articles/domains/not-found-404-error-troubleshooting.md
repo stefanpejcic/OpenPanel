@@ -36,7 +36,7 @@ If the request is for a dynamic route (e.g., WordPress pretty permalinks such as
 
 * `.htaccess` files are not used. Rewrite rules are set directly in the VirtualHosts configuration.
 * Go to **Domains > [Your Domain] > Edit VHosts**.
-  ![screenshot}](![screenshot](https://i.postimg.cc/mbSrwXWJ/image.png))
+  ![screenshot](https://i.postimg.cc/mbSrwXWJ/image.png)
 * Review and correct the rewrite rules, then save the file. This automatically reloads the webserver to apply changes.
   ![screenshot](https://i.postimg.cc/RCSpt0Q2/image.png)
 
