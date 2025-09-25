@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 23.09.2025
+# Last Modified: 24.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -210,8 +210,15 @@ get_hostname_of_master() {
 
 
 
-
-
+update_accounts_for_reseller() {
+	if [ -n "$reseller" ]; then
+		local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
+		current_accounts=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -se "$query_for_owner")
+	  	log "Updating current accounts count to: ${current_accounts} for reseller: ${reseller}"
+		jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
+			&& mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
+	fi
+}
 
 check_if_reseller() {
 
@@ -225,7 +232,7 @@ check_if_reseller() {
 	        echo -e "ERROR: User '$reseller' is not a reseller or not allowed to create new users. Contact support."
 	    fi
 
-	    local reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
+	    reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
      
 	    if [ -f "$reseller_limits_file" ]; then
 	  	log "Checking reseller limits.."
@@ -1607,6 +1614,7 @@ copy_skeleton_files                          # get webserver, php version and my
 download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
+update_accounts_for_reseller                 # update current_accounts for reseller in their json file
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
 permisisons_do

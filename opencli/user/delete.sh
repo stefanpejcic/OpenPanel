@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 23.09.2025
+# Last Modified: 24.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -227,23 +227,22 @@ delete_context() {
 }
 
 refresh_resellers_data() {
-
-	    local reseller_files="/etc/openpanel/openadmin/resellers"
-
-        if [ -d "$reseller_files" ]; then
-            for json_file in "$reseller_files"/*.json; do
-                if [ -f "$json_file" ]; then
-                    reseller=$(basename "$json_file" .json)  # Extract reseller name from filename
-        
-                    # Query the database for the number of users owned by the reseller
-                    query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
-                    current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query_for_owner" -se)
-                    if [ $? -eq 0 ]; then
-                        jq ".current_accounts = $current_accounts" $json_file > /tmp/${reseller}_config.json && mv /tmp/${reseller}_config.json $json_file
-                    fi
-                fi
-            done
-        fi
+	local reseller_files="/etc/openpanel/openadmin/resellers"
+	# TODO: optimize: now it checks all resellers, instead sould check jsut the account owner!
+	if [ -d "$reseller_files" ]; then
+		for json_file in "$reseller_files"/*.json; do
+			if [ -f "$json_file" ]; then
+				reseller=$(basename "$json_file" .json)  # Extract reseller name from filename
+	
+				# Query the database for the number of users owned by the reseller
+				query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
+				current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query_for_owner" -se)
+				if [ $? -eq 0 ]; then
+					jq ".current_accounts = $current_accounts" $json_file > /tmp/${reseller}_config.json && mv /tmp/${reseller}_config.json $json_file
+				fi
+			fi
+		done
+	fi
 }
 
 # MAIN
