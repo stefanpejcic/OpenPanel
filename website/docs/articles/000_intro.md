@@ -26,6 +26,8 @@ sidebar_position: 1
 - [Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/)
 - [How to set or increase PHP INI memory_limit or other values?](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/)
 - [403 Error Troubleshooting Guide](/docs/articles/domains/error-on-website-disable-coraza-waf/)
+- [404 Error Troubleshooting Guide](/docs/articles/domains/404-error-troubleshooting)
+- [502 Error Troubleshooting Guide](/docs/articles/domains/502-error-troubleshooting)
 - [Configure Apache, Nginx, OpenLitespeed per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [WordPress HTTPS behind Varnish Cache](/docs/articles/docker/https-wordpress-behind-varnish-proxy/)
 
