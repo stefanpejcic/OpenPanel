@@ -35,6 +35,7 @@ sidebar_position: 1
 - [Configure MySQL, MariaDB or Percona per user](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - [Import MySQL Database](/docs/articles/docker/import-database)
 - [Use `mysql` or `mariadb` as DB_HOST instead of *localhost*](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/)
+- [Troubleshooting: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/)
 
 # Configuration
 - [Branding and White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
