@@ -1,6 +1,6 @@
 ---
 title: OpenPanel is now available on LOGICWEB
-description: OpenPanel can now be installed with a single click on HostKey VPS and Dedicated servers.
+description: OpenPanel is now available as an option on LOGICWEB's VPS and Dedicated servers.
 slug: openpanel-is-available-on-logicweb
 authors: stefanpejcic
 tags: [OpenPanel, news, LOGICWEB, VPS, Dedicated Servers, hosting panel]
