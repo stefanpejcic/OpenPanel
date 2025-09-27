@@ -34,7 +34,7 @@ However if data doesn't appear on the page in a couple of minutes there's an iss
 
 If the Docker feature is enabled for your plan you can check the database container's logs on OpenPanel > Docker/Logs , you can also stop and start the container on OpenPanel > Docker/Containers .
 
-![containers.png](https://imgur.com/a/P5vCXN5)
+![containers.png](https://i.imgur.com/GGvHfXb.png)
 
 If the Docker feature is not enabled for your plan and data doesn't appear on the Openpanel > MySQL/Databases page contact your server administrator so that they can check further.
 
