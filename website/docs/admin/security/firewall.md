@@ -4,13 +4,13 @@ sidebar_position: 2
 
 # Firewall
 
-OpenPanel supports ConfigServer Security and Firewall (CSF).
+OpenPanel supports [Sentinel Firewall](https://sentinelfirewall.org/) - a fork of the *ConfigServer Security and Firewall* (CSF).
 
 ## CSF
 
 Firewall (CSF) UI is displayed on **OpenAdmin > Firewall**.
 
-For instructions on how to use the CSF UI, please refer to [ConfigServer Security & Firewall official documentation](https://download.configserver.com/csf/readme.txt).
+For instructions on how to use the CSF UI, please refer to [Sentinel Firewall official documentation](https://sentinelfirewall.org/docs/usage/introduction/).
 
 ![csf firewall](/img/admin/firewall_csf.png)
 
