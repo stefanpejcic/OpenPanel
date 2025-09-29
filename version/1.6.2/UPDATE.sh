@@ -8,10 +8,8 @@ wget -O /etc/csf/csf.pl https://raw.githubusercontent.com/sentinelfirewall/senti
 CRON_FILE="/etc/cron.d/openpanel"
 CRON_JOB='0 */4 * * * root /usr/local/bin/opencli files-calculate_resellers_storage && echo "$(date) Calculated storage usage for all reseller accounts" >> /var/log/openpanel/admin/cron.log'
 
-# Check if the cron job already exists
-if ! grep -Fxq "$CRON_JOB" "$CRON_FILE"; then
+if ! grep -Fxq "files-calculate_resellers_storage" "$CRON_FILE"; then
     if grep -q "^# STATISTICS" "$CRON_FILE"; then
-        # Insert after # STATISTICS
         awk -v job="$CRON_JOB" '
         BEGIN {added=0}
         {
@@ -23,7 +21,6 @@ if ! grep -Fxq "$CRON_JOB" "$CRON_FILE"; then
         }' "$CRON_FILE" > "${CRON_FILE}.tmp" && mv "${CRON_FILE}.tmp" "$CRON_FILE"
         echo "Cron job added after # STATISTICS."
     else
-        # Append to the end if # STATISTICS does not exist
         echo -e "\n# STATISTICS\n$CRON_JOB" >> "$CRON_FILE"
         echo "Cron job added at the end (no # STATISTICS section found)."
     fi
