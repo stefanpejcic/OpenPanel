@@ -33,6 +33,33 @@ const providers = [
     link: "https://hostigan.com",
     logo: "", // ssl error
   },
+  {
+    company: "WebDock",
+    location: "EU",
+    services: "VPS",
+    managedSupport: "Yes",
+    freeEnterprise: "Yes",
+    link: "https://webdock.io",
+    logo: "https://webdock.io/images/webdock-logo.svg",
+  },
+  {
+    company: "HostArmor",
+    location: "US",
+    services: "VPS, Shared",
+    managedSupport: "Yes",
+    freeEnterprise: "Yes",
+    link: "https://hostarmor.com",
+    logo: "https://hostarmor.com/images/logo.png",
+  },
+  {
+    company: "Virmach",
+    location: "US",
+    services: "VPS",
+    managedSupport: "No",
+    freeEnterprise: "No",
+    link: "https://virmach.com",
+    logo: "https://virmach.com/assets/images/logo.png",
+  },
 ];
 
 const HostingProvidersPage: React.FC = () => {
