@@ -40,7 +40,7 @@ const providers = [
     managedSupport: "Yes",
     freeEnterprise: "Yes",
     link: "https://webdock.io",
-    logo: "https://webdock.io/images/webdock-logo.svg",
+    logo: "",
   },
   {
     company: "HostArmor",
@@ -49,7 +49,7 @@ const providers = [
     managedSupport: "Yes",
     freeEnterprise: "Yes",
     link: "https://hostarmor.com",
-    logo: "https://hostarmor.com/images/logo.png",
+    logo: "https://hostarmor.com/assets/images/logoFile/logo-vector.png",
   },
   {
     company: "Virmach",
@@ -58,7 +58,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://virmach.com",
-    logo: "https://virmach.com/assets/images/logo.png",
+    logo: "https://virmach.com/wp-content/uploads/2022/11/logo.webp",
   },
   {
     company: "AltusHost",
