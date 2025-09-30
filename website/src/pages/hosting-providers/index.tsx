@@ -31,7 +31,7 @@ const providers = [
     managedSupport: "Yes",
     freeEnterprise: "Yes",
     link: "https://hostigan.com",
-    logo: "", // ssl error
+    logo: "https://client.hostigan.com/assets/img/logo.png",
   },
   {
     company: "WebDock",
