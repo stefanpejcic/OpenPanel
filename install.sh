@@ -650,7 +650,7 @@ setup_firewall_service() {
                 elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
                    debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
                 fi
-                timeout 60s git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
+                timeout 300s git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
                 mv csfpost-docker.sh/csfpost.sh /usr/local/csf/bin/csfpost.sh
                 chmod +x /usr/local/csf/bin/csfpost.sh
                 rm -rf csfpost-docker.sh
@@ -1018,7 +1018,7 @@ opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
 	[ "$REPAIR" = true ] && rm -rf /usr/local/opencli
-    timeout 60s git clone https://github.com/stefanpejcic/opencli.git
+    timeout 300s git clone https://github.com/stefanpejcic/opencli.git
 
 	if [ ! -d "/usr/local/opencli" ]; then
 	 	radovan 1 "Failed to clone OpenCLI from Github - please retry install with '--retry --debug' flags."
@@ -1187,7 +1187,7 @@ download_skeleton_directory_from_github() {
 	[ "$REPAIR" = true ] && rm -rf "$ETC_DIR"
 
     echo "Downloading configuration files to ${ETC_DIR}..."
-    timeout 60s git clone "$repo_url" "$ETC_DIR" >/dev/null 2>&1 || \
+    timeout 300s git clone "$repo_url" "$ETC_DIR" >/dev/null 2>&1 || \
         radovan 1 "Failed to clone OpenPanel Configuration from GitHub - retry with '--retry --debug'."
 
     [ -f "$CONFIG_FILE" ] || radovan 1 "Main configuration file ${CONFIG_FILE} is missing."
@@ -1459,7 +1459,7 @@ configure_coraza() {
 		debug_log mkdir -p /etc/openpanel/caddy/
 		debug_log wget --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
   		[ "$REPAIR" = true ] && rm -rf /etc/openpanel/caddy/coreruleset/
-		debug_log timeout 60s git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
+		debug_log timeout 300s git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
 	else
  		echo "Disabling CorazaWAF: setting caddy:latest docker image instead of openpanel/caddy-coraza"
 		sed -i 's|image: .*caddy.*|image: caddy:latest|' /root/docker-compose.yml
@@ -1479,7 +1479,7 @@ install_openadmin(){
     local branch="110"
     [ "$architecture" = "aarch64" ] && branch="armcpu"
 
-    timeout 60s git clone -b "$branch" --single-branch https://github.com/stefanpejcic/openadmin "$openadmin_dir" || {
+    timeout 300s git clone -b "$branch" --single-branch https://github.com/stefanpejcic/openadmin "$openadmin_dir" || {
         radovan 1 "Failed to clone OpenAdmin from Github - please retry install with '--retry --debug' flags."
     }
 
