@@ -76,7 +76,7 @@ install_started_message(){
     echo -e "\nStarting the installation of OpenPanel. This process will take approximately 3-5 minutes."
     echo -e "During this time, we will:"
     if [ "$SKIP_FIREWALL" = false ]; then
-    	echo -e "- Install necessary services and tools: CSF, Docker, MySQL, SQLite, Python3, PIP.. "
+    	echo -e "- Install necessary services and tools: Sentinel Firewall, Docker, MySQL, SQLite, Python3, PIP.. "
     else
 		echo -e "- Install necessary services and tools: Docker, MySQL, SQLite, Python3, PIP.. "
     fi
@@ -90,7 +90,7 @@ install_started_message(){
 		echo -e "- Create an admin account with random username and strong password for you."
     fi
     if [ "$SKIP_FIREWALL" = false ]; then
-    	echo -e "- Set up ConfigServer Firewall for enhanced security."
+    	echo -e "- Set up Sentinel Firewall for enhanced security."
     fi
 
     echo -e "- Set up 2 hosting plans so you can start right away."
@@ -229,13 +229,13 @@ detect_os_cpu_and_package_manager         # detect os and package manager
 display_what_will_be_installed            # display os, version, ip
 install_python
 update_package_manager                    # update dnf/yum/apt-get
-install_packages                          # install docker, csf, sqlite, etc.
+install_packages                          # install docker, sentinel, sqlite, etc.
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
 edit_fstab                                # enable quotas
 setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
-extra_step_on_hetzner                     # run it here, then csf install does docker restart later
+extra_step_on_hetzner                     # run it here, then sentinel install does docker restart later
 setup_redis_service                       # for redis container
 create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
@@ -248,7 +248,7 @@ enable_dev_mode                           # https://dev.openpanel.com/cli/config
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
-set_system_cronjob                        # setup crons, must be after csf
+set_system_cronjob                        # setup crons, must be after sentinel
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
 log_dirs                                  # for almalinux
@@ -349,7 +349,7 @@ parse_args() {
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
         echo "  --skip-apt-update               Skip the APT update."
-        echo "  --skip-firewall                 Skip installing CSF - Only do this if you will set another external firewall!"
+        echo "  --skip-firewall                 Skip installing Sentinel Firewall - Only do this if you will set another external firewall!"
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
@@ -631,17 +631,17 @@ tweak_ssh(){
 
 setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
-        echo "Installing ConfigServer Firewall & Security.."
+        echo "Installing Sentinel Firewall.."
 
         install_csf() {
-            wget --inet4-only https://raw.githubusercontent.com/stefanpejcic/sentinelfw/main/csf.tgz > /dev/null 2>&1
+            wget --inet4-only https://raw.githubusercontent.com/sentinelfirewall/sentinel/main/csf.tgz > /dev/null 2>&1
             debug_log tar -xzf csf.tgz
             rm csf.tgz
             cd csf
             sh install.sh > /dev/null 2>&1
             cd ..
             rm -rf csf
-            echo "Setting CSF auto-login from OpenAdmin interface.."
+            echo "Setting Sentinel UI auto-login from OpenAdmin interface.."
             if [ "$PACKAGE_MANAGER" == "dnf" ]; then
                 debug_log dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
                 # fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module)
@@ -721,9 +721,9 @@ setup_firewall_service() {
 
 
         if command -v csf > /dev/null 2>&1; then
-            echo -e "[${GREEN} OK ${RESET}] ConfigServer Firewall is installed and configured."
+            echo -e "[${GREEN} OK ${RESET}] Sentinel Firewall is installed and configured."
         else
-            echo -e "[${RED} X  ${RESET}] ConfigServer Firewall is not installed properly."
+            echo -e "[${RED} X  ${RESET}] Sentinel Firewall is not installed properly."
         fi
     fi
 }
