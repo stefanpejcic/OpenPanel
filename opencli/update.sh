@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 24.09.2025
+# Last Modified: 30.09.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -668,8 +668,12 @@ check_update() {
         else
             log_info "Update available and will be automatically installed"
         fi
+
+    (
+      flock -n 200 || { echo "[✘] Error: Update process is already running."; echo "Please wait for it to complete before retrying."; exit 1; }
+      run_update_immediately "$remote_version"
+    ) 200>/var/lock/openpanel_update.lock
         
-        run_update_immediately "$remote_version"
     else
         log_info "[✔] No update needed"
     fi
