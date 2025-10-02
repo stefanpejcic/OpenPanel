@@ -49,5 +49,5 @@ That's it! CSF/LFD will now send notifications to your specified email address.
 ---
 
 > **Note:** CSF/LFD is third-party software not developed or maintained by OpenPanel.
-> For support, please contact ConfigServer directly:
-> [https://configserver.com/technical-support/](https://configserver.com/technical-support/)
+> For support, please contact Sentinel Firewall directly:
+> [https://sentinelfirewall.org/](https://sentinelfirewall.org/)
