@@ -44,8 +44,8 @@ export const menuItems = [
                 href: "/enterprise/#compare",
             },
             {
-                label: "NOC Partners",
-                href: "/licenses-for-partners",
+                label: "Hosting Partners",
+                href: "/hosting-providers",
             },
             {
                 label: "Features",
