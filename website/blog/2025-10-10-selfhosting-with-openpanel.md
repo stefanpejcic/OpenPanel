@@ -66,4 +66,4 @@ Self-hosting with OpenPanel gives you control, flexibility, and cost predictabil
 
 If rising license fees or cloud lock-in have frustrated you, OpenPanel offers a modern, flexible way to take your digital infrastructure into your own hands.
 
-Ready to give it a try? [Install command gnerator](/install)
+Ready to give it a try? [Install command generator](/install)
