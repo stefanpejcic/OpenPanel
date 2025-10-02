@@ -9,7 +9,7 @@ Upon installing OpenPanel, only the following services are started:
 - **OpenAdmin** – For managing the entire server and users.
 - **Docker** – Needed for all other containerized services and user accounts.
 - **Database** – MySQL database is created and initialized. This database holds Plans, Websites, Domains, and Users.
-- **Firewall** – CSF is installed and started.
+- **Firewall** – [Sentinel Firewall](https://sentinelfirewall.org/) is installed and started.
 
 Other services are installed and started only when required.
 
@@ -18,7 +18,7 @@ Other services are installed and started only when required.
 | OpenAdmin              | ✔       | On installation            |
 | Docker                 | ✔       | On installation            |
 | Database               | ✔       | On installation            |
-| ConfigServer Firewall   | ✔       | On installation            |
+| Sentinel Firewall   | ✔       | On installation            |
 | OpenPanel              | ✘        | After adding first user account |
 | BIND9                  | ✘        | After adding first domain name  |
 | Certbot                  | ✘        | After adding first domain name  |
