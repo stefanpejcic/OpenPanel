@@ -70,7 +70,7 @@ Receive notifications when services are down or unresponsive. Services are check
 - **MySQL:** Notification if database is unreachable.
 - **Docker:** Notification if Docker service is down.
 - **BIND9:** Notification if DNS service is down or unresponsive.
-- **ConfigServer Firewall:** Notification if CSF is disabled.
+- **Sentinel Firewall:** Notification if Sentinel (CSF) is disabled.
 
 ---
 
