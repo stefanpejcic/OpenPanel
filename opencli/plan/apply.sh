@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 30.09.2025
+# Last Modified: 01.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -109,6 +109,9 @@ for container in "${usernames[@]}"; do
     echo "Processing user: $container ($counter/$totalc)"
     echo ""
 
+    output_dir="/etc/openpanel/openpanel/core/users"
+    docker_usage_file="$output_dir/$container/docker_usage.txt"
+
     get_current_plan_id "$container"
     current_plan_name=$(get_plan_name "$current_plan_id")
     new_plan_name=$(get_plan_name "$new_plan_id")
@@ -134,16 +137,37 @@ for container in "${usernames[@]}"; do
         if (( numNram > maxRAM )); then
             echo "- Memory: [ERROR] New RAM value exceeds server limit ($numNram > $maxRAM GB)."
         else
+            if [[ -f "$output_file" ]]; then
+                last_line=$(tail -n 1 "$output_file")
+                mem_usage=$(echo "$last_line" | grep -o '"MemUsage":"[^"]*"' | cut -d'"' -f4)
+                if [[ -n "$mem_usage" ]]; then
+                    mem_total=$(echo "$mem_usage" | awk -F'/' '{print $2}' | xargs)
+                    if [[ "$mem_total" == *GiB ]]; then
+                        mem_total_mib=$(echo "$mem_total" | sed 's/GiB//' | awk '{print $1 * 1024}')
+                    elif [[ "$mem_total" == *MiB ]]; then
+                        mem_total_mib=$(echo "$mem_total" | sed 's/MiB//')
+                    else
+                        mem_total_mib=0
+                    fi
+
+                    nram_mib=$(( numNram * 1024 ))
+
+                    if (( mem_total_mib > nram_mib )); then
+                        echo "- Memory: [WARN] Current combined limit (${mem_total_mib}MiB) for all running services is greater than new plan limit: ${nram_mib}MiB. Administrator needs to manually reduse service limits."
+                    fi
+                fi
+            fi
             sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${Nram}\"/" "/home/$server/.env"
             echo "- Memory: [OK] total limit changed to ${numNram}GB."
         fi
     fi
-
+    
     # CPU
     if ! $partial || $docpu; then
         if (( Ncpu > maxCPU )); then
             echo "- CPU: [ERROR] Number of cores exceeds those of server ($Ncpu > $maxCPU)."
         else
+            # TODO: check cpu core limits for running services
             sed -i "s/^TOTAL_CPU=\"[^\"]*\"/TOTAL_CPU=\"${Ncpu}\"/" "/home/$server/.env"
             echo "- CPU: [OK] limit set to ${Ncpu}"
         fi
