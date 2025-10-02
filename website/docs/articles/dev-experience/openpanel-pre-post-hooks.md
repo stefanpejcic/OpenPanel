@@ -15,7 +15,7 @@ To run a custom script before the user creation process (opencli *user-add*) you
 ````
 
 
-Another example to run *after* a domain is added**:
+Another example to run **after a domain is added**:
 
 When a user adds a new domain via the UI, the underlying command executed is:
 
