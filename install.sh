@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           01.10.2025
+# Last Modified:           02.10.2025
 #
 ################################################################################
 
@@ -319,7 +319,8 @@ check_requirements() {
 		check_condition '[ "$(uname)" = "Darwin" ]' "MacOS is not currently supported" true
 
 		# Check if running inside a container
-		check_condition '[[ -f /.dockerenv || $(grep -sq "docker\|lxc" /proc/1/cgroup) ]]' "running inside a container is not supported" false
+		check_condition '[[ -f /.dockerenv || -f /run/.containerenv || -n $(tr "\0" "\n" < /proc/1/environ | grep -i "^container=") || $(grep -Eq "docker|lxc|lxd|podman|containerd" /proc/1/cgroup) || -f /run/systemd/container ]]' \
+		    "running inside a container is not supported" false
 
 		# Check RAM
 		total_mb=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1024 ))
