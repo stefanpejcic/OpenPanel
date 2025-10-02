@@ -428,7 +428,7 @@ export const integrations: IntegrationsType = {
             name: "Firewall",
             icon: Firewall,
             description:
-                "Administrators can manage ConfigServer Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
+                "Administrators can manage Sentinel - a fork of the ConfigServer Security & Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
             url: "/docs/admin/security/firewall/",
             status: "stable",
         },
