@@ -60,7 +60,7 @@
         "real_name": "clamav"
     },
     {
-        "name": "ConfigServer Firewall",
+        "name": "Sentinel Firewall",
         "type": "system",
         "on_dashboard": true,
         "real_name": "csf"

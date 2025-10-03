@@ -5,7 +5,7 @@
 #              Use: opencli firewall-reset
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 01.10.2025
+# Last Modified: 02.10.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -34,11 +34,11 @@
 
 # Check for CSF
 if command -v csf >/dev/null 2>&1; then
-    echo "Checking ConfigServer Firewall configuration.."
+    echo "Checking Sentinel Firewall configuration.."
     echo ""
     FIREWALL="CSF"
 else
-    echo "Error: CSF is not installed, all user ports will be exposed to the internet, without any protection."
+    echo "Error: Sentinel Firewall is not installed, all user ports will be exposed to the internet, without any protection."
     exit 1
 fi
 

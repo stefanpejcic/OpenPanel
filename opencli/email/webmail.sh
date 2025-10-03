@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: 27.08.2024
 # Created: 18.08.2024
-# Last Modified: 01.10.2025
+# Last Modified: 02.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -266,7 +266,7 @@ function open_port_csf() {
         # Open port
       if [ "$DEBUG" = true ]; then
           echo ""
-          echo "Opening port on ConfigServer Firewall"
+          echo "Opening port on Sentinel Firewall"
           echo ""
           sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf"
           echo ""

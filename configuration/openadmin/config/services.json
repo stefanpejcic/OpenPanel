@@ -55,7 +55,7 @@
         "real_name": "ssh"
     },    
     {
-        "name": "ConfigServer Security & Firewall",
+        "name": "Sentinel Firewall",
         "type": "system",
         "real_name": "csf"
     }
