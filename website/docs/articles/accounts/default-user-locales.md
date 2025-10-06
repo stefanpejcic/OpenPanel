@@ -51,7 +51,7 @@ The user’s preference is stored in a per-user file:
 If the user hasn’t set a locale yet, OpenPanel checks the browser’s [`Accept-Language` header](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Accept-Language).
 If the preferred language is installed on the server, it will be temporarily applied for that session.
 
-> *NOTE**: This only affects the **current session** and does not persist as a user preference.
+> **NOTE**: This only affects the **current session** and does not persist as a user preference.
 > It overrides the Administrator’s default locale for that session only.
 
 Example header:
