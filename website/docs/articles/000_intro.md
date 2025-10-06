@@ -85,6 +85,7 @@ sidebar_position: 1
 - [Skip a specific version](/docs/articles/install-update/skip-specific-openpanel-version-update/)
 
 # Advanced
+- [Set Default User Locale](/docs/articles/accounts/default-user-locales/)
 - [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
 - [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
