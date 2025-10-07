@@ -63,7 +63,18 @@ else:
 
 
 
-# ======================================================================
+# ====================================================================== #
+# From version 1.6.3, we allow executing a custom script on startup
+CUSTOM_SCRIPT = "/root/openpanel_run_on_startup"
+if os.path.exists(CUSTOM_SCRIPT) and os.path.isfile(CUSTOM_SCRIPT):
+    print(f"Executing custom script: {CUSTOM_SCRIPT} with BASH.")
+    try:
+        subprocess.run(["bash", CUSTOM_SCRIPT], check=True)
+        print(f"Executed custom script successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing {CUSTOM_SCRIPT}: {e}")
+
+# ====================================================================== #
 # From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
 # we create a flag file (/root/openadmin_restart_needed) and remind the user via the GUI that a restart 
 # is needed to apply the changes. 
@@ -82,7 +93,7 @@ def empty_flag_file():
 
 empty_flag_file()
 
-# ======================================================================
+# ====================================================================== #
 # SSL
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
 CADDY_CERT_DIRS = [
