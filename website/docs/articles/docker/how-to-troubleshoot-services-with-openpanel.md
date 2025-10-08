@@ -12,7 +12,7 @@ To check logs go to Openpanel > Docker > Logs and select a container from the dr
 
 If the Docker feature is not enabled for your account contact your administrator so they can check further.
 
-# Troubleshooting service issues as an Administrator 
+## Troubleshooting service issues as an Administrator 
 
 Login to OpenAdmin on port 2087 , go to Users and click on an username start managing that account:
 
