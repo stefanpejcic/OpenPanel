@@ -37,6 +37,7 @@ php-fpm-8.1
 php-fpm-8.2
 php-fpm-8.3
 php-fpm-8.4
+php-fpm-8.5
 phpmyadmin
 podman
 postgres

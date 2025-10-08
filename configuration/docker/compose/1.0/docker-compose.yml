@@ -40,6 +40,7 @@ services:
       - ./php.ini/8.2.ini:/usr/local/lsws/lsphp82/etc/php/8.2/litespeed/php.ini
       - ./php.ini/8.3.ini:/usr/local/lsws/lsphp83/etc/php/8.3/litespeed/php.ini
       - ./php.ini/8.4.ini:/usr/local/lsws/lsphp84/etc/php/8.4/litespeed/php.ini
+      - ./php.ini/8.5.ini:/usr/local/lsws/lsphp84/etc/php/8.5/litespeed/php.ini
     deploy:
       resources:
         limits:
@@ -763,6 +764,40 @@ services:
         limits:
           cpus: "${PHP_FPM_8_4_CPU:-0.125}"
           memory: "${PHP_FPM_8_4_RAM:-0.25G}"
+          pids: 100
+    networks:
+      - www
+      - db
+    command: php-fpm --allow-to-run-as-root
+
+
+     
+  php-fpm-8.5:
+    image: shinsenter/php:8.5-fpm
+    container_name: php-fpm-8.5
+    restart: unless-stopped
+    volumes:
+      - html_data:/var/www/html/
+      - ./php.ini/8.5.ini:/usr/local/etc/php/php.ini
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+    environment:
+      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_5_ENABLE_OPCACHE:-true}
+      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_5_PHP_MAX_EXECUTION_TIME:-600}
+      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_5_PHP_MAX_INPUT_TIME:-600}
+      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_5_PHP_MAX_INPUT_VARS:-1000}
+      - PHP_MEMORY_LIMIT=${PHP_FPM_8_5_PHP_MEMORY_LIMIT:-512M}
+      - PHP_POST_MAX_SIZE=${PHP_FPM_8_5_PHP_POST_MAX_SIZE:-512M}
+      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_5_PHP_UPLOAD_MAX_FILESIZE:-256M}
+      - APP_USER=root
+      - APP_GROUP=root
+      - APP_UID=${USER_ID:-0}
+      - APP_GID=${USER_ID:-0}
+      - ENABLE_TUNING_FPM=1
+    deploy:
+      resources:
+        limits:
+          cpus: "${PHP_FPM_8_5_CPU:-0.125}"
+          memory: "${PHP_FPM_8_5_RAM:-0.25G}"
           pids: 100
     networks:
       - www
