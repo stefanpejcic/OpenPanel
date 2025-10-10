@@ -801,10 +801,10 @@ const tableData = [
             {
                 description: "OpenLitespeed",
                 community: <CrossIcon />,
-                enterprise: <TableText>BETA</TableText>,
+                enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
-                    enterprise: "text",
+                    enterprise: "icon",
                 },
             },
             {
