@@ -30,7 +30,7 @@ export const CommonFooter = () => {
                 >
 
                 <a
-                    href={href}
+                    href="https://pejcic.rs/?utm_src=openpanel.com/docs"
                     target="_blank"
                     className={clsx(
                         "no-underline",
