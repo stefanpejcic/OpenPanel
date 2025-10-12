@@ -7,6 +7,7 @@ import Link from "@docusaurus/Link";
 import { RefineLogoSingleIcon } from "./icons/refine-logo-single";
 
 export const LandingFooter = () => {
+    const currentYear = new Date().getFullYear();    
     const info = (
         <div
             className={clsx(
@@ -318,7 +319,7 @@ export const LandingFooter = () => {
                         )}
                     >
                         {
-                            "© 2025, OpenPanel  - made with  "
+                            "© {`${currentYear}`}, OpenPanel - made with  "
                         }
                         <HeartOutlinedIcon
                             className={clsx(
@@ -327,7 +328,7 @@ export const LandingFooter = () => {
                                 "inline",
                                 "leading-5",
                             )}
-                        />
+                        />                    
                     </div>
                 </div>
             </div>
