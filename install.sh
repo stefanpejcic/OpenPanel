@@ -924,9 +924,19 @@ install_packages() {
 					}	
   
 				else
-					$PACKAGE_MANAGER install -y "$package" || {
-						radovan 1 "ERROR: Installation failed. Please retry installation with '--repair' flag."
-					}
+				  local MAX_RETRIES=10
+				  local RETRY_DELAY=30
+				  local attempt=1
+				
+				  until $PACKAGE_MANAGER install -y "$package"; do
+				      echo "⚠️  Attempt $attempt/$MAX_RETRIES to install '$package' failed."
+				      if [ "$attempt" -ge "$MAX_RETRIES" ]; then
+				          radovan 1 "ERROR: Installation failed after $MAX_RETRIES attempts. Please retry installation with '--repair' flag."
+				      fi
+				      echo "Retrying in $RETRY_DELAY seconds..."
+				      sleep $RETRY_DELAY
+				      ((attempt++))
+				  done
 				fi
              }
         else
