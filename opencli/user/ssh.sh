@@ -5,7 +5,7 @@
 # Usage: opencli user-ssh <check|enable|disable> <username>
 # Author: Stefan Pejcic
 # Created: 15.05.2024
-# Last Modified: 05.10.2025
+# Last Modified: 15.10.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 

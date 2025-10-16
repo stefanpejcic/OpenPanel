@@ -5,7 +5,7 @@
 # Usage: opencli admin <setting_name> 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 05.10.2025
+# Last Modified: 15.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -238,49 +238,57 @@ add_new_user() {
 }
 
 
-# Sets max accounts and plans for reseller account
 update_reseller_account() {
-    local username="$1"
-    local allowed_plans="$2"
-    local max_accounts="$3"
-	local max_disk_blocks="$4"
-    local resellers_dir="/etc/openpanel/openadmin/resellers"
-    local reseller_file="$resellers_dir/$username.json"
+    local username=""
+    local allowed_plans=""
+    local max_accounts=""
+    local max_disk_blocks=""
 
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --allowed_plans=*) allowed_plans="${1#*=}" ;;
+            --max_accounts=*) max_accounts="${1#*=}" ;;
+            --max_disk_blocks=*) max_disk_blocks="${1#*=}" ;;
+            *) 
+                if [[ -z "$username" ]]; then
+                    username="$1"
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    # Defaults
+    [[ -z "$max_accounts" ]] && max_accounts=0
+    [[ -z "$max_disk_blocks" ]] && max_disk_blocks=0
+
+    # Normalize allowed_plans
+    if [[ -z "$allowed_plans" || "$allowed_plans" == "[]" ]]; then
+        plans_json="[]"
+    elif [[ "$allowed_plans" =~ ^\[.*\]$ ]]; then
+        plans_json="$allowed_plans"
+    else
+        IFS=',' read -r -a plans_array <<< "$allowed_plans"
+        plans_json=$(printf '%s\n' "${plans_array[@]}" | jq -R . | jq -s .)
+    fi
+
+    local reseller_file="/etc/openpanel/openadmin/resellers/$username.json"
     if [[ ! -f "$reseller_file" ]]; then
         echo "Error: Reseller file $reseller_file not found!"
         return 1
     fi
 
-    if [[ -z "$max_accounts" ]]; then
-        max_accounts=0
-    fi
-	
-    if [[ -z "$max_disk_blocks" ]]; then
-        max_disk_blocks=0
-    fi
-
-    allowed_plans="${allowed_plans%,}"
-
-    if [[ -n "$allowed_plans" ]]; then
-        IFS=',' read -r -a plans_array <<< "$allowed_plans"
-        plans_json=$(printf '%s\n' "${plans_array[@]}" | jq -R . | jq -s .)
-    else
-        plans_json="[]"
-    fi
-
-    #jq --arg max_accounts "$max_accounts" --argjson allowed_plans "$plans_json" \
-    #   '.max_accounts = $max_accounts | .allowed_plans = $allowed_plans' \
-    #   "$reseller_file" > "$reseller_file.tmp" && mv "$reseller_file.tmp" "$reseller_file"
-
-	jq --argjson max_accounts "$max_accounts" \
-	   --argjson allowed_plans "$plans_json" \
-	   --argjson max_disk_blocks "$max_disk_blocks" \
-	   '.max_accounts = $max_accounts | .allowed_plans = $allowed_plans | .max_disk_blocks = $max_disk_blocks' \
-	   "$reseller_file" > "$reseller_file.tmp" && mv "$reseller_file.tmp" "$reseller_file"
+    jq \
+        ".max_accounts = $max_accounts
+         | .allowed_plans = $plans_json
+         | .max_disk_blocks = $max_disk_blocks" \
+        "$reseller_file" > "$reseller_file.tmp" && mv "$reseller_file.tmp" "$reseller_file"
 
     echo "Reseller $username updated successfully."
 }
+
+
 
 
 
