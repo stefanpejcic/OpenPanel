@@ -319,7 +319,7 @@ export const LandingFooter = () => {
                         )}
                     >
                         {
-                            "© {`${currentYear}`}, OpenPanel - made with  "
+                            `© ${currentYear}, OpenPanel - made with  `
                         }
                         <HeartOutlinedIcon
                             className={clsx(
