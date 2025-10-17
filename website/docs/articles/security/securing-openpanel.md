@@ -29,7 +29,7 @@ For Website Administrators (OpenPanel):
 - [Fix Files Permissions](/docs/panel/files/fix_permissions/)
 - [Scan website files for Malware](/docs/panel/files/malware-scanner/)
 - [Suspend a Compromised Website](/docs/panel/domains/suspend/)
-- [Setting up Multi-Factor Authentication in OpenPanel](docs/panel/account/2fa/)
+- [Setting up Multi-Factor Authentication in OpenPanel](/docs/panel/account/2fa/)
 - [Configure Automatic SSL](/docs/panel/domains/ssl/#autossl)
 - [Reviewing Account activity log](/docs/panel/account/account_activity/)
 - [Reviewing Active Sessions](/docs/panel/account/active_sessions/)
