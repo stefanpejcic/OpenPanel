@@ -2,12 +2,12 @@
 ################################################################################
 # Script Name: domains/whoowns.sh
 # Description: Check which username owns a certain domain name.
-# Usage: opencli domains-whoowns <DOMAIN-NAME> [--context]
+# Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 15.10.2025
-# Company: openpanel.co
-# Copyright (c) openpanel.co
+# Last Modified: 16.10.2025
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,24 +33,19 @@ source /usr/local/opencli/db.sh
 
 # Function to fetch the owner username of a domain
 get_domain_owner() {
-    local domain="$1"
-    
-    # Check if the config file exists
+  
     if [ ! -f "$config_file" ]; then
         echo "Config file $config_file not found."
         exit 1
     fi
     
-    # Query to fetch the user_id for the specified domain
-    user_id_query="SELECT user_id FROM domains WHERE domain_url = '$domain'"
-    
-    # Execute the query and fetch the user_id
-    user_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_id_query" -sN)
+    user_id_query="SELECT user_id, docroot FROM domains WHERE domain_url = '$domain'"
+    read user_id docroot <<< $(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_id_query" -sN)
 
     if [ -z "$user_id" ]; then
         echo "Domain '$domain' not found in the database."
     else
-        if [ "$context" = "--context" ]; then
+        if $context_flag; then
             query="SELECT username, server FROM users WHERE id = '$user_id'"
             user_info=$(mysql -se "$query")
             # Extract user_id and context from the result
@@ -60,9 +55,12 @@ get_domain_owner() {
             if [ -z "$context" ]; then
                 echo "Error, no context '$user_id'."
             else
-                echo "$username $context"
+                if $docroot_flag; then
+                    echo "$username $context $docroot"
+                else
+                    echo "$username $context"
+                fi
             fi
-                    
         else
             query="SELECT username FROM users WHERE id = '$user_id'"
             username=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN)
@@ -70,22 +68,43 @@ get_domain_owner() {
             if [ -z "$username" ]; then
                 echo "User does not exist with that ID '$user_id'."
             else
-                echo "Owner of '$domain': $username"
+                if $docroot_flag; then
+                    echo "Owner of '$domain': $username | docroot: $docroot"
+                else
+                    echo "Owner of '$domain': $username"
+                fi
             fi
            
         fi
     fi
 }
 
-# Check for the domain argument
-if [ $# -lt 1 ] || [ $# -gt 2 ]; then
-    echo "Usage: opencli domains-whoowns <domain_name> [--context]"
+
+if [ $# -lt 1 ] || [ $# -gt 3 ]; then
+    echo "Usage: opencli domains-whoowns <domain_name> [--docroot] [--context]"
     exit 1
 fi
 
-# Get the domain name from the command line argument
-domain_name="$1"
-context="$2"
+docroot_flag=false
+context_flag=false
+domain="$1"
 
-# Call the function to fetch the owner of the domain
-get_domain_owner "$domain_name" "$context"
+shift
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --docroot)
+            docroot_flag=true
+            ;;
+        --context)
+            context_flag=true
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Usage: opencli domains-whoowns <domain_name> [--docroot] [--context]"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+get_domain_owner

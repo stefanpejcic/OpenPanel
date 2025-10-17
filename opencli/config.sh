@@ -6,7 +6,7 @@
 #        opencli config update <setting_name> <new_value>
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 15.10.2025
+# Last Modified: 16.10.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 

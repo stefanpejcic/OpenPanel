@@ -5,7 +5,7 @@
 # Usage: opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
 # Author: Stefan Pejcic
 # Created: 10.02.2025
-# Last Modified: 15.10.2025
+# Last Modified: 16.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
