@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           15.10.2025
+# Last Modified:           17.10.2025
 #
 ################################################################################
 
@@ -160,7 +160,7 @@ set_version_to_install() {
             PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+')
         fi
 
-        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="1.6.1"
+        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="1.6.3"
     fi
 }
 
