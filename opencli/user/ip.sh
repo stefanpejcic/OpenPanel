@@ -225,19 +225,19 @@ edit_domain_files "$ip_to_use"
 update_firewall_rules
 
 if [ "$ACTION" == "delete" ]; then
-    local json_file="$JSON_FILE_BASE/$USERNAME/ip.json"
+    json_file="$JSON_FILE_BASE/$USERNAME/ip.json"
     if [ -f "$json_file" ]; then
         rm -rf "$json_file"
     fi
     echo "IP successfully changed for user $USERNAME to shared IP address: $ip_to_use"
+    drop_redis_cache 
 else
-    create_ip_file "$IP"   
-fi
-
-if [ $? -eq 0 ]; then
-    echo "IP successfully changed for user $USERNAME to dedicated IP address: $ip_to_use"
-    drop_redis_cache
-else
-    echo "Failed to set dedicated IP address for user $USERNAME."
-    exit 1
+    create_ip_file "$IP"
+    if [ $? -eq 0 ]; then
+        echo "IP successfully changed for user $USERNAME to dedicated IP address: $ip_to_use"
+        drop_redis_cache
+    else
+        echo "Failed to set dedicated IP address for user $USERNAME."
+        exit 1
+    fi
 fi
