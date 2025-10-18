@@ -81,7 +81,6 @@ export const MENU_ITEMS: MenuItemType[] = [
     isPopover: false,
     label: "Live Demo",
     href: "/demo",
-    icon: NewBadgeIcon,
   },
   {
     isPopover: false,
