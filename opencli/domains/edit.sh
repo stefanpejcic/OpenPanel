@@ -5,7 +5,7 @@
 # Usage: opencli domains-edit <DOMAIN_NAME>
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 16.10.2025
+# Last Modified: 17.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -69,8 +69,7 @@ else
     DOCROOT_PATH=${DOCROOT#/var/www/html/}
     FINAL_PATH="/home/${CONTEXT}/docker-data/volumes/${CONTEXT}_html_data/_data/${DOCROOT_PATH}"
     if [ -d "$FINAL_PATH" ]; then
-        cd "$FINAL_PATH" || exit
-        echo "Changed directory to: $FINAL_PATH"
+        echo "Directory: $FINAL_PATH"
     else
         echo "ERROR: Directory does not exist: $FINAL_PATH"
         exit 1

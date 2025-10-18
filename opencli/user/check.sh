@@ -5,7 +5,7 @@
 # Usage: opencli user-check <USERNAME>
 # Author: Stefan Pejcic
 # Created: 26.07.2025
-# Last Modified: 16.10.2025
+# Last Modified: 17.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
