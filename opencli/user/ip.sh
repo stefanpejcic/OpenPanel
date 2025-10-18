@@ -225,7 +225,7 @@ edit_domain_files "$ip_to_use"
 update_firewall_rules
 
 if [ "$ACTION" == "delete" ]; then
-    local json_file="$JSON_FILE_BASE/$USERNAME/ip.json"
+    json_file="$JSON_FILE_BASE/$USERNAME/ip.json"
     if [ -f "$json_file" ]; then
         rm -rf "$json_file"
     fi
