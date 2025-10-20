@@ -37,58 +37,79 @@ export type MenuItemType = NavbarPopoverItemType | NavbarItemType;
 export const MENU_ITEMS: MenuItemType[] = [
     {
         isPopover: true,
-        label: "Products",
+        label: "Resources",
         items: [
-            {
-                label: "Community Edition",
-                description: "Free web hosting panel for VPS and self-hosting.",
-                link: "/install",
-                icon: ExamplesIcon,
-            },
-            {
-                label: "Enterprise Edition",
-                description: "Premium server control panel for shared hosting.",
-                link: "/enterprise",
-                icon: IntegrationsIcon,
-            },
+          {
+            label: "Documentation",
+            description: "Everything you need to get started.",
+            link: "/docs/",
+            icon: DocumentsIcon,
+          },
+          {
+            label: "How-to Guides",
+            description: "How to customize OpenPanel.",
+            link: "/docs/",
+            icon: TutorialIcon,
+          },
+          {
+            label: "Features",
+            description: "Discover OpenPanel features.",
+            link: "/features/",
+            icon: AwesomeIcon,
+          },
+          {
+            label: "Changelog",
+            description: "New features and bug fixes.",
+            link: "/changelog/",
+            icon: IntegrationsIcon,
+          },
+          {
+            label: "Forums",
+            description: "Join our growing community!",
+            link: "https://community.openpanel.org/",
+            icon: ContributeIcon,
+          },
+          {
+            label: "Blog",
+            description: "Articles about Linux and server stuff.",
+            link: "/blog",
+            icon: BlogIcon,
+          },
         ],
-    },
+      },
     {
        isPopover: false,
        label: "Features",
        href: "/features",
-   icon: NewBadgeIcon,
     },
     {
        isPopover: false,
        label: "Live Demo",
        href: "/demo",
-   icon: NewBadgeIcon,
+       icon: NewBadgeIcon,
     },
-    {
-        isPopover: true,
-        label: "Community",
-        items: [
-            {
-                label: "Documentation",
-                description: "Everything you need to get started.",
-                link: "/docs/",
-                icon: DocumentsIcon,
-            },
-            {
-                label: "Forums",
-                description: "Join our growing community!",
-                link: "https://community.openpanel.com/",
-                icon: ContributeIcon,
-            },
-            {
-                label: "Translations",
-                description: "Help us improve OpenPanel!",
-                link: "https://github.com/stefanpejcic/openpanel-translations",
-                icon: HackathonsIcon,
-            },
-        ],
-    },
+  {
+    isPopover: true,
+    label: "Enterprise",
+    items: [
+      {
+        label: "OpenPanel Enterprise",
+        description: "Fixed pricing at 14.95€ monthly.",
+        link: "/enterprise/",
+        icon: StoreIcon,
+      },
+      {
+        label: "Hosting Providers",
+        description: "Hosting providers ❤️ OpenPanel.",
+        link: "/hosting-providers",
+        icon: ExamplesIcon,
+      },
+      {
+        label: "Contact us",
+        description: "Call us for any questions",
+        link: "mailto:info@openpanel.com",
+        icon: MeetIcon,
+      },
   //  {
    //     isPopover: true,
   //      label: "Company",
