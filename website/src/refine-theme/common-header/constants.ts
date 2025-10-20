@@ -55,8 +55,14 @@ export const MENU_ITEMS: MenuItemType[] = [
     },
     {
        isPopover: false,
-       label: "Enterprise",
-       href: "/beta",
+       label: "Features",
+       href: "/features",
+   icon: NewBadgeIcon,
+    },
+    {
+       isPopover: false,
+       label: "Live Demo",
+       href: "/demo",
    icon: NewBadgeIcon,
     },
     {
@@ -72,7 +78,7 @@ export const MENU_ITEMS: MenuItemType[] = [
             {
                 label: "Forums",
                 description: "Join our growing community!",
-                link: "https://community.openpanel.co/",
+                link: "https://community.openpanel.com/",
                 icon: ContributeIcon,
             },
             {
