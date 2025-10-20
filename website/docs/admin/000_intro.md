@@ -16,11 +16,12 @@ Minimum Requirements:
 - IPv4 address
 
 Supported operating systems:
-- **![ubuntu](/img/os/ubuntu.png) Ubuntu 24.04** (recommended)
-- **![debian](/img/os/debian.png) Debian 10, 11, 12, 13**
-- **![almaLinux](/img/os/almalinux.png) AlmaLinux 9.5 and 10** (recommended for ARM cpu)
-- **![rockyLinux](/img/os/rockylinux.png) RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
-- **![centos](/img/os/centos.png) CentOS 9.5**
+- **<img src="/img/os/ubuntu.png" alt="ubuntu" width="20" /> Ubuntu 24.04** (recommended)
+- **<img src="/img/os/debian.png" alt="debian" width="20" /> Debian 10, 11, 12, 13**
+- **<img src="/img/os/almalinux.png" alt="almaLinux" width="20" /> AlmaLinux 9.5 and 10** (recommended for ARM CPU)
+- **<img src="/img/os/rockylinux.png" alt="rockyLinux" width="20" /> RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
+- **<img src="/img/os/centos.png" alt="centos" width="20" /> CentOS 9.5**
+
 
 :::info
 If you are using external firewall, the following ports should be opened:  `25` `53` `80` `443` `465` `993` `2083` `2087` `32768:60999`
