@@ -80,7 +80,7 @@ const Integrations: React.FC = () => {
                         "text-xl sm:text-[40px] sm:leading-[56px]",
                     )}
                 >
-		The features you need to build exactly what you want.
+		Not quite what you would expect from a Control Panel
                 </div>
                 <div
                     className={clsx(
@@ -90,7 +90,17 @@ const Integrations: React.FC = () => {
                         "mt-4 sm:mt-8",
                     )}
                 >
-		Tailored for today's hosts, OpenPanel provides a comprehensive set of tools and features you need to build and scale a cluster to meet your needs.
+					OpenPanel is arguebly the most customizable web hosting control panel.
+                </div>
+                <div
+                    className={clsx(
+                        "font-semibold",
+                        "text-gray-700 dark:text-gray-300",
+                        "text-xs sm:text-base",
+                        "mt-2 sm:mt-4",
+                    )}
+                >
+					Assign different mysql versions, web servers, and limits per user, let them run Docker containers, manage backups, schedule cron jobs in seconds, tweak configurations, and so much more.
                 </div>
             </div>
 
@@ -101,27 +111,25 @@ const Integrations: React.FC = () => {
                 )}
             />
 
-            <Title>Web servers</Title>
+            <Title>Web server per user</Title>
             <List data={uiPackages} />
 
-            <Title className="mt-20">User services</Title>
+            <Title className="mt-20">All the classic features</Title>
             <List data={dataProviderPackages} />
 
-            <Title className="mt-20">
-                Server management
-            </Title>
+            <Title className="mt-20">Smarter srver management</Title>
             <List data={communityDataProviderPackages} />
 
-            <Title className="mt-20">User interface</Title>
+            <Title className="mt-20">No BS user interface</Title>
             <List data={frameworks} />
 
-            <Title className="mt-20">User management</Title>
+            <Title className="mt-20">Manage users easily</Title>
             <List data={integrations} />
 
-            <Title className="mt-20">Security</Title>
+            <Title className="mt-20">Built-in isolation and security</Title>
             <List data={liveProviders} />
 
-            <Title className="mt-20">Integrations</Title>
+            <Title className="mt-20">Integrate your billing panel</Title>
             <List data={communityPackages} />
         </IntegrationsLayout>
     );
