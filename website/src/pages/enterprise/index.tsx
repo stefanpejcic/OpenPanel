@@ -25,7 +25,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.">
+            <CommonLayout description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div
