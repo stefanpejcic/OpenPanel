@@ -63,7 +63,7 @@ root@openpanel:~# docker logs -f openpanel_mysql
 
 In this example, error is: *Another process with pid 60 is using unix socket file.*
 
-[Googling the error](https://stackoverflow.com/questions/36103721/docker-db-container-running-another-process-with-pid-id-is-using-unix-socket) we get the solution: `cd /root && docker compose down --volumes` **NOTE: this will remove all existing mysql data including users, plans, domains.. only run it on a fresh installation, ie. if this mysql error occurs after installing openpanel.
+[Googling the error](https://stackoverflow.com/questions/36103721/docker-db-container-running-another-process-with-pid-id-is-using-unix-socket) we get the solution: `cd /root && docker compose down --volumes` **NOTE: this will remove all existing mysql data including users, plans, domains.. only run it on a fresh installation, ie. if this mysql error occurs after installing openpanel**.
 
 * Copy any error messages and search online. Common issues include:
 
