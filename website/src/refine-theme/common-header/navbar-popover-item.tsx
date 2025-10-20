@@ -82,16 +82,16 @@ export const NavbarPopoverItem: React.FC<NavbarPopoverItemProps> = ({
                         <Popover.Panel
                             className={clsx("absolute", "z-50", "top-12", {
                                 "-left-32 center-point":
-                                    item.label === "Community" ||
+                                    item.label === "Enterprise" ||
                                     item.label === "Company",
-                                "left-point": item.label === "Products",
+                                "left-point": item.label === "Resources",
                             })}
                         >
                             <PointIcon
                                 id={item.label}
                                 className={clsx("absolute", "top-[-9px]", {
-                                    "left-1/2": item.label !== "Products",
-                                    "left-12": item.label === "Products",
+                                    "left-1/2": item.label !== "Resources",
+                                    "left-12": item.label === "Resources",
                                 })}
                                 style={{ transform: "translateX(-50%)" }}
                             />
