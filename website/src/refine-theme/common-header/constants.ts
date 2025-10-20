@@ -48,7 +48,7 @@ export const MENU_ITEMS: MenuItemType[] = [
       {
         label: "How-to Guides",
         description: "How to customize OpenPanel.",
-        link: "/docs/",
+        link: "/docs/articles/intro/",
         icon: TutorialIcon,
       },
       {
@@ -60,7 +60,7 @@ export const MENU_ITEMS: MenuItemType[] = [
       {
         label: "Changelog",
         description: "New features and bug fixes.",
-        link: "/changelog/",
+        link: "/docs/changelog/intro/",
         icon: IntegrationsIcon,
       },
       {
