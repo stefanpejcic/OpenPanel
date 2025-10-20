@@ -15,12 +15,12 @@ Minimum Requirements:
 - AMD64(x86_64) or ARM(AArch64) architecture
 - IPv4 address
 
-Supported OS:
-- **Ubuntu 24.04** (recommended)
-- **Debian 10, 11, 12, 13**
-- **AlmaLinux 9.5 and 10** (recommended for ARM cpu)
-- **RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
-- **CentOS 9.5**
+Supported operating systems:
+- **![ubuntu](/img/os/ubuntu.png) Ubuntu 24.04** (recommended)
+- **![debian](/img/os/debian.png) Debian 10, 11, 12, 13**
+- **![almaLinux](/img/os/almaLinux.png) AlmaLinux 9.5 and 10** (recommended for ARM cpu)
+- **![rockyLinux](/img/os/rockyLinux.png) RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
+- **![centos](/img/os/centos.png) CentOS 9.5**
 
 :::info
 If you are using external firewall, the following ports should be opened:  `25` `53` `80` `443` `465` `993` `2083` `2087` `32768:60999`
