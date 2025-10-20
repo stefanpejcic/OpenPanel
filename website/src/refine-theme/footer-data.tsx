@@ -44,8 +44,9 @@ export const menuItems = [
                 href: "/enterprise/#compare",
             },
             {
-                label: "Hosting Partners",
-                href: "/hosting-providers",
+                label: "NOC Pricing",
+                icon: <NewBadgeIcon />,
+                href: "/licenses-for-partners",
             },
             {
                 label: "Features",
@@ -66,8 +67,12 @@ export const menuItems = [
         ],
     },
     {
-        label: "About",
+        label: "Company",
         items: [
+            {
+                label: "About",
+                href: "/about",
+            },
             {
                 label: "Blog",
                 href: "/blog",
