@@ -18,8 +18,8 @@ Minimum Requirements:
 Supported operating systems:
 - **![ubuntu](/img/os/ubuntu.png) Ubuntu 24.04** (recommended)
 - **![debian](/img/os/debian.png) Debian 10, 11, 12, 13**
-- **![almaLinux](/img/os/almaLinux.png) AlmaLinux 9.5 and 10** (recommended for ARM cpu)
-- **![rockyLinux](/img/os/rockyLinux.png) RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
+- **![almaLinux](/img/os/almalinux.png) AlmaLinux 9.5 and 10** (recommended for ARM cpu)
+- **![rockyLinux](/img/os/rockylinux.png) RockyLinux 9.6, 10** (*On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)*)
 - **![centos](/img/os/centos.png) CentOS 9.5**
 
 :::info
