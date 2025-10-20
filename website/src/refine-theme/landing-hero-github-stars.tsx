@@ -11,7 +11,6 @@ export const LandingHeroGithubStars = () => {
                 const response = await fetch('https://usage-api.openpanel.org/latest_version');
                 const data = await response.json();
 
-                // Our Worker returns { latest_version: "X.Y.Z" }
                 if (data && data.latest_version) {
                     setVersion(data.latest_version);
                 }
@@ -108,9 +107,9 @@ export const LandingHeroGithubStars = () => {
                     )}
                 >
                     <span className="font-semibold">
-                        OpenPanel <span>{version}</span>
+                        latest version <span>{version}</span>
                     </span>{" "}
-                    <span>is out</span>
+                    <span>- view the changelog</span>
                 </span>
             </div>
         </a>
