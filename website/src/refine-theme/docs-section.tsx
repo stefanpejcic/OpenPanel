@@ -84,7 +84,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    OpenPanel offers a robust interface for end-users aiming to simplify the complexities of web and server management.
+                    OpenPanel is the end-user panel from which clients manage their domains, websites, services, emails, etc.
                 </p>
 
                 <p
@@ -96,7 +96,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    From adding domains to managing your websites, our documentation covers everything you need to seamlessly navigate through the interface.
+                    Documentation is intended for end-users that have only access to the OpenPanel interface (by default running on port 2083).
                 </p>
 		    
                         <Link
@@ -162,7 +162,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			OpenAdmin is tailored for administrators seeking fine-grained control over server configurations and management.
+			OpenAdmin is the root-level panel from which Administrators and Resellers manage he server and their users.
 		    </p>
                     <p
                         className={clsx(
@@ -172,7 +172,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			Our documentation provides in-depth knowledge to help you customize and secure your server environment.
+			Documentation is intended for Administrators and support teams that have access to OpenAdmin panel (by default running on port 2087).
 		    </p>
                         <Link
                             to="/docs/admin/intro/"
