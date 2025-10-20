@@ -22,7 +22,7 @@ export const Menu: React.FC = () => {
                             key={`navbar-${item.label}`}
                             item={item}
                         >
-                            {item.label === "Products" && (
+                            {item.label === "Resources" && (
                                 <>
                                     <div
                                         className={clsx(
@@ -66,7 +66,7 @@ export const Menu: React.FC = () => {
                                 </>
                             )}
 
-                            {item.label === "Community" && (
+                            {item.label === "Enterprise" && (
                                 <>
                                     <div
                                         className={clsx(
