@@ -59,7 +59,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "text-gray-900 dark:text-gray-0",
                             )}
                         >
-			<span class="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">Next Generation</span> Hosting Panel
+			<span class="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">Container-Driven</span>  Web Hosting Panel
                         </h1>
                         <p
                             className={clsx(
@@ -69,7 +69,18 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "landing-xs:max-w-[384px]",
                             )}
                         >
-Deliver a VPS-like experience to your users at a fraction of the cost, with all-inclusive features such as resource limiting, and enhanced security seamlessly integrated for worry-free hosting.                        </p>
+							OpenPanel is a multi-user web hosting panel designed around Docker containers. Each user gets their own isolated environment, including separate MySQL server, PHP versions, Redis, and more.
+						</p>
+                        <p
+                            className={clsx(
+                                "font-normal",
+                                "text-base",
+                                "text-gray-600 dark:text-gray-300",
+                                "landing-xs:max-w-[384px]",
+                            )}
+                        >
+							Try the free Community Edition with command:
+						</p>
                     </div>
                     <div
                         className={clsx(
