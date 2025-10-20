@@ -41,14 +41,14 @@ export const MENU_ITEMS: MenuItemType[] = [
         items: [
             {
                 label: "Community Edition",
-                description: "Free web hosting panel for VPS and private use.",
-                link: "/product/openpanel-free-control-panel",
+                description: "Free web hosting panel for VPS and self-hosting.",
+                link: "/install",
                 icon: ExamplesIcon,
             },
             {
                 label: "Enterprise Edition",
                 description: "Premium server control panel for shared hosting.",
-                link: "/product/openpanel-premium-control-panel",
+                link: "/enterprise",
                 icon: IntegrationsIcon,
             },
         ],
