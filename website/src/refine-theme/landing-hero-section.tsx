@@ -15,10 +15,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                 "flex",
                 "flex-col",
                 "w-full",
-                "gap-4",
-                "landing-sm:gap-12",
-                "landing-md:gap-[59px]",
-                "landing-lg:gap-20",
+                "gap-2",
                 className,
             )}
         >
