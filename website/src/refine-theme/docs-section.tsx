@@ -162,7 +162,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			OpenAdmin is the root-level panel from which Administrators and Resellers manage he server and their users.
+			OpenAdmin is the root-level panel from which Administrators and Resellers manage the server and their users.
 		    </p>
                     <p
                         className={clsx(
