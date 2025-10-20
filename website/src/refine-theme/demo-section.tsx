@@ -52,7 +52,7 @@ const LandingTryItOptionsSection = ({
             className={clsx(
                 "relative",
                 "flex",
-                "flex-col landing-md:flex-row",
+                "flex-col landing-md:flex-row gap-4 landing-md:gap-0",
                 className,
             )}
         >
