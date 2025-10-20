@@ -49,7 +49,7 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    OpenPanel Enterprise edition offers advanced features for user isolation and management, suitable for web hosting providers.{" "}
+                    OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.{" "}
                 </p>
                 <EnterpriseGetInTouchButton
                     className={clsx(
