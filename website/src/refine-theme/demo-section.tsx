@@ -96,7 +96,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    This is where you can manage your websites.
+                    This is where you can manage your websites, files, services, domains, emails..
                 </p>
 		    
                         <Link
@@ -172,7 +172,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			This is where you can manage your server.
+			This is where you can manage your server, customer accounts, hosting plans..
 		    </p>
                         <Link
                             to="https://demo.openpanel.org:2087/login"
