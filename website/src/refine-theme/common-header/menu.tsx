@@ -104,7 +104,7 @@ export const Menu: React.FC = () => {
                                             >
                                                 <GithubIcon className="dark:text-gray-400 text-gray-500" />
                                             </Link>
-                                            <Link to="https://discord.com/invite/7bNY8fANqF">
+                                            <Link to="https://discord.openpanel.com/">
                                                 <DiscordIcon />
                                             </Link>
                                         </div>
