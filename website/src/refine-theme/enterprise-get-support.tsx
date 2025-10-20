@@ -15,7 +15,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
             >
                 <h3 className={clsx("mt-4 landing-sm:mt-10")}>
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        Get supported by{" "}
+                        c*anel and P*esk{" "}
                     </span>
                     <span
                         className={clsx(
@@ -24,7 +24,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        experts
+                        Alternative
                     </span>
                     .
                 </h3>
