@@ -82,18 +82,25 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-900 dark:text-gray-0",
                     )}
                 >
-                    Get started now!
+                    Ready to get started?
                 </h2>
                 <p
                     className={clsx(
                         "text-base",
                         "font-normal",
                         "text-gray-600 dark:text-gray-400",
-                        "landing-sm:max-w-[446px]",
                     )}
                 >
-                    Choose OpenPanel Enterprise or Community edition and start
-                    hosting websites in minutes.
+                    Download the (free) Community Edition that is intended for self-hosting, offers basic features and supports up to 3 user accounts and 50 websites.
+                </p>
+                <p
+                    className={clsx(
+                        "text-base",
+                        "font-normal",
+                        "text-gray-600 dark:text-gray-400",
+                    )}
+                >
+                    Upgrade to Enterprise Edition anytime to increase limits and access advanced features like email, FTP, and Docker management.
                 </p>
             </div>
             <div
@@ -175,7 +182,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    Sign up for OpenPanel Enterprise version and offer premium features to your customers.
+                    Get the Enterprise Edition for a fixed lifetime price of €14.95/month.
                 </p>
                         <Link
                             to="enterprise"
@@ -201,7 +208,7 @@ const LandingTryItOptionsSection = ({
                         >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Go Enterprise
+                        Purchase license
                     </span>
                 </Link>
             </div>
@@ -280,7 +287,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			Get OpenPanel Community edition now and begin hosting websites within just 5 minutes.
+						Download and use the FOREVER FREE Community Edition with limited features.
                     </p>
                     <LandingCopyCommandButton />
                 </div>
