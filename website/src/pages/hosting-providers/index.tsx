@@ -30,8 +30,8 @@ const providers = [
     services: "VPS, Dedicated",
     managedSupport: "Yes",
     freeEnterprise: "Yes",
-    link: "https://hostigan.com",
-    logo: "https://client.hostigan.com/assets/img/logo.png",
+    link: "https://hostigan.com/openpanel/",
+    logo: "https://hostigan.com/wp-content/uploads/2025/04/s-768x135.png",
   },
   {
     company: "WebDock",
