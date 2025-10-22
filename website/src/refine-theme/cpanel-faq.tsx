@@ -101,7 +101,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
 const faq = [
     {
         question: "Can I import existing accounts form a cPanel/WHM server?",
-        answer: "Yes, you can import backups using: https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/",
+        answer: "Yes, you can import accounts using: <a href='/docs/articles/transfers/import-cpanel-backup-to-openpanel/'>cPanel Backup Importer</a>",
     },
     {
         question: "How does the pricing work for the Enterprise edition?",
@@ -112,17 +112,16 @@ const faq = [
         answer: "No, the Enterprise edition has no limit to the number of user accounts that you can create.",
     },
     {
-        question: "Is pricing fixed?",
-        "answer": "Yes, the price is fixed at the starting rate, meaning that it will not change regardless of circumstances."
+        question: "Is the pricing fixed, or could it increase over time like cPanel?",
+        "answer": "Yes, the price is fixed at the starting rate and will not change under any circumstances. Once you start at this price, it remains fixed for life."
     },
     {
-        question:
-            "Do you offer trial license for the Enterprise edition?",
+        question: "Do you offer trial license for the Enterprise edition?",
         answer: "Yes, we offer a 14 days trial on request.",
     },
     {
         question: "How often does Enterprise edition receive updates?",
-        answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as daily updates. On the other hand, the community edition receives updates on a monthly basis.",
+        answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as weely updates.",
     },
     {
         question: "Do you provide custom development services for turnkey projects?",
