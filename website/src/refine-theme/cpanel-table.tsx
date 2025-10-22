@@ -1018,6 +1018,7 @@ const tableData = [
     },
     {
         title: "Accounts",
+        items: [
             {
                 description: "Administrator Accounts",
                 cpanel: <CrossIcon />,
@@ -1098,7 +1099,7 @@ const tableData = [
                     cpanel: "icon",
                     openpanel: "icon",
                 },
-            },
+            },    
         ],
     },
     {
