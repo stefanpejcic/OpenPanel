@@ -3,7 +3,7 @@ import clsx from "clsx";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
 import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
-import { EnterpriseGetInTouchButton } from "./openpanel-get-in-touch-button";
+import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
 import { ArrowLeftLongIcon } from "./icons/arrow-left-long";
 import { AnimatePresence, motion } from "framer-motion";
 
