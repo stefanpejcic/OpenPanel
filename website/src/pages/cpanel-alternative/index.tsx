@@ -4,9 +4,7 @@ import React from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { EnterpriseHeroSection } from "@site/src/refine-theme/cpanel-hero-section";
-import { EnterpriseGetSupport } from "@site/src/refine-theme/enterprise-get-support";
 import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-in-touch-cta";
-import { EnterpriseDataSource } from "@site/src/refine-theme/enterprise-data-source";
 import { EnterpriseFaq } from "@site/src/refine-theme/cpanel-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/cpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
@@ -41,18 +39,6 @@ const Enterprise: React.FC = () => {
                                 "px-4 landing-sm:px-0",
                                 "landing-lg:pr-12",
                             )}
-                        />
-
-                        <EnterpriseGetSupport
-                            className={clsx(
-                                sectionPadding,
-                                sectionWidth,
-                                "landing-lg:-mt-40",
-                            )}
-                        />
-
-                        <EnterpriseDataSource
-                            className={clsx(sectionPadding, sectionWidth)}
                         />
 
                         <div className={clsx("w-full", "overflow-hidden")}>
