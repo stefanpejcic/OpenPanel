@@ -101,7 +101,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
 const faq = [
     {
         question: "Can I import existing accounts from a cPanel/WHM server?",
-        answer: "Yes, you can import accounts using: <a href='/docs/articles/transfers/import-cpanel-backup-to-openpanel/'>cPanel Backup Importer</a>",
+        answer: "Yes, you can import accounts using the 'cPanel Backup Importer'.",
     },
     {
         question: "How does the pricing work for the Enterprise edition?",
