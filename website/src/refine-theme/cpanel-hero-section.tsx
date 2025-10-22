@@ -38,8 +38,8 @@ export const EnterpriseHeroSection = ({
                         )}
                     >
                         cPanel
-                    </span>
-                    Alternative.
+                    </span>{" "}
+                    Alternative
                 </h1>
                 <p
                     className={clsx(
