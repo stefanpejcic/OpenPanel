@@ -3,15 +3,12 @@ import clsx from "clsx";
 import React from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
-import { EnterpriseHeroSection } from "@site/src/refine-theme/enterprise-hero-section";
+import { EnterpriseHeroSection } from "@site/src/refine-theme/cpanel-hero-section";
 import { EnterpriseGetSupport } from "@site/src/refine-theme/enterprise-get-support";
 import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-in-touch-cta";
-import { EnterpriseFlexibility } from "@site/src/refine-theme/enterprise-flexibility";
 import { EnterpriseDataSource } from "@site/src/refine-theme/enterprise-data-source";
-import { EnterpriseFrequentUpdates } from "@site/src/refine-theme/enterprise-frequent-updates";
-import { LandingTrustedByDevelopers } from "@site/src/refine-theme/landing-trusted-by-developers";
-import { EnterpriseFaq } from "@site/src/refine-theme/enterprise-faq";
-import { EnterpriseTable } from "@site/src/refine-theme/enterprise-table";
+import { EnterpriseFaq } from "@site/src/refine-theme/cpanel-faq";
+import { EnterpriseTable } from "@site/src/refine-theme/cpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 
 const Enterprise: React.FC = () => {
