@@ -35,7 +35,7 @@ export const EnterpriseTable = ({ className }: { className?: string }) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Compare cPanel VS OpenPanel
+                    Compare CyberPanel VS OpenPanel
                 </h2>
             </div>
 
