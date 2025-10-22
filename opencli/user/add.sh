@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 18.10.2025
+# Last Modified: 21.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1532,9 +1532,35 @@ send_email_to_new_user() {
         echo "Sending email to $email with login information"
             # Check if the provided email is valid
             if [[ $email =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-                . "$SEND_EMAIL_FILE"
+
+                generate_random_token_one_time_only() {
+                    local config_file="${CONFIG_FILE}"
+                    TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
+                    local new_value="mail_security_token=$TOKEN_ONE_TIME"
+                    sed -i "s|^mail_security_token=.*$|$new_value|" "${CONFIG_FILE}"
+                }
+
+                email_notification() {
+                  local title="$1"
+                  local message="$2"
+                  generate_random_token_one_time_only
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")				  
+				  PROTOCOL="http"
+				  DOMAIN=$(opencli domain)
+				  if [[ "$DOMAIN" =~ ^[a-zA-Z0-9.-]+$ ]]; then
+					if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.key" ] || [ -f "/etc/openpanel/caddy/ssl/custom/$DOMAIN/$DOMAIN.key" ]; then
+					    PROTOCOL="https"
+					fi
+				  fi
+
+                  curl -4 -k -X POST "$PROTOCOL://$DOMAIN:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message" --max-time 15
+                }
+
+
+				port="$(opencli port)"
+				login_url="$PROTOCOL://$DOMAIN:$port/login"
+
                 email_notification "New OpenPanel account information" "OpenPanel URL: $login_url | username: $username  | password: $password"
-		# todo: check nodeip, send it in email!
             else
                 echo "$email is not a valid email address. Login infomration can not be sent to the user."
             fi       
