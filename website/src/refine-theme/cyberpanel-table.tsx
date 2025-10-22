@@ -506,7 +506,7 @@ const tableData = [
             {
                 description: "Pricing model",
                 cyberpanel: (
-                    <TableText>Per account</TableText>
+                    <TableText>Per server</TableText>
                 ),
                 openpanel: (
                     <TableText>Per server</TableText>
