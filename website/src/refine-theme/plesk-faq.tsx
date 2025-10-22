@@ -101,7 +101,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
 const faq = [
     {
         question: "Can I import existing accounts from a Plesk server?",
-        answer: "There is no autoamtic import tool, migration needs to be performed manually.",
+        answer: "There is no automatic import tool, migration needs to be performed manually.",
     },
     {
         question: "How does the pricing work for the Enterprise edition?",
