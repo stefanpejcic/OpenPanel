@@ -67,7 +67,7 @@ export const menuItems = [
         ],
     },
     {
-        label: "Company",
+        label: "z",
         items: [
             {
                 label: "About",
@@ -88,6 +88,29 @@ export const menuItems = [
             },
         ],
     },
+
+//    {
+//        label: "Compare",
+//        items: [
+//            {
+//                label: "cPanel",
+//                href: "/cpanel-alternative",
+//            },
+//            {
+//                label: "Plesk",
+//                href: "/plesk-alternative",
+//            },
+//            {
+//                label: "CyberPanel",
+//                href: "/cyberpanel-alternative",
+//            },
+//            {
+//                label: "CWP",
+//                href: "/cwp-alternative",
+//            },
+//        ],
+//    },
+    
 ];
 
 export const secondaryMenuItems = [
