@@ -67,7 +67,7 @@ export const menuItems = [
         ],
     },
     {
-        label: "z",
+        label: "Company",
         items: [
             {
                 label: "About",
