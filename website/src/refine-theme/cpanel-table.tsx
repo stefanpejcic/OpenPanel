@@ -523,7 +523,7 @@ const tableData = [
         items: [
             {
                 description: "Supported OS",
-                cpanel: <TableText><a href="https://docs.cpanel.net/installation-guide/system-requirements/" target="_blank">AlmaLinux 8,9,10 | Ubuntu 22 | Cloudlinux 7,8,9 | RockyLinux 8,9</a></TableText>,
+                cpanel: <TableText><a href="https://docs.cpanel.net/installation-guide/system-requirements/" target="_blank">AlmaLinux 8,9,10 Ubuntu 22 Cloudlinux 7,8,9 RockyLinux 8,9</a></TableText>,
                 openpanel: <TableText><a href="/docs/admin/intro/#requirements">OS-agnostic: Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
                 valueType: {
                     cpanel: "text",
@@ -624,7 +624,7 @@ const tableData = [
             },
             {
                 description: "Redis",
-                cpanel: <CheckIcon />,
+                cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -633,7 +633,7 @@ const tableData = [
             },
             {
                 description: "Memcached",
-                cpanel: <CheckIcon />,
+                cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -831,7 +831,7 @@ const tableData = [
             },
             {
                 description: "Upload multiple files",
-                cpanel: <CheckIcon />,
+                cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -840,7 +840,7 @@ const tableData = [
             },
             {
                 description: "Drag&Drop Uploads",
-                cpanel: <CheckIcon />,
+                cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -850,7 +850,7 @@ const tableData = [
             {
                 description: "File Editor",
                 cpanel: <TableText>Basic</TableText>,
-                openpanel: <TableText>Monaco (VS Code) Editor</TableText>,
+                openpanel: <TableText><a href="https://microsoft.github.io/monaco-editor/">Monaco (VS Code) Editor</a></TableText>,
                 valueType: {
                     cpanel: "text",
                     openpanel: "text",
