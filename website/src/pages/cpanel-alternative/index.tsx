@@ -12,7 +12,7 @@ import { EnterpriseTable } from "@site/src/refine-theme/cpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 
 const Enterprise: React.FC = () => {
-    const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
+    const title = "OpenPanel Enterprise | cPanel Alternative Web Hosting Panel";
 
     return (
         <>
