@@ -67,6 +67,24 @@ export const menuItems = [
         ],
     },
     {
+        label: "Compare",
+        items: [
+            {
+                label: "cPanel VS OpenPanel",
+                icon: <NewBadgeIcon />,
+                href: "/cpanel-alternative",
+            },
+            {
+                label: "Plesk VS OpenPanel",
+                href: "/plesk-alternative",
+            },
+            {
+                label: "CyberPanel VS OpenPanel",
+                href: "/cyberpanel-alternative",
+            },
+        ],
+    },    
+    {
         label: "Company",
         items: [
             {
@@ -79,7 +97,6 @@ export const menuItems = [
             },
             {
                 label: "Statistics",
-                icon: <NewBadgeIcon />,
                 href: "/statistics",
             },            
             {
@@ -88,29 +105,6 @@ export const menuItems = [
             },
         ],
     },
-
-//    {
-//        label: "Compare",
-//        items: [
-//            {
-//                label: "cPanel",
-//                href: "/cpanel-alternative",
-//            },
-//            {
-//                label: "Plesk",
-//                href: "/plesk-alternative",
-//            },
-//            {
-//                label: "CyberPanel",
-//                href: "/cyberpanel-alternative",
-//            },
-//            {
-//                label: "CWP",
-//                href: "/cwp-alternative",
-//            },
-//        ],
-//    },
-    
 ];
 
 export const secondaryMenuItems = [
