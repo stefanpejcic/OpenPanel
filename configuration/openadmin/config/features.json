@@ -400,6 +400,14 @@
     "help_link": ""
   },
   {
+    "name": "services",
+    "title": "Services",
+    "description": "If enabled, users can start/stop and view logs for any service.",
+    "link": "/services",
+    "type": "community",
+    "help_link": ""
+  },
+  {
     "name": "elasticsearch",
     "title": "Elasticsearch",
     "description": "If enabled, users can configure Elasticsearch from their user panel.",

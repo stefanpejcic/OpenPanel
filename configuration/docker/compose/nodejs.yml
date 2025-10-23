@@ -3,7 +3,7 @@
     container_name: SERVICE
     restart: always
     command: >
-      sh -c "${SERVICE_NAME_NODE_INSTALL:+npm install &&} node ${SERVICE_NAME_NODE_STARTUP_FILE:-index.js}"
+      sh -c "${SERVICE_NAME_NODE_REQUIREMENTS:+npm install &&} node ${SERVICE_NAME_NODE_STARTUP_FILE:-index.js}"
     working_dir: ${SERVICE_NAME_NODE_WORKDIR:-/var/www/html/}
     deploy:
       resources:
