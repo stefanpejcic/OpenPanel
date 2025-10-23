@@ -1,5 +1,10 @@
 #!/bin/bash
 
+
+
+wget -O /etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/nginx/vhosts/1.1/nginx_proxy_headers.txt
+
+
 echo "Updating default NodeJS template..."
 default_node_file="/etc/openpanel/docker/compose/nodejs.yml"
 
