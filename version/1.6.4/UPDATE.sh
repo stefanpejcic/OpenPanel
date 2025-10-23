@@ -21,5 +21,28 @@ for f in /home/*/docker-compose.yml; do
     sed -i 's/_NODE_INSTALL/_NODE_REQUIREMENTS/g' "$f"
     sed -i 's/_PY_INSTALL/_PY_REQUIREMENTS/g' "$f"
 done
-
 echo "All replacements completed."
+
+FEATURES_JSON_PATH="/etc/openpanel/openadmin/config/features.json"
+FEATURES_URL="https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json"
+FEATURES_DIR="/etc/openpanel/openpanel/features"
+FILES=("default.txt" "basic.txt")
+
+echo "Downloading new features.json..."
+if curl -fsSL "$FEATURES_URL" -o "$FEATURES_JSON_PATH"; then
+    echo "features.json successfully replaced."
+else
+    echo "Error downloading features.json!"
+    exit 1
+fi
+
+for FILE in "${FILES[@]}"; do
+    FILE_PATH="$FEATURES_DIR/$FILE"
+
+    if ! grep -qx "services" "$FILE_PATH"; then
+        echo "services" >> "$FILE_PATH"
+        echo "Added 'services' to $FILE_PATH"
+    else
+        echo "'services' already exists in $FILE_PATH"
+    fi
+done
