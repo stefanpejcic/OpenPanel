@@ -74,6 +74,8 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "text-base",
                                 "text-gray-600 dark:text-gray-300",
                                 "landing-xs:max-w-[384px]",
+								"hidden",
+								"landing-sm:block",
                             )}
                         >
 							Try the free Community Edition with command:
