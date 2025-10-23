@@ -40,7 +40,7 @@ export const menuItems = [
         label: "Product",
         items: [
             {
-                label: "Enterprise edition",
+                label: "Compare editions",
                 href: "/enterprise/#compare",
             },
             {
