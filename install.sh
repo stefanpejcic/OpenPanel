@@ -43,14 +43,16 @@ SET_PREMIUM=false                                                     # added in
 SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
 SCREENSHOTS_API_URL="http://screenshots-v2.openpanel.com/api/screenshot" # default since 0.5.9
+readonly DEFAULT_PANEL_VERSION="1.6.4"                                # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
+readonly DOCKER_COMPOSE_VERSION="v2.40.2"                             # https://github.com/docker/compose/releases
 DEV_MODE=false
 post_install_path=""                                                  # not to run
 # ======================================================================
 # PATHs used throughout the script
-ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
-LOG_FILE="openpanel_install.log"                                      # install log                                      # install running
-SERVICES_DIR="/etc/systemd/system/"                                   # used for admin and sentinel services
-CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
+readonly ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
+readonly LOG_FILE="openpanel_install.log"                                      # install log                                      # install running
+readonly SERVICES_DIR="/etc/systemd/system/"                                   # used for admin and sentinel services
+readonly CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
@@ -171,7 +173,7 @@ set_version_to_install() {
             PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+')
         fi
 
-        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="1.6.3"
+        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
     fi
 }
 
@@ -323,21 +325,14 @@ check_requirements() {
 		    fi
 		}
 
-		# Check if running as root
 		check_condition '[ "$(id -u)" != "0" ]' "you must be root to execute this script" false
-
-		# Check OS
 		check_condition '[ "$(uname)" = "Darwin" ]' "MacOS is not currently supported" true
-
-		# Check if running inside a container
 		check_condition '[[ -f /.dockerenv || -f /run/.containerenv || -n $(tr "\0" "\n" < /proc/1/environ | grep -i "^container=") || $(grep -Eq "docker|lxc|lxd|podman|containerd" /proc/1/cgroup) || -f /run/systemd/container ]]' \
 		    "running inside a container is not supported" false
 
-		# Check RAM
 		total_mb=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1024 ))
 		check_requirement "$total_mb" 1024 "MB" "at least 1GB of RAM is required"
 
-		# Check available disk space on /
 		available_mb=$(( $(df / --output=avail | tail -1) / 1024 ))
 		check_requirement "$available_mb" 5120 "MB" "at least 5GB of free disk space is required on /"
     fi
@@ -367,7 +362,7 @@ parse_args() {
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
         echo "  --post_install=<path>           Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
-        echo "  --swap=<2>                      Set space in GB to be allocated for SWAP."
+        echo "  --swap=<2>                      Set space (1-10) in GB to be allocated for SWAP."
         echo "  --debug                         Display debug information during installation."
         echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
@@ -485,17 +480,16 @@ detect_os_cpu_and_package_manager() {
 		        ;;
 		esac
 
-        # Locale-agnostic CPU architecture detection
         arch_raw="$(uname -m)"
         case "$arch_raw" in
             x86_64|amd64)
-                architecture="x86_64"   # 64-bit x86
+                architecture="x86_64"
                 ;;
             aarch64|arm64)
-                architecture="aarch64"  # 64-bit ARM
+                architecture="aarch64"
                 ;;
             *)
-                architecture="$arch_raw" # Fallback: keep raw value
+                architecture="$arch_raw"
                 ;;
         esac
     else
@@ -505,21 +499,20 @@ detect_os_cpu_and_package_manager() {
     fi
 }
 
-
 docker_compose_up(){
     echo "Setting docker-compose.."
     DOCKER_CONFIG=${DOCKER_CONFIG:-/root/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
 
     if [ "$architecture" == "aarch64" ]; then
-		link="https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-linux-aarch64"
+		link="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64"
   	else
-   		link="https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-linux-x86_64"
+   		link="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64"
  	fi
 
 	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
 	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
 		debug_log chmod +x /usr/bin/docker-compose
