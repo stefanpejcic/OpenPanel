@@ -500,14 +500,14 @@ docker_compose_up(){
     mkdir -p $DOCKER_CONFIG/cli-plugins
 
     if [ "$architecture" == "aarch64" ]; then
-		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
+		link="https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-linux-aarch64"
   	else
-   		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
+   		link="https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-linux-x86_64"
  	fi
 
 	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
 	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
 		debug_log chmod +x /usr/bin/docker-compose
