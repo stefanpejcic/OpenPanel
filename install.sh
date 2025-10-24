@@ -853,8 +853,9 @@ install_packages() {
                           "jc" "jq" "sqlite3")
             fi
 
-            debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' \
-                      /etc/needrestart/needrestart.conf
+			if [ -f /etc/needrestart/needrestart.conf ]; then
+	            debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
+			fi
             debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
             echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
             debug_log update-ca-certificates
