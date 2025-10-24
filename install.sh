@@ -739,8 +739,7 @@ update_package_manager() {
 setup_imunifyav() {
     if [ "$IMUNIFY_AV" = true ]; then
         echo "Installing ImunifyAV"
-        debug_log opencli imunify install
-        debug_log opencli imunify start
+        debug_log opencli imunify install && opencli imunify start
     fi
 }
 
