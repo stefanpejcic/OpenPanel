@@ -54,7 +54,6 @@ sidebar_position: 1
 - [How to configure a DNS Cluster](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel)
 - [Troubleshooting DNS](/docs/articles/domains/troubleshooting-dns)
 - [Troubleshooting Caddy Webserver](/docs/articles/docker/troubleshooting-caddy-webserver)
-- [How to configure DNS Clustering](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
 
 
 # Files
