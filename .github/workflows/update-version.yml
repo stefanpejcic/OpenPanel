@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           PANEL_VERSION="${{ steps.fetch_version.outputs.version }}"
-          sed -i -E 's/(PANEL_VERSION=")[^"]+(" # fallback if hub.docker.com unreachable)/\1'"$PANEL_VERSION"'\2/' install.sh
+          sed -i -E 's/(readonly DEFAULT_PANEL_VERSION=")[^"]+(")/\1'"$PANEL_VERSION"'\2/' install.sh
 
       - name: Update in README.md
         shell: bash
