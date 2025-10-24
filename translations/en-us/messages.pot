@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-10-17 11:38+0200\n"
+"POT-Creation-Date: 2025-10-23 18:23+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -17,117 +17,117 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
-#: modules/autoinstaller.py:77 templates/dashboard/dashboard.html:146
+#: modules/autoinstaller.py:71 templates/dashboard/dashboard.html:146
 #: templates/manager/autoinstaller.html:9
 msgid "Auto Installer"
 msgstr ""
 
-#: modules/crons.py:116
+#: modules/crons.py:115
 msgid "CronJobs File Editor"
 msgstr ""
 
-#: modules/crons.py:174
+#: modules/crons.py:173
 msgid "CronJobs"
 msgstr ""
 
-#: modules/crons.py:201
+#: modules/crons.py:200
 msgid "New CronJob"
 msgstr ""
 
-#: modules/crons.py:236 modules/crons.py:326 modules/crons.py:421
+#: modules/crons.py:235 modules/crons.py:325 modules/crons.py:420
 msgid "Missing one or more required fields (schedule, command, container)."
 msgstr ""
 
-#: modules/crons.py:240
+#: modules/crons.py:239
 msgid ""
 "image= or network= are not allowed in the command, crons can only be run "
 "on existing containers."
 msgstr ""
 
-#: modules/crons.py:242 modules/crons.py:274 modules/crons.py:279
+#: modules/crons.py:241 modules/crons.py:273 modules/crons.py:278
 msgid "ERROR: {error_message}"
 msgstr ""
 
-#: modules/crons.py:261
+#: modules/crons.py:260
 msgid "Cron job created and saved successfully!"
 msgstr ""
 
-#: modules/crons.py:264
+#: modules/crons.py:263
 msgid "Error while executing cron commands: "
 msgstr ""
 
-#: modules/crons.py:267
+#: modules/crons.py:266
 msgid "Unexpected error: "
 msgstr ""
 
-#: modules/crons.py:272
+#: modules/crons.py:271
 msgid ""
 "image= or network= are not allowed in crontab, crons can only be run on "
 "existing containers."
 msgstr ""
 
-#: modules/crons.py:277
+#: modules/crons.py:276
 msgid ""
 "job-service-run, job-local and job-run are not allowed in crontab, crons "
 "can only be run on existing containers with job-exec."
 msgstr ""
 
-#: modules/crons.py:288
+#: modules/crons.py:287
 msgid "Crontab file saved successfully!"
 msgstr ""
 
-#: modules/crons.py:292
+#: modules/crons.py:291
 msgid "Error editing crontab file."
 msgstr ""
 
-#: modules/crons.py:295
+#: modules/crons.py:294
 msgid "No cron job or cronfile content provided."
 msgstr ""
 
-#: modules/crons.py:322
+#: modules/crons.py:321
 msgid ""
 "Missing the original container fields! (original_schedule, "
 "original_command, original_container, original_comment)."
 msgstr ""
 
-#: modules/crons.py:398
+#: modules/crons.py:397
 msgid "Cron job was successfully edited."
 msgstr ""
 
-#: modules/crons.py:401
+#: modules/crons.py:400
 msgid "Error saving cronjob, please try again or use the File Editor instead."
 msgstr ""
 
-#: modules/crons.py:482
+#: modules/crons.py:481
 msgid "Cron job was successfully deleted."
 msgstr ""
 
-#: modules/crons.py:485
+#: modules/crons.py:484
 msgid "Error deleting cron job."
 msgstr ""
 
-#: modules/dashboard.py:103 modules/dashboard.py:131
+#: modules/dashboard.py:101 modules/dashboard.py:129
 msgid "User ID not found."
 msgstr ""
 
-#: modules/dashboard.py:120
+#: modules/dashboard.py:118
 msgid "Failed to retrieve system data"
 msgstr ""
 
-#: modules/dashboard.py:123
+#: modules/dashboard.py:121
 msgid "Invalid JSON output from Docker command"
 msgstr ""
 
-#: modules/dashboard.py:141
+#: modules/dashboard.py:139
 msgid "Failed to retrieve disk usage information."
 msgstr ""
 
-#: modules/dashboard.py:145
+#: modules/dashboard.py:143
 msgid "Disk usage data not found."
 msgstr ""
 
-#: modules/dashboard.py:202 modules/dashboard.py:225 modules/dashboard.py:489
-#: modules/docker.py:1132 modules/docker.py:1148 modules/webserver_conf.py:51
+#: modules/dashboard.py:202 modules/dashboard.py:225 modules/dashboard.py:490
+#: modules/docker.py:1066 modules/docker.py:1082 modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr ""
 
@@ -136,22 +136,22 @@ msgstr ""
 #: modules/dns.py:573 modules/domain/capitalize_domains.py:22
 #: modules/domain/docroot.py:33 modules/domain/domain_logs.py:42
 #: modules/domain/edit_vhost.py:34 modules/domain/edit_vhost.py:56
-#: modules/domain/redirects.py:60 modules/domain/redirects.py:133
-#: modules/domain/redirects.py:196 modules/domain/ssl.py:33
-#: modules/domains.py:409 modules/domains.py:439 modules/domains.py:464
-#: modules/domains.py:493 modules/domains.py:554 modules/emails.py:144
-#: modules/emails.py:277 modules/emails.py:495 modules/emails.py:532
-#: modules/goaccess.py:23 modules/json/screenshots.py:73 modules/mautic.py:109
-#: modules/mautic.py:339 modules/mautic.py:499 modules/mautic.py:691
-#: modules/php.py:522 modules/pm2.py:596 modules/pm2.py:1245
+#: modules/domain/redirects.py:60 modules/domain/redirects.py:134
+#: modules/domain/redirects.py:197 modules/domain/ssl.py:33
+#: modules/domains.py:410 modules/domains.py:440 modules/domains.py:465
+#: modules/domains.py:494 modules/domains.py:557 modules/emails.py:144
+#: modules/emails.py:277 modules/emails.py:494 modules/emails.py:530
+#: modules/goaccess.py:23 modules/json/screenshots.py:73 modules/mautic.py:111
+#: modules/mautic.py:341 modules/mautic.py:505 modules/mautic.py:698
+#: modules/php.py:524 modules/pm2.py:592 modules/pm2.py:1267
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:66
 #: modules/waf.py:213 modules/waf.py:261 modules/waf.py:316
-#: modules/website_builder.py:54 modules/website_builder.py:109
-#: modules/website_builder.py:151 modules/website_builder.py:288
-#: modules/websites.py:210 modules/websites.py:338 modules/websites.py:421
-#: modules/websites.py:758 modules/wordpress.py:495 modules/wordpress.py:633
-#: modules/wordpress.py:1158 modules/wordpress.py:1502
-#: modules/wordpress.py:1639
+#: modules/website_builder.py:55 modules/website_builder.py:111
+#: modules/website_builder.py:154 modules/website_builder.py:289
+#: modules/websites.py:202 modules/websites.py:330 modules/websites.py:413
+#: modules/websites.py:749 modules/wordpress.py:495 modules/wordpress.py:633
+#: modules/wordpress.py:1155 modules/wordpress.py:1499
+#: modules/wordpress.py:1634
 msgid "You do not own this domain."
 msgstr ""
 
@@ -206,105 +206,106 @@ msgstr ""
 msgid "New content not provided."
 msgstr ""
 
-#: modules/docker.py:248 templates/dashboard/dashboard.html:175
+#: modules/docker.py:182 templates/dashboard/dashboard.html:175
 #: templates/dashboard/usage.html:289 templates/docker/containers.html:8
 #: templates/docker/volumes_TODO.html:9
 msgid "Containers"
 msgstr ""
 
-#: modules/docker.py:395
+#: modules/docker.py:329
 msgid "Add service"
 msgstr ""
 
-#: modules/docker.py:408 modules/docker.py:606
+#: modules/docker.py:342 modules/docker.py:540
 msgid ""
 "Invalid service name. Must start with a letter, contain only lowercase "
 "letters and digits, and be at least 3 characters long."
 msgstr ""
 
-#: modules/docker.py:437 modules/docker.py:623
+#: modules/docker.py:371 modules/docker.py:557
 msgid "CPU limit must be a positive number."
 msgstr ""
 
-#: modules/docker.py:451 modules/docker.py:636
+#: modules/docker.py:385 modules/docker.py:570
 msgid ""
 "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
 " or 1.5G)."
 msgstr ""
 
-#: modules/docker.py:593
+#: modules/docker.py:527
 msgid "Service name cannot be changed."
 msgstr ""
 
-#: modules/docker.py:712
+#: modules/docker.py:646
 msgid "Container updated successfully."
 msgstr ""
 
-#: modules/docker.py:787
+#: modules/docker.py:721
 msgid "Delete service"
 msgstr ""
 
-#: modules/docker.py:989 templates/dashboard/dashboard.html:178
+#: modules/docker.py:923 templates/dashboard/dashboard.html:178
 #: templates/docker/images.html:12
 msgid "Image Updates"
 msgstr ""
 
-#: modules/docker.py:1037
+#: modules/docker.py:971
 msgid "Change docker image"
 msgstr ""
 
-#: modules/docker.py:1061
+#: modules/docker.py:995
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1123 templates/dashboard/dashboard.html:177
+#: modules/docker.py:1057 templates/cache/_shared.html:218
+#: templates/cache/varnish.html:279 templates/dashboard/dashboard.html:177
 #: templates/manager/python_node_apps.html:127
 #: templates/manager/python_node_apps.html:157 templates/manager/ruby.html:138
-#: templates/manager/ruby.html:161
+#: templates/manager/ruby.html:161 templates/services.html:214
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1152 modules/websites.py:541
+#: modules/docker.py:1086 modules/websites.py:533
 msgid "Invalid action"
 msgstr ""
 
-#: modules/docker.py:1418
+#: modules/docker.py:1352
 msgid "Select Docker service"
 msgstr ""
 
-#: modules/domains.py:256 templates/base.html:879
-#: templates/cache/varnish.html:132 templates/dashboard/dashboard.html:78
+#: modules/domains.py:257 templates/base.html:836
+#: templates/cache/varnish.html:122 templates/dashboard/dashboard.html:78
 #: templates/dashboard/dashboard.html:107 templates/dashboard/usage.html:44
 #: templates/domains/domains.html:14
 msgid "Domains"
 msgstr ""
 
-#: modules/domains.py:354
+#: modules/domains.py:355
 msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
 msgstr ""
 
-#: modules/domains.py:388 templates/domains/new.html:129
+#: modules/domains.py:389 templates/domains/new.html:129
 #: templates/domains/new.html:343
 msgid "Add Domain"
 msgstr ""
 
-#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:400
-#: modules/domains.py:458
+#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:401
+#: modules/domains.py:459
 msgid "Invalid request. Domain name must be provided."
 msgstr ""
 
-#: modules/domains.py:436 templates/domains/domains.html:417
+#: modules/domains.py:437 templates/domains/domains.html:417
 #: templates/emails/single_account.html:102
 #: templates/emails/single_account.html:124
 msgid "Suspend"
 msgstr ""
 
-#: modules/domains.py:490 templates/domains/domains.html:413
+#: modules/domains.py:491 templates/domains/domains.html:413
 msgid "Unsuspend"
 msgstr ""
 
-#: modules/emails.py:134 modules/emails.py:714 modules/emails.py:727
-#: modules/emails.py:745
+#: modules/emails.py:134 modules/emails.py:712 modules/emails.py:725
+#: modules/emails.py:743
 msgid "Error: Invalid email address."
 msgstr ""
 
@@ -360,47 +361,45 @@ msgstr ""
 msgid "Error: No import data found, please try again."
 msgstr ""
 
-#: modules/emails.py:499
+#: modules/emails.py:498
 msgid "Error: domain not provided."
 msgstr ""
 
-#: modules/emails.py:501
+#: modules/emails.py:500
 msgid "Error: username not provided."
 msgstr ""
 
-#: modules/emails.py:503
+#: modules/emails.py:502
 msgid "Error: password not provided."
 msgstr ""
 
-#: modules/emails.py:509 templates/files/ftp_new.html:203
+#: modules/emails.py:508 templates/files/ftp_new.html:203
 msgid "Create Account"
 msgstr ""
 
-#: modules/emails.py:573 modules/emails.py:575 modules/files/ftp.py:87
-#: modules/files/ftp.py:91 templates/cache/elasticsearch.html:114
-#: templates/cache/memcached.html:113 templates/cache/opensearch.html:116
-#: templates/cache/redis.html:115 templates/cache/varnish.html:115
-#: templates/domains/ssl.html:60 templates/files/ftp.html:17
-#: templates/manager/python_node_apps.html:67
-#: templates/mysql/phpmyadmin.html:98 templates/mysql/remote_mysql.html:101
-#: templates/psql/pgadmin.html:98 templates/psql/remote_psql.html:101
-#: templates/system/ssh.html:52
+#: modules/emails.py:571 modules/emails.py:573 modules/files/ftp.py:87
+#: modules/files/ftp.py:91 templates/cache/_shared.html:84
+#: templates/cache/varnish.html:105 templates/domains/ssl.html:60
+#: templates/files/ftp.html:17 templates/manager/python_node_apps.html:67
+#: templates/mysql/phpmyadmin.html:88 templates/mysql/remote_mysql.html:101
+#: templates/psql/pgadmin.html:90 templates/psql/remote_psql.html:99
+#: templates/services.html:90 templates/system/ssh.html:52
 msgid "Unknown"
 msgstr ""
 
-#: modules/emails.py:688
+#: modules/emails.py:686
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:717
+#: modules/emails.py:715
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:736 templates/emails/info.html:9
+#: modules/emails.py:734 templates/emails/info.html:9
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:750
+#: modules/emails.py:748
 msgid "Error: Invalid configuration type."
 msgstr ""
 
@@ -409,100 +408,100 @@ msgstr ""
 msgid "GoAccess"
 msgstr ""
 
-#: modules/info.py:22 templates/dashboard/dashboard.html:195
+#: modules/info.py:22 templates/dashboard/dashboard.html:196
 #: templates/system/server_info.html:10
 msgid "Server Information"
 msgstr ""
 
-#: modules/mautic.py:139
+#: modules/mautic.py:140
 msgid "Mautic Manager"
 msgstr ""
 
-#: modules/mautic.py:246
+#: modules/mautic.py:247
 msgid "Backup restored successfully!"
 msgstr ""
 
-#: modules/mautic.py:304 modules/wordpress.py:450
+#: modules/mautic.py:305 modules/wordpress.py:449
 msgid "Backup completed successfully!"
 msgstr ""
 
-#: modules/mautic.py:307 modules/wordpress.py:454
+#: modules/mautic.py:308 modules/wordpress.py:453
 msgid "No backup options selected."
 msgstr ""
 
-#: modules/mautic.py:329 modules/mautic.py:493 modules/website_builder.py:37
-#: modules/wordpress.py:479 modules/wordpress.py:626
+#: modules/mautic.py:333 modules/mautic.py:499 modules/website_builder.py:40
+#: modules/wordpress.py:481 modules/wordpress.py:626
 msgid "No data found for the provided site ID"
 msgstr ""
 
-#: modules/mautic.py:343
+#: modules/mautic.py:345
 msgid "Mautic installation not found in the database"
 msgstr ""
 
-#: modules/mautic.py:382
+#: modules/mautic.py:384
 msgid "Database name or user not found in app/config/local.php"
 msgstr ""
 
-#: modules/mautic.py:455
+#: modules/mautic.py:458
 msgid "Mautic uninstalled successfully!"
 msgstr ""
 
-#: modules/mautic.py:460
+#: modules/mautic.py:463
 msgid "An error occurred during Mautic uninstall."
 msgstr ""
 
-#: modules/mautic.py:514
+#: modules/mautic.py:521
 msgid "Mautic installation detached from Manager."
 msgstr ""
 
-#: modules/mautic.py:518
+#: modules/mautic.py:525
 msgid "An error occurred during Mautic detachment. Please try again."
 msgstr ""
 
-#: modules/mautic.py:521
+#: modules/mautic.py:528
 msgid "An error occurred during Mautic detachment."
 msgstr ""
 
-#: modules/mautic.py:538 templates/manager/mautic_install.html:9
+#: modules/mautic.py:545 templates/manager/mautic_install.html:9
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:119 modules/mysql.py:290 modules/mysql.py:568
-#: modules/mysql.py:761 modules/postgresql.py:83 modules/postgresql.py:283
-#: modules/postgresql.py:577 modules/postgresql.py:852
+#: modules/mysql.py:119 modules/mysql.py:290 modules/mysql.py:564
+#: modules/mysql.py:757 modules/postgresql.py:79 modules/postgresql.py:584
+#: modules/postgresql.py:845
 msgid "Database name is required."
 msgstr ""
 
-#: modules/mysql.py:184 modules/postgresql.py:163 templates/mysql/new.html:55
+#: modules/mysql.py:184 modules/postgresql.py:148 templates/mysql/new.html:55
 #: templates/psql/new.html:55
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:200 modules/mysql.py:281 modules/mysql.py:610
-#: modules/mysql.py:654 modules/mysql.py:754 modules/postgresql.py:178
-#: modules/postgresql.py:276 modules/postgresql.py:626
-#: modules/postgresql.py:684 modules/postgresql.py:843
+#: modules/mysql.py:200 modules/mysql.py:281 modules/mysql.py:606
+#: modules/mysql.py:650 modules/mysql.py:750 modules/postgresql.py:163
+#: modules/postgresql.py:633 modules/postgresql.py:691
+#: modules/postgresql.py:836
 msgid "User name is required."
 msgstr ""
 
-#: modules/mysql.py:213 modules/postgresql.py:200
+#: modules/mysql.py:213 modules/postgresql.py:185
 msgid "This username is not allowed."
 msgstr ""
 
-#: modules/mysql.py:235 modules/postgresql.py:221
+#: modules/mysql.py:235 modules/postgresql.py:206
 #: templates/mysql/mysql_user.html:173 templates/mysql/users.html:69
 #: templates/psql/mysql_user.html:70 templates/psql/psql_user.html:167
 #: templates/psql/users.html:69
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:246 modules/mysql.py:663 modules/mysql.py:777
-#: modules/postgresql.py:243 modules/postgresql.py:706
-#: modules/postgresql.py:890
+#: modules/mysql.py:246 modules/mysql.py:659 modules/mysql.py:773
+#: modules/postgresql.py:228 modules/postgresql.py:713
+#: modules/postgresql.py:883
 msgid "This is a system username that can not be edited."
 msgstr ""
 
-#: modules/mysql.py:249 modules/postgresql.py:246 templates/files/ftp.html:110
+#: modules/mysql.py:249 modules/postgresql.py:231 templates/files/ftp.html:110
 #: templates/mysql/password.html:174 templates/mysql/root_password.html:161
 #: templates/mysql/users.html:103 templates/psql/password.html:168
 #: templates/psql/users.html:120
@@ -510,21 +509,21 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: modules/mysql.py:265 modules/postgresql.py:260
+#: modules/mysql.py:265 modules/postgresql.py:245
 msgid "Wizard"
 msgstr ""
 
-#: modules/mysql.py:301 modules/postgresql.py:298
+#: modules/mysql.py:301
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:325 modules/postgresql.py:319
+#: modules/mysql.py:325 modules/postgresql.py:309
 #: templates/mysql/assign.html:10 templates/mysql/assign.html:67
-#: templates/psql/assign.html:10 templates/psql/assign.html:67
+#: templates/psql/assign.html:10 templates/psql/assign.html:73
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:330 modules/postgresql.py:327
+#: modules/mysql.py:330 modules/postgresql.py:320
 #: templates/mysql/remove.html:64 templates/psql/remove.html:64
 msgid "Remove User from Database"
 msgstr ""
@@ -534,39 +533,39 @@ msgstr ""
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:482 modules/postgresql.py:516
+#: modules/mysql.py:477 modules/postgresql.py:519
 #: templates/dashboard/dashboard.html:121
 #: templates/dashboard/dashboard.html:133
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:509
+#: modules/mysql.py:504
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:511
+#: modules/mysql.py:506
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:513
+#: modules/mysql.py:508
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:515
+#: modules/mysql.py:510
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:540 modules/postgresql.py:546
+#: modules/mysql.py:535 modules/postgresql.py:552
 #: templates/dashboard/dashboard.html:126
 #: templates/dashboard/dashboard.html:137
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:619 modules/postgresql.py:648
+#: modules/mysql.py:615 modules/postgresql.py:655
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:773 modules/postgresql.py:885
+#: modules/mysql.py:769 modules/postgresql.py:878
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -574,7 +573,7 @@ msgstr ""
 msgid "Invalid input data"
 msgstr ""
 
-#: modules/php.py:174 modules/php.py:571
+#: modules/php.py:174 modules/php.py:576
 msgid "success"
 msgstr ""
 
@@ -582,42 +581,42 @@ msgstr ""
 msgid "Configuration file not found"
 msgstr ""
 
-#: modules/php.py:208
+#: modules/php.py:210
 msgid "Set Default version"
 msgstr ""
 
-#: modules/php.py:226 modules/php.py:229
+#: modules/php.py:228 modules/php.py:231
 msgid ""
 "PHP Limits can not be edited for Litespeed, please use the 'PHP.INI "
 "Editor' or 'PHP Options' instead."
 msgstr ""
 
-#: modules/php.py:294 templates/dashboard/dashboard.html:168
+#: modules/php.py:296 templates/dashboard/dashboard.html:168
 msgid "Limits"
 msgstr ""
 
-#: modules/php.py:322 templates/dashboard/dashboard.html:171
+#: modules/php.py:324 templates/dashboard/dashboard.html:171
 msgid "Extensions"
 msgstr ""
 
-#: modules/php.py:506
+#: modules/php.py:508
 msgid ""
 "Only one PHP version can be used on Litespeed, to change version for all "
 "domains use this page."
 msgstr ""
 
-#: modules/php.py:527
+#: modules/php.py:529
 msgid ""
 "For Litespeed PHP version can not be set per-domain. To change version "
 "for all domains, use the 'Default PHP Version' page."
 msgstr ""
 
-#: modules/php.py:528 modules/php.py:573
+#: modules/php.py:530 modules/php.py:578
 msgid "error"
 msgstr ""
 
-#: modules/account/account.py:120 modules/php.py:602
-#: templates/mysql/phpmyadmin.html:123 templates/psql/pgadmin.html:123
+#: modules/account/account.py:122 modules/php.py:607
+#: templates/mysql/phpmyadmin.html:113 templates/psql/pgadmin.html:115
 msgid "Settings"
 msgstr ""
 
@@ -650,7 +649,6 @@ msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
 #: modules/phpmyadmin.py:142 templates/mysql/phpmyadmin.html:14
-#: templates/psql/pgadmin.html:14
 msgid "phpMyAdmin"
 msgstr ""
 
@@ -658,105 +656,133 @@ msgstr ""
 msgid "Container port not found for the user."
 msgstr ""
 
-#: modules/pm2.py:189
+#: modules/pm2.py:200
 msgid "File path is missing"
 msgstr ""
 
-#: modules/pm2.py:203
+#: modules/pm2.py:214
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:492 templates/manager/pm2_install.html:8
+#: modules/pm2.py:493 templates/manager/pm2_install.html:8
 msgid "Install Application"
 msgstr ""
 
-#: modules/pm2.py:1097
+#: modules/pm2.py:1096
 msgid "Unable to detect container type for the application."
 msgstr ""
 
-#: modules/pm2.py:1105
+#: modules/pm2.py:1104
 msgid "Not a valid type, only NodeJS or Python applications can be edited."
 msgstr ""
 
-#: modules/pm2.py:1109 modules/pm2.py:1278
+#: modules/pm2.py:1108 modules/pm2.py:1301
 msgid "Error connecting to database."
 msgstr ""
 
-#: modules/pm2.py:1146
+#: modules/pm2.py:1147
 msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
 msgstr ""
 
-#: modules/pm2.py:1150
-msgid "Error saving: Requirements must be 0 (No) or 1 (Yes)"
+#: modules/pm2.py:1151
+msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
 msgstr ""
 
-#: modules/pm2.py:1154
+#: modules/pm2.py:1155
 msgid ""
 "Error saving: Startup file invalid (must start with /var/www/html/, no "
 "path traversal, ends with .js or .py)"
 msgstr ""
 
-#: modules/pm2.py:1158
+#: modules/pm2.py:1159
 msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
 
-#: modules/pm2.py:1162
+#: modules/pm2.py:1163
 msgid "Error saving: CPU core limit provided is not a positive intiger."
 msgstr ""
 
-#: modules/pm2.py:1166
+#: modules/pm2.py:1167
 msgid "Error saving: Memory limit provided is not a positive intiger."
 msgstr ""
 
-#: modules/pm2.py:1200
+#: modules/pm2.py:1222
 msgid ""
 "Changes saved, make sure to restart the application for changes to take "
 "effect."
 msgstr ""
 
-#: modules/pm2.py:1202
+#: modules/pm2.py:1224
 msgid "Environment file not found."
 msgstr ""
 
-#: modules/pm2.py:1264
+#: modules/pm2.py:1287
 msgid "Unable to detect service name for the application."
 msgstr ""
 
-#: modules/pm2.py:1273
+#: modules/pm2.py:1296
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
 msgstr ""
 
-#: modules/postgresql.py:134
+#: modules/postgresql.py:128
 msgid "You have reached the maximum number of databases allowed."
 msgstr ""
 
-#: modules/postgresql.py:352 modules/postgresql.py:480
+#: modules/postgresql.py:140
+msgid "Failed to create database: "
+msgstr ""
+
+#: modules/postgresql.py:261
+msgid "Failed to fetch databases from Postgres."
+msgstr ""
+
+#: modules/postgresql.py:278
+msgid "Invalid or missing user name."
+msgstr ""
+
+#: modules/postgresql.py:281
+msgid "Invalid or missing database name."
+msgstr ""
+
+#: modules/postgresql.py:286
+msgid "This is a system database that cannot be used."
+msgstr ""
+
+#: modules/postgresql.py:297
+msgid "Successfully added a user {db_user} to PostgreSQL database"
+msgstr ""
+
+#: modules/postgresql.py:301
+msgid "Failed to assign user to database."
+msgstr ""
+
+#: modules/postgresql.py:342 modules/postgresql.py:466
 msgid ""
 "Postgres container is not running. Please allow a few moments for the "
 "initialization.."
 msgstr ""
 
-#: modules/postgresql.py:448
+#: modules/postgresql.py:434
 msgid "PostgreSQL databases"
 msgstr ""
 
-#: modules/postgresql.py:504
-msgid "Error checking users from the container."
-msgstr ""
-
-#: modules/process_manager.py:98 templates/dashboard/dashboard.html:190
+#: modules/process_manager.py:96 templates/dashboard/dashboard.html:191
 #: templates/system/process_manager.html:9
 msgid "Process Manager"
 msgstr ""
 
-#: modules/usage.py:73 templates/dashboard/dashboard.html:188
+#: modules/services.py:35
+msgid "Choose Service"
+msgstr ""
+
+#: modules/usage.py:73 templates/dashboard/dashboard.html:189
 #: templates/user/stats.html:20
 msgid "Resource Usage"
 msgstr ""
 
-#: modules/usage.py:134 templates/dashboard/dashboard.html:189
+#: modules/usage.py:134 templates/dashboard/dashboard.html:190
 msgid "Resource Usage History"
 msgstr ""
 
@@ -793,7 +819,7 @@ msgstr ""
 msgid "Domain not found or unauthorized"
 msgstr ""
 
-#: modules/waf.py:392 templates/dashboard/dashboard.html:194
+#: modules/waf.py:392 templates/dashboard/dashboard.html:195
 #: templates/system/waf_logs.html:259
 msgid "WAF Logs"
 msgstr ""
@@ -822,89 +848,89 @@ msgstr ""
 msgid "Web Server Configuration Editor"
 msgstr ""
 
-#: modules/website_builder.py:48
+#: modules/website_builder.py:49
 msgid "Website not found in the database"
 msgstr ""
 
-#: modules/website_builder.py:87
+#: modules/website_builder.py:89
 msgid "Website deleted successfully!"
 msgstr ""
 
-#: modules/website_builder.py:93
+#: modules/website_builder.py:95
 msgid "An error occurred during website deletion."
 msgstr ""
 
-#: modules/website_builder.py:123
+#: modules/website_builder.py:126
 msgid "Website detached from Manager."
 msgstr ""
 
-#: modules/website_builder.py:127
+#: modules/website_builder.py:130
 msgid "An error occurred during detachment. Please try again."
 msgstr ""
 
-#: modules/website_builder.py:130
+#: modules/website_builder.py:133
 msgid "An error occurred during detachment."
 msgstr ""
 
-#: modules/website_builder.py:177 modules/websites.py:365
-#: modules/websites.py:793
+#: modules/website_builder.py:182 modules/websites.py:360
+#: modules/websites.py:786
 msgid "Unable to detect docroot for the domain."
 msgstr ""
 
-#: modules/website_builder.py:185 modules/websites.py:374
-#: modules/websites.py:806
+#: modules/website_builder.py:187 modules/websites.py:366
+#: modules/websites.py:795
 msgid ""
 "Error connecting to database, please try again. If the issue persists "
 "contact support."
 msgstr ""
 
-#: modules/website_builder.py:242
+#: modules/website_builder.py:244
 msgid "Create Website"
 msgstr ""
 
-#: modules/websites.py:219
+#: modules/websites.py:211
 msgid "Data gathering started. Please allow a few minutes for completion."
 msgstr ""
 
-#: modules/websites.py:415
+#: modules/websites.py:407
 msgid "Missing required parameters"
 msgstr ""
 
-#: modules/websites.py:466
+#: modules/websites.py:458
 msgid "Debugging options updated successfully"
 msgstr ""
 
-#: modules/websites.py:484
+#: modules/websites.py:476
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:490 templates/manager/wordpress.html:2377
+#: modules/websites.py:482 templates/manager/wordpress.html:2377
 msgid "WordPress updated successfully"
 msgstr ""
 
-#: modules/websites.py:509
+#: modules/websites.py:501
 msgid "Update preferences saved successfully"
 msgstr ""
 
-#: modules/websites.py:602 modules/websites.py:609
+#: modules/websites.py:594 modules/websites.py:601
 #: templates/dashboard/usage.html:21 templates/domains/domains.html:125
 #: templates/domains/domains.html:203
 msgid "Websites"
 msgstr ""
 
-#: modules/websites.py:662
+#: modules/websites.py:653
 msgid "WEBSITES - Error executing the query!"
 msgstr ""
 
-#: modules/websites.py:674
+#: modules/websites.py:665
 msgid "WEBSITES - Reading blogname for WordPress website: {path}"
 msgstr ""
 
-#: modules/websites.py:690
+#: modules/websites.py:681
 msgid "WEBSITES - Reading WP admin_email for website: {selected_domain}"
 msgstr ""
 
-#: modules/websites.py:769
+#: modules/websites.py:760
 msgid "Invalid domain name format."
 msgstr ""
 
@@ -912,7 +938,7 @@ msgstr ""
 msgid "WordPress Manager"
 msgstr ""
 
-#: modules/wordpress.py:180 modules/wordpress.py:1527 modules/wordpress.py:1655
+#: modules/wordpress.py:183 modules/wordpress.py:1526 modules/wordpress.py:1652
 msgid "Domain not found."
 msgstr ""
 
@@ -944,94 +970,94 @@ msgstr ""
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:798 modules/wordpress.py:938
+#: modules/wordpress.py:795 modules/wordpress.py:934
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:827 templates/wordpress.html:450
+#: modules/wordpress.py:824 templates/wordpress.html:450
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:969 templates/manager/wordpress_install.html:9
+#: modules/wordpress.py:965 templates/manager/wordpress_install.html:9
 msgid "Install WordPress"
 msgstr ""
 
-#: modules/wordpress.py:1672
+#: modules/wordpress.py:1669
 msgid "Verification completed successfully."
 msgstr ""
 
-#: modules/wordpress.py:1673
+#: modules/wordpress.py:1670
 msgid "Verification failed."
 msgstr ""
 
-#: modules/wordpress.py:1678
+#: modules/wordpress.py:1675
 msgid "Download completed successfully."
 msgstr ""
 
-#: modules/wordpress.py:1679
+#: modules/wordpress.py:1676
 msgid "Download failed."
 msgstr ""
 
-#: modules/wordpress.py:1683
+#: modules/wordpress.py:1680
 msgid "Salts shuffled successfully."
 msgstr ""
 
-#: modules/wordpress.py:1684
+#: modules/wordpress.py:1681
 msgid "Failed to shuffle salts."
 msgstr ""
 
-#: modules/wordpress.py:1696
+#: modules/wordpress.py:1693
 msgid "Unsupported action."
 msgstr ""
 
-#: modules/wordpress.py:1707
+#: modules/wordpress.py:1704
 msgid "Invalid action. Use 'enable' or 'disable'."
 msgstr ""
 
-#: modules/wordpress.py:1734
+#: modules/wordpress.py:1731
 msgid "Invalid type. Use 'core' or 'plugins'."
 msgstr ""
 
-#: modules/account/forgot_password.py:95 modules/account/forgot_password.py:140
+#: modules/account/forgot_password.py:96 modules/account/forgot_password.py:141
 msgid "Forgot Password"
 msgstr ""
 
-#: modules/account/forgot_password.py:106
+#: modules/account/forgot_password.py:107
 msgid "Password Reset Requested"
 msgstr ""
 
-#: modules/account/forgot_password.py:131
+#: modules/account/forgot_password.py:132
 #: templates/user/reset_password/link_is_sent.html:9
 msgid "Password Reset Link Sent"
 msgstr ""
 
-#: modules/account/forgot_password.py:151
+#: modules/account/forgot_password.py:152
 msgid "Reset link has expired"
 msgstr ""
 
-#: modules/account/forgot_password.py:155
+#: modules/account/forgot_password.py:156
 msgid "Reset link is invalid"
 msgstr ""
 
-#: modules/account/forgot_password.py:161
+#: modules/account/forgot_password.py:162
 msgid "Link has already been used or is invalid"
 msgstr ""
 
-#: modules/account/forgot_password.py:171
+#: modules/account/forgot_password.py:172
 msgid "Passwords do not match"
 msgstr ""
 
-#: modules/account/forgot_password.py:184
+#: modules/account/forgot_password.py:185
 msgid "Your password has been reset. Please log in."
 msgstr ""
 
-#: modules/account/forgot_password.py:191 templates/user/email_template.html:59
+#: modules/account/forgot_password.py:192 templates/user/email_template.html:59
 msgid "Reset Password"
 msgstr ""
 
-#: modules/account/locale.py:69 templates/dashboard/dashboard.html:200
+#: modules/account/locale.py:69 templates/dashboard/dashboard.html:201
 #: templates/user/_login.html:98 templates/user/locale.html:12
 msgid "Change Language"
 msgstr ""
@@ -1040,43 +1066,43 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: modules/account/login.py:162
+#: modules/account/login.py:165
 msgid "User does not exist."
 msgstr ""
 
-#: modules/account/login.py:164
+#: modules/account/login.py:167
 msgid "Error occurred while trying to auto-login."
 msgstr ""
 
-#: modules/account/login.py:168
+#: modules/account/login.py:171
 msgid "Invalid admin token."
 msgstr ""
 
-#: modules/account/login.py:184
+#: modules/account/login.py:187
 msgid "Username and password are required."
 msgstr ""
 
-#: modules/account/login.py:192
+#: modules/account/login.py:195
 msgid "Unable to connect to database."
 msgstr ""
 
-#: modules/account/login.py:198
+#: modules/account/login.py:203
 msgid "Your account is suspended. Please contact support."
 msgstr ""
 
-#: modules/account/login.py:199
+#: modules/account/login.py:204
 msgid "Unrecognized account. Please check username."
 msgstr ""
 
-#: modules/account/login.py:220
+#: modules/account/login.py:226
 msgid "Invalid password. Please try again."
 msgstr ""
 
-#: modules/account/login.py:269
+#: modules/account/login.py:278
 msgid "Invalid 2FA code. Please try again."
 msgstr ""
 
-#: modules/account/login_history.py:21 templates/dashboard/dashboard.html:206
+#: modules/account/login_history.py:21 templates/dashboard/dashboard.html:207
 #: templates/user/loginlog.html:11
 msgid "Login History"
 msgstr ""
@@ -1086,7 +1112,7 @@ msgid "Notification Preferences"
 msgstr ""
 
 #: modules/account/sessions.py:20 modules/account/sessions.py:36
-#: templates/dashboard/dashboard.html:203
+#: templates/dashboard/dashboard.html:204
 #: templates/user/active_sessions.html:12
 msgid "Active Sessions"
 msgstr ""
@@ -1107,95 +1133,47 @@ msgstr ""
 msgid "Two-Factor Authentication is now disabled."
 msgstr ""
 
-#: modules/account/twofa.py:49
+#: modules/account/twofa.py:48
 msgid "enableddisabled"
 msgstr ""
 
-#: modules/account/twofa.py:64 templates/dashboard/dashboard.html:202
+#: modules/account/twofa.py:63 templates/dashboard/dashboard.html:203
 #: templates/dashboard/twofa.html:6 templates/user/twofa_settings.html:11
 msgid "Two-Factor Authentication"
 msgstr ""
 
-#: modules/cache/elasticsearch.py:25
-msgid "Elasticsearch service is now enabled."
+#: modules/cache/elasticsearch.py:19 templates/dashboard/dashboard.html:155
+msgid "ElasticSearch"
 msgstr ""
 
-#: modules/cache/elasticsearch.py:27
-msgid "Failed to start the Elasticsearch service. Try restart."
+#: modules/cache/elasticsearch.py:20 modules/cache/memcached.py:28
+msgid ""
+"The leading distributed, RESTful, open source search and analytics engine"
+" designed for speed and reliability."
 msgstr ""
 
-#: modules/cache/elasticsearch.py:32
-msgid "Elasticsearch service is now disabled."
-msgstr ""
-
-#: modules/cache/elasticsearch.py:34
-msgid "Failed to stop the Elasticsearch service. Try restart."
-msgstr ""
-
-#: modules/cache/elasticsearch.py:52 templates/cache/elasticsearch.html:13
-msgid "Elasticsearch"
-msgstr ""
-
-#: modules/cache/memcached.py:33
-msgid "Memcached service is now enabled."
-msgstr ""
-
-#: modules/cache/memcached.py:35
-msgid "Failed to start the Memcached service. Try restart."
-msgstr ""
-
-#: modules/cache/memcached.py:40
-msgid "Memcached service is now disabled."
-msgstr ""
-
-#: modules/cache/memcached.py:42
-msgid "Failed to stop the Memcached service. Try restart."
-msgstr ""
-
-#: modules/cache/memcached.py:60 templates/cache/memcached.html:13
-#: templates/dashboard/dashboard.html:152
+#: modules/cache/memcached.py:27 templates/dashboard/dashboard.html:152
 msgid "Memcached"
 msgstr ""
 
-#: modules/cache/opensearch.py:29
-msgid "OpenSearch service is now enabled."
-msgstr ""
-
-#: modules/cache/opensearch.py:31
-msgid "Failed to start the OpenSearch service. Try restart."
-msgstr ""
-
-#: modules/cache/opensearch.py:36
-msgid "OpenSearch service is now disabled."
-msgstr ""
-
-#: modules/cache/opensearch.py:38
-msgid "Failed to stop the OpenSearch service. Try restart."
-msgstr ""
-
-#: modules/cache/opensearch.py:56 templates/cache/opensearch.html:14
-#: templates/dashboard/dashboard.html:154
+#: modules/cache/opensearch.py:23 templates/dashboard/dashboard.html:154
 msgid "OpenSearch"
 msgstr ""
 
-#: modules/cache/redis.py:29
-msgid "REDIS service is now enabled."
+#: modules/cache/opensearch.py:24
+msgid ""
+"OpenSearch is an open-source, distributed search and analytics suite for "
+"large volumes of data. "
 msgstr ""
 
-#: modules/cache/redis.py:31
-msgid "Failed to start the REDIS service. Try restart."
-msgstr ""
-
-#: modules/cache/redis.py:36
-msgid "REDIS service is now disabled."
-msgstr ""
-
-#: modules/cache/redis.py:38
-msgid "Failed to stop the REDIS service. Try restart."
-msgstr ""
-
-#: modules/cache/redis.py:56 templates/dashboard/dashboard.html:151
+#: modules/cache/redis.py:22 templates/dashboard/dashboard.html:151
 msgid "Redis"
+msgstr ""
+
+#: modules/cache/redis.py:23
+msgid ""
+"Redis (Remote Dictionary Server) is an in-memory, key/value store that is"
+" used primarily as an application cache or quick-response database."
 msgstr ""
 
 #: modules/cache/varnish.py:83
@@ -1332,19 +1310,19 @@ msgstr ""
 msgid "Error saving virtual host configuration. Configuration test failed."
 msgstr ""
 
-#: modules/domain/redirects.py:78
+#: modules/domain/redirects.py:79
 msgid "Unauthorized"
 msgstr ""
 
-#: modules/domain/redirects.py:126 modules/sitemanager/temporary_links.py:49
+#: modules/domain/redirects.py:127 modules/sitemanager/temporary_links.py:49
 msgid "Domain name not provided."
 msgstr ""
 
-#: modules/domain/redirects.py:140
+#: modules/domain/redirects.py:141
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
 msgstr ""
 
-#: modules/domain/redirects.py:192
+#: modules/domain/redirects.py:193
 msgid "Create a Redirect"
 msgstr ""
 
@@ -1633,11 +1611,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:521
+#: modules/json/helpers.py:651
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:526
+#: modules/json/helpers.py:656
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1665,11 +1643,11 @@ msgstr ""
 msgid "Remote MySQL access is now disabled."
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:80 modules/psql/remote_postgresql.py:52
+#: modules/mysqld/remote_mysql.py:80 modules/psql/remote_postgresql.py:54
 msgid "OFF"
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:82 modules/psql/remote_postgresql.py:52
+#: modules/mysqld/remote_mysql.py:82 modules/psql/remote_postgresql.py:56
 msgid "ON"
 msgstr ""
 
@@ -1686,25 +1664,25 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:124
+#: modules/psql/postgresql_conf.py:127
 msgid ""
 "PostgreSQL configuration was saved successfully but postgres service "
 "failed to start! Please revert the changes to restart postgres."
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:127
+#: modules/psql/postgresql_conf.py:130
 msgid ""
 "PostgreSQL Configuration was edited successfully and service restarted to"
 " apply new settings."
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:130 modules/psql/postgresql_import.py:22
+#: modules/psql/postgresql_conf.py:133 modules/psql/postgresql_import.py:22
 msgid ""
 "postgres container is not running. Please allow a few moments for "
 "initialization.."
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:147
+#: modules/psql/postgresql_conf.py:152
 msgid "Edit PostgreSQL configuration"
 msgstr ""
 
@@ -1728,20 +1706,24 @@ msgstr ""
 msgid "Remote PostgreSQL access is now disabled."
 msgstr ""
 
-#: modules/psql/remote_postgresql.py:67
+#: modules/psql/remote_postgresql.py:72
 msgid "Remote PostgreSQL"
 msgstr ""
 
-#: templates/base.html:222 templates/user/favorites.html:13
+#: templates/base.html:210
+msgid "Dashboard"
+msgstr ""
+
+#: templates/base.html:215 templates/user/favorites.html:13
 msgid "Favorites"
 msgstr ""
 
-#: templates/base.html:377 templates/manager/sites.html:7
+#: templates/base.html:370 templates/manager/sites.html:7
 msgid "Site Manager"
 msgstr ""
 
-#: templates/base.html:853 templates/dashboard/dashboard.html:77
-#: templates/domains/ssl.html:191 templates/files/filemanager.html:204
+#: templates/base.html:805 templates/dashboard/dashboard.html:77
+#: templates/domains/ssl.html:184 templates/files/filemanager.html:204
 #: templates/manager/mautic.html:182
 #: templates/manager/python_node_apps.html:830 templates/manager/ruby.html:589
 #: templates/manager/websitebuilder.html:358
@@ -1749,75 +1731,83 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: templates/base.html:869
+#: templates/base.html:821 templates/dashboard/dashboard.html:185
+msgid "Services"
+msgstr ""
+
+#: templates/base.html:826
 msgid "Caching"
 msgstr ""
 
-#: templates/base.html:874 templates/dashboard/dashboard.html:83
+#: templates/base.html:831 templates/dashboard/dashboard.html:83
 #: templates/emails/accounts.html:12
 msgid "Emails"
 msgstr ""
 
-#: templates/base.html:884
+#: templates/base.html:841
 msgid "MySQL"
 msgstr ""
 
-#: templates/base.html:889
+#: templates/base.html:846
 msgid "PostgreSQL"
 msgstr ""
 
-#: templates/base.html:894
+#: templates/base.html:851
 msgid "PHP"
 msgstr ""
 
-#: templates/base.html:899 templates/dashboard/dashboard.html:85
+#: templates/base.html:856 templates/dashboard/dashboard.html:85
 msgid "Docker"
 msgstr ""
 
-#: templates/base.html:904 templates/dashboard/dashboard.html:86
+#: templates/base.html:861 templates/dashboard/dashboard.html:86
 msgid "Advanced"
 msgstr ""
 
-#: templates/base.html:909 templates/dashboard/dashboard.html:87
+#: templates/base.html:866 templates/dashboard/dashboard.html:87
 msgid "Account"
 msgstr ""
 
-#: templates/base.html:914 templates/dashboard/dashboard.html:98
+#: templates/base.html:871 templates/dashboard/dashboard.html:98
 #: templates/files/backups.html:10 templates/manager/mautic.html:131
 #: templates/manager/mautic.html:154 templates/manager/wordpress.html:143
 #: templates/manager/wordpress.html:209
 msgid "Backups"
 msgstr ""
 
-#: templates/base.html:919
+#: templates/base.html:876
 msgid "Sites"
 msgstr ""
 
-#: templates/base.html:956
+#: templates/base.html:908
+msgid "You are currently impersonating user"
+msgstr ""
+
+#: templates/base.html:934
 msgid "Left-click to add to Favorites"
 msgstr ""
 
-#: templates/base.html:994
+#: templates/base.html:947
 msgid "This page is not in your favorites! Left-click to add it."
 msgstr ""
 
-#: templates/base.html:1016
+#: templates/base.html:969
 msgid "Successfully removed from favorites!"
 msgstr ""
 
-#: templates/base.html:1027
+#: templates/base.html:980
 msgid "Failed to remove favorite."
 msgstr ""
 
-#: templates/base.html:1034
+#: templates/base.html:987
 msgid "This page is already in your favorites! Right-click to remove it."
 msgstr ""
 
-#: templates/base.html:1066
+#: templates/base.html:1019
 msgid "Successfully added to favorites!"
 msgstr ""
 
-#: templates/base.html:1078
+#: templates/base.html:1031
 msgid "Failed to add favorite."
 msgstr ""
 
@@ -2002,7 +1992,7 @@ msgid "Data"
 msgstr ""
 
 #: templates/flarum.html:687 templates/manager/python_node_apps.html:126
-#: templates/manager/python_node_apps.html:149 templates/node/install.html:63
+#: templates/manager/python_node_apps.html:149
 msgid "Install"
 msgstr ""
 
@@ -2078,9 +2068,133 @@ msgstr ""
 msgid "No Mautic sites managed via OpenPanel. Install a new Mautic site."
 msgstr ""
 
-#: templates/mautic.html:305 templates/psql/pgadmin.html:124
+#: templates/mautic.html:305 templates/psql/pgadmin.html:116
 #: templates/wordpress.html:396
 msgid "View Documentation"
+msgstr ""
+
+#: templates/services.html:13
+msgid "Manage service and view real-time resource usage."
+msgstr ""
+
+#: templates/cache/_shared.html:15 templates/cache/_shared.html:61
+#: templates/cache/varnish.html:34 templates/cache/varnish.html:82
+#: templates/mysql/phpmyadmin.html:65 templates/mysql/remote_mysql.html:78
+#: templates/psql/pgadmin.html:67 templates/psql/remote_psql.html:76
+#: templates/services.html:21 templates/services.html:67
+msgid "Click to Disable"
+msgstr ""
+
+#: templates/cache/_shared.html:22 templates/cache/_shared.html:76
+#: templates/cache/varnish.html:41 templates/cache/varnish.html:97
+#: templates/dashboard/twofa.html:11 templates/mysql/phpmyadmin.html:80
+#: templates/mysql/remote_mysql.html:93 templates/psql/pgadmin.html:82
+#: templates/psql/remote_psql.html:91 templates/services.html:28
+#: templates/services.html:82
+msgid "Click to Enable"
+msgstr ""
+
+#: templates/cache/_shared.html:35 templates/cache/varnish.html:54
+#: templates/mysql/phpmyadmin.html:37 templates/services.html:41
+msgid "Not currently enabled by Administrator."
+msgstr ""
+
+#: templates/cache/_shared.html:36 templates/cache/varnish.html:55
+#: templates/mysql/phpmyadmin.html:38 templates/psql/pgadmin.html:39
+#: templates/services.html:42
+msgid "Contact your hosting provider"
+msgstr ""
+
+#: templates/cache/_shared.html:45 templates/cache/varnish.html:66
+#: templates/cache/varnish.html:135 templates/docker/containers.html:72
+#: templates/domains/domains.html:92 templates/domains/domains.html:195
+#: templates/domains/logs.html:180 templates/domains/logs.html:222
+#: templates/domains/ssl.html:27 templates/manager/wordpress.html:1135
+#: templates/mysql/phpmyadmin.html:49 templates/mysql/remote_mysql.html:62
+#: templates/psql/pgadmin.html:51 templates/psql/remote_psql.html:60
+#: templates/services.html:51 templates/system/ssh.html:26
+#: templates/system/waf.html:58 templates/user/active_sessions.html:59
+msgid "Status"
+msgstr ""
+
+#: templates/cache/_shared.html:46 templates/cache/varnish.html:67
+#: templates/services.html:52
+msgid "Enable/disable the service."
+msgstr ""
+
+#: templates/cache/_shared.html:56 templates/cache/varnish.html:77
+#: templates/mysql/phpmyadmin.html:60 templates/mysql/remote_mysql.html:73
+#: templates/psql/pgadmin.html:62 templates/psql/remote_psql.html:71
+#: templates/services.html:62 templates/system/ssh.html:37
+msgid "Enabled"
+msgstr ""
+
+#: templates/cache/_shared.html:71 templates/cache/varnish.html:92
+#: templates/mysql/phpmyadmin.html:75 templates/mysql/remote_mysql.html:88
+#: templates/psql/pgadmin.html:77 templates/psql/remote_psql.html:86
+#: templates/services.html:77 templates/system/ssh.html:45
+msgid "Disabled"
+msgstr ""
+
+#: templates/cache/_shared.html:89 templates/cache/varnish.html:110
+#: templates/mysql/phpmyadmin.html:93 templates/mysql/remote_mysql.html:106
+#: templates/psql/pgadmin.html:95 templates/psql/remote_psql.html:104
+#: templates/services.html:95
+msgid "Click to Restart"
+msgstr ""
+
+#: templates/services.html:107
+msgid "Service"
+msgstr ""
+
+#: templates/services.html:108
+msgid "Name for accessing the service from other containers."
+msgstr ""
+
+#: templates/docker/container_form.html:67
+#: templates/files/filemanager/modals/rename.html:31
+#: templates/files/filemanager/rename.html:28
+#: templates/manager/pm2_install.html:95 templates/services.html:113
+msgid "Name:"
+msgstr ""
+
+#: templates/cache/_shared.html:129 templates/cache/varnish.html:197
+#: templates/manager/python_node_apps.html:182 templates/services.html:132
+#: templates/system/cronjobs.html:134 templates/system/process_manager.html:58
+msgid "Container"
+msgstr ""
+
+#: templates/cache/_shared.html:130 templates/cache/varnish.html:198
+#: templates/services.html:133
+msgid "Current real-time resource usage for the service."
+msgstr ""
+
+#: templates/cache/_shared.html:200 templates/cache/varnish.html:267
+#: templates/services.html:197
+msgid "Edit Container limits"
+msgstr ""
+
+#: templates/cache/_shared.html:219 templates/cache/varnish.html:280
+#: templates/services.html:215
+msgid "View service logs."
+msgstr ""
+
+#: templates/cache/_shared.html:225 templates/cache/varnish.html:286
+#: templates/services.html:221
+msgid "View service log"
+msgstr ""
+
+#: templates/services.html:268
+msgid "Manage Service"
+msgstr ""
+
+#: templates/services.html:269
+msgid "Select system service to manage."
+msgstr ""
+
+#: templates/docker/change_images.html:120 templates/docker/terminal.html:164
+#: templates/services.html:281
+msgid "Select service"
 msgstr ""
 
 #: templates/wordpress.html:10
@@ -2157,234 +2271,26 @@ msgstr ""
 msgid "Error occurred during refresh."
 msgstr ""
 
-#: templates/cache/elasticsearch.html:14
-msgid ""
-"The leading distributed, RESTful, open source search and analytics engine"
-" designed for speed and reliability."
-msgstr ""
-
-#: templates/cache/elasticsearch.html:22
-msgid "Install Elasticsearch"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:33 templates/cache/elasticsearch.html:91
-#: templates/cache/memcached.html:33 templates/cache/memcached.html:90
-#: templates/cache/opensearch.html:34 templates/cache/opensearch.html:92
-#: templates/cache/redis.html:34 templates/cache/redis.html:92
-#: templates/cache/varnish.html:34 templates/cache/varnish.html:92
-#: templates/mysql/phpmyadmin.html:75 templates/mysql/remote_mysql.html:78
-#: templates/psql/pgadmin.html:75 templates/psql/remote_psql.html:78
-msgid "Click to Disable"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:40 templates/cache/elasticsearch.html:106
-#: templates/cache/memcached.html:40 templates/cache/memcached.html:105
-#: templates/cache/opensearch.html:41 templates/cache/opensearch.html:108
-#: templates/cache/redis.html:41 templates/cache/redis.html:107
-#: templates/cache/varnish.html:41 templates/cache/varnish.html:107
-#: templates/dashboard/twofa.html:11 templates/mysql/phpmyadmin.html:90
-#: templates/mysql/remote_mysql.html:93 templates/psql/pgadmin.html:90
-#: templates/psql/remote_psql.html:93
-msgid "Click to Enable"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:54
-msgid "Elasticsearch is not currently installed."
-msgstr ""
-
-#: templates/cache/elasticsearch.html:56
-msgid "To install Elasticsearch click on the button above."
-msgstr ""
-
-#: templates/cache/elasticsearch.html:75 templates/cache/memcached.html:74
-#: templates/cache/opensearch.html:76 templates/cache/redis.html:76
-#: templates/cache/varnish.html:76 templates/cache/varnish.html:145
-#: templates/docker/containers.html:72 templates/domains/domains.html:92
-#: templates/domains/domains.html:195 templates/domains/logs.html:180
-#: templates/domains/logs.html:222 templates/domains/ssl.html:27
-#: templates/manager/wordpress.html:1135 templates/mysql/phpmyadmin.html:59
-#: templates/mysql/remote_mysql.html:62 templates/psql/pgadmin.html:59
-#: templates/psql/remote_psql.html:62 templates/system/ssh.html:26
-#: templates/system/waf.html:58 templates/user/active_sessions.html:59
-msgid "Status"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:76
-msgid "Enable/disable Elasticsearch service."
-msgstr ""
-
-#: templates/cache/elasticsearch.html:86 templates/cache/memcached.html:85
-#: templates/cache/opensearch.html:87 templates/cache/redis.html:87
-#: templates/cache/varnish.html:87 templates/mysql/phpmyadmin.html:70
-#: templates/mysql/remote_mysql.html:73 templates/psql/pgadmin.html:70
-#: templates/psql/remote_psql.html:73 templates/system/ssh.html:37
-msgid "Enabled"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:101 templates/cache/memcached.html:100
-#: templates/cache/opensearch.html:102 templates/cache/redis.html:102
-#: templates/cache/varnish.html:102 templates/mysql/phpmyadmin.html:85
-#: templates/mysql/remote_mysql.html:88 templates/psql/pgadmin.html:85
-#: templates/psql/remote_psql.html:88 templates/system/ssh.html:45
-msgid "Disabled"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:119 templates/cache/memcached.html:117
-#: templates/cache/opensearch.html:121 templates/cache/redis.html:120
-#: templates/cache/varnish.html:120 templates/mysql/phpmyadmin.html:103
-#: templates/mysql/remote_mysql.html:106 templates/psql/pgadmin.html:103
-#: templates/psql/remote_psql.html:106
-msgid "Click to Restart"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:131 templates/mysql/phpmyadmin.html:161
-#: templates/psql/pgadmin.html:161 templates/psql/remote_psql.html:118
-#: templates/system/ssh.html:62
-msgid "Port"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:132
-msgid "IP and Port for accessing the Elasticsearch service."
-msgstr ""
-
-#: templates/cache/elasticsearch.html:137 templates/cache/memcached.html:135
-#: templates/cache/opensearch.html:139 templates/cache/redis.html:138
-#: templates/mysql/phpmyadmin.html:167 templates/mysql/remote_mysql.html:124
-#: templates/mysql/remote_mysql.html:147 templates/psql/pgadmin.html:167
-#: templates/psql/remote_psql.html:124 templates/system/ssh.html:68
-msgid "Server:"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:138
-msgid "elasticsearch"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:141 templates/cache/memcached.html:139
-#: templates/cache/opensearch.html:143 templates/cache/redis.html:142
-#: templates/manager/pm2_install.html:120 templates/mysql/phpmyadmin.html:171
-#: templates/mysql/remote_mysql.html:128 templates/mysql/remote_mysql.html:151
-#: templates/psql/pgadmin.html:171 templates/psql/remote_psql.html:128
-#: templates/system/ssh.html:72
-msgid "Port:"
-msgstr ""
-
-#: templates/cache/elasticsearch.html:159
-msgid "View Elasticsearch service logs."
-msgstr ""
-
-#: templates/cache/elasticsearch.html:165 templates/cache/memcached.html:162
-#: templates/cache/opensearch.html:166 templates/cache/redis.html:165
-#: templates/cache/varnish.html:207
-msgid "View service log"
-msgstr ""
-
-#: templates/cache/memcached.html:14
-msgid ""
-"An in-memory key-value store for small chunks of arbitrary data (strings,"
-" objects) from results of database calls or page rendering."
-msgstr ""
-
-#: templates/cache/memcached.html:22
-msgid "Install Memcached"
-msgstr ""
-
-#: templates/cache/memcached.html:54
-msgid "Memcached is not currently installed."
-msgstr ""
-
-#: templates/cache/memcached.html:56
-msgid "To install Memcached click on the button above."
-msgstr ""
-
-#: templates/cache/memcached.html:75
-msgid "Enable/disable Memcached service."
-msgstr ""
-
-#: templates/cache/memcached.html:129 templates/cache/opensearch.html:133
-#: templates/cache/redis.html:132
+#: templates/cache/_shared.html:101
 msgid "TCP"
 msgstr ""
 
-#: templates/cache/memcached.html:130
-msgid "IP and Port for accessing the Memcached service."
+#: templates/cache/_shared.html:102
+msgid "IP and Port for accessing the service."
 msgstr ""
 
-#: templates/cache/memcached.html:136
-msgid "memcached"
+#: templates/cache/_shared.html:107 templates/mysql/phpmyadmin.html:157
+#: templates/mysql/remote_mysql.html:124 templates/mysql/remote_mysql.html:147
+#: templates/psql/pgadmin.html:159 templates/psql/remote_psql.html:122
+#: templates/system/ssh.html:68
+msgid "Server:"
 msgstr ""
 
-#: templates/cache/memcached.html:156
-msgid "View Memcached service logs."
-msgstr ""
-
-#: templates/cache/opensearch.html:15
-msgid "OpenSearch for faster."
-msgstr ""
-
-#: templates/cache/opensearch.html:23
-msgid "Install opensearch"
-msgstr ""
-
-#: templates/cache/opensearch.html:55
-msgid "OpenSearch is not currently installed."
-msgstr ""
-
-#: templates/cache/opensearch.html:57
-msgid "To install OpenSearch click on the button above."
-msgstr ""
-
-#: templates/cache/opensearch.html:77
-msgid "Enable/disable OpenSearch service."
-msgstr ""
-
-#: templates/cache/opensearch.html:134
-msgid "IP and Port for accessing the OpenSearch service."
-msgstr ""
-
-#: templates/cache/opensearch.html:140
-msgid "opensearch"
-msgstr ""
-
-#: templates/cache/opensearch.html:160
-msgid "View OpenSearch service logs."
-msgstr ""
-
-#: templates/cache/redis.html:14
-msgid "REDIS"
-msgstr ""
-
-#: templates/cache/redis.html:15
-msgid ""
-"Redis (Remote DIctionary Server) is an in-memory, key/value store that is"
-" used primarily as an application cache or quick-response database."
-msgstr ""
-
-#: templates/cache/redis.html:23
-msgid "Install REDIS"
-msgstr ""
-
-#: templates/cache/redis.html:55
-msgid "REDIS is not currently installed."
-msgstr ""
-
-#: templates/cache/redis.html:57
-msgid "To install REDIS click on the button above."
-msgstr ""
-
-#: templates/cache/redis.html:77
-msgid "Enable/disable REDIS service."
-msgstr ""
-
-#: templates/cache/redis.html:133
-msgid "IP and Port for accessing the REDIS service."
-msgstr ""
-
-#: templates/cache/redis.html:139
-msgid "redis"
-msgstr ""
-
-#: templates/cache/redis.html:159
-msgid "View REDIS service logs."
+#: templates/cache/_shared.html:111 templates/manager/pm2_install.html:120
+#: templates/mysql/phpmyadmin.html:161 templates/mysql/remote_mysql.html:128
+#: templates/mysql/remote_mysql.html:151 templates/psql/pgadmin.html:163
+#: templates/psql/remote_psql.html:126 templates/system/ssh.html:72
+msgid "Port:"
 msgstr ""
 
 #: templates/cache/varnish.html:15
@@ -2397,29 +2303,13 @@ msgstr ""
 msgid "Install Varnish"
 msgstr ""
 
-#: templates/cache/varnish.html:55
-msgid "Varnish is not currently installed."
-msgstr ""
-
-#: templates/cache/varnish.html:57
-msgid "To install Varnish click on the button above."
-msgstr ""
-
-#: templates/cache/varnish.html:77
-msgid "Enable/disable Varnish service."
-msgstr ""
-
-#: templates/cache/varnish.html:133
+#: templates/cache/varnish.html:123
 msgid "Enable/disable Varnish cache per domain."
 msgstr ""
 
-#: templates/cache/varnish.html:142 templates/domains/domains.html:61
+#: templates/cache/varnish.html:132 templates/domains/domains.html:61
 #: templates/domains/domains.html:188 templates/system/waf.html:54
 msgid "Domain Name"
-msgstr ""
-
-#: templates/cache/varnish.html:201
-msgid "View Varnish service logs."
 msgstr ""
 
 #: templates/dashboard/dashboard.html:81
@@ -2510,7 +2400,7 @@ msgstr ""
 msgid "MySQL Configuration"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:136
+#: templates/dashboard/dashboard.html:136 templates/psql/pgadmin.html:14
 msgid "pgAdmin"
 msgstr ""
 
@@ -2529,10 +2419,6 @@ msgstr ""
 #: templates/dashboard/dashboard.html:145
 #: templates/manager/websitebuilder_install.html:9
 msgid "Website Builder"
-msgstr ""
-
-#: templates/dashboard/dashboard.html:155
-msgid "ElasticSearch"
 msgstr ""
 
 #: templates/dashboard/dashboard.html:159
@@ -2575,47 +2461,47 @@ msgstr ""
 msgid "Change MySQL Type"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:185 templates/system/cronjobs.html:23
+#: templates/dashboard/dashboard.html:186 templates/system/cronjobs.html:23
 msgid "Cron Jobs"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:186 templates/system/ssh.html:13
+#: templates/dashboard/dashboard.html:187 templates/system/ssh.html:13
 msgid "SSH Access"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:187
+#: templates/dashboard/dashboard.html:188
 msgid "Web Terminal"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:191
+#: templates/dashboard/dashboard.html:192
 msgid "Change TimeZone"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:192
+#: templates/dashboard/dashboard.html:193
 msgid "Webserver Configuration"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:193
+#: templates/dashboard/dashboard.html:194
 msgid "WAF Settings"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:199 templates/user/account.html:13
+#: templates/dashboard/dashboard.html:200 templates/user/account.html:13
 msgid "Email & Password"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:201 templates/user/notifications.html:11
+#: templates/dashboard/dashboard.html:202 templates/user/notifications.html:11
 msgid "Email Notifications"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:204
+#: templates/dashboard/dashboard.html:205
 msgid "Favorite Pages"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:205
+#: templates/dashboard/dashboard.html:206
 msgid "Account Activity"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:207
+#: templates/dashboard/dashboard.html:208
 msgid "Log out"
 msgstr ""
 
@@ -2628,7 +2514,7 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#: templates/dashboard/information.html:35 templates/emails/info.html:34
+#: templates/dashboard/information.html:34 templates/emails/info.html:34
 #: templates/emails/info.html:50 templates/emails/new.html:40
 #: templates/files/ftp.html:58 templates/files/ftp_new.html:31
 #: templates/mysql/mysql_user.html:27 templates/mysql/password.html:26
@@ -2639,24 +2525,24 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: templates/dashboard/information.html:36
+#: templates/dashboard/information.html:35
 msgid "Plan"
 msgstr ""
 
-#: templates/dashboard/information.html:61 templates/system/server_info.html:60
+#: templates/dashboard/information.html:56 templates/system/server_info.html:60
 #: templates/user/active_sessions.html:53 templates/user/activity.html:46
 msgid "IP Address"
 msgstr ""
 
-#: templates/dashboard/information.html:62
+#: templates/dashboard/information.html:57
 msgid "Last Login IP Address"
 msgstr ""
 
-#: templates/dashboard/information.html:82
+#: templates/dashboard/information.html:75
 msgid "/"
 msgstr ""
 
-#: templates/dashboard/information.html:94
+#: templates/dashboard/information.html:85
 #: templates/system/server_info.html:157
 msgid "Nameservers"
 msgstr ""
@@ -2815,10 +2701,6 @@ msgstr ""
 msgid "Change docker images tag in order to use specific service versions."
 msgstr ""
 
-#: templates/docker/change_images.html:120 templates/docker/terminal.html:164
-msgid "Select service"
-msgstr ""
-
 #: templates/docker/change_mysql.html:9
 msgid "Change mysql server for new databases."
 msgstr ""
@@ -2897,13 +2779,6 @@ msgstr ""
 
 #: templates/docker/container_form.html:18
 msgid "Please share feedback"
-msgstr ""
-
-#: templates/docker/container_form.html:67
-#: templates/files/filemanager/modals/rename.html:31
-#: templates/files/filemanager/rename.html:28
-#: templates/manager/pm2_install.html:95
-msgid "Name:"
 msgstr ""
 
 #: templates/docker/container_form.html:86
@@ -2985,11 +2860,11 @@ msgstr ""
 msgid "Checking containers runtime metrics.."
 msgstr ""
 
-#: templates/docker/containers.html:289
+#: templates/docker/containers.html:288
 msgid "No container are currently running."
 msgstr ""
 
-#: templates/docker/containers.html:397
+#: templates/docker/containers.html:392
 msgid "Error fetching docker stats for containers."
 msgstr ""
 
@@ -3059,7 +2934,6 @@ msgid "Update"
 msgstr ""
 
 #: templates/docker/images.html:136 templates/mysql/processlist.html:74
-#: templates/psql/processlist.html:74
 msgid "Info"
 msgstr ""
 
@@ -3343,9 +3217,9 @@ msgid ""
 msgstr ""
 
 #: templates/domains/dns.html:619 templates/domains/vhost.html:29
-#: templates/mysql/configuration.html:36 templates/mysql/phpmyadmin.html:125
+#: templates/mysql/configuration.html:36 templates/mysql/phpmyadmin.html:115
 #: templates/php/ini_editor.html:33 templates/php/options.html:37
-#: templates/psql/configuration.html:36 templates/psql/pgadmin.html:125
+#: templates/psql/configuration.html:36 templates/psql/pgadmin.html:117
 #: templates/system/apache_nginx_conf_editor.html:26
 #: templates/system/cronjobs.html:47
 msgid "Save Changes"
@@ -3384,7 +3258,7 @@ msgstr ""
 
 #: templates/domains/dns.html:744 templates/domains/docroot.html:100
 #: templates/domains/goaccess.html:33 templates/domains/logs.html:378
-#: templates/domains/redirect.html:110 templates/domains/ssl.html:343
+#: templates/domains/redirect.html:110 templates/domains/ssl.html:336
 #: templates/domains/suspend.html:88 templates/domains/unsuspend.html:87
 #: templates/domains/vhost.html:89 templates/system/waf_logs.html:281
 msgid "Select domain"
@@ -3411,7 +3285,7 @@ msgid "Total domains:"
 msgstr ""
 
 #: templates/domains/domains.html:51 templates/domains/logs.html:99
-#: templates/system/waf_logs.html:47
+#: templates/psql/processlist.html:70 templates/system/waf_logs.html:47
 msgid "Show Columns"
 msgstr ""
 
@@ -3750,59 +3624,59 @@ msgstr ""
 msgid "Certificate Details:"
 msgstr ""
 
-#: templates/domains/ssl.html:145
+#: templates/domains/ssl.html:139
 msgid "Valid"
 msgstr ""
 
-#: templates/domains/ssl.html:148
+#: templates/domains/ssl.html:142
 msgid "Invalid"
 msgstr ""
 
-#: templates/domains/ssl.html:174
+#: templates/domains/ssl.html:167
 msgid "No Certificate!"
 msgstr ""
 
-#: templates/domains/ssl.html:192
+#: templates/domains/ssl.html:185
 msgid "View current certificate files."
 msgstr ""
 
-#: templates/domains/ssl.html:197
+#: templates/domains/ssl.html:190
 msgid "Certificate Files:"
 msgstr ""
 
-#: templates/domains/ssl.html:206
+#: templates/domains/ssl.html:199
 msgid "View Files"
 msgstr ""
 
-#: templates/domains/ssl.html:215
+#: templates/domains/ssl.html:208
 msgid "No Files"
 msgstr ""
 
-#: templates/domains/ssl.html:232
+#: templates/domains/ssl.html:225
 msgid "Configure custom SSL"
 msgstr ""
 
-#: templates/domains/ssl.html:233
+#: templates/domains/ssl.html:226
 msgid "Insert paths to certificate files to be used for this domain."
 msgstr ""
 
-#: templates/domains/ssl.html:255
+#: templates/domains/ssl.html:248
 msgid "Path to Certificate:"
 msgstr ""
 
-#: templates/domains/ssl.html:268
+#: templates/domains/ssl.html:261
 msgid "Path to Certificate key:"
 msgstr ""
 
-#: templates/domains/ssl.html:294
+#: templates/domains/ssl.html:287
 msgid "Configure Custom Certificate"
 msgstr ""
 
-#: templates/domains/ssl.html:324
+#: templates/domains/ssl.html:317
 msgid "Select Domain to edit SSL"
 msgstr ""
 
-#: templates/domains/ssl.html:325
+#: templates/domains/ssl.html:318
 msgid "View and change SSL settings for a domain."
 msgstr ""
 
@@ -3942,14 +3816,13 @@ msgstr ""
 #: templates/emails/confirm_import.html:45 templates/emails/info.html:35
 #: templates/emails/info.html:51 templates/emails/new.html:124
 #: templates/emails/single_account.html:145 templates/files/ftp_new.html:56
-#: templates/files/ftp_password.html:46 templates/mysql/mysql_user.html:52
-#: templates/mysql/mysql_user.html:62 templates/mysql/password.html:46
-#: templates/mysql/root_password.html:50 templates/mysql/wizard.html:73
-#: templates/psql/mysql_user.html:40 templates/psql/password.html:46
-#: templates/psql/password.html:56 templates/psql/psql_user.html:46
-#: templates/psql/psql_user.html:56 templates/psql/wizard.html:61
-#: templates/psql/wizard.html:71 templates/user/account.html:78
-#: templates/user/account.html:97 templates/user/login.html:23
+#: templates/mysql/mysql_user.html:52 templates/mysql/mysql_user.html:62
+#: templates/mysql/password.html:46 templates/mysql/root_password.html:50
+#: templates/mysql/wizard.html:73 templates/psql/mysql_user.html:40
+#: templates/psql/password.html:46 templates/psql/password.html:56
+#: templates/psql/psql_user.html:46 templates/psql/psql_user.html:56
+#: templates/psql/wizard.html:61 templates/psql/wizard.html:71
+#: templates/user/account.html:78 templates/user/login.html:23
 msgid "Password"
 msgstr ""
 
@@ -4146,8 +4019,8 @@ msgid "Strong password"
 msgstr ""
 
 #: templates/emails/new.html:134 templates/emails/single_account.html:155
-#: templates/files/ftp_new.html:67 templates/mysql/password.html:56
-#: templates/mysql/root_password.html:40
+#: templates/files/ftp_new.html:67 templates/files/ftp_password.html:46
+#: templates/mysql/password.html:56 templates/mysql/root_password.html:40
 #: templates/user/reset_password/set_new_password.html:21
 msgid "New Password"
 msgstr ""
@@ -4235,50 +4108,6 @@ msgstr ""
 
 #: templates/files/backups.html:12
 msgid "Manage backups."
-msgstr ""
-
-#: templates/files/confirm_restore.html:15
-msgid "Confirm data restore to"
-msgstr ""
-
-#: templates/files/confirm_restore.html:17
-msgid "This will delete all data and restore the state from the backup."
-msgstr ""
-
-#: templates/files/confirm_restore.html:41
-msgid ""
-"All files will be reverted to the state they were in at the time of the "
-"backup."
-msgstr ""
-
-#: templates/files/confirm_restore.html:44
-msgid ""
-"FTP accounts will be restored, and any files added after the backup will "
-"be removed."
-msgstr ""
-
-#: templates/files/confirm_restore.html:47
-msgid "Domain settings and configurations will be reverted to their backup state."
-msgstr ""
-
-#: templates/files/confirm_restore.html:48
-msgid ""
-"Websites, their databases, and files will be restored, undoing any "
-"changes made after the backup."
-msgstr ""
-
-#: templates/files/confirm_restore.html:51
-msgid ""
-"Email accounts will be restored, and any emails received after the backup"
-" will be lost."
-msgstr ""
-
-#: templates/files/confirm_restore.html:67
-msgid "Back to Backups"
-msgstr ""
-
-#: templates/files/confirm_restore.html:70
-msgid "Confirm and start restore"
 msgstr ""
 
 #: templates/files/disk_usage.html:15
@@ -4502,7 +4331,7 @@ msgstr ""
 msgid "New password"
 msgstr ""
 
-#: templates/files/ftp_password.html:166
+#: templates/files/ftp_password.html:166 templates/user/account.html:97
 #: templates/user/reset_password/set_new_password.html:34
 msgid "Confirm Password"
 msgstr ""
@@ -5258,7 +5087,7 @@ msgstr ""
 #: templates/manager/pm2_install.html:311
 #: templates/manager/python_node_apps.html:82
 #: templates/manager/python_node_apps.html:314
-#: templates/mysql/phpmyadmin.html:144 templates/psql/pgadmin.html:144
+#: templates/mysql/phpmyadmin.html:134 templates/psql/pgadmin.html:136
 msgid "Version:"
 msgstr ""
 
@@ -5322,7 +5151,7 @@ msgid "CPU limit:"
 msgstr ""
 
 #: templates/manager/python_node_apps.html:104
-#: templates/mysql/phpmyadmin.html:135 templates/psql/pgadmin.html:135
+#: templates/mysql/phpmyadmin.html:125 templates/psql/pgadmin.html:127
 msgid "Memory limit:"
 msgstr ""
 
@@ -5334,11 +5163,6 @@ msgstr ""
 #: templates/manager/python_node_apps.html:126
 #: templates/manager/python_node_apps.html:149
 msgid "PIP"
-msgstr ""
-
-#: templates/manager/python_node_apps.html:182
-#: templates/system/cronjobs.html:134 templates/system/process_manager.html:58
-msgid "Container"
 msgstr ""
 
 #: templates/manager/python_node_apps.html:183
@@ -6264,14 +6088,14 @@ msgstr ""
 
 #: templates/mysql/assign.html:41 templates/mysql/processlist.html:59
 #: templates/mysql/remove.html:39 templates/psql/assign.html:41
-#: templates/psql/processlist.html:59 templates/psql/remove.html:39
+#: templates/psql/remove.html:39
 msgid "Host"
 msgstr ""
 
 #: templates/mysql/assign.html:63 templates/mysql/import.html:55
 #: templates/mysql/new.html:50 templates/mysql/remove.html:60
 #: templates/mysql/root_password.html:157 templates/mysql/wizard.html:194
-#: templates/psql/assign.html:63 templates/psql/import.html:52
+#: templates/psql/assign.html:69 templates/psql/import.html:52
 #: templates/psql/new.html:50 templates/psql/remove.html:60
 #: templates/psql/wizard.html:177
 msgid "Back to Databases"
@@ -6406,8 +6230,7 @@ msgstr ""
 msgid "Change password for a MySQL database user."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:15 templates/mysql/phpmyadmin.html:60
-#: templates/psql/pgadmin.html:15 templates/psql/pgadmin.html:60
+#: templates/mysql/phpmyadmin.html:15 templates/mysql/phpmyadmin.html:50
 msgid "Enable/disable phpMyAdmin service."
 msgstr ""
 
@@ -6415,35 +6238,32 @@ msgstr ""
 msgid "Open phpMyAdmin Login"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:38 templates/psql/pgadmin.html:38
-msgid "phpmyadmin is not currently installed."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:40 templates/psql/pgadmin.html:40
-msgid "To install phpMyAdmin click on the button above."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:124 templates/psql/pgadmin.html:124
+#: templates/mysql/phpmyadmin.html:114
 msgid "PHP limits for the phpMyAdmin container."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:131 templates/psql/pgadmin.html:131
+#: templates/mysql/phpmyadmin.html:121 templates/psql/pgadmin.html:123
 msgid "Max execution time:"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:139 templates/psql/pgadmin.html:139
+#: templates/mysql/phpmyadmin.html:129 templates/psql/pgadmin.html:131
 msgid "Upload limit:"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:162 templates/psql/pgadmin.html:162
+#: templates/mysql/phpmyadmin.html:151 templates/psql/pgadmin.html:153
+#: templates/psql/remote_psql.html:116 templates/system/ssh.html:62
+msgid "Port"
+msgstr ""
+
+#: templates/mysql/phpmyadmin.html:152
 msgid "IP and Port for accessing the phpMyAdmin service."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:186 templates/psql/pgadmin.html:186
+#: templates/mysql/phpmyadmin.html:176
 msgid "View phpMyAdmin service logs."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:192 templates/psql/pgadmin.html:192
+#: templates/mysql/phpmyadmin.html:182 templates/psql/pgadmin.html:184
 msgid "View container log"
 msgstr ""
 
@@ -6458,34 +6278,31 @@ msgid ""
 "for better performance monitoring."
 msgstr ""
 
-#: templates/mysql/processlist.html:40 templates/psql/processlist.html:40
-#: templates/system/process_manager.html:40
+#: templates/mysql/processlist.html:40 templates/system/process_manager.html:40
 msgid "Refresh Processes"
 msgstr ""
 
-#: templates/mysql/processlist.html:53 templates/psql/processlist.html:53
+#: templates/mysql/processlist.html:53
 msgid "ID"
 msgstr ""
 
-#: templates/mysql/processlist.html:56 templates/psql/processlist.html:56
-#: templates/user/activity.html:44
+#: templates/mysql/processlist.html:56 templates/user/activity.html:44
 msgid "User"
 msgstr ""
 
-#: templates/mysql/processlist.html:62 templates/psql/processlist.html:62
+#: templates/mysql/processlist.html:62
 msgid "DB"
 msgstr ""
 
-#: templates/mysql/processlist.html:65 templates/psql/processlist.html:65
-#: templates/system/cronjobs.html:137
+#: templates/mysql/processlist.html:65 templates/system/cronjobs.html:137
 msgid "Command"
 msgstr ""
 
-#: templates/mysql/processlist.html:68 templates/psql/processlist.html:68
+#: templates/mysql/processlist.html:68
 msgid "Time"
 msgstr ""
 
-#: templates/mysql/processlist.html:71 templates/psql/processlist.html:71
+#: templates/mysql/processlist.html:71 templates/psql/processlist.html:326
 msgid "State"
 msgstr ""
 
@@ -6601,34 +6418,6 @@ msgstr ""
 msgid "Create DB, User, and Grant Privileges"
 msgstr ""
 
-#: templates/node/install.html:13
-msgid "Install new NodeJS version"
-msgstr ""
-
-#: templates/node/install.html:14
-msgid "Install new NodeJS versions"
-msgstr ""
-
-#: templates/node/install.html:17
-msgid "Currently installed Node versions"
-msgstr ""
-
-#: templates/node/install.html:33
-msgid "Select Node Version to be installed:"
-msgstr ""
-
-#: templates/node/install.html:37
-msgid "Select version"
-msgstr ""
-
-#: templates/node/install.html:59
-msgid "Back to PM2"
-msgstr ""
-
-#: templates/node/install.html:74
-msgid "Install log:"
-msgstr ""
-
 #: templates/partials/pagespeed.html:19
 msgid "Loading Google PageSpeed data"
 msgstr ""
@@ -6727,15 +6516,15 @@ msgstr ""
 msgid "No link found in the response. Contact Administrator."
 msgstr ""
 
-#: templates/partials/waf.html:5
+#: templates/partials/waf.html:28
 msgid "Firewall"
 msgstr ""
 
-#: templates/partials/waf.html:14
+#: templates/partials/waf.html:40
 msgid "Control Coraza WAF for the domain"
 msgstr ""
 
-#: templates/partials/waf.html:30
+#: templates/partials/waf.html:56
 msgid "Checking Firewall status.."
 msgstr ""
 
@@ -6871,6 +6660,10 @@ msgid ""
 " managing data within the specified database."
 msgstr ""
 
+#: templates/psql/assign.html:44
+msgid "Select a database"
+msgstr ""
+
 #: templates/psql/configuration.html:14
 msgid ""
 "View and modify the PostgreSQL service configuration. Any changes will "
@@ -6919,19 +6712,211 @@ msgstr ""
 msgid "Change password for a PostgreSQL database user."
 msgstr ""
 
-#: templates/psql/pgadmin.html:25
-msgid "phpMyAdmin Login"
+#: templates/psql/pgadmin.html:15 templates/psql/pgadmin.html:52
+msgid "Enable/disable pgAdmin service."
 msgstr ""
 
-#: templates/psql/processlist.html:9
+#: templates/psql/pgadmin.html:25
+msgid "pgAdmin Login"
+msgstr ""
+
+#: templates/psql/pgadmin.html:38
+msgid "pgAdmin is not currently enabled by Administrator."
+msgstr ""
+
+#: templates/psql/pgadmin.html:116
+msgid "PHP limits for the pgAdmin container."
+msgstr ""
+
+#: templates/psql/pgadmin.html:154
+msgid "IP and Port for accessing the pgAdmin service."
+msgstr ""
+
+#: templates/psql/pgadmin.html:178
+msgid "View pgAdmin service logs."
+msgstr ""
+
+#: templates/psql/processlist.html:7
 msgid "PostgreSQL Processes"
 msgstr ""
 
-#: templates/psql/processlist.html:10
+#: templates/psql/processlist.html:9
 msgid ""
 "List of all current processes running on the PostgreSQL server, providing"
 " insights into ongoing queries, operations, and their associated details "
 "for better performance monitoring."
+msgstr ""
+
+#: templates/psql/processlist.html:84
+msgid "datid"
+msgstr ""
+
+#: templates/psql/processlist.html:94
+msgid "datname"
+msgstr ""
+
+#: templates/psql/processlist.html:104
+msgid "pid"
+msgstr ""
+
+#: templates/psql/processlist.html:114
+msgid "leader_pid"
+msgstr ""
+
+#: templates/psql/processlist.html:124
+msgid "usesysid"
+msgstr ""
+
+#: templates/psql/processlist.html:134
+msgid "usename"
+msgstr ""
+
+#: templates/psql/processlist.html:144
+msgid "application_name"
+msgstr ""
+
+#: templates/psql/processlist.html:154
+msgid "client_addr"
+msgstr ""
+
+#: templates/psql/processlist.html:164
+msgid "client_hostname"
+msgstr ""
+
+#: templates/psql/processlist.html:174
+msgid "client_port"
+msgstr ""
+
+#: templates/psql/processlist.html:184
+msgid "backend_start"
+msgstr ""
+
+#: templates/psql/processlist.html:194
+msgid "xact_start"
+msgstr ""
+
+#: templates/psql/processlist.html:204
+msgid "query_start"
+msgstr ""
+
+#: templates/psql/processlist.html:214
+msgid "state_change"
+msgstr ""
+
+#: templates/psql/processlist.html:224
+msgid "wait_event_type"
+msgstr ""
+
+#: templates/psql/processlist.html:234
+msgid "wait_event"
+msgstr ""
+
+#: templates/psql/processlist.html:244
+msgid "state"
+msgstr ""
+
+#: templates/psql/processlist.html:254
+msgid "backend_xid"
+msgstr ""
+
+#: templates/psql/processlist.html:264
+msgid "backend_xmin"
+msgstr ""
+
+#: templates/psql/processlist.html:274
+msgid "query_id"
+msgstr ""
+
+#: templates/psql/processlist.html:284
+msgid "query"
+msgstr ""
+
+#: templates/psql/processlist.html:294
+msgid "backend_type"
+msgstr ""
+
+#: templates/psql/processlist.html:310
+msgid "Datid"
+msgstr ""
+
+#: templates/psql/processlist.html:311
+msgid "Datname"
+msgstr ""
+
+#: templates/psql/processlist.html:312
+msgid "Pid"
+msgstr ""
+
+#: templates/psql/processlist.html:313
+msgid "Leader_pid"
+msgstr ""
+
+#: templates/psql/processlist.html:314
+msgid "Usesysid"
+msgstr ""
+
+#: templates/psql/processlist.html:315
+msgid "Usename"
+msgstr ""
+
+#: templates/psql/processlist.html:316
+msgid "Application_name"
+msgstr ""
+
+#: templates/psql/processlist.html:317
+msgid "Client_addr"
+msgstr ""
+
+#: templates/psql/processlist.html:318
+msgid "Client_hostname"
+msgstr ""
+
+#: templates/psql/processlist.html:319
+msgid "Client_port"
+msgstr ""
+
+#: templates/psql/processlist.html:320
+msgid "Backend_start"
+msgstr ""
+
+#: templates/psql/processlist.html:321
+msgid "Xact_start"
+msgstr ""
+
+#: templates/psql/processlist.html:322
+msgid "Query_start"
+msgstr ""
+
+#: templates/psql/processlist.html:323
+msgid "State_change"
+msgstr ""
+
+#: templates/psql/processlist.html:324
+msgid "Wait_event_type"
+msgstr ""
+
+#: templates/psql/processlist.html:325
+msgid "Wait_event"
+msgstr ""
+
+#: templates/psql/processlist.html:327
+msgid "Backend_xid"
+msgstr ""
+
+#: templates/psql/processlist.html:328
+msgid "Backend_xmin"
+msgstr ""
+
+#: templates/psql/processlist.html:329
+msgid "Query_id"
+msgstr ""
+
+#: templates/psql/processlist.html:330
+msgid "Query"
+msgstr ""
+
+#: templates/psql/processlist.html:331
+msgid "Backend_type"
 msgstr ""
 
 #: templates/psql/psql_user.html:8
@@ -6959,11 +6944,11 @@ msgstr ""
 msgid "Enable Remote PostgreSQL Access"
 msgstr ""
 
-#: templates/psql/remote_psql.html:63
+#: templates/psql/remote_psql.html:61
 msgid "Current status of remote postgresql."
 msgstr ""
 
-#: templates/psql/remote_psql.html:119
+#: templates/psql/remote_psql.html:117
 msgid "IP and unique port for PostgreSQL access."
 msgstr ""
 
@@ -7013,7 +6998,7 @@ msgstr ""
 msgid "Create New"
 msgstr ""
 
-#: templates/system/cronjobs.html:118 templates/system/cronjobs_new.html:16
+#: templates/system/cronjobs.html:118 templates/system/cronjobs_new.html:19
 msgid "Switch to File Editor"
 msgstr ""
 
@@ -7025,7 +7010,7 @@ msgstr ""
 msgid "Name/Comment"
 msgstr ""
 
-#: templates/system/cronjobs.html:180 templates/system/cronjobs_new.html:574
+#: templates/system/cronjobs.html:180 templates/system/cronjobs_new.html:88
 msgid "optional"
 msgstr ""
 
@@ -7037,356 +7022,90 @@ msgstr ""
 msgid "No cronjobs yet, to create a cron click on the button above."
 msgstr ""
 
-#: templates/system/cronjobs_new.html:11
+#: templates/system/cronjobs_new.html:10
 msgid "Create Cron Job"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:12
+#: templates/system/cronjobs_new.html:13
 msgid ""
 "Select a container in which the script will be executed and set schedule."
 " To add multiple jobs at once, use the File Editor instead."
 msgstr ""
 
-#: templates/system/cronjobs_new.html:31
+#: templates/system/cronjobs_new.html:35
 msgid "Select Container:"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:33
+#: templates/system/cronjobs_new.html:38
 msgid "-- Select --"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:41
-msgid "Common schedules:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:44 templates/system/cronjobs_new.html:88
-#: templates/system/cronjobs_new.html:301
-#: templates/system/cronjobs_new.html:550
-msgid "-- Common Settings --"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:47 templates/system/cronjobs_new.html:91
-msgid "Once Per Minute"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:50 templates/system/cronjobs_new.html:97
-msgid "Once Per Five Minutes"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:53
-msgid "Twice Per Hour"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:56
-msgid "Once Per Hour"
+#: templates/system/cronjobs_new.html:48
+msgid "Schedule:"
 msgstr ""
 
 #: templates/system/cronjobs_new.html:59
-msgid "Twice Per Day"
+msgid "Common schedules:"
 msgstr ""
 
 #: templates/system/cronjobs_new.html:62
-msgid "Once Per Day"
+msgid "-- Common Settings --"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:63
+msgid "Every 30 Seconds"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:64
+msgid "Every Minute"
 msgstr ""
 
 #: templates/system/cronjobs_new.html:65
-msgid "Once Per Week"
+msgid "Every 5 Minutes"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:68 templates/system/cronjobs_new.html:358
-msgid "On the 1st and 15th of the Month"
+#: templates/system/cronjobs_new.html:66
+msgid "Every 30 Minutes"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:67
+msgid "Hourly"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:68
+msgid "Daily"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:69
+msgid "Weekly"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:70
+msgid "Monthly"
 msgstr ""
 
 #: templates/system/cronjobs_new.html:71
-msgid "Once Per Month"
+msgid "Yearly"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:74
-msgid "Once Per Year"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:80
-msgid "Minute:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:84 templates/system/cronjobs_new.html:299
-#: templates/system/cronjobs_new.html:342
-#: templates/system/cronjobs_new.html:466
-#: templates/system/cronjobs_new.html:548
-msgid "Common Settings:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:94
-msgid "Once Per Two Minutes"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:100
-msgid "Once Per Ten Minutes"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:103
-msgid "Once Per Fifteen Minutes"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:106
-msgid "Once Per Thirty Minutes"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:109
-msgid "-- Minutes --"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:112
-msgid "At the beginning of the hour."
-msgstr ""
-
-#: templates/system/cronjobs_new.html:157
-msgid "At one quarter past the hour."
-msgstr ""
-
-#: templates/system/cronjobs_new.html:202
-msgid "At half past the hour."
-msgstr ""
-
-#: templates/system/cronjobs_new.html:247
-msgid "At one quarter until the hour."
-msgstr ""
-
-#: templates/system/cronjobs_new.html:295
-msgid "Hour:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:302
-msgid "Every Hour"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:303
-msgid "Every Other Hour"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:304
-msgid "Every Third Hour"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:305
-msgid "Every Fourth Hour"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:306
-msgid "Every Sixth Hour"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:307
-msgid "Every Twelve Hours"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:308
-msgid "-- Hours --"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:309
-msgid "a.m.Midnight"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:310
-#: templates/system/cronjobs_new.html:311
-#: templates/system/cronjobs_new.html:312
-#: templates/system/cronjobs_new.html:313
-#: templates/system/cronjobs_new.html:314
-#: templates/system/cronjobs_new.html:315
-#: templates/system/cronjobs_new.html:316
-#: templates/system/cronjobs_new.html:317
-#: templates/system/cronjobs_new.html:318
-#: templates/system/cronjobs_new.html:319
-#: templates/system/cronjobs_new.html:320
-msgid "a.m."
-msgstr ""
-
-#: templates/system/cronjobs_new.html:321
-msgid "p.m.Noon"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:322
-#: templates/system/cronjobs_new.html:323
-#: templates/system/cronjobs_new.html:324
-#: templates/system/cronjobs_new.html:325
-#: templates/system/cronjobs_new.html:326
-#: templates/system/cronjobs_new.html:327
-#: templates/system/cronjobs_new.html:328
-#: templates/system/cronjobs_new.html:329
-#: templates/system/cronjobs_new.html:330
-#: templates/system/cronjobs_new.html:331
-#: templates/system/cronjobs_new.html:332
-msgid "p.m."
-msgstr ""
-
-#: templates/system/cronjobs_new.html:338
-msgid "Day:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:346
-#: templates/system/cronjobs_new.html:469
-msgid "Common Settings"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:350
-msgid "Every Day"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:354
-msgid "Every Other Day"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:362
-msgid "Days"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:463
-msgid "Month:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:472
-msgid "Every Month"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:476
-msgid "Every Other Month"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:480
-msgid "Every Third Month"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:484
-msgid "Every Six Months"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:488
-msgid "Months"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:491
-msgid "January"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:495
-msgid "February"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:499
-msgid "March"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:503
-msgid "April"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:507
-msgid "May"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:511
-msgid "June"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:515
-msgid "July"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:519
-msgid "August"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:523
-msgid "September"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:527
-msgid "October"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:531
-msgid "November"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:535
-msgid "December"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:544
-msgid "Weekday:"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:551
-msgid "Every Day (*)"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:552
-msgid "Every Weekday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:553
-msgid "Every Weekend Day"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:554
-msgid "Every Monday, Wednesday, and Friday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:555
-msgid "Every Tuesday and Thursday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:556
-msgid " -- Weekdays --"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:557
-msgid "Sunday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:558
-msgid "Monday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:559
-msgid "Tuesday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:560
-msgid "Wednesday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:561
-msgid "Thursday "
-msgstr ""
-
-#: templates/system/cronjobs_new.html:562
-msgid "Friday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:563
-msgid "Saturday"
-msgstr ""
-
-#: templates/system/cronjobs_new.html:568
+#: templates/system/cronjobs_new.html:77
 msgid "Command:"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:573
+#: templates/system/cronjobs_new.html:85
 msgid "Comment:"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:594
+#: templates/system/cronjobs_new.html:96
 msgid "Back to CronJobs"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:596
+#: templates/system/cronjobs_new.html:100
 msgid "Schedule CronJob"
 msgstr ""
 
-#: templates/system/cronjobs_new.html:701
-msgid "Please fill in all fields before submitting."
+#: templates/system/cronjobs_new.html:124
+msgid "Please fill in all required fields before submitting."
 msgstr ""
 
 #: templates/system/process_manager.html:10
@@ -7484,7 +7203,7 @@ msgid "Remote SSH port"
 msgstr ""
 
 #: templates/system/server_info.html:102
-msgid "WebTerminal port"
+msgid "Remote PostgreSQL port"
 msgstr ""
 
 #: templates/system/server_info.html:112

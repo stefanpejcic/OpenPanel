@@ -5,7 +5,7 @@
 # Usage: opencli websites-pagespeed <DOMAIN> [-all]
 # Author: Stefan Pejcic
 # Created: 27.06.2024
-# Last Modified: 21.10.2025
+# Last Modified: 23.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
