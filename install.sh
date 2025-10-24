@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           17.10.2025
+# Last Modified:           24.10.2025
 #
 ################################################################################
 
@@ -532,14 +532,14 @@ docker_compose_up(){
     mkdir -p $DOCKER_CONFIG/cli-plugins
 
     if [ "$architecture" == "aarch64" ]; then
-		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
+		link="https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-linux-aarch64"
   	else
-   		link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
+   		link="https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-linux-x86_64"
  	fi
 
 	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
 	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.30.3/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/v2.40.2/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
 		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
 		debug_log chmod +x /usr/bin/docker-compose
@@ -771,8 +771,7 @@ update_package_manager() {
 setup_imunifyav() {
     if [ "$IMUNIFY_AV" = true ]; then
         echo "Installing ImunifyAV"
-        debug_log opencli imunify install
-        debug_log opencli imunify start
+        debug_log opencli imunify install && opencli imunify start
     fi
 }
 
@@ -885,8 +884,9 @@ install_packages() {
                           "jc" "jq" "sqlite3")
             fi
 
-            debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' \
-                      /etc/needrestart/needrestart.conf
+			if [ -f /etc/needrestart/needrestart.conf ]; then
+	            debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
+			fi
             debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
             echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
             debug_log update-ca-certificates
@@ -1276,6 +1276,25 @@ rm_helpers(){
 
 setup_swap(){
 
+	validate_size() {
+	    if ! [[ "$SWAP_FILE" =~ ^[0-9]+$ ]] || [ "$SWAP_FILE" -lt 1 ] || [ "$SWAP_FILE" -gt 10 ]; then
+	        echo "Warning: Invalid swap size provided: '${SWAP_FILE}'. Must be a at least 1 and a maximum of 10 GB. Default will be used instead."
+			auto_setup_swap_size
+	    fi
+	}
+
+
+	auto_setup_swap_size() {
+		memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
+		memory_gb=$(awk "BEGIN {print $memory_kb/1024/1024}")
+
+		if [ $(awk "BEGIN {print ($memory_gb < 8)}") -eq 1 ]; then
+			create_swap
+		else
+			echo "Total available memory is ${memory_gb}GB, skipping creating swap file."
+		fi
+	}
+
     create_swap() {
         fallocate -l ${SWAP_FILE}G /swapfile > /dev/null 2>&1
         chmod 600 /swapfile
@@ -1292,16 +1311,10 @@ setup_swap(){
     fi
 
     if [ "$SETUP_SWAP_ANYWAY" = true ]; then
+		validate_size
         create_swap
     else
-        memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
-        memory_gb=$(awk "BEGIN {print $memory_kb/1024/1024}")
-
-        if [ $(awk "BEGIN {print ($memory_gb < 8)}") -eq 1 ]; then
-            create_swap
-        else
-            echo "Total available memory is ${memory_gb}GB, skipping creating swap file."
-        fi
+		auto_setup_swap_size
     fi
 }
 
@@ -1586,10 +1599,10 @@ create_admin_and_show_logins_success_message() {
     fi
 
 	if [ "$SET_ADMIN_PASSWORD" = true ]; then
-	    if [[ "$custom_password" =~ ^[A-Za-z0-9]{5,16}$ ]]; then
+	    if [[ "$custom_password" =~ ^[A-Za-z0-9]{5,30}$ ]]; then
 	        new_password="${custom_password}"
 	    else
-	        echo "Warning: provided password is invalid (must be alphanumeric and 5–16 characters). Generating a secure password."
+	        echo "Warning: provided password is invalid (must be alphanumeric and 5–30 characters). Generating a secure password."
 	        new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 	    fi
 	else

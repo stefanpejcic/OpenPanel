@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 21.10.2025
+# Last Modified: 23.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1292,7 +1292,7 @@ run_docker() {
 	if [ -n "$node_ip_address" ]; then
 		port_1="$node_ip_address:$FIRST_NEXT_AVAILABLE:22"
 		port_2="$node_ip_address:$SECOND_NEXT_AVAILABLE:3306"
-		port_3="$node_ip_address:$THIRD_NEXT_AVAILABLE:7681"
+		port_3="$node_ip_address:$THIRD_NEXT_AVAILABLE:5432"
 		port_4="$node_ip_address:$FOURTH_NEXT_AVAILABLE:80"
 		port_5="$node_ip_address:$FIFTH_NEXT_AVAILABLE:80"
 	        port_6="$node_ip_address:$SIXTH_NEXT_AVAILABLE:443"
@@ -1300,7 +1300,7 @@ run_docker() {
 	  else
 		port_1="$FIRST_NEXT_AVAILABLE:22"
 		port_2="$SECOND_NEXT_AVAILABLE:3306"
-		port_3="$THIRD_NEXT_AVAILABLE:7681"
+		port_3="$THIRD_NEXT_AVAILABLE:5432"
 		port_4="$FOURTH_NEXT_AVAILABLE:80"
 		port_5="127.0.0.1:$FIFTH_NEXT_AVAILABLE:80"
 	        port_6="127.0.0.1:$SIXTH_NEXT_AVAILABLE:443"
@@ -1343,7 +1343,7 @@ pg_admin_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
     log "HTTPS_PORT: $port_6"
     log "HOSTNAME: $hostname"
     log "UNUSED_1_PORT: $port_1"
-    log "UNUSED_2_PORT: $port_3"
+    log "POSTGRES_PORT: $port_3"
     log "PMA_PORT: $port_4"
     log "MYSQL_PORT: $port_2"
     log "DEFAULT_PHP_VERSION: $default_php_version"
@@ -1366,7 +1366,7 @@ sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
     -e "s|^HTTP_PORT=\"[^\"]*\"|HTTP_PORT=\"$port_5\"|g" \
     -e "s|HTTPS_PORT=\"[^\"]*\"|HTTPS_PORT=\"$port_6\"|g" \
     -e "s|UNUSED_1_PORT=\"[^\"]*\"|UNUSED_1_PORT=\"127.0.0.1:$port_1\"|g" \
-    -e "s|UNUSED_2_PORT=\"[^\"]*\"|UNUSED_2_PORT=\"$port_3\"|g" \
+    -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:$port_3\"|g" \
     -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"$port_4\"|g" \
     -e "s|POSTGRES_PASSWORD=\"[^\"]*\"|POSTGRES_PASSWORD=\"$postgres_password\"|g" \
     -e "s|PGADMIN_PW=\"[^\"]*\"|PGADMIN_PW=\"$pg_admin_password\"|g" \
