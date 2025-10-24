@@ -123,42 +123,22 @@ debug_log() {
 
 is_package_installed() {
     local package="$1"
-    
     [ -z "$package" ] && return 1
-    
-    # RedHat/CentOS/Fedora/Rocky Linux/AlmaLinux
-    if command -v yum &> /dev/null; then
-        yum list installed "$package" &> /dev/null
-        return $?
-    fi
-    
-    if command -v dnf &> /dev/null; then
-        dnf list installed "$package" &> /dev/null
-        return $?
-    fi
-    
-    if command -v rpm &> /dev/null; then
-        rpm -q "$package" &> /dev/null
-        return $?
-    fi
-    
-    # Debian/Ubuntu/Mint
-    if command -v apt &> /dev/null; then
-        apt list --installed 2>/dev/null | grep -q "^${package}/"
-        return $?
-    fi
-    
-    if command -v apt-get &> /dev/null; then
-        dpkg -l 2>/dev/null | grep -q "^ii[[:space:]]*${package}"
-        return $?
-    fi
-    
-    if command -v dpkg &> /dev/null; then
-        dpkg -l 2>/dev/null | grep -q "^ii[[:space:]]*${package}"
-        return $?
-    fi
-    
-    return 1
+
+    case "$PACKAGE_MANAGER" in
+        yum|dnf)
+            "$PACKAGE_MANAGER" list installed "$package" &> /dev/null
+            ;;
+        apt-get)
+            dpkg -l 2>/dev/null | grep -q "^ii[[:space:]]*${package}"
+            ;;
+        *)
+            echo "Unsupported package manager: $PACKAGE_MANAGER" >&2
+            return 1
+            ;;
+    esac
+
+    return $?
 }
 
 get_server_ipv4() {
