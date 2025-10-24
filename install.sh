@@ -123,10 +123,9 @@ debug_log() {
 
 is_package_installed() {
     if [ "$DEBUG" = false ]; then
-    $PACKAGE_MANAGER -qq list "$1" 2>/dev/null | grep -qE "^ii"
+    	$PACKAGE_MANAGER -qq list "$1" 2>/dev/null | grep -qE "^ii"
     else
-    $PACKAGE_MANAGER -qq list "$1" | grep -qE "^ii"
-    echo "Updating $PACKAGE_MANAGER package manager.."
+    	$PACKAGE_MANAGER -qq list "$1" | grep -qE "^ii"
     fi
 }
 
