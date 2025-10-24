@@ -1245,6 +1245,25 @@ rm_helpers(){
 
 setup_swap(){
 
+	validate_size() {
+	    if ! [[ "$SWAP_FILE" =~ ^[0-9]+$ ]] || [ "$SWAP_FILE" -lt 1 ] || [ "$SWAP_FILE" -gt 10 ]; then
+	        echo "Warning: Invalid swap size provided: '${SWAP_FILE}'. Must be a at least 1 and a maximum of 10 GB. Default will be used instead."
+			auto_setup_swap_size
+	    fi
+	}
+
+
+	auto_setup_swap_size() {
+		memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
+		memory_gb=$(awk "BEGIN {print $memory_kb/1024/1024}")
+
+		if [ $(awk "BEGIN {print ($memory_gb < 8)}") -eq 1 ]; then
+			create_swap
+		else
+			echo "Total available memory is ${memory_gb}GB, skipping creating swap file."
+		fi
+	}
+
     create_swap() {
         fallocate -l ${SWAP_FILE}G /swapfile > /dev/null 2>&1
         chmod 600 /swapfile
@@ -1261,16 +1280,10 @@ setup_swap(){
     fi
 
     if [ "$SETUP_SWAP_ANYWAY" = true ]; then
+		validate_size
         create_swap
     else
-        memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
-        memory_gb=$(awk "BEGIN {print $memory_kb/1024/1024}")
-
-        if [ $(awk "BEGIN {print ($memory_gb < 8)}") -eq 1 ]; then
-            create_swap
-        else
-            echo "Total available memory is ${memory_gb}GB, skipping creating swap file."
-        fi
+		auto_setup_swap_size
     fi
 }
 
