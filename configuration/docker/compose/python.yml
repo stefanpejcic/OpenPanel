@@ -3,7 +3,7 @@
     container_name: SERVICE
     restart: always
     command: >
-      sh -c "${SERVICE_NAME_PY_REQUIREMENTS:+pip install -r requirements.txt &&} python ${SERVICE_NAME_PY_STARTUP_FILE:-app.py}"
+      sh -c "${SERVICE_NAME_PY_REQUIREMENTS:+pip install -r requirements.txt &&} ${SERVICE_NAME_PY_CUSTOM_CMD:-python ${SERVICE_NAME_PY_STARTUP_FILE:-app.py}}"
     working_dir: ${SERVICE_NAME_PY_WORKDIR:-/var/www/html/}
     stop_signal: SIGINT
     deploy:

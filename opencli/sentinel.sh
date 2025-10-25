@@ -229,6 +229,12 @@ REBOOT=$(awk -F'=' '/^reboot/ {print $2}' "$INI_FILE")
 REBOOT=${REBOOT:-yes}
 [[ "$REBOOT" =~ ^(yes|no)$ ]] || REBOOT=yes
 
+
+MAIN_DOMAIN_AND_NS=$(awk -F'=' '/^dns/ {print $2}' "$INI_FILE")
+MAIN_DOMAIN_AND_NS=${MAIN_DOMAIN_AND_NS:-yes}
+[[ "$MAIN_DOMAIN_AND_NS" =~ ^(yes|no)$ ]] || MAIN_DOMAIN_AND_NS=yes
+
+
 LOGIN=$(awk -F'=' '/^login/ {print $2}' "$INI_FILE")
 LOGIN=${LOGIN:-yes}
 [[ "$LOGIN" =~ ^(yes|no)$ ]] || LOGIN=yes
@@ -324,6 +330,8 @@ check_ssh_logins() {
   safe_ips=()
 
   for ip in $ssh_ips; do
+    # make sure we get ip!
+    if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
       if ! echo "$login_ips" | grep -q "$ip"; then
           ((counter++))
           suspecious_ips+=("$ip")
@@ -331,6 +339,7 @@ check_ssh_logins() {
           ((safe_counter++))
           safe_ips+=("$ip")
       fi
+    fi
   done
 
   if [ $counter -gt 0 ]; then
@@ -773,110 +782,147 @@ function check_disk_usage() {
 
 # ====== CHECK DNS
 check_if_panel_domain_and_ns_resolve_to_server (){
-  RESULT=$(opencli domain)
-  
-  if [[ "$RESULT" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-      FORCED_DOMAIN=$RESULT
-      CHECK_DOMAIN_ALSO="yes"
-  else
-      CHECK_DOMAIN_ALSO="no"
-  fi
 
-  NS1_SET=$(awk -F'=' '/^ns1/ {print $2}' "$CONF_FILE")
-  
-  if [ -n "$NS1_SET" ]; then
-      if [[ "$NS1_SET" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-          NS1=$NS1_SET
-          CHECK_NS_ALSO="yes"
-          NS2_SET=$(awk -F'=' '/^ns2/ {print $2}' "$CONF_FILE")
-          NS2=$NS2_SET
-  
+  if [ "$MAIN_DOMAIN_AND_NS" != "no" ]; then
+      RESULT=$(opencli domain)
+      
+      if [[ "$RESULT" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+          FORCED_DOMAIN=$RESULT
+          CHECK_DOMAIN_ALSO="yes"
       else
-          echo "NS1 '$NS1_SET' is not a valid domain."
+          CHECK_DOMAIN_ALSO="no"
+      fi
+    
+      NS1_SET=$(awk -F'=' '/^ns1/ {print $2}' "$CONF_FILE")
+      
+      if [ -n "$NS1_SET" ]; then
+          if [[ "$NS1_SET" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+              NS1=$NS1_SET
+              CHECK_NS_ALSO="yes"
+              NS2_SET=$(awk -F'=' '/^ns2/ {print $2}' "$CONF_FILE")
+              NS2=$NS2_SET
+              NS3_SET=$(awk -F'=' '/^ns3/ {print $2}' "$CONF_FILE")
+              NS3=$NS3_SET
+              NS4_SET=$(awk -F'=' '/^ns4/ {print $2}' "$CONF_FILE")
+              NS4=$NS4_SET
+          else
+              echo "NS1 '$NS1_SET' is not a valid domain."
+              CHECK_NS_ALSO="no"
+          fi
+      else
           CHECK_NS_ALSO="no"
       fi
-  else
-      CHECK_NS_ALSO="no"
-  fi
-
-if [ "$CHECK_DOMAIN_ALSO" == "no" ] && [ "$CHECK_NS_ALSO" == "no" ]; then
-    ((WARN++))
-    echo -e "\e[38;5;214m[!]\e[0m Missing or invalid custom domain and nameservers, skipping DNS checks.."
-else
-
-  GOOGLE_DNS_SERVER="8.8.8.8"
-  SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
-  if [ -f "$SCRIPT_PATH" ]; then
-      source "$SCRIPT_PATH"
-  else
-      IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-  fi
-
-  SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget -4 --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
-
-  if [ -z "$SERVER_IP" ]; then
-      SERVER_IP=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
-  fi
-
-  if [ "$CHECK_DOMAIN_ALSO" == "yes" ] || [ "$CHECK_NS_ALSO" == "yes" ]; then
-      if [ "$CHECK_DOMAIN_ALSO" == "no" ]; then
-          ((WARN++))
-          echo -e "\e[38;5;214m[!]\e[0m Domain is not set for accessing OpenPanel, skip checking DNS."
+    
+    if [ "$CHECK_DOMAIN_ALSO" == "no" ] && [ "$CHECK_NS_ALSO" == "no" ]; then
+        ((WARN++))
+        echo -e "\e[38;5;214m[!]\e[0m Missing or invalid custom domain and nameservers, skipping DNS checks.."
+    else
+    
+      GOOGLE_DNS_SERVER="8.8.8.8"
+      SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
+      if [ -f "$SCRIPT_PATH" ]; then
+          source "$SCRIPT_PATH"
       else
-          if [ -n "$FORCED_DOMAIN" ]; then
-              ensure_installed dig bind-utils
-              domain_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$FORCED_DOMAIN")
-              
-              if [ "$domain_ip" == "$SERVER_IP" ]; then
-              ((PASS++))
-                  echo -e "\e[32m[✔]\e[0m $FORCED_DOMAIN resolves to $SERVER_IP"
-              else
-                  ns_records=$(dig +short @"$GOOGLE_DNS_SERVER" NS "$FORCED_DOMAIN")
-
-                  if echo "$ns_records" | grep -q 'cloudflare'; then
-                     ((WARN++))
-                     echo -e "\e[38;5;214m[!]\e[0m $FORCED_DOMAIN does not resolve to $SERVER_IP, but it is using Cloudflare DNS, so it is possible that proxy option is enabled. Skipping."
+          IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
+      fi
+    
+      SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget -4 --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+    
+      if [ -z "$SERVER_IP" ]; then
+          SERVER_IP=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
+      fi
+    
+      if [ "$CHECK_DOMAIN_ALSO" == "yes" ] || [ "$CHECK_NS_ALSO" == "yes" ]; then
+          if [ "$CHECK_DOMAIN_ALSO" == "no" ]; then
+              ((WARN++))
+              echo -e "\e[38;5;214m[!]\e[0m Domain is not set for accessing OpenPanel, skip checking DNS."
+          else
+              if [ -n "$FORCED_DOMAIN" ]; then
+                  ensure_installed dig bind-utils
+                  domain_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$FORCED_DOMAIN")
+                  
+                  if [ "$domain_ip" == "$SERVER_IP" ]; then
+                  ((PASS++))
+                      echo -e "\e[32m[✔]\e[0m $FORCED_DOMAIN resolves to $SERVER_IP"
                   else
-                      ((FAIL++))
-            STATUS=2
-                      echo -e "\e[31m[✘]\e[0m $FORCED_DOMAIN does not resolve to $SERVER_IP"
-                      local title="$FORCED_DOMAIN does not resolve to $SERVER_IP"
-                      local message="$FORCED_DOMAIN is set as a domain but does not resolve to the server IP $SERVER_IP. This may cause accessibility issues."
-                      write_notification "$title" "$message"
+                      ns_records=$(dig +short @"$GOOGLE_DNS_SERVER" NS "$FORCED_DOMAIN")
+    
+                      if echo "$ns_records" | grep -q 'cloudflare'; then
+                         ((WARN++))
+                         echo -e "\e[38;5;214m[!]\e[0m $FORCED_DOMAIN does not resolve to $SERVER_IP, but it is using Cloudflare DNS, so it is possible that proxy option is enabled. Skipping."
+                      else
+                          ((FAIL++))
+                STATUS=2
+                          echo -e "\e[31m[✘]\e[0m $FORCED_DOMAIN does not resolve to $SERVER_IP"
+                          local title="$FORCED_DOMAIN does not resolve to $SERVER_IP"
+                          local message="$FORCED_DOMAIN is set as a domain but does not resolve to the server IP $SERVER_IP. This may cause accessibility issues."
+                          write_notification "$title" "$message"
+                      fi
                   fi
               fi
           fi
-      fi
-
-      if [ "$CHECK_NS_ALSO" == "no" ]; then
-      ((PASS++))
-          echo -e "\e[32m[✔]\e[0m Skip checking nameservers as they are not set."
-      else
-          if [ -n "$NS1" ] && [ -n "$NS2" ]; then
-              ns1_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS1")
-              ns2_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS2")
-              all_server_ips=$(hostname -I)
-
-              if echo "$all_server_ips" | grep -qw "$ns1_ip" && echo "$all_server_ips" | grep -qw "$ns2_ip"; then
-                  ((PASS++))
-                  echo -e "\e[32m[✔]\e[0m $NS1 and $NS2 both resolve to local IPs ($(hostname -I))"
-              else
-                  ((FAIL++))
-                  STATUS=2
-                  echo -e "\e[31m[✘]\e[0m Nameservers do not resolve correctly:"
-                  echo "    $NS1 resolves to $ns1_ip (expected one of: $all_server_ips)"
-                  echo "    $NS2 resolves to $ns2_ip (expected one of: $all_server_ips)"
-                  local title="Configured nameservers do not resolve to local IPs"
-                  local message="$NS1 resolves to $ns1_ip (expected one of: $all_server_ips) | $NS2 resolves to $ns2_ip (expected one of: $all_server_ips)"
-                  write_notification "$title" "$message"
+    
+          if [ "$CHECK_NS_ALSO" == "no" ]; then
+          ((PASS++))
+              echo -e "\e[32m[✔]\e[0m Skip checking nameservers as they are not set."
+          else
+              local_fail=0
+              if [ -n "$NS1" ] && [ -n "$NS2" ]; then
+                  ns1_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS1")
+                  ns2_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS2")
+                  [ -n "$NS3" ] && ns3_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS3")
+                  [ -n "$NS4" ] && ns4_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS4")
+                  
+                  all_server_ips=$(hostname -I)
+                  failed_nameservers=()
+                            
+                  for ns in NS1 NS2; do
+                      ip_var="${ns,,}_ip"
+                      ip_val="${!ip_var}"
+                      if ! echo "$all_server_ips" | grep -qw "$ip_val"; then
+                          ((local_fail++))
+                          failed_nameservers+=("$ns resolves to $ip_val (expected one of: $all_server_ips)")
+                      fi
+                  done
+                  # optional
+                  for ns in NS3 NS4; do
+                      if [ -n "${!ns}" ]; then
+                          ip_var="${ns,,}_ip"
+                          ip_val="${!ip_var}"
+                          if ! echo "$all_server_ips" | grep -qw "$ip_val"; then
+                              ((local_fail++))
+                              failed_nameservers+=("$ns resolves to $ip_val (expected one of: $all_server_ips)")
+                          fi
+                      fi
+                  done
+    
+                  if [ $local_fail -eq 0 ]; then
+                      ((PASS++))
+                      echo -e "\e[32m[✔]\e[0m All configured nameservers resolve to local IPs ($(hostname -I))"
+                  else
+                      STATUS=2
+                      echo -e "\e[31m[✘]\e[0m Nameservers do not resolve correctly:"
+                      for fail_msg in "${failed_nameservers[@]}"; do
+                          echo "    $fail_msg"
+                      done
+                      local title="Configured nameservers do not resolve to local IPs"
+                      local message
+                      message=$(IFS=' | '; echo "${failed_nameservers[*]}")
+                      write_notification "$title" "$message"
+                      ((FAIL++))
+                  fi
+              else 
+                ((WARN++))
+                echo -e "\e[38;5;214m[!]\e[0m Only one nameserver is currently set. Please add at least two nameservers to ensure DNS redundancy."
               fi
-          else 
-            ((WARN++))
-            echo -e "\e[38;5;214m[!]\e[0m Only one nameserver is currently set. Please add at least two nameservers to ensure DNS redundancy."
           fi
       fi
+    fi
+    
+  else
+    ((WARN++))
+    echo -e "\e[38;5;214m[!]\e[0m Checking panel domain and nameservers (dns) is explicitly set to 'no' in the INI file. Skipping logging.."
   fi
-fi
 
 }
 

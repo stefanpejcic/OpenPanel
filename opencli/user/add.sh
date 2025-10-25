@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 23.10.2025
+# Last Modified: 24.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -730,10 +730,10 @@ download_images() {
 	    return 1
 	fi
 	
-	echo "Starting pull for images: ${images_to_pull[*]} in background..."
+	log "Starting pull for images: ${images_to_pull[*]} in background..."
 	nohup sh -c "cd /home/$username/ && docker --context=$username compose pull ${images_to_pull[*]}" </dev/null >nohup.out 2>nohup.err &
 	else
-	    echo "Skipping image pull due to the '--skip-images' flag."
+	    log "Skipping image pull due to the '--skip-images' flag."
 	fi  
 }
 
@@ -1003,8 +1003,9 @@ sed -i "s/USERNAME/$username/g" /home/$username/.config/docker/daemon.json
 		
 mkdir -p /home/$username/bin > /dev/null 2>&1
 chmod 755 -R /home/$username/ >/dev/null 2>&1
-sed -i '1i export PATH=/home/'"$username"'/bin:$PATH' /home/"$username"/.bashrc
-
+if [ -f "/home/$username/.bashrc" ]; then
+	sed -i '1i export PATH=/home/'"$username"'/bin:$PATH' /home/"$username"/.bashrc
+fi
 
    	if [ -n "$node_ip_address" ]; then
 log "Setting AppArmor profile.."

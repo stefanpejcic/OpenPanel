@@ -5,7 +5,7 @@
 # Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 23.10.2025
+# Last Modified: 24.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

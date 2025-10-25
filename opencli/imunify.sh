@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 23.10.2025
+# Last Modified: 24.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -168,7 +168,12 @@ fi
 
 if ! grep -q "# Deployed by imav-deploy" "$DEPLOY_SCRIPT"; then
   echo "Running deploy script..."
-  bash "$DEPLOY_SCRIPT"
+  if ! bash "$DEPLOY_SCRIPT"; then
+    echo
+    echo "[ERROR] Installing ImunifyAV failed - please check the above output." >&2
+    echo
+    exit 1
+  fi
 else
   echo "Deploy script already executed or invalid, skipping..."
 fi
