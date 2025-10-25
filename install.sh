@@ -1622,7 +1622,7 @@ create_admin_and_show_logins_success_message() {
 
 
 # ======================================================================
-# Main program
+# main
 
 (
 flock -n 200 || { echo "Error: Another instance of the install script is already running. Exiting."; exit 1; }
@@ -1644,3 +1644,7 @@ send_install_log
 create_admin_and_show_logins_success_message
 run_custom_postinstall_script
 )200>/root/openpanel_install.lock
+
+if [[ -f /root/openpanel_install.lock ]]; then
+  rm -f /root/openpanel_install.lock
+fi
