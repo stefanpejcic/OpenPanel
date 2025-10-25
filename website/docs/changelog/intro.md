@@ -1,21 +1,22 @@
 # Changelog
 
 ### Upcoming version
-| Version| Release date |
+
+| Version| Release date | 
 |---|---|
-| __[1.6.6](/docs/changelog/1.6.6)__| November 05, 2025 |
+|__[1.6.6](/docs/changelog/1.6.6)__| November 05, 2025 |
+
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[1.6.4](/docs/changelog/1.6.4)__| October 23, 2025 |
+|__[1.6.5](/docs/changelog/1.6.5)__| October 24, 2025 |
 
-| Version| Release date |
-|---|---|
 ### Previous versions
 
 | Version| Release date | 
 |---|---|
+|__[1.6.4](/docs/changelog/1.6.4)__| October 23, 2025 |
 |__[1.6.3](/docs/changelog/1.6.3)__| October 17, 2025 |
 |__[1.6.2](/docs/changelog/1.6.2)__| September 30, 2025 |
 |__[1.6.1](/docs/changelog/1.6.1)__| September 23, 2025 |
