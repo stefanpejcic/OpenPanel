@@ -491,7 +491,7 @@ const tableData = [
         title: "Pricing",
         items: [
             {
-                description: "Monthly Pricing",
+                description: "Pricing",
                 community: (
                     <TableText>forever free</TableText>
                 ),
@@ -593,7 +593,7 @@ const tableData = [
             },
             {
                 description: "PHP.INI Editor",
-                community: <CrossIcon />,
+                community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
@@ -634,15 +634,6 @@ const tableData = [
             },
             {
                 description: "FTP",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "Backups",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -701,15 +692,6 @@ const tableData = [
                 },
             },
             {
-                description: "MariaDB",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
                 description: "phpMyAdmin",
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
@@ -719,7 +701,16 @@ const tableData = [
                 },
             },
             {
-                description: "Microsoft SQL Server",
+                description: "MariaDB",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Percona",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -730,10 +721,10 @@ const tableData = [
             {
                 description: "PostgreSQL",
                 community: <CrossIcon />,
-                enterprise: <TableText>BETA</TableText>,
+                enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
-                    enterprise: "text",
+                    enterprise: "icon",
                 },
             },
             {
@@ -755,7 +746,7 @@ const tableData = [
                 },
             },
             {
-                description: "Remote MySQL Access",
+                description: "Remote Access",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -800,6 +791,15 @@ const tableData = [
             },
             {
                 description: "OpenLitespeed",
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Litespeed",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -833,7 +833,25 @@ const tableData = [
                     community: "text",
                     enterprise: "text",
                 },
-            },      
+            },     
+            {
+                description: "Resellers",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "Multiple Administrator Accounts",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
             {
                 description: "Transfer Accounts between Servers",
                 community: <CrossIcon />,
@@ -845,7 +863,7 @@ const tableData = [
                 },
             },   
             {
-                description: "Import from cPanel Backup",
+                description: "Import from a cPanel Backup",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
 
@@ -854,25 +872,7 @@ const tableData = [
                     enterprise: "icon",
                 },
             },   
-            
-            {
-                description: "Resellers",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "Administrator Accounts",
-                community: <TableText>Unlimited</TableText>,
-                enterprise: <TableText>Unlimited</TableText>,
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
-                },
-            },
+
         ],
     },
     {
@@ -897,7 +897,7 @@ const tableData = [
                 },
             },
             {
-                description: "Coraza WAF",
+                description: "Custom SSL",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -906,7 +906,7 @@ const tableData = [
                 },
             },
             {
-                description: "Custom SSL",
+                description: "Coraza WAF",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1037,6 +1037,15 @@ const tableData = [
                     enterprise: "icon",
                 },
             },  
+            {
+                description: "User manages Backups",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
             {
                 description: "Support for ARM CPUs (Aarch64)",
                 community: <CrossIcon />,
