@@ -30,6 +30,7 @@ sidebar_position: 1
 - [502 Error Troubleshooting Guide](/docs/articles/domains/bad-gateway-502-error-troubleshooting)
 - [504 Error Troubleshooting Guide](/docs/articles/domains/gateway-timeout-504-error-troubleshooting)
 - [Configure Apache, Nginx, OpenLitespeed per user](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
+- [Purging Varnish Cache for a Website](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 - [WordPress HTTPS behind Varnish Cache](/docs/articles/docker/https-wordpress-behind-varnish-proxy/)
 
 # Databases
