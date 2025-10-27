@@ -152,6 +152,12 @@ For detailed instructions, see: [Configuring OpenPanel Backups](/docs/articles/b
 
 ---
 
+## Crons
+
+OpenPanel uses [mcuadros/ofelia](https://github.com/mcuadros/ofelia) for cron obs. Configuration is stored in `crons.ini`.
+
+---
+
 ## Ports
 
 Ports are defined in the user’s `.env` file:
