@@ -583,10 +583,6 @@ docker_compose_up(){
         docker --context default volume rm root_openadmin_mysql > /dev/null 2>&1    # delete database
     fi
 
-    if [ "$architecture" == "aarch64" ]; then
-    	sed -i 's/mysql\/mysql-server/mariadb:10-focal/' docker-compose.yml
-    fi
-
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1               # from 0.2.5 we only start mysql by default
 
     mysql_container=$(docker compose ps -q openpanel_mysql)
