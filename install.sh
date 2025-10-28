@@ -787,11 +787,11 @@ create_rdnc() {
 
 extra_step_on_hetzner() {
 	if [ -f /etc/hetzner-build ]; then
-	    echo "Hetzner provider detected, adding Google DNS resolvers..."
+	    echo "Hetzner provider detected, adding Cloudflare DNS resolvers..."
 	    echo "info: https://github.com/stefanpejcic/OpenPanel/issues/471"
 	    mv /etc/resolv.conf /etc/resolv.conf.bak
-	    echo "nameserver 8.8.8.8" >> /etc/resolv.conf
-	    echo "nameserver 8.8.4.4" >> /etc/resolv.conf
+	    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+	    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
 	fi
 }
 
