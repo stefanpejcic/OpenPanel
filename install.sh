@@ -44,7 +44,7 @@ SET_ADMIN_USERNAME=false                                              # random
 SET_ADMIN_PASSWORD=false                                              # random
 SCREENSHOTS_API_URL="http://screenshots-v2.openpanel.com/api/screenshot" # default since 0.5.9
 readonly DEFAULT_PANEL_VERSION="1.6.45"                                # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
-readonly DOCKER_COMPOSE_VERSION="v2.30.3"                             # https://github.com/docker/compose/releases
+readonly DOCKER_COMPOSE_VERSION="v2.40.2"                             # https://github.com/docker/compose/releases
 DEV_MODE=false
 post_install_path=""                                                  # not to run
 # ======================================================================
