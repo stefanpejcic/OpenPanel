@@ -108,7 +108,7 @@
     "title": "PostgreSQL",
     "description": "If enabled, users can manage PostgreSQL databases and users.",
     "link": "/postgresql",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": ""
   },
   {
@@ -116,7 +116,7 @@
     "title": "Remote PostgreSQL",
     "description": "If enabled, users can enable/disable remote access to PostgreSQL databases.",
     "link": "/postgresql/remote-postgresql",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": ""
   },
   {
@@ -124,7 +124,7 @@
     "title": "Import PostgreSQL Databases",
     "description": "If enabled, users can import .sql files into PostgreSQL databases from their user panel.",
     "link": "/postgresql/import",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": ""
   },
   {
@@ -132,7 +132,7 @@
     "title": "PostgreSQL Configuration",
     "description": "If enabled, users can edit PostgreSQL Configuration from their user panel.",
     "link": "/postgresql/configuration",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": ""
   },
     {
@@ -140,7 +140,7 @@
     "title": "pgAdmin",
     "description": "If enabled, users can manage pgAdmin and use it to connect to their Postgres databases.",
     "link": "/postgresql/pgadmin",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": ""
   },
   {
@@ -197,14 +197,6 @@
     "description": "If enabled, WordPress can be installed using the Autoinstaller and users can use the WP Manager to manage websites.",
     "link": "/wordpress",
     "type": "community",
-    "help_link": ""
-  },
-  {
-    "name": "mautic",
-    "title": "Mautic",
-    "description": "If enabled, Mautic can be installed using the Autoinstaller and users can use the Site Manager to manage websites.",
-    "link": "/mautic",
-    "type": "beta",
     "help_link": ""
   },
   {

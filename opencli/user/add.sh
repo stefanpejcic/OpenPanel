@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 24.10.2025
+# Last Modified: 27.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1291,20 +1291,20 @@ run_docker() {
     if validate_port "$FIRST_NEXT_AVAILABLE" && validate_port "$SECOND_NEXT_AVAILABLE" && validate_port "$THIRD_NEXT_AVAILABLE" && validate_port "$FOURTH_NEXT_AVAILABLE" && validate_port "$FIFTH_NEXT_AVAILABLE" && validate_port "$SIXTH_NEXT_AVAILABLE" && validate_port "$SEVENTH_NEXT_AVAILABLE"; then
 
 	if [ -n "$node_ip_address" ]; then
-		port_1="$node_ip_address:$FIRST_NEXT_AVAILABLE:22"
+		port_1="$node_ip_address:$FIRST_NEXT_AVAILABLE:80" 
 		port_2="$node_ip_address:$SECOND_NEXT_AVAILABLE:3306"
 		port_3="$node_ip_address:$THIRD_NEXT_AVAILABLE:5432"
 		port_4="$node_ip_address:$FOURTH_NEXT_AVAILABLE:80"
 		port_5="$node_ip_address:$FIFTH_NEXT_AVAILABLE:80"
-	        port_6="$node_ip_address:$SIXTH_NEXT_AVAILABLE:443"
+	    port_6="$node_ip_address:$SIXTH_NEXT_AVAILABLE:443"
 		port_7="$node_ip_address:$SEVENTH_NEXT_AVAILABLE:80"
 	  else
-		port_1="$FIRST_NEXT_AVAILABLE:22"
+		port_1="$FIRST_NEXT_AVAILABLE:80"
 		port_2="$SECOND_NEXT_AVAILABLE:3306"
 		port_3="$THIRD_NEXT_AVAILABLE:5432"
 		port_4="$FOURTH_NEXT_AVAILABLE:80"
 		port_5="127.0.0.1:$FIFTH_NEXT_AVAILABLE:80"
-	        port_6="127.0.0.1:$SIXTH_NEXT_AVAILABLE:443"
+	    port_6="127.0.0.1:$SIXTH_NEXT_AVAILABLE:443"
 		port_7="127.0.0.1:$SEVENTH_NEXT_AVAILABLE:80"
 	fi
  
@@ -1343,7 +1343,7 @@ pg_admin_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
     log "HTTP_PORT: $port_5"
     log "HTTPS_PORT: $port_6"
     log "HOSTNAME: $hostname"
-    log "UNUSED_1_PORT: $port_1"
+    log "PGADMIN_PORT: $port_1"
     log "POSTGRES_PORT: $port_3"
     log "PMA_PORT: $port_4"
     log "MYSQL_PORT: $port_2"
@@ -1366,11 +1366,11 @@ sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
     -e "s|TOTAL_RAM=\"[^\"]*\"|TOTAL_RAM=\"$ram\"|g" \
     -e "s|^HTTP_PORT=\"[^\"]*\"|HTTP_PORT=\"$port_5\"|g" \
     -e "s|HTTPS_PORT=\"[^\"]*\"|HTTPS_PORT=\"$port_6\"|g" \
-    -e "s|UNUSED_1_PORT=\"[^\"]*\"|UNUSED_1_PORT=\"127.0.0.1:$port_1\"|g" \
+    -e "s|PGADMIN_PORT=\"[^\"]*\"|PGADMIN_PORT=\"$port_1\"|g" \
     -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:$port_3\"|g" \
     -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"$port_4\"|g" \
     -e "s|POSTGRES_PASSWORD=\"[^\"]*\"|POSTGRES_PASSWORD=\"$postgres_password\"|g" \
-    -e "s|PGADMIN_PW=\"[^\"]*\"|PGADMIN_PW=\"$pg_admin_password\"|g" \
+    -e "s|PGADMIN_PASS=\"[^\"]*\"|PGADMIN_PASS=\"$pg_admin_password\"|g" \
     -e "s|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"[^\"]*\"|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"$pg_admin_password\"|g" \
     -e "s|PGADMIN_MAIL=\"[^\"]*\"|PGADMIN_MAIL=\"$email\"|g" \
     -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:$port_2\"|g" \

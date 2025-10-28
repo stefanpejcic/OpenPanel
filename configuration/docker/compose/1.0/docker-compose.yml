@@ -256,6 +256,7 @@ services:
       UPLOAD_LIMIT: ${PMA_UPLOAD_LIMIT:-256M}
       PMA_UPLOADDIR: "/html/"
       PMA_SAVEDIR: "/html/"
+      PMA_ABSOLUTE_URI: ${PMA_ABSOLUTE_URI}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
     networks:
       - db

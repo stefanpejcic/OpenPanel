@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 24.10.2025
+# Last Modified: 27.10.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -28,15 +28,18 @@
 # THE SOFTWARE.
 ################################################################################
 
+# ======================================================================
+# Constants
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 RED='\033[0;31m'
 PURPLE='\033[0;35m'
 NC='\033[0m' #reset
-CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
-service_name="admin"
+readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
+readonly service_name="admin"
 
-# IP SERVERS
+# ======================================================================
+# Helper functions
 SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
 if [ -f "$SCRIPT_PATH" ]; then
     source "$SCRIPT_PATH"
@@ -75,12 +78,11 @@ get_public_ip() {
     echo "$ip"
 }
 
-get_admin_url() {
-    caddyfile="/etc/openpanel/caddy/Caddyfile"
+get_openpanel_openadmin_links() {
+    readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
+	
 	local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
 	local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
-
-	# custom paths!
 	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
 	local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
 
@@ -88,16 +90,21 @@ get_admin_url() {
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
-        
-    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
+
+	port=$(opencli port)
+	
+	if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
+		user_url="http://${ip}:${port}/"
         admin_url="http://${ip}:2087/"
     else
 		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
 		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+		    user_url="http://${domain}:${port}/"
 		    admin_url="https://${domain}:2087/"
         else
             ip=$(get_public_ip)
+			user_url="http://${ip}:${port}/"
             admin_url="http://${ip}:2087/"
         fi
     fi
@@ -105,55 +112,50 @@ get_admin_url() {
     echo "$admin_url"    
 }
 
+get_openpanel_openadmin_links
 
-admin_url=$(get_admin_url)
 
-echo -e "
-Frequently Asked Questions
+# ======================================================================
+# Q
+questions=(
+    "What is the login link for admin panel?"
+    "What is the login link for user panel?"
+    "How to restart OpenAdmin or OpenPanel services?"
+    "How to reset admin password?"
+    "How to create new admin account?"
+    "How to list admin accounts?"
+    "How to check OpenPanel version?"
+    "How to update OpenPanel?"
+    "How to disable automatic updates?"
+    "Where are the logs?"
+    "How to enable detailed logs?"
+)
 
-${PURPLE}1.${NC} What is the login link for admin panel?
+# ======================================================================
+# A
+answers=(
+    "LINK: ${GREEN}${admin_url}${NC}"
+    "LINK: ${GREEN}${user_url}${NC}"
+    "- OpenPanel: ${RED}docker restart openpanel${NC}\n- OpenAdmin: ${RED}service admin restart${NC}"
+    "execute command ${GREEN}opencli admin password USERNAME NEW_PASSWORD${NC}"
+    "execute command ${GREEN}opencli admin new USERNAME PASSWORD${NC}"
+    "execute command ${GREEN}opencli admin list${NC}"
+    "execute command ${GREEN}opencli --version${NC}"
+    "execute command ${GREEN}opencli update --force${NC}"
+    "execute command ${GREEN}opencli config update autoupdate off${NC}"
+    "- User panel errors:      ${GREEN}/var/log/openpanel/user/error.log${NC}\n- User panel access log:  ${GREEN}/var/log/openpanel/user/access.log${NC}\n- Admin panel errors:     ${GREEN}/var/log/openpanel/admin/error.log${NC}\n- Admin panel access log: ${GREEN}/var/log/openpanel/admin/access.log${NC}\n- Admin panel API access: ${GREEN}/var/log/openpanel/admin/api.log${NC}\n- Admin panel logins:     ${GREEN}/var/log/openpanel/admin/login.log${NC}\n- Admin panel alerts:     ${GREEN}/var/log/openpanel/admin/notifications.log${NC}\n- Admin panel crons:      ${GREEN}/var/log/openpanel/admin/cron.log${NC}"
+    "- ${GREEN}opencli config update dev_mode yes${NC}"
+)
 
-LINK: ${GREEN}${admin_url}${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}2.${NC} How to restart OpenAdmin or OpenPanel services?
 
-- OpenPanel: ${RED}docker restart openpanel${NC}
-- OpenAdmin: ${RED}service admin restart${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}3.${NC} How to reset admin password?
 
-execute command ${GREEN}opencli admin password USERNAME NEW_PASSWORD${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}4.${NC} How to create new admin account ?
+# ======================================================================
+# Output
+echo -e "\nFrequently Asked Questions\n"
 
-execute command ${GREEN}opencli admin new USERNAME PASSWORD${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}5.${NC} How to list admin accounts ?
-
-execute command ${GREEN}opencli admin list${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}6.${NC} How to check OpenPanel version ?
-
-execute command ${GREEN}opencli --version${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}7.${NC} How to update OpenPanel ?
-
-execute command ${GREEN}opencli update --force${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}8.${NC} How to disable automatic updates?
-
-execute command ${GREEN}opencli config update autoupdate off${NC}
-${BLUE}------------------------------------------------------------${NC}
-${PURPLE}9.${NC} Where are the logs?
-
-- User panel errors: ${GREEN}/var/log/openpanel/user/error.log${NC}
-- User panel access log: ${GREEN}/var/log/openpanel/user/access.log${NC}
-- Admin panel errors: ${GREEN}/var/log/openpanel/admin/error.log${NC}
-- Admin panel access log: ${GREEN}/var/log/openpanel/admin/access.log${NC}
-- Admin panel API access: ${GREEN}/var/log/openpanel/admin/api.log${NC}
-- Admin panel logins: ${GREEN}/var/log/openpanel/admin/api.log${NC}
-- Admin panel alerts: ${GREEN}/var/log/openpanel/admin/notifications.log${NC}
-- Admin panel crons: ${GREEN}/var/log/openpanel/admin/cron.log${NC}
-
-${BLUE}------------------------------------------------------------${NC}
-"
+for i in "${!questions[@]}"; do
+    qnum=$((i + 1))
+    echo -e "${PURPLE}${qnum}.${NC} ${questions[$i]}\n"
+    echo -e "${answers[$i]}"
+    echo -e "${BLUE}------------------------------------------------------------${NC}\n"
+done

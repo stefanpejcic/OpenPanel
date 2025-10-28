@@ -9,7 +9,7 @@ backend default {
 # Define an access control list to restrict cache purging.
 acl purge {
     "localhost";
-    "172.17.0.0/16";
+    "172.16.0.0/12";
 }
 
 sub vcl_hit {
