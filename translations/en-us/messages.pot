@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-10-27 22:29+0100\n"
+"POT-Creation-Date: 2025-10-28 15:30+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -150,8 +150,8 @@ msgstr ""
 #: modules/website_builder.py:154 modules/website_builder.py:289
 #: modules/websites.py:202 modules/websites.py:333 modules/websites.py:416
 #: modules/websites.py:752 modules/wordpress.py:495 modules/wordpress.py:633
-#: modules/wordpress.py:1152 modules/wordpress.py:1495
-#: modules/wordpress.py:1630
+#: modules/wordpress.py:1152 modules/wordpress.py:1496
+#: modules/wordpress.py:1636
 msgid "You do not own this domain."
 msgstr ""
 
@@ -466,8 +466,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:119 modules/mysql.py:288 modules/mysql.py:562
-#: modules/mysql.py:755 modules/postgresql.py:79 modules/postgresql.py:568
+#: modules/mysql.py:119 modules/mysql.py:290 modules/mysql.py:564
+#: modules/mysql.py:757 modules/postgresql.py:79 modules/postgresql.py:568
 msgid "Database name is required."
 msgstr ""
 
@@ -476,8 +476,8 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:199 modules/mysql.py:279 modules/mysql.py:604
-#: modules/mysql.py:648 modules/mysql.py:748 modules/postgresql.py:163
+#: modules/mysql.py:199 modules/mysql.py:281 modules/mysql.py:606
+#: modules/mysql.py:650 modules/mysql.py:750 modules/postgresql.py:163
 #: modules/postgresql.py:617 modules/postgresql.py:696
 msgid "User name is required."
 msgstr ""
@@ -486,19 +486,19 @@ msgstr ""
 msgid "This username is not allowed."
 msgstr ""
 
-#: modules/mysql.py:233 modules/postgresql.py:206
+#: modules/mysql.py:235 modules/postgresql.py:206
 #: templates/mysql/mysql_user.html:173 templates/mysql/users.html:69
 #: templates/psql/mysql_user.html:70 templates/psql/psql_user.html:167
 #: templates/psql/users.html:69
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:244 modules/mysql.py:657 modules/mysql.py:771
+#: modules/mysql.py:246 modules/mysql.py:659 modules/mysql.py:773
 #: modules/postgresql.py:228 modules/postgresql.py:718
 msgid "This is a system username that can not be edited."
 msgstr ""
 
-#: modules/mysql.py:247 modules/postgresql.py:231 templates/files/ftp.html:110
+#: modules/mysql.py:249 modules/postgresql.py:231 templates/files/ftp.html:110
 #: templates/mysql/password.html:174 templates/mysql/root_password.html:161
 #: templates/mysql/users.html:103 templates/psql/password.html:168
 #: templates/psql/users.html:120
@@ -506,63 +506,63 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: modules/mysql.py:263 modules/postgresql.py:245
+#: modules/mysql.py:265 modules/postgresql.py:245
 msgid "Wizard"
 msgstr ""
 
-#: modules/mysql.py:299
+#: modules/mysql.py:301
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:323 modules/postgresql.py:287
+#: modules/mysql.py:325 modules/postgresql.py:287
 #: templates/mysql/assign.html:10 templates/mysql/assign.html:67
 #: templates/psql/assign.html:10 templates/psql/assign.html:70
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:328 modules/postgresql.py:295
+#: modules/mysql.py:330 modules/postgresql.py:295
 #: templates/mysql/remove.html:64 templates/psql/remove.html:64
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:424 templates/dashboard/dashboard.html:120
+#: modules/mysql.py:426 templates/dashboard/dashboard.html:120
 #: templates/dashboard/dashboard.html:132 templates/dashboard/usage.html:67
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:475 modules/postgresql.py:503
+#: modules/mysql.py:477 modules/postgresql.py:503
 #: templates/dashboard/dashboard.html:121
 #: templates/dashboard/dashboard.html:133
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:502
+#: modules/mysql.py:504
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:504
+#: modules/mysql.py:506
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:506
+#: modules/mysql.py:508
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:508
+#: modules/mysql.py:510
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:533 modules/postgresql.py:536
+#: modules/mysql.py:535 modules/postgresql.py:536
 #: templates/dashboard/dashboard.html:126
 #: templates/dashboard/dashboard.html:137
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:613
+#: modules/mysql.py:615
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:767
+#: modules/mysql.py:769
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -982,7 +982,7 @@ msgstr ""
 msgid "WordPress Manager"
 msgstr ""
 
-#: modules/wordpress.py:183 modules/wordpress.py:1522 modules/wordpress.py:1648
+#: modules/wordpress.py:183 modules/wordpress.py:1523 modules/wordpress.py:1654
 msgid "Domain not found."
 msgstr ""
 
@@ -1028,39 +1028,39 @@ msgstr ""
 msgid "Install WordPress"
 msgstr ""
 
-#: modules/wordpress.py:1665
+#: modules/wordpress.py:1671
 msgid "Verification completed successfully."
 msgstr ""
 
-#: modules/wordpress.py:1666
+#: modules/wordpress.py:1672
 msgid "Verification failed."
 msgstr ""
 
-#: modules/wordpress.py:1671
+#: modules/wordpress.py:1677
 msgid "Download completed successfully."
 msgstr ""
 
-#: modules/wordpress.py:1672
+#: modules/wordpress.py:1678
 msgid "Download failed."
 msgstr ""
 
-#: modules/wordpress.py:1676
+#: modules/wordpress.py:1682
 msgid "Salts shuffled successfully."
 msgstr ""
 
-#: modules/wordpress.py:1677
+#: modules/wordpress.py:1683
 msgid "Failed to shuffle salts."
 msgstr ""
 
-#: modules/wordpress.py:1689
+#: modules/wordpress.py:1695
 msgid "Unsupported action."
 msgstr ""
 
-#: modules/wordpress.py:1700
+#: modules/wordpress.py:1706
 msgid "Invalid action. Use 'enable' or 'disable'."
 msgstr ""
 
-#: modules/wordpress.py:1727
+#: modules/wordpress.py:1733
 msgid "Invalid type. Use 'core' or 'plugins'."
 msgstr ""
 

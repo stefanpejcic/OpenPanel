@@ -1,5 +1,5 @@
 {
         "data-root": "/home/USERNAME/docker-data",
-        "dns": ["8.8.8.8", "8.8.4.4"],
+        "dns": ["1.1.1.1", "1.0.0.1"],
          "no-new-privileges": true
 }
