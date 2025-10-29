@@ -548,7 +548,7 @@ docker_compose_up(){
 		radovan 1: "ERROR: Unable to run the Alpine Docker image! This suggests an issue with connecting to Docker Hub or with the Docker installation itself. To troubleshoot, try running the following command manually: 'docker run --rm alpine'."
 	fi
 
-    cp /etc/openpanel/mysql/initialize/1.1/mariadb.sql /root/initialize.sql  > /dev/null 2>&1
+    cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 
   	chmod +x /etc/openpanel/mysql/scripts/dump.sh                       # added in 1.2.5 for dumping dbs
   	chmod +x /etc/openpanel/openlitespeed/start.sh                      # added in 1.5.6 for openlitespeed
