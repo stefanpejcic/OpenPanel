@@ -1062,6 +1062,7 @@ opencli_setup(){
 enable_dev_mode() {
 	if [ "$DEV_MODE" = true ]; then
 	    echo "Enabling dev_mode"
+		# https://gist.github.com/stefanpejcic/9c2b7313c052ce5fdb2ab816f52ff08b?permalink_comment_id=5835702#gistcomment-5835702
 	    opencli config update dev_mode "on" > /dev/null 2>&1
 	fi
 }
