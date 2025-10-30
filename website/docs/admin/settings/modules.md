@@ -151,5 +151,26 @@ When disabled:
 Customize options:
 * To **configure FTP server** refer to [*How-to Guides > Setup FTP](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/).
 * To **edit VSFTPD configuration** edit the [`/etc/openpanel/ftp/vsftpd.conf` file](https://github.com/stefanpejcic/openpanel-configuration/blob/main/ftp/vsftpd.conf).
-* To **view all ftp accounts on a server** use the [*OpenAdmin > Services > FTP* page](/docs/admin/services/ftp/)
-* To **limit number fo ftp accounts per user** edit the ftp accounts limit when creating/editing hosting packages.
+* To **view all ftp accounts on a server** use the [*OpenAdmin > Services > FTP* page](/docs/admin/services/ftp/).
+* To **limit number of ftp accounts per user** edit the ftp accounts limit when creating/editing hosting packages.
+
+## Emails
+
+The **`emails`** module allows users to create and manage Email accounts.
+
+When enabled:
+* Users can access the [**Emails** pages](/docs/panel/emails/) to manage Email accounts.
+* Users can access the [**Webmail** page](/docs/panel/emails/webmail/).
+
+When disabled:
+* Users can not create and manage Email accounts.
+
+Customize options:
+* To **configure email server** refer to [*How-to Guides > Configure Email Server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/).
+* To **configure email client** refer to [*How-to Guides > How to setup your email client](/docs/articles/email/how-to-setup-your-email-client/).
+* To **view all email accounts on a server** use the [*OpenAdmin > Emails > Email Accounts* page](/docs/admin/emails/).
+* To **set webmail domain or relay hosts** use the [*OpenAdmin > Emails > Email Settings* page](/docs/admin/emails/settings/).
+* To **set up fail2ban** refer to [*How-to Guides > Setup Fail2ban](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/).
+* To **set up Rspamd** refer to [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/).
+* To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
+* To **limit number of email accounts per user** edit the email accounts limit when creating/editing hosting packages.
