@@ -113,7 +113,7 @@ Customize options:
 * To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
 * To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Doamins > Edit Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Edit Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 * To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
 
@@ -138,3 +138,18 @@ When disabled:
 Customize options:
 * None
 
+## FTP
+
+The **`ftp`** module allows users to create and manage FTP sub-accounts.
+
+When enabled:
+* Users can access the [**Files > FTP** page](/docs/panel/caching/varnish/) to manage FTP accounts.
+
+When disabled:
+* Users can not create and manage FTP accounts.
+
+Customize options:
+* To **configure FTP server** refer to [*How-to Guides > Setup FTP](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/).
+* To **edit VSFTPD configuration** edit the [`/etc/openpanel/ftp/vsftpd.conf` file](https://github.com/stefanpejcic/openpanel-configuration/blob/main/ftp/vsftpd.conf).
+* To **view all ftp accounts on a server** use the [*OpenAdmin > Services > FTP* page](/docs/admin/services/ftp/)
+* To **limit number fo ftp accounts per user** edit the ftp accounts limit when creating/editing hosting packages.
