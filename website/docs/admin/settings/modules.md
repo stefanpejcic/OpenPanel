@@ -87,3 +87,17 @@ Customize email notifications:
 * To **configure custom SMTP** use [OpenAdmin > Settings > Notifications page](/docs/admin/settings/notifications/).
 
 
+
+## Account
+
+The **`account`** module is required for users to change their email, password or username.
+
+When enabled:
+* Users can change their email, password and username through the OpenPanel UI at: [**Accounts > Settings**](/docs/panel/account/).
+
+When disabled:
+* Users can not change their passwords from OpenPanel UI, only from 'Password Reset' on login form, if this option is enabled.
+
+Customize password and username changes:
+* To **enable or disable password reset on login forms** edit 'Enable password reset on login' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/).
+* To **prevent users from changing their username** edit 'Allow users to change username' setting from  [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/).
