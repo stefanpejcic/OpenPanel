@@ -257,3 +257,23 @@ Customize options:
 * To **edit the mysql.cnf file for all new users** edit file: [`/etc/openpanel/mysql/user.cnf`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/user.cnf).
 
 
+
+
+
+
+
+
+## process_manager
+
+The **`process_manager`** module allows users to view and terminate processes from all running services.
+
+When enabled:
+* Users can access the [**Advanced > Process Manager** page](/docs/panel/advanced/process_manager/).
+
+When disabled:
+* Users can not access the *Advanced > Process Manager* page.
+
+Customize options:
+* None
+
+
