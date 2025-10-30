@@ -65,3 +65,25 @@ Available Modules:
 | login\_history      | Login History               | Displays the last 20 IP addresses that logged into the user's account.                                     | [/account/loginlog](/account/loginlog)                         | community  |
 | twofa               | 2FA                         | Enables Two-Factor Authentication (2FA) for enhanced account security.                                     | [/account/2fa](/account/2fa)                                   | community  |
 | activity            | Activity Log                | Allows users to browse all recorded actions and events related to their account.                           | [/account/activity](/account/activity)                         | community  |
+
+
+
+
+
+## Notifications
+
+The **`notifications`** module is required to send email notifications to users.
+
+When enabled:
+* Emails are sent according to each user’s notification preferences.
+* Users can manage their preferences through the OpenPanel UI at: [**Accounts > Email Notifications**](/docs/panel/account/notifications/).
+
+When disabled:
+* No emails will be sent, regardless of user preferences.
+
+Customize email notifications:
+* To **set default preferences for new users** edit the [`/etc/openpanel/skeleton/notifications.yaml`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/skeleton/notifications.yaml) file.
+* To **customize email templates** refer to [Customizing OpenPanel Email Templates](https://community.openpanel.org/d/214-customizing-openpanel-email-templates).
+* To **configure custom SMTP** use [OpenAdmin > Settings > Notifications page](/docs/admin/settings/notifications/).
+
+
