@@ -175,39 +175,18 @@ Customize options:
 * To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
 * To **limit number of email accounts per user** edit the email accounts limit when creating/editing hosting packages.
 
-## MySQL
+## remote_mysql
 
-The **`mysql`** module allows users to create and manage mysql databases.
+The **`remote_mysql`** module allows users to enable/disable remote access to mysql.
 
 When enabled:
-* MySQL/MariaDB auto-starts when user accesses Databases section, opens phpMyAdmin or installs WordPress.
-* Users can access the [**MySQL > Databases** page](#) to manage databases.
-* Users can access the [**MySQL > New Database** page](#) to create databases.
-* Users can access the [**MySQL > Database Wizard** page](#) to create database, user and assign privileges.
-* Users can access the [**MySQL > Delete Database** page](#) to delete a database.
-* Users can access the [**MySQL > Root Password** page](#) to change root user password.
-* Users can access the [**MySQL > Process List** page](#) to view all active processes.
-* Users can access the [**MySQL > Users** page](#) to manage users.
-* Users can access the [**MySQL > New User** page](#) to create users.
-* Users can access the [**MySQL > Change Password** page](#) to change password for a user.
-* Users can access the [**MySQL > Assign User to DB** page](#) to assign all privileges to user over a database.
-* Users can access the [**MySQL > Remove User from DB** page](#) to revoke all privileges to user over a database.
-* Users can access the [**MySQL > Delete User** page](#) to delete a user.
+* Remote access is disabled by default.
+* Random port is allocated per user for their mysql instances.
+* Users can access the [**MySQL > Remote Access** page](#) to enable/disable remote access.
+* Users can connect to any database from remote location once the option is enabled.
 
 When disabled:
-* Users do not have access to the *MySQL* section.
+* Remote access is disabled.
 
 Customize options:
-* To **set mysql or mariadb for all new users** use [*OpenAdmin > Settings > User Defaults* page and *MySQL type* option](/docs/admin/settings/defaults/).
-* To **set mysql, percona or mariadb for a single user** when creating their account use the [**MySQL Type** option](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/).
-* To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the mysql.cnf file for a single user** edit file: `/home/${username}/custom.cnf`.
-* To **edit the mysql.cnf file for all new users** edit file: [`/etc/openpanel/mysql/user.cnf`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/user.cnf).
-
-How-to guides:
-* To **connect to a database** refer to [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
-* To **import into a database** refer to [*How-to Guides > Importing a Database](/docs/articles/docker/import-database/).
-* To **troubleshoot errors** refer to [*How-to Guides > How to troubleshoot: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/).
-
-
-
+* None
