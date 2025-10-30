@@ -132,3 +132,22 @@ Customize locales:
 * To **set the default locale** use [OpenAdmin > Settings > Locales](/docs/articles/accounts/default-user-locales/).
 * To **install new locales for users** use the [OpenAdmin > Settings > Locales](/docs/admin/settings/locales/#install-locale).
 * To **create a new translation** please see [How to Create a New Locale](/docs/admin/settings/locales/#edit-locale)
+
+
+## Favorites
+
+The **`favorites`** module allows users to *pin* items in their sidebar menu for quick navigation.
+
+When enabled:
+* Users can add pages to favorites with **left-click** on ⭐ icon in top-right corner of the page.
+* Users can remove pages from favorites with **right-click** on ⭐ icon in top-right corner of the page.
+* Users can access favorites from sidebar menu.
+* Users can access the [**Accounts > Favorites** page](/docs/panel/account/favorites/).
+
+When disabled:
+* Users can not access the *Accounts > Favorites* page to manage favorites.
+* Users are not see favorites in the sidebar nor the ⭐ icon in top-right corner of pages.
+
+Customize favorites:
+* To **control the total number of favorites for user** (default is 10) use [`favorites-items` config](https://dev.openpanel.com/cli/config.html#favorites-items).
+* To **edit user's favorites from terminal** edit their: `/etc/openpanel/openpanel/core/users/{current_username}/favorites.json` file.
