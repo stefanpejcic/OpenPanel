@@ -5,7 +5,7 @@
 # Usage: opencli user-loginlog <USERNAME> [--json]
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 28.10.2025
+# Last Modified: 29.10.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 

@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 28.10.2025
+# Last Modified: 29.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -734,18 +734,30 @@ check_and_add_to_enabled() {
 
 
 get_slave_dns_option() {
-	# Path to the named.conf.options file
 	BIND_CONFIG_FILE="/etc/bind/named.conf.options"
-	
-	ALLOW_TRANSFER=$(grep -oP '^(?!\s*//).*allow-transfer\s+\{\s*\K[^;]*' "$BIND_CONFIG_FILE" | tr -d '[:space:]')
-	ALLOW_UPDATE=$(grep -oP '^(?!\s*//).*also-notify\s+\{\s*\K[^;]*' "$BIND_CONFIG_FILE" | tr -d '[:space:]')
 
-	# Check if both values are non-empty and equal
-	if [[ -n "$ALLOW_TRANSFER" && -n "$ALLOW_UPDATE" && "$ALLOW_TRANSFER" == "$ALLOW_UPDATE" ]]; then
-	    SLAVE_IP=$ALLOW_TRANSFER
-     	    MASTER_IP=$current_ip
-     	    notify_slave
-	fi
+    # 1. check if cluster enabled, if it is, both lines are uncommented!
+    if ! grep -qP '^(?!\s*//).*allow-transfer\s+\{[^}]*\}' "$BIND_CONFIG_FILE" \
+        || ! grep -qP '^(?!\s*//).*also-notify\s+\{[^}]*\}' "$BIND_CONFIG_FILE"; then
+        return
+    fi
+
+	# 2. get IP(s) for slave servers, line formats are: allow-transfer {EXAMPLE;ANOTHER;};  AND also-notify {EXAMPLE;ANOTHER;};
+    ALLOW_TRANSFER=$(grep -oP '^(?!\s*//).*allow-transfer\s+\{\s*\K[^}]*' "$BIND_CONFIG_FILE" | tr -d '[:space:]')
+    ALSO_NOTIFY=$(grep -oP '^(?!\s*//).*also-notify\s+\{\s*\K[^}]*' "$BIND_CONFIG_FILE" | tr -d '[:space:]')
+
+    IFS=';' read -r -a ALLOW_TRANSFER_IPS <<< "$ALLOW_TRANSFER"
+    IFS=';' read -r -a ALSO_NOTIFY_IPS <<< "$ALSO_NOTIFY"
+
+    # 3. For each slave server we execute notify_slave()
+    for ip in "${ALLOW_TRANSFER_IPS[@]}"; do
+        [[ -z "$ip" ]] && continue
+        if [[ " ${ALSO_NOTIFY_IPS[*]} " == *" $ip "* ]]; then
+            SLAVE_IP=$ip
+            MASTER_IP=$current_ip
+            notify_slave
+        fi
+    done
 }
 
 
@@ -854,10 +866,10 @@ create_zone_file() {
     # Reload BIND service
     if [ $(docker --context default ps -q -f name=openpanel_dns) ]; then
         log "DNS service is running, adding the zone"
-	docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
+		docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
     else
-	log "DNS is enabled but the DNS service is not yet started, starting now.."
- 	nohup sh -c "cd /root && docker --context default compose up -d bind9" </dev/null >nohup.out 2>nohup.err &
+		log "DNS is enabled but the DNS service is not yet started, starting now.."
+ 		nohup sh -c "cd /root && docker --context default compose up -d bind9" </dev/null >nohup.out 2>nohup.err &
     fi
 }
 
@@ -868,8 +880,8 @@ notify_slave(){
 if $USE_PARENT_DNS_ZONE; then
 :
 else
-    echo "Notifying Slave DNS server ($SLAVE_IP): Adding new zone for domain $domain_name"
-timeout 10 ssh -T -o ConnectTimeout=10 root@$SLAVE_IP <<EOF
+    echo "Notifying Slave DNS server ($SLAVE_IP) to create a new zone for domain $domain_name"
+	timeout 10 ssh -T -o ConnectTimeout=10 root@$SLAVE_IP <<EOF
     if ! grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
         echo "zone \"$domain_name\" { type slave; masters { $MASTER_IP; }; file \"/etc/bind/zones/$domain_name.zone\"; };" >> /etc/bind/named.conf.local
         touch /etc/bind/zones/$domain_name.zone
@@ -879,8 +891,6 @@ timeout 10 ssh -T -o ConnectTimeout=10 root@$SLAVE_IP <<EOF
     fi
 EOF
 fi
-
-
 
 }
 

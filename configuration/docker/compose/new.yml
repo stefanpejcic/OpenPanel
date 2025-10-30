@@ -1,7 +1,7 @@
 services:
   # Database for OpenPanel users, plans, websites and domains
   openpanel_mysql:
-    image: mysql/mysql-server
+    image: mariadb:10-focal
     container_name: openpanel_mysql
     restart: always
     environment:
