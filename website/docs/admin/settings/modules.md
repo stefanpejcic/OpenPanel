@@ -207,7 +207,7 @@ How-to guides:
 * To **connect to a database** refer to [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 * To **troubleshoot errors** refer to [*How-to Guides > How to troubleshoot: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/).
 
-## remote_mysql
+## Remote MySQL
 
 The **`remote_mysql`** module allows users to enable/disable remote access to mysql.
 
@@ -224,7 +224,7 @@ Customize options:
 * None
 
 
-## mysql_import
+## MySQL Import
 
 The **`mysql_import`** module allows users to import files into their databases.
 
@@ -241,7 +241,7 @@ How-to guides:
 * To **import into a database** refer to [*How-to Guides > Importing a Database](/docs/articles/docker/import-database/).
 
 
-## mysql_conf
+## MySQL Conf
 
 The **`mysql_conf`** module allows users to edit mysql server configuration.
 
@@ -263,7 +263,7 @@ Customize options:
 
 
 
-## process_manager
+## Process Manager
 
 The **`process_manager`** module allows users to view and terminate processes from all running services.
 
