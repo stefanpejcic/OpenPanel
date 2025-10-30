@@ -117,3 +117,24 @@ Customize options:
 * To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
 * To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
 
+
+## Docker
+
+The **`docker`** module allows users to manage and add new docker containers.
+
+When enabled:
+* Users can access [**Docker > Containers**](/docs/panel/containers/) page to view and manage services.
+* Users can access [**Docker > Containers > New**](/docs/panel/containers/#adding-new-services) page to add new services.
+* Users can access [**Docker > Terminal**](/docs/panel/containers/terminal/) page to run docker exec commands.
+* Users can access [**Docker > Image Updates**](/docs/panel/containers/image/) page to check for available image updates.
+* Users can access [**Docker > Logs**](/docs/panel/containers/logs/) page to view service logs.
+* Users can access [**Docker > Change Image Tag**](/docs/panel/containers/change/) page to change images tag.
+* Users can access [**Docker > Switch Web Server**](/docs/panel/containers/webserver/) page to switch webservers.
+* Users can access [**Docker > Switch MySQL Type**](/docs/panel/containers/mysql/) page to switch mysql/mariadb.
+
+When disabled:
+* Users can not access any of the *Docker* pages.
+
+Customize options:
+* None
+
