@@ -182,18 +182,16 @@ The **`mysql`** module allows users to create and manage mysql databases.
 
 When enabled:
 * MySQL/MariaDB auto-starts when user accesses Databases section, opens phpMyAdmin or installs WordPress.
-* Users can access the [**MySQL > Databases** page](#) to manage databases.
-* Users can access the [**MySQL > New Database** page](#) to create databases.
-* Users can access the [**MySQL > Database Wizard** page](#) to create database, user and assign privileges.
-* Users can access the [**MySQL > Delete Database** page](#) to delete a database.
+* Users can access the [**MySQL > Databases** page](/docs/panel/mysql/databases/) to manage databases.
+* Users can access the [**MySQL > New Database** page](/docs/panel/mysql/new_db/) to create databases.
+* Users can access the [**MySQL > Database Wizard** page](/docs/panel/mysql/wizard/) to create database, user and assign privileges.
 * Users can access the [**MySQL > Root Password** page](#) to change root user password.
-* Users can access the [**MySQL > Process List** page](#) to view all active processes.
-* Users can access the [**MySQL > Users** page](#) to manage users.
-* Users can access the [**MySQL > New User** page](#) to create users.
+* Users can access the [**MySQL > Process List** page](/docs/panel/mysql/processlist/) to view all active processes.
+* Users can access the [**MySQL > Users** page](/docs/panel/mysql/users/) to manage users.
+* Users can access the [**MySQL > New User** page](/docs/panel/mysql/new_user/) to create users.
 * Users can access the [**MySQL > Change Password** page](#) to change password for a user.
-* Users can access the [**MySQL > Assign User to DB** page](#) to assign all privileges to user over a database.
-* Users can access the [**MySQL > Remove User from DB** page](#) to revoke all privileges to user over a database.
-* Users can access the [**MySQL > Delete User** page](#) to delete a user.
+* Users can access the [**MySQL > Assign User to DB** page](/docs/panel/mysql/assign/) to assign all privileges to user over a database.
+* Users can access the [**MySQL > Remove User from DB** page](/docs/panel/mysql/remove/) to revoke all privileges to user over a database.
 
 When disabled:
 * Users do not have access to the *MySQL* section.
@@ -214,7 +212,7 @@ The **`remote_mysql`** module allows users to enable/disable remote access to my
 When enabled:
 * Remote access is disabled by default.
 * Random port is allocated per user for their mysql instances.
-* Users can access the [**MySQL > Remote Access** page](#) to enable/disable remote access.
+* Users can access the [**MySQL > Remote Access** page](/docs/panel/mysql/remote/) to enable/disable remote access.
 * Users can connect to any database from remote location once the option is enabled.
 
 When disabled:
@@ -229,7 +227,7 @@ Customize options:
 The **`mysql_import`** module allows users to import files into their databases.
 
 When enabled:
-* Users can access the [**MySQL > Import Database** page](#) to import files into a database.
+* Users can access the [**MySQL > Import Database** page](/docs/panel/mysql/import/) to import files into a database.
 
 When disabled:
 * Users can not access the *MySQL > Import Database* page.
