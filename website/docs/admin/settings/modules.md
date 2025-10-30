@@ -116,3 +116,19 @@ When disabled:
 Customize sessions duration:
 * To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
 * To **control session lifetime** edit 'Session lifetime' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
+
+## Locale
+
+The **`locale`** (Languages) module allows users to change panel language.
+
+When enabled:
+* Users can change their preferred language for OpenPanel UI from the login page and [**Accounts > Change Language** page](/docs/panel/account/language/).
+
+When disabled:
+* Users can not access the *Accounts > Change Language* page to change their locale
+* Users are forced to the Admin defined default locale.
+
+Customize locales:
+* To **set the default locale** use [OpenAdmin > Settings > Locales](/docs/articles/accounts/default-user-locales/).
+* To **install new locales for users** use the [OpenAdmin > Settings > Locales](/docs/admin/settings/locales/#install-locale).
+* To **create a new translation** please see [How to Create a New Locale](/docs/admin/settings/locales/#edit-locale)
