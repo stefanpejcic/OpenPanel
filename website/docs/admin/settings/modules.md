@@ -125,7 +125,7 @@ When enabled:
 * Users can change their preferred language for OpenPanel UI from the login page and [**Accounts > Change Language** page](/docs/panel/account/language/).
 
 When disabled:
-* Users can not access the *Accounts > Change Language* page to change their locale
+* Users can not access the *Accounts > Change Language* page to change their locale.
 * Users are forced to the Admin defined default locale.
 
 Customize locales:
