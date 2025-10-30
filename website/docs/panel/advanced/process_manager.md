@@ -21,9 +21,9 @@ Processes are **sorted by CPU usage**, making it easy to identify and act on res
   - Full Command (expandable)
 - 🛑 **Kill Processes:** Force-stop any non-critical process.
 
-> :::danger
-> ⚠️ **Warning:** Stopping core services like `MySQL`, `PHP-FPM`, or `Nginx/Apache` will cause your websites to go offline. Only terminate processes you are certain about.
-> :::
+:::danger
+⚠️ **Warning:** Stopping core services like `MySQL`, `PHP-FPM`, or `Nginx/Apache` will cause your websites to go offline. Only terminate processes you are certain about.
+:::
 
 ---
 
