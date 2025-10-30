@@ -92,3 +92,28 @@ When disabled:
 Customize favorites:
 * To **control the total number of favorites for user** (default is 10) use [`favorites-items` config](https://dev.openpanel.com/cli/config.html#favorites-items).
 * To **edit user's favorites from terminal** edit their: `/etc/openpanel/openpanel/core/users/{current_username}/favorites.json` file.
+
+
+## Varnish
+
+The **`varnish`** module allows users to control varnish caching for their domains.
+
+When enabled:
+* Varnish server starts for user and proxies traffic back to their webserver. 
+* Users can access the [**Caching > Varnish** page](/docs/panel/caching/varnish/).
+* Users can enable/disable Varnish service.
+* Users can enable/disable Varnish caching per domain.
+* Users can view logs for the Varnish service.
+
+When disabled:
+* Users do not have access to the *Caching > Varnish* page.
+* Varnish is used only if Administrator enabled it for user when creating the account. 
+
+Customize options:
+* To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
+* To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
+* To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
+* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Doamins > Edit Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
+* To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
+
