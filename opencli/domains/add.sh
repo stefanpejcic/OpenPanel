@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 29.10.2025
+# Last Modified: 30.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -862,7 +862,10 @@ create_zone_file() {
     echo "$zone_content" > "$ZONE_FILE_DIR$domain_name.zone"
   fi
 
+}
 
+
+reload_bind_after_slaves(){
     # Reload BIND service
     if [ $(docker --context default ps -q -f name=openpanel_dns) ]; then
         log "DNS service is running, adding the zone"
@@ -874,20 +877,29 @@ create_zone_file() {
 }
 
 
-
 notify_slave(){
 
 if $USE_PARENT_DNS_ZONE; then
 :
 else
     echo "Notifying Slave DNS server ($SLAVE_IP) to create a new zone for domain $domain_name"
-	timeout 10 ssh -T -o ConnectTimeout=10 root@$SLAVE_IP <<EOF
+	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
     if ! grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
         echo "zone \"$domain_name\" { type slave; masters { $MASTER_IP; }; file \"/etc/bind/zones/$domain_name.zone\"; };" >> /etc/bind/named.conf.local
         touch /etc/bind/zones/$domain_name.zone
-        echo "Zone $domain_name added to slave server and file touched."
+        echo "Zone $domain_name added to slave server."
     else
-        echo "Zone $domain_name already exists on the slave server."
+        echo "Warning: Zone $domain_name already exists on the slave server."
+    fi
+EOF
+
+	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
+    if [ $(docker --context default ps -q -f name=openpanel_dns) ]; then
+        echo "Reloading DNS service on slave server.."
+		docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
+    else
+		echo "Starting DNS service on slave server.."
+ 		nohup sh -c "cd /root && docker --context default compose up -d bind9" </dev/null >nohup.out 2>nohup.err &
     fi
 EOF
 fi
@@ -938,6 +950,7 @@ dns_stuff() {
 	    create_zone_file                             # create zone
 	    get_slave_dns_option                         # create zone on slave before include on master
 	    update_named_conf                            # include zone 
+		reload_bind_after_slaves                     # relaod at the end
     else
         log "DNS module is disabled - skipping creating DNS records"
     fi

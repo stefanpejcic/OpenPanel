@@ -5,7 +5,7 @@
     "description": "If enabled, users can configure notification preferences from their account and they will receive emails.",
     "link": "/account/notifications",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#notifications"
   },
   {
     "name": "account",
@@ -13,7 +13,7 @@
     "description": "If enabled, users can change username, password and email address for the account in their user panel.",
     "link": "/account/settings",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#account"
   },
   {
     "name": "sessions",
@@ -21,7 +21,7 @@
     "description": "If enabled, users can view all active sessions for their account, in their user panel.",
     "link": "/account/sessions",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#sessions"
   },
   {
     "name": "locale",
@@ -29,7 +29,7 @@
     "description": "If enabled, users can switch languages in their user panel.",
     "link": "/account/languages",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#locale"
   },
   {
     "name": "favorites",
@@ -37,7 +37,7 @@
     "description": "If enabled, users can add panel pages to favorites and manage them from their account.",
     "link": "/account/favorites",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#favorites"
   },
   {
     "name": "varnish",
@@ -45,7 +45,7 @@
     "description": "If enabled, users can use Varnish Caching and enable/disable cache per domain.",
     "link": "/cache/varnish",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#varnish"
   },
   {
     "name": "docker",
@@ -53,7 +53,7 @@
     "description": "If enabled, users can allocate resources to their containers and start/stop them when needed.",
     "link": "/containers",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#docker"
   },
   {
     "name": "ftp",
@@ -61,7 +61,7 @@
     "description": "If enabled, users can create and manage FTP accounts. The FTP server must be configured separately.",
     "link": "/ftp",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#ftp"
   },
   {
     "name": "emails",
@@ -69,7 +69,7 @@
     "description": "If enabled, users can create and manage email accounts. The Mail server must be configured separately.",
     "link": "/emails",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#emails"
   },
   {
     "name": "mysql",
@@ -77,7 +77,7 @@
     "description": "If enabled, users can manage MySql databases and users.",
     "link": "/mysql",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#mysql"
   },
   {
     "name": "remote_mysql",
@@ -85,7 +85,7 @@
     "description": "If enabled, users can enable/disable remote access to MySQL databases.",
     "link": "/mysql/remote-mysql",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#remote-mysql"
   },
   {
     "name": "mysql_import",
@@ -93,7 +93,7 @@
     "description": "If enabled, users can import .sql files into MySQL databases from their user panel.",
     "link": "/mysql/import",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#mysql-import"
   },
   {
     "name": "mysql_conf",
@@ -101,7 +101,7 @@
     "description": "If enabled, users can edit MySQL Configuration from their user panel.",
     "link": "/mysql/configuration",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#mysql-conf"
   },
   {
     "name": "postgresql",
@@ -373,7 +373,7 @@
     "description": "If enabled, users can view/kill process from the Process Manager page.",
     "link": "/process-manager",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#process-manager"
   },
   {
     "name": "redis",
