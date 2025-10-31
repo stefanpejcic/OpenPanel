@@ -275,3 +275,19 @@ Customize options:
 * None
 
 
+## Activity
+
+The **`activity`** module allows users to view their activity logs.
+
+When enabled:
+* Users can access the [**Account > Activity Log** page](#).
+
+When disabled:
+* Users can not access the *Account > Activity Log* page.
+
+Customize options:
+* To **edit activity log from terminal** open file: `/etc/openpanel/openpanel/core/users/{username}/activity.log`.
+* To **set total number of lines per user** edit `activity_lines_retention` setting.
+* To **set total size of log per user** edit `activity_max_size_bytes` setting.
+* To **log action from 3rd-party plugin** follow: record_user_action
+
