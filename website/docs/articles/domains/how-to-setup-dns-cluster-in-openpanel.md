@@ -50,7 +50,7 @@ Add these A records in your domain's DNS provider for `yourdomain.com`.
 
 ### Step 3: Register Nameservers in OpenPanel
 
-On **both** servers, open the OpenAdmin panel:
+On **master** server, open the OpenAdmin panel:
 * Navigate to **Settings > OpenPanel > Nameservers**
 * Add both `dns1.yourdomain.com` and `dns2.yourdomain.com`
 
