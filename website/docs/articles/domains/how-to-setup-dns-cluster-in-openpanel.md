@@ -58,14 +58,14 @@ On **both** servers, open the OpenAdmin panel:
 
 ### Step 4: Enable DNS Clustering
 
-On **each** server:
+On **master** server:
 
 * Go to **OpenAdmin > Domains > DNS Cluster**
 * Click **Enable DNS Clustering**
 
 [![2025-07-09-17-32.png](https://i.postimg.cc/FzG3NfG3/2025-07-09-17-32.png)](https://postimg.cc/2LbVxSsS)
 
-* Click **Add Server** and enter the IP of the other server, then **Add**
+* Click **Add Server** and enter the IP of the slave server, then **Add**
 
 [![2025-07-09-17-33.png](https://i.postimg.cc/7PX2C2MT/2025-07-09-17-33.png)](https://postimg.cc/3W4RVWqK)
 
