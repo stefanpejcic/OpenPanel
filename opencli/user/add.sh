@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 30.10.2025
+# Last Modified: 31.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,22 +29,26 @@
 # THE SOFTWARE.
 ################################################################################
 
+# ======================================================================
 # Constants
-FORBIDDEN_USERNAMES_FILE="/etc/openpanel/openadmin/config/forbidden_usernames.txt"
-DB_CONFIG_FILE="/usr/local/opencli/db.sh"
-SEND_EMAIL_FILE="/usr/local/opencli/send_mail"
-PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
+readonly FORBIDDEN_USERNAMES_FILE="/etc/openpanel/openadmin/config/forbidden_usernames.txt"
+readonly DB_CONFIG_FILE="/usr/local/opencli/db.sh"
+readonly PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 
+# ======================================================================
+# Variables
 username="${1,,}"
 password="$2"
 email="$3"
 plan_name="$4"
-DEBUG=false             # Default value for DEBUG
+DEBUG=false
 SKIP_IMAGE_PULL=false
-SEND_EMAIL=false        # Don't send email by default
-server=""               # Default value for context
+SEND_EMAIL=false
+server=""
 key_flag=""
 
+# ======================================================================
+# Functions
 usage() {
     echo "Usage: opencli user-add <username> <password|generate> <email> '<plan_name>' [--send-email] [--debug] [--reseller=<RESELLER_USER>] [--server=<IP_ADDRESS>] [--key=<KEY_PATH>]"
     echo
@@ -57,55 +61,31 @@ usage() {
     echo "Optional flags:"
 
     if [ -n "$key_value" ]; then
-	    # Reseller section
 	    printf "%-25s %-45s\n" "  --reseller=<RESELLER_USER>" "Set the reseller for the user."
 	    echo
-	
-	    # Clustering section
-	    printf "%-25s %-45s\n" "  --server=<IP_ADDRESS>" "Specify the IPv4 of slave server to use for user."
+		printf "%-25s %-45s\n" "  --server=<IP_ADDRESS>" "Specify the IPv4 of slave server to use for user."
 	    printf "%-25s %-45s\n" "  --key=<KEY_PATH>" "Specify the path to a key file for authentication to slave server."
 	    echo
     fi
 
-    # Other
     printf "%-25s %-45s\n" "  --send-email" "Send a welcome email to the user."
     printf "%-25s %-45s\n" "  --debug" "Enable debug mode for additional output."
     echo
     exit 1
 }
 
-
-
 check_enterprise() {
     key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
 }
 
-
-
-
-
-#1. check if enterprise license, so we can display more info in usage()
-check_enterprise
-
-#2. Check the number of arguments, we need at least 4
-if [ "$#" -lt 4 ] || [ "$#" -gt 11 ]; then
-    usage
-fi
-
-
-#4. remove loc file on exit
 cleanup() {
   rm /var/lock/openpanel_user_add.lock > /dev/null 2>&1
 }
-trap cleanup EXIT
-
 
 hard_cleanup() {
-  # todo: remove user, files, container..
   killall -u $username -9  > /dev/null 2>&1
   deluser --remove-home $username  > /dev/null 2>&1   # command missing on alma!
-  rm -rf /etc/openpanel/openpanel/core/stats/$username
-  rm -rf /etc/openpanel/openpanel/core/users/$username
+  rm -rf /etc/openpanel/openpanel/core/{stats,users}/$username > /dev/null 2>&1
   docker context rm $username  > /dev/null 2>&1
   quotacheck -avm >/dev/null 2>&1
   mkdir -p /etc/openpanel/openpanel/core/users/
@@ -113,9 +93,14 @@ hard_cleanup() {
   exit 1
 }
 
+# ======================================================================
+# pre-flight checks
+check_enterprise
+if [ "$#" -lt 4 ] || [ "$#" -gt 11 ]; then
+    usage
+fi
 
-
-
+trap cleanup EXIT
 
 
 

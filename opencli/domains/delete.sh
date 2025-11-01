@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 30.10.2025
+# Last Modified: 31.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,59 +28,47 @@
 # THE SOFTWARE.
 ################################################################################
 
+[ $# -lt 1 ] && { echo "Usage: opencli domains-delete <DOMAIN_NAME> [--debug]"; exit 1; }
 
+# ======================================================================
+# Constants
+readonly PANEL_CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
 
-# Check if the correct number of arguments are provided
-if [ "$#" -lt 1 ]; then
-    echo "Usage: opencli domains-delete <DOMAIN_NAME> [--debug]"
-    exit 1
-fi
-
-# Parameters
+# ======================================================================
+# Variables
 domain_name="$1"
 onion_domain=false
 debug_mode=false
-PANEL_CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
 
+[[ $2 == --debug ]] && debug_mode=true
 
-if [[ "$2" == "--debug" ]]; then
-    debug_mode=true
-fi
-
-
-# used for flask route to show progress..
+# ======================================================================
+# Functions
 log() {
     if $debug_mode; then
         echo "$1"
     fi
 }
 
+pre_flight_checks() {
+    log "Checking owner for domain $domain_name"
+    user=$(opencli domains-whoowns "$domain_name" | awk -F "Owner of '$domain_name': " '{print $2}')
+    if [[ -z "$user" ]]; then
+        echo "❌ No owner found for '$domain_name'. Ensure the domain is assigned and MySQL is running."
+        exit 1
+    fi
 
-log "Checking owner for domain $domain_name"
-whoowns_output=$(opencli domains-whoowns "$domain_name")
-owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain_name': " '{print $2}')
+    domain_id=$(mysql -Nse "SELECT domain_id FROM domains WHERE domain_url = '$domain_name';")
+    if [[ -z "$domain_id" ]]; then
+        echo "❌ Domain ID not found for '$domain_name'. Ensure it exists and MySQL is running."
+        exit 1
+    fi
 
-if [ -n "$owner" ]; then
-    user="$owner"
-else
-    echo "No username received from command 'opencli domains-whoowns $domain_name' - make sure that domain is assigned to user and mysql service is running."
-    exit 1
-fi
-
-
-domain_id=$(mysql -se "SELECT domain_id FROM domains WHERE domain_url = '$domain_name';")
-if [[ -z "$domain_id" ]]; then
-    echo "Domain ID not found in the database for domain $domain_name' - make sure that domain exists on the server and mysql service is running."
-  exit 1
-fi
-
-
-if [[ "$domain_name" =~ ^[a-zA-Z0-9]{16}\.onion$ ]]; then
-    onion_domain=true
-    log ".onion address - Tor website will be removed from the configuration.."
-fi
-
-
+    if [[ "$domain_name" =~ ^[a-zA-Z0-9]{16}\.onion$ ]]; then
+        onion_domain=true
+        log "Detected .onion address — Tor website will be removed from configuration."
+    fi
+}
 
 clear_cache_for_user() {
 	log "Purging cached list of domains for the account"
@@ -123,16 +111,11 @@ restart_tor_for_user() {
 }
 
 
-
-
 get_webserver_for_user(){
 	    log "Checking webserver configuration"
 	    output=$(opencli webserver-get_webserver_for_user $user)		
 		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
 }
-
-
-
 
 rm_domain_to_clamav_list(){	
 	local domains_list="/etc/openpanel/clamav/domains.list"
@@ -144,7 +127,46 @@ rm_domain_to_clamav_list(){
  	fi
 }
 
+get_slave_dns_option() {
+	BIND_CONFIG_FILE="/etc/bind/named.conf.options"
 
+    # 1. check if cluster enabled, if it is, both lines are uncommented!
+    if ! grep -qP '^(?!\s*//).*allow-transfer\s+\{[^}]*\}' "$BIND_CONFIG_FILE" \
+        || ! grep -qP '^(?!\s*//).*also-notify\s+\{[^}]*\}' "$BIND_CONFIG_FILE"; then
+        return
+    fi
+
+	# 2. get IP(s) for slave servers, line formats are: allow-transfer {EXAMPLE;ANOTHER;};  AND also-notify {EXAMPLE;ANOTHER;};
+    ALLOW_TRANSFER=$(grep -oP '^(?!\s*//).*allow-transfer\s+\{\s*\K[^}]*' "$BIND_CONFIG_FILE" | tr -d '[:space:]')
+    ALSO_NOTIFY=$(grep -oP '^(?!\s*//).*also-notify\s+\{\s*\K[^}]*' "$BIND_CONFIG_FILE" | tr -d '[:space:]')
+
+    IFS=';' read -r -a ALLOW_TRANSFER_IPS <<< "$ALLOW_TRANSFER"
+    IFS=';' read -r -a ALSO_NOTIFY_IPS <<< "$ALSO_NOTIFY"
+
+    # 3. For each slave server we execute notify_slave()
+    for ip in "${ALLOW_TRANSFER_IPS[@]}"; do
+        [[ -z "$ip" ]] && continue
+        if [[ " ${ALSO_NOTIFY_IPS[*]} " == *" $ip "* ]]; then
+            SLAVE_IP=$ip
+            notify_slave
+        fi
+    done
+}
+
+notify_slave(){
+	echo "Notifying Slave DNS server ($SLAVE_IP) to remove zone for domain $domain_name"
+	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
+    if grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
+        sed -i "/zone \"$domain_name\" {/,/};/d" /etc/bind/named.conf.local
+		rm -f "/etc/bind/zones/$domain_name.zone"
+        echo "Zone $domain_name deleted from slave server."
+    fi
+EOF
+
+	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
+    docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
+EOF
+}
 
 
 get_user_info() {
@@ -274,21 +296,29 @@ remove_dns_entries_from_apex_zone() {
             zone_file="/etc/bind/zones/${apex_domain}.zone"
             if [[ -f "$zone_file" ]]; then
                 log "Removing DNS records for subdomain $subdomain from $zone_file"
-		# Escape domain name for sed
-		escaped_domain_name=$(printf '%s' "$domain_name" | sed 's/[.[\*^$/]/\\&/g')
-		
-		# Delete all lines that start with the subdomain, with or without trailing dot
-		sed -i "/^${escaped_domain_name}[[:space:]]/d" "$zone_file"
-		sed -i "/^${escaped_domain_name}\.[[:space:]]/d" "$zone_file"
+				escaped_domain_name=$(printf '%s' "$domain_name" | sed 's/[.[\*^$/]/\\&/g')
+				sed -i "/^${escaped_domain_name}[[:space:]]/d" "$zone_file"
+				sed -i "/^${escaped_domain_name}\.[[:space:]]/d" "$zone_file"
 
-
-                # Reload BIND if container is running
                 if docker ps -q -f name=openpanel_dns >/dev/null 2>&1; then
                     log "Reloading BIND DNS to apply changes"
                     docker exec openpanel_dns rndc reconfig >/dev/null 2>&1
                 fi
             else
                 log "Zone file for apex domain $apex_domain not found."
+            fi
+		else
+            zone_file="/etc/bind/zones/${domain_name}.zone"
+            if [[ -f "$zone_file" ]]; then
+                log "Deleting DNS zone $zone_file"
+				rm -rf $zone_file
+
+                if docker ps -q -f name=openpanel_dns >/dev/null 2>&1; then
+                    log "Reloading BIND DNS to apply changes"
+                    docker exec openpanel_dns rndc reconfig >/dev/null 2>&1
+                fi
+            else
+                log "Zone file for domain $domain_name not found."
             fi
         fi
     else
@@ -386,12 +416,12 @@ delete_domain_from_mysql(){
 
 
 dns_stuff() {
-    enabled_features_line=$(grep '^enabled_features=' "$PANEL_CONFIG_FILE")
+    enabled_features_line=$(grep '^enabled_modules=' "$PANEL_CONFIG_FILE")
     if [[ $enabled_features_line == *"dns"* ]]; then  
         delete_zone_file                             # create zone
         update_named_conf                            # include zone
+		get_slave_dns_option                         # slaves
     fi
-
 }
 
 
@@ -399,27 +429,25 @@ delete_domain() {
     local user="$1"
     local domain_name="$2"
     
-    delete_websites $domain_name                   # delete sites associated with domain id
+    delete_websites $domain_name                     # delete sites associated with domain id
     # TODO: delete pm2 apps associated with it.
     delete_domain_from_mysql $domain_name            # delete
 
-    # Verify if the domain was deleted successfully
-    local verify_query="SELECT COUNT(*) FROM domains WHERE domain_url = '$domain_name';"
+	local verify_query="SELECT COUNT(*) FROM domains WHERE domain_url = '$domain_name';"
     local result=$(mysql -N -e "$verify_query")
 
     if [ "$result" -eq 0 ]; then
         clear_cache_for_user                         # rm cached file for ui
         get_webserver_for_user                       #
         vhost_files_delete                           # delete file in container
-	remove_dns_entries_from_apex_zone	     # subdomain-specific DNS cleanup
-
-	if $onion_domain; then
-		remove_onion_files		     # delete conf files
-		restart_tor_for_user		     # restart if running
- 	else
-	        delete_domain_file                   # remove caddy files
-	 	dns_stuff			     # remove dns files
- 	fi
+		remove_dns_entries_from_apex_zone	         # subdomain-specific DNS cleanup
+		if $onion_domain; then
+			remove_onion_files		                 # delete conf files
+			restart_tor_for_user		             # restart if running
+	 	else
+		    delete_domain_file                       # remove caddy files
+		 	dns_stuff			                     # remove dns files
+	 	fi
         delete_mail_mountpoint                       # delete mountpoint to mailserver
         delete_emails  $user $domain_name            # delete mails for the domain
         rm_domain_to_clamav_list                     # added in 0.3.4    
@@ -431,5 +459,7 @@ delete_domain() {
 }
 
 
-
+# ======================================================================
+# Main
+pre_flight_checks
 delete_domain "$user" "$domain_name"

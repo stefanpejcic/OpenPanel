@@ -5,7 +5,7 @@
 # Usage: opencli admin <setting_name> 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 30.10.2025
+# Last Modified: 31.10.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
