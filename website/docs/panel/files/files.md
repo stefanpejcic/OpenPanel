@@ -109,8 +109,6 @@ If a folder is empty, you will see the 'No items found.' message and the menu wi
 
 ## Search Files and Folders
 
-The Search button across the OpenPanel interface is used to search for options or websites, but On the FileManager interface, it has a special feature allowing you to also search for your files and folder names.
-
 To activate the search field, click on the Search icon in the top right corner. Clicking on the Toggle icon will display options to search only files or only folders, and path to search in.
 
 For performance reasons, search results are limited to a maximum of 10 results for files and 10 results for folders.
