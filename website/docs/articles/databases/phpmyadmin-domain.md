@@ -5,7 +5,7 @@ In **OpenPanel**, each user has isolated services, including a dedicated **phpMy
 By default, a user’s phpMyAdmin instance is accessible at:
 
 ```
-http://<IP>:<PORT>
+http://IP:PORT
 ```
 
 > **Tip:** The assigned address is visible in OpenPanel under **MySQL > phpMyAdmin**.
@@ -17,7 +17,7 @@ http://<IP>:<PORT>
 You can configure a single custom domain for all users’ phpMyAdmin instances. Users will then access phpMyAdmin via:
 
 ```
-https://your-domain:<PORT>
+https://your-domain:PORT
 ```
 
 **Example:**
@@ -97,7 +97,7 @@ Users can choose their own domains for phpMyAdmin instead of using IP:PORT.
 
 | User   | Address                           |
 | ------ | --------------------------------- |
-| User A | http://<IP>:<PORT>                   |
+| User A | http://IP:PORT                   |
 | User B | https://phpmyadmin.their-domain.com:37752 |
 | User C | http://phpmyadmin-awesome.net:37778      |
 
