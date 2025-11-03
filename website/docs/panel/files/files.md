@@ -56,10 +56,6 @@ To select all files in the directory at once, click on the 'Select All' button. 
 
 To delete files or folders click on the 'Delete' button. If multiple files or folders are selected, you will see the list in the modal and click 'Delete' to permanently delete the selected files.
 
-:::danger
-OpenPanel FileManager does not utilize a separate Trash folder where files are temporarily moved and can later be restored from, similar to the Recycle Bin on your computer system. If you delete files using the delete option, they are permanently deleted immediately and cannot be recovered. Please exercise caution when using the delete function.
-:::
-
 ## Download File
 
 To download a file, click on the **Download** button when the file is selected.
