@@ -275,6 +275,21 @@ Customize options:
 * None
 
 
+
+## 2FA
+
+The **`twofa`** module allows users to enable 2 factor authentication for their account.
+
+When enabled:
+* Users can access the [**Account > Two-Factor Authentication** page](/docs/panel/account/2fa).
+
+When disabled:
+* Users can not access the *Advanced > Two-Factor Authentication* page nor manage 2FA.
+
+Customize options:
+* To **enable 2FA widget** use [*OpenAdmin > Settings > OpenPanel* page and *Display 2FA widget* option](/docs/admin/settings/openpanel/).
+* To **check 2FA status for a user** refer to [How to check if 2FA is active for OpenPanel user account?](https://community.openpanel.org/d/220-how-to-check-if-2fa-is-active-for-openpanel-user-account).
+
 ## Activity
 
 The **`activity`** module allows users to view their activity logs.
