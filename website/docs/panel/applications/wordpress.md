@@ -18,6 +18,7 @@ On the main WP Manager page you can:
 
 - [view installations](#): domain name, WordPress version, date when site was installed with or added to WP Manager interface and admin email.
 - [refresh the data](/docs/panel/applications/wordpress#refresh-existing-data): in case you have changed the domain name, updated WordPress manually or changed admin email address.
+- [manage themes and plugins set](#themes-and-plugins-sets): configure plugins and themes to auto-install on all new websites.
 - [install WordPress](/docs/panel/applications/wordpress#install-wordpress): install WordPress on a new domain.
 - [run a scan](/docs/panel/applications/wordpress#scan-import-installations): scan for WordPress installations that were manually added on the hosting plan and are not yet visible in the WP Manager interface.
 - [change view](/docs/panel/applications/wordpress#grid-vs-tabular-view): change the display from grid (default) to table.
@@ -55,6 +56,12 @@ By performing a scan you can import existing WordPress installations into the WP
 The tool will search all your files for wp-config.php (main WordPress configuration file) and import all websites that it finds.
 
 ![wp_manager_scan.png](/img/panel/v2/wpscan.png)
+
+### Themes and Plugins Sets
+
+You can create **Theme Sets** and **Plugin Sets** for your account. Plugins and themes from these sets will automatically be installed on every new WordPress site you create using the WP Manager. This is especially handy if you frequently use the same plugins and themes across multiple sites, such as the Elementor theme with a child theme, Elementor plugin, and so on.
+
+Guide: http://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/
 
 ### Refresh existing data
 
