@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 31.10.2025
+# Last Modified: 03.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1352,6 +1352,7 @@ sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
     -e "s|PGADMIN_PORT=\"[^\"]*\"|PGADMIN_PORT=\"$port_1\"|g" \
     -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:$port_3\"|g" \
     -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"$port_4\"|g" \
+	-e "s|{PMA_PORT}|$FOURTH_NEXT_AVAILABLE|g" \
     -e "s|POSTGRES_PASSWORD=\"[^\"]*\"|POSTGRES_PASSWORD=\"$postgres_password\"|g" \
     -e "s|PGADMIN_PW=[^\"]*|PGADMIN_PW=$pg_admin_password|g" \
     -e "s|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"[^\"]*\"|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"$pg_admin_password\"|g" \

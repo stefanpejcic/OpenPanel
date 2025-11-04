@@ -2,9 +2,6 @@
 # Copyright (C) 2025 OPENPANEL
 # This file is distributed under the same license as the OpenPanel project.
 #
-#, fuzzy
-msgid ""
-msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-01-23 11:20+0000\n"
