@@ -15,3 +15,17 @@ for file in /home/*/.env; do
            -e 's/^PGADMIN_PW="\([^"]*\)"/PGADMIN_PW=\1/' \
            "$file"
 done
+
+CRON_FILE="/etc/cron.d/openpanel"
+BACKUP_FILE="/etc/cron.d/openpanel.bak_$(date +%Y%m%d%H%M%S)"
+
+if [[ ! -f "$CRON_FILE" ]]; then
+    echo "Error: $CRON_FILE not found."
+    exit 1
+fi
+
+cp "$CRON_FILE" "$BACKUP_FILE"
+echo "Backup created at: $BACKUP_FILE"
+sed -i '/server-motd/d' "$CRON_FILE"
+
+
