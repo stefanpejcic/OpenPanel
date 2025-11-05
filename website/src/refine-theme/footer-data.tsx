@@ -45,7 +45,6 @@ export const menuItems = [
             },
             {
                 label: "NOC Pricing",
-                icon: <NewBadgeIcon />,
                 href: "/licenses-for-partners",
             },
             {
