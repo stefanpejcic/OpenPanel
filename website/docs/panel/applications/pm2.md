@@ -1,49 +1,62 @@
----
-sidebar_position: 2
----
+# sidebar_position: 2
 
-# NodeJS and Python
+# Node.js and Python
 
-Contianerized [Node.js](https://nodejs.org) and [Python](https://python.org/) applications can be created and managed on OpenPanel with the help of our integrated [pm2](https://pm2.io/) manager.
+Containerized [Node.js](https://nodejs.org) and [Python](https://python.org/) applications can be created and managed in **OpenPanel Enterprise Edition**.
 
 ---
 
-## Create a new Application
+## Create an Application
 
-To create a new Node.js or Python application using pm2, first access the **Auto Installer** page and under Node.js or Python click on the "Setup Node.js/Python Application" button.
+To create a new Python or Node.js application, navigate to **OpenPanel > AutoInstaller** and select **Python** or **NodeJS**.
 
-The next step is choosing an internal name for your new application, this name is only visible on the backend and is used to identify the container.
+![screenshot](https://i.postimg.cc/HmZh5ZMJ/new-tab.png)
 
-After naming your application you'll need to choose a domain and optionally a subdirectory where your new application will be installed.
+On the next page, you can configure the following settings:
 
-On this page you can also choose which version of Node.js or Python to install.
+* **Name** – The name of the application and container as displayed in OpenPanel.
+* **Port** – Set a custom port (e.g., 3000 or 5000) if your app uses one. Otherwise, port 80 is used by default.
+* **Domain Name / Subfolder** – The domain (and optional subfolder) where the application will be publicly accessible.
+* **Startup File** – The file executed at startup with the `node` or `py` command.
+* **Custom Startup Command** – Use a custom startup command instead of the default `node` or `py`.
+* **Type** – Choose between Node.js or Python.
+* **Version** – Select any available version from Docker Hub.
+* **Run Install** – Run `npm install` or `pip install` before starting the application.
+* **CPU Cores** – Number of CPU cores allocated to the application.
+* **Memory** – Amount of memory (in GB) allocated to the application.
 
-If your application hasn't been built yet, you can check a box that tells the installer to run NPM or PIP install before starting your application.
+![screenshot](https://i.postimg.cc/x0PBW9qB/new-app.png)
 
-With this option enabled, the installer will first run npm install using the package.json file or pip install using the requirements.txt file. 
-
-If your application is already built, you can skip this step and leave the box unchecked.
-
-When you're done configuring click on the "Start Installation" button to run the AutoInstaller, the installation log will be displayed below.
+After completing the form, click **Start Installation**.
+The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
 
 ---
 
-## Manage your Application
+## Manage Applications
 
-On the **Site Manager** page of your OpenPanel account you can find basic details about your applications.
+Once your application is created, you can manage it from **OpenPanel > Site Manager**.
 
-Here you can access a management panel for each app by clicking on the "Manage" button besides your application.
+![screenshot](https://i.postimg.cc/vYbbVP6T/manage-apps.png)
 
-Some of the basic operations available are Stopping, Restarting and Removing the application, there is also a Live preview feature along with a recent screenshot of your app and a PageSpeed statistics graph.
+Click **Manage** next to the application name to open its management page.
 
-Within the overview tab of the manager you can change your application's startup settings such as it's Startup file, Work directory and whether NPM/PIP install will run on startup. 
+![screenshot](https://i.postimg.cc/bzMFXdpg/single-app.png)
 
-Here you can change the version of Node.js or Python that is used and the application's assigned resources such as CPU core and Memory limits.
+On this page, you can view important details such as:
 
-NPM/PIP install can also be ran manually through the manager and there's a shortcut to open the appropriate package.json/requirements.txt file inside file editor.
+* **Screenshot** – Preview of the application’s domain.
+* **Status** – Current container status.
+* **Version** – Node.js or Python version in use.
+* **CPU Limit** – Configured CPU allocation.
+* **Memory Limit** – Configured memory allocation.
+* **Speed** – Google PageSpeed Insights data for the website.
+* **Files** – Current folder path and size.
+* **Firewall** – WAF (Web Application Firewall) status for the domain (if enabled).
 
-Additionally your application container's logs are available to you on the "Logs" tab of the manager.
+You also have several management options:
 
-
-
-
+* **Actions** – Start, stop, or restart the container.
+* **Overview** – Modify startup file or command, working directory, package installation settings (NPM/PIP), version, and resource limits (CPU, Memory, PIDs).
+* **Install Packages** – View and manage `package.json` or `requirements.txt`, and run NPM/PNPM or PIP installations.
+* **Logs** – View container logs for troubleshooting.
+* **Remove** – Delete the application.
