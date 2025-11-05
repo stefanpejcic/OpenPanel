@@ -924,7 +924,7 @@ const tableData = [
                 },
             },
             {
-                description: "<a href='/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel'>DNS Clustering</a>",
+                description: "DNS Clustering",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
