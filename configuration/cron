@@ -1,10 +1,12 @@
-# /etc/cron.d/openpanel: crontab entries for the OpenPanel
+# /etc/cron.d/openpanel: crontab entries for the OpenPanel server
 #
 #
 # This file is used by OpenPanel to schedule cronjobs
 #
-# It should NOT be edited manually as it is overwritten on update.
-# To add crons please use the crontab as root user.
+# It should NOT be edited manually,
+# instead edit from OpenAdmin > Advanced > System CronJobs
+#
+# To add crons, use the crontab as root user.
 #
 # Important Note!  This cronjob will NOT be executed if you are
 # running systemd as your init system.  If you are running systemd,
@@ -24,7 +26,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 0 2 * * * root /usr/local/bin/opencli docker-usage_stats_cleanup && echo "$(date) Docker usage stats cleanup executed" >> /var/log/openpanel/admin/cron.log
 15 0 * * * root /usr/local/bin/opencli update && echo "$(date) System update executed" >> /var/log/openpanel/admin/cron.log
 0 0 12 * * root /usr/local/bin/opencli server-ips && echo "$(date) Server IP listing executed" >> /var/log/openpanel/admin/cron.log
-0 */10 * * * root /usr/local/bin/opencli server-motd && echo "$(date) Server MOTD updated" >> /var/log/openpanel/admin/cron.log
 0 */8 * * * root /usr/local/bin/opencli ftp-users && echo "$(date) FTP users file recreated" >> /var/log/openpanel/admin/cron.log
 45 1 * * * root /usr/local/bin/opencli email-server pflogsumm && echo "$(date) Generated email summary report for OpenAdmin > Emails > Summary Reports" >> /var/log/openpanel/admin/cron.log
 45 3 * * * root /usr/local/bin/opencli docker-images --all && echo "$(date) Executed docker cup for all users" >> /var/log/openpanel/admin/cron.log
@@ -33,7 +34,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 59 23 31 2 * root /usr/local/bin/opencli docker-backup && echo "$(date) Executed Backup for all users" >> /var/log/openpanel/admin/cron.log
 
 @reboot root mkdir -p /tmp/redis && chmod 777 /tmp/redis
-
 
 # MONITORING
 */5 * * * * root /usr/local/bin/opencli sentinel && echo "$(date) Notifications script executed" >> /var/log/openpanel/admin/cron.log

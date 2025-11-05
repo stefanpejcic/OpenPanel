@@ -5,7 +5,7 @@
 # Usage: opencli install
 # Author: Stefan Pejcic
 # Created: 08.10.2023
-# Last Modified: 03.11.2025
+# Last Modified: 04.11.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.com
 # 

@@ -6,7 +6,7 @@
 # Usage: opencli <COMMAND-NAME> <ATTRIBUTES>
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 08.07.2025
+# Last Modified: 04.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,18 +29,11 @@
 # THE SOFTWARE.
 ################################################################################
 
-set -euo pipefail
-
 # Constants
-readonly OPENCLI_VERSION="202.507.014"
+readonly OPENCLI_VERSION="202.511.004"
 readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
 readonly SCRIPT_DIR="/usr/local/opencli"
 readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
-
-# Special command mappings
-declare -A SPECIAL_COMMANDS=(
-    ["blacklist"]="/usr/ipset-blacklist.sh"
-)
 
 # Functions
 show_about() {
@@ -100,85 +93,73 @@ run_hook() {
     local command="$2"
     shift 2
     local args=("$@")
-    
+
     local hook_file_base="${HOOKS_DIR}/${hook_type}_${command}"
     local hook_file=""
-    
+
     if [[ -f "${hook_file_base}" ]]; then
-        hook_file="${hook_file_base}"
+        hook_file="${hook_file_base}"    # this was used in v <1.3
     elif [[ -f "${hook_file_base}.sh" ]]; then
-        hook_file="${hook_file_base}.sh"
+        hook_file="${hook_file_base}.sh" # this is new default
     else
-        # Neither file exists
         return 0
     fi
-    
+
     local hook_args=()
     if [[ ${#args[@]} -gt 0 ]]; then
         hook_args=("${args[@]}")
     fi
-    
+
     case "$hook_type" in
         "pre")
-            # Run pre-hook synchronously
+            # run pre-hook synchronously
             bash ${debug_flag:+"$debug_flag"} "$hook_file" "${hook_args[@]}" </dev/null >nohup.out 2>nohup.err
             ;;
         "post")
-            # Run post-hook asynchronously
+            # run post-hook asynchronously
             nohup bash "$hook_file" "${hook_args[@]}" </dev/null >nohup.out 2>nohup.err &
             ;;
     esac
 }
 
-handle_special_command() {
+handle_special_commands() {
     local command="$1"
     shift
     local args=("$@")
     
     case "$command" in
         "error")
-            local error_script="/usr/local/opencli/error.py"
-            if [[ ${#args[@]} -gt 0 ]]; then
-                python3 "$error_script" "${args[@]}"
+            local dev_mode=$(opencli config get dev_mode)
+            if [[ "$dev_mode" == "on" ]]; then
+                local error_script="/usr/local/opencli/error.py"
+                if [[ ${#args[@]} -gt 0 ]]; then
+                    python3 "$error_script" "${args[@]}"
+                else
+                    python3 "$error_script"
+                fi
             else
-                python3 "$error_script"
+                echo "DEV_MODE is not enabled. Please run 'opencli config update dev_mode on', then open the page in the OpenPanel UI to get the new error code, and use it with 'opencli error <ID>' command."
             fi
             exit 0
             ;;
         "locale")
             local locale_url="https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh"
             if [[ ${#args[@]} -gt 0 ]]; then
-                bash ${debug_flag:+"$debug_flag"} <(curl -sSL "$locale_url") "${args[@]}"
+                bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "$locale_url") "${args[@]}"
             else
-                bash ${debug_flag:+"$debug_flag"} <(curl -sSL "$locale_url")
+                bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "$locale_url")
             fi
             exit 0
             ;;
     esac
 }
 
-get_binary_path() {
-    local command="$1"
-    
-    # Check for special command mappings
-    if [[ -n "${SPECIAL_COMMANDS[$command]:-}" ]]; then
-        echo "${SPECIAL_COMMANDS[$command]}"
-        return
-    fi
-    
-    # Replace '-' with '/' in the command name and add .sh extension
-    local binary_command="${command//-//}"
-    echo "${SCRIPT_DIR}/${binary_command}.sh"
-}
-
 execute_command() {
     local command="$1"
     shift
     local args=("$@")
-    
-    local binary_path
-    binary_path=$(get_binary_path "$command")
-    
+    local binary_path="${SCRIPT_DIR}/${command//-//}.sh"
+
     if [[ ! -f "$binary_path" ]]; then
         echo "Error: Command '$command' not found." >&2
         show_usage
@@ -186,61 +167,52 @@ execute_command() {
         show_about
         exit 1
     fi
-    
+
     log_command "$command"
     
-    # Run pre-hook
+    # 1. pre-hook
     run_hook "pre" "$command" "${args[@]}"
     
-    # Execute main command
+    # 2. command
     if [[ ${#args[@]} -gt 0 ]]; then
         bash ${debug_flag:+"$debug_flag"} "$binary_path" "${args[@]}"
     else
         bash ${debug_flag:+"$debug_flag"} "$binary_path"
     fi
     
-    # Run post-hook
+    # 3. post-hook
     run_hook "post" "$command" "${args[@]}"
 
-    # purge cache for UI
+    # 4. purge cache for UI
     docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:html' | xargs -r redis-cli DEL" > /dev/null 2>&1 &
     #docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:json' | xargs -r redis-cli DEL" > /dev/null 2>&1 &
-
 }
 
 main() {
     check_root
-    
-    # Check if sufficient arguments provided
+
     if [[ $# -lt 1 ]]; then
         show_usage
         show_history
         show_about
         exit 1
     fi
-    
-    # Parse debug flag
+
     local debug_flag=""
     if [[ "$1" == "-x" ]]; then
         debug_flag="-x"
         shift
     fi
-    
-    # Get command name
+
     local command="$1"
     shift
-    
-    # Handle version alias
+
     if [[ "$command" == "-v" ]]; then
         command="--version"
     fi
-    
-    # Handle special commands
-    handle_special_command "$command" "$@"
-    
-    # Execute regular command
+
+    handle_special_commands "$command" "$@"
     execute_command "$command" "$@"
 }
 
-# Script entry point
 main "$@"

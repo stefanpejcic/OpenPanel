@@ -1,12 +1,11 @@
 #!/bin/bash
-
 ################################################################################
 # Script Name: commands.sh
 # Description: Lists all available OpenCLI commands.
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 03.11.2025
+# Last Modified: 04.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,25 +33,18 @@ set -euo pipefail
 # Constants
 readonly SCRIPTS_DIR="/usr/local/opencli"
 readonly ALIAS_FILE="${SCRIPTS_DIR}/aliases.txt"
-
-# Colors
 readonly GREEN='\033[0;32m'
 readonly RESET='\033[0m'
 
-# Files to exclude from command listing
+# Exclude
 readonly EXCLUDE_PATTERNS=(
     ".git/*"
     ".github/*"
-    "error.py"
+    "ftp/users.sh"
     "db.sh"
-    "aliases.txt"
-    "send_mail.sh"
     "enterprise.sh"
     "ip_servers.sh"
-    "LICENSE.md"
-    "README.md"
-    "*README.md"
-    "*TODO*"
+    "progress_bar.sh"
 )
 
 # Functions
@@ -64,9 +56,8 @@ check_scripts_directory() {
 }
 
 initialize_alias_file() {
-    # Clear existing aliases file
     > "$ALIAS_FILE"
-    
+
     if [[ ! -w "$ALIAS_FILE" ]]; then
         echo "Error: Cannot write to alias file '$ALIAS_FILE'." >&2
         exit 1
@@ -83,8 +74,6 @@ build_find_excludes() {
 extract_script_info() {
     local script="$1"
     local -n info_ref=$2
-    
-    # Extract description and usage from script comments
     info_ref[description]=$(grep -E "^# Description:" "$script" 2>/dev/null | sed 's/^# Description: //' || true)
     info_ref[usage]=$(grep -E "^# Usage:" "$script" 2>/dev/null | sed 's/^# Usage: //' || true)
 }
@@ -93,13 +82,9 @@ generate_alias_name() {
     local script="$1"
     local script_name dir_name alias_name
     
-    # Remove file extensions
     script_name=$(basename "$script" | sed 's/\(\.sh\|\.py\)$//')
-    
-    # Get directory name without full path
     dir_name=$(dirname "$script" | sed 's:.*/::')
     
-    # Handle root opencli directory
     if [[ "$dir_name" == "opencli" ]]; then
         alias_name="$script_name"
     else
@@ -113,60 +98,46 @@ display_command_info() {
     local full_alias="$1"
     local script="$2"
     declare -A script_info
-    
     extract_script_info "$script" script_info
     
-    echo -e "${GREEN}${full_alias}${RESET} # for ${script}"
-    
+    echo -e "${GREEN}${full_alias}${RESET}"
     if [[ -n "${script_info[description]:-}" ]]; then
         echo "Description: ${script_info[description]}"
     fi
-    
     if [[ -n "${script_info[usage]:-}" ]]; then
         echo "Usage: ${script_info[usage]}"
     fi
-    
     echo "------------------------"
 }
 
 process_scripts() {
     declare -a exclude_args
     declare -a commands_list=()
-
-    build_find_excludes  # Fills the array 'exclude_args'
+    build_find_excludes
 
     while IFS= read -r -d '' script; do
         if [[ ! -r "$script" ]]; then
             echo "Warning: Cannot read script '$script'" >&2
             continue
         fi
-        
+
         local alias_name full_alias
         alias_name=$(generate_alias_name "$script")
         full_alias="opencli $alias_name"
-        
-        # Display command information
         display_command_info "$full_alias" "$script"
-        
-        # Collect commands for sorting
         commands_list+=("$full_alias")
         
-    done < <(find "$SCRIPTS_DIR" -type f "${exclude_args[@]}" -print0)
-    
-    # Write sorted commands to alias file
-    if [[ ${#commands_list[@]} -gt 0 ]]; then
-        printf '%s\n' "${commands_list[@]}" | sort > "$ALIAS_FILE"
-    fi
-}
+    done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" "${exclude_args[@]}" -print0)
 
-show_summary() {
-    local command_count
-    
-    if [[ -f "$ALIAS_FILE" ]]; then
-        command_count=$(wc -l < "$ALIAS_FILE")
-        echo ""
-        echo "Total commands found: $command_count"
-        echo "Aliases saved to: $ALIAS_FILE"
+    # special case
+    echo -e "${GREEN}opencli error${RESET}"
+    echo "Description: Displays information for specific error ID received in OpenPanel UI."
+    echo "Usage: opencli error <ID_HERE>"
+    echo "------------------------"
+    commands_list+=("opencli error")
+
+    if [[ ${#commands_list[@]} -gt 1 ]]; then
+        printf '%s\n' "${commands_list[@]}" | sort > "$ALIAS_FILE"
     fi
 }
 
@@ -174,8 +145,6 @@ main() {
     check_scripts_directory
     initialize_alias_file
     process_scripts
-    show_summary
 }
 
-# Script entry point
 main "$@"

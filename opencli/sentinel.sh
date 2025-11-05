@@ -1,19 +1,40 @@
 #!/bin/bash
+################################################################################
+# Script Name: sentinel.sh
+# Description: OpenAdmin Notifications
+# Usage: opencli sentinel [-report|--startup]
+# Author: Stefan Pejcic
+# Created: 15.11.2023
+# Last Modified: 04.11.2025
+# Company: openpanel.com
+# Copyright (c) openpanel.com
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+################################################################################
+
 PID=$$
 DEBUG=false
 
 
 # ======================================================================
 # Constants
-VERSION="20.251.027"
-
-
-
-if [ "$EUID" -ne 0 ]
-  then echo "[Error] - This script must be run with sudo or as the root user."
-  exit 1
-fi
-
+VERSION="20.251.104"
 
 
 if [ "$1" = "--debug" ]; then
@@ -217,13 +238,9 @@ write_notification() {
 # ======================================================================
 # What to check
 
-EMAIL_ALERT=$(awk -F'=' '/^email/ {print $2}' "$CONF_FILE")
-if [ -n "$EMAIL_ALERT" ]; then
-    EMAIL=$EMAIL_ALERT
-    EMAIL_ALERT=yes
-else
-    EMAIL_ALERT=no
-fi
+EMAIL=$(awk -F'=' '/^email/ {print $2}' "$CONF_FILE")
+EMAIL_ALERT=$([[ -n "$EMAIL" ]] && echo "yes" || echo "no")
+
 
 REBOOT=$(awk -F'=' '/^reboot/ {print $2}' "$INI_FILE")
 REBOOT=${REBOOT:-yes}
