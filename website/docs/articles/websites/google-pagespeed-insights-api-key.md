@@ -23,7 +23,9 @@ To prevent this, OpenPanel users can generate a **free Google PageSpeed Insights
 
 1. Go to **OpenPanel > Site Manager > [Select a website]**.
 2. Click on **"Click to add PageSpeed Insights API key"** below the PageSpeed data section.
+   ![add api key](/img/panel/v2/add_api_key.png)
 3. Paste the API key you copied and click **Save**.
+   ![add api key](/img/panel/v2/add_key.png)
 
 > Once saved, the API key will be used for all websites under your account.
 
@@ -36,6 +38,8 @@ Administrators can configure a global API key that will apply to all users who h
 1. Go to **OpenAdmin > Settings > Custom Code**.
 2. Paste your API key in the **PageSpeed API Key** field.
 3. Click **Save**.
+
+![admin key](/img/panel/v2/admin_add_key.png)
 
 ---
 
