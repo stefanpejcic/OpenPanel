@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 04.11.2025
+# Last Modified: 05.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -247,7 +247,7 @@ show_license_info() {
     license_key=$(echo "$config" | grep -i 'key' | cut -d'=' -f2)
 
     if [[ -z "$license_key" ]]; then
-        output_message "No License Key. Please add the key first: opencli config update key XXXXXXXXXX" "$RED"
+        output_message "No License Key. Please add the key first." "$RED"
         exit 1
     fi
 

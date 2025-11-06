@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 04.11.2025
+# Last Modified: 05.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
