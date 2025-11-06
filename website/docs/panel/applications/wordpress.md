@@ -89,163 +89,140 @@ Switch views anytime using a button.
 
 ![wp_manager_site.png](/img/panel/v2/wpmanage.png)
 
-### General Information
-
-Each website entry shows you:
-
-- Site name & screenshot
-- File path and folder size
-- Database details (and size)
-- Domain name
-- WordPress version
-- PHP & MySQL versions
-- SSL status
-- Quick links to phpMyAdmin, wp-admin login, PHP version settings
-
-### View Database Info
-
-Database credentials are displayed directly from wp-config.php file, click the blurred password to reveal it.
-![wp_manager_site_database_password.png](/img/panel/v2/wpunblur.png)
-
-### Detach a Website
-
-Want to stop managing a site in WP Manager (without deleting it)?
-
-Use **Detach** — your files and database remain untouched.
-
-![wp_manager_site_detach_1.png](/img/panel/v2/wpdetach.png)
-
-Confirm the action in the popup:
-
-![wp_manager_site_detach_2.png](/img/panel/v2/wpdetach2.png)
-
 
 ### Auto Login to wp-admin
 
 Use **Login as Admin** for one-click secure access to your WordPress dashboard — no password needed.
 
-![wp_manager_site_login_admin.png](/img/panel/v2/wpautolog.png)
-
+![wp_manager_autologin](/img/panel/v2/wpautolog.png)
 
 ### Preview with Temporary Link
 
 Preview your site even before your domain is connected or SSL is ready.
 Temporary links last 15 minutes.
 
-Click **Preview** to generate one:
+Click **Live Preview** to generate one:
 
 ![website_temporary_url_openpanel.gif](/img/panel/v2/wppreview.png)
 
-### Edit WordPress Settings
+### Screenshot
 
-CLick on the field to edit information, and click on Save.
+Website screenshots refresh automatically every 24 hours.
+Need it sooner? Click the refresh icon over the screenshot.
 
-#### General Settings
+### Versions
 
-General settings that can be edited for a website:
+* **WordPress Version** – The WordPress version is retrieved from the database and verified via an AJAX request to the website itself, ensuring the displayed version is accurate. If an update is available, a badge will appear next to the version number.
+* **PHP Version** – The PHP version is read from the domain’s VirtualHost configuration file, guaranteeing that the version shown matches the one actually configured for the domain.
+* **MySQL/MariaDB Version** – Displays whether the site uses MySQL or MariaDB, along with the version number obtained directly from the terminal.
+* **Created** – Indicates the date and time when the website was first added to WP Manager.
 
-- Website name
+![general](/img/panel/v2/general.png)
+
+### Speed
+
+Website performance is monitored daily using **Google PageSpeed Insights**. For both mobile and desktop devices, you can view the check time along with key metrics such as **First Contentful Paint**, **Speed Index**, and **Time to Interactive**.
+
+You can also [add your own PageSpeed Insights API key](https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key/#adding-the-api-key-in-openpanel) to customize the data collection.
+
+![speed](/img/panel/v2/speed.png)
+
+### Cache
+
+Cache widget displays the current [wp cache type](https://developer.wordpress.org/cli/commands/cache/type/) on your website and an option to purge the cache.
+
+![wp_cache](/img/panel/v2/wp_cache.png)
+
+### Firewall
+
+If CorazaWAF is enabled on the server, and your account has access to the \WAF\ feature, you will see a *Firewall* widget displaying current status for the domain and an option to change it.
+
+![wp_waf](/img/panel/v2/wp_waf.png)
+
+
+### Overview
+
+Under *Overview* tab you can view:
+- Files: Folder path and Folder Size
+- Database: Size, Host, Name, Table Prefix, User, Password and link to open phpMyAdmin
+
+![overview](/img/panel/v2/overview.png)
+
+### Options
+
+*Options* tab displays current WordPress settings and allows you to change them.
+
+Available options:
+
+- Site URl
+- Homepage URL
+- Site Name
 - Blog Description
-- Enable/Disable user registrations
-- Admin Email that is used for receiving all information
-- Allow/Block pingbacks from other websites that mention you
-- Block/Allow search engines like Google, Bing, etc.
+- Administrator Email
+- Enable New User Registration
+- Enable SEO Visibility
+- Enable Pingbacks
 
-![wp_manager_site_edit_1.png](/img/panel/v2/wpgeneral.png)
+![options](/img/panel/v2/options.png)
 
-#### Update Preferences
+#### Updates
 
-Here you can set the update preferences for WordPress core, plugins and themes.
-
-By default only WordPress core updates to minor versions are enabled.
+Control how WordPress handles updates for the core, plugins, and themes.
+By default, only minor core updates are auto-enabled.
 
 ![wp_manager_site_edit_2.png](/img/panel/v2/wpupdate.png)
 
-#### Update WordPress core
+If a newer WordPress core version is available, you will see 'Click to update WordPress core' button which when clicked will perform WordPress update to the newest version available.
 
-If a newer WordPress core version is available, you will see 'Click to update' button which when clicked will perform WordPress update to the newest version available.
+#### Debugging
 
-#### Debug Preferences
+Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) directly from WP Manager.
 
-These options allow you to manage the native WordPress debugging tools, enabling and disabling these tools in the wp-config.php file. It is not recommended to use these options on production websites since they are meant for development and test installations. Refer to [Debugging in WordPress article](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
-
-
-Here you can enable:
-
-- WP_DEBUG
-- WP_DEBUG_LOG
-- WP_DEBUG_DISPLAY
-- SHOW_DEBUG
-- SAVEQUERIES
+These are great for testing or development sites — not recommended for production.
+For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
 
 ![wp_manager_site_edit_3.png](/img/panel/v2/wpdebug.png)
 
-### Refresh website screenshot
+### Remove
 
-Website screenshots are periodically re-generated every 24h, if you need to manually refresh the screenshot click on the icon in top left corner of the screenshot.
+Want to stop managing a site in WP Manager (without deleting it)?
 
-![wp_manager_site_refresh_screenshot.png](/img/panel/v1/applications/wp_manager_site_refresh_screenshot.png)
+Use **Detach** — your files and database remain untouched.
 
+![detach](/img/panel/v2/detach.png)
 
-### Uninstall WordPress
+To completely remove a website — files, database, and all — click **Uninstall**, then confirm.
 
-To uninstall WordPress and permanently delete all website files and database, click on the 'Uninstall' button.
-
-![wp_manager_site_remove_1.png](/img/panel/v2/wpdetach.png)
-
-On the popup click on 'Confirm Uninstall' button to confirm:
-
-![wp_manager_site_remove_2.png](/img/panel/v2/wpdetach2.png)
-
+![uninstall](/img/panel/v2/uninstall.png)
 
 ### Backup and Restore
-You have the options to perform manual backups of WordPress files or databases as needed, and easily restore them when required.
 
-#### Create a backup
+Create and restore backups anytime — files, database, or both.
 
-To generate a new backup click on the 'Backup' button.
+Create a Backup:
+- Choose what to back up (files, database, or both).
+- Click *Generate Backup**.
 
 ![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
 
-On the modal select to backup both files and database, just a database or just files.
-Click on the 'Run Backup' to start the backup process:
-
-![wp_manager_site_backup_2.png](/img/panel/v1/applications/wp_manager_site_backup_2.png)
-
-After backup process is finished you will receive a notification.
-
-![wp_manager_site_backup_done.png](/img/panel/v1/applications/wp_manager_site_backup_done.png)
-
-#### Restore from backup
-
-To restore website from a backup created with OpenPanel WP Manager backup option simply click on the 'Restore' button for that website in WP Manager:
-
-![wp_manager_site_restore_1.png](/img/panel/v1/applications/wp_manager_site_restore_1.png)
-
-In the modal, select the backup date from which to restore the website. In the brackets next to each date you can view if the backup contains only database, only files or both. 
-
-![wp_manager_site_restore_2.png](/img/panel/v1/applications/wp_manager_site_restore_2.png)
-
-After selecting a date, confirm the restore process by clicking on the 'Confirm Restore (Click Again)' button.
-
-![wp_manager_site_restore_confirm.png](/img/panel/v1/applications/wp_manager_site_restore_confirm.png)
-
-When the restore process is complete you will receive a notification:
-
-![wp_manager_site_restore_done.png](/img/panel/v1/applications/wp_manager_site_restore_done.png)
-
+Restore a Backup:
+To restore, click Restore, pick a backup date, and confirm.
 
 ### Maintenance mode
 
-Using WordPress manager you can enable and disable Maintenance mode for your website and also view the current website status regarding maintenance.
+Enable or disable maintenance mode directly from WP Manager.
+You can even edit the maintenance.php file right from the panel.
 
-You can also begin editing the maintenance.php file through WordPress manager.
-
-![wp_manager_maintenance.png](/img/panel/v2/wpmaint.png)
+![wp_manager_maintenance](/img/panel/v2/wpmaint.png)
 
 ### Security
 
-Within the security tab you can shuffle WordPress salts, check the integrity of WordPress core files and also reinstall the core files if needed.
+Keep your site safe with built-in security tools.
+
+From here, you can:
+- Shuffle WordPress salts
+- Check core file integrity
+- Reinstall WordPress core if needed
 
 ![wp_manager_security.png](/img/panel/v2/wpsec.png)
 
