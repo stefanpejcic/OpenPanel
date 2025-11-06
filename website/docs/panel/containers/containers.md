@@ -58,8 +58,6 @@ To change CPU or Memory limits for a service:
 
 To add a new Docker service (container), fill in the **Add Service** form with the required details.  
 
-### Form Fields
-
 - **Service Name** – Unique name for the container.  
   - Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long.  
   - Example: `webapp`, `redis1`  
@@ -72,7 +70,7 @@ To add a new Docker service (container), fill in the **Add Service** form with t
     ```
     REDIS_PASSWORD=secret
     DEBUG=true
-    ```  
+    ```
 
 - **CPU Limit** – Maximum CPU allocation for the container. Must be a positive number.  
   - Example: `0.5`, `1`  
@@ -92,15 +90,13 @@ To add a new Docker service (container), fill in the **Add Service** form with t
     retries: 3
     ```  
 
-### Validation Rules
+**Validation Rules**:
 
 - **Service Name** – Must be unique and follow format rules.  
 - **CPU Limit** – Must be a positive number.  
 - **RAM Limit** – Must end with `M` or `G`.  
 - **Environment Variables** – Must be in `KEY=value` format.  
 - **Healthcheck** – Must be valid YAML.  
-
-### Environment Variable Handling
 
 Each service automatically uses an **uppercase prefix** for environment variable keys.  
 CPU and RAM values are also stored as environment variables for each service.  
