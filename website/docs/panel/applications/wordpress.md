@@ -48,10 +48,14 @@ Click **Start Installation** and you’re done.
 
 ![wp_install.png](/img/panel/v2/wpinstall2.png)
 
+📘 Read the full guide: [How to Install WordPress® With OpenPanel](/docs/articles/websites/how-to-install-wordpress-with-openpanel/#install-wordpress-via-wp-manager)
+
 ### Scanning (Importing) Installations
 
 If you already have WordPress installed manually, you can import it into the WP Manager.
 The system scans your hosting files for `wp-config.php` and automatically adds the found websites.
+
+📘 Read the full guide: [How to Migrate a WordPress® Installation to OpenPanel](/docs/articles/websites/how-to-upload-wordpress-website-to-openpanel/)
 
 ### Themes and Plugins Sets
 
@@ -66,7 +70,7 @@ For example, you might set up a default combo like:
 
 Every time you install a new site — boom, it’s ready with your preferred setup.
 
-📘 Read the full guide: [WordPress Plugin & Theme Sets in OpenPanel](http://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+📘 Read the full guide: [WordPress Plugin & Theme Sets in OpenPanel](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
 
 ### Refresh Website Data
 
@@ -117,7 +121,7 @@ Need it sooner? Click the refresh icon over the screenshot.
 
 Website performance is monitored daily using **Google PageSpeed Insights**. For both mobile and desktop devices, you can view the check time along with key metrics such as **First Contentful Paint**, **Speed Index**, and **Time to Interactive**.
 
-You can also [add your own PageSpeed Insights API key](https://openpanel.com/docs/articles/websites/google-pagespeed-insights-api-key/#adding-the-api-key-in-openpanel) to customize the data collection.
+You can also [add your own PageSpeed Insights API key](/docs/articles/websites/google-pagespeed-insights-api-key/#adding-the-api-key-in-openpanel) to customize the data collection.
 
 ![speed](/img/panel/v2/speed.png)
 
