@@ -6,38 +6,35 @@ sidebar_position: 1
 
 ![wp_manager_grid.png](/img/panel/v2/wpmanager.png)
 
-WordPress Manager is a powerful tool integrated into OpenPanel, enabling you to easily install and manage WordPress websites directly from your hosting panel.
+The WordPress Manager is your all-in-one tool inside OpenPanel for installing and managing WordPress websites — without ever needing to log in to wp-admin. It makes handling multiple sites fast, simple, and efficient.
 
 ## Manage WordPress sites
 
-Using the manager, you can modify WordPress settings without the need to log in to the actual website. This feature is especially handy for managing multiple websites, as you can efficiently manage options in bulk, create backups, update plugins, enable automatic WordPress core updates, enable debugging, and much more—all from the OpenPanel interface.
+The WordPress Manager lets you adjust settings, create backups, update plugins, toggle debugging, and more — all directly from OpenPanel. No need to open multiple dashboards or remember dozens of logins.
+Perfect for agencies, developers, and anyone managing several WordPress sites at once.
 
 ### WP Manager overview
 
 On the main WP Manager page you can:
 
-- [View installations](#): domain name, WordPress version, date when site was installed with or added to WP Manager interface and admin email.
-- [Refresh website data](/docs/panel/applications/wordpress#refresh-existing-data): in case you have changed the domain name, updated WordPress manually or changed admin email address.
-- [Manage themes and plugins sets](#themes-and-plugins-sets): configure plugins and themes to auto-install on all new websites.
-- [Install WordPress](/docs/panel/applications/wordpress#install-wordpress): install WordPress on a new domain.
-- [Scan for existing installations](/docs/panel/applications/wordpress#scan-import-installations): scan for WordPress installations that were manually added on the hosting plan and are not yet visible in the WP Manager interface.
-- [Change to Table/Grid view](/docs/panel/applications/wordpress#grid-vs-tabular-view): change the display from grid (default) to table.
+- [View installations](#): see the domain, WordPress version, install date, admin email.
+- [Refresh website data](/docs/panel/applications/wordpress#refresh-existing-data): if you’ve changed a domain, updated WordPress manually, or modified the admin email.
+- [Manage themes and plugins sets](#themes-and-plugins-sets): define which themes and plugins are auto-installed on every new site.
+- [Install WordPress](/docs/panel/applications/wordpress#install-wordpress): set up a fresh WordPress installation in a few clicks.
+- [Scan for existing installations](/docs/panel/applications/wordpress#scan-import-installations): detect and import manually installed WordPress sites.
+- [Change to Table/Grid view](/docs/panel/applications/wordpress#grid-vs-tabular-view): display sites in either Grid (default) or Table mode.
 
 ### Install WordPress
 
-You can quickly install WordPress with just a few clicks. 
+Installing WordPress is quick and automatic. OpenPanel takes care of everything — downloading WordPress from WordPress.org, creating the database, linking it to your domain, and configuring your new site.
 
-Installation files are sourced directly from WordPress.org and OpenPanel handles all of the additional steps such as creating a MySQL database and user, connecting it with the files, configuring the domain and setting up WordPress.
-
-To install WordPress you need to first add a domain name.
-
-After adding a domain name, click on the 'Site Manager' button in the sidebar to access the Auto Installer tool.
-
-To create a new WordPress installation click on the "+ New website" button and choose to Install WordPress.
+1. Add your **domain name** first.
+2. Open **Site Manager** from the sidebar and click **+ New Website**.
+3. Choose I**nstall WordPress**.
 
 ![new_site_popup.png](/img/panel/v2/wpinstall.png)
 
-In the install form set:
+Then fill in the form:
 
 - Website name
 - Site description (optional)
@@ -46,103 +43,102 @@ In the install form set:
 - Admin password
 - WordPress version
 
-and click on the 'Start Installation' button.
+
+Click **Start Installation** and you’re done.
 
 ![wp_install.png](/img/panel/v2/wpinstall2.png)
 
-### Scan (Import) Installations
+### Scanning (Importing) Installations
 
-By performing a scan you can import existing WordPress installations into the WP Manager interface.
-The tool will search all your files for wp-config.php (main WordPress configuration file) and import all websites that it finds.
+If you already have WordPress installed manually, you can import it into the WP Manager.
+The system scans your hosting files for `wp-config.php` and automatically adds the found websites.
 
 ![wp_manager_scan.png](/img/panel/v2/wpscan.png)
 
 ### Themes and Plugins Sets
 
-You can create **Theme Sets** and **Plugin Sets** for your account. Plugins and themes from these sets will automatically be installed on every new WordPress site you create using the WP Manager. This is especially handy if you frequently use the same plugins and themes across multiple sites, such as the Elementor theme with a child theme, Elementor plugin, and so on.
+Tired of installing the same setup every time?
+Create **Theme Set** and **Plugin Set** that automatically apply to new WordPress installs.
 
-Guide: http://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/
+For example, you might set up a default combo like:
 
-### Refresh existing data
+- Elementor theme + child theme
+- Elementor plugin
+- Classic Editor plugin
 
-In cases when you manually updated WordPress core or changed the admin email address outside the WP Manager interface, the tool will display out-of-date information. To update the data inside the WP Manager database for your websites simply click on the 'Refresh data' button.
+Every time you install a new site — boom, it’s ready with your preferred setup.
+
+📘 Read the full guide: [WordPress Plugin & Theme Sets in OpenPanel](http://openpanel.com/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+
+### Refresh Website Data
+
+If you’ve made manual changes to your site (like updating WordPress core or changing the admin email), click **Refresh Data** to sync everything with WP Manager.
 
 ![wp_manager_refresh_data.png](/img/panel/v2/wprefresh.png)
 
-### Grid VS Tabular view
+### Grid vs. Table View
 
-Websites can be viewed in grid mode with screenshots or tabular (table) mode. 
-To change the view to table mode click on the button in bottom right corner of the screen:
+You can view your sites in a **grid with screenshots** or a **simple table** view.
+Switch views anytime using a button.
+
 ![wp_manager_table.png](/img/panel/v2/wptable.png)
-
 
 ---
 
-## Managing a website
-
+## Managing a Website
 
 ![wp_manager_site.png](/img/panel/v2/wpmanage.png)
 
 ### General Information
 
-For each WordPress installation you can view:
+Each website entry shows you:
 
-- Website name
-- Screenshot
-- Path to files and total size of the folder
-- Database information and total database size
+- Site name & screenshot
+- File path and folder size
+- Database details (and size)
 - Domain name
-- Date when the installation was added to WP Manager
-- WordPress core version
-- PHP version used on the domain name
-- MySQL version
-- Link to phpMyAdmin to view database tables
-- SSL status for the domain name
-- Link to login to wp-admin
-- Link to edit PHP version for the domain
-- Link to edit Cronjobs
+- WordPress version
+- PHP & MySQL versions
+- SSL status
+- Quick links to phpMyAdmin, wp-admin login, PHP version settings
 
-### View database information
+### View Database Info
 
-Database login information for a WordPress website from the WP Manager is displayed at the bottom of the page:
-
-To reveal the password click on the blurred password field:
+Database credentials are displayed directly from wp-config.php file, click the blurred password to reveal it.
 ![wp_manager_site_database_password.png](/img/panel/v2/wpunblur.png)
 
-### Detach a website
+### Detach a Website
 
-Use the Detach option to remove a WordPress website from the WP Manager interface without actually remove any files or database.
+Want to stop managing a site in WP Manager (without deleting it)?
 
-Click on the 'Detach' button:
+Use **Detach** — your files and database remain untouched.
 
 ![wp_manager_site_detach_1.png](/img/panel/v2/wpdetach.png)
 
-On the popup click on 'Confirm Detach' button to confirm:
+Confirm the action in the popup:
 
 ![wp_manager_site_detach_2.png](/img/panel/v2/wpdetach2.png)
 
 
-
 ### Auto Login to wp-admin
-Use the single sign-on option to auto login securely to your wp-admin dashboard as the Administrator user.
 
-Click on the 'Login as Admin' button.
+Use **Login as Admin** for one-click secure access to your WordPress dashboard — no password needed.
 
 ![wp_manager_site_login_admin.png](/img/panel/v2/wpautolog.png)
 
 
-### Preview with temporary link
+### Preview with Temporary Link
 
-This option allows you to preview websites using temporary domains provided by OpenPanel, helpful if your domain hasn't been pointed to the server's IP address yet or lacks an SSL certificate. Temporary links are valid for 15 minutes. 
+Preview your site even before your domain is connected or SSL is ready.
+Temporary links last 15 minutes.
 
-To view website using temporary link, click on the 'Preview' button:
+Click **Preview** to generate one:
 
 ![website_temporary_url_openpanel.gif](/img/panel/v2/wppreview.png)
 
+### Edit WordPress Settings
 
-### Edit WordPress settings
-
-To edit General, Updates and Debugging preferences for a WordPress website click on the pencil icon in top right corner.
+CLick on the field to edit information, and click on Save.
 
 #### General Settings
 
