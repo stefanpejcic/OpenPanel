@@ -50,7 +50,7 @@ you can also set a standard cron expression representing set of times, using **6
 | Month        | Yes        | 1-12 or JAN-DEC    | `*` `/` `,` `-`           |
 | Day of week  | Yes        | 0-6 or SUN-SAT     | `*` `/` `,` `-` `?`       |
 
-:::warning
+:::info
 There are 6 fields instead of the usual 5 found in standard Unix cron. This is because OpenPanel cron jobs also support scheduling by seconds.
 :::
 
