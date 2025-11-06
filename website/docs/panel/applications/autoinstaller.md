@@ -6,6 +6,8 @@ sidebar_position: 4
 
 Auto Installer allows you to one-click install applications.
 
+![screenshot](/img/panel/v2/autoisntaller_page.png)
+
 ## Available Applications
 
 - WordPress
