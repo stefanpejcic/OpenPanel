@@ -165,49 +165,6 @@ Available options:
 
 ![options](/img/panel/v2/options.png)
 
-#### Updates
-
-Control how WordPress handles updates for the core, plugins, and themes.
-By default, only minor core updates are auto-enabled.
-
-![wp_manager_site_edit_2.png](/img/panel/v2/wpupdate.png)
-
-If a newer WordPress core version is available, you will see 'Click to update WordPress core' button which when clicked will perform WordPress update to the newest version available.
-
-#### Debugging
-
-Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) directly from WP Manager.
-
-These are great for testing or development sites — not recommended for production.
-For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
-
-![wp_manager_site_edit_3.png](/img/panel/v2/wpdebug.png)
-
-### Remove
-
-Want to stop managing a site in WP Manager (without deleting it)?
-
-Use **Detach** — your files and database remain untouched.
-
-![detach](/img/panel/v2/detach.png)
-
-To completely remove a website — files, database, and all — click **Uninstall**, then confirm.
-
-![uninstall](/img/panel/v2/uninstall.png)
-
-### Backup and Restore
-
-Create and restore backups anytime — files, database, or both.
-
-Create a Backup:
-- Choose what to back up (files, database, or both).
-- Click *Generate Backup**.
-
-![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
-
-Restore a Backup:
-To restore, click Restore, pick a backup date, and confirm.
-
 ### Maintenance mode
 
 Enable or disable maintenance mode directly from WP Manager.
@@ -226,3 +183,45 @@ From here, you can:
 
 ![wp_manager_security.png](/img/panel/v2/wpsec.png)
 
+### Updates
+
+Control how WordPress handles updates for the core, plugins, and themes.
+By default, only minor core updates are auto-enabled.
+
+![wp_manager_site_edit_2.png](/img/panel/v2/wpupdate.png)
+
+If a newer WordPress core version is available, you will see 'Click to update WordPress core' button which when clicked will perform WordPress update to the newest version available.
+
+### Debugging
+
+Toggle WordPress’s built-in debugging tools (WP_DEBUG, WP_DEBUG_LOG, etc.) directly from WP Manager.
+
+These are great for testing or development sites — not recommended for production.
+For details, check [Debugging in WordPress](https://wordpress.org/documentation/article/debugging-in-wordpress/) for more information on these options.
+
+![wp_manager_site_edit_3.png](/img/panel/v2/wpdebug.png)
+
+### Backups
+
+Create and restore backups anytime — files, database, or both.
+
+Create a Backup:
+- Choose what to back up (files, database, or both).
+- Click *Generate Backup**.
+
+![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
+
+Restore a Backup:
+To restore, click Restore, pick a backup date, and confirm.
+
+### Remove
+
+Want to stop managing a site in WP Manager (without deleting it)?
+
+Use **Detach** — your files and database remain untouched.
+
+![detach](/img/panel/v2/detach.png)
+
+To completely remove a website — files, database, and all — click **Uninstall**, then confirm.
+
+![uninstall](/img/panel/v2/uninstall.png)
