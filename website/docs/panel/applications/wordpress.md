@@ -16,18 +16,18 @@ Using the manager, you can modify WordPress settings without the need to log in 
 
 On the main WP Manager page you can:
 
-- [view installations](#): domain name, WordPress version, date when site was installed with or added to WP Manager interface and admin email.
-- [refresh the data](/docs/panel/applications/wordpress#refresh-existing-data): in case you have changed the domain name, updated WordPress manually or changed admin email address.
-- [manage themes and plugins set](#themes-and-plugins-sets): configure plugins and themes to auto-install on all new websites.
-- [install WordPress](/docs/panel/applications/wordpress#install-wordpress): install WordPress on a new domain.
-- [run a scan](/docs/panel/applications/wordpress#scan-import-installations): scan for WordPress installations that were manually added on the hosting plan and are not yet visible in the WP Manager interface.
-- [change view](/docs/panel/applications/wordpress#grid-vs-tabular-view): change the display from grid (default) to table.
+- [View installations](#): domain name, WordPress version, date when site was installed with or added to WP Manager interface and admin email.
+- [Refresh website data](/docs/panel/applications/wordpress#refresh-existing-data): in case you have changed the domain name, updated WordPress manually or changed admin email address.
+- [Manage themes and plugins sets](#themes-and-plugins-sets): configure plugins and themes to auto-install on all new websites.
+- [Install WordPress](/docs/panel/applications/wordpress#install-wordpress): install WordPress on a new domain.
+- [Scan for existing installations](/docs/panel/applications/wordpress#scan-import-installations): scan for WordPress installations that were manually added on the hosting plan and are not yet visible in the WP Manager interface.
+- [Change to Table/Grid view](/docs/panel/applications/wordpress#grid-vs-tabular-view): change the display from grid (default) to table.
 
 ### Install WordPress
 
-You can quickly install any of the latest 10 WordPress versions with just a few clicks. 
+You can quickly install WordPress with just a few clicks. 
 
-Each WordPress installation is sourced directly from wp.org and OpenPanel handles all of the additional steps, including creating a MySQL database and user, connecting it with the files, configuring the domain based on your choice of Nginx or Apache WebServer, and setting up WordPress.
+Installation files are sourced directly from WordPress.org and OpenPanel handles all of the additional steps such as creating a MySQL database and user, connecting it with the files, configuring the domain and setting up WordPress.
 
 To install WordPress you need to first add a domain name.
 
