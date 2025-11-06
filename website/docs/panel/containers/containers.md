@@ -56,4 +56,61 @@ To change CPU or Memory limits for a service:
 
 ## Adding New Services
 
-At the moment, new services can only be added by the Administrator.
+To add a new Docker service (container), fill in the **Add Service** form with the required details.  
+
+### Form Fields
+
+- **Service Name** – Unique name for the container.  
+  - Must start with a letter, contain only lowercase letters and digits, and be at least 3 characters long.  
+  - Example: `webapp`, `redis1`  
+
+- **Image** – Docker image to use.  
+  - Example: `nginx:latest`, `redis:7.2`  
+
+- **Environment Variables** – Optional. Provide variables in `KEY=value` format, one per line.  
+  - Example:  
+    ```
+    REDIS_PASSWORD=secret
+    DEBUG=true
+    ```  
+
+- **CPU Limit** – Maximum CPU allocation for the container. Must be a positive number.  
+  - Example: `0.5`, `1`  
+
+- **RAM Limit** – Maximum memory allocation. Must be a number followed by `M` or `G`.  
+  - Example: `512M`, `1.5G`  
+
+- **Network** – Docker network to attach the container to.  
+  - Example: `backend_network`  
+
+- **Healthcheck (optional)** – YAML block defining container health checks.  
+  - Example:  
+    ```yaml
+    test: ["CMD", "curl", "-f", "http://localhost"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    ```  
+
+### Validation Rules
+
+- **Service Name** – Must be unique and follow format rules.  
+- **CPU Limit** – Must be a positive number.  
+- **RAM Limit** – Must end with `M` or `G`.  
+- **Environment Variables** – Must be in `KEY=value` format.  
+- **Healthcheck** – Must be valid YAML.  
+
+### Environment Variable Handling
+
+Each service automatically uses an **uppercase prefix** for environment variable keys.  
+CPU and RAM values are also stored as environment variables for each service.  
+
+For example, a service named `nginx` will have the following environment keys:
+
+  ```
+  NGINX_CPU
+  NGINX_RAM
+  ``` 
+
+> Once the form is submitted and validated, the service is added to the Docker Compose configuration and environment variables are automatically updated.
+
