@@ -133,9 +133,9 @@ Cache widget displays the current [wp cache type](https://developer.wordpress.or
 
 ### Firewall
 
-If CorazaWAF is enabled on the server, and your account has access to the \WAF\ feature, you will see a *Firewall* widget displaying current status for the domain and an option to change it.
+If CorazaWAF is enabled on the server, and your account has access to the WAF feature, you will see a *Firewall* widget displaying current status for the domain, an option to change it and number of denied/challenged requests in the last hour.
 
-![wp_waf](/img/panel/v2/wp_waf.png)
+![wp_waf](/img/panel/v2/wp-waf.png)
 
 
 ### Overview
