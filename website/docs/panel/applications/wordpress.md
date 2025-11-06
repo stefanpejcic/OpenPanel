@@ -13,16 +13,16 @@ The WordPress Manager is your all-in-one tool inside OpenPanel for installing an
 The WordPress Manager lets you adjust settings, create backups, update plugins, toggle debugging, and more — all directly from OpenPanel. No need to open multiple dashboards or remember dozens of logins.
 Perfect for agencies, developers, and anyone managing several WordPress sites at once.
 
-### WP Manager overview
+### WP Manager
 
 On the main WP Manager page you can:
 
-- [View installations](#): see the domain, WordPress version, install date, admin email.
-- [Refresh website data](/docs/panel/applications/wordpress#refresh-website-data): if you’ve changed a domain, updated WordPress manually, or modified the admin email.
+- [View installations](#wp-manage): see the domain, WordPress version, install date, admin email.
+- [Refresh website data](#refresh-website-data): if you’ve changed a domain, updated WordPress manually, or modified the admin email.
 - [Manage themes and plugins sets](#themes-and-plugins-sets): define which themes and plugins are auto-installed on every new site.
-- [Install WordPress](/docs/panel/applications/wordpress#install-wordpress): set up a fresh WordPress installation in a few clicks.
-- [Scan for existing installations](/docs/panel/applications/wordpress#scan-import-installations): detect and import manually installed WordPress sites.
-- [Change to Table/Grid view](/docs/panel/applications/wordpress#grid-vs-tabular-view): display sites in either Grid (default) or Table mode.
+- [Install WordPress](#install-wordpress): set up a fresh WordPress installation in a few clicks.
+- [Scan for existing installations](#scanning-importing-installations): detect and import manually installed WordPress sites.
+- [Change to Table/Grid view](#grid-vs-table-view): display sites in either Grid (default) or Table mode.
 
 ### Install WordPress
 
@@ -53,8 +53,6 @@ Click **Start Installation** and you’re done.
 If you already have WordPress installed manually, you can import it into the WP Manager.
 The system scans your hosting files for `wp-config.php` and automatically adds the found websites.
 
-![wp_manager_scan.png](/img/panel/v2/wpscan.png)
-
 ### Themes and Plugins Sets
 
 Tired of installing the same setup every time?
@@ -74,18 +72,14 @@ Every time you install a new site — boom, it’s ready with your preferred set
 
 If you’ve made manual changes to your site (like updating WordPress core or changing the admin email), click **Refresh Data** to sync everything with WP Manager.
 
-![wp_manager_refresh_data.png](/img/panel/v2/wprefresh.png)
-
 ### Grid vs. Table View
 
 You can view your sites in a **grid with screenshots** or a **simple table** view.
 Switch views anytime using a button.
 
-![wp_manager_table.png](/img/panel/v2/wptable.png)
-
 ---
 
-## Managing a Website
+## Site Manager
 
 ![wp_manager_site.png](/img/panel/v2/wpmanage.png)
 
@@ -96,7 +90,7 @@ Use **Login as Admin** for one-click secure access to your WordPress dashboard �
 
 ![wp_manager_autologin](/img/panel/v2/wpautolog.png)
 
-### Preview with Temporary Link
+### Temporary Link
 
 Preview your site even before your domain is connected or SSL is ready.
 Temporary links last 15 minutes.
