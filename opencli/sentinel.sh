@@ -5,7 +5,7 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 05.11.2025
+# Last Modified: 06.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -229,6 +229,9 @@ write_notification() {
       echo "Email alerts are disabled."
     else
       email_notification "$title" "$message"
+      if command -v notify-send &>/dev/null; then
+          notify-send "$title" "$message"
+      fi
     fi
   fi
 }

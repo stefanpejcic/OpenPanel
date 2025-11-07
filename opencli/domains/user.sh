@@ -5,7 +5,7 @@
 # Usage: opencli domains-user <USERNAME> [--docroot|--php_version]
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 05.11.2025
+# Last Modified: 06.11.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 

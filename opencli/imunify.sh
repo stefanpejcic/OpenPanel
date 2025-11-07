@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 05.11.2025
+# Last Modified: 06.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
