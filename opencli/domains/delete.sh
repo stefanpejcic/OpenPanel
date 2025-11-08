@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -275,7 +275,7 @@ remove_dns_entries_from_apex_zone() {
 
     if [[ "$update_tlds" == true ]]; then
         mkdir -p "$(dirname "$tld_file")"
-        wget -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
+        wget --timeout=5 --tries=3 -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
         if [[ $? -ne 0 ]]; then
             log "Failed to download TLD list from IANA"
         fi

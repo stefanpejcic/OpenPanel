@@ -6,7 +6,7 @@
 #        opencli server-ips <USERNAME>
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -46,7 +46,7 @@ else
     usernames=("$1")
 fi
 
-current_server_main_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+current_server_main_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout25 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
 
 get_context_for_user() {
      USERNAME="$1"
@@ -77,7 +77,7 @@ get_webserver_for_user(){
 for username in $usernames; do
     get_context_for_user "$username"
     get_webserver_for_user "$username"
-    user_ip=$(docker --context=$context exec "$ws" bash -c "curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3")
+    user_ip=$(docker --context=$context exec "$ws" bash -c "curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3")
     echo $username - $user_ip
     if [[ "$user_ip" != "$current_server_main_ip" ]]; then
         create_ip_file "$username" "$user_ip"

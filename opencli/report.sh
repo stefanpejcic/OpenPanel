@@ -6,7 +6,7 @@
 #        opencli report [--public] [--cli] [--csf]
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -49,7 +49,7 @@ setup_progress_bar_script(){
 
 	# Check if wget is available
 	if command -v wget &> /dev/null; then
-	    wget --timeout=5 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+	    wget --timeout=5 --tries=3 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 	    if [ $? -ne 0 ]; then
 	        echo "ERROR: wget failed or timed out after 5 seconds while downloading from github"
 	        exit 1

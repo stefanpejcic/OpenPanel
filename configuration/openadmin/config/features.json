@@ -200,6 +200,14 @@
     "help_link": ""
   },
   {
+    "name": "mautic",
+    "title": "Mautic",
+    "description": "If enabled, Mautic can be installed using the Autoinstaller and users can use the Site Manager to manage websites.",
+    "link": "/mautic/install",
+    "type": "beta",
+    "help_link": ""
+  },
+  {
     "name": "website_builder",
     "title": "Website Builder",
     "description": "If enabled, users can create HTML websites using the GrapeJS drag-drop editor.",

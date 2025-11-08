@@ -11,7 +11,7 @@ DEBUG=true
 usage() {
     echo "Usage: $0 --backup-location <path> --plan-name <plan_name> [--dry-run]"
     echo
-    echo "Example: $0 --backup-location /home/backup-7.29.2024_13-22-32_stefan.tar.gz --plan-name default_plan_nginx --dry-run"
+    echo "Example: $0 --backup-location /home/backup-7.29.2024_13-22-32_stefan.tar.gz --plan-name "default_plan_nginx" --dry-run"
     exit 1
 }
 
@@ -554,16 +554,17 @@ restore_mysql() {
 
         # STEP 3: Wait for MySQL to be ready (max 90 seconds)
         log "Waiting for MySQL service to be ready..."
-        max_wait=90
+        max_wait=300
         waited=0
         while ! docker --context="$cpanel_username" exec "$mysql_type" $mysql_type -e "SELECT 1" >/dev/null 2>&1; do
             sleep 2
             waited=$((waited + 2))
             if [ "$waited" -ge "$max_wait" ]; then
-                log "ERROR: MySQL did not become ready after $max_wait seconds"
+                log "ERROR: $mysql_type did not become ready after $max_wait seconds"
                 exit 1
             fi
         done
+        log "$mysql_type is ready after $waited seconds"
 
         # STEP 4: Create and import databases
         total_databases=$(ls "$mysql_dir"/*.create 2>/dev/null | wc -l)

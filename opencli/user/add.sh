@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -329,7 +329,7 @@ validate_password_in_lists() {
         echo "Checking the password against weakpass dictionaries"
       fi
 
-       wget -O /tmp/weakpass.txt https://github.com/steveklabnik/password-cracker/blob/master/dictionary.txt > /dev/null 2>&1
+       wget --timeout=5 --tries=3 -O /tmp/weakpass.txt https://github.com/steveklabnik/password-cracker/blob/master/dictionary.txt > /dev/null 2>&1
        
        if [ -f "/tmp/weakpass.txt" ]; then
             DICTIONARY="dictionary.txt"
@@ -1052,7 +1052,7 @@ log "Restarting services.."
 ssh $key_flag root@$node_ip_address "
     su - $username -c 'bash -l -c \"
         cd /home/$username/bin
-        wget -O /home/$username/bin/dockerd-rootless-setuptool.sh https://get.docker.com/rootless > /dev/null 2>&1
+        wget --timeout=5 --tries=3 -O /home/$username/bin/dockerd-rootless-setuptool.sh https://get.docker.com/rootless > /dev/null 2>&1
         chmod +x /home/$username/bin/dockerd-rootless-setuptool.sh
         /home/$username/bin/dockerd-rootless-setuptool.sh install > /dev/null 2>&1
 

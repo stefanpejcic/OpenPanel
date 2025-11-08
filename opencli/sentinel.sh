@@ -5,7 +5,7 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -846,7 +846,7 @@ check_if_panel_domain_and_ns_resolve_to_server (){
           IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
       fi
     
-      SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget -4 --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+      SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -4 --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
     
       if [ -z "$SERVER_IP" ]; then
           SERVER_IP=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
@@ -1049,7 +1049,7 @@ else
   # Progress bar script
   PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
   PROGRESS_BAR_FILE="progress_bar.sh"
-  wget -4 "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
+  wget --timeout=5 --tries=3 -4 "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
   if [ ! -f "$PROGRESS_BAR_FILE" ]; then
       echo "Failed to download progress_bar.sh"
       exit 1

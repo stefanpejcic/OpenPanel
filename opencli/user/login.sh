@@ -5,7 +5,7 @@
 # Usage: opencli user-login <USERNAME>
 # Author: Stefan Pejcic
 # Created: 21.10.2023
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

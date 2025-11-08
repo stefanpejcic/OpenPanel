@@ -5,7 +5,7 @@
 # Usage: opencli php-ioncube <username>
 # Author: Stefan Pejcic
 # Created: 26.07.2024
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic
 # 
@@ -74,7 +74,7 @@ file_name="ioncube_loaders.tar.gz"
 
 # Step 1: Download the ionCube loaders tarball
 echo "$download_message: $download_link"
-docker --context $context exec -it "$container_name" bash -c "cd /tmp && wget -O $file_name $download_link > /dev/null 2>&1"
+docker --context $context exec -it "$container_name" bash -c "cd /tmp && wget --timeout=5 --tries=3 -O $file_name $download_link > /dev/null 2>&1"
 
 # Step 2: Uncompress the downloaded tarball
 docker --context $context exec -it "$container_name" bash -c "cd /tmp && tar -xzf $file_name"

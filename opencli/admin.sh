@@ -5,7 +5,7 @@
 # Usage: opencli admin <setting_name> 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -165,7 +165,7 @@ get_admin_url() {
 
 
 get_public_ip() {
-    ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+    ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
     fi

@@ -5,7 +5,7 @@
 # Usage: opencli domains-dns <DOMAIN>
 # Author: Stefan Pejcic
 # Created: 31.08.2024
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -305,14 +305,14 @@ create_dns_zone_for_domain(){
 	if [ -n "$owner" ]; then
 	    USERNAME="$owner"
 	    JSON_FILE="/etc/openpanel/openpanel/core/users/$USERNAME/ip.json"
-	    SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+	    SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
 	        if [ -e "$JSON_FILE" ]; then
 	            current_ip=$(jq -r '.ip' "$JSON_FILE")
 	        else
 	            current_ip="$SERVER_IP"
 	        fi
      	else
-	        current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+	        current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
 		if [ -z "$current_ip" ]; then
 		    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
 		fi     

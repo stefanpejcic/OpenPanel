@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -116,7 +116,7 @@ get_license_key() {
 # Get public IP address
 get_public_ip() {
     curl --silent --max-time 2 -4 "$IP_SERVER_1" || \
-    wget --timeout=2 -qO- "$IP_SERVER_2" || \
+    wget --timeout=2 --tries=1 -qO- "$IP_SERVER_2" || \
     curl --silent --max-time 2 -4 "$IP_SERVER_3"
 }
 

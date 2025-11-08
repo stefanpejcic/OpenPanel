@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 06.11.2025
+# Last Modified: 07.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -291,7 +291,7 @@ else
 
     if [[ "$update_tlds" == true ]]; then
         mkdir -p "$(dirname "$tld_file")"
-        wget -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
+        wget --timeout=5 --tries=3 -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
         if [[ $? -ne 0 ]]; then
             log "Failed to download TLD list from IANA"
         fi
@@ -416,7 +416,7 @@ get_server_ipv4_or_ipv6() {
 	
 	    if [ "$ip_version" == "-4" ]; then
 		    curl --silent --max-time 2 $ip_version $server1 || \
-		    wget --timeout=2 -qO- $server2 || \
+		    wget --timeout=2 --tries=1 -qO- $server2 || \
 		    curl --silent --max-time 2 $ip_version $server3
 	    else
 		    curl --silent --max-time 2 $ip_version $server1 || \
