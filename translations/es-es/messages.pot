@@ -5,7 +5,7 @@
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-01-23 11:20+0000\n"
-"PO-Revision-Date: 2025-11-01 21:01-0300\n"
+"PO-Revision-Date: 2025-11-07 15:10-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: es\n"
@@ -257,20 +257,20 @@ msgstr "Contenedor actualizado correctamente."
 
 #: modules/docker.py:721
 msgid "Delete service"
-msgstr ""
+msgstr "Eliminar servicio"
 
 #: modules/docker.py:923 templates/dashboard/dashboard.html:178
 #: templates/docker/images.html:12
 msgid "Image Updates"
-msgstr ""
+msgstr "Actualizaciones de imágenes"
 
 #: modules/docker.py:971
 msgid "Change docker image"
-msgstr ""
+msgstr "Cambiar imagen de Docker"
 
 #: modules/docker.py:995
 msgid "Select docker image"
-msgstr ""
+msgstr "Seleccionar imagen de Docker"
 
 #: modules/docker.py:1057 templates/cache/_shared.html:216
 #: templates/cache/varnish.html:279 templates/dashboard/dashboard.html:177
@@ -278,70 +278,74 @@ msgstr ""
 #: templates/manager/python_node_apps.html:157 templates/manager/ruby.html:138
 #: templates/manager/ruby.html:161 templates/services.html:214
 msgid "Logs"
-msgstr ""
+msgstr "Registros"
 
 #: modules/docker.py:1086 modules/websites.py:536
 msgid "Invalid action"
-msgstr ""
+msgstr "Acción no válida"
 
 #: modules/docker.py:1352
 msgid "Select Docker service"
-msgstr ""
+msgstr "Seleccionar servicio Docker"
 
 #: modules/domains.py:257 templates/cache/varnish.html:122
 #: templates/dashboard/dashboard.html:78 templates/dashboard/dashboard.html:107
 #: templates/dashboard/usage.html:44 templates/domains/domains.html:14
 #: templates/partials/_header.html:64
 msgid "Domains"
-msgstr ""
+msgstr "Dominios"
 
 #: modules/domains.py:355
 msgid ""
 "Error: Reached the maximum allowed number of domains on this hosting plan."
 msgstr ""
+"Error: Se ha alcanzado el número máximo de dominios permitidos en este plan "
+"de alojamiento."
 
 #: modules/domains.py:389 templates/domains/new.html:130
 #: templates/domains/new.html:344
 msgid "Add Domain"
-msgstr ""
+msgstr "Agregar Dominio"
 
 #: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:401
 #: modules/domains.py:459
 msgid "Invalid request. Domain name must be provided."
-msgstr ""
+msgstr "Solicitud no válida. Debe proporcionarse el nombre de dominio."
 
 #: modules/domains.py:437 templates/domains/domains.html:417
 #: templates/emails/single_account.html:102
 #: templates/emails/single_account.html:124
 msgid "Suspend"
-msgstr ""
+msgstr "Suspender"
 
 #: modules/domains.py:491 templates/domains/domains.html:413
 msgid "Unsuspend"
-msgstr ""
+msgstr "Desuspender"
 
 #: modules/emails.py:134 modules/emails.py:712 modules/emails.py:725
 #: modules/emails.py:743
 msgid "Error: Invalid email address."
-msgstr ""
+msgstr "Error: Dirección de correo electrónico no válida."
 
 #: modules/emails.py:169
 msgid "Filter edited successfully."
-msgstr ""
+msgstr "Filtro editado correctamente."
 
 #: modules/emails.py:173
 msgid "Error editing filter."
-msgstr ""
+msgstr "Error al editar el filtro."
 
 #: modules/emails.py:177
 msgid "Filters"
-msgstr ""
+msgstr "Filtros"
 
 #: modules/emails.py:257
 msgid ""
 "Webmail service is not yet started, please contact Administrator to enable "
 "it."
 msgstr ""
+"El servicio de correo web aún no está iniciado; póngase en contacto con el "
+"administrador para que lo active."
 
 #: modules/emails.py:305 modules/mysqld/mysql_import.py:62
 #: modules/mysqld/mysql_import.py:66 modules/mysqld/mysql_import.py:70
@@ -349,48 +353,54 @@ msgstr ""
 #: modules/psql/postgresql_import.py:67 modules/psql/postgresql_import.py:70
 #: modules/psql/postgresql_import.py:81 templates/psql/databases.html:164
 msgid "Import"
-msgstr ""
+msgstr "Importar"
 
 #: modules/emails.py:309
 msgid "Error: No file uploaded."
-msgstr ""
+msgstr "Error: No se ha subido ningún archivo."
 
 #: modules/emails.py:320
 msgid "Error: Unsupported file format, please upload a .csv or .xls file."
 msgstr ""
+"Error: Formato de archivo no compatible, por favor suba un archivo .csv "
+"o .xls."
 
 #: modules/emails.py:327
 msgid "Error: File must have at least 2 columns: email, password"
 msgstr ""
+"Error: El archivo debe tener al menos 2 columnas: correo electrónico, "
+"contraseña"
 
 #: modules/emails.py:336
 msgid ""
 "Error: File is invalid - the first column must contain valid email addresses."
 msgstr ""
+"Error: El archivo no es válido; la primera columna debe contener direcciones "
+"de correo electrónico válidas."
 
 #: modules/emails.py:362
 msgid "Confirm Import"
-msgstr ""
+msgstr "Confirmar importación"
 
 #: modules/emails.py:373
 msgid "Error: No import data found, please try again."
-msgstr ""
+msgstr "Error: No se encontraron datos de importación, inténtelo de nuevo."
 
 #: modules/emails.py:498
 msgid "Error: domain not provided."
-msgstr ""
+msgstr "Error: dominio no proporcionado."
 
 #: modules/emails.py:500
 msgid "Error: username not provided."
-msgstr ""
+msgstr "Error: no se ha proporcionado el nombre de usuario."
 
 #: modules/emails.py:502
 msgid "Error: password not provided."
-msgstr ""
+msgstr "Error: no se ha proporcionado la contraseña."
 
 #: modules/emails.py:508 templates/files/ftp_new.html:203
 msgid "Create Account"
-msgstr ""
+msgstr "Crear Cuenta"
 
 #: modules/emails.py:571 modules/emails.py:573 modules/files/ftp.py:87
 #: modules/files/ftp.py:91 templates/cache/_shared.html:84
@@ -400,118 +410,122 @@ msgstr ""
 #: templates/psql/pgadmin.html:88 templates/psql/remote_psql.html:99
 #: templates/services.html:90 templates/system/ssh.html:52
 msgid "Unknown"
-msgstr ""
+msgstr "Desconocido"
 
 #: modules/emails.py:686
 msgid "Accounts"
-msgstr ""
+msgstr "Cuentas"
 
 #: modules/emails.py:715
 msgid "Delete address"
-msgstr ""
+msgstr "Eliminar dirección"
 
 #: modules/emails.py:734 templates/emails/info.html:9
 msgid "Connect Devices"
-msgstr ""
+msgstr "Conectar dispositivos"
 
 #: modules/emails.py:748
 msgid "Error: Invalid configuration type."
-msgstr ""
+msgstr "Error: Tipo de configuración no válido."
 
 #: modules/goaccess.py:51 templates/dashboard/dashboard.html:115
 #: templates/domains/goaccess.html:12
 msgid "GoAccess"
-msgstr ""
+msgstr "GoAccess"
 
 #: modules/info.py:22 templates/dashboard/dashboard.html:196
 #: templates/system/server_info.html:10
 msgid "Server Information"
-msgstr ""
+msgstr "Información de Servidor"
 
 #: modules/mautic.py:140
 msgid "Mautic Manager"
-msgstr ""
+msgstr "Administrador de Mautic"
 
 #: modules/mautic.py:247
 msgid "Backup restored successfully!"
-msgstr ""
+msgstr "¡Copia de seguridad restaurada correctamente!"
 
 #: modules/mautic.py:305 modules/wordpress.py:449
 msgid "Backup completed successfully!"
-msgstr ""
+msgstr "¡Copia de seguridad completada correctamente!"
 
 #: modules/mautic.py:308 modules/wordpress.py:453
 msgid "No backup options selected."
-msgstr ""
+msgstr "No se han seleccionado opciones de copia de seguridad."
 
 #: modules/mautic.py:333 modules/mautic.py:499 modules/website_builder.py:40
 #: modules/wordpress.py:481 modules/wordpress.py:626
 msgid "No data found for the provided site ID"
-msgstr ""
+msgstr "No se encontraron datos para el ID de sitio proporcionado."
 
 #: modules/mautic.py:345
 msgid "Mautic installation not found in the database"
-msgstr ""
+msgstr "No se encontró la instalación de Mautic en la base de datos."
 
 #: modules/mautic.py:384
 msgid "Database name or user not found in app/config/local.php"
 msgstr ""
+"No se encontró el nombre de la base de datos o el usuario en app/config/"
+"local.php"
 
 #: modules/mautic.py:458
 msgid "Mautic uninstalled successfully!"
-msgstr ""
+msgstr "¡Mautic se ha desinstalado correctamente!"
 
 #: modules/mautic.py:463
 msgid "An error occurred during Mautic uninstall."
-msgstr ""
+msgstr "Se produjo un error durante la desinstalación de Mautic."
 
 #: modules/mautic.py:521
 msgid "Mautic installation detached from Manager."
-msgstr ""
+msgstr "Instalación Mautic separada del Administrador de Sitio."
 
 #: modules/mautic.py:525
 msgid "An error occurred during Mautic detachment. Please try again."
 msgstr ""
+"Se ha producido un error durante la desconexión de Mautic. Inténtelo de "
+"nuevo."
 
 #: modules/mautic.py:528
 msgid "An error occurred during Mautic detachment."
-msgstr ""
+msgstr "Se produjo un error durante la desconexión de Mautic."
 
 #: modules/mautic.py:545 templates/manager/mautic_install.html:9
 msgid "Install Mautic"
-msgstr ""
+msgstr "Instalar Mautic"
 
 #: modules/mysql.py:119 modules/mysql.py:290 modules/mysql.py:564
 #: modules/mysql.py:757 modules/postgresql.py:79 modules/postgresql.py:568
 msgid "Database name is required."
-msgstr ""
+msgstr "El nombre de la base de datos es obligatorio."
 
 #: modules/mysql.py:184 modules/postgresql.py:148 templates/mysql/new.html:55
 #: templates/psql/new.html:55
 msgid "Create Database"
-msgstr ""
+msgstr "Crear base de datos"
 
 #: modules/mysql.py:199 modules/mysql.py:281 modules/mysql.py:606
 #: modules/mysql.py:650 modules/mysql.py:750 modules/postgresql.py:163
 #: modules/postgresql.py:617 modules/postgresql.py:696
 msgid "User name is required."
-msgstr ""
+msgstr "El nombre de usuario es obligatorio."
 
 #: modules/mysql.py:212 modules/postgresql.py:185
 msgid "This username is not allowed."
-msgstr ""
+msgstr "Este nombre de usuario no está permitido."
 
 #: modules/mysql.py:235 modules/postgresql.py:206
 #: templates/mysql/mysql_user.html:173 templates/mysql/users.html:69
 #: templates/psql/mysql_user.html:70 templates/psql/psql_user.html:167
 #: templates/psql/users.html:69
 msgid "Create User"
-msgstr ""
+msgstr "Crear Usuario"
 
 #: modules/mysql.py:246 modules/mysql.py:659 modules/mysql.py:773
 #: modules/postgresql.py:228 modules/postgresql.py:718
 msgid "This is a system username that can not be edited."
-msgstr ""
+msgstr "Este es un nombre de usuario del sistema que no se puede editar."
 
 #: modules/mysql.py:249 modules/postgresql.py:231 templates/files/ftp.html:110
 #: templates/mysql/password.html:174 templates/mysql/root_password.html:161
@@ -519,7 +533,7 @@ msgstr ""
 #: templates/psql/users.html:120
 #: templates/user/reset_password/set_new_password.html:55
 msgid "Change Password"
-msgstr ""
+msgstr "Cambiar la contraseña"
 
 #: modules/mysql.py:265 modules/postgresql.py:245
 msgid "Wizard"
@@ -527,415 +541,452 @@ msgstr ""
 
 #: modules/mysql.py:301
 msgid "This is a system database that can not be used."
-msgstr ""
+msgstr "Esta es una base de datos del sistema que no se puede utilizar."
 
 #: modules/mysql.py:325 modules/postgresql.py:287
 #: templates/mysql/assign.html:10 templates/mysql/assign.html:67
 #: templates/psql/assign.html:10 templates/psql/assign.html:70
 msgid "Assign User to Database"
-msgstr ""
+msgstr "Asignar usuario a la base de datos"
 
 #: modules/mysql.py:330 modules/postgresql.py:295
 #: templates/mysql/remove.html:64 templates/psql/remove.html:64
 msgid "Remove User from Database"
-msgstr ""
+msgstr "Eliminar usuario de la base de datos"
 
 #: modules/mysql.py:426 templates/dashboard/dashboard.html:120
 #: templates/dashboard/dashboard.html:132 templates/dashboard/usage.html:67
 msgid "Databases"
-msgstr ""
+msgstr "Bases de Datos"
 
 #: modules/mysql.py:477 modules/postgresql.py:503
 #: templates/dashboard/dashboard.html:121
 #: templates/dashboard/dashboard.html:133
 msgid "Users"
-msgstr ""
+msgstr "Usuarios"
 
 #: modules/mysql.py:504
 msgid "changed MySQL root user password"
-msgstr ""
+msgstr "Contraseña de usuario root MySQL modificada"
 
 #: modules/mysql.py:506
 msgid "Successfully changed root password."
-msgstr ""
+msgstr "Contraseña root cambiada correctamente."
 
 #: modules/mysql.py:508
 msgid "Error changing MySQL root password - is mysql running?"
-msgstr ""
+msgstr "Error al cambiar contraseña root de MySQL - ¿está MySQL en ejecución?"
 
 #: modules/mysql.py:510
 msgid "Change Root Password"
-msgstr ""
+msgstr "Cambiar contraseña root"
 
 #: modules/mysql.py:535 modules/postgresql.py:536
 #: templates/dashboard/dashboard.html:126
 #: templates/dashboard/dashboard.html:137
 msgid "Process List"
-msgstr ""
+msgstr "Lista de procesos"
 
 #: modules/mysql.py:615
 msgid "This is a system username that can not be deleted."
-msgstr ""
+msgstr "Este es un nombre de usuario del sistema que no se puede eliminar."
 
 #: modules/mysql.py:769
 msgid "This is a system database that can not be edited."
-msgstr ""
+msgstr "Esta es una base de datos del sistema que no se puede editar."
 
 #: modules/pgadmin.py:37
 msgid "pgAdmin service is now enabled."
-msgstr ""
+msgstr "El servicio pgAdmin ya está habilitado."
 
 #: modules/pgadmin.py:39
 msgid "Failed to start the pgAdmin service. Try restart."
-msgstr ""
+msgstr "No se pudo iniciar el servicio pgAdmin. Intente reiniciarlo."
 
 #: modules/pgadmin.py:44
 msgid "pgAdmin service is now disabled."
-msgstr ""
+msgstr "El servicio pgAdmin ahora está deshabilitado."
 
 #: modules/pgadmin.py:46
 msgid "Failed to stop the pgAdmin service. Try restart."
-msgstr ""
+msgstr "No se pudo detener el servicio pgAdmin. Intente reiniciarlo."
 
 #: modules/pgadmin.py:94 templates/dashboard/dashboard.html:136
 #: templates/psql/pgadmin.html:14
 msgid "pgAdmin"
-msgstr ""
+msgstr "pgAdmin"
 
 #: modules/pgadmin.py:133 modules/phpmyadmin.py:208
 msgid "Container port not found for the user."
-msgstr ""
+msgstr "Puerto de contenedor no encontrado para el usuario."
 
 #: modules/php.py:159
 msgid "Invalid input data"
-msgstr ""
+msgstr "Datos de entrada no válidos"
 
 #: modules/php.py:174 modules/php.py:576
 msgid "success"
-msgstr ""
+msgstr "éxito"
 
 #: modules/php.py:178
 msgid "Configuration file not found"
-msgstr ""
+msgstr "No se encontró el archivo de configuración."
 
 #: modules/php.py:210
 msgid "Set Default version"
-msgstr ""
+msgstr "Establecer versión predeterminada"
 
 #: modules/php.py:228 modules/php.py:231
 msgid ""
 "PHP Limits can not be edited for Litespeed, please use the 'PHP.INI Editor' "
 "or 'PHP Options' instead."
 msgstr ""
+"Los límites de PHP no se pueden editar para Litespeed, utilice en su lugar "
+"el 'Editor de PHP.INI' o las 'Opciones de PHP'"
 
 #: modules/php.py:296 templates/dashboard/dashboard.html:168
 msgid "Limits"
-msgstr ""
+msgstr "Límites"
 
 #: modules/php.py:324 templates/dashboard/dashboard.html:171
 msgid "Extensions"
-msgstr ""
+msgstr "Extensiones"
 
 #: modules/php.py:508
 msgid ""
 "Only one PHP version can be used on Litespeed, to change version for all "
 "domains use this page."
 msgstr ""
+"En Litespeed solo se puede usar una versión de PHP; para cambiar la versión "
+"en todos los dominios, utilice esta página."
 
 #: modules/php.py:529
 msgid ""
 "For Litespeed PHP version can not be set per-domain. To change version for "
 "all domains, use the 'Default PHP Version' page."
 msgstr ""
+"En Litespeed, la versión de PHP no se puede configurar por dominio. Para "
+"cambiar la versión en todos los dominios, utilice la página «Versión de PHP "
+"predeterminada»."
 
 #: modules/php.py:530 modules/php.py:578
 msgid "error"
-msgstr ""
+msgstr "error"
 
 #: modules/account/account.py:122 modules/php.py:607
 #: templates/mysql/phpmyadmin.html:113 templates/psql/pgadmin.html:113
 msgid "Settings"
-msgstr ""
+msgstr "Ajustes"
 
 #: modules/phpmyadmin.py:55
 msgid "phpMyAdmin service is now enabled."
-msgstr ""
+msgstr "El servicio phpMyAdmin ya está habilitado."
 
 #: modules/phpmyadmin.py:57
 msgid "Failed to start the phpMyAdmin service. Try restart."
-msgstr ""
+msgstr "No se pudo iniciar el servicio phpMyAdmin. Intente reiniciarlo."
 
 #: modules/phpmyadmin.py:62
 msgid "phpMyAdmin service is now disabled."
-msgstr ""
+msgstr "El servicio phpMyAdmin ahora está deshabilitado."
 
 #: modules/phpmyadmin.py:64
 msgid "Failed to stop the phpMyAdmin service. Try restart."
-msgstr ""
+msgstr "No se pudo detener el servicio phpMyAdmin. Intente reiniciarlo."
 
 #: modules/phpmyadmin.py:103
 msgid "Limits saved ({}) - restarting phpMyAdmin service to apply changes"
 msgstr ""
+"Límites guardados ({}) - reiniciando el servicio phpMyAdmin para aplicar los "
+"cambios"
 
 #: modules/phpmyadmin.py:105
 msgid ""
 "Limits saved ({}) - but phpMyAdmin failed to start. Try reverting changes."
 msgstr ""
+"Se guardaron los límites ({}), pero phpMyAdmin no se pudo iniciar. Intente "
+"revertir los cambios."
 
 #: modules/phpmyadmin.py:107
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
+"No se han realizado cambios o los datos son inválidos. Inténtelo de nuevo."
 
 #: modules/phpmyadmin.py:152 templates/mysql/phpmyadmin.html:14
 msgid "phpMyAdmin"
-msgstr ""
+msgstr "phpMyAdmin"
 
 #: modules/pm2.py:207
 msgid "File path is missing"
-msgstr ""
+msgstr "Falta la ruta del archivo."
 
 #: modules/pm2.py:221
 msgid "Invalid file extension. Only .py, or .js are allowed."
-msgstr ""
+msgstr "Extensión de archivo no válida. Solo se permiten .py o .js."
 
 #: modules/pm2.py:500 templates/manager/pm2_install.html:8
 msgid "Install Application"
-msgstr ""
+msgstr "Instalar aplicación"
 
 #: modules/pm2.py:1105
 msgid "Unable to detect container type for the application."
-msgstr ""
+msgstr "No se pudo detectar el tipo de contenedor para la aplicación."
 
 #: modules/pm2.py:1113
 msgid "Not a valid type, only NodeJS or Python applications can be edited."
-msgstr ""
+msgstr "Tipo no válido; solo se pueden editar aplicaciones NodeJS o Python."
 
 #: modules/pm2.py:1117 modules/pm2.py:1317
 msgid "Error connecting to database."
-msgstr ""
+msgstr "Error al conectar con la base de datos."
 
 #: modules/pm2.py:1157
 msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
 msgstr ""
+"Error al guardar: Formato de versión no válido (comprueba las etiquetas en "
+"hub.docker.com)"
 
 #: modules/pm2.py:1161
 msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
-msgstr ""
+msgstr "Error al guardar: Los requisitos deben estar vacíos (No) o ser 1 (Sí)."
 
 #: modules/pm2.py:1165
 msgid ""
 "Error saving: Startup file invalid (must start with /var/www/html/, no path "
 "traversal, ends with .js or .py)"
 msgstr ""
+"Error al guardar: El archivo de inicio no es válido (debe comenzar con /var/"
+"www/html/, no se permite el recorrido de rutas que termine con .js o .py)."
 
 #: modules/pm2.py:1169
 msgid ""
 "Error saving: Provided custom startup command is invalid (no path traversal "
 "'..' allowed!)"
 msgstr ""
+"Error al guardar: El comando de inicio personalizado proporcionado no es "
+"válido (¡no se permite el recorrido de rutas '..'!)."
 
 #: modules/pm2.py:1173
 msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
+"Error al guardar: El directorio de trabajo no es válido (debe comenzar con /"
+"var/www/html/, no se permite el recorrido de rutas)."
 
 #: modules/pm2.py:1177
 msgid "Error saving: CPU core limit provided is not a positive intiger."
 msgstr ""
+"Error al guardar: El límite de núcleos de CPU proporcionado no es un número "
+"entero positivo."
 
 #: modules/pm2.py:1181
 msgid "Error saving: Memory limit provided is not a positive intiger."
 msgstr ""
+"Error al guardar: El límite de memoria proporcionado no es un número entero "
+"positivo."
 
 #: modules/pm2.py:1238
 msgid ""
 "Changes saved, make sure to restart the application for changes to take "
 "effect."
 msgstr ""
+"Cambios guardados, asegúrese de reiniciar la aplicación para que los cambios "
+"surtan efecto."
 
 #: modules/pm2.py:1240
 msgid "Environment file not found."
-msgstr ""
+msgstr "No se encontró el archivo de entorno."
 
 #: modules/pm2.py:1303
 msgid "Unable to detect service name for the application."
-msgstr ""
+msgstr "No se pudo detectar el nombre del servicio para la aplicación."
 
 #: modules/pm2.py:1312
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
-msgstr ""
+msgstr "Tipo no válido; solo se pueden eliminar aplicaciones NodeJS o Python."
 
 #: modules/postgresql.py:128
 msgid "You have reached the maximum number of databases allowed."
-msgstr ""
+msgstr "Has alcanzado el número máximo de bases de datos permitidas."
 
 #: modules/postgresql.py:140
 msgid "Failed to create database: "
-msgstr ""
+msgstr "Error al crear la base de datos:"
 
 #: modules/postgresql.py:259 modules/postgresql.py:845
 msgid "Invalid or missing user name."
-msgstr ""
+msgstr "Nombre de usuario no válido o faltante."
 
 #: modules/postgresql.py:262 modules/postgresql.py:850
 msgid "Invalid or missing database name."
-msgstr ""
+msgstr "Nombre de base de datos no válido o faltante."
 
 #: modules/postgresql.py:267
 msgid "This is a system database that cannot be used."
-msgstr ""
+msgstr "Esta es una base de datos del sistema que no se puede utilizar."
 
 #: modules/postgresql.py:278
 msgid "Successfully added a user {db_user} to PostgreSQL database"
 msgstr ""
+"Se ha añadido correctamente el usuario {db_user} a la base de datos "
+"PostgreSQL."
 
 #: modules/postgresql.py:282
 msgid "Failed to assign user to database."
-msgstr ""
+msgstr "No se pudo asignar el usuario a la base de datos."
 
 #: modules/postgresql.py:317 modules/postgresql.py:450
 msgid ""
 "Postgres container is not running. Please allow a few moments for the "
 "initialization.."
 msgstr ""
+"El contenedor de Postgres no se está ejecutando. Por favor, espere unos "
+"instantes mientras se inicializa."
 
 #: modules/postgresql.py:418
 msgid "PostgreSQL databases"
-msgstr ""
+msgstr "Bases de datos PostgreSQL"
 
 #: modules/postgresql.py:632
 msgid "This is a system username that cannot be deleted."
-msgstr ""
+msgstr "Este es un nombre de usuario del sistema que no se puede eliminar."
 
 #: modules/postgresql.py:862
 msgid "This is a system username that cannot be edited."
-msgstr ""
+msgstr "Este es un nombre de usuario del sistema que no se puede editar."
 
 #: modules/postgresql.py:867
 msgid "This is a system database that cannot be edited."
-msgstr ""
+msgstr "Esta es una base de datos del sistema que no se puede editar."
 
 #: modules/postgresql.py:883
 msgid ""
 "Successfully revoked all privileges for user {db_user} from PostgreSQL "
 "database {database_name}"
 msgstr ""
+"Se han revocado correctamente todos los privilegios del usuario {db_user} de "
+"la base de datos PostgreSQL {database_name}."
 
 #: modules/postgresql.py:888
 msgid ""
 "Failed to revoke privileges for user {db_user} from PostgreSQL database "
 "{database_name}"
 msgstr ""
+"No se pudieron revocar los privilegios del usuario {db_user} de la base de "
+"datos PostgreSQL {database_name}"
 
 #: modules/process_manager.py:96 templates/dashboard/dashboard.html:191
 #: templates/system/process_manager.html:9
 msgid "Process Manager"
-msgstr ""
+msgstr "Gestor de procesos"
 
 #: modules/services.py:35
 msgid "Choose Service"
-msgstr ""
+msgstr "Elija un servicio"
 
 #: modules/usage.py:73 templates/dashboard/dashboard.html:189
 #: templates/user/stats.html:20
 msgid "Resource Usage"
-msgstr ""
+msgstr "Uso de recursos"
 
 #: modules/usage.py:134 templates/dashboard/dashboard.html:190
 msgid "Resource Usage History"
-msgstr ""
+msgstr "Historial de uso de recursos"
 
 #: modules/waf.py:79
 msgid "Error: IDs should only contain numbers separated by spaces."
 msgstr ""
+"Error: Los identificadores solo deben contener números separados por "
+"espacios."
 
 #: modules/waf.py:84
 msgid "Error: Tags should only contain words, numbers, or symbols."
-msgstr ""
+msgstr "Error: Las etiquetas solo deben contener palabras, números o símbolos."
 
 #: modules/waf.py:133
 msgid "WAF configuration updated."
-msgstr ""
+msgstr "Configuración WAF actualizada."
 
 #: modules/waf.py:136
 msgid "Error updating WAF!"
-msgstr ""
+msgstr "¡Error al actualizar WAF!"
 
 #: modules/waf.py:139
 msgid "Configuration file not found."
-msgstr ""
+msgstr "No se encontró el archivo de configuración."
 
 #: modules/waf.py:205 templates/system/waf.html:8
 #: templates/system/waf_domain.html:10
 msgid "WAF"
-msgstr ""
+msgstr "WAF"
 
 #: modules/waf.py:243
 msgid "Error changing WAF status."
-msgstr ""
+msgstr "Error al cambiar el estado del WAF."
 
 #: modules/waf.py:285
 msgid "Domain not found or unauthorized"
-msgstr ""
+msgstr "Dominio no encontrado o no autorizado"
 
 #: modules/waf.py:392 templates/dashboard/dashboard.html:195
 #: templates/system/waf_logs.html:259
 msgid "WAF Logs"
-msgstr ""
+msgstr "Registros WAF"
 
 #: modules/webserver_conf.py:57
 msgid "Nginx Configuration Editor"
-msgstr ""
+msgstr "Editor de configuración de Nginx"
 
 #: modules/webserver_conf.py:58
 msgid "Apache Configuration Editor"
-msgstr ""
+msgstr "Editor de configuración de Apache"
 
 #: modules/webserver_conf.py:59
 msgid "OpenResty Configuration Editor"
-msgstr ""
+msgstr "Editor de configuración de OpenResty"
 
 #: modules/webserver_conf.py:60
 msgid "OpenLitespeed Configuration Editor"
-msgstr ""
+msgstr "Editor de configuración de OpenLitespeed"
 
 #: modules/webserver_conf.py:61
 msgid "Litespeed Configuration Editor"
-msgstr ""
+msgstr "Editor de configuración de Litespeed"
 
 #: modules/webserver_conf.py:66
 msgid "Web Server Configuration Editor"
-msgstr ""
+msgstr "Editor de configuración del servidor web"
 
 #: modules/website_builder.py:49
 msgid "Website not found in the database"
-msgstr ""
+msgstr "Sitio web no encontrado en la base de datos"
 
 #: modules/website_builder.py:89
 msgid "Website deleted successfully!"
-msgstr ""
+msgstr "¡Sitio web eliminado correctamente!"
 
 #: modules/website_builder.py:95
 msgid "An error occurred during website deletion."
-msgstr ""
+msgstr "Se produjo un error al eliminar el sitio web."
 
 #: modules/website_builder.py:126
 msgid "Website detached from Manager."
-msgstr ""
+msgstr "Sitio web desvinculado del administrador."
 
 #: modules/website_builder.py:130
 msgid "An error occurred during detachment. Please try again."
 msgstr ""
+"Se ha producido un error durante la desvinculación. Inténtelo de nuevo."
 
 #: modules/website_builder.py:133
 msgid "An error occurred during detachment."
-msgstr ""
+msgstr "Se produjo un error durante la desvinculación."
 
 #: modules/website_builder.py:182 modules/websites.py:363
 #: modules/websites.py:789
 msgid "Unable to detect docroot for the domain."
-msgstr ""
+msgstr "No se pudo detectar el directorio raíz del dominio."
 
 #: modules/website_builder.py:187 modules/websites.py:369
 #: modules/websites.py:798
@@ -943,301 +994,325 @@ msgid ""
 "Error connecting to database, please try again. If the issue persists "
 "contact support."
 msgstr ""
+"Error al conectar con la base de datos. Inténtelo de nuevo. Si el problema "
+"persiste, póngase en contacto con el soporte técnico."
 
 #: modules/website_builder.py:244
 msgid "Create Website"
-msgstr ""
+msgstr "Crear sitio web"
 
 #: modules/websites.py:211
 msgid "Data gathering started. Please allow a few minutes for completion."
 msgstr ""
+"Se ha iniciado la recopilación de datos. Por favor, espere unos minutos para "
+"que finalice."
 
 #: modules/websites.py:410
 msgid "Missing required parameters"
-msgstr ""
+msgstr "Faltan parámetros obligatorios"
 
 #: modules/websites.py:461
 msgid "Debugging options updated successfully"
-msgstr ""
+msgstr "Opciones de depuración actualizadas correctamente"
 
 #: modules/websites.py:479
 msgid "General options edited successfully"
-msgstr ""
+msgstr "Opciones generales editadas correctamente"
 
 #: modules/websites.py:485 templates/manager/wordpress.html:2377
 msgid "WordPress updated successfully"
-msgstr ""
+msgstr "WordPress se actualizó correctamente."
 
 #: modules/websites.py:504
 msgid "Update preferences saved successfully"
-msgstr ""
+msgstr "Las preferencias de actualización se guardaron correctamente."
 
 #: modules/websites.py:597 modules/websites.py:604
 #: templates/dashboard/usage.html:21 templates/domains/domains.html:125
 #: templates/domains/domains.html:203
 msgid "Websites"
-msgstr ""
+msgstr "Sitios web"
 
 #: modules/websites.py:656
 msgid "WEBSITES - Error executing the query!"
-msgstr ""
+msgstr "SITIOS WEB - ¡Error al ejecutar la consulta!"
 
 #: modules/websites.py:668
 msgid "WEBSITES - Reading blogname for WordPress website: {path}"
 msgstr ""
+"SITIOS WEB - Leyendo el nombre del blog para el sitio web de WordPress: "
+"{ruta}"
 
 #: modules/websites.py:684
 msgid "WEBSITES - Reading WP admin_email for website: {selected_domain}"
 msgstr ""
+"SITIOS WEB - Leyendo el correo electrónico de administración de WordPress "
+"para el sitio web: {dominio_seleccionado}"
 
 #: modules/websites.py:763
 msgid "Invalid domain name format."
-msgstr ""
+msgstr "Formato de nombre de dominio no válido."
 
 #: modules/wordpress.py:101
 msgid "WordPress Manager"
-msgstr ""
+msgstr "Administrador de WordPress"
 
 #: modules/wordpress.py:183 modules/wordpress.py:1523 modules/wordpress.py:1654
 msgid "Domain not found."
-msgstr ""
+msgstr "Dominio no encontrado."
 
 #: modules/wordpress.py:489
 msgid "WordPress installation not found in the database"
-msgstr ""
+msgstr "No se encontró la instalación de WordPress en la base de datos."
 
 #: modules/wordpress.py:537
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
+"No se encontró el nombre de la base de datos o el usuario en wp-config.php"
 
 #: modules/wordpress.py:592
 msgid "WordPress uninstalled successfully!"
-msgstr ""
+msgstr "¡WordPress se ha desinstalado correctamente!"
 
 #: modules/wordpress.py:599
 msgid "An error occurred during WordPress uninstall."
-msgstr ""
+msgstr "Se produjo un error durante la desinstalación de WordPress."
 
 #: modules/wordpress.py:647
 msgid "WordPress installation detached from Manager."
-msgstr ""
+msgstr "La instalación de WordPress se ha desvinculado del administrador."
 
 #: modules/wordpress.py:652
 msgid "An error occurred during WordPress detachment. Please try again."
-msgstr ""
+msgstr "Se ha producido un error al desvincular WordPress. Inténtelo de nuevo."
 
 #: modules/wordpress.py:655
 msgid "An error occurred during WordPress detachment."
-msgstr ""
+msgstr "Se produjo un error durante la desvinculación de WordPress."
 
 #: modules/wordpress.py:795 modules/wordpress.py:934
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
+"Escaneo completado. Instalaciones encontradas:\n"
+"\n"
 
 #: modules/wordpress.py:824 templates/wordpress.html:450
 msgid "Scan skipped. WordPress installation is currently running."
-msgstr ""
+msgstr "e omitió el escaneo. La instalación de WordPress está en curso."
 
 #: modules/wordpress.py:965 templates/manager/wordpress_install.html:9
 msgid "Install WordPress"
-msgstr ""
+msgstr "Instalar WordPress"
 
 #: modules/wordpress.py:1671
 msgid "Verification completed successfully."
-msgstr ""
+msgstr "Verificación completada con éxito."
 
 #: modules/wordpress.py:1672
 msgid "Verification failed."
-msgstr ""
+msgstr "Falló la verificación."
 
 #: modules/wordpress.py:1677
 msgid "Download completed successfully."
-msgstr ""
+msgstr "Descarga completada correctamente."
 
 #: modules/wordpress.py:1678
 msgid "Download failed."
-msgstr ""
+msgstr "La descarga falló."
 
 #: modules/wordpress.py:1682
 msgid "Salts shuffled successfully."
-msgstr ""
+msgstr "Los salts se mezclaron con éxito."
 
 #: modules/wordpress.py:1683
 msgid "Failed to shuffle salts."
-msgstr ""
+msgstr "No se logró mezclar los salts."
 
 #: modules/wordpress.py:1695
 msgid "Unsupported action."
-msgstr ""
+msgstr "Acción no admitida."
 
 #: modules/wordpress.py:1706
 msgid "Invalid action. Use 'enable' or 'disable'."
-msgstr ""
+msgstr "Acción no válida. Utilice 'habilitar' o 'deshabilitar'."
 
 #: modules/wordpress.py:1733
 msgid "Invalid type. Use 'core' or 'plugins'."
-msgstr ""
+msgstr "Tipo no válido. Utilice 'core' o 'plugins'."
 
 #: modules/account/forgot_password.py:96 modules/account/forgot_password.py:141
 msgid "Forgot Password"
-msgstr ""
+msgstr "Has olvidado tu contraseña"
 
 #: modules/account/forgot_password.py:107
 msgid "Password Reset Requested"
-msgstr ""
+msgstr "Solicitud de restablecimiento de contraseña"
 
 #: modules/account/forgot_password.py:132
 #: templates/user/reset_password/link_is_sent.html:9
 msgid "Password Reset Link Sent"
-msgstr ""
+msgstr "Se ha enviado el enlace para restablecer la contraseña"
 
 #: modules/account/forgot_password.py:152
 msgid "Reset link has expired"
-msgstr ""
+msgstr "El enlace de reinicio ha caducado."
 
 #: modules/account/forgot_password.py:156
 msgid "Reset link is invalid"
-msgstr ""
+msgstr "El enlace de reinicio no es válido."
 
 #: modules/account/forgot_password.py:162
 msgid "Link has already been used or is invalid"
-msgstr ""
+msgstr "El enlace ya se ha utilizado o no es válido."
 
 #: modules/account/forgot_password.py:172
 msgid "Passwords do not match"
-msgstr ""
+msgstr "Las contraseñas no coinciden"
 
 #: modules/account/forgot_password.py:185
 msgid "Your password has been reset. Please log in."
-msgstr ""
+msgstr "Tu contraseña ha sido restablecida. Por favor, inicia sesión."
 
 #: modules/account/forgot_password.py:192 templates/user/email_template.html:59
 msgid "Reset Password"
-msgstr ""
+msgstr "Restablecer contraseña"
 
 #: modules/account/locale.py:69 templates/dashboard/dashboard.html:201
 #: templates/user/_login.html:98 templates/user/locale.html:12
 msgid "Change Language"
-msgstr ""
+msgstr "Cambiar idioma"
 
 #: modules/account/login.py:41
 msgid "Login"
-msgstr ""
+msgstr "Ingreso"
 
 #: modules/account/login.py:165
 msgid "User does not exist."
-msgstr ""
+msgstr "El usuario no existe."
 
 #: modules/account/login.py:167
 msgid "Error occurred while trying to auto-login."
-msgstr ""
+msgstr "Se produjo un error al intentar iniciar sesión automáticamente."
 
 #: modules/account/login.py:171
 msgid "Invalid admin token."
-msgstr ""
+msgstr "Token de administrador no válido."
 
 #: modules/account/login.py:187
 msgid "Username and password are required."
-msgstr ""
+msgstr "Se requieren nombre de usuario y contraseña."
 
 #: modules/account/login.py:195
 msgid "Unable to connect to database."
-msgstr ""
+msgstr "No se puede conectar a la base de datos."
 
 #: modules/account/login.py:203
 msgid "Your account is suspended. Please contact support."
 msgstr ""
+"Tu cuenta está suspendida. Ponte en contacto con el servicio de asistencia."
 
 #: modules/account/login.py:204
 msgid "Unrecognized account. Please check username."
-msgstr ""
+msgstr "Cuenta no reconocida. Por favor, compruebe el nombre de usuario."
 
 #: modules/account/login.py:226
 msgid "Invalid password. Please try again."
-msgstr ""
+msgstr "Contraseña incorrecta. Inténtelo de nuevo."
 
 #: modules/account/login.py:278
 msgid "Invalid 2FA code. Please try again."
-msgstr ""
+msgstr "Código de autenticación de dos factores no válido. Inténtelo de nuevo."
 
 #: modules/account/login_history.py:21 templates/dashboard/dashboard.html:207
 #: templates/user/loginlog.html:11
 msgid "Login History"
-msgstr ""
+msgstr "Historial de inicio de sesión"
 
 #: modules/account/notifications.py:201
 msgid "Notification Preferences"
-msgstr ""
+msgstr "Preferencias de notificación"
 
 #: modules/account/sessions.py:20 modules/account/sessions.py:36
 #: templates/dashboard/dashboard.html:204
 #: templates/user/active_sessions.html:12
 msgid "Active Sessions"
-msgstr ""
+msgstr "Sesiones activas"
 
 #: modules/account/twofa.py:29
 msgid ""
 "OTP code removed and Two-Factor Authentication is now required on new logins."
 msgstr ""
+"Se ha eliminado el código OTP y ahora se requiere la autenticación de dos "
+"factores en los nuevos inicios de sesión."
 
 #: modules/account/twofa.py:33
 msgid ""
 "Setup started: Set up the app or save the OTP code, then confirm to remove "
 "it and activate 2FA."
 msgstr ""
+"Configuración iniciada: Configure la aplicación o guarde el código OTP, "
+"luego confirme para eliminarlo y activar la autenticación de dos factores "
+"(2FA)."
 
 #: modules/account/twofa.py:37
 msgid "Two-Factor Authentication is now disabled."
-msgstr ""
+msgstr "La autenticación de dos factores ahora está desactivada."
 
 #: modules/account/twofa.py:48
 msgid "enableddisabled"
-msgstr ""
+msgstr "habilitado deshabilitado"
 
 #: modules/account/twofa.py:63 templates/dashboard/dashboard.html:203
 #: templates/dashboard/twofa.html:6 templates/user/twofa_settings.html:11
 msgid "Two-Factor Authentication"
-msgstr ""
+msgstr "Autenticación de dos factores"
 
 #: modules/cache/elasticsearch.py:19 templates/dashboard/dashboard.html:155
 msgid "ElasticSearch"
-msgstr ""
+msgstr "Búsqueda elástica"
 
 #: modules/cache/elasticsearch.py:20 modules/cache/memcached.py:28
 msgid ""
 "The leading distributed, RESTful, open source search and analytics engine "
 "designed for speed and reliability."
 msgstr ""
+"El motor de búsqueda y análisis distribuido, RESTful y de código abierto "
+"líder, diseñado para ofrecer velocidad y fiabilidad."
 
 #: modules/cache/memcached.py:27 templates/dashboard/dashboard.html:152
 msgid "Memcached"
-msgstr ""
+msgstr "Memcached"
 
 #: modules/cache/opensearch.py:23 templates/dashboard/dashboard.html:154
 msgid "OpenSearch"
-msgstr ""
+msgstr "OpenSearch"
 
 #: modules/cache/opensearch.py:24
 msgid ""
 "OpenSearch is an open-source, distributed search and analytics suite for "
 "large volumes of data. "
 msgstr ""
+"OpenSearch es un conjunto de herramientas de búsqueda y análisis de código "
+"abierto y distribuido para grandes volúmenes de datos."
 
 #: modules/cache/redis.py:22 templates/dashboard/dashboard.html:151
 msgid "Redis"
-msgstr ""
+msgstr "Redis"
 
 #: modules/cache/redis.py:23
 msgid ""
 "Redis (Remote Dictionary Server) is an in-memory, key/value store that is "
 "used primarily as an application cache or quick-response database."
 msgstr ""
+"Redis (Remote Dictionary Server) es un almacén de clave/valor en memoria que "
+"se utiliza principalmente como caché de aplicaciones o base de datos de "
+"respuesta rápida."
 
 #: modules/cache/varnish.py:83
 msgid "Varnish caching is now enabled."
-msgstr ""
+msgstr "El almacenamiento en caché de Varnish ya está habilitado."
 
 #: modules/cache/varnish.py:85
 msgid "Failed to start the Varnish service. Try restart."
