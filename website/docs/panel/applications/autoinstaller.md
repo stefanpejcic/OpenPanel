@@ -13,6 +13,7 @@ Auto Installer allows you to one-click install applications.
 - WordPress
 - NodeJS Applications*
 - Python Applications*
+- Mautic (BETA)
 - Website Builder
 
 `*` Indicates that the feature is available only in Enterprise editon.
