@@ -26,7 +26,7 @@ If you forget your password, follow these steps:
 
    > **NOTE:** If the **Forgot Password?** link does not appear on the login form, email-based password reset is disabled by your hosting provider. In this case, you must either:
    >
-   > 1. Log in automatically to OpenPanel through their billing panel and reset your password via [Account > Settings](/docs/panel/account/#changing-password), or
+   > 1. Log in automatically to OpenPanel through their billing panel and reset your password via [Account > Settings](/docs/panel/account/#changing-password)
    > 2. Contact your hosting provider to reset the password for you.
 
 2. Enter your **email address** and click **Send Reset Link**.  
