@@ -5,7 +5,7 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 07.11.2025
+# Last Modified: 10.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -259,6 +259,10 @@ LOGIN=$(awk -F'=' '/^login/ {print $2}' "$INI_FILE")
 LOGIN=${LOGIN:-yes}
 [[ "$LOGIN" =~ ^(yes|no)$ ]] || LOGIN=yes
 
+SSH_LOGIN=$(awk -F'=' '/^ssh/ {print $2}' "$INI_FILE")
+SSH_LOGIN=${SSH_LOGIN:-yes}
+[[ "$SSH_LOGIN" =~ ^(yes|no)$ ]] || SSH_LOGIN=yes
+
 ATTACK=$(awk -F'=' '/^attack/ {print $2}' "$INI_FILE")
 ATTACK=${ATTACK:-yes}
 [[ "$ATTACK" =~ ^(yes|no)$ ]] || ATTACK=yes
@@ -319,6 +323,9 @@ perform_startup_action() {
 
 # ====== CHECK SSH LOGINS
 check_ssh_logins() {
+
+  if [ "$SSH_LOGIN" != "no" ]; then
+
     local title="Suspicious SSH login detected"
     local message_to_check_in_file="Suspicious SSH login detected"
 
@@ -382,6 +389,10 @@ check_ssh_logins() {
       done
       echo -e "    Currently active IP addresses: $message"
   fi
+
+
+  fi
+
 
 }
 
