@@ -39,11 +39,11 @@ Next, define a feature set for your files-only plans:
 
 1. Go to **OpenAdmin > Hosting Plans > Feature Manager**
 2. Under *Add a new feature list*, enter `files_only` and click **Create**
-   SCREENSHOT HERE
+![newPlan](https://i.postimg.cc/1tNkDmJm/image.png)
 3. Select your newly created feature set under *Manage feature set*
-   SCREENSHOT HERE
-4. Enable the relevant features: **File Manager**, **FTP**, and any optional features you want
-   SCREENSHOT HERE
+![ManageFeature](https://i.postimg.cc/fLwd9ywX/image.png)
+4. Enable the relevant features: **File Manager**, **FTP**, and any optional features you want, Save the changes
+![EnablingFeatures](https://i.postimg.cc/8CCJp3wM/image.png)
 
 ---
 
@@ -60,7 +60,7 @@ Example plans:
 * **File Hosting**
 * **FTP Hosting**
 
-SCREENSHOT HERE
+![NewPlan](https://i.postimg.cc/KYdM0fr5/New-Plan.png)
 
 ---
 
@@ -80,7 +80,7 @@ Users on storage-only plans gain access to the following:
 
 A feature-rich **File Manager** allows users to upload, edit, and organize files with ease.
 
-SCREENSHOT HERE
+![FileManager](https://i.postimg.cc/Y2mhXQhf/file-Manager.png)
 
 ---
 
@@ -88,7 +88,7 @@ SCREENSHOT HERE
 
 Users can create FTP sub-accounts, restrict access to specific directories, and manage files remotely. This is ideal for backups or for accessing files via popular FTP clients like **FileZilla** or **CyberDuck**.
 
-SCREENSHOT HERE
+![FTPAccount](https://i.postimg.cc/QN5cF2gy/image.png)
 
 ---
 
