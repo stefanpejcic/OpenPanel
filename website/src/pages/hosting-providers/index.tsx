@@ -42,6 +42,15 @@ const providers = [
     link: "https://altushost.com",
     logo: "https://www.altushost.com/wp-content/themes/altushost/themeFunctions/media/altushost.svg",
   }, 
+  {
+    company: "Clouding.io",
+    location: "EU",
+    services: "VPS",
+    managedSupport: "No",
+    freeEnterprise: "No",
+    link: "https://clouding.io",
+    logo: "/img/svg/clouding.io-svg-logo.png",
+  },  
 ];
 
 const HostingProvidersPage: React.FC = () => {
