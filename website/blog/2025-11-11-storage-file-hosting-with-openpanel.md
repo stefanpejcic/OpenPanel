@@ -3,7 +3,7 @@ description: A step-by-step guide to setting up file storage hosting plans with 
 slug: storage-file-hosting-with-openpanel
 authors: stefanpejcic
 tags: [OpenPanel, FTP]
-image: https://openpanel.com/img/blog/wordpress-hosting-with-openpanel.png
+image: https://openpanel.com/img/blog/file-storage-hosting-with-openpanel.png
 hide_table_of_contents: true
 
 ---
