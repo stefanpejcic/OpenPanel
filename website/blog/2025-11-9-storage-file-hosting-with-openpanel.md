@@ -90,7 +90,7 @@ Users can create FTP sub-accounts, restrict access to specific directories, and 
 
 ![FTPAccount](https://i.postimg.cc/QN5cF2gy/image.png)
 
-Check out our [FTP setup guide for admins](https://openpanel.com/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/#4-enable-the-ftp-feature-in-hosting-plans) to find more detailed info  .
+Check out our [FTP setup guide for admins](https://openpanel.com/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/) to find more detailed info  .
 
 ---
 
