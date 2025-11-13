@@ -1,3 +1,4 @@
+---
 title: Using OpenPanel for File Storage Hosting
 description: A step-by-step guide to setting up file storage hosting plans with OpenPanel Enterprise
 slug: storage-file-hosting-with-openpanel
@@ -5,7 +6,6 @@ authors: stefanpejcic
 tags: [OpenPanel, FTP]
 image: https://openpanel.com/img/blog/file-storage-hosting-with-openpanel.png
 hide_table_of_contents: true
-
 ---
 
 OpenPanel makes it easy to create hosting plans dedicated purely to file storage. With these plans, users have access only to **File Manager** and **FTP**, allowing them to manage files remotely—for example, for backups—without full website hosting access.
