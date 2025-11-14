@@ -648,14 +648,14 @@ setup_firewall_service() {
                 # fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module)
                 if [ -f /etc/fedora-release ]; then
                     debug_log yum --allowerasing install perl -y
-                elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
+				fi
+            elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
                    debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
-                fi
-                timeout 300s git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
-                mv csfpost-docker.sh/csfpost.sh /usr/local/csf/bin/csfpost.sh
-                chmod +x /usr/local/csf/bin/csfpost.sh
-				rm -rf csfpost-docker.sh
             fi
+			timeout 300s git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
+			mv csfpost-docker.sh/csfpost.sh /usr/local/csf/bin/csfpost.sh
+			chmod +x /usr/local/csf/bin/csfpost.sh
+			rm -rf csfpost-docker.sh		
         }
 
         open_csf_port() {
