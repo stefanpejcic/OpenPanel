@@ -41,6 +41,16 @@ opencli locale sr-sr tr-tr zh-cn
   </TabItem>
 </Tabs>
 
+
+## Default Locale
+
+To make a specific locale the default, click **Set Default** next to it in the table.
+
+:::info
+Changing the default will **not** automatically update existing users’ settings; their browser preferences and account configurations will take precedence.
+For more details, see [How-to Guides > Setting the Default Locale](/docs/articles/accounts/default-user-locales/#setting-the-default-locale).
+:::
+
 ## Edit Locale
 
 To edit a locale, click the GitHub icon next to it in the table. This opens the source on GitHub, where you can fork the repository and edit the translation file.
