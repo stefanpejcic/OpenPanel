@@ -55,6 +55,7 @@ sidebar_position: 1
 - [Domain Shows Default Page](/docs/articles/domains/domain-shows-default-page/)
 - [How to configure Nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel)
 - [How to configure a DNS Cluster](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel)
+- [How to Enable HSTS on a Domain in OpenPanel](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel)
 - [Troubleshooting DNS](/docs/articles/domains/troubleshooting-dns)
 - [Troubleshooting Caddy Webserver](/docs/articles/docker/troubleshooting-caddy-webserver)
 
