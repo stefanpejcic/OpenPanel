@@ -1,4 +1,4 @@
-# How to Enable HSTS on an Domain in OpenPanel
+# How to Enable HSTS on a Domain in OpenPanel
 
 HSTS ([HTTP Strict Transport Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Strict-Transport-Security)) can be enabled either globally for all domains or individually for specific domains in OpenPanel.
 
