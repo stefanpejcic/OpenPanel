@@ -5,7 +5,7 @@
 # Usage: opencli files-fix_permissions <USERNAME> [PATH]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 10.11.2025
+# Last Modified: 13.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -158,7 +158,6 @@ apply_permissions_in_container() {
 
 
 
-# FLAGS
 parse_flags() {
   local args=()
   while [ $# -gt 0 ]; do
@@ -173,14 +172,12 @@ parse_flags() {
 
 args=($(parse_flags "$@"))
 
-# ALL USERS
 if [ "${args[0]}" == "--all" ]; then
   ensure_jq_installed
   for username in $(opencli user-list --json | jq -r '.[].username'); do
     apply_permissions_in_container "$username"
   done
 else
-# SINGLE USER
   username="${args[0]}"
   path="${args[1]:-}"
   [ -z "$username" ] && { echo "Username required"; exit 1; }

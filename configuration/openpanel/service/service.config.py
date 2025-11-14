@@ -20,7 +20,8 @@ import sys
 
 
 # ======================================================================
-# If dev_mode=on then redirect all prints to 'docker logs openpanel'
+# dev_mode=on redirects all prints to 'docker logs openpanel'
+# dev_mode=off redirects only errors, exceptions, and warnings
 def check_debug_mode():
     CONFIG_FILE = "/etc/openpanel/openpanel/conf/openpanel.config"
     def is_dev_mode():
@@ -61,7 +62,7 @@ def check_debug_mode():
             def flush(self): pass
     
         sys.stdout = DevNull()
-        sys.stderr = DevNull()
+        #sys.stderr = DevNull() # 
 
 
 

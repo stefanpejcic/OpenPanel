@@ -5,7 +5,7 @@
 # Usage: opencli docker-logs [--all|system|<USERNAME>]
 # Author: Stefan Pejcic
 # Created: 28.05.2025
-# Last Modified: 10.11.2025
+# Last Modified: 13.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
