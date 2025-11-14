@@ -68,7 +68,7 @@ Example plans:
 
 After creating the plans, you can add users manually via OpenAdmin, through the terminal, or using billing systems such as **WHMCS** or **FOSSBilling**.
 
-![screenshot](/assets/images/2025-06-09_08-20.png)
+![screenshot](/img/admin/2025-06-09_08-20.png)
 
 ---
 
