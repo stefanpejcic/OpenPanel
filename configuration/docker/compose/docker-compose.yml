@@ -72,7 +72,7 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     ports:
-      - "${PORT}:2083/tcp"
+      - "${PORT:-2083}:2083/tcp"
     volumes:
       - /etc/bind:/etc/bind
       - /lib/modules:/lib/modules:ro

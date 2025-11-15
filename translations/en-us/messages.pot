@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-11-13 16:58+0100\n"
+"POT-Creation-Date: 2025-11-14 18:21+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -127,7 +127,7 @@ msgid "Disk usage data not found."
 msgstr ""
 
 #: modules/dashboard.py:202 modules/dashboard.py:225 modules/dashboard.py:488
-#: modules/docker.py:1071 modules/docker.py:1087 modules/webserver_conf.py:51
+#: modules/docker.py:1029 modules/docker.py:1043 modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr ""
 
@@ -207,69 +207,69 @@ msgstr ""
 msgid "New content not provided."
 msgstr ""
 
-#: modules/docker.py:189 templates/dashboard/dashboard.html:170
+#: modules/docker.py:188 templates/dashboard/dashboard.html:170
 #: templates/dashboard/usage.html:289 templates/docker/containers.html:8
 #: templates/docker/volumes_TODO.html:9
 msgid "Containers"
 msgstr ""
 
-#: modules/docker.py:336
+#: modules/docker.py:330
 msgid "Add service"
 msgstr ""
 
-#: modules/docker.py:349 modules/docker.py:547
+#: modules/docker.py:343 modules/docker.py:530
 msgid ""
 "Invalid service name. Must start with a letter, contain only lowercase "
 "letters and digits, and be at least 3 characters long."
 msgstr ""
 
-#: modules/docker.py:378 modules/docker.py:564
+#: modules/docker.py:372 modules/docker.py:547
 msgid "CPU limit must be a positive number."
 msgstr ""
 
-#: modules/docker.py:392 modules/docker.py:577
+#: modules/docker.py:386 modules/docker.py:560
 msgid ""
 "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
 " or 1.5G)."
 msgstr ""
 
-#: modules/docker.py:534
+#: modules/docker.py:517
 msgid "Service name cannot be changed."
 msgstr ""
 
-#: modules/docker.py:653
+#: modules/docker.py:629
 msgid "Container updated successfully."
 msgstr ""
 
-#: modules/docker.py:728
+#: modules/docker.py:702
 msgid "Delete service"
 msgstr ""
 
-#: modules/docker.py:929 templates/dashboard/dashboard.html:173
+#: modules/docker.py:895 templates/dashboard/dashboard.html:173
 #: templates/docker/images.html:12
 msgid "Image Updates"
 msgstr ""
 
-#: modules/docker.py:976
+#: modules/docker.py:942
 msgid "Change docker image"
 msgstr ""
 
-#: modules/docker.py:1000
+#: modules/docker.py:963
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1062 templates/dashboard/dashboard.html:172
+#: modules/docker.py:1020 templates/dashboard/dashboard.html:172
 #: templates/manager/python_node_apps.html:127
 #: templates/manager/python_node_apps.html:157
 #: templates/partials/_service_log.html:9
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1091 modules/websites.py:554
+#: modules/docker.py:1046 modules/websites.py:554
 msgid "Invalid action"
 msgstr ""
 
-#: modules/docker.py:1359
+#: modules/docker.py:1308
 msgid "Select Docker service"
 msgstr ""
 
@@ -3094,7 +3094,7 @@ msgstr ""
 #: templates/domains/dns.html:619 templates/domains/vhost.html:29
 #: templates/mysql/configuration.html:36 templates/php/ini_editor.html:33
 #: templates/php/options.html:37 templates/psql/configuration.html:36
-#: templates/system/apache_nginx_conf_editor.html:26
+#: templates/system/apache_nginx_conf_editor.html:24
 #: templates/system/cronjobs.html:47
 msgid "Save Changes"
 msgstr ""
@@ -7438,7 +7438,7 @@ msgid ""
 "and assign it to the database with all necessary privileges."
 msgstr ""
 
-#: templates/system/apache_nginx_conf_editor.html:23
+#: templates/system/apache_nginx_conf_editor.html:21
 msgid "Edit main webserver configuration file:"
 msgstr ""
 

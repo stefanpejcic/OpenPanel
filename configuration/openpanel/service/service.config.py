@@ -18,73 +18,70 @@ import subprocess
 import logging
 import sys
 
-
 # ======================================================================
-# dev_mode=on redirects all prints to 'docker logs openpanel'
-# dev_mode=off redirects only errors, exceptions, and warnings
-def check_debug_mode():
-    CONFIG_FILE = "/etc/openpanel/openpanel/conf/openpanel.config"
-    def is_dev_mode():
-        if not os.path.exists(CONFIG_FILE):
-            return False
-        try:
-            with open(CONFIG_FILE, "r") as f:
-                for line in f:
-                    if line.strip().lower() == "dev_mode=on":
-                        return True
-        except Exception:
-            pass
+# If dev_mode=on then redirect all prints to 'docker logs openpanel'
+CONFIG_FILE = "/etc/openpanel/openpanel/conf/openpanel.config"
+def is_dev_mode():
+    if not os.path.exists(CONFIG_FILE):
         return False
-    
-    DEV_MODE = is_dev_mode()
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            for line in f:
+                if line.strip().lower() == "dev_mode=on":
+                    return True
+    except Exception:
+        pass
+    return False
 
-    if DEV_MODE:
-        logging.basicConfig(level=logging.INFO)
-        logger = logging.getLogger("openpanel")
-    
-        class StreamToLogger:
-            def __init__(self, logger, log_level=logging.INFO):
-                self.logger = logger
-                self.log_level = log_level
-    
-            def write(self, buf):
-                for line in buf.rstrip().splitlines():
-                    self.logger.log(self.log_level, line.rstrip())
-    
-            def flush(self):
-                pass
-    
-        sys.stdout = StreamToLogger(logger, logging.INFO)
-        sys.stderr = StreamToLogger(logger, logging.ERROR)
-    else:
-        class DevNull:
-            def write(self, _): pass
-            def flush(self): pass
-    
-        sys.stdout = DevNull()
-        #sys.stderr = DevNull() # 
+DEV_MODE = is_dev_mode()
+
+if DEV_MODE:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("openpanel")
+
+    class StreamToLogger:
+        def __init__(self, logger, log_level=logging.INFO):
+            self.logger = logger
+            self.log_level = log_level
+
+        def write(self, buf):
+            for line in buf.rstrip().splitlines():
+                self.logger.log(self.log_level, line.rstrip())
+
+        def flush(self):
+            pass
+
+    sys.stdout = StreamToLogger(logger, logging.INFO)
+    sys.stderr = StreamToLogger(logger, logging.ERROR)
+else:
+    class DevNull:
+        def write(self, _): pass
+        def flush(self): pass
+
+    sys.stdout = DevNull()
+    #sys.stderr = DevNull()
 
 
 
 # ====================================================================== #
 # From version 1.6.3, we allow executing a custom script on startup
-def openpanel_run_on_startup():
-    CUSTOM_SCRIPT = "/root/openpanel_run_on_startup"
-    if os.path.exists(CUSTOM_SCRIPT) and os.path.isfile(CUSTOM_SCRIPT):
-        print(f"Executing custom script: {CUSTOM_SCRIPT} with BASH.")
-        try:
-            subprocess.run(["bash", CUSTOM_SCRIPT], check=True)
-            print(f"Executed custom script successfully.")
-        except subprocess.CalledProcessError as e:
-            print(f"Error executing {CUSTOM_SCRIPT}: {e}")
+CUSTOM_SCRIPT = "/root/openpanel_run_on_startup"
+if os.path.exists(CUSTOM_SCRIPT) and os.path.isfile(CUSTOM_SCRIPT):
+    print(f"Executing custom script: {CUSTOM_SCRIPT} with BASH.")
+    try:
+        subprocess.run(["bash", CUSTOM_SCRIPT], check=True)
+        print(f"Executed custom script successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing {CUSTOM_SCRIPT}: {e}")
 
 # ====================================================================== #
 # From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
 # we create a flag file (/root/openadmin_restart_needed) and remind the user via the GUI that a restart 
 # is needed to apply the changes. 
 # Here, on restart, we check and empty that flag to ensure notification in GUI is cleared.
+RESTART_FILE_PATH = '/root/openpanel_restart_needed'
+
 def empty_flag_file():
-    RESTART_FILE_PATH = '/root/openpanel_restart_needed'
     if os.path.exists(RESTART_FILE_PATH):
         try:
             with open(RESTART_FILE_PATH, 'r+'):
@@ -94,94 +91,79 @@ def empty_flag_file():
         except Exception as e:
             print(f"Error clearing {RESTART_FILE_PATH}: {e}")
 
-
+empty_flag_file()
 
 # ====================================================================== #
 # SSL
-def set_domain_and_ssl():
-    CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
-    CADDY_CERT_DIRS = [
-        "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
-        "/etc/openpanel/caddy/ssl/custom/"
-    ]
+CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
+CADDY_CERT_DIRS = [
+    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
+    "/etc/openpanel/caddy/ssl/custom/"
+]
+DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
+
+def get_domain_from_caddyfile():
+    domain = None
+    in_block = False
     
-    def get_domain_from_caddyfile():
-        domain = None
-        in_block = False
-        
-        if not os.path.exists(CADDYFILE_PATH):
-            print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
-            return None
-    
-        try:
-            with open(CADDYFILE_PATH, "r") as file:
-                for line in file:
-                    line = line.strip()
-    
-                    if "# START HOSTNAME DOMAIN #" in line:
-                        in_block = True
-                        continue
-    
-                    if "# END HOSTNAME DOMAIN #" in line:
-                        break
-    
-                    if in_block:
-                        match = re.match(r"^([\w.-]+) \{", line)
-                        if match:
-                            domain = match.group(1)
-                            break
-        except Exception as e:
-            print(f"Error reading Caddyfile: {e}")
-        
-        print(f"Domain name set for OpenPanel: {domain}")
-        return domain
-    
-    
-    def check_ssl_exists(domain):
-        for base_dir in CADDY_CERT_DIRS:
-            cert_path = os.path.join(base_dir, domain)
-            if os.path.exists(cert_path) and os.listdir(cert_path):
-                return cert_path
+    if not os.path.exists(CADDYFILE_PATH):
+        print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
         return None
+
+    try:
+        with open(CADDYFILE_PATH, "r") as file:
+            for line in file:
+                line = line.strip()
+
+                if "# START HOSTNAME DOMAIN #" in line:
+                    in_block = True
+                    continue
+
+                if "# END HOSTNAME DOMAIN #" in line:
+                    break
+
+                if in_block:
+                    match = re.match(r"^([\w.-]+) \{", line)
+                    if match:
+                        domain = match.group(1)
+                        break
+    except Exception as e:
+        print(f"Error reading Caddyfile: {e}")
     
-    
-    DOMAIN = get_domain_from_caddyfile()
-    ssl_cert_path = None
-    if DOMAIN:
-        ssl_cert_path = check_ssl_exists(DOMAIN)
-    
-    if DOMAIN and check_ssl_exists(DOMAIN):
-        print(f"Custom domain is set and certificate exists, HTTPS will be used.")
-        import ssl
-        certfile = os.path.join(ssl_cert_path, f"{DOMAIN}.crt")
-        keyfile = os.path.join(ssl_cert_path, f"{DOMAIN}.key")
-        keyfile = keyfile
-        certfile = certfile
-        print(f"Certificate file: {certfile}")
-        print(f"Certificate key:  {keyfile}")
-        ssl_version = ssl.PROTOCOL_TLS
-        cert_reqs = ssl.CERT_NONE
-        ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+    print(f"Domain name set for OpenPanel: {domain}")
+    return domain
 
 
-# ======================================================================
-# Create Log files
-def create_log_files():
-    errorlog = "/var/log/openpanel/user/error.log"
-    accesslog = "/var/log/openpanel/user/access.log"
-    
-    def ensure_directory(file_path):
-        directory = Path(file_path).parent
-        directory.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Creating log files..")
-    ensure_directory(errorlog)
-    ensure_directory(accesslog)
+def check_ssl_exists(domain):
+    for base_dir in CADDY_CERT_DIRS:
+        cert_path = os.path.join(base_dir, domain)
+        if os.path.exists(cert_path) and os.listdir(cert_path):
+            return cert_path
+    return None
 
+
+DOMAIN = get_domain_from_caddyfile()
+PORT = "2083"
+ssl_cert_path = None
+if DOMAIN:
+    ssl_cert_path = check_ssl_exists(DOMAIN)
+
+if DOMAIN and check_ssl_exists(DOMAIN):
+    print(f"Custom domain is set and certificate exists, HTTPS will be used.")
+    import ssl
+    certfile = os.path.join(ssl_cert_path, f"{DOMAIN}.crt")
+    keyfile = os.path.join(ssl_cert_path, f"{DOMAIN}.key")
+    keyfile = keyfile
+    certfile = certfile
+    print(f"Certificate file: {certfile}")
+    print(f"Certificate key:  {keyfile}")
+    ssl_version = ssl.PROTOCOL_TLS
+    cert_reqs = ssl.CERT_NONE
+    ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
 
 # ======================================================================
 # Performance
-bind = [f"0.0.0.0:2083"]
+bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
 max_workers = 10
@@ -196,14 +178,21 @@ max_requests_jitter = 50
 pidfile = 'openpanel'
 
 # ======================================================================
-# SERVER
-def on_starting(server):
-    check_debug_mode()
-    openpanel_run_on_startup()
-    empty_flag_file()
-    set_domain_and_ssl()
-    create_log_files()
+# Create Log files
+errorlog = "/var/log/openpanel/user/error.log"
+accesslog = "/var/log/openpanel/user/access.log"
 
+def ensure_directory(file_path):
+    directory = Path(file_path).parent
+    directory.mkdir(parents=True, exist_ok=True)
+
+print(f"Creating log files..")
+ensure_directory(errorlog)
+ensure_directory(accesslog)
+
+
+# ======================================================================
+# SERVER
 def post_fork(server, worker):
     server.log.info("Worker spawned (pid: %s)", worker.pid)
 
