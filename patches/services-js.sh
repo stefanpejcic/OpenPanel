@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# services-js.sh
-#
 # Description:
 # This patch fixes the 500 error on user pages when Services module is enabled.
 # It is safe to run multiple times.
