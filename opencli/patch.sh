@@ -6,7 +6,7 @@
 # Usage: opencli patch <NAME>
 # Author: Stefan Pejcic
 # Created: 05.11.2025
-# Last Modified: 14.11.2025
+# Last Modified: 15.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -60,14 +60,17 @@ if ! curl -4sSfL --max-redirs 5 -o "${TMPFILE}" "${URL}"; then
   exit 3
 fi
 
-DESCRIPTION="$(awk '{
-  if ($0 ~ /^[[:space:]]*#/) {
-    sub(/^[[:space:]]*#[[:space:]]?/,"")
-    print
-  } else {
-    exit
+DESCRIPTION="$(awk '
+  {
+    # Match lines starting with "#" but NOT "#!"
+    if ($0 ~ /^[[:space:]]*#[[:space:]]*[^!]/) {
+      sub(/^[[:space:]]*#[[:space:]]?/, "")
+      print
+    } else {
+      exit
+    }
   }
-}' "${TMPFILE}")"
+' "${TMPFILE}")"
 
 if [ -z "${DESCRIPTION}" ]; then
   echo

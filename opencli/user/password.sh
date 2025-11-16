@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 30.11.2023
-# Last Modified: 14.11.2025
+# Last Modified: 15.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -86,17 +86,33 @@ fi
 
 # Hash password
 if [ -x /usr/local/admin/venv/bin/python3 ]; then
-  hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$new_password'))")
+hashed_password=$(
+/usr/local/admin/venv/bin/python3 - "$new_password" << 'EOF'
+import sys
+from werkzeug.security import generate_password_hash
+print(generate_password_hash(sys.argv[1]))
+EOF
+)
+
 elif command -v python3 &>/dev/null; then
-  hashed_password=$(python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$new_password'))")
+hashed_password=$(
+python3 - "$new_password" << 'EOF'
+import sys
+from werkzeug.security import generate_password_hash
+print(generate_password_hash(sys.argv[1]))
+EOF
+)
 else
   echo "Warning: No Python 3 interpreter found. Please install Python 3 or check the virtual environment."
   exit 1
 fi
 
 
+# added in 1.6.8 to handle ' and " in passwords
+escaped_hash=$(printf "%s" "$hashed_password" | sed "s/'/''/g")
+
 # Insert hashed password into MySQL database
-mysql_query="UPDATE users SET password='$hashed_password' WHERE username='$username';"
+mysql_query="UPDATE users SET password='$escaped_hash' WHERE username='$username';"
 
 mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
 
