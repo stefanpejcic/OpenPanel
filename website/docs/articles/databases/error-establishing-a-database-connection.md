@@ -1,6 +1,8 @@
-# Error: Establishing a Database Connection
+# Error Establishing a Database Connection
 
 If you see the error **“Error establishing a database connection”** in the OpenAdmin interface, it indicates that the database connection has failed.
+
+![admin error mysql](https://i.postimg.cc/tJMCcCx1/mysql-error-on-admin.png)
 
 ---
 
