@@ -62,7 +62,7 @@ echo <LOCALE_HERE> > /etc/openpanel/openpanel/default_locale
 Example: Set Turkish as the default:
 
 ```bash
-echo tr-tr > /etc/openpanel/openpanel/default_locale
+echo tr > /etc/openpanel/openpanel/default_locale
 ```
 
   </TabItem>
