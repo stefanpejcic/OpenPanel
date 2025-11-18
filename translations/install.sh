@@ -11,13 +11,9 @@
 #
 ###
 
-# might change in future
 github_repo="stefanpejcic/openpanel-translations"
-
-# locales dir since OpenPanel v.0.2.1
 babel_translations="/etc/openpanel/openpanel/translations"
 
-# at least 1 locale is needed
 if [ "$#" -lt 1 ]; then
   if ! command -v jq &> /dev/null; then
     echo "jq command is required to parse JSON responses. Please install jq to use this feature."
@@ -26,13 +22,11 @@ if [ "$#" -lt 1 ]; then
 
   echo "Please provide at least one locale to the command, or a list"
   echo ""
-  # list available locales from github repo
   echo "Available locales:"
-  locales=$(curl -s "https://api.github.com/repos/$github_repo/contents" | jq -r '.[] | select(.type == "dir") | .name')
+  locales=$(curl -s "https://api.github.com/repos/$github_repo/contents" | jq -r '.[] | select(.type == "dir" and (.name | test("^\\.") | not)) | .name')
   echo "$locales"
   echo ""
   echo "Example for a single locale (DE): opencli locale de-de"
-  echo ""
   echo "Example for multiple locales (DE & ES): opencli locale de-de es-es"
   echo ""
   
@@ -48,14 +42,11 @@ validate_locale() {
   fi
 }
 
-# Loop through each provided locale
 for locale in "$@"
 do
-  # must be lowercase
   formatted_locale=$(echo "$locale" | tr '[:upper:]' '[:lower:]')
 
   if validate_locale "$formatted_locale"; then
-    # babel supports just 2 letters
     two_letter=$(echo "$locale" | cut -d'-' -f1 | tr '[:upper:]' '[:lower:]')
 
     echo "Creating directory for $formatted_locale locale.."
@@ -63,17 +54,15 @@ do
     mkdir -p $babel_translations/"$two_letter"/LC_MESSAGES/  &>/dev/null
     echo "Downloading $formatted_locale locale from https://raw.githubusercontent.com/$github_repo/main/$formatted_locale/messages.pot"
     wget -O $babel_translations/"$two_letter"/LC_MESSAGES/messages.po "https://raw.githubusercontent.com/$github_repo/main/$formatted_locale/messages.po" &>/dev/null
-    docker exec openpanel sh -c "pybabel init -i $babel_translations/$two_letter/LC_MESSAGES/messages.po -d $babel_translations -l $two_letter &>/dev/null"
+    docker --context=default exec openpanel sh -c "pybabel update -i $babel_translations/$two_letter/LC_MESSAGES/messages.po -d $babel_translations -l $two_letter &>/dev/null"
     echo ""
   else
     echo "Invalid locale format: $locale. Skipping."
   fi
 done
 
-# Do this only once
-
 echo "Compiling .mo files for all available locales in $babel_translations directory.."
-docker exec openpanel sh -c "pybabel compile -f -d $babel_translations  &>/dev/null"
+docker --context=default exec openpanel sh -c "pybabel compile -f -d $babel_translations  &>/dev/null"
 echo "Restarting OpenPanel to apply translations.."
-docker restart openpanel  &>/dev/null
+docker --context=default restart openpanel  &>/dev/null
 echo "DONE"

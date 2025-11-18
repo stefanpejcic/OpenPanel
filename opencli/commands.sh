@@ -5,7 +5,7 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 15.11.2025
+# Last Modified: 17.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -129,10 +129,16 @@ process_scripts() {
         
     done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" "${exclude_args[@]}" -print0)
 
-    # special case
+    # special cases
     echo -e "${GREEN}opencli error${RESET}"
     echo "Description: Displays information for specific error ID received in OpenPanel UI."
     echo "Usage: opencli error <ID_HERE>"
+    echo "------------------------"
+    commands_list+=("opencli error")
+
+    echo -e "${GREEN}opencli locale${RESET}"
+    echo "Description: Install locales (Languages) for OpenPanel UI."
+    echo "Usage: opencli locale <CODE>"
     echo "------------------------"
     commands_list+=("opencli error")
 

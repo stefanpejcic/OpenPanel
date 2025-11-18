@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: 27.08.2024
 # Created: 18.08.2024
-# Last Modified: 15.11.2025
+# Last Modified: 17.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

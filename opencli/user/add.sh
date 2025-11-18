@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 15.11.2025
+# Last Modified: 17.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -363,7 +363,7 @@ check_username_is_valid() {
 
     is_username_forbidden() {
         local check_username="$1"
-        log "Checking if username $username is in the forbidden usernames list"
+        log "Checking if username is in the forbidden usernames list"
         readarray -t forbidden_usernames < "$FORBIDDEN_USERNAMES_FILE"
     
         # Check against forbidden usernames

@@ -5,7 +5,7 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 15.11.2025
+# Last Modified: 17.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -493,16 +493,31 @@ docker_containers_status() {
             echo -e "\e[31m[✘]\e[0m $service_name docker container failed to restart."
             ((FAIL++))
             STATUS=2
-            error_log=$(docker --context=default logs -f --tail 10 "$service_name" 2>/dev/null | sed ':a;N;$!ba;s/\n/\\n/g')
+            error_log=$(docker --context=default logs --tail 10 "$service_name" 2>&1 | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n", $0}')
             write_notification "$title" "$error_log"
         fi
     }
 
+
+    check_caddy_health_after_restart() {
+        local url="http://localhost/check"
+        local status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 1 "$url")
+      if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 404 ]; then
+        ((PASS++))
+        echo -e "\e[32m[✔]\e[0m $service_name is now up and running (status code: $status_code)."
+      elif [ "$status_code" = "000" ]; then
+        echo -e "\e[31m[✘]\e[0m Caddy service restart failed. The container appears to be running, but the service is unresponsive. Please review the Caddy container logs."
+        ((WARN--))
+        ((FAIL++))
+        error_log=$(docker --context=default logs --tail 10 "$service_name" 2>&1 | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n", $0}')
+        write_notification "$title" "$error_log"
+      fi
+    }
+
+
     check_caddy_health() {
         local url="http://localhost/check"
         local status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 1 "$url")
-
-
       if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 404 ]; then
         ((PASS++))
         echo -e "\e[32m[✔]\e[0m $service_name docker container is active (status code: $status_code)."
@@ -519,7 +534,7 @@ docker_containers_status() {
         if ls /etc/openpanel/caddy/domains > /dev/null 2>&1; then
             echo "  - Domains are hosted on this server, starting caddy service.."
             cd /root && docker --context=default compose up -d caddy > /dev/null 2>&1
-            check_status_after_restart
+            check_caddy_health_after_restart
         else
             ((WARN--))
             echo "  - No domains detected. Caddy is not yet needed."
@@ -998,7 +1013,7 @@ else
   
   check_services() {
     declare -A service_checks=(
-      [caddy]="docker_containers_status 'caddy' 'Caddy container is not active. Users websites are not working!'"
+      [caddy]="docker_containers_status 'caddy' 'Caddy is not active. Users websites are not working!'"
       [csf]="check_service_status 'csf' 'ConfigService Firewall (CSF) is not active. Server and websites are not protected!'"
       [admin]="check_service_status 'admin' 'Admin service is not active. OpenAdmin service is not accessible!'"
       [docker]="check_service_status 'docker' 'Docker service is not active. User websites are down!'"
