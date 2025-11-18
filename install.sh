@@ -84,9 +84,9 @@ install_started_message(){
     fi
     if [ "$SET_ADMIN_USERNAME" = true ]; then
         if [ "$SET_ADMIN_PASSWORD" = true ]; then
-		echo -e "- Create an admin account $custom_username with password $custom_password for you."
+		echo -e "- Create an admin account ${custom_username} with password ${custom_password} for you."
 	else
-		echo -e "- Create an admin account $custom_username with a strong random password for you."
+		echo -e "- Create an admin account ${custom_username} with a strong random password for you."
   	fi
     else
 		echo -e "- Create an admin account with random username and strong password for you."
