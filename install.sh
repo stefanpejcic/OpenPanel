@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           17.11.2025
+# Last Modified:           18.11.2025
 #
 ################################################################################
 
@@ -348,8 +348,8 @@ parse_args() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
         echo "  --domain=<domain>               Set the server hostname and domain for accessing panel."
-        echo "  --username=<username>           Set Admin username - random generated if not provided."
-        echo "  --password=<password>           Set Admin Password - random generated if not provided."
+        echo "  --username='<username>'         Set Admin username - random generated if not provided."
+        echo "  --password='<password>'         Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
         echo "  --imunifyav                     Install and setup ImunifyAV."
@@ -360,7 +360,7 @@ parse_args() {
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
-        echo "  --post_install=<path>           Specify the post install script path."
+        echo "  --post_install='<path>'         Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space (1-10) in GB to be allocated for SWAP."
         echo "  --debug                         Display debug information during installation."
@@ -385,7 +385,7 @@ while [[ $# -gt 0 ]]; do
                 --key)         SET_PREMIUM=true;          license_key="$val" ;;
                 --domain)      SET_HOSTNAME_NOW=true;     new_hostname="$val" ;;
                 --username)    SET_ADMIN_USERNAME=true;   custom_username="$val" ;;
-                --password)    SET_ADMIN_PASSWORD=true;   custom_password="$val" ;;
+                --password)    SET_ADMIN_PASSWORD=true;   custom_password="${val}" ;;
                 --post_install) post_install_path="$val" ;;
                 --screenshots) SCREENSHOTS_API_URL="$val" ;;
                 --version)     CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
