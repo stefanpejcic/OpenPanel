@@ -52,7 +52,7 @@ const Install: React.FC = () => {
                 }
             } else if (config.value.trim() !== "") {
                 if (option === "username" || option === "password" || option === "post-install" || option === "screenshots") {
-                    command += ` --${option}="${config.value}"`;
+                    command += ` --${option}='${config.value}'`;
                 } else {
                     command += ` --${option}=${config.value}`;
                 }
