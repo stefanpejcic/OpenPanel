@@ -19,8 +19,12 @@ Usernames may **only** use lowercase letters (`a–z`) and digits (`0–9`).
 - Usernames cannot contain more than **30** characters.
 
 Passwords may **only** use lowercase letters (`a–z`) and digits (`0–9`).
-- Passwords cannot contain less than **5** characters.
-- Passwords cannot contain more than **16** characters.
+- Passwords cannot contain less than **6** characters.
+- Passwords cannot contain more than **30** characters.
+
+:::info
+If admin or reseller accounts are created via OpenAdmin, passwords can contain all characters except space.
+:::
 
 ### SSH
 OpenAdmin applies the following rules when you modify an SSH password:
@@ -101,6 +105,7 @@ Currently reserved usernames:
 - ftp
 - httpd
 - litespeed
+- openlitespeed
 - lsws
 - mariadb
 - memcached
@@ -126,6 +131,7 @@ Currently reserved usernames:
 - php-fpm-8.2
 - php-fpm-8.3
 - php-fpm-8.4
+- php-fpm-8.5
 - phpmyadmin
 - podman
 - postgres
