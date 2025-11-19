@@ -51,6 +51,15 @@ const providers = [
     link: "https://clouding.io",
     logo: "/img/svg/clouding.io-svg-logo.png",
   },  
+  {
+    company: "Astral Internet",
+    location: "Canada",
+    services: "VPS",
+    managedSupport: "No",
+    freeEnterprise: "No",
+    link: "https://www.astralinternet.com",
+    logo: "https://www.astralinternet.com/wp-content/uploads/2024/06/astral-logocompact-dark.svg",
+  },  
 ];
 
 const HostingProvidersPage: React.FC = () => {
