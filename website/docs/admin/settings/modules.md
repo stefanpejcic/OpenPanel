@@ -276,6 +276,20 @@ Customize options:
 
 
 
+## Login History
+
+The **`login_history`** module allows users to view login history for their account.
+
+When enabled:
+* Users can access the [**Account > Login History** page](/docs/panel/account/login_history/).
+
+When disabled:
+* Users can not access the *Account > Login History* page.
+
+Customize options:
+* To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
+
+
 ## 2FA
 
 The **`twofa`** module allows users to enable 2 factor authentication for their account.
