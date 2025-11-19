@@ -466,7 +466,7 @@ const list = [
     },
     {
         title: "CSF, CorazaWAF and ImunifyAV",
-        description: `OpenPanel fully supports ConfigServer Security and Firewall (CSF) and comes with built-in WAF.`,
+        description: `OpenPanel fully supports ConfigServer Sentinel Firewall (CSF) and comes with built-in WAF.`,
         icon: (props: { active: boolean }) => (
              <AuthenticationIcon
                 className={clsx(
