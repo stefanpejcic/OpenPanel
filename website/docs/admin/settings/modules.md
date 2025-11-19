@@ -278,17 +278,17 @@ Customize options:
 
 ## Temporary Links
 
-The **`temporary_links`** module allows users to test their websites on temporary subdomains.
+The **`temporary_links`** module allows users to test their websites using temporary subdomains (links are valid for 15 minutes).
 
 When enabled:
-* Users can access the [**Live Preview** button on the Site Manager](/docs/panel/account/login_history/).
+* Users can access the [**Live Preview** button on the Site Manager](/docs/panel/applications/wordpress/#temporary-link).
 
 When disabled:
 * Users can not access the *Live Preview* button on the Site Manager page.
 
 Customize options:
-* To **use your own domain** - docs.
-
+* To **self-host a proxy service** - refer to [How-to Guides > Temporary Links API](/docs/articles/dev-experience/selfhosted-temporary-links-api/).
+* To **configure a custom domain** - update the [`temporary_links` option](https://dev.openpanel.com/cli/config.html#temporary-links).
 
 ## Login History
 
