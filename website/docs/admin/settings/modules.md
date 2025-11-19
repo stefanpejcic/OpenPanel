@@ -276,6 +276,20 @@ Customize options:
 
 
 
+## Temporary Links
+
+The **`temporary_links`** module allows users to test their websites on temporary subdomains.
+
+When enabled:
+* Users can access the [**Live Preview** button on the Site Manager](/docs/panel/account/login_history/).
+
+When disabled:
+* Users can not access the *Live Preview* button on the Site Manager page.
+
+Customize options:
+* To **use your own domain** - docs.
+
+
 ## Login History
 
 The **`login_history`** module allows users to view login history for their account.
