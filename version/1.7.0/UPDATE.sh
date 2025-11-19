@@ -3,3 +3,9 @@
 echo 
 echo "Disabling CoreRuleSet REQUEST-941-APPLICATION-ATTACK-XSS.conf"
 mv /etc/openpanel/caddy/coreruleset/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf /etc/openpanel/caddy/coreruleset/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf.disabled
+
+
+echo 
+echo "Adding 'ssl' module for Community edition.."
+wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json
+
