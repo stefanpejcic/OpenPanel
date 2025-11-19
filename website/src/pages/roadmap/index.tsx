@@ -46,8 +46,10 @@ const Roadmap: React.FC = () => {
                     <p>Below is a glimpse of the features planned for OpenPanel.</p>
                     <p>We share this roadmap to give our users a clear view of our future direction and to encourage feedback on which features resonate the most (or least).</p>
                     <ul>
-                        <li>Further enhancements to clustering and OpenAdmin.</li>
-                        <li>Autoinstallers for 40+ CMSs/scripts.</li>
+                        <li>Autoinstallers for popular CMS/scripts.</li>
+                        <li>Additional options for WP Manager: clone, staging, scheduled backups..</li>
+                         <li>ImunifyAV page for end-users.</li>
+                        <li>Option to store emails on a remote server.</li>
                         <li>Ongoing improvements in container isolation.</li>
                     </ul>
                     <p>View all planned features on:<strong><a href="https://github.com/users/stefanpejcic/projects/2/views/4" target="_blank" rel="noopener noreferrer">Github</a></strong>.</p>
@@ -57,9 +59,6 @@ const Roadmap: React.FC = () => {
 
                     <h3>Vote for a Feature</h3>
                     <p>Vote for existing feature requests on <strong><a href="https://github.com/stefanpejcic/OpenPanel/discussions/categories/ideas" target="_blank" rel="noopener noreferrer">Github Discussions</a></strong>.</p>
-                    
-
-                    
                     <h3>Planned releases</h3>
                     <ul>
                         {milestones.map((milestone) => (
