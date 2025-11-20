@@ -3,7 +3,7 @@
 
 echo 
 echo "Updating service file to show timestamp in docker log for openpanel service.."
-wget -o /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/service/service.config.py
+wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/service/service.config.py
 docker restart openpanel
 
 echo 
