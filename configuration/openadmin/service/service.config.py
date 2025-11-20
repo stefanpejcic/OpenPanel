@@ -79,11 +79,11 @@ make_executable_if_exists("/etc/openpanel/openlitespeed/start.sh")    # overwrit
 symlink_force("/etc/csf/ui/images/", "/usr/local/admin/static/configservercsf")
 
 ##############
-def get_domain_from_caddyfile():
+def read_from_caddyfile():
     domain = None
+    port = 2087
     in_block = False
     
-    # Check if the Caddyfile exists first
     if not os.path.exists(CADDYFILE_PATH):
         print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
         return None
@@ -101,17 +101,23 @@ def get_domain_from_caddyfile():
                     break
 
                 if in_block:
-                    match = re.match(r"^([\w.-]+) \{", line)
-                    if match:
-                        domain = match.group(1)
-                        break
+                    match_domain = re.match(r"^([\w.-]+) \{", line)
+                    if match_domain:
+                        domain = match_domain.group(1)
+                        continue
+
+                    match_port = re.search(r"reverse_proxy\s+[\w.-]+:(\d+)", line)
+                    if match_port:
+                        port = int(match_port.group(1))
+                        continue
+
     except Exception as e:
         print(f"Error reading Caddyfile: {e}")
-    # default
+
     if domain == "example.net":
-        return None
+        domain = None
     
-    return domain
+    return domain, port
 
 
 def check_ssl_exists(domain):
@@ -125,7 +131,7 @@ def check_ssl_exists(domain):
     return None, None, None
 
 
-DOMAIN = get_domain_from_caddyfile()
+DOMAIN, PORT = read_from_caddyfile()
 
 certfile, keyfile, type = (None, None, None)
 if DOMAIN:
@@ -141,9 +147,10 @@ if DOMAIN:
 else:
     print(f"HTTP - Using IP address for panel access, use 'opencli domain <DOMAIN_NAME>' to set a domain.")
 
+if PORT != 2087:
+    print(f"Custom port will be used for OpenAdmin service: {PORT}")
 
-
-bind = ["0.0.0.0:2087"]
+bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
 max_workers = 10

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-11-16 00:05+0100\n"
+"POT-Creation-Date: 2025-11-19 17:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -144,15 +144,15 @@ msgstr ""
 #: modules/goaccess.py:23 modules/json/favicons.py:29
 #: modules/json/screenshots.py:73 modules/mautic.py:94 modules/mautic.py:191
 #: modules/mautic.py:432 modules/mautic.py:596 modules/mautic.py:789
-#: modules/php.py:525 modules/pm2.py:598 modules/pm2.py:1289
+#: modules/php.py:564 modules/pm2.py:598 modules/pm2.py:1289
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:128
 #: modules/waf.py:280 modules/waf.py:330 modules/waf.py:384
 #: modules/website_builder.py:56 modules/website_builder.py:112
 #: modules/website_builder.py:155 modules/website_builder.py:290
-#: modules/websites.py:202 modules/websites.py:339 modules/websites.py:422
-#: modules/websites.py:770 modules/wordpress.py:501 modules/wordpress.py:642
-#: modules/wordpress.py:1158 modules/wordpress.py:1511
-#: modules/wordpress.py:1661
+#: modules/websites.py:203 modules/websites.py:340 modules/websites.py:423
+#: modules/websites.py:771 modules/wordpress.py:501 modules/wordpress.py:642
+#: modules/wordpress.py:1158 modules/wordpress.py:1517
+#: modules/wordpress.py:1667
 msgid "You do not own this domain."
 msgstr ""
 
@@ -259,13 +259,13 @@ msgid "Select docker image"
 msgstr ""
 
 #: modules/docker.py:1020 templates/dashboard/dashboard.html:172
-#: templates/manager/python_node_apps.html:127
-#: templates/manager/python_node_apps.html:157
+#: templates/manager/python_node_apps.html:132
+#: templates/manager/python_node_apps.html:162
 #: templates/partials/_service_log.html:9
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1046 modules/websites.py:554
+#: modules/docker.py:1046 modules/websites.py:555
 msgid "Invalid action"
 msgstr ""
 
@@ -380,7 +380,7 @@ msgstr ""
 #: modules/emails.py:576 modules/emails.py:578 modules/files/ftp.py:89
 #: modules/files/ftp.py:93 templates/cache/_shared.html:84
 #: templates/cache/varnish.html:105 templates/domains/ssl.html:60
-#: templates/files/ftp.html:17 templates/manager/python_node_apps.html:67
+#: templates/files/ftp.html:17 templates/manager/python_node_apps.html:72
 #: templates/mysql/phpmyadmin.html:85 templates/mysql/remote_mysql.html:101
 #: templates/partials/_service_js.html:39
 #: templates/partials/_service_js.html:43 templates/psql/pgadmin.html:88
@@ -414,13 +414,13 @@ msgstr ""
 msgid "Server Information"
 msgstr ""
 
-#: modules/mautic.py:124 modules/website_builder.py:183 modules/websites.py:369
-#: modules/websites.py:807
+#: modules/mautic.py:124 modules/website_builder.py:183 modules/websites.py:370
+#: modules/websites.py:808
 msgid "Unable to detect docroot for the domain."
 msgstr ""
 
-#: modules/mautic.py:130 modules/website_builder.py:188 modules/websites.py:375
-#: modules/websites.py:816
+#: modules/mautic.py:130 modules/website_builder.py:188 modules/websites.py:376
+#: modules/websites.py:817
 msgid ""
 "Error connecting to database, please try again. If the issue persists "
 "contact support."
@@ -612,56 +612,56 @@ msgstr ""
 msgid "Container port not found for the user."
 msgstr ""
 
-#: modules/php.py:160
+#: modules/php.py:159
 msgid "Invalid input data"
 msgstr ""
 
-#: modules/php.py:175 modules/php.py:575
+#: modules/php.py:174 modules/php.py:617
 msgid "success"
 msgstr ""
 
-#: modules/php.py:179
+#: modules/php.py:178
 msgid "Configuration file not found"
 msgstr ""
 
-#: modules/php.py:211
+#: modules/php.py:210
 msgid "Set Default version"
 msgstr ""
 
-#: modules/php.py:227 modules/php.py:230
+#: modules/php.py:226 modules/php.py:229
 msgid ""
 "PHP Limits can not be edited for Litespeed, please use the 'PHP.INI "
 "Editor' or 'PHP Options' instead."
 msgstr ""
 
-#: modules/php.py:297 templates/dashboard/dashboard.html:163
+#: modules/php.py:296 templates/dashboard/dashboard.html:163
 #: templates/mysql/phpmyadmin.html:109
 msgid "Limits"
 msgstr ""
 
-#: modules/php.py:325 templates/dashboard/dashboard.html:166
+#: modules/php.py:324 templates/dashboard/dashboard.html:166
 msgid "Extensions"
 msgstr ""
 
-#: modules/php.py:509
+#: modules/php.py:548
 msgid ""
 "Only one PHP version can be used on Litespeed, to change version for all "
 "domains use this page."
 msgstr ""
 
-#: modules/php.py:530
+#: modules/php.py:569
 msgid ""
 "For Litespeed PHP version can not be set per-domain. To change version "
 "for all domains, use the 'Default PHP Version' page."
 msgstr ""
 
-#: modules/php.py:531 modules/php.py:577
+#: modules/php.py:570 modules/php.py:619
 #: templates/files/backup_settings.html:30
 #: templates/files/backup_settings.html:105
 msgid "error"
 msgstr ""
 
-#: modules/account/account.py:137 modules/php.py:606
+#: modules/account/account.py:137 modules/php.py:648
 #: templates/psql/pgadmin.html:108
 msgid "Settings"
 msgstr ""
@@ -936,49 +936,49 @@ msgstr ""
 msgid "Create Website"
 msgstr ""
 
-#: modules/websites.py:214
+#: modules/websites.py:215
 msgid "Data gathering started. Please allow a few minutes for completion."
 msgstr ""
 
-#: modules/websites.py:416
+#: modules/websites.py:417
 msgid "Missing required parameters"
 msgstr ""
 
-#: modules/websites.py:472
+#: modules/websites.py:473
 msgid "Debugging options updated successfully"
 msgstr ""
 
-#: modules/websites.py:493
+#: modules/websites.py:494
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:501 templates/manager/wordpress.html:2383
+#: modules/websites.py:502 templates/manager/wordpress.html:2383
 msgid "WordPress updated successfully"
 msgstr ""
 
-#: modules/websites.py:522
+#: modules/websites.py:523
 msgid "Update preferences saved successfully"
 msgstr ""
 
-#: modules/websites.py:615 modules/websites.py:622
+#: modules/websites.py:616 modules/websites.py:623
 #: templates/dashboard/dashboard.html:77 templates/dashboard/usage.html:21
 #: templates/domains/domains.html:125 templates/domains/domains.html:203
 msgid "Websites"
 msgstr ""
 
-#: modules/websites.py:674
+#: modules/websites.py:675
 msgid "WEBSITES - Error executing the query!"
 msgstr ""
 
-#: modules/websites.py:686
+#: modules/websites.py:687
 msgid "WEBSITES - Reading blogname for WordPress website: {path}"
 msgstr ""
 
-#: modules/websites.py:702
+#: modules/websites.py:703
 msgid "WEBSITES - Reading WP admin_email for website: {selected_domain}"
 msgstr ""
 
-#: modules/websites.py:781
+#: modules/websites.py:782
 msgid "Invalid domain name format."
 msgstr ""
 
@@ -986,7 +986,7 @@ msgstr ""
 msgid "WordPress Manager"
 msgstr ""
 
-#: modules/wordpress.py:184 modules/wordpress.py:1538 modules/wordpress.py:1679
+#: modules/wordpress.py:184 modules/wordpress.py:1544 modules/wordpress.py:1685
 msgid "Domain not found."
 msgstr ""
 
@@ -1037,39 +1037,39 @@ msgstr ""
 msgid "Install WordPress"
 msgstr ""
 
-#: modules/wordpress.py:1696
+#: modules/wordpress.py:1702
 msgid "Verification completed successfully."
 msgstr ""
 
-#: modules/wordpress.py:1697
+#: modules/wordpress.py:1703
 msgid "Verification failed."
 msgstr ""
 
-#: modules/wordpress.py:1702
+#: modules/wordpress.py:1708
 msgid "Download completed successfully."
 msgstr ""
 
-#: modules/wordpress.py:1703
+#: modules/wordpress.py:1709
 msgid "Download failed."
 msgstr ""
 
-#: modules/wordpress.py:1707
+#: modules/wordpress.py:1713
 msgid "Salts shuffled successfully."
 msgstr ""
 
-#: modules/wordpress.py:1708
+#: modules/wordpress.py:1714
 msgid "Failed to shuffle salts."
 msgstr ""
 
-#: modules/wordpress.py:1720
+#: modules/wordpress.py:1726
 msgid "Unsupported action."
 msgstr ""
 
-#: modules/wordpress.py:1731
+#: modules/wordpress.py:1737
 msgid "Invalid action. Use 'enable' or 'disable'."
 msgstr ""
 
-#: modules/wordpress.py:1762
+#: modules/wordpress.py:1768
 msgid "Invalid type. Use 'core' or 'plugins'."
 msgstr ""
 
@@ -1438,190 +1438,202 @@ msgstr ""
 msgid "Disk Usage"
 msgstr ""
 
-#: modules/files/filemanager.py:95
+#: modules/files/filemanager.py:96
 msgid "Failed to set ownership for the new file."
 msgstr ""
 
-#: modules/files/filemanager.py:97
+#: modules/files/filemanager.py:98
 msgid "File created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:111
+#: modules/files/filemanager.py:112
 msgid "Error creating file! Check permissions."
 msgstr ""
 
-#: modules/files/filemanager.py:114
+#: modules/files/filemanager.py:115
 msgid "Unexpected error occurred while creating the file."
 msgstr ""
 
-#: modules/files/filemanager.py:119
+#: modules/files/filemanager.py:120
 msgid "Filename is missing"
 msgstr ""
 
-#: modules/files/filemanager.py:149
+#: modules/files/filemanager.py:150
 msgid "Failed to set ownership for the new folder."
 msgstr ""
 
-#: modules/files/filemanager.py:151
+#: modules/files/filemanager.py:152
 msgid "Folder created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:160
+#: modules/files/filemanager.py:161
 msgid "Error creating directory! Check permissions."
 msgstr ""
 
-#: modules/files/filemanager.py:163
+#: modules/files/filemanager.py:164
 msgid "Unexpected error occurred while creating the folder."
 msgstr ""
 
-#: modules/files/filemanager.py:168
+#: modules/files/filemanager.py:169
 msgid "Foldername is missing"
 msgstr ""
 
-#: modules/files/filemanager.py:239
+#: modules/files/filemanager.py:240
 msgid "Files uploaded successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:242
+#: modules/files/filemanager.py:243
 msgid "Some files failed: "
 msgstr ""
 
-#: modules/files/filemanager.py:246
+#: modules/files/filemanager.py:247
 msgid "No files were uploaded"
 msgstr ""
 
-#: modules/files/filemanager.py:249
+#: modules/files/filemanager.py:250
 msgid "Error uploading files: {0}"
 msgstr ""
 
-#: modules/files/filemanager.py:291
+#: modules/files/filemanager.py:292
 msgid "Failed to set ownership."
 msgstr ""
 
-#: modules/files/filemanager.py:369
+#: modules/files/filemanager.py:370
 msgid "File extracted successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:417
-msgid "Failed to set ownership for the downloaded file."
-msgstr ""
-
-#: modules/files/filemanager.py:431
+#: modules/files/filemanager.py:400
 msgid "No URL provided"
 msgstr ""
 
-#: modules/files/filemanager.py:434
+#: modules/files/filemanager.py:415
+msgid "Download queued..."
+msgstr ""
+
+#: modules/files/filemanager.py:455
+msgid "Starting download..."
+msgstr ""
+
+#: modules/files/filemanager.py:473
+msgid "Download in progress..."
+msgstr ""
+
+#: modules/files/filemanager.py:493
+msgid "(Failed to set ownership for the downloaded file.)"
+msgstr ""
+
+#: modules/files/filemanager.py:498
 msgid "Failed to download the file"
 msgstr ""
 
-#: modules/files/filemanager.py:437
-msgid "Internal server error"
+#: modules/files/filemanager.py:503
+msgid "Internal server error during download."
 msgstr ""
 
-#: modules/files/filemanager.py:461
+#: modules/files/filemanager.py:547
 msgid "Missing required form data for compression: "
 msgstr ""
 
-#: modules/files/filemanager.py:501
+#: modules/files/filemanager.py:587
 msgid "Unsupported archive format."
 msgstr ""
 
-#: modules/files/filemanager.py:508
+#: modules/files/filemanager.py:594
 msgid "Archive creation failed: "
 msgstr ""
 
-#: modules/files/filemanager.py:514
+#: modules/files/filemanager.py:600
 msgid "FILEMANAGER - Archive created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:521
+#: modules/files/filemanager.py:607
 msgid "Failed to set archive ownership"
 msgstr ""
 
-#: modules/files/filemanager.py:669
+#: modules/files/filemanager.py:755
 msgid "Permissions changed."
 msgstr ""
 
-#: modules/files/filemanager.py:672
+#: modules/files/filemanager.py:758
 msgid "Error changing permissions!"
 msgstr ""
 
-#: modules/files/filemanager.py:802 modules/files/filemanager.py:971
+#: modules/files/filemanager.py:888 modules/files/filemanager.py:1057
 msgid "Viewing of this file type is not allowed."
 msgstr ""
 
-#: modules/files/filemanager.py:843
+#: modules/files/filemanager.py:929
 msgid "File saved successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:846
+#: modules/files/filemanager.py:932
 msgid "Error saving file: "
 msgstr ""
 
-#: modules/files/filemanager.py:858
+#: modules/files/filemanager.py:944
 msgid "File is too large to open in the editor (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:861 modules/files/filemanager.py:994
+#: modules/files/filemanager.py:947 modules/files/filemanager.py:1080
 msgid "Error accessing file size: "
 msgstr ""
 
-#: modules/files/filemanager.py:873
+#: modules/files/filemanager.py:959
 msgid "Error reading file"
 msgstr ""
 
-#: modules/files/filemanager.py:919
+#: modules/files/filemanager.py:1005
 msgid "Error retrieving file size."
 msgstr ""
 
-#: modules/files/filemanager.py:923
+#: modules/files/filemanager.py:1009
 msgid "Invalid file size retrieved. Possible issue with file."
 msgstr ""
 
-#: modules/files/filemanager.py:991
+#: modules/files/filemanager.py:1077
 msgid "File is too large to view in the browser (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:1045
+#: modules/files/filemanager.py:1131
 msgid "The specified directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1230 templates/dashboard/dashboard.html:88
+#: modules/files/filemanager.py:1316 templates/dashboard/dashboard.html:88
 #: templates/files/disk_usage.html:76 templates/files/filemanager.html:31
 #: templates/files/inodes.html:78
 msgid "File Manager"
 msgstr ""
 
-#: modules/files/filemanager.py:1247
+#: modules/files/filemanager.py:1333
 msgid "Error accessing the specified directory."
 msgstr ""
 
-#: modules/files/filemanager.py:1297 templates/dashboard/dashboard.html:98
+#: modules/files/filemanager.py:1383 templates/dashboard/dashboard.html:98
 #: templates/files/trash.html:12
 msgid "Trash"
 msgstr ""
 
-#: modules/files/filemanager.py:1472
+#: modules/files/filemanager.py:1558
 msgid "Trash emptied successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1476
+#: modules/files/filemanager.py:1562
 msgid "Unexpected error"
 msgstr ""
 
-#: modules/files/filemanager.py:1497
+#: modules/files/filemanager.py:1583
 msgid "Nothing to restore"
 msgstr ""
 
-#: modules/files/filemanager.py:1542
+#: modules/files/filemanager.py:1628
 msgid "Some items could not be restored."
 msgstr ""
 
-#: modules/files/filemanager.py:1545
+#: modules/files/filemanager.py:1631
 msgid "All items restored successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1549
+#: modules/files/filemanager.py:1635
 msgid "Unexpected error occurred"
 msgstr ""
 
@@ -1915,7 +1927,7 @@ msgstr ""
 #: templates/domains/domains.html:160 templates/domains/domains.html:214
 #: templates/files/clamav/quarantine.html:72 templates/files/disk_usage.html:43
 #: templates/files/ftp.html:77 templates/files/inodes.html:45
-#: templates/manager/python_node_apps.html:896 templates/manager/sites.html:83
+#: templates/manager/python_node_apps.html:960 templates/manager/sites.html:83
 #: templates/mysql/databases.html:158 templates/mysql/users.html:88
 #: templates/psql/databases.html:147 templates/psql/users.html:88
 #: templates/system/cronjobs.html:143 templates/system/waf.html:62
@@ -2094,7 +2106,7 @@ msgid "Port:"
 msgstr ""
 
 #: templates/cache/_shared.html:129 templates/cache/varnish.html:197
-#: templates/manager/python_node_apps.html:182
+#: templates/manager/python_node_apps.html:187
 #: templates/system/cronjobs.html:68 templates/system/cronjobs.html:134
 #: templates/system/process_manager.html:58 templates/system/services.html:132
 msgid "Container"
@@ -2131,7 +2143,7 @@ msgstr ""
 
 #: templates/dashboard/dashboard.html:73 templates/domains/ssl.html:184
 #: templates/files/filemanager.html:201 templates/manager/mautic.html:182
-#: templates/manager/python_node_apps.html:1073
+#: templates/manager/python_node_apps.html:1137
 #: templates/manager/websitebuilder.html:358
 #: templates/manager/wordpress.html:237 templates/partials/_header.html:33
 msgid "Files"
@@ -2511,7 +2523,7 @@ msgstr ""
 #: templates/dashboard/usage.html:422 templates/dashboard/usage.html:423
 #: templates/dashboard/usage.html:424 templates/dashboard/usage.html:425
 #: templates/manager/mautic.html:214 templates/manager/mautic.html:257
-#: templates/manager/python_node_apps.html:1111
+#: templates/manager/python_node_apps.html:1175
 #: templates/manager/websitebuilder.html:414
 #: templates/manager/wordpress.html:332 templates/manager/wordpress.html:375
 msgid "Calculating.."
@@ -2714,7 +2726,7 @@ msgstr ""
 #: templates/domains/dns.html:150 templates/files/filemanager.html:98
 #: templates/files/filemanager/table.html:6
 #: templates/files/filemanager/table_trash.html:6 templates/files/trash.html:53
-#: templates/manager/python_node_apps.html:183
+#: templates/manager/python_node_apps.html:188
 msgid "Name"
 msgstr ""
 
@@ -2758,7 +2770,7 @@ msgstr ""
 #: templates/domains/dns.html:422 templates/domains/domains.html:273
 #: templates/domains/domains.html:303 templates/emails/delete.html:33
 #: templates/manager/mautic.html:461 templates/manager/mautic.html:511
-#: templates/manager/python_node_apps.html:821
+#: templates/manager/python_node_apps.html:885
 #: templates/manager/websitebuilder.html:212
 #: templates/manager/websitebuilder.html:262
 #: templates/manager/wordpress.html:634 templates/manager/wordpress.html:1952
@@ -3201,7 +3213,7 @@ msgid "Suspended"
 msgstr ""
 
 #: templates/domains/domains.html:234
-#: templates/manager/python_node_apps.html:63
+#: templates/manager/python_node_apps.html:68
 #: templates/partials/_service_js.html:26
 msgid "Active"
 msgstr ""
@@ -3253,7 +3265,7 @@ msgstr ""
 #: templates/files/filemanager/deleteTrash.html:25
 #: templates/files/filemanager/new_actions_buttons.html:31
 #: templates/files/ftp.html:117 templates/files/trash.html:36
-#: templates/manager/python_node_apps.html:790
+#: templates/manager/python_node_apps.html:854
 #: templates/manager/websitebuilder.html:231 templates/mysql/users.html:108
 #: templates/psql/databases.html:173 templates/psql/users.html:125
 msgid "Delete"
@@ -3974,7 +3986,7 @@ msgid "No destination configured yet."
 msgstr ""
 
 #: templates/files/backup_destinations.html:71
-#: templates/manager/python_node_apps.html:449
+#: templates/manager/python_node_apps.html:454
 msgid "Select"
 msgstr ""
 
@@ -4880,7 +4892,7 @@ msgid "Setup Node.js Application"
 msgstr ""
 
 #: templates/manager/autoinstaller.html:196
-#: templates/manager/python_node_apps.html:80
+#: templates/manager/python_node_apps.html:85
 msgid "Python"
 msgstr ""
 
@@ -4941,35 +4953,35 @@ msgid "Select option"
 msgstr ""
 
 #: templates/manager/mautic.html:130 templates/manager/mautic.html:146
-#: templates/manager/python_node_apps.html:125
-#: templates/manager/python_node_apps.html:142
+#: templates/manager/python_node_apps.html:130
+#: templates/manager/python_node_apps.html:147
 #: templates/manager/wordpress.html:137 templates/manager/wordpress.html:158
 msgid "Overview"
 msgstr ""
 
 #: templates/manager/mautic.html:132 templates/manager/mautic.html:161
-#: templates/manager/python_node_apps.html:128
-#: templates/manager/python_node_apps.html:163
+#: templates/manager/python_node_apps.html:133
+#: templates/manager/python_node_apps.html:168
 #: templates/manager/wordpress.html:144 templates/manager/wordpress.html:216
 msgid "Remove"
 msgstr ""
 
 #: templates/manager/mautic.html:199
-#: templates/manager/python_node_apps.html:1084
+#: templates/manager/python_node_apps.html:1148
 #: templates/manager/websitebuilder.html:375
 #: templates/manager/wordpress.html:254
 msgid "Open folder in File Manager"
 msgstr ""
 
 #: templates/manager/mautic.html:209
-#: templates/manager/python_node_apps.html:1096
+#: templates/manager/python_node_apps.html:1160
 #: templates/manager/websitebuilder.html:402
 #: templates/manager/wordpress.html:327
 msgid "Folder:"
 msgstr ""
 
 #: templates/manager/mautic.html:213
-#: templates/manager/python_node_apps.html:1109
+#: templates/manager/python_node_apps.html:1173
 #: templates/manager/websitebuilder.html:412
 #: templates/manager/wordpress.html:331
 msgid "Folder Size:"
@@ -5088,7 +5100,7 @@ msgid "website from this manager without actually deleting any files."
 msgstr ""
 
 #: templates/manager/mautic.html:432
-#: templates/manager/python_node_apps.html:793
+#: templates/manager/python_node_apps.html:857
 #: templates/manager/wordpress.html:1923
 msgid "All website data such as files and database remains."
 msgstr ""
@@ -5145,7 +5157,7 @@ msgid "Administration"
 msgstr ""
 
 #: templates/manager/mautic.html:652
-#: templates/manager/python_node_apps.html:1165
+#: templates/manager/python_node_apps.html:1229
 #: templates/manager/websitebuilder.html:485
 #: templates/manager/wordpress.html:2467
 msgid "An error occurred fetching folder size from the container."
@@ -5297,7 +5309,7 @@ msgid "Choose a domain name and optional subdirectory to create reverse-proxy."
 msgstr ""
 
 #: templates/manager/pm2_install.html:180
-#: templates/manager/python_node_apps.html:213
+#: templates/manager/python_node_apps.html:218
 msgid "Startup file:"
 msgstr ""
 
@@ -5364,9 +5376,9 @@ msgid "If the application is already built, you can skip this option."
 msgstr ""
 
 #: templates/manager/pm2_install.html:370
-#: templates/manager/python_node_apps.html:82
-#: templates/manager/python_node_apps.html:430
-#: templates/manager/python_node_apps.html:440
+#: templates/manager/python_node_apps.html:87
+#: templates/manager/python_node_apps.html:435
+#: templates/manager/python_node_apps.html:445
 #: templates/mysql/phpmyadmin.html:206 templates/psql/pgadmin.html:169
 msgid "Version:"
 msgstr ""
@@ -5418,275 +5430,303 @@ msgstr ""
 msgid "Application setup started. Please wait for the process to finish."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:43
+#: templates/manager/python_node_apps.html:48
 msgid "Status:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:65
+#: templates/manager/python_node_apps.html:70
 msgid "Inactive"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:78
+#: templates/manager/python_node_apps.html:83
 msgid "NodeJS"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:94
+#: templates/manager/python_node_apps.html:99
 msgid "CPU limit:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:104
+#: templates/manager/python_node_apps.html:109
 #: templates/mysql/phpmyadmin.html:149
 msgid "Memory limit:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:126
-#: templates/manager/python_node_apps.html:149
+#: templates/manager/python_node_apps.html:131
+#: templates/manager/python_node_apps.html:154
 msgid "Install Packages"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:183
+#: templates/manager/python_node_apps.html:188
 msgid " and custom port "
 msgstr ""
 
-#: templates/manager/python_node_apps.html:183
+#: templates/manager/python_node_apps.html:188
 msgid "on which the application is accessible from other services."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:205
+#: templates/manager/python_node_apps.html:210
 msgid "Startup"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:206
+#: templates/manager/python_node_apps.html:211
 msgid ""
 "Configure startup file and if install should be run before starting the "
 "application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:222
+#: templates/manager/python_node_apps.html:227
 msgid ""
 "If no custom startup command is provided, this file is executed with "
 "command:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:275
+#: templates/manager/python_node_apps.html:280
 msgid "Custom startup command:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:284
+#: templates/manager/python_node_apps.html:289
 msgid ""
 "You can provide a custom startup command with flags to be used instead of"
 " the default:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:332
+#: templates/manager/python_node_apps.html:337
 msgid "Work dir:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:341
+#: templates/manager/python_node_apps.html:346
 msgid ""
 "Set the working directory inside which packages are installed with "
 "command:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:343
-#: templates/manager/python_node_apps.html:397
+#: templates/manager/python_node_apps.html:348
+#: templates/manager/python_node_apps.html:402
 msgid "install"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:386
+#: templates/manager/python_node_apps.html:391
 msgid "Install packages before startup:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:395
+#: templates/manager/python_node_apps.html:400
 msgid ""
 "If enabled, this command is executed before the custom startup command or"
 " startup file:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:431
+#: templates/manager/python_node_apps.html:436
 msgid ""
 "Change version, make sure to restart the application afterward by "
 "stopping and starting it."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:449
+#: templates/manager/python_node_apps.html:454
 msgid "version to use for the application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:522
+#: templates/manager/python_node_apps.html:527
 msgid "Resource limits"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:523
+#: templates/manager/python_node_apps.html:528
 msgid "Limit CPU and Memory available to the container."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:531
+#: templates/manager/python_node_apps.html:536
 msgid "CPU (cores):"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:540
+#: templates/manager/python_node_apps.html:545
 msgid "Set max number of CPU cores to allocate for this service."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:554
+#: templates/manager/python_node_apps.html:559
 msgid "Memory (GB):"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:563
+#: templates/manager/python_node_apps.html:568
 msgid "Set max size in GB for Memory to allocate for this service."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:579
+#: templates/manager/python_node_apps.html:584
 msgid "PIDs:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:588
+#: templates/manager/python_node_apps.html:593
 msgid "Set total of PIDs allowed for the application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:605
+#: templates/manager/python_node_apps.html:610
 msgid "PIDs can not currently be configured in Docker compose"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:620
+#: templates/manager/python_node_apps.html:625
 msgid "Save changes"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:636
-#: templates/manager/python_node_apps.html:690
+#: templates/manager/python_node_apps.html:641
+#: templates/manager/python_node_apps.html:695
 msgid "package.json"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:638
-#: templates/manager/python_node_apps.html:690
+#: templates/manager/python_node_apps.html:643
+#: templates/manager/python_node_apps.html:695
 msgid "requirements.txt"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:640
+#: templates/manager/python_node_apps.html:645
 msgid "file content:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:683
+#: templates/manager/python_node_apps.html:688
 msgid "NPM install"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:684
-#: templates/manager/python_node_apps.html:686
+#: templates/manager/python_node_apps.html:689
+#: templates/manager/python_node_apps.html:691
 msgid "PNPM install"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:690
+#: templates/manager/python_node_apps.html:695
 msgid "Edit file"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:709
-msgid "Loading application log.."
+#: templates/manager/python_node_apps.html:718
+msgid "Loading application logs.."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:771
+#: templates/manager/python_node_apps.html:721
+msgid "Change view"
+msgstr ""
+
+#: templates/manager/python_node_apps.html:727
+msgid "Formatted view"
+msgstr ""
+
+#: templates/manager/python_node_apps.html:727
+msgid "Raw view"
+msgstr ""
+
+#: templates/manager/python_node_apps.html:730
+msgid "Copy to clipboard"
+msgstr ""
+
+#: templates/manager/python_node_apps.html:735
+msgid "Open log in new tab"
+msgstr ""
+
+#: templates/manager/python_node_apps.html:766
 msgid "Error fetching container logs for application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:773
-msgid "Error fetching container logs for applicaiton:"
+#: templates/manager/python_node_apps.html:768
+msgid "Error fetching container logs for application:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:791
+#: templates/manager/python_node_apps.html:826
+msgid "Logs copied to clipboard."
+msgstr ""
+
+#: templates/manager/python_node_apps.html:830
+msgid "Failed to copy logs."
+msgstr ""
+
+#: templates/manager/python_node_apps.html:855
 msgid ""
 "Stops the application, deletes docker container and removes it from Site "
 "Manager interface."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:802
+#: templates/manager/python_node_apps.html:866
 msgid "Delete Application"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:814
+#: templates/manager/python_node_apps.html:878
 msgid "Confirm delete"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:831
+#: templates/manager/python_node_apps.html:895
 msgid "Application removal started. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:909
+#: templates/manager/python_node_apps.html:973
 msgid "Manage Containers"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:922
+#: templates/manager/python_node_apps.html:986
 msgid "Start"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:930
+#: templates/manager/python_node_apps.html:994
 msgid "Starting application. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:942
+#: templates/manager/python_node_apps.html:1006
 msgid "Application started successfully."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:948
-#: templates/manager/python_node_apps.html:955
+#: templates/manager/python_node_apps.html:1012
+#: templates/manager/python_node_apps.html:1019
 msgid "Error starting application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:967
+#: templates/manager/python_node_apps.html:1031
 msgid "Stop"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:976
+#: templates/manager/python_node_apps.html:1040
 msgid "Stopping application. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:989
+#: templates/manager/python_node_apps.html:1053
 msgid "Application stopped successfully."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:995
-#: templates/manager/python_node_apps.html:1002
+#: templates/manager/python_node_apps.html:1059
+#: templates/manager/python_node_apps.html:1066
 msgid "Error stopping application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1017
+#: templates/manager/python_node_apps.html:1081
 msgid "Restart"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1026
+#: templates/manager/python_node_apps.html:1090
 msgid "Application restart in progress. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1036
+#: templates/manager/python_node_apps.html:1100
 msgid "Application restarted successfully."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1042
-#: templates/manager/python_node_apps.html:1049
+#: templates/manager/python_node_apps.html:1106
+#: templates/manager/python_node_apps.html:1113
 msgid "Error restarting application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1139 templates/manager/sites.html:71
+#: templates/manager/python_node_apps.html:1203 templates/manager/sites.html:71
 #: templates/manager/websitebuilder.html:456
 msgid "Created"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1217
+#: templates/manager/python_node_apps.html:1281
 msgid "Cannot install while container is stopped."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1221
+#: templates/manager/python_node_apps.html:1285
 msgid "Installing packages.. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1242
+#: templates/manager/python_node_apps.html:1306
 msgid "Package installation completed."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1244
+#: templates/manager/python_node_apps.html:1308
 msgid "Package installation failed."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1249
+#: templates/manager/python_node_apps.html:1313
 msgid "Error running package install for application."
 msgstr ""
 

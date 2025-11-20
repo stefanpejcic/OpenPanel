@@ -332,8 +332,8 @@
     "title": "SSL",
     "description": "If enabled, users can view SSL configuration for domains and add custom certificates.",
     "link": "/domains/ssl",
-    "type": "enterprise",
-    "help_link": ""
+    "type": "community",
+    "help_link": "https://openpanel.com/docs/panel/domains/ssl/"
   },
     {
     "name": "docroot",
@@ -429,7 +429,7 @@
     "description": "If enabled, users can test their websites using temporary openpanel.org subdomains. Links expire after 15m.",
     "link": "/websites",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#temporary-links"
   },
   {
     "name": "login_history",
@@ -437,7 +437,7 @@
     "description": "If enabled, users can view last 20 IPs that logged into their account.",
     "link": "/account/loginlog",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#login-history"
   },
   {
     "name": "twofa",
