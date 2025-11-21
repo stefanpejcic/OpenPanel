@@ -36,7 +36,7 @@ def is_dev_mode():
 DEV_MODE = is_dev_mode()
 
 if DEV_MODE:
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
     logger = logging.getLogger("openpanel")
 
     class StreamToLogger:
@@ -46,7 +46,10 @@ if DEV_MODE:
 
         def write(self, buf):
             for line in buf.rstrip().splitlines():
-                self.logger.log(self.log_level, line.rstrip())
+                if " - " in line:
+                    word, msg = line.split(" - ", 1)
+                    line = f"[{word}] {msg}"
+                self.logger.log(self.log_level, line)
 
         def flush(self):
             pass
@@ -211,9 +214,9 @@ def when_ready(server):
             "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL"
         ]
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        server.log.info("Redis cache cleared:\n%s", result.stdout.strip())
+        server.log.info("Redis cache cleared: %s", result.stdout.strip())
     except subprocess.CalledProcessError as e:
-        server.log.error("Failed to clear Redis cache:\n%s", e.stderr.strip())
+        server.log.error("Failed to clear Redis cache: %s", e.stderr.strip())
     except Exception as e:
         server.log.error("Unexpected error clearing Redis cache: %s", str(e))
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-11-19 17:27+0100\n"
+"POT-Creation-Date: 2025-11-20 16:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -269,7 +269,7 @@ msgstr ""
 msgid "Invalid action"
 msgstr ""
 
-#: modules/docker.py:1308
+#: modules/docker.py:1307
 msgid "Select Docker service"
 msgstr ""
 
@@ -1510,130 +1510,130 @@ msgstr ""
 msgid "Download queued..."
 msgstr ""
 
-#: modules/files/filemanager.py:455
+#: modules/files/filemanager.py:452
 msgid "Starting download..."
 msgstr ""
 
-#: modules/files/filemanager.py:473
+#: modules/files/filemanager.py:469
 msgid "Download in progress..."
 msgstr ""
 
-#: modules/files/filemanager.py:493
+#: modules/files/filemanager.py:488
 msgid "(Failed to set ownership for the downloaded file.)"
 msgstr ""
 
-#: modules/files/filemanager.py:498
+#: modules/files/filemanager.py:493
 msgid "Failed to download the file"
 msgstr ""
 
-#: modules/files/filemanager.py:503
+#: modules/files/filemanager.py:498
 msgid "Internal server error during download."
 msgstr ""
 
-#: modules/files/filemanager.py:547
+#: modules/files/filemanager.py:541
 msgid "Missing required form data for compression: "
 msgstr ""
 
-#: modules/files/filemanager.py:587
+#: modules/files/filemanager.py:581
 msgid "Unsupported archive format."
 msgstr ""
 
-#: modules/files/filemanager.py:594
+#: modules/files/filemanager.py:588
 msgid "Archive creation failed: "
 msgstr ""
 
-#: modules/files/filemanager.py:600
+#: modules/files/filemanager.py:594
 msgid "FILEMANAGER - Archive created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:607
+#: modules/files/filemanager.py:601
 msgid "Failed to set archive ownership"
 msgstr ""
 
-#: modules/files/filemanager.py:755
+#: modules/files/filemanager.py:749
 msgid "Permissions changed."
 msgstr ""
 
-#: modules/files/filemanager.py:758
+#: modules/files/filemanager.py:752
 msgid "Error changing permissions!"
 msgstr ""
 
-#: modules/files/filemanager.py:888 modules/files/filemanager.py:1057
+#: modules/files/filemanager.py:882 modules/files/filemanager.py:1051
 msgid "Viewing of this file type is not allowed."
 msgstr ""
 
-#: modules/files/filemanager.py:929
+#: modules/files/filemanager.py:923
 msgid "File saved successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:932
+#: modules/files/filemanager.py:926
 msgid "Error saving file: "
 msgstr ""
 
-#: modules/files/filemanager.py:944
+#: modules/files/filemanager.py:938
 msgid "File is too large to open in the editor (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:947 modules/files/filemanager.py:1080
+#: modules/files/filemanager.py:941 modules/files/filemanager.py:1074
 msgid "Error accessing file size: "
 msgstr ""
 
-#: modules/files/filemanager.py:959
+#: modules/files/filemanager.py:953
 msgid "Error reading file"
 msgstr ""
 
-#: modules/files/filemanager.py:1005
+#: modules/files/filemanager.py:999
 msgid "Error retrieving file size."
 msgstr ""
 
-#: modules/files/filemanager.py:1009
+#: modules/files/filemanager.py:1003
 msgid "Invalid file size retrieved. Possible issue with file."
 msgstr ""
 
-#: modules/files/filemanager.py:1077
+#: modules/files/filemanager.py:1071
 msgid "File is too large to view in the browser (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:1131
+#: modules/files/filemanager.py:1125
 msgid "The specified directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1316 templates/dashboard/dashboard.html:88
+#: modules/files/filemanager.py:1310 templates/dashboard/dashboard.html:88
 #: templates/files/disk_usage.html:76 templates/files/filemanager.html:31
 #: templates/files/inodes.html:78
 msgid "File Manager"
 msgstr ""
 
-#: modules/files/filemanager.py:1333
+#: modules/files/filemanager.py:1327
 msgid "Error accessing the specified directory."
 msgstr ""
 
-#: modules/files/filemanager.py:1383 templates/dashboard/dashboard.html:98
+#: modules/files/filemanager.py:1377 templates/dashboard/dashboard.html:98
 #: templates/files/trash.html:12
 msgid "Trash"
 msgstr ""
 
-#: modules/files/filemanager.py:1558
+#: modules/files/filemanager.py:1552
 msgid "Trash emptied successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1562
+#: modules/files/filemanager.py:1556
 msgid "Unexpected error"
 msgstr ""
 
-#: modules/files/filemanager.py:1583
+#: modules/files/filemanager.py:1577
 msgid "Nothing to restore"
 msgstr ""
 
-#: modules/files/filemanager.py:1628
+#: modules/files/filemanager.py:1622
 msgid "Some items could not be restored."
 msgstr ""
 
-#: modules/files/filemanager.py:1631
+#: modules/files/filemanager.py:1625
 msgid "All items restored successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1635
+#: modules/files/filemanager.py:1629
 msgid "Unexpected error occurred"
 msgstr ""
 
@@ -1853,7 +1853,7 @@ msgstr ""
 #: templates/psql/processlist.html:55 templates/psql/users.html:52
 #: templates/system/cronjobs.html:98 templates/system/process_manager.html:23
 #: templates/system/waf.html:30 templates/system/waf_logs.html:31
-#: templates/user/active_sessions.html:29 templates/user/activity.html:22
+#: templates/user/active_sessions.html:29 templates/user/activity.html:28
 #: templates/user/favorites.html:31 templates/user/history_usage.html:29
 #: templates/user/loginlog.html:27 templates/wordpress.html:40
 msgid "Search"
@@ -2384,7 +2384,7 @@ msgid "Plan"
 msgstr ""
 
 #: templates/dashboard/information.html:56 templates/system/server_info.html:48
-#: templates/user/active_sessions.html:53 templates/user/activity.html:46
+#: templates/user/active_sessions.html:53 templates/user/activity.html:51
 msgid "IP Address"
 msgstr ""
 
@@ -2730,15 +2730,15 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
-#: templates/docker/containers.html:272
+#: templates/docker/containers.html:277
 msgid "Checking containers runtime metrics.."
 msgstr ""
 
-#: templates/docker/containers.html:288
+#: templates/docker/containers.html:293
 msgid "No container are currently running."
 msgstr ""
 
-#: templates/docker/containers.html:392
+#: templates/docker/containers.html:397
 msgid "Error fetching docker stats for containers."
 msgstr ""
 
@@ -3289,12 +3289,12 @@ msgid "Page navigation"
 msgstr ""
 
 #: templates/domains/domains.html:618 templates/domains/domains.html:619
-#: templates/user/activity.html:95
+#: templates/user/activity.html:112
 msgid "Previous"
 msgstr ""
 
 #: templates/domains/domains.html:640 templates/domains/domains.html:641
-#: templates/user/activity.html:105
+#: templates/user/activity.html:132
 msgid "Next"
 msgstr ""
 
@@ -3324,7 +3324,7 @@ msgid "Show all"
 msgstr ""
 
 #: templates/domains/logs.html:111 templates/domains/logs.html:213
-#: templates/user/activity.html:47
+#: templates/user/activity.html:52
 msgid "Timestamp"
 msgstr ""
 
@@ -6044,7 +6044,7 @@ msgstr ""
 msgid "Checking..."
 msgstr ""
 
-#: templates/manager/wordpress.html:1157 templates/user/activity.html:45
+#: templates/manager/wordpress.html:1157 templates/user/activity.html:50
 #: templates/user/loginlog.html:51
 msgid "Action"
 msgstr ""
@@ -6658,7 +6658,7 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
-#: templates/mysql/processlist.html:56 templates/user/activity.html:44
+#: templates/mysql/processlist.html:56 templates/user/activity.html:49
 msgid "User"
 msgstr ""
 
@@ -7981,11 +7981,15 @@ msgstr ""
 msgid "Terminate"
 msgstr ""
 
-#: templates/user/activity.html:13
+#: templates/user/activity.html:11
 msgid "Activity Log"
 msgstr ""
 
 #: templates/user/activity.html:15
+msgid "Search results for:"
+msgstr ""
+
+#: templates/user/activity.html:17
 msgid "View recent user activity and system events."
 msgstr ""
 
