@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           20.11.2025
+# Last Modified:           23.11.2025
 #
 ################################################################################
 
@@ -1494,6 +1494,20 @@ configure_coraza() {
 }
 
 
+generate_session_secret_keys() {
+	local secret_admin_key_file="/etc/openpanel/openadmin/secret.key"
+	if [ ! -f "$secret_admin_key_file" ]; then
+	    openssl rand -hex 32 > "$secret_admin_key_file"
+	    chmod 600 "$secret_admin_key_file"
+	fi
+
+	local secret_user_key_file="/etc/openpanel/openpanel/secret.key"
+	if [ ! -f "$secret_user_key_file" ]; then
+	    openssl rand -hex 32 > "$secret_user_key_file"
+	    chmod 600 "$secret_user_key_file"
+	fi
+}
+
 install_openadmin(){
     echo "Setting up OpenAdmin panel.."
     local openadmin_dir="/usr/local/admin/"
@@ -1527,6 +1541,7 @@ install_openadmin(){
     cp -fr /etc/openpanel/openadmin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
 
     systemctl daemon-reload  > /dev/null 2>&1
+	generate_session_secret_keys
     systemctl start admin > /dev/null 2>&1
     systemctl enable admin > /dev/null 2>&1
 
