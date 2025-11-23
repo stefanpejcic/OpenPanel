@@ -18,7 +18,7 @@ Minimum Requirements:
 Supported operating systems:
 - **Ubuntu 24.04** (recommended)
 - **Debian 10, 11, 12, 13**
-- **AlmaLinux 9.5 and 10** (recommended for ARM CPU)
+- **AlmaLinux 9.5 and 10** (9.5 is recommended for ARM CPU, 10 has a known issue [#744](https://github.com/stefanpejcic/OpenPanel/issues/744))
 - **RockyLinux 9.6, 10**
 - **CentOS 9.5**
 
