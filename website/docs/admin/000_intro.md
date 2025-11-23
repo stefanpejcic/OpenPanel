@@ -80,7 +80,7 @@ If you encountered any errors while running the installation script, please copy
 Recommended steps after installing OpenPanel:
 - [Access the Admin panel](/docs/articles/dev-experience/how-to-access-openadmin)
 - [Configure Domain and SSL for OpenPanel](/docs/admin/settings/general/#set-domain-for-openpanel)
-- [Configure Custom Nameservers](/docs/admin/settings/openpanel/#set-nameservers)
+- [Configure Custom Nameservers](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
 - [Create Hosting Packages](/docs/admin/plans/hosting_plans#create-a-plan)
 - [Create New User Accounts](/docs/admin/accounts/users/#create-users)
 - [Set Email address to receive Alerts](/docs/admin/notifications/#email-alerts)
