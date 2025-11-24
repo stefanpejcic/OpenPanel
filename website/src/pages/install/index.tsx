@@ -20,7 +20,7 @@ const defaultOptions: InstallOptions = {
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
-    "skip-firewall": { value: false, description: "Don't setup CSF (Only if you will set another Firewall manually)" },
+    "skip-firewall": { value: false, description: "Don't setup Sentinel Firewall (CSF)" },
     "skip-dns-server": { value: false, description: "Don't setup DNS server (Only if you will use external NS like Cloudflare)" },
     "imunifyav": { value: false, description: "Install and Setup ImunifyAV." },
     "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
