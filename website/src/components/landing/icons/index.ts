@@ -7,6 +7,7 @@ export * from "./best-practices-icon";
 export * from "./black-box-icon";
 export * from "./charts-icon";
 export * from "./altushost-icon";
+export * from "./astralinternet-icon";
 export * from "./cloud-tip-icon";
 export * from "./components-icon";
 export * from "./datatables-icon";
