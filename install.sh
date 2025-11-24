@@ -31,7 +31,7 @@ DEBUG=false                                                              # verbo
 SKIP_APT_UPDATE=false                                                    # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
 REPAIR=false
-LOCALES=true                                                             # only en
+LOCALES=false                                                            # by default only EN is installed
 SET_HOSTNAME_NOW=false                                                   # must be a FQDN
 SETUP_SWAP_ANYWAY=false                                                  # setup swapfile regardless of server ram
 CORAZA=true                                                              # install CorazaWAF, unless user provices --no-waf flag
@@ -494,6 +494,15 @@ detect_os_cpu_and_package_manager() {
         echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
     fi
+}
+
+
+# TODO
+setup_locales() {
+    if [ "$LOCALES" = true ]; then
+		# https://github.com/stefanpejcic/openpanel-translations/tree/main
+		opencli locale de-de fr-fr es-es ne-np pt-br uk-ua ru-ru tr-tr zh-cn 
+	fi
 }
 
 docker_compose_up(){
