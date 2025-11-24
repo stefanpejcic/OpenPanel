@@ -53,7 +53,7 @@ Available in an community-supported version, and a more feature-filled version w
 - dedicated [MySQL, Percona or MariaDB per user](https://openpanel.com/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/)
 - dedicated [Apache, Nginx, OpenLitespeed, Openresty + Varnish per user](https://openpanel.com/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/)
 - [detailed activity log](https://openpanel.com/docs/panel/account/account_activity/#recorded-actions) for all user actions.
-- low maintenance: each user manages their own services and [backups](https://openpanel.com/docs/panel/files/backups/)
+- low maintenance: each user manages [their own services](https://openpanel.com/docs/panel/advanced/services/) and [backups](https://openpanel.com/docs/panel/files/backups/)
 - [import cPanel accounts](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
 - [white label](https://openpanel.com/docs/articles/dev-experience/customizing-openpanel-user-interface/)
 
