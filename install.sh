@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           23.11.2025
+# Last Modified:           24.11.2025
 #
 ################################################################################
 
@@ -32,7 +32,6 @@ SKIP_APT_UPDATE=false                                                 # they are
 SKIP_DNS_SERVER=false
 REPAIR=false
 LOCALES=true                                                          # only en
-NO_SSH=false                                                          # deny port 22
 SET_HOSTNAME_NOW=false                                                # must be a FQDN
 SETUP_SWAP_ANYWAY=false                                               # setup swapfile regardless of server ram
 CORAZA=true                                                           # install CorazaWAF, unless user provices --no-waf flag
@@ -358,7 +357,6 @@ parse_args() {
         echo "  --skip-apt-update               Skip the APT update."
         echo "  --skip-firewall                 Skip installing Sentinel Firewall - Only do this if you will set another external firewall!"
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
-        echo "  --no-ssh                        Disable port 22 and whitelist the IP address of user installing the panel."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
         echo "  --post_install='<path>'         Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
@@ -401,7 +399,6 @@ while [[ $# -gt 0 ]]; do
         --imunifyav)      IMUNIFY_AV=true ;;
         --no-waf)              CORAZA=false ;;
         --debug)               DEBUG=true ;;
-        --no-ssh)              NO_SSH=true ;;
         --repair|--retry)
             REPAIR=true
             SKIP_PANEL_CHECK=true
@@ -1354,6 +1351,7 @@ install_python() {
     # Helper to install venv package for apt-based systems (when using distro python)
     install_venv_pkg() {
         if [ "$PACKAGE_MANAGER" = "apt-get" ]; then
+			debug_log apt install -y python3.12-venv || true
             debug_log $PACKAGE_MANAGER install -y python3-venv || true
         fi
     }
