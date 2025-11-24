@@ -8,7 +8,10 @@ The Account Activity page provides a log record of all your actions performed on
 
 ![account_activity_log.png](/img/panel/v2/activity.png)
 
-Logged Activities Include:
+
+## Recorded actions:
+
+The OpenPanel interface records the following account activities:
 
 * Added item to favorites
 * Removed item from favorites
