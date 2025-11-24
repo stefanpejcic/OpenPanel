@@ -23,7 +23,6 @@ const defaultOptions: InstallOptions = {
     "skip-firewall": { value: false, description: "Don't setup CSF (Only if you will set another Firewall manually)" },
     "skip-dns-server": { value: false, description: "Don't setup DNS server (Only if you will use external NS like Cloudflare)" },
     "imunifyav": { value: false, description: "Install and Setup ImunifyAV." },
-    "no-ssh": { value: false, description: "Disable port 22 and whitelist administrator IP address." },
     "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
     "post-install": { value: "", description: "Specify the post install script path." },
     swap: { value: "", description: "Set size in GB for the swap partition." },
