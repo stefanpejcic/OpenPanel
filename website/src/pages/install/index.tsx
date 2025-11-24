@@ -24,7 +24,7 @@ const defaultOptions: InstallOptions = {
     "skip-dns-server": { value: false, description: "Don't setup DNS server (Only if you will use external NS like Cloudflare)" },
     "imunifyav": { value: false, description: "Install and Setup ImunifyAV." },
     "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
-    "post-install": { value: "", description: "Specify the post install script path." },
+    "post-install": { value: "", description: "Specify the post install script path or URL." },
     swap: { value: "", description: "Set size in GB for the swap partition." },
     screenshots: { value: "", description: "Set the screenshots API URL." },
     debug: { value: false, description: "Display debug information during installation." },
