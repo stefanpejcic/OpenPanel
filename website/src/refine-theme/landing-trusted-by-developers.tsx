@@ -6,6 +6,7 @@ import {
     DigitalOceanIcon,
     UpworkIcon,
     UnlimitedIcon,
+    AstralInternetIcon,
 } from "../components/landing/icons";
 
 type Props = {
@@ -88,4 +89,5 @@ const list: IList = [
     { icon: <UpworkIcon />, id: 3, href: "https://logicweb.com/?utm_source=openpanel.com" },
     { icon: <UnlimitedIcon />, id: 4, href: "https://clouding.io/?utm_source=openpanel.com" },
     { icon: <DigitalOceanIcon />, id: 5, href: "https://digitalocean.com/?utm_source=openpanel.com" },    
+    { icon: <AstralInternetIcon />, id: 6, href: "https://www.astralinternet.com/hebergement-vps-dedie/?utm_source=openpanel.com" },        
 ];
