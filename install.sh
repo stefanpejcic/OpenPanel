@@ -22,30 +22,30 @@ GREEN='\033[0;32m'
 YELLOW='\033[0;33m'
 RED='\033[0;31m'
 RESET='\033[0m'
-export TERM=xterm-256color                                            # bug fix: tput: No value for $TERM and no -T specified
+export TERM=xterm-256color                                               # bug fix: tput: No value for $TERM and no -T specified
 export DEBIAN_FRONTEND=noninteractive
 # ======================================================================
 # Defaults for environment variables
-CUSTOM_VERSION=false                                                  # default version is latest
-DEBUG=false                                                           # verbose output for debugging failed install
-SKIP_APT_UPDATE=false                                                 # they are auto-pulled on account creation
+CUSTOM_VERSION=false                                                     # default version is latest
+DEBUG=false                                                              # verbose output for debugging failed install
+SKIP_APT_UPDATE=false                                                    # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
 REPAIR=false
-LOCALES=true                                                          # only en
-SET_HOSTNAME_NOW=false                                                # must be a FQDN
-SETUP_SWAP_ANYWAY=false                                               # setup swapfile regardless of server ram
-CORAZA=true                                                           # install CorazaWAF, unless user provices --no-waf flag
-IMUNIFY_AV=false                                                      # https://community.openpanel.org/d/193-dont-install-imunifyav-by-default
-SWAP_FILE="1"                                                         # calculated based on ram
-SEND_EMAIL_AFTER_INSTALL=false                                        # send admin logins to specified email
-SET_PREMIUM=false                                                     # added in 0.2.1
-SET_ADMIN_USERNAME=false                                              # random
-SET_ADMIN_PASSWORD=false                                              # random
+LOCALES=true                                                             # only en
+SET_HOSTNAME_NOW=false                                                   # must be a FQDN
+SETUP_SWAP_ANYWAY=false                                                  # setup swapfile regardless of server ram
+CORAZA=true                                                              # install CorazaWAF, unless user provices --no-waf flag
+IMUNIFY_AV=false                                                         # https://community.openpanel.org/d/193-dont-install-imunifyav-by-default
+SWAP_FILE="1"                                                            # calculated based on ram
+SEND_EMAIL_AFTER_INSTALL=false                                           # send admin logins to specified email
+SET_PREMIUM=false                                                        # added in 0.2.1
+SET_ADMIN_USERNAME=false                                                 # random
+SET_ADMIN_PASSWORD=false                                                 # random
 SCREENSHOTS_API_URL="http://screenshots-v2.openpanel.com/api/screenshot" # default since 0.5.9
-readonly DEFAULT_PANEL_VERSION="1.7.0"                                # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
-readonly DOCKER_COMPOSE_VERSION="v2.40.2"                             # https://github.com/docker/compose/releases
+readonly DEFAULT_PANEL_VERSION="1.7.0"                                   # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
+readonly DOCKER_COMPOSE_VERSION="v2.40.2"                                # https://github.com/docker/compose/releases
 DEV_MODE=false
-post_install_path=""                                                  # not to run
+post_install_path=""                                                     #
 # ======================================================================
 # PATHs used throughout the script
 readonly ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
