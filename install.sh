@@ -1176,7 +1176,16 @@ setup_redis_service() {
 run_custom_postinstall_script() {
     if [ -n "$post_install_path" ]; then
         echo "Running post install script.."
-        debug_log bash $post_install_path
+        if [[ "$post_install_path" =~ ^https?:// ]]; then
+            tmp_script=$(mktemp)
+            echo "Downloading script from $post_install_path..."
+            wget -q -O "$tmp_script" "$post_install_path" || { echo "Failed to download script"; return 1; }
+            chmod +x "$tmp_script"
+            debug_log bash "$tmp_script"
+            rm -f "$tmp_script"
+        else
+            debug_log bash "$post_install_path"
+        fi
     fi
 }
 
