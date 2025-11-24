@@ -3,62 +3,18 @@ import { SVGProps } from "react";
 
 export const AstralInternetIcon = (props: SVGProps<SVGSVGElement>) => (
 
-<svg
-   version="1.1"
-   id="svg2"
-   width={1024}
-   height={120}
-   viewBox="0 0 1024 120"
-   sodipodi:docname="astral-logo-dark.svg"
-   inkscape:version="1.2 (dc2aedaf03, 2022-05-15)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <defs
-     id="defs6">
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath22">
-      <path
-         d="M 0,72 H 216 V 0 H 0 Z"
-         id="path20" />
-    </clipPath>
-  </defs>
-  <sodipodi:namedview
-     id="namedview4"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     showgrid="false"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="115.2584"
-     inkscape:cy="-120.20815"
-     inkscape:window-width="1920"
-     inkscape:window-height="1009"
-     inkscape:window-x="1912"
-     inkscape:window-y="2"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="g10">
-    <inkscape:page
-       x="0"
-       y="0"
-       id="page8"
-       width="1024"
-       height="120"
-       inkscape:export-filename="astral-long-dark-1024x120.png"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
-  </sodipodi:namedview>
-  <g
-     id="g10"
-     inkscape:groupmode="layer"
-     inkscape:label="Page 1"
-     transform="matrix(1.3333333,0,0,-1.3333333,0,96)">
+  <svg
+    width={1024}
+    height={120}
+    viewBox="0 0 1024 120"
+    {...props}
+  >
+    <defs>
+      <clipPath id="clipPath22">
+        <path d="M 0,72 H 216 V 0 H 0 Z" />
+      </clipPath>
+    </defs>
+  <g transform="matrix(1.3333333,0,0,-1.3333333,0,96)">
     <g
        id="g12"
        transform="matrix(4.0992586,0,0,4.0992586,38.570525,39.212915)"
