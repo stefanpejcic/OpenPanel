@@ -2,7 +2,7 @@
 
 OpenPanel uses Caddy webserver to handle SSL and reverse proxy to per-user webservers.
 
-If Caddy is disbled, all websites hosted on the server are down.
+If Caddy is disabled, all websites hosted on the server are down.
 
 To troubleshoot Caddy-related issues:
 
