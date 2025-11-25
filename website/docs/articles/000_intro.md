@@ -49,6 +49,7 @@ sidebar_position: 1
 # Enterprise
 - [OpenPanel Pricing](/docs/articles/license/pricing/)
 - [Upgrading to OpenPanel Enterprise and activating License](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
+- [Downgrading from OpenPanel Enterprise to Community edition](/docs/articles/license/how_to_downgrade_openpanel_license/)
 - [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
 
 # Domains
