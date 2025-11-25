@@ -38,7 +38,7 @@ export const CommonFooter = () => {
                 >
                     OpenPanel
                 </a>
-                    © {`2023–${currentYear}`}
+                     © {`2023–${currentYear}`}
                 </div>
 
                 <div
