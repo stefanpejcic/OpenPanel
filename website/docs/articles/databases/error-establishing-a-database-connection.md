@@ -36,7 +36,7 @@ Example:
 ```bash
 root@openpanel:~# docker ps -a
 CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS                          PORTS     NAMES
-6d9885164cba   mysql/mysql-server   "/entrypoint.sh mysq…"   30 minutes ago   Restarting (1) 22 seconds ago             openpanel_mysql
+6d9885164cba   mysql/mysql-server   "/entrypoint.sh mysql…"   30 minutes ago   Restarting (1) 22 seconds ago             openpanel_mysql
 ```
 
 
