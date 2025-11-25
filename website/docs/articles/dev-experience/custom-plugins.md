@@ -38,7 +38,7 @@ Currently, plugins have a few requirements and limitations:
 # traceroute.py
 
 '''
-.py file needs to have the same name as the folder, so f folder is 'traceoute' file needs to be named 'traceroute.py' in order to be imported.
+.py file needs to have the same name as the folder, so f folder is 'traceroute' file needs to be named 'traceroute.py' in order to be imported.
 '''
 
 # import flask app
