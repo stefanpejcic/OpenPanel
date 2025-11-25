@@ -28,7 +28,7 @@ After saving this change the new configuration is applied and our WordPress inst
 
 The easiest way to make sure the database service is running is by accessing the Openpanel > MySQL/Databases page, if your databases are listed on that page that means the container is healthy and running.
 
-If you get a blank page or an empty table instead it means that the database container is inactive, simply accesing this page will send a trigger to start the container automatically.
+If you get a blank page or an empty table instead it means that the database container is inactive, simply accessing this page will send a trigger to start the container automatically.
 
 However if data doesn't appear on the page in a couple of minutes there's an issue with the database container.
 
@@ -46,7 +46,7 @@ You can reassign a user to a database at any time on OpenPanel > MySQL/Assign Us
 
 Simply select your user and database from the dropdown menus and click the "Assign User to Database" button.
 
-## Try Reseting the password of your database user
+## Try Resetting the password of your database user
 
 You can change your database user's password on OpenPanel > MySQL/Users:
 
