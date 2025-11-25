@@ -9,7 +9,7 @@ More information: [OpenPanel Community VS Enterprise edition](/enterprise)
 
 ## Downgrade
 
-:::warning 
+:::info
 Downgrading from the Enterprise to the Community edition will immediately remove all Enterprise features and modules from the OpenPanel UI. Existing enterprise services - such as FTP and email - will continue running, but you will no longer have the ability to manage them from the OpenPanel interface.
 :::
 
