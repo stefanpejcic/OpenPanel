@@ -93,10 +93,10 @@ services:
       - /root/:/root/
       - ${REDIS_SOCKET}:/tmp/redis/
       #  https://dev.openpanel.com/customize.html#Custom-Code
-      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/
-      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css
-      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js
-      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
+      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro
+      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro
+      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js:ro
+      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json:ro
       # localization
       - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/
       # emails
