@@ -36,13 +36,11 @@ CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 if grep -q "^terminal_command_timeout" "$CONFIG_FILE"; then
     sed -i 's/^terminal_command_timeout/terminal_timeout/' "$CONFIG_FILE"
     echo "Replaced terminal_command_timeout with terminal_timeout."
-    exit 0
+elif grep -q "^terminal_timeout" "$CONFIG_FILE"; then
+    :
+else
+    echo "Inserting terminal_timeout=10 into [PANEL]..."
+    sed -i '/^\[PANEL\]/a terminal_timeout=10' "$CONFIG_FILE"
+    echo "terminal_timeout=10 added successfully."
 fi
 
-if grep -q "^terminal_timeout" "$CONFIG_FILE"; then
-    echo "terminal_timeout already exists. Nothing to add."
-    exit 0
-fi
-echo "Inserting terminal_timeout=10 into [PANEL]..."
-sed -i '/^\[PANEL\]/a terminal_timeout=10' "$CONFIG_FILE"
-echo "terminal_timeout=10 added successfully."
