@@ -49,7 +49,7 @@ Example output:
 |  1 | Standard plan  | Small plan for testing |             0 |             10 |           0 |         0 | 5 GB       |      1000000 |        0 | 2    | 2g   |        10 | default     |
 |  2 | Developer Plus | 4 cores, 6G ram        |             0 |             10 |           0 |         0 | 10 GB      |      1000000 |        0 | 2    | 3g   |       100 | proba       |
 |  3 | unlimited      | unlimited              |             0 |              0 |           0 |         0 | 100 GB     |       250000 |        0 | 2    | 3g   |         0 | default     |
-|  4 | unlimited2     | fdfsd                  |             0 |              0 |           0 |         0 | 0 GB       |            0 |        0 | 0    | 0g   |         0 | proba       |
+|  4 | unlimited2     | default                |             0 |              0 |           0 |         0 | 0 GB       |            0 |        0 | 0    | 0g   |         0 | proba       |
 +----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+
 
 ```
