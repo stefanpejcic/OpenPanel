@@ -39,7 +39,7 @@ imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"interval": "none"}}
 
 ---
 
-## Upgrade to ImmunifyAV+
+## Upgrade to ImunifyAV+
 
 Execute the following command on your server to activate the Imunify AV+ license.  **If you plan on using Imunify AV free version you can skip this step**.
 
