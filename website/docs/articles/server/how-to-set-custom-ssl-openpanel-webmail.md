@@ -19,7 +19,7 @@ Create a directory `custom` in `/etc/openpanel/caddy/ssl/`:
 mkdir -p /etc/openpanel/caddy/ssl/custom/
 ```
 
-Then create directory name same as your doamin
+Then create directory name same as your domain
 ```bash
 mkdir -p /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/YOUR_DOMAIN_HERE/
 ```
