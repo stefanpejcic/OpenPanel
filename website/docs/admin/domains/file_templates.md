@@ -81,7 +81,7 @@ To revert to the original template:
 
 ## Suspended User
 
-This is the HTML page shown on all domains owned by the user when their acccount is suspended **by the Administrator**.
+This is the HTML page shown on all domains owned by the user when their account is suspended **by the Administrator**.
 
 ```html
 <!DOCTYPE html>
