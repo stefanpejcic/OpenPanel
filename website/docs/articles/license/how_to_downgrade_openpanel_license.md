@@ -1,4 +1,4 @@
-# Downgrade to Community
+# Downgrade License
 
 OpenPanel is available in two editions:
 
