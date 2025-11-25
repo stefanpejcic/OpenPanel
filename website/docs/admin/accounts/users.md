@@ -83,7 +83,7 @@ opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_NAME>
 ```
 Example: 
 ```bash
-opencli user-add filip masdhjkb213g filip@openadmin.co default_plan_apache
+opencli user-add filip password1234 filip@openadmin.com default_plan_apache
 ```
 
 :::tip
@@ -100,7 +100,7 @@ curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer JWT_T
 
 Example:
 ```bash
-curl -X POST "http://PANEL:2087/api/users" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGcBns" -H "Content-Type: application/json" -d '{"username":"stefan","password":"s32dsasaq","email":"stefan@pejcic.rs","plan_name":"default_plan_nginx"}'
+curl -X POST "http://PANEL:2087/api/users" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGcBns" -H "Content-Type: application/json" -d '{"username":"stefan","password":"strongishpassword1234","email":"stefan@pejcic.rs","plan_name":"default_plan_nginx"}'
 ```
 
 Example response:
@@ -108,7 +108,7 @@ Example response:
 ```json
 {
   "response": {
-    "message": "Successfully added user stefan password: s32dsasaq"
+    "message": "Successfully added user stefan password: strongishpassword1234"
   },
   "success": true
 }
