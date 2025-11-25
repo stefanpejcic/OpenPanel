@@ -24,7 +24,7 @@ du -h / | sort -hr | head -n 20
 
 Docker can quickly consume space with unused containers, images, volumes, and networks.
 
-* To rrmove **unused** Docker data:
+* To remove **unused** Docker data:
 
 ```bash
 docker system prune
