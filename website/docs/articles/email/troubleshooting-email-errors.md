@@ -4,7 +4,7 @@ Email communication is crucial for any organization, but issues can arise that d
 
 ## Not able to send emails
 
-Cloud hsting providers such as Hetzner block sending emials using `25` and `465` ports. Make sure that your provider does not block these ports.
+Cloud hosting providers such as Hetzner block sending emails using `25` and `465` ports. Make sure that your provider does not block these ports.
 
 
 ## ERROR list mail user: '/tmp/docker-mailserver/postfix-accounts.cf' does not exist
