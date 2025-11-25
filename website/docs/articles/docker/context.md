@@ -163,7 +163,7 @@ OpenPanel uses [mcuadros/ofelia](https://github.com/mcuadros/ofelia) for cron ob
 Ports are defined in the user’s `.env` file:
 
 ```bash
-root@vagabundo:/# grep _PORT home/mysqlbaja/.env 
+root@stefan:/# grep _PORT home/mysqlbaja/.env 
 HTTP_PORT="127.0.0.1:32780:80"
 HTTPS_PORT="127.0.0.1:32781:443"
 PROXY_HTTP_PORT="127.0.0.1:32782:80" 
