@@ -74,3 +74,25 @@ Email is now enabled for all hosting plans that include the **emails** feature. 
 
 [![2025-07-09-17-19.png](https://i.postimg.cc/44QPNySY/2025-07-09-17-19.png)](https://postimg.cc/144wvmPS)
 
+---
+
+## Troubleshooting
+
+If the mail server fails to start, try launching it manually from the terminal:
+
+```bash
+cd /usr/local/mail/openmail && docker compose up mailserver
+```
+
+Review the startup logs for any errors, resolve them, and once the service is running correctly, stop it and restart it in detached mode using the `-d` flag.
+
+The most common reasons the mail server fails to start include:
+
+* **Another service already using port 25**—for example, Exim.
+  **Solution:** Disable or stop the conflicting service.
+
+* **Firewall or iptables error** that block docker starting.
+  **Solution:** Restart the Docker service to reset network rules.
+
+* **Invalid Configuration** for mailserver.
+  **Solution:** Revert the default mailserver .env file.
