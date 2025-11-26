@@ -19,6 +19,7 @@ The OpenPanel interface records the following account activities:
 * Email address changed
 * Username changed
 * Forgot password requested (via email)
+* Password reset (via email)
 * Logged in with password
 * Logged in using 2FA code
 * Logged in via API call
