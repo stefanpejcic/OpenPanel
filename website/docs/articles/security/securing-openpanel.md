@@ -21,6 +21,8 @@ For Server Administrators (OpenAdmin):
 - [Change SSH root user password](/docs/admin/advanced/root-password/)
 - [Change SSH port](/docs/admin/advanced/ssh/#basic-ssh-settings/)
 - [Configure SSH Keys](/docs/admin/advanced/ssh/#authorized-ssh-keys)
+- [Disable Terminal in OpenAdmin](docs/articles/dev-experience/disable-openadmin-web-terminal/)
+- [Disable Server Reboot in OpenAdmin](docs/articles/dev-experience/disable-openadmin-server-reboot/)
 - [Disable OpenAdmin access](/docs/admin/security/disable-admin/)
 
 For Website Administrators (OpenPanel):
