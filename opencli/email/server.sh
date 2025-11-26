@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 20.11.2025
+# Last Modified: 25.11.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -37,7 +37,6 @@ CONTAINER=openadmin_mailserver                         # DMS container name
 TIMEOUT=3600                                           # for graceful stop
 DOCKER_COMPOSE="docker compose"                        # compose plugin
 
-set -ueo pipefail
 
     ensure_jq_installed() {
         # Check if jq is installed
