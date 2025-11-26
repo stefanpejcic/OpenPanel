@@ -68,6 +68,8 @@ sidebar_position: 1
 - [Configuring ImunifyAV](/docs/articles/security/setup-imunifyav/)
 - [Rate-limiting access to OpenPanel or OpenAdmin](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
+- [Disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
+- [Disable the Server Reboot feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-server-reboot/)
 - [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf)
 - [CSF Blocklists](/docs/articles/security/csf-blocklists/)
 
@@ -94,7 +96,6 @@ sidebar_position: 1
 
 # Advanced
 - [Set Default User Locale](/docs/articles/accounts/default-user-locales/)
-- [How to disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
 - [Configure unlimited CPU and Memory for user](/docs/articles/docker/how-to-remove-resource-limits-for-user-service-containers/)
 - [Auto-start Services](/docs/articles/dev-experience/autostart-services/)
 - [Restricted Usernames for services](/docs/articles/accounts/forbidden-usernames/)
