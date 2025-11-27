@@ -30,11 +30,10 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                     "py-10 sm:py-20",
                 )}
             >
-                <RefineLogoIcon /> refine-logo
+                <RefineLogoIcon />
                 <span className={clsx("text-gray-500 dark:text-gray-400")}>
-                    with
+                        Enterprise
                 </span>
-                <Logo />
             </div>
 
             <div
