@@ -73,8 +73,8 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                         "rounded-lg",
                         "z-[1]",
                     )}
-                    src={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${data.cover}`}
-                    srcSet={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${data.cover2x}`}
+                    src={`${data.cover}`}
+                    srcSet={`${data.cover2x}`}
                     alt={data.coverAlt}
                 />
             </div>
