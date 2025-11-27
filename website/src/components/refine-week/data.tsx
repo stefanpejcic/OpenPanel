@@ -29,8 +29,8 @@ const strapiShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURICom
 export const data = {
     supabase: {
         logo: SupabaseWithText,
-        cover: "/week-of-refine/supabase-cover.jpg",
-        cover2x: "/week-of-refine/supabase-cover-2x.jpg",
+        cover: "/img/tutorial-cards/whmcs.jpeg",
+        cover2x: "/img/tutorial-cards/whmcs.jpeg",
         coverAlt: "refine week",
         title: "supabase",
         description:
@@ -106,8 +106,8 @@ export const data = {
     },
     strapi: {
         logo: StrapiWithText,
-        cover: "/week-of-refine/strapi-cover.png",
-        cover2x: "/week-of-refine/strapi-cover-2x.png",
+        cover: "/img/tutorial-cards/FOSSBilling.png",
+        cover2x: "/img/tutorial-cards/FOSSBilling.png",
         coverAlt: "Refine week",
         title: "strapi",
         description:
