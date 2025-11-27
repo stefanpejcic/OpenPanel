@@ -15,15 +15,15 @@ import { FooterTwitterIcon as TwitterIcon } from "../../refine-theme/icons/foote
 
 const hashtags = "opensource";
 const supabaseShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://refine.dev/week-of-refine-supabase/",
+    "https://openpanel.com/whmcs-module/",
 )}&text=${encodeURIComponent(
-    `📚 RefineWeek ft Supabase: A week-long journey of building a complete CRUD app with @refine_dev and @supabase!\n\n`,
+    `📚 Setup WHMCS & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
 const strapiShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-    "https://refine.dev/week-of-refine-strapi/",
+    "https://openpanel.com/fossbilling-module/",
 )}&text=${encodeURIComponent(
-    `📚 RefineWeek ft Strapi: A week-long journey of building a complete CRUD app with @refine_dev and @strapijs!\n\n`,
+    `📚 Setup FOSSBilling & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
 export const data = {
