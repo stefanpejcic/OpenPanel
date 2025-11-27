@@ -51,8 +51,8 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                         "rounded-[4px]",
                         "z-[1]",
                     )}
-                    src={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${data.cover}`}
-                    srcSet={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${data.cover2x}`}
+                    src={`${data.cover}`}
+                    srcSet={`${data.cover2x}`}
                     alt={data.coverAlt}
                 />
             </div>
