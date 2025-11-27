@@ -158,18 +158,6 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                                             },
                                         )}
                                     />
-                                    <img
-                                        className={clsx(
-                                            "z-[1]",
-                                            "p-0 m-0",
-                                            "h-[208px] sm:h-[365px]",
-                                            "object-cover",
-                                            "rounded-[4px]",
-                                        )}
-                                        src={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${item.image}`}
-                                        srcSet={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${item.image2x}`}
-                                        alt={item.title}
-                                    />
                                 </div>
                                 <div
                                     className={clsx(
