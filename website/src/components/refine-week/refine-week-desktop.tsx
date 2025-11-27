@@ -172,20 +172,6 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
                                         <span>View Instructions</span>
                                     </a>
                                 </div>
-
-                                <img
-                                    className={clsx(
-                                        "z-[1]",
-                                        "p-0 m-0",
-                                        "min-w-[304px] h-[192px]",
-                                        "object-cover",
-                                        "rounded-[4px]",
-                                        { "opacity-50": !item?.link },
-                                    )}
-                                    src={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${item.image}`}
-                                    srcSet={`https://refine.ams3.cdn.digitaloceanspaces.com/website/static${item.image2x}`}
-                                    alt={item.title}
-                                />
                             </div>
                         </div>
                     );
