@@ -6,7 +6,7 @@
 #        opencli report [--public] [--cli] [--csf]
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 26.11.2025
+# Last Modified: 27.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -168,6 +168,7 @@ run_csf_rules() {
 check_services_status() {
   echo "=== Services Status ===" >> "$output_file"
   run_command "docker --context=default compose ls" "Listing OpenPanel Stack"
+  run_command "docker --context=default ps -a" "Checking system containers status"
   run_command "systemctl status admin" "Checking status of OpenAdmin service"
   run_command "systemctl status docker" "Checking status of Docker service"
   run_command "systemctl status csf" "Checking if Sentinel Firewall (CSF) is running"

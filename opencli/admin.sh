@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: admin.sh
 # Description: Manage OpenAdmin service and Administrators.
-# Usage: opencli admin <setting_name> 
+# Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 26.11.2025
+# Last Modified: 27.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,33 +28,27 @@
 # THE SOFTWARE.
 ################################################################################
 
+service_name="admin"
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+RESET='\033[0m'
+
+# CONFIGURATION FILES AND LOGS
 CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 FORBIDDEN_USERNAMES_FILE="/etc/openpanel/openadmin/config/forbidden_usernames.txt"
-service_name="admin"
 admin_logs_file="/var/log/openpanel/admin/error.log"
 admin_access_log="/var/log/openpanel/admin/access.log"
 admin_api_log="/var/log/openpanel/admin/api.log"
 admin_login_log="/var/log/openpanel/admin/login.log"
 admin_failed_login_log="/var/log/openpanel/admin/failed_login.log"
+notifications_file="/etc/openpanel/openadmin/config/notifications.ini"
 admin_crons_log="/var/log/openpanel/admin/cron.log"
 db_file_path="/etc/openpanel/openadmin/users.db"
-GREEN='\033[0;32m'
-RED='\033[0;31m'
-RESET='\033[0m'
+ENTERPRISE="/usr/local/opencli/enterprise.sh"
 
 
 
-# IP SERVERS
-SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
-if [ -f "$SCRIPT_PATH" ]; then
-    source "$SCRIPT_PATH"
-else
-    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-fi
-
-
-
-# Display usage information
+# ---------------------- opencli admin help ---------------------- #
 usage() {
     echo "Usage: opencli admin <command> [options]"
     echo ""
@@ -96,7 +90,7 @@ usage() {
 
 
 
-
+# ---------------------- opencli admin notifications help ---------------------- #
 usage_for_notifications() {
     echo "Usage: opencli admin notifications <get|update> <what> <value>"
     echo ""
@@ -112,29 +106,22 @@ usage_for_notifications() {
     echo "  opencli admin notifications update du 95      - receive notification when server disk usage is over 95%."
     echo ""
     echo "List of all available options: https://dev.openpanel.com/cli/admin.html#Options"
-    exit 1
-
-
-reboot=yes
-attack=yes
-limit=yes
-backup=yes
-update=yes
-login=yes
-services=panel,admin,nginx,docker,mysql,named,csf,certbot
-load=10
-cpu=90
-ram=85
-du=85
-swap=40
-   
+    exit 1  
 }
 
 
+# ---------------------- START HELPER FUNCTIONS ---------------------- #
+
 get_admin_url() {
+
+	SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
+	if [ -f "$SCRIPT_PATH" ]; then
+	    source "$SCRIPT_PATH"
+	else
+	    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
+	fi
+
     caddyfile="/etc/openpanel/caddy/Caddyfile"
-
-
     domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
@@ -144,10 +131,11 @@ get_admin_url() {
         ip=$(get_public_ip)
         admin_url="http://${ip}:2087/"
     else
+		# ---------------------- letsencrypt
 		local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
 		local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
 	
-		# custom paths!
+		# ---------------------- custom ssl
 		local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
 		local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
 	 
@@ -173,230 +161,6 @@ get_public_ip() {
 }
 
 
-detect_service_status() {
-    if systemctl is-active --quiet $service_name; then
-        admin_url=$(get_admin_url)
-        echo -e "${GREEN}●${RESET} OpenAdmin is running and is available on: $admin_url"
-    else
-         echo -e "${RED}×${RESET} OpenAdmin is not running. To enable it run 'opencli admin on' "
-    fi
-}
-
-
-
-
-add_new_user() {
-    local username="$1"
-    local password="$2"
-    local flag="$3"
-    local password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$password")    
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
-
-    if [ "$user_exists" -gt 0 ]; then
-        echo -e "${RED}Error${RESET}: Username '$username' already exists."
-    else
-    # Define the SQL commands
-    
-    create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
-    if [ "$flag" == "--reseller" ]; then
-        role="reseller"
-    elif [ "$flag" == "--super" ]; then
-        admin_check_sql="SELECT COUNT(*) FROM user WHERE role = 'admin';"
-        admin_count=$(sqlite3 "$db_file_path" "$admin_check_sql")
-        if [ "$admin_count" -eq 0 ]; then
-            role="admin"
-        else
-            echo "An Super Admin user already exists. Cannot create another super admin."
-            exit 1
-        fi
-    else
-        role="user"
-    fi
-
-    insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$username', '$password_hash', '$role');"
-
-    # Execute the SQL commands
-    output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
-        if [ $? -ne 0 ]; then
-            # Output the error and the exact SQL command that failed
-            echo "User not created: $output"
-            # TODO: on debug only! echo "Failed SQL Command: $insert_user_sql"
-        else
-            if [ "$flag" == "--reseller" ]; then
-	    	local resellers_template="/etc/openpanel/openadmin/config/reseller_template.json"
-	    	local resellers_dir="/etc/openpanel/openadmin/resellers"
-	    	mkdir -p $resellers_dir
-      		cp $resellers_template $resellers_dir/$username.json
-                echo "Reseller user '$username' created."
-            elif [ "$flag" == "--super" ]; then
-                echo "Super Administrator '$username' created."
-            else
-                echo "Admin User '$username' created."
-            fi
-        fi
-    fi
-}
-
-
-update_reseller_account() {
-    local username=""
-    local allowed_plans=""
-    local max_accounts=""
-    local max_disk_blocks=""
-
-    # Parse arguments
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --allowed_plans=*) allowed_plans="${1#*=}" ;;
-            --max_accounts=*) max_accounts="${1#*=}" ;;
-            --max_disk_blocks=*) max_disk_blocks="${1#*=}" ;;
-            *) 
-                if [[ -z "$username" ]]; then
-                    username="$1"
-                fi
-                ;;
-        esac
-        shift
-    done
-
-    # Defaults
-    [[ -z "$max_accounts" ]] && max_accounts=0
-    [[ -z "$max_disk_blocks" ]] && max_disk_blocks=0
-    [[ -z "$allowed_plans" ]] && allowed_plans="[]"
-
-    # Normalize allowed_plans
-    if [[ "$allowed_plans" != \[*\] ]]; then
-        IFS=',' read -r -a plans_array <<< "$allowed_plans"
-        allowed_plans=$(printf '%s\n' "${plans_array[@]}" | jq -R . | jq -s .)
-    fi
-
-    local reseller_file="/etc/openpanel/openadmin/resellers/$username.json"
-    if [[ ! -f "$reseller_file" ]]; then
-        echo "Error: Reseller file $reseller_file not found!"
-        return 1
-    fi
-
-    # Update JSON
-    jq --argjson max_accounts "$max_accounts" \
-       --argjson max_disk_blocks "$max_disk_blocks" \
-       --arg plans_json "$allowed_plans" \
-       '.max_accounts = $max_accounts
-        | .max_disk_blocks = $max_disk_blocks
-        | .allowed_plans = ($plans_json | fromjson)' \
-       "$reseller_file" > "$reseller_file.tmp" && mv "$reseller_file.tmp" "$reseller_file"
-
-    echo "Reseller $username updated successfully."
-}
-
-
-
-
-# Function to update the username for provided user
-update_username() {
-    local old_username="$1"
-    local new_username="$2"
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$old_username';")
-    local new_user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$new_username';")
-
-    if [ "$user_exists" -gt 0 ]; then
-        if [ "$new_user_exists" -gt 0 ]; then
-            echo -e "${RED}Error${RESET}: Username '$new_username' already taken."
-        else
-            sqlite3 $db_file_path "UPDATE user SET username='$new_username' WHERE username='$old_username';"
-            echo "User '$old_username' renamed to '$new_username'."
-	    	sed -i "s/\b$old_username\b/$new_username/g" /var/log/openpanel/admin/login.log   > /dev/null 2>&1
-			# for resellers
-			mv /etc/openpanel/features/$old_username /etc/openpanel/features/$username  > /dev/null 2>&1
-	    	mv /etc/openpanel/openadmin/resellers/$old_username.json /etc/openpanel/openadmin/resellers/$new_username.json  > /dev/null 2>&1   
-        fi
-    else
-        echo -e "${RED}Error${RESET}: User '$old_username' not found."
-    fi
-}   
-
-# Function to update the password for provided user
-update_password() {
-    local username="$1"
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")    
-    local password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$new_password")
-
-    if [ "$user_exists" -gt 0 ]; then
-        sqlite3 $db_file_path "UPDATE user SET password_hash='$password_hash' WHERE username='$username';"        
-        echo "Password for user '$username' changed."
-        echo ""
-        printf "=%.0s"  $(seq 1 63)
-        echo ""
-        detect_service_status
-        echo ""
-        echo "- username: $username"
-        echo "- password: $new_password"
-        echo ""
-        printf "=%.0s"  $(seq 1 63)
-        echo ""
-    else
-        echo -e "${RED}Error${RESET}: User '$username' not found."
-    fi
-}
-
-
-
-list_current_users() {
-users=$(sqlite3 "$db_file_path" "SELECT username, role, is_active FROM user;")
-echo "$users"
-}
-
-suspend_user() {
-    local username="$1"
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
-    local is_admin=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username' AND role='admin';")
-
-    if [ "$user_exists" -gt 0 ]; then
-        if [ "$is_admin" -gt 0 ]; then
-            echo -e "${RED}Error${RESET}: Cannot suspend user '$username' with 'admin' role."
-        else
-            sqlite3 $db_file_path "UPDATE user SET is_active='0' WHERE username='$username';"
-            echo "User '$username' suspended successfully."
-
-            #echo ""
-            #echo "Suspending accounts owned by the reseller $username"
-            query_for_usernames="SELECT username FROM users WHERE owner='$username';"
-            usernames=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$query_for_usernames" -se)
-            if [ $? -eq 0 ]; then
-                for user in $usernames; do
-                    echo "User: $user"
-                    opencli user-suspend "$user"
-                done
-            fi         
-           
-        fi
-    else
-        echo -e "${RED}Error${RESET}: User '$username' does not exist."
-    fi
-
-}
-
-unsuspend_user() {
-    local username="$1"
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
-
-    if [ "$user_exists" -gt 0 ]; then
-            sqlite3 $db_file_path "UPDATE user SET is_active='1' WHERE username='$username';"
-            echo "User '$username' unsuspended successfully."
-
-            #echo ""
-            #echo "Unsuspending accounts owned by the reseller $username"
-            query_for_usernames="SELECT username FROM users WHERE owner='$username';"
-            usernames=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$query_for_usernames" -se)
-            if [ $? -eq 0 ]; then
-                for user in $usernames; do
-                    echo "User: $user"
-                    opencli user-unsuspend "$user"
-                done
-            fi         
-    else
-        echo -e "${RED}Error${RESET}: User '$username' does not exist."
-    fi
-}
 
 delete_existing_users() {
     local username="$1"
@@ -424,39 +188,32 @@ delete_existing_users() {
     fi
 }
 
-
-
-config_file="/etc/openpanel/openadmin/config/notifications.ini"
-
-# Function to get the current configuration value for a parameter
 get_config() {
     param_name="$1"
-    param_value=$(grep "^$param_name=" "$config_file" | cut -d= -f2-)
+    param_value=$(grep "^$param_name=" "$notifications_file" | cut -d= -f2-)
     
     if [ -n "$param_value" ]; then
         echo "$param_value"
-    elif grep -q "^$param_name=" "$config_file"; then
+    elif grep -q "^$param_name=" "$notifications_file"; then
         echo "Parameter $param_name has no value."
     else
         echo "Parameter $param_name does not exist. Docs: https://dev.openpanel.com/cli/admin.html#Options"
     fi
 }
 
-# Function to update a configuration value
 update_config() {
     param_name="$1"
     new_value="$2"
 
-    # Check if the parameter exists in the config file
-    if grep -q "^$param_name=" "$config_file"; then
-        # Update the parameter with the new value
-        sed -i "s/^$param_name=.*/$param_name=$new_value/" "$config_file"
+    if grep -q "^$param_name=" "$notifications_file"; then
+        sed -i "s/^$param_name=.*/$param_name=$new_value/" "$notifications_file"
         echo "Updated $param_name to $new_value"
         
     else
         echo "Parameter $param_name not found in the configuration file. Docs: https://dev.openpanel.com/cli/admin.html#Update"
     fi
 }
+
 
 # added validation (only letters and numbers) in 0.2.8
 validate_password_and_username() {
@@ -499,9 +256,257 @@ validate_password_and_username() {
 
 
 
+check_edition() {
+	key_value=$(grep "^key=" $CONFIG_FILE_PATH | cut -d'=' -f2-)
+
+	if [ -z "$key_value" ]; then
+	    echo -e "${RED}Error${RESET}: The OpenPanel Community Edition does not support Reseller users. To create multiple Administrator and Reseller accounts, please upgrade to the Enterprise Edition."
+	    source $ENTERPRISE
+	    echo "$ENTERPRISE_LINK"
+	    exit 1
+	fi
+}
 
 
+# ---------------------- END HELPER FUNCTIONS ---------------------- #
 
+
+# ---------------------- opencli admin ---------------------- #
+detect_service_status() {
+    if systemctl is-active --quiet $service_name; then
+        admin_url=$(get_admin_url)
+        echo -e "${GREEN}●${RESET} OpenAdmin is running and is available on: $admin_url"
+    else
+         echo -e "${RED}×${RESET} OpenAdmin is not running. To enable it run 'opencli admin on' "
+    fi
+}
+
+
+# ---------------------- opencli admin new ---------------------- #
+add_new_user() {
+    local username="$1"
+    local password="$2"
+    local flag="$3"
+    local password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$password")    
+
+	# ---------------------- check total user count and license
+    total_users=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user;")
+    key_value=$(grep "^key=" $CONFIG_FILE_PATH | cut -d'=' -f2-)
+    if [ -z "$key_value" ] && [ "$total_users" -ge 1 ]; then
+        echo -e "${RED}Error${RESET}: The OpenPanel Community Edition supports only a single Admin user. To enable multiple Administrator and Reseller accounts, please upgrade to the Enterprise Edition."
+	    source $ENTERPRISE
+	    echo "$ENTERPRISE_LINK"
+        exit 1
+    fi
+
+	# ---------------------- check if username already exists
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
+    if [ "$user_exists" -gt 0 ]; then
+        echo -e "${RED}Error${RESET}: Username '$username' already exists."
+		exit 1
+	fi
+
+	# ---------------------- determine role
+	if [ "$flag" == "--reseller" ]; then
+		role="reseller"
+		#check_edition	
+	elif [ "$flag" == "--super" ]; then
+		admin_check_sql="SELECT COUNT(*) FROM user WHERE role = 'admin';"
+		admin_count=$(sqlite3 "$db_file_path" "$admin_check_sql")
+		if [ "$admin_count" -eq 0 ]; then
+			role="admin"
+		else
+			echo "An Super Admin user already exists. Cannot create another super admin."
+			exit 1
+		fi
+	else
+		role="user"
+	fi
+
+	# ---------------------- create user	
+	insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$username', '$password_hash', '$role');"
+	create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
+	output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
+	if [ $? -ne 0 ]; then
+		echo "User not created: $output"
+		# TODO: on debug only! echo "Failed SQL Command: $insert_user_sql"
+	else
+	# ---------------------- success msg
+		if [ "$flag" == "--reseller" ]; then
+			local resellers_template="/etc/openpanel/openadmin/config/reseller_template.json"
+			local resellers_dir="/etc/openpanel/openadmin/resellers"
+			mkdir -p $resellers_dir
+			cp $resellers_template $resellers_dir/$username.json
+			echo "Reseller user '$username' created."
+		elif [ "$flag" == "--super" ]; then
+			echo "Super Administrator '$username' created."
+		else
+			echo "Admin User '$username' created."
+		fi
+	fi
+}
+
+
+# ---------------------- opencli admin update ---------------------- #
+update_reseller_account() {
+    local username=""
+    local allowed_plans=""
+    local max_accounts=""
+    local max_disk_blocks=""
+
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --allowed_plans=*) allowed_plans="${1#*=}" ;;
+            --max_accounts=*) max_accounts="${1#*=}" ;;
+            --max_disk_blocks=*) max_disk_blocks="${1#*=}" ;;
+            *) 
+                if [[ -z "$username" ]]; then
+                    username="$1"
+                fi
+                ;;
+        esac
+        shift
+    done
+
+    [[ -z "$max_accounts" ]] && max_accounts=0
+    [[ -z "$max_disk_blocks" ]] && max_disk_blocks=0
+    [[ -z "$allowed_plans" ]] && allowed_plans="[]"
+
+    if [[ "$allowed_plans" != \[*\] ]]; then
+        IFS=',' read -r -a plans_array <<< "$allowed_plans"
+        allowed_plans=$(printf '%s\n' "${plans_array[@]}" | jq -R . | jq -s .)
+    fi
+
+    local reseller_file="/etc/openpanel/openadmin/resellers/$username.json"
+    if [[ ! -f "$reseller_file" ]]; then
+        echo "Error: Reseller file $reseller_file not found!"
+        return 1
+    fi
+
+    jq --argjson max_accounts "$max_accounts" \
+       --argjson max_disk_blocks "$max_disk_blocks" \
+       --arg plans_json "$allowed_plans" \
+       '.max_accounts = $max_accounts
+        | .max_disk_blocks = $max_disk_blocks
+        | .allowed_plans = ($plans_json | fromjson)' \
+       "$reseller_file" > "$reseller_file.tmp" && mv "$reseller_file.tmp" "$reseller_file"
+
+    echo "Reseller $username updated successfully."
+}
+
+
+# ---------------------- opencli admin rename ---------------------- #
+update_username() {
+    local old_username="$1"
+    local new_username="$2"
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$old_username';")
+    local new_user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$new_username';")
+
+    if [ "$user_exists" -gt 0 ]; then
+        if [ "$new_user_exists" -gt 0 ]; then
+            echo -e "${RED}Error${RESET}: Username '$new_username' already taken."
+        else
+            sqlite3 $db_file_path "UPDATE user SET username='$new_username' WHERE username='$old_username';"
+            echo "User '$old_username' renamed to '$new_username'."
+	    	sed -i "s/\b$old_username\b/$new_username/g" /var/log/openpanel/admin/login.log   > /dev/null 2>&1
+			# for resellers
+			mv /etc/openpanel/features/$old_username /etc/openpanel/features/$username  > /dev/null 2>&1
+	    	mv /etc/openpanel/openadmin/resellers/$old_username.json /etc/openpanel/openadmin/resellers/$new_username.json  > /dev/null 2>&1   
+        fi
+    else
+        echo -e "${RED}Error${RESET}: User '$old_username' not found."
+    fi
+}   
+
+# ---------------------- opencli admin password ---------------------- #
+update_password() {
+    local username="$1"
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")    
+    local password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$new_password")
+
+    if [ "$user_exists" -gt 0 ]; then
+        sqlite3 $db_file_path "UPDATE user SET password_hash='$password_hash' WHERE username='$username';"        
+        echo "Password for user '$username' changed."
+        echo ""
+        printf "=%.0s"  $(seq 1 63)
+        echo ""
+        detect_service_status
+        echo ""
+        echo "- username: $username"
+        echo "- password: $new_password"
+        echo ""
+        printf "=%.0s"  $(seq 1 63)
+        echo ""
+    else
+        echo -e "${RED}Error${RESET}: User '$username' not found."
+    fi
+}
+
+
+# ---------------------- opencli admin list ---------------------- #
+list_current_users() {
+	users=$(sqlite3 "$db_file_path" "SELECT username, role, is_active FROM user;")
+	echo "$users"
+}
+
+
+# ---------------------- opencli admin suspend ---------------------- #
+suspend_user() {
+    local username="$1"
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
+    local is_admin=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username' AND role='admin';")
+
+    if [ "$user_exists" -gt 0 ]; then
+        if [ "$is_admin" -gt 0 ]; then
+            echo -e "${RED}Error${RESET}: Cannot suspend user '$username' with 'admin' role."
+        else
+            sqlite3 $db_file_path "UPDATE user SET is_active='0' WHERE username='$username';"
+            echo "User '$username' suspended successfully."
+
+            #echo ""
+            #echo "Suspending accounts owned by the reseller $username"
+            query_for_usernames="SELECT username FROM users WHERE owner='$username';"
+            usernames=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$query_for_usernames" -se)
+            if [ $? -eq 0 ]; then
+                for user in $usernames; do
+                    echo "User: $user"
+                    opencli user-suspend "$user"
+                done
+            fi         
+           
+        fi
+    else
+        echo -e "${RED}Error${RESET}: User '$username' does not exist."
+    fi
+
+}
+
+# ---------------------- opencli admin unsuspend ---------------------- #
+unsuspend_user() {
+    local username="$1"
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
+
+    if [ "$user_exists" -gt 0 ]; then
+            sqlite3 $db_file_path "UPDATE user SET is_active='1' WHERE username='$username';"
+            echo "User '$username' unsuspended successfully."
+
+            #echo ""
+            #echo "Unsuspending accounts owned by the reseller $username"
+            query_for_usernames="SELECT username FROM users WHERE owner='$username';"
+            usernames=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$query_for_usernames" -se)
+            if [ $? -eq 0 ]; then
+                for user in $usernames; do
+                    echo "User: $user"
+                    opencli user-unsuspend "$user"
+                done
+            fi         
+    else
+        echo -e "${RED}Error${RESET}: User '$username' does not exist."
+    fi
+}
+
+
+# ---------------------- opencli admin logs ---------------------- #
 multitail_admin_logs(){
     check_multitail() {
         if command -v multitail &> /dev/null; then
@@ -511,7 +516,6 @@ multitail_admin_logs(){
         fi
     }
     
-    # Function to install multitail
     install_multitail() {
         if command -v apt &> /dev/null; then
             echo "Installing multitail using apt..."
@@ -532,7 +536,6 @@ multitail_admin_logs(){
 
         all_files_exist=true
         
-        # List of required files
         required_files=(
             "$admin_logs_file"
             "$admin_access_log"
@@ -560,16 +563,20 @@ multitail_admin_logs(){
 }
 
 
+
+
+
+# ---------------------- MAIN ---------------------- #
 case "$1" in
     "on")
-        # Enable and check
+        # https://dev.openpanel.com/cli/admin.html#Enable-Disable-adminpanel
         echo "Enabling the OpenAdmin..."
-	rm /root/openadmin_is_disabled > /dev/null 2>&1
+		rm /root/openadmin_is_disabled > /dev/null 2>&1
         systemctl enable --now $service_name > /dev/null 2>&1
         detect_service_status
         ;;
     "log")
-        # tail logs
+        # https://dev.openpanel.com/cli/admin.html#View-OpenAdmin-logs
         echo "Restarting OpenAdmin service:"
         systemctl enable --now $service_name > /dev/null 2>&1
         echo "tail -f 25 $admin_logs_file"
@@ -579,30 +586,26 @@ case "$1" in
         echo ""
         ;;
     "logs")
-        # tail logs
+        # https://dev.openpanel.com/cli/admin.html#View-OpenAdmin-logs
         multitail_admin_logs
         ;;
     "off")
-        # Disable admin panel service
+        # https://dev.openpanel.com/cli/admin.html#Enable-Disable-adminpanel
         echo "Disabling the OpenAdmin..."
         systemctl disable --now $service_name > /dev/null 2>&1
-	touch /root/openadmin_is_disabled
+		touch /root/openadmin_is_disabled
         detect_service_status
         ;;
     "help")
-        # Show usage
         usage
         ;;
     "password")
-        # Reset password for admin user
+        # https://dev.openpanel.com/cli/admin.html#Reset-Admin-Password
         user_flag="$2"
         new_password="$3"
-        # Check if the file exists
         if [ -f "$db_file_path" ]; then
             if [ "$new_password" ]; then
-                # valdiate password
                 validate_password_and_username "$new_password" "Password"
-                # Use provided password
                 update_password "$user_flag"
             fi
         else
@@ -611,48 +614,53 @@ case "$1" in
                 
         ;;
     "rename")
-        # Change username
+        # https://dev.openpanel.com/cli/admin.html#Rename-Admin-User
         old_username="$2"
         new_username="$3"
         validate_password_and_username "$new_username" "New Username"
         update_username "$old_username" "$new_username"
         ;;
     "list")
-        # List users
+        # https://dev.openpanel.com/cli/admin.html#List-Admin-users
         list_current_users
         ;;
 	"update")
+		# TODO: document
 	    shift 1
 	    update_reseller_account "$@"
 	    ;;
 	"suspend")
-        # List users
+        # https://dev.openpanel.com/cli/admin.html#Suspend-Admin-User
         username="$2"
         suspend_user "$username"
         ;;   
     "unsuspend")
-        # List users
+        # https://dev.openpanel.com/cli/admin.html#Unsuspend-Admin-User
         username="$2"
         unsuspend_user "$username"
         ;;       
     "new")
-        # Add a new user
+        # https://dev.openpanel.com/cli/admin.html#Create-new-Admin
         new_username="$2"
         new_password="$3"
         reseller="$4"
-        # Check if $2 and $3 are provided
+		
         if [ -z "$new_username" ] || [ -z "$new_password" ]; then
-            #echo "Error: Missing parameters for new admin command."
             echo "ERROR: Invalid 'opencli admin new' command - please provide username and password."
             usage
             exit 1
         fi
+
+		if [ "$reseller" = "--reseller" ]; then
+			check_edition
+		fi
+		
         validate_password_and_username "$new_username" "Username"
         validate_password_and_username "$new_password" "Password"
         add_new_user "$new_username" "$new_password" "$reseller"
         ;;
     "notifications")
-        # COntrol notification preferences
+        # https://dev.openpanel.com/cli/admin.html#Notifications
         command="$2"
         param_name="$3"
         if [ "$command" != "check" ]; then
@@ -700,16 +708,15 @@ case "$1" in
         ;;
         
     "delete")
-        # Add a new user
+        # https://dev.openpanel.com/cli/admin.html#Delete-Admin-User
         username="$2"
         delete_existing_users "$username"
         ;;
     *)
     if [ -z "$1" ]; then
-        # No argument provided, show service status
+		# https://dev.openpanel.com/cli/admin.html#Check-Status
         detect_service_status
     else
-        # Unknown argument provided, show error
         echo "ERROR: Unknown command: '$1'"
         usage
         exit 1
