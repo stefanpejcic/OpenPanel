@@ -1,5 +1,9 @@
 # How to Install Older Versions of Ioncube Loader Extensions for PHP
 
+:::danger
+THIS GUIDE IS OUTDATED AND SHOULD NOT BE USED
+:::
+
 Administrators can configure a custom link to a `.tar.gz` archive containing older Ioncube Loader versions. By default, the file does not exist, and the `opencli php-ioncube` script will download the latest versions from the Ioncube Loader website.
 
 Follow these steps to set up an older version of Ioncube Loader:
