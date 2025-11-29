@@ -5,7 +5,7 @@
 # Usage: opencli docker-images [--all|<USERNAME>]
 # Author: Stefan Pejcic
 # Created: 05.05.2025
-# Last Modified: 27.11.2025
+# Last Modified: 28.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

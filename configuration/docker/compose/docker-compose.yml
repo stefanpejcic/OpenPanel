@@ -114,7 +114,7 @@ services:
         limits:
           cpus: "${OPENPANEL_CPUS:-1.0}"
           memory: "${OPENPANEL_RAM:-1.0G}"
-          pids: 300
+          pids: 1000
 
   # Webserver from 1.0.0
   caddy:
