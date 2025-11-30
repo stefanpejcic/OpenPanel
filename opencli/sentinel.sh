@@ -5,7 +5,7 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 28.11.2025
+# Last Modified: 29.11.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -356,9 +356,30 @@ check_ssh_logins() {
   suspecious_ips=()
   safe_ips=()
 
+  WHITELIST_FILE="/etc/openpanel/openadmin/ssh_whitelist.conf"
+  declare -A whitelist
+
+  if [[ -f "$WHITELIST_FILE" ]]; then
+      while IFS= read -r ip; do
+          [[ -n "$ip" ]] && whitelist["$ip"]=1
+      done < "$WHITELIST_FILE"
+  else
+      echo -e "\e[38;5;214m[!]\e[0m Whitelist file not found: $WHITELIST_FILE"
+  fi
+
+
   for ip in $ssh_ips; do
     # make sure we get ip!
     if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+ 
+        # whitelist
+        if [[ ${whitelist[$ip]+exists} ]]; then
+            safe_ips+=("$ip")
+            ((safe_counter++))
+            continue
+        fi
+
+    
       if ! echo "$login_ips" | grep -q "$ip"; then
           ((counter++))
           suspecious_ips+=("$ip")
