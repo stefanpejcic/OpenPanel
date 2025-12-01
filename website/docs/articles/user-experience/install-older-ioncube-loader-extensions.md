@@ -1,24 +1,64 @@
-# How to Install Older Versions of Ioncube Loader Extensions for PHP
+# How to Install Custom or Older Ioncube Loader Versions in OpenPanel
 
-:::danger
-THIS GUIDE IS OUTDATED AND SHOULD NOT BE USED
+:::info
+This guide explains how to install custom or older Ioncube Loader versions for PHP in OpenPanel Docker-based services (php-fpm-8.x).  
+The previous method using `/etc/openpanel/php/ioncube.txt` is outdated.
 :::
 
-Administrators can configure a custom link to a `.tar.gz` archive containing older Ioncube Loader versions. By default, the file does not exist, and the `opencli php-ioncube` script will download the latest versions from the Ioncube Loader website.
+Follow these steps to set up a custom Ioncube Loader:
 
-Follow these steps to set up an older version of Ioncube Loader:
+1. **Download and extract the Ioncube Loader.**  
+   Download the official bundle from [Ioncube Loaders](https://www.ioncube.com/loaders.php).  
+   Extract it and locate the loader for your PHP version, for example: `ioncube_loader_lin_8.2.so`.  
+   Place the file in a directory inside the user’s home, e.g.: `/home/USERNAME/ioncube/ioncube_loader_lin_8.2.so`.
 
-1. **Create a directory named `ioncube`.**
+2. **Start the user’s PHP service.**  
+   ```bash
+   docker --context=USERNAME compose up -d php-fpm-8.2
 
-2. **Place the loader files in the directory.**  
-   Inside the `ioncube` directory, add the loader files for each PHP version in the format: `ioncube_loader_lin_*.so`
+3. **Check the PHP extension directory.**
+    ```bash
+    docker --context=USERNAME exec php-fpm-8.2 bash -c "php -i | grep extension_dir"
+    ```
+    Example output: ```/usr/local/lib/php/extensions/no-debug-non-zts-20220829```
 
-3. **Compress the directory into a `.tar.gz` archive.**
+4. **Bind-mount the loader in docker-compose.yml.**
+   Edit the user’s docker-compose.yml and add:
+   ```bash
+   services:
+     php-fpm-8.2:
+       volumes:
+         - ./ioncube/ioncube_loader_lin_8.2.so:/usr/local/lib/php/extensions/no-debug-non-zts-20220829/ioncube_loader.so
+    ```
+5. **Create a persistent PHP configuration file for Ioncube.**
+   ```bash
+   echo "zend_extension=ioncube_loader.so" > /home/USERNAME/ioncube/docker-php-ext-ioncube.ini
+   chown USERNAME:USERNAME /home/USERNAME/ioncube/docker-php-ext-ioncube.ini
+    ```
+   Then mount it in docker-compose.yml
+   ```bash
+   services:
+     php-fpm-8.2:
+       volumes:
+         - ./ioncube/docker-php-ext-ioncube.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini
+   ```
 
-4. **Upload the archive online.**  
-Upload the `.tar.gz` archive to a web-accessible location and copy the download link.
+6. **Restart the PHP service.**
+   ```bash
+   cd /home/USERNAME/ && \
+   docker --context=USERNAME compose down php-fpm-8.2 && \
+   docker --context=USERNAME compose up -d php-fpm-8.2
+   ```
 
-5. **Set the download link.**  
-Add the link to the `/etc/openpanel/php/ioncube.txt` file.
+7. **Verify the installation.**
+   Check via CLI:
+   ```bash
+   docker --context=USERNAME exec php-fpm-8.2 php -v
+   ```
+   Or check via a phpinfo page: https://yourdomain.tld/info.php
+   You should see: ionCube PHP Loader ... enabled
 
-Once the link is set, all subsequent Ioncube Loader installations using the [opencli php-ioncube](https://dev.openpanel.com/cli/php.html#Enable-ioncube-loader) command will download the loader from the specified archive.
+Once completed, the Ioncube Loader is installed persistently and fully compatible with OpenPanel’s Docker PHP stack.
+
+
+
