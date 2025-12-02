@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           26.11.2025
+# Last Modified:           02.05.2025
 #
 ################################################################################
 
@@ -42,7 +42,7 @@ SET_PREMIUM=false                                                        # added
 SET_ADMIN_USERNAME=false                                                 # random
 SET_ADMIN_PASSWORD=false                                                 # random
 SCREENSHOTS_API_URL="http://screenshots-$(printf 'v2\nv3\nv4\nv6' | shuf -n1).openpanel.com/api/screenshot" # spread the load
-readonly DEFAULT_PANEL_VERSION="1.7.1"                                   # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
+readonly DEFAULT_PANEL_VERSION="1.7.2"                                   # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"                                # https://github.com/docker/compose/releases
 DEV_MODE=false
 post_install_path=""                                                     #
