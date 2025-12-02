@@ -100,3 +100,16 @@ In your firewall, block all inbound HTTP/HTTPS traffic (and `2083` and `2087` po
 
 * [IPv4 ranges](https://www.cloudflare.com/ips-v4)
 * [IPv6 ranges](https://www.cloudflare.com/ips-v6)
+
+## If you haven't created a tunnel yet:
+## 8. Create New Tunnel in Dashboard
+* Log in to Cloudflare Dashboard
+* Go to [https://dash.cloudflare.com](https://dash.cloudflare.com)
+* Sign in with your account
+* Go to Zero Trust → Networks → Tunnels
+* Click Create a tunnel
+* Choose Cloudflared as the connector type
+* Give it a name (e.g., "my-openpanel-tunnel")
+* Click Save tunnel
+* The next screen will show your Tunnel ID and provide a credentials file to download
+* Download the JSON credentials file - the filename is ```<TUNNEL_ID>.json```
