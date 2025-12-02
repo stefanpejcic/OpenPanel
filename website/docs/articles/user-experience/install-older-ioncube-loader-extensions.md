@@ -4,7 +4,7 @@ Starting with **OpenPanel version 1.7.2**, IonCube Loader is automatically avail
 
 ## Older Versions
 
-If you want to downgrade to an older ionCube Loader bundle—or use a custom bundle—you can do so easily.
+If you want to downgrade to an older ionCube Loader bundle (or use a custom bundle) you can do so easily.
 
 After placing the files on your server:
 
