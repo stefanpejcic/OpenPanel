@@ -5,6 +5,7 @@
     "OpenAdmin Login Log": "/var/log/openpanel/admin/login.log",
     "OpenAdmin Notifications": "/var/log/openpanel/admin/notifications.log",
     "OpenAdmin Crons Log": "/var/log/openpanel/admin/cron.log",
+    "OpenAdmin Backups Log": "/var/log/openpanel/admin/docker-backup.log",
     "OpenPanel Access Log": "/var/log/openpanel/user/access.log",
     "OpenPanel Error Log": "openpanel",
     "OpenCLI Logs": "/var/log/openpanel/admin/opencli.log",

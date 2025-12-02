@@ -5,7 +5,7 @@
 # Usage: opencli docker-backup
 # Author: Stefan Pejcic
 # Created: 22.07.2025
-# Last Modified: 30.11.2025
+# Last Modified: 01.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,7 +28,12 @@
 # THE SOFTWARE.
 ################################################################################
 
+readonly LOG_FILE="/var/log/openpanel/admin/docker-backup.log"
 
+log() {
+    local message="$1"
+    echo "$(date '+%Y-%m-%d %H:%M:%S') : $message" | tee -a "$LOG_FILE"
+}
 
 run_for_user() {
     local username="$1"
@@ -39,18 +44,21 @@ run_for_user() {
         context=$username
     fi
     
-    cd /home/$context/ && docker --context=$context compose run --remove-orphans --rm --entrypoint backup backup
+    cd /home/$context/ || { log "ERROR: Cannot cd into /home/$context/"; return 1; }
+    start_user_time=$(date +%s)
+    docker --context=$context compose run --remove-orphans --rm --entrypoint backup backup
+    end_user_time=$(date +%s)
+    duration=$((end_user_time - start_user_time))
+    log "Backup completed for user: $username (context: $context) | Time taken: ${duration}s"
 }
 
 # Function to process a single user
 process_user() {
     local username="$1"
-    local success=true
-    
-    echo "Processing user: $username"
+    log "Processing user: $username"
 
-    # get context and run backup
     if ! run_for_user "$username"; then
+        log "Failed processing user: $username"
         return 1
     fi
 
@@ -60,11 +68,10 @@ process_user() {
 # Function to get list of active users
 get_active_users() {
     local users
-    
     users=$(opencli user-list --json 2>/dev/null | grep -v 'SUSPENDED' | awk -F'"' '/username/ {print $4}')
     
     if [[ -z "$users" ]] || [[ "$users" == "No users." ]]; then
-        echo "No active users found in the database"
+        log "No active users found in the database"
         return 1
     fi
     
@@ -77,39 +84,42 @@ process_all_users() {
     local users user_count current_index=1
     local failed_users=()
     
-    echo "Fetching list of active users..."
+    start_time=$(date +%s)
+    log "=== Backup started at $(date '+%Y-%m-%d %H:%M:%S') ==="
     
+    log "Fetching list of active users..."
     if ! users=$(get_active_users); then
+        log "ERROR: Could not retrieve active users from the database."
         return 1
     fi
     
     user_count=$(echo "$users" | wc -w)
-    echo "Found $user_count active users to process"
+    log "Found $user_count active users to process"
     
     # Process each user
     for user in $users; do
-        echo "Processing user: $user ($current_index/$user_count)"
+        log "Processing user: $user ($current_index/$user_count)"
         
         if ! process_user "$user"; then
             failed_users+=("$user")
         fi
         
-        echo "------------------------------"
+        log "------------------------------"
         ((current_index++))
     done
+
+    end_time=$(date +%s)
+    total_duration=$((end_time - start_time))
     
-    # Report results
     if [[ ${#failed_users[@]} -eq 0 ]]; then
-        echo "Successfully processed all $user_count users"
+        log "Successfully processed all $user_count users"
     else
-        echo "Failed to process ${#failed_users[@]} users: ${failed_users[*]}"
+        log "Failed to process ${#failed_users[@]} users: ${failed_users[*]}"
         return 1
     fi
-    
+
+    log "=== Backup finished at $(date '+%Y-%m-%d %H:%M:%S') | Total time: ${total_duration}s ==="
     return 0
 }
-
-
-
 
 process_all_users

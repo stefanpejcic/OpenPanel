@@ -5,7 +5,7 @@
 # Usage: opencli files-purge_trash --user [USERNAME]
 # Author: Stefan Pejcic
 # Created: 03.06.2025
-# Last Modified: 30.11.2025
+# Last Modified: 01.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
