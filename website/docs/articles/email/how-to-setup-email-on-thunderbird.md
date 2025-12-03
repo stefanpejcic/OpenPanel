@@ -50,7 +50,7 @@ Thunderbird allows **IMAP** or **POP**.
 | Username       | Your full email address                          | user@domain.tld                  |
 | Password       | Your email account password                      | ********                         |
 | Server         | Incoming mail server address                     | mail.domain.tld                  |
-| Port           | Port number for incoming mail                    | 993                              |
+| Port           | Port number for incoming mail                    | 995                              |
 | Security Type  | Encryption method for secure connection          | SSL/TLS                          |
 | Authentication | Authentication method used to log in             | Normal Password                  |
 
