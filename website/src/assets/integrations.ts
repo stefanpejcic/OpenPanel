@@ -240,8 +240,8 @@ export const integrations: IntegrationsType = {
             name: "Switch web servers",
             icon: Bolt,
             description:
-                "Currently, only Nginx is supported as the webserver, but upcoming support for LiteSpeed will provide administrators the option to choose their preferred webserver.",
-            url: "/",
+                "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, OpenLitespeed, OpenResty.",
+            url: "/docs/panel/containers/webserver/",
             status: "stable",
         },
         {
