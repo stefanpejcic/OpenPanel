@@ -416,7 +416,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/5.6.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_5.6.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_5_6_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_5_6_PHP_MAX_EXECUTION_TIME:-600}
@@ -448,7 +450,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.0.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.0.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_7_0_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_0_PHP_MAX_EXECUTION_TIME:-600}
@@ -480,7 +484,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.1.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_7_1_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_1_PHP_MAX_EXECUTION_TIME:-600}
@@ -513,7 +519,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.2.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_7_2_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_2_PHP_MAX_EXECUTION_TIME:-600}
@@ -547,7 +555,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.3.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_7_3_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_3_PHP_MAX_EXECUTION_TIME:-600}
@@ -580,7 +590,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.4/:/usr/local/etc/php
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_7_4_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_4_PHP_MAX_EXECUTION_TIME:-600}
@@ -588,7 +600,7 @@ services:
       - PHP_MAX_INPUT_VARS=${PHP_FPM_7_4_PHP_MAX_INPUT_VARS:-1000}
       - PHP_MEMORY_LIMIT=${PHP_FPM_7_4_PHP_MEMORY_LIMIT:-512M}
       - PHP_POST_MAX_SIZE=${PHP_FPM_7_4_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_4_PHP_UPLOAD_MAX_FILESIZE:-256M} 
+      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_4_PHP_UPLOAD_MAX_FILESIZE:-256M}
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -612,7 +624,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.0.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro   
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_8_0_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_0_PHP_MAX_EXECUTION_TIME:-600}
@@ -646,7 +658,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.1.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_8_1_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_1_PHP_MAX_EXECUTION_TIME:-600}
@@ -680,8 +694,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.2.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp
-      #- ./ioncube/ioncube_loader_lin_8.2.so:/usr/local/lib/php/extensions/no-debug-non-zts-20220829/ioncube_loader.so
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_8_2_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_2_PHP_MAX_EXECUTION_TIME:-600}
@@ -714,7 +729,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.3.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_8_3_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_3_PHP_MAX_EXECUTION_TIME:-600}
@@ -746,7 +763,9 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.4.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+      - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
+      - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_8_4_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_4_PHP_MAX_EXECUTION_TIME:-600}
@@ -780,7 +799,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.5.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
     environment:
       - PHP_ENABLE_OPCACHE=${PHP_FPM_8_5_ENABLE_OPCACHE:-true}
       - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_5_PHP_MAX_EXECUTION_TIME:-600}
