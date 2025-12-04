@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: 27.08.2024
 # Created: 18.08.2024
-# Last Modified: 02.12.2025
+# Last Modified: 03.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -68,7 +68,8 @@ if [ -n "$key_value" ]; then
     :
 else
     echo "Error: OpenPanel Community edition does not support emails. Please consider purchasing the Enterprise version that allows unlimited number of email addresses."
-    source $ENTERPRISE
+    # shellcheck source=/usr/local/opencli/enterprise.sh
+    source "$ENTERPRISE"
     echo "$ENTERPRISE_LINK"
     exit 1
 fi
@@ -80,15 +81,32 @@ is_valid_domain() {
 }
 
 update_webmail_domain() {
+
+    readonly DOMAINS_DIR="/etc/openpanel/caddy/domains/"
+    readonly CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+
+    mkdir -p "$DOMAINS_DIR"
+
     # basic
     if ! is_valid_domain "$new_domain"; then
         log_error "Invalid domain format. Please provide a valid domain."
         usage
-        exit 1
     fi
     
     if [[ ! -f "$PROXY_FILE" ]]; then
         echo "Error: Caddy file not found at $PROXY_FILE"
+        exit 1
+    fi
+
+    # not used by system domains
+    if [[ -f "$CADDYFILE" ]] && grep -q "$new_domain" "$CADDYFILE"; then
+        echo "Error: Rejecting to save domain '$new_domain' as it is already used for another system service."
+        exit 1
+    fi
+
+    # and not in user domains
+    if grep -Rql "$new_domain" "$DOMAINS_DIR" 2>/dev/null; then
+        echo "Error: Aborting - domain '$new_domain' is already associated with an existing user. Remove the domain from that user before continuing."
         exit 1
     fi
 
@@ -105,10 +123,6 @@ update_webmail_domain() {
 
         sed -i -E "s|^redir @webmail https?://[^ ]+|redir @webmail ${proto}://${new_domain}|" "$PROXY_FILE"
    
-        readonly DOMAINS_DIR="/etc/openpanel/caddy/domains/"
-        readonly CADDYFILE="/etc/openpanel/caddy/Caddyfile"
-
-        mkdir -p "$DOMAINS_DIR"
         touch "${DOMAINS_DIR}${new_domain}.conf" # so caddy can generate le
 
         if [[ -f "$CADDYFILE" ]]; then
@@ -116,11 +130,7 @@ update_webmail_domain() {
                 if [[ "$DEBUG" = true ]]; then
                     echo "Updating Caddyfile webmail block to: ${new_domain}"
                 fi
-        
-                # Escape dots for sed
-                escaped_domain=$(echo "$new_domain" | sed 's/\./\\./g')
-        
-                # Replace the domain inside the block
+
 sed -i "/# START WEBMAIL DOMAIN #/,/# END WEBMAIL DOMAIN #/c\\
 # START WEBMAIL DOMAIN #\\
 ${new_domain} {\\
@@ -189,7 +199,6 @@ while [[ "$#" -gt 0 ]]; do
         *)
             echo "Invalid option: $1"
             usage
-            exit 1
             ;;
     esac
     shift
@@ -218,7 +227,10 @@ get_domain_for_webmail() {
 
 
 
-cd /usr/local/mail/openmail
+cd /usr/local/mail/openmail || { 
+    echo "Error: Mailserver is not installed!" >&2
+    exit 1
+}
 
 if [ "$SNAPPYMAIL" = true ]; then
   if [ "$DEBUG" = true ]; then
@@ -273,7 +285,6 @@ function open_port_csf() {
       else
           sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${port}\"/" "$csf_conf" >/dev/null 2>&1
       fi
-      ports_opened=1
     else
       if [ "$DEBUG" = true ]; then
           echo "Port ${port} is already open in CSF."

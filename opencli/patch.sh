@@ -6,7 +6,7 @@
 # Usage: opencli patch <NAME>
 # Author: Stefan Pejcic
 # Created: 05.11.2025
-# Last Modified: 02.12.2025
+# Last Modified: 03.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
