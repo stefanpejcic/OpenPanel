@@ -34,7 +34,7 @@ Services that auto-start for each user:
 
 | Service            | Installed | Auto-start                                         |
 |--------------------|-----------|---------------------------------------------------|
-| Apache / Nginx / OpenResty     | ✔       | After the user adds the first domain               |       |
+| Apache / Nginx / OpenLitespeed     | ✔       | After the user adds the first domain               |       |
 | REDIS              | ✘        | After the user activates it           |
 | Memcached          | ✘        | After the user activates it           |
 | Elasticsearch      | ✘        | After the user activates it           |
