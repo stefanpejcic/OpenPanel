@@ -146,7 +146,7 @@ export const LandingFooter = () => {
                         >
                             <RefineLogoSingleIcon />
                         </Link>
-                        <iframe src="http://status.openpanel.com/status/iframe.html" width="250" height="30" frameborder="0" scrolling="no">
+                        <iframe src="https://status.openpanel.com/status/iframe.html" width="250" height="30" frameborder="0" scrolling="no">
                         </iframe>
                     </div>
                     <div
