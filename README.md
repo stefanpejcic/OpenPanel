@@ -1,8 +1,10 @@
-## What is OpenPanel
 
-OpenPanel is *probably* the most customizable web hosting control panel.
+## What is OpenPanel?
+<!--start: description-->
+**OpenPanel** is *probably* the most customizable web hosting control panel.
 
 Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
+<!--end: description-->
 
 ```
 ╔════════════════════════════════════════════════════════════════╗
@@ -60,8 +62,6 @@ Available in an community-supported version, and a more feature-filled version w
 
 [^1]: not actively maintained
 
-----
-
 ## OpenPanel vs OpenAdmin
 
 - The **OpenAdmin** offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, and editing OpenPanel settings.
@@ -79,6 +79,8 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | RockyLinux             | 9.6, 10                              | *On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)* |
 | CentOS                 | 9.5                                  |                                      |
 
+
+
 ## 📥 Installation
 
 To install on self-hosted VPS/Dedicated server: 
@@ -88,6 +90,7 @@ bash <(curl -sSL https://openpanel.org)
 
 To see more details to configure server on installation, **please visit**: https://openpanel.com/install 
 
+
 ## Documentation
 
 - [OpenAdmin - Admin panel documentation](https://openpanel.com/docs/admin/intro/)
@@ -95,26 +98,45 @@ To see more details to configure server on installation, **please visit**: https
 - [Guides and How-to](https://openpanel.com/docs/articles/intro/)
 - [OpenCLI - Terminal commands](https://dev.openpanel.com/cli/)
 
-## Support
 
-Our [Community](https://community.openpanel.org/) serves as our virtual Headquater, where the community helps each other.
+## Team
 
-**Learn, share** and **discuss** with other community members your questions.
+<table id='team'>
+<tr>
+<td id='stefanpejcic'>
+<a href='https://github.com/stefanpejcic'>
+<img src='https://github.com/stefanpejcic.png' width='140px;'>
+</a>
+<h4 align='center'><a href='https://pejcic.rs'>Stefan Pejčić</a></h4>
+</td>
+<td id='radovanjecmenica'>
+<a href='https://github.com/radovanjecmenica'>
+<img src='https://github.com/radovanjecmenica.png' width='140px;'>
+</a>
+<h4 align='center'><a href='https://jecmenica.rs'>Radovan Ječmenica</a></h4>
+</td>
+<td id='petar'>
+<a href='https://github.com/p3t4rc'>
+<img src='https://github.com/p3t4rc.png' width='140px;'>
+</a>
+<h4 align='center'>Petar Ćurić</h4>
+</td>
+</tr>
+</table>
 
-## Version
+Special thanks to all [contributors](https://github.com/stefanpejcic/OpenPanel/graphs/contributors) for extending and improving _OpenPanel_.
 
-Latest OpenPanel version is: **1.7.1** - [View Changelog](https://openpanel.com/docs/changelog/1.7.1/)
+## Contribute
 
-[![Alt](https://repobeats.axiom.co/api/embed/9904d020c32812f0aff8d8d69f52643d16f85007.svg "Repobeats analytics image")](https://openpanel.com/statistics)
+Check out [CONTRIBUTING.md](https://github.com/stefanpejcic/OpenPanel/blob/main/CONTRIBUTING.md) for more information on how to help with _openpanel_.
 
-## Copyright & license
+## License
 
 - OpenAdmin and OpenPanel UI are distributed under EULA.
 - OpenCLI and configuration files are distributed under Commons Attribution-NonCommercial (CC BY-NC) license.
 
-## Contributing
-
-We welcome and appreciate all contributions - technical or not!
-
-You don’t need to be a developer to make a meaningful impact.
-Plese see [CONTRIBUTING.md](https://github.com/stefanpejcic/OpenPanel/blob/main/CONTRIBUTING.md)
+<hr />
+<h2 align="center">
+  ✨ All openpanel docs are hosted on <a href="https://openpanel.com/">openpanel.com</a> ✨
+</h2>
+<hr />
