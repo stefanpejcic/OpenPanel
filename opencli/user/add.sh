@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 03.12.2025
+# Last Modified: 08.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -83,10 +83,10 @@ cleanup() {
 }
 
 hard_cleanup() {
-  killall -u $username -9  > /dev/null 2>&1
-  deluser --remove-home $username  > /dev/null 2>&1   # command missing on alma!
-  rm -rf /etc/openpanel/openpanel/core/{stats,users}/$username > /dev/null 2>&1
-  docker context rm $username  > /dev/null 2>&1
+  killall -u "$username" -9 > /dev/null 2>&1
+  deluser --remove-home "$username" > /dev/null 2>&1   # command missing on alma!
+  rm -rf /etc/openpanel/openpanel/core/{stats,users}/"$username" > /dev/null 2>&1
+  docker context rm "$username"  > /dev/null 2>&1
   quotacheck -avm >/dev/null 2>&1
   mkdir -p /etc/openpanel/openpanel/core/users/
   repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
@@ -118,7 +118,8 @@ check_if_default_slave_server_is_set() {
 	get_config_value() {
 	    local file="/etc/openpanel/openadmin/config/admin.ini"
 	    local key=$1
-	    local value=$(grep -E "^$key=" "$file" | awk -F= '{sub(/^ /, "", $2); print $2}')
+		local value
+	    value=$(grep -E "^$key=" "$file" | awk -F= '{sub(/^ /, "", $2); print $2}')
 	
 	    if [[ -z "$value" ]]; then
 	        echo ""
@@ -136,7 +137,7 @@ check_if_default_slave_server_is_set() {
 		 if [[ -n "$default_ssh_key_path" ]]; then
 	              server=$default_node
 		      key=$default_ssh_key_path
-	              echo "Using default node "$server" and ssh key path"
+	              echo "Using default node $server and ssh key path"
 		 fi
 	fi
 
@@ -174,7 +175,9 @@ check_if_default_slave_server_is_set         # we run it before parse_flags so i
 	            sql_type="${arg#*=}"
 		    ;;	    
 	        --webserver=*)
-	            webserver="${arg#*=}"
+				webserver="${arg#*=}"
+				webserver="${webserver//\"/}"
+				webserver="$(echo "$webserver" | xargs)"
 		    ;;
 	    esac
 	done
@@ -196,7 +199,7 @@ get_hostname_of_master() {
 update_accounts_for_reseller() {
 	if [ -n "$reseller" ]; then
 		local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
-		current_accounts=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -se "$query_for_owner")
+		current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner")
 	  	log "Updating current accounts count to: ${current_accounts} for reseller: ${reseller}"
 		jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
 			&& mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
@@ -221,11 +224,8 @@ check_if_reseller() {
 	  	log "Checking reseller limits.."
     
 		local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
-		current_accounts=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -se "$query_for_owner")
-		
-		#echo "DEBUG: current_accounts='$current_accounts'"
 
-		if [ $? -eq 0 ]; then
+		if current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner"); then
 		    if [[ -z "$current_accounts" ]]; then
 		        current_accounts=0
 		    fi
@@ -237,12 +237,12 @@ check_if_reseller() {
 		    echo "ERROR: Unable to retrieve the number of users from the database. Is MySQL running?"
 		    exit 1
 		fi
-
 	  
-	        max_accounts=$(jq -r '.max_accounts // "unlimited"' $reseller_limits_file)
-                local allowed_plans=$(jq -r '.allowed_plans | join(",")' $reseller_limits_file)
+			max_accounts=$(jq -r '.max_accounts // "unlimited"' "$reseller_limits_file")
+			local allowed_plans
+			allowed_plans=$(jq -r '.allowed_plans | join(",")' "$reseller_limits_file")
 
-	           # Compare current account count with the max limit
+	        # Compare current account count with the max limit
 	        if [ "$max_accounts" != "unlimited" ] && [ "$current_accounts" -ge "$max_accounts" ]; then
 	            echo "ERROR: Reseller has reached the maximum account limit. Cannot create more users."
 	            exit 1
@@ -279,15 +279,15 @@ get_slave_if_set() {
 	              ${octets[2]} -ge 0 && ${octets[2]} -le 255 &&
 	              ${octets[3]} -ge 0 && ${octets[3]} -le 255 ]]; then
 	           	
-			context_flag="--context $server"     
-			hostname=$(ssh $key_flag "root@$server" "hostname")
-			if [ -z "$hostname" ]; then
-			  echo "ERROR: Unable to reach the node $server - Exiting."
-     			  echo "       Make sure you can connect to the node from terminal with: 'ssh $key_flag root@$server -vvv'"
-			  exit 1
-			fi
+				context_flag="--context $server"     
+				hostname=$(ssh "$key_flag" "root@$server" "hostname")
+				if [ -z "$hostname" ]; then
+				  echo "ERROR: Unable to reach the node $server - Exiting."
+	     			  echo "       Make sure you can connect to the node from terminal with: 'ssh $key_flag root@$server -vvv'"
+				  exit 1
+				fi
    
-   			node_ip_address=$server
+   				node_ip_address=$server
       			context=$username # so we show it on debug!
   
 	     		log "Container will be created on node: $node_ip_address ($hostname)"
@@ -333,7 +333,8 @@ validate_password_in_lists() {
        
        if [ -f "/tmp/weakpass.txt" ]; then
             DICTIONARY="dictionary.txt"
-            local input_lower=$(echo "$password_to_check" | tr '[:upper:]' '[:lower:]')
+			local input_lower
+			input_lower=$(echo "$password_to_check" | tr '[:upper:]' '[:lower:]')
         
             # Check if input contains any common dictionary word
             if grep -qi "^$input_lower$" "$DICTIONARY"; then
@@ -428,7 +429,7 @@ check_username_is_valid() {
 }
 
 
-# Source the database config file
+# shellcheck source=../db.sh
 . "$DB_CONFIG_FILE"
 
 
@@ -444,50 +445,38 @@ get_existing_users_count() {
     else
     	if [ -n "$reseller" ]; then
             echo "[✘] ERROR: Resellers feature requires the Enterprise edition."
-	    echo "If you require reseller accounts, please consider purchasing the Enterprise version that allows unlimited number of users and resellers."
+            echo "If you require reseller accounts, please consider purchasing the Enterprise version that allows unlimited number of users and resellers."
             exit 1
      	fi
-       log "Checking if the limit of 3 users on Community edition is reached"
-        # Check the number of users from the database
+		log "Checking if the limit of 3 users on Community edition is reached"
         user_count_query="SELECT COUNT(*) FROM users"
-        user_count=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$user_count_query" -sN)
-    
-        # Check if successful
-        if [ $? -ne 0 ]; then
+        if ! user_count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_count_query" -sN); then
             echo "[✘] ERROR: Unable to get total user count from the database. Is mysql running?"
             exit 1
         fi
-    
-        # Check if the number of users is >= 3
         if [ "$user_count" -gt 2 ]; then
             echo "[✘] ERROR: OpenPanel Community edition has a limit of 3 user accounts - which should be enough for private use."
-	    echo "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
+			echo "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
             exit 1
         fi
     fi
 
 }
 
-# Function to check if username already exists in the database
+
 check_username_exists() {
     local username_exists_query="SELECT COUNT(*) FROM users WHERE username = '$username'"
-    local username_exists_count=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$username_exists_query" -sN)
-
-    # Check if successful
-    if [ $? -ne 0 ]; then
+	local username_exists_count
+	if ! username_exists_count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$username_exists_query" -sN); then
         echo "[✘] Error: Unable to check username existence in the database. Is mysql running?"
         exit 1
     fi
-
-    # Return the count of usernames found
     echo "$username_exists_count"
 }
 
 
-# Check if the username exists in the database
 username_exists_count=$(check_username_exists)
 
-# Check if the username exists
 if [ "$username_exists_count" -gt 0 ]; then
     echo "[✘] Error: Username '$username' is already taken."
     exit 1
@@ -505,7 +494,7 @@ fi
 sshfs_mounts() {
     if [ -n "$node_ip_address" ]; then
 
-	ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address << 'EOF' 2>/dev/null
+	ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << 'EOF' 2>/dev/null
 if [ ! -d "/etc/openpanel/openpanel" ]; then
     echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
     echo "AuthorizedKeysFile     .ssh/authorized_keys" >> /etc/ssh/sshd_config
@@ -516,7 +505,7 @@ EOF
 
         sleep 5
 
-	ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address << 'EOF' 2>/dev/null
+	ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << 'EOF' 2>/dev/null
 if [ ! -d "/etc/openpanel/openpanel" ]; then
     echo "Node is not yet configured to be used as an OpenPanel slave server. Configuring.."
 
@@ -550,11 +539,11 @@ INNER_EOF
 fi
 EOF
 
-        scp $key_flag \
+        scp "$key_flag" \
             -o StrictHostKeyChecking=no \
             -o UserKnownHostsFile=/dev/null \
             -o BatchMode=yes \
-            -r /etc/openpanel root@$node_ip_address:/etc/openpanel
+            -r /etc/openpanel root@"$node_ip_address":/etc/openpanel
 
         # mount home dir on master
         if ! command -v sshfs &> /dev/null; then
@@ -571,7 +560,7 @@ EOF
             fi
         fi
 
-	sshfs -o IdentityFile="/root/.ssh/$node_ip_address",StrictHostKeyChecking=no root@$node_ip_address:/home/$username /home/$username
+	sshfs -o IdentityFile="/root/.ssh/$node_ip_address",StrictHostKeyChecking=no root@"$node_ip_address":/home/$username /home/$username
 
     fi
 }
@@ -581,19 +570,14 @@ EOF
 #Get CPU, DISK, INODES and RAM limits for the plan
 get_plan_info_and_check_requirements() {
     log "Getting information from the database for plan $plan_name"
-    # Fetch DISK, CPU, RAM, INODES, BANDWIDTH and NAME for the given plan_name from the MySQL table
-    query="SELECT cpu, ram, disk_limit, inodes_limit, bandwidth, id FROM plans WHERE name = '$plan_name'"
-    
-    # Execute the MySQL query and store the results in variables
-    cpu_ram_info=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$query" -sN)
-    
-    # Check if the query was successful
-    if [ $? -ne 0 ]; then
+    local query="SELECT cpu, ram, disk_limit, inodes_limit, bandwidth, id FROM plans WHERE name = '$plan_name'"
+    local cpu_ram_info
+
+    if ! cpu_ram_info=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN); then
         echo "[✘] ERROR: Unable to fetch plan information from the database."
         exit 1
     fi
     
-    # Check if any results were returned
     if [ -z "$cpu_ram_info" ]; then
         echo "[✘] ERROR: Plan with name $plan_name not found. Unable to fetch CPU/RAM limits information from the database."
         exit 1
@@ -611,7 +595,7 @@ get_plan_info_and_check_requirements() {
     # Get the maximum available CPU cores on the server
     if [ -n "$node_ip_address" ]; then
         # TODO: Use a custom user or configure SSH instead of using root
-        max_available_cores=$(ssh $key_flag "root@$node_ip_address" "nproc")
+        max_available_cores=$(ssh "$key_flag" "root@$node_ip_address" "nproc")
     else
         max_available_cores=$(nproc)
     fi
@@ -626,7 +610,7 @@ get_plan_info_and_check_requirements() {
 
     # Get the maximum available RAM on the server in GB
     if [ -n "$node_ip_address" ]; then
-	max_available_ram_gb=$(ssh $key_flag "root@$node_ip_address" "free -g | awk '/Mem:/{print \$2}'")
+	max_available_ram_gb=$(ssh "$key_flag" "root@$node_ip_address" "free -g | awk '/Mem:/{print \$2}'")
     else
         max_available_ram_gb=$(free -g | awk '/^Mem:/{print $2}')
     fi    
@@ -682,7 +666,7 @@ download_images() {
 	sql_type=$(get_env_value "MYSQL_TYPE")
 	valid_sql_types=("mysql" "mariadb")
 	if [[ -n "$sql_type" ]]; then
-	    if [[ ! " ${valid_sql_types[*]} " =~ " $sql_type " ]]; then
+		if [[ ! " ${valid_sql_types[*]} " =~ $sql_type ]]; then
 	        echo "Warning: MYSQL_TYPE must be 'mysql' or 'mariadb', got '$sql_type'"
 	        sql_type=""
 	    fi
@@ -727,7 +711,7 @@ setup_ssh_key(){
 	log "Setting ssh key.."
  
  	public_key=$(ssh-keygen -y -f "$key")
-ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address << EOF 2>/dev/null
+ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << EOF 2>/dev/null
 mkdir -p /home/$username/.ssh > /dev/null 2>&1
 touch /home/$username/.ssh/authorized_keys > /dev/null 2>&1
 chown $username -R /home/$username/.ssh > /dev/null 2>&1
@@ -855,7 +839,7 @@ print_debug_info_before_starting_creation() {
 create_local_user() {
 	log "Creating user $username"
 	useradd -m -d /home/$username $username
- 	user_id=$(id -u $username)	
+ 	user_id=$(id -u "$username")	
 	if [ $? -ne 0 ]; then
 		echo "Error: Failed creating linux user $username on master server."
   		exit 1
