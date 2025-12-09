@@ -14,3 +14,9 @@ else
     echo -e "\n$BLOCK" >> "$CONFIG_FILE"
     echo "Block added to $CONFIG_FILE."
 fi
+
+
+
+# mailserver
+
+ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
