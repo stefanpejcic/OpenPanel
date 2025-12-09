@@ -17,6 +17,8 @@ fi
 
 
 
+wget -O /etc/openpanel/wordpress/htaccess/apache.htaccess https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/wordpress/htaccess/apache.htaccess
+
 # mailserver
 
 ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
