@@ -5,7 +5,7 @@
 # Usage: opencli email-manage <COMMAND> <ATTRIBUTES>
 # Author: Stefan Pejcic
 # Created: 31.08.2024
-# Last Modified: 08.12.2025
+# Last Modified: 09.12.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 

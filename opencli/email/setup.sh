@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 08.12.2025
+# Last Modified: 09.12.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -30,42 +30,44 @@
 ################################################################################
 
 
-# Check if at least one argument is provided
 if [ "$#" -lt 1 ]; then
     echo "Usage: opencli email-setup <command> [<args>...]"
+    echo "Docs: https://dev.openpanel.com/cli/email.html#Emails-1"
     exit 1
 fi
 
 
+# ======================================================================
+# START Functions
 
-# added in 0.2.5
-ENTERPRISE="/usr/local/opencli/enterprise.sh"
-PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
-
-# Check if 'enterprise edition'
-if [ -n "$key_value" ]; then
-    :
-else
-    echo "Error: OpenPanel Community edition does not support emails. Please consider purchasing the Enterprise version that allows unlimited number of email addresses."
-    source $ENTERPRISE
-    echo "$ENTERPRISE_LINK"
-    exit 1
-fi
-
-# validate email
 is_valid_email() {
   local email="$1"
-  # Regular expression for validating an email address
   local email_regex='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
   if [[ $email =~ $email_regex ]]; then
-    return 0  # Valid email
+    return 0
   else
-    return 1  # Invalid email
+    return 1
   fi
 }
 
-# REFRESH EMAILS LIST FOR USER!
+
+validate_first() {
+    local key_value
+    key_value=$(grep "^key=" -- "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
+
+    if [ -n "$key_value" ]; then
+        :
+    else
+        echo "Error: OpenPanel Community edition does not support emails. Please consider purchasing the Enterprise version that allows unlimited number of email addresses."
+        local ENTERPRISE="/usr/local/opencli/enterprise.sh"
+        # shellcheck disable=SC1090
+        . "$ENTERPRISE"
+        echo "$ENTERPRISE_LINK"
+        exit 1
+    fi
+}
+
+
 reload_emails_data_file_for_user() {
     email="$1"
     domain="${email#*@}"
@@ -83,14 +85,17 @@ reload_emails_data_file_for_user() {
     fi
 }
 
+# END Functions
+# ======================================================================
 
 
 
-# MAIN
-command="$@"
-docker exec openadmin_mailserver setup $command
+# ======================================================================
+# https://docker-mailserver.github.io/docker-mailserver/latest/config/setup.sh/
 
-
+validate_first
+command="$@" 
+docker exec openadmin_mailserver setup $command  
 if [[ "$1" == "email" && ("$2" == "add" || "$2" == "del") ]]; then
   if is_valid_email "$3"; then
     reload_emails_data_file_for_user $3

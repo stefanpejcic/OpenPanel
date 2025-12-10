@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: email/webmail.sh
 # Description: Display webmail domain or choose webmail software
-# Usage: opencli email-webmail [roundcube|snappymail|sogo] [--debug]
+# Usage: opencli email-webmail [--debug]
 # Docs: https://docs.openpanel.com
 # Author: 27.08.2024
 # Created: 18.08.2024
-# Last Modified: 08.12.2025
+# Last Modified: 09.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -31,14 +31,11 @@
 
 
 usage() {
-    echo "Usage: opencli email-webmail {roundcube|snappymail|sogo}"
+    echo "Usage: opencli email-webmail"
     echo
     echo "Examples:"
     echo "  opencli email-webmail                            # Display webmail domain."
     echo "  opencli email-webmail domain webmail.example.com # Set webmail.example.com as domain."
-    echo "  opencli email-webmail roundcube                  # Set RoundCube as webmail."
-    echo "  opencli email-webmail snappymail                 # Set SnappyMail as webmail [DEPRECATED]."
-    echo "  opencli email-webmail sogo                       # Set SoGo as webmail [DEPRECATED]."
     echo ""
     exit 1
 }
@@ -50,9 +47,6 @@ if [ "$#" -gt 2 ]; then
 fi
 
 DEBUG=false  # Default value for DEBUG
-SNAPPYMAIL=false
-ROUNDCUBE=false
-SOGO=false
 WEBMAIL_PORT="8080" # TODO: 8080 should be disabled and instead allow domain proxy only!
 
 
@@ -178,24 +172,6 @@ while [[ "$#" -gt 0 ]]; do
             new_domain="$1"
             update_webmail_domain "$new_domain"
             ;;
-        roundcube)
-            echo "Setting RoundCube as Webmail software:"
-            SNAPPYMAIL=false
-            ROUNDCUBE=true
-            SOGO=false
-            ;;
-        snappymail)
-            echo "Setting SnappyMail as Webmail software:"
-            SNAPPYMAIL=true
-            ROUNDCUBE=false
-            SOGO=false
-            ;;
-        sogo)
-            echo "Setting SoGo as Webmail software"
-            SNAPPYMAIL=false
-            ROUNDCUBE=false
-            SOGO=true
-            ;;
         *)
             echo "Invalid option: $1"
             usage
@@ -232,39 +208,8 @@ cd /usr/local/mail/openmail || {
     exit 1
 }
 
-if [ "$SNAPPYMAIL" = true ]; then
-  if [ "$DEBUG" = true ]; then
-      echo ""
-      echo "----------------- STOPPING EXISTING WEBMAIL SOFTWARE ------------------"
-      echo ""
-      echo "Stopping RoundCube:"
-    docker --context default compose rm -s -v -f roundcube
-      echo "Stopping SoGO:"
-    docker --context default compose rm -s -v -f sogo
-      echo ""
-      echo "----------------- STARTING SNAPPYMAIL ------------------"
-      echo ""
-    docker --context default compose up -d snappymail
-  else
-    docker --context default compose rm -s -v -f roundcube >/dev/null 2>&1
-    docker --context default compose rm -s -v -f sogo >/dev/null 2>&1
-    docker --context default compose up -d snappymail >/dev/null 2>&1
-  fi
-elif [ "$ROUNDCUBE" = true ]; then
-    docker --context default compose rm -s -v -f snappymail >/dev/null 2>&1
-    docker --context default compose rm -s -v -f sogo >/dev/null 2>&1
-    docker --context default compose up -d roundcube
-elif [ "$SOGO" = true ]; then
-    docker --context default compose rm -s -v -f roundcube >/dev/null 2>&1
-    docker --context default compose rm -s -v -f snappymail >/dev/null 2>&1
-    docker --context default compose up -d sogo
-else
-    get_domain_for_webmail    # display domain only
-fi
 
-
-
-
+get_domain_for_webmail    # display domain only
 
 
 

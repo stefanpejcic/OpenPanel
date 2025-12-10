@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 08.12.2025
+# Last Modified: 09.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -32,7 +32,6 @@
 readonly CADDY_FILE="/etc/openpanel/caddy/Caddyfile"
 readonly DOMAINS_DIR="/etc/openpanel/caddy/domains/"
 readonly MAILSERVER_ENV="/usr/local/mail/openmail/mailserver.env"
-readonly ROUNDCUBE_COMPOSE="/usr/local/mail/openmail/compose.yml"
 readonly REDIRECTS_CONF="/etc/openpanel/caddy/redirects.conf"
 readonly DEFAULT_DOMAIN="example.net"
 
@@ -190,6 +189,9 @@ configure_mailserver() {
     
     if [[ "$new_hostname" == "$DEFAULT_DOMAIN" ]]; then
         log_debug "Configuring mailserver for plain-text authentication with IP"
+
+		# roundcube
+		sed -i '/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=' "$MAILSERVER_ENV"
         
         sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
         sed -i '/^SSL_CERT_PATH=/d' "$MAILSERVER_ENV"
@@ -215,6 +217,9 @@ configure_mailserver() {
             return 0
         fi
 
+		# roundcube
+		sed -i "s|OVERRIDE_HOSTNAME=.*|OVERRIDE_HOSTNAME=$new_hostname|" "$MAILSERVER_ENV"
+
         sed -i "/^SSL_TYPE=/c\SSL_TYPE=manual" "$MAILSERVER_ENV"
         if grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV"; then
             sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path_on_hosts|" "$MAILSERVER_ENV"
@@ -230,52 +235,10 @@ configure_mailserver() {
 
     fi
     
-    log_debug "Restarting mailserver to apply new configuration"
-    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down mailserver && docker --context default compose up -d mailserver" </dev/null >nohup.out 2>nohup.err &
+    log_debug "Restarting mailserver and webmail to apply new configuration"
+    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down && docker --context default compose up -d mailserver roundcube" </dev/null >nohup.out 2>nohup.err &
 }
 
-# Configure Roundcube
-configure_roundcube() {
-    [[ ! -f "$ROUNDCUBE_COMPOSE" ]] && return 0
-    
-    if [[ "$new_hostname" == "$DEFAULT_DOMAIN" ]]; then
-        log_debug "Configuring Roundcube for plain-text authentication"
-        
-        sed -i 's|ROUNDCUBEMAIL_DEFAULT_HOST=.*|ROUNDCUBEMAIL_DEFAULT_HOST=openadmin_mailserver|' "$ROUNDCUBE_COMPOSE"
-        sed -i 's|ROUNDCUBEMAIL_DEFAULT_PORT=.*|ROUNDCUBEMAIL_DEFAULT_PORT=|' "$ROUNDCUBE_COMPOSE"
-        sed -i 's|ROUNDCUBEMAIL_SMTP_SERVER=.*|ROUNDCUBEMAIL_SMTP_SERVER=openadmin_mailserver|' "$ROUNDCUBE_COMPOSE"
-        sed -i 's|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=|' "$ROUNDCUBE_COMPOSE"
-    else
-        log_debug "Configuring Roundcube for TLS/SSL authentication"
-
-	        # a letsencrypt
-            local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.crt"
-            local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${new_hostname}/${new_hostname}.key"
-        
-            # custom
-            local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${new_hostname}/${new_hostname}.crt"
-            local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${new_hostname}/${new_hostname}.key"
-            
-            if [[ -f "$cert_path_on_hosts" && -f "$key_path_on_hosts" ]]; then
-                log_debug "Using Let's Encrypt certificate files"
-            elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
-                log_debug "Using custom certificate files"
-                cert_path_on_hosts="$fallback_cert_path"
-                key_path_on_hosts="$fallback_key_path"
-            else
-                og_debug "WARNING: SSL files dont exists for domain, will not be configured for roundcube!"
-                return 0
-            fi
-
-            sed -i "s|ROUNDCUBEMAIL_DEFAULT_HOST=.*|ROUNDCUBEMAIL_DEFAULT_HOST=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
-            sed -i "s|ROUNDCUBEMAIL_DEFAULT_PORT=.*|ROUNDCUBEMAIL_DEFAULT_PORT=993|" "$ROUNDCUBE_COMPOSE"
-            sed -i "s|ROUNDCUBEMAIL_SMTP_SERVER=.*|ROUNDCUBEMAIL_SMTP_SERVER=ssl://$new_hostname|" "$ROUNDCUBE_COMPOSE"
-            sed -i "s|ROUNDCUBEMAIL_SMTP_PORT=.*|ROUNDCUBEMAIL_SMTP_PORT=465|" "$ROUNDCUBE_COMPOSE"
-    fi
-    
-    log_debug "Restarting Roundcube to apply new configuration"
-    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down roundcube && docker --context default compose up -d roundcube" </dev/null >nohup.out 2>nohup.err &
-}
 
 # Restart services
 restart_services() {
@@ -332,7 +295,6 @@ update_domain() {
     update_redirects || return 1
     restart_services "$@" || return 1
     configure_mailserver || return 1
-    configure_roundcube || return 1    
     show_success_message
 }
 

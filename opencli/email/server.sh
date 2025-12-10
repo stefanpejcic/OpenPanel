@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 08.12.2025
+# Last Modified: 09.12.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -29,41 +29,34 @@
 # THE SOFTWARE.
 ################################################################################
 
-# CONFIG
+# ======================================================================
+# Configuration
 readonly APP="opencli email-server"                             # this script
 readonly GITHUB_REPO="https://github.com/stefanpejcic/openmail" # download files
 readonly DIR="/usr/local/mail/openmail"                         # compose.yaml directory
 readonly CONTAINER=openadmin_mailserver                         # DMS container name
 readonly DOCKER_COMPOSE="docker compose"                        # compose plugin
-readonly CONFIG_FILE="/etc/openpanel/openadmin/config/admin.ini"
+DEBUG=false
 
 
-ensure_jq_installed() {
-	# Check if jq is installed
-	if ! command -v jq &> /dev/null; then
-		# Detect the package manager and install jq
-		if command -v apt-get &> /dev/null; then
-			sudo apt-get update > /dev/null 2>&1
-			sudo apt-get install -y -qq jq > /dev/null 2>&1
-		elif command -v yum &> /dev/null; then
-			sudo yum install -y -q jq > /dev/null 2>&1
-		elif command -v dnf &> /dev/null; then
-			sudo dnf install -y -q jq > /dev/null 2>&1
-		else
-			echo "Error: No compatible package manager found. Please install jq manually and try again."
-			exit 1
-		fi
 
-		# Check if installation was successful
-		if ! command -v jq &> /dev/null; then
-			echo "Error: jq installation failed. Please install jq manually and try again."
-			exit 1
-		fi
-	fi
+# ======================================================================
+# START Functions
+
+check_debug_flag() {
+	for arg in "$@"; do
+	    if [ "$arg" == "--debug" ]; then
+	        DEBUG=true
+	        echo "--debug flag provided: displaying verbose information."
+	    elif [ "$arg" == "-x" ]; then
+	        DEBUG=true
+		set -x
+		echo "-x flag provided: display each command as it execute."
+	    fi
+	done
 }
 
-
-_checkBin() {
+required_cmd() {
 	local cmd
 	for cmd in "$@"; do
 		hash "$cmd" 2>/dev/null || {
@@ -81,56 +74,29 @@ _checkBin() {
 	} >&2
 }
 
-
-
-ensure_jq_installed
-_checkBin "cat" "cut" "docker" "fold" "jq" "printf" "sed" "tail" "tput" "tr"
-DEBUG=false  # Default to false
-
-# Check if --debug flag is provided
-for arg in "$@"; do
-    if [ "$arg" == "--debug" ]; then
-        DEBUG=true
-        echo "--debug flag provided: displaying verbose information."
-    elif [ "$arg" == "-x" ]; then
-        DEBUG=true
-	set -x
-	echo "-x flag provided: display each command as it execute."
-    fi
-done
-
-
-# Check if mailserver is running
-if [ -n "${1:-}" ] && [ "${1:-}" != "install" ] && [ "${1:-}" != "status" ] && [ "${1:-}" != "start" ] && [ "${1:-}" != "stop" ] && [ "${1:-}" != "restart" ]; then
-	if [ -z "$(docker ps -q --filter "name=^$CONTAINER$")" ]; then
-		echo -e "Error: Container '$CONTAINER' is not up.\n" >&2
-		exit 1
+check_mailserver() {
+	if [ -n "${1:-}" ] && [ "${1:-}" != "install" ] && [ "${1:-}" != "status" ] && [ "${1:-}" != "start" ] && [ "${1:-}" != "stop" ] && [ "${1:-}" != "restart" ]; then
+		if [ -z "$(docker ps -q --filter "name=^$CONTAINER$")" ]; then
+			echo -e "Error: Container '$CONTAINER' is not up.\n" >&2
+			exit 1
+		fi
 	fi
-fi
+}
 
-
-
-
-# Print status
-_status() {
-	# $1	name
-	# $2	status
+execute_cmd_and_print() {
 	local indent spaces status
 	indent=14
-
-	# Wrap long lines and prepend spaces to multi line status
 	spaces=$(printf "%${indent}s")
 	status=$(echo -n "$2" | fold -s -w $(($(tput cols) - 16)) | sed "s/^/$spaces/g")
 	status=${status:$indent}
-
 	printf "%-${indent}s%s\n" "$1:" "$status"
 }
 
-_ports() {
+check_exposed_ports_for_container() {
 	docker port "$CONTAINER"
 }
 
-_container() {
+execute_cmd_in_container() {
 	if [ "$1" == "-it" ]; then
 		shift
 		docker exec -it "$CONTAINER" "$@"
@@ -139,61 +105,54 @@ _container() {
 	fi
 }
 
-_getDMSVersion() {
+check_DMS_version() {
 	# shellcheck disable=SC2016
-	# todo 'cat /VERSION' is kept for compatibility with DMS versions < v13.0.1; remove in the future
-	_container bash -c 'cat /VERSION 2>/dev/null || printf "%s" "$DMS_RELEASE"'
+	execute_cmd_in_container bash -c 'cat /VERSION 2>/dev/null || printf "%s" "$DMS_RELEASE"'
+}
+
+check_ent() {
+	local key_value
+	key_value=$(grep "^key=" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
+
+	if [ -n "$key_value" ]; then
+	    :
+	else
+	    echo "Error: OpenPanel Community edition does not support emails. Please consider purchasing the Enterprise version that allows unlimited number of email addresses."
+	    ENTERPRISE="/usr/local/opencli/enterprise.sh"
+	    # shellcheck source=/usr/local/opencli/enterprise.sh
+	    source "$ENTERPRISE"
+	    echo "$ENTERPRISE_LINK"
+	    exit 1
+	fi
 }
 
 
-
-# ENTERPRISE
-ENTERPRISE="/usr/local/opencli/enterprise.sh"
-PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
-
-
-# Check if 'enterprise edition'
-if [ -n "$key_value" ]; then
-    :
-else
-    echo "Error: OpenPanel Community edition does not support emails. Please consider purchasing the Enterprise version that allows unlimited number of email addresses."
-    # shellcheck source=/usr/local/opencli/enterprise.sh
-    source "$ENTERPRISE"
-    echo "$ENTERPRISE_LINK"
-    exit 1
-fi
-
-
-
 # ENABLE EMAILS MODULE AND EMAILS PAGES
-	enable_emails_if_not_yet() {
-	  if [ "$DEBUG" = true ]; then
-	      echo ""
-	      echo "----------------- CHECKING ENABLED MODULES ------------------"
-	      echo ""
-	  fi
-	    config_file="/etc/openpanel/openpanel/conf/openpanel.config"
-	    enabled_modules=$(grep '^enabled_modules=' "$config_file" | cut -d'=' -f2)
-    	    if echo "$enabled_modules" | grep -q 'emails'; then
-	        echo "'emails' module is already in enabled modules."
-	        :
-	    else
-	        new_modules="${enabled_modules},emails"
-	 	echo "'emails' module is not enabled. Enabling.."
-	        sed -i "s/^enabled_modules=.*/enabled_modules=${new_modules}/" "$config_file"
-	        echo "Restarting OpenPanel container to enable email pages.."
-		if [ "$(docker ps -q -f name=openpanel)" ]; then
-		    docker restart openpanel  >/dev/null 2>&1
-		else
-		    cd /root && docker --context default compose up -d openpanel  >/dev/null 2>&1
-		fi  
-	    fi
-	}
+enable_emails_if_not_yet() {
+  if [ "$DEBUG" = true ]; then
+	  echo ""
+	  echo "----------------- CHECKING ENABLED MODULES ------------------"
+	  echo ""
+  fi
+	config_file="/etc/openpanel/openpanel/conf/openpanel.config"
+	enabled_modules=$(grep '^enabled_modules=' "$config_file" | cut -d'=' -f2)
+		if echo "$enabled_modules" | grep -q 'emails'; then
+		echo "'emails' module is already in enabled modules."
+		:
+	else
+		new_modules="${enabled_modules},emails"
+	echo "'emails' module is not enabled. Enabling.."
+		sed -i "s/^enabled_modules=.*/enabled_modules=${new_modules}/" "$config_file"
+		echo "Restarting OpenPanel container to enable email pages.."
+	if [ "$(docker ps -q -f name=openpanel)" ]; then
+		docker restart openpanel  >/dev/null 2>&1
+	else
+		cd /root && docker --context default compose up -d openpanel  >/dev/null 2>&1
+	fi  
+	fi
+}
 
 
-
-# SUMMARY LOGS 
 pflogsumm_get_data() {
 
 	cd /tmp || { 
@@ -203,13 +162,10 @@ pflogsumm_get_data() {
 	
 	rm -rf PFLogSumm-HTML-GUI
 	git clone https://github.com/stefanpejcic/PFLogSumm-HTML-GUI.git  > /dev/null 2>&1
-
+	ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
  	docker cp PFLogSumm-HTML-GUI/pflogsummUIReport.sh openadmin_mailserver:/opt/pflogsummUIReport.sh   > /dev/null 2>&1
-	
 	echo "Generating email statistics reports.. This can take a while."
-	
 	docker exec openadmin_mailserver sh -c "bash /opt/pflogsummUIReport.sh"
-	
 	echo "Done, adding reports to OpenAdmin interface"
 	mkdir -p /usr/local/admin/static/reports /usr/local/admin/templates/emails > /dev/null 2>&1
 	docker cp openadmin_mailserver:/usr/local/admin/static/reports/reports.html /usr/local/admin/templates/emails/reports.html > /dev/null 2>&1
@@ -230,9 +186,11 @@ set_ssl_for_mailserver() {
 	if [[ $current_hostname =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
 	    # an IP
 	    echo "Configuring mailserver to use IP address for IMAP/SMTP ..."
+		sed -i '/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=' "$MAILSERVER_ENV"
 	    sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
-	    sed -i '/^SSL_CERT_PATH=/d' "$MAILSERVER_ENV"
-	    sed -i '/^SSL_KEY_PATH=/d' "$MAILSERVER_ENV"
+		sed -i 's/^SSL_CERT_PATH=.*/SSL_CERT_PATH=/' "$MAILSERVER_ENV"
+		sed -i 's/^SSL_KEY_PATH=.*/SSL_KEY_PATH=/' "$MAILSERVER_ENV"
+			
 	else
 	    # a letsencrypt
         local cert_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.crt"
@@ -255,8 +213,9 @@ set_ssl_for_mailserver() {
             return 0
         fi
 		
-		echo "Configuring mailserver to use domain $current_hostname for IMAP/SMTP ..."
+		echo "Configuring mailserver and webmail to use domain $current_hostname for IMAP/SMTP ..."
 
+		sed -i "/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=$current_hostname" "$MAILSERVER_ENV"
 		sed -i '/^SSL_TYPE=/c\SSL_TYPE=manual' "$MAILSERVER_ENV"
 
 		grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV" \
@@ -268,9 +227,10 @@ set_ssl_for_mailserver() {
 			|| echo "SSL_KEY_PATH=$key_path" >> "$MAILSERVER_ENV"
 
 	fi
+
+    echo "Restarting mailserver and webmail to apply new configuration"
+    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down && docker --context default compose up -d mailserver roundcube" </dev/null >nohup.out 2>nohup.err &
  }
-
-
 
 
 # INSTALL
@@ -295,7 +255,7 @@ install_mailserver(){
   fi
 
   enable_emails_if_not_yet
-  configure_csf_ports
+  configure_csfcheck_exposed_ports_for_container
 
   if [ "$DEBUG" = true ]; then
       echo ""
@@ -357,10 +317,11 @@ fi
   fi
  
 
-# add all domains
-process_all_domains_and_start
+	# add all domains
+	process_all_domains_and_start
   
 }
+
 
 
 # START
@@ -500,7 +461,7 @@ open_port_csf() {
     grep -q "TCP_IN = .*${port}" "$conf" || sed -i "s/TCP_IN = \"/TCP_IN = \",${port}/" "$conf"
 }
 
-configure_csf_ports() {
+configure_csfcheck_exposed_ports_for_container() {
     if command -v csf &>/dev/null; then
         for p in 25 143 465 587 993; do open_port_csf "$p"; done
     else
@@ -524,7 +485,7 @@ remove_mailserver_and_all_config(){
 	    return
 	fi
 
-  if [[ "$user_input" != "y" && "$user_input" != "Y" && "$user_input" != "yes" ]]; then
+  if [[ "$user_input" != "yes" && "$user_input" != "Y" && "$user_input" != "y" ]]; then
     echo ""
     echo "Uninstallation aborted."
     return
@@ -542,93 +503,109 @@ remove_mailserver_and_all_config(){
 }
 
 
+# END Functions
+# ======================================================================
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# ======================================================================
+# MAIN
+check_ent
+required_cmd "cat" "cut" "docker" "fold" "printf" "sed" "tail" "tput" "tr"
+check_debug_flag
+check_mailserver
 
 case "${1:-}" in
-	install) # install mailserver
+	install) 	# install mailserver
         echo "Installing the mailserver..."
         install_mailserver
-	echo "Enabling Roundcube..."
-	opencli email-webmail roundcube
 		;;
-	pflogsumm) # generate reports
+	pflogsumm) 	# generate reports for OpenAdmin UI
         echo "Generating reports..."
         pflogsumm_get_data
 		;;
-	status) # Show status
+	status) 	# Show status
 		if [ -n "$(docker ps -q --filter "name=^$CONTAINER$")" ]; then
-			# Container uptime
-			_status "Container" "$(docker ps --no-trunc --filter "name=^$CONTAINER$" --format "{{.Status}}")"
+			# uptime
+			execute_cmd_and_print "Container" "$(docker ps --no-trunc --filter "name=^$CONTAINER$" --format "{{.Status}}")"
 			echo
 
-			# Version
-			_status "Version" "$(_getDMSVersion)"
+			# version
+			execute_cmd_and_print "Version" "$(check_DMS_version)"
 			echo
 
-			# Fail2ban
-			_container ls /var/run/fail2ban/fail2ban.sock &>/dev/null &&
-			_status "Fail2ban" "$(_container fail2ban)"
+			# Fail2ban status
+			execute_cmd_in_container ls /var/run/fail2ban/fail2ban.sock &>/dev/null &&
+			execute_cmd_and_print "Fail2ban" "$(execute_cmd_in_container fail2ban)"
 			echo
 
-			# Package updates available?
-			_status "Packages" "$(_container bash -c 'apt -q update 2>/dev/null | grep "All packages are up to date" || echo "Updates available"')"
+			# got updates?
+			execute_cmd_and_print "Packages" "$(execute_cmd_in_container bash -c 'apt -q update 2>/dev/null | grep "All packages are up to date" || echo "Updates available"')"
 			echo
 
-			# Published ports
-			# _status "Ports" "$(docker inspect "$CONTAINER" | jq -r '.[].NetworkSettings.Ports | .[] | select(. != null) | tostring' | cut -d'"' -f8 | tr "\n" " ")"
-			_status "Ports" "$(_ports)"
+			# ports
+			execute_cmd_and_print "Ports" "$(check_exposed_ports_for_container)"
 			echo
 
 			# Postfix mail queue
-			POSTFIX=$(_container postqueue -p | tail -1 | cut -d' ' -f5)
+			POSTFIX=$(execute_cmd_in_container postqueue -p | tail -1 | cut -d' ' -f5)
 			[ -z "$POSTFIX" ] && POSTFIX="Mail queue is empty" || POSTFIX+=" mail(s) queued"
-			_status "Postfix" "$POSTFIX"
+			execute_cmd_and_print "Postfix" "$POSTFIX"
 			echo
 
-			# Service status
-			_status "Supervisor" "$(_container supervisorctl status | sort -b -k2,2)"
+			# Supervisor
+			execute_cmd_and_print "Supervisor" "$(execute_cmd_in_container supervisorctl status | sort -b -k2,2)"
 		else
 			echo "Container: down"
 		fi
 		;;
 
-	config)	# show configuration
-		_container cat /etc/dms-settings
+	config)		# show configuration
+		execute_cmd_in_container cat /etc/dms-settings
 		;;
 
-	start)	# Start container
+	start)		# Start
         echo "Starting mailserver..."
         process_all_domains_and_start
 		;;
 
-	stop)	# Stop container
+	stop)		# Stop
         echo "Stopping the mailserver..."
         stop_mailserver_if_running
 		;;
 
-	restart)	#  Restart container
+	restart)	#  Restart
         echo "Restarting the mailserver..."
         stop_mailserver_if_running
         process_all_domains_and_start
 		;;
   
-	uninstall)	#  Uninstall container
+	uninstall)	#  Uninstall
         echo "Uninstalling the mailsserver..."
         remove_mailserver_and_all_config
 		;;
   
-	queue)	# Show mail queue
-		_container postqueue -p
+	queue)		# display queue
+		execute_cmd_in_container postqueue -p
 		;;
 
-	flush)	# Flush mail queue
-		_container postqueue -f
+	flush)		# flush queue
+		execute_cmd_in_container postqueue -f
 		echo "Queue flushed."
 		;;
 
-	unhold)	# Release mail that was put "on hold"
+	unhold)		# release mail put "on hold"
 		if [ -z "${2:-}" ]; then
 			echo "Error: Queue ID missing"
 		else
@@ -636,19 +613,19 @@ case "${1:-}" in
 			for i in "$@"; do
 				ARG+=("-H" "$i")
 			done
-			_container postsuper "${ARG[@]}"
+			execute_cmd_in_container postsuper "${ARG[@]}"
 		fi
 		;;
 
-	view)	# Show mail by queue id
+	view)		# show mail by queue id
 		if [ -z "${2:-}" ]; then
 			echo "Error: Queue ID missing."
 		else
-			_container postcat -q "$2"
+			execute_cmd_in_container postcat -q "$2"
 		fi >&2
 		;;
 
-	delete) # Delete mail from queue
+	delete) 	# delete mail from queue
 		if [ -z "${2:-}" ]; then
 			echo "Error: Queue ID missing."
 		else
@@ -656,27 +633,27 @@ case "${1:-}" in
 			for i in "$@"; do
 				ARG+=("-d" "$i")
 			done
-			_container postsuper "${ARG[@]}"
+			execute_cmd_in_container postsuper "${ARG[@]}"
 		fi
 		;;
 
-	fail*)	# Interact with fail2ban
+	fail*)		# fail2ban commands
 		shift
-		_container fail2ban "$@"
+		execute_cmd_in_container fail2ban "$@"
 		;;
 
-	ports)	# Show published ports
+	ports)		# ports
 		echo "Published ports:"
 		echo
-		_ports
+		check_exposed_ports_for_container
 		;;
 
-	postc*)	# Show postfix configuration
+	postc*)		# postfix configuration
 		shift
-		_container postconf "$@"
+		execute_cmd_in_container postconf "$@"
 		;;
 
-	logs)	# Show logs
+	logs)		# logs
 		if [ "${2:-}" == "-f" ]; then
 			docker logs -f "$CONTAINER"
 		else
@@ -684,29 +661,29 @@ case "${1:-}" in
 		fi
 		;;
 
-	login)	# Run container shell
-		_container -it bash
+	login)		# execute commands
+		execute_cmd_in_container -it bash
 		;;
 
-	super*) # Interact with supervisorctl
+	super*) 	# supervisorctl
 		shift
-		_container -it supervisorctl "$@"
+		execute_cmd_in_container -it supervisorctl "$@"
 		;;
 
-	update-c*) # Check for container package updates
-		_container -it bash -c 'apt update && echo && apt list --upgradable'
+	update-c*) 	# check for updates
+		execute_cmd_in_container -it bash -c 'apt update && echo && apt list --upgradable'
 		;;
 
-	update-p*) # Update container packages
-		_container -it bash -c 'apt update && echo && apt-get upgrade'
+	update-p*) 	# run updates
+		execute_cmd_in_container -it bash -c 'apt update && echo && apt-get upgrade'
 		;;
 
-	version*) # Show versions
-		printf "%-15s%s\n\n" "Mailserver:" "$(_getDMSVersion)"
+	version*) 	# versions
+		printf "%-15s%s\n\n" "Mailserver:" "$(check_DMS_version)"
 		PACKAGES=("amavisd-new" "clamav" "dovecot-core" "fail2ban" "fetchmail" "getmail6" "rspamd" "opendkim" "opendmarc" "postfix" "spamassassin" "supervisor")
 		for i in "${PACKAGES[@]}"; do
 			printf "%-15s" "$i:"
-			_container bash -c "set -o pipefail; dpkg -s $i 2>/dev/null | grep ^Version | cut -d' ' -f2 || echo 'Package not installed.'"
+			execute_cmd_in_container bash -c "set -o pipefail; dpkg -s $i 2>/dev/null | grep ^Version | cut -d' ' -f2 || echo 'Package not installed.'"
 		done
 		;;
 
