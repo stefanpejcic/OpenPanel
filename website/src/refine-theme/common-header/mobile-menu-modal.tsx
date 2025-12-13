@@ -79,7 +79,6 @@ const Modal: FC<PropsWithChildren<MobileMenuModalProps>> = ({
                             "flex-col",
                         )}
                     >
-                        // <TopAnnouncement />
                         <div
                             className={clsx(
                                 "flex items-center justify-between",
