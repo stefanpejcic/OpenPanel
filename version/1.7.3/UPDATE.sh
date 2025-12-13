@@ -1,6 +1,6 @@
 #!/bin/bash
 
-:'
+: '
 CONFIG_FILE="/etc/openpanel/openadmin/config/admin.ini"
 
 BLOCK="[EMAIL]
