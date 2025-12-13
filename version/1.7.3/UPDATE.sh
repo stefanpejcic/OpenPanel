@@ -1,5 +1,6 @@
 #!/bin/bash
 
+:'
 CONFIG_FILE="/etc/openpanel/openadmin/config/admin.ini"
 
 BLOCK="[EMAIL]
@@ -14,9 +15,10 @@ else
     echo -e "\n$BLOCK" >> "$CONFIG_FILE"
     echo "Block added to $CONFIG_FILE."
 fi
+'
 
 
-
+mkdir -p /etc/openpanel/wordpress/htaccess/
 wget -O /etc/openpanel/wordpress/htaccess/apache.htaccess https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/wordpress/htaccess/apache.htaccess
 
 # mailserver
