@@ -7,7 +7,7 @@ import { CommonThemeToggle } from "./common-theme-toggle";
 import { DocSearchButton } from "./doc-search-button";
 import { DocSidebarModal } from "./doc-sidebar-modal";
 import { DocVersionDropdown } from "./doc-version-dropdown";
-// import { TopAnnouncement } from "./top-announcement";
+import { TopAnnouncement } from "./top-announcement";
 import { DocRefineLogo } from "./doc-refine-logo";
 
 export const HEADER_HEIGHT = 65;
@@ -102,6 +102,7 @@ export const Mobile = () => {
 export const DocHeader = () => {
     return (
         <>
+            <TopAnnouncement />
             <div
                 className={clsx(
                     "flex items-center",
