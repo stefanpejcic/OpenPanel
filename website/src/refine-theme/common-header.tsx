@@ -10,7 +10,7 @@ import { openFigma } from "../utils/open-figma";
 import { Menu } from "./common-header/menu";
 import { MobileMenuModal } from "./common-header/mobile-menu-modal";
 import { CommonThemeToggle } from "./common-theme-toggle";
-import { TopAnnouncement } from "./top-announcement";
+//import { TopAnnouncement } from "./top-announcement";
 
 import { LandingGithubStarButton } from "./landing-github-star-button";
 
@@ -31,7 +31,7 @@ export const CommonHeader = ({ trackProgress }: Props) => {
 
     return (
         <>
-            <TopAnnouncement />
+            // <TopAnnouncement />
             <header className={clsx("sticky", "top-0", "z-10")}>
                 <div
                     className={clsx(
