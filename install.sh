@@ -580,8 +580,9 @@ docker_compose_up(){
     elif [ "$os_name" == "debian" ]; then
     	echo "Setting AppArmor profiles for Debian"
    		apt install apparmor apparmor-utils -y   > /dev/null 2>&1
+		# Error response from daemon: client version 1.41 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
 		# workaround for https://community.openpanel.org/d/233-docker-compose-error-client-version-141-is-too-old-on-debian-12
-		grep -qxF 'export DOCKER_API_VERSION=1.44' ~/.bashrc || echo 'export DOCKER_API_VERSION=1.44' >> ~/.bashrc
+		# grep -qxF 'export DOCKER_API_VERSION=1.44' ~/.bashrc || echo 'export DOCKER_API_VERSION=1.44' >> ~/.bashrc
     fi
 
 
