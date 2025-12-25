@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           02.05.2025
+# Last Modified:           25.05.2025
 #
 ################################################################################
 
@@ -579,7 +579,9 @@ docker_compose_up(){
         echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
     elif [ "$os_name" == "debian" ]; then
     	echo "Setting AppArmor profiles for Debian"
-   		apt install apparmor -y   > /dev/null 2>&1
+   		apt install apparmor apparmor-utils -y   > /dev/null 2>&1
+		# workaround for https://community.openpanel.org/d/233-docker-compose-error-client-version-141-is-too-old-on-debian-12
+		grep -qxF 'export DOCKER_API_VERSION=1.44' ~/.bashrc || echo 'export DOCKER_API_VERSION=1.44' >> ~/.bashrc
     fi
 
 
