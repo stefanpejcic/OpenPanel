@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           25.05.2025
+# Last Modified:           26.05.2025
 #
 ################################################################################
 
@@ -229,7 +229,10 @@ display_what_will_be_installed(){
   	echo ""
 }
 
-
+start_user_panel() {
+   # just to avoid 'why user panel not working questions'
+   nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >nohup.out 2>nohup.err &
+}
 
 
 # ======================================================================
@@ -269,6 +272,7 @@ setup_imunifyav                           # setum imunifyav and enable autologin
 setup_swap                                # swap space
 clean_apt_and_dnf_cache                   # clear
 verify_license                            # ping our server
+start_user_panel
 )
 
 
