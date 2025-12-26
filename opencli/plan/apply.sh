@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 09.12.2025
+# Last Modified: 25.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -126,7 +126,7 @@ for container in "${usernames[@]}"; do
 
     # System limits
     maxCPU=$(nproc)
-    maxRAM=$(free -g | awk '/^Mem/ {print $2}')
+    maxRAM=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
     numOram=${Oram//[!0-9]/}
     numNram=${Nram//[!0-9]/}
     numNdisk=$(echo "$Ndisk" | awk '{print $1}')

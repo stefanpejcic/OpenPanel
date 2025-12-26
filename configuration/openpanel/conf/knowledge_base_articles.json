@@ -4,7 +4,7 @@
         {"title": "How to set or increase PHP INI memory_limit or other values?", "link": "https://openpanel.com/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/"},
         {"title": "How to enable REDIS Caching", "link": "https://openpanel.com/docs/panel/caching/Redis/#connect-to-redis"},
         {"title": "How to create DNS records", "link": "https://openpanel.com/docs/panel/domains/dns/#create-record"},
-        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/databases/#create-a-mysql-database"},
+        {"title": "How to create a new MySQL database", "link": "https://openpanel.com/docs/panel/mysql/databases/#create-a-mysql-database"},
         {"title": "How to add a Cron Job", "link": "https://openpanel.com/docs/panel/advanced/cronjobs#add-a-cronjob"},
         {"title": "How to add a custom SSL Certificate", "link": "https://openpanel.com/docs/panel/domains/ssl/#custom-ssl"}
     ],

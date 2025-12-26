@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default"
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 09.12.2025
+# Last Modified: 25.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -271,7 +271,7 @@ check_cpu_cores() {
 }
 
 check_available_ram() {
-  local available_ram=$(free -g | awk '/^Mem:/{print $2}')
+  local available_ram=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
   if [ "$ram" -gt "$available_ram" ]; then
     echo "ERROR: Insufficient RAM. Required: ${ram}GB, Available: ${available_ram}GB"
     exit 0

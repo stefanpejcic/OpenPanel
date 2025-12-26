@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 09.12.2025
+# Last Modified: 25.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -610,9 +610,9 @@ get_plan_info_and_check_requirements() {
 
     # Get the maximum available RAM on the server in GB
     if [ -n "$node_ip_address" ]; then
-	max_available_ram_gb=$(ssh "$key_flag" "root@$node_ip_address" "free -g | awk '/Mem:/{print \$2}'")
+		max_available_ram_gb=$(ssh "$key_flag" "root@$node_ip_address" "free -g | awk '/Mem:/{print \$2}'")
     else
-        max_available_ram_gb=$(free -g | awk '/^Mem:/{print $2}')
+        max_available_ram_gb=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
     fi    
     numram="${ram%"g"}"
 

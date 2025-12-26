@@ -5,7 +5,7 @@
 # Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD>
 # Author: Stefan Pejcic
 # Created: 26.06.2025
-# Last Modified: 09.12.2025
+# Last Modified: 25.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

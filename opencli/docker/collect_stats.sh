@@ -5,7 +5,7 @@
 # Usage: opencli docker-collect_stats
 # Author: Petar Curic, Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 09.12.2025
+# Last Modified: 25.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,183 +29,98 @@
 ################################################################################
 
 (
-flock -n 200 || { echo "Error: Another instance of the script is already running. Exiting."; exit 1; }
-output_dir="/etc/openpanel/openpanel/core/users"
-mkdir -p $output_dir
-current_datetime=$(date +'%Y-%m-%d-%H-%M-%S')
+flock -n 200 || { echo "Error: Script already running."; exit 1; }
 
-usage() {
-    echo "Usage: opencli docker-collect_stats <username> OR opencli docker-collect_stats --all"
-    echo ""  
+OUTPUT_DIR="/etc/openpanel/openpanel/core/users"
+mkdir -p "$OUTPUT_DIR"
+CURRENT_DATETIME=$(date +'%Y-%m-%d-%H-%M-%S')
+
+source /usr/local/opencli/db.sh
+
+# docker --context=USERNAME_HERE stats --no-stream
+process_user() {
+    local username="$1"
+    
+    read -r user_id context <<< $(mysql -se "SELECT id, server FROM users WHERE username = '$username';" | awk '{print $1, $2}')
+
+    if [ -z "$user_id" ]; then
+        echo "FATAL ERROR: user $username does not exist."
+        return 1
+    fi
+
+    current_usage=$(docker --context "$context" stats --no-stream --format '{{json .}}' | jq -s -c '
+    def to_mib(val; unit):
+        if unit == "GiB" then (val * 1024)
+        elif unit == "KiB" then (val / 1024)
+        elif unit == "TiB" then (val * 1024 * 1024)
+        else val end;
+
+    map(
+        (.MemUsage | capture("(?<u_v>[0-9.]+)(?<u_u>[KMGT]?iB) / (?<l_v>[0-9.]+)(?<l_u>[KMGT]?iB)")) as $mem |
+        (.NetIO | capture("(?<n_rx>[0-9.]+)(?<n_rx_u>[KMGT]?B) / (?<n_tx>[0-9.]+)(?<n_tx_u>[KMGT]?B)")) as $net |
+        (.BlockIO | capture("(?<b_rx>[0-9.]+)(?<b_rx_u>[KMGT]?B) / (?<b_tx>[0-9.]+)(?<b_tx_u>[KMGT]?B)")) as $blk |
+        {
+            mem_u: to_mib($mem.u_v|tonumber; $mem.u_u),
+            mem_l: to_mib($mem.l_v|tonumber; $mem.l_u),
+            cpu: (.CPUPerc | sub("%";"") | tonumber),
+            pids: (.PIDs | tonumber),
+            net_rx: ($net.n_rx|tonumber),
+            net_tx: ($net.n_tx|tonumber),
+            blk_rx: ($blk.b_rx|tonumber),
+            blk_tx: ($blk.b_tx|tonumber)
+        }
+    ) as $all | 
+    {
+        total_mem_u: ($all | map(.mem_u) | add),
+        total_mem_l: ($all | map(.mem_l) | add),
+        total_cpu: ($all | map(.cpu) | add),
+        total_net_rx: ($all | map(.net_rx) | add),
+        total_net_tx: ($all | map(.net_tx) | add),
+        total_blk_rx: ($all | map(.blk_rx) | add),
+        total_blk_tx: ($all | map(.blk_tx) | add),
+        total_pids: ($all | map(.pids) | add),
+        count: ($all | length)
+    } | {
+        BlockIO: "\(.total_blk_rx|round)B / \(.total_blk_tx|round)B",
+        CPUPerc: "\(.total_cpu|.*100|round/100) %",
+        Container: "\(.count)",
+        ID: "",
+        MemPerc: "\((if .total_mem_l > 0 then (.total_mem_u / .total_mem_l * 100) else 0 end | .*100 | round / 100)) %",
+        MemUsage: "\(.total_mem_u|round)MiB / \(.total_mem_l|round)MiB",
+        Name: "",
+        NetIO: "\(.total_net_rx|round) / \(.total_net_tx|round)",
+        PIDs: .total_pids
+    }')
+
+    if [[ -n "$current_usage" && "$current_usage" != "null" ]]; then
+        mkdir -p "$OUTPUT_DIR/$username"
+        echo "$CURRENT_DATETIME $current_usage" >> "$OUTPUT_DIR/$username/docker_usage.txt"
+        echo "$current_usage"
+    fi
 }
 
 
-# DB
-source /usr/local/opencli/db.sh
 
 
-
-process_user() {
-    local username="$1"
-    output_file="$output_dir/$username/docker_usage.txt"  
-
-
-
-    get_user_info() {
-        local user="$1"
-        local query="SELECT id, server FROM users WHERE username = '${user}';"
-        
-        # Retrieve both id and context
-        user_info=$(mysql -se "$query")
-        
-        # Extract user_id and context from the result
-        user_id=$(echo "$user_info" | awk '{print $1}')
-        context=$(echo "$user_info" | awk '{print $2}')
-        
-        echo "$user_id,$context"
-    }
-
-    
-    result=$(get_user_info "$username")
-    user_id=$(echo "$result" | cut -d',' -f1)
-    context=$(echo "$result" | cut -d',' -f2)
-    
-    if [ -z "$user_id" ]; then
-        echo "FATAL ERROR: user $username does not exist."
-        exit 1
-    fi
-
-
-# Attempt to extract detailed stats
-current_usage=$(docker --context $context stats --no-stream --format '{{json .}}' | jq -s '{
-  total_block_rx: (map(.BlockIO | capture("(?<rx>\\d+\\.?\\d*)([KMGT]?B) / .*") | .rx // "0" | tonumber) | add // 0 | .*100 | round / 100),
-  total_block_tx: (map(.BlockIO | capture(".* / (?<tx>\\d+\\.?\\d*)([KMGT]?B)") | .tx // "0" | tonumber) | add // 0 | .*100 | round / 100),
-  total_cpu: (map(.CPUPerc | sub("%";"") | tonumber // 0) | add // 0 | .*100 | round / 100),
-  total_mem_usage: (map(.MemUsage | capture("(?<value>\\d+\\.?\\d*)(?<unit>[KMGT]?iB) / .*") // {"value": "0", "unit": "MiB"} |
-    if .unit == "GiB" then (.value | tonumber * 1024)
-    elif .unit == "KiB" then (.value | tonumber / 1024)
-    else (.value | tonumber) end) | add // 0 | .*100 | round / 100),
-  total_mem_limit: (map(.MemUsage | capture(".+ / (?<value>\\d+\\.?\\d*)(?<unit>[KMGT]?iB)") // {"value": "0", "unit": "MiB"} |
-    if .unit == "GiB" then (.value | tonumber * 1024)
-    elif .unit == "KiB" then (.value | tonumber / 1024)
-    else (.value | tonumber) end) | add // 0 | .*100 | round / 100),
-
-
-total_mem_precent: (
-  (
-    map(
-      .MemUsage 
-      | capture("(?<value>\\d+\\.?\\d*)(?<unit>[KMGT]?iB) / (?<limit>\\d+\\.?\\d*)(?<limit_unit>[KMGT]?iB)") 
-      // {"value": "0", "unit": "MiB", "limit": "1", "limit_unit": "MiB"}
-      | {
-          usage_mib: (
-            if .unit == "GiB" then (.value | tonumber * 1024)
-            elif .unit == "KiB" then (.value | tonumber / 1024)
-            elif .unit == "TiB" then (.value | tonumber * 1024 * 1024)
-            else (.value | tonumber)
-            end
-          ),
-          limit_mib: (
-            if .limit_unit == "GiB" then (.limit | tonumber * 1024)
-            elif .limit_unit == "KiB" then (.limit | tonumber / 1024)
-            elif .limit_unit == "TiB" then (.limit | tonumber * 1024 * 1024)
-            else (.limit | tonumber)
-            end
-          )
-        }
-    )
-    | reduce .[] as $item ({"usage":0, "limit":0};
-        {
-          usage: (.usage + $item.usage_mib),
-          limit: (.limit + $item.limit_mib)
-        }
-    )
-    | if .limit > 0 then (.usage / .limit * 100) else 0 end
-    | .*100 | round / 100
-  )
-),
-
-
-  
-  total_pids: (map(.PIDs | tonumber // 0) | add // 0),
-  total_net_rx: (map(.NetIO | capture("(?<rx>\\d+\\.?\\d*)([KMGT]?B) / .*") | .rx // "0" | tonumber) | add // 0 | .*100 | round / 100),
-  total_containers: (map(.Container) | unique | length),
-  total_net_tx: (map(.NetIO | capture(".* / (?<tx>\\d+\\.?\\d*)([KMGT]?B)") | .tx // "0" | tonumber) | add // 0 | .*100 | round / 100)
-} | {
-  "BlockIO": "\(.total_block_rx)B / \(.total_block_tx)B",
-  "CPUPerc": "\(.total_cpu) %",
-  "Container": "\(.total_containers)",
-  "ID": "",
-  "MemPerc": "\(.total_mem_precent) %",
-  "MemUsage": "\(.total_mem_usage)MiB / \(.total_mem_limit)MiB",
-  "Name": "",
-  "NetIO": "\(.total_net_rx) / \(.total_net_tx)",
-  "PIDs": .total_pids
-  }' | jq -c)
-
-
-
-# Check if the first command failed by inspecting `current_usage`
-if [[ "$current_usage" == "null" || -z "$current_usage" ]]; then
-  #echo "Error in detailed stats extraction, falling back to simple version..."
-  current_usage=$(docker --context $context stats --no-stream --format '{{json .}}' | jq -c)
-fi
-
-
-    echo "$current_datetime $current_usage" >> $output_file
-    echo ""
-    echo $current_usage
-    echo ""
-}  
-
-
-
-
-
-
-# Check if username is provided as an argument
-if [ $# -eq 0 ]; then
-  usage
-  exit 1
-elif [[ "$1" == "--all" ]]; then
-
-    sync
-    echo 1 > /proc/sys/vm/drop_caches
-
-  # Fetch list of users from opencli user-list --json
-  users=$(opencli user-list --json | grep -v 'SUSPENDED' | awk -F'"' '/username/ {print $4}')
-
-  # Check if no sites found
-  if [[ -z "$users" || "$users" == "No users." ]]; then
-    echo "No users found in the database."
+if [ $# -ne 1 ]; then
+    echo "Usage: opencli docker-collect_stats <username|--all>"
     exit 1
-  fi
-
-  # Get total user count
-  total_users=$(echo "$users" | wc -w)
-  if command -v repquota > /dev/null 2>&1; then
-      quotacheck -avm > /dev/null 2>&1
-      repquota -u / > /etc/openpanel/openpanel/core/users/repquota
-  fi
-  # Iterate over each user
-  current_user_index=1
-  for user in $users; do
-    echo "Processing user: $user ($current_user_index/$total_users)"
-    process_user "$user"
-    echo "------------------------------"
-    ((current_user_index++))
-  done
-  echo "DONE."
-    
-elif [ $# -eq 1 ]; then
-      if command -v repquota > /dev/null 2>&1; then
-          quotacheck -avm > /dev/null 2>&1
-          repquota -u / > /etc/openpanel/openpanel/core/users/repquota
-      fi
-  process_user "$1"
-else
-  usage
-  exit 1
 fi
 
-)200>/root/openpanel_docker_collect_stats.lock
+if command -v repquota &>/dev/null; then
+    quotacheck -avm &>/dev/null
+    repquota -u / > /etc/openpanel/openpanel/core/users/repquota
+fi
+
+if [ "$1" == "--all" ]; then
+    sync && echo 1 > /proc/sys/vm/drop_caches
+    users=($(opencli user-list --json | jq -r '.[] | select(.status != "SUSPENDED") | .username'))
+else
+    users=("$1")
+fi
+
+for user in "${users[@]}"; do
+    process_user "$user"
+done
+
+) 200>/root/openpanel_docker_collect_stats.lock
