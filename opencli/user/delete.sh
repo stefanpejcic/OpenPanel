@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 25.12.2025
+# Last Modified: 26.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -136,8 +136,7 @@ delete_vhosts_files() {
     done
     
     docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1
-    
-    echo "Configuration (VirutalHosts) for $deleted_count domain(s) of user '$username' deleted successfully."
+    #echo "Configuration (VirutalHosts) for $deleted_count domain(s) of user '$username' deleted successfully."
 }
 
 # Function to delete user from the database
@@ -183,42 +182,18 @@ delete_ftp_users() {
 }
 
 
-# Function to delete bandwidth limit settings for a user
-delete_bandwidth_limits() {
-	# TODO
-        ip_address=$(docker $context_flag container inspect -f '{{ .NetworkSettings.IPAddress }}' "$username")
-        if [ -n "$node_ip_address" ]; then
-            # TODO: INSTEAD OF ROOT USER SSH CONFIG OR OUR CUSTOM USER!
-            ssh "root@$node_ip_address" "tc qdisc del dev docker0 root && tc class del dev docker0 parent 1: classid 1:1 && tc filter del dev docker0 parent 1: protocol ip prio 16 u32 match ip dst $ip_address"
-        else
-              tc qdisc del dev docker0 root 2>/dev/null
-              tc class del dev docker0 parent 1: classid 1:1 2>/dev/null
-              tc filter del dev docker0 parent 1: protocol ip prio 16 u32 match ip dst "$ip_address" 2>/dev/null
-        fi
-}
-
-edit_firewall_rules(){
-    # CSF
-    if command -v csf >/dev/null 2>&1; then
-        FIREWALL="CSF"
-        container_ports=("22" "3306" "7681" "8080")
-        #we use range, so not need to rm rules for account delete..
-    fi
-}
-
-
 delete_all_user_files() {
         if [ -n "$node_ip_address" ]; then
-	    umount /home/$username
-            ssh "root@$node_ip_address" rm -rf /home/$username > /dev/null 2>&1  
-            ssh "root@$node_ip_address" killall -u $username -9  > /dev/null 2>&1
-            ssh "root@$node_ip_address" deluser --remove-home $username  > /dev/null 2>&1
+	    umount /home/$context
+            ssh "root@$node_ip_address" rm -rf /home/$context > /dev/null 2>&1  
+            ssh "root@$node_ip_address" killall -u $context -9  > /dev/null 2>&1
+            ssh "root@$node_ip_address" deluser --remove-home $context  > /dev/null 2>&1
 	fi
-            rm -rf /home/$username > /dev/null 2>&1
-            killall -u $username -9  > /dev/null 2>&1
-            deluser --remove-home $username  > /dev/null 2>&1
-            rm -rf /etc/openpanel/openpanel/core/stats/$username
-            rm -rf /etc/openpanel/openpanel/core/users/$username
+            rm -rf /home/$context > /dev/null 2>&1
+            killall -u $context -9  > /dev/null 2>&1
+            deluser --remove-home $context  > /dev/null 2>&1
+            rm -rf /etc/openpanel/openpanel/core/stats/$context
+            rm -rf /etc/openpanel/openpanel/core/users/$context
 }
 
 
@@ -265,8 +240,6 @@ delete_user() {
     get_userid_from_db                       # check if user exists
     get_docker_context_for_user              # on which server is the container running
     delete_vhosts_files                      # delete nginx conf files from that server
-    edit_firewall_rules                      # close user ports on firewall
-    #delete_bandwidth_limits                  # delete bandwidth limits for private ip
     delete_ftp_users $provided_username
     delete_user_from_database                # delete user from database
     delete_all_user_files                    # permanently delete data
