@@ -1,17 +1,17 @@
 # Changelog
 
 ### Upcoming version
-
-| Version| Release date | 
+| Version| Release date |
 |---|---|
-|__[1.7.4](/docs/changelog/1.7.4)__| January 30, 2026 |
-
+| __[1.7.41](/docs/changelog/1.7.41)__| February 05, 2026 |
 ### Latest
 
 | Version| Release date | 
 |---|---|
 |__[1.7.3](/docs/changelog/1.7.3)__| December 25, 2025 |
 
+| Version| Release date |
+|---|---|
 ### Previous versions
 
 | Version| Release date | 
