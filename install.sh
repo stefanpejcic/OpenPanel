@@ -619,7 +619,6 @@ clean_apt_and_dnf_cache(){
     if [ "$PACKAGE_MANAGER" == "dnf" ]; then
 		dnf clean  > /dev/null > /dev/null 2>&1
     elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-		# clear /var/cache/apt/archives/   # TODO: cover https://github.com/debuerreotype/debuerreotype/issues/95
   		apt-get clean  > /dev/null > /dev/null 2>&1
 	fi
 }
