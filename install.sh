@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           26.05.2025
+# Last Modified:           29.05.2025
 #
 ################################################################################
 
@@ -258,7 +258,7 @@ docker_compose_up                         #
 docker_cpu_limiting                       # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
 configure_coraza                          # download corazawaf coreruleset or change docker image
-extra_step_for_caddy                      # so that webmail domain works without any setups!
+extra_steps_for_caddy                     # so that webmail domain works without any setups!
 enable_dev_mode                           # https://dev.openpanel.com/cli/config.html#dev-mode
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
@@ -1493,8 +1493,13 @@ EOF' || true
 
 
 
-extra_step_for_caddy() {
+extra_steps_for_caddy() {
 	sed -i "s/example\.net/$current_ip/g" /etc/openpanel/caddy/redirects.conf > /dev/null 2>&1
+
+	# https://community.openpanel.org/d/235-caddy-restarting-when-etchosts-is-missing
+	if ! grep -qE '^127\.0\.0\.1\s+localhost' "/etc/hosts"; then
+	    echo "127.0.0.1 localhost" >> "/etc/hosts"
+	fi
 }
 
 
