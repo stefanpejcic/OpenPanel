@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 26.12.2025
+# Last Modified: 29.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -643,6 +643,8 @@ download_images() {
 		    local key=$1
 		    local val
 		    val=$(grep -E "^$key=" "$env_file" | cut -d '=' -f2-)
+			# https://community.openpanel.org/d/239-no-such-container-openlitespeed
+			val=${val//$'\r'/}
 		    # Remove leading and trailing quotes (single or double)
 		    val="${val%\"}"   # Remove trailing double quote
 		    val="${val#\"}"   # Remove leading double quote

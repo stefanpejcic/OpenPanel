@@ -5,8 +5,10 @@ timestamp="$(date +'%Y-%m-%d_%H-%M-%S')"
 start_time=$(date +%s)
 DEBUG=true
 
-###############################################################
-# HELPER FUNCTIONS
+
+
+# ======================================================================
+# START HELPER FUNCTIONS
 
 usage() {
     echo "Usage: $0 --backup-location <path> --plan-name <plan_name> [--dry-run]"
@@ -153,16 +155,19 @@ validate_plan_exists(){
     fi
 }
 
+# END HELPER FUNCTIONS
+# ======================================================================
 
 
 
 
 
+# ======================================================================
+# MAIN
 
-###############################################################
-# MAIN FUNCTIONS
 
-# CHECK EXTENSION AND DETERMINE SIZE
+# ======================================================================
+# CHECK BACKUP FILE EXTENSION AND DETERMINE SIZE NEEDED FOR RESTORE
 check_if_valid_cp_backup(){
     local backup_location="$1"
     ARCHIVE_SIZE=$(stat -c%s "$backup_location")
@@ -207,7 +212,8 @@ check_if_valid_cp_backup(){
     esac
 }
 
-# CHECK DISK USAGE
+# ======================================================================
+# CHECK AVAILABLE DISK SPACE ON THE OPENPANEL SERVER
 check_if_disk_available(){
     TMP_DIR="/tmp"
     HOME_DIR="/home"
@@ -233,7 +239,8 @@ check_if_disk_available(){
     fi
 }
 
-# EXTRACT
+# ======================================================================
+# EXTRACT BACKUP TO TMP LOCATION
 extract_cpanel_backup() {
     backup_location="$1"
     backup_dir="$2"
@@ -265,6 +272,7 @@ extract_cpanel_backup() {
     fi
 }
 
+# ======================================================================
 # LOCATE FILES IN EXTRACTED BACKUP
 locate_backup_directories() {
     log "Locating important files in the extracted backup"
@@ -334,7 +342,8 @@ collect_stats() {
     nohup bash -c "opencli docker-collect_stats '$cpanel_username'" >/dev/null 2>&1 &
 }
 
-# CPANEL BACKUP METADATA
+# ======================================================================
+# PARSE CPANEL BACKUP METADATA FOR ACCOUNT AND SERVICE INFORMATION
 parse_cpanel_metadata() {
     log "Starting to parse cPanel metadata..."
 
@@ -402,8 +411,8 @@ parse_cpanel_metadata() {
     log "Finished parsing cPanel metadata."
 }
 
-
-# CHECK BEFORE EXPORT
+# ======================================================================
+# CHECK USERNAME AVIABILITY BEFORE SGTARTING THE EXPORT PROCESS
 check_if_user_exists(){
     backup_filename=$(basename "$backup_location")
     cpanel_username="${backup_filename##*_}"
@@ -426,7 +435,8 @@ check_if_user_exists(){
 }
 
 
-# CREATE NEW USER
+# ======================================================================
+# CREATE OPENPANEL USER
 create_new_user() {
     local username="$1"
     local email="$3"
@@ -465,7 +475,7 @@ create_new_user() {
 }
 
 
-
+# ======================================================================
 # PHP VERSION
 restore_php_version() {
     local php_version="$1"
@@ -475,11 +485,11 @@ restore_php_version() {
         return
     fi
 
-    # if 'inherit' we will keep the default of op
+    # if 'inherit' we will keep the default of OpenPanel
     if [ "$php_version" == "inherit" ]; then
         log "PHP version is set to inherit. No changes will be made."
     else
-        # if custom, set it
+    # if custom version from cPanel, set it in OpenPanel also
         log "Setting PHP $php_version as the default version for all new domains."
         output=$(opencli php-default "$cpanel_username" --update "$php_version" 2>&1)
         while IFS= read -r line; do
@@ -489,7 +499,7 @@ restore_php_version() {
 }
 
 
-
+# ======================================================================
 # PHPMYADMIN
 grant_root_access() {
     local username="$1"
@@ -505,6 +515,7 @@ grant_root_access() {
 }
 
 
+# ======================================================================
 # MYSQL
 restore_mysql() {
     local mysql_dir="$1"
@@ -608,7 +619,7 @@ restore_mysql() {
 
 
 
-
+# ======================================================================
 # SSL CERTIFICATES
 restore_ssl() {
     local username="$1"
@@ -644,6 +655,7 @@ restore_ssl() {
 
 
 
+# ======================================================================
 # DNS ZONES
 restore_dns_zones() {
     log "Restoring DNS zones for user $cpanel_username"
@@ -688,6 +700,7 @@ restore_dns_zones() {
     fi
 }
 
+
 # creates symlink of /var/www/html/ to /home/$cpanel_username so all paths in files keep working!
 create_home_mountpoint() {
     if [ "$DRY_RUN" = true ]; then
@@ -702,6 +715,7 @@ sed -i '/^[[:space:]]*volumes:[[:space:]]*$/{
 
 }
 
+# ======================================================================
 # HOME DIR
 restore_files() {
     if [ "$DRY_RUN" = true ]; then
@@ -737,7 +751,7 @@ restore_files() {
 }
 
 
-
+# ======================================================================
 # PERMISSIONS
 fix_perms(){
     local verbose="" #-v
@@ -758,7 +772,7 @@ fix_perms(){
     
 }
 
-
+# ======================================================================
 # WORDPRESS SITES
 restore_wordpress() {
     local real_backup_files_path="$1"
@@ -776,7 +790,7 @@ restore_wordpress() {
         done <<< "$output"    
 }
 
-
+# ======================================================================
 # DOMAINS
 restore_domains() {
     if [ -f "$real_backup_files_path/userdata/main" ]; then
@@ -972,7 +986,7 @@ restore_domains() {
 
 
 
-
+# ======================================================================
 # CRONJOB
 restore_cron() {
     log "Restoring cron jobs for user $cpanel_username"
@@ -993,7 +1007,7 @@ restore_cron() {
             [[ -z "$cron_line" || "$cron_line" =~ ^# ]] && continue
 
             job_found=true
-            schedule=$(echo "$cron_line" | awk '{print $1, $2, $3, $4, $5}')
+            schedule="* $(echo "$cron_line" | awk '{print $1, $2, $3, $4, $5}')"
             command=$(echo "$cron_line" | cut -d' ' -f6-)
 
             if [[ "$command" == *mysql* || "$command" == *mariadb* ]]; then
@@ -1037,10 +1051,12 @@ restore_cron() {
     fi
 }
 
+# ======================================================================
+# POST-IMPORT HOOK
 run_custom_post_hook() {
     if [ -n "$post_hook" ]; then
         if [ -x "$post_hook" ]; then
-            log "Executing post-hool script.."
+            log "Executing post-hook script.."
             "$post_hook" "$cpanel_username"
         else
             log "WARNING: Post-hook file '$post_hook' is not executable or not found."
@@ -1113,6 +1129,8 @@ Currently supported features:
 }
 
 
+# ======================================================================
+# FTP
 ftp_accounts_import() {
 
     if [ -f "$ftp_conf" ]; then
@@ -1128,12 +1146,22 @@ ftp_accounts_import() {
     fi
 }
 
+# ======================================================================
+# EMAILS
 import_email_accounts_and_data() {
         log "WARNING: Importing Email accounts is not yet supported"
+
+        # TODO:
+        # - check setting from openamdin where mails are stored
+        # for each email check domain owner is the new user
+        # mv email data to domain based dir
+        # mv messages to domain based dir
+        # list emails for user to confirm import
 }
 
 
-# timestamp in openadmin/whm
+# ======================================================================
+# CCREATED DATE IN OPENADMIN FROM WHM
 restore_startdate() {
     real_backup_files_path="$1"
     cpanel_username="$2"
@@ -1148,6 +1176,7 @@ restore_startdate() {
     fi
 }
 
+# ======================================================================
 # EMAIL NOTIFICATIONS
 restore_notifications() {
     local real_backup_files_path="$1"
@@ -1177,6 +1206,10 @@ restore_notifications() {
 write_import_activity() {
     echo "$(date '+%Y-%m-%d %H:%M:%S')  $new_ip  Administrator ROOT user imported cpanel backup file" > /etc/openpanel/openpanel/core/users/$cpanel_username/activity.log
 }
+
+
+
+
 
 
 ###################################### MAIN SCRIPT EXECUTION ######################################
@@ -1235,5 +1268,6 @@ main() {
     run_custom_post_hook                                                       # any script to run after the import? example: edit dns on cp server, run tests, notify user, etc.
 }
 
-# MAIN FUNCTION
+# ======================================================================
+# MAIN
 define_data_and_log "$@"

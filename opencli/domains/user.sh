@@ -5,7 +5,7 @@
 # Usage: opencli domains-user <USERNAME> [--docroot|--php_version]
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 26.12.2025
+# Last Modified: 29.12.2025
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -29,7 +29,8 @@
 ################################################################################
 
 
-# DB
+# ======================================================================
+# MYSQL
 source /usr/local/opencli/db.sh
 
 get_domains() {
@@ -38,7 +39,6 @@ get_domains() {
     local include_docroot=false
     local include_php_version=false
 
-    # Parse optional flags
     while [[ $# -gt 0 ]]; do
         case "$1" in
             --docroot)
@@ -55,20 +55,17 @@ get_domains() {
         shift
     done
 
-    # Check if the config file exists
     if [ ! -f "$config_file" ]; then
         echo "Config file $config_file not found."
         exit 1
     fi
 
-    # Query to fetch the user_id for the specified username
     username_query="SELECT id FROM users WHERE username = '$username'"
     user_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$username_query" -sN)
 
     if [ -z "$user_id" ]; then
         echo "User '$username' not found in the database."
     else
-        # Start building the query
         query_fields="domain_url"
         $include_docroot && query_fields+=", docroot"
         $include_php_version && query_fields+=", php_version"
@@ -84,10 +81,13 @@ get_domains() {
     fi
 }
 
-# Entry point
+# ======================================================================
+# USAGE
 if [ $# -lt 1 ]; then
     echo "Usage: $0 <username> [--docroot] [--php_version]"
     exit 1
 fi
 
+# ======================================================================
+# MAIN
 get_domains "$@"

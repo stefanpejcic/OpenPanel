@@ -5,7 +5,7 @@
 # Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 26.12.2025
+# Last Modified: 29.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,8 +28,13 @@
 # THE SOFTWARE.
 ################################################################################
 
-# DB
+# ======================================================================
+# MYSQL
 source /usr/local/opencli/db.sh
+
+
+
+
 
 # Function to fetch the owner username of a domain
 get_domain_owner() {
@@ -40,7 +45,8 @@ get_domain_owner() {
     fi
     
     user_id_query="SELECT user_id, docroot FROM domains WHERE domain_url = '$domain'"
-    read user_id docroot <<< $(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_id_query" -sN)
+    user_id_query="SELECT user_id, docroot FROM domains WHERE domain_url = QUOTE('$domain')"
+    read -r user_id docroot <<< "$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_id_query" -sN)"
 
     if [ -z "$user_id" ]; then
         echo "Domain '$domain' not found in the database."
@@ -48,10 +54,8 @@ get_domain_owner() {
         if $context_flag; then
             query="SELECT username, server FROM users WHERE id = '$user_id'"
             user_info=$(mysql -se "$query")
-            # Extract user_id and context from the result
-            username=$(echo "$user_info" | awk '{print $1}')
-            context=$(echo "$user_info" | awk '{print $2}')
-            
+            read -r username context <<< "$user_info"
+
             if [ -z "$context" ]; then
                 echo "Error, no context '$user_id'."
             else
@@ -80,6 +84,10 @@ get_domain_owner() {
 }
 
 
+
+
+# ======================================================================
+# USAGE
 if [ $# -lt 1 ] || [ $# -gt 3 ]; then
     echo "Usage: opencli domains-whoowns <domain_name> [--docroot] [--context]"
     exit 1
@@ -89,6 +97,8 @@ docroot_flag=false
 context_flag=false
 domain="$1"
 
+# ======================================================================
+# ARGS
 shift
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -107,4 +117,6 @@ while [ $# -gt 0 ]; do
     shift
 done
 
+# ======================================================================
+# MAIN
 get_domain_owner

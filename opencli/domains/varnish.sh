@@ -5,7 +5,7 @@
 # Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 26.12.2025
+# Last Modified: 29.12.2025
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,45 +28,49 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Ensure at least the domain name is provided
+# ======================================================================
+# ARGS
+DOMAIN="$1"
+ACTION="$2"
+JSON_OUTPUT=false
+
+# ======================================================================
+# NO DOMAIN PROVIDED
 if [[ -z "$1" ]]; then
-    echo "Usage: opencli domains-varnish <domain> [on|off] [--short]"
+    echo "Usage: opencli domains-varnish <domain> <on|off> <--short>"
+	echo
+	echo "Examples:"
+	echo
+	echo "opencli domains-varnish pejcic.rs               - Display Varnish Cache status for domain"
+	echo "opencli domains-varnish pejcic.rs on            - Enable Varnish Cache for domain with verbose output"
+	echo "opencli domains-varnish pejcic.rs               - Disable Varnish Cache for domain with verbose output"
+	echo "opencli domains-varnish pejcic.rs on --short    - Enable Varnish Cache"
+	echo "opencli domains-varnish pejcic.rs ff --short    - Disable Varnish Cache"
     exit 1
 fi
 
-# Check for the --short flag
-JSON_OUTPUT=false
-if [[ "$2" == "--short" || "$3" == "--short" ]]; then
+# ======================================================================
+# NO OUTPUT (used by openpanel ui which expects just on/off/error)
+if [[ "$3" == "--short" ]]; then
     JSON_OUTPUT=true
 fi
 
-DOMAIN="$1"
+# ======================================================================
+# CADDY FILE FOR DOMAIN
 CONF_FILE="/etc/openpanel/caddy/domains/$DOMAIN.conf"
 
 if [[ ! -f "$CONF_FILE" ]]; then
-        if $JSON_OUTPUT; then
+	if $JSON_OUTPUT; then
 		echo "error"
-        else
-    		echo "Error: Configuration file for $DOMAIN not found!"
-    	fi
+	else
+		echo "Error: Configuration file for $DOMAIN not found!"
+	fi
     exit 1
 fi
 
-if grep -q "^#.*reverse_proxy https://127.0.0.1" "$CONF_FILE"; then    
-        if $JSON_OUTPUT; then
-            echo "on"
-        else
-            echo "Varnish is ON for domain $DOMAIN"
-        fi       
-else
-        if $JSON_OUTPUT; then
-            echo "off"
-        else
-            echo "Varnish is OFF for domain $DOMAIN"
-        fi    
-fi
 
-ACTION="$2"
+# ======================================================================
+# START HELPER FUNCTIONS
 
 get_context() {
 	get_domain_owner=$(opencli domains-whoowns "$DOMAIN" --context)
@@ -94,15 +98,39 @@ start_varnish() {
 	fi
 }
 
-if [[ "$ACTION" == "on" ]]; then
-    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^/#/' "$CONF_FILE" # Comment the lines under "Handle HTTPS traffic (port 443) with on_demand SSL"
-    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$CONF_FILE"                  # Uncomment the lines under "Terminate TLS and pass to Varnish"
-    start_varnish
-    reload_caddy
-elif [[ "$ACTION" == "off" ]]; then 
-    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^#//' "$CONF_FILE" # Uncomment the lines under "Handle HTTPS traffic (port 443) with on_demand SSL"
-    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^/#/' "$CONF_FILE"                  # Comment the lines under "Terminate TLS and pass to Varnish"
-    reload_caddy 
-fi
+# END HELPER FUNCTIONS
+# ======================================================================
 
-exit 0
+
+
+
+
+# ======================================================================
+# MAIN
+
+case "$2" in
+	on)  # ENABLE
+	    sed -i '/# Handle HTTPS traffic (port 443)/,+6 s/^/#/' "$CONF_FILE"      # Comment 6 lines under "Handle HTTPS traffic (port 443)"
+	    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$CONF_FILE"    # Uncomment 3 lines under "Terminate TLS and pass to Varnish"
+	    start_varnish
+	    reload_caddy
+		;;
+	off) # DISABLE
+	    sed -i '/# Handle HTTPS traffic (port 443)/,+6 s/^#//' "$CONF_FILE"      # Uncomment 3 lines under "Handle HTTPS traffic (port 443)"
+	    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^/#/' "$CONF_FILE"    # Comment 6 lines under "Terminate TLS and pass to Varnish"
+	    reload_caddy 
+		;;
+	*)   # DISPLAY STATUS
+		if grep -q "^#.*reverse_proxy https://127.0.0.1" "$CONF_FILE"; then
+			status="on"
+		else
+			status="off"
+		fi
+		
+		if $JSON_OUTPUT; then
+			echo "$status"
+		else
+			echo "Varnish is ${status^^} for domain $DOMAIN"
+		fi
+		;;
+esac
