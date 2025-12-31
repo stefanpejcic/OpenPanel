@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-12-13 12:49+0100\n"
+"POT-Creation-Date: 2025-12-30 11:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
 
-#: modules/autoinstaller.py:71 templates/dashboard/dashboard.html:140
+#: modules/autoinstaller.py:72 templates/dashboard/dashboard.html:140
 #: templates/manager/autoinstaller.html:9
 msgid "Auto Installer"
 msgstr ""
@@ -106,27 +106,27 @@ msgstr ""
 msgid "Error deleting cron job."
 msgstr ""
 
-#: modules/dashboard.py:101 modules/dashboard.py:129
+#: modules/dashboard.py:102 modules/dashboard.py:131
 msgid "User ID not found."
 msgstr ""
 
-#: modules/dashboard.py:118
+#: modules/dashboard.py:119
 msgid "Failed to retrieve system data"
 msgstr ""
 
-#: modules/dashboard.py:121
+#: modules/dashboard.py:122
 msgid "Invalid JSON output from Docker command"
 msgstr ""
 
-#: modules/dashboard.py:139
+#: modules/dashboard.py:141
 msgid "Failed to retrieve disk usage information."
 msgstr ""
 
-#: modules/dashboard.py:143
+#: modules/dashboard.py:145
 msgid "Disk usage data not found."
 msgstr ""
 
-#: modules/dashboard.py:202 modules/dashboard.py:225 modules/dashboard.py:486
+#: modules/dashboard.py:205 modules/dashboard.py:229 modules/dashboard.py:493
 #: modules/docker.py:1029 modules/docker.py:1043 modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr ""
@@ -138,19 +138,19 @@ msgstr ""
 #: modules/domain/edit_vhost.py:35 modules/domain/edit_vhost.py:57
 #: modules/domain/redirects.py:60 modules/domain/redirects.py:134
 #: modules/domain/redirects.py:195 modules/domain/ssl.py:33
-#: modules/domains.py:410 modules/domains.py:443 modules/domains.py:468
-#: modules/domains.py:500 modules/domains.py:563 modules/emails.py:142
+#: modules/domains.py:443 modules/domains.py:476 modules/domains.py:501
+#: modules/domains.py:533 modules/domains.py:602 modules/emails.py:142
 #: modules/emails.py:277 modules/emails.py:499 modules/emails.py:535
-#: modules/goaccess.py:23 modules/json/favicons.py:29
-#: modules/json/screenshots.py:73 modules/mautic.py:94 modules/mautic.py:191
+#: modules/goaccess.py:23 modules/json/favicons.py:30
+#: modules/json/screenshots.py:74 modules/mautic.py:94 modules/mautic.py:191
 #: modules/mautic.py:432 modules/mautic.py:596 modules/mautic.py:789
 #: modules/php.py:563 modules/pm2.py:596 modules/pm2.py:1287
-#: modules/sitemanager/temporary_links.py:54 modules/waf.py:128
-#: modules/waf.py:280 modules/waf.py:330 modules/waf.py:384
+#: modules/sitemanager/temporary_links.py:54 modules/waf.py:129
+#: modules/waf.py:281 modules/waf.py:331 modules/waf.py:385
 #: modules/website_builder.py:56 modules/website_builder.py:112
 #: modules/website_builder.py:155 modules/website_builder.py:290
 #: modules/websites.py:247 modules/websites.py:384 modules/websites.py:472
-#: modules/websites.py:846 modules/wordpress.py:501 modules/wordpress.py:642
+#: modules/websites.py:846 modules/wordpress.py:502 modules/wordpress.py:643
 #: modules/wordpress.py:1171
 msgid "You do not own this domain."
 msgstr ""
@@ -272,34 +272,34 @@ msgstr ""
 msgid "Select Docker service"
 msgstr ""
 
-#: modules/domains.py:258 templates/cache/varnish.html:122
+#: modules/domains.py:259 templates/cache/varnish.html:122
 #: templates/dashboard/dashboard.html:74 templates/dashboard/dashboard.html:103
 #: templates/dashboard/usage.html:44 templates/domains/domains.html:14
 #: templates/partials/_header.html:64
 msgid "Domains"
 msgstr ""
 
-#: modules/domains.py:356
+#: modules/domains.py:378
 msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
 msgstr ""
 
-#: modules/domains.py:390 templates/domains/new.html:132
+#: modules/domains.py:423 templates/domains/new.html:132
 #: templates/domains/new.html:346
 msgid "Add Domain"
 msgstr ""
 
-#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:402
-#: modules/domains.py:462
+#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:435
+#: modules/domains.py:495
 msgid "Invalid request. Domain name must be provided."
 msgstr ""
 
-#: modules/domains.py:440 templates/domains/domains.html:417
+#: modules/domains.py:473 templates/domains/domains.html:417
 #: templates/emails/single_account.html:102
 #: templates/emails/single_account.html:124
 msgid "Suspend"
 msgstr ""
 
-#: modules/domains.py:497 templates/domains/domains.html:413
+#: modules/domains.py:530 templates/domains/domains.html:413
 msgid "Unsuspend"
 msgstr ""
 
@@ -433,16 +433,16 @@ msgstr ""
 msgid "Backup restored successfully!"
 msgstr ""
 
-#: modules/mautic.py:396 modules/wordpress.py:446
+#: modules/mautic.py:396 modules/wordpress.py:447
 msgid "Backup completed successfully!"
 msgstr ""
 
-#: modules/mautic.py:399 modules/wordpress.py:450
+#: modules/mautic.py:399 modules/wordpress.py:451
 msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:41
-#: modules/wordpress.py:479 modules/wordpress.py:635
+#: modules/wordpress.py:480 modules/wordpress.py:636
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -479,8 +479,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:120 modules/mysql.py:291 modules/mysql.py:565
-#: modules/mysql.py:757 modules/postgresql.py:80 modules/postgresql.py:569
+#: modules/mysql.py:120 modules/mysql.py:291 modules/mysql.py:567
+#: modules/mysql.py:759 modules/postgresql.py:80 modules/postgresql.py:569
 msgid "Database name is required."
 msgstr ""
 
@@ -489,8 +489,8 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:200 modules/mysql.py:282 modules/mysql.py:607
-#: modules/mysql.py:650 modules/mysql.py:750 modules/postgresql.py:164
+#: modules/mysql.py:200 modules/mysql.py:282 modules/mysql.py:609
+#: modules/mysql.py:652 modules/mysql.py:752 modules/postgresql.py:164
 #: modules/postgresql.py:618 modules/postgresql.py:697
 msgid "User name is required."
 msgstr ""
@@ -505,7 +505,7 @@ msgstr ""
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:247 modules/mysql.py:659 modules/mysql.py:773
+#: modules/mysql.py:247 modules/mysql.py:661 modules/mysql.py:775
 #: modules/postgresql.py:229 modules/postgresql.py:719
 msgid "This is a system username that can not be edited."
 msgstr ""
@@ -552,29 +552,29 @@ msgstr ""
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:507
+#: modules/mysql.py:509
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:509
+#: modules/mysql.py:511
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:511
+#: modules/mysql.py:513
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:536 modules/postgresql.py:537
+#: modules/mysql.py:538 modules/postgresql.py:537
 #: templates/dashboard/dashboard.html:122
 #: templates/dashboard/dashboard.html:133
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:616
+#: modules/mysql.py:618
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:769
+#: modules/mysql.py:771
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -845,40 +845,40 @@ msgstr ""
 msgid "Resource Usage History"
 msgstr ""
 
-#: modules/waf.py:141
+#: modules/waf.py:142
 msgid "Error: IDs should only contain numbers separated by spaces."
 msgstr ""
 
-#: modules/waf.py:146
+#: modules/waf.py:147
 msgid "Error: Tags should only contain words, numbers, or symbols."
 msgstr ""
 
-#: modules/waf.py:200
+#: modules/waf.py:201
 msgid "WAF configuration updated."
 msgstr ""
 
-#: modules/waf.py:203
+#: modules/waf.py:204
 msgid "Error updating WAF!"
 msgstr ""
 
-#: modules/waf.py:206
+#: modules/waf.py:207
 msgid "Configuration file not found."
 msgstr ""
 
-#: modules/waf.py:272 templates/system/waf.html:8
+#: modules/waf.py:273 templates/system/waf.html:8
 #: templates/system/waf_domain.html:10
 msgid "WAF"
 msgstr ""
 
-#: modules/waf.py:314
+#: modules/waf.py:315
 msgid "Error changing WAF status."
 msgstr ""
 
-#: modules/waf.py:354
+#: modules/waf.py:355
 msgid "Domain not found or unauthorized"
 msgstr ""
 
-#: modules/waf.py:460 templates/dashboard/dashboard.html:190
+#: modules/waf.py:461 templates/dashboard/dashboard.html:190
 #: templates/system/waf_logs.html:259
 msgid "WAF Logs"
 msgstr ""
@@ -981,53 +981,53 @@ msgstr ""
 msgid "Invalid domain name format."
 msgstr ""
 
-#: modules/wordpress.py:101
+#: modules/wordpress.py:102
 msgid "WordPress Manager"
 msgstr ""
 
-#: modules/wordpress.py:184
+#: modules/wordpress.py:185
 msgid "Domain not found."
 msgstr ""
 
-#: modules/wordpress.py:490
+#: modules/wordpress.py:491
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:540
+#: modules/wordpress.py:541
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:596
+#: modules/wordpress.py:597
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:603
+#: modules/wordpress.py:604
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:615
+#: modules/wordpress.py:616
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:658
+#: modules/wordpress.py:659
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:663
+#: modules/wordpress.py:664
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:666
+#: modules/wordpress.py:667
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:803 modules/wordpress.py:945
+#: modules/wordpress.py:804 modules/wordpress.py:945
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:832 templates/wordpress.html:473
+#: modules/wordpress.py:833 templates/wordpress.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
@@ -1110,52 +1110,52 @@ msgstr ""
 msgid "Reset Password"
 msgstr ""
 
-#: modules/account/locale.py:69 templates/dashboard/dashboard.html:196
+#: modules/account/locale.py:70 templates/dashboard/dashboard.html:196
 #: templates/user/_login.html:98 templates/user/locale.html:12
 msgid "Change Language"
 msgstr ""
 
-#: modules/account/login.py:42
+#: modules/account/login.py:41
 msgid "Login"
 msgstr ""
 
-#: modules/account/login.py:129
+#: modules/account/login.py:128
 msgid "Error reading token from user files."
 msgstr ""
 
-#: modules/account/login.py:157
+#: modules/account/login.py:156
 msgid "Autologin failed: User does not exist."
 msgstr ""
 
-#: modules/account/login.py:160
+#: modules/account/login.py:159
 msgid "Autologin failed: Error occurred fetching data from database."
 msgstr ""
 
-#: modules/account/login.py:164
+#: modules/account/login.py:163
 msgid "Autologin failed: Invalid or expired token."
 msgstr ""
 
-#: modules/account/login.py:181
+#: modules/account/login.py:180
 msgid "Username and password are required."
 msgstr ""
 
-#: modules/account/login.py:189
+#: modules/account/login.py:188
 msgid "Unable to connect to database."
 msgstr ""
 
-#: modules/account/login.py:197
+#: modules/account/login.py:196
 msgid "Your account is suspended. Please contact support."
 msgstr ""
 
-#: modules/account/login.py:198
+#: modules/account/login.py:197
 msgid "Unrecognized account. Please check username."
 msgstr ""
 
-#: modules/account/login.py:220
+#: modules/account/login.py:219
 msgid "Invalid password. Please try again."
 msgstr ""
 
-#: modules/account/login.py:272
+#: modules/account/login.py:271
 msgid "Invalid 2FA code. Please try again."
 msgstr ""
 
@@ -1174,24 +1174,20 @@ msgstr ""
 msgid "Active Sessions"
 msgstr ""
 
-#: modules/account/twofa.py:31
+#: modules/account/twofa.py:32
 msgid ""
 "OTP code removed and Two-Factor Authentication is now required on new "
 "logins."
 msgstr ""
 
-#: modules/account/twofa.py:35
+#: modules/account/twofa.py:36
 msgid ""
 "Setup started: Set up the app or save the OTP code, then confirm to "
 "remove it and activate 2FA."
 msgstr ""
 
-#: modules/account/twofa.py:39
+#: modules/account/twofa.py:40
 msgid "Two-Factor Authentication is now disabled."
-msgstr ""
-
-#: modules/account/twofa.py:51
-msgid "enableddisabled"
 msgstr ""
 
 #: modules/account/twofa.py:66 templates/dashboard/dashboard.html:198
@@ -1223,11 +1219,11 @@ msgid ""
 "large volumes of data. "
 msgstr ""
 
-#: modules/cache/redis.py:22 templates/dashboard/dashboard.html:146
+#: modules/cache/redis.py:23 templates/dashboard/dashboard.html:146
 msgid "Redis"
 msgstr ""
 
-#: modules/cache/redis.py:23
+#: modules/cache/redis.py:24
 msgid ""
 "Redis (Remote Dictionary Server) is an in-memory, key/value store that is"
 " used primarily as an application cache or quick-response database."
@@ -1306,7 +1302,7 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: modules/core/search.py:26 modules/core/search.py:71
+#: modules/core/search.py:26 modules/core/search.py:72
 msgid "Invalid search query"
 msgstr ""
 
@@ -1314,15 +1310,15 @@ msgstr ""
 msgid "Invalid file path"
 msgstr ""
 
-#: modules/core/search.py:81
+#: modules/core/search.py:82
 msgid "Invalid folder path"
 msgstr ""
 
-#: modules/core/search.py:144
+#: modules/core/search.py:146
 msgid "Error decoding JSON data"
 msgstr ""
 
-#: modules/core/search.py:147
+#: modules/core/search.py:149
 msgid "Error reading the file"
 msgstr ""
 
@@ -1561,46 +1557,46 @@ msgstr ""
 msgid "File is too large to view in the browser (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:1125
+#: modules/files/filemanager.py:1126
 msgid "The specified directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1310 templates/dashboard/dashboard.html:88
+#: modules/files/filemanager.py:1311 templates/dashboard/dashboard.html:88
 #: templates/files/disk_usage.html:76 templates/files/filemanager.html:31
 #: templates/files/inodes.html:78
 msgid "File Manager"
 msgstr ""
 
-#: modules/files/filemanager.py:1327
+#: modules/files/filemanager.py:1328
 msgid "Error accessing the specified directory."
 msgstr ""
 
-#: modules/files/filemanager.py:1377 templates/dashboard/dashboard.html:98
+#: modules/files/filemanager.py:1378 templates/dashboard/dashboard.html:98
 #: templates/files/trash.html:12
 msgid "Trash"
 msgstr ""
 
-#: modules/files/filemanager.py:1552
+#: modules/files/filemanager.py:1553
 msgid "Trash emptied successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1556
+#: modules/files/filemanager.py:1557
 msgid "Unexpected error"
 msgstr ""
 
-#: modules/files/filemanager.py:1577
+#: modules/files/filemanager.py:1578
 msgid "Nothing to restore"
 msgstr ""
 
-#: modules/files/filemanager.py:1622
+#: modules/files/filemanager.py:1623
 msgid "Some items could not be restored."
 msgstr ""
 
-#: modules/files/filemanager.py:1625
+#: modules/files/filemanager.py:1626
 msgid "All items restored successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1629
+#: modules/files/filemanager.py:1630
 msgid "Unexpected error occurred"
 msgstr ""
 
@@ -1676,15 +1672,15 @@ msgstr ""
 msgid "Invalid directory specified for scanning."
 msgstr ""
 
-#: modules/json/databases_size_info.py:28
+#: modules/json/databases_size_info.py:29
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:730
+#: modules/json/helpers.py:734
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:735
+#: modules/json/helpers.py:739
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1821,7 +1817,7 @@ msgstr ""
 #: templates/system/cronjobs.html:98 templates/system/process_manager.html:23
 #: templates/system/waf.html:30 templates/system/waf_logs.html:31
 #: templates/user/active_sessions.html:29 templates/user/activity.html:28
-#: templates/user/favorites.html:31 templates/user/history_usage.html:29
+#: templates/user/favorites.html:31 templates/user/history_usage.html:27
 #: templates/user/loginlog.html:27 templates/wordpress.html:40
 msgid "Search"
 msgstr ""
@@ -2442,7 +2438,7 @@ msgid "Shows the total number of running services."
 msgstr ""
 
 #: templates/dashboard/usage.html:317 templates/partials/_service_js.html:34
-#: templates/user/history_usage.html:155 templates/user/stats.html:95
+#: templates/user/history_usage.html:147 templates/user/stats.html:95
 msgid "Block I/O"
 msgstr ""
 
@@ -3125,8 +3121,12 @@ msgstr ""
 msgid "Change docroot for"
 msgstr ""
 
-#: templates/domains/docroot.html:11 templates/domains/docroot.html:82
-msgid "Change docroot (directory) for domain"
+#: templates/domains/docroot.html:11
+msgid ""
+"Changing the document root (folder) for a domain does not automatically "
+"transfer existing files or update configuration files. You will need to "
+"manually update paths in files and applications if you change the "
+"document root for existing websites."
 msgstr ""
 
 #: templates/domains/docroot.html:36 templates/domains/new.html:66
@@ -3135,6 +3135,10 @@ msgstr ""
 
 #: templates/domains/docroot.html:81
 msgid "Select Domain to change docroot"
+msgstr ""
+
+#: templates/domains/docroot.html:82
+msgid "Change docroot (directory) for domain"
 msgstr ""
 
 #: templates/domains/domains.html:15
@@ -3256,12 +3260,12 @@ msgid "Page navigation"
 msgstr ""
 
 #: templates/domains/domains.html:618 templates/domains/domains.html:619
-#: templates/user/activity.html:112
+#: templates/user/activity.html:112 templates/user/history_usage.html:182
 msgid "Previous"
 msgstr ""
 
 #: templates/domains/domains.html:640 templates/domains/domains.html:641
-#: templates/user/activity.html:132
+#: templates/user/activity.html:132 templates/user/history_usage.html:210
 msgid "Next"
 msgstr ""
 
@@ -4241,7 +4245,7 @@ msgstr ""
 #: templates/files/filemanager.html:108
 #: templates/files/filemanager/table.html:10
 #: templates/files/filemanager/table_trash.html:10
-#: templates/files/trash.html:88 templates/user/history_usage.html:149
+#: templates/files/trash.html:88 templates/user/history_usage.html:141
 msgid "Date"
 msgstr ""
 
@@ -7020,7 +7024,7 @@ msgstr ""
 msgid "Live Visitors"
 msgstr ""
 
-#: templates/partials/visitors.html:9 templates/user/history_usage.html:217
+#: templates/partials/visitors.html:9
 msgid "Last"
 msgstr ""
 
@@ -8053,40 +8057,36 @@ msgid ""
 "contact your administrator to enable it."
 msgstr ""
 
-#: templates/user/history_usage.html:20 templates/user/history_usage.html:56
+#: templates/user/history_usage.html:18 templates/user/history_usage.html:54
 msgid "Historical CPU and Memory Usage"
 msgstr ""
 
-#: templates/user/history_usage.html:22
+#: templates/user/history_usage.html:20
 msgid "View past CPU and Memory usage."
 msgstr ""
 
-#: templates/user/history_usage.html:76
+#: templates/user/history_usage.html:74
 msgid "History CPU Usage"
 msgstr ""
 
-#: templates/user/history_usage.html:89
+#: templates/user/history_usage.html:87
 msgid "History Memory Usage"
 msgstr ""
 
-#: templates/user/history_usage.html:127
+#: templates/user/history_usage.html:125
 msgid "Show all data"
 msgstr ""
 
-#: templates/user/history_usage.html:151
+#: templates/user/history_usage.html:143
 msgid "CPU &#37;"
 msgstr ""
 
-#: templates/user/history_usage.html:153
+#: templates/user/history_usage.html:145
 msgid "Memory &#37;"
 msgstr ""
 
-#: templates/user/history_usage.html:154
+#: templates/user/history_usage.html:146
 msgid "Net I/O"
-msgstr ""
-
-#: templates/user/history_usage.html:180
-msgid "First"
 msgstr ""
 
 #: templates/user/locale.html:13
