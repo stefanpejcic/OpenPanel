@@ -10,7 +10,7 @@
 
 | Version| Release date | 
 |---|---|
-|__[1.7.4](/docs/changelog/1.7.4)__| December 30, 2026 |
+|__[1.7.4](/docs/changelog/1.7.4)__| December 30, 2025 |
 
 ### Previous versions
 
