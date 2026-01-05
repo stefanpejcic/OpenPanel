@@ -334,3 +334,54 @@ Customize options:
 * To **set total size of log per user** edit `activity_max_size_bytes` setting.
 * To **log actions from 3rd-party plugin** refer to: [*How to log actions from Custom Plugins in user Activity Log*](https://community.openpanel.org/d/218-how-to-log-actions-from-custom-plugins-in-user-activity-log)
 
+
+
+
+## Services
+
+The **`services`** module allows users to enable/disable services without the Docker module.
+
+When enabled:
+* Users can access the [**Advanced > Services** page](/docs/panel/advanced/services/).
+* Users can enable/disable services.
+* User view current service status, resource usage (CPU%, Memory%, Disk I/O, PIDs..), container name (to be used to connect to service from other containers).
+* Users can view logs for services.
+
+When disabled:
+* Users do not have access to the *Advanced > Services* page.
+
+
+
+
+## ElasticSearch
+
+The **`elasticsearch`** module allows users to enable/disable ElasticSearch service.
+
+When enabled:
+* Users can access the [**Caching > ElasticSearch** page](/docs/panel/caching/elasticsearch/).
+* Users can enable/disable ElasticSearch service.
+* User can connect to the instance from other containers using: `elasticsearch:9200`
+* Users can view logs for the ElasticSearch service.
+
+When disabled:
+* Users do not have access to the *Caching > ElasticSearch* page.
+
+
+
+## OpenSearch
+
+The **`opensearch`** module allows users to enable/disable OpenSearch service.
+
+When enabled:
+* Users can access the [**Caching > OpenSearch** page](/docs/panel/caching/opensearch/).
+* Users can enable/disable OpenSearch service.
+* User can connect to the instance from other containers using: `opensearch:9200`
+* Users can view logs for the OpenSearch service.
+
+When disabled:
+* Users do not have access to the *Caching > OpenSearch* page.
+
+
+
+
+
