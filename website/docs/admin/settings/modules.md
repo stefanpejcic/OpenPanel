@@ -351,6 +351,31 @@ When disabled:
 * Users do not have access to the *Advanced > Services* page.
 
 
+## Memcached
+
+The **`memcached`** module allows users to enable/disable Memcached service.
+
+When enabled:
+* Users can access the [**Caching > Memcached** page](/docs/panel/caching/memcached/).
+* Users can enable/disable Memcached service.
+* User can connect to the instance from other containers using: `elasticsearch:11211`
+* Users can view logs for the Memcached service.
+
+When disabled:
+* Users do not have access to the *Caching > Memcached* page.
+
+## Redis
+
+The **`redis`** module allows users to enable/disable Redis service.
+
+When enabled:
+* Users can access the [**Caching > Redis** page](/docs/panel/caching/redis/).
+* Users can enable/disable Memcached service.
+* User can connect to the instance from other containers using: `redis:6379`
+* Users can view logs for the Redis service.
+
+When disabled:
+* Users do not have access to the *Caching > Redis* page.
 
 
 ## ElasticSearch
