@@ -353,7 +353,7 @@
   },
   {
     "name": "malware_scan",
-    "title": "Malware Scanner",
+    "title": "Malware Scanner DEPRECATED",
     "description": "If enabled, ClamAV is run locally and domain's docroots are automatically scanned for malicious files. Users can exclude directories and view quarantined files. NOTE: ARM CPU is not supported",
     "link": "/malware-scanner",
     "type": "enterprise",
@@ -389,7 +389,7 @@
     "description": "If enabled, users can configure Redis from their user panel.",
     "link": "/cache/redis",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#Redis"
   },
   {
     "name": "memcached",
@@ -397,7 +397,7 @@
     "description": "If enabled, users can configure Memcached from their user panel.",
     "link": "/cache/memcached",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#Memcached"
   },
   {
     "name": "services",
@@ -405,7 +405,7 @@
     "description": "If enabled, users can start/stop and view logs for any service.",
     "link": "/services",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#services"
   },
   {
     "name": "elasticsearch",
@@ -413,7 +413,7 @@
     "description": "If enabled, users can configure Elasticsearch from their user panel.",
     "link": "/cache/elasticsearch",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#ElasticSearch"
   },
   {
     "name": "opensearch",
@@ -421,7 +421,7 @@
     "description": "If enabled, users can configure Opensearch from their user panel.",
     "link": "/cache/opensearch",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#OpenSearch"
   },
   {
     "name": "temporary_links",
