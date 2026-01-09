@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 29.12.2025
+# Last Modified: 08.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -304,7 +304,6 @@ EOF
 delete_license() {
     opencli config update key "" > /dev/null
     disable_emails_module
-    rm -rf /etc/openpanel/openpanel/core/users/*/data.json
     service admin restart
 }
 

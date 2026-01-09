@@ -5,7 +5,7 @@
 # Usage: opencli user-rename <old_username> <new_username>
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 29.12.2025
+# Last Modified: 08.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -203,7 +203,6 @@ fi
 
 mv_user_data() {
         mv /etc/openpanel/openpanel/core/users/"$old_username" /etc/openpanel/openpanel/core/users/"$new_username" > /dev/null 2>&1
-        rm /etc/openpanel/openpanel/core/users/$new_username/data.json > /dev/null 2>&1
 	mv /var/log/caddy/stats/$old_username/ /var/log/caddy/stats/$new_username/ > /dev/null 2>&1
 }
 

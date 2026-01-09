@@ -6,7 +6,7 @@
 #        opencli config update <setting_name> <new_value>
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 29.12.2025
+# Last Modified: 08.01.2026
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -60,7 +60,6 @@ update_config() {
         # Restart the panel service for all settings except autoupdate and autopatch
         if [ "$param_name" != "autoupdate" ] && [ "$param_name" != "autopatch" ]; then
             docker --context=default restart openpanel &> /dev/null &                        # run in bg, and dont show error if panel not running
-            rm -rf /etc/openpanel/openpanel/core/users/*/data.json         # remove data.json files for all users
         fi
         
     else

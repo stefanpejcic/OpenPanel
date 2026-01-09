@@ -6,7 +6,7 @@
 #        opencli domains-update_ns --all
 # Author: Stefan Pejcic
 # Created: 20.08.2023
-# Last Modified: 29.12.2025
+# Last Modified: 08.01.2026
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 

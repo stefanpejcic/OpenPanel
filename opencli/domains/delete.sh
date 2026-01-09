@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 29.12.2025
+# Last Modified: 08.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -70,10 +70,6 @@ pre_flight_checks() {
     fi
 }
 
-clear_cache_for_user() {
-	log "Purging cached list of domains for the account"
-	rm /etc/openpanel/openpanel/core/users/${user}/data.json >/dev/null 2>&1
-}
 
 remove_onion_files() {
     if $onion_domain; then
@@ -437,7 +433,6 @@ delete_domain() {
     local result=$(mysql -N -e "$verify_query")
 
     if [ "$result" -eq 0 ]; then
-        clear_cache_for_user                         # rm cached file for ui
         get_webserver_for_user                       #
         vhost_files_delete                           # delete file in container
 		remove_dns_entries_from_apex_zone	         # subdomain-specific DNS cleanup

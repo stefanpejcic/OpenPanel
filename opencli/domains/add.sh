@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 29.12.2025
+# Last Modified: 08.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -475,12 +475,6 @@ get_server_ipv4_or_ipv6() {
 	fi
 
 
-}
-
-
-clear_cache_for_user() {
-	log "Purging cached list of domains for the account"
-	rm /etc/openpanel/openpanel/core/users/${user}/data.json >/dev/null 2>&1
 }
 
 
@@ -984,7 +978,6 @@ add_domain() {
 
     if [ "$result" -eq 1 ]; then
     
-    	clear_cache_for_user                         # rm cached file for ui
     	make_folder                                  # create dirs on host server
      	if $SKIP_VHOST_CREATE; then 
       		log "Skipping VirtualHost file creation due to '--skip_dns' flag."
