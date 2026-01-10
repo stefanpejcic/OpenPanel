@@ -1,12 +1,11 @@
 #!/bin/bash
 ################################################################################
 # Script Name: api/list.sh
-# Description: List available API endpoints.
-# Usage: opencli api-list
-# Docs: 
+# Description: List available API endpoints with usage examples.
+# Usage: opencli api-list [--save]
 # Author: Stefan Pejcic
 # Created: 04.09.2024
-# Last Modified: 08.01.2026
+# Last Modified: 09.01.2026
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -29,24 +28,14 @@
 # THE SOFTWARE.
 ################################################################################
 
-# added in 0.2.5
 ENTERPRISE="/usr/local/opencli/enterprise.sh"
-PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
+license_key=$(grep "^key=" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
 
-# Check if 'enterprise edition'
-if [ -n "$key_value" ]; then
-    :
-else
+[ -n "$license_key" ] || {
     echo "Error: OpenPanel Community edition does not support API access. Please consider purchasing the Enterprise version that has remote API access and integrations with billing softwares such as WHMCS and FOSSBilling."
-    source $ENTERPRISE
+    source "$ENTERPRISE"
     echo "$ENTERPRISE_LINK"
     exit 1
-fi
+}
 
-
-# Extract the command and arguments
-command="$@"
-
-# Execute the command inside the Docker container
-python3 /usr/local/admin/modules/api/generate.py
+python3 /usr/local/admin/modules/api/generate.py "$@"

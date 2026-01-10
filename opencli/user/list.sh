@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 16.10.2023
-# Last Modified: 08.01.2026
+# Last Modified: 09.01.2026
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
@@ -29,13 +29,11 @@
 # THE SOFTWARE.
 ################################################################################
 
-# this should be edited to not print full sh file path..
 print_usage() {
     echo "Usage: opencli user-list [--json] [--total]"
     exit 1
 }
 
-# Flag variables
 json_output=false
 total_users=false
 
@@ -71,7 +69,6 @@ report_users_quotas_only() {
 
 
 
-# Loop through command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
         --over_quota)
@@ -101,12 +98,9 @@ done
 source /usr/local/opencli/db.sh
 
 
-
 # Count total users
 if [ "$total_users" = true ]; then
-    # Fetch only the count of users
     user_count=$(mysql --defaults-extra-file=$config_file -D $mysql_database -se "SELECT COUNT(*) FROM users")
-
     if [ "$json_output" = true ]; then
         echo "$user_count"
     else
@@ -118,9 +112,7 @@ fi
 
 
 ensure_jq_installed() {
-    # Check if jq is installed
     if ! command -v jq &> /dev/null; then
-        # Detect the package manager and install jq
         if command -v apt-get &> /dev/null; then
             sudo apt-get update > /dev/null 2>&1
             sudo apt-get install -y -qq jq > /dev/null 2>&1
@@ -133,7 +125,6 @@ ensure_jq_installed() {
             exit 1
         fi
 
-        # Check if installation was successful
         if ! command -v jq &> /dev/null; then
             echo "Error: jq installation failed. Please install jq manually and try again."
             exit 1
@@ -142,7 +133,6 @@ ensure_jq_installed() {
 }
 
 
-# Get users information
 if [ "$json_output" = true ]; then
     ensure_jq_installed
 

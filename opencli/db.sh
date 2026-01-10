@@ -4,21 +4,17 @@
 ############################### DB LOGIN ################################ 
 #########################################################################
 
-config_files=("/etc/my.cnf")
+# This file is included in all scripts that interact with the MySQL database.
+# Modify this file only if:
+#   1. You have moved it to a different location, or
+#   2. The database name has changed.
 
-check_config_file() {
-    for config_file in "${config_files[@]}"; do
-        if [ -f "$config_file" ]; then
-            return 0
-        fi
-    done
-    return 1
-}
+config_file="/etc/my.cnf"
 
-if ! check_config_file; then
-    echo "Mysql config file: $config_files is not available!"
+[[ -f "$config_file" ]] || {
+    echo "FATAL ERROR: MySQL config file not available: $config_file"
     exit 1
-fi
+}
 
 mysql_database="panel"
 

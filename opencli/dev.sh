@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 08.01.2026
+# Last Modified: 09.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,22 +29,18 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Exit on any error
 set -e
 
-# Global variables
 readonly CONTAINER_NAME="openpanel"
 readonly DOCKER_CONTEXT="default"
 readonly LAST_PATH_FILE="/tmp/last_dev_path"
 readonly SUPPORTED_EXTENSIONS=("py" "html")
 
-# Color codes for output
 readonly RED='\033[0;31m'
 readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
-readonly NC='\033[0m' # No Color
+readonly NC='\033[0m'
 
-# Logging functions
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -57,7 +53,6 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1" >&2
 }
 
-# Display usage information
 usage() {
     cat << EOF
 Usage: opencli dev [path]
@@ -86,56 +81,44 @@ EOF
     exit 1
 }
 
-# Check if a command exists
 command_exists() {
     command -v "$1" &> /dev/null
 }
 
-# Install package using appropriate package manager
-install_package() {
-    local package="$1"
-    log_info "Attempting to install $package..."
+
+
+install_tool() {
+    local tool="$1"
     
-    if command_exists apt; then
-        apt install -y "$package" > /dev/null 2>&1
-    elif command_exists dnf; then
-        dnf install -y "$package" > /dev/null 2>&1
-    elif command_exists yum; then
-        yum install -y "$package" > /dev/null 2>&1
-    else
-        log_error "No supported package manager found (apt/dnf/yum)"
-        return 1
-    fi
-}
-
-# Install fzf if not present
-install_fzf() {
-    if ! command_exists fzf; then
-        if ! install_package fzf; then
-            log_error "Failed to install fzf. Please install it manually."
+    install_package() {
+        local package="$1"
+        log_info "Attempting to install $package..."
+        
+        if command_exists apt; then
+            apt install -y "$package" > /dev/null 2>&1
+        elif command_exists dnf; then
+            dnf install -y "$package" > /dev/null 2>&1
+        elif command_exists yum; then
+            yum install -y "$package" > /dev/null 2>&1
+        else
+            log_error "No supported package manager found (apt/dnf/yum)"
+            return 1
+        fi
+    }
+    
+    if ! command_exists "$tool"; then
+        if ! install_package "$tool"; then
+            log_error "Failed to install $tool. Please install it manually."
             exit 1
         fi
-        log_info "fzf installed successfully"
+        log_info "$tool installed successfully"
     fi
 }
 
-# Install nano if not present
-install_nano() {
-    if ! command_exists nano; then
-        if ! install_package nano; then
-            log_error "Failed to install nano. Please install it manually."
-            exit 1
-        fi
-        log_info "nano installed successfully"
-    fi
-}
-
-# Check if Docker container is running
 is_container_running() {
     docker --context "$DOCKER_CONTEXT" ps --format "table {{.Names}}" | grep -q "^$CONTAINER_NAME$"
 }
 
-# Get all available files from the container
 get_all_available_files() {
     local available_files
     
@@ -153,7 +136,6 @@ get_all_available_files() {
         exit 1
     fi
 
-    # Check if last used path exists
     local last_path=""
     if [ -f "$LAST_PATH_FILE" ]; then
         last_path=$(cat "$LAST_PATH_FILE")
@@ -170,13 +152,7 @@ get_all_available_files() {
     log_info "Selected file: $path"
 }
 
-# Get file extension
-get_file_extension() {
-    local file="$1"
-    echo "${file##*.}"
-}
 
-# Check if file extension is supported
 is_supported_extension() {
     local extension="$1"
     local supported_ext
@@ -189,48 +165,27 @@ is_supported_extension() {
     return 1
 }
 
-# Validate Python file content
-validate_python_file() {
+validate_file() {
     local file="$1"
-    
-    if ! grep -q "import" "$file"; then
-        log_error "Invalid Python file: missing import statements"
-        return 1
-    fi
-    return 0
-}
+    local ext="$2"
 
-# Validate HTML file content
-validate_html_file() {
-    local file="$1"
-    
-    if ! grep -qi "<div" "$file"; then
-        log_error "Invalid HTML file: missing HTML tags"
-        return 1
-    fi
-    return 0
-}
-
-# Validate file content based on extension
-validate_file_content() {
-    local file="$1"
-    local extension="$2"
-    
-    case "$extension" in
+    case "$ext" in
         py)
-            validate_python_file "$file"
+            grep -q "import" "$file" \
+                || { log_error "Invalid Python file: missing import statements"; return 1; }
             ;;
         html)
-            validate_html_file "$file"
+            grep -qi "<div" "$file" \
+                || { log_error "Invalid HTML file: missing HTML tags"; return 1; }
             ;;
         *)
-            log_error "Unsupported file extension: $extension"
+            log_error "Unsupported file extension: $ext"
             return 1
             ;;
     esac
 }
 
-# Copy file to container
+
 copy_to_container() {
     local source_file="$1"
     local target_path="$2"
@@ -244,7 +199,6 @@ copy_to_container() {
     return 0
 }
 
-# Restart container and follow logs
 restart_container_and_follow_logs() {
     log_info "Restarting OpenPanel container to pick up the new file..."
     
@@ -257,13 +211,12 @@ restart_container_and_follow_logs() {
     docker --context "$DOCKER_CONTEXT" logs --follow --since=0s "$CONTAINER_NAME"
 }
 
-# Main function to process file
 process_file() {
     local file_path="$1"
     local extension
     local tmpfile
-    
-    extension=$(get_file_extension "$file_path")
+
+    extension="${file_path##*.}"
     
     if ! is_supported_extension "$extension"; then
         log_error "Unsupported file extension: $extension"
@@ -273,59 +226,54 @@ process_file() {
     
     tmpfile=$(mktemp)
     
-    # Cleanup function for tmpfile
+    # cleanup tmpfile
     cleanup_tmpfile() {
         rm -f "$tmpfile"
     }
     trap cleanup_tmpfile EXIT
     
-    # Open file in nano editor
+    # open nano editor
     nano "$tmpfile"
     
-    # Check if the file is empty
+    # abort if empty
     if [ ! -s "$tmpfile" ]; then
         log_error "Aborting: The file is empty!"
         exit 1
     fi
     
-    # Validate file content
-    if ! validate_file_content "$tmpfile" "$extension"; then
+    # validate HTML / PYTHON
+    if ! validate_file "$tmpfile" "$extension"; then
         log_error "File validation failed"
         exit 1
     fi
     
-    # Copy file to container
+    # copy to container
     if ! copy_to_container "$tmpfile" "$file_path"; then
         exit 1
     fi
     
-    # Restart container and follow logs
+    # restart and tail
     restart_container_and_follow_logs
 }
 
-# Main execution
 main() {
     local file_path="$1"
     
-    # Check if path is provided as argument
     if [ $# -gt 0 ]; then
         if [ -z "$file_path" ]; then
             log_error "Invalid path provided!"
             usage
         fi
     else
-        # Interactive mode - install dependencies and get file selection
-        install_fzf
-        install_nano
+        install_tool fzf
+        install_tool nano
         get_all_available_files
         file_path="$path"
     fi
     
-    # Process the selected file
     process_file "$file_path"
 }
 
-# Script entry point
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

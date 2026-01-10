@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 08.01.2026
+# Last Modified: 09.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,6 +28,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ################################################################################
+
+
 
 readonly SERVICE_NAME="ImunifyAV"
 
@@ -116,6 +118,8 @@ imunify360-agent malware rebuild patterns
 
 
 install_av() {
+
+uname -m | grep -qE 'x86_64|amd64' || { echo "ABORTING: ImunifyAV does NOT support your CPU architecture, only supports: AMD/x86"; exit 1; }
 
 echo "Creating directories..."
 mkdir -p /etc/sysconfig/imunify360/

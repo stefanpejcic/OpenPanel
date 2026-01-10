@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 08.01.2026
+# Last Modified: 09.01.2026
 # Company: openpanel.co
 # Copyright (c) openpanel.co
 # 
