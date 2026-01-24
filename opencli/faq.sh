@@ -5,20 +5,20 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 09.01.2026
-# Company: openpanel.co
-# Copyright (c) openpanel.co
-# 
+# Last Modified: 23.01.2026
+# Company: openpanel.comm
+# Copyright (c) openpanel.comm
+#
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
 # to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
-# 
+#
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
-# 
+#
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 # FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -80,7 +80,7 @@ get_public_ip() {
 
 get_openpanel_openadmin_links() {
     readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
-	
+
 	local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
 	local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
 	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
@@ -92,7 +92,7 @@ get_openpanel_openadmin_links() {
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
 
 	port=$(opencli port)
-	
+
 	if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
 		user_url="http://${ip}:${port}/"
@@ -109,7 +109,95 @@ get_openpanel_openadmin_links() {
         fi
     fi
 
-    echo "$admin_url"    
+    echo "$admin_url"
+}get_openpanel_openadmin_links() {
+    readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
+
+    local domain
+    domain="$(get_force_domain 2>/dev/null)"
+
+    domain="$(echo "$domain" \
+        | sed -e 's|^https\?://||' -e 's/[[:space:]]*{//' \
+        | xargs)"
+    domain="${domain%%:*}"
+
+    if [[ "$domain" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        domain=""
+    fi
+
+    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
+        local domain_block
+        domain_block="$(awk '
+            /# START HOSTNAME DOMAIN #/ {flag=1; next}
+            /# END HOSTNAME DOMAIN #/   {flag=0}
+            flag {print}
+        ' "$caddyfile" 2>/dev/null)"
+
+        domain="$(echo "$domain_block" \
+            | sed '/^\s*$/d' \
+            | grep -v '^\s*#' \
+            | head -n1 \
+            | sed -e 's/[[:space:]]*{//' -e 's|^https\?://||' \
+            | xargs)"
+        domain="${domain%%:*}"
+        domain="${domain%%,*}"
+    fi
+
+    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
+        domain="$(awk '
+            function clean(h) {
+                gsub(/^https?:\/\//,"",h)
+                gsub(/\{.*/,"",h)
+                gsub(/,.*/,"",h)
+                gsub(/:[0-9]+$/,"",h)
+                gsub(/^[ \t]+|[ \t]+$/,"",h)
+                return h
+            }
+            # capture likely site label lines that end with "{"
+            /^[^#].*\{[ \t]*$/ && $0 !~ /^[ \t]*\{/ {
+                site=$0
+                site=clean(site)
+                next
+            }
+            # if this site block proxies to 2087, we want that hostname
+            /reverse_proxy[ \t]+.*:2087/ {
+                if (site != "" && site != "example.net") {
+                    print site
+                    exit
+                }
+            }
+        ' "$caddyfile" 2>/dev/null)"
+    fi
+
+    local port
+    port="$(opencli port 2>/dev/null)"
+
+    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
+        local ip
+        ip="$(get_public_ip)"
+        user_url="http://${ip}:${port}/"
+        admin_url="http://${ip}:2087/"
+        return 0
+    fi
+
+    local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
+    local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
+    local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
+    local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
+
+    local has_cert=false
+    if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
+       { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+        has_cert=true
+    fi
+
+    if [ "$has_cert" = true ]; then
+        user_url="https://${domain}:${port}/"
+        admin_url="https://${domain}:2087/"
+    else
+        user_url="http://${domain}:${port}/"
+        admin_url="http://${domain}:2087/"
+    fi
 }
 
 get_openpanel_openadmin_links

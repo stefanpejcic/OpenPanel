@@ -5,9 +5,9 @@
 # Usage: opencli user-2fa <username> [disable]
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 09.01.2026
-# Company: openpanel.co
-# Copyright (c) openpanel.co
+# Last Modified: 23.01.2026
+# Company: openpanel.comm
+# Copyright (c) openpanel.comm
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal

@@ -5,9 +5,9 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 09.01.2026
-# Company: openpanel.com
-# Copyright (c) openpanel.com
+# Last Modified: 23.01.2026
+# Company: openpanel.commm
+# Copyright (c) openpanel.commm
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
