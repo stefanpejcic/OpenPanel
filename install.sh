@@ -164,7 +164,7 @@ get_server_ipv4() {
 
 set_version_to_install() {
     if [ "$CUSTOM_VERSION" = false ]; then
-        response=$(curl -4 -s "https://usage-api.openpanel.org/latest_version")
+        response=$(curl -4 -s "https://usage-api.openpanel.org/")
 
         if command -v jq &> /dev/null; then
             PANEL_VERSION=$(echo "$response" | jq -r '.latest_version')
