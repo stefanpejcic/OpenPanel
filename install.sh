@@ -1520,8 +1520,8 @@ configure_coraza() {
 		debug_log wget --timeout=15 --tries=3 --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
   		[ "$REPAIR" = true ] && rm -rf /etc/openpanel/caddy/coreruleset/
 		debug_log timeout 300s git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
- 		echo "Disabling rules (REQUEST-941-APPLICATION-ATTACK-XSS.conf)"
-		mv /etc/openpanel/caddy/coreruleset/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf /etc/openpanel/caddy/coreruleset/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf.disabled
+ 		#echo "Disabling rules (REQUEST-941-APPLICATION-ATTACK-XSS.conf)"
+		#mv /etc/openpanel/caddy/coreruleset/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf /etc/openpanel/caddy/coreruleset/rules/REQUEST-941-APPLICATION-ATTACK-XSS.conf.disabled
 	else
  		echo "Disabling CorazaWAF: setting caddy:latest docker image instead of openpanel/caddy-coraza"
 		sed -i 's|image: .*caddy.*|image: caddy:latest|' /root/docker-compose.yml
