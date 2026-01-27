@@ -1,0 +1,17 @@
+{
+  "ctrl+shift+h": "/dashboard",
+  "ctrl+shift+n": "/notifications",
+  "ctrl+shift+u": "/users",
+  "ctrl+shift+r": "/resellers",
+  "ctrl+shift+a": "/administrators",
+  "ctrl+shift+p": "/plans",
+  "ctrl+shift+f": "/features",
+  "ctrl+shift+d": "/domains",
+  "ctrl+shift+e": "/emails/accounts",
+  "ctrl+shift+s": "/services",
+  "ctrl+shift+c": "/security/firewall",
+  "ctrl+shift+w": "/security/waf",
+  "ctrl+shift+l": "/services/logs",
+  "ctrl+shift+b": "/security/basic_auth",
+  "ctrl+escape": "/logout"
+}
