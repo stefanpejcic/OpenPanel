@@ -5,9 +5,9 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.comm
+# Copyright (c) openpanel.comm
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -1075,7 +1075,7 @@ else
   check_services() {
     declare -A service_checks=(
       [caddy]="docker_containers_status 'caddy' 'Caddy is not active. Users websites are not working!'"
-      [csf]="check_service_status 'csf' 'ConfigService Firewall (CSF) is not active. Server and websites are not protected!'"
+      [csf]="check_service_status 'csf' 'Sentinel Firewall (CSF) is not active. Server and websites are not protected!'"
       [admin]="check_service_status 'admin' 'Admin service is not active. OpenAdmin service is not accessible!'"
       [docker]="check_service_status 'docker' 'Docker service is not active. User websites are down!'"
       [panel]="docker_containers_status 'openpanel' 'OpenPanel docker container is not running. Users are unable to access the OpenPanel interface!'"

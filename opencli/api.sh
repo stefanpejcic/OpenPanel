@@ -1,13 +1,13 @@
 #!/bin/bash
 ################################################################################
 # Script Name: api/list.sh
-# Description: List available API endpoints with usage examples.
-# Usage: opencli api-list [--save]
+# Description: On/Off OpenAdmin API access and list available API endpoints.
+# Usage: opencli api <status|on|off|list>
 # Author: Stefan Pejcic
 # Created: 04.09.2024
-# Last Modified: 23.01.2026
-# Company: openpanel.comm
-# Copyright (c) openpanel.comm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,64 @@
 # THE SOFTWARE.
 ################################################################################
 
-ENTERPRISE="/usr/local/opencli/enterprise.sh"
-license_key=$(grep "^key=" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
+# ======================================================================
+# Helpers
 
+show_usage() {
+    cat <<EOF
+
+Usage: opencli api {status|on|off|list}
+Docs:  https://dev.openpanel.com/cli/api.html
+
+Examples:
+  opencli api status              Display current OpenAdmin API status.
+  opencli api on                  Enable OpenAdmin API access.
+  opencli api off                 Disable OpenAdmin API access.
+  opencli api list                List available API endpoints with examples.
+
+EOF
+}
+
+# ======================================================================
+# Validators
+
+if [[ -z "$1" ]]; then
+  show_usage
+  exit 1
+fi
+
+license_key=$(grep "^key=" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
 [ -n "$license_key" ] || {
     echo "Error: OpenPanel Community edition does not support API access. Please consider purchasing the Enterprise version that has remote API access and integrations with billing softwares such as WHMCS and FOSSBilling."
-    source "$ENTERPRISE"
+    source "/usr/local/opencli/enterprise.sh"
     echo "$ENTERPRISE_LINK"
     exit 1
 }
 
-python3 /usr/local/admin/modules/api/generate.py "$@"
+
+# ======================================================================
+# Main
+case "$1" in
+  status)
+    opencli config get api
+    ;;
+  on|off)
+    opencli config update api "$1"
+    if systemctl is-active --quiet admin; then
+        systemctl restart admin 2>&1
+    fi
+    ;;
+  list)
+    if [ "$2" = "--save" ]; then
+      # can only be run BEFORE pyarmor encoding
+      python3 /usr/local/admin/modules/api/generate.py --save
+    else
+      python3 /usr/local/admin/modules/api/generate.py
+    fi
+    ;;
+  *)
+    echo "Invalid option: $1"
+    show_usage
+    exit 1
+    ;;
+esac

@@ -6,9 +6,9 @@
 #        opencli config update <setting_name> <new_value>
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 23.01.2026
-# Company: openpanel.comm
-# Copyright (c) openpanel.comm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,11 +29,21 @@
 # THE SOFTWARE.
 ################################################################################
 
-
 config_file="/etc/openpanel/openpanel/conf/openpanel.config"
 
-# Function to get the current configuration value for a parameter
-get_config() {
+if [ "$#" -lt 2 ]; then
+    echo "Usage: opencli config [get|update] <parameter_name> [new_value]"
+    exit 1
+fi
+
+command="$1"
+param_name="$2"
+
+
+# ======================================================================
+# Helper functions
+
+read_config() {
     param_name="$1"
     param_value=$(grep "^$param_name=" "$config_file" | cut -d= -f2-)
     
@@ -46,51 +56,53 @@ get_config() {
     fi
 }
 
-# Function to update a configuration value
 update_config() {
     param_name="$1"
     new_value="$2"
 
-    # Check if the parameter exists in the config file
     if grep -q "^$param_name=" "$config_file"; then
-        # Update the parameter with the new value
-        sed -i "s/^$param_name=.*/$param_name=$new_value/" "$config_file"
+
+        # update value, respect quotes
+        sed -i "s|^\($param_name=\)\".*\"|\1\"$new_value\"|" "$config_file"
+        sed -i "s|^\($param_name=\)[^\"].*|\1$new_value|" "$config_file"
         echo "Updated $param_name to $new_value"
 
-        # Restart the panel service for all settings except autoupdate and autopatch
-        if [ "$param_name" != "autoupdate" ] && [ "$param_name" != "autopatch" ]; then
-            docker --context=default restart openpanel &> /dev/null &                        # run in bg, and dont show error if panel not running
+        # restart openpanel container
+        if [[ ! "$param_name" =~ ^(email|autoupdate|autopatch|key|default_php_version|max_cpu|max_ram)$ ]]; then
+            docker --context=default restart openpanel &> /dev/null &
         fi
-        
     else
-        echo "Parameter $param_name not found in the configuration file."
+        echo "ERROR: Parameter '$param_name' was not found in the configuration file."
+        echo
+        echo "Usage: opencli config update <parameter_name> <new_value>"
+        echo "See the list of available parameters here: https://dev.openpanel.com/cli/config.html#Available-Options"
     fi
 }
 
-# Main script logic
-if [ "$#" -lt 2 ]; then
-    echo "Usage: opencli config [get|update] <parameter_name> [new_value]"
-    exit 1
-fi
 
-command="$1"
-param_name="$2"
 
+
+
+# ======================================================================
+# Main
 case "$command" in
     get)
-        get_config "$param_name"
+        read_config "$param_name"
         ;;
     update)
         if [ "$#" -ne 3 ]; then
+            echo "ERROR: New value is not provided for the parameter '$param_name'."
+            echo
             echo "Usage: opencli config update <parameter_name> <new_value>"
-            exit 1
+            echo "See the list of available parameters with examples here: https://dev.openpanel.com/cli/config.html#Update"
+            exit 1            
         fi
         new_value="$3"
         update_config "$param_name" "$new_value"
         
         case "$param_name" in
             email)
-                # update email for csf also! 
+                # special case for 'email' - need to update CSF conf also 
                 if [[ "$new_value" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
                     sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$new_value\"/" /etc/csf/csf.conf
                 fi
@@ -98,7 +110,10 @@ case "$command" in
         esac
         ;;
     *)
-        echo "Invalid command. Usage: opencli config [get|update] <parameter_name> [new_value]"
+        echo "ERROR: Invalid command, only 'get' and 'update' are allowed."
+        echo
+        echo "Usage: opencli config [get|update] <parameter_name> [new_value]"
+        echo "See the list of available commands here: https://dev.openpanel.com/cli/config.html"
         exit 1
         ;;
 esac

@@ -6,9 +6,9 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,32 +30,45 @@
 ################################################################################
 
 if [ -z "$1" ]; then
+ # Root
   socket="/var/run/docker.sock"
+  if [ ! -e "$socket" ]; then
+    echo "ERROR: Docker is not running on this server"
+    exit 1
+  fi
 else
-  # If $1 is provided, do A
+  # Rootless
   USERNAME=$1
+
+    # 1. get docker context
   CONTEXT=$(mysql -e "SELECT server FROM users WHERE username = '$USERNAME';" -sN) 
 
   if [ -z "$CONTEXT" ]; then
     echo "ERROR: No context found for username: $USERNAME"
     exit 1
   fi
-  
+
+    # 2. get UUID for context
   USER_UID=$(id -u "$CONTEXT" 2>/dev/null)
   if ! [[ "$USER_UID" =~ ^[0-9]+$ ]]; then
     echo "ERROR: Invalid USER_UID: $USER_UID"
     exit 1
   fi
   
+    # 3. use socket
   socket="/hostfs/run/user/${USER_UID}/docker.sock"
+  if [ ! -e "$socket" ]; then
+    echo "ERROR: Rootless docker is not running for user with UID: $USER_UID"
+    exit 1
+  fi
 fi
 
-    exec docker run --rm -it \
-        --cpus="0.1" \
-        --memory="100m" \
-        --pids-limit="10" \
-        --security-opt no-new-privileges \
-        -v ${socket}:/var/run/docker.sock \
-        lazyteam/lazydocker
-
-exit 0
+# NOTE: Logs tab is always empty 
+#       https://github.com/jesseduffield/lazydocker/issues/218
+exec docker run --rm -it \
+    --cpus="0.1" \
+    --memory="100m" \
+    --pids-limit="100" \
+    --security-opt no-new-privileges \
+    -v ${socket}:/var/run/docker.sock \
+    lazyteam/lazydocker

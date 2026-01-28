@@ -6,9 +6,9 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,8 @@
 
 set -e
 
+# ======================================================================
+# Constants
 readonly CONTAINER_NAME="openpanel"
 readonly DOCKER_CONTEXT="default"
 readonly LAST_PATH_FILE="/tmp/last_dev_path"
@@ -41,6 +43,8 @@ readonly GREEN='\033[0;32m'
 readonly YELLOW='\033[1;33m'
 readonly NC='\033[0m'
 
+# ======================================================================
+# Helpers
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
 }
@@ -256,6 +260,8 @@ process_file() {
     restart_container_and_follow_logs
 }
 
+
+# ======================================================================
 main() {
     local file_path="$1"
     

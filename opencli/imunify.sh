@@ -6,9 +6,9 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 04.08.2025
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,10 +31,8 @@
 
 
 
-readonly SERVICE_NAME="ImunifyAV"
-
-
-
+# ======================================================================
+# Helpers
 update_version() {
   local PANEL_INFO_SH="/etc/sysconfig/imunify360/get-panel-info.sh"
 
@@ -58,6 +56,57 @@ EOF
   chmod +x "$PANEL_INFO_SH"
 }
 
+configure_av_limits_and_email() {
+
+  echo "Configuring ImunifyAV notifications to use 'OpenAdmin > Settings > Notifications'..."
+  wget --timeout=5 --tries=3 --inet4-only -O /etc/sysconfig/imunify360/iav_hook.sh https://gist.githubusercontent.com/stefanpejcic/2318eae67c6833bb313eae7476aaa22f/raw/04bb0b6b4af7ff4515d17abaed891c50ff4f36d4/imav_email.sh
+  chmod +x /etc/sysconfig/imunify360/iav_hook.sh
+  imunify-antivirus notifications-config update '{"rules": {"USER_SCAN_MALWARE_FOUND": {"SCRIPT": {"scripts": ["/etc/sysconfig/imunify360/iav_hook.sh"], "enabled": true}}}}'
+  imunify-antivirus notifications-config update '{"rules": {"CUSTOM_SCAN_MALWARE_FOUND": {"SCRIPT": {"scripts": ["/etc/sysconfig/imunify360/iav_hook.sh"], "enabled": true}}}}'
+
+
+  # https://docs.imunifyav.com/config_file_description/
+  imunify-antivirus config update '{"MALWARE_SCANNING": {"hyperscan": true}}'
+  
+  # ionice
+  echo "Setting 2CPU and 1GB Memory limits for ImunifyAV service.."
+  imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"cpu": 2}}'
+  imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"io": 2}}'
+  imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"ram": 1024}}'
+  imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"user_scan_cpu": 2}}'
+  imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"user_scan_io": 2}}'
+  imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"user_scan_ram": 1024}}'
+  
+  imunify-antivirus config update '{"RESOURCE_MANAGEMENT": {"cpu_limit": 1}}'
+  imunify-antivirus config update '{"RESOURCE_MANAGEMENT": {"io_limit": 1}}'
+  imunify-antivirus config update '{"RESOURCE_MANAGEMENT": {"ram_limit": 500}}'
+  
+  # cron
+  #imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"day_of_month": 1}}'
+  #imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"hour": 3}}'
+  #imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"interval": "none"}}'
+  #imunify-antivirus config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
+
+  
+  # exclude paths!
+  echo "Adding Containers, Images and writable filesystems to ignored files list.."
+
+cat <<\EOT >> /etc/sysconfig/imunify360/malware-filters-admin-conf/ignored.txt
+^/home/(.*)/docker-data/containers/(.*)
+^/home/(.*)/docker-data/image/(.*)
+^/home/(.*)/docker-data/overlay2/(.*)
+^/home/(.*)/bin/(.*)
+EOT
+
+
+  imunify360-agent malware rebuild patterns
+}
+
+
+
+
+# ======================================================================
+# opencli imunify status
 status_av() {
   if pgrep -u _imunify -f "php -S 127.0.0.1:9000" >/dev/null; then
     echo "Imunify GUI is running."
@@ -69,76 +118,30 @@ status_av() {
 
 
 
-
-configure_av_limits_and_email() {
-
-echo "Configuring ImunifyAV notifications to use 'OpenAdmin > Settings > Notifications'..."
-wget --timeout=5 --tries=3 --inet4-only -O /etc/sysconfig/imunify360/iav_hook.sh https://gist.githubusercontent.com/stefanpejcic/2318eae67c6833bb313eae7476aaa22f/raw/04bb0b6b4af7ff4515d17abaed891c50ff4f36d4/imav_email.sh
-chmod +x /etc/sysconfig/imunify360/iav_hook.sh
-imunify-antivirus notifications-config update '{"rules": {"USER_SCAN_MALWARE_FOUND": {"SCRIPT": {"scripts": ["/etc/sysconfig/imunify360/iav_hook.sh"], "enabled": true}}}}'
-imunify-antivirus notifications-config update '{"rules": {"CUSTOM_SCAN_MALWARE_FOUND": {"SCRIPT": {"scripts": ["/etc/sysconfig/imunify360/iav_hook.sh"], "enabled": true}}}}'
-
-
-# https://docs.imunifyav.com/config_file_description/
-imunify-antivirus config update '{"MALWARE_SCANNING": {"hyperscan": true}}'
-
-# ionice
-echo "Setting 2CPU and 1GB Memory limits for ImunifyAV service.."
-imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"cpu": 2}}'
-imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"io": 2}}'
-imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"ram": 1024}}'
-imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"user_scan_cpu": 2}}'
-imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"user_scan_io": 2}}'
-imunify-antivirus config update '{"MALWARE_SCAN_INTENSITY": {"user_scan_ram": 1024}}'
-
-imunify-antivirus config update '{"RESOURCE_MANAGEMENT": {"cpu_limit": 1}}'
-imunify-antivirus config update '{"RESOURCE_MANAGEMENT": {"io_limit": 1}}'
-imunify-antivirus config update '{"RESOURCE_MANAGEMENT": {"ram_limit": 500}}'
-
-# cron
-#imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"day_of_month": 1}}'
-#imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"hour": 3}}'
-#imunify-antivirus config update '{"MALWARE_SCAN_SCHEDULE": {"interval": "none"}}'
-#imunify-antivirus config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
-
-
-# exclude paths!
-echo "Adding Containers, Images and writable filesystems to ignored files list.."
-
-cat <<\EOT >> /etc/sysconfig/imunify360/malware-filters-admin-conf/ignored.txt
-^/home/(.*)/docker-data/containers/(.*)
-^/home/(.*)/docker-data/image/(.*)
-^/home/(.*)/docker-data/overlay2/(.*)
-^/home/(.*)/bin/(.*)
-EOT
-
-
-imunify360-agent malware rebuild patterns
-}
-
-
+# ======================================================================
+# opencli imunify install
 install_av() {
+  
+  uname -m | grep -qE 'x86_64|amd64' || { echo "ABORTING: ImunifyAV does NOT support your CPU architecture, only supports: AMD/x86"; exit 1; }
+  
+  echo "Creating directories..."
+  mkdir -p /etc/sysconfig/imunify360/
 
-uname -m | grep -qE 'x86_64|amd64' || { echo "ABORTING: ImunifyAV does NOT support your CPU architecture, only supports: AMD/x86"; exit 1; }
-
-echo "Creating directories..."
-mkdir -p /etc/sysconfig/imunify360/
-
-PAM_DENY_FILE="/etc/pam.d/imunify360-deny"
-if [ ! -f "$PAM_DENY_FILE" ]; then
-  echo "Creating pam_deny.so file..."
-  cat <<EOF > "$PAM_DENY_FILE"
+  PAM_DENY_FILE="/etc/pam.d/imunify360-deny"
+  if [ ! -f "$PAM_DENY_FILE" ]; then
+    echo "Creating pam_deny.so file..."
+    cat <<EOF > "$PAM_DENY_FILE"
 auth required pam_deny.so
 account required pam_deny.so
 EOF
-else
-  echo "$PAM_DENY_FILE already exists, skipping..."
-fi
-
-INTEGRATION_CONF="/etc/sysconfig/imunify360/integration.conf"
-if [ ! -f "$INTEGRATION_CONF" ]; then
-  echo "Creating integration.conf file..."
-  cat <<EOF > "$INTEGRATION_CONF"
+  else
+    echo "$PAM_DENY_FILE already exists, skipping..."
+  fi
+  
+  INTEGRATION_CONF="/etc/sysconfig/imunify360/integration.conf"
+  if [ ! -f "$INTEGRATION_CONF" ]; then
+    echo "Creating integration.conf file..."
+    cat <<EOF > "$INTEGRATION_CONF"
 [paths]
 ui_path = /etc/sysconfig/imunify360/imav
 ui_path_owner = _imunify:_imunify 
@@ -155,103 +158,101 @@ domains = /usr/local/opencli/domains/all.sh --json
 basedir = /home
 pattern_to_watch = ^/home/[^/]+/docker-data/volumes/[^/]+_html_data/_data(/.*)?$
 EOF
-else
-  echo "$INTEGRATION_CONF already exists, skipping..."
-fi
-
-PANEL_INFO_JSON="/etc/sysconfig/imunify360/get-panel-info.json"
-update_version
-
-DEPLOY_SCRIPT="imav-deploy.sh"
-if [ ! -f "$DEPLOY_SCRIPT" ]; then
-  echo "Downloading deploy script..."
-  wget --timeout=5 --tries=3 --inet4-only https://repo.imunify360.cloudlinux.com/defence360/imav-deploy.sh -O "$DEPLOY_SCRIPT"
-else
-  echo "$DEPLOY_SCRIPT already downloaded, skipping..."
-fi
-
-if ! grep -q "# Deployed by imav-deploy" "$DEPLOY_SCRIPT"; then
-  echo "Running deploy script..."
-  if ! bash "$DEPLOY_SCRIPT"; then
-    echo
-    echo "[ERROR] Installing ImunifyAV failed - please check the above output." >&2
-    echo
-    exit 1
-  fi
-else
-  echo "Deploy script already executed or invalid, skipping..."
-fi
-
-
-
-configure_av_limits_and_email
-
-echo "Allowing users to initiate a scan.."
-imunify360-agent config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
-imunify-antivirus config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
-
-
-echo "Installing PHP if not present..."
-if ! command -v php >/dev/null 2>&1; then
-  if command -v apt-get >/dev/null 2>&1; then
-    apt-get update
-    apt-get install -y php-cli
-  elif command -v yum >/dev/null 2>&1; then
-    yum update
-    yum install -y php-cli
   else
-      echo "Unsupported package manager. Only apt-get and yum are supported."
-      exit 1
+    echo "$INTEGRATION_CONF already exists, skipping..."
   fi
-else
-  echo "PHP already installed."
-fi
+  
+  PANEL_INFO_JSON="/etc/sysconfig/imunify360/get-panel-info.json"
+  update_version
+  
+  DEPLOY_SCRIPT="imav-deploy.sh"
+  if [ ! -f "$DEPLOY_SCRIPT" ]; then
+    echo "Downloading deploy script..."
+    wget --timeout=5 --tries=3 --inet4-only https://repo.imunify360.cloudlinux.com/defence360/imav-deploy.sh -O "$DEPLOY_SCRIPT"
+  else
+    echo "$DEPLOY_SCRIPT already downloaded, skipping..."
+  fi
+  
+  if ! grep -q "# Deployed by imav-deploy" "$DEPLOY_SCRIPT"; then
+    echo "Running deploy script..."
+    if ! bash "$DEPLOY_SCRIPT"; then
+      echo
+      echo "[ERROR] Installing ImunifyAV failed - please check the above output." >&2
+      echo
+      exit 1
+    fi
+  else
+    echo "Deploy script already executed or invalid, skipping..."
+  fi
+
+  configure_av_limits_and_email
+  
+  echo "Allowing users to initiate a scan.."
+  imunify360-agent config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
+  imunify-antivirus config update '{"PERMISSIONS": {"allow_malware_scan": true}}'
+
+  echo "Installing PHP if not present..."
+  if ! command -v php >/dev/null 2>&1; then
+    if command -v apt-get >/dev/null 2>&1; then
+      apt-get update
+      apt-get install -y php-cli
+    elif command -v yum >/dev/null 2>&1; then
+      yum update
+      yum install -y php-cli
+    else
+        echo "Unsupported package manager. Only apt-get and yum are supported."
+        exit 1
+    fi
+  else
+    echo "PHP already installed."
+  fi
 
 
 
 
 
 
-
-
-# add it to openadmin > services > status
-FILE="/etc/openpanel/openadmin/config/services.json"
+  
+  
+  # add it to openadmin > services > status
+  FILE="/etc/openpanel/openadmin/config/services.json"
 
 NEW_SERVICE='    {
         "name": "ImunifyAV",
         "type": "system",
         "real_name": "imunify-antivirus"
     }'
+  
+  # Check if file ends with a closing array bracket
+  if tail -n 1 "$FILE" | grep -q '\]'; then
+      # Remove the last line (closing bracket)
+      head -n -1 "$FILE" > "$FILE.tmp"
+      
+      # Add comma to the last existing object if needed
+      if tail -n 1 "$FILE.tmp" | grep -vq '},'; then
+          sed -i '$s/}/},/' "$FILE.tmp"
+      fi
+  
+      # Append the new service and closing bracket
+      echo "$NEW_SERVICE" >> "$FILE.tmp"
+      echo "]" >> "$FILE.tmp"
+  
+      # Replace the original file
+      mv "$FILE.tmp" "$FILE"
+  
+      echo "New service added successfully."
+  else
+      echo "Invalid JSON format in $FILE"
+  fi
 
-# Check if file ends with a closing array bracket
-if tail -n 1 "$FILE" | grep -q '\]'; then
-    # Remove the last line (closing bracket)
-    head -n -1 "$FILE" > "$FILE.tmp"
-    
-    # Add comma to the last existing object if needed
-    if tail -n 1 "$FILE.tmp" | grep -vq '},'; then
-        sed -i '$s/}/},/' "$FILE.tmp"
-    fi
-
-    # Append the new service and closing bracket
-    echo "$NEW_SERVICE" >> "$FILE.tmp"
-    echo "]" >> "$FILE.tmp"
-
-    # Replace the original file
-    mv "$FILE.tmp" "$FILE"
-
-    echo "New service added successfully."
-else
-    echo "Invalid JSON format in $FILE"
-fi
 
 
-
-echo "Install completed!"
+  echo "Install completed!"
 }
 
 
-
+# ======================================================================
+# opencli imunify uninstall
 uninstall_av() {
   echo "Removing files and directories..."
   rm -rf /etc/sysconfig/imunify360/
@@ -279,7 +280,8 @@ uninstall_av() {
   echo "Uninstall complete."
 }
 
-
+# ======================================================================
+# opencli imunify start
 start_av() {
   pkill -u _imunify -f "php -S 127.0.0.1:9000" 2>/dev/null || true
 
@@ -292,6 +294,8 @@ start_av() {
   fi
 }
 
+# ======================================================================
+# opencli imunify stop
 stop_av() {
   pkill -f "php -S 127.0.0.1:9000"
   if ! pgrep -f "php -S 127.0.0.1:9000" >/dev/null; then
@@ -302,7 +306,8 @@ stop_av() {
 }
 
 
-
+# ======================================================================
+# opencli imunify update
 update_av() {
   # https://docs.imunify360.com/imunifyav/#update-instructions
   echo "Updating ImunifyAV..."
@@ -317,31 +322,32 @@ update_av() {
   fi
 }
 
-# MAIN
+
+# ======================================================================
 case "$1" in
     status)
         status_av
         exit 0
         ;;
     install)
-        echo "Installing $SERVICE_NAME..."
+        echo "Installing ImunifyAV..."
         install_av
         exit 0
         ;;
     uninstall)
-        echo "Uninstalling $SERVICE_NAME..."
+        echo "Uninstalling ImunifyAV..."
         stop_av
         uninstall_av
         exit 0
         ;;
     start)
-        echo "Starting $SERVICE_NAME..."
+        echo "Starting ImunifyAV..."
         update_version
         start_av
         exit 0
         ;;
     stop)
-        echo "Stopping $SERVICE_NAME..."
+        echo "Stopping ImunifyAV..."
         stop_av
         exit 0
         ;;

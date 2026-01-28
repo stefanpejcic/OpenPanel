@@ -1,13 +1,13 @@
 #!/bin/bash
 ################################################################################
 # Script Name: user/login.sh
-# Description: Login as a user container.
-# Usage: opencli user-login <USERNAME>
+# Description: Generate an auto-login link for OpenPanel user.
+# Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
-# Created: 21.10.2023
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Created: 27.01.2026
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,84 +28,146 @@
 # THE SOFTWARE.
 ################################################################################
 
-install_fzf() {
-    if ! command -v fzf &> /dev/null; then
-        echo "Attempting to install fzf..."
-        apt install -y fzf > /dev/null 2>&1 || dnf install -y fzf
-        if ! command -v fzf &> /dev/null; then
-            echo "Failed to install fzf. Please install it manually."
-            exit 1
-        fi
-    fi   
-}
+NOW_FLAG=false
+DELETE_FLAG=false
+USERNAME=$1
 
-
-get_all_users(){
-    users=$(mysql -Bse "SELECT username FROM users")
-    if [ -z "$users" ]; then
-      echo "No users found in the database."
-      exit 1
-    fi
-}
-
-
-if [ $# -gt 0 ]; then
-    selected_user="$1"
-    if [ -z "$selected_user" ]; then
-        echo "Invalid user."
-        exit 1
-    fi
-else
-    install_fzf
-    get_all_users
-    selected_user=$(echo "$users" | fzf --prompt="Select a user: ")
-    if [[ -z "$selected_user" || ! "$users" =~ (^|[[:space:]])"$selected_user"($|[[:space:]]) ]]; then
-        echo "Invalid selection or no user selected."
-        exit 1
-    fi
-fi
-
-
-
-
-
-# get user ID from the database
-get_user_info() {
-    local user="$1"
-    local query="SELECT id, server FROM users WHERE username = '${user}';"
-    
-    # Retrieve both id and context
-    user_info=$(mysql -se "$query")
-    
-    # Extract user_id and context from the result
-    user_id=$(echo "$user_info" | awk '{print $1}')
-    context=$(echo "$user_info" | awk '{print $2}')
-    
-    echo "$user_id,$context"
-}
-
-result=$(get_user_info "$selected_user")
-user_id=$(echo "$result" | cut -d',' -f1)
-context=$(echo "$result" | cut -d',' -f2)
-
-
-
-if [ -z "$user_id" ]; then
-    echo "FATAL ERROR: user $selected_user does not exist."
+if [ -z "$USERNAME" ]; then
+    echo "Usage: opencli user-login <username>"
     exit 1
-else
-    if id "$selected_user" &>/dev/null; then     
-       USER_UID=$(id -u)
-        exec docker run --rm -it \
-            --cpus="0.1" \
-            --memory="100m" \
-            --pids-limit="10" \
-            --security-opt no-new-privileges \
-            -v /hostfs/run/user/$USER_UID/docker.sock:/var/run/docker.sock \
-            openpanel/lazydocker
-    else
-        echo "Neither container nor the user $selected_user exist on the server."
-        exit 1
-    fi
 fi
 
+for arg in "$@"; do
+    if [ "$arg" == "--open" ]; then
+        NOW_FLAG=true
+    fi
+    if [ "$arg" == "--delete" ]; then
+        DELETE_FLAG=true
+    fi
+done
+
+
+# ======================================================================
+# Helpers
+
+urlencode() {
+    local LANG=C
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+        local c="${1:i:1}"
+        case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c"
+        esac
+    done
+}
+
+get_public_ip() {
+    ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+    if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        ip=$(hostname -I | awk '{print $1}')
+    fi
+    echo "$ip"
+}
+
+get_openpanel_url() {
+
+  PORT=$(opencli port)
+  PORT=${PORT:-2083}
+
+	SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
+	if [ -f "$SCRIPT_PATH" ]; then
+	    source "$SCRIPT_PATH"
+	else
+	    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
+	fi
+
+    caddyfile="/etc/openpanel/caddy/Caddyfile"
+    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
+    domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
+    domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
+    domain=$(echo "$domain" | sed 's|^http[s]*://||')
+        
+    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
+        ip=$(get_public_ip)
+        openpanel_url="http://${ip}:$PORT/"
+    else
+		# ---------------------- letsencrypt
+		local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
+		local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
+	
+		# ---------------------- custom ssl
+		local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
+		local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
+	 
+		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
+		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+		    openpanel_url="https://${domain}:$PORT/"
+        else
+            ip=$(get_public_ip)
+            openpanel_url="http://${ip}:$PORT/"
+        fi
+    fi
+
+    echo "$openpanel_url"
+}
+
+
+
+
+# ======================================================================
+# Main
+
+# 1. get username
+USER_DIR="/etc/openpanel/openpanel/core/users/${USERNAME}"
+if [ ! -d "$USER_DIR" ]; then
+    # TODO: handle case when suer is suspended
+    echo "[✘] Error: Username '$USERNAME' does not exist or was not properly created (missing files)."
+    exit 1
+fi
+
+
+# 2. Read existing or generate a new token
+TOKEN_FILE="$USER_DIR/logintoken.txt"
+
+if [[ -f "$TOKEN_FILE" ]]; then
+  # read existing token
+  ADMIN_TOKEN=$(<"$TOKEN_FILE")
+  # delete token if '--delete' flag
+  if [ "$DELETE_FLAG" = true ]; then
+    rm -rf $TOKEN_FILE
+    echo "Auto-login token '$ADMIN_TOKEN' for user ${USERNAME} is now invalidated."
+    exit 0
+  fi
+else
+  # show msg that there is no token if '--delete' flag
+  if [ "$DELETE_FLAG" = true ]; then
+    echo "No auto-login token exists for user ${USERNAME}."
+    exit 0
+  fi
+  # generate new token
+  mkdir -p "$(dirname "$TOKEN_FILE")"
+  ADMIN_TOKEN=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 30)
+  echo "$ADMIN_TOKEN" > "$TOKEN_FILE"
+fi
+
+
+# 3. Format login link with the token
+openpanel_url=$(get_openpanel_url)
+BASE_URL="${openpanel_url}login_autologin"
+QUERY="admin_token=$(urlencode "$ADMIN_TOKEN")&username=$(urlencode "$USERNAME")"
+LOGIN_URL="${BASE_URL}?${QUERY}"
+
+
+# 4. Display link
+echo "$LOGIN_URL"
+
+
+# 5. if '--open' flag, then try to open the link
+if [ "$NOW_FLAG" = true ]; then
+    if command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "$LOGIN_URL"
+    else
+        echo "xdg-open not found, cannot open URL automatically."
+    fi
+fi

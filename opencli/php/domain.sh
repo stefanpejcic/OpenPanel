@@ -6,9 +6,9 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,17 +29,21 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Check if domain argument is provided
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <domain> [--update <new_php_version>]"
-    exit 1
-fi
-
+# ======================================================================
+# Variables
 domain="$1"
 update_flag=false
 new_php_version=""
 
-# Check for the --update flag and new PHP version argument
+
+# ======================================================================
+# Validators
+
+if [ $# -lt 1 ]; then
+    echo "Usage: opencli php-domain <domain> [--update <new_php_version>]"
+    exit 1
+fi
+
 if [ "$2" == "--update" ]; then
     if [ -z "$3" ]; then
         echo "Error: --update flag requires a new PHP version in the format number.number."
@@ -54,12 +58,12 @@ if [ "$2" == "--update" ]; then
     new_php_version="$3"
 fi
 
-
-# Determine the owner of the domain
-whoowns_output=$(opencli domains-whoowns "$domain")
-owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain': " '{print $2}')
+# TODO: check ws, if litespeed abort!
+# https://github.com/stefanpejcic/opencli/issues/68
 
 
+# ======================================================================
+# Helpers
 get_context_for_user() {
      source /usr/local/opencli/db.sh
         username_query="SELECT server FROM users WHERE username = '$owner'"
@@ -69,45 +73,46 @@ get_context_for_user() {
         fi
 }
 
+
+# ======================================================================
+# Main
+whoowns_output=$(opencli domains-whoowns "$domain")
+owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain': " '{print $2}')
 if [ -n "$owner" ]; then
-   
     get_context_for_user
-    
-        domain_path_in_volume="/home/$context/docker-data/volumes/${context}_webserver_data/_data/$domain.conf"
-        php_version=$(grep -o "php-fpm-[0-9.]\+" "$domain_path_in_volume" | grep -o "[0-9.]\+" | head -n 1)
+    domain_path_in_volume="/home/$context/docker-data/volumes/${context}_webserver_data/_data/$domain.conf"
+    php_version=$(grep -o "php-fpm-[0-9.]\+" "$domain_path_in_volume" | grep -o "[0-9.]\+" | head -n 1)
 
-        #echo "PHP version: $php_version"
+    if [ -n "$php_version" ]; then
+        if [ "$update_flag" == true ]; then
+            if [ -n "$new_php_version" ]; then
+                # 1. domain vhost file
+                sed -i "s/php-fpm-[0-9.]\+/php-fpm-$new_php_version/g" "$domain_path_in_volume"
 
-        if [ -n "$php_version" ]; then
-            if [ "$update_flag" == true ]; then
-                if [ -n "$new_php_version" ]; then
-                        # in vhost file
-                        sed -i "s/php-fpm-[0-9.]\+/php-fpm-$new_php_version/g" "$domain_path_in_volume"
+                # 2. start new php version
+                nohup sh -c "opencli user-resources $owner --activate=php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
 
-                        # start php version
-                        nohup sh -c "opencli user-resources $owner --activate=php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
+                # 3. restart webservers
+                nohup sh -c "docker --context $context restart nginx" </dev/null >nohup.out 2>nohup.err &
+                nohup sh -c "docker --context $context restart openresty" </dev/null >nohup.out 2>nohup.err &
+                nohup sh -c "docker --context $context restart apache" </dev/null >nohup.out 2>nohup.err &
 
-                        # restart webservers
-                        nohup sh -c "docker --context $context restart nginx" </dev/null >nohup.out 2>nohup.err &
-                        nohup sh -c "docker --context $context restart openresty" </dev/null >nohup.out 2>nohup.err &
-                        nohup sh -c "docker --context $context restart apache" </dev/null >nohup.out 2>nohup.err &
+                # 4. save in db
+                update_query="UPDATE domains SET php_version='$new_php_version' WHERE domain_url='$domain';"
+                mysql -e "$update_query"
 
-                        # save in db
-                        update_query="UPDATE domains SET php_version='$new_php_version' WHERE domain_url='$domain';"
-                        mysql -e "$update_query"
-                    
-                    echo "Updated PHP version in the configuration file to $new_php_version"
-                else
-                    echo "Error: new php verison not provied!"
-                    exit 1
-                fi
+                echo "Updated PHP version in the configuration file to $new_php_version"
             else
-                echo "Domain '$domain' (owned by user: $owner) uses PHP version: $php_version"
+                echo "Error: new php verison not provied!"
+                exit 1
             fi
         else
-            echo "Failed to determine the PHP version for the domain '$domain' (owned by user $owner)." >&2
-            exit 1
+            echo "Domain '$domain' (owned by user: $owner) uses PHP version: $php_version"
         fi
+    else
+        echo "Failed to determine the PHP version for the domain '$domain' (owned by user $owner)." >&2
+        exit 1
+    fi
 else
     echo "Failed to determine the owner of the domain '$domain'." >&2
     exit 1

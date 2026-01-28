@@ -1,6 +1,8 @@
 import subprocess
 import argparse
 
+# TODO: https://github.com/stefanpejcic/opencli/issues/63
+
 '''
 Display logs for error code
 '''

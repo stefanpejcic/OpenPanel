@@ -5,9 +5,9 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -30,13 +30,15 @@
 
 set -euo pipefail
 
+# ======================================================================
 # Constants
 readonly SCRIPTS_DIR="/usr/local/opencli"
 readonly ALIAS_FILE="${SCRIPTS_DIR}/aliases.txt"
 readonly GREEN='\033[0;32m'
 readonly RESET='\033[0m'
 
-# Exclude
+# ======================================================================
+# Excluded files
 readonly EXCLUDE_PATTERNS=(
     ".git/*"
     ".github/*"
@@ -47,6 +49,7 @@ readonly EXCLUDE_PATTERNS=(
     "progress_bar.sh"
 )
 
+# ======================================================================
 # Functions
 check_scripts_directory() {
     if [[ ! -d "$SCRIPTS_DIR" ]]; then
@@ -129,7 +132,7 @@ process_scripts() {
         
     done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" "${exclude_args[@]}" -print0)
 
-    # special cases
+    # handle special cases
     echo -e "${GREEN}opencli error${RESET}"
     echo "Description: Displays information for specific error ID received in OpenPanel UI."
     echo "Usage: opencli error <ID_HERE>"
@@ -147,6 +150,8 @@ process_scripts() {
     fi
 }
 
+
+# ======================================================================
 main() {
     check_scripts_directory
     initialize_alias_file

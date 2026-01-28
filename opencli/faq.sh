@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 23.01.2026
+# Last Modified: 27.01.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 #
@@ -81,38 +81,6 @@ get_public_ip() {
 get_openpanel_openadmin_links() {
     readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
 
-	local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
-	local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
-	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
-	local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
-
-    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
-    domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
-    domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
-    domain=$(echo "$domain" | sed 's|^http[s]*://||')
-
-	port=$(opencli port)
-
-	if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
-        ip=$(get_public_ip)
-		user_url="http://${ip}:${port}/"
-        admin_url="http://${ip}:2087/"
-    else
-		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
-		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
-		    user_url="http://${domain}:${port}/"
-		    admin_url="https://${domain}:2087/"
-        else
-            ip=$(get_public_ip)
-			user_url="http://${ip}:${port}/"
-            admin_url="http://${ip}:2087/"
-        fi
-    fi
-
-    echo "$admin_url"
-}get_openpanel_openadmin_links() {
-    readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
-
     local domain
     domain="$(get_force_domain 2>/dev/null)"
 
@@ -186,8 +154,8 @@ get_openpanel_openadmin_links() {
     local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
 
     local has_cert=false
-    if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
-       { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+	if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
+	   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
         has_cert=true
     fi
 

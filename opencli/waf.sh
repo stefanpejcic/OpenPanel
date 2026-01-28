@@ -5,9 +5,9 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 23.01.2026
-# Company: openpanel.commm
-# Copyright (c) openpanel.commm
+# Last Modified: 27.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,9 @@
 ################################################################################
 
 
-# Display usage information
+# ======================================================================
+# Helpers
+
 usage() {
     echo "Usage: opencli waf <command> [options]"
     echo ""
@@ -52,8 +54,6 @@ usage() {
     echo "  opencli waf stats hourly"
     exit 1
 }
-
-
 
 check_domain() {
     local domain="$1"
@@ -128,7 +128,6 @@ disable_coraza_waf_for_domain() {
     fi
 }
 
-
 get_stats_from_file() {
     local log_file="/var/log/caddy/coraza_audit.log"
     local mode="$1"
@@ -164,11 +163,9 @@ list_all_tags() {
     grep -oP "tag:\s*['\"]\K[^'\"]+" /etc/openpanel/caddy/coreruleset/rules/*.conf | grep -v "OWASP_CRS" | sort -u
 }
 
-
 list_all_ids() {
     grep -oP "id:\K[0-9]+" /etc/openpanel/caddy/coreruleset/rules/*.conf | sort -u
 }
-
 
 get_count_from_file() {
     local log_file="/var/log/caddy/coraza_audit.log"
@@ -177,7 +174,6 @@ get_count_from_file() {
         echo "$record_count"
     fi
 }
-
 
 update_owasp_rules() {
   cd /etc/openpanel/caddy/coreruleset/ || { echo "Failed to enter modsec directory: /etc/openpanel/caddy/coreruleset/"; return 1; }
@@ -200,7 +196,8 @@ update_owasp_rules() {
 
 
 
-# MAIN
+# ======================================================================
+# Main
 case "$1" in
     "status")
         check_coraza_status

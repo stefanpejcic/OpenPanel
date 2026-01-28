@@ -15,5 +15,5 @@ OpenPanel is proud of the modularity, so you can independently update just the O
 To update OpenCLI:
 
 ```sh
-cd /usr/local/opencli && git pull
+opencli update --cli
 ```
