@@ -614,6 +614,19 @@ When disabled:
 * Users can not access the *Domains > Capitalize Domains* page.
 
 
+## Edit VirtualHosts
+
+The **`edit_vhost`** module allows users to edit the VirtualHosts files for their domains.
+
+When enabled:
+* Users can access the [**Domains > Edit VHosts File** page](/docs/panel/domains/vhosts/).
+
+When disabled:
+* Users can not access the *Domains > Edit VHosts File* page.
+
+Customize options:
+* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+
 
 ## DNS
 
