@@ -580,6 +580,18 @@ Customize options:
 * To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
 
 
+## Docroot
+
+The **`docroot`** module allows users to set a custom docroot (folder) when adding domains, and later change the path.
+
+When enabled:
+* Users can access the [**Domains > Change Docroot** page](/docs/panel/domains/docroot/).
+* Users can set a custom docroot when adding a domain.
+
+When disabled:
+* Users can not set a custom docroot when adding a domaina, and can not later change the docroot.
+
+
 ## DNS
 
 The **`dns`** module runs a local BIND9 service, creates zone files for domains and allows users to manage DNS records.
