@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Radovan Jecmenica
 # Created: 06.12.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,19 +29,14 @@
 # THE SOFTWARE.
 ################################################################################
 
-set -euo pipefail  # Exit on error, undefined vars, pipe failures
+set -euo pipefail
 
-# Source database configuration
-readonly DB_CONFIG="/usr/local/opencli/db.sh"
-if [[ ! -f "$DB_CONFIG" ]]; then
-    echo "Error: Database configuration file not found: $DB_CONFIG" >&2
-    exit 1
-fi
+source "/usr/local/opencli/db.sh"
 
-# shellcheck source=/usr/local/opencli/db.sh
-source "$DB_CONFIG"
 
-# Validate email format
+# ======================================================================
+# Helpers
+
 validate_email() {
     local email="$1"
     local email_regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
@@ -52,7 +47,6 @@ validate_email() {
     fi
 }
 
-# Check if user exists in database
 user_exists() {
     local username="$1"
     local count
@@ -63,38 +57,26 @@ user_exists() {
     [[ "$count" -eq 1 ]]
 }
 
-# Update email in database with proper error handling
 update_user_email() {
     local username="$1"
     local new_email="$2"
     
-    # Check if user exists
+    # 1. Check if user exists
     if ! user_exists "$username"; then
         echo "Error: User '$username' not found in database" >&2
         return 1
     fi
     
-    # Validate email format
+    # 2. Validate email format
     if ! validate_email "$new_email"; then
         return 1
     fi
-    
-    # Check if email is already in use
-    local existing_user
-    existing_user=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
-        -sN -e "SELECT username FROM users WHERE email = '$new_email' AND username != '$username';")
-    
-    if [[ -n "$existing_user" ]]; then
-        echo "Error: Email '$new_email' is already in use by user '$existing_user'" >&2
-        return 1
-    fi
-    
-    # Perform the update
+
+    #3. Save
     mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
         -e "UPDATE users SET email = '$new_email' WHERE username = '$username';"
 }
 
-# Display usage information
 show_usage() {
     echo "Usage: opencli user-email <USERNAME> <NEW_EMAIL>"
     echo ""
@@ -108,9 +90,11 @@ show_usage() {
     echo "  opencli user-email john john.doe@newdomain.com"
 }
 
-# Main execution
+
+
+# ======================================================================
+# Main
 main() {
-    # Check argument count
     if [[ $# -ne 2 ]]; then
         show_usage
         exit 1
@@ -119,13 +103,13 @@ main() {
     local username="$1"
     local new_email="$2"
     
-    # Validate required database variables
+    # 1. check db.sh was sourced
     if [[ -z "${config_file:-}" ]] || [[ -z "${mysql_database:-}" ]]; then
         echo "Error: Database configuration variables not properly set" >&2
         exit 1
     fi
     
-    # Perform the email update
+    # 2. perform email update
     if update_user_email "$username" "$new_email"; then
         echo "Success: Email for user '$username' updated to '$new_email'"
     else
@@ -134,5 +118,4 @@ main() {
     fi
 }
 
-# Execute main function with all arguments
 main "$@"

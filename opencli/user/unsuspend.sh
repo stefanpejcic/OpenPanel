@@ -5,7 +5,7 @@
 # Usage: opencli user-unsuspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,30 +28,37 @@
 # THE SOFTWARE.
 ################################################################################
 
+# ======================================================================
 # Constants
 SUSPENDED_DIR="/etc/openpanel/caddy/suspended_domains/"
 CADDY_VHOST_DIR="/etc/openpanel/caddy/domains"
-CONFIG_FILE="/usr/local/opencli/db.sh"
 
-# Globals
+
+
+# ======================================================================
+# Variables
 DEBUG=false
 USERNAME="$1"
 
-# Usage check
+
+
+# ======================================================================
+# Validations
 if [[ "$#" -lt 1 || "$#" -gt 2 ]]; then
     echo "Usage: opencli user-unsuspend <username> [--debug]"
     exit 1
 fi
 
-# Parse optional flags
 for arg in "$@"; do
     [[ "$arg" == "--debug" ]] && DEBUG=true
 done
 
-# Load database configuration
-source "$CONFIG_FILE"
 
-# Retrieve Docker context for suspended user
+source "/usr/local/opencli/db.sh"
+
+
+# ======================================================================
+# Functions
 get_docker_context() {
     local query="SELECT server FROM users WHERE username LIKE 'SUSPENDED\_%${USERNAME}';"
     local server_name
@@ -59,7 +66,6 @@ get_docker_context() {
     CONTEXT_FLAG="--context $server_name"
 }
 
-# Reload Caddy config if valid
 reload_caddy_if_valid() {
     if docker --context default exec caddy caddy validate --config /etc/caddy/Caddyfile > /dev/null 2>&1; then
         docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
@@ -68,55 +74,34 @@ reload_caddy_if_valid() {
     return 1
 }
 
-# Ensure Caddy is running
-ensure_caddy_running() {
-    if ! docker ps -q -f name=caddy > /dev/null; then
-        cd /root && docker --context default compose up -d caddy > /dev/null 2>&1
-    fi
-}
-
-# Restore original domain configs from suspended backups
 unsuspend_user_domains() {
-    local user_id domain_name domain_vhost
 
-    user_id=$(mysql "$mysql_database" -e "SELECT id FROM users WHERE username LIKE 'SUSPENDED\_%${USERNAME}';" -N)
-    if [[ -z "$user_id" ]]; then
-        echo "ERROR: User '$USERNAME' not found in the database"
-        exit 1
-    fi
-
+    # 1. get list of all user domains
     local domain_list
-    domain_list=$(mysql -D "$mysql_database" -e "SELECT domain_url FROM domains WHERE user_id='$user_id';" -N)
+    domain_list=$(opencli domains-user "$USERNAME")
 
+    # 2. move all vhosts
     for domain_name in $domain_list; do
-        domain_vhost="${CADDY_VHOST_DIR}/${domain_name}.conf"
-        suspended_conf="${SUSPENDED_DIR}${domain_name}.conf"
-
-        if [[ -f "$suspended_conf" ]]; then
-            cp "$suspended_conf" "$domain_vhost"
-        fi
+        # from /etc/openpanel/caddy/suspended_domains/ to /etc/openpanel/caddy/domains/
+        [[ -f "${SUSPENDED_DIR}${domain_name}.conf" ]] && cp "${SUSPENDED_DIR}${domain_name}.conf" "${CADDY_VHOST_DIR}/${domain_name}.conf"
     done
 
-    ensure_caddy_running
-    reload_caddy_if_valid || {
-        for domain_name in $domain_list; do
-            mv "${CADDY_VHOST_DIR}/${domain_name}.conf" "${SUSPENDED_DIR}${domain_name}.conf" > /dev/null 2>&1
-        done
-        reload_caddy_if_valid
-    }
+    # 3. validate caddy
+    reload_caddy_if_valid
 }
 
-# Start Docker containers for the user
 start_user_containers() {
-    [ "$DEBUG" = true ] && echo "Starting containers for user: $USERNAME"
+    local cores
+    jobs=$(( $(nproc) * 2 ))
+    $DEBUG && echo "Starting containers for user: $USERNAME"
 
-    docker $CONTEXT_FLAG ps -a --format "{{.Names}}" | while read -r container; do
-        [ "$DEBUG" = true ] && echo "- Starting container: $container"
-        docker $CONTEXT_FLAG start "$container" > /dev/null 2>&1
-    done
+    docker $CONTEXT_FLAG ps -a --format "{{.Names}}" |
+        xargs -r -n1 -P "$jobs" bash -c '
+            '"$DEBUG"' && echo "- Starting container: $0"
+            docker '"$CONTEXT_FLAG"' start "$0" > /dev/null 2>&1
+        '
 }
 
-# Rename user from suspended to active
 rename_user_in_db() {
     local query="UPDATE users SET username='${USERNAME}' WHERE username LIKE 'SUSPENDED\\_%_${USERNAME}';"
 
@@ -128,8 +113,10 @@ rename_user_in_db() {
     fi
 }
 
-# === MAIN EXECUTION FLOW ===
 
+
+# ======================================================================
+# Main
 get_docker_context
 unsuspend_user_domains
 start_user_containers

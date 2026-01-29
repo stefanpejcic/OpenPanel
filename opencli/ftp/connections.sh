@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 11.09.2024
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,10 +34,11 @@ if [ "$#" -gt 1 ]; then
     exit 1
 fi
 
-CONTAINER_NAME="openadmin_ftp"
 
-if [ -n "$1" ]; then        # single user
-   docker exec "$CONTAINER_NAME" sh -c "ps | grep 'vsftpd:' | grep '$1' | grep -w -v grep"
-else                        # all users
-    docker exec "$CONTAINER_NAME" sh -c 'ps | grep "vsftpd:" | grep -w -v grep'
+# ======================================================================
+# Main
+if [ -n "$1" ]; then
+    docker exec openadmin_ftp sh -c "ps | grep 'vsftpd:' | grep '$1' | grep -w -v grep"
+else
+    docker exec openadmin_ftp sh -c 'ps | grep "vsftpd:" | grep -w -v grep'
 fi

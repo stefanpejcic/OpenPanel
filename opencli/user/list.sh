@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 16.10.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -48,7 +48,7 @@ report_users_over_quota_only() {
         sed -n '3,5p' "$repquota_file"
         grep '+' "$repquota_file"
     else
-        No users over quota.
+        echo "No users over quota."
     fi
 }
 

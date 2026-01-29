@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: user/password.sh
 # Description: Reset password for a user.
-# Usage: opencli user-password <USERNAME> <NEW_PASSWORD | RANDOM> [--ssh]
+# Usage: opencli user-password <USERNAME> <NEW_PASSWORD | random>
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 30.11.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,160 +29,79 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Function to generate a random password
+# ======================================================================
+# Variables
+username=$1
+new_password=$2
+random_flag=false
+
+
+# ======================================================================
+# Validations
+if [ $# -ne 2 ]; then
+    echo "Usage: opencli user-password <USERNAME> <NEW_PASSWORD | random>"
+    exit 1
+fi
+
+
+# ======================================================================
+# Helpers
 generate_random_password() {
     tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 12
 }
 
-# Function to print usage
-print_usage() {
-    echo "Usage: $0 <username> <new_password | random> [--ssh]"
-    exit 1
+determine_python_path() {
+    if [ -x /usr/local/admin/venv/bin/python3 ]; then
+        PYTHON_EXEC=/usr/local/admin/venv/bin/python3
+    elif command -v python3 &>/dev/null; then
+        PYTHON_EXEC=python3
+    else
+        echo "Warning: No Python 3 interpreter found. Please install Python 3 or check the virtual environment."
+        exit 1
+    fi
 }
 
-# Check if username and new password are provided as arguments
-if [ $# -lt 2 ]; then
-    print_usage
-fi
+generate_and_hash_password() {
 
-# Parse command line options
-username=$1
-new_password=$2
-ssh_flag=false
-random_flag=false  # Flag to check if the new password is initially set as "random"
-DEBUG=false  # Default value for DEBUG
+    if [ "$new_password" == "random" ]; then
+        new_password=$(generate_random_password)
+        random_flag=true
+    fi
 
-# Parse optional flags to enable debug mode when needed!
-for arg in "$@"; do
-    case $arg in
-        --debug)
-            DEBUG=true
-            ;;
-        *)
-            ;;
-    esac
-done
-
-for arg in "$@"; do
-    case $arg in
-        --ssh)
-            ssh_flag=true
-            ;;
-    esac
-done
-
-# DB
-source /usr/local/opencli/db.sh
-
-# Check if new password should be randomly generated
-if [ "$new_password" == "random" ]; then
-    new_password=$(generate_random_password)
-    random_flag=true
-fi
-
-
-
-#Insert data into the database
-
-# Hash password
-if [ -x /usr/local/admin/venv/bin/python3 ]; then
 hashed_password=$(
-/usr/local/admin/venv/bin/python3 - "$new_password" << 'EOF'
+"$PYTHON_EXEC" - "$new_password" << 'EOF'
 import sys
 from werkzeug.security import generate_password_hash
 print(generate_password_hash(sys.argv[1]))
 EOF
 )
-
-elif command -v python3 &>/dev/null; then
-hashed_password=$(
-python3 - "$new_password" << 'EOF'
-import sys
-from werkzeug.security import generate_password_hash
-print(generate_password_hash(sys.argv[1]))
-EOF
-)
-else
-  echo "Warning: No Python 3 interpreter found. Please install Python 3 or check the virtual environment."
-  exit 1
-fi
-
 
 # added in 1.6.8 to handle ' and " in passwords
-escaped_hash=$(printf "%s" "$hashed_password" | sed "s/'/''/g")
+escaped_hash=$(printf "%s" "$hashed_password" | sed "s/'/''/g") 
+}
 
-# Insert hashed password into MySQL database
-mysql_query="UPDATE users SET password='$escaped_hash' WHERE username='$username';"
-
-mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
-
-if [ $? -eq 0 ]; then
-    delete_sessions_query="DELETE FROM active_sessions WHERE user_id=(SELECT id FROM users WHERE username='$username');"
-    mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$delete_sessions_query"
-
+save_to_database() {
+    mysql_query="UPDATE users SET password='$escaped_hash' WHERE username='$username';"
+    mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
+    
     if [ $? -eq 0 ]; then
-        :
+        delete_sessions_query="DELETE FROM active_sessions WHERE user_id=(SELECT id FROM users WHERE username='$username');"
+        mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$delete_sessions_query"
+        if [ $? -ne 0 ]; then
+            echo "WARNING: Failed to terminate existing sessions for the user."
+        fi
+
+        echo "Successfully changed password for user $username$([ "$random_flag" = true ] && echo ", new random generated password is: $new_password")"
     else
-        echo "WARNING: Failed to terminate existing sessions for the user."
+        echo "Error: Data insertion failed."
+        exit 1
     fi
-    
-    if [ "$random_flag" = true ]; then
-        echo "Successfully changed password for user $username, new generated password is: $new_password"
-    else
-        echo "Successfully changed password for user $username."
-    fi
-    
-else
-    echo "Error: Data insertion failed."
-    exit 1
-fi
-
-
-# Check if --ssh flag is provided
-if [ "$ssh_flag" = true ]; then
-
-    
-# get user ID from the database
-get_user_info() {
-    local user="$1"
-    local query="SELECT id, server FROM users WHERE username = '${user}';"
-    
-    # Retrieve both id and context
-    user_info=$(mysql -se "$query")
-    
-    # Extract user_id and context from the result
-    user_id=$(echo "$user_info" | awk '{print $1}')
-    context=$(echo "$user_info" | awk '{print $2}')
-    
-    echo "$user_id,$context"
 }
 
 
-result=$(get_user_info "$username")
-user_id=$(echo "$result" | cut -d',' -f1)
-context=$(echo "$result" | cut -d',' -f2)
-
-#echo "User ID: $user_id"
-#echo "Context: $context"
-
-if [ -z "$context" ]; then
-    echo "FATAL ERROR: Docker context for user $username does not exist or mysql is not running."
-    exit 1
-fi
-    
-    : '
-    if [ "$DEBUG" = true ]; then
-        # Change the user password in the Docker container
-        echo "root:$new_password" | docker --context $context exec $context -i root chpasswd
-        if [ "$random_flag" = true ]; then
-            echo "SSH root user in container now also have password: $new_password"
-        else
-            echo "SSH user root password changed."
-        fi
-    else
-        # Change the user password in the Docker container
-        echo "root:$new_password" | docker --context $context exec $context -i root chpasswd
-    fi
-    '
-    
-fi
+# ======================================================================
+# Main
+determine_python_path
+generate_and_hash_password
+source /usr/local/opencli/db.sh
+save_to_database

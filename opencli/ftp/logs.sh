@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 11.09.2024
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,6 +34,6 @@ if [ "$#" -gt 0 ]; then
     exit 1
 fi
 
-# Define the container name
-CONTAINER_NAME="openadmin_ftp"
-docker --context=default logs "$CONTAINER_NAME"
+# ======================================================================
+# Main
+docker --context=default logs openadmin_ftp

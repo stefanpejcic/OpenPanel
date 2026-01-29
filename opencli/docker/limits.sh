@@ -5,7 +5,7 @@
 # Usage: opencli docker-limits [--apply | --apply SIZE | --read]
 # Author: Stefan Pejcic
 # Created: 09.05.2024
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

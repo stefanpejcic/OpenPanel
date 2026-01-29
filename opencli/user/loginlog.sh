@@ -1,13 +1,13 @@
 #!/bin/bash
 ################################################################################
 # Script Name: user/loginlog.sh
-# Description: View users .loginlog that shows last 20 successfull logins.
-# Usage: opencli user-loginlog <USERNAME> [--json]
+# Description: View user's .lastlogin file with last 20 successfull logins.
+# Usage: opencli user-loginlog <USERNAME> [--table|--text|--json]
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 27.01.2026
-# Company: openpanel.comm
-# Copyright (c) openpanel.comm
+# Last Modified: 28.01.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,75 +28,87 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Function to print usage
+# ======================================================================
+# Helpers
+
 print_usage() {
-    echo "Usage: $0 <username> [--json]"
+    echo "Usage: opencli user-loginlog <username> [--json | --table]"
     exit 1
 }
 
-# Check if username is provided
-if [ -z "$1" ]; then
-    print_usage
-fi
-
-# Parse command-line options
-json_output=false
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --json)
-            json_output=true
-            shift
-            ;;
-        *)
-            username=$1
-            shift
-            ;;
-    esac
-done
-
-
-
 ensure_jq_installed() {
-    # Check if jq is installed
-    if ! command -v jq &> /dev/null; then
-        # Detect the package manager and install jq
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get update > /dev/null 2>&1
-            sudo apt-get install -y -qq jq > /dev/null 2>&1
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y -q jq > /dev/null 2>&1
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q jq > /dev/null 2>&1
-        else
-            echo "Error: No compatible package manager found. Please install jq manually and try again."
-            exit 1
-        fi
-
-        # Check if installation was successful
-        if ! command -v jq &> /dev/null; then
-            echo "Error: jq installation failed. Please install jq manually and try again."
-            exit 1
-        fi
+    if ! command -v jq &>/dev/null; then
+        echo "Error: jq is required for --json output. Please install it."
+        exit 1
     fi
 }
 
 
-# Check if the login log file exists for the user
+# ======================================================================
+# Flags
+json_output=false
+table_output=true
+text_output=false
+
+
+# ======================================================================
+# Parse args
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --json)
+            table_output=false
+            json_output=true
+            ;;
+        --table)
+            table_output=true
+            ;;
+        --text)
+            table_output=false
+            text_output=true
+            ;;
+        -*)
+            print_usage
+            ;;
+        *)
+            username="$1"
+            ;;
+    esac
+    shift
+done
+
+
+# ======================================================================
+# Validations
+
+[ -z "$username" ] && print_usage
+
 login_log_file="/etc/openpanel/openpanel/core/users/$username/.lastlogin"
+
 if [ ! -f "$login_log_file" ]; then
     echo "Login log file not found for user: $username"
     exit 1
 fi
 
-# Display the content of the login log file
-if [ "$json_output" = true ]; then
-    ensure_jq_installed
-    # Format data as JSON
-    json_data=$(awk 'BEGIN {print "["} {if(NR>1)print ","; split($0, arr, " - "); split(arr[1], ipArr, ": "); split(arr[2], countryArr, ": "); split(arr[3], timeArr, ": "); print "{\n\t\"ip\": \""ipArr[2]"\",\n\t\"country\": \""countryArr[2]"\",\n\t\"time\": \""timeArr[2] "\"\n}"} END {print "\n]"}' "$login_log_file")
 
+# ======================================================================
+# Main
+if [ "$table_output" = true ]; then    # TABLE (default since 1.7.41)
+    {
+        echo -e "IP\tCountry\tTime"
+        awk '
+        {
+            split($0, a, " - ");
+            split(a[1], ip, ": ");
+            split(a[2], country, ": ");
+            split(a[3], time, ": ");
+            printf "%s\t%s\t%s\n", ip[2], country[2], time[2]
+        }' "$login_log_file"
+    } | column -t -s $'\t'    
+elif [ "$json_output" = true ]; then   # JSON
+    ensure_jq_installed
+    json_data=$(awk 'BEGIN {print "["} {if(NR>1)print ","; split($0, arr, " - "); split(arr[1], ipArr, ": "); split(arr[2], countryArr, ": "); split(arr[3], timeArr, ": "); print "{\n\t\"ip\": \""ipArr[2]"\",\n\t\"country\": \""countryArr[2]"\",\n\t\"time\": \""timeArr[2] "\"\n}"} END {print "\n]"}' "$login_log_file")
     echo -e "$json_data" | jq .
-else
-    # Display data as is
+elif [ "$text_output" = true ]; then   # TEXT
     cat "$login_log_file"
-    echo ""
+    echo
 fi

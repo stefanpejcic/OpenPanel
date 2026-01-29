@@ -6,7 +6,7 @@
 #        opencli report [--public] [--cli] [--csf]
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,32 +29,62 @@
 # THE SOFTWARE.
 ################################################################################
 
-
-# Create directory if it doesn't exist
-output_dir="/var/log/openpanel/admin/reports"
-mkdir -p "$output_dir"
-output_file="$output_dir/system_info_$(date +'%Y%m%d%H%M%S').txt"
-
+# ======================================================================
+# Constants
 GREEN='\033[0;32m'
 RESET='\033[0m'
 
+# ======================================================================
+# Variables
+cli_flag=false
+csf_flag=false
+upload_flag=false
+non_interactive=false
 
 
+# ======================================================================
+# Helpers
 
+create_local_path() {
+	output_dir="/var/log/openpanel/admin/reports"
+	mkdir -p "$output_dir"
+	output_file="$output_dir/system_info_$(date +'%Y%m%d%H%M%S').txt"
+}
+
+parse_args() {
+	while [[ $# -gt 0 ]]; do
+	    case $1 in
+	        --non-interactive)
+	            non_interactive=true
+	            ;;
+	        --cli)
+	            cli_flag=true
+	            ;;
+	        --csf)
+	            csf_flag=true
+	            ;; 
+	        --public|--link|--upload)
+	            upload_flag=true
+	            ;; 
+	        *)
+	            echo "Unknown option: $1"
+	            exit 1
+	            ;;
+	    esac
+	    shift
+	done
+}
 
 setup_progress_bar_script(){
-	# Progress bar script
 	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 	PROGRESS_BAR_FILE="progress_bar.sh"
 
-	# Check if wget is available
 	if command -v wget &> /dev/null; then
 	    wget --timeout=5 --tries=3 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 	    if [ $? -ne 0 ]; then
 	        echo "ERROR: wget failed or timed out after 5 seconds while downloading from github"
 	        exit 1
 	    fi
-	# If wget is not available, check if curl is available *(fallback for fedora)
 	elif command -v curl -4 &> /dev/null; then
 	    curl -4 --max-time 5 -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 	    if [ $? -ne 0 ]; then
@@ -75,8 +105,8 @@ setup_progress_bar_script(){
 
 
 
-
-
+# ======================================================================
+# Main
 
 setup_progress_bar_script
 source "$PROGRESS_BAR_FILE"               # Source the progress bar script
@@ -87,16 +117,15 @@ get_opencli_info
 get_mysql_info
 get_admin_info
 get_docker_info
-run_opencli # Run OpenCLI commands if --cli flag is provided
+run_opencli
 run_csf_rules
-display_openpanel_settings # Display OpenPanel settings
-display_openadmin_settings # Display OpenAdmin settings
-display_mysql_information # Display MySQL information
-check_services_status # Check the status of services
-list_user_services # list users services
+display_openpanel_settings
+display_openadmin_settings
+display_mysql_information
+check_services_status
+list_user_services
 upload_report
 )
-
 
 TOTAL_STEPS=${#FUNCTIONS[@]}
 CURRENT_STEP=0
@@ -133,20 +162,18 @@ main() {
 
 
 
+# ======================================================================
+# Helpers
 
-
-# Function to run a command and print its output with a custom message
 run_command() {
   echo "# $2:" >> "$output_file"
   if [ "$non_interactive" = false ]; then
   	echo "- $2"
   fi
   eval "$1" >> "$output_file" 2>&1
+  echo "# ======================================================================" >> "$output_file"
   echo >> "$output_file"
 }
-
-
-# HELPERS
 
 run_opencli() {
   if [ "$cli_flag" = true ]; then
@@ -155,7 +182,6 @@ run_opencli() {
   fi
 }
 
-
 run_csf_rules() {
   if [ "$csf_flag" = true ]; then
     echo "=== Sentinel Firewall Rules ===" >> "$output_file"
@@ -163,8 +189,6 @@ run_csf_rules() {
   fi
 }
 
-
-# Function to check the status of services
 check_services_status() {
   echo "=== Services Status ===" >> "$output_file"
   run_command "docker --context=default compose ls" "Listing OpenPanel Stack"
@@ -174,13 +198,12 @@ check_services_status() {
   run_command "systemctl status csf" "Checking if Sentinel Firewall (CSF) is running"
 }
 
-# Function to display OpenPanel settings
 display_openpanel_settings() {
   echo "=== OpenPanel Settings ===" >> "$output_file"
   run_command "cat /etc/openpanel/openpanel/conf/openpanel.config" "Listing OpenPanel configuration file"
 }
 
-# admin in 0.2.3
+# added in 0.2.3
 display_openadmin_settings() {
   echo "=== OpenAdmin Service ===" >> "$output_file"
   run_command "cat /etc/openpanel/openadmin/config/admin.ini" "Listing OpenAdmin configuration file"
@@ -188,8 +211,6 @@ display_openadmin_settings() {
   run_command "tail -30 /var/log/openpanel/admin/error.log" "Checking OpenAdmin log for errors"
 }
 
-
-# Function to display MySQL information
 display_mysql_information() {
   echo "=== MySQL Information ===" >> "$output_file"
   run_command "docker logs --tail 30 openpanel_mysql" "Checking MySQL service for errors"
@@ -207,7 +228,6 @@ list_user_services() {
       fi
   done
 }
-
 
 get_os_info() {
   os_info=$(awk -F= '/^(NAME|VERSION_ID)/{gsub(/"/, "", $2); printf("%s ", $2)}' /etc/os-release)
@@ -265,42 +285,15 @@ upload_report() {
 
 
 
-# Default values
-cli_flag=false
-csf_flag=false
-upload_flag=false
-non_interactive=false
-
-
-parse_args() {
-
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --non-interactive)
-            non_interactive=true
-            ;;
-        --cli)
-            cli_flag=true
-            ;;
-        --csf)
-            csf_flag=true
-            ;; 
-        --public|--link|--upload)
-            upload_flag=true
-            ;; 
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-    shift
-done
-}
 
 
 
+
+# ======================================================================
+# flock
 (
 flock -n 200 || { echo "Error: Another instance of the report script is already running. Exiting."; exit 1; }
+create_local_path
 parse_args "$@"
 main
 )200>/root/openpanel_install.lock

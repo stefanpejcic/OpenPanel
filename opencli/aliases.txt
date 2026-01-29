@@ -51,7 +51,6 @@ opencli locale
 opencli patch
 opencli php-default
 opencli php-domain
-opencli php-ini
 opencli plan-apply
 opencli plan-create
 opencli plan-delete
@@ -76,10 +75,8 @@ opencli user-ip
 opencli user-list
 opencli user-login
 opencli user-loginlog
-opencli user-memcached
 opencli user-password
 opencli user-quota
-opencli user-redis
 opencli user-rename
 opencli user-resources
 opencli user-ssh

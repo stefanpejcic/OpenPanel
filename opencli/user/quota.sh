@@ -5,7 +5,7 @@
 # Usage: opencli user-quota <username|--all>
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,24 +30,16 @@
 
 set -euo pipefail
 
-# Constants
+# ======================================================================
+# Constants and Variables
 readonly REPQUOTA_PATH="/etc/openpanel/openpanel/core/users/repquota"
-readonly DB_CONFIG="/usr/local/opencli/db.sh"
 readonly GB_TO_BLOCKS=1024000
-
-# Source database configuration
-if [[ ! -f "$DB_CONFIG" ]]; then
-    echo "Error: Database configuration file not found: $DB_CONFIG" >&2
-    exit 1
-fi
-
-# shellcheck source=/usr/local/opencli/db.sh
-source "$DB_CONFIG"
-
-# Global variables
 declare -g mysql_database config_file
 
-# Function to display usage information
+
+# ======================================================================
+# Helpers
+
 usage() {
     cat << EOF
 Usage: opencli user-quota <username> OR opencli user-quota --all
@@ -66,17 +58,19 @@ Examples:
 EOF
 }
 
-# Function to log messages with timestamp
 log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*"
 }
 
-# Function to log errors
 log_error() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] ERROR: $*" >&2
 }
 
-# Function to validate database configuration
+
+
+# ======================================================================
+# Functions
+
 validate_db_config() {
     if [[ -z "${mysql_database:-}" ]]; then
         log_error "Database name not configured"
@@ -96,24 +90,23 @@ validate_db_config() {
     return 0
 }
 
-# Function to get plan limits for a user
+
 get_plan_limits() {
     local username="$1"
     local query file_limit disk_limit
     
-    # Validate username parameter
+    # 1. get username
     if [[ -z "$username" ]]; then
         log_error "Username parameter is required"
         return 1
     fi
     
-    # SQL query to fetch plan limits
+    # 2. fetch plan limits
     query="SELECT p.inodes_limit, p.disk_limit 
            FROM users u
            JOIN plans p ON u.plan_id = p.id
            WHERE u.username = '$username'"
     
-    # Execute query and capture results
     local result
     result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "$query" 2>/dev/null)
     
@@ -122,45 +115,43 @@ get_plan_limits() {
         return 1
     fi
     
-    # Parse results
+    # 3. parse and validate results
     read -r file_limit disk_limit <<< "$result"
     
-    # Validate results
     if [[ -z "$file_limit" ]] || [[ -z "$disk_limit" ]]; then
         log_error "Invalid plan limits retrieved for user: $username"
         return 1
     fi
     
-    # Export variables for use in calling function
     export PLAN_FILE_LIMIT="$file_limit"
     export PLAN_DISK_LIMIT="$disk_limit"
-    
+
     return 0
 }
 
-# Function to validate user exists in system
+
 validate_user_exists() {
     local username="$1"
-    
+
     if ! id "$username" &>/dev/null; then
         log_error "User does not exist: $username"
         return 1
     fi
-    
+
     return 0
 }
 
-# Function to set user quota
+
 set_user_quota() {
     local username="$1"
     local block_limit file_limit
-    
-    # Calculate block limit (remove " GB" suffix and convert to blocks)
+
+    # 1. remove " GB" suffix and convert to blocks
     block_limit="${PLAN_DISK_LIMIT// GB/}"
     block_limit=$((block_limit * GB_TO_BLOCKS))
     file_limit="$PLAN_FILE_LIMIT"
     
-    # Set the user's disk quota
+    # 2. setquota for user
     if sudo setquota -u "$username" "$block_limit" "$block_limit" "$file_limit" "$file_limit" /; then
         log "Quota set for user $username: $block_limit blocks (${PLAN_DISK_LIMIT}) and $file_limit inodes"
         return 0
@@ -170,61 +161,62 @@ set_user_quota() {
     fi
 }
 
-# Function to process a single user
+
 process_user() {
     local username="$1"
     local success=true
-    
+
+    # 1. process single user
     log "Processing user: $username"
-    
-    # Get plan limits
+
+    # 2. Get plan limits
     if ! get_plan_limits "$username"; then
         return 1
     fi
-    
-    # Validate user exists
+
+    # 3. Check if user exists
     if ! validate_user_exists "$username"; then
         return 1
     fi
-    
-    # Set quota
+
+    # 4. Set plan quota
     if ! set_user_quota "$username"; then
         return 1
     fi
-    
+
     return 0
 }
 
-# Function to get list of active users
+
 get_active_users() {
     local users
-    
     users=$(opencli user-list --json 2>/dev/null | grep -v 'SUSPENDED' | awk -F'"' '/username/ {print $4}')
-    
+
     if [[ -z "$users" ]] || [[ "$users" == "No users." ]]; then
         log_error "No active users found in the database"
         return 1
     fi
-    
+
     echo "$users"
     return 0
 }
 
-# Function to process all users
+
 process_all_users() {
     local users user_count current_index=1
     local failed_users=()
-    
+
+    # 1. get all active users from database
     log "Fetching list of active users..."
     
     if ! users=$(get_active_users); then
         return 1
     fi
-    
+
     user_count=$(echo "$users" | wc -w)
     log "Found $user_count active users to process"
     
-    # Process each user
+    # 2. Process users 1 by 1
     for user in $users; do
         echo "Processing user: $user ($current_index/$user_count)"
         
@@ -236,7 +228,7 @@ process_all_users() {
         ((current_index++))
     done
     
-    # Report results
+    # 3. Report results
     if [[ ${#failed_users[@]} -eq 0 ]]; then
         log "Successfully processed all $user_count users"
     else
@@ -247,68 +239,52 @@ process_all_users() {
     return 0
 }
 
-# Function to update repquota file
 update_repquota() {
     log "Updating repquota file..."
-    
     if repquota -u / > "$REPQUOTA_PATH" 2>/dev/null; then
         log "Repquota file updated successfully: $REPQUOTA_PATH"
     else
         log_error "Failed to update repquota file"
         return 1
     fi
-    
     return 0
 }
 
-# Main function
+
+
+
+# ======================================================================
+# Main
 main() {
     local exit_code=0
-    
-    # Validate database configuration
+
+    source "/usr/local/opencli/db.sh"
+
+    # 1. test db data
     if ! validate_db_config; then
         exit 1
     fi
     
-    # Parse command line arguments
+    # 2. process a single OR all users
     case "${1:-}" in
-        "")
+        ""|"help")
             usage
             exit 1
             ;;
         "--all")
-            if [[ $# -ne 1 ]]; then
-                log_error "Invalid number of arguments"
-                usage
-                exit 1
-            fi
-            
-            if process_all_users; then
-                log "DONE: All users processed successfully"
-            else
-                exit_code=1
-            fi
+            (( $# == 1 )) || { log_error "Invalid number of arguments"; usage; exit 1; }
+            process_all_users && log "DONE: All users processed successfully" || exit_code=1
             ;;
         *)
-            if [[ $# -ne 1 ]]; then
-                log_error "Invalid number of arguments"
-                usage
-                exit 1
-            fi
-            
-            if ! process_user "$1"; then
-                exit_code=1
-            fi
+            (( $# == 1 )) || { log_error "Invalid number of arguments"; usage; exit 1; }
+            process_user "$1" || exit_code=1
             ;;
     esac
     
-    # Update repquota file
-    if ! update_repquota; then
-        exit_code=1
-    fi
+    # 3. Update repquota file
+    update_repquota || exit_code=1
     
     exit $exit_code
 }
 
-# Run main function with all arguments
 main "$@"

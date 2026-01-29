@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,31 +28,55 @@
 # THE SOFTWARE.
 ################################################################################
 
+# ======================================================================
 # Constants
-SUSPENDED_DIR="/etc/openpanel/caddy/suspended_domains/"
-TEMPLATE_CONF="/etc/openpanel/caddy/templates/suspended_user.conf"
-CADDY_VHOST_DIR="/etc/openpanel/caddy/domains"
-CONFIG_FILE="/usr/local/opencli/db.sh"
+readonly SUSPENDED_DIR="/etc/openpanel/caddy/suspended_domains/"
+readonly TEMPLATE_CONF="/etc/openpanel/caddy/templates/suspended_user.conf"
+readonly CADDY_VHOST_DIR="/etc/openpanel/caddy/domains"
 
-# Globals
+
+
+# ======================================================================
+# Variables
 DEBUG=false
 USERNAME="$1"
 
-# Usage check
-if [[ "$#" -lt 1 || "$#" -gt 2 ]]; then
-    echo "Usage: opencli user-suspend <username> [--debug]"
+
+
+# ======================================================================
+# Helpers
+confirm() {
+    read -p "Are you sure you want to suspend OpenPanel user '$USERNAME'? (y/N) " answer
+    case "$answer" in
+        [yY]|[yY][eE][sS]) return 0 ;;
+        *) echo "Operation cancelled."; exit 1 ;;
+    esac
+}
+
+
+
+# ======================================================================
+# Validations
+if [[ "$#" -lt 1 || "$#" -gt 3 ]]; then
+    echo "Usage: opencli user-suspend <username> [-y] [--debug]"
     exit 1
 fi
 
-# Parse optional flags
 for arg in "$@"; do
     [[ "$arg" == "--debug" ]] && DEBUG=true
 done
 
-# Load database configuration
-source "$CONFIG_FILE"
+if [ "$2" != "-y" ]; then
+    confirm
+fi
 
-# Retrieve Docker context for user
+
+source "/usr/local/opencli/db.sh"
+
+
+# ======================================================================
+# Functions
+
 get_docker_context() {
     local query="SELECT server FROM users WHERE username='$USERNAME';"
     local server_name
@@ -60,7 +84,6 @@ get_docker_context() {
     CONTEXT_FLAG="--context $server_name"
 }
 
-# Validate Caddy configuration and reload if valid
 reload_caddy_if_valid() {
     if docker exec caddy caddy validate --config /etc/caddy/Caddyfile 2>&1 | grep -q "Valid configuration"; then
         docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
@@ -69,55 +92,38 @@ reload_caddy_if_valid() {
     return 1
 }
 
-# Ensure Caddy container is running
-ensure_caddy_running() {
-    if ! docker --context default ps -q -f name=caddy > /dev/null; then
-        cd /root && docker --context default compose up -d caddy > /dev/null 2>&1
-    fi
-}
-
-# Replace user domain configs with suspended template
 suspend_user_domains() {
-    local user_id domain_name domain_vhost suspended_conf
-
-    user_id=$(mysql "$mysql_database" -e "SELECT id FROM users WHERE username='$USERNAME';" -N)
-    if [[ -z "$user_id" ]]; then
-        echo "ERROR: User '$USERNAME' not found in the database"
-        exit 1
-    fi
-
     mkdir -p "$SUSPENDED_DIR"
+
+    # 1. get list of all user domains
     local domain_list
-    domain_list=$(mysql -D "$mysql_database" -e "SELECT domain_url FROM domains WHERE user_id='$user_id';" -N)
+    domain_list=$(opencli domains-user "$USERNAME")
 
+    # 2. move all vhosts
     for domain_name in $domain_list; do
-        domain_vhost="${CADDY_VHOST_DIR}/${domain_name}.conf"
-        suspended_conf="${SUSPENDED_DIR}${domain_name}.conf"
-
-        [[ ! -f "$suspended_conf" ]] && cp "$domain_vhost" "$suspended_conf"
-
-        sed "s|<DOMAIN_NAME>|$domain_name|g" "$TEMPLATE_CONF" > "$domain_vhost"
+        # from /etc/openpanel/caddy/domains/ to /etc/openpanel/caddy/suspended_domains/
+        [[ ! -f "${SUSPENDED_DIR}${domain_name}.conf" ]] && cp "${CADDY_VHOST_DIR}/${domain_name}.conf" "${SUSPENDED_DIR}${domain_name}.conf"
+    
+        # /etc/openpanel/caddy/templates/suspended_user.html
+        sed "s|<DOMAIN_NAME>|$domain_name|g" "$TEMPLATE_CONF" > "${CADDY_VHOST_DIR}/${domain_name}.conf"
     done
 
-    ensure_caddy_running
-    reload_caddy_if_valid || {
-        for domain_name in $domain_list; do
-            mv "${SUSPENDED_DIR}${domain_name}.conf" "${CADDY_VHOST_DIR}/${domain_name}.conf" > /dev/null 2>&1
-        done
-        reload_caddy_if_valid
-    }
+    # 3. validate caddy
+    reload_caddy_if_valid
 }
 
-# Stop all Docker containers related to the user
 stop_user_containers() {
+    local cores
+    jobs=$(( $(nproc) * 2 ))
     $DEBUG && echo "Stopping containers for user: $USERNAME"
-    docker $CONTEXT_FLAG ps --format "{{.Names}}" | while read -r container; do
-        $DEBUG && echo "- Stopping container: $container"
-        docker $CONTEXT_FLAG stop "$container" > /dev/null 2>&1
-    done
+
+    docker $CONTEXT_FLAG ps --format "{{.Names}}" |
+        xargs -r -n1 -P "$jobs" bash -c '
+            '"$DEBUG"' && echo "- Stopping container: $0"
+            docker '"$CONTEXT_FLAG"' stop "$0" > /dev/null 2>&1
+        '
 }
 
-# Rename user in the database
 rename_user_in_db() {
     local new_username="SUSPENDED_$(date +'%Y%m%d%H%M%S')_${USERNAME}"
     local query="UPDATE users SET username='${new_username}' WHERE username='${USERNAME}';"
@@ -130,8 +136,10 @@ rename_user_in_db() {
     fi
 }
 
-# === MAIN EXECUTION FLOW ===
 
+
+# ======================================================================
+# Main
 get_docker_context
 suspend_user_domains
 stop_user_containers

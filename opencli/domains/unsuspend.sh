@@ -5,7 +5,7 @@
 # Usage: opencli domains-unsuspend <DOMAIN-NAME>
 # Author: Stefan Pejcic
 # Created: 04.11.2024
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

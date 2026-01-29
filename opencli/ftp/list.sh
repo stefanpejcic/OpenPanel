@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 27.01.2026
+# Last Modified: 28.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,12 +29,12 @@
 # THE SOFTWARE.
 ################################################################################
 
-users_dir="/etc/openpanel/ftp/users"
 
+# ======================================================================
+# Main
 if [ -z "$1" ]; then
-    # No argument provided, loop over all users directories
-    for openpanel_username in "$users_dir"/*; do
-        # Only directories
+    # ALL USERS
+    for openpanel_username in /etc/openpanel/ftp/users/*; do
         if [ -d "$openpanel_username" ]; then
             user_dir_name=$(basename "$openpanel_username")
             users_file="${openpanel_username}/users.list"
@@ -50,14 +50,13 @@ if [ -z "$1" ]; then
         fi
     done
 else
+    # SINGLE USER
     openpanel_username="$1"
-    users_file="${users_dir}/${openpanel_username}/users.list"
-
+    users_file="/etc/openpanel/ftp/users/${openpanel_username}/users.list"
     if [ ! -f "$users_file" ]; then
         echo "ERROR: Users list file does not exist for '$openpanel_username'."
         exit 1
     fi
-
     echo "FTP sub-users for '$openpanel_username':"
     while IFS='|' read -r username password directory; do
         echo "$username | $directory"
