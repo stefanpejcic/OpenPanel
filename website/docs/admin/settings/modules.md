@@ -723,12 +723,11 @@ Customize options:
 
 ## PHP
 
-The **`php`** module allows users to manage PHP versions amnd settings.
+The **`php`** module allows users to manage PHP versions and settings.
 
 When enabled:
 * Users can access the [**PHP > Select PHP Version** page](/docs/panel/php/domains/).
 * Users can access the [**PHP > Default Version** page](/docs/panel/php/default/).
-* Users can access the [**PHP > Options** page](/docs/panel/php/options/).
 * Users can access the [**PHP > Extensions** page](/docs/panel/php/extensions/).
 * Users can set PHP version per domain, set default version for new domains, edit options and view installed extensions.
 
@@ -739,9 +738,20 @@ When disabled:
 Customize options:
 * To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > Edit User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
 * To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > Edit User Defaults > Services*](/docs/panel/php/options/#available-options)
-* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
 * To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
 * To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
 * To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
 * To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP Settings > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
 
+## PHP Options
+
+The **`php_options`** module allows users to manage options (limits) for their PHP versions.
+
+When enabled:
+* Users can access the [**PHP > Options** page](/docs/panel/php/options/).
+
+When disabled:
+* Users can not access the *PHP Options* page.
+
+Customize options:
+* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
