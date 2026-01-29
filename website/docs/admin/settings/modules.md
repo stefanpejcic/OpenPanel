@@ -573,6 +573,24 @@ When enabled:
 When disabled:
 * Mautic is not available in Autoinstaller.
 
+## ClamAV
+
+The **`malware_scanner`** module starts a ClamAV service and allows users to scan files. 
+
+> **NOTE:** This module is no longer actively maintained and should not be used in production (*DEPRECATED* tag).
+
+When enabled:
+* Users can access the [**Files > Malware Scanner** page](/docs/panel/files/malware-scanner/).
+* ClamAV service is started on the server.
+
+When disabled:
+* Users can not access the *Files > Malware Scanner* page.
+* ClamAV service is not started on the server.
+
+Customize options:
+* To **customize the cpu/memory limits for the ClamAV service** refer to: [*OpenAdmin > Services > Service Limits*](/docs/admin/services/limits/).
+
+
 
 ## Files
 
