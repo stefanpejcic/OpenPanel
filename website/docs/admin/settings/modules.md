@@ -277,7 +277,23 @@ Customize options:
 
 
 
+## CronJobs
 
+The **`crons`** module allows users to schedule [Ofelia](https://hub.docker.com/r/mcuadros/ofelia) cron jobs.
+
+When enabled:
+* Users can access the [**Advanced > Cron Jobs** page](/docs/panel/advanced/cronjobs/).
+* Users can [add cronjobs](/docs/panel/advanced/cronjobs/#add)
+* Users can [edit cronjobs](/docs/panel/advanced/cronjobs/#edit)
+* Users can [view logs for cronjobs](/docs/panel/advanced/cronjobs/#logs)
+* Users can [edit crons file](/docs/panel/advanced/cronjobs/#file-editor)
+* Users can [import and export cronjobs](/docs/panel/advanced/cronjobs/#import--export)
+
+When disabled:
+* Users can not access the *Advanced > Cron Jobs* page nor modify crons.
+
+Customize options:
+* None
 
 
 
