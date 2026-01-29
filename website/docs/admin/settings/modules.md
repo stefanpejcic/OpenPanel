@@ -641,6 +641,25 @@ When disabled:
 * Users can not access the *Domains > Raw Access Logs* page.
 
 
+
+## GoAccess
+
+The **`goaccess`** module runs the GoAccess service on a scheduled basis to process raw domain logs and produce HTML reports accessible through the OpenPanel UI.
+
+When enabled:
+* GoAccess service is run on the server.
+* Users can access the [**Domains > GoAccess** page](/docs/panel/domains/goaccess/).
+
+When disabled:
+* Users can not access the *Domains > GoAccess* page.
+
+Customize options:
+* To **disable GoACcess report generation** update the: [*`goaccess_enable` value*](https://dev.openpanel.com/cli/config.html#goaccess-enable)
+* To **change how often the reports are generated (default = @daily)** edit the schedule for [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats) and the [`goaccess_schedule` value](https://dev.openpanel.com/cli/config.html#goaccess-schedule).
+* To **generate the data manually** execute [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats).
+* To **force regeneration of the reports* refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
+
+
 ## Docroot
 
 The **`docroot`** module allows users to set a custom docroot (folder) when adding domains, and later change the path.
