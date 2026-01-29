@@ -566,7 +566,7 @@ docker_compose_up(){
     cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory." # compose doesnt alllow /
 
     rm -rf /etc/my.cnf .env > /dev/null 2>&1                            # on centos we get default my.cnf, and on repair we already have symlink and .env
-    cp /etc/openpanel/docker/compose/new.yml /root/docker-compose.yml > /dev/null 2>&1
+    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
     cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
