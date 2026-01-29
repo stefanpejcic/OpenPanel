@@ -591,6 +591,17 @@ When enabled:
 When disabled:
 * Users can not set a custom docroot when adding a domaina, and can not later change the docroot.
 
+## Redirects
+
+The **`redirects`** module allows users to create redirects for domains.
+
+When enabled:
+* Users can access the [**Domains > Redirects** page](/docs/panel/domains/redirects/).
+
+When disabled:
+* Users can not access the *Domains > Redirects* page.
+
+
 
 ## Capitalize Domains
 
