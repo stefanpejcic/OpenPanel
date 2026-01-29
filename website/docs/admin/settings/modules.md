@@ -335,6 +335,16 @@ Customize options:
 * None
 
 
+## PostgreSQL Conf
+
+The **`postgresql_conf`** module allows users to edit PostgreSQL server configuration.
+
+When enabled:
+* Users can access the [**PostgreSQL > Edit Configuration** page](#) to edit service .cnf file.
+
+When disabled:
+* Users can not access the *PostgreSQL > Edit Configuration* page.
+
 
 ## Crons
 
