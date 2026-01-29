@@ -675,6 +675,25 @@ Customize options:
 * To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
 
 
+## Webserver
+
+The **`webserver_conf`** module allows users to edit the main configuration files for their webservers.
+
+When enabled:
+* Users can access the [**Advanced > WebServer Settings** page](/docs/panel/advanced/webserver_settings/).
+* Users can edit the `httpd.conf` file for Apache.
+* Users can edit the `nginx.conf` file for Nginx/OpenResty.
+* Users can edit the `openlitespeed.conf` file for OpenLiteSpeed.
+
+When disabled:
+* Users can not access the *Advanced > WebServer Settings* page.
+
+Customize options:
+* To **customize the default `httpd.conf` file for Apache** edit `/etc/openpanel/apache/httpd.conf` file.
+* To **customize the default `nginx.conf` file for Nginx** edit `/etc/openpanel/nginx/nginx.conf` file.
+* To **customize the default `openlitespeed.conf` file for OpenLiteSpeed** edit `/etc/openpanel/openlitespeed/httpd_config.conf` file.
+* To **customize the default `nginx.conf` file for OpenResty** edit `/etc/openpanel/openresty/nginx.conf` file.
+
 ## DNS
 
 The **`dns`** module runs a local BIND9 service, creates zone files for domains and allows users to manage DNS records.
