@@ -53,7 +53,7 @@ nesto.com
 <Tabs>
   <TabItem value="openadmin-domain-new" label="With OpenAdmin" default>
 
-Domains can only be added [from the user interface](/docs/panel/domains/#adding-a-domain).
+  Click on 'Add Domain' button, insert the domain and select the user to add it, then click on 'Add Domain'.
 
   </TabItem>
   <TabItem value="CLI-domain-new" label="With OpenCLI">
