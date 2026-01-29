@@ -321,7 +321,18 @@ Customize options:
 * To **change default CPU/RAM for pgAdmin** use the 'manage' button in top-rgiht corner.
 
 
+## PostgreSQL Import
 
+The **`postgresql_import`** module allows users to import files into their databases.
+
+When enabled:
+* Users can access the [**PostgreSQL > Import Database** page](#) to import files into a database.
+
+When disabled:
+* Users can not access the *PostgreSQL > Import Database* page.
+
+Customize options:
+* None
 
 
 
