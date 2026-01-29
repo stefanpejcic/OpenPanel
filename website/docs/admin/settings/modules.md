@@ -561,6 +561,25 @@ When disabled:
 
 
 
+
+## Domains
+
+The **`domains`** module allows users to add and manage domains.
+
+When enabled:
+* Users can access the [**Domains** page](/docs/panel/domains/).
+* Users can manage domains.
+* Users can access the 'Domains' sub-pages in the menu.
+
+When disabled:
+* Users can not access the *Domains* page.
+* Users can not manage domains.
+
+Customize options:
+* To **enable HSTS for a domain** refer to:  [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
+* To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
+
+
 ## DNS
 
 The **`dns`** module runs a local BIND9 service, creates zone files for domains and allows users to manage DNS records.
