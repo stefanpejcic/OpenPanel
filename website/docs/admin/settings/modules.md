@@ -250,8 +250,8 @@ Customize options:
 * To **change default CPU/RAM for phpMyAdmin** use the 'manage' button in top-rgiht corner.
 
 How-to guides:
-* To **import tables into a database** refer to [*the Documentation](/docs/panel/mysql/phpmyadmin/#import-sql-files).
-
+* To **import tables into a database** refer to [**the Documentation**](/docs/panel/mysql/phpmyadmin/#import-sql-files).
+* To **set a custom domain for phpMyAdmin** refer to:  [**HOw-to GUides > Custom Domain for phpMyAdmin**](/docs/articles/databases/phpmyadmin-domain/).
 
 ## MySQL Import
 
@@ -544,6 +544,7 @@ When disabled:
 
 Customize options:
 * To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+* To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
 
 ## Website Builder
 
@@ -568,7 +569,8 @@ The **`mautic`** module allows users to install and manage Mautic from OpenPanel
 
 When enabled:
 * Users can [manage Mautic websites using Site Manager](/docs/panel/applications/).
-* Mautic is available on the Autoinstaller page.
+* Mautic is available on the AutoInstaller page.
+* Users can [install Mautic using the AutoInstaller](/docs/articles/websites/how-to-install-mautic-with-openpanel/).
 
 When disabled:
 * Mautic is not available in Autoinstaller.
@@ -695,3 +697,32 @@ Customize options:
 * To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
 * To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
 * To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
+
+
+
+
+
+## PHP
+
+The **`php`** module allows users to manage PHP versions amnd settings.
+
+When enabled:
+* Users can access the [**PHP > Select PHP Version** page](/docs/panel/php/domains/).
+* Users can access the [**PHP > Default Version** page](/docs/panel/php/default/).
+* Users can access the [**PHP > Options** page](/docs/panel/php/options/).
+* Users can access the [**PHP > Extensions** page](/docs/panel/php/extensions/).
+* Users can set PHP version per domain, set default version for new domains, edit options and view installed extensions.
+
+When disabled:
+* Users can not access the *Select PHP Version*, *Default Version*, *Options*, *Extensions* pages.
+* Users can not set PHP version per domain, set default version for new domains, edit options and view installed extensions.
+
+Customize options:
+* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > Edit User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
+* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > Edit User Defaults > Services*](/docs/panel/php/options/#available-options)
+* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
+* To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
+* To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
+* To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
+* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP Settings > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
+
