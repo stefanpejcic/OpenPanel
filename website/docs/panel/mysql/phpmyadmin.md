@@ -6,9 +6,21 @@ sidebar_position: 4
 
 phpMyAdmin is an advanced MySQL database management tool and is recommended only for experienced users.
 
+## Manage
+
+To access phpMyAdmin, go to **Databases > phpMyAdmin** in the sidebar.
+
+From this page you can enable/disable phpMyAdmin, check current status, change `php_max_execution_time`, `php_memory_limit`, `php_upload_limit` values and set `PMA_ABSOLUTE_URI` (custom domain to be used for phpmyadmin).
+
+![databases_phpmyadmin.png](/img/panel/v2/phpmyadmin_page.png)
+
+
+## Access
+
+Click on 'Open phpMyAdmin Login' button, you will be automatically logged in and can view all existing databases and their tables.
+
 ![databases_phpmyadmin.png](/img/panel/v1/databases/databases_phpmyadmin.png)
 
-To access phpMyAdmin, go to **Databases > phpMyAdmin** in the sidebar. You will be automatically logged in and can view all existing databases and their tables.
 
 :::danger
 Editing or manipulating tables directly in phpMyAdmin can break your site if done incorrectly. If you are unsure, consult a developer before making changes.
