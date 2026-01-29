@@ -64,6 +64,7 @@ sidebar_position: 1
 
 # Files
 - [How to configure FTP server](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
+- [How to configure TLS for the FTP server](/docs/articles/user-experience/how-to-setup-tls-ftp-in-openpanel/)
 
 # Security
 - [Configuring ImunifyAV](/docs/articles/security/setup-imunifyav/)
