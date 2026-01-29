@@ -335,6 +335,18 @@ Customize options:
 * To **log actions from 3rd-party plugin** refer to: [*How to log actions from Custom Plugins in user Activity Log*](https://community.openpanel.org/d/218-how-to-log-actions-from-custom-plugins-in-user-activity-log)
 
 
+## Backups
+
+The **`backups`** module allows users to m=configure their own backups: what to backup, destination, retention, schedule, etc.
+
+When enabled:
+* Users can access the [**Files > Backups** page](/docs/panel/files/backups/).
+* Users can configure backup schedule, encryption, retention and destination.
+
+When disabled:
+* Users do not have access to the *Files > Backups* page.
+* [Administrators need to configure backups for the user](/docs/articles/backups/configuring-backups/#1-admin-configured).
+
 
 
 ## Services
