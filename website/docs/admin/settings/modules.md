@@ -524,3 +524,23 @@ When enabled:
 When disabled:
 * Users do not have access to the *PHP > PHP.INI Editor* page.
 
+## WordPress
+
+The **`wordpress`** module allows users to install and manage WordPress websites.
+
+When enabled:
+* Users can access the [**Websites > WP Manager** page](/docs/panel/applications/wordpress/).
+* Users can [manage WordPress websites using WP Manager](/docs/panel/applications/wordpress/#site-manager).
+* WordPress is available on the Autoinstaller page.
+* Users can [install WordPress using Auto Installer](/docs/panel/applications/wordpress/#install-wordpress).
+* Users can [scan and import existing installations](/docs/panel/applications/wordpress/#scanning-importing-installations).
+* Users can [set themes and plugins to auto-install](/docs/panel/applications/wordpress/#themes-and-plugins-sets).
+
+When disabled:
+* Users can not access the *Websites > WP Manager* page.
+* WordPress is not available in Autoinstaller.
+* WordPress websites can not be managed via Openpanel.
+
+Customize options:
+* To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+
