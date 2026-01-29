@@ -222,6 +222,26 @@ Customize options:
 * None
 
 
+
+## phpMyAdmin
+
+The **`phpmyadmin`** module allows users to manage phpMyAdmin service.
+
+When enabled:
+* phpMyAdmin can be managed by the user.
+* phpMyAdmin is available on a custom per-user port.
+
+When disabled:
+* Users do not have access to the *phpMyAdmin* section.
+
+Customize options:
+* To **change php_max_execution_time, php_memory_limit, php_upload_limit** use [*OpenAdmin > MySQL > phpMyAdmin](/docs/panel/mysql/phpmyadmin).
+* To **change default CPU/RAM for phpMyAdmin** use the 'manage' button in top-rgiht corner.
+
+How-to guides:
+* To **import tables into a database** refer to [*the Documentation](/docs/panel/mysql/phpmyadmin/#import-sql-files).
+
+
 ## MySQL Import
 
 The **`mysql_import`** module allows users to import files into their databases.
