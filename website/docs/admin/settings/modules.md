@@ -592,6 +592,18 @@ When disabled:
 * Users can not set a custom docroot when adding a domaina, and can not later change the docroot.
 
 
+## Capitalize Domains
+
+The **`capitalize_domains`** module allows users to set a capitalized version fo the domain for dispaly in the OpenPanel.
+
+When enabled:
+* Users can access the [**Domains > Capitalize Domains** page](/docs/panel/domains/capitalize/).
+
+When disabled:
+* Users can not access the *Domains > Capitalize Domains* page.
+
+
+
 ## DNS
 
 The **`dns`** module runs a local BIND9 service, creates zone files for domains and allows users to manage DNS records.
