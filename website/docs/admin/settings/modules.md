@@ -288,6 +288,26 @@ Customize options:
 
 
 
+## pgAdmin
+
+The **`pgadmin`** module allows users to manage pgAdmin service.
+
+When enabled:
+* pgAdmin can be managed by the user.
+* Users have access to the *pgAdmin* section.
+* pgAdmin is available on a custom per-user port.
+
+When disabled:
+* Users do not have access to the *pgAdmin* section.
+
+Customize options:
+* To **change default CPU/RAM for pgAdmin** use the 'manage' button in top-rgiht corner.
+
+
+
+
+
+
 ## Crons
 
 The **`crons`** module allows users to schedule [Ofelia](https://hub.docker.com/r/mcuadros/ofelia) cron jobs.
