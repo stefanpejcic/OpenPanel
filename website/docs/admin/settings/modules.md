@@ -524,6 +524,7 @@ When enabled:
 When disabled:
 * Users do not have access to the *PHP > PHP.INI Editor* page.
 
+
 ## WordPress
 
 The **`wordpress`** module allows users to install and manage WordPress websites.
@@ -540,6 +541,24 @@ When disabled:
 * Users can not access the *Websites > WP Manager* page.
 * WordPress is not available in Autoinstaller.
 * WordPress websites can not be managed via Openpanel.
+
+Customize options:
+* To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+
+
+
+
+## Files
+
+The **`files`** module allows users to manage files and folders using the File Manager.
+
+When enabled:
+* Users can access the [**Files > File Manager** page](/docs/panel/files/).
+* File Manager links are available on other pages: Domains, WP Manager, etc.
+
+When disabled:
+* Users can not access the *Files > File Manager* page.
+* No links to manage files are shown on other pages.
 
 Customize options:
 * To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
