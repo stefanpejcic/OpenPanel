@@ -304,7 +304,7 @@ When disabled:
 * Users can not access the *Advanced > Cron Jobs* page nor modify crons.
 
 Customize options:
-* None
+* To **pre-set cronjobs for new users** edit the `/etc/openpanel/ofelia/users.ini` file.
 
 
 
@@ -545,6 +545,9 @@ When disabled:
 Customize options:
 * To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
 * To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
+* To **setup a mu-plugin on all new websites** edit `/etc/openpanel/wordpress/mu-plugin.php` file.
+* To **set a custom WP-CLI for all websites** replace the `/etc/openpanel/wordpress/wp-cli.phar` file.
+* To **customize .htaccess files used for new websites** edit files in `/etc/openpanel/wordpress/htaccess/` folder.
 
 ## Website Builder
 
@@ -755,3 +758,25 @@ When disabled:
 
 Customize options:
 * To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
+
+
+
+## Python / NodeJS
+
+The **`pm2`** module allows users to setup and manage containerized Python and NodeJS applications.
+
+When enabled:
+* Users can access the [**Websites > WP Manager** page](/docs/panel/applications/wordpress/).
+* Users can [manage Python and NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* NodeJS and Python are available on the Autoinstaller page.
+* Users can [setup NodeJS and Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+
+When disabled:
+* NodeJS and Python are not available on the Autoinstaller page.
+* NodeJS and Python applications can not be managed via Openpanel.
+
+Customize options:
+* To **customize docker service template for new Python applications** edit `/etc/openpanel/docker/compose/python.yml` file.
+* To **customize docker service template for new Node.JS applications** edit `/etc/openpanel/docker/compose/nodejs.yml` file.
+* To **customize headers for Nginx proxy of new python/node application** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
+* To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
