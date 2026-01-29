@@ -780,3 +780,28 @@ Customize options:
 * To **customize docker service template for new Node.JS applications** edit `/etc/openpanel/docker/compose/nodejs.yml` file.
 * To **customize headers for Nginx proxy of new python/node application** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
 * To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
+
+
+
+
+## Resources Usage
+
+The **`usage`** module allows users to view resource usage for their services.
+
+When enabled:
+* Users can access the [**Advanced > Resource Usage** page](/docs/panel/advanced/resource_usage/).
+* Users can [manage Python and NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
+* NodeJS and Python are available on the Autoinstaller page.
+* Users can [setup NodeJS and Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+
+When disabled:
+* Users can not access the *Advanced > Resource Usage* page.
+
+Customize options:
+* To **edit page settings** refer to: [**OpenAdmin > Settings > OpenPanel > Statistics** page](/docs/admin/settings/openpanel/#statistics).
+* To **change how often the stats are collected (default = @hourly)** edit the schedule for [`docker-collect_stats --all` cron](https://dev.openpanel.com/crons.html#docker-collect-stats-all).
+* To **display one combined or separate charts for cpu/ram** edit [`resource_usage_charts_mode` value](https://dev.openpanel.com/cli/config.html#resource-usage-charts-mode).
+* To **change the number of items per page** edit [`resource_usage_items_per_page` value](https://dev.openpanel.com/cli/config.html#resource-usage-items-per-page).
+* To **rotate the** edit [`resource_usage_retention` value](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
+
+
