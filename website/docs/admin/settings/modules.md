@@ -547,7 +547,7 @@ Customize options:
 
 ## Website Builder
 
-The **`website_builder`** module allows users to create simple websites using the HTML Drag & Drop Website Builder
+The **`website_builder`** module allows users to create simple websites using the HTML Drag & Drop Website Builder.
 
 When enabled:
 * Users can access the [**Websites > Website Builder** page](/docs/panel/applications/builder/).
@@ -559,6 +559,19 @@ When disabled:
 * Users can not access the *Websites > Website Builder* page.
 * Website Builder is not available in Autoinstaller.
 * Static websites can not be managed via Openpanel.
+
+## Mautic
+
+The **`mautic`** module allows users to install and manage Mautic from OpenPanel. 
+
+> **NOTE:** This module is no longer actively maintained and should not be used in production (*BETA* tag).
+
+When enabled:
+* Users can [manage Mautic websites using Site Manager](/docs/panel/applications/).
+* Mautic is available on the Autoinstaller page.
+
+When disabled:
+* Mautic is not available in Autoinstaller.
 
 
 ## Files
