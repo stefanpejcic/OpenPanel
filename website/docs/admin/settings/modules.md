@@ -761,7 +761,7 @@ Customize options:
 
 
 
-## Python / NodeJS
+## Applications
 
 The **`pm2`** module allows users to setup and manage containerized Python and NodeJS applications.
 
