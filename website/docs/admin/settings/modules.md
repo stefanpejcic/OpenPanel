@@ -138,12 +138,24 @@ When disabled:
 Customize options:
 * None
 
+
+## Fix Permissions
+
+The **`fix_permissions`** module allows users to reset file/folder permissions.
+
+When enabled:
+* Users can access the [**Files > Fix Permissions** page](/docs/panel/files/fix_permissions/).
+
+When disabled:
+* Users can not access the *Files > Fix Permissions* page.
+
+
 ## FTP
 
 The **`ftp`** module allows users to create and manage FTP sub-accounts.
 
 When enabled:
-* Users can access the [**Files > FTP** page](/docs/panel/caching/varnish/) to manage FTP accounts.
+* Users can access the [**Files > FTP** page](/docs/panel/files/FTP/) to manage FTP accounts.
 
 When disabled:
 * Users can not create and manage FTP accounts.
