@@ -723,6 +723,30 @@ Customize options:
 
 
 
+## WAF
+
+The **`waf`** module runs a custom Caddy image with CorazaWAF and allows users to manage WAF rules and on/off protection per domain.
+
+When enabled:
+* `openpanel/caddy-coraza` docker image is used.
+* Template `/etc/openpanel/caddy/templates/domain.conf_with_modsec` is used for new domains.
+* Users can access the [**Advanced > WAF** page](/docs/panel/advanced/waf/).
+* [OWASP CRS](https://github.com/coreruleset/coreruleset) is setup on installation.
+* Users can edit WAF rules and enable/disable protection per domain.
+* ['Firewall' widget is displayed in Site Manager](/docs/panel/applications/wordpress/#firewall).
+
+When disabled:
+* `caddy:latest` docker image is used.
+* Template `/etc/openpanel/caddy/templates/domain.conf` is used for new domains.
+* Users can not access the *Advanced > WAF* page.
+* 'Firewall' widget is not displayed in Site Manager.
+
+Customize options:
+* To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
+* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
+* To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
+
+
 
 ## PHP
 
