@@ -234,7 +234,6 @@ Customize options:
 * None
 
 
-
 ## phpMyAdmin
 
 The **`phpmyadmin`** module allows users to manage phpMyAdmin service.
@@ -501,4 +500,21 @@ When enabled:
 
 When disabled:
 * Users do not have access to the *Files > Inodes Explorer* page.
+
+
+
+
+
+## AutoInstaller
+The **`autoinstaller`** module allows users to autoinstall WordPress, website Builder, Mautic, Python/NodeJS applications, etc.
+
+When enabled:
+* Users can access the [**Websites > Auto Installer** page](/docs/panel/applications/autoinstaller/).
+
+When disabled:
+* Users do not have access to the *Websites > Auto Installer* page.
+
+
+
+
 
