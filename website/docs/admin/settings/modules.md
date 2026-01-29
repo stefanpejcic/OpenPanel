@@ -547,7 +547,6 @@ Customize options:
 
 
 
-
 ## Files
 
 The **`files`** module allows users to manage files and folders using the File Manager.
@@ -560,6 +559,27 @@ When disabled:
 * Users can not access the *Files > File Manager* page.
 * No links to manage files are shown on other pages.
 
-Customize options:
-* To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
 
+
+## DNS
+
+The **`dns`** module runs a local BIND9 service, creates zone files for domains and allows users to manage DNS records.
+
+When enabled:
+* BIND9 service is run on the server.
+* Users can access the [**Domains > DNS Zone Editor** page](/docs/panel/domains/dns/).
+* DNS zone files are created for new domains.
+* Users can manage DNS records.
+* 'Edit Zone' links are available for domains under the *OpenPanel > Domains* page.
+* Administrators can access the [**OpenAdmin > Domains > DNS Cluster** page](/docs/admin/domains/dns-cluster/).
+* Administrators can access the [**OpenAdmin > Domains > Edit Zone Templates** page](/docs/admin/domains/dns_templates/).
+* Administrators can access the [**OpenAdmin > Domains > DNS Zone Editor** page](/docs/admin/domains/dns/).
+
+When disabled:
+* Users can not access the *Domains > DNS Zone Editor* page.
+* Administrators can not access the *DNS Zone Editor*, *Edit Zone Templates*, and *DNS Cluster* pages in OpenAdmin.
+
+Customize options:
+* To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
+* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
+* To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
