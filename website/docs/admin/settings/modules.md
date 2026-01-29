@@ -545,6 +545,20 @@ When disabled:
 Customize options:
 * To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
 
+## Website Builder
+
+The **`website_builder`** module allows users to create simple websites using the HTML Drag & Drop Website Builder
+
+When enabled:
+* Users can access the [**Websites > Website Builder** page](/docs/panel/applications/builder/).
+* Users can [manage static websites using Site Manager](/docs/panel/applications/builder/#edit-website).
+* Website Builder is available on the Autoinstaller page.
+* Users can [create static websites using Auto Installer](/docs/panel/applications/builder/#create-a-website).
+
+When disabled:
+* Users can not access the *Websites > Website Builder* page.
+* Website Builder is not available in Autoinstaller.
+* Static websites can not be managed via Openpanel.
 
 
 ## Files
