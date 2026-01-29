@@ -12,3 +12,4 @@ These settings are **global** and apply to **all domains** (i.e., affect the vir
 
 - For **Apache**, you can edit the `httpd.conf` file.  
 - For **Nginx** and **OpenResty**, you can edit the `nginx.conf` file.
+- For **OpenLitespeed** and **Litespeed**, you can edit the `openlitespeed.conf` file.
