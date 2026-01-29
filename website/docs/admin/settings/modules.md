@@ -277,7 +277,7 @@ Customize options:
 
 
 
-## CronJobs
+## Crons
 
 The **`crons`** module allows users to schedule [Ofelia](https://hub.docker.com/r/mcuadros/ofelia) cron jobs.
 
