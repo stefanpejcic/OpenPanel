@@ -630,6 +630,17 @@ Customize options:
 * To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
 
 
+## Raw Access Logs
+
+The **`domain_logs`** module allows users to view the raw access log for their domains.
+
+When enabled:
+* Users can access the [**Domains > Raw Access Logs** page](/docs/panel/domains/docroot/).
+
+When disabled:
+* Users can not access the *Domains > Raw Access Logs* page.
+
+
 ## Docroot
 
 The **`docroot`** module allows users to set a custom docroot (folder) when adding domains, and later change the path.
