@@ -515,6 +515,12 @@ When disabled:
 * Users do not have access to the *Websites > Auto Installer* page.
 
 
+## PHP.INI Editor
+The **`php_ini`** module allows users to edit the PNP.INI files using a text editor.
 
+When enabled:
+* Users can access the [**PHP > PHP.INI Editor** page](/docs/panel/php/php_ini_editor/).
 
+When disabled:
+* Users do not have access to the *PHP > PHP.INI Editor* page.
 
