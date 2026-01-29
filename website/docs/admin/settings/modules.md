@@ -288,6 +288,23 @@ Customize options:
 
 
 
+## Remote PostgreSQL
+
+The **`remote_postgresql`** module allows users to enable/disable remote access to PostgreSQL.
+
+When enabled:
+* Remote access is disabled by default.
+* Random port is allocated per user for their PostgreSQL instances.
+* Users can access the [**PostgreSQL > Remote Access** page](#) to enable/disable remote access.
+* Users can connect to any database from remote location once the option is enabled.
+
+When disabled:
+* Remote access is disabled.
+
+Customize options:
+* None
+
+
 ## pgAdmin
 
 The **`pgadmin`** module allows users to manage pgAdmin service.
