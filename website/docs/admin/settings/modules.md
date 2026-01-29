@@ -311,6 +311,20 @@ Customize options:
 * None
 
 
+## Server Info
+
+The **`info`** module allows users to view server information, hosting plan information and OpenPanel information.
+
+When enabled:
+* Users can access the [**Advanced > Server Information** page](/docs/panel/advanced/server_info/).
+
+When disabled:
+* Users can not access the *Advanced > Server Information* page.
+
+Customize options:
+* None
+
+
 
 ## Temporary Links
 
