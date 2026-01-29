@@ -469,6 +469,24 @@ When disabled:
 * Users do not have access to the *Caching > OpenSearch* page.
 
 
+## Disk Usage Explorer
+
+The **`disk_usage`** module allows users to view disk usage per-directory.
+
+When enabled:
+* Users can access the [**Files > Disk Usage** page](/docs/panel/files/disk_usage/).
+
+When disabled:
+* Users do not have access to the *Files > Disk Usage* page.
 
 
+## Inodes Explorer
+
+The **`disk_usage`** module allows users to view disk usage per-directory.
+
+When enabled:
+* Users can access the [**Files > Inodes Explorer** page](/docs/panel/files/inodes/).
+
+When disabled:
+* Users do not have access to the *Files > Inodes Explorer* page.
 
