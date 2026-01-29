@@ -15,10 +15,11 @@ You can modify various settings such as:
 - Custom redirects
 - Performance tuning
 
-Depending on your web server -**Nginx**, **OpenResty**, or **Apache** - different syntax is used, for official guidance, refer to:
+Depending on your web server -**Nginx**, **OpenResty**, **OpenLiteSpeed**, or **Apache** - different syntax is used, for official guidance, refer to:
 
 - [Apache Virtual Host Documentation](https://httpd.apache.org/docs/current/vhosts/)
 - [Nginx Admin Guide](https://docs.nginx.com/nginx/admin-guide/web-server/)
+- [Configure OpenLiteSpeed Guide](https://docs.openlitespeed.org/config/)
 
 
 :::info
