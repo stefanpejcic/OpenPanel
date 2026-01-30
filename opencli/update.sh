@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: update.sh
 # Description: Check if update is available, install updates.
-# Usage: opencli update [--check | --force | --admin | --cli]
+# Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 28.01.2026
+# Last Modified: 29.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,6 +29,7 @@
 ################################################################################
 
 # ---------------------- CONSTANTS ---------------------- #
+readonly COMPOSE_FILE="/root/docker-compose.yml"
 readonly IMAGE_NAME="openpanel/openpanel-ui"
 readonly LOG_FILE="/var/log/openpanel/admin/notifications.log"
 readonly CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
@@ -76,7 +77,8 @@ Options:
     --check             Check if update is available
     --force             Force update even when autopatch/autoupdate is disabled
     (no argument)       Update if autopatch/autoupdate is enabled
-    --admin             Update OpenAdmin only
+    --admin             Update OpenAdmin UI only
+    --panel             Update OpenPanel UI only
     --cli               Update OpenCLI only
     -h, --help          Show this help message
 
@@ -93,6 +95,23 @@ EOF
 command_exists() {
     command -v "$1" &> /dev/null
 }
+
+
+# ---------------------- DOCKER IMAGE ---------------------- #
+# added in 1.7.42 to detect if custom image is used
+IMAGE_NAME=$(docker --context=default compose -f "$COMPOSE_FILE" config | awk '
+  $1=="openpanel:" {f=1; next}
+  f && $1=="image:" {
+    split($2, arr, ":")
+    print arr[1]
+    exit
+  }
+')
+
+if [ -z "$IMAGE_NAME" ]; then
+    IMAGE_NAME="openpanel/openpanel-ui"  # fallback
+fi
+
 
 # ---------------------- INSTALL PACKAGE ---------------------- #
 install_package() {
@@ -592,6 +611,11 @@ run_update_immediately() {
 }
 
 
+update_openpanel() {
+    cd /root
+    docker --context=default compose up -d openpanel --force-recreate --pull always
+}
+
 update_openadmin() {
     [[ "$1" == "--no-log" ]] && echo "Updating OpenAdmin" || log "Updating OpenAdmin"
     if [[ -d /usr/local/admin ]]; then
@@ -720,6 +744,9 @@ main() {
             ;;
         --admin)
             update_openadmin --no-log
+            ;;
+        --panel)
+            update_openpanel --no-log
             ;;
         --cli)
             update_opencli --no-log

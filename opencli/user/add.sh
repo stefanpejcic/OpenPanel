@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 28.01.2026
+# Last Modified: 29.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1379,6 +1379,7 @@ fi
 
 mkdir -p /home/$username/sockets/{mysqld,postgres,redis,memcached}
 cp /etc/openpanel/mysql/user.cnf /home/${username}/custom.cnf
+cp /etc/openpanel/postgres/postgresql.conf /home/${username}/postgre_custom.conf
 cp /etc/openpanel/nginx/user-nginx.conf /home/$username/nginx.conf  # added in 1.2.2
 cp /etc/openpanel/openresty/nginx.conf /home/$username/openresty.conf
 cp /etc/openpanel/openlitespeed/httpd_config.conf /home/$username/openlitespeed.conf # added in 1.5.6

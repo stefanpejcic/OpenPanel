@@ -171,16 +171,8 @@ else
   echo "[*] Using provided passive address: $ADDRESS"
 fi
 
-# Configure address and TLS options
 if [ -n "$ADDRESS" ]; then
   ADDR_OPT="-opasv_address=$ADDRESS"
-fi
-
-if [ -n "$TLS_CERT" ] || [ -n "$TLS_KEY" ]; then
-  echo "[*] TLS certificates found, enabling TLS options"
-  TLS_OPT="-orsa_cert_file=$TLS_CERT -orsa_private_key_file=$TLS_KEY -ossl_enable=YES -oallow_anon_ssl=NO -oforce_local_data_ssl=YES -oforce_local_logins_ssl=YES -ossl_tlsv1=NO -ossl_sslv2=NO -ossl_sslv3=NO -ossl_ciphers=HIGH"
-else
-  echo "[*] No TLS certificates found, running without TLS"
 fi
 
 
@@ -190,7 +182,7 @@ if [ -n "$1" ]; then
   exec "$@"
 else
   echo "[*] Starting vsftpd and accepting user logins..."
-  vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT $ADDR_OPT $TLS_OPT /etc/vsftpd/vsftpd.conf
+  vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT $ADDR_OPT /etc/vsftpd/vsftpd.conf
   [ -d /var/run/vsftpd ] || mkdir /var/run/vsftpd
   pgrep vsftpd | tail -n 1 > /var/run/vsftpd/vsftpd.pid
   echo "-------------------------------------------"

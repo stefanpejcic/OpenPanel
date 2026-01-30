@@ -25,12 +25,12 @@ services:
           memory: "${MYSQL_RAM:-0.5G}"
           pids: 200
 
-  # Malware Scanner used from user panel
+  # DEPRECATED Malware Scanner used from user panel
   clamav:
     image: clamav/clamav:${CLAMAV_VERSION}
     container_name: clamav
     volumes:
-      - /home:/home
+      - /home/:/home/
       - ./clamav-db:/var/lib/clamav
     restart: unless-stopped
     network_mode: ${CLAMAV_DB_AUTOUPDATE} # needed to update db daily
@@ -43,7 +43,7 @@ services:
           memory: "${CLAMAV_RAM:-1.0G}"
           pids: 200
 
-# used by panel ui to store user sessions and counters
+  # to store user sessions and counters
   openpanel_redis:
     image: redis:latest
     container_name: openpanel_redis
@@ -60,7 +60,7 @@ services:
           memory: "${REDIS_RAM:-0.5G}"
           pids: 100
 
-  # OpenPanel service running on port 2083
+  # OpenPanel UI
   openpanel:
     image: openpanel/openpanel-ui:${VERSION}
     container_name: openpanel
@@ -72,39 +72,39 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     ports:
-      - "${PORT:-2083}:2083/tcp"
+      - "${PORT}:2083/tcp"
     volumes:
       - /etc/bind:/etc/bind
       - /lib/modules:/lib/modules:ro
       - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /:/hostfs:ro
+      - /:/hostfs:ro #todo!
       - /home:/home
       - /usr/local/admin:/usr/local/admin
       - /usr/local/bin/opencli:/usr/local/bin/opencli
       - /usr/local/opencli:/usr/local/opencli
-      - /var/log:/var/log
+      - /var/log/caddy:/var/log/caddy
+      - /var/log/openpanel:/var/log/openpanel
       - /var/lib/csf/:/var/lib/csf/
       - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf
       - /etc/openpanel/:/etc/openpanel/
       - /var/run/docker.sock:/var/run/docker.sock
       - mysql:/var/lib/mysql
       - /usr/bin/docker:/usr/bin/docker
-      - /root/:/root/
+      - /root/.ssh/:/root/.ssh/:ro # for remote contexts
+      - /root/.docker/:/root/.docker/ # allows contexts editing
+      - /root/openpanel_restart_needed:/root/openpanel_restart_needed #
+      - /root/.env:/root/.env #
+      - /root/docker-compose.yml:/root/docker-compose.yml
       - ${REDIS_SOCKET}:/tmp/redis/
-      #  https://dev.openpanel.com/customize.html#Custom-Code
-      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro
-      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro
-      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js:ro
-      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json:ro
-      # localization
-      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/
-      # emails
-      - /usr/local/mail/openmail/:/usr/local/mail/openmail/
-      # time
+      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/ #https://dev.openpanel.com/customize.html#Custom-Code
+      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css
+      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js
+      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
+      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/ # localization
+      - /usr/local/mail/openmail/:/usr/local/mail/openmail/ # emails
       - /etc/localtime:/etc/localtime:ro
-      # plugins
-      - /etc/openpanel/modules/:/modules/plugins/
+      - /etc/openpanel/modules/:/modules/plugins/ # plugins
     restart: always
     privileged: true
     networks:
@@ -116,7 +116,6 @@ services:
           memory: "${OPENPANEL_RAM:-1.0G}"
           pids: 1000
 
-  # Webserver from 1.0.0
   caddy:
     image: ${CADDY_IMAGE}
     container_name: caddy
@@ -183,14 +182,12 @@ services:
           memory: "${FTP_RAM:-0.5G}"
           pids: 100
 
-# make the mysql data persistent
 volumes:
   mysql:
     labels:
-      description: "This volume holds the openpanel database."
+      description: "This volume holds the OpenPanel UI database."
       purpose: "configuration"
 
-# define custom network
 networks:
   openpanel_network:
     driver: bridge

@@ -117,7 +117,7 @@
     "description": "If enabled, users can enable/disable remote access to PostgreSQL databases.",
     "link": "/postgresql/remote-postgresql",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#remote-postgresql"
   },
   {
     "name": "postgresql_import",
@@ -125,7 +125,7 @@
     "description": "If enabled, users can import .sql files into PostgreSQL databases from their user panel.",
     "link": "/postgresql/import",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#postgresql-import"
   },
   {
     "name": "postgresql_conf",
@@ -133,7 +133,7 @@
     "description": "If enabled, users can edit PostgreSQL Configuration from their user panel.",
     "link": "/postgresql/configuration",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#postgresql-conf"
   },
     {
     "name": "pgadmin",
@@ -141,7 +141,7 @@
     "description": "If enabled, users can manage pgAdmin and use it to connect to their Postgres databases.",
     "link": "/postgresql/pgadmin",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#pgadmin"
   },
   {
     "name": "php",
@@ -149,7 +149,7 @@
     "description": "If enabled, users can change PHP version for domains, set limits and set default version for new domains.",
     "link": "/php",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#php"
   },
   {
     "name": "php_options",
@@ -157,7 +157,7 @@
     "description": "If enabled, users can edit configured PHP.INI directives using the Options page.",
     "link": "/php/options",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#php-options"
   },
   {
     "name": "php_ini",
@@ -165,7 +165,7 @@
     "description": "If enabled, users can edit directly the PHP.INI file for any PHP version from their OpenPanel.",
     "link": "/php/ini",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#phpini-editor"
   },
   {
     "name": "phpmyadmin",
@@ -173,7 +173,7 @@
     "description": "If enabled, users can manage phpMyAdmin and use it to connect to their MySQL databases.",
     "link": "/mysql/phpmyadmin",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#phpmyadmin"
   },
   {
     "name": "crons",
@@ -181,7 +181,7 @@
     "description": "If enabled, users can configure cronjobs.",
     "link": "/cronjobs",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#crons"
   },
   {
     "name": "backups",
@@ -189,7 +189,7 @@
     "description": "If enabled, users can configure backups.",
     "link": "/backups",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#backups"
   },
   {
     "name": "wordpress",
@@ -197,7 +197,7 @@
     "description": "If enabled, WordPress can be installed using the Autoinstaller and users can use the WP Manager to manage websites.",
     "link": "/wordpress",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#wordpress"
   },
   {
     "name": "mautic",
@@ -205,7 +205,7 @@
     "description": "If enabled, Mautic can be installed using the Autoinstaller and users can use the Site Manager to manage websites.",
     "link": "/mautic/install",
     "type": "beta",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#mautic"
   },
   {
     "name": "website_builder",
@@ -213,7 +213,7 @@
     "description": "If enabled, users can create HTML websites using the GrapeJS drag-drop editor.",
     "link": "/website-builder",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#website-builder"
   },
   {
     "name": "pm2",
@@ -221,7 +221,7 @@
     "description": "If enabled, containerized NodeJS and Python applications can be setup from the Autoinstaller.",
     "link": "/pm2",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#applications"
   },
   {
     "name": "autoinstaller",
@@ -229,7 +229,7 @@
     "description": "If enabled, users can use the Auto-Installer page to manage websites and install applications.",
     "link": "/auto-installer",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#autoinstaller"
   },
   {
     "name": "disk_usage",
@@ -237,7 +237,7 @@
     "description": "If enabled, users can access the Disk Usage page to browse current disk usage per directories.",
     "link": "/disk-usage",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#disk-usage-explorer"
   },
   {
     "name": "inodes",
@@ -245,7 +245,7 @@
     "description": "If enabled, users can access the Inodes Usage page to browse current inodes usage per directories.",
     "link": "/inodes-explorer",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#inodes-explorer"
   },
   {
     "name": "usage",
@@ -253,7 +253,7 @@
     "description": "If enabled, docker stats are collected for containers and users can browse the data using the Resource Usage page",
     "link": "/usage",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#resources-usage"
   },
   {
     "name": "info",
@@ -261,15 +261,15 @@
     "description": "If enabled, users can view their hosting plan limits and server information on Server Information page.",
     "link": "/server/info",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#server-info"
   },
   {
     "name": "webserver_conf",
-    "title": "Apache/Nginx Configuration",
+    "title": "Webserver Configuration",
     "description": "If enabled, users can edit the Nginx/Apache configuration for their webserver containers.",
     "link": "/server/webserver_conf",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#webserver"
   },
   {
     "name": "waf",
@@ -277,7 +277,7 @@
     "description": "If enabled, CorazaWAF is automatically enabled for new domains and users can enable/disable the protection per domain.",
     "link": "/waf",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#waf"
   },
   {
     "name": "filemanager",
@@ -285,7 +285,7 @@
     "description": "If enabled, users have access to the File Manager interface to manage website files (/var/www/html/ directory). Disable this feature for  'Email-only' or 'DNS-only' plans.",
     "link": "/files",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#files"
   },
   {
     "name": "fix_permissions",
@@ -293,7 +293,7 @@
     "description": "If enabled, users have access to the Fix Permisisons tool to change owner and permissions for website files.",
     "link": "/fix-permissions",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#fix-permissions"
   },
   {
     "name": "dns",
@@ -301,7 +301,7 @@
     "description": "If enabled, BIND9 server is run locally and DNS zone is created for new domains. Users can manage the records via Zone Editor interface.",
     "link": "/dns",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#dns"
   },
   {
     "name": "redirects",
@@ -309,7 +309,7 @@
     "description": "If enabled, users can create and manage redirects for their domains.",
     "link": "/domains/redirects",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#redirects"
   },
   {
     "name": "edit_vhost",
@@ -317,7 +317,7 @@
     "description": "If enabled, users can edit Virtual Hosts files for their domains.",
     "link": "/domains/vhosts",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#edit-virtualhosts"
   },  
   {
     "name": "domains",
@@ -325,7 +325,7 @@
     "description": "If enabled, users can add and manage domains. Disable this feature for  'Email-only' or 'DB-only' plans.",
     "link": "/domains",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#domains"
   },
   {
     "name": "ssl",
@@ -341,7 +341,7 @@
     "description": "If enabled, users can set and change document root (folder) for their domains.",
     "link": "/domains/docroot",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#docroot"
   },
   {
     "name": "capitalize_domains",
@@ -349,7 +349,7 @@
     "description": "If enabled, users can capitalize letters in their domains.",
     "link": "/domains/capitalize",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#capitalize-domains"
   },
   {
     "name": "malware_scan",
@@ -357,7 +357,7 @@
     "description": "If enabled, ClamAV is run locally and domain's docroots are automatically scanned for malicious files. Users can exclude directories and view quarantined files. NOTE: ARM CPU is not supported",
     "link": "/malware-scanner",
     "type": "enterprise",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#clamav"
   },
   {
     "name": "domain_logs",
@@ -365,7 +365,7 @@
     "description": "If enabled, userc can view raw webserver access logs for their domains.",
     "link": "/domains/log",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#raw-access-logs"
   },
   {
     "name": "goaccess",
@@ -373,7 +373,7 @@
     "description": "If enabled, GoAccess is run on schedule to generate HTML reports from Caddy domain logs. Users can view the reports from the Domain Logs page.",
     "link": "/domains/stats",
     "type": "community",
-    "help_link": ""
+    "help_link": "https://openpanel.com/docs/admin/settings/modules/#goaccess"
   },
   {
     "name": "process_manager",

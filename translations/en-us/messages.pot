@@ -1,14 +1,14 @@
 # Translations template for PROJECT.
-# Copyright (C) 2025 ORGANIZATION
+# Copyright (C) 2026 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# Stefan Pejčić <stefan@pejcic.rs>, 2025.
+# Stefan Pejčić <stefan@pejcic.rs>, 2026.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2025-12-30 11:48+0100\n"
+"POT-Creation-Date: 2026-01-29 16:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -149,9 +149,9 @@ msgstr ""
 #: modules/waf.py:281 modules/waf.py:331 modules/waf.py:385
 #: modules/website_builder.py:56 modules/website_builder.py:112
 #: modules/website_builder.py:155 modules/website_builder.py:290
-#: modules/websites.py:247 modules/websites.py:384 modules/websites.py:472
-#: modules/websites.py:846 modules/wordpress.py:502 modules/wordpress.py:643
-#: modules/wordpress.py:1171
+#: modules/websites.py:256 modules/websites.py:392 modules/websites.py:476
+#: modules/websites.py:850 modules/wordpress.py:502 modules/wordpress.py:642
+#: modules/wordpress.py:1175
 msgid "You do not own this domain."
 msgstr ""
 
@@ -264,11 +264,11 @@ msgstr ""
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1046 modules/websites.py:461
+#: modules/docker.py:1046 modules/websites.py:465
 msgid "Invalid action"
 msgstr ""
 
-#: modules/docker.py:1308
+#: modules/docker.py:1343
 msgid "Select Docker service"
 msgstr ""
 
@@ -413,13 +413,13 @@ msgstr ""
 msgid "Server Information"
 msgstr ""
 
-#: modules/mautic.py:124 modules/website_builder.py:183 modules/websites.py:414
-#: modules/websites.py:883
+#: modules/mautic.py:124 modules/website_builder.py:183 modules/websites.py:422
+#: modules/websites.py:887
 msgid "Unable to detect docroot for the domain."
 msgstr ""
 
-#: modules/mautic.py:130 modules/website_builder.py:188 modules/websites.py:420
-#: modules/websites.py:892
+#: modules/mautic.py:130 modules/website_builder.py:188 modules/websites.py:428
+#: modules/websites.py:896
 msgid ""
 "Error connecting to database, please try again. If the issue persists "
 "contact support."
@@ -442,7 +442,7 @@ msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:41
-#: modules/wordpress.py:480 modules/wordpress.py:636
+#: modules/wordpress.py:480 modules/wordpress.py:635
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -480,7 +480,7 @@ msgid "Install Mautic"
 msgstr ""
 
 #: modules/mysql.py:120 modules/mysql.py:291 modules/mysql.py:567
-#: modules/mysql.py:759 modules/postgresql.py:80 modules/postgresql.py:569
+#: modules/mysql.py:759 modules/postgresql.py:80 modules/postgresql.py:570
 msgid "Database name is required."
 msgstr ""
 
@@ -491,7 +491,7 @@ msgstr ""
 
 #: modules/mysql.py:200 modules/mysql.py:282 modules/mysql.py:609
 #: modules/mysql.py:652 modules/mysql.py:752 modules/postgresql.py:164
-#: modules/postgresql.py:618 modules/postgresql.py:697
+#: modules/postgresql.py:619 modules/postgresql.py:705
 msgid "User name is required."
 msgstr ""
 
@@ -506,7 +506,7 @@ msgid "Create User"
 msgstr ""
 
 #: modules/mysql.py:247 modules/mysql.py:661 modules/mysql.py:775
-#: modules/postgresql.py:229 modules/postgresql.py:719
+#: modules/postgresql.py:229 modules/postgresql.py:727
 msgid "This is a system username that can not be edited."
 msgstr ""
 
@@ -526,13 +526,13 @@ msgstr ""
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:326 modules/postgresql.py:288
+#: modules/mysql.py:326 modules/postgresql.py:289
 #: templates/mysql/assign.html:10 templates/mysql/assign.html:67
 #: templates/psql/assign.html:10 templates/psql/assign.html:70
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:331 modules/postgresql.py:296
+#: modules/mysql.py:331 modules/postgresql.py:297
 #: templates/mysql/remove.html:64 templates/psql/remove.html:64
 msgid "Remove User from Database"
 msgstr ""
@@ -542,7 +542,7 @@ msgstr ""
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:478 modules/postgresql.py:504
+#: modules/mysql.py:478 modules/postgresql.py:505
 #: templates/dashboard/dashboard.html:117
 #: templates/dashboard/dashboard.html:129
 msgid "Users"
@@ -564,7 +564,7 @@ msgstr ""
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:538 modules/postgresql.py:537
+#: modules/mysql.py:538 modules/postgresql.py:538
 #: templates/dashboard/dashboard.html:122
 #: templates/dashboard/dashboard.html:133
 msgid "Process List"
@@ -578,36 +578,42 @@ msgstr ""
 msgid "This is a system database that can not be edited."
 msgstr ""
 
-#: modules/pgadmin.py:40
+#: modules/pgadmin.py:42
+msgid ""
+"pgAdmin email is invalid. Please set a valid email address before "
+"enabling the service."
+msgstr ""
+
+#: modules/pgadmin.py:48
 msgid "pgAdmin service is now enabled."
 msgstr ""
 
-#: modules/pgadmin.py:42
+#: modules/pgadmin.py:50
 msgid "Failed to start the pgAdmin service. Try restart."
 msgstr ""
 
-#: modules/pgadmin.py:47
+#: modules/pgadmin.py:55
 msgid "pgAdmin service is now disabled."
 msgstr ""
 
-#: modules/pgadmin.py:49
+#: modules/pgadmin.py:57
 msgid "Failed to stop the pgAdmin service. Try restart."
 msgstr ""
 
-#: modules/pgadmin.py:76
+#: modules/pgadmin.py:84
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
 msgstr ""
 
-#: modules/pgadmin.py:78 modules/phpmyadmin.py:111
+#: modules/pgadmin.py:86 modules/phpmyadmin.py:111
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
-#: modules/pgadmin.py:115 templates/dashboard/dashboard.html:132
+#: modules/pgadmin.py:123 templates/dashboard/dashboard.html:132
 #: templates/psql/pgadmin.html:14
 msgid "pgAdmin"
 msgstr ""
 
-#: modules/pgadmin.py:154 modules/phpmyadmin.py:208
+#: modules/pgadmin.py:162 modules/phpmyadmin.py:208
 msgid "Container port not found for the user."
 msgstr ""
 
@@ -773,11 +779,11 @@ msgstr ""
 msgid "Failed to create database: "
 msgstr ""
 
-#: modules/postgresql.py:260 modules/postgresql.py:846
+#: modules/postgresql.py:260 modules/postgresql.py:854
 msgid "Invalid or missing user name."
 msgstr ""
 
-#: modules/postgresql.py:263 modules/postgresql.py:851
+#: modules/postgresql.py:263 modules/postgresql.py:859
 msgid "Invalid or missing database name."
 msgstr ""
 
@@ -785,43 +791,43 @@ msgstr ""
 msgid "This is a system database that cannot be used."
 msgstr ""
 
-#: modules/postgresql.py:279
+#: modules/postgresql.py:280
 msgid "Successfully added a user {db_user} to PostgreSQL database"
 msgstr ""
 
-#: modules/postgresql.py:283
+#: modules/postgresql.py:284
 msgid "Failed to assign user to database."
 msgstr ""
 
-#: modules/postgresql.py:318 modules/postgresql.py:451
+#: modules/postgresql.py:319 modules/postgresql.py:452
 msgid ""
 "Postgres container is not running. Please allow a few moments for the "
 "initialization.."
 msgstr ""
 
-#: modules/postgresql.py:419
+#: modules/postgresql.py:420
 msgid "PostgreSQL databases"
 msgstr ""
 
-#: modules/postgresql.py:633
+#: modules/postgresql.py:634
 msgid "This is a system username that cannot be deleted."
 msgstr ""
 
-#: modules/postgresql.py:863
+#: modules/postgresql.py:871
 msgid "This is a system username that cannot be edited."
 msgstr ""
 
-#: modules/postgresql.py:868
+#: modules/postgresql.py:876
 msgid "This is a system database that cannot be edited."
 msgstr ""
 
-#: modules/postgresql.py:884
+#: modules/postgresql.py:892
 msgid ""
 "Successfully revoked all privileges for user {db_user} from PostgreSQL "
 "database {database_name}"
 msgstr ""
 
-#: modules/postgresql.py:889
+#: modules/postgresql.py:897
 msgid ""
 "Failed to revoke privileges for user {db_user} from PostgreSQL database "
 "{database_name}"
@@ -935,49 +941,49 @@ msgstr ""
 msgid "Create Website"
 msgstr ""
 
-#: modules/websites.py:259
+#: modules/websites.py:268
 msgid "Data gathering started. Please allow a few minutes for completion."
 msgstr ""
 
-#: modules/websites.py:466
+#: modules/websites.py:470
 msgid "Missing required parameters"
 msgstr ""
 
-#: modules/websites.py:527
+#: modules/websites.py:531
 msgid "Debugging options updated successfully"
 msgstr ""
 
-#: modules/websites.py:548
+#: modules/websites.py:552
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:556 templates/manager/wordpress.html:2391
+#: modules/websites.py:560 templates/manager/wordpress.html:2393
 msgid "WordPress updated successfully"
 msgstr ""
 
-#: modules/websites.py:577
+#: modules/websites.py:581
 msgid "Update preferences saved successfully"
 msgstr ""
 
-#: modules/websites.py:691 modules/websites.py:698
+#: modules/websites.py:695 modules/websites.py:702
 #: templates/dashboard/dashboard.html:77 templates/dashboard/usage.html:21
 #: templates/domains/domains.html:125 templates/domains/domains.html:203
 msgid "Websites"
 msgstr ""
 
-#: modules/websites.py:750
+#: modules/websites.py:754
 msgid "WEBSITES - Error executing the query!"
 msgstr ""
 
-#: modules/websites.py:762
+#: modules/websites.py:766
 msgid "WEBSITES - Reading blogname for WordPress website: {path}"
 msgstr ""
 
-#: modules/websites.py:778
+#: modules/websites.py:782
 msgid "WEBSITES - Reading WP admin_email for website: {selected_domain}"
 msgstr ""
 
-#: modules/websites.py:857
+#: modules/websites.py:861
 msgid "Invalid domain name format."
 msgstr ""
 
@@ -997,41 +1003,45 @@ msgstr ""
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:597
+#: modules/wordpress.py:596
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:604
+#: modules/wordpress.py:603
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:616
+#: modules/wordpress.py:615
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:659
+#: modules/wordpress.py:658
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:664
+#: modules/wordpress.py:663
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:667
+#: modules/wordpress.py:666
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:804 modules/wordpress.py:945
+#: modules/wordpress.py:803 modules/wordpress.py:949
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:833 templates/wordpress.html:473
+#: modules/wordpress.py:832 templates/wordpress.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:976 templates/manager/autoinstaller.html:58
+#: modules/wordpress.py:931
+msgid "Scan failed due to a server error."
+msgstr ""
+
+#: modules/wordpress.py:980 templates/manager/autoinstaller.html:58
 #: templates/manager/wordpress_install.html:7
 msgid "Install WordPress"
 msgstr ""
@@ -1401,202 +1411,206 @@ msgstr ""
 msgid "Disk Usage"
 msgstr ""
 
-#: modules/files/filemanager.py:96
+#: modules/files/filemanager.py:98
 msgid "Failed to set ownership for the new file."
 msgstr ""
 
-#: modules/files/filemanager.py:98
+#: modules/files/filemanager.py:100
 msgid "File created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:112
+#: modules/files/filemanager.py:114
 msgid "Error creating file! Check permissions."
 msgstr ""
 
-#: modules/files/filemanager.py:115
+#: modules/files/filemanager.py:117
 msgid "Unexpected error occurred while creating the file."
 msgstr ""
 
-#: modules/files/filemanager.py:120
+#: modules/files/filemanager.py:122
 msgid "Filename is missing"
 msgstr ""
 
-#: modules/files/filemanager.py:150
+#: modules/files/filemanager.py:152
 msgid "Failed to set ownership for the new folder."
 msgstr ""
 
-#: modules/files/filemanager.py:152
+#: modules/files/filemanager.py:154
 msgid "Folder created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:161
+#: modules/files/filemanager.py:163
 msgid "Error creating directory! Check permissions."
 msgstr ""
 
-#: modules/files/filemanager.py:164
+#: modules/files/filemanager.py:166
 msgid "Unexpected error occurred while creating the folder."
 msgstr ""
 
-#: modules/files/filemanager.py:169
+#: modules/files/filemanager.py:171
 msgid "Foldername is missing"
 msgstr ""
 
-#: modules/files/filemanager.py:240
+#: modules/files/filemanager.py:242
 msgid "Files uploaded successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:243
+#: modules/files/filemanager.py:245
 msgid "Some files failed: "
 msgstr ""
 
-#: modules/files/filemanager.py:247
+#: modules/files/filemanager.py:249
 msgid "No files were uploaded"
 msgstr ""
 
-#: modules/files/filemanager.py:250
+#: modules/files/filemanager.py:252
 msgid "Error uploading files: {0}"
 msgstr ""
 
-#: modules/files/filemanager.py:292
+#: modules/files/filemanager.py:294
 msgid "Failed to set ownership."
 msgstr ""
 
-#: modules/files/filemanager.py:370
+#: modules/files/filemanager.py:372
 msgid "File extracted successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:400
+#: modules/files/filemanager.py:471
 msgid "No URL provided"
 msgstr ""
 
-#: modules/files/filemanager.py:415
+#: modules/files/filemanager.py:483
+msgid "Invalid path"
+msgstr ""
+
+#: modules/files/filemanager.py:492
 msgid "Download queued..."
 msgstr ""
 
-#: modules/files/filemanager.py:452
+#: modules/files/filemanager.py:535
 msgid "Starting download..."
 msgstr ""
 
-#: modules/files/filemanager.py:469
+#: modules/files/filemanager.py:557
 msgid "Download in progress..."
 msgstr ""
 
-#: modules/files/filemanager.py:488
+#: modules/files/filemanager.py:584
 msgid "(Failed to set ownership for the downloaded file.)"
 msgstr ""
 
-#: modules/files/filemanager.py:493
+#: modules/files/filemanager.py:589
 msgid "Failed to download the file"
 msgstr ""
 
-#: modules/files/filemanager.py:498
+#: modules/files/filemanager.py:593
 msgid "Internal server error during download."
 msgstr ""
 
-#: modules/files/filemanager.py:541
+#: modules/files/filemanager.py:637
 msgid "Missing required form data for compression: "
 msgstr ""
 
-#: modules/files/filemanager.py:581
+#: modules/files/filemanager.py:677
 msgid "Unsupported archive format."
 msgstr ""
 
-#: modules/files/filemanager.py:588
+#: modules/files/filemanager.py:684
 msgid "Archive creation failed: "
 msgstr ""
 
-#: modules/files/filemanager.py:594
+#: modules/files/filemanager.py:690
 msgid "FILEMANAGER - Archive created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:601
+#: modules/files/filemanager.py:697
 msgid "Failed to set archive ownership"
 msgstr ""
 
-#: modules/files/filemanager.py:749
+#: modules/files/filemanager.py:845
 msgid "Permissions changed."
 msgstr ""
 
-#: modules/files/filemanager.py:752
+#: modules/files/filemanager.py:848
 msgid "Error changing permissions!"
 msgstr ""
 
-#: modules/files/filemanager.py:882 modules/files/filemanager.py:1051
+#: modules/files/filemanager.py:978 modules/files/filemanager.py:1147
 msgid "Viewing of this file type is not allowed."
 msgstr ""
 
-#: modules/files/filemanager.py:923
+#: modules/files/filemanager.py:1019
 msgid "File saved successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:926
+#: modules/files/filemanager.py:1022
 msgid "Error saving file: "
 msgstr ""
 
-#: modules/files/filemanager.py:938
+#: modules/files/filemanager.py:1034
 msgid "File is too large to open in the editor (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:941 modules/files/filemanager.py:1074
+#: modules/files/filemanager.py:1037 modules/files/filemanager.py:1170
 msgid "Error accessing file size: "
 msgstr ""
 
-#: modules/files/filemanager.py:953
+#: modules/files/filemanager.py:1049
 msgid "Error reading file"
 msgstr ""
 
-#: modules/files/filemanager.py:999
+#: modules/files/filemanager.py:1095
 msgid "Error retrieving file size."
 msgstr ""
 
-#: modules/files/filemanager.py:1003
+#: modules/files/filemanager.py:1099
 msgid "Invalid file size retrieved. Possible issue with file."
 msgstr ""
 
-#: modules/files/filemanager.py:1071
+#: modules/files/filemanager.py:1167
 msgid "File is too large to view in the browser (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:1126
+#: modules/files/filemanager.py:1222
 msgid "The specified directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1311 templates/dashboard/dashboard.html:88
+#: modules/files/filemanager.py:1407 templates/dashboard/dashboard.html:88
 #: templates/files/disk_usage.html:76 templates/files/filemanager.html:31
 #: templates/files/inodes.html:78
 msgid "File Manager"
 msgstr ""
 
-#: modules/files/filemanager.py:1328
+#: modules/files/filemanager.py:1424
 msgid "Error accessing the specified directory."
 msgstr ""
 
-#: modules/files/filemanager.py:1378 templates/dashboard/dashboard.html:98
+#: modules/files/filemanager.py:1474 templates/dashboard/dashboard.html:98
 #: templates/files/trash.html:12
 msgid "Trash"
 msgstr ""
 
-#: modules/files/filemanager.py:1553
+#: modules/files/filemanager.py:1649
 msgid "Trash emptied successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1557
+#: modules/files/filemanager.py:1653
 msgid "Unexpected error"
 msgstr ""
 
-#: modules/files/filemanager.py:1578
+#: modules/files/filemanager.py:1674
 msgid "Nothing to restore"
 msgstr ""
 
-#: modules/files/filemanager.py:1623
+#: modules/files/filemanager.py:1719
 msgid "Some items could not be restored."
 msgstr ""
 
-#: modules/files/filemanager.py:1626
+#: modules/files/filemanager.py:1722
 msgid "All items restored successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1630
+#: modules/files/filemanager.py:1726
 msgid "Unexpected error occurred"
 msgstr ""
 
@@ -1676,11 +1690,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:734
+#: modules/json/helpers.py:733
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:739
+#: modules/json/helpers.py:738
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1729,25 +1743,25 @@ msgstr ""
 msgid "Options"
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:128
+#: modules/psql/postgresql_conf.py:151
 msgid ""
 "PostgreSQL configuration was saved successfully but postgres service "
 "failed to start! Please revert the changes to restart postgres."
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:131
+#: modules/psql/postgresql_conf.py:154
 msgid ""
 "PostgreSQL Configuration was edited successfully and service restarted to"
 " apply new settings."
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:134 modules/psql/postgresql_import.py:22
+#: modules/psql/postgresql_conf.py:157 modules/psql/postgresql_import.py:22
 msgid ""
 "postgres container is not running. Please allow a few moments for "
 "initialization.."
 msgstr ""
 
-#: modules/psql/postgresql_conf.py:153
+#: modules/psql/postgresql_conf.py:176
 msgid "Edit PostgreSQL configuration"
 msgstr ""
 
@@ -5058,7 +5072,7 @@ msgstr ""
 
 #: templates/manager/mautic.html:421 templates/manager/websitebuilder.html:172
 #: templates/manager/websitebuilder.html:578
-#: templates/manager/wordpress.html:1919 templates/manager/wordpress.html:2568
+#: templates/manager/wordpress.html:1919 templates/manager/wordpress.html:2559
 msgid "Start Restore"
 msgstr ""
 
@@ -5130,7 +5144,7 @@ msgstr ""
 #: templates/manager/mautic.html:652
 #: templates/manager/python_node_apps.html:1236
 #: templates/manager/websitebuilder.html:485
-#: templates/manager/wordpress.html:2475
+#: templates/manager/wordpress.html:2466
 msgid "An error occurred fetching folder size from the container."
 msgstr ""
 
@@ -5783,22 +5797,22 @@ msgid "An error occurred while detaching website. Please try again."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:515
-#: templates/manager/wordpress.html:2609
+#: templates/manager/wordpress.html:2600
 msgid "Files Backup"
 msgstr ""
 
 #: templates/manager/websitebuilder.html:535
-#: templates/manager/wordpress.html:2525
+#: templates/manager/wordpress.html:2516
 msgid "Click again to confirm"
 msgstr ""
 
 #: templates/manager/websitebuilder.html:563
-#: templates/manager/wordpress.html:2553
+#: templates/manager/wordpress.html:2544
 msgid "Restoring backup... Please wait."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:571
-#: templates/manager/wordpress.html:2561
+#: templates/manager/wordpress.html:2552
 msgid "Restore request failed."
 msgstr ""
 
@@ -5809,12 +5823,12 @@ msgid ""
 msgstr ""
 
 #: templates/manager/websitebuilder.html:629
-#: templates/manager/wordpress.html:2634
+#: templates/manager/wordpress.html:2625
 msgid "Generating website backup.. Please wait."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:637
-#: templates/manager/wordpress.html:2642
+#: templates/manager/wordpress.html:2633
 msgid "Backup request failed."
 msgstr ""
 
@@ -6282,41 +6296,41 @@ msgstr ""
 msgid "Failed to flush cache"
 msgstr ""
 
-#: templates/manager/wordpress.html:2321
+#: templates/manager/wordpress.html:2323
 msgid "MariaDB version:"
 msgstr ""
 
-#: templates/manager/wordpress.html:2385
+#: templates/manager/wordpress.html:2387
 msgid "Update in progress..."
 msgstr ""
 
-#: templates/manager/wordpress.html:2392
+#: templates/manager/wordpress.html:2394
 msgid "WordPress updated successfully."
 msgstr ""
 
-#: templates/manager/wordpress.html:2455
+#: templates/manager/wordpress.html:2446
 msgid "An error occurred fetching Cache Type from WP-CLI."
 msgstr ""
 
-#: templates/manager/wordpress.html:2605
+#: templates/manager/wordpress.html:2596
 msgid "Database and Files Backup"
 msgstr ""
 
-#: templates/manager/wordpress.html:2607
+#: templates/manager/wordpress.html:2598
 msgid "Database Backup"
 msgstr ""
 
-#: templates/manager/wordpress.html:2611
+#: templates/manager/wordpress.html:2602
 msgid "Unknown Backup Type"
 msgstr ""
 
-#: templates/manager/wordpress.html:2624
+#: templates/manager/wordpress.html:2615
 msgid ""
 "No options selected to backup. Please ensure that at least one of the "
 "Database or Files is selected."
 msgstr ""
 
-#: templates/manager/wordpress.html:2632
+#: templates/manager/wordpress.html:2623
 msgid "Generating Backup..."
 msgstr ""
 

@@ -1,23 +1,5 @@
 services:
 
-  tor:
-    image: openpanel/torwebsite:${TOR_VERSION:-latest}
-    container_name: tor
-    restart: unless-stopped
-    volumes:
-      - html_data:/var/www/html
-      - ./tor/hidden_service:/var/lib/tor/hidden_service
-      - ./tor/torrc:/etc/tor/torrc
-    deploy:
-      resources:
-        limits:
-          cpus: "${TOR_CPU:-0.35}"
-          memory: "${TOR_RAM:-0.35G}"
-          pids: 100
-    networks:
-      - www
-      - db
-
   openlitespeed:
     image: litespeedtech/openlitespeed:${OPENLITESPEED_VERSION:-latest}
     container_name: openlitespeed
@@ -152,6 +134,25 @@ services:
     networks:
       - www
 
+  tor:
+    image: openpanel/torwebsite:${TOR_VERSION:-latest}
+    container_name: tor
+    restart: unless-stopped
+    volumes:
+      - html_data:/var/www/html
+      - ./tor/hidden_service:/var/lib/tor/hidden_service
+      - ./tor/torrc:/etc/tor/torrc
+    deploy:
+      resources:
+        limits:
+          cpus: "${TOR_CPU:-0.35}"
+          memory: "${TOR_RAM:-0.35G}"
+          pids: 100
+    networks:
+      - www
+      - db
+
+
   cron:
     image: mcuadros/ofelia:latest
     container_name: cron
@@ -272,7 +273,8 @@ services:
       - "${POSTGRES_PORT}"
     volumes:
       - pg_data:/var/lib/postgresql/data            # PostgreSQL data
-      - ./sockets/postgres:/var/run/postgresql  # PostgreSQL socket
+      - ./sockets/postgres:/var/run/postgresql      # PostgreSQL socket
+      - ./postgre_custom.conf:/var/lib/postgresql/data/postgresql.conf
     deploy:
       resources:
         limits:
