@@ -1530,18 +1530,14 @@ configure_coraza() {
 
 
 generate_session_secret_keys() {
-	local secret_admin_key_file="/etc/openpanel/openadmin/secret.key"
-	if [ ! -f "$secret_admin_key_file" ]; then
-	    openssl rand -hex 32 > "$secret_admin_key_file"
-	    chmod 600 "$secret_admin_key_file"
-	fi
-
-	local secret_user_key_file="/etc/openpanel/openpanel/secret.key"
-	if [ ! -f "$secret_user_key_file" ]; then
-	    openssl rand -hex 32 > "$secret_user_key_file"
-	    chmod 600 "$secret_user_key_file"
-	fi
+    for file in "/etc/openpanel/openadmin/secret.key" "/etc/openpanel/openpanel/secret.key"; do
+        if [ ! -f "$file" ]; then
+            openssl rand -hex 32 > "$file"
+            chmod 600 "$file"
+        fi
+    done
 }
+
 
 install_openadmin(){
     echo "Setting up OpenAdmin panel.."
