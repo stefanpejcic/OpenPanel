@@ -28,7 +28,9 @@ const PrivacyPolicy: React.FC = () => {
                     </ul>
 
                     <h3>Step 2a: Open a support ticket (Enterprise Edition)</h3>
-                    <p>If you need fast and reliable support, open a premium ticket by sending us a new ticket.</p>
+                    <p>If you need fast and reliable assistance, please open a support ticket.</p>
+                    <p>In your ticket, include clear steps to reproduce the issue so we can replicate it and provide a patch or workaround.</p>
+                    <p>If you would like our team to log in to your server and resolve the issue as quickly as possible, please create a new admin account named <strong>opsupport</strong> and share the login credentials.</p>
                     <ul>
                         <li><a href="https://my.openpanel.com/submitticket.php?step=2&deptid=1" target="_blank">Submit a ticket</a></li>
                     </ul>
