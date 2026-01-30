@@ -1605,15 +1605,13 @@ create_admin_and_show_logins_success_message() {
 
     fi
 
-	if [ "$SET_ADMIN_PASSWORD" = true ]; then
-	    if [[ "$custom_password" =~ ^[A-Za-z0-9]{5,30}$ ]]; then
-	        new_password="${custom_password}"
-	    else
-	        echo "Warning: provided password is invalid (must be alphanumeric and 5–30 characters). Generating a secure password."
-	        new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
-	    fi
+	if [ "$SET_ADMIN_PASSWORD" = true ] && [[ "$custom_password" =~ ^[A-Za-z0-9]{5,30}$ ]]; then
+	    new_password="$custom_password"
 	else
-	    	new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+	    if [ "$SET_ADMIN_PASSWORD" = true ]; then
+	        echo "Warning: provided password is invalid (must be alphanumeric and 5–30 characters). Generating a secure password."
+	    fi
+	    new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 	fi
 
 
