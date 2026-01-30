@@ -1594,7 +1594,7 @@ create_admin_and_show_logins_success_message() {
     if [ "$SET_ADMIN_USERNAME" = true ]; then
        new_username="${custom_username}"
     else
-       wget --inet4-only --timeout=3 --tries=2 -O /tmp/generate.sh https://gist.githubusercontent.com/stefanpejcic/905b7880d342438e9a2d2ffed799c8c6/raw/a1cdd0d2f7b28f4e9c3198e14539c4ebb9249910/random_username_generator_docker.sh > /dev/null 2>&1
+       wget --inet4-only --timeout=3 --tries=2 -O /tmp/generate.sh https://raw.githubusercontent.com/stefanpejcic/random-username-generator/refs/heads/main/generator.sh > /dev/null 2>&1
 
        if [ -f "/tmp/generate.sh" ]; then
 	       source /tmp/generate.sh
