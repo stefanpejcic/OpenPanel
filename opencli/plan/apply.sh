@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 29.01.2026
+# Last Modified: 30.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

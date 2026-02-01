@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 29.01.2026
+# Last Modified: 30.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -36,17 +36,21 @@ usage() {
     echo "Usage: opencli waf <command> [options]"
     echo ""
     echo "Commands:"
-    echo "  status                                              Check if CorazaWAF is enabled for new domains and users."
-    echo "  domain                                              Check if CorazaWAF is enabled for a domain."
-    echo "  domain DOMAIN_NAME enable                           Enable CorazaWAF for a domain."
-    echo "  domain DOMAIN_NAME disable                          Disable CorazaWAF for a domain."
-    echo "  tags                                                Display all tags from enabled sets."
-    echo "  ids                                                 Display all rule IDs from enabled sets."
-    echo "  update                                              Update OWASP CRS."
-    echo "  stats <country|agent|hourly|ip|request|path> Display top requests by countr, ip, path, etc."
+    echo "  status                                       Check if CorazaWAF is enabled for new domains and users."
+    echo "  enable                                       Use Caddy image with CorazaWAF, enable module and use WAF on new domains."
+    echo "  disable                                      Use official Caddy docker image, disable module and dont use WAF on new domains."    
+    echo "  domain                                       Check if CorazaWAF is enabled for a domain."
+    echo "  domain DOMAIN_NAME enable                    Enable CorazaWAF for a domain."
+    echo "  domain DOMAIN_NAME disable                   Disable CorazaWAF for a domain."
+    echo "  tags                                         Display all tags from enabled sets."
+    echo "  ids                                          Display all rule IDs from enabled sets."
+    echo "  update                                       Update OWASP CRS."
+    echo "  stats <country|agent|hourly|ip|request|path> Display top requests by country, ip, path, etc."
     echo ""
     echo "Examples:"
     echo "  opencli waf status"
+    echo "  opencli waf enable"
+    echo "  opencli waf disable"
     echo "  opencli waf domain pcx3.com"
     echo "  opencli waf domain pcx3.com enable"
     echo "  opencli waf domain pcx3.com disable"
@@ -76,11 +80,30 @@ check_domain() {
 check_coraza_status() {
   local env_file="/root/.env"
   local custom_image='CADDY_IMAGE="openpanel/caddy-coraza"'
-  
-  if grep -q "^$custom_image" "$env_file"; then
-      echo "CorazaWAF is ENABLED"
+  local openpanel_config="/etc/openpanel/openpanel/conf/openpanel.config"
+
+  local image_enabled=false
+  local waf_enabled=false
+
+  # Check image
+  if grep -q "^$custom_image" "$env_file" 2>/dev/null; then
+    image_enabled=true
+  fi
+
+  # Check waf module
+  if grep -qi "waf" "$openpanel_config" 2>/dev/null; then
+    waf_enabled=true
+  fi
+
+  # Report
+  if $image_enabled && $waf_enabled; then
+    echo "CorazaWAF is ENABLED"
+  elif $image_enabled; then
+    echo "CorazaWAF is DISABLED: 'waf' module is not enabled in OpenAdmin > Settings > Modules.)"
+  elif $waf_enabled; then
+    echo "CorazaWAF is DISABLED: 'waf' module is enabled, but Caddy is not using $custom_image"
   else
-       echo "CorazaWAF is DISABLED"
+    echo "CorazaWAF is DISABLED"
   fi
 }
 
@@ -88,42 +111,31 @@ reload_caddy_now() {
     docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
 }
 
-enable_coraza_waf_for_domain() {
+set_coraza_waf_for_domain() {
     local domain="$1"
+    local action="$2"   # "enable" or "disable"
     local file="/etc/openpanel/caddy/domains/${domain}.conf"
-    
+    local value
+
     if [[ ! -f "$file" ]]; then
         echo "Domain not found!"
         exit 1
     fi
 
-    sed -i 's/SecRuleEngine Off/SecRuleEngine On/g' "$file"
-    
-    if [[ $? -eq 0 ]]; then
-        echo "SecRuleEngine On is now set for domain $domain"
-        reload_caddy_now
-    else
-        echo "Failed setting SecRuleEngine On - please contact Administrator."
-        exit 1
-    fi
-}
+    case "$action" in
+        enable) value="On" ;;
+        disable) value="Off" ;;
+        *)
+            echo "Invalid action: $action. Use 'enable' or 'disable'."
+            exit 1
+            ;;
+    esac
 
-disable_coraza_waf_for_domain() {
-    local domain="$1"
-    local file="/etc/openpanel/caddy/domains/${domain}.conf"
-    
-    if [[ ! -f "$file" ]]; then
-        echo "Domain not found!"
-        exit 1
-    fi
-
-    sed -i 's/SecRuleEngine On/SecRuleEngine Off/g' "$file"
-    
-    if [[ $? -eq 0 ]]; then
-        echo "SecRuleEngine Off is now set for domain $domain"
+    if sed -i "s/SecRuleEngine .*/SecRuleEngine $value/" "$file"; then
         reload_caddy_now
+        echo "SecRuleEngine $value is now set for domain $domain"
     else
-        echo "Failed setting SecRuleEngine Off - please contact Administrator."
+        echo "Failed setting SecRuleEngine $value - please contact Administrator."
         exit 1
     fi
 }
@@ -169,8 +181,9 @@ list_all_ids() {
 
 get_count_from_file() {
     local log_file="/var/log/caddy/coraza_audit.log"
+    local record_count
     if [ -f "$log_file" ]; then
-        local record_count=$(grep -cE '^--.*-B--$' "$log_file")
+        record_count=$(grep -cE '^--.*-B--$' "$log_file")
         echo "$record_count"
     fi
 }
@@ -196,6 +209,78 @@ update_owasp_rules() {
 
 
 
+enable_coraza_waf() {
+
+    # 1. download rules
+    echo "Downloading Coraza rules.."
+    wget --timeout=15 --tries=3 --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
+    echo "Downloading OWASP CRS.."
+    git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
+    
+    # 2. enable module
+    echo "Enabling WAF module.."
+    sed -i '/^enabled_modules=/ { /waf/! s/$/,waf/ }' /etc/openpanel/openpanel/conf/openpanel.config
+
+    # 3. set image to openpanel/caddy-coraza
+    echo "Setting docker image 'openpanel/caddy-coraza'.."
+    sed -i 's|^CADDY_IMAGE=".*"|CADDY_IMAGE="openpanel/caddy-coraza"|' /root/.env
+
+    # 4. enable WAF for ALL user domains
+    sed -i 's/SecRuleEngine Off/SecRuleEngine On/g' /etc/openpanel/caddy/domains/*.conf
+
+    # 5. restart caddy
+    echo "Restarting Web Server to use the new image with CorazaWAF.."
+    cd /root || {
+        echo "Failed to cd to /root - are you root?" >&2
+        exit 1
+    }
+    docker --context=default compose down caddy && docker --context=default compose up -d caddy
+
+    # 6. check status
+    check_coraza_status
+}
+
+disable_coraza_waf() {
+    # 1. check if used and ask for confirmation
+    echo "Checking if CorazaWAF is used by any user domains.."
+    local conf_files
+    conf_files=$(grep -rl "SecRuleEngine On" /etc/openpanel/caddy/domains/*.conf 2>/dev/null)
+
+    if [[ -n "$conf_files" ]]; then
+        echo "WARNING: WAF is still active on some domains:"
+        for file in $conf_files; do
+            filename=$(basename "$file" .conf)
+            echo " - $filename"
+        done
+
+        read -r -p "Do you really want to disable WAF protection on these domains and stop using Coraza WAF on the server? [y/N]: " confirm
+        case "$confirm" in
+            [yY][eE][sS]|[yY])
+                echo "Disabling Coraza WAF..."
+                ;;
+            *)
+                echo "Aborting."
+                return 1
+                ;;
+        esac
+    fi
+
+    # 2. disable module
+    echo "Disabling WAF module..."
+    sed -i 's/waf,//g' /etc/openpanel/openpanel/conf/openpanel.config
+
+    # 3. disable WAF for ALL user domains
+    sed -i 's/SecRuleEngine On/SecRuleEngine Off/g' /etc/openpanel/caddy/domains/*.conf
+
+    # 4. reload caddy to apply
+    reload_caddy_now
+
+    # 5. check status
+    check_coraza_status
+}
+
+
+
 # ======================================================================
 # Main
 case "$1" in
@@ -206,30 +291,27 @@ case "$1" in
         if [[ -z "$2" ]]; then
             echo "Domain name is required."
             usage
-            exit 1
         fi
         case "$3" in
-            "enable")
-                enable_coraza_waf_for_domain "$2"
-                ;;
-            "disable")
-                disable_coraza_waf_for_domain "$2"
-                ;;
+                enable|disable)
+                    set_coraza_waf_for_domain "$2" "$3"
+                    ;;
             "")
                 check_domain "$2"
                 ;;
             *)
                 echo "Invalid action for domain: $3"
                 usage
-                exit 1
                 ;;
         esac
         ;;
     "enable")
         enable_coraza_waf
+        exit 0
         ;;
     "disable")
         disable_coraza_waf
+        exit 0
         ;;
     "update")
         if [[ -z "$2" ]]; then    
@@ -247,7 +329,7 @@ case "$1" in
         fi      
         ;;        
     "stats")
-        get_stats_from_file $2
+        get_stats_from_file "$2"
         ;;
     "count")
         get_count_from_file
@@ -264,7 +346,6 @@ case "$1" in
     *)
         echo "Invalid option: $1"
         usage
-        exit 1
         ;;
 esac
 

@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 29.01.2026
+# Last Modified: 30.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

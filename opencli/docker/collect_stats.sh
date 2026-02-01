@@ -5,7 +5,7 @@
 # Usage: opencli docker-collect_stats
 # Author: Petar Curic, Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 29.01.2026
+# Last Modified: 30.01.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 

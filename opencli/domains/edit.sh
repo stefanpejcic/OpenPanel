@@ -5,7 +5,7 @@
 # Usage: opencli domains-edit <DOMAIN_NAME>
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 29.01.2026
+# Last Modified: 30.01.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
