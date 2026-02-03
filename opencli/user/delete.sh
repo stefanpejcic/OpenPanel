@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 30.01.2026
+# Last Modified: 02.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -110,6 +110,8 @@ delete_vhosts_files() {
 }
 
 delete_user_from_database() {
+    openpanel_username="$1"
+	
     # 1. Get all domain IDs
     domain_ids=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e \
         "SELECT domain_id FROM domains WHERE user_id='$user_id';" -N | paste -sd "," -)
@@ -128,7 +130,7 @@ delete_user_from_database() {
     sql+="DELETE FROM active_sessions WHERE user_id='$user_id'; "
 
     # 5. Delete the user
-    sql+="DELETE FROM users WHERE username='$suspended_user';"
+    sql+="DELETE FROM users WHERE username='$openpanel_username';"
 
     # 6. Execute all 5 in a single call
     if [ -n "$sql" ]; then
@@ -199,13 +201,13 @@ delete_user() {
     fi
     
     confirm_action "$username"
-    get_user_info                               # get user ID and docker context from db
-    delete_vhosts_files                         # delete caddy vhosts files from the server
-    delete_ftp_users $provided_username         # delete all ftp sub-usersthat
-    delete_user_from_database                   # delete user from database
-    delete_all_user_files                       # permanently delete data
+    get_user_info                                 # get user ID and docker context from db
+    delete_vhosts_files                           # delete caddy vhosts files from the server
+    delete_ftp_users $provided_username           # delete all ftp sub-usersthat
+    delete_user_from_database $provided_username  # delete user from database
+    delete_all_user_files                         # permanently delete data
     delete_context  
-    refresh_resellers_data                      # count users for all resellers
+    refresh_resellers_data                        # count users for all resellers
     reload_user_quotas
     echo "User $username deleted successfully." # if we made it
 }
