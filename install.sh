@@ -33,6 +33,7 @@ SKIP_DNS_SERVER=false
 REPAIR=false
 LOCALES=false                                                            # by default only EN is installed
 SET_HOSTNAME_NOW=false                                                   # must be a FQDN
+USE_SELFSIGNED=false                                                     # generate and configure self-signed ssl
 SETUP_SWAP_ANYWAY=false                                                  # setup swapfile regardless of server ram
 CORAZA=true                                                              # install CorazaWAF, unless user provices --no-waf flag
 IMUNIFY_AV=false                                                         # https://community.openpanel.org/d/193-dont-install-imunifyav-by-default
@@ -365,6 +366,7 @@ parse_args() {
         echo "  --post_install='<path>'         Specify the post install script path."
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space (1-10) in GB to be allocated for SWAP."
+        echo "  --selfsigned                    Configure a self-signed certificate for <domain>."
         echo "  --debug                         Display debug information during installation."
         echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
@@ -400,8 +402,9 @@ while [[ $# -gt 0 ]]; do
         --skip-apt-update)     SKIP_APT_UPDATE=true ;;
         --skip-dns-server)     SKIP_DNS_SERVER=true ;;
         --skip-firewall)       SKIP_FIREWALL=true ;;
-        --imunifyav)      IMUNIFY_AV=true ;;
+        --imunifyav)           IMUNIFY_AV=true ;;
         --no-waf)              CORAZA=false ;;
+		--selfsigned)          USE_SELFSIGNED=true ;;
         --debug)               DEBUG=true ;;
         --repair|--retry)
             REPAIR=true
@@ -558,23 +561,23 @@ docker_compose_up(){
 		radovan 1: "ERROR: Unable to run the Alpine Docker image! This suggests an issue with connecting to Docker Hub or with the Docker installation itself. To troubleshoot, try running the following command manually: 'docker run --rm alpine'."
 	fi
 
-    cp /etc/openpanel/mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
+    cp ${ETC_DIR}mysql/initialize/1.1/plans.sql /root/initialize.sql  > /dev/null 2>&1
 
-  	chmod +x /etc/openpanel/mysql/scripts/dump.sh                       # added in 1.2.5 for dumping dbs
-  	chmod +x /etc/openpanel/openlitespeed/start.sh                      # added in 1.5.6 for openlitespeed
+  	chmod +x ${ETC_DIR}mysql/scripts/dump.sh                       # added in 1.2.5 for dumping dbs
+  	chmod +x ${ETC_DIR}openlitespeed/start.sh                      # added in 1.5.6 for openlitespeed
 
     cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory." # compose doesnt alllow /
 
     rm -rf /etc/my.cnf .env > /dev/null 2>&1                            # on centos we get default my.cnf, and on repair we already have symlink and .env
-    cp /etc/openpanel/docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
-    cp /etc/openpanel/docker/compose/.env /root/.env > /dev/null 2>&1
+    cp ${ETC_DIR}docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
+    cp ${ETC_DIR}docker/compose/.env /root/.env > /dev/null 2>&1
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
 
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)                  # generate random password for mysql
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
-    ln -s /etc/openpanel/mysql/host_my.cnf /etc/my.cnf  > /dev/null 2>&1 # save it to /etc/my.cnf
+    ln -s ${ETC_DIR}/mysql/host_my.cnf /etc/my.cnf  > /dev/null 2>&1 # save it to /etc/my.cnf
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/host_my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/container_my.cnf  > /dev/null 2>&1
     os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
@@ -700,7 +703,7 @@ setup_firewall_service() {
             sed -i 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "docker0"/' /etc/csf/csf.conf
             sed -i 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
             echo "Copying CSF blocklists" # https://github.com/stefanpejcic/OpenPanel/issues/573
-            cp /etc/openpanel/csf/csf.blocklists /etc/csf/csf.blocklists
+            cp ${ETC_DIR}/csf/csf.blocklists /etc/csf/csf.blocklists
         }
 
         set_csf_email_address() {
@@ -769,7 +772,7 @@ create_rdnc() {
     if [ "$SKIP_DNS_SERVER" = false ]; then
 	    echo "Setting remote name daemon control (rndc) for DNS.."
 	    mkdir -p /etc/bind/
-	    cp -r /etc/openpanel/bind9/* /etc/bind/
+	    cp -r ${ETC_DIR}bind9/* /etc/bind/
 
 	    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then            # Only on Ubuntu and Debian 12, systemd-resolved is installed
 	        echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
@@ -1004,7 +1007,7 @@ fi
 	quota -v >/dev/null 2>&1
 
     debug_log "Testing quotas.."
-    repquota -u / > /etc/openpanel/openpanel/core/users/repquota 2>/dev/null
+    repquota -u / > ${ETC_DIR}openpanel/core/users/repquota 2>/dev/null
     if [ $? -eq 0 ]; then
         echo -e "[${GREEN} OK ${RESET}] Quotas are now enabled for users."
     else
@@ -1036,7 +1039,7 @@ set_system_cronjob() {
 set_custom_hostname(){
         if [ "$SET_HOSTNAME_NOW" = true ]; then
 		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-	            sed -i "s/example\.net/$new_hostname/g" /etc/openpanel/caddy/Caddyfile
+	            sed -i "s/example\.net/$new_hostname/g" ${ETC_DIR}caddy/Caddyfile
 	        else
                 echo "Hostname provided: $new_hostname is not a valid domain name, OpenPanel will use IP address $current_ip for access."
             fi
@@ -1133,7 +1136,7 @@ set_email_address_and_email_admin_logins(){
 
                   if [ "$SET_HOSTNAME_NOW" = true ]; then
                   	if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-                  		if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ]; then
+						if [ -f "${ETC_DIR}caddy/ssl/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" ] || [ -f "${ETC_DIR}caddy/ssl/custom/$new_hostname/$new_hostname.key" ]; then
                   			PROTOCOL="https"
                   			admin_domain="$new_hostname"
                   		fi
@@ -1155,31 +1158,44 @@ set_email_address_and_email_admin_logins(){
 generate_and_set_ssl_for_panels() {
     if [ "$SET_HOSTNAME_NOW" = true ]; then
         echo "Checking if SSL can be generated for the server hostname.."
-        CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+        CADDYFILE="${ETC_DIR}caddy/Caddyfile"
         HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
 
         if [[ -n "$HOSTNAME" && "$HOSTNAME" != "example.net" ]]; then
-            cd /root && docker --context default compose up -d caddy               # start and generate ssl
+            if [ "$USE_SELFSIGNED" = true ]; then
+                echo "Generating self-signed SSL certificate for $HOSTNAME..."
+                SSL_DIR="${ETC_DIR}caddy/ssl/custom/$HOSTNAME"
+                mkdir -p "$SSL_DIR"
 
-            MAX_RETRIES=5
-            SLEEP_SECONDS=5
-            SUCCESS=0
-            for ((i=1; i<=MAX_RETRIES; i++)); do
-                debug_log echo "Attempt $i to generate SSL for $HOSTNAME..."
-                if curl -4 -sf -o /dev/null "https://$HOSTNAME"; then
-                    debug_log echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
-                    SUCCESS=1
-                    debug_log systemctl restart admin
-                    break
-                else
-                    debug_log echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
-                    debug_log docker restart caddy
-                    sleep $SLEEP_SECONDS
-                fi
-            done
-            if [ $SUCCESS -ne 1 ]; then
-                echo "Failed to generate SSL certificate after $MAX_RETRIES attempts. OpenAdmin fallback to using HTTP protocol."
-            fi
+                openssl genrsa -out "$SSL_DIR/$HOSTNAME.key" 2048
+                openssl req -new -x509 -key "$SSL_DIR/$HOSTNAME.key" -out "$SSL_DIR/$HOSTNAME.crt" -days 365 -subj "/CN=$HOSTNAME"
+
+                echo "Self-signed certificate created at $SSL_DIR"
+				echo "WARNING: Self-signed certificate will not be automatically replaced with LetsEncrypt, you need to manually remove the above directory." 
+                debug_log systemctl restart admin
+            else
+	            cd /root && docker --context default compose up -d caddy               # start and generate ssl
+	
+	            MAX_RETRIES=5
+	            SLEEP_SECONDS=5
+	            SUCCESS=0
+	            for ((i=1; i<=MAX_RETRIES; i++)); do
+	                debug_log echo "Attempt $i to generate SSL for $HOSTNAME..."
+	                if curl -4 -sf -o /dev/null "https://$HOSTNAME"; then
+	                    debug_log echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
+	                    SUCCESS=1
+	                    debug_log systemctl restart admin
+	                    break
+	                else
+	                    debug_log echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
+	                    debug_log docker restart caddy
+	                    sleep $SLEEP_SECONDS
+	                fi
+	            done
+	            if [ $SUCCESS -ne 1 ]; then
+	                echo "Failed to generate SSL certificate after $MAX_RETRIES attempts. OpenAdmin fallback to using HTTP protocol."
+	            fi
+			fi
         fi
     fi
 }
@@ -1244,7 +1260,7 @@ setup_bind(){
 
     echo "Setting up DNS service..."
 	install -d -m 755 /etc/bind
-	cp -r /etc/openpanel/bind9/* /etc/bind/
+	cp -r ${ETC_DIR}bind9/* /etc/bind/
 
 	if [ -f /etc/os-release ] && grep -Eq "Ubuntu|Debian" /etc/os-release; then
 		grep -q "^DNSStubListener=no" /etc/systemd/resolved.conf || \
@@ -1501,7 +1517,7 @@ EOF' || true
 
 
 extra_steps_for_caddy() {
-	sed -i "s/example\.net/$current_ip/g" /etc/openpanel/caddy/redirects.conf > /dev/null 2>&1
+	sed -i "s/example\.net/$current_ip/g" ${ETC_DIR}caddy/redirects.conf > /dev/null 2>&1
 
 	# https://community.openpanel.org/d/235-caddy-restarting-when-etchosts-is-missing
 	if ! grep -qE '^127\.0\.0\.1\s+localhost' "/etc/hosts"; then
@@ -1519,7 +1535,7 @@ configure_coraza() {
 
 
 generate_session_secret_keys() {
-    for file in "/etc/openpanel/openadmin/secret.key" "/etc/openpanel/openpanel/secret.key"; do
+    for file in "${ETC_DIR}openadmin/secret.key" "${ETC_DIR}openpanel/secret.key"; do
         if [ ! -f "$file" ]; then
             openssl rand -hex 32 > "$file"
             chmod 600 "$file"
@@ -1557,8 +1573,8 @@ install_openadmin(){
      	apt install python3-yaml -y  > /dev/null 2>&1
      fi
 
-    cp -fr /etc/openpanel/openadmin/service/openadmin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
-    cp -fr /etc/openpanel/openadmin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
+    cp -fr ${ETC_DIR}openadmin/service/openadmin.service ${SERVICES_DIR}admin.service  > /dev/null 2>&1
+    cp -fr ${ETC_DIR}openadmin/service/watcher.service ${SERVICES_DIR}watcher.service  > /dev/null 2>&1
 
     systemctl daemon-reload  > /dev/null 2>&1
 	generate_session_secret_keys
@@ -1566,7 +1582,7 @@ install_openadmin(){
     systemctl enable admin > /dev/null 2>&1
 
 	if [ "$SKIP_DNS_SERVER" = false ]; then
-	    chmod +x /etc/openpanel/services/watcher.sh
+	    chmod +x ${ETC_DIR}services/watcher.sh
 	    systemctl start watcher > /dev/null 2>&1
  	    systemctl enable watcher > /dev/null 2>&1
 
@@ -1632,9 +1648,9 @@ create_admin_and_show_logins_success_message() {
 	    exec 2>&1
 	}
 
-    sqlite3 /etc/openpanel/openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 &&
+    sqlite3 ${ETC_DIR}openadmin/users.db "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"  > /dev/null 2>&1 &&
     opencli admin new "$new_username" "$new_password" --super > /dev/null 2>&1 &&
-	user_exists=$(sqlite3 /etc/openpanel/openadmin/users.db "SELECT COUNT(*) FROM user WHERE username = '$new_username';")
+	user_exists=$(sqlite3 ${ETC_DIR}openadmin/users.db "SELECT COUNT(*) FROM user WHERE username = '$new_username';")
 	if [ "$user_exists" -gt 0 ]; then
 	    echo "User $new_username has been successfully added."
 		display_admin_status_and_logins
