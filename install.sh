@@ -27,7 +27,6 @@ export DEBIAN_FRONTEND=noninteractive
 # ======================================================================
 # Defaults for environment variables
 CUSTOM_VERSION=false                                                     # default version is latest
-DEBUG=false                                                              # verbose output for debugging failed install
 SKIP_APT_UPDATE=false                                                    # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
 REPAIR=false
@@ -109,18 +108,11 @@ radovan() {
     exit 1
 }
 
-debug_log() {
+execute_cmd() {
     local timestamp
     timestamp=$(date +'%Y-%m-%d %H:%M:%S')
-
-    if [ "$DEBUG" = true ]; then
-        echo "[$timestamp] $message" | tee -a "$LOG_FILE"
-        "$@" 2>&1 | tee -a "$LOG_FILE"
-    else
-    	# ❯❯❯
-        echo "[$timestamp] COMMAND: $@" >> "$LOG_FILE"
-        "$@" > /dev/null 2>&1
-    fi
+	echo "[$timestamp] COMMAND: $@" >> "$LOG_FILE"
+	"$@" > /dev/null 2>&1
 }
 
 is_package_installed() {
@@ -184,7 +176,6 @@ print_space_and_line() {
     echo " "
 }
 
-
 setup_progress_bar_script(){
 	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
 	PROGRESS_BAR_FILE="progress_bar.sh"
@@ -193,7 +184,6 @@ setup_progress_bar_script(){
 	    wget --timeout=5 --tries=3 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
 	    if [ $? -ne 0 ]; then
 	        echo "ERROR: wget failed or timed out after 5 seconds while downloading from github"
-	 	echo "repeat with --debug flag to see where errored."
 	        exit 1
 	    fi
 	elif command -v curl -4 &> /dev/null; then # fallback for fedora
@@ -367,7 +357,6 @@ parse_args() {
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space (1-10) in GB to be allocated for SWAP."
         echo "  --selfsigned                    Configure a self-signed certificate for <domain>."
-        echo "  --debug                         Display debug information during installation."
         echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
@@ -405,7 +394,6 @@ while [[ $# -gt 0 ]]; do
         --imunifyav)           IMUNIFY_AV=true ;;
         --no-waf)              CORAZA=false ;;
 		--selfsigned)          USE_SELFSIGNED=true ;;
-        --debug)               DEBUG=true ;;
         --repair|--retry)
             REPAIR=true
             SKIP_PANEL_CHECK=true
@@ -524,11 +512,11 @@ docker_compose_up(){
  	fi
 
 	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
-	    debug_log chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-		debug_log curl -4 -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
-		debug_log mv /usr/local/bin/docker-compose /usr/bin/docker-compose
+	    execute_cmd chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+		execute_cmd curl -4 -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+		execute_cmd mv /usr/local/bin/docker-compose /usr/bin/docker-compose
   		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
-		debug_log chmod +x /usr/bin/docker-compose
+		execute_cmd chmod +x /usr/bin/docker-compose
 
 		function_to_insert='docker() {
 		  if [[ $1 == "compose" ]]; then
@@ -550,7 +538,6 @@ docker_compose_up(){
 
 		if ! grep -q "docker() {" "$config_file"; then
 		    echo "$function_to_insert" >> "$config_file"
-		    debug_log "Function 'docker' has been added to $config_file."
 		    source "$config_file"
 		fi
 
@@ -659,7 +646,7 @@ setup_firewall_service() {
 
         install_csf() {
             wget --timeout=3 --tries=3 --inet4-only https://raw.githubusercontent.com/sentinelfirewall/sentinel/main/csf.tgz > /dev/null 2>&1
-            debug_log tar -xzf csf.tgz
+            execute_cmd tar -xzf csf.tgz
             rm csf.tgz
             cd csf
             sh install.sh > /dev/null 2>&1
@@ -667,13 +654,13 @@ setup_firewall_service() {
             rm -rf csf
             echo "Setting Sentinel UI auto-login from OpenAdmin interface.."
             if [ "$PACKAGE_MANAGER" == "dnf" ]; then
-                debug_log dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
+                execute_cmd dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
                 # fixes bug when starting csf: Can't locate locale.pm in @INC (you may need to install the locale module)
                 if [ -f /etc/fedora-release ]; then
-                    debug_log yum --allowerasing install perl -y
+                    execute_cmd yum --allowerasing install perl -y
 				fi
             elif [ "$PACKAGE_MANAGER" == "apt-get" ]; then
-                   debug_log apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+                   execute_cmd apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
             fi
 			timeout 300s git clone https://github.com/stefanpejcic/csfpost-docker.sh > /dev/null 2>&1
 			mv csfpost-docker.sh/csfpost.sh /usr/local/csf/bin/csfpost.sh
@@ -755,7 +742,7 @@ setup_firewall_service() {
 update_package_manager() {
     if [ "$SKIP_APT_UPDATE" = false ]; then
         echo "Updating $PACKAGE_MANAGER package manager.."
-        debug_log $PACKAGE_MANAGER update -y
+        execute_cmd $PACKAGE_MANAGER update -y
     fi
 }
 
@@ -763,7 +750,7 @@ update_package_manager() {
 setup_imunifyav() {
     if [ "$IMUNIFY_AV" = true ]; then
         echo "Installing ImunifyAV"
-        debug_log opencli imunify install && opencli imunify start
+        execute_cmd opencli imunify install && opencli imunify start
     fi
 }
 
@@ -786,7 +773,7 @@ create_rdnc() {
 	    fi
 
 	    echo "Generating rndc.key for DNS zone management."
-	    debug_log timeout 90 docker --context default run --rm \
+	    execute_cmd timeout 90 docker --context default run --rm \
 	        -v /etc/bind/:/etc/bind/ \
 	        --entrypoint=/bin/sh \
 	        ubuntu/bind9:latest \
@@ -877,11 +864,11 @@ install_packages() {
             fi
 
 			if [ -f /etc/needrestart/needrestart.conf ]; then
-	            debug_log sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
+	            execute_cmd sed -i 's/#$nrconf{restart} = '"'"'i'"'"';/$nrconf{restart} = '"'"'a'"'"';/g' /etc/needrestart/needrestart.conf
 			fi
-            debug_log $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
+            execute_cmd $PACKAGE_MANAGER -qq install apt-transport-https ca-certificates -y
             echo "APT::Acquire::Retries \"3\";" > /etc/apt/apt.conf.d/80-retries
-            debug_log update-ca-certificates
+            execute_cmd update-ca-certificates
             ;;
 
         yum)
@@ -904,8 +891,8 @@ install_packages() {
                           "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             fi
 
-            debug_log dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
-            debug_log yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
+            execute_cmd dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
+            execute_cmd yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
             ;;
     esac
 
@@ -913,7 +900,7 @@ install_packages() {
     for package in "${packages[@]}"; do
         echo -e "Installing ${GREEN}$package${RESET}"
         if ! is_package_installed "$package"; then
-            debug_log $PACKAGE_MANAGER install -y "$package" || {
+            execute_cmd $PACKAGE_MANAGER install -y "$package" || {
                 echo "Error: Installation of $package failed. Retrying.."
             	if [[ "$package" == "docker.io" ]]; then
 	                echo "Trying to install docker-ce instead..."
@@ -979,7 +966,7 @@ docker_cpu_limiting() {
 Delegate=cpu cpuset io memory pids
 EOF
 
-	debug_log systemctl daemon-reload
+	execute_cmd systemctl daemon-reload
 }
 
 
@@ -1006,7 +993,7 @@ fi
 	repquota / >/dev/null 2>&1
 	quota -v >/dev/null 2>&1
 
-    debug_log "Testing quotas.."
+    echo "Testing quotas.."
     repquota -u / > ${ETC_DIR}openpanel/core/users/repquota 2>/dev/null
     if [ $? -eq 0 ]; then
         echo -e "[${GREEN} OK ${RESET}] Quotas are now enabled for users."
@@ -1055,7 +1042,7 @@ opencli_setup(){
     timeout 300s git clone https://github.com/stefanpejcic/opencli.git
 
 	if [ ! -d "/usr/local/opencli" ]; then
-	 	radovan 1 "Failed to clone OpenCLI from Github - please retry install with '--retry --debug' flags."
+	 	radovan 1 "Failed to clone OpenCLI from Github - please retry install with '--retry' flag."
 	fi
 
     chmod +x -R /usr/local/opencli
@@ -1172,7 +1159,7 @@ generate_and_set_ssl_for_panels() {
 
                 echo "Self-signed certificate created at $SSL_DIR"
 				echo "WARNING: Self-signed certificate will not be automatically replaced with LetsEncrypt, you need to manually remove the above directory." 
-                debug_log systemctl restart admin
+                execute_cmd systemctl restart admin
             else
 	            cd /root && docker --context default compose up -d caddy               # start and generate ssl
 	
@@ -1180,15 +1167,15 @@ generate_and_set_ssl_for_panels() {
 	            SLEEP_SECONDS=5
 	            SUCCESS=0
 	            for ((i=1; i<=MAX_RETRIES; i++)); do
-	                debug_log echo "Attempt $i to generate SSL for $HOSTNAME..."
+	                echo "Attempt $i to generate SSL for $HOSTNAME..."
 	                if curl -4 -sf -o /dev/null "https://$HOSTNAME"; then
-	                    debug_log echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
+	                    echo "SSL certificate is ready! OpenAdmin is now using HTTPS protocol."
 	                    SUCCESS=1
-	                    debug_log systemctl restart admin
+	                    execute_cmd systemctl restart admin
 	                    break
 	                else
-	                    debug_log echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
-	                    debug_log docker restart caddy
+	                    echo "SSL not ready yet, retrying in $SLEEP_SECONDS seconds..."
+	                    execute_cmd docker restart caddy
 	                    sleep $SLEEP_SECONDS
 	                fi
 	            done
@@ -1220,22 +1207,23 @@ run_custom_postinstall_script() {
             echo "Downloading script from $post_install_path..."
             wget -q -O "$tmp_script" "$post_install_path" || { echo "Failed to download script"; return 1; }
             chmod +x "$tmp_script"
-            debug_log bash "$tmp_script"
+            execute_cmd bash "$tmp_script"
             rm -f "$tmp_script"
         else
-            debug_log bash "$post_install_path"
+            execute_cmd bash "$post_install_path"
         fi
     fi
 }
 
 
 verify_license() {
-    debug_log "echo Current time: $(date +%T)"
     server_hostname=$(hostname)
     license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
-    response=$(curl -4 -s -X POST -H "Content-Type: application/json" -d "$license_data" https://api.openpanel.com/license/index.php)
-    debug_log "echo Checking OpenPanel license for IP address: $current_ip"
-    debug_log "echo Response: $response"
+    curl -4 -s -X POST \
+        -H "Content-Type: application/json" \
+        -d "$license_data" \
+        https://api.openpanel.com/license/index.php \
+        >/dev/null 2>&1
 }
 
 download_skeleton_directory_from_github() {
@@ -1245,7 +1233,7 @@ download_skeleton_directory_from_github() {
 
     echo "Downloading configuration files to ${ETC_DIR}..."
     timeout 300s git clone "$repo_url" "$ETC_DIR" >/dev/null 2>&1 || \
-        radovan 1 "Failed to clone OpenPanel Configuration from GitHub - retry with '--retry --debug'."
+        radovan 1 "Failed to clone OpenPanel Configuration from GitHub - retry with '--retry' flag."
 
     [ -f "$CONFIG_FILE" ] || radovan 1 "Main configuration file ${CONFIG_FILE} is missing."
     systemctl daemon-reload >/dev/null 2>&1
@@ -1371,8 +1359,8 @@ support_message() {
 panel_customize(){
     if [ "$SCREENSHOTS_API_URL" == "local" ]; then
         echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
-        debug_log playwright install
-        debug_log playwright install-deps
+        execute_cmd playwright install
+        execute_cmd playwright install-deps
         sed -i 's#screenshots=.*#screenshots=''#' "${CONFIG_FILE}" # must use '#' as delimiter
     else
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
@@ -1399,27 +1387,27 @@ install_python() {
     # Helper to install venv package for apt-based systems (when using distro python)
     install_venv_pkg() {
         if [ "$PACKAGE_MANAGER" = "apt-get" ]; then
-			debug_log apt install -y python3.12-venv || true
-            debug_log $PACKAGE_MANAGER install -y python3-venv || true
+			execute_cmd apt install -y python3.12-venv || true
+            execute_cmd $PACKAGE_MANAGER install -y python3-venv || true
         fi
     }
 
     if [ "$OS" = "debian" ] && [ "$CODENAME" = "trixie" ]; then
         # Debian 13 ships Python 3.13 (cgi removed). Build latest Python 3.12.x from source to keep compatibility.
         echo "Building latest Python 3.12.x from source for Debian 13 (trixie) … will take approximately 3-10 minutes."
-        debug_log $PACKAGE_MANAGER update -y
+        execute_cmd $PACKAGE_MANAGER update -y
         # Minimal deps (no tk/X11)
-        debug_log $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils \
+        execute_cmd $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils \
             libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev \
             libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
 
         # Ensure curl exists even on very minimal images
         if ! command -v curl >/dev/null 2>&1; then
-            debug_log $PACKAGE_MANAGER install -y curl ca-certificates
+            execute_cmd $PACKAGE_MANAGER install -y curl ca-certificates
         fi
 
         SRCDIR=/usr/local/src
-        debug_log mkdir -p "$SRCDIR"
+        execute_cmd mkdir -p "$SRCDIR"
 
         # Detect latest 3.12.x from python.org; fallback to 3.12.7 if detection fails
         LATEST_312="$(curl -fsSL https://www.python.org/ftp/python/ \
@@ -1434,7 +1422,7 @@ install_python() {
         TARBALL="Python-${LATEST_312}.tgz"
         URL="https://www.python.org/ftp/python/${LATEST_312}/${TARBALL}"
 
-        debug_log bash -lc "cd '$SRCDIR' && curl -fsSL -o '${TARBALL}' '${URL}' && \
+        execute_cmd bash -lc "cd '$SRCDIR' && curl -fsSL -o '${TARBALL}' '${URL}' && \
             rm -rf 'Python-${LATEST_312}' && \
             tar -xzf '${TARBALL}' && cd 'Python-${LATEST_312}' && \
             ./configure --prefix='${PREFIX}' --enable-optimizations --with-ensurepip=install && \
@@ -1454,13 +1442,13 @@ install_python() {
         else
             echo "Installing distro Python and venv tooling …"
             if [ "$PACKAGE_MANAGER" = "apt-get" ]; then
-                debug_log $PACKAGE_MANAGER install -y software-properties-common || true
+                execute_cmd $PACKAGE_MANAGER install -y software-properties-common || true
             fi
 
             if [ "$OS" = "ubuntu" ]; then
-                debug_log add-apt-repository -y ppa:deadsnakes/ppa
-                debug_log $PACKAGE_MANAGER update -y
-                debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                execute_cmd add-apt-repository -y ppa:deadsnakes/ppa
+                execute_cmd $PACKAGE_MANAGER update -y
+                execute_cmd $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
                 if command -v python3.12 &>/dev/null; then
                     chosen_py="python3.12"
                 else
@@ -1470,17 +1458,17 @@ install_python() {
 
             elif [ "$OS" = "debian" ]; then
                 # Older Debian – try backports for 3.12; fall back to system python3
-                debug_log install -d -m 0755 /etc/apt/keyrings
-                debug_log bash -lc 'curl -fsSL --ipv4 https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg >/dev/null' || true
-                debug_log bash -lc 'cat >> /etc/apt/sources.list.d/pascalroeleven.sources <<EOF
+                execute_cmd install -d -m 0755 /etc/apt/keyrings
+                execute_cmd bash -lc 'curl -fsSL --ipv4 https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg >/dev/null' || true
+                execute_cmd bash -lc 'cat >> /etc/apt/sources.list.d/pascalroeleven.sources <<EOF
 Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
 Suites: '"${CODENAME}"'-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
 EOF' || true
-                debug_log $PACKAGE_MANAGER update -y
-                debug_log $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                execute_cmd $PACKAGE_MANAGER update -y
+                execute_cmd $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
                 if command -v python3.12 &>/dev/null; then
                     chosen_py="python3.12"
                 else
@@ -1489,12 +1477,12 @@ EOF' || true
                 fi
 
             elif [ "$OS" = "almalinux" ] || [ "$OS" = "alma" ] || [ "$OS" = "rocky" ] || [ "$OS" = "centos" ]; then
-                debug_log $PACKAGE_MANAGER update -y
+                execute_cmd $PACKAGE_MANAGER update -y
                 if command -v dnf >/dev/null 2>&1; then
-                    debug_log dnf install -y epel-release || true
-                    debug_log dnf config-manager --set-enabled crb || debug_log dnf config-manager --set-enabled powertools || true
+                    execute_cmd dnf install -y epel-release || true
+                    execute_cmd dnf config-manager --set-enabled crb || execute_cmd dnf config-manager --set-enabled powertools || true
                 fi
-                debug_log $PACKAGE_MANAGER install -y python3.12 || true
+                execute_cmd $PACKAGE_MANAGER install -y python3.12 || true
                 if command -v python3.12 &>/dev/null; then
                     chosen_py="python3.12"
                 else
@@ -1551,13 +1539,13 @@ install_openadmin(){
     [ "$REPAIR" = true ] && rm -rf "$openadmin_dir"
 
     mkdir -p $openadmin_dir
-    debug_log echo "Downloading OpenAdmin files"
+    execute_cmd echo "Downloading OpenAdmin files"
 
     local branch="110"
     [ "$architecture" = "aarch64" ] && branch="armcpu"
 
     timeout 300s git clone -b "$branch" --single-branch https://github.com/stefanpejcic/openadmin "$openadmin_dir" || {
-        radovan 1 "Failed to clone OpenAdmin from Github - please retry install with '--retry --debug' flags."
+        radovan 1 "Failed to clone OpenAdmin from Github - please retry install with '--retry' flag."
     }
 
     cd "$openadmin_dir" || exit 1
