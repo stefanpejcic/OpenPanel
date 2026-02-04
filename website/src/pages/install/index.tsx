@@ -27,7 +27,7 @@ const defaultOptions: InstallOptions = {
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
-    debug: { value: false, description: "Display debug information during installation." },
+    selfsigned: { value: false, description: "Generate and configure a Self-signed certificate." },
     repair: { value: false, description: "Retry and overwrite everything." },
 };
 
