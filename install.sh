@@ -807,44 +807,8 @@ extra_step_on_hetzner() {
 
 
 set_logrotate(){
-
-	echo "Setting Logrotate for Caddy webserver.."
+	echo "Setting Logrotate for Syslog, OpenPanel and Caddy webserver.."
 	opencli server-logrotate
-	echo "Setting Logrotate for OpenPanel logs.."
-cat <<EOF > "/etc/logrotate.d/openpanel"
-/var/log/openpanel/**/*.log {
-    su root adm
-    size 50M
-    rotate 5
-    missingok
-    notifempty
-    compress
-    delaycompress
-    copytruncate
-    create 640 root adm
-    postrotate
-    endscript
-}
-EOF
-
-logrotate -f /etc/logrotate.d/openpanel
-echo "Setting Logrotate for Syslogs.."
-
-cat <<EOF > "/etc/logrotate.d/syslog"
-/var/log/syslog {
-    su root adm
-    weekly
-    rotate 4
-    missingok
-    notifempty
-    compress
-    delaycompress
-    postrotate
-        /usr/bin/systemctl reload rsyslog > /dev/null 2>&1 || true
-    endscript
-}
-EOF
-logrotate -f /etc/logrotate.d/syslog
 }
 
 
