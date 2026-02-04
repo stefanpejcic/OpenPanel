@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 02.02.2026
+# Last Modified: 03.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -130,7 +130,7 @@ delete_user_from_database() {
     sql+="DELETE FROM active_sessions WHERE user_id='$user_id'; "
 
     # 5. Delete the user
-    sql+="DELETE FROM users WHERE username='$openpanel_username';"
+	sql+="DELETE FROM users WHERE username='$openpanel_username' OR username LIKE 'SUSPENDED_%_$openpanel_username';"
 
     # 6. Execute all 5 in a single call
     if [ -n "$sql" ]; then

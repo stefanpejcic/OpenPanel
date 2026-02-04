@@ -1,2 +1,2 @@
 [mysqld]
-  
+skip-name-resolve
