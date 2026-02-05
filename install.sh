@@ -1001,7 +1001,7 @@ set_custom_hostname(){
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
-	[ "$REPAIR" = true ] && rm -rf /usr/local/opencli
+	[ "$REPAIR" = true ] && rm -rf /usr/local/opencli /usr/local/bin/opencli
     timeout 300s git clone https://github.com/stefanpejcic/opencli.git
 
 	if [ ! -d "/usr/local/opencli" ]; then
