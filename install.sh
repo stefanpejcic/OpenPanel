@@ -835,25 +835,120 @@ install_packages() {
             ;;
 
         yum)
-            dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
-            packages=("wget" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
-                      "quota" "quotatool" "uidmap" "docker-ce" "mysql" "pip" "jc" "sqlite" \
-                      "perl-Math-BigInt")
-            ;;
-
+                packages=("curl" "cron" "git" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
+                          "quota" "uidmap" "docker.io" "linux-generic" "default-mysql-client" \
+                          "jc" "jq" "sqlite3")
+						  
+				OSID=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+				OSVERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+				OSMAJOR_VERSION=${OSVERSION_ID%%.*}
+				
+				if [[ "$OSID" == "almalinux" && "$OSMAJOR_VERSION" -ge 10 ]]; then
+				    echo "WARNING: AlmaLinux 10 or newer detected, Docker doesn't work properly on latest kernel versions which was documented here:"
+				    echo "https://github.com/docker/for-linux/issues/1472"
+				    echo "https://github.com/stefanpejcic/OpenPanel/issues/745"
+				    echo "Please use a supported OS or downgrade kernel by running:"
+				    echo "sudo update-alternatives --set iptables /usr/sbin/iptables-legacy"
+				    echo "sudo dnf install -y kernel kernel-core kernel-modules"
+				    echo "sudo grubby --set-default /boot/vmlinuz-$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel | tail -1)"
+				    echo "sudo reboot"
+				    echo "And run this install script again."
+				
+				elif [[ "$OSID" == "rockylinux" && "$OSMAJOR_VERSION" -ge 10 ]]; then
+				    echo "WARNING: RockyLinux 10 or newer detected, Docker doesn't work properly on latest kernel versions which was documented here:"
+				    echo "https://github.com/docker/for-linux/issues/1472"
+				    echo "https://github.com/stefanpejcic/OpenPanel/issues/745"
+				    echo "Please use a supported OS or downgrade kernel by running:"
+				    echo "sudo update-alternatives --set iptables /usr/sbin/iptables-legacy"
+				    echo "sudo dnf install -y kernel kernel-core kernel-modules"
+				    echo "sudo grubby --set-default /boot/vmlinuz-$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel | tail -1)"
+				    echo "sudo reboot"
+				    echo "And run this install script again."
+				
+				else
+				    echo "Not RockyLinux 10+ or AlmaLinux 10+"
+				fi
+			
+			if ! quotatool -V >/dev/null 2>&1; then
+			    echo "quotatool is not installed. Installing..."
+			
+			    yum groupinstall "Development Tools" -y
+			    yum install -y git gcc make autoconf automake
+			    git clone https://github.com/ekenberg/quotatool.git
+			    cd quotatool
+			    ./configure
+			    make
+			    make install
+			    cd ..
+			    rm -rf quotatool
+			
+			else
+			    echo "quotatool is already installed."
+			fi
+			
+			;;
+			
         dnf)
             dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
 
             if [ -f /etc/fedora-release ]; then
                 packages=("git" "wget" "gnupg" "dbus-user-session" "systemd" "dbus" "systemd-container" \
-                          "quota" "quotatool" "uidmap" "docker" "docker-compose" "mysql" \
+                          "quota" "uidmap" "docker" "docker-compose" "mysql" \
                           "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             else
                 packages=("git" "ncurses" "wget" "gnupg" "systemd" "dbus" "systemd-container" \
-                          "quota" "quotatool" "shadow-utils" "docker-ce" "docker-ce-cli" "mariadb" \
+                          "quota" "shadow-utils" "docker-ce" "docker-ce-cli" "mariadb" \
                           "containerd.io" "docker-compose-plugin" "sqlite" "sqlite-devel" "perl-Math-BigInt")
             fi
 
+
+				OSID=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+				OSVERSION_ID=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
+				OSMAJOR_VERSION=${OSVERSION_ID%%.*}
+				
+				if [[ "$OSID" == "almalinux" && "$OSMAJOR_VERSION" -ge 10 ]]; then
+				    echo "WARNING: AlmaLinux 10 or newer detected, Docker doesn't work properly on latest kernel versions which was documented here:"
+				    echo "https://github.com/docker/for-linux/issues/1472"
+				    echo "https://github.com/stefanpejcic/OpenPanel/issues/745"
+				    echo "Please use a supported OS or downgrade kernel by running:"
+				    echo "sudo update-alternatives --set iptables /usr/sbin/iptables-legacy"
+				    echo "sudo dnf install -y kernel kernel-core kernel-modules"
+				    echo "sudo grubby --set-default /boot/vmlinuz-$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel | tail -1)"
+				    echo "sudo reboot"
+				    echo "And run this install script again."
+				
+				elif [[ "$OSID" == "rockylinux" && "$OSMAJOR_VERSION" -ge 10 ]]; then
+				    echo "WARNING: RockyLinux 10 or newer detected, Docker doesn't work properly on latest kernel versions which was documented here:"
+				    echo "https://github.com/docker/for-linux/issues/1472"
+				    echo "https://github.com/stefanpejcic/OpenPanel/issues/745"
+				    echo "Please use a supported OS or downgrade kernel by running:"
+				    echo "sudo update-alternatives --set iptables /usr/sbin/iptables-legacy"
+				    echo "sudo dnf install -y kernel kernel-core kernel-modules"
+				    echo "sudo grubby --set-default /boot/vmlinuz-$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel | tail -1)"
+				    echo "sudo reboot"
+				    echo "And run this install script again."
+				
+				else
+				    echo "Not RockyLinux 10+ or AlmaLinux 10+"
+				fi
+
+
+			if ! quotatool -V >/dev/null 2>&1; then
+			    echo "quotatool is not installed. Installing..."
+				
+				dnf groupinstall "Development Tools" -y
+				dnf install -y git gcc make autoconf automake
+				git clone https://github.com/ekenberg/quotatool.git
+				cd quotatool
+				./configure
+				make
+				make install
+			    cd ..
+			    rm -rf quotatool
+			else
+			    echo "quotatool is already installed."
+			fi
+			
             execute_cmd dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
             execute_cmd yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
             ;;
