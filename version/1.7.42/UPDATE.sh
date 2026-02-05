@@ -2,7 +2,7 @@
 
 CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
 
-cp -a "$CONFIG" /etc/openpanel/openpanel/conf/openpanel.config.bak
+cp -a "$CONFIG" /tmp/openpanel.config_1.7.42.bak
 
 if ! grep -q "^filemanager_buttons_style=" "$CONFIG"; then
   awk '
