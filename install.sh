@@ -502,6 +502,8 @@ setup_locales() {
 
 docker_compose_up(){
     echo "Setting docker-compose.."
+	local MYSQL_CNF
+	MYSQL_CNF="/etc/my.cnf"
     DOCKER_CONFIG=${DOCKER_CONFIG:-/root/.docker}
     mkdir -p $DOCKER_CONFIG/cli-plugins
 
@@ -555,7 +557,7 @@ docker_compose_up(){
 
     cd /root || radovan 1 "ERROR: Failed to change directory to /root. OpenPanel needs to be installed by the root user and have write access to the /root directory." # compose doesnt alllow /
 
-    rm -rf /etc/my.cnf .env > /dev/null 2>&1                            # on centos we get default my.cnf, and on repair we already have symlink and .env
+    rm -rf $MYSQL_CNF .env > /dev/null 2>&1                            # on centos we get default my.cnf, and on repair we already have symlink and .env
     cp ${ETC_DIR}docker/compose/docker-compose.yml /root/docker-compose.yml > /dev/null 2>&1
     cp ${ETC_DIR}docker/compose/.env /root/.env > /dev/null 2>&1
 
@@ -564,7 +566,7 @@ docker_compose_up(){
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)                  # generate random password for mysql
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
-    ln -s ${ETC_DIR}/mysql/host_my.cnf /etc/my.cnf  > /dev/null 2>&1 # save it to /etc/my.cnf
+    ln -s ${ETC_DIR}/mysql/host_my.cnf $MYSQL_CNF  > /dev/null 2>&1 # save it to /etc/my.cnf
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/host_my.cnf  > /dev/null 2>&1
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/container_my.cnf  > /dev/null 2>&1
     os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
@@ -574,17 +576,14 @@ docker_compose_up(){
     elif [ "$os_name" == "debian" ]; then
     	echo "Setting AppArmor profiles for Debian"
    		apt install apparmor apparmor-utils -y   > /dev/null 2>&1
-		# Error response from daemon: client version 1.41 is too old. Minimum supported API version is 1.44, please upgrade your client to a newer version
-		# workaround for https://community.openpanel.org/d/233-docker-compose-error-client-version-141-is-too-old-on-debian-12
-		# grep -qxF 'export DOCKER_API_VERSION=1.44' ~/.bashrc || echo 'export DOCKER_API_VERSION=1.44' >> ~/.bashrc
 
         # https://community.openpanel.org/d/236-openpanel-is-broken-on-debian-13-stay-on-debian-12/8
         if [ "$VERSION_ID" = "13" ]; then
-            if ! grep -q "^skip-ssl[[:space:]]*=[[:space:]]*true" "$MYCNF"; then
-                echo "skip-ssl = true" | tee -a "$MYCNF" > /dev/null
+            if ! grep -q "^skip-ssl[[:space:]]*=[[:space:]]*true" "$MYSQL_CNF"; then
+				echo "Adding workaround for Debian13: https://community.openpanel.org/d/236-openpanel-is-broken-on-debian-13-stay-on-debian-12/8"
+                echo "skip-ssl = true" | tee -a "$MYSQL_CNF" > /dev/null
             fi
         fi
-
     fi
 
 
