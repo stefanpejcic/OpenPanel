@@ -571,8 +571,8 @@ docker_compose_up(){
     sed -i 's/password = .*/password = '"${MYSQL_ROOT_PASSWORD}"'/g' ${ETC_DIR}mysql/container_my.cnf  > /dev/null 2>&1
     os_name=$(grep ^ID= /etc/os-release | cut -d'=' -f2 | tr -d '"')
     if [ "$os_name" == "almalinux" ]; then
+        echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"	
         sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml   # fix for bug with mysql-server image on Almalinux 9.2
-        echo "mysql/mysql-server docker image has known issues on AlmaLinux - editing docker compose to use the mysql:latest instead"
     elif [ "$os_name" == "debian" ]; then
     	echo "Setting AppArmor profiles for Debian"
    		apt install apparmor apparmor-utils -y   > /dev/null 2>&1
