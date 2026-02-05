@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 03.02.2026
+# Last Modified: 04.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -36,6 +36,7 @@ if [ "$#" -lt 2 ]; then
     exit 1
 fi
 
+
 # Parameters
 domain_name="$1"
 user="$2"
@@ -60,108 +61,221 @@ REMOTE_SERVER=""
 PANEL_CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
 USE_PARENT_DNS_ZONE=false
 
+# Loop through args
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        --debug)
-            debug_mode=true
-            shift
-            ;;
-        --skip_caddy)
-            SKIP_CADDY_CREATE=true
-            shift
-            ;;
-        --skip_vhost)
-            SKIP_VHOST_CREATE=true
-            shift
-            ;;
-        --skip_dns)
-            SKIP_DNS_ZONE=true
-            shift
-            ;;    
-        --skip_containers)
-            SKIP_STARTING_CONTAINERS=true
-            shift
-            ;;    
-        --docroot)
+        --debug) debug_mode=true ;;
+        --skip_caddy) SKIP_CADDY_CREATE=true ;;
+        --skip_vhost) SKIP_VHOST_CREATE=true ;;
+        --skip_dns) SKIP_DNS_ZONE=true ;;
+        --skip_containers) SKIP_STARTING_CONTAINERS=true ;;
+        --docroot|--php_version|--hs_ed25519_public_key|--hs_ed25519_secret_key)
             if [[ -n "$2" ]]; then
-                docroot="$2"
-                shift 2
+                declare "$1=${2}"
+                [[ "$1" == "--php_version" && ! "$2" =~ ^[0-9]+\.[0-9]+$ ]] && \
+                    { echo "FATAL ERROR: Invalid PHP version '$2'"; exit 1; }
+                shift7
             else
-                echo "FATAL ERROR: Missing value for --docroot"
-                exit 1
+                echo "FATAL ERROR: Missing value for $1"; exit 1
             fi
-            ;;
-        --php_version)
-            if [[ -n "$2" ]]; then
-                php_version="$2"
-	        if [[ ! "$php_version" =~ ^[0-9]+\.[0-9]+$ ]]; then
-	            echo "FATAL ERROR: Invalid PHP version format '$php_version'. Expected format: N.N (e.g., 8.2)"
-	            exit 1
-	        fi
-                shift 2
-            else
-                echo "FATAL ERROR: Missing value for --php_version"
-                exit 1
-            fi
-            ;;
-        --hs_ed25519_public_key)
-            if [[ -n "$2" ]]; then
-                hs_ed25519_public_key="$2"
-                shift 2
-            else
-                echo "FATAL ERROR: Missing value for --hs_ed25519_public_key"
-                exit 1
-            fi
-            ;;
-        --hs_ed25519_secret_key)
-            if [[ -n "$2" ]]; then
-                hs_ed25519_secret_key="$2"
-                shift 2
-            else
-                echo "FATAL ERROR: Missing value for --hs_ed25519_secret_key"
-                exit 1
-            fi
-            ;;
-        *)
-            shift
             ;;
     esac
+    shift
 done
 
-# helper
-get_config_value() {
-	local key="$1"
-	grep -E "^\s*${key}=" "$PANEL_CONFIG_FILE" | sed -E "s/^\s*${key}=//" | tr -d '[:space:]'
+# remove leading --
+docroot=${--docroot:-}
+php_version=${--php_version:-}
+hs_ed25519_public_key=${--hs_ed25519_public_key:-}
+hs_ed25519_secret_key=${--hs_ed25519_secret_key:-}
+
+
+
+# ======================================================================
+# Helpers
+
+log() {
+    [[ "$debug_mode" == true ]] && echo "$1"
 }
 
-verify_onion_files() {
-	if $onion_domain; then
-		# Validate that hs_ed25519_public_key and hs_ed25519_secret_key are set
-		if [[ -z "$hs_ed25519_public_key" || -z "$hs_ed25519_secret_key" ]]; then
-		    echo "FATAL ERROR: Both --hs_ed25519_public_key and --hs_ed25519_secret_key are required for .onion domains."
-		    exit 1
-		fi
+get_config_value() {
+	grep -E "^\s*${1}=" "$PANEL_CONFIG_FILE" | sed -E "s/^\s*${1}=//" | tr -d '[:space:]'
+}
+
+
+
+# ======================================================================
+# Validations
+
+verify_docroot() {
+	if [[ -n "$docroot" && ! "$docroot" =~ ^/var/www/html/ ]]; then
+	    echo "FATAL ERROR: Invalid docroot. It must start with /var/www/html/"
+	    exit 1
+	fi
 	
-		if [[ ! "$hs_ed25519_public_key" =~ ^/var/www/html/ ]]; then
-		    echo "FATAL ERROR: --hs_ed25519_public_key must be inside your /var/www/html/ directory."
+	if [[ -z "$docroot" ]]; then
+	    docroot="/var/www/html/$domain_name"
+	    log "No document root specified, using /var/www/html/$domain_name"
+	fi
+}
+
+compare_with_forbidden_domains_list() {
+    local CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/domain_restriction.txt'
+    local domain_name="$1"
+    local forbidden_domains=()
+
+    if [ -f "forbidden_domains.txt" ]; then
+        log "Checking domain against forbidden_domains list"
+        mapfile -t forbidden_domains < forbidden_domains.txt
+        if [[ " ${forbidden_domains[@]} " =~ " ${domain_name} " ]]; then
+            echo "ERROR: $domain_name is a forbidden domain."
+            exit 1
+        fi    
+    fi
+}
+
+compare_with_system_domains() {
+     local CADDYFILE='/etc/openpanel/caddy/Caddyfile'
+	 log "Checking domain against system domains list"
+	 if grep -q -E "^\s*$domain_name\s*\{" "$CADDYFILE" 2>/dev/null; then
+		 echo "ERROR: $domain_name is already configured."
+		 exit 1
+	 fi
+}
+
+check_domain_exists() {
+	log "Checking if domain already exists on the server"
+	if ! opencli domains-whoowns "$domain_name" | grep -q "not found in the database."; then
+	    echo "ERROR: Domain $domain_name already exists."
+	    exit 1
+	fi
+}
+
+get_docker_context(){
+	user="$1"
+	IFS=',' read -r user_id context <<< "$(mysql -se "SELECT CONCAT(id, ',', server) FROM users WHERE username='${user}';")"
+	
+	if [ -z "$user_id" ] || [ -z "$context" ]; then
+	    echo "FATAL ERROR: Missing user ID or context for user $user."
+	    exit 1
+	fi
+}
+
+detect_apex_or_onion() {
+	if [[ "$domain_name" =~ ^[a-zA-Z0-9]{16}\.onion$ ]]; then
+	    onion_domain=true
+	    log ".onion address - Tor will be configured.."
+	    verify_onion_files
+	else
+	    domain_lower=$(echo "$domain_name" | tr '[:upper:]' '[:lower:]')
+	
+	    tld_file="/etc/openpanel/openpanel/conf/public_suffix_list.dat"
+	    update_tlds=false
+	    if [[ ! -f "$tld_file" ]]; then
+	        log "TLD list not found, downloading from IANA..."
+	        update_tlds=true
+	    elif [[ $(find "$tld_file" -mtime +6 2>/dev/null) ]]; then
+	        #log "TLD list older than 7 days, refreshing from IANA..."
+	        update_tlds=true
+	    fi
+	
+	    if [[ "$update_tlds" == true ]]; then
+	        mkdir -p "$(dirname "$tld_file")"
+	        wget --timeout=5 --tries=3 -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
+	        if [[ $? -ne 0 ]]; then
+	            log "Failed to download TLD list from IANA"
+	        fi
+	    fi
+	
+		suffixes=$(grep -v '^//' "$tld_file" | grep -v '^$')
+		
+		matched_suffix=""
+		max_match_len=0
+		
+		# Loop through each suffix and find the longest match
+		while read -r suffix; do
+		    # Escape dots for pattern matching
+		    suffix_pattern=".$suffix"
+		    if [[ ".$domain_lower" == *"$suffix_pattern" ]]; then
+		        suffix_len=${#suffix}
+		        if (( suffix_len > max_match_len )); then
+		            matched_suffix="$suffix"
+		            max_match_len=$suffix_len
+		        fi
+		    fi
+		done <<< "$suffixes"
+	
+		if [[ "$domain_lower" == "$matched_suffix" ]]; then
+		    echo "ERROR: '$domain_lower' is a public suffix and cannot be used as a domain."
 		    exit 1
 		fi
 	 
-	 	if [[ ! "$hs_ed25519_secret_key" =~ ^/var/www/html/ ]]; then
-		    echo "FATAL ERROR: --hs_ed25519_secret_key must be inside your /var/www/html/ directory."
-		    exit 1
-		fi
-	
-	 	hs_public_key="/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_public_key#/var/www/html/}"
-	   	hs_secret_key="/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_secret_key#/var/www/html/}"
+		if [[ -n "$matched_suffix" ]]; then
+		    log "Detected public suffix (TLD): .$matched_suffix"
+		    # Extract the rest of the domain (the registrable part)
+		    apex_domain="${domain_lower%.$matched_suffix}"
+		    sld="${apex_domain##*.}"
+		    apex_domain="${sld}.${matched_suffix}"
 		
-		if [ ! -f "$hs_public_key" ] || [ ! -f "$hs_secret_key" ]; then
-		    echo "FATAL ERROR: hs_ed25519_public_key or hs_ed25519_secret_key do not exist!"
+		    # If anything remains, it's a subdomain
+		    if [[ "$domain_lower" != "$apex_domain" ]]; then
+		        is_subdomain=true
+		        log "Domain '$domain_lower' is a subdomain of '$apex_domain'."
+		    fi
+		else
+		    echo "ERROR: Invalid domain or unrecognized TLD for '$domain_name'"
 		    exit 1
 		fi
 	fi
 }
 
+check_if_apex_exists_in_server()
+	if [[ "$is_subdomain" == true ]]; then
+	  whoowns_output=$(opencli domains-whoowns "$apex_domain")
+	  existing_user=$(echo "$whoowns_output" | awk -F "Owner of '$apex_domain': " '{print $2}')
+	  if [ -n "$existing_user" ]; then
+		if [ "$existing_user" == "$user" ]; then
+			log "User $existing_user already owns the apex domain $apex_domain - adding subdomain.."
+			USE_PARENT_DNS_ZONE=true
+		else
+			allow_subdomain_sharing=$(get_config_value 'permit_subdomain_sharing')
+			if [ "$allow_subdomain_sharing" = "yes" ]; then
+				log "WARNING: Another user owns the apex domain: $apex_domain - adding subdomain as a separate addon on this account."
+			else
+				echo "Another user owns the domain: $apex_domain - can't add subdomain: $domain_name"
+				exit 1
+			fi
+		fi
+	  else
+		  echo "Apex domain: $apex_domain does not exist on this server. "
+	  fi
+	fi
+}
+
+
+
+
+
+# ======================================================================
+# TOR
+verify_onion_files() {
+	$onion_domain || return
+
+	if [[ -z "$hs_ed25519_public_key" || -z "$hs_ed25519_secret_key" ]]; then
+		echo "FATAL ERROR: Both --hs_ed25519_public_key and --hs_ed25519_secret_key are required for .onion domains."
+		exit 1
+	fi
+
+	for key in hs_ed25519_public_key hs_ed25519_secret_key; do
+		[[ ! "${!key}" =~ ^/var/www/html/ ]] && \
+			{ echo "FATAL ERROR: --$key must be inside your /var/www/html/ directory."; exit 1; }
+	done
+
+	hs_public_key="/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_public_key#/var/www/html/}"
+	hs_secret_key="/home/$context/docker-data/volumes/${context}_html_data/_data/${hs_ed25519_secret_key#/var/www/html/}"
+
+	[[ ! -f "$hs_public_key" || ! -f "$hs_secret_key" ]] && { echo "FATAL ERROR: hs_ed25519_public_key or hs_ed25519_secret_key do not exist!"; exit 1; }
+}
 
 start_tor_for_user() {
 	if [ $(docker --context $context ps -q -f name=tor) ]; then
@@ -170,9 +284,8 @@ start_tor_for_user() {
 	else
 	    log "Starting Tor service.."
 	    nohup sh -c "cd /home/$context/ && docker --context $context  compose up -d tor" </dev/null >nohup.out 2>nohup.err &
-     	fi
+    fi
 }
-
 
 setup_tor_for_user() {
 	local tor_dir="/home/$context/tor"
@@ -189,14 +302,14 @@ setup_tor_for_user() {
 		  fi
 		done
 	  	next_folder=$((highest_folder + 1))
-    		folder_name="hidden_service/$next_folder"
-      	fi
-       
-    	mkdir -p "$tor_dir/$folder_name/authorized_clients"
+    	folder_name="hidden_service/$next_folder"
+    fi
+
+	mkdir -p "$tor_dir/$folder_name/authorized_clients"
 	cp $hs_public_key $tor_dir/$folder_name/hs_ed25519_public_key
 	cp $hs_secret_key $tor_dir/$folder_name/hs_ed25519_secret_key
 
- 	chown $context_uid:$context_uid "/home/$context/tor"
+	chown $context_uid:$context_uid "/home/$context/tor"
 	chmod 0600 "/home/$context/tor/torrc"
 
 	if [ "$VARNISH" = true ]; then
@@ -210,190 +323,17 @@ HiddenServicePort 80 $proxy_ws:80
 " >> $tor_dir/torrc
 
   	log ".onion files are saved in $folder_name directory."
-	
 }
 
 
 
-log() {
-    if $debug_mode; then
-        echo "$1"
-    fi
-}
 
 
 
-verify_docroot() {
-	if [[ -n "$docroot" && ! "$docroot" =~ ^/var/www/html/ ]]; then
-	    echo "FATAL ERROR: Invalid docroot. It must start with /var/www/html/"
-	    exit 1
-	fi
-	
-	if [[ -n "$docroot" ]]; then
-	    #log "Using document root: $docroot"
-	    :
-	else
-	    docroot="/var/www/html/$domain_name"
-	    log "No document root specified, using /var/www/html/$domain_name"
-	fi
-}
-
-# added in 0.3.8 so admin can disable some domains!
-compare_with_forbidden_domains_list() {
-    local CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/domain_restriction.txt'
-    local domain_name="$1"
-    local forbidden_domains=()
-
-    # Check forbidden domains list
-    if [ -f "forbidden_domains.txt" ]; then
-        log "Checking domain against forbidden_domains list"
-        mapfile -t forbidden_domains < forbidden_domains.txt
-        if [[ " ${forbidden_domains[@]} " =~ " ${domain_name} " ]]; then
-            echo "ERROR: $domain_name is a forbidden domain."
-            exit 1
-        fi    
-    fi
-}
-
-# added in 1.1.7 to not allow histname, webmail or ns takeover
-compare_with_system_domains() {
-     local CONFIG_FILE='/etc/openpanel/openpanel/conf/openpanel.config'
-     local CADDYFILE='/etc/openpanel/caddy/Caddyfile'
-     if [ -f "$CADDYFILE" ] || [ -f "$CONFIG_FILE" ]; then
-         log "Checking domain against system domains list"
-         if grep -q -E "^\s*$domain_name\s*\{" "$CADDYFILE" 2>/dev/null || grep -q "^$domain_name" "$CONFIG_FILE" 2>/dev/null; then
-             echo "ERROR: $domain_name is already configured."
-             exit 1
-         fi
-     fi
-}
+# ======================================================================
+# Functions
 
 
-
-# Check if domain already exists
-check_subdomain_existing_onion() {
-if [[ "$domain_name" =~ ^[a-zA-Z0-9]{16}\.onion$ ]]; then
-    onion_domain=true
-    log ".onion address - Tor will be configured.."
-    verify_onion_files
-else
-    domain_lower=$(echo "$domain_name" | tr '[:upper:]' '[:lower:]')
-
-    tld_file="/etc/openpanel/openpanel/conf/public_suffix_list.dat"
-    update_tlds=false
-    if [[ ! -f "$tld_file" ]]; then
-        log "TLD list not found, downloading from IANA..."
-        update_tlds=true
-    elif [[ $(find "$tld_file" -mtime +6 2>/dev/null) ]]; then
-        #log "TLD list older than 7 days, refreshing from IANA..."
-        update_tlds=true
-    fi
-
-    if [[ "$update_tlds" == true ]]; then
-        mkdir -p "$(dirname "$tld_file")"
-        wget --timeout=5 --tries=3 -q --inet4-only -O "$tld_file" "https://publicsuffix.org/list/public_suffix_list.dat"
-        if [[ $? -ne 0 ]]; then
-            log "Failed to download TLD list from IANA"
-        fi
-    fi
-
-	suffixes=$(grep -v '^//' "$tld_file" | grep -v '^$')
-	
-	matched_suffix=""
-	max_match_len=0
-	
-	# Loop through each suffix and find the longest match
-	while read -r suffix; do
-	    # Escape dots for pattern matching
-	    suffix_pattern=".$suffix"
-	    if [[ ".$domain_lower" == *"$suffix_pattern" ]]; then
-	        suffix_len=${#suffix}
-	        if (( suffix_len > max_match_len )); then
-	            matched_suffix="$suffix"
-	            max_match_len=$suffix_len
-	        fi
-	    fi
-	done <<< "$suffixes"
-
-	if [[ "$domain_lower" == "$matched_suffix" ]]; then
-	    echo "ERROR: '$domain_lower' is a public suffix and cannot be used as a domain."
-	    exit 1
-	fi
- 
-	if [[ -n "$matched_suffix" ]]; then
-	    log "Detected public suffix (TLD): .$matched_suffix"
-	    # Extract the rest of the domain (the registrable part)
-	    apex_domain="${domain_lower%.$matched_suffix}"
-	    sld="${apex_domain##*.}"
-	    apex_domain="${sld}.${matched_suffix}"
-	
-	    # If anything remains, it's a subdomain
-	    if [[ "$domain_lower" != "$apex_domain" ]]; then
-	        is_subdomain=true
-	        log "Domain '$domain_lower' is a subdomain of '$apex_domain'."
-	    fi
-	else
-	    echo "ERROR: Invalid domain or unrecognized TLD for '$domain_name'"
-	    exit 1
-	fi
-
-fi
-
-log "Checking if domain already exists on the server"
-
-if opencli domains-whoowns "$domain_name" | grep -q "not found in the database."; then
-    compare_with_forbidden_domains_list            # dont allow admin-defined domains
-    compare_with_system_domains                    # hostname, ns or webmail takeover
-    if [[ "$is_subdomain" == true ]]; then
-	  whoowns_output=$(opencli domains-whoowns "$apex_domain")
-	  existing_user=$(echo "$whoowns_output" | awk -F "Owner of '$apex_domain': " '{print $2}')
-	  if [ -n "$existing_user" ]; then
-	    if [ "$existing_user" == "$user" ]; then
-	        log "User $existing_user already owns the apex domain $apex_domain - adding subdomain.."
-	 		USE_PARENT_DNS_ZONE=true
-	    else
-		 	allow_subdomain_sharing=$(get_config_value 'permit_subdomain_sharing')
-			if [ "$allow_subdomain_sharing" = "yes" ]; then
-				log "WARNING: Another user owns the apex domain: $apex_domain - adding subdomain as a separate addon on this account."
-			else
-				echo "Another user owns the domain: $apex_domain - can't add subdomain: $domain_name"
-				exit 1
-			fi
-		fi
-	  else
-	      echo "Apex domain: $apex_domain does not exist on this server. "
-	  fi
-    fi
-else
-    echo "ERROR: Domain $domain_name already exists."
-    exit 1
-fi
-}
-
-# get user ID from the database
-get_user_info() {
-    local user="$1"
-    local query="SELECT id, server FROM users WHERE username = '${user}';"
-    
-    # Retrieve both id and context
-    user_info=$(mysql -se "$query")
-    
-    # Extract user_id and context from the result
-    user_id=$(echo "$user_info" | awk '{print $1}')
-    context=$(echo "$user_info" | awk '{print $2}')
-    
-    echo "$user_id,$context"
-}
-
-
-result=$(get_user_info "$user")
-user_id=$(echo "$result" | cut -d',' -f1)
-context=$(echo "$result" | cut -d',' -f2)
-
-if [ -z "$user_id" ] || [ -z "$context" ]; then
-    echo "FATAL ERROR: Missing user ID or context for user $user."
-    exit 1
-fi
 
 
 
@@ -415,16 +355,11 @@ get_server_ipv4_or_ipv6() {
 	    local server3=$4
 	
 	    if [ "$ip_version" == "-4" ]; then
-		    curl --silent --max-time 2 $ip_version $server1 || \
-		    wget --timeout=2 --tries=1 -qO- $server2 || \
-		    curl --silent --max-time 2 $ip_version $server3
+		    curl --silent --max-time 2 $ip_version $server1 || wget --timeout=2 --tries=1 -qO- $server2 || curl --silent --max-time 2 $ip_version $server3
 	    else
-		    curl --silent --max-time 2 $ip_version $server1 || \
-		    curl --silent --max-time 2 $ip_version $server3
+		    curl --silent --max-time 2 $ip_version $server1 || curl --silent --max-time 2 $ip_version $server3
 	    fi
-
 	}
-
 
 	# use public IPv4
 	current_ip=$(get_ip "-4" "$IP_SERVER_1" "$IP_SERVER_2" "$IP_SERVER_3")
@@ -442,20 +377,17 @@ get_server_ipv4_or_ipv6() {
  	    IPV4="no"
 	    log "No IPv4 found. Checking IPv6 address..."
 	    current_ip=$(get_ip "-6" "$IP_SERVER_1" "$IP_SERVER_2" "$IP_SERVER_3")
-	    # Fallback to hostname IPv6 if no IPv6 from servers
 	    if [ -z "$current_ip" ]; then
 	        log "Fetching IPv6 from local hostname..."
 	        current_ip=$(ip addr | grep 'inet6 ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
 	    fi
 	fi
-	
+
 	# no :(
 	if [ -z "$current_ip" ]; then
 	    echo "Error: Unable to determine IP address (IPv4 or IPv6)."
 	    exit 1
 	fi
-
-
 
 	json_file="/etc/openpanel/openpanel/core/users/$user/ip.json"
 	
@@ -463,20 +395,16 @@ get_server_ipv4_or_ipv6() {
 	    dedicated_ip=$(jq -r '.ip' "$json_file")
 	    log "User has reserved IP: $dedicated_ip."
 	
-	    # Check if dedicated_ip is present in the output of `hostname -I`
 	    if hostname -I | grep -q "$dedicated_ip"; then
 	        REMOTE_SERVER="no"
-	 	current_ip=$dedicated_ip
+	 		current_ip=$dedicated_ip
 	        log "User has a dedicated IP address $dedicated_ip"
 	    else
 	        REMOTE_SERVER="yes"
 	        log "IP address is asigned to node server."
 	    fi
 	fi
-
-
 }
-
 
 
 make_folder() {
@@ -484,41 +412,34 @@ make_folder() {
  	local stripped_docroot="${docroot#/var/www/html/}"
  	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
 
-
 	if [ -z "$context_uid" ]; then
 		log "Warning: failed detecting user id, permissions issue!"
-
-	else
-		local full_path="/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
-		mkdir -p "$full_path" && chown $context_uid:$context_uid "$full_path" && chmod -R g+w "$full_path"
-	
-		local ws_files="/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
-		mkdir -p "$ws_files" && chown $context_uid:$context_uid "$ws_files" && chmod -R g+w "$ws_files"
-	  
-	  	# when it is first domain!
-	  	# https://github.com/stefanpejcic/OpenPanel/issues/472
-		chown $context_uid:$context_uid /home/$context/docker-data/volumes/${context}_html_data/
-		chown $context_uid:$context_uid /home/$context/docker-data/volumes/${context}_html_data/_data/
+		return
 	fi
+
+	# https://github.com/stefanpejcic/OpenPanel/issues/472
+    local dirs=(
+        "/home/$context/docker-data/volumes/${context}_html_data/_data/$stripped_docroot"
+        "/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
+        "/home/$context/docker-data/volumes/${context}_html_data"
+        "/home/$context/docker-data/volumes/${context}_html_data/_data"
+    )
+
+	mkdir -p "${dirs[@]}"
+	chown -R "$context_uid:$context_uid" "${dirs[@]}"
+	chmod -R g+w "${dirs[@]}"
 }
 
 
 
-
-
-
 check_and_create_default_file() {
-    # extra step needed for nginx
     log "Checking if default configuration file exists for Nginx"
     
-    # Check if the file exists
     if [ ! -e "/home/$context/nginx.conf" ]; then
         log "Creating default vhost file for Nginx: /etc/nginx/nginx.conf"
 
-        # Create the Nginx configuration file
         echo "user  nginx;
 worker_processes  auto;
-
 pid        /var/run/nginx.pid;
 
 events {
@@ -528,20 +449,14 @@ events {
 http {
     include       /etc/nginx/mime.types;
     default_type  application/octet-stream;
-
     sendfile        on;
     #tcp_nopush     on;
-
     keepalive_timeout  65;
-
     #gzip  on;
-
     include /etc/nginx/conf.d/*.conf;
 }" > "/home/$context/nginx.conf"
     fi
 }
-
-
 
 get_webserver_for_user(){
 	    log "Checking webserver configuration"
@@ -550,17 +465,12 @@ get_webserver_for_user(){
 		[[ $ws == "nginx" ]] && check_and_create_default_file
 }
 
-
-
 get_varnish_for_user(){
 	VARNISH=false
  	if grep -qE "^PROXY_HTTP_PORT=" "/home/$context/.env"; then
 	  VARNISH=true
 	fi
-
 }
-
-
 
 add_domain_to_clamav_list(){	
 	local domains_list="/etc/openpanel/clamav/domains.list"
@@ -568,31 +478,20 @@ add_domain_to_clamav_list(){
  	if [ -f $domains_list ]; then
       		log "ClamAV Upload Scanner is enabled - Adding $docroot for monitoring"
 		echo "$docroot" >> "$domains_list"
-		# not needed since we also watch the domains list file for changes! 
-  		#service clamav_monitor restart > /dev/null 2>&1
  	fi
 }
 
-
-
 start_default_php_fpm_service() {
-
     enabled_modules_line=$(grep '^enabled_modules=' "$PANEL_CONFIG_FILE")
     if [[ $enabled_modules_line == *"php"* ]]; then  
         log "Starting container for the PHP version ${php_version}"
- 	nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d php-fpm-${php_version}" </dev/null >nohup.out 2>nohup.err &
+ 		nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d php-fpm-${php_version}" </dev/null >nohup.out 2>nohup.err &
     else
         log "'php' module is disabled, skip starting container for the PHP version ${php_version}"
     fi
-
- 
 }
 
-
-
-
 vhost_files_create() {
-	
 	vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
  	vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_${ws}_domain.conf" # todo litespeed file!
  	get_varnish_for_user
@@ -604,20 +503,15 @@ vhost_files_create() {
 	    nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d $services" </dev/null >nohup.out 2>nohup.err &
 	}
 
-	log "Creating ${domain_name}.conf" #$vhost_in_docker_file
+	log "Creating ${domain_name}.conf"
 	cp $vhost_docker_template $vhost_in_docker_file > /dev/null 2>&1
+
 	# https://github.com/stefanpejcic/OpenPanel/issues/567
 	chown $context_uid:$context_uid "/home/$context/docker-data/volumes/${context}_webserver_data/"
 	chown $context_uid:$context_uid -R "/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
 
-	sed -i \
-	  -e "s|<DOMAIN_NAME>|$domain_name|g" \
-	  -e "s|<USER>|$user|g" \
-	  -e "s|<PHP>|$php_version|g" \
-	  -e "s|<DOCUMENT_ROOT>|$docroot|g" \
-	  $vhost_in_docker_file
-       
-     ! $SKIP_STARTING_CONTAINERS && nohup sh -c "cd /home/$context/ && docker --context $context restart $ws" </dev/null >nohup.out 2>nohup.err &
+	sed -i -e "s|<DOMAIN_NAME>|$domain_name|g" -e "s|<USER>|$user|g" -e "s|<PHP>|$php_version|g" -e "s|<DOCUMENT_ROOT>|$docroot|g" $vhost_in_docker_file
+    ! $SKIP_STARTING_CONTAINERS && nohup sh -c "cd /home/$context/ && docker --context $context restart $ws" </dev/null >nohup.out 2>nohup.err &
 }
 
 create_domain_file() {
@@ -627,92 +521,49 @@ create_domain_file() {
 	mkdir -p $waf_dir && touch $waf_dir/${domain_name}.log
  
 	local env_file="/home/${context}/.env"
- 	source $env_file
+	[[ ! -f "$env_file" ]] && { echo "Warning: .env file not found!"; return 1; }
+	source $env_file
 
-	# Check if the file exists
-	if [[ ! -f "$env_file" ]]; then
-		echo "Warning: .env file not found!"
-		return 1
-	fi
-	
 	non_ssl_port=$(echo "$HTTP_PORT" | cut -d':' -f2)
 	ssl_port=$(echo "$HTTPS_PORT" | cut -d':' -f2)
+	ip_format_for_nginx=$([[ "$IPV4" == "yes" ]] && echo "$current_ip" || echo "[$current_ip]")
 
-	if [ "$IPV4" == "yes" ]; then
- 		ip_format_for_nginx="$current_ip"
-   	else
-		ip_format_for_nginx="[$current_ip]"
-    fi
-
-     # todo: include only if dedi ip in caddy file!
 	mkdir -p /etc/openpanel/caddy/domains/
 	domains_file="/etc/openpanel/caddy/domains/$domain_name.conf"
 	touch $domains_file
 
+	
+	sed_values_in_domain_conf() {
+		if [ "$REMOTE_SERVER" == "yes" ]; then
+			domain_conf=$(cat "$conf_template" | sed -e "s|<DOMAIN_NAME>|$domain_name|g" -e "s|127.0.0.1:<SSL_PORT>|$current_ip:$ssl_port|g" -e "s|127.0.0.1:<NON_SSL_PORT>|$current_ip:$non_ssl_port|g")
+		else
+			domain_conf=$(cat "$conf_template" | sed -e "s|<DOMAIN_NAME>|$domain_name|g" -e "s|<SSL_PORT>|$ssl_port|g" -e "s|<NON_SSL_PORT>|$non_ssl_port|g")
+		fi
+	
+	    echo "$domain_conf" > "$domains_file"
+	
+	   	if [ "$VARNISH" = true ]; then
+	    	log "Enabling Varnish cache for the domain.."
+		    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^/#/' "$domains_file"
+		    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$domains_file"
+	    fi
+	}
 
-sed_values_in_domain_conf() {
 
-	if [ "$REMOTE_SERVER" == "yes" ]; then
-		domain_conf=$(cat "$conf_template" | sed -e "s|<DOMAIN_NAME>|$domain_name|g" \
-	                                           -e "s|127.0.0.1:<SSL_PORT>|$current_ip:$ssl_port|g" \
-	                                           -e "s|127.0.0.1:<NON_SSL_PORT>|$current_ip:$non_ssl_port|g")
-	 
+	if grep -qi "waf" "$openpanel_config" 2>/dev/null; then
+		conf_template="/etc/openpanel/caddy/templates/domain.conf_with_modsec"
+		log "Creating vhosts proxy file for Caddy with ModSecurity OWASP Coreruleset"
 	else
-		domain_conf=$(cat "$conf_template" | sed -e "s|<DOMAIN_NAME>|$domain_name|g" \
-	                                           -e "s|<SSL_PORT>|$ssl_port|g" \
-	                                           -e "s|<NON_SSL_PORT>|$non_ssl_port|g")
+		conf_template="/etc/openpanel/caddy/templates/domain.conf"
+		log "Creating Caddy configuration for the domain, without ModSecurity"
 	fi
-    echo "$domain_conf" > "$domains_file"
+	
+	sed_values_in_domain_conf
 
-   	if [ "$VARNISH" = true ]; then
-    	log "Enabling Varnish cache for the domain.."
-	    #opencli domains-varnish $domain_name on #> /dev/null 2>&1
-	    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^/#/' "$domains_file"
-	    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$domains_file"
-       fi
-}
-
-
-
-ENV_FILE="/root/.env"
-if [ -f "$ENV_FILE" ]; then
-    # Extract the value of CADDY_IMAGE from the .env file
-    CADDY_IMAGE=$(grep -oP '^CADDY_IMAGE=\K.*' "$ENV_FILE" | sed 's/^"\(.*\)"$/\1/')
-    if [[ "$CADDY_IMAGE" == "openpanel/caddy-coraza" ]]; then
-        conf_template="/etc/openpanel/caddy/templates/domain.conf_with_modsec"
-        log "Creating vhosts proxy file for Caddy with ModSecurity OWASP Coreruleset"
-        sed_values_in_domain_conf
-    elif [[ "$CADDY_IMAGE" == "caddy:latest" || "$CADDY_IMAGE" == "caddy" ]]; then
-        conf_template="/etc/openpanel/caddy/templates/domain.conf"
-        log "Creating Caddy configuration for the domain, without ModSecurity"
-        sed_values_in_domain_conf
-    else
-        echo "ERROR: unable to detect any services. Contact support."
-        exit 1
-    fi
-else
-    echo "ERROR: unable to detect .env file. Contact support."
-    exit 1
-fi
-
-
-
-check_and_add_to_enabled() {
-    # Validate the Caddyfile
-    if docker exec caddy caddy validate --config /etc/caddy/Caddyfile 2>&1 | grep -q "Valid configuration"; then
-        # Wait
-        docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1
-        return 0
-    else
-        return 1
-    fi
-}
 
 	# Check if the 'caddy' container is running
 	if [ $(docker --context default ps -q -f name=caddy) ]; then
 		log "Caddy is running, validating new domain configuration"
-	
-				########check_and_add_to_enabled
 		docker --context default restart caddy >/dev/null 2>&1
 		if [ $? -eq 0 ]; then
 			log "Domain successfully added and Caddy reloaded."
@@ -806,61 +657,49 @@ create_zone_file() {
 	  		ZONE_TEMPLATE_PATH='/etc/openpanel/bind9/zone_template_ipv6.txt'
 	        	log "Creating DNS zone file with AAAA records: $ZONE_FILE_DIR$domain_name.zone"
 		fi
-
-
-   zone_template=$(<"$ZONE_TEMPLATE_PATH")
-   
-   # get nameservers
-    ns1=$(get_config_value 'ns1')
-    ns2=$(get_config_value 'ns2')
-    ns3=$(get_config_value 'ns3')
-	rpemail=$(get_config_value 'email')
-
-    if [ -z "$ns1" ]; then
-        ns1='ns1.openpanel.org'
-    fi
-
-    if [ -z "$ns2" ]; then
-        ns2='ns2.openpanel.org'
-    fi
-
- 	if [ -z "$rpemail" ]; then
-	    rpemail="root.${domain_name}"
-	fi
-
-    rpemail="${rpemail//@/.}"
-
-    # Create zone content
-    timestamp=$(date +"%Y%m%d")
-    
-    # Replace placeholders in the template
-    if [ -z "$ns3" ]; then
-	zone_content=$(echo "$zone_template" | sed -e "s|{domain}|$domain_name|g" \
-                                           -e "s|{ns1}|$ns1|g" \
-                                           -e "s|{ns2}|$ns2|g" \
-										   -e "s|{rpemail}|$rpemail|g" \
-                                           -e "s|{server_ip}|$current_ip|g" \
-                                           -e "s|YYYYMMDD|$timestamp|g")
-    else
-	ns4=$(get_config_value 'ns4')
-	zone_content=$(echo "$zone_template" | sed -e "s|{domain}|$domain_name|g" \
-                                           -e "s|{ns1}|$ns1|g" \
-                                           -e "s|{ns2}|$ns2|g" \
-                                           -e "s|{ns3}|$ns3|g" \
-                                           -e "s|{ns4}|$ns4|g" \
-										   -e "s|{rpemail}|$rpemail|g" \
-                                           -e "s|{server_ip}|$current_ip|g" \
-                                           -e "s|YYYYMMDD|$timestamp|g")
-    fi
-
-    echo "$zone_content" > "$ZONE_FILE_DIR$domain_name.zone"
+	
+	
+	   zone_template=$(<"$ZONE_TEMPLATE_PATH")
+	   
+	   # get nameservers
+	    ns1=$(get_config_value 'ns1')
+	    ns2=$(get_config_value 'ns2')
+	    ns3=$(get_config_value 'ns3')
+		rpemail=$(get_config_value 'email')
+	
+		ns1=${ns1:-ns1.openpanel.org}
+		ns2=${ns2:-ns2.openpanel.org}
+		rpemail=${rpemail:-root.${domain_name}}
+    	rpemail="${rpemail//@/.}"
+	
+	    # Create zone content
+	    timestamp=$(date +"%Y%m%d")
+	    
+	    # Replace placeholders in the template
+	    if [ -z "$ns3" ]; then
+			zone_content=$(echo "$zone_template" | sed -e "s|{domain}|$domain_name|g" \
+		                                           -e "s|{ns1}|$ns1|g" \
+		                                           -e "s|{ns2}|$ns2|g" \
+												   -e "s|{rpemail}|$rpemail|g" \
+		                                           -e "s|{server_ip}|$current_ip|g" \
+		                                           -e "s|YYYYMMDD|$timestamp|g")
+	    else
+			ns4=$(get_config_value 'ns4')
+			zone_content=$(echo "$zone_template" | sed -e "s|{domain}|$domain_name|g" \
+		                                           -e "s|{ns1}|$ns1|g" \
+		                                           -e "s|{ns2}|$ns2|g" \
+		                                           -e "s|{ns3}|$ns3|g" \
+		                                           -e "s|{ns4}|$ns4|g" \
+												   -e "s|{rpemail}|$rpemail|g" \
+		                                           -e "s|{server_ip}|$current_ip|g" \
+		                                           -e "s|YYYYMMDD|$timestamp|g")
+	    fi
+    	echo "$zone_content" > "$ZONE_FILE_DIR$domain_name.zone"
   fi
-
 }
 
 
 reload_bind_after_slaves(){
-    # Reload BIND service
     if [ $(docker --context default ps -q -f name=openpanel_dns) ]; then
         log "DNS service is running, adding the zone"
 		docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
@@ -873,9 +712,7 @@ reload_bind_after_slaves(){
 
 notify_slave(){
 
-if $USE_PARENT_DNS_ZONE; then
-:
-else
+if ! $USE_PARENT_DNS_ZONE; then
     echo "Notifying Slave DNS server ($SLAVE_IP) to create a new zone for domain $domain_name"
 	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
     if ! grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
@@ -945,7 +782,6 @@ $volume_to_add
 
 # Function to create a zone file
 dns_stuff() {
-
     enabled_modules_line=$(grep '^enabled_modules=' "$PANEL_CONFIG_FILE")
     if [[ $enabled_modules_line == *"dns"* ]]; then  
 	    create_zone_file                             # create zone
@@ -956,7 +792,6 @@ dns_stuff() {
         log "DNS module is disabled - skipping creating DNS records"
     fi
 }
-
 
 get_php_version() {
        if [[ -z "$php_version" ]]; then
@@ -977,56 +812,32 @@ add_domain() {
     local result=$(mysql -N -e "$verify_query")
 
     if [ "$result" -eq 1 ]; then
-    
+
     	make_folder                                  # create dirs on host server
      	if $SKIP_VHOST_CREATE; then 
       		log "Skipping VirtualHost file creation due to '--skip_dns' flag."
       	else
            	get_webserver_for_user                       # detect
         fi
-     
+
     	get_server_ipv4_or_ipv6                      # get outgoing ip     
 
-     	if $SKIP_VHOST_CREATE; then 
-      		log "Skipping VirtualHost file creation due to '--skip_dns' flag."
-      	else
-           	vhost_files_create                       # create file in container
-        fi
+		$SKIP_VHOST_CREATE && log "Skipping VirtualHost file creation due to '--skip_dns' flag." || vhost_files_create
 
- 	if $onion_domain; then
-		setup_tor_for_user		     # create conf files
-		start_tor_for_user		     # actually run service
-    else
-		
-		if $SKIP_CADDY_CREATE; then 
-			log "Skipping Reverse Proxy file creation due to '--skip_caddy' flag."
-		else
-			create_domain_file                   # create file on host
-		fi
+	 	if $onion_domain; then
+			setup_tor_for_user		     # create conf files
+			start_tor_for_user		     # actually run service
+	    else
+			$SKIP_CADDY_CREATE && log "Skipping Reverse Proxy file creation due to '--skip_caddy' flag." || create_domain_file
+			$SKIP_DNS_ZONE && log "Skipping DNS zone file creation due to '--skip_dns' flag." || dns_stuff
+ 		fi
 
-		if $SKIP_DNS_ZONE; then 
-			log "Skipping DNS zone file creation due to '--skip_dns' flag."
-		else
-			dns_stuff
-		fi
-  	
- 	fi
-  
-	if $SKIP_STARTING_CONTAINERS; then 
-		log "Skipping starting PHP service."
-	else
-		if [[ $ws != *litespeed* ]]; then
-		    start_default_php_fpm_service    # skip for litespeed!
-		fi
-	fi
-	
- 
-	if $onion_domain; then
- 		:
-   	else
- 		create_mail_mountpoint                       # add mountpoint to mailserver
-    	fi
- 	######add_domain_to_clamav_list                    # added in 0.3.4    
+		$SKIP_STARTING_CONTAINERS && log "Skipping starting PHP service." || [[ $ws != *litespeed* ]] && start_default_php_fpm_service
+
+		! $onion_domain && create_mail_mountpoint
+
+ 		######add_domain_to_clamav_list                    # added in 0.3.4    
+
         echo "Domain $domain_name added successfully"
     else
         log "Adding domain $domain_name failed! Contact administrator to check if the mysql database is running."
@@ -1035,31 +846,34 @@ add_domain() {
 }
 
 check_and_fix_FTP_permissions() {
-
-    # Get only the FTP list rows (skip the header)
     real_path="/home/${user}/docker-data/volumes/${user}_html_data/_data/"
     relative_path="${directory##/var/www/html/}"
     new_directory="${real_path}${relative_path}"
-    # Check if docroot exists in the list
-	if opencli ftp-list "$user" \
-	    | tail -n +2 \
-	    | cut -d'|' -f2 \
-	    | sed 's/^ *//;s/ *$//' \
-	    | grep -Fxq "$docroot"; then
 
+    # Check if docroot exists in the FTP list (skip header)
+    if opencli ftp-list "$user" | tail -n +2 | cut -d'|' -f2 | sed 's/^ *//;s/ *$//' | grep -Fxq "$docroot"; then
         chown -R "$user:$user" "$new_directory"
-
-        chmod +rx "/home/$user"
-        chmod +rx "/home/$user/docker-data"
-        chmod +rx "/home/$user/docker-data/volumes"
-        chmod +rx "/home/$user/docker-data/volumes/${user}_html_data"
-        chmod +rx "/home/$user/docker-data/volumes/${user}_html_data/_data"
+        for dir in \
+            "/home/$user" \
+            "/home/$user/docker-data" \
+            "/home/$user/docker-data/volumes" \
+            "/home/$user/docker-data/volumes/${user}_html_data" \
+            "/home/$user/docker-data/volumes/${user}_html_data/_data"; do
+            chmod +rx "$dir"
+        done
     fi
 }
 
 
-check_subdomain_existing_onion
-get_php_version
-verify_docroot
-add_domain "$user_id" "$domain_name"
-check_and_fix_FTP_permissions
+# ======================================================================
+# Main
+detect_apex_or_onion                           # TLD, subdomains OR apex 
+check_domain_exists                            # opencli domains-whoowns
+compare_with_forbidden_domains_list            # dont permit admin-defined domains
+compare_with_system_domains                    # prevent hostname, ns or webmail takeover
+check_if_apex_exists_in_server                 # TODO: this doubles whoowns!
+get_docker_context                             # check user exists and get /home path
+get_php_version                                # get php version to set
+verify_docroot                                 # verify user provided docroot
+add_domain "$user_id" "$domain_name"           # finally add the domain and create files
+check_and_fix_FTP_permissions                  # extra step: fixes perms issues for ftp sub-users

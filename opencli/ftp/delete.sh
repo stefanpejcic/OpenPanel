@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 03.02.2026
+# Last Modified: 04.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -51,7 +51,7 @@ touch /etc/openpanel/ftp/users/${openpanel_username}/users.list
 
 # ======================================================================
 # Main
-docker --context=default exec openadmin_ftp sh -c "deluser $username && rm -rf /home/$openpanel_username/$username"
+docker --context=default exec openadmin_ftp sh -c "deluser $username"
 if [ $? -eq 0 ]; then
     sed -i "/^$username|/d" /etc/openpanel/ftp/users/${openpanel_username}/users.list
     echo "Success: FTP user '$username' deleted successfully."

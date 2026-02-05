@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 03.02.2026
+# Last Modified: 04.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -165,7 +165,8 @@ is_unread_message_present() {
 write_notification() {
     local title="$1"
     local message="$2"
-    local current_message="$(date '+%Y-%m-%d %H:%M:%S') UNREAD $title MESSAGE: $message"
+    local current_message
+    current_message="$(date '+%Y-%m-%d %H:%M:%S') UNREAD $title MESSAGE: $message"
     mkdir -p "$(dirname "$LOG_FILE")"
     echo "$current_message" >> "$LOG_FILE"
 }
@@ -365,7 +366,7 @@ update_system_packages() {
             $pkg_mgr clean all >> "$log_file" 2>&1
             
             if command_exists package-cleanup; then
-                package-cleanup --leaves --all --quiet | xargs -r $pkg_mgr remove -y >> "$log_file" 2>&1
+                package-cleanup --leaves --all --quiet | xargs -r "$pkg_mgr" remove -y >> "$log_file" 2>&1
             fi
             ;;
     esac
@@ -607,19 +608,19 @@ run_update_immediately() {
     log "Update completed successfully!"
 
     # ---------------------- 10. RESTART ADMIN PANEL
-    restart_admin
+    restart_admin "$1"
 }
 
 
 update_openpanel() {
-    cd /root
+    cd /root || return
     docker --context=default compose up -d openpanel --force-recreate --pull always
 }
 
 update_openadmin() {
     [[ "$1" == "--no-log" ]] && echo "Updating OpenAdmin" || log "Updating OpenAdmin"
     if [[ -d /usr/local/admin ]]; then
-        cd /usr/local/admin
+        cd /usr/local/admin || return 
         current_branch=$(git rev-parse --abbrev-ref HEAD)
         [[ "$1" == "--no-log" ]] && git fetch origin 2>&1 || git fetch origin 2>&1 | tee -a "$log_file"
         [[ "$1" == "--no-log" ]] && git reset --hard origin/"$current_branch" 2>&1  || git reset --hard origin/"$current_branch" 2>&1 | tee -a "$log_file"
@@ -652,7 +653,7 @@ update_opencli() {
     [[ "$1" == "--no-log" ]] && echo $message || log $message
     if [[ -d /usr/local/opencli ]]; then
         rm -f /usr/local/opencli/aliases.txt
-        cd /usr/local/opencli
+        cd /usr/local/opencli || return 
         git reset --hard origin/main
         [[ "$1" == "--no-log" ]] && git reset --hard origin/main 2>&1 || git reset --hard origin/main 2>&1 | tee -a "$log_file"
         [[ "$1" == "--no-log" ]] && git pull 2>&1 || git pull 2>&1 | tee -a "$log_file"
