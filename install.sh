@@ -580,7 +580,7 @@ docker_compose_up(){
 
         # https://community.openpanel.org/d/236-openpanel-is-broken-on-debian-13-stay-on-debian-12/8
         if [ "$VERSION_ID" = "13" ]; then
-            if ! grep -q "^skip-ssl\s*=\s*true" "$MYCNF"; then
+            if ! grep -q "^skip-ssl[[:space:]]*=[[:space:]]*true" "$MYCNF"; then
                 echo "skip-ssl = true" | tee -a "$MYCNF" > /dev/null
             fi
         fi
