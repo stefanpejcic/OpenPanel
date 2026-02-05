@@ -1,5 +1,17 @@
 #!/bin/bash
 
+
+
+file="/etc/openpanel/openpanel/service/pagespeed.api"
+key="AIzaSyDow0GLE7N5gcZXa72tpqIvIaJtn1bDtsk"
+
+touch "$file"
+if ! grep -Fxq "$key" "$file"; then
+    echo "$key" >> "$file"
+fi
+
+
+
 CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
 
 cp -a "$CONFIG" /tmp/openpanel.config_1.7.42.bak
