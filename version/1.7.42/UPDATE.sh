@@ -92,6 +92,32 @@ else
   echo "filemanager_buttons_style=classic already exists — skipping"
 fi
 
+
+if ! grep -q "^dir=" "$CONFIG"; then
+  awk '
+  BEGIN{added=0}
+  /^\[DEFAULT\]/ {print; in_files=1; next}
+  in_files && /^\[/ {
+    if (!added) {
+      print "dir=ltr"
+      added=1
+    }
+    in_files=0
+  }
+  {print}
+  END{
+    if (in_files && !added) {
+      print "dir=ltr"
+    }
+  }
+  ' "$CONFIG" > /tmp/openpanel.config.new
+
+  mv /tmp/openpanel.config.new "$CONFIG"
+  echo "Added dir=ltr to [DEFAULT]"
+else
+  echo "dir=ltr already exists — skipping"
+fi
+
 echo
 echo "Updating openpanel.config file to add 'mysql_startup_time' 'mysql_import_max_size_gb' 'mysql_restricted_usernames' 'mysql_restricted_databases' settings.."
 if ! grep -q "^\[DATABASES\]" "$CONFIG"; then
