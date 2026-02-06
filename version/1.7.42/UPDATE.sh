@@ -1,31 +1,25 @@
 #!/bin/bash
 
-: '
+(
+  find /home -maxdepth 2 -type f -name ".env" -path "/home/*/.env"
+  echo "/etc/openpanel/docker/compose/1.0/.env"
+) | sort -u | while read -r file; do
+  [ -f "$file" ] || continue
 
-example file:
-# PHP 8.4
-PHP_FPM_8_4_RAM="0.25G"
-PHP_FPM_8_4_CPU="0.125"
-PHP_FPM_8_4_ENABLE_OPCACHE=true
-PHP_FPM_8_4_PHP_MAX_EXECUTION_TIME="600
+  perl -i_1.7.42.bak -pe '
+    next if /^\s*#/;
+    next if /^\s*TOTAL_RAM\s*=/;
 
+    if (/^(\s*)([A-Z0-9_]+_RAM)\s*=\s*"?([0-9]+(?:\.[0-9]+)?)"?\s*$/) {
+      my ($indent,$key,$val) = ($1,$2,$3);
 
-for file in /home/*/.env
-    for key with _RAM= if value != 0 and has not g or G then add it
+      next if $val =~ /^0(?:\.0+)?$/;
 
-same for /etc/openpanel/docker/compose/1.0/.env
+      $_ = sprintf("%s%s=\"%sG\"\n", $indent, $key, $val);
+    }
+  ' "$file"
 
-
-BUT EXCLUDE IN FILE< this key:
-TOTAL_RAM=""
-
-
-'
-
-
-
-
-
+done
 
 
 
@@ -86,3 +80,5 @@ EOF
 else
   echo "[DATABASES] section already exists — skipping"
 fi
+
+
