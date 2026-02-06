@@ -2,6 +2,14 @@
 
 : '
 
+example file:
+# PHP 8.4
+PHP_FPM_8_4_RAM="0.25G"
+PHP_FPM_8_4_CPU="0.125"
+PHP_FPM_8_4_ENABLE_OPCACHE=true
+PHP_FPM_8_4_PHP_MAX_EXECUTION_TIME="600
+
+
 for file in /home/*/.env
     for key with _RAM= if value != 0 and has not g or G then add it
 
