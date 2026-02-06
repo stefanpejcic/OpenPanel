@@ -1,5 +1,23 @@
 #!/bin/bash
 
+: '
+
+for file in /home/*/.env
+    for key with _RAM= if value != 0 and has not g or G then add it
+
+same for /etc/openpanel/docker/compose/1.0/.env
+
+'
+
+
+
+
+
+
+
+
+
+
 
 
 file="/etc/openpanel/openpanel/service/pagespeed.api"
