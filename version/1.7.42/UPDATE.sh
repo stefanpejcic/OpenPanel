@@ -15,6 +15,11 @@ for file in /home/*/.env
 
 same for /etc/openpanel/docker/compose/1.0/.env
 
+
+BUT EXCLUDE IN FILE< this key:
+TOTAL_RAM=""
+
+
 '
 
 
