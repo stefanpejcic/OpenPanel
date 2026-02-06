@@ -5,7 +5,7 @@
 # Usage: opencli websites-pagespeed <DOMAIN> [-all]
 # Author: Stefan Pejcic
 # Created: 27.06.2024
-# Last Modified: 04.02.2026
+# Last Modified: 05.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -75,7 +75,6 @@ get_page_speed() {
   local website_url=$1
   local strategy=$2
   local encoded_domain=$(printf '%s' "$website_url" | jq -s -R -r @uri)
-  
 
   local api_url="https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=http://$encoded_domain&strategy=$strategy"
 
@@ -91,11 +90,11 @@ get_page_speed() {
     echo "API Error: $error_message"
     return 0  # Return 0 so `$(...)` doesn't break; use output to detect error
   fi
-
-  local performance_score=$(echo "$api_response" | jq '.lighthouseResult.categories.performance.score')
-  local first_contentful_paint=$(echo "$api_response" | jq -r '.lighthouseResult.audits."first-contentful-paint".displayValue')
-  local speed_index=$(echo "$api_response" | jq -r '.lighthouseResult.audits."speed-index".displayValue')
-  local interactive=$(echo "$api_response" | jq -r '.lighthouseResult.audits.interactive.displayValue')
+  
+  local performance_score=$(echo "$api_response" | jq '.lighthouseResult.categories.performance.score // null')
+  local first_contentful_paint=$(echo "$api_response" | jq -r '.lighthouseResult.audits."first-contentful-paint".displayValue // ""')
+  local speed_index=$(echo "$api_response" | jq -r '.lighthouseResult.audits."speed-index".displayValue // ""')
+  local interactive=$(echo "$api_response" | jq -r '.lighthouseResult.audits.interactive.displayValue // ""')
   
   echo "{\"performance_score\": $performance_score, \"first_contentful_paint\": \"$first_contentful_paint\", \"speed_index\": \"$speed_index\", \"interactive\": \"$interactive\"}"
 }

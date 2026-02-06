@@ -6,7 +6,7 @@
 #        opencli server-ips <USERNAME>
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 04.02.2026
+# Last Modified: 05.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -39,10 +39,8 @@ fi
 
 
 if [ -z "$1" ]; then
-    # If no username provided, get all active users
     usernames=$(opencli user-list --json | grep -v 'SUSPENDED' | awk -F'"' '/username/ {print $4}')
 else
-    # If username provided, process only for that user!
     usernames=("$1")
 fi
 
@@ -75,6 +73,10 @@ get_webserver_for_user(){
 
 
 for username in $usernames; do
+    JSON_FILE="/etc/openpanel/openpanel/core/users/$username/ip.json"
+    if [[ -f "$JSON_FILE" ]] && grep -q '"ip"' "$JSON_FILE"; then
+        continue
+    fi
     get_context_for_user "$username"
     get_webserver_for_user "$username"
     user_ip=$(docker --context=$context exec "$ws" bash -c "curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3")

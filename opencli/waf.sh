@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 04.02.2026
+# Last Modified: 05.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -226,7 +226,7 @@ enable_coraza_waf() {
     sed -i 's|^CADDY_IMAGE=".*"|CADDY_IMAGE="openpanel/caddy-coraza"|' /root/.env
 
     # 4. enable WAF for ALL user domains
-    sed -i 's/SecRuleEngine Off/SecRuleEngine On/g' /etc/openpanel/caddy/domains/*.conf
+    sed -i 's/SecRuleEngine Off/SecRuleEngine On/g' /etc/openpanel/caddy/domains/*.conf >/dev/null 2>&1
 
     # 5. restart caddy
     echo "Restarting Web Server to use the new image with CorazaWAF.."

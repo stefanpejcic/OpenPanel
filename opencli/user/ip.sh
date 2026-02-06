@@ -5,7 +5,7 @@
 # Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 04.02.2026
+# Last Modified: 05.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -131,12 +131,9 @@ update_bind_in_block() {
   local esc_block_header
   esc_block_header=$(escape_sed_regex "$block_header")
 
-  # Check if bind exists immediately after block_header
   if sed -n "/^$esc_block_header/{n;/^[[:space:]]*bind /p}" "$conf" | grep -q "bind "; then
-    # Replace bind line
     sed -i "/^$esc_block_header/{n;s/^[[:space:]]*bind .*/    bind $ip/}" "$conf"
   else
-    # Insert bind line after block_header
     sed -i "/^$esc_block_header/a\    bind $ip" "$conf"
   fi
 }
@@ -183,7 +180,6 @@ edit_domain_files() {
 
 drop_redis_cache() {
     docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
-    #docker --context=default exec openpanel_redis redis-cli FLUSHALL
 }
 
 create_ip_file() {
@@ -192,15 +188,6 @@ create_ip_file() {
     echo "{ \"ip\": \"$ip\" }" > "$json_file"
     [ "$DEBUG" = true ] && echo "Created IP file $json_file with IP $ip"
     return 0
-}
-
-update_firewall_rules() {
-    if command -v csf &> /dev/null; then
-        :
-        # TODO: implement firewall updates for dedicated IP
-    else
-        echo "Warning: CSF is not installed; user ports may be exposed without protection."
-    fi
 }
 
 ensure_jq_installed
@@ -222,7 +209,6 @@ else
 fi
 
 edit_domain_files "$ip_to_use"
-update_firewall_rules
 
 if [ "$ACTION" == "delete" ]; then
     json_file="$JSON_FILE_BASE/$USERNAME/ip.json"
