@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 30.11.2023
-# Last Modified: 05.02.2026
+# Last Modified: 06.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -88,7 +88,7 @@ fetch_plans_json() {
             id: .[0], name: .[1], description: .[2], email_limit: .[3], ftp_limit: .[4],
             domains_limit: .[5], websites_limit: .[6], disk_limit: .[7],
             inodes_limit: .[8], db_limit: .[9], cpu: .[10], ram: .[11],
-            bandwidth: .[12], feature_set: .[13]
+            bandwidth: .[12], feature_set: .[13], max_email_quota: .[14]
         })'
     )
     echo "$json"

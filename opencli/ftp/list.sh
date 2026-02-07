@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 05.02.2026
+# Last Modified: 06.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -39,7 +39,6 @@ if [ -z "$1" ]; then
             user_dir_name=$(basename "$openpanel_username")
             users_file="${openpanel_username}/users.list"
             if [ ! -f "$users_file" ]; then
-                echo "ERROR: Users list file does not exist for '$user_dir_name'."
                 continue
             fi
             echo "FTP sub-users for '$user_dir_name':"
@@ -54,7 +53,7 @@ else
     openpanel_username="$1"
     users_file="/etc/openpanel/ftp/users/${openpanel_username}/users.list"
     if [ ! -f "$users_file" ]; then
-        echo "ERROR: Users list file does not exist for '$openpanel_username'."
+        echo "No FTP sub-users for OpenPanel user: '$user_dir_name'."
         exit 1
     fi
     echo "FTP sub-users for '$openpanel_username':"

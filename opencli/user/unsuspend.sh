@@ -5,7 +5,7 @@
 # Usage: opencli user-unsuspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 05.02.2026
+# Last Modified: 06.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

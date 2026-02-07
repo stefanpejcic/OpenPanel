@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: plan/create.sh
 # Description: Create a new hosting plan (Package) and set its limits.
-# Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME>
-# Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default
+# Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>
+# Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G
 # Author: Radovan Jecmenica
 # Created: 06.11.2023
-# Last Modified: 05.02.2026
+# Last Modified: 06.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,41 +29,133 @@
 # THE SOFTWARE.
 ################################################################################
 
-
-flags=()
-
-DEBUG=false
-
-# Function to display script usage
-usage() {
-    echo "Usage: opencli plan-create 'name' 'description' email_limit ftp_limit domains_limit websites_limit disk_limit inodes_limit db_limit cpu ram bandwidth feature_set"
+# ======================================================================
+# Usage
+help() {
+    echo "Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>"
     echo
     echo "Arguments:"
-    echo "  name          - Name of the plan (string, no spaces)."
-    echo "  description   - Plan description (string, use quotes for multiple words)."
-    echo "  feature_set   - Name of the feature set used for users on this plan"
-    echo "  email_limit   - Max number of email accounts (integer, 0 for unlimited)."
-    echo "  ftp_limit     - Max number of FTP accounts (integer, 0 for unlimited)."
-    echo "  domains_limit - Max number of domains (integer, 0 for unlimited)."
-    echo "  websites_limit- Max number of websites (integer, 0 for unlimited)."
-    echo "  disk_limit    - Disk space limit in GB (integer)."
-    echo "  inodes_limit  - Max number of inodes (integer, 0 = unlimited)."
-    echo "  db_limit      - Max number of databases (integer, 0 for unlimited)."
-    echo "  cpu           - CPU core limit (integer)."
-    echo "  ram           - RAM limit in GB (integer)."
-    echo "  bandwidth     - Port speed in Mbit/s (integer)."
+    echo "  name            - Name of the plan (string, no spaces)."
+    echo "  description     - Plan description (string, use quotes for multiple words)."
+    echo "  feature_set     - Name of the feature set used for users on this plan"
+    echo "  email_limit     - Max number of email accounts (integer, 0 for unlimited)."
+    echo "  max_email_quota - Max size per email account (intiger followed by B|k|M|G|T, 0 for unlimited)"    
+    echo "  ftp_limit       - Max number of FTP accounts (integer, 0 for unlimited)."
+    echo "  domains_limit   - Max number of domains (integer, 0 for unlimited)."
+    echo "  websites_limit  - Max number of websites (integer, 0 for unlimited)."
+    echo "  disk_limit      - Disk space limit in GB (integer)."
+    echo "  inodes_limit    - Max number of inodes (integer, 0 = unlimited)."
+    echo "  db_limit        - Max number of databases (integer, 0 for unlimited)."
+    echo "  cpu             - CPU core limit (integer)."
+    echo "  ram             - RAM limit in GB (integer)."
+    echo "  bandwidth       - Port speed in Mbit/s (integer)."
     echo
     echo "Example:"
-    echo "  opencli plan-create 'basic' 'Basic Hosting Plan' 10 5 10 5 50 500000 10 2 4 1000"
+    echo "  opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G"
     echo
     exit 1
 }
 
 
-# DB
+# ======================================================================
+# Validations
+
+# TODO: update to 13 after 1.8.X
+if [ "$#" -lt 12 ]; then
+    help
+fi
+
+check_cpu_cores() {
+  local available_cores=$(nproc) 
+  #TODO: for slave servers, remove the limit
+  if [ "$cpu" -gt "$available_cores" ]; then
+    echo "Error: Insufficient CPU cores. Required: ${cpu}, Available: ${available_cores}"
+    exit 1
+  fi
+}
+
+check_available_ram() {
+  #TODO: for slave servers, remove the limit
+  local available_ram=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
+
+  if [ "$ram" -gt "$available_ram" ]; then
+    echo "Error: Insufficient RAM. Required: ${ram}GB, Available: ${available_ram}GB"
+    exit 1
+  fi
+}
+
+check_plan_exists() {
+    local name="$1"
+    local sql="SELECT id FROM plans WHERE name='${name}';"
+    local existing_plan=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -N -B -e "$sql")
+    if [ -n "$existing_plan" ]; then
+      echo "Plan name '${name}' already exists. Please choose another name."
+      exit 1
+    fi
+}
+
+validate_fields_first() {
+    local ftp_limit="$1"
+    local emails_limit="$2"
+    local domains_limit="$3"
+    local websites_limit="$4"
+    local disk_limit="$5"
+    local inodes_limit="$6"
+    local db_limit="${7}"
+    local cpu="$8"
+    local ram="$9"
+    local bandwidth="${10}"
+    max_email_quota="${11}"
+
+    is_integer() {
+        [[ "$1" =~ ^-?[0-9]+$ ]]
+    }
+
+    is_number() {
+        [[ "$1" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]
+    }
+    
+    for var_name in ftp_limit emails_limit domains_limit websites_limit disk_limit inodes_limit db_limit bandwidth; do
+        value="${!var_name}"
+        if ! is_integer "$value"; then
+            echo "Error: $var_name must be a number (integer only)"
+            exit 1
+        fi
+    done
+
+    for var_name in max_email_quota; do
+        value="${!var_name}"
+
+        if [[ "$value" =~ ^([0-9]+([.][0-9]+)?)([BkMGT]?)$ ]]; then
+            number="${BASH_REMATCH[1]}"
+            unit="${BASH_REMATCH[3]}"
+    
+            if [[ -z "$unit" && "$number" != "0" ]]; then
+                value="${number}G"
+            fi
+    
+            max_email_quota="$value"
+        else
+            echo "Error: $max_email_quota must be a number with optional unit (B|k|M|G|T)"
+            exit 1
+        fi
+    done
+
+    for var_name in cpu ram; do
+        value="${!var_name}"
+        if ! is_number "$value"; then
+            echo "Error: $var_name must be a number (integer or float)"
+            exit 1
+        fi
+    done
+}
+
+
+# ======================================================================
+# Functions
+
 source /usr/local/opencli/db.sh
 
-# Function to insert values into the database
 insert_plan() {
   local name="$1"
   local description="$2"
@@ -78,23 +170,22 @@ insert_plan() {
   local ram="${11}"
   local bandwidth="${12}"
   local feature_set="${13}"
-  
-  # Format disk_limit with 'GB' 
+  local max_email_quota="${14}"
+
   disk_limit="${disk_limit} GB"
 
   if [ "$inodes_limit" -lt 0 ]; then
     inodes_limit=0
   fi
 
-  # Format ram with 'g' at the end
   ram="${ram}g"
 
   # Insert the plan into the 'plans' table
-  local sql="INSERT INTO plans (name, description, email_limit, ftp_limit, domains_limit, websites_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set) VALUES ('$name', '$description', $email_limit, $ftp_limit, $domains_limit, $websites_limit, '$disk_limit', $inodes_limit, $db_limit, $cpu, '$ram', $bandwidth, '$feature_set');"
+  local sql="INSERT INTO plans (name, description, email_limit, ftp_limit, domains_limit, websites_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set, max_email_quota) VALUES ('$name', '$description', $email_limit, $ftp_limit, $domains_limit, $websites_limit, '$disk_limit', $inodes_limit, $db_limit, $cpu, '$ram', $bandwidth, '$feature_set', '$max_email_quota');"
 
   mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
-        # if reseller, allow them the new plan id
+        # if reseller, grant them access to the new plan id
         if [[ "$CHECK_PLAN_ID" == true ]]; then
             plan_id=$(check_plan_exists "$name")
             if [ -n "$plan_id" ]; then
@@ -113,103 +204,6 @@ insert_plan() {
     echo "Failed to create plan: ${name}"
   fi
 }
-
-
-
-     ensure_tc_is_installed(){
-            # Check if tc is installed
-            if ! command -v tc &> /dev/null; then
-                # Detect the package manager and install tc
-                if command -v apt-get &> /dev/null; then
-                    sudo apt-get update > /dev/null 2>&1
-                    sudo apt-get install -y -qq iproute2 > /dev/null 2>&1
-                elif command -v yum &> /dev/null; then
-                    sudo yum install -y -q iproute2 > /dev/null 2>&1
-                elif command -v dnf &> /dev/null; then
-                    sudo dnf install -y -q iproute2 > /dev/null 2>&1
-                else
-                    echo "Error: No compatible package manager found. Please install tc command (iproute2 package) manually and try again."
-                    exit 1
-                fi
-        
-                # Check if installation was successful
-                if ! command -v tc &> /dev/null; then
-                    echo "Error: jq installation failed. Please install jq manually and try again."
-                    exit 1
-                fi
-            fi
-   }
-
-
-# Function to check available CPU cores
-check_cpu_cores() {
-  local available_cores=$(nproc)
-  
-  if [ "$cpu" -gt "$available_cores" ]; then
-    echo "Error: Insufficient CPU cores. Required: ${cpu}, Available: ${available_cores}"
-    exit 1
-  fi
-}
-
-# Function to check available RAM
-check_available_ram() {
-  local available_ram=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
-
-  if [ "$ram" -gt "$available_ram" ]; then
-    echo "Error: Insufficient RAM. Required: ${ram}GB, Available: ${available_ram}GB"
-    exit 1
-  fi
-}
-
-
-
-
-
-# Check for command-line arguments
-if [ "$#" -lt 12 ]; then
-    usage
-fi
-
-
-validate_fields_first() {
-    local ftp_limit="$1"
-    local emails_limit="$2"
-    local domains_limit="$3"
-    local websites_limit="$4"
-    local disk_limit="$5"
-    local inodes_limit="$6"
-    local db_limit="${7}"
-    local cpu="$8"
-    local ram="$9"
-    local bandwidth="${10}"
-
-    is_integer() {
-        [[ "$1" =~ ^-?[0-9]+$ ]]
-    }
-
-    # Check if value is a valid float or integer
-    is_number() {
-        [[ "$1" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]
-    }
-    
-    # Validate all numeric inputs
-    for var_name in ftp_limit emails_limit domains_limit websites_limit disk_limit inodes_limit db_limit bandwidth; do
-        value="${!var_name}"
-        if ! is_integer "$value"; then
-            echo "Error: $var_name must be a number (integer only)"
-            exit 1
-        fi
-    done
-
-    for var_name in cpu ram; do
-        value="${!var_name}"
-        if ! is_number "$value"; then
-            echo "Error: $var_name must be a number (integer or float)"
-            exit 1
-        fi
-    done
-}
-
 
 check_reseller_user() {
     reseller_file="/etc/openpanel/openadmin/resellers/${reseller_user}.json"
@@ -232,7 +226,10 @@ check_reseller_user() {
 }
 
 
-# Capture command-line arguments
+
+
+# ======================================================================
+# Parse flags
 name=""
 description=""
 email_limit=""
@@ -246,13 +243,10 @@ cpu=""
 ram=""
 bandwidth=""
 feature_set="default"
+max_email_quota="0" # TODO: temporary, for 1.7.42 before making it mandatory in 1.8.X
 
-# opencli plan-edit --debug id=1 name="Pro Plan" description="A professional plan" emails=500 ftp=100 domains=10 websites=5 disk=50 inodes=1000000 databases=20 cpu=4 ram=1 bandwidth=100 feature_set=default
 for arg in "$@"; do
   case $arg in
-    --debug)
-        DEBUG=true
-      ;;
     reseller=*)
       reseller_user="${arg#*=}"
       ;;      
@@ -295,9 +289,12 @@ for arg in "$@"; do
     feature_set=*)
       feature_set="${arg#*=}"
       ;;
+    max_email_quota=*)
+      max_email_quota="${arg#*=}"
+      ;;      
     *)
       echo "Unknown argument: $arg"
-      usage
+      help
       ;;
   esac
 done
@@ -305,29 +302,11 @@ done
 
 
 
-
-
-# Check available CPU cores before creating the plan
+# ======================================================================
+# Main
 check_cpu_cores "$cpu"
-
-# Check available RAM before creating the plan
 check_available_ram "$ram"
-
-# Function to check if the plan name already exists in the database
-check_plan_exists() {
-  local name="$1"
-  local sql="SELECT id FROM plans WHERE name='${name}';"
-  local result=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -N -B -e "$sql")
-  echo "$result"
-}
-
-# Check if the plan name already exists in the database
-existing_plan=$(check_plan_exists "${name}")
-if [ -n "$existing_plan" ]; then
-  echo "Plan name '${name}' already exists. Please choose another name."
-  exit 1
-fi
-
-validate_fields_first "$ftp_limit" "$email_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth"
+check_plan_exists "${name}"
+validate_fields_first "$ftp_limit" "$email_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota"
 check_reseller_user # if no file or invalid json, abort
-insert_plan "$name" "$description" "$email_limit" "$ftp_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set"
+insert_plan "$name" "$description" "$email_limit" "$ftp_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota"

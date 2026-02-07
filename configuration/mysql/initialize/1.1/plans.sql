@@ -51,7 +51,8 @@ CREATE TABLE `plans` (
   `cpu` varchar(50) DEFAULT NULL,
   `ram` varchar(50) DEFAULT NULL,
   `bandwidth` int DEFAULT NULL,
-  `feature_set` varchar(255) DEFAULT 'default'
+  `feature_set` varchar(255) DEFAULT 'default',
+  `max_email_quota` text NOT NULL,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
@@ -61,10 +62,10 @@ CREATE TABLE `plans` (
 
 LOCK TABLES `plans` WRITE;
 /*!40000 ALTER TABLE `plans` DISABLE KEYS */;
-INSERT INTO `plans` (id, name, description, domains_limit, websites_limit, email_limit, ftp_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set) 
+INSERT INTO `plans` (id, name, description, domains_limit, websites_limit, email_limit, ftp_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set, max_email_quota)
 VALUES
-(1, 'Standard plan', 'Small plan for testing', 0, 10, 0, 0, '5 GB', 1000000, 0, '2', '2g', 10, 'basic'),
-(2, 'Developer Plus', '4 cores, 6G ram', 0, 10, 0, 0, '10 GB', 1000000, 0, '4', '6g', 100, 'default');
+(1, 'Standard plan', 'Small plan for testing', 0, 10, 0, 0, '5 GB', 1000000, 0, '2', '2g', 10, 'basic', '10G'),
+(2, 'Developer Plus', '4 cores, 6G ram', 0, 10, 0, 0, '10 GB', 1000000, 0, '4', '6g', 100, 'default', '0');
 /*!40000 ALTER TABLE `plans` ENABLE KEYS */;
 UNLOCK TABLES;
 

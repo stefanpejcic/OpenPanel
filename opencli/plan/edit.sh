@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: plan/edit.sh
 # Description: Edit an existing hosting plan (Package) and modify its parameters.
-# Usage: opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT>
-# Example: opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default"
+# Usage: opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT> max_email_quota=<COUNT>
+# Example: opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G"
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 05.02.2026
+# Last Modified: 06.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -37,29 +37,29 @@ flags=()
 DEBUG=false
 
 
-
 usage() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  id=<id>              Set the plan ID"
-    echo "  name='<name>'        Set the plan name"
-    echo "  description='<text>' Set the plan description"
-    echo "  emails=<num>         Set the email limit"
-    echo "  ftp=<num>            Set the FTP limit"
-    echo "  domains=<num>        Set the domain limit"
-    echo "  websites=<num>       Set the website limit"
-    echo "  disk=<num>           Set the disk limit (in GB)"
-    echo "  inodes=<num>         Set the inodes limit"
-    echo "  databases=<num>      Set the databases limit"
-    echo "  cpu=<num>            Set the CPU limit"
-    echo "  ram=<num>            Set the RAM limit (in GB)"
-    echo "  bandwidth=<num>      Set the bandwidth limit (in Mbps)"
-    echo "  feature_set=<name>   Name of the feature set to be used"
-    echo "  --debug              Enable debug mode"
+    echo "  id=<id>               Set the plan ID"
+    echo "  name='<name>'         Set the plan name"
+    echo "  description='<text>'  Set the plan description"
+    echo "  emails=<num>          Set the email limit"
+    echo "  max_email_quota=<num> Set the max email mailbox size"
+    echo "  ftp=<num>             Set the FTP limit"
+    echo "  domains=<num>         Set the domain limit"
+    echo "  websites=<num>        Set the website limit"
+    echo "  disk=<num>            Set the disk limit (in GB)"
+    echo "  inodes=<num>          Set the inodes limit"
+    echo "  databases=<num>       Set the databases limit"
+    echo "  cpu=<num>             Set the CPU limit"
+    echo "  ram=<num>             Set the RAM limit (in GB)"
+    echo "  bandwidth=<num>       Set the bandwidth limit (in Mbps)"
+    echo "  feature_set=<name>    Name of the feature set to be used"
+    echo "  --debug               Enable debug mode"
     echo ""
     echo "Example:"
-    echo "  opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default"
+    echo '  opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 max_email_quota="10G" ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default'
     exit 1
 }
 
@@ -81,45 +81,44 @@ flush_redis_cache() {
 
 check_if_we_need_to_edit_docker_containers() {
 
-if [ "$old_cpu" == "$cpu" ] && [ "$old_ram" == "$ram" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: CPU & RAM limits are not changed."
+    if [ "$old_cpu" == "$cpu" ] && [ "$old_ram" == "$ram" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: CPU & RAM limits are not changed."
+        fi
+    elif [ "$old_cpu" != "$cpu" ] && [ "$old_ram" != "$ram" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: Both CPU or RAM limits are changed, applying new limits."
+        fi
+        flags+=( "--cpu" )
+        flags+=( "--ram" )
+    elif [ "$old_cpu" != "$cpu" ] && [ "$old_ram" == "$ram" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: CPU limits are changed."
+        fi
+        flags+=( "--cpu" )
+    elif [ "$old_cpu" == "$cpu" ] && [ "$old_ram" != "$ram" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: RAM limits are changed."
+        fi
+        flags+=( "--ram" )
     fi
-elif [ "$old_cpu" != "$cpu" ] && [ "$old_ram" != "$ram" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: Both CPU or RAM limits are changed, applying new limits."
-    fi
-    flags+=( "--cpu" )
-    flags+=( "--ram" )
-elif [ "$old_cpu" != "$cpu" ] && [ "$old_ram" == "$ram" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: CPU limits are changed."
-    fi
-    flags+=( "--cpu" )
-elif [ "$old_cpu" == "$cpu" ] && [ "$old_ram" != "$ram" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: RAM limits are changed."
-    fi
-    flags+=( "--ram" )
-fi
 
-# BANDWIDTH CHANGE OR PLAN NAME CHANGE
-if [ "$old_bandwidth" == "$bandwidth" ] && [ "$old_plan_name" == "$new_plan_name" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: Port speed and plan name have not changed."
+    # BANDWIDTH CHANGE OR PLAN NAME CHANGE
+    if [ "$old_bandwidth" == "$bandwidth" ] && [ "$old_plan_name" == "$new_plan_name" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: Port speed and plan name have not changed."
+        fi
+    elif [ "$old_bandwidth" != "$bandwidth" ] && [ "$old_plan_name" == "$new_plan_name" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: Port speed limit is changed, applying new bandwidth limit to the docker network."
+        fi
+        edit_docker_network "$old_plan_name" "$bandwidth"
+    elif [ "$old_plan_name" != "$new_plan_name" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: Plan name is changed."
+        fi
+        flags+=( "--net" )
     fi
-elif [ "$old_bandwidth" != "$bandwidth" ] && [ "$old_plan_name" == "$new_plan_name" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: Port speed limit is changed, applying new bandwidth limit to the docker network."
-    fi
-    edit_docker_network "$old_plan_name" "$bandwidth"
-elif [ "$old_plan_name" != "$new_plan_name" ]; then
-    if [ "$DEBUG" = true ]; then
-        echo "DEBUG: Plan name is changed."
-    fi
-    #CREATE NEW NETWORK, REMOVE PREVIOUS AND REATACH ALL CONTAINERS
-    flags+=( "--net" )
-fi
 }
 
 
@@ -137,7 +136,7 @@ update_plan() {
   # Get old paln data, and if different, we will initiate the `opencli plan-apply` script
   sql="SELECT name, disk_limit, inodes_limit, cpu, ram, bandwidth, feature_set FROM plans WHERE id='$plan_id'"
   result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "$sql")
-  
+
   old_plan_name=$(echo "$result" | awk '{print $1}')
   int_old_disk_limit=$(echo "$result" | awk '{print $2}')
   old_inodes_limit=$(echo "$result" | awk '{print $4}')
@@ -159,21 +158,18 @@ update_plan() {
   int_ram="${12}"
   bandwidth="${13}"
   feature_set="${14}"
+  max_email_quota="{$15}"
   
-  # Format disk_limit with 'GB' 
     if [[ ! "$disk_limit" =~ GB$ ]]; then
       disk_limit="${int_disk_limit} GB"
     else
       disk_limit="${int_disk_limit}"
     fi
 
-  # format without GB for old limits
   old_disk_limit="${int_old_disk_limit} GB"
   
 
-if [[ $int_ram =~ gg$ ]]; then
-  ram="${int_ram%g}" # fix for 1.1.6 where we added extra gg !TO BE REMOVED!
-elif [[ ! $int_ram =~ g$ ]]; then
+if [[ ! $int_ram =~ g$ ]]; then
   ram="${int_ram}g"   # append g if just number
 else
   ram="${int_ram}"    # keep if already has g 
@@ -203,6 +199,7 @@ if [ "$DEBUG" = true ]; then
   echo "Bandwidth:        $bandwidth"
   echo "FTP accounts:     $ftp_limit"
   echo "Email accounts:   $emails_limit"
+  echo "Max email quota:  $max_email_quota"
   echo "Total domains:    $domains_limit"
   echo "Total websites:   $websites_limit"
   echo "Total databases:  $db_limit"
@@ -212,53 +209,39 @@ fi
 
 
 
-### contruct opencli plan-apply command if needed!
-
-
-local sql="UPDATE plans SET name='$new_plan_name', description='$description', ftp_limit=$ftp_limit, email_limit=$emails_limit, domains_limit=$domains_limit, websites_limit=$websites_limit, disk_limit='$disk_limit', inodes_limit=$inodes_limit, db_limit=$db_limit, cpu=$cpu, ram='$ram', bandwidth=$bandwidth, feature_set='$feature_set' WHERE id='$plan_id';"
+local sql="UPDATE plans SET name='$new_plan_name', description='$description', ftp_limit=$ftp_limit, email_limit=$emails_limit, domains_limit=$domains_limit, websites_limit=$websites_limit, disk_limit='$disk_limit', inodes_limit=$inodes_limit, db_limit=$db_limit, cpu=$cpu, ram='$ram', bandwidth=$bandwidth, feature_set='$feature_set' max_email_quota='$max_email_quota' WHERE id='$plan_id';"
 mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
-
-    # Construct SQL query to select plan name based on ID
     local sql="SELECT name FROM plans WHERE id='$plan_id'"
-    
-    # Execute MySQL query
     local result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$sql")
-    
-    # Extract plan name from query result
     local new_plan_name=$(echo "$result" | awk 'NR>1')
-    
-      count=$(opencli plan-usage "$new_plan_name" --json | grep -o '"username": "[^"]*' | sed 's/"username": "//' | wc -l)
-  
-      if [ "$count" -eq 0 ]; then
-          echo "Successfully updated plan id $plan_id"
-      else    
-          check_if_we_need_to_edit_docker_containers
-            # do it!
-            if [ ${#flags[@]} -gt 0 ]; then
-                echo "Plan ID $plan_id updated successfully. Applying new limits to $count users on this plan.."
-                echo ""
-                echo "You can track progress using the command:"
-                timestamp=$(date +"%Y%m%d_%H%M%S")
-                echo "tail -f /tmp/opencli_plan_apply_$timestamp.log"
-                if [ "$DEBUG" = true ]; then
-                    echo "DEBUG: Running command: opencli plan-apply $plan_id ${flags[@]} --all --debug"
-                    nohup opencli plan-apply $plan_id ${flags[@]} --all --debug > /tmp/opencli_plan_apply_$timestamp.log 2>&1 &
-                else
-                    nohup opencli plan-apply $plan_id ${flags[@]} --all > /tmp/opencli_plan_apply_$timestamp.log 2>&1 &
-                fi
+
+    count=$(opencli plan-usage "$new_plan_name" --json | grep -o '"username": "[^"]*' | sed 's/"username": "//' | wc -l)
+    if [ "$count" -eq 0 ]; then
+      echo "Successfully updated plan id $plan_id"
+    else    
+      check_if_we_need_to_edit_docker_containers
+        if [ ${#flags[@]} -gt 0 ]; then
+            echo "Plan ID $plan_id updated successfully. Applying new limits to $count users on this plan.."
+            echo ""
+            echo "You can track progress using the command:"
+            timestamp=$(date +"%Y%m%d_%H%M%S")
+            echo "tail -f /tmp/opencli_plan_apply_$timestamp.log"
+            if [ "$DEBUG" = true ]; then
+                echo "DEBUG: Running command: opencli plan-apply $plan_id ${flags[@]} --all --debug"
+                nohup opencli plan-apply $plan_id ${flags[@]} --all --debug > /tmp/opencli_plan_apply_$timestamp.log 2>&1 &
             else
-                echo "Successfully updated plan id $plan_id. You currently have $count users on this plan. New limits have been applied."
+                nohup opencli plan-apply $plan_id ${flags[@]} --all > /tmp/opencli_plan_apply_$timestamp.log 2>&1 &
             fi
-      fi
-    
+        else
+            echo "Successfully updated plan id $plan_id. You currently have $count users on this plan. New limits have been applied."
+        fi
+    fi
   else
     echo "ERROR: Failed to update plan id '$plan_id'"
     exit 1
   fi
-
 }
-
 
 
 check_cpu_cores() {
@@ -285,6 +268,7 @@ check_plan_exists() {
   echo "$result"
 }
 
+# TODO: udpate to 13 after 1.8.X
 if [ "$#" -lt 12 ]; then
     usage
     exit 1
@@ -302,6 +286,7 @@ validate_fields_first() {
     local cpu="${9}"
     local ram="${10}"
     local bandwidth="${11}"
+    local max_email_quota="${12}"
 
     is_integer() {
         [[ "$1" =~ ^-?[0-9]+$ ]]
@@ -317,6 +302,24 @@ validate_fields_first() {
         value="${!var_name}"
         if ! is_integer "$value"; then
             echo "Error: $var_name must be a number (integer only)"
+            exit 1
+        fi
+    done
+
+    for var_name in max_email_quota; do
+        value="${!var_name}"
+
+        if [[ "$value" =~ ^([0-9]+([.][0-9]+)?)([BkMGT]?)$ ]]; then
+            number="${BASH_REMATCH[1]}"
+            unit="${BASH_REMATCH[3]}"
+    
+            if [[ -z "$unit" && "$number" != "0" ]]; then
+                value="${number}G"
+            fi
+
+            max_email_quota="$value"
+        else
+            echo "Error: $max_email_quota must be a number with optional unit (B|k|M|G|T)"
             exit 1
         fi
     done
@@ -348,8 +351,9 @@ cpu=""
 ram=""
 bandwidth=""
 feature_set="default"
+max_email_quota="0" #TODO: remove default after 1.8.X
 
-# opencli plan-edit --debug id=1 name="Pro Plan" description="A professional plan" emails=500 ftp=100 domains=10 websites=5 disk=50 inodes=1000000 databases=20 cpu=4 ram=1 bandwidth=100
+# opencli plan-edit --debug id=1 name="Pro Plan" description="A professional plan" emails=500 max_email_quota=2G ftp=100 domains=10 websites=5 disk=50 inodes=1000000 databases=20 cpu=4 ram=1 bandwidth=100
 for arg in "$@"; do
   case $arg in
     --debug)
@@ -397,6 +401,9 @@ for arg in "$@"; do
     feature_set=*)
       feature_set="${arg#*=}"
       ;;
+    max_email_quota=*)
+      max_email_quota="${arg#*=}"
+      ;;
     *)
       echo "Unknown argument: $arg"
       usage
@@ -413,6 +420,6 @@ if [ -z "$existing_plan" ]; then
   exit 1
 fi
 
-validate_fields_first "$plan_id" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth"
-update_plan "$plan_id" "$new_plan_name" "$description" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set"
+validate_fields_first "$plan_id" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota"
+update_plan "$plan_id" "$new_plan_name" "$description" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota"
 flush_redis_cache

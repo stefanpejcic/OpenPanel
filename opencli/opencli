@@ -130,15 +130,11 @@ handle_special_commands() {
     case "$command" in
         "error")
             local dev_mode=$(opencli config get dev_mode)
-            if [[ "$dev_mode" == "on" ]]; then
-                local error_script="/usr/local/opencli/error.py"
-                if [[ ${#args[@]} -gt 0 ]]; then
-                    python3 "$error_script" "${args[@]}"
-                else
-                    python3 "$error_script"
-                fi
+            local error_script="/usr/local/opencli/error.py"
+            if [[ ${#args[@]} -gt 0 ]]; then
+                python3 "$error_script" "${args[@]}"
             else
-                echo "DEV_MODE is not enabled. Please run 'opencli config update dev_mode on', then open the page in the OpenPanel UI to get the new error code, and use it with 'opencli error <ID>' command."
+                python3 "$error_script"
             fi
             exit 0
             ;;
