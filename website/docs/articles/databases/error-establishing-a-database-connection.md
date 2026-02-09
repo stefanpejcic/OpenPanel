@@ -74,17 +74,38 @@ In this example, error is: *Another process with pid 60 is using unix socket fil
 
 ---
 
-## Incorrect Credentials
+## MySQL command not working
 
 You can test the connection directly from the terminal using the `mysql` command.
 
-Example:
+Example error:
+
+```bash
+root@openpanel:~# mysql
+ERROR 2026 (HY000): TLS/SSL error: SSL is required, but the server does not support it
+```
+
+To resolve this error *TLS/SSL error: SSL is required, but the server does not support it* run: `echo "skip-ssl = true" >> /etc/my.cnf` [SOURCE](https://stackoverflow.com/questions/78677369/mariadb-11-also-mysql-cli-error-2026-hy000-tls-ssl-error-ssl-is-required)
+
+---
+
+
+Example error:
 ```bash
 root@openpanel:~# mysql
 ERROR 2003 (HY000): Can't connect to MySQL server on '127.0.0.1:3306' (111)
 ```
 
-OpenAdmin and the terminal use credentials stored in `/etc/my.cnf`:
+If this is a fresh installation and there are no users or plans yet, MySQL may fail to initialize during setup. To fix this:
+
+```
+cd /root
+docker compose down
+docker volume rm root_mysql # DANGER: this will delete all users and plans, only run it on a fresh install!
+docker compose up -d openpanel_mysql openpanel
+```
+
+Otherwise, check if credentials stored in `/etc/my.cnf` are correct:
 
 ```bash
 root@demo:~# cat /etc/my.cnf 
@@ -95,8 +116,6 @@ password = e391ac94321d110c
 host = 127.0.0.1
 protocol = tcp
 ```
-
-Make sure these credentials are correct and allow you to log in.
 
 ---
 
