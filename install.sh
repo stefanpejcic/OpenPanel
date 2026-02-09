@@ -806,7 +806,6 @@ extra_step_on_hetzner() {
             echo "Docker CLI not found, installing..."
             echo "info: https://github.com/stefanpejcic/OpenPanel/issues/851#issuecomment-3872758307"
 	        echo -e "Installing ${GREEN}$package${RESET}"
-	        if ! is_package_installed "$package"; then
             execute_cmd $PACKAGE_MANAGER install -y docker-cli
         fi
 	fi
