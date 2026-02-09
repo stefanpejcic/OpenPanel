@@ -236,12 +236,12 @@ display_what_will_be_installed            # display os, version, ip
 install_python
 update_package_manager                    # update dnf/yum/apt-get
 install_packages                          # install docker, sentinel, sqlite, etc.
+extra_step_on_hetzner                     # run it here, then sentinel install does docker restart later
 download_skeleton_directory_from_github   # download configuration to /etc/openpanel/
 edit_fstab                                # enable quotas
 setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
-extra_step_on_hetzner                     # run it here, then sentinel install does docker restart later
 setup_redis_service                       # for redis container
 create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
@@ -801,6 +801,14 @@ extra_step_on_hetzner() {
 	    mv /etc/resolv.conf /etc/resolv.conf.bak
 	    echo "nameserver 1.1.1.1" >> /etc/resolv.conf
 	    echo "nameserver 1.0.0.1" >> /etc/resolv.conf
+
+        if ! command -v docker >/dev/null 2>&1; then
+            echo "Docker CLI not found, installing..."
+            echo "info: https://github.com/stefanpejcic/OpenPanel/issues/851#issuecomment-3872758307"
+	        echo -e "Installing ${GREEN}$package${RESET}"
+	        if ! is_package_installed "$package"; then
+            execute_cmd $PACKAGE_MANAGER install -y docker-cli
+        fi
 	fi
 }
 
