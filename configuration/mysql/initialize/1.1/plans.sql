@@ -52,7 +52,7 @@ CREATE TABLE `plans` (
   `ram` varchar(50) DEFAULT NULL,
   `bandwidth` int DEFAULT NULL,
   `feature_set` varchar(255) DEFAULT 'default',
-  `max_email_quota` text NOT NULL,
+  `max_email_quota` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
