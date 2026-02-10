@@ -134,7 +134,7 @@ actually exists inside the container.
 
 ------------------------------------------------------------------------
 
-## **7) Inspect the cron container logs (low-level debugging)**
+## **7) Inspect the cron container logs**
 
 If jobs still don't run, inspect the cron container itself:
 
@@ -163,7 +163,7 @@ If you pick the wrong one → job fails.
 
 ------------------------------------------------------------------------
 
-## **9) Generic working cron template (reusable)**
+## **9) Generic working cron template**
 
 For an app hosted at `example.com`:
 
