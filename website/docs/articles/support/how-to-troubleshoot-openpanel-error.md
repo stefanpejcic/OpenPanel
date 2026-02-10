@@ -1,4 +1,4 @@
-# Troubleshooting OpenPanel Errors
+# Troubleshooting OpenPanel UI Errors
 
 ## 500 Error
 
