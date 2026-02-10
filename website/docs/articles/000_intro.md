@@ -46,15 +46,14 @@ sidebar_position: 1
 - [Branding and White-Label](/docs/articles/dev-experience/customizing-openpanel-user-interface/)
 - [Add a Custom Message for OpenPanel User](/docs/articles/accounts/how-to-add-custom-message-in-openpanel/)
 - [Add Custom section with icons in Dashboard](/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard/)
+- [Troubleshooting OpenPanel UI Errors](/docs/articles/support/how-to-troubleshoot-openpanel-error)
+- [Troubleshooting OpenAdmin UI Errors](/docs/articles/support/how-to-troubleshoot-openadmin-error)
 
 # Enterprise
 - [OpenPanel Pricing](/docs/articles/license/pricing/)
 - [Upgrading to OpenPanel Enterprise and activating License](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
 - [Downgrading from OpenPanel Enterprise to Community edition](/docs/articles/license/how_to_downgrade_openpanel_license/)
 - [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
-- [Troubleshooting OpenPanel UI Errors](/docs/articles/support/how-to-troubleshoot-openpanel-error)
-- [Troubleshooting OpenAdmin UI Errors](/docs/articles/support/how-to-troubleshoot-openadmin-error)
-
 
 # Domains
 - [Domain Shows Default Page](/docs/articles/domains/domain-shows-default-page/)
