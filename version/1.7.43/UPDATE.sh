@@ -26,3 +26,27 @@ EOF
 
   echo "Added [CAPTCHA] section"
 fi
+
+echo "Updating openpanel.config file to add 'cron_max_file_size_kb' setting.."
+if ! grep -q "^cron_max_file_size_kb=" "$CONFIG"; then
+  awk '
+  BEGIN{added=0}
+  /^\[FILES\]/ {print; in_files=1; next}
+  in_files && /^\[/ {
+    if (!added) {
+      print "cron_max_file_size_kb=100"
+      added=1
+    }
+    in_files=0
+  }
+  {print}
+  END{
+    if (in_files && !added) {
+      print "cron_max_file_size_kb=100"
+    }
+  }
+  ' "$CONFIG" > /tmp/openpanel.config.new
+
+  mv /tmp/openpanel.config.new "$CONFIG"
+  echo "Added cron_max_file_size_kb=100 to [FILES]"
+fi
