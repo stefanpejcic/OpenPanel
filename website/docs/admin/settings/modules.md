@@ -363,6 +363,7 @@ When disabled:
 
 Customize options:
 * To **pre-set cronjobs for new users** edit the `/etc/openpanel/ofelia/users.ini` file.
+* To **set max file size for the cron file to be editable via OpenPanel UI** set the [`cron_max_file_size_kb`](https://dev.openpanel.com/cli/config.html#cron-max-file-size-kb) value.
 
 
 
