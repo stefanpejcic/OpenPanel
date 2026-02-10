@@ -7,6 +7,7 @@
 |__[1.7.43](/docs/changelog/1.7.43)__| March 06, 2026 |
 
 ### Latest
+
 | Version| Release date | 
 |---|---|
 |__[1.7.42](/docs/changelog/1.7.42)__| February 09, 2026 |
