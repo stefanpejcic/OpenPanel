@@ -212,6 +212,10 @@ Customize options:
 * To **set mysql or mariadb for all new users** use [*OpenAdmin > Settings > User Defaults* page and *MySQL type* option](/docs/admin/settings/defaults/).
 * To **set mysql, percona or mariadb for a single user** when creating their account use the [**MySQL Type** option](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/).
 * To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
+* To **restrict access to system users** edit the [`mysql_restricted_usernames`](https://dev.openpanel.com/cli/config.html#mysql-restricted-usernames) setting.
+* To **restrict access to system databases** edit the [`mysql_restricted_databases`](https://dev.openpanel.com/cli/config.html#mysql-restricted-databases) setting.
+* To **increase the startup time allowed for waiting MySQL to initalize** increase [`mysql_startup_time`](https://dev.openpanel.com/cli/config.html#mysql-startup-time).
+
 
 How-to guides:
 * To **connect to a database** refer to [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
@@ -264,7 +268,7 @@ When disabled:
 * Users can not access the *MySQL > Import Database* page.
 
 Customize options:
-* None
+* To **set the max file size allowed for import** increase [`mysql_import_max_size_gb`](https://dev.openpanel.com/cli/config.html#mysql-import-max-size-gb) value.
 
 How-to guides:
 * To **import into a database** refer to [*How-to Guides > Importing a Database](/docs/articles/docker/import-database/).
