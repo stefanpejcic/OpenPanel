@@ -14,10 +14,10 @@
 [ "$(id -u)" -ne 0 ] && return
 
 VERSION=$(opencli version)
-CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
-CADDY_FILE="/etc/openpanel/caddy/Caddyfile"
-CADDY_CERT_DIR="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
-GITHUB_CONF_REPO="https://github.com/stefanpejcic/openpanel-configuration"
+readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
+readonly CADDY_FILE="/etc/openpanel/caddy/Caddyfile"
+readonly CADDY_CERT_DIR="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
+readonly GITHUB_CONF_REPO="https://github.com/stefanpejcic/openpanel-configuration"
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 RESET='\033[0m'
@@ -54,7 +54,7 @@ get_license() {
     elif [ -z "$LICENSE_KEY" ]; then
         LICENSE="${RED}Community${RESET} edition"
     else 
-        LICENSE="" # older versions <0.2.1
+        LICENSE=""
     fi
     echo "$LICENSE"
 }
@@ -112,7 +112,6 @@ echo -e  "OPENADMIN LINK: ${GREEN}${admin_url}${RESET}"
 echo -e  ""
 echo -e  "Need assistance or looking to learn more? We've got you covered:"
 
-# todo: remove color codes form output to match this!
 if [[ "$LICENSE" == "Enterprise" ]]; then
     echo -e  "        - 📚 Admin Docs: https://openpanel.com/docs/admin/intro/"
     echo -e  "        - 💬 Ticketing:  https://my.openpanel.com/submitticket.php?step=2&deptid=2"

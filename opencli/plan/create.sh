@@ -6,7 +6,7 @@
 # Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G
 # Author: Radovan Jecmenica
 # Created: 06.11.2023
-# Last Modified: 06.02.2026
+# Last Modified: 10.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -60,8 +60,7 @@ help() {
 # ======================================================================
 # Validations
 
-# TODO: update to 13 after 1.8.X
-if [ "$#" -lt 12 ]; then
+if [ "$#" -lt 13 ]; then
     help
 fi
 
@@ -243,7 +242,7 @@ cpu=""
 ram=""
 bandwidth=""
 feature_set="default"
-max_email_quota="0" # TODO: temporary, for 1.7.42 before making it mandatory in 1.8.X
+max_email_quota="0"
 
 for arg in "$@"; do
   case $arg in

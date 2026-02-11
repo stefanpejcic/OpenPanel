@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.02.2026
+# Last Modified: 10.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1342,12 +1342,15 @@ sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
     -e "s|POSTGRES_PASSWORD=\"[^\"]*\"|POSTGRES_PASSWORD=\"$postgres_password\"|g" \
     -e "s|PGADMIN_PW=[^\"]*|PGADMIN_PW=$pg_admin_password|g" \
     -e "s|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"[^\"]*\"|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"$pg_admin_password\"|g" \
-    -e "s|PGADMIN_MAIL=[^\"]*|PGADMIN_MAIL=$email|g" \
     -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:$port_2\"|g" \
     -e "s|DEFAULT_PHP_VERSION=\"[^\"]*\"|DEFAULT_PHP_VERSION=\"$default_php_version\"|g" \
     -e "s|MYSQL_ROOT_PASSWORD=\"[^\"]*\"|MYSQL_ROOT_PASSWORD=\"$mysql_root_password\"|g" \
     -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|#PROXY_HTTP_PORT=\"$port_7\"|g" \
     "/home/$username/.env"
+
+if [[ $email =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+	sed -i -e "s|PGADMIN_MAIL=[^\"]*|PGADMIN_MAIL=$email|g" "/home/$username/.env"
+fi
 
 if [[ -n "$webserver" ]]; then
     # Check for varnish+nginx or varnish+apache, and extract the web server part

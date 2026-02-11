@@ -8,6 +8,57 @@ import configparser
 import os
 import re
 from pathlib import Path
+import logging
+import sys
+
+# ======================================================================
+# If dev_mode=on then redirect all prints to '/var/log/openpanel/admin/error.log'
+CONFIG_FILE = "/etc/openpanel/openpanel/conf/openpanel.config"
+def is_dev_mode():
+    if not os.path.exists(CONFIG_FILE):
+        return False
+    try:
+        with open(CONFIG_FILE, "r") as f:
+            for line in f:
+                if line.strip().lower() == "dev_mode=on":
+                    return True
+    except Exception:
+        pass
+    return False
+
+DEV_MODE = is_dev_mode()
+
+loglevel = "error"
+errorlog = "/var/log/openpanel/admin/error.log"
+accesslog = "/var/log/openpanel/admin/access.log"
+
+if DEV_MODE:
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S", filename=errorlog, filemode='a')
+    logger = logging.getLogger("openpanel")
+
+    class StreamToLogger:
+        def __init__(self, logger, log_level=logging.INFO):
+            self.logger = logger
+            self.log_level = log_level
+    
+        def write(self, buf):
+            for line in buf.rstrip().splitlines():
+                if " - " in line:
+                    word, msg = line.split(" - ", 1)
+                    line = f"[{word}] {msg}"
+                self.logger.log(self.log_level, line)
+    
+        def flush(self):
+            pass
+
+    sys.stdout = StreamToLogger(logger, logging.INFO)
+    sys.stderr = StreamToLogger(logger, logging.ERROR)
+else:
+    class DevNull:
+        def write(self, _): pass
+        def flush(self): pass
+
+    sys.stdout = DevNull()
 
 
 # From version 1.1.4, we no longer restart admin/user services on configuration changes. Instead, 
@@ -165,12 +216,6 @@ keepalive = 2
 max_requests = 1000
 max_requests_jitter = 50
 pidfile = 'openadmin'
-
-# BUG https://github.com/benoitc/gunicorn/issues/2382
-#errorlog = "-"   # Log to stdout
-#accesslog = "-"
-errorlog = "/var/log/openpanel/admin/error.log"
-accesslog = "/var/log/openpanel/admin/access.log"
 
 def ensure_directory(file_path):
     directory = Path(file_path).parent

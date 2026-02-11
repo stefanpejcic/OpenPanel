@@ -9,13 +9,13 @@ services:
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
-      - ./openlitespeed.conf:/usr/local/lsws/conf/httpd_config.conf # main conf
-      - /etc/openpanel/openlitespeed/start.sh:/entrypoint.sh:ro     # chmod +x first!
-      - ./sockets/mysqld:/var/run/mysqld                            # MySQL socket
-      - webserver_data:/usr/local/lsws/conf/vhosts/                 # vhosts
-      - html_data:/var/www/html/                                    # Website files
-      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/                 # SSLs - not used atm
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/bin/wp            # wpcli
+      - ./openlitespeed.conf:/usr/local/lsws/conf/httpd_config.conf
+      - /etc/openpanel/openlitespeed/start.sh:/entrypoint.sh:ro
+      - ./sockets/mysqld:/var/run/mysqld
+      - webserver_data:/usr/local/lsws/conf/vhosts/
+      - html_data:/var/www/html/
+      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/bin/wp
       - ./php.ini/7.4.ini:/usr/local/lsws/lsphp74/etc/php/7.4/litespeed/php.ini
       - ./php.ini/8.0.ini:/usr/local/lsws/lsphp80/etc/php/8.0/litespeed/php.ini
       - ./php.ini/8.1.ini:/usr/local/lsws/lsphp81/etc/php/8.1/litespeed/php.ini
@@ -42,10 +42,10 @@ services:
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
-      - ./openresty.conf:/etc/openresty/nginx.conf:ro     # main conf
-      - webserver_data:/etc/nginx/conf.d                  # vhosts
-      - html_data:/var/www/html/                          # Website files     
-      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs    
+      - ./openresty.conf:/etc/openresty/nginx.conf:ro
+      - webserver_data:/etc/nginx/conf.d
+      - html_data:/var/www/html/   
+      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/
       - /etc/openpanel/nginx/default_page.html:/etc/nginx/default_page.html:ro
     deploy:
       resources:
@@ -69,8 +69,8 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
       - webserver_data:/etc/nginx/conf.d
-      - html_data:/var/www/html/                          # Website files     
-      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/       # SSLs    
+      - html_data:/var/www/html/   
+      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/   
       - /etc/openpanel/nginx/default_page.html:/etc/nginx/default_page.html:ro
     deploy:
       resources:
@@ -93,10 +93,10 @@ services:
       - "${HTTPS_PORT}"
     working_dir: /var/www/html
     volumes:
-      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro         # Apache configuration
-      - webserver_data:/etc/httpd/conf.d/                          # Additional Apache configs
-      - html_data:/var/www/html/                                   # Website files
-      - /etc/openpanel/nginx/certs/:/etc/apache2/ssl/  # SSL certificates
+      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - webserver_data:/etc/httpd/conf.d/
+      - html_data:/var/www/html/
+      - /etc/openpanel/nginx/certs/:/etc/apache2/ssl/
       - /etc/openpanel/nginx/default_page.html:/etc/apache2/default_page.html:ro
     deploy:
       resources:
@@ -177,12 +177,12 @@ services:
     ports:
       - "${MYSQL_PORT}"     
     volumes:
-      - mysql_data:/var/lib/mysql                  # MySQL data
-      - mysql_dumps:/tmp/dumps/                    # .sql dumps during backups   
+      - mysql_data:/var/lib/mysql
+      - mysql_dumps:/tmp/dumps/  
       - /etc/openpanel/mysql/scripts/dump.sh:/dump.sh:ro
-      - ./sockets/mysqld:/var/run/mysqld           # MySQL socket
-      - ./my.cnf:/root/.my.cnf:ro                  # mysql root pass - created/updated on mysql restart
-      - ./custom.cnf:/etc/mysql/conf.d/custom.cnf  # custom cnf for gui
+      - ./sockets/mysqld:/var/run/mysqld
+      - ./my.cnf:/root/.my.cnf:ro
+      - ./custom.cnf:/etc/mysql/conf.d/custom.cnf
     labels:
       - docker-volume-backup.archive-pre=/bin/sh -c '/dump.sh'
       - docker-volume-backup.archive-post=/bin/sh -c 'rm -rf /tmp/dumps/*'
@@ -209,12 +209,12 @@ services:
     ports:
       - "${MYSQL_PORT}"
     volumes:
-      - mysql_data:/var/lib/mysql                  # MariaDB data
-      - mysql_dumps:/tmp/dumps/                    # .sql dumps during backups
+      - mysql_data:/var/lib/mysql
+      - mysql_dumps:/tmp/dumps/
       - /etc/openpanel/mysql/scripts/dump.sh:/dump.sh:ro
-      - ./sockets/mysqld:/var/run/mysqld           # MariaDB socket
-      - ./my.cnf:/root/.my.cnf:ro                  # mysql root pass - created/updated on mysql restart
-      - ./custom.cnf:/etc/mysql/conf.d/custom.cnf  # custom cnf for gui
+      - ./sockets/mysqld:/var/run/mysqld
+      - ./my.cnf:/root/.my.cnf:ro
+      - ./custom.cnf:/etc/mysql/conf.d/custom.cnf
     labels:
       - docker-volume-backup.archive-pre=/bin/sh -c '/dump.sh'
       - docker-volume-backup.archive-post=/bin/sh -c 'rm -rf /tmp/dumps/*'
@@ -239,7 +239,7 @@ services:
       - "${MYSQL_TYPE:-mysql}"
     image: phpmyadmin #:5.2.2-fpm-alpine
     volumes:
-      - html_data:/html/ #varwwwhtml are sites!    
+      - html_data:/html/  
       - ./pma.php:/var/www/html/pma.php
       - /etc/openpanel/mysql/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
     ports:
@@ -272,9 +272,9 @@ services:
     ports:
       - "${POSTGRES_PORT}"
     volumes:
-      - pg_data:/var/lib/postgresql/data            # PostgreSQL data
-      - ./sockets/postgres:/var/run/postgresql      # PostgreSQL socket
-      - ./postgre_custom.conf:/var/lib/postgresql/data/postgresql.conf
+      - pg_data:/var/lib/postgresql/data
+      - ./sockets/postgres:/var/run/postgresql
+      #- ./postgre_custom.conf:/var/lib/postgresql/data/postgresql.conf
     deploy:
       resources:
         limits:
@@ -300,7 +300,6 @@ services:
     depends_on:
       - "postgres"
     ports:
-      #- "5050:80"
       - "${PGADMIN_PORT}"
     deploy:
       resources:
@@ -319,7 +318,7 @@ services:
     user: "${USER_ID:-0}"
     command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379"]
     volumes:
-      - ./sockets/redis:/var/run/redis  # Redis socket
+      - ./sockets/redis:/var/run/redis
     deploy:
       resources:
         limits:
@@ -394,7 +393,7 @@ services:
     user: "${USER_ID:-0}"
     command: ["memcached", "-u", "root", "-l", "0.0.0.0", "-p", "11211"]
     volumes:
-      - ./sockets/memcached:/var/run/  # Memcached socket
+      - ./sockets/memcached:/var/run/
     deploy:
       resources:
         limits:
