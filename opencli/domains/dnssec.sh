@@ -5,7 +5,7 @@
 # Usage: opencli domains-dnssec <DOMAIN> [--update | --check]
 # Author: Stefan Pejcic
 # Created: 09.07.2024
-# Last Modified: 10.02.2026
+# Last Modified: 11.02.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -60,9 +60,6 @@ setup_zone() {
   # Generate key pairs
   docker exec $CONTAINER bash -c "dnssec-keygen -a NSEC3RSASHA1 -b 2048 -n ZONE ${ZONE} >/dev/null 2>&1" || error_exit 'Failed to generate 2048-bit key'
   docker exec $CONTAINER bash -c "dnssec-keygen -a NSEC3RSASHA1 -b 4096 -n ZONE ${ZONE} >/dev/null 2>&1" || error_exit 'Failed to generate 4096-bit key'
-
-docker cp $CONTAINER:
-
 
   # Allow bind group to read the keys
   docker exec $CONTAINER bash -c "chgrp bind K${ZONE}.* >/dev/null 2>&1" || error_exit 'Failed to change group of key files'

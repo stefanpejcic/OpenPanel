@@ -847,7 +847,7 @@ services:
           cpus: "${BACKUP_CPU:-1.0}"
           memory: "${BACKUP_RAM:-1.0g}"
           pids: 100
-    command: [ "backup" ]
+    #command: [ "backup" ]
     restart: unless-stopped
 
 networks:

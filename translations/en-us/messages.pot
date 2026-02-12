@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-02-10 13:43+0100\n"
+"POT-Creation-Date: 2026-02-11 14:10+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -22,79 +22,79 @@ msgstr ""
 msgid "Auto Installer"
 msgstr ""
 
-#: modules/crons.py:101
+#: modules/crons.py:107
 msgid "CronJobs File Editor"
 msgstr ""
 
-#: modules/crons.py:149
+#: modules/crons.py:155
 msgid "CronJobs"
 msgstr ""
 
-#: modules/crons.py:169
+#: modules/crons.py:175
 msgid "New CronJob"
 msgstr ""
 
-#: modules/crons.py:182
+#: modules/crons.py:188
 msgid "Invalid cron file path"
 msgstr ""
 
-#: modules/crons.py:205 modules/crons.py:328
+#: modules/crons.py:211 modules/crons.py:334
 msgid "Missing one or more required fields (schedule, command, container)."
 msgstr ""
 
-#: modules/crons.py:209
+#: modules/crons.py:215
 msgid "image= or network= are not allowed in the command."
 msgstr ""
 
-#: modules/crons.py:219
+#: modules/crons.py:225
 msgid "Cron job created and saved successfully!"
 msgstr ""
 
-#: modules/crons.py:223
+#: modules/crons.py:229
 msgid "image= or network= are not allowed in crontab."
 msgstr ""
 
-#: modules/crons.py:227
+#: modules/crons.py:233
 msgid "job-run, job-local, and job-service-run are not allowed in crontab."
 msgstr ""
 
-#: modules/crons.py:232
+#: modules/crons.py:238
 msgid "Crontab file saved successfully!"
 msgstr ""
 
-#: modules/crons.py:255
+#: modules/crons.py:261
 msgid "Missing one or more required fields."
 msgstr ""
 
-#: modules/crons.py:259
+#: modules/crons.py:265
 msgid "Missing original cron job fields."
 msgstr ""
 
-#: modules/crons.py:264
+#: modules/crons.py:270
 msgid "Invalid characters in input."
 msgstr ""
 
-#: modules/crons.py:271
+#: modules/crons.py:277
 msgid "Invalid cron file path."
 msgstr ""
 
-#: modules/crons.py:300
+#: modules/crons.py:306
 msgid "Cron job not found."
 msgstr ""
 
-#: modules/crons.py:308
+#: modules/crons.py:314
 msgid "Cron job was successfully edited."
 msgstr ""
 
-#: modules/crons.py:312
+#: modules/crons.py:318
 msgid "Error saving cron job. Please try again."
 msgstr ""
 
-#: modules/crons.py:394
+#: modules/crons.py:400
 msgid "Cron job was successfully deleted."
 msgstr ""
 
-#: modules/crons.py:397
+#: modules/crons.py:403
 msgid "Error deleting cron job."
 msgstr ""
 
@@ -1906,7 +1906,7 @@ msgstr ""
 
 #: templates/dashboard/dashboard.html:75 templates/domains/ssl.html:185
 #: templates/files/filemanager.html:202 templates/manager/mautic.html:181
-#: templates/manager/python_node_apps.html:1144
+#: templates/manager/python_node_apps.html:1147
 #: templates/manager/websitebuilder.html:356
 #: templates/manager/wp/single.html:245 templates/partials/_header.html:34
 msgid "Files"
@@ -2286,7 +2286,7 @@ msgstr ""
 #: templates/dashboard/usage.html:411 templates/dashboard/usage.html:412
 #: templates/dashboard/usage.html:413 templates/dashboard/usage.html:414
 #: templates/manager/mautic.html:213 templates/manager/mautic.html:256
-#: templates/manager/python_node_apps.html:1182
+#: templates/manager/python_node_apps.html:1185
 #: templates/manager/websitebuilder.html:412
 #: templates/manager/wp/single.html:340 templates/manager/wp/single.html:382
 msgid "Calculating.."
@@ -2516,7 +2516,7 @@ msgstr ""
 #: templates/domains/domains.html:158 templates/domains/domains.html:212
 #: templates/files/clamav/quarantine.html:72 templates/files/disk_usage.html:44
 #: templates/files/ftp.html:70 templates/files/inodes.html:43
-#: templates/manager/python_node_apps.html:967 templates/manager/sites.html:84
+#: templates/manager/python_node_apps.html:970 templates/manager/sites.html:84
 #: templates/manager/wp/list.html:122 templates/mysql/databases.html:159
 #: templates/mysql/users.html:90 templates/psql/databases.html:148
 #: templates/psql/users.html:83 templates/system/cronjobs.html:144
@@ -2565,7 +2565,7 @@ msgstr ""
 #: templates/domains/dns.html:423 templates/domains/domains.html:271
 #: templates/domains/domains.html:301 templates/emails/delete.html:32
 #: templates/manager/mautic.html:460 templates/manager/mautic.html:510
-#: templates/manager/python_node_apps.html:892
+#: templates/manager/python_node_apps.html:895
 #: templates/manager/websitebuilder.html:210
 #: templates/manager/websitebuilder.html:260
 #: templates/manager/wp/single.html:628 templates/manager/wp/single.html:2027
@@ -3075,7 +3075,7 @@ msgstr ""
 #: templates/files/filemanager/deleteTrash.html:25
 #: templates/files/filemanager/new_actions_buttons.html:21
 #: templates/files/ftp.html:110 templates/files/trash.html:35
-#: templates/manager/python_node_apps.html:861
+#: templates/manager/python_node_apps.html:864
 #: templates/manager/websitebuilder.html:229 templates/mysql/users.html:110
 #: templates/psql/databases.html:174 templates/psql/users.html:120
 msgid "Delete"
@@ -3793,7 +3793,7 @@ msgid "No destination configured yet."
 msgstr ""
 
 #: templates/files/backup_destinations.html:72
-#: templates/manager/python_node_apps.html:454
+#: templates/manager/python_node_apps.html:457
 msgid "Select"
 msgstr ""
 
@@ -4777,21 +4777,21 @@ msgid "Remove"
 msgstr ""
 
 #: templates/manager/mautic.html:198
-#: templates/manager/python_node_apps.html:1155
+#: templates/manager/python_node_apps.html:1158
 #: templates/manager/websitebuilder.html:373
 #: templates/manager/wp/single.html:262
 msgid "Open folder in File Manager"
 msgstr ""
 
 #: templates/manager/mautic.html:208
-#: templates/manager/python_node_apps.html:1167
+#: templates/manager/python_node_apps.html:1170
 #: templates/manager/websitebuilder.html:400
 #: templates/manager/wp/single.html:335
 msgid "Folder:"
 msgstr ""
 
 #: templates/manager/mautic.html:212
-#: templates/manager/python_node_apps.html:1180
+#: templates/manager/python_node_apps.html:1183
 #: templates/manager/websitebuilder.html:410
 #: templates/manager/wp/single.html:339
 msgid "Folder Size:"
@@ -4916,7 +4916,7 @@ msgid "website from this manager without actually deleting any files."
 msgstr ""
 
 #: templates/manager/mautic.html:431
-#: templates/manager/python_node_apps.html:864
+#: templates/manager/python_node_apps.html:867
 #: templates/manager/wp/single.html:1998
 msgid "All website data such as files and database remains."
 msgstr ""
@@ -4978,7 +4978,7 @@ msgid "Administration"
 msgstr ""
 
 #: templates/manager/mautic.html:651
-#: templates/manager/python_node_apps.html:1236
+#: templates/manager/python_node_apps.html:1239
 #: templates/manager/websitebuilder.html:483
 #: templates/manager/wp/single.html:2385
 msgid "An error occurred fetching folder size from the container."
@@ -5197,8 +5197,8 @@ msgstr ""
 
 #: templates/manager/pm2_install.html:370
 #: templates/manager/python_node_apps.html:87
-#: templates/manager/python_node_apps.html:435
-#: templates/manager/python_node_apps.html:445
+#: templates/manager/python_node_apps.html:438
+#: templates/manager/python_node_apps.html:448
 #: templates/mysql/phpmyadmin.html:206 templates/psql/pgadmin.html:166
 msgid "Version:"
 msgstr ""
@@ -5299,253 +5299,253 @@ msgid ""
 "command:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:280
+#: templates/manager/python_node_apps.html:284
 msgid "Custom startup command:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:289
+#: templates/manager/python_node_apps.html:293
 msgid ""
 "You can provide a custom startup command with flags to be used instead of"
 " the default:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:337
+#: templates/manager/python_node_apps.html:340
 msgid "Work dir:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:346
+#: templates/manager/python_node_apps.html:349
 msgid ""
 "Set the working directory inside which packages are installed with "
 "command:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:348
-#: templates/manager/python_node_apps.html:402
+#: templates/manager/python_node_apps.html:351
+#: templates/manager/python_node_apps.html:405
 msgid "install"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:391
+#: templates/manager/python_node_apps.html:394
 msgid "Install packages before startup:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:400
+#: templates/manager/python_node_apps.html:403
 msgid ""
 "If enabled, this command is executed before the custom startup command or"
 " startup file:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:436
+#: templates/manager/python_node_apps.html:439
 msgid ""
 "Change version, make sure to restart the application afterward by "
 "stopping and starting it."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:454
+#: templates/manager/python_node_apps.html:457
 msgid "version to use for the application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:527
+#: templates/manager/python_node_apps.html:530
 msgid "Resource limits"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:528
+#: templates/manager/python_node_apps.html:531
 msgid "Limit CPU and Memory available to the container."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:536
+#: templates/manager/python_node_apps.html:539
 msgid "CPU (cores):"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:545
+#: templates/manager/python_node_apps.html:548
 msgid "Set max number of CPU cores to allocate for this service."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:559
+#: templates/manager/python_node_apps.html:562
 msgid "Memory (GB):"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:568
+#: templates/manager/python_node_apps.html:571
 msgid "Set max size in GB for Memory to allocate for this service."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:584
+#: templates/manager/python_node_apps.html:587
 msgid "PIDs:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:593
+#: templates/manager/python_node_apps.html:596
 msgid "Set total of PIDs allowed for the application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:610
+#: templates/manager/python_node_apps.html:613
 msgid "PIDs can not currently be configured in Docker compose"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:625
+#: templates/manager/python_node_apps.html:628
 msgid "Save changes"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:641
-#: templates/manager/python_node_apps.html:695
+#: templates/manager/python_node_apps.html:644
+#: templates/manager/python_node_apps.html:698
 msgid "package.json"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:643
-#: templates/manager/python_node_apps.html:695
+#: templates/manager/python_node_apps.html:646
+#: templates/manager/python_node_apps.html:698
 msgid "requirements.txt"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:645
+#: templates/manager/python_node_apps.html:648
 msgid "file content:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:688
+#: templates/manager/python_node_apps.html:691
 msgid "NPM install"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:689
-#: templates/manager/python_node_apps.html:691
+#: templates/manager/python_node_apps.html:692
+#: templates/manager/python_node_apps.html:694
 msgid "PNPM install"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:695
+#: templates/manager/python_node_apps.html:698
 msgid "Edit file"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:718
+#: templates/manager/python_node_apps.html:721
 msgid "Loading application logs.."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:721
+#: templates/manager/python_node_apps.html:724
 msgid "Change view"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:727
+#: templates/manager/python_node_apps.html:730
 msgid "Formatted view"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:727
+#: templates/manager/python_node_apps.html:730
 msgid "Raw view"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:730
+#: templates/manager/python_node_apps.html:733
 msgid "Copy to clipboard"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:735
+#: templates/manager/python_node_apps.html:738
 msgid "Open log in new tab"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:773
+#: templates/manager/python_node_apps.html:776
 msgid "Error fetching container logs for application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:775
+#: templates/manager/python_node_apps.html:778
 msgid "Error fetching container logs for application:"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:833
+#: templates/manager/python_node_apps.html:836
 msgid "Logs copied to clipboard."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:837
+#: templates/manager/python_node_apps.html:840
 msgid "Failed to copy logs."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:862
+#: templates/manager/python_node_apps.html:865
 msgid ""
 "Stops the application, deletes docker container and removes it from Site "
 "Manager interface."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:873
+#: templates/manager/python_node_apps.html:876
 msgid "Delete Application"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:885
+#: templates/manager/python_node_apps.html:888
 msgid "Confirm delete"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:902
+#: templates/manager/python_node_apps.html:905
 msgid "Application removal started. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:980
+#: templates/manager/python_node_apps.html:983
 msgid "Manage Containers"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:993
+#: templates/manager/python_node_apps.html:996
 msgid "Start"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1001
+#: templates/manager/python_node_apps.html:1004
 msgid "Starting application. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1013
+#: templates/manager/python_node_apps.html:1016
 msgid "Application started successfully."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1019
-#: templates/manager/python_node_apps.html:1026
+#: templates/manager/python_node_apps.html:1022
+#: templates/manager/python_node_apps.html:1029
 msgid "Error starting application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1038
+#: templates/manager/python_node_apps.html:1041
 msgid "Stop"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1047
+#: templates/manager/python_node_apps.html:1050
 msgid "Stopping application. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1060
+#: templates/manager/python_node_apps.html:1063
 msgid "Application stopped successfully."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1066
-#: templates/manager/python_node_apps.html:1073
+#: templates/manager/python_node_apps.html:1069
+#: templates/manager/python_node_apps.html:1076
 msgid "Error stopping application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1088
+#: templates/manager/python_node_apps.html:1091
 msgid "Restart"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1097
+#: templates/manager/python_node_apps.html:1100
 msgid "Application restart in progress. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1107
+#: templates/manager/python_node_apps.html:1110
 msgid "Application restarted successfully."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1113
-#: templates/manager/python_node_apps.html:1120
+#: templates/manager/python_node_apps.html:1116
+#: templates/manager/python_node_apps.html:1123
 msgid "Error restarting application."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1210 templates/manager/sites.html:72
+#: templates/manager/python_node_apps.html:1213 templates/manager/sites.html:72
 #: templates/manager/websitebuilder.html:454
 msgid "Created"
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1288
+#: templates/manager/python_node_apps.html:1291
 msgid "Cannot install while container is stopped."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1292
+#: templates/manager/python_node_apps.html:1295
 msgid "Installing packages.. Please wait."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1313
+#: templates/manager/python_node_apps.html:1316
 msgid "Package installation completed."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1315
+#: templates/manager/python_node_apps.html:1318
 msgid "Package installation failed."
 msgstr ""
 
-#: templates/manager/python_node_apps.html:1320
+#: templates/manager/python_node_apps.html:1323
 msgid "Error running package install for application."
 msgstr ""
 

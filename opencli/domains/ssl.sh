@@ -5,7 +5,7 @@
 # Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 10.02.2026
+# Last Modified: 11.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -192,7 +192,7 @@ if [ -n "$2" ]; then
     	exit 0
     elif [ "$2" == "auto" ]; then
         sed -i -E "s|tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem|  tls {\n    on_demand\n  }|g" "$CONFIG_FILE"
-	docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null
+		docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null
         echo "Updated $DOMAIN to use AutoSSL."
         exit 0
     elif [ "$2" == "custom" ] && [ -n "$3" ] && [ -n "$4" ]; then        
