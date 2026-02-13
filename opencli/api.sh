@@ -5,7 +5,7 @@
 # Usage: opencli api <status|on|off|list>
 # Author: Stefan Pejcic
 # Created: 04.09.2024
-# Last Modified: 11.02.2026
+# Last Modified: 12.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

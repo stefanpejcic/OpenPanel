@@ -5,7 +5,7 @@
 # Usage: opencli websites-all
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 11.02.2026
+# Last Modified: 12.02.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -33,21 +33,27 @@
 source /usr/local/opencli/db.sh
 
 get_all_sites() {
-    
-    # Check if the config file exists
+    local site_type="$1"
+
     if [ ! -f "$config_file" ]; then
         echo "Config file $config_file not found."
         exit 1
     fi
-    
-    # Query to fetch all sites
-    all_sites="SELECT site_name FROM sites"
-    sites=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$all_sites" -sN)
+
+    local query="SELECT site_name FROM sites"
+
+    if [ -n "$site_type" ]; then
+        query+=" WHERE type = '$site_type'"
+    fi
+
+    local sites
+    sites=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN)
+
     if [ -z "$sites" ]; then
-        echo "No sites found in the database."
+        echo "No sites found${site_type:+ for type '$site_type'}."
     else
         echo "$sites"
     fi
 }
 
-get_all_sites
+get_all_sites "$1"

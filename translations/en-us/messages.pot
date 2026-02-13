@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-02-11 14:10+0100\n"
+"POT-Creation-Date: 2026-02-12 12:08+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -132,7 +132,7 @@ msgstr ""
 #: modules/domain/redirects.py:195 modules/domain/ssl.py:33
 #: modules/domains.py:443 modules/domains.py:476 modules/domains.py:501
 #: modules/domains.py:533 modules/domains.py:602 modules/emails.py:142
-#: modules/emails.py:277 modules/emails.py:564 modules/emails.py:599
+#: modules/emails.py:277 modules/emails.py:575 modules/emails.py:610
 #: modules/goaccess.py:23 modules/json/favicons.py:30
 #: modules/json/screenshots.py:74 modules/mautic.py:94 modules/mautic.py:191
 #: modules/mautic.py:432 modules/mautic.py:596 modules/mautic.py:789
@@ -286,8 +286,8 @@ msgid "Invalid request. Domain name must be provided."
 msgstr ""
 
 #: modules/domains.py:473 templates/domains/domains.html:415
-#: templates/emails/single_account.html:103
-#: templates/emails/single_account.html:125
+#: templates/emails/single_account.html:169
+#: templates/emails/single_account.html:191
 msgid "Suspend"
 msgstr ""
 
@@ -295,8 +295,8 @@ msgstr ""
 msgid "Unsuspend"
 msgstr ""
 
-#: modules/emails.py:132 modules/emails.py:795 modules/emails.py:808
-#: modules/emails.py:826
+#: modules/emails.py:132 modules/emails.py:842 modules/emails.py:855
+#: modules/emails.py:873
 msgid "Error: Invalid email address."
 msgstr ""
 
@@ -356,23 +356,23 @@ msgstr ""
 msgid "Error: reached max number of email accounts on the hosting plan."
 msgstr ""
 
-#: modules/emails.py:568
+#: modules/emails.py:579
 msgid "Error: domain not provided."
 msgstr ""
 
-#: modules/emails.py:570
+#: modules/emails.py:581
 msgid "Error: username not provided."
 msgstr ""
 
-#: modules/emails.py:572
+#: modules/emails.py:583
 msgid "Error: password not provided."
 msgstr ""
 
-#: modules/emails.py:579 templates/files/ftp_new.html:200
+#: modules/emails.py:590 templates/files/ftp_new.html:200
 msgid "Create Account"
 msgstr ""
 
-#: modules/emails.py:640 modules/emails.py:642 modules/files/ftp.py:89
+#: modules/emails.py:657 modules/emails.py:659 modules/files/ftp.py:89
 #: modules/files/ftp.py:93 templates/cache/service.html:81
 #: templates/domains/ssl.html:61 templates/files/ftp.html:13
 #: templates/manager/python_node_apps.html:72
@@ -383,19 +383,19 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/emails.py:769
+#: modules/emails.py:816
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:798
+#: modules/emails.py:845
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:817 templates/emails/info.html:9
+#: modules/emails.py:864 templates/emails/info.html:9
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:831
+#: modules/emails.py:878
 msgid "Error: Invalid configuration type."
 msgstr ""
 
@@ -3524,7 +3524,7 @@ msgstr ""
 
 #: templates/emails/confirm_import.html:46 templates/emails/info.html:35
 #: templates/emails/info.html:51 templates/emails/new.html:125
-#: templates/emails/single_account.html:146 templates/files/ftp_new.html:53
+#: templates/emails/single_account.html:212 templates/files/ftp_new.html:53
 #: templates/mysql/mysql_user.html:43 templates/mysql/mysql_user.html:53
 #: templates/mysql/password.html:41 templates/mysql/root_password.html:44
 #: templates/mysql/wizard.html:75 templates/psql/password.html:41
@@ -3610,7 +3610,7 @@ msgstr ""
 
 #: templates/emails/filter.html:42 templates/emails/import.html:45
 #: templates/emails/info.html:72 templates/emails/new.html:293
-#: templates/emails/single_account.html:271
+#: templates/emails/single_account.html:337
 msgid "Back to Emails"
 msgstr ""
 
@@ -3698,7 +3698,7 @@ msgstr ""
 msgid "info"
 msgstr ""
 
-#: templates/emails/new.html:115 templates/emails/single_account.html:136
+#: templates/emails/new.html:115 templates/emails/single_account.html:202
 #: templates/files/ftp_new.html:43 templates/files/ftp_password.html:33
 #: templates/manager/mautic_install.html:148
 #: templates/manager/wp/install.html:213 templates/mysql/mysql_user.html:33
@@ -3708,7 +3708,7 @@ msgstr ""
 msgid "Weak password"
 msgstr ""
 
-#: templates/emails/new.html:116 templates/emails/single_account.html:137
+#: templates/emails/new.html:116 templates/emails/single_account.html:203
 #: templates/files/ftp_new.html:44 templates/files/ftp_password.html:34
 #: templates/manager/mautic_install.html:149
 #: templates/manager/wp/install.html:214 templates/mysql/mysql_user.html:34
@@ -3718,7 +3718,7 @@ msgstr ""
 msgid "Medium strength password"
 msgstr ""
 
-#: templates/emails/new.html:117 templates/emails/single_account.html:138
+#: templates/emails/new.html:117 templates/emails/single_account.html:204
 #: templates/files/ftp_new.html:45 templates/files/ftp_password.html:35
 #: templates/manager/mautic_install.html:150
 #: templates/manager/wp/install.html:215 templates/mysql/mysql_user.html:35
@@ -3728,7 +3728,7 @@ msgstr ""
 msgid "Strong password"
 msgstr ""
 
-#: templates/emails/new.html:135 templates/emails/single_account.html:156
+#: templates/emails/new.html:135 templates/emails/single_account.html:222
 #: templates/files/ftp_new.html:64 templates/files/ftp_password.html:43
 #: templates/mysql/password.html:51 templates/mysql/root_password.html:34
 #: templates/user/reset_password/set_new_password.html:22
@@ -3751,24 +3751,32 @@ msgstr ""
 msgid "Current Usage"
 msgstr ""
 
-#: templates/emails/single_account.html:69
-msgid "Allocated Storage Space"
+#: templates/emails/single_account.html:70
+msgid "Change allocated storage space"
 msgstr ""
 
-#: templates/emails/single_account.html:88
+#: templates/emails/single_account.html:99
+msgid "No limit"
+msgstr ""
+
+#: templates/emails/single_account.html:101
+msgid "Maximum allowed: "
+msgstr ""
+
+#: templates/emails/single_account.html:154
 msgid "Receiving Incoming Mail"
 msgstr ""
 
-#: templates/emails/single_account.html:96
-#: templates/emails/single_account.html:118
+#: templates/emails/single_account.html:162
+#: templates/emails/single_account.html:184
 msgid "Allow"
 msgstr ""
 
-#: templates/emails/single_account.html:110
+#: templates/emails/single_account.html:176
 msgid "Sending Outgoing Mail"
 msgstr ""
 
-#: templates/emails/single_account.html:275
+#: templates/emails/single_account.html:341
 msgid "Update Email Settings"
 msgstr ""
 

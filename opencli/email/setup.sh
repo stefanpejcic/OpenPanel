@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 11.02.2026
+# Last Modified: 12.02.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -96,7 +96,8 @@ reload_emails_data_file_for_user() {
 validate_first
 command="$@" 
 docker exec openadmin_mailserver setup $command  
-if [[ "$1" == "email" && ("$2" == "add" || "$2" == "del") ]]; then
+if { [[ "$1" == "email" && ( "$2" == "add" || "$2" == "del" ) ]] || \
+     [[ "$1" == "quota" && ( "$2" == "set" || "$2" == "del" ) ]]; }; then
   if is_valid_email "$3"; then
     reload_emails_data_file_for_user $3
   fi

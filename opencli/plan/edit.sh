@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G"
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 11.02.2026
+# Last Modified: 12.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -158,7 +158,7 @@ update_plan() {
   int_ram="${12}"
   bandwidth="${13}"
   feature_set="${14}"
-  max_email_quota="{$15}"
+  max_email_quota="${15}"
   
     if [[ ! "$disk_limit" =~ GB$ ]]; then
       disk_limit="${int_disk_limit} GB"
