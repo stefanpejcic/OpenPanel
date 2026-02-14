@@ -5,7 +5,7 @@
 # Usage: opencli hsts <domain> [on|off] 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 12.02.2026
+# Last Modified: 13.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

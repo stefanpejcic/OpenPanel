@@ -204,7 +204,7 @@ if PORT != 2087:
 bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
-max_workers = 10
+max_workers = 4
 workers = min(calculated_workers, max_workers)
 
 # Use gevent worker class

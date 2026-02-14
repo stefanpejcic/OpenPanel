@@ -5,7 +5,7 @@
 # Usage: opencli email-quotas
 # Author: Stefan Pejcic
 # Created: 03.12.2025
-# Last Modified: 12.02.2026
+# Last Modified: 13.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

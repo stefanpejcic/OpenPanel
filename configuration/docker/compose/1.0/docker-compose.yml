@@ -221,8 +221,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${MARIADB_CPU:-0.5}"
-          memory: "${MARIADB_RAM:-0.5G}"
+          cpus: "${MARIADB_CPU:-${MYSQL_CPU:-0.5}}"
+          memory: "${MARIADB_RAM:-${MYSQL_RAM:-0.5G}}"
           pids: 100
     networks:
       - db

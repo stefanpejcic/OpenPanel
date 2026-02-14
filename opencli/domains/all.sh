@@ -5,7 +5,7 @@
 # Usage: opencli domains-all [--docroot|--php_version]
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 12.02.2026
+# Last Modified: 13.02.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 

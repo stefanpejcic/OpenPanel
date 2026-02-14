@@ -5,7 +5,7 @@ After=network.target
 [Service]
 User=root
 WorkingDirectory=/usr/local/admin/
-ExecStart=/usr/local/admin/venv/bin/gunicorn -c /etc/openpanel/openadmin/service/service.config.py app:app
+ExecStart=/usr/local/admin/venv/bin/gunicorn -c /etc/openpanel/openadmin/service/service.config.py app:app --preload
 ExecReload=/bin/kill -s HUP $MAINPID
 Restart=always
 
