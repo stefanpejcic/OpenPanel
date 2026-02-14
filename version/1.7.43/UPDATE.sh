@@ -32,7 +32,7 @@ EOF
 echo
 echo "Adding fix for #860"
 wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
-
+wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/service/service.config.py
 
 # https://github.com/stefanpejcic/openpanel-configuration/commit/30f977d412d5ba0c4768a91a2c51177687f82d66
 CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
