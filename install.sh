@@ -1423,10 +1423,8 @@ support_message() {
 
 panel_customize(){
     if [ "$SCREENSHOTS_API_URL" == "local" ]; then
-        echo "Setting the local API service for website screenshots.. (additional 1GB of disk space will be used for the self-hosted Playwright service)"
-        execute_cmd playwright install
-        execute_cmd playwright install-deps
         sed -i 's#screenshots=.*#screenshots=''#' "${CONFIG_FILE}" # must use '#' as delimiter
+		# playwright is now installed on panel startup if screenshots=local
     else
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
         sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}" # must use '#' as delimiter
