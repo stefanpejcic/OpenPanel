@@ -48,10 +48,10 @@ DEV_MODE=false
 post_install_path=""                                                     #
 # ======================================================================
 # PATHs used throughout the script
-readonly ETC_DIR="/etc/openpanel/"                                             # https://github.com/stefanpejcic/openpanel-configuration
-readonly LOG_FILE="openpanel_install.log"                                      # install log                                      # install running
-readonly SERVICES_DIR="/etc/systemd/system/"                                   # used for admin and sentinel services
-readonly CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"               # main config file for openpanel
+readonly ETC_DIR="/etc/openpanel/"                                       # https://github.com/stefanpejcic/openpanel-configuration
+readonly LOG_FILE="openpanel_install.log"                                # install log
+readonly SERVICES_DIR="/etc/systemd/system/"                             # used for admin and sentinel services
+readonly CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"         # main config file for openpanel
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
