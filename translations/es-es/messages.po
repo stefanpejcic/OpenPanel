@@ -2,6 +2,8 @@
 # Copyright (C) 2025 OPENPANEL
 # This file is distributed under the same license as the OpenPanel project.
 #
+msgid ""
+msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-01-23 11:20+0000\n"
@@ -1357,19 +1359,19 @@ msgstr ""
 
 #: modules/core/paths.py:80
 msgid "Path too long"
-msgstr ""
+msgstr "Ruta demasiado larga"
 
 #: modules/core/paths.py:91
 msgid "Invalid characters in filename"
-msgstr ""
+msgstr "Caracteres no válidos en el nombre de archivo"
 
 #: modules/core/paths.py:102
 msgid "Suspicious path pattern detected"
-msgstr ""
+msgstr "Se detectó un patrón de ruta sospechoso"
 
 #: modules/core/paths.py:113
 msgid "Symlinks are not allowed"
-msgstr ""
+msgstr "Symlinks no estan permitidos"
 
 #: modules/core/paths.py:122
 msgid "Path traversal or symlink escape detected"
@@ -1377,35 +1379,35 @@ msgstr ""
 
 #: modules/core/paths.py:126
 msgid "File or directory not found"
-msgstr ""
+msgstr "Archivo o directorio no encontrado"
 
 #: modules/core/paths.py:132
 msgid "Not found"
-msgstr ""
+msgstr "No encontrado"
 
 #: modules/core/search.py:24 modules/core/search.py:69
 msgid "Invalid search query"
-msgstr ""
+msgstr "Consulta de búsqueda no válida"
 
 #: modules/core/search.py:34
 msgid "Invalid file path"
-msgstr ""
+msgstr "Ruta de archivo no válida"
 
 #: modules/core/search.py:79
 msgid "Invalid folder path"
-msgstr ""
+msgstr "Ruta de carpeta no válida"
 
 #: modules/core/search.py:142
 msgid "Error decoding JSON data"
-msgstr ""
+msgstr "Error al decodificar los datos JSON"
 
 #: modules/core/search.py:145
 msgid "Error reading the file"
-msgstr ""
+msgstr "Error al leer el archivo"
 
 #: modules/domain/capitalize_domains.py:82
 msgid "Error reading file."
-msgstr ""
+msgstr "Error al leer el archivo"
 
 #: modules/domain/capitalize_domains.py:85
 msgid "No capitalized domains."
@@ -1426,7 +1428,7 @@ msgstr ""
 
 #: modules/domain/domain_logs.py:104
 msgid "Access Logs"
-msgstr ""
+msgstr "Logs de acceso"
 
 #: modules/domain/edit_vhost.py:28
 msgid "Invalid request. Domain name and Vhost content must be provided."
@@ -1434,7 +1436,7 @@ msgstr ""
 
 #: modules/domain/edit_vhost.py:52
 msgid "Edit VHosts"
-msgstr ""
+msgstr "Editar VHosts"
 
 #: modules/domain/edit_vhost.py:83
 msgid "Error: VirtualHost file could not be saved."

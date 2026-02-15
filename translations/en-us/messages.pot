@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-02-13 11:10+0100\n"
+"POT-Creation-Date: 2026-02-14 09:50+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.15.0\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: modules/autoinstaller.py:72 templates/dashboard/dashboard.html:142
 #: templates/manager/autoinstaller.html:7
@@ -114,7 +114,7 @@ msgstr ""
 msgid "Failed to retrieve disk usage information."
 msgstr ""
 
-#: modules/dashboard.py:216 modules/dashboard.py:240 modules/dashboard.py:503
+#: modules/dashboard.py:216 modules/dashboard.py:240 modules/dashboard.py:504
 #: modules/docker.py:1029 modules/docker.py:1043 modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr ""
@@ -123,23 +123,23 @@ msgstr ""
 #: modules/dns.py:286 modules/dns.py:377 modules/dns.py:414 modules/dns.py:490
 #: modules/dns.py:550 modules/domain/capitalize_domains.py:22
 #: modules/domain/docroot.py:33 modules/domain/domain_logs.py:42
-#: modules/domain/edit_vhost.py:35 modules/domain/edit_vhost.py:57
+#: modules/domain/edit_vhost.py:39 modules/domain/edit_vhost.py:61
 #: modules/domain/redirects.py:60 modules/domain/redirects.py:134
 #: modules/domain/redirects.py:195 modules/domain/ssl.py:33
 #: modules/domains.py:443 modules/domains.py:476 modules/domains.py:501
 #: modules/domains.py:533 modules/domains.py:602 modules/emails.py:142
 #: modules/emails.py:277 modules/emails.py:575 modules/emails.py:610
-#: modules/goaccess.py:23 modules/json/favicons.py:30
-#: modules/json/screenshots.py:74 modules/mautic.py:94 modules/mautic.py:191
+#: modules/goaccess.py:23 modules/json/favicons.py:33
+#: modules/json/screenshots.py:77 modules/mautic.py:94 modules/mautic.py:191
 #: modules/mautic.py:432 modules/mautic.py:596 modules/mautic.py:789
-#: modules/php.py:571 modules/pm2.py:596 modules/pm2.py:1287
-#: modules/sitemanager/temporary_links.py:54 modules/waf.py:117
-#: modules/waf.py:257 modules/waf.py:307 modules/waf.py:361
+#: modules/php.py:571 modules/pm2.py:596 modules/pm2.py:1295
+#: modules/sitemanager/temporary_links.py:54 modules/waf.py:116
+#: modules/waf.py:256 modules/waf.py:306 modules/waf.py:360
 #: modules/website_builder.py:56 modules/website_builder.py:112
 #: modules/website_builder.py:155 modules/website_builder.py:290
 #: modules/websites.py:52 modules/websites.py:255 modules/websites.py:310
 #: modules/websites.py:462 modules/websites.py:546 modules/websites.py:920
-#: modules/wordpress.py:700 modules/wordpress.py:840 modules/wordpress.py:1373
+#: modules/wordpress.py:701 modules/wordpress.py:841 modules/wordpress.py:1374
 msgid "You do not own this domain."
 msgstr ""
 
@@ -434,7 +434,7 @@ msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:41
-#: modules/wordpress.py:678 modules/wordpress.py:833
+#: modules/wordpress.py:679 modules/wordpress.py:834
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -593,6 +593,7 @@ msgid "Failed to stop the pgAdmin service. Try restart."
 msgstr ""
 
 #: modules/pgadmin.py:81
+#, python-brace-format
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
 msgstr ""
 
@@ -680,6 +681,7 @@ msgid "Failed to stop the phpMyAdmin service. Try restart."
 msgstr ""
 
 #: modules/phpmyadmin.py:99
+#, python-brace-format
 msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
 msgstr ""
 
@@ -699,67 +701,67 @@ msgstr ""
 msgid "Install Application"
 msgstr ""
 
-#: modules/pm2.py:1102
+#: modules/pm2.py:1110
 msgid "Unable to detect container type for the application."
 msgstr ""
 
-#: modules/pm2.py:1110
+#: modules/pm2.py:1118
 msgid "Not a valid type, only NodeJS or Python applications can be edited."
 msgstr ""
 
-#: modules/pm2.py:1114 modules/pm2.py:1321
+#: modules/pm2.py:1122 modules/pm2.py:1329
 msgid "Error connecting to database."
 msgstr ""
 
-#: modules/pm2.py:1156
+#: modules/pm2.py:1164
 msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
 msgstr ""
 
-#: modules/pm2.py:1160
+#: modules/pm2.py:1168
 msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
 msgstr ""
 
-#: modules/pm2.py:1164
+#: modules/pm2.py:1172
 msgid ""
 "Error saving: Startup file invalid (must start with /var/www/html/, no "
 "path traversal, ends with .js or .py)"
 msgstr ""
 
-#: modules/pm2.py:1168
+#: modules/pm2.py:1176
 msgid ""
 "Error saving: Provided custom startup command is invalid (no path "
 "traversal '..' allowed!)"
 msgstr ""
 
-#: modules/pm2.py:1172
+#: modules/pm2.py:1180
 msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
 
-#: modules/pm2.py:1176
+#: modules/pm2.py:1184
 msgid "Error saving: CPU core limit provided is not a positive intiger."
 msgstr ""
 
-#: modules/pm2.py:1180
+#: modules/pm2.py:1188
 msgid "Error saving: Memory limit provided is not a positive intiger."
 msgstr ""
 
-#: modules/pm2.py:1237
+#: modules/pm2.py:1245
 msgid ""
 "Changes saved, make sure to restart the application for changes to take "
 "effect."
 msgstr ""
 
-#: modules/pm2.py:1241
+#: modules/pm2.py:1249
 msgid "Environment file not found."
 msgstr ""
 
-#: modules/pm2.py:1307
+#: modules/pm2.py:1315
 msgid "Unable to detect service name for the application."
 msgstr ""
 
-#: modules/pm2.py:1316
+#: modules/pm2.py:1324
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
 msgstr ""
 
@@ -784,6 +786,7 @@ msgid "This is a system database that cannot be used."
 msgstr ""
 
 #: modules/postgresql.py:280
+#, python-brace-format
 msgid "Successfully added a user {db_user} to PostgreSQL database"
 msgstr ""
 
@@ -814,12 +817,14 @@ msgid "This is a system database that cannot be edited."
 msgstr ""
 
 #: modules/postgresql.py:892
+#, python-brace-format
 msgid ""
 "Successfully revoked all privileges for user {db_user} from PostgreSQL "
 "database {database_name}"
 msgstr ""
 
 #: modules/postgresql.py:897
+#, python-brace-format
 msgid ""
 "Failed to revoke privileges for user {db_user} from PostgreSQL database "
 "{database_name}"
@@ -843,40 +848,40 @@ msgstr ""
 msgid "Resource Usage History"
 msgstr ""
 
-#: modules/waf.py:130
+#: modules/waf.py:129
 msgid "Error: IDs should only contain numbers separated by spaces."
 msgstr ""
 
-#: modules/waf.py:135
+#: modules/waf.py:134
 msgid "Error: Tags should only contain words, numbers, or symbols."
 msgstr ""
 
-#: modules/waf.py:189
+#: modules/waf.py:188
 msgid "WAF configuration updated."
 msgstr ""
 
-#: modules/waf.py:192
+#: modules/waf.py:191
 msgid "Error updating WAF!"
 msgstr ""
 
-#: modules/waf.py:195
+#: modules/waf.py:194
 msgid "Configuration file not found."
 msgstr ""
 
-#: modules/waf.py:249 templates/system/waf.html:9
+#: modules/waf.py:248 templates/system/waf.html:9
 #: templates/system/waf_domain.html:11
 msgid "WAF"
 msgstr ""
 
-#: modules/waf.py:291
+#: modules/waf.py:290
 msgid "Error changing WAF status."
 msgstr ""
 
-#: modules/waf.py:331
+#: modules/waf.py:330
 msgid "Domain not found or unauthorized"
 msgstr ""
 
-#: modules/waf.py:417 templates/dashboard/dashboard.html:192
+#: modules/waf.py:416 templates/dashboard/dashboard.html:192
 #: templates/system/waf_logs.html:260
 msgid "WAF Logs"
 msgstr ""
@@ -972,10 +977,12 @@ msgid "WEBSITES - Error executing the query!"
 msgstr ""
 
 #: modules/websites.py:836
+#, python-brace-format
 msgid "WEBSITES - Reading blogname for WordPress website: {path}"
 msgstr ""
 
 #: modules/websites.py:852
+#, python-brace-format
 msgid "WEBSITES - Reading WP admin_email for website: {selected_domain}"
 msgstr ""
 
@@ -991,62 +998,62 @@ msgstr ""
 msgid "Domain not found."
 msgstr ""
 
-#: modules/wordpress.py:566
+#: modules/wordpress.py:567
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:689
+#: modules/wordpress.py:690
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:739
+#: modules/wordpress.py:740
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:794
+#: modules/wordpress.py:795
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:801
+#: modules/wordpress.py:802
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:813
+#: modules/wordpress.py:814
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:856
+#: modules/wordpress.py:857
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:861
+#: modules/wordpress.py:862
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:864
+#: modules/wordpress.py:865
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1001 modules/wordpress.py:1147
+#: modules/wordpress.py:1002 modules/wordpress.py:1148
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1030 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1031 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1129
+#: modules/wordpress.py:1130
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1178 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1179 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
 
-#: modules/account/account.py:88
+#: modules/account/account.py:89
 #, python-format
 msgid ""
 "Email address changed for account %(username)s\n"
@@ -1064,7 +1071,7 @@ msgstr ""
 msgid "Username has been changed successfully from %(old)s to %(new)s."
 msgstr ""
 
-#: modules/account/account.py:119
+#: modules/account/account.py:120
 #, python-format
 msgid ""
 "Username %(old)s changed\n"
@@ -1120,7 +1127,7 @@ msgstr ""
 msgid "Reset Password"
 msgstr ""
 
-#: modules/account/locale.py:70 templates/dashboard/dashboard.html:198
+#: modules/account/locale.py:71 templates/dashboard/dashboard.html:198
 #: templates/user/_login.html:93 templates/user/locale.html:10
 msgid "Change Language"
 msgstr ""
@@ -1362,19 +1369,19 @@ msgstr ""
 msgid "Access Logs"
 msgstr ""
 
-#: modules/domain/edit_vhost.py:29
+#: modules/domain/edit_vhost.py:33
 msgid "Invalid request. Domain name and Vhost content must be provided."
 msgstr ""
 
-#: modules/domain/edit_vhost.py:53
+#: modules/domain/edit_vhost.py:57
 msgid "Edit VHosts"
 msgstr ""
 
-#: modules/domain/edit_vhost.py:84
+#: modules/domain/edit_vhost.py:88
 msgid "Error: VirtualHost file could not be saved."
 msgstr ""
 
-#: modules/domain/edit_vhost.py:130
+#: modules/domain/edit_vhost.py:134
 msgid "Error saving virtual host configuration. Configuration test failed."
 msgstr ""
 
@@ -1469,6 +1476,7 @@ msgid "No files were uploaded"
 msgstr ""
 
 #: modules/files/filemanager.py:252
+#, python-brace-format
 msgid "Error uploading files: {0}"
 msgstr ""
 
@@ -1553,6 +1561,7 @@ msgid "Error saving file: "
 msgstr ""
 
 #: modules/files/filemanager.py:1034
+#, python-brace-format
 msgid "File is too large to open in the editor (limit is {} MB)"
 msgstr ""
 
@@ -1573,6 +1582,7 @@ msgid "Invalid file size retrieved. Possible issue with file."
 msgstr ""
 
 #: modules/files/filemanager.py:1167
+#, python-brace-format
 msgid "File is too large to view in the browser (limit is {} MB)"
 msgstr ""
 
@@ -2169,6 +2179,7 @@ msgid "Click to disable 2FA"
 msgstr ""
 
 #: templates/dashboard/twofa.html:13
+#, python-brace-format
 msgid "2FA is <b>{status}</b> for your account."
 msgstr ""
 
@@ -6985,6 +6996,7 @@ msgid "The website is flagged for threats:"
 msgstr ""
 
 #: templates/partials/googlesafebrowsing.html:49
+#, python-brace-format
 msgid "${response.error}"
 msgstr ""
 

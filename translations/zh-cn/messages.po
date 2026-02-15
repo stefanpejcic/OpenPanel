@@ -9,13 +9,15 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-03-09 15:38+0100\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"PO-Revision-Date: 2026-01-15 00:00+0500\n"
+"Last-Translator: Hasnain ALi <me@hasnainali9.com>\n"
+"Language-Team: Chinese  <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.15.0\n"
+"Language: zh_CN\n"
+
 
 #: app.py:558 templates/dashboard/dashboard.html:974
 #: templates/partials/sidebar.html:1653 templates/user/locale.html:12
@@ -5423,7 +5425,7 @@ msgid "Checking Firewall status.."
 msgstr "正在检查防火墙状态。"
 
 #: templates/php/default.html:14
-msgid "Default PHP version\n"
+msgid "Default PHP version"
 msgstr "默认PHP版本"
 
 #: templates/php/default.html:16 templates/php/install.html:14
@@ -5481,7 +5483,7 @@ msgstr ""
 
 #: templates/php/ini_editor.html:70
 msgid "Edit PHP.INI file\n"
-msgstr "编辑PHP.INI文件"
+msgstr "编辑PHP.INI文件\n"
 
 #: templates/php/ini_editor.html:89 templates/php/options.html:125
 msgid "Select PHP version:"
@@ -5517,7 +5519,7 @@ msgstr "选项"
 
 #: templates/php/options.html:106
 msgid "Edit PHP options\n"
-msgstr "编辑PHP选项"
+msgstr "编辑PHP选项\n"
 
 #: templates/php/options.html:108
 msgid ""
@@ -5781,8 +5783,7 @@ msgstr "上午"
 
 #: templates/system/cronjobs_new.html:312
 msgid "p.m.Noon"
-msgstr "下午
-中午"
+msgstr "下午/中午"
 
 #: templates/system/cronjobs_new.html:313
 #: templates/system/cronjobs_new.html:314
@@ -6547,4 +6548,3 @@ msgstr "Google验证器"
 #: templates/user/twofa_settings.html:148
 msgid "You can install it here:"
 msgstr "您可以在这里安装它："
-

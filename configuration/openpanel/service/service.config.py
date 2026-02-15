@@ -19,21 +19,25 @@ import logging
 import sys
 
 # ======================================================================
-# If dev_mode=on then redirect all prints to 'docker logs openpanel'
+# Read config file
 CONFIG_FILE = "/etc/openpanel/openpanel/conf/openpanel.config"
-def is_dev_mode():
+def is_config_enabled(setting: str) -> bool:
     if not os.path.exists(CONFIG_FILE):
         return False
+
     try:
         with open(CONFIG_FILE, "r") as f:
             for line in f:
-                if line.strip().lower() == "dev_mode=on":
+                if line.strip().lower() == setting.strip().lower():
                     return True
     except Exception:
         pass
+
     return False
 
-DEV_MODE = is_dev_mode()
+# ======================================================================
+# If dev_mode=on then redirect all prints to 'docker logs openpanel'
+DEV_MODE = is_config_enabled("dev_mode=on")
 
 if DEV_MODE:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
@@ -62,9 +66,27 @@ else:
         def flush(self): pass
 
     sys.stdout = DevNull()
-    #sys.stderr = DevNull()
 
 
+# ====================================================================== #
+# If screenshots=local then install playwright
+LOCAL_SCREENSHOTS = is_config_enabled("screenshots=local")
+
+if LOCAL_SCREENSHOTS:
+    print("Screenshots API is set to local, installing Playwright and dependencies, please wait..")
+    subprocess.run(["apt-get", "update"], check=True)
+
+    dependencies = [
+        "libglib2.0-0", "libnss3", "libnspr4", "libdbus-1-3",
+        "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdrm2",
+        "libatspi2.0-0", "libx11-6", "libxcomposite1", "libxdamage1",
+        "libxext6", "libxfixes3", "libxrandr2", "libgbm1", "libxcb1",
+        "libxkbcommon0", "libpango-1.0-0", "libcairo2", "libasound2",
+        "fonts-dejavu-core", "fonts-unifont"
+    ]
+    subprocess.run(["apt-get", "install", "-y"] + dependencies, check=True)
+
+    subprocess.run(["playwright", "install"], check=True)
 
 # ====================================================================== #
 # From version 1.6.3, we allow executing a custom script on startup
@@ -171,7 +193,7 @@ backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
 max_workers = 10
 workers = min(calculated_workers, max_workers)
-worker_class = 'gevent'
+worker_class = 'sync' #gevent
 worker_connections = 1000
 timeout = 10
 graceful_timeout = 10

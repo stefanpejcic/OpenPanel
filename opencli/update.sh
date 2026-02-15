@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 13.02.2026
+# Last Modified: 14.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,7 +30,6 @@
 
 # ---------------------- CONSTANTS ---------------------- #
 readonly COMPOSE_FILE="/root/docker-compose.yml"
-IMAGE_NAME="openpanel/openpanel-ui"
 readonly LOG_FILE="/var/log/openpanel/admin/notifications.log"
 readonly CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 readonly SKIP_VERSIONS_FILE="/etc/openpanel/upgrade/skip_versions"

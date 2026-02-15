@@ -3629,7 +3629,7 @@ msgstr ""
 
 #: templates/domains/new.html:369
 msgid "Retry"
-msgstr ""
+msgstr "Reintentar"
 
 #: templates/domains/new.html:441
 msgid "Converted to Punycode:"
@@ -3641,7 +3641,7 @@ msgstr ""
 
 #: templates/domains/redirect.html:13
 msgid "Edit Redirect for"
-msgstr ""
+msgstr "Editar redireccionamiento a"
 
 #: templates/domains/redirect.html:13
 msgid "Create Redirect for"
@@ -3653,7 +3653,7 @@ msgstr ""
 
 #: templates/domains/redirect.html:14
 msgid "Redirect domain to URL."
-msgstr ""
+msgstr "Redireccionar dominio a URL"
 
 #: templates/domains/redirect.html:30
 msgid "https://"
@@ -3711,15 +3711,15 @@ msgstr ""
 
 #: templates/domains/ssl.html:84
 msgid "Certificate Details:"
-msgstr ""
+msgstr "Detalles del certificado:"
 
 #: templates/domains/ssl.html:139
 msgid "Valid"
-msgstr ""
+msgstr "Valido"
 
 #: templates/domains/ssl.html:142
 msgid "Invalid"
-msgstr ""
+msgstr "Invalido"
 
 #: templates/domains/ssl.html:167
 msgid "No Certificate!"
@@ -3735,7 +3735,7 @@ msgstr ""
 
 #: templates/domains/ssl.html:199
 msgid "View Files"
-msgstr ""
+msgstr "Ver archivos"
 
 #: templates/domains/ssl.html:208
 msgid "No Files"
@@ -3763,7 +3763,7 @@ msgstr ""
 
 #: templates/domains/ssl.html:317
 msgid "Select Domain to edit SSL"
-msgstr ""
+msgstr "Seleccionar dominio para editar SSL"
 
 #: templates/domains/ssl.html:318
 msgid "View and change SSL settings for a domain."
@@ -3771,7 +3771,7 @@ msgstr ""
 
 #: templates/domains/suspend.html:8
 msgid "Suspend domain"
-msgstr ""
+msgstr "Suspender dominio"
 
 #: templates/domains/suspend.html:9 templates/domains/suspend.html:67
 msgid ""
@@ -3781,7 +3781,7 @@ msgstr ""
 
 #: templates/domains/suspend.html:24
 msgid "Confirm suspend of domain:"
-msgstr ""
+msgstr "Confirmar suspensión del dominio:"
 
 #: templates/domains/suspend.html:49
 msgid "Confirm Suspend"
@@ -3793,7 +3793,7 @@ msgstr ""
 
 #: templates/domains/unsuspend.html:9
 msgid "Unsuspend domain"
-msgstr ""
+msgstr "Reactivar dominio"
 
 #: templates/domains/unsuspend.html:10 templates/domains/unsuspend.html:66
 msgid "Unsuspending a domain will immediately restore access to the website."
@@ -3855,7 +3855,7 @@ msgstr ""
 
 #: templates/emails/accounts.html:38
 msgid "New Email"
-msgstr ""
+msgstr "Nuevo correo"
 
 #: templates/emails/accounts.html:55
 msgid "Account @ Domain"
@@ -3863,7 +3863,7 @@ msgstr ""
 
 #: templates/emails/accounts.html:56
 msgid "Storage Used"
-msgstr ""
+msgstr "Almacenamiento utilizado"
 
 #: templates/emails/accounts.html:137
 msgid "Webmail for "
