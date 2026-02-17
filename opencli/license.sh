@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 14.02.2026
+# Last Modified: 16.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,7 +28,7 @@
 # THE SOFTWARE.
 ################################################################################
 
-set -euo pipefail
+#set -euo pipefail
 
 # Configuration
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
@@ -251,7 +251,7 @@ verify_existing_license() {
 
 # Get and display license information
 show_license_info() {
-    local config license_key response license_status
+    local config license_key response license_status ip_address check_token
     
     config=$(read_config)
     license_key=$(echo "$config" | grep -i 'key' | cut -d'=' -f2)

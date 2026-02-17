@@ -5,7 +5,7 @@
 # Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
 # Created: 27.01.2026
-# Last Modified: 14.02.2026
+# Last Modified: 16.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

@@ -6,7 +6,7 @@
 #        opencli php-default <username> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 14.02.2026
+# Last Modified: 16.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
