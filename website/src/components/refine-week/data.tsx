@@ -50,7 +50,7 @@ export const data = {
                 description: `
                 Upload the <strong className="font-bold">openpanel</strong> directory to your Blesta installation at 
                 <strong className="font-bold">components/modules/openpanel/</strong>.`,
-                link: "",
+                link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#installation",
                 image: "/week-of-refine/supabase-timeline-1.jpg",
                 image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
             },
@@ -62,7 +62,7 @@ export const data = {
                 <strong className="font-bold">Settings > Modules > Available</strong>, find 
                 <strong className="font-bold">OpenPanel</strong> and click 
                 <strong className="font-bold">Install</strong>.`,
-                link: "",
+                link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#installation",
                 image: "/week-of-refine/supabase-timeline-2.jpg",
                 image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
             },
@@ -74,7 +74,7 @@ export const data = {
                 <strong className="font-bold">Settings > OpenPanel API</strong>, and enable 
                 <strong className="font-bold">API Access</strong>. 
                 (Optional but recommended) Whitelist your Blesta server IP address in Firewall settings.`,
-                link: "",
+                link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#1-enable-api-access-on-openpanel",
                 image: "/week-of-refine/supabase-timeline-3.jpg",
                 image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
             },
@@ -85,7 +85,7 @@ export const data = {
                 Navigate to <strong className="font-bold">Settings > Modules > Installed > OpenPanel > Add Server</strong> 
                 and enter your server details: Hostname, API Port (default 2087), HTTPS enabled, Admin Username and Password. 
                 Then click <strong className="font-bold">Add Server</strong>.`,
-                link: "",
+                link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#2-add-server-in-blesta",
                 image: "/week-of-refine/supabase-timeline-4.jpg",
                 image2x: "/week-of-refine/supabase-timeline-4-2x.jpg",
             },
@@ -98,7 +98,7 @@ export const data = {
                 <strong className="font-bold">OpenPanel</strong>, choose your Server Group and 
                 select the desired <strong className="font-bold">OpenPanel Plan</strong>. 
                 If no plans appear, verify API credentials and API status.`,
-                link: "",
+                link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#installation",
                 image: "/week-of-refine/supabase-timeline-5.jpg",
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
             },
