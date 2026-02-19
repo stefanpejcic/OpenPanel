@@ -47,55 +47,75 @@ export const data = {
         timeline: [
             {
                 date: "February 14, Monday",
-                title: "Enable API access in OpenAdmin",
+                title: "Upload OpenPanel Module",
                 description: `
-                First make sure that API access is enabled by going to <strong className="font-bold">OpenAdmin > API</strong> or by running <strong className="font-bold">opencli config get api</strong> from the terminal.`,
-                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#enable-api",
+                Upload the <strong className="font-bold">openpanel</strong> directory to your Blesta installation at 
+                <strong className="font-bold">components/modules/openpanel/</strong>.`,
+                link: "",
                 image: "/week-of-refine/supabase-timeline-1.jpg",
                 image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
             },
             {
-                date: "Februrary 15, Tuesday",
-                title: "Whitelist on Firewall",
-                description: `WHMCS server needs to be able to connect to OpenAdmin on port 2087, whitelist both servers: <strong className="font-bold">csf -a SERVER_IP</strong>.`,
-                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#whitelist-on-openpanel",
+                date: "February 15, Tuesday",
+                title: "Install Module in Blesta",
+                description: `
+                Log in to your <strong className="font-bold">Blesta Admin area</strong>, navigate to 
+                <strong className="font-bold">Settings > Modules > Available</strong>, find 
+                <strong className="font-bold">OpenPanel</strong> and click 
+                <strong className="font-bold">Install</strong>.`,
+                link: "",
                 image: "/week-of-refine/supabase-timeline-2.jpg",
                 image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
             },
             {
-                date: "Februrary 16, Wednesday",
-                title: "Install OpenPanel Module",
-                description: `SSH to your WHMCS server and inside <strong className="font-bold">path_to_whmcs/modules/servers</strong> run this command to download the module: <strong className="font-bold">git clone https://github.com/stefanpejcic/openpanel-whmcs-module.git openpanel</strong>.`,
-                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#install-openpanel-whmc-module",
+                date: "February 16, Wednesday",
+                title: "Enable API Access on OpenPanel",
+                description: `
+                Log in to your <strong className="font-bold">OpenAdmin panel</strong>, go to 
+                <strong className="font-bold">Settings > OpenPanel API</strong>, and enable 
+                <strong className="font-bold">API Access</strong>. 
+                (Optional but recommended) Whitelist your Blesta server IP address in Firewall settings.`,
+                link: "",
                 image: "/week-of-refine/supabase-timeline-3.jpg",
                 image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
             },
             {
-                date: "Februrary 17, Thursday",
-                title: "Setup Server",
-                description: `From WHMCS <strong className="font-bold">System Settings > Products & Services > Servers</strong> click on <strong className="font-bold">Create New Server</strong> and under module select <strong className="font-bold">openpanel</strong>  then add server IP, username and password for the OpenAdmin.`,
-                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#whmcs-module-setup",
+                date: "February 17, Thursday",
+                title: "Add Server in Blesta",
+                description: `
+                Navigate to <strong className="font-bold">Settings > Modules > Installed > OpenPanel > Add Server</strong> 
+                and enter your server details: Hostname, API Port (default 2087), HTTPS enabled, Admin Username and Password. 
+                Then click <strong className="font-bold">Add Server</strong>.`,
+                link: "",
                 image: "/week-of-refine/supabase-timeline-4.jpg",
                 image2x: "/week-of-refine/supabase-timeline-4-2x.jpg",
-                enabledTime: "2023-06-21 12:30",
             },
             {
-                date: "Februrary 18, Friday",
-                title: "Create Hosting Plans",
-                description: `Create a new group, then create new plans under this group. When creating products, make sure to select <strong className="font-bold">openpanel</strong> for Module and the newly created group`,
-                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#create-hosting-package-1",
+                date: "February 18, Friday",
+                title: "Create a Package",
+                description: `
+                Navigate to <strong className="font-bold">Packages > Browse Packages > Create Package</strong>. 
+                Under <strong className="font-bold">Module Options</strong>, select 
+                <strong className="font-bold">OpenPanel</strong>, choose your Server Group and 
+                select the desired <strong className="font-bold">OpenPanel Plan</strong>. 
+                If no plans appear, verify API credentials and API status.`,
+                link: "",
                 image: "/week-of-refine/supabase-timeline-5.jpg",
                 image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
             },
             {
                 date: "Februrary 19, Saturday",
-                title: "Test",
-                description: `Create a new order on WHMCS to test if the OpenAdmin API account provisioning is functioning properly.`,
+                title: "Test Provisioning",
+                description: `
+                Create a test order in Blesta to verify that automatic 
+                <strong className="font-bold">Account Provisioning</strong> works correctly. 
+                You can also test upgrades, suspensions, terminations, and Single Sign-On (SSO).`,
                 link: "",
                 image: "/week-of-refine/supabase-timeline-6.jpg",
                 image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
             },
-        ],
+        ]
+
         shareTweetUrl: blestaShareTweetURL,
         tweetIDList: [
             "1645507785621209097",
