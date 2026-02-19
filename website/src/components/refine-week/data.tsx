@@ -51,8 +51,8 @@ export const data = {
                 Upload the <strong className="font-bold">openpanel</strong> directory to your Blesta installation at 
                 <strong className="font-bold">components/modules/openpanel/</strong>.`,
                 link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#installation",
-                image: "/week-of-refine/supabase-timeline-1.jpg",
-                image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
+                image: "/week-of-refine/blesta-timeline-1.jpg",
+                image2x: "/week-of-refine/blesta-timeline-1-2x.jpg",
             },
             {
                 date: "February 15, Tuesday",
@@ -63,8 +63,8 @@ export const data = {
                 <strong className="font-bold">OpenPanel</strong> and click 
                 <strong className="font-bold">Install</strong>.`,
                 link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#installation",
-                image: "/week-of-refine/supabase-timeline-2.jpg",
-                image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
+                image: "/week-of-refine/blesta-timeline-2.jpg",
+                image2x: "/week-of-refine/blesta-timeline-2-2x.jpg",
             },
             {
                 date: "February 16, Wednesday",
@@ -75,8 +75,8 @@ export const data = {
                 <strong className="font-bold">API Access</strong>. 
                 (Optional but recommended) Whitelist your Blesta server IP address in Firewall settings.`,
                 link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#1-enable-api-access-on-openpanel",
-                image: "/week-of-refine/supabase-timeline-3.jpg",
-                image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
+                image: "/week-of-refine/blesta-timeline-3.jpg",
+                image2x: "/week-of-refine/blesta-timeline-3-2x.jpg",
             },
             {
                 date: "February 17, Thursday",
@@ -86,8 +86,8 @@ export const data = {
                 and enter your server details: Hostname, API Port (default 2087), HTTPS enabled, Admin Username and Password. 
                 Then click <strong className="font-bold">Add Server</strong>.`,
                 link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#2-add-server-in-blesta",
-                image: "/week-of-refine/supabase-timeline-4.jpg",
-                image2x: "/week-of-refine/supabase-timeline-4-2x.jpg",
+                image: "/week-of-refine/blesta-timeline-4.jpg",
+                image2x: "/week-of-refine/blesta-timeline-4-2x.jpg",
             },
             {
                 date: "February 18, Friday",
@@ -99,8 +99,8 @@ export const data = {
                 select the desired <strong className="font-bold">OpenPanel Plan</strong>. 
                 If no plans appear, verify API credentials and API status.`,
                 link: "https://github.com/Equitia/blesta-module-openpanel?tab=readme-ov-file#installation",
-                image: "/week-of-refine/supabase-timeline-5.jpg",
-                image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
+                image: "/week-of-refine/blesta-timeline-5.jpg",
+                image2x: "/week-of-refine/blesta-timeline-5-2x.jpg",
             },
             {
                 date: "Februrary 19, Saturday",
@@ -110,8 +110,8 @@ export const data = {
                 <strong className="font-bold">Account Provisioning</strong> works correctly. 
                 You can also test upgrades, suspensions, terminations, and Single Sign-On (SSO).`,
                 link: "",
-                image: "/week-of-refine/supabase-timeline-6.jpg",
-                image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
+                image: "/week-of-refine/blesta-timeline-6.jpg",
+                image2x: "/week-of-refine/blesta-timeline-6-2x.jpg",
             },
         ],
 
