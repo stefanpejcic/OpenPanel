@@ -2,6 +2,7 @@ import React from "react";
 import {
     StrapiWithText,
     SupabaseWithText,
+    BlestaWithText,
 } from "@site/src/assets/integration-icons";
 import { FooterDiscordIcon as DiscordIcon } from "../../refine-theme/icons/footer-discord";
 import { FooterGithubIcon as GithubIcon } from "../../refine-theme/icons/footer-github";
@@ -27,6 +28,83 @@ const strapiShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURICom
 )}&hashtags=${hashtags}`;
 
 export const data = {
+    supabase: {
+        logo: BlestaWithText,
+        cover: "/img/tutorial-cards/blesta.jpeg",
+        cover2x: "/img/tutorial-cards/blesta.jpeg",
+        coverAlt: "refine week",
+        title: "blesta",
+        description:
+            "Setup <strong>Blesta & OpenPanel</strong> account provisioning in just 5 minutes.",
+        date: "February 14 - February 20, 2023",
+        timeline: [
+            {
+                date: "February 14, Monday",
+                title: "Enable API access in OpenAdmin",
+                description: `
+                First make sure that API access is enabled by going to <strong className="font-bold">OpenAdmin > API</strong> or by running <strong className="font-bold">opencli config get api</strong> from the terminal.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#enable-api",
+                image: "/week-of-refine/supabase-timeline-1.jpg",
+                image2x: "/week-of-refine/supabase-timeline-1-2x.jpg",
+            },
+            {
+                date: "Februrary 15, Tuesday",
+                title: "Whitelist on Firewall",
+                description: `WHMCS server needs to be able to connect to OpenAdmin on port 2087, whitelist both servers: <strong className="font-bold">csf -a SERVER_IP</strong>.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#whitelist-on-openpanel",
+                image: "/week-of-refine/supabase-timeline-2.jpg",
+                image2x: "/week-of-refine/supabase-timeline-2-2x.jpg",
+            },
+            {
+                date: "Februrary 16, Wednesday",
+                title: "Install OpenPanel Module",
+                description: `SSH to your WHMCS server and inside <strong className="font-bold">path_to_whmcs/modules/servers</strong> run this command to download the module: <strong className="font-bold">git clone https://github.com/stefanpejcic/openpanel-whmcs-module.git openpanel</strong>.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#install-openpanel-whmc-module",
+                image: "/week-of-refine/supabase-timeline-3.jpg",
+                image2x: "/week-of-refine/supabase-timeline-3-2x.jpg",
+            },
+            {
+                date: "Februrary 17, Thursday",
+                title: "Setup Server",
+                description: `From WHMCS <strong className="font-bold">System Settings > Products & Services > Servers</strong> click on <strong className="font-bold">Create New Server</strong> and under module select <strong className="font-bold">openpanel</strong>  then add server IP, username and password for the OpenAdmin.`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#whmcs-module-setup",
+                image: "/week-of-refine/supabase-timeline-4.jpg",
+                image2x: "/week-of-refine/supabase-timeline-4-2x.jpg",
+                enabledTime: "2023-06-21 12:30",
+            },
+            {
+                date: "Februrary 18, Friday",
+                title: "Create Hosting Plans",
+                description: `Create a new group, then create new plans under this group. When creating products, make sure to select <strong className="font-bold">openpanel</strong> for Module and the newly created group`,
+                link: "https://openpanel.com/docs/articles/extensions/openpanel-and-whmcs/#create-hosting-package-1",
+                image: "/week-of-refine/supabase-timeline-5.jpg",
+                image2x: "/week-of-refine/supabase-timeline-5-2x.jpg",
+            },
+            {
+                date: "Februrary 19, Saturday",
+                title: "Test",
+                description: `Create a new order on WHMCS to test if the OpenAdmin API account provisioning is functioning properly.`,
+                link: "",
+                image: "/week-of-refine/supabase-timeline-6.jpg",
+                image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
+            },
+        ],
+        shareTweetUrl: blestaShareTweetURL,
+        tweetIDList: [
+            "1645507785621209097",
+            "1635625661778763776",
+            "1640741763408076803",
+            "1625488050863353856",
+            "1615260152822628352",
+            "1621513516036526080",
+            "1621932348009861132",
+            "1597878371760979970",
+            "1616390215068688384",
+            "1617841995233529861",
+            "1620724625536880641",
+            "1618180208414322689",
+        ],
+    },    
     supabase: {
         logo: SupabaseWithText,
         cover: "/img/tutorial-cards/whmcs.jpeg",
