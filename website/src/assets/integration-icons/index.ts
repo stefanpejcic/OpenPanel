@@ -107,6 +107,8 @@ export { default as Strapi } from "./strapi";
 export { default as StrapiWithText } from "./strapi-with-text";
 export { default as Supabase } from "./supabase";
 export { default as SupabaseWithText } from "./supabase-with-text";
+export { default as Blesta } from "./blesta";
+export { default as BlestaWithText } from "./blesta-with-text";
 export { default as TailwindCss } from "./tailwindcss";
 export { default as UseGenerated } from "./usegenerated";
 export { default as SlackIcon } from "./slack";
