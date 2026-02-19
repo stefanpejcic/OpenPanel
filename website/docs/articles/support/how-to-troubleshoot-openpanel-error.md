@@ -39,7 +39,7 @@ Enabling **dev_mode** allows OpenPanel and OpenAdmin interfaces to log detailed 
 To enable dev_mode:
 
 ```bash
-opencli config update dev_mode true
+opencli config update dev_mode on
 ```
 
 Then restart the panel.
