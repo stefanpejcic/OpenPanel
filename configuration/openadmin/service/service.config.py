@@ -10,6 +10,7 @@ import re
 from pathlib import Path
 import logging
 import sys
+import shutil
 
 # ======================================================================
 # If dev_mode=on then redirect all prints to '/var/log/openpanel/admin/error.log'
@@ -90,10 +91,7 @@ if os.path.exists(DISABLE_FILE_PATH):
 
 # File paths
 CADDYFILE_PATH = "/etc/openpanel/caddy/Caddyfile"
-CADDY_CERT_DIRS = [
-    "/etc/openpanel/caddy/ssl/custom/",
-    "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"   
-]
+CADDY_CERT_DIRS = ["/etc/openpanel/caddy/ssl/custom/", "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"]
 DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
 
 
@@ -121,13 +119,23 @@ def symlink_force(target, link_name):
     except Exception as e:
         print(f"Failed to create symlink {link_name} -> {target}: {e}")
 
+def clear_openadmin_cache(cache_dir="/tmp/openadmin_cache"):
+    try:
+        if os.path.exists(cache_dir):
+            shutil.rmtree(cache_dir)
+            print(f"Removed cache directory {cache_dir}")
+        os.makedirs(cache_dir, exist_ok=True)
+        print(f"Recreated empty cache directory {cache_dir}")
+    except Exception as e:
+        print(f"Failed to clear cache in {cache_dir}: {e}")
+
 make_executable_if_exists("/etc/openpanel/wordpress/wp-cli.phar")     # wpcli for php containers
 make_executable_if_exists("/usr/local/admin/modules/security/csf.pl") # csf gui
 make_executable_if_exists("/etc/openpanel/services/watcher.sh")       # reload dns zones
 make_executable_if_exists("/etc/openpanel/mysql/scripts/dump.sh")     # mysql export script for backups
 make_executable_if_exists("/etc/openpanel/openlitespeed/start.sh")    # overwrites ols entrypoint
-
 symlink_force("/etc/csf/ui/images/", "/usr/local/admin/static/configservercsf")
+clear_openadmin_cache("/tmp/openadmin_cache")
 
 ##############
 def read_from_caddyfile():

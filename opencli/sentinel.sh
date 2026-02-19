@@ -5,7 +5,7 @@
 # Usage: opencli sentinel [-report|--startup]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 16.02.2026
+# Last Modified: 18.02.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -50,7 +50,8 @@ FAIL=0
 
 readonly CONF_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 readonly LOCK_FILE="/tmp/swap_cleanup.lock"
-TIME=$(date +"%Y-%m-%d %H:%M:%S")
+DISPLAY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+TIME=$(date +%s%3N)
 readonly INI_FILE="/etc/openpanel/openadmin/config/notifications.ini"
 HOSTNAME=$(hostname)
 readonly LOG_FILE="/var/log/openpanel/admin/notifications.log"
@@ -105,7 +106,7 @@ check_for_debug_and_print_info(){
       echo "HOSTNAME:       $HOSTNAME"
       echo "VERSION:        $VERSION"
       echo "PID:            $PID"
-      echo "TIME:           $TIME"
+      echo "TIME:           $DISPLAY_TIME"
       echo "CONF_FILE:      $CONF_FILE"
       echo "LOCK_FILE:      $LOCK_FILE"
       echo "INI_FILE:       $INI_FILE"
@@ -794,17 +795,17 @@ check_swap_usage() {
         if [ "$swap_usage_no_decimals" -lt "$SWAP_THRESHOLD" ]; then
             echo -e "The Sentinel service has completed clearing SWAP on server $HOSTNAME! \n THANK YOU FOR USING THIS SERVICE! PLEASE REPORT ALL BUGS AND ERRORS TO sentinel@openpanel.co"
             write_notification "$title_ok" "The Sentinel service has completed clearing SWAP on server $HOSTNAME!"
-            echo -e "SWAP Usage was abnormal, healing completed, notification sent! This SWAP check was performed at: $TIME"
+            echo -e "SWAP Usage was abnormal, healing completed, notification sent! This SWAP check was performed at: $DISPLAY_TIME"
             rm -f "$LOCK_FILE" # delete after success
         else
             ((FAIL++))
             STATUS=2
             echo -e "\e[31m[✘]\e[0m URGENT! SWAP could not be cleared on $HOSTNAME"
-            write_notification "$title_not_ok" "The Sentinel service detected abnormal SWAP usage at $TIME and tried clearing the space but SWAP usage is still above the $swap_usage_no_decimals treshold."
+            write_notification "$title_not_ok" "The Sentinel service detected abnormal SWAP usage at $DISPLAY_TIME and tried clearing the space but SWAP usage is still above the $swap_usage_no_decimals treshold."
         fi
     else
     ((PASS++))
-        echo -e "\e[32m[✔]\e[0m Current SWAP usage is $SWAP_USAGE_NO_DECIMALS (bellow the ${SWAP_THRESHOLD}% treshold) - SWAP check was performed at: $TIME "
+        echo -e "\e[32m[✔]\e[0m Current SWAP usage is $SWAP_USAGE_NO_DECIMALS (bellow the ${SWAP_THRESHOLD}% treshold) - SWAP check was performed at: $DISPLAY_TIME "
         rm -f "$LOCK_FILE" # delete if failed but on next run it is ok
     fi
 }
