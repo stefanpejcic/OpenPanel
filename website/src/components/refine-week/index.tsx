@@ -5,7 +5,7 @@ import { RefineWeekDesktop } from "./refine-week-desktop";
 import { RefineWeekMobile } from "./refine-week-mobile";
 
 type Props = {
-    variant: "strapi" | "supabase";
+    variant: "strapi" | "supabase" | "blesta";
 };
 
 export const RefineWeek = ({ variant }: Props) => {
