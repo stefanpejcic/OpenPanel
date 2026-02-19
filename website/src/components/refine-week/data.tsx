@@ -2,7 +2,6 @@ import React from "react";
 import {
     StrapiWithText,
     SupabaseWithText,
-    BlestaWithText,
 } from "@site/src/assets/integration-icons";
 import { FooterDiscordIcon as DiscordIcon } from "../../refine-theme/icons/footer-discord";
 import { FooterGithubIcon as GithubIcon } from "../../refine-theme/icons/footer-github";
@@ -36,7 +35,7 @@ const blestaShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURICom
 
 export const data = {
     blesta: {
-        logo: BlestaWithText,
+        logo: SupabaseWithText,
         cover: "/img/tutorial-cards/blesta.jpeg",
         cover2x: "/img/tutorial-cards/blesta.jpeg",
         coverAlt: "refine week",
