@@ -5,7 +5,7 @@ import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { RefineWeek } from "@site/src/components/refine-week";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 
-const RefineWeekSupabase = () => {
+const RefineWeekBlesta = () => {
     return (
         <CommonLayout>
             <div className="refine-prose">
@@ -21,4 +21,4 @@ const RefineWeekSupabase = () => {
     );
 };
 
-export default RefineWeekSupabase;
+export default RefineWeekBlesta;
