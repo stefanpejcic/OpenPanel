@@ -114,7 +114,7 @@ export const data = {
                 image: "/week-of-refine/supabase-timeline-6.jpg",
                 image2x: "/week-of-refine/supabase-timeline-6-2x.jpg",
             },
-        ]
+        ],
 
         shareTweetUrl: blestaShareTweetURL,
         tweetIDList: [
