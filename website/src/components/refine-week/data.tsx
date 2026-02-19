@@ -27,8 +27,15 @@ const strapiShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURICom
     `📚 Setup FOSSBilling & OpenPanel account provisioning in just 5 minutes.\n\n`,
 )}&hashtags=${hashtags}`;
 
+const blestaShareTweetURL = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
+    "https://openpanel.com/blesta-module/",
+)}&text=${encodeURIComponent(
+    `📚 Setup Blesta & OpenPanel account provisioning in just 5 minutes.\n\n`,
+)}&hashtags=${hashtags}`;
+
+
 export const data = {
-    supabase: {
+    blesta: {
         logo: BlestaWithText,
         cover: "/img/tutorial-cards/blesta.jpeg",
         cover2x: "/img/tutorial-cards/blesta.jpeg",
