@@ -6,15 +6,13 @@ sidebar_position: 2
 
 The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
 
-The dashboard page contains 13 widgets:
+The dashboard page contains widgets:
 
-- **Overview** widget: Displays the total number of nodes (servers), containers, users, domains, websites, hosting packages and email accounts.
-- **Resource Usage** widget: Shows the real-time server resource usage for: Load, CPU%, Memory, SWAP, Disk usage and Network I/O.
 - **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
-- **Latest News Activity** widget: Displays blog articles from the OpenPanel blog.
+- **Latest News** widget: Displays blog articles from the OpenPanel blog.
 - **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
 
-## SSE Usage
+## Usage
 
 In the top-right corner of every page in **OpenAdmin**, administrators can monitor real-time resource usage, including **Load**, **Memory**, **CPU**, and **Disk**.
 
@@ -26,19 +24,6 @@ Hovering over each metric provides detailed information:
 * **Disk** – Usage per disk partition
 
 ![SSE Widget](https://i.postimg.cc/9Q9DMPH0/openadmin-sse.gif)
-
-## Resource Usage
-
-![openadmin dashboard widget](/img/admin/dashboard/openadmin_dashboard_widget.gif)
-
-
-The **Resource Usage** widget provides real-time monitoring of server resources, including:
-
-* **Average Load** – Displays the system's current average load.
-* **Memory Usage** – Shows current RAM and swap usage, with options to drop cached memory and clear swap space.
-* **CPU Usage** – Displays the total CPU usage percentage and usage per individual core.
-* **Disk Usage** – Provides details on free, used, and total disk space, device name, filesystem type, and in-depth disk I/O statistics.
-* **Network I/O** – Shows real-time input and output data per network interface.
 
 ## User Activity
 
@@ -90,7 +75,9 @@ Search returns:
 - Website/Domains of users
 - Features/pages in the Admin interface
 
+## Keyboard Shortcuts
 
+OpenAdmin UI can be navigated using keyboard shortcuts: [view documentation](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/).
 
 ## Logout
 
