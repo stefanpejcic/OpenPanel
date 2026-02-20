@@ -735,6 +735,12 @@ setup_firewall_service() {
         else
             echo -e "[${RED} X  ${RESET}] Sentinel Firewall is not installed properly."
         fi
+	else
+		  echo "Removing Sentinel Firewall (CSF) from 'OpenAdmin > Services Status' page..."
+		  sed -i 's/,csf//g' ${ETC_DIR}openadmin/config/notifications.ini
+		  if jq 'map(select(.name != "Sentinel Firewall"))' "/etc/openpanel/openadmin/config/services.json" > "services.tmp.json"; then
+            mv "services.tmp.json" "/etc/openpanel/openadmin/config/services.json"
+		  fi
     fi
 }
 
