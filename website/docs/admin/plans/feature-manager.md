@@ -82,7 +82,7 @@ Create two separate feature sets:
 
 ## Feature not showing?
 
-Features are accessible to users only if the corresponding **Module** is active. Modules control which OpenPanel features are available, while **Feature Sets** determine access based on the user's hosting package.
+Features are accessible to users [only if the corresponding **Module** is active](/docs/admin/settings/modules/). Modules control which OpenPanel features are available, while **Feature Sets** determine access based on the user's hosting package.
 
 For example, adding the "Docker" feature to a plan does **not** grant access to the Docker (Containers) pages in the UI unless the **Docker module** is also activated under **OpenAdmin > Settings > Modules**.
 
