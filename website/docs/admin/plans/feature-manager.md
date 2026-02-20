@@ -8,6 +8,10 @@ The Feature Manager allows administrators to enable or disable specific features
 
 Each feature can be toggled individually via the interface. Once activated, the feature becomes visible and accessible to all users. Deactivating a feature hides it from the panel and disables its functionality.
 
+![openadmin features](/img/admin/tremor/features.png)
+
+![openadmin features](/img/admin/tremor/features_edit.png)
+
 ---
 
 ## Available Features
