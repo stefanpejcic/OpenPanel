@@ -26,6 +26,7 @@ To list existing plans navigate to Plans page:
 | **Websites** | Total number of websites (WordPress, NodeJS, Python) per user on the plan.   |
 | **Databases** | Total number of MySQL/MariaDB databases allowed per user on the plan.              |
 | **Email accounts** | Total number of email accounts that user can create on the plan.              |
+| **Mailbox quota** | Max mailbox size for email accounts that user can set on this plan.              |
 | **FTP accounts** | Total number of ftp accounts that user can create on the plan.             |
 | **Feature Set** | [Feature Sets](/docs/admin/settings/openpanel/#enable-features) determine which pages users can access from the OpenPanel interface.               |
 
@@ -43,14 +44,12 @@ opencli plan-list
 Example output:
 ```bash
 [root@fajlovi ~]# opencli plan-list
-+----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+
-| id | name           | description            | domains_limit | websites_limit | email_limit | ftp_limit | disk_limit | inodes_limit | db_limit | cpu  | ram  | bandwidth | feature_set |
-+----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+
-|  1 | Standard plan  | Small plan for testing |             0 |             10 |           0 |         0 | 5 GB       |      1000000 |        0 | 2    | 2g   |        10 | default     |
-|  2 | Developer Plus | 4 cores, 6G ram        |             0 |             10 |           0 |         0 | 10 GB      |      1000000 |        0 | 2    | 3g   |       100 | proba       |
-|  3 | unlimited      | unlimited              |             0 |              0 |           0 |         0 | 100 GB     |       250000 |        0 | 2    | 3g   |         0 | default     |
-|  4 | unlimited2     | default                |             0 |              0 |           0 |         0 | 0 GB       |            0 |        0 | 0    | 0g   |         0 | proba       |
-+----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+
++----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
+| id | name           | description            | domains_limit | websites_limit | email_limit | ftp_limit | disk_limit | inodes_limit | db_limit | cpu  | ram  | bandwidth | feature_set | max_email_quota |
++----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
+|  1 | Standard plan  | Small plan for testing |             0 |             10 |           0 |         0 | 5 GB       |      1000000 |        0 | 2    | 2g   |        10 | basic       | 0               |
+|  2 | Developer Plus | 4 cores, 6G ram        |             0 |             10 |           0 |         0 | 20 GB      |      2500000 |        0 | 4    | 6g   |       100 | default     | 0               |
++----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
 
 ```
 
@@ -81,6 +80,7 @@ To create a new hosting package, click the **'Create New'** button and configure
 * **Websites** – Max number of websites in Site Manager (WordPress, WebsiteBuilder, NodeJS/Python). Use `0` for unlimited.
 * **FTP accounts** – Max number of FTP sub-accounts. Use `0` for unlimited.
 * **Email accounts** – Max number of email sub-accounts. Use `0` for unlimited.
+* **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan.
 * **Feature Set** – Name of the feature set that defines available services in the OpenPanel UI.
 
 
@@ -90,12 +90,12 @@ To create a new hosting package, click the **'Create New'** button and configure
 To create a new plan run the following command:
 
 ```bash
-opencli plan-create 'name' 'description' email_limit ftp_limit domains_limit websites_limit disk_limit inodes_limit db_limit cpu ram bandwidth feature_set
+opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>
 ```
 
 Example:
 ```bash
-opencli plan-create Another Plan' 'this plan is used for X' 0 0 10 10 50 1000000 25 2 4 100 'default'
+opencli plan-create name=New Plan description=This is a new plan emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G
 ```
 
   </TabItem>
