@@ -1581,6 +1581,7 @@ extra_steps_for_caddy() {
 
 
 configure_coraza() {
+	touch ${ETC_DIR}caddy/coraza_rules.conf
 	opencli waf $([ "$CORAZA" = true ] && echo enable || echo disable)
 }
 
