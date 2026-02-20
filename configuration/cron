@@ -20,10 +20,10 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 0 * * * * root /usr/local/bin/opencli docker-collect_stats --all && echo "$(date) Docker statistics collected" >> /var/log/openpanel/admin/cron.log
 30 2 * * * root /usr/local/bin/opencli domains-stats && echo "$(date) Domain statistics collected" >> /var/log/openpanel/admin/cron.log
 0 4 * * * root /usr/local/bin/opencli websites-pagespeed --all && echo "$(date) Google PageSpeed data collected for all domains" >> /var/log/openpanel/admin/cron.log
+0 5 */2 * * root /usr/local/bin/opencli websites-vulnerability --all && echo "$(date) WordPress websites scanned for known vulnerabilities" >> /var/log/openpanel/admin/cron.log
 0 */4 * * * root /usr/local/bin/opencli files-calculate_resellers_storage && echo "$(date) Calculated storage usage for all reseller accounts" >> /var/log/openpanel/admin/cron.log
 
 # MAINTENANCE
-0 2 * * * root /usr/local/bin/opencli docker-usage_stats_cleanup && echo "$(date) Docker usage stats cleanup executed" >> /var/log/openpanel/admin/cron.log
 15 0 * * * root /usr/local/bin/opencli update && echo "$(date) System update executed" >> /var/log/openpanel/admin/cron.log
 0 0 12 * * root /usr/local/bin/opencli server-ips && echo "$(date) Server IP listing executed" >> /var/log/openpanel/admin/cron.log
 0 */8 * * * root /usr/local/bin/opencli ftp-users && echo "$(date) FTP users file recreated" >> /var/log/openpanel/admin/cron.log

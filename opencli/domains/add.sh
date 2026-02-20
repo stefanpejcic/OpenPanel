@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 18.02.2026
+# Last Modified: 19.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -461,8 +461,8 @@ make_folder() {
     )
 
 	mkdir -p "${dirs[@]}"
-	chown -R "$context_uid:$context_uid" "${dirs[@]}"
-	chmod -R g+w "${dirs[@]}"
+	timeout 3s chown -R "$context_uid:$context_uid" "${dirs[@]}"
+	timeout 1s chmod -R g+w "${dirs[@]}"
 }
 
 
