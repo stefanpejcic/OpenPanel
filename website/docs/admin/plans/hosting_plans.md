@@ -14,6 +14,9 @@ Hosting plans set limits for users.
 
 To list existing plans navigate to Plans page:
 
+![openadmin plans](/img/admin/tremor/plans_list.png)
+
+
 | Field              | Description                                                               |
 | ------------------ | ------------------------------------------------------------------------- |
 | **Plan Name**      | Display name that users will see in their OpenPanel dashboards.            |
@@ -69,6 +72,9 @@ opencli plan-list --json
 
 To create a new hosting package, click the **'Create New'** button and configure the desired limits:
 
+![openadmin plans create](/img/admin/tremor/plans_create.png)
+
+
 * **Name** – Can include any characters.
 * **Description** – Internal note for admins, visible only in OpenAdmin.
 * **Disk** – Storage in GB. Use `0` for unlimited.
@@ -106,6 +112,11 @@ opencli plan-create name=New Plan description=This is a new plan emails=100 ftp=
 
 To change plan limits click on the **Edit** button for the plan in **OpenAdmin > User Packages** and set the new limits.
 
+![openadmin plans edit](/img/admin/tremor/plans_edit_1.png)
+
+![openadmin plans edit limits](/img/admin/tremor/plans_edit_2.png)
+
+
 The new limits will be applied immediately to all accounts using the package.
 
 ## List Users on Plan
@@ -114,6 +125,10 @@ The new limits will be applied immediately to all accounts using the package.
   <TabItem value="openadmin-plan-usage" label="With OpenAdmin" default>
 
 To view all users that are currently using a hosting package, simply sort the users table by that package name, or in the search field type the package name.
+
+![openadmin plans usage](/img/admin/tremor/plans_usage_1.png)
+
+![openadmin plans usage](/img/admin/tremor/plans_usage_2.png)
 
   </TabItem>
   <TabItem value="CLI-plan-usage" label="With OpenCLI">
@@ -148,7 +163,10 @@ opencli plan-usage --json
 <Tabs>
   <TabItem value="openadmin-plan-delete" label="With OpenAdmin" default>
     
-To delete a hosting package click on the **Delete** button next to the package name.
+To delete a hosting package click on the **Delete** link for the desired package.
+
+![openadmin plans delete](/img/admin/tremor/plans_delete.png)
+
 
   </TabItem>
   <TabItem value="CLI-plan-delete" label="With OpenCLI">
