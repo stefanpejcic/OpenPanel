@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import clsx from 'clsx';
+import Translate from '@docusaurus/Translate';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
@@ -107,9 +108,9 @@ export const LandingHeroGithubStars = () => {
                     )}
                 >
                     <span className="font-semibold">
-                        latest version <span>{version}</span>
+                        <Translate id="homepage.badge.latest">latest version</Translate> <span>{version}</span>
                     </span>{" "}
-                    <span>- view the changelog</span>
+                    <span>- <Translate id="homepage.badge.changelog">view the changelog</Translate></span>
                 </span>
             </div>
         </a>

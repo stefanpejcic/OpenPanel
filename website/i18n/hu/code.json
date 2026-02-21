@@ -1,194 +1,421 @@
 {
-    "menu.label.Resources": {
-        "message": "Erőforrások"
-    },
-    "menu.label.Documentation": {
-        "message": "Dokumentáció"
-    },
-    "menu.desc.Documentation": {
-        "message": "Minden, amire szüksége van a kezdéshez."
-    },
-    "menu.label.How-to Guides": {
-        "message": "Útmutatók"
-    },
-    "menu.desc.How-to Guides": {
-        "message": "Az OpenPanel testreszabása."
-    },
-    "menu.label.Features": {
-        "message": "Funkciók"
-    },
-    "menu.desc.Features": {
-        "message": "Fedezze fel az OpenPanel funkcióit."
-    },
-    "menu.label.Changelog": {
-        "message": "Változások listája"
-    },
-    "menu.desc.Changelog": {
-        "message": "Új funkciók és hibajavítások."
-    },
-    "menu.label.Forums": {
-        "message": "Fórumok"
-    },
-    "menu.desc.Forums": {
-        "message": "Csatlakozzon növekvő közösségünkhöz!"
-    },
-    "menu.label.Blog": {
-        "message": "Blog"
-    },
-    "menu.desc.Blog": {
-        "message": "Cikkek a Linuxról és a szerverekről."
-    },
-    "menu.label.Live Demo": {
-        "message": "Élő demó"
-    },
-    "menu.label.Enterprise": {
-        "message": "Nagyvállalati"
-    },
-    "menu.label.OpenPanel Enterprise": {
-        "message": "OpenPanel Enterprise"
-    },
-    "menu.desc.OpenPanel Enterprise": {
-        "message": "Fix ár 14.95€ havonta."
-    },
-    "menu.label.Hosting Providers": {
-        "message": "Tárhelyszolgáltatók"
-    },
-    "menu.desc.Hosting Providers": {
-        "message": "A tárhelyszolgáltatók ❤️ az OpenPanelt."
-    },
-    "menu.label.Contact us": {
-        "message": "Lépjen kapcsolatba velünk"
-    },
-    "menu.desc.Contact us": {
-        "message": "Hívjon minket bármilyen kérdéssel"
-    },
-    "menu.label.Company": {
-        "message": "Cégünk"
-    },
-    "menu.text.star_us": {
-        "message": "Ha tetszik az OpenPanel, ne felejtse el csillagozni a GitHubon!"
-    },
-    "menu.text.join_party": {
-        "message": "Csatlakozzon hozzánk!"
-    },
-    "footer.text.join_us": {
-        "message": "Csatlakozzon hozzánk"
-    },
-    "footer.text.trademark": {
-        "message": "OpenPanel - készült:"
-    },
-    "footer.menu.title.Resources": {
-        "message": "Erőforrások"
-    },
-    "footer.menu.title.Product": {
-        "message": "Termék"
-    },
-    "footer.menu.title.Compare": {
-        "message": "Összehasonlítás"
-    },
-    "footer.menu.title.Company": {
-        "message": "Cégünk"
-    },
-    "footer.menu.item.End-user Docs": {
-        "message": "Végfelhasználói dokumentáció"
-    },
-    "footer.menu.item.Admin Docs": {
-        "message": "Adminisztrátori dokumentáció"
-    },
-    "footer.menu.item.How-to Guides": {
-        "message": "Útmutatók"
-    },
-    "footer.menu.item.OpenCLI": {
-        "message": "OpenCLI"
-    },
-    "footer.menu.item.API Docs": {
-        "message": "API Dokumentáció"
-    },
-    "footer.menu.item.Install Command": {
-        "message": "Telepítési parancs"
-    },
-    "footer.menu.item.Compare editions": {
-        "message": "Kiadások összehasonlítása"
-    },
-    "footer.menu.item.NOC Pricing": {
-        "message": "NOC Árazás"
-    },
-    "footer.menu.item.Features": {
-        "message": "Funkciók"
-    },
-    "footer.menu.item.Live Preview": {
-        "message": "Élő előnézet"
-    },
-    "footer.menu.item.Roadmap": {
-        "message": "Fejlesztési terv"
-    },
-    "footer.menu.item.Changelog": {
-        "message": "Változások listája"
-    },
-    "footer.menu.item.cPanel VS OpenPanel": {
-        "message": "cPanel VS OpenPanel"
-    },
-    "footer.menu.item.Plesk VS OpenPanel": {
-        "message": "Plesk VS OpenPanel"
-    },
-    "footer.menu.item.CyberPanel VS OpenPanel": {
-        "message": "CyberPanel VS OpenPanel"
-    },
-    "footer.menu.item.About": {
-        "message": "Rólunk"
-    },
-    "footer.menu.item.Blog": {
-        "message": "Blog"
-    },
-    "footer.menu.item.Statistics": {
-        "message": "Statisztikák"
-    },
-    "footer.menu.item.Contact": {
-        "message": "Kapcsolat"
-    },
-    "footer.menu.secondary.Privacy Policy": {
-        "message": "Adatvédelmi irányelvek"
-    },
-    "homepage.hero.subtitle": {
-        "message": "A Következő Generációs"
-    },
-    "homepage.hero.panel": {
-        "message": " Tárhely Panel"
-    },
-    "homepage.hero.desc": {
-        "message": "Az OpenPanel egy Docker konténerek köré épülő, több felhasználós tárhely panel. Minden felhasználó elszigetelt környezetet kap, beleértve a különálló MySQL szervereket, PHP verziókat, Redist és még sok mást."
-    },
-    "homepage.hero.try": {
-        "message": "Próbálja ki az ingyenes Community kiadást a következő paranccsal:"
-    },
-    "homepage.showcase.label.OpenAdmin": {
-        "message": "Admin panel demó"
-    },
-    "homepage.showcase.label.OpenPanel": {
-        "message": "Felhasználói panel demó"
-    },
-    "homepage.showcase.label.OpenCLI": {
-        "message": "Parancsok böngészése"
-    },
-    "homepage.try.title": {
-        "message": "Készen áll a kezdésre?"
-    },
-    "homepage.try.desc1": {
-        "message": "Töltse le az (ingyenes) Community kiadást, amely saját tárhely üzemeltetésére szolgál, alapvető funkciókat kínál, és akár 3 felhasználói fiókot és 50 weboldalt támogat."
-    },
-    "homepage.try.desc2": {
-        "message": "Bármikor frissíthet az Enterprise kiadásra a korlátok növelése és az olyan fejlett funkciókhoz való hozzáférés érdekében, mint az e-mail, az FTP, és a Docker kezelése."
-    },
-    "homepage.try.enterprise.desc": {
-        "message": "Szerezze be az Enterprise kiadást fix élettartamú, 14,95 €/hó áron."
-    },
-    "homepage.try.btn": {
-        "message": "Licenc vásárlása"
-    },
-    "homepage.try.or": {
-        "message": "vagy"
-    },
-    "homepage.try.community.desc": {
-        "message": "Töltse le és használja a MINDÖRÖKKÉ INGYENES Community kiadást korlátozott funkciókkal."
-    }
+  "menu.label.Resources": {
+    "message": "Erőforrások"
+  },
+  "menu.label.Documentation": {
+    "message": "Dokumentáció"
+  },
+  "menu.desc.Documentation": {
+    "message": "Minden, amire szüksége van a kezdéshez."
+  },
+  "menu.label.How-to Guides": {
+    "message": "Útmutatók"
+  },
+  "menu.desc.How-to Guides": {
+    "message": "Az OpenPanel testreszabása."
+  },
+  "menu.label.Features": {
+    "message": "Funkciók"
+  },
+  "menu.desc.Features": {
+    "message": "Fedezze fel az OpenPanel funkcióit."
+  },
+  "menu.label.Changelog": {
+    "message": "Változások listája"
+  },
+  "menu.desc.Changelog": {
+    "message": "Új funkciók és hibajavítások."
+  },
+  "menu.label.Forums": {
+    "message": "Fórumok"
+  },
+  "menu.desc.Forums": {
+    "message": "Csatlakozzon növekvő közösségünkhöz!"
+  },
+  "menu.label.Blog": {
+    "message": "Blog"
+  },
+  "menu.desc.Blog": {
+    "message": "Cikkek a Linuxról és a szerverekről."
+  },
+  "menu.label.Live Demo": {
+    "message": "Élő demó"
+  },
+  "menu.label.Enterprise": {
+    "message": "Nagyvállalati"
+  },
+  "menu.label.OpenPanel Enterprise": {
+    "message": "OpenPanel Enterprise"
+  },
+  "menu.desc.OpenPanel Enterprise": {
+    "message": "Fix ár 14.95€ havonta."
+  },
+  "menu.label.Hosting Providers": {
+    "message": "Tárhelyszolgáltatók"
+  },
+  "menu.desc.Hosting Providers": {
+    "message": "A tárhelyszolgáltatók ❤️ az OpenPanelt."
+  },
+  "menu.label.Contact us": {
+    "message": "Lépjen kapcsolatba velünk"
+  },
+  "menu.desc.Contact us": {
+    "message": "Hívjon minket bármilyen kérdéssel"
+  },
+  "menu.label.Company": {
+    "message": "Cégünk"
+  },
+  "menu.text.star_us": {
+    "message": "Ha tetszik az OpenPanel, ne felejtse el csillagozni a GitHubon!"
+  },
+  "menu.text.join_party": {
+    "message": "Csatlakozzon hozzánk!"
+  },
+  "footer.text.join_us": {
+    "message": "Csatlakozzon hozzánk"
+  },
+  "footer.text.trademark": {
+    "message": "OpenPanel - készült:"
+  },
+  "footer.menu.title.Resources": {
+    "message": "Erőforrások"
+  },
+  "footer.menu.title.Product": {
+    "message": "Termék"
+  },
+  "footer.menu.title.Compare": {
+    "message": "Összehasonlítás"
+  },
+  "footer.menu.title.Company": {
+    "message": "Cégünk"
+  },
+  "footer.menu.item.End-user Docs": {
+    "message": "Végfelhasználói dokumentáció"
+  },
+  "footer.menu.item.Admin Docs": {
+    "message": "Adminisztrátori dokumentáció"
+  },
+  "footer.menu.item.How-to Guides": {
+    "message": "Útmutatók"
+  },
+  "footer.menu.item.OpenCLI": {
+    "message": "OpenCLI"
+  },
+  "footer.menu.item.API Docs": {
+    "message": "API Dokumentáció"
+  },
+  "footer.menu.item.Install Command": {
+    "message": "Telepítési parancs"
+  },
+  "footer.menu.item.Compare editions": {
+    "message": "Kiadások összehasonlítása"
+  },
+  "footer.menu.item.NOC Pricing": {
+    "message": "NOC Árazás"
+  },
+  "footer.menu.item.Features": {
+    "message": "Funkciók"
+  },
+  "footer.menu.item.Live Preview": {
+    "message": "Élő előnézet"
+  },
+  "footer.menu.item.Roadmap": {
+    "message": "Fejlesztési terv"
+  },
+  "footer.menu.item.Changelog": {
+    "message": "Változások listája"
+  },
+  "footer.menu.item.cPanel VS OpenPanel": {
+    "message": "cPanel VS OpenPanel"
+  },
+  "footer.menu.item.Plesk VS OpenPanel": {
+    "message": "Plesk VS OpenPanel"
+  },
+  "footer.menu.item.CyberPanel VS OpenPanel": {
+    "message": "CyberPanel VS OpenPanel"
+  },
+  "footer.menu.item.About": {
+    "message": "Rólunk"
+  },
+  "footer.menu.item.Blog": {
+    "message": "Blog"
+  },
+  "footer.menu.item.Statistics": {
+    "message": "Statisztikák"
+  },
+  "footer.menu.item.Contact": {
+    "message": "Kapcsolat"
+  },
+  "footer.menu.secondary.Privacy Policy": {
+    "message": "Adatvédelmi irányelvek"
+  },
+  "homepage.hero.subtitle": {
+    "message": "A Következő Generációs"
+  },
+  "homepage.hero.panel": {
+    "message": " Tárhely Panel"
+  },
+  "homepage.hero.desc": {
+    "message": "Az OpenPanel egy Docker konténerek köré épülő, több felhasználós tárhely panel. Minden felhasználó elszigetelt környezetet kap, beleértve a különálló MySQL szervereket, PHP verziókat, Redist és még sok mást."
+  },
+  "homepage.hero.try": {
+    "message": "Próbálja ki az ingyenes Community kiadást a következő paranccsal:"
+  },
+  "homepage.showcase.label.OpenAdmin": {
+    "message": "Admin panel demó"
+  },
+  "homepage.showcase.label.OpenPanel": {
+    "message": "Felhasználói panel demó"
+  },
+  "homepage.showcase.label.OpenCLI": {
+    "message": "Parancsok böngészése"
+  },
+  "homepage.try.title": {
+    "message": "Készen áll a kezdésre?"
+  },
+  "homepage.try.desc1": {
+    "message": "Töltse le az (ingyenes) Community kiadást, amely saját tárhely üzemeltetésére szolgál, alapvető funkciókat kínál, és akár 3 felhasználói fiókot és 50 weboldalt támogat."
+  },
+  "homepage.try.desc2": {
+    "message": "Bármikor frissíthet az Enterprise kiadásra a korlátok növelése és az olyan fejlett funkciókhoz való hozzáférés érdekében, mint az e-mail, az FTP, és a Docker kezelése."
+  },
+  "homepage.try.enterprise.desc": {
+    "message": "Szerezze be az Enterprise kiadást fix élettartamú, 14,95 €/hó áron."
+  },
+  "homepage.try.btn": {
+    "message": "Licenc vásárlása"
+  },
+  "homepage.try.or": {
+    "message": "vagy"
+  },
+  "homepage.try.community.desc": {
+    "message": "Töltse le és használja a MINDÖRÖKKÉ INGYENES Community kiadást korlátozott funkciókkal."
+  },
+  "homepage.header.account": {
+    "message": "Fiókom"
+  },
+  "homepage.badge.latest": {
+    "message": "legújabb verzió"
+  },
+  "homepage.badge.changelog": {
+    "message": "változások megtekintése"
+  },
+  "header.get_support": {
+    "message": "Támogatás"
+  },
+  "theme.SearchBar.label": {
+    "message": "Keresés"
+  },
+  "announcement.1": {
+    "message": "🎉 Kapjon {free}, ha {license} frissít."
+  },
+  "announcement.1.free": {
+    "message": "2 INGYENES hónapot"
+  },
+  "announcement.1.license": {
+    "message": "OpenPanel Enterprise éves licencre"
+  },
+  "announcement.1.cta": {
+    "message": "Ingyenes Hónapok Kérése"
+  },
+  "announcement.2": {
+    "message": "🚀 Nyisson meg {premium} az {license} segítségével."
+  },
+  "announcement.2.premium": {
+    "message": "Prémium Funkciókat"
+  },
+  "announcement.2.license": {
+    "message": "OpenPanel Enterprise éves licenc"
+  },
+  "announcement.2.cta": {
+    "message": "Kedvezmény Biztosítása"
+  },
+  "announcement.3": {
+    "message": "Kapjon {discount} kedvezményt az {license}ből élethosszig tartó, fix árgaranciával."
+  },
+  "announcement.3.discount": {
+    "message": "17%"
+  },
+  "announcement.3.license": {
+    "message": "OpenPanel Enterprise éves licenc"
+  },
+  "announcement.3.cta": {
+    "message": "Kezdje el most"
+  },
+  "homepage.sweetSpot.title": {
+    "message": "A {sweetSpot} a megosztott tárhely és a VPS között.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.title.highlight": {
+    "message": "tökéletes egyensúly",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.desc": {
+    "message": "Minden OpenPanel felhasználó elszigetelt, dedikált környezetet élvezhet, ahol futtathat szolgáltatásokat, meghatározhat PHP/MySQL korlátokat, és konfigurálhat külső elemeket, mint például a Varnish, Redis és Elasticsearch.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.1.title": {
+    "message": "Nginx, Apache, Varnish",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.1.desc": {
+    "message": "Mindegyik felhasználóhoz külön-külön kiválaszthatod az Nginx, OpenLitespeed, Apache, OpenResty vagy Varnish használatát.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.1.icon": {
+    "message": "Nginx & OpenLitespeed",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.2.title": {
+    "message": "Elszigetelt Docker szolgáltatások",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.2.desc": {
+    "message": "Minden szolgáltatás egy elszigetelt Docker konténerben fut, ami a felhasználó által teljesen testreszabható.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.2.icon": {
+    "message": "Konténeres szolgáltatások",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.3.title": {
+    "message": "Saját adatbázis szerver",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.3.desc": {
+    "message": "Minden felhasználó saját dedikált MySQL vagy MariaDB példánnyal rendelkezik, és módosíthatja az adatbázis konfigurációját.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.3.icon": {
+    "message": "MySQL, MariaDB, Percona",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.4.title": {
+    "message": "Gyorsítótár",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.4.desc": {
+    "message": "A REDIS, a Memcached és az Elasticsearch mindössze egy kattintással telepíthető bármely fiók alatt.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.4.icon": {
+    "message": "REDIS & Varnish",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.5.title": {
+    "message": "PHP, Python, NodeJS",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.5.desc": {
+    "message": "Mindegyik domain név alatt más PHP és NodeJS verziókat hozhatnak létre, szerkeszthetik a .ini kiterjesztésű fájljaikat.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.5.icon": {
+    "message": "Multiverzió támogatás",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.6.title": {
+    "message": "CSF, CorazaWAF és ImunifyAV",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.6.desc": {
+    "message": "Mind a ConfigServer Sentinel Firewall (CSF), mind pedig a modsecurity (CorazaWAF) integrálva van a rendszerben.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.sweetSpot.list.6.icon": {
+    "message": "CorazaWAF és ImunifyAV",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.list.1": {
+    "message": "Erőforrás korlátok",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.list.2": {
+    "message": "Távoli mentések",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.list.3": {
+    "message": "Szolgáltatáskezelő",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.list.4": {
+    "message": "Saját arculat",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.list.5": {
+    "message": "Több felhasználó",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.title": {
+    "message": "Spanyolviasz? Már feltalálták.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.desc": {
+    "message": "A webtárhelyek üzemeltetéséhez szükséges összes eszköz be van építve, csökkentve az amúgy nehézkes harmadik féltől származó szolgáltatások telepítésének idejét. Nem kell többet külön vásárolnod Backup Pro, izolációs réteget, vagy éppen WordPress menedzsment eszközt.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.alreadyInvented.cta": {
+    "message": "Funkciók megismerése",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.trustedBy.title": {
+    "message": "Jelentős tárhelyszolgáltatók bíznak benne",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.heroAnimation.section.1": {
+    "message": "SZOFTVEREK",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.heroAnimation.section.2": {
+    "message": "TECHNOLÓGIA",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.heroAnimation.section.3": {
+    "message": "WEB SZERVEREK",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.heroAnimation.section.4": {
+    "message": "ESZKÖZÖK",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.title": {
+    "message": "Startolj {faster}, karbantarts {easier}, növekedj {indefinitely}.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.title.faster": {
+    "message": "gyorsabban",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.title.easier": {
+    "message": "könnyebben",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.title.indefinitely": {
+    "message": "végtelenül",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.subtitle": {
+    "message": "Több mint 100 parancssoros utasítás",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.desc": {
+    "message": "Az OpenCLI egy központi parancssori eszköz amellyel egy kattintással felépíthetők a funkciók elhagyva a vizuális kezelőfelületet.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.packages.cta": {
+    "message": "Összes Parancs",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.pureReact.title": {
+    "message": "100% Kontroll",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.pureReact.desc": {
+    "message": "Ne érd be a drága és elavult hoszting rendszerekkel. Az OpenPanel-el 100%-os kontrollt kapsz a szerveradataid és a működése felett bármikor.",
+    "description": "Translated for Hungarian locale"
+  },
+  "homepage.pureReact.cta": {
+    "message": "Dokumentáció",
+    "description": "Translated for Hungarian locale"
+  }
 }

@@ -11,7 +11,7 @@ type ItemProps = {
     horizontal: "left" | "right";
     previousName?: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-    section: string;
+    section: string | React.ReactNode;
     name: string;
     color: string;
     rayClassName?: string;

@@ -7,6 +7,7 @@ import React, {
     SVGProps,
     useRef,
 } from "react";
+import Translate from "@docusaurus/Translate";
 import {
     Ably,
     Airtable,
@@ -60,37 +61,27 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                         "dark:text-gray-0 text-gray-900",
                     )}
                 >
-                    Start{" "}
-                    <span
-                        className={clsx(
-                            "font-semibold",
-                            "dark:text-refine-green-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.3)]",
-                            "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
-                        )}
+                    <Translate id="homepage.packages.title"
+                        values={{
+                            faster: (
+                                <span className={clsx("font-semibold", "dark:text-refine-green-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.3)]", "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]")}>
+                                    <Translate id="homepage.packages.title.faster">faster</Translate>
+                                </span>
+                            ),
+                            easier: (
+                                <span className={clsx("font-semibold", "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]", "text-refine-indigo drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]")}>
+                                    <Translate id="homepage.packages.title.easier">easier</Translate>
+                                </span>
+                            ),
+                            indefinitely: (
+                                <span className={clsx("font-semibold", "dark:text-refine-red dark:drop-shadow-[0_0_30px_rgba(255,76,77,0.4)]", "text-refine-purple drop-shadow-[0_0_30px_rgba(128,0,255,0.3)]")}>
+                                    <Translate id="homepage.packages.title.indefinitely">indefinitely</Translate>
+                                </span>
+                            )
+                        }}
                     >
-                        faster
-                    </span>
-                    , maintain{" "}
-                    <span
-                        className={clsx(
-                            "font-semibold",
-                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                            "text-refine-indigo drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
-                        )}
-                    >
-                        easier
-                    </span>
-                    , scale{" "}
-                    <span
-                        className={clsx(
-                            "font-semibold",
-                            "dark:text-refine-red dark:drop-shadow-[0_0_30px_rgba(255,76,77,0.4)]",
-                            "text-refine-purple drop-shadow-[0_0_30px_rgba(128,0,255,0.3)]",
-                        )}
-                    >
-                        indefinitely
-                    </span>
-                    .
+                        {"Start {faster}, maintain {easier}, scale {indefinitely}."}
+                    </Translate>
                 </h2>
             </div>
 
@@ -112,24 +103,24 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                         "pt-4 landing-md:pt-10",
                     )}
                 >
-                <PackagesContainer animDirection="right">
-                    {listOne.map(({ label, tooltip }, index) => (
-                        <PackageItem
-                            key={index}
-                            label={label}
-                            tooltip={tooltip}
-                        />
-                    ))}
-                </PackagesContainer>
-                <PackagesContainer animDirection="left">
-                    {listTwo.map(({ label, tooltip }, index) => (
-                        <PackageItem
-                            key={index}
-                            label={label}
-                            tooltip={tooltip}
-                        />
-                    ))}
-                </PackagesContainer>
+                    <PackagesContainer animDirection="right">
+                        {listOne.map(({ label, tooltip }, index) => (
+                            <PackageItem
+                                key={index}
+                                label={label}
+                                tooltip={tooltip}
+                            />
+                        ))}
+                    </PackagesContainer>
+                    <PackagesContainer animDirection="left">
+                        {listTwo.map(({ label, tooltip }, index) => (
+                            <PackageItem
+                                key={index}
+                                label={label}
+                                tooltip={tooltip}
+                            />
+                        ))}
+                    </PackagesContainer>
                 </div>
 
                 <div
@@ -147,7 +138,7 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                             "dark:text-gray-300 text-gray-900",
                         )}
                     >
-                        100+ terminal commands
+                        <Translate id="homepage.packages.subtitle">100+ terminal commands</Translate>
                     </h6>
                     <div
                         className={clsx(
@@ -167,10 +158,10 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            OpenCLI serves as the command line interface, enabling you to execute all actions through the terminal.
+                            <Translate id="homepage.packages.desc">OpenCLI serves as the command line interface, enabling you to execute all actions through the terminal.</Translate>
                         </p>
                         <LandingSectionCtaButton to="https://dev.openpanel.com/cli/">
-                            All Commands
+                            <Translate id="homepage.packages.cta">All Commands</Translate>
                         </LandingSectionCtaButton>
                     </div>
                 </div>

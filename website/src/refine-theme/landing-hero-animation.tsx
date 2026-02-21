@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import { useInView } from "framer-motion";
 import React from "react";
+import Translate from "@docusaurus/Translate";
 import {
     LandingHeroBeamGlowSvg,
     LandingHeroBeamSvg,
@@ -206,7 +207,7 @@ const authItems: ItemType[] = [
                         "text-gray-1000 dark:text-gray-0",
                         props.className,
                     )}
-                   
+
                 />
             </div>
         ),
@@ -309,26 +310,26 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                         <LandingHeroAnimationItem
                             vertical="top"
                             horizontal="left"
-                            section="products"
+                            section={<Translate id="homepage.heroAnimation.section.1">PRODUCTS</Translate>}
                             {...platformItems[activePlatform]}
                             previousName={
                                 platformItems[
                                     (activePlatform -
                                         1 +
                                         platformItems.length) %
-                                        platformItems.length
+                                    platformItems.length
                                 ].name ?? platformItems[activePlatform].name
                             }
                         />
                         <LandingHeroAnimationItem
                             vertical="top"
                             horizontal="right"
-                            section="technology"
+                            section={<Translate id="homepage.heroAnimation.section.2">TECHNOLOGY</Translate>}
                             {...uiItems[activeUI]}
                             previousName={
                                 uiItems[
                                     (activeUI - 1 + uiItems.length) %
-                                        uiItems.length
+                                    uiItems.length
                                 ].name ?? uiItems[activeUI].name
                             }
                         />
@@ -345,24 +346,24 @@ export const LandingHeroAnimation = React.memo(function HeroAnimation() {
                         <LandingHeroAnimationItem
                             vertical="bottom"
                             horizontal="left"
-                            section="web servers"
+                            section={<Translate id="homepage.heroAnimation.section.3">WEB SERVERS</Translate>}
                             {...backendItems[activeBackend]}
                             previousName={
                                 backendItems[
                                     (activeBackend - 1 + backendItems.length) %
-                                        backendItems.length
+                                    backendItems.length
                                 ].name ?? backendItems[activeBackend].name
                             }
                         />
                         <LandingHeroAnimationItem
                             vertical="bottom"
                             horizontal="right"
-                            section="Tools"
+                            section={<Translate id="homepage.heroAnimation.section.4">TOOLS</Translate>}
                             {...authItems[activeAuth]}
                             previousName={
                                 authItems[
                                     (activeAuth - 1 + authItems.length) %
-                                        authItems.length
+                                    authItems.length
                                 ].name ?? authItems[activeAuth].name
                             }
                         />
