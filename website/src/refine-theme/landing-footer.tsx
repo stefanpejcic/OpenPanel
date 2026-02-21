@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import Translate, { translate } from "@docusaurus/Translate";
 import { openFigma } from "../utils/open-figma";
 import { menuItems, secondaryMenuItems, socialLinks } from "./footer-data";
 import { HeartOutlinedIcon } from "./icons/heart-outlined";
@@ -7,7 +8,7 @@ import Link from "@docusaurus/Link";
 import { RefineLogoSingleIcon } from "./icons/refine-logo-single";
 
 export const LandingFooter = () => {
-    const currentYear = new Date().getFullYear();    
+    const currentYear = new Date().getFullYear();
     const info = (
         <div
             className={clsx(
@@ -36,7 +37,7 @@ export const LandingFooter = () => {
                     "text-gray-600 dark:text-gray-400",
                 )}
             >
-             IJsbaanpad 2, 1076 CV Amsterdam (The Netherlands)
+                IJsbaanpad 2, 1076 CV Amsterdam (The Netherlands)
             </div>
             <a
                 href="mailto:info@openpanel.com"
@@ -73,7 +74,7 @@ export const LandingFooter = () => {
                         "landing-lg:text-right",
                     )}
                 >
-                    Join us on
+                    <Translate id="footer.text.join_us">Join us on</Translate>
                 </div>
                 <div
                     className={clsx(
@@ -146,7 +147,7 @@ export const LandingFooter = () => {
                         >
                             <RefineLogoSingleIcon />
                         </Link>
-                        <iframe src="https://status.openpanel.com/status/iframe.html" width="250" height="30" frameborder="0" scrolling="no">
+                        <iframe src="https://status.openpanel.com/status/iframe.html" width="250" height="30" frameBorder="0" scrolling="no">
                         </iframe>
                     </div>
                     <div
@@ -187,7 +188,7 @@ export const LandingFooter = () => {
                                         "text-gray-900 dark:text-gray-0",
                                     )}
                                 >
-                                    {menu.label}
+                                    {translate({ message: menu.label, id: `footer.menu.title.${menu.label}` })}
                                 </div>
                                 <div
                                     className={clsx(
@@ -202,9 +203,9 @@ export const LandingFooter = () => {
                                             key={item.label}
                                             {...(item.href.startsWith("http")
                                                 ? {
-                                                      target: "_blank",
-                                                      rel: "noopener noreferrer",
-                                                  }
+                                                    target: "_blank",
+                                                    rel: "noopener noreferrer",
+                                                }
                                                 : {})}
                                             className={clsx(
                                                 "text-sm",
@@ -221,7 +222,7 @@ export const LandingFooter = () => {
                                                     "gap-2",
                                                 )}
                                             >
-                                                {item.label}
+                                                {translate({ message: item.label, id: `footer.menu.item.${item.label}` })}
                                                 {item.icon}
                                             </div>
                                         </a>
@@ -290,9 +291,9 @@ export const LandingFooter = () => {
                                 key={menu.label}
                                 {...(menu.href.startsWith("http")
                                     ? {
-                                          target: "_blank",
-                                          rel: "noopener noreferrer",
-                                      }
+                                        target: "_blank",
+                                        rel: "noopener noreferrer",
+                                    }
                                     : {})}
                                 className={clsx(
                                     "text-sm",
@@ -303,7 +304,7 @@ export const LandingFooter = () => {
                                     "hover:text-gray-800 dark:hover:text-gray-300",
                                 )}
                             >
-                                {menu.label}
+                                {translate({ message: menu.label, id: `footer.menu.secondary.${menu.label}` })}
                             </a>
                         ))}
                     </div>
@@ -319,8 +320,9 @@ export const LandingFooter = () => {
                         )}
                     >
                         {
-                            `© ${currentYear}, OpenPanel - made with  `
+                            `© ${currentYear} `
                         }
+                        <Translate id="footer.text.trademark">OpenPanel - made with</Translate>
                         <HeartOutlinedIcon
                             className={clsx(
                                 "ml-1",
@@ -328,7 +330,7 @@ export const LandingFooter = () => {
                                 "inline",
                                 "leading-5",
                             )}
-                        />                    
+                        />
                     </div>
                 </div>
             </div>

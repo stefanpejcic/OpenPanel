@@ -2,6 +2,7 @@ import React, { Fragment, useState } from "react";
 import { useLocation } from "@docusaurus/router";
 import { Popover, Transition } from "@headlessui/react";
 import clsx from "clsx";
+import { translate } from "@docusaurus/Translate";
 
 import { ChevronDownIcon } from "../icons/chevron-down";
 import { NavbarPopoverItemType } from "./constants";
@@ -57,7 +58,7 @@ export const NavbarPopoverItem: React.FC<NavbarPopoverItemProps> = ({
                                 // isPermanentDark && "!text-gray-300",
                             )}
                         >
-                            {item.label}
+                            {translate({ message: item.label, id: `menu.label.${item.label}` })}
                         </span>
                         <ChevronDownIcon
                             aria-hidden="true"

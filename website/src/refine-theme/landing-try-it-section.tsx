@@ -7,6 +7,7 @@ import { useLocation } from "@docusaurus/router";
 import { useColorMode } from "@docusaurus/theme-common";
 import { useInView } from "framer-motion";
 import Link from "@docusaurus/Link";
+import Translate from "@docusaurus/Translate";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
     const [wizardOpen, setWizardOpen] = React.useState(false);
@@ -82,7 +83,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-900 dark:text-gray-0",
                     )}
                 >
-                    Ready to get started?
+                    <Translate id="homepage.try.title">Ready to get started?</Translate>
                 </h2>
                 <p
                     className={clsx(
@@ -91,7 +92,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-600 dark:text-gray-400",
                     )}
                 >
-                    Download the (free) Community Edition that is intended for self-hosting, offers basic features and supports up to 3 user accounts and 50 websites.
+                    <Translate id="homepage.try.desc1">Download the (free) Community Edition that is intended for self-hosting, offers basic features and supports up to 3 user accounts and 50 websites.</Translate>
                 </p>
                 <p
                     className={clsx(
@@ -100,7 +101,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-600 dark:text-gray-400",
                     )}
                 >
-                    Upgrade to Enterprise Edition anytime to increase limits and access advanced features like email, FTP, and Docker management.
+                    <Translate id="homepage.try.desc2">Upgrade to Enterprise Edition anytime to increase limits and access advanced features like email, FTP, and Docker management.</Translate>
                 </p>
             </div>
             <div
@@ -182,33 +183,33 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    Get the Enterprise Edition for a fixed lifetime price of €14.95/month.
+                    <Translate id="homepage.try.enterprise.desc">Get the Enterprise Edition for a fixed lifetime price of €14.95/month.</Translate>
                 </p>
-                        <Link
-                            to="enterprise"
-                            className={clsx(
-                                "self-start",
-                                "rounded-3xl",
-                                "!text-gray-0 dark:!text-gray-900",
-                                "bg-refine-blue dark:bg-refine-cyan-alt",
-                                "transition-[filter]",
-                                "duration-150",
-                                "ease-in-out",
-                                "hover:brightness-110",
-                                "py-3",
-                                "pl-7 pr-8",
-                                "landing-md:px-8",
-                                "landing-lg:pl-7 landing-lg:pr-8",
-                                "flex",
-                                "items-center",
-                                "justify-center",
-                                "gap-2",
-                                "hover:!no-underline",
-                            )}
-                        >
+                <Link
+                    to="enterprise"
+                    className={clsx(
+                        "self-start",
+                        "rounded-3xl",
+                        "!text-gray-0 dark:!text-gray-900",
+                        "bg-refine-blue dark:bg-refine-cyan-alt",
+                        "transition-[filter]",
+                        "duration-150",
+                        "ease-in-out",
+                        "hover:brightness-110",
+                        "py-3",
+                        "pl-7 pr-8",
+                        "landing-md:px-8",
+                        "landing-lg:pl-7 landing-lg:pr-8",
+                        "flex",
+                        "items-center",
+                        "justify-center",
+                        "gap-2",
+                        "hover:!no-underline",
+                    )}
+                >
                     <LandingStartActionIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        Purchase license
+                        <Translate id="homepage.try.btn">Purchase license</Translate>
                     </span>
                 </Link>
             </div>
@@ -249,7 +250,7 @@ const LandingTryItOptionsSection = ({
                         "flex items-center justify-center",
                     )}
                 >
-                    or
+                    <Translate id="homepage.try.or">or</Translate>
                 </div>
             </div>
             <div
@@ -287,7 +288,7 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-						Download and use the FOREVER FREE Community Edition with limited features.
+                        <Translate id="homepage.try.community.desc">Download and use the FOREVER FREE Community Edition with limited features.</Translate>
                     </p>
                     <LandingCopyCommandButton />
                 </div>

@@ -54,7 +54,7 @@ const getFirstHTMLElementFromFiberByParent = (fiber: Fiber | null) => {
 
 const getFirstHTMLElementFromFiber = (
   fiber: Fiber | null,
-): [element: HTMLElement, "child" | "parent" | "body"] => {
+): [HTMLElement, "child" | "parent" | "body"] => {
   let element = getFirstHTMLElementFromFiberByChild(fiber);
 
   if (element) {
