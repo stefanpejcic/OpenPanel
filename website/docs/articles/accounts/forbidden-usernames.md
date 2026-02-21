@@ -46,7 +46,7 @@ Database users may **only** use lowercase letters (`a–z`) and digits (`0–9`)
 - Usernames cannot contain more than **32** characters.
 
 
-Database User's Passwords may **only** use lowercase letters (`a–z`), underscores (`_`) and digits (`0–9`).
+Database User's Passwords may contain **any** characters.
 - Passwords cannot contain less than **8** characters.
 - Passwords cannot contain more than **32** characters.
 
