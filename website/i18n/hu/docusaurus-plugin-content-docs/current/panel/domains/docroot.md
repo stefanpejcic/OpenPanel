@@ -2,25 +2,25 @@
 sidebar_position: 7
 ---
 
-#  Change Docroot
+# Docroot módosítása
 
-The **Change Docroot** option allows you to set a custom document root (docroot) for your domain.
+A **Change Docroot** beállítás lehetővé teszi egyéni dokumentumgyökér (docroot) beállítását a domainhez.
 
-By default, OpenPanel serves websites from the `/var/www/html/{domain}` directory. However, advanced users may want to change this location—for example, to serve a subdirectory like `/var/www/html/{domain}/public` or to point to a different folder entirely.
+Alapértelmezés szerint az OpenPanel a `/var/www/html/{domain}` könyvtárból szolgál ki webhelyeket. Előfordulhat azonban, hogy a haladó felhasználók módosítani szeretnék ezt a helyet – például egy alkönyvtárat (például `/var/www/html/{domain}/public) szeretnének kiszolgálni, vagy teljesen egy másik mappára szeretnének mutatni.
 
-This is useful when:
-- Hosting multiple applications under the same domain.
-- Serving static content from a specific folder.
-- Using a framework that requires a `public/` or `htdocs/` root.
+Ez akkor hasznos, ha:
+- Több alkalmazás tárolása ugyanazon a domain alatt.
+- Statikus tartalom kiszolgálása egy adott mappából.
+- Olyan keretrendszer használata, amelyhez egy "public/" vagy "htdocs/" gyökér szükséges.
 
-## Changing document root
+## Dokumentumgyökér módosítása
 
-To change a document root for a domain in OpenPanel:
+Domain dokumentumgyökérének módosítása az OpenPanelben:
 
-1. Go to the **Domains** page.
-2. Select the domain you want to modify.
-3. Click on **Change Docroot**.
-4. Enter the new path starting with the `/var/www/html/`.
-5. Save your changes.
+1. Nyissa meg a **Domainek** oldalt.
+2. Válassza ki a módosítani kívánt tartományt.
+3. Kattintson a **Change Docroot** lehetőségre.
+4. Adja meg az új elérési utat a `/var/www/html/` karakterlánccal kezdve.
+5. Mentse el a változtatásokat.
 
-OpenPanel will automatically update your web server configuration to reflect the new docroot.
+Az OpenPanel automatikusan frissíti a webszerver konfigurációját, hogy tükrözze az új docrootot.

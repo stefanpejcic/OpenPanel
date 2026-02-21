@@ -2,24 +2,24 @@
 sidebar_position: 3
 ---
 
-# Logs
+# Naplók
 
-The **Docker > Logs** page allows you to view container logs (`docker logs`) directly from the OpenPanel interface.
+A **Docker > Naplók** oldalon közvetlenül az OpenPanel felületéről tekintheti meg a tárolónaplókat (`docker logs').
 
-## Requirements
+## Követelmények
 
-To access this feature:
+A funkció eléréséhez:
 
-- The **Docker** module must be enabled **server-wide** by an Administrator.
-- Your account must have the **Docker** feature enabled.
+- A **Docker** modult a rendszergazdának engedélyeznie kell **szerveren**.
+- Fiókjában engedélyezni kell a **Docker** funkciót.
 
-## Accessing Logs
+## Hozzáférés a naplókhoz
 
-1. In the OpenPanel menu, go to **Docker > Logs**.
-2. Click on **Select Container** to display a list of all available services.
-3. Select the service you want to view logs for.
-4. The log output for the selected container will appear below.
+1. Az OpenPanel menüben lépjen a **Docker > Naplók** elemre.
+2. Kattintson a **Select Container** elemre az összes elérhető szolgáltatás listájának megjelenítéséhez.
+3. Válassza ki azt a szolgáltatást, amelynek naplóit meg szeretné tekinteni.
+4. Az alábbiakban megjelenik a kiválasztott tároló naplókimenete.
 
-You can optionally adjust the number of log lines shown using the dropdown menu in the top-right corner of the logs panel.
+Opcionálisan módosíthatja a megjelenített naplósorok számát a naplók panel jobb felső sarkában található legördülő menü segítségével.
 
-> 💡 Logs are fetched using `docker logs` and show the real-time output of the container’s stdout and stderr streams.
+> 💡 A naplók lekérése a „docker logs” használatával történik, és a tároló stdout és stderr adatfolyamainak valós idejű kimenetét mutatják.

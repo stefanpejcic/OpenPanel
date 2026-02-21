@@ -2,8 +2,8 @@
 sidebar_position: 7
 ---
 
-# Unsuspend a domain
+# Domain felfüggesztésének feloldása
 
-To restore access to a suspended website, you can unsuspend the domain from the **Domains** page.
+A felfüggesztett webhelyekhez való hozzáférés visszaállításához a **Domainek** oldalon szüntesse meg a domain felfüggesztését.
 
-Unsuspending a domain will remove the *Suspended Website* page and restore the original website content, making it publicly accessible again. All other services - such as email and FTP - will continue to function as they did during suspension.
+A domain felfüggesztésének megszüntetése eltávolítja a *Felfüggesztett webhely* oldalt, és visszaállítja a webhely eredeti tartalmát, így ismét nyilvánosan elérhetővé válik. Az összes többi szolgáltatás – például az e-mail és az FTP – továbbra is ugyanúgy fog működni, mint a felfüggesztés alatt.

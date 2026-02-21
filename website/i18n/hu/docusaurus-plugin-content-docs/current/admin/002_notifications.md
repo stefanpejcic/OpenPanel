@@ -2,26 +2,26 @@
 sidebar_position: 2
 ---
 
-# Notifications
+# Értesítések
 
-Notifications are accessible via the 'Notifications' menu item in OpenAdmin.
+Az értesítések az OpenAdmin „Értesítések” menüpontján keresztül érhetők el.
 
-![notifications center](/img/admin/notifications_center.png)
+![értesítési központ](/img/admin/notifications_center.png)
 
-OpenPanel tracks and notifies you of these events:
+Az OpenPanel követi és értesíti Önt az alábbi eseményekről:
 
-* Server reboot
-* Service inactivity
-* Available updates
-* Admin login from a new IP address
-* SSH login from a new IP address
-* High memory usage
-* High average load
-* High CPU usage
-* High disk usage
-* High swap usage
-* DNS changes
+* A szerver újraindítása
+* Szolgáltatás inaktivitás
+* Elérhető frissítések
+* Admin bejelentkezés új IP-címről
+* SSH bejelentkezés új IP-címről
+* Magas memóriahasználat
+* Magas átlagos terhelés
+* Magas CPU használat
+* Magas lemezhasználat
+* Magas swap használat
+* DNS változások
 
-Each notification type can be individually disabled, and admins can set custom threshold limits.
+Mindegyik értesítéstípus külön-külön letiltható, és a rendszergazdák egyéni küszöbértékeket állíthatnak be.
 
-To manage notification settings, click the **Settings** button on the Notifications page or navigate to: [Settings > Notifications](/docs/admin/settings/notifications).
+Az értesítési beállítások kezeléséhez kattintson a **Beállítások** gombra az Értesítések oldalon, vagy lépjen a következő helyre: [Beállítások > Értesítések](/docs/admin/settings/notifications).

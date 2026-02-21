@@ -2,21 +2,21 @@
 sidebar_position: 99
 ---
 
-# License
+# Licenc
 
-Add your OpenPanel Enterprise license key to unlock premium features.
+Adja hozzá OpenPanel Enterprise licenckulcsát a prémium funkciók feloldásához.
 
-## License Key
+## Licenckulcs
 
-Enter your [OpenPanel Enterprise edition](https://my.openpanel.com/clientarea.php?action=products) license key here. Activating the license enables advanced capabilities such as:
+Ide írja be [OpenPanel Enterprise Edition](https://my.openpanel.com/clientarea.php?action=products) licenckulcsát. A licenc aktiválása olyan speciális funkciókat tesz lehetővé, mint például:
 
-* Email and FTP account management
-* Reseller management
-* API access
-* Billing integrations with WHMCS, FOSSBilling, and more
+* E-mail és FTP fiókkezelés
+* Viszonteladói menedzsment
+* API hozzáférés
+* Számlázási integráció WHMCS-sel, FOSSBilling-gel és még sok mással
 
-For a step-by-step activation process, see the [Upgrading to OpenPanel Enterprise and activating License guide](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/).
+Az aktiválási folyamat lépésről lépésére tekintse meg az [Upgrading to OpenPanel Enterprise and activating License Guide] (/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/).
 
-## Contact Support
+## Vegye fel a kapcsolatot az ügyfélszolgálattal
 
-When reaching out to support, generate a system report to provide detailed information about your setup.
+Amikor kapcsolatba lép az ügyfélszolgálattal, készítsen rendszerjelentést, amely részletes információkat tartalmaz a beállításról.

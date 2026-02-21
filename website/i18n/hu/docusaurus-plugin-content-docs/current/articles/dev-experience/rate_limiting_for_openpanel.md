@@ -1,21 +1,21 @@
 # Limit OpenPanel
 
-Both OpenPanel and OpenAdmin interfaces have a built-in rate limiting and IP address blocking to protect against brute-force attacks.
+Mind az OpenPanel, mind az OpenAdmin interfész rendelkezik beépített sebességkorlátozással és IP-cím blokkolással, hogy megvédje a brute force támadásokat.
 
-This feature is enabled by default on all installations, and can be additionally customized via *OpenAdmin > Settings > OpenPanel* or from the terminal.
+Ez a funkció alapértelmezés szerint minden telepítésen engedélyezve van, és az *OpenAdmin > Beállítások > OpenPanel* menüpontban vagy a terminálról is testreszabható.
 
-You can configure the maximum number of failed login attempts allowed per IP (default is `5` per minute) and the total number of failed attempts (default is `20`), after which the offending IP will be temporarily blocked by the firewall for one hour.
+Beállíthatja az IP-címenként megengedett sikertelen bejelentkezési kísérletek maximális számát (alapértelmezett `5` percenként) és a sikertelen kísérletek teljes számát (alapértelmezett `20`), ami után a tűzfal ideiglenesen blokkolja a sértő IP-címet egy órára.
 
-For OpenPanel limits are configurable in: /etc/openpanel/openpanel/conf/openpanel.config file:
+Az OpenPanel korlátai a /etc/openpanel/openpanel/conf/openpanel.config fájlban állíthatók be:
 ```bash
 [USERS]
 login_ratelimit=5
 login_blocklimit=20
 ```
 
-![user ratelimit](/img/panel/v1/user_block.png)
+![felhasználói sebességkorlát](/img/panel/v1/user_block.png)
 
-For OpenAdmin limits are configurable in: /etc/openpanel/openadmin/config/admin.ini file:
+Az OpenAdmin korlátai a /etc/openpanel/openadmin/config/admin.ini fájlban konfigurálhatók:
 ```bash
 [PANEL]
 login_ratelimit=5
@@ -24,6 +24,6 @@ login_blocklimit=20
 
 ![admin ratelimit](/img/admin/admin_block.png)
 
-If a user successfully logs in, the counter for `login_blocklimit` will reset.
+Ha egy felhasználó sikeresen bejelentkezik, a `login_blocklimit` számlálója visszaáll.
 
-Failed login attempts and blocked IP addresses are logged in the `/var/log/openpanel/admin/failed_login.log` file for OpenAdmin and in the `/var/log/openpanel/user/failed_login.log` file for OpenPanel.
+A sikertelen bejelentkezési kísérletek és a blokkolt IP-címek az OpenAdmin esetében a `/var/log/openpanel/admin/failed_login.log` fájlban, az OpenPanel esetében pedig a `/var/log/openpanel/user/failed_login.log` fájlban kerülnek naplózásra.

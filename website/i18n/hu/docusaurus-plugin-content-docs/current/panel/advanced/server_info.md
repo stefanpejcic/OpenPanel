@@ -2,39 +2,39 @@
 sidebar_position: 11
 ---
 
-# Server Information
+# Szerverinformáció
 
-View current server specification and system usage.
+Tekintse meg az aktuális szerverspecifikációt és rendszerhasználatot.
 
-## Server Information
+## Szerverinformáció
 
-- Hostname
-- Average Load
-- Uptime
-- IP Address
+- Gazdanév
+- Átlagos terhelés
+- Üzemidő
+- IP-cím
 - OS
-- Release
-- Version
-- Processor
-- Nameservers
+- Engedd el
+- Verzió
+- Processzor
+- Névszerverek
 
-## Hosting Plan Information
+## Tárhelyterv információ
 
-- Hosting Plan Name
-- Plan Description
-- Context
-- Bandwidth Limit
-- CPU Limit
-- Database Limit
-- Websites Limit
-- Disk Limit
-- Domains Limit
-- Email Limit
+- Tárhelyterv neve
+- Terv leírása
+- Kontextus
+- Sávszélesség-korlát
+- CPU limit
+- Adatbázis korlát
+- Weboldalak korlátozása
+- Lemezkorlát
+- Domain limit
+- E-mail limit
 - Inodes Limit
-- MySQL Server
-- Web Server
+- MySQL szerver
+- Web szerver
 
-## OpenPanel Information
+## OpenPanel információ
 
-- OpenPanel Version
-- Enabled Modules
+- OpenPanel verzió
+- Engedélyezett modulok

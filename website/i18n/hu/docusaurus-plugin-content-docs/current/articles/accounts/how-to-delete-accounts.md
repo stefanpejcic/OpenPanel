@@ -1,28 +1,28 @@
-# Delete Multiple Accounts
+# Több fiók törlése
 
-The `opencli user-delete` command lets you delete OpenPanel user accounts in bulk. **Use caution**-it's easy to accidentally delete the wrong users.
+Az `opencli user-delete` paranccsal tömegesen törölheti az OpenPanel felhasználói fiókokat. **Legyen óvatos** – könnyű véletlenül nem a megfelelő felhasználókat törölni.
 
-### Delete a Single User
+### Egyetlen felhasználó törlése
 
 ```bash
 opencli user-delete USERNAME
 ```
 
-You’ll be prompted for confirmation. To skip confirmation, use the `-y` flag:
+A rendszer megerősítést kér. A megerősítés kihagyásához használja az "-y" jelzőt:
 
 ```bash
 opencli user-delete USERNAME -y
 ```
 
-### Delete All Users
+### Minden felhasználó törlése
 
-To delete **all** users on the server:
+**összes** felhasználó törlése a szerveren:
 
 ```bash
 opencli user-delete -all
 ```
 
-By default, you'll be prompted to confirm each deletion. To skip all confirmations, use the `-y` flag:
+Alapértelmezés szerint a rendszer minden törlés megerősítésére kéri. Az összes megerősítés kihagyásához használja az "-y" jelzőt:
 
 ```bash
 opencli user-delete -all -y

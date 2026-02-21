@@ -2,41 +2,41 @@
 sidebar_position: 9
 ---
 
-# Trash
+# Kuka
 
-When deleting files you can select to permanently delete them, or to place them in the Trash (default option).
-The **Trash** page allows you to manage deleted.
+Fájlok törlésekor kiválaszthatja, hogy véglegesen törölje őket, vagy a Kukába helyezze őket (alapértelmezett beállítás).
+A **Kuka** oldalon kezelheti a törölt elemeket.
 
-In the table, you can see the following information:
+A táblázatban a következő információkat láthatja:
 
-* **Name**
-* **Size** – Displays the size for files. For folders, click **Calculate** to fetch their size.
-* **Deletion Date** – Shows the timestamp when the file was deleted.
-* **Original Path** – Displays where the file was located before delete.
-* **Permissions** – Displays symbolic file permissions (e.g., `drwxr-xr-x`). Hover over them to view the octal (numeric) equivalent (e.g., `0755`).
+**Név**
+* **Méret** – Megjeleníti a fájlok méretét. Mappák esetén kattintson a **Számítás** lehetőségre a méretük lekéréséhez.
+* **Törlés dátuma** – A fájl törlésének időbélyegét mutatja.
+* **Eredeti elérési út** – Megjeleníti, hol volt a fájl a törlés előtt.
+* **Engedélyek** – Szimbolikus fájlengedélyeket jelenít meg (pl. `drwxr-xr-x`). Mutasson rájuk az oktális (numerikus) megfelelő (pl. "0755") megtekintéséhez.
 
-Clicking the **Toggle** icon reveals additional details:
+A **Váltás** ikonra kattintva további részletek jelennek meg:
 
-* **Owner** – The UID of the file or folder owner.
-* **Group** – The GID of the group that owns the file or folder.
-* **Links** – The number of hard links to the file or directory.
-* **Link Target** – If it’s a symlink, this shows the target it points to.
-* **Type** – Indicates whether it's a directory, file, or symbolic link.
+* **Tulajdonos** – A fájl vagy mappa tulajdonosának felhasználói azonosítója.
+* **Csoport** – A fájlt vagy mappát birtokló csoport GID-je.
+* **Hivatkozások** – A fájlra vagy könyvtárra mutató merev hivatkozások száma.
+* **Link Target** – Ha szimbolikus hivatkozásról van szó, akkor ez azt a célt mutatja, amelyre mutat.
+* **Típus** – Azt jelzi, hogy könyvtárról, fájlról vagy szimbolikus hivatkozásról van-e szó.
 
-## Restore File
+## Fájl visszaállítása
 
-To restore a file, select the item and click on the **Restore** button, then confirm.
+Fájl visszaállításához válassza ki az elemet, kattintson a **Visszaállítás** gombra, majd erősítse meg.
 
-## Restore All Files
+## Minden fájl visszaállítása
 
-To restore all file, click on the **Restore All** button, then confirm.
+Az összes fájl visszaállításához kattintson a **Restore All** gombra, majd erősítse meg.
 
-## Delete a File
+## Fájl törlése
 
-To permanently delete a file, select the item and click on the **Delete** button, then confirm.
+Egy fájl végleges törléséhez válassza ki az elemet, kattintson a **Törlés** gombra, majd erősítse meg.
 
-Files will be permanently deleted.
+A fájlok véglegesen törlődnek.
 
-## Delete All Files
+## Minden fájl törlése
 
-To permanently delete all files, click on the **Delete All** button, then confirm.
+Az összes fájl végleges törléséhez kattintson a **Minden törlése** gombra, majd erősítse meg.

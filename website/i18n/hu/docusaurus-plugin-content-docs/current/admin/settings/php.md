@@ -2,15 +2,15 @@
 sidebar_position: 6
 ---
 
-# PHP Settings
+# PHP beállítások
 
-Manage the default PHP version and configuration files for new user accounts.
+Az új felhasználói fiókok alapértelmezett PHP-verziójának és konfigurációs fájljainak kezelése.
 
-### Available Options
+### Rendelkezésre álló lehetőségek
 
-These options determine which PHP settings users can modify from their **OpenPanel > PHP Options** page.
+Ezek a beállítások határozzák meg, hogy a felhasználók mely PHP beállításokat módosíthatják az **OpenPanel > PHP Options** oldalon.
 
-The default editable options include:
+Az alapértelmezett szerkeszthető beállítások a következők:
 
 ```
 allow_url_fopen
@@ -32,10 +32,10 @@ upload_max_filesize
 zlib.output_compression
 ```
 
-### Default PHP.INI Files
+### Alapértelmezett PHP.INI fájlok
 
-Here you can edit the PHP.INI configuration files that will be applied to new user accounts.
+Itt szerkesztheti az új felhasználói fiókokra alkalmazott PHP.INI konfigurációs fájlokat.
 
-Select a PHP version to open its php.ini file for editing. After making changes, click **Save** to apply them.
+Válasszon ki egy PHP-verziót a php.ini fájl szerkesztésre való megnyitásához. A módosítások végrehajtása után kattintson a **Mentés** gombra a módosítások alkalmazásához.
 
-To revert to the original PHP.INI settings, click **Restore Default**, then click **Save**.
+Az eredeti PHP.INI beállítások visszaállításához kattintson az **Alapértelmezés visszaállítása**, majd a **Mentés** gombra.

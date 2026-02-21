@@ -2,19 +2,19 @@
 sidebar_position: 2
 ---
 
-# Upload from Device
+# Feltöltés az eszközről
 
-The **Upload from Device** page allows you to easily upload files from your local device to a selected directory on the server.
+A **Feltöltés eszközről** oldal lehetővé teszi a fájlok egyszerű feltöltését a helyi eszközről a szerver kiválasztott könyvtárába.
 
-To upload:
+Feltöltéshez:
 
-1. Navigate to the desired directory.
-2. Click the **Upload** button.
-3. Drag and drop files or select them manually from your device.
-4. Click **Upload** to begin.
+1. Navigáljon a kívánt könyvtárhoz.
+2. Kattintson a **Feltöltés** gombra.
+3. Húzza át a fájlokat, vagy válassza ki őket manuálisan az eszközről.
+4. A kezdéshez kattintson a **Feltöltés** gombra.
 
-A progress bar will display the status of each file. You can upload multiple files at once.
+Egy folyamatjelző sáv mutatja az egyes fájlok állapotát. Egyszerre több fájlt is feltölthet.
 
-> ⚠️ The upload size limit is configured by the administrator.
+> ⚠️ A feltöltési méretkorlátot a rendszergazda állítja be.
 
-For large files (over 1GB), we recommend using **FTP** or the **Download from URL** feature instead.
+Nagy (1 GB feletti) fájlok esetén javasoljuk az **FTP** vagy a **Letöltés URL-ről** funkció használatát.

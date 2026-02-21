@@ -2,14 +2,14 @@
 sidebar_position: 2
 ---
 
-# Create New Account
+# Hozzon létre új fiókot
 
-To create a new email account:
+Új e-mail fiók létrehozása:
 
-* **Domain** – Select the domain name for the account.  
-* **Username** – Set the username for the domain (e.g., office or info).  
-* **Password** – Set a password or click the **Generate** button to create a strong password.
+* **Domain** – Válassza ki a fiók domain nevét.
+* **Felhasználónév** – Adja meg a domain felhasználónevét (pl. iroda vagy információ).
+* **Jelszó** – Állítson be egy jelszót, vagy kattintson a **Létrehozás** gombra erős jelszó létrehozásához.
 
-Once all fields are set, click **Create Email**.
+Ha az összes mezőt beállította, kattintson az **E-mail létrehozása** lehetőségre.
 
-Additional settings, such as storage quota, can be configured after the account is created.
+További beállítások, például a tárhelykvóta, a fiók létrehozása után konfigurálhatók.

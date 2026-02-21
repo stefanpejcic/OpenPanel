@@ -1,6 +1,6 @@
-# Installing OpenPanel via Ansible
+# Az OpenPanel telepítése az Ansible-n keresztül
 
-Use the following **Ansible playbook** to install OpenPanel on one or more target machines:
+Az OpenPanel egy vagy több célgépre történő telepítéséhez használja a következő **Ansible playbook**-t:
 
 ```yaml
 ---
@@ -19,10 +19,10 @@ Use the following **Ansible playbook** to install OpenPanel on one or more targe
         executable: /bin/bash
 ```
 
-Save this as `install-openpanel.yml` and run:
+Mentse ezt "install-openpanel.yml" néven, és futtassa:
 
 ```bash
 ansible-playbook -i inventory install-openpanel.yml
 ```
 
-This will automatically install OpenPanel on all machines in your inventory.
+Ez automatikusan telepíti az OpenPanel-t a készletben lévő összes gépen.

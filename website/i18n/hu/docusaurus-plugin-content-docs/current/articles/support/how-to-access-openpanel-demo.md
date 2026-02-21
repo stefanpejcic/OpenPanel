@@ -1,22 +1,22 @@
-# Access demo
+# Hozzáférés a demóhoz
 
-How to access OpenPanel demo servers?
+Hogyan lehet elérni az OpenPanel demószervereket?
 
-Use the following link for viewing demos: https://openpanel.com/demo/
+A bemutatók megtekintéséhez használja a következő linket: https://openpanel.com/demo/
 
-## OpenPanel demo
+## OpenPanel bemutató
 
 LINK: https://demo.openpanel.org:2083/login
 
-If you are a website owner, then we recommend interacting with the **OpenPanel** interface.
+Ha Ön webhelytulajdonos, javasoljuk, hogy használja az **OpenPanel** felületet.
 
-This is where you can manage your websites and files.
+Itt kezelheti webhelyeit és fájljait.
 
-## OpenAdmin demo
+## OpenAdmin bemutató
 
 LINK: https://demo.openpanel.org:2087/login
 
-If you are a web host, then we recommend interacting with the **OpenAdmin** interface.
+Ha Ön webszolgáltató, javasoljuk, hogy használja az **OpenAdmin** felületet.
 
-This is where you can manage your server and customers.
+Itt kezelheti szerverét és ügyfeleit.
 

@@ -1,30 +1,30 @@
-# Import cPanel backup
+# Importálja a cPanel biztonsági másolatát
 
-Import cPanel accounts from backup.
+Importáljon cPanel-fiókokat a biztonsági másolatból.
 
-## Create cpanel backup
+## Készítsen biztonsági másolatot a cpanelről
 
-Create a cPanel account backup using backup wizard or download a backup from Jetbackup5 interface:
+Hozzon létre egy cPanel fiók biztonsági másolatát a biztonsági mentési varázsló segítségével, vagy töltse le a biztonsági másolatot a Jetbackup5 felületről:
 
-![cpanel backup wizard](https://i.postimg.cc/q7MbhszY/1.png)
+![cpanel biztonsági mentés varázsló](https://i.postimg.cc/q7MbhszY/1.png)
 
-## Download backup
-Transfer the generated backup to your server
+## Biztonsági mentés letöltése
+Vigye át a létrehozott biztonsági másolatot a szerverére
 
-## Import backup
-To start import from OpenPanel, access OpenAdmin and click on 'Import cPanel Account' within the Advanced section of the sidebar.
+## Biztonsági mentés importálása
+Az OpenPanelről történő importálás megkezdéséhez nyissa meg az OpenAdmin alkalmazást, és kattintson a 'cPanel-fiók importálása' lehetőségre az oldalsáv Speciális részében.
 
-![import cpanel backup in openpanel](/img/panel/v2/cpanelimport.png)
+![importálja a cpanel biztonsági másolatát az openpanelbe](/img/panel/v2/cpanelimport.png)
 
-Insert full path to the uploaded cPanel backup archive, select a plan for the imported user and click on 'Import from Backup'.
+Illessze be a feltöltött cPanel biztonsági mentési archívum teljes elérési útját, válasszon tervet az importált felhasználó számára, majd kattintson az „Importálás a biztonsági másolatból” gombra.
 
-![import cpanel backup in openpanel2](/img/panel/v2/cpanelimport2.png)
+![importálja a cpanel biztonsági másolatát az openpanel2-be](/img/panel/v2/cpanelimport2.png)
 
-## That's it
-Import is running in background
+## Ez az
+Az importálás a háttérben fut
 
-![import cpanel backup in openpanel3](/img/panel/v2/cpanelimport3.png)
+![importálja a cpanel biztonsági másolatát az openpanel3-ba](/img/panel/v2/cpanelimport3.png)
 
-You can trace progress and view the import log on this page.
+Ezen az oldalon nyomon követheti a folyamatot, és megtekintheti az importálási naplót.
 
-![import cpanel backup in openpanel4](/img/panel/v2/cpanelimport4.png)
+![importálja a cpanel biztonsági másolatát az openpanel4-be](/img/panel/v2/cpanelimport4.png)

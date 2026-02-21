@@ -2,15 +2,15 @@
 sidebar_position: 2
 ---
 
-# Add new domain
+# Új domain hozzáadása
 
-To add a new domain, simply enter the domain name and click **Add Domain**:
+Új domain hozzáadásához egyszerűen írja be a domain nevet, és kattintson a **Domain hozzáadása** lehetőségre:
 
-![add domain](/img/panel/v2/openpanel_add_domain.gif)
+![domain hozzáadása](/img/panel/v2/openpanel_add_domain.gif)
 
-Optionally, you can specify a custom **Document Root** - folder where website files will be stored.
+Opcionálisan megadhat egy egyéni **Dokumentumgyökér** - mappát, ahol a webhely fájljait tárolja.
 
-Once submitted, OpenPanel will display a detailed log of all actions performed. Example:
+A beküldés után az OpenPanel részletes naplót jelenít meg az összes végrehajtott műveletről. Példa:
 
 ```bash
 Using document root: /var/www/html/another-website
@@ -33,5 +33,5 @@ Starting container for the default PHP version 8.4
 Domain another.com added successfully
 ```
 
-Because OpenPanel starts services on demand to conserve resources, adding your first domain may take slightly longer - it will start the necessary webserver and PHP containers.
-Subsequent domains will be added much faster.
+Mivel az OpenPanel igény szerint indítja el a szolgáltatásokat az erőforrások kímélése érdekében, az első domain hozzáadása némileg tovább tarthat – elindítja a szükséges webszervert és PHP-tárolókat.
+A későbbi domainek sokkal gyorsabban kerülnek hozzáadásra.

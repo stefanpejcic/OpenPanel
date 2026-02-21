@@ -2,76 +2,76 @@
 sidebar_position: 2
 ---
 
-# Dashboard
+# Irányítópult
 
-The dashboard page is the hub of the OpenAdmin interface and provides the overview of the current server performance and usage.
+Az irányítópult oldal az OpenAdmin felület központja, és áttekintést nyújt a szerver aktuális teljesítményéről és használatáról.
 
-The dashboard page contains widgets:
+Az irányítópult oldal widgeteket tartalmaz:
 
-- **User Activity** widget: Displays real-time combined activity log of all OpenPanel users.
-- **Latest News** widget: Displays blog articles from the OpenPanel blog.
-- **System Information** widget: Displays Information about your server configuration: Hostname, OS, OpenPanel version, Kernel, CPU type, Uptime, NUmber of Running Processes and available Package Updates.
+- **Felhasználói tevékenység** widget: Valós idejű kombinált tevékenységnaplót jelenít meg az összes OpenPanel felhasználóról.
+- **Legfrissebb hírek** widget: Az OpenPanel blog blogcikkeit jeleníti meg.
+- **Rendszerinformációk** widget: Információkat jelenít meg a szerver konfigurációjáról: Gazdanév, operációs rendszer, OpenPanel verzió, Kernel, CPU típus, üzemidő, futó folyamatok száma és elérhető csomagfrissítések.
 
-## Usage
+## Használat
 
-In the top-right corner of every page in **OpenAdmin**, administrators can monitor real-time resource usage, including **Load**, **Memory**, **CPU**, and **Disk**.
+Az **OpenAdmin** minden oldalának jobb felső sarkában a rendszergazdák valós idejű erőforrás-használatot követhetnek nyomon, beleértve a **Betöltés**, **Memória**, **CPU** és **Lemez** elemeket.
 
-Hovering over each metric provides detailed information:
+Ha az egérmutatót az egyes mutatók fölé viszi, akkor részletes információk jelennek meg:
 
-* **Load** – Average system load over 1, 5, and 15 minutes
-* **Memory** – Usage of physical memory and SWAP
-* **CPU** – Usage per CPU core
-* **Disk** – Usage per disk partition
+* **Load** – A rendszer átlagos terhelése 1, 5 és 15 perc alatt
+* **Memória** – Fizikai memória és SWAP használata
+* **CPU** – Használat CPU magonként
+* **Lemez** – Használat lemezpartíciónként
 
 ![SSE Widget](https://i.postimg.cc/9Q9DMPH0/openadmin-sse.gif)
 
-## User Activity
+## Felhasználói tevékenység
 
-The **User Activity** widget provides a combined list of latest actions from all OpenPanel users (their activity logs).
+A **Felhasználói tevékenység** widget az összes OpenPanel-felhasználó legfrissebb műveleteinek kombinált listáját tartalmazza (tevékenységnaplójuk).
 
-## Latest News
+## Legfrissebb hírek
 
-The **Latest News** widget displays news from [OpenPanel Blog](https://openpanel.com/blog).
+A **Legfrissebb hírek** modul az [OpenPanel Blog](https://openpanel.com/blog) híreit jeleníti meg.
 
-## System Information
+## Rendszerinformációk
 
-The **System Information** widget displays information about your server:
+A **Rendszerinformációk** widget információkat jelenít meg a szerverről:
 
-- Hostname
+- Gazdanév
 - OS
-- OpenPanel version
-- Server Time
-- Kernel version
-- CPU model
-- Uptime
-- Number of running processes
-- Available Package updates
+- OpenPanel verzió
+- Szerveridő
+- Kernel verzió
+- CPU modell
+- Üzemidő
+- A futó folyamatok száma
+- Elérhető csomagfrissítések
 
-## Try Enterprise
+## Próbálja ki az Enterprise-t
 
-The **Try Enterprise** widget is displayed on Community Edition only and displays features for Enterprise edition and options to upgrade.
+A **Try Enterprise** widget csak a Community Edition verzióban jelenik meg, és megjeleníti az Enterprise kiadás funkcióit és a frissítési lehetőségeket.
 
-## Found a Bug
+## Hibát találtam
 
-By default, every page in both the OpenPanel and OpenAdmin UIs includes a **"Found a bug? Let us know"** link at the bottom. This link allows users to report issues directly to our [GitHub Issues](https://github.com/stefanpejcic/OpenPanel/issues) page and includes basic information to help reproduce the problem.
+Alapértelmezés szerint mind az OpenPanel, mind az OpenAdmin felhasználói felületén minden oldal alján tartalmaz egy **"Hibát talált? Tudassa velünk"** hivatkozást. Ez a link lehetővé teszi a felhasználók számára, hogy közvetlenül a [GitHub-problémák](https://github.com/stefanpejcic/OpenPanel/issues) oldalunkon jelentsék be a problémákat, és alapvető információkat tartalmaz a probléma reprodukálásához.
 
-For the OpenPanel UI, administrators can disable this link by going to **OpenAdmin > Settings > OpenPanel** and toggling off the **"Display link to report bugs"** option.
+Az OpenPanel felhasználói felületén az adminisztrátorok letilthatják ezt a hivatkozást az **OpenAdmin > Beállítások > OpenPanel** menüpontban, és kikapcsolják a **"Link megjelenítése a hibák bejelentéséhez"** lehetőséget.
 
-## Dark Mode
+## Sötét mód
 
-To enable Dark Mode, click your username in the bottom-left corner and select the Moon icon. To switch back to Light Mode, click the Sun icon.
+A Sötét mód engedélyezéséhez kattintson a felhasználónevére a bal alsó sarokban, és válassza ki a Hold ikont. Ha vissza szeretne váltani Fény módba, kattintson a Nap ikonra.
 
-![openadmin dark mode](/img/admin/dashboard/openadmin_dark_mode_toggle.gif)
+![openadmin sötét mód](/img/admin/dashboard/openadmin_dark_mode_toggle.gif)
 
-## Menu
+## Menü
 
-OpenAdmin menu lists all available options in the OpenAdmin interface. Simply click on a menu item to open it.
+Az OpenAdmin menü felsorolja az OpenAdmin felületén elérhető összes opciót. Egyszerűen kattintson a menüelemre a megnyitáshoz.
 
-## Search
+## Keresés
 
-Search returns:
+A keresés eredménye:
 
-- OpenPanel users with login link for their OpenPanel
+- OpenPanel felhasználók bejelentkezési hivatkozással az OpenPanelhez
 - Website/Domains of users
 - Features/pages in the Admin interface
 

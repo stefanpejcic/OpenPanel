@@ -5,33 +5,33 @@ sidebar_position: 4
 # DNS
 
 
-The DNS Zone Editor enables you to manage and edit Domain Name System (DNS) zone files, which are essential for mapping domain names to IP addresses and handling various DNS records such as A, CNAME, MX, and TXT records.
+A DNS Zone Editor lehetővé teszi a Domain Name System (DNS) zónafájlok kezelését és szerkesztését, amelyek nélkülözhetetlenek a tartománynevek IP-címekhez való hozzárendeléséhez és a különféle DNS-rekordok, például az A-, CNAME-, MX- és TXT-rekordok kezeléséhez.
 
-On the main _DNS Zone Editor_ page, you can choose a domain name to view and modify its records.
+A fő _DNS Zone Editor_ oldalon kiválaszthat egy domain nevet a rekordok megtekintéséhez és módosításához.
 
-## Edit record
+## Rekord szerkesztése
 
-To modify an existing record, click on the 'Edit' button next to it. This will make the row editable, allowing you to save changes by clicking the 'Save' button or discard them by selecting the 'Cancel' button.
+Meglévő rekord módosításához kattintson a mellette lévő "Szerkesztés" gombra. Ezzel a sor szerkeszthetővé válik, lehetővé téve a változtatások mentését a "Mentés" gombra kattintva, vagy a "Mégse" gomb megnyomásával elvetheti azokat.
 
-## Create record
+## Rekord létrehozása
 
-To create a new DNS record, click on the 'Add Record' button.
+Új DNS rekord létrehozásához kattintson a 'Rekord hozzáadása' gombra.
 
-This will add a new row at the top of the table where you can enter the record.
+Ezzel egy új sort ad a táblázat tetejére, ahol megadhatja a rekordot.
 
-Supported DNS types: `A`, `AAAA`, `CAA`, `CNAME`, `MX`, `SRV`, `TXT`
+Támogatott DNS-típusok: "A", "AAAA", "CAA", "CNAME", "MX", "SRV", "TXT"
 
-## Delete record
+## Rekord törlése
 
-To remove an existing DNS record, click the delete button next to it. The button text will change to 'Confirm', and on the second click, it will permanently delete the record.
+Meglévő DNS-rekord eltávolításához kattintson a mellette lévő törlés gombra. A gomb szövege „Megerősítés”-re változik, és a második kattintásra véglegesen törli a rekordot.
 
-## Export Zone
-To export a DNS zone, click on the 'Export Zone' button. The button text will change to 'Confirm', and on the second click, the zone will be exported.
+## Exportálási zóna
+DNS-zóna exportálásához kattintson a „Zóna exportálása” gombra. A gomb szövege „Megerősítés”-re változik, és a második kattintásra a zóna exportálásra kerül.
 
-## Reset Zone
+## Zóna visszaállítása
 
-Resetting the zone will delete all existing records and create a default DNS zone, as if the domain had just been added again.
+A zóna visszaállítása törli az összes létező rekordot, és létrehoz egy alapértelmezett DNS-zónát, mintha a tartományt most újból hozzáadták volna.
 
-## Advanced Editor
+## Speciális szerkesztő
 
-The Advanced Editor allows direct editing of the DNS zone file, including adding custom records or comments. It can also be used to import a DNS zone by pasting content from another server.
+Az Advanced Editor lehetővé teszi a DNS-zónafájl közvetlen szerkesztését, beleértve az egyéni rekordok vagy megjegyzések hozzáadását. DNS-zóna importálására is használható, ha tartalmat másol be egy másik szerverről.

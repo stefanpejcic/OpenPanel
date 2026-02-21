@@ -1,45 +1,45 @@
-# Migrate server
+# Szerver áttelepítése
 
-OpenPanel is a truly OS-agnostic hosting panel, meaning it runs seamlessly on any Linux distribution. This makes migrating the panel along with all user data - from one server to another straightforward and efficient.
+Az OpenPanel egy valóban operációs rendszer-agnosztikus hosting panel, ami azt jelenti, hogy zökkenőmentesen fut bármely Linux disztribúción. Ez egyszerűvé és hatékonysá teszi a panel és az összes felhasználói adat migrálását – egyik szerverről a másikra.
 
-To migrate all data from a server to another:
+Az összes adat áttelepítése egy szerverről egy másikra:
 
-## Prepare the New Server
+## Készítse elő az új szervert
 
-The new server should have a clean environment with **only OpenPanel installed**-no existing users or additional configurations.
+Az új szervernek tiszta környezettel kell rendelkeznie, **csak OpenPanel telepítve** – meglévő felhasználók vagy további konfigurációk nélkül.
 
-Install OpenPanel by running:
+Az OpenPanel telepítése a következő futtatással:
 
 ```bash
 bash <(curl -sSL https://openpanel.org)
 ```
 
-Wait for the installation to complete, then proceed to the source server.
+Várja meg, amíg a telepítés befejeződik, majd folytassa a forráskiszolgálóval.
 
-## Migrate from the Old Server
+## Migráció a régi kiszolgálóról
 
-Migration can be performed via OpenAdmin UI or from the terminal:
+Az áttelepítés végrehajtható az OpenAdmin felhasználói felületén vagy a terminálról:
 
-### Using OpenAdmin
+### Az OpenAdmin használatával
 
-On the old server, login to **OpenAdmin** and navigate to *Advanced > Migration*, provide the new server’s IP address and root credentials:
+A régi szerveren jelentkezzen be az **OpenAdmin** oldalra, navigáljon a *Speciális > Migráció* oldalra, adja meg az új szerver IP-címét és gyökér hitelesítő adatait:
 
-Click on the 'Start Migration' button and wait for the process to complete:
+Kattintson a „Migráció indítása” gombra, és várja meg, amíg a folyamat befejeződik:
 
-### Using Terminal
+### Terminál használata
 
 ```bash
 opencli server-migrate -h NEW_SERVER_IP --user root --password NEW_SERVER_ROOT_PASSWORD
 ```
 
-Allow the migration process to finish.
+Hagyja, hogy az áttelepítési folyamat befejeződjön.
 
-## Verify Migration
+## Ellenőrizze a migrációt
 
-After completion, log in to the OpenAdmin panel on the new server using the same credentials you used on the old server.
+A befejezés után jelentkezzen be az OpenAdmin panelre az új kiszolgálón a régi kiszolgálón használt hitelesítési adatokkal.
 
-Verify that all services have started correctly in OpenAdmin under Service Status, and test a few user websites to ensure they are functioning properly.
+Ellenőrizze, hogy minden szolgáltatás megfelelően indult-e el az OpenAdminban a Szolgáltatás állapota alatt, és teszteljen néhány felhasználói webhelyet, hogy megbizonyosodjon arról, hogy megfelelően működnek.
 
-If everything looks good, proceed to update the DNS records for the domains to point to the new server.
+Ha minden rendben van, folytassa a tartományok DNS-rekordjainak frissítésével, hogy az új kiszolgálóra mutasson.
 
-If something is not running, check the migration log on source server for any errors: `/tmp/server_migrate.log`
+Ha valami nem fut, ellenőrizze az áttelepítési naplót a forráskiszolgálón, hogy nem tartalmaz-e hibákat: `/tmp/server_migrate.log`

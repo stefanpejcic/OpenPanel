@@ -2,27 +2,27 @@
 sidebar_position: 3
 ---
 
-# SSH Access
+# SSH hozzáférés
 
-*OpenAdmin > Server >  SSH Access* allows Administrators to view and modify current server SSH configuration.
+Az *OpenAdmin > Kiszolgáló > SSH-hozzáférés* lehetővé teszi a rendszergazdák számára, hogy megtekintsék és módosítsák a szerver aktuális SSH-konfigurációját.
 
-### Basic SSH Settings
+### Alapvető SSH beállítások
 
 ![screenshot](/img/admin/ssh_access.png)
 
-This page displays:
+Ezen az oldalon a következők jelennek meg:
 
-- **Port** - current SSH port
-- **PermitRootLogin** - allow login for *root* user
-- **PasswordAuthentication** - enable usage of passwords for ssh
-- **PubkeyAuthentication** - enable usage of ssh keys
+- **Port** - aktuális SSH port
+- **PermitRootLogin** - bejelentkezés engedélyezése *root* felhasználó számára
+- **PasswordAuthentication** - jelszavak használatának engedélyezése az ssh számára
+- **PubkeyAuthentication** - ssh-kulcsok használatának engedélyezése
 
-You can change any value and click on the save button to apply.
+Bármely értéket megváltoztathatja, és az alkalmazáshoz kattintson a mentés gombra.
 
-### Advanced SSH Settings
+### Speciális SSH-beállítások
 
-Here you can edit the SSH configuration file: `/etc/ssh/sshd_config`
+Itt szerkesztheti az SSH konfigurációs fájlt: `/etc/ssh/sshd_config`
 
-### Authorized SSH Keys
+### Engedélyezett SSH-kulcsok
 
-Here you can view current authorized ssh keys, remove them or add new key.
+Itt megtekintheti az aktuális engedélyezett ssh-kulcsokat, eltávolíthatja őket, vagy új kulcsot adhat hozzá.

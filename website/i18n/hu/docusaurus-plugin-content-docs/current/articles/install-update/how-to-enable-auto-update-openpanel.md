@@ -1,19 +1,19 @@
-# Enable Updates
+# Frissítések engedélyezése
 
-- `autopatch` option allows Administrator to automatically update OpenPanel to minor versions. MINOR versions include only security updates and bug fixes.
-- `autoupdate` option allows Administrator to enable or disable automatic updates to major versions. MAJOR versions add new functionality in a backward compatible manner.
+- Az "autopatch" opció lehetővé teszi a rendszergazdának, hogy automatikusan frissítse az OpenPanel kisebb verzióit. A KISEBB verziók csak biztonsági frissítéseket és hibajavításokat tartalmaznak.
+- Az "autoupdate" opció lehetővé teszi a rendszergazdának, hogy engedélyezze vagy letiltja a főbb verziók automatikus frissítését. A FŐ verziók új funkciókat adnak hozzá visszafelé kompatibilis módon.
 
 <Tabs>
-  <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-updates" label="OpenAdminnal" alapértelmezett>
 
-To enable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Both':
+Az automatikus frissítések engedélyezéséhez nyissa meg az **OpenAdmin > Beállítások > Frissítési beállítások** lehetőséget, és állítsa az „Automatikus frissítés” beállítást „Mindkettő” értékre:
 
-![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
+![openadmin frissítési beállítások](/img/admin/openadmin_set_update_preferences.png)
 
-  </TabItem>
-  <TabItem value="CLI" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI" label="OpenCLI-vel">
 
-To enable automatic updates from the terminal use commands:
+A terminálról érkező automatikus frissítések engedélyezéséhez használja a következő parancsokat:
 
 ```bash
 opencli config update autoupdate yes
@@ -22,5 +22,5 @@ opencli config update autoupdate yes
 ```bash
 opencli config update autopatch yes
 ```
-  </TabItem>
+</TabItem>
 </Tabs>

@@ -2,33 +2,33 @@
 sidebar_position: 3
 ---
 
-# API Access
+# API hozzáférés
 
-Use the API Access page to test API calls, view request/response examples, monitor API logs, and experiment with endpoints in a simple interface.
+Az API-hozzáférési oldalon tesztelheti az API-hívásokat, megtekintheti a kérésekre/válaszokra vonatkozó példákat, figyelheti az API-naplókat, és kísérletezhet a végpontokkal egy egyszerű felületen.
 
-To begin:
+Kezdésnek:
 
-1. **Enable API Access**
+1. **API-hozzáférés engedélyezése**
 
-   Toggle the Enable API Access option to activate the interface for testing API requests.
+Kapcsolja be az API-hozzáférés engedélyezése beállítást az API-kérések tesztelésére szolgáló felület aktiválásához.
 
-3. **Fill the Request Form**
+3. **Töltse ki az igénylőlapot**
 
-   Once enabled, you will see a form with the following fields:
+Miután engedélyezte, megjelenik egy űrlap a következő mezőkkel:
 
-    - **Method** – Choose the HTTP method.
-    - **URL** – Enter the API endpoint you wish to call.
-    - **USERNAME** - Enter admin username.
-    - **PASSWORD** - Enter admin password.
-    - **TOKEN** – token that was generated with username and password combination.
-    - **DATA** – (Optional) Provide any data or parameters required by the endpoint.
+- **Módszer** – Válassza ki a HTTP-módszert.
+- **URL** – Adja meg a hívni kívánt API-végpontot.
+- **FELHASZNÁLÓNÉV** - Adja meg a rendszergazda felhasználónevét.
+- **PASSWORD** - Adja meg a rendszergazdai jelszót.
+- **TOKEN** – a felhasználónév és jelszó kombinációjával generált token.
+- **ADATOK** – (Opcionális) Adja meg a végpont által igényelt adatokat vagy paramétereket.
 
-5. **Send Request**
+5. **Kérés küldése**
 
-   Click the Send Request button to execute the API call.
+Kattintson a Kérelem küldése gombra az API-hívás végrehajtásához.
 
-7. **View API Logs and Curl command**
+7. **Az API-naplók és a Curl parancs megtekintése**
 
-   After making a request, the response, curl command and log details will appear at the bottom. This includes request info, server response, status codes, and any error messages.
+A kérés után a válasz, a curl parancs és a napló részletei jelennek meg alul. Ez magában foglalja a kérésinformációkat, a szerver válaszát, az állapotkódokat és az esetleges hibaüzeneteket.
 
-For full API reference and additional endpoints, please visit our detailed documentation: https://dev.openpanel.com/openadmin-api/
+A teljes API-referenciaért és a további végpontokért keresse fel részletes dokumentációnkat: https://dev.openpanel.com/openadmin-api/

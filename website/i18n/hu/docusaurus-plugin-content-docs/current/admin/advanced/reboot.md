@@ -2,6 +2,6 @@
 sidebar_position: 4
 ---
 
-# Server Reboot
+# Szerver újraindítása
 
-Initiate graceful or forceful server reboot.
+Indítsa el a kiszolgáló kecses vagy erőteljes újraindítását.

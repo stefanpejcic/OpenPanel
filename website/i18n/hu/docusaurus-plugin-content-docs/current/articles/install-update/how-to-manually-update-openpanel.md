@@ -1,24 +1,24 @@
-# Manually Update
+# Manuális frissítés
 
-When a new update is available, you will receive a notification in the OpenAdmin panel.
+Ha új frissítés érhető el, értesítést kap az OpenAdmin panelen.
 
 <Tabs>
-  <TabItem value="openadmin-admin-update-now" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-update-now" label="OpenAdminnal" alapértelmezett>
 
-To manually update OpenPanel, navigate to **OpenAdmin > Settings > Update Preferences** and click on the "Update Now" button.
+Az OpenPanel manuális frissítéséhez lépjen az **OpenAdmin > Beállítások > Frissítési beállítások** oldalra, és kattintson a „Frissítés most” gombra.
 
-NOTE: update is visible only if newer version is available.
+MEGJEGYZÉS: a frissítés csak akkor látható, ha elérhető újabb verzió.
 
-  </TabItem>
-  <TabItem value="CLI-update-now" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-update-now" label="OpenCLI-vel">
 
-To update OpenPanel manually from the terminal, run the following command:
+Az OpenPanel terminálról történő kézi frissítéséhez futtassa a következő parancsot:
 
 ```bash
 opencli update --force
 ```
-[Documentation for `opencli update` command](https://dev.openpanel.com/cli/update.html)
+[Az `opencli update` parancs dokumentációja](https://dev.openpanel.com/cli/update.html)
 
-  </TabItem>
+</TabItem>
   
 </Tabs>

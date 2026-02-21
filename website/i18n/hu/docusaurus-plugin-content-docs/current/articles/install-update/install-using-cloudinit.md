@@ -1,6 +1,6 @@
-# Installing OpenPanel via Cloud-Init
+# Az OpenPanel telepítése a Cloud-Init segítségével
 
-Use the following **cloud-init YAML** configuration to automatically install OpenPanel on your server during first boot:
+Használja a következő **cloud-init YAML** konfigurációt az OpenPanel automatikus telepítéséhez a szerveren az első rendszerindításkor:
 
 ```yaml
 #cloud-config

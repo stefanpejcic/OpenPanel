@@ -1,12 +1,12 @@
-# How to setup your email client
+# Hogyan állítsuk be az e-mail klienst
 
-How do I set up my email client with a specific device or service?
+Hogyan állíthatom be az e-mail kliensemet egy adott eszközzel vagy szolgáltatással?
 
-This page contains links to specific guides on how to set an email client using a specific device or service.
+Ez az oldal hivatkozásokat tartalmaz arra vonatkozóan, hogyan állíthat be egy e-mail klienst egy adott eszköz vagy szolgáltatás használatával.
 
-- [How to setup email on iPhone](/docs/articles/email/how-to-setup-email-on-iphone)
-- [How to setup email on Android](/docs/articles/email/how-to-setup-email-on-android)
-- [How to setup email on Apple Mail app](/docs/articles/email/how-to-setup-email-on-apple-mail-app)
-- [How to setup email on Thunderbird](/docs/articles/email/how-to-setup-email-on-thunderbird)
-- [How to setup email on Outlook 365 desktop app](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
-- [How to setup email on Gmail using desktop / browser](/docs/articles/email/how-to-setup-email-in-gmail)
+- [Hogyan állítsunk be e-mailt iPhone-on](/docs/articles/email/how-to-setup-email-on-iphone)
+- [Hogyan állítsunk be e-mailt Androidon](/docs/articles/email/how-to-setup-email-on-android)
+- [Hogyan állítsunk be e-mailt az Apple Mail alkalmazásban](/docs/articles/email/how-to-setup-email-on-apple-mail-app)
+- [Hogyan állítsunk be e-mailt a Thunderbirdben](/docs/articles/email/how-to-setup-email-on-thunderbird)
+- [Hogyan állítsunk be e-mailt az Outlook 365 asztali alkalmazásban](/docs/articles/email/how-to-setup-email-on-outlook-365-desktop-app)
+- [Hogyan állítsunk be e-mailt a Gmailben asztali számítógépen/böngészővel](/docs/articles/email/how-to-setup-email-in-gmail)

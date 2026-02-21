@@ -1,27 +1,27 @@
-# Access OpenAdmin
+# Hozzáférés az OpenAdminhoz
 
-Run `opencli admin` command to find the address on which admin panel is accessible. Example output:
+Futtassa az "opencli admin" parancsot, hogy megkeresse azt a címet, amelyen az adminisztrációs panel elérhető. Példa kimenet:
 
 ```bash
 root@server:/home# opencli admin
 ● OpenAdmin is running and is available on: https://server.openpanel.org:2087/
 ```
 
-To login to admin panel you need a username and password.
+Az adminisztrációs panelre való bejelentkezéshez felhasználónévre és jelszóra van szüksége.
 
-![openadmin login page](/img/admin/openadmin_login_page.png)
+![openadmin bejelentkezési oldal](/img/admin/openadmin_login_page.png)
 
-Both username and password are random generated on installation.
+Mind a felhasználónév, mind a jelszó véletlenszerűen generálódik a telepítés során.
 
-To view admin accounts:
+Az adminisztrátori fiókok megtekintéséhez:
 
 ```bash
 opencli admin list
 ```
 
-To set a new password for the admin account run command: `opencli admin password USER_HERE NEW_PASSWORD_HERE`
+Új jelszó beállításához az admin fiók futtatási parancsához: `opencli admin jelszó USER_HERE NEW_PASSWORD_HERE`
 
-Example:
+Példa:
 ```bash
 root@server:/home# opencli admin password stefan ba63vfav7fq36vas
 Password for user 'stefan' changed.

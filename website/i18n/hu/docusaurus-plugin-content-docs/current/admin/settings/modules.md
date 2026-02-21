@@ -2,45 +2,45 @@
 sidebar_position: 4
 ---
 
-# Modules
+# Modulok
 
-Modules extend the OpenPanel UI by adding new features and pages. To make a feature available to a user or plan, it must first be activated as a module.
+A modulok új funkciók és oldalak hozzáadásával bővítik az OpenPanel felhasználói felületet. Ahhoz, hogy egy szolgáltatást elérhetővé tegyen egy felhasználó vagy terv számára, először modulként kell aktiválni.
 
-- Modules are **core features** that are already available on installation and are developed by OpenPanel.
-- Plugins are custom features that need to be installed and are developed by third-party developers.
+- A modulok **alapvető funkciók**, amelyek már telepítéskor elérhetők, és az OpenPanel fejlesztése.
+- A beépülő modulok egyéni szolgáltatások, amelyeket telepíteni kell, és amelyeket külső fejlesztők fejlesztettek ki.
 
-Available Modules:
+Elérhető modulok:
 
-## Notifications
+## Értesítések
 
-The **`notifications`** module is required to send email notifications to users.
+Az **`értesítések`** modul szükséges e-mailes értesítések küldéséhez a felhasználóknak.
 
-When enabled:
-* Emails are sent according to each user’s notification preferences.
-* Users can manage their preferences through the OpenPanel UI at: [**Accounts > Email Notifications**](/docs/panel/account/notifications/).
+Ha engedélyezve van:
+* Az e-maileket az egyes felhasználók értesítési beállításai szerint küldjük el.
+* A felhasználók az OpenPanel UI-n keresztül kezelhetik beállításaikat: [**Fiókok > E-mail értesítések**](/docs/panel/account/notifications/).
 
-When disabled:
-* No emails will be sent, regardless of user preferences.
+Kikapcsolt állapotban:
+* A felhasználói beállításoktól függetlenül nem küldünk e-maileket.
 
-Customize email notifications:
-* To **set default preferences for new users** edit the [`/etc/openpanel/skeleton/notifications.yaml`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/skeleton/notifications.yaml) file.
-* To **customize email templates** refer to [Customizing OpenPanel Email Templates](https://community.openpanel.org/d/214-customizing-openpanel-email-templates).
-* To **configure custom SMTP** use [OpenAdmin > Settings > Notifications page](/docs/admin/settings/notifications/).
+Az e-mail értesítések testreszabása:
+* Az alapértelmezett beállítások **új felhasználók számára történő beállításához** szerkessze a [`/etc/openpanel/skeleton/notifications.yaml`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/skeleton/notifications.yaml) fájlt.
+* Az **e-mail sablonok testreszabásához** tekintse meg az [OpenPanel e-mail sablonok testreszabása] (https://community.openpanel.org/d/214-customizing-openpanel-email-templates) című részt.
+* Az **egyéni SMTP konfigurálásához** használja az [OpenAdmin > Beállítások > Értesítések oldalt] (/docs/admin/settings/notifications/).
 
 
 
-## Account
+## Fiók
 
-The **`account`** module is required for users to change their email, password or username.
+A **`fiók`** modul szükséges ahhoz, hogy a felhasználók módosíthassák e-mail címüket, jelszavukat vagy felhasználónevüket.
 
-When enabled:
-* Users can change their email, password and username through the OpenPanel UI at: [**Accounts > Settings**](/docs/panel/account/).
+Ha engedélyezve van:
+* A felhasználók megváltoztathatják e-mail címüket, jelszavukat és felhasználónevüket az OpenPanel felhasználói felületén keresztül: [**Fiókok > Beállítások**](/docs/panel/account/).
 
-When disabled:
-* Users can not change their passwords from OpenPanel UI, only from 'Password Reset' on login form, if this option is enabled.
+Kikapcsolt állapotban:
+* A felhasználók nem változtathatják meg jelszavaikat az OpenPanel UI-ból, csak a bejelentkezési űrlap „Jelszó visszaállítása” menüpontjából, ha ez az opció be van kapcsolva.
 
-Customize password and username changes:
-* To **enable or disable password reset on login forms** edit 'Enable password reset on login' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/).
+Jelszó- és felhasználónévmódosítások testreszabása:
+* A jelszó-visszaállítás engedélyezése vagy letiltása a bejelentkezési űrlapokon** módosítsa a „Jelszó-visszaállítás engedélyezése bejelentkezéskor” beállítást az [OpenAdmin > Beállítások > OpenPanel] (/docs/admin/settings/openpanel/) oldalon.
 * To **prevent users from changing their username** edit 'Allow users to change username' setting from  [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/).
 
 

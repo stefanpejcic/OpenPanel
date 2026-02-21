@@ -4,6 +4,6 @@ sidebar_position: 3
 
 # Webmail
 
-Clicking the **Webmail** link in the menu opens the [RoundCube](https://roundcube.net/) webmail client in a new browser tab.
+A menüben a **Webmail** linkre kattintva a [RoundCube](https://roundcube.net/) webmail kliens egy új böngészőlapon nyílik meg.
 
-OpenPanel does not support auto-login, so you will need to enter your email account password to log in.
+Az OpenPanel nem támogatja az automatikus bejelentkezést, ezért a bejelentkezéshez meg kell adnia az e-mail fiók jelszavát.

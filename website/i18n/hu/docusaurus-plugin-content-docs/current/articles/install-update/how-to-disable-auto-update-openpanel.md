@@ -1,16 +1,16 @@
-# Disable Updates
+# Frissítések letiltása
 
 <Tabs>
-  <TabItem value="openadmin-admin-updates" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-updates" label="OpenAdminnal" alapértelmezett>
 
-To disable automatic updates, navigate to **OpenAdmin > Settings > Update Preferences** and change 'Update automatically' option to 'Never':
+Az automatikus frissítések letiltásához nyissa meg az **OpenAdmin > Beállítások > Frissítési beállítások** lehetőséget, és állítsa az „Automatikus frissítés” beállítást „Soha” értékre:
 
-![openadmin update preferences](/img/admin/openadmin_set_update_preferences.png)
+![openadmin frissítési beállítások](/img/admin/openadmin_set_update_preferences.png)
 
-  </TabItem>
-  <TabItem value="CLI" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI" label="OpenCLI-vel">
 
-To disable automatic updates from the terminal use commands:
+A terminálról érkező automatikus frissítések letiltásához használja a következő parancsokat:
 
 ```bash
 opencli config update autoupdate no
@@ -19,5 +19,5 @@ opencli config update autoupdate no
 ```bash
 opencli config update autopatch no
 ```
-  </TabItem>
+</TabItem>
 </Tabs>

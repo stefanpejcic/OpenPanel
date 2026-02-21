@@ -1,69 +1,69 @@
 # WHMCS
 
-OpenPanel Enterprise edition has billing integrations with WHMCS and [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling).
+Az OpenPanel Enterprise Edition számlázási integrációkat tartalmaz a WHMCS-szel és a [FOSSBilling](/docs/articles/extensions/openpanel-and-fossbilling) szolgáltatással.
 
-OpenPanel WHMCS module allows users to integrate billing automations with their OpenPanel server.
+Az OpenPanel WHMCS modul lehetővé teszi a felhasználók számára, hogy integrálják a számlázási automatizálást az OpenPanel szerverükkel.
 
-# OpenPanel 
+# OpenPanel
 
-To setup WHMCS to use your OpenPanel server follow these steps:
+A WHMCS beállításához az OpenPanel szerver használatához kövesse az alábbi lépéseket:
 
-## Enable API
+## API engedélyezése
 
-First make sure that API access is enabled by going to `OpenAdmin > API` or by running `opencli config get api` from the terminal:
+Először győződjön meg arról, hogy az API-hozzáférés engedélyezve van-e az „OpenAdmin > API” menüben, vagy az „opencli config get api” parancs futtatásával a terminálról:
 ![enable_api](https://i.postimg.cc/L6vwMQ4t/image.png)
-If API is not enabled, click on the "Enable API access" button or from terminal run 
+Ha az API nincs engedélyezve, kattintson az "API hozzáférés engedélyezése" gombra vagy a terminál futtatásából
 ```bash
 opencli config update api on
 ```
 
-We recommend creating new Administrator user for API, to create a new user navigate to *OpenAdmin > OpenAdmin Settings* and create new admin user, or from terminal run:
+Javasoljuk, hogy hozzon létre új adminisztrátori felhasználót az API-hoz, új felhasználó létrehozásához lépjen az *OpenAdmin > OpenAdmin Settings* oldalra, és hozzon létre új adminisztrátori felhasználót, vagy a terminál futtatásából:
 ```bash
 opencli admin new USERNAME_HERE PASSWORD_HERE
 ```
 
-## Whitelist on OpenPanel
+## Whitelist az OpenPanelen
 
-On OpenPanel server make sure that the OpenAdmin port 2087 is open on `OpenAdmin > Firewall` or whitelist the IP address of your WHMCS server.
-to whitelist ip address from terminal run:
+Az OpenPanel szerveren győződjön meg arról, hogy az OpenAdmin 2087-es portja nyitva van az "OpenAdmin > Firewall" oldalon, vagy tegye a WHMCS-szerver IP-címét az engedélyezőlistára.
+az IP-cím engedélyezése a terminál futtatásából:
 
 ```bash
 csf -a WHMCS_IP_HERE
 ```
-or if using UFS:
+vagy ha UFS-t használ:
 ```bash
 ufw allow from WHMCS_IP_HERE
 ```
 
-## Create hosting package
-Hosting packages need to be created on both OpenPanel and WHMCS servers.
-On OpenPanel server login to admin panel and on `OpenAdmin > Plans` create hosting packages that you will be assigning to users on WHMCS.
+## Hozzon létre tárhelycsomagot
+Tárhelycsomagokat az OpenPanel és a WHMCS szervereken is létre kell hozni.
+Az OpenPanel kiszolgálón jelentkezzen be az adminisztrációs panelbe, és az 'OpenAdmin > Tervek' oldalon hozzon létre tárhelycsomagokat, amelyeket hozzárendel a WHMCS felhasználóihoz.
 
 # WHMCS
 
-## Install OpenPanel WHMCS Module
+## Telepítse az OpenPanel WHMCS modult
 
-Login to SSH for WHMCS server
-Navigate to `path_to_whmcs/modules/servers`
-Run this command to create a new folder and in it download the module:
+Jelentkezzen be az SSH-ba a WHMCS-kiszolgálóhoz
+Keresse meg a `whmcs_útvonala/modules/servers`
+Futtassa ezt a parancsot egy új mappa létrehozásához, és töltse le a modult:
 ```bash
 git clone https://github.com/stefanpejcic/openpanel-whmcs-module.git openpanel
 ```
 
-## Whitelist on WHMCS
+## Whitelist a WHMCS-en
 
-On WHMCS server also make sure that the 2087 port is opened or whitelist the IP address of your OpenPanel server.
+A WHMCS-kiszolgálón győződjön meg arról is, hogy a 2087-es port meg van nyitva, vagy adja meg az OpenPanel-kiszolgáló IP-címét az engedélyezőlistára.
 
-## WHMCS Module Setup
+## WHMCS modul beállítása
 
-From WHMCS navigate to: *System Settings > Products & Services > Servers*
+A WHMCS-ről navigáljon a következőhöz: *Rendszerbeállítások > Termékek és szolgáltatások > Szerverek*
 ![screenshot](https://i.postimg.cc/MHWpL3tc/image.png)
-Click on *Create New Server* and under module select **OpenPanel** then add OpenPanel server IP, username and password for the OpenAdmin panel:
+Kattintson az *Új kiszolgáló létrehozása* elemre, és a modul alatt válassza az **OpenPanel** lehetőséget, majd adja meg az OpenPanel szerver IP-címét, felhasználónevét és jelszavát az OpenAdmin panelhez:
 ![create_whmcs_group](https://i.postimg.cc/3Jh3nqWY/image.png)
 
-## Create hosting package
-On the WHMCS server create first a new group and then create new plans under this group. When creating products, make sure to select OpenPanel for Module and the newly created group
+## Hozzon létre tárhelycsomagot
+A WHMCS-kiszolgálón először hozzon létre egy új csoportot, majd hozzon létre új terveket ezen a csoporton. Termékek létrehozásakor feltétlenül válassza ki az OpenPanel for Module és az újonnan létrehozott csoportot
 ![screenshot2](https://i.postimg.cc/NLvF4GSc/image.png)
 
-## Test
-Create an order and create a new order to test OpenPanel API.
+## Teszt
+Hozzon létre egy rendelést, és hozzon létre egy új rendelést az OpenPanel API teszteléséhez.

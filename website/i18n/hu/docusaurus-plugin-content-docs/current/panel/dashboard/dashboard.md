@@ -2,56 +2,56 @@
 sidebar_position: 1
 ---
 
-# Dashboard
+# Irányítópult
 
-The OpenPanel interface is the central hub of your user account, providing access to all available tools, usage information, and notifications.
+Az OpenPanel felület a felhasználói fiók központi központja, amely hozzáférést biztosít az összes elérhető eszközhöz, használati információhoz és értesítéshez.
 
-The OpenPanel dashboard interface is divided in two sections:
+Az OpenPanel irányítópult felülete két részre oszlik:
 
-- Features: listing all available options
-- Widgets: 2FA, Information, Statistics, Usage and How-to guides
+- Jellemzők: az összes elérhető opció felsorolása
+- Widgetek: 2FA, információk, statisztikák, használati és használati útmutatók
 
-## Information
+## Információ
 
-This section displays general server information:
+Ez a szakasz általános szerverinformációkat jelenít meg:
 
-- Username
-- Shared or Dedicated IP address
-- Last login IP address
-- Nameservers (if configured)
+- Felhasználónév
+- Megosztott vagy dedikált IP-cím
+- Utolsó bejelentkezési IP-cím
+- Névszerverek (ha be van állítva)
 
-## Statistics
+## Statisztika
 
-This widget displays the current usage (soft limits):
+Ez a widget az aktuális használatot jeleníti meg (soft limits):
 
-- Number of websites
-- Number of domain names
-- Number of emails accounts
-- Number of FTP accounts
-- Number of MySQL databases
-- Current disk usage
-- Current inodes usage
-- Current CPU % usage
-- Current RAM usage
+- Webhelyek száma
+- Domain nevek száma
+- E-mail fiókok száma
+- FTP-fiókok száma
+- MySQL adatbázisok száma
+- Jelenlegi lemezhasználat
+- Jelenlegi inodes használat
+- Jelenlegi CPU %-os kihasználtság
+- Jelenlegi RAM használat
 
-## Usage
+## Használat
 
-This widget displays the current usage (hard-limits):
+Ez a widget az aktuális használatot jeleníti meg (kemény határok):
 
-- Storage
+- Tárolás
 - Inodes
-- CPU Usage
-- Memory Usage
-- Number of running Containers
-- Block I/O
-- Network I/O
-- Number of running PIDs
-- Time when the data was last updated
+- CPU használat
+- Memóriahasználat
+- A futó konténerek száma
+- I/O blokkolása
+- Hálózati I/O
+- A futó PID-k száma
+- Az adatok utolsó frissítésének időpontja
 
-## How-to Guides
+## Útmutatók
 
-If enabled, the How-to guides section will display links to articles from the hosting providers knowledgebase RSS feed or the official OpenPanel documentation.
+Ha engedélyezve van, a Útmutatók szakasz hivatkozásokat jelenít meg a tárhelyszolgáltató tudásbázisának RSS-hírcsatornájából vagy a hivatalos OpenPanel dokumentációjából származó cikkekre.
 
-## Favorites
+## Kedvencek
 
-When [Favorites feature](/docs/admin/settings/openpanel/#enable-features) is enabled by Administrator, users can bookmark up to 10 pages from the OpenPanel interface. These pages will appear in the sidebar menu. To add a page to favorites, simply left-click the star icon in the top-right corner of any page. To remove a page, right-click the same icon.
+Ha az adminisztrátor engedélyezi a [Kedvencek funkciót] (/docs/admin/settings/openpanel/#enable-features), a felhasználók legfeljebb 10 oldalt vehetnek fel a könyvjelzők közé az OpenPanel felületéről. Ezek az oldalak az oldalsáv menüjében jelennek meg. Egy oldal kedvencekhez való hozzáadásához egyszerűen kattintson a bal gombbal a csillag ikonra bármely oldal jobb felső sarkában. Egy oldal eltávolításához kattintson a jobb gombbal ugyanerre az ikonra.

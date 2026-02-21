@@ -1,43 +1,43 @@
-# Auto-start Services
+# Szolgáltatások automatikus indítása
 
-Services in OpenPanel start only when they are actually needed, to avoid wasting resources.
+Az erőforrások pazarlásának elkerülése érdekében az OpenPanel szolgáltatásai csak akkor indulnak el, amikor valóban szükség van rájuk.
 
-## Auto-start Services in OpenAdmin
+## Szolgáltatások automatikus indítása az OpenAdminban
 
-Upon installing OpenPanel, only the following services are started:
+Az OpenPanel telepítése után csak a következő szolgáltatások indulnak el:
 
-- **OpenAdmin** – For managing the entire server and users.
-- **Docker** – Needed for all other containerized services and user accounts.
-- **Database** – MySQL database is created and initialized. This database holds Plans, Websites, Domains, and Users.
-- **Firewall** – [Sentinel Firewall](https://sentinelfirewall.org/) is installed and started.
+- **OpenAdmin** – A teljes szerver és a felhasználók kezeléséhez.
+- **Docker** – Minden egyéb konténeres szolgáltatáshoz és felhasználói fiókhoz szükséges.
+- **Adatbázis** – A MySQL adatbázis létrejön és inicializálódik. Ez az adatbázis terveket, webhelyeket, domaineket és felhasználókat tartalmaz.
+- **Tűzfal** – A [Sentinel Firewall](https://sentinelfirewall.org/) telepítve van és elindult.
 
-Other services are installed and started only when required.
+Más szolgáltatások telepítése és elindítása csak szükség esetén történik.
 
-| Service                | Installed | Auto-start                |
-|------------------------|-----------|---------------------------|
-| OpenAdmin              | ✔       | On installation            |
-| Docker                 | ✔       | On installation            |
-| Database               | ✔       | On installation            |
-| Sentinel Firewall   | ✔       | On installation            |
-| OpenPanel              | ✘        | After adding first user account |
-| BIND9                  | ✘        | After adding first domain name  |
-| Certbot                  | ✘        | After adding first domain name  |
-| ClamAV       | ✘        | When enabled by Administrator  |
-| Dovecot & Postfix       | ✘        | When enabled by Administrator  |
-| FTP                    | ✘        | When enabled by Administrator, after first FTP account is created |
+| Szolgáltatás | Telepítve | Automatikus indítás |
+|------------------------|----------|-----------------------------|
+| OpenAdmin | ✔ | Telepítéskor |
+| Docker | ✔ | Telepítéskor |
+| Adatbázis | ✔ | Telepítéskor |
+| Sentinel Firewall | ✔ | Telepítéskor |
+| OpenPanel | ✘ | Az első felhasználói fiók hozzáadása után |
+| BIND9 | ✘ | Az első domain név hozzáadása után |
+| Certbot | ✘ | Az első domain név hozzáadása után |
+| ClamAV | ✘ | Ha engedélyezte a rendszergazda |
+| Dovecot & Postfix | ✘ | Ha engedélyezte a rendszergazda |
+| FTP | ✘ | Ha a rendszergazda engedélyezi, az első FTP-fiók létrehozása után |
 
-## Auto-start Services in OpenPanel
+## A szolgáltatások automatikus indítása az OpenPanelben
 
-Similar to OpenAdmin, services in OpenPanel also start only when they are needed. This allows for better resource management.
+Az OpenAdminhoz hasonlóan az OpenPanel szolgáltatásai is csak akkor indulnak el, ha szükség van rájuk. Ez jobb erőforrás-gazdálkodást tesz lehetővé.
 
-Services that auto-start for each user:
+Minden felhasználó számára automatikusan elinduló szolgáltatások:
 
-| Service            | Installed | Auto-start                                         |
-|--------------------|-----------|---------------------------------------------------|
-| Apache / Nginx / OpenLitespeed     | ✔       | After the user adds the first domain               |       |
-| REDIS              | ✘        | After the user activates it           |
-| Memcached          | ✘        | After the user activates it           |
-| Elasticsearch      | ✘        | After the user activates it           |
-| MySQL / MariaDB    | ✔       | After the user adds at least 1 database            |
-| Cron               | ✔       | After the user adds at least 1 cron job            |
-| PHP versions            | ✘        | After the user sets it for at least 1 domain |
+| Szolgáltatás | Telepítve | Automatikus indítás |
+|--------------------|------------|----------------------------------------------------|
+| Apache / Nginx / OpenLitespeed | ✔ | Miután a felhasználó hozzáadta az első domaint |       |
+| REDIS | ✘ | Miután a felhasználó aktiválta |
+| Memcached | ✘ | Miután a felhasználó aktiválta |
+| Elasticsearch | ✘ | Miután a felhasználó aktiválta |
+| MySQL / MariaDB | ✔ | Miután a felhasználó hozzáadott legalább 1 adatbázist |
+| Cron | ✔ | Miután a felhasználó hozzáadott legalább 1 cron feladatot |
+| PHP verziók | ✘ | Miután a felhasználó beállította legalább 1 tartományhoz |

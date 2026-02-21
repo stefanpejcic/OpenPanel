@@ -2,12 +2,12 @@
 sidebar_position: 1  
 ---
 
-# Select PHP Version  
+# Válassza a PHP verziót
 
-Assign a PHP version to each domain. Changing the version updates the domain's configuration file and reloads the web server, which may temporarily interrupt website processes for that domain.  
+Minden tartományhoz rendeljen egy PHP-verziót. A verzió módosítása frissíti a tartomány konfigurációs fájlját és újratölti a webszervert, ami ideiglenesen megszakíthatja az adott tartomány webhelyfolyamatait.
 
-For each version, the current development status is displayed, highlighting domains using outdated or unsupported PHP versions that may require an update.
+Minden verziónál megjelenik az aktuális fejlesztési állapot, kiemelve azokat a tartományokat, amelyek elavult vagy nem támogatott PHP-verziókat használnak, amelyek frissítést igényelhetnek.
 
-Ensure you check your site's requirements before selecting the appropriate PHP version.
+A megfelelő PHP-verzió kiválasztása előtt ellenőrizze webhelye követelményeit.
 
-![change version for domains](/img/panel/v2/openpanel_change_default_php.gif)
+![domain verziójának módosítása](/img/panel/v2/openpanel_change_default_php.gif)

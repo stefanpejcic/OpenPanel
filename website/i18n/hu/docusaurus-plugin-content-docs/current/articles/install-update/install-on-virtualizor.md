@@ -1,12 +1,12 @@
-# Installing OpenPanel on Virtualizor
+# Az OpenPanel telepítése a Virtualizoron
 
-To add OpenPanel to your Virtualizor server as an additional control panel available for your users to install:
+Az OpenPanel hozzáadása a Virtualizor-kiszolgálóhoz további vezérlőpultként, amelyet a felhasználók telepíthetnek:
 
-1. Log in to your server:
-   * as root via SSH, or
-   * as a user with sudo privileges and type `sudo -i`.
+1. Jelentkezzen be a szerverére:
+* rootként SSH-n keresztül, vagy
+* sudo jogosultságokkal rendelkező felhasználóként, és írja be a `sudo -i` parancsot.
 
-2. Copy and paste the following command into the terminal:
+2. Másolja ki és illessze be a következő parancsot a terminálba:
 ```bash
 bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/OpenPanel-Virtualizor/refs/heads/main/INSTALL.sh)
 ```

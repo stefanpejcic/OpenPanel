@@ -2,17 +2,17 @@
 sidebar_position: 10
 ---
 
-# Demo Mode
+# Demo mód
 
-Enable Demo Mode to lock both the OpenPanel and OpenAdmin interfaces in read-only mode.
+Engedélyezze a Demo módot az OpenPanel és az OpenAdmin felületek csak olvasható módban történő zárolásához.
 
-This mode is ideal for hosting providers who want to showcase OpenPanel in a secure, public demo environment. Users will be able to explore the UI, but no changes can be made—all actions are disabled across both the admin and user panels.
+Ez a mód ideális azoknak a tárhelyszolgáltatóknak, akik biztonságos, nyilvános bemutatókörnyezetben szeretnék bemutatni az OpenPanel-t. A felhasználók felfedezhetik a felhasználói felületet, de módosításokat nem lehet végrehajtani – minden művelet le van tiltva mind az adminisztrációs, mind a felhasználói panelen.
 
-Once enabled, Demo Mode cannot be turned off via the admin panel.
-To disable it, run the following command in your terminal:
+Ha engedélyezve van, a Demo módot nem lehet kikapcsolni az adminisztrációs panelen keresztül.
+A letiltásához futtassa a következő parancsot a terminálon:
 ```
 opencli config update demo_mode off
 ```
 
-Make sure to configure your demo content and secure the server before enabling this mode. 📘 [Learn more](https://dev.openpanel.com/cli/config.html#Demo-mode)
+Mielőtt bekapcsolná ezt a módot, győződjön meg arról, hogy konfigurálta a demótartalmat, és védi a szervert. 📘 [További információ](https://dev.openpanel.com/cli/config.html#Demo-mode)
 

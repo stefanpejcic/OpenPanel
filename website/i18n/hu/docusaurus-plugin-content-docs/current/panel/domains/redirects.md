@@ -2,8 +2,8 @@
 sidebar_position: 3
 ---
 
-# Redirects
+# Átirányítások
 
-If the **Domain Redirects** feature is enabled, you can create and manage domain-level redirects from the Domains page.
+Ha a **Domain átirányítások** funkció engedélyezve van, akkor a Domains oldalon hozhat létre és kezelhet tartományszintű átirányításokat.
 
-For each domain, you can specify a destination URL to redirect traffic to. The URL must begin with `http://` or `https://`. All traffic to the domain will be redirected to this URL *before* reaching your web server.
+Minden domainhez megadhat egy cél URL-t, amelyre a forgalmat átirányítja. Az URL-nek „http://” vagy „https://” előtaggal kell kezdődnie. A domainre irányuló minden forgalom erre az URL-re lesz átirányítva, *mielőtt* elérné a webszerverét.

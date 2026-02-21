@@ -4,22 +4,22 @@ sidebar_position: 9
 
 # WAF
 
-The Web Application Firewall (WAF) interface allows OpenPanel users to toggle on/off Coraza WAF for each of their domains individually.
+A Web Application Firewall (WAF) felület lehetővé teszi, hogy az OpenPanel felhasználók külön-külön be- és kikapcsolhassák a Coraza WAF-ot minden tartományukban.
 
 ![waf.png](/img/panel/v2/waf.png)
 
-By clicking on a domain name from the list you can disable individual rules for that domain.
+Ha a listában egy domain névre kattint, letilthatja az adott tartomány egyedi szabályait.
 
 ![waf.png](/img/panel/v2/waf_rules.png)
 
-Rules can be disabled by ID (SecRuleRemoveByID) 
+A szabályok letilthatók azonosítóval (SecRuleRemoveByID)
 
 ![waf.png](/img/panel/v2/waf_rulesID.png)
 
-and/or by Tag name (SecRuleRemoveByTag).
+és/vagy címkenév alapján (SecRuleRemoveByTag).
 
 ![waf.png](/img/panel/v2/waf_rulesTag.png)
 
-The OWASP Core ruleset is enabled by default for newly added domains, WAF log files can also be viewed from this interface by clicking on the View Logs button top right.
+Az OWASP Core szabálykészlet alapértelmezés szerint engedélyezve van az újonnan hozzáadott tartományokhoz, a WAF naplófájlok ezen a felületen is megtekinthetők a jobb felső naplók megtekintése gombra kattintva.
 
 ![waf.png](/img/panel/v2/waf_logs.png)

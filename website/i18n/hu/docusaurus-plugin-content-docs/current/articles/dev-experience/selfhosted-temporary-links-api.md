@@ -1,12 +1,12 @@
-# Temporary Links API
+# Ideiglenes linkek API
 
-[OpenPanel SiteManager](/docs/panel/applications/) has a temporary-links option that allows user to test website from the server IP, prior to changing DNS. Proxy domains are subdomains on our hosted api `.openpanel.org`.
+Az [OpenPanel SiteManager](/docs/panel/applications/) rendelkezik egy ideiglenes hivatkozási lehetőséggel, amely lehetővé teszi a felhasználó számára, hogy tesztelje a webhelyet a szerver IP-címéről, mielőtt megváltoztatná a DNS-t. A proxydomainek az `.openpanel.org` által tárolt API aldomainjei.
 
-## Use Self-hosted Remote API
+## Használja a Self-hosted Remote API-t
 
-If you have multiple OpenPanel servers and want to use your own domain for temporary links, you can designate one server to host the api, and set OpenPanel servers to use that API instead.
+Ha több OpenPanel-kiszolgálója van, és saját tartományát szeretné használni az ideiglenes hivatkozásokhoz, kijelölhet egy kiszolgálót az API hosztolására, és beállíthatja, hogy az OpenPanel-kiszolgálók ezt az API-t használják.
 
-To do this, set up the [Temporary Links service for OpenPanel server](https://github.com/stefanpejcic/OpenPanel/blob/main/services/proxy/README.md) on one server, add the domain to it, and then update the [temporary_links](https://dev.openpanel.com/cli/config.html#temporary-links) service on your OpenPanel servers to use the new instance:
+Ehhez állítsa be az [Ideiglenes hivatkozások szolgáltatást az OpenPanel szerverhez] (https://github.com/stefanpejcic/OpenPanel/blob/main/services/proxy/README.md) egy szerveren, adja hozzá a domaint, majd frissítse a [temporary_links](https://dev.open/panel.com/yourf-cli)#temporaryf.com/ OpenPanel szerverek az új példány használatához:
 
 ```
 opencli config update temporary_links "https://preview.openpanel.org/index.php"

@@ -2,20 +2,20 @@
 sidebar_position: 4  
 ---
 
-# Limits  
+# Korlátok
 
-Edit limits for installed php versions.
+Szerkessze a telepített php verziók korlátait.
 
 ![openpanel_edit_php_limits](/img/panel/v2/openpanel_edit_php_limits.gif)
 
-The following limits are configurable via PHP Limits page:
+A következő korlátok konfigurálhatók a PHP Limits oldalon:
 
-- `max_execution_time`
-- `max_input_time`
-- `max_input_vars`
-- `memory_limit`
-- `post_max_size`
-- `upload_max_filesize`
+- "max. végrehajtási_idő".
+- "max._bemeneti_idő".
+- "max_input_vars".
+- "memóriakorlát".
+- "post_max_size".
+- "feltöltési_maximális_fájlméret".
 
-> NOTE: Settings on 'PHP Limits' page will overwrite any settings in [*PHP.INI Editor*](/docs/panel/php/php_ini_editor/) or [*PHP Options*](/docs/panel/php/options/) pages.
+> MEGJEGYZÉS: A 'PHP Limits' oldalon lévő beállítások felülírnak minden beállítást a [*PHP.INI Editor*](/docs/panel/php/php_ini_editor/) vagy a [*PHP Options*](/docs/panel/php/options/) oldalon.
 

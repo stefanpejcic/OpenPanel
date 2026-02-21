@@ -2,13 +2,13 @@
 sidebar_position: 8
 ---
 
-# Login History
+# Bejelentkezési előzmények
 
-By default, OpenPanel records your IP address when you log in and displays the last login IP address on the Dashboard page.
+Alapértelmezés szerint az OpenPanel rögzíti az Ön IP-címét, amikor bejelentkezik, és megjeleníti az utolsó bejelentkezési IP-címet az irányítópult oldalon.
 
-The Login History page displays a list of up to the last 20 logins in a table format. It includes the IP address, the time of the successful login, a two-letter country code representing the country of the IP address, and a flag icon to visualize the country.
+A Bejelentkezési előzmények oldalon az utolsó 20 bejelentkezés listája jelenik meg táblázatos formában. Tartalmazza az IP-címet, a sikeres bejelentkezés időpontját, egy kétbetűs országkódot, amely az IP-cím országát jelöli, és egy zászló ikont az ország megjelenítéséhez.
 
 ![login_history.png](/img/panel/v2/loginhistory.png)
 
 
-The purpose of this page is to help you determine if your account has been compromised. If you notice an IP address that you do not recognize, check the [Activity logs](/docs/panel/analytics/account_activity) for that IP to review the actions it performed on your account. If you notice any suspicious activity, immediately [change your account password](/docs/panel/account/login#password-reset) and contact your hosting provider.
+Ennek az oldalnak az a célja, hogy segítsen megállapítani, hogy fiókját feltörték-e. Ha olyan IP-címet észlel, amelyet nem ismer fel, ellenőrizze az adott IP-címhez tartozó [tevékenységnaplókat] (/docs/panel/analytics/account_activity), hogy áttekintse a fiókjában végrehajtott műveleteket. Ha bármilyen gyanús tevékenységet észlel, azonnal [változtassa meg fiókja jelszavát] (/docs/panel/account/login#password-reset), és forduljon tárhelyszolgáltatójához.

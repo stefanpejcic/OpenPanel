@@ -2,21 +2,21 @@
 sidebar_position: 2
 ---
 
-# Change Language
+# Nyelv módosítása
 
-You can customize your experience by selecting your preferred language.  
+A kívánt nyelv kiválasztásával testreszabhatja az élményt.
 
 ![openpanel chaneg language](/img/panel/v2/openpanel_change_language.gif)
 
-## Changing Your Language  
-1. Navigate to **Account > Change Language**.
-1. Select your desired language from the dropdown menu.  
-2. The interface will **immediately update** to reflect your selection.  
+## Nyelvváltás
+1. Lépjen a **Fiók > Nyelv módosítása** elemre.
+1. Válassza ki a kívánt nyelvet a legördülő menüből.
+2. A kezelőfelület **azonnal frissül**, hogy tükrözze az Ön választását.
 
 
 
-## Available Languages
-Languages are configured by Administrator from [OpenAdmin > Settings > Locales](/docs/admin/settings/locales/)
+## Elérhető nyelvek
+A nyelveket az adminisztrátor állítja be az [OpenAdmin > Beállítások > Nyelvi beállítások] menüpontban (/docs/admin/settings/locales/)
 
-## Missing a Language?  
-If your language is not available, you can help translate OpenPanel [here](https://dev.openpanel.com/localization.html) to improve accessibility for everyone.
+## Hiányzik egy nyelv?
+Ha az Ön nyelve nem érhető el, segíthet az OpenPanel lefordításában [itt](https://dev.openpanel.com/localization.html), hogy mindenki számára javítsa a hozzáférést.

@@ -2,20 +2,20 @@
 sidebar_position: 7
 ---
 
-# Assign User to DB
+# Felhasználó hozzárendelése a DB-hez
 
-Assign a MySQL user to an existing database to grant permissions for executing queries, modifying tables, and managing data.
+Rendeljen MySQL-felhasználót egy meglévő adatbázishoz, hogy engedélyeket adjon lekérdezések végrehajtására, táblák módosítására és adatok kezelésére.
 
-This is a critical step after creating a database and user - without it, the user won't be able to interact with the database.
+Ez egy kritikus lépés az adatbázis és a felhasználó létrehozása után – enélkül a felhasználó nem tud kommunikálni az adatbázissal.
 
-To assign an existing user to a database, navigate to **OpenPanel > MySQL > Assign User to DB**:
+Meglévő felhasználó adatbázishoz rendeléséhez lépjen az **OpenPanel > MySQL > Felhasználó hozzárendelése a DB-hez** elemhez:
 
-1. **Select a User**  
-   Choose the MySQL user you want to grant access to.
+1. **Válassz egy felhasználót**
+Válassza ki azt a MySQL-felhasználót, akinek hozzáférést szeretne adni.
 
-2. **Select a Database**  
-   Choose the existing database the user should be assigned to.
+2. **Válasszon adatbázist**
+Válassza ki a meglévő adatbázist, amelyhez a felhasználót hozzá kell rendelni.
 
-3. **Click 'Assign User to Database'**  
-   After selecting both user and database, click the **Assign User to Database** button.  
-   The user will be granted **all privileges** on the selected database.
+3. **Kattintson a "Felhasználó hozzárendelése az adatbázishoz" lehetőségre**
+A felhasználó és az adatbázis kiválasztása után kattintson a **Felhasználó hozzárendelése az adatbázishoz** gombra.
+A felhasználó **minden jogosultságot** kap a kiválasztott adatbázison.

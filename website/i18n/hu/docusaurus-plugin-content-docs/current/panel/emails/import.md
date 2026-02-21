@@ -2,25 +2,25 @@
 sidebar_position: 3
 ---
 
-# Address Importer
+# Címimportőr
 
-The **Address Importer** page allows you to create multiple email accounts at once by uploading an `.xls`/`xlsx` or `.csv` file.
+A **Címimportáló** oldalon egyszerre több e-mail fiókot is létrehozhat egy `.xls`/`xlsx` vagy `.csv` fájl feltöltésével.
 
-### How to Import Email Addresses
+### E-mail címek importálása
 
-1. Navigate to **OpenPanel > Emails > Address Importer**.
-2. Select the `.xls`, `.xlsx` or `.csv` file from your device and click **Upload**.
+1. Lépjen az **OpenPanel > E-mailek > Címimportőr** elemre.
+2. Válassza ki a `.xls`, `.xlsx` vagy `.csv` fájlt eszközéről, majd kattintson a **Feltöltés** gombra.
 
-### File Format Requirements
+### Fájlformátumra vonatkozó követelmények
 
-* Supported delimiters: `,` (comma) or `;` (semicolon)
-* Required columns: `username`, `password`
-* Optional column: `quota`
+* Támogatott elválasztójelek: "," (vessző) vagy ";" (pontosvessző)
+* Kötelező oszlopok: "felhasználónév", "jelszó".
+* Nem kötelező oszlop: "kvóta".
 
-  * If included, the quota should specify a unit: `K`, `M`, `G`, or `T`.
-  * If no unit is specified, the default is **MB**.
+* Ha szerepel, a kvótának egy mértékegységet kell megadnia: "K", "M", "G" vagy "T".
+* Ha nincs megadva mértékegység, az alapértelmezett **MB**.
 
-### Example File
+### Példafájl
 
 ```csv
 email,password,quota
@@ -32,18 +32,18 @@ eve@unauthorized.com,evepass,100T
 new@example.com,ssaaasa2,10M
 ```
 
-### Review & Confirmation
+### Felülvizsgálat és megerősítés
 
-After uploading the file:
+A fájl feltöltése után:
 
-* You’ll see a preview of the email accounts to be created, along with their passwords and quota (if provided).
-* The system will flag entries if they will be skipped during the import:
+* Megjelenik a létrehozandó e-mail fiókok előnézete, valamint jelszavaik és kvótája (ha van).
+* A rendszer megjelöli a bejegyzéseket, ha azok kimaradnak az importálás során:
 
-  * Email addresses that already exist
-  * Domains that are not associated with your account
+* Már létező e-mail címek
+* Olyan domainek, amelyek nincsenek társítva a fiókjával
 
-### Final Step
+### Utolsó lépés
 
-Click **Start Upload** to begin the import process. A log will appear below the table to show the progress and status of the operation.
+Kattintson a **Feltöltés indítása** gombra az importálási folyamat elindításához. A táblázat alatt megjelenik egy napló, amely megmutatja a művelet előrehaladását és állapotát.
 
-Once completed, all valid email accounts will be successfully imported.
+A befejezést követően az összes érvényes e-mail fiók sikeresen importálva lesz.

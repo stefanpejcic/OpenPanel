@@ -2,12 +2,12 @@
 sidebar_position: 3
 ---
 
-# Database Wizard
+# Adatbázis varázsló
 
 ![databases_wizard.png](/img/panel/v2/databases_wizard.png)
 
-The Database Wizard can be accessed on the [MySQL](/docs/panel/mysql/) page by clicking the "Database Wizard" button. This tool is designed to streamline the creation of a new database, a new user, and their assignment to the database. When you initiate the database wizard, it will provide a secure, randomly generated password for the user, as well as random username and database name. You have the flexibility to modify these options, and there is also an option to generate random values for each field.
+Az Adatbázis varázsló a [MySQL](/docs/panel/mysql/) oldalon érhető el az "Adatbázis varázsló" gombra kattintva. Ez az eszköz arra szolgál, hogy egyszerűsítse új adatbázisok létrehozását, új felhasználók létrehozását és hozzárendelését az adatbázishoz. Az adatbázis varázsló elindításakor biztonságos, véletlenszerűen generált jelszót ad a felhasználónak, valamint véletlenszerű felhasználónevet és adatbázisnevet. Rugalmasan módosíthatja ezeket a beállításokat, és lehetőség van véletlenszerű értékek generálására minden mezőhöz.
 
-Upon creating the user and database, a new modal will appear, presenting you with the newly generated data.
+A felhasználó és az adatbázis létrehozása után egy új modál jelenik meg, amely bemutatja az újonnan generált adatokat.
 
-Please ensure to save this data as the password will not be displayed again. However, you have the option to reset it at any time.
+Kérjük, mentse el ezeket az adatokat, mert a jelszó többé nem jelenik meg. Azonban bármikor lehetősége van visszaállítani.

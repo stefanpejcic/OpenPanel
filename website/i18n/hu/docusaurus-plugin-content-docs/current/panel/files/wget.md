@@ -2,20 +2,20 @@
 sidebar_position: 3
 ---
 
-# Download from URL
+# Letöltés az URL-ről
 
-The **Download from URL** feature allows you to fetch files directly from the internet into your selected directory.
+A **Letöltés URL-ről** funkció lehetővé teszi, hogy a fájlokat közvetlenül az internetről töltse le a kiválasztott könyvtárba.
 
-To use:
+Használata:
 
-1. Navigate to the desired directory.
-2. Click the **Upload** button.
-3. Select **Download from URL instead**.
-4. Enter the direct download link (URL) to the file.
-5. Click **Download** to begin.
+1. Navigáljon a kívánt könyvtárhoz.
+2. Kattintson a **Feltöltés** gombra.
+3. Inkább válassza a **Letöltés az URL-ről** lehetőséget.
+4. Adja meg a fájl közvetlen letöltési hivatkozását (URL).
+5. A kezdéshez kattintson a **Letöltés** gombra.
 
-The file will be downloaded using `wget` and saved with the same name as on the remote server.
+A fájl a "wget" használatával lesz letöltve, és ugyanazon a néven kerül mentésre, mint a távoli szerveren.
 
-If a file with the same name already exists in the directory, it will not be overwritten—instead, a version with a `+1` suffix will be created.
+Ha egy azonos nevű fájl már létezik a könyvtárban, akkor a rendszer nem írja felül – ehelyett egy „+1” utótagú verzió jön létre.
 
-> ✅ This is especially useful for large files or when direct device uploads are slow or limited.
+> ✅ Ez különösen nagy fájlok esetén hasznos, vagy ha a közvetlen eszközfeltöltés lassú vagy korlátozott.

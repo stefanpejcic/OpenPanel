@@ -2,29 +2,29 @@
 sidebar_position: 4
 ---
 
-# Update Preferences
+# Frissítse a beállításokat
 
 
-The Update Preferences page in OpenPanel allows you to manage and control how updates are applied. It is organized into three sections: Current Version, Auto Updates, and Update Logs.
+Az OpenPanel Frissítési beállítások oldala lehetővé teszi a frissítések alkalmazásának kezelését és szabályozását. Három részre van felosztva: Aktuális verzió, Automatikus frissítések és Frissítési naplók.
 
-## Current Version
-This section displays information about the version of OpenPanel currently installed on your system, as well as the latest available version.
+## Aktuális verzió
+Ez a rész információkat jelenít meg az OpenPanel rendszerére jelenleg telepített verziójáról, valamint a legújabb elérhető verzióról.
 
-- **Installed Version:** Shows the version of OpenPanel currently running.
+- **Telepített verzió:** Az OpenPanel jelenleg futó verzióját mutatja.
 
-- **Latest Version:** Shows the most recent version available for update.
+- **Legújabb verzió:** A frissítéshez elérhető legfrissebb verziót mutatja.
 
-If the installed version matches the latest version, OpenPanel is fully up to date. If not, you can initiate a manual update via a button to upgrade to the latest version.
+Ha a telepített verzió megegyezik a legújabb verzióval, az OpenPanel teljesen naprakész. Ha nem, akkor manuális frissítést kezdeményezhet egy gomb segítségével a legújabb verzióra való frissítéshez.
 
-## Auto Updates
-The Auto Updates section lets you configure how OpenPanel should handle updates automatically.
-You can select the update policy that best fits your needs:
+## Automatikus frissítések
+Az Automatikus frissítések szakaszban beállíthatja, hogy az OpenPanel hogyan kezelje automatikusan a frissítéseket.
+Kiválaszthatja az igényeinek leginkább megfelelő frissítési szabályzatot:
 
-- **Minor Versions Only:** Automatically apply updates that include only bug fixes and security patches. Major feature updates must be installed manually.
+- **Csak kisebb verziók:** A csak hibajavításokat és biztonsági javításokat tartalmazó frissítések automatikus alkalmazása. A főbb funkciók frissítéseit manuálisan kell telepíteni.
 
-- **Both Minor and Major Versions:** Automatically apply all updates, including new features, bug fixes, and security enhancements.
+- **Mind kisebb, mind nagyobb verziók:** Automatikusan alkalmazza az összes frissítést, beleértve az új funkciókat, a hibajavításokat és a biztonsági fejlesztéseket.
 
-- **Major Versions Only:** Automatically apply updates that introduce major new features. Bug fixes and security patches will require manual updates.
+- **Csak főbb verziók:** A főbb új funkciókat bevezető frissítések automatikus alkalmazása. A hibajavítások és a biztonsági javítások kézi frissítést igényelnek.
 
 - **Never:** Disable automatic updates. You will need to manually check for and install all updates.
 

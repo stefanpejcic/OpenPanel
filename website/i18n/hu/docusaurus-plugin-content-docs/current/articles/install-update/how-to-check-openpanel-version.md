@@ -1,12 +1,12 @@
-# Check Version
+# Ellenőrizze a verziót
 
-To check OpenPanel version from terminal:
+Az OpenPanel verziójának ellenőrzése terminálról:
 
 ```bash
 opencli --version 
 ```
 
-Example output:
+Példa kimenet:
 
 ```bash
 root@server:~# opencli --version

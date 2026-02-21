@@ -1,9 +1,9 @@
-# Access OpenPanel
+# Hozzáférés az OpenPanelhez
 
-OpenPanel is the end-user control panel, accessible by default via the server's IP address and port `2083`. Administrators can configure a custom domain and modify the default port.
+Az OpenPanel a végfelhasználói vezérlőpult, amely alapértelmezés szerint a szerver IP-címén és a 2083-as porton keresztül érhető el. A rendszergazdák egyéni tartományt konfigurálhatnak, és módosíthatják az alapértelmezett portot.
 
-To access your OpenPanel account, **use the link provided by your hosting provider**.
+OpenPanel-fiókjához való hozzáféréshez **használja a tárhelyszolgáltatója által biztosított linket**.
 
-To login to user panel you need a username and password.
+A felhasználói panelre való bejelentkezéshez felhasználónévre és jelszóra van szüksége.
 
-[![openpanel login page](https://i.postimg.cc/sgXWKVyx/2025-07-09-18-12.png)](https://postimg.cc/w7C3jY1Y)
+[![Openpanel bejelentkezési oldal](https://i.postimg.cc/sgXWKVyx/2025-07-09-18-12.png)](https://postimg.cc/w7C3jY1Y)

@@ -2,8 +2,8 @@
 sidebar_position: 5
 ---
 
-# Active Sessions
+# Aktív munkamenetek
 
-Displays current active sessions for the user account.
+Megjeleníti a felhasználói fiók aktuális aktív munkameneteit.
 
-![active session](/img/panel/v2/openpanel_sessions.png)
+![aktív munkamenet](/img/panel/v2/openpanel_sessions.png)

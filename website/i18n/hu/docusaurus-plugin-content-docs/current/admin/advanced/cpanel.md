@@ -2,8 +2,8 @@
 sidebar_position: 9
 ---
 
-# Import cPanel Account
+# Importálja a cPanel fiókot
 
-Use **OpenAdmin > Advanced > Import cPanel Account** to create an OpenPanel account from a full cpanel account backup.
+Az **OpenAdmin > Speciális > cPanel-fiók importálása** használatával OpenPanel-fiókot hozhat létre a teljes cpanel-fiók biztonsági másolatából.
 
-For detailed instructions, see the [Import cPanel backup guide](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
+A részletes útmutatásért tekintse meg a [cPanel biztonsági másolat importálási útmutatóját](https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/)

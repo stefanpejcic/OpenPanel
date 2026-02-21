@@ -1,42 +1,42 @@
-# Assigning a Dedicated IP Address to a User
+# Dedikált IP-cím hozzárendelése a felhasználóhoz
 
-A dedicated IP address can then be assigned to a user through **OpenAdmin** or **OpenCLI**.
+Ezt követően az **OpenAdmin** vagy **OpenCLI** segítségével egy dedikált IP-cím hozzárendelhető a felhasználóhoz.
 
-Changing IP updates all related configuration files — including DNS zones and Caddy VirtualHosts — ensuring that the user’s all current and newly added domains are bound to the new IP address.
-The updated IP address will also be reflected immediately in the user’s OpenPanel interface.
+Az IP-cím megváltoztatása frissíti az összes kapcsolódó konfigurációs fájlt – beleértve a DNS-zónákat és a Caddy VirtualHostokat –, így biztosítva, hogy a felhasználó minden jelenlegi és újonnan hozzáadott tartománya az új IP-címhez legyen kötve.
+A frissített IP-cím azonnal megjelenik a felhasználó OpenPanel felületén is.
 
-## Using OpenAdmin
+## Az OpenAdmin használatával
 
-The OpenAdmin interface lists all IP addresses currently assigned to the server — these can also be viewed using the `hostname -I` command.
-If you need to add additional IP addresses to the server, **follow the official network configuration documentation for your operating system distribution**.
-No special configuration is required from the OpenPanel side — newly added IPs will appear automatically in the interface.
+Az OpenAdmin felület felsorolja a szerverhez jelenleg hozzárendelt összes IP-címet – ezek a `hostname -I` paranccsal is megtekinthetők.
+Ha további IP-címeket kell hozzáadnia a szerverhez, **kövesse az operációs rendszer disztribúciójához tartozó hivatalos hálózati konfigurációs dokumentációt**.
+Nincs szükség speciális konfigurációra az OpenPanel oldalról – az újonnan hozzáadott IP-címek automatikusan megjelennek a felületen.
 
-To change IP address for a user from OpenAdmin:
+Egy felhasználó IP-címének megváltoztatása az OpenAdminból:
 
-1. Navigate to **OpenAdmin → Users → *username* → Edit**.
+1. Lépjen az **OpenAdmin → Felhasználók → *felhasználónév* → Szerkesztés** elemre.
 
-2. Update the **IP Address** field with the desired dedicated IP.
+2. Frissítse az **IP-cím** mezőt a kívánt dedikált IP-vel.
 
-   ![image](https://i.postimg.cc/65f9Jcsf/slika.png)
+![image](https://i.postimg.cc/65f9Jcsf/slika.png)
 
-3. Click **Save** to apply the changes.
+3. Kattintson a **Mentés** gombra a módosítások alkalmazásához.
 
-## Using OpenCLI
+## OpenCLI használata
 
-To change a user’s IP address from the command line, use the [`opencli user-ip`](https://dev.openpanel.com/cli/users.html#Assign-Remove-IP-to-User) command:
+A felhasználó IP-címének parancssorból történő módosításához használja az [`opencli user-ip`](https://dev.openpanel.com/cli/users.html#Assign-Remove-IP-to-User) parancsot:
 
 ```bash
 opencli user-ip <USERNAME> <NEW_IP_ADDRESS>
 ```
 
-If the specified IP address is already assigned to another user, the command will abort with a warning.
-To override this behavior and force the reassignment, include the `-y` flag:
+Ha a megadott IP-cím már hozzá van rendelve egy másik felhasználóhoz, a parancs figyelmeztetéssel megszakad.
+Ennek a viselkedésnek a felülbírálásához és az újbóli hozzárendelés kikényszerítéséhez adja meg az "-y" jelzőt:
 
 ```bash
 opencli user-ip <USERNAME> <NEW_IP_ADDRESS> -y
 ```
 
-To remove a dedicated IP from a user and restore them to the [main (shared) IP](/docs/articles/install-update/openpanel-main-ip-address), use:
+Ha el szeretne távolítani egy dedikált IP-címet a felhasználótól, és visszaállítani a [fő (megosztott) IP-címre] (/docs/articles/install-update/openpanel-main-ip-address), használja a következőket:
 
 ```bash
 opencli user-ip <USERNAME> delete

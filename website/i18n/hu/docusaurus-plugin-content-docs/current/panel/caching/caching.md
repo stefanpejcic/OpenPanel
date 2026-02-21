@@ -2,33 +2,33 @@
 sidebar_position: 1
 ---
 
-# Caching
+# Gyorsítótár
 
-Utilizing the array of out-of-the-box features provided by OpenPanel can significantly enhance your website's performance and security. Features such as PHP-FPM, Redis, Memcached, and Opcache have the potential to dramatically boost your website's speed and efficiency.
+Az OpenPanel által kínált készenléti funkciók tömbjének felhasználása jelentősen növelheti webhelye teljesítményét és biztonságát. Az olyan funkciók, mint a PHP-FPM, a Redis, a Memcached és az Opcache, jelentősen növelhetik webhelye sebességét és hatékonyságát.
 
 ## REDIS
 
-Redis serves as a persistent object cache backend cache server, primarily accelerating database and website-related calls and queries by storing them in RAM memory. RAM is known for its high-speed performance, surpassing even NVMe and UFS, making Redis caching a powerful tool to optimize your website's performance. Leveraging Redis cache can significantly benefit your website.
+A Redis állandó objektum-gyorsítótár háttér-gyorsítótár-kiszolgálóként szolgál, elsősorban az adatbázisokkal és webhelyekkel kapcsolatos hívások és lekérdezések felgyorsítására a RAM-memóriában való tárolással. A RAM a nagy sebességű teljesítményéről ismert, még az NVMe-t és az UFS-t is felülmúlja, így a Redis gyorsítótárazás hatékony eszköz a webhely teljesítményének optimalizálásához. A Redis gyorsítótár kihasználása jelentős előnyökkel járhat webhelye számára.
 
-[REDIS settings and usage](/docs/panel/caching/Redis)
+[REDIS beállítások és használat](/docs/panel/caching/Redis)
 
 ## Memcached
 
-This in-memory (RAM) object cache is designed specifically to reduce the database load, making it ideal for dynamic websites. It caches only the queries related to the database.
+Ezt a memórián belüli (RAM) objektum-gyorsítótárat kifejezetten az adatbázis-terhelés csökkentésére tervezték, így ideális dinamikus webhelyekhez. Csak az adatbázishoz kapcsolódó lekérdezéseket gyorsítótárazza.
 
-We don't recommend using it in conjunction with other caches like Redis. However, it can be effectively used alongside PHP OPcache for improved website performance.
+Nem javasoljuk, hogy más gyorsítótárral, például a Redis-szel együtt használja. Azonban hatékonyan használható a PHP OPcache mellett a webhely teljesítményének javítása érdekében.
 
-[Memcached configuration and usage](/docs/panel/caching/Memcached)
+[Memcached konfiguráció és használat](/docs/panel/caching/Memcached)
 
-## Elasticsearch
+## Elaszticsearch
 
-Enhance your website's search capabilities and overall performance with Elasticsearch. OpenPanel provides seamless integration with Elasticsearch, a powerful search engine that allows for efficient and quick retrieval of information.
+Növelje webhelye keresési lehetőségeit és általános teljesítményét az Elasticsearch segítségével. Az OpenPanel zökkenőmentes integrációt biztosít az Elasticsearch hatékony keresőmotorral, amely lehetővé teszi az információk hatékony és gyors visszakeresését.
 
-Configure and optimize Elasticsearch settings to tailor it to your website's needs. Learn about the various features and functionalities offered by Elasticsearch to make the most out of this robust search engine.
+Konfigurálja és optimalizálja az Elasticsearch beállításait, hogy a webhely igényeihez igazítsa. Ismerje meg az Elasticsearch által kínált különféle funkciókat és funkciókat, hogy a legtöbbet hozza ki ebből a robusztus keresőmotorból.
 
-[Elasticsearch settings and usage](/docs/panel/caching/elasticsearch)
+[Elasticsearch beállításai és használata](/docs/panel/caching/elasticsearch)
 
 ## Opcache
-OPcache is a valuable tool for enhancing PHP performance. It works by storing precompiled script code in shared memory, eliminating the need for PHP to reload and analyze scripts with each request. In simpler terms, OPcache caches previously executed PHP code, reducing CPU load and improving website performance.
+Az OPcache értékes eszköz a PHP teljesítményének javítására. Úgy működik, hogy az előre lefordított szkriptkódot az osztott memóriában tárolja, így nincs szükség arra, hogy a PHP minden kérésnél újratöltse és elemezze a szkripteket. Egyszerűbben fogalmazva, az OPcache gyorsítótárazza a korábban végrehajtott PHP kódot, csökkentve a CPU terhelését és javítva a webhely teljesítményét.
 
-**This feature is enabled by default when using PHP and requires no additional settings.**
+**Ez a funkció alapértelmezés szerint engedélyezve van PHP használatakor, és nincs szükség további beállításokra.**

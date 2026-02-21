@@ -2,20 +2,20 @@
 sidebar_position: 6
 ---
 
-# Import
+# Importálás
 
-Import tables into a MySQL database using a `.sql` export file. This feature is useful for restoring backups, migrating data, or setting up initial database structures.
+Táblázatok importálása MySQL adatbázisba `.sql` exportfájl használatával. Ez a funkció a biztonsági mentések visszaállításához, az adatok áttelepítéséhez vagy a kezdeti adatbázis-struktúrák beállításához hasznos.
 
 
-To import tables into a database, navigate to **OpenPanel > MySQL > Import**:
+Táblázatok adatbázisba importálásához lépjen az **OpenPanel > MySQL > Import** elemre:
 
-1. **Select a Database**  
-   Choose the target database into which you want to import the tables.
+1. **Válasszon adatbázist**
+Válassza ki a céladatbázist, amelybe importálni kívánja a táblákat.
 
-2. **Select a File**  
-   Click the **Select** button to choose a `.sql` export file from your device.
+2. **Válasszon fájlt**
+Kattintson a **Kiválasztás** gombra, hogy `.sql` exportfájlt válasszon eszközéről.
 
-3. **Upload**  
-   Click the **Upload** button and wait for the import process to complete.
+3. **Feltöltés**
+Kattintson a **Feltöltés** gombra, és várja meg, amíg az importálási folyamat befejeződik.
 
-If your SQL file is larger than **1 GB**, we recommend using the **Docker > Terminal** interface instead for more reliable import handling.
+Ha az SQL-fájlja nagyobb, mint **1 GB**, javasoljuk, hogy inkább a **Docker > Terminal** felületet használja a megbízhatóbb importkezelés érdekében.

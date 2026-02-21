@@ -1,17 +1,17 @@
-# Installing OpenPanel
+# Az OpenPanel telepítése
 
-Before starting, ensure your server meets [the minimum requirements](/docs/admin/intro/#requirements) and runs a supported distribution.
+Mielőtt elkezdené, győződjön meg arról, hogy szervere megfelel [a minimális követelményeknek] (/docs/admin/intro/#requirements), és támogatott disztribúciót futtat.
 
-To install OpenPanel on your server:
+Az OpenPanel telepítése a szerverre:
 
-1. Log in to your new server;
-- as root via SSH or
-- as a user with sudo privileges and type "sudo -i"
-2. Copy and paste openpanel installation command into the terminal
+1. Jelentkezzen be az új szerverére;
+- rootként SSH-n keresztül vagy
+- mint felhasználó sudo jogosultságokkal és írja be a "sudo -i" parancsot
+2. Másolja és illessze be az openpanel telepítési parancsot a terminálba
 ```shell
 bash <(curl -sSL https://openpanel.org)
 ```
 
-The installation script supports [optional flags](/install) that can be used to configure openpanel, skip certain installation steps or simply display debugging information.
+A telepítő szkript támogatja az [opcionális zászlókat] (/install), amelyek segítségével konfigurálható az openpanel, kihagyható bizonyos telepítési lépések, vagy egyszerűen megjeleníthetők a hibakeresési információk.
 
-If you encountered any errors while running the installation script, please copy & paste the installation log file to [the community forums](https://community.openpanel.org).
+Ha bármilyen hibát észlelt a telepítőszkript futtatása közben, kérjük, másolja és illessze be a telepítési naplófájlt [a közösségi fórumokba] (https://community.openpanel.org).

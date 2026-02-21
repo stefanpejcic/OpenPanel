@@ -2,8 +2,8 @@
 sidebar_position: 6
 ---
 
-# Suspend a domain
+# Domain felfüggesztése
 
-You can temporarily suspend a domain from the **Domains** page. When a domain is suspended, its website content is replaced with a *Suspended Website* page, as configured by the Administrator.
+Ideiglenesen felfüggesztheti a domaint a **Domainek** oldalon. Amikor egy domaint felfüggesztenek, a webhely tartalmát a rendszergazda által beállított *Felfüggesztett webhely* oldal váltja fel.
 
-This feature is useful for quickly disabling a website while keeping all other services—such as email, FTP, and more - fully functional.
+Ez a funkció hasznos egy webhely gyors letiltásához, miközben az összes többi szolgáltatást – például az e-mailt, az FTP-t és még sok mást – teljes mértékben működőképesnek tartja.

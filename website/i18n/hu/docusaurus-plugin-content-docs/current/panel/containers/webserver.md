@@ -2,37 +2,37 @@
 sidebar_position: 6
 ---
 
-# Switch Web Server
+# Webszerver váltása
 
-The **Docker > Switch Web Server** page allows you to switch your current web server between available options: **Nginx**, **OpenResty**, and **Apache**.
+A **Docker > Webszerver váltása** oldal lehetővé teszi az aktuális webszerver közötti váltást a rendelkezésre álló lehetőségek között: **Nginx**, **OpenResty** és **Apache**.
 
-The currently active web server is displayed in the top-right corner of the page.
+Az aktuálisan aktív webszerver az oldal jobb felső sarkában jelenik meg.
 
-## Requirements
+## Követelmények
 
-To access this feature:
+A funkció eléréséhez:
 
-- The **Docker** module must be enabled **server-wide** by an Administrator.
-- Your account must have the **Docker** feature enabled.
+- A **Docker** modult a rendszergazdának engedélyeznie kell **szerveren**.
+- Fiókjában engedélyezni kell a **Docker** funkciót.
 
-## Usage
+## Használat
 
-Before switching the web server, please ensure the following:
+A webszerver váltása előtt győződjön meg a következőkről:
 
-- **All existing domains must be removed.**
-- The current web server container must be **stopped** before the new one can be started.
+- **Az összes meglévő domaint el kell távolítani.**
+- A jelenlegi webszerver-tárolót **le kell állítani**, mielőtt elindítaná az újat.
 
-> ⚠️ If you already have domains configured, **back up all configurations**, remove all domains one by one, then proceed with switching the web server.  
-> To avoid downtime, it's best to make this change **before adding any domains**.
+> ⚠️ Ha már beállított tartományokat, **készítsen biztonsági másolatot az összes konfigurációról**, távolítsa el az összes tartományt egyenként, majd folytassa a webszerver váltásával.
+> Az állásidő elkerülése érdekében a legjobb, ha ezt a módosítást **a domain hozzáadása előtt** hajtja végre.
 
-### Steps to Switch
+### A váltás lépései
 
-1. In the OpenPanel menu, navigate to **Docker > Switch Web Server**.
-2. From the dropdown menu, select the new web server you want to use.
-3. Click the **Switch** button to initiate the process.
+1. Az OpenPanel menüben lépjen a **Docker > Switch Web Server** elemre.
+2. A legördülő menüből válassza ki a használni kívánt új webszervert.
+3. Kattintson a **Switch** gombra a folyamat elindításához.
 
-After confirmation:
+Megerősítés után:
 
-- The existing web server container will be stopped and its data will be removed.
-- The new web server will be started.
-- You can then re-add your domains under the new web server configuration.
+- A meglévő webszerver-tároló leáll, és az adatai törlődnek.
+- Elindul az új webszerver.
+- Ezután újra felveheti domainjeit az új webszerver-konfiguráció alá.

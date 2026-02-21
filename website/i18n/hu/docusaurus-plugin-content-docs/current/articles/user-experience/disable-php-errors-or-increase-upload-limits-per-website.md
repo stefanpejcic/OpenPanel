@@ -1,21 +1,21 @@
 # user.ini
 
-If you have multiple websites in the same domain folder and only want to enable or disable php settings for a certain website, create a file `.user.ini` inside the website folder.
+Ha több webhely van ugyanabban a tartomány mappájában, és csak egy bizonyos webhely php-beállításait szeretné engedélyezni vagy letiltani, hozzon létre egy `.user.ini` fájlt a webhely mappájában.
 
-In the file set the desired php values, for example:
+A fájlban állítsa be a kívánt php értékeket, például:
 
-set post and upload max file size:
+Állítsa be a bejegyzést és töltse fel a maximális fájlméretet:
 
 ```bash
 upload_max_filesize = 200M
 post_max_size = 200M
 ```
 
-display all php errors:
+az összes php hiba megjelenítése:
 
 ```bash
 error_reporting = E_ALL
 display_errors = on
 ```
 
-After editing restart the php service. Navigate to PHP.INI editor and select the php version that your domain is using. Simply click on the save button and the service will be restarted, immediately applying settings from the .user.ini file.
+Szerkesztés után indítsa újra a php szolgáltatást. Keresse meg a PHP.INI szerkesztőt, és válassza ki a domain által használt php verziót. Egyszerűen kattintson a mentés gombra, és a szolgáltatás újraindul, és azonnal alkalmazza a beállításokat a .user.ini fájlból.

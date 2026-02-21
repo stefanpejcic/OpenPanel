@@ -1,8 +1,8 @@
-# Custom Section
+# Egyéni szakasz
 
-To add custom section in *OpenPanel > Dashboard* page, navigate to **OpenAdmin > Settings > Custom Code** and edit the 'Custom Section'.
+Egyéni szakasz hozzáadásához az *OpenPanel > Irányítópult* oldalon lépjen az **OpenAdmin > Beállítások > Egyéni kód** oldalra, és szerkessze az "Egyéni szakaszt".
 
-Example code:
+Példa kód:
 
 ```json
 {

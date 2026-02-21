@@ -1,36 +1,36 @@
-# DNS Clustering
+# DNS-fürtözés
 
-DNS clustering enables you to synchronize DNS records across multiple OpenPanel servers, providing redundancy and scalability for your DNS infrastructure.
+A DNS-fürtözés lehetővé teszi a DNS-rekordok szinkronizálását több OpenPanel-kiszolgáló között, így redundanciát és méretezhetőséget biztosít a DNS-infrastruktúra számára.
 
-All servers involved in the cluster must be running [BIND9](https://www.isc.org/bind/) - either installed by OpenPanel or as a standalone service or container.
+A fürtben részt vevő összes kiszolgálón futnia kell a [BIND9](https://www.isc.org/bind/) programnak – vagy az OpenPanel által telepítve, vagy önálló szolgáltatásként vagy tárolóként.
 
-## Share DNS Across Multiple OpenPanel Servers
+## Ossza meg a DNS-t több OpenPanel-kiszolgálón
 
-The simplest way to build a redundant DNS cluster is to run OpenPanel on two or more servers, each managing DNS zones and nameservers in sync. No extra configuration is needed beyond what's described below.
+A redundáns DNS-fürt felépítésének legegyszerűbb módja az OpenPanel futtatása két vagy több kiszolgálón, amelyek mindegyike szinkronban kezeli a DNS-zónákat és a névszervereket. Az alábbiakban leírtakon kívül nincs szükség további konfigurációra.
 
-### Step 1: Establish SSH Access Between Servers
+### 1. lépés: Hozzon létre SSH-hozzáférést a kiszolgálók között
 
-Suppose you have two servers:
+Tegyük fel, hogy két szervere van:
 
-- Server #1 IP: `185.241.214.214`
-- Server #2 IP: `95.217.216.36`
+- Szerver #1 IP: "185.241.214.214".
+- Szerver #2 IP: `95.217.216.36`
 
-You need to first configure SSH key-based authentication both ways (from Server #1 to Server #2 and vice versa) so that root SSH access is possible without password prompts.
+Először be kell állítania az SSH-kulcs alapú hitelesítést mindkét irányban (az 1. kiszolgálóról a 2. szerverre és fordítva), hogy a root SSH hozzáférés jelszókérés nélkül is lehetséges legyen.
 
-Generate SSH keys on each server (if not already created):
+SSH-kulcsok létrehozása minden szerveren (ha még nem hozta létre):
 
 ```bash
 ssh-keygen -t rsa -b 4096
 ```
 
-Then copy each server’s public key to the other:
+Ezután másolja át mindegyik szerver nyilvános kulcsát a másikra:
 
 ```bash
 ssh-copy-id root@185.241.214.214
 ssh-copy-id root@95.217.216.36
 ```
 
-Verify passwordless SSH connections work:
+Ellenőrizze a jelszó nélküli SSH-kapcsolatok működését:
 
 ```bash
 ssh root@185.241.214.214
@@ -38,48 +38,48 @@ ssh root@95.217.216.36
 ```
 
 
-### Step 2: Create Nameservers in Your DNS Zone
+### 2. lépés: Hozzon létre névszervereket a DNS-zónában
 
-Using the domain `yourdomain.com` as an example, define two nameservers:
+Példaként a `sajatdomain.com` tartomány használatával határozzon meg két névszervert:
 
-- `dns1.yourdomain.com` → points to Server #1 IP (A record)
-- `dns2.yourdomain.com` → points to Server #2 IP (A record)
+- `dns1.yourdomain.com` → a kiszolgáló #1 IP-címére mutat (A rekord)
+- "dns2.yourdomain.com" → a szerver #2 IP-címére mutat (A rekord)
 
-Add these A records in your domain's DNS provider for `yourdomain.com`.
+Adja hozzá ezeket az A rekordokat a domain DNS-szolgáltatójához a "sajatdomain.com" domainhez.
 
 
-### Step 3: Register Nameservers in OpenPanel
+### 3. lépés: Regisztráljon névszervereket az OpenPanelben
 
-On **master** server, open the OpenAdmin panel:
-* Navigate to **Settings > OpenPanel > Nameservers**
-* Add both `dns1.yourdomain.com` and `dns2.yourdomain.com`
+A **főkiszolgálón** nyissa meg az OpenAdmin panelt:
+* Lépjen a **Beállítások > OpenPanel > Névszerverek** elemre.
+* Adja hozzá a „dns1.yourdomain.com” és a „dns2.yourdomain.com” címet is
 
 [![2025-07-09-17-30.png](https://i.postimg.cc/kXnvzCwW/2025-07-09-17-30.png)](https://postimg.cc/jCFfnGpj)
 
-### Step 4: Enable DNS Clustering
+### 4. lépés: Engedélyezze a DNS-fürtözést
 
-On **master** server:
+A **főkiszolgálón**:
 
-* Go to **OpenAdmin > Domains > DNS Cluster**
-* Click **Enable DNS Clustering**
+* Lépjen az **OpenAdmin > Domains > DNS Cluster** oldalra.
+* Kattintson a **DNS-fürtözés engedélyezése** lehetőségre
 
 [![2025-07-09-17-32.png](https://i.postimg.cc/FzG3NfG3/2025-07-09-17-32.png)](https://postimg.cc/2LbVxSsS)
 
-* Click **Add Server** and enter the IP of the slave server, then **Add**
+* Kattintson a **Kiszolgáló hozzáadása** lehetőségre, és adja meg a szolgakiszolgáló IP-címét, majd az **Hozzáadás** gombot.
 
 [![2025-07-09-17-33.png](https://i.postimg.cc/7PX2C2MT/2025-07-09-17-33.png)](https://postimg.cc/3W4RVWqK)
 
-### Test Your Cluster
+### Tesztelje klaszterét
 
-Add a new domain on either server via a OpenPanel user account.
+Adjon hozzá új tartományt bármelyik kiszolgálón egy OpenPanel felhasználói fiókon keresztül.
 
-Then verify the DNS zone is synchronized on both servers using the `dig` command:
+Ezután ellenőrizze, hogy a DNS-zóna szinkronizálva van-e mindkét szerveren a "dig" paranccsal:
 
 ```bash
 dig A +short yourdomain.com @185.241.214.214
 dig A +short yourdomain.com @95.217.216.36
 ```
 
-Replace `yourdomain.com` with the domain you added.
+Cserélje ki a "sajatdomain.com" címet a hozzáadott domainre.
 
-If both servers return the correct IP, your DNS clustering setup is working!
+Ha mindkét szerver a megfelelő IP-t adja vissza, akkor a DNS-fürtbeállítás működik!

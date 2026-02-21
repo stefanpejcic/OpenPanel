@@ -2,15 +2,15 @@
 sidebar_position: 1
 ---
 
-# Applications
+# Alkalmazások
 
-The Applications section provides access to the PM2 and WP Manager interfaces where you can install and manage WordPress, NodeJS or Python Applications.
+Az Alkalmazások szakasz hozzáférést biztosít a PM2 és WP Manager felületekhez, ahol telepítheti és kezelheti a WordPress, NodeJS vagy Python alkalmazásokat.
 
 ![screenshots](/img/panel/v2/new_site_popup.png)
 
-Available pages:
+Elérhető oldalak:
 
 - Site Manager
 - [WordPress Manager](/docs/panel/applications/wordpress)
-- [Auto Installer](/docs/panel/applications/autoinstaller)
-- [Website Builder](/docs/panel/applications/builder/)
+- [Automatikus telepítő](/docs/panel/applications/autoinstaller)
+- [Webhelykészítő](/docs/panel/applications/builder/)

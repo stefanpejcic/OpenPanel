@@ -2,20 +2,20 @@
 sidebar_position: 8
 ---
 
-# Capitalize Domains
+# Domains nagybetűvel
 
-The **Capitalize** feature allows you to change the letter casing of your domain names for display purposes in the OpenPanel UI. This affects how domains are shown across all pages, without altering the actual DNS or domain configuration.
+A **Citalize** funkció lehetővé teszi a domain nevek kis- és nagybetűjének megváltoztatását az OpenPanel felhasználói felületen való megjelenítés céljából. Ez befolyásolja, hogy a tartományok hogyan jelenjenek meg az összes oldalon, anélkül, hogy megváltoztatná a tényleges DNS- vagy tartománykonfigurációt.
 
-To capitalize a domain:
+Domain nagybetűs írása:
 
-Navigate to **Domains** and open the **Actions** menu for the desired domain, then click on *Capitalize*.
+Lépjen a **Domainek** elemre, nyissa meg a **Műveletek** menüt a kívánt domainhez, majd kattintson a *Nagybetűs írás* lehetőségre.
 
-![capitalize action option](/img/panel/v2/capitalize_1.png)
+![nagybetűs írásmód](/img/panel/v2/capitalize_1.png)
 
-Click on any letter in the domain name to toggle its case (uppercase/lowercase).
+Kattintson a domain név bármely betűjére a kis- és nagybetűk közötti váltáshoz.
 
-![capitalize action demo](/img/panel/v2/openpanel_capitalize_domains.gif)
+![nagybetűs akció bemutató](/img/panel/v2/openpanel_capitalize_domains.gif)
 
-Once you've made your changes, click the **Save** button.
+Miután elvégezte a módosításokat, kattintson a **Mentés** gombra.
 
-You can capitalize individual domains or update all of them as needed.
+Az egyes domaineket nagybetűvel írhatja, vagy szükség szerint mindegyiket frissítheti.

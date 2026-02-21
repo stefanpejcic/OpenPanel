@@ -1,55 +1,55 @@
-# How to Install WordPress® With OpenPanel
+# A WordPress® telepítése az OpenPanel segítségével
 
-[WordPress](https://wordpress.org/)® is a powerful, web-based content management system (CMS) that makes it easy to build websites and blogs. This guide walks you through two methods for installing WordPress on your OpenPanel account: **automatic installation via WP Manager** and **manual installation**.
+A [WordPress](https://wordpress.org/)® egy hatékony, webalapú tartalomkezelő rendszer (CMS), amely megkönnyíti webhelyek és blogok készítését. Ez az útmutató két módszert mutat be a WordPress OpenPanel-fiókra történő telepítéséhez: **automatikus telepítés a WP Manageren keresztül** és **kézi telepítés**.
 
-Before installing WordPress, make sure you've added a domain where the WordPress site will be hosted.
+A WordPress telepítése előtt győződjön meg arról, hogy hozzáadott egy domaint, ahol a WordPress webhelyet tárolni fogja.
 
-To add a domain:
-**OpenPanel > Domains > Add New Domain**
+Domain hozzáadása:
+**OpenPanel > Domains > New Domain hozzáadása**
 
-![newDomain.png](/img/panel/v2/wpgDomain.png)
+![újDomain.png](/img/panel/v2/wpgDomain.png)
 
-## Install WordPress via WP Manager
+## Telepítse a WordPress-t a WP Manageren keresztül
 
-OpenPanel's Site Manager lets you install WordPress in just a few clicks.
+Az OpenPanel Site Manager segítségével néhány kattintással telepítheti a WordPress-t.
 
-1. **Open Site Manager** and press the **+New Website"** button.
-   ![SiteManager_1.png](/img/panel/v2/wpgSitemanager1.png)
-2. Click **Install WordPress**.
-   ![SiteManager_2.png](/img/panel/v2/wpgSitemanager2.png)
-3. Fill in the **Website Name**, optionally add a **Site Description**, and choose your domain.
-   Click **Start Installation** to begin.
-   ![SiteManager_3.png](/img/panel/v2/wpgSitemanager3.png)
-5. Once the installation is complete, you'll be redirected to the **WP Manager**, where you can manage all of your installed WordPress sites.
-   ![SiteManager_4.png](/img/panel/v2/wpgSitemanager4.png)
+1. **Nyissa meg a Webhelykezelőt**, és nyomja meg az **+Új webhely** gombot.
+![SiteManager_1.png](/img/panel/v2/wpgSitemanager1.png)
+2. Kattintson a **WordPress telepítése** lehetőségre.
+![SiteManager_2.png](/img/panel/v2/wpgSitemanager2.png)
+3. Töltse ki a **Webhely neve** mezőt, opcionálisan adjon hozzá egy **Webhely leírását**, és válassza ki a domainjét.
+Kattintson a **Telepítés indítása** gombra a kezdéshez.
+![SiteManager_3.png](/img/panel/v2/wpgSitemanager3.png)
+5. A telepítés befejezése után átirányítjuk a **WP Manager** oldalra, ahol kezelheti az összes telepített WordPress webhelyet.
+![SiteManager_4.png](/img/panel/v2/wpgSitemanager4.png)
 
-## Install WordPress manually
+## A WordPress manuális telepítése
 
-The easiest way to download the official WordPress installation archive is through OpenPanel's File Manager tool.
+A hivatalos WordPress telepítési archívum letöltésének legegyszerűbb módja az OpenPanel Fájlkezelő eszköze.
 
-First access the folder of your domain where you'll install a new WordPress instance.
+Először nyissa meg a domain mappáját, ahová új WordPress-példányt telepít.
 
 ![Manually_1.png](/img/panel/v2/wpgManual1.png)
 
-When you're inside the domains directory press the Upload button on the top right.
+Amikor a domainek könyvtárában tartózkodik, nyomja meg a Feltöltés gombot a jobb felső sarokban.
 
 ![Manually_2.png](/img/panel/v2/wpgManual2.png)
 
-On the Upload page press the "Download from URL Instead" button.
+A Feltöltés oldalon nyomja meg a "Letöltés helyett az URL-ről" gombot.
 
 ![Manually_3.png](/img/panel/v2/wpgManual3.png)
 
-Paste the link https://wordpress.org/latest.zip to the URL field and press the "Download" button.
+Illessze be a https://wordpress.org/latest.zip hivatkozást az URL mezőbe, és nyomja meg a „Letöltés” ​​gombot.
 
 ![Manually_4.png](/img/panel/v2/wpgManual4.png)
 
 ![Manually_5.png](/img/panel/v2/wpgManual5.png)
 
-When the download finishes return to File Manager and extract the archive.
+Amikor a letöltés befejeződött, térjen vissza a Fájlkezelőbe, és csomagolja ki az archívumot.
 
 ![Manually_6.png](/img/panel/v2/wpgManual6.png)
 
-Access the "wordpress" folder, select All files using the "Select All" button and move them into your new domain's directory using the "Move" button.
+Nyissa meg a "wordpress" mappát, válassza ki az Összes fájlt a "Select All" gombbal, és helyezze át őket az új domain könyvtárába az "Áthelyezés" gombbal.
 
 ![Manually_7.png](/img/panel/v2/wpgManual7.png)
 
@@ -59,25 +59,25 @@ Access the "wordpress" folder, select All files using the "Select All" button an
 
 ![Manually_10.png](/img/panel/v2/wpgManual10.png)
 
-Create a new database and database user with the Database Wizard tool, more info in our Database Wizard guide -> https://openpanel.com/docs/panel/mysql/wizard/ .
+Hozzon létre új adatbázist és adatbázis-felhasználót az Adatbázisvarázsló eszközzel, további információ az Adatbázisvarázsló útmutatójában -> https://openpanel.com/docs/panel/mysql/wizard/.
 
 ![Manually_11.png](/img/panel/v2/wpgManual11.png)
 
-Start editing the wp-config-sample.php file by selecting it and pressing the "Edit" button.
+Kezdje el szerkeszteni a wp-config-sample.php fájlt úgy, hogy kijelöli és megnyomja a "Szerkesztés" gombot.
 
 ![Manually_12.png](/img/panel/v2/wpgManual12.png)
 
-Swap the values of DB_NAME, DB_USER and DB_PASSWORD with values you've set inside the Database Wizard, set the value of DB_HOST to 'mysql' and save the changes on the top right.
+Cserélje le a DB_NAME, DB_USER és DB_PASSWORD értékeit az Adatbázisvarázslóban beállított értékekkel, állítsa a DB_HOST értékét „mysql”-re, és mentse a változtatásokat a jobb felső sarokban.
 
 ![Manually_config.png](/img/panel/v2/wpgManualFinal.png)
 
-Finally, rename the wp-config-sample.php file to wp-config.php using the Rename button within the File Manager.
+Végül nevezze át a wp-config-sample.php fájlt wp-config.php-re a Fájlkezelő Átnevezés gombjával.
 
 ![Manually_configR.png](/img/panel/v2/wpgManualRename.png)
 
 ![Manually_configR2.png](/img/panel/v2/wpgManualRename2.png)
 
-Your new WordPress instance is now created!
+Az új WordPress-példányod elkészült!
 
-Finish the installation by accessing your domain via browser and completing the WordPress web installation wizard.
+Fejezze be a telepítést úgy, hogy a böngészőn keresztül hozzáfér a domainjéhez, és végrehajtja a WordPress webes telepítővarázslót.
 

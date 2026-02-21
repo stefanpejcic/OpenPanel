@@ -1,51 +1,51 @@
-# Skip Update
+# Frissítés kihagyása
 
-OpenPanel can be updated either **automatically** or **manually**, depending on your preferences.
+Az OpenPanel az Ön preferenciáitól függően **automatikusan** vagy **manuálisan** frissíthető.
 
-The update process performs the following actions:
+A frissítési folyamat a következő műveleteket hajtja végre:
 
-* Pulls the latest OpenPanel UI Docker image from Docker Hub
-* Updates the OpenAdmin UI from the latest GitHub release
-* Updates OpenCLI commands from GitHub
-* Executes any update scripts provided for configuration changes
-* Checks and installs updates via the system package manager
-* Updates docker compose to latest version
-* Verifies if any kernel updates require a reboot
-* Executes post-update scripts if provided by the administrator
+* Lekéri a legújabb OpenPanel UI Docker-képet a Docker Hubról
+* Frissíti az OpenAdmin felhasználói felületet a legújabb GitHub-kiadásból
+* Frissíti az OpenCLI parancsokat a GitHubból
+* Végrehajt minden frissítési szkriptet, amely a konfiguráció módosításához biztosított
+* Ellenőrzi és telepíti a frissítéseket a rendszercsomagkezelőn keresztül
+* Frissítések docker komponálni a legújabb verzióra
+* Ellenőrzi, hogy valamelyik kernelfrissítéshez újra kell-e indítani
+* Frissítés utáni szkripteket hajt végre, ha azt a rendszergazda biztosította
 
-If both **autoupdate** and **autopatch** options are enabled, updates will be applied automatically when a new version is released.
+Ha az **automatikus frissítés** és az **automatikus javítás** opció is engedélyezve van, a frissítések automatikusan alkalmazásra kerülnek az új verzió kiadásakor.
 
-However, you can **skip specific versions** by listing them in the following file:
+Azonban **meghatározott verziókat** kihagyhat, ha felsorolja őket a következő fájlban:
 
 ```
 /etc/openpanel/upgrade/skip_versions
 ```
 
-### When to Use This
+### Mikor kell használni?
 
-This is useful, for example, if a changelog announces the removal of a feature you rely on. By skipping that version, you can ensure your current setup remains unaffected.
+Ez például akkor hasznos, ha egy változásnapló bejelenti egy olyan szolgáltatás eltávolítását, amelyre támaszkodik. Ennek a verziónak a kihagyásával biztosíthatja, hogy a jelenlegi beállítás változatlan maradjon.
 
-### How to Skip a Version
+### Verzió kihagyása
 
-1. Create the directory (if it doesn't already exist):
+1. Hozza létre a könyvtárat (ha még nem létezik):
 
 ```bash
 mkdir -p /etc/openpanel/upgrade/
 ```
 
-2. Add the version number you want to skip:
+2. Adja hozzá a kihagyni kívánt verziószámot:
 
 ```bash
 echo 1.4.9 >> /etc/openpanel/upgrade/skip_versions
 ```
 
-Now, when version `1.4.9` is released, it will be ignored even if autoupdates are enabled.
+Most, amikor kiadják az `1.4.9-es verziót, a rendszer figyelmen kívül hagyja még akkor is, ha az automatikus frissítések engedélyezve vannak.
 
-You can add as many versions as needed:
+Tetszőleges számú verziót adhat hozzá:
 
 ```bash
 echo 1.5.0 >> /etc/openpanel/upgrade/skip_versions
 echo 1.5.1 >> /etc/openpanel/upgrade/skip_versions
 ```
 
-That's it - a simple and effective control over your OpenPanel update process.
+Ennyi – egyszerű és hatékony vezérlés az OpenPanel frissítési folyamata felett.

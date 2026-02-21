@@ -2,20 +2,20 @@
 sidebar_position: 4
 ---
 
-# Auto Installer
+# Automatikus telepítő
 
-Auto Installer allows you to one-click install applications.
+Az Auto Installer lehetővé teszi az alkalmazások egy kattintással történő telepítését.
 
-![screenshot](/img/panel/v2/autoisntaller_page.png)
+![screenshot](/img/panel/v2/autoistaller_page.png)
 
-## Available Applications
+## Elérhető alkalmazások
 
-For an application to appear on the Autoinstaller page, the corresponding module must be enabled.
+Ahhoz, hogy egy alkalmazás megjelenjen az Autoinstaller oldalon, engedélyezni kell a megfelelő modult.
 
 - WordPress
-- NodeJS Applications*
-- Python Applications*
-- Mautic (BETA)
-- Website Builder
+- NodeJS alkalmazások*
+- Python alkalmazások*
+- Mautic (BÉTA)
+- Weboldalkészítő
 
-`*` Indicates that the feature is available only in Enterprise editon.
+`*` Azt jelzi, hogy a funkció csak az Enterprise kiadásban érhető el.

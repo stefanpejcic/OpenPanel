@@ -2,22 +2,22 @@
 sidebar_position: 1
 ---
 
-# Process Manager
+# Folyamatkezelő
 
-The Process Manager allows you to view and manage running system processes directly from the OpenPanel interface. It's a powerful tool for monitoring system activity and taking quick action when needed.
+A Process Manager lehetővé teszi a futó rendszerfolyamatok megtekintését és kezelését közvetlenül az OpenPanel felületről. Ez egy hatékony eszköz a rendszertevékenység figyelésére és szükség esetén gyors intézkedések megtételére.
 
-The process table includes the following details:
+A folyamattáblázat a következő részleteket tartalmazza:
 
-- **PID** – Process ID. Options are available to trace the process or kill it directly.
+- **PID** – Folyamatazonosító. Lehetőségek állnak rendelkezésre a folyamat nyomon követésére vagy közvetlen leállítására.
 
-- **Owner** – The user that owns the process.
+- **Tulajdonos** – A folyamat tulajdonosa.
 
-- **Priority** – The process's current scheduling priority.
+- **Prioritás** – A folyamat aktuális ütemezési prioritása.
 
-- **CPU** – Percentage of CPU usage.
+- **CPU** – A CPU-használat százalékos aránya.
 
-- **Memory** – Percentage of Memory usage.
+- **Memória** – A memóriahasználat százalékos aránya.
 
-- **Command** – The command or service that launched the process.
+- **Parancs** – A folyamatot elindító parancs vagy szolgáltatás.
 
-Use this tool to identify resource-heavy or suspicious processes, manage system load, or terminate unresponsive services.
+Ezzel az eszközzel azonosíthatja az erőforrásigényes vagy gyanús folyamatokat, kezelheti a rendszerterhelést vagy megszüntetheti a nem válaszoló szolgáltatásokat.

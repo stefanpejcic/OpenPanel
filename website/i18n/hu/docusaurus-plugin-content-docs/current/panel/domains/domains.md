@@ -2,94 +2,94 @@
 sidebar_position: 1
 ---
 
-# Domains
+# Domain
 
-To create a website, the first step is to [add a domain name](/docs/panel/domains/#create-a-new-domain).
+Webhely létrehozásához az első lépés a [domainnév hozzáadása](/docs/panel/domains/#create-a-new-domain).
 
-If the **Domains** module is enabled on the server and your user account has access to it, you'll see a table listing all current domains, the total number of domains, a search bar, and an option to add a new domain.
+Ha a **Domains** modul engedélyezve van a szerveren, és felhasználói fiókja rendelkezik hozzáféréssel, akkor megjelenik egy táblázat, amely felsorolja az összes jelenlegi domaint, a tartományok teljes számát, egy keresősávot és egy új domain hozzáadásának lehetőségét.
 
-From this interface, you can view:
+Ezen a felületen megtekintheti:
 
-* **Domain Status**: Active or Suspended
-* **Document Root** (folder where website files will be stored)
-* **SSL Settings**: Automatic or Custom
-* **Domain Management Options**: Based on enabled features
+* **Domain állapota**: Aktív vagy Felfüggesztett
+* **Dokumentumgyökér** (mappa, ahol a webhely fájljait tárolják)
+* **SSL beállítások**: Automatikus vagy Egyéni
+* **Domainkezelési beállítások**: Az engedélyezett szolgáltatások alapján
 
-## Available Actions
+## Elérhető műveletek
 
-Depending on the features enabled on your server, the following actions are available per domain:
+A szerveren engedélyezett szolgáltatásoktól függően a következő műveletek érhetők el tartományonként:
 
-* **Edit DNS Zone** — if the DNS feature is enabled
-* **Manage WAF** — if the WAF feature is enabled
-* **Change Document Root**
-* **Edit VirtualHosts**
-* **Redirect** — if the Redirect feature is enabled
-* **Capitalize** — if the Capitalize feature is enabled
-* **Suspend / Unsuspend Domain**
-* **Delete Domain**
+* **DNS zóna szerkesztése** — ha a DNS szolgáltatás engedélyezve van
+* **WAF kezelése** – ha a WAF funkció engedélyezve van
+* **Dokumentum gyökér módosítása**
+* ** VirtualHosts szerkesztése**
+* **Átirányítás** – ha az Átirányítás funkció engedélyezve van
+* **Nagybetűs írás** – ha a nagybetűs írás funkció engedélyezve van
+* **Domain felfüggesztése/felfüggesztésének visszavonása**
+**Domain törlése**
 
-## Create a New Domain
+## Hozzon létre egy új domaint
 
-To add a new domain:
+Új domain hozzáadása:
 
-1. Click the **"Add Domain"** button.
-2. Enter the domain name.
-3. Click **"Add Domain"** to save.
+1. Kattintson a **"Domain hozzáadása"** gombra.
+2. Adja meg a domain nevet.
+3. Kattintson a **"Domain hozzáadása"** gombra a mentéshez.
 
-Unlike other panels, OpenPanel treats all domains equally. From this single interface, you can add **primary domains**, **addon domains**, or **subdomains**.
+Más panelekkel ellentétben az OpenPanel minden tartományt egyformán kezel. Ezen az egyetlen felületen **elsődleges domaineket**, **addon domaineket** vagy **aldomaineket** adhat hozzá.
 
-Once added, the system will automatically attempt to issue a free [Let’s Encrypt](https://letsencrypt.org/getting-started/) SSL certificate. If successful, the certificate will be applied immediately.
+A hozzáadást követően a rendszer automatikusan megpróbál ingyenes [Let’s Encrypt](https://letsencrypt.org/getting-started/) SSL-tanúsítványt kiállítani. Sikeres esetben a tanúsítványt azonnal alkalmazzák.
 
-## Delete a Domain
+## Domain törlése
 
-To delete a domain:
+Domain törlése:
 
-1. Click the **"Delete Domain"** option from the domain's dropdown menu.
-2. A confirmation page will appear. Click **"Delete"** to proceed.
+1. Kattintson a **"Domain törlése"** lehetőségre a domain legördülő menüjében.
+2. Megjelenik egy megerősítő oldal. A folytatáshoz kattintson a **"Törlés"** gombra.
 
-> If the domain is linked to active applications (e.g. [PM2](/docs/panel/applications/pm2) or [WP Manager](/docs/panel/applications/wordpress)), deletion will be blocked until those applications are removed.
-> This prevents accidental removal of domains tied to running websites.
+> Ha a tartomány aktív alkalmazásokhoz van kapcsolva (pl. [PM2](/docs/panel/applications/pm2) vagy [WP Manager](/docs/panel/applications/wordpress)), a törlés le lesz tiltva mindaddig, amíg el nem távolítják ezeket az alkalmazásokat.
+> Ez megakadályozza a futó webhelyekhez kapcsolódó domainek véletlen eltávolítását.
 
-Deleting a domain will **permanently remove** the following:
+Egy domain törlésével **véglegesen eltávolítja** a következőket:
 
-1. Nginx configuration file
-2. DNS zone file
-3. SSL certificate
-4. IP Blocker rules for the domain
-5. Redirects associated with the domain
+1. Nginx konfigurációs fájl
+2. DNS zónafájl
+3. SSL tanúsítvány
+4. IP-blokkoló szabályok a tartományhoz
+5. A tartományhoz társított átirányítások
 
-## Redirects
+## Átirányítások
 
-### Add Redirect
+### Átirányítás hozzáadása
 
-To create a redirect:
+Átirányítás létrehozása:
 
-1. Click the **"Create Redirect"** button next to the domain.
-2. Enter the full URL (must start with `http://` or `https://`).
-3. Click **"Save"** to apply or **"Cancel"** to discard.
+1. Kattintson a domain melletti **"Átirányítás létrehozása"** gombra.
+2. Írja be a teljes URL-t ("http://" vagy "https://" előtaggal kell kezdődnie).
+3. Kattintson a **"Mentés"** gombra az alkalmazáshoz, vagy a **"Mégse"** gombra az elvetéshez.
 
-### Edit Redirect
+### Átirányítás szerkesztése
 
-Click the **pencil icon** next to an existing redirect URL to modify it.
+Kattintson a **ceruza ikonra** egy meglévő átirányítási URL mellett a módosításához.
 
-### Delete Redirect
+### Átirányítás törlése
 
-Click the **cross icon** next to the redirect URL to remove it.
+Kattintson a **kereszt ikonra** az átirányítási URL mellett az eltávolításhoz.
 
-## Edit VirtualHosts File
+## VirtualHosts fájl szerkesztése
 
-The **VirtualHosts** file defines the configuration for the domain within Nginx or Apache. It includes settings such as:
+A **VirtualHosts** fájl határozza meg a tartomány konfigurációját az Nginxen vagy az Apache-on belül. Olyan beállításokat tartalmaz, mint:
 
-* Access logs
-* PHP version
-* Application runners
-* Redirect rules
-* Custom directives
+* Hozzáférés a naplókhoz
+* PHP verzió
+* Alkalmazás futók
+* Átirányítási szabályok
+* Egyéni utasítások
 
-To edit this file:
+A fájl szerkesztése:
 
-1. Click **"Edit VirtualHosts"** from the domain’s dropdown menu.
-2. A new page will open with the Vhost file content.
-3. Make your changes and click **"Save"**.
+1. Kattintson a **"Edit VirtualHosts"** lehetőségre a domain legördülő menüjében.
+2. Megnyílik egy új oldal a Vhost fájl tartalmával.
+3. Végezze el a módosításokat, majd kattintson a **"Mentés"** gombra.
 
-Once saved, OpenPanel will automatically restart the webserver to apply changes.
+Mentés után az OpenPanel automatikusan újraindítja a webszervert a módosítások alkalmazásához.

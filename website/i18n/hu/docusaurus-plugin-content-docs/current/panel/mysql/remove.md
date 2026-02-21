@@ -2,20 +2,20 @@
 sidebar_position: 8
 ---
 
-# Remove User from DB
+# Felhasználó eltávolítása a DB-ből
 
-Remove a MySQL user from an existing database to revoke their permissions and prevent access to execute queries, modify tables, or manage data.
+Távolítsa el a MySQL-felhasználókat egy meglévő adatbázisból, hogy visszavonja az engedélyeit, és megakadályozza a hozzáférést a lekérdezések végrehajtásához, a táblák módosításához vagy az adatok kezeléséhez.
 
-This step is essential for managing access control and ensuring that only authorized users can interact with sensitive or production data.
+Ez a lépés elengedhetetlen a hozzáférés-szabályozás kezeléséhez, és annak biztosításához, hogy csak a jogosult felhasználók léphessenek kapcsolatba érzékeny vagy termelési adatokkal.
 
-To remove user access from a database, navigate to **OpenPanel > MySQL > Remove User from DB**:
+Ha el szeretné távolítani a felhasználói hozzáférést az adatbázisból, nyissa meg az **OpenPanel > MySQL > Felhasználó eltávolítása a DB-ből** elemet:
 
-1. **Select a User**  
-   Choose the MySQL user whose access you want to revoke.
+1. **Válassz egy felhasználót**
+Válassza ki azt a MySQL-felhasználót, akinek a hozzáférését szeretné visszavonni.
 
-2. **Select a Database**  
-   Choose the database from which the user should be removed.
+2. **Válasszon adatbázist**
+Válassza ki azt az adatbázist, amelyből a felhasználót el kívánja távolítani.
 
-3. **Click 'Remove User from Database'**  
-   After selecting both the user and the database, click the **Remove User from Database** button.  
-   The user will immediately lose **all privileges** on the selected database.
+3. **Kattintson a "Felhasználó eltávolítása az adatbázisból" lehetőségre**
+A felhasználó és az adatbázis kiválasztása után kattintson a **Felhasználó eltávolítása az adatbázisból** gombra.
+A felhasználó azonnal elveszíti **minden jogosultságát** a kiválasztott adatbázisban.

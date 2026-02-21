@@ -2,12 +2,12 @@
 sidebar_position: 5
 ---
 
-# Show Processes
+# Folyamatok megjelenítése
 
-This interface displays all currently active MySQL queries (connections). 
+Ez a felület megjeleníti az összes jelenleg aktív MySQL lekérdezést (kapcsolatot).
 
-Checking the currently running queries is useful for identifying slow queries that slow down the website loading speed.
+Az éppen futó lekérdezések ellenőrzése hasznos lehet a lassú lekérdezések azonosításához, amelyek lassítják a webhely betöltési sebességét.
 
 ![databases_show_processes.png](/img/panel/v2/databases_processes.png)
 
-You can also restart the MySQL service from this page and refresh the process list table.
+Ezen az oldalon is újraindíthatja a MySQL szolgáltatást, és frissítheti a folyamatlista táblázatát.

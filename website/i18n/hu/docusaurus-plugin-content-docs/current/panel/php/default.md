@@ -2,11 +2,11 @@
 sidebar_position: 2  
 ---
 
-# Set Default PHP Version  
+# Állítsa be az alapértelmezett PHP verziót
 
-Configure the default PHP version for new domains.
+Állítsa be az alapértelmezett PHP-verziót az új tartományokhoz.
 
 
-![change default](/img/panel/v2/openpanel_cahnge_default_php_version.gif)
+![alapértelmezés módosítása](/img/panel/v2/openpanel_cahnge_default_php_version.gif)
 
-NOTE: If you are using OpenLitespeed webserver, then you can not change PHP version.
+MEGJEGYZÉS: Ha OpenLitespeed webszervert használ, akkor nem tudja megváltoztatni a PHP verzióját.

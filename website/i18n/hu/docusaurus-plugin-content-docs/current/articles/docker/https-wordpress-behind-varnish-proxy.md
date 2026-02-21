@@ -1,12 +1,12 @@
-# Using Varnish with WordPress
+# Lakk használata a WordPress-szel
 
-Varnish does not support SSL, so you need to terminate TLS before passing requests to it, then after receiving http from Varnish, use again https.
+A Varnish nem támogatja az SSL-t, ezért le kell állítani a TLS-t, mielőtt kéréseket továbbítana neki, majd miután megkapta a http-t a Varnish-től, használja újra a https-t.
 
-For WordPress, adding the following code in wp-config.php is enough:
+WordPress esetén elegendő a következő kód hozzáadása a wp-config.php fájlhoz:
 
 ```
 define('FORCE_SSL_ADMIN', true); if ($_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') $_SERVER['HTTPS']='on';
 ```
 
 
-> **EDIT**: From version 1.5.7 this is automatically added for new WP installations.
+> **SZERKESZTÉS**: Az 1.5.7-es verziótól ez automatikusan hozzáadódik az új WP-telepítésekhez.

@@ -2,18 +2,18 @@
 sidebar_position: 4
 ---
 
-# Cron jobs
+# Cron állások
 
-**OpenAdmin > Advanced > System Cron Jobs** lets Administrators view the scheduled cron tasks used by OpenPanel, modify their schedules, or enable/disable logging to the file `/etc/openpanel/openadmin/cron.log`.
+**OpenAdmin > Speciális > System Cron Jobs** lehetővé teszi a rendszergazdák számára, hogy megtekintsék az OpenPanel által használt ütemezett cron-feladatokat, módosítsák azok ütemezését, vagy engedélyezzék/letiltsák a naplózást az `/etc/openpanel/openadmin/cron.log` fájlba.
 
 ![screenshot](/img/admin/openadmin_cronjobs.png)
 
 
-Changing schedules may cause some OpenPanel features to stop working correctly. Only adjust these settings if:
+Az ütemezések megváltoztatása azt eredményezheti, hogy egyes OpenPanel funkciók nem működnek megfelelően. Csak akkor módosítsa ezeket a beállításokat, ha:
 
-- You need to fine-tune execution on servers with limited resources, or
-- You have been advised to do so by OpenPanel support.
+- Korlátozott erőforrásokkal rendelkező szervereken kell finomhangolni a végrehajtást, ill
+- Az OpenPanel támogatása ezt tanácsolta Önnek.
 
-These cron jobs are essential for OpenPanel’s internal operations.
+Ezek a cron-feladatok elengedhetetlenek az OpenPanel belső műveleteihez.
 
-If you want to add your own custom cron jobs, it’s safer to add them directly in the root user’s crontab.
+Ha saját egyéni cron-feladatait szeretné hozzáadni, biztonságosabb, ha közvetlenül a root felhasználó crontabjában adja hozzá őket.

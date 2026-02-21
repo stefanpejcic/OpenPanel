@@ -1,26 +1,26 @@
-# User Isolation
+# Felhasználó elkülönítése
 
-OpenPanel is built with **security-first architecture**, enforcing multiple levels of isolation to protect user environments.
+Az OpenPanel **security-first architektúrával** épül fel, több szintű elszigetelést biztosítva a felhasználói környezet védelme érdekében.
 
-Isolation Layers:
+Elszigetelő rétegek:
 
-* **System Isolation**
-  Each OpenPanel user corresponds to a system user on the host machine. These users have no login access or passwords and are strictly used for enforcing **storage quotas and ownership**.
+**Rendszer leválasztás**
+Minden OpenPanel felhasználó megfelel egy rendszerfelhasználónak a gazdagépen. Ezek a felhasználók nem rendelkeznek bejelentkezési hozzáféréssel vagy jelszavakkal, és szigorúan a **tárhelykvóták és a tulajdonjog** érvényesítésére használják őket.
 
-* **User Isolation**
-  Every OpenPanel account runs inside a **dedicated Docker context**. This ensures one user cannot access, interfere with, or even detect the existence of other users or their containers.
+**Felhasználói elkülönítés**
+Minden OpenPanel-fiók egy **dedikált Docker-környezetben** fut. Ez biztosítja, hogy egy felhasználó ne férhessen hozzá más felhasználókhoz vagy tárolóikhoz, ne zavarja őket, vagy akár észlelje is a létezését.
 
-* **Service Isolation**
-  Each service within a user’s environment (e.g., PHP, MySQL, Redis) runs in its **own container**. Services are sandboxed even from each other, so if one is compromised (e.g., MySQL), it **cannot affect other containers**, even within the same user.
+* **Szolgáltatás elkülönítése**
+A felhasználói környezet minden szolgáltatása (például PHP, MySQL, Redis) a saját **saját tárolójában** fut. A szolgáltatások még egymástól is homokozóba vannak helyezve, így ha egy kompromittálódott (pl. MySQL), az **nem tud hatással más tárolókra**, még ugyanazon a felhasználón belül sem.
 
-* **Network Isolation**
-  User services are segmented into **internal Docker networks**, such as:
+**Hálózati leválasztás**
+A felhasználói szolgáltatások **belső Docker-hálózatokra** vannak felosztva, például:
 
-  * `www` for web-facing components (PHP, Nginx, file manager)
-  * `db` for databases (MySQL, MariaDB, PostgreSQL)
-  * `none` for isolated services (Redis, Memcached)
+* "www" a webes komponensekhez (PHP, Nginx, fájlkezelő)
+* `db` adatbázisokhoz (MySQL, MariaDB, PostgreSQL)
+* "nincs" az elszigetelt szolgáltatásokhoz (Redis, Memcached)
 
-  This design allows fine-grained control over what services can communicate and also supports **per-user bandwidth throttling**.
+Ez a kialakítás lehetővé teszi a finom vezérlést afelől, hogy mely szolgáltatások kommunikálhatnak, és támogatja a **felhasználónkénti sávszélesség-szabályozást** is.
 
 
 ```

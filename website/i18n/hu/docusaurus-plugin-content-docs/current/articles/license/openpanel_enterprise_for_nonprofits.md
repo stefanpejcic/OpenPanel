@@ -1,11 +1,11 @@
-# Educational or NPO
+# Oktatási vagy nonprofit szervezet
 
-How to get a discount for OpenPanel licenses for educational or non-profit organizations:
+Hogyan kaphat kedvezményt az OpenPanel licencekre oktatási vagy non-profit szervezetek számára:
 
-Are there discounts on OpenPanel Enterprise licenses for educational institutions or non-profit organizations?
+Vannak kedvezmények az OpenPanel Enterprise licencekre oktatási intézmények vagy nonprofit szervezetek számára?
 
-Yes, we offer discounts for educational institutions and non-profit organizations. Please [reach out](mailto:info@openpanel.com) to us with the following details:
+Igen, kedvezményeket biztosítunk oktatási intézményeknek és nonprofit szervezeteknek. Kérjük, [keressen fel](mailto:info@openpanel.com) a következő adatokkal:
 
-- Contact information, including the full address and the name of the contact person.
-- The number of Enterprise licenses needed.
-- The intended purpose for the licenses.
+- Elérhetőségi adatok, beleértve a kapcsolattartó személy teljes címét és nevét.
+- A szükséges vállalati licencek száma.
+- Az engedélyek tervezett célja.

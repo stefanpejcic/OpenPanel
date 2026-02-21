@@ -2,6 +2,6 @@
 sidebar_position: 99
 ---
 
-# Extensions  
+# Kiterjesztések
 
-From teh PHP > Extensions page you can view installed extensions for all **running** php versions.
+A PHP > Bővítmények oldalon megtekintheti az összes **futó** php verzió telepített bővítményeit.

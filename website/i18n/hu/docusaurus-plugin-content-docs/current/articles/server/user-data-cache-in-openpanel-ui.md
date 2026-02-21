@@ -1,107 +1,107 @@
-# Cached data in OpenPanel UI
+# Gyorsítótárazott adatok az OpenPanel UI-ban
 
-The **OpenPanel end-user interface** reduces server disk I/O by leveraging caching with Redis.
+Az **OpenPanel végfelhasználói felület** csökkenti a szerverlemez I/O-ját a Redis gyorsítótárazásának kihasználásával.
 
-* **System data** (generated only on service start):
-  * `enabled_modules`
-  * `logo`, `brand_name`
-  * `dev_mode`
-  * `found_a_bug_link`
-  * `panel_version`
-  * `avatar_type`, `gravatar_image_url`
+* **Rendszeradatok** (csak a szolgáltatás indításakor jön létre):
+* `enabled_modules`
+* "logó", "márkanév".
+* `dev_mode`
+* `talált_hibalinket`
+* `panel_verzió`
+* `avatar_type`, `gravatar_image_url`
 
-* **User data** (generated on user login):
-  * `user_id`, `username`, `email`
-  * `docker_context`
-  * `hosting_plan`
-  * `feature_set`
+* **Felhasználói adatok** (a felhasználó bejelentkezésekor keletkezik):
+* "felhasználói_azonosító", "felhasználónév", "e-mail".
+* `docker_context`
+* `hosting_terv`
+* `feature_set`
 
-* **Website & domain data** (generated only when accessed in the UI):
-  * Websites list
-  * Domain records
+* **Webhely- és domainadatok** (csak a felhasználói felületen keresztül jön létre):
+* Weboldalak listája
+* Domain rekordok
 
-Data is refreshed periodically, but the system administrator can also force an immediate refresh by restarting the OpenPanel container, which regenerates all data.
+Az adatok időnként frissülnek, de a rendszergazda azonnali frissítést is kényszeríthet az OpenPanel tároló újraindításával, amely minden adatot újragenerál.
 
-**Cache duration for data in OpenPanel UI**:
+**Az adatok gyorsítótárának időtartama az OpenPanel UI-ban**:
 
-| Item / Description                                                      | Cache (seconds) |
-|-------------------------------------------------------------------------|----------------|
-| Enterprise license validity                                              | 3600           |
-| Account activity list                                                    | 300            |
-| Country code for IP address                                              | 360            |
-| Login history                                                            | 600            |
-| Notification preferences                                                 | 300            |
-| Active sessions                                                          | 10             |
-| Website count in Auto Installer                                          | 30             |
-| Varnish status                                                           | 360            |
-| Server public IPv4 address                                               | 3600           |
-| OpenPanel version                                                        | 7200           |
-| SSL certificate existence for user panel                                  | 360            |
-| Domain set for OpenPanel UI                                              | 3600               |
-| OpenPanel configuration                                                  | 6000           |
-| User websites in search results                                          | 600            |
-| User websites in dashboard statistics widget                              | 300            |
-| Disk and inode usage for user (dashboard widget)                          | 360            |
-| Hosting plan limits (dashboard widget)                                    | 3600           |
-| Domain usage (dashboard statistics)                                       | 360            |
-| Database count (dashboard statistics)                                     | 360            |
-| FTP account count (dashboard statistics)                                  | 360            |
-| Docker stats (CPU, memory, containers, PIDs) (dashboard statistics)       | 360            |
-| CNAME record existence when adding A record in DNS editor                 | 10             |
-| Domain redirect existence                                                | 10             |
-| Redirect URL for domain                                                  | 10             |
-| Domains limit per plan                                                   | 3600           |
-| Number of apex and subdomains                                            | 30             |
-| SSL status for domain                                                    | 30             |
-| Folder disk usage (File Manager)                                         | 5              |
-| Webmail domain                                                           | 3600           |
-| File content (File Manager - File Viewer)                                 | 30             |
-| Subfolders and files list (File Manager)                                  | 5              |
-| File statistics (owner, size, permissions) (File Manager)                 | 30             |
-| Files in trash                                                           | 5              |
-| Inode count for path (Inodes Explorer)                                    | 10             |
-| FTP username validation                                                   | 60             |
-| Malware scan results                                                     | 30             |
-| Files in quarantine (Malware Scanner)                                     | 30             |
-| GoAccess HTML report for domain                                           | 7200           |
-| Server info page data                                                    | 360            |
-| Plan limits when performing actions                                       | 300            |
-| Exposed ports for Redis, Memcached, phpMyAdmin containers                | 300            |
-| User account UID                                                         | 7200           |
-| Domain ownership check                                                   | 60             |
-| Website ownership check                                                  | 60             |
-| Last login IP (dashboard widget)                                          | 600            |
-| PHP version for domain                                                   | 30             |
-| MySQL database size                                                      | 300            |
-| Database info from wp-config.php (WP Manager)                             | 600            |
-| Database info from local.php (Mautic Manager)                             | 300            |
-| Server uptime and load (site info)                                       | 30             |
-| Server info (CPU, IP, uptime, processor) (site info page)                 | 600            |
-| Hosting plan limits (site info page)                                      | 600            |
-| Database info: size, users, grants                                        | 600            |
-| Service logs                                                             | 300            |
-| Screenshot from API                                                      | 3600           |
-| Screenshot link from remote API                                          | 60             |
-| Database limit per plan (creating new database)                           | 3600           |
-| List of all databases, users, grants (MySQL/Postgres)                     | 300            |
-| Configuration values (my.cnf / postgresql.conf)                           | 30             |
-| PHP extensions list                                                      | 30             |
-| Available PHP versions for user                                          | 3600           |
-| Running PHP services for user                                            | 10             |
-| NodeJS/Python container logs                                             | 60             |
-| NodeJS/Python Docker Hub tags                                            | 86400          |
-| Webserver used by user                                                   | 300            |
-| Domain settings for temporary links API (OpenPanel)                       | 7200           |
-| Temporary link for website (API)                                         | 800            |
-| WP version from wp-config.php (WP Manager)                                | 60             |
-| Database info from wp-config.php (WP Manager)                             | 60             |
-| PageSpeed results for website                                            | 60             |
-| MySQL/MariaDB version for user (WP Manager)                               | 3600           |
-| Docroot, DB info, PHP, WP, MySQL versions (WP Manager)                    | 300            |
-| WP admin email (WP Manager)                                              | 300            |
-| Backup existence check (WP Manager)                                       | 300            |
-| PageSpeed API key check                                                   | 60             |
-| Website existence check                                                  | 30             |
+| Tétel / Leírás | Gyorsítótár (másodperc) |
+|-------------------------------------------------------------------------|-----------------|
+| Vállalati engedély érvényessége | 3600 |
+| Fióktevékenység lista | 300 |
+| IP-cím országkódja | 360 |
+| Bejelentkezési előzmények | 600 |
+| Értesítési beállítások | 300 |
+| Aktív munkamenetek | 10 |
+| Webhelyek száma az Auto Installerben | 30 |
+| Lakk állapota | 360 |
+| A szerver nyilvános IPv4-címe | 3600 |
+| OpenPanel verzió | 7200 |
+| SSL-tanúsítvány megléte a felhasználói panelhez | 360 |
+| Domain beállítva az OpenPanel felhasználói felülethez | 3600 |
+| OpenPanel konfiguráció | 6000 |
+| Felhasználói webhelyek a keresési eredmények között | 600 |
+| Felhasználói webhelyek az irányítópult statisztikai widgetjében | 300 |
+| Lemez- és inode-használat a felhasználó számára (műszerfali widget) | 360 |
+| Tárhelyterv korlátai (műszerfali widget) | 3600 |
+| Domainhasználat (irányítópult-statisztika) | 360 |
+| Adatbázisok száma (műszerfali statisztika) | 360 |
+| FTP-fiókok száma (irányítópult-statisztika) | 360 |
+| Docker statisztikák (CPU, memória, tárolók, PID-k) (irányítópult-statisztikák) | 360 |
+| CNAME rekord létezése rekord hozzáadásakor a DNS-szerkesztőben | 10 |
+| Domain átirányítás létezése | 10 |
+| Átirányítási URL a domainhez | 10 |
+| Tervenkénti domain korlát | 3600 |
+| A csúcsok és az aldomainek száma | 30 |
+| SSL állapot a domainhez | 30 |
+| Mappa lemezhasználat (Fájlkezelő) | 5 |
+| Webmail domain | 3600 |
+| Fájltartalom (Fájlkezelő - Fájlnézegető) | 30 |
+| Almappák és fájlok listája (Fájlkezelő) | 5 |
+| Fájlstatisztikák (tulajdonos, méret, engedélyek) (Fájlkezelő) | 30 |
+| Fájlok a kukában | 5 |
+| Inode száma elérési úthoz (Inodes Explorer) | 10 |
+| FTP felhasználónév ellenőrzése | 60 |
+| Rosszindulatú programok vizsgálatának eredménye | 30 |
+| Karanténban lévő fájlok (Malware Scanner) | 30 |
+| GoAccess HTML jelentés a domainhez | 7200 |
+| Szerver információs oldal adatai | 360 |
+| Tervezze meg a korlátokat a műveletek végrehajtása során | 300 |
+| Nyitott portok Redis, Memcached, phpMyAdmin konténerekhez | 300 |
+| Felhasználói fiók UID | 7200 |
+| Domain tulajdonjogának ellenőrzése | 60 |
+| Webhely tulajdonjogának ellenőrzése | 60 |
+| Utolsó bejelentkezési IP (műszerfali widget) | 600 |
+| PHP verzió a domainhez | 30 |
+| MySQL adatbázis mérete | 300 |
+| Adatbázis-információk a wp-config.php-ről (WP Manager) | 600 |
+| Adatbázis információ a local.php-ről (Mautic Manager) | 300 |
+| A szerver üzemideje és terhelése (webhely információ) | 30 |
+| Szerverinformáció (CPU, IP, üzemidő, processzor) (webhely információs oldala) | 600 |
+| Tárhelyterv korlátai (webhely információs oldal) | 600 |
+| Adatbázis információ: méret, felhasználók, támogatások | 600 |
+| Szolgáltatási naplók | 300 |
+| Képernyőkép az API-ból | 3600 |
+| Képernyőkép hivatkozás a távoli API-ból | 60 |
+| Adatbázis-korlát tervenként (új adatbázis létrehozása) | 3600 |
+| Az összes adatbázis, felhasználó, támogatások listája (MySQL/Postgres) | 300 |
+| Konfigurációs értékek (my.cnf / postgresql.conf) | 30 |
+| PHP kiterjesztések listája | 30 |
+| Elérhető PHP-verziók | felhasználó számára 3600 |
+| PHP szolgáltatások futtatása felhasználók számára | 10 |
+| NodeJS/Python tárolónaplók | 60 |
+| NodeJS/Python Docker Hub címkék | 86400 |
+| A felhasználó által használt webszerver | 300 |
+| Tartománybeállítások ideiglenes hivatkozásokhoz API (OpenPanel) | 7200 |
+| Ideiglenes link a webhelyhez (API) | 800 |
+| WP verzió a wp-config.php webhelyről (WP Manager) | 60 |
+| Adatbázis-információk a wp-config.php-ről (WP Manager) | 60 |
+| PageSpeed ​​eredmények a webhelyre | 60 |
+| MySQL/MariaDB verzió felhasználó számára (WP Manager) | 3600 |
+| Docroot, DB info, PHP, WP, MySQL verziók (WP Manager) | 300 |
+| WP adminisztrátori e-mail (WP Manager) | 300 |
+| Biztonsági másolat létezésének ellenőrzése (WP Manager) | 300 |
+| PageSpeed ​​API-kulcs ellenőrzése | 60 |
+| Weboldal létezésének ellenőrzése | 30 |
 
 
 

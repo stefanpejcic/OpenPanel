@@ -1,8 +1,8 @@
-# OpenPanel Pricing
+# OpenPanel árképzés
 
-OpenPanel is available in two editions:
+Az OpenPanel két kiadásban érhető el:
 
-- **OpenPanel Community** is a free version of the panel that is limited to 3 user accounts and 50 domains, which should be more than enough for personal use.
-- **OpenPanel Enterprise** unlocks premium features for user isolation and management, suitable for web hosting providers. It has API access and can easily be integrated with 3rd party billing tools like WHMCS and FOSSBilling.
+- Az **OpenPanel Community** a panel ingyenes verziója, amely 3 felhasználói fiókra és 50 domainre korlátozódik, ami bőven elegendő személyes használatra.
+- Az **OpenPanel Enterprise** prémium funkciókat nyit meg a felhasználók elkülönítéséhez és kezeléséhez, amely alkalmas a webtárhely-szolgáltatók számára. API-hozzáféréssel rendelkezik, és könnyen integrálható harmadik fél számlázási eszközeivel, mint például a WHMCS és a FOSSBilling.
 
 [OpenPanel Community VS Enterprise](/enterprise)

@@ -2,14 +2,14 @@
 sidebar_position: 3
 ---
 
-# WebServer Settings
+# Webszerver beállításai
 
-The **WebServer Settings** interface enables OpenPanel users to edit the primary webserver configuration file directly using a text editor.
+A **WebServer Settings** felület lehetővé teszi az OpenPanel felhasználók számára, hogy szövegszerkesztővel közvetlenül szerkesszék az elsődleges webszerver konfigurációs fájlt.
 
-These settings are **global** and apply to **all domains** (i.e., affect the virtual hosts configuration).
+Ezek a beállítások **globálisak** és **minden tartományra** vonatkoznak (azaz befolyásolják a virtuális gazdagép konfigurációját).
 
-> ⚠️ **Important:** Always create a backup of the configuration file before making any changes.
+> ⚠️ **Fontos:** Bármilyen változtatás előtt mindig készítsen biztonsági másolatot a konfigurációs fájlról.
 
-- For **Apache**, you can edit the `httpd.conf` file.  
-- For **Nginx** and **OpenResty**, you can edit the `nginx.conf` file.
-- For **OpenLitespeed** and **Litespeed**, you can edit the `openlitespeed.conf` file.
+- **Apache** esetén szerkesztheti a "httpd.conf" fájlt.
+- **Nginx** és **OpenResty** esetén szerkesztheti az "nginx.conf" fájlt.
+- **OpenLitespeed** és **Litespeed** esetén szerkesztheti az "openlitespeed.conf" fájlt.

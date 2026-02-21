@@ -2,32 +2,32 @@
 sidebar_position: 8
 ---
 
-# Fix Permissions
-The **Fix Permissions** tool is designed to automatically correct file and folder permissions for your websites, ensuring that they are secure and function properly.
+# Engedélyek javítása
+Az **Engedélyek javítása** eszközt úgy tervezték, hogy automatikusan javítsa a webhelyek fájl- és mappaengedélyeit, biztosítva azok biztonságosságát és megfelelő működését.
 
-Open **Fix Permissions**  page and set the path or leave empty (`/var/www/html/`) to go over all files.
+Nyissa meg a **Javítási engedélyek** oldalt, és állítsa be az elérési utat, vagy hagyja üresen (`/var/www/html/`), hogy áttekintse az összes fájlt.
 
-## How It Works
-Clicking the **Fix Permissions** button will:
+## Hogyan működik
+Az **Engedélyek javítása** gombra kattintva:
 
-- Recursively set the correct **ownership** for files and folders.
-- Apply standard **permissions**:
-  - Files: `644`
-  - Folders: `755`
-- Fix common permission problems for known CMS directories like `wp-content`, `storage`, `cache`, etc.
+- Rekurzívan állítsa be a fájlok és mappák megfelelő **tulajdonjogát**.
+- Alkalmazzon szabványos **engedélyeket**:
+- Fájlok: "644".
+- Mappák: "755".
+- Javítsa ki az ismert CMS-könyvtárak, például a "wp-content", "storage", "cache" stb. gyakori engedélyezési problémáit.
 
-## Caution
+## Vigyázat
 
-- Custom permissions or advanced configurations may be overridden.
-- If you're running custom scripts that require different permissions (e.g., executable `.sh` files), you'll need to reapply those settings manually after using this tool.
+- Az egyéni engedélyek vagy a speciális konfigurációk felülbírálhatók.
+- Ha olyan egyéni szkripteket futtat, amelyek eltérő engedélyeket igényelnek (pl. futtatható `.sh` fájlok), akkor az eszköz használata után manuálisan újra kell alkalmaznia ezeket a beállításokat.
 
-## Recommended Usage
+## Javasolt használat
 
-You should use the **Fix Permissions** option only when:
+Csak akkor használja a **Engedélyek javítása** opciót, ha:
 
-- Your website is showing permission-related errors.
-- You've uploaded or modified files manually (e.g., via FTP or File Manager).
-- Your CMS (WordPress, Joomla, etc.) cannot write to certain folders.
-- You suspect ownership or permission issues after a migration or manual edit.
+- Webhelye engedélyekkel kapcsolatos hibákat mutat.
+- Kézzel töltött fel vagy módosított fájlokat (például FTP-n vagy Fájlkezelőn keresztül).
+- A CMS-ed (WordPress, Joomla stb.) nem tud írni bizonyos mappákba.
+- Tulajdonjoggal vagy engedélyekkel kapcsolatos problémákra gyanakszik egy áttelepítés vagy kézi szerkesztés után.
 
-Use this tool only when you’re experiencing issues. Frequent, unnecessary use is not required and may revert intentional permission changes.
+Csak akkor használja ezt az eszközt, ha problémákat tapasztal. A gyakori, szükségtelen használat nem szükséges, és visszavonhatja a szándékos engedélymódosításokat.

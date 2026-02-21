@@ -1,41 +1,41 @@
 # OpenCLI Hooks
 
-OpenPanel supports **pre** and **post hooks** for all commands, that run bash scripts before or after running opencli commands.
+Az OpenPanel támogatja a **pre** és **post hook-okat** minden olyan parancshoz, amely az opencli parancsok futtatása előtt vagy után bash szkripteket futtat.
 
-To create a hook, first create a new directory: `/etc/openpanel/openpanel/hooks/` and inside create a file based on the desired command:
+Hook létrehozásához először hozzon létre egy új könyvtárat: `/etc/openpanel/openpanel/hooks/`, és azon belül hozzon létre egy fájlt a kívánt parancs alapján:
 
-- `pre_` prefix for script to run **before** a command.
-- `post_` prefix for a script to run **after** executing an opencli command.
+- `pre_` előtag a parancsfájl **előtt** futtatásához.
+- `post_` előtag a szkript futtatásához **az opencli parancs végrehajtása után**.
 
-## Examples
+## Példák
 
-To run a custom script before the user creation process (opencli *user-add*) you would create a new file:
+Egyéni szkript futtatásához a felhasználó létrehozási folyamata előtt (opencli *user-add*) hozzon létre egy új fájlt:
 ```bash
 /etc/openpanel/openpanel/hooks/pre_user-add.sh
 ````
 
 
-Another example to run **after a domain is added**:
+Egy másik példa a **domain hozzáadása után** futtatásra:
 
-When a user adds a new domain via the UI, the underlying command executed is:
+Amikor egy felhasználó új tartományt ad hozzá a felhasználói felületen keresztül, a végrehajtandó mögöttes parancs a következő:
 
 ```bash
 /etc/openpanel/openpanel/hooks/post_domains-add.sh
 ```
 
-These scripts will be executed automatically when the command runs, depending on whether you're hooking into the pre- or post-execution phase.
+Ezek a szkriptek automatikusan végrehajtásra kerülnek, amikor a parancs fut, attól függően, hogy a végrehajtás előtti vagy utóbbi fázisba kapcsolódott be.
 
-## Passing Arguments to Hooks
+## Érvek átadása Hooksnak
 
-All arguments passed to the `opencli` command are also forwarded to your hook script.
+Az "opencli" parancsnak átadott összes argumentum a hook-szkriptnek is továbbításra kerül.
 
-For example, if the following command is executed:
+Például, ha a következő parancs végrehajtásra kerül:
 
 ```bash
 opencli domains-add example.com stefan --docroot /var/www/example --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug
 ```
 
-Your hook script will receive the same arguments:
+A hook szkriptje ugyanazokat az argumentumokat fogja kapni:
 
 ```bash
 bash /etc/openpanel/openpanel/hooks/post_domains-add.sh example.com johndoe --docroot /var/www/example --php_version 8.1 --skip_caddy --skip_vhost --skip_containers --skip_dns --debug

@@ -2,16 +2,16 @@
 sidebar_position: 2
 ---
 
-# Change Root Password
+# Változtassa meg a gyökérjelszót
 
-Use this section to securely update the SSH password for the root user.
+Ebben a szakaszban biztonságosan frissítheti a root felhasználó SSH-jelszavát.
 
-To ensure strong security, your new password must meet the following requirements:
+Az erős biztonság érdekében új jelszavának meg kell felelnie a következő követelményeknek:
 
-- Length: 8–20 characters
+- Hossz: 8-20 karakter
 
-- Must include both letters and numbers
+- Betűket és számokat is tartalmaznia kell
 
-- No spaces, special characters, or emoji are allowed
+- Szóközök, speciális karakterek vagy hangulatjelek nem megengedettek
 
-This action updates the root user's credentials used for direct SSH access to the server. Always store your new password securely and avoid using easily guessable combinations.
+Ez a művelet frissíti a root felhasználó hitelesítő adatait, amelyeket a kiszolgálóhoz való közvetlen SSH-hozzáféréshez használnak. Mindig biztonságosan tárolja új jelszavát, és kerülje a könnyen kitalálható kombinációk használatát.

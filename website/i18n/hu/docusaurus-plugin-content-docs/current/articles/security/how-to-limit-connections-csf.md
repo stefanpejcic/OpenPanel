@@ -1,25 +1,25 @@
-# Limiting Connections with CSF
+# A CSF-vel való kapcsolatok korlátozása
 
-CSF allows you to restrict the number of simultaneous connections to specific ports on your server.
+A CSF lehetővé teszi, hogy korlátozza az egyidejű kapcsolatok számát a szerver adott portjaira.
 
-For example, you can configure CSF to limit port 80 to a maximum of 5 concurrent connections, and port 443 to 20 concurrent connections by adding the following to your configuration file:
+Például beállíthatja a CSF-et úgy, hogy a 80-as portot legfeljebb 5 egyidejű kapcsolatra, a 443-as portot pedig 20 egyidejű kapcsolatra korlátozza, ha hozzáadja a következőket a konfigurációs fájlhoz:
 
 ```
 CONNLIMIT = "80;5,443;20"
 ```
 
-**How CONNLIMIT Works:**
+**A CONNLIMIT működése:**
 
-The `CONNLIMIT` setting uses a comma-separated list of `port;limit` pairs.
+A „CONNLIMIT” beállítás a „port;limit” párok vesszővel elválasztott listáját használja.
 
-For example:
+Például:
 ```
 CONNLIMIT = "22;5,80;20"
 ```
 
-means:
+eszközök:
 
-1. Each IP address can have up to 5 concurrent new connections to port 22.
-2. Each IP address can have up to 20 concurrent new connections to port 80.
+1. Minden IP-címnek legfeljebb 5 egyidejű új kapcsolata lehet a 22-es porthoz.
+2. Minden IP-címnek legfeljebb 20 egyidejű új kapcsolata lehet a 80-as porthoz.
 
 

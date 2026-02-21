@@ -2,13 +2,13 @@
 sidebar_position: 4
 ---
 
-# Image Updates
+# Képfrissítések
 
-The **Docker > Image Updates** page allows you to check if image updates are available for your images.
+A **Docker > Képfrissítések** oldalon ellenőrizheti, hogy elérhető-e képfrissítés a képeihez.
 
-## Requirements
+## Követelmények
 
-To access this feature:
+A funkció eléréséhez:
 
-- The **Docker** module must be enabled **server-wide** by an Administrator.
-- Your account must have the **Docker** feature enabled.
+- A **Docker** modult a rendszergazdának engedélyeznie kell **szerveren**.
+- Fiókjában engedélyezni kell a **Docker** funkciót.

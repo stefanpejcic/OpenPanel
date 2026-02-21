@@ -1,7 +1,7 @@
-# Speed up DNS propagation
+# Gyorsítsa fel a DNS terjedését
 
-DNS propagation cannot be speed up.
+A DNS terjedését nem lehet felgyorsítani.
 
-To minimize the effects of DNS propagation, lower the `TTL` value for the DNS record you need to change at least 24 hours before the record change.
+A DNS-terjesztés hatásainak minimalizálása érdekében legalább 24 órával a rekord módosítása előtt csökkentse a módosítani kívánt DNS-rekord "TTL" értékét.
 
-Setting the TTL to 300 seconds causes most DNS resolvers to update their cache for the DNS record every 5 minutes.
+Ha a TTL-t 300 másodpercre állítja, a legtöbb DNS-feloldó 5 percenként frissíti a DNS-rekord gyorsítótárát.

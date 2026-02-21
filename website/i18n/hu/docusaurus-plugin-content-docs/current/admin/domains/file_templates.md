@@ -2,9 +2,9 @@
 sidebar_position: 4
 ---
 
-# Edit Domain Templates
+# Domain sablonok szerkesztése
 
-This interface allows you to edit the VirtualHosts templates and default landing pages used for new domains.
+Ez a felület lehetővé teszi az új domainekhez használt VirtualHosts sablonok és alapértelmezett céloldalak szerkesztését.
 
 - Default Page: Template displayed on new domains without any content.
 - Suspended Website: Template displayed on websites (domains) that user suspends.

@@ -2,26 +2,26 @@
 sidebar_position: 6
 ---
 
-# Custom Code
+# Egyéni kód
 
-OpenPanel is renowned for its modularity, giving you full control to tailor the platform to your needs. 
+Az OpenPanel modularitásáról híres, így teljes irányítást biztosít a platform igényeinek megfelelő testreszabásához.
 
-The Custom Code section, accessible via OpenAdmin > Settings > Custom Code, allows you to inject and manage custom code that extends or modifies the behavior and appearance of the OpenPanel UI.
+Az OpenAdmin > Beállítások > Egyéni kód menüponton keresztül elérhető Egyéni kód szakasz lehetővé teszi az OpenPanel felhasználói felület viselkedését és megjelenését kiterjesztő vagy módosító egyéni kód beszúrását és kezelését.
 
-## Custom CSS
-Inject your own CSS styles that will be applied across all pages of the OpenPanel UI.
+## Egyéni CSS
+Szúrja be saját CSS-stílusait, amelyeket az OpenPanel felhasználói felületének minden oldalán alkalmazni fog.
 
-[View Documentation](https://dev.openpanel.com/customize.html#Custom-CSS)
+[Dokumentáció megtekintése](https://dev.openpanel.com/customize.html#Custom-CSS)
 
-## Custom JS
-Add custom JavaScript to all pages. This is ideal for extending UI functionality, adding widgets, or integrating third-party tools.
+## Egyéni JS
+Adjon hozzá egyéni JavaScriptet az összes oldalhoz. Ez ideális a felhasználói felület funkcióinak bővítéséhez, widgetek hozzáadásához vagy harmadik féltől származó eszközök integrálásához.
 
-[View Documentation](https://dev.openpanel.com/customize.html#Custom-JS)
+[Dokumentáció megtekintése](https://dev.openpanel.com/customize.html#Custom-JS)
 
-## Code in Header
-Insert custom code directly into the head tag of every page. Useful for meta tags, analytics scripts, and global settings.
+## Kód a fejlécben
+Szúrjon be egyéni kódot közvetlenül minden oldal head címkéjébe. Hasznos metacímkékhez, elemző szkriptekhez és globális beállításokhoz.
 
-[View Documentation](https://dev.openpanel.com/customize.html#Code-in-Header)
+[Dokumentáció megtekintése](https://dev.openpanel.com/customize.html#Code-in-Header)
 
 ## Code in Footer
 Insert custom code directly into the footer section of all pages. This is commonly used for tracking scripts, analytics, or deferred JavaScript.

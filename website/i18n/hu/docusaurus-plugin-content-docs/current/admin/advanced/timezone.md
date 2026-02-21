@@ -2,10 +2,10 @@
 sidebar_position: 4
 ---
 
-# Server Time
+# Szerveridő
 
-Use the Server Time section to update the system-wide timezone for both the host operating system and the OpenPanel user interface.
+A Kiszolgálóidő szakaszban frissítheti a rendszerszintű időzónát mind a gazdagép operációs rendszer, mind az OpenPanel felhasználói felület esetében.
 
-Changing the timezone ensures that logs, scheduled tasks, and UI timestamps align with your desired regional time settings.
+Az időzóna módosítása biztosítja, hogy a naplók, az ütemezett feladatok és a felhasználói felület időbélyegei igazodjanak a kívánt regionális időbeállításokhoz.
 
-:::info After changing timezone, we recommend to restart the server or at least the OpenAdmin and Cron services: systemctl restart admin cron. :::
+:::info Az időzóna megváltoztatása után javasoljuk a szerver vagy legalább az OpenAdmin és Cron szolgáltatások újraindítását: systemctl restart admin cron. :::

@@ -1,24 +1,24 @@
-# Restrict OpenAdmin
+# Az OpenAdmin korlátozása
 
-To restrict OpenAdmin access only to your team, whitelist your server's IP addresses on the firewall, and then disable port `2087`.
+Ha az OpenAdmin hozzáférést csak a csapatára szeretné korlátozni, tegye engedélyezőlistára a kiszolgáló IP-címeit a tűzfalon, majd tiltsa le a 2087-es portot.
 
-## Whitelist your team's IP addresses
+## Tegye engedélyezőlistára csapata IP-címeit
 
-Replace *YOUR_TEAM_IP* with your actual IP addresses. Repeat for each team IP.
+Cserélje ki a *YOUR_TEAM_IP* címet a tényleges IP-címeivel. Ismételje meg minden csapat IP-jére.
 
 ```
 csf -a YOUR_TEAM_IP
 ```
 
-## Block all other access to port 2087
+## Minden más hozzáférés letiltása a 2087-es porthoz
 
-Edit `/etc/csf/csf.conf` and remove *2087* from the allowed *TCP_IN* list, or run:
+Szerkessze az `/etc/csf/csf.conf` fájlt, és távolítsa el a *2087*-et az engedélyezett *TCP_IN* listáról, vagy futtassa:
 
 ```
 csf -d 0.0.0.0/0 2087
 ```
 
-Then restart CSF:
+Ezután indítsa újra a CSF-et:
 
 ```
 csf -r

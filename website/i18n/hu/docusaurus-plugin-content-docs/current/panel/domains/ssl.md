@@ -4,55 +4,55 @@ sidebar_position: 5
 
 # SSL
 
-OpenPanel automatically generates and renews SSL certificates for all domains using **Let's Encrypt** or **ZeroSSL**.
+Az OpenPanel automatikusan generál és megújít SSL-tanúsítványokat minden tartományhoz a **Titkosítsuk** vagy **ZeroSSL** használatával.
 
-You can also configure a **custom SSL certificate** for any domain via **OpenPanel > Domains > SSL**.
+**Egyéni SSL-tanúsítványt** is beállíthat bármely domainhez az **OpenPanel > Domains > SSL** menüpontban.
 
-## Custom SSL
+## Egyéni SSL
 
-To use your own SSL certificate:
+Saját SSL-tanúsítvány használatához:
 
-1. Upload your certificate files via **OpenPanel > FileManager**.
-2. Go to **OpenPanel > Domains**, then click **SSL** next to the domain.
-3. Under **Configure custom SSL**, enter the file paths for:
-   * Certificate file (`.crt`)
-   * Private key file (`.key`)
-4. Click **Configure**.
+1. Töltse fel tanúsítványfájljait az **OpenPanel > FileManager** oldalon keresztül.
+2. Lépjen az **OpenPanel > Domains** elemre, majd kattintson az **SSL** elemre a domain mellett.
+3. Az **Egyéni SSL konfigurálása** részben adja meg a fájl elérési útját:
+* Tanúsítványfájl (`.crt`)
+* Privát kulcs fájl (`.key`)
+4. Kattintson a **Konfigurálás** gombra.
 
-Once configured, your custom certificate details will appear on the same page.
+A konfigurálás után az egyéni tanúsítvány részletei ugyanazon az oldalon jelennek meg.
 
-![screenshot of domain with custom ssl](/img/panel/v2/openpanel_customssl.png)
+![képernyőkép a domainről egyéni ssl-vel](/img/panel/v2/openpanel_customssl.png)
 
 
 ## AutoSSL
 
-**AutoSSL** is the default option in OpenPanel.
-If you're adding a new domain, no action is required.
+Az **AutoSSL** az OpenPanel alapértelmezett beállítása.
+Ha új domaint ad hozzá, nincs teendője.
 
-To switch **from a custom certificate back to AutoSSL**:
+Az **egyéni tanúsítványról az AutoSSL-re** visszaváltáshoz:
 
-1. Navigate to **OpenPanel > Domains** and click **SSL** for the domain.
-2. Click **Switch back to AutoSSL**.
+1. Lépjen az **OpenPanel > Domains** elemre, és kattintson az **SSL** lehetőségre a domain mellett.
+2. Kattintson a **Váltás vissza AutoSSL-re** lehetőségre.
 
-The certificate will be re-issued automatically after the domain is accessed via `https://`. Once generated, it will be displayed on the same page.
+A tanúsítványt a rendszer automatikusan újra kiállítja, miután a domainhez a „https://” hivatkozáson keresztül hozzáfértek. A generálás után ugyanazon az oldalon jelenik meg.
 
-![screenshot of domain with autossl](/img/panel/v2/openpanel_autossl.png)
+![képernyőkép az autossl-lel rendelkező domainről](/img/panel/v2/openpanel_autossl.png)
 
 
-### Requirements
+### Követelmények
 
-To ensure successful SSL generation:
+Az SSL sikeres generálása érdekében:
 
-* The **A record** for the domain must point to the server's **IPv4 address**.
-* The DNS must be **fully propagated**. Use tools like [whatsmydns.net](https://www.whatsmydns.net/#A) to check.
-* The domain must be accessed via `https://` at least once to trigger certificate generation. Open the domain in a browser using `https`.
+* A domain **A rekordjának** a szerver **IPv4-címére** kell mutatnia.
+* A DNS-t **teljesen terjeszteni kell**. Az ellenőrzéshez használjon olyan eszközöket, mint a [whatsmydns.net](https://www.whatsmydns.net/#A).
+* A tanúsítvány létrehozásához a domaint legalább egyszer el kell érni a „https://” protokollon keresztül. Nyissa meg a domaint egy böngészőben „https” használatával.
 
-If:
+Ha:
 
-* The domain was just added,
-* DNS is not yet pointed to the server, or
-* The domain has not been accessed over `https://`,
+* A domain nemrég lett hozzáadva,
+* A DNS még nem mutatott a szerverre, ill
+* A domainhez nem fértek hozzá `https://` keresztül,
 
-Then the SSL section will show **“No certificate found.”**
+Ezután az SSL részben a **„Nem található tanúsítvány”** felirat jelenik meg.
 
-![screenshot of domain with autossl but no ssl yet](/img/panel/v2/openpanel_autossl_no_ssl.png)
+![képernyőkép a domainről autossl-lel, de még nincs ssl](/img/panel/v2/openpanel_autossl_no_ssl.png)

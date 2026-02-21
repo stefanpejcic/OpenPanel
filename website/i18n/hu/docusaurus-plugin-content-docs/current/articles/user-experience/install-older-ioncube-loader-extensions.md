@@ -1,34 +1,34 @@
-# How to Install Custom or Older IonCube Loader Versions in OpenPanel
+# Egyéni vagy régebbi IonCube Loader verziók telepítése az OpenPanelben
 
-Starting with **OpenPanel version 1.7.2**, IonCube Loader is automatically available for all PHP versions that support it on new installations.
+Az **OpenPanel 1.7.2-es verziójától** kezdve az IonCube Loader automatikusan elérhető minden olyan PHP-verzióhoz, amely támogatja az új telepítéseknél.
 
-## Older Versions
+## Régebbi verziók
 
-If you want to downgrade to an older ionCube Loader bundle (or use a custom bundle) you can do so easily.
+Ha egy régebbi ionCube Loader csomagra szeretne visszaváltani (vagy egyéni csomagot szeretne használni), ezt egyszerűen megteheti.
 
-After placing the files on your server:
+Miután elhelyezte a fájlokat a szerveren:
 
-* **For a single user:** Edit their `docker-compose.yml` file and update the volume mount points for the **php-fpm-*** services so they reference your custom files.
-* **For all new users:** Edit the template file located at `/etc/openpanel/docker/compose/1.0/docker-compose.yml`.
+* **Egyetlen felhasználó esetén:** Szerkessze a `docker-compose.yml` fájljukat, és frissítse a **php-fpm-*** szolgáltatások kötetbeillesztési pontjait, hogy azok hivatkozzanak az Ön egyéni fájljaira.
+* **Minden új felhasználó számára:** Szerkessze az `/etc/openpanel/docker/compose/1.0/docker-compose.yml` címen található sablonfájlt.
 
-## Check if enabled
+## Ellenőrizze, hogy engedélyezve van-e
 
-To confirm whether IonCube Loader is active for your PHP version, you can use any of the following methods:
+Az alábbi módszerek bármelyikével ellenőrizheti, hogy az IonCube Loader aktív-e az Ön PHP-verziójához:
 
-From terminal run:
+A terminál futtatásából:
 
 ```bash
 php -i | grep ioncube
 ```
 
-Or create a file named **info.php** in your domain’s public directory with the following content:
+Vagy hozzon létre egy **info.php** nevű fájlt a domain nyilvános könyvtárában a következő tartalommal:
 
 ```php
 <?php
 phpinfo();
 ```
 
-Then open it in your browser:
+Ezután nyissa meg a böngészőjében:
 `https://yourdomain.tld/info.php`
 
-Look for **IonCube PHP Loader** in the output to verify that it is enabled.
+Keresse meg az **IonCube PHP Loader** elemet a kimenetben, hogy ellenőrizze, hogy engedélyezve van-e.

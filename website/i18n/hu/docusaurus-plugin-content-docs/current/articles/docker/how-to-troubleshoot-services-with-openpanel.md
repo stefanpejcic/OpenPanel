@@ -1,43 +1,43 @@
-# Troubleshooting service issues with OpenPanel
+# Az OpenPanel szolgáltatással kapcsolatos problémák elhárítása
 
-If you've run into issues with a service that is managed by OpenPanel and your account has the Docker feature enabled you can use it to restart the service container and check the logs for further troubleshooting.
+Ha problémákba ütközik egy, az OpenPanel által kezelt szolgáltatással, és fiókjában engedélyezve van a Docker funkció, akkor ezzel újraindíthatja a szolgáltatástárolót, és további hibaelhárítás érdekében ellenőrizheti a naplókat.
 
-Simpy go to Openpanel > Docker > Containers and try stopping/starting the service container:
+Egyszerűen lépjen az Openpanel > Docker > Containers menüpontra, és próbálja meg leállítani/indítani a szolgáltatástárolót:
 
 ![containersGUI.png](https://i.postimg.cc/650sKYW3/containersgui.png)
 
-To check logs go to Openpanel > Docker > Logs and select a container from the dropdown menu to view it's logs:
+A naplók ellenőrzéséhez lépjen az Openpanel > Docker > Logs menüpontra, és válasszon ki egy tárolót a legördülő menüből a naplók megtekintéséhez:
 
 ![containersLogsGUI.png](https://i.postimg.cc/Fzh4bqF1/containerlogsgui.png)
 
-If the Docker feature is not enabled for your account contact your administrator so they can check further.
+Ha a Docker funkció nincs engedélyezve a fiókjában, forduljon a rendszergazdához, hogy további ellenőrzéseket végezhessenek.
 
-## Troubleshooting service issues as an Administrator 
+## A szolgáltatással kapcsolatos problémák hibaelhárítása rendszergazdaként
 
-Login to OpenAdmin on port 2087 , go to Users and click on an username start managing that account:
+Jelentkezzen be az OpenAdminba a 2087-es porton, lépjen a Felhasználók oldalra, és kattintson egy felhasználónévre, és kezdje meg a fiók kezelését:
 
 ![containersAdmin1.png](https://i.postimg.cc/rpYjNt8p/containers-Admin1.png)
 
-Within the user management page go to the Services tab and Enable/Disable the service:
+A felhasználókezelési oldalon lépjen a Szolgáltatások fülre, és engedélyezze/letiltja a szolgáltatást:
 
 ![containersAdmin2.png](https://i.postimg.cc/hv4G4hdV/containers-Admin2.png)
 
-If restarting the container doesn't solve the issue you'll need to troubleshoot further, access the server via SSH and investigate by running the following commands:
+Ha a tároló újraindítása nem oldja meg a problémát, további hibaelhárítást kell végeznie, lépjen be a kiszolgálóhoz SSH-n keresztül, és vizsgálja meg a következő parancsokat:
 
-`machinectl shell $username@ /bin/bash -c 'systemctl --user status'` (replace $username with the OpenPanel user)
+`machinectl shell $felhasználónév@ /bin/bash -c 'systemctl --user status'` (a $username helyére az OpenPanel felhasználót írjon)
 
-A status overview of the user’s own systemd service manager will be displayed:
+Megjelenik a felhasználó saját rendszeres szolgáltatáskezelőjének állapotáttekintése:
 
 ![containersAdminSSH1](https://i.postimg.cc/FKRzQY0S/containers-Admin-SSH1.png)
 
-`machinectl shell $username@ /bin/bash -c 'journalctl --user -u $docker'` (replace $username with the OpenPanel user)
+`machinectl shell $username@ /bin/bash -c 'journalctl --user -u $docker'` (a $username helyére az OpenPanel felhasználót írjuk)
 
-The Docker service logs will be displayed:
+Megjelennek a Docker szolgáltatásnaplók:
 
 ![containersAdminSSH2](https://i.postimg.cc/6qjwc0mJ/containers-Admin-SSH2.png)
 
-In case you don't find any errors or potential causes within the output of these commands you should start the service container manually and watch the logs with the command:
+Ha nem talál hibát vagy lehetséges okokat ezen parancsok kimenetén belül, akkor manuálisan indítsa el a szolgáltatástárolót, és nézze meg a naplókat a következő paranccsal:
 
-`cd /home/$username && docker --context=$username compose up SERVICE_NAME` (replace $username with the OpenPanel user and SERVICE_NAME with the name of the service you are troubleshooting)
+`cd /home/$felhasználónév && docker --context=$felhasználónév összeállítása: SERVICE_NAME` (a $username helyére az OpenPanel felhasználót, a SERVICE_NAME helyére pedig annak a szolgáltatásnak a nevét, amelyet Ön a hibaelhárítás alatt tart)
 
 

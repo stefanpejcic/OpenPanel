@@ -1,17 +1,17 @@
-# Custom Services
+# Egyedi szolgáltatások
 
-Custom services can be added to OpenAdmin to be run and monitored from the admin panel.
+Egyéni szolgáltatások hozzáadhatók az OpenAdminhoz, amelyek az adminisztrációs panelről futtathatók és felügyelhetők.
 
-In this example, We will add [netdata](https://learn.netdata.cloud/docs/netdata-agent/installation/docker) docker image.
+Ebben a példában hozzáadjuk a [netdata](https://learn.netdata.cloud/docs/netdata-agent/installation/docker) dokkolóképet.
 
-## Add service
+## Szolgáltatás hozzáadása
 
 ```
 cd /root
 nano docker-compose.yml
 ```
 
-and add the netdata section:
+és add hozzá a netdata részt:
 
 ```
   netdata:
@@ -44,24 +44,24 @@ and add the netdata section:
       - /run/dbus:/run/dbus:ro
 ```
 
-save and exit the file. then start the service:
+mentse és lépjen ki a fájlból. majd indítsa el a szolgáltatást:
 
 ```
 docker --context=default compose up -d netdata
 ```
 
-now, I suggest just whitelisting your IP on the firewall instead of opening the port to the internet.
+most azt javaslom, hogy ahelyett, hogy megnyitná az internethez vezető portot, csak tegye az IP-címét a tűzfalon az engedélyezőlistára.
 
-Then open the IP:19999 in your browser:
+Ezután nyissa meg az IP:19999-et a böngészőjében:
 
 ![screenshot](https://i.postimg.cc/CFRC5zG9/netdata.png)
 
 
-## Monitor service
+## Monitor szolgáltatás
 
-Next step is to make the netdata service available from **OpenAdmin > Services** page so we can view its status, start/stop or restart it.
+Következő lépésként elérhetővé kell tenni a netdata szolgáltatást az **OpenAdmin > Services** oldalon, hogy megnézhessük az állapotát, elindíthassuk/leállíthassuk vagy újraindíthassuk.
 
-For this, we need to add the netdata service in `/etc/openpanel/openadmin/config/services.json` file:
+Ehhez hozzá kell adnunk a netdata szolgáltatást az "/etc/openpanel/openadmin/config/services.json" fájlhoz:
 
 ```
     {
@@ -71,17 +71,17 @@ For this, we need to add the netdata service in `/etc/openpanel/openadmin/config
         "real_name": "netdata"
     },
 ```
-`real_name` is the service/container name, and `name` is the human-readable name displayed in OpenAdmin services.
+A „valódi_név” a szolgáltatás/tároló neve, a „név” pedig az OpenAdmin szolgáltatásokban megjelenő, ember által olvasható név.
 
-Save the file and refresh the page in OpenAdmin - service is immediately visible and we can start/stop it from the panel.
+Mentse el a fájlt és frissítse az oldalt az OpenAdminban - a szolgáltatás azonnal látható, és a panelről tudjuk elindítani/leállítani.
 
-![services](https://i.postimg.cc/qpTMgY8r/2025-04-30-16-33.png)
+![szolgáltatások](https://i.postimg.cc/qpTMgY8r/2025-04-30-16-33.png)
 
-We can also receive notifications when the service is not running. For this edit the file: `/etc/openpanel/openadmin/config/notifications.ini` and add service name (`netdata`) under services:
+Akkor is kaphatunk értesítést, ha a szolgáltatás nem fut. Ehhez szerkessze a következő fájlt: "/etc/openpanel/openadmin/config/notifications.ini", és adja hozzá a szolgáltatás nevét ("netdata") a szolgáltatások alatt:
 
 ```
 services=panel,admin,caddy,mysql,docker,csf,netdata
 ```
 
-save the file and exit. Sentinel service will now also check if the netdata container is running and if not, send alerts to **OpenAdmin > Notifications** and if emails are enabled then to email as well.
+mentse a fájlt és lépjen ki. A Sentinel szolgáltatás mostantól azt is ellenőrzi, hogy a netdata tároló fut-e, és ha nem, akkor riasztást küld az **OpenAdmin > Értesítések** oldalra, és ha az e-mailek engedélyezve vannak, akkor az e-mailekre is.
 

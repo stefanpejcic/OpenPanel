@@ -2,29 +2,29 @@
 sidebar_position: 1
 ---
 
-# Account
-OpenPanel offers a unique feature that allows you to change your username, unlike standard control panels that require hosting support for such modifications.  
+# Számla
+Az OpenPanel egyedülálló funkciót kínál, amely lehetővé teszi a felhasználónév megváltoztatását, ellentétben a szabványos vezérlőpanelekkel, amelyek tárhely-támogatást igényelnek az ilyen módosításokhoz.
 
 ![account.png](/img/panel/v2/account.png)
 
-On this page, you can:  
-- Change your login password and username.  
-- Update your email address to receive notifications at a new address.  
+Ezen az oldalon a következőket teheti:
+- Módosítsa bejelentkezési jelszavát és felhasználónevét.
+- Frissítse e-mail címét, hogy új címre kapja az értesítéseket.
 
-### Changing Email Address  
-To update your email address:  
-1. Enter your new email in the email field.  
-2. Click **Update** to save the changes.  
+### E-mail cím módosítása
+Az e-mail cím frissítéséhez:
+1. Írja be új e-mail címét az e-mail mezőbe.
+2. Kattintson a **Frissítés** gombra a módosítások mentéséhez.
 
-### Changing Username  
-To change your username:  
-1. Enter your desired username in the username field.  
-2. Click **Update** to apply the changes.  
+### Felhasználónév módosítása
+Felhasználónév megváltoztatásához:
+1. Írja be a kívánt felhasználónevet a felhasználónév mezőbe.
+2. Kattintson a **Frissítés** gombra a módosítások alkalmazásához.
 
-### Changing Password  
-To change your password:  
-1. Enter your new password in the **Password** field.  
-2. Confirm it by entering the same password in the **Confirm Password** field.  
-3. Click **Update** to save the new password.  
+### Jelszó módosítása
+A jelszó megváltoztatásához:
+1. Írja be új jelszavát a **Jelszó** mezőbe.
+2. Erősítse meg ugyanazt a jelszót a **Jelszó megerősítése** mezőben.
+3. Kattintson a **Frissítés** gombra az új jelszó mentéséhez.
 
-Note: Once you update your password, you will be **immediately logged out**. All existing sessions will be **terminated**, and you will need to log in again with your new credentials.
+Megjegyzés: Amint frissíti jelszavát, **azonnal kijelentkezik**. Az összes meglévő munkamenet **megszakad**, és újra be kell jelentkeznie az új hitelesítő adataival.
