@@ -6,7 +6,7 @@ sidebar_position: 4
 
 Az Auto Installer lehetővé teszi az alkalmazások egy kattintással történő telepítését.
 
-![screenshot](/img/panel/v2/autoistaller_page.png)
+![screenshot](/img/panel/v2/autoisntaller_page.png)
 
 ## Elérhető alkalmazások
 
