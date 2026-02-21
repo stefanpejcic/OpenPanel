@@ -2,30 +2,30 @@
 sidebar_position: 1
 ---
 
-# Service Status
+# Szolgáltatás állapota
 
-The Service Status section allows you to view and control the status of system services and containers running on your server.
+A Szolgáltatás állapota szakaszban megtekintheti és szabályozhatja a kiszolgálón futó rendszerszolgáltatások és tárolók állapotát.
 
-This table provides key details for each service:
+Ez a táblázat az egyes szolgáltatások főbb részleteit tartalmazza:
 
-* **Service** – Display name of the service.
-* **Status** – Indicates if the service is active or inactive.
-* **Version** – Current version (if available).
-* **Real Name** – Internal service name or container name (e.g., admin for OpenAdmin).
-* **Type** – Identifies whether the service is a system process or a container.
-* **Port** – Lists the ports used by the service.
-* **Monitoring** – Shows whether the service is actively being monitored and logged.
-* **Action** – Options to start, stop, or restart the service.
+* **Szolgáltatás** – A szolgáltatás megjelenített neve.
+* **Állapot** – Azt jelzi, hogy a szolgáltatás aktív vagy inaktív.
+* **Verzió** – Aktuális verzió (ha elérhető).
+* **Valódi név** – Belső szolgáltatásnév vagy tárolónév (pl. az OpenAdmin rendszergazdája).
+* **Típus** – Azonosítja, hogy a szolgáltatás rendszerfolyamat vagy tároló.
+* **Port** – A szolgáltatás által használt portok listája.
+* **Monitoring** – Megmutatja, hogy a szolgáltatást aktívan figyelik-e és naplózzák-e.
+* **Művelet** – A szolgáltatás indításának, leállításának vagy újraindításának lehetőségei.
 
-## Edit Services
+## Szolgáltatások szerkesztése
 
-You can customize which services appear and are manageable from this section by clicking the **Edit Services** button.
+A **Szolgáltatások szerkesztése** gombra kattintva testreszabhatja, hogy mely szolgáltatások jelenjenek meg és melyek legyenek kezelhetők ebből a szakaszból.
 
-Services are configured in JSON format:
+A szolgáltatások JSON formátumban vannak konfigurálva:
 
-* **name** – Display name for the service.
-* **type** – Either `system` or `container`.
-* **real_name** – Internal service or container identifier.
+* **név** – A szolgáltatás megjelenített neve.
+* **típus** – „rendszer” vagy „tároló”.
+* **valós_név** – Belső szolgáltatás- vagy tárolóazonosító.
 
-Default OpenPanel services are actively monitored by SentinelAI, which will try to diagnose and restart failed services automatically. If you manually stop a service, remember to disable this monitoring feature via the [OpenAdmin Notifications](/docs/admin/notifications/) page.
+Az alapértelmezett OpenPanel-szolgáltatásokat a SentinelAI aktívan felügyeli, és megpróbálja automatikusan diagnosztizálni és újraindítani a meghibásodott szolgáltatásokat. Ha manuálisan állít le egy szolgáltatást, ne felejtse el letiltani ezt a megfigyelési funkciót az [OpenAdmin Notifications](/docs/admin/notifications/) oldalon.
 

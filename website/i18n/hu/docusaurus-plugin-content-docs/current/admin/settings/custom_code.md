@@ -23,17 +23,17 @@ Szúrjon be egyéni kódot közvetlenül minden oldal head címkéjébe. Hasznos
 
 [Dokumentáció megtekintése](https://dev.openpanel.com/customize.html#Code-in-Header)
 
-## Code in Footer
-Insert custom code directly into the footer section of all pages. This is commonly used for tracking scripts, analytics, or deferred JavaScript.
+## Kód a láblécben
+Szúrjon be egyéni kódot közvetlenül az összes oldal láblécébe. Ezt általában a szkriptek, az elemzések vagy a késleltetett JavaScript nyomon követésére használják.
 
-[View Documentation](https://dev.openpanel.com/customize.html#Code-in-Footer)
+[Dokumentáció megtekintése](https://dev.openpanel.com/customize.html#Code-in-Footer)
 
 
 
-## How-to Articles
-Edit Knowledge Base articles displayed in *OpenPanel > Dashboard* page.
+## Útmutatók
+Az *OpenPanel > Irányítópult* oldalon megjelenő Tudásbázis-cikkek szerkesztése.
 
-Default:
+Alapértelmezett:
 ```json
 {
     "how_to_topics": [
@@ -48,39 +48,39 @@ Default:
 }
 ```
 
-## Custom Section
+## Egyéni szakasz
 
-You can add a **custom section** with icon-based items to the *Dashboard* in **OpenPanel**.
+Az **OpenPanel** *Irányítópultjához* hozzáadhat egy **egyéni szakaszt** ikonalapú elemekkel.
 
-custom section supports the following fields:
+az egyéni szakasz a következő mezőket támogatja:
 
-* **`section_title`** *(string)*:
-  The title displayed at the top of your custom section.
+* **`section_title`** *(karakterlánc)*:
+Az egyéni panel tetején megjelenő cím.
 
-* **`section_position`** *(string)*:
-  Determines where your section appears relative to other built-in sections.
-  Acceptable values:
+* **`section_position`** *(karakterlánc)*:
+Meghatározza, hogy az Ön szakasza hol jelenjen meg a többi beépített szakaszhoz képest.
+Elfogadható értékek:
 
-  * `before_files`
-  * `before_domains`
-  * `before_mysql`
-  * `before_postgresql`
-  * `before_applications`
-  * `before_emails`
-  * `before_cache`
-  * `before_php`
-  * `before_docker`
-  * `before_advanced`
-  * `before_account`
+* `fájlok_előtt`
+* "a_domainek előtt".
+* `mysql_előtt`
+* `before_postgresql`
+* "a_jelentkezések előtt".
+* "e-mailek előtt".
+* `előtt_gyorsítótár`
+* `fore_php`
+* "kikötő előtt".
+* `előre_haladó`
+* "számla előtt".
 
-* **`items`** *(array of objects)*:
-  A list of clickable items shown as cards with icons. Each item has:
+* **`elemek`** *(objektumtömb)*:
+A kattintható elemek listája ikonokkal ellátott kártyaként. Minden elem rendelkezik:
 
-  * **`label`** *(string)* – The text shown on the card.
-  * **`icon`** *(string)* – The icon class from [Bootstrap Icons](https://icons.getbootstrap.com/). Example: `bi bi-person-fill-gear`.
-  * **`url`** *(string)* – The link to navigate to when the item is clicked.
+* **`címke`** *(karakterlánc)* – A kártyán látható szöveg.
+* **`icon`** *(karakterlánc)* – A [Bootstrap Icons] (https://icons.getbootstrap.com/) ikonosztálya. Példa: "bi-bi-person-fill-gear".
+* **`url`** *(karakterlánc)* – A hivatkozás, amelyre az elemre kattintva navigálhat.
 
-Example:
+Példa:
 ```json
 {
   "section_title": "Billing Account",
@@ -146,40 +146,40 @@ Example:
 
 ```
 
-## PageSpeed API Key
+## PageSpeed ​​API kulcs
 
-If set, this API key will be used to fetch data from Google PageSpeed Insights.
+Ha be van állítva, ezt az API-kulcsot a rendszer az adatok lekérésére használja a Google PageSpeed ​​Insights szolgáltatásból.
 ---
 
-## WordPress Plugins Set
+## WordPress bővítménykészlet
 
-List the WordPress plugins you want to automatically install on all new WordPress sites.
-Enter one item per row. Supported formats:
+Sorolja fel azokat a WordPress-bővítményeket, amelyeket automatikusan telepíteni szeretne az összes új WordPress-webhelyre.
+Soronként egy elemet írjon be. Támogatott formátumok:
 
-* **wp\_org\_slug** — the plugin slug from the WordPress.org plugin page
-* **URL** — a direct link to a `.zip` plugin file hosted online
+* **wp\_org\_slug** – a beépülő modul slugja a WordPress.org beépülő modul oldaláról
+* **URL** – közvetlen link egy online tárolt `.zip` beépülő fájlhoz
 
-## WordPress Themes Set
+## WordPress témakészlet
 
-List the WordPress themes to automatically install for all new WordPress sites.
-Enter one item per row. Supported formats:
+Sorolja fel az összes új WordPress-webhelyen automatikusan telepítendő WordPress-témákat.
+Soronként egy elemet írjon be. Támogatott formátumok:
 
-* **wp\_org\_slug** — the theme slug from the WordPress.org themes page
-* **URL** — a direct link to a `.zip` theme file hosted online
+* **wp\_org\_slug** – a téma slug a WordPress.org témák oldaláról
+* **URL** – közvetlen link egy online tárolt `.zip` témafájlra
 
-## Forbidden Usernames
+## Tiltott felhasználónevek
 
-List of usernames that can not be used.
+A nem használható felhasználónevek listája.
 
-## Restricted Domains
+## Korlátozott domainek
 
-List of domains that can not be used.
+A nem használható domainek listája.
 
-## After Update
-Define custom bash commands that will automatically run after each OpenPanel update. Ideal for restoring customizations or triggering automation scripts.
+## Frissítés után
+Határozzon meg egyéni bash parancsokat, amelyek automatikusan futnak minden OpenPanel frissítés után. Ideális testreszabások visszaállításához vagy automatizálási szkriptek indításához.
 
-[View Documentation](https://dev.openpanel.com/customize.html#After-update)
+[Dokumentáció megtekintése](https://dev.openpanel.com/customize.html#After-update)
 
-This powerful customization layer helps ensure OpenPanel fits seamlessly into your environment.
+Ez a hatékony testreszabási réteg segít abban, hogy az OpenPanel zökkenőmentesen illeszkedjen a környezetébe.
 
-![openadmin custom code](/img/admin/custom_code.png)
+![openadmin egyéni kód](/img/admin/custom_code.png)

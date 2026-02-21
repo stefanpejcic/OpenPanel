@@ -2,11 +2,11 @@
 sidebar_position: 2
 ---
 
-# Summary Reports
+# Összefoglaló jelentések
 
-Email Summary Reports show daily and monthly reports for all outgoing emails on the server.
+Az e-mail összesítő jelentések napi és havi jelentéseket jelenítenek meg a szerveren lévő összes kimenő e-mailről.
 
 :::info
-Emails are only available on [OpenPanel Enterprise edition](/enterprise)
+Az e-mailek csak az [OpenPanel Enterprise Edition](/enterprise) felületen érhetők el
 :::
 

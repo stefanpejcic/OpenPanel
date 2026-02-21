@@ -2,20 +2,20 @@
 sidebar_position: 1
 ---
 
-# Email Accounts
+# E-mail fiókok
 
-The Emails section provides an overview of all email accounts managed through OpenPanel.
+Az E-mailek szakasz áttekintést nyújt az OpenPanelen keresztül kezelt összes e-mail fiókról.
 
-Use this interface to review usage, access webmail, and manage user-level email settings.
+Ezen a felületen áttekintheti a használatot, elérheti a webmailt, és kezelheti a felhasználói szintű e-mail beállításokat.
 
-The table includes the following information:
+A táblázat a következő információkat tartalmazza:
 
-- **Email** – The full email address of the account.
-- **Quota** – The storage limit assigned to the account.
-- **Webmail** – A quick-access button to log in directly to the webmail interface for that account.
+- **E-mail** – A fiók teljes e-mail címe.
+- **Kvóta** – A fiókhoz rendelt tárhelykorlát.
+- **Webmail** – Gyors hozzáférésű gomb, amellyel közvetlenül bejelentkezhet az adott fiók webmail felületére.
 
-This section is useful for monitoring email resource usage and offering users easy access to their inbox.
+Ez a rész hasznos az e-mail erőforrások használatának nyomon követéséhez, és a felhasználók számára könnyű hozzáférést biztosít a beérkező leveleikhez.
 
 :::info
-Emails are only available on [OpenPanel Enterprise edition](/enterprise)
+Az e-mailek csak az [OpenPanel Enterprise Edition](/enterprise) felületen érhetők el
 :::

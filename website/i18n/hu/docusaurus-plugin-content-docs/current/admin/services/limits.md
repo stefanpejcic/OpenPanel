@@ -2,26 +2,26 @@
 sidebar_position: 4
 ---
 
-# Service Limits
+# Szolgáltatási korlátok
 
-The **Service Limits** section allows Administrators to view and adjust the allocated CPU and Memory resources for system services.
+A **Szolgáltatási korlátok** szakasz lehetővé teszi a rendszergazdák számára, hogy megtekintsék és módosítsák a rendszerszolgáltatásokhoz lefoglalt CPU- és memória-erőforrásokat.
 
 ---
 
-To update limits, enter new values in the fields for the appropriate service.  
+A korlátok frissítéséhez írjon be új értékeket a megfelelő szolgáltatáshoz tartozó mezőkbe.
 
-> **Note:** The service must be stopped and restarted for the new limits to take effect.
+> **Megjegyzés:** A szolgáltatást le kell állítani és újra kell indítani, hogy az új korlátok életbe lépjenek.
 
-**Available Services**:
+**Elérhető szolgáltatások**:
 
-- openpanel
-- caddy
+- nyitott panel
+- Caddy
 - mysql
 - clamav
 - redis
-- bind9
+- köt 9
 - ftp
 
 ---
 
-To edit limits via the terminal, modify the `/root/.env` file directly.
+A limitek terminálon keresztüli szerkesztéséhez módosítsa közvetlenül a `/root/.env` fájlt.

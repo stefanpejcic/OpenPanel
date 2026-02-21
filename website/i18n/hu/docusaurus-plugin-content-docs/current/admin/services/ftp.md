@@ -3,18 +3,18 @@ sidebar_position: 2
 ---
 
 
-# FTP Accounts
+# FTP-fiók
 
-The FTP Accounts section allows you to view and manage all FTP sub-accounts associated with OpenPanel users.
+Az FTP-fiókok részben megtekintheti és kezelheti az OpenPanel-felhasználókhoz társított összes FTP-alfiókot.
 
-Use this tool to create, review, or remove FTP access for specific directories, ensuring secure and controlled file transfers.
+Ezzel az eszközzel létrehozhat, áttekinthet vagy távolíthat el FTP-hozzáférést bizonyos könyvtárakhoz, így biztosítva a biztonságos és ellenőrzött fájlátvitelt.
 
-The FTP service must be running for accounts to function properly.
+A fiókok megfelelő működéséhez az FTP-szolgáltatásnak futnia kell.
 
-The table includes the following details:
-- **Account** – Username of the FTP account.
-- **Owner** – The OpenPanel user account that owns the FTP account.
-- **Path** – The file system path to which the FTP account has access.
-- **Action** – Options to manage each account (e.g., delete or edit access).
+A táblázat a következő részleteket tartalmazza:
+- **Fiók** – Az FTP-fiók felhasználóneve.
+- **Tulajdonos** – Az FTP-fiókot birtokló OpenPanel felhasználói fiók.
+- **Path** – A fájlrendszer elérési útja, amelyhez az FTP-fiók hozzáfér.
+- **Művelet** – Az egyes fiókok kezelésének lehetőségei (pl. hozzáférés törlése vagy szerkesztése).
 
-The list of FTP sub-accounts is periodically refreshed in line with the [`opencli ftp-users` cronjob schedule](https://dev.openpanel.com/crons.html#ftp-users).
+Az FTP-alfiókok listája időszakonként frissül az [`opencli ftp-users` cronjob ütemtervének] (https://dev.openpanel.com/crons.html#ftp-users) megfelelően.

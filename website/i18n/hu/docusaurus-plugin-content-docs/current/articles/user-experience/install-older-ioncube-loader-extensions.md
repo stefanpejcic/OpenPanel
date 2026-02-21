@@ -1,12 +1,12 @@
-# Egyéni vagy régebbi IonCube Loader verziók telepítése az OpenPanelben
+# How to Install Custom or Older IonCube Loader Versions in OpenPanel
 
-Az **OpenPanel 1.7.2-es verziójától** kezdve az IonCube Loader automatikusan elérhető minden olyan PHP-verzióhoz, amely támogatja az új telepítéseknél.
+Starting with **OpenPanel version 1.7.2**, IonCube Loader is automatically available for all PHP versions that support it on new installations.
 
-## Régebbi verziók
+## Older Versions
 
-Ha egy régebbi ionCube Loader csomagra szeretne visszaváltani (vagy egyéni csomagot szeretne használni), ezt egyszerűen megteheti.
+If you want to downgrade to an older ionCube Loader bundle (or use a custom bundle) you can do so easily.
 
-Miután elhelyezte a fájlokat a szerveren:
+After placing the files on your server:
 
 * **Egyetlen felhasználó esetén:** Szerkessze a `docker-compose.yml` fájljukat, és frissítse a **php-fpm-*** szolgáltatások kötetbeillesztési pontjait, hogy azok hivatkozzanak az Ön egyéni fájljaira.
 * **Minden új felhasználó számára:** Szerkessze az `/etc/openpanel/docker/compose/1.0/docker-compose.yml` címen található sablonfájlt.

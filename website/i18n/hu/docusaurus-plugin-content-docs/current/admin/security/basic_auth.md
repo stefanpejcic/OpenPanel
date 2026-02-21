@@ -2,20 +2,20 @@
 sidebar_position: 1
 ---
 
-# Basic Auth
+# Alapszintű hitelesítés
 
-Enable [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) as an additional security layer for the OpenAdmin interface.
+Engedélyezze az [Basic Access Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication) további biztonsági rétegét az OpenAdmin felületen.
 
-![basic_auth settings openadmin](/img/admin/basic_auth.png)
+![basic_auth beállítások openadmin](/img/admin/basic_auth.png)
 
-## Enable
+## Engedélyezés
 
-To enable Basic Auth, select **Yes** under **Enable** and click **Save Setting**.
+Az alapszintű hitelesítés engedélyezéséhez válassza az **Igen** lehetőséget az **Engedélyezés** alatt, majd kattintson a **Beállítás mentése** gombra.
 
-To disable Basic Auth, select **No** under **Enable** and click **Save Setting**.
+Az alapszintű hitelesítés letiltásához válassza a **Nem** lehetőséget az **Engedélyezés** alatt, majd kattintson a **Beállítás mentése** lehetőségre.
 
-## Logins
+## Bejelentkezések
 
-When Basic Auth is enabled, a username and password are required.
+Ha az alapszintű hitelesítés engedélyezve van, felhasználónévre és jelszóra van szükség.
 
-Configure the username and password fields, then click **Save Changes** to apply.
+Konfigurálja a felhasználónév és jelszó mezőket, majd az alkalmazáshoz kattintson a **Változtatások mentése** gombra.

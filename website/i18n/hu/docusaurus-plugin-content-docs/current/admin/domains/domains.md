@@ -2,41 +2,41 @@
 sidebar_position: 1
 ---
 
-# Manage Domains
+# Domainek kezelése
 
-Domains page displays all domains currently hosted on server.
+A Domains oldalon a szerveren jelenleg tárolt összes domain látható.
 
 
-## List domains
+## Domainek listázása
 
 <Tabs>
-  <TabItem value="openadmin-domains-list" label="With OpenAdmin" default>
+<TabItem value="openadmin-domains-list" label="OpenAdminnal" alapértelmezett>
 
 
-To list all current domains navigate to Domains page:
+Az összes jelenlegi domain listázásához lépjen a Domains oldalra:
 
 
-| Field           | Description                                                       |
+| Mező | Leírás |
 |-----------------|-------------------------------------------------------------------|
-| **Domain**      | The domain name.                                                  |
-| **Status**      | Indicates whether the domain is active or suspended.              |
-| **PHP Version** | The PHP version configured for the domain.                        |
-| **SSL**         | Shows whether SSL is enabled for the domain.                      |
-| **WAF**         | Indicates if Coraza WAF is enabled or disabled for the domain.    |
-| **Owner**       | The user who added or owns the domain.                            |
-| **Analytics**   | View analytics data and reports for the domain.                   |
+| **Domain** | A domain név.                                                  |
+| **Állapot** | Azt jelzi, hogy a tartomány aktív vagy felfüggesztett.              |
+| **PHP verzió** | A tartományhoz konfigurált PHP-verzió.                        |
+| **SSL** | Megmutatja, hogy az SSL engedélyezve van-e a tartományban.                      |
+| **WAF** | Azt jelzi, hogy a Coraza WAF engedélyezve van-e vagy letiltva a tartományban.    |
+| **Tulajdonos** | A domaint hozzáadó vagy tulajdonos felhasználó.                            |
+| **Analytics** | Tekintse meg a domain elemzési adatait és jelentéseit.                   |
 
 
-  </TabItem>
-  <TabItem value="CLI-domains-list" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-domains-list" label="OpenCLI-vel">
 
-To list all current domains  run:
+Az összes jelenleg futó domain listája:
 
 ```bash
 opencli domains-all
 ```
 
-Example output:
+Példa kimenet:
 ```bash
 opencli domains-all
 stefan.openpanel.org
@@ -44,27 +44,27 @@ pejcic.rs
 nesto.com
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-## Add domain
+## Domain hozzáadása
 
 
 <Tabs>
-  <TabItem value="openadmin-domain-new" label="With OpenAdmin" default>
+<TabItem value="openadmin-domain-new" label="OpenAdminnal" alapértelmezett>
 
-  Click on 'Add Domain' button, insert the domain and select the user to add it, then click on 'Add Domain'.
+Kattintson a "Domain hozzáadása" gombra, illessze be a domaint, válassza ki a hozzáadni kívánt felhasználót, majd kattintson a "Domain hozzáadása" gombra.
 
-  </TabItem>
-  <TabItem value="CLI-domain-new" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-domain-new" label="OpenCLI-vel">
     
-To create a new plan run the following command:
+Új terv létrehozásához futtassa a következő parancsot:
 
 ```bash
 opencli domains-add <DOMAIN_NAME> <USERNAME> [--debug]
 ```
 
-Example:
+Példa:
 ```bash
 root@stefan:/usr/local/admin# opencli domains-add pejcci.rs wzs11p2i --debug
 Checking if domain already exists on the server
@@ -88,14 +88,14 @@ Checking and starting the ssl generation service
 Starting Let'sEncrypt SSL generation in background
 Domain pejcci.rs added successfully
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-## Move domain
+## Domain áthelyezése
 
-This is currently not possible.
+Ez jelenleg nem lehetséges.
 
-## Delete domain
+## Domain törlése
 
-Domains can currently be deleted only [from the user interface](/docs/panel/domains/#delete-a-domain).
+A domainek jelenleg csak [a felhasználói felületről] (/docs/panel/domains/#delete-a-domain) törölhetők.

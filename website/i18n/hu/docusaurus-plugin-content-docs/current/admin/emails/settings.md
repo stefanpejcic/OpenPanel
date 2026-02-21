@@ -2,91 +2,91 @@
 sidebar_position: 3
 ---
 
-# Email Settings
+# E-mail beállítások
 
-The Email Settings section allows you to configure various parameters for the MailServer stack to ensure efficient and secure email management. 
+Az E-mail beállítások szakasz lehetővé teszi a MailServer verem különféle paramétereinek konfigurálását a hatékony és biztonságos e-mail-kezelés érdekében.
 
 :::info
-Emails are only available on [OpenPanel Enterprise edition](/enterprise)
+Az e-mailek csak az [OpenPanel Enterprise Edition](/enterprise) felületen érhetők el
 :::
 
 
-## MailServer Status
+## MailServer állapota
 
-The status of the Mail Server service is displayed at the top of the page, where administrators can start, stop, or restart the service as needed.
+A Mail Server szolgáltatás állapota az oldal tetején jelenik meg, ahol a rendszergazdák szükség szerint elindíthatják, leállíthatják vagy újraindíthatják a szolgáltatást.
 
-## Accounts
+## Fiókok
 
-Displays the total number of email accounts currently active on the server. This includes all accounts across all domains configured on the system.
+Megjeleníti a szerveren jelenleg aktív e-mail fiókok teljes számát. Ez magában foglalja az összes fiókot a rendszeren konfigurált összes tartományban.
 
 
 ## Webmail
 
-- Status - displays current webmail service status
-- Current Software - displays current selected client
-- Select Webmail Client - Choose the webmail client your users will interact with. The service will be restarted to apply any changes made.
-- Set Webmail domain - Configure domain to be used for webmail service. Webmail will be available on this domain and /webmail on every user domain will redirect to this domain.
+- Állapot - megjeleníti a webmail szolgáltatás aktuális állapotát
+- Aktuális szoftver - megjeleníti az aktuális kiválasztott klienst
+- Webmail kliens kiválasztása - Válassza ki azt a webmail klienst, amellyel a felhasználók kapcsolatba lépnek. A szolgáltatás újraindul az esetleges módosítások végrehajtásához.
+- Webmail tartomány beállítása - A webmail szolgáltatáshoz használandó tartomány beállítása. A webmail elérhető lesz ezen a tartományon, és a /webmail minden felhasználói domainben átirányít erre a tartományra.
 
 
-## Enable Services
+## Szolgáltatások engedélyezése
 
-Administrators can set and configure different services based on their needs.
+A rendszergazdák különféle szolgáltatásokat állíthatnak be és konfigurálhatnak igényeik szerint.
 
-Configure services for the MailServer stack:
+Szolgáltatások konfigurálása a MailServer veremhez:
 
-| Service                                | Description                                                                 |
-|----------------------------------------|-----------------------------------------------------------------------------|
-| **Amavis**                             | Amavis content filter (used for ClamAV & SpamAssassin).                      |
-| **DNS block lists**                    | Enables DNS block lists in Postscreen.                                       |
-| **Rspamd**                              | Enable or disable Rspamd.                                                    |
-| **SpamAssassin**                        | Analyzes incoming mail and assigns a spam score.                            |
-| **MTA-STS**                            | Enables MTA-STS support for outbound mail.                                  |
-| **OpenDKIM service**                   | Enables the OpenDKIM service for email signing.                             |
-| **OpenDMARC service**                  | Enables the OpenDMARC service for email domain-based message authentication. |
-| **POP3**                               | Enables the POP3 service for email retrieval.                               |
-| **IMAP**                               | Enables the IMAP service for email retrieval.                               |
-| **ClamAV**                             | Enables the ClamAV antivirus service.                                       |
-| **fail2ban**                           | Enables the fail2ban service to ban IPs based on suspicious activity.       |
-| **Only SMTP**                          | If enabled, only the Postfix service is started, and users cannot receive incoming email. |
-| **Sender Rewriting Scheme**            | Enables the Sender Rewriting Scheme, needed for email forwarding (see [postsrsd](https://github.com/roehling/postsrsd/blob/main/README.rst) for explanation). |
+| Szolgáltatás | Leírás |
+|------------------------------------------------------------ ------------------------------------------------------------|
+| **Amavis** | Amavis tartalomszűrő (a ClamAV és a SpamAssassin számára használatos).                      |
+| **DNS-blokkoló listák** | Engedélyezi a DNS-blokkoló listákat a Postscreenben.                                       |
+| **Rspamd** | Rspamd engedélyezése vagy letiltása.                                                    |
+| **SpamAssassin** | Elemzi a bejövő leveleket, és spam-pontszámot rendel hozzá.                            |
+| **MTA-STS** | Lehetővé teszi az MTA-STS támogatást a kimenő levelekhez.                                  |
+| **OpenDKIM szolgáltatás** | Engedélyezi az OpenDKIM szolgáltatást e-mail-aláíráshoz.                             |
+| **OpenDMARC szolgáltatás** | Engedélyezi az OpenDMARC szolgáltatást az e-mail tartományalapú üzenetek hitelesítéséhez. |
+| **POP3** | Engedélyezi a POP3 szolgáltatást az e-mailek lekéréséhez.                               |
+| **IMAP** | Engedélyezi az IMAP szolgáltatást az e-mailek lekéréséhez.                               |
+| **ClamAV** | Engedélyezi a ClamAV víruskereső szolgáltatást.                                       |
+| **fail2ban** | Lehetővé teszi a fail2ban szolgáltatás számára az IP-címek kitiltását gyanús tevékenység alapján.       |
+| **Csak SMTP** | Ha engedélyezve van, csak a Postfix szolgáltatás indul el, és a felhasználók nem fogadhatnak bejövő e-maileket. |
+| **Feladó átírási séma** | Engedélyezi a küldő átírási sémát, amely az e-mailek továbbításához szükséges (magyarázat: [postsrsd](https://github.com/roehling/postsrsd/blob/main/README.rst). |
 
 
-Changes to this service will interrupt current email traffic and restart the mailserver.
+A szolgáltatás módosításai megszakítják a jelenlegi e-mail forgalmat, és újraindítják a levelezőszervert.
 
 
 
 
 ## Relay Hosts
 
-The **Relay Hosts** feature allows you to configure an SMTP relay service (also known as a relay host or smarthost) for relaying (forwarding) outbound email on behalf of third parties. This service does not manage mail domains but helps in routing emails through an external SMTP server.
+A **Relay Hosts** funkció lehetővé teszi egy SMTP továbbítási szolgáltatás (más néven továbbítási gazdagép vagy smarthost) konfigurálását a kimenő e-mailek továbbítására (továbbítására) harmadik felek nevében. Ez a szolgáltatás nem kezeli a levelezési tartományokat, de segít az e-mailek külső SMTP-kiszolgálón keresztül történő irányításában.
 
-This feature is useful for organizations that need to route their outgoing email traffic through a trusted third-party service or SMTP server for better deliverability and security.
+Ez a funkció olyan szervezetek számára hasznos, amelyeknek a kimenő e-mail forgalmukat megbízható harmadik féltől származó szolgáltatáson vagy SMTP-kiszolgálón kell átirányítaniuk a jobb kézbesítés és biztonság érdekében.
 
-The following parameters are used to configure the relay host settings:
+A következő paraméterek használhatók a közvetítő gazdagép beállításainak konfigurálásához:
 
-- **DEFAULT_RELAY_HOST**  
-  Default relay host for outgoing emails. This should match the **RELAY_HOST**.
-  - Example: `mail.example.com`
+- **DEFAULT_RELAY_HOST**
+Alapértelmezett továbbítási gazdagép a kimenő e-mailekhez. Ennek meg kell egyeznie a **RELAY_HOST**-val.
+- Példa: `mail.example.com`
 
-- **RELAY_HOST**  
-  The SMTP relay host that all outbound emails will be routed through.
-  - Example: `mail.example.com`
+- **RELAY_HOST**
+Az SMTP közvetítő gazdagép, amelyen keresztül minden kimenő e-mail át lesz irányítva.
+- Példa: `mail.example.com`
 
-- **RELAY_PORT**  
-  The port to be used for connecting to the SMTP relay host.
-  - Example: `25`
+- **RELAY_PORT**
+Az SMTP közvetítő gazdagéphez való csatlakozáshoz használt port.
+- Példa: "25".
 
-- **RELAY_USER (optional)**  
-  The username for authenticating with the relay host. If this is set, secure connections will be required for outbound mail traffic.
-  - Example: `relay_user`
+- **RELAY_USER (opcionális)**
+A közvetítő gazdagéppel történő hitelesítéshez szükséges felhasználónév. Ha ez be van állítva, biztonságos kapcsolatokra lesz szükség a kimenő levélforgalomhoz.
+- Példa: `relay_user`
 
-- **RELAY_PASSWORD**  
-  The password for authenticating with the relay host, used alongside the **RELAY_USER**.
-  - Example: `relay_password`
+- **RELAY_PASSWORD**
+A közvetítő gazdagépével történő hitelesítéshez használt jelszó, a **RELAY_USER** mellett használatos.
+- Példa: `relay_password`
 
-When both **RELAY_USER** and **RELAY_PASSWORD** are configured, all outbound mail traffic will require a secure connection and the credentials will be mandatory.
+Ha a **RELAY_USER** és a **RELAY_PASSWORD** is be van állítva, minden kimenő levélforgalomhoz biztonságos kapcsolatra lesz szükség, és a hitelesítő adatok megadása kötelező.
 
-Once configured, click the **Save Relay** button to apply the settings and begin routing outbound emails through the specified relay host.
+A konfigurálás után kattintson a **Relay mentése** gombra a beállítások alkalmazásához, és megkezdje a kimenő e-mailek átirányítását a megadott továbbítási gazdagépen.
 
 
 

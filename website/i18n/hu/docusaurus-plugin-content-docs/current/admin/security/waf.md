@@ -4,30 +4,30 @@ sidebar_position: 1
 
 # WAF
 
-The WAF section allows you to manage CorazaWAF, a powerful Web Application Firewall integrated into OpenPanel.
+A WAF rész lehetővé teszi a CorazaWAF, az OpenPanelbe integrált hatékony webalkalmazás-tűzfal, a kezelését.
 
-Use this interface to enhance security by enabling protection against common web threats such as SQL injection, XSS, and other malicious behavior.
+Használja ezt a felületet a biztonság fokozására azáltal, hogy engedélyezi a védelmet az olyan gyakori webes fenyegetésekkel szemben, mint az SQL injekció, XSS és más rosszindulatú viselkedés.
 
-## Enable
-Toggle the Web Application Firewall on or off.
-When enabled, CorazaWAF actively inspects incoming requests and blocks suspicious activity based on configured rules.
+## Engedélyezés
+Kapcsolja be vagy ki a webalkalmazások tűzfalát.
+Ha engedélyezve van, a CorazaWAF aktívan ellenőrzi a bejövő kéréseket, és a konfigurált szabályok alapján blokkolja a gyanús tevékenységeket.
 
-## Rule Sets
-Manage the rule sets that CorazaWAF uses to protect your applications.
+## Szabálykészletek
+Kezelje a CorazaWAF által az alkalmazások védelmére használt szabálykészleteket.
 
-**Active:** Displays the number of currently active rule sets (e.g., 21 / 23).
+**Aktív:** A jelenleg aktív szabálykészletek számát jeleníti meg (pl. 21/23).
 
-Click **Manage Rules** to enable or disable individual WAF rule sets according to your security needs.
+Kattintson a **Szabályok kezelése** lehetőségre az egyes WAF-szabálykészletek biztonsági igényeinek megfelelő engedélyezéséhez vagy letiltásához.
 
-The rule set table includes the following columns:
+A szabálykészlet táblázata a következő oszlopokat tartalmazza:
 
-- **Name** – The name or identifier of the rule set.
+- **Név** – A szabálykészlet neve vagy azonosítója.
 
-- **Number of Rules** – Total number of rules contained within the set.
+- **Szabályok száma** – A készletben található szabályok teljes száma.
 
-- **Status** – Indicates whether the rule set is currently enabled or disabled.
+- **Állapot** – Azt jelzi, hogy a szabálykészlet jelenleg engedélyezve van-e vagy letiltva.
 
-- **Actions** – Options to View rule details or Disable the rule set.
+- **Műveletek** – A szabály részleteinek megtekintése vagy a szabálykészlet letiltása.
 
-Properly configuring WAF rules helps maintain a balance between strong protection and minimizing false positives.
+A WAF-szabályok megfelelő konfigurálása segít fenntartani az egyensúlyt az erős védelem és a téves pozitívumok minimalizálása között.
 

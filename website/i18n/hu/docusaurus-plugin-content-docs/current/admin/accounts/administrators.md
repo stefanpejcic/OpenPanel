@@ -2,189 +2,189 @@
 sidebar_position: 3
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
+lapok importálása a '@theme/Tabs'-ból;
+TabItem importálása innen: '@theme/TabItem';
 
 
-# Administrators
+# Rendszergazdák
 
-The admin panel has three user roles:
-
-
-| Role              | Description                                                               |
-| ------------------ | ------------------------------------------------------------------------- |
-| **Super Admin**    | Has unrestricted privileges, created on OpenPanel installation. |
-| **Admin**          | Has restricted privileges, can not access all OpenAdmin UI pages and can not edit the SuperAdmin user. |
-| **Reseller**       | Has restricted privileges. |
+Az adminisztrációs panelnek három felhasználói szerepköre van:
 
 
-## Manage Admin users
+| Szerep | Leírás |
+| ------------------- | -------------------------------------------------------------------------- |
+| **Super Admin** | Korlátlan jogosultságokkal rendelkezik, OpenPanel telepítéskor jött létre. |
+| **Adminisztrátor** | Korlátozott jogosultságokkal rendelkezik, nem fér hozzá az összes OpenAdmin felhasználói felület oldalához, és nem szerkesztheti a SuperAdmin felhasználót. |
+| **Viszonteladó** | Korlátozott jogosultságokkal rendelkezik. |
+
+
+## Adminisztrátor felhasználók kezelése
 
 
 <Tabs>
-  <TabItem value="openadmin-admin-users" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-users" label="OpenAdminnal" alapértelmezett>
   
-  Manage administrative users with access to the OpenAdmin interface via the **Administrators** page.
+Az OpenAdmin felülethez hozzáféréssel rendelkező adminisztratív felhasználókat a **Rendszergazdák** oldalon kezelheti.
   
-  For each admin user, you can view and manage the following details: Username, Status Role, Last Login IP, Last Login Time, Actions.
+Minden adminisztrátor felhasználó esetében megtekintheti és kezelheti a következő adatokat: Felhasználónév, Állapot Szerep, Utolsó bejelentkezési IP, Utolsó bejelentkezési idő, Műveletek.
 
-  </TabItem>
+</TabItem>
 
-  <TabItem value="CLI" label="With OpenCLI">
+<TabItem value="CLI" label="OpenCLI-vel">
 
-To list admin users use command:
+Az admin felhasználók listázásához használja a következő parancsot:
 
 ```bash
 opencli admin list
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-## Reset Admin Password
+## Állítsa vissza a rendszergazdai jelszót
 
 
 <Tabs>
-  <TabItem value="openadmin-admin-reset" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-reset" label="OpenAdminnal" alapértelmezett>
 
-To reset admin password click on the Edit for that user from *Settings > Accounts > Administrators* page, then set the new password.
+Az adminisztrátori jelszó visszaállításához kattintson az adott felhasználó Szerkesztés elemére a *Beállítások > Fiókok > Rendszergazdák* oldalon, majd állítsa be az új jelszót.
 
-  </TabItem>
-  <TabItem value="cli-reset" label="With OpenCLI">
+</TabItem>
+<TabItem value="cli-reset" label="OpenCLI-vel">
 
-To reset the password for an admin user:
+Adminisztrátor jelszavának visszaállítása:
 
 ```bash
 opencli admin password <username> <new_password>
 ```
 
-Example, reset password for and Admin user:
+Példa, jelszó visszaállítása a rendszergazdai felhasználóhoz:
 ```bash
 opencli admin password admin Pyl7_L2M1
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-## Create new Admin
+## Új adminisztrátor létrehozása
 
 <Tabs>
-  <TabItem value="openadmin-admin-new" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-new" label="OpenAdminnal" alapértelmezett>
 
-To create new admin user click on the 'Create New' button in *Settings > Accounts > Administrators* page, set the username and password and click on *Save*.
+Új adminisztrátor létrehozásához kattintson az "Új létrehozása" gombra a *Beállítások > Fiókok > Rendszergazdák* oldalon, állítsa be a felhasználónevet és a jelszót, majd kattintson a *Mentés* gombra.
 
 
-  </TabItem>
-  <TabItem value="cli-new" label="With OpenCLI">
+</TabItem>
+<TabItem value="cli-new" label="OpenCLI-vel">
 
-To create new admin accounts:
+Új rendszergazdai fiókok létrehozása:
 
 ```bash
 opencli admin new <username> <password>
 ```
 
-Example:
+Példa:
 ```bash
 opencli admin new filip Pyl7_L2M1
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
 
 
 
-## Rename Admin user
+## Admin felhasználó átnevezése
 
 <Tabs>
-  <TabItem value="openadmin-admin-rename" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-rename" label="OpenAdminnal" alapértelmezett>
 
-To rename an Admin user, select it on **Settings > Accounts > Administrators** page and click on the Edit button and set new username.
+Adminisztrátor átnevezéséhez válassza ki a **Beállítások > Fiókok > Rendszergazdák** oldalon, majd kattintson a Szerkesztés gombra, és állítsa be az új felhasználónevet.
 
-![openadmin admin rename](/img/admin/openadmin_admin_rename.png)
+![openadmin admin átnevezése](/img/admin/openadmin_admin_rename.png)
 
 
-  </TabItem>
-  <TabItem value="cli-rename" label="With OpenCLI">
+</TabItem>
+<TabItem value="cli-rename" label="OpenCLI-vel">
 
-To rename admin user:
+Az adminisztrátori felhasználó átnevezése:
 
 ```bash
 opencli admin rename <username> <new_username>
 ```
 
-Example:
+Példa:
 ```bash
 opencli admin rename filip filip2
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-## Suspend Admin user
+## Az Admin felhasználó felfüggesztése
 
 <Tabs>
-  <TabItem value="openadmin-admin-suspend" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-suspend" label="OpenAdminnal" alapértelmezett>
 
-To unsuspend an Admin user, select the user on **Settings > Accounts > Administrators** page and click on the Edit button, then **Unsuspend**.
+Adminisztrátor felhasználó felfüggesztésének feloldásához válassza ki a felhasználót a **Beállítások > Fiókok > Rendszergazdák** oldalon, majd kattintson a Szerkesztés gombra, majd a **Felfüggesztés feloldása** elemre.
 
-  </TabItem>
-  <TabItem value="cli-suspend" label="With OpenCLI">
+</TabItem>
+<TabItem value="cli-suspend" label="OpenCLI-vel">
 
 ```bash
 opencli admin suspend <username>
 ```
 
-Example:
+Példa:
 ```bash
 opencli admin suspend filip
 ```
 ---
 
-To unsuspend admin user:
+Az adminisztrátori felhasználó felfüggesztésének feloldása:
 ```bash
 opencli admin unsuspend <username>
 ```
 
-Example:
+Példa:
 ```bash
 opencli admin unsuspend filip
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-## Delete Admin user
+## Admin felhasználó törlése
 
 <Tabs>
-  <TabItem value="openadmin-admin-delete" label="With OpenAdmin" default>
+<TabItem value="openadmin-admin-delete" label="OpenAdminnal" alapértelmezett>
 
-Select the user on **Settings > Accounts > Administrators** page and click on the delete button then confirm.
+Válassza ki a felhasználót a **Beállítások > Fiókok > Rendszergazdák** oldalon, kattintson a törlés gombra, majd erősítse meg.
 
-  </TabItem>
-  <TabItem value="cli-delete" label="With OpenCLI">
+</TabItem>
+<TabItem value="cli-delete" label="OpenCLI-vel">
 
-From the terminal:
+A terminálról:
 
-To delete admin user:
+Adminisztrátor törlése:
 ```bash
 opencli admin delete <username>
 ```
 
-Example:
+Példa:
 ```bash
 opencli admin delete filip
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
 :::info
-The Super Admin user can not be deleted.
+A Super Admin felhasználó nem törölhető.
 :::
 
 

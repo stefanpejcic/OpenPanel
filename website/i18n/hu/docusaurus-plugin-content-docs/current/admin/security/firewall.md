@@ -2,22 +2,22 @@
 sidebar_position: 2
 ---
 
-# Firewall
+# Tűzfal
 
-OpenPanel supports [Sentinel Firewall](https://sentinelfirewall.org/) - a fork of the *ConfigServer Security and Firewall* (CSF).
+Az OpenPanel támogatja a [Sentinel Firewall](https://sentinelfirewall.org/) -t – a *ConfigServer Security and Firewall* (CSF) elágazását.
 
 ## CSF
 
-Firewall (CSF) UI is displayed on **OpenAdmin > Firewall**.
+A tűzfal (CSF) felhasználói felülete az **OpenAdmin > Firewall** oldalon jelenik meg.
 
-For instructions on how to use the CSF UI, please refer to [Sentinel Firewall official documentation](https://sentinelfirewall.org/docs/usage/introduction/).
+A CSF UI használatára vonatkozó utasításokért tekintse meg a [Sentinel Firewall hivatalos dokumentációját] (https://sentinelfirewall.org/docs/usage/introduction/).
 
-![csf firewall](/img/admin/firewall_csf.png)
+![csf tűzfal](/img/admin/firewall_csf.png)
 
 
-## External Firewall
+## Külső tűzfal
 
-Some cloud providers, like [Hetzner](https://docs.hetzner.com/robot/dedicated-server/firewall/), offer their own external firewalls. If you are using an external firewall, ensure the following ports are open for OpenPanel services to be accessible: `53` `80` `443` `2083` `2087` `32768:60999`
+Egyes felhőszolgáltatók, például a [Hetzner](https://docs.hetzner.com/robot/dedicated-server/firewall/) saját külső tűzfalakat kínálnak. Ha külső tűzfalat használ, győződjön meg arról, hogy a következő portok nyitva vannak az OpenPanel szolgáltatások eléréséhez: `53` `80` `443` `2083` `2087` `32768:60999`
 
-If you are [using a custom port for OpenPanel instead of the default 2083](/docs/admin/settings/general/#change-openpanel-port), ensure that port is open as well.
+Ha [egyéni portot használ az OpenPanelhez az alapértelmezett 2083 helyett] (/docs/admin/settings/general/#change-openpanel-port), győződjön meg arról, hogy a port is nyitva van.
 

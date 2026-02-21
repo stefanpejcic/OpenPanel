@@ -2,40 +2,40 @@
 sidebar_position: 3
 ---
 
-# DNS Cluster
+# DNS-fürt
 
-DNS clustering allows you to synchronize DNS records from one OpenPanel server to other machines.
+A DNS-fürtözés lehetővé teszi a DNS-rekordok szinkronizálását egy OpenPanel-kiszolgálóról más gépekre.
 
-To use this feature, **all machines in the cluster must be running BIND9** — either through the OpenPanel installation or as a standalone service/container.
-
----
-
-## Enable Clustering
-
-Click **Enable DNS Clustering** to activate the feature.
+A funkció használatához **a fürt összes gépén a BIND9-et kell futtatnia** – vagy az OpenPanel telepítésén keresztül, vagy önálló szolgáltatásként/tárolóként.
 
 ---
 
-### Add Slave Servers
+## Klaszterezés engedélyezése
 
-To set up a slave BIND9 server, follow the instructions in [How-to Guides > DNS Clustering](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/).
-
-Once the slave is ready:
-
-1. Enter the slave server's IP address in the form on master server.
-2. OpenAdmin will attempt to connect and immediately sync DNS zones.
-3. All future domains and DNS changes made by users will be automatically propagated to the slave server.
-
-> To confirm the setup is working, check that the DNS zones appear on the slave server.
+A szolgáltatás aktiválásához kattintson a **DNS-fürtözés engedélyezése** lehetőségre.
 
 ---
 
-### Remove Slave Server
+### Slave szerverek hozzáadása
 
-Currently, slave servers can **only be removed via the terminal**.
+A szolga BIND9-kiszolgáló beállításához kövesse a [How-to Guides > DNS Clustering](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/) utasításait.
+
+Ha a rabszolga készen áll:
+
+1. Adja meg a segédkiszolgáló IP-címét a főkiszolgálón lévő űrlapon.
+2. Az OpenAdmin megpróbál csatlakozni és azonnal szinkronizálni a DNS-zónákat.
+3. A felhasználók által végrehajtott összes jövőbeni tartomány- és DNS-módosítás automatikusan átkerül a szolgakiszolgálóra.
+
+> A beállítás működésének ellenőrzéséhez ellenőrizze, hogy a DNS-zónák megjelennek-e a slave szerveren.
 
 ---
 
-## Disable Clustering
+### Távolítsa el a Slave Servert
 
-Click **Disable DNS Clustering** to turn off the feature.
+Jelenleg a slave szerverek **csak a terminálon keresztül távolíthatók el**.
+
+---
+
+## A fürtözés letiltása
+
+Kattintson a **DNS-fürtözés letiltása** lehetőségre a funkció kikapcsolásához.

@@ -2,14 +2,14 @@
 sidebar_position: 2
 ---
 
-# DNS Zone Editor
+# DNS-zónaszerkesztő
 
-Edit the DNS zone for any domain hosted on the server.
+Szerkessze a kiszolgálón tárolt bármely tartomány DNS-zónáját.
 
-1. Navigate to **OpenAdmin > Domains > DNS Zone Editor**.
-2. Select the domain whose zone you want to edit.
-3. Make your changes in the editor and click **Save** when done.
+1. Lépjen az **OpenAdmin > Domains > DNS Zone Editor** oldalra.
+2. Válassza ki azt a tartományt, amelynek zónáját szerkeszteni szeretné.
+3. Végezze el a módosításokat a szerkesztőben, majd kattintson a **Mentés** gombra, ha elkészült.
 
-The DNS zone is reloaded immediately, and propagation begins.  
-> ⚠️ If there are syntax errors, the zone file will be excluded.  
-> ✅ Always create a backup before making changes and validate the file to avoid misconfiguration.
+A DNS-zóna azonnal újratöltésre kerül, és megkezdődik a terjedés.
+> ⚠️ Ha szintaktikai hibák vannak, a zónafájl kizárásra kerül.
+> ✅ Mindig készítsen biztonsági másolatot a módosítások elvégzése előtt, és érvényesítse a fájlt a hibás konfiguráció elkerülése érdekében.

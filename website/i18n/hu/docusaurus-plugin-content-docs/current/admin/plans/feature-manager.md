@@ -2,11 +2,11 @@
 sidebar_position: 2
 ---
 
-# Feature Manager
+# Funkciókezelő
 
-The Feature Manager allows administrators to enable or disable specific features (pages) within the OpenPanel UI. This is useful for customizing the control panel experience based on user roles, security policies, or hosting plans.
+A Feature Manager lehetővé teszi a rendszergazdák számára, hogy bizonyos funkciókat (oldalakat) engedélyezzenek vagy tiltsanak le az OpenPanel felhasználói felületén. Ez hasznos a vezérlőpult felhasználói szerepkörök, biztonsági szabályzatok vagy tárhelytervek alapján történő testreszabásához.
 
-Each feature can be toggled individually via the interface. Once activated, the feature becomes visible and accessible to all users. Deactivating a feature hides it from the panel and disables its functionality.
+Minden funkció külön-külön átkapcsolható a felületen keresztül. Az aktiválás után a funkció minden felhasználó számára láthatóvá és elérhetővé válik. A funkció kikapcsolása elrejti azt a panelen, és letiltja a funkcióit.
 
 ![openadmin features](/img/admin/tremor/features.png)
 
@@ -14,75 +14,75 @@ Each feature can be toggled individually via the interface. Once activated, the 
 
 ---
 
-## Available Features
-Here is the rewritten information in a table format with the requested columns:
+## Elérhető funkciók
+Íme az átírt információ táblázat formátumban a kért oszlopokkal:
 
-| **Name**                   | **Link**                 | **Description**                                          | **Note**                                       |
-| -------------------------- | ------------------------ | -------------------------------------------------------- | ---------------------------------------------- |
-| Email Notifications        | `/account/notifications` | Manage email notification preferences.                   | Emails are sent based on selected preferences. |
-| Locales (Language Change)  | `/account/languages`     | Change the panel interface language.                     |                                                |
-| Favorites (Bookmarks)      | `/account/favorites`     | Bookmark frequently used pages.                          |                                                |
-| Varnish Caching            | `/cache/varnish`         | Manage Varnish caching per domain.                       |                                                |
-| Docker (Containers)        | `/containers`            | Allocate resources and manage container lifecycles.      |                                                |
-| FTP Accounts               | `/ftp`                   | Create and manage FTP accounts.                          | Requires separate FTP server configuration.    |
-| Email Accounts             | `/emails`                | Manage email accounts.                                   | Requires separate mail server configuration.   |
-| Remote MySQL               | `/mysql/remote-mysql`    | Allow or block remote MySQL connections.                 |                                                |
-| MySQL Configuration        | `/mysql/configuration`   | Modify MySQL settings from the panel.                    |                                                |
-| PHP Options                | `/php/options`           | Edit PHP directives via a user-friendly page.            |                                                |
-| PHP.INI Editor             | `/php/ini`               | Directly edit the `php.ini` file.                        | Applies to any configured PHP version.         |
-| phpMyAdmin                 | `/mysql/phpmyadmin`      | Manage databases with phpMyAdmin.                        |                                                |
-| Cronjobs                   | `/cronjobs`              | Create, edit, and schedule cron jobs.                    |                                                |
-| WordPress                  | `/wordpress`             | Install and manage WordPress sites.                      | Managed via WP Manager.                        |
-| Disk Usage Explorer        | `/disk-usage`            | Visually explore disk usage across directories.          |                                                |
-| Inodes Explorer            | `/inodes-explorer`       | View inode usage per directory.                          |                                                |
-| Resources Usage            | `/usage`                 | View Docker container resource usage.                    |                                                |
-| Server Info                | `/server/info`           | View hosting limits and server details.                  |                                                |
-| Apache/Nginx Configuration | `/server/webserver_conf` | Modify webserver (Apache/Nginx) container configuration. |                                                |
-| Change Timezone            | `/server/timezone`       | Update system timezone settings for containers.          |                                                |
-| Coraza WAF                 | `/waf`                   | Manage Coraza WAF per domain.                            | Enabled by default for new domains.            |
-| Fix Permissions            | `/fix-permissions`       | Fix file ownership and permissions for websites.         |                                                |
-| DNS                        | `/dns`                   | Manage DNS records with a zone editor.                   | Requires BIND9 server.                         |
-| Domain Redirects           | `/domains/redirects`     | Manage domain-level redirects.                           |                                                |
-| Malware Scanner            | `/malware-scanner`       | Scan for malware using ClamAV.                           | Directory exclusions can be configured.        |
-| GoAccess                   | `/domains/logs`          | View GoAccess-generated log reports.                     |                                                |
-| Process Manager            | `/process-manager`       | View and terminate system processes.                     |                                                |
-| Redis                      | `/cache/redis`           | Configure Redis per user.                                |                                                |
-| Memcached                  | `/cache/memcached`       | Configure Memcached per user.                            |                                                |
-| Elasticsearch              | `/cache/elasticsearch`   | Configure Elasticsearch from the panel.                  |                                                |
-| Opensearch                 | `/cache/opensearch`      | Configure Opensearch from the panel.                     |                                                |
-| Temporary Links            | `/websites`              | Test websites using temporary OpenPanel subdomains.      | Links expire after 15 minutes.                 |
-| Login History              | `/account/loginlog`      | View history of the last 20 IP logins.                   |                                                |
-| 2FA                        | `/account/2fa`           | Enable Two-Factor Authentication.                        |                                                |
-| Activity Log               | `/account/activity`      | Review all recorded account actions.                     |                                                |
+| **Név** | **Link** | **Leírás** | **Megjegyzés** |
+| --------------------------- | ------------------------- | --------------------------------------------------------- | ----------------------------------------------- |
+| E-mail értesítések | "/fiók/értesítések" | Kezelje az e-mail értesítési beállításokat.                   | Az e-maileket a kiválasztott beállítások alapján küldjük el. |
+| Területi helyek (nyelvváltás) | "/fiók/nyelvek" | Módosítsa a panel felületének nyelvét.                     |                                                |
+| Kedvencek (Könyvjelzők) | "/fiók/kedvencek" | A gyakran használt oldalakat könyvjelzők közé helyezheti.                          |                                                |
+| Lakk gyorsítótár | "/gyorsítótár/lakk" | Kezelje a Lakk gyorsítótárazást domainenként.                       |                                                |
+| Docker (konténerek) | "/konténerek" | Erőforrások lefoglalása és a konténerek életciklusainak kezelése.      |                                                |
+| FTP-fiókok | "/ftp" | FTP-fiókok létrehozása és kezelése.                          | Külön FTP szerver konfigurációt igényel.    |
+| E-mail fiókok | "/e-mailek" | E-mail fiókok kezelése.                                   | Külön levelezőszerver konfigurációt igényel.   |
+| Távoli MySQL | `/mysql/remote-mysql` | Távoli MySQL-kapcsolatok engedélyezése vagy letiltása.                 |                                                |
+| MySQL konfiguráció | `/mysql/configuration` | Módosítsa a MySQL beállításait a panelről.                    |                                                |
+| PHP beállítások | "/php/options" | Szerkessze a PHP direktívákat egy felhasználóbarát oldalon.            |                                                |
+| PHP.INI szerkesztő | "/php/ini" | Szerkessze közvetlenül a php.ini fájlt.                        | Bármely konfigurált PHP verzióra vonatkozik.         |
+| phpMyAdmin | `/mysql/phpmyadmin` | Adatbázisok kezelése a phpMyAdmin segítségével.                        |                                                |
+| Cronjobs | "/cronjobs" | Cron-feladatok létrehozása, szerkesztése és ütemezése.                    |                                                |
+| WordPress | `/wordpress` | WordPress webhelyek telepítése és kezelése.                      | A WP Manageren keresztül kezelhető.                        |
+| Lemezhasználat Explorer | "/lemezhasználat" | Vizuálisan fedezze fel a lemezhasználatot a könyvtárak között.          |                                                |
+| Inodes Explorer | "/inodes-explorer" | Tekintse meg az inode használatát könyvtáronként.                          |                                                |
+| Erőforrások felhasználása | "/használat" | Tekintse meg a Docker-tároló erőforrás-használatát.                    |                                                |
+| Szerver Info | "/server/info" | Tekintse meg a tárhelykorlátokat és a szerver részleteit.                  |                                                |
+| Apache/Nginx konfiguráció | `/server/webserver_conf` | A webszerver (Apache/Nginx) tároló konfigurációjának módosítása. |                                                |
+| Időzóna módosítása | "/szerver/időzóna" | Frissítse a rendszer időzóna-beállításait a tárolókhoz.          |                                                |
+| Coraza WAF | "/waf" | Coraza WAF kezelése domainenként.                            | Alapértelmezés szerint engedélyezve van az új domaineknél.            |
+| Engedélyek javítása | `/fix-permissions` | Javítsa ki a webhelyek fájlok tulajdonjogát és engedélyeit.         |                                                |
+| DNS | "/dns" | DNS-rekordok kezelése zónaszerkesztővel.                   | BIND9 szerver szükséges.                         |
+| Domain átirányítások | "/domains/redirects" | Domainszintű átirányítások kezelése.                           |                                                |
+| Malware Scanner | `/malware-scanner` | Keressen rosszindulatú programokat a ClamAV segítségével.                           | A címtárkizárások konfigurálhatók.        |
+| GoAccess | "/domains/logs" | Tekintse meg a GoAccess által generált naplójelentéseket.                     |                                                |
+| Process Manager | "/folyamatkezelő" | Rendszerfolyamatok megtekintése és leállítása.                     |                                                |
+| Redis | `/cache/redis` | A Redis konfigurálása felhasználónként.                                |                                                |
+| Memcached | `/cache/memcached` | A Memcached konfigurálása felhasználónként.                            |                                                |
+| Elasticsearch | `/cache/elasticsearch` | Konfigurálja az Elasticsearch-ot a panelről.                  |                                                |
+| Opensearch | `/cache/opensearch` | Az Opensearch konfigurálása a panelről.                     |                                                |
+| Ideiglenes linkek | "/webhelyek" | Tesztelje a webhelyeket ideiglenes OpenPanel aldomainekkel.      | A linkek 15 perc múlva lejárnak.                 |
+| Bejelentkezési előzmények | `/account/loginlog` | Az utolsó 20 IP-bejelentkezés előzményeinek megtekintése.                   |                                                |
+| 2FA | "/account/2fa" | Kéttényezős hitelesítés engedélyezése.                        |                                                |
+| Tevékenységnapló | "/fiók/tevékenység" | Tekintse át az összes rögzített fiókműveletet.                     |                                                |
 
-## Use Cases
+## Használati esetek
 
-**Feature Sets** are used to control which UI features users can access based on their assigned hosting package. This allows for clear separation between user types and service levels.
+A **Funkciókészletek** segítségével szabályozható, hogy a felhasználók mely felhasználói felületi funkciókhoz férhetnek hozzá a hozzárendelt tárhelycsomagjuk alapján. Ez lehetővé teszi a felhasználói típusok és a szolgáltatási szintek egyértelmű elkülönítését.
 
-### Example 1: Database-Only Plans
+### 1. példa: Csak adatbázis-csomagok
 
-Create a feature set named **"MySQL Only"** and enable only MySQL-related features within it.
-Assign this feature set to all database-focused hosting packages. For instance:
+Hozzon létre egy **"Csak MySQL"** nevű szolgáltatáskészletet, és csak a MySQL-hez kapcsolódó funkciókat engedélyezze benne.
+Rendelje hozzá ezt a szolgáltatáskészletet az összes adatbázis-központú tárhelycsomaghoz. Például:
 
-* One package allows up to **10 databases**.
-* Another package allows **unlimited databases** (`0` for no limit).
+* Egy csomag legfeljebb **10 adatbázist** engedélyez.
+* Egy másik csomag **korlátlan számú adatbázist** engedélyez ("0" korlátozás nélkül).
 
-Despite the difference in limits, all users under these plans will see **only MySQL-related pages** in the UI.
+A korlátok közötti különbség ellenére az ezen előfizetésekben szereplő összes felhasználó **csak a MySQL-lel kapcsolatos oldalakat** fogja látni a felhasználói felületen.
 
-### Example 2: Beginner vs. Advanced Users
+### 2. példa: Kezdő vs. haladó felhasználók
 
-Create two separate feature sets:
+Hozzon létre két külön funkciókészletet:
 
-* **Advanced Users Set**:
-  Enable features like **Docker** and **PHP.INI Editor** to give experienced users full control—such as setting custom resource limits, restarting services, etc.
+* **Haladó felhasználók készlet**:
+Engedélyezze az olyan funkciókat, mint a **Docker** és a **PHP.INI Editor**, hogy a tapasztalt felhasználók teljes irányítást biztosíthassanak – például egyéni erőforráskorlátok beállítása, szolgáltatások újraindítása stb.
 
-* **Beginner Users Set**:
-  Do **not** enable advanced features. Instead, allow access to a **PHP selector** with limited options. This keeps the UI simple and safe for users with minimal technical experience.
+* **Kezdő felhasználói készlet**:
+**ne** engedélyezze a speciális funkciókat. Ehelyett engedélyezze a hozzáférést egy **PHP választóhoz** korlátozott lehetőségekkel. Ezáltal a felhasználói felület egyszerű és biztonságos a minimális technikai tapasztalattal rendelkező felhasználók számára.
 
 
-## Feature not showing?
+## A funkció nem jelenik meg?
 
-Features are accessible to users [only if the corresponding **Module** is active](/docs/admin/settings/modules/). Modules control which OpenPanel features are available, while **Feature Sets** determine access based on the user's hosting package.
+A szolgáltatások csak akkor érhetők el a felhasználók számára, ha a megfelelő **Modul** aktív](/docs/admin/settings/modules/). A modulok szabályozzák, hogy mely OpenPanel-szolgáltatások érhetők el, míg a **Funkciókészletek** a hozzáférést a felhasználó tárhelycsomagja alapján határozzák meg.
 
-For example, adding the "Docker" feature to a plan does **not** grant access to the Docker (Containers) pages in the UI unless the **Docker module** is also activated under **OpenAdmin > Settings > Modules**.
+Például, ha a „Docker” funkciót hozzáadja egy tervhez, **nem** ad hozzáférést a Docker (tárolók) oldalaihoz a felhasználói felületen, kivéve, ha a **Docker modul** szintén aktiválva van az **OpenAdmin > Beállítások > Modulok** alatt.
 

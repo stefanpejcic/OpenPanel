@@ -26,17 +26,17 @@ Kiválaszthatja az igényeinek leginkább megfelelő frissítési szabályzatot:
 
 - **Csak főbb verziók:** A főbb új funkciókat bevezető frissítések automatikus alkalmazása. A hibajavítások és a biztonsági javítások kézi frissítést igényelnek.
 
-- **Never:** Disable automatic updates. You will need to manually check for and install all updates.
+- **Soha:** Az automatikus frissítések letiltása. Manuálisan kell ellenőriznie és telepítenie kell az összes frissítést.
 
-Choosing the appropriate auto-update setting ensures that OpenPanel remains as stable, secure, and feature-rich as you need it to be.
+A megfelelő automatikus frissítési beállítás kiválasztása biztosítja, hogy az OpenPanel olyan stabil, biztonságos és funkciókban gazdag maradjon, amennyire szüksége van.
 
-## Update Logs
-The Update Logs section provides a record of all updates that have been applied to OpenPanel.
+## Naplók frissítése
+A Frissítési naplók szakasz rögzíti az OpenPanelre alkalmazott összes frissítést.
 
-## Control Updates
-For more information about updates, check:
-- [How to Enable Automatic Updates for OpenPanel](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
-- [How to Disable Automatic Updates for OpenPanel](/docs/articles/install-update/how-to-disable-auto-update-openpanel/)
-- [How to Manually Update OpenPanel](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
-- [How to Skip a Specific OpenPanel Version Update](/docs/articles/install-update/skip-specific-openpanel-version-update)
-- [How to Check OpenPanel Version from Terminal](/docs/articles/install-update/how-to-check-openpanel-version)
+## Vezérlőfrissítések
+A frissítésekkel kapcsolatos további információkért nézze meg:
+- [Az OpenPanel automatikus frissítésének engedélyezése](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
+- [Az OpenPanel automatikus frissítéseinek letiltása](/docs/articles/install-update/how-to-disable-auto-update-openpanel/)
+- [Az OpenPanel manuális frissítése](/docs/articles/install-update/how-to-enable-auto-update-openpanel/)
+- [Hogyan lehet kihagyni egy adott OpenPanel verziófrissítést](/docs/articles/install-update/skip-specific-openpanel-version-update)
+- [Az OpenPanel verziójának ellenőrzése a terminálról] (/docs/articles/install-update/how-to-check-openpanel-version)

@@ -2,41 +2,41 @@
 sidebar_position: 5
 ---
 
-# ImunifyAV
+# ImmunifyAV
 
-[ImunifyAV](https://cloudlinux.zendesk.com/hc/en-us/articles/4716287786396-Imunify360-Standalone-installation-guide-with-integration-conf-examples) enhances your server’s security by allowing you to scan user website files for malicious content.
+Az [ImunifyAV](https://cloudlinux.zendesk.com/hc/en-us/articles/4716287786396-Imunify360-Standalone-installation-guide-with-integration-conf-examples) fokozza a szerver biztonságát azáltal, hogy lehetővé teszi a felhasználói webhelyek fájljainak rosszindulatú keresését.
 
-> Note: Imunify, its trademarks, and all related assets are the property of [CloudLinux Zug GmbH](https://cloudlinux.com/).
+> Megjegyzés: Az Imunify, annak védjegyei és minden kapcsolódó eszköz a [CloudLinux Zug GmbH](https://cloudlinux.com/) tulajdonát képezi.
 
-## Install
+## Telepítés
 
-Starting version 1.5.4 - ImunifyAV is included with OpenPanel by default.
+Kezdő verzió 1.5.4 - Az ImunifyAV alapértelmezés szerint az OpenPanel része.
 
-If you are using an older version, to install, run:
+Ha régebbi verziót használ, a telepítéshez futtassa:
 
 ```bash
 opencli imunify install
 ```
 
-This command installs the latest PHP version, the *imunify360-agent*, and configures access through OpenAdmin.
+Ez a parancs telepíti a PHP legújabb verzióját, az *imunify360-agent*-et, és konfigurálja a hozzáférést az OpenAdminon keresztül.
 
-## Start
+## Kezdje
 
-To start the Imunify graphical interface, use:
+Az Imunify grafikus felület elindításához használja:
 
 ```bash
 opencli imunify start
 ```
 
-## Login
+## Bejelentkezés
 
-Access the Imunify GUI from **OpenAdmin > Security > Imunify**.
+Az **OpenAdmin > Biztonság > Imunify** menüpontból érheti el az Immunify grafikus felhasználói felületet.
 
-## Manage
+## Kezelés
 
-Imunify allows you to scan user files and detect any malicious content.
+Az Imunify lehetővé teszi a felhasználói fájlok átvizsgálását és a rosszindulatú tartalom észlelését.
 
 ----
 
-> For more usage examples refer to [How-to Guides > Setting Up ImunifyAV](/docs/articles/security/setup-imunifyav/).
+> További használati példákért lásd: [Útmutatók > ImunifyAV beállítása](/docs/articles/security/setup-imunifyav/).
 

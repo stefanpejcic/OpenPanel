@@ -6,16 +6,16 @@ sidebar_position: 4
 
 Ez a felület lehetővé teszi az új domainekhez használt VirtualHosts sablonok és alapértelmezett céloldalak szerkesztését.
 
-- Default Page: Template displayed on new domains without any content.
-- Suspended Website: Template displayed on websites (domains) that user suspends.
-- Suspended User: Template displayed on all websites (domains) that suspended user owns.
-- Apache VirtualHost: Template used for creating VirtualHosts of domains added by users with Apache webserver.
-- Nginx VirtualHost: Template used for creating VirtualHosts of domains added by users with Nginx webserver.
-- OpenResty VirtualHost: Template used for creating VirtualHosts of domains added by users with OpenResty webserver.
+- Alapértelmezett oldal: Az új domaineken tartalom nélkül megjelenő sablon.
+- Felfüggesztett webhely: A felhasználó által felfüggesztett webhelyeken (domaineken) megjelenő sablon.
+- Felfüggesztett felhasználó: A felfüggesztett felhasználó tulajdonában lévő összes webhelyen (domain) megjelenő sablon.
+- Apache VirtualHost: Az Apache webszerverrel a felhasználók által hozzáadott tartományok VirtualHostjainak létrehozására használt sablon.
+- Nginx VirtualHost: Az Nginx webszerverrel a felhasználók által hozzáadott tartományok VirtualHostjainak létrehozására használt sablon.
+- OpenResty VirtualHost: Az OpenResty webszerverrel a felhasználók által hozzáadott tartományok VirtualHostjainak létrehozására használt sablon.
 
-## Default Page
+## Alapértelmezett oldal
 
-This is the HTML page shown on new domains that do **not** have `index.html` or `index.php` in their document root.
+Ez az új tartományokban megjelenő HTML-oldal, amelynek dokumentumgyökérében **nincs** az "index.html" vagy az "index.php".
 
 ```html
 <!DOCTYPE html>
@@ -36,18 +36,18 @@ This is the HTML page shown on new domains that do **not** have `index.html` or 
 </html>
 ```
 
-- Edit the code on the **left side** of the editor.
-- Preview live changes on the **right side**.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztő **bal oldalán**.
+- Élő változások előnézete a **jobb oldalon**.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original template:
+Az eredeti sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
-## Suspended Website
+## Felfüggesztett webhely
 
-This is the HTML page shown on all domains that users suspend **manually**.
+Ez az összes olyan domainen látható HTML-oldal, amelyet a felhasználók **manuálisan** felfüggesztenek.
 
 ```html
 <!DOCTYPE html>
@@ -68,20 +68,20 @@ This is the HTML page shown on all domains that users suspend **manually**.
 </html>
 ```
 
-- Edit the code on the **left side** of the editor.
-- Preview live changes on the **right side**.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztő **bal oldalán**.
+- Élő változások előnézete a **jobb oldalon**.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original template:
+Az eredeti sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
 
 
-## Suspended User
+## Felfüggesztett felhasználó
 
-This is the HTML page shown on all domains owned by the user when their account is suspended **by the Administrator**.
+Ez az a HTML-oldal, amely a felhasználó tulajdonában lévő összes domainen megjelenik, amikor fiókját felfüggeszti **az adminisztrátor**.
 
 ```html
 <!DOCTYPE html>
@@ -102,19 +102,19 @@ This is the HTML page shown on all domains owned by the user when their account 
 </html>
 ```
 
-- Edit the code on the **left side** of the editor.
-- Preview live changes on the **right side**.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztő **bal oldalán**.
+- Élő változások előnézete a **jobb oldalon**.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original template:
+Az eredeti sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
 
 ## Apache VirtualHost
 
-This is the template used for creating VirtualHosts of domains added by users **when using the Apache webserver**.
+Ezt a sablont használják a felhasználók által **az Apache webszerver használatakor** hozzáadott tartományok VirtualHostjainak létrehozására.
 
 ```bash
 <VirtualHost *:80>
@@ -188,17 +188,17 @@ This is the template used for creating VirtualHosts of domains added by users **
 </VirtualHost>
 ```
 
-- Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztőben.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original Apache template:
+Az eredeti Apache-sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
 ## Nginx VirtualHost
 
-This is the template used for creating VirtualHosts of domains added by users **when using the Nginx webserver**.
+Ezt a sablont használják a felhasználók által **az Nginx webszerver használatakor** hozzáadott tartományok VirtualHostjainak létrehozásához.
 
 ```bash
 # content
@@ -316,18 +316,18 @@ server {
 
 ```
 
-- Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztőben.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original Nginx template:
+Az eredeti Nginx-sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
 
 ## OpenResty VirtualHost
 
-This is the template used for creating VirtualHosts of domains added by users **when using the OpenResty webserver**.
+Ezt a sablont használják a felhasználók által **az OpenResty webszerver használatakor** hozzáadott tartományok VirtualHostjainak létrehozásához.
 
 ```bash
 # content
@@ -457,19 +457,19 @@ server {
 
 ```
 
-- Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztőben.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original OpenResty template:
+Az eredeti OpenResty sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
-## Varnish Template
+## Lakk sablon
 
-This is the template used for creating `default.vcl` file for users **when using the Varnish Caching**.
+Ez az a sablon, amelyet a `default.vcl` fájl létrehozására használnak a felhasználók számára **ha a Lakk gyorsítótárazást** használják.
 
-The placeholder `VARNISH_BACKEND_HOST` is automatically replaced with the user's actual web server - Nginx, Apache, or OpenResty. 
+A `VARNISH_BACKEND_HOST` helyőrző automatikusan lecserélődik a felhasználó tényleges webszerverére – Nginx, Apache vagy OpenResty.
 
 ```bash
 vcl 4.1;
@@ -691,13 +691,13 @@ sub vcl_deliver {
 }
 ```
 
-- Edit the code in the editor.
-- When finished, click **Save Files** to apply your changes.
+- Szerkessze a kódot a szerkesztőben.
+- Ha végzett, kattintson a **Fájlok mentése** gombra a módosítások alkalmazásához.
 
-To revert to the original Varnish template:
+Az eredeti Lakk sablonhoz való visszatéréshez:
 
-1. Click **Restore Default** to reload the version from GitHub.
-2. Don’t forget to click **Save Files** afterward to confirm the reset.
+1. Kattintson az **Alapértelmezés visszaállítása** lehetőségre a verzió újratöltéséhez a GitHubról.
+2. Ne felejtsen el a **Fájlok mentése** gombra kattintani a visszaállítás megerősítéséhez.
 
 
 

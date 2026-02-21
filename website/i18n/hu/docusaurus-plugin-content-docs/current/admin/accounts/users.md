@@ -2,37 +2,37 @@
 sidebar_position: 1
 ---
 
-# Users
+# Felhasználók
 
-OpenPanel has a single user role named **User** that can only manage their docker container and inherits settings specified by the Admin user.
+Az OpenPanel egyetlen **Felhasználó** nevű felhasználói szerepkörrel rendelkezik, amely csak a Docker-tárolóját tudja kezelni, és örökli a rendszergazda által megadott beállításokat.
 
 
-## List Users
+## Felhasználók listázása
 
 
 <Tabs>
-  <TabItem value="openadmin-users" label="OpenAdmin" default>
+<TabItem value="openadmin-users" label="OpenAdmin" alapértelmezett>
   
-  To access all OpenPanel users, navigate to  Users.
+Az összes OpenPanel-felhasználó eléréséhez lépjen a Felhasználók oldalra.
   
-  The Users page displays a table with user information and buttons to manage it.
+A Felhasználók oldalon egy táblázat látható a felhasználói adatokkal és a kezelésükhöz szükséges gombokkal.
   
-  ![openadmin users page](/img/admin/openadmin_users_list.gif)
+![openadmin felhasználók oldala](/img/admin/openadmin_users_list.gif)
   
-  Additional Columns can be displayed using the 'Show Columns' button.
+További oszlopok jeleníthetők meg az „Oszlopok megjelenítése” gombbal.
 
-  Suspended users are highlighted in red, and no actions can be performed on a suspended user.
+A felfüggesztett felhasználók piros színnel vannak kiemelve, és a felfüggesztett felhasználókkal semmilyen művelet nem hajtható végre.
 
-  </TabItem>
-  <TabItem value="CLI-users" label="OpenCLI">
+</TabItem>
+<TabItem value="CLI-users" label="OpenCLI">
 
-To list all users, use the following command:
+Az összes felhasználó listázásához használja a következő parancsot:
 
 ```bash
 opencli user-list
 ```
 
-Example output:
+Példa kimenet:
 ```bash
 opencli user-list
 +----+----------------------------------+----------------------+----------------+------------------+-------+---------------------+
@@ -45,65 +45,65 @@ opencli user-list
 +----+----------------------------------+----------------------+----------------+------------------+-------+---------------------+
 ```
 
-You can also format the data as JSON:
+Az adatokat JSON-ként is formázhatja:
 
 ```bash
 opencli user-list --json
 ```
-  </TabItem>
-  <TabItem value="API-users" label="API">
+</TabItem>
+<TabItem value="API-users" label="API">
 
-To list all users, use the following api endpoint:
+Az összes felhasználó listázásához használja a következő API-végpontot:
 
 ```bash
 curl -X GET http://PANEL:2087/api/users -H "Authorization: Bearer JWT_TOKEN_HERE"
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-## Create Users
+## Felhasználók létrehozása
 
 
 <Tabs>
-  <TabItem value="openadmin-users-new" label="OpenAdmin" default>
+<TabItem value="openadmin-users-new" label="OpenAdmin" alapértelmezett>
 
-To create a new user, click on the 'New User' button on the Users page. A new section will be displayed with a form where you can set the email address, username, generate a strong password, and assign a hosting plan for the user.
+Új felhasználó létrehozásához kattintson az 'Új felhasználó' gombra a Felhasználók oldalon. Megjelenik egy új rész egy űrlappal, ahol beállíthatja az e-mail címet, felhasználónevet, erős jelszót generálhat, és tárhely-tervet rendelhet a felhasználóhoz.
 
-![add new user openadmin](/img/admin/2025-06-09_08-20.png)
+![új felhasználó hozzáadása openadmin](/img/admin/2025-06-09_08-20.png)
 
-  </TabItem>
-  <TabItem value="CLI-users-new" label="OpenCLI">
+</TabItem>
+<TabItem value="CLI-users-new" label="OpenCLI">
 
-To create a new user run the following command:
+Új felhasználó létrehozásához futtassa a következő parancsot:
 
 ```bash
 opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_NAME>
 ```
-Example: 
+Példa:
 ```bash
 opencli user-add filip password1234 filip@openadmin.com default_plan_apache
 ```
 
-:::tip
-Provide `generate` as password to generate a strong random password.
+:::tipp
+Adja meg a "generate" jelszót egy erős véletlenszerű jelszó generálásához.
 :::
-  </TabItem>
-  <TabItem value="API-users-new" label="API">
+</TabItem>
+<TabItem value="API-users-new" label="API">
 
-To create a new user use the following api call:
+Új felhasználó létrehozásához használja a következő API-hívást:
 
 ```bash
 curl -X POST -H "Content-Type: application/json" -H "Authorization: Bearer JWT_TOKEN_HERE" -d '{"email": "EMAIL_HERE", "username": "USERNAME_HERE", "password": "PASSWORD_HERE", "plan_name": "PLAN_NAME_HERE"}' http://PANEL:2087/api/users
 ```
 
-Example:
+Példa:
 ```bash
 curl -X POST "http://PANEL:2087/api/users" -H "Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGcBns" -H "Content-Type: application/json" -d '{"username":"stefan","password":"strongishpassword1234","email":"stefan@pejcic.rs","plan_name":"default_plan_nginx"}'
 ```
 
-Example response:
+Példa válasz:
 
 ```json
 {
@@ -114,303 +114,303 @@ Example response:
 }
 ```
   
-  </TabItem>
+</TabItem>
 </Tabs>
 
-- The OpenPanel username must be 3 to 16 characters long and can only contain letters and numbers.
-- The OpenPanel password must be 6 to 30 characters long and can include any characters except for single quotes (`'`) and double quotes (`"`).
+- Az OpenPanel felhasználónévnek 3-16 karakter hosszúnak kell lennie, és csak betűket és számokat tartalmazhat.
+- Az OpenPanel jelszónak 6-30 karakter hosszúnak kell lennie, és bármilyen karaktert tartalmazhat, kivéve az idézőjeleket (`'`) és a dupla idézőjeleket (`"`).
 
 
-## Single User
+## Egy felhasználó
 
-To view detailed information about a user, and edit their settings, click on their username in the users table.
-
-
-### Statistics 
-
-Statistics is the default tab, displays current usage statistics:
-
-- Storage used
-- Inodes used
-- CPU usage
-- Memory usage
-- Number of running containers
-- Disk I/O
-- Network I/O
-- Number of PIDs
-- Time statistics usage was last update
-- Historical usage
-
-Clicking on 'Load Docker Usage History' will display a table with past resource usage for the user: Date, number of running containers, CPU% and Memory%, Net I/O and Block I/O.
-
-![user statistics](/img/admin/user_usage.png)
+Egy felhasználó részletes információinak megtekintéséhez és beállításainak szerkesztéséhez kattintson a felhasználónevére a felhasználók táblázatában.
 
 
-### Services
+### Statisztika
 
-Services tab displays all user services (docker containers):
+A Statisztika az alapértelmezett lap, az aktuális használati statisztikákat jeleníti meg:
 
-- Service name
-- Docker Image name and tag
-- Current CPU usage
-- Allocated CPU for the service
-- Current Memory usage
-- Allocated Memory for the service
-- Current status: Enabled or Disabled
-- Terminal link to run docker exec commands in that service.
+- Használt tárolóhely
+- Inodes használt
+- CPU használat
+- Memóriahasználat
+- A futó konténerek száma
+- Lemez I/O
+- Hálózati I/O
+- PID-k száma
+- Az időstatisztika használatának legutóbbi frissítése
+- Történelmi használat
 
-![docker services](/img/admin/docker_services.png)
+A „Dokkerhasználati előzmények betöltése” lehetőségre kattintva megjelenik egy táblázat a felhasználó korábbi erőforrás-használatáról: Dátum, futó konténerek száma, CPU% és memória, Net I/O és Block I/O.
 
-### Storage
-
-Storage tab displays data from the [docker system df](https://docs.docker.com/reference/cli/docker/system/df/) command.
-
-- Volumes
-- Containers
-- Images
-
-### Overview
-
-Overview page displays detailed user information and allows Administrator to set a custom message specifically for this user.
-
-![user overview](/img/admin/2025-06-09_08-34.png)
-
-Displayed information:
-
-- User ID
-- Email Address
-- IP Address
-- Geo Location for the IP
-- Server Name
-- Docker Context
-- 2FA status
-- Setup Time
-- Custom Message for user
+![felhasználói statisztikák](/img/admin/user_usage.png)
 
 
-### Activity
+### Szolgáltatások
 
-Displays [users activity log](/docs/panel/account/account_activity/).
+A Szolgáltatások lapon megjelenik az összes felhasználói szolgáltatás (docker konténer):
 
-- Date
-- Action performed
-- IP Address
+- A szolgáltatás neve
+- Docker kép neve és címke
+- Jelenlegi CPU használat
+- Lefoglalt CPU a szolgáltatáshoz
+- Aktuális memóriahasználat
+- Lefoglalt memória a szolgáltatáshoz
+- Jelenlegi állapot: Engedélyezett vagy Letiltva
+- Terminálhivatkozás a docker exec parancsok futtatásához a szolgáltatásban.
 
-![user activity](/img/admin/login_log.png)
+![docker szolgáltatások](/img/admin/docker_services.png)
 
-### Edit
-From the Edit tab, Administrators can edit user information:
+### Tárolás
 
-- Username
-- Email address
-- Password
-- IP address
-- Hosting Package
+A Tárolás lap a [docker system df](https://docs.docker.com/reference/cli/docker/system/df/) parancs adatait jeleníti meg.
 
-![user edit](/img/admin/edit_user.png)
+- Kötetek
+- Konténerek
+- Képek
 
-### Suspend
+### Áttekintés
+
+Az Áttekintő oldal részletes felhasználói információkat jelenít meg, és lehetővé teszi a rendszergazdának, hogy egyéni üzenetet állítson be kifejezetten ehhez a felhasználóhoz.
+
+![felhasználói áttekintés](/img/admin/2025-06-09_08-34.png)
+
+Megjelenített információ:
+
+- Felhasználói azonosító
+- E-mail cím
+- IP-cím
+- Földrajzi hely az IP-hez
+- Szerver neve
+- Docker kontextus
+- 2FA állapot
+- Beállítási idő
+- Egyéni üzenet a felhasználó számára
+
+
+### Tevékenység
+
+Megjeleníti a [felhasználói tevékenységnaplót] (/docs/panel/account/account_activity/).
+
+- Dátum
+- Művelet végrehajtva
+- IP-cím
+
+![felhasználói tevékenység](/img/admin/login_log.png)
+
+### Szerkesztés
+A Szerkesztés lapon a rendszergazdák szerkeszthetik a felhasználói információkat:
+
+- Felhasználónév
+- E-mail cím
+- Jelszó
+- IP cím
+- Tárhely csomag
+
+![felhasználói szerkesztés](/img/admin/edit_user.png)
+
+### Felfüggesztés
 
 <Tabs>
-  <TabItem value="openadmin-user-suspend" label="With OpenAdmin" default>
+<TabItem value="openadmin-user-suspend" label="OpenAdminnal" alapértelmezett>
 
-Suspending an account will immediately disable the user's access to the OpenPanel. This action involves pausing the user's Docker container and revoking access to their email, website, and other associated services. Please be aware of the immediate impact before proceeding.
+A fiók felfüggesztése azonnal letiltja a felhasználó hozzáférését az OpenPanelhez. Ez a művelet magában foglalja a felhasználó Docker-tárolójának szüneteltetését, valamint az e-mailekhez, webhelyekhez és egyéb kapcsolódó szolgáltatásokhoz való hozzáférés visszavonását. Kérjük, vegye figyelembe az azonnali hatást, mielőtt továbblép.
 
-To suspend a user click on the Suspend link on that user page and type the username to confirm, then click on 'Suspend account' button.
+Egy felhasználó felfüggesztéséhez kattintson a Felfüggesztés hivatkozásra az adott felhasználói oldalon, és a megerősítéshez írja be a felhasználónevet, majd kattintson a "Fiók felfüggesztése" gombra.
 
-![suspend user](/img/admin/openadmin_suspend_user.gif)
+![felhasználó felfüggesztése](/img/admin/openadmin_suspend_user.gif)
 
-  </TabItem>
-  <TabItem value="CLI-user-suspend" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-user-suspend" label="OpenCLI-vel">
 
-To suspend (temporary disable access) to user, run the following command:
+A felhasználó hozzáférésének felfüggesztéséhez (ideiglenes letiltásához) futtassa a következő parancsot:
 
 ```bash
 opencli user-suspend <USERNAME>
 ```
-Example:
+Példa:
 
 ```bash
 opencli user-suspend filip
 ```
 
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-### Unsuspend
+### Felfüggesztés visszavonása
 
 <Tabs>
-  <TabItem value="openadmin-user-unsuspend" label="With OpenAdmin" default>
+<TabItem value="openadmin-user-unsuspend" label="OpenAdminnal" alapértelmezett>
 
-To unsuspend a user click on the Unsuspend button for that user.
+Egy felhasználó felfüggesztéséhez kattintson a Felfüggesztés feloldása gombra az adott felhasználónál.
 
-  </TabItem>
-  <TabItem value="CLI-user-unsuspend" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-user-unsuspend" label="OpenCLI-vel">
     
-To unsuspend (enable access) to user, run the following command:
+A felfüggesztés feloldásához (a felhasználó hozzáférésének engedélyezéséhez) futtassa a következő parancsot:
 
 ```bash
 opencli user-unsuspend <USERNAME>
 ```
 
-Example:
+Példa:
 ```bash
 opencli user-unsuspend filip
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-### Reset Password
+### Jelszó visszaállítása
 
 <Tabs>
-  <TabItem value="openadmin-users-reset" label="OpenAdmin" default>
+<TabItem value="openadmin-users-reset" label="OpenAdmin" alapértelmezett>
 
-To reset password for a user, click on "Edit" tab and set the new password in the Password field then click Save.
+Egy felhasználó jelszavának visszaállításához kattintson a "Szerkesztés" fülre, állítsa be az új jelszót a Jelszó mezőben, majd kattintson a Mentés gombra.
 
-![add new user openadmin](/img/admin/reset_password.png)
+![új felhasználó hozzáadása openadmin](/img/admin/reset_password.png)
 
 
-  </TabItem>
-  <TabItem value="CLI-users-reset" label="OpenCLI">
+</TabItem>
+<TabItem value="CLI-users-reset" label="OpenCLI">
 
-To reset the password for a OpenPanel user, you can use the `user-password` command:
+Az OpenPanel-felhasználók jelszavának visszaállításához használja a "user-password" parancsot:
 
 ```bash
 opencli user-password <USERNAME> <NEW_PASSWORD>
 ```
 
-Use the `--ssh` flag to also change the password for the SSH user in the container.
+Használja a `--ssh' jelzőt a tárolóban lévő SSH-felhasználó jelszavának módosításához.
 
-Example:
+Példa:
 
 ```bash
 opencli user-password filip Ty7_K8_M2 --ssh
 ```
 
-  </TabItem>
-  <TabItem value="API-users-reset" label="API">
+</TabItem>
+<TabItem value="API-users-reset" label="API">
 
-To reset password for an OpenPanel user, use the following api call:
+Egy OpenPanel-felhasználó jelszavának visszaállításához használja a következő API-hívást:
 
 ```bash
 curl -X PATCH http://PANEL:2087/api/users/USERNAME_HERE -H "Content-Type: application/json" -H "Authorization: Bearer JWT_TOKEN_HERE" -d '{"password": "NEW_PASSWORD_HERE"}'
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
 
-### Rename
+### Átnevezés
 
 <Tabs>
-  <TabItem value="openadmin-user-username" label="With OpenAdmin" default>
+<TabItem value="openadmin-user-username" label="OpenAdminnal" alapértelmezett>
 
-To Rename a user, click on the 'Edit Information' link for the user, then change the address in 'Username' field and click on 'Save changes'.
+Felhasználó átnevezéséhez kattintson a felhasználó 'Információ szerkesztése' linkjére, majd módosítsa a címet a 'Felhasználónév' mezőben, majd kattintson a 'Változások mentése' gombra.
 
 
-  </TabItem>
-  <TabItem value="CLI-user-email" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-user-email" label="OpenCLI-vel">
 
-To change username for a user run the following command:
+Egy felhasználó felhasználónevének megváltoztatásához futtassa a következő parancsot:
 
 ```bash
 opencli user-rename <old_username> <new_username>
 ```
 
-Example:
+Példa:
 
 ```bash
 #opencli user-rename stefan pejcic
 User 'stefan' successfully renamed to 'pejcic'.
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-### Change Package
+### Csomag módosítása
 
 <Tabs>
-  <TabItem value="openadmin-user-plan" label="With OpenAdmin" default>
+<TabItem value="openadmin-user-plan" label="OpenAdminnal" alapértelmezett>
 
-To change a package for a user, click on the 'Edit' link for the user, then select the new package and click on 'Save changes'.
+Egy felhasználó csomagjának módosításához kattintson a felhasználó 'Szerkesztés' linkjére, majd válassza ki az új csomagot, és kattintson a 'Változások mentése' gombra.
 
-  </TabItem>
-  <TabItem value="CLI-user-plan" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-user-plan" label="OpenCLI-vel">
 
-To change a package for a user run the following command:
+Egy felhasználó csomagjának módosításához futtassa a következő parancsot:
 
 ```bash
 opencli user-change_plan <USERNAME> '<NEW_PLAN_NAME>'
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-### Change Email
+### E-mail módosítása
 
 <Tabs>
-  <TabItem value="openadmin-user-email" label="With OpenAdmin" default>
+<TabItem value="openadmin-user-email" label="OpenAdminnal" alapértelmezett>
 
-To change email address for a user, click on the 'Edit Information' link for the user, then change the address in 'Email address' field and click on 'Save changes'.
+Egy felhasználó e-mail címének megváltoztatásához kattintson a felhasználó "Információ szerkesztése" linkjére, majd módosítsa a címet az "E-mail cím" mezőben, és kattintson a "Változtatások mentése" gombra.
 
-  </TabItem>
-  <TabItem value="CLI-user-email" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-user-email" label="OpenCLI-vel">
 
-To change email address for a user run the following command:
+A felhasználó e-mail címének megváltoztatásához futtassa a következő parancsot:
 
 ```bash
 opencli user-email <USERNAME> <NEW_EMAIL>
 ```
 
-Example:
+Példa:
 
 ```bash
 #opencli user-email stefan stefan@pejcic.rs
 Email for user stefan updated to stefan@pejcic.rs.
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
 
-### Login to OpenPanel
+### Jelentkezzen be az OpenPanelbe
 
-To auto-login to a OpenPanel account, click on the **OpenPanel** button in top-right corner of the page.
+Az OpenPanel fiókba való automatikus bejelentkezéshez kattintson az oldal jobb felső sarkában található **OpenPanel** gombra.
  
 
-### Delete User
+### Felhasználó törlése
 
 
 <Tabs>
-  <TabItem value="openadmin-user-delete" label="With OpenAdmin" default>
+<TabItem value="openadmin-user-delete" label="OpenAdminnal" alapértelmezett>
 
-To delete a user click on the delete button for that user, then type 'delete' in the confirmation modal and finally click on the 'Terminate' button.
+Egy felhasználó törléséhez kattintson az adott felhasználó törlés gombjára, majd írja be a „törlés” szót a megerősítési módba, végül kattintson a „Megszakítás” gombra.
 
 
-  </TabItem>
-  <TabItem value="CLI-user-delete" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-user-delete" label="OpenCLI-vel">
     
-To delete a user and all his data run the following command:
+Egy felhasználó és minden adatának törléséhez futtassa a következő parancsot:
 
 ```bash
 opencli user-delete <USERNAME>
 ```
 
-add `-y` flag to disable prompt.
+adjon hozzá "-y" jelzőt a prompt letiltásához.
 
-Example:
+Példa:
 ```bash
 opencli user-delete filip -y
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-:::danger
-This action is irreversible and will permanently delete all user data.
+:::veszély
+Ez a művelet visszafordíthatatlan, és véglegesen törli az összes felhasználói adatot.
 :::
 

@@ -2,30 +2,30 @@
 sidebar_position: 3
 ---
 
-# View Log Files
+# Naplófájlok megtekintése
 
-The *OpenAdmin > Services > View Log Files* feature enables Administrators to access and monitor logs for both OpenPanel and system services.
+Az *OpenAdmin > Szolgáltatások > Naplófájlok megtekintése* funkció lehetővé teszi a rendszergazdák számára, hogy hozzáférjenek és figyeljenek az OpenPanel és a rendszerszolgáltatások naplóira.
 
-![log viewer page](/img/admin/openadmin_services_logs.png)
+![naplómegjelenítő oldal](/img/admin/openadmin_services_logs.png)
 
-## How to View Log Files
+## A naplófájlok megtekintése
 
-Navigate to *Services > View Log Files*
+Lépjen a *Szolgáltatások > Naplófájlok megtekintése* elemre.
 
-Select the log file you would like to view and optionally number of lines from the file.
+Válassza ki a megtekinteni kívánt naplófájlt, és opcionálisan a fájl sorainak számát.
 
-After selecting a log file, two new buttons appear under the log content: 
-- *Delete* - will empty the file contents
-- *Download* - will download the entire log file to your browser.
+A naplófájl kiválasztása után két új gomb jelenik meg a naplótartalom alatt:
+- *Törlés* - kiüríti a fájl tartalmát
+- *Letöltés* - letölti a teljes naplófájlt a böngészőjébe.
 
 
-## Settings
+## Beállítások
 
-This functionality supports modularity by allowing customization of the log files displayed in the viewer.
+Ez a funkció támogatja a modularitást azáltal, hogy lehetővé teszi a megjelenítőben megjelenített naplófájlok testreszabását.
 
-List of default log files: https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/openadmin/config/log_paths.json
+Az alapértelmezett naplófájlok listája: https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/main/openadmin/config/log_paths.json
 
-To define custom log files for the viewer, click on the 'Settings' link next ot the heading. IN the form edit the json and click on 'Save'.
+Ha egyéni naplófájlokat szeretne megadni a megjelenítő számára, kattintson a címsor melletti "Beállítások" hivatkozásra. Az űrlapon szerkessze a json fájlt, és kattintson a "Mentés" gombra.
 
 
 

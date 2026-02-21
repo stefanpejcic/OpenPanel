@@ -72,13 +72,13 @@ Az OpenAdmin menü felsorolja az OpenAdmin felületén elérhető összes opció
 A keresés eredménye:
 
 - OpenPanel felhasználók bejelentkezési hivatkozással az OpenPanelhez
-- Website/Domains of users
-- Features/pages in the Admin interface
+- A felhasználók webhelye/domainjei
+- Funkciók/oldalak az Admin felületen
 
-## Keyboard Shortcuts
+## Billentyűparancsok
 
-OpenAdmin UI can be navigated using keyboard shortcuts: [view documentation](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/).
+Az OpenAdmin felhasználói felülete billentyűkódokkal navigálható: [dokumentáció megtekintése](/docs/articles/dev-experience/openadmin-keyboard-shortcuts/).
 
-## Logout
+## Kijelentkezés
 
-To log out of the OpenAdmin account, click your username in the bottom-left corner and select 'Sign out' option.
+Az OpenAdmin fiókból való kijelentkezéshez kattintson a felhasználónevére a bal alsó sarokban, és válassza a "Kijelentkezés" lehetőséget.

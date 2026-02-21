@@ -41,884 +41,884 @@ Kikapcsolt állapotban:
 
 Jelszó- és felhasználónévmódosítások testreszabása:
 * A jelszó-visszaállítás engedélyezése vagy letiltása a bejelentkezési űrlapokon** módosítsa a „Jelszó-visszaállítás engedélyezése bejelentkezéskor” beállítást az [OpenAdmin > Beállítások > OpenPanel] (/docs/admin/settings/openpanel/) oldalon.
-* To **prevent users from changing their username** edit 'Allow users to change username' setting from  [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/).
+* Ha meg szeretné akadályozni, hogy a felhasználók módosítsák felhasználónevüket**, szerkessze a „Felhasználónév megváltoztatásának engedélyezése” beállítást az [OpenAdmin > Beállítások > OpenPanel] (/docs/admin/settings/openpanel/) részben.
 
 
-## Sessions
+## Munkamenetek
 
-The **`sessions`** module allows users to view and manage their active sessions.
+A **`sessions`** modul lehetővé teszi a felhasználók számára az aktív munkamenetek megtekintését és kezelését.
 
-When enabled:
-* Users can view all their active sessions, logs and terminate any session through the OpenPanel UI at: [**Accounts > Active Sessions**](/docs/panel/account/active_sessions/).
+Ha engedélyezve van:
+* A felhasználók megtekinthetik összes aktív munkamenetüket, naplójukat, és bármely munkamenetet megszakíthatnak az OpenPanel UI-n keresztül: [**Fiókok > Aktív munkamenetek**](/docs/panel/account/active_sessions/).
 
-When disabled:
-* Users can not access the *Accounts > Active Sessions* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fiókok > Aktív munkamenetek* oldalt.
 
-Customize sessions duration:
-* To **control session duration** edit 'Session duration' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
-* To **control session lifetime** edit 'Session lifetime' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
+A munkamenetek időtartamának testreszabása:
+* A **munkamenet időtartamának szabályozásához** módosítsa a „Munkamenet időtartama” beállítást az [OpenAdmin > Beállítások > OpenPanel] oldalon (/docs/admin/settings/openpanel/#Statistics).
+* A **munkamenet élettartamának szabályozásához** módosítsa a „Munkamenet élettartama” beállítást az [OpenAdmin > Beállítások > OpenPanel] oldalon (/docs/admin/settings/openpanel/#Statistics).
 
-## Locale
+## Nyelv
 
-The **`locale`** (Languages) module allows users to change panel language.
+A **`locale`** (Nyelvek) modul lehetővé teszi a felhasználók számára a panel nyelvének megváltoztatását.
 
-When enabled:
-* Users can change their preferred language for OpenPanel UI from the login page and [**Accounts > Change Language** page](/docs/panel/account/language/).
+Ha engedélyezve van:
+* A felhasználók a bejelentkezési oldalon és a [**Fiókok > Nyelv módosítása** oldalon] (/docs/panel/account/language/) módosíthatják az OpenPanel UI preferált nyelvét.
 
-When disabled:
-* Users can not access the *Accounts > Change Language* page to change their locale.
-* Users are forced to the Admin defined default locale.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fiókok > Nyelv módosítása* oldalt a területi beállítás megváltoztatásához.
+* A felhasználókat az adminisztrátor által meghatározott alapértelmezett területi beállításokra kényszerítik.
 
-Customize locales:
-* To **set the default locale** use [OpenAdmin > Settings > Locales](/docs/articles/accounts/default-user-locales/).
-* To **install new locales for users** use the [OpenAdmin > Settings > Locales](/docs/admin/settings/locales/#install-locale).
-* To **create a new translation** please see [How to Create a New Locale](/docs/admin/settings/locales/#edit-locale)
-
-
-## Favorites
-
-The **`favorites`** module allows users to *pin* items in their sidebar menu for quick navigation.
-
-When enabled:
-* Users can add pages to favorites with **left-click** on ⭐ icon in top-right corner of the page.
-* Users can remove pages from favorites with **right-click** on ⭐ icon in top-right corner of the page.
-* Users can access favorites from sidebar menu.
-* Users can access the [**Accounts > Favorites** page](/docs/panel/account/favorites/).
-
-When disabled:
-* Users can not access the *Accounts > Favorites* page to manage favorites.
-* Users are not see favorites in the sidebar nor the ⭐ icon in top-right corner of pages.
-
-Customize favorites:
-* To **control the total number of favorites for user** (default is 10) use [`favorites-items` config](https://dev.openpanel.com/cli/config.html#favorites-items).
-* To **edit user's favorites from terminal** edit their: `/etc/openpanel/openpanel/core/users/{current_username}/favorites.json` file.
+A nyelvek testreszabása:
+* Az alapértelmezett nyelv beállításához** használja az [OpenAdmin > Beállítások > Nyelvi beállítások] (/docs/articles/accounts/default-user-locales/) parancsot.
+* Ha **új nyelvi beállításokat szeretne telepíteni a felhasználók számára**, használja az [OpenAdmin > Settings > Locales](/docs/admin/settings/locales/#install-locale) menüpontot.
+* **Új fordítás létrehozásához** olvassa el a [Hogyan hozzunk létre új nyelvi beállítást] (/docs/admin/settings/locales/#edit-locale) című részt.
 
 
-## Varnish
+## Kedvencek
 
-The **`varnish`** module allows users to control varnish caching for their domains.
+A **`kedvencek`** modul lehetővé teszi a felhasználók számára, hogy *rögzítsenek* elemeket az oldalsávi menüjükben a gyors navigáció érdekében.
 
-When enabled:
-* Varnish server starts for user and proxies traffic back to their webserver. 
-* Users can access the [**Caching > Varnish** page](/docs/panel/caching/varnish/).
-* Users can enable/disable Varnish service.
-* Users can enable/disable Varnish caching per domain.
-* Users can view logs for the Varnish service.
+Ha engedélyezve van:
+* A felhasználók az oldal jobb felső sarkában található ⭐ ikonra **bal kattintással** hozzáadhatnak oldalakat a kedvencekhez.
+* A felhasználók **jobb gombbal** az oldal jobb felső sarkában található ⭐ ikonra kattintva eltávolíthatnak oldalakat a kedvencekből.
+* A felhasználók az oldalsáv menüjéből érhetik el kedvenceiket.
+* A felhasználók elérhetik a [**Fiókok > Kedvencek** oldalt](/docs/panel/account/favorites/).
 
-When disabled:
-* Users do not have access to the *Caching > Varnish* page.
-* Varnish is used only if Administrator enabled it for user when creating the account. 
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fiókok > Kedvencek* oldalt a kedvencek kezeléséhez.
+* A felhasználók nem látják kedvenceiket sem az oldalsávban, sem a ⭐ ikont az oldalak jobb felső sarkában.
 
-Customize options:
-* To **enable/disable Varnish for all new users** use [*OpenAdmin > Settings > User Defaults* page and *Enable Varnish Proxy* option](/docs/admin/settings/defaults/).
-* To **enable/disable Varnish for a single user** when creating their account use the [**Enable Varnish Cache** option](/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
-* To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **edit the default.vcl file for Varnish** use the [*OpenAdmin > Domains > Edit Domain Templates* page](/docs/admin/settings/defaults/) or edit file: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
-* To **purge Varnish cache** refer to [How-to Guides > Purging Varnish Cache](/docs/articles/websites/purge-varnish-cache-from-terminal/)
-* To **check if Varnish is enabled for domain** refer to [How to check if Varnish Caching is enabled for a domain in OpenPanel?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
+Kedvencek testreszabása:
+* A **felhasználó kedvenceinek teljes számának szabályozásához** (alapértelmezett 10) használja a [`favorites-items` config](https://dev.openpanel.com/cli/config.html#favorites-items) alkalmazást.
+* A **felhasználók kedvenceinek szerkesztéséhez a terminálról** szerkessze a következő fájlt: `/etc/openpanel/openpanel/core/users/{current_username}/favorites.json`.
+
+
+## Lakk
+
+A **`lakk`** modul lehetővé teszi a felhasználók számára, hogy szabályozzák a lakk-gyorsítótárat a tartományukhoz.
+
+Ha engedélyezve van:
+* A Varnish szerver elindul a felhasználók számára, és visszaadja a forgalmat a webszerverükre.
+* A felhasználók elérhetik a [**Caching > Lakk** oldalt](/docs/panel/caching/lakk/).
+* A felhasználók engedélyezhetik/letilthatják a Lakk szolgáltatást.
+* A felhasználók domainenként engedélyezhetik/letilthatják a Varnish gyorsítótárazást.
+* A felhasználók megtekinthetik a Lakk szolgáltatás naplóit.
+
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Gyorsítótár > Lakk* oldalhoz.
+* A Lakk csak akkor használható, ha a rendszergazda engedélyezte a felhasználó számára a fiók létrehozásakor.
+
+Beállítások testreszabása:
+* A Varnish engedélyezéséhez/letiltásához minden új felhasználó számára** használja az [*OpenAdmin > Beállítások > Felhasználói alapértelmezések* oldalt és az *Enable Varnish Proxy* opciót] (/docs/admin/settings/defaults/).
+* A Varnish engedélyezése/letiltása egyetlen felhasználó számára** a fiók létrehozásakor használja az [**Varnish Cache engedélyezése** lehetőséget] (/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/).
+* Az alapértelmezett CPU/RAM módosításához** használja az [*OpenAdmin > Settings > User Defaults* oldalt](/docs/admin/settings/defaults/).
+* A Varnish alapértelmezett.vcl fájljának **szerkesztéséhez** használja az [*OpenAdmin > Domains > Edit Domain Templates* oldalt](/docs/admin/settings/defaults/), vagy szerkessze a fájlt: [`/etc/openpanel/varnish/default.vcl`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/varnish/default.vcl).
+* A **Lakk-gyorsítótár tisztításához** olvassa el a [How-to Guides > Purging Lakk Cache] (/docs/articles/websites/purge-varnish-cache-from-terminal/) részt.
+* Ha ellenőrizni szeretné, hogy a Varnish engedélyezve van-e a domainhez**, olvassa el a [Hogyan ellenőrizhető, hogy a Varnish Caching engedélyezve van-e egy domainhez az OpenPanelben?](https://community.openpanel.org/d/207-how-to-check-if-varnish-caching-is-enabled-for-a-domain-in-openpanel)
 
 
 ## Docker
 
-The **`docker`** module allows users to manage and add new docker containers.
+A **`docker`** modul lehetővé teszi a felhasználók számára, hogy új docker-tárolókat kezeljenek és adjunk hozzá.
 
-When enabled:
-* Users can access [**Docker > Containers**](/docs/panel/containers/) page to view and manage services.
-* Users can access [**Docker > Containers > New**](/docs/panel/containers/#adding-new-services) page to add new services.
-* Users can access [**Docker > Terminal**](/docs/panel/containers/terminal/) page to run docker exec commands.
-* Users can access [**Docker > Image Updates**](/docs/panel/containers/image/) page to check for available image updates.
-* Users can access [**Docker > Logs**](/docs/panel/containers/logs/) page to view service logs.
-* Users can access [**Docker > Change Image Tag**](/docs/panel/containers/change/) page to change images tag.
-* Users can access [**Docker > Switch Web Server**](/docs/panel/containers/webserver/) page to switch webservers.
-* Users can access [**Docker > Switch MySQL Type**](/docs/panel/containers/mysql/) page to switch mysql/mariadb.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Docker > Tárolók**](/docs/panel/containers/) oldalt a szolgáltatások megtekintéséhez és kezeléséhez.
+* A felhasználók hozzáférhetnek a [**Docker > Tárolók > Új**](/docs/panel/containers/#adding-new-services) oldalhoz új szolgáltatások hozzáadásához.
+* A felhasználók elérhetik a [**Docker > Terminal**](/docs/panel/containers/terminal/) oldalt a docker exec parancsok futtatásához.
+* A felhasználók elérhetik a [**Docker > Képfrissítések**](/docs/panel/containers/image/) oldalt az elérhető képfrissítések ellenőrzéséhez.
+* A felhasználók elérhetik a [**Docker > Naplók**](/docs/panel/containers/logs/) oldalt a szolgáltatásnaplók megtekintéséhez.
+* A felhasználók elérhetik a [**Docker > Képcímke módosítása**](/docs/panel/containers/change/) oldalt a képcímke módosításához.
+* A felhasználók elérhetik a [**Docker > Webszerver váltása**](/docs/panel/containers/webserver/) oldalt a webszerverek közötti váltáshoz.
+* A felhasználók elérhetik a [**Docker > Switch MySQL Type**](/docs/panel/containers/mysql/) oldalt a mysql/mariadb közötti váltáshoz.
 
-When disabled:
-* Users can not access any of the *Docker* pages.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Docker* oldalak egyikéhez sem.
 
-Customize options:
-* None
+Beállítások testreszabása:
+* Egyik sem
 
 
-## Fix Permissions
+## Engedélyek javítása
 
-The **`fix_permissions`** module allows users to reset file/folder permissions.
+A **`fix_permissions`** modul lehetővé teszi a felhasználók számára a fájlok/mappák engedélyeinek visszaállítását.
 
-When enabled:
-* Users can access the [**Files > Fix Permissions** page](/docs/panel/files/fix_permissions/).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fájlok > Engedélyek javítása** oldalt] (/docs/panel/files/fix_permissions/).
 
-When disabled:
-* Users can not access the *Files > Fix Permissions* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fájlok > Engedélyek javítása* oldalt.
 
 
 ## FTP
 
-The **`ftp`** module allows users to create and manage FTP sub-accounts.
+Az **`ftp`** modul lehetővé teszi a felhasználók számára FTP-alfiókok létrehozását és kezelését.
 
-When enabled:
-* Users can access the [**Files > FTP** page](/docs/panel/files/FTP/) to manage FTP accounts.
+Ha engedélyezve van:
+* A felhasználók hozzáférhetnek a [**Fájlok > FTP** oldalhoz](/docs/panel/files/FTP/) az FTP-fiókok kezeléséhez.
 
-When disabled:
-* Users can not create and manage FTP accounts.
+Kikapcsolt állapotban:
+* A felhasználók nem hozhatnak létre és nem kezelhetnek FTP-fiókokat.
 
-Customize options:
-* To **configure FTP server** refer to [*How-to Guides > Setup FTP](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/).
-* To **edit VSFTPD configuration** edit the [`/etc/openpanel/ftp/vsftpd.conf` file](https://github.com/stefanpejcic/openpanel-configuration/blob/main/ftp/vsftpd.conf).
-* To **view all ftp accounts on a server** use the [*OpenAdmin > Services > FTP* page](/docs/admin/services/ftp/).
-* To **limit number of ftp accounts per user** edit the ftp accounts limit when creating/editing hosting packages.
+Beállítások testreszabása:
+* Az **FTP-kiszolgáló konfigurálásához** tekintse meg a [*How-to Guides > Setup FTP](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/) részt.
+* A **VSFTPD konfiguráció szerkesztéséhez** szerkessze a [`/etc/openpanel/ftp/vsftpd.conf` fájlt](https://github.com/stefanpejcic/openpanel-configuration/blob/main/ftp/vsftpd.conf).
+* **Az összes ftp-fiók megtekintéséhez** használja az [*OpenAdmin > Szolgáltatások > FTP* oldalt](/docs/admin/services/ftp/).
+* A **felhasználónkénti ftp fiókok számának korlátozásához** módosítsa az ftp fiókok korlátját a tárhelycsomagok létrehozásakor/szerkesztésekor.
 
-## Emails
+## E-mailek
 
-The **`emails`** module allows users to create and manage Email accounts.
+Az **`emails`** modul lehetővé teszi a felhasználók számára e-mail fiókok létrehozását és kezelését.
 
-When enabled:
-* Users can access the [**Emails** pages](/docs/panel/emails/) to manage Email accounts.
-* Users can access the [**Webmail** page](/docs/panel/emails/webmail/).
+Ha engedélyezve van:
+* A felhasználók hozzáférhetnek az [**E-mailek** oldalhoz](/docs/panel/emails/) az e-mail fiókok kezeléséhez.
+* A felhasználók hozzáférhetnek a [**Webmail** oldalhoz](/docs/panel/emails/webmail/).
 
-When disabled:
-* Users can not create and manage Email accounts.
+Kikapcsolt állapotban:
+* A felhasználók nem hozhatnak létre és nem kezelhetnek e-mail fiókokat.
 
-Customize options:
-* To **configure email server** refer to [*How-to Guides > Configure Email Server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/).
-* To **configure email client** refer to [*How-to Guides > How to setup your email client](/docs/articles/email/how-to-setup-your-email-client/).
-* To **view all email accounts on a server** use the [*OpenAdmin > Emails > Email Accounts* page](/docs/admin/emails/).
-* To **set webmail domain or relay hosts** use the [*OpenAdmin > Emails > Email Settings* page](/docs/admin/emails/settings/).
-* To **set up fail2ban** refer to [*How-to Guides > Setup Fail2ban](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/).
-* To **set up Rspamd** refer to [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/).
-* To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
-* To **limit number of email accounts per user** edit the email accounts limit when creating/editing hosting packages.
+Beállítások testreszabása:
+* Az **e-mail szerver konfigurálásához** tekintse meg a [*How-to Guides > Configure Email Server](/docs/articles/user-experience/how-to-setup-email-in-openpanel/) részt.
+* Az **e-mail kliens konfigurálásához** tekintse meg a [*How-to Guides > How to setup your email client](/docs/articles/email/how-to-setup-your-email-client/).
+* **Az összes e-mail fiók megtekintéséhez** használja az [*OpenAdmin > E-mailek > E-mail fiókok* oldalt](/docs/admin/emails/).
+* A **webmail domain vagy közvetítő gazdagép beállításához** használja az [*OpenAdmin > E-mailek > E-mail beállítások* oldalt](/docs/admin/emails/settings/).
+* A **fail2ban beállításához** tekintse meg a [*How-to Guides > Setup Fail2ban](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/) részt.
+* Az **Rspamd** beállításához olvassa el a [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/) részt.
+* **A DKIM domainhez való beállításához** tekintse meg a [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/) részt.
+* A **felhasználónkénti e-mail fiókok számának korlátozásához** módosítsa az e-mail fiókok korlátját a tárhelycsomagok létrehozásakor/szerkesztésekor.
 
 
 ## MySQL
 
-The **`mysql`** module allows users to create and manage mysql databases.
+A **`mysql`** modul lehetővé teszi a felhasználók számára, hogy mysql adatbázisokat hozzanak létre és kezeljenek.
 
-When enabled:
-* MySQL/MariaDB auto-starts when user accesses Databases section, opens phpMyAdmin or installs WordPress.
-* Users can access the [**MySQL > Databases** page](/docs/panel/mysql/databases/) to manage databases.
-* Users can access the [**MySQL > New Database** page](/docs/panel/mysql/new_db/) to create databases.
-* Users can access the [**MySQL > Database Wizard** page](/docs/panel/mysql/wizard/) to create database, user and assign privileges.
-* Users can access the [**MySQL > Root Password** page](#) to change root user password.
-* Users can access the [**MySQL > Process List** page](/docs/panel/mysql/processlist/) to view all active processes.
-* Users can access the [**MySQL > Users** page](/docs/panel/mysql/users/) to manage users.
-* Users can access the [**MySQL > New User** page](/docs/panel/mysql/new_user/) to create users.
-* Users can access the [**MySQL > Change Password** page](#) to change password for a user.
-* Users can access the [**MySQL > Assign User to DB** page](/docs/panel/mysql/assign/) to assign all privileges to user over a database.
-* Users can access the [**MySQL > Remove User from DB** page](/docs/panel/mysql/remove/) to revoke all privileges to user over a database.
+Ha engedélyezve van:
+* A MySQL/MariaDB automatikusan elindul, amikor a felhasználó eléri az Adatbázisok részt, megnyitja a phpMyAdmin programot vagy telepíti a WordPress-t.
+* A felhasználók elérhetik a [**MySQL > Adatbázisok** oldalt] (/docs/panel/mysql/databases/) adatbázisok kezeléséhez.
+* A felhasználók elérhetik a [**MySQL > New Database** oldalt] (/docs/panel/mysql/new_db/) adatbázisok létrehozásához.
+* A felhasználók elérhetik a [**MySQL > Database Wizard** oldalt](/docs/panel/mysql/wizard/) adatbázisok, felhasználók létrehozásához és jogosultságok hozzárendeléséhez.
+* A felhasználók elérhetik a [**MySQL > Root Password** oldalt](#) a root felhasználói jelszó megváltoztatásához.
+* A felhasználók elérhetik a [**MySQL > Process List** oldalt] (/docs/panel/mysql/processlist/) az összes aktív folyamat megtekintéséhez.
+* A felhasználók hozzáférhetnek a [**MySQL > Felhasználók** oldalhoz](/docs/panel/mysql/users/) a felhasználók kezeléséhez.
+* A felhasználók hozzáférhetnek a [**MySQL > Új felhasználó** oldalhoz](/docs/panel/mysql/new_user/) felhasználók létrehozásához.
+* A felhasználók elérhetik a [**MySQL > Jelszó módosítása** oldalt](#) a felhasználó jelszavának megváltoztatásához.
+* A felhasználók hozzáférhetnek a [**MySQL > Felhasználó hozzárendelése a DB-hez** oldalhoz] (/docs/panel/mysql/assign/), hogy minden jogosultságot hozzárendeljenek a felhasználóhoz egy adatbázis felett.
+* A felhasználók elérhetik a [**MySQL > Felhasználó eltávolítása a DB-ből** oldalt] (/docs/panel/mysql/remove/), hogy visszavonják a felhasználó összes jogosultságát az adatbázis felett.
 
-When disabled:
-* Users do not have access to the *MySQL* section.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *MySQL* részhez.
 
-Customize options:
-* To **set mysql or mariadb for all new users** use [*OpenAdmin > Settings > User Defaults* page and *MySQL type* option](/docs/admin/settings/defaults/).
-* To **set mysql, percona or mariadb for a single user** when creating their account use the [**MySQL Type** option](/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/).
-* To **change default CPU/RAM for service** use the [*OpenAdmin > Settings > User Defaults* page](/docs/admin/settings/defaults/).
-* To **restrict access to system users** edit the [`mysql_restricted_usernames`](https://dev.openpanel.com/cli/config.html#mysql-restricted-usernames) setting.
-* To **restrict access to system databases** edit the [`mysql_restricted_databases`](https://dev.openpanel.com/cli/config.html#mysql-restricted-databases) setting.
-* To **increase the startup time allowed for waiting MySQL to initalize** increase [`mysql_startup_time`](https://dev.openpanel.com/cli/config.html#mysql-startup-time).
+Beállítások testreszabása:
+* A mysql vagy a mariadb beállításához az összes új felhasználóhoz** használja az [*OpenAdmin > Settings > User Defaults* oldalt és a *MySQL type* opciót] (/docs/admin/settings/defaults/).
+* **A mysql, a percona vagy a mariadb beállításához egyetlen felhasználóhoz** használja a [**MySQL Type** beállítást] (/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/).
+* Az alapértelmezett CPU/RAM módosításához** használja az [*OpenAdmin > Settings > User Defaults* oldalt](/docs/admin/settings/defaults/).
+* A **rendszerfelhasználók hozzáférésének korlátozásához** módosítsa a [`mysql_restricted_usernames`](https://dev.openpanel.com/cli/config.html#mysql-restricted-usernames) beállítást.
+* A **rendszeradatbázisokhoz való hozzáférés korlátozásához** módosítsa a [`mysql_restricted_databases`](https://dev.openpanel.com/cli/config.html#mysql-restricted-databases) beállítást.
+* A **a MySQL inicializálására várakozó indítási idő növelése** növelje a [`mysql_startup_time`](https://dev.openpanel.com/cli/config.html#mysql-startup-time) tartományt.
 
 
-How-to guides:
-* To **connect to a database** refer to [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
-* To **troubleshoot errors** refer to [*How-to Guides > How to troubleshoot: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/).
+Útmutatók:
+* Az adatbázishoz való csatlakozáshoz** tekintse meg a [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/) című részt.
+* A **hibaelhárításhoz** tekintse meg a [*Útmutatók > Hibaelhárítás: Hiba az adatbázis-kapcsolat létrehozása során] (/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/) című részt.
 
-## Remote MySQL
+## Távoli MySQL
 
-The **`remote_mysql`** module allows users to enable/disable remote access to mysql.
+A **`remote_mysql`** modul lehetővé teszi a felhasználók számára, hogy engedélyezzék/letiltsák a távoli hozzáférést a mysql-hez.
 
-When enabled:
-* Remote access is disabled by default.
-* Random port is allocated per user for their mysql instances.
-* Users can access the [**MySQL > Remote Access** page](/docs/panel/mysql/remote/) to enable/disable remote access.
-* Users can connect to any database from remote location once the option is enabled.
+Ha engedélyezve van:
+* A távoli hozzáférés alapértelmezés szerint le van tiltva.
+* Felhasználónként véletlenszerű port van kijelölve a mysql-példányaikhoz.
+* A felhasználók elérhetik a [**MySQL > Remote Access** oldalt] (/docs/panel/mysql/remote/) a távoli hozzáférés engedélyezéséhez/letiltásához.
+* A felhasználók bármely adatbázishoz csatlakozhatnak távoli helyről, ha az opció engedélyezve van.
 
-When disabled:
-* Remote access is disabled.
+Kikapcsolt állapotban:
+* A távoli hozzáférés le van tiltva.
 
-Customize options:
-* None
+Beállítások testreszabása:
+* Egyik sem
 
 
 ## phpMyAdmin
 
-The **`phpmyadmin`** module allows users to manage phpMyAdmin service.
+A **`phpmyadmin`** modul lehetővé teszi a felhasználók számára a phpMyAdmin szolgáltatás kezelését.
 
-When enabled:
-* phpMyAdmin can be managed by the user.
-* phpMyAdmin is available on a custom per-user port.
+Ha engedélyezve van:
+* A phpMyAdmin a felhasználó által kezelhető.
+* A phpMyAdmin egyéni, felhasználónkénti porton érhető el.
 
-When disabled:
-* Users do not have access to the *phpMyAdmin* section.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *phpMyAdmin* szakaszhoz.
 
-Customize options:
-* To **change php_max_execution_time, php_memory_limit, php_upload_limit** use [*OpenAdmin > MySQL > phpMyAdmin](/docs/panel/mysql/phpmyadmin).
-* To **change default CPU/RAM for phpMyAdmin** use the 'manage' button in top-rgiht corner.
+Beállítások testreszabása:
+* A **a php_max_execution_time, php_memory_limit, php_upload_limit** módosításához használja az [*OpenAdmin > MySQL > phpMyAdmin](/docs/panel/mysql/phpmyadmin) parancsot.
+* **A phpMyAdmin alapértelmezett CPU/RAM-jának megváltoztatásához** használja a felső sarokban található „kezelés” gombot.
 
-How-to guides:
-* To **import tables into a database** refer to [**the Documentation**](/docs/panel/mysql/phpmyadmin/#import-sql-files).
-* To **set a custom domain for phpMyAdmin** refer to:  [**HOw-to GUides > Custom Domain for phpMyAdmin**](/docs/articles/databases/phpmyadmin-domain/).
+Útmutatók:
+* A **táblázatok adatbázisba történő importálásához** tekintse meg a [**dokumentációt**](/docs/panel/mysql/phpmyadmin/#import-sql-files).
+* **Egyéni domain beállításához a phpMyAdmin számára** tekintse meg a következőt: [**Útmutatók > Egyéni tartomány a phpMyAdmin számára**](/docs/articles/databases/phpmyadmin-domain/).
 
-## MySQL Import
+## MySQL importálás
 
-The **`mysql_import`** module allows users to import files into their databases.
+A **`mysql_import`** modul lehetővé teszi a felhasználók számára, hogy fájlokat importáljanak adatbázisaikba.
 
-When enabled:
-* Users can access the [**MySQL > Import Database** page](/docs/panel/mysql/import/) to import files into a database.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**MySQL > Adatbázis importálása** oldalt] (/docs/panel/mysql/import/), hogy fájlokat importáljanak egy adatbázisba.
 
-When disabled:
-* Users can not access the *MySQL > Import Database* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *MySQL > Adatbázis importálása* oldalt.
 
-Customize options:
-* To **set the max file size allowed for import** increase [`mysql_import_max_size_gb`](https://dev.openpanel.com/cli/config.html#mysql-import-max-size-gb) value.
+Beállítások testreszabása:
+* Az importáláshoz engedélyezett maximális fájlméret beállításához** növelje a [`mysql_import_max_size_gb`](https://dev.openpanel.com/cli/config.html#mysql-import-max-size-gb) értéket.
 
-How-to guides:
-* To **import into a database** refer to [*How-to Guides > Importing a Database](/docs/articles/docker/import-database/).
+Útmutatók:
+* Az adatbázisba történő **importáláshoz** tekintse meg a [*Útmutatók > Adatbázis importálása] (/docs/articles/docker/import-database/) részt.
 
 
 ## MySQL Conf
 
-The **`mysql_conf`** module allows users to edit mysql server configuration.
+A **`mysql_conf`** modul lehetővé teszi a felhasználók számára a mysql szerver konfigurációjának szerkesztését.
 
-When enabled:
-* Users can access the [**MySQL > Edit Configuration** page](#) to edit service .cnf file.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**MySQL > Konfiguráció szerkesztése** oldalt](#) a szolgáltatás .cnf fájljának szerkesztéséhez.
 
-When disabled:
-* Users can not access the *MySQL > Edit Configuration* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *MySQL > Konfiguráció szerkesztése* oldalt.
 
-Customize options:
-* To **set available options for configuration** edit file: [`/etc/openpanel/mysql/keys.txt`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/keys.txt).
-* To **edit the mysql.cnf file for a single user** edit file: `/home/${username}/custom.cnf`.
-* To **edit the mysql.cnf file for all new users** edit file: [`/etc/openpanel/mysql/user.cnf`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/user.cnf).
-
-
+Beállítások testreszabása:
+* A **konfiguráció elérhető beállításainak megadása** szerkesztheti a fájlt: [`/etc/openpanel/mysql/keys.txt`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/keys.txt).
+* A mysql.cnf fájl **szerkesztéséhez egyetlen felhasználó számára** szerkesztheti a fájlt: `/home/${felhasználónév}/custom.cnf`.
+* A mysql.cnf fájl **szerkesztéséhez minden új felhasználó számára** szerkesztheti a fájlt: [`/etc/openpanel/mysql/user.cnf`](https://github.com/stefanpejcic/openpanel-configuration/blob/main/mysql/user.cnf).
 
 
-## Remote PostgreSQL
 
-The **`remote_postgresql`** module allows users to enable/disable remote access to PostgreSQL.
 
-When enabled:
-* Remote access is disabled by default.
-* Random port is allocated per user for their PostgreSQL instances.
-* Users can access the [**PostgreSQL > Remote Access** page](#) to enable/disable remote access.
-* Users can connect to any database from remote location once the option is enabled.
+## Távoli PostgreSQL
 
-When disabled:
-* Remote access is disabled.
+A **`remote_postgresql`** modul lehetővé teszi a felhasználók számára a PostgreSQL távoli elérésének engedélyezését/letiltását.
 
-Customize options:
-* None
+Ha engedélyezve van:
+* A távoli hozzáférés alapértelmezés szerint le van tiltva.
+* A rendszer felhasználónként véletlenszerű portot oszt ki a PostgreSQL-példányokhoz.
+* A felhasználók elérhetik a [**PostgreSQL > Távoli elérés** oldalt](#) a távoli hozzáférés engedélyezéséhez/letiltásához.
+* A felhasználók bármely adatbázishoz csatlakozhatnak távoli helyről, ha az opció engedélyezve van.
+
+Kikapcsolt állapotban:
+* A távoli hozzáférés le van tiltva.
+
+Beállítások testreszabása:
+* Egyik sem
 
 
 ## pgAdmin
 
-The **`pgadmin`** module allows users to manage pgAdmin service.
+A **`pgadmin`** modul lehetővé teszi a felhasználók számára a pgAdmin szolgáltatás kezelését.
 
-When enabled:
-* pgAdmin can be managed by the user.
-* Users have access to the *pgAdmin* section.
-* pgAdmin is available on a custom per-user port.
+Ha engedélyezve van:
+* A pgAdmin-t a felhasználó kezelheti.
+* A felhasználók hozzáférhetnek a *pgAdmin* részhez.
+* A pgAdmin egyéni, felhasználónkénti porton érhető el.
 
-When disabled:
-* Users do not have access to the *pgAdmin* section.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *pgAdmin* szakaszhoz.
 
-Customize options:
-* To **change default CPU/RAM for pgAdmin** use the 'manage' button in top-rgiht corner.
+Beállítások testreszabása:
+* **A pgAdmin alapértelmezett CPU/RAM-jának megváltoztatásához** használja a „kezelés” gombot a felső sarokban.
 
 
-## PostgreSQL Import
+## PostgreSQL importálás
 
-The **`postgresql_import`** module allows users to import files into their databases.
+A **`postgresql_import`** modul lehetővé teszi a felhasználók számára, hogy fájlokat importáljanak adatbázisaikba.
 
-When enabled:
-* Users can access the [**PostgreSQL > Import Database** page](#) to import files into a database.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**PostgreSQL > Adatbázis importálása** oldalt](#), hogy fájlokat importálhassanak egy adatbázisba.
 
-When disabled:
-* Users can not access the *PostgreSQL > Import Database* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *PostgreSQL > Adatbázis importálása* oldalt.
 
-Customize options:
-* None
+Beállítások testreszabása:
+* Egyik sem
 
 
 ## PostgreSQL Conf
 
-The **`postgresql_conf`** module allows users to edit PostgreSQL server configuration.
+A **`postgresql_conf`** modul lehetővé teszi a felhasználók számára a PostgreSQL szerver konfigurációjának szerkesztését.
 
-When enabled:
-* Users can access the [**PostgreSQL > Edit Configuration** page](#) to edit service .cnf file.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**PostgreSQL > Konfiguráció szerkesztése** oldalt](#) a szolgáltatás .cnf fájljának szerkesztéséhez.
 
-When disabled:
-* Users can not access the *PostgreSQL > Edit Configuration* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *PostgreSQL > Konfiguráció szerkesztése* oldalt.
 
 
 ## Crons
 
-The **`crons`** module allows users to schedule [Ofelia](https://hub.docker.com/r/mcuadros/ofelia) cron jobs.
+A **`crons`** modul lehetővé teszi a felhasználók számára, hogy ütemezzék az [Ofelia](https://hub.docker.com/r/mcuadros/ofelia) cron-feladatokat.
 
-When enabled:
-* Users can access the [**Advanced > Cron Jobs** page](/docs/panel/advanced/cronjobs/).
-* Users can [add cronjobs](/docs/panel/advanced/cronjobs/#add)
-* Users can [edit cronjobs](/docs/panel/advanced/cronjobs/#edit)
-* Users can [view logs for cronjobs](/docs/panel/advanced/cronjobs/#logs)
-* Users can [edit crons file](/docs/panel/advanced/cronjobs/#file-editor)
-* Users can [import and export cronjobs](/docs/panel/advanced/cronjobs/#import--export)
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Speciális > Cron Jobs** oldalt] (/docs/panel/advanced/cronjobs/).
+* A felhasználók [add cronjobs](/docs/panel/advanced/cronjobs/#add)
+* A felhasználók [szerkeszthetik a cronjobs-okat](/docs/panel/advanced/cronjobs/#edit)
+* A felhasználók [megtekinthetik a cronjobs naplóit](/docs/panel/advanced/cronjobs/#logs)
+* A felhasználók [szerkeszthetik a crons fájlt](/docs/panel/advanced/cronjobs/#file-editor)
+* A felhasználók [importálhatják és exportálhatják a cronjobokat](/docs/panel/advanced/cronjobs/#import--export)
 
-When disabled:
-* Users can not access the *Advanced > Cron Jobs* page nor modify crons.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el az *Advanced > Cron Jobs* oldalt, és nem módosíthatják a cronokat.
 
-Customize options:
-* To **pre-set cronjobs for new users** edit the `/etc/openpanel/ofelia/users.ini` file.
-* To **set max file size for the cron file to be editable via OpenPanel UI** set the [`cron_max_file_size_kb`](https://dev.openpanel.com/cli/config.html#cron-max-file-size-kb) value.
-
-
-
-## Process Manager
-
-The **`process_manager`** module allows users to view and terminate processes from all running services.
-
-When enabled:
-* Users can access the [**Advanced > Process Manager** page](/docs/panel/advanced/process_manager/).
-
-When disabled:
-* Users can not access the *Advanced > Process Manager* page.
-
-Customize options:
-* None
-
-
-## Server Info
-
-The **`info`** module allows users to view server information, hosting plan information and OpenPanel information.
-
-When enabled:
-* Users can access the [**Advanced > Server Information** page](/docs/panel/advanced/server_info/).
-
-When disabled:
-* Users can not access the *Advanced > Server Information* page.
-
-Customize options:
-* None
+Beállítások testreszabása:
+* Az **előre beállított cronjobok új felhasználók számára** szerkesztéséhez szerkessze az `/etc/openpanel/ofelia/users.ini` fájlt.
+* **A cron fájl maximális fájlméretének beállításához, hogy az OpenPanel UI-n keresztül szerkeszthető legyen**, állítsa be a [`cron_max_file_size_kb`](https://dev.openpanel.com/cli/config.html#cron-max-file-size-kb) értéket.
 
 
 
-## Temporary Links
+## Folyamatkezelő
 
-The **`temporary_links`** module allows users to test their websites using temporary subdomains (links are valid for 15 minutes).
+A **`process_manager`** modul lehetővé teszi a felhasználók számára az összes futó szolgáltatás folyamatainak megtekintését és leállítását.
 
-When enabled:
-* Users can access the [**Live Preview** button on the Site Manager](/docs/panel/applications/wordpress/#temporary-link).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Advanced > Process Manager** oldalt](/docs/panel/advanced/process_manager/).
 
-When disabled:
-* Users can not access the *Live Preview* button on the Site Manager page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Speciális > Folyamatkezelő* oldalt.
 
-Customize options:
-* To **self-host a proxy service** - refer to [How-to Guides > Temporary Links API](/docs/articles/dev-experience/selfhosted-temporary-links-api/).
-* To **configure a custom domain** - update the [`temporary_links` option](https://dev.openpanel.com/cli/config.html#temporary-links).
+Beállítások testreszabása:
+* Egyik sem
 
-## Login History
 
-The **`login_history`** module allows users to view login history for their account.
+## Szerver Info
 
-When enabled:
-* Users can access the [**Account > Login History** page](/docs/panel/account/login_history/).
+Az **`info`** modul segítségével a felhasználók megtekinthetik a szerverinformációkat, a tárhelyterv-információkat és az OpenPanel-információkat.
 
-When disabled:
-* Users can not access the *Account > Login History* page.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Speciális > Szerverinformáció** oldalt] (/docs/panel/advanced/server_info/).
 
-Customize options:
-* To **control number of logins stored per user** edit 'Login records to keep per user' setting from [OpenAdmin > Settings > OpenPanel](/docs/admin/settings/openpanel/#Statistics).
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Speciális > Szerverinformáció* oldalt.
+
+Beállítások testreszabása:
+* Egyik sem
+
+
+
+## Ideiglenes linkek
+
+Az **`temporary_links`** modul lehetővé teszi a felhasználók számára, hogy ideiglenes aldomainekkel teszteljék webhelyeiket (a linkek 15 percig érvényesek).
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Élő előnézet** gombot a Webhelykezelőben] (/docs/panel/applications/wordpress/#temporary-link).
+
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el az *Élő előnézet* gombot a Site Manager oldalon.
+
+Beállítások testreszabása:
+* **Proxyszolgáltatás saját üzemeltetéséhez** – tekintse meg a [How-to Guides > Temporary Links API](/docs/articles/dev-experience/selfhosted-temporary-links-api/) részt.
+* **Egyéni domain konfigurálásához** frissítse az [`temporary_links` opciót](https://dev.openpanel.com/cli/config.html#temporary-links).
+
+## Bejelentkezési előzmények
+
+A **`login_history`** modul lehetővé teszi a felhasználók számára, hogy megtekintsék fiókjuk bejelentkezési előzményeit.
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fiók > Bejelentkezési előzmények** oldalt](/docs/panel/account/login_history/).
+
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fiók > Bejelentkezési előzmények* oldalt.
+
+Beállítások testreszabása:
+* A **felhasználónként tárolt bejelentkezések számának szabályozásához** módosítsa a „Felhasználónkénti bejelentkezési rekordok megtartása” beállítást az [OpenAdmin > Beállítások > OpenPanel] oldalon (/docs/admin/settings/openpanel/#Statistics).
 
 
 ## 2FA
 
-The **`twofa`** module allows users to enable 2 factor authentication for their account.
+A **`twofa`** modul lehetővé teszi a felhasználók számára, hogy engedélyezzék a kétfaktoros hitelesítést a fiókjukhoz.
 
-When enabled:
-* Users can access the [**Account > Two-Factor Authentication** page](/docs/panel/account/2fa).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fiók > Kéttényezős hitelesítés** oldalt](/docs/panel/account/2fa).
 
-When disabled:
-* Users can not access the *Advanced > Two-Factor Authentication* page nor manage 2FA.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Speciális > Kéttényezős hitelesítés* oldalt, és nem kezelhetik a 2FA-t.
 
-Customize options:
-* To **enable 2FA widget** use [*OpenAdmin > Settings > OpenPanel* page and *Display 2FA widget* option](/docs/admin/settings/openpanel/).
-* To **check 2FA status for a user** refer to [How to check if 2FA is active for OpenPanel user account?](https://community.openpanel.org/d/220-how-to-check-if-2fa-is-active-for-openpanel-user-account).
+Beállítások testreszabása:
+* A **2FA widget engedélyezéséhez** használja az [*OpenAdmin > Beállítások > OpenPanel* oldalt és a *Display 2FA widget* opciót] (/docs/admin/settings/openpanel/).
+* A **egy felhasználó 2FA állapotának ellenőrzéséhez** tekintse meg a [Hogyan ellenőrizhető, hogy a 2FA aktív-e az OpenPanel felhasználói fiókhoz?](https://community.openpanel.org/d/220-how-to-check-if-2fa-is-active-for-openpanel-user-account) című részt.
 
-## Activity
+## Tevékenység
 
-The **`activity`** module allows users to view their activity logs.
+Az **`activity`** modul lehetővé teszi a felhasználók számára, hogy megtekintsék tevékenységi naplóikat.
 
-When enabled:
-* Users can access the [**Account > Activity Log** page](/docs/panel/account/account_activity).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fiók > Tevékenységnapló** oldalt](/docs/panel/account/account_activity).
 
-When disabled:
-* Users can not access the *Account > Activity Log* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fiók > Tevékenységnapló* oldalt.
 
-Customize options:
-* To **edit activity log from terminal** open file: `/etc/openpanel/openpanel/core/users/{username}/activity.log`.
-* To **set total number of lines per user** edit `activity_lines_retention` setting.
-* To **set total size of log per user** edit `activity_max_size_bytes` setting.
-* To **log actions from 3rd-party plugin** refer to: [*How to log actions from Custom Plugins in user Activity Log*](https://community.openpanel.org/d/218-how-to-log-actions-from-custom-plugins-in-user-activity-log)
-
-
-## Backups
-
-The **`backups`** module allows users to m=configure their own backups: what to backup, destination, retention, schedule, etc.
-
-When enabled:
-* Users can access the [**Files > Backups** page](/docs/panel/files/backups/).
-* Users can configure backup schedule, encryption, retention and destination.
-
-When disabled:
-* Users do not have access to the *Files > Backups* page.
-* [Administrators need to configure backups for the user](/docs/articles/backups/configuring-backups/#1-admin-configured).
+Beállítások testreszabása:
+* A **tevékenységnapló szerkesztéséhez a terminálról** nyissa meg a következő fájlt: `/etc/openpanel/openpanel/core/users/{felhasználónév}/activity.log`.
+* A **felhasználónkénti sorok teljes számának beállításához** módosítsa az "activity_lines_retention" beállítást.
+* A **felhasználónkénti napló teljes méretének beállításához** módosítsa az `activity_max_size_bytes` beállítást.
+* A **műveletek naplózásához harmadik féltől származó beépülő modulról** olvassa el a következőt: [*Műveletek naplózása egyéni beépülő modulokból a felhasználói tevékenységnaplóban*](https://community.openpanel.org/d/218-how-to-log-actions-from-custom-plugins-in-user-activity-log)
 
 
+## Biztonsági mentések
 
-## Services
+A **`backups`** modul lehetővé teszi a felhasználók számára, hogy m=konfigurálják saját biztonsági másolataikat: miről kell biztonsági másolatot készíteni, cél, megőrzés, ütemezés stb.
 
-The **`services`** module allows users to enable/disable services without the Docker module.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fájlok > Biztonsági másolatok** oldalt](/docs/panel/files/backups/).
+* A felhasználók beállíthatják a biztonsági mentés ütemezését, a titkosítást, a megőrzést és a célállomást.
 
-When enabled:
-* Users can access the [**Advanced > Services** page](/docs/panel/advanced/services/).
-* Users can enable/disable services.
-* User view current service status, resource usage (CPU%, Memory%, Disk I/O, PIDs..), container name (to be used to connect to service from other containers).
-* Users can view logs for services.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Fájlok > Biztonsági másolatok* oldalhoz.
+* [A rendszergazdáknak be kell állítaniuk a biztonsági mentéseket a felhasználó számára](/docs/articles/backups/configuring-backups/#1-admin-configured).
 
-When disabled:
-* Users do not have access to the *Advanced > Services* page.
+
+
+## Szolgáltatások
+
+A **`services`** modul lehetővé teszi a felhasználók számára a szolgáltatások engedélyezését/letiltását a Docker modul nélkül.
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Speciális > Szolgáltatások** oldalt](/docs/panel/advanced/services/).
+* A felhasználók engedélyezhetik/letilthatják a szolgáltatásokat.
+* A felhasználó megtekintheti a szolgáltatás aktuális állapotát, az erőforrás-használatot (CPU, memória, lemez I/O, PID-k...), tároló nevét (más tárolókból a szolgáltatáshoz való csatlakozáshoz használandó).
+* A felhasználók megtekinthetik a szolgáltatások naplóit.
+
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Speciális > Szolgáltatások* oldalhoz.
 
 
 ## Memcached
 
-The **`memcached`** module allows users to enable/disable Memcached service.
+A **`memcached`** modul lehetővé teszi a felhasználók számára a Memcached szolgáltatás engedélyezését/letiltását.
 
-When enabled:
-* Users can access the [**Caching > Memcached** page](/docs/panel/caching/memcached/).
-* Users can enable/disable Memcached service.
-* User can connect to the instance from other containers using: `elasticsearch:11211`
-* Users can view logs for the Memcached service.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Caching > Memcached** oldalt](/docs/panel/caching/memcached/).
+* A felhasználók engedélyezhetik/letilthatják a Memcached szolgáltatást.
+* A felhasználó más tárolókból csatlakozhat a példányhoz a következő használatával: `elasticsearch:11211`
+* A felhasználók megtekinthetik a Memcached szolgáltatás naplóit.
 
-When disabled:
-* Users do not have access to the *Caching > Memcached* page.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Gyorsítótár > Memcached* oldalhoz.
 
 ## Redis
 
-The **`redis`** module allows users to enable/disable Redis service.
+A **`redis`** modul lehetővé teszi a felhasználók számára a Redis szolgáltatás engedélyezését/letiltását.
 
-When enabled:
-* Users can access the [**Caching > Redis** page](/docs/panel/caching/redis/).
-* Users can enable/disable Memcached service.
-* User can connect to the instance from other containers using: `redis:6379`
-* Users can view logs for the Redis service.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Caching > Redis** oldalt](/docs/panel/caching/redis/).
+* A felhasználók engedélyezhetik/letilthatják a Memcached szolgáltatást.
+* A felhasználó más tárolókból is csatlakozhat a példányhoz a `redis:6379` használatával
+* A felhasználók megtekinthetik a Redis szolgáltatás naplóit.
 
-When disabled:
-* Users do not have access to the *Caching > Redis* page.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Caching > Redis* oldalhoz.
 
 
 ## ElasticSearch
 
-The **`elasticsearch`** module allows users to enable/disable ElasticSearch service.
+Az **`elasticsearch`** modul lehetővé teszi a felhasználók számára az ElasticSearch szolgáltatás engedélyezését/letiltását.
 
-When enabled:
-* Users can access the [**Caching > ElasticSearch** page](/docs/panel/caching/elasticsearch/).
-* Users can enable/disable ElasticSearch service.
-* User can connect to the instance from other containers using: `elasticsearch:9200`
-* Users can view logs for the ElasticSearch service.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Caching > ElasticSearch** oldalt](/docs/panel/caching/elasticsearch/).
+* A felhasználók engedélyezhetik/letilthatják az ElasticSearch szolgáltatást.
+* A felhasználó más tárolókból csatlakozhat a példányhoz a következő használatával: `elasticsearch:9200`
+* A felhasználók megtekinthetik az ElasticSearch szolgáltatás naplóit.
 
-When disabled:
-* Users do not have access to the *Caching > ElasticSearch* page.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Gyorsítótár > ElasticSearch* oldalhoz.
 
 
 
 ## OpenSearch
 
-The **`opensearch`** module allows users to enable/disable OpenSearch service.
+Az **`opensearch`** modul lehetővé teszi a felhasználók számára az OpenSearch szolgáltatás engedélyezését/letiltását.
 
-When enabled:
-* Users can access the [**Caching > OpenSearch** page](/docs/panel/caching/opensearch/).
-* Users can enable/disable OpenSearch service.
-* User can connect to the instance from other containers using: `opensearch:9200`
-* Users can view logs for the OpenSearch service.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Caching > OpenSearch** oldalt](/docs/panel/caching/opensearch/).
+* A felhasználók engedélyezhetik/letilthatják az OpenSearch szolgáltatást.
+* A felhasználó más tárolókból is csatlakozhat a példányhoz az "opensearch:9200" használatával
+* A felhasználók megtekinthetik az OpenSearch szolgáltatás naplóit.
 
-When disabled:
-* Users do not have access to the *Caching > OpenSearch* page.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Gyorsítótár > OpenSearch* oldalhoz.
 
 
-## Disk Usage Explorer
+## Lemezhasználat Explorer
 
-The **`disk_usage`** module allows users to view disk usage per-directory.
+A **`disk_usage`** modul lehetővé teszi a felhasználók számára a lemezhasználat könyvtáronkénti megtekintését.
 
-When enabled:
-* Users can access the [**Files > Disk Usage** page](/docs/panel/files/disk_usage/).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fájlok > Lemezhasználat** oldalt](/docs/panel/files/disk_usage/).
 
-When disabled:
-* Users do not have access to the *Files > Disk Usage* page.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Fájlok > Lemezhasználat* oldalhoz.
 
 
 ## Inodes Explorer
 
-The **`disk_usage`** module allows users to view disk usage per-directory.
+A **`disk_usage`** modul lehetővé teszi a felhasználók számára a lemezhasználat könyvtáronkénti megtekintését.
 
-When enabled:
-* Users can access the [**Files > Inodes Explorer** page](/docs/panel/files/inodes/).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fájlok > Inodes Explorer** oldalt] (/docs/panel/files/inodes/).
 
-When disabled:
-* Users do not have access to the *Files > Inodes Explorer* page.
-
-
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Fájlok > Inodes Explorer* oldalhoz.
 
 
 
-## AutoInstaller
-The **`autoinstaller`** module allows users to autoinstall WordPress, website Builder, Mautic, Python/NodeJS applications, etc.
-
-When enabled:
-* Users can access the [**Websites > Auto Installer** page](/docs/panel/applications/autoinstaller/).
-
-When disabled:
-* Users do not have access to the *Websites > Auto Installer* page.
 
 
-## PHP.INI Editor
-The **`php_ini`** module allows users to edit the PNP.INI files using a text editor.
+## Automatikus telepítő
+Az **`autoinstaller`** modul lehetővé teszi a felhasználók számára a WordPress, a website Builder, a Mautic, a Python/NodeJS alkalmazások stb. automatikus telepítését.
 
-When enabled:
-* Users can access the [**PHP > PHP.INI Editor** page](/docs/panel/php/php_ini_editor/).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Webhelyek > Automatikus telepítő** oldalt] (/docs/panel/applications/autoinstaller/).
 
-When disabled:
-* Users do not have access to the *PHP > PHP.INI Editor* page.
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Webhelyek > Automatikus telepítő* oldalhoz.
+
+
+## PHP.INI szerkesztő
+A **`php_ini`** modul lehetővé teszi a felhasználók számára a PNP.INI fájlok szövegszerkesztővel történő szerkesztését.
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**PHP > PHP.INI Editor** oldalt](/docs/panel/php/php_ini_editor/).
+
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *PHP > PHP.INI Editor* oldalhoz.
 
 
 ## WordPress
 
-The **`wordpress`** module allows users to install and manage WordPress websites.
+A **`wordpress`** modul lehetővé teszi a felhasználók számára WordPress webhelyek telepítését és kezelését.
 
-When enabled:
-* Users can access the [**Websites > WP Manager** page](/docs/panel/applications/wordpress/).
-* Users can [manage WordPress websites using WP Manager](/docs/panel/applications/wordpress/#site-manager).
-* WordPress is available on the Autoinstaller page.
-* Users can [install WordPress using Auto Installer](/docs/panel/applications/wordpress/#install-wordpress).
-* Users can [scan and import existing installations](/docs/panel/applications/wordpress/#scanning-importing-installations).
-* Users can [set themes and plugins to auto-install](/docs/panel/applications/wordpress/#themes-and-plugins-sets).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Webhelyek > WP Manager** oldalt](/docs/panel/applications/wordpress/).
+* A felhasználók [a WP Manager segítségével kezelhetik a WordPress webhelyeket] (/docs/panel/applications/wordpress/#site-manager).
+* A WordPress elérhető az Automatikus telepítő oldalon.
+* A felhasználók [telepíthetik a WordPress-t az Auto Installer segítségével] (/docs/panel/applications/wordpress/#install-wordpress).
+* A felhasználók [ellenőrizhetik és importálhatják a meglévő telepítéseket] (/docs/panel/applications/wordpress/#scanning-importing-installations).
+* A felhasználók [beállíthatják a témákat és a beépülő modulokat automatikus telepítésre] (/docs/panel/applications/wordpress/#themes-and-plugins-sets).
 
-When disabled:
-* Users can not access the *Websites > WP Manager* page.
-* WordPress is not available in Autoinstaller.
-* WordPress websites can not be managed via Openpanel.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Webhelyek > WP Manager* oldalt.
+* A WordPress nem érhető el az Autoinstallerben.
+* A WordPress webhelyek nem kezelhetők Openpanelen keresztül.
 
-Customize options:
-* To **auto install themes or plugins on new installations** refer to: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
-* To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
-* To **setup a mu-plugin on all new websites** edit `/etc/openpanel/wordpress/mu-plugin.php` file.
-* To **set a custom WP-CLI for all websites** replace the `/etc/openpanel/wordpress/wp-cli.phar` file.
-* To **customize .htaccess files used for new websites** edit files in `/etc/openpanel/wordpress/htaccess/` folder.
+Beállítások testreszabása:
+* A **témák vagy beépülő modulok új telepítéseknél történő automatikus telepítéséhez** olvassa el a következőt: [*WordPress Themes and Plugins Sets*](/docs/articles/websites/wordpress-plugins-themes-sets-in-openpanel/)
+* **Egyéni Google PageSpeed ​​Insights API-kulcs hozzáadásához** tekintse meg: [*Útmutatók > Google PageSpeed ​​Insights API-kulcs*](/docs/articles/websites/google-pagespeed-insights-api-key/)
+* Egy mu-plugin beállításához minden új webhelyen** szerkessze az `/etc/openpanel/wordpress/mu-plugin.php` fájlt.
+* Ha **egyéni WP-CLI-t szeretne beállítani az összes webhelyhez**, cserélje ki az `/etc/openpanel/wordpress/wp-cli.phar` fájlt.
+* **Az új webhelyekhez használt .htaccess fájlok testreszabása** a `/etc/openpanel/wordpress/htaccess/` mappában lévő fájlok szerkesztése.
 
-## Website Builder
+## Webhelykészítő
 
-The **`website_builder`** module allows users to create simple websites using the HTML Drag & Drop Website Builder.
+A **`website_builder`** modul lehetővé teszi a felhasználók számára, hogy egyszerű webhelyeket hozzanak létre a HTML Drag & Drop Website Builder segítségével.
 
-When enabled:
-* Users can access the [**Websites > Website Builder** page](/docs/panel/applications/builder/).
-* Users can [manage static websites using Site Manager](/docs/panel/applications/builder/#edit-website).
-* Website Builder is available on the Autoinstaller page.
-* Users can [create static websites using Auto Installer](/docs/panel/applications/builder/#create-a-website).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Webhelyek > Webhelykészítő** oldalt](/docs/panel/applications/builder/).
+* A felhasználók [kezelhetik a statikus webhelyeket a Site Manager segítségével](/docs/panel/applications/builder/#edit-website).
+* A Website Builder az Automatikus telepítő oldalon érhető el.
+* A felhasználók [statikus webhelyeket hozhatnak létre az Auto Installer segítségével] (/docs/panel/applications/builder/#create-a-website).
 
-When disabled:
-* Users can not access the *Websites > Website Builder* page.
-* Website Builder is not available in Autoinstaller.
-* Static websites can not be managed via Openpanel.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Webhelyek > Webhelykészítő* oldalt.
+* A Website Builder nem érhető el az Autoinstallerben.
+* A statikus webhelyek nem kezelhetők Openpanelen keresztül.
 
 ## Mautic
 
-The **`mautic`** module allows users to install and manage Mautic from OpenPanel. 
+A **`mautic`** modul lehetővé teszi a felhasználók számára a Mautic telepítését és kezelését az OpenPanelről.
 
-> **NOTE:** This module is no longer actively maintained and should not be used in production (*BETA* tag).
+> **MEGJEGYZÉS:** Ezt a modult már nem karbantartják aktívan, és nem szabad élesben használni (*BETA* címke).
 
-When enabled:
-* Users can [manage Mautic websites using Site Manager](/docs/panel/applications/).
-* Mautic is available on the AutoInstaller page.
-* Users can [install Mautic using the AutoInstaller](/docs/articles/websites/how-to-install-mautic-with-openpanel/).
+Ha engedélyezve van:
+* A felhasználók [kezelhetik a Mautic webhelyeket a Site Manager segítségével] (/docs/panel/applications/).
+* A Mautic elérhető az AutoInstaller oldalon.
+* A felhasználók [telepíthetik a Mautic-ot az AutoInstaller segítségével] (/docs/articles/websites/how-to-install-mautic-with-openpanel/).
 
-When disabled:
-* Mautic is not available in Autoinstaller.
+Kikapcsolt állapotban:
+* A Mautic nem érhető el az Autoinstallerben.
 
 ## ClamAV
 
-The **`malware_scanner`** module starts a ClamAV service and allows users to scan files. 
+A **`malware_scanner`** modul elindít egy ClamAV szolgáltatást, és lehetővé teszi a felhasználók számára a fájlok vizsgálatát.
 
-> **NOTE:** This module is no longer actively maintained and should not be used in production (*DEPRECATED* tag).
+> **MEGJEGYZÉS:** Ezt a modult már nem karbantartják aktívan, és nem szabad élesben használni (*DEPRECATED* címke).
 
-When enabled:
-* Users can access the [**Files > Malware Scanner** page](/docs/panel/files/malware-scanner/).
-* ClamAV service is started on the server.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fájlok > Malware Scanner** oldalt](/docs/panel/files/malware-scanner/).
+* A ClamAV szolgáltatás elindul a szerveren.
 
-When disabled:
-* Users can not access the *Files > Malware Scanner* page.
-* ClamAV service is not started on the server.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fájlok > Malware Scanner* oldalt.
+* A ClamAV szolgáltatás nem indul el a szerveren.
 
-Customize options:
-* To **customize the cpu/memory limits for the ClamAV service** refer to: [*OpenAdmin > Services > Service Limits*](/docs/admin/services/limits/).
-
-
-
-## Files
-
-The **`files`** module allows users to manage files and folders using the File Manager.
-
-When enabled:
-* Users can access the [**Files > File Manager** page](/docs/panel/files/).
-* File Manager links are available on other pages: Domains, WP Manager, etc.
-
-When disabled:
-* Users can not access the *Files > File Manager* page.
-* No links to manage files are shown on other pages.
+Beállítások testreszabása:
+* **A ClamAV szolgáltatás cpu/memóriakorlátainak testreszabásához** tekintse meg a következőt: [*OpenAdmin > Services > Service Limits*](/docs/admin/services/limits/).
 
 
 
+## Fájlok
 
-## Domains
+A **`fájlok`** modul lehetővé teszi a felhasználók számára a fájlok és mappák kezelését a Fájlkezelő segítségével.
 
-The **`domains`** module allows users to add and manage domains.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Fájlok > Fájlkezelő** oldalt](/docs/panel/files/).
+* A Fájlkezelő hivatkozások más oldalakon is elérhetők: Domains, WP Manager stb.
 
-When enabled:
-* Users can access the [**Domains** page](/docs/panel/domains/).
-* Users can manage domains.
-* Users can access the 'Domains' sub-pages in the menu.
-
-When disabled:
-* Users can not access the *Domains* page.
-* Users can not manage domains.
-
-Customize options:
-* To **enable HSTS for a domain** refer to:  [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
-* To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Fájlok > Fájlkezelő* oldalt.
+* Más oldalakon nem jelennek meg hivatkozások a fájlok kezelésére.
 
 
-## Raw Access Logs
 
-The **`domain_logs`** module allows users to view the raw access log for their domains.
 
-When enabled:
-* Users can access the [**Domains > Raw Access Logs** page](/docs/panel/domains/docroot/).
+## Domainek
 
-When disabled:
-* Users can not access the *Domains > Raw Access Logs* page.
+A **`domains`** modul lehetővé teszi a felhasználók számára tartományok hozzáadását és kezelését.
+
+Ha engedélyezve van:
+* A felhasználók hozzáférhetnek a [**Domains** oldalhoz](/docs/panel/domains/).
+* A felhasználók kezelhetik a domaineket.
+* A felhasználók a menüben érhetik el a „Domains” aloldalakat.
+
+Kikapcsolt állapotban:
+* A felhasználók nem férhetnek hozzá a *Domains* oldalhoz.
+* A felhasználók nem kezelhetnek domaineket.
+
+Beállítások testreszabása:
+* **A HSTS engedélyezése egy domain számára**: [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
+* Az **alapértelmezett oldalak testreszabásához** lásd: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
+
+
+## Nyers hozzáférési naplók
+
+A **`domain_logs`** modul lehetővé teszi a felhasználók számára, hogy megtekintsék a tartományaik nyers hozzáférési naplóját.
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Domainek > Nyers hozzáférési naplók** oldalt] (/docs/panel/domains/docroot/).
+
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Domainek > Nyers hozzáférési naplók* oldalt.
 
 
 
 ## GoAccess
 
-The **`goaccess`** module runs the GoAccess service on a scheduled basis to process raw domain logs and produce HTML reports accessible through the OpenPanel UI.
+A **`goaccess`** modul ütemezetten futtatja a GoAccess szolgáltatást a nyers tartománynaplók feldolgozásához és az OpenPanel UI-n keresztül elérhető HTML-jelentések elkészítéséhez.
 
-When enabled:
-* GoAccess service is run on the server.
-* Users can access the [**Domains > GoAccess** page](/docs/panel/domains/goaccess/).
+Ha engedélyezve van:
+* A GoAccess szolgáltatás fut a szerveren.
+* A felhasználók elérhetik a [**Domainek > GoAccess** oldalt](/docs/panel/domains/goaccess/).
 
-When disabled:
-* Users can not access the *Domains > GoAccess* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Domains > GoAccess* oldalt.
 
-Customize options:
-* To **disable GoACcess report generation** update the: [*`goaccess_enable` value*](https://dev.openpanel.com/cli/config.html#goaccess-enable)
-* To **change how often the reports are generated (default = @daily)** edit the schedule for [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats) and the [`goaccess_schedule` value](https://dev.openpanel.com/cli/config.html#goaccess-schedule).
-* To **generate the data manually** execute [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats).
-* To **force regeneration of the reports* refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
+Beállítások testreszabása:
+* A **GoACcess jelentéskészítés letiltásához** frissítse a [*`goaccess_enable` értéket*](https://dev.openpanel.com/cli/config.html#goaccess-enable)
+* **A jelentések generálási gyakoriságának módosításához (alapértelmezett = @napi)** módosítsa a [`domains-stats` cron] (https://dev.openpanel.com/crons.html#domains-stats) ütemezését és a [`goaccess_schedule` értékét](https://dev.openpanel.com/cli/scheduleccess.html-schedule).
+* **Az adatok manuális generálásához** futtassa a [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats) parancsot.
+* A jelentések **újragenerálásának kényszerítéséhez* tekintse meg: [*OpenCLI-dokumentáció > Domain-hozzáférési naplók elemzése*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
 
 
 ## Docroot
 
-The **`docroot`** module allows users to set a custom docroot (folder) when adding domains, and later change the path.
+A **`docroot`** modul lehetővé teszi a felhasználók számára, hogy egyéni docroot-ot (mappát) állítsanak be tartományok hozzáadásakor, majd később módosítsák az elérési utat.
 
-When enabled:
-* Users can access the [**Domains > Change Docroot** page](/docs/panel/domains/docroot/).
-* Users can set a custom docroot when adding a domain.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Domains > Change Docroot** oldalt](/docs/panel/domains/docroot/).
+* A felhasználók egyéni docroot-ot állíthatnak be a domain hozzáadásakor.
 
-When disabled:
-* Users can not set a custom docroot when adding a domaina, and can not later change the docroot.
+Kikapcsolt állapotban:
+* A felhasználók nem állíthatnak be egyéni docroot-ot egy domain hozzáadásakor, és később sem módosíthatják a docroot-ot.
 
-## Redirects
+## Átirányítások
 
-The **`redirects`** module allows users to create redirects for domains.
+Az **`átirányítások`** modul lehetővé teszi a felhasználók számára, hogy átirányításokat hozzanak létre tartományokhoz.
 
-When enabled:
-* Users can access the [**Domains > Redirects** page](/docs/panel/domains/redirects/).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Domainek > Átirányítások** oldalt](/docs/panel/domains/redirects/).
 
-When disabled:
-* Users can not access the *Domains > Redirects* page.
-
-
-
-## Capitalize Domains
-
-The **`capitalize_domains`** module allows users to set a capitalized version fo the domain for dispaly in the OpenPanel.
-
-When enabled:
-* Users can access the [**Domains > Capitalize Domains** page](/docs/panel/domains/capitalize/).
-
-When disabled:
-* Users can not access the *Domains > Capitalize Domains* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Domainek > Átirányítások* oldalt.
 
 
-## Edit VirtualHosts
 
-The **`edit_vhost`** module allows users to edit the VirtualHosts files for their domains.
+## Domainek nagybetűvel
 
-When enabled:
-* Users can access the [**Domains > Edit VHosts File** page](/docs/panel/domains/vhosts/).
+A **`capitalize_domains`** modul lehetővé teszi a felhasználók számára, hogy a tartomány nagybetűs verzióját állítsák be az OpenPanelben való megjelenítéshez.
 
-When disabled:
-* Users can not access the *Domains > Edit VHosts File* page.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Domainek > Domainek nagybetűs írása** oldalt] (/docs/panel/domains/capitalize/).
 
-Customize options:
-* To **customize the vhost files for Apache/Nginx/OpenLiteSpeed** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Domainek > Domainek nagybetűs írása* oldalt.
 
 
-## Webserver
+## VirtualHosts szerkesztése
 
-The **`webserver_conf`** module allows users to edit the main configuration files for their webservers.
+Az **`edit_vhost`** modul lehetővé teszi a felhasználók számára, hogy szerkesszék a VirtualHosts fájlokat a tartományukhoz.
 
-When enabled:
-* Users can access the [**Advanced > WebServer Settings** page](/docs/panel/advanced/webserver_settings/).
-* Users can edit the `httpd.conf` file for Apache.
-* Users can edit the `nginx.conf` file for Nginx/OpenResty.
-* Users can edit the `openlitespeed.conf` file for OpenLiteSpeed.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Domains > Edit VHosts File** oldalt](/docs/panel/domains/vhosts/).
 
-When disabled:
-* Users can not access the *Advanced > WebServer Settings* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Domains > Edit VHosts File* oldalt.
 
-Customize options:
-* To **customize the default `httpd.conf` file for Apache** edit `/etc/openpanel/apache/httpd.conf` file.
-* To **customize the default `nginx.conf` file for Nginx** edit `/etc/openpanel/nginx/nginx.conf` file.
-* To **customize the default `openlitespeed.conf` file for OpenLiteSpeed** edit `/etc/openpanel/openlitespeed/httpd_config.conf` file.
-* To **customize the default `nginx.conf` file for OpenResty** edit `/etc/openpanel/openresty/nginx.conf` file.
+Beállítások testreszabása:
+* Az Apache/Nginx/OpenLiteSpeed** vhost-fájlok testreszabásához** tekintse meg: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#apache-virtualhost)
+
+
+## Webszerver
+
+A **`webserver_conf`** modul lehetővé teszi a felhasználók számára, hogy szerkesszék a webszervereik fő konfigurációs fájljait.
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Speciális > Webszerver-beállítások** oldalt] (/docs/panel/advanced/webserver_settings/).
+* A felhasználók szerkeszthetik az Apache `httpd.conf` fájlját.
+* A felhasználók szerkeszthetik az Nginx/OpenResty `nginx.conf` fájlját.
+* A felhasználók szerkeszthetik az OpenLiteSpeed ​​`openlitespeed.conf` fájlját.
+
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Speciális > Webszerver beállításai* oldalt.
+
+Beállítások testreszabása:
+* Az Apache alapértelmezett `httpd.conf` fájljának testreszabásához** módosítsa az `/etc/openpanel/apache/httpd.conf` fájlt.
+* Az alapértelmezett `nginx.conf` fájl testreszabásához** módosítsa az `/etc/openpanel/nginx/nginx.conf` fájlt.
+* Az OpenLiteSpeed ​​alapértelmezett `openlitespeed.conf` fájljának testreszabásához** módosítsa az `/etc/openpanel/openlitespeed/httpd_config.conf` fájlt.
+* Az alapértelmezett `nginx.conf` fájl testreszabásához** az OpenResty számára módosítsa az `/etc/openpanel/openresty/nginx.conf` fájlt.
 
 ## DNS
 
-The **`dns`** module runs a local BIND9 service, creates zone files for domains and allows users to manage DNS records.
+A **`dns`** modul helyi BIND9 szolgáltatást futtat, zónafájlokat hoz létre a tartományokhoz, és lehetővé teszi a felhasználók számára a DNS-rekordok kezelését.
 
-When enabled:
-* BIND9 service is run on the server.
-* Users can access the [**Domains > DNS Zone Editor** page](/docs/panel/domains/dns/).
-* DNS zone files are created for new domains.
-* Users can manage DNS records.
-* 'Edit Zone' links are available for domains under the *OpenPanel > Domains* page.
-* Administrators can access the [**OpenAdmin > Domains > DNS Cluster** page](/docs/admin/domains/dns-cluster/).
-* Administrators can access the [**OpenAdmin > Domains > Edit Zone Templates** page](/docs/admin/domains/dns_templates/).
-* Administrators can access the [**OpenAdmin > Domains > DNS Zone Editor** page](/docs/admin/domains/dns/).
+Ha engedélyezve van:
+* A BIND9 szolgáltatás fut a szerveren.
+* A felhasználók elérhetik a [**Domains > DNS Zone Editor** oldalt](/docs/panel/domains/dns/).
+* A DNS-zónafájlok új tartományokhoz jönnek létre.
+* A felhasználók kezelhetik a DNS rekordokat.
+* A 'Zóna szerkesztése' linkek a domainekhez az *OpenPanel > Domains* oldalon érhetők el.
+* A rendszergazdák elérhetik az [**OpenAdmin > Domains > DNS Cluster** oldalt](/docs/admin/domains/dns-cluster/).
+* A rendszergazdák elérhetik az [**OpenAdmin > Domains > Edit Zone Templates** oldalt](/docs/admin/domains/dns_templates/).
+* A rendszergazdák elérhetik az [**OpenAdmin > Domains > DNS Zone Editor** oldalt](/docs/admin/domains/dns/).
 
-When disabled:
-* Users can not access the *Domains > DNS Zone Editor* page.
-* Administrators can not access the *DNS Zone Editor*, *Edit Zone Templates*, and *DNS Cluster* pages in OpenAdmin.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Domains > DNS Zone Editor* oldalt.
+* A rendszergazdák nem férhetnek hozzá az OpenAdmin *DNS Zone Editor*, *Edit Zone Templates* és *DNS Cluster* oldalaihoz.
 
-Customize options:
-* To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
-* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
-* To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
+Beállítások testreszabása:
+* A **névszerverek konfigurálásához** tekintse meg a következőt: [*Útmutatók > Névszerverek konfigurálása*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
+* A **DNS-zóna sablonok testreszabásához** tekintse meg a következőt: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
+* **DNS-fürt konfigurálásához** tekintse meg: [*Útmutatók > DNS-fürtözés*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
 
 
 
 
 ## WAF
 
-The **`waf`** module runs a custom Caddy image with CorazaWAF and allows users to manage WAF rules and on/off protection per domain.
+A **`waf`** modul egyéni Caddy-képet futtat a CorazaWAF-fel, és lehetővé teszi a felhasználók számára, hogy tartományonként kezeljék a WAF-szabályokat és a be-/kikapcsolásvédelmet.
 
-When enabled:
-* `openpanel/caddy-coraza` docker image is used.
-* Template `/etc/openpanel/caddy/templates/domain.conf_with_modsec` is used for new domains.
-* Users can access the [**Advanced > WAF** page](/docs/panel/advanced/waf/).
-* [OWASP CRS](https://github.com/coreruleset/coreruleset) is setup on installation.
-* Users can edit WAF rules and enable/disable protection per domain.
-* ['Firewall' widget is displayed in Site Manager](/docs/panel/applications/wordpress/#firewall).
+Ha engedélyezve van:
+* `openpanel/caddy-coraza` dokkolóképet használnak.
+* Az `/etc/openpanel/caddy/templates/domain.conf_with_modsec` sablon az új tartományokhoz használatos.
+* A felhasználók elérhetik a [**Speciális > WAF** oldalt](/docs/panel/advanced/waf/).
+* Az [OWASP CRS](https://github.com/coreruleset/coreruleset) telepítéskor be van állítva.
+* A felhasználók tartományonként szerkeszthetik a WAF-szabályokat, és engedélyezhetik/letilthatják a védelmet.
+* [A „Tűzfal” widget megjelenik a Site Managerben](/docs/panel/applications/wordpress/#firewall).
 
-When disabled:
-* `caddy:latest` docker image is used.
-* Template `/etc/openpanel/caddy/templates/domain.conf` is used for new domains.
-* Users can not access the *Advanced > WAF* page.
-* 'Firewall' widget is not displayed in Site Manager.
+Kikapcsolt állapotban:
+* `caddy:latest` dokkolókép használatos.
+* Az `/etc/openpanel/caddy/templates/domain.conf` sablon az új tartományokhoz használatos.
+* A felhasználók nem érhetik el a *Speciális > WAF* oldalt.
+* A „Tűzfal” widget nem jelenik meg a Site Managerben.
 
-Customize options:
-* To **configure nameservers** refer to: [*How-to Guides > Configure Nameservers*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
-* To **customize DNS zone templates** refer to: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
-* To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
+Beállítások testreszabása:
+* A **névszerverek konfigurálásához** tekintse meg a következőt: [*Útmutatók > Névszerverek konfigurálása*](/docs/articles/domains/how-to-configure-nameservers-in-openpanel/)
+* A **DNS-zóna sablonok testreszabásához** tekintse meg a következőt: [OpenAdmin > Domains > Edit Zone Templates](/docs/admin/domains/dns_templates/)
+* **DNS-fürt konfigurálásához** tekintse meg: [*Útmutatók > DNS-fürtözés*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
 
 
 
 ## PHP
 
-The **`php`** module allows users to manage PHP versions and settings.
+A **`php`** modul lehetővé teszi a felhasználók számára a PHP verziók és beállítások kezelését.
 
-When enabled:
-* Users can access the [**PHP > Select PHP Version** page](/docs/panel/php/domains/).
-* Users can access the [**PHP > Default Version** page](/docs/panel/php/default/).
-* Users can access the [**PHP > Extensions** page](/docs/panel/php/extensions/).
-* Users can set PHP version per domain, set default version for new domains, edit options and view installed extensions.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**PHP > PHP verzió kiválasztása** oldalt](/docs/panel/php/domains/).
+* A felhasználók elérhetik a [**PHP > Default Version** oldalt] (/docs/panel/php/default/).
+* A felhasználók elérhetik a [**PHP > Extensions** oldalt](/docs/panel/php/extensions/).
+* A felhasználók beállíthatják a PHP verzióját domainenként, beállíthatják az alapértelmezett verziót az új tartományokhoz, szerkeszthetik a beállításokat és megtekinthetik a telepített bővítményeket.
 
-When disabled:
-* Users can not access the *Select PHP Version*, *Default Version*, *Options*, *Extensions* pages.
-* Users can not set PHP version per domain, set default version for new domains, edit options and view installed extensions.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Select PHP Version*, *Default Version*, *Options*, *Extensions* oldalakat.
+* A felhasználók nem állíthatnak be PHP-verziót domainenként, nem állíthatnak be alapértelmezett verziót az új tartományokhoz, nem szerkeszthetik a beállításokat és nem tekinthetik meg a telepített bővítményeket.
 
-Customize options:
-* To **set the default PHP version to be used for new users** refer to: [*OpenAdmin > Settings > Edit User Defaults > Default PHP version*](/docs/panel/php/options/#available-options)
-* To **set default cpu/memory limits for PHP versions and additional PHP options** refer to: [*OpenAdmin > Settings > Edit User Defaults > Services*](/docs/panel/php/options/#available-options)
-* To **install a PHP extension** refer to: [*How-to Guides > How to install a PHP extension in OpenPanel*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
-* To **increase PHP INI memory_limit** refer to: [*How-to Guides > How to set or increase PHP INI memory_limit or other values?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
-* To **set PHP settings per website** refer to: [*How-to Guides > PHP settings per website (folder)*](/docs/articles/websites/php-user-ini-files/).
-* To **edit default .INI files** refer to: **OpenAdmin > Settings > PHP Settings > Default PHP.INI Files** or edit files in `/etc/openpanel/php/ini` folder.
+Beállítások testreszabása:
+* Az új felhasználók számára használandó alapértelmezett PHP-verzió beállításához** tekintse meg: [*OpenAdmin > Beállítások > Felhasználói alapbeállítások szerkesztése > Alapértelmezett PHP-verzió*](/docs/panel/php/options/#available-options)
+* **Az alapértelmezett cpu/memóriakorlátok beállításához a PHP verziókhoz és a további PHP-beállításokhoz** tekintse meg a következőt: [*OpenAdmin > Beállítások > Felhasználói alapbeállítások szerkesztése > Szolgáltatások*](/docs/panel/php/options/#available-options)
+* **PHP-bővítmény telepítéséhez** olvassa el: [*How-to Guides > How to install a PHP-bővítmény az OpenPanelben*](/docs/articles/websites/how-to-install-php-extensions-in-openpanel/).
+* A **PHP INI memóriakorlát növeléséhez** olvassa el a következőt: [*How-to Guides > Hogyan állítsunk be vagy növeljünk PHP INI memóriakorlátot vagy egyéb értékeket?*](/docs/articles/websites/how-to-set-or-increase-PHP-INI-memory-limit-or-other-values/).
+* **A PHP-beállítások webhelyenkénti beállításához** tekintse meg: [*Útmutatók > PHP-beállítások webhelyenként (mappánként)*](/docs/articles/websites/php-user-ini-files/).
+* Az **alapértelmezett .INI fájlok szerkesztéséhez** tekintse meg az **OpenAdmin > Beállítások > PHP beállítások > Alapértelmezett PHP.INI fájlok** részt, vagy szerkessze a fájlokat az `/etc/openpanel/php/ini` mappában.
 
-## PHP Options
+## PHP opciók
 
-The **`php_options`** module allows users to manage options (limits) for their PHP versions.
+A **`php_options`** modul lehetővé teszi a felhasználók számára, hogy kezeljék a PHP verzióik opcióit (korlátait).
 
-When enabled:
-* Users can access the [**PHP > Options** page](/docs/panel/php/options/).
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**PHP > Options** oldalt](/docs/panel/php/options/).
 
-When disabled:
-* Users can not access the *PHP Options* page.
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *PHP Options* oldalt.
 
-Customize options:
-* To **customize PHP options available to users** refer to: **OpenAdmin > Settings > PHP Settings > Available Options** or edit */etc/openpanel/php/options.txt* file.
-
-
-
-## Applications
-
-The **`pm2`** module allows users to setup and manage containerized Python and NodeJS applications.
-
-When enabled:
-* Users can access the [**Websites > WP Manager** page](/docs/panel/applications/wordpress/).
-* Users can [manage Python and NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
-* NodeJS and Python are available on the Autoinstaller page.
-* Users can [setup NodeJS and Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
-
-When disabled:
-* NodeJS and Python are not available on the Autoinstaller page.
-* NodeJS and Python applications can not be managed via Openpanel.
-
-Customize options:
-* To **customize docker service template for new Python applications** edit `/etc/openpanel/docker/compose/python.yml` file.
-* To **customize docker service template for new Node.JS applications** edit `/etc/openpanel/docker/compose/nodejs.yml` file.
-* To **customize headers for Nginx proxy of new python/node application** edit `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` file.
-* To **add a custom Google PageSpeed Insights API Key** refer to: [*How-to Guides > Google PageSpeed Insights API Key*](/docs/articles/websites/google-pagespeed-insights-api-key/)
+Beállítások testreszabása:
+* **A felhasználók számára elérhető PHP-beállítások testreszabásához** tekintse meg az **OpenAdmin > Beállítások > PHP-beállítások > Elérhető beállítások** oldalt, vagy szerkessze az */etc/openpanel/php/options.txt* fájlt.
 
 
 
+## Alkalmazások
 
-## Resources Usage
+A **`pm2`** modul lehetővé teszi a felhasználók számára a konténeres Python és NodeJS alkalmazások beállítását és kezelését.
 
-The **`usage`** module allows users to view resource usage for their services.
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Webhelyek > WP Manager** oldalt](/docs/panel/applications/wordpress/).
+* A felhasználók [kezelhetik a Python és NodeJS alkalmazásokat a Site Manager segítségével] (/docs/panel/applications/pm2/#manage-applications).
+* A NodeJS és a Python elérhető az Autoinstaller oldalon.
+* A felhasználók [NodeJS és Python alkalmazásokat állíthatnak be az Auto Installer segítségével] (/docs/panel/applications/pm2/#create-an-application).
 
-When enabled:
-* Users can access the [**Advanced > Resource Usage** page](/docs/panel/advanced/resource_usage/).
-* Users can [manage Python and NodeJS applications using Site Manager](/docs/panel/applications/pm2/#manage-applications).
-* NodeJS and Python are available on the Autoinstaller page.
-* Users can [setup NodeJS and Python applications using Auto Installer](/docs/panel/applications/pm2/#create-an-application).
+Kikapcsolt állapotban:
+* A NodeJS és a Python nem érhető el az Autoinstaller oldalon.
+* A NodeJS és Python alkalmazások nem kezelhetők Openpanelen keresztül.
 
-When disabled:
-* Users can not access the *Advanced > Resource Usage* page.
+Beállítások testreszabása:
+* **A Docker szolgáltatássablon testreszabásához az új Python-alkalmazásokhoz** szerkessze az `/etc/openpanel/docker/compose/python.yml` fájlt.
+* A **docker szolgáltatássablon testreszabásához az új Node.JS alkalmazásokhoz** szerkessze az `/etc/openpanel/docker/compose/nodejs.yml` fájlt.
+* **Az új python/node alkalmazás Nginx-proxyjának fejléceinek testreszabásához** szerkessze a `/etc/openpanel/nginx/vhosts/1.1/nginx_proxy_headers.txt` fájlt.
+* **Egyéni Google PageSpeed ​​Insights API-kulcs hozzáadásához** tekintse meg: [*Útmutatók > Google PageSpeed ​​Insights API-kulcs*](/docs/articles/websites/google-pagespeed-insights-api-key/)
 
-Customize options:
-* To **edit page settings** refer to: [**OpenAdmin > Settings > OpenPanel > Statistics** page](/docs/admin/settings/openpanel/#statistics).
-* To **change how often the stats are collected (default = @hourly)** edit the schedule for [`docker-collect_stats --all` cron](https://dev.openpanel.com/crons.html#docker-collect-stats-all).
-* To **display one combined or separate charts for cpu/ram** edit [`resource_usage_charts_mode` value](https://dev.openpanel.com/cli/config.html#resource-usage-charts-mode).
-* To **change the number of items per page** edit [`resource_usage_items_per_page` value](https://dev.openpanel.com/cli/config.html#resource-usage-items-per-page).
-* To **rotate the** edit [`resource_usage_retention` value](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
+
+
+
+## Erőforrások használata
+
+A **`usage`** modul lehetővé teszi a felhasználók számára, hogy megtekintsék szolgáltatásaik erőforrás-használatát.
+
+Ha engedélyezve van:
+* A felhasználók elérhetik a [**Speciális > Erőforráshasználat** oldalt](/docs/panel/advanced/resource_usage/).
+* A felhasználók [kezelhetik a Python és NodeJS alkalmazásokat a Site Manager segítségével] (/docs/panel/applications/pm2/#manage-applications).
+* A NodeJS és a Python elérhető az Autoinstaller oldalon.
+* A felhasználók [NodeJS és Python alkalmazásokat állíthatnak be az Auto Installer segítségével] (/docs/panel/applications/pm2/#create-an-application).
+
+Kikapcsolt állapotban:
+* A felhasználók nem érhetik el a *Speciális > Erőforráshasználat* oldalt.
+
+Beállítások testreszabása:
+* Az **oldalbeállítások szerkesztéséhez** tekintse meg: [**OpenAdmin > Beállítások > OpenPanel > Statisztika** oldal](/docs/admin/settings/openpanel/#statistics).
+* A **statisztikagyűjtés gyakoriságának módosításához (alapértelmezett = @óránként)** módosítsa a [`docker-collect_stats --all` cron] ütemezését (https://dev.openpanel.com/crons.html#docker-collect-stats-all).
+* **Egyetlen kombinált vagy külön diagram megjelenítéséhez a cpu/ram számára** módosítsa a [`resource_usage_charts_mode` értéket](https://dev.openpanel.com/cli/config.html#resource-usage-charts-mode).
+* Az oldalankénti elemek számának módosításához** módosítsa a [`resource_usage_items_per_page` értékét](https://dev.openpanel.com/cli/config.html#resource-usage-items-per-page).
+* A** **elforgatásához szerkessze a [`resource_usage_retention` értékét](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
 
 

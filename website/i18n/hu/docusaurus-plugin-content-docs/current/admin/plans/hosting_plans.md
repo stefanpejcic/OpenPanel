@@ -2,49 +2,49 @@
 sidebar_position: 1
 ---
 
-# User Packages
+# Felhasználói csomagok
 
-Hosting plans set limits for users. 
+A tárhelycsomagok korlátokat szabnak a felhasználók számára.
 
-## List hosting plans
+## Sorolja fel a hosting terveket
 
 <Tabs>
-  <TabItem value="openadmin-plan-list" label="With OpenAdmin" default>
+<TabItem value="openadmin-plan-list" label="OpenAdminnal" alapértelmezett>
 
 
-To list existing plans navigate to Plans page:
+A meglévő tervek listázásához lépjen a Tervek oldalra:
 
 ![openadmin plans](/img/admin/tremor/plans_list.png)
 
 
-| Field              | Description                                                               |
-| ------------------ | ------------------------------------------------------------------------- |
-| **Plan Name**      | Display name that users will see in their OpenPanel dashboards.            |
-| **Memory**            | Physical Memory (RAM) in GB allocated to the user on this hosting plan.     |
-| **CPU**            | Number of CPU cores dedicated to the user on this hosting plan.             |
-| **Disk**     | Disk space in GB allocated for all user files.           |
-| **Inodes**   | Limits the total number of files allowed for the user.   |
-| **Port Speed**            | Maximum post speed for users in mbit/s.     |
-| **Domains**  | Total number of domain names allowed per user on the plan.                  |
-| **Websites** | Total number of websites (WordPress, NodeJS, Python) per user on the plan.   |
-| **Databases** | Total number of MySQL/MariaDB databases allowed per user on the plan.              |
-| **Email accounts** | Total number of email accounts that user can create on the plan.              |
-| **Mailbox quota** | Max mailbox size for email accounts that user can set on this plan.              |
-| **FTP accounts** | Total number of ftp accounts that user can create on the plan.             |
-| **Feature Set** | [Feature Sets](/docs/admin/settings/openpanel/#enable-features) determine which pages users can access from the OpenPanel interface.               |
+| Mező | Leírás |
+| ------------------- | -------------------------------------------------------------------------- |
+| **Terv neve** | Megjelenítési név, amelyet a felhasználók látni fognak az OpenPanel irányítópultjaikon.            |
+| **Memória** | Fizikai memória (RAM) GB-ban, amely a felhasználó számára van lefoglalva ebben a tárhelycsomagban.     |
+| **CPU** | A felhasználónak szánt CPU magok száma ezen a tárhelycsomagon.             |
+| **Lemez** | Az összes felhasználói fájl számára lefoglalt lemezterület GB-ban.           |
+| **Inodes** | Korlátozza a felhasználó számára engedélyezett fájlok teljes számát.   |
+| **Port sebesség** | Maximális postázási sebesség a felhasználók számára Mbit/s-ban.     |
+| **Domainek** | A csomagban felhasználónként engedélyezett domain nevek teljes száma.                  |
+| **Webhelyek** | A csomagban szereplő összes webhely (WordPress, NodeJS, Python) felhasználónként.   |
+| **Adatbázisok** | A tervben felhasználónként engedélyezett MySQL/MariaDB adatbázisok teljes száma.              |
+| **E-mail fiókok** | A felhasználó által a tervben létrehozható e-mail fiókok teljes száma.              |
+| **Postafiókkvóta** | Maximális postafiókméret az e-mail fiókokhoz, amelyeket a felhasználó beállíthat ebben a tervben.              |
+| **FTP-fiókok** | A felhasználó által a tervben létrehozható ftp-fiókok teljes száma.             |
+| **Funkciókészlet** | A [Feature Sets](/docs/admin/settings/openpanel/#enable-features) meghatározza, hogy a felhasználók mely oldalakat érhetik el az OpenPanel felületéről.               |
 
 
 
-  </TabItem>
-  <TabItem value="CLI-plan-list" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-plan-list" label="OpenCLI-vel">
 
-To list all current hosting packages (plans) run:
+Az összes futó tárhelycsomag (terv) felsorolásához:
 
 ```bash
 opencli plan-list
 ```
 
-Example output:
+Példa kimenet:
 ```bash
 [root@fajlovi ~]# opencli plan-list
 +----+----------------+------------------------+---------------+----------------+-------------+-----------+------------+--------------+----------+------+------+-----------+-------------+-----------------+
@@ -56,90 +56,90 @@ Example output:
 
 ```
 
-You can also format the data as JSON:
+Az adatokat JSON-ként is formázhatja:
 
 ```bash
 opencli plan-list --json
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
-## Create a plan
+## Készítsen tervet
 
 <Tabs>
-  <TabItem value="openadmin-plan-new" label="With OpenAdmin" default>
+<TabItem value="openadmin-plan-new" label="OpenAdminnal" alapértelmezett>
 
-To create a new hosting package, click the **'Create New'** button and configure the desired limits:
+Új tárhelycsomag létrehozásához kattintson az **'Új létrehozása'** gombra, és állítsa be a kívánt korlátokat:
 
 ![openadmin plans create](/img/admin/tremor/plans_create.png)
 
 
-* **Name** – Can include any characters.
-* **Description** – Internal note for admins, visible only in OpenAdmin.
-* **Disk** – Storage in GB. Use `0` for unlimited.
-* **Inodes** – Number of inodes. Use `0` for unlimited.
-* **CPU** – Number of CPU cores allocated across all user services. Set to `0` for unlimited. Cannot exceed total server cores.
-* **Memory** – Amount of physical memory in GB allocated across all user services. Set to `0` for unlimited. Cannot exceed total server memory.
-* **Port Speed** – Maximum speed in Mbit/s for user services *(Deprecated and not enforced)*.
-* **Databases** – Max number of databases (MySQL, MariaDB, PostgreSQL). Use `0` for unlimited.
-* **Websites** – Max number of websites in Site Manager (WordPress, WebsiteBuilder, NodeJS/Python). Use `0` for unlimited.
-* **FTP accounts** – Max number of FTP sub-accounts. Use `0` for unlimited.
-* **Email accounts** – Max number of email sub-accounts. Use `0` for unlimited.
-* **Mailbox quota** – Max mailbox size for email accounts that user can set on this plan.
-* **Feature Set** – Name of the feature set that defines available services in the OpenPanel UI.
+* **Név** – Bármilyen karaktert tartalmazhat.
+* **Leírás** – Belső megjegyzés az adminisztrátoroknak, csak az OpenAdminban látható.
+* **Lemez** – Tárhely GB-ban. Használja a „0”-t a korlátlanul.
+* **Inodes** – Inode-ok száma. Használja a „0”-t a korlátlanul.
+* **CPU** – Az összes felhasználói szolgáltatáshoz kiosztott CPU magok száma. Állítsa 0-ra a korlátlan használathoz. Nem haladhatja meg a szervermagok teljes számát.
+* **Memória** – Az összes felhasználói szolgáltatáshoz lefoglalt fizikai memória mennyisége GB-ban. Állítsa 0-ra a korlátlan használathoz. Nem haladhatja meg a szerver teljes memóriáját.
+* **Port sebesség** – A felhasználói szolgáltatások maximális sebessége Mbit/s-ban *(Elavult és nem kötelező)*.
+* **Adatbázisok** – Az adatbázisok maximális száma (MySQL, MariaDB, PostgreSQL). Használja a „0”-t a korlátlanul.
+* **Webhelyek** – A webhelyek maximális száma a Site Managerben (WordPress, WebsiteBuilder, NodeJS/Python). Használja a „0”-t a korlátlanul.
+* **FTP-fiókok** – FTP-alszámlák maximális száma. Használja a „0”-t a korlátlanul.
+* **E-mail fiókok** – Az e-mail alfiókok maximális száma. Használja a „0”-t a korlátlanul.
+* **Postafiókkvóta** – Maximális postafiókméret az e-mail fiókokhoz, amelyeket a felhasználó beállíthat ebben a tervben.
+* **Feature Set** – Az OpenPanel felhasználói felületen elérhető szolgáltatásokat meghatározó szolgáltatáskészlet neve.
 
 
-  </TabItem>
-  <TabItem value="CLI-plan-new" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-plan-new" label="OpenCLI-vel">
     
-To create a new plan run the following command:
+Új terv létrehozásához futtassa a következő parancsot:
 
 ```bash
 opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>
 ```
 
-Example:
+Példa:
 ```bash
 opencli plan-create name=New Plan description=This is a new plan emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G
 ```
 
-  </TabItem>
+</TabItem>
 </Tabs>
 
 
-## Modify plan
+## Terv módosítása
 
-To change plan limits click on the **Edit** button for the plan in **OpenAdmin > User Packages** and set the new limits.
+A tervkorlátok módosításához kattintson a **Szerkesztés** gombra az **OpenAdmin > Felhasználói csomagok** oldalon, és állítsa be az új korlátokat.
 
 ![openadmin plans edit](/img/admin/tremor/plans_edit_1.png)
 
 ![openadmin plans edit limits](/img/admin/tremor/plans_edit_2.png)
 
 
-The new limits will be applied immediately to all accounts using the package.
+Az új limitek azonnal alkalmazásra kerülnek a csomagot használó összes fiókra.
 
-## List Users on Plan
+## A tervben szereplő felhasználók listázása
 
 <Tabs>
-  <TabItem value="openadmin-plan-usage" label="With OpenAdmin" default>
+<TabItem value="openadmin-plan-usage" label="OpenAdminnal" alapértelmezett>
 
-To view all users that are currently using a hosting package, simply sort the users table by that package name, or in the search field type the package name.
+Az összes olyan felhasználó megtekintéséhez, aki jelenleg egy tárhelycsomagot használ, egyszerűen rendezze a felhasználók táblázatát a csomagnév szerint, vagy írja be a csomag nevét a keresőmezőbe.
 
 ![openadmin plans usage](/img/admin/tremor/plans_usage_1.png)
 
 ![openadmin plans usage](/img/admin/tremor/plans_usage_2.png)
 
-  </TabItem>
-  <TabItem value="CLI-plan-usage" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-plan-usage" label="OpenCLI-vel">
     
-List all users that are currently using a plan:
+Sorolja fel az összes olyan felhasználót, aki jelenleg egy csomagot használ:
 
 ```bash
 opencli plan-usage
 ```
 
-Example:
+Példa:
 ```bash
 [root@fajlovi ~]# opencli plan-usage 'Standard plan'
 +----+----------------------------------+----------------------+---------------+---------------------+
@@ -150,38 +150,38 @@ Example:
 +----+----------------------------------+----------------------+---------------+---------------------+
 ```
 
-You can also format the data as JSON:
+Az adatokat JSON-ként is formázhatja:
 
 ```bash
 opencli plan-usage --json
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
-## Delete Plan
+## Terv törlése
 
 <Tabs>
-  <TabItem value="openadmin-plan-delete" label="With OpenAdmin" default>
+<TabItem value="openadmin-plan-delete" label="OpenAdminnal" alapértelmezett>
     
-To delete a hosting package click on the **Delete** link for the desired package.
+Tárhelycsomag törléséhez kattintson a **Törlés** linkre a kívánt csomag mellett.
 
 ![openadmin plans delete](/img/admin/tremor/plans_delete.png)
 
 
-  </TabItem>
-  <TabItem value="CLI-plan-delete" label="With OpenCLI">
+</TabItem>
+<TabItem value="CLI-plan-delete" label="OpenCLI-vel">
 
-To delete a hosting plan: 
+Tárhelycsomag törlése:
 
 ```bash
 opencli plan-delete <PLAN_NAME> 
 ```
 
-Example:
+Példa:
 ```bash
 opencli plan-delete 'Standard plan'
 ```
-  </TabItem>
+</TabItem>
 </Tabs>
 
-Note: A package cannot be deleted if it has users assigned to it.
+Megjegyzés: Egy csomag nem törölhető, ha hozzá vannak rendelve felhasználók.

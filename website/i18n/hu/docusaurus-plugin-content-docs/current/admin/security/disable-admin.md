@@ -2,10 +2,10 @@
 sidebar_position: 7
 ---
 
-# Disable OpenAdmin
+# Az OpenAdmin letiltása
 
-As an advanced security measure, OpenPanel allows you to completely disable the OpenAdmin interface and its related admin service.
+Speciális biztonsági intézkedésként az OpenPanel lehetővé teszi az OpenAdmin felület és a kapcsolódó adminisztrációs szolgáltatás teljes letiltását.
 
-By enabling this option, access to OpenAdmin will be blocked, preventing any further administrative changes through the UI. This is particularly useful for hardened production environments where direct UI access is unnecessary or unwanted.
+Ha engedélyezi ezt az opciót, az OpenAdminhoz való hozzáférés blokkolva lesz, megakadályozva a további adminisztratív változtatásokat a felhasználói felületen keresztül. Ez különösen hasznos a keményített éles környezetekben, ahol szükségtelen vagy nem kívánatos a közvetlen felhasználói felület.
 
-Use this feature with caution — re-enabling OpenAdmin access will require manual intervention via server-side configuration. [Learn more](https://dev.openpanel.com/cli/admin.html#Enable-Disable-adminpanel)
+Használja ezt a funkciót óvatosan – az OpenAdmin hozzáférés újbóli engedélyezése manuális beavatkozást igényel a szerveroldali konfiguráción keresztül. [További információ](https://dev.openpanel.com/cli/admin.html#Enable-Disable-adminpanel)
