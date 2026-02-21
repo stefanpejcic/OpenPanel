@@ -13,7 +13,7 @@ sidebar_position: 1
 - [WHMCS](/docs/articles/extensions/openpanel-and-whmcs/)
 - [Blesta](/docs/articles/extensions/openpanel-and-blesta/)
 
-# Átigazolások
+# Költöztetések
 - [Fiók importálása a cPanel biztonsági másolatból](/docs/articles/transfers/import-cpanel-backup-to-openpanel/)
 - [OpenPanel-fiókok átvitele másik szerverre](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)
 - [Minden adat áttelepítése másik szerverre](/docs/articles/transfers/migrate-openadmin-to-new-server/)
