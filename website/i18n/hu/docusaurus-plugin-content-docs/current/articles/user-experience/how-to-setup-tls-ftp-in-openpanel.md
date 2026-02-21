@@ -5,7 +5,7 @@ This guide explains how to enable Explicit FTP over TLS (FTPS) in OpenPanel usin
 ---
 
 > [OpenPanel Enterprise](https://openpanel.com/enterprise/) supports FTP access. Once enabled, a shared FTP server becomes available for all users.
-> First follow this guide on how to enable FTP in OpenPanel: [How to configure FTP server](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel.md)
+> Elsőként kövesse ezt az útmutatót az FTP-szerver konfigurálásához: [FTP szerver beállítása](./how-to-setup-ftp-in-openpanel.md)
 
 ---
 

@@ -1,4 +1,4 @@
-# Branding & White-Label
+# Arculat és White-Label
 
 Az OpenPanelben minden moduláris, és könnyen módosítható vagy letiltható anélkül, hogy a többi funkciót megzavarná.
 
@@ -7,7 +7,7 @@ Az OpenPanel testreszabásához a következő lehetőségek állnak rendelkezés
 - [Személyre szabott üzenet megjelenítése felhasználónként](#personalized-messages)
 - [Funkciók és oldalak engedélyezése/letiltása az OpenPanel felületről](#enabledisable-features)
 - [Egyéni ikonok hozzáadása az Irányítópult oldalon](/docs/articles/dev-experience/add-custom-icons-in-openpanel-dashboard)
-- [Alapértelmezett, felfüggesztett felhasználó és felfüggesztett domain oldalak testreszabása](@customize-templates)
+- [Alapértelmezett, felfüggesztett felhasználó és felfüggesztett domain oldalak testreszabása](#customize-templates)
 - [A felület honosítása](#localize-the-interface)
 - [Egyéni márkajelzés beállítása](#set-custom-branding)
 - [Egyéni színséma beállítása](#set-a-custom-color-scheme)
@@ -16,8 +16,9 @@ Az OpenPanel testreszabásához a következő lehetőségek állnak rendelkezés
 - [A bejelentkezési oldal testreszabása](#customize-login-page)
 - [Egyéni CSS- vagy JS-kód hozzáadása a felülethez](#create-custom-pages)
 - [Egyéni modul létrehozása az OpenPanelhez](#create-custom-module)
-- [Selfhosted-temporary-links-api/] (/docs/articles/dev-experience/selfhosted-temporary-links-api/)
-- [Selfhosted-screenshots-api/](/docs/articles/dev-experience/selfhosted-screenshots-api/)
+- [Egyéni modul létrehozása az OpenPanelhez](#create-custom-module)
+- [Self-hosted Ideiglenes Link API](/docs/articles/dev-experience/selfhosted-temporary-links-api/)
+- [Self-hosted Képernyőkép API](/docs/articles/dev-experience/selfhosted-screenshots-api/)
 
 
 
@@ -56,10 +57,10 @@ Az OpenPanel oldalsávján és a bejelentkezési oldalakon látható egyéni né
 
 Testreszabhatja a felhasználók számára megjelenített összes sablont:
 
-- [Domain VHost sablon] (/docs/admin/services/nginx/#domain-vhost-template)
+- [Domain VHost sablon](/docs/admin/services/nginx/#domain-vhost-template)
 - [Alapértelmezett céloldal](/docs/admin/services/nginx/#default-landing-page)
 - [Felfüggesztett felhasználói sablon](/docs/admin/services/nginx/#suspended-user-template)
-- [Felfüggesztett domain sablon] (/docs/admin/services/nginx/#suspended-domain-template)
+- [Felfüggesztett domain sablon](/docs/admin/services/nginx/#suspended-domain-template)
 - [Hibaoldalak](/docs/admin/services/nginx/#error-pages)
 
 ## Hozzon létre OpenPanel modult
@@ -90,9 +91,9 @@ Példa:
 
 ## Cserélje ki az útmutató cikkeket tudásbázisával
 
-Az [OpenPanel Dashboard oldal](/docs/panel/dashboard) megjeleníti a [How-to articles](/docs/panel/dashboard/#how-to-guides) az OpenPanel Dokumentumokból, de ezek módosíthatók, hogy helyette a tudásbázis cikkeit jelenítse meg.
+Az [OpenPanel Dashboard oldal](/docs/panel/dashboard) megjeleníti a [Hogyan csináljam cikkeket](/docs/panel/dashboard/#how-to-guides) az OpenPanel Dokumentumokból, de ezek módosíthatók, hogy helyette a tudásbázis cikkeit jelenítse meg.
 
-Szerkessze az "/etc/openpanel/openpanel/conf/knowledge_base_articles.json" fájlt, és állítsa be a hivatkozásokat:
+Szerkessze az `/etc/openpanel/openpanel/conf/knowledge_base_articles.json` fájlt, és állítsa be a hivatkozásokat:
 
 ```json
 {
@@ -118,28 +119,28 @@ A sablonok egy "openpanel" nevű Docker-tárolóban találhatók, ezért elősz�
 Például az oldalsáv szerkesztéséhez és az OpenPanel logó elrejtéséhez kövesse az alábbi lépéseket:
 
 1. Hozzon létre egy új mappát/fájlt helyileg a módosított kódhoz.
-``` bash
+```bash
 mkdir /root/custom_template/
-   ```
+```
 2. Másolja ki a meglévő sablonkódot.
-``` bash
+```bash
 docker cp openpanel:/usr/local/panel/templates/partials/sidebar.html /root/custom_template/sidebar.html
-   ```
+```
 3. Szerkessze a kódot.
 
 4. Állítsa be az OpenPanel-t a sablon használatához.
 Szerkessze a `/root/docker-compose.yml` fájlt, és állítsa be, hogy a fájl felülírja az eredeti sablont:
-``` bash
+```bash
 nano /root/docker-compose.yml
-   ```
-és az [openpanel > kötetek] alatti fájlban (https://github.com/stefanpejcic/openpanel-configuration/blob/180c781bfb7122c354fd339fbee43c1ce6ec017f/docker/compose/new-docker-compose:yml)
-``` bash
+```
+és az `openpanel > kötetek` alatti fájlban (https://github.com/stefanpejcic/openpanel-configuration/blob/180c781bfb7122c354fd339fbee43c1ce6ec017f/docker/compose/new-docker-compose:yml)
+```bash
 - /root/custom_theme/sidebar.html:/usr/local/panel/templates/partials/sidebar.html
-   ```
-6. Indítsa újra az OpenPanel alkalmazást az új sablon alkalmazásához.
-``` bash
+```
+5. Indítsa újra az OpenPanel alkalmazást az új sablon alkalmazásához.
+```bash
 cd /root && docker compose up -d openpanel
-   ```
+```
 
 
 ## A bejelentkezési oldal testreszabása
@@ -150,28 +151,28 @@ Az OpenPanel bejelentkezési oldal sablonkódja a `/usr/local/panel/templates/us
 A bejelentkezési oldal szerkesztéséhez:
 
 1. Hozzon létre egy új mappát/fájlt helyileg a módosított kódhoz.
-``` bash
+```bash
 mkdir /root/custom_template/
-   ```
+```
 2. Másolja ki a meglévő sablonkódot.
-``` bash
+```bash
 docker cp openpanel:/usr/local/panel/templates/user/login.html /root/custom_template/login.html
-   ```
+```
 3. Szerkessze a kódot.
 
 4. Állítsa be az OpenPanel-t a sablon használatához.
 Szerkessze a `/root/docker-compose.yml` fájlt, és állítsa be, hogy a fájl felülírja az eredeti sablont:
-``` bash
+```bash
 nano /root/docker-compose.yml
-   ```
-és az [openpanel > kötetek] alatti fájlban (https://github.com/stefanpejcic/openpanel-configuration/blob/180c781bfb7122c354fd339fbee43c1ce6ec017f/docker/compose/new-docker-compose:yml)
-``` bash
+```
+és az `openpanel > kötetek` alatti fájlban (https://github.com/stefanpejcic/openpanel-configuration/blob/180c781bfb7122c354fd339fbee43c1ce6ec017f/docker/compose/new-docker-compose:yml)
+```bash
 - /root/custom_theme/login.html:/usr/local/panel/templates/user/login.html
-   ```
-6. Indítsa újra az OpenPanel alkalmazást az új bejelentkezési sablon alkalmazásához.
-``` bash
+```
+5. Indítsa újra az OpenPanel alkalmazást az új bejelentkezési sablon alkalmazásához.
+```bash
 cd /root && docker compose up -d openpanel
-   ```
+```
 
 
 ## Adjon hozzá egyéni CSS- vagy JS-kódot
