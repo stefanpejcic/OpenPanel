@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 19.02.2026
+# Last Modified: 20.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -85,7 +85,7 @@ cleanup() {
 hard_cleanup() {
   killall -u "$username" -9 > /dev/null 2>&1
   deluser --remove-home "$username" > /dev/null 2>&1   # command missing on alma!
-  rm -rf /etc/openpanel/openpanel/core/{stats,users}/"$username" > /dev/null 2>&1
+  rm -rf /etc/openpanel/openpanel/core/users/"$username" > /dev/null 2>&1
   docker context rm "$username"  > /dev/null 2>&1
   quotacheck -avm >/dev/null 2>&1
   mkdir -p /etc/openpanel/openpanel/core/users/

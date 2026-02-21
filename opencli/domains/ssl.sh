@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: domains/ssl.sh
 # Description: Check SSL for domain, add custom certificate, view files.
-# Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+# Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 19.02.2026
+# Last Modified: 20.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,23 +28,44 @@
 # THE SOFTWARE.
 ################################################################################
 
+# ======================================================================
+# Constants
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+RED='\033[0;31m'
+RESET='\033[0m'
 
 
+usage() {
+    echo "Usage:"
+    echo -e "  opencli domains-ssl <DOMAIN>                 - Display command examples for this domain."
+    echo -e "  opencli domains-ssl <DOMAIN> ${GREEN}status${RESET}          - Display current status for the domain."
+    echo -e "  opencli domains-ssl <DOMAIN> ${GREEN}info${RESET}            - Display certificate files."
+    echo -e "  opencli domains-ssl <DOMAIN> ${GREEN}logs${RESET} [${YELLOW}1000${RESET}|${YELLOW}-f${RESET}]  - View caddy SSL-related logs for the domain."
+    echo -e "  opencli domains-ssl <DOMAIN> ${GREEN}custom${RESET} ${YELLOW}<cert_path>${RESET} ${YELLOW}<key_path>${RESET} - Switch to custom SSL for the domain."
+    echo -e "  opencli domains-ssl <DOMAIN> ${GREEN}auto${RESET}            - Switch back to AutoSSL for the domain."
+}
 
 # Ensure a domain name is provided
 if [ -z "$1" ]; then
-    echo "Usage: opencli domains-ssl <domain> [status|info]auto|custom] [cert_path key_path]"
-    exit 1
+    echo "ERROR: Domain name is required!"
+    usage
+	exit 1
 fi
+
 
 DOMAIN="$1"
 CONFIG_FILE="/etc/openpanel/caddy/domains/$DOMAIN.conf"
 
 # Ensure the file exists
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo "Domain does not exist."
+    echo -e "${RED}Domain ${DOMAIN} does not exist.$RESET"
     exit 1
 fi
+
+
+
+
 
 
 hostfs_domain_tls_dir="/etc/openpanel/caddy/ssl/custom/$DOMAIN"
@@ -109,10 +130,10 @@ check_and_use_tls() {
   	local real_key_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/${key_path}"
   
  	if openssl x509 -noout -checkend 0 -in "$real_cert_path" >/dev/null 2>&1; then
-	    mkdir -p $hostfs_domain_tls_dir
+	    mkdir -p "$hostfs_domain_tls_dir"
 
-	    cp ${real_cert_path} $hostfs_domain_tls_dir/fullchain.pem
-	    cp ${real_key_path} $hostfs_domain_tls_dir/key.pem
+	    cp "${real_cert_path}" "$hostfs_domain_tls_dir"/fullchain.pem
+	    cp "${real_key_path}" "$hostfs_domain_tls_dir"/key.pem
 	    
 		if grep -qE "tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem" "$CONFIG_FILE"; then
 		    echo "Custom SSL already configured for $DOMAIN. Updating certificate and key.."
@@ -134,8 +155,8 @@ tls $domain_tls_dir/fullchain.pem $domain_tls_dir/key.pem
 cat_certificate_files() {
     	if grep -q "fullchain.pem" "$CONFIG_FILE" && grep -q "key.pem" "$CONFIG_FILE"; then
 	 		# custom ssl
-    		cat $hostfs_domain_tls_dir/fullchain.pem
-    		cat $hostfs_domain_tls_dir/key.pem
+    		cat "$hostfs_domain_tls_dir"/fullchain.pem
+    		cat "$hostfs_domain_tls_dir"/key.pem
     	else
 	 		# letsencrypt
     		local cert="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.crt"
@@ -146,25 +167,70 @@ cat_certificate_files() {
 }
 
 
+show_ssl_logs() {
+    local lines=1000
+    local follow=0
+
+    # $3 is a number or '-f'
+    if [[ "$3" =~ ^[0-9]+$ ]]; then
+        lines="$3"
+    elif [[ "$3" == "-f" ]]; then
+        follow=1
+    fi
+
+    echo "Showing SSL-related log lines for $DOMAIN"	
+    echo "-------------------------------------------------------"
+	# docker --context=default logs --tail 1000 caddy 2>&1  | grep "$DOMAIN" | grep -Ei 'tls|acme|certificate|renew|obtain|challenge'
+
+    local log_path
+    log_path=$(docker inspect --format='{{.LogPath}}' caddy 2>/dev/null)
+
+    if [ -z "$log_path" ] || [ ! -f "$log_path" ]; then
+        echo "ERROR: Could not determine Caddy log file path."
+        exit 1
+    fi
+
+    if [ "$follow" -eq 1 ]; then
+        tail -n "$lines" -f "$log_path"
+    else
+        tail -n "$lines" "$log_path"
+    fi | jq -r '.log' | jq -R -c --arg domain "$DOMAIN" '
+        fromjson? |
+        select(
+            .
+            and
+            (
+                .request.host? == $domain or
+                .request.tls.server_name? == $domain or
+                .server_name? == $domain or
+                (.identifiers?[]? == $domain)
+            )
+            and
+            (
+                (.logger? | test("tls|acme")) or
+                (.msg? | test("certificate|renew|obtain|challenge"; "i"))
+            )
+        )
+    '
+}
+
+
+
+
+
 show_examples() {
-	echo "Usage:"
+	echo -e "Usage examples for domain ${YELLOW}$DOMAIN${RESET}:"
 	echo ""
-	echo "Check current SSL status for domain (AutoSSL, CustomSSL or No SSL):"
-	echo ""
-	echo "opencli domains-ssl $DOMAIN status"
-	echo ""
-	echo "Display fullchain and key files for the domain:"
-	echo ""
-	echo "opencli domains-ssl $DOMAIN info"
-	echo ""
-	echo "Set free AutoSSL for the domain (default):"
-	echo ""
-	echo "opencli domains-ssl $DOMAIN auto"
-	echo ""
-	echo "Add custom certificate files for the domain:"
-	echo ""
-	echo "opencli domains-ssl $DOMAIN custom path/to/fullchain.pem path/to/key.pem"
-	echo ""
+	echo "- Check current SSL status for domain (AutoSSL, CustomSSL or No SSL):"
+	echo -e "  opencli domains-ssl ${YELLOW}$DOMAIN${RESET} ${GREEN}status${RESET}"
+	echo "- Display fullchain and key files for the domain:"
+	echo -e "  opencli domains-ssl ${YELLOW}$DOMAIN${RESET} ${GREEN}info${RESET}"
+	echo "- Set AutoSSL for the domain (default):"
+	echo -e "  opencli domains-ssl ${YELLOW}$DOMAIN${RESET} ${GREEN}auto${RESET}"
+	echo "- Add custom certificate for the domain:"
+	echo -e "  opencli domains-ssl ${YELLOW}$DOMAIN${RESET} ${GREEN}custom${RESET} ${RED}/var/www/html/fullchain.pem /var/www/html/key.pem${RESET}"
+	echo "- View SSL-related lines for the domain from Caddy logs:"
+	echo -e "  opencli domains-ssl ${YELLOW}$DOMAIN${RESET} ${GREEN}logs${RESET}"
 }
 
 
@@ -199,15 +265,15 @@ if [ -n "$2" ]; then
         check_and_use_tls "$3" "$4"
         echo "Updated $DOMAIN to use custom SSL."
         exit 0
+	elif [ "$2" == "logs" ]; then
+	    show_ssl_logs "$@"
+	    exit 0
     else
-        echo "Invalid arguments. Usage: opencli domains-ssl <domain> [auto|custom] [cert_path key_path]"
+	    echo "ERROR: Invalid arguments provided for domain!"
+	    usage	
         exit 1
     fi
 else
 	show_examples
 	exit 0
-
 fi
-
-
-exit 0

@@ -5,7 +5,7 @@
 # Usage: opencli port [set <port>] 
 # Author: Stefan Pejcic
 # Created: 17.02.2025
-# Last Modified: 19.02.2026
+# Last Modified: 20.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

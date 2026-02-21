@@ -3,7 +3,6 @@
     #admin off
     on_demand_tls {
         ask "http://localhost/check"
-        interval 1h
     }
 }
 
