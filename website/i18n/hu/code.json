@@ -911,7 +911,7 @@
     "description": "Translated for Hungarian locale"
   },
   "docs.section.panel.desc2": {
-    "message": "A dokumentáció ezen része olyan végfelhasználóknak szól, akik kizárólag az OpenPanel felületre léphetnek be (alapmezett port: 2083).",
+    "message": "A dokumentáció ezen része olyan végfelhasználóknak szól, akik kizárólag az OpenPanel felületre léphetnek be (alapértelmezett port: 2083).",
     "description": "Translated for Hungarian locale"
   },
   "docs.section.panel.btn": {
