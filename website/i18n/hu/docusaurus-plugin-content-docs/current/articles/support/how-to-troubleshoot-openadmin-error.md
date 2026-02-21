@@ -1,45 +1,45 @@
 # Az OpenAdmin felhasználói felületi hibáinak elhárítása
 
-## 500 Error
+## 500-as Hiba
 
-If a **500 error** occurs in the OpenAdmin UI, enable dev_mode and tial to log to see the exact command run and response.
+Ha **500-as hiba** (500 Error) jelenik meg az OpenAdmin felületén, engedélyezd a `dev_mode` beállítást, és vizsgáld meg a naplófájlt, hogy lásd a futtatott pontos parancsot és a kapott választ.
 
-If you need assistance, you can copy the message to our [support forums](https://community.openpanel.org/) or [Discord channel](https://discord.openpanel.com/) for help troubleshooting.
-
----
-
-## UI Not Responding
-
-If a feature isn’t working as expected (like clicking a button with no response) it is likely a **front-end issue**.
-
-To troubleshoot:
-
-1. Open your browser’s **Developer Tools** (usually `F12` or `Ctrl+Shift+I` / `Cmd+Option+I`).
-2. Navigate to the **Network** tab.
-3. Repeat the action that’s not working.
-4. Check for requests in the **Network** tab and any errors in the **Console** log.
-
-* Selecting a request in the Network tab allows you to view the response returned by the backend.
-* If the response doesn’t contain enough information to diagnose the issue, enable **dev_mode** on the server and check the Docker logs.
+Ha segítségre van szükséged, a hibaüzenetet bemásolhatod a [támogatási fórumunkra](https://community.openpanel.org/) vagy a [Discord csatornánkra](https://discord.openpanel.com/) a hibaelhárításhoz.
 
 ---
 
-## Dev Mode
+## A felület nem reagál
 
-Enabling **dev_mode** allows OpenPanel and OpenAdmin interfaces to log detailed debugging information for every request. This helps administrators see the exact commands run by the panel and the responses received.
+Ha egy funkció nem a várt módon működik (például ha egy gombra kattintva nem történik semmi), az valószínűleg egy **front-end probléma**.
 
-To enable dev_mode:
+A hibaelhárításhoz:
+
+1. Nyisd meg a böngésződ **Fejlesztői eszközeit / Developer Tools** (általában `F12` vagy `Ctrl+Shift+I` / `Cmd+Option+I` billentyűkombináció).
+2. Lépj a **Network** (Hálózat) fülre.
+3. Ismételd meg a nem működő műveletet a weblapon.
+4. Ellenőrizd a **Network** fülön megjelenő kéréseket, és nézd meg, hogy vannak-e hibák a **Console** (Konzol) naplóban.
+
+* A hálózati fülön kiválasztva egy adott kérést megnézheted a háttérrendszer (backend) által visszaküldött választ.
+* Ha a válasz nem tartalmaz elegendő információt a probléma feltárásához, engedélyezd a **dev_mode**-ot a szerveren, majd ellenőrizd a Docker naplókat.
+
+---
+
+## Dev Mode (Fejlesztői mód)
+
+A **dev_mode** engedélyezése lehetővé teszi, hogy az OpenPanel és az OpenAdmin felületek minden egyes kérésről részletes hibakeresési (debugging) információkat naplózzanak. Ez az opció segít az adminisztrátoroknak abban, hogy lássák a vezérlőpult által futtatott pontos parancsokat és az azokra kapott válaszokat.
+
+A `dev_mode` bekapcsolásához:
 
 ```bash
 opencli config update dev_mode on
 ```
 
-Then restart the panel.
+Ezután indítsd újra a panelt.
 
-When dev_mode is enabled, detailed logs for the user panel are available via:
+Amikor a fejlesztői mód aktív, a felhasználói pult részletes naplóit ezen a módon érheted el:
 
 ```bash
 tail -f /var/log/openpanel/admin/error.log
 ```
 
-These logs provide verbose debugging information for troubleshooting.
+Ezek a naplók rendkívül részletes információkat biztosítanak a hatékony hibaelhárításhoz.
