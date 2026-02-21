@@ -1,4 +1,10 @@
 {
+  "homepage.meta.title": {
+    "message": "OpenPanel | Következő generációs web tárhely panel"
+  },
+  "homepage.meta.description": {
+    "message": "Egy konténerek köré épülő, nagymértékben testreszabható web tárhely kezelőpanel."
+  },
   "menu.label.Resources": {
     "message": "Erőforrások"
   },
@@ -858,45 +864,38 @@
     "message": "Az OpenAdmin API lehetővé teszi a már használt harmadik féltől származó rendszerekkel való integrációt.",
     "description": "Translated automatically"
   },
+  "features.meta.title": {
+    "message": "Funkciók | OpenPanel"
+  },
   "features.hero.title": {
-    "message": "Nem az, amit egy Vezérlőpulttól várnál",
-    "description": "Translated static texts"
+    "message": "Sokkal több, mint egy egyszerű tárhelypanel"
   },
   "features.hero.subtitle.1": {
-    "message": "A nyílt forráskódú OpenPanel az egyik legjobban testreszabható web hosting vezérlőpult a piacon.",
-    "description": "Translated static texts"
+    "message": "Az OpenPanel vitathatatlanul a legjobban testre szabható webtárhely-kezelő panel."
   },
   "features.hero.subtitle.2": {
-    "message": "Rendelj felhasználónként különböző MySQL verziókat, webkiszolgálókat és limiteket fiókonként, engedélyezd nekik a Docker konténerek futtatását, kezeld a biztonsági másolatokat, ütemezz cron feladatokat másodpercek alatt, finomhangold a konfigurációkat, és még sok mást.",
-    "description": "Translated static texts"
+    "message": "Rendeljen hozzá különböző MySQL verziókat, webszervereket és korlátozásokat felhasználónként, tegye lehetővé Docker konténerek futtatását, kezeljen biztonsági mentéseket, ütemezzen feladatokat másodpercek alatt, finomhangolja a konfigurációkat és még sok minden mást."
   },
   "features.section.1": {
-    "message": "Saját webkiszolgáló minden felhasználónak",
-    "description": "Translated static texts"
+    "message": "Webszerver felhasználónként"
   },
   "features.section.2": {
-    "message": "Minden klasszikus funkció együtt",
-    "description": "Translated static texts"
+    "message": "Minden klasszikus funkció"
   },
   "features.section.3": {
-    "message": "Okosabb szerver menedzsment",
-    "description": "Translated static texts"
+    "message": "Okosabb szerverkezelés"
   },
   "features.section.4": {
-    "message": "Egyszerűsített kezelőfelület",
-    "description": "Translated static texts"
+    "message": "Nincs felesleges sallang a felületen"
   },
   "features.section.5": {
-    "message": "Menedzseld felhasználóid egy gombnyomásra",
-    "description": "Translated static texts"
+    "message": "Felhasználók egyszerű kezelése"
   },
   "features.section.6": {
-    "message": "Beépített izoláció és biztonság",
-    "description": "Translated static texts"
+    "message": "Beépített elszigetelés és biztonság"
   },
   "features.section.7": {
-    "message": "Integráld a számlázó rendszeredbe",
-    "description": "Translated static texts"
+    "message": "Számlázó panel integrálása"
   },
   "docs.index.title.docFor": {
     "message": "Dokumentáció a ",
@@ -929,5 +928,641 @@
   "docs.section.admin.btn": {
     "message": "OpenAdmin Doksik",
     "description": "Translated for Hungarian locale"
+  },
+  "enterprise.hero.description": {
+    "message": "Az OpenPanel Enterprise Edition robusztus felhasználói izolációt és kezelési funkciókat kínál, kifejezetten tárhelyszolgáltatók számára tervezve, fix áron."
+  },
+  "enterprise.get_support.alternative.prefix": {
+    "message": "c*anel és P*esk "
+  },
+  "enterprise.get_support.alternative.suffix": {
+    "message": "Alternatíva"
+  },
+  "enterprise.get_support.priority_support.title": {
+    "message": "Elsőbbségi támogatás"
+  },
+  "enterprise.get_support.priority_support.desc": {
+    "message": "Exkluzív technikai támogatás SLA-val, az OpenPanel alapcsapata által biztosítva."
+  },
+  "enterprise.get_support.priority_support.slack": {
+    "message": "Privát Slack csatorna"
+  },
+  "enterprise.get_support.priority_support.response_time": {
+    "message": "24 órás első válaszidő"
+  },
+  "enterprise.get_support.premium_features.title": {
+    "message": "Prémium funkciók"
+  },
+  "enterprise.get_support.premium_features.desc": {
+    "message": "Prémium funkciók tárhelyszolgáltató vállalkozása számára: E-mail, FTP, Docker, OpenLitespeed, Varnish gyorsítótárazás és még sok más."
+  },
+  "enterprise.security.title": {
+    "message": "Vezessen be élvonalbeli "
+  },
+  "enterprise.security.features": {
+    "message": "funkciókat"
+  },
+  "enterprise.get_in_touch_cta.title": {
+    "message": "Készen áll az OpenPanel Enterprise kipróbálására?"
+  },
+  "enterprise.flexibility.title": {
+    "message": "Építkezzen páratlan "
+  },
+  "enterprise.flexibility.flexibility": {
+    "message": "rugalmassággal"
+  },
+  "enterprise.flexibility.pure_react.desc": {
+    "message": "Ne érje be túlárazott és elavult hoszting panelekkel. Az OpenPanel segítségével 100%-os kontrollt tarthat szervere és adatai felett bármikor."
+  },
+  "enterprise.flexibility.alternative.title": {
+    "message": "Alternatíva a nulláról kezdés helyett"
+  },
+  "enterprise.flexibility.alternative.desc": {
+    "message": "A webszerver futtatásához szükséges összes funkció integrálva van, így nincs szükség további szoftverek vásárlására olyan feladatokhoz, mint a mentések, a WordPress kezelése vagy a felhasználói izoláció."
+  },
+  "enterprise.data_source.title": {
+    "message": "Technológiai háttér "
+  },
+  "enterprise.data_source.subtitle": {
+    "message": "a modern web számára"
+  },
+  "enterprise.data_source.open_admin_stack.title": {
+    "message": "OpenAdmin technológiák"
+  },
+  "enterprise.data_source.open_admin_stack.desc": {
+    "message": "Modern, könnyű és bevált technológiákat használunk a nagy teljesítmény érdekében."
+  },
+  "enterprise.data_source.open_panel_stack.title": {
+    "message": "OpenPanel technológiák"
+  },
+  "enterprise.data_source.open_panel_stack.desc": {
+    "message": "Használja a legújabb webes technológiákat egyetlen rendszerben, hogy bármilyen alkalmazást maximális teljesítménnyel futtathasson."
+  },
+  "enterprise.frequent_updates.title": {
+    "message": "Kapjon rendszeres "
+  },
+  "enterprise.frequent_updates.updates": {
+    "message": "frissítéseket"
+  },
+  "enterprise.frequent_updates.continuous.title": {
+    "message": "Folyamatos frissítések"
+  },
+  "enterprise.frequent_updates.continuous.desc": {
+    "message": "Folyamatos OpenPanel frissítések a legújabb funkciókkal, hibajavításokkal és biztonsági javításokkal."
+  },
+  "enterprise.frequent_updates.container.title": {
+    "message": "Konténer frissítések"
+  },
+  "enterprise.frequent_updates.container.desc": {
+    "message": "Konténeren belüli frissítések, amelyek automatikusan alkalmazzák a biztonsági javításokat, frissítik az operációs rendszert és a szolgáltatásokat a felhasználók Docker konténereiben kézi beavatkozás nélkül."
+  },
+  "enterprise.faq.title": {
+    "message": "Gyakran Ismételt Kérdések"
+  },
+  "enterprise.faq.q1": {
+    "message": "Hogyan működik az Enterprise kiadás árazása?"
+  },
+  "enterprise.faq.a1": {
+    "message": "Az árazás szerverenként történik, nem a végfelhasználók száma alapján."
+  },
+  "enterprise.faq.q2": {
+    "message": "Vannak korlátozások a létrehozható felhasználói fiókok számára vonatkozóan?"
+  },
+  "enterprise.faq.a2": {
+    "message": "Igen, a Community licenc legfeljebb 3 felhasználói fiók létrehozását teszi lehetővé, az Enterprise kiadásnál viszont nincs korlátozva a létrehozható felhasználói fiókok száma."
+  },
+  "enterprise.faq.q3": {
+    "message": "Lehetséges frissíteni a Community kiadásról az Enterprise kiadásra?"
+  },
+  "enterprise.faq.a3": {
+    "message": "Igen, bármikor frissítheti licencét Community-ről Enterprise-ra, és minden korlátozás azonnal megszűnik, az extra funkciók pedig elérhetővé válnak."
+  },
+  "enterprise.faq.q4": {
+    "message": "Kínálnak próbaverziót az Enterprise kiadáshoz?"
+  },
+  "enterprise.faq.a4": {
+    "message": "Igen, kérésre 14 napos próbaidőszakot biztosítunk."
+  },
+  "enterprise.faq.q5": {
+    "message": "Milyen gyakran érkeznek frissítések az Enterprise kiadáshoz?"
+  },
+  "enterprise.faq.a5": {
+    "message": "Célunk az új funkciók és javítások folyamatos biztosítása, akár napi szinten is. Ezzel szemben a Community kiadás havonta kap frissítéseket."
+  },
+  "enterprise.faq.q6": {
+    "message": "Vállalnak egyedi fejlesztést készprojektekhez?"
+  },
+  "enterprise.faq.a6": {
+    "message": "Nem, nem kínálunk semmilyen jellegű kulcsrakész fejlesztési szolgáltatást."
+  },
+  "enterprise.faq.q7": {
+    "message": "Mire terjednek ki az Önök által nyújtott professzionális szolgáltatások?"
+  },
+  "enterprise.faq.a7": {
+    "message": "Professzionális szolgáltatásaink az Ön belső csapataival való együttműködésre terjednek ki, mint például a bevezetési segítség, képzések és az OpenPanel felületének testreszabása az Ön márkájához."
+  },
+  "enterprise.faq.q8": {
+    "message": "Kérhetek egyedi funkciókat vagy testreszabást?"
+  },
+  "enterprise.faq.a8": {
+    "message": "Priorizáljuk a funkcióigényeket a termékfejlesztési tervünkben, valamint támogatjuk a csapatokat egyedi integrációk és összetevők fejlesztésében."
+  },
+  "enterprise.iam_services.title": {
+    "message": "Futtassa kedvenc alkalmazásait és szolgáltatásait!"
+  },
+  "enterprise.iam_services.desc": {
+    "message": "Támogatjuk az összes kedvenc alkalmazását és keretrendszerét minden további konfiguráció nélkül."
+  },
+  "enterprise.sso_mfa.brand.title": {
+    "message": "Illeszkedjen a márkájához"
+  },
+  "enterprise.sso_mfa.brand.desc": {
+    "message": "Szabja testre az OpenPanel felületét, hogy illeszkedjen saját márkájához."
+  },
+  "enterprise.sso_mfa.mfa.title": {
+    "message": "Többtényezős hitelesítés"
+  },
+  "enterprise.sso_mfa.mfa.desc": {
+    "message": "Engedélyezze vagy tegye kötelezővé az MFA-t ügyfelei számára."
+  },
+  "enterprise.security_features.secure.title": {
+    "message": "Alapértelmezetten biztonságos"
+  },
+  "enterprise.security_features.secure.desc": {
+    "message": "Kéttényezős hitelesítés engedélyezése, IP-címek blokkolása domainenként, távoli MySQL és SSH hozzáférés kezelése."
+  },
+  "enterprise.security_features.resource.title": {
+    "message": "Erőforrás-használat korlátozása"
+  },
+  "enterprise.security_features.resource.desc": {
+    "message": "Webhelyek, domainek vagy adatbázisok számának korlátozása, miközben szigorú korlátokat szab a CPU, memória, port sebesség, lemezhasználat és inode-ok számára."
+  },
+  "enterprise.security_features.monitor.title": {
+    "message": "Szerver és felhasználók felügyelete"
+  },
+  "enterprise.security_features.monitor.desc": {
+    "message": "A beépített funkciók közé tartozik a felhasználói tevékenység naplózása, a webhelylátogatók vizualizálása és az erőforrás-használat elemzése."
+  },
+  "enterprise.get_in_touch_button.purchase": {
+    "message": "Enterprise kiadás"
+  },
+  "enterprise.table.compare": {
+    "message": "Kiadások összehasonlítása"
+  },
+  "enterprise.table.community_edition": {
+    "message": "Community kiadás"
+  },
+  "enterprise.table.enterprise_edition": {
+    "message": "Enterprise kiadás"
+  },
+  "enterprise.table.section.pricing": {
+    "message": "Árazás"
+  },
+  "enterprise.table.section.support": {
+    "message": "Támogatás"
+  },
+  "enterprise.table.section.websites": {
+    "message": "Weboldalak"
+  },
+  "enterprise.table.section.files": {
+    "message": "Fájlok"
+  },
+  "enterprise.table.section.databases": {
+    "message": "Adatbázisok"
+  },
+  "enterprise.table.section.webservers": {
+    "message": "Webszerverek"
+  },
+  "enterprise.table.forever_free": {
+    "message": "örökké ingyenes"
+  },
+  "enterprise.table.support_channels.community": {
+    "message": "Közösségi fórumok és Discord"
+  },
+  "enterprise.table.support_channels.enterprise": {
+    "message": "Hibajegykezelés és közvetlen támogatás"
+  },
+  "enterprise.table.sla.desc": {
+    "message": "Válaszidő egy órán belül"
+  },
+  "enterprise.table.websites.unlimited": {
+    "message": "Korlátlan"
+  },
+  "enterprise.table.yearly_pricing": {
+    "message": "Éves árazás"
+  },
+  "enterprise.table.support_channels": {
+    "message": "Támogatási csatornák"
+  },
+  "enterprise.table.wordpress_manager": {
+    "message": "WordPress kezelő"
+  },
+  "enterprise.table.website_builder": {
+    "message": "Weboldalkészítő"
+  },
+  "enterprise.table.nodejs_apps": {
+    "message": "NodeJS alkalmazások"
+  },
+  "enterprise.table.python_apps": {
+    "message": "Python alkalmazások"
+  },
+  "enterprise.table.php_selector": {
+    "message": "PHP választó"
+  },
+  "enterprise.table.php_ini_editor": {
+    "message": "PHP.INI szerkesztő"
+  },
+  "enterprise.table.temp_domains": {
+    "message": "Ideiglenes domainek"
+  },
+  "enterprise.table.varnish_caching": {
+    "message": "Varnish gyorsítótárazás"
+  },
+  "enterprise.table.file_manager": {
+    "message": "Fájlkezelő"
+  },
+  "enterprise.table.malware_scanner": {
+    "message": "Malware szkenner"
+  },
+  "enterprise.table.download_url": {
+    "message": "Letöltés URL-ről"
+  },
+  "enterprise.table.disk_usage": {
+    "message": "Tárhelyhasználat felfedező"
+  },
+  "enterprise.table.inodes": {
+    "message": "Inode felfedező"
+  },
+  "enterprise.table.import_db": {
+    "message": "Adatbázisok importálása"
+  },
+  "enterprise.table.remote_access": {
+    "message": "Távoli hozzáférés"
+  },
+  "enterprise.table.user_accounts": {
+    "message": "Felhasználói fiókok"
+  },
+  "enterprise.table.resellers": {
+    "message": "Viszonteladók"
+  },
+  "enterprise.table.multi_admin": {
+    "message": "Több adminisztrátori fiók"
+  },
+  "enterprise.table.transfer_accounts": {
+    "message": "Fiókok átvitele szerverek között"
+  },
+  "enterprise.table.import_cpanel": {
+    "message": "Importálás cPanel biztonsági mentésből"
+  },
+  "enterprise.table.total_domains": {
+    "message": "Összes domain"
+  },
+  "enterprise.table.custom_ssl": {
+    "message": "Egyedi SSL"
+  },
+  "enterprise.table.domain_redirects": {
+    "message": "Domain átirányítások"
+  },
+  "enterprise.table.email_accounts": {
+    "message": "Email fiókok"
+  },
+  "enterprise.table.api_access": {
+    "message": "API hozzáférés"
+  },
+  "enterprise.table.billing_integrations": {
+    "message": "Számlázási integrációk"
+  },
+  "enterprise.table.user_isolation": {
+    "message": "Felhasználói izoláció"
+  },
+  "enterprise.table.services_isolation": {
+    "message": "Szolgáltatások izolációja"
+  },
+  "enterprise.table.manage_containers": {
+    "message": "Felhasználók kezelhetik a konténereket"
+  },
+  "enterprise.table.add_containers": {
+    "message": "Felhasználók hozzáadhatnak konténereket"
+  },
+  "enterprise.table.manage_backups": {
+    "message": "Felhasználó kezeli a biztonsági mentéseket"
+  },
+  "enterprise.table.arm_support": {
+    "message": "ARM CPU támogatás (Aarch64)"
+  },
+  "enterprise.table.cloud_vps": {
+    "message": "Elérhető Cloud/VPS környezetben"
+  },
+  "enterprise.table.metal_dedicated": {
+    "message": "Elérhető Metal/Dedicated környezetben"
+  },
+  "enterprise.table.docker_support": {
+    "message": "Docker támogatás"
+  },
+  "enterprise.table.metal_dedicated_support": {
+    "message": "Metal/Dedicated támogatás"
+  },
+  "enterprise.table.supported_os": {
+    "message": "Támogatott operációs rendszerek"
+  },
+  "enterprise.cta.title": {
+    "message": "Készen áll az OpenPanel Enterprise kipróbálására?"
+  },
+  "hosting_providers.meta_title": {
+    "message": "Vezérlőpult tárhelyszolgáltatóknak | OpenPanel Enterprise"
+  },
+  "hosting_providers.title": {
+    "message": "OpenPanel"
+  },
+  "hosting_providers.title_highlight": {
+    "message": "Tárhelyszolgáltató Partnerek"
+  },
+  "hosting_providers.description": {
+    "message": "Ha szeretne felkerülni az OpenPanel Tárhelyszolgáltató Partnerek listájára:"
+  },
+  "hosting_providers.noc_link_text": {
+    "message": "OpenPanel NOC Partner csomag"
+  },
+  "hosting_providers.label.location": {
+    "message": "Szerver helyszíne:"
+  },
+  "hosting_providers.label.services": {
+    "message": "Szolgáltatások:"
+  },
+  "hosting_providers.label.managed_support": {
+    "message": "Menedzselt támogatás:"
+  },
+  "hosting_providers.label.free_enterprise": {
+    "message": "Ingyenes Enterprise licenc:"
+  },
+  "hosting_providers.value.yes": {
+    "message": "Igen"
+  },
+  "hosting_providers.value.no": {
+    "message": "Nem"
+  },
+  "hosting_providers.button.visit": {
+    "message": "Látogasson el ide: {company}"
+  },
+  "hosting_providers.location.worldwide": {
+    "message": "Világszerte"
+  },
+  "demo.meta_title": {
+    "message": "Élő demó | OpenPanel"
+  },
+  "demo.title": {
+    "message": "Élő demó az"
+  },
+  "demo.span_openpanel": {
+    "message": "OpenPanelhez"
+  },
+  "demo.and": {
+    "message": "és az"
+  },
+  "demo.span_openadmin": {
+    "message": "OpenAdminhoz"
+  },
+  "demo.section.website_owner": {
+    "message": "Ha Ön weboldaltulajdonos, akkor az OpenPanel felületét érdemes kipróbálnia."
+  },
+  "demo.section.website_owner_desc": {
+    "message": "Itt kezelheti webhelyeit, fájljait, szolgáltatásait, domainjeit, e-mailjeit..."
+  },
+  "demo.section.openpanel_button": {
+    "message": "OpenPanel Demó"
+  },
+  "demo.section.web_host": {
+    "message": "Ha Ön tárhelyszolgáltató, akkor az OpenAdmin felületet ajánljuk figyelmébe."
+  },
+  "demo.section.web_host_desc": {
+    "message": "Itt kezelheti szerverét, ügyfélfiókjait és tárhelycsomagjait..."
+  },
+  "demo.section.openadmin_button": {
+    "message": "OpenAdmin Demó"
+  },
+  "homepage.enterprise.title": {
+    "message": "A tárhelyszolgáltatók ❤️ az OpenPanelt."
+  },
+  "homepage.enterprise.desc": {
+    "message": "Az OpenPanel célzottan a nagyobb tárhelyszolgáltatók problémáira kínál megoldást, kiemelt figyelmet fordítva a {security} kérdésére."
+  },
+  "homepage.enterprise.security": {
+    "message": "biztonság"
+  },
+  "homepage.enterprise.list.1.title": {
+    "message": "Erőforrás-használat korlátozása"
+  },
+  "homepage.enterprise.list.1.desc": {
+    "message": "Korlátozhatja a webhelyek, domainek vagy adatbázisok számát, miközben szigorú korlátokat szabhat a CPU-ra, memóriára, portsebességre, lemezhasználatra és inode-okra."
+  },
+  "homepage.enterprise.list.2.title": {
+    "message": "Felhasználók és webhelyek kezelése"
+  },
+  "homepage.enterprise.list.2.desc": {
+    "message": "Adminisztrátori vagy felhasználói szerepkörök hozzárendelése, engedélyek kezelése, funkciókhoz való hozzáférés korlátozása és még sok más."
+  },
+  "homepage.enterprise.list.3.title": {
+    "message": "Alapértelmezés szerint biztonságos"
+  },
+  "homepage.enterprise.list.3.desc": {
+    "message": "Kétlépcsős azonosítás engedélyezése, IP-címek blokkolása domainenként, távoli MySQL-hozzáférés és SSH-hozzáférés szabályozása."
+  },
+  "homepage.enterprise.list.4.title": {
+    "message": "Illeszkedjen a márkájához"
+  },
+  "homepage.enterprise.list.4.desc": {
+    "message": "Saját márkaszínek alkalmazása, funkciók korlátozása, névszerverek konfigurálása és egyebek."
+  },
+  "homepage.enterprise.list.5.title": {
+    "message": "Szerver és felhasználók felügyelete"
+  },
+  "homepage.enterprise.list.5.desc": {
+    "message": "A beépített funkciók közé tartozik a felhasználói tevékenység naplózása, a látogatók vizualizálása és az erőforrás-használat elemzése."
+  },
+  "homepage.enterprise.list.6.title": {
+    "message": "Szakértői támogatás"
+  },
+  "homepage.enterprise.list.6.desc": {
+    "message": "Iratkozzon fel olyan csomagokra, amelyek prioritást élvező támogatást, képzéseket és tanácsadást nyújtanak."
+  },
+  "homepage.enterprise.cta": {
+    "message": "Összes funkció megtekintése"
+  },
+  "homepage.packages.list.1": {
+    "message": "Rendszerjelentés készítése."
+  },
+  "homepage.packages.list.2": {
+    "message": "Összes domain listázása"
+  },
+  "homepage.packages.list.3": {
+    "message": "Felhasználói jelszó alaphelyzetbe állítása"
+  },
+  "homepage.packages.list.4": {
+    "message": "Domain felfüggesztése"
+  },
+  "homepage.packages.list.5": {
+    "message": "OpenAdmin szolgáltatás kezelése"
+  },
+  "homepage.packages.list.6": {
+    "message": "Csomagok listázása"
+  },
+  "homepage.packages.list.7": {
+    "message": "2FA kikapcsolása"
+  },
+  "homepage.packages.list.8": {
+    "message": "DEV_MODE engedélyezése"
+  },
+  "homepage.packages.list.9": {
+    "message": "Összes webhely listázása"
+  },
+  "homepage.packages.list.10": {
+    "message": "Új felhasználó hozzáadása"
+  },
+  "homepage.packages.list.11": {
+    "message": "Frissítések ellenőrzése"
+  },
+  "homepage.packages.list.12": {
+    "message": "Felhasználó átnevezése"
+  },
+  "homepage.packages.list.13": {
+    "message": "Alapértelmezett PHP verzió ellenőrzése"
+  },
+  "homepage.packages.list.14": {
+    "message": "CorazaWAF kezelése"
+  },
+  "homepage.packages.list.15": {
+    "message": "Docker statisztikák gyűjtése"
+  },
+  "homepage.packages.list.16": {
+    "message": "Memcached engedélyezése"
+  },
+  "homepage.packages.list.17": {
+    "message": "Összes API végpont listázása"
+  },
+  "homepage.packages.list.18": {
+    "message": "Nyelvi csomag telepítése"
+  },
+  "homepage.packages.list.19": {
+    "message": "Hibainformációk megjelenítése"
+  },
+  "homepage.packages.list.20": {
+    "message": "Bejelentkezési napló megtekintése"
+  },
+  "homepage.packages.list.21": {
+    "message": "Szerverkonfiguráció ellenőrzése"
+  },
+  "homepage.packages.list.22": {
+    "message": "Felhasználói domainek listázása"
+  },
+  "homepage.packages.list.23": {
+    "message": "Port átírása egyedi portra"
+  },
+  "homepage.packages.list.24": {
+    "message": "Domain DNS ellenőrzése"
+  },
+  "homepage.packages.list.25": {
+    "message": "Google PageSpeed mérés futtatása"
+  },
+  "homepage.packages.list.26": {
+    "message": "E-mail sor ürítése"
+  },
+  "homepage.packages.list.27": {
+    "message": "Domain PHP verziójának ellenőrzése"
+  },
+  "homepage.packages.list.28": {
+    "message": "Admin panel kikapcsolása"
+  },
+  "homepage.packages.list.29": {
+    "message": "E-mail törlése a sorból"
+  },
+  "homepage.packages.list.30": {
+    "message": "Könyvtár jogosultságainak javítása"
+  },
+  "about.meta.title": {
+    "message": "Névjegy | OpenPanel Projekt"
+  },
+  "about.hero.title": {
+    "message": "Segítünk a tárhelyszolgáltatóknak a forgalmas webhelyek kiszolgálásában, {less_time} alatt, {fewer_resources} használatával. ✌️"
+  },
+  "about.hero.less_time": {
+    "message": "kevesebb idő"
+  },
+  "about.hero.fewer_resources": {
+    "message": "kevesebb erőforrás"
+  },
+  "about.who_are_we": {
+    "message": "Kik vagyunk mi"
+  },
+  "about.idea.title": {
+    "message": "Az ötlet 💡"
+  },
+  "about.idea.desc1": {
+    "message": "Az OpenPanel abból a frusztrációból született, amelyet az UNLIMITED.RS-nél használt prémium tárhelypanelek váltottak ki bennünk a megosztott tárhelyes és menedzselt VPS ügyfeleinknél. A költségek az egekbe szöktek, miközben ezek a megoldások nem rendelkeztek azzal a rugalmassággal, amely az ügyfeleink egyedi igényeinek kielégítéséhez szükséges lett volna. Egy különösen nehéz projekt során egyik kollégánk, Čeda, híres megjegyzése ez volt: „Még mi is tudnánk jobbat csinálni.” Ez az állítás indította el Stefan Pejčićet, társalapítónkat és vezérigazgatónkat azon az úton, amely végül az OpenPanel létrehozásához vezetett."
+  },
+  "about.idea.desc2": {
+    "message": "Az évek során különböző tárhelypanelekkel dolgozva ismertük azok hibáit, korlátait és azt, hogy gyakran hogyan nem tudnak teljesíteni. Ezt láttuk {chance} — valami olyat, ami valóban képes skálázódni és alkalmazkodni."
+  },
+  "about.idea.chance": {
+    "message": "lehetőségünkként, hogy valami jobbat alkossunk"
+  },
+  "about.early_stages.title": {
+    "message": "Kezdeti szakaszok 🚧"
+  },
+  "about.early_stages.desc": {
+    "message": "Az OpenPanel {started_in_2023}, alapvető bootstrap felülettel és egy olyan adatbázis-sémával, amelyet arra terveztek, hogy egyetlen szerveren gond nélkül kezeljen 10-től akár 500 felhasználót is. Kezdetben egy LAMP stack volt tetszetős, de még hibás grafikus felülettel. Ahogy azonban növekedtünk, úgy nőttek az ötleteink is."
+  },
+  "about.early_stages.started": {
+    "message": "2023-ban indult"
+  },
+  "about.financing.title": {
+    "message": "Finanszírozásunk 💸"
+  },
+  "about.financing.desc": {
+    "message": "Az évek során több ajánlatot is kaptunk versenytársaktól és kockázati tőkebefektetőktől, de ezekkel az ajánlatokkal olyan feltételek is érkeztek, amelyek veszélyeztették volna víziónkat. Úgy döntöttünk, hogy {independent} és önfinanszírozottak maradunk. Elköteleztük magunkat valami más mellett: egy {panel}."
+  },
+  "about.financing.independent": {
+    "message": "függetlenek"
+  },
+  "about.financing.panel": {
+    "message": "moduláris, stabil és méltányos árú vezérlőpult"
+  },
+  "about.why_openpanel.title": {
+    "message": "Miért OpenPanel? 🤔"
+  },
+  "about.why_openpanel.desc": {
+    "message": "Maga az „OpenPanel” név eleinte csak egy ideiglenes elnevezés volt, de végül ránk ragadt. A projektet először .co domain alatt tettük közzé, mivel a .com és .org domaineket már majdnem két évtizeddel ezelőtt lefoglalta egy hasonló projekt. Az Ön által ismert és használt OpenPanel {not_associated} a régebbi openpanel.com projekttel, de hálánkat fejezzük ki nekik önzetlenségükért, amellyel lehetővé tették számunkra az openpanel.com domain átvételét 2024 augusztusában."
+  },
+  "about.why_openpanel.not_associated": {
+    "message": "semmilyen módon nem kapcsolódik"
+  },
+  "about.why_not_opensource.title": {
+    "message": "Miért nem nyílt forráskódú? 🤷"
+  },
+  "about.why_not_opensource.desc": {
+    "message": "Bár mérlegeltük a teljes nyílt forráskódúvá válást, úgy döntöttünk, hogy bizonyos részeket saját tulajdonúként tartunk meg, hogy {guarantee_quality}, felgyorsítsuk az új funkciók fejlesztését és gyorsabb javításokat biztosítsunk a hibákhoz. Ez a megközelítés lehetővé teszi számunkra egy {secure_product} fenntartását is, nyugalmat biztosítva felhasználóinknak."
+  },
+  "about.why_not_opensource.guarantee_quality": {
+    "message": "garantálni tudjuk a minőséget"
+  },
+  "about.why_not_opensource.secure_product": {
+    "message": "biztonságosabb termék"
+  },
+  "about.next.title": {
+    "message": "Mi következik? 🔮"
+  },
+  "about.next.desc1": {
+    "message": "Stefan Pejcic folyamatos vezetése alatt az OpenPanel elkötelezett marad amellett, hogy a technológiai trendek előtt járjon, és kezelje az azokkal járó kockázatokat."
+  },
+  "about.next.desc2": {
+    "message": "Elkötelezettek vagyunk platformunk folyamatos fejlesztése mellett, hogy a piac {advanced_panel} kínáljuk. Utunk még korántsem ért véget, és az Önök folyamatos támogatásával izgatottan feszegetjük a szerverkezelés határait."
+  },
+  "about.next.advanced_panel": {
+    "message": "legfejlettebb, legbiztonságosabb és legfelhasználóbarátabb tárhelypaneljét"
+  },
+  "about.next.desc3": {
+    "message": "Kísérje figyelemmel az új funkciókat, a fokozott teljesítményt és a további módszereket, amelyekkel {seamless_experience}. A java még hátravan."
+  },
+  "about.next.seamless_experience": {
+    "message": "a lehető legzökkenőmentesebbé tesszük a tárhelyhasználati élményt"
   }
 }

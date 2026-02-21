@@ -220,8 +220,8 @@ const PackagesContainer = ({
 };
 
 const PackageItem = (props: {
-    icon: ReactNode;
-    label: string;
+    icon?: ReactNode;
+    label: ReactNode;
     tooltip: string;
 }) => {
     const { tooltip, icon, label } = props;
@@ -311,126 +311,126 @@ const PackageItem = (props: {
 
 const listOne = [
     {
-        label: "Generate system report.",
+        label: <Translate id="homepage.packages.list.1">Generate system report.</Translate>,
         tooltip: "opencli report",
     },
     {
-        label: "List all domains",
+        label: <Translate id="homepage.packages.list.2">List all domains</Translate>,
         tooltip: "opencli domains-all",
     },
     {
-        label: "Reset user password",
+        label: <Translate id="homepage.packages.list.3">Reset user password</Translate>,
         tooltip: "opencli user-password <USERNAME> <NEW_PASSWORD>",
     },
     {
-        label: "Suspend a domain",
+        label: <Translate id="homepage.packages.list.4">Suspend a domain</Translate>,
         tooltip: "opencli domains-suspend <DOMAIN-NAME>",
     },
     {
-        label: "Manage OpenAdmin service",
+        label: <Translate id="homepage.packages.list.5">Manage OpenAdmin service</Translate>,
         tooltip: "opencli admin <setting_name>",
     },
     {
-        label: "List plans",
+        label: <Translate id="homepage.packages.list.6">List plans</Translate>,
         tooltip: "opencli plan-list",
     },
     {
-        label: "Disable 2FA",
+        label: <Translate id="homepage.packages.list.7">Disable 2FA</Translate>,
         tooltip: "opencli user-2fa <USERNAME> disable",
     },
     {
-        label: "Enable DEV_MODE",
+        label: <Translate id="homepage.packages.list.8">Enable DEV_MODE</Translate>,
         tooltip: "opencli config update dev_mode on",
     },
     {
-        label: "List all Websites",
+        label: <Translate id="homepage.packages.list.9">List all Websites</Translate>,
         tooltip: "opencli websites-all",
     },
     {
-        label: "Add a new user",
+        label: <Translate id="homepage.packages.list.10">Add a new user</Translate>,
         tooltip: "opencli user-add <USERNAME> <PASSWORD> <EMAIL> <PLAN_ID>",
     },
     {
-        label: "Check updates",
+        label: <Translate id="homepage.packages.list.11">Check updates</Translate>,
         tooltip: "opencli update --check",
     },
     {
-        label: "Rename user",
+        label: <Translate id="homepage.packages.list.12">Rename user</Translate>,
         tooltip: "opencli user-rename <old_username> <new_username>",
     },
     {
-        label: "Check default PHP version",
+        label: <Translate id="homepage.packages.list.13">Check default PHP version</Translate>,
         tooltip: "opencli php-default <username>",
     },
     {
-        label: "Manage CorazaWAF",
+        label: <Translate id="homepage.packages.list.14">Manage CorazaWAF</Translate>,
         tooltip: "opencli waf <setting>",
     },
     {
-        label: "Collect docker stats",
+        label: <Translate id="homepage.packages.list.15">Collect docker stats</Translate>,
         tooltip: "opencli docker-collect_stats",
     },
     {
-        label: "Enable Memcached",
+        label: <Translate id="homepage.packages.list.16">Enable Memcached</Translate>,
         tooltip: "opencli user-memcached enable <USERNAME>",
     },
 ];
 
 const listTwo = [
     {
-        label: "List all API endpoints",
+        label: <Translate id="homepage.packages.list.17">List all API endpoints</Translate>,
         tooltip: "opencli api-list",
     },
     {
-        label: "Install a locale",
+        label: <Translate id="homepage.packages.list.18">Install a locale</Translate>,
         tooltip: "opencli locale sr-sr",
     },
     {
-        label: "Display error information",
+        label: <Translate id="homepage.packages.list.19">Display error information</Translate>,
         tooltip: "opencli error ID_HERE",
     },
     {
-        label: "View Login Log",
+        label: <Translate id="homepage.packages.list.20">View Login Log</Translate>,
         tooltip: "opencli user-loginlog <USERNAME>",
     },
     {
-        label: "Check server configuration",
+        label: <Translate id="homepage.packages.list.21">Check server configuration</Translate>,
         tooltip: "opencli sentinel",
     },
     {
-        label: "List user domains",
+        label: <Translate id="homepage.packages.list.22">List user domains</Translate>,
         tooltip: "opencli domains-user <USERNAME>",
     },
     {
-        label: "Change 2083 to custom port",
+        label: <Translate id="homepage.packages.list.23">Change 2083 to custom port</Translate>,
         tooltip: "opencli port set <PORT>",
     },
     {
-        label: "Check DNS for a domain",
+        label: <Translate id="homepage.packages.list.24">Check DNS for a domain</Translate>,
         tooltip: "opencli domains-dns check",
     },
     {
-        label: "Collect Google PageSpeed for website",
+        label: <Translate id="homepage.packages.list.25">Collect Google PageSpeed for website</Translate>,
         tooltip: "opencli websites-pagespeed <WEBSITE>",
     },
     {
-        label: "Flush mail queue",
+        label: <Translate id="homepage.packages.list.26">Flush mail queue</Translate>,
         tooltip: "opencli email-server flush",
     },
     {
-        label: "Check PHP version for domain",
+        label: <Translate id="homepage.packages.list.27">Check PHP version for domain</Translate>,
         tooltip: "opencli php-domain <DOMAIN-NAME>",
     },
     {
-        label: "Disable admin panel",
+        label: <Translate id="homepage.packages.list.28">Disable admin panel</Translate>,
         tooltip: "opencli admin off",
     },
     {
-        label: "Delete mail from queue",
+        label: <Translate id="homepage.packages.list.29">Delete mail from queue</Translate>,
         tooltip: "opencli email-server delete <queue id> [<queue id>]",
     },
     {
-        label: "Fix permissions for directory",
+        label: <Translate id="homepage.packages.list.30">Fix permissions for directory</Translate>,
         tooltip: "opencli files-fix_permissions <USERNAME> <PATH>",
     },
 ];
