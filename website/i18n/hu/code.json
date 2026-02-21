@@ -417,5 +417,485 @@
   "homepage.pureReact.cta": {
     "message": "Dokumentáció",
     "description": "Translated for Hungarian locale"
+  },
+  "features.item.apache": {
+    "message": "Apache",
+    "description": "Translated automatically"
+  },
+  "features.item.run_apache_web_serve": {
+    "message": "Futtassa az Apache webszervert felhasználónként. Az Apache .htaccess fájlok támogatása lehetővé teszi a felhasználók számára, hogy könyvtáronként testreszabják és felülírják a globális konfigurációs beállításokat.",
+    "description": "Translated automatically"
+  },
+  "features.item.nginx": {
+    "message": "Nginx",
+    "description": "Translated automatically"
+  },
+  "features.item.nginx_web_server_is": {
+    "message": "Az Nginx webszerver egy könnyű, nyílt forráskódú megoldás. Az Nginx webszerver OpenPanel verziója lehetővé teszi a gyorsítótár kizárásának, a gyorsítótár törlésének, az URL-ek újraírásának és a FastCGI gyorsítótárnak a konfigurálását tartományonként.",
+    "description": "Translated automatically"
+  },
+  "features.item.openresty": {
+    "message": "OpenResty",
+    "description": "Translated automatically"
+  },
+  "features.item.openresty_allows_per": {
+    "message": "Az OpenResty lehetővé teszi a felhasználónkénti testreszabást a felhasználóspecifikus helyblokkok vagy a dinamikus Lua logika meghatározásával a fő konfigurációban. A konfiguráció központosított, és a teljesítmény érdekében elő van töltve",
+    "description": "Translated automatically"
+  },
+  "features.item.openlitespeed": {
+    "message": "OpenLiteSpeed",
+    "description": "Translated automatically"
+  },
+  "features.item.openlitespeed_is_a_h": {
+    "message": "Az OpenLiteSpeed ​​egy nagy teljesítményű, könnyű webszerver beépített gyorsítótárazással és .htaccess támogatással. Az OpenPanel lehetővé teszi a biztonsági, gyorsítótárazási és újraírási szabályok felhasználónkénti konfigurálását.",
+    "description": "Translated automatically"
+  },
+  "features.item.varnish": {
+    "message": "Lakk",
+    "description": "Translated automatically"
+  },
+  "features.item.varnish_is_a_powerfu": {
+    "message": "A Varnish egy hatékony HTTP-gyorsító, amelyet nagy tartalommal rendelkező webhelyekhez terveztek. Az OpenPanel lehetővé teszi a WordPress gyorsítótárazási szabályait, a tisztítási logikát és a háttérkonfigurációt az optimális teljesítmény érdekében.",
+    "description": "Translated automatically"
+  },
+  "features.item.domain_names": {
+    "message": "Domain nevek",
+    "description": "Translated automatically"
+  },
+  "features.item.add_domain_names_wit": {
+    "message": "Adjon hozzá tartományneveket automatikus SSL-megújítással, vegyen fel álneveket és aldomaineket (a nemzetközi tartományok támogatottak), hozzon létre átirányításokat, kényszerítse ki a HTTPS-t, és szerkessze a vhost fájlokat.",
+    "description": "Translated automatically"
+  },
+  "features.item.file_manager": {
+    "message": "Fájlkezelő",
+    "description": "Translated automatically"
+  },
+  "features.item.effortlessly_upload": {
+    "message": "Könnyedén tölthet fel több fájlt egyszerre, feltöltési korlátozások nélkül. Fájlok szerkesztése, engedélyek módosítása, fájlok másolása vagy áthelyezése, új fájlok hozzáadása és különféle fájlkezelési feladatok végrehajtása.",
+    "description": "Translated automatically"
+  },
+  "features.item.php_versions": {
+    "message": "PHP verziók",
+    "description": "Translated automatically"
+  },
+  "features.item.users_can_use_differ": {
+    "message": "A felhasználók különböző PHP-verziókat használhatnak minden tartományhoz, több verziót futtathatnak, alapértelmezett verziót állíthatnak be az új tartományokhoz, módosíthatják a korlátokat a php.ini fájlok szerkesztésével.",
+    "description": "Translated automatically"
+  },
+  "features.item.nodejs_and_python": {
+    "message": "NodeJS és Python",
+    "description": "Translated automatically"
+  },
+  "features.item.effortlessly_create": {
+    "message": "Könnyedén hozhat létre és kezelhet konténeres NodeJS és Python alkalmazásokat. Proxywebhelyek az ezekből az alkalmazásokból származó tartalom zökkenőmentes megjelenítéséhez.",
+    "description": "Translated automatically"
+  },
+  "features.item.wp_manager": {
+    "message": "WP menedzser",
+    "description": "Translated automatically"
+  },
+  "features.item.automatic_wordpress": {
+    "message": "Automatikus WordPress telepítő olyan funkciókkal, mint az automatikus bejelentkezés a wp-admin rendszerbe, az opciók szerkesztése, az igény szerinti biztonsági mentés, a hibakeresés és számos további funkció.",
+    "description": "Translated automatically"
+  },
+  "features.item.mysql_and_phpmyadmin": {
+    "message": "MySQL és phpMyAdmin",
+    "description": "Translated automatically"
+  },
+  "features.item.create_and_manage_my": {
+    "message": "Egyszerűen hozhat létre és kezelhet MySQL adatbázisokat és felhasználókat. Automatikusan jelentkezzen be a phpMyAdminba, engedélyezze a távoli MySQL hozzáférést, és módosítsa a konfigurációs beállításokat a kívánt korlátokkal.",
+    "description": "Translated automatically"
+  },
+  "features.item.ssl_certificates": {
+    "message": "SSL tanúsítványok",
+    "description": "Translated automatically"
+  },
+  "features.item.automatic_ssl_genera": {
+    "message": "Az automatikus SSL generálás és megújítás biztosítja, hogy webhelye biztonsága könnyedén kezelhető legyen, folyamatos védelmet biztosítva a naprakész SSL-tanúsítványokkal.",
+    "description": "Translated automatically"
+  },
+  "features.item.object_caching": {
+    "message": "Objektum gyorsítótárazás",
+    "description": "Translated automatically"
+  },
+  "features.item.implement_object_cac": {
+    "message": "Valósítsa meg az objektum-gyorsítótárat dedikált REDIS és Memcached példányok használatával. Állítson be memóriakorlátokat, indítsa el/leállítsa a szolgáltatásokat, és hatékonyan tekintse meg a naplókat.",
+    "description": "Translated automatically"
+  },
+  "features.item.web_terminal": {
+    "message": "Web terminál",
+    "description": "Translated automatically"
+  },
+  "features.item.run_commands_inside": {
+    "message": "A Docker-tárolókon belüli parancsok egyszerű futtatása a WebTerminal segítségével – egy egyszerű felület, amellyel közvetlenül a böngészőből érheti el és kezelheti a tárolókat.",
+    "description": "Translated automatically"
+  },
+  "features.item.server_settings": {
+    "message": "Szerverbeállítások",
+    "description": "Translated automatically"
+  },
+  "features.item.each_user_has_comple": {
+    "message": "Minden felhasználó teljes mértékben felügyelheti szerverkonfigurációját, lehetővé téve számukra a szolgáltatások telepítését vagy újraindítását, a rendszerkonfiguráció szerkesztését és számos egyéb adminisztrációs feladat elvégzését.",
+    "description": "Translated automatically"
+  },
+  "features.item.cron_jobs": {
+    "message": "Cron Jobs",
+    "description": "Translated automatically"
+  },
+  "features.item.schedule_and_edit_cr": {
+    "message": "Ütemezze és szerkessze a cronjobokat közvetlenül az OpenPanel felületéről az ütemezett műveletek hatékony tervezéséhez és kezeléséhez.",
+    "description": "Translated automatically"
+  },
+  "features.item.dns_zone_editor": {
+    "message": "DNS-zónaszerkesztő",
+    "description": "Translated automatically"
+  },
+  "features.item.easily_edit_dns_zone": {
+    "message": "Az OpenPanel felületén egyszerűen szerkesztheti a DNS-zónafájlokat domainjeihez, és hozzáadhat különféle rekordokat, például A, AAAA, CNAME, MX, TXT stb.",
+    "description": "Translated automatically"
+  },
+  "features.item.resource_usage": {
+    "message": "Erőforrás felhasználás",
+    "description": "Translated automatically"
+  },
+  "features.item.monitor_real_time_cp": {
+    "message": "Kövesse nyomon a valós idejű CPU- és memóriahasználatot, ellenőrizze a korábbi trendeket, és szükség szerint módosítsa a szerver konfigurációját a teljesítmény optimalizálása érdekében.",
+    "description": "Translated automatically"
+  },
+  "features.item.visitor_reports": {
+    "message": "Látogatói beszámolók",
+    "description": "Translated automatically"
+  },
+  "features.item.access_automatically": {
+    "message": "Hozzáférhet az automatikusan generált, tetszetős látogatói jelentésekhez a webhely hozzáférési naplóiból. Fedezze fel a látogatók helyeit, a meglátogatott oldalakat, az IP-címeket, a hibaoldalakat és sok mást könnyedén.",
+    "description": "Translated automatically"
+  },
+  "features.item.activity_logs": {
+    "message": "Tevékenységnaplók",
+    "description": "Translated automatically"
+  },
+  "features.item.every_action_in_the": {
+    "message": "Az OpenPanel felületén minden művelet rögzítésre kerül, így a felhasználók könnyen nyomon követhetik, ki mit és mikor csinált, így nincs szükség a szervernaplók átvizsgálására.",
+    "description": "Translated automatically"
+  },
+  "features.item.account_settings": {
+    "message": "Fiókbeállítások",
+    "description": "Translated automatically"
+  },
+  "features.item.users_can_change_the": {
+    "message": "A felhasználók megváltoztathatják e-mail címüket és jelszavukat, engedélyezhetik a 2FA-t, módosíthatják a nyelvi beállításokat, és aktiválhatják a sötét módot a személyre szabott élmény érdekében.",
+    "description": "Translated automatically"
+  },
+  "features.item.simple_server_deploy": {
+    "message": "Egyszerű szervertelepítés",
+    "description": "Translated automatically"
+  },
+  "features.item.install_openpanel_in": {
+    "message": "Az OpenPanel telepítése percek alatt. Egyetlen paranccsal biztosítson új kiszolgálókat a fürthöz.",
+    "description": "Translated automatically"
+  },
+  "features.item.resource_usage_manag": {
+    "message": "Erőforrás felhasználás kezelése",
+    "description": "Translated automatically"
+  },
+  "features.item.limit_the_cpu__i_o_b": {
+    "message": "Korlátozza a processzort, az I/O sávszélességet, az IOPS-t, az nproc-ot és a memóriát felhasználónként, hogy biztosítsa az összes tárolt webhely egyenletes teljesítményét.",
+    "description": "Translated automatically"
+  },
+  "features.item.switch_web_servers": {
+    "message": "Webszerver váltása",
+    "description": "Translated automatically"
+  },
+  "features.item.with_the_docker_modu": {
+    "message": "A Docker modullal a felhasználóknak lehetőségük van a preferált webszerverre váltani: Nginx, Apache, OpenLitespeed, OpenResty.",
+    "description": "Translated automatically"
+  },
+  "features.item.edit_configuration": {
+    "message": "Konfiguráció szerkesztése",
+    "description": "Translated automatically"
+  },
+  "features.item.administrators_have": {
+    "message": "Az adminisztrátorok rugalmasan testreszabhatják az alapértelmezett portot (például 2083-ról módosíthatják), és módosíthatják a könyvtár elérési útját (például /openpanelről), hogy megfeleljenek az adott preferenciáknak.",
+    "description": "Translated automatically"
+  },
+  "features.item.resource_usage_stati": {
+    "message": "Erőforrás-használati statisztikák",
+    "description": "Translated automatically"
+  },
+  "features.item.monitor_cpu__memory": {
+    "message": "A CPU, a memóriahasználat, a hálózat, a lemez és a terhelés figyelése valós idejű megfigyeléssel.",
+    "description": "Translated automatically"
+  },
+  "features.item.service_management": {
+    "message": "Szolgáltatásmenedzsment",
+    "description": "Translated automatically"
+  },
+  "features.item.monitor_services__in": {
+    "message": "Kövesse nyomon a szolgáltatásokat, kezdeményezzen újraindítást, tekintse meg a naplókat és hajtson végre további kezelési feladatokat hatékonyan az adminisztrátori felületről.",
+    "description": "Translated automatically"
+  },
+  "features.item.smart_notifications": {
+    "message": "Intelligens értesítések",
+    "description": "Translated automatically"
+  },
+  "features.item.receive_notification": {
+    "message": "Értesítéseket kaphat az olyan eseményekről, mint az újraindítás, a magas erőforrás-használat, a webhelytámadások, a meghibásodott szolgáltatások és más kritikus események, hogy tájékozódjon a szerver állapotáról.",
+    "description": "Translated automatically"
+  },
+  "features.item.terminal_commands": {
+    "message": "Terminálparancsok",
+    "description": "Translated automatically"
+  },
+  "features.item.opencli_serves_as_th": {
+    "message": "Az OpenCLI a rendszergazdák terminálfelületeként szolgál, lehetővé téve a különféle OpenPanel-beállítások automatizálását, több mint 100 elérhető parancs elérésével.",
+    "description": "Translated automatically"
+  },
+  "features.item.branding": {
+    "message": "Márkaépítés",
+    "description": "Translated automatically"
+  },
+  "features.item.fully_customise_the": {
+    "message": "Teljesen testreszabhatja az OpenPanel-t színekkel, logókkal, betűtípusokkal és sok mással, amelyek tükrözik a hosting cég megjelenését és hangulatát.",
+    "description": "Translated automatically"
+  },
+  "features.item.fully_responsive": {
+    "message": "Teljesen érzékeny",
+    "description": "Translated automatically"
+  },
+  "features.item.access_openpanel_on": {
+    "message": "Hozzáférés az OpenPanelhez asztali számítógépen, táblagépen és mobileszközön minden funkciókorlátozás nélkül.",
+    "description": "Translated automatically"
+  },
+  "features.item.dark_mode": {
+    "message": "Sötét mód",
+    "description": "Translated automatically"
+  },
+  "features.item.openpanel_features_a": {
+    "message": "Az OpenPanel beépített sötét móddal rendelkezik, amelyet a felhasználók egyetlen kattintással aktiválhatnak közvetlenül a felületről, javítva a felhasználói élményt.",
+    "description": "Translated automatically"
+  },
+  "features.item.server_info": {
+    "message": "Szerver Info",
+    "description": "Translated automatically"
+  },
+  "features.item.view_real_time_usage": {
+    "message": "Megtekintheti a valós idejű használati adatokat, IP-címeket, névszervereket és más fontos szerverinformációkat közvetlenül az OpenPanel felületén.",
+    "description": "Translated automatically"
+  },
+  "features.item.advanced_search": {
+    "message": "Speciális keresés",
+    "description": "Translated automatically"
+  },
+  "features.item.quickly_and_easily_f": {
+    "message": "Gyorsan és egyszerűen megtalálhatja, amit keres egy hatékony keresési funkcióval.",
+    "description": "Translated automatically"
+  },
+  "features.item.multi_language_suppo": {
+    "message": "Többnyelvű támogatás",
+    "description": "Translated automatically"
+  },
+  "features.item.openpanel_is_transla": {
+    "message": "Az OpenPanel készen áll a fordításra. Minden bejelentkező megtekintheti az OpenPanel-t a kívánt nyelven.",
+    "description": "Translated automatically"
+  },
+  "features.item.keyboard_shortcuts": {
+    "message": "Billentyűparancsok",
+    "description": "Translated automatically"
+  },
+  "features.item.openpanel_was_design": {
+    "message": "Az OpenPanel a haladó felhasználókra összpontosítva készült, és több mint 20 billentyűparancsot kínál a kezelőfelületen keresztüli navigáció sebességének növelésére.",
+    "description": "Translated automatically"
+  },
+  "features.item.suspend___delete_acc": {
+    "message": "Fiókok felfüggesztése/törlése",
+    "description": "Translated automatically"
+  },
+  "features.item.suspend_customer_acc": {
+    "message": "Az ügyfélfiókok felfüggesztésével azonnal letilthatja az OpenPanel-hozzáférést és a webhelyeket. Törölje a fiókokat, amikor már nincs rájuk szükség.",
+    "description": "Translated automatically"
+  },
+  "features.item.upgrade___downgrade": {
+    "message": "Frissítés / alacsonyabb szintű csomag",
+    "description": "Translated automatically"
+  },
+  "features.item.seamlessly_upgrade_o": {
+    "message": "Zökkenőmentesen frissítheti vagy leminősítheti az ügyfél csomagját egy másik tárhelycsomagra.",
+    "description": "Translated automatically"
+  },
+  "features.item.dedicated_ip_address": {
+    "message": "Dedikált IP-cím",
+    "description": "Translated automatically"
+  },
+  "features.item.allocate_an_ipv4_add": {
+    "message": "Rendeljen ki egy IPv4-címet a felhasználóknak, biztosítva számukra egy dedikált IP-címet webhelyeik és szolgáltatásaik számára.",
+    "description": "Translated automatically"
+  },
+  "features.item.impersonation": {
+    "message": "Megszemélyesítés",
+    "description": "Translated automatically"
+  },
+  "features.item.auto_login_to_access": {
+    "message": "Automatikus bejelentkezéssel hozzáférhet az ügyfél fiókjához, és pontosan láthatja, mit lát, anélkül, hogy ki kellene hagynia fiókját.",
+    "description": "Translated automatically"
+  },
+  "features.item.webserver_per_user": {
+    "message": "Webszerver felhasználónként",
+    "description": "Translated automatically"
+  },
+  "features.item.administrators_can_s": {
+    "message": "A rendszergazdák a MySQL-t, a Perconát vagy a MariaDB-t választhatják mysql-kiszolgálóként minden felhasználó számára. Ez a rugalmasság lehetővé teszi az adminisztrátorok számára, hogy a MySQL-t és a MariaDB-t használó felhasználók keverékét alkalmazzák, mindezt ugyanazon a szerveren belül.",
+    "description": "Translated automatically"
+  },
+  "features.item.database_server_per": {
+    "message": "Adatbázis szerver felhasználónként",
+    "description": "Translated automatically"
+  },
+  "features.item.containerized_servic": {
+    "message": "Konténeres szolgáltatások",
+    "description": "Translated automatically"
+  },
+  "features.item.every_user_service_i": {
+    "message": "Minden felhasználói szolgáltatás konténeres. A tárolóknak nincs hozzáférésük más felhasználókhoz vagy szerverfájlokhoz.",
+    "description": "Translated automatically"
+  },
+  "features.item.resource_limiting": {
+    "message": "Erőforrás-korlátozás",
+    "description": "Translated automatically"
+  },
+  "features.item.ssl___tls": {
+    "message": "SSL / TLS",
+    "description": "Translated automatically"
+  },
+  "features.item.automatically_provis": {
+    "message": "A Let's Encrypt tanúsítványok automatikus biztosítása és megújítása.",
+    "description": "Translated automatically"
+  },
+  "features.item.corazawaf": {
+    "message": "CorazaWAF",
+    "description": "Translated automatically"
+  },
+  "features.item.administrators_can_a": {
+    "message": "A rendszergazdák egyetlen kattintással aktiválhatják a CorazaWAF-ot, és konfigurálhatják az OWASP szabálykészletet. Ezenkívül az egyes felhasználók rugalmasan engedélyezhetik vagy letilthatják a WAF-ot tartományonként, illetve letilthatnak bizonyos szabályokat.",
+    "description": "Translated automatically"
+  },
+  "features.item.firewall": {
+    "message": "Tűzfal",
+    "description": "Translated automatically"
+  },
+  "features.item.administrators_can_m": {
+    "message": "A rendszergazdák közvetlenül az adminisztrátori felületről kezelhetik a Sentinel-t – a ConfigServer Security & Firewall (CSF) elágazását. Csak a szükséges portok vannak nyitva a felhasználók számára, és az adminisztrátorok teljes ellenőrzést gyakorolhatnak felettük.",
+    "description": "Translated automatically"
+  },
+  "features.item.imunifyav": {
+    "message": "ImmunifyAV",
+    "description": "Translated automatically"
+  },
+  "features.item.openadmin_fully_supp": {
+    "message": "Az OpenAdmin teljes mértékben támogatja az ImunifyAV-t.",
+    "description": "Translated automatically"
+  },
+  "features.item.two_factor_authentic": {
+    "message": "Kéttényezős hitelesítés",
+    "description": "Translated automatically"
+  },
+  "features.item.users_can_enhance_se": {
+    "message": "A felhasználók növelhetik a biztonságot, ha engedélyezik a kéttényezős hitelesítést OpenPanel-fiókjukhoz. A rendszergazdák rugalmasan kényszeríthetik vagy letilthatják a 2FA-t bármely felhasználó számára.",
+    "description": "Translated automatically"
+  },
+  "features.item.shell_access_depreca": {
+    "message": "A shell hozzáférés EGYÜTT",
+    "description": "Translated automatically"
+  },
+  "features.item.ip_blocking_deprecat": {
+    "message": "IP-blokkolás DEPRECATED",
+    "description": "Translated automatically"
+  },
+  "features.item.disable_admin_panel": {
+    "message": "Admin panel letiltása",
+    "description": "Translated automatically"
+  },
+  "features.item.administrators_can_e": {
+    "message": "A rendszergazdák könnyedén, egyetlen kattintással letilthatják az OpenAdmin felületet, miközben megőrzik az OpenPanel alapvető funkcióit.",
+    "description": "Translated automatically"
+  },
+  "features.item.separate_services": {
+    "message": "Külön szolgáltatások",
+    "description": "Translated automatically"
+  },
+  "features.item.both_openadmin_and_o": {
+    "message": "Mind az OpenAdmin, mind az OpenPanel külön adatbázisokat és webszervereket használ, így teljes függetlenséget biztosít a felhasználói webhelyektől.",
+    "description": "Translated automatically"
+  },
+  "features.item.custom_ports": {
+    "message": "Egyedi portok",
+    "description": "Translated automatically"
+  },
+  "features.item.whmcs": {
+    "message": "WHMCS",
+    "description": "Translated automatically"
+  },
+  "features.item.integrate_with_the_l": {
+    "message": "Integrálható a vezető webtárhely-kezelő és számlázó szoftverrel.",
+    "description": "Translated automatically"
+  },
+  "features.item.blesta": {
+    "message": "Blesta",
+    "description": "Translated automatically"
+  },
+  "features.item.provision_openpanel": {
+    "message": "Hozzon létre OpenPanel-fiókokat a FOSSBilling szoftverből.",
+    "description": "Translated automatically"
+  },
+  "features.item.fossbilling": {
+    "message": "FOSSBilling",
+    "description": "Translated automatically"
+  },
+  "features.item.api": {
+    "message": "API",
+    "description": "Translated automatically"
+  },
+  "features.item.openadmin_api_allows": {
+    "message": "Az OpenAdmin API lehetővé teszi a már használt harmadik féltől származó rendszerekkel való integrációt.",
+    "description": "Translated automatically"
+  },
+  "features.hero.title": {
+    "message": "Nem az, amit egy Vezérlőpulttól várnál",
+    "description": "Translated static texts"
+  },
+  "features.hero.subtitle.1": {
+    "message": "A nyílt forráskódú OpenPanel az egyik legjobban testreszabható web hosting vezérlőpult a piacon.",
+    "description": "Translated static texts"
+  },
+  "features.hero.subtitle.2": {
+    "message": "Rendelj felhasználónként különböző MySQL verziókat, webkiszolgálókat és limiteket fiókonként, engedélyezd nekik a Docker konténerek futtatását, kezeld a biztonsági másolatokat, ütemezz cron feladatokat másodpercek alatt, finomhangold a konfigurációkat, és még sok mást.",
+    "description": "Translated static texts"
+  },
+  "features.section.1": {
+    "message": "Saját webkiszolgáló minden felhasználónak",
+    "description": "Translated static texts"
+  },
+  "features.section.2": {
+    "message": "Minden klasszikus funkció együtt",
+    "description": "Translated static texts"
+  },
+  "features.section.3": {
+    "message": "Okosabb szerver menedzsment",
+    "description": "Translated static texts"
+  },
+  "features.section.4": {
+    "message": "Egyszerűsített kezelőfelület",
+    "description": "Translated static texts"
+  },
+  "features.section.5": {
+    "message": "Menedzseld felhasználóid egy gombnyomásra",
+    "description": "Translated static texts"
+  },
+  "features.section.6": {
+    "message": "Beépített izoláció és biztonság",
+    "description": "Translated static texts"
+  },
+  "features.section.7": {
+    "message": "Integráld a számlázó rendszeredbe",
+    "description": "Translated static texts"
   }
 }
