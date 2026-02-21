@@ -897,5 +897,37 @@
   "features.section.7": {
     "message": "Integráld a számlázó rendszeredbe",
     "description": "Translated static texts"
+  },
+  "docs.index.title.docFor": {
+    "message": "Dokumentáció a ",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.index.title.and": {
+    "message": "-hez, és az ",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.section.panel.desc1": {
+    "message": "Az OpenPanel a végfelhasználói felület, amelyből az ügyfelek kezelhetik domaineiket, weboldalaikat, szolgáltatásaikat, és az e-mail fiókjaikat.",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.section.panel.desc2": {
+    "message": "A dokumentáció ezen része olyan végfelhasználóknak szól, akik kizárólag az OpenPanel felületre léphetnek be (alapmezett port: 2083).",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.section.panel.btn": {
+    "message": "OpenPanel Doksik",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.section.admin.desc1": {
+    "message": "Az OpenAdmin a legfelsőbb szintű (root) vezérlőpult a szerveren, amiből az adminisztrátorok menedzselhetik a felhasználókat.",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.section.admin.desc2": {
+    "message": "A dokumentáció ezen része adminisztrátoroknak és a supportnak szól, akik hozzáférnek az OpenAdminhoz is (alapértelmezett port: 2087).",
+    "description": "Translated for Hungarian locale"
+  },
+  "docs.section.admin.btn": {
+    "message": "OpenAdmin Doksik",
+    "description": "Translated for Hungarian locale"
   }
 }

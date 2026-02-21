@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { OpenPanelLogoIcon } from "./icons/openpanel-logo";
 import Link from "@docusaurus/Link";
+import Translate from "@docusaurus/Translate";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
     return (
@@ -84,7 +85,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    OpenPanel is the end-user panel from which clients manage their domains, websites, services, emails, etc.
+                    <Translate id="docs.section.panel.desc1">OpenPanel is the end-user panel from which clients manage their domains, websites, services, emails, etc.</Translate>
                 </p>
 
                 <p
@@ -96,34 +97,34 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    Documentation is intended for end-users that have only access to the OpenPanel interface (by default running on port 2083).
+                    <Translate id="docs.section.panel.desc2">Documentation is intended for end-users that have only access to the OpenPanel interface (by default running on port 2083).</Translate>
                 </p>
-		    
-                        <Link
-                            to="/docs/panel/intro/"
-                            className={clsx(
-                                "self-start",
-                                "rounded-3xl",
-                                "!text-gray-0 dark:!text-gray-900",
-                                "bg-refine-blue dark:bg-refine-cyan-alt",
-                                "transition-[filter]",
-                                "duration-150",
-                                "ease-in-out",
-                                "hover:brightness-110",
-                                "py-3",
-                                "pl-7 pr-8",
-                                "landing-md:px-8",
-                                "landing-lg:pl-7 landing-lg:pr-8",
-                                "flex",
-                                "items-center",
-                                "justify-center",
-                                "gap-2",
-                                "hover:!no-underline",
-                            )}
-                        >
+
+                <Link
+                    to="/docs/panel/intro/"
+                    className={clsx(
+                        "self-start",
+                        "rounded-3xl",
+                        "!text-gray-0 dark:!text-gray-900",
+                        "bg-refine-blue dark:bg-refine-cyan-alt",
+                        "transition-[filter]",
+                        "duration-150",
+                        "ease-in-out",
+                        "hover:brightness-110",
+                        "py-3",
+                        "pl-7 pr-8",
+                        "landing-md:px-8",
+                        "landing-lg:pl-7 landing-lg:pr-8",
+                        "flex",
+                        "items-center",
+                        "justify-center",
+                        "gap-2",
+                        "hover:!no-underline",
+                    )}
+                >
                     <OpenPanelLogoIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        OpenPanel Docs
+                        <Translate id="docs.section.panel.btn">OpenPanel Docs</Translate>
                     </span>
                 </Link>
             </div>
@@ -162,8 +163,8 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			OpenAdmin is the root-level panel from which Administrators and Resellers manage the server and their users.
-		    </p>
+                        <Translate id="docs.section.admin.desc1">OpenAdmin is the root-level panel from which Administrators and Resellers manage the server and their users.</Translate>
+                    </p>
                     <p
                         className={clsx(
                             "text-base landing-sm:text-l landing-md:text-base landing-lg:text-l",
@@ -172,36 +173,36 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			Documentation is intended for Administrators and support teams that have access to OpenAdmin panel (by default running on port 2087).
-		    </p>
-                        <Link
-                            to="/docs/admin/intro/"
-                            className={clsx(
-                                "self-start",
-                                "rounded-3xl",
-                                "!text-gray-0 dark:!text-gray-900",
-                                "bg-refine-blue dark:bg-refine-cyan-alt",
-                                "transition-[filter]",
-                                "duration-150",
-                                "ease-in-out",
-                                "hover:brightness-110",
-                                "py-3",
-                                "pl-7 pr-8",
-                                "landing-md:px-8",
-                                "landing-lg:pl-7 landing-lg:pr-8",
-                                "flex",
-                                "items-center",
-                                "justify-center",
-                                "gap-2",
-                                "hover:!no-underline",
-                            )}
-                        >
-                    	<OpenPanelLogoIcon />
-	                    <span className={clsx("text-base", "font-semibold")}>
-	                        OpenAdmin Docs
-	                    </span>
-	                </Link>
-		</div>
+                        <Translate id="docs.section.admin.desc2">Documentation is intended for Administrators and support teams that have access to OpenAdmin panel (by default running on port 2087).</Translate>
+                    </p>
+                    <Link
+                        to="/docs/admin/intro/"
+                        className={clsx(
+                            "self-start",
+                            "rounded-3xl",
+                            "!text-gray-0 dark:!text-gray-900",
+                            "bg-refine-blue dark:bg-refine-cyan-alt",
+                            "transition-[filter]",
+                            "duration-150",
+                            "ease-in-out",
+                            "hover:brightness-110",
+                            "py-3",
+                            "pl-7 pr-8",
+                            "landing-md:px-8",
+                            "landing-lg:pl-7 landing-lg:pr-8",
+                            "flex",
+                            "items-center",
+                            "justify-center",
+                            "gap-2",
+                            "hover:!no-underline",
+                        )}
+                    >
+                        <OpenPanelLogoIcon />
+                        <span className={clsx("text-base", "font-semibold")}>
+                            <Translate id="docs.section.admin.btn">OpenAdmin Docs</Translate>
+                        </span>
+                    </Link>
+                </div>
             </div>
         </div>
     );
