@@ -58,11 +58,11 @@ Távoli SSH-célhely engedélyezéséhez és konfigurálásához törölje a meg
 
 ```env
 ########### SSH/SFTP STORAGE
-SSH_HOST_NAME="1.2.3.4"
+SSH_HOST_NAME=""
 SSH_PORT="22"
-SSH_REMOTE_PATH="/backups/"
-SSH_USER="root"
-SSH_PASSWORD="YOUR_SECURE_PASSWORD"
+SSH_REMOTE_PATH=""
+SSH_USER=""
+SSH_PASSWORD=""
 # SSH_IDENTITY_FILE="/var/www/html/id_rsa"
 # SSH_IDENTITY_PASSPHRASE=""
 ```
