@@ -5,7 +5,7 @@
 # Usage: opencli port [set <port>] 
 # Author: Stefan Pejcic
 # Created: 17.02.2025
-# Last Modified: 20.02.2026
+# Last Modified: 23.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -66,8 +66,7 @@ do_reload() {
   if [[ "$3" != '--no-restart' ]]; then
     cd $COMPOSE_DIR
     nohup docker compose restart caddy > /dev/null 2>&1 < /dev/null &
-    nohup docker compose down openpanel && docker compose up -d openpanel > /dev/null 2>&1 < /dev/null &
-        
+    nohup bash -c "docker --context=default compose down openpanel && docker --context=default compose up -d openpanel" > /dev/null 2>&1 &
    fi
 }
 

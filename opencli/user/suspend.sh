@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 20.02.2026
+# Last Modified: 23.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -118,10 +118,7 @@ stop_user_containers() {
     $DEBUG && echo "Stopping containers for user: $USERNAME"
 
     docker $CONTEXT_FLAG ps --format "{{.Names}}" |
-        xargs -r -n1 -P "$jobs" bash -c '
-            '"$DEBUG"' && echo "- Stopping container: $0"
-            docker '"$CONTEXT_FLAG"' stop "$0" > /dev/null 2>&1
-        '
+        xargs -r -n1 -P "$jobs" -I{} docker $CONTEXT_FLAG stop {} > /dev/null 2>&1       
 }
 
 rename_user_in_db() {

@@ -11,6 +11,7 @@
 - [🇺🇦 Ukrainian (UA)](https://community.openpanel.org/d/165-govoris-po-russki-russian-and-ukrainian-translation-for-openpanel)
 - [🇧🇬 Bulgarian (BG)](https://community.openpanel.org/d/246-govoris-li-blgarski-bulgarian-translation-for-openpanel)
 - [🇨🇳 Simplified Chinese (ZH)](https://community.openpanel.org/d/151-simplified-chinese-translation-for-openpanel)
+- [🇭🇺 Hungarian (HU)](https://community.openpanel.org/d/262-goviris-magyar-hungarian-translation-for-openpanel)
 
 ## OpenPanel Translations
 OpenPanel needs you! If you would like to support OpenPanel, help us with the translation. 💖 

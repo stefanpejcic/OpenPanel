@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 20.02.2026
+# Last Modified: 23.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -431,13 +431,17 @@ get_server_ipv4_or_ipv6() {
 	
 	if [ -e "$json_file" ]; then
 	    dedicated_ip=$(jq -r '.ip' "$json_file")
-	    if docker context ls | grep -q "$dedicated_ip"; then
-	        REMOTE_SERVER="yes"
-	        log "IP address is asigned to a node (slave) server."
-	    else
-			REMOTE_SERVER="no"
-	        log "User has a dedicated IP address $dedicated_ip"			
-	    fi
+		if [ -n "$dedicated_ip" ]; then
+	       if docker context ls | grep -q "$dedicated_ip"; then
+	           REMOTE_SERVER="yes"
+	           log "IP address is asigned to a node (slave) server."
+	       else
+			   REMOTE_SERVER="no"
+	           log "User has a dedicated IP address $dedicated_ip"			
+	       fi
+		else
+			   REMOTE_SERVER="no"
+		fi
 	fi
 }
 
@@ -601,24 +605,26 @@ create_domain_file() {
 			update_bind_in_block "$domains_file" "http://$domain_name, http://*.$domain_name {" "$dedicated_ip"
 			update_bind_in_block "$domains_file" "https://$domain_name, https://*.$domain_name {" "$dedicated_ip"
 		fi
+
+		if grep -qi "waf" "$openpanel_config" 2>/dev/null; then
+			value="On"
+			log "WAF module is enabled, setting SecRuleEngine On"
+		else
+			value="Off"
+			log "WAF module is disabled, setting SecRuleEngine Off"
+		fi
+		sed -i "s/SecRuleEngine .*/SecRuleEngine $value/" "$domains_file"
 	
 	   	if [ "$VARNISH" = true ]; then
 	    	log "Enabling Varnish cache for the domain.."
-		    sed -i '/# Handle HTTPS traffic (port 443) with on_demand SSL/,+6 s/^/#/' "$domains_file"
+		    sed -i '/# Handle HTTPS traffic (port 443)/,+6 s/^/#/' "$domains_file"
 		    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$domains_file"
 	    fi
 	}
 
-	if grep -qi "waf" "$openpanel_config" 2>/dev/null; then
-		conf_template="/etc/openpanel/caddy/templates/domain.conf_with_modsec"
-		log "Creating vhosts proxy file for Caddy with ModSecurity OWASP Coreruleset"
-	else
-		conf_template="/etc/openpanel/caddy/templates/domain.conf"
-		log "Creating Caddy configuration for the domain, without ModSecurity"
-	fi
+	conf_template="/etc/openpanel/caddy/templates/domain.conf"
 	
 	sed_values_in_domain_conf
-
 
 	# Check if the 'caddy' container is running
 	if [ $(docker --context default ps -q -f name=caddy) ]; then
