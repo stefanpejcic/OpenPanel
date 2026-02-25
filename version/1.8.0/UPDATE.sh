@@ -27,9 +27,11 @@ ARCH=$(uname -m)
 case "$ARCH" in
     x86_64)
         echo "Architecture is AMD64 (x86_64) - Updating Sentinel"
+        ln -s /usr/local/sentinel/sentinel-amd64 /usr/local/bin/sentinel
         ;;
     aarch64|arm64|armv7l)
         echo "Architecture is ARM ($ARCH) - Updating Sentinel"
+        ln -s /usr/local/sentinel/sentinel-arm64 /usr/local/bin/sentinel
         ;;
     *)
         echo "Unsupported architecture: $ARCH"
