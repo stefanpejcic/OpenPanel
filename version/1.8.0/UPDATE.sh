@@ -14,3 +14,25 @@ wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubuse
 wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
 systemctl daemon-reload
 systemctl restart  admin
+
+
+# SENTINEL
+cd /usr/local/
+git clone https://github.com/stefanpejcic/sentinel 
+cd /usr/local/sentinel 
+#TODO: https://github.com/stefanpejcic/opencli/edit/main/opencli
+
+ARCH=$(uname -m)
+
+case "$ARCH" in
+    x86_64)
+        echo "Architecture is AMD64 (x86_64) - Updating Sentinel"
+        ;;
+    aarch64|arm64|armv7l)
+        echo "Architecture is ARM ($ARCH) - Updating Sentinel"
+        ;;
+    *)
+        echo "Unsupported architecture: $ARCH"
+        exit 1
+        ;;
+esac
