@@ -138,6 +138,15 @@ handle_special_commands() {
             fi
             exit 0
             ;;
+        "sentinel") # https://github.com/stefanpejcic/sentinel
+            if [ -L /usr/local/bin/sentinel ]; then
+                chmod +x /usr/local/bin/sentinel
+                /usr/local/bin/sentinel "${args[@]}"
+            else
+                bash ${debug_flag:+"$debug_flag"} /usr/local/opencli/sentinel.sh "${args[@]}"
+            fi
+            exit 0
+            ;;
         "locale")
             local locale_url="https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh"
             if [[ ${#args[@]} -gt 0 ]]; then
