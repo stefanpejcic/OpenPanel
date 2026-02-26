@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "@docusaurus/Head";
+import Translate from "@docusaurus/Translate";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
@@ -34,17 +35,17 @@ const Demo: React.FC = () => {
                             "text-xl md:text-[40px] md:leading-[56px]",
                         )}
                     >
-                        Documentation for{" "}
+                        <Translate id="docs.index.title.docFor">Documentation for </Translate>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
                             OpenPanel
                         </span>
-                        , and{" "}
+                        <Translate id="docs.index.title.and">, and </Translate>
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#FF9933] to-[#FF4C4D]">
                             OpenAdmin
                         </span>
                         .
                     </h1>
-                    
+
                     <LandingTryItSection />
                 </div>
                 <BlogFooter />

@@ -3,6 +3,7 @@ import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import Head from "@docusaurus/Head";
+import Translate from "@docusaurus/Translate";
 import clsx from "clsx";
 
 const providers = [
@@ -31,7 +32,7 @@ const providers = [
     managedSupport: "Yes",
     freeEnterprise: "Yes",
     link: "https://hostigan.com/openpanel/",
-    logo: "https://hostigan.com/wp-content/uploads/2025/04/s-768x135.png",
+    logo: "https://hostigan.com/wp-content/uploads/2023/04/s-768x135.png",
   },
   {
     company: "AltusHost",
@@ -41,7 +42,7 @@ const providers = [
     freeEnterprise: "No",
     link: "https://altushost.com",
     logo: "https://www.altushost.com/wp-content/themes/altushost/themeFunctions/media/altushost.svg",
-  }, 
+  },
   {
     company: "Clouding.io",
     location: "EU",
@@ -50,7 +51,7 @@ const providers = [
     freeEnterprise: "No",
     link: "https://clouding.io",
     logo: "/img/svg/clouding.io-svg-logo.png",
-  },  
+  },
   {
     company: "Astral Internet",
     location: "Canada",
@@ -59,22 +60,25 @@ const providers = [
     freeEnterprise: "No",
     link: "https://www.astralinternet.com",
     logo: "https://www.astralinternet.com/wp-content/uploads/2024/06/astral-logocompact-dark.svg",
-  },  
+  },
   {
-    company: "Astral Internet",
+    company: "Cloudzy",
     location: "Worldwide",
     services: "VPS",
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://cloudzy.com/marketplace/openpanel/",
-    logo: "https://cloudzy.com/wp-content/uploads/2025/12/Logo.svg",
-  },  
+    logo: "https://cloudzy.com/wp-content/uploads/2023/12/Logo.svg",
+  },
 ];
 
 const HostingProvidersPage: React.FC = () => {
   return (
     <>
-      <Head title="Control Panel for Hosting Providers | OpenPanel Enterprise">
+      <Head>
+        <title>
+          <Translate id="hosting_providers.meta_title">Control Panel for Hosting Providers | OpenPanel Enterprise</Translate>
+        </title>
         <html data-page="partners-table" />
       </Head>
 
@@ -100,9 +104,9 @@ const HostingProvidersPage: React.FC = () => {
               "text-xl md:text-[40px] md:leading-[56px]",
             )}
           >
-            OpenPanel{" "}
+            <Translate id="hosting_providers.title">OpenPanel</Translate>{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
-              Hosting Partners
+              <Translate id="hosting_providers.title_highlight">Hosting Partners</Translate>
             </span>
           </h1>
         </div>
@@ -114,13 +118,13 @@ const HostingProvidersPage: React.FC = () => {
           )}
         >
           <p className="text-left">
-            If you want to be on the OpenPanel Hosting Partners list:{" "}
+            <Translate id="hosting_providers.description">If you want to be on the OpenPanel Hosting Partners list:</Translate>{" "}
             <a
               href="/licenses-for-partners"
               rel="noopener noreferrer"
               className="text-blue-600 dark:text-blue-400 underline"
             >
-              OpenPanel NOC Partner package
+              <Translate id="hosting_providers.noc_link_text">OpenPanel NOC Partner package</Translate>
             </a>
           </p>
 
@@ -145,16 +149,16 @@ const HostingProvidersPage: React.FC = () => {
 
                   <ul className="mt-2 space-y-1 text-sm text-gray-700 dark:text-gray-300 text-left">
                     <li>
-                      <strong>Server Location:</strong> {p.location}
+                      <strong><Translate id="hosting_providers.label.location">Server Location:</Translate></strong> {p.location === "Worldwide" ? <Translate id="hosting_providers.location.worldwide">Worldwide</Translate> : p.location}
                     </li>
                     <li>
-                      <strong>Services:</strong> {p.services}
+                      <strong><Translate id="hosting_providers.label.services">Services:</Translate></strong> {p.services}
                     </li>
                     <li>
-                      <strong>Managed Support:</strong> {p.managedSupport}
+                      <strong><Translate id="hosting_providers.label.managed_support">Managed Support:</Translate></strong> {p.managedSupport === "Yes" ? <Translate id="hosting_providers.value.yes">Yes</Translate> : <Translate id="hosting_providers.value.no">No</Translate>}
                     </li>
                     <li>
-                      <strong>Free Enterprise license:</strong> {p.freeEnterprise}
+                      <strong><Translate id="hosting_providers.label.free_enterprise">Free Enterprise license:</Translate></strong> {p.freeEnterprise === "Yes" ? <Translate id="hosting_providers.value.yes">Yes</Translate> : <Translate id="hosting_providers.value.no">No</Translate>}
                     </li>
                   </ul>
                 </div>
@@ -165,7 +169,7 @@ const HostingProvidersPage: React.FC = () => {
                     rel="noopener noreferrer"
                     className="inline-block px-4 py-2 text-sm font-medium text-gray-900 dark:text-gray-0 bg-gradient-to-r from-[#0FBDBD] to-[#26D97F] rounded-xl hover:opacity-90 transition"
                   >
-                    Visit {p.company}
+                    <Translate id="hosting_providers.button.visit" values={{ company: p.company }}>{`Visit ${p.company}`}</Translate>
                   </a>
                 </div>
               </div>

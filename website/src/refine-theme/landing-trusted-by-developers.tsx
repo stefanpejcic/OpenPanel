@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React, { FC } from "react";
+import Translate from "@docusaurus/Translate";
 import {
     HostkeyIcon,
     AltusHostIcon,
@@ -35,7 +36,7 @@ export const LandingTrustedByDevelopers: FC<Props> = ({ className }) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Trusted by major hosting brands
+                    <Translate id="homepage.trustedBy.title">Trusted by major hosting brands</Translate>
                 </p>
                 <div
                     className={clsx(
@@ -88,6 +89,6 @@ const list: IList = [
     { icon: <HostkeyIcon />, id: 2, href: "https://altushost.com/?utm_source=openpanel.com" },
     { icon: <UpworkIcon />, id: 3, href: "https://logicweb.com/?utm_source=openpanel.com" },
     { icon: <UnlimitedIcon />, id: 4, href: "https://clouding.io/?utm_source=openpanel.com" },
-    { icon: <DigitalOceanIcon />, id: 5, href: "https://digitalocean.com/?utm_source=openpanel.com" },    
-    { icon: <AstralInternetIcon />, id: 6, href: "https://www.astralinternet.com/hebergement-vps-dedie/?utm_source=openpanel.com" },        
+    { icon: <DigitalOceanIcon />, id: 5, href: "https://digitalocean.com/?utm_source=openpanel.com" },
+    { icon: <AstralInternetIcon />, id: 6, href: "https://www.astralinternet.com/hebergement-vps-dedie/?utm_source=openpanel.com" },
 ];

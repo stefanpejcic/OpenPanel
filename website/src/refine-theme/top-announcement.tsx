@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React, { SVGProps } from "react";
+import Translate from "@docusaurus/Translate";
 
 export const TopAnnouncement = () => {
     return (
@@ -111,34 +112,45 @@ export const TopAnnouncement = () => {
 const messages = [
     {
         text: (
-            <>
-                🎉 Get <span className="font-semibold">2 FREE months</span> when you upgrade to an{" "}
-                <span className="font-semibold">OpenPanel Enterprise Annual License</span>. 
-            </>
+            <Translate id="announcement.1"
+                values={{
+                    free: <span className="font-semibold"><Translate id="announcement.1.free">2 FREE months</Translate></span>,
+                    license: <span className="font-semibold"><Translate id="announcement.1.license">OpenPanel Enterprise Annual License</Translate></span>
+                }}
+            >
+                {"🎉 Get {free} when you upgrade to an {license}."}
+            </Translate>
         ),
         href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "Claim Your Free Months",
+        cta: <Translate id="announcement.1.cta">Claim Your Free Months</Translate>,
     },
     {
         text: (
-            <>
-                🚀 Unlock <span className="font-semibold">Premium Features</span> with the{" "}
-                <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
-            </>
+            <Translate id="announcement.2"
+                values={{
+                    premium: <span className="font-semibold"><Translate id="announcement.2.premium">Premium Features</Translate></span>,
+                    license: <span className="font-semibold"><Translate id="announcement.2.license">OpenPanel Enterprise Annual License</Translate></span>
+                }}
+            >
+                {"🚀 Unlock {premium} with the {license}"}
+            </Translate>
         ),
         href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "Secure Your Discount",
-    },    
+        cta: <Translate id="announcement.2.cta">Secure Your Discount</Translate>,
+    },
     {
         text: (
-            <>
-                Get <span className="font-semibold">17% off</span> the{" "}
-                <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
-                with a lifetime fixed price guarantee.
-            </>
+            <Translate id="announcement.3"
+                values={{
+                    discount: <span className="font-semibold"><Translate id="announcement.3.discount">17% off</Translate></span>,
+                    license: <span className="font-semibold"><Translate id="announcement.3.license">OpenPanel Enterprise Annual License</Translate></span>
+                }}
+            >
+                {"Get {discount} the {license} with a lifetime fixed price guarantee."}
+            </Translate>
         ),
         href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "Get Started Now",
+        cta: <Translate id="announcement.3.cta">Get Started Now</Translate>,
     },
 ];
 

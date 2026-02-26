@@ -1,0 +1,44 @@
+{
+    "link.title.Resources": {
+        "message": "Erőforrások"
+    },
+    "link.item.label.Getting Started": {
+        "message": "Kezdje el"
+    },
+    "link.item.label.Tutorials": {
+        "message": "Oktatóanyagok"
+    },
+    "link.item.label.Blog": {
+        "message": "Blog"
+    },
+    "link.title.Product": {
+        "message": "Termék"
+    },
+    "link.item.label.Examples": {
+        "message": "Példák"
+    },
+    "link.item.label.Integrations": {
+        "message": "Integrációk"
+    },
+    "link.item.label.Become an Expert": {
+        "message": "Válj szakértővé"
+    },
+    "link.title.Company": {
+        "message": "Cégünk"
+    },
+    "link.item.label.About": {
+        "message": "Rólunk"
+    },
+    "link.item.label.Store 🎁": {
+        "message": "Bolt 🎁"
+    },
+    "link.title.__LEGAL": {
+        "message": "JOGI"
+    },
+    "link.item.label.License": {
+        "message": "Licenc"
+    },
+    "link.title.__SOCIAL": {
+        "message": "KÖZÖSSÉG"
+    }
+}

@@ -1,0 +1,10 @@
+{
+    "title": {
+        "message": "OpenPanel",
+        "description": "The title in the navbar"
+    },
+    "item.label.Blog": {
+        "message": "Blog",
+        "description": "Navbar item with label Blog"
+    }
+}

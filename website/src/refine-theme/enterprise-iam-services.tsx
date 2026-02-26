@@ -1,5 +1,6 @@
 import React, { DetailedHTMLProps, ReactNode, SVGProps, useRef } from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import {
     Atlassian,
     AuthJs,
@@ -53,7 +54,7 @@ export const EnterpriseIAMServices = ({
                         "font-semibold",
                     )}
                 >
-                   Run your favorite Applications and Services!
+                    <Translate id="enterprise.iam_services.title">Run your favorite Applications and Services!</Translate>
                 </h2>
                 <p
                     className={clsx(
@@ -62,7 +63,7 @@ export const EnterpriseIAMServices = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    We support all your favorite applications and frameworks without any additional configuration.
+                    <Translate id="enterprise.iam_services.desc">We support all your favorite applications and frameworks without any additional configuration.</Translate>
                 </p>
             </div>
 
@@ -267,15 +268,15 @@ const list = [
         label: "PrestaShop",
         tooltip: null,
     },
-/*    {
-        icon: (props: SVGProps<SVGSVGElement>) => <Nuxtjs {...props} />,
-        label: "Nuxt.js",
-        tooltip: null,
-    },
-    {
-        icon: (props: SVGProps<SVGSVGElement>) => <Gridsome {...props} />,
-        label: "Gridsome",
-        tooltip: null,
-    },
-    */
+    /*    {
+            icon: (props: SVGProps<SVGSVGElement>) => <Nuxtjs {...props} />,
+            label: "Nuxt.js",
+            tooltip: null,
+        },
+        {
+            icon: (props: SVGProps<SVGSVGElement>) => <Gridsome {...props} />,
+            label: "Gridsome",
+            tooltip: null,
+        },
+        */
 ] as const;

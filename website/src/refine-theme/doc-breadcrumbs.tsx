@@ -5,7 +5,7 @@ import {
     useSidebarBreadcrumbs,
     useHomePageRoute,
 } from "@docusaurus/theme-common/internal";
-import { translate } from "@docusaurus/Translate";
+import Translate, { translate } from "@docusaurus/Translate";
 import { HomeIcon } from "./icons/home";
 import { ChevronRightIcon } from "./icons/chevron-right";
 import { useTWBreakpoints } from "../hooks/use-tw-breakpoints";
@@ -76,7 +76,7 @@ export const DocBreadcrumbs = () => {
                         <Link href="/docs" itemProp="item">
                             <HomeIcon className="text-gray-400 dark:text-gray-500" />
                             <span className="sr-only" itemProp="name">
-                                Documentation
+                                <Translate id="menu.label.Documentation">Documentation</Translate>
                             </span>
                             <meta itemProp="position" content="1" />
                         </Link>
@@ -132,8 +132,8 @@ export const DocBreadcrumbs = () => {
                                 />
                             </li>
                             {idx === 0 &&
-                            breadcrumbList.length > 1 &&
-                            renderDots ? (
+                                breadcrumbList.length > 1 &&
+                                renderDots ? (
                                 <li
                                     className={clsx(
                                         "flex flex-row flex-nowrap",

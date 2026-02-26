@@ -58,11 +58,11 @@ To enable and configure a remote SSH destination, uncomment and update the follo
 
 ```env
 ########### SSH/SFTP STORAGE
-SSH_HOST_NAME="185.119.22.54"
+SSH_HOST_NAME=""
 SSH_PORT="22"
-SSH_REMOTE_PATH="/backups/"
-SSH_USER="root"
-SSH_PASSWORD="NotSoStrongP@ssword"
+SSH_REMOTE_PATH=""
+SSH_USER=""
+SSH_PASSWORD=""
 # SSH_IDENTITY_FILE="/var/www/html/id_rsa"
 # SSH_IDENTITY_PASSPHRASE=""
 ```

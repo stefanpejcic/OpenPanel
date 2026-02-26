@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
+import Translate from "@docusaurus/Translate";
 
 import { HeaderGithubIcon } from "../icons/header-github";
 
@@ -31,7 +32,9 @@ export const GitHubStar: React.FC<GitHubStarProps> = ({ isPermanentDark }) => {
                     isPermanentDark && "!text-white",
                 )}
             >
-            <span className="tabular-nums">Get Support</span>
+                <span className="tabular-nums">
+                    <Translate id="header.get_support">Get Support</Translate>
+                </span>
             </div>
         </Link>
     );

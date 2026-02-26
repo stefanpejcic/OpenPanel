@@ -14,8 +14,13 @@ import { LandingHeroSection } from "../refine-theme/landing-hero-section";
 import { LandingTryItSection } from "../refine-theme/landing-try-it-section";
 import { CommonHeader } from "../refine-theme/common-header";
 
+import Translate, { translate } from "@docusaurus/Translate";
+
 function Home() {
-    const title = "OpenPanel | Next Generation Web Hosting Panel";
+    const title = translate({
+        id: "homepage.meta.title",
+        message: "OpenPanel | Next Generation Web Hosting Panel",
+    });
     return (
         <>
             <Head>
@@ -23,7 +28,10 @@ function Home() {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="A highly customizable web hosting control panel built around containers.">
+            <CommonLayout description={translate({
+                id: "homepage.meta.description",
+                message: "A highly customizable web hosting control panel built around containers.",
+            })}>
                 <div className={clsx()}>
                     <CommonHeader />
                     <div
@@ -43,15 +51,15 @@ function Home() {
                                 "landing-lg:mt-20",
                             )}
                         >
-                          <LandingHeroSection />
-                          <LandingTrustedByDevelopers
-                            className={clsx(
-                              "mt-12",
-                              "landing-sm:mt-20",
-                              "landing-md:mt-28",
-                              "landing-lg:mt-10",
-                            )}
-                          />                            
+                            <LandingHeroSection />
+                            <LandingTrustedByDevelopers
+                                className={clsx(
+                                    "mt-12",
+                                    "landing-sm:mt-20",
+                                    "landing-md:mt-28",
+                                    "landing-lg:mt-10",
+                                )}
+                            />
                         </div>
                         <LandingSweetSpot />
                         <div

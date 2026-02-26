@@ -1,6 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { Disclosure, Transition } from "@headlessui/react";
+import Translate, { translate } from "@docusaurus/Translate";
 import { CommonCircleChevronDown } from "./common-circle-chevron-down";
 
 export const EnterpriseFaq = ({ className }: { className?: string }) => {
@@ -17,7 +18,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Frequently Asked Questions
+                    <Translate id="enterprise.faq.title">Frequently Asked Questions</Translate>
                 </h2>
             </div>
 
@@ -45,7 +46,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
                                             "py-3",
                                         )}
                                     >
-                                        {item.question}
+                                        {translate({ message: item.question, id: item.qId })}
                                         <CommonCircleChevronDown
                                             className={clsx(
                                                 "ml-4",
@@ -77,7 +78,7 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
                                                 "dark:text-gray-400 text-gray-700",
                                             )}
                                         >
-                                            {item.answer}
+                                            {translate({ message: item.answer, id: item.aId })}
                                         </Disclosure.Panel>
                                     </Transition>
                                     {!isLast && (
@@ -100,39 +101,52 @@ export const EnterpriseFaq = ({ className }: { className?: string }) => {
 
 const faq = [
     {
+        qId: "enterprise.faq.q1",
         question: "How does the pricing work for the Enterprise edition?",
+        aId: "enterprise.faq.a1",
         answer: "Pricing is per server, not per number of end users.",
     },
     {
+        qId: "enterprise.faq.q2",
         question:
             "Are there any limitations regarding the number of user accounts I can create?",
+        aId: "enterprise.faq.a2",
         answer: "Yes, the Community license allows you to create up to 3 user accounts, and Enterprise edition has no limit to the number of user accounts that you can create.",
     },
     {
-        question:
-            "Is it possible to upgrade from the Community edition to Enterprise edition?",
-        answer: "Yes, at any time you can upgrade your license from Community to Enterprise edition and all limits will imediately be lifted, and additional features added.",
+        qId: "enterprise.faq.q3",
+        question: "Is it possible to upgrade from the Community edition to Enterprise?",
+        aId: "enterprise.faq.a3",
+        answer: "Yes, you can upgrade your license from Community to Enterprise at any time, and all limitations will be immediately removed, and extra features will become available.",
     },
     {
-        question:
-            "Do you offer trial license for the Enterprise edition?",
-        answer: "Yes, we offer a 14 days trial on request.",
+        qId: "enterprise.faq.q4",
+        question: "Do you offer a trial version for the Enterprise edition?",
+        aId: "enterprise.faq.a4",
+        answer: "Yes, we provide a 14-day trial period upon request.",
     },
     {
-        question: "How often does Enterprise edition receive updates?",
-        answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as daily updates. On the other hand, the community edition receives updates on a monthly basis.",
+        qId: "enterprise.faq.q5",
+        question: "How often are updates released for the Enterprise edition?",
+        aId: "enterprise.faq.a5",
+        answer: "Our goal is to provide continuous delivery of new features and fixes, potentially on a daily basis. In contrast, the Community edition receives updates on a monthly basis.",
     },
     {
-        question:
-            "Do you provide custom development services for turnkey projects?",
-        answer: "No, we do not offer any type of turnkey development services.",
+        qId: "enterprise.faq.q6",
+        question: "Do you offer custom development for turnkey projects?",
+        aId: "enterprise.faq.a6",
+        answer: "No, we do not offer any kind of turnkey development services.",
     },
     {
-        question: "What is the scope of the professional services you provide?",
-        answer: "Our professional services cover collaborative tasks with internal teams such as onboarding assistance, trainings and customizing your OpenPanel instance to match your brand.",
+        qId: "enterprise.faq.q7",
+        question: "What do your professional services cover?",
+        aId: "enterprise.faq.a7",
+        answer: "Our professional services cover collaboration with your internal teams, such as onboarding assistance, training, and customising the OpenPanel interface to match your brand.",
     },
     {
-        question: "Can I request specific features or customizations?",
-        answer: "We prioritize feature requests on the product roadmap and also support teams in developing custom integrations and components.",
+        qId: "enterprise.faq.q8",
+        question: "Can I request custom features or customizations?",
+        aId: "enterprise.faq.a8",
+        answer: "We prioritize feature requests in our product roadmap, as well as support teams in developing custom integrations and components.",
     },
 ];
