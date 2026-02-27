@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           20.02.2026
+# Last Modified:           27.02.2026
 #
 ################################################################################
 
@@ -424,6 +424,7 @@ detect_installed_panels() {
         ["/usr/local/psa/version"]="Plesk"
         ["/usr/local/CyberPanel"]="CyberPanel"
         ["/usr/local/directadmin"]="DirectAdmin"
+		["/usr/local/mgr5"]="ispmanager"
         ["/usr/local/cwpsrv"]="CentOS Web Panel (CWP)"
         ["/usr/local/vesta"]="VestaCP"
         ["/usr/local/hestia"]="HestiaCP"
