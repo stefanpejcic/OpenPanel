@@ -1,17 +1,8 @@
 #!/bin/bash
 
 PID=$$
-DEBUG=false
 
-
-# ======================================================================
-# Constants
 VERSION="20.251.104"
-
-
-if [ "$1" = "--debug" ]; then
-    DEBUG=true
-fi
 
 # ======================================================================
 # Counters
@@ -71,54 +62,20 @@ print_header() {
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
 }
 
-check_for_debug_and_print_info(){
-  if [ "$DEBUG" = true ]; then
-      echo ""
-      echo "----------------- DEBUG INFORMATION ------------------"
-      echo "HOSTNAME:       $HOSTNAME"
-      echo "VERSION:        $VERSION"
-      echo "PID:            $PID"
-      echo "TIME:           $DISPLAY_TIME"
-      echo "CONF_FILE:      $CONF_FILE"
-      echo "LOCK_FILE:      $LOCK_FILE"
-      echo "INI_FILE:       $INI_FILE"
-      echo "LOG_FILE:       $LOG_FILE"
-      echo "LOG_DIR:        $LOG_DIR"
-      echo ""
-      echo "----------------- CONFIGURATIONS ------------------"
-      echo ""
-      echo "EMAIL_ALERT:     $EMAIL_ALERT"
-      echo "EMAIL:           $EMAIL"
-      echo "REBOOT:          $REBOOT"
-      echo "LOGIN:           $LOGIN"
-      echo "ATTACK:          $ATTACK"
-      echo "LIMIT:           $LIMIT"
-      echo "UPDATE:          $UPDATE"
-      echo "SERVICES:        $SERVICES"
-      echo "LOAD_THRESHOLD:  $LOAD_THRESHOLD"
-      echo "CPU_THRESHOLD:   $CPU_THRESHOLD"
-      echo "RAM_THRESHOLD:   $RAM_THRESHOLD"
-      echo "DISK_THRESHOLD:  $DISK_THRESHOLD"
-      echo "SWAP_THRESHOLD:  $SWAP_THRESHOLD"
-      echo "------------------------------------------------------"
-      echo ""
-  fi
-}
-
-
-generate_random_token() {
-    tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64
-}
-
 generate_random_token_one_time_only() {
-    TOKEN_ONE_TIME="$(generate_random_token)"
+    TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
     local new_value="mail_security_token=$TOKEN_ONE_TIME"
     sed -i "s|^mail_security_token=.*$|$new_value|" "$CONF_FILE"
 }
 
-is_valid_number() {
-  local value="$1"
-  [[ "$value" =~ ^[1-9][0-9]?$|^100$ ]]
+validate_yes_no() {
+    local val="$1"
+    [[ "$val" =~ ^(yes|no)$ ]] && echo "$val" || echo "yes"
+}
+
+validate_number() {
+    local val="$1" default="$2"
+    [[ "$val" =~ ^[1-9][0-9]?$|^100$ ]] && echo "$val" || echo "$default"
 }
 
 get_last_message_content() {
@@ -129,7 +86,6 @@ is_unread_message_present() {
   local unread_message_content="$1"
   grep -q "UNREAD.*$unread_message_content" "$LOG_FILE" && return 0 || return 1
 }
-
 
 ip_in_cidr() {
     local ip=$1
@@ -227,68 +183,40 @@ write_notification() {
 
 
 
+
+
 # ======================================================================
-# What to check
+# config
 
 EMAIL=$(awk -F'=' '/^email/ {print $2}' "$CONF_FILE")
 EMAIL_ALERT=$([[ -n "$EMAIL" ]] && echo "yes" || echo "no")
 
+declare -A config
+while IFS='=' read -r key value; do
+    key="${key%%*( )}"
+    value="${value%%*( )}"
+    [[ -z "$key" || "$key" =~ ^# || "$key" =~ ^\[ ]] && continue
+    config["$key"]="$value"
+done < "$INI_FILE"
 
-REBOOT=$(awk -F'=' '/^reboot/ {print $2}' "$INI_FILE")
-REBOOT=${REBOOT:-yes}
-[[ "$REBOOT" =~ ^(yes|no)$ ]] || REBOOT=yes
+# yes-no settings
+REBOOT=$(validate_yes_no "${config[reboot]:-yes}")
+MAIN_DOMAIN_AND_NS=$(validate_yes_no "${config[dns]:-yes}")
+LOGIN=$(validate_yes_no "${config[login]:-yes}")
+SSH_LOGIN=$(validate_yes_no "${config[ssh]:-yes}")
+ATTACK=$(validate_yes_no "${config[attack]:-yes}")
+LIMIT=$(validate_yes_no "${config[limit]:-yes}")
+UPDATE=$(validate_yes_no "${config[update]:-yes}")
 
+# String / list
+SERVICES="${config[services]:-admin,docker,mysql,csf,panel}"
 
-MAIN_DOMAIN_AND_NS=$(awk -F'=' '/^dns/ {print $2}' "$INI_FILE")
-MAIN_DOMAIN_AND_NS=${MAIN_DOMAIN_AND_NS:-yes}
-[[ "$MAIN_DOMAIN_AND_NS" =~ ^(yes|no)$ ]] || MAIN_DOMAIN_AND_NS=yes
-
-
-LOGIN=$(awk -F'=' '/^login/ {print $2}' "$INI_FILE")
-LOGIN=${LOGIN:-yes}
-[[ "$LOGIN" =~ ^(yes|no)$ ]] || LOGIN=yes
-
-SSH_LOGIN=$(awk -F'=' '/^ssh/ {print $2}' "$INI_FILE")
-SSH_LOGIN=${SSH_LOGIN:-yes}
-[[ "$SSH_LOGIN" =~ ^(yes|no)$ ]] || SSH_LOGIN=yes
-
-ATTACK=$(awk -F'=' '/^attack/ {print $2}' "$INI_FILE")
-ATTACK=${ATTACK:-yes}
-[[ "$ATTACK" =~ ^(yes|no)$ ]] || ATTACK=yes
-
-LIMIT=$(awk -F'=' '/^limit/ {print $2}' "$INI_FILE")
-LIMIT=${LIMIT:-yes}
-[[ "$LIMIT" =~ ^(yes|no)$ ]] || LIMIT=yes
-
-UPDATE=$(awk -F'=' '/^update/ {print $2}' "$INI_FILE")
-UPDATE=${UPDATE:-yes}
-[[ "$UPDATE" =~ ^(yes|no)$ ]] || UPDATE=yes
-
-SERVICES=$(awk -F'=' '/^services/ {print $2}' "$INI_FILE")
-SERVICES=${SERVICES:-"admin,docker,mysql,csf,panel"}
-
-LOAD_THRESHOLD=$(awk -F'=' '/^load/ {print $2}' "$INI_FILE")
-LOAD_THRESHOLD=${LOAD_THRESHOLD:-20}
-is_valid_number "$LOAD_THRESHOLD" || LOAD_THRESHOLD=20
-
-CPU_THRESHOLD=$(awk -F'=' '/^cpu/ {print $2}' "$INI_FILE")
-CPU_THRESHOLD=${CPU_THRESHOLD:-90}
-is_valid_number "$CPU_THRESHOLD" || CPU_THRESHOLD=90
-
-RAM_THRESHOLD=$(awk -F'=' '/^ram/ {print $2}' "$INI_FILE")
-RAM_THRESHOLD=${RAM_THRESHOLD:-85}
-is_valid_number "$RAM_THRESHOLD" || RAM_THRESHOLD=85
-
-DISK_THRESHOLD=$(awk -F'=' '/^du/ {print $2}' "$INI_FILE")
-DISK_THRESHOLD=${DISK_THRESHOLD:-85}
-is_valid_number "$DISK_THRESHOLD" || DISK_THRESHOLD=85
-
-SWAP_THRESHOLD=$(awk -F'=' '/^swap/ {print $2}' "$INI_FILE")
-SWAP_THRESHOLD=${SWAP_THRESHOLD:-40}
-is_valid_number "$SWAP_THRESHOLD" || SWAP_THRESHOLD=40
-
-
-
+# numeric
+LOAD_THRESHOLD=$(validate_number "${config[load]:-20}" 20)
+CPU_THRESHOLD=$(validate_number "${config[cpu]:-90}" 90)
+RAM_THRESHOLD=$(validate_number "${config[ram]:-85}" 85)
+DISK_THRESHOLD=$(validate_number "${config[du]:-85}" 85)
+SWAP_THRESHOLD=$(validate_number "${config[swap]:-40}" 40)
 
 
 
@@ -648,58 +576,37 @@ check_service_status() {
 
 # ====== GENERATE CRASH REPORT
 generate_crashlog_report() {
-  local crashlog_dir="/var/log/openpanel/admin/crashlog"
-  local filename=$(date +%s)
-  generated_report="${crashlog_dir}/${filename}.txt"
-  local formatted_date=$(date '+%d %m %Y %H:%M')
-  local hostname=$(hostname)
-  local break_line="+---------------------------------------------------------------------------------------------------------------+"
+    local log_dir="/var/log/openpanel/admin/crashlog"
+    local report="${log_dir}/$(date +%s).txt"
+    local line="+$(printf '%.0s-' {1..100})+"
+    
+    mkdir -p "$log_dir" || return 1
 
-  mkdir -p "$crashlog_dir" || return 1
+    {
+        echo -e "$line\n GENERAL INFO\n$line\n\n- Hostname: $HOSTNAME\n- Date: $(date '+%d %m %Y %H:%M')\n"
+        
+        echo -e "$line\n SYSTEM LOAD\n$line"
+        cat /proc/loadavg
+        
+        echo -e "\n$line\n TOP PROCESSES (MEM & CPU)\n$line"
+        ps -eo user:10,pid:8,%cpu:6,%mem:6,comm:30 --sort=-%mem | head -n 11
+        echo ""
+        ps -eo user:10,pid:8,%cpu:6,%mem:6,comm:30 --sort=-%cpu | head -n 11
 
-  local current_load
-  current_load=$(awk -F'load average:' '{print $2}' < <(uptime) | sed 's/^ *//')
+        echo -e "\n$line\n SERVICES & I/O\n$line"
+        mysqladmin proc 2>/dev/null || echo "MySQL unavailable."
+        
+        echo -e "\n--- I/O ---\n"
+        { iostat -xz 1 1 2>/dev/null || cat /proc/diskstats; } | head -n 10
 
-  local top_mem
-  top_mem=$(ps -eo user,pid,%cpu,%mem,command --sort=-%mem | head -n 11 | \
-    awk '{ printf "  %-10s %-6s %-6s %-6s %-s\n", $1, $2, $3, $4, substr($0, index($0,$5), 60) }')
+        echo -e "\n$line\n NETWORK & SWAP\n$line"
+        ss -s 2>/dev/null || echo "Socket stats unavailable."
+        
+        echo -e "\n--- Top Swap Users ---\n"
+        grep VmSwap /proc/*/status 2>/dev/null | sort -k2 -hr | head -n 10
 
-  local top_cpu
-  top_cpu=$(ps -eo user,pid,%cpu,%mem,command --sort=-%cpu | head -n 11 | \
-    awk '{ printf "  %-10s %-6s %-6s %-6s %-s\n", $1, $2, $3, $4, substr($0, index($0,$5), 60) }')
-
-  local mysql
-  mysql=$(mysql -e "SHOW PROCESSLIST" 2>/dev/null | grep -v "^Id" || echo "MySQL not available or permission denied.")
-
-  local net_stat
-  net_stat=$(ss -s 2>/dev/null || netstat -s 2>/dev/null || echo "No network stats available.")
-
-  local swap
-  swap=$(awk '/Name|VmSwap/ { printf "%s %s ", $2, $3 } /VmSwap/ {print ""}' /proc/*/status 2>/dev/null | \
-      sort -k 2 -n -r | head -10)
-
-  local io
-  if command -v iotop &>/dev/null; then
-    io=$(iotop -oqqqk | head -10)
-  elif command -v iostat &>/dev/null; then
-    io=$(iostat -xz 1 1 | head -n 10)
-  else
-    io="I/O tools not available."
-  fi
-
-  {
-    printf "%s\n GENERAL INFO\n%s\n\n- Hostname: %s\n- Date: %s\n\n" "$break_line" "$break_line" "$hostname" "$formatted_date"
-    printf "%s\n CURRENT LOAD\n%s\n\nLoad average:%s\n\n" "$break_line" "$break_line" "$current_load"
-    printf "%s\n TOP PROCESSES BY MEMORY\n%s\n\n%s\n\n" "$break_line" "$break_line" "$top_mem"
-    printf "%s\n TOP PROCESSES BY CPU\n%s\n\n%s\n\n" "$break_line" "$break_line" "$top_cpu"
-    printf "%s\n MYSQL INFO\n%s\n\n%s\n\n" "$break_line" "$break_line" "$mysql"
-    printf "%s\n I/O USAGE\n%s\n\n%s\n\n" "$break_line" "$break_line" "$io"
-    printf "%s\n SWAP USAGE\n%s\n\n%s\n\n" "$break_line" "$break_line" "$swap"
-    printf "%s\n NETWORK STATISTICS\n%s\n\n%s\n\n" "$break_line" "$break_line" "$net_stat"
-    printf "%s\nThis report was generated by the Sentinel service on OpenPanel server \"%s\" at %s.\n\n" \
-      "$break_line" "$hostname" "$formatted_date"
-    printf "Report file saved to: %s\n%s\n" "$generated_report" "$break_line"
-  } > "$generated_report"
+        echo -e "\n$line\nReport saved to: $report\n$line"
+    } > "$report"
 }
 
 
@@ -799,8 +706,8 @@ check_ram_usage() {
   fi
 
   if [ "$ram_percentage" -gt "$RAM_THRESHOLD" ]; then
-              ((FAIL++))
-            STATUS=2
+    ((FAIL++))
+    STATUS=2
 
     echo -e "\e[31m[✘]\e[0m RAM usage ($ram_percentage) is higher than treshold value ($RAM_THRESHOLD). Writing notification."
     write_notification "$title" "$message"
@@ -888,25 +795,9 @@ check_if_panel_domain_and_ns_resolve_to_server (){
         ((WARN++))
         echo -e "\e[38;5;214m[!]\e[0m Missing or invalid custom domain and nameservers, skipping DNS checks.."
     else
+        GOOGLE_DNS_SERVER="8.8.8.8"
+        SERVER_IP=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com")
     
-      GOOGLE_DNS_SERVER="8.8.8.8"
-      SCRIPT_PATH="/usr/local/admin/core/scripts/ip_servers.sh"
-
-        if [ -f "$SCRIPT_PATH" ]; then
-            source "$SCRIPT_PATH"
-        else
-            IP_SERVER_1="https://ip.openpanel.com"
-            IP_SERVER_2="https://ipv4.openpanel.com"
-            IP_SERVER_3="https://ipconfig.me"
-        fi
-        
-        SERVER_IP=$(
-            curl --silent --max-time 2 -4 "$IP_SERVER_1" || \
-            wget --timeout=2 --tries=1 -4 -qO- "$IP_SERVER_2" || \
-            curl --silent --max-time 2 -4 "$IP_SERVER_3"
-        )
-
-      
       if [ -z "$SERVER_IP" ]; then
           SERVER_IP=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
       fi
@@ -1024,13 +915,6 @@ email_daily_report() {
 
 # ======================================================================
 # Got flags?
-: '
-script can be run:
-
-  opencli sentinel --reboot     - sends reboot alert 
-  opencli sentinel              - checks what admin configured
-  opencli sentinel --report     - generates daily usage report
-'
 
 if [ "$1" == "--startup" ]; then
   perform_startup_action
@@ -1040,7 +924,6 @@ elif [ "$1" == "--report" ]; then
   exit 0
 else
   print_header
-  check_for_debug_and_print_info
   echo "Checking health for monitored services:"
   echo ""
   
@@ -1102,55 +985,18 @@ else
     show_execution_time
   }
 
-
+  check_services
+  start_login_section
+  check_new_logins
+  check_ssh_logins
+  check_resources_section
+  check_disk_usage
+  check_system_load
+  check_ram_usage
+  check_cpu_usage
+  check_swap_usage
+  check_dns_section
+  check_if_panel_domain_and_ns_resolve_to_server
+  summary
   
-  
-  # Progress bar script
-  PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
-  PROGRESS_BAR_FILE="progress_bar.sh"
-  wget --timeout=5 --tries=3 -4 "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-  if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-      echo "Failed to download progress_bar.sh"
-      exit 1
-  fi
-    source "$PROGRESS_BAR_FILE"
-    
-    FUNCTIONS=(
-      check_services
-      start_login_section
-      check_new_logins
-      check_ssh_logins
-      check_resources_section
-      check_disk_usage
-      check_system_load
-      check_ram_usage
-      check_cpu_usage
-      check_swap_usage
-      check_dns_section
-      check_if_panel_domain_and_ns_resolve_to_server
-      summary
-    )
-
-  
-    TOTAL_STEPS=${#FUNCTIONS[@]}
-    CURRENT_STEP=0
-    
-    update_progress() {
-        CURRENT_STEP=$((CURRENT_STEP + 1))
-        PERCENTAGE=$(($CURRENT_STEP * 100 / $TOTAL_STEPS))
-        draw_progress_bar $PERCENTAGE
-    }
-  
-    main() {
-        enable_trapping
-        setup_scroll_area
-        for func in "${FUNCTIONS[@]}"
-        do
-            $func
-            update_progress
-        done
-        destroy_scroll_area
-    }
-  
-    main
   fi

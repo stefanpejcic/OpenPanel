@@ -5,7 +5,7 @@
 # Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 25.02.2026
+# Last Modified: 28.02.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -74,6 +74,7 @@ fi
 
 get_context() {
 	get_domain_owner=$(opencli domains-whoowns "$DOMAIN" --context)
+	OWNER=$(echo "$get_domain_owner" | awk '{print $1}')
 	context=$(echo "$get_domain_owner" | awk '{print $2}')
 }
 
@@ -98,6 +99,35 @@ start_varnish() {
 	fi
 }
 
+detect_wp_sites_and_add_mu_plugin() {
+
+    JSON_OUTPUT=$(opencli websites-user "$OWNER" --type=wordpress --domains="$DOMAIN" --json)
+    [ -z "$JSON_OUTPUT" ] && return 0    # no sites
+
+    WP_PATHS=$(echo "$JSON_OUTPUT" | jq -r '.[].sites[]?.path // empty')
+    [ -z "$WP_PATHS" ] && return 0       # no paths
+
+ 	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
+    [ -z "$context_uid" ] && return 0    # failed to get uid
+
+    for WP_PATH in $WP_PATHS; do
+		hostos_wp_path="/home/$context/docker-data/volumes/${context}_html_data/_data/${WP_PATH#/var/www/html/}"
+        if [ -d "$WP_PATH" ]; then
+            MU_DIR="${hostos_wp_path}/wp-content/mu-plugins"
+            if [ ! -d "$MU_DIR" ]; then
+                mkdir -p "$MU_DIR"
+                chown "$context_uid:$context_uid" "$MU_DIR"
+            fi
+
+            MU_PLUGIN_FILE="$MU_DIR/opencli-helper.php"
+            if [ ! -f "$MU_PLUGIN_FILE" ]; then
+				cp /etc/openpanel/wordpress/mu-plugin.php "$MU_PLUGIN_FILE"
+                chown "$context_uid:$context_uid" "$MU_PLUGIN_FILE"
+            fi
+        fi
+    done
+}
+
 # END HELPER FUNCTIONS
 # ======================================================================
 
@@ -114,6 +144,7 @@ case "$2" in
 	    sed -i '/# Terminate TLS and pass to Varnish/,+3 s/^#//' "$CONF_FILE"    # Uncomment 3 lines under "Terminate TLS and pass to Varnish"
 	    start_varnish
 	    reload_caddy
+		detect_wp_sites_and_add_mu_plugin                                        # https://github.com/stefanpejcic/OpenPanel/issues/853
 		;;
 	off) # DISABLE
 	    sed -i '/# Handle HTTPS traffic (port 443)/,+6 s/^#//' "$CONF_FILE"      # Uncomment 3 lines under "Handle HTTPS traffic (port 443)"
