@@ -136,13 +136,9 @@ is_package_installed() {
 }
 
 get_server_ipv4() {
-    local services=("https://ip.openpanel.com" "https://ipv4.openpanel.com" "https://ifconfig.me")
     local ip
 
-    for url in "${services[@]}"; do
-        ip=$(curl -s --max-time 1 -4 "$url" || wget --timeout=1 --tries=1 -qO- --inet4-only "$url")
-        [ -n "$ip" ] && break
-    done
+    ip=$(curl -s --max-time 1 -4 "https://ip.openpanel.com")
 
     if [ -z "$ip" ]; then
         ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
@@ -152,7 +148,7 @@ get_server_ipv4() {
          [[ "$ip" =~ ^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\. ]]; then
         echo "Invalid or private IPv4 address: $ip. OpenPanel requires a public IPv4 address to bind domains configuration files."
     fi
-	current_ip=$ip
+	SERVER_IPV4_ADDRESS=$ip
 }
 
 set_version_to_install() {
@@ -216,7 +212,7 @@ display_what_will_be_installed(){
 	 	fi
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
- 	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${current_ip} ${RESET}"
+ 	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${SERVER_IPV4_ADDRESS} ${RESET}"
   	echo ""
 }
 
@@ -1100,7 +1096,7 @@ set_custom_hostname(){
 		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
 	            sed -i "s/example\.net/$new_hostname/g" ${ETC_DIR}caddy/Caddyfile
 	        else
-                echo "Hostname provided: $new_hostname is not a valid domain name, OpenPanel will use IP address $current_ip for access."
+                echo "Hostname provided: $new_hostname is not a valid domain name, OpenPanel will use IP address $SERVER_IPV4_ADDRESS for access."
             fi
         fi
 }
@@ -1290,7 +1286,7 @@ run_custom_postinstall_script() {
 
 verify_license() {
     server_hostname=$(hostname)
-    license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$current_ip"'"}'
+    license_data='{"hostname": "'"$server_hostname"'", "public_ip": "'"$SERVER_IPV4_ADDRESS"'"}'
     curl -4 -s -X POST \
         -H "Content-Type: application/json" \
         -d "$license_data" \
@@ -1575,7 +1571,7 @@ EOF' || true
 
 
 extra_steps_for_caddy() {
-	sed -i "s/example\.net/$current_ip/g" ${ETC_DIR}caddy/redirects.conf > /dev/null 2>&1
+	sed -i "s/example\.net/$SERVER_IPV4_ADDRESS/g" ${ETC_DIR}caddy/redirects.conf > /dev/null 2>&1
 
 	# https://community.openpanel.org/d/235-caddy-restarting-when-etchosts-is-missing
 	if ! grep -qE '^127\.0\.0\.1\s+localhost' "/etc/hosts"; then
