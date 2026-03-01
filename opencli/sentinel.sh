@@ -1,1002 +1,589 @@
 #!/bin/bash
 
-PID=$$
-
-VERSION="20.251.104"
-
-# ======================================================================
-# Counters
-STATUS=0
-PASS=0
-WARN=0
-FAIL=0
-
 readonly CONF_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 readonly LOCK_FILE="/tmp/swap_cleanup.lock"
-DISPLAY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
-TIME=$(date +%s%3N)
 readonly INI_FILE="/etc/openpanel/openadmin/config/notifications.ini"
-HOSTNAME=$(hostname)
 readonly LOG_FILE="/var/log/openpanel/admin/notifications.log"
-LOG_DIR=$(dirname "$LOG_FILE")
+readonly DNS_STAMP="/tmp/sentinel_dns_last_run"
+readonly DISPLAY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
+HOSTNAME=$(hostname)
 
-mkdir -p "$LOG_DIR"
-touch "$LOG_FILE"
+[ ! -f "$INI_FILE" ] && { echo "Error: INI file not found: $INI_FILE"; exit 1; }
 
-show_execution_time() {
-    end_time=$(date +%s%3N)
-    execution_time=$((end_time - TIME))
-    seconds=$((execution_time / 1000))
-    milliseconds=$((execution_time % 1000))
-    memory_usage=$(ps -p $$ -o rss=)
-    echo "Elapsed time: ${seconds}.${milliseconds} seconds"
-    echo "Memory usage: ${memory_usage} KB"
-}
+mkdir -p "$(dirname "$LOG_FILE")"
+[[ ! -f "$LOG_FILE" ]] && > "$LOG_FILE"
 
-trap show_execution_time EXIT
+STATUS=0 PASS=0 WARN=0 FAIL=0
 
-if [ ! -f "$INI_FILE" ]; then
-    echo "Error: INI file not found: $INI_FILE"
-    exit 1
-fi
+conf_get() { awk -F= "/^${1}=/{print \$2; exit}" "$CONF_FILE" 2>/dev/null; }
+ini_get()  { awk -F= "/^${1}=/{print \$2; exit}" "$INI_FILE"  2>/dev/null; }
 
+validate_yes_no() { [[ "$1" == "yes" || "$1" == "no" ]] && echo "$1" || echo "yes"; }
+validate_number() { [[ "$1" =~ ^([1-9][0-9]?|100)$ ]] && echo "$1" || echo "$2"; }
 
+EMAIL=$(conf_get email)
+EMAIL_ALERT=$([[ -n "$EMAIL" ]] && echo "yes" || echo "no")
 
+REBOOT=$(validate_yes_no "$(ini_get reboot)")
+MAIN_DOMAIN_AND_NS=$(validate_yes_no "$(ini_get dns)")
+LOGIN=$(validate_yes_no "$(ini_get login)")
+SSH_LOGIN=$(validate_yes_no "$(ini_get ssh)")
+SERVICES=$(ini_get services); SERVICES="${SERVICES:-admin,docker,mysql,csf,panel}"
 
+LOAD_THRESHOLD=$(validate_number "$(ini_get load)" 20)
+CPU_THRESHOLD=$(validate_number  "$(ini_get cpu)"  90)
+RAM_THRESHOLD=$(validate_number  "$(ini_get ram)"  85)
+DISK_THRESHOLD=$(validate_number "$(ini_get du)"   85)
+SWAP_THRESHOLD=$(validate_number "$(ini_get swap)" 40)
 
-# ======================================================================
-# Helper functions
-
-print_header() {
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo -e ""
-    echo -e " _____               _    _               _ "
-    echo -e "/  ___|             | |  (_)             | |"
-    echo -e "\\ \`--.   ___  _ __  | |_  _  _ __    ___ | |"
-    echo -e " \`--. \\ / _ \\| \`_ \\ | __|| || \`_ \\  / _ \\| |"
-    echo -e "/\\__/ /|  __/| | | || |_ | || | | ||  __/| |"
-    echo -e "\\____/  \\___||_| |_| \\__||_||_| |_| \\___||_|"
-    echo -e ""
-    echo -e "            version: $VERSION"
-    echo -e ""
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-}
-
-generate_random_token_one_time_only() {
-    TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
-    local new_value="mail_security_token=$TOKEN_ONE_TIME"
-    sed -i "s|^mail_security_token=.*$|$new_value|" "$CONF_FILE"
-}
-
-validate_yes_no() {
-    local val="$1"
-    [[ "$val" =~ ^(yes|no)$ ]] && echo "$val" || echo "yes"
-}
-
-validate_number() {
-    local val="$1" default="$2"
-    [[ "$val" =~ ^[1-9][0-9]?$|^100$ ]] && echo "$val" || echo "$default"
-}
-
-get_last_message_content() {
-  tail -n 1 "$LOG_FILE" 2>/dev/null
-}
-
-is_unread_message_present() {
-  local unread_message_content="$1"
-  grep -q "UNREAD.*$unread_message_content" "$LOG_FILE" && return 0 || return 1
-}
-
-ip_in_cidr() {
-    local ip=$1
-    local cidr=$2
-
-    IFS=/ read -r network mask <<< "$cidr"
-    IFS=. read -r i1 i2 i3 i4 <<< "$ip"
-    IFS=. read -r n1 n2 n3 n4 <<< "$network"
-
-    local ipbin=$(( (i1<<24) + (i2<<16) + (i3<<8) + i4 ))
-    local netbin=$(( (n1<<24) + (n2<<16) + (n3<<8) + n4 ))
-    local maskbin=$(( 0xFFFFFFFF << (32 - mask) & 0xFFFFFFFF ))
-
-    (( (ipbin & maskbin) == (netbin & maskbin) ))
-}
-
-ensure_installed() {
-    local cmd="$1"
-    local pkg="$2"
-    pkg="${pkg:-$cmd}"
-
-    if ! command -v "$cmd" &> /dev/null; then
-        if command -v apt-get &> /dev/null; then
-            sudo apt-get update -qq > /dev/null 2>&1
-            sudo apt-get install -y -qq "$pkg" > /dev/null 2>&1
-        elif command -v yum &> /dev/null; then
-            sudo yum install -y -q "$pkg" > /dev/null 2>&1
-        elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q "$pkg" > /dev/null 2>&1
-        else
-            echo "Error: No compatible package manager found. Please install $cmd manually."
-            exit 1
-        fi
-
-        if ! command -v "$cmd" &> /dev/null; then
-            echo "Error: $cmd installation failed. Please install $pkg manually."
-            exit 1
-        fi
-    fi
-}
+is_unread_message_present() { grep -qF "UNREAD $1" "$LOG_FILE"; }
 
 email_notification() {
-  local title="$1"
-  local message="$2"
+  local title=$1 message=$2
+  local token; token=$(tr -dc 'a-zA-Z0-9' </dev/urandom | head -c 64)
+  awk -v t="$token" '/^mail_security_token=/{$0="mail_security_token="t} 1' \
+    "$CONF_FILE" > "${CONF_FILE}.tmp" && mv "${CONF_FILE}.tmp" "$CONF_FILE"
 
-  generate_random_token_one_time_only
+  local domain; domain=$(opencli domain)
+  local proto="http"
+  [[ "$domain" =~ ^[a-zA-Z0-9.-]+$ ]] && proto="https"
 
-  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "$CONF_FILE")
-  DOMAIN=$(opencli domain)
-  if [[ "$DOMAIN" =~ ^[a-zA-Z0-9.-]+$ ]]; then
-    PROTOCOL="https"
-  else
-    PROTOCOL="http"
+  local auth_opt=""
+  if awk -F= '/^basic_auth=/{exit ($2=="yes")?0:1}' \
+      /etc/openpanel/openadmin/config/admin.ini 2>/dev/null; then
+    local u p
+    u=$(awk -F= '/^basic_auth_username=/{print $2; exit}' /etc/openpanel/openadmin/config/admin.ini)
+    p=$(awk -F= '/^basic_auth_password=/{print $2; exit}' /etc/openpanel/openadmin/config/admin.ini)
+    auth_opt="--user ${u}:${p}"
   fi
 
-  admin_conf_file="/etc/openpanel/openadmin/config/admin.ini"
-  AUTH_OPTION=""
-  if grep -q '^basic_auth=yes' "$admin_conf_file"; then
-      username=$(grep '^basic_auth_username=' "$admin_conf_file" | cut -d'=' -f2)
-      password=$(grep '^basic_auth_password=' "$admin_conf_file" | cut -d'=' -f2)
-      AUTH_OPTION="--user ${username}:${password}"
-  fi
+  local resp
+  resp=$(curl -4 --max-time 5 -ksf -X POST "$proto://$domain:2087/send_email" \
+    $auth_opt \
+    -F "transient=$token" -F "recipient=$EMAIL" \
+    -F "subject=$title"   -F "body=$message" 2>/dev/null)
 
-  response=$(curl -4 --max-time 5 -k -X POST "$PROTOCOL://$DOMAIN:2087/send_email" \
-    $AUTH_OPTION \
-    -F "transient=$TRANSIENT" \
-    -F "recipient=$EMAIL" \
-    -F "subject=$title" \
-    -F "body=$message" 2>/dev/null)
-
-  if echo "$response" | grep -q '"error"'; then
-    echo "Error: Failed to send email. Response: $response"
-  elif echo "$response" | grep -q '"sent successfully"'; then
-    echo "Email sent successfully."
-  fi
+  case "$resp" in
+    *'"error"'*)             echo "Error sending email: $resp" ;;
+    *'"sent successfully"'*) echo "Email sent." ;;
+  esac
 }
 
 write_notification() {
-  local title="$1"
-  local message="$2"
-  local current_message="$(date '+%Y-%m-%d %H:%M:%S') UNREAD $title MESSAGE: $message"
-  local last_message_content=$(get_last_message_content)
-  if [ "$message" != "$last_message_content" ] && ! is_unread_message_present "$title"; then
-    echo "$current_message" >> "$LOG_FILE"
-    if [ "$EMAIL_ALERT" == "no" ]; then
-      echo "Email alerts are disabled."
-    else
-      email_notification "$title" "$message"
-      if command -v notify-send &>/dev/null; then
-          notify-send "$title" "$message"
-      fi
-    fi
-  fi
+  local title=$1 message=$2
+  is_unread_message_present "$title" && return
+  echo "$DISPLAY_TIME UNREAD $title MESSAGE: $message" >> "$LOG_FILE"
+  [[ "$EMAIL_ALERT" == "yes" ]] && email_notification "$title" "$message"
 }
 
+ensure_installed() {
+  command -v "$1" &>/dev/null && return
+  local pkg="${2:-$1}"
+  if   command -v apt-get &>/dev/null; then apt-get install -y -qq "$pkg" &>/dev/null
+  elif command -v yum     &>/dev/null; then yum install -y -q  "$pkg" &>/dev/null
+  elif command -v dnf     &>/dev/null; then dnf install -y -q  "$pkg" &>/dev/null
+  else echo "Error: cannot install $pkg"; exit 1; fi
+  command -v "$1" &>/dev/null || { echo "Error: $1 install failed"; exit 1; }
+}
 
+ip_in_cidr() {
+  local ip=$1 cidr=$2 network mask
+  local i1 i2 i3 i4 n1 n2 n3 n4
+  IFS=/ read -r network mask <<< "$cidr"
+  IFS=. read -r i1 i2 i3 i4 <<< "$ip"
+  IFS=. read -r n1 n2 n3 n4 <<< "$network"
+  local ipbin=$(( (i1<<24)|(i2<<16)|(i3<<8)|i4 ))
+  local netbin=$(( (n1<<24)|(n2<<16)|(n3<<8)|n4 ))
+  local maskbin=$(( (0xFFFFFFFF << (32-mask)) & 0xFFFFFFFF ))
+  (( (ipbin & maskbin) == (netbin & maskbin) ))
+}
 
-
-
-# ======================================================================
-# config
-
-EMAIL=$(awk -F'=' '/^email/ {print $2}' "$CONF_FILE")
-EMAIL_ALERT=$([[ -n "$EMAIL" ]] && echo "yes" || echo "no")
-
-declare -A config
-while IFS='=' read -r key value; do
-    key="${key%%*( )}"
-    value="${value%%*( )}"
-    [[ -z "$key" || "$key" =~ ^# || "$key" =~ ^\[ ]] && continue
-    config["$key"]="$value"
-done < "$INI_FILE"
-
-# yes-no settings
-REBOOT=$(validate_yes_no "${config[reboot]:-yes}")
-MAIN_DOMAIN_AND_NS=$(validate_yes_no "${config[dns]:-yes}")
-LOGIN=$(validate_yes_no "${config[login]:-yes}")
-SSH_LOGIN=$(validate_yes_no "${config[ssh]:-yes}")
-ATTACK=$(validate_yes_no "${config[attack]:-yes}")
-LIMIT=$(validate_yes_no "${config[limit]:-yes}")
-UPDATE=$(validate_yes_no "${config[update]:-yes}")
-
-# String / list
-SERVICES="${config[services]:-admin,docker,mysql,csf,panel}"
-
-# numeric
-LOAD_THRESHOLD=$(validate_number "${config[load]:-20}" 20)
-CPU_THRESHOLD=$(validate_number "${config[cpu]:-90}" 90)
-RAM_THRESHOLD=$(validate_number "${config[ram]:-85}" 85)
-DISK_THRESHOLD=$(validate_number "${config[du]:-85}" 85)
-SWAP_THRESHOLD=$(validate_number "${config[swap]:-40}" 40)
-
-
-
-# ====================================================================== #
-#                             MAIN FUNCTIONS                             #
-
-
-
-# ====== ON REBOOT
 perform_startup_action() {
-  if [ "$REBOOT" != "no" ]; then
-    local title="SYSTEM REBOOT!"
-    local uptime=$(uptime)
-    local message="System was rebooted. $uptime"
-    write_notification "$title" "$message"
-  else
-    ((WARN++))
-    echo -e "\e[38;5;214m[!]\e[0m Reboot is explicitly set to 'no' in the INI file. Skipping logging.."
+  if [[ "$REBOOT" == "no" ]]; then
+    ((WARN++)); echo "[!] Reboot check disabled."; return
   fi
+  write_notification "SYSTEM REBOOT!" "System was rebooted. $(uptime)"
 }
 
-# ====== CHECK SSH LOGINS
-check_ssh_logins() {
-
-  if [ "$SSH_LOGIN" != "no" ]; then
-
-    local title="Suspicious SSH login detected"
-    local message_to_check_in_file="Suspicious SSH login detected"
-
-    if is_unread_message_present "$message_to_check_in_file"; then
-      ((WARN++))
-      echo -e "\e[38;5;214m[!]\e[0m Unread SSH login notification already exists. Skipping."
-      return
-    fi
-
-    ssh_ips=$(who | grep 'pts' | awk '{print $5}' | sed -E 's/[():]//g' | cut -d':' -f1)
-
-    if [ -z "$ssh_ips" ]; then
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m No currently logged in SSH users detected."
-        return
-    fi
-
-    login_ips=$(awk '{print $NF}' /var/log/openpanel/admin/login.log)
-
-    if [ -z "$login_ips" ]; then
-    ((WARN++))
-    echo -e "\e[38;5;214m[!]\e[0m Detected logged-in SSH user, but login checks will be postponed until OpenAdmin interface is ready."
-        return
-    fi
-
-  counter=0
-  safe_counter=0
-  suspecious_ips=()
-  safe_ips=()
-
-  WHITELIST_FILE="/etc/openpanel/openadmin/ssh_whitelist.conf"
-    declare -a whitelist_ips
-    declare -a whitelist_cidrs
-    
-    # Read whitelist file
-    if [[ -f "$WHITELIST_FILE" ]]; then
-        while IFS= read -r entry; do
-            [[ -n "$entry" ]] || continue
-            if [[ "$entry" == */* ]]; then
-                whitelist_cidrs+=("$entry")
-            else
-                whitelist_ips+=("$entry")
-            fi
-        done < "$WHITELIST_FILE"
-    fi
-
-
-
-
-  for ip in $ssh_ips; do
-    # make sure we get ip!
-    if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
- 
-        # whitelist
-        if [[ " ${whitelist_ips[*]} " =~ " $ip " ]]; then
-            safe_ips+=("$ip")
-            ((safe_counter++))
-            continue
-        fi
-
-        # CIDRs
-        for cidr in "${whitelist_cidrs[@]}"; do
-            if ip_in_cidr "$ip" "$cidr"; then
-                safe_ips+=("$ip")
-                ((safe_counter++))
-                break
-            fi
-        done
-
-    
-      if ! echo "$login_ips" | grep -q "$ip"; then
-          ((counter++))
-          suspecious_ips+=("$ip")
-      else
-          ((safe_counter++))
-          safe_ips+=("$ip")
-      fi
-    fi
-  done
-
-  if [ $counter -gt 0 ]; then
-      for unmatched_ip in "${suspecious_ips[@]}"; do
-          message+="  $unmatched_ip"
-      done
-
-    ((FAIL++))
-    STATUS=2
-
-    echo -e "\e[31m[✘]\e[0m $message | Writing notification."
-    write_notification "$title" "$message"
-
-  else
-      ((PASS++))
-      echo -e "\e[32m[✔]\e[0m Detected $safe_counter currently active SSH user(s), but marked as safe since the IP address has previously logged into the OpenAdmin interface."
-      message=""
-      for ip in "${safe_ips[@]}"; do
-          message+="${ip}    "
-      done
-      echo -e "    Currently active IP addresses: $message"
+email_daily_report() {
+  if [[ "$EMAIL_ALERT" == "no" ]]; then
+    echo "Email alerts disabled."; return
   fi
-
-
-  fi
-
-
+  email_notification "Daily Usage Report" "Daily Usage Report"
 }
 
-# ====== ADMIN LOGINS
-check_new_logins() {
-  if [ "$LOGIN" != "no" ]; then
-    touch /var/log/openpanel/admin/login.log
-    if [ ! -s "$LOG_FILE" ]; then
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m No new logins to OpenAdmin detected."
-    else
-
-    last_login=$(tail -n 1 /var/log/openpanel/admin/login.log)
-    if [ -z "$last_login" ]; then
-      ((PASS++))
-      echo -e "\e[32m[✔]\e[0m No new logins to OpenAdmin detected."
-      return 1
-    fi
-
-    username=$(echo "$last_login" | awk '{print $3}')
-    ip_address=$(echo "$last_login" | awk '{print $4}')
-
-    if [[ ! $ip_address =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      echo "Invalid IP address format: $ip_address"
-      return 1
-    fi
-
-    if [[ $ip_address == "127.0.0.1" ]]; then
-      echo "IP address 127.0.0.1 is not allowed."
-      return 1
-    fi
-
-    if [ $(grep -c $username /var/log/openpanel/admin/login.log) -eq 1 ]; then
-      ((PASS++))
-      echo -e "\e[32m[✔]\e[0m First time login detected for user: $username from IP address: $ip_address."
-    else
-      if ! grep -q "$username $ip_address" <(sed '$d' /var/log/openpanel/admin/login.log); then
-        echo -e "\e[31m[✘]\e[0m Admin account $username accessed from new IP address $ip_address"
-        ((FAIL++))
-        STATUS=2
-        local title="Admin account $username accessed from new IP address"
-        local message="Admin account $username was accessed from a new IP address: $ip_address"
-        write_notification "$title" "$message"
-      else
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m Admin account $username accessed from previously logged IP address: $ip_address"
-      fi
-    fi
-    fi
-  else
-    ((WARN++))
-    echo -e "\e[38;5;214m[!]\e[0m New login detected for admin user: $username from IP: $ip_address, but notifications are disabled by admin user. Skipping logging."
-  fi
-}
-
-# ====== MYSQL SERVICE
-mysql_docker_containers_status() {
-      if docker --context=default ps --format "{{.Names}}" | grep -q "openpanel_mysql"; then
-        if mysql -Ne "SELECT 'PONG' AS PING;" 2>/dev/null | grep -q "PONG"; then
-        ((PASS++))
-          echo -e "\e[32m[✔]\e[0m MySQL container is active and service running."
-        else
-          echo -e "\e[31m[✘]\e[0m MySQL container is running but not responding correctly, initiating restart.."
-          cd /root && docker --context default compose up -d openpanel_mysql 2>/dev/null
-        fi
-      else
-        ((FAIL++))
-        STATUS=2
-        echo -e "\e[31m[✘]\e[0m MySQL Docker container is not active, initiating restart.." #Writing notification to log file."
-        cd /root && docker --context default compose up -d openpanel_mysql 2>/dev/null
-
-        title="MySQL service is not active. Users are unable to log into OpenPanel!"
-        message="MySQL container is running, but is not respond to queries. Sentinel failed to restart mysql and users are unable to login to OpenPanel, please check ASAP."
-        sleep 5
-        if mysql -Ne "SELECT 'PONG' AS PING;" 2>/dev/null | grep -q "PONG"; then
-          ((FAIL--))
-          STATUS=1
-          echo "    Success: MySQL is now back online and responding to queries."
-          title="MySQL service was restarted successfully!"
-          message="MySQL container was running, but did not respond to queries. Sentinel restarted mysql and it is responding now."
-        else
-          echo "    Error: MySQL restared but still not responding to queries!"
-        fi
-        write_notification "$title" "$message"
-      fi
-}
-
-# ====== ANY CONTAINER NAME
-docker_containers_status() {
-    service_name="$1"
-    title="$2"
-
-    check_status_after_restart(){
-        if docker --context=default ps --format "{{.Names}}" | grep -wq "$service_name"; then
-            echo -e "\e[32m[✔]\e[0m $service_name docker container successfully restarted."
-            ((WARN--))
-        else
-            echo -e "\e[31m[✘]\e[0m $service_name docker container failed to restart."
-            ((FAIL++))
-            STATUS=2
-            error_log=$(docker --context=default logs --tail 10 "$service_name" 2>&1 | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n", $0}')
-            write_notification "$title" "$error_log"
-        fi
-    }
-
-
-    check_caddy_health_after_restart() {
-        local url="http://localhost/check"
-        local status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 1 "$url")
-      if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 404 ]; then
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m $service_name is now up and running (status code: $status_code)."
-      elif [ "$status_code" = "000" ]; then
-        echo -e "\e[31m[✘]\e[0m Caddy service restart failed. The container appears to be running, but the service is unresponsive. Please review the Caddy container logs."
-        ((WARN--))
-        ((FAIL++))
-        error_log=$(docker --context=default logs --tail 10 "$service_name" 2>&1 | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n", $0}')
-        write_notification "$title" "$error_log"
-      fi
-    }
-
-
-    check_caddy_health() {
-        local url="http://localhost/check"
-        local status_code=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 1 "$url")
-      if [ "$status_code" -eq 200 ] || [ "$status_code" -eq 404 ]; then
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m $service_name docker container is active (status code: $status_code)."
-      else
-        start_caddy
-      fi
-    }
-
-    start_caddy() {
-        ((WARN++))
-        echo -e "\e[38;5;214m[!]\e[0m $service_name docker container is not running."
-  
-        echo "  - Checking if domains exist and if caddy service should be started..."
-        if ls /etc/openpanel/caddy/domains > /dev/null 2>&1; then
-            echo "  - Domains are hosted on this server, starting caddy service.."
-            cd /root && docker --context=default compose up -d caddy > /dev/null 2>&1
-            check_caddy_health_after_restart
-        else
-            ((WARN--))
-            echo "  - No domains detected. Caddy is not yet needed."
-        fi
-      }
-
-    if docker --context=default ps --format "{{.Names}}" | grep -wq "$service_name"; then
-      if [ "$service_name" == "caddy" ]; then
-        check_caddy_health
-      else
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m $service_name docker container is active."
-      fi
-    else 
-        if [ "$service_name" == "openpanel" ]; then
-            echo "  - Checking if users exist and if openpanel service should be started..."
-            users=$(opencli user-list --json | grep -v 'SUSPENDED' | awk -F'"' '/username/ {print $4}')
-            if [[ -z "$users" || "$users" == "No users." ]]; then
-              ((WARN--))
-              echo "  - No users found in the database."
-            else
-                echo "  - User accounts are hosted on this server, starting openpanel service.."
-                cd /root && docker --context=default compose up -d openpanel > /dev/null 2>&1
-                check_status_after_restart
-            fi 
-        elif [ "$service_name" == "openpanel_dns" ]; then
-            echo "  - Checking if DNS zones exist and if BIND9 service should be started..."
-            if ls /etc/bind/zones/*.zone > /dev/null 2>&1; then
-                echo "  - DNS zones are hosted on this server, starting BIND9 service.."
-                cd /root && docker --context=default compose up -d bind9 > /dev/null 2>&1
-                check_status_after_restart
-            else
-                ((WARN--))
-                echo "  - No domains detected. DNS is not yet needed."
-            fi
-        elif [ "$service_name" == "caddy" ]; then
-            check_caddy_health
-        else
-            docker --context=default restart "$service_name"  > /dev/null 2>&1
-            check_status_after_restart
-        fi
-    fi
-}
-
-# ====== CHECK ANY SERVICE
 check_service_status() {
-  local service_name="$1"
-  local title="$2"
-
-  if systemctl is-active --quiet "$service_name"; then
-  ((PASS++))
-    echo -e "\e[32m[✔]\e[0m $service_name is active."
+  local svc=$1 title=$2
+  if systemctl is-active --quiet "$svc"; then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc is active."
   else
-
-    if [[ "$service_name" == "admin" && ! -f /root/openadmin_is_disabled ]]; then
-      ((PASS++))
-      echo -e "\e[32m[✔]\e[0m $service_name is disabled by Administrator."
-    else
-
-      ((FAIL++))
-      STATUS=2
-    echo -e "\e[31m[✘]\e[0m $service_name is not active."
-    local error_log=""
-
-      error_log=$(journalctl -n 5 -u "$service_name" 2>/dev/null | sed ':a;N;$!ba;s/\n/\\n/g')
-
-      if [ -n "$error_log" ]; then
-        write_notification "$title" "$error_log"
-      else
-        echo "no logs."
-      fi
-
-      echo -e "\e[33m[⚠️]\e[0m Restarting $service_name..."
-      systemctl restart "$service_name"
-
-      if systemctl is-active --quiet "$service_name"; then
-        echo -e "\e[32m[✔]\e[0m $service_name has been restarted and is now active."
-      else
-        echo -e "\e[31m[✘]\e[0m Failed to restart $service_name."
-      fi
-      
+    if [[ "$svc" == "admin" && ! -f /root/openadmin_is_disabled ]]; then
+      ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc disabled by Administrator."; return
     fi
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m $svc is not active."
+    local log; log=$(journalctl -n 5 -u "$svc" 2>/dev/null | awk '{printf "%s|",$0}')
+    [[ -n "$log" ]] && write_notification "$title" "$log"
+    systemctl restart "$svc"
+    systemctl is-active --quiet "$svc" \
+      && echo -e "\e[32m[✔]\e[0m $svc restarted." \
+      || echo -e "\e[31m[✘]\e[0m Failed to restart $svc."
   fi
 }
 
-# ====== GENERATE CRASH REPORT
-generate_crashlog_report() {
-    local log_dir="/var/log/openpanel/admin/crashlog"
-    local report="${log_dir}/$(date +%s).txt"
-    local line="+$(printf '%.0s-' {1..100})+"
-    
-    mkdir -p "$log_dir" || return 1
+_docker_ps()  { docker --context=default ps --format "{{.Names}}"; }
+_docker_log() { docker --context=default logs --tail 10 "$1" 2>&1 \
+                  | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n",$0}'; }
 
-    {
-        echo -e "$line\n GENERAL INFO\n$line\n\n- Hostname: $HOSTNAME\n- Date: $(date '+%d %m %Y %H:%M')\n"
-        
-        echo -e "$line\n SYSTEM LOAD\n$line"
-        cat /proc/loadavg
-        
-        echo -e "\n$line\n TOP PROCESSES (MEM & CPU)\n$line"
-        ps -eo user:10,pid:8,%cpu:6,%mem:6,comm:30 --sort=-%mem | head -n 11
-        echo ""
-        ps -eo user:10,pid:8,%cpu:6,%mem:6,comm:30 --sort=-%cpu | head -n 11
-
-        echo -e "\n$line\n SERVICES & I/O\n$line"
-        mysqladmin proc 2>/dev/null || echo "MySQL unavailable."
-        
-        echo -e "\n--- I/O ---\n"
-        { iostat -xz 1 1 2>/dev/null || cat /proc/diskstats; } | head -n 10
-
-        echo -e "\n$line\n NETWORK & SWAP\n$line"
-        ss -s 2>/dev/null || echo "Socket stats unavailable."
-        
-        echo -e "\n--- Top Swap Users ---\n"
-        grep VmSwap /proc/*/status 2>/dev/null | sort -k2 -hr | head -n 10
-
-        echo -e "\n$line\nReport saved to: $report\n$line"
-    } > "$report"
+_caddy_http_ok() {
+  local code
+  code=$(curl -so /dev/null -w "%{http_code}" --connect-timeout 1 --max-time 1 "http://localhost/check")
+  [[ "$code" == "200" || "$code" == "404" ]]
 }
 
-
-
-# ====== CHECK LOAD
-check_system_load() {
-  local title="High System Load!"
-  current_load=$(awk '{print $1}' /proc/loadavg)
-  if [ "$current_load" -gt "$LOAD_THRESHOLD" ]; then
-      ((FAIL++))
-      STATUS=2
-      echo -e "\e[31m[✘]\e[0m Average Load usage ($current_load) is higher than threshold value ($LOAD_THRESHOLD). Generating crash-report and writing notification."
-      generate_crashlog_report
-      write_notification "$title" "Current load: $current_load | detailed report: $generated_report"
+_docker_check_after_restart() {
+  local svc=$1 title=$2
+  if _docker_ps | grep -wq "$svc"; then
+    ((WARN--)); echo -e "\e[32m[✔]\e[0m $svc restarted successfully."
   else
-      ((PASS++))
-      echo -e "\e[32m[✔]\e[0m Current Load usage $current_load is lower than the threshold value $LOAD_THRESHOLD. Skipping."
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m $svc failed to restart."
+    write_notification "$title" "$(_docker_log "$svc")"
   fi
 }
 
+docker_containers_status() {
+  local svc=$1 title=$2
 
-
-# ====== CHECK SWAP
-check_swap_usage() {
-    local title="High SWAP usage!"
-    free_output=$(free -t)
-    swap_used=$(echo "$free_output" | awk 'FNR == 3 {print $3}')
-    swap_total=$(echo "$free_output" | awk 'FNR == 3 {print $2}')
-    if [ "$swap_total" -gt 0 ]; then
-        SWAP_USAGE=$(awk "BEGIN {print ($swap_used / $swap_total) * 100}")
-    else
-        SWAP_USAGE=0
-        ((PASS++))
-        echo -e "\e[32m[✔]\e[0m Total SWAP is $SWAP_USAGE (skipping swap check for ${SWAP_THRESHOLD}% treshold)"
-        return
-    fi
-
-    SWAP_USAGE_NO_DECIMALS=$(printf %.0f $SWAP_USAGE)
-    if [ "$SWAP_USAGE_NO_DECIMALS" -gt "$SWAP_THRESHOLD" ]; then
-      if [ -f "$LOCK_FILE" ]; then
-          file_age=$(($(date +%s) - $(date -r "$LOCK_FILE" +%s)))
-          if [ "$file_age" -gt 21600 ]; then
-              echo "Lock file is older than 6 hours. Deleting..."
-              rm -f "$LOCK_FILE"
-          else
-              ((WARN++))
-              echo -e "\e[38;5;214m[!]\e[0m Previous SWAP cleanup is still in progress. Skipping the current run."
-              exit 0
-          fi
-      fi
-
-        echo "Current SWAP usage ($SWAP_USAGE_NO_DECIMALS) is higher than treshold value ($SWAP_THRESHOLD). Writing notification."        
-        write_notification "$title" "Current SWAP usage: $SWAP_USAGE_NO_DECIMALS Starting the cleanup process now... you will get a new notification once everything is completed..."
-        touch "$LOCK_FILE" # create when we start
-        
-        echo 3 >/proc/sys/vm/drop_caches
-        swapoff -a
-        swapon -a
-
-        swap_usage=$(free -t | awk 'FNR == 3 {print $3/$2*100}')
-        swap_usage_no_decimals=$(printf %.0f $SWAP_USAGE)
-        local title_ok="SWAP is cleared - Current value: $swap_usage_no_decimals"
-        local title_not_ok="URGENT! SWAP could not be cleared on $HOSTNAME"
-        if [ "$swap_usage_no_decimals" -lt "$SWAP_THRESHOLD" ]; then
-            echo -e "The Sentinel service has completed clearing SWAP on server $HOSTNAME! \n THANK YOU FOR USING THIS SERVICE! PLEASE REPORT ALL BUGS AND ERRORS TO sentinel@openpanel.co"
-            write_notification "$title_ok" "The Sentinel service has completed clearing SWAP on server $HOSTNAME!"
-            echo -e "SWAP Usage was abnormal, healing completed, notification sent! This SWAP check was performed at: $DISPLAY_TIME"
-            rm -f "$LOCK_FILE" # delete after success
+  if _docker_ps | grep -wq "$svc"; then
+    if [[ "$svc" == "caddy" ]]; then
+      if _caddy_http_ok; then
+        ((PASS++)); echo -e "\e[32m[✔]\e[0m caddy is active and responding."
+      else
+        ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m caddy running but unresponsive — restarting."
+        cd /root && docker --context=default compose up -d caddy &>/dev/null
+        sleep 2
+        if _caddy_http_ok; then
+          ((PASS++)); ((WARN--)); echo -e "\e[32m[✔]\e[0m caddy recovered."
         else
-            ((FAIL++))
-            STATUS=2
-            echo -e "\e[31m[✘]\e[0m URGENT! SWAP could not be cleared on $HOSTNAME"
-            write_notification "$title_not_ok" "The Sentinel service detected abnormal SWAP usage at $DISPLAY_TIME and tried clearing the space but SWAP usage is still above the $swap_usage_no_decimals treshold."
+          ((WARN--)); ((FAIL++)); STATUS=2
+          echo -e "\e[31m[✘]\e[0m caddy still unresponsive after restart."
+          write_notification "$title" "$(_docker_log caddy)"
         fi
+      fi
     else
-    ((PASS++))
-        echo -e "\e[32m[✔]\e[0m Current SWAP usage is $SWAP_USAGE_NO_DECIMALS (bellow the ${SWAP_THRESHOLD}% treshold) - SWAP check was performed at: $DISPLAY_TIME "
-        rm -f "$LOCK_FILE" # delete if failed but on next run it is ok
+      ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc docker container is active."
     fi
-}
-
-
-# ====== CHECK RAM
-check_ram_usage() {
-  local title="High Memory Usage!"
-  local total_ram=$(free -m | awk '/^Mem:/{print $2}')
-  local used_ram=$(free -m | awk '/^Mem:/{print $3}')
-  local ram_percentage=$((used_ram * 100 / total_ram))
-  
-  local message="Used RAM: $used_ram MB, Total RAM: $total_ram MB, Usage: $ram_percentage%"
-  local message_to_check_in_file="Used RAM"
-
-  if is_unread_message_present "$message_to_check_in_file"; then
-    ((WARN++))
-    echo -e "\e[38;5;214m[!]\e[0m Unread RAM usage notification already exists. Skipping."
     return
   fi
 
-  if [ "$ram_percentage" -gt "$RAM_THRESHOLD" ]; then
-    ((FAIL++))
-    STATUS=2
+  ((WARN++))
+  case "$svc" in
+    openpanel)
+      local users; users=$(opencli user-list --json 2>/dev/null \
+        | awk -F'"' '/username/{print $4}' | grep -v SUSPENDED)
+      if [[ -z "$users" || "$users" == "No users." ]]; then
+        ((WARN--)); echo "  - No users found; $svc not needed."
+      else
+        cd /root && docker --context=default compose up -d openpanel &>/dev/null
+        _docker_check_after_restart "$svc" "$title"
+      fi ;;
+    openpanel_dns)
+      if ls /etc/bind/zones/*.zone &>/dev/null; then
+        cd /root && docker --context=default compose up -d bind9 &>/dev/null
+        _docker_check_after_restart "$svc" "$title"
+      else
+        ((WARN--)); echo "  - No DNS zones; bind9 not needed."
+      fi ;;
+    caddy)
+      if ls /etc/openpanel/caddy/domains &>/dev/null; then
+        cd /root && docker --context=default compose up -d caddy &>/dev/null
+        _docker_check_after_restart "$svc" "$title"
+      else
+        ((WARN--)); echo "  - No domains; caddy not needed."
+      fi ;;
+    *)
+      docker --context=default restart "$svc" &>/dev/null
+      _docker_check_after_restart "$svc" "$title" ;;
+  esac
+}
 
-    echo -e "\e[31m[✘]\e[0m RAM usage ($ram_percentage) is higher than treshold value ($RAM_THRESHOLD). Writing notification."
-    write_notification "$title" "$message"
+mysql_docker_containers_status() {
+  local title="MySQL service not active!"
+  if _docker_ps | grep -q "openpanel_mysql"; then
+    if mysql -Ne "SELECT 'PONG' AS PING;" 2>/dev/null | grep -q "PONG"; then
+      ((PASS++)); echo -e "\e[32m[✔]\e[0m MySQL container active and responding."
+    else
+      echo -e "\e[31m[✘]\e[0m MySQL running but not responding — restarting."
+      cd /root && docker --context=default compose up -d openpanel_mysql &>/dev/null
+    fi
   else
-  ((PASS++))
-    echo -e "\e[32m[✔]\e[0m Current RAM usage $ram_percentage is lower than the treshold value $RAM_THRESHOLD. Skipping."
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m MySQL container not running — restarting."
+    cd /root && docker --context=default compose up -d openpanel_mysql &>/dev/null
+    sleep 5
+    if mysql -Ne "SELECT 'PONG' AS PING;" 2>/dev/null | grep -q "PONG"; then
+      ((FAIL--)); STATUS=1
+      echo "    MySQL is back online."
+      write_notification "MySQL restarted successfully!" \
+        "Sentinel restarted MySQL and it is responding now."
+    else
+      echo "    Error: MySQL still not responding!"
+      write_notification "$title" "MySQL did not respond after restart. Please check ASAP."
+    fi
   fi
 }
 
-# ====== CHECK CPU
-function check_cpu_usage() {
-  local title="High CPU Usage!"
-
-  local cpu_percentage=$(top -bn1 | awk '/^%Cpu/{print $2}' | awk -F'.' '{print $1}')
-  
-if [ "$cpu_percentage" -gt "$CPU_THRESHOLD" ]; then
-            ((FAIL++))
-            STATUS=2
-  echo -e "\e[31m[✘]\e[0m CPU usage ($cpu_percentage) is higher than treshold ($CPU_THRESHOLD). Writing notification."
-  top_processes=$(ps aux --sort -%cpu | head -10 | sed ':a;N;$!ba;s/\n/\\n/g')
-  write_notification "$title" "CPU Usage: $cpu_percentage% | Top Processes: $top_processes"
-else
-((PASS++))
-  echo -e "\e[32m[✔]\e[0m Current CPU usage $cpu_percentage is lower than the treshold value $CPU_THRESHOLD. Skipping."
-fi
+check_services() {
+  local svc
+  for svc in caddy csf admin docker panel mysql named; do
+    [[ ",$SERVICES," != *",$svc,"* ]] && continue
+    case "$svc" in
+      caddy)  docker_containers_status  'caddy'         'Caddy not active — websites down!'             ;;
+      csf)    check_service_status      'csf'           'CSF Firewall not active — server unprotected!' ;;
+      admin)  check_service_status      'admin'         'OpenAdmin service not accessible!'             ;;
+      docker) check_service_status      'docker'        'Docker not active — user websites down!'       ;;
+      panel)  docker_containers_status  'openpanel'     'OpenPanel container not running!'              ;;
+      mysql)  mysql_docker_containers_status                                                            ;;
+      named)  docker_containers_status  'openpanel_dns' 'BIND9 not active — DNS broken!'               ;;
+    esac
+  done
 }
 
-# ====== CHECK DISK USAGE
-function check_disk_usage() {
+check_new_logins() {
+  if [[ "$LOGIN" == "no" ]]; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Login check disabled."; return
+  fi
+
+  local login_log="/var/log/openpanel/admin/login.log"
+  [[ ! -f "$login_log" ]] && > "$login_log"
+
+  local last_login; last_login=$(tail -n 1 "$login_log" 2>/dev/null)
+  if [[ -z "$last_login" ]]; then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No logins to OpenAdmin detected."; return
+  fi
+
+  local username ip_address
+  read -r _ _ username ip_address _ <<< "$last_login"
+
+  if [[ ! "$ip_address" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ || "$ip_address" == "127.0.0.1" ]]; then
+    echo "Invalid/loopback IP: $ip_address"; return 1
+  fi
+
+  local count; count=$(grep -c "$username" "$login_log")
+  if (( count == 1 )); then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m First login: $username from $ip_address."
+  elif ! head -n -1 "$login_log" | grep -qF "$username $ip_address"; then
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m $username logged in from new IP: $ip_address"
+    write_notification "Admin $username accessed from new IP" \
+      "Admin account $username was accessed from new IP: $ip_address"
+  else
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m $username from known IP: $ip_address"
+  fi
+}
+
+check_ssh_logins() {
+  [[ "$SSH_LOGIN" == "no" ]] && return
+
+  if is_unread_message_present "Suspicious SSH login detected"; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Unread SSH notification exists. Skipping."; return
+  fi
+
+  local ssh_ips
+  ssh_ips=$(who | awk '/pts/{gsub(/[():]/, "", $5); n=split($5,a,":"); print a[1]}')
+  if [[ -z "$ssh_ips" ]]; then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No active SSH sessions."; return
+  fi
+
+  local login_log="/var/log/openpanel/admin/login.log"
+  local login_ips; login_ips=$(awk '{print $NF}' "$login_log" 2>/dev/null)
+  if [[ -z "$login_ips" ]]; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m SSH user detected; postponing check until OpenAdmin is ready."
+    return
+  fi
+
+  local wl_file="/etc/openpanel/openadmin/ssh_whitelist.conf"
+  local -a wl_ips wl_cidrs
+  if [[ -f "$wl_file" ]]; then
+    while IFS= read -r e; do
+      [[ -z "$e" ]] && continue
+      [[ "$e" == */* ]] && wl_cidrs+=("$e") || wl_ips+=("$e")
+    done < "$wl_file"
+  fi
+
+  local -a suspicious safe
+  local ip ok cidr
+  for ip in $ssh_ips; do
+    [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || continue
+    ok=0
+    [[ " ${wl_ips[*]} " == *" $ip "* ]] && ok=1
+    if (( !ok )); then
+      for cidr in "${wl_cidrs[@]}"; do ip_in_cidr "$ip" "$cidr" && { ok=1; break; }; done
+    fi
+    if (( !ok )) && ! grep -qF "$ip" <<< "$login_ips"; then
+      suspicious+=("$ip")
+    else
+      safe+=("$ip")
+    fi
+  done
+
+  if (( ${#suspicious[@]} > 0 )); then
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m Suspicious SSH IPs: ${suspicious[*]}"
+    write_notification "Suspicious SSH login detected" "${suspicious[*]}"
+  else
+    ((PASS++))
+    echo -e "\e[32m[✔]\e[0m ${#safe[@]} SSH session(s) from known IPs: ${safe[*]}"
+  fi
+}
+
+check_disk_usage() {
   local title="Running out of Disk Space!"
+  if is_unread_message_present "$title"; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Unread DU notification. Skipping."; return
+  fi
+  local pct; pct=$(df --output=pcent / | awk 'NR==2{gsub(/%/,"",$1); print $1+0}')
+  if (( pct > DISK_THRESHOLD )); then
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m Disk ${pct}% > threshold ${DISK_THRESHOLD}%"
+    write_notification "$title" "Disk usage: ${pct}% | $(df -h | awk '{printf "%s|",$0}')"
+  else
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m Disk ${pct}% < threshold ${DISK_THRESHOLD}%"
+  fi
+}
 
-  local disk_percentage=$(df -h --output=pcent / | tail -n 1 | tr -d '%')
-  if [ "$disk_percentage" -gt "$DISK_THRESHOLD" ]; then
+check_system_load() {
+  local title="High System Load!"
+  local load_raw; read -r load_raw _ < /proc/loadavg
+  local load=${load_raw%%.*}
+  if (( load > LOAD_THRESHOLD )); then
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m Load ${load} > threshold ${LOAD_THRESHOLD}. Generating crash report."
+    generate_crashlog_report
+    write_notification "$title" "Load: $load"
+  else
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m Load ${load} < threshold ${LOAD_THRESHOLD}."
+  fi
+}
 
-    if is_unread_message_present "$title"; then
-      ((WARN++))
-      echo -e "\e[38;5;214m[!]\e[0m Unread DU notification already exists. Skipping."
+check_ram_usage() {
+  local title="High Memory Usage!"
+  if is_unread_message_present "Used RAM"; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Unread RAM notification. Skipping."; return
+  fi
+  local _ total used _rest
+  read -r _ total used _rest < <(free -m | awk '/^Mem:/')
+  local pct=$(( used * 100 / total ))
+  if (( pct > RAM_THRESHOLD )); then
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m RAM ${pct}% > threshold ${RAM_THRESHOLD}%"
+    write_notification "$title" "Used RAM: ${used}MB / ${total}MB (${pct}%)"
+  else
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m RAM ${pct}% < threshold ${RAM_THRESHOLD}%"
+  fi
+}
+
+check_cpu_usage() {
+  local title="High CPU Usage!"
+  local -a f1 f2
+  read -ra f1 < <(grep '^cpu ' /proc/stat)
+  sleep 0.2
+  read -ra f2 < <(grep '^cpu ' /proc/stat)
+  local idle1=${f1[4]} idle2=${f2[4]}
+  local total1=0 total2=0 v
+  for v in "${f1[@]:1}"; do (( total1 += v )); done
+  for v in "${f2[@]:1}"; do (( total2 += v )); done
+  local diff_total=$(( total2 - total1 ))
+  local pct=$(( diff_total > 0 ? 100*(diff_total - (idle2-idle1)) / diff_total : 0 ))
+  if (( pct > CPU_THRESHOLD )); then
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m CPU ${pct}% > threshold ${CPU_THRESHOLD}%"
+    local procs; procs=$(ps ax --sort=-%cpu -o pid:7,pcpu:6,comm:20 | head -10 | awk '{printf "%s|",$0}')
+    write_notification "$title" "CPU: ${pct}% | Top: $procs"
+  else
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m CPU ${pct}% < threshold ${CPU_THRESHOLD}%"
+  fi
+}
+
+check_swap_usage() {
+  local title="High SWAP usage!"
+  local _ stotal sused _rest
+  read -r _ stotal sused _rest < <(free | awk '/^Swap:/')
+  if (( stotal == 0 )); then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No SWAP configured."; return
+  fi
+  local pct=$(( sused * 100 / stotal ))
+
+  if (( pct <= SWAP_THRESHOLD )); then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m SWAP ${pct}% < threshold ${SWAP_THRESHOLD}%"
+    rm -f "$LOCK_FILE"; return
+  fi
+
+  if [[ -f "$LOCK_FILE" ]]; then
+    local age=$(( $(date +%s) - $(date -r "$LOCK_FILE" +%s) ))
+    if (( age <= 21600 )); then
+      ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m SWAP cleanup already in progress. Skipping."; return
+    fi
+    rm -f "$LOCK_FILE"
+  fi
+
+  echo -e "\e[31m[✘]\e[0m SWAP ${pct}% > threshold ${SWAP_THRESHOLD}%. Clearing..."
+  write_notification "$title" "SWAP: ${pct}%. Cleanup starting."
+  touch "$LOCK_FILE"
+
+  echo 3 > /proc/sys/vm/drop_caches
+  swapoff -a && swapon -a
+
+  local stotal2 sused2
+  read -r _ stotal2 sused2 _rest < <(free | awk '/^Swap:/')
+  local pct2=$(( stotal2 > 0 ? sused2*100/stotal2 : 0 ))
+  if (( pct2 < SWAP_THRESHOLD )); then
+    rm -f "$LOCK_FILE"
+    write_notification "SWAP cleared — now ${pct2}%" "Sentinel cleared SWAP on $HOSTNAME."
+    echo -e "\e[32m[✔]\e[0m SWAP cleared successfully. Now: ${pct2}%"
+  else
+    ((FAIL++)); STATUS=2
+    echo -e "\e[31m[✘]\e[0m SWAP still high after cleanup: ${pct2}%"
+    write_notification "URGENT: SWAP not cleared on $HOSTNAME" \
+      "SWAP cleanup attempted at $DISPLAY_TIME but usage still ${pct2}%."
+  fi
+}
+
+generate_crashlog_report() {
+  local dir="/var/log/openpanel/admin/crashlog"
+  mkdir -p "$dir"
+  local report="$dir/$(date +%s).txt"
+  {
+    echo "=== GENERAL === Hostname: $HOSTNAME | Date: $DISPLAY_TIME"
+    echo "=== LOAD ===";     cat /proc/loadavg
+    echo "=== TOP (MEM) ==="; ps -eo pid:7,%mem:5,comm:20 --sort=-%mem | head -11
+    echo "=== TOP (CPU) ==="; ps -eo pid:7,%cpu:5,comm:20 --sort=-%cpu | head -11
+    echo "=== SWAP TOP ===";  grep VmSwap /proc/*/status 2>/dev/null | sort -k2 -hr | head -10
+    echo "=== DISKSTATS ==="; head -10 /proc/diskstats
+  } > "$report"
+}
+
+check_if_panel_domain_and_ns_resolve_to_server() {
+  if [[ "$MAIN_DOMAIN_AND_NS" == "no" ]]; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m DNS check disabled."; return
+  fi
+
+  if [[ -f "$DNS_STAMP" ]]; then
+    local age=$(( $(date +%s) - $(date -r "$DNS_STAMP" +%s) ))
+    if (( age < 3600 )); then
+      ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m DNS check skipped (last run $((age/60))m ago)."; return
+    fi
+  fi
+  touch "$DNS_STAMP"
+
+  local FORCED_DOMAIN; FORCED_DOMAIN=$(opencli domain 2>/dev/null)
+  local CHECK_DOMAIN="no" CHECK_NS="no"
+  [[ "$FORCED_DOMAIN" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] && CHECK_DOMAIN="yes"
+
+  local NS1; NS1=$(conf_get ns1)
+  if [[ "$NS1" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+    CHECK_NS="yes"
+    local NS2 NS3 NS4
+    NS2=$(conf_get ns2); NS3=$(conf_get ns3); NS4=$(conf_get ns4)
+  fi
+
+  if [[ "$CHECK_DOMAIN" == "no" && "$CHECK_NS" == "no" ]]; then
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m No valid domain/NS configured. Skipping DNS check."
+    return
+  fi
+
+  local GNS="8.8.8.8"
+  local SERVER_IP; SERVER_IP=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com")
+  [[ -z "$SERVER_IP" ]] && \
+    SERVER_IP=$(ip -4 addr show scope global | awk '/inet /{split($2,a,"/"); print a[1]; exit}')
+
+  if [[ "$CHECK_DOMAIN" == "yes" ]]; then
+    ensure_installed dig bind-utils
+    local domain_ip; domain_ip=$(dig +short @"$GNS" "$FORCED_DOMAIN" 2>/dev/null)
+    if [[ "$domain_ip" == "$SERVER_IP" ]]; then
+      ((PASS++)); echo -e "\e[32m[✔]\e[0m $FORCED_DOMAIN → $SERVER_IP"
+    else
+      local ns_rec; ns_rec=$(dig +short @"$GNS" NS "$FORCED_DOMAIN" 2>/dev/null)
+      if [[ "${ns_rec,,}" == *cloudflare* ]]; then
+        ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m $FORCED_DOMAIN uses Cloudflare proxy — skipping IP check."
+      else
+        ((FAIL++)); STATUS=2
+        echo -e "\e[31m[✘]\e[0m $FORCED_DOMAIN resolves to $domain_ip, expected $SERVER_IP"
+        write_notification "$FORCED_DOMAIN does not resolve to $SERVER_IP" \
+          "$FORCED_DOMAIN should point to $SERVER_IP."
+      fi
+    fi
+  else
+    ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Domain not set; skipping domain DNS check."
+  fi
+
+  if [[ "$CHECK_NS" == "yes" ]]; then
+    if [[ -z "$NS2" ]]; then
+      ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Only one NS set — add at least two for redundancy."
       return
     fi
-              ((FAIL++))
-            STATUS=2
-    echo -e "\e[31m[✘]\e[0m Disk usage ($disk_percentage) is higher than the treshold value $DISK_THRESHOLD. Writing notification."
-    disk_partitions_usage=$(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')
-    write_notification "$title" "Disk Usage: $disk_percentage% | Partitions: $disk_partitions_usage"
-  else
-  ((PASS++))
-  echo -e "\e[32m[✔]\e[0m Current Disk usage $disk_percentage is lower than the treshold value $DISK_THRESHOLD. Skipping."
-  fi
-}
-
-# ====== CHECK DNS
-check_if_panel_domain_and_ns_resolve_to_server (){
-
-  if [ "$MAIN_DOMAIN_AND_NS" != "no" ]; then
-      RESULT=$(opencli domain)
-      
-      if [[ "$RESULT" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-          FORCED_DOMAIN=$RESULT
-          CHECK_DOMAIN_ALSO="yes"
-      else
-          CHECK_DOMAIN_ALSO="no"
-      fi
-    
-      NS1_SET=$(awk -F'=' '/^ns1/ {print $2}' "$CONF_FILE")
-      
-      if [ -n "$NS1_SET" ]; then
-          if [[ "$NS1_SET" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-              NS1=$NS1_SET
-              CHECK_NS_ALSO="yes"
-              NS2_SET=$(awk -F'=' '/^ns2/ {print $2}' "$CONF_FILE")
-              NS2=$NS2_SET
-              NS3_SET=$(awk -F'=' '/^ns3/ {print $2}' "$CONF_FILE")
-              NS3=$NS3_SET
-              NS4_SET=$(awk -F'=' '/^ns4/ {print $2}' "$CONF_FILE")
-              NS4=$NS4_SET
-          else
-              echo "NS1 '$NS1_SET' is not a valid domain."
-              CHECK_NS_ALSO="no"
-          fi
-      else
-          CHECK_NS_ALSO="no"
-      fi
-    
-    if [ "$CHECK_DOMAIN_ALSO" == "no" ] && [ "$CHECK_NS_ALSO" == "no" ]; then
-        ((WARN++))
-        echo -e "\e[38;5;214m[!]\e[0m Missing or invalid custom domain and nameservers, skipping DNS checks.."
-    else
-        GOOGLE_DNS_SERVER="8.8.8.8"
-        SERVER_IP=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com")
-    
-      if [ -z "$SERVER_IP" ]; then
-          SERVER_IP=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
-      fi
-    
-      if [ "$CHECK_DOMAIN_ALSO" == "yes" ] || [ "$CHECK_NS_ALSO" == "yes" ]; then
-          if [ "$CHECK_DOMAIN_ALSO" == "no" ]; then
-              ((WARN++))
-              echo -e "\e[38;5;214m[!]\e[0m Domain is not set for accessing OpenPanel, skip checking DNS."
-          else
-              if [ -n "$FORCED_DOMAIN" ]; then
-                  ensure_installed dig bind-utils
-                  domain_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$FORCED_DOMAIN")
-                  
-                  if [ "$domain_ip" == "$SERVER_IP" ]; then
-                  ((PASS++))
-                      echo -e "\e[32m[✔]\e[0m $FORCED_DOMAIN resolves to $SERVER_IP"
-                  else
-                      ns_records=$(dig +short @"$GOOGLE_DNS_SERVER" NS "$FORCED_DOMAIN")
-    
-                      if echo "$ns_records" | grep -q 'cloudflare'; then
-                         ((WARN++))
-                         echo -e "\e[38;5;214m[!]\e[0m $FORCED_DOMAIN does not resolve to $SERVER_IP, but it is using Cloudflare DNS, so it is possible that proxy option is enabled. Skipping."
-                      else
-                          ((FAIL++))
-                STATUS=2
-                          echo -e "\e[31m[✘]\e[0m $FORCED_DOMAIN does not resolve to $SERVER_IP"
-                          local title="$FORCED_DOMAIN does not resolve to $SERVER_IP"
-                          local message="$FORCED_DOMAIN is set as a domain but does not resolve to the server IP $SERVER_IP. This may cause accessibility issues."
-                          write_notification "$title" "$message"
-                      fi
-                  fi
-              fi
-          fi
-    
-          if [ "$CHECK_NS_ALSO" == "no" ]; then
-          ((PASS++))
-              echo -e "\e[32m[✔]\e[0m Skip checking nameservers as they are not set."
-          else
-              local_fail=0
-              if [ -n "$NS1" ] && [ -n "$NS2" ]; then
-                  ns1_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS1")
-                  ns2_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS2")
-                  [ -n "$NS3" ] && ns3_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS3")
-                  [ -n "$NS4" ] && ns4_ip=$(dig +short @"$GOOGLE_DNS_SERVER" "$NS4")
-                  
-                  all_server_ips=$(hostname -I)
-                  failed_nameservers=()
-                            
-                  for ns in NS1 NS2; do
-                      ip_var="${ns,,}_ip"
-                      ip_val="${!ip_var}"
-                      if ! echo "$all_server_ips" | grep -qw "$ip_val"; then
-                          ((local_fail++))
-                          failed_nameservers+=("$ns resolves to $ip_val (expected one of: $all_server_ips)")
-                      fi
-                  done
-                  # optional
-                  for ns in NS3 NS4; do
-                      if [ -n "${!ns}" ]; then
-                          ip_var="${ns,,}_ip"
-                          ip_val="${!ip_var}"
-                          if ! echo "$all_server_ips" | grep -qw "$ip_val"; then
-                              ((local_fail++))
-                              failed_nameservers+=("$ns resolves to $ip_val (expected one of: $all_server_ips)")
-                          fi
-                      fi
-                  done
-    
-                  if [ $local_fail -eq 0 ]; then
-                      ((PASS++))
-                      echo -e "\e[32m[✔]\e[0m All configured nameservers resolve to local IPs ($(hostname -I))"
-                  else
-                      STATUS=2
-                      echo -e "\e[31m[✘]\e[0m Nameservers do not resolve correctly:"
-                      for fail_msg in "${failed_nameservers[@]}"; do
-                          echo "    $fail_msg"
-                      done
-                      local title="Configured nameservers do not resolve to local IPs"
-                      local message
-                      message=$(IFS=' | '; echo "${failed_nameservers[*]}")
-                      write_notification "$title" "$message"
-                      ((FAIL++))
-                  fi
-              else 
-                ((WARN++))
-                echo -e "\e[38;5;214m[!]\e[0m Only one nameserver is currently set. Please add at least two nameservers to ensure DNS redundancy."
-              fi
-          fi
-      fi
-    fi
-    
-  else
-    ((WARN++))
-    echo -e "\e[38;5;214m[!]\e[0m Checking panel domain and nameservers (dns) is explicitly set to 'no' in the INI file. Skipping logging.."
-  fi
-
-}
-
-# ====== DAILY REPORT
-email_daily_report() {
-  local title="Daily Usage Report"
-  local message="Daily Usage Report"
-  if [ "$EMAIL_ALERT" != "no" ]; then
-    echo "Generating daily usage report.."
-    email_notification "$title" "$message"
-  else
-      echo "Email alerts are disabled - daily usage report will not be generated."
-  fi
-}
-
-
-
-
-
-
-# ======================================================================
-# Got flags?
-
-if [ "$1" == "--startup" ]; then
-  perform_startup_action
-  exit 0
-elif [ "$1" == "--report" ]; then
-  email_daily_report
-  exit 0
-else
-  print_header
-  echo "Checking health for monitored services:"
-  echo ""
-  
-  check_services() {
-    declare -A service_checks=(
-      [caddy]="docker_containers_status 'caddy' 'Caddy is not active. Users websites are not working!'"
-      [csf]="check_service_status 'csf' 'Sentinel Firewall (CSF) is not active. Server and websites are not protected!'"
-      [admin]="check_service_status 'admin' 'Admin service is not active. OpenAdmin service is not accessible!'"
-      [docker]="check_service_status 'docker' 'Docker service is not active. User websites are down!'"
-      [panel]="docker_containers_status 'openpanel' 'OpenPanel docker container is not running. Users are unable to access the OpenPanel interface!'"
-      [mysql]="mysql_docker_containers_status"
-      [named]="docker_containers_status 'openpanel_dns' 'Named (BIND9) service is not active. DNS resolving of domains is not working!'"
-    )
-  
-    for svc in "${!service_checks[@]}"; do
-      if echo "$SERVICES" | grep -q "$svc"; then
-        eval "${service_checks[$svc]}"
-      fi
+    local all_ips; all_ips=$(hostname -I)
+    local -a failed
+    local ns_var ns_host ns_ip
+    for ns_var in NS1 NS2 NS3 NS4; do
+      ns_host="${!ns_var}"
+      [[ -z "$ns_host" ]] && continue
+      ns_ip=$(dig +short @"$GNS" "$ns_host" 2>/dev/null)
+      grep -qw "$ns_ip" <<< "$all_ips" || \
+        failed+=("$ns_var ($ns_host) → $ns_ip (expected: $all_ips)")
     done
-  }
-
-  
-  start_login_section() {
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo "Checking SSH and OpenAdmin logins:"
-    echo ""
-  }
-  
-  
-  check_resources_section(){
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo "Checking server resource usage:"
-    echo ""
-  }
-  
-  
-  check_dns_section() {
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo "Checking DNS:"
-    echo ""
-  }
-
-  
-  summary(){
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-  
-    if [[ $STATUS == 0 ]]; then
-        echo -en "\e[32mAll Tests Passed!\e[0m\n"
-    elif [[ $STATUS == 1 ]]; then
-        echo -en "\e[93mSome non-critical tests failed.  Please review these items.\e[0m\e[0m\n"
+    if (( ${#failed[@]} == 0 )); then
+      ((PASS++)); echo -e "\e[32m[✔]\e[0m All nameservers resolve to local IPs."
     else
-        echo -en "\e[41mOne or more tests failed.  Please review these items.\e[0m\n"
+      ((FAIL++)); STATUS=2
+      printf '    %s\n' "${failed[@]}"
+      local IFS='|'; write_notification "Nameservers do not resolve to local IPs" "${failed[*]}"
     fi
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo -en "\e[1m${PASS} Tests PASSED\e[0m\n"
-    echo -en "\e[1m${WARN} WARNINGS\e[0m\n"
-    echo -en "\e[1m${FAIL} Tests FAILED\e[0m\n"
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    show_execution_time
-  }
-
-  check_services
-  start_login_section
-  check_new_logins
-  check_ssh_logins
-  check_resources_section
-  check_disk_usage
-  check_system_load
-  check_ram_usage
-  check_cpu_usage
-  check_swap_usage
-  check_dns_section
-  check_if_panel_domain_and_ns_resolve_to_server
-  summary
-  
+  else
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No nameservers configured; skipping NS check."
   fi
+}
+
+hr() { printf '%*s\n' "${COLUMNS:-80}" '' | tr ' ' '-'; }
+
+summary() {
+  hr
+  case $STATUS in
+    0) echo -e "\e[32mAll Tests Passed!\e[0m" ;;
+    1) echo -e "\e[93mSome non-critical tests failed.\e[0m" ;;
+    *) echo -e "\e[41mOne or more tests failed.\e[0m" ;;
+  esac
+  hr
+  echo -e "\e[1m${PASS} PASS  ${WARN} WARN  ${FAIL} FAIL\e[0m"
+  hr
+}
+
+case "$1" in
+  --startup) perform_startup_action; exit 0 ;;
+  --report)  email_daily_report;     exit 0 ;;
+esac
+
+exec 200>/root/sentinel_run.lock
+flock -n 200 || { echo "Error: Another instance is already running."; exit 1; }
+
+hr
+echo "  Sentinel - OpenPanel server health monitor"
+hr
+echo "Checking services:"
+check_services
+hr
+echo "Checking logins:"
+check_new_logins
+check_ssh_logins
+hr
+echo "Checking resources:"
+check_disk_usage
+check_system_load
+check_ram_usage
+check_cpu_usage
+check_swap_usage
+hr
+echo "Checking DNS:"
+check_if_panel_domain_and_ns_resolve_to_server
+summary
