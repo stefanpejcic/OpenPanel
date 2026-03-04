@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { translate } from "@docusaurus/Translate";
 import { LandingArrowRightIcon } from "./icons/landing-arrow-right";
 import { ShowcaseWrapper } from "../components/landing/showcase-wrapper";
 
@@ -34,7 +35,7 @@ const ShowcaseDevOps = ({ className }: { className?: string }) => {
     );
 };
 
-export const LandingHeroShowcaseSection = ({}) => {
+export const LandingHeroShowcaseSection = ({ }) => {
     const [activeApp, setActiveApp] = React.useState(apps[0]);
 
     const ShowcaseComponent = React.useMemo(() => {
@@ -141,13 +142,13 @@ export const LandingHeroShowcaseSection = ({}) => {
                                     "ease-in-out",
                                     "duration-150",
                                     activeApp.name !== app.name &&
-                                        "bg-transparent",
+                                    "bg-transparent",
                                     activeApp.name === app.name &&
-                                        "bg-gray-200 dark:bg-gray-700",
+                                    "bg-gray-200 dark:bg-gray-700",
                                     activeApp.name !== app.name &&
-                                        "text-gray-600 dark:text-gray-400",
+                                    "text-gray-600 dark:text-gray-400",
                                     activeApp.name === app.name &&
-                                        "text-gray-900 dark:text-gray-0",
+                                    "text-gray-900 dark:text-gray-0",
                                     "landing-sm:bg-transparent",
                                     "dark:landing-sm:bg-transparent",
                                     "transition-colors",
@@ -217,9 +218,9 @@ export const LandingHeroShowcaseSection = ({}) => {
                         "h-24",
                         "opacity-0",
                         activeApp.dark &&
-                            "bg-[linear-gradient(0deg,_#14141F_30%,_transparent_90%,_transparent_100%)]",
+                        "bg-[linear-gradient(0deg,_#14141F_30%,_transparent_90%,_transparent_100%)]",
                         !activeApp.dark &&
-                            "bg-[linear-gradient(0deg,_#FFFFFF_30%,_transparent_90%,_transparent_100%)]",
+                        "bg-[linear-gradient(0deg,_#FFFFFF_30%,_transparent_90%,_transparent_100%)]",
                         "rounded-bl-lg rounded-br-lg",
                         "landing-md:rounded-bl-xl landing-md:rounded-br-xl",
                         "landing-lg:rounded-bl-2xl landing-lg:rounded-br-2xl",
@@ -277,7 +278,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                                 "font-semibold",
                             )}
                         >
-                            {activeApp.label}
+                            {translate({ message: activeApp.label, id: `homepage.showcase.label.${activeApp.name}` })}
                         </span>
                         <LandingArrowRightIcon />
                     </a>
@@ -332,7 +333,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                             "font-semibold",
                         )}
                     >
-                        {activeApp.label}
+                        {translate({ message: activeApp.label, id: `homepage.showcase.label.${activeApp.name}` })}
                     </span>
                     <LandingArrowRightIcon />
                 </a>

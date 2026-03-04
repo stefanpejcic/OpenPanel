@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
+import { translate } from "@docusaurus/Translate";
 
 import { NavbarItemType } from "./constants";
 import { TwoTonedCloudIcon } from "../icons/popover";
@@ -42,21 +43,21 @@ export const NavbarItem: React.FC<NavbarItemProps> = ({ item }) => {
                 "no-underline",
                 item.label === "Hackathon"
                     ? [
-                          "py-1",
-                          "px-2",
-                          "rounded-lg",
-                          "bg-hackathon-button-bg",
-                          "animate-hackathon-button-bg",
-                          "bg-refine-bg",
-                          "text-gray-0",
-                          "bg-[length:200%_100%]",
-                          "text-[14px]",
-                          "hover:text-gray-0",
-                      ]
+                        "py-1",
+                        "px-2",
+                        "rounded-lg",
+                        "bg-hackathon-button-bg",
+                        "animate-hackathon-button-bg",
+                        "bg-refine-bg",
+                        "text-gray-0",
+                        "bg-[length:200%_100%]",
+                        "text-[14px]",
+                        "hover:text-gray-0",
+                    ]
                     : ["hover:text-gray-900 dark:hover:text-white"],
             )}
         >
-            {item.label}
+            {translate({ message: item.label, id: `menu.label.${item.label}` })}
             {item.icon && <Icon />}
         </Link>
     );

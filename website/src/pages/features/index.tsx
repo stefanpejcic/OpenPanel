@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React, { useMemo } from "react";
+import Translate from "@docusaurus/Translate";
 
 import IntegrationsLayout from "@site/src/components/integrations/layout";
 import { Integration } from "@site/src/types/integrations";
@@ -80,7 +81,7 @@ const Integrations: React.FC = () => {
                         "text-xl sm:text-[40px] sm:leading-[56px]",
                     )}
                 >
-		Not quite what you would expect from a Control Panel
+                    <Translate id="features.hero.title">Not quite what you would expect from a Control Panel</Translate>
                 </div>
                 <div
                     className={clsx(
@@ -90,7 +91,7 @@ const Integrations: React.FC = () => {
                         "mt-4 sm:mt-8",
                     )}
                 >
-					OpenPanel is arguebly the most customizable web hosting control panel.
+                    <Translate id="features.hero.subtitle.1">OpenPanel is arguebly the most customizable web hosting control panel.</Translate>
                 </div>
                 <div
                     className={clsx(
@@ -100,7 +101,7 @@ const Integrations: React.FC = () => {
                         "mt-2 sm:mt-4",
                     )}
                 >
-					Assign different mysql versions, web servers, and limits per user, let them run Docker containers, manage backups, schedule cron jobs in seconds, tweak configurations, and so much more.
+                    <Translate id="features.hero.subtitle.2">Assign different mysql versions, web servers, and limits per user, let them run Docker containers, manage backups, schedule cron jobs in seconds, tweak configurations, and so much more.</Translate>
                 </div>
             </div>
 
@@ -111,25 +112,25 @@ const Integrations: React.FC = () => {
                 )}
             />
 
-            <Title>Web server per user</Title>
+            <Title><Translate id="features.section.1">Web server per user</Translate></Title>
             <List data={uiPackages} />
 
-            <Title className="mt-20">All the classic features</Title>
+            <Title className="mt-20"><Translate id="features.section.2">All the classic features</Translate></Title>
             <List data={dataProviderPackages} />
 
-            <Title className="mt-20">Smarter srver management</Title>
+            <Title className="mt-20"><Translate id="features.section.3">Smarter srver management</Translate></Title>
             <List data={communityDataProviderPackages} />
 
-            <Title className="mt-20">No BS user interface</Title>
+            <Title className="mt-20"><Translate id="features.section.4">No BS user interface</Translate></Title>
             <List data={frameworks} />
 
-            <Title className="mt-20">Manage users easily</Title>
+            <Title className="mt-20"><Translate id="features.section.5">Manage users easily</Translate></Title>
             <List data={integrations} />
 
-            <Title className="mt-20">Built-in isolation and security</Title>
+            <Title className="mt-20"><Translate id="features.section.6">Built-in isolation and security</Translate></Title>
             <List data={liveProviders} />
 
-            <Title className="mt-20">Integrate your billing panel</Title>
+            <Title className="mt-20"><Translate id="features.section.7">Integrate your billing panel</Translate></Title>
             <List data={communityPackages} />
         </IntegrationsLayout>
     );

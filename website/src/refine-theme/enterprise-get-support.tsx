@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import { ClockIcon } from "./icons/clock";
 import { SlackIcon } from "../assets/integration-icons";
 import { CommonThemedImage } from "./common-themed-image";
@@ -15,7 +16,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
             >
                 <h3 className={clsx("mt-4 landing-sm:mt-10")}>
                     <span className={clsx("dark:text-gray-0 text-gray-900")}>
-                        c*anel and P*esk{" "}
+                        <Translate id="enterprise.get_support.alternative.prefix">c*anel and P*esk </Translate>
                     </span>
                     <span
                         className={clsx(
@@ -24,7 +25,7 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        Alternative
+                        <Translate id="enterprise.get_support.alternative.suffix">Alternative</Translate>
                     </span>
                     .
                 </h3>
@@ -69,7 +70,9 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            Priority support
+                            <Translate id="enterprise.get_support.priority_support.title">
+                                Priority support
+                            </Translate>
                         </h2>
                         <p
                             className={clsx(
@@ -77,8 +80,10 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Exclusive technical support with SLA, provided by
-                            OpenPanel core team members.
+                            <Translate id="enterprise.get_support.priority_support.desc">
+                                Exclusive technical support with SLA, provided by
+                                OpenPanel core team members.
+                            </Translate>
                         </p>
                         <div
                             className={clsx(
@@ -100,7 +105,11 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 )}
                             >
                                 <SlackIcon />
-                                <div>Private Slack channel</div>
+                                <div>
+                                    <Translate id="enterprise.get_support.priority_support.slack">
+                                        Private Slack channel
+                                    </Translate>
+                                </div>
                             </div>
                             <div
                                 style={{
@@ -120,7 +129,11 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                         "dark:text-refine-blue-alt text-refine-blue",
                                     )}
                                 />
-                                <div>24 Hours First response time</div>
+                                <div>
+                                    <Translate id="enterprise.get_support.priority_support.response_time">
+                                        24 Hours First response time
+                                    </Translate>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -160,7 +173,9 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            Premium Features
+                            <Translate id="enterprise.get_support.premium_features.title">
+                                Premium Features
+                            </Translate>
                         </h2>
                         <p
                             className={clsx(
@@ -168,7 +183,9 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Premium features for your hosting business: Emails, FTP, Docker, OpenLitespeed, Varnish Caching, and much more.
+                            <Translate id="enterprise.get_support.premium_features.desc">
+                                Premium features for your hosting business: Emails, FTP, Docker, OpenLitespeed, Varnish Caching, and much more.
+                            </Translate>
                         </p>
                     </div>
                 </div>

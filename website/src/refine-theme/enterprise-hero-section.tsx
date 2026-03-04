@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
 import { CommonThemedImage } from "./common-themed-image";
 
@@ -49,7 +50,9 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.{" "}
+                    <Translate id="enterprise.hero.description">
+                        OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.
+                    </Translate>
                 </p>
                 <EnterpriseGetInTouchButton
                     className={clsx(

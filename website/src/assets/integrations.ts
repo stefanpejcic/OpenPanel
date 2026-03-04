@@ -1,3 +1,4 @@
+import { translate } from '@docusaurus/Translate';
 import { IntegrationsType } from "../types/integrations";
 import {
     Search,
@@ -51,405 +52,360 @@ import {
 export const integrations: IntegrationsType = {
     "ui-framework-packages": [
         {
-            name: "Apache",
+            name: translate({ message: "Apache", id: "features.item.apache" }),
             icon: Apache,
-            description:
-                "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.",
+            description: translate({ message: "Run Apache web server per user. Apache's support for .htaccess files enables users to customize and override global configuration settings on a per-directory basis.", id: "features.item.run_apache_web_serve" }),
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#apache",
             status: "stable",
         },
         {
-            name: "Nginx",
+            name: translate({ message: "Nginx", id: "features.item.nginx" }),
             icon: Nginx,
-            description:
-                "Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.",
+            description: translate({ message: "Nginx web server is a lightweight, open-source solution. The OpenPanel version of the Nginx web server enables configuration of cache exclusion, cache purging, URL rewriting, and FastCGI cache on a per-domain basis.", id: "features.item.nginx_web_server_is" }),
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#nginx",
             status: "stable",
         },
         {
-            name: "OpenResty",
+            name: translate({ message: "OpenResty", id: "features.item.openresty" }),
             icon: Nginx,
-            description:
-                "OpenResty allows per-user customization by defining user-specific location blocks or dynamic Lua logic in the main config. Configuration is centralized and preloaded for performance ",
+            description: translate({ message: "OpenResty allows per-user customization by defining user-specific location blocks or dynamic Lua logic in the main config. Configuration is centralized and preloaded for performance ", id: "features.item.openresty_allows_per" }),
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openresty",
             status: "stable",
         },
         {
-            name: "OpenLiteSpeed",
+            name: translate({ message: "OpenLiteSpeed", id: "features.item.openlitespeed" }),
             icon: Apache,
-            description:
-                "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.",
+            description: translate({ message: "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.", id: "features.item.openlitespeed_is_a_h" }),
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openlitespeed",
             status: "stable",
         },
         {
-            name: "Varnish",
+            name: translate({ message: "Varnish", id: "features.item.varnish" }),
             icon: Nginx,
-            description:
-                "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
+            description: translate({ message: "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.", id: "features.item.varnish_is_a_powerfu" }),
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
          },
     ],
     "data-provider-packages": [
         {
-            name: "Domain Names",
+            name: translate({ message: "Domain Names", id: "features.item.domain_names" }),
             icon: Domain,
-            description:
-                "Add domain names with automatic SSL renewals, include aliases and subdomains (Internationalized domains are supported), create redirects, enforce HTTPS, and edit vhost files.",
+            description: translate({ message: "Add domain names with automatic SSL renewals, include aliases and subdomains (Internationalized domains are supported), create redirects, enforce HTTPS, and edit vhost files.", id: "features.item.add_domain_names_wit" }),
             url: "/docs/panel/domains/",
             status: "stable",
         },
         {
-            name: "File Manager",
+            name: translate({ message: "File Manager", id: "features.item.file_manager" }),
             icon: Folder,
-            description:
-                "Effortlessly upload multiple files simultaneously without any upload limits. Edit files, adjust permissions, copy or move files, add new files, and perform various file management tasks.",
+            description: translate({ message: "Effortlessly upload multiple files simultaneously without any upload limits. Edit files, adjust permissions, copy or move files, add new files, and perform various file management tasks.", id: "features.item.effortlessly_upload" }),
             url: "/docs/panel/files/",
             status: "stable",
         },
         {
-            name: "PHP versions",
+            name: translate({ message: "PHP versions", id: "features.item.php_versions" }),
             icon: PHP,
-            description:
-                "Users can use different PHP versions for each domain, run multiple versions, set a default version for new domains, change limits by editing php.ini files.",
+            description: translate({ message: "Users can use different PHP versions for each domain, run multiple versions, set a default version for new domains, change limits by editing php.ini files.", id: "features.item.users_can_use_differ" }),
             url: "/docs/panel/php/domains/",
             status: "stable",
         },
         {
-            name: "NodeJS and Python",
+            name: translate({ message: "NodeJS and Python", id: "features.item.nodejs_and_python" }),
             icon: Python,
-            description:
-                "Effortlessly create and manage containerized NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
+            description: translate({ message: "Effortlessly create and manage containerized NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.", id: "features.item.effortlessly_create" }),
             url: "/docs/panel/applications/pm2/",
             status: "stable",
         },
         {
-            name: "WP Manager",
+            name: translate({ message: "WP Manager", id: "features.item.wp_manager" }),
             icon: WP,
-            description: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.",
+            description: translate({ message: "Automatic WordPress installer with features like auto-login to wp-admin, option editing, on-demand backup, debugging, and a variety of additional functionalities.", id: "features.item.automatic_wordpress" }),
             url: "/docs/panel/applications/wordpress/",
             status: "stable",
         },
         {
-            name: "MySQL and phpMyAdmin",
+            name: translate({ message: "MySQL and phpMyAdmin", id: "features.item.mysql_and_phpmyadmin" }),
             icon: MySQL,
-            description:
-                "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.",
+            description: translate({ message: "Create and manage MySQL databases and users easily. Automatically log in to phpMyAdmin, enable remote MySQL access, and adjust configuration settings with desired limits.", id: "features.item.create_and_manage_my" }),
             url: "/docs/panel/mysql/databases/",
             status: "stable",
         },
         {
-            name: "SSL certificates",
+            name: translate({ message: "SSL certificates", id: "features.item.ssl_certificates" }),
             icon: SSL,
-            description:
-                "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates.",
+            description: translate({ message: "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates.", id: "features.item.automatic_ssl_genera" }),
             url: "/docs/panel/domains/SSL/",
             status: "stable",
         },
         {
-            name: "Object Caching",
+            name: translate({ message: "Object Caching", id: "features.item.object_caching" }),
             icon: Cache,
-            description:
-                "Implement object caching using dedicated REDIS and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.",
+            description: translate({ message: "Implement object caching using dedicated REDIS and Memcached instances. Set memory limits, start/stop services, and view logs efficiently.", id: "features.item.implement_object_cac" }),
             url: "/docs/panel/caching/",
             status: "stable",
         },
         {
-            name: "Web Terminal",
+            name: translate({ message: "Web Terminal", id: "features.item.web_terminal" }),
             icon: Terminal,
-            description:
-                "Run commands inside Docker containers easily with WebTerminal — a simple interface to access and manage containers directly from your browser.",
+            description: translate({ message: "Run commands inside Docker containers easily with WebTerminal — a simple interface to access and manage containers directly from your browser.", id: "features.item.run_commands_inside" }),
             url: "/docs/panel/containers/terminal/",
             status: "stable",
         },
         {
-            name: "Server settings",
+            name: translate({ message: "Server settings", id: "features.item.server_settings" }),
             icon: Configuration,
-            description:
-                "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.",
+            description: translate({ message: "Each user has complete control over their server configuration, enabling them to install or restart services, edit system configurations, and perform various other administrative tasks.", id: "features.item.each_user_has_comple" }),
             url: "/docs/panel/advanced/webserver_settings/",
             status: "stable",
         },
         {
-            name: "Cron Jobs",
+            name: translate({ message: "Cron Jobs", id: "features.item.cron_jobs" }),
             icon: CronJobs,
-            description:
-                "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.",
+            description: translate({ message: "Schedule and edit cronjobs directly from the OpenPanel interface to efficiently plan and manage scheduled actions.", id: "features.item.schedule_and_edit_cr" }),
             url: "/docs/panel/advanced/cronjobs/",
             status: "stable",
         },
         {
-            name: "DNS Zone Editor",
+            name: translate({ message: "DNS Zone Editor", id: "features.item.dns_zone_editor" }),
             icon: DNS,
-            description:
-                "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.",
+            description: translate({ message: "Easily edit DNS zone files for your domains and add various records such as A, AAAA, CNAME, MX, TXT, etc., through the OpenPanel interface.", id: "features.item.easily_edit_dns_zone" }),
             url: "/docs/panel/domains/dns/",
             status: "stable",
         },
         {
-            name: "Resource usage",
+            name: translate({ message: "Resource usage", id: "features.item.resource_usage" }),
             icon: Usage,
-            description:
-                "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.",
+            description: translate({ message: "Monitor real-time CPU and memory usage, check historical trends, and adjust server configuration as needed to optimize performance.", id: "features.item.monitor_real_time_cp" }),
             url: "/docs/panel/advanced/resource_usage/",
             status: "stable",
         },
         {
-            name: "Visitor reports",
+            name: translate({ message: "Visitor reports", id: "features.item.visitor_reports" }),
             icon: Visitors,
-            description:
-                "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.",
+            description: translate({ message: "Access automatically generated, visually appealing visitor reports from your website's access logs. Explore visitor locations, accessed pages, IPs, error pages, and more with ease.", id: "features.item.access_automatically" }),
             url: "/docs/panel/domains/goaccess/",
             status: "stable",
         },
         {
-            name: "Activity logs",
+            name: translate({ message: "Activity logs", id: "features.item.activity_logs" }),
             icon: Activity,
-            description:
-                "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.",
+            description: translate({ message: "Every action in the OpenPanel interface is recorded, allowing users to easily track who did what and when, eliminating the need to sift through server logs.", id: "features.item.every_action_in_the" }),
             url: "/docs/panel/account/account_activity/",
             status: "stable",
         },
         {
-            name: "Account settings",
+            name: translate({ message: "Account settings", id: "features.item.account_settings" }),
             icon: AccountCog,
-            description:
-                "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.",
+            description: translate({ message: "Users can change their email address and password, enable 2FA, adjust language preferences, and activate dark mode for a personalized experience.", id: "features.item.users_can_change_the" }),
             url: "/docs/panel/account/",
             status: "stable",
         },
     ],
     "community-data-provider-packages": [
         {
-            name: "Simple server deployment",
+            name: translate({ message: "Simple server deployment", id: "features.item.simple_server_deploy" }),
             icon: Download,
-            description:
-                "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.",
+            description: translate({ message: "Install OpenPanel in minutes. Provision new servers to your cluster with a single command.", id: "features.item.install_openpanel_in" }),
             url: "/docs/admin/intro/#installation",
             status: "stable",
         },
         {
-            name: "Resource usage management",
+            name: translate({ message: "Resource usage management", id: "features.item.resource_usage_manag" }),
             icon: CPU,
-            description: "Limit the CPU, I/O bandwidth, IOPS, nproc and memory on a per-user basis to ensure consistent performance for all your hosted websites.",
+            description: translate({ message: "Limit the CPU, I/O bandwidth, IOPS, nproc and memory on a per-user basis to ensure consistent performance for all your hosted websites.", id: "features.item.limit_the_cpu__i_o_b" }),
             url: "/",
             status: "stable",
         },
         {
-            name: "Switch web servers",
+            name: translate({ message: "Switch web servers", id: "features.item.switch_web_servers" }),
             icon: Bolt,
-            description:
-                "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, OpenLitespeed, OpenResty.",
+            description: translate({ message: "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, OpenLitespeed, OpenResty.", id: "features.item.with_the_docker_modu" }),
             url: "/docs/panel/containers/webserver/",
             status: "stable",
         },
         {
-            name: "Edit configuration",
+            name: translate({ message: "Edit configuration", id: "features.item.edit_configuration" }),
             icon: Configuration,
-            description:
-                "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.",
+            description: translate({ message: "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.", id: "features.item.administrators_have" }),
             url: "/docs/category/settings/",
             status: "stable",
         },
         {
-            name: "Resource usage statistics",
+            name: translate({ message: "Resource usage statistics", id: "features.item.resource_usage_stati" }),
             icon: Usage,
-            description:
-                "Monitor CPU, Memory usage, Network, Disk and load with real time monitoring.",
+            description: translate({ message: "Monitor CPU, Memory usage, Network, Disk and load with real time monitoring.", id: "features.item.monitor_cpu__memory" }),
             url: "/docs/admin/dashboard/#sse-usage",
             status: "stable",
         },
         {
-            name: "Service management",
+            name: translate({ message: "Service management", id: "features.item.service_management" }),
             icon: Services,
-            description:
-                "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.",
+            description: translate({ message: "Monitor services, initiate restarts, view logs, and perform additional management tasks efficiently from the admin interface.", id: "features.item.monitor_services__in" }),
             url: "/docs/admin/services/status/",
             status: "stable",
         },
         {
-            name: "Smart Notifications",
+            name: translate({ message: "Smart Notifications", id: "features.item.smart_notifications" }),
             icon: Notifications,
-            description:
-                "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
+            description: translate({ message: "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.", id: "features.item.receive_notification" }),
             url: "/docs/admin/notifications/",
             status: "stable",
         },
         {
-            name: "Terminal Commands",
+            name: translate({ message: "Terminal Commands", id: "features.item.terminal_commands" }),
             icon: Terminal,
-            description:
-                "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.",
+            description: translate({ message: "OpenCLI serves as the terminal interface for Administrators, allowing automation of diverse OpenPanel settings with access to over 100 available commands.", id: "features.item.opencli_serves_as_th" }),
             url: "https://dev.openpanel.com/cli/commands.html",
             status: "stable",
         },
     ],
     frameworks: [
         {
-            name: "Branding",
+            name: translate({ message: "Branding", id: "features.item.branding" }),
             icon: Branding,
-            description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
+            description: translate({ message: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.", id: "features.item.fully_customise_the" }),
             url: "/docs/admin/settings/openpanel/#branding",
             status: "stable",
         },
         {
-            name: "Fully responsive",
+            name: translate({ message: "Fully responsive", id: "features.item.fully_responsive" }),
             icon: Responsive,
-            description:
-                "Access OpenPanel on desktop, tablet and mobile without any feature limitations.",
+            description: translate({ message: "Access OpenPanel on desktop, tablet and mobile without any feature limitations.", id: "features.item.access_openpanel_on" }),
             url: "",
             status: "stable",
         },
         {
-            name: "Dark Mode",
+            name: translate({ message: "Dark Mode", id: "features.item.dark_mode" }),
             icon: Dark,
-            description:
-                "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.",
+            description: translate({ message: "OpenPanel features a built-in dark mode that users can activate with a single click directly from the interface, enhancing user experience.", id: "features.item.openpanel_features_a" }),
             url: "/docs/panel/dashboard/dark-mode/",
             status: "stable",
         },
         {
-            name: "Server Info",
+            name: translate({ message: "Server Info", id: "features.item.server_info" }),
             icon: ServerInfo,
-            description:
-                "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.",
+            description: translate({ message: "View real-time usage data, IP address, nameservers, and other important server information directly within the OpenPanel interface.", id: "features.item.view_real_time_usage" }),
             url: "/docs/panel/advanced/server_info/",
             status: "stable",
         },
         {
-            name: "Advanced Search",
+            name: translate({ message: "Advanced Search", id: "features.item.advanced_search" }),
             icon: Search,
-            description:
-                "Quickly and easily find what you are looking for with a powerful search functionality.",
+            description: translate({ message: "Quickly and easily find what you are looking for with a powerful search functionality.", id: "features.item.quickly_and_easily_f" }),
             url: "/docs/panel/dashboard",
             status: "stable",
         },
         {
-            name: "Multi-language support",
+            name: translate({ message: "Multi-language support", id: "features.item.multi_language_suppo" }),
             icon: Languages,
-            description:
-                "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.",
+            description: translate({ message: "OpenPanel is translation ready. Each login can view OpenPanel in their preferred language.", id: "features.item.openpanel_is_transla" }),
             url: "https://dev.openpanel.com/localization.html",
             status: "stable",
         },
         {
-            name: "Keyboard Shortcuts",
+            name: translate({ message: "Keyboard Shortcuts", id: "features.item.keyboard_shortcuts" }),
             icon: Keyboard,
-            description:
-                "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.",
+            description: translate({ message: "OpenPanel was designed with a focus on advanced users, offering over 20 keyboard shortcuts to enhance your navigation speed through the interface.", id: "features.item.openpanel_was_design" }),
             url: "/docs/articles/dev-experience/openadmin-keyboard-shortcuts/",
             status: "stable",
         },
     ],
     integrations: [
         {
-            name: "Suspend / Delete accounts",
+            name: translate({ message: "Suspend / Delete accounts", id: "features.item.suspend___delete_acc" }),
             icon: Suspend,
-            description:
-                "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.",
+            description: translate({ message: "Suspend customer accounts to instantly disable their OpenPanel access and websites. Delete accounts when they are no longer required.", id: "features.item.suspend_customer_acc" }),
             url: "/docs/admin/accounts/users/#suspend",
             status: "stable",
         },
         {
-            name: "Upgrade / Downgrade package",
+            name: translate({ message: "Upgrade / Downgrade package", id: "features.item.upgrade___downgrade" }),
             icon: Upgrade,
-            description:
-                "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.",
+            description: translate({ message: "Seamlessly upgrade or downgrade a customer's package to another of your hosting packages.", id: "features.item.seamlessly_upgrade_o" }),
             url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
         {
-            name: "Dedicated IP address",
+            name: translate({ message: "Dedicated IP address", id: "features.item.dedicated_ip_address" }),
             icon: UserIP,
-            description:
-                "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
+            description: translate({ message: "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.", id: "features.item.allocate_an_ipv4_add" }),
             url: "/docs/admin/accounts/users/#edit",
             status: "stable",
         },
         {
-            name: "Impersonation",
+            name: translate({ message: "Impersonation", id: "features.item.impersonation" }),
             icon: UserLogin,
-            description: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.",
+            description: translate({ message: "Auto-login to access a customer's account and see exactly what they see without having to leave your account.", id: "features.item.auto_login_to_access" }),
             url: "/docs/admin/accounts/users/#statistics",
             status: "stable",
         },
         {
-            name: "Webserver per user",
+            name: translate({ message: "Webserver per user", id: "features.item.webserver_per_user" }),
             icon: UserServer,
-            description:
-                "Administrators can select Apache, Nginx, OpenResty or OpenLitespeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.",
+            description: translate({ message: "Administrators can select Apache, Nginx, OpenResty or OpenLitespeed as the default web server for new users. This flexibility allows admins to accommodate a mix of users utilizing Apache and others using Nginx, all within the same server.", id: "features.item.administrators_can_s" }),
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
             status: "stable",
         },
         {
-            name: "Database server per user",
+            name: translate({ message: "Database server per user", id: "features.item.database_server_per" }),
             icon: UserServer,
-            description:
-                "Administrators can select either MySQL, Percona or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.",
+            description: translate({ message: "Administrators can select either MySQL, Percona or MariaDB as the mysql server for each user. This flexibility allows admins to accommodate a mix of users utilizing MySQL and others using MariaDB, all within the same server.", id: "features.item.administrators_can_s" }),
             url: "/docs/articles/docker/how-to-set-mysql-mariadb-per-user-in-openpanel/",
             status: "stable",
         },
     ],
     "live-providers": [
         {
-            name: "Containerized services",
+            name: translate({ message: "Containerized services", id: "features.item.containerized_servic" }),
             icon: Box,
-            description:
-                "Every user service is containerised. Containers have no access to other users or server files.",
+            description: translate({ message: "Every user service is containerised. Containers have no access to other users or server files.", id: "features.item.every_user_service_i" }),
             url: "/docs/panel/intro/",
             status: "stable",
         },
         {
-            name: "Resource limiting",
+            name: translate({ message: "Resource limiting", id: "features.item.resource_limiting" }),
             icon: CPU,
-            description:
-                "Administrators have the ability to set specific limits per plan, including port speed, disk usage, inodes, the number of websites, MySQL databases, and domains.",
+            description: translate({ message: "Administrators have the ability to set specific limits per plan, including port speed, disk usage, inodes, the number of websites, MySQL databases, and domains.", id: "features.item.administrators_have" }),
             url: "/docs/admin/plans/hosting_plans/#create-a-plan",
             status: "stable",
         },
         {
-            name: "SSL / TLS",
+            name: translate({ message: "SSL / TLS", id: "features.item.ssl___tls" }),
             icon: SSL,
-            description:
-                "Automatically provision and renewal of Let's Encrypt certificates.",
+            description: translate({ message: "Automatically provision and renewal of Let's Encrypt certificates.", id: "features.item.automatically_provis" }),
             url: "/docs/panel/domains/ssl/",
             status: "stable",
         },
         {
-            name: "CorazaWAF",
+            name: translate({ message: "CorazaWAF", id: "features.item.corazawaf" }),
             icon: ModSec,
-            description:
-                "Administrators can activate CorazaWAF with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable WAF per domain or disable certain rules.",
+            description: translate({ message: "Administrators can activate CorazaWAF with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable WAF per domain or disable certain rules.", id: "features.item.administrators_can_a" }),
             url: "/docs/admin/security/waf/",
             status: "stable",
         },
         {
-            name: "Firewall",
+            name: translate({ message: "Firewall", id: "features.item.firewall" }),
             icon: Firewall,
-            description:
-                "Administrators can manage Sentinel - a fork of the ConfigServer Security & Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.",
+            description: translate({ message: "Administrators can manage Sentinel - a fork of the ConfigServer Security & Firewall (CSF) directly from the admin interface. Only needed ports are open for users, and administrators have full control over them.", id: "features.item.administrators_can_m" }),
             url: "/docs/admin/security/firewall/",
             status: "stable",
         },
         {
-            name: "ImunifyAV",
+            name: translate({ message: "ImunifyAV", id: "features.item.imunifyav" }),
             icon: Services,
-            description:
-                "OpenAdmin fully supports ImunifyAV.",
+            description: translate({ message: "OpenAdmin fully supports ImunifyAV.", id: "features.item.openadmin_fully_supp" }),
             url: "/docs/admin/security/imunify/",
             status: "stable",
         },
         {
-            name: "Two-Factor Authentication",
+            name: translate({ message: "Two-Factor Authentication", id: "features.item.two_factor_authentic" }),
             icon: Factor,
-            description:
-                "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.",
+            description: translate({ message: "Users can enhance security by enabling Two-Factor Authentication for their OpenPanel account. Administrators have the flexibility to enforce or disable 2FA for any user.", id: "features.item.users_can_enhance_se" }),
             url: "/docs/panel/account/2fa/",
             status: "stable",
         },
        // {
-       //     name: "Shell access DEPRECATED",
+       //     name: translate({ message: "Shell access DEPRECATED", id: "features.item.shell_access_depreca" }),
        //     icon: Terminal,
        //     description:
        //         "End users are restricted from root-level access to their container. Additionally, to increase security, all services within a user's container operate under distinct user accounts.",
@@ -457,7 +413,7 @@ export const integrations: IntegrationsType = {
        //     status: "stable",
        // }, 
        // {
-       //     name: "IP blocking DEPRECATED",
+       //     name: translate({ message: "IP blocking DEPRECATED", id: "features.item.ip_blocking_deprecat" }),
        //     icon: IPblock,
        //     description:
        //         "Each user has the capability to configure a domain-specific IP block list, providing a personalized means to restrict access to websites by blocking specific IP addresses.",
@@ -465,57 +421,53 @@ export const integrations: IntegrationsType = {
        //    status: "stable",
        // },
         {
-            name: "Disable admin panel",
+            name: translate({ message: "Disable admin panel", id: "features.item.disable_admin_panel" }),
             icon: AdminOff,
-            description:
-                "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.",
+            description: translate({ message: "Administrators can effortlessly disable the OpenAdmin interface with a single click, while preserving the core functionality of OpenPanel.", id: "features.item.administrators_can_e" }),
             url: "/docs/admin/security/disable-admin/",
             status: "stable",
         },
         {
-            name: "Separate services",
+            name: translate({ message: "Separate services", id: "features.item.separate_services" }),
             icon: Separate,
-            description:
-                "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.",
+            description: translate({ message: "Both OpenAdmin and OpenPanel employ separate databases and webservers, maintaining full independence from user websites.", id: "features.item.both_openadmin_and_o" }),
             url: "",
             status: "stable",
         },
         {
-            name: "Custom ports",
+            name: translate({ message: "Custom ports", id: "features.item.custom_ports" }),
             icon: Ports,
-            description:
-                "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
+            description: translate({ message: "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.", id: "features.item.administrators_have" }),
             url: "/docs/admin/settings/openpanel/",
             status: "stable",
         },
     ],
     "community-packages": [
         {
-            name: "WHMCS",
+            name: translate({ message: "WHMCS", id: "features.item.whmcs" }),
             icon: WHMCS,
-            description: "Integrate with the leading web hosting management and billing software.",
+            description: translate({ message: "Integrate with the leading web hosting management and billing software.", id: "features.item.integrate_with_the_l" }),
             url: "/docs/articles/extensions/openpanel-and-whmcs/",
             status: "stable",
         },
         {
-            name: "Blesta",
+            name: translate({ message: "Blesta", id: "features.item.blesta" }),
             icon: WHMCS,
-            description: "Provision OpenPanel accounts from blesta.",
+            description: translate({ message: "Provision OpenPanel accounts from blesta.", id: "features.item.provision_openpanel" }),
             url: "https://blesta.club/extensions/openpanel",
             status: "stable",
         },
         {
-            name: "FOSSBilling",
+            name: translate({ message: "FOSSBilling", id: "features.item.fossbilling" }),
             icon: WHMCS,
-            description: "Provision OpenPanel accounts from FOSSBilling software.",
+            description: translate({ message: "Provision OpenPanel accounts from FOSSBilling software.", id: "features.item.provision_openpanel" }),
             url: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/",
             status: "stable",
         },        
         {
-            name: "API",
+            name: translate({ message: "API", id: "features.item.api" }),
             icon: API,
-            description:
-                "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
+            description: translate({ message: "OpenAdmin API allows you to integrate with 3rd party systems you already use.", id: "features.item.openadmin_api_allows" }),
             url: "https://dev.openpanel.com/openadmin-api/",
             status: "stable",
         },

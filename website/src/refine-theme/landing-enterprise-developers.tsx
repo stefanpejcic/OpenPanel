@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React, { FC } from "react";
+import Translate from "@docusaurus/Translate";
 import {
     AccessControlIcon,
     BlackBoxIcon,
@@ -14,39 +15,39 @@ import { LandingSectionCtaButtonAlt } from "./landing-section-cta-button";
 const list = [
     {
         icon: <SelfHostedIcon />,
-        title: "Limit resource usage",
+        title: <Translate id="homepage.enterprise.list.1.title">Limit resource usage</Translate>,
         description:
-            "Restrict the number of websites, domains, or databases, while enforcing hard limits on CPU, memory, port speed, disk usage, and inodes.",
+            <Translate id="homepage.enterprise.list.1.desc">Restrict the number of websites, domains, or databases, while enforcing hard limits on CPU, memory, port speed, disk usage, and inodes.</Translate>,
     },
     {
         icon: <IdentityIcon />,
-        title: "Manage users and websites",
+        title: <Translate id="homepage.enterprise.list.2.title">Manage users and websites</Translate>,
         description:
-            "Assign administrative or user roles, manage permissions, restrict access to features, and more.",
+            <Translate id="homepage.enterprise.list.2.desc">Assign administrative or user roles, manage permissions, restrict access to features, and more.</Translate>,
     },
     {
         icon: <AccessControlIcon />,
-        title: "Secure by default",
+        title: <Translate id="homepage.enterprise.list.3.title">Secure by default</Translate>,
         description:
-            "Enable Two Factor authentification, block IP addresses per domain, control remote MySQL access and SSH access.",
+            <Translate id="homepage.enterprise.list.3.desc">Enable Two Factor authentification, block IP addresses per domain, control remote MySQL access and SSH access.</Translate>,
     },
     {
         icon: <BlackBoxIcon />,
-        title: "Match your brand",
+        title: <Translate id="homepage.enterprise.list.4.title">Match your brand</Translate>,
         description:
-            "Incorporate your brand colors, limit features, configure nameservers, and more.",
+            <Translate id="homepage.enterprise.list.4.desc">Incorporate your brand colors, limit features, configure nameservers, and more.</Translate>,
     },
     {
         icon: <MonitorIcon />,
-        title: "Monitor your server and users",
+        title: <Translate id="homepage.enterprise.list.5.title">Monitor your server and users</Translate>,
         description:
-            "Built-in features include logging user activity, visualizing website visitors, and analyzing resource usage.",
+            <Translate id="homepage.enterprise.list.5.desc">Built-in features include logging user activity, visualizing website visitors, and analyzing resource usage.</Translate>,
     },
     {
         icon: <SupportIcon />,
-        title: "Get supported by the experts",
+        title: <Translate id="homepage.enterprise.list.6.title">Get supported by the experts</Translate>,
         description:
-            "Enroll in plans that provide priority support, trainings and consulting.",
+            <Translate id="homepage.enterprise.list.6.desc">Enroll in plans that provide priority support, trainings and consulting.</Translate>,
     },
 ];
 
@@ -69,20 +70,26 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
                         "dark:text-gray-0 text-gray-900",
                     )}
                 >
-                    Hosting providers{" "}
-                    <span className="font-sans text-[#FE251B] drop-shadow-[0_0_30px_rgba(254,37,27,0.3)]">
-                        ❤️
-                    </span>{" "}
-                    <span
-                        className={clsx(
-                            "font-semibold",
-                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                            "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
-                        )}
-                    >
-                        OpenPanel
-                    </span>
-                    .
+                    <Translate id="homepage.enterprise.title" values={{
+                        openpanel: (
+                            <span
+                                className={clsx(
+                                    "font-semibold",
+                                    "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
+                                    "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
+                                )}
+                            >
+                                OpenPanel
+                            </span>
+                        ),
+                        heart: (
+                            <span className="font-sans text-[#FE251B] drop-shadow-[0_0_30px_rgba(254,37,27,0.3)]">
+                                ❤️
+                            </span>
+                        )
+                    }}>
+                        {"Hosting providers {heart} {openpanel}."}
+                    </Translate>
                 </h2>
                 <p
                     className={clsx(
@@ -92,12 +99,15 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    OpenPanel is designed to target the specific pain points of
-                    larger hosting providers by giving top priority to{" "}
-                    <span className="font-semibold text-gray-900 dark:text-gray-0">
-                        security
-                    </span>
-                    .
+                    <Translate id="homepage.enterprise.desc" values={{
+                        security: (
+                            <span className="font-semibold text-gray-900 dark:text-gray-0">
+                                <Translate id="homepage.enterprise.security">security</Translate>
+                            </span>
+                        )
+                    }}>
+                        {"OpenPanel is designed to target the specific pain points of larger hosting providers by giving top priority to {security}."}
+                    </Translate>
                 </p>
             </div>
 
@@ -152,7 +162,7 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
             </div>
 
             <LandingSectionCtaButtonAlt to="/features">
-                View all features
+                <Translate id="homepage.enterprise.cta">View all features</Translate>
             </LandingSectionCtaButtonAlt>
         </div>
     );

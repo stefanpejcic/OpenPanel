@@ -1,23 +1,20 @@
 import React from "react";
 import clsx from "clsx";
-import { LandingPureReactCode } from "./landing-pure-react-code";
+import Translate from "@docusaurus/Translate";
 import { CommonThemedImage } from "./common-themed-image";
+import { LandingPureReactCode } from "./landing-pure-react-code";
 
-export const EnterpriseFlexibility = ({
-    className,
-}: {
-    className?: string;
-}) => {
+export const EnterpriseFlexibility = ({ className }: { className?: string }) => {
     return (
         <div className={clsx("flex flex-col", "not-prose", className)}>
             <div
                 className={clsx(
-                    "pl-4 landing-sm:pl-6 landing-md:pl-10",
                     "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
+                    "pl-4 landing-sm:pl-6 landing-md:pl-10",
                 )}
             >
                 <h2 className={clsx("dark:text-gray-0 text-gray-900")}>
-                    Build with unmatched{" "}
+                    <Translate id="enterprise.flexibility.title">Build with unmatched </Translate>
                     <span
                         className={clsx(
                             "font-semibold",
@@ -25,23 +22,60 @@ export const EnterpriseFlexibility = ({
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        flexibility
+                        <Translate id="enterprise.flexibility.flexibility">flexibility</Translate>
                     </span>
                     .
                 </h2>
             </div>
+
             <div
                 className={clsx(
+                    "mt-8 landing-sm:mt-12 landing-md:mt-20",
                     "grid",
                     "grid-cols-1 landing-md:grid-cols-2",
                     "gap-8 landing-md:gap-12 landing-lg:gap-6",
-                    "mt-8 landing-md:mt-20",
                 )}
             >
-                <LandingPureReactCode
-                    description={`Don’t settle for overpriced and outdated hosting panels. With OpenPanel, you maintain 100% control over your server and data at all times.`}
-                    cta={false}
-                />
+                <div
+                    className={clsx(
+                        "flex flex-col",
+                        "dark:bg-landing-noise",
+                        "dark:bg-gray-800 bg-gray-50",
+                        "rounded-2xl landing-sm:rounded-3xl",
+                    )}
+                >
+                    <div className={clsx("p-2 landing-sm:p-4")}>
+                        <div
+                            className={clsx(
+                                "flex",
+                                "items-center",
+                                "justify-center",
+                                "dark:bg-gray-900 bg-gray-0",
+                                "rounded-xl landing-sm:rounded-2xl",
+                                "overflow-hidden",
+                            )}
+                        >
+                            <LandingPureReactCode />
+                        </div>
+                    </div>
+                    <div
+                        className={clsx(
+                            "flex flex-col",
+                            "gap-2 landing-sm:gap-4",
+                            "p-4 landing-sm:p-10",
+                        )}
+                    >
+                        <p
+                            className={clsx(
+                                "text-base",
+                                "dark:text-gray-400 text-gray-600",
+                            )}
+                        >
+                            <Translate id="enterprise.flexibility.pure_react.desc">Don’t settle for overpriced and outdated hosting panels. With OpenPanel, you maintain 100% control over your server and data at all times.</Translate>
+                        </p>
+                    </div>
+                </div>
+
                 <div
                     className={clsx(
                         "flex flex-col",
@@ -52,15 +86,14 @@ export const EnterpriseFlexibility = ({
                 >
                     <CommonThemedImage
                         className={clsx("rounded-2xl landing-sm:rounded-3xl")}
-                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/lego-pieces-dark.png"
-                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/lego-pieces-light.png"
+                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/flexibility-dark.png"
+                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/flexibility-light.png"
                     />
                     <div
                         className={clsx(
                             "flex flex-col",
                             "gap-2 landing-sm:gap-4",
                             "p-4 landing-sm:p-10",
-                            "not-prose",
                         )}
                     >
                         <h2
@@ -70,7 +103,7 @@ export const EnterpriseFlexibility = ({
                                 "font-semibold",
                             )}
                         >
-                            Alternative to “starting from scratch”
+                            <Translate id="enterprise.flexibility.alternative.title">Alternative to building from scratch</Translate>
                         </h2>
                         <p
                             className={clsx(
@@ -78,7 +111,7 @@ export const EnterpriseFlexibility = ({
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            All the necessary features for running a web hosting server are integrated, eliminating the need to purchase additional software for tasks like backups, WordPress management or user isolation.
+                            <Translate id="enterprise.flexibility.alternative.desc">Every feature needed to run a webserver is integrated, so you don't need to buy additional software for tasks like backups, WordPress management, or user isolation.</Translate>
                         </p>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React from "react";
+import Translate from "@docusaurus/Translate";
 import { MagnifierIcon } from "./icons/magnifier";
 
 type Props = React.ComponentProps<"button"> & {
@@ -59,7 +60,7 @@ export const DocSearchButton = React.forwardRef<HTMLButtonElement, Props>(
                 {!iconOnly && (
                     <>
                         <span className="text-gray-500 dark:text-gray-400 w-[66px] text-left">
-                            {placeholder ?? "Search"}
+                            <Translate id="theme.SearchBar.label">{placeholder ?? "Search"}</Translate>
                         </span>
                         <div
                             className={clsx(

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 
 import { CheckCircle } from "@site/src/refine-theme/icons/check-circle";
 import { CrossCircle } from "@site/src/refine-theme/icons/cross-circle";
@@ -29,13 +30,13 @@ export const EnterpriseTable = ({ className }: { className?: string }) => {
                 )}
             >
                 <h2
-                    id="compare" 
+                    id="compare"
                     className={clsx(
                         "font-semibold",
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Compare editions
+                    <Translate id="enterprise.table.compare">Compare editions</Translate>
                 </h2>
             </div>
 
@@ -72,7 +73,7 @@ export const EnterpriseTable = ({ className }: { className?: string }) => {
 
                                 return (
                                     <TableSection
-                                        key={section.title}
+                                        key={section.titleId}
                                         title={section.title}
                                         activeTab={activeTab}
                                         items={section.items}
@@ -245,7 +246,7 @@ const TableItem = ({
                     "flex",
                     valueType[activeTab] === "icon" && "flex-row",
                     valueType[activeTab] !== "icon" &&
-                        "flex-col landing-sm:flex-row",
+                    "flex-col landing-sm:flex-row",
                     "gap-2 landing-sm:gap-0",
                 )}
             >
@@ -316,9 +317,9 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                     "w-12 h-6",
                     "items-center justify-center",
                     activeTab === "enterprise" &&
-                        "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500",
+                    "bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500",
                     activeTab === "community" &&
-                        "bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900",
+                    "bg-refine-blue dark:bg-refine-cyan-alt text-gray-0 dark:text-gray-900",
                 )}
             >
                 <ArrowLeftLongIcon
@@ -353,7 +354,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                             "whitespace-nowrap",
                             activeTab === "community" && "opacity-100",
                             activeTab !== "community" &&
-                                "opacity-0 landing-md:opacity-100",
+                            "opacity-0 landing-md:opacity-100",
                             "transition-opacity",
                             "ease-in-out",
                             "duration-100",
@@ -395,7 +396,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                             "whitespace-nowrap",
                             activeTab === "enterprise" && "opacity-100",
                             activeTab !== "enterprise" &&
-                                "opacity-0 landing-md:opacity-100",
+                            "opacity-0 landing-md:opacity-100",
                             "transition-opacity",
                             "ease-in-out",
                             "duration-100",
@@ -403,7 +404,7 @@ const TableTabs = ({ activeTab, setActiveTab }) => {
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        Enterprise edition
+                        <Translate id="enterprise.table.enterprise_edition">Enterprise edition</Translate>
                     </div>
                 </div>
             </div>
@@ -487,13 +488,14 @@ const TableText = ({ children }) => {
 };
 
 const tableData = [
-        {
-        title: "Pricing",
+    {
+        titleId: "pricing",
+        title: <Translate id="enterprise.table.section.pricing">Pricing</Translate>,
         items: [
             {
-                description: "Pricing",
+                description: <Translate id="enterprise.table.section.pricing">Pricing</Translate>,
                 community: (
-                    <TableText>forever free</TableText>
+                    <TableText><Translate id="enterprise.table.forever_free">forever free</Translate></TableText>
                 ),
                 enterprise: (
                     <TableText>14.95€ / month</TableText>
@@ -506,12 +508,13 @@ const tableData = [
         ],
     },
     {
-        title: "Support",
+        titleId: "support",
+        title: <Translate id="enterprise.table.section.support">Support</Translate>,
         items: [
             {
-                description: "Support Channels",
-                community: <TableText>Community Forums & Discord</TableText>,
-                enterprise: <TableText>Ticketing & Hands-on support</TableText>,
+                description: <Translate id="enterprise.table.support_channels">Support Channels</Translate>,
+                community: <TableText><Translate id="enterprise.table.support_channels.community">Community Forums & Discord</Translate></TableText>,
+                enterprise: <TableText><Translate id="enterprise.table.support_channels.enterprise">Ticketing & Hands-on support</Translate></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -521,7 +524,7 @@ const tableData = [
                 description: "SLA",
                 community: <CrossIcon />,
                 enterprise: (
-                    <TableText>Response time within one hour</TableText>
+                    <TableText><Translate id="enterprise.table.sla.desc">Response time within one hour</Translate></TableText>
                 ),
                 valueType: {
                     community: "icon",
@@ -531,23 +534,24 @@ const tableData = [
         ],
     },
     {
-        title: "Websites",
+        titleId: "websites",
+        title: <Translate id="enterprise.table.section.websites">Websites</Translate>,
         items: [
             {
-                description: "Websites",
+                description: <Translate id="enterprise.table.section.websites">Websites</Translate>,
                 community: <TableText>50</TableText>,
                 enterprise: (
                     <TableText>
-                        Unlimited
+                        <Translate id="enterprise.table.websites.unlimited">Unlimited</Translate>
                     </TableText>
                 ),
                 valueType: {
                     community: "text",
                     enterprise: "text",
                 },
-            },            
+            },
             {
-                description: "WordPress Manager",
+                description: <Translate id="enterprise.table.wordpress_manager">WordPress Manager</Translate>,
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -556,7 +560,7 @@ const tableData = [
                 },
             },
             {
-                description: "Website Builder",
+                description: <Translate id="enterprise.table.website_builder">Website Builder</Translate>,
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -565,7 +569,7 @@ const tableData = [
                 },
             },
             {
-                description: "NodeJS Applications",
+                description: <Translate id="enterprise.table.nodejs_apps">NodeJS Applications</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -574,7 +578,7 @@ const tableData = [
                 },
             },
             {
-                description: "Python Applications",
+                description: <Translate id="enterprise.table.python_apps">Python Applications</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -583,7 +587,7 @@ const tableData = [
                 },
             },
             {
-                description: "PHP Selector",
+                description: <Translate id="enterprise.table.php_selector">PHP Selector</Translate>,
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -592,7 +596,7 @@ const tableData = [
                 },
             },
             {
-                description: "PHP.INI Editor",
+                description: <Translate id="enterprise.table.php_ini_editor">PHP.INI Editor</Translate>,
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -601,7 +605,7 @@ const tableData = [
                 },
             },
             {
-                description: "Temporary Domains",
+                description: <Translate id="enterprise.table.temp_domains">Temporary Domains</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -610,7 +614,7 @@ const tableData = [
                 },
             },
             {
-                description: "Varnish Caching",
+                description: <Translate id="enterprise.table.varnish_caching">Varnish Caching</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -621,10 +625,11 @@ const tableData = [
         ],
     },
     {
-        title: "Files",
-        items: [     
+        titleId: "files",
+        title: <Translate id="enterprise.table.section.files">Files</Translate>,
+        items: [
             {
-                description: "File Manager",
+                description: <Translate id="enterprise.table.file_manager">File Manager</Translate>,
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -642,7 +647,7 @@ const tableData = [
                 },
             },
             {
-                description: "Malware Scanner",
+                description: <Translate id="enterprise.table.malware_scanner">Malware Scanner</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -651,7 +656,7 @@ const tableData = [
                 },
             },
             {
-                description: "Download from URL",
+                description: <Translate id="enterprise.table.download_url">Download from URL</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -660,7 +665,7 @@ const tableData = [
                 },
             },
             {
-                description: "Disk Usage Explorer",
+                description: <Translate id="enterprise.table.disk_usage">Disk Usage Explorer</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -669,7 +674,7 @@ const tableData = [
                 },
             },
             {
-                description: "Inodes Explorer",
+                description: <Translate id="enterprise.table.inodes">Inodes Explorer</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -680,7 +685,8 @@ const tableData = [
         ],
     },
     {
-        title: "Databases",
+        titleId: "databases",
+        title: <Translate id="enterprise.table.section.databases">Databases</Translate>,
         items: [
             {
                 description: "MySQL",
@@ -737,7 +743,7 @@ const tableData = [
                 },
             },
             {
-                description: "Import Databases",
+                description: <Translate id="enterprise.table.import_db">Import Databases</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -746,21 +752,22 @@ const tableData = [
                 },
             },
             {
-                description: "Remote Access",
+                description: <Translate id="enterprise.table.remote_access">Remote Access</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
                     community: "icon",
                     enterprise: "icon",
                 },
-            },           
+            },
         ],
     },
 
 
 
     {
-        title: "Web servers",
+        titleId: "webservers",
+        title: <Translate id="enterprise.table.section.webservers">Web servers</Translate>,
         items: [
             {
                 description: "Apache",
@@ -815,27 +822,28 @@ const tableData = [
                     community: "icon",
                     enterprise: "icon",
                 },
-            },          
+            },
         ],
-    },    
+    },
     {
+        titleId: "accounts",
         title: "Accounts",
         items: [
             {
-                description: "User Accounts",
+                description: <Translate id="enterprise.table.user_accounts">User Accounts</Translate>,
                 community: <TableText>3</TableText>,
                 enterprise: (
                     <TableText>
-                        Unlimited
+                        <Translate id="enterprise.table.websites.unlimited">Unlimited</Translate>
                     </TableText>
                 ),
                 valueType: {
                     community: "text",
                     enterprise: "text",
                 },
-            },     
+            },
             {
-                description: "Resellers",
+                description: <Translate id="enterprise.table.resellers">Resellers</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -844,7 +852,7 @@ const tableData = [
                 },
             },
             {
-                description: "Multiple Administrator Accounts",
+                description: <Translate id="enterprise.table.multi_admin">Multiple Administrator Accounts</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -853,7 +861,7 @@ const tableData = [
                 },
             },
             {
-                description: "Transfer Accounts between Servers",
+                description: <Translate id="enterprise.table.transfer_accounts">Transfer Accounts between Servers</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
 
@@ -861,9 +869,9 @@ const tableData = [
                     community: "icon",
                     enterprise: "icon",
                 },
-            },   
+            },
             {
-                description: "Import from a cPanel Backup",
+                description: <Translate id="enterprise.table.import_cpanel">Import from a cPanel Backup</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
 
@@ -871,17 +879,18 @@ const tableData = [
                     community: "icon",
                     enterprise: "icon",
                 },
-            },   
+            },
 
         ],
     },
     {
+        titleId: "domains",
         title: "Domains",
         items: [
             {
-                description: "Total Domains",
+                description: <Translate id="enterprise.table.total_domains">Total Domains</Translate>,
                 community: <TableText>50</TableText>,
-                enterprise: <TableText>Unlimited</TableText>,
+                enterprise: <TableText><Translate id="enterprise.table.websites.unlimited">Unlimited</Translate></TableText>,
                 valueType: {
                     community: "text",
                     enterprise: "text",
@@ -897,7 +906,7 @@ const tableData = [
                 },
             },
             {
-                description: "Custom SSL",
+                description: <Translate id="enterprise.table.custom_ssl">Custom SSL</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -933,7 +942,7 @@ const tableData = [
                 },
             },
             {
-                description: "Domain Redirects",
+                description: <Translate id="enterprise.table.domain_redirects">Domain Redirects</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -953,10 +962,11 @@ const tableData = [
         ],
     },
     {
+        titleId: "emails",
         title: "Emails",
         items: [
             {
-                description: "Email Accounts",
+                description: <Translate id="enterprise.table.email_accounts">Email Accounts</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -974,12 +984,13 @@ const tableData = [
                 },
             },
         ],
-    },   
+    },
     {
+        titleId: "integrations",
         title: "Integrations",
         items: [
             {
-                description: "API Access",
+                description: <Translate id="enterprise.table.api_access">API Access</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -988,7 +999,7 @@ const tableData = [
                 },
             },
             {
-                description: "Billing Integrations",
+                description: <Translate id="enterprise.table.billing_integrations">Billing Integrations</Translate>,
                 community: <CrossIcon />,
                 enterprise: <TableText><a href="/docs/articles/extensions/openpanel-and-whmcs/">WHMCS</a>, <a href="/docs/articles/extensions/openpanel-and-fossbilling/">FOSSBilling</a>, <a href="/docs/articles/extensions/openpanel-and-blesta/">Blesta</a>, Paymenter.org</TableText>,
                 valueType: {
@@ -999,73 +1010,11 @@ const tableData = [
         ],
     },
     {
+        titleId: "system",
         title: "System",
         items: [
             {
-                description: "User Isolation",
-                community: <CheckIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },   
-            {
-                description: "Services Isolation",
-                community: <CheckIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },  
-            {
-                description: "Users can manage Containers",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            }, 
-            {
-                description: "Users can add Containers",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },  
-            {
-                description: "User manages Backups",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "Support for ARM CPUs (Aarch64)",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
-            {
-                description: "Supported OS",
-                community: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu 24.04</a></TableText>,
-                enterprise: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
-                valueType: {
-                    community: "text",
-                    enterprise: "text",
-                },
-            },
-             {
-                description: "Available on Cloud/VPS",
+                description: <Translate id="enterprise.table.user_isolation">User Isolation</Translate>,
                 community: <CheckIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1074,7 +1023,61 @@ const tableData = [
                 },
             },
             {
-                description: "Available on Metal/Dedicated",
+                description: <Translate id="enterprise.table.services_isolation">Services Isolation</Translate>,
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.manage_containers">Users can manage Containers</Translate>,
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.add_containers">Users can add Containers</Translate>,
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.manage_backups">User manages Backups</Translate>,
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.arm_support">Support for ARM CPUs (Aarch64)</Translate>,
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.cloud_vps">Available on Cloud/VPS</Translate>,
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.metal_dedicated">Available on Metal/Dedicated</Translate>,
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {
@@ -1083,15 +1086,49 @@ const tableData = [
                 },
             },
         ],
-    },    
+    },
     {
-        title: "Pricing",
+        titleId: "os",
+        title: "OS & Virtualization",
         items: [
             {
-                description: "Yearly Pricing",
+                description: <Translate id="enterprise.table.docker_support">Docker Support</Translate>,
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.metal_dedicated_support">Metal/Dedicated Support</Translate>,
+                community: <CheckIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: <Translate id="enterprise.table.supported_os">Supported OS</Translate>,
+                community: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu 24.04</a></TableText>,
+                enterprise: <TableText><a href="/docs/admin/intro/#requirements">Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
+                valueType: {
+                    community: "text",
+                    enterprise: "text",
+                },
+            },
+        ],
+    },
+    {
+        titleId: "yearly-pricing",
+        title: <Translate id="enterprise.table.section.pricing">Pricing</Translate>,
+        items: [
+            {
+                description: <Translate id="enterprise.table.yearly_pricing">Yearly Pricing</Translate>,
                 community: (
                     <div className={clsx("h-full")}>
-                        <TableText></TableText>
+                        <TableText> </TableText>
                     </div>
                 ),
                 enterprise: (

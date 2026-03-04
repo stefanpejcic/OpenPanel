@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React, { FC, SVGProps } from "react";
+import Translate from "@docusaurus/Translate";
 
 type Props = {
     className?: string;
@@ -46,7 +47,9 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             >
                 <GetInTouchIcon />
                 <span className={clsx("text-base", "font-semibold")}>
-                    Purchase license
+                    <Translate id="enterprise.get_in_touch_button.purchase">
+                        Purchase license
+                    </Translate>
                 </span>
             </Link>
         </div>

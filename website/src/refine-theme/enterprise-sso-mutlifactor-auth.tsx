@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import { CommonThemedImage } from "./common-themed-image";
 
 export const EnterpriseSSOMultifactorAuth = ({
@@ -44,7 +45,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "font-semibold",
                             )}
                         >
-                            Match your Brand
+                            <Translate id="enterprise.sso_mfa.brand.title">Match your Brand</Translate>
                         </h2>
                         <p
                             className={clsx(
@@ -52,7 +53,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Customize the OpenPanel interface to match your brand.
+                            <Translate id="enterprise.sso_mfa.brand.desc">Customize the OpenPanel interface to match your brand.</Translate>
                         </p>
                     </div>
                 </div>
@@ -85,7 +86,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "font-semibold",
                             )}
                         >
-                            Multifactor Authentication
+                            <Translate id="enterprise.sso_mfa.mfa.title">Multifactor Authentication</Translate>
                         </h2>
                         <p
                             className={clsx(
@@ -93,7 +94,7 @@ export const EnterpriseSSOMultifactorAuth = ({
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            Enable or enforce MFA for your clients.
+                            <Translate id="enterprise.sso_mfa.mfa.desc">Enable or enforce MFA for your clients.</Translate>
                         </p>
                     </div>
                 </div>

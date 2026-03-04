@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { LandingHeroGithubStars } from "./landing-hero-github-stars";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
+import Translate from "@docusaurus/Translate";
 
 import { LandingHeroAnimation } from "./landing-hero-animation";
 import { LandingCopyCommandButton } from "./landing-copy-command-button";
@@ -56,7 +57,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "text-gray-900 dark:text-gray-0",
                             )}
                         >
-			<span class="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">Next Generation</span>  Hosting Panel
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]"><Translate id="homepage.hero.subtitle">Next Generation</Translate></span><Translate id="homepage.hero.panel"> Hosting Panel</Translate>
                         </h1>
                         <p
                             className={clsx(
@@ -66,20 +67,20 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "landing-xs:max-w-[384px]",
                             )}
                         >
-							OpenPanel is a multi-user web hosting panel designed around Docker containers. Each user gets their own isolated environment, including separate MySQL server, PHP versions, Redis, and more.
-						</p>
+                            <Translate id="homepage.hero.desc">OpenPanel is a multi-user web hosting panel designed around Docker containers. Each user gets their own isolated environment, including separate MySQL server, PHP versions, Redis, and more.</Translate>
+                        </p>
                         <p
                             className={clsx(
                                 "font-normal",
                                 "text-base",
                                 "text-gray-600 dark:text-gray-300",
                                 "landing-xs:max-w-[384px]",
-								"hidden",
-								"landing-sm:block",
+                                "hidden",
+                                "landing-sm:block",
                             )}
                         >
-							Try the free Community Edition with command:
-						</p>
+                            <Translate id="homepage.hero.try">Try the free Community Edition with command:</Translate>
+                        </p>
                     </div>
                     <div
                         className={clsx(
@@ -90,9 +91,9 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                             "landing-lg:gap-6",
                         )}
                     >
-			<LandingCopyCommandButton
-			className={clsx("hidden", "landing-sm:block")}
-			/>
+                        <LandingCopyCommandButton
+                            className={clsx("hidden", "landing-sm:block")}
+                        />
                     </div>
                 </div>
                 <div

@@ -21,8 +21,12 @@ const siteConfig = {
     organizationName: "stefanpejcic",
     trailingSlash: true,
     favicon: "img/favicon.svg",
+    i18n: {
+        defaultLocale: "en",
+        locales: ["en", "hu"],
+    },
     scripts: [
-      'https://platform.twitter.com/widgets.js',
+        'https://platform.twitter.com/widgets.js',
     ],
     presets: [
         [
@@ -31,51 +35,51 @@ const siteConfig = {
                 docs: Boolean(process.env.DISABLE_DOCS)
                     ? false
                     : {
-                          path: "./docs",
-                          sidebarPath: require.resolve("./sidebars.js"),
-                          editUrl:
-                              "https://github.com/stefanpejcic/openpanel/tree/master/website",
-                          showLastUpdateAuthor: true,
-                          showLastUpdateTime: true,
-                          disableVersioning:
-                              process.env.DISABLE_VERSIONING === "true",
-                          versions: {
-                              current: {
-                                  label: "1.7.44",
-                              },
-                          },
-                          lastVersion: "current",
-                          admonitions: {
-                              tag: ":::",
-                              keywords: [
-                                  "additional",
-                                  "note",
-                                  "tip",
-                                  "info-tip",
-                                  "info",
-                                  "caution",
-                                  "danger",
-                                  "sourcecode",
-                                  "create-example",
-                                  "simple",
-                              ],
-                          },
-                          exclude: ["**/**/_*.md"],
-                          // Adding the sidebarItemsGenerator with reverse logic
-                          async sidebarItemsGenerator({defaultSidebarItemsGenerator, ...args}) {
-                              const sidebarItems = await defaultSidebarItemsGenerator(args);
+                        path: "./docs",
+                        sidebarPath: require.resolve("./sidebars.js"),
+                        editUrl:
+                            "https://github.com/stefanpejcic/openpanel/tree/master/website",
+                        showLastUpdateAuthor: true,
+                        showLastUpdateTime: true,
+                        disableVersioning:
+                            process.env.DISABLE_VERSIONING === "true",
+                        versions: {
+                            current: {
+                                label: "1.7.44",
+                            },
+                        },
+                        lastVersion: "current",
+                        admonitions: {
+                            tag: ":::",
+                            keywords: [
+                                "additional",
+                                "note",
+                                "tip",
+                                "info-tip",
+                                "info",
+                                "caution",
+                                "danger",
+                                "sourcecode",
+                                "create-example",
+                                "simple",
+                            ],
+                        },
+                        exclude: ["**/**/_*.md"],
+                        // Adding the sidebarItemsGenerator with reverse logic
+                        async sidebarItemsGenerator({ defaultSidebarItemsGenerator, ...args }) {
+                            const sidebarItems = await defaultSidebarItemsGenerator(args);
 
-                              // Reverse items only for the 'Changelog' category
-                              const modifiedSidebarItems = sidebarItems.map((item) => {
-                                  if (item.type === 'category' && item.label === 'Changelog') {
-                                      return { ...item, items: item.items.reverse() };
-                                  }
-                                  return item;
-                              });
+                            // Reverse items only for the 'Changelog' category
+                            const modifiedSidebarItems = sidebarItems.map((item) => {
+                                if (item.type === 'category' && item.label === 'Changelog') {
+                                    return { ...item, items: item.items.reverse() };
+                                }
+                                return item;
+                            });
 
-                              return modifiedSidebarItems;
-                          },
-                      },
+                            return modifiedSidebarItems;
+                        },
+                    },
                 blog: false,
                 theme: {
                     customCss: [
@@ -139,23 +143,23 @@ const siteConfig = {
         ...(process.env.DISABLE_BLOG
             ? []
             : [
-                  [
-                      "./plugins/blog-plugin.js",
-                      {
-                          blogTitle: "Blog",
-                          blogDescription:
-                              "A resource for OpenPanel, front-end ecosystem, and web development",
-                          routeBasePath: "/blog",
-                          postsPerPage: 12,
-                          blogSidebarTitle: "All posts",
-                          blogSidebarCount: 0,
-                          feedOptions: {
-                              type: "all",
-                              copyright: `Copyright © ${new Date().getFullYear()} OpenPanel.`,
-                          },
-                      },
-                  ],
-              ]),
+                [
+                    "./plugins/blog-plugin.js",
+                    {
+                        blogTitle: "Blog",
+                        blogDescription:
+                            "A resource for OpenPanel, front-end ecosystem, and web development",
+                        routeBasePath: "/blog",
+                        postsPerPage: 12,
+                        blogSidebarTitle: "All posts",
+                        blogSidebarCount: 0,
+                        feedOptions: {
+                            type: "all",
+                            copyright: `Copyright © ${new Date().getFullYear()} OpenPanel.`,
+                        },
+                    },
+                ],
+            ]),
         "./plugins/clarity.js",
         "./plugins/templates.js",
         "./plugins/example-redirects.js",
@@ -212,6 +216,10 @@ const siteConfig = {
             },
             items: [
                 { to: "https://docusaurus.io/docs/api/docusaurus-config", label: "Blog", position: "left" },
+                {
+                    type: "localeDropdown",
+                    position: "right",
+                },
                 {
                     type: "docsVersionDropdown",
                     position: "right",

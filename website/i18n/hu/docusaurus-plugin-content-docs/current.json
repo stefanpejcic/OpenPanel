@@ -1,0 +1,114 @@
+{
+  "sidebar.articles.category.Databases": {
+    "message": "Adatbázisok",
+    "description": "The label for category Databases in sidebar articles"
+  },
+  "sidebar.articles.category.Docker": {
+    "message": "Docker",
+    "description": "The label for category Docker in sidebar articles"
+  },
+  "sidebar.articles.category.Domain Management": {
+    "message": "Domainkezelés",
+    "description": "The label for category Domain Management in sidebar articles"
+  },
+  "sidebar.articles.category.Developer Experience": {
+    "message": "Fejlesztői tapasztalat",
+    "description": "The label for category Developer Experience in sidebar articles"
+  },
+  "sidebar.articles.category.Licensing": {
+    "message": "Engedélyezés",
+    "description": "The label for category Licensing in sidebar articles"
+  },
+  "sidebar.articles.category.Security": {
+    "message": "Biztonság",
+    "description": "The label for category Security in sidebar articles"
+  },
+  "sidebar.articles.category.Server Management": {
+    "message": "Szerverkezelés",
+    "description": "The label for category Server Management in sidebar articles"
+  },
+  "sidebar.articles.category.Transfers": {
+    "message": "Költöztetések",
+    "description": "The label for category Transfers in sidebar articles"
+  },
+  "sidebar.articles.category.Extensions": {
+    "message": "Kiterjesztések",
+    "description": "The label for category Extensions in sidebar articles"
+  },
+  "sidebar.articles.category.Account Administration": {
+    "message": "Fiók adminisztrációja",
+    "description": "The label for category Account Administration in sidebar articles"
+  },
+  "sidebar.articles.category.Support Operations": {
+    "message": "Támogatási műveletek",
+    "description": "The label for category Support Operations in sidebar articles"
+  },
+  "sidebar.articles.category.User Experience": {
+    "message": "Felhasználói élmény",
+    "description": "The label for category User Experience in sidebar articles"
+  },
+  "sidebar.articles.category.File Management": {
+    "message": "Fájlkezelés",
+    "description": "The label for category File Management in sidebar articles"
+  },
+  "sidebar.articles.category.Web Servers": {
+    "message": "Webszerverek",
+    "description": "The label for category Web Servers in sidebar articles"
+  },
+  "sidebar.articles.category.Operating Systems": {
+    "message": "Operációs rendszerek",
+    "description": "The label for category Operating Systems in sidebar articles"
+  },
+  "sidebar.articles.category.Backups": {
+    "message": "Biztonsági mentések",
+    "description": "The label for category Backups in sidebar articles"
+  },
+  "sidebar.articles.category.Email": {
+    "message": "Email",
+    "description": "The label for category Email in sidebar articles"
+  },
+  "sidebar.articles.category.Websites": {
+    "message": "Weboldalak",
+    "description": "The label for category Websites in sidebar articles"
+  },
+  "sidebar.articles.category.Install & Updates": {
+    "message": "Telepítés és frissítések",
+    "description": "The label for category Install & Updates in sidebar articles"
+  },
+  "sidebar.admin.category.Advanced": {
+    "message": "Fejlett",
+    "description": "The label for category Advanced in sidebar admin"
+  },
+  "sidebar.admin.category.Settings": {
+    "message": "Beállítások elemre",
+    "description": "The label for category Settings in sidebar admin"
+  },
+  "sidebar.admin.category.Domains": {
+    "message": "Domains",
+    "description": "The label for category Domains in sidebar admin"
+  },
+  "sidebar.admin.category.Hosting Plans": {
+    "message": "Tárhelytervek",
+    "description": "The label for category Hosting Plans in sidebar admin"
+  },
+  "sidebar.admin.category.Security": {
+    "message": "Biztonság",
+    "description": "The label for category Security in sidebar admin"
+  },
+  "sidebar.admin.category.Emails": {
+    "message": "E-mailek",
+    "description": "The label for category Emails in sidebar admin"
+  },
+  "sidebar.admin.category.Server": {
+    "message": "Szerver",
+    "description": "The label for category Server in sidebar admin"
+  },
+  "sidebar.admin.category.Accounts": {
+    "message": "Fiókok",
+    "description": "The label for category Accounts in sidebar admin"
+  },
+  "sidebar.admin.category.Services": {
+    "message": "Szolgáltatások",
+    "description": "The label for category Services in sidebar admin"
+  }
+}

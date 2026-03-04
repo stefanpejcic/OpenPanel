@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import { EnterpriseSSOMultifactorAuth } from "./enterprise-sso-mutlifactor-auth";
 import { EnterpriseIAMServices } from "./enterprise-iam-services";
 import { EnterpriseSecurityFeatures } from "./enterprise-security-features";
@@ -13,7 +14,7 @@ export const EnterpriseSecurity = ({ className }: { className?: string }) => (
             )}
         >
             <h2 className={clsx("dark:text-gray-0 text-gray-900")}>
-                Adopt cutting-edge{" "}
+                <Translate id="enterprise.security.title">Adopt cutting-edge </Translate>
                 <span
                     className={clsx(
                         "font-semibold",
@@ -21,7 +22,7 @@ export const EnterpriseSecurity = ({ className }: { className?: string }) => (
                         "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                     )}
                 >
-                    features
+                    <Translate id="enterprise.security.features">features</Translate>
                 </span>
                 .
             </h2>

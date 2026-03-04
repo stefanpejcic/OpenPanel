@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import {
     AccessControlIcon,
     MonitorIcon,
@@ -44,7 +45,7 @@ export const EnterpriseSecurityFeatures = ({
                                     "text-gray-900 dark:text-gray-0",
                                 )}
                             >
-                                {item.title}
+                                <Translate id={item.titleId}>{item.title}</Translate>
                             </div>
                             <div
                                 className={clsx(
@@ -52,7 +53,7 @@ export const EnterpriseSecurityFeatures = ({
                                     "dark:text-gray-400 text-gray-600",
                                 )}
                             >
-                                {item.description}
+                                <Translate id={item.descriptionId}>{item.description}</Translate>
                             </div>
                         </div>
                     </div>
@@ -65,19 +66,25 @@ export const EnterpriseSecurityFeatures = ({
 const list = [
     {
         icon: <AccessControlIcon />,
+        titleId: "enterprise.security_features.secure.title",
         title: "Secure by default",
+        descriptionId: "enterprise.security_features.secure.desc",
         description:
             "Enable Two Factor authentification, block IP addresses per domain, control remote MySQL access and SSH access.",
     },
     {
         icon: <SelfHostedIcon />,
+        titleId: "enterprise.security_features.resource.title",
         title: "Limit resource usage",
+        descriptionId: "enterprise.security_features.resource.desc",
         description:
             "Restrict the number of websites, domains, or databases, while enforcing hard limits on CPU, memory, port speed, disk usage, and inodes.",
     },
     {
         icon: <MonitorIcon />,
+        titleId: "enterprise.security_features.monitor.title",
         title: "Monitor your server and users",
+        descriptionId: "enterprise.security_features.monitor.desc",
         description:
             "Built-in features include logging user activity, visualizing website visitors, and analyzing resource usage.",
     },

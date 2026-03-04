@@ -1,4 +1,5 @@
 import React from "react";
+import Translate, { translate } from "@docusaurus/Translate";
 import Head from "@docusaurus/Head";
 import clsx from "clsx";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
@@ -8,7 +9,13 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 const IntegrationsLayout = ({ children }: React.PropsWithChildren<{}>) => {
     return (
         <CommonLayout>
-            <Head title="Features | OpenPanel">
+            <Head>
+                <title>
+                    {translate({
+                        id: "features.meta.title",
+                        message: "Features | OpenPanel",
+                    })}
+                </title>
                 <html data-page="integrations" data-customized="true" />
             </Head>
             <div className={clsx("refine-prose, pb-16")}>

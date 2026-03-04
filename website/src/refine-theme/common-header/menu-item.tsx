@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
+import { translate } from "@docusaurus/Translate";
 
 import type { NavbarPopoverItemType } from "./constants";
 
@@ -36,21 +37,21 @@ export const MenuItem: React.FC<MenuItemProps> = ({
             className={clsx(
               variant === "landing" && "text-gray-900 dark:text-white",
               variant === "blog" &&
-                "text-refine-react-8 dark:text-refine-react-3",
+              "text-refine-react-8 dark:text-refine-react-3",
               "font-semibold",
             )}
           >
-            {item.label}
+            {translate({ message: item.label, id: `menu.label.${item.label}` })}
           </div>
           <div
             className={clsx(
               variant === "landing" && "text-gray-500 dark:text-gray-400",
               variant === "blog" &&
-                "text-refine-react-5 dark:text-refine-react-4",
+              "text-refine-react-5 dark:text-refine-react-4",
               "text-xs",
             )}
           >
-            {item.description}
+            {item.description ? translate({ message: item.description, id: `menu.desc.${item.label}` }) : null}
           </div>
         </div>
       </div>

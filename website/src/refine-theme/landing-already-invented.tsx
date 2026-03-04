@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React, { FC } from "react";
+import Translate from "@docusaurus/Translate";
 import {
     ComponentsIcon,
     RoutesIcon,
@@ -12,23 +13,23 @@ import { LandingSectionCtaButton } from "./landing-section-cta-button";
 
 const list = [
     {
-        label: "Resource limiting",
+        label: <Translate id="homepage.alreadyInvented.list.1">Resource limiting</Translate>,
         icon: <ComponentsIcon />,
     },
     {
-        label: "Remote backups",
+        label: <Translate id="homepage.alreadyInvented.list.2">Remote backups</Translate>,
         icon: <RoutesIcon />,
     },
     {
-        label: "Service settings",
+        label: <Translate id="homepage.alreadyInvented.list.3">Service settings</Translate>,
         icon: <UtilitiesIcon />,
     },
     {
-        label: "Custom branding",
+        label: <Translate id="homepage.alreadyInvented.list.4">Custom branding</Translate>,
         icon: <InterfacesIcon />,
     },
     {
-        label: "Multi-tenancy",
+        label: <Translate id="homepage.alreadyInvented.list.5">Multi-tenancy</Translate>,
         icon: <ProvidersIcon />,
     },
 ];
@@ -70,9 +71,8 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                     )}
                 >
                     {list.map((item, index) => {
-                        const paddingHorizontal = `calc((100% - 160px - ${
-                            (list.length - 1) * 36
-                        }px) / 2)`;
+                        const paddingHorizontal = `calc((100% - 160px - ${(list.length - 1) * 36
+                            }px) / 2)`;
 
                         return (
                             <div
@@ -107,15 +107,13 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                                             "dark:bg-landing-component-badge bg-refine-green",
                                             "relative",
                                             inView &&
-                                                "animate-wheel-already-invented-reveal",
+                                            "animate-wheel-already-invented-reveal",
                                         )}
                                         style={{
-                                            transform: `translateX(${
-                                                40 * (11 - index)
-                                            }px)`,
-                                            animationDelay: `${
-                                                0.15 + index * 0.15
-                                            }s`,
+                                            transform: `translateX(${40 * (11 - index)
+                                                }px)`,
+                                            animationDelay: `${0.15 + index * 0.15
+                                                }s`,
                                         }}
                                     >
                                         <div
@@ -162,7 +160,7 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                             "dark:text-gray-300 text-gray-900",
                         )}
                     >
-                        Wheel? Already invented.
+                        <Translate id="homepage.alreadyInvented.title">Wheel? Already invented.</Translate>
                     </h6>
                     <div
                         className={clsx(
@@ -184,10 +182,10 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            All the necessary features for running a web hosting server are integrated, eliminating the need to purchase additional software for tasks like backups, WordPress management or user isolation.
+                            <Translate id="homepage.alreadyInvented.desc">All the necessary features for running a web hosting server are integrated, eliminating the need to purchase additional software for tasks like backups, WordPress management or user isolation.</Translate>
                         </p>
                         <LandingSectionCtaButton to="/features">
-                            Features
+                            <Translate id="homepage.alreadyInvented.cta">Features</Translate>
                         </LandingSectionCtaButton>
                     </div>
                 </div>

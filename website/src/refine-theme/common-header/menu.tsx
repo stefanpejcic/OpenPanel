@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 
 import { MENU_ITEMS, NavbarItemType } from "./constants";
 import {
@@ -58,8 +59,7 @@ export const Menu: React.FC = () => {
                                                     "dark:text-gray-400 text-gray-600",
                                                 )}
                                             >
-                                                If you like OpenPanel, don’t forget
-                                                to star us on GitHub!
+                                                <Translate id="menu.text.star_us">If you like OpenPanel, don’t forget to star us on GitHub!</Translate>
                                             </div>
                                         </div>
                                     </Link>
@@ -92,7 +92,7 @@ export const Menu: React.FC = () => {
                                         )}
                                     >
                                         <div className="dark:text-gray-400 text-gray-600">
-                                            Join the party!
+                                            <Translate id="menu.text.join_party">Join the party!</Translate>
                                         </div>
                                         <div className="flex gap-4">
                                             <Link

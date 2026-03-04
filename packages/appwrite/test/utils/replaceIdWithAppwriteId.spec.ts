@@ -7,7 +7,7 @@ describe("replaceIdWithAppwriteId", () => {
       field: "id",
       operator: "eq",
       value: "John Doe",
-    } satisfies CrudFilter);
+    } as CrudFilter);
     expect(result).toStrictEqual({
       field: "$id",
       operator: "eq",
@@ -26,7 +26,7 @@ describe("replaceIdWithAppwriteId", () => {
           value: "John Doe",
         },
       ],
-    } satisfies CrudFilter);
+    } as CrudFilter);
     expect(result).toStrictEqual({
       field: "$id",
       operator: "eq",
@@ -45,7 +45,7 @@ describe("replaceIdWithAppwriteId", () => {
       field: "name",
       operator: "eq",
       value: "John Doe",
-    } satisfies CrudFilter);
+    } as CrudFilter);
     expect(result).toStrictEqual({
       field: "name",
       operator: "eq",

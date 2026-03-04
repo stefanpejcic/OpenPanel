@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import { OpenPanelLogoIcon } from "./icons/openpanel-logo";
 import Link from "@docusaurus/Link";
 
@@ -84,7 +85,7 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    If you are a website owner, then we recommend interacting with the OpenPanel interface.
+                    <Translate id="demo.section.website_owner">If you are a website owner, then we recommend interacting with the OpenPanel interface.</Translate>
                 </p>
 
                 <p
@@ -96,34 +97,34 @@ const LandingTryItOptionsSection = ({
                         "landing-lg:max-w-[446px]",
                     )}
                 >
-                    This is where you can manage your websites, files, services, domains, emails..
+                    <Translate id="demo.section.website_owner_desc">This is where you can manage your websites, files, services, domains, emails..</Translate>
                 </p>
-		    
-                        <Link
-                            to="https://demo.openpanel.org:2083/login"
-                            className={clsx(
-                                "self-start",
-                                "rounded-3xl",
-                                "!text-gray-0 dark:!text-gray-900",
-                                "bg-refine-blue dark:bg-refine-cyan-alt",
-                                "transition-[filter]",
-                                "duration-150",
-                                "ease-in-out",
-                                "hover:brightness-110",
-                                "py-3",
-                                "pl-7 pr-8",
-                                "landing-md:px-8",
-                                "landing-lg:pl-7 landing-lg:pr-8",
-                                "flex",
-                                "items-center",
-                                "justify-center",
-                                "gap-2",
-                                "hover:!no-underline",
-                            )}
-                        >
+
+                <Link
+                    to="https://demo.openpanel.org:2083/login"
+                    className={clsx(
+                        "self-start",
+                        "rounded-3xl",
+                        "!text-gray-0 dark:!text-gray-900",
+                        "bg-refine-blue dark:bg-refine-cyan-alt",
+                        "transition-[filter]",
+                        "duration-150",
+                        "ease-in-out",
+                        "hover:brightness-110",
+                        "py-3",
+                        "pl-7 pr-8",
+                        "landing-md:px-8",
+                        "landing-lg:pl-7 landing-lg:pr-8",
+                        "flex",
+                        "items-center",
+                        "justify-center",
+                        "gap-2",
+                        "hover:!no-underline",
+                    )}
+                >
                     <OpenPanelLogoIcon />
                     <span className={clsx("text-base", "font-semibold")}>
-                        OpenPanel Demo
+                        <Translate id="demo.section.openpanel_button">OpenPanel Demo</Translate>
                     </span>
                 </Link>
             </div>
@@ -162,8 +163,8 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			If you are a web host, then we recommend interacting with the OpenAdmin interface.
-		    </p>
+                        <Translate id="demo.section.web_host">If you are a web host, then we recommend interacting with the OpenAdmin interface.</Translate>
+                    </p>
                     <p
                         className={clsx(
                             "text-base landing-sm:text-l landing-md:text-base landing-lg:text-l",
@@ -172,36 +173,36 @@ const LandingTryItOptionsSection = ({
                             "landing-lg:max-w-[446px]",
                         )}
                     >
-			This is where you can manage your server, customer accounts, hosting plans..
-		    </p>
-                        <Link
-                            to="https://demo.openpanel.org:2087/login"
-                            className={clsx(
-                                "self-start",
-                                "rounded-3xl",
-                                "!text-gray-0 dark:!text-gray-900",
-                                "bg-refine-blue dark:bg-refine-cyan-alt",
-                                "transition-[filter]",
-                                "duration-150",
-                                "ease-in-out",
-                                "hover:brightness-110",
-                                "py-3",
-                                "pl-7 pr-8",
-                                "landing-md:px-8",
-                                "landing-lg:pl-7 landing-lg:pr-8",
-                                "flex",
-                                "items-center",
-                                "justify-center",
-                                "gap-2",
-                                "hover:!no-underline",
-                            )}
-                        >
-                    	<OpenPanelLogoIcon />
-	                    <span className={clsx("text-base", "font-semibold")}>
-	                        OpenAdmin Demo
-	                    </span>
-	                </Link>
-		</div>
+                        <Translate id="demo.section.web_host_desc">This is where you can manage your server, customer accounts, hosting plans..</Translate>
+                    </p>
+                    <Link
+                        to="https://demo.openpanel.org:2087/login"
+                        className={clsx(
+                            "self-start",
+                            "rounded-3xl",
+                            "!text-gray-0 dark:!text-gray-900",
+                            "bg-refine-blue dark:bg-refine-cyan-alt",
+                            "transition-[filter]",
+                            "duration-150",
+                            "ease-in-out",
+                            "hover:brightness-110",
+                            "py-3",
+                            "pl-7 pr-8",
+                            "landing-md:px-8",
+                            "landing-lg:pl-7 landing-lg:pr-8",
+                            "flex",
+                            "items-center",
+                            "justify-center",
+                            "gap-2",
+                            "hover:!no-underline",
+                        )}
+                    >
+                        <OpenPanelLogoIcon />
+                        <span className={clsx("text-base", "font-semibold")}>
+                            <Translate id="demo.section.openadmin_button">OpenAdmin Demo</Translate>
+                        </span>
+                    </Link>
+                </div>
             </div>
         </div>
     );

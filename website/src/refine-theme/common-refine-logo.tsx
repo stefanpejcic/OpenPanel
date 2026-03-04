@@ -1,6 +1,7 @@
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
+import Translate from "@docusaurus/Translate";
 import { openFigma } from "../utils/open-figma";
 import { RefineLogoIcon } from "./icons/refine-logo";
 
@@ -35,7 +36,7 @@ export const RefineLogo = ({ title, className }: Props) => {
                             "mt-px sm:mt-0 text-[11px] sm:text-base leading-none font-normal",
                         )}
                     >
-                        Documentation
+                        <Translate id="menu.label.Documentation">Documentation</Translate>
                     </span>
                 )}
             </Link>

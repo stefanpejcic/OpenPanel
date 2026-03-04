@@ -1,5 +1,6 @@
 import React from "react";
 import Head from "@docusaurus/Head";
+import Translate from "@docusaurus/Translate";
 import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
@@ -9,7 +10,10 @@ import { LandingTryItSection } from "@site/src/refine-theme/demo-section";
 const Demo: React.FC = () => {
     return (
         <CommonLayout>
-            <Head title="Live Demo | OpenPanel">
+            <Head>
+                <title>
+                    <Translate id="demo.meta_title">Live Demo | OpenPanel</Translate>
+                </title>
                 <html data-page="demo" data-customized="true" />
             </Head>
             <div className="refine-prose">
@@ -34,17 +38,17 @@ const Demo: React.FC = () => {
                             "text-xl md:text-[40px] md:leading-[56px]",
                         )}
                     >
-                        Live Demo for{" "}
+                        <Translate id="demo.title">Live Demo for</Translate>{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
-                            OpenPanel
+                            <Translate id="demo.span_openpanel">OpenPanel</Translate>
                         </span>
-                        , and{" "}
+                        , <Translate id="demo.and">and</Translate>{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#FF9933] to-[#FF4C4D]">
-                            OpenAdmin
+                            <Translate id="demo.span_openadmin">OpenAdmin</Translate>
                         </span>
                         .
                     </h1>
-                    
+
                     <LandingTryItSection />
                 </div>
                 <BlogFooter />

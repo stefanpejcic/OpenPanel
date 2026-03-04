@@ -1,0 +1,5 @@
+
+╭──────────────────────╮│                      ││   Update available   ││    2.4.0 → 3.9.2     ││                      ││      To upgrade      ││      Docusaurus      ││    packages with     ││      the latest      ││   version, run the   ││      following       ││       command:       ││   `npm i @docusaur   ││    us/core@latest    ││   @docusaurus/plug   ││   in-client-redire   ││   cts@latest @docu   ││   saurus/preset-cl   ││     assic@latest     ││   @docusaurus/modu   ││   le-type-aliases@   ││       latest`        ││                      │╰──────────────────────╯
+
+[INFO] Docusaurus version: 2.4.0
+Node version: v25.2.1

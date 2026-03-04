@@ -1,5 +1,6 @@
-import React, { DetailedHTMLProps, ReactNode, SVGProps, useRef } from "react";
+import React, { DetailedHTMLProps, ReactNode, SVGProps, useRef, FC } from "react";
 import clsx from "clsx";
+import Translate from "@docusaurus/Translate";
 import {
     Nest,
     Strapi,
@@ -45,16 +46,16 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        Technology Stack {" "}
+                        <Translate id="enterprise.data_source.title">Technology Stack </Translate>
                     </span>
-                    for the modern Web
+                    <Translate id="enterprise.data_source.subtitle">for the modern Web</Translate>
                 </h2>
             </div>
 
             <div
                 className={clsx(
                     "mt-8 landing-md:mt-20",
-                    "flex flex-col landing-lg:flex-row",
+                    "flex flex-col landing-lg:row",
                     "gap-6",
                 )}
             >
@@ -85,15 +86,15 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            OpenAdmin Stack
+                            <Translate id="enterprise.data_source.open_admin_stack.title">OpenAdmin Stack</Translate>
                         </h2>
                         <p
                             className={clsx(
                                 "text-base",
                                 "dark:text-gray-400 text-gray-600",
                             )}
-                        >    
-			We use modern, lightweight, proven technologies to deliver high-performance.
+                        >
+                            <Translate id="enterprise.data_source.open_admin_stack.desc">We use modern, lightweight, proven technologies to deliver high-performance.</Translate>
                         </p>
                     </div>
                     <div
@@ -144,7 +145,7 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                                 "font-semibold",
                             )}
                         >
-                            OpenPanel Stack
+                            <Translate id="enterprise.data_source.open_panel_stack.title">OpenPanel Stack</Translate>
                         </h2>
                         <p
                             className={clsx(
@@ -152,7 +153,7 @@ export const EnterpriseDataSource = ({ className }: { className?: string }) => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                              Get all the latest web technologies under one stack to run any applications at the highest performance. 
+                            <Translate id="enterprise.data_source.open_panel_stack.desc">Get all the latest web technologies in a single system to run any application with peak performance.</Translate>
                         </p>
                     </div>
                     <div

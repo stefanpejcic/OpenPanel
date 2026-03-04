@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import React, { FC } from "react";
+import Translate from "@docusaurus/Translate";
 import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
 
 type Props = {
@@ -29,7 +30,7 @@ export const EnterpriseGetInTouchCta: FC<Props> = (props) => {
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    Ready to try OpenPanel Enterprise?
+                    <Translate id="enterprise.cta.title">Ready to try OpenPanel Enterprise?</Translate>
                 </h2>
                 <EnterpriseGetInTouchButton />
             </div>
