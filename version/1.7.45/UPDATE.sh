@@ -9,3 +9,7 @@ for file in /home/*/docker-compose.yml; do
         echo "Updated: $file"
     fi
 done
+
+echo "Applying patch for WAF error starting Caddy.."
+sed -i '/^SecRequestBodyJsonDepthLimit/ s/^/#/' /etc/openpanel/caddy/coraza_rules.conf
+docker --context=default restart caddy
