@@ -5,7 +5,7 @@
 # Usage: opencli domains-dns <DOMAIN>
 # Author: Stefan Pejcic
 # Created: 31.08.2024
-# Last Modified: 04.03.2026
+# Last Modified: 05.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
