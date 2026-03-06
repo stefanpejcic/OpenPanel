@@ -15,6 +15,8 @@ const defaultOptions: InstallOptions = {
     key: { value: "", description: "Set Enterprise license key." },
     domain: { value: "", description: "Set the domain to be used for accessing panels." },
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
+    admin-port: { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },
+    user-port: { value: "", description: "Specify a custom port for OpenPanel (default is 2083)." },
     username: { value: "", description: "Set admin username (by default random generated)." },
     password: { value: "", description: "Set admin password (by default random generated)." },
     "skip-firewall": { value: false, description: "Don't setup Sentinel Firewall (CSF)" },
@@ -85,10 +87,16 @@ const Install: React.FC = () => {
                                     <input
                                         type={
                                             key === "email" ? "email" :
+                                            key === "admin-port" ? "number" :
+                                            key === "user-port" ? "number" :
                                             typeof config.value === "boolean" ? "checkbox" : "text"
                                         }
                                         id={key}
                                         name={key}
+                                        min={key === "admin-port" ? 1000 : undefined}
+                                        max={key === "admin-port" ? 30000 : undefined}
+                                        min={key === "user-port" ? 1000 : undefined}
+                                        max={key === "user-port" ? 30000 : undefined}
                                         {...(typeof config.value === "boolean"
                                             ? { checked: config.value }
                                             : { value: config.value })}
