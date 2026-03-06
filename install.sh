@@ -573,6 +573,10 @@ docker_compose_up(){
 
     sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
 
+	if [ "$USER_PORT" != 2083 ]; then
+		sed -i "s/^PORT=\"[^\"]*\"/PORT=\"$USER_PORT\"/" /root/.env
+	fi
+
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)                  # generate random password for mysql
     sed -i 's/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD='"${MYSQL_ROOT_PASSWORD}"'/g' /root/.env  > /dev/null 2>&1
     echo "MYSQL_ROOT_PASSWORD = $MYSQL_ROOT_PASSWORD"
@@ -1631,6 +1635,10 @@ install_openadmin(){
     }
 
     cd "$openadmin_dir" || exit 1
+
+	if [ "$ADMIN_PORT" != 2087 ]; then
+		sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$ADMIN_PORT/" "${ETC_DIR}caddy/Caddyfile"
+	fi
 
 	${PYTHON_BIN:-python3} -m venv ${openadmin_dir}venv
 	source ${openadmin_dir}venv/bin/activate
