@@ -575,6 +575,8 @@ docker_compose_up(){
 
 	if [ "$USER_PORT" != 2083 ]; then
 		sed -i "s/^PORT=\"[^\"]*\"/PORT=\"$USER_PORT\"/" /root/.env
+  		sed -i "/redir @openpanel/s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}caddy/redirects.conf"
+		sed -i "/# openpanel/,/# openadmin/ s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
 	fi
 
     MYSQL_ROOT_PASSWORD=$(openssl rand -base64 -hex 9)                  # generate random password for mysql
@@ -1638,6 +1640,8 @@ install_openadmin(){
 
 	if [ "$ADMIN_PORT" != 2087 ]; then
 		sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$ADMIN_PORT/" "${ETC_DIR}caddy/Caddyfile"
+		sed -i "/redir @openadmin/s/:[0-9]\+/:$ADMIN_PORT/g" "${ETC_DIR}caddy/redirects.conf"
+		sed -i "/# openadmin/,/# roundcube/ s/:[0-9]\+/:$ADMIN_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
 	fi
 
 	${PYTHON_BIN:-python3} -m venv ${openadmin_dir}venv
