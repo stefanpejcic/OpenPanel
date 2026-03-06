@@ -27,6 +27,8 @@ export DEBIAN_FRONTEND=noninteractive
 # ======================================================================
 # Defaults for environment variables
 CUSTOM_VERSION=false                                                     # default version is latest
+ADMIN_PORT="2087"                                                        # default port for admin panel
+USER_PORT="2083"                                                         # default port for end-user panel
 SKIP_APT_UPDATE=false                                                    # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
 REPAIR=false
@@ -342,6 +344,8 @@ parse_args() {
         echo "  --password='<password>'         Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
         echo "  --email=<stefan@example.net>    Set email address to receive email with admin credentials and future notifications."
+        echo "  --admin-port=<port>             Set a custom port for OpenAdmin (default is 2087)."
+        echo "  --user-port=<port>              Set a custom port for OpenPanel (default is 2083)."
         echo "  --imunifyav                     Install and setup ImunifyAV."
         echo "  --skip-requirements             Skip the requirements check."
         echo "  --skip-panel-check              Skip checking if existing panels are installed."
@@ -359,15 +363,22 @@ parse_args() {
     }
 
 
-
-
-
+	set_port() {
+	    local port_name=$1
+	    local port_val=$2
+	    if [[ "$port_val" =~ ^[0-9]+$ ]] && [[ "$port_val" -ge 1000 && "$port_val" -le 30000 ]]; then
+	        eval "$port_name=$port_val"
+	    else
+	        echo "Error: $port_name must be between 1000 and 30000"
+	        exit 1
+	    fi
+	}
 
 # ======================================================================
 # Change defaults
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --key=*|--domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*)
+        --key=*|--domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*|--user-port=*|--admin-port=*)
             opt="${1%%=*}"
             val="${1#*=}"
             case "$opt" in
@@ -380,6 +391,8 @@ while [[ $# -gt 0 ]]; do
                 --version)     CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
                 --swap)        SETUP_SWAP_ANYWAY=true;    SWAP_FILE="$val" ;;
                 --email)       SEND_EMAIL_AFTER_INSTALL=true; EMAIL="$val" ;;
+			    --admin-port)  set_port "ADMIN_PORT" "$val" ;;
+			    --user-port)   set_port "USER_PORT" "$val" ;;
             esac
             ;;
         --skip-requirements)   SKIP_REQUIREMENTS=true ;;
@@ -709,12 +722,12 @@ setup_firewall_service() {
         edit_csf_conf
 
         # OUT ports
-        for p in 3306 465 2087; do
+        for p in 3306 465 $ADMIN_PORT; do
             open_csf_port TCP_OUT "$p"
         done
 
         # IN ports
-        for p in 22 53 80 443 2083 2087 32768:60999 21 21000:21010 \
+        for p in 22 53 80 443 $USER_PORT $ADMIN_PORT 32768:60999 21 21000:21010 \
             $(sshd_port); do
             open_csf_port TCP_IN "$p"
         done
@@ -1199,11 +1212,11 @@ set_email_address_and_email_admin_logins(){
                   		fi
                   	fi
                   fi
-                  curl -4 -k -X POST "$PROTOCOL://$admin_domain:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message" --max-time 15
+                  curl -4 -k -X POST "$PROTOCOL://$admin_domain:$ADMIN_PORT/send_email" -F "transient=$TRANSIENT" -F "recipient=$EMAIL" -F "subject=$title" -F "body=$message" --max-time 15
                 }
 
                 server_hostname=$(hostname)
-                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:2087/ | username: $new_username  | password: $new_password"
+                email_notification "OpenPanel successfully installed" "OpenAdmin URL: http://$server_hostname:$ADMIN_PORT/ | username: $new_username  | password: $new_password"
             else
                 echo "Address provided: $EMAIL is not a valid email address. Admin login credentials and future notifications will not be sent."
             fi
@@ -1647,11 +1660,11 @@ install_openadmin(){
 	    echo "Skipping Watcher service setup due to the '--skip-dns-server' flag."
  	fi
 
-	echo "Testing if OpenAdmin service is available on default port '2087':"
-	if ss -tuln | grep ':2087' >/dev/null; then
+	echo "Testing if OpenAdmin service is available on port $ADMIN_PORT:"
+	if ss -tuln | grep ":$ADMIN_PORT" >/dev/null; then
 		echo -e "[${GREEN} OK ${RESET}] OpenAdmin service is running."
 	else
-		radovan 1 "OpenAdmin service is NOT listening on port 2087."
+		radovan 1 "OpenAdmin service is NOT listening on port $ADMIN_PORT"
 	fi
 }
 
