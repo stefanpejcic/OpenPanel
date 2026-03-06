@@ -18,3 +18,9 @@ if ! grep -q "webhook_url" "$file"; then
 else
     echo "webhook_url option already exists in $file."
 fi
+
+
+echo "Patching bug with rsyslog.."
+rm -rf /etc/logrotate.d/syslog
+service logrotate restart
+opencli server-logrotate
