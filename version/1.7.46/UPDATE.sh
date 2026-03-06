@@ -12,7 +12,7 @@ wget -O /etc/openpanel/ssh/admin_welcome.sh https://raw.githubusercontent.com/st
 echo "Adding support for Webhooks on OpenAdmin Notifications.."
 file="/etc/openpanel/openadmin/config/notifications.ini"
 
-if ! grep -Fxq "webhook_url" "$file"; then
+if ! grep -q "webhook_url" "$file"; then
     echo "webhook_url=" >> "$file"
     echo "webhook_url option appended to $file."
 else
