@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 #
@@ -59,16 +59,6 @@ get_ssl_status() {
     [[ "$ssl_status" == "yes" ]] && echo true || echo false
 }
 
-get_force_domain() {
-    config=$(read_config)
-    force_domain=$(echo "$config" | grep -i 'force_domain' | cut -d'=' -f2)
-
-    if [ -z "$force_domain" ]; then
-        ip=$(get_public_ip)
-        force_domain="$ip"
-    fi
-    echo "$force_domain"
-}
 
 get_public_ip() {
     ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
@@ -80,71 +70,36 @@ get_public_ip() {
 
 get_openpanel_openadmin_links() {
     readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
+    local domain admin_port user_port
 
-    local domain
-    domain="$(get_force_domain 2>/dev/null)"
+	local domain_block
+	domain_block="$(awk '
+		/# START HOSTNAME DOMAIN #/ {flag=1; next}
+		/# END HOSTNAME DOMAIN #/   {flag=0}
+		flag {print}
+	' "$caddyfile" 2>/dev/null)"
 
-    domain="$(echo "$domain" \
-        | sed -e 's|^https\?://||' -e 's/[[:space:]]*{//' \
-        | xargs)"
-    domain="${domain%%:*}"
+	domain="$(echo "$domain_block" \
+		| sed '/^\s*$/d' \
+		| grep -v '^\s*#' \
+		| head -n1 \
+		| sed -e 's/[[:space:]]*{//' -e 's|^https\?://||' \
+		| xargs)"
+	domain="${domain%%:*}"
+	domain="${domain%%,*}"
+	
+	admin_port="$(echo "$domain_block" \
+		| grep -oP 'reverse_proxy[ \t]+\S+:\K[0-9]+' \
+		| head -n1)"
 
-    if [[ "$domain" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        domain=""
-    fi
-
-    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
-        local domain_block
-        domain_block="$(awk '
-            /# START HOSTNAME DOMAIN #/ {flag=1; next}
-            /# END HOSTNAME DOMAIN #/   {flag=0}
-            flag {print}
-        ' "$caddyfile" 2>/dev/null)"
-
-        domain="$(echo "$domain_block" \
-            | sed '/^\s*$/d' \
-            | grep -v '^\s*#' \
-            | head -n1 \
-            | sed -e 's/[[:space:]]*{//' -e 's|^https\?://||' \
-            | xargs)"
-        domain="${domain%%:*}"
-        domain="${domain%%,*}"
-    fi
-
-    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
-        domain="$(awk '
-            function clean(h) {
-                gsub(/^https?:\/\//,"",h)
-                gsub(/\{.*/,"",h)
-                gsub(/,.*/,"",h)
-                gsub(/:[0-9]+$/,"",h)
-                gsub(/^[ \t]+|[ \t]+$/,"",h)
-                return h
-            }
-            # capture likely site label lines that end with "{"
-            /^[^#].*\{[ \t]*$/ && $0 !~ /^[ \t]*\{/ {
-                site=$0
-                site=clean(site)
-                next
-            }
-            # if this site block proxies to 2087, we want that hostname
-            /reverse_proxy[ \t]+.*:2087/ {
-                if (site != "" && site != "example.net") {
-                    print site
-                    exit
-                }
-            }
-        ' "$caddyfile" 2>/dev/null)"
-    fi
-
-    local port
-    port="$(opencli port 2>/dev/null)"
+    
+    user_port="$(opencli port 2>/dev/null)"
 
     if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         local ip
         ip="$(get_public_ip)"
-        user_url="http://${ip}:${port}/"
-        admin_url="http://${ip}:2087/"
+        user_url="http://${ip}:${user_port}/"
+        admin_url="http://${ip}:${admin_port}/"
         return 0
     fi
 
@@ -160,11 +115,11 @@ get_openpanel_openadmin_links() {
     fi
 
     if [ "$has_cert" = true ]; then
-        user_url="https://${domain}:${port}/"
-        admin_url="https://${domain}:2087/"
+        user_url="https://${domain}:${user_port}/"
+        admin_url="https://${domain}:${admin_port}/"
     else
-        user_url="http://${domain}:${port}/"
-        admin_url="http://${domain}:2087/"
+        user_url="http://${domain}:${user_port}/"
+        admin_url="http://${domain}:${admin_port}/"
     fi
 }
 
@@ -192,26 +147,26 @@ questions=(
 answers=(
     "LINK: ${GREEN}${admin_url}${NC}"
     "LINK: ${GREEN}${user_url}${NC}"
-    "- OpenPanel: ${RED}docker restart openpanel${NC}\n- OpenAdmin: ${RED}service admin restart${NC}"
+    "OpenPanel: ${RED}docker restart openpanel${NC}\n- OpenAdmin: ${RED}service admin restart${NC}"
     "execute command ${GREEN}opencli admin password USERNAME NEW_PASSWORD${NC}"
     "execute command ${GREEN}opencli admin new USERNAME PASSWORD${NC}"
     "execute command ${GREEN}opencli admin list${NC}"
     "execute command ${GREEN}opencli --version${NC}"
     "execute command ${GREEN}opencli update --force${NC}"
     "execute command ${GREEN}opencli config update autoupdate off${NC}"
-    "- User panel errors:      ${GREEN}/var/log/openpanel/user/error.log${NC}\n- User panel access log:  ${GREEN}/var/log/openpanel/user/access.log${NC}\n- Admin panel errors:     ${GREEN}/var/log/openpanel/admin/error.log${NC}\n- Admin panel access log: ${GREEN}/var/log/openpanel/admin/access.log${NC}\n- Admin panel API access: ${GREEN}/var/log/openpanel/admin/api.log${NC}\n- Admin panel logins:     ${GREEN}/var/log/openpanel/admin/login.log${NC}\n- Admin panel alerts:     ${GREEN}/var/log/openpanel/admin/notifications.log${NC}\n- Admin panel crons:      ${GREEN}/var/log/openpanel/admin/cron.log${NC}"
-    "- ${GREEN}opencli config update dev_mode yes${NC}"
+    "User panel errors:      ${GREEN}docker logs -f openpanel${NC}\n- User panel access log:  ${GREEN}/var/log/openpanel/user/access.log${NC}\n- Admin panel errors:     ${GREEN}/var/log/openpanel/admin/error.log${NC}\n- Admin panel access log: ${GREEN}/var/log/openpanel/admin/access.log${NC}\n- Admin panel API access: ${GREEN}/var/log/openpanel/admin/api.log${NC}\n- Admin panel logins:     ${GREEN}/var/log/openpanel/admin/login.log${NC}\n- Admin panel alerts:     ${GREEN}/var/log/openpanel/admin/notifications.log${NC}\n- Admin panel crons:      ${GREEN}/var/log/openpanel/admin/cron.log${NC}"
+    "${GREEN}opencli config update dev_mode yes${NC}"
 )
 
 
 
 # ======================================================================
 # Output
-echo -e "\nFrequently Asked Questions\n"
+echo -e "Frequently Asked Questions\n"
 
 for i in "${!questions[@]}"; do
     qnum=$((i + 1))
-    echo -e "${PURPLE}${qnum}.${NC} ${questions[$i]}\n"
-    echo -e "${answers[$i]}"
-    echo -e "${BLUE}------------------------------------------------------------${NC}\n"
+    echo -e "${PURPLE}${qnum}.${NC} ${questions[$i]}"
+    echo -e "- ${answers[$i]}"
+    echo -e "${BLUE}------------------------------------------------------------${NC}"
 done

@@ -76,16 +76,17 @@ get_admin_url() {
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
+	admin_port=$(echo "$domain_block" | grep -oP 'localhost:\K[0-9]+' | head -n1)
         
     if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
-        admin_url="http://${ip}:2087/"
+        admin_url="http://${ip}:${admin_port}/"
     else
         if [ -f "${CADDY_CERT_DIR}/${domain}/${domain}.crt" ] && [ -f "${CADDY_CERT_DIR}/${domain}/${domain}.key" ]; then
-            admin_url="https://${domain}:2087/"
+            admin_url="https://${domain}:${admin_port}/"
         else
             ip=$(get_public_ip)
-            admin_url="http://${ip}:2087/"
+            admin_url="http://${ip}:${admin_port}/"
         fi
     fi
     

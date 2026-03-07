@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -214,6 +214,8 @@ enable_coraza_waf() {
     # 1. download rules
     echo "Downloading Coraza rules.."
     wget --timeout=15 --tries=3 --inet4-only https://raw.githubusercontent.com/corazawaf/coraza/v3/dev/coraza.conf-recommended -O /etc/openpanel/caddy/coraza_rules.conf
+    sed -i '/^SecRequestBodyJsonDepthLimit/ s/^/#/' /etc/openpanel/caddy/coraza_rules.conf
+
     echo "Downloading OWASP CRS.."
     git clone https://github.com/coreruleset/coreruleset /etc/openpanel/caddy/coreruleset/
     

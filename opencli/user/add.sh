@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1519,8 +1519,9 @@ send_email_to_new_user() {
                   local title="$1"
                   local message="$2"
                   generate_random_token_one_time_only
-                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")				  
-                  curl -4 -k -X POST "$PROTOCOL://$DOMAIN:2087/send_email" -F "transient=$TRANSIENT" -F "recipient=$email" -F "subject=$title" -F "body=$message" --max-time 15
+                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")	
+				  admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
+                  curl -4 -k -X POST "$PROTOCOL://$DOMAIN:$admin_port/send_email" -F "transient=$TRANSIENT" -F "recipient=$email" -F "subject=$title" -F "body=$message" --max-time 15
                 }
 
 				  DOMAIN=$(opencli domain)

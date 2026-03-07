@@ -5,7 +5,7 @@
 # Usage: opencli server-logrotate
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -92,7 +92,8 @@ logrotate -f /etc/logrotate.d/caddy-logs
 echo "Caddy log rotation configured."
 
 # ---------- SYSLOG ----------
-cat > /etc/logrotate.d/syslog <<EOF
+if ! grep -qr "/var/log/syslog" /etc/logrotate.conf /etc/logrotate.d/; then
+    cat > /etc/logrotate.d/syslog <<EOF
 /var/log/syslog {
     su root adm
     size $logrotate_size_limit
@@ -108,9 +109,11 @@ cat > /etc/logrotate.d/syslog <<EOF
     maxage $logrotate_keep_days
 }
 EOF
-
-logrotate -f /etc/logrotate.d/syslog
-echo "Syslog rotation configured."
+    logrotate -f /etc/logrotate.d/syslog
+    echo "Syslog rotation configured."
+else
+    echo "Syslog is already configured in logrotate, skipping."
+fi
 
 # ---------- OPENPANEL ----------
 cat > /etc/logrotate.d/openpanel <<EOF

@@ -5,7 +5,7 @@
 # Usage: opencli user-rename <old_username> <new_username>
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

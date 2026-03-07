@@ -5,7 +5,7 @@
 # Usage: opencli port [set <port>] 
 # Author: Stefan Pejcic
 # Created: 17.02.2025
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -31,6 +31,7 @@
 ENV_FILE="/root/.env"
 COMPOSE_DIR="/root"
 REDIRECTS_FILE="/etc/openpanel/caddy/redirects.conf"
+PROXY_FILE="/etc/openpanel/nginx/vhosts/openpanel_proxy.conf"
 
 
 
@@ -64,35 +65,45 @@ update_env() {
 # for redirects!
 do_reload() {
   if [[ "$3" != '--no-restart' ]]; then
+    # restart caddy and openpanel
     cd $COMPOSE_DIR
     nohup docker compose restart caddy > /dev/null 2>&1 < /dev/null &
     nohup bash -c "docker --context=default compose down openpanel && docker --context=default compose up -d openpanel" > /dev/null 2>&1 &
+
+    # open port on csf
+    local csf_conf="/etc/csf/csf.conf"
+    [ -f "$csf_conf" ] || return 0
+    port_opened=$(grep "TCP_IN = .*${new_port}" "$csf_conf")
+    if [ -z "$port_opened" ]; then
+        sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${new_port}\"/" "$csf_conf"
+        nohup csf -r > /dev/null 2>&1 < /dev/null &
+    fi
    fi
 }
 
 
 update_redirects() {
-  #sed -i "s/$current_port/$new_port/g" $REDIRECTS_FILE
   sed -i "/redir @openpanel/s/:[0-9]\+/:$new_port/g" $REDIRECTS_FILE
 }
+
+update_proxy_file() {
+  sed -i "/# openpanel/,/# openadmin/ s/:[0-9]\+/:$new_port/g" "$PROXY_FILE" 
+}
+
 
 
 update_port() {
   current_port=$(get_current_port)
-      if [ "$current_port" != "$new_port" ]; then
-        update_env
-        update_redirects
-        do_reload
-        success_msg
-      else
-        echo "Port ${new_port} s already set for accessing the user panel."
-        exit 0
-      fi
-      
-
-    
-      
-
+  if [ "$current_port" != "$new_port" ]; then
+    update_env
+    update_redirects
+    update_proxy_file
+    do_reload
+    success_msg
+  else
+    echo "Port ${new_port} s already set for accessing the user panel."
+    exit 0
+  fi
 }
 
 

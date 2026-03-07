@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 05.03.2026
+# Last Modified: 06.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -55,6 +55,7 @@ usage() {
     echo "Commands:"
     echo "  on                                            Enable and start the OpenAdmin service."
     echo "  off                                           Stop and disable the OpenAdmin service."
+    echo "  port [new_port]                               Display or update OpenAdmin port."
     echo "  log                                           Display the last 25 lines of the OpenAdmin error log."
     echo "  logs                                          Display live logs for all OpenAdminn services."
     echo "  list                                          List all current admin users."
@@ -74,6 +75,8 @@ usage() {
     echo "Examples:"
     echo "  opencli admin on"
     echo "  opencli admin off"
+    echo "  opencli admin port"
+    echo "  opencli admin 8443"
     echo "  opencli admin log"
     echo "  opencli admin logs"
     echo "  opencli admin list"
@@ -90,6 +93,7 @@ usage() {
     echo "  opencli admin notifications update ram 95"
     echo "  opencli admin notifications update du 99"
     echo "  opencli admin notifications update swap 95"
+    echo "  opencli admin notifications update webhook_url https://discord.com/api/webhooks/XXXX/YYYYYYY"
     exit 1
 }
 
@@ -109,6 +113,7 @@ usage_for_notifications() {
     echo "  opencli admin notifications update update yes - receive notification when new OpenPanel update is available."
     echo "  opencli admin notifications update cpu 90     - receive notification when server CPU usage is over 90%."
     echo "  opencli admin notifications update du 95      - receive notification when server disk usage is over 95%."
+	echo "  opencli admin notifications update webhook_url https://discord.com/api/webhooks/XXXX/YYYYYYY"
     echo ""
     echo "List of all available options: https://dev.openpanel.com/cli/admin.html#Options"
     exit 1  
@@ -131,10 +136,12 @@ get_admin_url() {
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
-        
+	
+	admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
+		
     if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
-        admin_url="http://${ip}:2087/"
+        admin_url="http://${ip}:${admin_port}/"
     else
 		# ---------------------- letsencrypt
 		local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
@@ -146,10 +153,10 @@ get_admin_url() {
 	 
 		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
 		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
-		    admin_url="https://${domain}:2087/"
+		    admin_url="https://${domain}:${admin_port}/"
         else
             ip=$(get_public_ip)
-            admin_url="http://${ip}:2087/"
+            admin_url="http://${ip}:${admin_port}/"
         fi
     fi
 
@@ -164,8 +171,6 @@ get_public_ip() {
     fi
     echo "$ip"
 }
-
-
 
 delete_existing_users() {
     local username="$1"
@@ -211,7 +216,7 @@ update_config() {
     new_value="$2"
 
     if grep -q "^$param_name=" "$notifications_file"; then
-        sed -i "s/^$param_name=.*/$param_name=$new_value/" "$notifications_file"
+		sed -i "s|^$param_name=.*|$param_name=$new_value|" "$notifications_file"
         echo "Updated $param_name to $new_value"
         
     else
@@ -590,7 +595,7 @@ case "$1" in
         systemctl enable --now $service_name > /dev/null 2>&1
         echo "tail -f 25 $admin_logs_file"
         echo ""
-        service admin restart
+        systemctl restart admin
         tail -25 $admin_logs_file
         echo ""
         ;;
@@ -647,7 +652,40 @@ case "$1" in
         # https://dev.openpanel.com/cli/admin.html#Unsuspend-Admin-User
         username="$2"
         unsuspend_user "$username"
-        ;;       
+        ;;   
+	"port")
+        # https://dev.openpanel.com/cli/admin.html#Suspend-Admin-User
+        new_port="$2"
+		optional_flag="$3"
+        if [ -n "$new_port" ]; then
+		    if ! [[ "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -le 1000 ]; then
+		        echo "Error: OpenAdmin port number must be greater than 1000."
+		        exit 1
+		    fi
+            echo "Changing port to: $new_port"
+			sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$new_port/" "/etc/openpanel/caddy/Caddyfile"
+			sed -i "/redir @openadmin/s/:[0-9]\+/:$new_port/g" "/etc/openpanel/caddy/redirects.conf"
+			sed -i "/redir @openadmin/s/:[0-9]\+/:$new_port/g" "/etc/openpanel/caddy/redirects.conf"
+			sed -i "/# openadmin/,/# roundcube/ s/:[0-9]\+/:$new_port/g" "/etc/openpanel/nginx/vhosts/openpanel_proxy.conf"
+			if [[ "$optional_flag" != '--no-restart' ]]; then
+			    csf_conf="/etc/csf/csf.conf"
+				echo "Opening port on firewall.."			
+			    port_opened=$(grep "TCP_IN = .*${new_port}" "$csf_conf")
+			    if [ -z "$port_opened" ]; then
+			        sed -i "s/TCP_IN = \"\(.*\)\"/TCP_IN = \"\1,${new_port}\"/" "$csf_conf"
+			        nohup csf -r > /dev/null 2>&1 < /dev/null &
+			    fi
+	            echo "Restarting OpenAdmin.."
+				systemctl restart admin
+			else
+				echo "Make sure to open the new port on Firewall and restart OpenAdmin service to apply new port."
+			fi
+			echo "Done"
+        else
+		    admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
+		    echo $admin_port
+        fi
+        ;;  	
     "new")
         # https://dev.openpanel.com/cli/admin.html#Create-new-Admin
         new_username="$2"
@@ -694,19 +732,6 @@ case "$1" in
                 fi
                 new_value="$4"
                 update_config "$param_name" "$new_value"
-                
-                case "$param_name" in
-                    ssl)
-                        update_ssl_config "$new_value"
-                        ;;
-                    port)
-                        update_port_config "$new_value"
-                        ;;
-                    openpanel_proxy)
-                        update_openpanel_proxy_config "$new_value"
-                        service nginx reload
-                        ;;
-                esac
                 ;;
             *)
                 echo "ERROR: Invalid command."
