@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -902,6 +902,8 @@ add_domain() {
 		! $onion_domain && create_mail_mountpoint
 
  		######add_domain_to_clamav_list                    # added in 0.3.4    
+
+        setsid -f opencli sentinel --action=domains_create --title="Domain added" --message="Domain name: '$domain_name' has been added to OpenPanel user: '$user'." >/dev/null 2>&1
 
         echo "Domain $domain_name added successfully"
     else

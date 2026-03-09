@@ -5,7 +5,7 @@
 # Usage: opencli api <status|on|off|list>
 # Author: Stefan Pejcic
 # Created: 04.09.2024
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -71,6 +71,7 @@ case "$1" in
     ;;
   on|off)
     opencli config update api "$1"
+    setsid -f opencli sentinel --action=admin_api --title="OpenAdmin API is $1" --message="API access for the administrator-level panel is now: '$1'." >/dev/null 2>&1
     if systemctl is-active --quiet admin; then
         systemctl restart admin 2>&1
     fi

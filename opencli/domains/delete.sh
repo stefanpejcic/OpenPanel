@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -435,6 +435,9 @@ delete_domain() {
     if [ "$result" -eq 0 ]; then
         get_webserver_for_user                       #
         vhost_files_delete                           # delete file in container
+
+		setsid -f opencli sentinel --action=domains_delete --title="Domain deleted" --message="Domain name: '$domain_name' has been removed from OpenPanel user: '$user'." >/dev/null 2>&1
+
 		remove_dns_entries_from_apex_zone	         # subdomain-specific DNS cleanup
 		if $onion_domain; then
 			remove_onion_files		                 # delete conf files

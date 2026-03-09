@@ -5,7 +5,7 @@
 # Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -258,11 +258,13 @@ if [ -n "$2" ]; then
     	exit 0
     elif [ "$2" == "auto" ]; then
         sed -i -E "s|tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem|  tls {\n    on_demand\n  }|g" "$CONFIG_FILE"
+		setsid -f opencli sentinel --action=domains_ssl --title="AutoSSL set for domain" --message="AutoSSL is set for domain name: '$DOMAIN' owned by OpenPanel user '$user'." >/dev/null 2>&1
 		docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null
         echo "Updated $DOMAIN to use AutoSSL."
         exit 0
     elif [ "$2" == "custom" ] && [ -n "$3" ] && [ -n "$4" ]; then        
         check_and_use_tls "$3" "$4"
+		setsid -f opencli sentinel --action=domains_ssl --title="Custom SSL set for domain" --message="Custom SSL is set for domain name: '$DOMAIN' owned by OpenPanel user '$user'." >/dev/null 2>&1
         echo "Updated $DOMAIN to use custom SSL."
         exit 0
 	elif [ "$2" == "logs" ]; then

@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -54,6 +54,7 @@ touch /etc/openpanel/ftp/users/${openpanel_username}/users.list
 docker --context=default exec openadmin_ftp sh -c "deluser $username"
 if [ $? -eq 0 ]; then
     sed -i "/^$username|/d" /etc/openpanel/ftp/users/${openpanel_username}/users.list
+    setsid -f opencli sentinel --action=ftp_delete --title="FTP account deleted" --message="FTP account '$username' has been deleted." >/dev/null 2>&1
     echo "Success: FTP user '$username' deleted successfully."
 else
     echo "ERROR: Failed to delete FTP user. To debug run this command on terminal: opencli -x ftp-delete $username $openpanel_username"

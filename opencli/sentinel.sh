@@ -584,10 +584,34 @@ summary() {
   hr
 }
 
-case "$1" in
-  --startup) perform_startup_action; exit 0 ;;
-  --report)  email_daily_report;     exit 0 ;;
-esac
+
+run_action() {
+  action="$1"
+  local title="$2"
+  loval message="$3"
+  ACTION=$(validate_yes_no "$(ini_get $action)")
+  if [[ "$ACTION" == "no" ]]; then
+    echo "[!] Notifications are disabled for action: $action"; return
+  fi
+  [[ -n "$WEBHOOK_URL" ]] && webhook_notification "$title" "$message"
+  write_notification "$title" "$message"
+}
+
+
+for arg in "$@"; do
+  case "$arg" in
+    --startup) perform_startup_action; exit 0 ;;
+    --report) email_daily_report; exit 0 ;;
+    --action=*) action="${arg#*=}" ;;
+    --message=*) message="${arg#*=}" ;;
+    --title=*) title="${arg#*=}";;
+  esac
+done
+
+if [[ -n "$action" ]]; then
+  run_action "$action" "$title" "$message"
+  exit 0
+fi
 
 exec 200>/root/sentinel_run.lock
 flock -n 200 || { echo "Error: Another instance is already running."; exit 1; }

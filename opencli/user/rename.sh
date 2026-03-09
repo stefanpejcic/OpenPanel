@@ -5,7 +5,7 @@
 # Usage: opencli user-rename <old_username> <new_username>
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -218,6 +218,7 @@ rename_user_in_db() {
     mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
 
     if [ $? -eq 0 ]; then
+	    setsid -f opencli sentinel --action=user_rename --title="User accountu username changed" --message="Username for user account '$OLD_USERNAME' has been changed to: '$NEW_USERNAME'." >/dev/null 2>&1
         echo "User '$OLD_USERNAME' successfully renamed to '$NEW_USERNAME'."
     else
         echo "Error: Changing username in database failed!"

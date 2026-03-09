@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -131,6 +131,7 @@ rename_user_in_db() {
         echo "ERROR: Failed to suspend user '$USERNAME'."
         exit 1
     fi
+    setsid -f opencli sentinel --action=user_status --title="User account suspended" --message="User account '$USERNAME' has been suspended." >/dev/null 2>&1
 }
 
 

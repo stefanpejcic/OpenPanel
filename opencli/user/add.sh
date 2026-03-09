@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1616,6 +1616,7 @@ copy_skeleton_files                          # get webserver, php version and my
 download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
+setsid -f opencli sentinel --action=user_create --title="User account '$username' created" --message="User account '$username' has been successfully created with email: $email and hosting plan: $hosting_plan" >/dev/null 2>&1
 update_accounts_for_reseller                 # update current_accounts for reseller in their json file
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -252,6 +252,7 @@ if [ "$delete_all" = true ]; then
     done
     	echo "DONE."
     	echo "$((current_user_index - 1)) users have been deleted."
+		setsid -f opencli sentinel --action=user_delete --title="All user accounts deleted" --message="All $((current_user_index - 1)) user accounts have been deleted." >/dev/null 2>&1
     exit 0
 else
 	# SINGLE USER
@@ -260,4 +261,5 @@ else
 	    exit 1
 	fi
 	delete_user "$provided_username"
+	setsid -f opencli sentinel --action=user_delete --title="User account deleted" --message="User account '$provided_username' has been deleted." >/dev/null 2>&1
 fi

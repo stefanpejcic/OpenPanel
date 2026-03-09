@@ -5,7 +5,7 @@
 # Usage: opencli domains-unsuspend <DOMAIN-NAME>
 # Author: Stefan Pejcic
 # Created: 04.11.2024
-# Last Modified: 06.03.2026
+# Last Modified: 08.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -49,6 +49,7 @@ validate_conf() {
 	check_and_add_to_enabled
  
 	if [ $? -eq 0 ]; then
+		setsid -f opencli sentinel --action=domains_status --title="Domain name $domain_name unsuspended" --message="Domain name $domain_name has been unsuspended." >/dev/null 2>&1
 		echo "Domain unsuspended successfully."
 	else
 		echo "ERROR: Failed to validate conf after unsuspend, changes reverted."
