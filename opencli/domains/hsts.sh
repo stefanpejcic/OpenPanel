@@ -5,7 +5,7 @@
 # Usage: opencli hsts <domain> [on|off] 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -112,7 +112,8 @@ file="/etc/openpanel/caddy/domains/${domain}.conf"
 case "$action" in
     enable|disable)
         set_hsts_for_domain "$domain" "$action"
-        setsid -f opencli sentinel --action=domains_hsts --title="HSTS ${action}d for domain $domain" --message="HSTS status has been changed to:'${action}d' for domain: '$domain'." >/dev/null 2>&1
+        nohup opencli sentinel --action=domains_hsts --title="HSTS ${action}d for domain $domain" --message="HSTS status has been changed to:'${action}d' for domain: '$domain'." >/dev/null 2>&1 ^
+        disown
         ;;
     *)
         echo "Invalid action: $action"

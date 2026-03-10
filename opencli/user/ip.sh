@@ -5,7 +5,7 @@
 # Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -216,13 +216,15 @@ if [ "$ACTION" == "delete" ]; then
         rm -rf "$json_file"
     fi
     echo "IP successfully changed for user $USERNAME to shared IP address: $ip_to_use"
-    setsid -f opencli sentinel --action=user_ip --title="User account IP changed" --message="IP address for user account '$USERNAME' has been set to: '$ip_to_use'." >/dev/null 2>&1
+    nohup opencli sentinel --action=user_ip --title="User account IP changed" --message="IP address for user account '$USERNAME' has been set to: '$ip_to_use'." >/dev/null 2>&1 &
+    disown
     drop_redis_cache 
 else
     create_ip_file "$IP"
     if [ $? -eq 0 ]; then
         echo "IP successfully changed for user $USERNAME to dedicated IP address: $ip_to_use"
-        setsid -f opencli sentinel --action=user_ip --title="User account IP changed" --message="IP address for user account '$USERNAME' has been set to: '$ip_to_use'." >/dev/null 2>&1
+        nohup opencli sentinel --action=user_ip --title="User account IP changed" --message="IP address for user account '$USERNAME' has been set to: '$ip_to_use'." >/dev/null 2>&1 &
+        disown
         drop_redis_cache
     else
         echo "Failed to set dedicated IP address for user $USERNAME."

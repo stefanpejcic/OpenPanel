@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -138,7 +138,8 @@ create_user() {
         # Record in users.list
         echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${openpanel_username}/users.list"
 
-        setsid -f opencli sentinel --action=ftp_create --title="FTP account created" --message="New FTP account has been created for OpenPanel user: '$openpanel_username'. Directory: $directory | UID: $USER_UID | GID: $USER_GID" >/dev/null 2>&1
+        nohup opencli sentinel --action=ftp_create --title="FTP account created" --message="New FTP account has been created for OpenPanel user: '$openpanel_username'. Directory: $directory | UID: $USER_UID | GID: $USER_GID" >/dev/null 2>&1 &
+		disown
         echo "Success: FTP user '$username' created successfully (UID: $USER_UID, GID: $USER_GID)."
     else
         if [ "$DEBUG" = true ]; then

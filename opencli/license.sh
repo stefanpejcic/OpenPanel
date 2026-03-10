@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -169,10 +169,10 @@ restart_services() {
 toggle_emails_module() {
     local action="${1:-enable}"
     local enabled_modules new_modules
-    enabled_modules=$(grep '^enabled_modules=' "$CONFIG_FILE_PATH" | cut -d'=' -f2)
+    enabled_modules=$(grep '^enabled_modules=' "$CONFIG_FILE_PATH" | cut -d'=' -f2 | tr -d '"')
 
     if [ "$action" = "disable" ]; then
-        new_modules=$(echo "$enabled_modules" | sed 's/,emails//g; s/emails,//g; s/^emails$//g')
+        new_modules=$(echo "$enabled_modules" | sed 's/\bemails\b//g; s/,,/,/g; s/^,//; s/,$//')
     else
         if ! echo "$enabled_modules" | grep -q '\bemails\b'; then
             new_modules="${enabled_modules},emails"
@@ -181,7 +181,7 @@ toggle_emails_module() {
         fi
     fi
 
-    sed -i "s/^enabled_modules=.*/enabled_modules=${new_modules}/" "$CONFIG_FILE_PATH"
+    sed -i "s|^enabled_modules=.*|enabled_modules=\"${new_modules}\"|" "$CONFIG_FILE_PATH"
 }
 
 # add/remove pagespeed api key

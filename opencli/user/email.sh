@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Radovan Jecmenica
 # Created: 06.12.2023
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -111,7 +111,8 @@ main() {
     
     # 2. perform email update
     if update_user_email "$username" "$new_email"; then
-    	setsid -f opencli sentinel --action=user_email --title="User account email changed" --message="Email address for user account '$username' has been changed to '$new_email'." >/dev/null 2>&1
+    	nohup opencli sentinel --action=user_email --title="User account email changed" --message="Email address for user account '$username' has been changed to '$new_email'." >/dev/null 2>&1 &
+        disown
         echo "Success: Email for user '$username' updated to '$new_email'"
     else
         echo "Error: Failed to update email for user '$username'" >&2

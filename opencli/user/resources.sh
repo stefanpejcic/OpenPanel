@@ -5,7 +5,7 @@
 # Usage: opencli user-resources <CONTEXT> [--activate=<SERVICE_NAME>] [--deactivate=<SERVICE_NAME>] [--update_cpu=<FLOAT>] [--update_ram=<FLOAT>] [--service=<NAME>] [--json]
 # Author: Stefan Pejcic
 # Created: 26.02.2025
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -90,12 +90,14 @@ validate_number() {
 }
 
 load_env_file() {
+
     [ -f "$env_file" ] && export $(grep -v '^#' "$env_file" | xargs)
 }
 
 check_context_and_env() {
     [ -z "$context" ] && echo "Missing context argument." && exit 1
     [ ! -f "$env_file" ] && echo "Missing env file: $env_file" && exit 1
+    sed -i 's/\r//' "$env_file" >/dev/null 2>&1 # workaround for Windows-style line endings in the .env file
 }
 
 normalize_service_name() {
@@ -141,7 +143,15 @@ update_resource() {
 
 # --- Service Start/Stop ---
 check_service_exists() {
-    docker --context "$context" compose -f "/home/$context/docker-compose.yml" config --services | grep -qw "$1"
+    local svc="$1"
+    local services
+    services=$(docker --context "$context" compose -f "/home/$context/docker-compose.yml" config --services 2>/dev/null | tr -d '\r')
+    
+    if echo "$services" | grep -qx "$svc"; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 check_service_running() {

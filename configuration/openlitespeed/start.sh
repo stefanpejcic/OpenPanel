@@ -62,21 +62,24 @@ update_listener_maps() {
     {
       if ($1 == "listener" && $2 == lst && $3 == "{") {
         in_listener = 1
-        map_lines = ""
+        delete existing_map
+        print
+        next
       }
-      
+
       if (in_listener) {
         if ($1 == "map") {
           existing_map[$2] = 1
         }
-        if ($1 == "}") {
-          # Before closing brace, add missing maps
+        if ($0 ~ /^\}/) {
           for (i in d_arr) {
             if (!(d_arr[i] in existing_map)) {
               print "  map                     " d_arr[i] " " d_arr[i]
             }
           }
+          print
           in_listener = 0
+          next
         }
       }
 

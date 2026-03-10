@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -606,7 +606,7 @@ create_domain_file() {
 			update_bind_in_block "$domains_file" "https://$domain_name, https://*.$domain_name {" "$dedicated_ip"
 		fi
 
-		if grep -qi "waf" "$openpanel_config" 2>/dev/null; then
+		if grep -qi "waf" "$PANEL_CONFIG_FILE" 2>/dev/null; then
 			value="On"
 			log "WAF module is enabled, setting SecRuleEngine On"
 		else
@@ -903,7 +903,8 @@ add_domain() {
 
  		######add_domain_to_clamav_list                    # added in 0.3.4    
 
-        setsid -f opencli sentinel --action=domains_create --title="Domain added" --message="Domain name: '$domain_name' has been added to OpenPanel user: '$user'." >/dev/null 2>&1
+        nohup opencli sentinel --action=domains_create --title="Domain added" --message="Domain name: '$domain_name' has been added to OpenPanel user: '$user'." >/dev/null 2>&1 &
+		disown
 
         echo "Domain $domain_name added successfully"
     else

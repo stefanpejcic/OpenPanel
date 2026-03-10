@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -192,7 +192,8 @@ delete_existing_users() {
 		
             sqlite3 $db_file_path "DELETE FROM user WHERE username='$username';"  
             echo "User '$username' deleted successfully."
-			setsid -f opencli sentinel --action=admin_delete --title="Administrator deleted" --message="Administrator account '$username' has been deleted." >/dev/null 2>&1
+			nohup opencli sentinel --action=admin_delete --title="Administrator deleted" --message="Administrator account '$username' has been deleted." >/dev/null 2>&1 &
+			disown
         fi
     else
         echo -e "${RED}Error${RESET}: User '$username' does not exist."
@@ -349,12 +350,14 @@ add_new_user() {
 			mkdir -p $resellers_dir
 			cp $resellers_template $resellers_dir/$username.json
 			echo "Reseller user '$username' created."
-			setsid -f opencli sentinel --action=reseller_create --title="Reseller created" --message="Reseller administrator account '$username' has been created." >/dev/null 2>&1
+			nohup opencli sentinel --action=reseller_create --title="Reseller created" --message="Reseller administrator account '$username' has been created." >/dev/null 2>&1 &
+			disown
 		elif [ "$flag" == "--super" ]; then
 			echo "Super Administrator '$username' created."
 		else
 			echo "Admin User '$username' created."
-			setsid -f opencli sentinel --action=admin_create --title="Administrator created" --message="Administrator account '$username' has been created." >/dev/null 2>&1
+			nohup opencli sentinel --action=admin_create --title="Administrator created" --message="Administrator account '$username' has been created." >/dev/null 2>&1 &
+			disown
 		fi
 	fi
 }
@@ -423,7 +426,8 @@ update_username() {
             echo "User '$old_username' renamed to '$new_username'."
 	    	sed -i "s/\b$old_username\b/$new_username/g" /var/log/openpanel/admin/login.log   > /dev/null 2>&1
 			#TODO: CHECK IF RESELLER
-			setsid -f opencli sentinel --action=admin_rename --title="Administrator renamed" --message="Administrator account '$old_username' has been renamed to '$new_username' ." >/dev/null 2>&1
+			nohup opencli sentinel --action=admin_rename --title="Administrator renamed" --message="Administrator account '$old_username' has been renamed to '$new_username' ." >/dev/null 2>&1 &
+			disown
 			# for resellers
 			mv /etc/openpanel/features/$old_username /etc/openpanel/features/$username  > /dev/null 2>&1
 	    	mv /etc/openpanel/openadmin/resellers/$old_username.json /etc/openpanel/openadmin/resellers/$new_username.json  > /dev/null 2>&1   
@@ -441,7 +445,8 @@ update_password() {
 
     if [ "$user_exists" -gt 0 ]; then
         sqlite3 $db_file_path "UPDATE user SET password_hash='$password_hash' WHERE username='$username';"
-		setsid -f opencli sentinel --action=admin_password --title="Administrator password changed" --message="Administrator account '$username' has password changed." >/dev/null 2>&1
+		nohup opencli sentinel --action=admin_password --title="Administrator password changed" --message="Administrator account '$username' has password changed." >/dev/null 2>&1 &
+		disown
         echo "Password for user '$username' changed."
         echo ""
         printf "=%.0s"  $(seq 1 63)
@@ -479,7 +484,8 @@ suspend_user() {
             sqlite3 $db_file_path "UPDATE user SET is_active='0' WHERE username='$username';"
             echo "User '$username' suspended successfully."
 
-            setsid -f opencli sentinel --action=admin_suspend --title="Administrator suspended" --message="Administrator account '$username' has been suspended." >/dev/null 2>&1
+            nohup opencli sentinel --action=admin_suspend --title="Administrator suspended" --message="Administrator account '$username' has been suspended." >/dev/null 2>&1 &
+			disown
 
             #echo ""
             #echo "Suspending accounts owned by the reseller $username"
@@ -510,7 +516,8 @@ unsuspend_user() {
             sqlite3 $db_file_path "UPDATE user SET is_active='1' WHERE username='$username';"
             echo "User '$username' unsuspended successfully."
 
-            setsid -f opencli sentinel --action=admin_unsuspend --title="Administrator unsuspended" --message="Administrator account '$username' has been unsuspended." >/dev/null 2>&1
+            nohup opencli sentinel --action=admin_unsuspend --title="Administrator unsuspended" --message="Administrator account '$username' has been unsuspended." >/dev/null 2>&1 &
+		    disown
             #echo ""
             #echo "Unsuspending accounts owned by the reseller $username"
             query_for_usernames="SELECT username FROM users WHERE owner='$username';"
@@ -597,7 +604,8 @@ case "$1" in
 		rm /root/openadmin_is_disabled > /dev/null 2>&1
         systemctl enable --now $service_name > /dev/null 2>&1
         detect_service_status
-		setsid -f opencli sentinel --action=admin_status --title="OpenAdmin enabled" --message="Administrator-level panel has been enabled." >/dev/null 2>&1
+		nohup opencli sentinel --action=admin_status --title="OpenAdmin enabled" --message="Administrator-level panel has been enabled." >/dev/null 2>&1 &
+		disown
         ;;
     "log")
         # https://dev.openpanel.com/cli/admin.html#View-OpenAdmin-logs
@@ -619,7 +627,8 @@ case "$1" in
         systemctl disable --now $service_name > /dev/null 2>&1
 		touch /root/openadmin_is_disabled
         detect_service_status
-		setsid -f opencli sentinel --action=admin_status --title="OpenAdmin disabled" --message="Administrator-level panel has been disabled." >/dev/null 2>&1
+		nohup opencli sentinel --action=admin_status --title="OpenAdmin disabled" --message="Administrator-level panel has been disabled." >/dev/null 2>&1 &
+		disown
         ;;
     "help")
         usage
@@ -691,7 +700,8 @@ case "$1" in
 			else
 				echo "Make sure to open the new port on Firewall and restart OpenAdmin service to apply new port."
 			fi
-			setsid -f opencli sentinel --action=admin_port --title="OpenAdmin port changed" --message="Port for administrator-level panel has been changed to '$new_port'." >/dev/null 2>&1
+			nohup opencli sentinel --action=admin_port --title="OpenAdmin port changed" --message="Port for administrator-level panel has been changed to '$new_port'." >/dev/null 2>&1 &
+			disown
 			echo "Done"
         else
 		    admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)

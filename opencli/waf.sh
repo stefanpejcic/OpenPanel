@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -37,8 +37,8 @@ usage() {
     echo ""
     echo "Commands:"
     echo "  status                                       Check if CorazaWAF is enabled for new domains and users."
-    echo "  enable                                       Use Caddy image with CorazaWAF, enable module and use WAF on new domains."
-    echo "  disable                                      Use official Caddy docker image, disable module and dont use WAF on new domains."    
+    echo "  enable                                       Enable module and use WAF on new domains."
+    echo "  disable                                      Disable module and dont use WAF on new domains."    
     echo "  domain                                       Check if CorazaWAF is enabled for a domain."
     echo "  domain DOMAIN_NAME enable                    Enable CorazaWAF for a domain."
     echo "  domain DOMAIN_NAME disable                   Disable CorazaWAF for a domain."
@@ -50,7 +50,7 @@ usage() {
     echo "Examples:"
     echo "  opencli waf status"
     echo "  opencli waf enable"
-    echo "  opencli waf disable"
+    echo "  opencli waf disable -y"
     echo "  opencli waf domain pcx3.com"
     echo "  opencli waf domain pcx3.com enable"
     echo "  opencli waf domain pcx3.com disable"
@@ -138,7 +138,8 @@ set_coraza_waf_for_domain() {
         echo "Failed setting SecRuleEngine $value - please contact Administrator."
         exit 1
     fi
-    setsid -f opencli sentinel --action=waf_domain --title="WAF $action for domain" --message="CorazaWAF has been ${action}d for domain '$domain'." >/dev/null 2>&1
+    nohup opencli sentinel --action=waf_domain --title="WAF $action for domain" --message="CorazaWAF has been ${action}d for domain '$domain'." >/dev/null 2>&1 &
+    disown
 }
 
 get_stats_from_file() {
@@ -239,7 +240,8 @@ enable_coraza_waf() {
     }
     docker --context=default compose down caddy && docker --context=default compose up -d caddy
 
-    setsid -f opencli sentinel --action=waf_status --title="WAF configured" --message="CorazaWAF has been configured on the server and WAF will be auto-enabled for new domains." >/dev/null 2>&1
+    nohup opencli sentinel --action=waf_status --title="WAF configured" --message="CorazaWAF has been configured on the server and WAF will be auto-enabled for new domains." >/dev/null 2>&1 &
+    disown
 
     # 6. check status
     check_coraza_status
@@ -258,21 +260,25 @@ disable_coraza_waf() {
             echo " - $filename"
         done
 
-        read -r -p "Do you really want to disable WAF protection on these domains and stop using Coraza WAF on the server? [y/N]: " confirm
-        case "$confirm" in
-            [yY][eE][sS]|[yY])
-                echo "Disabling Coraza WAF..."
-                ;;
-            *)
-                echo "Aborting."
-                return 1
-                ;;
-        esac
+        if [[ "$1" == "-y" ]]; then
+            echo "Disabling Coraza WAF..."
+        else
+            read -r -p "Do you really want to disable WAF protection on these domains and stop using Coraza WAF on the server? [y/N]: " confirm
+            case "$confirm" in
+                [yY][eE][sS]|[yY])
+                    echo "Disabling Coraza WAF..."
+                    ;;
+                *)
+                    echo "Aborting."
+                    return 1
+                    ;;
+            esac
+        fi
     fi
 
     # 2. disable module
     echo "Disabling WAF module..."
-    sed -i 's/waf,//g' /etc/openpanel/openpanel/conf/openpanel.config
+    sed -i 's/\b,waf\b//g; s/\bwaf,//g; s/\bwaf\b//g' /etc/openpanel/openpanel/conf/openpanel.config
 
     # 3. disable WAF for ALL user domains
     sed -i 's/SecRuleEngine On/SecRuleEngine Off/g' /etc/openpanel/caddy/domains/*.conf
@@ -280,7 +286,8 @@ disable_coraza_waf() {
     # 4. reload caddy to apply
     reload_caddy_now
 
-    setsid -f opencli sentinel --action=waf_status --title="WAF unconfigured" --message="CorazaWAF has been unconfigured on the server and WAF will be auto-disabled for new domains." >/dev/null 2>&1
+    nohup opencli sentinel --action=waf_status --title="WAF unconfigured" --message="CorazaWAF has been unconfigured on the server and WAF will be auto-disabled for new domains." >/dev/null 2>&1 &
+    disown
 
     # 5. check status
     check_coraza_status
@@ -317,7 +324,7 @@ case "$1" in
         exit 0
         ;;
     "disable")
-        disable_coraza_waf
+        disable_coraza_waf "$2"
         exit 0
         ;;
     "update")

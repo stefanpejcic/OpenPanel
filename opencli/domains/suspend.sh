@@ -5,7 +5,7 @@
 # Usage: opencli domains-suspend <DOMAIN-NAME>
 # Author: Stefan Pejcic
 # Created: 04.11.2024
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -49,7 +49,8 @@ validate_conf() {
 	check_and_add_to_enabled
  
 	if [ $? -eq 0 ]; then
-	    setsid -f opencli sentinel --action=domains_status --title="Domain name $domain_name suspended" --message="Domain name $domain_name has been suspended." >/dev/null 2>&1
+	    nohup opencli sentinel --action=domains_status --title="Domain name $domain_name suspended" --message="Domain name $domain_name has been suspended." >/dev/null 2>&1 &
+		disown
 		echo "Domain suspended successfully."
 	else
         mv ${suspended_dir}${domain_name}.conf  $domain_vhost > /dev/null 2>&1

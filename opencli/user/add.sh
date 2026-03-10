@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 08.03.2026
+# Last Modified: 09.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -154,23 +154,23 @@ check_if_default_slave_server_is_set         # we run it before parse_flags so i
 	    case $arg in
 	        --debug)
 	            DEBUG=true
-	            ;;
+	        ;;
 	        --send-email)
 	            SEND_EMAIL=true
-	            ;;
+	        ;;
 	        --skip-images)
 	            SKIP_IMAGE_PULL=true
-	            ;;	     
+	        ;;	     
 	        --reseller=*)
 	            reseller="${arg#*=}"
 		    ;;
 	        --server=*)
 	            server="${arg#*=}"
 		    ;;
-		--key=*)
-	             key="${arg#*=}"
-		     key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
-	            ;;
+			--key=*)
+		        key="${arg#*=}"
+			    key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
+		    ;;
 	        --sql=*)
 	            sql_type="${arg#*=}"
 		    ;;	    
@@ -279,31 +279,37 @@ get_slave_if_set() {
 	              ${octets[2]} -ge 0 && ${octets[2]} -le 255 &&
 	              ${octets[3]} -ge 0 && ${octets[3]} -le 255 ]]; then
 	           	
-				context_flag="--context $server"     
+				context_flag="--context $server"
+				if [ -n "$key" ]; then
+					key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
+				else
+					echo "ERROR: Failed to read path to private key to use when connecting to the node $server - Exiting."
+					exit 1
+				fi
+				
 				hostname=$(ssh "$key_flag" "root@$server" "hostname")
 				if [ -z "$hostname" ]; then
-				  echo "ERROR: Unable to reach the node $server - Exiting."
-	     			  echo "       Make sure you can connect to the node from terminal with: 'ssh $key_flag root@$server -vvv'"
-				  exit 1
+					echo "ERROR: Unable to reach the node $server - Exiting."
+	     			echo "       Make sure you can connect to the node from terminal with: 'ssh $key_flag root@$server -vvv'"
+					exit 1
 				fi
-   
+
    				node_ip_address=$server
       			context=$username # so we show it on debug!
   
-	     		log "Container will be created on node: $node_ip_address ($hostname)"
+	     		log "Containers will be created on node: $node_ip_address ($hostname)"
 	        else
 	            echo "ERROR: $server is not a valid IPv4 address (octets out of range)."
 	        fi
 	    else
 	        echo "ERROR: $server is not a valid IPv4 address (invalid format)."
-	 	exit 1
+	 		exit 1
 	    fi
-     	else
-      		# local values
-                context_flag="" 
+     else
+      	# local values
+        context_flag="" 
 		hostname=$(hostname)
 	fi
-    
 }
 
 
@@ -735,9 +741,12 @@ echo "Host $username
     IdentityFile ~/.ssh/$node_ip_address
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
-    ControlPath ~/.ssh/cm_socket/%r@%h:%p
+    ControlPath /tmp/ssh_cm/%r@%h:%p
     ControlMaster auto
-    ControlPersist 30s
+    ControlPersist 5m
+    TCPKeepAlive yes
+    ServerAliveInterval 15
+    ServerAliveCountMax 3
 " >> ~/.ssh/config
 
 
@@ -1319,6 +1328,7 @@ pg_admin_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
     log "DEFAULT_PHP_VERSION: $default_php_version"
     log "POSTGRES_PASSWORD: $postgres_password"
     log "MYSQL_ROOT_PASSWORD: $mysql_root_password"
+	log "VARNISH PROXY PORT: $port_7"
 '
 
 if [ -z "$username" ] || [ -z "$user_id" ] || [ -z "$cpu" ] || [ -z "$ram" ] || [ -z "$port_5" ] || [ -z "$port_6" ] || [ -z "$port_7" ] || [ -z "$port_1" ] || [ -z "$port_3" ] || [ -z "$port_4" ] || [ -z "$port_2" ] || [ -z "$default_php_version" ] || [ -z "$postgres_password" ] || [ -z "$mysql_root_password" ]; then
@@ -1345,7 +1355,7 @@ sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
     -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:$port_2\"|g" \
     -e "s|DEFAULT_PHP_VERSION=\"[^\"]*\"|DEFAULT_PHP_VERSION=\"$default_php_version\"|g" \
     -e "s|MYSQL_ROOT_PASSWORD=\"[^\"]*\"|MYSQL_ROOT_PASSWORD=\"$mysql_root_password\"|g" \
-	-e "s|^PROXY_HTTP_PORT=\"[^\"]*\"|#PROXY_HTTP_PORT=\"$port_7\"|g" \
+    -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|PROXY_HTTP_PORT=\"$port_7\"|g" \
     "/home/$username/.env"
 
 if [[ $email =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
@@ -1358,7 +1368,7 @@ if [[ -n "$webserver" ]]; then
         webserver="${BASH_REMATCH[1]}"  # Extract the part after varnish+
         log "Setting varnish caching and $webserver as webserver for the user.."
         sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" \
-	-e "s|^#PROXY_HTTP_PORT|PROXY_HTTP_PORT|g" "/home/$username/.env"
+               -e "s|^#\(PROXY_HTTP_PORT=.*\)|\1|" "/home/$username/.env"
     elif [[ "$webserver" =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]]; then
         log "Setting $webserver as webserver for the user.."
         sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" "/home/$username/.env"
@@ -1435,8 +1445,7 @@ copy_skeleton_files() {
 
 
 get_php_version() {
-    default_php_version=$(grep '^DEFAULT_PHP_VERSION=' /etc/openpanel/docker/compose/1.0/.env | sed -E 's/^DEFAULT_PHP_VERSION="?([^"]*)"?/\1/')
-
+	default_php_version=$(grep -oP '^DEFAULT_PHP_VERSION="\K[0-9]+\.[0-9]+' /etc/openpanel/docker/compose/1.0/.env | tr -d '\r\n')
     if [ -z "$default_php_version" ]; then
       if [ "$DEBUG" = true ]; then
         echo "Default PHP version not found in .env file, using the fallback default version.."
@@ -1616,7 +1625,8 @@ copy_skeleton_files                          # get webserver, php version and my
 download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
-setsid -f opencli sentinel --action=user_create --title="User account '$username' created" --message="User account '$username' has been successfully created with email: $email and hosting plan: $hosting_plan" >/dev/null 2>&1
+nohup opencli sentinel --action=user_create --title="User account '$username' created" --message="User account '$username' has been successfully created with email: $email and hosting plan: $plan_name" >/dev/null 2>&1 &
+disown
 update_accounts_for_reseller                 # update current_accounts for reseller in their json file
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
