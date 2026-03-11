@@ -205,12 +205,22 @@ Create and restore backups anytime — files, database, or both.
 
 Create a Backup:
 - Choose what to back up (files, database, or both).
-- Click *Generate Backup**.
+- Click **Generate Backup**.
 
 ![wp_manager_site_backup_1.png](/img/panel/v2/wpbackup.png)
 
 Restore a Backup:
 To restore, click Restore, pick a backup date, and confirm.
+
+### Clone
+
+Create a clone (copy files and database tables, replace links in database, fluch wp cache and rewrite rules).
+
+Create a clone:
+- Under 'Target' select the desired domain and optionally 'Database' to be used.
+- Click **Clone Website**.
+
+![wp_manager_site_clone.png](/img/panel/v2/wp_clone.png)
 
 ### Remove
 
