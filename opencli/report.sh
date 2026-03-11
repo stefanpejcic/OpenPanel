@@ -6,7 +6,7 @@
 #        opencli report [--public] [--cli] [--csf]
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 09.03.2026
+# Last Modified: 10.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -49,6 +49,7 @@ create_local_path() {
 	output_dir="/var/log/openpanel/admin/reports"
 	mkdir -p "$output_dir"
 	output_file="$output_dir/system_info_$(date +'%Y%m%d%H%M%S').txt"
+	export output_file
 }
 
 parse_args() {
@@ -75,183 +76,202 @@ parse_args() {
 	done
 }
 
-setup_progress_bar_script(){
-	PROGRESS_BAR_URL="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
-	PROGRESS_BAR_FILE="progress_bar.sh"
-
-	if command -v wget &> /dev/null; then
-	    wget --timeout=5 --tries=3 --inet4-only "$PROGRESS_BAR_URL" -O "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-	    if [ $? -ne 0 ]; then
-	        echo "ERROR: wget failed or timed out after 5 seconds while downloading from github"
-	        exit 1
-	    fi
-	elif command -v curl -4 &> /dev/null; then
-	    curl -4 --max-time 5 -s "$PROGRESS_BAR_URL" -o "$PROGRESS_BAR_FILE" > /dev/null 2>&1
-	    if [ $? -ne 0 ]; then
-	        echo "ERROR: curl failed or timed out after 5 seconds while downloading progress_bar.sh"
-	        exit 1
-	    fi
-	else
-	    echo "Neither wget nor curl is available. Please install one of them to proceed."
-	    exit 1
-	fi
-
-	if [ ! -f "$PROGRESS_BAR_FILE" ]; then
-	    echo "ERROR: Failed to download progress_bar.sh - Github may be unreachable from your server: $PROGRESS_BAR_URL"
-	    exit 1
-	fi
-}
-
-
-
-
-# ======================================================================
-# Main
-
-setup_progress_bar_script
-source "$PROGRESS_BAR_FILE"               # Source the progress bar script
-
-FUNCTIONS=(
-get_os_info
-get_opencli_info
-get_mysql_info
-get_admin_info
-get_docker_info
-run_opencli
-run_csf_rules
-display_openpanel_settings
-display_openadmin_settings
-display_mysql_information
-check_services_status
-list_user_services
-upload_report
-)
-
-TOTAL_STEPS=${#FUNCTIONS[@]}
-CURRENT_STEP=0
-
-update_progress() {
-    CURRENT_STEP=$((CURRENT_STEP + 1))
-    PERCENTAGE=$(($CURRENT_STEP * 100 / $TOTAL_STEPS))
-    draw_progress_bar $PERCENTAGE
-}
-
-main() {
-	if [ "$non_interactive" = true ]; then
-		for func in "${FUNCTIONS[@]}"; do
-		  $func
-		done
-	else
-	    enable_trapping                       # clean on CTRL+C
-	    setup_scroll_area                     # load progress bar
-	    for func in "${FUNCTIONS[@]}"
-	    do
-	        $func                             # Execute each function
-	        update_progress                   # update progress after each
-	    done
-	    destroy_scroll_area
-	fi
-}
-
-
-
-
-
-
-
-
-
 
 # ======================================================================
 # Helpers
 
 run_command() {
-  echo "# $2:" >> "$output_file"
-  if [ "$non_interactive" = false ]; then
-  	echo "- $2"
-  fi
-  eval "$1" >> "$output_file" 2>&1
-  echo "# ======================================================================" >> "$output_file"
-  echo >> "$output_file"
+  local cmd="$1"
+  local label="$2"
+  local tmpfile="$3"
+  {
+    echo "# $label:"
+    eval "$cmd" 2>&1
+    echo "# ======================================================================"
+    echo
+  } >> "$tmpfile"
 }
 
-run_opencli() {
+# Each collect_* function writes to its own temp file, then we merge them in order.
+
+collect_os_info() {
+  local tmp="$1"
+  local os_info
+  os_info=$(awk -F= '/^(NAME|VERSION_ID)/{gsub(/"/, "", $2); printf("%s ", $2)}' /etc/os-release)
+  run_command "echo $os_info"  "Checking OS distribution"          "$tmp"
+  run_command "uptime"         "Checking server uptime"            "$tmp"
+  run_command "free -h"        "Collecting physical memory and swap usage" "$tmp"
+  run_command "df -h"          "Collecting disk information"       "$tmp"
+}
+
+collect_opencli_info() {
+  local tmp="$1"
+  run_command "opencli --version" "Listing OpenPanel version" "$tmp"
+}
+
+collect_mysql_info() {
+  local tmp="$1"
+  run_command "mysql --protocol=tcp --version" "Checking MySQL Version" "$tmp"
+}
+
+collect_admin_info() {
+  local tmp="$1"
+  run_command "/usr/local/admin/venv/bin/python3 --version" "Checking Python version for OpenAdmin venv" "$tmp"
+}
+
+collect_docker_info() {
+  local tmp="$1"
+  run_command "docker info" "Collecting host docker information" "$tmp"
+}
+
+collect_opencli_commands() {
+  local tmp="$1"
   if [ "$cli_flag" = true ]; then
-    echo "=== OpenCLI Information ===" >> "$output_file"
-    run_command "opencli commands" "Checking available OpenCLI Commands"
+    echo "=== OpenCLI Information ===" >> "$tmp"
+    run_command "opencli commands" "Checking available OpenCLI Commands" "$tmp"
   fi
 }
 
-run_csf_rules() {
+collect_csf_rules() {
+  local tmp="$1"
   if [ "$csf_flag" = true ]; then
-    echo "=== Sentinel Firewall Rules ===" >> "$output_file"
-    run_command "csf -l" "Collecting Firewall Rules"
+    echo "=== Sentinel Firewall Rules ===" >> "$tmp"
+    run_command "csf -l" "Collecting Firewall Rules" "$tmp"
   fi
 }
 
-check_services_status() {
-  echo "=== Services Status ===" >> "$output_file"
-  run_command "docker --context=default compose ls" "Listing OpenPanel Stack"
-  run_command "docker --context=default ps -a" "Checking system containers status"
-  run_command "systemctl status admin" "Checking status of OpenAdmin service"
-  run_command "systemctl status docker" "Checking status of Docker service"
-  run_command "systemctl status csf" "Checking if Sentinel Firewall (CSF) is running"
+collect_openpanel_settings() {
+  local tmp="$1"
+  echo "=== OpenPanel Settings ===" >> "$tmp"
+  run_command "cat /etc/openpanel/openpanel/conf/openpanel.config" "Listing OpenPanel configuration file" "$tmp"
+  run_command "cat /etc/openpanel/caddy/Caddyfile" "Listing Caddyfile" "$tmp"
+
 }
 
-display_openpanel_settings() {
-  echo "=== OpenPanel Settings ===" >> "$output_file"
-  run_command "cat /etc/openpanel/openpanel/conf/openpanel.config" "Listing OpenPanel configuration file"
+collect_openadmin_settings() {
+  local tmp="$1"
+  echo "=== OpenAdmin Service ===" >> "$tmp"
+  run_command "cat /etc/openpanel/openadmin/config/admin.ini"        "Listing OpenAdmin configuration file"           "$tmp"
+  run_command "tail -30 /var/log/openpanel/admin/error.log"          "Checking OpenAdmin log for errors"               "$tmp"
 }
 
-# added in 0.2.3
-display_openadmin_settings() {
-  echo "=== OpenAdmin Service ===" >> "$output_file"
-  run_command "cat /etc/openpanel/openadmin/config/admin.ini" "Listing OpenAdmin configuration file"
-  run_command "/usr/local/admin/venv/bin/python3 -m pip list" "Listing PIP packages in OpenAdmin venv"
-  run_command "tail -30 /var/log/openpanel/admin/error.log" "Checking OpenAdmin log for errors"
+collect_mysql_information() {
+  local tmp="$1"
+  echo "=== MySQL Information ===" >> "$tmp"
+  run_command "docker logs --tail 30 openpanel_mysql"  "Checking MySQL service for errors"   "$tmp"
+  run_command "cat /etc/openpanel/mysql/*_my.cnf"      "Viewing MySQL login information"      "$tmp"
 }
 
-display_mysql_information() {
-  echo "=== MySQL Information ===" >> "$output_file"
-  run_command "docker logs --tail 30 openpanel_mysql" "Checking MySQL service for errors"
-  run_command "cat /etc/openpanel/mysql/*_my.cnf" "Viewing MySQL login information"
+collect_services_status() {
+  local tmp="$1"
+  echo "=== Services Status ===" >> "$tmp"
+  run_command "docker --context=default compose ls"       "Listing OpenPanel Stack"                      "$tmp"
+  run_command "docker --context=default ps -a"           "Checking system containers status"            "$tmp"
+  run_command "systemctl status admin"                   "Checking status of OpenAdmin service"         "$tmp"
+  run_command "systemctl status docker"                  "Checking status of Docker service"            "$tmp"
+  run_command "systemctl status csf"                     "Checking if Sentinel Firewall (CSF) is running" "$tmp"
 }
 
-# added in 1.2.2
-list_user_services() {
-  echo "=== Docker Context Services ===" >> "$output_file"
+collect_user_services() {
+  local tmp="$1"
+  echo "=== Docker Context Services ===" >> "$tmp"
   for dir in /home/*; do
-      file="$dir/docker-compose.yml"
+      local file="$dir/docker-compose.yml"
+      local user
       user=$(basename "$dir")
       if [[ -f "$file" ]]; then
-        run_command "echo '- User: $user' && echo '' && docker --context=$user compose -f  $dir/docker-compose.yml config --services" "Listing services for user: $user"
+        run_command "echo '- User: $user' && echo '' && docker --context=$user compose -f $dir/docker-compose.yml config --services" \
+          "Listing services for user: $user" "$tmp"
       fi
   done
 }
 
-get_os_info() {
-  os_info=$(awk -F= '/^(NAME|VERSION_ID)/{gsub(/"/, "", $2); printf("%s ", $2)}' /etc/os-release)
-  run_command "echo $os_info" "Checking OS distribution"
-  run_command "uptime" "Checking server uptime"
-  run_command "free -h" "Collecting physical memory and swap usage"
-  run_command "df -h" "Collecting disk information"
+
+# ======================================================================
+# Parallel runner
+#
+# Functions are split into two groups:
+#   PARALLEL_FUNCS  – independent, run concurrently via xargs
+#   SERIAL_FUNCS    – must run after parallel phase (e.g. need flags set, or
+#                     iterate over dynamic data like /home/*)
+#
+# Each function writes to its own numbered temp file so output order is
+# deterministic regardless of which job finishes first. The temp files are
+# merged in order at the end.
+
+export output_file cli_flag csf_flag non_interactive
+
+# Ordered list – index determines merge order
+ORDERED_FUNCS=(
+  collect_os_info
+  collect_opencli_info
+  collect_mysql_info
+  collect_admin_info
+  collect_docker_info
+  collect_opencli_commands
+  collect_csf_rules
+  collect_openpanel_settings
+  collect_openadmin_settings
+  collect_mysql_information
+  collect_services_status
+  collect_user_services
+)
+
+TMPDIR_REPORT=$(mktemp -d)
+export TMPDIR_REPORT
+
+# Export all collect_* functions and run_command so xargs subshells can see them
+export -f run_command \
+           collect_os_info \
+           collect_opencli_info \
+           collect_mysql_info \
+           collect_admin_info \
+           collect_docker_info \
+           collect_opencli_commands \
+           collect_csf_rules \
+           collect_openpanel_settings \
+           collect_openadmin_settings \
+           collect_mysql_information \
+           collect_services_status \
+           collect_user_services
+
+# Wrapper called by xargs: receives "<index> <func_name>"
+run_indexed() {
+  local idx="$1"
+  local func="$2"
+  local tmpfile
+  tmpfile=$(printf "%s/%04d.txt" "$TMPDIR_REPORT" "$idx")
+  $func "$tmpfile"
+}
+export -f run_indexed
+
+main() {
+  # Build index:funcname pairs for xargs
+  local pairs=()
+  local i=0
+  for func in "${ORDERED_FUNCS[@]}"; do
+    pairs+=("$i $func")
+    (( i++ ))
+  done
+
+  if [ "$non_interactive" = false ]; then
+    echo "Collecting system information (parallel)..."
+  fi
+
+  # Run all collectors in parallel (up to nproc jobs at once)
+  printf '%s\n' "${pairs[@]}" | \
+    xargs -P "$(nproc)" -I '{}' bash -c 'run_indexed $@' _ {}
+
+  # Merge temp files in order into the final report
+  for tmpfile in $(ls "$TMPDIR_REPORT"/*.txt 2>/dev/null | sort); do
+    cat "$tmpfile" >> "$output_file"
+  done
+
+  rm -rf "$TMPDIR_REPORT"
+
+  upload_report
 }
 
-get_opencli_info() {
-  run_command "opencli --version" "Listing OpenPanel version"
-}
-
-get_mysql_info() {
-  run_command "mysql --protocol=tcp --version" "Checking MySQL Version"
-}
-
-get_admin_info() {
-  run_command "/usr/local/admin/venv/bin/python3 --version" "Checking Python version for OpenAdmin venv"
-}
-
-get_docker_info() {
-  run_command "docker info" "Collecting host docker information"
-}
 
 upload_report() {
 	if [ ! -f "$output_file" ]; then
@@ -281,12 +301,6 @@ upload_report() {
 	  fi
 	fi
 }
-
-
-
-
-
-
 
 
 # ======================================================================

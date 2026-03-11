@@ -372,7 +372,7 @@ check_disk_usage() {
   if (( pct > DISK_THRESHOLD )); then
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m Disk ${pct}% > threshold ${DISK_THRESHOLD}%"
-    write_notification "$title" "Disk usage: ${pct}% | $(df -h | awk '{printf "%s|",$0}')"
+    write_notification "$title" "Disk usage: ${pct}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
   else
     ((PASS++)); echo -e "\e[32m[✔]\e[0m Disk ${pct}% < threshold ${DISK_THRESHOLD}%"
   fi

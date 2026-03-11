@@ -5,7 +5,7 @@
 # Usage: opencli waf <setting> 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 09.03.2026
+# Last Modified: 10.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -108,7 +108,7 @@ check_coraza_status() {
 }
 
 reload_caddy_now() {
-    docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
+    nohup docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1 &
 }
 
 set_coraza_waf_for_domain() {

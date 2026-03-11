@@ -5,7 +5,7 @@
 # Usage: opencli hsts <domain> [on|off] 
 # Author: Stefan Pejcic
 # Created: 22.05.2025
-# Last Modified: 09.03.2026
+# Last Modified: 10.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -72,18 +72,33 @@ set_hsts_for_domain() {
         awk '
         {
             print
-            if ($0 ~ /^[[:space:]]*tls[[:space:]]*\{/ ) {
-                in_tls=1
+        
+            # detect tls block start
+            if ($0 ~ /^[[:space:]]*tls[[:space:]]*\{/) {
+                in_tls_block=1
             }
-            else if (in_tls && $0 ~ /^[[:space:]]*\}/ ) {
+        
+            # AutoSSL format: tls { }
+            else if (in_tls_block && $0 ~ /^[[:space:]]*\}/) {
                 print ""
                 print "  # HSTS"
                 print "  header {"
                 print "    Strict-Transport-Security \"max-age=2592000; preload\""
                 print "  }"
-                in_tls=0
+                in_tls_block=0
             }
-        }' "$file" > "${file}.HSTS.tmp" && mv "${file}.HSTS.tmp" "$file"
+        
+            # Custom SSL format: tls path/to/cert /path/to/key
+            else if ($0 ~ /^[[:space:]]*tls[[:space:]]+[^ {]/) {
+                print ""
+                print "  # HSTS"
+                print "  header {"
+                print "    Strict-Transport-Security \"max-age=2592000; preload\""
+                print "  }"
+            }
+        }
+        ' "$file" > "${file}.HSTS.tmp" && mv "${file}.HSTS.tmp" "$file"
+
         echo "HSTS enabled for $domain"
     elif [[ "$action" == "disable" ]]; then
         sed -i '/# HSTS/,+3d' "$file"
@@ -93,7 +108,7 @@ set_hsts_for_domain() {
         exit 1
     fi
 
-    timeout 3s docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
+    nohup docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1 &
 }
 
 
@@ -112,7 +127,7 @@ file="/etc/openpanel/caddy/domains/${domain}.conf"
 case "$action" in
     enable|disable)
         set_hsts_for_domain "$domain" "$action"
-        nohup opencli sentinel --action=domains_hsts --title="HSTS ${action}d for domain $domain" --message="HSTS status has been changed to:'${action}d' for domain: '$domain'." >/dev/null 2>&1 ^
+        nohup opencli sentinel --action=domains_hsts --title="HSTS ${action}d for domain $domain" --message="HSTS status has been changed to:'${action}d' for domain: '$domain'." >/dev/null 2>&1 &
         disown
         ;;
     *)
