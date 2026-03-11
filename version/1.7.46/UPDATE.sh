@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Adding patch to sites table to prvenet duplicate site_name"
+timeout 3 mysql -e "ALTER TABLE sites ADD UNIQUE KEY uniq_site_name (site_name);"
+
 echo "Applying patch for WAF error starting Caddy.."
 sed -i '/^SecRequestBodyJsonDepthLimit/ s/^/#/' /etc/openpanel/caddy/coraza_rules.conf
 docker --context=default restart caddy
