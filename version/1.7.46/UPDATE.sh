@@ -5,11 +5,11 @@ timeout 3 mysql -e "ALTER TABLE sites ADD UNIQUE KEY uniq_site_name (site_name);
 
 echo "Applying patch for WAF error starting Caddy.."
 sed -i '/^SecRequestBodyJsonDepthLimit/ s/^/#/' /etc/openpanel/caddy/coraza_rules.conf
-docker --context=default restart caddy
+timeout 10 docker --context=default restart caddy
 
 
 echo "Updating MOTD for admins to support custom OpenAdmin port.."
-wget -O /etc/openpanel/ssh/admin_welcome.sh https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ssh/admin_welcome.sh
+timeout 3 wget -O /etc/openpanel/ssh/admin_welcome.sh https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/ssh/admin_welcome.sh
 
 
 echo "Adding support for Webhooks on OpenAdmin Notifications.."
@@ -67,5 +67,5 @@ fi
 
 echo "Patching bug with rsyslog.."
 rm -rf /etc/logrotate.d/syslog
-service logrotate restart
-opencli server-logrotate
+timeout 5 service logrotate restart
+timeout 60 opencli server-logrotate
