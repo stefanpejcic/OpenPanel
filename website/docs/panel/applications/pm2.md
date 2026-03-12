@@ -99,7 +99,7 @@ if __name__ == '__main__':
 Example `requirements.txt` file:
 
 ```json
-Flask==2.3.4
+Flask==2.3.3
 ```
 
 ---
