@@ -34,7 +34,7 @@ The installation process will be displayed below the form. Once complete, you’
 
 ### NodeJS Example App
 
-An example NodeJS application that is running on http://nodejs.openpanel.org/
+An example NodeJS (express) application that is running on http://nodejs.openpanel.org/
 
 Example settings:
 ![example](https://i.postimg.cc/cdC3Jxdp/example-nodejs-settings.png)
@@ -72,6 +72,34 @@ Example `package.json` file:
     "express": "^4.18.2"
   }
 }
+```
+
+### Python Example App
+
+An example Python (Flask) application that is running on http://python.openpanel.org/
+
+Example settings:
+![example](https://i.postimg.cc/D2Z3DNdW/example-python-settings.png)
+
+Example `app.py` file:
+
+```py
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello():
+    return "Hello World from Flask on port 5000!"
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
+```
+
+Example `requirements.txt` file:
+
+```json
+Flask==2.3.4
 ```
 
 ---
