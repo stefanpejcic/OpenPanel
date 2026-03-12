@@ -155,6 +155,12 @@ ALTER TABLE `sites`
   ADD KEY `fk_sites_domain` (`domain_id`);
 
 --
+-- UNIQUE constraint for site_name
+--
+ALTER TABLE `sites`
+  ADD UNIQUE KEY `uniq_site_name` (`site_name`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`

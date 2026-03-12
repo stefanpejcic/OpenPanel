@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 10.03.2026
+# Last Modified: 11.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -78,18 +78,11 @@ source "/usr/local/opencli/db.sh"
 # Functions
 
 get_docker_context() {
-    local query="SELECT server FROM users WHERE username='$USERNAME';"
-    local server_name
-    server_name=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -N)
-    CONTEXT_FLAG="--context $server_name"
-}
-
-reload_caddy_if_valid() {
-    if docker exec caddy caddy validate --config /etc/caddy/Caddyfile 2>&1 | grep -q "Valid configuration"; then
-        docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
-        return 0
-    fi
-    return 1
+    local query="SELECT id, server FROM users WHERE username = '$USERNAME';"
+    user_info=$(mysql -se "$query")
+    
+    user_id=$(echo "$user_info" | awk '{print $1}')
+    context=$(echo "$user_info" | awk '{print $2}')
 }
 
 suspend_user_domains() {
@@ -97,19 +90,39 @@ suspend_user_domains() {
 
     # 1. get list of all user domains
     local domain_list
-    domain_list=$(opencli domains-user "$USERNAME")
+    domain_list=$(opencli domains-user "$USERNAME" 2>/dev/null)
+
+    if [[ -z "$domain_list" || "$domain_list" =~ ^(User|No\ domains\ found) ]]; then
+        echo "No domains found for user '$USERNAME'."
+        return 0
+    fi
+
+    domain_regex='\.'
 
     # 2. move all vhosts
     for domain_name in $domain_list; do
+        if [[ ! $domain_name =~ $domain_regex ]]; then
+            echo "Skipping invalid domain name: $domain_name"
+            continue
+        fi
+
         # from /etc/openpanel/caddy/domains/ to /etc/openpanel/caddy/suspended_domains/
-        [[ ! -f "${SUSPENDED_DIR}${domain_name}.conf" ]] && cp "${CADDY_VHOST_DIR}/${domain_name}.conf" "${SUSPENDED_DIR}${domain_name}.conf"
+        src="${CADDY_VHOST_DIR}/${domain_name}.conf"
+        dest="${SUSPENDED_DIR}/${domain_name}.conf"
     
+        if [[ -f "$src" ]]; then
+            if [[ ! -f "$dest" ]]; then
+                cp "$src" "$dest"
+            fi
+        fi
+
         # /etc/openpanel/caddy/templates/suspended_user.html
         sed "s|<DOMAIN_NAME>|$domain_name|g" "$TEMPLATE_CONF" > "${CADDY_VHOST_DIR}/${domain_name}.conf"
     done
 
-    # 3. validate caddy
-    reload_caddy_if_valid
+    # 3. reload caddy
+    nohup docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1 &
+    disown   
 }
 
 stop_user_containers() {
@@ -117,13 +130,15 @@ stop_user_containers() {
     jobs=$(( $(nproc) * 2 ))
     $DEBUG && echo "Stopping containers for user: $USERNAME"
 
-    docker $CONTEXT_FLAG ps --format "{{.Names}}" |
-        xargs -r -n1 -P "$jobs" -I{} docker $CONTEXT_FLAG stop {} > /dev/null 2>&1       
+    docker --context $context ps --format "{{.Names}}" |
+        xargs -r -n1 -P "$jobs" -I{} docker --context $context stop {} > /dev/null 2>&1       
 }
 
 rename_user_in_db() {
     local new_username="SUSPENDED_$(date +'%Y%m%d%H%M%S')_${USERNAME}"
     local query="UPDATE users SET username='${new_username}' WHERE username='${USERNAME}';"
+
+    [ -n "$user_id" ] && query+="DELETE FROM active_sessions WHERE user_id='$user_id'; "
 
     if mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query"; then
         echo "User '$USERNAME' suspended successfully."
@@ -134,7 +149,6 @@ rename_user_in_db() {
     nohup opencli sentinel --action=user_status --title="User account suspended" --message="User account '$USERNAME' has been suspended." >/dev/null 2>&1 &
     disown
 }
-
 
 
 # ======================================================================

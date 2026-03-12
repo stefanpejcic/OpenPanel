@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel \n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-03-05 17:30+0100\n"
+"POT-Creation-Date: 2026-03-11 16:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -139,7 +139,7 @@ msgstr ""
 #: modules/website_builder.py:155 modules/website_builder.py:290
 #: modules/websites.py:52 modules/websites.py:259 modules/websites.py:320
 #: modules/websites.py:483 modules/websites.py:567 modules/websites.py:1120
-#: modules/wordpress.py:870 modules/wordpress.py:1010 modules/wordpress.py:1676
+#: modules/wordpress.py:831 modules/wordpress.py:971 modules/wordpress.py:1637
 msgid "You do not own this domain."
 msgstr ""
 
@@ -425,16 +425,16 @@ msgstr ""
 msgid "Backup restored successfully!"
 msgstr ""
 
-#: modules/mautic.py:396 modules/wordpress.py:537
+#: modules/mautic.py:396 modules/wordpress.py:535
 msgid "Backup completed successfully!"
 msgstr ""
 
-#: modules/mautic.py:399 modules/wordpress.py:541
+#: modules/mautic.py:399 modules/wordpress.py:539
 msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:41
-#: modules/wordpress.py:848 modules/wordpress.py:1003
+#: modules/wordpress.py:809 modules/wordpress.py:964
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -958,7 +958,7 @@ msgstr ""
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:769 templates/manager/wp/single.html:2339
+#: modules/websites.py:769 templates/manager/wp/single.html:2334
 msgid "WordPress updated successfully"
 msgstr ""
 
@@ -988,57 +988,57 @@ msgstr ""
 msgid "Domain not found."
 msgstr ""
 
-#: modules/wordpress.py:660
+#: modules/wordpress.py:657
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:859
+#: modules/wordpress.py:820
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:909
+#: modules/wordpress.py:870
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:964
+#: modules/wordpress.py:925
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:971
+#: modules/wordpress.py:932
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:983
+#: modules/wordpress.py:944
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1026
+#: modules/wordpress.py:987
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1031
+#: modules/wordpress.py:992
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1034
+#: modules/wordpress.py:995
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1231 modules/wordpress.py:1450
+#: modules/wordpress.py:1192 modules/wordpress.py:1411
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1260 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1221 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1415
+#: modules/wordpress.py:1376
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1481 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1442 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1126,43 +1126,47 @@ msgstr ""
 msgid "Login"
 msgstr ""
 
-#: modules/account/login.py:140
+#: modules/account/login.py:139
 msgid "Error reading token from user files."
 msgstr ""
 
-#: modules/account/login.py:168
+#: modules/account/login.py:167
 msgid "Autologin failed: User does not exist."
 msgstr ""
 
-#: modules/account/login.py:171
+#: modules/account/login.py:170
 msgid "Autologin failed: Error occurred fetching data from database."
 msgstr ""
 
-#: modules/account/login.py:175
+#: modules/account/login.py:174
 msgid "Autologin failed: Invalid or expired token."
 msgstr ""
 
-#: modules/account/login.py:192
+#: modules/account/login.py:191
 msgid "Username and password are required."
 msgstr ""
 
-#: modules/account/login.py:200
+#: modules/account/login.py:199
 msgid "Unable to connect to database."
 msgstr ""
 
-#: modules/account/login.py:208
+#: modules/account/login.py:207
 msgid "Your account is suspended. Please contact support."
 msgstr ""
 
-#: modules/account/login.py:209
+#: modules/account/login.py:208
 msgid "Unrecognized account. Please check username."
 msgstr ""
 
-#: modules/account/login.py:231
+#: modules/account/login.py:230
 msgid "Invalid password. Please try again."
 msgstr ""
 
-#: modules/account/login.py:290
+#: modules/account/login.py:250
+msgid "CAPTCHA validation failed. Please try again."
+msgstr ""
+
+#: modules/account/login.py:317
 msgid "Invalid 2FA code. Please try again."
 msgstr ""
 
@@ -2569,8 +2573,8 @@ msgstr ""
 #: templates/manager/python_node_apps.html:895
 #: templates/manager/websitebuilder.html:210
 #: templates/manager/websitebuilder.html:260
-#: templates/manager/wp/single.html:628 templates/manager/wp/single.html:2036
-#: templates/manager/wp/single.html:2086 templates/mysql/phpmyadmin.html:138
+#: templates/manager/wp/single.html:628 templates/manager/wp/single.html:2031
+#: templates/manager/wp/single.html:2081 templates/mysql/phpmyadmin.html:138
 #: templates/mysql/phpmyadmin.html:166 templates/mysql/phpmyadmin.html:195
 #: templates/mysql/phpmyadmin.html:223 templates/mysql/phpmyadmin.html:278
 #: templates/mysql/phpmyadmin.html:317 templates/psql/pgadmin.html:130
@@ -3211,7 +3215,7 @@ msgstr ""
 #: templates/domains/new.html:218 templates/manager/mautic.html:388
 #: templates/manager/mautic.html:473 templates/manager/websitebuilder.html:138
 #: templates/manager/websitebuilder.html:223
-#: templates/manager/wp/single.html:1964 templates/manager/wp/single.html:2049
+#: templates/manager/wp/single.html:1959 templates/manager/wp/single.html:2044
 msgid "or"
 msgstr ""
 
@@ -4809,7 +4813,7 @@ msgid "Folder Size:"
 msgstr ""
 
 #: templates/manager/mautic.html:228 templates/manager/wp/single.html:354
-#: templates/manager/wp/single.html:1867 templates/mysql/users.html:74
+#: templates/manager/wp/single.html:1858 templates/mysql/users.html:74
 #: templates/mysql/users.html:76 templates/psql/users.html:67
 #: templates/psql/users.html:69
 msgid "Database"
@@ -4863,72 +4867,72 @@ msgid "Open database in phpMyAdmin"
 msgstr ""
 
 #: templates/manager/mautic.html:364 templates/manager/websitebuilder.html:119
-#: templates/manager/wp/single.html:1940
+#: templates/manager/wp/single.html:1935
 msgid "Create a Backup"
 msgstr ""
 
 #: templates/manager/mautic.html:365 templates/manager/websitebuilder.html:120
-#: templates/manager/wp/single.html:1941
+#: templates/manager/wp/single.html:1936
 msgid "Create a new backup of website files and/or database."
 msgstr ""
 
-#: templates/manager/mautic.html:370 templates/manager/wp/single.html:1946
+#: templates/manager/mautic.html:370 templates/manager/wp/single.html:1941
 msgid "Backup Database"
 msgstr ""
 
 #: templates/manager/mautic.html:375 templates/manager/websitebuilder.html:125
-#: templates/manager/wp/single.html:1951
+#: templates/manager/wp/single.html:1946
 msgid "Backup Files"
 msgstr ""
 
 #: templates/manager/mautic.html:383 templates/manager/websitebuilder.html:133
-#: templates/manager/wp/single.html:1959
+#: templates/manager/wp/single.html:1954
 msgid "Generate Backup"
 msgstr ""
 
 #: templates/manager/mautic.html:393 templates/manager/websitebuilder.html:143
-#: templates/manager/wp/single.html:1969
+#: templates/manager/wp/single.html:1964
 msgid "Restore from Backups"
 msgstr ""
 
 #: templates/manager/mautic.html:394 templates/manager/websitebuilder.html:144
-#: templates/manager/wp/single.html:1970
+#: templates/manager/wp/single.html:1965
 msgid "Restore website files and/or database from a previous backup."
 msgstr ""
 
 #: templates/manager/mautic.html:404 templates/manager/websitebuilder.html:154
-#: templates/manager/wp/single.html:1980
+#: templates/manager/wp/single.html:1975
 msgid "Display Backups"
 msgstr ""
 
 #: templates/manager/mautic.html:408 templates/manager/websitebuilder.html:158
-#: templates/manager/wp/single.html:1984
+#: templates/manager/wp/single.html:1979
 msgid "Select a backup date:"
 msgstr ""
 
 #: templates/manager/mautic.html:420 templates/manager/websitebuilder.html:170
 #: templates/manager/websitebuilder.html:576
-#: templates/manager/wp/single.html:1996 templates/manager/wp/single.html:2487
+#: templates/manager/wp/single.html:1991 templates/manager/wp/single.html:2482
 msgid "Start Restore"
 msgstr ""
 
 #: templates/manager/mautic.html:429 templates/manager/websitebuilder.html:179
 #: templates/manager/wp/list.html:150 templates/manager/wp/list.html:213
-#: templates/manager/wp/single.html:2005
+#: templates/manager/wp/single.html:2000
 msgid "Detach"
 msgstr ""
 
-#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2006
+#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2001
 msgid "Remove the"
 msgstr ""
 
-#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2006
+#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2001
 msgid "website from this manager without actually deleting any files."
 msgstr ""
 
 #: templates/manager/mautic.html:431
 #: templates/manager/python_node_apps.html:867
-#: templates/manager/wp/single.html:2007
+#: templates/manager/wp/single.html:2002
 msgid "All website data such as files and database remains."
 msgstr ""
 
@@ -4937,12 +4941,12 @@ msgid "Detach Mauitc"
 msgstr ""
 
 #: templates/manager/mautic.html:453 templates/manager/websitebuilder.html:203
-#: templates/manager/wp/single.html:2029
+#: templates/manager/wp/single.html:2024
 msgid "Confirm Detach"
 msgstr ""
 
 #: templates/manager/mautic.html:479 templates/manager/wp/list.html:153
-#: templates/manager/wp/list.html:216 templates/manager/wp/single.html:2055
+#: templates/manager/wp/list.html:216 templates/manager/wp/single.html:2050
 msgid "Uninstall"
 msgstr ""
 
@@ -4960,7 +4964,7 @@ msgstr ""
 msgid "Uninstall Mautic"
 msgstr ""
 
-#: templates/manager/mautic.html:503 templates/manager/wp/single.html:2079
+#: templates/manager/mautic.html:503 templates/manager/wp/single.html:2074
 msgid "Confirm Uninstall"
 msgstr ""
 
@@ -4991,11 +4995,11 @@ msgstr ""
 #: templates/manager/mautic.html:651
 #: templates/manager/python_node_apps.html:1239
 #: templates/manager/websitebuilder.html:483
-#: templates/manager/wp/single.html:2394
+#: templates/manager/wp/single.html:2389
 msgid "An error occurred fetching folder size from the container."
 msgstr ""
 
-#: templates/manager/mautic.html:669 templates/manager/wp/single.html:2211
+#: templates/manager/mautic.html:669 templates/manager/wp/single.html:2206
 msgid "An error occurred fetching DB size."
 msgstr ""
 
@@ -5021,7 +5025,7 @@ msgstr ""
 #: templates/manager/mautic_install.html:40
 #: templates/manager/pm2_install.html:163
 #: templates/manager/websitebuilder_install.html:29
-#: templates/manager/wp/install.html:94 templates/manager/wp/single.html:1839
+#: templates/manager/wp/install.html:94 templates/manager/wp/single.html:1830
 msgid "Select a domain"
 msgstr ""
 
@@ -5656,22 +5660,22 @@ msgid "An error occurred while detaching website. Please try again."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:513
-#: templates/manager/wp/single.html:2528
+#: templates/manager/wp/single.html:2523
 msgid "Files Backup"
 msgstr ""
 
 #: templates/manager/websitebuilder.html:533
-#: templates/manager/wp/single.html:2444
+#: templates/manager/wp/single.html:2439
 msgid "Click again to confirm"
 msgstr ""
 
 #: templates/manager/websitebuilder.html:561
-#: templates/manager/wp/single.html:2472
+#: templates/manager/wp/single.html:2467
 msgid "Restoring backup... Please wait."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:569
-#: templates/manager/wp/single.html:2480
+#: templates/manager/wp/single.html:2475
 msgid "Restore request failed."
 msgstr ""
 
@@ -5682,12 +5686,12 @@ msgid ""
 msgstr ""
 
 #: templates/manager/websitebuilder.html:627
-#: templates/manager/wp/single.html:2553
+#: templates/manager/wp/single.html:2548
 msgid "Generating website backup.. Please wait."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:635
-#: templates/manager/wp/single.html:2561
+#: templates/manager/wp/single.html:2556
 msgid "Backup request failed."
 msgstr ""
 
@@ -5915,15 +5919,15 @@ msgstr ""
 msgid "An error occurred while removing WordPress. Please try again."
 msgstr ""
 
-#: templates/manager/wp/list.html:303 templates/manager/wp/single.html:2112
+#: templates/manager/wp/list.html:303 templates/manager/wp/single.html:2107
 msgid "WordPress detach process started. Please wait."
 msgstr ""
 
-#: templates/manager/wp/list.html:312 templates/manager/wp/single.html:2121
+#: templates/manager/wp/list.html:312 templates/manager/wp/single.html:2116
 msgid "WordPress installation detached successfully."
 msgstr ""
 
-#: templates/manager/wp/list.html:315 templates/manager/wp/single.html:2124
+#: templates/manager/wp/list.html:315 templates/manager/wp/single.html:2119
 msgid "An error occurred while detaching WordPress. Please try again."
 msgstr ""
 
@@ -6279,11 +6283,11 @@ msgstr ""
 msgid "Saving general settings... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1590
+#: templates/manager/wp/single.html:1586
 msgid "Error fetching debug info. Refresh the page."
 msgstr ""
 
-#: templates/manager/wp/single.html:1611
+#: templates/manager/wp/single.html:1607
 msgid ""
 "The options below allow you to manage the native WordPress debugging "
 "tools, enabling and disabling these tools in the wp-config.php file. It "
@@ -6291,190 +6295,206 @@ msgid ""
 " are meant for development and test installations. Refer to"
 msgstr ""
 
-#: templates/manager/wp/single.html:1611
+#: templates/manager/wp/single.html:1607
 msgid "Debugging in WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:1611
+#: templates/manager/wp/single.html:1607
 msgid "article for more information on these options."
 msgstr ""
 
-#: templates/manager/wp/single.html:1626 templates/manager/wp/single.html:1633
+#: templates/manager/wp/single.html:1622 templates/manager/wp/single.html:1629
 msgid "WP_DEBUG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1627
+#: templates/manager/wp/single.html:1623
 msgid "WordPress debug mode."
 msgstr ""
 
-#: templates/manager/wp/single.html:1636
+#: templates/manager/wp/single.html:1632
 msgid "Enable WP_DEBUG mode"
 msgstr ""
 
-#: templates/manager/wp/single.html:1650 templates/manager/wp/single.html:1657
+#: templates/manager/wp/single.html:1646 templates/manager/wp/single.html:1653
 msgid "WP_DEBUG_LOG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1651
+#: templates/manager/wp/single.html:1647
 msgid "Save all errors to the debug.log file inside the wp-content directory."
 msgstr ""
 
-#: templates/manager/wp/single.html:1660
+#: templates/manager/wp/single.html:1656
 msgid "Enable WP_DEBUG_LOG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1674 templates/manager/wp/single.html:1681
+#: templates/manager/wp/single.html:1670 templates/manager/wp/single.html:1677
 msgid "WP_DEBUG_DISPLAY"
 msgstr ""
 
-#: templates/manager/wp/single.html:1675
+#: templates/manager/wp/single.html:1671
 msgid "Show debug messages inside the HTML pages"
 msgstr ""
 
-#: templates/manager/wp/single.html:1684
+#: templates/manager/wp/single.html:1680
 msgid "Enable WP_DEBUG_DISPLAY"
 msgstr ""
 
-#: templates/manager/wp/single.html:1698 templates/manager/wp/single.html:1705
+#: templates/manager/wp/single.html:1694 templates/manager/wp/single.html:1701
 msgid "SCRIPT_DEBUG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1699
+#: templates/manager/wp/single.html:1695
 msgid ""
 "Force WordPress to use the non-minified versions of core CSS and "
 "JavaScript files. This is useful when you are testing changes made to .js"
 " and .css files."
 msgstr ""
 
-#: templates/manager/wp/single.html:1708
+#: templates/manager/wp/single.html:1704
 msgid "Enable SCRIPT_DEBUG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1722 templates/manager/wp/single.html:1729
+#: templates/manager/wp/single.html:1718 templates/manager/wp/single.html:1725
 msgid "SAVEQUERIES"
 msgstr ""
 
-#: templates/manager/wp/single.html:1723
+#: templates/manager/wp/single.html:1719
 msgid ""
 "Save database queries to an array that can be displayed to help analyze "
 "them."
 msgstr ""
 
-#: templates/manager/wp/single.html:1732
+#: templates/manager/wp/single.html:1728
 msgid "Enable SAVEQUERIES"
 msgstr ""
 
-#: templates/manager/wp/single.html:1744
+#: templates/manager/wp/single.html:1740
 msgid "Save Debugging"
 msgstr ""
 
-#: templates/manager/wp/single.html:1756
+#: templates/manager/wp/single.html:1752
 msgid "Saving debugging options... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1796
+#: templates/manager/wp/single.html:1787
 msgid "Clone a WordPress instance with configured themes and plugins."
 msgstr ""
 
-#: templates/manager/wp/single.html:1814
+#: templates/manager/wp/single.html:1805
 msgid "Location"
 msgstr ""
 
-#: templates/manager/wp/single.html:1815
+#: templates/manager/wp/single.html:1806
 msgid "Please choose the URL to install the software\n"
 msgstr ""
 
-#: templates/manager/wp/single.html:1821
+#: templates/manager/wp/single.html:1812
 msgid "Source"
 msgstr ""
 
-#: templates/manager/wp/single.html:1834
+#: templates/manager/wp/single.html:1825
 msgid "Target"
 msgstr ""
 
-#: templates/manager/wp/single.html:1852
+#: templates/manager/wp/single.html:1843
 msgid ""
 "Make sure that the domain or the subdomain selected as a target is not "
 "being used by an existing website. During cloning, website data that "
 "exists on the destination may be overwritten and irrevocably lost."
 msgstr ""
 
-#: templates/manager/wp/single.html:1868
+#: templates/manager/wp/single.html:1859
 msgid "Database name to use for new website (optional)"
 msgstr ""
 
-#: templates/manager/wp/single.html:1873 templates/mysql/databases.html:150
+#: templates/manager/wp/single.html:1864 templates/mysql/databases.html:150
 #: templates/mysql/new.html:26 templates/mysql/wizard.html:30
 #: templates/psql/databases.html:139 templates/psql/new.html:24
 #: templates/psql/wizard.html:30
 msgid "Database Name"
 msgstr ""
 
-#: templates/manager/wp/single.html:1892
+#: templates/manager/wp/single.html:1883
 msgid "Clone website"
 msgstr ""
 
-#: templates/manager/wp/single.html:1905
+#: templates/manager/wp/single.html:1894
+msgid "Cloning..."
+msgstr ""
+
+#: templates/manager/wp/single.html:1900
 msgid "Cloning process started... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:2017
+#: templates/manager/wp/single.html:1915
+msgid "Clone Complete"
+msgstr ""
+
+#: templates/manager/wp/single.html:1918
+msgid "Try Again"
+msgstr ""
+
+#: templates/manager/wp/single.html:1923
+msgid "Retry Clone"
+msgstr ""
+
+#: templates/manager/wp/single.html:2012
 msgid "Detach WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:2056
+#: templates/manager/wp/single.html:2051
 msgid "Uninstall WordPress and delete all website files and the database."
 msgstr ""
 
-#: templates/manager/wp/single.html:2058
+#: templates/manager/wp/single.html:2053
 msgid ""
 "All WordPress data will be permanently deleted. There is no coming back "
 "after you press delete."
 msgstr ""
 
-#: templates/manager/wp/single.html:2067
+#: templates/manager/wp/single.html:2062
 msgid "Uninstall WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:2096
+#: templates/manager/wp/single.html:2091
 msgid "WordPress uninstall process started. Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:2103
+#: templates/manager/wp/single.html:2098
 msgid "WordPress uninstalled successfully."
 msgstr ""
 
-#: templates/manager/wp/single.html:2270
+#: templates/manager/wp/single.html:2265
 msgid "MariaDB version:"
 msgstr ""
 
-#: templates/manager/wp/single.html:2333
+#: templates/manager/wp/single.html:2328
 msgid "Update in progress..."
 msgstr ""
 
-#: templates/manager/wp/single.html:2340
+#: templates/manager/wp/single.html:2335
 msgid "WordPress updated successfully."
 msgstr ""
 
-#: templates/manager/wp/single.html:2524
+#: templates/manager/wp/single.html:2519
 msgid "Database and Files Backup"
 msgstr ""
 
-#: templates/manager/wp/single.html:2526
+#: templates/manager/wp/single.html:2521
 msgid "Database Backup"
 msgstr ""
 
-#: templates/manager/wp/single.html:2530
+#: templates/manager/wp/single.html:2525
 msgid "Unknown Backup Type"
 msgstr ""
 
-#: templates/manager/wp/single.html:2543
+#: templates/manager/wp/single.html:2538
 msgid ""
 "No options selected to backup. Please ensure that at least one of the "
 "Database or Files is selected."
 msgstr ""
 
-#: templates/manager/wp/single.html:2551
+#: templates/manager/wp/single.html:2546
 msgid "Generating Backup..."
 msgstr ""
 
@@ -8257,7 +8277,7 @@ msgstr ""
 
 #: templates/user/twofa_settings.html:78
 msgid ""
-"Scan the QR code with your 2FA device or click on the button below to "
+"Scan the QR code with your 2FA device or click on the link below to "
 "display OTP code instead."
 msgstr ""
 

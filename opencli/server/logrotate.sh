@@ -5,7 +5,7 @@
 # Usage: opencli server-logrotate
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 10.03.2026
+# Last Modified: 11.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -117,7 +117,9 @@ fi
 
 # ---------- OPENPANEL ----------
 cat > /etc/logrotate.d/openpanel <<EOF
-/var/log/openpanel/**/*.log {
+# rotate all panel logs
+/var/log/openpanel/admin/!(notifications).log
+/var/log/openpanel/user/*.log {
     su root adm
     size $logrotate_size_limit
     rotate $logrotate_retention
@@ -130,6 +132,30 @@ cat > /etc/logrotate.d/openpanel <<EOF
     create 640 root adm
     maxage $logrotate_keep_days
 }
+
+# delete update logs older than 3m
+/var/log/openpanel/updates/*.log {
+    missingok
+    notifempty
+    rotate 0
+    sharedscripts
+    prerotate
+        find /var/log/openpanel/updates/ -type f -mtime +90 -delete 2>/dev/null || true
+    endscript
+}
+
+# delete reports older than 7d
+/var/log/openpanel/admin/reports/*.txt {
+    daily
+    rotate 0
+    missingok
+    notifempty
+    sharedscripts
+    prerotate
+        find /var/log/openpanel/admin/reports/ -type f -name "*.txt" -mtime +7 -delete 2>/dev/null || true
+    endscript
+}
+
 EOF
 
 logrotate -f /etc/logrotate.d/openpanel

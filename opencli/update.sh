@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 10.03.2026
+# Last Modified: 11.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -668,6 +668,9 @@ update_opencli() {
         message="Generating list of OpenCLI commands for auto-complete"
         [[ "$1" == "--no-log" ]] && echo $message || log  $message
         opencli commands &>/dev/null
+
+        # always disable dev_mode
+        opencli config update dev_mode off &>/dev/null
     fi
 }
 
