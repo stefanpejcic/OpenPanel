@@ -3,7 +3,7 @@
 <!--start: description-->
 **OpenPanel** is *probably* the most customizable web hosting control panel.
 
-Available in an community-supported version, and a more feature-filled version with premium support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
+Available in an community-supported version, and a more feature-filled version with hands-on support, OpenPanel is the cost-effective and comprehensive solution to web hosting management.
 <!--end: description-->
 
 ```
