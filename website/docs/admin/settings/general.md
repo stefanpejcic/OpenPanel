@@ -32,8 +32,8 @@ To access OpenPanel and OpenAdmin via server public IP address, choose the "IP a
 
 Port configurations for OpenAdmin and OpenPanel interfaces can be modified from their default settings (2087 for OpenAdmin and 2083 for OpenPanel). 
 
-- To change the port for the OpenPanel from the default `2083` to another value, you can easily set the desired port in the "OpenPanel Port" field. It's important to note that the port must fall within the range of 1000-33000.
-- Changing admin port from 2087 is currently not possible, as external tools such as WHMCS do not have option to set custom port.
+- To change the port for the OpenPanel from the default `2083` to another value, you can easily set the desired port in the "OpenPanel Port" field. 
+- To change the port for the OpenAdmin from the default `2083` to another value, you can easily set the desired port in the "OpenAdmin Port" field.
 
 ## Redirect
 
