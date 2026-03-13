@@ -38,14 +38,14 @@ git clone https://github.com/stefanpejcic/cPanel-to-OpenPanel
 ```
 
 ```
-bash cPanel-to-OpenPanel/cp-import.sh --backup-location /path/to/cpanel_backup.file --plan-name "default_plan_nginx"
+bash cPanel-to-OpenPanel/cp-import.sh --backup-location=/path/to/cpanel_backup.file --plan-name='Standard plan'
 ```
 
 ## Parameters
 
-- `--backup-location`: Path to the cPanel backup file (required)
-- `--plan-name`:       Name of the hosting plan in OpenPanel (required)
-- `--dry-run`:         extract archive and display data without actually importing account (optional)
+- `--backup-location=` Path to the cPanel backup file
+- `--plan-name=`      Name of the hosting plan in OpenPanel
+- `--dry-run`         extract archive and display data without actually importing account
 
 ## Important Notes
 

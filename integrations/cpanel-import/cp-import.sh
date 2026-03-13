@@ -11,22 +11,30 @@ DEBUG=true
 # START HELPER FUNCTIONS
 
 usage() {
-    echo "Usage: $0 --backup-location <path> --plan-name <plan_name> [--dry-run]"
+    echo "Usage: $0 --backup-location='<path>' --plan-name='<plan_name>' [--dry-run]"
     echo
-    echo "Example: $0 --backup-location /home/backup-7.29.2024_13-22-32_stefan.tar.gz --plan-name "default_plan_nginx" --dry-run"
+    echo "Example: $0 --backup-location='/home/backup-7.29.2024_13-22-32_pejcic.tar.gz' --plan-name='Standard plan' --dry-run"
     exit 1
 }
 
 log() {
-    local message="$1"
     local timestamp=$(date +'%Y-%m-%d %H:%M:%S')
-    echo "[$timestamp] $message" | tee -a "$log_file"
+    echo "[$timestamp] $1" | tee -a "$LOG_FILE"
 }
 
 debug_log() {
     if [ "$DEBUG" = true ]; then
         log "DEBUG: $1"
     fi
+}
+
+dry_run() {
+    local msg="$1"
+    if [ "$DRY_RUN" = true ]; then
+        log "DRY RUN: $msg"
+        return 0
+    fi
+    return 1
 }
 
 handle_error() {
@@ -44,37 +52,27 @@ cleanup() {
 
 define_data_and_log(){
     local backup_location=""
-    local plan_name=""
+    plan_name=""
     DRY_RUN=false
 
-    while [ "$1" != "" ]; do
-        case $1 in
-            --backup-location ) shift
-                                backup_location=$1
-                                ;;
-            --plan-name )       shift
-                                plan_name=$1
-                                ;;
-            --dry-run )         DRY_RUN=true
-                                ;;
-            --post-hook )       shift
-                                post_hook=$1
-                                ;;
-            * )                 usage
+    for arg in "$@"; do
+        case $arg in
+            --backup-location=*) backup_location="${arg#*=}" ;;
+            --plan-name=*)       plan_name="${arg#*=}" ;;
+            --dry-run)           DRY_RUN=true ;;
+            --post-hook=*)       post_hook="${arg#*=}" ;;
+            *)                   usage ;;
         esac
-        shift
     done
 
-    if [ -z "$backup_location" ] || [ -z "$plan_name" ]; then
-        usage
-    fi
+	[[ -z "$backup_location" || -z "$plan_name" ]] && usage
 
     base_name="$(basename "$backup_location")"
     base_name_no_ext="${base_name%.*}"
     local log_dir="/var/log/openpanel/admin/imports"
     mkdir -p $log_dir
-    log_file="$log_dir/${base_name_no_ext}_${timestamp}.log"
-    echo "Import started, log file: $log_file"
+    LOG_FILE="$log_dir/${base_name_no_ext}_${timestamp}.log"
+    echo "Import started, log file: $LOG_FILE"
     main
 }
 
@@ -85,23 +83,10 @@ command_exists() {
 install_dependencies() {
     log "Checking and installing dependencies..."
     install_needed=false
-    declare -A commands=(
-        ["tar"]="tar"
-        ["parallel"]="parallel"
-        ["rsync"]="rsync"
-        ["unzip"]="unzip"
-        ["jq"]="jq"
-        ["pigz"]="pigz"
-        ["mysql"]="mysql-client"
-        ["wget"]="wget"
-        ["curl"]="curl"
-    )
+    commands=(tar unzip jq pigz wget curl)
 
-    for cmd in "${!commands[@]}"; do
-        if ! command_exists "$cmd"; then
-            install_needed=true
-            break
-        fi
+    for cmd in "${commands[@]}"; do
+        command_exists "$cmd" || { install_needed=true; break; }
     done
 
     if [ "$install_needed" = true ]; then
@@ -109,32 +94,26 @@ install_dependencies() {
             log "Detected APT package manager. Updating..."
             apt-mark hold linux-image-generic linux-headers-generic >/dev/null 2>&1
             apt-get update -y >/dev/null 2>&1
-
-            for cmd in "${!commands[@]}"; do
+            for cmd in "${commands[@]}"; do
                 if ! command_exists "$cmd"; then
-                    log "Installing ${commands[$cmd]} (APT)"
-                    apt-get install -y --no-upgrade --no-install-recommends "${commands[$cmd]}" >/dev/null 2>&1
+                    log "Installing $cmd (APT)"
+                    apt-get install -y --no-upgrade --no-install-recommends "$cmd" >/dev/null 2>&1
                 fi
             done
-
             apt-mark unhold linux-image-generic linux-headers-generic >/dev/null 2>&1
-
         elif command_exists dnf; then
             log "Detected DNF package manager. Updating..."
             dnf -y makecache >/dev/null 2>&1
-
-            for cmd in "${!commands[@]}"; do
+            for cmd in "${commands[@]}"; do
                 if ! command_exists "$cmd"; then
-                    log "Installing ${commands[$cmd]} (DNF)"
-                    dnf install -y "${commands[$cmd]}" >/dev/null 2>&1
+                    log "Installing $cmd (DNF)"
+                    dnf install -y "$cmd" >/dev/null 2>&1
                 fi
             done
-
         else
             log "Error: Unsupported package manager. Please install dependencies manually."
             exit 1
         fi
-
         log "Dependencies installed successfully."
     else
         log "All required dependencies are already installed."
@@ -142,17 +121,14 @@ install_dependencies() {
 }
 
 get_server_ipv4(){
-    new_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || wget --timeout=2 -qO- https://ip.openpanel.com || curl --silent --max-time 2 -4 https://ifconfig.me)
+    new_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || curl --silent --max-time 2 -4 https://ifconfig.me)
     if [ -z "$new_ip" ]; then
         new_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
     fi
 }
 
 validate_plan_exists(){
-    if ! opencli plan-list --json | grep -qw "$plan_name"; then
-        log "FATAL ERROR: Plan name '$plan_name' does not exist."
-        exit 1
-    fi
+	opencli plan-list --json | grep -qw "$plan_name" || { log "FATAL ERROR: Plan name '$plan_name' does not exist."; exit 1; }
 }
 
 # END HELPER FUNCTIONS
@@ -160,56 +136,28 @@ validate_plan_exists(){
 
 
 
-
-
-# ======================================================================
-# MAIN
-
-
 # ======================================================================
 # CHECK BACKUP FILE EXTENSION AND DETERMINE SIZE NEEDED FOR RESTORE
-check_if_valid_cp_backup(){
+check_if_valid_cp_backup() {
     local backup_location="$1"
+    local backup_filename
+    backup_filename=$(basename "$backup_location")
+
     ARCHIVE_SIZE=$(stat -c%s "$backup_location")
-    local backup_filename=$(basename "$backup_location")
-    extraction_command=""
+
+    extraction_command="tar -xzf"
+    multiplier=2
 
     case "$backup_filename" in
-        cpmove-*.tar.gz)
-            log "Identified cpmove backup"
-            extraction_command="tar -xzf"
-            EXTRACTED_SIZE=$(($ARCHIVE_SIZE * 2))
-        ;;
-        backup-*.tar.gz)
-            log "Identified full or partial cPanel backup"
-            extraction_command="tar -xzf"
-            EXTRACTED_SIZE=$(($ARCHIVE_SIZE * 2))
-            ;;
-        *.tar.gz)
-            log "Identified gzipped tar backup"
-            extraction_command="tar -xzf"
-            EXTRACTED_SIZE=$(($ARCHIVE_SIZE * 2))
-            ;;
-        *.tgz)
-            log "Identified tgz backup"
-            extraction_command="tar -xzf"
-            EXTRACTED_SIZE=$(($ARCHIVE_SIZE * 3))
-            ;;
-        *.tar)
-            log "Identified tar backup"
-            extraction_command="tar -xf"
-            EXTRACTED_SIZE=$(($ARCHIVE_SIZE * 3))
-            ;;
-        *.zip)
-            log "Identified zip backup"
-            extraction_command="unzip"
-            EXTRACTED_SIZE=$(($ARCHIVE_SIZE * 3))
-            ;;
-        *)
-            log "FATAL ERROR: Unrecognized backup format: $backup_filename"
-            exit 1
-            ;;
+        cpmove-*.tar.gz) log "Identified cpmove backup" ;;
+        backup-*.tar.gz|*.tar.gz) log "Identified gzipped tar backup" ;;
+        *.tgz) log "Identified tgz backup"; multiplier=3 ;;
+        *.tar) log "Identified tar backup"; extraction_command="tar -xf"; multiplier=3 ;;
+        *.zip) log "Identified zip backup"; extraction_command="unzip"; multiplier=3 ;;
+        *) log "FATAL ERROR: Unrecognized backup format: $backup_filename"; exit 1 ;;
     esac
+
+    EXTRACTED_SIZE=$((ARCHIVE_SIZE * multiplier))
 }
 
 # ======================================================================
@@ -217,11 +165,8 @@ check_if_valid_cp_backup(){
 check_if_disk_available(){
     TMP_DIR="/tmp"
     HOME_DIR="/home"
-    AVAILABLE_TMP=$(df --output=avail "$TMP_DIR" | tail -n 1)
-    AVAILABLE_HOME=$(df --output=avail "$HOME_DIR" | tail -n 1)
-
-    AVAILABLE_TMP=$(($AVAILABLE_TMP * 1024))
-    AVAILABLE_HOME=$(($AVAILABLE_HOME * 1024))
+    AVAILABLE_TMP=$(df -B1 --output=avail "$TMP_DIR" | tail -n 1)
+    AVAILABLE_HOME=$(df -B1 --output=avail "$HOME_DIR" | tail -n 1)
 
     if [[ $AVAILABLE_TMP -ge $EXTRACTED_SIZE && $AVAILABLE_HOME -ge $EXTRACTED_SIZE ]]; then
         log "There is enough disk space to extract the archive and copy it to the home directory."
@@ -281,38 +226,24 @@ locate_backup_directories() {
     if [ -z "$homedir" ]; then
         homedir=$(find "$backup_dir" -type d -name "public_html" -printf '%h\n' | head -n 1)
     fi
-    if [ -z "$homedir" ]; then
-        log "FATAL ERROR: Unable to locate home directory in the backup"
-        exit 1
-    fi
+	[[ -n $homedir ]] || { log "FATAL ERROR: Unable to locate home directory in the backup"; exit 1; }
 
     mysqldir="$real_backup_files_path/mysql"
-    if [ -z "$mysqldir" ]; then
-        log "WARNING: Unable to locate MySQL directory in the backup"
-    fi
+	[[ -d $mysqldir ]] || log "WARNING: Unable to locate MySQL directory in the backup"
 
     mysql_conf="$real_backup_files_path/mysql.sql"
-    if [ -z "$mysql_conf" ]; then
-        log "WARNING: Unable to locate MySQL grants file in the backup"
-    fi
+	[[ -f $mysql_conf ]] || log "WARNING: Unable to locate MySQL grants file in the backup"
 
     ftp_conf="$real_backup_files_path/proftpdpassword"
-    if [ -z "$ftp_conf" ]; then
-        log "WARNING: Unable to locate ProFTPD users file file in the backup"
-    fi
+	[[ -f $ftp_conf ]] || log "WARNING: Unable to locate ProFTPD users file in the backup"
 
     domain_logs="$real_backup_files_path/logs/"
-    if [ -z "$domain_logs" ]; then
-        log "WARNING: Unable to locate apache domlogs in the backup"
-    fi
+	[[ -d $domain_logs ]] || log "WARNING: Unable to locate apache domlogs in the backup"
 
     cp_file="$real_backup_files_path/cp/$cpanel_username"
-    if [ -z "$cp_file" ]; then
-        log "FATAL ERROR: Unable to locate cp/$cpanel_username file in the backup"
-        exit 1
-    fi
+	[[ -f $cp_file ]] || { log "FATAL ERROR: Unable to locate cp/$cpanel_username file in the backup"; exit 1; }
 
-    log "Backup directories and configuration files located successfully"
+    log "Backup directories and configuration files located:"
     log "- Home directory:       $homedir"
     log "- MySQL directory:      $mysqldir"
     log "- MySQL grants:         $mysql_conf"
@@ -332,14 +263,13 @@ get_mariadb_or_mysql_for_user() {
 }
 
 reload_user_quotas() {
-    nohup bash -c '
-        quotacheck -avm >/dev/null 2>&1
-        repquota -u / > /etc/openpanel/openpanel/core/users/repquota
-    ' >/dev/null 2>&1 &
+	nohup bash -c 'quotacheck -avm && repquota -u / > /etc/openpanel/openpanel/core/users/repquota' >/dev/null 2>&1 &
+	disown
 }
 
 collect_stats() {
     nohup bash -c "opencli docker-collect_stats '$cpanel_username'" >/dev/null 2>&1 &
+	disown
 }
 
 # ======================================================================
@@ -382,7 +312,6 @@ parse_cpanel_metadata() {
             php_version="inherit"
         fi
 
-        # Additional metadata
         ip_address=$(get_cp_value "IP" "")
         plan=$(get_cp_value "PLAN" "default")
         max_addon=$(get_cp_value "MAXADDON" "0")
@@ -420,20 +349,16 @@ check_if_user_exists(){
     log "Username: $cpanel_username"
 
     local existing_user=""
-    if opencli user-list --json > /dev/null 2>&1; then
-        existing_user=$(opencli user-list --json | jq -r ".[] | select(.username == \"$cpanel_username\") | .id")
-    fi
-    if [ -z "$existing_user" ]; then
-        log "Username $cpanel_username is available"
-        if [ "$DRY_RUN" = false ]; then
-            log "Starting import process.."
-        fi
-    else
+	existing_user=$(opencli user-list --json | jq -r '.data[] | select(.username == "'"$cpanel_username"'") | .id')
+
+	if [ -n "$existing_user" ]; then
         log "FATAL ERROR: $cpanel_username already exists."
         exit 1
-    fi
-}
+	fi
 
+    log "Username $cpanel_username is available"
+	log "Starting import process.."
+}
 
 # ======================================================================
 # CREATE OPENPANEL USER
@@ -442,12 +367,9 @@ create_new_user() {
     local email="$3"
     local plan_name="$4"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would create user $username with email $email and plan $plan_name"
-        return
-    fi
+    dry_run "Would create user $username with email $email and plan $plan_name" && return
         
-    create_user_command=$(opencli user-add "$cpanel_username" generate "$email" "$plan_name" 2>&1)
+    create_user_command=$(opencli user-add "$cpanel_username" generate "$email" "$plan_name" --no-sentinel 2>&1)
     while IFS= read -r line; do
         log "$line"
     done <<< "$create_user_command"
@@ -474,22 +396,18 @@ create_new_user() {
     fi
 }
 
-
 # ======================================================================
 # PHP VERSION
 restore_php_version() {
     local php_version="$1"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would sed default PHP version $php_version for user $cpanel_username"
-        return
-    fi
+    dry_run "Would set default PHP version $php_version for user $cpanel_username" && return
 
-    # if 'inherit' we will keep the default of OpenPanel
+    # 'inherit' = OpenPanel default
     if [ "$php_version" == "inherit" ]; then
         log "PHP version is set to inherit. No changes will be made."
     else
-    # if custom version from cPanel, set it in OpenPanel also
+        # cPanel custom version
         log "Setting PHP $php_version as the default version for all new domains."
         output=$(opencli php-default "$cpanel_username" --update "$php_version" 2>&1)
         while IFS= read -r line; do
@@ -497,23 +415,6 @@ restore_php_version() {
         done <<< "$output"
     fi
 }
-
-
-# ======================================================================
-# PHPMYADMIN
-grant_root_access() {
-    local username="$1"
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would grant root user access to all databases for user $username"
-        return
-    fi
-    log "Granting root access to all databases for user $username"
-    phpmyadmin_user="root"
-    sql_command="GRANT ALL ON *.* TO 'root'@'localhost'; FLUSH PRIVILEGES;"
-    grant_commands=$(docker --context=$username exec mysql mysql -N -e "$sql_command")
-    log "Access granted to root user for all databases of $username"
-}
-
 
 # ======================================================================
 # MYSQL
@@ -523,10 +424,7 @@ restore_mysql() {
 
     log "Restoring MySQL databases for user $cpanel_username"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would restore MySQL databases for user $cpanel_username"
-        return
-    fi
+    dry_run "Would restore MySQL databases for user $cpanel_username" && return
 
     # Workaround for MariaDB sandbox mode bug
     apply_sandbox_workaround() {
@@ -560,7 +458,7 @@ restore_mysql() {
             mysql_version="8.0"
             sed -i 's/^MYSQL_VERSION=.*/MYSQL_VERSION="8.0"/' /home/"$cpanel_username"/.env
         fi
-        log "Initializing $mysql_type $mysql_version service for user"
+        log "Initializing $mysql_type service for user"
         cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d "$mysql_type" >/dev/null 2>&1
 
         # STEP 3: Wait for MySQL to be ready (max 300 seconds)
@@ -586,14 +484,18 @@ restore_mysql() {
                 db_name=$(basename "$db_file" .create)
 
                 log "Creating database: $db_name (${current_db}/${total_databases})"
-                apply_sandbox_workaround "$db_name.create"
+                if [ "$mysql_type" = "mysql" ]; then
+					apply_sandbox_workaround "$db_name.create"
+				fi
                 docker --context="$cpanel_username" cp "${real_backup_files_path}/mysql/$db_name.create" "$mysql_type:/tmp/${db_name}.create" >/dev/null 2>&1
-                docker --context="$cpanel_username" exec "$mysql_type" bash -c "mysql < /tmp/${db_name}.create && rm /tmp/${db_name}.create"
+                docker --context="$cpanel_username" exec "$mysql_type" bash -c "$mysql_type < /tmp/${db_name}.create && rm /tmp/${db_name}.create"
 
                 log "Importing tables for database: $db_name"
-                apply_sandbox_workaround "$db_name.sql"
+				if [ "$mysql_type" = "mysql" ]; then
+                	apply_sandbox_workaround "$db_name.sql"
+				fi
                 docker --context="$cpanel_username" cp "${real_backup_files_path}/mysql/$db_name.sql" "$mysql_type:/tmp/${db_name}.sql" >/dev/null 2>&1
-                docker --context="$cpanel_username" exec "$mysql_type" bash -c "mysql $db_name < /tmp/${db_name}.sql && rm /tmp/${db_name}.sql"
+                docker --context="$cpanel_username" exec "$mysql_type" bash -c "$mysql_type $db_name < /tmp/${db_name}.sql && rm /tmp/${db_name}.sql"
 
                 current_db=$((current_db + 1))
             done
@@ -609,61 +511,53 @@ restore_mysql() {
         docker --context="$cpanel_username" cp "${real_backup_files_path}/mysql.TEMPORARY.sql" "$mysql_type:/tmp/mysql.TEMPORARY.sql" >/dev/null 2>&1
         docker --context="$cpanel_username" exec "$mysql_type" bash -c "$mysql_type < /tmp/mysql.TEMPORARY.sql && $mysql_type -e 'FLUSH PRIVILEGES;' && rm /tmp/mysql.TEMPORARY.sql"
 
-        # STEP 6: Grant root user all access
-        grant_root_access "$cpanel_username"
-
     else
         log "No MySQL databases found to restore"
     fi
 }
-
-
 
 # ======================================================================
 # SSL CERTIFICATES
 restore_ssl() {
     local username="$1"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would restore SSL certificates for user $username"
-        return
-    fi
+    dry_run "Would restore SSL certificates for user $username" && return
 
     # TODO: edit to cover certs/ keys/ 
     log "Restoring SSL certificates for user $username"
     # apache_tls/ dir has LE certs, custom are in ssl/
     if [ -d "$real_backup_files_path/ssl" ]; then
+        dest_dir="/home/$username/docker-data/volumes/${username}_html_data/_data/"
         for cert_file in "$real_backup_files_path/ssl"/*.crt; do
             local domain=$(basename "$cert_file" .crt)
             local key_file="$real_backup_files_path/ssl/$domain.key"
-            
-            # todo: move keys to var/www/html first!            
+            local new_cert_file="$dest_dir/$domain.crt"
+            local new_key_file="$dest_dir/$domain.key"
             if [ -f "$key_file" ]; then
+                cp "$key_file" "$new_key_file"
+                cp "$cert_file" "$new_cert_file"             
                 log "Installing SSL certificate for domain: $domain"
-                opencli domains-ssl "$domain" "$cert_file" "$key_file"
+                opencli domains-ssl "$domain" custom "/var/www/html/$domain.key" "/var/www/html/$domain.crt"
+				rm -rf "$new_cert_file" "$new_key_file"
             else
                 log "SSL key file not found for domain: $domain"
             fi
         done
 
-        # TODO: reload caddy
+        nohup docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1 &
+        disown
+
     else
         log "No SSL certificates found to restore"
     fi
 }
-
-
-
 
 # ======================================================================
 # DNS ZONES
 restore_dns_zones() {
     log "Restoring DNS zones for user $cpanel_username"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would restore DNS zones for user $cpanel_username"
-        return
-    fi
+    dry_run "Would restore DNS zones for user $cpanel_username" && return
 
     if [ -d "$real_backup_files_path/dnszones" ]; then
         for zone_file in "$real_backup_files_path/dnszones"/*; do
@@ -700,13 +594,8 @@ restore_dns_zones() {
     fi
 }
 
-
-# creates symlink of /var/www/html/ to /home/$cpanel_username so all paths in files keep working!
 create_home_mountpoint() {
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would create a symlink from html_data volume to /home/$cpanel_username/"
-        return
-    fi
+    dry_run "Would create a symlink from html_data volume to /home/$cpanel_username/" && return
     
 sed -i '/^[[:space:]]*volumes:[[:space:]]*$/{
   N
@@ -718,48 +607,22 @@ sed -i '/^[[:space:]]*volumes:[[:space:]]*$/{
 # ======================================================================
 # HOME DIR
 restore_files() {
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would restore files from /home/$cpanel_username/ to html_data volume"
-        return
-    fi
+    dry_run "Would restore files from /home/$cpanel_username/ to html_data volume" && return
 
     du_needed_for_home=$(du -sh "$real_backup_files_path/homedir" | cut -f1)
     log "Restoring home directory ($du_needed_for_home) to html_data volume"
     mkdir -p /home/$cpanel_username/docker-data/volumes/${cpanel_username}_html_data/
-    #rm -rf "$real_backup_files_path"/homedir/{.cpanel,.trash,wordpress-backups}
+    rm -rf "$real_backup_files_path"/homedir/{.cpanel,.trash,wordpress-backups}
     mv $real_backup_files_path/homedir /home/$cpanel_username/docker-data/volumes/${cpanel_username}_html_data/_data
-
-    : '
-    # LEAVE THIS FOR CLUSTERING FEATURE
-    rsync -Prltvc --info=progress2 "$real_backup_files_path/homedir/" "/home/$cpanel_username/" 2>&1 | while IFS= read -r line; do
-        log "$line"
-    done
-
-    log "Finished transferring files, comparing to source.."
-    original_size=$(du -sb "$real_backup_files_path/homedir" | cut -f1)
-    copied_size=$(du -sb "/home/$cpanel_username/" | cut -f1)
-
-    if [[ "$original_size" -eq "$copied_size" ]]; then
-        log "The original and target directories have the same size."
-    else
-        log "WARNING: The original and target directories differ in size after restore."
-        log "Original size: $original_size bytes"
-        log "Target size:   $copied_size bytes"
-    fi
-    '
-
 }
-
 
 # ======================================================================
 # PERMISSIONS
 fix_perms(){
     local verbose="" #-v
     log "Changing permissions for all files and folders in user home directory /home/$cpanel_username/"
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would change permissions with command: find /home/$cpanel_username -print0 | xargs -0 chown $verbose $cpanel_username:$cpanel_username"
-        return
-    fi
+
+    dry_run "Would change permissions with command: find /home/$cpanel_username -print0 | xargs -0 chown $verbose $cpanel_username:$cpanel_username" && return
     
     if ! timeout 600 find /home/$cpanel_username -print0 | xargs -0 chown $verbose $cpanel_username:$cpanel_username > /dev/null 2>&1; then
         if [ $? -eq 124 ]; then
@@ -778,10 +641,7 @@ restore_wordpress() {
     local real_backup_files_path="$1"
     local username="$2"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would restore WordPress sites for user $username"
-        return
-    fi
+    dry_run "Would restore WordPress sites for user $username" && return
 
     log "Checking user files for WordPress installations to add to Site Manager interface.."
     output=$(opencli websites-scan $cpanel_username)
@@ -924,10 +784,10 @@ restore_domains() {
                 else
                     log "WARNING: userdata file not found for $domain. Using default docroot."
                 fi
-            
-                if [ "$DRY_RUN" = true ]; then
-                    log "DRY RUN: Would restore $type $domain with --docroot ${docroot:-N/A}"
-                elif opencli domains-whoowns "$domain" | grep -q "not found in the database."; then
+
+                dry_run "Would restore $type $domain with --docroot ${docroot:-N/A}" && return
+                          
+                if opencli domains-whoowns "$domain" | grep -q "not found in the database."; then
                     if [ -n "$docroot" ]; then
                         output=$(opencli domains-add "$domain" "$cpanel_username" --docroot "$docroot" 2>&1)
                         while IFS= read -r line; do
@@ -984,17 +844,12 @@ restore_domains() {
     fi
 }
 
-
-
 # ======================================================================
 # CRONJOB
 restore_cron() {
     log "Restoring cron jobs for user $cpanel_username"
-
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: Would restore cron jobs for user $cpanel_username"
-        return
-    fi
+    
+    dry_run "Would restore cron jobs for user $cpanel_username" && return
 
     if [ -f "$real_backup_files_path/cron/$cpanel_username" ]; then
         sed -i '1,2d' "$real_backup_files_path/cron/$cpanel_username"
@@ -1081,15 +936,16 @@ success_message() {
 
     log "Elapsed time: ${hours}h ${minutes}m ${seconds}s"
 
-    if [ "$DRY_RUN" = true ]; then
-        log "DRY RUN: import process for user $cpanel_username completed."
-    else
-        log "SUCCESS: Import for user $cpanel_username completed successfully."
-    fi
+    dry_run "import process for user $cpanel_username completed" && return
+
+    log "SUCCESS: Import for user $cpanel_username completed successfully."
+
+    nohup opencli sentinel --action=user_create --title="User account '$cpanel_username' imported from cPanel backup" --message="User account '$cpanel_username' has been successfully imported from backup file '$backup_filename'" >/dev/null 2>&1 &
+	disown
 }
 
 log_paths_are() {
-    log "Log file: $log_file"
+    log "Log file: $LOG_FILE"
     log "PID: $pid"
 }
 
@@ -1106,7 +962,7 @@ Currently supported features:
 │  ├─ Domains access logs (Apache domlogs)
 │  └─ DNS zones
 ├─ WEBSITES:
-│  └─ WordPress instalations from WPToolkit & Softaculous 
+│  └─ WordPress instalations from WP Toolkit & Softaculous 
 ├─ DATABASES:
 │    ├─ Remote access to MySQL
 │    └─ MySQL databases, users and grants
@@ -1159,9 +1015,8 @@ import_email_accounts_and_data() {
         # list emails for user to confirm import
 }
 
-
 # ======================================================================
-# CCREATED DATE IN OPENADMIN FROM WHM
+# CREATED DATE IN OPENADMIN FROM WHM
 restore_startdate() {
     real_backup_files_path="$1"
     cpanel_username="$2"
@@ -1187,14 +1042,8 @@ restore_notifications() {
     if [ -z "$notifications_cp_file" ]; then
         log "WARNING: Unable to access $notifications_cp_file for notification preferences - Skipping"
     else
-        if [ "$DRY_RUN" = true ]; then
-            log "DRY RUN: Would restore notification preferences from $notifications_cp_file"
-            check_notifications=$(grep "notify_" $notifications_cp_file)
-            while IFS= read -r line; do
-                log "$line"
-            done <<< "$check_notifications"
-            return
-        fi  
+        dry_run "Would restore notification preferences from $notifications_cp_file" && return
+
         grep "notify_" $notifications_cp_file > $notifications_op_file
         cat_notifications_file=$(cat $notifications_op_file 2>&1)
         while IFS= read -r line; do
@@ -1209,11 +1058,7 @@ write_import_activity() {
 
 
 
-
-
-
-###################################### MAIN SCRIPT EXECUTION ######################################
-###################################################################################################
+# MAIN
 main() {
     start_message                                                              # what will be imported
     log_paths_are                                                              # where will we store the progress
@@ -1269,5 +1114,5 @@ main() {
 }
 
 # ======================================================================
-# MAIN
+# ENTRYPOINT
 define_data_and_log "$@"

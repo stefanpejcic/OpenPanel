@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: user/add.sh
 # Description: Create a new user with the provided plan_name.
-# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>]
+# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>] [--no-sentinel]
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 11.03.2026
+# Last Modified: 12.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -44,6 +44,7 @@ plan_name="$4"
 DEBUG=false
 SKIP_IMAGE_PULL=false
 SEND_EMAIL=false
+SENTINEL=true
 server=""
 key_flag=""
 
@@ -179,6 +180,9 @@ check_if_default_slave_server_is_set         # we run it before parse_flags so i
 				webserver="${webserver//\"/}"
 				webserver="$(echo "$webserver" | xargs)"
 		    ;;
+			--no-sentinel)
+	            SENTINEL=false
+	        ;;
 	    esac
 	done
 
@@ -1593,6 +1597,12 @@ create_volume() {
 	mkdir -p "$vol_path" && chown $username:$username "$vol_path" && chmod -R g+w "$vol_path"
 }
 
+send_sentinel_notification() {
+	if [ "$SENTINEL" = true ]; then
+		nohup opencli sentinel --action=user_create --title="User account '$username' created" --message="User account '$username' has been successfully created with email: $email and hosting plan: $plan_name" >/dev/null 2>&1 &
+		disown
+	fi
+}
 
 ##########################################################
 ########################## MAIN ##########################
@@ -1625,8 +1635,7 @@ copy_skeleton_files                          # get webserver, php version and my
 download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
-nohup opencli sentinel --action=user_create --title="User account '$username' created" --message="User account '$username' has been successfully created with email: $email and hosting plan: $plan_name" >/dev/null 2>&1 &
-disown
+send_sentinel_notification                   # write notification to openadmin
 update_accounts_for_reseller                 # update current_accounts for reseller in their json file
 collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user

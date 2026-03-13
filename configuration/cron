@@ -25,7 +25,6 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # MAINTENANCE
 15 0 * * * root /usr/local/bin/opencli update && echo "$(date) System update executed" >> /var/log/openpanel/admin/cron.log
-0 0 12 * * root /usr/local/bin/opencli server-ips && echo "$(date) Server IP listing executed" >> /var/log/openpanel/admin/cron.log
 0 */8 * * * root /usr/local/bin/opencli ftp-users && echo "$(date) FTP users file recreated" >> /var/log/openpanel/admin/cron.log
 45 1 * * * root /usr/local/bin/opencli email-server pflogsumm && echo "$(date) Generated email summary report for OpenAdmin > Emails > Summary Reports" >> /var/log/openpanel/admin/cron.log
 45 3 * * * root /usr/local/bin/opencli docker-images --all && echo "$(date) Executed docker cup for all users" >> /var/log/openpanel/admin/cron.log

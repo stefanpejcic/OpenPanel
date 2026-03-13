@@ -6,7 +6,7 @@
 #        opencli server-ips <USERNAME>
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 11.03.2026
+# Last Modified: 12.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,6 +29,11 @@
 # THE SOFTWARE.
 ################################################################################
 
+: '
+DEPRECATED AND NO LONGER USED 
+https://github.com/stefanpejcic/openpanel-configuration/commit/f3754af13e9dac11610810859d68cad31e5c2e47
+'
+
 # IP SERVERS
 SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
 if [ -f "$SCRIPT_PATH" ]; then
@@ -47,13 +52,13 @@ fi
 current_server_main_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout25 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
 
 get_context_for_user() {
-     USERNAME="$1"
-     source /usr/local/opencli/db.sh
-        username_query="SELECT server FROM users WHERE username = '$USERNAME'"
-        context=$(mysql -D "$mysql_database" -e "$username_query" -sN)
-        if [ -z "$context" ]; then
-            context=$USERNAME
-        fi
+	USERNAME="$1"
+	source /usr/local/opencli/db.sh
+	username_query="SELECT server FROM users WHERE username = '$USERNAME'"
+	context=$(mysql -D "$mysql_database" -e "$username_query" -sN)
+	if [ -z "$context" ]; then
+		context=$USERNAME
+	fi
 }
 
 # Create or overwrite the JSON file for user
@@ -66,9 +71,9 @@ create_ip_file() {
 
 
 get_webserver_for_user(){
-        local USER=$1
-		output=$(opencli webserver-get_webserver_for_user "$USER")
-		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+	local USER=$1
+	output=$(opencli webserver-get_webserver_for_user "$USER")
+	ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
 }
 
 
