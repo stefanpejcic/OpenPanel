@@ -21,7 +21,7 @@ const defaultOptions: InstallOptions = {
     password: { value: "", description: "Set admin password (by default random generated)." },
     "skip-firewall": { value: false, description: "Don't setup Sentinel Firewall (CSF)" },
     "skip-dns-server": { value: false, description: "Don't setup local BIND9 DNS server" },
-    "imunifyav": { value: false, description: "Install and Setup ImunifyAV." },
+    imunifyav: { value: false, description: "Install and Setup ImunifyAV." },
     "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
     "post-install": { value: "", description: "Specify the post install script path or URL." },
     swap: { value: "", description: "Set size in GB for the swap partition." },
