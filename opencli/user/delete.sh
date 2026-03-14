@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 12.03.2026
+# Last Modified: 13.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -149,12 +149,16 @@ delete_ftp_users() {
 
 delete_all_user_files() {
     if [ -n "$node_ip_address" ]; then
+		# 1. delete from node
         ssh "root@$node_ip_address" bash -c "'
             pkill -u $context -9 2>/dev/null || true
             deluser --remove-home "$context" >/dev/null 2>&1 || true
             [ -d /home/$context ] && rm -rf /home/$context
         '"
+		# 2. unmount from master
+		umount /home/$context >/dev/null 2>&1
     fi
+	# 3. delete on master 
 	pkill -u $context -9 2>/dev/null || true
     deluser --remove-home "$context" >/dev/null 2>&1 || true
     [ -d /home/$context ] && rm -rf /home/$context

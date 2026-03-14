@@ -5,7 +5,7 @@
 # Usage: opencli server-logrotate
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 12.03.2026
+# Last Modified: 13.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -82,7 +82,7 @@ cat > /etc/logrotate.d/caddy-logs <<EOF
     copytruncate
     create 640 root adm
     postrotate
-        docker exec caddy bash -c "caddy validate && caddy reload" >/dev/null 2>&1
+        docker --context=default exec caddy sh -c "caddy validate && caddy reload" >/dev/null 2>&1
     endscript
     maxage $logrotate_keep_days
 }

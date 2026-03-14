@@ -5,7 +5,7 @@
 # Usage: opencli user-unsuspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 12.03.2026
+# Last Modified: 13.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -66,14 +66,6 @@ get_docker_context() {
     CONTEXT_FLAG="--context $server_name"
 }
 
-reload_caddy_if_valid() {
-    if docker --context default exec caddy caddy validate --config /etc/caddy/Caddyfile > /dev/null 2>&1; then
-        docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile > /dev/null 2>&1
-        return 0
-    fi
-    return 1
-}
-
 unsuspend_user_domains() {
 
     # 1. get list of all user domains
@@ -86,8 +78,9 @@ unsuspend_user_domains() {
         [[ -f "${SUSPENDED_DIR}${domain_name}.conf" ]] && cp "${SUSPENDED_DIR}${domain_name}.conf" "${CADDY_VHOST_DIR}/${domain_name}.conf"
     done
 
-    # 3. validate caddy
-    reload_caddy_if_valid
+    # 3. reload caddy
+    nohup docker --context=default exec caddy sh -c "caddy validate && caddy reload" >/dev/null 2>&1 &
+    disown
 }
 
 start_user_containers() {

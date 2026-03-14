@@ -1,0 +1,124 @@
+# ==============================
+#    WordPress Security Rules
+# ==============================
+
+# ------------------------------
+# Rule: wp_config
+# Block access to wp-config.php
+# ------------------------------
+(wp_manager_wp_config) {
+    @wpConfig {
+        path /wp-config.php
+    }
+    respond @wpConfig 403
+}
+
+# ------------------------------
+# Rule: xmlrpc
+# Block access to xmlrpc.php
+# ------------------------------
+(wp_manager_xmlrpc) {
+    @xmlrpc {
+        path /xmlrpc.php
+    }
+    respond @xmlrpc 403
+}
+
+# ------------------------------
+# Rule: uploads_php
+# Forbid PHP execution in uploads
+# ------------------------------
+(wp_manager_uploads_php) {
+    @uploads {
+        path /wp-content/uploads/*
+    }
+    handle @uploads {
+        @phpFiles {
+            path *.php
+        }
+        respond @phpFiles 403
+    }
+}
+
+# ------------------------------
+# Rule: wp_includes_php
+# Prevent PHP execution in wp-includes except TinyMCE
+# ------------------------------
+(wp_manager_wp_includes_php) {
+    @wpIncludes {
+        path /wp-includes/*
+    }
+    handle @wpIncludes {
+        @phpFiles {
+            path *.php
+            not path /wp-includes/js/tinymce/wp-tinymce.php
+        }
+        respond @phpFiles 403
+    }
+}
+
+# ------------------------------
+# Rule: admin_script_concat
+# Disable load-scripts.php and load-styles.php
+# ------------------------------
+(wp_manager_admin_script_concat) {
+    @adminScripts {
+        path /wp-admin/load-scripts.php /wp-admin/load-styles.php
+    }
+    respond @adminScripts 403
+}
+
+# ------------------------------
+# Rule: author_scan
+# Prevent ?author= enumeration
+# ------------------------------
+(wp_manager_author_scan) {
+    @authorScan {
+        query author=*
+    }
+    respond @authorScan 403
+}
+
+# ------------------------------
+# Rule: sensitive_files
+# Protect config backups, logs, etc
+# ------------------------------
+(wp_manager_sensitive_files) {
+    @sensitiveFiles {
+        path_regexp sensitiveFiles (?i:(wp-config\.bak|\.wp-config\.php\.swp|(readme|license|changelog|-config|-sample)\.(php|md|txt|htm|html)|.*\.(psd|log|cmd|exe|bat|csh|ini|sh)))
+    }
+    respond @sensitiveFiles 403
+}
+
+# ------------------------------
+# Rule: cache_php
+# Disable PHP execution in cache dirs
+# ------------------------------
+(wp_manager_cache_php) {
+    @cachePHP {
+        path_regexp cachePHP (?i:.*/cache/.*\.ph(?:p[345]?|t|tml))
+    }
+    respond @cachePHP 403
+}
+
+# ------------------------------
+# Rule: env_files
+# Block access to .env and htaccess files
+# ------------------------------
+(wp_manager_env_files) {
+    @forbiddenFiles {
+        path /.env /.htaccess /.htpasswd
+    }
+    respond @forbiddenFiles 403
+}
+
+# ------------------------------
+# Rule: bad_bots
+# Block malicious crawlers
+# ------------------------------
+(wp_manager_bad_bots) {
+    @badBots {
+        header_regexp User-Agent "(?i)(acunetix|BLEXBot|domaincrawler\.com|LinkpadBot|MJ12bot/v|majestic12\.co\.uk|AhrefsBot|TwengaBot|SemrushBot|nikto|winhttp|Xenu\s+Link\s+Sleuth|Baiduspider|HTTrack|clshttp|harvest|extract|grab|miner|python-requests)"
+    }
+    respond @badBots 403
+}

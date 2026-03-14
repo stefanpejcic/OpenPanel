@@ -5,7 +5,7 @@
 # Usage: opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
 # Author: Stefan Pejcic
 # Created: 22.03.2025
-# Last Modified: 12.03.2026
+# Last Modified: 13.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -116,38 +116,48 @@ get_user_context() {
 check_and_use_tls() {
 	local full_cert="$1"
  	local full_key="$2"
-	  
-	  if [[ ! "$full_cert" =~ ^/var/www/html/ && ! "$full_key" =~ ^/var/www/html/ ]]; then
-	      echo "ERROR: Paths must be inside /var/www/html/ directory."
-	      exit 1
-	  fi
 
+	# 1. validate and format paths
+	if [[ ! "$full_cert" =~ ^/var/www/html/ && ! "$full_key" =~ ^/var/www/html/ ]]; then
+	  echo "ERROR: Paths must be inside /var/www/html/ directory."
+	  exit 1
+	fi
 
 	local cert_path="${full_cert##/var/www/html/}"
  	local key_path="${full_key##/var/www/html/}"
-  
  	local real_cert_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/${cert_path}"
   	local real_key_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/${key_path}"
-  
- 	if openssl x509 -noout -checkend 0 -in "$real_cert_path" >/dev/null 2>&1; then
-	    mkdir -p "$hostfs_domain_tls_dir"
 
-	    cp "${real_cert_path}" "$hostfs_domain_tls_dir"/fullchain.pem
-	    cp "${real_key_path}" "$hostfs_domain_tls_dir"/key.pem
-	    
-		if grep -qE "tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem" "$CONFIG_FILE"; then
-		    echo "Custom SSL already configured for $DOMAIN. Updating certificate and key.."
-		else
-		    echo "Adding custom certificate.."
-     			sed -i "/tls {/,/}/c\
-tls $domain_tls_dir/fullchain.pem $domain_tls_dir/key.pem
-" "$CONFIG_FILE"
-		fi 
-	    docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null
-	else
-	    echo "Error: $cert_path is not valid or expired!"
+  	# 2. check if cert is valid
+	if ! openssl x509 -noout -checkend 0 -in "$real_cert_path" >/dev/null 2>&1; then
+	    echo "Error: $cert_path is not valid or has expired!"
 	    exit 1
 	fi
+
+	# 3. copy files from user homedir to /etc/openpanel/caddy/ssl/custom
+	mkdir -p "$hostfs_domain_tls_dir"
+	cp "${real_cert_path}" "$hostfs_domain_tls_dir"/fullchain.pem
+	cp "${real_key_path}" "$hostfs_domain_tls_dir"/key.pem
+
+	# 4. update caddyfile
+	if grep -qE "tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem" "$CONFIG_FILE"; then
+		echo "Custom SSL already configured for $DOMAIN. Updating certificate and key.."
+	else
+		echo "Adding custom certificate.."
+			sed -i "/tls {/,/}/c\
+tls $domain_tls_dir/fullchain.pem $domain_tls_dir/key.pem
+" "$CONFIG_FILE"
+	fi
+	
+	# 5. reload caddy
+	nohup docker --context=default exec caddy sh -c "caddy validate && caddy reload" > /dev/null 2>&1 &
+	disown
+
+	# 6. notify
+	nohup opencli sentinel --action=domains_ssl --title="Custom SSL set for domain" --message="Custom SSL is set for domain name: '$DOMAIN' owned by OpenPanel user '$user'." >/dev/null 2>&1 &
+	disown
+
+    echo "Updated $DOMAIN to use custom SSL."
 }
 
 
@@ -257,17 +267,22 @@ if [ -n "$2" ]; then
     	check_custom_ssl_or_auto
     	exit 0
     elif [ "$2" == "auto" ]; then
+
+		# 1. replace custom ssl paths with on_demand
         sed -i -E "s|tls\s+/.*?/fullchain\.pem\s+/.*?/key\.pem|  tls {\n    on_demand\n  }|g" "$CONFIG_FILE"
+
+		# 2. reload caddy
+	    nohup docker --context=default exec caddy sh -c "caddy validate && caddy reload" > /dev/null 2>&1 &
+	    disown
+
+		# 3. notify
 		nohup opencli sentinel --action=domains_ssl --title="AutoSSL set for domain" --message="AutoSSL is set for domain name: '$DOMAIN' owned by OpenPanel user '$user'." >/dev/null 2>&1 &
 		disown
-		docker --context=default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null
+
         echo "Updated $DOMAIN to use AutoSSL."
         exit 0
-    elif [ "$2" == "custom" ] && [ -n "$3" ] && [ -n "$4" ]; then        
+    elif [ "$2" == "custom" ] && [ -n "$3" ] && [ -n "$4" ]; then       
         check_and_use_tls "$3" "$4"
-		nohup opencli sentinel --action=domains_ssl --title="Custom SSL set for domain" --message="Custom SSL is set for domain name: '$DOMAIN' owned by OpenPanel user '$user'." >/dev/null 2>&1 &
-		disown
-        echo "Updated $DOMAIN to use custom SSL."
         exit 0
 	elif [ "$2" == "logs" ]; then
 	    show_ssl_logs "$@"

@@ -5,7 +5,7 @@
 # Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 12.03.2026
+# Last Modified: 13.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -168,7 +168,7 @@ edit_domain_files() {
     done
     
     if $caddy_changed; then
-        docker --context=default exec caddy bash -c "caddy validate && caddy reload" >/dev/null 2>&1
+        docker --context=default exec caddy sh -c "caddy validate && caddy reload" >/dev/null 2>&1
         $DEBUG && echo "- Reloaded webserver"
     fi
 

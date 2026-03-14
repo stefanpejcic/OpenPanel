@@ -454,5 +454,13 @@
     "link": "/account/activity",
     "type": "community",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#activity"
+  },
+  {
+    "name": "ip_blocker",
+    "title": "IP Blocker",
+    "description": "If enabled, users can block IP addresses from accessing their websites.",
+    "link": "/security/ip-blocker",
+    "type": "community",
+    "help_link": ""
   }
 ]

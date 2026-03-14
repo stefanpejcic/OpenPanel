@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 12.03.2026
+# Last Modified: 13.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -207,23 +207,6 @@ fi
 }
 
 
-
-# Function to validate and reload Caddy service
-check_and_add_to_enabled() {
-    # Validate the Caddyfile
-    if docker exec caddy caddy validate --config /etc/caddy/Caddyfile 2>&1 | grep -q "Valid configuration"; then
-        # If validation is successful, reload the Caddy service
-        docker --context default compose exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1
-        return 0
-    else
-        # If validation fails, revert the domains file and return an error
-        echo "Validation failed, reverting changes."
-        return 1
-    fi
-}
-
-
-
 delete_domain_file() {
 	log "Removing domain from the proxy"
  
@@ -232,7 +215,8 @@ delete_domain_file() {
 
 	if [ $(docker --context=default ps -q -f name=caddy) ]; then
  	    log "Caddy is running, reloading configuration"
-	    check_and_add_to_enabled
+	    nohup docker --context=default exec caddy sh -c "caddy validate && caddy reload " >/dev/null 2>&1 &
+	    disown
 	fi
 
 	rm -rf "/var/log/caddy/domlogs/$domain_name/access*"                # access logs

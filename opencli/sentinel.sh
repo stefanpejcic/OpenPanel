@@ -457,7 +457,7 @@ check_swap_usage() {
   write_notification "$title" "SWAP: ${pct}%. Cleanup starting."
   touch "$LOCK_FILE"
 
-  echo 3 > /proc/sys/vm/drop_caches
+  sync ; echo 3 > /proc/sys/vm/drop_caches
   swapoff -a && swapon -a
 
   local stotal2 sused2

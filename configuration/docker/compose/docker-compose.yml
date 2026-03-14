@@ -80,9 +80,9 @@ services:
       - /sys:/host/sys:ro
       - /:/hostfs:ro #todo!
       - /home:/home
-      - /usr/local/admin:/usr/local/admin
-      - /usr/local/bin/opencli:/usr/local/bin/opencli
-      - /usr/local/opencli:/usr/local/opencli
+      - /usr/local/admin:/usr/local/admin:ro #TODO: TEST PASS RESET
+      - /usr/local/bin/opencli:/usr/local/bin/opencli:ro #TODO: TEST CP ON IMAGE CREATE
+      - /usr/local/opencli:/usr/local/opencli:ro #TODO: TEST MAIN
       - /var/log/caddy:/var/log/caddy
       - /var/log/openpanel:/var/log/openpanel
       - /var/lib/csf/:/var/lib/csf/
@@ -94,17 +94,17 @@ services:
       - /root/.ssh/:/root/.ssh/:ro # for remote contexts
       - /root/.docker/:/root/.docker/ # allows contexts editing
       - /root/openpanel_restart_needed:/root/openpanel_restart_needed #
-      - /root/.env:/root/.env #
-      - /root/docker-compose.yml:/root/docker-compose.yml
+      - /root/.env:/root/.env:ro #TODO: test if 2083 uses it
+      - /root/docker-compose.yml:/root/docker-compose.yml:ro #TODO: test if 2083 uses it
       - ${REDIS_SOCKET}:/tmp/redis/
-      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/ #https://dev.openpanel.com/customize.html#Custom-Code
-      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css
-      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js
-      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json
-      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/ # localization
+      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro #https://dev.openpanel.com/customize.html#Custom-Code
+      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro
+      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js:ro
+      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json:ro
+      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/:ro # localization
       - /usr/local/mail/openmail/:/usr/local/mail/openmail/ # emails
       - /etc/localtime:/etc/localtime:ro
-      - /etc/openpanel/modules/:/modules/plugins/ # plugins
+      - /etc/openpanel/modules/:/modules/plugins/:ro
     restart: always
     privileged: true
     networks:
@@ -121,11 +121,12 @@ services:
     container_name: caddy
     cap_add:
       - NET_ADMIN
+    working_dir: /etc/caddy/
     volumes:
-      - /etc/openpanel/caddy/Caddyfile:/etc/caddy/Caddyfile                           # Caddy config
-      - /etc/openpanel/caddy/ssl:/data/caddy/certificates                             # Custom SSL certificates
-      - /etc/openpanel/caddy/:/etc/openpanel/caddy/                                   # domain files, templates 
-      - /etc/openpanel/caddy/coraza_rules.conf:/etc/openpanel/caddy/coraza_rules.conf # default rules
+      - /etc/openpanel/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /etc/openpanel/caddy/:/etc/openpanel/caddy:ro
+      - /etc/openpanel/caddy/ssl:/data/caddy/certificates
+      - /etc/openpanel/caddy/coraza_rules.conf:/etc/openpanel/caddy/coraza_rules.conf:ro
       - /var/log/caddy/:/var/log/caddy/
     restart: unless-stopped
     mem_limit: ${CADDY_RAM}
