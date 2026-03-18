@@ -611,7 +611,7 @@ docker_compose_up(){
 
     cd /root && docker compose up -d openpanel_mysql > /dev/null 2>&1               # from 0.2.5 we only start mysql by default
 
-    mysql_container=$(docker compose ps -q openpanel_mysql)
+    mysql_container=$(docker compose ps -a -q openpanel_mysql)
     if [ -z "$mysql_container" ]; then
 	    radovan 1 "ERROR: MySQL container not found. Please ensure Docker Compose is set up correctly."
     fi
