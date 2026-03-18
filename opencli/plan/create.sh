@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: plan/create.sh
 # Description: Create a new hosting plan (Package) and set its limits.
-# Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>
-# Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G
+# Usage: opencli plan-create name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT>
+# Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
 # Author: Radovan Jecmenica
 # Created: 06.11.2023
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -32,26 +32,27 @@
 # ======================================================================
 # Usage
 help() {
-    echo 'Usage: opencli plan-create name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT>'
+    echo 'Usage: opencli plan-create name="<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<NAME> max_email_quota=<COUNT> max_hourly_email=<COUNT>'
     echo
     echo "Arguments:"
-    echo "  name            - Name of the plan (string, no spaces)."
-    echo "  description     - Plan description (string, use quotes for multiple words)."
-    echo "  feature_set     - Name of the feature set used for users on this plan"
-    echo "  email_limit     - Max number of email accounts (integer, 0 for unlimited)."
-    echo "  max_email_quota - Max size per email account (intiger followed by B|k|M|G|T, 0 for unlimited)"    
-    echo "  ftp_limit       - Max number of FTP accounts (integer, 0 for unlimited)."
-    echo "  domains_limit   - Max number of domains (integer, 0 for unlimited)."
-    echo "  websites_limit  - Max number of websites (integer, 0 for unlimited)."
-    echo "  disk_limit      - Disk space limit in GB (integer)."
-    echo "  inodes_limit    - Max number of inodes (integer, 0 = unlimited)."
-    echo "  db_limit        - Max number of databases (integer, 0 for unlimited)."
-    echo "  cpu             - CPU core limit (integer)."
-    echo "  ram             - RAM limit in GB (integer)."
-    echo "  bandwidth       - Port speed in Mbit/s (integer)."
+    echo "  name             - Name of the plan (string, no spaces)."
+    echo "  description      - Plan description (string, use quotes for multiple words)."
+    echo "  feature_set      - Name of the feature set used for users on this plan"
+    echo "  email_limit      - Max number of email accounts (integer, 0 for unlimited)."
+    echo "  max_email_quota  - Max size per email account (intiger followed by B|k|M|G|T, 0 for unlimited)."    
+    echo "  max_hourly_email - Max number of outgoing emails that can be sent across all domains."
+    echo "  ftp_limit        - Max number of FTP accounts (integer, 0 for unlimited)."
+    echo "  domains_limit    - Max number of domains (integer, 0 for unlimited)."
+    echo "  websites_limit   - Max number of websites (integer, 0 for unlimited)."
+    echo "  disk_limit       - Disk space limit in GB (integer)."
+    echo "  inodes_limit     - Max number of inodes (integer, 0 = unlimited)."
+    echo "  db_limit         - Max number of databases (integer, 0 for unlimited)."
+    echo "  cpu              - CPU core limit (integer)."
+    echo "  ram              - RAM limit in GB (integer)."
+    echo "  bandwidth        - Port speed in Mbit/s (integer)."
     echo
     echo "Example:"
-    echo "  opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G"
+    echo "  opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000"
     echo
     exit 1
 }
@@ -105,6 +106,7 @@ validate_fields_first() {
     local ram="$9"
     local bandwidth="${10}"
     max_email_quota="${11}"
+    local max_hourly_email="${12}"
 
     is_integer() {
         [[ "$1" =~ ^-?[0-9]+$ ]]
@@ -114,7 +116,7 @@ validate_fields_first() {
         [[ "$1" =~ ^-?[0-9]+(\.[0-9]+)?$ ]]
     }
     
-    for var_name in ftp_limit emails_limit domains_limit websites_limit disk_limit inodes_limit db_limit bandwidth; do
+    for var_name in ftp_limit emails_limit max_hourly_email domains_limit websites_limit disk_limit inodes_limit db_limit bandwidth; do
         value="${!var_name}"
         if ! is_integer "$value"; then
             echo "Error: $var_name must be a number (integer only)"
@@ -170,6 +172,7 @@ insert_plan() {
   local bandwidth="${12}"
   local feature_set="${13}"
   local max_email_quota="${14}"
+  local max_hourly_email="${15}"
 
   disk_limit="${disk_limit} GB"
 
@@ -180,7 +183,7 @@ insert_plan() {
   ram="${ram}g"
 
   # Insert the plan into the 'plans' table
-  local sql="INSERT INTO plans (name, description, email_limit, ftp_limit, domains_limit, websites_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set, max_email_quota) VALUES ('$name', '$description', $email_limit, $ftp_limit, $domains_limit, $websites_limit, '$disk_limit', $inodes_limit, $db_limit, $cpu, '$ram', $bandwidth, '$feature_set', '$max_email_quota');"
+  local sql="INSERT INTO plans (name, description, email_limit, ftp_limit, domains_limit, websites_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set, max_email_quota, max_hourly_email) VALUES ('$name', '$description', $email_limit, $ftp_limit, $domains_limit, $websites_limit, '$disk_limit', $inodes_limit, $db_limit, $cpu, '$ram', $bandwidth, '$feature_set', '$max_email_quota', '$max_hourly_email');"
 
   mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
@@ -243,6 +246,7 @@ ram=""
 bandwidth=""
 feature_set="default"
 max_email_quota="0"
+max_hourly_email="0"
 
 for arg in "$@"; do
   case $arg in
@@ -290,7 +294,10 @@ for arg in "$@"; do
       ;;
     max_email_quota=*)
       max_email_quota="${arg#*=}"
-      ;;      
+      ;;     
+    max_hourly_email=*)
+      max_hourly_email="${arg#*=}"
+      ;;     
     *)
       echo "Unknown argument: $arg"
       help
@@ -306,6 +313,6 @@ done
 check_cpu_cores "$cpu"
 check_available_ram "$ram"
 check_plan_exists "${name}"
-validate_fields_first "$ftp_limit" "$email_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota"
+validate_fields_first "$ftp_limit" "$email_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota" "$max_hourly_email"
 check_reseller_user # if no file or invalid json, abort
-insert_plan "$name" "$description" "$email_limit" "$ftp_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota"
+insert_plan "$name" "$description" "$email_limit" "$ftp_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota" "$max_hourly_email"

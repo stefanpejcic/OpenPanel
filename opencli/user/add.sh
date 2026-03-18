@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -177,11 +177,6 @@ log() {
 }
 
 
-get_hostname_of_master() {
-	hostname=$(hostname)
-}
-
-
 
 update_accounts_for_reseller() {
 	if [ -n "$reseller" ]; then
@@ -199,54 +194,44 @@ check_if_reseller() {
 	if [ -n "$reseller" ]; then
 	    log "Checking if reseller user exists and can create new users.."
 	
-    	    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$reseller' AND role='reseller';")
+    	local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$reseller' AND role='reseller';")
 		
 	    if [ "$user_exists" -lt 1 ]; then
 	        echo -e "ERROR: User '$reseller' is not a reseller or not allowed to create new users. Contact support."
 	    fi
 
 	    reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
-     
 	    if [ -f "$reseller_limits_file" ]; then
-	  	log "Checking reseller limits.."
+	  		log "Checking reseller limits.."
     
-		local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
+			local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
 
-		if current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner"); then
-		    if [[ -z "$current_accounts" ]]; then
-		        current_accounts=0
-		    fi
-		
-		    jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
-		        && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
-		else
-		    log "Error fetching current account count for reseller $reseller from MySQL."
-		    echo "ERROR: Unable to retrieve the number of users from the database. Is MySQL running?"
-		    exit 1
-		fi
+			if current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner"); then
+				current_accounts=${current_accounts:-0}
+			
+			    jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
+			        && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
+			else
+			    log "Error fetching current account count for reseller $reseller from MySQL."
+			    echo "ERROR: Unable to retrieve the number of users from the database. Is MySQL running?"
+			    exit 1
+			fi
 	  
 			max_accounts=$(jq -r '.max_accounts // "unlimited"' "$reseller_limits_file")
-			local allowed_plans
-			allowed_plans=$(jq -r '.allowed_plans | join(",")' "$reseller_limits_file")
-
-	        # Compare current account count with the max limit
 	        if [ "$max_accounts" != "unlimited" ] && [ "$current_accounts" -ge "$max_accounts" ]; then
 	            echo "ERROR: Reseller has reached the maximum account limit. Cannot create more users."
 	            exit 1
 	        fi
-	 
-	        # Check if the current plan ID is in the allowed plans
-	        if echo "$allowed_plans" | grep -wq "$plan_id"; then
-	            :
-	            #log "Current plan ID '$plan_id' is allowed for this reseller."
-	        else
-	            echo "ERROR: Current plan ID '$plan_id' is not assigned for this reseller. Please select another plan."
-	            exit 1
-	        fi
+
+			local allowed_plans
+			allowed_plans=$(jq -r '.allowed_plans | join(",")' "$reseller_limits_file")	 
+			if ! grep -wq "$plan_id" <<< "$allowed_plans"; then
+			    echo "ERROR: Current plan ID '$plan_id' is not assigned for this reseller. Please select another plan."
+			    exit 1
+			fi
 	   
 	    else
-	 	  log "WARNING: Reseller $reseller has no limits configured and can create unlimited number of users."
-	    		# TODO: notify admin - log in adminn log!
+			log "WARNING: Reseller $reseller has no limits configured and can create unlimited number of users."
 	    fi
     fi
 }
@@ -353,71 +338,33 @@ validate_password_in_lists() {
 
 
 check_username_is_valid() {
+    local username="$1"
 
+    log "Validating username '$username'"
 
-    is_username_forbidden() {
-        local check_username="$1"
-        log "Checking if username is in the forbidden usernames list"
-        readarray -t forbidden_usernames < "$FORBIDDEN_USERNAMES_FILE"
-    
-        # Check against forbidden usernames
-        for forbidden_username in "${forbidden_usernames[@]}"; do
-            if [[ "${check_username,,}" == "${forbidden_username,,}" ]]; then
-                return 0
+    # Length check
+    if (( ${#username} < 3 || ${#username} > 20 )); then
+        echo "[✘] Error: Username must be 3-20 characters long."
+        echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
+        exit 1
+    fi
+
+    # Character check: must start with a letter and contain only letters/numbers
+    if [[ ! "$username" =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]]; then
+        echo "[✘] Error: Username must start with a letter and contain only letters and numbers."
+        echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
+        exit 1
+    fi
+
+    # Forbidden username check
+    if [[ -f "$FORBIDDEN_USERNAMES_FILE" ]]; then
+        while IFS= read -r forbidden; do
+            if [[ "${username,,}" == "${forbidden,,}" ]]; then
+                echo "[✘] Error: The username '$username' is not allowed."
+                echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#reserved-usernames"
+                exit 1
             fi
-        done
-    
-        return 1
-    }
-
-
-
-	is_username_valid() {
-	    local check_username="$1"
-	    log "Checking if username $check_username is valid"
-	    
-	    if [[ "$check_username" =~ [[:space:]] ]]; then
-	        echo "[✘] Error: The username cannot contain spaces."
-	        return 0
-	    fi
-	    
-	    if [[ "$check_username" =~ [-_] ]]; then
-	        echo "[✘] Error: The username cannot contain hyphens or underscores."
-	        return 0
-	    fi
-	    
-	    if [[ ! "$check_username" =~ ^[a-zA-Z0-9]+$ ]]; then
-	        echo "[✘] Error: The username can only contain letters and numbers."
-	        return 0
-	    fi
-	    
-	    if [[ "$check_username" =~ ^[0-9]+$ ]]; then
-	        echo "[✘] Error: The username cannot consist entirely of numbers."
-	        return 0
-	    fi
-	    
-	    if (( ${#check_username} < 3 )); then
-	        echo "[✘] Error: The username must be at least 3 characters long."
-	        return 0
-	    fi
-	    
-	    if (( ${#check_username} > 20 )); then
-	        echo "[✘] Error: The username cannot be longer than 20 characters."
-	        return 0
-	    fi
-	    
-	    return 1
-	}
-
-    
-    # Validate username
-    if is_username_valid "$username"; then
-    	echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
-        exit 1
-    elif is_username_forbidden "$username"; then
-        echo "[✘] Error: The username '$username' is not allowed."
-        echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#reserved-usernames"
-        exit 1
+        done < "$FORBIDDEN_USERNAMES_FILE"
     fi
 }
 
@@ -635,26 +582,13 @@ download_images() {
 		    val=$(grep -E "^$key=" "$env_file" | cut -d '=' -f2-)
 			# https://community.openpanel.org/d/239-no-such-container-openlitespeed
 			val=${val//$'\r'/}
-		    # Remove leading and trailing quotes (single or double)
 		    val="${val%\"}"   # Remove trailing double quote
 		    val="${val#\"}"   # Remove leading double quote
 		    val="${val%\'}"   # Remove trailing single quote
 		    val="${val#\'}"   # Remove leading single quote
 		    echo "$val"
 		}
-	
-	php_version=$(get_env_value "DEFAULT_PHP_VERSION")
-	php_image=""
-	if [[ -n "$php_version" ]]; then
-	    if [[ "$php_version" =~ ^[0-9]+\.[0-9]+$ ]]; then
-	        php_image="php-fpm-$php_version"
-	    else
-	        echo "Warning: DEFAULT_PHP_VERSION must be N.N format, got '$php_version'"
-	    fi
-	else
-	    echo "Warning: DEFAULT_PHP_VERSION is not set"
-	fi
-	
+
 	sql_type=$(get_env_value "MYSQL_TYPE")
 	valid_sql_types=("mysql" "mariadb")
 	if [[ -n "$sql_type" ]]; then
@@ -682,7 +616,7 @@ download_images() {
 	images_to_pull=()
 	[[ -n "$ws_type" ]] && images_to_pull+=("$ws_type")
 	[[ -n "$sql_type" ]] && images_to_pull+=("$sql_type")
-	[[ -n "$php_image" ]] && images_to_pull+=("$php_image")
+    [[ ! "$ws_type" =~ litespeed && -n "$php_image" ]] && images_to_pull+=("php-fpm-$php_version")
 	
 	if [[ ${#images_to_pull[@]} -eq 0 ]]; then
 	    echo "Warning: No valid images to pull."
@@ -778,54 +712,39 @@ validate_ssh_login(){
 
 
 
-
-
-
-
-
-# DEBUG
 print_debug_info_before_starting_creation() {
-    if [ "$DEBUG" = true ]; then
-   	 echo "--------------------------------------------------------------"
-	if [ -n "$reseller" ]; then
-	        echo "Reseller user information:"
-	        echo "- Reseller:             $reseller" 
-	        echo "- Existing accounts:    $current_accounts/$max_accounts" 	 
-	        echo "--------------------------------------------------------------"
+    [[ "$DEBUG" == true ]] || return
 
-	fi
-	
-	if [ -n "$node_ip_address" ]; then
-	        echo "Data for connecting to the Node server:"
-	        echo "- IP address:           $node_ip_address" 
-	        echo "- Hostname:             $hostname" 	 
-	        echo "- SSH user:             root" 	
-	        echo "- SSH key path:         $key" 		
-	        echo "--------------------------------------------------------------"
+    sep() { echo "--------------------------------------------------------------"; }
 
-	fi
-        echo "Selected plan limits from database:"
-        echo "- plan id:           $plan_id" 
-        echo "- plan name:         $plan_name"
-        echo "- cpu limit:         $cpu"
-        echo "- memory limit:      $ram"
-	
-	if [ "$disk_limit" -eq 0 ]; then
-        	echo "- storage:           unlimited"
-	else
-		echo "- storage:           $disk_limit GB"
-	fi
- 
- 	if [ "$inodes" -eq 0 ]; then
-        	echo "- inodes:            unlimited"
-	else
-		echo "- inodes:            $inodes"
-	fi
- 
-        echo "- port speed:        $bandwidth"
-	echo "--------------------------------------------------------------"
+    sep
+    if [[ -n "$reseller" ]]; then
+        echo "Reseller user information:"
+        echo "- Reseller:             $reseller"
+        echo "- Existing accounts:    $current_accounts/$max_accounts"
+        sep
     fi
+
+    if [[ -n "$node_ip_address" ]]; then
+        echo "Data for connecting to the Node server:"
+        echo "- IP address:           $node_ip_address"
+        echo "- Hostname:             $hostname"
+        echo "- SSH user:             root"
+        echo "- SSH key path:         $key"
+        sep
+    fi
+
+    echo "Selected plan limits from database:"
+    echo "- plan id:           $plan_id"
+    echo "- plan name:         $plan_name"
+    echo "- cpu limit:         $cpu"
+    echo "- memory limit:      $ram"
+    echo "- storage:           $([[ "$disk_limit" -eq 0 ]] && echo "unlimited" || echo "$disk_limit GB")"
+    echo "- inodes:            $([[ "$inodes" -eq 0 ]] && echo "unlimited" || echo "$inodes")"
+    echo "- port speed:        $bandwidth"
+    sep
 }
+
 
 
 create_local_user() {
@@ -899,13 +818,11 @@ if [ -n "$node_ip_address" ]; then
     fi
 
     log "Adding user '$username' to docker group on $node_ip_address..."
-    ssh $key_flag root@"$node_ip_address" bash -c "'
-      if id -nG \"$username\" | grep -qw docker; then
-        :
-      else
-        usermod -aG docker \"$username\" && echo \"User $username added to docker group.\"
-      fi
-    '"
+	ssh $key_flag root@"$node_ip_address" bash -c "'
+	  if [[ ! \" \$(id -nG \"$username\") \" =~ ' docker ' ]]; then
+	    usermod -aG docker \"$username\" && echo \"User $username added to docker group.\"
+	  fi
+	'"
 fi
 }
 
@@ -914,34 +831,36 @@ docker_compose() {
 	local arm_link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
  	local x86_link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
    	if [ -n "$node_ip_address" ]; then
-    		# TODO: CHECK ARMCPU!
-	    	log "Configuring Docker Compose for user $username on node $node_ip_address"
+    	# TODO: check for armcpu on node
+	    log "Configuring Docker Compose for user $username on node $node_ip_address"
 		ssh $key_flag root@$node_ip_address "su - $username -c '
-		DOCKER_CONFIG=\${DOCKER_CONFIG:-/home/$username/.docker}
-		mkdir -p /home/$username/.docker/cli-plugins
-		curl -sSL $x86_link -o /home/$username/.docker/cli-plugins/docker-compose
-		chmod +x /home/$username/.docker/cli-plugins/docker-compose
+			DOCKER_CONFIG=\${DOCKER_CONFIG:-/home/$username/.docker}
+			mkdir -p /home/$username/.docker/cli-plugins
+			curl -sSL $x86_link -o /home/$username/.docker/cli-plugins/docker-compose
+			chmod +x /home/$username/.docker/cli-plugins/docker-compose
 		'"
 	else	
- 		architecture=$(lscpu | grep Architecture | awk '{print $2}')
-	    	log "Configuring Docker Compose for user $username"
-      		if [ "$architecture" == "aarch64" ]; then
-			log "Setting compose for ARM CPU (/etc/openpanel/docker/docker-compose-linux-aarch64)"
-			system_wide_compose_file="/etc/openpanel/docker/docker-compose-linux-aarch64"
-	      		if [ ! -f "$system_wide_compose_file" ]; then
-				curl -sSL $arm_link -o $system_wide_compose_file
-			fi
-  		else 
-    			log "Setting compose for x86_64 CPU (/etc/openpanel/docker/docker-compose-linux-x86_64)"
-			system_wide_compose_file="/etc/openpanel/docker/docker-compose-linux-x86_64"
-	   
-	      		if [ ! -f "$system_wide_compose_file" ]; then
-				curl -sSL $x86_link -o $system_wide_compose_file
-			fi
-     		fi
-     		chmod +x $system_wide_compose_file
-      		mkdir -p /home/$username/.docker/cli-plugins
-	        ln -sf $system_wide_compose_file /home/$username/.docker/cli-plugins/docker-compose
+		architecture=$(lscpu | awk '/Architecture/ {print $2}')
+		log "Configuring Docker Compose for user $username"
+		case "$architecture" in
+		    aarch64)
+		        log "Setting compose for ARM CPU (/etc/openpanel/docker/docker-compose-linux-aarch64)"
+		        system_wide_compose_file="/etc/openpanel/docker/docker-compose-linux-aarch64"
+		        download_link="$arm_link"
+		        ;;
+		    x86_64|*)
+		        log "Setting compose for x86_64 CPU (/etc/openpanel/docker/docker-compose-linux-x86_64)"
+		        system_wide_compose_file="/etc/openpanel/docker/docker-compose-linux-x86_64"
+		        download_link="$x86_link"
+		        ;;
+		esac
+
+		# TODO: remove after 2.0
+		[ -f "$system_wide_compose_file" ] || curl -sSL "$download_link" -o "$system_wide_compose_file"
+
+     	chmod +x $system_wide_compose_file
+      	mkdir -p /home/$username/.docker/cli-plugins
+	    ln -sf $system_wide_compose_file /home/$username/.docker/cli-plugins/docker-compose
 	fi
 }
 
@@ -1162,9 +1081,9 @@ EOF
 
 run_docker() {
 
-# TODO:
-# check ports on remote server!
-#
+	# TODO:
+	# check ports on remote server!
+	#
     # added in 0.2.3 to set fixed ports for mysql and ssh services of the user!
     find_available_ports() {
 
@@ -1527,7 +1446,6 @@ send_sentinel_notification() {
 ##########################################################
 (
 flock -n 200 || { echo "[✘] Error: A user creation process is already running."; echo "Please wait for it to complete before starting a new one. Exiting."; exit 1; }
-get_hostname_of_master                       # later can be overwritten if slave
 check_username_is_valid                      # validate username first
 validate_password_in_lists $password         # compare with weakpass dictionaries
 get_slave_if_set                             # check if slave should be used and test connection

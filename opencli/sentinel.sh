@@ -38,6 +38,9 @@ RAM_THRESHOLD=$(validate_number  "$(ini_get ram)"  85)
 DISK_THRESHOLD=$(validate_number "$(ini_get du)"   85)
 SWAP_THRESHOLD=$(validate_number "$(ini_get swap)" 40)
 
+MAX_TOTAL_CONN=$(validate_number "$(ini_get max_total_conn)"   5000)
+MAX_CONN_PER_IP=$(validate_number "$(ini_get max_conn_per_ip)" 500)
+
 is_unread_message_present() { grep -qF "UNREAD $1" "$LOG_FILE"; }
 
 webhook_notification() {
@@ -431,6 +434,42 @@ check_cpu_usage() {
   fi
 }
 
+
+check_https_traffic() {
+  local PORT=443
+
+  local CONNS IP_COUNTS TOTAL_CONN SYN_RECV
+  CONNS=$(ss -tn state established "( sport = :443T )" | tail -n +2)
+  TOTAL_CONN=$(echo "$CONNS" | wc -l)
+
+  IP_COUNTS=$(echo "$CONNS" | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -nr)
+
+  local ALERT=0
+  while read -r COUNT IP; do
+    if [ "$COUNT" -ge "$MAX_CONN_PER_IP" ]; then
+      echo -e "\e[31m[ALERT]\e[0m High connections from $IP: $COUNT"
+      write_notification "High traffic from $IP" "Port 443: $COUNT connections from $IP"
+      ALERT=1
+    fi
+  done <<< "$IP_COUNTS"
+
+  if [ "$TOTAL_CONN" -ge "$MAX_TOTAL_CONN" ]; then
+    echo -e "\e[31m[ALERT]\e[0m High total connections: $TOTAL_CONN"
+    write_notification "High total connections" "Port 443: $TOTAL_CONN total connections"
+    ALERT=1
+  fi
+
+  SYN_RECV=$(ss -tn state syn-recv "( sport = :443 )" | tail -n +2 | wc -l)
+  if [ "$SYN_RECV" -ge 100 ]; then
+    echo -e "\e[31m[ALERT]\e[0m Possible SYN flood: $SYN_RECV connections in SYN_RECV"
+    write_notification "Possible SYN flood" "Port $PORT: $SYN_RECV connections in SYN_RECV state"
+    ALERT=1
+  fi
+
+  #echo "Top 10 IPs by connections:"
+  #echo "$IP_COUNTS" | head -10 | awk '{printf "%s connections → %s\n",$1,$2}'
+}
+
 check_swap_usage() {
   local title="High SWAP usage!"
   local _ stotal sused _rest
@@ -636,6 +675,7 @@ check_system_load
 check_ram_usage
 check_cpu_usage
 check_swap_usage
+#check_https_traffic #TODO: test
 hr
 echo "Checking DNS:"
 check_if_panel_domain_and_ns_resolve_to_server

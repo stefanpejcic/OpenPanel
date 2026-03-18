@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: plan/edit.sh
 # Description: Edit an existing hosting plan (Package) and modify its parameters.
-# Usage: opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT> max_email_quota=<COUNT>
-# Example: opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G"
+# Usage: opencli plan-edit --debug id=<ID> name"<TEXT>" description="<TEXT>" emails=<COUNT> ftp=<COUNT> domains=<COUNT> websites=<COUNT> disk=<COUNT> inodes=<COUNT> databases=<COUNT> cpu=<COUNT> ram=<COUNT> bandwidth=<COUNT> feature_set=<DEFAULT> max_email_quota=<COUNT> max_hourly_email=<COUNT>
+# Example: opencli plan-edit --debug id=1 name="Some Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=100
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -41,25 +41,26 @@ usage() {
     echo "Usage: $0 [OPTIONS]"
     echo ""
     echo "Options:"
-    echo "  id=<id>               Set the plan ID"
-    echo "  name='<name>'         Set the plan name"
-    echo "  description='<text>'  Set the plan description"
-    echo "  emails=<num>          Set the email limit"
-    echo "  max_email_quota=<num> Set the max email mailbox size"
-    echo "  ftp=<num>             Set the FTP limit"
-    echo "  domains=<num>         Set the domain limit"
-    echo "  websites=<num>        Set the website limit"
-    echo "  disk=<num>            Set the disk limit (in GB)"
-    echo "  inodes=<num>          Set the inodes limit"
-    echo "  databases=<num>       Set the databases limit"
-    echo "  cpu=<num>             Set the CPU limit"
-    echo "  ram=<num>             Set the RAM limit (in GB)"
-    echo "  bandwidth=<num>       Set the bandwidth limit (in Mbps)"
-    echo "  feature_set=<name>    Name of the feature set to be used"
-    echo "  --debug               Enable debug mode"
+    echo "  id=<id>                Set the plan ID"
+    echo "  name='<name>'          Set the plan name"
+    echo "  description='<text>'   Set the plan description"
+    echo "  emails=<num>           Set the email limit"
+    echo "  max_email_quota=<num>  Set the max email mailbox size"
+    echo "  max_hourly_email=<num> Set the max hourly emails sent" 
+    echo "  ftp=<num>              Set the FTP limit"
+    echo "  domains=<num>          Set the domain limit"
+    echo "  websites=<num>         Set the website limit"
+    echo "  disk=<num>             Set the disk limit (in GB)"
+    echo "  inodes=<num>           Set the inodes limit"
+    echo "  databases=<num>        Set the databases limit"
+    echo "  cpu=<num>              Set the CPU limit"
+    echo "  ram=<num>              Set the RAM limit (in GB)"
+    echo "  bandwidth=<num>        Set the bandwidth limit (in Mbps)"
+    echo "  feature_set=<name>     Name of the feature set to be used"
+    echo "  --debug                Enable debug mode"
     echo ""
     echo "Example:"
-    echo '  opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 max_email_quota="10G" ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default'
+    echo '  opencli plan-edit --debug id=1 name="New Plan" description="This is a new plan" emails=100 max_email_quota="10G" max_hourly_email=1000 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default'
     exit 1
 }
 
@@ -159,6 +160,7 @@ update_plan() {
   bandwidth="${13}"
   feature_set="${14}"
   max_email_quota="${15}"
+  max_hourly_email="${16}"
   
     if [[ ! "$disk_limit" =~ GB$ ]]; then
       disk_limit="${int_disk_limit} GB"
@@ -200,6 +202,7 @@ if [ "$DEBUG" = true ]; then
   echo "FTP accounts:     $ftp_limit"
   echo "Email accounts:   $emails_limit"
   echo "Max email quota:  $max_email_quota"
+  echo "Max hourly email: $max_hourly_email"
   echo "Total domains:    $domains_limit"
   echo "Total websites:   $websites_limit"
   echo "Total databases:  $db_limit"
@@ -209,7 +212,7 @@ fi
 
 
 
-local sql="UPDATE plans SET name='$new_plan_name', description='$description', ftp_limit=$ftp_limit, email_limit=$emails_limit, domains_limit=$domains_limit, websites_limit=$websites_limit, disk_limit='$disk_limit', inodes_limit=$inodes_limit, db_limit=$db_limit, cpu=$cpu, ram='$ram', bandwidth=$bandwidth, feature_set='$feature_set', max_email_quota='$max_email_quota' WHERE id='$plan_id';"
+local sql="UPDATE plans SET name='$new_plan_name', description='$description', ftp_limit=$ftp_limit, email_limit=$emails_limit, domains_limit=$domains_limit, websites_limit=$websites_limit, disk_limit='$disk_limit', inodes_limit=$inodes_limit, db_limit=$db_limit, cpu=$cpu, ram='$ram', bandwidth=$bandwidth, feature_set='$feature_set', max_email_quota='$max_email_quota', max_hourly_email='$max_hourly_email' WHERE id='$plan_id';"
 mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
     local sql="SELECT name FROM plans WHERE id='$plan_id'"
@@ -286,6 +289,7 @@ validate_fields_first() {
     local ram="${10}"
     local bandwidth="${11}"
     local max_email_quota="${12}"
+    local max_hourly_email="${13}"
 
     is_integer() {
         [[ "$1" =~ ^-?[0-9]+$ ]]
@@ -297,7 +301,7 @@ validate_fields_first() {
     }
     
     # Validate all numeric inputs
-    for var_name in plan_id ftp_limit emails_limit domains_limit websites_limit disk_limit inodes_limit db_limit bandwidth; do
+    for var_name in plan_id ftp_limit emails_limit max_hourly_email domains_limit websites_limit disk_limit inodes_limit db_limit bandwidth; do
         value="${!var_name}"
         if ! is_integer "$value"; then
             echo "Error: $var_name must be a number (integer only)"
@@ -351,8 +355,9 @@ ram=""
 bandwidth=""
 feature_set="default"
 max_email_quota="0"
+max_hourly_email="0"
 
-# opencli plan-edit --debug id=1 name="Pro Plan" description="A professional plan" emails=500 max_email_quota=2G ftp=100 domains=10 websites=5 disk=50 inodes=1000000 databases=20 cpu=4 ram=1 bandwidth=100
+# opencli plan-edit --debug id=1 name="Pro Plan" description="A professional plan" emails=500 max_email_quota=2G ftp=100 domains=10 websites=5 disk=50 inodes=1000000 databases=20 cpu=4 ram=1 bandwidth=100 max_hourly_email=0
 for arg in "$@"; do
   case $arg in
     --debug)
@@ -403,6 +408,9 @@ for arg in "$@"; do
     max_email_quota=*)
       max_email_quota="${arg#*=}"
       ;;
+    max_hourly_email=*)
+      max_hourly_email="${arg#*=}"
+      ;;
     *)
       echo "Unknown argument: $arg"
       usage
@@ -419,6 +427,6 @@ if [ -z "$existing_plan" ]; then
   exit 1
 fi
 
-validate_fields_first "$plan_id" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota"
-update_plan "$plan_id" "$new_plan_name" "$description" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota"
+validate_fields_first "$plan_id" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota" "$max_hourly_email"
+update_plan "$plan_id" "$new_plan_name" "$description" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota" "$max_hourly_email"
 flush_redis_cache

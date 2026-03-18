@@ -460,7 +460,7 @@
     "title": "IP Blocker",
     "description": "If enabled, users can block IP addresses from accessing their websites.",
     "link": "/security/ip-blocker",
-    "type": "community",
+    "type": "beta",
     "help_link": ""
   }
 ]

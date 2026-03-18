@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -55,7 +55,7 @@ doram=false
 dodsk=false
 donet=false
 
-# TODO: update to support updating max_email_quota for account
+# TODO: update to support updating max_email_quota AND max_hourly_email for account
 
 # Parse arguments
 for arg in "$@"; do

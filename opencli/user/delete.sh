@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y] [--all]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -130,6 +130,12 @@ delete_user_from_database() {
     fi
 }
 
+postfwd_setup(){
+    # Delete hourly email limits for the user
+	nohup opencli email-ratelimit --delete-user=$openpanel_username >/dev/null 2>&1 &
+	disown		
+}	
+
 delete_ftp_users() {
     openpanel_username="$1"
     users_dir="/etc/openpanel/ftp/users"
@@ -200,6 +206,7 @@ delete_user() {
     delete_ftp_users $provided_username           # delete all ftp sub-usersthat
     delete_user_from_database $provided_username  # delete user from database
     delete_all_user_files                         # permanently delete data
+	postfwd_setup                                 # delete ratelimits for all user domains
     delete_context
     echo "User $username deleted successfully." # if we made it
 }

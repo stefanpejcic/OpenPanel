@@ -15,6 +15,8 @@ services:
       - mysql:/var/lib/mysql
       - /etc/openpanel/:/etc/openpanel/
       - /root/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro      
     oom_kill_disable: true
     networks:
       - openpanel_network
@@ -104,6 +106,7 @@ services:
       - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/:ro # localization
       - /usr/local/mail/openmail/:/usr/local/mail/openmail/ # emails
       - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
       - /etc/openpanel/modules/:/modules/plugins/:ro
     restart: always
     privileged: true
@@ -128,6 +131,8 @@ services:
       - /etc/openpanel/caddy/ssl:/data/caddy/certificates
       - /etc/openpanel/caddy/coraza_rules.conf:/etc/openpanel/caddy/coraza_rules.conf:ro
       - /var/log/caddy/:/var/log/caddy/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro      
     restart: unless-stopped
     mem_limit: ${CADDY_RAM}
     cpus: ${CADDY_CPUS}
@@ -146,6 +151,8 @@ services:
       - "53:53/udp"
     volumes:
       - /etc/bind/:/etc/bind/
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro      
     restart: unless-stopped
     oom_kill_disable: true
     networks:
@@ -174,6 +181,8 @@ services:
       - /etc/openpanel/ftp/all.users:/etc/openpanel/ftp/all.users
       - /etc/openpanel/ftp/users/:/etc/openpanel/ftp/users/
       - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro #ssl
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro      
     networks:
       - openpanel_network
     deploy:

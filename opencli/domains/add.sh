@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -801,12 +801,21 @@ fi
 
 }
 
+check_if_enterprise(){
+    key_value=$(grep "^key=" "$PANEL_CONFIG_FILE" | cut -d'=' -f2-)
+}
 
+postfwd_setup(){
+    # Set hourly email limits 
+    if [ -n "$key_value" ]; then
+		nohup opencli email-ratelimit --domain=$domain_name >/dev/null 2>&1 &
+		disown		
+	fi
+}	
 
 # add mountpoint and reload mailserver
 # todo: need better solution!
 create_mail_mountpoint(){
-    key_value=$(grep "^key=" "$PANEL_CONFIG_FILE" | cut -d'=' -f2-)
 
     # Check if 'enterprise edition'
     if [ -n "$key_value" ]; then
@@ -898,7 +907,11 @@ add_domain() {
 
 		$SKIP_STARTING_CONTAINERS && log "Skipping starting PHP service." || [[ $ws != *litespeed* ]] && start_default_php_fpm_service
 
-		! $onion_domain && create_mail_mountpoint
+		if [ -z "$onion_domain" ]; then
+			check_if_enterprise
+		    create_mail_mountpoint
+			postfwd_setup
+		fi
 
  		######add_domain_to_clamav_list                    # added in 0.3.4    
 

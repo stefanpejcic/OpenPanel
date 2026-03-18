@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -100,27 +100,25 @@ remove_onion_files() {
 
 
 restart_tor_for_user() {
-	if [ $(docker --context $context ps -q -f name=tor) ]; then
- 	    log "Tor service is running, restarting to remove configuration.."
- 	    docker --context $context restart tor >/dev/null 2>&1
-     fi  
+    log "Restarting Tor service.."
+    nohup docker --context "$context" restart tor >/dev/null 2>&1 &
+    disown
 }
 
-
 get_webserver_for_user(){
-	    log "Checking webserver configuration"
-	    output=$(opencli webserver-get_webserver_for_user $user)		
-		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+	log "Checking webserver configuration"
+	output=$(opencli webserver-get_webserver_for_user $user)		
+	ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
 }
 
 rm_domain_to_clamav_list(){	
 	local domains_list="/etc/openpanel/clamav/domains.list"
- 	local domain_path="/home/$user/$domain_name"
+	local domain_path="/home/$user/$domain_name"
 	# from 0.3.4 we have optional script to run clamav scan for all files in domains dirs, this adds new domains to list of directories to monitor
- 	if [ -f $domains_list ]; then
-      	log "ClamAV Upload Scanner is enabled - Removing $domain_path for monitoring"
-	sed -i "\|$domain_path|d" "$domains_list"
- 	fi
+	if [ -f $domains_list ]; then
+		log "ClamAV Upload Scanner is enabled - Removing $domain_path for monitoring"
+		sed -i "\|$domain_path|d" "$domains_list"
+	fi
 }
 
 get_slave_dns_option() {
@@ -140,7 +138,22 @@ get_slave_dns_option() {
     IFS=';' read -r -a ALSO_NOTIFY_IPS <<< "$ALSO_NOTIFY"
 
     # 3. For each slave server we execute notify_slave()
-    for ip in "${ALLOW_TRANSFER_IPS[@]}"; do
+	 notify_slave(){
+		echo "Notifying Slave DNS server ($SLAVE_IP) to remove zone for domain $domain_name"
+		timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
+	    if grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
+	        sed -i "/zone \"$domain_name\" {/,/};/d" /etc/bind/named.conf.local
+			rm -f "/etc/bind/zones/$domain_name.zone"
+	        echo "Zone $domain_name deleted from slave server."
+	    fi
+	EOF
+	
+		timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
+	    docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
+	EOF
+	}
+
+	for ip in "${ALLOW_TRANSFER_IPS[@]}"; do
         [[ -z "$ip" ]] && continue
         if [[ " ${ALSO_NOTIFY_IPS[*]} " == *" $ip "* ]]; then
             SLAVE_IP=$ip
@@ -149,54 +162,25 @@ get_slave_dns_option() {
     done
 }
 
-notify_slave(){
-	echo "Notifying Slave DNS server ($SLAVE_IP) to remove zone for domain $domain_name"
-	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
-    if grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
-        sed -i "/zone \"$domain_name\" {/,/};/d" /etc/bind/named.conf.local
-		rm -f "/etc/bind/zones/$domain_name.zone"
-        echo "Zone $domain_name deleted from slave server."
-    fi
-EOF
-
-	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
-    docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
-EOF
-}
-
 
 get_user_info() {
     local user="$1"
     local query="SELECT id, server FROM users WHERE username = '${user}';"
-    
-    # Retrieve both id and context
     user_info=$(mysql -se "$query")
-    
-    # Extract user_id and context from the result
     user_id=$(echo "$user_info" | awk '{print $1}')
     context=$(echo "$user_info" | awk '{print $2}')
-    
-    echo "$user_id,$context"
+
+	if [ -z "$user_id" ]; then
+	    echo "FATAL ERROR: user $user does not exist."
+	    exit 1
+	fi	
 }
 
 
 
 
 vhost_files_delete() {
-	
 	vhost_in_docker_file="/etc/$ws/sites-available/${domain_name}.conf"
- 	vhost_ln_in_docker_file="/etc/$ws/sites-enabled/${domain_name}.conf"
-
-result=$(get_user_info "$user")
-user_id=$(echo "$result" | cut -d',' -f1)
-context=$(echo "$result" | cut -d',' -f2)
-
-if [ -z "$user_id" ]; then
-    echo "FATAL ERROR: user $user does not exist."
-    exit 1
-fi
-
-
 
 	log "Deleting $vhost_in_docker_file"	
 	vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
@@ -231,7 +215,6 @@ update_named_conf() {
     NAMED_CONF_LOCAL='/etc/bind/named.conf.local'
     local config_line="zone \"$domain_name\" IN { type master; file \"$ZONE_FILE_DIR$domain_name.zone\"; };"
 
-    # Check if the domain exists in named.conf.local
     if grep -q "zone \"$domain_name\"" "$NAMED_CONF_LOCAL"; then
         log "Removing zone information from the server."
         sed -i "/zone \"$domain_name\"/d" "$NAMED_CONF_LOCAL"
@@ -308,26 +291,37 @@ remove_dns_entries_from_apex_zone() {
 }
 
 
-# Function to create a zone file
 delete_zone_file() {
-    ZONE_FILE_DIR='/etc/bind/zones/'
-    log "Removing DNS zone file: $ZONE_FILE_DIR$domain_name.zone"
-    rm "$ZONE_FILE_DIR$domain_name.zone"
+	local zone_file="/etc/bind/zones/$domain_name.zone"
 
-    # Reload BIND service
-    if [ $(docker --context=default ps -q -f name=openpanel_dns) ]; then
-        log "DNS service is running, reloading the zones"
-      	docker exec openpanel_dns rndc reconfig >/dev/null 2>&1
-    fi
+	if [ -f "$zone_file" ]; then
+	    log "Removing DNS zone file: $zone_file"
+	    rm "$zone_file"
+	    if [ $(docker --context=default ps -q -f name=openpanel_dns) ]; then
+	        log "DNS service is running, reloading the zones"
+	      	docker exec openpanel_dns rndc reconfig >/dev/null 2>&1
+	    fi
+	else
+	    log "DNS zone file does not exist: $ZONE_FILE"
+	fi
 }
 
 
+check_if_enterprise(){
+    key_value=$(grep "^key=" "$PANEL_CONFIG_FILE" | cut -d'=' -f2-)
+}
 
+postfwd_setup(){
+    # Delete hourly email limits 
+    if [ -n "$key_value" ]; then
+		nohup opencli email-ratelimit --delete-domain=$domain_name >/dev/null 2>&1 &
+		disown		
+	fi
+}	
 
 # add mountpoint and reload mailserver
 # todo: need better solution!
 delete_mail_mountpoint(){
-    key_value=$(grep "^key=" "$PANEL_CONFIG_FILE" | cut -d'=' -f2-)
 
     if [ -n "$key_value" ]; then
         DOMAIN_DIR="/home/$user/mail/$domain_name/"
@@ -410,7 +404,7 @@ delete_domain() {
     local domain_name="$2"
     
     delete_websites $domain_name                     # delete sites associated with domain id
-    # TODO: delete pm2 apps associated with it.
+    # TODO: delete pm2 apps associated with domain
     delete_domain_from_mysql $domain_name            # delete
 
 	local verify_query="SELECT COUNT(*) FROM domains WHERE domain_url = '$domain_name';"
@@ -418,6 +412,7 @@ delete_domain() {
 
     if [ "$result" -eq 0 ]; then
         get_webserver_for_user                       #
+		get_user_info                                # get context and user id
         vhost_files_delete                           # delete file in container
 
 		nohup opencli sentinel --action=domains_delete --title="Domain deleted" --message="Domain name: '$domain_name' has been removed from OpenPanel user: '$user'." >/dev/null 2>&1 &
@@ -431,7 +426,10 @@ delete_domain() {
 		    delete_domain_file                       # remove caddy files
 		 	dns_stuff			                     # remove dns files
 	 	fi
+
+		check_if_enterprise
         delete_mail_mountpoint                       # delete mountpoint to mailserver
+		postfwd_setup                                # delete domain hourly ratelimit
         delete_emails  $user $domain_name            # delete mails for the domain
         rm_domain_to_clamav_list                     # added in 0.3.4    
         echo "Domain $domain_name deleted successfully"

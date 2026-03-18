@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 16.03.2026
+# Last Modified: 17.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -53,7 +53,6 @@ if [ "$2" == "--update" ]; then
         echo "Invalid PHP version format. Please use the format 'number.number' (e.g., 8.1 or 5.6)."
         exit 1
     fi
-
     update_flag=true
     new_php_version="$3"
 fi
@@ -73,9 +72,9 @@ get_context_for_user() {
 
 get_webserver_for_user(){
 	    output=$(opencli webserver-get_webserver_for_user "$owner")		
-		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
-        if [[ "$ws" == "openlitespeed" || "$ws" == "litespeed" ]]; then
-            echo "ERROR: PHP version can not be changed on $ws webserver. Instead you need to change the docker image tag for the user."
+		WEB_SERVER=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+        if [[ "$WEB_SERVER" == "openlitespeed" || "$WEB_SERVER" == "litespeed" ]]; then
+            echo "ERROR: PHP version can not be changed on $WEB_SERVER webserver. Instead you need to change the docker image tag for the user."
             echo "Available tags: https://hub.docker.com/r/litespeedtech/openlitespeed/tags"
             exit 0
         fi
@@ -85,43 +84,53 @@ get_webserver_for_user(){
 # Main
 whoowns_output=$(opencli domains-whoowns "$domain")
 owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain': " '{print $2}')
-if [ -n "$owner" ]; then
-    get_webserver_for_user
-    get_context_for_user
-    domain_path_in_volume="/home/$context/docker-data/volumes/${context}_webserver_data/_data/$domain.conf"
-    php_version=$(grep -o "php-fpm-[0-9.]\+" "$domain_path_in_volume" | grep -o "[0-9.]\+" | head -n 1)
-
-    if [ -n "$php_version" ]; then
-        if [ "$update_flag" == true ]; then
-            if [ -n "$new_php_version" ]; then
-                # 1. domain vhost file
-                sed -i "s/php-fpm-[0-9.]\+/php-fpm-$new_php_version/g" "$domain_path_in_volume"
-
-                # 2. start new php version
-                nohup sh -c "opencli user-resources $owner --activate=php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
-
-                # 3. restart webservers
-                nohup sh -c "docker --context $context restart nginx" </dev/null >nohup.out 2>nohup.err &
-                nohup sh -c "docker --context $context restart openresty" </dev/null >nohup.out 2>nohup.err &
-                nohup sh -c "docker --context $context restart apache" </dev/null >nohup.out 2>nohup.err &
-
-                # 4. save in db
-                update_query="UPDATE domains SET php_version='$new_php_version' WHERE domain_url='$domain';"
-                mysql -e "$update_query"
-
-                echo "Updated PHP version in the configuration file to $new_php_version"
-            else
-                echo "Error: new php verison not provied!"
-                exit 1
-            fi
-        else
-            echo "Domain '$domain' (owned by user: $owner) uses PHP version: $php_version"
-        fi
-    else
-        echo "Failed to determine the PHP version for the domain '$domain' (owned by user $owner)." >&2
-        exit 1
-    fi
-else
+if [ -z "$owner" ]; then
     echo "Failed to determine the owner of the domain '$domain'." >&2
     exit 1
+fi
+
+get_webserver_for_user
+get_context_for_user
+domain_path_in_volume="/home/$context/docker-data/volumes/${context}_webserver_data/_data/$domain.conf"
+php_version=$(grep -o "php-fpm-[0-9.]\+" "$domain_path_in_volume" | grep -o "[0-9.]\+" | head -n 1)
+
+if [ -z "$php_version" ]; then
+	echo "Failed to determine the PHP version for the domain '$domain' (owned by user $owner)." >&2
+	exit 1
+fi
+
+# SHOW
+if [ "$update_flag" == false ]; then
+	echo "Domain '$domain' (owned by user: $owner) uses PHP version: $php_version"
+fi
+
+# UPDATE
+# 1. replace in domain vhost file
+sed -i "s/php-fpm-[0-9.]\+/php-fpm-$new_php_version/g" "$domain_path_in_volume"
+
+# 2. start new php version container if not running
+nohup sh -c "opencli user-resources $owner --activate=php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
+
+# 3. restart webserver
+nohup sh -c "docker --context $context restart $WEB_SERVER" </dev/null >nohup.out 2>nohup.err &
+
+# 4. save in database
+update_query="UPDATE domains SET php_version='$new_php_version' WHERE domain_url='$domain';"
+mysql -e "$update_query"
+
+# 5. notify
+# todo: trigger user and admin notifications
+echo "Updated PHP version in the configuration file to $new_php_version"
+
+# 6. stop previous version if not used by other domains AND not set as default
+old_php_version="$php_version"
+default_php_version=$(awk -F '=' '/DEFAULT_PHP_VERSION/ {print $2}' "/home/$context/.env" | tr -d '[:space:]')
+
+if [ -n "$default_php_version" ] && [ "$old_php_version" != "$default_php_version" ]; then
+	user_vhost_dir="/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
+	user_vhost_files=$(find "$user_vhost_dir" -type f -name "*.conf" -user "$owner")
+    if ! grep -rq "php-fpm-$old_php_version" "$user_vhost_dir" --include="*.conf"; then	
+        nohup sh -c "opencli user-resources $owner --deactivate=php-fpm-${old_php_version}" </dev/null >nohup.out 2>nohup.err &
+        disown
+    fi
 fi
