@@ -21,7 +21,6 @@ body:
            - CentOS
            - AlmaLinux
            - RockyLinux
-           - Fedora
       validations:
           required: true
     - type: dropdown
