@@ -5,7 +5,7 @@
 # Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.comm,
 # Copyright (c) openpanel.comm,
 # 
@@ -154,7 +154,7 @@ storage_in_blocks=$((numNdisk * 1024000))
 
 
 
-# SERVER LIMITS
+# TODO: check if slave node and check cpu and ram limits on it!
 maxCPU=$(nproc)
 maxRAM=$(free -g | awk '/^Mem/ {print $2}')
 

@@ -5,7 +5,7 @@
 # Usage: opencli user-block_ip <username> [--list='ip_here another_ip' | --delete-all]
 # Author: Stefan Pejcic
 # Created: 13.03.2026
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

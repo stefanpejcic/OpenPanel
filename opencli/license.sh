@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -33,7 +33,8 @@
 # Configuration
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 readonly WHMCS_URL="https://my.openpanel.com/modules/servers/licensing/verify.php"
-readonly IP_SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
+readonly COMPOSE_FILE="/root/docker-compose.yml"
+readonly SERVICE="openpanel"
 
 # Colors
 readonly GREEN='\033[0;32m'
@@ -43,15 +44,6 @@ readonly RESET='\033[0m'
 # Global flags
 JSON="no"
 NO_RESTART="no"
-
-# Load IP servers configuration
-load_ip_servers() {
-    if [[ -f "$IP_SCRIPT_PATH" ]]; then
-        source "$IP_SCRIPT_PATH"
-    else
-        IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-    fi
-}
 
 # Parse command line flags
 parse_flags() {
@@ -117,7 +109,8 @@ get_license_key() {
 
 # Get public IP address
 get_public_ip() {
-    curl --silent --max-time 2 -4 "$IP_SERVER_1" || wget --timeout=2 --tries=1 -qO- "$IP_SERVER_2" || curl --silent --max-time 2 -4 "$IP_SERVER_3"
+    local ip_server="https://openpanel.com"
+    curl --silent --max-time 2 -4 "$ip_server" || wget --timeout=2 --tries=1 -qO- "$ip_server"
 }
 
 # Verify license with WHMCS
@@ -151,7 +144,50 @@ output_message() {
     fi
 }
 
-# Restart services
+manage_compose_volumes() {
+    local action="${1:-disable}"
+
+    VOLUMES=(
+    "/root/.ssh/:/root/.ssh/:ro"
+    "/root/.docker/:/root/.docker/:ro"
+    "/usr/local/mail/openmail/:/usr/local/mail/openmail/:ro"
+    "/etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro"
+    "/etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro"
+    "/etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js:ro"
+    "/etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json:ro"
+    )
+
+    volume_exists() {
+        local vol="$1"
+        grep -q "^\s*-\s*${vol//\//\\/}\s*$" "$COMPOSE_FILE"
+    }
+
+    add_volumes() {
+        START_LINE=$(awk "/$SERVICE:/ {flag=1} flag && /volumes:/ {print NR; exit}" "$COMPOSE_FILE")
+    
+        for vol in "${VOLUMES[@]}"; do
+            if ! volume_exists "$vol"; then
+                sed -i "$((START_LINE))a\      - $vol" "$COMPOSE_FILE"
+                ((START_LINE++))
+            fi
+        done
+    }
+
+    remove_volumes() {
+        for vol in "${VOLUMES[@]}"; do
+            if volume_exists "$vol"; then
+                sed -i "/^\s*-\s*${vol//\//\\/}\s*$/d" "$COMPOSE_FILE"
+            fi
+        done
+    }
+
+    if [ "$action" = "disable" ]; then
+        remove_volumes
+    else
+        add_volumes
+    fi
+}
+
 restart_services() {
     if [[ "$NO_RESTART" == "yes" ]]; then
         echo "Please restart OpenAdmin service to enable new features."
@@ -160,7 +196,8 @@ restart_services() {
     
     service admin restart > /dev/null
     if docker --context default ps -q -f name=openpanel | grep -q .; then
-        docker --context default restart openpanel &> /dev/null &
+        nohup bash -c "cd /root && docker --context=default compose down openpanel && docker --context=default compose up -d openpanel" &> /dev/null &
+        disown
     fi
         
     echo "OpenPanel and OpenAdmin are restarted to apply Enterprise features."
@@ -205,6 +242,7 @@ save_license_to_file() {
         output_message "License key ${new_key} added." "$GREEN"
         toggle_emails_module > /dev/null
         pagespeed_api_key_control > /dev/null
+        manage_compose_volumes "disable"
         restart_services
     else
         output_message "License is valid, but failed to save the license key ${new_key}" "$RED"
@@ -242,6 +280,7 @@ verify_existing_license() {
     
     if [[ "$license_status" == "Active" ]]; then
         output_message "License is valid" "$GREEN"
+        manage_compose_volumes "enable"
         restart_services
     else
         output_message "License is invalid" "$RED"
@@ -326,7 +365,6 @@ main() {
         usage
     fi
     
-    load_ip_servers
     parse_flags "$@"
     
     case "$command" in

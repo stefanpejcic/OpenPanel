@@ -5,7 +5,7 @@
 # Usage: opencli user-resources <CONTEXT> [--activate=<SERVICE_NAME>] [--deactivate=<SERVICE_NAME>] [--update_cpu=<FLOAT>] [--update_ram=<FLOAT>] [--service=<NAME>] [--json]
 # Author: Stefan Pejcic
 # Created: 26.02.2025
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,6 +34,7 @@ env_file="/home/${context}/.env"
 shift
 
 debug=false
+dry_run=false
 json_output=false
 FORCE_PULL=false
 message=""
@@ -55,6 +56,7 @@ Options:
   --service=<service>            Specify the service name to update.
   --activate=<service>           Start the specified service.
   --deactivate=<service>         Stop the specified service.
+  --dry-run                      Simulate actions without applying changes.
   --force                        Force image pull before activation.
   --debug                        Display raw output of docker-compsoe commands.
 
@@ -76,6 +78,7 @@ for arg in "$@"; do
         --service=*) service_to_update_cpu_ram="${arg#*=}" ;;
         --activate=*) new_service="${arg#*=}" ;;
         --deactivate=*) stop_service="${arg#*=}" ;;
+        --dry-run) dry_run=true ;;
         *) echo "Invalid argument: $arg"; usage ;;
     esac
 done
@@ -124,6 +127,12 @@ update_resource() {
     if [ -n "$service_to_update_cpu_ram" ]; then
         target=$(normalize_service_name "$service_to_update_cpu_ram")
         var_name="${target}_${type^^}"
+
+        if [ "$dry_run" = true ]; then
+            message+="<br>[DRY-RUN] Would update $type for $service_to_update_cpu_ram to: $value"
+            return
+        fi
+
         sed -i "s/^$var_name=\".*\"/$var_name=\"$value\"/" "$env_file"
 
         if [ "$debug" = true ] && ! grep -q "^$var_name=\"$value\"$" "$env_file"; then
@@ -132,8 +141,11 @@ update_resource() {
             message+="<br>Updated $type for $service_to_update_cpu_ram to: $value"
             message+="<br>Note: disable and enable service to apply new $type limits."
         fi
-
     else
+        if [ "$dry_run" = true ]; then
+            message+="<br>[DRY-RUN] Would update total $type to: $value"
+            return
+        fi
         var_name="TOTAL_${type^^}"
         sed -i "s/^$var_name=\".*\"/$var_name=\"$value\"/" "$env_file"
         message+="<br>Updated total $type to: $value"
@@ -213,15 +225,22 @@ if [ -n "$stop_service" ]; then
         echo "Service $stop_service not found in compose file."
         exit 1
     }
-    stop_service "$stop_service"
-
-    if check_service_running "$stop_service"; then
-        message+="<br>Failed to stop $stop_service."
-        if [ "$debug" = true ]; then
-            message+="<br>Command used: 'docker --context=$context compose -f /home/$context/docker-compose.yml up -d $stop_service'"
-        fi    
+    if [ "$dry_run" = true ]; then
+        message+="<br>[DRY-RUN] Would stop $stop_service."
     else
-        message+="<br>Stopped $stop_service."
+        if ! check_service_running "$stop_service"; then
+            message+="<br>Service $stop_service is not running."
+        else
+            stop_service "$stop_service"
+            if check_service_running "$stop_service"; then
+                message+="<br>Failed to stop $stop_service."
+                if [ "$debug" = true ]; then
+                    message+="<br>Command used: 'docker --context=$context compose -f /home/$context/docker-compose.yml down $stop_service'"
+                fi    
+            else
+                message+="<br>Stopped $stop_service."
+            fi
+        fi
     fi
 fi
 
@@ -232,32 +251,42 @@ if [ -n "$new_service" ]; then
         exit 1
     }
 
-    norm_name=$(normalize_service_name "$new_service")
-    cpu_var="${norm_name}_CPU"
-    ram_var="${norm_name}_RAM"
-    
-    cpu="${!cpu_var:-0}"
-    ram="${!ram_var:-0}"
-
-    ram=${ram//[gG]/}
-
-    projected_cpu=$(awk "BEGIN {print $TOTAL_USED_CPU + $cpu}")
-    projected_ram=$(awk "BEGIN {print $TOTAL_USED_RAM + $ram}")
-
-    if [ "$TOTAL_CPU" -ne 0 ] && awk -v a="$projected_cpu" -v b="$TOTAL_CPU" 'BEGIN {exit !(a > b)}'; then
-        message+="<br>CPU limit exceeded by starting $new_service."
-    elif [ "$TOTAL_RAM" -ne 0 ] && awk -v a="$projected_ram" -v b="$TOTAL_RAM" 'BEGIN {exit !(a > b)}'; then
-        message+="<br>RAM limit exceeded by starting $new_service."
+    if check_service_running "$new_service"; then
+        message+="<br>Service $new_service is already running."
+        if [ "$json_output" = false ]; then
+            echo "Service $new_service is already running."
+        fi
     else
-        start_service "$new_service"
+        norm_name=$(normalize_service_name "$new_service")
+        cpu_var="${norm_name}_CPU"
+        ram_var="${norm_name}_RAM"
+        
+        cpu="${!cpu_var:-0}"
+        ram="${!ram_var:-0}"
     
-        if check_service_running "$new_service"; then
-            message+="<br>Started $new_service."
+        ram=${ram//[gG]/}
+    
+        projected_cpu=$(awk "BEGIN {print $TOTAL_USED_CPU + $cpu}")
+        projected_ram=$(awk "BEGIN {print $TOTAL_USED_RAM + $ram}")
+    
+        if [ "$TOTAL_CPU" -ne 0 ] && awk -v a="$projected_cpu" -v b="$TOTAL_CPU" 'BEGIN {exit !(a > b)}'; then
+            message+="<br>CPU limit exceeded by starting $new_service."
+        elif [ "$TOTAL_RAM" -ne 0 ] && awk -v a="$projected_ram" -v b="$TOTAL_RAM" 'BEGIN {exit !(a > b)}'; then
+            message+="<br>RAM limit exceeded by starting $new_service."
         else
-            message+="<br>Failed to start $new_service."
-            if [ "$debug" = true ]; then
-                message+="<br>Command used: 'docker --context=$context compose -f /home/$context/docker-compose.yml up -d $new_service'"
-            fi    
+            if [ "$dry_run" = true ]; then
+                message+="<br>[DRY-RUN] Would start $new_service (CPU: $cpu, RAM: ${ram}G)."
+            else    
+                start_service "$new_service"
+                if check_service_running "$new_service"; then
+                    message+="<br>Started $new_service."
+                else
+                    message+="<br>Failed to start $new_service."
+                    if [ "$debug" = true ]; then
+                        message+="<br>Command used: 'docker --context=$context compose -f /home/$context/docker-compose.yml up -d $new_service'"
+                    fi    
+                fi
+            fi
         fi
     fi
 fi
@@ -285,8 +314,10 @@ else
     echo "Total RAM: $TOTAL_USED_RAM / $TOTAL_RAM"
 fi
 
-opencli docker-collect_stats "$context" >/dev/null 2>&1 &
-disown
+if [ "$dry_run" = false ]; then
+    opencli docker-collect_stats "$context" >/dev/null 2>&1 &
+    disown
+fi
 
 exit 0
 

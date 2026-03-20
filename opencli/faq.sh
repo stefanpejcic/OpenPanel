@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 #
@@ -40,13 +40,6 @@ readonly service_name="admin"
 
 # ======================================================================
 # Helper functions
-SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
-if [ -f "$SCRIPT_PATH" ]; then
-    source "$SCRIPT_PATH"
-else
-    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-fi
-
 
 read_config() {
     config=$(awk -F '=' '/\[DEFAULT\]/{flag=1; next} /\[/{flag=0} flag{gsub(/^[ \t]+|[ \t]+$/, "", $1); gsub(/^[ \t]+|[ \t]+$/, "", $2); print $1 "=" $2}' $CONFIG_FILE_PATH)
@@ -61,7 +54,8 @@ get_ssl_status() {
 
 
 get_public_ip() {
-    ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+	local ip_server="https://ip.openpanel.com"
+    ip=$(curl --silent --max-time 2 -4 $ip_server || wget --timeout=2 --tries=1 -qO- $ip_server)
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
     fi

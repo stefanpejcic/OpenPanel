@@ -6,7 +6,7 @@
 #        opencli server-ips <USERNAME>
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,14 +34,7 @@ DEPRECATED AND NO LONGER USED
 https://github.com/stefanpejcic/openpanel-configuration/commit/f3754af13e9dac11610810859d68cad31e5c2e47
 '
 
-# IP SERVERS
-SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
-if [ -f "$SCRIPT_PATH" ]; then
-    source "$SCRIPT_PATH"
-else
-    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-fi
-
+ip_server="https://ip.openpanel.com"
 
 if [ -z "$1" ]; then
     usernames=$(opencli user-list --json | grep -v 'SUSPENDED' | awk -F'"' '/username/ {print $4}')
@@ -49,7 +42,7 @@ else
     usernames=("$1")
 fi
 
-current_server_main_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout25 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+current_server_main_ip=$(curl --silent --max-time 2 -4 $ip_server || wget --timeout25 --tries=1 -qO- $ip_server)
 
 get_context_for_user() {
 	USERNAME="$1"
@@ -84,7 +77,7 @@ for username in $usernames; do
     fi
     get_context_for_user "$username"
     get_webserver_for_user "$username"
-    user_ip=$(docker --context=$context exec "$ws" bash -c "curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3")
+    user_ip=$(docker --context=$context exec "$ws" bash -c "curl --silent --max-time 2 -4 $ip_server || wget --timeout=2 --tries=1 -qO- $ip_server)
     echo $username - $user_ip
     if [[ "$user_ip" != "$current_server_main_ip" ]]; then
         create_ip_file "$username" "$user_ip"

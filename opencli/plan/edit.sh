@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="Some Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=100
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -246,24 +246,6 @@ mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   fi
 }
 
-
-check_cpu_cores() {
-  local available_cores=$(nproc)
-  
-  if [ "$cpu" -gt "$available_cores" ]; then
-    echo "ERROR: Insufficient CPU cores. Required: ${cpu}, Available: ${available_cores}"
-    exit 0
-  fi
-}
-
-check_available_ram() {
-  local available_ram=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
-  if [ "$ram" -gt "$available_ram" ]; then
-    echo "ERROR: Insufficient RAM. Required: ${ram}GB, Available: ${available_ram}GB"
-    exit 0
-  fi
-}
-
 check_plan_exists() {
   local id="$1"
   local sql="SELECT id FROM plans WHERE id='$id';"
@@ -418,8 +400,6 @@ for arg in "$@"; do
   esac
 done
 
-check_cpu_cores "$cpu"
-check_available_ram "$ram"
 
 existing_plan=$(check_plan_exists "$plan_id")
 if [ -z "$existing_plan" ]; then

@@ -13,7 +13,6 @@ services:
       - "3306:3306"
     volumes:
       - mysql:/var/lib/mysql
-      - /etc/openpanel/:/etc/openpanel/
       - /root/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro      
@@ -70,46 +69,30 @@ services:
       - openpanel_mysql
       - openpanel_redis
       #- clamav
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
     ports:
       - "${PORT}:2083/tcp"
     volumes:
-      - /etc/bind:/etc/bind
-      - /lib/modules:/lib/modules:ro
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /:/hostfs:ro #todo!
-      - /home:/home
-      - /usr/local/admin:/usr/local/admin:ro #TODO: TEST PASS RESET
-      - /usr/local/bin/opencli:/usr/local/bin/opencli:ro #TODO: TEST CP ON IMAGE CREATE
-      - /usr/local/opencli:/usr/local/opencli:ro #TODO: TEST MAIN
-      - /var/log/caddy:/var/log/caddy
-      - /var/log/openpanel:/var/log/openpanel
-      - /var/lib/csf/:/var/lib/csf/
-      - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf
-      - /etc/openpanel/:/etc/openpanel/
-      - /var/run/docker.sock:/var/run/docker.sock
-      - mysql:/var/lib/mysql
-      - /usr/bin/docker:/usr/bin/docker
-      - /root/.ssh/:/root/.ssh/:ro # for remote contexts
-      - /root/.docker/:/root/.docker/ # allows contexts editing
-      - /root/openpanel_restart_needed:/root/openpanel_restart_needed #
-      - /root/.env:/root/.env:ro #TODO: test if 2083 uses it
-      - /root/docker-compose.yml:/root/docker-compose.yml:ro #TODO: test if 2083 uses it
-      - ${REDIS_SOCKET}:/tmp/redis/
-      - /etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro #https://dev.openpanel.com/customize.html#Custom-Code
-      - /etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro
-      - /etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js:ro
-      - /etc/openpanel/openpanel/conf/knowledge_base_articles.json:/etc/openpanel/openpanel/conf/knowledge_base_articles.json:ro
-      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations/:ro # localization
-      - /usr/local/mail/openmail/:/usr/local/mail/openmail/ # emails
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - /etc/openpanel/modules/:/modules/plugins/:ro
+      - /usr/local/opencli:/usr/local/opencli:ro                                         # opencli    
+      - /var/log/openpanel/admin/opencli.log:/var/log/openpanel/admin/opencli.log        # history
+      - /etc/bind:/etc/bind                                                              # dns
+      - /home:/home                                                                      # files      
+      - /usr/bin/docker:/usr/bin/docker:ro                                               # docker      
+      - /etc/openpanel/:/etc/openpanel/                                                  # settings      
+      - /etc/openpanel/modules/:/modules/plugins/:ro                                     # plugins
+      - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf:ro                             # mysql logins
+      - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations     # locales
+      - /root/openpanel_restart_needed:/root/openpanel_restart_needed                    # flag used on openadmin
+      - /run/user/:/hostfs/run/user/:ro                                                  # docker contexts
+      - /var/run/docker.sock:/var/run/docker.sock:ro                                     # reload caddy on waf changes      
+      - ${REDIS_SOCKET}:/tmp/redis/                                                      # redis cache
+      - /var/log/caddy:/var/log/caddy                                                    # waf and domlogs      
+      - /etc/localtime:/etc/localtime:ro                                                 # server timezone
+      - /etc/timezone:/etc/timezone:ro                                                   # ui timezone   
+      # CSF
+      - /lib/modules:/lib/modules:ro      #TODO: test csf blocks
+      - /proc:/host/proc:ro               #TODO: test csf blocks
+      - /var/lib/csf/:/var/lib/csf/       #TODO: remove ratelimiting and this
     restart: always
-    privileged: true
     networks:
       - openpanel_network
     deploy:
@@ -175,11 +158,10 @@ services:
       - "${FTP_PORT_RANGE}:21000-21010"
     volumes:
       - /home/:/home/
-      - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf
-      - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh
+      - /etc/openpanel/ftp/vsftpd.conf:/etc/vsftpd/vsftpd.conf:ro
+      - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh:ro
       - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
       - /etc/openpanel/ftp/all.users:/etc/openpanel/ftp/all.users
-      - /etc/openpanel/ftp/users/:/etc/openpanel/ftp/users/
       - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro #ssl
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro      

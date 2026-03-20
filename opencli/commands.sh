@@ -5,7 +5,7 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -45,7 +45,6 @@ readonly EXCLUDE_PATTERNS=(
     "ftp/users.sh"
     "db.sh"
     "enterprise.sh"
-    "ip_servers.sh"
     "progress_bar.sh"
 )
 

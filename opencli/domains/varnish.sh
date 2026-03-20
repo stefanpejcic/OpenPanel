@@ -5,7 +5,7 @@
 # Usage: opencli domains-varnish <DOMAIN-NAME> [on|off] [--short]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -107,7 +107,7 @@ detect_wp_sites_and_add_mu_plugin() {
     WP_PATHS=$(echo "$JSON_OUTPUT" | jq -r '.[].sites[]?.path // empty')
     [ -z "$WP_PATHS" ] && return 0       # no paths
 
- 	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
+	context_uid=$(stat -c '%u' "/home/$context" 2>/dev/null)
     [ -z "$context_uid" ] && return 0    # failed to get uid
 
     for WP_PATH in $WP_PATHS; do

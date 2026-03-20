@@ -53,7 +53,7 @@ CREATE TABLE `plans` (
   `bandwidth` int DEFAULT NULL,
   `feature_set` varchar(255) DEFAULT 'default',
   `max_email_quota` text NOT NULL,
-  `max_hourly_email` int NOT NULL DEFAULT 0,  
+  `max_hourly_email` int NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

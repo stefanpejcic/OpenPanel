@@ -5,7 +5,7 @@
 # Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
 # Created: 27.01.2026
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -63,7 +63,8 @@ urlencode() {
 }
 
 get_public_ip() {
-    ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+	local ip_server="https://ip.openpanel.com"
+    ip=$(curl --silent --max-time 2 -4 $ip_server || wget --timeout=2 --tries=1 -qO- $ip_server)
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
     fi
@@ -72,15 +73,8 @@ get_public_ip() {
 
 get_openpanel_url() {
 
-  PORT=$(opencli port)
-  PORT=${PORT:-2083}
-
-	SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
-	if [ -f "$SCRIPT_PATH" ]; then
-	    source "$SCRIPT_PATH"
-	else
-	    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-	fi
+	PORT=$(opencli port)
+	PORT=${PORT:-2083}
 
     caddyfile="/etc/openpanel/caddy/Caddyfile"
     domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")

@@ -5,7 +5,7 @@
 # Usage: opencli user-check <USERNAME>
 # Author: Stefan Pejcic
 # Created: 26.07.2025
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -501,7 +501,7 @@ check_container_mounts() {
     
     # Check for sensitive directory mounts
     local sensitive_mounts critical_mounts
-    sensitive_mounts=$(echo "$mounts" | grep -E '^/etc/openpanel/|^/hostfs/home/|^/home/' || true)
+    sensitive_mounts=$(echo "$mounts" | grep -E '^/etc/openpanel/|^/home/' || true)
     critical_mounts=$(echo "$mounts" | grep -E '^/etc|^/boot' | grep -vE '^/etc/openpanel/' || true)
     
     if [[ -n "$critical_mounts" ]]; then
@@ -669,8 +669,7 @@ check_container_compose_location() {
     
     # Get current user for expected path
     local expected_path
-    expected_path1="/home/$context/docker-compose.yml"
-    expected_path2="/hostfs/home/$context/docker-compose.yml"
+    expected_path="/home/$context/docker-compose.yml"
     
     if [[ -n "$compose_project_dir" && -n "$compose_file" ]]; then
         # Container was started with docker-compose
@@ -681,7 +680,7 @@ check_container_compose_location() {
             full_compose_path="$compose_file"
         fi
         
-        if [[ "$full_compose_path" == "$expected_path1" || "$full_compose_path" == "$expected_path2" ]]; then
+        if [[ "$full_compose_path" == "$expected_path" ]]; then
             print_result "PASS" "$name: Container running from OpenPanel"
         else
             print_result "FAIL" "$name: Container running outside of OpenPanel: $full_compose_path"

@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 17.03.2026
+# Last Modified: 19.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -376,31 +376,19 @@ HiddenServicePort 80 $proxy_ws:80
 
 
 get_server_ipv4_or_ipv6() {
-
-	# IP SERVERS
-	SCRIPT_PATH="/usr/local/opencli/ip_servers.sh"
- 	log "Checking IPv4 address for the account"
-	if [ -f "$SCRIPT_PATH" ]; then
-	    source "$SCRIPT_PATH"
-	else
-	    IP_SERVER_1=IP_SERVER_2=IP_SERVER_3="https://ip.openpanel.com"
-	fi
  
 	get_ip() {
 	    local ip_version=$1
-	    local server1=$2
-	    local server2=$3
-	    local server3=$4
-	
+		local ip_server="https://ip.openpanel.com"
 	    if [ "$ip_version" == "-4" ]; then
-		    curl --silent --max-time 2 $ip_version $server1 || wget --timeout=2 --tries=1 -qO- $server2 || curl --silent --max-time 2 $ip_version $server3
+		    curl --silent --max-time 2 $ip_version $ip_server || wget --timeout=2 --tries=1 -qO- $ip_server
 	    else
-		    curl --silent --max-time 2 $ip_version $server1 || curl --silent --max-time 2 $ip_version $server3
+		    curl --silent --max-time 2 $ip_version $ip_server || curl --silent --max-time 2 $ip_version $ip_server
 	    fi
 	}
 
 	# use public IPv4
-	current_ip=$(get_ip "-4" "$IP_SERVER_1" "$IP_SERVER_2" "$IP_SERVER_3")
+	current_ip=$(get_ip "-4")
 
 	# fallback from the server
 	if [ -z "$current_ip" ]; then
@@ -414,7 +402,7 @@ get_server_ipv4_or_ipv6() {
 	if [ -z "$current_ip" ]; then
  	    IPV4="no"
 	    log "No IPv4 found. Checking IPv6 address..."
-	    current_ip=$(get_ip "-6" "$IP_SERVER_1" "$IP_SERVER_2" "$IP_SERVER_3")
+	    current_ip=$(get_ip "-6")
 	    if [ -z "$current_ip" ]; then
 	        log "Fetching IPv6 from local hostname..."
 	        current_ip=$(ip addr | grep 'inet6 ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
@@ -449,8 +437,7 @@ get_server_ipv4_or_ipv6() {
 make_folder() {
 	log "Creating document root directory $docroot"
  	local stripped_docroot="${docroot#/var/www/html/}"
- 	context_uid=$(awk -F: -v user="$context" '$1 == user {print $3}' /hostfs/etc/passwd)
-
+	context_uid=$(stat -c '%u' "/home/$context" 2>/dev/null)
 	if [ -z "$context_uid" ]; then
 		log "Warning: failed detecting user id, permissions issue!"
 		return
