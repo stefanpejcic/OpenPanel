@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 19.03.2026
+# Last Modified: 20.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -338,8 +338,6 @@ validate_password_in_lists() {
 
 
 check_username_is_valid() {
-    local username="$1"
-
     log "Validating username '$username'"
 
     # Length check

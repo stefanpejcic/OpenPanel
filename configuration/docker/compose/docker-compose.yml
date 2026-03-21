@@ -76,7 +76,8 @@ services:
       - /var/log/openpanel/admin/opencli.log:/var/log/openpanel/admin/opencli.log        # history
       - /etc/bind:/etc/bind                                                              # dns
       - /home:/home                                                                      # files      
-      - /usr/bin/docker:/usr/bin/docker:ro                                               # docker      
+      - /usr/bin/docker:/usr/bin/docker:ro                                               # docker   
+      - /root/.docker/:/root/.docker/:ro                                                 # docker contexts
       - /etc/openpanel/:/etc/openpanel/                                                  # settings      
       - /etc/openpanel/modules/:/modules/plugins/:ro                                     # plugins
       - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf:ro                             # mysql logins

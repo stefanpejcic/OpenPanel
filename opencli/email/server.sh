@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 19.03.2026
+# Last Modified: 20.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -162,10 +162,13 @@ pflogsumm_get_data() {
 	
 	rm -rf PFLogSumm-HTML-GUI
 	git clone https://github.com/stefanpejcic/PFLogSumm-HTML-GUI.git  > /dev/null 2>&1
-	ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
- 	docker cp PFLogSumm-HTML-GUI/pflogsummUIReport.sh openadmin_mailserver:/opt/pflogsummUIReport.sh   > /dev/null 2>&1
+	ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env > /dev/null 2>&1
+ 	docker cp PFLogSumm-HTML-GUI/pflogsummUIReport.sh openadmin_mailserver:/opt/pflogsummUIReport.sh > /dev/null 2>&1
 	echo "Generating email statistics reports.. This can take a while."
+	docker exec openadmin_mailserver sh -c "mkdir -p /usr/local/admin/static/reports" > /dev/null 2>&1	
+	docker cp /usr/local/admin/templates/emails/data openadmin_mailserver:/usr/local/admin/static/reports/data > /dev/null 2>&1	
 	docker --context=default exec openadmin_mailserver sh -c "bash /opt/pflogsummUIReport.sh"
+	docker exec openadmin_mailserver sh -c "rm -rf /usr/local/admin/static/reports" > /dev/null 2>&1	
 	echo "Done, adding reports to OpenAdmin interface"
 	mkdir -p /usr/local/admin/static/reports /usr/local/admin/templates/emails > /dev/null 2>&1
 	docker cp openadmin_mailserver:/usr/local/admin/static/reports/reports.html /usr/local/admin/templates/emails/reports.html > /dev/null 2>&1

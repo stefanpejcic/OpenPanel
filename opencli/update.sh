@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 19.03.2026
+# Last Modified: 20.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

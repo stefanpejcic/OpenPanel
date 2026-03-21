@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 19.03.2026
+# Last Modified: 20.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -109,7 +109,7 @@ get_license_key() {
 
 # Get public IP address
 get_public_ip() {
-    local ip_server="https://openpanel.com"
+    local ip_server="https://ip.openpanel.com"
     curl --silent --max-time 2 -4 "$ip_server" || wget --timeout=2 --tries=1 -qO- "$ip_server"
 }
 
@@ -149,7 +149,6 @@ manage_compose_volumes() {
 
     VOLUMES=(
     "/root/.ssh/:/root/.ssh/:ro"
-    "/root/.docker/:/root/.docker/:ro"
     "/usr/local/mail/openmail/:/usr/local/mail/openmail/:ro"
     "/etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro"
     "/etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro"
