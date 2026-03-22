@@ -15,7 +15,6 @@ services:
       - mysql:/var/lib/mysql
       - /root/initialize.sql:/docker-entrypoint-initdb.d/initialize.sql
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro      
     oom_kill_disable: true
     networks:
       - openpanel_network
@@ -88,7 +87,6 @@ services:
       - ${REDIS_SOCKET}:/tmp/redis/                                                      # redis cache
       - /var/log/caddy:/var/log/caddy                                                    # waf and domlogs      
       - /etc/localtime:/etc/localtime:ro                                                 # server timezone
-      - /etc/timezone:/etc/timezone:ro                                                   # ui timezone   
       # CSF
       - /lib/modules:/lib/modules:ro      #TODO: test csf blocks
       - /proc:/host/proc:ro               #TODO: test csf blocks
@@ -116,7 +114,6 @@ services:
       - /etc/openpanel/caddy/coraza_rules.conf:/etc/openpanel/caddy/coraza_rules.conf:ro
       - /var/log/caddy/:/var/log/caddy/
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro      
     restart: unless-stopped
     mem_limit: ${CADDY_RAM}
     cpus: ${CADDY_CPUS}
@@ -136,7 +133,6 @@ services:
     volumes:
       - /etc/bind/:/etc/bind/
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro      
     restart: unless-stopped
     oom_kill_disable: true
     networks:
@@ -165,7 +161,6 @@ services:
       - /etc/openpanel/ftp/all.users:/etc/openpanel/ftp/all.users
       - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro #ssl
       - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro      
     networks:
       - openpanel_network
     deploy:

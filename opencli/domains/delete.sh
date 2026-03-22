@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 20.03.2026
+# Last Modified: 21.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -358,23 +358,17 @@ delete_websites() {
 
 
 delete_emails() {
-  local username="$1"
-  local domain="$2"
-  local email_file="/etc/openpanel/openpanel/core/users/$username/emails.yml"
+	local username="$1"
+	local domain="$2"
+	local email_file="/etc/openpanel/openpanel/core/users/$username/emails.yml"
 
-  # Check if the email file exists
-  if [ -f "$email_file" ]; then
-    	  log "Deleting @$domain_name email accounts"
-	  # Loop through each line in the email file
-	  while IFS= read -r line; do
-	    # Extract the email address from each line
-	    email=$(echo "$line" | awk '{print $2}')
-	    if [[ -n "$email" ]]; then
-	      echo "- deleting: $email"
-	      opencli email-setup email del "$email"
-	    fi
-	  done < "$email_file"
-  fi
+    if [ -f "$email_file" ]; then
+		log "Deleting @$domain_name email accounts"
+		mapfile -t emails < <(awk '{print $2}' "$email_file")
+        if [ "${#emails[@]}" -gt 0 ]; then
+            opencli email-setup email del "${emails[@]}"
+        fi
+    fi
 }
 
 
