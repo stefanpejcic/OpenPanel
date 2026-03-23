@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel \n"
+"Project-Id-Version: OpenPanel 1.7.47\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-03-20 00:44+0100\n"
+"POT-Creation-Date: 2026-03-22 22:27+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -115,13 +115,13 @@ msgid "Failed to retrieve disk usage information."
 msgstr ""
 
 #: modules/dashboard.py:177 modules/dashboard.py:201 modules/dashboard.py:465
-#: modules/docker.py:1007 modules/docker.py:1021 modules/webserver_conf.py:51
+#: modules/docker.py:1016 modules/docker.py:1030 modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr ""
 
-#: modules/cache/varnish.py:136 modules/dns.py:141 modules/dns.py:215
-#: modules/dns.py:286 modules/dns.py:377 modules/dns.py:414 modules/dns.py:490
-#: modules/dns.py:550 modules/domain/capitalize_domains.py:22
+#: modules/cache/varnish.py:136 modules/dns.py:140 modules/dns.py:214
+#: modules/dns.py:285 modules/dns.py:376 modules/dns.py:413 modules/dns.py:489
+#: modules/dns.py:549 modules/domain/capitalize_domains.py:22
 #: modules/domain/docroot.py:33 modules/domain/domain_logs.py:42
 #: modules/domain/edit_vhost.py:39 modules/domain/edit_vhost.py:61
 #: modules/domain/redirects.py:60 modules/domain/redirects.py:134
@@ -132,133 +132,129 @@ msgstr ""
 #: modules/goaccess.py:23 modules/json/favicons.py:33
 #: modules/json/screenshots.py:76 modules/mautic.py:94 modules/mautic.py:191
 #: modules/mautic.py:432 modules/mautic.py:596 modules/mautic.py:789
-#: modules/php.py:569 modules/pm2.py:594 modules/pm2.py:1289
+#: modules/php.py:592 modules/pm2.py:594 modules/pm2.py:1289
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:116
 #: modules/waf.py:256 modules/waf.py:306 modules/waf.py:360
 #: modules/website_builder.py:56 modules/website_builder.py:112
 #: modules/website_builder.py:155 modules/website_builder.py:290
 #: modules/websites.py:52 modules/websites.py:249 modules/websites.py:310
 #: modules/websites.py:472 modules/websites.py:556 modules/websites.py:1109
-#: modules/wordpress.py:595 modules/wordpress.py:905 modules/wordpress.py:1045
-#: modules/wordpress.py:1711
+#: modules/wordpress.py:595 modules/wordpress.py:929 modules/wordpress.py:1069
+#: modules/wordpress.py:1735
 msgid "You do not own this domain."
 msgstr ""
 
-#: modules/dns.py:241
+#: modules/dns.py:240
 msgid "Row deleted successfully"
 msgstr ""
 
-#: modules/dns.py:334 modules/dns.py:367 templates/domains/domains.html:378
+#: modules/dns.py:333 modules/dns.py:366 templates/domains/domains.html:378
 msgid "Edit DNS Zone"
 msgstr ""
 
-#: modules/dns.py:336 templates/domains/dns.html:96
+#: modules/dns.py:335 templates/domains/dns.html:96
 #: templates/domains/dns.html:112
 msgid "Edit DNS File"
 msgstr ""
 
-#: modules/dns.py:340
+#: modules/dns.py:339
 msgid ""
 "Zone file not found for the subdomain - try editing the zone for apex "
 "domain."
 msgstr ""
 
-#: modules/dns.py:342 modules/dns.py:496
+#: modules/dns.py:341 modules/dns.py:495
 msgid "Zone file not found."
 msgstr ""
 
-#: modules/dns.py:389
+#: modules/dns.py:388
 msgid "DNS zone restarted successfully."
 msgstr ""
 
-#: modules/dns.py:393
+#: modules/dns.py:392
 msgid "Failed to restart DNS zone: "
 msgstr ""
 
-#: modules/dns.py:398 modules/dns.py:400 modules/dns.py:470
+#: modules/dns.py:397 modules/dns.py:399 modules/dns.py:469
 msgid "Please provide a domain name."
 msgstr ""
 
-#: modules/dns.py:525
+#: modules/dns.py:524
 msgid "CNAME record with this name already exists."
 msgstr ""
 
-#: modules/dns.py:536
+#: modules/dns.py:535
 msgid "DNS record added successfully."
 msgstr ""
 
-#: modules/dns.py:560
+#: modules/dns.py:559
 msgid "DNS zone saved and DNS service restarted."
 msgstr ""
 
-#: modules/dns.py:563
+#: modules/dns.py:562
 msgid "New content not provided."
 msgstr ""
 
-#: modules/docker.py:184 templates/dashboard/dashboard.html:172
+#: modules/docker.py:193 templates/dashboard/dashboard.html:172
 #: templates/dashboard/usage.html:281 templates/docker/containers.html:9
 #: templates/docker/volumes_TODO.html:10
 msgid "Containers"
 msgstr ""
 
-#: modules/docker.py:326
+#: modules/docker.py:335
 msgid "Add service"
 msgstr ""
 
-#: modules/docker.py:339 modules/docker.py:526
+#: modules/docker.py:348 modules/docker.py:535
 msgid ""
 "Invalid service name. Must start with a letter, contain only lowercase "
 "letters and digits, and be at least 3 characters long."
 msgstr ""
 
-#: modules/docker.py:368 modules/docker.py:543
+#: modules/docker.py:377 modules/docker.py:552
 msgid "CPU limit must be a positive number."
 msgstr ""
 
-#: modules/docker.py:382 modules/docker.py:556
+#: modules/docker.py:391 modules/docker.py:565
 msgid ""
 "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
 " or 1.5G)."
 msgstr ""
 
-#: modules/docker.py:513
+#: modules/docker.py:522
 msgid "Service name cannot be changed."
 msgstr ""
 
-#: modules/docker.py:625
+#: modules/docker.py:634
 msgid "Container updated successfully."
 msgstr ""
 
-#: modules/docker.py:698
+#: modules/docker.py:707
 msgid "Delete service"
 msgstr ""
 
-#: modules/docker.py:885 templates/dashboard/dashboard.html:175
+#: modules/docker.py:894 templates/dashboard/dashboard.html:175
 #: templates/docker/images.html:10
 msgid "Image Updates"
 msgstr ""
 
-#: modules/docker.py:932
+#: modules/docker.py:941
 msgid "Change docker image"
 msgstr ""
 
-#: modules/docker.py:948
+#: modules/docker.py:957
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:998 templates/dashboard/dashboard.html:174
+#: modules/docker.py:1007 templates/dashboard/dashboard.html:174
 #: templates/manager/python_node_apps.html:132
 #: templates/manager/python_node_apps.html:162
 #: templates/partials/_service_log.html:11
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1024 modules/websites.py:545
+#: modules/docker.py:1033 modules/websites.py:545
 msgid "Invalid action"
-msgstr ""
-
-#: modules/docker.py:1295
-msgid "Select Docker service"
 msgstr ""
 
 #: modules/domains.py:259 templates/cache/service.html:124
@@ -310,11 +306,11 @@ msgid ""
 "enable it."
 msgstr ""
 
-#: modules/emails.py:312 modules/mysqld/mysql_import.py:76
-#: modules/mysqld/mysql_import.py:80 modules/mysqld/mysql_import.py:84
-#: modules/mysqld/mysql_import.py:97 modules/psql/postgresql_import.py:62
-#: modules/psql/postgresql_import.py:67 modules/psql/postgresql_import.py:70
-#: modules/psql/postgresql_import.py:81 templates/psql/databases.html:165
+#: modules/emails.py:312 modules/mysqld/mysql_import.py:81
+#: modules/mysqld/mysql_import.py:92 modules/mysqld/mysql_import.py:105
+#: modules/psql/postgresql_import.py:62 modules/psql/postgresql_import.py:67
+#: modules/psql/postgresql_import.py:70 modules/psql/postgresql_import.py:81
+#: templates/psql/databases.html:165
 msgid "Import"
 msgstr ""
 
@@ -455,7 +451,7 @@ msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:41
-#: modules/wordpress.py:883 modules/wordpress.py:1038
+#: modules/wordpress.py:907 modules/wordpress.py:1062
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -492,8 +488,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:107 modules/mysql.py:274 modules/mysql.py:548
-#: modules/mysql.py:725 modules/postgresql.py:80 modules/postgresql.py:570
+#: modules/mysql.py:107 modules/mysql.py:273 modules/mysql.py:544
+#: modules/mysql.py:725 modules/postgresql.py:80 modules/postgresql.py:578
 msgid "Database name is required."
 msgstr ""
 
@@ -502,88 +498,88 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:192 modules/mysql.py:265 modules/mysql.py:584
-#: modules/mysql.py:621 modules/mysql.py:718 modules/postgresql.py:164
-#: modules/postgresql.py:619 modules/postgresql.py:705
+#: modules/mysql.py:191 modules/mysql.py:264 modules/mysql.py:580
+#: modules/mysql.py:617 modules/mysql.py:718 modules/postgresql.py:164
+#: modules/postgresql.py:627 modules/postgresql.py:713
 msgid "User name is required."
 msgstr ""
 
-#: modules/mysql.py:203 modules/postgresql.py:186
+#: modules/mysql.py:202 modules/postgresql.py:186
 msgid "This username is not allowed."
 msgstr ""
 
-#: modules/mysql.py:225 modules/postgresql.py:207
-#: templates/mysql/mysql_user.html:163 templates/mysql/users.html:71
+#: modules/mysql.py:224 modules/postgresql.py:207
+#: templates/mysql/mysql_user.html:163 templates/mysql/users.html:67
 #: templates/psql/psql_user.html:164 templates/psql/users.html:64
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:232 modules/mysql.py:628 modules/mysql.py:736
-#: modules/postgresql.py:229 modules/postgresql.py:727
+#: modules/mysql.py:231 modules/mysql.py:624 modules/mysql.py:736
+#: modules/postgresql.py:229 modules/postgresql.py:735
 msgid "This is a system username that can not be edited."
 msgstr ""
 
-#: modules/mysql.py:235 modules/postgresql.py:232 templates/files/ftp.html:103
+#: modules/mysql.py:234 modules/postgresql.py:232 templates/files/ftp.html:103
 #: templates/mysql/password.html:168 templates/mysql/root_password.html:154
-#: templates/mysql/users.html:105 templates/psql/password.html:163
+#: templates/mysql/users.html:108 templates/psql/password.html:163
 #: templates/psql/users.html:115
 #: templates/user/reset_password/set_new_password.html:56
 msgid "Change Password"
 msgstr ""
 
-#: modules/mysql.py:249 modules/postgresql.py:246
+#: modules/mysql.py:248 modules/postgresql.py:246
 msgid "Wizard"
 msgstr ""
 
-#: modules/mysql.py:283
+#: modules/mysql.py:282
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:302 modules/postgresql.py:289 templates/mysql/assign.html:8
+#: modules/mysql.py:301 modules/postgresql.py:289 templates/mysql/assign.html:8
 #: templates/mysql/assign.html:65 templates/psql/assign.html:8
 #: templates/psql/assign.html:68
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:307 modules/postgresql.py:297
+#: modules/mysql.py:306 modules/postgresql.py:297
 #: templates/mysql/remove.html:62 templates/psql/remove.html:62
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:400 templates/dashboard/dashboard.html:118
+#: modules/mysql.py:399 templates/dashboard/dashboard.html:118
 #: templates/dashboard/dashboard.html:130 templates/dashboard/usage.html:62
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:456 modules/postgresql.py:505
+#: modules/mysql.py:454 modules/postgresql.py:505
 #: templates/dashboard/dashboard.html:119
 #: templates/dashboard/dashboard.html:131
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:486
+#: modules/mysql.py:483
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:490
+#: modules/mysql.py:487
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:492
+#: modules/mysql.py:489
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:494
+#: modules/mysql.py:491
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:516 modules/postgresql.py:538
+#: modules/mysql.py:515 modules/postgresql.py:546
 #: templates/dashboard/dashboard.html:124
 #: templates/dashboard/dashboard.html:135
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:591
+#: modules/mysql.py:587
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
@@ -597,11 +593,11 @@ msgid ""
 "enabling the service."
 msgstr ""
 
-#: modules/cache/elasticsearch.py:31 modules/cache/memcached.py:41
-#: modules/cache/opensearch.py:37 modules/cache/redis.py:35
+#: modules/cache/elasticsearch.py:32 modules/cache/memcached.py:42
+#: modules/cache/opensearch.py:38 modules/cache/redis.py:36
 #: modules/cache/varnish.py:96 modules/cache/varnish.py:126
-#: modules/pgadmin.py:49 modules/php.py:574 modules/php.py:583
-#: modules/php.py:593 modules/phpmyadmin.py:51
+#: modules/pgadmin.py:49 modules/php.py:597 modules/php.py:606
+#: modules/php.py:616 modules/phpmyadmin.py:50
 #: templates/files/backup_settings.html:31
 #: templates/files/backup_settings.html:106
 msgid "error"
@@ -624,7 +620,7 @@ msgstr ""
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
 msgstr ""
 
-#: modules/pgadmin.py:89 modules/phpmyadmin.py:105
+#: modules/pgadmin.py:89 modules/phpmyadmin.py:104
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
@@ -633,7 +629,7 @@ msgstr ""
 msgid "pgAdmin"
 msgstr ""
 
-#: modules/pgadmin.py:158 modules/phpmyadmin.py:200
+#: modules/pgadmin.py:158 modules/phpmyadmin.py:199
 msgid "Container port not found for the user."
 msgstr ""
 
@@ -641,7 +637,7 @@ msgstr ""
 msgid "Invalid input data"
 msgstr ""
 
-#: modules/php.py:192 modules/php.py:621
+#: modules/php.py:192 modules/php.py:644
 msgid "success"
 msgstr ""
 
@@ -649,60 +645,60 @@ msgstr ""
 msgid "Configuration file not found"
 msgstr ""
 
-#: modules/php.py:228
+#: modules/php.py:251
 msgid "Set Default version"
 msgstr ""
 
-#: modules/php.py:244 modules/php.py:247
+#: modules/php.py:267 modules/php.py:270
 msgid ""
 "PHP Limits can not be edited for Litespeed, please use the 'PHP.INI "
 "Editor' or 'PHP Options' instead."
 msgstr ""
 
-#: modules/php.py:314 templates/dashboard/dashboard.html:165
+#: modules/php.py:337 templates/dashboard/dashboard.html:165
 #: templates/mysql/phpmyadmin.html:109
 msgid "Limits"
 msgstr ""
 
-#: modules/php.py:341 templates/dashboard/dashboard.html:168
+#: modules/php.py:364 templates/dashboard/dashboard.html:168
 msgid "Extensions"
 msgstr ""
 
-#: modules/php.py:553
+#: modules/php.py:576
 msgid ""
 "Only one PHP version can be used on Litespeed, to change version for all "
 "domains use this page."
 msgstr ""
 
-#: modules/php.py:573
+#: modules/php.py:596
 msgid ""
 "For Litespeed PHP version can not be set per-domain. To change version "
 "for all domains, use the 'Default PHP Version' page."
 msgstr ""
 
-#: modules/account/account.py:137 modules/php.py:650
+#: modules/account/account.py:137 modules/php.py:673
 #: templates/psql/pgadmin.html:105
 msgid "Settings"
 msgstr ""
 
-#: modules/phpmyadmin.py:55
+#: modules/phpmyadmin.py:54
 msgid "phpMyAdmin service is now enabled."
 msgstr ""
 
-#: modules/phpmyadmin.py:61
+#: modules/phpmyadmin.py:60
 msgid "phpMyAdmin service is now disabled."
 msgstr ""
 
-#: modules/phpmyadmin.py:63
+#: modules/phpmyadmin.py:62
 msgid "Failed to stop the phpMyAdmin service. Try restart."
 msgstr ""
 
-#: modules/phpmyadmin.py:103
+#: modules/phpmyadmin.py:102
 #, python-brace-format
 msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
 msgstr ""
 
-#: modules/phpmyadmin.py:146 templates/mysql/phpmyadmin.html:11
+#: modules/phpmyadmin.py:145 templates/mysql/phpmyadmin.html:11
 msgid "phpMyAdmin"
 msgstr ""
 
@@ -790,11 +786,11 @@ msgstr ""
 msgid "Failed to create database: "
 msgstr ""
 
-#: modules/postgresql.py:260 modules/postgresql.py:854
+#: modules/postgresql.py:260 modules/postgresql.py:862
 msgid "Invalid or missing user name."
 msgstr ""
 
-#: modules/postgresql.py:263 modules/postgresql.py:859
+#: modules/postgresql.py:263 modules/postgresql.py:867
 msgid "Invalid or missing database name."
 msgstr ""
 
@@ -821,26 +817,26 @@ msgstr ""
 msgid "PostgreSQL databases"
 msgstr ""
 
-#: modules/postgresql.py:634
+#: modules/postgresql.py:642
 msgid "This is a system username that cannot be deleted."
 msgstr ""
 
-#: modules/postgresql.py:871
+#: modules/postgresql.py:879
 msgid "This is a system username that cannot be edited."
 msgstr ""
 
-#: modules/postgresql.py:876
+#: modules/postgresql.py:884
 msgid "This is a system database that cannot be edited."
 msgstr ""
 
-#: modules/postgresql.py:892
+#: modules/postgresql.py:900
 #, python-brace-format
 msgid ""
 "Successfully revoked all privileges for user {db_user} from PostgreSQL "
 "database {database_name}"
 msgstr ""
 
-#: modules/postgresql.py:897
+#: modules/postgresql.py:905
 #, python-brace-format
 msgid ""
 "Failed to revoke privileges for user {db_user} from PostgreSQL database "
@@ -1017,53 +1013,53 @@ msgstr ""
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:894
+#: modules/wordpress.py:918
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:944
+#: modules/wordpress.py:968
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:999
+#: modules/wordpress.py:1023
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:1006
+#: modules/wordpress.py:1030
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:1018
+#: modules/wordpress.py:1042
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1061
+#: modules/wordpress.py:1085
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1066
+#: modules/wordpress.py:1090
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1069
+#: modules/wordpress.py:1093
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1266 modules/wordpress.py:1485
+#: modules/wordpress.py:1290 modules/wordpress.py:1509
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1295 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1319 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1450
+#: modules/wordpress.py:1474
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1516 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1540 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1231,35 +1227,35 @@ msgstr ""
 msgid "Two-Factor Authentication"
 msgstr ""
 
-#: modules/cache/elasticsearch.py:20 templates/dashboard/dashboard.html:152
+#: modules/cache/elasticsearch.py:21 templates/dashboard/dashboard.html:152
 msgid "ElasticSearch"
 msgstr ""
 
-#: modules/cache/elasticsearch.py:21 modules/cache/memcached.py:30
+#: modules/cache/elasticsearch.py:22 modules/cache/memcached.py:31
 msgid ""
 "The leading distributed, RESTful, open source search and analytics engine"
 " designed for speed and reliability."
 msgstr ""
 
-#: modules/cache/memcached.py:29 templates/dashboard/dashboard.html:149
+#: modules/cache/memcached.py:30 templates/dashboard/dashboard.html:149
 msgid "Memcached"
 msgstr ""
 
-#: modules/cache/opensearch.py:25 templates/dashboard/dashboard.html:151
+#: modules/cache/opensearch.py:26 templates/dashboard/dashboard.html:151
 msgid "OpenSearch"
 msgstr ""
 
-#: modules/cache/opensearch.py:26
+#: modules/cache/opensearch.py:27
 msgid ""
 "OpenSearch is an open-source, distributed search and analytics suite for "
 "large volumes of data. "
 msgstr ""
 
-#: modules/cache/redis.py:23 templates/dashboard/dashboard.html:148
+#: modules/cache/redis.py:24 templates/dashboard/dashboard.html:148
 msgid "Redis"
 msgstr ""
 
-#: modules/cache/redis.py:24
+#: modules/cache/redis.py:25
 msgid ""
 "Redis (Remote Dictionary Server) is an in-memory, key/value store that is"
 " used primarily as an application cache or quick-response database."
@@ -1716,11 +1712,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:754
+#: modules/json/helpers.py:766
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:759
+#: modules/json/helpers.py:772
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1728,7 +1724,7 @@ msgstr ""
 msgid "Unknown database service, cannot restart"
 msgstr ""
 
-#: modules/mysqld/mysql_import.py:82 modules/psql/postgresql_import.py:69
+#: modules/mysqld/mysql_import.py:90 modules/psql/postgresql_import.py:69
 msgid "No database file uploaded!"
 msgstr ""
 
@@ -2148,7 +2144,7 @@ msgstr ""
 #: templates/emails/info.html:50 templates/emails/new.html:41
 #: templates/files/ftp.html:51 templates/files/ftp_new.html:28
 #: templates/mysql/mysql_user.html:24 templates/mysql/mysql_user.html:26
-#: templates/mysql/password.html:21 templates/mysql/users.html:87
+#: templates/mysql/password.html:21 templates/mysql/users.html:83
 #: templates/psql/password.html:21 templates/psql/psql_user.html:24
 #: templates/psql/psql_user.html:26 templates/psql/users.html:80
 #: templates/user/account.html:68 templates/user/login.html:20
@@ -2334,7 +2330,7 @@ msgstr ""
 msgid "Change docker images tag in order to use specific service versions."
 msgstr ""
 
-#: templates/docker/change_images.html:121 templates/docker/terminal.html:174
+#: templates/docker/change_images.html:121 templates/docker/terminal.html:241
 #: templates/system/services.html:226
 msgid "Select service"
 msgstr ""
@@ -2501,7 +2497,7 @@ msgstr ""
 #: templates/files/clamav/quarantine.html:31 templates/files/ftp.html:24
 #: templates/manager/sites.html:22 templates/manager/wp/list.html:40
 #: templates/mysql/configuration.html:21 templates/mysql/databases.html:118
-#: templates/mysql/processlist.html:22 templates/mysql/users.html:54
+#: templates/mysql/processlist.html:22 templates/mysql/users.html:50
 #: templates/partials/_search.html:6 templates/php/extensions.html:18
 #: templates/php/limits.html:23 templates/php/options.html:20
 #: templates/php/settings.html:19 templates/psql/configuration.html:18
@@ -2532,7 +2528,7 @@ msgstr ""
 #: templates/files/ftp.html:70 templates/files/inodes.html:43
 #: templates/manager/python_node_apps.html:970 templates/manager/sites.html:84
 #: templates/manager/wp/list.html:122 templates/mysql/databases.html:159
-#: templates/mysql/users.html:90 templates/psql/databases.html:148
+#: templates/mysql/users.html:86 templates/psql/databases.html:148
 #: templates/psql/users.html:83 templates/system/cronjobs.html:145
 #: templates/system/waf.html:63 templates/user/active_sessions.html:57
 #: templates/user/favorites.html:52
@@ -2633,29 +2629,49 @@ msgstr ""
 msgid "This may take a few minutes to complete. Refresh the page to display data."
 msgstr ""
 
-#: templates/docker/terminal.html:15 templates/docker/terminal.html:161
+#: templates/docker/terminal.html:19 templates/docker/terminal.html:223
 msgid "Docker Terminal"
 msgstr ""
 
-#: templates/docker/terminal.html:25
+#: templates/docker/terminal.html:33
 msgid ""
-"The terminal is non-interactive and executes commands as 'root' user "
-"inside the container."
+"The terminal is interactive and executes commands as 'root' user inside "
+"the container."
 msgstr ""
 
-#: templates/docker/terminal.html:26
-msgid "Each command has an execution timeout of"
+#: templates/docker/terminal.html:34
+msgid "Inactivity timeout:"
 msgstr ""
 
-#: templates/docker/terminal.html:26
+#: templates/docker/terminal.html:34
 msgid "seconds"
 msgstr ""
 
-#: templates/docker/terminal.html:33
+#: templates/docker/terminal.html:41
 msgid "Container:"
 msgstr ""
 
-#: templates/docker/terminal.html:162
+#: templates/docker/terminal.html:56
+msgid "Shell type"
+msgstr ""
+
+#: templates/docker/terminal.html:67
+msgid "Reconnect"
+msgstr ""
+
+#: templates/docker/terminal.html:77 templates/docker/terminal.html:146
+msgid "Connecting…"
+msgstr ""
+
+#: templates/docker/terminal.html:146
+msgid "Connected"
+msgstr ""
+
+#: templates/docker/terminal.html:146
+msgid "Disconnected"
+msgstr ""
+
+#: templates/docker/terminal.html:225
 msgid "Select active service to open web terminal."
 msgstr ""
 
@@ -3092,7 +3108,7 @@ msgstr ""
 #: templates/files/filemanager/new_actions_buttons.html:21
 #: templates/files/ftp.html:110 templates/files/trash.html:35
 #: templates/manager/python_node_apps.html:864
-#: templates/manager/websitebuilder.html:229 templates/mysql/users.html:110
+#: templates/manager/websitebuilder.html:229 templates/mysql/users.html:113
 #: templates/psql/databases.html:174 templates/psql/users.html:120
 msgid "Delete"
 msgstr ""
@@ -3101,7 +3117,7 @@ msgstr ""
 msgid "Showing domains"
 msgstr ""
 
-#: templates/domains/domains.html:607 templates/mysql/users.html:74
+#: templates/domains/domains.html:607 templates/mysql/users.html:70
 #: templates/psql/users.html:67
 msgid "to"
 msgstr ""
@@ -4822,8 +4838,8 @@ msgid "Folder Size:"
 msgstr ""
 
 #: templates/manager/mautic.html:228 templates/manager/wp/single.html:354
-#: templates/manager/wp/single.html:1865 templates/mysql/users.html:74
-#: templates/mysql/users.html:76 templates/psql/users.html:67
+#: templates/manager/wp/single.html:1865 templates/mysql/users.html:70
+#: templates/mysql/users.html:72 templates/psql/users.html:67
 #: templates/psql/users.html:69
 msgid "Database"
 msgstr ""
@@ -6629,6 +6645,14 @@ msgstr ""
 msgid "Assigned Users"
 msgstr ""
 
+#: templates/mysql/databases.html:286
+msgid "No databases yet."
+msgstr ""
+
+#: templates/mysql/databases.html:286
+msgid "Create your first database"
+msgstr ""
+
 #: templates/mysql/import.html:8 templates/psql/import.html:8
 msgid "Import into Database"
 msgstr ""
@@ -6866,16 +6890,24 @@ msgstr ""
 msgid "Show system users"
 msgstr ""
 
-#: templates/mysql/users.html:74 templates/psql/users.html:67
+#: templates/mysql/users.html:70 templates/psql/users.html:67
 msgid "Assign User"
 msgstr ""
 
-#: templates/mysql/users.html:76 templates/psql/users.html:69
+#: templates/mysql/users.html:72 templates/psql/users.html:69
 msgid "Remove User"
 msgstr ""
 
-#: templates/mysql/users.html:76 templates/psql/users.html:69
+#: templates/mysql/users.html:72 templates/psql/users.html:69
 msgid "from"
+msgstr ""
+
+#: templates/mysql/users.html:156
+msgid "No users yet."
+msgstr ""
+
+#: templates/mysql/users.html:156
+msgid "Create your first user"
 msgstr ""
 
 #: templates/mysql/wizard.html:9

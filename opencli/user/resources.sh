@@ -5,7 +5,7 @@
 # Usage: opencli user-resources <CONTEXT> [--activate=<SERVICE_NAME>] [--deactivate=<SERVICE_NAME>] [--update_cpu=<FLOAT>] [--update_ram=<FLOAT>] [--service=<NAME>] [--dry-run] [--json]
 # Author: Stefan Pejcic
 # Created: 26.02.2025
-# Last Modified: 21.03.2026
+# Last Modified: 22.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -44,7 +44,7 @@ new_service=""
 service_to_update_cpu_ram=""
 update_cpu=""
 update_ram=""
-
+check_cpu_ram=false
 usage() {
     cat <<EOF
 Usage: opencli user-resources <context> [options]
@@ -83,6 +83,12 @@ for arg in "$@"; do
     esac
 done
 
+# when activating service or updating its cpu/ram limit, we need to check available resources on the node
+if { [[ -n "$update_cpu" && -n "$service_to_update_cpu_ram" ]] || \
+     [[ -n "$update_ram" && -n "$service_to_update_cpu_ram" ]] || \
+     [[ -n "$new_service" ]]; }; then
+    check_cpu_ram=true
+fi
 # --- Helpers ---
 print_json() {
     echo "$1" | jq .
@@ -93,14 +99,34 @@ validate_number() {
 }
 
 load_env_file() {
-
-    [ -f "$env_file" ] && export $(grep -v '^#' "$env_file" | xargs)
+    export $(grep -v '^#' "$env_file" | xargs)
 }
 
 check_context_and_env() {
     [ -z "$context" ] && echo "Missing context argument." && exit 1
     [ ! -f "$env_file" ] && echo "Missing env file: $env_file" && exit 1
     sed -i 's/\r//' "$env_file" >/dev/null 2>&1 # workaround for Windows-style line endings in the .env file
+}
+
+
+
+read_context_info() {
+    [ "$check_cpu_ram" = false ] && return
+
+    endpoint=$(docker context inspect "$context" --format '{{ .Endpoints.docker.Host }}')
+    
+    if [[ "$endpoint" == ssh://* ]]; then
+        ssh_host=${endpoint#ssh://}
+        node_ip_address=${ssh_host#*@}
+        read max_available_cores max_available_ram_gb < <(
+            ssh "$key_flag" "root@$node_ip_address" \
+            "echo \$(nproc) \$(free -g | awk '/Mem:/{print \$2}')"
+        )
+    else
+        node_ip_address=""
+        max_available_cores=$(nproc)
+        max_available_ram_gb=$(free -g | awk '/Mem:/{print $2}')
+    fi
 }
 
 normalize_service_name() {
@@ -127,6 +153,24 @@ update_resource() {
     if [ -n "$service_to_update_cpu_ram" ]; then
         target=$(normalize_service_name "$service_to_update_cpu_ram")
         var_name="${target}_${type^^}"
+
+        if [ "$value" -ne 0 ]; then
+            case "$type" in
+                cpu)
+                    if (( $(echo "$value > $max_available_cores" | bc -l) )); then
+                        message+="<br>Error: CPU ($cpu cores) limit for $service_to_update_cpu_ram would exceed the maximum available cores on the server $node_ip_address ($max_available_cores cores). "
+                        return
+                    fi
+                    ;;
+                ram)
+                    val_number=${value//g/}
+                    if (( $(echo "$val_number > $max_available_ram_gb" | bc -l) )); then
+                        message+="<br>Error: RAM (${val_number} GB) limit for $service_to_update_cpu_ram would exceed the maximum available memory on the server $node_ip_address ($max_available_ram_gb GB). "
+                        return
+                    fi
+                    ;;
+            esac
+        fi
 
         if [ "$dry_run" = true ]; then
             message+="<br>[DRY-RUN] Would update $type for $service_to_update_cpu_ram to: $value"
@@ -189,8 +233,12 @@ stop_service() {
     fi
 }
 
-# --- Main Logic ---
+
+
+
+# Main
 check_context_and_env
+read_context_info
 update_resource "cpu" "$update_cpu"
 update_resource "ram" "$update_ram"
 load_env_file
@@ -250,6 +298,9 @@ if [ -n "$new_service" ]; then
         echo "Service $new_service not found."
         exit 1
     }
+
+
+
 
     if check_service_running "$new_service"; then
         message+="<br>Service $new_service is already running."

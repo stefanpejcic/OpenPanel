@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 21.03.2026
+# Last Modified: 22.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -27,9 +27,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 ################################################################################
-
-# DB
-source /usr/local/opencli/db.sh
 
 # Usage info
 usage() {
@@ -54,8 +51,8 @@ docpu=false
 doram=false
 dodsk=false
 donet=false
+doemail=false
 
-# TODO: update to support updating max_email_quota AND max_hourly_email for account
 
 # Parse arguments
 for arg in "$@"; do
@@ -66,132 +63,91 @@ for arg in "$@"; do
         --ram)     partial=true; doram=true ;;
         --dsk)     partial=true; dodsk=true ;;
         --net)     partial=true; donet=true ;;
+        --email)   partial=true; doemail=true ;;
         --*)       ;; # ignore unknown flags
         *)         usernames+=("$arg") ;;
     esac
 done
 
-# Fetch bulk usernames if --all
+
+# 1. get plan limits
+source /usr/local/opencli/db.sh
+
+IFS=$'\t' read -r cpu ram disk_limit inodes_limit max_hourly_email bandwidth < <(
+    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "
+        SELECT cpu, ram, disk_limit, inodes_limit, max_hourly_email, bandwidth
+        FROM plans
+        WHERE id = '$new_plan_id'
+        LIMIT 1;
+    "
+)
+
+numNdisk=$(echo "$disk_limit" | awk '{print $1}')
+storage_in_blocks=$((numNdisk * 1024000))
+
+# 2. fetch all users if --all
 if $bulk; then
     mapfile -t usernames < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e \
         "SELECT username FROM users WHERE plan_id = '$new_plan_id';")
     $debug && echo "Applying plan changes to users: ${usernames[*]}"
 fi
 
-# Helper: DB queries
-get_current_plan_id() {
-    local user="$1"
-    read -r current_plan_id server < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e \
-        "SELECT plan_id, server FROM users WHERE username = '$user'")
-    [ -z "$server" ] || [ "$server" = "default" ] && server="$user"
-}
-
-get_plan_limit() {
-    local plan_id="$1" resource="$2"
-    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT $resource FROM plans WHERE id = '$plan_id'"
-}
-
-get_plan_name() {
-    local plan_id="$1"
-    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT name FROM plans WHERE id = '$plan_id'"
-}
-
-reload_user_quotas() {
-    quotacheck -avm >/dev/null 2>&1
-    repquota -u / > /etc/openpanel/openpanel/core/users/repquota
-}
-
-# Main loop
+# 3. main loop
 totalc="${#usernames[@]}"
 counter=0
 
-for container in "${usernames[@]}"; do
+for username in "${usernames[@]}"; do
     ((counter++))
     echo "+=============================================================================+"
-    echo "Processing user: $container ($counter/$totalc)"
+    echo "Processing user: $username ($counter/$totalc)"
     echo ""
 
-    output_dir="/etc/openpanel/openpanel/core/users"
-    docker_usage_file="$output_dir/$container/docker_usage.txt"
+    # 4. get docker context
+    read -r current_plan_id context < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e \
+        "SELECT plan_id, server FROM users WHERE username = '$username'")
 
-    get_current_plan_id "$container"
-    current_plan_name=$(get_plan_name "$current_plan_id")
-    new_plan_name=$(get_plan_name "$new_plan_id")
-
-    # Plan limits
-    Ncpu=$(get_plan_limit "$new_plan_id" "cpu")
-    Ocpu=$(get_plan_limit "$current_plan_id" "cpu")
-    Nram=$(get_plan_limit "$new_plan_id" "ram")
-    Oram=$(get_plan_limit "$current_plan_id" "ram")
-    Ndisk=$(get_plan_limit "$new_plan_id" "disk_limit")
-    Ninodes=$(get_plan_limit "$new_plan_id" "inodes_limit")
-
-    # System limits
-    maxCPU=$(nproc)
-    maxRAM=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
-    numOram=${Oram//[!0-9]/}
-    numNram=${Nram//[!0-9]/}
-    numNdisk=$(echo "$Ndisk" | awk '{print $1}')
-    storage_in_blocks=$((numNdisk * 1024000))
-
+    # 5. update limits
+    
     # RAM
     if ! $partial || $doram; then
-        if (( numNram > maxRAM )); then
-            echo "- Memory: [ERROR] New RAM value exceeds server limit ($numNram > $maxRAM GB)."
-        else
-            if [[ -f "$output_file" ]]; then
-                last_line=$(tail -n 1 "$output_file")
-                mem_usage=$(echo "$last_line" | grep -o '"MemUsage":"[^"]*"' | cut -d'"' -f4)
-                if [[ -n "$mem_usage" ]]; then
-                    mem_total=$(echo "$mem_usage" | awk -F'/' '{print $2}' | xargs)
-                    if [[ "$mem_total" == *GiB ]]; then
-                        mem_total_mib=$(echo "$mem_total" | sed 's/GiB//' | awk '{print $1 * 1024}')
-                    elif [[ "$mem_total" == *MiB ]]; then
-                        mem_total_mib=$(echo "$mem_total" | sed 's/MiB//')
-                    else
-                        mem_total_mib=0
-                    fi
-
-                    nram_mib=$(( numNram * 1024 ))
-
-                    if (( mem_total_mib > nram_mib )); then
-                        echo "- Memory: [WARN] Current combined limit (${mem_total_mib}MiB) for all running services is greater than new plan limit: ${nram_mib}MiB. Administrator needs to manually reduse service limits."
-                    fi
-                fi
-            fi
-            sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${Nram}\"/" "/home/$server/.env"
-            echo "- Memory: [OK] total limit changed to ${numNram}GB."
-        fi
+        sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${ram}\"/" "/home/$context/.env"
+        echo "- Memory: [OK] total limit changed to ${ram//[!0-9]/}GB."
     fi
     
     # CPU
     if ! $partial || $docpu; then
-        if (( Ncpu > maxCPU )); then
-            echo "- CPU: [ERROR] Number of cores exceeds those of server ($Ncpu > $maxCPU)."
-        else
-            # TODO: check cpu core limits for running services
-            sed -i "s/^TOTAL_CPU=\"[^\"]*\"/TOTAL_CPU=\"${Ncpu}\"/" "/home/$server/.env"
-            echo "- CPU: [OK] limit set to ${Ncpu}"
-        fi
+        sed -i "s/^TOTAL_CPU=\"[^\"]*\"/TOTAL_CPU=\"${cpu}\"/" "/home/$context/.env"
+        echo "- CPU: [OK] limit set to ${cpu}"
     fi
 
-    # Disk/Inodes
+    # Disk and Inodes
     if ! $partial || $dodsk; then
-        setquota -u "$server" "$storage_in_blocks" "$storage_in_blocks" "$Ninodes" "$Ninodes" /
-        echo "- Storage: [OK] limit set to ${storage_in_blocks} blocks and $Ninodes inodes"
-        reload_user_quotas
+        setquota -u "$context" "$storage_in_blocks" "$storage_in_blocks" "$inodes_limit" "$inodes_limit" /
+        echo "- Storage: [OK] limit set to ${storage_in_blocks} blocks and $inodes_limit inodes"
     fi
 
-    # Network (stub)
+    # Emails
+    if ! $partial || $doemail; then
+        opencli email-server ratelimit --username=$username
+        # TODO: support optional update of max_email_quota for all accounts
+        echo "- Emails: [OK] Max hourly emails limit set to $max_hourly_email"
+    fi
+
+    # Network (bandwidth)
     if ! $partial || $donet; then
         # TODO
-        echo "- Port Speed: [WARN] Not implemented yet"
-        :
+        echo "- Port Speed: [WARN] Not implemented yet ($bandwidth)"
     fi
 done
 
 echo "+=============================================================================+"
 echo "Completed!"
 
-# Cleanup
+# 6. quotacheck if disk limits were updated
+if ! $partial || $dodsk; then
+    nohup bash -c 'quotacheck -avm >/dev/null 2>&1; repquota -u / > /etc/openpanel/openpanel/core/users/repquota' >/dev/null 2>&1 &
+    disown
+fi
+
+# 7. Cleanup logs older than 1d
 find /tmp -name 'opencli_plan_apply_*' -type f -mtime +1 -exec rm {} \; >/dev/null 2>&1

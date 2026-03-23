@@ -97,8 +97,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${OPENPANEL_CPUS:-1.0}"
-          memory: "${OPENPANEL_RAM:-1.0G}"
+          #cpus: "${OPENPANEL_CPUS:-1.0}"
+          #memory: "${OPENPANEL_RAM:-1.0G}"
           pids: 1000
 
   caddy:
@@ -109,7 +109,7 @@ services:
     working_dir: /etc/caddy/
     volumes:
       - /etc/openpanel/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - /etc/openpanel/caddy/:/etc/openpanel/caddy:ro
+      - /etc/openpanel/caddy/:/etc/openpanel/caddy
       - /etc/openpanel/caddy/ssl:/data/caddy/certificates
       - /etc/openpanel/caddy/coraza_rules.conf:/etc/openpanel/caddy/coraza_rules.conf:ro
       - /var/log/caddy/:/var/log/caddy/
