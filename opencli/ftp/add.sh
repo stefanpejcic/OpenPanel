@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 22.03.2026
+# Last Modified: 23.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -44,11 +44,8 @@ DEBUG=false  # Default value for DEBUG
 # Parse optional flags to enable debug mode when needed!
 for arg in "$@"; do
     case $arg in
-        --debug)
-            DEBUG=true
-            ;;
-        *)
-            ;;
+        --debug) DEBUG=true ;;
+        *) ;;
     esac
 done
 
@@ -82,12 +79,7 @@ create_user() {
     relative_path="${directory##/var/www/html/}"
     new_directory="${real_path}${relative_path}"
 	
-	# Get GID of openpanel_username from host
-	if [ -f /hostfs/etc/group ]; then
-	    GID=$(grep "^$openpanel_username:" /hostfs/etc/group | cut -d: -f3)
-	else
-	    GID=$(grep "^$openpanel_username:" /etc/group | cut -d: -f3)
-	fi 	
+	GID=$(stat -c '%u' "/home/$openpanel_username") 	
  	EXISTING_GROUP=$(docker exec openadmin_ftp sh -c "getent group '$GID' | cut -d: -f1")
 	
 	# If GID is NOT a number, run fallback command
@@ -96,7 +88,6 @@ create_user() {
 	fi
 
     mkdir -p "$new_directory"
-    chown -R "$openpanel_username:$openpanel_username" "$new_directory"
     # Fix permissions for shared group access on host
     chmod +rx "/home/$openpanel_username"
     chmod +rx "/home/$openpanel_username/docker-data"
@@ -119,8 +110,7 @@ create_user() {
         mkdir -p "$new_directory"
 
         # Set owner and group on directory (important!)
-        chown -R "$openpanel_username:$openpanel_username" "$new_directory"
-
+	    chown -R "$GID:$GID" "$new_directory"
         # Set proper permissions: read/write for group, +setgid for inheritance
         chmod -R 2775 "$new_directory"
 

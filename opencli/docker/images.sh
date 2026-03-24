@@ -5,7 +5,7 @@
 # Usage: opencli docker-images [--all|<USERNAME>]
 # Author: Stefan Pejcic
 # Created: 05.05.2025
-# Last Modified: 22.03.2026
+# Last Modified: 23.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -71,7 +71,7 @@ run_for_context() {
     echo "Running Cup in context: $ctx"
 
     local user_id mount_flag
-    user_id=$(id -u "$ctx" 2>/dev/null)
+    user_id=$(stat -c %u "/home/$ctx" 2>/dev/null)
 
     if [ -n "$user_id" ]; then
         if [ -S "/hostfs/run/user/$user_id/docker.sock" ]; then

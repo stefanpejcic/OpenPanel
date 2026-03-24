@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 22.03.2026
+# Last Modified: 23.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -735,10 +735,10 @@ print_debug_info_before_starting_creation() {
     echo "Selected plan limits from database:"
     echo "- plan id:           $plan_id"
     echo "- plan name:         $plan_name"
-    echo "- cpu limit:         $cpu"
-    echo "- memory limit:      $ram"
-    echo "- storage:           $([[ "$disk_limit" -eq 0 ]] && echo "unlimited" || echo "$disk_limit GB")"
-    echo "- inodes:            $([[ "$inodes" -eq 0 ]] && echo "unlimited" || echo "$inodes")"
+    echo "- cpu limit:         $([[ "$cpu" -eq 0 ]] && echo ""∞"" || echo "$cpu core(s)")"
+    echo "- memory limit:      $([[ "$ram" -eq 0 ]] && echo ""∞"" || echo "$ram GB")"
+    echo "- storage:           $([[ "$disk_limit" -eq 0 ]] && echo ""∞"" || echo "$disk_limit GB")"
+    echo "- inodes:            $([[ "$inodes" -eq 0 ]] && echo ""∞"" || echo "$inodes")"
     echo "- port speed:        $bandwidth"
     sep
 }
@@ -1395,7 +1395,7 @@ send_email_to_new_user() {
 
 
 reload_user_quotas() {
-    nohup bash -c "quotacheck -avm && mkdir -p /etc/openpanel/openpanel/core/users/ && repquota -u / > /etc/openpanel/openpanel/core/users/repquota" &
+    nohup bash -c "quotacheck -avm ; mkdir -p /etc/openpanel/openpanel/core/users/ && repquota -u / > /etc/openpanel/openpanel/core/users/repquota" &
 	disown
 }
 

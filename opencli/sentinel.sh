@@ -428,7 +428,7 @@ check_cpu_usage() {
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m CPU ${pct}% > threshold ${CPU_THRESHOLD}%"
     local procs; procs=$(ps ax --sort=-%cpu -o pid:7,pcpu:6,comm:20 | head -10 | awk '{printf "%s|",$0}')
-    write_notification "$title" "CPU: ${pct}% | Top: $procs"
+    write_notification "$title" "CPU: ${pct}% | $procs"
   else
     ((PASS++)); echo -e "\e[32m[✔]\e[0m CPU ${pct}% < threshold ${CPU_THRESHOLD}%"
   fi

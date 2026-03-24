@@ -82,7 +82,7 @@ services:
       - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf:ro                             # mysql logins
       - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations     # locales
       - /root/openpanel_restart_needed:/root/openpanel_restart_needed                    # flag used on openadmin
-      - /run/user/:/hostfs/run/user/:ro                                                  # docker contexts
+      - /run/user/:/hostfs/run/user/:shared,rslave                                       # docker contexts
       - /var/run/docker.sock:/var/run/docker.sock:ro                                     # reload caddy on waf changes      
       - ${REDIS_SOCKET}:/tmp/redis/                                                      # redis cache
       - /var/log/caddy:/var/log/caddy                                                    # waf and domlogs      
@@ -159,6 +159,7 @@ services:
       - /etc/openpanel/ftp/start_vsftpd.sh:/bin/start_vsftpd.sh:ro
       - /etc/openpanel/ftp/vsftpd.chroot_list:/etc/vsftpd.chroot_list
       - /etc/openpanel/ftp/all.users:/etc/openpanel/ftp/all.users
+      - /etc/openpanel/ftp/users/:/etc/openpanel/ftp/users/
       - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro #ssl
       - /etc/localtime:/etc/localtime:ro
     networks:

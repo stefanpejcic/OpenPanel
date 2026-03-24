@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="Some Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=100
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 22.03.2026
+# Last Modified: 23.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -104,22 +104,23 @@ check_if_we_need_to_edit_docker_containers() {
         flags+=( "--ram" )
     fi
 
-    # BANDWIDTH CHANGE OR PLAN NAME CHANGE
-    if [ "$old_bandwidth" == "$bandwidth" ] && [ "$old_plan_name" == "$new_plan_name" ]; then
-        if [ "$DEBUG" = true ]; then
-            echo "DEBUG: Port speed and plan name have not changed."
-        fi
-    elif [ "$old_bandwidth" != "$bandwidth" ] && [ "$old_plan_name" == "$new_plan_name" ]; then
+    # BANDWIDTH CHANGE
+    if [ "$old_bandwidth" != "$bandwidth" ]; then
         if [ "$DEBUG" = true ]; then
             echo "DEBUG: Port speed limit is changed, applying new bandwidth limit to the docker network."
         fi
-        edit_docker_network "$old_plan_name" "$bandwidth"
-    elif [ "$old_plan_name" != "$new_plan_name" ]; then
-        if [ "$DEBUG" = true ]; then
-            echo "DEBUG: Plan name is changed."
-        fi
         flags+=( "--net" )
+        # TODO
+        # edit_docker_network "$old_plan_name" "$bandwidth"
     fi
+
+    if [ "$old_max_hourly_email" != "$max_hourly_email" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: max_hourly_email limit is changed, applying new limits for domains."
+        fi
+        flags+=( "--email" )
+    fi
+    
 }
 
 
@@ -134,8 +135,8 @@ check_if_we_need_to_edit_docker_containers() {
 update_plan() {
   local plan_id="$1"
 
-  # Get old paln data, and if different, we will initiate the `opencli plan-apply` script
-  sql="SELECT name, disk_limit, inodes_limit, cpu, ram, bandwidth, feature_set FROM plans WHERE id='$plan_id'"
+  # Get old plan data, and if different, we will initiate the `opencli plan-apply` script
+  sql="SELECT name, disk_limit, inodes_limit, cpu, ram, bandwidth, max_hourly_email, feature_set FROM plans WHERE id='$plan_id'"
   result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "$sql")
 
   old_plan_name=$(echo "$result" | awk '{print $1}')
@@ -144,7 +145,8 @@ update_plan() {
   old_cpu=$(echo "$result" | awk '{print $5}')
   old_ram=$(echo "$result" | awk '{print $6}')
   old_bandwidth=$(echo "$result" | awk '{print $7}')
-  old_feature_set=$(echo "$result" | awk '{print $8}')
+  old_max_hourly_email=$(echo "$result" | awk '{print $8}')
+  old_feature_set=$(echo "$result" | awk '{print $9}')
   
   new_plan_name="$2"
   description="$3"
@@ -181,31 +183,31 @@ if [ "$DEBUG" = true ]; then
   echo "+===================================+"
   echo "| PLAN ID: $plan_id"
   echo "+===================================+"
-
-  echo "Old Plan Name:    $old_plan_name"
-  echo "Old Disk Limit:   $old_disk_limit"
-  echo "Old Inodes Limit: $old_inodes_limit"
-  echo "Old CPU:          $old_cpu"
-  echo "Old RAM:          $old_ram"
-  echo "Old Bandwidth:    $old_bandwidth"
-  echo "Old feature set:  $old_feature_set"
+  echo "Old Plan Name:        $old_plan_name"
+  echo "Old Disk Limit:       $old_disk_limit"
+  echo "Old Inodes Limit:     $old_inodes_limit"
+  echo "Old CPU:              $old_cpu"
+  echo "Old RAM:              $old_ram"
+  echo "Old Bandwidth:        $old_bandwidth"
+  echo "Old max_hourly_email: $old_max_hourly_email"
+  echo "Old feature set:      $old_feature_set"
   echo "+===================================+"
   echo "New plan information:"
-  echo "Name:             $new_plan_name"
-  echo "Description:      $description"
-  echo "Feature set:      $feature_set"
-  echo "Disk limit:       $disk_limit"
-  echo "Inodes limit:     $inodes_limit"
-  echo "CPU:              $cpu cores"
-  echo "RAM:              $ram"
-  echo "Bandwidth:        $bandwidth"
-  echo "FTP accounts:     $ftp_limit"
-  echo "Email accounts:   $emails_limit"
-  echo "Max email quota:  $max_email_quota"
-  echo "Max hourly email: $max_hourly_email"
-  echo "Total domains:    $domains_limit"
-  echo "Total websites:   $websites_limit"
-  echo "Total databases:  $db_limit"
+  echo "Name:                 $new_plan_name"
+  echo "Description:          $description"
+  echo "Feature set:          $feature_set"
+  echo "Disk limit:           $disk_limit"
+  echo "Inodes limit:         $inodes_limit"
+  echo "CPU:                  $cpu cores"
+  echo "RAM:                  $ram"
+  echo "Bandwidth:            $bandwidth"
+  echo "FTP accounts:         $ftp_limit"
+  echo "Email accounts:       $emails_limit"
+  echo "Max email quota:      $max_email_quota"
+  echo "Max hourly email:     $max_hourly_email"
+  echo "Total domains:        $domains_limit"
+  echo "Total websites:       $websites_limit"
+  echo "Total databases:      $db_limit"
   echo "+===================================+"
 fi
 

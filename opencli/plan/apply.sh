@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 22.03.2026
+# Last Modified: 23.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,7 +30,7 @@
 
 # Usage info
 usage() {
-    echo "Usage: opencli plan-apply <plan_id> <username1> <username2>... [--debug] [--all] [--cpu] [--ram] [--dsk] [--net]"
+    echo "Usage: opencli plan-apply <plan_id> <username1> <username2>... [--debug] [--all] [--cpu] [--ram] [--dsk] [--net] [--email]"
     exit 1
 }
 

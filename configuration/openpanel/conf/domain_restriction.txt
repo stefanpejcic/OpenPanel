@@ -28,3 +28,4 @@ adobe.com
 cnn.com
 bbc.com
 nytimes.com
+example.net

@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 22.03.2026
+# Last Modified: 23.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -146,11 +146,11 @@ get_slave_dns_option() {
 			rm -f "/etc/bind/zones/$domain_name.zone"
 	        echo "Zone $domain_name deleted from slave server."
 	    fi
-	EOF
+EOF
 	
 		timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
 	    docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
-	EOF
+EOF
 	}
 
 	for ip in "${ALLOW_TRANSFER_IPS[@]}"; do
@@ -165,7 +165,7 @@ get_slave_dns_option() {
 
 get_user_info() {
     local user="$1"
-    local query="SELECT id, server FROM users WHERE username = '${user}';"
+    local query="SELECT id, server FROM users WHERE username = '$user}';"
     user_info=$(mysql -se "$query")
     user_id=$(echo "$user_info" | awk '{print $1}')
     context=$(echo "$user_info" | awk '{print $2}')
@@ -406,7 +406,6 @@ delete_domain() {
 
     if [ "$result" -eq 0 ]; then
         get_webserver_for_user                       #
-		get_user_info                                # get context and user id
         vhost_files_delete                           # delete file in container
 
 		nohup opencli sentinel --action=domains_delete --title="Domain deleted" --message="Domain name: '$domain_name' has been removed from OpenPanel user: '$user'." >/dev/null 2>&1 &
@@ -437,4 +436,5 @@ delete_domain() {
 # ======================================================================
 # Main
 pre_flight_checks
+get_user_info                                # get context and user id
 delete_domain "$user" "$domain_name"
