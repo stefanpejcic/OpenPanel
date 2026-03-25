@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.48\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-03-23 19:14+0100\n"
+"POT-Creation-Date: 2026-03-24 21:36+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -140,7 +140,7 @@ msgstr ""
 #: modules/websites.py:52 modules/websites.py:249 modules/websites.py:310
 #: modules/websites.py:472 modules/websites.py:556 modules/websites.py:1109
 #: modules/wordpress.py:595 modules/wordpress.py:929 modules/wordpress.py:1068
-#: modules/wordpress.py:1729
+#: modules/wordpress.py:1728
 msgid "You do not own this domain."
 msgstr ""
 
@@ -310,7 +310,7 @@ msgstr ""
 #: modules/mysqld/mysql_import.py:92 modules/mysqld/mysql_import.py:105
 #: modules/psql/postgresql_import.py:62 modules/psql/postgresql_import.py:67
 #: modules/psql/postgresql_import.py:70 modules/psql/postgresql_import.py:81
-#: templates/psql/databases.html:165
+#: templates/mysql/databases.html:191 templates/psql/databases.html:165
 msgid "Import"
 msgstr ""
 
@@ -489,8 +489,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:107 modules/mysql.py:273 modules/mysql.py:544
-#: modules/mysql.py:725 modules/postgresql.py:80 modules/postgresql.py:578
+#: modules/mysql.py:107 modules/mysql.py:328 modules/mysql.py:626
+#: modules/mysql.py:807 modules/postgresql.py:80 modules/postgresql.py:578
 msgid "Database name is required."
 msgstr ""
 
@@ -499,8 +499,8 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:191 modules/mysql.py:264 modules/mysql.py:580
-#: modules/mysql.py:617 modules/mysql.py:718 modules/postgresql.py:164
+#: modules/mysql.py:191 modules/mysql.py:318 modules/mysql.py:662
+#: modules/mysql.py:699 modules/mysql.py:800 modules/postgresql.py:164
 #: modules/postgresql.py:627 modules/postgresql.py:713
 msgid "User name is required."
 msgstr ""
@@ -509,18 +509,18 @@ msgstr ""
 msgid "This username is not allowed."
 msgstr ""
 
-#: modules/mysql.py:224 modules/postgresql.py:207
+#: modules/mysql.py:230 modules/postgresql.py:207
 #: templates/mysql/mysql_user.html:163 templates/mysql/users.html:67
 #: templates/psql/psql_user.html:164 templates/psql/users.html:64
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:231 modules/mysql.py:624 modules/mysql.py:736
+#: modules/mysql.py:237 modules/mysql.py:706 modules/mysql.py:818
 #: modules/postgresql.py:229 modules/postgresql.py:735
 msgid "This is a system username that can not be edited."
 msgstr ""
 
-#: modules/mysql.py:234 modules/postgresql.py:232 templates/files/ftp.html:109
+#: modules/mysql.py:240 modules/postgresql.py:232 templates/files/ftp.html:109
 #: templates/mysql/password.html:168 templates/mysql/root_password.html:154
 #: templates/mysql/users.html:108 templates/psql/password.html:163
 #: templates/psql/users.html:115
@@ -528,63 +528,66 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: modules/mysql.py:248 modules/postgresql.py:246
+#: modules/mysql.py:254 modules/postgresql.py:246
 msgid "Wizard"
 msgstr ""
 
-#: modules/mysql.py:282
+#: modules/mysql.py:338
+msgid "At least one privilege must be selected."
+msgstr ""
+
+#: modules/mysql.py:343
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:301 modules/postgresql.py:289 templates/mysql/assign.html:8
-#: templates/mysql/assign.html:65 templates/psql/assign.html:8
+#: modules/mysql.py:383 modules/postgresql.py:289 templates/psql/assign.html:8
 #: templates/psql/assign.html:68
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:306 modules/postgresql.py:297
+#: modules/mysql.py:388 modules/postgresql.py:297
 #: templates/mysql/remove.html:62 templates/psql/remove.html:62
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:399 templates/dashboard/dashboard.html:118
+#: modules/mysql.py:481 templates/dashboard/dashboard.html:118
 #: templates/dashboard/dashboard.html:130 templates/dashboard/usage.html:62
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:454 modules/postgresql.py:505
+#: modules/mysql.py:536 modules/postgresql.py:505
 #: templates/dashboard/dashboard.html:119
 #: templates/dashboard/dashboard.html:131
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:483
+#: modules/mysql.py:565
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:487
+#: modules/mysql.py:569
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:489
+#: modules/mysql.py:571
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:491
+#: modules/mysql.py:573
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:515 modules/postgresql.py:546
+#: modules/mysql.py:597 modules/postgresql.py:546
 #: templates/dashboard/dashboard.html:124
 #: templates/dashboard/dashboard.html:135
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:587
+#: modules/mysql.py:669
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:732
+#: modules/mysql.py:814
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -699,7 +702,8 @@ msgstr ""
 msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
 msgstr ""
 
-#: modules/phpmyadmin.py:145 templates/mysql/phpmyadmin.html:11
+#: modules/phpmyadmin.py:145 templates/mysql/databases.html:194
+#: templates/mysql/phpmyadmin.html:11
 msgid "phpMyAdmin"
 msgstr ""
 
@@ -1045,7 +1049,7 @@ msgstr ""
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1289 modules/wordpress.py:1508
+#: modules/wordpress.py:1289 modules/wordpress.py:1507
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
@@ -1055,11 +1059,11 @@ msgstr ""
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1473
+#: modules/wordpress.py:1472
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1539 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1538 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -3115,8 +3119,9 @@ msgstr ""
 #: templates/files/filemanager/new_actions_buttons.html:21
 #: templates/files/ftp.html:116 templates/files/trash.html:35
 #: templates/manager/python_node_apps.html:864
-#: templates/manager/websitebuilder.html:229 templates/mysql/users.html:113
-#: templates/psql/databases.html:174 templates/psql/users.html:120
+#: templates/manager/websitebuilder.html:229 templates/mysql/databases.html:199
+#: templates/mysql/users.html:113 templates/psql/databases.html:174
+#: templates/psql/users.html:120
 msgid "Delete"
 msgstr ""
 
@@ -3579,7 +3584,7 @@ msgstr ""
 #: templates/emails/single_account.html:212 templates/files/ftp_new.html:53
 #: templates/mysql/mysql_user.html:43 templates/mysql/mysql_user.html:52
 #: templates/mysql/password.html:41 templates/mysql/root_password.html:43
-#: templates/mysql/wizard.html:75 templates/psql/password.html:41
+#: templates/mysql/wizard.html:76 templates/psql/password.html:41
 #: templates/psql/password.html:51 templates/psql/psql_user.html:43
 #: templates/psql/psql_user.html:53 templates/psql/wizard.html:75
 #: templates/user/account.html:76 templates/user/login.html:24
@@ -3755,7 +3760,7 @@ msgstr ""
 #: templates/manager/mautic_install.html:148
 #: templates/manager/wp/install.html:213 templates/mysql/mysql_user.html:33
 #: templates/mysql/password.html:31 templates/mysql/root_password.html:24
-#: templates/mysql/wizard.html:61 templates/psql/password.html:31
+#: templates/mysql/wizard.html:62 templates/psql/password.html:31
 #: templates/psql/psql_user.html:33 templates/psql/wizard.html:61
 msgid "Weak password"
 msgstr ""
@@ -3765,7 +3770,7 @@ msgstr ""
 #: templates/manager/mautic_install.html:149
 #: templates/manager/wp/install.html:214 templates/mysql/mysql_user.html:34
 #: templates/mysql/password.html:32 templates/mysql/root_password.html:25
-#: templates/mysql/wizard.html:62 templates/psql/password.html:32
+#: templates/mysql/wizard.html:63 templates/psql/password.html:32
 #: templates/psql/psql_user.html:34 templates/psql/wizard.html:62
 msgid "Medium strength password"
 msgstr ""
@@ -3775,7 +3780,7 @@ msgstr ""
 #: templates/manager/mautic_install.html:150
 #: templates/manager/wp/install.html:215 templates/mysql/mysql_user.html:35
 #: templates/mysql/password.html:33 templates/mysql/root_password.html:26
-#: templates/mysql/wizard.html:63 templates/psql/password.html:33
+#: templates/mysql/wizard.html:64 templates/psql/password.html:33
 #: templates/psql/psql_user.html:35 templates/psql/wizard.html:63
 msgid "Strong password"
 msgstr ""
@@ -6478,7 +6483,7 @@ msgstr ""
 
 #: templates/manager/wp/single.html:1871 templates/mysql/databases.html:150
 #: templates/mysql/new.html:26 templates/mysql/new.html:28
-#: templates/mysql/wizard.html:30 templates/psql/databases.html:139
+#: templates/mysql/wizard.html:31 templates/psql/databases.html:139
 #: templates/psql/new.html:24 templates/psql/new.html:26
 #: templates/psql/wizard.html:30
 msgid "Database Name"
@@ -6576,6 +6581,10 @@ msgstr ""
 msgid "Generating Backup..."
 msgstr ""
 
+#: templates/mysql/assign.html:8
+msgid "Manage User Privileges"
+msgstr ""
+
 #: templates/mysql/assign.html:9
 msgid ""
 "Assign a user to an existing MySQL database to manage database "
@@ -6583,29 +6592,37 @@ msgid ""
 " managing data within the specified database."
 msgstr ""
 
-#: templates/mysql/assign.html:24 templates/mysql/remove.html:23
+#: templates/mysql/assign.html:38 templates/mysql/remove.html:23
 #: templates/psql/assign.html:24 templates/psql/remove.html:23
 msgid "Select user:"
 msgstr ""
 
-#: templates/mysql/assign.html:37 templates/mysql/import.html:26
+#: templates/mysql/assign.html:51 templates/mysql/import.html:26
 #: templates/mysql/remove.html:35 templates/psql/assign.html:37
 #: templates/psql/import.html:23 templates/psql/remove.html:35
 msgid "Select database:"
 msgstr ""
 
-#: templates/mysql/assign.html:39 templates/mysql/processlist.html:58
+#: templates/mysql/assign.html:53 templates/mysql/processlist.html:58
 #: templates/mysql/remove.html:37 templates/psql/assign.html:39
 #: templates/psql/remove.html:37
 msgid "Host"
 msgstr ""
 
-#: templates/mysql/assign.html:61 templates/mysql/new.html:53
+#: templates/mysql/assign.html:63
+msgid "Select privileges:"
+msgstr ""
+
+#: templates/mysql/assign.html:93 templates/mysql/new.html:53
 #: templates/mysql/remove.html:58 templates/mysql/root_password.html:150
-#: templates/mysql/wizard.html:196 templates/psql/assign.html:64
+#: templates/mysql/wizard.html:197 templates/psql/assign.html:64
 #: templates/psql/new.html:51 templates/psql/remove.html:58
 #: templates/psql/wizard.html:196
 msgid "Back to Databases"
+msgstr ""
+
+#: templates/mysql/assign.html:97
+msgid "Make Changes"
 msgstr ""
 
 #: templates/mysql/configuration.html:14
@@ -6668,11 +6685,19 @@ msgstr ""
 msgid "Assigned Users"
 msgstr ""
 
-#: templates/mysql/databases.html:286
+#: templates/mysql/databases.html:179
+msgid "Manage privileges"
+msgstr ""
+
+#: templates/mysql/databases.html:188 templates/psql/databases.html:162
+msgid "System Database"
+msgstr ""
+
+#: templates/mysql/databases.html:293
 msgid "No databases yet."
 msgstr ""
 
-#: templates/mysql/databases.html:286
+#: templates/mysql/databases.html:293
 msgid "Create your first database"
 msgstr ""
 
@@ -6931,23 +6956,23 @@ msgid ""
 "assign it to the database with all necessary privileges."
 msgstr ""
 
-#: templates/mysql/wizard.html:25 templates/psql/wizard.html:25
+#: templates/mysql/wizard.html:26 templates/psql/wizard.html:25
 msgid "Create a database"
 msgstr ""
 
-#: templates/mysql/wizard.html:44 templates/psql/wizard.html:44
+#: templates/mysql/wizard.html:45 templates/psql/wizard.html:44
 msgid "Create a user"
 msgstr ""
 
-#: templates/mysql/wizard.html:47 templates/psql/wizard.html:47
+#: templates/mysql/wizard.html:48 templates/psql/wizard.html:47
 msgid "Database User"
 msgstr ""
 
-#: templates/mysql/wizard.html:174 templates/psql/wizard.html:174
+#: templates/mysql/wizard.html:175 templates/psql/wizard.html:174
 msgid "Assign user to database"
 msgstr ""
 
-#: templates/mysql/wizard.html:201 templates/psql/wizard.html:201
+#: templates/mysql/wizard.html:202 templates/psql/wizard.html:201
 msgid "Create DB, User, and Grant Privileges"
 msgstr ""
 
@@ -7407,10 +7432,6 @@ msgstr ""
 msgid ""
 "View and modify the PostgreSQL service configuration. Any changes will "
 "restart the service."
-msgstr ""
-
-#: templates/psql/databases.html:162
-msgid "System Database"
 msgstr ""
 
 #: templates/psql/databases.html:183

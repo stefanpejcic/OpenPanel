@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 23.03.2026
+# Last Modified: 24.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -104,12 +104,16 @@ delete_user_from_database() {
     sql+="DELETE FROM active_sessions WHERE user_id='$user_id'; "
 	sql+="DELETE FROM users WHERE username='$openpanel_username' OR username LIKE 'SUSPENDED_%_$openpanel_username';"
 	[ -n "$sql" ] && mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$sql"
-	# 3. delete domain files and reload Caddy
+	# 3. delete domain files, emails and reload Caddy
 	ionice -c3 rm -rf "/var/log/caddy/stats/$openpanel_username"            # goaccess reports
     if [ -n "$domain_urls" ]; then
+		local email_storage_path=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini | cut -d'=' -f2- | xargs)
 	    IFS=',' read -ra domains_array <<< "$domain_urls"
         paths_to_delete=()
         for domain in "${domains_array[@]}"; do
+		    if [[ "$email_storage_path" == /* && "$email_storage_path" != "user_dir" ]]; then
+		        paths_to_delete+=("$email_storage_path/$domain")
+		    fi
            paths_to_delete+=(
            "/etc/openpanel/caddy/domains/$domain.conf"
            "/etc/openpanel/caddy/suspended_domains/$domain.conf"
@@ -132,7 +136,7 @@ postfwd_setup(){
 delete_email_users() {
     openpanel_username="$1"
 	local email_file="/etc/openpanel/openpanel/core/users/$openpanel_username/emails.yml"
-    if [ -f "$email_file" ]; then
+    if [ -f "$email_file" ]; then	
 		mapfile -t emails < <(awk 'NF {print $2}' "$email_file")
         if [ "${#emails[@]}" -gt 0 ]; then
             opencli email-setup email del "${emails[@]}"

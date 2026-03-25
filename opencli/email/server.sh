@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 23.03.2026
+# Last Modified: 24.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -35,7 +35,6 @@ readonly APP="opencli email-server"                             # this script
 readonly GITHUB_REPO="https://github.com/stefanpejcic/openmail" # download files
 readonly DIR="/usr/local/mail/openmail"                         # compose.yaml directory
 readonly CONTAINER=openadmin_mailserver                         # DMS container name
-readonly DOCKER_COMPOSE="docker compose"                        # compose plugin
 DEBUG=false
 
 
@@ -67,8 +66,8 @@ required_cmd() {
 	done
 
 	# docker compose
-	$DOCKER_COMPOSE version &>/dev/null || {
-		echo "Error: '$DOCKER_COMPOSE' not available."
+	docker compose version &>/dev/null || {
+		echo "Error: 'docker compose' not available."
 		echo
 		exit 1
 	} >&2
@@ -232,7 +231,7 @@ set_ssl_for_mailserver() {
 	fi
 
     echo "Restarting mailserver and webmail to apply new configuration"
-    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down && docker --context default compose up -d mailserver roundcube" </dev/null >nohup.out 2>nohup.err &
+    nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down ; docker --context default compose up -d mailserver roundcube" </dev/null >nohup.out 2>nohup.err &
  }
 
 

@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 23.03.2026
+# Last Modified: 24.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1430,6 +1430,7 @@ collect_stats() {
 create_volume() {
 	local vol_path="/home/$username/docker-data/volumes/${username}_html_data/_data/"
 	mkdir -p "$vol_path" && chown $username:$username "$vol_path" && chmod -R g+w "$vol_path"
+	ln -sfn "$vol_path" "/home/$context/files" >/dev/null 2>&1
 }
 
 send_sentinel_notification() {
