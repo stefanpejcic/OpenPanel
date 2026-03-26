@@ -6,7 +6,7 @@ On installation, the `opencli.sh` script is added to the system path, and `comma
 
 All scripts from `/usr/local/opencli/` can be accessed using the `opencli` command by replacing `/` with `-`.  
 
-For example: running `opencli user-add` executes `/usr/bin/opencli` and passes `user-add` as an argument, triggering the execution of the `user/add` script from the scripts directory.
+For example: to run user/add.sh script you would type: `opencli user-add`.
 
 ## Updates
 

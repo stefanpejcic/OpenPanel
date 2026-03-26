@@ -1,5 +1,5 @@
 # cPanel 2 OpenPanel account import
-Free OpenPanel module to import cPanel backup in OpenPanel
+Import cPanel full account backup to OpenPanel
 
 Maintained by [CodeWithJuber](https://github.com/CodeWithJuber)
 
@@ -51,21 +51,12 @@ bash cPanel-to-OpenPanel/cp-import.sh --backup-location=/path/to/cpanel_backup.f
 - `--plan-name=`      Name of the hosting plan in OpenPanel
 - `--dry-run`         extract archive and display data without actually importing account
 
-## Important Notes
-
-- This script should be run on the OpenPanel server where you want to import the cPanel backup.
-- The script requires internet access to install dependencies if they are not already present.
-- Large backups may take a considerable amount of time to process.
-- Some manual configuration may be required after the migration, depending on the complexity of the cPanel account.
-
 ## Troubleshooting
 
 If you encounter any issues:
 
 1. Check the script's output for error messages.
-2. Verify that all prerequisites are met.
-3. Ensure you have sufficient disk space and system resources.
-4. Check the OpenPanel logs for any additional error information.
+2. If it is a bug woth the sceipt not properly handling some cpanel files, please open an issue.
 
 ## Contributing
 

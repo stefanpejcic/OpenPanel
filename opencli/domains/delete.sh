@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 24.03.2026
+# Last Modified: 25.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -366,7 +366,7 @@ delete_emails() {
 		log "Deleting @$domain_name email accounts"
 		mapfile -t emails < <(awk '{print $2}' "$email_file")
         if [ "${#emails[@]}" -gt 0 ]; then
-            opencli email-setup email del "${emails[@]}"
+            opencli email-setup email del -y "${emails[@]}"
         fi
     fi
 }

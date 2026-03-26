@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 24.03.2026
+# Last Modified: 25.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -139,9 +139,8 @@ delete_email_users() {
     if [ -f "$email_file" ]; then	
 		mapfile -t emails < <(awk 'NF {print $2}' "$email_file")
         if [ "${#emails[@]}" -gt 0 ]; then
-            opencli email-setup email del "${emails[@]}"
+            opencli email-setup email del -y "${emails[@]}"
         fi
-    fi
 }
 
 delete_ftp_users() {
