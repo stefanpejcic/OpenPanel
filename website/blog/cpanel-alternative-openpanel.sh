@@ -139,7 +139,7 @@ For a 5–10 account operation, this is realistically a few hours of work, not a
 
 A few things worth knowing before you start: DNS propagation takes time regardless of which panel you're on, so plan the cutover during low-traffic windows. And if any accounts have custom cPanel-specific configurations (EasyApache-compiled modules, custom WHM hooks), those will need manual review — the backup import handles data, not bespoke server config.
 
-The OpenCLI can also automate plan and account creation at scale, which is useful if you're migrating dozens of accounts and want to script the provisioning step rather than clicking through the UI for each one.
+The [OpenCLI](https://dev.openpanel.com/cli/) can also automate plan and account creation at scale, which is useful if you're migrating dozens of accounts and want to script the provisioning step rather than clicking through the UI for each one.
 
 ---
 
@@ -171,8 +171,6 @@ The Community Edition is free to install and covers up to 3 users and 50 website
 ```bash
 bash <(curl -sSL https://openpanel.org)
 ```
-
-That command runs on any fresh Ubuntu 22.04 or 24.04 VPS. The admin panel will be up in under 10 minutes.
 
 If you want to test the full feature set — including cPanel backup import and WHMCS provisioning — the Enterprise Edition is available with no per-account fees and no long-term commitment required.
 
