@@ -1447,13 +1447,11 @@ support_message() {
 
 
 panel_customize(){
-    if [ "$SCREENSHOTS_API_URL" == "local" ]; then
-        sed -i 's#screenshots=.*#screenshots=''#' "${CONFIG_FILE}" # must use '#' as delimiter
-		# playwright is now installed on panel startup if screenshots=local
-    else
+	# playwright is installed on container startup if screenshots=local
+	if [ "$SCREENSHOTS_API_URL" != "local" ]; then
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-        sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}" # must use '#' as delimiter
     fi
+	sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}"
 }
 
 
