@@ -43,7 +43,7 @@ SEND_EMAIL_AFTER_INSTALL=false                                           # send 
 SET_PREMIUM=false                                                        # added in 0.2.1
 SET_ADMIN_USERNAME=false                                                 # random
 SET_ADMIN_PASSWORD=false                                                 # random
-SCREENSHOTS_API_URL="http://screenshots-$(printf 'v2\nv3\nv4\nv6' | shuf -n1).openpanel.com/api/screenshot" # spread the load
+SCREENSHOTS_API_URL="local"
 readonly DEFAULT_PANEL_VERSION="1.7.49"                                  # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"                                # https://github.com/docker/compose/releases
 DEV_MODE=false
@@ -1448,6 +1448,7 @@ support_message() {
 
 panel_customize(){
 	# playwright is installed on container startup if screenshots=local
+	# SCREENSHOTS_API_URL="http://screenshots-$(printf 'v2\nv3\nv4\nv6' | shuf -n1).openpanel.com/api/screenshot" # spread the load
 	if [ "$SCREENSHOTS_API_URL" != "local" ]; then
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
     fi
