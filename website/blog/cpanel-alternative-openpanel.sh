@@ -128,10 +128,10 @@ If you've generated a full cPanel backup (the `.tar.gz` files produced by cPanel
 
 The overall process looks like this:
 
-1. **Install OpenPanel** on a new VPS — the install script takes under 10 minutes on Ubuntu 22.04 or 24.04
+1. **Install OpenPanel** on a new VPS: https://openpanel.com/install/
 2. **Generate full cPanel backups** for each account you're moving (cPanel → Backup Wizard → Full Backup)
 3. **Create matching hosting plans** with equivalent resource limits
-4. **Import the backups** directly into OpenPanel via the admin interface or CLI — no unpacking required
+4. **Import the backups** directly into OpenPanel via the admin interface or CLI: https://openpanel.com/docs/articles/transfers/import-cpanel-backup-to-openpanel/
 5. **Update nameservers or DNS A records** once you've verified each site loads correctly
 6. **Cancel the old server** after a 24–48 hour overlap period to catch anything missed
 
