@@ -28,7 +28,5 @@ else
     echo "Volume added."
 fi
 
-cd /root
-docker compose down "$SERVICE"
-docker compose up -d "$SERVICE"
+cd /root && docker compose down "$SERVICE" && docker compose up -d "$SERVICE"
 
