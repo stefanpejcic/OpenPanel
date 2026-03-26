@@ -130,8 +130,8 @@ The overall process looks like this:
 
 1. **Install OpenPanel** on a new VPS — the install script takes under 10 minutes on Ubuntu 22.04 or 24.04
 2. **Generate full cPanel backups** for each account you're moving (cPanel → Backup Wizard → Full Backup)
-3. **Import the backups** directly into OpenPanel via the admin interface or CLI — no unpacking required
-4. **Create matching hosting plans** with equivalent resource limits
+3. **Create matching hosting plans** with equivalent resource limits
+4. **Import the backups** directly into OpenPanel via the admin interface or CLI — no unpacking required
 5. **Update nameservers or DNS A records** once you've verified each site loads correctly
 6. **Cancel the old server** after a 24–48 hour overlap period to catch anything missed
 
@@ -139,7 +139,7 @@ For a 5–10 account operation, this is realistically a few hours of work, not a
 
 A few things worth knowing before you start: DNS propagation takes time regardless of which panel you're on, so plan the cutover during low-traffic windows. And if any accounts have custom cPanel-specific configurations (EasyApache-compiled modules, custom WHM hooks), those will need manual review — the backup import handles data, not bespoke server config.
 
-The OpenPanel API can also automate plan and account creation at scale, which is useful if you're migrating dozens of accounts and want to script the provisioning step rather than clicking through the UI for each one.
+The OpenCLI can also automate plan and account creation at scale, which is useful if you're migrating dozens of accounts and want to script the provisioning step rather than clicking through the UI for each one.
 
 ---
 
@@ -175,13 +175,6 @@ bash <(curl -sSL https://openpanel.org)
 That command runs on any fresh Ubuntu 22.04 or 24.04 VPS. The admin panel will be up in under 10 minutes.
 
 If you want to test the full feature set — including cPanel backup import and WHMCS provisioning — the Enterprise Edition is available with no per-account fees and no long-term commitment required.
-
----
-
-**Related:**
-- [How to Host 10 Client Sites on a $5/mo VPS with OpenPanel](#)
-- [OpenPanel vs Plesk: An Honest Comparison in 2026](#)
-- [Setting Up WordPress on OpenPanel (Full Guide)](#)
 
 ---
 
