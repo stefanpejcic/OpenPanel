@@ -12,6 +12,7 @@ The Web Terminal is available in **OpenAdmin**, allowing Super Administrators to
 4. The terminal interface will load, and you can begin typing commands immediately.
 
 :::info 
-Starting with OpenPanel 1.7.1, the web terminal is available only to the Super Admin. Other Admin users will no longer have access.
-To completely disable the Web Terminal, including for Super Admin, see [How to disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
+The web terminal is available only to the Super Admin. Other Admin users will see a 403 error on this page.
+
+To disable web terminal for Super Admin also, refer to [How to disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
 :::
