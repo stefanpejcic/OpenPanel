@@ -60,6 +60,12 @@ If email address is set, daily usage report will be sent to the address, schedul
 
 ---
 
+## Webhook
+
+Send notifications to a webhook URL (discord or any other).
+
+---
+
 ## Services
 
 Receive notifications when services are down or unresponsive. Services are checked every 5 minutes.
@@ -127,6 +133,12 @@ Get notified whenever an action occurs in the admin or user panels.
 - Domain suspended/unsuspended
 - SSL type changed
 - HSTS enabled/disabled
+
+---
+
+## SSH Allowlist
+
+Specify IP addresses (or CIDRs) that will be exempt from SSH login checks.
 
 ---
 
