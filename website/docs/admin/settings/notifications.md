@@ -86,15 +86,47 @@ Get alerts when resource usage exceeds thresholds (checked every 5 minutes):
 
 ---
 
-## Actions
+## Server actions
 
-Receive notifications when specific actions occur:
+Receive notifications when specific server-level actions are detected:
 
 * Server rebooted
 * Website under attack
 * User reaches plan limit
 * OpenAdmin accessed from a new IP address
 * New OpenPanel update available
+
+---
+
+## User Actions
+
+Get notified whenever an action occurs in the admin or user panels.
+
+- OpenAdmin enabled/disabled
+- API access enabled/disabled
+- Admin account created
+- Reseller account created
+- Admin password changed
+- Admin/Reseller renamed
+- Admin/Reseller suspended
+- Admin/Reseller unsuspended
+- WAF enabled/disabled for a domain
+- WAF enabled/disabled on the server
+- User added
+- User deleted
+- User suspended/unsuspended
+- User email changed
+- User IP changed
+- User password changed
+- User renamed
+- FTP account created
+- FTP account deleted
+- FTP account password change
+- Domain added
+- Domain deleted
+- Domain suspended/unsuspended
+- SSL type changed
+- HSTS enabled/disabled
 
 ---
 
