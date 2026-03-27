@@ -13,6 +13,7 @@ import multiprocessing
 import os
 import re
 import yaml  # pip install pyyaml
+import threading
 from pathlib import Path
 import subprocess
 import logging
@@ -47,16 +48,25 @@ if DEV_MODE:
         def __init__(self, logger, log_level=logging.INFO):
             self.logger = logger
             self.log_level = log_level
-
+    
         def write(self, buf):
+            if not buf:
+                return
             for line in buf.rstrip().splitlines():
                 if " - " in line:
                     word, msg = line.split(" - ", 1)
                     line = f"[{word}] {msg}"
                 self.logger.log(self.log_level, line)
-
+    
         def flush(self):
             pass
+    
+        def isatty(self):
+            return False
+    
+        @property
+        def closed(self):
+            return False
 
     sys.stdout = StreamToLogger(logger, logging.INFO)
     sys.stderr = StreamToLogger(logger, logging.ERROR)
@@ -72,21 +82,29 @@ else:
 # If screenshots=local then install playwright
 LOCAL_SCREENSHOTS = is_config_enabled("screenshots=local")
 
+def install_playwright():
+    print("Screenshots API is set to local, installing Playwright and dependencies..")
+    try:
+        subprocess.run(["apt-get", "update"], check=True)
+
+        dependencies = [
+            "libglib2.0-0", "libnss3", "libnspr4", "libdbus-1-3",
+            "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdrm2",
+            "libatspi2.0-0", "libx11-6", "libxcomposite1", "libxdamage1",
+            "libxext6", "libxfixes3", "libxrandr2", "libgbm1", "libxcb1",
+            "libxkbcommon0", "libpango-1.0-0", "libcairo2", "libasound2",
+            "fonts-dejavu-core", "fonts-unifont"
+        ]
+        subprocess.run(["apt-get", "install", "-y"] + dependencies, check=True)
+        subprocess.run(["playwright", "install"], check=True)
+        print("Playwright installation finished.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error installing Playwright: {e}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+
 if LOCAL_SCREENSHOTS:
-    print("Screenshots API is set to local, installing Playwright and dependencies, please wait..")
-    subprocess.run(["apt-get", "update"], check=True)
-
-    dependencies = [
-        "libglib2.0-0", "libnss3", "libnspr4", "libdbus-1-3",
-        "libatk1.0-0", "libatk-bridge2.0-0", "libcups2", "libdrm2",
-        "libatspi2.0-0", "libx11-6", "libxcomposite1", "libxdamage1",
-        "libxext6", "libxfixes3", "libxrandr2", "libgbm1", "libxcb1",
-        "libxkbcommon0", "libpango-1.0-0", "libcairo2", "libasound2",
-        "fonts-dejavu-core", "fonts-unifont"
-    ]
-    subprocess.run(["apt-get", "install", "-y"] + dependencies, check=True)
-
-    subprocess.run(["playwright", "install"], check=True)
+    threading.Thread(target=install_playwright, daemon=True).start()
 
 # ====================================================================== #
 # From version 1.6.3, we allow executing a custom script on startup

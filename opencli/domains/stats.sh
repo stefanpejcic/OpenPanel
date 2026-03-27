@@ -8,7 +8,7 @@
 #        opencli domains-stats <USERNAME> --debug
 # Author: Radovan Jecmenica
 # Created: 14.12.2023
-# Last Modified: 25.03.2026
+# Last Modified: 26.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

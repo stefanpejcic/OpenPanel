@@ -5,7 +5,7 @@
 # Usage: opencli version 
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 25.03.2026
+# Last Modified: 26.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,19 +28,18 @@
 # THE SOFTWARE.
 ################################################################################
 
+# 1. for hostOS read from .env file
 if [ -f "/root/.env" ]; then
-    image_version=$(grep "^VERSION=" /root/.env | sed -E 's/^VERSION="([^"]+)"$/\1/' | xargs)
-    if [ -n "$image_version" ]; then        # CHECK ENV FILE FIRST
-        echo "$image_version"
-    else                                    # CHECK IMAGE AS A FALLBACK
-        LOCAL_TAG=$(docker --context=default images --format "{{.Tag}}" "openpanel/openpanel-ui" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)            
-        if [ -n "$LOCAL_TAG" ]; then
-            echo "$LOCAL_TAG"
-        else
-            echo '{"error": "OpenPanel UI docker image not detected."}' >&2
-            exit 1
-        fi
-    fi
+    version=$(grep "^VERSION=" /root/.env | sed -E 's/^VERSION="([^"]+)"$/\1/' | xargs)
+fi
+
+# from openpanel container read the version
+if [ -z "$version" ]; then
+    version=$(docker --context=default images --format "{{.Tag}}" "openpanel/openpanel-ui" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
+fi
+
+if [ -n "$version" ]; then
+    echo "$version"
 else
     echo '{"error": "Docker image or .env files are missing."}' >&2
     exit 1
