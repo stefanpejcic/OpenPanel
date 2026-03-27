@@ -31,7 +31,7 @@ To view all available shortcuts: `Ctrl` + `K`
 
 ## Edit shortcuts
 
-From OpenPanel 1.7.41 Administrators can edit the shortcuts and customize them. To edit shortcuts, edit file: `/etc/openpanel/openadmin/config/shortcuts.json`.
+Administrators can change thr shortcuts by editing the file: `/etc/openpanel/openadmin/config/shortcuts.json`.
 
 Default content:
 
@@ -61,4 +61,4 @@ After editing the file, restart OpenAdmin: `service admin restart`.
 
 ## Disable shortcuts
 
-To completelly disable the shortcuts, delete the file: `/etc/openpanel/openadmin/config/shortcuts.json`
+To completelly disable the shortcuts on OpenAdmin, delete the file: `/etc/openpanel/openadmin/config/shortcuts.json`
