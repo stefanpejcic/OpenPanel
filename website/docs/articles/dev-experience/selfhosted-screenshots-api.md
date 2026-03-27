@@ -1,12 +1,15 @@
 # Screenshots API
 
-[OpenPanel SiteManager](/docs/panel/applications/) displays a website screenshot for each website. These screenshots are generated using our hosted API.
+[OpenPanel SiteManager](/docs/panel/applications/) displays a website screenshot for each website. These screenshots are by default locally generated and stored on your server.
 
-## Deploy your API
+## Remote API
 
 When installing OpenPanel on your server, you can use the `--screenshots=<url>` flag to use a custom api instead.
 
-This is recommended for shared servers with a few TBs of storage and hundreds of websites.
+Later, you can update the setting using: `opencli config update screenshots <url_of_your_remote_service>`
+
+
+This is recommended for small servers, as the local screenshots api will use additional 1GB of storage.
 
 To setup your own screenshots API:
 
