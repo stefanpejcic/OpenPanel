@@ -5,7 +5,7 @@
 # Usage: opencli email-ratelimit
 # Author: Stefan Pejcic
 # Created: 03.12.2025
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,16 +30,18 @@
 
 OUTPUT="/usr/local/mail/openmail/postfwd/postfwd.cf"
 MYSQL_CMD="mysql -N -s"
+SKIP_RELOAD=false
 
 usage() {
     echo "Usage: opencli email-ratelimit [--username=<user>] [--domain=<domain>] [--all-users] [--delete-user=<user>] [--delete-domain=<domain>]"
     echo ""
-    echo "  (no args)               Show current rules file"
-    echo "  --username=<user>       Remove all rules for user, re-fetch their domains, re-add"
-    echo "  --domain=<domain>       Add domain rule if missing, or update if exists"
-    echo "  --all-users             Wipe file and regenerate rules for all users"
-    echo "  --delete-user=<user>    Remove all rules for the given user"
+    echo "  (no args)                Show current rules file"
+    echo "  --username=<user>        Remove all rules for user, re-fetch their domains, re-add"
+    echo "  --domain=<domain>        Add domain rule if missing, or update if exists"
+    echo "  --all-users              Wipe file and regenerate rules for all users"
+    echo "  --delete-user=<user>     Remove all rules for the given user"
     echo "  --delete-domain=<domain> Remove the rule for the given domain"
+    echo "  --skip-reload            Optional flag to NOT reload postfix (used on plan edit)"
     exit 1
 }
 
@@ -256,6 +258,7 @@ for arg in "$@"; do
         --domain=*)         OPTMODE="domain";        OPTVAL="${arg#--domain=}" ;;
         --delete-user=*)    OPTMODE="delete-user";   OPTVAL="${arg#--delete-user=}" ;;
         --delete-domain=*)  OPTMODE="delete-domain"; OPTVAL="${arg#--delete-domain=}" ;;
+        --skip-reload)      SKIP_RELOAD=true" ;;
         --help|-h)          usage ;;
         *) echo "Unknown argument: $arg"; usage ;;
     esac
@@ -282,5 +285,7 @@ case "$OPTMODE" in
         ;;
 esac
 
-# reload conf, keep counters!
-nohup docker --context=default kill --signal=HUP postfwd & disown
+if [ "$SKIP_RELOAD" = false ]; then
+    # reload conf, keep counters!
+    nohup docker --context=default kill --signal=HUP postfwd & disown
+fi

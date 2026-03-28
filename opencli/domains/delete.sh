@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -165,7 +165,7 @@ EOF
 
 get_user_info() {
     local user="$1"
-    local query="SELECT id, server FROM users WHERE username = '$user}';"
+    local query="SELECT id, server FROM users WHERE username = '$user';"
     user_info=$(mysql -se "$query")
     user_id=$(echo "$user_info" | awk '{print $1}')
     context=$(echo "$user_info" | awk '{print $2}')
@@ -436,5 +436,5 @@ delete_domain() {
 # ======================================================================
 # Main
 pre_flight_checks
-get_user_info                                # get context and user id
+get_user_info "$user"                               # get context and user id
 delete_domain "$user" "$domain_name"

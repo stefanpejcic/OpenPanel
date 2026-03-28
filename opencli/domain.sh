@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -245,6 +245,15 @@ configure_mailserver() {
 
 # Restart services
 restart_services() {
+
+    if docker --context default compose ps -q caddy >/dev/null 2>&1; then
+        nohup docker --context default restart caddy >/dev/null 2>&1 &
+        disown
+    else
+        nohup bash -c "cd /root && docker --context default compose up -d caddy" >/dev/null 2>&1 &
+        disown
+    fi
+
     local no_restart=false
     
     # Check for --no-restart flag
@@ -265,11 +274,7 @@ restart_services() {
     cd /root || return 1
     
     # Restart OpenPanel
-    docker --context default compose restart openpanel >/dev/null 2>&1
-    
-    # Restart Caddy
-    docker --context default compose down caddy >/dev/null 2>&1
-    docker --context default compose up -d caddy >/dev/null 2>&1
+    docker --context default restart openpanel >/dev/null 2>&1	
 }
 
 # Display success message

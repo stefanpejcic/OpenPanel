@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -85,6 +85,25 @@ IFS=$'\t' read -r cpu ram disk_limit inodes_limit max_hourly_email bandwidth < <
 numNdisk=$(echo "$disk_limit" | awk '{print $1}')
 storage_in_blocks=$((numNdisk * 1024000))
 
+limit_text() {
+    local value=$1
+    local unit=$2
+    local description=$3
+
+    if [[ "$value" == "0" ]]; then
+        echo "$description limit removed (unlimited)."
+    else
+        echo "$description limit changed to ${value}${unit}."
+    fi
+}
+
+# Usage
+ram_text=$(limit_text "${ram//[!0-9]/}" "GB" "total")
+cpu_text=$(limit_text "$cpu" " core(s)" "total")
+disk_text=$(limit_text "$storage_in_blocks" " blocks" "total")
+inodes_text=$(limit_text "$inodes_limit" " inodes" "total")
+hourly_email_text=$(limit_text "$max_hourly_email" "" "max hourly emails for all domains")
+
 # 2. fetch all users if --all
 if $bulk; then
     mapfile -t usernames < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e \
@@ -111,26 +130,32 @@ for username in "${usernames[@]}"; do
     # RAM
     if ! $partial || $doram; then
         sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${ram}\"/" "/home/$context/.env"
-        echo "- Memory: [OK] total limit changed to ${ram//[!0-9]/}GB."
+        echo "- Memory:     [OK]   $ram_text"
     fi
     
     # CPU
     if ! $partial || $docpu; then
         sed -i "s/^TOTAL_CPU=\"[^\"]*\"/TOTAL_CPU=\"${cpu}\"/" "/home/$context/.env"
-        echo "- CPU: [OK] limit set to ${cpu}"
+        echo "- CPU:        [OK]   $cpu_text"
     fi
 
     # Disk and Inodes
     if ! $partial || $dodsk; then
         setquota -u "$context" "$storage_in_blocks" "$storage_in_blocks" "$inodes_limit" "$inodes_limit" /
-        echo "- Storage: [OK] limit set to ${storage_in_blocks} blocks and $inodes_limit inodes"
+        echo "- Disk        [OK]   $disk_text"
+        echo "- Inodes:     [OK]   $inodes_text"
+
     fi
 
     # Emails
     if ! $partial || $doemail; then
-        opencli email-server ratelimit --username=$username
+        if [[ $counter -lt $totalc ]]; then
+            opencli email-ratelimit --username="$username" --skip-reload >/dev/null 2>&1
+        else
+            opencli email-ratelimit --username="$username" >/dev/null 2>&1
+        fi
+        echo "- Emails:     [OK]   $hourly_email_text"
         # TODO: support optional update of max_email_quota for all accounts
-        echo "- Emails: [OK] Max hourly emails limit set to $max_hourly_email"
     fi
 
     # Network (bandwidth)

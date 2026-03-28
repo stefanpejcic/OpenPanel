@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -247,12 +247,14 @@ install_mailserver(){
       cd /usr/local/mail/ && git clone $GITHUB_REPO
       set_ssl_for_mailserver
       mkdir -p /etc/openpanel/email/snappymail
+	  ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
       cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube
   else
       mkdir -p /usr/local/mail/  >/dev/null 2>&1
       cd /usr/local/mail/ && git clone $GITHUB_REPO >/dev/null 2>&1
       set_ssl_for_mailserver
       mkdir -p /etc/openpanel/email/snappymail >/dev/null 2>&1
+	  ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
       cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1
   fi
 
@@ -330,60 +332,59 @@ fi
 process_all_domains_and_start(){
 	CONFIG_DIR="/etc/openpanel/caddy/domains"
 	COMPOSE_FILE="/usr/local/mail/openmail/compose.yml"
-	new_volumes="    volumes:\n      - ./docker-data/dms/mail-state/:/var/mail-state/\n      - ./var/log/mail/:/var/log/mail/\n      - ./docker-data/dms/config/:/tmp/docker-mailserver/\n      - /etc/localtime:/etc/localtime:ro\n"
+	new_volumes="    volumes:\n      - ./docker-data/dms/mail-state/:/var/mail-state/\n      - ./var/log/mail/:/var/log/mail/\n      - ./docker-data/dms/config/:/tmp/docker-mailserver/\n      - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro\n"
 
 	cp "$COMPOSE_FILE" "$COMPOSE_FILE.bak"
  
 	STORE_EMAILS_IN=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini | cut -d'=' -f2- | xargs)
 
-	if [[ "$STORE_EMAILS_IN" == /* ]]; then
-		new_volumes+="      - $STORE_EMAILS_IN:/var/mail/\n"
-		if [ "$DEBUG" = true ]; then
-		  echo ""
-		  echo "----------------- STORAGE SETTINGS ------------------"
-		  echo ""
-		  echo "Using a custom storage location for all domains:"
-		  echo ""
-		  echo "- MAIL STORAGE LOCATION: $STORE_EMAILS_IN"
-		  echo "- MAIL SETTINGS FILE:    $COMPOSE_FILE"
-		fi
-	#elif [[ "$STORE_EMAILS_IN" == "user_dir" ]]; then
-	else # TODO: this is a fallback for <1.7.3
-		if [ "$DEBUG" = true ]; then
-		  echo ""
-		  echo "----------------- MOUNT USERS HOME DIRECTORIES ------------------"
-		  echo ""
-		  echo "Re-mounting mail directories for all domains:"
-		  echo ""
-		  echo "- DOMAINS DIRECTORY:     $CONFIG_DIR" 
-		  echo "- MAIL SETTINGS FILE:    $COMPOSE_FILE"
-		  printf "%b" "- DEFAULT VOLUMES:\n$new_volumes"
-		fi
-	
-		for file in "$CONFIG_DIR"/*.conf; do
-			echo "Processing file: $file"
-			if [ ! -L "$file" ]; then
-				BASENAME=$(basename "$file" .conf)
-				whoowns_output=$(opencli domains-whoowns "$BASENAME")
-				owner=$(echo "$whoowns_output" | awk -F "Owner of '$BASENAME': " '{print $2}')
-				if [ -n "$owner" ]; then
-					echo "Domain $BASENAME skipped. No user."
-				else
-					USERNAME=$owner
-					DOMAIN=$BASENAME
-			 
-					DOMAIN_DIR="/home/$USERNAME/mail/$DOMAIN/"
-					new_volumes+="      - $DOMAIN_DIR:/var/mail/$DOMAIN/\n"	
-					echo "Mount point added: - $DOMAIN_DIR:/var/mail/$DOMAIN/"
-				fi
+	if [[ "$STORE_EMAILS_IN" != '/var/mail/' ]]; then
+		if [[ "$STORE_EMAILS_IN" == /* ]]; then
+			new_volumes+="      - $STORE_EMAILS_IN:/var/mail/\n"
+			if [ "$DEBUG" = true ]; then
+			  echo ""
+			  echo "----------------- STORAGE SETTINGS ------------------"
+			  echo ""
+			  echo "Using a custom storage location for all domains:"
+			  echo ""
+			  echo "- MAIL STORAGE LOCATION: $STORE_EMAILS_IN"
+			  echo "- MAIL SETTINGS FILE:    $COMPOSE_FILE"
 			fi
-		done
-		if [ $? -ne 0 ]; then
-		    echo "Error encountered while processing $file"
+		#elif [[ "$STORE_EMAILS_IN" == "user_dir" ]]; then
+		else # TODO: this is a fallback for <1.7.3
+			if [ "$DEBUG" = true ]; then
+			  echo ""
+			  echo "----------------- MOUNT USERS HOME DIRECTORIES ------------------"
+			  echo ""
+			  echo "Re-mounting mail directories for all domains:"
+			  echo ""
+			  echo "- DOMAINS DIRECTORY:     $CONFIG_DIR" 
+			  echo "- MAIL SETTINGS FILE:    $COMPOSE_FILE"
+			  printf "%b" "- DEFAULT VOLUMES:\n$new_volumes"
+			fi
+		
+			for file in "$CONFIG_DIR"/*.conf; do
+				echo "Processing file: $file"
+				if [ ! -L "$file" ]; then
+					BASENAME=$(basename "$file" .conf)
+					whoowns_output=$(opencli domains-whoowns "$BASENAME")
+					owner=$(echo "$whoowns_output" | awk -F "Owner of '$BASENAME': " '{print $2}')
+					if [ -n "$owner" ]; then
+						echo "Domain $BASENAME skipped. No user."
+					else
+						USERNAME=$owner
+						DOMAIN=$BASENAME
+				 
+						DOMAIN_DIR="/home/$USERNAME/mail/$DOMAIN/"
+						new_volumes+="      - $DOMAIN_DIR:/var/mail/$DOMAIN/\n"	
+						echo "Mount point added: - $DOMAIN_DIR:/var/mail/$DOMAIN/"
+					fi
+				fi
+			done
+			if [ $? -ne 0 ]; then
+			    echo "Error encountered while processing $file"
+			fi
 		fi
-	#else
-	#	echo "WARNING: $STORE_EMAILS_IN is invalid."
-	fi
 
 	if [ "$DEBUG" = true ]; then
 	  echo ""
@@ -394,9 +395,7 @@ process_all_domains_and_start(){
 	  echo "----------------- UPDATE COMPOSE ------------------"
 	  echo ""
 	fi
-  
-  
-  
+
   awk -v new_volumes="$new_volumes" '
   BEGIN { in_mailserver=0; }
   /^  mailserver:/ { in_mailserver=1; print; next; }
@@ -423,21 +422,13 @@ process_all_domains_and_start(){
       }
   }
   ' "$COMPOSE_FILE.bak" > "$COMPOSE_FILE"
+		
+	#else
+	#	echo "WARNING: $STORE_EMAILS_IN is invalid."
+	fi
   
-  
-  if [ "$DEBUG" = true ]; then
-  	echo "compose.yml has been updated with the volume mountpoints."
-      echo ""
-      echo "----------------- RESTART MAILSERVER ------------------"
-      echo ""
-  	cd $DIR && docker --context default compose  up -d mailserver
-      echo ""
-  else
-  	cd $DIR && docker --context default compose up -d mailserver >/dev/null 2>&1
-  	echo "MailServer started successfully."
-  fi
-  
-
+cd $DIR && docker --context default compose up -d mailserver >/dev/null 2>&1
+echo "MailServer started successfully."
 }
 
 # STOP

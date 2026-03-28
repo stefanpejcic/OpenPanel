@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -33,6 +33,7 @@
 # Configuration
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 readonly WHMCS_URL="https://my.openpanel.com/modules/servers/licensing/verify.php"
+# https://api.openpanel.com/enterprise/index.php
 readonly COMPOSE_FILE="/root/docker-compose.yml"
 readonly SERVICE="openpanel"
 
@@ -241,7 +242,7 @@ save_license_to_file() {
         output_message "License key ${new_key} added." "$GREEN"
         toggle_emails_module > /dev/null
         pagespeed_api_key_control > /dev/null
-        manage_compose_volumes "disable"
+        manage_compose_volumes "enable"
         restart_services
     else
         output_message "License is valid, but failed to save the license key ${new_key}" "$RED"
@@ -353,6 +354,7 @@ delete_license() {
     opencli config update key "" > /dev/null
     toggle_emails_module "disable" > /dev/null
     pagespeed_api_key_control "remove" > /dev/null
+    manage_compose_volumes
     service admin restart
 }
 

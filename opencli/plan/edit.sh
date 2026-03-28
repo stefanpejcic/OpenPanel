@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="Some Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=100
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -82,6 +82,14 @@ flush_redis_cache() {
 
 check_if_we_need_to_edit_docker_containers() {
 
+    if [ "$inodes_limit" == "$old_inodes_limit" ] && [ "$disk_limit" == "$old_disk_limit" ]; then
+        if [ "$DEBUG" = true ]; then
+            echo "DEBUG: Disk & Inodes limits are not changed."
+        fi
+    else
+        flags+=( "--dsk" )
+    fi
+
     if [ "$old_cpu" == "$cpu" ] && [ "$old_ram" == "$ram" ]; then
         if [ "$DEBUG" = true ]; then
             echo "DEBUG: CPU & RAM limits are not changed."
@@ -119,8 +127,7 @@ check_if_we_need_to_edit_docker_containers() {
             echo "DEBUG: max_hourly_email limit is changed, applying new limits for domains."
         fi
         flags+=( "--email" )
-    fi
-    
+    fi    
 }
 
 

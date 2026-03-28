@@ -443,7 +443,7 @@ restore_psql() {
 
         # STEP 2: Wait for PostgreSQL to be ready (max 300 seconds)
 		local max_wait=300
-        log "Waiting for PostgreSQL service to start... (max {$max_wait}s)"		
+        log "Waiting for PostgreSQL service to start... (max ${max_wait}s)"
         waited=0
 		while ! docker --context="$cpanel_username" exec postgres psql -U postgres -d "$postgres" -c "SELECT 1;" >/dev/null 2>&1; do
             sleep 2
@@ -560,7 +560,7 @@ restore_mysql() {
 
         # STEP 4: Wait for MySQL to be ready (max 300 seconds)
 		local max_wait=300
-        log "Waiting for MySQL service to start... (max {$max_wait}s)"
+        log "Waiting for MySQL service to start... (max ${max_wait}s)"
         waited=0
         while ! docker --context="$cpanel_username" exec "$mysql_type" $mysql_type -e "SELECT 1" >/dev/null 2>&1; do
             sleep 2
@@ -669,15 +669,16 @@ restore_dns_zones() {
     if [ -d "$real_backup_files_path/dnszones" ]; then
         for zone_file in "$real_backup_files_path/dnszones"/*; do
             local zone_name=$(basename "${zone_file%.db}")
-
-            # Check if the destination zone file exists, if not, it was probably a subdomain that had no dns zone
-            if [ ! -f "/etc/bind/zones/${zone_name}.zone" ]; then
-                log "DNS zone file /etc/bind/zones/${zone_name}.zone does not exist. Skipping import for $zone_name."
-                continue
-			elif [[ "$zone_name" == *.cpanel.site ]]; then
+			
+			if [[ "$zone_name" == *.cpanel.site ]]; then
 			    log "Skipping cPanel temporary domain: $zone_name"
 			    continue
             fi
+
+            if [ ! -f "/etc/bind/zones/${zone_name}.zone" ]; then
+                log "DNS zone file /etc/bind/zones/${zone_name}.zone does not exist. Skipping import for $zone_name."
+                continue
+			fi
 
             old_ip=$(grep -oP 'IP=\K[0-9.]+' ${real_backup_files_path}/cp/$cpanel_username)
             if [ -z "$old_ip" ]; then

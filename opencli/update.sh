@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -244,6 +244,7 @@ update_check() {
     local remote_version
     
     local_version=$(get_local_version)
+    local_version="${local_version%-beta}" # strip '-beta'
     remote_version=$(get_remote_version)
     
     if [[ -z "$remote_version" ]]; then
@@ -613,6 +614,14 @@ run_update_immediately() {
 
 update_openpanel() {
     cd /root || return
+    if [[ "$BETA" == "true" ]]; then 
+        if [[ -f /root/.env ]]; then
+            local current_version=$(grep '^VERSION=' /root/.env | cut -d'"' -f2)
+            if [[ "$current_version" != *-beta ]]; then
+                sed -i "s/^VERSION=.*/VERSION=\"${current_version}-beta\"/" /root/.env
+            fi
+        fi        
+    fi
     docker --context=default compose up -d openpanel --force-recreate --pull always
 }
 
@@ -755,6 +764,9 @@ main() {
         --cli)
             update_opencli --no-log
             ;;
+        beta)
+            BETA=true
+            ;;            
         -h|--help)
             usage
             ;;

@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: 27.08.2024
 # Created: 18.08.2024
-# Last Modified: 26.03.2026
+# Last Modified: 27.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -203,10 +203,10 @@ get_domain_for_webmail() {
 
 
 
-cd /usr/local/mail/openmail || { 
-    echo "Error: Mailserver is not installed!" >&2
-    exit 1
-}
+#cd /usr/local/mail/openmail || { 
+#    echo "Error: Mailserver is not installed!" >&2
+#    exit 1
+#}
 
 
 get_domain_for_webmail    # display domain only

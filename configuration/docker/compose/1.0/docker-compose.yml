@@ -119,7 +119,7 @@ services:
     entrypoint: /bin/sh -c "cp /etc/varnish/default.vcl.template /etc/varnish/default.vcl && sed -i 's|VARNISH_BACKEND_HOST|'"$WEB_SERVER"'|g' /etc/varnish/default.vcl && /usr/local/bin/docker-varnish-entrypoint"
     command: [ "-n", "/var/lib/varnish" ]
     volumes:
-      - ./default.vcl:/etc/varnish/default.vcl.template:ro  
+      - ./default.vcl:/etc/varnish/default.vcl.template
     ports:
       - "${HTTP_PORT}"
     tmpfs:
@@ -237,7 +237,7 @@ services:
     restart: unless-stopped
     depends_on:
       - "${MYSQL_TYPE:-mysql}"
-    image: phpmyadmin #:5.2.2-fpm-alpine
+    image: phpmyadmin:${PMA_VERSION:-latest}
     volumes:
       - html_data:/html/  
       - ./pma.php:/var/www/html/pma.php
@@ -312,7 +312,7 @@ services:
 
   
   redis:
-    image: redis:${REDIS_VERSION:-7.4.2-alpine}
+    image: redis:${REDIS_VERSION:-8.6.2-alpine}
     container_name: redis
     restart: unless-stopped
     user: "${USER_ID:-0}"
@@ -336,7 +336,7 @@ services:
 
 
   elasticsearch:
-    image: elasticsearch:${ELASTICSEARH_VERSION:-7.16.1}
+    image: elasticsearch:${ELASTICSEARCH_VERSION:-9.3.2}
     container_name: elasticsearch
     restart: unless-stopped
     user: "${USER_ID:-0}"
@@ -387,7 +387,7 @@ services:
       - www
   
   memcached:
-    image: memcached:${MEMCACHED_VERSION:-7.4.2-alpine}
+    image: memcached:${MEMCACHED_VERSION:-1.6.41-alpine}
     container_name: memcached
     restart: unless-stopped
     user: "${USER_ID:-0}"
