@@ -1451,8 +1451,8 @@ panel_customize(){
 	# SCREENSHOTS_API_URL="http://screenshots-$(printf 'v2\nv3\nv4\nv6' | shuf -n1).openpanel.com/api/screenshot" # spread the load
 	if [ "$SCREENSHOTS_API_URL" != "local" ]; then
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
+		sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}"
     fi
-	sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}"
 }
 
 
