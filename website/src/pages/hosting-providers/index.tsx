@@ -25,15 +25,6 @@ const providers = [
     logo: "https://unlimited.rs/wp-content/themes/unlimited-RS/themeFunctions/media/unlimited.rs_logo.svg",
   },
   {
-    company: "Hostigan",
-    location: "EU",
-    services: "VPS, Dedicated",
-    managedSupport: "Yes",
-    freeEnterprise: "Yes",
-    link: "https://hostigan.com/openpanel/",
-    logo: "https://hostigan.com/wp-content/uploads/2025/04/s-768x135.png",
-  },
-  {
     company: "AltusHost",
     location: "EU",
     services: "VPS, Shared",
