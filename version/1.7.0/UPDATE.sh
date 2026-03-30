@@ -2,6 +2,7 @@
 echo 
 echo "Updating service file to show timestamp in docker log for openpanel service.."
 wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/service/service.config.py
+docker restart openpanel
 
 echo 
 echo "Disabling CoreRuleSet REQUEST-941-APPLICATION-ATTACK-XSS.conf"
@@ -14,11 +15,3 @@ wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercont
 echo 
 echo "Increasing activity_items_per_page value from 25 to 100"
 opencli config update activity_items_per_page 100
-
-echo
-echo "Setting local screenshots.."
-sed -i 's/^\(screenshots=\).*$/\1local/' /etc/openpanel/openpanel/conf/openpanel.config
-
-
-
-docker restart openpanel
