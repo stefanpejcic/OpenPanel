@@ -31,7 +31,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://altushost.com",
-    logo: "https://www.altushost.com/wp-content/themes/altushost/themeFunctions/media/altushost.svg",
+    logo: "https://altushost.com/wp-content/themes/AltusHost2024/images/logo-altushost.svg",
   }, 
   {
     company: "Clouding.io",
