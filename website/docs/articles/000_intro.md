@@ -73,6 +73,7 @@ sidebar_position: 1
 - [Configuring ImunifyAV](/docs/articles/security/setup-imunifyav/)
 - [Rate-limiting access to OpenPanel or OpenAdmin](/docs/articles/dev-experience/rate_limiting_for_openpanel/)
 - [Restrict access to OpenAdmin](/docs/articles/dev-experience/limit_access_to_openadmin/)
+- [Disable the Terminal feature in OpenPanel](/docs/articles/dev-experience/disable-openpanel-web-terminal/)
 - [Disable the Terminal feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-web-terminal/)
 - [Disable the Server Reboot feature in OpenAdmin](/docs/articles/dev-experience/disable-openadmin-server-reboot/)
 - [Limiting Connections with CSF](/docs/articles/security/how-to-limit-connections-csf)
