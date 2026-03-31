@@ -5,6 +5,7 @@ echo "Adding patch for FTP service"
 yes yes | opencli patch 896
 
 wget -O /etc/openpanel/openpanel/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openpanel/service/service.config.py
+wget -O /etc/openpanel/openadmin/service/service.config.py https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/service/service.config.py
 
 ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env
 
