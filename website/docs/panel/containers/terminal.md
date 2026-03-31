@@ -12,6 +12,8 @@ To access the Terminal:
 
 - The **Docker** module must be enabled **server-wide** by an Administrator.
 - Your account must have the **Docker** feature enabled.
+- [`/etc/openpanel/disable_openpanel_terminal_ui` file should not exist](/docs/articles/dev-experience/disable-openpanel-web-terminal/).
+
 
 ## Accessing the Terminal
 
