@@ -13,7 +13,8 @@ type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
     key: { value: "", description: "Set Enterprise license key." },
-    domain: { value: "", description: "Set the domain to be used for accessing panels." },
+    domain: { value: "", description: "Set the domain to be used for accessing OpenAdmin and OpenPanel." },
+    "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only." },
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
     "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },
     "user-port": { value: "", description: "Specify a custom port for OpenPanel (default is 2083)." },
@@ -104,7 +105,7 @@ const Install: React.FC = () => {
                                         pattern={
                                             key === "username" || key === "password"
                                                 ? "^[a-zA-Z0-9]+$"
-                                                : key === "domain"
+                                                : key === "domain" || key === "panel-domain"
                                                 ? "^(?!-)(?:[A-Za-z0-9-]{1,63}\\.)+[A-Za-z]{2,}$"
                                                 : key === "key"
                                                 ? "^enterprise-.*$"
@@ -113,7 +114,7 @@ const Install: React.FC = () => {
                                         title={
                                             key === "username" || key === "password"
                                                 ? "Only letters and numbers are allowed"
-                                                : key === "domain"
+                                                : key === "domain" || key === "panel-domain"
                                                 ? "Enter a valid domain, e.g. openpanel.server.com"
                                                 : key === "key"
                                                 ? "License key must start with 'enterprise-'"
