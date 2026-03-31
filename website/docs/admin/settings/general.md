@@ -24,16 +24,20 @@ To enable access to both OpenAdmin and OpenPanel through a domain name, such as 
 3. Set in General Settings
    Switch from IP to the domain name in *OpenAdmin > Settings > General Settings*.
 
+:::info
+You can also [set a separate domain just for OpenPanel UI](/docs/articles/dev-experience/separate-domain-for-openpanel-access)
+:::
+
 ## Set IP address for OpenPanel
 
 To access OpenPanel and OpenAdmin via server public IP address, choose the "IP address" option and click save. The modification is immediate, redirecting you to the designated IP:2087 for the admin panel upon saving.
 
 ## Ports
 
-Port configurations for OpenAdmin and OpenPanel interfaces can be modified from their default settings (2087 for OpenAdmin and 2083 for OpenPanel). 
+Port configurations for OpenAdmin and OpenPanel interfaces can be modified from their default settings (`2087` for OpenAdmin and `2083` for OpenPanel). 
 
-- To change the port for the OpenPanel from the default `2083` to another value, you can easily set the desired port in the "OpenPanel Port" field. 
-- To change the port for the OpenAdmin from the default `2083` to another value, you can easily set the desired port in the "OpenAdmin Port" field.
+- To change the port for the OpenPanel from the default `2083` to another value, set the desired port in the "OpenPanel Port" field.
+- To change the port for the OpenAdmin from the default `2083` to another value, set the desired port in the "OpenAdmin Port" field.
 
 ## Redirect
 
