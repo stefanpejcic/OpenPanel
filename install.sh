@@ -339,7 +339,7 @@ parse_args() {
     show_help() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
-        echo "  --domain=<domain>               Set the server hostname and domain for accessing panel."
+        echo "  --domain=<domain>               Set a domain for accessing OpenAdmin and OpenPanel."
 		echo "  --panel-domain=<domain>         Set a separate domain just for OpenPanel UI."
         echo "  --username='<username>'         Set Admin username - random generated if not provided."
         echo "  --password='<password>'         Set Admin Password - random generated if not provided."
