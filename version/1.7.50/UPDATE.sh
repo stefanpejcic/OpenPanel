@@ -13,3 +13,13 @@ echo "Setting local screenshots.."
 sed -i 's/^\(screenshots=\).*$/\1local/' /etc/openpanel/openpanel/conf/openpanel.config
 
 docker restart openpanel
+
+
+
+
+: '
+mkdir -p /etc/openpanel/php/composer/
+wget -O /etc/openpanel/php/composer/v2_composer.phar https://github.com/stefanpejcic/openpanel-configuration/raw/refs/heads/main/php/composer/v2_composer.phar
+wget -O /etc/openpanel/php/composer/v1_composer.phar https://github.com/stefanpejcic/openpanel-configuration/raw/refs/heads/main/php/composer/v1_composer.phar
+
+'
