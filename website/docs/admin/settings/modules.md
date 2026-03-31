@@ -136,7 +136,7 @@ When disabled:
 * Users can not access any of the *Docker* pages.
 
 Customize options:
-* None
+* [Disable the Terminal](/docs/articles/dev-experience/disable-openpanel-web-terminal/)
 
 
 ## Fix Permissions
