@@ -340,6 +340,7 @@ parse_args() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
         echo "  --domain=<domain>               Set the server hostname and domain for accessing panel."
+		echo "  --panel-domain=<domain>         Set a separate domain just for OpenPanel UI."
         echo "  --username='<username>'         Set Admin username - random generated if not provided."
         echo "  --password='<password>'         Set Admin Password - random generated if not provided."
         echo "  --version=<version>             Set a custom OpenPanel version to be installed."
@@ -378,21 +379,22 @@ parse_args() {
 # Change defaults
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --key=*|--domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*|--user-port=*|--admin-port=*)
+        --key=*|--domain=*|--panel_domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*|--user-port=*|--admin-port=*)
             opt="${1%%=*}"
             val="${1#*=}"
             case "$opt" in
-                --key)         SET_PREMIUM=true;          license_key="$val" ;;
-                --domain)      SET_HOSTNAME_NOW=true;     new_hostname="$val" ;;
-                --username)    SET_ADMIN_USERNAME=true;   custom_username="$val" ;;
-                --password)    SET_ADMIN_PASSWORD=true;   custom_password="${val}" ;;
+                --key)          SET_PREMIUM=true;          license_key="$val" ;;
+                --domain)       SET_HOSTNAME_NOW=true;     new_hostname="$val" ;;
+                --panel-domain) SET_HOSTNAME_NOW=true;     separate_panel_domain="$val" ;;
+                --username)     SET_ADMIN_USERNAME=true;   custom_username="$val" ;;
+                --password)     SET_ADMIN_PASSWORD=true;   custom_password="${val}" ;;
                 --post_install) post_install_path="$val" ;;
-                --screenshots) SCREENSHOTS_API_URL="$val" ;;
-                --version)     CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
-                --swap)        SETUP_SWAP_ANYWAY=true;    SWAP_FILE="$val" ;;
-                --email)       SEND_EMAIL_AFTER_INSTALL=true; EMAIL="$val" ;;
-			    --admin-port)  set_port "ADMIN_PORT" "$val" ;;
-			    --user-port)   set_port "USER_PORT" "$val" ;;
+                --screenshots)  SCREENSHOTS_API_URL="$val" ;;
+                --version)      CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
+                --swap)         SETUP_SWAP_ANYWAY=true;    SWAP_FILE="$val" ;;
+                --email)        SEND_EMAIL_AFTER_INSTALL=true; EMAIL="$val" ;;
+			    --admin-port)   set_port "ADMIN_PORT" "$val" ;;
+			    --user-port)    set_port "USER_PORT" "$val" ;;
             esac
             ;;
         --skip-requirements)   SKIP_REQUIREMENTS=true ;;
@@ -1115,11 +1117,37 @@ set_system_cronjob() {
 
 set_custom_hostname(){
         if [ "$SET_HOSTNAME_NOW" = true ]; then
-		    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-	            sed -i "s/example\.net/$new_hostname/g" ${ETC_DIR}caddy/Caddyfile
-	        else
-                echo "Hostname provided: $new_hostname is not a valid domain name, OpenPanel will use IP address $SERVER_IPV4_ADDRESS for access."
-            fi
+			if [ -n "$separate_panel_domain" ]; then
+			    if [[ $separate_panel_domain =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+			        if [ -n "$new_hostname" ] && [ "$separate_panel_domain" == "$new_hostname" ]; then
+			            :
+			        else
+						cat << EOF >> "${ETC_DIR}caddy/Caddyfile"
+
+# START USERPANEL DOMAIN #
+$separate_panel_domain {
+    reverse_proxy localhost:2083
+}
+
+http://$separate_panel_domain {
+    reverse_proxy localhost:2083
+}
+# END USERPANEL DOMAIN #
+EOF
+						touch ${ETC_DIR}caddy/domains/$separate_panel_domain.conf
+					fi
+		        else
+	                echo "Domain provided: $separate_panel_domain is not a valid domain name."
+	            fi
+			fi
+		
+			if [ -n "$new_hostname" ]; then
+			    if [[ $new_hostname =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+		            sed -i "s/example\.net/$new_hostname/g" ${ETC_DIR}caddy/Caddyfile
+		        else
+	                echo "Hostname provided: $new_hostname is not a valid domain name, OpenAdmin will use IP address $SERVER_IPV4_ADDRESS for access."
+	            fi
+			fi
         fi
 }
 
@@ -1233,7 +1261,8 @@ set_email_address_and_email_admin_logins(){
 
 
 generate_and_set_ssl_for_panels() {
-    if [ "$SET_HOSTNAME_NOW" = true ]; then
+	# TODO: extend to also handle if just --panel-domain is set
+	if [ "$SET_HOSTNAME_NOW" = true ]; then
         echo "Checking if SSL can be generated for the server hostname.."
         CADDYFILE="${ETC_DIR}caddy/Caddyfile"
         HOSTNAME=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$CADDYFILE" | awk 'NF {print $1; exit}')
@@ -1282,7 +1311,7 @@ generate_and_set_ssl_for_panels() {
 download_ui_image() {
         echo "Pulling OpenPanel image in background (not starting the service).."
 		nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
-  }
+}
 
 
 setup_redis_service() {
