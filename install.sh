@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           25.03.2026
+# Last Modified:           31.03.2026
 #
 ################################################################################
 
@@ -728,7 +728,7 @@ setup_firewall_service() {
         edit_csf_conf
 
         # OUT ports
-        for p in 3306 465 $ADMIN_PORT; do
+        for p in 3306 465 $USER_PORT $ADMIN_PORT; do
             open_csf_port TCP_OUT "$p"
         done
 
