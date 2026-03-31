@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.49\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-03-30 00:27+0200\n"
+"POT-Creation-Date: 2026-03-31 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -279,8 +279,8 @@ msgid "Invalid request. Domain name must be provided."
 msgstr ""
 
 #: modules/domains.py:481 templates/domains/domains.html:419
-#: templates/emails/single_account.html:169
-#: templates/emails/single_account.html:191
+#: templates/emails/single_account.html:167
+#: templates/emails/single_account.html:189
 msgid "Suspend"
 msgstr ""
 
@@ -371,20 +371,20 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/emails.py:818
+#: modules/emails.py:827
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:847
+#: modules/emails.py:856
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:865 templates/emails/accounts.html:113
+#: modules/emails.py:874 templates/emails/accounts.html:113
 #: templates/emails/info.html:9
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:878
+#: modules/emails.py:887
 msgid "Error: Invalid configuration type."
 msgstr ""
 
@@ -624,7 +624,7 @@ msgstr ""
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
 msgstr ""
 
-#: modules/pgadmin.py:89 modules/phpmyadmin.py:158
+#: modules/pgadmin.py:89 modules/phpmyadmin.py:152
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
@@ -633,7 +633,7 @@ msgstr ""
 msgid "pgAdmin"
 msgstr ""
 
-#: modules/pgadmin.py:158 modules/phpmyadmin.py:280
+#: modules/pgadmin.py:158 modules/phpmyadmin.py:274
 msgid "Container port not found for the user."
 msgstr ""
 
@@ -697,22 +697,22 @@ msgstr ""
 msgid "Failed to stop the phpMyAdmin service. Try restart."
 msgstr ""
 
-#: modules/phpmyadmin.py:156
+#: modules/phpmyadmin.py:150
 #, python-brace-format
 msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
 msgstr ""
 
-#: modules/phpmyadmin.py:170
+#: modules/phpmyadmin.py:164
 msgid "Changed autologon setting for phpMyAdmin service."
 msgstr ""
 
-#: modules/phpmyadmin.py:172
+#: modules/phpmyadmin.py:166
 msgid ""
 "Changed autologon setting for phpMyAdmin service, but failed to start it."
 " Pelase try manually."
 msgstr ""
 
-#: modules/phpmyadmin.py:215 templates/mysql/databases.html:194
+#: modules/phpmyadmin.py:209 templates/mysql/databases.html:194
 #: templates/mysql/phpmyadmin.html:11
 msgid "phpMyAdmin"
 msgstr ""
@@ -1908,7 +1908,7 @@ msgstr ""
 msgid "IP and Port for accessing the service."
 msgstr ""
 
-#: templates/cache/service.html:108 templates/mysql/phpmyadmin.html:288
+#: templates/cache/service.html:108 templates/mysql/phpmyadmin.html:263
 #: templates/mysql/remote_mysql.html:121 templates/mysql/remote_mysql.html:144
 #: templates/psql/pgadmin.html:208 templates/psql/remote_psql.html:119
 #: templates/psql/remote_psql.html:141
@@ -1916,7 +1916,7 @@ msgid "Server:"
 msgstr ""
 
 #: templates/cache/service.html:112 templates/manager/pm2_install.html:120
-#: templates/mysql/phpmyadmin.html:325 templates/mysql/remote_mysql.html:125
+#: templates/mysql/phpmyadmin.html:276 templates/mysql/remote_mysql.html:125
 #: templates/mysql/remote_mysql.html:148 templates/psql/pgadmin.html:212
 #: templates/psql/remote_psql.html:123 templates/psql/remote_psql.html:145
 msgid "Port:"
@@ -2511,8 +2511,7 @@ msgstr ""
 #: templates/domains/domains.html:303 templates/files/edit_file.html:104
 #: templates/files/edit_json_file.html:70 templates/mysql/phpmyadmin.html:130
 #: templates/mysql/phpmyadmin.html:158 templates/mysql/phpmyadmin.html:187
-#: templates/mysql/phpmyadmin.html:215 templates/mysql/phpmyadmin.html:270
-#: templates/mysql/phpmyadmin.html:309 templates/psql/pgadmin.html:128
+#: templates/mysql/phpmyadmin.html:215 templates/psql/pgadmin.html:128
 #: templates/psql/pgadmin.html:152 templates/psql/pgadmin.html:181
 #: templates/system/cronjobs.html:191 templates/system/waf_domain.html:16
 msgid "Save"
@@ -2631,8 +2630,7 @@ msgstr ""
 #: templates/manager/wp/single.html:600 templates/manager/wp/single.html:2050
 #: templates/manager/wp/single.html:2100 templates/mysql/phpmyadmin.html:132
 #: templates/mysql/phpmyadmin.html:160 templates/mysql/phpmyadmin.html:189
-#: templates/mysql/phpmyadmin.html:217 templates/mysql/phpmyadmin.html:272
-#: templates/mysql/phpmyadmin.html:311 templates/psql/pgadmin.html:130
+#: templates/mysql/phpmyadmin.html:217 templates/psql/pgadmin.html:130
 #: templates/psql/pgadmin.html:154 templates/psql/pgadmin.html:183
 msgid "Cancel"
 msgstr ""
@@ -3624,7 +3622,7 @@ msgstr ""
 
 #: templates/emails/confirm_import.html:46 templates/emails/info.html:35
 #: templates/emails/info.html:51 templates/emails/new.html:125
-#: templates/emails/single_account.html:212 templates/files/ftp_new.html:53
+#: templates/emails/single_account.html:210 templates/files/ftp_new.html:53
 #: templates/mysql/mysql_user.html:43 templates/mysql/mysql_user.html:52
 #: templates/mysql/password.html:41 templates/mysql/root_password.html:43
 #: templates/mysql/wizard.html:76 templates/psql/password.html:41
@@ -3710,7 +3708,7 @@ msgstr ""
 
 #: templates/emails/filter.html:42 templates/emails/import.html:45
 #: templates/emails/info.html:72 templates/emails/new.html:292
-#: templates/emails/single_account.html:336
+#: templates/emails/single_account.html:334
 msgid "Back to Emails"
 msgstr ""
 
@@ -3798,7 +3796,7 @@ msgstr ""
 msgid "info"
 msgstr ""
 
-#: templates/emails/new.html:115 templates/emails/single_account.html:202
+#: templates/emails/new.html:115 templates/emails/single_account.html:200
 #: templates/files/ftp_new.html:43 templates/files/ftp_password.html:33
 #: templates/manager/mautic_install.html:148
 #: templates/manager/wp/install.html:213 templates/mysql/mysql_user.html:33
@@ -3808,7 +3806,7 @@ msgstr ""
 msgid "Weak password"
 msgstr ""
 
-#: templates/emails/new.html:116 templates/emails/single_account.html:203
+#: templates/emails/new.html:116 templates/emails/single_account.html:201
 #: templates/files/ftp_new.html:44 templates/files/ftp_password.html:34
 #: templates/manager/mautic_install.html:149
 #: templates/manager/wp/install.html:214 templates/mysql/mysql_user.html:34
@@ -3818,7 +3816,7 @@ msgstr ""
 msgid "Medium strength password"
 msgstr ""
 
-#: templates/emails/new.html:117 templates/emails/single_account.html:204
+#: templates/emails/new.html:117 templates/emails/single_account.html:202
 #: templates/files/ftp_new.html:45 templates/files/ftp_password.html:35
 #: templates/manager/mautic_install.html:150
 #: templates/manager/wp/install.html:215 templates/mysql/mysql_user.html:35
@@ -3828,7 +3826,7 @@ msgstr ""
 msgid "Strong password"
 msgstr ""
 
-#: templates/emails/new.html:134 templates/emails/single_account.html:221
+#: templates/emails/new.html:134 templates/emails/single_account.html:219
 #: templates/files/ftp_new.html:64 templates/files/ftp_password.html:43
 #: templates/mysql/password.html:50 templates/mysql/root_password.html:34
 #: templates/user/reset_password/set_new_password.html:22
@@ -3856,27 +3854,23 @@ msgid "Change allocated storage space"
 msgstr ""
 
 #: templates/emails/single_account.html:99
-msgid "No limit"
-msgstr ""
-
-#: templates/emails/single_account.html:101
 msgid "Maximum allowed: "
 msgstr ""
 
-#: templates/emails/single_account.html:154
+#: templates/emails/single_account.html:152
 msgid "Receiving Incoming Mail"
 msgstr ""
 
-#: templates/emails/single_account.html:162
-#: templates/emails/single_account.html:184
+#: templates/emails/single_account.html:160
+#: templates/emails/single_account.html:182
 msgid "Allow"
 msgstr ""
 
-#: templates/emails/single_account.html:176
+#: templates/emails/single_account.html:174
 msgid "Sending Outgoing Mail"
 msgstr ""
 
-#: templates/emails/single_account.html:340
+#: templates/emails/single_account.html:338
 msgid "Update Email Settings"
 msgstr ""
 
@@ -6622,8 +6616,7 @@ msgid "Generating Backup..."
 msgstr ""
 
 #: templates/mysql/_error.html:4
-#, python-format
-msgid "Is %(service)s running?"
+msgid "Is database service running?"
 msgstr ""
 
 #: templates/mysql/_error.html:5
@@ -6863,38 +6856,28 @@ msgstr ""
 msgid "IP and Port for accessing the phpMyAdmin service."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:253 templates/mysql/phpmyadmin.html:289
+#: templates/mysql/phpmyadmin.html:252
 msgid "Link:"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:317
-msgid ""
-"Set a custom domain to use with phpMyAdmin (e.g., https://your-"
-"domain.com/ ), or leave this field empty to use the default URL:"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:317
-msgid "How to Configure domain"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:344
+#: templates/mysql/phpmyadmin.html:295
 msgid "Autologin"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:347
+#: templates/mysql/phpmyadmin.html:298
 msgid "Enable autoloion to phpMyAdmin or require username and password."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:355
+#: templates/mysql/phpmyadmin.html:306
 msgid "Current autologon status"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:365
+#: templates/mysql/phpmyadmin.html:316
 msgid "Disable autologin"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:367
-msgid "Enabled autologin"
+#: templates/mysql/phpmyadmin.html:318
+msgid "Enable autologin"
 msgstr ""
 
 #: templates/mysql/processlist.html:8

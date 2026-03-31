@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 27.03.2026
+# Last Modified: 30.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -32,8 +32,7 @@
 
 # Configuration
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
-readonly WHMCS_URL="https://my.openpanel.com/modules/servers/licensing/verify.php"
-# https://api.openpanel.com/enterprise/index.php
+readonly WHMCS_URL="https://api.openpanel.com/enterprise/index.php"
 readonly COMPOSE_FILE="/root/docker-compose.yml"
 readonly SERVICE="openpanel"
 

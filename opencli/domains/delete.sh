@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 27.03.2026
+# Last Modified: 30.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -363,10 +363,14 @@ delete_emails() {
 	local email_file="/etc/openpanel/openpanel/core/users/$username/emails.yml"
 
     if [ -f "$email_file" ]; then
-		log "Deleting @$domain_name email accounts"
-		mapfile -t emails < <(awk '{print $2}' "$email_file")
+        emails=()
+        while read -r _ email; do
+            [ -n "$email" ] && emails+=("$email")
+        done < "$email_file"
+
         if [ "${#emails[@]}" -gt 0 ]; then
-            opencli email-setup email del -y "${emails[@]}"
+			nohup opencli email-setup email del -y "${emails[@]}" >/dev/null 2>&1 &
+			disown
         fi
     fi
 }
@@ -423,7 +427,7 @@ delete_domain() {
 		check_if_enterprise
         delete_mail_mountpoint                       # delete mountpoint to mailserver
 		postfwd_setup                                # delete domain hourly ratelimit
-        delete_emails  $user $domain_name            # delete mails for the domain
+        delete_emails $user $domain_name             # delete mails for the domain
         rm_domain_to_clamav_list                     # added in 0.3.4    
         echo "Domain $domain_name deleted successfully"
     else
