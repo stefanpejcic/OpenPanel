@@ -4,11 +4,11 @@ By default, the OpenAdmin interface runs on a Gunicorn web server, while all oth
 
 If you want to remove the port number for OpenAdmin and access it directly via your domain (e.g., `https://yourdomain.com/`), follow these steps:
 
-1. Create a marker file to disable the default port:
+1. Set port to `443`:
    ```bash
-   touch /root/disable_2087_port
+   opencli admin port 443
    ```
-3. Restart OpenAdmin to apply the change:
+3. Restart service to apply the change:
    ```bash
-   service admin restart
+   service amdin restart
    ```
