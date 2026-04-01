@@ -23,7 +23,9 @@ for home_dir in /home/*; do
     env_file="$home_dir/.env"
     [[ -f "$env_file" ]] || continue
 
-    source "$env_file"
+    env_data=$(tr -d '\r' < "$env_file")
+    eval "$env_data"  # safe-ish for trusted env files
+
     [[ -z "$USER_ID" ]] && continue
     
     # CPU
