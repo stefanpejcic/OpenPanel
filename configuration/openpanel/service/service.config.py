@@ -143,39 +143,25 @@ CADDY_CERT_DIRS = [
     "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/",
     "/etc/openpanel/caddy/ssl/custom/"
 ]
-DOCKER_COMPOSE_PATH = "/root/docker-compose.yml"
 
-def get_domain_from_caddyfile():
-    domain = None
-    in_block = False
-    
-    if not os.path.exists(CADDYFILE_PATH):
-        print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
+def get_domain():
+    try:
+        result = subprocess.run(["opencli", "domain"], capture_output=True, text=True, check=True)
+        output = result.stdout.strip()
+        ip_pattern = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
+        if ip_pattern.match(output):
+            return None
+        return output
+    except subprocess.CalledProcessError as e:
+        print(f"Error running command: {e}")
         return None
 
+def get_port():
     try:
-        with open(CADDYFILE_PATH, "r") as file:
-            for line in file:
-                line = line.strip()
-
-                if "# START HOSTNAME DOMAIN #" in line:
-                    in_block = True
-                    continue
-
-                if "# END HOSTNAME DOMAIN #" in line:
-                    break
-
-                if in_block:
-                    match = re.match(r"^([\w.-]+) \{", line)
-                    if match:
-                        domain = match.group(1)
-                        break
-    except Exception as e:
-        print(f"Error reading Caddyfile: {e}")
-    
-    print(f"Domain name set for OpenPanel: {domain}")
-    return domain
-
+        result = subprocess.run(["opencli", "port"], capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        return None
 
 def check_ssl_exists(domain):
     for base_dir in CADDY_CERT_DIRS:
@@ -184,29 +170,31 @@ def check_ssl_exists(domain):
             return cert_path
     return None
 
-
-DOMAIN = get_domain_from_caddyfile()
-PORT = "2083"
+DOMAIN = get_domain()
 ssl_cert_path = None
 if DOMAIN:
     ssl_cert_path = check_ssl_exists(DOMAIN)
 
-if DOMAIN and check_ssl_exists(DOMAIN):
-    print(f"Custom domain is set and certificate exists, HTTPS will be used.")
-    import ssl
-    certfile = os.path.join(ssl_cert_path, f"{DOMAIN}.crt")
-    keyfile = os.path.join(ssl_cert_path, f"{DOMAIN}.key")
-    keyfile = keyfile
-    certfile = certfile
-    print(f"Certificate file: {certfile}")
-    print(f"Certificate key:  {keyfile}")
-    ssl_version = ssl.PROTOCOL_TLS
-    cert_reqs = ssl.CERT_NONE
-    ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+if DOMAIN and ssl_cert_path:
+    PORT = get_port()
+    if PORT == '443':
+        print(f"Custom domain is set and certificate exists, but due to 443 port, HTTPS will NOT be used, reverse proxy should handle SSL.")
+    else:
+        print(f"Custom domain is set and certificate exists, HTTPS will be used.")
+        import ssl
+        certfile = os.path.join(ssl_cert_path, f"{DOMAIN}.crt")
+        keyfile = os.path.join(ssl_cert_path, f"{DOMAIN}.key")
+        keyfile = keyfile
+        certfile = certfile
+        print(f"Certificate file: {certfile}")
+        print(f"Certificate key:  {keyfile}")
+        ssl_version = ssl.PROTOCOL_TLS
+        cert_reqs = ssl.CERT_NONE
+        ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
 
 # ======================================================================
 # Performance
-bind = [f"0.0.0.0:{PORT}"]
+bind = [f"0.0.0.0:2083"]
 backlog = 2048
 calculated_workers = multiprocessing.cpu_count() * 2 + 1
 max_workers = 10

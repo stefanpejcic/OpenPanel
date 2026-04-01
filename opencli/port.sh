@@ -5,7 +5,7 @@
 # Usage: opencli port [set <port>] 
 # Author: Stefan Pejcic
 # Created: 17.02.2025
-# Last Modified: 30.03.2026
+# Last Modified: 31.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -36,7 +36,12 @@ PROXY_FILE="/etc/openpanel/nginx/vhosts/openpanel_proxy.conf"
 
 
 get_current_port() {
-  current_port="$(grep -oP '(?<=^PORT=").*(?=")' $ENV_FILE | head -n 1)"
+  if [ -f /.dockerenv ] && [ -f /etc/openpanel/no_port ]; then
+      current_port=443
+  fi
+  if [ -z "$current_port" ]; then
+    current_port="$(grep -oP '(?<=^PORT=").*(?=")' $ENV_FILE | head -n 1)"
+  fi
   echo "$current_port"
 }
 
@@ -98,6 +103,11 @@ update_port() {
     update_env
     update_redirects
     update_proxy_file
+    if [ "$new_port" == '443' ]; then
+        sed -i "s#\${PORT}:2083/tcp#2083:2083/tcp#g" /root/docker-compose.yml
+    else
+        sed -i "s#2083:2083/tcp#\${PORT}:2083/tcp#g" /root/docker-compose.yml
+    fi
     do_reload
     success_msg
   else
@@ -113,7 +123,7 @@ if [ -z "$1" ]; then
     get_current_port
 
 elif [[ "$1" == 'set' && -n "$2" ]]; then
-    if [[ "$2" =~ ^[0-9]+$ ]] && [ "$2" -ge 1000 ]; then
+    if [[ "$2" =~ ^[0-9]+$ ]] && [ "$2" -ge 443 ]; then
         new_port=$2
         update_port $new_port
     else

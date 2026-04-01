@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 30.03.2026
+# Last Modified: 31.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -120,8 +120,29 @@ get_current_domain() {
         log_error "Caddyfile not found at $CADDY_FILE"
         return 1
     fi
-    
-    grep -oP '^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}' "$CADDY_FILE" | head -n 1
+
+	extract_domain() {
+	    local start_marker="$1"
+	    local end_marker="$2"
+	
+	    sed -n "/$start_marker/,/$end_marker/p" "$CADDY_FILE" \
+	        | sed -n 's/^\([A-Za-z0-9.-]*\)[[:space:]]*{.*/\1/p' \
+	        | head -n1
+	}
+	
+
+    domain=""
+
+    if [ -f /.dockerenv ]; then
+        domain=$(extract_domain "# START USERPANEL DOMAIN #" "# END USERPANEL DOMAIN #")
+        if [[ -z "$domain" ]]; then
+            domain=$(extract_domain "# START HOSTNAME DOMAIN #" "# END HOSTNAME DOMAIN #")
+        fi
+    else
+        domain=$(extract_domain "# START HOSTNAME DOMAIN #" "# END HOSTNAME DOMAIN #")
+    fi
+
+	echo "$domain"
 }
 
 # Get current domain or IP

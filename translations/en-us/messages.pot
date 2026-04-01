@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.49\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-03-31 00:27+0200\n"
+"POT-Creation-Date: 2026-04-01 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -591,7 +591,7 @@ msgstr ""
 msgid "This is a system database that can not be edited."
 msgstr ""
 
-#: modules/pgadmin.py:41
+#: modules/pgadmin.py:40
 msgid ""
 "pgAdmin email is invalid. Please set a valid email address before "
 "enabling the service."
@@ -600,40 +600,40 @@ msgstr ""
 #: modules/cache/elasticsearch.py:32 modules/cache/memcached.py:41
 #: modules/cache/opensearch.py:38 modules/cache/redis.py:36
 #: modules/cache/varnish.py:96 modules/cache/varnish.py:126
-#: modules/pgadmin.py:49 modules/php.py:597 modules/php.py:606
+#: modules/pgadmin.py:48 modules/php.py:597 modules/php.py:606
 #: modules/php.py:620 modules/phpmyadmin.py:104
 #: templates/files/backup_settings.html:31
 #: templates/files/backup_settings.html:106
 msgid "error"
 msgstr ""
 
-#: modules/pgadmin.py:53
+#: modules/pgadmin.py:52
 msgid "pgAdmin service is now enabled."
 msgstr ""
 
-#: modules/pgadmin.py:58
+#: modules/pgadmin.py:57
 msgid "pgAdmin service is now disabled."
 msgstr ""
 
-#: modules/pgadmin.py:60
+#: modules/pgadmin.py:59
 msgid "Failed to stop the pgAdmin service. Try restart."
 msgstr ""
 
-#: modules/pgadmin.py:87
+#: modules/pgadmin.py:86
 #, python-brace-format
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
 msgstr ""
 
-#: modules/pgadmin.py:89 modules/phpmyadmin.py:152
+#: modules/pgadmin.py:88 modules/phpmyadmin.py:152
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
-#: modules/pgadmin.py:124 templates/dashboard/dashboard.html:166
+#: modules/pgadmin.py:123 templates/dashboard/dashboard.html:166
 #: templates/psql/pgadmin.html:11
 msgid "pgAdmin"
 msgstr ""
 
-#: modules/pgadmin.py:158 modules/phpmyadmin.py:274
+#: modules/pgadmin.py:157 modules/phpmyadmin.py:274
 msgid "Container port not found for the user."
 msgstr ""
 
@@ -1744,7 +1744,7 @@ msgstr ""
 msgid "Database configuration not found"
 msgstr ""
 
-#: modules/mysqld/mysql_conf.py:143
+#: modules/mysqld/mysql_conf.py:156
 msgid "Unknown database service, cannot restart"
 msgstr ""
 

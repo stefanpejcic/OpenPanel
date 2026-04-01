@@ -5,7 +5,7 @@
 # Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
 # Created: 27.01.2026
-# Last Modified: 30.03.2026
+# Last Modified: 31.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -77,7 +77,11 @@ get_openpanel_url() {
 	PORT=${PORT:-2083}
 
     caddyfile="/etc/openpanel/caddy/Caddyfile"
-    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
+	domain_block=$(awk '/# START USERPANEL DOMAIN #/{flag=1; next} /# END USERPANEL DOMAIN #/{flag=0} flag {print}' "$caddyfile")
+	if [ -z "$domain_block" ]; then
+	    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
+	fi
+
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')

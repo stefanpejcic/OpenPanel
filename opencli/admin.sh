@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 30.03.2026
+# Last Modified: 31.03.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -128,9 +128,13 @@ get_admin_url() {
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
-	
-	admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
-		
+
+    if [[ -f "/root/disable_2087_port" ]]; then
+		admin_port="443"
+	else
+		admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
+	fi
+
     if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
         admin_url="http://${ip}:${admin_port}/"
@@ -138,7 +142,7 @@ get_admin_url() {
 		# ---------------------- letsencrypt
 		local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
 		local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
-	
+
 		# ---------------------- custom ssl
 		local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
 		local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
@@ -671,12 +675,20 @@ case "$1" in
         new_port="$2"
 		optional_flag="$3"
         if [ -n "$new_port" ]; then
-		    if ! [[ "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -le 1000 ]; then
-		        echo "Error: OpenAdmin port number must be greater than 1000."
+		    if ! [[ "$new_port" =~ ^[0-9]+$ ]] || [ "$new_port" -le 443 ]; then
+		        echo "Error: OpenAdmin port number must be greater than 443."
 		        exit 1
 		    fi
-            echo "Changing port to: $new_port"
-			sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$new_port/" "/etc/openpanel/caddy/Caddyfile"
+
+			if [[ "$new_port" == "443" ]]; then
+				echo "Removing port for OpenAdmin"
+			else
+            	echo "Changing port to: $new_port"
+				sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$new_port/" "/etc/openpanel/caddy/Caddyfile"
+				if [[ -f "/root/disable_2087_port" ]]; then
+					rm -rf /root/disable_2087_port
+				fi
+			fi
 			sed -i "/redir @openadmin/s/:[0-9]\+/:$new_port/g" "/etc/openpanel/caddy/redirects.conf"
 			sed -i "/redir @openadmin/s/:[0-9]\+/:$new_port/g" "/etc/openpanel/caddy/redirects.conf"
 			sed -i "/# openadmin/,/# roundcube/ s/:[0-9]\+/:$new_port/g" "/etc/openpanel/nginx/vhosts/openpanel_proxy.conf"
@@ -690,15 +702,28 @@ case "$1" in
 			    fi
 	            echo "Restarting OpenAdmin.."
 				systemctl restart admin
+				if [[ "$new_port" == "443" ]]; then
+					echo "Restarting Caddy.."
+					docker restart caddy
+				fi
 			else
+				if [[ "$new_port" == "443" ]]; then
+					echo "Restart OpenAdmin service and Caddy container to apply new port."
+				else
+	            	echo "Make sure to open the new port on Firewall and restart OpenAdmin service to apply new port."
+				fi
 				echo "Make sure to open the new port on Firewall and restart OpenAdmin service to apply new port."
 			fi
 			nohup opencli sentinel --action=admin_port --title="OpenAdmin port changed" --message="Port for administrator-level panel has been changed to '$new_port'." >/dev/null 2>&1 &
 			disown
 			echo "Done"
         else
-		    admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
-		    echo $admin_port
+			if [[ -f "/root/disable_2087_port" ]]; then
+				admin_port="443"
+			else
+		    	admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
+		    fi
+			echo $admin_port
         fi
         ;;  	
     "new")

@@ -76,8 +76,13 @@ get_admin_url() {
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
-	admin_port=$(echo "$domain_block" | grep -oP 'localhost:\K[0-9]+' | head -n1)
-        
+
+    if [[ -f "/root/disable_2087_port" ]]; then
+		admin_port="443"
+	else
+		admin_port=$(echo "$domain_block" | grep -oP 'localhost:\K[0-9]+' | head -n1)
+	fi
+
     if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
         ip=$(get_public_ip)
         admin_url="http://${ip}:${admin_port}/"

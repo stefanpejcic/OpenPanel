@@ -7,6 +7,7 @@ from gunicorn.config import Config
 import configparser
 import os
 import re
+import fileinput
 from pathlib import Path
 import logging
 import sys
@@ -194,15 +195,18 @@ DOMAIN, PORT = read_from_caddyfile()
 
 certfile, keyfile, type = (None, None, None)
 if DOMAIN:
-    certfile, keyfile, cert_type = check_ssl_exists(DOMAIN)
-    if certfile and keyfile:
-        print(f"HTTPS - {cert_type} certificate is configured.")
-        import ssl
-        #ssl_version = 'TLS'
-        cert_reqs = ssl.CERT_NONE
-        ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+    if os.path.exists("/root/disable_2087_port"):
+        print("Skipping SSL setup on port 2087 as /root/disable_2087_port exists.")   
     else:
-        print("HTTP - Domain is set but no certificate exists, point domain A record to issue LetsEcrypt SSL or add custom cert: https://openpanel.com/docs/articles/server/how-to-set-custom-ssl-openpanel-webmail/")
+        certfile, keyfile, cert_type = check_ssl_exists(DOMAIN)
+        if certfile and keyfile:
+            print(f"HTTPS - {cert_type} certificate is configured.")
+            import ssl
+            #ssl_version = 'TLS'
+            cert_reqs = ssl.CERT_NONE
+            ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+        else:
+            print("HTTP - Domain is set but no certificate exists, point domain A record to issue LetsEcrypt SSL or add custom cert: https://openpanel.com/docs/articles/server/how-to-set-custom-ssl-openpanel-webmail/")
 else:
     print(f"HTTP - Using IP address for panel access, use 'opencli domain <DOMAIN_NAME>' to set a domain.")
 
