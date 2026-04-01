@@ -15,3 +15,34 @@ wget -O /etc/openpanel/openadmin/config/features.json https://raw.githubusercont
 echo 
 echo "Increasing activity_items_per_page value from 25 to 100"
 opencli config update activity_items_per_page 100
+
+echo
+echo "Setting limits for all existing users.."
+for home_dir in /home/*; do
+    [[ -d "$home_dir" ]] || continue
+    env_file="$home_dir/.env"
+    [[ -f "$env_file" ]] || continue
+
+    source "$env_file"
+    [[ -z "$USER_ID" ]] && continue
+    
+    # CPU
+    if [[ -n "$TOTAL_CPU" ]]; then
+        if [[ "$TOTAL_CPU" -eq 0 ]]; then
+            systemctl set-property "user-${USER_ID}.slice" CPUQuota=infinity
+        else
+            cpu_percent=$(echo "$TOTAL_CPU * 100" | bc)
+            systemctl set-property "user-${USER_ID}.slice" CPUQuota="${cpu_percent}%"
+        fi
+    fi
+
+    # RAM
+    if [[ -n "$TOTAL_RAM" ]]; then
+        if [[ "$TOTAL_RAM" -eq 0 ]]; then
+            systemctl set-property "user-${USER_ID}.slice" MemoryMax=infinity
+        else
+            [[ "$TOTAL_RAM" != *G ]] && TOTAL_RAM="${TOTAL_RAM}G"
+            systemctl set-property "user-${USER_ID}.slice" MemoryMax="$TOTAL_RAM"
+        fi
+    fi
+done
