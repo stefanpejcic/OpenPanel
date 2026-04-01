@@ -17,34 +17,41 @@ echo "Increasing activity_items_per_page value from 25 to 100"
 opencli config update activity_items_per_page 100
 
 echo
-echo "Setting limits for all existing users.."
+echo "Setting limits for all existing users..."
 for home_dir in /home/*; do
     [[ -d "$home_dir" ]] || continue
     env_file="$home_dir/.env"
     [[ -f "$env_file" ]] || continue
 
+    # Windows \r characters
     env_data=$(tr -d '\r' < "$env_file")
-    eval "$env_data"  # safe-ish for trusted env files
+    eval "$env_data"  # safe for trusted env files
 
     [[ -z "$USER_ID" ]] && continue
-    
-    # CPU
+
+    # --- CPU Limit ---
     if [[ -n "$TOTAL_CPU" ]]; then
-        if [[ "$TOTAL_CPU" -eq 0 ]]; then
+        if [[ "$TOTAL_CPU" == "0" ]]; then
             systemctl set-property "user-${USER_ID}.slice" CPUQuota=infinity
         else
-            cpu_percent=$(echo "$TOTAL_CPU * 100" | bc)
+            cpu_percent=$(( TOTAL_CPU * 100 ))
             systemctl set-property "user-${USER_ID}.slice" CPUQuota="${cpu_percent}%"
         fi
     fi
 
-    # RAM
+    # --- RAM Limit ---
     if [[ -n "$TOTAL_RAM" ]]; then
-        if [[ "$TOTAL_RAM" -eq 0 ]]; then
+        if [[ "$TOTAL_RAM" == "0" ]]; then
             systemctl set-property "user-${USER_ID}.slice" MemoryMax=infinity
         else
-            [[ "$TOTAL_RAM" != *G ]] && TOTAL_RAM="${TOTAL_RAM}G"
+            # Add G if numeric
+            if [[ "$TOTAL_RAM" =~ ^[0-9]+$ ]]; then
+                TOTAL_RAM="${TOTAL_RAM}G"
+            fi
+            # Uppercase the unit
+            TOTAL_RAM="${TOTAL_RAM^^}"
             systemctl set-property "user-${USER_ID}.slice" MemoryMax="$TOTAL_RAM"
         fi
     fi
+
 done
