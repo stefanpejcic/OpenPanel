@@ -63,4 +63,4 @@ for home_dir in /home/*; do
     echo "- User: $USER_ID | CPU: $cpu_limit | RAM: $ram_limit"
 done
 
-opencli docker-collect_stats --all
+opencli docker-collect_stats --all > /dev/null 2>&1
