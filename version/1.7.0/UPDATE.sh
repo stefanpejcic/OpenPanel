@@ -32,26 +32,33 @@ for home_dir in /home/*; do
     # --- CPU Limit ---
     if [[ -n "$TOTAL_CPU" ]]; then
         if [[ "$TOTAL_CPU" == "0" ]]; then
+            cpu_limit="infinity"
             systemctl set-property "user-${USER_ID}.slice" CPUQuota=infinity
         else
             cpu_percent=$(( TOTAL_CPU * 100 ))
+            cpu_limit="${cpu_percent}%"
             systemctl set-property "user-${USER_ID}.slice" CPUQuota="${cpu_percent}%"
         fi
+    else
+        cpu_limit="none"
     fi
 
     # --- RAM Limit ---
     if [[ -n "$TOTAL_RAM" ]]; then
         if [[ "$TOTAL_RAM" == "0" ]]; then
+            ram_limit="infinity"
             systemctl set-property "user-${USER_ID}.slice" MemoryMax=infinity
         else
             # Add G if numeric
-            if [[ "$TOTAL_RAM" =~ ^[0-9]+$ ]]; then
-                TOTAL_RAM="${TOTAL_RAM}G"
-            fi
-            # Uppercase the unit
-            TOTAL_RAM="${TOTAL_RAM^^}"
+            [[ "$TOTAL_RAM" =~ ^[0-9]+$ ]] && TOTAL_RAM="${TOTAL_RAM}G"
+            TOTAL_RAM="${TOTAL_RAM^^}"  # Uppercase unit
+            ram_limit="$TOTAL_RAM"
             systemctl set-property "user-${USER_ID}.slice" MemoryMax="$TOTAL_RAM"
         fi
+    else
+        ram_limit="none"
     fi
 
+    # Single echo per user
+    echo "- User: $USER_ID | CPU: $cpu_limit | RAM: $ram_limit"
 done
