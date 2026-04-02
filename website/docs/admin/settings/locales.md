@@ -32,10 +32,16 @@ Example: Install Turkish locale:
 opencli locale tr-tr
 ```
 
-Example: Install multiple locales at once:
+Example: Install multiple locales:
 
 ```bash
 opencli locale sr-sr tr-tr zh-cn
+```
+
+Example: Install all available locales:
+
+```bash
+opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-translations/contents" | jq -r '.[] | select(.type=="dir") | .name' | tr '\n' ' ')
 ```
 
   </TabItem>
