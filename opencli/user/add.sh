@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -88,9 +88,7 @@ hard_cleanup() {
   deluser --remove-home "$username" > /dev/null 2>&1   # command missing on alma!
   rm -rf /etc/openpanel/openpanel/core/users/"$username" > /dev/null 2>&1
   docker context rm "$username"  > /dev/null 2>&1
-  quotacheck -avm >/dev/null 2>&1
   mkdir -p /etc/openpanel/openpanel/core/users/
-  repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
   exit 1
 }
 
@@ -715,32 +713,32 @@ print_debug_info_before_starting_creation() {
 
     sep() { echo "--------------------------------------------------------------"; }
 
-    sep
     if [[ -n "$reseller" ]]; then
+		sep
         echo "Reseller user information:"
         echo "- Reseller:             $reseller"
         echo "- Existing accounts:    $current_accounts/$max_accounts"
-        sep
     fi
 
     if [[ -n "$node_ip_address" ]]; then
+		sep
         echo "Data for connecting to the Node server:"
         echo "- IP address:           $node_ip_address"
         echo "- Hostname:             $hostname"
         echo "- SSH user:             root"
         echo "- SSH key path:         $key"
-        sep
     fi
 
-    echo "Selected plan limits from database:"
-    echo "- plan id:           $plan_id"
-    echo "- plan name:         $plan_name"
-    echo "- cpu limit:         $([[ "$cpu" -eq 0 ]] && echo ""∞"" || echo "$cpu core(s)")"
-    echo "- memory limit:      $([[ "$ram" -eq 0 ]] && echo ""∞"" || echo "$ram GB")"
-    echo "- storage:           $([[ "$disk_limit" -eq 0 ]] && echo ""∞"" || echo "$disk_limit GB")"
-    echo "- inodes:            $([[ "$inodes" -eq 0 ]] && echo ""∞"" || echo "$inodes")"
-    echo "- port speed:        $bandwidth"
-    sep
+    # sep
+	#echo "Selected plan limits from database:"
+    #echo "- plan id:           $plan_id"
+    #echo "- plan name:         $plan_name"
+    #echo "- cpu limit:         $([[ "$cpu" -eq 0 ]] && echo ""∞"" || echo "$cpu core(s)")"
+	#echo "- memory limit:      $([[ "$ram" -eq 0 ]] && echo "∞" || echo "${ram%[gG]} GB")"
+    #echo "- storage:           $([[ "$disk_limit" -eq 0 ]] && echo ""∞"" || echo "$disk_limit GB")"
+    #echo "- inodes:            $([[ "$inodes" -eq 0 ]] && echo ""∞"" || echo "$inodes")"
+    #echo "- port speed:        $bandwidth"
+    #sep
 }
 
 
@@ -777,6 +775,33 @@ create_remote_user() {
  
 
 }
+
+
+set_cpu_and_ram() {
+    local cpu="$1"        # Number of CPU cores (0 = unlimited)
+    local ram="$2"        # RAM in GB (0 = unlimited)
+
+    if [[ "$cpu" -ne 0 ]] || [[ "$ram" -ne 0 ]]; then
+    	echo "Setting CPU and Memory limits.."
+	fi
+
+    if [[ "$cpu" -ne 0 ]]; then
+        # 1 core = 100%
+        local cpu_quota=$(echo "$cpu * 100" | bc)
+        echo "Applying CPU limit: $cpu_quota%"
+        systemctl set-property "user-$user_id.slice" CPUQuota=${cpu_quota}%
+    fi
+
+    if [[ "$ram" -ne 0 ]]; then
+        echo "Applying Memory limit: ${ram}G"
+        systemctl set-property "user-$user_id.slice" MemoryMax=${ram}G
+    fi
+
+	# TODO: cover remote context and 
+	# systemctl set-property user-1002.slice TasksMax=150 # Max processes
+	# systemctl set-property user-1002.slice IOWeight=500 # I/O weight
+}
+
 
 set_user_quota(){
    if [ "$disk_limit" -ne 0 ]; then
@@ -1302,7 +1327,7 @@ get_php_version() {
 	default_php_version=$(grep -oP '^DEFAULT_PHP_VERSION="\K[0-9]+\.[0-9]+' /etc/openpanel/docker/compose/1.0/.env | tr -d '\r\n')
     if [ -z "$default_php_version" ]; then
       if [ "$DEBUG" = true ]; then
-        echo "Default PHP version not found in .env file, using the fallback default version.."
+        echo "Default PHP version is not set, using the fallback default version.."
       fi
       default_php_version="8.4"
     fi
@@ -1395,10 +1420,9 @@ send_email_to_new_user() {
 
 
 reload_user_quotas() {
-    nohup bash -c "quotacheck -avm ; mkdir -p /etc/openpanel/openpanel/core/users/ && repquota -u / > /etc/openpanel/openpanel/core/users/repquota" &
+    nohup opencli user-quota &>/dev/null &
 	disown
 }
-
 
 generate_user_password_hash() {
 	if [ "$password" = "generate" ]; then
@@ -1459,6 +1483,7 @@ setup_ssh_key                                # set key for the user
 install_docker_and_add_user
 create_volume				                 # initializing user home dir
 docker_rootless                              # install 
+set_cpu_and_ram "$cpu" "$numram"
 docker_compose                               # magic happens here
 create_context                               # on master
 test_compose_command_for_user

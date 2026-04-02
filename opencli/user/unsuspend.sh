@@ -5,7 +5,7 @@
 # Usage: opencli user-unsuspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -84,16 +84,42 @@ unsuspend_user_domains() {
 }
 
 start_user_containers() {
-    local cores
+    local jobs
+    local names_file="/home/$context/stopped_containers_on_suspend.txt"
     jobs=$(( $(nproc) * 2 ))
+
     $DEBUG && echo "Starting containers for user: $USERNAME"
 
-    docker $CONTEXT_FLAG ps -a --format "{{.Names}}" |
-        xargs -r -n1 -P "$jobs" bash -c '
-            '"$DEBUG"' && echo "- Starting container: $0"
-            docker '"$CONTEXT_FLAG"' start "$0" > /dev/null 2>&1
-        '
+    if [ ! -f "$names_file" ] || [ ! -s "$names_file" ]; then
+        $DEBUG && echo "No saved containers to start for $USERNAME"
+        # fallback for <1.7.51
+        docker $CONTEXT_FLAG ps -a --format "{{.Names}}" |
+            xargs -r -n1 -P "$jobs" bash -c '
+                '"$DEBUG"' && echo "- Starting container: $0"
+                docker '"$CONTEXT_FLAG"' start "$0" > /dev/null 2>&1
+            '
+        return 0
+    fi
+
+    while IFS= read -r container; do
+        [ -z "$container" ] && continue
+
+        if docker $CONTEXT_FLAG inspect "$container" > /dev/null 2>&1; then
+            $DEBUG && echo "Starting container: $container"
+            docker $CONTEXT_FLAG start "$container" > /dev/null 2>&1
+        else
+            # Container doesn't exist — compose up
+            $DEBUG && echo "Container $container not found, running compose up"
+            (cd "/home/$context" && \
+                docker $CONTEXT_FLAG compose up -d "$container" > /dev/null 2>&1)
+        fi
+
+    done < "$names_file"
+
+    rm -f "$names_file"
+    $DEBUG && echo "Cleared $names_file"
 }
+
 
 rename_user_in_db() {
     local query="UPDATE users SET username='${USERNAME}' WHERE username LIKE 'SUSPENDED\\_%_${USERNAME}';"

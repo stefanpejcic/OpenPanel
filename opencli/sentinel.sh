@@ -373,9 +373,39 @@ check_disk_usage() {
   fi
   local pct; pct=$(df --output=pcent / | awk 'NR==2{gsub(/%/,"",$1); print $1+0}')
   if (( pct > DISK_THRESHOLD )); then
-    ((FAIL++)); STATUS=2
-    echo -e "\e[31m[✘]\e[0m Disk ${pct}% > threshold ${DISK_THRESHOLD}%"
-    write_notification "$title" "Disk usage: ${pct}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
+    # Try cleanup if not done in last 24h
+    local flag_file="/tmp/docker_system_prune.lock"
+    if [ -f "$flag_file" ]; then
+      local age=$(( $(date +%s) - $(stat -c %Y "$flag_file") ))
+      if [ "$age" -lt "$FLAG_TTL" ]; then
+        $DEBUG && echo "[$context] Skipping cleanup — ran ${age}s ago"
+        write_notification "$title" "Disk usage: ${pct}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
+        return
+      fi
+    fi
+
+    local kb_before; kb_before=$(df / | awk 'NR==2 {print $3}')
+
+    timeout 30 docker --context="default" system prune -f --filter "until=24h" > /dev/null 2>&1
+    for context in /home/*; do
+       [ -d "$context" ] || continue
+       context_name=$(basename "$context")
+       timeout 15 docker --context="$context_name" system prune -f --filter "until=24h" > /dev/null 2>&1
+    done
+    touch "$flag_file"
+
+    local kb_after; kb_after=$(df / | awk 'NR==2 {print $3}')
+    local freed_gb=$(( (kb_before - kb_after) / 1024 / 1024 ))
+    local pct_after; pct_after=$(df --output=pcent / | awk 'NR==2{gsub(/%/,"",$1); print $1+0}')
+
+    if (( freed_gb >= 1 )); then
+      write_notification "$title" "Disk was ${pct}%, freed ${freed_gb}GB, now at ${pct_after}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
+      ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Disk was ${pct}%, sentinel freed ${freed_gb}GB, disk is now at ${pct_after}%."; return   
+    else
+      ((FAIL++)); STATUS=2
+      echo -e "\e[31m[✘]\e[0m Disk was ${pct}% > threshold ${DISK_THRESHOLD}%"
+      write_notification "$title" "Disk usage: ${pct}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
+    fi
   else
     ((PASS++)); echo -e "\e[32m[✔]\e[0m Disk ${pct}% < threshold ${DISK_THRESHOLD}%"
   fi

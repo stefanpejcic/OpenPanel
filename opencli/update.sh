@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -252,7 +252,11 @@ update_check() {
         echo '{"error": "Error fetching remote version"}' >&2
         exit 1
     fi
-    
+
+    if [[ "$remote_version" == *-beta ]]; then
+        exit 0
+    fi
+
     local comparison
     comparison=$(compare_versions "$local_version" "$remote_version")
     
@@ -586,13 +590,14 @@ run_update_immediately() {
     current_major=$(echo "$local_version" | cut -d. -f1)
     new_major=$(echo "$version" | cut -d. -f1)
     if [[ "$current_major" -lt "$new_major" ]]; then
-        log "Updating system packages"
-        install_required_tools
-        update_system_packages
-        remove_old_kernels
-        check_reboot_required
-        log "Updating Docker Compose"
-        update_docker_compose
+        #log "Updating system packages"
+        :
+        #install_required_tools
+        #update_system_packages
+        #remove_old_kernels
+        #check_reboot_required
+        #log "Updating Docker Compose"
+        #update_docker_compose
     else
         log "[✔] Minor update - skipping system and Docker Compose updates"
     fi

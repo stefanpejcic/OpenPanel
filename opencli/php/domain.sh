@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -109,7 +109,7 @@ fi
 sed -i "s/php-fpm-[0-9.]\+/php-fpm-$new_php_version/g" "$domain_path_in_volume"
 
 # 2. start new php version container if not running
-nohup sh -c "opencli user-resources $owner --activate=php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
+nohup sh -c "cd /home/$owner && docker --context=$owner compose up -d php-fpm-${new_php_version}" </dev/null >nohup.out 2>nohup.err &
 
 # 3. restart webserver
 nohup sh -c "docker --context $context restart $WEB_SERVER" </dev/null >nohup.out 2>nohup.err &
@@ -130,7 +130,7 @@ if [ -n "$default_php_version" ] && [ "$old_php_version" != "$default_php_versio
 	user_vhost_dir="/home/$context/docker-data/volumes/${context}_webserver_data/_data/"
 	user_vhost_files=$(find "$user_vhost_dir" -type f -name "*.conf" -user "$owner")
     if ! grep -rq "php-fpm-$old_php_version" "$user_vhost_dir" --include="*.conf"; then	
-        nohup sh -c "opencli user-resources $owner --deactivate=php-fpm-${old_php_version}" </dev/null >nohup.out 2>nohup.err &
+		nohup sh -c "cd /home/$owner && docker --context=$owner compose down php-fpm-${old_php_version}" </dev/null >nohup.out 2>nohup.err &
         disown
     fi
 fi

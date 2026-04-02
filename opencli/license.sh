@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -121,7 +121,7 @@ verify_license_api() {
     ip_address=$(get_public_ip)
     check_token=$(openssl rand -hex 16)
     
-    response=$(curl -sS -X POST -d "licensekey=$license_key&ip=$ip_address&check_token=$check_token" "$WHMCS_URL")
+    response=$(curl -sS --connect-timeout 1 --max-time 2 -X POST -d "licensekey=$license_key&ip=$ip_address&check_token=$check_token" "$WHMCS_URL")
     echo "$response" | grep -oP '(?<=<status>).*?(?=</status>)'
 }
 
@@ -302,7 +302,7 @@ show_license_info() {
     ip_address=$(get_public_ip)
     check_token=$(openssl rand -hex 16)
     
-    response=$(curl -sS -X POST -d "licensekey=$license_key&ip=$ip_address&check_token=$check_token" "$WHMCS_URL")
+    response=$(curl -sS --connect-timeout 1 --max-time 2 -X POST -d "licensekey=$license_key&ip=$ip_address&check_token=$check_token" "$WHMCS_URL")
     license_status=$(extract_xml_field "$response" "status")
     
     if [[ "$license_status" == "Active" ]]; then

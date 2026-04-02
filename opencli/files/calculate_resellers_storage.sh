@@ -5,7 +5,7 @@
 # Usage: opencli files-calculate_resellers_storage
 # Author: Stefan Pejcic
 # Created: 24.09.2025
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,7 +28,6 @@
 # THE SOFTWARE.
 ################################################################################
 
-readonly REPQUOTA_PATH="/etc/openpanel/openpanel/core/users/repquota"
 readonly DB_CONFIG="/usr/local/opencli/db.sh"
 
 # Source database configuration
@@ -66,61 +65,54 @@ validate_db_config() {
 
 
 process_resellers() {
-	resellers=$(opencli admin list | awk -F'|' '$2=="reseller" && $3=="1" {print $1}')
-	resellers_count=$(echo "$resellers" | wc -w)	 
-	echo "Total resellers: $resellers_count"
-	echo
-	
-	for reseller in $resellers; do
-  
-	    users=$(mysql --defaults-extra-file="$config_file" -N -D "$mysql_database" \
-		-e "SELECT username FROM users WHERE owner='$reseller';")
-	    
-	    if [ -z "$users" ]; then
-	        echo "$reseller has no user accounts - skipping.."
-		continue
-	    else
-	    	count=$(echo "$users" | wc -w)	    
-	        echo "$reseller has ($count) accounts - total disk blocks usage:"
-	    fi
+    resellers=$(opencli admin list | awk -F'|' '$2=="reseller" && $3=="1" {print $1}')
+    resellers_count=$(echo "$resellers" | wc -w)
+    echo "Total resellers: $resellers_count"
+    echo
 
-	    total_blocks_used=0
+    # Get full user quota JSON once
+    quota_json=$(opencli user-quota 2>/dev/null)
+    
+    for reseller in $resellers; do
+        users=$(mysql --defaults-extra-file="$config_file" -N -D "$mysql_database" \
+            -e "SELECT username FROM users WHERE owner='$reseller';")
+        
+        if [ -z "$users" ]; then
+            echo "$reseller has no user accounts - skipping.."
+            continue
+        else
+            count=$(echo "$users" | wc -w)
+            echo "$reseller has ($count) accounts - total disk blocks usage:"
+        fi
 
-	    reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
-	    if [[ -f "$reseller_limits_file" ]]; then
-	    	total_blocks_hard=$(jq -r '.max_disk_blocks // 0' "$reseller_limits_file")
-	    else
-	    	echo "Warning: Reseller config file not found: $reseller_limits_file"
-	    	total_blocks_hard=0
-	    fi
+        total_blocks_used=0
+        reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
+        if [[ -f "$reseller_limits_file" ]]; then
+            total_blocks_hard=$(jq -r '.max_disk_blocks // 0' "$reseller_limits_file")
+        else
+            echo "Warning: Reseller config file not found: $reseller_limits_file"
+            total_blocks_hard=0
+        fi
 
+        # Sum disk_used for all users of this reseller
+        for user in $users; do
+            user_blocks=$(echo "$quota_json" | jq -r --arg u "$user" '.users[] | select(.username==$u) | .disk_used // 0')
+            total_blocks_used=$((total_blocks_used + user_blocks))
+        done
 
-	    # Collect usage from repquota
-	    for user in $users; do
-      		read blocks_used < <(
-      		    awk -v u="$user" '$1==u {print $3}' "$REPQUOTA_PATH"
-      		)
-		
-      		if [ -n "$blocks_used" ]; then
-      		    total_blocks_used=$((total_blocks_used + blocks_used))
-      		fi
-	    done
-	    
-	    total_blocks_used=${total_blocks_used:-0}
-	    total_blocks_hard=${total_blocks_hard:-0}
+        total_blocks_used=${total_blocks_used:-0}
+        total_blocks_hard=${total_blocks_hard:-0}
 
-  		jq --argjson current_disk_blocks "$total_blocks_used" \
-  		   --argjson max_disk_blocks "$total_blocks_hard" \
-  		   '.current_disk_blocks = $current_disk_blocks | .max_disk_blocks = $max_disk_blocks' \
-  		   "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
-  		   && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
-	    
-	    echo "${total_blocks_used} / ${total_blocks_hard} (blocks)"
-	    echo
-	    echo "------------------------------------------------"
+        jq --argjson current_disk_blocks "$total_blocks_used" \
+           --argjson max_disk_blocks "$total_blocks_hard" \
+           '.current_disk_blocks = $current_disk_blocks | .max_disk_blocks = $max_disk_blocks' \
+           "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
+           && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
 
-
-	done
+        echo "${total_blocks_used} / ${total_blocks_hard} (blocks)"
+        echo
+        echo "------------------------------------------------"
+    done
 }
 
 

@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -815,7 +815,7 @@ restart_services_on_target() {
 
 refresh_quotas() {
             log "Recalculating disk and inodes usage for all users on ${REMOTE_HOST} ..."
-            $SSH_CMD "quotacheck -avm >/dev/null 2>&1; repquota -u / > /etc/openpanel/openpanel/core/users/repquota"
+            $SSH_CMD "opencli user-quota >/dev/null 2>&1"
 }
 
 
@@ -851,7 +851,7 @@ get_remote_nameservers
 rsync_files_for_user
 copy_docker_context # create context on dest, start service
 $SSH_CMD "systemctl daemon-reload" 
-$SSH_CMD "opencli user-quota $USERNAME >/dev/null 2>&1" # set quotas
+$SSH_CMD "opencli user-quota --update $USERNAME >/dev/null 2>&1" # set quotas
 $SSH_CMD "mkdir -p /var/log/caddy/stats/ /var/log/caddy/domlogs/ /var/log/caddy/coraza_waf/ /etc/openpanel/caddy/domains/ /etc/bind/zones/ /etc/openpanel/caddy/ssl/certs/ /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/ /etc/openpanel/caddy/ssl/custom/ /etc/openpanel/openpanel/core/users/"
 
 # todo: folder just for that user!

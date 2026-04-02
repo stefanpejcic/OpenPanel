@@ -5,7 +5,7 @@
 # Usage: opencli domains-dnssec <DOMAIN> [--update | --check]
 # Author: Stefan Pejcic
 # Created: 09.07.2024
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.49\n"
+"Project-Id-Version: OpenPanel 1.7.50\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-01 00:27+0200\n"
+"POT-Creation-Date: 2026-04-02 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -98,7 +98,7 @@ msgstr ""
 msgid "Error deleting cron job."
 msgstr ""
 
-#: modules/dashboard.py:65 modules/dashboard.py:131
+#: modules/dashboard.py:65 modules/dashboard.py:125
 msgid "User ID not found."
 msgstr ""
 
@@ -110,11 +110,11 @@ msgstr ""
 msgid "Invalid JSON output from Docker command"
 msgstr ""
 
-#: modules/dashboard.py:139
+#: modules/dashboard.py:129
 msgid "Failed to retrieve disk usage information."
 msgstr ""
 
-#: modules/dashboard.py:177 modules/dashboard.py:201 modules/dashboard.py:465
+#: modules/dashboard.py:165 modules/dashboard.py:189 modules/dashboard.py:453
 #: modules/docker.py:1016 modules/docker.py:1030 modules/webserver_conf.py:48
 msgid "User not authenticated"
 msgstr ""
@@ -139,8 +139,8 @@ msgstr ""
 #: modules/website_builder.py:156 modules/website_builder.py:291
 #: modules/websites.py:52 modules/websites.py:249 modules/websites.py:310
 #: modules/websites.py:472 modules/websites.py:556 modules/websites.py:1008
-#: modules/wordpress.py:595 modules/wordpress.py:929 modules/wordpress.py:1068
-#: modules/wordpress.py:1728
+#: modules/wordpress.py:599 modules/wordpress.py:936 modules/wordpress.py:1075
+#: modules/wordpress.py:1735
 msgid "You do not own this domain."
 msgstr ""
 
@@ -196,8 +196,7 @@ msgid "New content not provided."
 msgstr ""
 
 #: modules/docker.py:193 templates/dashboard/dashboard.html:203
-#: templates/dashboard/usage.html:281 templates/docker/containers.html:9
-#: templates/docker/volumes_TODO.html:10
+#: templates/docker/containers.html:9 templates/docker/volumes_TODO.html:10
 msgid "Containers"
 msgstr ""
 
@@ -452,7 +451,7 @@ msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:42
-#: modules/wordpress.py:907 modules/wordpress.py:1061
+#: modules/wordpress.py:914 modules/wordpress.py:1068
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -489,8 +488,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:107 modules/mysql.py:328 modules/mysql.py:626
-#: modules/mysql.py:810 modules/postgresql.py:80 modules/postgresql.py:578
+#: modules/mysql.py:107 modules/mysql.py:328 modules/mysql.py:596
+#: modules/mysql.py:780 modules/postgresql.py:80 modules/postgresql.py:578
 msgid "Database name is required."
 msgstr ""
 
@@ -499,8 +498,8 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:191 modules/mysql.py:318 modules/mysql.py:665
-#: modules/mysql.py:702 modules/mysql.py:803 modules/postgresql.py:164
+#: modules/mysql.py:191 modules/mysql.py:318 modules/mysql.py:635
+#: modules/mysql.py:672 modules/mysql.py:773 modules/postgresql.py:164
 #: modules/postgresql.py:627 modules/postgresql.py:713
 msgid "User name is required."
 msgstr ""
@@ -515,7 +514,7 @@ msgstr ""
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:237 modules/mysql.py:709 modules/mysql.py:821
+#: modules/mysql.py:237 modules/mysql.py:679 modules/mysql.py:791
 #: modules/postgresql.py:229 modules/postgresql.py:735
 msgid "This is a system username that can not be edited."
 msgstr ""
@@ -550,44 +549,44 @@ msgstr ""
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:481 templates/dashboard/dashboard.html:150
+#: modules/mysql.py:466 templates/dashboard/dashboard.html:150
 #: templates/dashboard/dashboard.html:162 templates/dashboard/usage.html:62
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:536 modules/postgresql.py:505
+#: modules/mysql.py:506 modules/postgresql.py:505
 #: templates/dashboard/dashboard.html:151
 #: templates/dashboard/dashboard.html:163
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:565
+#: modules/mysql.py:535
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:569
+#: modules/mysql.py:539
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:571
+#: modules/mysql.py:541
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:573
+#: modules/mysql.py:543
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:597 modules/postgresql.py:546
+#: modules/mysql.py:567 modules/postgresql.py:546
 #: templates/dashboard/dashboard.html:156
 #: templates/dashboard/dashboard.html:167
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:672
+#: modules/mysql.py:642
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:817
+#: modules/mysql.py:787
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -867,12 +866,12 @@ msgstr ""
 msgid "Choose Service"
 msgstr ""
 
-#: modules/usage.py:47 templates/dashboard/dashboard.html:216
+#: modules/usage.py:24 templates/dashboard/dashboard.html:216
 #: templates/user/stats.html:21
 msgid "Resource Usage"
 msgstr ""
 
-#: modules/usage.py:102 templates/dashboard/dashboard.html:217
+#: modules/usage.py:80 templates/dashboard/dashboard.html:217
 msgid "Resource Usage History"
 msgstr ""
 
@@ -1016,65 +1015,65 @@ msgstr ""
 msgid "Domain not found."
 msgstr ""
 
-#: modules/wordpress.py:634
+#: modules/wordpress.py:641
 msgid "Hardening rules have been successfully applied to the website"
 msgstr ""
 
-#: modules/wordpress.py:636
+#: modules/wordpress.py:643
 msgid "Failed to apply hardening rules to the website - please try again"
 msgstr ""
 
-#: modules/wordpress.py:728
+#: modules/wordpress.py:735
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:918
+#: modules/wordpress.py:925
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:968
+#: modules/wordpress.py:975
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:1022
+#: modules/wordpress.py:1029
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:1029
+#: modules/wordpress.py:1036
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:1041
+#: modules/wordpress.py:1048
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1084
+#: modules/wordpress.py:1091
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1089
+#: modules/wordpress.py:1096
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1092
+#: modules/wordpress.py:1099
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1289 modules/wordpress.py:1507
+#: modules/wordpress.py:1296 modules/wordpress.py:1514
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1318 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1325 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1472
+#: modules/wordpress.py:1479
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1538 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1545 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1736,11 +1735,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:737
+#: modules/json/helpers.py:731
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:743
+#: modules/json/helpers.py:737
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1888,9 +1887,10 @@ msgstr ""
 msgid "Enabled"
 msgstr ""
 
-#: templates/cache/service.html:68 templates/mysql/phpmyadmin.html:66
-#: templates/mysql/remote_mysql.html:85 templates/psql/pgadmin.html:72
-#: templates/psql/remote_psql.html:83 templates/system/services.html:76
+#: templates/cache/service.html:68 templates/docker/containers.html:333
+#: templates/mysql/phpmyadmin.html:66 templates/mysql/remote_mysql.html:85
+#: templates/psql/pgadmin.html:72 templates/psql/remote_psql.html:83
+#: templates/system/services.html:76
 msgid "Disabled"
 msgstr ""
 
@@ -1953,7 +1953,7 @@ msgstr ""
 msgid "Top"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:29
+#: templates/dashboard/dashboard.html:29 templates/docker/containers.html:342
 #: templates/manager/python_node_apps.html:996
 msgid "Start"
 msgstr ""
@@ -2244,97 +2244,13 @@ msgstr ""
 msgid "CPU Usage"
 msgstr ""
 
-#: templates/dashboard/usage.html:199
-msgid "Displays the current CPU consumption of all running Docker containers."
-msgstr ""
-
-#: templates/dashboard/usage.html:202
-msgid "Shows the combined CPU usage from all running services."
-msgstr ""
-
-#: templates/dashboard/usage.html:204 templates/dashboard/usage.html:248
-msgid "Total allocated is:"
-msgstr ""
-
-#: templates/dashboard/usage.html:204
-msgid "Cores"
-msgstr ""
-
-#: templates/dashboard/usage.html:237 templates/docker/containers.html:71
+#: templates/dashboard/usage.html:223 templates/docker/containers.html:71
 #: templates/docker/containers.html:160
 msgid "Memory Usage"
 msgstr ""
 
-#: templates/dashboard/usage.html:243
-msgid "Displays the current Memory consumption of all running Docker containers."
-msgstr ""
-
-#: templates/dashboard/usage.html:246
-msgid "Shows the combined Memory usage from all running services."
-msgstr ""
-
-#: templates/dashboard/usage.html:248
-msgid "GB"
-msgstr ""
-
-#: templates/dashboard/usage.html:287
-msgid "Displays total number of running Docker containers."
-msgstr ""
-
-#: templates/dashboard/usage.html:290
-msgid "Shows the total number of running services."
-msgstr ""
-
-#: templates/dashboard/usage.html:308 templates/docker/containers.html:81
-#: templates/docker/containers.html:164 templates/partials/_service_js.html:35
-#: templates/user/history_usage.html:142 templates/user/stats.html:96
-msgid "Block I/O"
-msgstr ""
-
-#: templates/dashboard/usage.html:314
-msgid "Displays total read/write on disk by all running Docker containers."
-msgstr ""
-
-#: templates/dashboard/usage.html:317
-msgid "Shows the total disk read/write usage from all running services."
-msgstr ""
-
-#: templates/dashboard/usage.html:335 templates/partials/_service_js.html:34
-#: templates/user/stats.html:94
-msgid "Network I/O"
-msgstr ""
-
-#: templates/dashboard/usage.html:341
-msgid ""
-"Displays total sent/received data on network interface by all running "
-"Docker containers."
-msgstr ""
-
-#: templates/dashboard/usage.html:344
-msgid "Shows the total network sent/received bandwidth by running services."
-msgstr ""
-
-#: templates/dashboard/usage.html:362 templates/docker/containers.html:101
-#: templates/docker/containers.html:170 templates/user/stats.html:99
-msgid "PIDs"
-msgstr ""
-
-#: templates/dashboard/usage.html:368
-msgid ""
-"Displays the number of processes or threads created by all running Docker"
-" containers."
-msgstr ""
-
-#: templates/dashboard/usage.html:371
-msgid "Shows the number of processes created by all running services."
-msgstr ""
-
-#: templates/dashboard/usage.html:387
-msgid "Measured:"
-msgstr ""
-
-#: templates/dashboard/usage.html:411 templates/dashboard/usage.html:412
-#: templates/dashboard/usage.html:413 templates/dashboard/usage.html:414
+#: templates/dashboard/usage.html:263 templates/dashboard/usage.html:264
+#: templates/dashboard/usage.html:265 templates/dashboard/usage.html:266
 #: templates/manager/mautic.html:213 templates/manager/mautic.html:256
 #: templates/manager/python_node_apps.html:1185
 #: templates/manager/websitebuilder.html:412
@@ -2506,6 +2422,7 @@ msgid "Back to Containers"
 msgstr ""
 
 #: templates/docker/container_form.html:226
+#: templates/docker/containers.html:264 templates/docker/containers.html:318
 #: templates/domains/capitalize.html:114 templates/domains/dns.html:176
 #: templates/domains/dns.html:421 templates/domains/domains.html:273
 #: templates/domains/domains.html:303 templates/files/edit_file.html:104
@@ -2525,7 +2442,11 @@ msgstr ""
 msgid "Total CPU:"
 msgstr ""
 
-#: templates/docker/containers.html:15
+#: templates/docker/containers.html:14 templates/docker/containers.html:259
+msgid "cores"
+msgstr ""
+
+#: templates/docker/containers.html:15 templates/user/stats.html:65
 msgid "Total Memory:"
 msgstr ""
 
@@ -2562,9 +2483,17 @@ msgstr ""
 msgid "Name"
 msgstr ""
 
+#: templates/docker/containers.html:81 templates/docker/containers.html:164
+#: templates/partials/_service_js.html:35
+msgid "Block I/O"
+msgstr ""
+
 #: templates/docker/containers.html:91 templates/docker/containers.html:167
-#: templates/user/history_usage.html:141
 msgid "Net I/O"
+msgstr ""
+
+#: templates/docker/containers.html:101 templates/docker/containers.html:170
+msgid "PIDs"
 msgstr ""
 
 #: templates/docker/containers.html:121 templates/docker/containers.html:178
@@ -2584,15 +2513,57 @@ msgstr ""
 msgid "New Service"
 msgstr ""
 
-#: templates/docker/containers.html:422
+#: templates/docker/containers.html:253 templates/docker/containers.html:305
+msgid "Usage:"
+msgstr ""
+
+#: templates/docker/containers.html:258 templates/docker/containers.html:309
+msgid "Allocated:"
+msgstr ""
+
+#: templates/docker/containers.html:263
+msgid "Max CPUs that this service can use. 0 = unlimited"
+msgstr ""
+
+#: templates/docker/containers.html:316
+msgid "Max Memory that this service can use. 0 = unlimited"
+msgstr ""
+
+#: templates/docker/containers.html:343
+msgid "Pull & Start"
+msgstr ""
+
+#: templates/docker/containers.html:351 templates/domains/vhost.html:24
+#: templates/domains/vhost.html:25 templates/domains/vhost.html:62
+#: templates/files/filemanager/actions_buttons.html:30
+#: templates/files/filemanager/new_actions_buttons.html:33
+#: templates/system/cronjobs.html:189
+msgid "Edit"
+msgstr ""
+
+#: templates/docker/containers.html:355 templates/domains/domains.html:425
+#: templates/emails/delete.html:9 templates/emails/single_account.html:35
+#: templates/files/filemanager/actions_buttons.html:18
+#: templates/files/filemanager/delete.html:40
+#: templates/files/filemanager/deleteTrash.html:25
+#: templates/files/filemanager/new_actions_buttons.html:21
+#: templates/files/ftp.html:116 templates/files/trash.html:35
+#: templates/manager/python_node_apps.html:864
+#: templates/manager/websitebuilder.html:229 templates/mysql/databases.html:199
+#: templates/mysql/users.html:113 templates/psql/databases.html:174
+#: templates/psql/users.html:120
+msgid "Delete"
+msgstr ""
+
+#: templates/docker/containers.html:418
 msgid "Checking containers runtime metrics.."
 msgstr ""
 
-#: templates/docker/containers.html:438
+#: templates/docker/containers.html:434
 msgid "No container are currently running."
 msgstr ""
 
-#: templates/docker/containers.html:552
+#: templates/docker/containers.html:548
 msgid "Error fetching docker stats for containers."
 msgstr ""
 
@@ -3152,20 +3123,6 @@ msgstr ""
 msgid "Capitalize"
 msgstr ""
 
-#: templates/domains/domains.html:425 templates/emails/delete.html:9
-#: templates/emails/single_account.html:35
-#: templates/files/filemanager/actions_buttons.html:18
-#: templates/files/filemanager/delete.html:40
-#: templates/files/filemanager/deleteTrash.html:25
-#: templates/files/filemanager/new_actions_buttons.html:21
-#: templates/files/ftp.html:116 templates/files/trash.html:35
-#: templates/manager/python_node_apps.html:864
-#: templates/manager/websitebuilder.html:229 templates/mysql/databases.html:199
-#: templates/mysql/users.html:113 templates/psql/databases.html:174
-#: templates/psql/users.html:120
-msgid "Delete"
-msgstr ""
-
 #: templates/domains/domains.html:609
 msgid "Showing domains"
 msgstr ""
@@ -3184,12 +3141,12 @@ msgid "Page navigation"
 msgstr ""
 
 #: templates/domains/domains.html:618 templates/domains/domains.html:619
-#: templates/user/activity.html:117 templates/user/history_usage.html:177
+#: templates/user/activity.html:117 templates/user/history_usage.html:182
 msgid "Previous"
 msgstr ""
 
 #: templates/domains/domains.html:640 templates/domains/domains.html:641
-#: templates/user/activity.html:137 templates/user/history_usage.html:205
+#: templates/user/activity.html:137 templates/user/history_usage.html:210
 msgid "Next"
 msgstr ""
 
@@ -3513,14 +3470,6 @@ msgstr ""
 
 #: templates/domains/unsuspend.html:66
 msgid "Select Domain to Unsuspend"
-msgstr ""
-
-#: templates/domains/vhost.html:24 templates/domains/vhost.html:25
-#: templates/domains/vhost.html:62
-#: templates/files/filemanager/actions_buttons.html:30
-#: templates/files/filemanager/new_actions_buttons.html:33
-#: templates/system/cronjobs.html:189
-msgid "Edit"
 msgstr ""
 
 #: templates/domains/vhost.html:24 templates/domains/vhost.html:62
@@ -5994,7 +5943,7 @@ msgid ""
 "websites."
 msgstr ""
 
-#: templates/manager/wp/list.html:77 templates/user/stats.html:30
+#: templates/manager/wp/list.html:77
 msgid "Refresh Data"
 msgstr ""
 
@@ -7112,9 +7061,13 @@ msgstr ""
 msgid "RAM Usage"
 msgstr ""
 
-#: templates/partials/_service_js.html:33
+#: templates/partials/_service_js.html:33 templates/user/history_usage.html:142
 #, python-format
 msgid "Memory %%"
+msgstr ""
+
+#: templates/partials/_service_js.html:34
+msgid "Network I/O"
 msgstr ""
 
 #: templates/partials/_service_log.html:12
@@ -7398,7 +7351,7 @@ msgid "PHP Extensions"
 msgstr ""
 
 #: templates/php/extensions.html:11
-msgid "View active extensions for running PHP versions."
+msgid "View active extensions for active PHP versions."
 msgstr ""
 
 #: templates/php/extensions.html:54
@@ -8004,7 +7957,7 @@ msgstr ""
 msgid "PPID"
 msgstr ""
 
-#: templates/system/process_manager.html:82 templates/user/stats.html:52
+#: templates/system/process_manager.html:82 templates/user/stats.html:44
 msgid "CPU"
 msgstr ""
 
@@ -8333,11 +8286,20 @@ msgid "Show all data"
 msgstr ""
 
 #: templates/user/history_usage.html:138
-msgid "CPU &#37;"
+#, python-format
+msgid "CPU %%"
 msgstr ""
 
 #: templates/user/history_usage.html:140
-msgid "Memory &#37;"
+msgid "CPU Total"
+msgstr ""
+
+#: templates/user/history_usage.html:144
+msgid "Memory Used/Total"
+msgstr ""
+
+#: templates/user/history_usage.html:146
+msgid "Warning"
 msgstr ""
 
 #: templates/user/locale.html:11
@@ -8408,27 +8370,31 @@ msgstr ""
 msgid "View current resource usage for all websites and services."
 msgstr ""
 
-#: templates/user/stats.html:33
+#: templates/user/stats.html:26
 msgid "View Usage History"
 msgstr ""
 
-#: templates/user/stats.html:57
+#: templates/user/stats.html:49
 msgid "Current CPU usage:"
 msgstr ""
 
-#: templates/user/stats.html:66
+#: templates/user/stats.html:50
+msgid "Total CPU allocation:"
+msgstr ""
+
+#: templates/user/stats.html:59
 msgid "RAM"
 msgstr ""
 
-#: templates/user/stats.html:71
-msgid "Current Memory usage:"
+#: templates/user/stats.html:64
+msgid "Used Memory:"
 msgstr ""
 
-#: templates/user/stats.html:140
-msgid "Displaying real-time information"
+#: templates/user/stats.html:66
+msgid "Available Memory:"
 msgstr ""
 
-#: templates/user/stats.html:142
+#: templates/user/stats.html:75
 msgid "Last refreshed at"
 msgstr ""
 

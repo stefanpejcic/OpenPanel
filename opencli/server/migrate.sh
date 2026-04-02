@@ -5,7 +5,7 @@
 # Usage: opencli server-migrate -h <DESTINATION_IP> --user root --password <DESTINATION_PASSWORD>
 # Author: Stefan Pejcic
 # Created: 26.06.2025
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -399,7 +399,7 @@ restart_services_on_target() {
 refresh_quotas() {
             echo "Recalculating disk and inodes usage for all users on ${REMOTE_HOST} ..."
             sshpass -p "$REMOTE_PASS" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${REMOTE_HOST}" \
-                "quotacheck -avm >/dev/null 2>&1; repquota -u / > /etc/openpanel/openpanel/core/users/repquota"
+                "opencli user-quota >/dev/null 2>&1"
 }
 
   
@@ -467,7 +467,7 @@ sshpass -p "$REMOTE_PASS" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${REMO
 # set quotas
 echo "Restoring user quotas ..."
 sshpass -p "$REMOTE_PASS" ssh -o StrictHostKeyChecking=no "${REMOTE_USER}@${REMOTE_HOST}" \
-	"opencli user-quota --all"
+	"opencli user-quota --update --all"
 
 
 if [[ $EXCLUDE_LOGS -eq 0 ]]; then

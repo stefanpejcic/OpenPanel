@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -267,7 +267,7 @@ configure_mailserver() {
 # Restart services
 restart_services() {
 
-    if docker --context default compose ps -q caddy >/dev/null 2>&1; then
+	if docker --context default compose -f /root/docker-compose.yml ps -q caddy >/dev/null 2>&1; then
         nohup docker --context default restart caddy >/dev/null 2>&1 &
         disown
     else

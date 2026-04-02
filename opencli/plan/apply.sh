@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -126,16 +126,28 @@ for username in "${usernames[@]}"; do
         "SELECT plan_id, server FROM users WHERE username = '$username'")
 
     # 5. update limits
-    
+    user_id=$(id -u "$username")
     # RAM
     if ! $partial || $doram; then
-        sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${ram}\"/" "/home/$context/.env"
+        sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${ram}\"/" "/home/$context/.env" # legacy
+        if [[ "$ram" -eq 0 ]]; then
+            systemctl set-property "user-${user_id}.slice" MemoryMax=infinity
+        else
+            [[ "$ram" != *G ]] && ram="${ram}G"
+            systemctl set-property "user-${user_id}.slice" MemoryMax="$ram"
+        fi
         echo "- Memory:     [OK]   $ram_text"
     fi
     
     # CPU
     if ! $partial || $docpu; then
-        sed -i "s/^TOTAL_CPU=\"[^\"]*\"/TOTAL_CPU=\"${cpu}\"/" "/home/$context/.env"
+        sed -i "s/^TOTAL_CPU=\"[^\"]*\"/TOTAL_CPU=\"${cpu}\"/" "/home/$context/.env" # legacy
+        if [[ "$cpu" -eq 0 ]]; then
+            systemctl set-property "user-${user_id}.slice" CPUQuota=infinity
+        else
+            cpu_percent=$(echo "$cpu * 100" | bc)
+            systemctl set-property "user-${user_id}.slice" CPUQuota="${cpu_percent}%"
+        fi
         echo "- CPU:        [OK]   $cpu_text"
     fi
 
@@ -168,9 +180,9 @@ done
 echo "+=============================================================================+"
 echo "Completed!"
 
-# 6. quotacheck if disk limits were updated
+# 6. refresh quotas file if disk limits were updated
 if ! $partial || $dodsk; then
-    nohup bash -c 'quotacheck -avm >/dev/null 2>&1; repquota -u / > /etc/openpanel/openpanel/core/users/repquota' >/dev/null 2>&1 &
+    nohup opencli user-quota >/dev/null 2>&1 &
     disown
 fi
 

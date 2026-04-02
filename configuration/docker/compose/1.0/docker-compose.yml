@@ -22,7 +22,7 @@ services:
       - ./php.ini/8.2.ini:/usr/local/lsws/lsphp82/etc/php/8.2/litespeed/php.ini
       - ./php.ini/8.3.ini:/usr/local/lsws/lsphp83/etc/php/8.3/litespeed/php.ini
       - ./php.ini/8.4.ini:/usr/local/lsws/lsphp84/etc/php/8.4/litespeed/php.ini
-      - ./php.ini/8.5.ini:/usr/local/lsws/lsphp84/etc/php/8.5/litespeed/php.ini
+      - ./php.ini/8.5.ini:/usr/local/lsws/lsphp85/etc/php/8.5/litespeed/php.ini
     deploy:
       resources:
         limits:
@@ -152,21 +152,42 @@ services:
       - www
       - db
 
+  docker-proxy:
+    image: tecnativa/docker-socket-proxy
+    environment:
+      CONTAINERS: 1
+      POST: 1
+    volumes:
+      - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
+    deploy:
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: "64M"
+          pids: 50
+    networks:
+      - socket-proxy
 
   cron:
     image: mcuadros/ofelia:latest
     container_name: cron
     restart: unless-stopped
+    environment:
+      DOCKER_HOST: tcp://docker-proxy:2375
     command: daemon --config=/crons.ini
+    depends_on:
+      docker-proxy:
+        condition: service_started
     volumes:
-      - /hostfs/run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
-      - /hostfs/home/${CONTEXT}/crons.ini:/crons.ini:ro
+      - /home/${CONTEXT}/crons.ini:/crons.ini:ro
     deploy:
       resources:
         limits:
           cpus: "${CRON_CPU:-0.5}"
           memory: "${CRON_RAM:-0.5G}"
           pids: 100
+    networks:
+      - socket-proxy
           
   mysql:
     image: mysql:${MYSQL_VERSION:-latest}
@@ -239,7 +260,7 @@ services:
       - "${MYSQL_TYPE:-mysql}"
     image: phpmyadmin:${PMA_VERSION:-latest}
     volumes:
-      - html_data:/html/  
+      #- html_data:/html/  
       - ./pma.php:/var/www/html/pma.php
       - /etc/openpanel/mysql/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
     ports:
@@ -830,7 +851,11 @@ services:
     image: offen/docker-volume-backup:v2
     container_name: backup
     environment:
-      - USERNAME=${CONTEXT}
+      USERNAME: ${CONTEXT}
+      DOCKER_HOST: tcp://docker-proxy:2375
+    depends_on:
+      docker-proxy:
+        condition: service_started
     env_file:
       - ./backup.env
     volumes:
@@ -840,15 +865,15 @@ services:
       - mail_data:/backup/mail:ro
       - webserver_data:/backup/vhosts:ro
       - pg_data:/backup/postgres:ro
-      - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
     deploy:
       resources:
         limits:
           cpus: "${BACKUP_CPU:-1.0}"
           memory: "${BACKUP_RAM:-1.0g}"
           pids: 100
-    #command: [ "backup" ]
     restart: unless-stopped
+    networks:
+      - socket-proxy
 
 networks:
   default:
@@ -865,6 +890,12 @@ networks:
     driver: bridge
     labels:
       description: "This network is used for communication between websites and database services (apps to database)."
+      purpose: "internal"
+  socket-proxy:
+    driver: bridge
+    internal: true   # no internet access
+    labels:
+    description: "Used by cron and backup containers to access docker socket securely."
       purpose: "internal"
 
 volumes:

@@ -1334,7 +1334,7 @@ main() {
     restore_wordpress "$real_backup_files_path" "$cpanel_username"             # import wp sites to sitemanager
     restore_notifications "$real_backup_files_path" "$cpanel_username"         # notification preferences from cp
     restore_startdate "$real_backup_files_path" "$cpanel_username"             # cp account creation date
-    opencli user-quota $cpanel_username                                        # restore quota
+    opencli user-quota --update $cpanel_username                               # restore quota
 
     # STEP 4. IMPORT ENTERPRISE FEATURES
     import_email_accounts_and_data "$cpanel_username"                          # import emails, filters, forwarders..

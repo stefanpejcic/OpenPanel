@@ -1,11 +1,11 @@
 #!/bin/bash
 ################################################################################
 # Script Name: user/quota.sh
-# Description: Enforce and recalculate disk and inodes for a user.
+# Description: Report or set disk and inodes for users.
 # Usage: opencli user-quota <username|--all>
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -32,7 +32,6 @@ set -euo pipefail
 
 # ======================================================================
 # Constants and Variables
-readonly REPQUOTA_PATH="/etc/openpanel/openpanel/core/users/repquota"
 readonly GB_TO_BLOCKS=1024000
 declare -g mysql_database config_file
 
@@ -42,7 +41,10 @@ declare -g mysql_database config_file
 
 usage() {
     cat << EOF
-Usage: opencli user-quota <username> OR opencli user-quota --all
+Usage:
+    opencli user-quota                     Reloads cached data for UI
+    opencli user-quota --update <username> Set quota for a specific user
+    opencli user-quota --update --all      Set quota for all active users
 
 Arguments:
     username    Set quota for specific user
@@ -51,10 +53,13 @@ Arguments:
 Description:
     This script enforces and recalculates disk and inode quotas for users
     based on their plan limits stored in the database.
+    - Running without arguments will reload cached data for UI.
+    - Any quota-setting operation must start with the '--update' keyword.
 
 Examples:
-    opencli user-quota stefan
-    opencli user-quota --all
+    opencli user-quota                      # reload cached information for UI 
+    opencli user-quota --update stefan      # sets quota for user 'stefan'
+    opencli user-quota --update --all       # sets quota for all active users
 EOF
 }
 
@@ -70,26 +75,6 @@ log_error() {
 
 # ======================================================================
 # Functions
-
-validate_db_config() {
-    if [[ -z "${mysql_database:-}" ]]; then
-        log_error "Database name not configured"
-        return 1
-    fi
-    
-    if [[ -z "${config_file:-}" ]]; then
-        log_error "Database config file not specified"
-        return 1
-    fi
-    
-    if [[ ! -f "$config_file" ]]; then
-        log_error "Database config file not found: $config_file"
-        return 1
-    fi
-    
-    return 0
-}
-
 
 get_plan_limits() {
     local username="$1"
@@ -239,33 +224,90 @@ process_all_users() {
     return 0
 }
 
-update_repquota() {
-    log "Updating repquota file..."
-    if repquota -u / > "$REPQUOTA_PATH" 2>/dev/null; then
-        log "Repquota file updated successfully: $REPQUOTA_PATH"
+generate_report() {
+
+    OUTPUT_FILE="/etc/openpanel/openpanel/quota_report.json"
+    local TMP_FILE="${OUTPUT_FILE}.tmp"
+    local FILTER_USER="${1-}"
+    local TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+    
+    # AWK: reads /etc/passwd + repquota output, builds full JSON
+    repquota -u / 2>/dev/null | awk -v ts="$TIMESTAMP" -v filter="$FILTER_USER" '
+    BEGIN {
+        # Load UID map from /etc/passwd in one pass
+        while ((getline line < "/etc/passwd") > 0) {
+            n = split(line, f, ":")
+            if (f[3]+0 >= 1000) uid_map[f[1]] = f[3]
+        }
+        close("/etc/passwd")
+        printf "{\n  \"timestamp\": \"%s\",\n  \"users\": [\n", ts
+        first = 1
+    }
+    /^[^#]/ && $2 == "--" {
+        user = $1
+        if (!(user in uid_map)) next
+        uid = uid_map[user]
+        if (filter != "" && user != filter) next
+    
+        # NF tells us total fields — inodes are always the last 3
+        inodes_used = $(NF-2)
+        inodes_soft = $(NF-1)
+        inodes_hard = $NF
+    
+        # disk fields are always 3,4,5
+        disk_used = $3
+        disk_soft = $4
+        disk_hard = $5
+    
+        if (!first) printf ",\n"
+        first = 0
+        printf "    {\"username\":\"%s\",\"uid\":%s,\"home_path\":\"/home/%s/\",\"disk_used\":%s,\"disk_soft\":%s,\"disk_hard\":%s,\"inodes_used\":%s,\"inodes_soft\":%s,\"inodes_hard\":%s}",
+            user, uid, user, disk_used, disk_soft, disk_hard, inodes_used, inodes_soft, inodes_hard
+    }
+    END {
+        printf "\n  ]\n}\n"
+    }
+    ' > "$TMP_FILE"
+    
+    mv -f "$TMP_FILE" "$OUTPUT_FILE"
+    
+    if [[ -n "$FILTER_USER" ]]; then
+        awk -v u="$FILTER_USER" '
+            /"username"/ && index($0, "\"" u "\"") {
+                # Print from this line until closing brace
+                found=1
+            }
+            found { print }
+            found && /}/ { exit }
+        ' "$OUTPUT_FILE"
     else
-        log_error "Failed to update repquota file"
-        return 1
+        cat "$OUTPUT_FILE"
     fi
-    return 0
 }
-
-
-
 
 # ======================================================================
 # Main
 main() {
     local exit_code=0
 
-    source "/usr/local/opencli/db.sh"
+    # REPORT
+    if [[ $# -eq 0 ]] || [[ "$1" != "--update" ]]; then
+        generate_report
+        exit 0
+    fi
 
-    # 1. test db data
-    if ! validate_db_config; then
+    # 3. check for 'set' command as first argument
+    if [[ "$1" != "--update" ]]; then
+        log_error "You must specify '--update' as the first argument to modify quotas"
+        usage
         exit 1
     fi
-    
-    # 2. process a single OR all users
+
+    shift
+
+    source "/usr/local/opencli/db.sh"
+
+    # 4. process a single OR all users
     case "${1:-}" in
         ""|"help")
             usage
@@ -280,10 +322,9 @@ main() {
             process_user "$1" || exit_code=1
             ;;
     esac
-    
-    # 3. Update repquota file
-    update_repquota || exit_code=1
-    
+
+    # 5. Update repquota file
+    generate_report &>/dev/null
     exit $exit_code
 }
 

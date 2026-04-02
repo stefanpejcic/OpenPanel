@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 16.10.2023
-# Last Modified: 31.03.2026
+# Last Modified: 02.04.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -37,46 +37,10 @@ print_usage() {
 json_output=false
 total_users=false
 
-report_users_over_quota_only() {
-    local repquota_file="/etc/openpanel/openpanel/core/users/repquota"
-
-    if [ ! -f "$repquota_file" ]; then
-        quotacheck -avm >/dev/null 2>&1
-        repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
-    fi
-    if grep -q '+' "$repquota_file"; then
-        sed -n '3,5p' "$repquota_file"
-        grep '+' "$repquota_file"
-    else
-        echo "No users over quota."
-    fi
-}
-
-
-report_users_quotas_only() {
-    local repquota_file="/etc/openpanel/openpanel/core/users/repquota"
-
-    if [ ! -f "$repquota_file" ]; then
-        quotacheck -avm >/dev/null 2>&1
-        repquota -u / > /etc/openpanel/openpanel/core/users/repquota 
-    fi
-    if grep -q 'root' "$repquota_file"; then
-        tail -n +3 $repquota_file
-    else
-        No users quota.
-    fi
-}
-
-
-
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --over_quota)
-            report_users_over_quota_only
-            exit 0
-            ;;
         --quota)
-            report_users_quotas_only
+            opencli user-quotas
             exit 0
             ;;
         --json)
