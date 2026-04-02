@@ -72,6 +72,8 @@ To view the content of a file that can be edited in a text editor or opened as a
 
 To edit the content of a file that can be edited in a text editor, click on the file, then on the **Edit** button. A new page will open with a text editor where you can edit the file content.
 
+Using the button in top-right corner you can switch between one of the 4 available editors: Monaco (defualt), Ace, CodeMirror, Plain Text.
+
 ## Rename File
 
 To rename a file or folder, click on it, then click on the **Rename** button, and set the new name.
