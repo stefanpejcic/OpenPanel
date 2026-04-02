@@ -1212,7 +1212,7 @@ set_premium_features(){
 
 
 log_dirs() {
-    local log_dir="/var/log/openpanel"  # https://dev.openpanel.com/logs.html
+    local log_dir="/var/log/openpanel"  # https://openpanel.com/docs/articles/support/where-openpanel-stores-logs
     install -d -m 755 "$log_dir" "$log_dir/user" "$log_dir/admin"
 }
 
