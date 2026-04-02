@@ -2,7 +2,6 @@
 sidebar_position: 2
 ---
 
-
 # FTP Accounts
 
 The FTP Accounts section allows you to view and manage all FTP sub-accounts associated with OpenPanel users.
@@ -17,4 +16,4 @@ The table includes the following details:
 - **Path** – The file system path to which the FTP account has access.
 - **Action** – Options to manage each account (e.g., delete or edit access).
 
-The list of FTP sub-accounts is periodically refreshed in line with the [`opencli ftp-users` cronjob schedule](https://dev.openpanel.com/crons.html#ftp-users).
+The list of FTP sub-accounts is periodically refreshed in line with the `opencli ftp-users` cronjob schedule.
