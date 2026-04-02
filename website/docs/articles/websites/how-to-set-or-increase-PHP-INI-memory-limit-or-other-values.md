@@ -6,7 +6,6 @@ There are multiple ways to manage PHP settings in OpenPanel. This guide walks yo
 
 Depending on which modules are enabled, users can manage PHP settings using one or more of the following interfaces:
 
-- **PHP Limits** – Accessible if the `php` module is enabled. Allows editing of basic PHP limits.
 - **PHP.INI Editor** – Available when the `php_ini` module is enabled. Provides full access to edit the php.ini file.
 - **PHP Options** – Available with the `php_options` module. Lets users edit only pre-configured options from the ini file.
 
@@ -20,23 +19,6 @@ The default PHP version used for new domains can be configured via:
 2. Click 'Change' to apply.
 
 ![change default](/img/panel/v2/openpanel_cahnge_default_php_version.gif)
-
-### PHP Limits
-
-The **PHP Limits** interface allows you to configure key PHP directives. You **must** set the following here:
-
-- `max_execution_time`
-- `max_input_time`
-- `max_input_vars`
-- `memory_limit`
-- `post_max_size`
-- `upload_max_filesize`
-
-[PHP Limits Documentation](/docs/panel/php/limits)
-
-![openpanel_edit_php_limits](/img/panel/v2/openpanel_edit_php_limits.gif)
-
-> NOTE: Settings from the *PHP Limits* page override those made in *PHP.INI Editor* or *PHP Options*.
 
 ---
 
@@ -73,15 +55,6 @@ Set the default PHP version for new users via:
 2. Click 'Save' to confirm.
 
 ![default.png](https://i.postimg.cc/cJNjVQPM/default.png)
-
----
-
-### PHP Limits
-
-Administrators can define default PHP limits available to users via:
-[**OpenAdmin > Settings > User Defaults**](/docs/admin/settings/defaults/)
-
-![limits.png](https://i.postimg.cc/4df03XfY/limits.png)
 
 ---
 
