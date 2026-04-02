@@ -718,8 +718,8 @@ When disabled:
 
 Customize options:
 * To **disable GoACcess report generation** update the: [*`goaccess_enable` value*](https://dev.openpanel.com/cli/config.html#goaccess-enable)
-* To **change how often the reports are generated (default = @daily)** edit the schedule for [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats) and the [`goaccess_schedule` value](https://dev.openpanel.com/cli/config.html#goaccess-schedule).
-* To **generate the data manually** execute [`domains-stats` cron](https://dev.openpanel.com/crons.html#domains-stats).
+* To **change how often the reports are generated (default = @daily)** edit the schedule for `domains-stats` cron and the [`goaccess_schedule` value](https://dev.openpanel.com/cli/config.html#goaccess-schedule).
+* To **generate the data manually** execute `domains-stats` cron.
 * To **force regeneration of the reports* refer to: [*OpenCLI Documentation > Parse domain access logs*](https://dev.openpanel.com/cli/domains.html#Parse-domain-access-logs).
 
 
@@ -911,7 +911,7 @@ When disabled:
 
 Customize options:
 * To **edit page settings** refer to: [**OpenAdmin > Settings > OpenPanel > Statistics** page](/docs/admin/settings/openpanel/#statistics).
-* To **change how often the stats are collected (default = @hourly)** edit the schedule for [`docker-collect_stats --all` cron](https://dev.openpanel.com/crons.html#docker-collect-stats-all).
+* To **change how often the stats are collected (default = @hourly)** edit the schedule for `docker-collect_stats --all` cron.
 * To **display one combined or separate charts for cpu/ram** edit [`resource_usage_charts_mode` value](https://dev.openpanel.com/cli/config.html#resource-usage-charts-mode).
 * To **change the number of items per page** edit [`resource_usage_items_per_page` value](https://dev.openpanel.com/cli/config.html#resource-usage-items-per-page).
 * To **rotate the** edit [`resource_usage_retention` value](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
