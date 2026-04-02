@@ -516,7 +516,7 @@ export const integrations: IntegrationsType = {
             icon: API,
             description:
                 "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
-            url: "https://dev.openpanel.com/openadmin-api/",
+            url: "/docs/articles/dev-experience/openadmin-api",
             status: "stable",
         },
     ],
