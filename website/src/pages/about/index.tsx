@@ -60,353 +60,174 @@ const About: React.FC = () => {
                 </div>
 
 
+<div
+  className={clsx(
+    "lg:max-w-[912px] lg:py-16",
+    "md:max-w-[624px] md:py-20",
+    "sm:max-w-[480px] py-10",
+    "max-w-[328px]",
+    "w-full mx-auto",
+  )}
+>
+  <h4
+    className={clsx(
+      "leading-6",
+      "md:text-2xl md:leading-8",
+      "text-center text-gray-800 dark:text-gray-200",
+    )}
+    style={{ margin: 0 }}
+  >
+    We built the hosting panel we always wished existed.
+  </h4>
+  <p>
+    Managing a web hosting server has been broken for too long. Legacy control panels built on outdated architecture, bloated with features nobody uses, charging per-seat fees that punish growth, and treating security as an afterthought. We knew there had to be a better way. So we built one.
+  </p>
+</div>
 
+<div
+  className={clsx(
+    "lg:max-w-[912px] lg:py-16",
+    "md:max-w-[624px] md:py-20",
+    "sm:max-w-[480px] py-10",
+    "max-w-[328px]",
+    "w-full mx-auto",
+  )}
+>
+  <h4
+    className={clsx(
+      "leading-6",
+      "md:text-2xl md:leading-8",
+      "text-center text-gray-800 dark:text-gray-200",
+    )}
+    style={{ margin: 0 }}
+  >
+    Our Story
+  </h4>
+  <p>
+    OpenPanel started from a simple frustration: existing hosting panels weren't keeping up with how modern servers are actually run. Containers had changed everything about infrastructure — but hosting control panels were still stuck in the past.
+  </p>
+  <p>
+    We set out to build a panel that embraced Docker from day one. Not as an add-on. Not as a compatibility layer. As the foundation. That decision shapes everything about how OpenPanel works — the isolation, the flexibility, the security, and the user experience.
+  </p>
+</div>
 
+<div
+  className={clsx(
+    "lg:max-w-[912px] lg:py-16",
+    "md:max-w-[624px] md:py-20",
+    "sm:max-w-[480px] py-10",
+    "max-w-[328px]",
+    "w-full mx-auto",
+  )}
+>
+  <h4
+    className={clsx(
+      "leading-6",
+      "md:text-2xl md:leading-8",
+      "text-center text-gray-800 dark:text-gray-200",
+    )}
+    style={{ margin: 0 }}
+  >
+    What We Believe
+  </h4>
+  <p>
+    Isolation is a right, not a premium feature. Every user on your server deserves their own environment — their own MySQL, their own PHP version, their own resources — without interference from anyone else. That's not enterprise-tier. That's just how hosting should work.
+  </p>
+  <p>
+    Security should be built in, not bolted on. WAF protection, malware scanning, two-factor authentication, IP controls — these shouldn't be things you configure after the fact. They should be there from the moment you install.
+  </p>
+  <p>
+    Control panels should give you control. Over your stack. Over your branding. Over your pricing. Over your data. You're running the server — the panel should work for you, not the other way around.
+  </p>
+  <p>
+    Open source matters. Transparency builds trust. You can audit our code, contribute to it, fork it, or self-host it. No vendor lock-in. No black boxes.
+  </p>
+</div>
 
+<div
+  className={clsx(
+    "lg:max-w-[912px] lg:py-16",
+    "md:max-w-[624px] md:py-20",
+    "sm:max-w-[480px] py-10",
+    "max-w-[328px]",
+    "w-full mx-auto",
+  )}
+>
+  <h4
+    className={clsx(
+      "leading-6",
+      "md:text-2xl md:leading-8",
+      "text-center text-gray-800 dark:text-gray-200",
+    )}
+    style={{ margin: 0 }}
+  >
+    Who OpenPanel Is For
+  </h4>
+  <p>
+    Whether you're a solo developer managing a handful of sites, a growing agency handling client hosting, or a hosting provider serving hundreds of users — OpenPanel scales with you.
+  </p>
+  <p>
+    The free Community Edition gets you started with no strings attached. When your business grows, the Enterprise Edition grows with it — adding advanced features, custom branding, and hands-on support at a flat monthly rate, not a per-seat tax.
+  </p>
+</div>
 
+<div
+  className={clsx(
+    "lg:max-w-[912px] lg:py-16",
+    "md:max-w-[624px] md:py-20",
+    "sm:max-w-[480px] py-10",
+    "max-w-[328px]",
+    "w-full mx-auto",
+  )}
+>
+  <h4
+    className={clsx(
+      "leading-6",
+      "md:text-2xl md:leading-8",
+      "text-center text-gray-800 dark:text-gray-200",
+    )}
+    style={{ margin: 0 }}
+  >
+    Built Different
+  </h4>
+  <p>
+    Unlike traditional panels that assign shared resources and hope for the best, OpenPanel gives each user a VPS-like experience inside a shared server. That means better performance, stronger security, and happier customers — without the cost of dedicated infrastructure for everyone.
+  </p>
+  <p>
+    We support the web servers you actually use. The databases your stack depends on. The PHP versions your clients still need. And a command-line interface powerful enough for the admins who live in the terminal.
+  </p>
+</div>
 
-
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-32",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-          <h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 10,
-            }}
-          >
-            Who are we
-          </h4>
-
-          <div
-            className={clsx(
-              "grid",
-              "lg:grid-cols-[repeat(4,192px)] lg:gap-12",
-              "md:grid-cols-[repeat(3,176px)]",
-              "sm:grid-cols-[repeat(3,144px)]",
-              "grid-cols-[repeat(2,144px)] gap-6",
-              "align-top",
-              "mt-6 md:mt-12 lg:mt-16",
-            )}
-          >
-            {team.map(({ name, avatar, role1, role2 }) => (
-              <div
-                key={name}
-                className="flex justify-start flex-col text-center not-prose"
-              >
-                <img
-                  srcSet={`${avatar} 1500w`}
-                  src={avatar}
-                  alt={name}
-                  className="w-full m-0 mb-6"
-                />
-                <span
-                  className={clsx(
-                    "text-xs leading-4",
-                    "lg:text-base lg:leading-6",
-                    "text-gray-900 dark:text-gray-0 font-semibold",
-                  )}
-                >
-                  {name}
-                </span>
-                <span
-                  className={clsx(
-                    "text-xs leading-4",
-                    "lg:text-base lg:leading-6",
-                    "text-gray-500 dark:text-gray-400",
-                  )}
-                >
-                  {role1}
-                </span>
-                {role2 && (
-                  <span
-                    className={clsx(
-                      "text-xs leading-4",
-                      "lg:text-base lg:leading-6",
-                      "text-gray-500 dark:text-gray-400",
-                    )}
-                  >
-                    {role2}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-                
-
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-          <h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
-            The Idea 💡 
-          </h4>
-
-            <p>
-OpenPanel was born out of frustration with the premium hosting panels we were using at <a href="https://unlimited.rs?utm=openpanel" target="_blank">UNLIMITED.RS</a> for our shared hosting and managed VPS clients. The costs were skyrocketing, yet these solutions lacked the flexibility needed to truly meet our clients' unique needs. During one particularly challenging project, a colleague, Čeda, famously remarked, "Even we could do better." This statement set Stefan Pejčić, our co-founder and CEO, on a path to create what would eventually become OpenPanel.
-            </p>
-            <p>
-Having worked with various hosting panels over the years, we knew their bugs, limitations, and how they often failed to deliver. We saw this as{" "}
-                <b>our chance to build something better</b>
-                —something that could truly scale and adapt.
-            </p>
-
-        </div>
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-            <h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
-            Early stages 🚧
-          </h4>
-<p>
-OpenPanel{" "}
-    <b>started in 2023</b>
-    , as a basic bootstrap interface with a database schema designed to handle anywhere from 10 to 500 users on a single server without issues. It was initially a LAMP stack with a fancy, yet buggy, GUI. But as we grew, so did our ideas.
-</p>
-
-
-        </div>
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-
-            
-<h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
-            Our Financing 💸
-          </h4>
-<p>
-Over the years, we received several offers from competitors and venture capitalists, but with those offers came conditions that would have compromised our vision. We{" "}
-    <b>chose to remain independent</b> 
-    {" "}and self-funded. Committed to doing something different:{" "}
-    <b>a modular, stable and fairly priced control panel</b>
-    .
-</p>
-
-        </div>
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-
-<h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
-            Why OpenPanel ? 🤔
-          </h4>
-<p>
-The name "OpenPanel" itself was initially just a placeholder, but it stuck. The project was first published under .co domain, as the .com and .org were already taken by a similar project almost two decades ago. The OpenPanel you know and use today is{" "}
-    <b>in no way associated with the older openpanel.com project</b> 
-        , but we extend our gratitude to them for their unselfishness in allowing us to take over the openpanel.com domain in August 2024.
-</p>
-
-
-        </div>
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-
-            
-<h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
-            Why not open-sourced ? 🤷
-          </h4>
-<p>
-While we considered going fully open-source, we decided to keep certain parts proprietary to ensure we can{" "}
-    <b>guarantee the quality</b> 
-    {" "}of our features, expedite the development of new ones, and provide quicker fixes for bugs. This approach also allows us to maintain  a more secure product , giving our users peace of mind.
-</p>
-
-
-        </div>
-        <div
-          className={clsx(
-            "lg:max-w-[912px] lg:py-16",
-            "md:max-w-[624px] md:py-20",
-            "sm:max-w-[480px] py-10",
-            "max-w-[328px]",
-            "w-full mx-auto",
-          )}
-        >
-<h4
-            className={clsx(
-              " leading-6",
-              "md:text-2xl md:leading-8",
-              "text-center text-gray-800 dark:text-gray-200",
-            )}
-            style={{
-              margin: 0,
-            }}
-          >
-            What is next ? 🔮
-          </h4>
-<p>
-Under the continued leadership of Stefan Pejcic, OpenPanel remains committed to staying ahead of technological trends and addressing the risks that come with them.
-</p>
-            <p>
-We are dedicated to constantly improving our platform to offer{" "}
-                <b>the most advanced, secure, and user-friendly hosting panel</b>
-                {" "}on the market.
-Our journey is far from over, and with your continued support, we’re excited to push the boundaries of what’s possible in server management.
-</p>
-            <p>
-Stay tuned for new features, enhanced performance, and more ways to{" "}
-                <b>make your hosting experience as seamless as possible</b> 
-                    . The best is yet to come.
-</p>
-
-            
-            
-        </div>
+<div
+  className={clsx(
+    "lg:max-w-[912px] lg:py-16",
+    "md:max-w-[624px] md:py-20",
+    "sm:max-w-[480px] py-10",
+    "max-w-[328px]",
+    "w-full mx-auto",
+  )}
+>
+  <h4
+    className={clsx(
+      "leading-6",
+      "md:text-2xl md:leading-8",
+      "text-center text-gray-800 dark:text-gray-200",
+    )}
+    style={{ margin: 0 }}
+  >
+    Our Commitment
+  </h4>
+  <p>
+    We're continuously improving OpenPanel based on real feedback from real hosting operators. Every update is driven by what the people running servers actually need — not feature bloat, not enterprise upsells, not marketing.
+  </p>
+  <p>
+    We're building the hosting panel for the next decade. We're glad you're here.
+  </p>
+</div>
 
 
                 
 
-
-
-                
-
-                <div
-                    className={clsx(
-                        "xl:max-w-[1016px] lg:py-16",
-                        "lg:max-w-[912px] lg:py-16",
-                        "md:max-w-[624px] md:py-10",
-                        "sm:max-w-[480px] py-8",
-                        "max-w-[328px]",
-                        "w-full mx-auto",
-                    )}
-                >
-                    <h4
-                        className={clsx(
-                            " leading-6",
-                            "md:text-2xl md:leading-8",
-                            "text-center text-gray-800 dark:text-gray-200",
-                            "mb-8 lg:mb-16",
-                        )}
-                    >
-                        Contact Us
-                    </h4>
-
-                    <div className="flex flex-col md:gap-8 lg:flex-row lg:gap-10 xl:gap-24">
-                        <div className="flex justify-start flex-col items-start gap-8 lg:pt-12 pt-6">
-                            <div className="flex w-max items-center justify-center gap-6">
-                                <div
-                                    className={clsx(
-                                        "flex justify-center items-center",
-                                        "w-[48px] h-[48px]",
-                                        "rounded-full ",
-                                        "bg-refine-orange bg-opacity-10",
-                                        "shrink-0",
-                                    )}
-                                >
-                                    <MarkerIcon className="text-refine-orange" />
-                                </div>
-                                <span className="text-gray-700 dark:text-gray-300">
-                                    IJsbaanpad 2, 1076 CV Amsterdam (NL)                                    
-                                </span>
-                            </div>
-                            <div className="flex justify-center items-center gap-6">
-                                <div
-                                    className={clsx(
-                                        "flex justify-center items-center",
-                                        "w-[48px] h-[48px]",
-                                        "rounded-full ",
-                                        "bg-refine-pink bg-opacity-10",
-                                        "shrink-0",
-                                    )}
-                                >
-                                    <MailIcon className="text-refine-pink" />
-                                </div>
-                                <a
-                                    href="mailto:info@openpanel.com"
-                                    className="text-gray-700 dark:text-gray-300 hover:no-underline no-underline"
-                                >
-                                    info@openpanel.com
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <BlogFooter />
             </div>
         </>
