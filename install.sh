@@ -10,7 +10,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           01.04.2026
+# Last Modified:           03.04.2026
 #
 ################################################################################
 
@@ -47,7 +47,7 @@ SCREENSHOTS_API_URL="local"
 readonly DEFAULT_PANEL_VERSION="1.7.50"                                  # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"                                # https://github.com/docker/compose/releases
 DEV_MODE=false
-post_install_path=""                                                     #
+post_install_path=""                                                     # https://openpanel.com/articles/install-update/openpanel-post-install-hook
 # ======================================================================
 # PATHs used throughout the script
 readonly ETC_DIR="/etc/openpanel/"                                       # https://github.com/stefanpejcic/openpanel-configuration
