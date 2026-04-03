@@ -43,6 +43,13 @@ for home_dir in /home/*; do
         ram_limit="none"
     fi
 
+
+	mkdir -p /etc/systemd/system/user-$USER_ID.slice.d/
+	cat <<EOF > /etc/systemd/system/user-$USER_ID.slice.d/override.conf
+[Slice]
+Delegate=yes
+EOF
+
     # Single echo per user
     echo "- User: $USER_ID | CPU: $cpu_limit | RAM: $ram_limit"
 done
