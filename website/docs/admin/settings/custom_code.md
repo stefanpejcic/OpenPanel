@@ -198,7 +198,8 @@ Examples:
 
 Stored in `/root/openpanel_run_after_update` file.
 
-## After Update
+## Before Startup
+
 Add custom bash code to be executed before starting OpenPanel.
 
 Stored in `/root/openpanel_run_on_startup` file.
