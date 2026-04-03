@@ -31,73 +31,6 @@ You can also format the data as JSON:
 opencli plan-list --json
 ```
 
-<details>
-  <summary>Example output</summary>
-
-```json
-[
-  {
-    "id": "1",
-    "name": "Standard plan",
-    "description": "Small plan for testing",
-    "email_limit": "0",
-    "ftp_limit": "10",
-    "domains_limit": "0",
-    "websites_limit": "0",
-    "disk_limit": "5 GB",
-    "inodes_limit": "1000000",
-    "db_limit": "0",
-    "cpu": "2",
-    "ram": "2g",
-    "bandwidth": "10",
-    "feature_set": "basic",
-    "max_email_quota": "10G"
-  }
-]
-[
-  {
-    "id": "2",
-    "name": "Developer Plus",
-    "description": "4 cores, 6G ram",
-    "email_limit": "0",
-    "ftp_limit": "10",
-    "domains_limit": "0",
-    "websites_limit": "0",
-    "disk_limit": "10 GB",
-    "inodes_limit": "1000000",
-    "db_limit": "0",
-    "cpu": "4",
-    "ram": "6g",
-    "bandwidth": "100",
-    "feature_set": "default",
-    "max_email_quota": "0"
-  }
-]
-[
-  {
-    "id": "3",
-    "name": "example",
-    "description": "ddfsds",
-    "email_limit": "1",
-    "ftp_limit": "1",
-    "domains_limit": "1",
-    "websites_limit": "1",
-    "disk_limit": "10 GB",
-    "inodes_limit": "1000000",
-    "db_limit": "1",
-    "cpu": "1",
-    "ram": "1g",
-    "bandwidth": "100",
-    "feature_set": "default",
-    "max_email_quota": "10G"
-  }
-]
-
-```
-
-</details>
-
-
 ## Create Plan
 
 To create a new plan run the following command:
@@ -156,31 +89,6 @@ You can also format the data as JSON:
 ```bash
 opencli plan-usage --json
 ```
-
-<details>
-  <summary>Example output</summary>
-  
-```json
-[
-  {
-    "id": "3",
-    "username": "demo",
-    "email": "stefan@netops.com",
-    "plan_name": "Standard plan",
-    "registered_date": "2025-04-28 14:47:52"
-  }
-]
-[
-  {
-    "id": "4",
-    "username": "dummy",
-    "email": "dummy",
-    "plan_name": "Standard plan",
-    "registered_date": "2025-04-28 15:20:19"
-  }
-]
-```
-</details>
 
 
 ## Delete Plan
