@@ -24,7 +24,7 @@ export const menuItems = [
             },
             {
                 label: "OpenCLI",
-                href: "https://dev.openpanel.com/cli/",
+                href: "/docs/articles/opencli/intro",
             },            
             {
                 label: "API Docs",
