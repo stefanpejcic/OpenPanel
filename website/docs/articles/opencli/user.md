@@ -584,34 +584,6 @@ Example usage:
     ```
   </details>
 
-  <details>
-    <summary>Example output</summary>
-    
-    ```bash
-    # opencli user-disk proba detail --json
-    
-    {
-      "user": "proba",
-      "home": {
-        "path": "/home/proba",
-        "bytes_used": "61440",
-        "bytes_total": "10375548928",
-        "bytes_limit": true,
-        "inodes_used": "20",
-        "inodes_total": "1000960"
-      },
-      "container": {
-        "path": "/var/lib/docker/devicemapper/mnt/ac28d2b066f5ffcacf4510b042623f6a3c196bd4f5fb9e842063c5325e4d0184",
-        "storage_driver": "devicemapper",
-        "bytes_used": "1025388544",
-        "bytes_total": "10726932480",
-        "inodes_used": "20905",
-        "inodes_total": "5242880"
-      }
-    }
-    ```
-  </details>
-
 - Paths for user:
   ```bash
   # opencli user-disk proba path
