@@ -24,8 +24,6 @@ You can add **any Docker image** by including its Compose configuration. However
 
 Make sure your service definition follows the required structure to ensure full OpenPanel integration.
 
-Here it is cleaned up (no code blocks) and with `{ }` converted to HTML entities:
-
 | **Name**          | **Description**                                                                                                                                                                                                                                                                                                          | **Example**                                                                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
 | **service name**  | The service name must exactly match the `container_name` and **cannot contain spaces**.                                                                                                                                                                                                                                  | For `uptimekuma`:<br>`container_name: uptimekuma`                                                                                     |
@@ -39,7 +37,6 @@ Here it is cleaned up (no code blocks) and with `{ }` converted to HTML entities
 | **labels**        | Labels are optional and ignored by OpenPanel but can be used for external tools or metadata.                                                                                                                                                                                                                             | `- docker-volume-backup.archive-pre=/bin/sh -c '/dump.sh'`                                                                            |
 | **healthcheck**   | Optional. If defined, OpenPanel respects the health check and uses it to manage restarts.                                                                                                                                                                                                                                | `test: ['CMD-SHELL', 'mysqladmin ping -h localhost']`<br>`interval: 1s`<br>`timeout: 5s`<br>`retries: 10`                             |
 | restart policy    | restart policy should be explicitly set to [unless-stopped](https://docs.docker.com/engine/containers/start-containers-automatically/#use-a-restart-policy) so that OpenPanel can auto-restart services in case of failure, except when user account is suspended.                                                       | `restart: unless-stopped`                                                                                                             |
-
 
 ## Examples
 
