@@ -96,7 +96,7 @@ To see more details to configure server on installation, **please visit**: https
 - [OpenAdmin - Admin panel documentation](https://openpanel.com/docs/admin/intro/)
 - [OpenPanel - End-user panel documentation](https://openpanel.com/docs/panel/intro/)
 - [Guides and How-to](https://openpanel.com/docs/articles/intro/)
-- [OpenCLI - Terminal commands](https://dev.openpanel.com/cli/)
+- [OpenCLI - Terminal commands](https://openpanel.com/docs/articles/opencli/)
 
 
 ## Team
