@@ -49,7 +49,7 @@ To add [FileBrowser](https://github.com/filebrowser/filebrowser) as a service fo
 
 add to .env file:
 
-```
+```bash
 # FILEBROWSER
 FILEBROWSER_VERSION="s6"
 FILEBROWSER_CPU="0.25"
@@ -58,7 +58,7 @@ FILEBROWSER_RAM="0.35"
 
 add to `docker-compose.yml` file in the **services** section:
 
-```
+```bash
   filebrowser:
     image: filebrowser/filebrowser:${FILEBROWSER_VERSION:-s6}
     container_name: filebrowser
@@ -89,7 +89,7 @@ To add [Minecraft](https://github.com/itzg/docker-minecraft-server) as a service
 
 add to .env file:
 
-```
+```bash
 # MINECRAFT
 MINECRAFT_VERSION="latest"
 MINECRAFT_PORT="25565"
@@ -105,7 +105,7 @@ MINECRAFT_ENABLE_COMMAND_BLOCK="false"
 
 add to `docker-compose.yml` file in the **volumes** section:
 
-```
+```bash
   mc_data:
     driver: local
     labels:
@@ -115,7 +115,7 @@ add to `docker-compose.yml` file in the **volumes** section:
 
 add to `docker-compose.yml` file in the **services** section:
 
-```
+```bash
   minecraft:
     image: itzg/minecraft-server:${MINECRAFT_VERSION:-latest}
     container_name: minecraft
@@ -153,7 +153,7 @@ To add [MsSQL](https://hub.docker.com/r/microsoft/mssql-server) as a service for
 
 add to .env file:
 
-```
+```bash
 # MSSQL
 MSSQL_IMAGE="mcr.microsoft.com/mssql/server"
 MSSQL_VERSION="latest"
@@ -166,7 +166,7 @@ MSSQL_SA_PASSWORD="rootpassword"
 
 add to `docker-compose.yml` file in the **volumes** section:
 
-```
+```bash
   mssql_data:
     driver: local
     labels:
@@ -176,7 +176,7 @@ add to `docker-compose.yml` file in the **volumes** section:
 
 add to `docker-compose.yml` file in the **services** section:
 
-```
+```bash
   mssql:
     image: ${MSSQL_IMAGE}:${MSSQL_VERSION:-latest}
     container_name: mssql
@@ -214,7 +214,7 @@ To add [UtimeKuma](https://github.com/louislam/uptime-kuma) as a service for use
 
 add to .env file:
 
-```
+```bash
 # UPTIMEKUMA
 UPTIMEKUMA_VERSION="1"
 UPTIMEKUMA_CPU="0.5"
@@ -223,7 +223,7 @@ UPTIMEKUMA_RAM="0.5G"
 
 add to `docker-compose.yml` file in the **services** section:
 
-```
+```bash
   uptimekuma:
     image: louislam/uptime-kuma:${UPTIMEKUMA_VERSION:-1}
     container_name: uptimekuma
@@ -250,7 +250,7 @@ This example adds busybox container, its an example on how to add any docker com
 
 add to .env file:
 
-```
+```bash
 # BUSYBOX
 BUSYBOX_CPU="0.1"
 BUSYBOX_RAM="0.1G"
@@ -258,7 +258,7 @@ BUSYBOX_RAM="0.1G"
 
 add to `docker-compose.yml` file in the **services** section:
 
-```
+```bash
   busybox:
     image: busybox
     container_name: busybox          
