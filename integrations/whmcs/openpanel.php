@@ -53,7 +53,6 @@ function openpanelBaseUrl($params) {
 
 /*
     send username and password to receive JWT token as `access_token`
-    https://dev.openpanel.com/openadmin-api/#Getting-started-with-the-API
 */
 function openpanelGetAuthToken($params) {
     $endpoint = openpanelBaseUrl($params) . '/api/';
@@ -134,7 +133,6 @@ function openpanelApiRequest($params, $uri, $token, $method = 'POST', $data = nu
 
 /*
     run user actions
-    https://dev.openpanel.com/openadmin-api/users.html
 */
 function openpanelUserAction($params, $method, $payload = null) {
 
@@ -206,7 +204,6 @@ function openpanelGetServerParams($params) {
 
 /*
     CREATE ACCOUNT
-    https://dev.openpanel.com/openadmin-api/users.html#Create-account
 */
 function openpanel_CreateAccount($params) {
     if (!$token = openpanelGetAuthToken($params)) return 'Authentication failed';
@@ -247,7 +244,6 @@ function openpanel_CreateAccount($params) {
 
 /*
     SUSPEND ACCOUNT
-    https://dev.openpanel.com/openadmin-api/users.html#Suspend-account
 */
 function openpanel_SuspendAccount($params) {
     return openpanelUserAction($params, 'PATCH', ['action' => 'suspend']);
@@ -255,7 +251,6 @@ function openpanel_SuspendAccount($params) {
 
 /*
     UNSUSPEND ACCOUNT
-    https://dev.openpanel.com/openadmin-api/users.html#Unsuspend-account
 */
 function openpanel_UnsuspendAccount($params) {
     return openpanelUserAction($params, 'PATCH', ['action' => 'unsuspend']);
@@ -264,7 +259,6 @@ function openpanel_UnsuspendAccount($params) {
 
 /*
     CHANGE PASSWORD
-    https://dev.openpanel.com/openadmin-api/users.html#Change-password
 */
 function openpanel_ChangePassword($params) {
     return openpanelUserAction($params, 'PATCH', [
@@ -274,7 +268,6 @@ function openpanel_ChangePassword($params) {
 
 /*
     TERMINATE ACCOUNT
-    https://dev.openpanel.com/openadmin-api/users.html#Delete-account
 */
 function openpanel_TerminateAccount($params) {
     openpanelUserAction($params, 'PATCH', ['action' => 'unsuspend']);
@@ -283,7 +276,6 @@ function openpanel_TerminateAccount($params) {
 
 /*
     CHANGE PACKAGE
-    https://dev.openpanel.com/openadmin-api/users.html#Change-plan
 */
 function openpanel_ChangePackage($params) {
     $product = mysql_fetch_array(
@@ -297,7 +289,6 @@ function openpanel_ChangePackage($params) {
 
 /* 
     CLIENT AREA - Currently just shows autologin link
-    https://dev.openpanel.com/openadmin-api/users.html#Autologin
 */
 function openpanel_ClientArea($params) {
     list($link, $error) = openpanelGenerateLoginLink($params);
@@ -410,7 +401,6 @@ function openpanel_UsageUpdate($params) {
 
 /*
     SERVICES IN ADMIN AREA
-    https://dev.openpanel.com/openadmin-api/users.html#List-single-account
 */
 function openpanel_AdminServicesTabFields($params) {
     $fields = [];

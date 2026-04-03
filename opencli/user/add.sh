@@ -1222,6 +1222,7 @@ if [ -z "$username" ] || [ -z "$user_id" ] || [ -z "$cpu" ] || [ -z "$ram" ] || 
    exit 1
 fi
 
+sed -i 's/\r$//' /etc/openpanel/docker/compose/1.0/.env
 cp /etc/openpanel/docker/compose/1.0/.env /home/$username/.env
 
 sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \

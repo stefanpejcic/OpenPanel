@@ -154,9 +154,11 @@ services:
 
   docker-proxy:
     image: tecnativa/docker-socket-proxy
+    container_name: docker-proxy
     environment:
       CONTAINERS: 1
       POST: 1
+      EXEC: 1
     volumes:
       - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
     deploy:
@@ -263,6 +265,7 @@ services:
       #- html_data:/html/  
       - ./pma.php:/var/www/html/pma.php
       - /etc/openpanel/mysql/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
+      - ./sockets/mysqld:/var/run/mysqld:ro
     ports:
       - "${PMA_PORT}"
     deploy:
@@ -272,7 +275,8 @@ services:
           memory: "${PMA_RAM:-0.1G}"                
           pids: 100
     environment:
-      PMA_HOST: ${MYSQL_TYPE:-mysql}
+      PMA_HOST: localhost #${MYSQL_TYPE:-mysql}
+      PMA_SOCKET: "/var/run/mysqld/mysqld.sock"
       MAX_EXECUTION_TIME: ${PMA_MAX_EXECUTION_TIME:-600}
       MEMORY_LIMIT: ${PMA_MEMORY_LIMIT:-512M}
       UPLOAD_LIMIT: ${PMA_UPLOAD_LIMIT:-256M}
@@ -442,13 +446,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_5.6.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_5_6_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_5_6_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_5_6_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_5_6_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_5_6_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_5_6_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_5_6_PHP_UPLOAD_MAX_FILESIZE:-256M}   
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -476,13 +474,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.0.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_7_0_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_0_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_7_0_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_7_0_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_7_0_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_7_0_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_0_PHP_UPLOAD_MAX_FILESIZE:-256M}  
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -510,13 +502,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_7_1_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_1_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_7_1_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_7_1_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_7_1_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_7_1_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_1_PHP_UPLOAD_MAX_FILESIZE:-256M}
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -545,13 +531,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_7_2_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_2_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_7_2_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_7_2_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_7_2_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_7_2_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_2_PHP_UPLOAD_MAX_FILESIZE:-256M}
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -581,13 +561,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_7_3_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_3_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_7_3_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_7_3_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_7_3_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_7_3_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_3_PHP_UPLOAD_MAX_FILESIZE:-256M} 
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -616,13 +590,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_7_4_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_7_4_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_7_4_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_7_4_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_7_4_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_7_4_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_7_4_PHP_UPLOAD_MAX_FILESIZE:-256M}
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -648,13 +616,7 @@ services:
       - ./php.ini/8.0.ini:/usr/local/etc/php/php.ini
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro   
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_0_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_0_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_0_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_0_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_8_0_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_8_0_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_0_PHP_UPLOAD_MAX_FILESIZE:-256M} 
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -684,13 +646,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_1_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_1_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_1_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_1_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_8_1_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_8_1_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_1_PHP_UPLOAD_MAX_FILESIZE:-256M} 
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -720,13 +676,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_2_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_2_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_2_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_2_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_8_2_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_8_2_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_2_PHP_UPLOAD_MAX_FILESIZE:-256M} 
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -755,13 +705,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_3_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_3_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_3_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_3_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_8_3_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_8_3_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_3_PHP_UPLOAD_MAX_FILESIZE:-256M} 
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -789,13 +733,7 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_4_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_4_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_4_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_4_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_8_4_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_8_4_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_4_PHP_UPLOAD_MAX_FILESIZE:-256M}
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -823,13 +761,7 @@ services:
       - ./php.ini/8.5.ini:/usr/local/etc/php/php.ini
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
     environment:
-      - PHP_ENABLE_OPCACHE=${PHP_FPM_8_5_ENABLE_OPCACHE:-true}
-      - PHP_MAX_EXECUTION_TIME=${PHP_FPM_8_5_PHP_MAX_EXECUTION_TIME:-600}
-      - PHP_MAX_INPUT_TIME=${PHP_FPM_8_5_PHP_MAX_INPUT_TIME:-600}
-      - PHP_MAX_INPUT_VARS=${PHP_FPM_8_5_PHP_MAX_INPUT_VARS:-1000}
-      - PHP_MEMORY_LIMIT=${PHP_FPM_8_5_PHP_MEMORY_LIMIT:-512M}
-      - PHP_POST_MAX_SIZE=${PHP_FPM_8_5_PHP_POST_MAX_SIZE:-512M}
-      - PHP_UPLOAD_MAX_FILESIZE=${PHP_FPM_8_5_PHP_UPLOAD_MAX_FILESIZE:-256M}
+      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -895,7 +827,7 @@ networks:
     driver: bridge
     internal: true   # no internet access
     labels:
-    description: "Used by cron and backup containers to access docker socket securely."
+      description: "Used by cron and backup containers to access docker socket securely."
       purpose: "internal"
 
 volumes:
