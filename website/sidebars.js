@@ -15,8 +15,8 @@ const mainSidebar = {
     // Promo
     {
       type: 'link',
-      href: 'https://dev.openpanel.com',
-      label: 'Developer Docs',
+      href: '/enterprise/#compare',
+      label: 'Enterprise edition',
       className: 'enterprise-badge',
     },
   ],
@@ -26,8 +26,8 @@ const mainSidebar = {
     // Promo
     {
       type: 'link',
-      href: 'https://dev.openpanel.com',
-      label: 'Developer Docs',
+      href: '/enterprise/#compare',
+      label: 'Enterprise edition',
       className: 'enterprise-badge',
     },
   ],
