@@ -57,7 +57,7 @@ Example:
 ● OpenAdmin is running and is available on: https://server.openpanel.co:2087/
 ```
 
-### Enable / Disable adminpanel
+### Enable / Disable OpenAdmin
 
 OpenAdmin can run in headless mode, that is to say without a front-end UI. This can further save on memory requirements and keep your server secure.
 
