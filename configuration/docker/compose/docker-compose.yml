@@ -17,7 +17,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
     oom_kill_disable: true
     networks:
-      - openpanel_network
+      openpanel_network:
+        ipv4_address: 172.20.0.3
     deploy:
       resources:
         limits:
@@ -52,7 +53,8 @@ services:
       - ${REDIS_SOCKET}:/tmp/redis
     restart: always
     networks:
-      - openpanel_network
+      openpanel_network:
+        ipv4_address: 172.20.0.4
     deploy:
       resources:
         limits:
@@ -93,7 +95,8 @@ services:
       - /var/lib/csf/:/var/lib/csf/       #TODO: remove ratelimiting and this
     restart: always
     networks:
-      - openpanel_network
+      openpanel_network:
+        ipv4_address: 172.20.0.5
     deploy:
       resources:
         limits:
@@ -136,7 +139,8 @@ services:
     restart: unless-stopped
     oom_kill_disable: true
     networks:
-      - openpanel_network
+      openpanel_network:
+        ipv4_address: 172.20.0.2
     deploy:
       resources:
         limits:
@@ -163,7 +167,8 @@ services:
       - /etc/openpanel/caddy/ssl/:/etc/openpanel/caddy/ssl/:ro #ssl
       - /etc/localtime:/etc/localtime:ro
     networks:
-      - openpanel_network
+      openpanel_network:
+        ipv4_address: 172.20.0.6
     deploy:
       resources:
         limits:
@@ -183,4 +188,6 @@ networks:
     labels:
       description: "This network allows OpenPanel UI to communicate to system containers."
       purpose: "internal"
-  
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
