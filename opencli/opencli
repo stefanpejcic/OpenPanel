@@ -1,5 +1,4 @@
 #!/bin/bash
-
 ################################################################################
 # Script Name: /usr/local/bin/opencli
 # Description: Makes all OpenCLI commands available on the terminal.
@@ -29,17 +28,17 @@
 # THE SOFTWARE.
 ################################################################################
 
-# Constants
-readonly OPENCLI_VERSION="202.511.004"
+readonly OPENCLI_VERSION="202.604.003"
 readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
 readonly SCRIPT_DIR="/usr/local/opencli"
 readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
 
-# Functions
+debug_flag=""
+
 show_about() {
     cat <<EOF
 About:
-  Documentation:                    https://dev.openpanel.com/cli/
+  Documentation:                    https://openpanel.com/docs/category/opencli/
   Version:                          ${OPENCLI_VERSION}
   Author:                           Stefan Pejcic <stefan@pejcic.rs>
   License:                          MIT
@@ -52,13 +51,13 @@ show_history() {
         echo "Warning: log file $LOG_FILE not found."
         return
     fi
-    
+
     echo "Recently used commands:"
     tail -n 100 "$LOG_FILE" | grep -o 'opencli [^ ]*' | sort | uniq | tail -n 5 | sed 's/^/  /'
     echo ""
-    
+
     echo "Most commonly used commands:"
-    awk -F ' \\| ' '!($2 ~ /^[0-9]+$/) {print "  " $2}' "$LOG_FILE" | sort | uniq | head -n 5
+    awk -F ' \\| ' 'NF>=2 {print $2}' "$LOG_FILE" | sort | uniq -c | sort -rn | head -n 5 | awk '{$1=""; print "  " $0}'
     echo ""
 }
 
@@ -82,42 +81,31 @@ check_root() {
 }
 
 log_command() {
-    local command="$1"
-    {
-        echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $command" >> "$LOG_FILE"
-    } 2>/dev/null
+    echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $1" >> "$LOG_FILE" 2>/dev/null
 }
 
 run_hook() {
     local hook_type="$1"
     local command="$2"
     shift 2
-    local args=("$@")
 
     local hook_file_base="${HOOKS_DIR}/${hook_type}_${command}"
     local hook_file=""
 
-    if [[ -f "${hook_file_base}" ]]; then
-        hook_file="${hook_file_base}"    # this was used in v <1.3
-    elif [[ -f "${hook_file_base}.sh" ]]; then
-        hook_file="${hook_file_base}.sh" # this is new default
+    if [[ -f "${hook_file_base}.sh" ]]; then
+        hook_file="${hook_file_base}.sh"
+    elif [[ -f "${hook_file_base}" ]]; then
+        hook_file="${hook_file_base}"   # legacy pre-1.3
     else
         return 0
     fi
 
-    local hook_args=()
-    if [[ ${#args[@]} -gt 0 ]]; then
-        hook_args=("${args[@]}")
-    fi
-
     case "$hook_type" in
-        "pre")
-            # run pre-hook synchronously
-            bash ${debug_flag:+"$debug_flag"} "$hook_file" "${hook_args[@]}" </dev/null >nohup.out 2>nohup.err
+        pre)
+            bash ${debug_flag:+"$debug_flag"} "$hook_file" "$@" </dev/null >/dev/null 2>&1
             ;;
-        "post")
-            # run post-hook asynchronously
-            nohup bash "$hook_file" "${hook_args[@]}" </dev/null >nohup.out 2>nohup.err &
+        post)
+            nohup bash "$hook_file" "$@" </dev/null >/dev/null 2>&1 &
             ;;
     esac
 }
@@ -125,35 +113,14 @@ run_hook() {
 handle_special_commands() {
     local command="$1"
     shift
-    local args=("$@")
-    
+
     case "$command" in
-        "error")
-            local dev_mode=$(opencli config get dev_mode)
-            local error_script="/usr/local/opencli/error.py"
-            if [[ ${#args[@]} -gt 0 ]]; then
-                python3 "$error_script" "${args[@]}"
-            else
-                python3 "$error_script"
-            fi
+        error)
+            python3 "${SCRIPT_DIR}/error.py" "$@"
             exit 0
             ;;
-        #"sentinel") # https://github.com/stefanpejcic/sentinel
-        #    if [ -L /usr/local/bin/sentinel ]; then
-        #        chmod +x /usr/local/bin/sentinel
-        #        /usr/local/bin/sentinel "${args[@]}"
-        #    else
-        #        bash ${debug_flag:+"$debug_flag"} /usr/local/opencli/sentinel.sh "${args[@]}"
-        #    fi
-        #    exit 0
-        #    ;;
-        "locale")
-            local locale_url="https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh"
-            if [[ ${#args[@]} -gt 0 ]]; then
-                bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "$locale_url") "${args[@]}"
-            else
-                bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "$locale_url")
-            fi
+        locale)
+            bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh") "$@"
             exit 0
             ;;
     esac
@@ -162,7 +129,6 @@ handle_special_commands() {
 execute_command() {
     local command="$1"
     shift
-    local args=("$@")
     local binary_path="${SCRIPT_DIR}/${command//-//}.sh"
 
     if [[ ! -f "$binary_path" ]]; then
@@ -174,23 +140,11 @@ execute_command() {
     fi
 
     log_command "$command"
-    
-    # 1. pre-hook
-    run_hook "pre" "$command" "${args[@]}"
-    
-    # 2. command
-    if [[ ${#args[@]} -gt 0 ]]; then
-        bash ${debug_flag:+"$debug_flag"} "$binary_path" "${args[@]}"
-    else
-        bash ${debug_flag:+"$debug_flag"} "$binary_path"
-    fi
-    
-    # 3. post-hook
-    run_hook "post" "$command" "${args[@]}"
+    run_hook "pre"  "$command" "$@"
+    bash ${debug_flag:+"$debug_flag"} "$binary_path" "$@"
+    run_hook "post" "$command" "$@"
 
-    # 4. purge cache for UI
-    docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:html' | xargs -r redis-cli DEL" > /dev/null 2>&1 &
-    #docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:json' | xargs -r redis-cli DEL" > /dev/null 2>&1 &
+    #docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:html' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
 }
 
 main() {
@@ -203,7 +157,6 @@ main() {
         exit 1
     fi
 
-    local debug_flag=""
     if [[ "$1" == "-x" ]]; then
         debug_flag="-x"
         shift
@@ -212,9 +165,7 @@ main() {
     local command="$1"
     shift
 
-    if [[ "$command" == "-v" ]]; then
-        command="--version"
-    fi
+    [[ "$command" == "-v" ]] && command="--version"
 
     handle_special_commands "$command" "$@"
     execute_command "$command" "$@"

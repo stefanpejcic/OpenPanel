@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 02.04.2026
+# Last Modified: 03.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -115,7 +115,7 @@ usage_for_notifications() {
     echo "  opencli admin notifications update du 95      - receive notification when server disk usage is over 95%."
 	echo "  opencli admin notifications update webhook_url https://discord.com/api/webhooks/XXXX/YYYYYYY"
     echo ""
-    echo "List of all available options: https://dev.openpanel.com/cli/admin.html#Options"
+    echo "List of all available options: https://openpanel.com/docs/articles/opencli/admin"
     exit 1  
 }
 
@@ -206,7 +206,7 @@ get_config() {
     elif grep -q "^$param_name=" "$notifications_file"; then
         echo "Parameter $param_name has no value."
     else
-        echo "Parameter $param_name does not exist. Docs: https://dev.openpanel.com/cli/admin.html#Options"
+        echo "Parameter $param_name does not exist. Docs: https://openpanel.com/docs/articles/opencli/admin"
     fi
 }
 
@@ -219,7 +219,7 @@ update_config() {
         echo "Updated $param_name to $new_value"
         
     else
-        echo "Parameter $param_name not found in the configuration file. Docs: https://dev.openpanel.com/cli/admin.html#Update"
+        echo "Parameter $param_name not found in the configuration file. Docs: https://openpanel.com/docs/articles/opencli/admin"
     fi
 }
 
@@ -596,7 +596,6 @@ multitail_admin_logs(){
 # ---------------------- MAIN ---------------------- #
 case "$1" in
     "on")
-        # https://dev.openpanel.com/cli/admin.html#Enable-Disable-adminpanel
         echo "Enabling the OpenAdmin..."
 		rm /root/openadmin_is_disabled > /dev/null 2>&1
         systemctl enable --now $service_name > /dev/null 2>&1
@@ -605,8 +604,7 @@ case "$1" in
 		disown
         ;;
     "log")
-        # https://dev.openpanel.com/cli/admin.html#View-OpenAdmin-logs
-        echo "Restarting OpenAdmin service:"
+		echo "Restarting OpenAdmin service:"
         systemctl enable --now $service_name > /dev/null 2>&1
         echo "tail -f 25 $admin_logs_file"
         echo ""
@@ -615,11 +613,9 @@ case "$1" in
         echo ""
         ;;
     "logs")
-        # https://dev.openpanel.com/cli/admin.html#View-OpenAdmin-logs
         multitail_admin_logs
         ;;
     "off")
-        # https://dev.openpanel.com/cli/admin.html#Enable-Disable-adminpanel
         echo "Disabling the OpenAdmin..."
         systemctl disable --now $service_name > /dev/null 2>&1
 		touch /root/openadmin_is_disabled
@@ -631,7 +627,6 @@ case "$1" in
         usage
         ;;
     "password")
-        # https://dev.openpanel.com/cli/admin.html#Reset-Admin-Password
         user_flag="$2"
         new_password="$3"
         if [ -f "$db_file_path" ]; then
@@ -645,33 +640,27 @@ case "$1" in
                 
         ;;
     "rename")
-        # https://dev.openpanel.com/cli/admin.html#Rename-Admin-User
         old_username="$2"
         new_username="$3"
         validate_password_and_username "$new_username" "New Username"
         update_username "$old_username" "$new_username"
         ;;
     "list")
-        # https://dev.openpanel.com/cli/admin.html#List-Admin-users
         list_current_users
         ;;
 	"update")
-		# TODO: document
 	    shift 1
 	    update_reseller_account "$@"
 	    ;;
 	"suspend")
-        # https://dev.openpanel.com/cli/admin.html#Suspend-Admin-User
         username="$2"
         suspend_user "$username"
         ;;   
     "unsuspend")
-        # https://dev.openpanel.com/cli/admin.html#Unsuspend-Admin-User
         username="$2"
         unsuspend_user "$username"
         ;;   
 	"port")
-        # https://dev.openpanel.com/cli/admin.html#Suspend-Admin-User
         new_port="$2"
 		optional_flag="$3"
         if [ -n "$new_port" ]; then
@@ -727,7 +716,6 @@ case "$1" in
         fi
         ;;  	
     "new")
-        # https://dev.openpanel.com/cli/admin.html#Create-new-Admin
         new_username="$2"
         new_password="$3"
         reseller="$4"
@@ -747,7 +735,6 @@ case "$1" in
         add_new_user "$new_username" "$new_password" "$reseller"
         ;;
     "notifications")
-        # https://dev.openpanel.com/cli/admin.html#Notifications
         command="$2"
         param_name="$3"
         if [ "$command" != "check" ]; then
@@ -788,13 +775,11 @@ case "$1" in
 	    ;;
         
     "delete")
-        # https://dev.openpanel.com/cli/admin.html#Delete-Admin-User
         username="$2"
         delete_existing_users "$username"
         ;;
     *)
     if [ -z "$1" ]; then
-		# https://dev.openpanel.com/cli/admin.html#Check-Status
         detect_service_status
     else
         echo "ERROR: Unknown command: '$1'"

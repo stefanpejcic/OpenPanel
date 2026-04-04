@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 02.04.2026
+# Last Modified: 03.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -784,6 +784,16 @@ set_cpu_and_ram() {
     if [[ "$cpu" -ne 0 ]] || [[ "$ram" -ne 0 ]]; then
     	echo "Setting CPU and Memory limits.."
 	fi
+
+
+	mkdir -p /etc/systemd/system/user-$user_id.slice.d/
+	cat <<EOF > /etc/systemd/system/user-$user_id.slice.d/override.conf
+[Slice]
+Delegate=yes
+EOF
+
+systemctl daemon-reload
+systemctl restart user@$user_id.service
 
     if [[ "$cpu" -ne 0 ]]; then
         # 1 core = 100%

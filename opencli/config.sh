@@ -6,7 +6,7 @@
 #        opencli config update <setting_name> <new_value>
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 02.04.2026
+# Last Modified: 03.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -83,7 +83,7 @@ update_config() {
         echo "ERROR: Parameter '$param_name' was not found in the configuration file."
         echo
         echo "Usage: opencli config update <parameter_name> <new_value>"
-        echo "See the list of available parameters here: https://dev.openpanel.com/cli/config.html#Available-Options"
+        echo "See the list of available parameters here: https://openpanel.com/docs/articles/opencli/config#available-options"
     fi
 }
 
@@ -102,7 +102,7 @@ case "$command" in
             echo "ERROR: New value is not provided for the parameter '$param_name'."
             echo
             echo "Usage: opencli config update <parameter_name> <new_value>"
-            echo "See the list of available parameters with examples here: https://dev.openpanel.com/cli/config.html#Update"
+            echo "See the list of available parameters with examples here: https://openpanel.com/docs/articles/opencli/config#update"
             exit 1            
         fi
         new_value="$3"
@@ -121,7 +121,7 @@ case "$command" in
         echo "ERROR: Invalid command, only 'get' and 'update' are allowed."
         echo
         echo "Usage: opencli config [get|update] <parameter_name> [new_value]"
-        echo "See the list of available commands here: https://dev.openpanel.com/cli/config.html"
+        echo "See the list of available commands here: https://openpanel.com/docs/articles/opencli/config"
         exit 1
         ;;
 esac

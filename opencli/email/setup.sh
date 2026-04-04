@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 02.04.2026
+# Last Modified: 03.04.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -32,7 +32,7 @@
 
 if [ "$#" -lt 1 ]; then
     echo "Usage: opencli email-setup <command> [<args>...]"
-    echo "Docs: https://dev.openpanel.com/cli/email.html#Emails-1"
+    echo "Docs: https://openpanel.com/docs/articles/opencli/email"
     exit 1
 fi
 

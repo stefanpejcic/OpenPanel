@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 02.04.2026
+# Last Modified: 03.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -201,7 +201,7 @@ get_remote_version() {
         return 1
     fi
     
-    echo "$tags" | grep -v '^latest$' | sort -V | tail -n 1
+    echo "$tags" | grep -v '^latest$' | grep -v -- '-beta$' | sort -V | tail -n 1
 }
 
 # ---------------------- COMPARE, DUH! ---------------------- #
@@ -497,7 +497,6 @@ run_custom_postupdate_script() {
     
     if [[ -s "$script_path" ]]; then
         log_info "[!] Running custom post-update script: $script_path"
-        log_info "Documentation: https://dev.openpanel.com/customize.html#After-update"
         bash "$script_path" 2>&1 | tee -a "$log_file"
     fi
 }

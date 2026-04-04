@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 02.04.2026
+# Last Modified: 03.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -45,11 +45,6 @@ server_ip=""
 
 # ======================================================================
 # Helpers
-readonly IP_SERVERS=(
-    "https://ip.openpanel.com"
-    "https://ipv4.openpanel.com"
-    "https://ifconfig.me"
-)
 
 log_debug() {
     if [[ "$DEBUG" == true ]]; then
@@ -79,19 +74,18 @@ is_valid_ipv4() {
 get_server_ipv4() {
     local current_ip=""
     
-    for service in "${IP_SERVERS[@]}"; do
-        current_ip=$(curl --silent --max-time 1 -4 "$service" 2>/dev/null)
-        if is_valid_ipv4 "$current_ip"; then
-            echo "$current_ip"
-            return 0
-        fi
-        
-        current_ip=$(wget --timeout=1 --tries=1 -qO- "$service" 2>/dev/null)
-        if is_valid_ipv4 "$current_ip"; then
-            echo "$current_ip"
-            return 0
-        fi
-    done
+
+	current_ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null)
+	if is_valid_ipv4 "$current_ip"; then
+		echo "$current_ip"
+		return 0
+	fi
+	
+	current_ip=$(curl --silent --max-time 1 -4 "https://ifconfig.me" 2>/dev/null)
+	if is_valid_ipv4 "$current_ip"; then
+		echo "$current_ip"
+		return 0
+	fi
     
 	if command -v ip >/dev/null 2>&1; then
 	    current_ip=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
