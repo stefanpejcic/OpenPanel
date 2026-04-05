@@ -77,10 +77,6 @@ export const menuItems = [
                 label: "Plesk VS OpenPanel",
                 href: "/plesk-alternative",
             },
-            {
-                label: "CyberPanel VS OpenPanel",
-                href: "/cyberpanel-alternative",
-            },
         ],
     },    
     {
