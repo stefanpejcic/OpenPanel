@@ -37,9 +37,9 @@ Currently available configuration options:
 ### logo
 `logo` allows you to set a url for image *(suggested dimensions are 80x200px) that will be displayed to users on:
 
-- logo on every page
-- logo displayed on the login page
-- footer logo used in emails
+- every page
+- login page
+- notification emails footer
 
 ```bash
 logo=https://http.cat/images/100.jpg
