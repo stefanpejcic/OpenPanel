@@ -2,10 +2,6 @@
 
 `opencli error` command allows Administrators to trace OpenPanel error IDs.
 
-:::danger
-Error is logged only if [dev_mode](/cli/config.html#dev-mode) is enabled.
-:::
-
 ```bash
 opencli error ID_HERE
 ```
