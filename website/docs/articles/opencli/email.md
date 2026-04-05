@@ -1,7 +1,5 @@
 # Emails 
 
-Starting from the [0.2.5](https://openpanel.com/docs/changelog/0.2.5/) version, [OpenPanel Enterprise edition](https://openpanel.com/beta/) includes a mailserver.
-
 The following commands are available **for OpenPanel Enterprise** users:
 
 ## MailServer
