@@ -23,17 +23,3 @@ All available flags:
 ```bash
 opencli server-migrate -h <remote_host> -u <remote_user> [--password <password>] [--exclude-home] [--exclude-logs] [--exclude-mail] [--exclude-bind] [--exclude-openpanel] [--exclude-mysql] [--exclude-stack] [--exclude-postupdate] [--exclude-users]
 ```
-
-## IPs
-
-Updates IPs for users - used on OpenPanel UI to dispaly dedicated IP addresses to user.
-
-For all users:
-```bash
-opencli server-logrotate
-```
-
-For a simgle user:
-```bash
-opencli server-ips <USERNAME>
-```
