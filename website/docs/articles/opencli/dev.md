@@ -15,4 +15,4 @@ Overwrite HTML template or Python module within the OpenPanel UI container
   opencli dev templates/dashboard/dashboard.html
   ```
 
-**Note:** This command is intended for development purposes, specifically when creating custom modules or modifying templates. It provides a quick way to overwrite files for testing. For persistent changes, refer to the [Customizing](/customize.html) section.
+**Note:** This command is intended for development purposes, specifically when creating custom modules or modifying templates. It provides a quick way to overwrite files for testing.
