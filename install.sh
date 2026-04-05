@@ -241,7 +241,6 @@ setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
 setup_redis_service                       # for redis container
-create_rdnc                               # generate rdnc key for managing domains
 panel_customize                           # customizations
 docker_compose_up                         #
 docker_cpu_limiting                       # https://docs.docker.com/engine/security/rootless/#limiting-resources
@@ -781,43 +780,46 @@ setup_imunifyav() {
 }
 
 
-create_rdnc() {
-    if [ "$SKIP_DNS_SERVER" = false ]; then
-	    echo "Setting remote name daemon control (rndc) for DNS.."
-	    mkdir -p /etc/bind/
-	    cp -r ${ETC_DIR}bind9/* /etc/bind/
+setup_bind() {
+    if [ "$SKIP_DNS_SERVER" = true ]; then
+        echo "Skipping BIND setup due to the '--skip-dns-server' flag."
+        return
+    fi
 
-	    if [ -f /etc/os-release ] && grep -qE "Ubuntu|Debian" /etc/os-release; then            # Only on Ubuntu and Debian 12, systemd-resolved is installed
-	        echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
-	        systemctl restart systemd-resolved
-	    fi
+    echo "Setting up DNS service..."
+	install -d -m 755 /etc/bind
+	cp -r ${ETC_DIR}bind9/* /etc/bind/
 
-	    RNDC_KEY_PATH="/etc/bind/rndc.key"
-	    if [ -f "$RNDC_KEY_PATH" ]; then
-	        echo "rndc.key already exists."
-	        return 0
-	    fi
+	echo "Setting remote name daemon control (rndc) for DNS.."
+	if [ -f /etc/os-release ] && grep -Eq "Ubuntu|Debian" /etc/os-release; then
+		grep -q "^DNSStubListener=no" /etc/systemd/resolved.conf || \
+			echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
+		systemctl restart systemd-resolved # systemd-resolved is installed on debian based
+	fi
 
-	    echo "Generating rndc.key for DNS zone management."
-	    execute_cmd timeout 90 docker --context default run --rm \
-	        -v /etc/bind/:/etc/bind/ \
-	        --entrypoint=/bin/sh \
-	        ubuntu/bind9:latest \
-	        -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+	RNDC_KEY_PATH="/etc/bind/rndc.key"
+	if [ -f "$RNDC_KEY_PATH" ]; then
+		echo "rndc.key already exists."
+		return 0
+	fi
 
-	    if [ -f "$RNDC_KEY_PATH" ]; then                                                       # Check if rndc.key was successfully generated
-			echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
-	    else
-	 		echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
-			echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
-			echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
-	    fi
+	echo "Generating rndc.key for DNS zone management."
+	execute_cmd timeout 90 docker --context default run --rm \
+		-v /etc/bind/:/etc/bind/ \
+		--entrypoint=/bin/sh \
+		ubuntu/bind9:latest \
+		-c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
 
-	    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
-	    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
+	if [ -f "$RNDC_KEY_PATH" ]; then                                                       # Check if rndc.key was successfully generated
+		echo -e "[${GREEN} OK ${RESET}] rndc.key successfully generated."
 	else
-		echo "Skipping rndc.key generation due to the '--skip-dns-server' flag."
- 	fi
+		echo -e "[${YELLOW}  !  ${RESET}] Warning: Unable to generate rndc.key."
+		echo "RNDC is required for managing the named service. Without it, you won’t be able to reload DNS zones."
+		echo "That is OK if you don’t plan on using custom nameservers or DNS Clustering on this server."
+	fi
+
+	find /etc/bind/ -type d -print0 | xargs -0 chmod 755
+	find /etc/bind/ -type f -print0 | xargs -0 chmod 644
 }
 
 
@@ -1356,26 +1358,6 @@ download_skeleton_directory_from_github() {
 
     [ -f "$CONFIG_FILE" ] || radovan 1 "Main configuration file ${CONFIG_FILE} is missing."
     systemctl daemon-reload >/dev/null 2>&1
-}
-
-
-setup_bind(){
-    if [ "$SKIP_DNS_SERVER" = true ]; then
-        echo "Skipping BIND setup due to the '--skip-dns-server' flag."
-        return
-    fi
-
-    echo "Setting up DNS service..."
-	install -d -m 755 /etc/bind
-	cp -r ${ETC_DIR}bind9/* /etc/bind/
-
-	if [ -f /etc/os-release ] && grep -Eq "Ubuntu|Debian" /etc/os-release; then
-		grep -q "^DNSStubListener=no" /etc/systemd/resolved.conf || \
-			echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
-		systemctl restart systemd-resolved # systemd-resolved is installed on debian based
-	fi
-
-	chmod -R 755 /etc/bind
 }
 
 send_install_log(){
