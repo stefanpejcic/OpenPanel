@@ -5,7 +5,7 @@
 # Usage: opencli server-logrotate
 # Author: Stefan Pejcic
 # Created: 16.01.2024
-# Last Modified: 03.04.2026
+# Last Modified: 04.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

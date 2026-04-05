@@ -5,7 +5,7 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 03.04.2026
+# Last Modified: 04.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -30,15 +30,11 @@
 
 set -euo pipefail
 
-# ======================================================================
-# Constants
 readonly SCRIPTS_DIR="/usr/local/opencli"
 readonly ALIAS_FILE="${SCRIPTS_DIR}/aliases.txt"
 readonly GREEN='\033[0;32m'
 readonly RESET='\033[0m'
 
-# ======================================================================
-# Excluded files
 readonly EXCLUDE_PATTERNS=(
     ".git/*"
     ".github/*"
@@ -48,8 +44,8 @@ readonly EXCLUDE_PATTERNS=(
     "progress_bar.sh"
 )
 
-# ======================================================================
-# Functions
+declare -a exclude_args=()
+
 check_scripts_directory() {
     if [[ ! -d "$SCRIPTS_DIR" ]]; then
         echo "Error: Scripts directory '$SCRIPTS_DIR' not found." >&2
@@ -58,12 +54,11 @@ check_scripts_directory() {
 }
 
 initialize_alias_file() {
-    > "$ALIAS_FILE"
-
-    if [[ ! -w "$ALIAS_FILE" ]]; then
+    if [[ ! -w "$ALIAS_FILE" ]] && ! touch "$ALIAS_FILE" 2>/dev/null; then
         echo "Error: Cannot write to alias file '$ALIAS_FILE'." >&2
         exit 1
     fi
+    : > "$ALIAS_FILE"
 }
 
 build_find_excludes() {
@@ -75,7 +70,7 @@ build_find_excludes() {
 
 extract_script_info() {
     local script="$1"
-    local -n info_ref=$2
+    local -n info_ref="$2"
     info_ref[description]=$(grep -E "^# Description:" "$script" 2>/dev/null | sed 's/^# Description: //' || true)
     info_ref[usage]=$(grep -E "^# Usage:" "$script" 2>/dev/null | sed 's/^# Usage: //' || true)
 }
@@ -83,25 +78,29 @@ extract_script_info() {
 generate_alias_name() {
     local script="$1"
     local script_name dir_name alias_name
-    
-    script_name=$(basename "$script" | sed 's/\(\.sh\|\.py\)$//')
-    dir_name=$(dirname "$script" | sed 's:.*/::')
-    
+
+    script_name=$(basename "$script")
+    script_name="${script_name%.sh}"
+    script_name="${script_name%.py}"
+
+    dir_name=$(dirname "$script")
+    dir_name="${dir_name##*/}"
+
     if [[ "$dir_name" == "opencli" ]]; then
         alias_name="$script_name"
     else
         alias_name="${dir_name}-${script_name}"
     fi
-    
+
     echo "$alias_name"
 }
 
 display_command_info() {
     local full_alias="$1"
     local script="$2"
-    declare -A script_info
+    local -A script_info
     extract_script_info "$script" script_info
-    
+
     echo -e "${GREEN}${full_alias}${RESET}"
     if [[ -n "${script_info[description]:-}" ]]; then
         echo "Description: ${script_info[description]}"
@@ -113,9 +112,10 @@ display_command_info() {
 }
 
 process_scripts() {
-    declare -a exclude_args
-    declare -a commands_list=()
     build_find_excludes
+
+    local alias_name full_alias
+    declare -a commands_list=()
 
     while IFS= read -r -d '' script; do
         if [[ ! -r "$script" ]]; then
@@ -123,15 +123,14 @@ process_scripts() {
             continue
         fi
 
-        local alias_name full_alias
         alias_name=$(generate_alias_name "$script")
-        full_alias="opencli $alias_name"
+        full_alias="opencli ${alias_name}"
         display_command_info "$full_alias" "$script"
         commands_list+=("$full_alias")
-        
+
     done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" "${exclude_args[@]}" -print0)
 
-    # handle special cases
+    # special commands
     echo -e "${GREEN}opencli error${RESET}"
     echo "Description: Displays information for specific error ID received in OpenPanel UI."
     echo "Usage: opencli error <ID_HERE>"
@@ -143,14 +142,12 @@ process_scripts() {
     echo "Usage: opencli locale <CODE>"
     echo "------------------------"
     commands_list+=("opencli locale")
-    
-    if [[ ${#commands_list[@]} -gt 1 ]]; then
+
+    if [[ ${#commands_list[@]} -gt 0 ]]; then
         printf '%s\n' "${commands_list[@]}" | sort > "$ALIAS_FILE"
     fi
 }
 
-
-# ======================================================================
 main() {
     check_scripts_directory
     initialize_alias_file

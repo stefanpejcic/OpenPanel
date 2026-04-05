@@ -9,7 +9,6 @@ opencli docker-collect_stats
 opencli docker-images
 opencli docker-limits
 opencli docker-logs
-opencli docker-usage_stats_cleanup
 opencli domain
 opencli domains-add
 opencli domains-all
@@ -18,6 +17,7 @@ opencli domains-dns
 opencli domains-dnssec
 opencli domains-docroot
 opencli domains-edit
+opencli domains-hsts
 opencli domains-ssl
 opencli domains-stats
 opencli domains-suspend
@@ -28,6 +28,7 @@ opencli domains-varnish
 opencli domains-whoowns
 opencli email-manage
 opencli email-quotas
+opencli email-ratelimit
 opencli email-server
 opencli email-setup
 opencli email-webmail
@@ -43,14 +44,13 @@ opencli ftp-list
 opencli ftp-logs
 opencli ftp-password
 opencli ftp-path
-opencli imav-deploy
 opencli imunify
-opencli install
 opencli license
 opencli locale
 opencli patch
 opencli php-default
 opencli php-domain
+opencli phpmyadmin
 opencli plan-apply
 opencli plan-create
 opencli plan-delete
@@ -67,6 +67,7 @@ opencli server-migrate
 opencli update
 opencli user-2fa
 opencli user-add
+opencli user-block_ip
 opencli user-change_plan
 opencli user-check
 opencli user-delete
@@ -79,7 +80,6 @@ opencli user-password
 opencli user-quota
 opencli user-rename
 opencli user-resources
-opencli user-ssh
 opencli user-suspend
 opencli user-transfer
 opencli user-unsuspend
@@ -90,4 +90,6 @@ opencli webserver-get_webserver_for_user
 opencli websites-all
 opencli websites-pagespeed
 opencli websites-scan
+opencli websites-secure
 opencli websites-user
+opencli websites-vulnerability

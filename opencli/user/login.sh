@@ -5,7 +5,7 @@
 # Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
 # Created: 27.01.2026
-# Last Modified: 03.04.2026
+# Last Modified: 04.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -38,14 +38,11 @@ if [ -z "$USERNAME" ]; then
 fi
 
 for arg in "$@"; do
-    if [ "$arg" == "--open" ]; then
-        NOW_FLAG=true
-    fi
-    if [ "$arg" == "--delete" ]; then
-        DELETE_FLAG=true
-    fi
+    case "$arg" in
+        --open)   NOW_FLAG=true ;;
+        --delete) DELETE_FLAG=true ;;
+    esac
 done
-
 
 # ======================================================================
 # Helpers
