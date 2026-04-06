@@ -1357,7 +1357,6 @@ download_skeleton_directory_from_github() {
         radovan 1 "Failed to clone OpenPanel Configuration from GitHub - retry with '--retry' flag."
 
     [ -f "$CONFIG_FILE" ] || radovan 1 "Main configuration file ${CONFIG_FILE} is missing."
-    systemctl daemon-reload >/dev/null 2>&1
 }
 
 send_install_log(){
