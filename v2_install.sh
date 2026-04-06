@@ -545,10 +545,13 @@ setup_bind() {
     install -d -m 755 /etc/bind
     cp -r "${ETC_DIR}bind9/"* /etc/bind/
 
-    if grep -Eq "Ubuntu|Debian" /etc/os-release 2>/dev/null; then
-        grep -q "^DNSStubListener=no" /etc/systemd/resolved.conf || echo "DNSStubListener=no" >> /etc/systemd/resolved.conf
-        run systemctl restart systemd-resolved
-    fi
+	if grep -Eq "Ubuntu|Debian" /etc/os-release 2>/dev/null; then
+	    local resolved_conf="/etc/systemd/resolved.conf"
+	    if [ -f "$resolved_conf" ]; then
+	        grep -q "^DNSStubListener=no" "$resolved_conf" || echo "DNSStubListener=no" >> "$resolved_conf"
+	        systemctl restart systemd-resolved
+	    fi
+	fi
 
     local rndc_key="/etc/bind/rndc.key"
     if [[ ! -f "$rndc_key" ]]; then
