@@ -6,7 +6,7 @@ Check if current panel version is +1 than the latest
 '''
 
 local_version_file = '/usr/local/panel/version'
-latest_version_url = 'https://usage-api.openpanel.org/latest_version'
+latest_version_url = 'https://api.openpanel.com/statistics/latest_version'
 
 def get_local_version():
     try:
