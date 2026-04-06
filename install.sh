@@ -126,17 +126,12 @@ is_package_installed() {
 
 get_server_ipv4() {
     local ip
-
     ip=$(curl -s --max-time 1 -4 "https://ip.openpanel.com")
-    if [ -z "$ip" ]; then
-        ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
-    fi
-
-    if ! [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || \
-         [[ "$ip" =~ ^10\.|^172\.(1[6-9]|2[0-9]|3[0-1])\.|^192\.168\. ]]; then
+    [[ -z "$ip" ]] && ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
+    [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && \
+    ! [[ "$ip" =~ ^(10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.) ]] || \
         echo "Invalid or private IPv4 address: $ip. OpenPanel requires a public IPv4 address to bind domains configuration files."
-    fi
-	SERVER_IPV4_ADDRESS=$ip
+    SERVER_IPV4_ADDRESS=$ip
 }
 
 set_version_to_install() {
@@ -148,9 +143,8 @@ set_version_to_install() {
 }
 
 print_space_and_line() {
-    echo " "
-    printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
-    echo " "
+    local cols="${COLUMNS:-$(tput cols)}"
+    printf '\n%s\n\n' "$(printf '%*s' "$cols" '' | tr ' ' -)"
 }
 
 setup_progress_bar_script(){
@@ -190,8 +184,7 @@ display_what_will_be_installed(){
 	 	fi
   	fi
  	echo -e "[ OK ] PACKAGE MANAGEMENT SYSTEM: ${GREEN} ${PACKAGE_MANAGER^^} ${RESET}"
- 	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN} ${SERVER_IPV4_ADDRESS} ${RESET}"
-  	echo ""
+	echo -e "[ OK ] PUBLIC IPV4 ADDRESS:       ${GREEN}${SERVER_IPV4_ADDRESS}${RESET}\n"
 }
 
 start_user_panel() {
@@ -230,7 +223,6 @@ set_system_cronjob                        # setup crons, must be after sentinel
 set_logrotate                             # setup logrotate, ignored on fedora
 tweak_ssh                                 # basic ssh
 log_dirs                                  # for almalinux
-download_ui_image                         # pull openpanel-ui image
 setup_imunifyav                           # setum imunifyav and enable autologin from openadmin
 setup_swap                                # swap space
 clean_apt_and_dnf_cache                   # clear
@@ -1191,11 +1183,6 @@ generate_and_set_ssl_for_panels() {
 			fi
         fi
     fi
-}
-
-download_ui_image() {
-        echo "Pulling OpenPanel image in background (not starting the service).."
-		nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
 }
 
 setup_redis_service() {
