@@ -32,7 +32,6 @@ USER_PORT="2083"                                                         # defau
 SKIP_APT_UPDATE=false                                                    # they are auto-pulled on account creation
 SKIP_DNS_SERVER=false
 REPAIR=false
-LOCALES=false                                                            # by default only EN is installed
 SET_HOSTNAME_NOW=false                                                   # must be a FQDN
 USE_SELFSIGNED=false                                                     # generate and configure self-signed ssl
 SETUP_SWAP_ANYWAY=false                                                  # setup swapfile regardless of server ram
