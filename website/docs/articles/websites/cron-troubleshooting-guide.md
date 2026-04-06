@@ -1,4 +1,4 @@
-# OpenPanel --- Cron Troubleshooting Guide
+# OpenPanel Cron Troubleshooting Guide
 
 This is a **generic troubleshooting guide** for OpenPanel cron jobs.
 
