@@ -5,7 +5,7 @@
 # Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 04.04.2026
+# Last Modified: 05.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

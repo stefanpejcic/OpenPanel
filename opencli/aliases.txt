@@ -61,7 +61,6 @@ opencli port
 opencli proxy
 opencli report
 opencli sentinel
-opencli server-ips
 opencli server-logrotate
 opencli server-migrate
 opencli update
