@@ -97,7 +97,6 @@ install_started_message(){
     fi
 
     echo -e "- Set up 2 hosting plans so you can start right away."
-
     echo -e "\nThank you for your patience. We're setting everything up for your seamless OpenPanel experience!\n"
     printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -
     echo -e ""
@@ -122,18 +121,10 @@ is_package_installed() {
     [ -z "$package" ] && return 1
 
     case "$PACKAGE_MANAGER" in
-        yum|dnf)
-            "$PACKAGE_MANAGER" list installed "$package" &> /dev/null
-            ;;
-        apt-get)
-            dpkg -l 2>/dev/null | grep -q "^ii[[:space:]]*${package}"
-            ;;
-        *)
-            echo "Unsupported package manager: $PACKAGE_MANAGER" >&2
-            return 1
-            ;;
+        yum|dnf)    "$PACKAGE_MANAGER" list installed "$package" &> /dev/null ;;
+        apt-get)    dpkg -l 2>/dev/null | grep -q "^ii[[:space:]]*${package}" ;;
+        *) echo "Unsupported package manager: $PACKAGE_MANAGER" >&2; return 1 ;;
     esac
-
     return $?
 }
 
@@ -141,7 +132,6 @@ get_server_ipv4() {
     local ip
 
     ip=$(curl -s --max-time 1 -4 "https://ip.openpanel.com")
-
     if [ -z "$ip" ]; then
         ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
     fi
@@ -156,17 +146,10 @@ get_server_ipv4() {
 set_version_to_install() {
     if [ "$CUSTOM_VERSION" = false ]; then
         response=$(curl -4 -s "https://api.openpanel.com/statistics/")
-
-        if command -v jq &> /dev/null; then
-            PANEL_VERSION=$(echo "$response" | jq -r '.latest_version')
-        else
-            PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+')
-        fi
-
+        PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+')
         [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
     fi
 }
-
 
 print_space_and_line() {
     echo " "
@@ -200,9 +183,6 @@ setup_progress_bar_script(){
 	    exit 1
 	fi
 }
-
-
-
 
 display_what_will_be_installed(){
     echo -e "[ OK ] DETECTED OPERATING SYSTEM: ${GREEN} ${NAME^^} $VERSION_ID ${RESET}"
@@ -284,9 +264,6 @@ main() {
     destroy_scroll_area
 }
 
-
-
-
 check_requirements() {
     if [ -z "$SKIP_REQUIREMENTS" ]; then
 
@@ -330,11 +307,8 @@ check_requirements() {
 
 }
 
-
 parse_args() {
 
-# ======================================================================
-# Usage info
     show_help() {
         echo "Available options:"
         echo "  --key=<key_here>                Set the license key for OpenPanel Enterprise edition."
@@ -362,7 +336,6 @@ parse_args() {
         echo "  -h, --help                      Show this help message and exit."
     }
 
-
 	set_port() {
 	    local port_name=$1
 	    local port_val=$2
@@ -374,8 +347,6 @@ parse_args() {
 	    fi
 	}
 
-# ======================================================================
-# Change defaults
 while [[ $# -gt 0 ]]; do
     case $1 in
         --key=*|--domain=*|--panel_domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*|--user-port=*|--admin-port=*)
@@ -404,25 +375,14 @@ while [[ $# -gt 0 ]]; do
         --imunifyav)           IMUNIFY_AV=true ;;
         --no-waf)              CORAZA=false ;;
 		--selfsigned)          USE_SELFSIGNED=true ;;
-        --repair|--retry)
-            REPAIR=true
-            SKIP_PANEL_CHECK=true
-            SKIP_APT_UPDATE=true
-            ;;
+        --repair|--retry)      REPAIR=true; SKIP_PANEL_CHECK=true; SKIP_APT_UPDATE=true ;;
         --enable-dev-mode)     DEV_MODE=true ;;
         -h|--help)             show_help; exit 0 ;;
-        *)
-            echo "Unknown option: $1"
-            show_help
-            exit 1
-            ;;
+        *) echo "Unknown option: $1"; show_help; exit 1 ;;
     esac
     shift
 done
 }
-
-
-
 
 detect_installed_panels() {
     if [ -n "$SKIP_PANEL_CHECK" ]; then return; fi
@@ -456,59 +416,31 @@ detect_installed_panels() {
             fi
         fi
     done
-
     echo -e "${GREEN}No currently installed hosting control panels or webservers found. Starting the installation process.${RESET}"
 }
-
-
 
 detect_os_cpu_and_package_manager() {
     if [ -f "/etc/os-release" ]; then
         . /etc/os-release
 
 		case "$ID" in
-		    ubuntu|debian)
-		        PACKAGE_MANAGER="apt-get"
-		        ;;
-		    fedora|rocky|almalinux|alma)
-		        PACKAGE_MANAGER="dnf"
-		        ;;
-		    centos)
-		        PACKAGE_MANAGER="yum"
-		        ;;
-		    *)
-		        echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"
-		        echo -e "${RED}INSTALL FAILED${RESET}"
-		        exit 1
-		        ;;
+		    ubuntu|debian) PACKAGE_MANAGER="apt-get" ;;
+		    fedora|rocky|almalinux|alma) PACKAGE_MANAGER="dnf" ;;
+		    centos) PACKAGE_MANAGER="yum" ;;
+		    *) echo -e "${RED}Unsupported Operating System: $ID. Exiting.${RESET}"; echo -e "${RED}INSTALL FAILED${RESET}"; exit 1 ;;
 		esac
 
         arch_raw="$(uname -m)"
         case "$arch_raw" in
-            x86_64|amd64)
-                architecture="x86_64"
-                ;;
-            aarch64|arm64)
-                architecture="aarch64"
-                ;;
-            *)
-                architecture="$arch_raw"
-                ;;
+            x86_64|amd64)  architecture="x86_64"    ;;
+            aarch64|arm64) architecture="aarch64"   ;;
+            *)             architecture="$arch_raw" ;;
         esac
     else
         echo -e "${RED}Could not detect Linux distribution from /etc/os-release${RESET}"
         echo -e "${RED}INSTALL FAILED${RESET}"
         exit 1
     fi
-}
-
-
-# TODO
-setup_locales() {
-    if [ "$LOCALES" = true ]; then
-		# https://github.com/stefanpejcic/openpanel-translations/tree/main
-		opencli locale de-de fr-fr es-es ne-np pt-br uk-ua ru-ru tr-tr zh-cn 
-	fi
 }
 
 docker_compose_up(){
@@ -524,35 +456,35 @@ docker_compose_up(){
    		link="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64"
  	fi
 
-	    curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
-	    execute_cmd chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
-		execute_cmd curl -4 -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
-		execute_cmd mv /usr/local/bin/docker-compose /usr/bin/docker-compose
-  		ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
-		execute_cmd chmod +x /usr/bin/docker-compose
+	curl -4 -SL $link -o $DOCKER_CONFIG/cli-plugins/docker-compose  > /dev/null 2>&1
+	execute_cmd chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+	execute_cmd curl -4 -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)"  -o /usr/local/bin/docker-compose
+	execute_cmd mv /usr/local/bin/docker-compose /usr/bin/docker-compose
+  	ln -s /usr/bin/docker-compose /usr/local/bin/docker-compose
+	execute_cmd chmod +x /usr/bin/docker-compose
 
-		function_to_insert='docker() {
-		  if [[ $1 == "compose" ]]; then
-		    /usr/local/bin/docker-compose "${@:2}"
-		  else
-		    command docker "$@"
-		  fi
-		}'
-
-		if [ -f "/root/.bashrc" ]; then
-		    config_file="/root/.bashrc"
-		elif [ -f "/root/.zshrc" ]; then
-		    config_file="/root/.zshrc"
+	function_to_insert='docker() {
+		if [[ $1 == "compose" ]]; then
+		/usr/local/bin/docker-compose "${@:2}"
 		else
-		    radovan 1 "ERROR: Neither .bashrc nor .zshrc file found. Exiting."
+		command docker "$@"
 		fi
+	}'
 
-		source ~/.bashrc                                               # for armcpu, or if user did sudo su to switch..
+	if [ -f "/root/.bashrc" ]; then
+		config_file="/root/.bashrc"
+	elif [ -f "/root/.zshrc" ]; then
+		config_file="/root/.zshrc"
+	else
+		radovan 1 "ERROR: Neither .bashrc nor .zshrc file found. Exiting."
+	fi
 
-		if ! grep -q "docker() {" "$config_file"; then
-		    echo "$function_to_insert" >> "$config_file"
-		    source "$config_file"
-		fi
+	source ~/.bashrc                                               # for armcpu, or if user did sudo su to switch..
+
+	if ! grep -q "docker() {" "$config_file"; then
+		echo "$function_to_insert" >> "$config_file"
+		source "$config_file"
+	fi
 
  	systemctl start docker
 
@@ -603,7 +535,6 @@ docker_compose_up(){
         fi
     fi
 
-
     if [ "$REPAIR" = true ]; then
     	echo "Deleting all existing MySQL data in volume root_openadmin_mysql due to the '--repair' flag."
 		cd /root && docker compose down > /dev/null 2>&1                            # in case mysql was running
@@ -622,12 +553,8 @@ docker_compose_up(){
     else
         echo -e "[${GREEN}OK${RESET}] MySQL service started successfully."
     fi
-
     ln -s / /hostfs > /dev/null 2>&1                                                 # needed from 1.0.0 for docker contexts to work both inside openpanel ui container and host os
 }
-
-
-
 
 clean_apt_and_dnf_cache(){
     if [ "$PACKAGE_MANAGER" == "dnf" ]; then
@@ -654,7 +581,6 @@ tweak_ssh(){
 	   echo -e "[${GREEN} OK ${RESET}] SSH service is configured."
    fi
 }
-
 
 setup_firewall_service() {
     if [ -z "$SKIP_FIREWALL" ]; then
@@ -748,7 +674,6 @@ setup_firewall_service() {
 
         install -m 755 /dev/null /usr/sbin/sendmail                             # https://github.com/stefanpejcic/OpenPanel/issues/338
 
-
         if command -v csf > /dev/null 2>&1; then
             echo -e "[${GREEN} OK ${RESET}] Sentinel Firewall is installed and configured."
         else
@@ -760,7 +685,6 @@ setup_firewall_service() {
 		if jq 'map(select(.real_name != "csf" and .real_name != "lfd"))' "/etc/openpanel/openadmin/config/services.json" > "services.tmp.json"; then
 		    mv "services.tmp.json" "/etc/openpanel/openadmin/config/services.json"
 		fi
-
     fi
 }
 
@@ -771,14 +695,12 @@ update_package_manager() {
     fi
 }
 
-
 setup_imunifyav() {
     if [ "$IMUNIFY_AV" = true ]; then
         echo "Installing ImunifyAV"
         execute_cmd opencli imunify install && opencli imunify start
     fi
 }
-
 
 setup_bind() {
     if [ "$SKIP_DNS_SERVER" = true ]; then
@@ -822,7 +744,6 @@ setup_bind() {
 	find /etc/bind/ -type f -print0 | xargs -0 chmod 644
 }
 
-
 extra_step_on_hetzner() {
 	if [ -f /etc/hetzner-build ]; then
 	    echo "Hetzner provider detected, adding Cloudflare DNS resolvers..."
@@ -840,12 +761,10 @@ extra_step_on_hetzner() {
 	fi
 }
 
-
 set_logrotate(){
 	echo "Setting Logrotate for Syslog, OpenPanel and Caddy webserver.."
 	opencli server-logrotate
 }
-
 
 install_packages() {
     echo "Installing required services.."
@@ -1049,33 +968,27 @@ install_packages() {
     done
 }
 
-
 docker_cpu_limiting() {
-
 	# https://docs.docker.com/engine/security/rootless/#limiting-resources
 	mkdir -p /etc/systemd/system/user@.service.d
-
 	cat > /etc/systemd/system/user@.service.d/delegate.conf << EOF
 [Service]
 Delegate=cpu cpuset io memory pids
 EOF
-
 	execute_cmd systemctl daemon-reload
 }
 
-
 edit_fstab() {
+    echo "Setting quotas for disk limits of user files"
+    fstab_file="/etc/fstab"
+    root_entry=$(grep -E '^\S+\s+/.*' "$fstab_file")
 
-echo "Setting quotas for disk limits of user files"
-fstab_file="/etc/fstab"
-root_entry=$(grep -E '^\S+\s+/.*' "$fstab_file")
-
-if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
-    echo "Success, usrquota and grpquota are already set for /"
-else
-    # Add usrquota and grpquota to the fstab entry (only for the root entry)
-    sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
-fi
+    if [[ "$root_entry" =~ "usrquota" && "$root_entry" =~ "grpquota" ]]; then
+        echo "Success, usrquota and grpquota are already set for /"
+    else
+        # Add usrquota and grpquota to the fstab entry (only for the root entry)
+        sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab_file"
+    fi
 	systemctl daemon-reload >/dev/null 2>&1
 	quotaoff -a >/dev/null 2>&1
 	mount -o remount,usrquota,grpquota / >/dev/null 2>&1
@@ -1094,8 +1007,6 @@ fi
     else
         echo -e "[${RED} FAIL ${RESET}] Quota check failed."
     fi
-
-
 }
 
 set_system_cronjob() {
@@ -1113,9 +1024,7 @@ set_system_cronjob() {
     else
         echo -e "[${RED} FAIL ${RESET}] Cron service is NOT running!"
     fi
-
 }
-
 
 set_custom_hostname(){
         if [ "$SET_HOSTNAME_NOW" = true ]; then
@@ -1153,8 +1062,6 @@ EOF
         fi
 }
 
-
-
 opencli_setup(){
     echo "Downloading OpenCLI and adding to path.."
     cd /usr/local
@@ -1178,7 +1085,6 @@ opencli_setup(){
     export PATH="/usr/bin:$PATH"
 
     source ~/.bashrc
-
     echo "Testing 'opencli' commands:"
     if [ -x "/usr/local/bin/opencli" ]; then
         echo -e "[${GREEN} OK ${RESET}] opencli commands are available."
@@ -1186,8 +1092,6 @@ opencli_setup(){
         radovan 1 "'opencli --version' command failed."
     fi
 }
-
-
 
 enable_dev_mode() {
 	if [ "$DEV_MODE" = true ]; then
@@ -1212,12 +1116,10 @@ set_premium_features(){
  fi
 }
 
-
 log_dirs() {
     local log_dir="/var/log/openpanel"  # https://openpanel.com/docs/articles/support/where-openpanel-stores-logs
     install -d -m 755 "$log_dir" "$log_dir/user" "$log_dir/admin"
 }
-
 
 set_email_address_and_email_admin_logins(){
         if [ "$SEND_EMAIL_AFTER_INSTALL" = true ]; then
@@ -1259,8 +1161,6 @@ set_email_address_and_email_admin_logins(){
             fi
         fi
 }
-
-
 
 generate_and_set_ssl_for_panels() {
 	# TODO: extend to also handle if just --panel-domain is set
@@ -1308,13 +1208,10 @@ generate_and_set_ssl_for_panels() {
     fi
 }
 
-
-
 download_ui_image() {
         echo "Pulling OpenPanel image in background (not starting the service).."
 		nohup sh -c "cd /root && docker --context default compose pull openpanel" </dev/null >nohup.out 2>nohup.err &
 }
-
 
 setup_redis_service() {
 	install -d -m 777 /tmp/redis
@@ -1335,7 +1232,6 @@ run_custom_postinstall_script() {
         fi
     fi
 }
-
 
 verify_license() {
     server_hostname=$(hostname)
@@ -1370,22 +1266,17 @@ send_install_log(){
     exec 2>&1
 }
 
-
 rm_helpers(){
     rm -rf $PROGRESS_BAR_FILE
 }
 
-
-
 setup_swap(){
-
 	validate_size() {
 	    if ! [[ "$SWAP_FILE" =~ ^[0-9]+$ ]] || [ "$SWAP_FILE" -lt 1 ] || [ "$SWAP_FILE" -gt 10 ]; then
 	        echo "Warning: Invalid swap size provided: '${SWAP_FILE}'. Must be a at least 1 and a maximum of 10 GB. Default will be used instead."
 			auto_setup_swap_size
 	    fi
 	}
-
 
 	auto_setup_swap_size() {
 		memory_kb=$(grep 'MemTotal' /proc/meminfo | awk '{print $2}')
@@ -1421,8 +1312,6 @@ setup_swap(){
     fi
 }
 
-
-
 support_message() {
     local discord_invite_url="https://discord.openpanel.com/"
     local forums_link="https://community.openpanel.org/"
@@ -1455,9 +1344,7 @@ support_message() {
     fi
 }
 
-
 panel_customize(){
-	# playwright is installed on container startup if screenshots=local
 	# SCREENSHOTS_API_URL="http://screenshots-$(printf 'v2\nv3\nv4\nv6' | shuf -n1).openpanel.com/api/screenshot" # spread the load
 	if [ "$SCREENSHOTS_API_URL" != "local" ]; then
         echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
@@ -1465,14 +1352,12 @@ panel_customize(){
     fi
 }
 
-
 check_permissions_in_root_dir() {
 	local root_dir="/root"
 	if ! [ -r "$root_dir" ] || ! [ -w "$root_dir" ]; then
 		radovan 1 "User $(whoami) does NOT have read and write permissions on $root_dir"
 	fi
 }
-
 
 install_python() {
     OS=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
@@ -1599,8 +1484,6 @@ EOF' || true
     export PYTHON_BIN="$chosen_py"
 }
 
-
-
 extra_steps_for_caddy() {
 	sed -i "s/example\.net/$SERVER_IPV4_ADDRESS/g" ${ETC_DIR}caddy/redirects.conf > /dev/null 2>&1
 
@@ -1610,15 +1493,10 @@ extra_steps_for_caddy() {
 	fi
 }
 
-
-
-
-
 configure_coraza() {
 	touch ${ETC_DIR}caddy/coraza_rules.conf
 	opencli waf $([ "$CORAZA" = true ] && echo enable || echo disable)
 }
-
 
 generate_session_secret_keys() {
     for file in "${ETC_DIR}openadmin/secret.key" "${ETC_DIR}openpanel/secret.key"; do
@@ -1628,7 +1506,6 @@ generate_session_secret_keys() {
         fi
     done
 }
-
 
 install_openadmin(){
     echo "Setting up OpenAdmin panel.."
@@ -1690,7 +1567,6 @@ install_openadmin(){
 	fi
 }
 
-
 create_admin_and_show_logins_success_message() {
 
     ln -s ${ETC_DIR}ssh/admin_welcome.sh /etc/profile.d/welcome.sh   #motd
@@ -1721,7 +1597,6 @@ create_admin_and_show_logins_success_message() {
 	    fi
 	    new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 	fi
-
 
 	display_admin_status_and_logins() {
 	    # Restore normal output to the terminal, so we dont save generated admin password in log file!
@@ -1763,7 +1638,6 @@ create_admin_and_show_logins_success_message() {
 
 # ======================================================================
 # main
-
 (
 flock -n 200 || { echo "Error: Another instance of the install script is already running. Exiting."; exit 1; }
 # shellcheck disable=SC2068
