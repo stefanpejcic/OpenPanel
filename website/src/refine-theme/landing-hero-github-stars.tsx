@@ -8,7 +8,7 @@ export const LandingHeroGithubStars = () => {
     useEffect(() => {
         const fetchVersion = async () => {
             try {
-                const response = await fetch('https://usage-api.openpanel.org/latest_version');
+                const response = await fetch('https://api.openpanel.com/statistics/latest_version');
                 const data = await response.json();
 
                 if (data && data.latest_version) {
