@@ -42,7 +42,6 @@ SEND_EMAIL_AFTER_INSTALL=false                                           # send 
 SET_PREMIUM=false                                                        # added in 0.2.1
 SET_ADMIN_USERNAME=false                                                 # random
 SET_ADMIN_PASSWORD=false                                                 # random
-SCREENSHOTS_API_URL="local"
 readonly DEFAULT_PANEL_VERSION="1.7.51"                                  # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"                                # https://github.com/docker/compose/releases
 post_install_path=""                                                     # https://openpanel.com/articles/install-update/openpanel-post-install-hook
@@ -210,7 +209,6 @@ setup_bind                                # must run after -configuration
 install_openadmin                         # set admin interface
 opencli_setup                             # set terminal commands
 setup_redis_service                       # for redis container
-panel_customize                           # customizations
 docker_compose_up                         #
 docker_cpu_limiting                       # https://docs.docker.com/engine/security/rootless/#limiting-resources
 set_premium_features                      # must be after docker_compose_up
@@ -315,7 +313,6 @@ parse_args() {
         echo "  --no-waf                        Do not configure CorazaWAF with OWASP Coreruleset."
         echo "  --skip-dns-server               Skip setup for DNS (Bind9) server."
         echo "  --post_install='<path>'         Specify the post install script path."
-        echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space (1-10) in GB to be allocated for SWAP."
         echo "  --selfsigned                    Configure a self-signed certificate for <domain>."
         echo "  --repair OR --retry             Retry and overwrite everything."
@@ -335,7 +332,7 @@ parse_args() {
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --key=*|--domain=*|--panel_domain=*|--username=*|--password=*|--post_install=*|--screenshots=*|--version=*|--swap=*|--email=*|--user-port=*|--admin-port=*)
+        --key=*|--domain=*|--panel_domain=*|--username=*|--password=*|--post_install=*|--version=*|--swap=*|--email=*|--user-port=*|--admin-port=*)
             opt="${1%%=*}"
             val="${1#*=}"
             case "$opt" in
@@ -345,7 +342,6 @@ while [[ $# -gt 0 ]]; do
                 --username)     SET_ADMIN_USERNAME=true;   custom_username="$val" ;;
                 --password)     SET_ADMIN_PASSWORD=true;   custom_password="${val}" ;;
                 --post_install) post_install_path="$val" ;;
-                --screenshots)  SCREENSHOTS_API_URL="$val" ;;
                 --version)      CUSTOM_VERSION=true;       PANEL_VERSION="$val" ;;
                 --swap)         SETUP_SWAP_ANYWAY=true;    SWAP_FILE="$val" ;;
                 --email)        SEND_EMAIL_AFTER_INSTALL=true; EMAIL="$val" ;;
@@ -1313,14 +1309,6 @@ support_message() {
         echo "  - Discord: $discord_invite_url"
         echo "  - Our community forums: $forums_link"
         echo ""
-    fi
-}
-
-panel_customize(){
-	# SCREENSHOTS_API_URL="http://screenshots-$(printf 'v2\nv3\nv4\nv6' | shuf -n1).openpanel.com/api/screenshot" # spread the load
-	if [ "$SCREENSHOTS_API_URL" != "local" ]; then
-        echo "Setting the remote API service '$SCREENSHOTS_API_URL' for website screenshots.."
-		sed -i 's#screenshots=.*#screenshots='"$SCREENSHOTS_API_URL"'#' "${CONFIG_FILE}"
     fi
 }
 
