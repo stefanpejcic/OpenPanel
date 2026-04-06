@@ -19,4 +19,4 @@ You can customize your experience by selecting your preferred language.
 Languages are configured by Administrator from [OpenAdmin > Settings > Locales](/docs/admin/settings/locales/)
 
 ## Missing a Language?  
-If your language is not available, you can help translate OpenPanel [here](https://dev.openpanel.com/localization.html) to improve accessibility for everyone.
+If your language is not available, you can help translate OpenPanel [here](/docs/admin/settings/locales/#edit-locale) to improve accessibility for everyone.
