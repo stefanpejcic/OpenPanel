@@ -237,7 +237,7 @@ print_header() {
 update_package_manager() {
     [[ "$SKIP_APT_UPDATE" == true ]] && return
     echo "Updating $PACKAGE_MANAGER..."
-    run $PACKAGE_MANAGER update -y
+    run $PACKAGE_MANAGER update -y && ok "all packages updated." || warn "Could not update all packages."
 }
 
 pkg_install_with_retry() {
@@ -363,6 +363,7 @@ install_python() {
     if command -v python3.12 &>/dev/null; then
         PYTHON_BIN="python3.12"
     else
+        echo "Installing Python 3.12..."	
         case "$os" in
             ubuntu)
                 run $PACKAGE_MANAGER install -y software-properties-common
@@ -397,7 +398,7 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/p
         run $PACKAGE_MANAGER install -y python3-venv python3.12-venv || true
     fi
 
-    $PYTHON_BIN --version &>/dev/null || die 1 "Python installation failed."
+    $PYTHON_BIN --version &>/dev/null && ok "Python is available." || die 1 "Python installation failed."
     export PYTHON_BIN
 }
 
@@ -416,7 +417,7 @@ setup_opencli() {
     chmod +x -R /usr/local/opencli
     ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
     export PATH="/usr/bin:$PATH"
-    [[ -x /usr/local/bin/opencli ]] && ok "opencli is available." || die 1 "opencli setup failed."
+    [[ -x /usr/local/bin/opencli ]] && ok "opencli commands are executable." || die 1 "opencli setup failed."
 }
 
 install_openadmin() {
@@ -488,7 +489,7 @@ EOF
 
     local test_output
     test_output=$(timeout 10 docker run --rm alpine echo "Hello from Alpine!" 2>/dev/null || true)
-    [[ "$test_output" == "Hello from Alpine!" ]] || die 1 "Docker test failed. Check Docker Hub connectivity and Docker installation."
+    [[ "$test_output" == "Hello from Alpine!" ]] && ok "Docker alpine container ran successfully." || die 1 "Docker test failed. Check Docker Hub connectivity and Docker installation."
 
     local mysql_cnf="/etc/my.cnf"
     local root_pw; root_pw=$(openssl rand -base64 -hex 9)
@@ -509,7 +510,6 @@ EOF
     }
 
     sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=${root_pw}/" /root/.env
-    echo "MYSQL_ROOT_PASSWORD = $root_pw"
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
     sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/container_my.cnf"
