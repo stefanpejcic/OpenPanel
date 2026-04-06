@@ -1,5 +1,7 @@
 #!/bin/bash
 
+opencli config update screenshots local
+
 echo
 echo "Setting limits for all existing users..."
 for home_dir in /home/*; do
