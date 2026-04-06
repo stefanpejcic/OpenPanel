@@ -46,7 +46,6 @@ SET_ADMIN_PASSWORD=false                                                 # rando
 SCREENSHOTS_API_URL="local"
 readonly DEFAULT_PANEL_VERSION="1.7.51"                                  # https://github.com/stefanpejcic/OpenPanel/blob/a383bbfcdffdcf052136a3ae79554b68012f4b69/.github/workflows/update-version.yml#L49
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"                                # https://github.com/docker/compose/releases
-DEV_MODE=false
 post_install_path=""                                                     # https://openpanel.com/articles/install-update/openpanel-post-install-hook
 # ======================================================================
 # PATHs used throughout the script
@@ -227,7 +226,6 @@ docker_cpu_limiting                       # https://docs.docker.com/engine/secur
 set_premium_features                      # must be after docker_compose_up
 configure_coraza                          # download corazawaf coreruleset or change docker image
 extra_steps_for_caddy                     # so that webmail domain works without any setups!
-enable_dev_mode                           # https://dev.openpanel.com/cli/config.html#dev-mode
 set_custom_hostname                       # set hostname if provided
 generate_and_set_ssl_for_panels           # if FQDN then lets setup https
 setup_firewall_service                    # setup firewall
@@ -331,7 +329,6 @@ parse_args() {
         echo "  --screenshots=<url>             Set the screenshots API URL."
         echo "  --swap=<2>                      Set space (1-10) in GB to be allocated for SWAP."
         echo "  --selfsigned                    Configure a self-signed certificate for <domain>."
-        echo "  --enable-dev-mode               Enable dev_mode after installation."
         echo "  --repair OR --retry             Retry and overwrite everything."
         echo "  -h, --help                      Show this help message and exit."
     }
@@ -376,7 +373,6 @@ while [[ $# -gt 0 ]]; do
         --no-waf)              CORAZA=false ;;
 		--selfsigned)          USE_SELFSIGNED=true ;;
         --repair|--retry)      REPAIR=true; SKIP_PANEL_CHECK=true; SKIP_APT_UPDATE=true ;;
-        --enable-dev-mode)     DEV_MODE=true ;;
         -h|--help)             show_help; exit 0 ;;
         *) echo "Unknown option: $1"; show_help; exit 1 ;;
     esac
@@ -1091,14 +1087,6 @@ opencli_setup(){
     else
         radovan 1 "'opencli --version' command failed."
     fi
-}
-
-enable_dev_mode() {
-	if [ "$DEV_MODE" = true ]; then
-	    echo "Enabling dev_mode"
-		# https://gist.github.com/stefanpejcic/9c2b7313c052ce5fdb2ab816f52ff08b?permalink_comment_id=5835702#gistcomment-5835702
-	    opencli config update dev_mode "on" > /dev/null 2>&1
-	fi
 }
 
 set_premium_features(){
