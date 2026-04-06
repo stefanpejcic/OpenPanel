@@ -186,14 +186,18 @@ detect_installed_panels() {
 detect_os_and_package_manager() {
     [[ -f /etc/os-release ]] || die 1 "Cannot detect OS: /etc/os-release not found."
     . /etc/os-release
-
-    case "$ID" in
-        ubuntu|debian)            PACKAGE_MANAGER="apt-get" ;;
+    OS_ID="${ID,,}"
+    OS_VERSION_ID="${VERSION_ID:-}"
+    OS_CODENAME="${VERSION_CODENAME:-}"
+    OS_NAME="${NAME:-}"
+    export OS_ID OS_VERSION_ID OS_CODENAME OS_NAME	
+	
+    case "$OS_ID" in
+        ubuntu|debian)               PACKAGE_MANAGER="apt-get" ;;
         fedora|rocky|almalinux|alma) PACKAGE_MANAGER="dnf" ;;
-        centos)                   PACKAGE_MANAGER="yum" ;;
-        *) die 1 "Unsupported OS: $ID" ;;
+        centos)                      PACKAGE_MANAGER="yum" ;;
+        *) die 1 "Unsupported OS: $OS_ID" ;;
     esac
-
     case "$(uname -m)" in
         x86_64|amd64)  architecture="x86_64" ;;
         aarch64|arm64) architecture="aarch64" ;;
@@ -229,11 +233,10 @@ print_header() {
     echo -e "         | |                                                  "
     echo -e "         |_|                                   version: ${GREEN}$PANEL_VERSION${RESET} "
     line
-    echo -e "  OS: ${GREEN}${NAME^^} ${VERSION_ID}${RESET}  |  Arch: ${GREEN}${architecture^^}${RESET}  |  IP: ${GREEN}${SERVER_IPV4_ADDRESS}${RESET}  |  Pkg: ${GREEN}${PACKAGE_MANAGER^^}${RESET}"
+    echo -e "  OS: ${GREEN}${OS_NAME^^} ${OS_VERSION_ID}${RESET}  |  Arch: ${GREEN}${architecture^^}${RESET}  |  IP: ${GREEN}${SERVER_IPV4_ADDRESS}${RESET}  |  Pkg: ${GREEN}${PACKAGE_MANAGER^^}${RESET}"
     line
 }
 
-# install packages
 update_package_manager() {
     [[ "$SKIP_APT_UPDATE" == true ]] && return
     echo "Updating $PACKAGE_MANAGER..."
@@ -281,14 +284,10 @@ build_quotatool_from_source() {
 }
 
 check_kernel_compat() {
-    local osid ver major
-    osid=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    ver=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    major=${ver%%.*}
-
-    if [[ ("$osid" == "almalinux" || "$osid" == "rockylinux") && "$major" -ge 10 ]]; then
+    local major="${OS_VERSION_ID%%.*}"
+	if [[ ("$OS_ID" == "almalinux" || "$OS_ID" == "rockylinux") && "$major" -ge 10 ]]; then
         cat <<MSG
-WARNING: ${osid} ${major}+ detected. Docker may not work on this kernel.
+WARNING: ${OS_ID} ${major}+ detected. Docker may not work on this kernel.
 See: https://github.com/stefanpejcic/OpenPanel/issues/745
 To fix, run:
   sudo update-alternatives --set iptables /usr/sbin/iptables-legacy
@@ -306,7 +305,7 @@ install_packages() {
     case "$PACKAGE_MANAGER" in
         apt-get)
             local kernel_pkg="linux-image-amd64"
-            grep -q "Ubuntu" /etc/os-release && kernel_pkg="linux-generic"
+            [[ "$OS_ID" == "ubuntu" ]] && kernel_pkg="linux-generic"
             [[ -f /etc/needrestart/needrestart.conf ]] && run sed -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
@@ -337,13 +336,8 @@ install_packages() {
     done
 }
 
-# ── Python ────────────────────────────────────────────────────────────────────
 install_python() {
-    local os codename
-    os=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    codename=$(grep '^VERSION_CODENAME=' /etc/os-release | cut -d= -f2 | tr -d '"' || true)
-
-    if [[ "$os" == "debian" && "$codename" == "trixie" ]]; then
+    if [[ "$OS_ID" == "debian" && "$OS_CODENAME" == "trixie" ]]; then
         echo "Building Python 3.12 from source for Debian 13..."
         run $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
 
@@ -364,7 +358,7 @@ install_python() {
         PYTHON_BIN="python3.12"
     else
         echo "Installing Python 3.12..."	
-        case "$os" in
+        case "$OS_ID" in
             ubuntu)
                 run $PACKAGE_MANAGER install -y software-properties-common
                 run add-apt-repository -y ppa:deadsnakes/ppa
@@ -376,7 +370,7 @@ install_python() {
                 run bash -lc 'curl -fsSL --ipv4 https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg >/dev/null' || true
                 run bash -lc "echo 'Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: ${codename}-backports
+Suites: ${OS_CODENAME}-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/pascalroeleven.sources" || true
                 run $PACKAGE_MANAGER update -y
@@ -442,7 +436,7 @@ install_openadmin() {
     source "${dir}venv/bin/activate"
     pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt >/dev/null 2>&1 || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages >/dev/null 2>&1
 
-	grep -q "Debian" /etc/os-release 2>/dev/null && run apt install -y python3-yaml || true
+    [[ "$OS_ID" == "debian" ]] && run apt install -y python3-yaml || true
 
     for f in "${ETC_DIR}openadmin/secret.key" "${ETC_DIR}openpanel/secret.key"; do
         [[ -f "$f" ]] || { openssl rand -hex 32 > "$f"; chmod 600 "$f"; }
@@ -514,12 +508,11 @@ EOF
     sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/host_my.cnf"
     sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/container_my.cnf"
 
-    local os_id; os_id=$(grep '^ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-    [[ "$os_id" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
-    if [[ "$os_id" == "debian" ]]; then
+    [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
+    if [[ "$OS_ID" == "debian" ]]; then
         run apt install -y apparmor apparmor-utils
         local ver_id; ver_id=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
-        [[ "$ver_id" == "13" ]] && grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
+        [[ "$OS_VERSION_ID" == "13" ]] && grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
     fi
 
     [[ "$REPAIR" == true ]] && {
@@ -545,8 +538,8 @@ setup_bind() {
     install -d -m 755 /etc/bind
     cp -r "${ETC_DIR}bind9/"* /etc/bind/
 
-	if grep -Eq "Ubuntu|Debian" /etc/os-release 2>/dev/null; then
-	    local resolved_conf="/etc/systemd/resolved.conf"
+    if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
+		local resolved_conf="/etc/systemd/resolved.conf"
 	    if [ -f "$resolved_conf" ]; then
 	        grep -q "^DNSStubListener=no" "$resolved_conf" || echo "DNSStubListener=no" >> "$resolved_conf"
 	        systemctl restart systemd-resolved
@@ -891,7 +884,6 @@ setup_progress_bar() {
 
 # install sequence
 STEPS=(
-    detect_os_and_package_manager
     install_python
     update_package_manager
     install_packages
@@ -936,7 +928,7 @@ run_installation() {
 # Main
 (
 flock -n 200 || { echo "Another install is already running."; exit 1; }
-
+detect_os_and_package_manager
 parse_args "$@"
 [[ -r /root && -w /root ]] || { echo "No read/write access to /root."; exit 1; }
 get_server_ipv4
