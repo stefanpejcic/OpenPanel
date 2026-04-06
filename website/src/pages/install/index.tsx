@@ -26,7 +26,6 @@ const defaultOptions: InstallOptions = {
     "no-waf": { value: false, description: "Do not install CorazaWAF and disable it for new domains." },
     "post-install": { value: "", description: "Specify the post install script path or URL." },
     swap: { value: "", description: "Set size in GB for the swap partition." },
-    screenshots: { value: "", description: "Set the screenshots API URL." },
     "skip-requirements": { value: false, description: "Skip the requirements check." },
     "skip-panel-check": { value: false, description: "Skip checking if existing panels are installed." },
     "skip-apt-update": { value: false, description: "Skip the APT update." },
@@ -53,7 +52,7 @@ const Install: React.FC = () => {
                     command += ` --${option}`;
                 }
             } else if (config.value.trim() !== "") {
-                if (option === "username" || option === "password" || option === "post-install" || option === "screenshots") {
+                if (option === "username" || option === "password" || option === "post-install") {
                     command += ` --${option}='${config.value}'`;
                 } else {
                     command += ` --${option}=${config.value}`;
