@@ -937,7 +937,7 @@ detect_os_and_package_manager          # needed early for print_header
 print_header
 check_requirements
 detect_installed_panels
-echo -e "\nStarting OpenPanel installation process...\n"
+echo -e "Starting OpenPanel installation process..."
 start=$(date +%s)
 setup_progress_bar
 run_installation
