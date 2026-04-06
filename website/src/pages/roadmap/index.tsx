@@ -47,9 +47,9 @@ const Roadmap: React.FC = () => {
                     <p>We share this roadmap to give our users a clear view of our future direction and to encourage feedback on which features resonate the most (or least).</p>
                     <ul>
                         <li>Autoinstallers for popular CMS/scripts.</li>
-                        <li>Additional options for WP Manager: clone, staging, scheduled backups..</li>
-                         <li>ImunifyAV page for end-users.</li>
-                        <li>Option to store emails on a remote server.</li>
+                        <li>backup restore gui pages</li>
+                        <li>ImunifyAV page for end-users.</li>
+                        <li>Ubuntu 26 support</li>
                         <li>Ongoing improvements in container isolation.</li>
                     </ul>
                     <p>View all planned features on:<strong><a href="https://github.com/users/stefanpejcic/projects/2/views/4" target="_blank" rel="noopener noreferrer">Github</a></strong>.</p>
