@@ -54,7 +54,6 @@ readonly CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"
 exec > >(tee -a "$LOG_FILE") 2>&1
 echo "" > /root/openpanel_restart_needed
 
-# helpers
 ok()   { echo -e "[${GREEN} OK ${RESET}] $*"; }
 warn() { echo -e "[${YELLOW}  ! ${RESET}] $*"; }
 fail() { echo -e "[${RED}  X ${RESET}] $*"; }
@@ -79,7 +78,6 @@ pkg_installed() {
 
 line() { printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -; }
 
-# parse args
 show_help() {
     cat <<EOF
 Available options:
@@ -146,7 +144,6 @@ parse_args() {
     done
 }
 
-# pre-flight checks
 check_requirements() {
     [[ -n "${SKIP_REQUIREMENTS:-}" ]] && return
 
@@ -396,7 +393,6 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/p
     export PYTHON_BIN
 }
 
-# ── Core Setup Steps ──────────────────────────────────────────────────────────
 download_config() {
     [[ "$REPAIR" == true ]] && rm -rf "$ETC_DIR"
     echo "Cloning OpenPanel configuration to ${ETC_DIR}..."
@@ -881,7 +877,6 @@ setup_progress_bar() {
     source progress_bar.sh
 }
 
-# install sequence
 STEPS=(
     install_python
     update_package_manager
@@ -932,7 +927,7 @@ parse_args "$@"
 [[ -r /root && -w /root ]] || { echo "No read/write access to /root."; exit 1; }
 get_server_ipv4
 set_panel_version
-detect_os_and_package_manager          # needed early for print_header
+detect_os_and_package_manager
 print_header
 check_requirements
 detect_installed_panels
