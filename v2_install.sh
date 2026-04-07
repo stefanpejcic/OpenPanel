@@ -708,7 +708,6 @@ configure_premium() {
     opencli config update key "$license_key"
     run systemctl restart admin
     timeout 60 opencli email-server install
-    timeout 60 opencli email-webmail roundcube
 }
 
 configure_imunifyav() {
