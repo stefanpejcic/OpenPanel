@@ -1082,8 +1082,6 @@ set_premium_features(){
     systemctl restart admin > /dev/null 2>&1
     echo "Setting mailserver.."
     timeout 60 opencli email-server install #added in 0.2.5 https://community.openpanel.org/d/91-email-support-for-openpanel-enterprise-edition
-    echo "Enabling Roundcube webmail.."
-    timeout 60 opencli email-webmail roundcube
  else
     LICENSE="Community"
  fi
