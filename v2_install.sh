@@ -895,12 +895,12 @@ STEPS=(
     setup_redis
     setup_docker_compose
     set_docker_cpu_limits
-    configure_premium
     configure_waf
     configure_caddy_extras
     set_hostname
     generate_ssl
     setup_firewall
+	configure_premium
     setup_cron
     setup_logrotate
     configure_ssh
