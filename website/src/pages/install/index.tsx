@@ -13,7 +13,7 @@ type InstallOptions = Record<string, InstallOption>;
 
 const defaultOptions: InstallOptions = {
     key: { value: "", description: "Set Enterprise license key." },
-    domain: { value: "", description: "Set the domain to be used for accessing OpenAdmin and OpenPanel." },
+    domain: { value: "", description: "Set the domain to be used for accessing both panels." },
     "panel-domain": { value: "", description: "Set a separate domain to be used for OpenPanel only." },
     email: { value: "", description: "Email address to receive admin logins and future notifications." },
     "admin-port": { value: "", description: "Specify a custom port for OpenAdmin (default is 2087)." },
