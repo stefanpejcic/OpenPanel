@@ -5,7 +5,7 @@
 # Usage: opencli version 
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 05.04.2026
+# Last Modified: 06.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,12 +28,12 @@
 # THE SOFTWARE.
 ################################################################################
 
-# 1. for hostOS read from .env file
+# used on terminal
 if [ -f "/root/.env" ]; then
     version=$(grep "^VERSION=" /root/.env | sed -E 's/^VERSION="([^"]+)"$/\1/' | xargs)
 fi
 
-# from openpanel container read the version
+# used inside openpanel ui
 if [ -z "$version" ]; then
     version=$(docker --context=default images --format "{{.Tag}}" "openpanel/openpanel-ui" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -n 1)
 fi

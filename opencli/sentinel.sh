@@ -367,6 +367,7 @@ check_ssh_logins() {
 }
 
 check_disk_usage() {
+  local flag_tt=86400
   local title="Running out of Disk Space!"
   if is_unread_message_present "$title"; then
     ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m Unread DU notification. Skipping."; return
@@ -377,7 +378,7 @@ check_disk_usage() {
     local flag_file="/tmp/docker_system_prune.lock"
     if [ -f "$flag_file" ]; then
       local age=$(( $(date +%s) - $(stat -c %Y "$flag_file") ))
-      if [ "$age" -lt "$FLAG_TTL" ]; then
+      if [ "$age" -lt "$flag_tt" ]; then
         $DEBUG && echo "[$context] Skipping cleanup — ran ${age}s ago"
         write_notification "$title" "Disk usage: ${pct}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
         return

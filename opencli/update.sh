@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 05.04.2026
+# Last Modified: 06.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -742,36 +742,26 @@ check_update() {
 
 # ---------------------- RUNS CHECK OR STARTS UPDATE ---------------------- #
 main() {
-    case "${1:-}" in
-        --check)
-            update_check
-            ;;
-        "")
-            check_update
-            ;;
-        --force)
-            check_update --force
-            ;;
-        --admin)
-            update_openadmin --no-log
-            restart_admin --no-log
-            ;;
-        --panel)
-            update_openpanel --no-log
-            ;;
-        --cli)
-            update_opencli --no-log
-            ;;
-        beta)
-            BETA=true
-            ;;            
-        -h|--help)
-            usage
-            ;;
-        *)
-            log_error "[!] Unknown argument: $1"
-            usage
-            ;;
+    for arg in "$@"; do
+        case "$arg" in
+            --check) MODE="check" ;;
+            --force) MODE="force" ;;
+            --admin) MODE="admin" ;;
+            --panel) MODE="panel" ;;
+            --cli)   MODE="cli"   ;;
+            beta)    BETA=true    ;;
+            -h|--help) usage ;;
+            *) log_error "[!] Unknown argument: $arg"; usage ;;
+        esac
+    done
+
+    case "$MODE" in
+        check) update_check ;;
+        force) check_update --force ;;
+        admin) update_openadmin --no-log; restart_admin --no-log ;;
+        panel) update_openpanel --no-log ;;
+        cli)   update_opencli --no-log ;;
+        "")    check_update ;;
     esac
 }
 

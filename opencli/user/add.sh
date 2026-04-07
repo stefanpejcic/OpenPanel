@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 05.04.2026
+# Last Modified: 06.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1456,10 +1456,8 @@ permisisons_do() {
 }
 
 collect_stats() {
-  local file="/etc/openpanel/openpanel/core/users/$username/docker_usage.txt"
-  local timestamp=$(date '+%Y-%m-%d-%H-%M-%S')
-  local data='{"BlockIO":"0B / 0B","CPUPerc":"0 %","Container":"0","ID":"","MemPerc":"0 %","MemUsage":"0MiB / 0MiB","Name":"","NetIO":"0 / 0","PIDs":0}'
-  echo "$timestamp $data" > "$file"
+  nohup  opencli docker-collect_stats "${username}" >/dev/null 2>&1 &
+  disown
 }
 
 create_volume() {
@@ -1507,8 +1505,8 @@ download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
 send_sentinel_notification                   # write notification to openadmin
+collect_stats                                # 
 update_accounts_for_reseller                 # update current_accounts for reseller in their json file
-collect_stats                                # must be after insert in db
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
 permisisons_do
 exit 0

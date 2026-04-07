@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.52\n"
+"Project-Id-Version: OpenPanel 1.7.51\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-06 00:27+0200\n"
+"POT-Creation-Date: 2026-04-07 00:57+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -139,8 +139,8 @@ msgstr ""
 #: modules/website_builder.py:156 modules/website_builder.py:291
 #: modules/websites.py:52 modules/websites.py:249 modules/websites.py:310
 #: modules/websites.py:472 modules/websites.py:556 modules/websites.py:1008
-#: modules/wordpress.py:599 modules/wordpress.py:936 modules/wordpress.py:1075
-#: modules/wordpress.py:1735
+#: modules/wordpress.py:627 modules/wordpress.py:977 modules/wordpress.py:1091
+#: modules/wordpress.py:1727
 msgid "You do not own this domain."
 msgstr ""
 
@@ -364,7 +364,6 @@ msgstr ""
 #: templates/domains/ssl.html:61 templates/files/ftp.html:13
 #: templates/manager/python_node_apps.html:72
 #: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:98
-#: templates/partials/_service_js.html:31
 #: templates/partials/_service_js.html:35 templates/psql/pgadmin.html:85
 #: templates/psql/remote_psql.html:96 templates/system/services.html:26
 msgid "Unknown"
@@ -442,16 +441,16 @@ msgstr ""
 msgid "Backup restored successfully!"
 msgstr ""
 
-#: modules/mautic.py:396 modules/wordpress.py:534
+#: modules/mautic.py:396 modules/wordpress.py:562
 msgid "Backup completed successfully!"
 msgstr ""
 
-#: modules/mautic.py:399 modules/wordpress.py:538
+#: modules/mautic.py:399 modules/wordpress.py:566
 msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:424 modules/mautic.py:590 modules/website_builder.py:42
-#: modules/wordpress.py:914 modules/wordpress.py:1068
+#: modules/wordpress.py:955 modules/wordpress.py:1084
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -488,8 +487,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:107 modules/mysql.py:328 modules/mysql.py:628
-#: modules/mysql.py:812 modules/postgresql.py:80 modules/postgresql.py:578
+#: modules/mysql.py:107 modules/mysql.py:328 modules/mysql.py:612
+#: modules/mysql.py:796 modules/postgresql.py:80 modules/postgresql.py:578
 msgid "Database name is required."
 msgstr ""
 
@@ -498,8 +497,8 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:191 modules/mysql.py:318 modules/mysql.py:667
-#: modules/mysql.py:704 modules/mysql.py:805 modules/postgresql.py:164
+#: modules/mysql.py:191 modules/mysql.py:318 modules/mysql.py:651
+#: modules/mysql.py:688 modules/mysql.py:789 modules/postgresql.py:164
 #: modules/postgresql.py:627 modules/postgresql.py:713
 msgid "User name is required."
 msgstr ""
@@ -514,7 +513,7 @@ msgstr ""
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:237 modules/mysql.py:711 modules/mysql.py:823
+#: modules/mysql.py:237 modules/mysql.py:695 modules/mysql.py:807
 #: modules/postgresql.py:229 modules/postgresql.py:735
 msgid "This is a system username that can not be edited."
 msgstr ""
@@ -549,44 +548,45 @@ msgstr ""
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:486 templates/dashboard/dashboard.html:152
+#: modules/mysql.py:470 templates/dashboard/dashboard.html:152
 #: templates/dashboard/dashboard.html:164 templates/dashboard/usage.html:62
+#: templates/files/backup_restore.html:36
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:539 modules/postgresql.py:505
+#: modules/mysql.py:523 modules/postgresql.py:505
 #: templates/dashboard/dashboard.html:153
 #: templates/dashboard/dashboard.html:165
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:567
+#: modules/mysql.py:551
 msgid "changed MySQL root user password"
 msgstr ""
 
-#: modules/mysql.py:571
+#: modules/mysql.py:555
 msgid "Successfully changed root password."
 msgstr ""
 
-#: modules/mysql.py:573
+#: modules/mysql.py:557
 msgid "Error changing MySQL root password - is mysql running?"
 msgstr ""
 
-#: modules/mysql.py:575
+#: modules/mysql.py:559
 msgid "Change Root Password"
 msgstr ""
 
-#: modules/mysql.py:599 modules/postgresql.py:546
+#: modules/mysql.py:583 modules/postgresql.py:546
 #: templates/dashboard/dashboard.html:158
 #: templates/dashboard/dashboard.html:169
 msgid "Process List"
 msgstr ""
 
-#: modules/mysql.py:674
+#: modules/mysql.py:658
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:819
+#: modules/mysql.py:803
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -600,7 +600,7 @@ msgstr ""
 #: modules/pgadmin.py:48 modules/php.py:459 modules/php.py:468
 #: modules/php.py:482 modules/phpmyadmin.py:104
 #: templates/files/backup_settings.html:31
-#: templates/files/backup_settings.html:106
+#: templates/files/backup_settings.html:107
 msgid "error"
 msgstr ""
 
@@ -1006,73 +1006,73 @@ msgstr ""
 msgid "Invalid domain name format."
 msgstr ""
 
-#: modules/wordpress.py:102
+#: modules/wordpress.py:130
 msgid "WordPress Manager"
 msgstr ""
 
-#: modules/wordpress.py:185
+#: modules/wordpress.py:213
 msgid "Domain not found."
 msgstr ""
 
-#: modules/wordpress.py:641
+#: modules/wordpress.py:669
 msgid "Hardening rules have been successfully applied to the website"
 msgstr ""
 
-#: modules/wordpress.py:643
+#: modules/wordpress.py:671
 msgid "Failed to apply hardening rules to the website - please try again"
 msgstr ""
 
-#: modules/wordpress.py:735
+#: modules/wordpress.py:765
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:925
+#: modules/wordpress.py:966
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:975
+#: modules/wordpress.py:1016
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:1029
+#: modules/wordpress.py:1045
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:1036
+#: modules/wordpress.py:1052
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:1048
+#: modules/wordpress.py:1064
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1091
+#: modules/wordpress.py:1107
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1096
+#: modules/wordpress.py:1112
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1099
+#: modules/wordpress.py:1115
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1296 modules/wordpress.py:1514
+#: modules/wordpress.py:1312 modules/wordpress.py:1530
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1325 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1341 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1479
+#: modules/wordpress.py:1495
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1545 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1561 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1730,7 +1730,7 @@ msgstr ""
 msgid "Invalid directory specified for scanning."
 msgstr ""
 
-#: modules/json/databases_size_info.py:29
+#: modules/json/databases_size_info.py:28
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
@@ -2157,7 +2157,8 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:214 templates/system/cronjobs.html:24
+#: templates/dashboard/dashboard.html:214
+#: templates/files/backup_settings.html:97 templates/system/cronjobs.html:24
 msgid "Cron Jobs"
 msgstr ""
 
@@ -2852,7 +2853,8 @@ msgid "TTL"
 msgstr ""
 
 #: templates/domains/dns.html:134 templates/domains/domains.html:79
-#: templates/domains/domains.html:190 templates/files/filemanager.html:172
+#: templates/domains/domains.html:190 templates/files/backup_restore.html:39
+#: templates/files/filemanager.html:172
 #: templates/files/filemanager/table.html:28
 #: templates/files/filemanager/table_trash.html:38
 #: templates/files/trash.html:150 templates/manager/sites.html:61
@@ -3561,6 +3563,7 @@ msgstr ""
 
 #: templates/emails/accounts.html:112 templates/manager/sites.html:9
 #: templates/manager/sites.html:238 templates/manager/wp/list.html:141
+#: templates/partials/_service.html:54
 msgid "Manage"
 msgstr ""
 
@@ -3773,7 +3776,7 @@ msgstr ""
 msgid "Create a new Email account."
 msgstr ""
 
-#: templates/emails/new.html:44 templates/files/backup_settings.html:106
+#: templates/emails/new.html:44 templates/files/backup_settings.html:107
 msgid "info"
 msgstr ""
 
@@ -3881,7 +3884,7 @@ msgid "Select"
 msgstr ""
 
 #: templates/files/backup_destinations.html:75
-#: templates/files/backup_settings.html:113
+#: templates/files/backup_settings.html:114
 msgid "Learn more"
 msgstr ""
 
@@ -3923,6 +3926,26 @@ msgstr ""
 
 #: templates/files/backup_destinations.html:121
 msgid "Remote backups to Dropbox cloud storage."
+msgstr ""
+
+#: templates/files/backup_restore.html:11
+msgid "Restore & Download"
+msgstr ""
+
+#: templates/files/backup_restore.html:12
+msgid "Restore from backups."
+msgstr ""
+
+#: templates/files/backup_restore.html:18
+msgid "Reindex Destination"
+msgstr ""
+
+#: templates/files/backup_restore.html:27
+msgid "Available Backups"
+msgstr ""
+
+#: templates/files/backup_restore.html:33
+msgid "Backup File"
 msgstr ""
 
 #: templates/files/backup_settings.html:15
@@ -3969,43 +3992,35 @@ msgstr ""
 msgid "MySQL Databases"
 msgstr ""
 
-#: templates/files/backup_settings.html:95
-msgid "MsSQL"
-msgstr ""
-
-#: templates/files/backup_settings.html:96 templates/psql/databases.html:11
+#: templates/files/backup_settings.html:95 templates/psql/databases.html:11
 msgid "PostgreSQL Databases"
 msgstr ""
 
-#: templates/files/backup_settings.html:97
-msgid "Minecraft Data"
-msgstr ""
-
-#: templates/files/backup_settings.html:103
+#: templates/files/backup_settings.html:104
 msgid "INFO"
 msgstr ""
 
-#: templates/files/backup_settings.html:104
+#: templates/files/backup_settings.html:105
 msgid "ERROR"
 msgstr ""
 
-#: templates/files/backup_settings.html:106
+#: templates/files/backup_settings.html:107
 msgid ""
 "By default, notifications would only be sent out when a backup run fails."
 " To receive notifications for every run, set NOTIFICATION_LEVEL to"
 msgstr ""
 
-#: templates/files/backup_settings.html:106
+#: templates/files/backup_settings.html:107
 msgid "instead of the default"
 msgstr ""
 
-#: templates/files/backup_settings.html:113
+#: templates/files/backup_settings.html:114
 msgid ""
 "Notifications (email, Slack, etc.) can be sent out when a backup run "
 "finishes. Configuration is provided as a comma-separated list of URLs."
 msgstr ""
 
-#: templates/files/backup_settings.html:116
+#: templates/files/backup_settings.html:117
 msgid ""
 "Parallelism level for \"gz\" (Gzip) compression defines how many blocks "
 "of data are concurrently processed. Higher values result in faster "
@@ -4013,11 +4028,11 @@ msgid ""
 "threads."
 msgstr ""
 
-#: templates/files/backup_settings.html:119
+#: templates/files/backup_settings.html:120
 msgid "Full path to exclude, or regular expressions."
 msgstr ""
 
-#: templates/files/backup_settings.html:121
+#: templates/files/backup_settings.html:122
 msgid ""
 "IThe number of days for which a backup is kept. Pass zero or a positive "
 "integer value to enable automatic rotation of old backups."
@@ -5343,6 +5358,7 @@ msgid "Status:"
 msgstr ""
 
 #: templates/manager/python_node_apps.html:70
+#: templates/partials/_service_js.html:31
 msgid "Inactive"
 msgstr ""
 
@@ -7144,6 +7160,10 @@ msgstr ""
 msgid "OpenAdmin"
 msgstr ""
 
+#: templates/partials/_service.html:28
+msgid "Service is not enabled."
+msgstr ""
+
 #: templates/partials/_service_js.html:8
 msgid "Checking"
 msgstr ""
@@ -7291,11 +7311,11 @@ msgstr ""
 msgid "May take 24h for data to be shown."
 msgstr ""
 
-#: templates/partials/pagespeed.html:284
+#: templates/partials/pagespeed.html:301
 msgid "The site's Google PageSpeed data has been successfully collected."
 msgstr ""
 
-#: templates/partials/pagespeed.html:290
+#: templates/partials/pagespeed.html:307
 msgid ""
 "Error fetching Google PageSpeed data for the domain. Please refresh the "
 "page. If the issue continues, contact support for assistance."

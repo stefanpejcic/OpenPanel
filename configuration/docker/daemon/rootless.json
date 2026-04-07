@@ -1,5 +1,10 @@
 {
-        "data-root": "/home/USERNAME/docker-data",
-        "dns": ["1.1.1.1", "1.0.0.1"],
-         "no-new-privileges": true
+    "data-root": "/home/USERNAME/docker-data",
+    "dns": ["1.1.1.1", "1.0.0.1"],
+    "no-new-privileges": true,
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "20m",
+        "max-file": "1"
+    }
 }

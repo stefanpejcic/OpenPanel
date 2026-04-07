@@ -795,6 +795,8 @@ services:
       - mail_data:/backup/mail:ro
       - webserver_data:/backup/vhosts:ro
       - pg_data:/backup/postgres:ro
+      - ./crons.ini:/backup/crons.ini:ro
+      - /etc/openpanel/backups/customized.template:/etc/dockervolumebackup/notifications.d/01.template:ro
     deploy:
       resources:
         limits:

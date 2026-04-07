@@ -5,7 +5,7 @@
 # Usage: opencli docker-collect_stats
 # Author: Petar Curic, Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 05.04.2026
+# Last Modified: 06.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -38,7 +38,6 @@ fi
 # shellcheck source=/usr/local/opencli/db.sh
 source /usr/local/opencli/db.sh
 
-
 (
 flock -n 200 || { echo "Error: Script already running."; exit 1; }
 
@@ -59,9 +58,6 @@ process_user() {
         return 1
     fi
 
-    # ---------------------
-    # Helpers
-    # ---------------------
     to_h() {
         local num=$1
         if   [ "$num" -gt 1073741824 ]; then awk "BEGIN {printf \"%.1fG\", $num/1073741824}"
@@ -76,15 +72,11 @@ process_user() {
         awk "BEGIN {printf \"%.1f cores\", $pct/100}"
     }
 
-    # ---------------------
     # CPU sample 1
-    # ---------------------
     local CPU_STAT1=$(grep '^usage_usec' "$CGROUP/cpu.stat" | awk '{print $2}')
     local T1=$(date +%s%N)
 
-    # ---------------------
     # Memory
-    # ---------------------
     local MEM_CURRENT=$(cat "$CGROUP/memory.current")
     local ANON=$(grep '^anon ' "$CGROUP/memory.stat" | awk '{print $2}')
     local FILE=$(grep '^file ' "$CGROUP/memory.stat" | awk '{print $2}')
@@ -101,14 +93,10 @@ process_user() {
     local AVAILABLE=$(( FREE + BUFF_CACHE ))
     local MEMORY_USAGE_PCT=$(awk "BEGIN {printf \"%d\", ($USED / $MEM_MAX) * 100}")
 
-    # ---------------------
     # Sleep for CPU delta
-    # ---------------------
     sleep 0.4
 
-    # ---------------------
     # CPU sample 2
-    # ---------------------
     local CPU_STAT2=$(grep '^usage_usec' "$CGROUP/cpu.stat" | awk '{print $2}')
     local T2=$(date +%s%N)
 
@@ -133,9 +121,7 @@ process_user() {
     local CPU_USAGE_PCT=$(awk "BEGIN {printf \"%d\", ($CPU_DELTA / $INTERVAL_US) * 100}")
     local CPU_LIMIT_PCT=$(awk "BEGIN {printf \"%d\", ($CPU_USAGE_PCT / $CPU_MAX_PCT) * 100}")
 
-    # ---------------------
-    # Warning
-    # ---------------------
+    # Warnings?
     local WARN_MSG=""
     if [ "$MEMORY_USAGE_PCT" -ge 85 ] || [ "$CPU_LIMIT_PCT" -ge 85 ]; then
         WARN_MSG="\""
@@ -149,15 +135,9 @@ process_user() {
 
     local TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-    # ---------------------
-    # Output JSON
-    # ---------------------
     local current_usage
     current_usage=$(echo "{\"timestamp\":\"$TIMESTAMP\",\"user\":\"$USER_NAME\",\"uid\":$UID_NUM,\"memory\":{\"total\":{\"bytes\":$MEM_MAX,\"human\":\"$(to_h $MEM_MAX)\"},\"used\":{\"bytes\":$USED,\"human\":\"$(to_h $USED)\"},\"free\":{\"bytes\":$FREE,\"human\":\"$(to_h $FREE)\"},\"buff_cache\":{\"bytes\":$BUFF_CACHE,\"human\":\"$(to_h $BUFF_CACHE)\"},\"available\":{\"bytes\":$AVAILABLE,\"human\":\"$(to_h $AVAILABLE)\"},\"usage_pct\":$MEMORY_USAGE_PCT},\"cpu\":{\"usage\":{\"pct\":$CPU_LIMIT_PCT,\"human\":\"$(cpu_human $CPU_LIMIT_PCT)\"},\"total\":{\"pct\":$CPU_MAX_PCT,\"human\":\"$(cpu_human $CPU_MAX_PCT)\"},\"server\":{\"pct\":$CPU_TOTAL_SERVER,\"human\":\"$(cpu_human $CPU_TOTAL_SERVER)\"}},\"warning\":$WARN_MSG}")
 
-    # ---------------------
-    # Save and retention
-    # ---------------------
     local usage_file="/home/$USER_NAME/resource_usage.txt"
     echo "$current_usage" >> "$usage_file"
     

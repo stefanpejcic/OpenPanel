@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 05.04.2026
+# Last Modified: 06.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -240,6 +240,7 @@ save_license_to_file() {
     if opencli config update key "$new_key" > /dev/null; then
         output_message "License key ${new_key} added." "$GREEN"
         toggle_emails_module > /dev/null
+        opencli config update how_to_guides no > /dev/null
         pagespeed_api_key_control > /dev/null
         manage_compose_volumes "enable"
         restart_services
