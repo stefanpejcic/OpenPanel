@@ -6,7 +6,7 @@
 #        opencli report [--public] [--cli] [--csf]
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 06.04.2026
+# Last Modified: 07.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

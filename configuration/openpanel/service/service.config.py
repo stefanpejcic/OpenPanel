@@ -13,7 +13,6 @@ import multiprocessing
 import os
 import re
 import yaml  # pip install pyyaml
-import threading
 from pathlib import Path
 import subprocess
 import logging
@@ -76,31 +75,6 @@ else:
         def flush(self): pass
 
     sys.stdout = DevNull()
-
-
-# ====================================================================== #
-# If screenshots=local then install playwright
-LOCAL_SCREENSHOTS = is_config_enabled("screenshots=local")
-
-def install_playwright():
-    print("Screenshots API is set to local, installing Playwright and dependencies..")
-    try:
-        subprocess.run(["apt-get", "update"], check=True)
-
-        dependencies = [
-            "libatspi2.0-0","libx11-6", "libxcomposite1", "libxdamage1"
-            # TODO: remove after 1.8.0
-        ]
-        subprocess.run(["apt-get", "install", "-y"] + dependencies, check=True)
-        subprocess.run(["playwright", "install"], check=True)
-        print("Playwright installation finished.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error installing Playwright: {e}")
-    except Exception as e:
-        print(f"Unexpected error: {e}")
-
-if LOCAL_SCREENSHOTS:
-    threading.Thread(target=install_playwright, daemon=True).start()
 
 # ====================================================================== #
 # From version 1.6.3, we allow executing a custom script on startup

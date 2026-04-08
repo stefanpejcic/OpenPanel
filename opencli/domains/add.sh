@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 06.04.2026
+# Last Modified: 07.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -769,26 +769,25 @@ reload_bind_after_slaves(){
 notify_slave(){
 
 if ! $USE_PARENT_DNS_ZONE; then
-    echo "Notifying Slave DNS server ($SLAVE_IP) to create a new zone for domain $domain_name"
-	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
-    if ! grep -q "$domain_name.zone" /etc/bind/named.conf.local; then
-        echo "zone \"$domain_name\" { type slave; masters { $MASTER_IP; }; file \"/etc/bind/zones/$domain_name.zone\"; };" >> /etc/bind/named.conf.local
-        touch /etc/bind/zones/$domain_name.zone
-        echo "Zone $domain_name added to slave server."
-    else
-        echo "Warning: Zone $domain_name already exists on the slave server."
-    fi
-EOF
+    log "Notifying slave DNS server ($SLAVE_IP) to create a new zone for domain $domain_name"
 
-	timeout 5 ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -T root@$SLAVE_IP <<EOF >/dev/null 2>&1
-    if [ $(docker --context default ps -q -f name=openpanel_dns) ]; then
-        echo "Reloading DNS service on slave server.."
-		docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
-    else
-		echo "Starting DNS service on slave server.."
- 		nohup sh -c "cd /root && docker --context default compose up -d bind9" </dev/null >nohup.out 2>nohup.err &
-    fi
-EOF
+    ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$SLAVE_IP "nohup bash -c '
+        if ! grep -q \"$domain_name.zone\" /etc/bind/named.conf.local; then
+            cat >> /etc/bind/named.conf.local <<EOFZONE
+zone \"$domain_name\" {type slave; masters { $MASTER_IP; }; file \"/etc/bind/zones/$domain_name.zone\"; allow-notify { $MASTER_IP; }; };
+EOFZONE
+            mkdir -p /etc/bind/zones/
+            touch /etc/bind/zones/$domain_name.zone
+        fi
+    ' >/dev/null 2>&1 & disown"
+
+    ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$SLAVE_IP "nohup bash -c '
+        if docker --context default ps -q -f name=openpanel_dns >/dev/null; then
+            docker --context default exec openpanel_dns rndc reconfig
+        else
+            cd /root && docker --context default compose up -d bind9
+        fi
+    ' >/dev/null 2>&1 & disown"
 fi
 
 }

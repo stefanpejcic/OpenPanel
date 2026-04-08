@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.04.2026
+# Last Modified: 07.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -120,10 +120,19 @@ delete_user_from_database() {
            "/var/log/caddy/domlogs/$domain"
            "/var/log/caddy/coraza_waf/$domain.log"
            "/etc/openpanel/caddy/ssl/custom/$domain"
+		   "/etc/bind/zones/$domain.zone"
            )
+
+	        if grep -q "zone \"$domain\"" /etc/bind/named.conf.local; then
+	            sed -i "/zone \"$domain\" IN {/,/};/d" /etc/bind/named.conf.local
+	        fi
         done
 		[[ ${#paths_to_delete[@]} -gt 0 ]] && ionice -c3 rm -rf "${paths_to_delete[@]}"
+		# reload webserver
         nohup docker --context default exec caddy caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 &
+        disown
+		# reload dns
+        nohup docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1 &
         disown
     fi
 }

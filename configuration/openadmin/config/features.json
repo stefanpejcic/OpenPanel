@@ -104,6 +104,22 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#mysql-conf"
   },
   {
+    "name": "mysql_processlist",
+    "title": "MySQL Process List",
+    "description": "If enabled, users can view MySQL processlist from the user panel.",
+    "link": "/mysql/rprocesslist",
+    "type": "community",
+    "help_link": ""
+  },
+  {
+    "name": "mysql_root_password",
+    "title": "MySQL Root Password",
+    "description": "If enabled, users can change password for their MySQL root user from the user panel.",
+    "link": "/mysql/root-password",
+    "type": "community",
+    "help_link": ""
+  },
+  {
     "name": "postgresql",
     "title": "PostgreSQL",
     "description": "If enabled, users can manage PostgreSQL databases and users.",
@@ -350,14 +366,6 @@
     "link": "/domains/capitalize",
     "type": "enterprise",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#capitalize-domains"
-  },
-  {
-    "name": "malware_scan",
-    "title": "Malware Scanner DEPRECATED",
-    "description": "If enabled, ClamAV is run locally and domain's docroots are automatically scanned for malicious files. Users can exclude directories and view quarantined files. NOTE: ARM CPU is not supported",
-    "link": "/malware-scanner",
-    "type": "enterprise",
-    "help_link": "https://openpanel.com/docs/admin/settings/modules/#clamav"
   },
   {
     "name": "domain_logs",

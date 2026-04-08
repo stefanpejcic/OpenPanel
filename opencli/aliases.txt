@@ -2,7 +2,6 @@ opencli admin
 opencli api
 opencli commands
 opencli config
-opencli dev
 opencli docker
 opencli docker-backup
 opencli docker-collect_stats
@@ -78,7 +77,6 @@ opencli user-loginlog
 opencli user-password
 opencli user-quota
 opencli user-rename
-opencli user-resources
 opencli user-suspend
 opencli user-transfer
 opencli user-unsuspend

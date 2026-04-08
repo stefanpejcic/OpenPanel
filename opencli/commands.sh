@@ -5,7 +5,7 @@
 # Usage: opencli commands
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 06.04.2026
+# Last Modified: 07.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -40,6 +40,7 @@ readonly EXCLUDE_PATTERNS=(
     ".github/*"
     "ftp/users.sh"
     "db.sh"
+    "dev.sh"
     "enterprise.sh"
     "progress_bar.sh"
 )
