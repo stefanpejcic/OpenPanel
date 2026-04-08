@@ -15,7 +15,7 @@ For an application to appear on the Autoinstaller page, the corresponding module
 - WordPress
 - NodeJS Applications*
 - Python Applications*
-- Mautic (BETA)
+- Mautic (DEPRECATED)
 - Website Builder
 
 `*` Indicates that the feature is available only in Enterprise editon.
