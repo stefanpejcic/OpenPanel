@@ -9,8 +9,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCUSSION_TITLE: ${{ github.event.discussion.title }}
+          DISCUSSION_URL: ${{ github.event.discussion.html_url }}
         run: |
+          # Use jq to safely build JSON payload
+          PAYLOAD=$(jq -n \
+            --arg title "$DISCUSSION_TITLE" \
+            --arg url "$DISCUSSION_URL" \
+            '{content: "❓ **New question asked:** \($title)\n🔗 \($url)"}')
           curl -H "Content-Type: application/json" \
-          -X POST \
-          -d "{\"content\": \"❓ **New question asked:** ${{ github.event.discussion.title }}\n🔗 ${{ github.event.discussion.html_url }}\"}" \
-          "${{ secrets.DISCORD_WEBHOOK }}"
+            -X POST \
+            -d "$PAYLOAD" \
+            "$DISCORD_WEBHOOK"
