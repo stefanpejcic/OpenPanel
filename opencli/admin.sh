@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 07.04.2026
+# Last Modified: 08.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 

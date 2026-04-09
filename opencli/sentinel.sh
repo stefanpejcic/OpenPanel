@@ -145,7 +145,7 @@ check_service_status() {
   if systemctl is-active --quiet "$svc"; then
     ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc is active."
   else
-    if [[ "$svc" == "admin" && ! -f /root/openadmin_is_disabled ]]; then
+    if [[ "$svc" == "admin" && -f /root/openadmin_is_disabled ]]; then
       ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc disabled by Administrator."; return
     fi
     ((FAIL++)); STATUS=2

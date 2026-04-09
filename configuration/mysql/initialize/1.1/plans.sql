@@ -253,6 +253,26 @@ FOR EACH ROW
 UPDATE users SET user_domains = user_domains - 1 WHERE id = OLD.user_id;
 
 
+-- --------------------------------------------------------
+--
+-- Event: cleanup expired sessions
+--
+
+/*!50106 SET GLOBAL event_scheduler = ON */;
+
+DELIMITER $$
+
+CREATE EVENT IF NOT EXISTS cleanup_expired_sessions
+ON SCHEDULE EVERY 15 MINUTE
+DO
+BEGIN
+  DELETE FROM active_sessions
+  WHERE expires_at < NOW();
+END$$
+
+DELIMITER ;
+
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

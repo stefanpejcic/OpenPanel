@@ -7,10 +7,9 @@ key_buffer_size         = 160M
 max_allowed_packet      = 32M
 thread_stack            = 256K
 myisam-recover-options  = BACKUP
-table_open_cache       = 4000
+table_open_cache        = 4000
 interactive_timeout=15
 wait_timeout=10
-
 
 #max_user_connections=20
 #max_connections        = 151

@@ -28,7 +28,7 @@
 # THE SOFTWARE.
 ################################################################################
 
-readonly OPENCLI_VERSION="202.604.007"
+readonly OPENCLI_VERSION="202.604.008"
 readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
 readonly SCRIPT_DIR="/usr/local/opencli"
 readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"

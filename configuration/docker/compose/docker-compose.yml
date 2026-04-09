@@ -4,6 +4,7 @@ services:
     image: mariadb:10-focal
     container_name: openpanel_mysql
     restart: always
+    command: --event-scheduler=ON
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: panel
