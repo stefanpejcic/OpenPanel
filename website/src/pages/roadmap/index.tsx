@@ -50,6 +50,7 @@ const Roadmap: React.FC = () => {
                         <li>backup restore gui pages</li>
                         <li>ImunifyAV page for end-users.</li>
                         <li>Ubuntu 26 support</li>
+                        <li>Export OpenAdmin settings</li>
                         <li>Ongoing improvements in container isolation.</li>
                     </ul>
                     <p>View all planned features on:<strong><a href="https://github.com/users/stefanpejcic/projects/2/views/4" target="_blank" rel="noopener noreferrer">Github</a></strong>.</p>
