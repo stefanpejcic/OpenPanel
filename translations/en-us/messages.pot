@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.53\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-09 00:27+0200\n"
+"POT-Creation-Date: 2026-04-10 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -119,18 +119,18 @@ msgstr ""
 msgid "User not authenticated"
 msgstr ""
 
-#: modules/cache/varnish.py:134 modules/dns.py:140 modules/dns.py:214
-#: modules/dns.py:285 modules/dns.py:376 modules/dns.py:412 modules/dns.py:488
-#: modules/dns.py:548 modules/domain/capitalize_domains.py:22
+#: modules/cache/varnish.py:134 modules/dns.py:126 modules/dns.py:200
+#: modules/dns.py:271 modules/dns.py:362 modules/dns.py:398 modules/dns.py:474
+#: modules/dns.py:530 modules/domain/capitalize_domains.py:22
 #: modules/domain/docroot.py:33 modules/domain/domain_logs.py:42
 #: modules/domain/edit_vhost.py:39 modules/domain/edit_vhost.py:61
 #: modules/domain/redirects.py:58 modules/domain/redirects.py:132
 #: modules/domain/redirects.py:193 modules/domain/ssl.py:33
 #: modules/domains.py:419 modules/domains.py:452 modules/domains.py:477
 #: modules/domains.py:509 modules/domains.py:578 modules/emails.py:150
-#: modules/emails.py:286 modules/emails.py:582 modules/emails.py:619
+#: modules/emails.py:286 modules/emails.py:589 modules/emails.py:652
 #: modules/goaccess.py:23 modules/json/favicons.py:33
-#: modules/json/screenshots.py:74 modules/mautic.py:93 modules/mautic.py:190
+#: modules/json/screenshots.py:81 modules/mautic.py:93 modules/mautic.py:190
 #: modules/mautic.py:431 modules/mautic.py:595 modules/mautic.py:788
 #: modules/php.py:453 modules/pm2.py:597 modules/pm2.py:1292
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:116
@@ -144,55 +144,59 @@ msgstr ""
 msgid "You do not own this domain."
 msgstr ""
 
-#: modules/dns.py:240
+#: modules/dns.py:226
 msgid "Row deleted successfully"
 msgstr ""
 
-#: modules/dns.py:333 modules/dns.py:366 templates/domains/domains.html:382
-msgid "Edit DNS Zone"
-msgstr ""
-
-#: modules/dns.py:335 templates/domains/dns.html:96
-#: templates/domains/dns.html:112
+#: modules/dns.py:319 templates/domains/dns.html:73
+#: templates/domains/dns.html:85
 msgid "Edit DNS File"
 msgstr ""
 
-#: modules/dns.py:339
+#: modules/dns.py:321 modules/dns.py:352 templates/domains/domains.html:382
+msgid "Edit DNS Zone"
+msgstr ""
+
+#: modules/dns.py:325
 msgid ""
 "Zone file not found for the subdomain - try editing the zone for apex "
 "domain."
 msgstr ""
 
-#: modules/dns.py:341 modules/dns.py:494
+#: modules/dns.py:327 modules/dns.py:480
 msgid "Zone file not found."
 msgstr ""
 
-#: modules/dns.py:387
+#: modules/dns.py:373
 msgid "DNS zone restarted successfully."
 msgstr ""
 
-#: modules/dns.py:391
+#: modules/dns.py:377
 msgid "Failed to restart DNS zone: "
 msgstr ""
 
-#: modules/dns.py:396 modules/dns.py:398 modules/dns.py:468
+#: modules/dns.py:382 modules/dns.py:384 modules/dns.py:454
 msgid "Please provide a domain name."
 msgstr ""
 
-#: modules/dns.py:523
+#: modules/dns.py:505
 msgid "CNAME record with this name already exists."
 msgstr ""
 
-#: modules/dns.py:534
+#: modules/dns.py:516
 msgid "DNS record added successfully."
 msgstr ""
 
-#: modules/dns.py:558
-msgid "DNS zone saved and DNS service restarted."
+#: modules/dns.py:536
+msgid "New content not provided."
 msgstr ""
 
-#: modules/dns.py:561
-msgid "New content not provided."
+#: modules/dns.py:553
+msgid "Failed - zone validation error"
+msgstr ""
+
+#: modules/dns.py:569
+msgid "DNS zone saved and DNS service restarted."
 msgstr ""
 
 #: modules/docker.py:214 templates/dashboard/dashboard.html:204
@@ -339,27 +343,27 @@ msgstr ""
 msgid "Error: No import data found, please try again."
 msgstr ""
 
-#: modules/emails.py:544
+#: modules/emails.py:546
 msgid "Error: reached max number of email accounts on the hosting plan."
 msgstr ""
 
-#: modules/emails.py:586
+#: modules/emails.py:593
 msgid "Error: domain not provided."
 msgstr ""
 
-#: modules/emails.py:588
+#: modules/emails.py:595
 msgid "Error: username not provided."
 msgstr ""
 
-#: modules/emails.py:590
+#: modules/emails.py:597
 msgid "Error: password not provided."
 msgstr ""
 
-#: modules/emails.py:597 templates/files/ftp_new.html:200
+#: modules/emails.py:604 templates/files/ftp_new.html:200
 msgid "Create Account"
 msgstr ""
 
-#: modules/emails.py:670 modules/emails.py:672 modules/files/ftp.py:83
+#: modules/emails.py:698 modules/emails.py:700 modules/files/ftp.py:83
 #: modules/files/ftp.py:87 templates/cache/service.html:26
 #: templates/domains/ssl.html:61 templates/files/ftp.html:13
 #: templates/manager/python_node_apps.html:72
@@ -369,20 +373,20 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/emails.py:830
+#: modules/emails.py:825
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:859
+#: modules/emails.py:853
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:877 templates/emails/accounts.html:113
+#: modules/emails.py:871 templates/emails/accounts.html:113
 #: templates/emails/info.html:9
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:890
+#: modules/emails.py:884
 msgid "Error: Invalid configuration type."
 msgstr ""
 
@@ -972,7 +976,7 @@ msgstr ""
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:698 templates/manager/wp/single.html:2351
+#: modules/websites.py:698 templates/manager/wp/single.html:2347
 msgid "WordPress updated successfully"
 msgstr ""
 
@@ -2048,7 +2052,7 @@ msgstr ""
 msgid "Redirects"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:141 templates/domains/dns.html:723
+#: templates/dashboard/dashboard.html:141 templates/domains/dns.html:669
 msgid "DNS Zone Editor"
 msgstr ""
 
@@ -2456,8 +2460,8 @@ msgstr ""
 
 #: templates/docker/container_form.html:226
 #: templates/docker/containers.html:264 templates/docker/containers.html:318
-#: templates/domains/capitalize.html:114 templates/domains/dns.html:176
-#: templates/domains/dns.html:421 templates/domains/domains.html:273
+#: templates/domains/capitalize.html:114 templates/domains/dns.html:138
+#: templates/domains/dns.html:367 templates/domains/domains.html:273
 #: templates/domains/domains.html:303 templates/files/edit_file.html:166
 #: templates/mysql/phpmyadmin.html:130 templates/mysql/phpmyadmin.html:158
 #: templates/mysql/phpmyadmin.html:187 templates/mysql/phpmyadmin.html:215
@@ -2484,7 +2488,7 @@ msgid "Total Memory:"
 msgstr ""
 
 #: templates/docker/containers.html:27 templates/docker/volumes_TODO.html:25
-#: templates/domains/dns.html:61 templates/domains/domains.html:33
+#: templates/domains/dns.html:56 templates/domains/domains.html:33
 #: templates/domains/logs.html:80 templates/emails/accounts.html:18
 #: templates/files/clamav/quarantine.html:31 templates/files/ftp.html:24
 #: templates/manager/sites.html:22 templates/manager/wp/list.html:40
@@ -2508,7 +2512,7 @@ msgid "Show Columns"
 msgstr ""
 
 #: templates/docker/containers.html:51 templates/docker/containers.html:153
-#: templates/domains/dns.html:128 templates/domains/dns.html:151
+#: templates/domains/dns.html:99 templates/domains/dns.html:113
 #: templates/files/filemanager.html:99 templates/files/filemanager/table.html:6
 #: templates/files/filemanager/table_trash.html:6 templates/files/trash.html:52
 #: templates/manager/python_node_apps.html:188
@@ -2529,7 +2533,7 @@ msgid "PIDs"
 msgstr ""
 
 #: templates/docker/containers.html:121 templates/docker/containers.html:178
-#: templates/domains/dns.html:140 templates/domains/domains.html:158
+#: templates/domains/dns.html:103 templates/domains/domains.html:158
 #: templates/domains/domains.html:212 templates/files/clamav/quarantine.html:72
 #: templates/files/disk_usage.html:44 templates/files/ftp.html:70
 #: templates/files/inodes.html:43 templates/manager/python_node_apps.html:970
@@ -2623,15 +2627,15 @@ msgstr ""
 msgid "Delete the docker image and files."
 msgstr ""
 
-#: templates/docker/delete_confirm.html:48 templates/domains/dns.html:178
-#: templates/domains/dns.html:423 templates/domains/domains.html:275
+#: templates/docker/delete_confirm.html:48 templates/domains/dns.html:140
+#: templates/domains/dns.html:369 templates/domains/domains.html:275
 #: templates/domains/domains.html:305 templates/emails/delete.html:32
 #: templates/manager/mautic.html:460 templates/manager/mautic.html:510
 #: templates/manager/python_node_apps.html:895
 #: templates/manager/websitebuilder.html:210
 #: templates/manager/websitebuilder.html:260
-#: templates/manager/wp/single.html:600 templates/manager/wp/single.html:2050
-#: templates/manager/wp/single.html:2100 templates/mysql/phpmyadmin.html:132
+#: templates/manager/wp/single.html:600 templates/manager/wp/single.html:2047
+#: templates/manager/wp/single.html:2097 templates/mysql/phpmyadmin.html:132
 #: templates/mysql/phpmyadmin.html:160 templates/mysql/phpmyadmin.html:189
 #: templates/mysql/phpmyadmin.html:217 templates/psql/pgadmin.html:130
 #: templates/psql/pgadmin.html:154 templates/psql/pgadmin.html:183
@@ -2831,36 +2835,36 @@ msgid ""
 " restore the default zone records."
 msgstr ""
 
-#: templates/domains/dns.html:34 templates/domains/dns.html:116
-#: templates/domains/dns.html:650
+#: templates/domains/dns.html:34 templates/domains/dns.html:89
+#: templates/domains/dns.html:596
 msgid "Reset Zone"
 msgstr ""
 
-#: templates/domains/dns.html:48
+#: templates/domains/dns.html:47
 msgid "Edit DNS for"
 msgstr ""
 
-#: templates/domains/dns.html:49
+#: templates/domains/dns.html:48
 msgid "Total DNS records:"
 msgstr ""
 
-#: templates/domains/dns.html:86
+#: templates/domains/dns.html:64
 msgid "New Record"
 msgstr ""
 
-#: templates/domains/dns.html:100 templates/domains/dns.html:114
+#: templates/domains/dns.html:76 templates/domains/dns.html:87
 msgid "Export Zone"
 msgstr ""
 
-#: templates/domains/dns.html:104 templates/domains/dns.html:638
+#: templates/domains/dns.html:79 templates/domains/dns.html:584
 msgid "Reset"
 msgstr ""
 
-#: templates/domains/dns.html:131 templates/domains/dns.html:154
+#: templates/domains/dns.html:100 templates/domains/dns.html:116
 msgid "TTL"
 msgstr ""
 
-#: templates/domains/dns.html:134 templates/domains/domains.html:79
+#: templates/domains/dns.html:101 templates/domains/domains.html:79
 #: templates/domains/domains.html:190 templates/files/backup_restore.html:39
 #: templates/files/filemanager.html:172
 #: templates/files/filemanager/table.html:28
@@ -2869,131 +2873,131 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: templates/domains/dns.html:137 templates/domains/dns.html:170
+#: templates/domains/dns.html:102 templates/domains/dns.html:132
 msgid "Record"
 msgstr ""
 
-#: templates/domains/dns.html:158
+#: templates/domains/dns.html:120
 msgid "A"
 msgstr ""
 
-#: templates/domains/dns.html:159
+#: templates/domains/dns.html:121
 msgid "AAAA"
 msgstr ""
 
-#: templates/domains/dns.html:160
+#: templates/domains/dns.html:122
 msgid "CAA"
 msgstr ""
 
-#: templates/domains/dns.html:161
+#: templates/domains/dns.html:123
 msgid "CNAME"
 msgstr ""
 
-#: templates/domains/dns.html:162
+#: templates/domains/dns.html:124
 msgid "MX"
 msgstr ""
 
-#: templates/domains/dns.html:163
+#: templates/domains/dns.html:125
 msgid "SRV"
 msgstr ""
 
-#: templates/domains/dns.html:164
+#: templates/domains/dns.html:126
 msgid "TXT"
 msgstr ""
 
-#: templates/domains/dns.html:166
+#: templates/domains/dns.html:128
 msgid "IN"
 msgstr ""
 
-#: templates/domains/dns.html:169
+#: templates/domains/dns.html:131
 msgid "Priority"
 msgstr ""
 
-#: templates/domains/dns.html:191 templates/domains/dns.html:194
+#: templates/domains/dns.html:153 templates/domains/dns.html:156
 msgid "Address"
 msgstr ""
 
-#: templates/domains/dns.html:203 templates/domains/dns.html:214
+#: templates/domains/dns.html:165 templates/domains/dns.html:176
 #: templates/domains/new.html:45 templates/emails/new.html:23
 #: templates/manager/wp/list.html:118 templates/mysql/phpmyadmin.html:238
 #: templates/php/settings.html:153
 msgid "Domain"
 msgstr ""
 
-#: templates/domains/dns.html:281 templates/domains/dns.html:425
+#: templates/domains/dns.html:227 templates/domains/dns.html:371
 msgid " Edit"
 msgstr ""
 
-#: templates/domains/dns.html:285
+#: templates/domains/dns.html:231
 msgid " Save"
 msgstr ""
 
-#: templates/domains/dns.html:287
+#: templates/domains/dns.html:233
 msgid " Cancel"
 msgstr ""
 
-#: templates/domains/dns.html:314
+#: templates/domains/dns.html:260
 #: templates/files/filemanager/permissions.html:38
 #: templates/user/twofa_settings.html:135
 msgid "Confirm"
 msgstr ""
 
-#: templates/domains/dns.html:323
+#: templates/domains/dns.html:269
 msgid " Delete"
 msgstr ""
 
-#: templates/domains/dns.html:334
+#: templates/domains/dns.html:280
 msgid "Deleting record, please wait."
 msgstr ""
 
-#: templates/domains/dns.html:346
+#: templates/domains/dns.html:292
 msgid "Record deleted successfully."
 msgstr ""
 
-#: templates/domains/dns.html:360
+#: templates/domains/dns.html:306
 msgid ""
 "Error occurred deleting the record. Please refresh the page and try "
 "again. If the issue persists, try editing the zone file directly."
 msgstr ""
 
-#: templates/domains/dns.html:365
+#: templates/domains/dns.html:311
 msgid "An unexpected error occurred."
 msgstr ""
 
-#: templates/domains/dns.html:450
+#: templates/domains/dns.html:396
 msgid "Edit Cancelled."
 msgstr ""
 
-#: templates/domains/dns.html:464
+#: templates/domains/dns.html:410
 msgid "Edit Cancelled. Reloading the page."
 msgstr ""
 
-#: templates/domains/dns.html:532
+#: templates/domains/dns.html:478
 msgid "Record updated successfully."
 msgstr ""
 
-#: templates/domains/dns.html:615
+#: templates/domains/dns.html:561
 msgid "Edit DNS File for"
 msgstr ""
 
-#: templates/domains/dns.html:616 templates/domains/vhost.html:73
+#: templates/domains/dns.html:562 templates/domains/vhost.html:73
 msgid "Attention:"
 msgstr ""
 
-#: templates/domains/dns.html:616
+#: templates/domains/dns.html:562
 msgid ""
 "Editing DNS file is intended for advanced users only. This action can "
 "potentially lead to server misconfiguration or downtime if not done "
 "correctly."
 msgstr ""
 
-#: templates/domains/dns.html:616
+#: templates/domains/dns.html:562
 msgid ""
 "Please be cautious and make sure you understand the changes you are "
 "making."
 msgstr ""
 
-#: templates/domains/dns.html:620 templates/domains/vhost.html:29
+#: templates/domains/dns.html:566 templates/domains/vhost.html:29
 #: templates/mysql/configuration.html:36 templates/php/ini_editor.html:29
 #: templates/php/options.html:35 templates/psql/configuration.html:33
 #: templates/system/apache_nginx_conf_editor.html:25
@@ -3001,38 +3005,38 @@ msgstr ""
 msgid "Save Changes"
 msgstr ""
 
-#: templates/domains/dns.html:630
+#: templates/domains/dns.html:576
 msgid "Table View"
 msgstr ""
 
-#: templates/domains/dns.html:634 templates/domains/dns.html:648
+#: templates/domains/dns.html:580 templates/domains/dns.html:594
 msgid "Download File"
 msgstr ""
 
-#: templates/domains/dns.html:646
+#: templates/domains/dns.html:592
 msgid "Edit as Table"
 msgstr ""
 
-#: templates/domains/dns.html:681
+#: templates/domains/dns.html:627
 msgid "Saving zone file for domain"
 msgstr ""
 
-#: templates/domains/dns.html:681 templates/domains/new.html:278
+#: templates/domains/dns.html:627 templates/domains/new.html:278
 msgid "Please wait for the process to finish."
 msgstr ""
 
-#: templates/domains/dns.html:696
+#: templates/domains/dns.html:642
 msgid "Zone file saved successfully"
 msgstr ""
 
-#: templates/domains/dns.html:724
+#: templates/domains/dns.html:670
 msgid ""
 "Manage and edit Domain Name System (DNS) zone files, which contain "
 "critical information for mapping domain names to IP addresses and "
 "managing various DNS records, such as A, CNAME, MX, and TXT records."
 msgstr ""
 
-#: templates/domains/dns.html:746 templates/system/waf_logs.html:282
+#: templates/domains/dns.html:692 templates/system/waf_logs.html:282
 msgid "Select domain"
 msgstr ""
 
@@ -3280,7 +3284,7 @@ msgstr ""
 #: templates/domains/new.html:218 templates/manager/mautic.html:388
 #: templates/manager/mautic.html:473 templates/manager/websitebuilder.html:138
 #: templates/manager/websitebuilder.html:223
-#: templates/manager/wp/single.html:1978 templates/manager/wp/single.html:2063
+#: templates/manager/wp/single.html:1975 templates/manager/wp/single.html:2060
 msgid "or"
 msgstr ""
 
@@ -4910,7 +4914,7 @@ msgid "Folder Size:"
 msgstr ""
 
 #: templates/manager/mautic.html:228 templates/manager/wp/single.html:326
-#: templates/manager/wp/single.html:1845 templates/mysql/users.html:70
+#: templates/manager/wp/single.html:1842 templates/mysql/users.html:70
 #: templates/mysql/users.html:72 templates/psql/users.html:67
 #: templates/psql/users.html:69
 msgid "Database"
@@ -4964,72 +4968,72 @@ msgid "Open database in phpMyAdmin"
 msgstr ""
 
 #: templates/manager/mautic.html:364 templates/manager/websitebuilder.html:119
-#: templates/manager/wp/single.html:1954
+#: templates/manager/wp/single.html:1951
 msgid "Create a Backup"
 msgstr ""
 
 #: templates/manager/mautic.html:365 templates/manager/websitebuilder.html:120
-#: templates/manager/wp/single.html:1955
+#: templates/manager/wp/single.html:1952
 msgid "Create a new backup of website files and/or database."
 msgstr ""
 
-#: templates/manager/mautic.html:370 templates/manager/wp/single.html:1960
+#: templates/manager/mautic.html:370 templates/manager/wp/single.html:1957
 msgid "Backup Database"
 msgstr ""
 
 #: templates/manager/mautic.html:375 templates/manager/websitebuilder.html:125
-#: templates/manager/wp/single.html:1965
+#: templates/manager/wp/single.html:1962
 msgid "Backup Files"
 msgstr ""
 
 #: templates/manager/mautic.html:383 templates/manager/websitebuilder.html:133
-#: templates/manager/wp/single.html:1973
+#: templates/manager/wp/single.html:1970
 msgid "Generate Backup"
 msgstr ""
 
 #: templates/manager/mautic.html:393 templates/manager/websitebuilder.html:143
-#: templates/manager/wp/single.html:1983
+#: templates/manager/wp/single.html:1980
 msgid "Restore from Backups"
 msgstr ""
 
 #: templates/manager/mautic.html:394 templates/manager/websitebuilder.html:144
-#: templates/manager/wp/single.html:1984
+#: templates/manager/wp/single.html:1981
 msgid "Restore website files and/or database from a previous backup."
 msgstr ""
 
 #: templates/manager/mautic.html:404 templates/manager/websitebuilder.html:154
-#: templates/manager/wp/single.html:1994
+#: templates/manager/wp/single.html:1991
 msgid "Display Backups"
 msgstr ""
 
 #: templates/manager/mautic.html:408 templates/manager/websitebuilder.html:158
-#: templates/manager/wp/single.html:1998
+#: templates/manager/wp/single.html:1995
 msgid "Select a backup date:"
 msgstr ""
 
 #: templates/manager/mautic.html:420 templates/manager/websitebuilder.html:170
 #: templates/manager/websitebuilder.html:576
-#: templates/manager/wp/single.html:2010 templates/manager/wp/single.html:2499
+#: templates/manager/wp/single.html:2007 templates/manager/wp/single.html:2495
 msgid "Start Restore"
 msgstr ""
 
 #: templates/manager/mautic.html:429 templates/manager/websitebuilder.html:179
 #: templates/manager/wp/list.html:150 templates/manager/wp/list.html:213
-#: templates/manager/wp/single.html:2019
+#: templates/manager/wp/single.html:2016
 msgid "Detach"
 msgstr ""
 
-#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2020
+#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2017
 msgid "Remove the"
 msgstr ""
 
-#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2020
+#: templates/manager/mautic.html:430 templates/manager/wp/single.html:2017
 msgid "website from this manager without actually deleting any files."
 msgstr ""
 
 #: templates/manager/mautic.html:431
 #: templates/manager/python_node_apps.html:867
-#: templates/manager/wp/single.html:2021
+#: templates/manager/wp/single.html:2018
 msgid "All website data such as files and database remains."
 msgstr ""
 
@@ -5038,12 +5042,12 @@ msgid "Detach Mauitc"
 msgstr ""
 
 #: templates/manager/mautic.html:453 templates/manager/websitebuilder.html:203
-#: templates/manager/wp/single.html:2043
+#: templates/manager/wp/single.html:2040
 msgid "Confirm Detach"
 msgstr ""
 
 #: templates/manager/mautic.html:479 templates/manager/wp/list.html:153
-#: templates/manager/wp/list.html:216 templates/manager/wp/single.html:2069
+#: templates/manager/wp/list.html:216 templates/manager/wp/single.html:2066
 msgid "Uninstall"
 msgstr ""
 
@@ -5061,7 +5065,7 @@ msgstr ""
 msgid "Uninstall Mautic"
 msgstr ""
 
-#: templates/manager/mautic.html:503 templates/manager/wp/single.html:2093
+#: templates/manager/mautic.html:503 templates/manager/wp/single.html:2090
 msgid "Confirm Uninstall"
 msgstr ""
 
@@ -5092,11 +5096,11 @@ msgstr ""
 #: templates/manager/mautic.html:651
 #: templates/manager/python_node_apps.html:1239
 #: templates/manager/websitebuilder.html:483
-#: templates/manager/wp/single.html:2406
+#: templates/manager/wp/single.html:2402
 msgid "An error occurred fetching folder size from the container."
 msgstr ""
 
-#: templates/manager/mautic.html:669 templates/manager/wp/single.html:2225
+#: templates/manager/mautic.html:669 templates/manager/wp/single.html:2222
 msgid "An error occurred fetching DB size."
 msgstr ""
 
@@ -5122,7 +5126,7 @@ msgstr ""
 #: templates/manager/mautic_install.html:40
 #: templates/manager/pm2_install.html:163
 #: templates/manager/websitebuilder_install.html:29
-#: templates/manager/wp/install.html:95 templates/manager/wp/single.html:1817
+#: templates/manager/wp/install.html:95 templates/manager/wp/single.html:1814
 msgid "Select a domain"
 msgstr ""
 
@@ -5744,22 +5748,22 @@ msgid "An error occurred while detaching website. Please try again."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:513
-#: templates/manager/wp/single.html:2540
+#: templates/manager/wp/single.html:2536
 msgid "Files Backup"
 msgstr ""
 
 #: templates/manager/websitebuilder.html:533
-#: templates/manager/wp/single.html:2456
+#: templates/manager/wp/single.html:2452
 msgid "Click again to confirm"
 msgstr ""
 
 #: templates/manager/websitebuilder.html:561
-#: templates/manager/wp/single.html:2484
+#: templates/manager/wp/single.html:2480
 msgid "Restoring backup... Please wait."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:569
-#: templates/manager/wp/single.html:2492
+#: templates/manager/wp/single.html:2488
 msgid "Restore request failed."
 msgstr ""
 
@@ -5770,12 +5774,12 @@ msgid ""
 msgstr ""
 
 #: templates/manager/websitebuilder.html:627
-#: templates/manager/wp/single.html:2565
+#: templates/manager/wp/single.html:2561
 msgid "Generating website backup.. Please wait."
 msgstr ""
 
 #: templates/manager/websitebuilder.html:635
-#: templates/manager/wp/single.html:2573
+#: templates/manager/wp/single.html:2569
 msgid "Backup request failed."
 msgstr ""
 
@@ -5972,11 +5976,11 @@ msgstr ""
 msgid "Sets:"
 msgstr ""
 
-#: templates/manager/wp/list.html:56 templates/manager/wp/single.html:1412
+#: templates/manager/wp/list.html:56 templates/manager/wp/single.html:1409
 msgid "Themes"
 msgstr ""
 
-#: templates/manager/wp/list.html:57 templates/manager/wp/single.html:1382
+#: templates/manager/wp/list.html:57 templates/manager/wp/single.html:1379
 msgid "Plugins"
 msgstr ""
 
@@ -6025,15 +6029,15 @@ msgstr ""
 msgid "An error occurred while removing WordPress. Please try again."
 msgstr ""
 
-#: templates/manager/wp/list.html:303 templates/manager/wp/single.html:2126
+#: templates/manager/wp/list.html:303 templates/manager/wp/single.html:2123
 msgid "WordPress detach process started. Please wait."
 msgstr ""
 
-#: templates/manager/wp/list.html:312 templates/manager/wp/single.html:2135
+#: templates/manager/wp/list.html:312 templates/manager/wp/single.html:2132
 msgid "WordPress installation detached successfully."
 msgstr ""
 
-#: templates/manager/wp/list.html:315 templates/manager/wp/single.html:2138
+#: templates/manager/wp/list.html:315 templates/manager/wp/single.html:2135
 msgid "An error occurred while detaching WordPress. Please try again."
 msgstr ""
 
@@ -6316,84 +6320,84 @@ msgstr ""
 msgid "Installed WordPress version:"
 msgstr ""
 
-#: templates/manager/wp/single.html:1275
+#: templates/manager/wp/single.html:1274
 msgid "Latest WordPress version:"
 msgstr ""
 
-#: templates/manager/wp/single.html:1278
-msgid "Click to update WordPress"
+#: templates/manager/wp/single.html:1277
+msgid "Update now"
 msgstr ""
 
-#: templates/manager/wp/single.html:1345
+#: templates/manager/wp/single.html:1342
 msgid "Core"
 msgstr ""
 
-#: templates/manager/wp/single.html:1346
+#: templates/manager/wp/single.html:1343
 msgid "Update preferences for WP core."
 msgstr ""
 
-#: templates/manager/wp/single.html:1352
+#: templates/manager/wp/single.html:1349
 msgid "Update WordPress automatically:"
 msgstr ""
 
-#: templates/manager/wp/single.html:1357 templates/manager/wp/single.html:1397
-#: templates/manager/wp/single.html:1425
+#: templates/manager/wp/single.html:1354 templates/manager/wp/single.html:1394
+#: templates/manager/wp/single.html:1422
 msgid "No, I will update manually when needed"
 msgstr ""
 
-#: templates/manager/wp/single.html:1360
+#: templates/manager/wp/single.html:1357
 msgid "Yes, but only minor (security) updates"
 msgstr ""
 
-#: templates/manager/wp/single.html:1360
+#: templates/manager/wp/single.html:1357
 msgid "Recommended"
 msgstr ""
 
-#: templates/manager/wp/single.html:1364
+#: templates/manager/wp/single.html:1361
 msgid "Yes, all (minor and major) updates"
 msgstr ""
 
-#: templates/manager/wp/single.html:1383
+#: templates/manager/wp/single.html:1380
 msgid "Update preferences for WP plugins."
 msgstr ""
 
-#: templates/manager/wp/single.html:1389
+#: templates/manager/wp/single.html:1386
 msgid "Update plugins automatically:"
 msgstr ""
 
-#: templates/manager/wp/single.html:1394
+#: templates/manager/wp/single.html:1391
 msgid "Yes, all plugins will be automatically updated"
 msgstr ""
 
-#: templates/manager/wp/single.html:1413
+#: templates/manager/wp/single.html:1410
 msgid "Update preferences for WP themes."
 msgstr ""
 
-#: templates/manager/wp/single.html:1418
+#: templates/manager/wp/single.html:1415
 msgid "Update themes automatically:"
 msgstr ""
 
-#: templates/manager/wp/single.html:1421
+#: templates/manager/wp/single.html:1418
 msgid "Yes, all themes will be automatically updated"
 msgstr ""
 
-#: templates/manager/wp/single.html:1442
+#: templates/manager/wp/single.html:1439
 msgid "Save Update Preferences"
 msgstr ""
 
-#: templates/manager/wp/single.html:1453
+#: templates/manager/wp/single.html:1450
 msgid "Saving update preferences... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1508
+#: templates/manager/wp/single.html:1505
 msgid "Saving general settings... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1573
+#: templates/manager/wp/single.html:1570
 msgid "Error fetching debug info. Refresh the page."
 msgstr ""
 
-#: templates/manager/wp/single.html:1594
+#: templates/manager/wp/single.html:1591
 msgid ""
 "The options below allow you to manage the native WordPress debugging "
 "tools, enabling and disabling these tools in the wp-config.php file. It "
@@ -6401,119 +6405,119 @@ msgid ""
 " are meant for development and test installations. Refer to"
 msgstr ""
 
-#: templates/manager/wp/single.html:1594
+#: templates/manager/wp/single.html:1591
 msgid "Debugging in WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:1594
+#: templates/manager/wp/single.html:1591
 msgid "article for more information on these options."
 msgstr ""
 
-#: templates/manager/wp/single.html:1609 templates/manager/wp/single.html:1616
+#: templates/manager/wp/single.html:1606 templates/manager/wp/single.html:1613
 msgid "WP_DEBUG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1610
+#: templates/manager/wp/single.html:1607
 msgid "WordPress debug mode."
 msgstr ""
 
-#: templates/manager/wp/single.html:1619
+#: templates/manager/wp/single.html:1616
 msgid "Enable WP_DEBUG mode"
 msgstr ""
 
-#: templates/manager/wp/single.html:1633 templates/manager/wp/single.html:1640
+#: templates/manager/wp/single.html:1630 templates/manager/wp/single.html:1637
 msgid "WP_DEBUG_LOG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1634
+#: templates/manager/wp/single.html:1631
 msgid "Save all errors to the debug.log file inside the wp-content directory."
 msgstr ""
 
-#: templates/manager/wp/single.html:1643
+#: templates/manager/wp/single.html:1640
 msgid "Enable WP_DEBUG_LOG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1657 templates/manager/wp/single.html:1664
+#: templates/manager/wp/single.html:1654 templates/manager/wp/single.html:1661
 msgid "WP_DEBUG_DISPLAY"
 msgstr ""
 
-#: templates/manager/wp/single.html:1658
+#: templates/manager/wp/single.html:1655
 msgid "Show debug messages inside the HTML pages"
 msgstr ""
 
-#: templates/manager/wp/single.html:1667
+#: templates/manager/wp/single.html:1664
 msgid "Enable WP_DEBUG_DISPLAY"
 msgstr ""
 
-#: templates/manager/wp/single.html:1681 templates/manager/wp/single.html:1688
+#: templates/manager/wp/single.html:1678 templates/manager/wp/single.html:1685
 msgid "SCRIPT_DEBUG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1682
+#: templates/manager/wp/single.html:1679
 msgid ""
 "Force WordPress to use the non-minified versions of core CSS and "
 "JavaScript files. This is useful when you are testing changes made to .js"
 " and .css files."
 msgstr ""
 
-#: templates/manager/wp/single.html:1691
+#: templates/manager/wp/single.html:1688
 msgid "Enable SCRIPT_DEBUG"
 msgstr ""
 
-#: templates/manager/wp/single.html:1705 templates/manager/wp/single.html:1712
+#: templates/manager/wp/single.html:1702 templates/manager/wp/single.html:1709
 msgid "SAVEQUERIES"
 msgstr ""
 
-#: templates/manager/wp/single.html:1706
+#: templates/manager/wp/single.html:1703
 msgid ""
 "Save database queries to an array that can be displayed to help analyze "
 "them."
 msgstr ""
 
-#: templates/manager/wp/single.html:1715
+#: templates/manager/wp/single.html:1712
 msgid "Enable SAVEQUERIES"
 msgstr ""
 
-#: templates/manager/wp/single.html:1727
+#: templates/manager/wp/single.html:1724
 msgid "Save Debugging"
 msgstr ""
 
-#: templates/manager/wp/single.html:1739
+#: templates/manager/wp/single.html:1736
 msgid "Saving debugging options... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1774
+#: templates/manager/wp/single.html:1771
 msgid "Clone a WordPress instance with configured themes and plugins."
 msgstr ""
 
-#: templates/manager/wp/single.html:1792
+#: templates/manager/wp/single.html:1789
 msgid "Location"
 msgstr ""
 
-#: templates/manager/wp/single.html:1793
+#: templates/manager/wp/single.html:1790
 msgid "Please choose the URL to install the software\n"
 msgstr ""
 
-#: templates/manager/wp/single.html:1799
+#: templates/manager/wp/single.html:1796
 msgid "Source"
 msgstr ""
 
-#: templates/manager/wp/single.html:1812
+#: templates/manager/wp/single.html:1809
 msgid "Target"
 msgstr ""
 
-#: templates/manager/wp/single.html:1830
+#: templates/manager/wp/single.html:1827
 msgid ""
 "Make sure that the domain or the subdomain selected as a target is not "
 "being used by an existing website. During cloning, website data that "
 "exists on the destination may be overwritten and irrevocably lost."
 msgstr ""
 
-#: templates/manager/wp/single.html:1846
+#: templates/manager/wp/single.html:1843
 msgid "Database name and user to use for the clone (optional)"
 msgstr ""
 
-#: templates/manager/wp/single.html:1851 templates/mysql/databases.html:150
+#: templates/manager/wp/single.html:1848 templates/mysql/databases.html:150
 #: templates/mysql/new.html:26 templates/mysql/new.html:28
 #: templates/mysql/wizard.html:31 templates/psql/databases.html:139
 #: templates/psql/new.html:24 templates/psql/new.html:26
@@ -6521,95 +6525,95 @@ msgstr ""
 msgid "Database Name"
 msgstr ""
 
-#: templates/manager/wp/single.html:1865
+#: templates/manager/wp/single.html:1862
 msgid "Database user"
 msgstr ""
 
-#: templates/manager/wp/single.html:1879
+#: templates/manager/wp/single.html:1876
 msgid "User password"
 msgstr ""
 
-#: templates/manager/wp/single.html:1902
+#: templates/manager/wp/single.html:1899
 msgid "Clone website"
 msgstr ""
 
-#: templates/manager/wp/single.html:1913
+#: templates/manager/wp/single.html:1910
 msgid "Cloning..."
 msgstr ""
 
-#: templates/manager/wp/single.html:1919
+#: templates/manager/wp/single.html:1916
 msgid "Cloning process started... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1934
+#: templates/manager/wp/single.html:1931
 msgid "Clone Complete"
 msgstr ""
 
-#: templates/manager/wp/single.html:1937
+#: templates/manager/wp/single.html:1934
 msgid "Try Again"
 msgstr ""
 
-#: templates/manager/wp/single.html:1942
+#: templates/manager/wp/single.html:1939
 msgid "Retry Clone"
 msgstr ""
 
-#: templates/manager/wp/single.html:2031
+#: templates/manager/wp/single.html:2028
 msgid "Detach WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:2070
+#: templates/manager/wp/single.html:2067
 msgid "Uninstall WordPress and delete all website files and the database."
 msgstr ""
 
-#: templates/manager/wp/single.html:2072
+#: templates/manager/wp/single.html:2069
 msgid ""
 "All WordPress data will be permanently deleted. There is no coming back "
 "after you press delete."
 msgstr ""
 
-#: templates/manager/wp/single.html:2081
+#: templates/manager/wp/single.html:2078
 msgid "Uninstall WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:2110
+#: templates/manager/wp/single.html:2107
 msgid "WordPress uninstall process started. Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:2117
+#: templates/manager/wp/single.html:2114
 msgid "WordPress uninstalled successfully."
 msgstr ""
 
-#: templates/manager/wp/single.html:2284
+#: templates/manager/wp/single.html:2281
 msgid "MariaDB version:"
 msgstr ""
 
-#: templates/manager/wp/single.html:2345
+#: templates/manager/wp/single.html:2341
 msgid "Update in progress..."
 msgstr ""
 
-#: templates/manager/wp/single.html:2352
+#: templates/manager/wp/single.html:2348
 msgid "WordPress updated successfully."
 msgstr ""
 
-#: templates/manager/wp/single.html:2536
+#: templates/manager/wp/single.html:2532
 msgid "Database and Files Backup"
 msgstr ""
 
-#: templates/manager/wp/single.html:2538
+#: templates/manager/wp/single.html:2534
 msgid "Database Backup"
 msgstr ""
 
-#: templates/manager/wp/single.html:2542
+#: templates/manager/wp/single.html:2538
 msgid "Unknown Backup Type"
 msgstr ""
 
-#: templates/manager/wp/single.html:2555
+#: templates/manager/wp/single.html:2551
 msgid ""
 "No options selected to backup. Please ensure that at least one of the "
 "Database or Files is selected."
 msgstr ""
 
-#: templates/manager/wp/single.html:2563
+#: templates/manager/wp/single.html:2559
 msgid "Generating Backup..."
 msgstr ""
 

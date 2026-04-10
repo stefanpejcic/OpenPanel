@@ -215,9 +215,16 @@ if PORT != 2087:
 
 bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
-calculated_workers = multiprocessing.cpu_count() * 2 + 1
-max_workers = 4
-workers = min(calculated_workers, max_workers)
+
+cpu_count = multiprocessing.cpu_count()
+if cpu_count <= 2:
+    print(f"Using a single worker for OpenAdmin as server has <=2 cpu cores available.")
+    workers = 1
+else:
+    calculated_workers = cpu_count * 2 + 1
+    max_workers = 4
+    workers = min(calculated_workers, max_workers)
+    print(f"Using {workers} workers for OpenAdmin as server has >2 cpu cores available.")
 
 # Use gevent worker class
 worker_class = 'gevent'

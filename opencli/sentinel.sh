@@ -217,12 +217,20 @@ docker_containers_status() {
         _docker_check_after_restart "$svc" "$title"
       fi ;;
     openpanel_dns)
-      if ls /etc/bind/zones/*.zone &>/dev/null; then
-        cd /root && docker --context=default compose up -d bind9 &>/dev/null
-        _docker_check_after_restart "$svc" "$title"
+      enabled_modules_line=$(grep '^enabled_modules=' "$CONF_FILE")
+      if [[ "$enabled_modules_line" == *"dns"* ]]; then
+          if ls /etc/bind/zones/*.zone &>/dev/null; then
+              cd /root
+              docker --context=default compose up -d bind9 &>/dev/null
+              _docker_check_after_restart "$svc" "$title"
+          else
+              ((WARN--))
+              echo "  - No DNS zones; bind9 not needed."
+          fi
       else
-        ((WARN--)); echo "  - No DNS zones; bind9 not needed."
-      fi ;;
+          ((WARN--))
+          echo "  - DNS module not enabled; bind9 not starting."
+      fi
     caddy)
       if ls /etc/openpanel/caddy/domains &>/dev/null; then
         cd /root && docker --context=default compose up -d caddy &>/dev/null

@@ -166,9 +166,17 @@ if DOMAIN and ssl_cert_path:
 # Performance
 bind = [f"0.0.0.0:2083"]
 backlog = 2048
-calculated_workers = multiprocessing.cpu_count() * 2 + 1
-max_workers = 10
-workers = min(calculated_workers, max_workers)
+
+cpu_count = multiprocessing.cpu_count()
+if cpu_count <= 2:
+    print(f"Using a single worker for OpenPanel as server has <=2 cpu cores available.")
+    workers = 1
+else:
+    calculated_workers = cpu_count * 2 + 1
+    max_workers = 4
+    workers = min(calculated_workers, max_workers)
+    print(f"Using {workers} workers for OpenPanel as server has >2 cpu cores available.")
+
 worker_class = 'gthread'
 worker_connections = 1000
 timeout = 360

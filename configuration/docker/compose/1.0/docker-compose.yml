@@ -34,7 +34,7 @@ services:
       - db
       
   openresty:
-    image: openresty/openresty:${OPENRESTY_VERSION:-bullseye-fat}
+    image: openresty/openresty:${OPENRESTY_VERSION:-alpine}
     container_name: openresty
     restart: unless-stopped
     ports:

@@ -5,7 +5,7 @@
 # Usage: opencli websites-all
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 08.04.2026
+# Last Modified: 09.04.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
