@@ -49,6 +49,7 @@ const Roadmap: React.FC = () => {
                         <li>Autoinstallers for popular CMS/scripts.</li>
                         <li>backup restore gui pages</li>
                         <li>ImunifyAV page for end-users.</li>
+                        <li>MCP Support</li>
                         <li>Ubuntu 26 support</li>
                         <li>Export OpenAdmin settings</li>
                         <li>Ongoing improvements in container isolation.</li>
