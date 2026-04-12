@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 10.04.2026
+# Last Modified: 11.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -176,8 +176,7 @@ format_commands() {
 
 get_server_ipv4(){
 	# Get server ipv4
-	current_ip=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com" || \
-                 curl --silent --max-time 2 -4 "https://ifconfig.me")
+	current_ip=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com" || curl --silent --max-time 2 -4 "https://ifconfig.me")
 
 	if [ -z "$current_ip" ]; then
 	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
@@ -194,9 +193,8 @@ get_server_ipv4(){
 	    }
 
 	if ! is_valid_ipv4 "$current_ip"; then
-	        log "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
+	    log "Invalid or private IPv4 address: $current_ip. OpenPanel requires a public IPv4 address to bind Nginx configuration files."
 	fi
-
 }
 
 
@@ -204,13 +202,13 @@ PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
 key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
 
 get_users_count_on_destination() {
-	  user_count_query="SELECT COUNT(*) FROM users"
+	user_count_query="SELECT COUNT(*) FROM users"
     user_count=$($SSH_CMD "mysql --defaults-extra-file=$config_file -D $mysql_database -e \"$user_count_query\" -sN")
  
-        if [ $? -ne 0 ]; then
-            log "[✘] ERROR: Unable to check users from remote server. Is OpenPanel installed?"
-            exit 1
-        fi
+    if [ $? -ne 0 ]; then
+        log "[✘] ERROR: Unable to check users from remote server. Is OpenPanel installed?"
+        exit 1
+    fi
 
     if [ -n "$key_value" ]; then
     :
@@ -685,31 +683,33 @@ else
     owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain': " '{print $2}')
     
     if [ -z "$owner" ]; then
-	    	# add domain on remote
-	        $SSH_CMD "opencli domains-add $domain $USERNAME --docroot $docroot --php_version $php_version --skip_caddy --skip_vhost --skip_containers --skip_dns"
-	        if [ $? -ne 0 ]; then
-		    log "[✘] ERROR: Failed to import domain $domain"
-		    exit 1
-		fi
+	    # add domain on remote
+	    $SSH_CMD "opencli domains-add $domain $USERNAME --docroot $docroot --php_version $php_version --skip_caddy --skip_vhost --skip_containers --skip_dns"
+	    if [ $? -ne 0 ]; then
+	       log "[✘] ERROR: Failed to import domain $domain"
+		   exit 1
+	    fi
     
-	        DOMAIN_CADDY_CONF="/etc/openpanel/caddy/domains/$domain.conf"
-	        if [ -f "$DOMAIN_CADDY_CONF" ]; then
-				eval $RSYNC_CMD $DOMAIN_CADDY_CONF ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/domains/
+	    DOMAIN_CADDY_CONF="/etc/openpanel/caddy/domains/$domain.conf"
+	    if [ -f "$DOMAIN_CADDY_CONF" ]; then
+			eval $RSYNC_CMD $DOMAIN_CADDY_CONF ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/domains/
+			if [[ "$LIVE_TRANSFER" == true ]]; then
+			   # https://github.com/stefanpejcic/OpenPanel/issues/897
+		       sed -E -i 's|reverse_proxy (https?://)[^ ]+|reverse_proxy \1'"$REMOTE_HOST"'|g' "$DOMAIN_CADDY_CONF"
+			fi
 		fi
 	
-	
-	        DOMAIN_CADDY_LOG="/var/log/caddy/domlogs/$domain"
-	        if [ -f "$DOMAIN_CADDY_LOG" ]; then
-				eval $RSYNC_CMD $DOMAIN_CADDY_LOG ${REMOTE_USER}@${REMOTE_HOST}:/var/log/caddy/domlogs/
+	    DOMAIN_CADDY_LOG="/var/log/caddy/domlogs/$domain"
+	    if [ -f "$DOMAIN_CADDY_LOG" ]; then
+			eval $RSYNC_CMD $DOMAIN_CADDY_LOG ${REMOTE_USER}@${REMOTE_HOST}:/var/log/caddy/domlogs/
 		fi
 	
-	        DOMAIN_CADDY_WAF="/var/log/caddy/coraza_waf/$domain.log"
-	        if [ -f "$DOMAIN_CADDY_WAF" ]; then
-				eval $RSYNC_CMD $DOMAIN_CADDY_WAF ${REMOTE_USER}@${REMOTE_HOST}:/var/log/caddy/coraza_waf/
+	    DOMAIN_CADDY_WAF="/var/log/caddy/coraza_waf/$domain.log"
+	    if [ -f "$DOMAIN_CADDY_WAF" ]; then
+			eval $RSYNC_CMD $DOMAIN_CADDY_WAF ${REMOTE_USER}@${REMOTE_HOST}:/var/log/caddy/coraza_waf/
 		fi
 
 		DOMAIN_ZONE_FILE="/etc/bind/zones/$domain.zone"
-
 		if [ -f "$DOMAIN_ZONE_FILE" ]; then
 		    eval $RSYNC_CMD "$DOMAIN_ZONE_FILE" ${REMOTE_USER}@${REMOTE_HOST}:/etc/bind/zones/
       
@@ -719,11 +719,11 @@ else
 grep -q "$domain" /etc/bind/named.conf.local || \
 echo 'zone "$domain" IN { type master; file "/etc/bind/zones/$domain.zone"; };' >> /etc/bind/named.conf.local
 EOF
-# Ako je live transfer, uradi isto i lokalno
-if [[ "$LIVE_TRANSFER" == true ]]; then
-    sync_local_dns_zone "$domain"
-    update_zone_file "/etc/bind/zones/$domain.zone"
-fi
+
+            if [[ "$LIVE_TRANSFER" == true ]]; then
+                sync_local_dns_zone "$domain"
+                update_zone_file "/etc/bind/zones/$domain.zone"
+            fi
 		fi
 
 		DOMAIN_CADDY_SSL="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain"
@@ -731,22 +731,23 @@ fi
 		eval $RSYNC_CMD $DOMAIN_CADDY_SSL ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/
 		fi
 
-
 		DOMAIN_CADDY_CUSTOM_SSL="/etc/openpanel/caddy/ssl/custom/$domain"
 		if [ -d "$DOMAIN_CADDY_CUSTOM_SSL" ]; then
 			eval $RSYNC_CMD $DOMAIN_CADDY_CUSTOM_SSL ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/ssl/custom/
 		fi
+
  	fi
  done <<< "$ALL_DOMAINS"
 
-docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
-cd /root && docker --context default compose up -d bind9  >/dev/null 2>&1
- 
+ docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
+ cd /root && docker --context default compose up -d bind9  >/dev/null 2>&1
+
+ if [[ "$LIVE_TRANSFER" == true ]]; then
+   docker --context default exec caddy caddy reload >/dev/null 2>&1
  fi
 
+fi
 }
-
-
 
 
 

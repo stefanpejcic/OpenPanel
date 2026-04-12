@@ -67,6 +67,7 @@ services:
   openpanel:
     image: openpanel/openpanel-ui:${VERSION}
     container_name: openpanel
+    hostname: openpanel
     depends_on:
       - openpanel_mysql
       - openpanel_redis
