@@ -11,6 +11,7 @@
 # Created:                 11.07.2023
 # Last Modified:           15.04.2026
 ################################################################################
+# shellcheck disable=SC2015
 
 GREEN='\033[0;32m'; YELLOW='\033[0;33m'; RED='\033[0;31m'; RESET='\033[0m'
 export TERM=xterm-256color
@@ -150,7 +151,7 @@ check_requirements() {
     [[ "$(id -u)" == "0" ]] || die 1 "You must be root to run this script."
     [[ "$(uname)" != "Darwin" ]] || die 1 "macOS is not supported."
 
-    if [[ -f /.dockerenv || -f /run/.containerenv || -n "$(tr '\0' '\n' < /proc/1/environ | grep -i '^container=')" ]]; then
+	if [[ -f /.dockerenv || -f /run/.containerenv ]] || { tr '\0' '\n' < /proc/1/environ | grep -qi '^container='; }; then
         die 1 "Running inside a container is not supported."
     fi
 
@@ -182,6 +183,7 @@ detect_installed_panels() {
 
 detect_os_and_package_manager() {
     [[ -f /etc/os-release ]] || die 1 "Cannot detect OS: /etc/os-release not found."
+	# shellcheck disable=SC1091
     . /etc/os-release
     OS_ID="${ID,,}"
     OS_VERSION_ID="${VERSION_ID:-}"
@@ -385,9 +387,7 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/p
         command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || PYTHON_BIN="python3"
     fi
 
-    if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
-        run $PACKAGE_MANAGER install -y python3-venv python3.12-venv || true
-    fi
+	[[ "$PACKAGE_MANAGER" == "apt-get" ]] && run "$PACKAGE_MANAGER" install -y python3-venv python3.12-venv || :
 
     $PYTHON_BIN --version &>/dev/null && ok "Python is available." || die 1 "Python installation failed."
     export PYTHON_BIN
@@ -427,8 +427,9 @@ install_openadmin() {
         sed -i "/# openadmin/,/# roundcube/ s/:[0-9]\+/:$ADMIN_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
     fi
 
-    cd "$dir"
+    cd "$dir" || die 1 "Failed to open $dir"
     ${PYTHON_BIN:-python3} -m venv "${dir}venv"
+	# shellcheck disable=SC1090
     source "${dir}venv/bin/activate"
     pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt >/dev/null 2>&1 || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages >/dev/null 2>&1
 
@@ -473,6 +474,7 @@ docker() {
 }
 EOF
     fi
+	# shellcheck disable=SC1090
     source ~/.bashrc || true
 
     systemctl start docker
@@ -484,7 +486,7 @@ EOF
     local mysql_cnf="/etc/my.cnf"
     local root_pw; root_pw=$(openssl rand -base64 -hex 9)
 
-    cd /root
+    cd /root || die 1 "No read access to /root"
     rm -f "$mysql_cnf" .env
     cp "${ETC_DIR}docker/compose/docker-compose.yml" /root/docker-compose.yml
     cp "${ETC_DIR}docker/compose/.env"               /root/.env
@@ -507,16 +509,15 @@ EOF
     [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
     if [[ "$OS_ID" == "debian" ]]; then
         run apt install -y apparmor apparmor-utils
-        local ver_id; ver_id=$(grep '^VERSION_ID=' /etc/os-release | cut -d= -f2 | tr -d '"')
         [[ "$OS_VERSION_ID" == "13" ]] && grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
     fi
 
     [[ "$REPAIR" == true ]] && {
-		cd /root && run docker compose down
+		run docker compose down
 		run docker --context default volume rm root_openadmin_mysql
 	}
 
-	cd /root && run docker compose up -d openpanel_mysql
+	run docker compose up -d openpanel_mysql
 
     local cid; cid=$(docker compose ps -a -q openpanel_mysql)
     [[ -n "$cid" ]] || die 1 "MySQL container not found after docker compose up."
@@ -673,7 +674,7 @@ generate_ssl() {
 
 configure_waf() {
     touch "${ETC_DIR}caddy/coraza_rules.conf"
-    opencli waf $( [[ "$CORAZA" == true ]] && echo enable || echo disable ) > /dev/null 2>&1
+	opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
 }
 
 setup_redis() { install -d -m 777 /tmp/redis; }
@@ -778,6 +779,7 @@ create_admin_account() {
     if [[ "$SET_ADMIN_USERNAME" == true ]]; then
         new_username="$custom_username"
     else
+		# shellcheck disable=SC1091,SC2154
         wget --inet4-only --timeout=3 --tries=2 -q -O /tmp/generate.sh https://raw.githubusercontent.com/stefanpejcic/random-username-generator/refs/heads/main/generator.sh 2>/dev/null && source /tmp/generate.sh && new_username="$random_name" || new_username="admin"
     fi
 
@@ -869,6 +871,7 @@ setup_progress_bar() {
         echo "Neither wget nor curl found."; exit 1
     fi
     [[ -f progress_bar.sh ]] || { echo "Failed to download progress_bar.sh"; exit 1; }
+	# shellcheck disable=SC1091
     source progress_bar.sh
 }
 
