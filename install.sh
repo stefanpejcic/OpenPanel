@@ -711,8 +711,12 @@ configure_imunifyav() {
 }
 
 configure_ssh() {
+    ln -sf "${ETC_DIR}ssh/admin_welcome.sh" /etc/profile.d/welcome.sh
+    chmod +x /etc/profile.d/welcome.sh
     [[ -f /etc/ssh/sshd_config ]] || return
     sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/" /etc/ssh/sshd_config
+	[[ -f /etc/pam.d/sshd ]] && sed -i '/pam_motd\.so/s/^/#/' /etc/pam.d/sshd
+
     if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
         grep -q "^DebianBanner no" /etc/ssh/sshd_config || echo "DebianBanner no" >> /etc/ssh/sshd_config
     fi
@@ -771,9 +775,6 @@ start_user_panel() {
 }
 
 create_admin_account() {
-    ln -sf "${ETC_DIR}ssh/admin_welcome.sh" /etc/profile.d/welcome.sh
-    chmod +x /etc/profile.d/welcome.sh
-
     if [[ "$SET_ADMIN_USERNAME" == true ]]; then
         new_username="$custom_username"
     else
@@ -845,12 +846,6 @@ run_post_install() {
     fi
 }
 
-send_install_log() {
-    exec > /dev/tty 2>&1
-    opencli report --public >> "$LOG_FILE" && curl -4 --max-time 15 -k -s -F "file=@/root/$LOG_FILE" https://support.openpanel.org/install_logs.php >/dev/null 2>&1
-    exec > >(tee -a "$LOG_FILE") 2>&1
-}
-
 support_message() {
     line
     cat <<MSG
@@ -866,10 +861,10 @@ MSG
 
 setup_progress_bar() {
     local url="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
-    if command -v wget &>/dev/null; then
-        wget --timeout=5 --tries=3 --inet4-only "$url" -O progress_bar.sh >/dev/null 2>&1
-    elif command -v curl &>/dev/null; then
+    if command -v curl &>/dev/null; then
         curl -4 --max-time 5 -s "$url" -o progress_bar.sh >/dev/null 2>&1
+	elif command -v wget &>/dev/null; then
+        wget --timeout=5 --tries=3 --inet4-only "$url" -O progress_bar.sh >/dev/null 2>&1
     else
         echo "Neither wget nor curl found."; exit 1
     fi
@@ -935,15 +930,12 @@ echo -e "Starting OpenPanel installation process..."
 start=$(date +%s)
 setup_progress_bar
 run_installation
-end=$(date +%s)
-duration=$((end - start))
+duration=$(($(date +%s) - start))
 minutes=$((duration / 60))
 seconds=$((duration % 60))
 support_message
-send_install_log
 create_admin_account
 run_post_install
-
 ) 200>/root/openpanel_install.lock
 
 rm -f /root/openpanel_install.lock
