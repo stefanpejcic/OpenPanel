@@ -925,7 +925,6 @@ parse_args "$@"
 [[ -r /root && -w /root ]] || { echo "No read/write access to /root."; exit 1; }
 get_server_ipv4
 set_panel_version
-detect_os_and_package_manager
 print_header
 check_requirements
 detect_installed_panels
