@@ -14,8 +14,7 @@
 # shellcheck disable=SC2015
 
 GREEN='\033[0;32m'; YELLOW='\033[0;33m'; RED='\033[0;31m'; RESET='\033[0m'
-export TERM=xterm-256color
-export DEBIAN_FRONTEND=noninteractive
+export TERM=xterm-256color DEBIAN_FRONTEND=noninteractive
 
 # defaults
 PANEL_VERSION=""
