@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.53\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-14 00:27+0200\n"
+"POT-Creation-Date: 2026-04-15 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -139,8 +139,8 @@ msgstr ""
 #: modules/website_builder.py:157 modules/website_builder.py:298
 #: modules/websites.py:51 modules/websites.py:248 modules/websites.py:309
 #: modules/websites.py:471 modules/websites.py:555 modules/websites.py:1007
-#: modules/wordpress.py:627 modules/wordpress.py:982 modules/wordpress.py:1096
-#: modules/wordpress.py:1736
+#: modules/wordpress.py:627 modules/wordpress.py:985 modules/wordpress.py:1099
+#: modules/wordpress.py:1739
 msgid "You do not own this domain."
 msgstr ""
 
@@ -367,7 +367,7 @@ msgstr ""
 #: modules/files/ftp.py:87 templates/cache/service.html:26
 #: templates/domains/ssl.html:61 templates/files/ftp.html:13
 #: templates/manager/python_node_apps.html:72
-#: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:98
+#: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:76
 #: templates/partials/_service_js.html:35 templates/psql/pgadmin.html:85
 #: templates/psql/remote_psql.html:96 templates/system/services.html:26
 msgid "Unknown"
@@ -454,7 +454,7 @@ msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:423 modules/mautic.py:589 modules/website_builder.py:43
-#: modules/wordpress.py:960 modules/wordpress.py:1089
+#: modules/wordpress.py:963 modules/wordpress.py:1092
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -491,8 +491,8 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:107 modules/mysql.py:315 modules/mysql.py:525
-#: modules/mysql.py:709 modules/postgresql.py:80 modules/postgresql.py:578
+#: modules/mysql.py:107 modules/mysql.py:325 modules/mysql.py:540
+#: modules/mysql.py:737 modules/postgresql.py:80 modules/postgresql.py:578
 msgid "Database name is required."
 msgstr ""
 
@@ -501,28 +501,33 @@ msgstr ""
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:178 modules/mysql.py:305 modules/mysql.py:564
-#: modules/mysql.py:601 modules/mysql.py:702 modules/postgresql.py:164
+#: modules/mysql.py:185 modules/mysql.py:315 modules/mysql.py:579
+#: modules/mysql.py:622 modules/mysql.py:729 modules/postgresql.py:164
 #: modules/postgresql.py:627 modules/postgresql.py:713
 msgid "User name is required."
 msgstr ""
 
-#: modules/mysql.py:189 modules/postgresql.py:186
+#: modules/mysql.py:195 modules/postgresql.py:186
 msgid "This username is not allowed."
 msgstr ""
 
-#: modules/mysql.py:217 modules/postgresql.py:207
+#: modules/mysql.py:200 modules/mysql.py:345 modules/mysql.py:592
+#: modules/mysql.py:635 modules/mysql.py:754
+msgid "Invalid host format."
+msgstr ""
+
+#: modules/mysql.py:227 modules/postgresql.py:207
 #: templates/mysql/mysql_user.html:163 templates/mysql/users.html:67
 #: templates/psql/psql_user.html:164 templates/psql/users.html:64
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:224 modules/mysql.py:608 modules/mysql.py:720
+#: modules/mysql.py:234 modules/mysql.py:630 modules/mysql.py:749
 #: modules/postgresql.py:229 modules/postgresql.py:735
 msgid "This is a system username that can not be edited."
 msgstr ""
 
-#: modules/mysql.py:227 modules/postgresql.py:232 templates/files/ftp.html:109
+#: modules/mysql.py:237 modules/postgresql.py:232 templates/files/ftp.html:109
 #: templates/mysql/password.html:168 templates/mysql/root_password.html:154
 #: templates/mysql/users.html:105 templates/psql/password.html:163
 #: templates/psql/users.html:115
@@ -530,45 +535,45 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: modules/mysql.py:241 modules/postgresql.py:246
+#: modules/mysql.py:251 modules/postgresql.py:246
 msgid "Wizard"
 msgstr ""
 
-#: modules/mysql.py:325
+#: modules/mysql.py:335
 msgid "At least one privilege must be selected."
 msgstr ""
 
-#: modules/mysql.py:330
+#: modules/mysql.py:340
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:370 modules/postgresql.py:289 templates/psql/assign.html:8
+#: modules/mysql.py:385 modules/postgresql.py:289 templates/psql/assign.html:8
 #: templates/psql/assign.html:68
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:375 modules/postgresql.py:297
+#: modules/mysql.py:390 modules/postgresql.py:297
 #: templates/mysql/remove.html:62 templates/psql/remove.html:62
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:460 templates/dashboard/dashboard.html:152
+#: modules/mysql.py:475 templates/dashboard/dashboard.html:152
 #: templates/dashboard/dashboard.html:165 templates/dashboard/usage.html:62
-#: templates/files/backup_restore.html:36
+#: templates/files/backup_restore.html:36 templates/mysql/databases.html:9
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:513 modules/postgresql.py:505
+#: modules/mysql.py:528 modules/postgresql.py:505
 #: templates/dashboard/dashboard.html:153
-#: templates/dashboard/dashboard.html:166
+#: templates/dashboard/dashboard.html:166 templates/mysql/users.html:11
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:571
+#: modules/mysql.py:587
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:716
+#: modules/mysql.py:745
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -693,7 +698,7 @@ msgstr ""
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:492 modules/website_builder.py:246 modules/wordpress.py:1558
+#: modules/pm2.py:492 modules/website_builder.py:246 modules/wordpress.py:1561
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
@@ -1014,57 +1019,57 @@ msgstr ""
 msgid "Failed to apply hardening rules to the website - please try again"
 msgstr ""
 
-#: modules/wordpress.py:770
+#: modules/wordpress.py:773
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:971
+#: modules/wordpress.py:974
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:1021
+#: modules/wordpress.py:1024
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:1050
+#: modules/wordpress.py:1053
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:1057
+#: modules/wordpress.py:1060
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:1069
+#: modules/wordpress.py:1072
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1112
+#: modules/wordpress.py:1115
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1117
+#: modules/wordpress.py:1120
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1120
+#: modules/wordpress.py:1123
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1317 modules/wordpress.py:1535
+#: modules/wordpress.py:1320 modules/wordpress.py:1538
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1346 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1349 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1500
+#: modules/wordpress.py:1503
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1570 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1573 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1871,7 +1876,7 @@ msgid "Starting"
 msgstr ""
 
 #: templates/cache/service.html:11 templates/docker/containers.html:333
-#: templates/mysql/phpmyadmin.html:66 templates/mysql/remote_mysql.html:85
+#: templates/mysql/phpmyadmin.html:66 templates/mysql/remote_mysql.html:63
 #: templates/psql/pgadmin.html:72 templates/psql/remote_psql.html:83
 #: templates/system/services.html:11
 msgid "Disabled"
@@ -1904,14 +1909,14 @@ msgid "Dead"
 msgstr ""
 
 #: templates/cache/service.html:43 templates/dashboard/twofa.html:11
-#: templates/mysql/phpmyadmin.html:71 templates/mysql/remote_mysql.html:90
+#: templates/mysql/phpmyadmin.html:71 templates/mysql/remote_mysql.html:68
 #: templates/psql/pgadmin.html:77 templates/psql/remote_psql.html:88
 #: templates/system/services.html:44
 msgid "Click to Enable"
 msgstr ""
 
 #: templates/cache/service.html:43 templates/mysql/phpmyadmin.html:56
-#: templates/mysql/remote_mysql.html:75 templates/psql/pgadmin.html:62
+#: templates/mysql/remote_mysql.html:53 templates/psql/pgadmin.html:62
 #: templates/psql/remote_psql.html:73 templates/system/services.html:44
 msgid "Click to Disable"
 msgstr ""
@@ -1921,7 +1926,7 @@ msgstr ""
 #: templates/domains/domains.html:90 templates/domains/domains.html:193
 #: templates/domains/logs.html:176 templates/domains/logs.html:218
 #: templates/domains/ssl.html:28 templates/manager/wp/single.html:1113
-#: templates/mysql/phpmyadmin.html:40 templates/mysql/remote_mysql.html:59
+#: templates/mysql/phpmyadmin.html:40 templates/mysql/remote_mysql.html:37
 #: templates/psql/pgadmin.html:46 templates/psql/remote_psql.html:57
 #: templates/system/services.html:71 templates/system/waf.html:51
 #: templates/system/waf_domain.html:30 templates/user/active_sessions.html:54
@@ -1941,15 +1946,15 @@ msgid "IP and Port for accessing the service."
 msgstr ""
 
 #: templates/cache/service.html:81 templates/mysql/phpmyadmin.html:263
-#: templates/mysql/remote_mysql.html:121 templates/mysql/remote_mysql.html:144
+#: templates/mysql/remote_mysql.html:99 templates/mysql/remote_mysql.html:122
 #: templates/psql/pgadmin.html:208 templates/psql/remote_psql.html:119
 #: templates/psql/remote_psql.html:141
 msgid "Server:"
 msgstr ""
 
 #: templates/cache/service.html:85 templates/manager/pm2_install.html:120
-#: templates/mysql/phpmyadmin.html:276 templates/mysql/remote_mysql.html:125
-#: templates/mysql/remote_mysql.html:148 templates/psql/pgadmin.html:212
+#: templates/mysql/phpmyadmin.html:276 templates/mysql/remote_mysql.html:103
+#: templates/mysql/remote_mysql.html:126 templates/psql/pgadmin.html:212
 #: templates/psql/remote_psql.html:123 templates/psql/remote_psql.html:145
 msgid "Port:"
 msgstr ""
@@ -2097,7 +2102,7 @@ msgid "Manage phpMyAdmin"
 msgstr ""
 
 #: templates/dashboard/dashboard.html:159
-#: templates/dashboard/dashboard.html:171
+#: templates/dashboard/dashboard.html:171 templates/mysql/remote_mysql.html:11
 msgid "Remote Access"
 msgstr ""
 
@@ -4000,7 +4005,7 @@ msgstr ""
 msgid "VirtualHosts"
 msgstr ""
 
-#: templates/files/backup_settings.html:94 templates/mysql/databases.html:9
+#: templates/files/backup_settings.html:94
 msgid "MySQL Databases"
 msgstr ""
 
@@ -4698,6 +4703,7 @@ msgstr ""
 
 #: templates/files/filemanager/new_file.html:38
 #: templates/files/filemanager/new_folder.html:32
+#: templates/mysql/mysql_user.html:8
 msgid "Create"
 msgstr ""
 
@@ -6831,15 +6837,16 @@ msgstr ""
 msgid "Select file to upload"
 msgstr ""
 
-#: templates/mysql/mysql_user.html:8
-msgid "Create MySQL User"
+#: templates/mysql/mysql_user.html:8 templates/mysql/processlist.html:55
+#: templates/user/activity.html:47
+msgid "User"
 msgstr ""
 
 #: templates/mysql/mysql_user.html:9
 msgid ""
-"Create a new MySQL user with a unique username and password to securely "
-"manage access and permissions for interacting with databases or the MySQL"
-" server."
+"Create a new user with a unique username and password to securely manage "
+"access and permissions for interacting with databases or the database "
+"server."
 msgstr ""
 
 #: templates/mysql/mysql_user.html:159 templates/mysql/password.html:164
@@ -6853,7 +6860,7 @@ msgstr ""
 
 #: templates/mysql/new.html:9
 msgid ""
-"Create a new MySQL database to store and organize data, providing a "
+"Create a new database to store and organize data, providing a "
 "foundational structure for applications to manage and retrieve "
 "information efficiently."
 msgstr ""
@@ -6878,12 +6885,12 @@ msgstr ""
 msgid "Contact your hosting provider"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:51 templates/mysql/remote_mysql.html:70
+#: templates/mysql/phpmyadmin.html:51 templates/mysql/remote_mysql.html:48
 #: templates/psql/pgadmin.html:57 templates/psql/remote_psql.html:68
 msgid "Enabled"
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:84 templates/mysql/remote_mysql.html:103
+#: templates/mysql/phpmyadmin.html:84 templates/mysql/remote_mysql.html:81
 #: templates/psql/pgadmin.html:90 templates/psql/remote_psql.html:101
 msgid "Click to Restart"
 msgstr ""
@@ -6967,10 +6974,6 @@ msgstr ""
 msgid "ID"
 msgstr ""
 
-#: templates/mysql/processlist.html:55 templates/user/activity.html:47
-msgid "User"
-msgstr ""
-
 #: templates/mysql/processlist.html:61
 msgid "DB"
 msgstr ""
@@ -6988,46 +6991,42 @@ msgstr ""
 msgid "State"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:11
-msgid "Remote MySQL Access"
-msgstr ""
-
 #: templates/mysql/remote_mysql.html:12
 msgid ""
-"Enable remote access to connect to a MySQL database on this server from a"
-" another (remote) device or location over the internet."
+"Enable remote access to connect to a database on this server from a "
+"another (remote) device or location over the internet."
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:21 templates/mysql/remote_mysql.html:35
-msgid "Disable Remote MySQL Access"
+#: templates/mysql/remote_mysql.html:17
+msgid "Disable Remote Database Access"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:28 templates/mysql/remote_mysql.html:41
-msgid "Enable Remote MySQL Access"
+#: templates/mysql/remote_mysql.html:17
+msgid "Enable Remote Database Access"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:60
-msgid "Remote access to MySQL is currently:"
+#: templates/mysql/remote_mysql.html:38
+msgid "Remote access to databases is currently:"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:115 templates/psql/remote_psql.html:113
+#: templates/mysql/remote_mysql.html:93 templates/psql/remote_psql.html:113
 msgid "Remote"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:116 templates/mysql/remote_mysql.html:139
+#: templates/mysql/remote_mysql.html:94 templates/mysql/remote_mysql.html:117
 #: templates/psql/remote_psql.html:114 templates/psql/remote_psql.html:136
 msgid "Connection info when connecting to database"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:116 templates/psql/remote_psql.html:114
+#: templates/mysql/remote_mysql.html:94 templates/psql/remote_psql.html:114
 msgid "from a remote server"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:138 templates/psql/remote_psql.html:135
+#: templates/mysql/remote_mysql.html:116 templates/psql/remote_psql.html:135
 msgid "Local"
 msgstr ""
 
-#: templates/mysql/remote_mysql.html:139 templates/psql/remote_psql.html:136
+#: templates/mysql/remote_mysql.html:117 templates/psql/remote_psql.html:136
 msgid "from a local server"
 msgstr ""
 
@@ -7048,10 +7047,6 @@ msgstr ""
 
 #: templates/mysql/root_password.html:9
 msgid "Change MySQL root user password and restart mysql service."
-msgstr ""
-
-#: templates/mysql/users.html:11
-msgid "MySQL Users"
 msgstr ""
 
 #: templates/mysql/users.html:12 templates/psql/users.html:12

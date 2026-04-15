@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 11.04.2026
+# Last Modified: 14.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -85,6 +85,7 @@ Examples:
     opencli update                 # Update if auto-update is enabled
     opencli update --check         # Check for available updates
     opencli update --force         # Force update regardless of settings
+    opencli update --panel beta    # Update OpenPanel UI to the nightly-release
 
 EOF
     exit 1
@@ -624,7 +625,7 @@ update_openpanel() {
             if [[ "$current_version" != *-beta ]]; then
                 sed -i "s/^VERSION=.*/VERSION=\"${current_version}-beta\"/" /root/.env
             fi
-        fi        
+        fi
     fi
     docker --context=default compose up -d openpanel --force-recreate --pull always
 }

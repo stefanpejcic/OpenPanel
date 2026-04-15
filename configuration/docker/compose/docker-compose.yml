@@ -152,9 +152,8 @@ services:
 
   # FTP
   openadmin_ftp:
-    build:
-      context: /etc/openpanel/ftp/    
     container_name: openadmin_ftp
+    image: openpanel/vsftpd
     restart: always
     ports:
       - "21:21"
