@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.53\n"
+"Project-Id-Version: OpenPanel 1.7.54\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-15 00:27+0200\n"
+"POT-Creation-Date: 2026-04-16 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -263,7 +263,7 @@ msgstr ""
 #: modules/domains.py:236 templates/cache/service.html:95
 #: templates/dashboard/dashboard.html:111
 #: templates/dashboard/dashboard.html:139 templates/dashboard/usage.html:39
-#: templates/domains/domains.html:12 templates/partials/_header.html:63
+#: templates/domains/domains.html:12 templates/partials/_header.html:62
 msgid "Domains"
 msgstr ""
 
@@ -1850,11 +1850,11 @@ msgstr ""
 msgid "Remote PostgreSQL"
 msgstr ""
 
-#: templates/base.html:176
+#: templates/base.html:166
 msgid "Dashboard"
 msgstr ""
 
-#: templates/base.html:181 templates/user/favorites.html:10
+#: templates/base.html:171 templates/user/favorites.html:10
 msgid "Favorites"
 msgstr ""
 
@@ -1999,7 +1999,7 @@ msgstr ""
 #: templates/files/filemanager.html:202 templates/manager/mautic.html:181
 #: templates/manager/python_node_apps.html:1147
 #: templates/manager/websitebuilder.html:356
-#: templates/manager/wp/single.html:217 templates/partials/_header.html:32
+#: templates/manager/wp/single.html:217 templates/partials/_header.html:31
 msgid "Files"
 msgstr ""
 
@@ -2008,19 +2008,19 @@ msgid "Cache"
 msgstr ""
 
 #: templates/dashboard/dashboard.html:116 templates/emails/accounts.html:10
-#: templates/files/backup_settings.html:92 templates/partials/_header.html:58
+#: templates/files/backup_settings.html:92 templates/partials/_header.html:57
 msgid "Emails"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:118 templates/partials/_header.html:83
+#: templates/dashboard/dashboard.html:118 templates/partials/_header.html:82
 msgid "Docker"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:119 templates/partials/_header.html:88
+#: templates/dashboard/dashboard.html:119 templates/partials/_header.html:87
 msgid "Advanced"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:120 templates/partials/_header.html:93
+#: templates/dashboard/dashboard.html:120 templates/partials/_header.html:92
 msgid "Account"
 msgstr ""
 
@@ -2044,7 +2044,7 @@ msgstr ""
 
 #: templates/dashboard/dashboard.html:131 templates/files/backups.html:10
 #: templates/manager/mautic.html:130 templates/manager/mautic.html:153
-#: templates/manager/wp/single.html:183 templates/partials/_header.html:98
+#: templates/manager/wp/single.html:183 templates/partials/_header.html:97
 msgid "Backups"
 msgstr ""
 
@@ -2170,7 +2170,7 @@ msgstr ""
 msgid "Change MySQL Type"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:214 templates/partials/_header.html:48
+#: templates/dashboard/dashboard.html:214 templates/partials/_header.html:47
 msgid "Services"
 msgstr ""
 
@@ -7103,55 +7103,55 @@ msgstr ""
 msgid "Create DB, User, and Grant Privileges"
 msgstr ""
 
-#: templates/partials/_header.html:53
+#: templates/partials/_header.html:52
 msgid "Caching"
 msgstr ""
 
-#: templates/partials/_header.html:68
+#: templates/partials/_header.html:67
 msgid "MySQL"
 msgstr ""
 
-#: templates/partials/_header.html:73
+#: templates/partials/_header.html:72
 msgid "PostgreSQL"
 msgstr ""
 
-#: templates/partials/_header.html:78
+#: templates/partials/_header.html:77
 msgid "PHP"
 msgstr ""
 
-#: templates/partials/_header.html:103
+#: templates/partials/_header.html:102
 msgid "Sites"
 msgstr ""
 
-#: templates/partials/_header.html:141 templates/partials/_header.html:201
+#: templates/partials/_header.html:140 templates/partials/_header.html:200
 msgid "Left-click to add to Favorites"
 msgstr ""
 
-#: templates/partials/_header.html:168 templates/partials/_header.html:245
+#: templates/partials/_header.html:167 templates/partials/_header.html:244
 msgid "Right-click to remove from Favorites"
 msgstr ""
 
-#: templates/partials/_header.html:177
+#: templates/partials/_header.html:176
 msgid "This page is not in your favorites! Left-click to add it."
 msgstr ""
 
-#: templates/partials/_header.html:193
+#: templates/partials/_header.html:192
 msgid "Successfully removed from favorites!"
 msgstr ""
 
-#: templates/partials/_header.html:206
+#: templates/partials/_header.html:205
 msgid "Failed to remove favorite."
 msgstr ""
 
-#: templates/partials/_header.html:213
+#: templates/partials/_header.html:212
 msgid "This page is already in your favorites! Right-click to remove it."
 msgstr ""
 
-#: templates/partials/_header.html:237
+#: templates/partials/_header.html:236
 msgid "Successfully added to favorites!"
 msgstr ""
 
-#: templates/partials/_header.html:251
+#: templates/partials/_header.html:250
 msgid "Failed to add favorite."
 msgstr ""
 

@@ -230,7 +230,7 @@ docker_containers_status() {
       else
           ((WARN--))
           echo "  - DNS module not enabled; bind9 not starting."
-      fi
+      fi ;;
     caddy)
       if ls /etc/openpanel/caddy/domains &>/dev/null; then
         cd /root && docker --context=default compose up -d caddy &>/dev/null
@@ -597,7 +597,8 @@ check_if_panel_domain_and_ns_resolve_to_server() {
   fi
 
   local GNS="8.8.8.8"
-  local SERVER_IP; SERVER_IP=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com")
+  local SERVER_IP; SERVER_IP=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" || curl --silent --max-time 1 -4 "https://ifconfig.me/ip")
+  
   [[ -z "$SERVER_IP" ]] && \
     SERVER_IP=$(ip -4 addr show scope global | awk '/inet /{split($2,a,"/"); print a[1]; exit}')
 

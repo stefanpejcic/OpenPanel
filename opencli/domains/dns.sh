@@ -5,7 +5,7 @@
 # Usage: opencli domains-dns <DOMAIN>
 # Author: Stefan Pejcic
 # Created: 31.08.2024
-# Last Modified: 14.04.2026
+# Last Modified: 15.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -180,8 +180,6 @@ add_subdomains_to_zone() {
     return
   fi
 
-  SERVER_IP=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || echo "127.0.0.1")
-
   subdomains=$(mysql -Nse "SELECT domain_url FROM domains WHERE domain_url LIKE '%.${apex_domain}';")
 
   if [[ -z "$subdomains" ]]; then
@@ -297,29 +295,21 @@ create_dns_zone_for_domain(){
 
 	whoowns_output=$(opencli domains-whoowns "$domain_name")
 	owner=$(echo "$whoowns_output" | awk -F "Owner of '$domain_name': " '{print $2}')
-	IP_SERVER_1="https://ip.openpanel.com"
-	IP_SERVER_2="https://ip.openpanel.com"
-	IP_SERVER_3="https://ip.openpanel.com"
-	
-	 
+
 	if [ -n "$owner" ]; then
 	    USERNAME="$owner"
 	    JSON_FILE="/etc/openpanel/openpanel/core/users/$USERNAME/ip.json"
-	    SERVER_IP=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
-	        if [ -e "$JSON_FILE" ]; then
-	            current_ip=$(jq -r '.ip' "$JSON_FILE")
-	        else
-	            current_ip="$SERVER_IP"
-	        fi
-     	else
-	        current_ip=$(curl --silent --max-time 2 -4 $IP_SERVER_1 || wget --timeout=2 --tries=1 -qO- $IP_SERVER_2 || curl --silent --max-time 2 -4 $IP_SERVER_3)
+		if [ -e "$JSON_FILE" ]; then
+			current_ip=$(jq -r '.ip' "$JSON_FILE")
+		else
+			current_ip="$SERVER_IP"
+		fi
+     else
+	    current_ip="$SERVER_IP"
 		if [ -z "$current_ip" ]; then
 		    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
 		fi     
-     	fi
-
-
-
+     fi
 
     
     # Replace placeholders in the template
@@ -423,6 +413,7 @@ while [[ $# -gt 0 ]]; do
       fi
       ;; 
     create)
+	  SERVER_IP=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || curl --silent --max-time 2 -4 https://ifconfig.me/ip)
       create_dns_zone_for_domain "$2"
       add_subdomains_to_zone "$2"
       shift 2
@@ -444,6 +435,7 @@ while [[ $# -gt 0 ]]; do
       fi
       ;; 
     default)
+	  SERVER_IP=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || curl --silent --max-time 2 -4 https://ifconfig.me/ip)
       if [[ -n "$2" && -n "$3" ]]; then
         restore_zone_to_default "$2" "$3"
         shift 3

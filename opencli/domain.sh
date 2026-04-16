@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 14.04.2026
+# Last Modified: 15.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -73,9 +73,8 @@ is_valid_ipv4() {
 # Get server's public IPv4 address
 get_server_ipv4() {
     local current_ip=""
-    
+	current_ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null || curl --silent --max-time 1 -4 "https://ifconfig.me/ip")
 
-	current_ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null)
 	if is_valid_ipv4 "$current_ip"; then
 		echo "$current_ip"
 		return 0

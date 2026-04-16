@@ -5,7 +5,7 @@
 # Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
 # Created: 27.01.2026
-# Last Modified: 14.04.2026
+# Last Modified: 15.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -60,8 +60,7 @@ urlencode() {
 }
 
 get_public_ip() {
-	local ip_server="https://ip.openpanel.com"
-    ip=$(curl --silent --max-time 2 -4 $ip_server || wget --timeout=2 --tries=1 -qO- $ip_server)
+	ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" || curl --silent --max-time 1 -4 "https://ifconfig.me/ip")
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
     fi

@@ -3,10 +3,10 @@
 # Script Name: report.sh
 # Description: Generate a system report and send it to OpenPanel support team.
 # Usage: opencli report
-#        opencli report [--public] [--cli] [--csf]
+#        opencli report [--public]
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 14.04.2026
+# Last Modified: 15.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -36,8 +36,6 @@ RESET='\033[0m'
 
 # ======================================================================
 # Variables
-cli_flag=false
-csf_flag=false
 upload_flag=false
 non_interactive=false
 
@@ -55,22 +53,9 @@ create_local_path() {
 parse_args() {
 	while [[ $# -gt 0 ]]; do
 	    case $1 in
-	        --non-interactive)
-	            non_interactive=true
-	            ;;
-	        --cli)
-	            cli_flag=true
-	            ;;
-	        --csf)
-	            csf_flag=true
-	            ;; 
-	        --public|--link|--upload)
-	            upload_flag=true
-	            ;; 
-	        *)
-	            echo "Unknown option: $1"
-	            exit 1
-	            ;;
+	        --non-interactive) non_interactive=true ;;
+	        --public|--link|--upload) upload_flag=true ;; 
+	        *) echo "Unknown option: $1"; exit 1 ;;
 	    esac
 	    shift
 	done
@@ -86,7 +71,7 @@ run_command() {
   local tmpfile="$3"
   {
     echo "# $label:"
-    eval "$cmd" 2>&1
+	timeout 3s bash -c "$cmd" 2>&1
     echo "# ======================================================================"
     echo
   } >> "$tmpfile"
@@ -124,22 +109,6 @@ collect_docker_info() {
   run_command "docker info" "Collecting host docker information" "$tmp"
 }
 
-collect_opencli_commands() {
-  local tmp="$1"
-  if [ "$cli_flag" = true ]; then
-    echo "=== OpenCLI Information ===" >> "$tmp"
-    run_command "opencli commands" "Checking available OpenCLI Commands" "$tmp"
-  fi
-}
-
-collect_csf_rules() {
-  local tmp="$1"
-  if [ "$csf_flag" = true ]; then
-    echo "=== Sentinel Firewall Rules ===" >> "$tmp"
-    run_command "csf -l" "Collecting Firewall Rules" "$tmp"
-  fi
-}
-
 collect_openpanel_settings() {
   local tmp="$1"
   echo "=== OpenPanel Settings ===" >> "$tmp"
@@ -172,6 +141,7 @@ collect_services_status() {
   run_command "systemctl status csf"                     "Checking if Sentinel Firewall (CSF) is running" "$tmp"
 }
 
+# NOT USED ANYMORE
 collect_user_services() {
   local tmp="$1"
   echo "=== Docker Context Services ===" >> "$tmp"
@@ -199,7 +169,7 @@ collect_user_services() {
 # deterministic regardless of which job finishes first. The temp files are
 # merged in order at the end.
 
-export output_file cli_flag csf_flag non_interactive
+export output_file non_interactive
 
 # Ordered list – index determines merge order
 ORDERED_FUNCS=(
@@ -208,13 +178,10 @@ ORDERED_FUNCS=(
   collect_mysql_info
   collect_admin_info
   collect_docker_info
-  collect_opencli_commands
-  collect_csf_rules
   collect_openpanel_settings
   collect_openadmin_settings
   collect_mysql_information
   collect_services_status
-  collect_user_services
 )
 
 TMPDIR_REPORT=$(mktemp -d)
@@ -227,13 +194,10 @@ export -f run_command \
            collect_mysql_info \
            collect_admin_info \
            collect_docker_info \
-           collect_opencli_commands \
-           collect_csf_rules \
            collect_openpanel_settings \
            collect_openadmin_settings \
            collect_mysql_information \
-           collect_services_status \
-           collect_user_services
+           collect_services_status
 
 # Wrapper called by xargs: receives "<index> <func_name>"
 run_indexed() {
@@ -255,7 +219,7 @@ main() {
   done
 
   if [ "$non_interactive" = false ]; then
-    echo "Collecting system information (parallel)..."
+    echo "Collecting system information..."
   fi
 
   # Run all collectors in parallel (up to nproc jobs at once)

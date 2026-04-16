@@ -5,7 +5,7 @@
 # Usage: opencli websites-user <USERNAME> [--type=] [--domains=] [--json]
 # Author: Stefan Pejcic
 # Created: 08.07.2024
-# Last Modified: 14.04.2026
+# Last Modified: 15.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

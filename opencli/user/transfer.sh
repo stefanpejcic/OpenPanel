@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 14.04.2026
+# Last Modified: 15.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -176,7 +176,7 @@ format_commands() {
 
 get_server_ipv4(){
 	# Get server ipv4
-	current_ip=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com" || curl --silent --max-time 2 -4 "https://ifconfig.me")
+	current_ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" || curl --silent --max-time 1 -4 "https://ifconfig.me")
 
 	if [ -z "$current_ip" ]; then
 	    current_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
