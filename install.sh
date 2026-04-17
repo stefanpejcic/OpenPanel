@@ -638,8 +638,17 @@ EOF
     if [[ -n "$new_hostname" ]]; then
         if [[ "$new_hostname" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
             sed -i "s/example\.net/$new_hostname/g" "${ETC_DIR}caddy/Caddyfile"
+		elif [[ "$new_hostname" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+			# in case of --retry
+	        if grep -q "# START HOSTNAME IP #" "${ETC_DIR}caddy/Caddyfile"; then
+	            sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "${ETC_DIR}caddy/Caddyfile"
+	        else
+				local admin_port=$(opencli admin port) # TEST!
+	            local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
+	            sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "${ETC_DIR}caddy/Caddyfile"
+	        fi
         else
-            echo "Hostname '$new_hostname' is not a valid FQDN. OpenAdmin will use IP: $SERVER_IPV4_ADDRESS"
+            echo "Hostname '$new_hostname' is not a valid FQDN nor an IPv4 address. OpenAdmin will use detected IP: $SERVER_IPV4_ADDRESS"
         fi
     fi
 }
@@ -647,10 +656,17 @@ EOF
 generate_ssl() {
     [[ "$SET_HOSTNAME_NOW" != true ]] && return
     local hostname
+	# 1. check for domain
     hostname=$(awk '/# START HOSTNAME DOMAIN #/{f=1;next}/# END HOSTNAME DOMAIN #/{f=0}f{print $1;exit}' "${ETC_DIR}caddy/Caddyfile")
-    [[ -z "$hostname" || "$hostname" == "example.net" ]] && return
+	
+	if [[ -z "$hostname" || "$hostname" == "example.net" ]]; then
+		# 2. check fir IP for shortlived LE ssl
+	    hostname=$(awk '/# START HOSTNAME IP #/{f=1;next}/# END HOSTNAME IP #/{f=0}f{print $1;exit}' "${ETC_DIR}caddy/Caddyfile")
+	fi
+	# 3. if neither, skip ssl generation
+	[[ -z "$hostname" || "$hostname" == "example.net" ]] && return
 
-    if [[ "$USE_SELFSIGNED" == true ]]; then
+	if [[ "$USE_SELFSIGNED" == true ]]; then
         local ssl_dir="${ETC_DIR}caddy/ssl/custom/$hostname"
         mkdir -p "$ssl_dir"
         openssl genrsa -out "$ssl_dir/$hostname.key" 2048
