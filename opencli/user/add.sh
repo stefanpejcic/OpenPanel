@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 15.04.2026
+# Last Modified: 16.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -1287,7 +1287,7 @@ if [[ -n "$sql_type" ]]; then
 fi
 
 
-mkdir -p /home/$username/sockets/{mysqld,postgres,redis,memcached}
+mkdir -p /home/$username/sockets/{mysqld,postgres,redis,valkey,memcached}
 cp /etc/openpanel/mysql/user.cnf /home/${username}/custom.cnf
 cp /etc/openpanel/postgres/postgresql.conf /home/${username}/postgre_custom.conf
 cp /etc/openpanel/nginx/user-nginx.conf /home/$username/nginx.conf  # added in 1.2.2
@@ -1422,7 +1422,13 @@ send_email_to_new_user() {
 				port="$(opencli port)"
 				login_url="$PROTOCOL://$DOMAIN:$port/login"
 
-                email_notification "New OpenPanel account information" "OpenPanel URL: $login_url | username: $username  | password: $password"
+				email_password="$password"
+				email_plaintext_passwords=$(grep -E "^email_plaintext_passwords=" "$PANEL_CONFIG_FILE" | awk -F= '{print $2}')
+			    if [ "$email_plaintext_passwords" = "no" ]; then
+			        email_password="********"
+			    fi
+
+                email_notification "New OpenPanel account information" "OpenPanel URL: $login_url | username: $username  | password: $email_password"
             else
                 echo "$email is not a valid email address. Login infomration can not be sent to the user."
             fi       

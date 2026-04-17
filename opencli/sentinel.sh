@@ -32,14 +32,16 @@ LOGIN=$(validate_yes_no "$(ini_get login)")
 SSH_LOGIN=$(validate_yes_no "$(ini_get ssh)")
 SERVICES=$(ini_get services); SERVICES="${SERVICES:-admin,docker,mysql,csf,panel}"
 
+LIMIT=$(validate_yes_no "$(ini_get limit)")
+ATTACK=$(validate_yes_no "$(ini_get attack)")
+MAX_TOTAL_CONN=$(validate_number "$(ini_get max_total_conn)"   5000)
+MAX_CONN_PER_IP=$(validate_number "$(ini_get max_conn_per_ip)" 500)
+
 LOAD_THRESHOLD=$(validate_number "$(ini_get load)" 20)
 CPU_THRESHOLD=$(validate_number  "$(ini_get cpu)"  90)
 RAM_THRESHOLD=$(validate_number  "$(ini_get ram)"  85)
 DISK_THRESHOLD=$(validate_number "$(ini_get du)"   85)
 SWAP_THRESHOLD=$(validate_number "$(ini_get swap)" 40)
-
-MAX_TOTAL_CONN=$(validate_number "$(ini_get max_total_conn)"   5000)
-MAX_CONN_PER_IP=$(validate_number "$(ini_get max_conn_per_ip)" 500)
 
 is_unread_message_present() { grep -qF "UNREAD $1" "$LOG_FILE"; }
 
@@ -185,6 +187,7 @@ docker_containers_status() {
 
   if _docker_ps | grep -wq "$svc"; then
     if [[ "$svc" == "caddy" ]]; then
+      CADDY_IS_ACTIVE=true
       if _caddy_http_ok; then
         ((PASS++)); echo -e "\e[32m[✔]\e[0m caddy is active and responding."
       else
@@ -284,6 +287,82 @@ check_services() {
       named)  docker_containers_status  'openpanel_dns' 'BIND9 not active — DNS broken!'               ;;
     esac
   done
+}
+
+check_oom_logs() {
+  if [[ "$LIMIT" == "no" ]]; then
+    ((WARN++)); echo "[!] OOM errors check disabled."; return
+  fi
+
+  local FLAG_FILE="/tmp/check_oom_logs.last_run"
+  local NOW EPOCH_LAST DIFF
+
+  NOW=$(date +%s)
+  if [[ -f "$FLAG_FILE" ]]; then
+    EPOCH_LAST=$(cat "$FLAG_FILE" 2>/dev/null)
+    DIFF=$((NOW - EPOCH_LAST))
+    [[ "$DIFF" -lt 86400 ]] && return
+  fi
+
+  echo "$NOW" > "$FLAG_FILE"
+
+  local TODAY LOG
+  TODAY=$(date +%Y-%m-%d)
+  if [[ -f /var/log/syslog ]]; then
+    LOG="/var/log/syslog"
+  elif [[ -f /var/log/messages ]]; then
+    LOG="/var/log/messages"
+  else
+    return
+  fi
+
+  local SYSTEM_COUNT=0
+  local USER_COUNT=0
+  local SYSTEM_MSG=""
+  local USER_MSG=""
+
+  while read -r line; do
+    uid=$(echo "$line" | sed -n 's/.*UID:\([0-9]\+\).*/\1/p')
+    [[ -z "$uid" ]] && continue
+
+    if [[ "$uid" -eq 0 ]]; then
+        ((SYSTEM_COUNT++))
+        SYSTEM_MSG+=$' | '"$line"
+    elif [[ "$uid" -ge 1000 ]]; then
+        ((USER_COUNT++))
+        user=$(getent passwd "$uid" | cut -d: -f1)
+        [[ -z "$user" ]] && continue
+        USER_MSG+=$' | '"$user: $line"
+    fi
+
+  done < <(grep "Memory cgroup out of memory: Killed process" "$LOG" | grep "^$TODAY")
+
+  if [[ "$SYSTEM_COUNT" -eq 0 && "$USER_COUNT" -eq 0 ]]; then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No OOM errors detected."; return
+  else
+    ((FAIL++)); STATUS=2
+  fi
+
+  title_parts=()
+
+  [[ "$SYSTEM_COUNT" -gt 0 ]] && title_parts+=("System: $SYSTEM_COUNT")
+  [[ "$USER_COUNT" -gt 0 ]] && title_parts+=("User: $USER_COUNT")
+
+  title="OOM Alert - $TODAY - $(IFS=' | '; echo "${title_parts[*]}")"
+  message=""
+
+  if [[ "$SYSTEM_COUNT" -gt 0 ]]; then
+    message+="$SYSTEM_COUNT system service(s) killed by OOM in the last 24 hours $SYSTEM_MSG"
+    echo -e "\e[31m[✘]\e[0m $SYSTEM_COUNT system service(s) killed by OOM in the last 24 hours"
+  fi
+
+  if [[ "$USER_COUNT" -gt 0 ]]; then
+    message+="$USER_COUNT user process(es) killed by OOM in the last 24 hours $USER_MSG"
+    echo -e "\e[31m[✘]\e[0m $USER_COUNT user process(es) killed by OOM in the last 24 hours"
+  fi
+
+  [[ -n "$WEBHOOK_URL" ]] && webhook_notification "$title" "$message"
+  write_notification "$title" "$message"
 }
 
 check_new_logins() {
@@ -473,40 +552,87 @@ check_cpu_usage() {
   fi
 }
 
-
 check_https_traffic() {
-  local PORT=443
-
-  local CONNS IP_COUNTS TOTAL_CONN SYN_RECV
-  CONNS=$(ss -tn state established "( sport = :443T )" | tail -n +2)
-  TOTAL_CONN=$(echo "$CONNS" | wc -l)
-
-  IP_COUNTS=$(echo "$CONNS" | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -nr)
-
+  if [[ "$ATTACK" == "no" ]]; then
+    ((WARN++)); echo "[!] Website traffic checks are disabled."; return
+  fi
+  if [[ "$CADDY_IS_ACTIVE" != "true" ]]; then
+    ((WARN++)); echo "[!] Skipping website traffic checks because Caddy is not running."; return
+  fi
   local ALERT=0
-  while read -r COUNT IP; do
-    if [ "$COUNT" -ge "$MAX_CONN_PER_IP" ]; then
-      echo -e "\e[31m[ALERT]\e[0m High connections from $IP: $COUNT"
-      write_notification "High traffic from $IP" "Port 443: $COUNT connections from $IP"
+  local ALL_CONNS
+  ALL_CONNS=$(ss -tn '( sport = :80 or sport = :443 )' | tail -n +2)
+
+  # SYN flooding
+  while read -r COUNT PORT; do
+    if (( COUNT >= 1000 )); then
+      echo -e "\e[31m[✘]\e[0m Possible SYN flood on :$PORT — $COUNT in SYN_RECV"
+      write_notification "Possible SYN flood" "Port $PORT: $COUNT connections in SYN_RECV state"
       ALERT=1
     fi
-  done <<< "$IP_COUNTS"
+  done < <(awk '/SYN-RECV/{split($4,a,":"); print a[length(a)]}' <<< "$ALL_CONNS" | sort | uniq -c | awk '{print $1, $2}')
 
-  if [ "$TOTAL_CONN" -ge "$MAX_TOTAL_CONN" ]; then
-    echo -e "\e[31m[ALERT]\e[0m High total connections: $TOTAL_CONN"
-    write_notification "High total connections" "Port 443: $TOTAL_CONN total connections"
+  # Established per-IP-per-port
+  while read -r COUNT PORT IP; do
+    if (( COUNT >= MAX_CONN_PER_IP )); then
+      echo -e "\e[31m[✘]\e[0m High connections from $IP on port $PORT: $COUNT"
+  
+      DOMAINS=$(
+        find /var/log/caddy/domlogs -type f -name "access.log" 2>/dev/null |
+        while read -r f; do
+  
+          if timeout 1s bash -c '
+            tail -n 200 "$1" | grep -q "$2"
+          ' _ "$f" "$IP"
+          then
+            echo "$f"
+          fi
+  
+        done | sed 's|/var/log/caddy/domlogs/||; s|/access\.log||' | sort -u | tr '\n' ', ' | sed 's/,$//'
+      )
+  
+      if [[ -n "$DOMAINS" ]]; then
+        echo -e "    \e[33m[→]\e[0m Domain hit: $DOMAINS"
+        write_notification "High traffic from $IP" "Port $PORT: $COUNT connections from $IP | Domains: $DOMAINS"
+      else
+        echo -e "    \e[33m[→]\e[0m No matching domain logs found, check manually with: 'grep -Rli --include=access.log 104.23.195.56 /var/log/caddy/domlogs/ | xargs -n1 dirname | xargs -n1 basename'"
+        write_notification "High traffic from $IP" "Port $PORT: $COUNT connections from $IP"
+      fi
+  
+      ALERT=1
+    fi
+  done < <(
+    awk '/ESTAB/{
+      split($4, a, ":")
+      port = a[length(a)]
+      peer = $5
+      if (match(peer, /^\[(.+)\]:[0-9]+$/, m)) {
+          ip = m[1]
+      } else {
+          n = split(peer, b, ":")
+          ip = b[1]
+      }
+      sub(/^::ffff:/, "", ip)
+      print port, ip
+    }' <<< "$ALL_CONNS" |
+    sort | uniq -c | awk '{print $1, $2, $3}'
+  )
+
+
+  # Total established
+  local TOTAL_CONN
+  TOTAL_CONN=$(awk '/ESTAB/' <<< "$ALL_CONNS" | wc -l)
+  if (( TOTAL_CONN >= MAX_TOTAL_CONN )); then
+    echo -e "\e[31m[✘]\e[0m High total connections: $TOTAL_CONN"
+    write_notification "High total connections" "$TOTAL_CONN total connections on ports 80/443"
     ALERT=1
   fi
 
-  SYN_RECV=$(ss -tn state syn-recv "( sport = :443 )" | tail -n +2 | wc -l)
-  if [ "$SYN_RECV" -ge 100 ]; then
-    echo -e "\e[31m[ALERT]\e[0m Possible SYN flood: $SYN_RECV connections in SYN_RECV"
-    write_notification "Possible SYN flood" "Port $PORT: $SYN_RECV connections in SYN_RECV state"
-    ALERT=1
+  if [[ $ALERT -eq 0 ]]; then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No unusual traffic detected on web ports (80|443)."
+  else
+    ((FAIL++)); STATUS=2
   fi
-
-  #echo "Top 10 IPs by connections:"
-  #echo "$IP_COUNTS" | head -10 | awk '{printf "%s connections → %s\n",$1,$2}'
 }
 
 check_swap_usage() {
@@ -704,6 +830,10 @@ echo "  Sentinel - OpenPanel server health monitor"
 hr
 echo "Checking services:"
 check_services
+check_oom_logs
+hr
+echo "Checking traffic:"
+check_https_traffic
 hr
 echo "Checking logins:"
 check_new_logins
@@ -715,7 +845,6 @@ check_system_load
 check_ram_usage
 check_cpu_usage
 check_swap_usage
-#check_https_traffic #TODO: test
 hr
 echo "Checking DNS:"
 check_if_panel_domain_and_ns_resolve_to_server

@@ -219,9 +219,10 @@ services:
       - db
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h localhost']
-      interval: 1s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 10
+      start_period: 30s
 
   mariadb:
     image: mariadb:${MYSQL_VERSION:-latest}
@@ -251,9 +252,10 @@ services:
       - db
     healthcheck:
       test: ['CMD-SHELL', 'mariadb-admin ping -h localhost']
-      interval: 1s
-      timeout: 5s
+      interval: 5s
+      timeout: 3s
       retries: 10
+      start_period: 30s
 
   phpmyadmin:
     container_name: phpmyadmin 
@@ -302,7 +304,7 @@ services:
       resources:
         limits:
           cpus: "${POSTGRES_CPU:-0.3}"
-          memory: "${POSTGRES_RAM:-0.3}"
+          memory: "${POSTGRES_RAM:-0.3G}"
           pids: 100
     networks:
       - db
@@ -328,7 +330,7 @@ services:
       resources:
         limits:
           cpus: "${PGADMIN_CPU:-0.1}"
-          memory: "${PGADMIN_RAM:-0.1}"
+          memory: "${PGADMIN_RAM:-0.1G}"
           pids: 100
     networks:
       - db
@@ -346,7 +348,7 @@ services:
       resources:
         limits:
           cpus: "${REDIS_CPU:-0.1}"
-          memory: "${REDIS_RAM-0.1G}" 
+          memory: "${REDIS_RAM:-0.1G}" 
           pids: 100
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -356,7 +358,29 @@ services:
       timeout: 5s
     networks:
       - www
-
+  
+  valkey:
+    image: valkey/valkey:${VALKEY_VERSION:-8.0-alpine}
+    container_name: valkey
+    restart: unless-stopped
+    user: "${USER_ID:-0}"
+    command: ["valkey-server", "--bind", "0.0.0.0", "--port", "6379"]
+    volumes:
+      - ./sockets/valkey:/var/run/valkey
+    deploy:
+      resources:
+        limits:
+          cpus: "${VALKEY_CPU:-0.1}"
+          memory: "${VALKEY_RAM:-0.1G}"
+          pids: 100
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+    networks:
+      - www
 
   elasticsearch:
     image: elasticsearch:${ELASTICSEARCH_VERSION:-9.3.2}
@@ -372,7 +396,7 @@ services:
       resources:
         limits:
           cpus: "${ELASTICSEARCH_CPU:-0.5}"
-          memory: "${ELASTICSEARCH_RAM-1G}" 
+          memory: "${ELASTICSEARCH_RAM:-1G}" 
           pids: 100
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
@@ -421,10 +445,10 @@ services:
       resources:
         limits:
           cpus: "${MEMCACHED_CPU:-0.1}"
-          memory: "${MEMCACHED_RAM-0.1G}" 
+          memory: "${MEMCACHED_RAM:-0.1G}" 
           pids: 100
     healthcheck:
-      test: ["CMD", "memcached", "-h"]
+      test: ["CMD-SHELL", "echo stats | nc -w1 127.0.0.1 11211 | grep -q STAT"]
       interval: 30s
       retries: 3
       start_period: 10s
@@ -811,7 +835,7 @@ networks:
   default:
     driver: bridge
     labels:
-      description: "This network is not used used and serves as a fallback."
+      description: "Used by phpmyadmin and serves as a fallback if no network is defined."
       purpose: "internal"
   www:
     driver: bridge
