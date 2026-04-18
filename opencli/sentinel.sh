@@ -1,14 +1,49 @@
 #!/bin/bash
+################################################################################
+# Script Name: sentinel.sh
+# Description: Check system services, traffic and resource usage.
+# Usage: opencli sentinel
+# Author: Stefan Pejcic
+# Created: 01.11.2023
+# Last Modified: 17.04.2026
+# Company: openpanel.com
+# Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+################################################################################
 
+# config
 readonly CONF_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
-readonly LOCK_FILE="/tmp/swap_cleanup.lock"
 readonly INI_FILE="/etc/openpanel/openadmin/config/notifications.ini"
 readonly LOG_FILE="/var/log/openpanel/admin/notifications.log"
-readonly DNS_STAMP="/tmp/sentinel_dns_last_run"
+
 readonly DISPLAY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 HOSTNAME=$(hostname)
 
-[ ! -f "$INI_FILE" ] && { echo "Error: INI file not found: $INI_FILE"; exit 1; }
+# lock files
+readonly LOCK_FILE_FOR_SWAP_CLEANUP="/tmp/sentinel.swap"
+readonly LOCK_FILE_FOR_DNS_CHECK="/tmp/sentinel.dns"
+readonly LOCK_FILE_FOR_OOM_CHECK="/tmp/sentinel.oom"
+readonly LOCK_FILE_FOR_DOCKER_PRUNE="/tmp/sentinel.docker"
+
+[ ! -f "$INI_FILE" ] && { echo "Error: OpenAdmin notifications settings file not found: $INI_FILE"; exit 1; }
+[ ! -f "$CONF_FILE" ] && { echo "Error: OpenPanel main configuration file not found: $CONF_FILE"; exit 1; }
 
 mkdir -p "$(dirname "$LOG_FILE")"
 [[ ! -f "$LOG_FILE" ]] && > "$LOG_FILE"
@@ -48,42 +83,39 @@ is_unread_message_present() { grep -qF "UNREAD $1" "$LOG_FILE"; }
 webhook_notification() {
   local title=$1 message=$2
   [[ -z "$WEBHOOK_URL" ]] && return
-
   local clean_msg=$(echo "$message" | sed 's/"/\\"/g' | tr '\n' ' ')
-  
   local payload="{\"text\": \"*${title}*\n${clean_msg}\", \"username\": \"OpenAdmin-$HOSTNAME\", \"content\": \"**${title}**\n${clean_msg}\"}"
-
-  curl -X POST -H "Content-Type: application/json" \
-       -d "$payload" \
-       --max-time 1 \
-       "$WEBHOOK_URL" >/dev/null 2>&1
+  curl -X POST -H "Content-Type: application/json" -d "$payload" --max-time 1 "$WEBHOOK_URL" >/dev/null 2>&1
 }
 
 email_notification() {
   local title=$1 message=$2
   local token; token=$(tr -dc 'a-zA-Z0-9' </dev/urandom | head -c 64)
-  awk -v t="$token" '/^mail_security_token=/{$0="mail_security_token="t} 1' \
-    "$CONF_FILE" > "${CONF_FILE}.tmp" && mv "${CONF_FILE}.tmp" "$CONF_FILE"
+  awk -v t="$token" '/^mail_security_token=/{$0="mail_security_token="t} 1' "$CONF_FILE" > "${CONF_FILE}.tmp" && mv "${CONF_FILE}.tmp" "$CONF_FILE"
 
   local domain; domain=$(opencli domain)
+  local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
+  local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
+  local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
+  local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
+
   local proto="http"
-  [[ "$domain" =~ ^[a-zA-Z0-9.-]+$ ]] && proto="https"
+  if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+      proto="https"
+  fi
 
   local auth_opt=""
-  if awk -F= '/^basic_auth=/{exit ($2=="yes")?0:1}' \
-      /etc/openpanel/openadmin/config/admin.ini 2>/dev/null; then
+  local admin_ini="/etc/openpanel/openadmin/config/admin.ini"  
+  if awk -F= '/^basic_auth=/{exit ($2=="yes")?0:1}' "$admin_ini" 2>/dev/null; then
     local u p
-    u=$(awk -F= '/^basic_auth_username=/{print $2; exit}' /etc/openpanel/openadmin/config/admin.ini)
-    p=$(awk -F= '/^basic_auth_password=/{print $2; exit}' /etc/openpanel/openadmin/config/admin.ini)
+    u=$(awk -F= '/^basic_auth_username=/{print $2; exit}' "$admin_ini")
+    p=$(awk -F= '/^basic_auth_password=/{print $2; exit}' "$admin_ini")
     auth_opt="--user ${u}:${p}"
   fi
 
   local admin_port resp
   admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
-  resp=$(curl -4 --max-time 5 -ksf -X POST "$proto://$domain:$admin_port/send_email" \
-    $auth_opt \
-    -F "transient=$token" -F "recipient=$EMAIL" \
-    -F "subject=$title"   -F "body=$message" 2>/dev/null)
+  resp=$(curl -4 --max-time 5 -ksf -X POST "$proto://$domain:$admin_port/send_email" $auth_opt -F "transient=$token" -F "recipient=$EMAIL" -F "subject=$title"   -F "body=$message" 2>/dev/null)
 
   case "$resp" in
     *'"error"'*)             echo "Error sending email: $resp" ;;
@@ -152,18 +184,15 @@ check_service_status() {
     fi
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m $svc is not active."
-    local log; log=$(journalctl -n 5 -u "$svc" 2>/dev/null | awk '{printf "%s|",$0}')
+    local log; log=$(journalctl -n 5 -u "$svc" 2>/dev/null | sed ':a;N;$!ba;s/\n/\\n/g')
     [[ -n "$log" ]] && write_notification "$title" "$log"
     systemctl restart "$svc"
-    systemctl is-active --quiet "$svc" \
-      && echo -e "\e[32m[✔]\e[0m $svc restarted." \
-      || echo -e "\e[31m[✘]\e[0m Failed to restart $svc."
+    systemctl is-active --quiet "$svc" && echo -e "\e[32m[✔]\e[0m $svc restarted." || echo -e "\e[31m[✘]\e[0m Failed to restart $svc."
   fi
 }
 
 _docker_ps()  { docker --context=default ps --format "{{.Names}}"; }
-_docker_log() { docker --context=default logs --tail 10 "$1" 2>&1 \
-                  | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n",$0}'; }
+_docker_log() { docker --context=default logs --tail 10 "$1" 2>&1 | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n",$0}'; }
 
 _caddy_http_ok() {
   local code
@@ -211,8 +240,7 @@ docker_containers_status() {
   ((WARN++))
   case "$svc" in
     openpanel)
-      local users; users=$(opencli user-list --json 2>/dev/null \
-        | awk -F'"' '/username/{print $4}' | grep -v SUSPENDED)
+      local users; users=$(opencli user-list --json 2>/dev/null | awk -F'"' '/username/{print $4}' | grep -v SUSPENDED)
       if [[ -z "$users" || "$users" == "No users." ]]; then
         ((WARN--)); echo "  - No users found; $svc not needed."
       else
@@ -254,6 +282,7 @@ mysql_docker_containers_status() {
       ((PASS++)); echo -e "\e[32m[✔]\e[0m MySQL container active and responding."
     else
       echo -e "\e[31m[✘]\e[0m MySQL running but not responding — restarting."
+      write_notification "MySQL service restarted!" "MySQL service running but not responding, attempting restart."
       cd /root && docker --context=default compose up -d openpanel_mysql &>/dev/null
     fi
   else
@@ -284,7 +313,7 @@ check_services() {
       docker) check_service_status      'docker'        'Docker not active — user websites down!'       ;;
       panel)  docker_containers_status  'openpanel'     'OpenPanel container not running!'              ;;
       mysql)  mysql_docker_containers_status                                                            ;;
-      named)  docker_containers_status  'openpanel_dns' 'BIND9 not active — DNS broken!'               ;;
+      named)  docker_containers_status  'openpanel_dns' 'BIND9 not active — DNS broken!'                ;;
     esac
   done
 }
@@ -294,17 +323,16 @@ check_oom_logs() {
     ((WARN++)); echo "[!] OOM errors check disabled."; return
   fi
 
-  local FLAG_FILE="/tmp/check_oom_logs.last_run"
   local NOW EPOCH_LAST DIFF
 
   NOW=$(date +%s)
-  if [[ -f "$FLAG_FILE" ]]; then
-    EPOCH_LAST=$(cat "$FLAG_FILE" 2>/dev/null)
+  if [[ -f "$LOCK_FILE_FOR_OOM_CHECK" ]]; then
+    EPOCH_LAST=$(cat "$LOCK_FILE_FOR_OOM_CHECK" 2>/dev/null)
     DIFF=$((NOW - EPOCH_LAST))
     [[ "$DIFF" -lt 86400 ]] && return
   fi
 
-  echo "$NOW" > "$FLAG_FILE"
+  echo "$NOW" > "$LOCK_FILE_FOR_OOM_CHECK"
 
   local TODAY LOG
   TODAY=$(date +%Y-%m-%d)
@@ -462,9 +490,8 @@ check_disk_usage() {
   local pct; pct=$(df --output=pcent / | awk 'NR==2{gsub(/%/,"",$1); print $1+0}')
   if (( pct > DISK_THRESHOLD )); then
     # Try cleanup if not done in last 24h
-    local flag_file="/tmp/docker_system_prune.lock"
-    if [ -f "$flag_file" ]; then
-      local age=$(( $(date +%s) - $(stat -c %Y "$flag_file") ))
+    if [ -f "$LOCK_FILE_FOR_DOCKER_PRUNE" ]; then
+      local age=$(( $(date +%s) - $(stat -c %Y "$LOCK_FILE_FOR_DOCKER_PRUNE") ))
       if [ "$age" -lt "$flag_tt" ]; then
         $DEBUG && echo "[$context] Skipping cleanup — ran ${age}s ago"
         write_notification "$title" "Disk usage: ${pct}% | Partitions: $(df -h | sort -r -k 5 -i | sed ':a;N;$!ba;s/\n/\\n/g')"
@@ -480,7 +507,7 @@ check_disk_usage() {
        context_name=$(basename "$context")
        timeout 15 docker --context="$context_name" system prune -f --filter "until=24h" > /dev/null 2>&1
     done
-    touch "$flag_file"
+    touch "$LOCK_FILE_FOR_DOCKER_PRUNE"
 
     local kb_after; kb_after=$(df / | awk 'NR==2 {print $3}')
     local freed_gb=$(( (kb_before - kb_after) / 1024 / 1024 ))
@@ -524,7 +551,8 @@ check_ram_usage() {
   if (( pct > RAM_THRESHOLD )); then
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m RAM ${pct}% > threshold ${RAM_THRESHOLD}%"
-    write_notification "$title" "Used RAM: ${used}MB / ${total}MB (${pct}%)"
+    local procs; procs=$(ps ax --sort=-%mem -o pid:7,pmem:6,comm:20 | head -10 | sed ':a;N;$!ba;s/\n/\\n/g')
+    write_notification "$title" "Used RAM: ${used}MB / ${total}MB (${pct}%) | $procs"
   else
     ((PASS++)); echo -e "\e[32m[✔]\e[0m RAM ${pct}% < threshold ${RAM_THRESHOLD}%"
   fi
@@ -545,7 +573,7 @@ check_cpu_usage() {
   if (( pct > CPU_THRESHOLD )); then
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m CPU ${pct}% > threshold ${CPU_THRESHOLD}%"
-    local procs; procs=$(ps ax --sort=-%cpu -o pid:7,pcpu:6,comm:20 | head -10 | awk '{printf "%s|",$0}')
+    local procs; procs=$(ps ax --sort=-%cpu -o pid:7,pcpu:6,comm:20 | head -10 | sed ':a;N;$!ba;s/\n/\\n/g')
     write_notification "$title" "CPU: ${pct}% | $procs"
   else
     ((PASS++)); echo -e "\e[32m[✔]\e[0m CPU ${pct}% < threshold ${CPU_THRESHOLD}%"
@@ -646,20 +674,20 @@ check_swap_usage() {
 
   if (( pct <= SWAP_THRESHOLD )); then
     ((PASS++)); echo -e "\e[32m[✔]\e[0m SWAP ${pct}% < threshold ${SWAP_THRESHOLD}%"
-    rm -f "$LOCK_FILE"; return
+    rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"; return
   fi
 
-  if [[ -f "$LOCK_FILE" ]]; then
-    local age=$(( $(date +%s) - $(date -r "$LOCK_FILE" +%s) ))
+  if [[ -f "$LOCK_FILE_FOR_SWAP_CLEANUP" ]]; then
+    local age=$(( $(date +%s) - $(date -r "$LOCK_FILE_FOR_SWAP_CLEANUP" +%s) ))
     if (( age <= 21600 )); then
       ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m SWAP cleanup already in progress. Skipping."; return
     fi
-    rm -f "$LOCK_FILE"
+    rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"
   fi
 
   echo -e "\e[31m[✘]\e[0m SWAP ${pct}% > threshold ${SWAP_THRESHOLD}%. Clearing..."
   write_notification "$title" "SWAP: ${pct}%. Cleanup starting."
-  touch "$LOCK_FILE"
+  touch "$LOCK_FILE_FOR_SWAP_CLEANUP"
 
   sync ; echo 3 > /proc/sys/vm/drop_caches
   swapoff -a && swapon -a
@@ -668,7 +696,7 @@ check_swap_usage() {
   read -r _ stotal2 sused2 _rest < <(free | awk '/^Swap:/')
   local pct2=$(( stotal2 > 0 ? sused2*100/stotal2 : 0 ))
   if (( pct2 < SWAP_THRESHOLD )); then
-    rm -f "$LOCK_FILE"
+    rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"
     write_notification "SWAP cleared — now ${pct2}%" "Sentinel cleared SWAP on $HOSTNAME."
     echo -e "\e[32m[✔]\e[0m SWAP cleared successfully. Now: ${pct2}%"
   else
@@ -698,13 +726,13 @@ check_if_panel_domain_and_ns_resolve_to_server() {
     ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m DNS check disabled."; return
   fi
 
-  if [[ -f "$DNS_STAMP" ]]; then
-    local age=$(( $(date +%s) - $(date -r "$DNS_STAMP" +%s) ))
+  if [[ -f "$LOCK_FILE_FOR_DNS_CHECK" ]]; then
+    local age=$(( $(date +%s) - $(date -r "$LOCK_FILE_FOR_DNS_CHECK" +%s) ))
     if (( age < 3600 )); then
       ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m DNS check skipped (last run $((age/60))m ago)."; return
     fi
   fi
-  touch "$DNS_STAMP"
+  touch "$LOCK_FILE_FOR_DNS_CHECK"
 
   local FORCED_DOMAIN; FORCED_DOMAIN=$(opencli domain 2>/dev/null)
   local CHECK_DOMAIN="no" CHECK_NS="no"

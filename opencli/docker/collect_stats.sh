@@ -1,33 +1,4 @@
 #!/bin/bash
-################################################################################
-# Script Name: collect_stats.sh
-# Description: Collect docker usage information for all users.
-# Usage: opencli docker-collect_stats
-# Author: Petar Curic, Stefan Pejcic
-# Created: 07.10.2023
-# Last Modified: 16.04.2026
-# Company: openpanel.com
-# Copyright (c) openpanel.com
-# 
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-# 
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-# 
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-# THE SOFTWARE.
-################################################################################
-
 OUTPUT_DIR="/etc/openpanel/openpanel/core/users"
 
 resource_usage_retention=$(grep -Eo "resource_usage_retention=[0-9]+" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2)
@@ -72,6 +43,16 @@ process_user() {
         awk "BEGIN {printf \"%.1f cores\", $pct/100}"
     }
 
+    to_h_bits() {
+        local num=$1
+        if   [ "$num" -gt 1000000000 ]; then awk "BEGIN {printf \"%.1fGbit\", $num/1000000000}"
+        elif [ "$num" -gt 1000000    ]; then awk "BEGIN {printf \"%.1fMbit\", $num/1000000}"
+        elif [ "$num" -gt 1000       ]; then awk "BEGIN {printf \"%.1fKbit\", $num/1000}"
+        else echo "${num}bit"
+        fi
+    }
+
+
     # CPU sample 1
     local CPU_STAT1=$(grep '^usage_usec' "$CGROUP/cpu.stat" | awk '{print $2}')
     local T1=$(date +%s%N)
@@ -92,6 +73,38 @@ process_user() {
     local FREE=$(( MEM_MAX - MEM_CURRENT ))
     local AVAILABLE=$(( FREE + BUFF_CACHE ))
     local MEMORY_USAGE_PCT=$(awk "BEGIN {printf \"%d\", ($USED / $MEM_MAX) * 100}")
+
+    # Bandwidth
+    local BW_LIMIT_BITS=0
+    local BW_USED_BYTES=0
+    local BW_USAGE_PCT=0
+    
+    local DOCKERD_PID
+    DOCKERD_PID=$(pgrep -u "$USER_NAME" -x dockerd 2>/dev/null | head -1)
+    if [[ -n "$DOCKERD_PID" ]]; then
+        local TC_OUTPUT
+        TC_OUTPUT=$(nsenter -t "$DOCKERD_PID" -n tc -s class show dev ifb0 2>/dev/null)
+        BW_USED_BYTES=$(echo "$TC_OUTPUT" | awk '/class htb 1:10/{found=1} found && /Sent/{print $2; exit}')
+        BW_LIMIT_BITS=$(echo "$TC_OUTPUT" | awk '/class htb 1:10/{
+            for(i=1;i<=NF;i++){
+                if($i=="ceil"){
+                    val=$(i+1)
+                    if(val~/Gbit/) { gsub(/Gbit/,"",val); val=val*1000000000 }
+                    else if(val~/Mbit/) { gsub(/Mbit/,"",val); val=val*1000000 }
+                    else if(val~/Kbit/) { gsub(/Kbit/,"",val); val=val*1000 }
+                    printf "%d", val; exit
+                }
+            }
+        }')
+
+        [[ -z "$BW_USED_BYTES" ]] && BW_USED_BYTES=0
+        [[ -z "$BW_LIMIT_BITS" ]] && BW_LIMIT_BITS=0
+
+        local BW_LIMIT_BYTES=$(( BW_LIMIT_BITS / 8 ))
+        if [[ "$BW_LIMIT_BYTES" -gt 0 ]]; then
+            BW_USAGE_PCT=$(awk "BEGIN {printf \"%d\", ($BW_USED_BYTES / $BW_LIMIT_BYTES) * 100}")
+        fi
+    fi
 
     # Sleep for CPU delta
     sleep 0.4
@@ -128,6 +141,10 @@ process_user() {
         [ "$MEMORY_USAGE_PCT" -ge 85 ] && WARN_MSG+="Memory at ${MEMORY_USAGE_PCT}%"
         [ "$MEMORY_USAGE_PCT" -ge 85 ] && [ "$CPU_LIMIT_PCT" -ge 85 ] && WARN_MSG+=", "
         [ "$CPU_LIMIT_PCT" -ge 85 ] && WARN_MSG+="CPU at ${CPU_LIMIT_PCT}%"
+        [ "$BW_USAGE_PCT" -ge 90 ] && {
+            [ -n "$WARN_MSG" ] && WARN_MSG+=", "
+            WARN_MSG+="Bandwidth at ${BW_USAGE_PCT}%"
+        }       
         WARN_MSG+=" — above threshold\""
     else
         WARN_MSG="null"
@@ -136,7 +153,7 @@ process_user() {
     local TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
     local current_usage
-    current_usage=$(echo "{\"timestamp\":\"$TIMESTAMP\",\"user\":\"$USER_NAME\",\"uid\":$UID_NUM,\"memory\":{\"total\":{\"bytes\":$MEM_MAX,\"human\":\"$(to_h $MEM_MAX)\"},\"used\":{\"bytes\":$USED,\"human\":\"$(to_h $USED)\"},\"free\":{\"bytes\":$FREE,\"human\":\"$(to_h $FREE)\"},\"buff_cache\":{\"bytes\":$BUFF_CACHE,\"human\":\"$(to_h $BUFF_CACHE)\"},\"available\":{\"bytes\":$AVAILABLE,\"human\":\"$(to_h $AVAILABLE)\"},\"usage_pct\":$MEMORY_USAGE_PCT},\"cpu\":{\"usage\":{\"pct\":$CPU_LIMIT_PCT,\"human\":\"$(cpu_human $CPU_LIMIT_PCT)\"},\"total\":{\"pct\":$CPU_MAX_PCT,\"human\":\"$(cpu_human $CPU_MAX_PCT)\"},\"server\":{\"pct\":$CPU_TOTAL_SERVER,\"human\":\"$(cpu_human $CPU_TOTAL_SERVER)\"}},\"warning\":$WARN_MSG}")
+    current_usage=$(echo "{\"timestamp\":\"$TIMESTAMP\",\"user\":\"$USER_NAME\",\"uid\":$UID_NUM,\"memory\":{\"total\":{\"bytes\":$MEM_MAX,\"human\":\"$(to_h $MEM_MAX)\"},\"used\":{\"bytes\":$USED,\"human\":\"$(to_h $USED)\"},\"free\":{\"bytes\":$FREE,\"human\":\"$(to_h $FREE)\"},\"buff_cache\":{\"bytes\":$BUFF_CACHE,\"human\":\"$(to_h $BUFF_CACHE)\"},\"available\":{\"bytes\":$AVAILABLE,\"human\":\"$(to_h $AVAILABLE)\"},\"usage_pct\":$MEMORY_USAGE_PCT},\"cpu\":{\"usage\":{\"pct\":$CPU_LIMIT_PCT,\"human\":\"$(cpu_human $CPU_LIMIT_PCT)\"},\"total\":{\"pct\":$CPU_MAX_PCT,\"human\":\"$(cpu_human $CPU_MAX_PCT)\"},\"server\":{\"pct\":$CPU_TOTAL_SERVER,\"human\":\"$(cpu_human $CPU_TOTAL_SERVER)\"}},\"bandwidth\":{\"limit\":{\"bits\":$BW_LIMIT_BITS,\"human\":\"$(to_h_bits $BW_LIMIT_BITS)\"},\"total_sent\":{\"bytes\":$BW_USED_BYTES,\"human\":\"$(to_h_bits $BW_USED_BYTES)\"},\"usage_pct\":$BW_USAGE_PCT},\"warning\":$WARN_MSG}")
 
     local usage_file="/home/$USER_NAME/resource_usage.txt"
     echo "$current_usage" >> "$usage_file"

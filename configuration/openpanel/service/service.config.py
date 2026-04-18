@@ -117,11 +117,7 @@ CADDY_CERT_DIRS = [
 def get_domain():
     try:
         result = subprocess.run(["opencli", "domain"], capture_output=True, text=True, check=True)
-        output = result.stdout.strip()
-        ip_pattern = re.compile(r"^(?:\d{1,3}\.){3}\d{1,3}$")
-        if ip_pattern.match(output):
-            return None
-        return output
+        return result.stdout.strip()
     except subprocess.CalledProcessError as e:
         print(f"Error running command: {e}")
         return None

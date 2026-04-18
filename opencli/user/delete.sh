@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 16.04.2026
+# Last Modified: 17.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

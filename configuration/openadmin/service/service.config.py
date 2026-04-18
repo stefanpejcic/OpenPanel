@@ -141,8 +141,11 @@ clear_openadmin_cache("/tmp/openadmin_cache")
 ##############
 def read_from_caddyfile():
     domain = None
+    ip = None
     port = 2087
-    in_block = False
+
+    in_domain_block = False
+    in_ip_block = False
     
     if not os.path.exists(CADDYFILE_PATH):
         print(f"Caddyfile does not exist at {CADDYFILE_PATH}. No SSL will be used.")
@@ -153,17 +156,39 @@ def read_from_caddyfile():
             for line in file:
                 line = line.strip()
 
+                # ---- DOMAIN BLOCK ----
                 if "# START HOSTNAME DOMAIN #" in line:
-                    in_block = True
+                    in_domain_block = True
                     continue
 
                 if "# END HOSTNAME DOMAIN #" in line:
-                    break
+                    in_domain_block = False
+                    continue
 
-                if in_block:
+                if in_domain_block:
                     match_domain = re.match(r"^([\w.-]+) \{", line)
                     if match_domain:
                         domain = match_domain.group(1)
+                        continue
+
+                    match_port = re.search(r"reverse_proxy\s+[\w.-]+:(\d+)", line)
+                    if match_port:
+                        port = int(match_port.group(1))
+                        continue
+
+                # ---- IP BLOCK ----
+                if "# START HOSTNAME IP #" in line:
+                    in_ip_block = True
+                    continue
+
+                if "# END HOSTNAME IP #" in line:
+                    in_ip_block = False
+                    continue
+
+                if in_ip_block:
+                    match_ip = re.match(r"^(\d{1,3}(?:\.\d{1,3}){3}) \{", line)
+                    if match_ip:
+                        ip = match_ip.group(1)
                         continue
 
                     match_port = re.search(r"reverse_proxy\s+[\w.-]+:(\d+)", line)
@@ -176,9 +201,8 @@ def read_from_caddyfile():
 
     if domain == "example.net":
         domain = None
-    
-    return domain, port
 
+    return domain, ip, port
 
 def check_ssl_exists(domain):
     for base_dir in CADDY_CERT_DIRS:
@@ -191,24 +215,26 @@ def check_ssl_exists(domain):
     return None, None, None
 
 
-DOMAIN, PORT = read_from_caddyfile()
+DOMAIN, IP, PORT = read_from_caddyfile()
 
-certfile, keyfile, type = (None, None, None)
-if DOMAIN:
-    if os.path.exists("/root/disable_2087_port"):
-        print("Skipping SSL setup on port 2087 as /root/disable_2087_port exists.")   
-    else:
-        certfile, keyfile, cert_type = check_ssl_exists(DOMAIN)
+certfile, keyfile, cert_type = None, None, None
+
+if os.path.exists("/root/disable_2087_port"):
+    print("Skipping SSL setup on port 2087 as /root/disable_2087_port exists.")
+else:
+    if DOMAIN or IP:
+        certfile, keyfile, cert_type = check_ssl_exists(DOMAIN or IP)
         if certfile and keyfile:
             print(f"HTTPS - {cert_type} certificate is configured.")
             import ssl
-            #ssl_version = 'TLS'
             cert_reqs = ssl.CERT_NONE
             ciphers = 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH'
+        elif DOMAIN:
+            print("HTTP - Domain is set but no certificate exists, point domain A record to issue LetsEncrypt SSL or add custom cert: https://openpanel.com/docs/articles/server/how-to-set-custom-ssl-openpanel-webmail/")
         else:
-            print("HTTP - Domain is set but no certificate exists, point domain A record to issue LetsEcrypt SSL or add custom cert: https://openpanel.com/docs/articles/server/how-to-set-custom-ssl-openpanel-webmail/")
-else:
-    print(f"HTTP - Using IP address for panel access, use 'opencli domain <DOMAIN_NAME>' to set a domain.")
+            print("HTTP - IP is set but no certificate exists.")
+    else:
+        print("HTTP - Using IP address for panel access, use 'opencli domain <DOMAIN_NAME>' to set a domain or  'opencli domain ip' to set IP.")
 
 if PORT != 2087:
     print(f"Custom port will be used for OpenAdmin service: {PORT}")

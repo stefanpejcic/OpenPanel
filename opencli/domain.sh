@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 16.04.2026
+# Last Modified: 17.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -114,18 +114,19 @@ get_current_domain() {
         return 1
     fi
 
-	extract_domain() {
-	    local start_marker="$1"
-	    local end_marker="$2"
-	
-	    sed -n "/$start_marker/,/$end_marker/p" "$CADDY_FILE" \
-	        | sed -n 's/^\([A-Za-z0-9.-]*\)[[:space:]]*{.*/\1/p' \
-	        | head -n1
-	}
-	
+    extract_domain() {
+        local start_marker="$1"
+        local end_marker="$2"
+        sed -n "/$start_marker/,/$end_marker/p" "$CADDY_FILE" | sed -n 's/^\([A-Za-z0-9.-]*\)[[:space:]]*{.*/\1/p' | head -n1
+    }
+
+    extract_ip() {
+        local start_marker="$1"
+        local end_marker="$2"
+        sed -n "/$start_marker/,/$end_marker/p" "$CADDY_FILE" | sed -n 's/^\([0-9]\{1,3\}\(\.[0-9]\{1,3\}\)\{3\}\)[[:space:]]*{.*/\1/p' | head -n1
+    }
 
     domain=""
-
     if [ -f /.dockerenv ]; then
         domain=$(extract_domain "# START USERPANEL DOMAIN #" "# END USERPANEL DOMAIN #")
         if [[ -z "$domain" ]]; then
@@ -135,7 +136,12 @@ get_current_domain() {
         domain=$(extract_domain "# START HOSTNAME DOMAIN #" "# END HOSTNAME DOMAIN #")
     fi
 
-	echo "$domain"
+    # Fallback: check IP block
+    if [[ -z "$domain" ]]; then
+        domain=$(extract_ip "# START HOSTNAME IP #" "# END HOSTNAME IP #")
+    fi
+
+    echo "$domain"
 }
 
 # Get current domain or IP
@@ -152,14 +158,25 @@ get_current_domain_or_ip() {
 
 # Update Caddyfile with new domain
 update_caddyfile() {
-    log_debug "Updating Caddyfile with new domain: $new_hostname"
-    
+    log_debug "Updating Caddyfile with new domain/IP: $new_hostname"
+
     if [[ ! -f "$CADDY_FILE" ]]; then
         log_error "Caddyfile not found at $CADDY_FILE"
         return 1
     fi
-    
-    sed -i "s/$current_domain/$new_hostname/g" "$CADDY_FILE"
+
+    if [[ "$new_hostname" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        #IPv4
+        if grep -q "# START HOSTNAME IP #" "$CADDY_FILE"; then
+            sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "$CADDY_FILE"
+        else
+			local admin_port=$(opencli admin port)
+            local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
+            sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "$CADDY_FILE"
+        fi
+    else
+        sed -i "s/$current_domain/$new_hostname/g" "$CADDY_FILE"
+    fi
 }
 
 # Create or move domain configuration file

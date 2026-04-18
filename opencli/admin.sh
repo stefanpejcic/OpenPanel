@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 16.04.2026
+# Last Modified: 17.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -124,41 +124,64 @@ usage_for_notifications() {
 
 get_admin_url() {
     caddyfile="/etc/openpanel/caddy/Caddyfile"
+
+    # 1. check for domain
     domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$caddyfile")
     domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
     domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
     domain=$(echo "$domain" | sed 's|^http[s]*://||')
 
     if [[ -f "/root/disable_2087_port" ]]; then
-		admin_port="443"
-	else
-		admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
-	fi
-
-    if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
-        ip=$(get_public_ip)
-        admin_url="http://${ip}:${admin_port}/"
+        admin_port="443"
     else
-		# ---------------------- letsencrypt
-		local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
-		local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
-
-		# ---------------------- custom ssl
-		local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
-		local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
-	 
-		if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
-		   { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
-		    admin_url="https://${domain}:${admin_port}/"
-        else
-            ip=$(get_public_ip)
-            admin_url="http://${ip}:${admin_port}/"
-        fi
+        admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "$caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
     fi
+
+    if [ -n "$domain" ] && [ "$domain" != "example.net" ]; then
+        # 1a. check ssl for domain
+        local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
+        local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key"
+        local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
+        local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
+
+        if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
+           { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+            admin_url="https://${domain}:${admin_port}/"
+        else
+            admin_url="http://${domain}:${admin_port}/"
+        fi
+    else
+	    # 2. check IP set in file
+	    ip_block=$(awk '/# START HOSTNAME IP #/{flag=1; next} /# END HOSTNAME IP #/{flag=0} flag {print}' "$caddyfile")
+	    hostname_ip=$(echo "$ip_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
+	    hostname_ip=$(echo "$hostname_ip" | sed 's/[[:space:]]*{//' | xargs)
+	
+	    if [[ -f "/root/disable_2087_port" ]]; then
+	        admin_port="443"
+	    else
+	        admin_port=$(echo "$ip_block" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
+	    fi
+
+	    if [ -n "$hostname_ip" ]; then
+	        #2a. check Let's Encrypt shortlived
+	        local ip_cert_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${hostname_ip}/${hostname_ip}.crt"
+	        local ip_key_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${hostname_ip}/${hostname_ip}.key"
+	
+	        if [ -f "$ip_cert_path" ] && [ -f "$ip_key_path" ]; then
+	            admin_url="https://${hostname_ip}:${admin_port}/"
+	        else
+	            admin_url="http://${hostname_ip}:${admin_port}/"
+	        fi
+	    else
+		    # 3. public ip, non-ssl
+		    local ip
+		    ip=$(get_public_ip)
+		    admin_url="http://${ip}:${admin_port}/"
+		fi
+	fi
 
     echo "$admin_url"    
 }
-
 
 get_public_ip() {
 	ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" || curl --silent --max-time 1 -4 "https://ifconfig.me/ip")	
@@ -640,7 +663,10 @@ case "$1" in
 				echo "Removing port for OpenAdmin"
 			else
             	echo "Changing port to: $new_port"
-				sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$new_port/" "/etc/openpanel/caddy/Caddyfile"
+				sed -i \
+				  -e "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$new_port/" \
+				  -e "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$new_port/" \
+				  "/etc/openpanel/caddy/Caddyfile"				
 				if [[ -f "/root/disable_2087_port" ]]; then
 					rm -rf /root/disable_2087_port
 				fi

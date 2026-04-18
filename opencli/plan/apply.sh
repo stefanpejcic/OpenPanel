@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <USERNAME> <NEW_PLAN_ID>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 16.04.2026
+# Last Modified: 17.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -53,7 +53,6 @@ dodsk=false
 donet=false
 doemail=false
 
-
 # Parse arguments
 for arg in "$@"; do
     case "$arg" in
@@ -69,17 +68,11 @@ for arg in "$@"; do
     esac
 done
 
-
 # 1. get plan limits
 source /usr/local/opencli/db.sh
 
 IFS=$'\t' read -r cpu ram disk_limit inodes_limit max_hourly_email bandwidth < <(
-    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "
-        SELECT cpu, ram, disk_limit, inodes_limit, max_hourly_email, bandwidth
-        FROM plans
-        WHERE id = '$new_plan_id'
-        LIMIT 1;
-    "
+    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT cpu, ram, disk_limit, inodes_limit, max_hourly_email, bandwidth FROM plans WHERE id = '$new_plan_id' LIMIT 1;"
 )
 
 numNdisk=$(echo "$disk_limit" | awk '{print $1}')
@@ -103,11 +96,11 @@ cpu_text=$(limit_text "$cpu" " core(s)" "total")
 disk_text=$(limit_text "$storage_in_blocks" " blocks" "total")
 inodes_text=$(limit_text "$inodes_limit" " inodes" "total")
 hourly_email_text=$(limit_text "$max_hourly_email" "" "max hourly emails for all domains")
+bandwidth_text=$(limit_text "$bandwidth" " bandwidth" "mbits" "total")
 
 # 2. fetch all users if --all
 if $bulk; then
-    mapfile -t usernames < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e \
-        "SELECT username FROM users WHERE plan_id = '$new_plan_id';")
+    mapfile -t usernames < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "SELECT username FROM users WHERE plan_id = '$new_plan_id';")
     $debug && echo "Applying plan changes to users: ${usernames[*]}"
 fi
 
@@ -122,18 +115,21 @@ for username in "${usernames[@]}"; do
     echo ""
 
     # 4. get docker context
-    read -r current_plan_id context < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e \
-        "SELECT plan_id, server FROM users WHERE username = '$username'")
+    read -r current_plan_id context < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT plan_id, server FROM users WHERE username = '$username'")
 
     # 5. update limits
     user_id=$(id -u "$username")
     # RAM
     if ! $partial || $doram; then
         sed -i "s/^TOTAL_RAM=\"[^\"]*\"/TOTAL_RAM=\"${ram}\"/" "/home/$context/.env" # legacy
+
+        ram="${ram%G}"
+        ram="${ram%g}"
+
         if [[ "$ram" -eq 0 ]]; then
             systemctl set-property "user-${user_id}.slice" MemoryMax=infinity
         else
-            [[ "$ram" != *G ]] && ram="${ram}G"
+            ram="${ram}G"
             systemctl set-property "user-${user_id}.slice" MemoryMax="$ram"
         fi
         echo "- Memory:     [OK]   $ram_text"
@@ -172,8 +168,52 @@ for username in "${usernames[@]}"; do
 
     # Network (bandwidth)
     if ! $partial || $donet; then
-        # TODO
-        echo "- Port Speed: [WARN] Not implemented yet ($bandwidth)"
+
+        USER_PID=$(pgrep -u "$username" -x dockerd | head -n 1)
+        [ -z "$USER_PID" ] && { echo "- Bandwidth:[WARN]   Could not find dockerd PID for $username"; continue; }
+
+        if [ "$bandwidth" -eq 0 ]; then
+            nsenter -t "$USER_PID" -n tc qdisc del dev ifb0 root 2>/dev/null
+            for suffix in "www" "db"; do
+                full_net_name="${username}_${suffix}"
+                BRIDGE_ID=$(docker --context "$username" network inspect "$full_net_name" -f '{{.Id}}' 2>/dev/null | cut -c1-12)
+                if [ -n "$BRIDGE_ID" ]; then
+                    IFACE="br-$BRIDGE_ID"
+                    nsenter -t "$USER_PID" -n tc qdisc del dev "$IFACE" ingress 2>/dev/null
+                    nsenter -t "$USER_PID" -n tc qdisc del dev "$IFACE" root 2>/dev/null
+                    echo "- Bandwidth:  [OK]   $bandwidth_text ($IFACE)"
+                fi
+            done
+        else
+            nsenter -t "$USER_PID" -n ip link set dev ifb0 up 2>/dev/null || \
+            nsenter -t "$USER_PID" -n ip link add ifb0 type ifb 2>/dev/null
+            nsenter -t "$USER_PID" -n ip link set dev ifb0 up
+            nsenter -t "$USER_PID" -n tc qdisc del dev ifb0 root 2>/dev/null
+            nsenter -t "$USER_PID" -n tc qdisc add dev ifb0 root handle 1: htb default 10
+            nsenter -t "$USER_PID" -n tc class add dev ifb0 parent 1: classid 1:10 htb rate "${bandwidth}mbit"
+
+            IFACES=()
+            for suffix in "www" "db"; do
+                full_net_name="${username}_${suffix}"
+                BRIDGE_ID=$(docker --context "$username" network inspect "$full_net_name" -f '{{.Id}}' 2>/dev/null | cut -c1-12)
+
+                if [ -n "$BRIDGE_ID" ]; then
+                    IFACE="br-$BRIDGE_ID"
+                    IFACES+=("$IFACE")
+                    nsenter -t "$USER_PID" -n tc qdisc del dev "$IFACE" ingress 2>/dev/null
+                    nsenter -t "$USER_PID" -n tc qdisc del dev "$IFACE" root 2>/dev/null
+                    nsenter -t "$USER_PID" -n tc qdisc add dev "$IFACE" handle ffff: ingress
+                    nsenter -t "$USER_PID" -n tc filter add dev "$IFACE" parent ffff: protocol ip u32 match u32 0 0 action mirred egress redirect dev ifb0
+                    nsenter -t "$USER_PID" -n tc qdisc add dev "$IFACE" root handle 1: htb
+                    nsenter -t "$USER_PID" -n tc filter add dev "$IFACE" parent 1: protocol ip u32 match u32 0 0 action mirred egress redirect dev ifb0
+                fi
+            done
+            if [ ${#IFACES[@]} -gt 0 ]; then
+                echo "- Bandwidth:  [OK]   ${bandwidth}mbit hard cap on www and db networks (bridges: ${IFACES[*]})"
+            else
+                echo "- Bandwidth:[WARN]   Could not find bridge ID for any networks - does user $username have any containers running?"
+            fi
+        fi
     fi
 done
 

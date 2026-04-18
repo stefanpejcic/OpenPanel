@@ -5,7 +5,7 @@
 # Usage: opencli user-unsuspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 16.04.2026
+# Last Modified: 17.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -108,10 +108,9 @@ start_user_containers() {
             $DEBUG && echo "Starting container: $container"
             docker $CONTEXT_FLAG start "$container" > /dev/null 2>&1
         else
-            # Container doesn't exist — compose up
+            #no contianer = compose up
             $DEBUG && echo "Container $container not found, running compose up"
-            (cd "/home/$context" && \
-                docker $CONTEXT_FLAG compose up -d "$container" > /dev/null 2>&1)
+            (cd "/home/$context" && docker $CONTEXT_FLAG compose up -d "$container" > /dev/null 2>&1)
         fi
 
     done < "$names_file"
@@ -139,6 +138,6 @@ rename_user_in_db() {
 # ======================================================================
 # Main
 get_docker_context
+rename_user_in_db
 unsuspend_user_domains
 start_user_containers
-rename_user_in_db

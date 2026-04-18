@@ -5,7 +5,7 @@
 # Usage: opencli faq
 # Author: Stefan Pejcic
 # Created: 20.05.2024
-# Last Modified: 16.04.2026
+# Last Modified: 17.04.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 #
@@ -65,6 +65,9 @@ get_openpanel_openadmin_links() {
     readonly caddyfile="/etc/openpanel/caddy/Caddyfile"
     local domain admin_port user_port
 
+    user_port="$(opencli port 2>/dev/null)"
+
+	# 1. domain and later will check for ssl
 	local domain_block
 	domain_block="$(awk '
 		/# START HOSTNAME DOMAIN #/ {flag=1; next}
@@ -85,15 +88,32 @@ get_openpanel_openadmin_links() {
 		| grep -oP 'reverse_proxy[ \t]+\S+:\K[0-9]+' \
 		| head -n1)"
 
-    
-    user_port="$(opencli port 2>/dev/null)"
-
+	# 2. ip and later will check for ssl
     if [ -z "$domain" ] || [ "$domain" = "example.net" ]; then
-        local ip
-        ip="$(get_public_ip)"
-        user_url="http://${ip}:${user_port}/"
-        admin_url="http://${ip}:${admin_port}/"
-        return 0
+		domain_block="$(awk '
+			/# START HOSTNAME IP #/ {flag=1; next}
+			/# END HOSTNAME IP #/   {flag=0}
+			flag {print}
+		' "$caddyfile" 2>/dev/null)"
+
+		local ip
+		ip="$(echo "$domain_block" \
+		    | sed '/^\s*$/d' \
+		    | grep -v '^\s*#' \
+		    | head -n1 \
+		    | grep -oE '\b([0-9]{1,3}\.){3}[0-9]{1,3}\b' \
+		    | xargs)"
+		ip="${ip%%:*}"
+		ip="${ip%%,*}"
+		# 3. IP and non-ssl
+		if [ -z "$ip" ]; then
+        	ip="$(get_public_ip)"
+        	user_url="http://${ip}:${user_port}/"
+        	admin_url="http://${ip}:${admin_port}/"
+        	return 0
+		else
+			domain="$ip"
+		fi
     fi
 
     local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.crt"
