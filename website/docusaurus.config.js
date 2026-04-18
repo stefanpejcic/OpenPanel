@@ -8,6 +8,7 @@
 require("dotenv").config();
 
 const redirectJson = require("./redirects.json");
+const tutorialData = require("./tutorial-units");
 
 /** @type {import('@docusaurus/types/src/index').DocusaurusConfig} */
 const siteConfig = {
@@ -133,6 +134,7 @@ const siteConfig = {
             };
         },
         "./plugins/docgen.js",
+        "./plugins/examples.js",
         "./plugins/checklist.js",
         ...(process.env.DISABLE_BLOG
             ? []
@@ -246,6 +248,10 @@ const siteConfig = {
                             to: "https://docusaurus.io/docs/api/docusaurus-config",
                         },
                         {
+                            label: "Tutorials",
+                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                        },
+                        {
                             label: "Blog",
                             to: "https://docusaurus.io/docs/api/docusaurus-config",
                         },
@@ -353,6 +359,7 @@ const siteConfig = {
         LIVE_PREVIEW_URL:
             process.env.LIVE_PREVIEW_URL ?? "http://localhost:3030/preview",
         /** ---- */
+        tutorial: tutorialData,
     },
     webpack: {
         jsLoader: (isServer) => ({
