@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 17.04.2026
+# Last Modified: 18.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -103,9 +103,12 @@ get_server_ipv4() {
 
 # Domain validation
 is_valid_domain() {
-    local domain="$1"
-    [[ "$domain" =~ ^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$ ]]
+    local input="$1"
+    local domain_regex='^([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$'
+    local ipv4_regex='^((25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})\.){3}(25[0-5]|2[0-4][0-9]|1?[0-9]{1,2})$'
+    [[ "$input" =~ $domain_regex || "$input" =~ $ipv4_regex ]]
 }
+
 
 # Get current domain from Caddyfile
 get_current_domain() {
@@ -174,6 +177,7 @@ update_caddyfile() {
             local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
             sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "$CADDY_FILE"
         fi
+		sed -i "s/$current_domain/"$DEFAULT_DOMAIN"/g" "$CADDY_FILE"
     else
         sed -i "s/$current_domain/$new_hostname/g" "$CADDY_FILE"
     fi
