@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="Some Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=100
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 18.04.2026
+# Last Modified: 19.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
