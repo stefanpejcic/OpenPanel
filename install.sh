@@ -210,7 +210,7 @@ get_server_ipv4() {
     [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || warn "Could not determine a valid public IPv4 address."
 	SERVER_IPV4_ADDRESS="$ip"
 
-	if [ "$SET_HOSTNAME_NOW" == false]; then
+	if [ "$SET_HOSTNAME_NOW" == false ]; then
 		local local_ips=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 		if echo "$local_ips" | grep -qw "$ip"; then
 			echo "Public IPv4 address is present on the server and custom domain was not provided - shortlived SSL will be set for $SERVER_IPV4_ADDRESS"
