@@ -209,15 +209,6 @@ get_server_ipv4() {
     [[ -z "$ip" ]] && ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
     [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || warn "Could not determine a valid public IPv4 address."
 	SERVER_IPV4_ADDRESS="$ip"
-
-	if [ "$SET_HOSTNAME_NOW" == false ]; then
-		local local_ips=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
-		if echo "$local_ips" | grep -qw "$ip"; then
-			echo "Public IPv4 address is present on the server and custom domain was not provided - shortlived SSL will be set for $SERVER_IPV4_ADDRESS"
-			SET_HOSTNAME_NOW=true
-			new_hostname="$SERVER_IPV4_ADDRESS"
-		fi
-	fi   
 }
 
 set_panel_version() {
@@ -625,7 +616,16 @@ configure_caddy_extras() {
 }
 
 set_hostname() {
-    [[ "$SET_HOSTNAME_NOW" != true ]] && return
+	if [ "$SET_HOSTNAME_NOW" == false ]; then
+		local local_ips=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+		if echo "$local_ips" | grep -qw "$SERVER_IPV4_ADDRESS"; then
+			echo "Public IPv4 address is present on the server and custom domain was not provided - shortlived SSL will be set for $SERVER_IPV4_ADDRESS"
+			SET_HOSTNAME_NOW=true
+			new_hostname="$SERVER_IPV4_ADDRESS"
+		fi
+	fi
+
+	[[ "$SET_HOSTNAME_NOW" != true ]] && return
 
     if [[ -n "$separate_panel_domain" && "$separate_panel_domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
         if [[ "$separate_panel_domain" != "$new_hostname" ]]; then
