@@ -619,7 +619,7 @@ set_hostname() {
 	if [ "$SET_HOSTNAME_NOW" == false ]; then
 		local local_ips=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
 		if echo "$local_ips" | grep -qw "$SERVER_IPV4_ADDRESS"; then
-			echo "Public IPv4 address is present on the server and custom domain was not provided - shortlived SSL will be set for $SERVER_IPV4_ADDRESS"
+			echo "Setting shortlived SSL for IP address $SERVER_IPV4_ADDRESS"
 			SET_HOSTNAME_NOW=true
 			new_hostname="$SERVER_IPV4_ADDRESS"
 		fi
