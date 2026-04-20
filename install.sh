@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           18.04.2026
+# Last Modified:           20.04.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -205,10 +205,19 @@ detect_os_and_package_manager() {
 
 get_server_ipv4() {
     local ip
-    ip=$(curl -s --max-time 3 -4 "https://ip.openpanel.com" || true)
+	ip=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com" || curl --silent --max-time 2 -4 "https://ifconfig.me/ip")	
     [[ -z "$ip" ]] && ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
     [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || warn "Could not determine a valid public IPv4 address."
-    SERVER_IPV4_ADDRESS="$ip"
+	SERVER_IPV4_ADDRESS="$ip"
+
+	if [ "$SET_HOSTNAME_NOW" == false]; then
+		local local_ips=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+		if echo "$local_ips" | grep -qw "$ip"; then
+			echo "Public IPv4 address is present on the server and custom domain was not provided - shortlived SSL will be set for $SERVER_IPV4_ADDRESS"
+			SET_HOSTNAME_NOW=true
+			new_hostname="$SERVER_IPV4_ADDRESS"
+		fi
+	fi   
 }
 
 set_panel_version() {
