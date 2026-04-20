@@ -22,7 +22,7 @@ To enable access to both OpenAdmin and OpenPanel through a domain name, such as 
    Use a tool such as https://www.whatsmydns.net/ to check that domain is pointed to server ip.
    
 3. Set in General Settings
-   Switch from IP to the domain name in *OpenAdmin > Settings > General Settings*.
+   Set the domain name in *OpenAdmin > Settings > General Settings*.
 
 :::info
 You can also [set a separate domain just for OpenPanel UI](/docs/articles/dev-experience/separate-domain-for-openpanel-access)
@@ -30,7 +30,7 @@ You can also [set a separate domain just for OpenPanel UI](/docs/articles/dev-ex
 
 ## Set IP address for OpenPanel
 
-To access OpenPanel and OpenAdmin via server public IP address, choose the "IP address" option and click save. The modification is immediate, redirecting you to the designated IP:2087 for the admin panel upon saving.
+To access OpenPanel and OpenAdmin via server public IP address, set IP address in *OpenAdmin > Settings > General Settings*.
 
 ## Ports
 
