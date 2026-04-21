@@ -5,7 +5,7 @@
 # Usage: opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
 # Author: Stefan Pejcic
 # Created: 10.02.2025
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -86,7 +86,6 @@ get_user_info() {
     echo "$user_id,$context"
 }
 
-
 get_user_context() {
 
   result=$(get_user_info "$user")
@@ -100,43 +99,32 @@ get_user_context() {
 }
 
 validate_docroot() {
-
   log "Updating document root for domain: $domain to: $new_docroot"
   if [[ -n "$docroot" && ! "$docroot" =~ ^/var/www/html/ ]]; then
       echo "FATAL ERROR: Invalid docroot. It must start with /var/www/html/"
       exit 1
   fi
-
 }
 
-
 make_folder() {
-  # Extract the folder name from new_docroot
   folder_name="${new_docroot##/var/www/html/}"
-
-  # Build the new path
   newnew_docroot="/home/${context}/docker-data/volumes/${context}_html_data/_data/${folder_name}"
-
   log "Creating document root directory $new_docroot"
   mkdir -p "$newnew_docroot"
   chown "$user:$user" "$newnew_docroot"
 }
 
-
-
 get_webserver_for_user(){
-	    log "Checking webserver configuration"
-	    output=$(opencli webserver-get_webserver_for_user $user)		
-		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+	log "Checking webserver configuration"
+	local web_server=$(grep "^WEB_SERVER=" "/home/$context/.env" | awk -F '=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/')
+	WEB_SERVER=$(echo "$web_server" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)	
 }
-
 
 vhost_file_edit() {
 	vhost_file=/home/${context}/docker-data/volumes/${context}_webserver_data/_data/${domain}.conf
 	sed -i -E 's|(/var/www/html/[^>;]*)|'"$new_docroot"'|g' $vhost_file > /dev/null 2>&1
 	docker --context $context restart $ws > /dev/null 2>&1
 }
-
 
 get_user() {
   whoowns_output=$(opencli domains-whoowns "$domain")
@@ -147,17 +135,13 @@ get_user() {
       echo "Failed to determine the owner of the domain '$domain'." >&2
       exit 1
   fi
-  
 }
 
 main_func() {
-
   validate_docroot
   get_user
   get_user_context
-  
 
-  
   mysql -e "UPDATE domains SET docroot='$new_docroot' WHERE domain_url='$domain';"
   mysql -e "$insert_query"
   result=$(mysql -se "$query")
@@ -175,18 +159,16 @@ main_func() {
       log "Updating docroot for domain $domain failed! Contact administrator to check if the mysql database is running."
       echo "Failed to change docroot for domain $domain"
   fi
-  
 }
 
-
 get_current_docroot(){
-  local get_docroot="SELECT docroot FROM domains WHERE domain_url = '$domain';"
-  result=$(mysql -N -B -e "$get_docroot")
-if [[ -z "$result" ]]; then
-  echo "Docroot not found for domain: $domain - does the domain exist? run: opencli domains-whoowns $domain"
-else
-  echo "$result"
-fi
+	local get_docroot="SELECT docroot FROM domains WHERE domain_url = '$domain';"
+	result=$(mysql -N -B -e "$get_docroot")
+	if [[ -z "$result" ]]; then
+	  echo "Docroot not found for domain: $domain - does the domain exist? run: opencli domains-whoowns $domain"
+	else
+	  echo "$result"
+	fi
 }
 
 
@@ -198,9 +180,8 @@ elif [[ -n "$domain" && "$action" == "update" ]]; then
         show_help
         exit 1
     fi
-   main_func # this does all other functions!
+   main_func
 else
     show_help
     exit 1
 fi
-

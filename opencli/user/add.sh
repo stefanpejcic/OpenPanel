@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -101,13 +101,7 @@ fi
 
 trap cleanup EXIT
 
-
-
-
-
-
 check_if_default_slave_server_is_set() {
-
 	: '
 	[CLUSTERING]
 	default_node="11.22.33.44"
@@ -126,11 +120,8 @@ check_if_default_slave_server_is_set() {
 	        echo "$value"
 	    fi
 	}
-	
-	
-	# Check and get values
+
 	default_node=$(get_config_value "default_node")
-	
 	if [[ -n "$default_node" ]]; then
 		default_ssh_key_path=$(get_config_value "default_ssh_key_path")
 		 if [[ -n "$default_ssh_key_path" ]]; then
@@ -139,61 +130,44 @@ check_if_default_slave_server_is_set() {
 	        echo "Using default node $server and ssh key path"
 		 fi
 	fi
-
 }
-
-
-
-
 
 check_if_default_slave_server_is_set         # we run it before parse_flags so it can be overwritten!
 
+for arg in "$@"; do
+	case $arg in
+		--debug) DEBUG=true ;;
+		--send-email) SEND_EMAIL=true ;;
+		--skip-images) SKIP_IMAGE_PULL=true ;;	     
+		--reseller=*) reseller="${arg#*=}" ;;
+		--server=*) server="${arg#*=}" ;;
+		--key=*) key="${arg#*=}"; key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes" ;;
+		--sql=*) sql_type="${arg#*=}" ;;	    
+		--webserver=*)
+			webserver="${arg#*=}"
+			webserver="${webserver//\"/}"
+			webserver="$(echo "$webserver" | xargs)"
+		;;
+		--no-sentinel) SENTINEL=false ;;
+	esac
+done
 
-	for arg in "$@"; do
-	    case $arg in
-	        --debug) DEBUG=true ;;
-	        --send-email) SEND_EMAIL=true ;;
-	        --skip-images) SKIP_IMAGE_PULL=true ;;	     
-	        --reseller=*) reseller="${arg#*=}" ;;
-	        --server=*) server="${arg#*=}" ;;
-			--key=*) key="${arg#*=}"; key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes" ;;
-	        --sql=*) sql_type="${arg#*=}" ;;	    
-	        --webserver=*)
-				webserver="${arg#*=}"
-				webserver="${webserver//\"/}"
-				webserver="$(echo "$webserver" | xargs)"
-		    ;;
-			--no-sentinel) SENTINEL=false ;;
-	    esac
-	done
-
-
-log() {
-    if $DEBUG; then
-        echo "$1"
-    fi
-}
-
-
+log(){ $DEBUG && echo "$1"; }
 
 update_accounts_for_reseller() {
 	if [ -n "$reseller" ]; then
 		local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
 		current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner")
 	  	log "Updating current accounts count to: ${current_accounts} for reseller: ${reseller}"
-		jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
-			&& mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
+		jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
 	fi
 }
 
 check_if_reseller() {
-
 	local db_file_path="/etc/openpanel/openadmin/users.db"
 	if [ -n "$reseller" ]; then
 	    log "Checking if reseller user exists and can create new users.."
-	
     	local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$reseller' AND role='reseller';")
-		
 	    if [ "$user_exists" -lt 1 ]; then
 	        echo -e "ERROR: User '$reseller' is not a reseller or not allowed to create new users. Contact support."
 	    fi
@@ -201,14 +175,10 @@ check_if_reseller() {
 	    reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
 	    if [ -f "$reseller_limits_file" ]; then
 	  		log "Checking reseller limits.."
-    
 			local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
-
 			if current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner"); then
 				current_accounts=${current_accounts:-0}
-			
-			    jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" \
-			        && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
+			    jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
 			else
 			    log "Error fetching current account count for reseller $reseller from MySQL."
 			    echo "ERROR: Unable to retrieve the number of users from the database. Is MySQL running?"
@@ -227,28 +197,17 @@ check_if_reseller() {
 			    echo "ERROR: Current plan ID '$plan_id' is not assigned for this reseller. Please select another plan."
 			    exit 1
 			fi
-	   
 	    else
 			log "WARNING: Reseller $reseller has no limits configured and can create unlimited number of users."
 	    fi
     fi
 }
 
-
-
 get_slave_if_set() {
-     
-     
 	if [ -n "$server" ]; then
-	    # Check if the format of the server is a valid IPv4 address
 	    if [[ "$server" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-	        # Check if each octet is in the range 0-255
 	        IFS='.' read -r -a octets <<< "$server"
-	        if [[ ${octets[0]} -ge 0 && ${octets[0]} -le 255 &&
-	              ${octets[1]} -ge 0 && ${octets[1]} -le 255 &&
-	              ${octets[2]} -ge 0 && ${octets[2]} -le 255 &&
-	              ${octets[3]} -ge 0 && ${octets[3]} -le 255 ]]; then
-	           	
+	        if [[ ${octets[0]} -ge 0 && ${octets[0]} -le 255 && ${octets[1]} -ge 0 && ${octets[1]} -le 255 && ${octets[2]} -ge 0 && ${octets[2]} -le 255 && ${octets[3]} -ge 0 && ${octets[3]} -le 255 ]]; then
 				context_flag="--context $server"
 				if [ -n "$key" ]; then
 					key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
@@ -266,7 +225,6 @@ get_slave_if_set() {
 
    				node_ip_address=$server
       			context=$username # so we show it on debug!
-  
 	     		log "Containers will be created on node: $node_ip_address ($hostname)"
 	        else
 	            echo "ERROR: $server is not a valid IPv4 address (octets out of range)."
@@ -276,30 +234,17 @@ get_slave_if_set() {
 	 		exit 1
 	    fi
      else
-      	# local values
         context_flag="" 
 		hostname=$(hostname)
 	fi
 }
 
-
-
-
-
 validate_password_in_lists() {
     local password_to_check="$1"
     weakpass=$(grep -E "^weakpass=" "$PANEL_CONFIG_FILE" | awk -F= '{print $2}')
-
-    if [ -z "$weakpass" ]; then
-      if [ "$DEBUG" = true ]; then
-        echo "weakpass value not found in openpanel.config. Defaulting to 'yes'."
-      fi
-      weakpass="yes"
-    fi
-    
+   
     # https://weakpass.com/wordlist
     # https://github.com/steveklabnik/password-cracker/blob/master/dictionary.txt
-    
     if [ "$weakpass" = "no" ]; then
       if [ "$DEBUG" = true ]; then
         echo "Checking the password against weakpass dictionaries"
@@ -323,36 +268,26 @@ validate_password_in_lists() {
        else
 	       echo "[!] WARNING: Error downloading dictionary from https://weakpass.com/wordlist"
        fi
-    elif [ "$weakpass" = "yes" ]; then
-      :
     else
-      if [ "$DEBUG" = true ]; then
-        echo "Invalid weakpass value '$weakpass'. Defaulting to 'yes'."
-      fi
       weakpass="yes"
-      :
-    fi
+	fi
 }
-
 
 check_username_is_valid() {
     log "Validating username '$username'"
 
-    # Length check
     if (( ${#username} < 3 || ${#username} > 20 )); then
         echo "[✘] Error: Username must be 3-20 characters long."
         echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
         exit 1
     fi
 
-    # Character check: must start with a letter and contain only letters/numbers
     if [[ ! "$username" =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]]; then
         echo "[✘] Error: Username must start with a letter and contain only letters and numbers."
         echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
         exit 1
     fi
 
-    # Forbidden username check
     if [[ -f "$FORBIDDEN_USERNAMES_FILE" ]]; then
         while IFS= read -r forbidden; do
             if [[ "${username,,}" == "${forbidden,,}" ]]; then
@@ -364,14 +299,10 @@ check_username_is_valid() {
     fi
 }
 
-
 # shellcheck source=../db.sh
 . "$DB_CONFIG_FILE"
 
-
 get_existing_users_count() {
-    
-    # Check if 'enterprise edition'
     if [ -n "$key_value" ]; then
         [ -z "$reseller" ] && log "Enterprise edition detected: unlimited number of users can be created"
     else
@@ -392,9 +323,7 @@ get_existing_users_count() {
             exit 1
         fi
     fi
-
 }
-
 
 check_username_exists() {
     local username_exists_query="SELECT COUNT(*) FROM users WHERE username = '$username'"
@@ -409,22 +338,13 @@ check_username_exists() {
     fi
 }
 
-
-
-
-
 check_username_exists
-
-
-
 
 #########################################
 # TODO
 # USE REMOTE CONTEXT! context_flag
 #
 #########################################
-#
-#
 
 sshfs_mounts() {
     if [ -n "$node_ip_address" ]; then
@@ -437,9 +357,7 @@ if [ ! -d "/etc/openpanel/openpanel" ]; then
 fi
 EOF
 
-
         sleep 5
-
 	ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << 'EOF' 2>/dev/null
 if [ ! -d "/etc/openpanel/openpanel" ]; then
     echo "Node is not yet configured to be used as an OpenPanel slave server. Configuring.."
@@ -458,7 +376,6 @@ if [ ! -d "/etc/openpanel/openpanel" ]; then
 fi
 EOF
 
-
         ssh -q $key_flag root@$node_ip_address << 'EOF'
 if [ ! -d "/etc/openpanel/openpanel" ]; then
     echo "Adding permissions for users to limit CPU% - more info: https://docs.docker.com/engine/security/rootless/#limiting-resources"
@@ -474,15 +391,10 @@ INNER_EOF
 fi
 EOF
 
-        scp "$key_flag" \
-            -o StrictHostKeyChecking=no \
-            -o UserKnownHostsFile=/dev/null \
-            -o BatchMode=yes \
-            -r /etc/openpanel root@"$node_ip_address":/etc/openpanel
+        scp "$key_flag" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -r /etc/openpanel root@"$node_ip_address":/etc/openpanel
 
         # mount home dir on master
         if ! command -v sshfs &> /dev/null; then
-            # SSHFS is NOT installed — install it
             if command -v apt-get &> /dev/null; then
                 apt-get install -y sshfs
             elif command -v dnf &> /dev/null; then
@@ -496,68 +408,22 @@ EOF
         fi
 
 	sshfs -o IdentityFile="/root/.ssh/$node_ip_address",StrictHostKeyChecking=no root@"$node_ip_address":/home/$username /home/$username
-
     fi
 }
 
-
-
-#Get CPU, DISK, INODES and RAM limits for the plan
-get_plan_info_and_check_requirements() {
+get_plan_info() {
     log "Getting information from the database for plan $plan_name"
-    local query="SELECT cpu, ram, disk_limit, inodes_limit, bandwidth, id FROM plans WHERE name = '$plan_name'"
-    local cpu_ram_info
-
-    if ! cpu_ram_info=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN); then
+	# limits are applied via plan-apply command
+    local query="SELECT id FROM plans WHERE name = '$plan_name'"
+    if ! plan_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN); then
         echo "[✘] ERROR: Unable to fetch plan information from the database."
         exit 1
     fi
-    
-    if [ -z "$cpu_ram_info" ]; then
-        echo "[✘] ERROR: Plan with name $plan_name not found. Unable to fetch CPU/RAM limits information from the database."
-        exit 1
-    fi
-    
-    # Extract DISK, CPU, RAM, INODES, BANDWIDTH and NAME,values from the query result
-    cpu=$(echo "$cpu_ram_info" | awk '{print $1}')
-    ram=$(echo "$cpu_ram_info" | awk '{print $2}')
-    disk_limit=$(echo "$cpu_ram_info" | awk '{print $3}' | sed 's/ //;s/B//')
-    # 4. is GB in disk_limit
-    inodes=$(echo "$cpu_ram_info" | awk '{print $5}')
-    bandwidth=$(echo "$cpu_ram_info" | awk '{print $6}')
-    plan_id=$(echo "$cpu_ram_info" | awk '{print $7}')
-        
-    # Get the maximum available CPU cores on the server
-    if [ -n "$node_ip_address" ]; then
-        max_available_cores=$(ssh "$key_flag" "root@$node_ip_address" "nproc")
-    else
-        max_available_cores=$(nproc)
-    fi
-    
-    # Compare the specified CPU cores with the maximum available cores
-    if [ "$cpu" -gt "$max_available_cores" ]; then
-        echo "[✘] ERROR: CPU cores ($cpu) limit on the plan exceed the maximum available cores on the server ($max_available_cores). Cannot create user."
-        exit 1
-    fi
-    
-
-    # Get the maximum available RAM on the server in GB
-    if [ -n "$node_ip_address" ]; then
-		max_available_ram_gb=$(ssh "$key_flag" "root@$node_ip_address" "free -g | awk '/Mem:/{print \$2}'")
-    else
-        max_available_ram_gb=$(free -m | awk '/^Mem:/ {printf "%d\n", ($2+512)/1024 }')
-    fi    
-    numram="${ram%"g"}"
-
-    
-    # Compare the specified RAM with the maximum available RAM
-    if [ "$numram" -gt "$max_available_ram_gb" ]; then
-        echo "[✘] ERROR: RAM ($ram GB) limit on the plan exceeds the maximum available RAM on the server ($max_available_ram_gb GB). Cannot create user."
+    if [ -z "$plan_id" ]; then
+        echo "[✘] ERROR: Plan with name $plan_name not found."
         exit 1
     fi
 }
-
-
 
 download_images() {
 	if [ "$SKIP_IMAGE_PULL" = false ]; then
@@ -567,10 +433,7 @@ download_images() {
 	    local php_version=""
 	    local env_file="/home/$username/.env"
 	
-	    if [[ ! -f "$env_file" ]]; then
-	        echo "Warning: $env_file not found"
-	        return 1
-	    fi
+	    [[ -f "$env_file" ]] || { echo "Warning: $env_file not found"; return 1; }
 		
 		get_env_value() {
 		    local key=$1
@@ -626,8 +489,6 @@ download_images() {
 	fi  
 }
 
-
-
 setup_ssh_key(){
      if [ -n "$node_ip_address" ]; then
 	log "Setting ssh key.."
@@ -663,7 +524,6 @@ echo "Host $username
     ServerAliveCountMax 3
 " >> ~/.ssh/config
 
-
 	                ssh "$username" "exit" &> /dev/null
 	                if [ $? -eq 0 ]; then
 	                    log "SSH connection successfully established"
@@ -671,38 +531,32 @@ echo "Host $username
 			    echo "ERROR: Failed to establish SSH connection to the newly created user."
 	      		    exit 1
 	     		fi
- 
       fi
 }
 
-
-
 validate_ssh_login(){
-   if [ -n "$node_ip_address" ]; then
-   	log "Validating SSH connection to the server $node_ip_address"
-    	if [ "$DEBUG" = true ]; then
-	        if [ -f "$key" ]; then	
-	            if [ "$(stat -c %a "$key")" -eq 600 ]; then	                
-	                ssh -i "$key_flag" "$node_ip_address" "exit" &> /dev/null
-	                if [ $? -eq 0 ]; then
-	                    log "SSH connection successfully established"
-	                    csf -a "$node_ip_address" > /dev/null 2>&1
-	                    # TODO: whitelist on remote also
-	                else
-	                    echo "ERROR: SSH connection failed to $node_ip_address"
-		     	    exit 1
-	                fi
-	            else
-	                log "SSH key permissions are incorrect. Correcting permissions to 600."
-	                chmod 600 "$key"
-	            fi
-	        else
-	            echo "ERROR: Provided ssh key path: "$key" does not exist."
-	     	    exit 1
-	        fi
- 
-
-	fi
+	if [ -n "$node_ip_address" ]; then
+		log "Validating SSH connection to the server $node_ip_address"
+		if [ "$DEBUG" = true ]; then
+			if [ -f "$key" ]; then	
+				if [ "$(stat -c %a "$key")" -eq 600 ]; then	                
+					ssh -i "$key_flag" "$node_ip_address" "exit" &> /dev/null
+					if [ $? -eq 0 ]; then
+						log "SSH connection successfully established"
+						csf -a "$node_ip_address" > /dev/null 2>&1
+					else
+						echo "ERROR: SSH connection failed to $node_ip_address"
+						exit 1
+					fi
+				else
+					log "SSH key permissions are incorrect. Correcting permissions to 600."
+					chmod 600 "$key"
+				fi
+			else
+				echo "ERROR: Provided ssh key path: "$key" does not exist."
+				exit 1
+			fi
+		fi
     fi
 }
 
@@ -728,20 +582,7 @@ print_debug_info_before_starting_creation() {
         echo "- SSH user:             root"
         echo "- SSH key path:         $key"
     fi
-
-    # sep
-	#echo "Selected plan limits from database:"
-    #echo "- plan id:           $plan_id"
-    #echo "- plan name:         $plan_name"
-    #echo "- cpu limit:         $([[ "$cpu" -eq 0 ]] && echo ""∞"" || echo "$cpu core(s)")"
-	#echo "- memory limit:      $([[ "$ram" -eq 0 ]] && echo "∞" || echo "${ram%[gG]} GB")"
-    #echo "- storage:           $([[ "$disk_limit" -eq 0 ]] && echo ""∞"" || echo "$disk_limit GB")"
-    #echo "- inodes:            $([[ "$inodes" -eq 0 ]] && echo ""∞"" || echo "$inodes")"
-    #echo "- port speed:        $bandwidth"
-    #sep
 }
-
-
 
 create_local_user() {
 	log "Creating user $username"
@@ -772,70 +613,11 @@ create_remote_user() {
 		    exit 1
       	fi
 	fi
- 
-
-}
-
-
-set_cpu_and_ram() {
-    local cpu="$1"        # Number of CPU cores (0 = unlimited)
-    local ram="$2"        # RAM in GB (0 = unlimited)
-
-    if [[ "$cpu" -ne 0 ]] || [[ "$ram" -ne 0 ]]; then
-    	echo "Setting CPU and Memory limits.."
-	fi
-
-
-	mkdir -p /etc/systemd/system/user-$user_id.slice.d/
-	cat <<EOF > /etc/systemd/system/user-$user_id.slice.d/override.conf
-[Slice]
-Delegate=yes
-EOF
-
-systemctl daemon-reload
-systemctl restart user@$user_id.service
-
-    if [[ "$cpu" -ne 0 ]]; then
-        # 1 core = 100%
-        local cpu_quota=$(echo "$cpu * 100" | bc)
-        echo "Applying CPU limit: $cpu_quota%"
-        systemctl set-property "user-$user_id.slice" CPUQuota=${cpu_quota}%
-    fi
-
-    if [[ "$ram" -ne 0 ]]; then
-        echo "Applying Memory limit: ${ram}G"
-        systemctl set-property "user-$user_id.slice" MemoryMax=${ram}G
-    fi
-
-	# TODO: cover remote context and 
-	# systemctl set-property user-1002.slice TasksMax=150 # Max processes
-	# systemctl set-property user-1002.slice IOWeight=500 # I/O weight
-}
-
-
-set_user_quota(){
-   if [ "$disk_limit" -ne 0 ]; then
-     storage_in_blocks=$((disk_limit * 1024000))
-     log "Setting storage size of ${disk_limit}GB and $inodes inodes for the user"
-   else
-     storage_in_blocks=0; inodes=0
-     log "Setting unlimited storage and inodes for the user"
-   fi
-
-   setquota -u "$username" "$storage_in_blocks" "$storage_in_blocks" "$inodes" "$inodes" /
-}
-
-# CREATE THE USER
-create_user_set_quota_and_password() {
- 	create_local_user
-    create_remote_user $user_id
-	set_user_quota
 }
 
 install_docker_and_add_user() {
 if [ -n "$node_ip_address" ]; then
     log "Checking if Docker is installed on $node_ip_address..."
-
     ssh $key_flag root@"$node_ip_address" "command -v docker >/dev/null 2>&1"
     if [ $? -ne 0 ]; then
         log "Docker is not installed. Installing Docker on $node_ip_address..."
@@ -849,7 +631,6 @@ if [ -n "$node_ip_address" ]; then
     else
         log "Docker is already installed on destination server."
     fi
-
     log "Adding user '$username' to docker group on $node_ip_address..."
 	ssh $key_flag root@"$node_ip_address" bash -c "'
 	  if [[ ! \" \$(id -nG \"$username\") \" =~ ' docker ' ]]; then
@@ -858,7 +639,6 @@ if [ -n "$node_ip_address" ]; then
 	'"
 fi
 }
-
 
 docker_compose() {
 	local arm_link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
@@ -897,10 +677,7 @@ docker_compose() {
 	fi
 }
 
-
-
 docker_rootless() {
-
 log "Configuring Docker in Rootless mode"
 
 mkdir -p /home/$username/docker-data /home/$username/.config/docker > /dev/null 2>&1
@@ -943,11 +720,7 @@ mv "/home/$username/${filename}" "/etc/apparmor.d/${filename}"
 
 EOF1
 
-
-
-
 log "Restarting services.."
-
 
 		ssh $key_flag root@$node_ip_address "
 		   systemctl restart apparmor.service >/dev/null 2>&1
@@ -960,8 +733,6 @@ log "Restarting services.."
 		chmod 755 -R /home/$username/ >/dev/null 2>&1
 		chown -R $username:$username /home/$username/ >/dev/null 2>&1
   		"
-
-
 
   log "Downloading https://get.docker.com/rootless"
 
@@ -1003,9 +774,6 @@ WantedBy=default.target
 EOF
 "
 
-
-
-
   log "Starting user services.."
 
 ssh $key_flag root@$node_ip_address "
@@ -1025,10 +793,7 @@ ssh $key_flag root@$node_ip_address "
 #fork/exec /proc/self/exe: operation not permitted
 
 # we should check with: systemctl --user status
-
-
 	else
-
 		
 cat <<EOT | tee "/etc/apparmor.d/home.$username.bin.rootlesskit" > /dev/null 2>&1
 # ref: https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces
@@ -1056,7 +821,6 @@ include if exists <local/${filename}>
 }
 EOF
 
-  
   		mv ~/${filename} /etc/apparmor.d/${filename} > /dev/null 2>&1
 
 		systemctl restart apparmor.service >/dev/null 2>&1
@@ -1110,54 +874,37 @@ EOF
 	fi
 }
 
-
-
 run_docker() {
-
-	# TODO:
-	# check ports on remote server!
-	#
-    # added in 0.2.3 to set fixed ports for mysql and ssh services of the user!
     find_available_ports() {
-
-	last_user=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -se "SELECT server FROM users ORDER BY id DESC LIMIT 1;")
-
-	if [[ -n "$last_user" ]]; then
-		env_file="/home/$last_user/.env"
-	
-		if [[ ! -f "$env_file" ]]; then
-		    ###echo "Warning: .env file is missing for existing users, port generation may be a bit off - make sure to check ports assigned to user afterwards."
-      		    min_port="32768"
-		fi
+		last_user=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -se "SELECT server FROM users ORDER BY id DESC LIMIT 1;")
+		if [[ -n "$last_user" ]]; then
+			env_file="/home/$last_user/.env"
 		
-		highest_port=$(grep -E '^[A-Z_]+_PORT=' "$env_file" | grep -oE '[0-9]+' | sort -nr | head -n 1)
-		
-		if [[ -z "$highest_port" ]]; then
-			###echo "ERROR: No ports found in the .env file."
-   			min_port="32768"
-      		else
-			min_port=${highest_port}
-		fi
-	else
-		# no users yet! 
-      		min_port="32768"
-	fi      
+			if [[ ! -f "$env_file" ]]; then
+	      		min_port="32768"
+			fi
+			
+			highest_port=$(grep -E '^[A-Z_]+_PORT=' "$env_file" | grep -oE '[0-9]+' | sort -nr | head -n 1)
+			if [[ -z "$highest_port" ]]; then
+	   			min_port="32768"
+	      		else
+				min_port=${highest_port}
+			fi
+		else
+	      	min_port="32768"
+		fi      
       
       
-      local found_ports=()
+    local found_ports=()
                   
 	declare -a found_ports=()
 	for ((i=1; i<=7; i++)); do
 	    port=$((min_port + i))
 	    found_ports+=("$port")
 	done
-        echo "${found_ports[@]}"
-
-
-
+    echo "${found_ports[@]}"
     }
 
-	    
 	validate_port() {
 	    local port="$1"
 	    port="$(echo "$1" | tr -d '[:space:]')"  # Trim spaces
@@ -1171,11 +918,9 @@ run_docker() {
 	    fi
 	}
 
-    # Find available ports
     log "Checking available ports to use for the user"
     AVAILABLE_PORTS=$(find_available_ports)
 
-    # Split the ports into variables
 	FIRST_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $1}')
 	SECOND_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $2}')
 	THIRD_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $3}')
@@ -1184,7 +929,6 @@ run_docker() {
     SIXTH_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $6}')
 	SEVENTH_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $7}')
 
-    # todo: better validation!
     if validate_port "$FIRST_NEXT_AVAILABLE" && validate_port "$SECOND_NEXT_AVAILABLE" && validate_port "$THIRD_NEXT_AVAILABLE" && validate_port "$FOURTH_NEXT_AVAILABLE" && validate_port "$FIFTH_NEXT_AVAILABLE" && validate_port "$SIXTH_NEXT_AVAILABLE" && validate_port "$SEVENTH_NEXT_AVAILABLE"; then
 
 	if [ -n "$node_ip_address" ]; then
@@ -1227,7 +971,7 @@ postgres_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
 mysql_root_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
 pg_admin_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
 
-if [ -z "$username" ] || [ -z "$user_id" ] || [ -z "$cpu" ] || [ -z "$ram" ] || [ -z "$port_5" ] || [ -z "$port_6" ] || [ -z "$port_7" ] || [ -z "$port_1" ] || [ -z "$port_3" ] || [ -z "$port_4" ] || [ -z "$port_2" ] || [ -z "$default_php_version" ] || [ -z "$postgres_password" ] || [ -z "$mysql_root_password" ]; then
+if [ -z "$username" ] || [ -z "$user_id" ] || [ -z "$port_5" ] || [ -z "$port_6" ] || [ -z "$port_7" ] || [ -z "$port_1" ] || [ -z "$port_3" ] || [ -z "$port_4" ] || [ -z "$port_2" ] || [ -z "$default_php_version" ] || [ -z "$postgres_password" ] || [ -z "$mysql_root_password" ]; then
    echo "ERROR: One or more required variables are not set."
    exit 1
 fi
@@ -1238,8 +982,6 @@ cp /etc/openpanel/docker/compose/1.0/.env /home/$username/.env
 sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
     -e "s|USER_ID=\"[^\"]*\"|USER_ID=\"$user_id\"|g" \
     -e "s|CONTEXT=\"[^\"]*\"|CONTEXT=\"$username\"|g" \
-    -e "s|TOTAL_CPU=\"[^\"]*\"|TOTAL_CPU=\"$cpu\"|g" \
-    -e "s|TOTAL_RAM=\"[^\"]*\"|TOTAL_RAM=\"$ram\"|g" \
     -e "s|^HTTP_PORT=\"[^\"]*\"|HTTP_PORT=\"$port_5\"|g" \
     -e "s|HTTPS_PORT=\"[^\"]*\"|HTTPS_PORT=\"$port_6\"|g" \
     -e "s|PGADMIN_PORT=\"[^\"]*\"|PGADMIN_PORT=\"$port_1\"|g" \
@@ -1303,7 +1045,6 @@ cp -r /etc/openpanel/php/ini /home/${username}/php.ini
 chown -R $username:$username /home/$username/sockets
 chmod 777 /home/$username/sockets/
 
-
 if [ ! -f "/home/$username/.env" ]; then
    echo "ERROR: Failed to create .env file! Make sure that the /etc/openpanel/ is updated and contains valid templates."
    exit 1
@@ -1317,12 +1058,7 @@ password="$mysql_root_password"
 if [ ! -f "/home/$username/my.cnf" ]; then
    echo "WARNING: Failed to create my.cnf file! Make sure that the /etc/openpanel/ is updated and contains valid templates."
 fi
-
 }
-
-
-
-
 
 copy_skeleton_files() {
     log "Creating configuration files for the newly created user"
@@ -1335,7 +1071,8 @@ copy_skeleton_files() {
 }
 
 get_php_version() {
-	default_php_version=$(grep -oP '^DEFAULT_PHP_VERSION="\K[0-9]+\.[0-9]+' /etc/openpanel/docker/compose/1.0/.env | tr -d '\r\n')
+	default_php_version=$(grep -oP '^DEFAULT_PHP_VERSION="?\\K[0-9]+\.[0-9]+' /etc/openpanel/docker/compose/1.0/.env | tr -d '\r\n')
+
     if [ -z "$default_php_version" ]; then
       if [ "$DEBUG" = true ]; then
         echo "Default PHP version is not set, using the fallback default version.."
@@ -1369,7 +1106,6 @@ test_compose_command_for_user() {
 
 save_user_to_db() {
     log "Saving new user to database"
-
 	if [ -n "$reseller" ]; then
    	    mysql_query="INSERT INTO users (username, password, owner, email, plan_id, server) VALUES ('$username', '$hashed_password', '$reseller', '$email', '$plan_id', '$username');"
 	else
@@ -1386,7 +1122,6 @@ save_user_to_db() {
     fi
 
 }
-
 
 send_email_to_new_user() {
     if $SEND_EMAIL; then
@@ -1436,17 +1171,13 @@ send_email_to_new_user() {
 }
 
 
-reload_user_quotas() {
-    nohup opencli user-quota &>/dev/null &
-	disown
-}
+
 
 generate_user_password_hash() {
 	if [ "$password" = "generate" ]; then
 		password=$(openssl rand -base64 12)
 		log "Generated password: $password" 
 	fi
- 
  	if [ -x /usr/local/admin/venv/bin/python3 ]; then
 	  hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
 	elif command -v python3 &>/dev/null; then
@@ -1459,11 +1190,6 @@ generate_user_password_hash() {
 
 permisisons_do() {
 	chown -R $username:$username /home/$username/ >/dev/null 2>&1
-}
-
-collect_stats() {
-  nohup  opencli docker-collect_stats "${username}" >/dev/null 2>&1 &
-  disown
 }
 
 create_volume() {
@@ -1479,41 +1205,42 @@ send_sentinel_notification() {
 	fi
 }
 
-##########################################################
-########################## MAIN ##########################
-##########################################################
+set_plan_limits_for_user() {
+    (opencli plan-apply "$plan_id" "$username" > /dev/null 2>&1 &)
+}
+
+# MAIN
 (
 flock -n 200 || { echo "[✘] Error: A user creation process is already running."; echo "Please wait for it to complete before starting a new one. Exiting."; exit 1; }
 check_username_is_valid                      # validate username first
 validate_password_in_lists $password         # compare with weakpass dictionaries
 get_slave_if_set                             # check if slave should be used and test connection
 get_existing_users_count                     # list users from db
-get_plan_info_and_check_requirements         # list plan from db and check available resources
+get_plan_info                                # get plan ID
 check_if_reseller                            # if reseller, check limits
 print_debug_info_before_starting_creation    # print debug info
 validate_ssh_login                           # test ssh logins for cluster member
-create_user_set_quota_and_password           # create user
+create_local_user                            # create user on master
+create_remote_user $user_id                  # create user on slave
 sshfs_mounts                                 # mount /home/user
 setup_ssh_key                                # set key for the user
 install_docker_and_add_user
 create_volume				                 # initializing user home dir
 docker_rootless                              # install 
-set_cpu_and_ram "$cpu" "$numram"
 docker_compose                               # magic happens here
 create_context                               # on master
 test_compose_command_for_user
 get_php_version                              # must be before run_docker !
-run_docker                                   # run docker container
-reload_user_quotas                           # refresh their quotas
+run_docker
 generate_user_password_hash
 copy_skeleton_files                          # get webserver, php version and mysql type for user
 download_images
 start_panel_service                          # start user panel if not running
 save_user_to_db                              # save user to mysql db
 send_sentinel_notification                   # write notification to openadmin
-collect_stats                                # 
 update_accounts_for_reseller                 # update current_accounts for reseller in their json file
 send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
 permisisons_do
+set_plan_limits_for_user "$username"
 exit 0
 )200>/var/lock/openpanel_user_add.lock

@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -71,8 +71,8 @@ get_context_for_user() {
 }
 
 get_webserver_for_user(){
-	    output=$(opencli webserver-get_webserver_for_user "$owner")		
-		WEB_SERVER=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+		web_server=$(grep "^WEB_SERVER=" "/home/$context/.env" | awk -F '=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/')
+		WEB_SERVER=$(echo "$web_server" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
         if [[ "$WEB_SERVER" == "openlitespeed" || "$WEB_SERVER" == "litespeed" ]]; then
             echo "ERROR: PHP version can not be changed on $WEB_SERVER webserver. Instead you need to change the docker image tag for the user."
             echo "Available tags: https://hub.docker.com/r/litespeedtech/openlitespeed/tags"

@@ -5,7 +5,7 @@
 # Usage: opencli <COMMAND-NAME> <ATTRIBUTES>
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 04.11.2025
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,11 +28,10 @@
 # THE SOFTWARE.
 ################################################################################
 
-readonly OPENCLI_VERSION="202.604.019"
+readonly OPENCLI_VERSION="202.604.020"
 readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
-readonly SCRIPT_DIR="/usr/local/opencli"
+readonly SCRIPTS_DIR="/usr/local/opencli"
 readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
-
 debug_flag=""
 
 show_about() {
@@ -47,10 +46,7 @@ EOF
 }
 
 show_history() {
-    if [[ ! -f "$LOG_FILE" ]]; then
-        echo "Warning: log file $LOG_FILE not found."
-        return
-    fi
+    [[ -f "$LOG_FILE" ]] || { echo "Warning: log file $LOG_FILE not found."; return; }
 
     echo "Recently used commands:"
     tail -n 100 "$LOG_FILE" | grep -o 'opencli [^ ]*' | sort | uniq | tail -n 5 | sed 's/^/  /'
@@ -68,16 +64,9 @@ Usage: opencli <COMMAND> [additional_arguments]
 
 Suggested commands:
   opencli faq                       Display frequently asked questions and answers.
-  opencli commands                  List all available OpenCLI commands and their usage.
+  opencli --help                    List all available OpenCLI commands and their usage.
 
 EOF
-}
-
-check_root() {
-    if [[ $EUID -ne 0 ]]; then
-        echo "OpenCLI scripts must be run as root user." >&2
-        exit 1
-    fi
 }
 
 log_command() {
@@ -101,72 +90,148 @@ run_hook() {
     fi
 
     case "$hook_type" in
-        pre)
-            bash ${debug_flag:+"$debug_flag"} "$hook_file" "$@" </dev/null >/dev/null 2>&1
-            ;;
-        post)
-            nohup bash "$hook_file" "$@" </dev/null >/dev/null 2>&1 &
-            ;;
+        pre) bash ${debug_flag:+"$debug_flag"} "$hook_file" "$@" </dev/null >/dev/null 2>&1 ;;
+        post) nohup bash "$hook_file" "$@" </dev/null >/dev/null 2>&1 & ;;
     esac
 }
 
 handle_special_commands() {
-    local command="$1"
-    shift
-
+    local command="$1"; shift
     case "$command" in
-        error)
-            python3 "${SCRIPT_DIR}/error.py" "$@"
-            exit 0
-            ;;
-        locale)
-            bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh") "$@"
-            exit 0
-            ;;
+        error) python3 "${SCRIPTS_DIR}/error.py" "$@"; exit 0 ;;
+        locale) bash ${debug_flag:+"$debug_flag"} <(curl -4sSL "https://raw.githubusercontent.com/stefanpejcic/openpanel-translations/main/install.sh") "$@"; exit 0 ;;
     esac
 }
 
 execute_command() {
-    local command="$1"
-    shift
-    local binary_path="${SCRIPT_DIR}/${command//-//}.sh"
+    local command="$1"; shift
+    local binary_path="${SCRIPTS_DIR}/${command//-//}.sh"
 
-    if [[ ! -f "$binary_path" ]]; then
-        echo "Error: Command '$command' not found." >&2
-        show_usage
-        show_history
-        show_about
-        exit 1
-    fi
+    [[ -f "$binary_path" ]] || { echo "Error: Command '$command' not found." >&2; show_usage; show_history; show_about; exit 1; }
 
     log_command "$command"
     run_hook "pre"  "$command" "$@"
     bash ${debug_flag:+"$debug_flag"} "$binary_path" "$@"
     run_hook "post" "$command" "$@"
+}
 
-    #docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_dashboard:*:html' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
+generate_commands() {
+    readonly ALIAS_FILE="${SCRIPTS_DIR}/aliases.txt"
+    readonly GREEN='\033[0;32m'
+    readonly RESET='\033[0m'
+    
+    readonly SEARCH_QUERY="${1:-}"
+    readonly EXCLUDE_PATTERNS=( ".git/*" ".github/*" "ftp/users.sh" "db.sh" "dev.sh" "enterprise.sh" "progress_bar.sh" )
+    
+    declare -a exclude_args=()
+
+    [[ -d "$SCRIPTS_DIR" ]] || { echo "Error: Scripts directory '$SCRIPTS_DIR' not found." >&2; exit 1; }
+    [[ -w "$ALIAS_FILE" ]] || touch "$ALIAS_FILE" 2>/dev/null || { echo "Error: Cannot write to alias file '$ALIAS_FILE'." >&2; exit 1; }
+    [[ -z "$SEARCH_QUERY" ]] && : > "$ALIAS_FILE"
+    
+    extract_script_info() {
+        local script="$1"
+        local -n info_ref="$2"
+        info_ref[description]=$(grep -E "^# Description:" "$script" 2>/dev/null | sed 's/^# Description: //' || true)
+        info_ref[usage]=$(grep -E "^# Usage:" "$script" 2>/dev/null | sed 's/^# Usage: //' || true)
+        info_ref[docs]=$(grep -E "^# Docs:" "$script" 2>/dev/null | sed 's/^# Docs: //' || true)
+    }
+    
+    generate_alias_name() {
+        local script="$1"
+        local script_name dir_name alias_name
+    
+        script_name=$(basename "$script")
+        script_name="${script_name%.sh}"
+        script_name="${script_name%.py}"
+    
+        dir_name=$(dirname "$script")
+        dir_name="${dir_name##*/}"
+    
+        if [[ "$dir_name" == "opencli" ]]; then
+            alias_name="$script_name"
+        else
+            alias_name="${dir_name}-${script_name}"
+        fi
+    
+        echo "$alias_name"
+    }
+    
+    display_command_info() {
+        local full_alias="$1"
+        local script="$2"
+        
+        if [[ -n "$SEARCH_QUERY" && "$full_alias" != *"$SEARCH_QUERY"* ]]; then
+            return
+        fi
+    
+        local -A script_info
+        extract_script_info "$script" script_info
+    
+        echo -e "${GREEN}${full_alias}${RESET}"
+        if [[ -n "${script_info[description]:-}" ]]; then
+            echo "Description: ${script_info[description]}"
+        fi
+        if [[ -n "${script_info[usage]:-}" ]]; then
+            echo "Usage: ${script_info[usage]}"
+        fi
+        if [[ -n "${script_info[docs]:-}" ]]; then
+            echo "Docs: ${script_info[docs]}"
+        fi
+        echo "------------------------"
+    }
+    
+    exclude_args=()
+    for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+        exclude_args+=("!" "-path" "${SCRIPTS_DIR}/${pattern}")
+    done
+    
+    declare -a commands_list=()
+    
+    while IFS= read -r -d '' script; do
+        [[ -r "$script" ]] || continue
+
+        alias_name=$(generate_alias_name "$script")
+        full_alias="opencli ${alias_name}"
+        
+        display_command_info "$full_alias" "$script"
+        commands_list+=("$full_alias")
+    
+    done < <(find "$SCRIPTS_DIR" -type f -name "*.sh" "${exclude_args[@]}" -print0)
+    
+    special_commands=("opencli error|Displays information for specific error ID received in OpenPanel UI.|opencli error <ID_HERE>" "opencli locale|Install locales (Languages) for OpenPanel UI.|opencli locale <CODE>")
+
+    for cmd in "${special_commands[@]}"; do
+        IFS="|" read -r name desc usage <<< "$cmd"
+        if [[ -z "$SEARCH_QUERY" || "$name" == *"$SEARCH_QUERY"* ]]; then
+            echo -e "${GREEN}${name}${RESET}"
+            echo "Description: ${desc}"
+            echo "Usage: ${usage}"
+            echo "------------------------"
+        fi
+        commands_list+=("$name")
+    done
+    
+    if [[ -z "$SEARCH_QUERY" && ${#commands_list[@]} -gt 0 ]]; then
+        printf '%s\n' "${commands_list[@]}" | sort > "$ALIAS_FILE"
+    fi
 }
 
 main() {
-    check_root
+    # validation
+    [[ $EUID -ne 0 ]] && { echo "OpenCLI scripts must be run as root user." >&2; exit 1; }
+    [[ $# -lt 1 ]] && { show_usage; show_history; show_about; exit 1; }
 
-    if [[ $# -lt 1 ]]; then
-        show_usage
-        show_history
-        show_about
-        exit 1
-    fi
+    # debug
+    [[ "$1" == "-x" ]] && { debug_flag="-x"; shift; }
 
-    if [[ "$1" == "-x" ]]; then
-        debug_flag="-x"
-        shift
-    fi
+    # help
+    case "$1" in help|-h|--help) generate_commands; exit 0 ;; esac
+    case "$2" in help|-h|--help) generate_commands "$1"; exit 0 ;; esac
 
-    local command="$1"
-    shift
-
+    # run
+    local command="$1"; shift
     [[ "$command" == "-v" ]] && command="--version"
-
     handle_special_commands "$command" "$@"
     execute_command "$command" "$@"
 }

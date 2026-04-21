@@ -5,7 +5,7 @@
 # Usage: opencli user-varnish <USERNAME> [on|off]
 # Author: Stefan Pejcic
 # Created: 20.03.2025
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,23 +28,21 @@
 # THE SOFTWARE.
 ################################################################################
 
-
 USER=$1
 ACTION=$2
-# todo: check context!
 
-ENV_FILE="/home/$USER/.env"
+[ -z "$USER" ] && { echo "Usage: opencli user-varnish <user> [enable|disable]"; exit 1; }
 
-if [ -z "$USER" ]; then
-    echo "Usage: opencli user-varnish <user> [enable|disable]"
-    exit 1
-fi
+get_docker_context(){
+	IFS=',' read -r user_id CONTEXT <<< "$(mysql -se "SELECT CONCAT(id, ',', server) FROM users WHERE username='${user}';")"
+	if [ -z "$user_id" ] || [ -z "$CONTEXT" ]; then
+	    echo "FATAL ERROR: Missing user ID or context for user $user."
+	    exit 1
+	fi
+}
 
-if [ ! -f "$ENV_FILE" ]; then
-    echo "Error: $ENV_FILE not found!"
-    exit 1
-fi
-
+ENV_FILE="/home/$CONTEXT/.env"
+[ -f "$ENV_FILE" ] || { echo "Error: $ENV_FILE not found!"; exit 1; }
 
 check_status() {
   if grep -q "^#PROXY_HTTP_PORT=" "$ENV_FILE"; then
@@ -54,85 +52,47 @@ check_status() {
   else
       STATUS="Unknown"
   fi
-  
+
   echo "Current status: $STATUS"
 }
 
+toggle_service() { cd /home/$CONTEXT && docker --context="$CONTEXT" compose "$@" 2>/dev/null; }
 
-get_webserver_for_user(){
-	    log "Checking webserver configuration"
-		output=$(opencli webserver-get_webserver_for_user "$USER")
-		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
-}
-
-
-stop_webserver(){
-  cd /home/$USER && docker --context $USER compose down $ws > /dev/null;
-}
-
-stop_varnish(){
-  cd /home/$USER && docker --context $USER compose down varnish #> /dev/null;
-}
-
-start_varnish(){
-  cd /home/$USER && docker --context $USER compose up -d varnish #> /dev/null;
-}
-
-start_webserver(){
-  cd /home/$USER && docker --context $USER compose up -d $ws > /dev/null;
-}
-
-check_varnish() {
+check_varnish_status() {
   local action="$1"
   local running=1
 
-  if cd "/home/$USER" && docker --context "$USER" compose ps -q varnish | grep -q .; then
+  if cd "/home/$CONTEXT" && docker --context="$CONTEXT" compose ps -q varnish | grep -q .; then
     running=0
   fi
 
   case "$action" in
-    start)
-      [[ $running -eq 0 ]] && echo "Varnish Cache is now enabled." || echo "Failed to enable Varnish Cache."
-      ;;
-    stop)
-      [[ $running -ne 0 ]] && echo "Varnish Cache is now disabled." || echo "Failed to disable Varnish Cache."
-      ;;
-    status)
-      [[ $running -eq 0 ]] && echo "Varnish Cache is enabled." || echo "Varnish Cache is disabled."
-      ;;
-    *)
-      echo "Usage: status_varnish {start|stop|status}"
-      return 1
-      ;;
+    start) [[ $running -eq 0 ]] && echo "Varnish Cache is now enabled." || echo "Failed to enable Varnish Cache." ;;
+    stop) [[ $running -ne 0 ]] && echo "Varnish Cache is now disabled." || echo "Failed to disable Varnish Cache." ;;
+    status) [[ $running -eq 0 ]] && echo "Varnish Cache is enabled." || echo "Varnish Cache is disabled." ;;
+    *) echo "Usage: status_varnish {start|stop|status}"; return 1 ;;
   esac
 }
 
-
-
+# Main
 if [ -n "$ACTION" ]; then
-    get_webserver_for_user
+    WEB_SERVER=$(grep "^WEB_SERVER=" "$ENV_FILE" | awk -F'=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/' | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1);
     case "$ACTION" in
         enable)
-            stop_webserver
+            toggle_service down "$WEB_SERVER"
             sed -i 's/^#PROXY_HTTP_PORT=/PROXY_HTTP_PORT=/' "$ENV_FILE"
-            start_webserver
-            start_varnish
-            check_varnish start
+            toggle_service up -d "$WEB_SERVER" varnish
+            check_varnish_status start
             ;;
         disable)
-            stop_webserver
+            toggle_service down "$WEB_SERVER"
             sed -i 's/^PROXY_HTTP_PORT=/#PROXY_HTTP_PORT=/' "$ENV_FILE"
-            stop_varnish
-            start_webserver
-			check_varnish stop
+            toggle_service down varnish
+            toggle_service up -d "$WEB_SERVER"
+			check_varnish_status stop
             ;;
-        status)
-			check_varnish status
-            ;;			
-        *)
-            echo "Invalid action. Use 'status', 'enable' or 'disable'."
-            exit 1
-            ;;
+        status) check_varnish_status status ;;			
+        *) echo "Invalid action. Use 'status', 'enable' or 'disable'."; exit 1 ;;
     esac
 else
   check_status

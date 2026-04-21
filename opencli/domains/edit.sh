@@ -5,7 +5,7 @@
 # Usage: opencli domains-edit <DOMAIN_NAME>
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -46,8 +46,8 @@ DOCROOT=$(echo "$OUTPUT" | awk '{print $3}')
 
 
 get_webserver_for_user(){
-	  output=$(opencli webserver-get_webserver_for_user $USERNAME)		
-		ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+	local web_server=$(grep "^WEB_SERVER=" "/home/$CONTEXT/.env" | awk -F '=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/')
+	WEB_SERVER=$(echo "$web_server" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)		
 }
 
 
@@ -57,9 +57,9 @@ if [ "$USE_WS" -eq 1 ]; then
     if [ -f "$FINAL_PATH" ]; then
         echo "Opening VirtualHosts file in nano: $FINAL_PATH"
         nano "$FINAL_PATH"
-        echo "Restarting $ws webserver to save changes.."
+        echo "Restarting $WEB_SERVER webserver to save changes.."
         get_webserver_for_user
-        docker --context=$CONTEXT restart $ws
+        docker --context=$CONTEXT restart $WEB_SERVER
     else
         echo "ERROR: VirtualHosts for domain $DOMAIN does not exist: $FINAL_PATH"
         exit 1

@@ -15,7 +15,6 @@
 
 VERSION=$(opencli version)
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
-readonly CADDY_FILE="/etc/openpanel/caddy/Caddyfile"
 readonly CADDY_CERT_DIR="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/"
 readonly GITHUB_CONF_REPO="https://github.com/stefanpejcic/openpanel-configuration"
 GREEN='\033[0;32m'
@@ -61,7 +60,7 @@ get_license() {
 
 
 get_public_ip() {
-    ip=$(curl --silent --max-time 1 -4 https://ip.openpanel.com || wget --timeout=1 -qO- https://ipv4.openpanel.com || curl --silent --max-time 1 -4 https://ifconfig.me)
+    ip=$(curl --silent --max-time 1 -4 https://ip.openpanel.com || curl --silent --max-time 1 -4 https://ifconfig.me)
     
     if [ -z "$ip" ] || ! [[ "$ip" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         ip=$(hostname -I | awk '{print $1}')
@@ -72,11 +71,7 @@ get_public_ip() {
 
 
 get_admin_url() {
-    domain_block=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag {print}' "$CADDY_FILE")
-    domain=$(echo "$domain_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
-    domain=$(echo "$domain" | sed 's/[[:space:]]*{//' | xargs)
-    domain=$(echo "$domain" | sed 's|^http[s]*://||')
-
+    domain=$(opencli domain)
     if [[ -f "/root/disable_2087_port" ]]; then
 		admin_port="443"
 	else

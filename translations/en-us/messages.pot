@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.56\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-20 00:27+0200\n"
+"POT-Creation-Date: 2026-04-21 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -132,7 +132,7 @@ msgstr ""
 #: modules/goaccess.py:23 modules/json/favicons.py:33
 #: modules/json/screenshots.py:81 modules/mautic.py:93 modules/mautic.py:190
 #: modules/mautic.py:431 modules/mautic.py:595 modules/mautic.py:788
-#: modules/php.py:453 modules/pm2.py:597 modules/pm2.py:1293
+#: modules/php.py:453 modules/pm2.py:572 modules/pm2.py:1268
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:116
 #: modules/waf.py:256 modules/waf.py:306 modules/waf.py:360
 #: modules/website_builder.py:58 modules/website_builder.py:114
@@ -712,83 +712,83 @@ msgstr ""
 msgid "phpMyAdmin"
 msgstr ""
 
-#: modules/pm2.py:199
+#: modules/pm2.py:174
 msgid "File path is missing"
 msgstr ""
 
-#: modules/pm2.py:216
+#: modules/pm2.py:191
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:492 modules/website_builder.py:246 modules/wordpress.py:1561
+#: modules/pm2.py:467 modules/website_builder.py:246 modules/wordpress.py:1561
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
-#: modules/pm2.py:499 templates/manager/pm2_install.html:8
+#: modules/pm2.py:474 templates/manager/pm2_install.html:8
 msgid "Install Application"
 msgstr ""
 
-#: modules/pm2.py:1108
+#: modules/pm2.py:1083
 msgid "Unable to detect container type for the application."
 msgstr ""
 
-#: modules/pm2.py:1116
+#: modules/pm2.py:1091
 msgid "Not a valid type, only NodeJS or Python applications can be edited."
 msgstr ""
 
-#: modules/pm2.py:1120 modules/pm2.py:1327
+#: modules/pm2.py:1095 modules/pm2.py:1302
 msgid "Error connecting to database."
 msgstr ""
 
-#: modules/pm2.py:1162
+#: modules/pm2.py:1137
 msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
 msgstr ""
 
-#: modules/pm2.py:1166
+#: modules/pm2.py:1141
 msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
 msgstr ""
 
-#: modules/pm2.py:1170
+#: modules/pm2.py:1145
 msgid ""
 "Error saving: Startup file invalid (must start with /var/www/html/, no "
 "path traversal, ends with .js or .py)"
 msgstr ""
 
-#: modules/pm2.py:1174
+#: modules/pm2.py:1149
 msgid ""
 "Error saving: Provided custom startup command is invalid (no path "
 "traversal '..' allowed!)"
 msgstr ""
 
-#: modules/pm2.py:1178
+#: modules/pm2.py:1153
 msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
 
-#: modules/pm2.py:1182
+#: modules/pm2.py:1157
 msgid "Error saving: CPU core limit provided is not a positive integer."
 msgstr ""
 
-#: modules/pm2.py:1186
+#: modules/pm2.py:1161
 msgid "Error saving: Memory limit provided is not a positive integer."
 msgstr ""
 
-#: modules/pm2.py:1243
+#: modules/pm2.py:1218
 msgid ""
 "Changes saved, make sure to restart the application for changes to take "
 "effect."
 msgstr ""
 
-#: modules/pm2.py:1247
+#: modules/pm2.py:1222
 msgid "Environment file not found."
 msgstr ""
 
-#: modules/pm2.py:1313
+#: modules/pm2.py:1288
 msgid "Unable to detect service name for the application."
 msgstr ""
 
-#: modules/pm2.py:1322
+#: modules/pm2.py:1297
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
 msgstr ""
 

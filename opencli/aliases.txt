@@ -1,6 +1,5 @@
 opencli admin
 opencli api
-opencli commands
 opencli config
 opencli docker
 opencli docker-backup

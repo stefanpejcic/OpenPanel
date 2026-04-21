@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -144,8 +144,7 @@ get_admin_url() {
         local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.crt"
         local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key"
 
-        if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || \
-           { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
+        if { [ -f "$cert_path_on_hosts" ] && [ -f "$key_path_on_hosts" ]; } || { [ -f "$fallback_cert_path" ] && [ -f "$fallback_key_path" ]; }; then
             admin_url="https://${domain}:${admin_port}/"
         else
             admin_url="http://${domain}:${admin_port}/"
@@ -156,12 +155,6 @@ get_admin_url() {
 	    hostname_ip=$(echo "$ip_block" | sed '/^\s*$/d' | grep -v '^\s*#' | head -n1)
 	    hostname_ip=$(echo "$hostname_ip" | sed 's/[[:space:]]*{//' | xargs)
 	
-	    if [[ -f "/root/disable_2087_port" ]]; then
-	        admin_port="443"
-	    else
-	        admin_port=$(echo "$ip_block" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
-	    fi
-
 	    if [ -n "$hostname_ip" ]; then
 	        #2a. check Let's Encrypt shortlived
 	        local ip_cert_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${hostname_ip}/${hostname_ip}.crt"

@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 19.04.2026
+# Last Modified: 20.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -107,8 +107,8 @@ restart_tor_for_user() {
 
 get_webserver_for_user(){
 	log "Checking webserver configuration"
-	output=$(opencli webserver-get_webserver_for_user $user)		
-	ws=$(echo "$output" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+	local web_server=$(grep "^WEB_SERVER=" "/home/$context/.env" | awk -F '=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/')
+	WEB_SERVER=$(echo "$web_server" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)	
 }
 
 rm_domain_to_clamav_list(){	
@@ -180,14 +180,14 @@ get_user_info() {
 
 
 vhost_files_delete() {
-	vhost_in_docker_file="/etc/$ws/sites-available/${domain_name}.conf"
+	vhost_in_docker_file="/etc/$WEB_SERVER/sites-available/${domain_name}.conf"
 
 	log "Deleting $vhost_in_docker_file"	
 	vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
 	rm $vhost_in_docker_file >/dev/null 2>&1
 
- 	log "Restarting $ws to apply changes"
-	docker --context=$context $user restart $ws >/dev/null 2>&1
+ 	log "Restarting $WEB_SERVER to apply changes"
+	docker --context=$context $user restart $WEB_SERVER >/dev/null 2>&1
 }
 
 
