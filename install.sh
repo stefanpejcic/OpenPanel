@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           20.04.2026
+# Last Modified:           21.04.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -669,7 +669,7 @@ generate_ssl() {
     hostname=$(awk '/# START HOSTNAME DOMAIN #/{f=1;next}/# END HOSTNAME DOMAIN #/{f=0}f{print $1;exit}' "${ETC_DIR}caddy/Caddyfile")
 	
 	if [[ -z "$hostname" || "$hostname" == "example.net" ]]; then
-		# 2. check fir IP for shortlived LE ssl
+		# 2. check for IP for shortlived LE ssl
 	    hostname=$(awk '/# START HOSTNAME IP #/{f=1;next}/# END HOSTNAME IP #/{f=0}f{print $1;exit}' "${ETC_DIR}caddy/Caddyfile")
 	fi
 	# 3. if neither, skip ssl generation
@@ -686,14 +686,15 @@ generate_ssl() {
     fi
 
     cd /root && run docker --context default compose up -d caddy
-    for attempt in {1..5}; do
+    for attempt in {1..3}; do
         echo "SSL attempt $attempt for $hostname..."
         if curl -4 -sf -o /dev/null "https://$hostname"; then
             ok "SSL ready. OpenAdmin is now using HTTPS."; run systemctl restart admin; return
         fi
         run docker restart caddy; sleep 5
     done
-    warn "SSL generation failed after 5 attempts. OpenAdmin will use HTTP."
+    warn "SSL generation failed. HTTP will be used for panel access."
+	echo "Error was: $(docker logs --tail 100 caddy 2>&1  | grep -Ei 'tls|acme|certificate|renew|obtain|challenge' | tail -1)"
 }
 
 configure_waf() {
