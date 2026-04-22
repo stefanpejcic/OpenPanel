@@ -212,7 +212,7 @@ def when_ready(server):
     try:
         cmd = [
             "docker", "--context=default", "exec", "openpanel_redis",
-            "bash", "-c",
+            "sh", "-c",
             "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL"
         ]
         result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)

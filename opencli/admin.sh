@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 20.04.2026
+# Last Modified: 21.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.comm
 # 
@@ -294,15 +294,18 @@ check_edition() {
 
 # ---------------------- END HELPER FUNCTIONS ---------------------- #
 
-
 # ---------------------- opencli admin ---------------------- #
 detect_service_status() {
     if systemctl is-active --quiet $service_name; then
         admin_url=$(get_admin_url)
         echo -e "${GREEN}●${RESET} OpenAdmin is running and is available on: $admin_url"
     else
-         echo -e "${RED}×${RESET} OpenAdmin is not running. To enable it run 'opencli admin on' "
-    fi
+		if [[ -f /root/openadmin_is_disabled ]]; then
+			echo -e "${RED}×${RESET} OpenAdmin is disabled. To enable it run 'opencli admin on' "
+		else
+			echo -e "${RED}×${RESET} OpenAdmin is not running. To enable it run 'opencli admin on' "
+		fi
+	fi
 }
 
 

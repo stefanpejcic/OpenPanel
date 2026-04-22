@@ -5,7 +5,7 @@
 # Usage: opencli docker-collect_stats
 # Author: Stefan Pejcic
 # Created: 22.07.2025
-# Last Modified: 20.04.2026
+# Last Modified: 21.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -43,9 +43,9 @@ flock -n 200 || { echo "Error: Script already running."; exit 1; }
 
 process_user() {
     local USER_NAME="$1"
-    local UID_NUM=$(id -u $USER_NAME)
 
-    if [ -z "$UID_NUM" ]; then
+    local UID_NUM
+    if ! UID_NUM=$(id -u "$USER_NAME" 2>/dev/null); then
         echo '{"error": "Context '"$USER_NAME"' not found"}' >&2
         return 1
     fi
@@ -57,30 +57,6 @@ process_user() {
         echo '{"error": "Cgroup for '"$USER_NAME"' not found ('"$CGROUP"')"}' >&2
         return 1
     fi
-
-    to_h() {
-        local num=$1
-        if   [ "$num" -gt 1073741824 ]; then awk "BEGIN {printf \"%.1fG\", $num/1073741824}"
-        elif [ "$num" -gt 1048576    ]; then awk "BEGIN {printf \"%.1fM\", $num/1048576}"
-        elif [ "$num" -gt 1024       ]; then awk "BEGIN {printf \"%.1fK\", $num/1024}"
-        else echo "${num}B"
-        fi
-    }
-
-    cpu_human() {
-        local pct=$1
-        awk "BEGIN {printf \"%.1f cores\", $pct/100}"
-    }
-
-    to_h_bits() {
-        local num=$1
-        if   [ "$num" -gt 1000000000 ]; then awk "BEGIN {printf \"%.1fGbit\", $num/1000000000}"
-        elif [ "$num" -gt 1000000    ]; then awk "BEGIN {printf \"%.1fMbit\", $num/1000000}"
-        elif [ "$num" -gt 1000       ]; then awk "BEGIN {printf \"%.1fKbit\", $num/1000}"
-        else echo "${num}bit"
-        fi
-    }
-
 
     # CPU sample 1
     local CPU_STAT1=$(grep '^usage_usec' "$CGROUP/cpu.stat" | awk '{print $2}')
@@ -181,17 +157,76 @@ process_user() {
 
     local TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
+    local FMT
+    FMT=$(awk -v mem_max="$MEM_MAX" \
+               -v used="$USED" \
+               -v free="$FREE" \
+               -v buff="$BUFF_CACHE" \
+               -v avail="$AVAILABLE" \
+               -v bw_limit="$BW_LIMIT_BITS" \
+               -v bw_used="$BW_USED_BYTES" \
+               -v cpu_limit="$CPU_LIMIT_PCT" \
+               -v cpu_max="$CPU_MAX_PCT" \
+               -v cpu_srv="$CPU_TOTAL_SERVER" \
+               'function to_h(n,    s) {
+                if      (n > 1073741824) { s = sprintf("%.1fG", n/1073741824) }
+                else if (n > 1048576)    { s = sprintf("%.1fM", n/1048576) }
+                else if (n > 1024)       { s = sprintf("%.1fK", n/1024) }
+                else                     { s = n "B" }
+                return s
+            }
+            function to_h_bits(n,    s) {
+                if      (n > 1000000000) { s = sprintf("%.1fGbit", n/1000000000) }
+                else if (n > 1000000)    { s = sprintf("%.1fMbit", n/1000000) }
+                else if (n > 1000)       { s = sprintf("%.1fKbit", n/1000) }
+                else                     { s = n "bit" }
+                return s
+            }
+            function cpu_h(p) { return sprintf("%.1f cores", p/100) }
+        BEGIN {
+            printf "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+                to_h(mem_max), to_h(used), to_h(free),
+                to_h(buff),    to_h(avail),
+                to_h_bits(bw_limit), to_h_bits(bw_used),
+                cpu_h(cpu_limit), cpu_h(cpu_max), cpu_h(cpu_srv),
+                to_h_bits(bw_used)   # bw total_sent human (bits display)
+        }')
+ 
+    IFS='|' read -r \
+        H_MEM_MAX H_USED H_FREE H_BUFF H_AVAIL \
+        H_BW_LIMIT H_BW_USED \
+        H_CPU_LIMIT H_CPU_MAX H_CPU_SRV \
+        H_BW_SENT \
+        <<< "$FMT"
+ 
     local current_usage
-    current_usage=$(echo "{\"timestamp\":\"$TIMESTAMP\",\"user\":\"$USER_NAME\",\"uid\":$UID_NUM,\"memory\":{\"total\":{\"bytes\":$MEM_MAX,\"human\":\"$(to_h $MEM_MAX)\"},\"used\":{\"bytes\":$USED,\"human\":\"$(to_h $USED)\"},\"free\":{\"bytes\":$FREE,\"human\":\"$(to_h $FREE)\"},\"buff_cache\":{\"bytes\":$BUFF_CACHE,\"human\":\"$(to_h $BUFF_CACHE)\"},\"available\":{\"bytes\":$AVAILABLE,\"human\":\"$(to_h $AVAILABLE)\"},\"usage_pct\":$MEMORY_USAGE_PCT},\"cpu\":{\"usage\":{\"pct\":$CPU_LIMIT_PCT,\"human\":\"$(cpu_human $CPU_LIMIT_PCT)\"},\"total\":{\"pct\":$CPU_MAX_PCT,\"human\":\"$(cpu_human $CPU_MAX_PCT)\"},\"server\":{\"pct\":$CPU_TOTAL_SERVER,\"human\":\"$(cpu_human $CPU_TOTAL_SERVER)\"}},\"bandwidth\":{\"limit\":{\"bits\":$BW_LIMIT_BITS,\"human\":\"$(to_h_bits $BW_LIMIT_BITS)\"},\"total_sent\":{\"bytes\":$BW_USED_BYTES,\"human\":\"$(to_h_bits $BW_USED_BYTES)\"},\"usage_pct\":$BW_USAGE_PCT},\"warning\":$WARN_MSG}")
-
+    current_usage=$(printf '%s' \
+        "{\"timestamp\":\"$TIMESTAMP\"," \
+        "\"user\":\"$USER_NAME\"," \
+        "\"uid\":$UID_NUM," \
+        "\"memory\":{" \
+            "\"total\":{\"bytes\":$MEM_MAX,\"human\":\"$H_MEM_MAX\"}," \
+            "\"used\":{\"bytes\":$USED,\"human\":\"$H_USED\"}," \
+            "\"free\":{\"bytes\":$FREE,\"human\":\"$H_FREE\"}," \
+            "\"buff_cache\":{\"bytes\":$BUFF_CACHE,\"human\":\"$H_BUFF\"}," \
+            "\"available\":{\"bytes\":$AVAILABLE,\"human\":\"$H_AVAIL\"}," \
+            "\"usage_pct\":$MEMORY_USAGE_PCT}," \
+        "\"cpu\":{" \
+            "\"usage\":{\"pct\":$CPU_LIMIT_PCT,\"human\":\"$H_CPU_LIMIT\"}," \
+            "\"total\":{\"pct\":$CPU_MAX_PCT,\"human\":\"$H_CPU_MAX\"}," \
+            "\"server\":{\"pct\":$CPU_TOTAL_SERVER,\"human\":\"$H_CPU_SRV\"}}," \
+        "\"bandwidth\":{" \
+            "\"limit\":{\"bits\":$BW_LIMIT_BITS,\"human\":\"$H_BW_LIMIT\"}," \
+            "\"total_sent\":{\"bytes\":$BW_USED_BYTES,\"human\":\"$H_BW_SENT\"}," \
+            "\"usage_pct\":$BW_USAGE_PCT}," \
+        "\"warning\":$WARN_MSG}")
+ 
     local usage_file="/home/$USER_NAME/resource_usage.txt"
     echo "$current_usage" >> "$usage_file"
-    
-    if [ -f "$usage_file" ]; then
-        total_lines=$(wc -l < "$usage_file")
-        if [ "$resource_usage_retention" -gt 0 ] && [ "$total_lines" -gt "$resource_usage_retention" ]; then
-            tail -n "$resource_usage_retention" "$usage_file" > "$usage_file.tmp" && mv "$usage_file.tmp" "$usage_file"
-        fi
+
+    total_lines=$(wc -l < "$usage_file")
+    if [ "$resource_usage_retention" -gt 0 ] && [ "$total_lines" -gt "$resource_usage_retention" ]; then
+        tail -n "$resource_usage_retention" "$usage_file" > "$usage_file.tmp" && mv "$usage_file.tmp" "$usage_file"
     fi
 
     echo "$current_usage"
@@ -204,14 +239,11 @@ fi
 
 if [ "$1" == "--all" ]; then
     if command -v repquota &>/dev/null; then
-        opencli user-quota #&>/dev/null
+        opencli user-quota &>/dev/null
     fi
 
-    sync && echo 1 > /proc/sys/vm/drop_caches
-    users=($(opencli user-list --json \
-      | jq -r '.data[]
-               | select(.username | startswith("SUSPENDED_") | not)
-               | .context'))
+    #sync && echo 1 > /proc/sys/vm/drop_caches
+    users=($(opencli user-list --json | jq -r '.data[] | select(.username | startswith("SUSPENDED_") | not) | .context'))
 else
     users=("$1")
 fi
@@ -220,7 +252,8 @@ SERVER_MEMORY=$(grep MemTotal /proc/meminfo | awk '{print $2 * 1024}')  # KB -> 
 SERVER_CPUS=$(nproc)
 
 for user in "${users[@]}"; do
-    process_user "$user"
+    process_user "$user" &
 done
+wait
 
 ) 200>/root/openpanel_docker_collect_stats.lock

@@ -5,7 +5,7 @@
 # Usage: opencli user-login <username> [--open|--delete]
 # Author: Stefan Pejcic
 # Created: 27.01.2026
-# Last Modified: 20.04.2026
+# Last Modified: 21.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -123,8 +123,6 @@ get_openpanel_url() {
 		ip=$(get_public_ip)
 		openpanel_url="http://${ip}:$PORT/"
 	fi
-
-    echo "$openpanel_url"
 }
 
 
@@ -168,7 +166,7 @@ fi
 
 
 # 3. Format login link with the token
-openpanel_url=$(get_openpanel_url)
+get_openpanel_url
 BASE_URL="${openpanel_url}login_autologin"
 QUERY="admin_token=$(urlencode "$ADMIN_TOKEN")&username=$(urlencode "$USERNAME")"
 LOGIN_URL="${BASE_URL}?${QUERY}"

@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 20.04.2026
+# Last Modified: 21.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,9 +28,6 @@
 # THE SOFTWARE.
 ################################################################################
 
-
-
-# Check if the correct number of arguments are provided
 if [ "$#" -lt 2 ]; then
     echo "Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--debug]"
     exit 1
@@ -500,10 +497,10 @@ start_default_php_fpm_service() {
 
 vhost_files_create() {
 	vhost_in_docker_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
- 	vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_${ws}_domain.conf" # todo litespeed file!
+ 	vhost_docker_template="/etc/openpanel/nginx/vhosts/1.1/docker_${WEB_SERVER}_domain.conf" # todo litespeed file!
  	get_varnish_for_user
 
-	$SKIP_STARTING_CONTAINERS && log "Skipping starting ${ws} container." || {
+	$SKIP_STARTING_CONTAINERS && log "Skipping starting ${WEB_SERVER} container." || {
 	    services="$WEB_SERVER"
 	    [[ $VARNISH == true ]] && services="$services varnish"
 	    log "Starting $services containers.."

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.56\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-04-21 00:27+0200\n"
+"POT-Creation-Date: 2026-04-22 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -132,7 +132,7 @@ msgstr ""
 #: modules/goaccess.py:23 modules/json/favicons.py:33
 #: modules/json/screenshots.py:81 modules/mautic.py:93 modules/mautic.py:190
 #: modules/mautic.py:431 modules/mautic.py:595 modules/mautic.py:788
-#: modules/php.py:453 modules/pm2.py:572 modules/pm2.py:1268
+#: modules/php.py:390 modules/pm2.py:572 modules/pm2.py:1268
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:116
 #: modules/waf.py:256 modules/waf.py:306 modules/waf.py:360
 #: modules/website_builder.py:58 modules/website_builder.py:114
@@ -606,8 +606,8 @@ msgid ""
 msgstr ""
 
 #: modules/cache/varnish.py:193 modules/cache/varnish.py:223
-#: modules/pgadmin.py:48 modules/php.py:458 modules/php.py:467
-#: modules/php.py:481 modules/phpmyadmin.py:104
+#: modules/pgadmin.py:48 modules/php.py:395 modules/php.py:404
+#: modules/php.py:418 modules/phpmyadmin.py:104
 #: templates/files/backup_settings.html:31
 #: templates/files/backup_settings.html:107
 msgid "error"
@@ -643,39 +643,39 @@ msgstr ""
 msgid "Container port not found for the user."
 msgstr ""
 
-#: modules/php.py:166
+#: modules/php.py:148
 msgid "Invalid input data"
 msgstr ""
 
-#: modules/php.py:174
+#: modules/php.py:156
 msgid "Invalid PHP version format"
 msgstr ""
 
-#: modules/php.py:204 modules/php.py:509
+#: modules/php.py:186 modules/php.py:446
 msgid "success"
 msgstr ""
 
-#: modules/php.py:208
+#: modules/php.py:190
 msgid "Configuration file not found"
 msgstr ""
 
-#: modules/php.py:263
+#: modules/php.py:230
 msgid "Set Default version"
 msgstr ""
 
-#: modules/php.py:437
+#: modules/php.py:376
 msgid ""
 "Only one PHP version can be used on Litespeed, to change version for all "
 "domains use this page."
 msgstr ""
 
-#: modules/php.py:457
+#: modules/php.py:394
 msgid ""
 "For Litespeed PHP version can not be set per-domain. To change version "
 "for all domains, use the 'Default PHP Version' page."
 msgstr ""
 
-#: modules/account/account.py:137 modules/php.py:536
+#: modules/account/account.py:137 modules/php.py:470
 #: templates/psql/pgadmin.html:105
 msgid "Settings"
 msgstr ""
@@ -1767,11 +1767,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:748
+#: modules/json/helpers.py:763
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:754
+#: modules/json/helpers.py:769
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1835,7 +1835,7 @@ msgstr ""
 msgid "PHP.INI Editor"
 msgstr ""
 
-#: modules/phpd/php_options.py:143 templates/emails/accounts.html:55
+#: modules/phpd/php_options.py:144 templates/emails/accounts.html:55
 #: templates/manager/wp/single.html:147
 msgid "Options"
 msgstr ""

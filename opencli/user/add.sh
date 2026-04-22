@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 20.04.2026
+# Last Modified: 21.04.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -448,42 +448,42 @@ download_images() {
 		    echo "$val"
 		}
 
-	sql_type=$(get_env_value "MYSQL_TYPE")
-	valid_sql_types=("mysql" "mariadb")
-	if [[ -n "$sql_type" ]]; then
-		if [[ ! " ${valid_sql_types[*]} " =~ $sql_type ]]; then
-	        echo "Warning: MYSQL_TYPE must be 'mysql' or 'mariadb', got '$sql_type'"
-	        sql_type=""
-	    fi
-	else
-	    echo "Warning: MYSQL_TYPE is not set"
-	    sql_type=""
-	fi
-	
-	ws_type=$(get_env_value "WEB_SERVER")
-	valid_ws_types=("nginx" "apache" "openresty" "openlitespeed" "litespeed")
-	if [[ -n "$ws_type" ]]; then
-	    if [[ ! " ${valid_ws_types[*]} " =~ " $ws_type " ]]; then
-	        echo "Warning: WEB_SERVER must be 'nginx', 'apache', 'openlitespeed', 'litespeed', or 'openresty', got '$ws_type'"
-	        ws_type=""
-	    fi
-	else
-	    echo "Warning: WEB_SERVER is not set"
-	    ws_type=""
-	fi
-	
-	images_to_pull=()
-	[[ -n "$ws_type" ]] && images_to_pull+=("$ws_type")
-	[[ -n "$sql_type" ]] && images_to_pull+=("$sql_type")
-    [[ ! "$ws_type" =~ litespeed && -n "$php_image" ]] && images_to_pull+=("php-fpm-$php_version")
-	
-	if [[ ${#images_to_pull[@]} -eq 0 ]]; then
-	    echo "Warning: No valid images to pull."
-	    return 1
-	fi
-	
-	log "Starting pull for images: ${images_to_pull[*]} in background..."
-	nohup sh -c "cd /home/$username/ && docker --context=$username compose pull ${images_to_pull[*]}" </dev/null >nohup.out 2>nohup.err &
+		sql_type=$(get_env_value "MYSQL_TYPE")
+		valid_sql_types=("mysql" "mariadb")
+		if [[ -n "$sql_type" ]]; then
+			if [[ ! " ${valid_sql_types[*]} " =~ $sql_type ]]; then
+		        echo "Warning: MYSQL_TYPE must be 'mysql' or 'mariadb', got '$sql_type'"
+		        sql_type=""
+		    fi
+		else
+		    echo "Warning: MYSQL_TYPE is not set"
+		    sql_type=""
+		fi
+		
+		ws_type=$(get_env_value "WEB_SERVER")
+		valid_ws_types=("nginx" "apache" "openresty" "openlitespeed" "litespeed")
+		if [[ -n "$ws_type" ]]; then
+		    if [[ ! " ${valid_ws_types[*]} " =~ " $ws_type " ]]; then
+		        echo "Warning: WEB_SERVER must be 'nginx', 'apache', 'openlitespeed', 'litespeed', or 'openresty', got '$ws_type'"
+		        ws_type=""
+		    fi
+		else
+		    echo "Warning: WEB_SERVER is not set"
+		    ws_type=""
+		fi
+		
+		images_to_pull=()
+		[[ -n "$ws_type" ]] && images_to_pull+=("$ws_type")
+		[[ -n "$sql_type" ]] && images_to_pull+=("$sql_type")
+	    [[ ! "$ws_type" =~ litespeed && -n "$php_image" ]] && images_to_pull+=("php-fpm-$php_version")
+		
+		if [[ ${#images_to_pull[@]} -eq 0 ]]; then
+		    echo "Warning: No valid images to pull."
+		    return 1
+		fi
+		
+		log "Starting pull for images: ${images_to_pull[*]} in background..."
+		nohup sh -c "cd /home/$username/ && docker --context=$username compose pull ${images_to_pull[*]}" </dev/null >nohup.out 2>nohup.err &
 	else
 	    log "Skipping image pull due to the '--skip-images' flag."
 	fi  
