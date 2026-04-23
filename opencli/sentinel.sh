@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 21.04.2026
+# Last Modified: 22.04.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -124,8 +124,23 @@ email_notification() {
 }
 
 write_notification() {
-  local title=$1 message=$2
-  is_unread_message_present "$title" && return
+  local title="$1" message="$2" action="$3"
+
+  # if user action: check if admin enabled notification
+  if [ "$action" ]; then
+    [[ -n "$RUN_ACTION_LOCKED" ]] && return
+    export RUN_ACTION_LOCKED=1
+    
+    ACTION=$(validate_yes_no "$(ini_get $action)")
+    if [[ "$ACTION" == "no" ]]; then
+      echo "[!] Notifications are disabled for action: $action"; return
+    fi
+  else
+    # if system action: check if admin already notified
+    is_unread_message_present "$title" && return
+  fi
+
+  # Save to OpenAdmin > Notifications
   echo "$DISPLAY_TIME UNREAD $title MESSAGE: $message" >> "$LOG_FILE"
 
   # Trigger Email
@@ -600,33 +615,31 @@ check_https_traffic() {
     fi
   done < <(awk '/SYN-RECV/{split($4,a,":"); print a[length(a)]}' <<< "$ALL_CONNS" | sort | uniq -c | awk '{print $1, $2}')
 
-  # Established per-IP-per-port
+  local HIGH_TRAFFIC_LINES=()
   while read -r COUNT PORT IP; do
     if (( COUNT >= MAX_CONN_PER_IP )); then
       echo -e "\e[31m[✘]\e[0m High connections from $IP on port $PORT: $COUNT"
-  
+
+      local DOMAINS
       DOMAINS=$(
         find /var/log/caddy/domlogs -type f -name "access.log" 2>/dev/null |
         while read -r f; do
-  
           if timeout 1s bash -c '
             tail -n 200 "$1" | grep -q "$2"
-          ' _ "$f" "$IP"
-          then
+          ' _ "$f" "$IP"; then
             echo "$f"
           fi
-  
         done | sed 's|/var/log/caddy/domlogs/||; s|/access\.log||' | sort -u | tr '\n' ', ' | sed 's/,$//'
       )
-  
+
       if [[ -n "$DOMAINS" ]]; then
         echo -e "    \e[33m[→]\e[0m Domain hit: $DOMAINS"
-        write_notification "High traffic from $IP" "Port $PORT: $COUNT connections from $IP | Domains: $DOMAINS"
+        HIGH_TRAFFIC_LINES+=("$IP (port $PORT: $COUNT conns | domains: $DOMAINS)")
       else
-        echo -e "    \e[33m[→]\e[0m No matching domain logs found, check manually with: 'grep -Rli --include=access.log 104.23.195.56 /var/log/caddy/domlogs/ | xargs -n1 dirname | xargs -n1 basename'"
-        write_notification "High traffic from $IP" "Port $PORT: $COUNT connections from $IP"
+        echo -e "    \e[33m[→]\e[0m No matching domain logs found, check manually with: 'grep -Rli --include=access.log $IP /var/log/caddy/domlogs/ | xargs -n1 dirname | xargs -n1 basename'"
+        HIGH_TRAFFIC_LINES+=("$IP (port $PORT: $COUNT conns)")
       fi
-  
+
       ALERT=1
     fi
   done < <(
@@ -646,6 +659,16 @@ check_https_traffic() {
     sort | uniq -c | awk '{print $1, $2, $3}'
   )
 
+  if (( ${#HIGH_TRAFFIC_LINES[@]} > 0 )); then
+    local NOTIF_BODY
+    printf -v NOTIF_BODY '%s\\n' "${HIGH_TRAFFIC_LINES[@]}"
+    NOTIF_BODY="${NOTIF_BODY%$'\n'}"
+    if (( ${#HIGH_TRAFFIC_LINES[@]} == 1 )); then
+      write_notification "High traffic from ${HIGH_TRAFFIC_LINES[0]%%(*}" "$NOTIF_BODY"
+    else
+      write_notification "High traffic from ${#HIGH_TRAFFIC_LINES[@]} IPs" "$NOTIF_BODY"
+    fi
+  fi
 
   # Total established
   local TOTAL_CONN
@@ -818,23 +841,6 @@ summary() {
 }
 
 
-run_action() {
-  action="$1"
-  local title="$2"
-  local message="$3"
-
-  [[ -n "$RUN_ACTION_LOCKED" ]] && return
-  export RUN_ACTION_LOCKED=1
-  
-  ACTION=$(validate_yes_no "$(ini_get $action)")
-  if [[ "$ACTION" == "no" ]]; then
-    echo "[!] Notifications are disabled for action: $action"; return
-  fi
-  [[ -n "$WEBHOOK_URL" ]] && webhook_notification "$title" "$message"
-  [[ "$EMAIL_ALERT" == "yes" ]] && email_notification "$title" "$message"
-}
-
-
 for arg in "$@"; do
   case "$arg" in
     --startup) perform_startup_action; exit 0 ;;
@@ -846,7 +852,7 @@ for arg in "$@"; do
 done
 
 if [[ -n "$action" ]]; then
-  run_action "$action" "$title" "$message"
+  write_notification "$title" "$message" "$action"
   exit 0
 fi
 

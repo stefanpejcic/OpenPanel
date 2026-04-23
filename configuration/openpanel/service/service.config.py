@@ -47,15 +47,20 @@ if DEV_MODE:
         def __init__(self, logger, log_level=logging.INFO):
             self.logger = logger
             self.log_level = log_level
+            self._writing = False
     
         def write(self, buf):
-            if not buf:
+            if not buf or self._writing:
                 return
-            for line in buf.rstrip().splitlines():
-                if " - " in line:
-                    word, msg = line.split(" - ", 1)
-                    line = f"[{word}] {msg}"
-                self.logger.log(self.log_level, line)
+            self._writing = True
+            try:
+                for line in buf.rstrip().splitlines():
+                    if " - " in line:
+                        word, msg = line.split(" - ", 1)
+                        line = f"[{word}] {msg}"
+                    self.logger.log(self.log_level, line)
+            finally:
+                self._writing = False
     
         def flush(self):
             pass
@@ -173,10 +178,10 @@ else:
     workers = min(calculated_workers, max_workers)
     print(f"Using {workers} workers for OpenPanel as server has >2 cpu cores available.")
 
+threads = 4
 worker_class = 'gthread'
-worker_connections = 1000
 timeout = 360
-graceful_timeout = 10
+graceful_timeout = 30
 keepalive = 5
 max_requests = 1000
 max_requests_jitter = 50
@@ -210,12 +215,8 @@ def pre_exec(server):
 def when_ready(server):
     server.log.info("Server is ready. Spawning workers")
     try:
-        cmd = [
-            "docker", "--context=default", "exec", "openpanel_redis",
-            "sh", "-c",
-            "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL"
-        ]
-        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        cmd = ["docker", "--context=default", "exec", "openpanel_redis", "sh", "-c", "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL"]
+        result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env={**os.environ})
         server.log.info("Redis cache cleared: %s", result.stdout.strip())
     except subprocess.CalledProcessError as e:
         server.log.error("Failed to clear Redis cache: %s", e.stderr.strip())
