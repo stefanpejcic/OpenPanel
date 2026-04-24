@@ -6,9 +6,9 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 22.04.2026
-# Company: openpanel.comm
-# Copyright (c) openpanel.comm
+# Last Modified: 23.04.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -184,50 +184,36 @@ pflogsumm_get_data() {
 set_ssl_for_mailserver() {
 	readonly MAILSERVER_ENV="/usr/local/mail/openmail/mailserver.env"	
 	current_hostname=$(opencli domain)
+
+	# letsencrypt
+	local cert_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.crt"
+	local key_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.key"
+
+	# custom
+	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.crt"
+	local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.key"
 	
-	if [[ $current_hostname =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-	    # an IP
-	    echo "Configuring mailserver to use IP address for IMAP/SMTP ..."
-		sed -i '/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=' "$MAILSERVER_ENV"
-	    sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
-		sed -i 's/^SSL_CERT_PATH=.*/SSL_CERT_PATH=/' "$MAILSERVER_ENV"
-		sed -i 's/^SSL_KEY_PATH=.*/SSL_KEY_PATH=/' "$MAILSERVER_ENV"
-			
-	else
-	    # a letsencrypt
-        local cert_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.crt"
-        local key_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.key"
-
-        # custom
-        local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.crt"
-        local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.key"
-        
-        if [[ -f "$cert_path" && -f "$key_path" ]]; then
-            echo "Using Let's Encrypt certs for $current_hostname"
-        elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
-            echo "Using custom certs for $current_hostname"
-            cert_path="$fallback_cert_path"
-            key_path="$fallback_key_path"
-        else
-		    echo "Warning: Domain $current_hostname is configured for panel access but has no SSL, it will not be used for mailserver IMAP/SMTP ..."
-		    [[ ! -f "$cert_path" ]] && echo "- Missing: $cert_path"
-		    [[ ! -f "$key_path" ]] && echo "- Missing: $key_path"
-            return 0
-        fi
-		
+	if [[ ( -f "$cert_path" && -f "$key_path" ) || ( -f "$fallback_cert_path" && -f "$fallback_key_path" ) ]]; then
+		if [[ -f "$cert_path" && -f "$key_path" ]]; then
+			echo "Using Let's Encrypt certs for $current_hostname"
+		elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
+			echo "Using custom certs for $current_hostname"
+			cert_path="$fallback_cert_path"
+			key_path="$fallback_key_path"
+		fi
 		echo "Configuring mailserver and webmail to use domain $current_hostname for IMAP/SMTP ..."
-
 		sed -i "/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=$current_hostname" "$MAILSERVER_ENV"
 		sed -i '/^SSL_TYPE=/c\SSL_TYPE=manual' "$MAILSERVER_ENV"
-
-		grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV" \
-			&& sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path|" "$MAILSERVER_ENV" \
-			|| echo "SSL_CERT_PATH=$cert_path" >> "$MAILSERVER_ENV"
-
-		grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV" \
-			&& sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path|" "$MAILSERVER_ENV" \
-			|| echo "SSL_KEY_PATH=$key_path" >> "$MAILSERVER_ENV"
-
+		grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV" && sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path|" "$MAILSERVER_ENV" || echo "SSL_CERT_PATH=$cert_path" >> "$MAILSERVER_ENV"
+		grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV" && sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path|" "$MAILSERVER_ENV" || echo "SSL_KEY_PATH=$key_path" >> "$MAILSERVER_ENV"
+	else
+		echo "Warning: $current_hostname is configured for panel access but has no SSL, IP address will be used for IMAP/SMTP ..."
+		# non-ssl
+		echo "Configuring mailserver to use IP address for IMAP/SMTP ..."
+		sed -i '/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=' "$MAILSERVER_ENV"
+		sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
+		sed -i 's/^SSL_CERT_PATH=.*/SSL_CERT_PATH=/' "$MAILSERVER_ENV"
+		sed -i 's/^SSL_KEY_PATH=.*/SSL_KEY_PATH=/' "$MAILSERVER_ENV"
 	fi
 
     #echo "Restarting mailserver and webmail to apply new configuration"
