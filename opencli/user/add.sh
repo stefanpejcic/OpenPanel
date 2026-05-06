@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 30.04.2026
+# Last Modified: 05.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -302,43 +302,46 @@ check_username_is_valid() {
 # shellcheck source=../db.sh
 . "$DB_CONFIG_FILE"
 
-get_existing_users_count() {
-    if [ -n "$key_value" ]; then
-        [ -z "$reseller" ] && log "Enterprise edition detected: unlimited number of users can be created"
-    else
-    	if [ -n "$reseller" ]; then
+
+validate_user_creation() {
+    if [ -z "$key_value" ]; then
+        if [ -n "$reseller" ]; then
             echo "[✘] ERROR: Resellers feature requires the Enterprise edition."
             echo "If you require reseller accounts, please consider purchasing the Enterprise version that allows unlimited number of users and resellers."
             exit 1
-     	fi
-		log "Checking if the limit of 3 users on Community edition is reached"
-        user_count_query="SELECT COUNT(*) FROM users"
-        if ! user_count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_count_query" -sN); then
-            echo "[✘] ERROR: Unable to get total user count from the database. Is mysql running?"
-            exit 1
         fi
-        if [ "$user_count" -gt 2 ]; then
-            echo "[✘] ERROR: OpenPanel Community edition has a limit of 3 user accounts - which should be enough for private use."
-			echo "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
-            exit 1
-        fi
+        log "Checking if the limit of 3 users on Community edition is reached"
+    else
+        [ -z "$reseller" ] && log "Enterprise edition detected: unlimited number of users can be created"
     fi
-}
 
-check_username_exists() {
-    local username_exists_query="SELECT COUNT(*) FROM users WHERE username = '$username'"
-	local username_exists_count
-	if ! username_exists_count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$username_exists_query" -sN); then
-        echo "[✘] Error: Unable to check username existence in the database. Is mysql running?"
+    local query="SELECT
+        COUNT(*) AS total,
+        SUM(username = '$username' OR username LIKE 'SUSPENDED\\_%_${username}') AS username_taken
+        FROM users"
+    local result
+    if ! result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN); then
+        echo "[✘] ERROR: Unable to query the database. Is mysql running?"
         exit 1
     fi
+
+    local user_count username_exists_count
+    read -r user_count username_exists_count <<< "$result"
+
+    if [ -z "$key_value" ] && [ "$user_count" -gt 2 ]; then
+        echo "[✘] ERROR: OpenPanel Community edition has a limit of 3 user accounts - which should be enough for private use."
+        echo "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
+        exit 1
+    fi
+
     if [ "$username_exists_count" -gt 0 ]; then
         echo "[✘] Error: Username '$username' is already taken."
         exit 1
     fi
 }
 
-check_username_exists
+
+validate_user_creation
 
 #########################################
 # TODO
@@ -1216,7 +1219,6 @@ flock -n 200 || { echo "[✘] Error: A user creation process is already running.
 check_username_is_valid                      # validate username first
 validate_password_in_lists $password         # compare with weakpass dictionaries
 get_slave_if_set                             # check if slave should be used and test connection
-get_existing_users_count                     # list users from db
 get_plan_info                                # get plan ID
 check_if_reseller                            # if reseller, check limits
 print_debug_info_before_starting_creation    # print debug info

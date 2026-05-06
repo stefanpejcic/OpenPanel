@@ -218,11 +218,11 @@ services:
     networks:
       - db
     healthcheck:
-      test: ['CMD-SHELL', 'mysqladmin ping -h localhost']
-      interval: 5s
-      timeout: 3s
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --silent']
+      interval: 3s
+      timeout: 1s
       retries: 10
-      start_period: 30s
+      start_period: 5s
 
   mariadb:
     image: mariadb:${MYSQL_VERSION:-latest}
@@ -251,11 +251,11 @@ services:
     networks:
       - db
     healthcheck:
-      test: ['CMD-SHELL', 'mariadb-admin ping -h localhost']
-      interval: 5s
-      timeout: 3s
+      test: ['CMD-SHELL', 'mariadb-admin ping -h 127.0.0.1 --silent']
+      interval: 3s
+      timeout: 1s
       retries: 10
-      start_period: 30s
+      start_period: 5s
 
   phpmyadmin:
     container_name: phpmyadmin 
@@ -354,7 +354,7 @@ services:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
       retries: 3
-      start_period: 10s
+      start_period: 5s
       timeout: 5s
     networks:
       - www
@@ -377,7 +377,7 @@ services:
       test: ["CMD", "valkey-cli", "ping"]
       interval: 30s
       retries: 3
-      start_period: 10s
+      start_period: 5s
       timeout: 5s
     networks:
       - www
@@ -403,6 +403,7 @@ services:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 10s
+      start_period: 5s
       retries: 3
     networks:
       - www
@@ -430,6 +431,7 @@ services:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 10s
+      start_period: 5s
       retries: 3
     networks:
       - www
@@ -452,7 +454,7 @@ services:
       test: ["CMD-SHELL", "echo stats | nc -w1 127.0.0.1 11211 | grep -q STAT"]
       interval: 30s
       retries: 3
-      start_period: 10s
+      start_period: 5s
       timeout: 5s
     networks:
       - www

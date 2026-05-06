@@ -269,12 +269,14 @@ locate_backup_directories() {
     log "- cPanel configuration: $cp_file"
 }
 
-get_mariadb_or_mysql_for_user() {
+get_mysql_type_cnf_and_socket() {
     mysql_type=$(grep '^MYSQL_TYPE=' /home/$cpanel_username/.env | cut -d '=' -f2 | tr -d '"')
+	mysql_socket="/home/$cpanel_username/sockets/mysqld/mysqld.sock"
+	mysql_cnf="/home/$cpanel_username/my.cnf"
 }
 
 reload_user_quotas() {
-	nohup bash -c 'quotacheck -avm && repquota -u / > /etc/openpanel/openpanel/core/users/repquota' >/dev/null 2>&1 &
+	nohup bash -c 'opencli user-quota' >/dev/null 2>&1 &
 	disown
 }
 
@@ -467,7 +469,7 @@ restore_psql() {
 				docker --context="$cpanel_username" exec postgres psql -U postgres -c "CREATE DATABASE \"$db_name\";" #>/dev/null 2>&1
 
                 log "Importing tables for database: $db_name"
-                docker --context="$cpanel_username" cp "${real_backup_files_path}/psql/$db_name.tar" "$mysql_type:/tmp/${db_name}.tar" >/dev/null 2>&1		
+                docker --context="$cpanel_username" cp "${real_backup_files_path}/psql/$db_name.tar" "postgres:/tmp/${db_name}.tar" >/dev/null 2>&1		
 				docker --context="$cpanel_username" exec postgres bash -c "cd /tmp && tar -xf /tmp/${db_name}.tar restore.sql && psql -U postgres -d \"$db_name\" -f restore.sql && rm restore.sql /tmp/${db_name}.tar"
                 current_db=$((current_db + 1))
             done
@@ -526,8 +528,7 @@ restore_mysql() {
                 log "WARNING: Database dumps were created on a MariaDB server with '--sandbox' mode. Applying workaround for backwards compatibility to MySQL (BUG: https://jira.mariadb.org/browse/MDEV-34183)"
                 sandbox_warning_logged=true
             fi
-            tail -n +2 "${real_backup_files_path}/mysql/$db_file" > "${real_backup_files_path}/mysql/${db_file}.workaround" && \
-            mv "${real_backup_files_path}/mysql/${db_file}.workaround" "${real_backup_files_path}/mysql/$db_file"
+            tail -n +2 "${real_backup_files_path}/mysql/$db_file" > "${real_backup_files_path}/mysql/${db_file}.workaround" && mv "${real_backup_files_path}/mysql/${db_file}.workaround" "${real_backup_files_path}/mysql/$db_file"
         fi
     }
 
@@ -557,12 +558,12 @@ restore_mysql() {
         fi
         log "Initializing $mysql_type service for user"
         cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d "$mysql_type" >/dev/null 2>&1
-
+	
         # STEP 4: Wait for MySQL to be ready (max 300 seconds)
 		local max_wait=300
         log "Waiting for MySQL service to start... (max ${max_wait}s)"
         waited=0
-        while ! docker --context="$cpanel_username" exec "$mysql_type" $mysql_type -e "SELECT 1" >/dev/null 2>&1; do
+        while ! mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" --execute="SELECT 1;" >/dev/null 2>&1; do
             sleep 2
             waited=$((waited + 2))
             if [ "$waited" -ge "$max_wait" ]; then
@@ -581,18 +582,12 @@ restore_mysql() {
                 db_name=$(basename "$db_file" .create)
 
                 log "Creating database: $db_name (${current_db}/${total_databases})"
-                if [ "$mysql_type" = "mysql" ]; then
-					apply_sandbox_workaround "$db_name.create"
-				fi
-                docker --context="$cpanel_username" cp "${real_backup_files_path}/mysql/$db_name.create" "$mysql_type:/tmp/${db_name}.create" >/dev/null 2>&1
-                docker --context="$cpanel_username" exec "$mysql_type" bash -c "$mysql_type < /tmp/${db_name}.create && rm /tmp/${db_name}.create"
+				[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.create"
+				mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.create" && echo "Database: $db_name - Create OK" || echo "Database: $db_name - Create FAILED"
 
                 log "Importing tables for database: $db_name"
-				if [ "$mysql_type" = "mysql" ]; then
-                	apply_sandbox_workaround "$db_name.sql"
-				fi
-                docker --context="$cpanel_username" cp "${real_backup_files_path}/mysql/$db_name.sql" "$mysql_type:/tmp/${db_name}.sql" >/dev/null 2>&1
-                docker --context="$cpanel_username" exec "$mysql_type" bash -c "$mysql_type $db_name < /tmp/${db_name}.sql && rm /tmp/${db_name}.sql"
+				[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.sql"
+				mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.sql" && echo "Database: $db_name - Import tables OK" || echo "Database: $db_name - Import tables FAILED"
 
                 current_db=$((current_db + 1))
             done
@@ -604,9 +599,7 @@ restore_mysql() {
         # STEP 6: Import grants
         log "Importing database grants"
         python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
-
-        docker --context="$cpanel_username" cp "${real_backup_files_path}/mysql.TEMPORARY.sql" "$mysql_type:/tmp/mysql.TEMPORARY.sql" >/dev/null 2>&1
-        docker --context="$cpanel_username" exec "$mysql_type" bash -c "$mysql_type < /tmp/mysql.TEMPORARY.sql && $mysql_type -e 'FLUSH PRIVILEGES;' && rm /tmp/mysql.TEMPORARY.sql"
+		mysql < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED" }
 
 		# STEP 7: Start phpMyAdmin
 		log "Starting phpMyAdmin service"
@@ -1195,7 +1188,7 @@ import_email_accounts_and_data() {
 		: # keep as is
 	#elif [[ "$STORE_EMAILS_IN" == "user_dir" ]]; then
 	else # TODO: this is a fallback for <1.7.3
-		STORE_EMAILS_IN="domain"
+		STORE_EMAILS_IN="/home/$cpanel_username/mail/$domain/"
 	fi
 
 
@@ -1210,7 +1203,7 @@ import_email_accounts_and_data() {
 		fi
 	fi
 
-
+	local temp_email_password=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
 
 	# Loop through each folder in the base dir
     for dir_path in "$base_dir"/*/; do
@@ -1224,19 +1217,14 @@ import_email_accounts_and_data() {
 				    [[ -z "$username" || -z "$password_hash" ]] && continue
 				    email="${username}@${domain}"
 				    log "Importing mailbox: $email"
-				    opencli email-setup email add "$email" tempPassword123 >/dev/null 2>&1
+				    opencli email-setup email add "$email" "$temp_email_password" >/dev/null 2>&1
 					# openpanel format: emailtest@openpanel.org|{SHA512-CRYPT}$6$yspsXbUo.nkxXIs6$4x.rqdVe8dGaLWKZhlbmO5xFEgverG/ESS8.Cz3w9qH1GP6coXu7qs1CBFSE1co6cYHuVIqFS9bJR0PUcH3EZ0
-					sed -i.bak "/^${email}|/c\\
-${email}|{SHA512-CRYPT}${password_hash}
-" "$postfix_file"
+					sed -i.bak "/^${email}|/c\\${email}|{SHA512-CRYPT}${password_hash}" "$postfix_file"
 				done < "$shadow_file"
 
 				# 2. move mails
 				# openpanel storage: $STORE_EMAILS_IN/stefantestira.rs/emailtest2 OR /home/stefan/mail/stefantestira.rs/emailtest2
 				if [ "$mailbox_format" == "maildir" ]; then
-					if [ "$STORE_EMAILS_IN" == "domain" ]; then
-					    STORE_EMAILS_IN="/home/$cpanel_username/mail/$domain/"
-					fi
 					# cpanel storage: extract/backup-3.24.2026_14-03-06_stefantestira/homedir/mail/stefantestira.rs/emailtest2
 					if [ -d "/home/$cpanel_username/docker-data/volumes/${cpanel_username}_html_data/_data/mail/$domain/$username" ]; then
 						log "Restoring mailboxes to $STORE_EMAILS_IN/$domain/"
@@ -1244,6 +1232,8 @@ ${email}|{SHA512-CRYPT}${password_hash}
 					else
 						log "Failed restoring mailbox to $STORE_EMAILS_IN - $base_dir/mail/$domain/$username does not exist"
 					fi
+				else
+					log "WARNING: messages will not be moved due to unsupported mailbox format: $mailbox_format. More info on how to convert to maildir: https://docs.cpanel.net/whm/email/mailbox-conversion/"
 				fi
 	        else
 	            log "Skipping $domain: not owned by user $cpanel_username."
@@ -1297,7 +1287,6 @@ write_import_activity() {
 }
 
 
-
 # MAIN
 main() {
     start_message                                                              # what will be imported
@@ -1322,7 +1311,7 @@ main() {
     create_new_user "$cpanel_username" "random" "$cpanel_email" "$plan_name"   # create user data and container
     setquota -u $cpanel_username 0 0 0 0 /                                     # set unlimited quota while we do import!
     create_home_mountpoint                                                     # mount /var/www/html/ to /home/USERNAME 
-    get_mariadb_or_mysql_for_user                                              # mysql or mariadb
+    get_mysql_type_cnf_and_socket                                              # mysql or mariadb, path to socket and my.cnf logins
     #NOT NEEDED ON CPANEL #fix_perms                                           # fix permissions for all files
     restore_php_version "$php_version"                                         # php v needs to run before domains 
     restore_domains                                                            # add domains

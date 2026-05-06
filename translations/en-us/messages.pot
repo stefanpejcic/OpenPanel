@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.57\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-05-05 00:27+0200\n"
+"POT-Creation-Date: 2026-05-06 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -128,12 +128,11 @@ msgstr ""
 #: modules/php.py:390 modules/pm2.py:572 modules/pm2.py:1268
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:116
 #: modules/waf.py:256 modules/waf.py:310 modules/waf.py:364
-#: modules/website_builder.py:58 modules/website_builder.py:114
-#: modules/website_builder.py:157 modules/website_builder.py:298
-#: modules/websites.py:35 modules/websites.py:232 modules/websites.py:293
-#: modules/websites.py:455 modules/websites.py:539 modules/websites.py:991
-#: modules/wordpress.py:593 modules/wordpress.py:952 modules/wordpress.py:1063
-#: modules/wordpress.py:1693
+#: modules/website_builder.py:44 modules/website_builder.py:149
+#: modules/website_builder.py:290 modules/websites.py:35
+#: modules/websites.py:232 modules/websites.py:293 modules/websites.py:455
+#: modules/websites.py:539 modules/websites.py:991 modules/wordpress.py:593
+#: modules/wordpress.py:952 modules/wordpress.py:1063 modules/wordpress.py:1693
 msgid "You do not own this domain."
 msgstr ""
 
@@ -396,12 +395,12 @@ msgstr ""
 msgid "IP Blocker"
 msgstr ""
 
-#: modules/mautic.py:123 modules/website_builder.py:185 modules/websites.py:485
+#: modules/mautic.py:123 modules/website_builder.py:177 modules/websites.py:485
 #: modules/websites.py:1028
 msgid "Unable to detect docroot for the domain."
 msgstr ""
 
-#: modules/mautic.py:129 modules/website_builder.py:190 modules/websites.py:491
+#: modules/mautic.py:129 modules/website_builder.py:182 modules/websites.py:491
 #: modules/websites.py:1037
 msgid ""
 "Error connecting to database, please try again. If the issue persists "
@@ -424,8 +423,9 @@ msgstr ""
 msgid "No backup options selected."
 msgstr ""
 
-#: modules/mautic.py:423 modules/mautic.py:589 modules/website_builder.py:43
-#: modules/wordpress.py:930 modules/wordpress.py:1056
+#: modules/mautic.py:423 modules/mautic.py:589 modules/website_builder.py:71
+#: modules/website_builder.py:116 modules/wordpress.py:930
+#: modules/wordpress.py:1056
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -688,7 +688,7 @@ msgstr ""
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:467 modules/website_builder.py:246 modules/wordpress.py:1525
+#: modules/pm2.py:467 modules/website_builder.py:238 modules/wordpress.py:1525
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
@@ -923,31 +923,27 @@ msgstr ""
 msgid "Web Server Configuration Editor"
 msgstr ""
 
-#: modules/website_builder.py:52
+#: modules/website_builder.py:76
 msgid "Website not found in the database"
 msgstr ""
 
-#: modules/website_builder.py:92
+#: modules/website_builder.py:95
 msgid "Website deleted successfully!"
 msgstr ""
 
-#: modules/website_builder.py:98
+#: modules/website_builder.py:100
 msgid "An error occurred during website deletion."
 msgstr ""
 
-#: modules/website_builder.py:129
-msgid "Website detached from Manager."
+#: modules/website_builder.py:122
+msgid "Website detached successfully!"
 msgstr ""
 
-#: modules/website_builder.py:133
-msgid "An error occurred during detachment. Please try again."
+#: modules/website_builder.py:127
+msgid "An error occurred during website detachment."
 msgstr ""
 
-#: modules/website_builder.py:136
-msgid "An error occurred during detachment."
-msgstr ""
-
-#: modules/website_builder.py:253 templates/manager/autoinstaller.html:98
+#: modules/website_builder.py:245 templates/manager/autoinstaller.html:98
 msgid "Create Website"
 msgstr ""
 
@@ -1926,7 +1922,7 @@ msgid "Disabled"
 msgstr ""
 
 #: templates/cache/service.html:12 templates/manager/python_node_apps.html:1211
-#: templates/manager/sites.html:72 templates/manager/websitebuilder.html:452
+#: templates/manager/sites.html:72 templates/manager/websitebuilder.html:446
 #: templates/system/services.html:12
 msgid "Created"
 msgstr ""
@@ -2050,7 +2046,7 @@ msgstr ""
 #: templates/dashboard/dashboard.html:110 templates/domains/ssl.html:185
 #: templates/files/filemanager.html:202 templates/manager/mautic.html:179
 #: templates/manager/python_node_apps.html:1145
-#: templates/manager/websitebuilder.html:354
+#: templates/manager/websitebuilder.html:348
 #: templates/manager/wp/single.html:216 templates/mysql/databases.html:420
 #: templates/partials/_header.html:31
 msgid "Files"
@@ -2352,7 +2348,7 @@ msgstr ""
 #: templates/dashboard/usage.html:265 templates/dashboard/usage.html:266
 #: templates/manager/mautic.html:211 templates/manager/mautic.html:254
 #: templates/manager/python_node_apps.html:1183
-#: templates/manager/websitebuilder.html:410
+#: templates/manager/websitebuilder.html:404
 #: templates/manager/wp/single.html:311 templates/manager/wp/single.html:353
 msgid "Calculating.."
 msgstr ""
@@ -4957,21 +4953,21 @@ msgstr ""
 
 #: templates/manager/mautic.html:196
 #: templates/manager/python_node_apps.html:1156
-#: templates/manager/websitebuilder.html:371
+#: templates/manager/websitebuilder.html:365
 #: templates/manager/wp/single.html:233
 msgid "Open folder in File Manager"
 msgstr ""
 
 #: templates/manager/mautic.html:206
 #: templates/manager/python_node_apps.html:1168
-#: templates/manager/websitebuilder.html:398
+#: templates/manager/websitebuilder.html:392
 #: templates/manager/wp/single.html:306
 msgid "Folder:"
 msgstr ""
 
 #: templates/manager/mautic.html:210
 #: templates/manager/python_node_apps.html:1181
-#: templates/manager/websitebuilder.html:408
+#: templates/manager/websitebuilder.html:402
 #: templates/manager/wp/single.html:310
 msgid "Folder Size:"
 msgstr ""
@@ -5075,7 +5071,7 @@ msgid "Select a backup date:"
 msgstr ""
 
 #: templates/manager/mautic.html:418 templates/manager/websitebuilder.html:168
-#: templates/manager/websitebuilder.html:574
+#: templates/manager/websitebuilder.html:568
 #: templates/manager/wp/single.html:2006 templates/manager/wp/single.html:2494
 msgid "Start Restore"
 msgstr ""
@@ -5158,7 +5154,7 @@ msgstr ""
 
 #: templates/manager/mautic.html:649
 #: templates/manager/python_node_apps.html:1237
-#: templates/manager/websitebuilder.html:481
+#: templates/manager/websitebuilder.html:475
 #: templates/manager/wp/single.html:2401
 msgid "An error occurred fetching folder size from the container."
 msgstr ""
@@ -5798,50 +5794,50 @@ msgstr ""
 msgid "Delete website"
 msgstr ""
 
-#: templates/manager/websitebuilder.html:268
+#: templates/manager/websitebuilder.html:266
 msgid "Delete process started. Please wait."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:283
+#: templates/manager/websitebuilder.html:280
 msgid "Detach process started. Please wait."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:294
+#: templates/manager/websitebuilder.html:290
 msgid "An error occurred while detaching website. Please try again."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:511
+#: templates/manager/websitebuilder.html:505
 #: templates/manager/wp/single.html:2535
 msgid "Files Backup"
 msgstr ""
 
-#: templates/manager/websitebuilder.html:531
+#: templates/manager/websitebuilder.html:525
 #: templates/manager/wp/single.html:2451
 msgid "Click again to confirm"
 msgstr ""
 
-#: templates/manager/websitebuilder.html:559
+#: templates/manager/websitebuilder.html:553
 #: templates/manager/wp/single.html:2479
 msgid "Restoring backup... Please wait."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:567
+#: templates/manager/websitebuilder.html:561
 #: templates/manager/wp/single.html:2487
 msgid "Restore request failed."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:619
+#: templates/manager/websitebuilder.html:613
 msgid ""
 "No options selected to backup. Please ensure that at least Files is "
 "selected."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:625
+#: templates/manager/websitebuilder.html:619
 #: templates/manager/wp/single.html:2560
 msgid "Generating website backup.. Please wait."
 msgstr ""
 
-#: templates/manager/websitebuilder.html:633
+#: templates/manager/websitebuilder.html:627
 #: templates/manager/wp/single.html:2568
 msgid "Backup request failed."
 msgstr ""

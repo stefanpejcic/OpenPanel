@@ -217,17 +217,14 @@ extract_cyberpanel_backup() {
     fi
 }
 
-get_mariadb_or_mysql_for_user() {
+get_mysql_type_cnf_and_socket() {
     mysql_type=$(grep '^MYSQL_TYPE=' /home/$cyberpanel_username/.env | cut -d '=' -f2 | tr -d '"')
-
-    if [[ "$mysql_type" != "mariadb" && "$mysql_type" != "mysql" ]]; then
-        echo "Unsupported MYSQL_TYPE: $mysql_type"
-        exit 1
-    fi
+	mysql_socket="/home/$cyberpanel_username/sockets/mysqld/mysqld.sock"
+	mysql_cnf="/home/$cyberpanel_username/my.cnf"
 }
 
 reload_user_quotas() {
-	nohup bash -c 'quotacheck -avm && repquota -u / > /etc/openpanel/openpanel/core/users/repquota' >/dev/null 2>&1 &
+	nohup bash -c 'opencli user-quota' >/dev/null 2>&1 &
 	disown
 }
 
@@ -435,10 +432,10 @@ restore_mysql() {
         cd "/home/$cyberpanel_username/" && docker --context="$cyberpanel_username" compose up -d "$mysql_type" >/dev/null 2>&1
 
         # STEP 3: Wait for MySQL to be ready (max 300 seconds)
-        log "Waiting for MySQL service to be ready..."
-        max_wait=300
+		local max_wait=300
+        log "Waiting for MySQL service to start... (max ${max_wait}s)"
         waited=0
-        while ! docker --context="$cyberpanel_username" exec "$mysql_type" $mysql_type -e "SELECT 1" >/dev/null 2>&1; do
+        while ! mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" --execute="SELECT 1;" >/dev/null 2>&1; do
             sleep 2
             waited=$((waited + 2))
             if [ "$waited" -ge "$max_wait" ]; then
@@ -456,18 +453,13 @@ restore_mysql() {
 
 			for db_name in "${databases_array[@]}"; do
                 log "Creating database: $db_name (${current_db}/${total_databases})"
-
-				docker --context="$cyberpanel_username" exec "$mysql_type" bash -c "$mysql_type -e 'CREATE DATABASE IF NOT EXISTS \`$db_name\`;'"
+				mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" --execute="CREATE DATABASE IF NOT EXISTS \`$db_name\`;"
 
 			    sql_file="${real_backup_files_path}/${db_name}.sql"
 			    if [[ -f "$sql_file" ]]; then
-					if [ "$mysql_type" = "mysql" ]; then
-						apply_sandbox_workaround "$db_name.sql"
-					fi
-
 			        log "Importing tables for database: $db_name"
-                	docker --context="$cyberpanel_username" cp "${real_backup_files_path}/$db_name.sql" "$mysql_type:/tmp/${db_name}.sql" >/dev/null 2>&1
-                	docker --context="$cyberpanel_username" exec "$mysql_type" bash -c "$mysql_type $db_name < /tmp/${db_name}.sql && rm /tmp/${db_name}.sql"
+					[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.sql"
+					mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/$db_name.sql" && echo "Database: $db_name - Import tables OK" || echo "Database: $db_name - Import tables FAILED"
 	    		fi
 
 			    for key in "${!db_users_passwords[@]}"; do
@@ -485,8 +477,8 @@ restore_mysql() {
 			            host="${db_users_hosts[$key]}"
 			            password="${db_users_passwords[$key]}"
 			            log "Creating user '$user'@'%' with access to $db_name"
-						docker --context="$cyberpanel_username" exec "$mysql_type" bash -c \
-						"$mysql_type -e \"CREATE USER IF NOT EXISTS '$user'@'%' IDENTIFIED WITH 'mysql_native_password' AS '$password'; GRANT ALL PRIVILEGES ON \\\`$db_name\\\`.* TO '$user'@'%'; FLUSH PRIVILEGES;\""
+						mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" --execute="CREATE USER IF NOT EXISTS '$user'@'%' IDENTIFIED WITH 'mysql_native_password' AS '$password'; GRANT ALL PRIVILEGES ON \`$db_name\`.* TO '$user'@'%'; FLUSH PRIVILEGES;" \
+						&& echo "User: $user - create OK" || echo "User: $user - create FAILED"
 			        fi
 			    done
 				current_db=$((current_db + 1))
@@ -814,7 +806,7 @@ main() {
     create_new_user "$cyberpanel_username" "random" "$cyberpanel_email" "$plan_name"   # create user data and container
     setquota -u $cyberpanel_username 0 0 0 0 /                                     # set unlimited quota while we do import!
     #create_home_mountpoint                                                     # mount /var/www/html/ to /home/USERNAME 
-    get_mariadb_or_mysql_for_user                                              # mysql or mariadb
+    get_mysql_type_cnf_and_socket                                              # mysql or mariadb, path to socket and my.cnf logins
     fix_perms                                                                  # fix permissions for all files
     restore_php_version "$php_version"                                         # php v needs to run before domains 
     restore_domains                                                            # add domains
