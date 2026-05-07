@@ -5,7 +5,7 @@
 # Usage: opencli phpmyadmin [set <domain_name> | ip]
 # Author: Stefan Pejcic
 # Created: 30.03.2026
-# Last Modified: 05.05.2026
+# Last Modified: 06.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

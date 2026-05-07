@@ -95,7 +95,10 @@ command_exists() {
 install_dependencies() {
     log "Checking and installing dependencies..."
     install_needed=false
-    commands=(tar unzip jq pigz wget curl rsync)
+    commands=(jq curl rsync)
+
+    [[ "$backup_file" == *.zip ]] && commands+=(unzip)
+    [[ "$backup_file" == *.tar || "$backup_file" == *.tar.gz || "$backup_file" == *.tgz || "$backup_file" == *.gz ]] && commands+=(tar pigz)
 
     for cmd in "${commands[@]}"; do
         command_exists "$cmd" || { install_needed=true; break; }
@@ -105,7 +108,7 @@ install_dependencies() {
         if command_exists apt-get; then
             log "Detected APT package manager. Updating..."
             apt-mark hold linux-image-generic linux-headers-generic >/dev/null 2>&1
-            apt-get update -y >/dev/null 2>&1
+            #apt-get update -y >/dev/null 2>&1
             for cmd in "${commands[@]}"; do
                 if ! command_exists "$cmd"; then
                     log "Installing $cmd (APT)"
@@ -152,7 +155,6 @@ validate_plan_exists(){
 # CHECK BACKUP FILE EXTENSION AND DETERMINE SIZE NEEDED FOR RESTORE
 check_if_valid_cp_backup() {
     local backup_location="$1"
-    local backup_filename
     backup_filename=$(basename "$backup_location")
 
     ARCHIVE_SIZE=$(stat -c%s "$backup_location")
@@ -210,11 +212,7 @@ extract_cpanel_backup() {
     elif [ "$extraction_command" = "tar -xzf" ]; then
         backup_size=$(stat -c %s "${backup_location}")
         zero_one_percent=$((backup_size / 1000000))
-        tar --use-compress-program=pigz \
-            --checkpoint="$zero_one_percent" \
-            --checkpoint-action=dot \
-            -xf "$backup_location" \
-            -C "$backup_dir" 
+        tar --use-compress-program=pigz --checkpoint="$zero_one_percent" --checkpoint-action=dot -xf "$backup_location" -C "$backup_dir" 
     else
         $extraction_command "$backup_location" -C "$backup_dir"
     fi
@@ -384,6 +382,7 @@ create_new_user() {
 
     dry_run "Would create user $username with email $email and plan $plan_name" && return
 
+    log "Creating openpanel user and configuring services.."
     create_user_command=$(opencli user-add "$cpanel_username" generate "$email" "$plan_name" --no-sentinel >/dev/null 2>&1)
     while IFS= read -r line; do
         log "$line"
@@ -541,74 +540,76 @@ restore_mysql() {
 		fi
 	fi
 
-    if [ -d "$mysql_dir" ]; then
-        # STEP 2: Replace old IP and hostname
-        old_ip=$(grep -oP 'IP=\K[0-9.]+' "${real_backup_files_path}/cp/$cpanel_username")
-        log "Replacing old server IP: $old_ip with '%' in database grants"
-        sed -i "s/$old_ip/%/g" "$mysql_conf"
-
-        old_hostname=$(cat "${real_backup_files_path}/meta/hostname")
-        log "Removing old hostname $old_hostname from database grants"
-        sed -i "/$old_hostname/d" "$mysql_conf"
-        
-        # STEP 3: Start MySQL container
-        if [ "$mysql_type" = "mysql" ]; then
-            mysql_version="8.0"
-            sed -i 's/^MYSQL_VERSION=.*/MYSQL_VERSION="8.0"/' /home/"$cpanel_username"/.env
-        fi
-        log "Initializing $mysql_type service for user"
-        cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d "$mysql_type" >/dev/null 2>&1
+	if [ ! -d "$mysql_dir" ]; then
+		log "No MySQL databases found to restore"
+		return
+	fi
 	
-        # STEP 4: Wait for MySQL to be ready (max 300 seconds)
-		local max_wait=300
-        log "Waiting for MySQL service to start... (max ${max_wait}s)"
-        waited=0
-        while ! mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" --execute="SELECT 1;" >/dev/null 2>&1; do
-            sleep 2
-            waited=$((waited + 2))
-            if [ "$waited" -ge "$max_wait" ]; then
-                log "ERROR: $mysql_type did not respond to 'SELECT 1' after $max_wait seconds - no database or users are imported"
-                return 1
-            fi
-        done
-        log "$mysql_type is ready after $waited seconds"
+	# STEP 2: Start MySQL container
+	if [ "$mysql_type" = "mysql" ]; then
+		mysql_version="8.0"
+		sed -i 's/^MYSQL_VERSION=.*/MYSQL_VERSION="8.0"/' /home/"$cpanel_username"/.env
+	fi
 
-        # STEP 5: Create and import databases
-        total_databases=$(ls "$mysql_dir"/*.create 2>/dev/null | wc -l)
-        log "Starting import for $total_databases MySQL databases"
-        if [ "$total_databases" -gt 0 ]; then
-            current_db=1
-            for db_file in "$mysql_dir"/*.create; do
-                db_name=$(basename "$db_file" .create)
+	log "Initializing $mysql_type service for user"
+	cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d "$mysql_type" >/dev/null 2>&1
 
-                log "Creating database: $db_name (${current_db}/${total_databases})"
-				[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.create"
-				mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.create" && echo "Database: $db_name - Create OK" || echo "Database: $db_name - Create FAILED"
+	# STEP 3: Replace old IP and hostname
+	old_ip=$(grep -oP 'IP=\K[0-9.]+' "${real_backup_files_path}/cp/$cpanel_username")
+	log "Replacing old server IP: $old_ip with '%' in database grants"
+	sed -i "s/$old_ip/%/g" "$mysql_conf"
 
-                log "Importing tables for database: $db_name"
-				[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.sql"
-				mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.sql" && echo "Database: $db_name - Import tables OK" || echo "Database: $db_name - Import tables FAILED"
+	old_hostname=$(cat "${real_backup_files_path}/meta/hostname")
+	log "Removing old hostname $old_hostname from database grants"
+	sed -i "/$old_hostname/d" "$mysql_conf"
 
-                current_db=$((current_db + 1))
-            done
-            log "Finished processing $((current_db - 1)) databases"
-        else
-            log "WARNING: No MySQL databases found"
-        fi
+	# STEP 4: Wait for MySQL to be ready (max 300 seconds)
+	local max_wait=300
+	log "Waiting for MySQL service to start... (max ${max_wait}s)"
+	waited=0
+	while ! mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" --execute="SELECT 1;" >/dev/null 2>&1; do
+		sleep 2
+		waited=$((waited + 2))
+		if [ "$waited" -ge "$max_wait" ]; then
+			log "ERROR: $mysql_type did not respond to 'SELECT 1' after $max_wait seconds - no database or users are imported"
+			return 1
+		fi
+	done
+	log "$mysql_type is ready after $waited seconds"
 
-        # STEP 6: Import grants
-        log "Importing database grants"
-        python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
-		mysql < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED" }
+	# STEP 5: Create and import databases
+	total_databases=$(ls "$mysql_dir"/*.create 2>/dev/null | wc -l)
+	log "Starting import for $total_databases MySQL databases"
+	if [ "$total_databases" -gt 0 ]; then
+		current_db=1
+		for db_file in "$mysql_dir"/*.create; do
+			db_name=$(basename "$db_file" .create)
 
-		# STEP 7: Start phpMyAdmin
-		log "Starting phpMyAdmin service"
-		nohup cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d phpmyadmin >/dev/null 2>&1 &
-		disown
+			log "Creating database: $db_name (${current_db}/${total_databases})"
+			[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.create"
+			mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.create" && echo "Database: $db_name - Create OK" || echo "Database: $db_name - Create FAILED"
 
-    else
-        log "No MySQL databases found to restore"
-    fi
+			log "Importing tables for database: $db_name"
+			[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.sql"
+			mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.sql" && echo "Database: $db_name - Import tables OK" || echo "Database: $db_name - Import tables FAILED"
+
+			current_db=$((current_db + 1))
+		done
+		log "Finished processing $((current_db - 1)) databases"
+	else
+		log "WARNING: No MySQL databases found"
+	fi
+
+	# STEP 6: Import grants
+	log "Importing database grants"
+	python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
+	mysql < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED"; }
+
+	# STEP 7: Start phpMyAdmin
+	log "Starting phpMyAdmin service"
+	nohup cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d phpmyadmin >/dev/null 2>&1 &
+	disown
+
 }
 
 # ======================================================================
@@ -725,16 +726,7 @@ fix_perms(){
     log "Changing permissions for all files and folders in user home directory /home/$cpanel_username/"
 
     dry_run "Would change permissions with command: find /home/$cpanel_username -print0 | xargs -0 chown $verbose $cpanel_username:$cpanel_username" && return
-    
-    if ! timeout 600 find /home/$cpanel_username -print0 | xargs -0 chown $verbose $cpanel_username:$cpanel_username > /dev/null 2>&1; then
-        if [ $? -eq 124 ]; then
-            log "ERROR: Timeout reached while changing permissions (10 minutes)."
-        else
-            log "ERROR: Failed to change permissions."
-        fi
-            log "       Make sure to change permissions manually from terminal with: find /home/$cpanel_username -print0 | xargs -0 chown -v $cpanel_username:$cpanel_username"
-    fi
-    
+    chown -R $cpanel_username:$cpanel_username /home/$cpanel_username     
 }
 
 # ======================================================================
@@ -754,12 +746,12 @@ restore_wordpress() {
 
 # LOCAE
 restore_locale() {
-    if [ -f "$real_backup_files_path/cp/$openpanel_username" ]; then
-        local file_path="$real_backup_files_path/cp/$openpanel_username"
+    if [ -f "$real_backup_files_path/cp/$cpanel_username" ]; then
+        local file_path="$real_backup_files_path/cp/$cpanel_username"
     	local locale_code=$(grep '^LOCALE=' "$file_path" | cut -d'=' -f2 | cut -c1-2 | tr '[:upper:]' '[:lower:]')
 	    if [ "$locale_code" = "en" ] || [ -d "/etc/openpanel/openpanel/translations/$locale_code" ]; then
 			log "Setting locale:$locale_code for OpenPanel UI"
-			echo "$locale_code" > /home/$openpanel_username/locale
+			echo "$locale_code" > /home/$cpanel_username/locale
 		else
 			log "Skipping user locale: '$locale_code' is not available"
 		fi
@@ -1192,9 +1184,9 @@ import_email_accounts_and_data() {
 	fi
 
 
-    if [ -f "$real_backup_files_path/cp/$openpanel_username" ]; then
-    	local mailbox_format=$(grep '^MAILBOX_FORMAT=' "$real_backup_files_path/cp/$openpanel_username" | cut -d'=' -f2 | cut -c1-2 | tr '[:upper:]' '[:lower:]')
-	    if [ "$mailbox_format" == "maildir" ]; then
+    if [ -f "$real_backup_files_path/cp/$cpanel_username" ]; then
+    	local mailbox_format=$(grep '^MAILBOX_FORMAT=' "$real_backup_files_path/cp/$cpanel_username" | cut -d'=' -f2 | cut -c1-2 | tr '[:upper:]' '[:lower:]')
+	    if [ "$mailbox_format" = "maildir" ] || [ "$mailbox_format" = "ma" ]; then
 			:
 		elif [ "$mailbox_format" == "mbox" ]; then
 			log "WARNING: Emails will not be imported because the cPanel account uses 'mbox' format, while OpenPanel uses 'maildir'. Emails remain available in /var/www/html/mail/."
@@ -1224,7 +1216,7 @@ import_email_accounts_and_data() {
 
 				# 2. move mails
 				# openpanel storage: $STORE_EMAILS_IN/stefantestira.rs/emailtest2 OR /home/stefan/mail/stefantestira.rs/emailtest2
-				if [ "$mailbox_format" == "maildir" ]; then
+				if [ "$mailbox_format" = "maildir" ] || [ "$mailbox_format" = "ma" ]; then
 					# cpanel storage: extract/backup-3.24.2026_14-03-06_stefantestira/homedir/mail/stefantestira.rs/emailtest2
 					if [ -d "/home/$cpanel_username/docker-data/volumes/${cpanel_username}_html_data/_data/mail/$domain/$username" ]; then
 						log "Restoring mailboxes to $STORE_EMAILS_IN/$domain/"
@@ -1283,6 +1275,7 @@ restore_notifications() {
 }
 
 write_import_activity() {
+    dry_run "Would write the import to /etc/openpanel/openpanel/core/users/$cpanel_username/activity.log" && return
     echo "$(date '+%Y-%m-%d %H:%M:%S')  $new_ip  Administrator ROOT user imported cpanel backup file" > /etc/openpanel/openpanel/core/users/$cpanel_username/activity.log
 }
 

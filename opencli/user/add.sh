@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: user/add.sh
 # Description: Create a new user with the provided plan_name.
-# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--reseller=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>] [--no-sentinel]
+# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--RESELLER=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>] [--no-sentinel]
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 05.05.2026
+# Last Modified: 06.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,28 +29,16 @@
 # THE SOFTWARE.
 ################################################################################
 
-# ======================================================================
-# Constants
 readonly FORBIDDEN_USERNAMES_FILE="/etc/openpanel/openadmin/config/forbidden_usernames.txt"
 readonly DB_CONFIG_FILE="/usr/local/opencli/db.sh"
 readonly PANEL_CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
+readonly LOCK_FILE="/var/lock/openpanel_user_add.lock"
+readonly DOCKER_COMPOSE_VERSION="2.36.0"
+readonly DOCKER_COMPOSE_ARM="https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-aarch64"
+readonly DOCKER_COMPOSE_X86="https://github.com/docker/compose/releases/download/v${DOCKER_COMPOSE_VERSION}/docker-compose-linux-x86_64"
+readonly ROOTLESS_SETUP_SCRIPT="/etc/openpanel/docker/dockerd-rootless-setuptool.sh"
 
-# ======================================================================
-# Variables
-username="${1,,}"
-password="$2"
-email="$3"
-plan_name="$4"
-DEBUG=false
-SKIP_IMAGE_PULL=false
-SEND_EMAIL=false
-SENTINEL=true
-server=""
-key_flag=""
-
-# ======================================================================
-# Functions
-usage() {
+if [[ "$#" -lt 4 || "$#" -gt 11 ]]; then
     echo "Usage: opencli user-add <username> <password|generate> <email> '<plan_name>' [--send-email] [--debug] [--reseller=<RESELLER_USER>] [--server=<IP_ADDRESS>] [--key=<KEY_PATH>]"
     echo
     echo "Required arguments:"
@@ -60,463 +48,361 @@ usage() {
     echo "  <plan_name>                The plan to assign to the new user."
     echo
     echo "Optional flags:"
-
-    if [ -n "$key_value" ]; then
-	    printf "%-25s %-45s\n" "  --reseller=<RESELLER_USER>" "Set the reseller for the user."
-	    echo
-		printf "%-25s %-45s\n" "  --server=<IP_ADDRESS>" "Specify the IPv4 of slave server to use for user."
-	    printf "%-25s %-45s\n" "  --key=<KEY_PATH>" "Specify the path to a key file for authentication to slave server."
-	    echo
-    fi
-
     printf "%-25s %-45s\n" "  --send-email" "Send a welcome email to the user."
     printf "%-25s %-45s\n" "  --debug" "Enable debug mode for additional output."
     echo
     exit 1
-}
+fi
 
-check_enterprise() {
-    key_value=$(grep "^key=" $PANEL_CONFIG_FILE | cut -d'=' -f2-)
-}
+# required
+readonly USERNAME="${1,,}"
+PASSWORD="$2"
+readonly EMAIL="$3"
+readonly PLAN_NAME="$4"
+shift 4
+
+# optional
+DEBUG=false
+SKIP_IMAGE_PULL=false
+SEND_EMAIL=false
+SENTINEL=true
+RESELLER=""
+NODE_IP=""
+SSH_KEY=""
+SSH_KEY_FLAG=""
+WEBSERVER=""
+SQL_TYPE=""
+HOSTNAME_LABEL=""
 
 cleanup() {
-  rm /var/lock/openpanel_user_add.lock > /dev/null 2>&1
+    rm -f "$LOCK_FILE"
 }
 
 hard_cleanup() {
-  killall -u "$username" -9 > /dev/null 2>&1
-  deluser --remove-home "$username" > /dev/null 2>&1   # command missing on alma!
-  rm -rf /etc/openpanel/openpanel/core/users/"$username" > /dev/null 2>&1
-  docker context rm "$username"  > /dev/null 2>&1
-  mkdir -p /etc/openpanel/openpanel/core/users/
-  exit 1
+    killall -u "$USERNAME" -9 > /dev/null 2>&1
+    deluser --remove-home "$USERNAME" > /dev/null 2>&1   # command is missing on alma!
+    rm -rf /etc/openpanel/openpanel/core/users/"$USERNAME" > /dev/null 2>&1
+    docker context rm "$USERNAME"  > /dev/null 2>&1
 }
-
-# ======================================================================
-# pre-flight checks
-check_enterprise
-if [ "$#" -lt 4 ] || [ "$#" -gt 11 ]; then
-    usage
-fi
 
 trap cleanup EXIT
 
-check_if_default_slave_server_is_set() {
+read_config_file() {
+    while IFS='=' read -r key value; do
+        [[ "$key" =~ ^[[:space:]]*# ]] && continue   # skip comments
+        [[ -z "$key" ]] && continue                  # skip blank lines
+        case "$key" in
+            key) ENTERPRISE="$value" ;;
+            weakpass) weakpass="$value" ;;
+            email_plaintext_passwords) email_plaintext_passwords="$value" ;;
+        esac
+    done < "$PANEL_CONFIG_FILE"
+}
+
+die()  { echo "[✘] ERROR: $*" >&2; exit 1; }
+
+node_ssh() {
+    # shellcheck disable=SC2086
+    ssh -q -o LogLevel=ERROR $SSH_KEY_FLAG "root@${NODE_IP}" "$@"
+}
+
+is_valid_ipv4() {
+    local ip="$1"
+    local re='^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+    [[ "$ip" =~ $re ]] || return 1
+    IFS='.' read -r -a octets <<< "$ip"
+    for o in "${octets[@]}"; do
+        (( o >= 0 && o <= 255 )) || return 1
+    done
+}
+
+load_default_node() {
+    local default_node default_key
+
 	: '
 	[CLUSTERING]
 	default_node="11.22.33.44"
 	default_ssh_key_path="/root/some-key.rsa"
 	'
 
-	get_config_value() {
-	    local file="/etc/openpanel/openadmin/config/admin.ini"
-	    local key=$1
-		local value
-	    value=$(grep -E "^$key=" "$file" | awk -F= '{sub(/^ /, "", $2); print $2}')
-	
-	    if [[ -z "$value" ]]; then
-	        echo ""
-	    else
-	        echo "$value"
-	    fi
-	}
+    while IFS='=' read -r key value; do
+        case "$key" in
+            default_node) default_node="$value" ;;
+            default_ssh_key_path) default_key="$value" ;;
+        esac
+    done < "/etc/openpanel/openadmin/config/admin.ini"
 
-	default_node=$(get_config_value "default_node")
-	if [[ -n "$default_node" ]]; then
-		default_ssh_key_path=$(get_config_value "default_ssh_key_path")
-		 if [[ -n "$default_ssh_key_path" ]]; then
-	        server=$default_node
-		    key=$default_ssh_key_path
-	        echo "Using default node $server and ssh key path"
-		 fi
-	fi
+    [[ -z "$default_node" ]] && return 0
+
+    if [[ -n "$default_key" ]]; then
+        NODE_IP="$default_node"
+        SSH_KEY="$default_key"
+    fi
 }
 
-check_if_default_slave_server_is_set         # we run it before parse_flags so it can be overwritten!
 
+read_config_file
+load_default_node         # we run it before parse args so it can be overwritten!
+
+# Parse args
 for arg in "$@"; do
-	case $arg in
-		--debug) DEBUG=true ;;
-		--send-email) SEND_EMAIL=true ;;
-		--skip-images) SKIP_IMAGE_PULL=true ;;	     
-		--reseller=*) reseller="${arg#*=}" ;;
-		--server=*) server="${arg#*=}" ;;
-		--key=*) key="${arg#*=}"; key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes" ;;
-		--sql=*) sql_type="${arg#*=}" ;;	    
-		--webserver=*)
-			webserver="${arg#*=}"
-			webserver="${webserver//\"/}"
-			webserver="$(echo "$webserver" | xargs)"
-		;;
-		--no-sentinel) SENTINEL=false ;;
-	esac
+    case "$arg" in
+        --debug)          DEBUG=true ;;
+        --send-email)     SEND_EMAIL=true ;;
+        --skip-images)    SKIP_IMAGE_PULL=true ;;
+        --no-sentinel)    SENTINEL=false ;;
+        --reseller=*)     RESELLER="${arg#*=}" ;;
+        --server=*)       NODE_IP="${arg#*=}" ;;
+        --key=*)          SSH_KEY="${arg#*=}" ;;
+        --sql=*)          SQL_TYPE="${arg#*=}" ;;
+        --webserver=*)    WEBSERVER="${arg#*=//\"/}" ; WEBSERVER="$(echo "$WEBSERVER" | xargs)" ;;
+        *)                echo "[!] Warning: unknown flag '$arg'" >&2 ;;
+    esac
 done
 
-log(){ $DEBUG && echo "$1"; }
+log() { [[ "$DEBUG" == true ]] && echo "$*"; }
 
-update_accounts_for_reseller() {
-	if [ -n "$reseller" ]; then
-		local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
-		current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner")
-	  	log "Updating current accounts count to: ${current_accounts} for reseller: ${reseller}"
-		jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
-	fi
-}
-
-check_if_reseller() {
-	local db_file_path="/etc/openpanel/openadmin/users.db"
-	if [ -n "$reseller" ]; then
-	    log "Checking if reseller user exists and can create new users.."
-    	local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$reseller' AND role='reseller';")
-	    if [ "$user_exists" -lt 1 ]; then
-	        echo -e "ERROR: User '$reseller' is not a reseller or not allowed to create new users. Contact support."
-	    fi
-
-	    reseller_limits_file="/etc/openpanel/openadmin/resellers/$reseller.json"
-	    if [ -f "$reseller_limits_file" ]; then
-	  		log "Checking reseller limits.."
-			local query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
-			if current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query_for_owner"); then
-				current_accounts=${current_accounts:-0}
-			    jq --argjson current_accounts "$current_accounts" '.current_accounts = $current_accounts' "$reseller_limits_file" > "/tmp/${reseller}_config.json" && mv "/tmp/${reseller}_config.json" "$reseller_limits_file"
-			else
-			    log "Error fetching current account count for reseller $reseller from MySQL."
-			    echo "ERROR: Unable to retrieve the number of users from the database. Is MySQL running?"
-			    exit 1
-			fi
-	  
-			max_accounts=$(jq -r '.max_accounts // "unlimited"' "$reseller_limits_file")
-	        if [ "$max_accounts" != "unlimited" ] && [ "$current_accounts" -ge "$max_accounts" ]; then
-	            echo "ERROR: Reseller has reached the maximum account limit. Cannot create more users."
-	            exit 1
-	        fi
-
-			local allowed_plans
-			allowed_plans=$(jq -r '.allowed_plans | join(",")' "$reseller_limits_file")	 
-			if ! grep -wq "$plan_id" <<< "$allowed_plans"; then
-			    echo "ERROR: Current plan ID '$plan_id' is not assigned for this reseller. Please select another plan."
-			    exit 1
-			fi
-	    else
-			log "WARNING: Reseller $reseller has no limits configured and can create unlimited number of users."
-	    fi
-    fi
-}
-
-get_slave_if_set() {
-	if [ -n "$server" ]; then
-	    if [[ "$server" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
-	        IFS='.' read -r -a octets <<< "$server"
-	        if [[ ${octets[0]} -ge 0 && ${octets[0]} -le 255 && ${octets[1]} -ge 0 && ${octets[1]} -le 255 && ${octets[2]} -ge 0 && ${octets[2]} -le 255 && ${octets[3]} -ge 0 && ${octets[3]} -le 255 ]]; then
-				context_flag="--context $server"
-				if [ -n "$key" ]; then
-					key_flag="-i $key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
-				else
-					echo "ERROR: Failed to read path to private key to use when connecting to the node $server - Exiting."
-					exit 1
-				fi
-				
-				hostname=$(ssh "$key_flag" "root@$server" "hostname")
-				if [ -z "$hostname" ]; then
-					echo "ERROR: Unable to reach the node $server - Exiting."
-	     			echo "       Make sure you can connect to the node from terminal with: 'ssh $key_flag root@$server -vvv'"
-					exit 1
-				fi
-
-   				node_ip_address=$server
-      			context=$username # so we show it on debug!
-	     		log "Containers will be created on node: $node_ip_address ($hostname)"
-	        else
-	            echo "ERROR: $server is not a valid IPv4 address (octets out of range)."
-	        fi
-	    else
-	        echo "ERROR: $server is not a valid IPv4 address (invalid format)."
-	 		exit 1
-	    fi
-     else
-        context_flag="" 
-		hostname=$(hostname)
-	fi
-}
-
-validate_password_in_lists() {
-    local password_to_check="$1"
-    weakpass=$(grep -E "^weakpass=" "$PANEL_CONFIG_FILE" | awk -F= '{print $2}')
-   
-    # https://weakpass.com/wordlist
-    # https://github.com/steveklabnik/password-cracker/blob/master/dictionary.txt
-    if [ "$weakpass" = "no" ]; then
-      if [ "$DEBUG" = true ]; then
-        echo "Checking the password against weakpass dictionaries"
-      fi
-
-       wget --timeout=5 --tries=3 -O /tmp/weakpass.txt https://github.com/steveklabnik/password-cracker/blob/master/dictionary.txt > /dev/null 2>&1
-       
-       if [ -f "/tmp/weakpass.txt" ]; then
-            DICTIONARY="dictionary.txt"
-			local input_lower
-			input_lower=$(echo "$password_to_check" | tr '[:upper:]' '[:lower:]')
-        
-            # Check if input contains any common dictionary word
-            if grep -qi "^$input_lower$" "$DICTIONARY"; then
-                echo "[✘] ERROR: password contains a common dictionary word from https://weakpass.com/wordlist"
-                echo "       Please use stronger password or disable weakpass check with: 'opencli config update weakpass no'."
-                rm dictionary.txt
-                exit 1
-            fi
-            rm dictionary.txt
-       else
-	       echo "[!] WARNING: Error downloading dictionary from https://weakpass.com/wordlist"
-       fi
-    else
-      weakpass="yes"
-	fi
-}
-
-check_username_is_valid() {
-    log "Validating username '$username'"
-
-    if (( ${#username} < 3 || ${#username} > 20 )); then
-        echo "[✘] Error: Username must be 3-20 characters long."
-        echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
-        exit 1
-    fi
-
-    if [[ ! "$username" =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]]; then
-        echo "[✘] Error: Username must start with a letter and contain only letters and numbers."
-        echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
-        exit 1
-    fi
-
-    if [[ -f "$FORBIDDEN_USERNAMES_FILE" ]]; then
-        while IFS= read -r forbidden; do
-            if [[ "${username,,}" == "${forbidden,,}" ]]; then
-                echo "[✘] Error: The username '$username' is not allowed."
-                echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#reserved-usernames"
-                exit 1
-            fi
-        done < "$FORBIDDEN_USERNAMES_FILE"
-    fi
-}
 
 # shellcheck source=../db.sh
 . "$DB_CONFIG_FILE"
 
+escape() {
+    printf "%s" "$1" | sed "s/'/''/g"
+}
+
+db_query() {
+    # shellcheck disable=SC2154
+    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -sN -e "$1"
+}
+
+update_reseller_account_count() {
+    [[ -n "$RESELLER" ]] || return 0
+    local limits_file="/etc/openpanel/openadmin/resellers/${RESELLER}.json"
+    [[ -f "$limits_file" ]] || return 0
+
+    local count
+    count="$(db_query "SELECT COUNT(*) FROM users WHERE owner='${RESELLER//\'/\\\'}'")"
+    jq --argjson n "${count:-0}" '.current_accounts = $n' "$limits_file" > "/tmp/reseller_${RESELLER}_update_$$.json" && mv "/tmp/reseller_${RESELLER}_update_$$.json" "$limits_file"
+    log "Reseller $RESELLER account count updated to $count"
+}
+
+check_reseller_limits() {
+    [[ -n "$RESELLER" ]] || return 0
+
+    local db_file="/etc/openpanel/openadmin/users.db"
+
+    RESELLER_ESC=$(escape "$RESELLER")
+    local user_exists
+    user_exists="$(sqlite3 "$db_file" "SELECT COUNT(*) FROM user WHERE username='${RESELLER//\'/\'\'}' AND role='RESELLER';")"
+    (( user_exists >= 1 )) || die "User '$RESELLER' is not a reseller or is not allowed to create users."
+
+    local limits_file="/etc/openpanel/openadmin/resellers/${RESELLER}.json"
+    if [[ ! -f "$limits_file" ]]; then
+        warn "Reseller $RESELLER has no limits file; unlimited accounts allowed."
+        return 0
+    fi
+
+    local current_accounts
+    current_accounts="$(db_query "SELECT COUNT(*) FROM users WHERE owner='${RESELLER_ESC//\'/\\\'}'")"
+    current_accounts="${current_accounts:-0}"
+
+    jq --argjson n "$current_accounts" '.current_accounts = $n' "$limits_file" > "/tmp/reseller_${RESELLER}_$$.json" && mv "/tmp/reseller_${RESELLER}_$$.json" "$limits_file"
+
+    local max_accounts
+    max_accounts="$(jq -r '.max_accounts // "unlimited"' "$limits_file")"
+    if [[ "$max_accounts" != "unlimited" && "$current_accounts" -ge "$max_accounts" ]]; then
+        die "Reseller '$RESELLER' has reached the maximum account limit ($max_accounts)."
+    fi
+
+    local allowed_plans
+    allowed_plans="$(jq -r '.allowed_plans | join(",")' "$limits_file")"
+    grep -wq "$PLAN_ID" <<< "$allowed_plans" || die "Plan ID '$PLAN_ID' is not assigned to reseller '$RESELLER'."
+}
+
+resolve_node() {
+    if [[ -z "$NODE_IP" ]]; then HOSTNAME_LABEL="$(hostname)"; return 0; fi
+
+    is_valid_ipv4 "$NODE_IP" || die "'$NODE_IP' is not a valid IPv4 address."
+    [[ -n "$SSH_KEY" ]] || die "--key is required when --server is specified."
+    [[ -f "$SSH_KEY" ]] || die "SSH key path '$SSH_KEY' does not exist."
+    [[ "$(stat -c %a "$SSH_KEY")" == "600" ]] || { chmod 600 "$SSH_KEY"; log "Fixed SSH key permissions."; }
+
+    SSH_KEY_FLAG="-i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
+
+    HOSTNAME_LABEL="$(node_ssh hostname 2>/dev/null)"
+    [[ -n "$HOSTNAME_LABEL" ]] || die "Cannot reach node $NODE_IP. Verify SSH access with: ssh $SSH_KEY_FLAG root@$NODE_IP"
+
+    log "Containers will be created on node: $NODE_IP ($HOSTNAME_LABEL)"
+}
+
+validate_password_in_lists() {
+    # https://weakpass.com/wordlist
+    # https://github.com/steveklabnik/password-cracker/blob/master/dictionary.txt
+
+    [[ "$weakpass" == "no" ]] && return 0
+
+    log "Checking password against weak-password dictionary"
+
+    local dict="/tmp/weakpass_dictionary.txt"
+    local url="https://github.com/steveklabnik/password-cracker/raw/master/dictionary.txt"
+
+    if [[ ! -f "$dict" ]]; then
+        log "Downloading weak-password dictionary (first time only)"
+        wget -qO "$dict" "$url" || { warn "Could not fetch dictionary; skipping check."; return 0; }
+    elif [[ $(find "$dict" -mtime +7 -print -quit 2>/dev/null) ]]; then
+        log "Refreshing weak-password dictionary (older than 7 days)"
+        wget -qO "$dict" "$url" || warn "Update failed; using cached dictionary."
+    fi
+
+    local lower="${PASSWORD,,}"
+
+    if grep -qiF "^${lower}$" "$dict" 2>/dev/null; then
+        die "Password is a common dictionary word. Use a stronger password or disable the check with: opencli config update weakpass no"
+    fi
+}
+
+validate_username() {
+    log "Validating username '$USERNAME'"
+
+    (( ${#USERNAME} >= 3 && ${#USERNAME} <= 20 )) || die "Username must be 3–20 characters. See https://openpanel.com/docs/articles/accounts/forbidden-usernames/#openpanel"
+
+    [[ "$USERNAME" =~ ^[a-zA-Z][a-zA-Z0-9]*$ ]] || die "Username must start with a letter and contain only letters and numbers."
+
+    if [[ -f "$FORBIDDEN_USERNAMES_FILE" ]]; then
+        while IFS= read -r forbidden; do
+            [[ "${USERNAME,,}" == "${forbidden,,}" ]] && die "Username '$USERNAME' is not allowed. See https://openpanel.com/docs/articles/accounts/forbidden-usernames/#reserved-usernames"
+        done < "$FORBIDDEN_USERNAMES_FILE"
+    fi
+}
+
 
 validate_user_creation() {
-    if [ -z "$key_value" ]; then
-        if [ -n "$reseller" ]; then
-            echo "[✘] ERROR: Resellers feature requires the Enterprise edition."
-            echo "If you require reseller accounts, please consider purchasing the Enterprise version that allows unlimited number of users and resellers."
-            exit 1
-        fi
-        log "Checking if the limit of 3 users on Community edition is reached"
+    if [[ -z "$ENTERPRISE" ]]; then
+        [[ -z "$RESELLER" ]] || die "Resellers require the Enterprise edition."
+        log "Community edition: checking 3-user limit"
     else
-        [ -z "$reseller" ] && log "Enterprise edition detected: unlimited number of users can be created"
+        [[ -z "$RESELLER" ]] && log "Enterprise edition: unlimited users"
     fi
 
-    local query="SELECT
-        COUNT(*) AS total,
-        SUM(username = '$username' OR username LIKE 'SUSPENDED\\_%_${username}') AS username_taken
-        FROM users"
+    local USERNAME_ESC=$(escape "$USERNAME")
     local result
-    if ! result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN); then
-        echo "[✘] ERROR: Unable to query the database. Is mysql running?"
-        exit 1
-    fi
+    result="$(db_query "SELECT COUNT(*), SUM(username='${USERNAME_ESC}' OR username LIKE 'SUSPENDED\_%\_${USERNAME_ESC}') FROM users")"
 
-    local user_count username_exists_count
-    read -r user_count username_exists_count <<< "$result"
+    local user_count username_taken
+    read -r user_count username_taken <<< "$result"
 
-    if [ -z "$key_value" ] && [ "$user_count" -gt 2 ]; then
-        echo "[✘] ERROR: OpenPanel Community edition has a limit of 3 user accounts - which should be enough for private use."
-        echo "If you require more than 3 accounts, please consider purchasing the Enterprise version that allows unlimited number of users and domains/websites."
-        exit 1
-    fi
+    [[ -z "$ENTERPRISE" && "$user_count" -gt 2 ]] && die "Community edition is limited to 3 accounts. Upgrade to Enterprise for unlimited users."
 
-    if [ "$username_exists_count" -gt 0 ]; then
-        echo "[✘] Error: Username '$username' is already taken."
-        exit 1
-    fi
+    [[ "${username_taken:-0}" -gt 0 ]] && die "Username '$USERNAME' is already taken."
 }
 
+bootstrap_node() {
+    [[ -n "$NODE_IP" ]] || return 0
 
-validate_user_creation
+    log "Bootstrapping node $NODE_IP"
 
-#########################################
-# TODO
-# USE REMOTE CONTEXT! context_flag
-#
-#########################################
+    node_ssh 'bash -s' << 'REMOTE'
+set -e
+if [[ ! -d /etc/openpanel/openpanel ]]; then
+    grep -qxF 'PubkeyAuthentication yes' /etc/ssh/sshd_config || echo 'PubkeyAuthentication yes' >> /etc/ssh/sshd_config
+    grep -qxF 'AuthorizedKeysFile .ssh/authorized_keys' /etc/ssh/sshd_config || echo 'AuthorizedKeysFile .ssh/authorized_keys' >> /etc/ssh/sshd_config
+    service ssh restart >/dev/null 2>&1 || true
 
-sshfs_mounts() {
-    if [ -n "$node_ip_address" ]; then
-
-	ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << 'EOF' 2>/dev/null
-if [ ! -d "/etc/openpanel/openpanel" ]; then
-    echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
-    echo "AuthorizedKeysFile     .ssh/authorized_keys" >> /etc/ssh/sshd_config
-    service ssh restart > /dev/null 2>&1
-fi
-EOF
-
-        sleep 5
-	ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << 'EOF' 2>/dev/null
-if [ ! -d "/etc/openpanel/openpanel" ]; then
-    echo "Node is not yet configured to be used as an OpenPanel slave server. Configuring.."
-
-    if command -v apt-get &> /dev/null; then
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update > /dev/null 2>&1 && apt-get -yq install systemd-container uidmap > /dev/null 2>&1
-    elif command -v dnf &> /dev/null; then
-        dnf install -y systemd-container uidmap > /dev/null 2>&1
-    elif command -v yum &> /dev/null; then
-        yum install -y systemd-container uidmap > /dev/null 2>&1
+    if command -v apt-get &>/dev/null; then
+        DEBIAN_FRONTEND=noninteractive apt-get -yq update >/dev/null 2>&1
+        DEBIAN_FRONTEND=noninteractive apt-get -yq install systemd-container uidmap >/dev/null 2>&1
+    elif command -v dnf &>/dev/null; then
+        dnf install -y systemd-container uidmap >/dev/null 2>&1
+    elif command -v yum &>/dev/null; then
+        yum install -y systemd-container uidmap >/dev/null 2>&1
     else
-        echo "[✘] ERROR: Unable to setup the slave server. Contact support."
-        exit 1
+        echo "ERROR: Cannot install prerequisites." >&2; exit 1
     fi
-fi
-EOF
-
-        ssh -q $key_flag root@$node_ip_address << 'EOF'
-if [ ! -d "/etc/openpanel/openpanel" ]; then
-    echo "Adding permissions for users to limit CPU% - more info: https://docs.docker.com/engine/security/rootless/#limiting-resources"
 
     mkdir -p /etc/systemd/system/user@.service.d
-
-    cat > /etc/systemd/system/user@.service.d/delegate.conf << 'INNER_EOF'
+    cat > /etc/systemd/system/user@.service.d/delegate.conf << 'EOF'
 [Service]
 Delegate=cpu cpuset io memory pids
-INNER_EOF
-
+EOF
     systemctl daemon-reload
 fi
+REMOTE
+
+    scp "$SSH_KEY_FLAG" -r /etc/openpanel "root@${NODE_IP}:/etc/openpanel"
+}
+
+setup_sshfs_mount() {
+    [[ -n "$NODE_IP" ]] || return 0
+
+    if ! command -v sshfs &>/dev/null; then
+        local pm
+        if command -v apt-get &>/dev/null; then pm="apt-get install -y";
+        elif command -v dnf &>/dev/null;     then pm="dnf install -y";
+        elif command -v yum &>/dev/null;     then pm="yum install -y";
+        else die "Cannot install sshfs; no supported package manager found."; fi
+        # shellcheck disable=SC2086
+        $pm sshfs
+    fi
+
+    sshfs -o "IdentityFile=${SSH_KEY},StrictHostKeyChecking=no" "root@${NODE_IP}:/home/${USERNAME}" "/home/${USERNAME}" || die "sshfs mount failed for $NODE_IP:/home/$USERNAME"
+}
+
+load_plan() {
+    log "Looking up plan '$PLAN_NAME'"
+    local PLAN_NAME_ESC=$(escape "$PLAN_NAME")
+    PLAN_ID="$(db_query "SELECT id FROM plans WHERE name = '${PLAN_NAME_ESC//\'/\\\'}'")"
+    [[ -n "$PLAN_ID" ]] || die "Plan '$PLAN_NAME' not found."
+}
+
+pull_images() {
+    [[ "$SKIP_IMAGE_PULL" == true ]] && { log "Skipping image pull (--skip-images)."; return 0; }
+    
+    local env_file="/home/${USERNAME}/.env"
+    [[ -f "$env_file" ]] || { warn "$env_file not found; skipping image pull."; return 1; }
+
+    # https://community.openpanel.org/d/239-no-such-container-openlitespeed
+    get_env() { grep -E "^$1=" "$env_file" | cut -d= -f2- | tr -d '\r"'\'; }
+
+    local sql_type ws_type
+    sql_type="$(get_env MYSQL_TYPE)"
+    ws_type="$(get_env WEB_SERVER)"
+
+    local images=()
+    [[ "$sql_type" =~ ^(mysql|mariadb)$ ]] && images+=("$sql_type")
+    [[ "$ws_type"  =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]] && images+=("$ws_type")
+    [[ ${#images[@]} -eq 0 ]] && { warn "No valid images to pull."; return 1; }
+
+    #log "Pulling images in background: ${images[*]}"
+    nohup sh -c "cd /home/${USERNAME}/ && docker --context=${USERNAME} compose pull ${images[*]}" </dev/null >/dev/null 2>&1 &
+    disown
+}
+
+setup_ssh_key_for_user() {
+    [[ -n "$NODE_IP" ]] || return 0
+    log "Configuring SSH key for user '$USERNAME'"
+
+    local pub_key
+    pub_key="$(ssh-keygen -y -f "$SSH_KEY")" || die "Cannot read public key from $SSH_KEY"
+
+    node_ssh "bash -s" << EOF
+mkdir -p /home/${USERNAME}/.ssh
+touch /home/${USERNAME}/.ssh/authorized_keys
+chown "${USERNAME}" -R /home/${USERNAME}/.ssh
+grep -qF '${pub_key}' /home/${USERNAME}/.ssh/authorized_keys || echo '${pub_key}' >> /home/${USERNAME}/.ssh/authorized_keys
 EOF
 
-        scp "$key_flag" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -r /etc/openpanel root@"$node_ip_address":/etc/openpanel
+    mkdir -p ~/.ssh/cm_socket
+    chmod 700 ~/.ssh
+    local key_copy="${HOME}/.ssh/${NODE_IP}"
+    cp "$SSH_KEY" "$key_copy" && chmod 600 "$key_copy"
 
-        # mount home dir on master
-        if ! command -v sshfs &> /dev/null; then
-            if command -v apt-get &> /dev/null; then
-                apt-get install -y sshfs
-            elif command -v dnf &> /dev/null; then
-                dnf install -y sshfs
-            elif command -v yum &> /dev/null; then
-                yum install -y sshfs
-            else
-                echo "[✘] ERROR: Unable to setup sshfs on master server. Contact support."
-                exit 1
-            fi
-        fi
+    if ! grep -qF "Host ${USERNAME}" ~/.ssh/config 2>/dev/null; then
+        cat >> ~/.ssh/config << EOF
 
-	sshfs -o IdentityFile="/root/.ssh/$node_ip_address",StrictHostKeyChecking=no root@"$node_ip_address":/home/$username /home/$username
-    fi
-}
-
-get_plan_info() {
-    log "Getting information from the database for plan $plan_name"
-	# limits are applied via plan-apply command
-    local query="SELECT id FROM plans WHERE name = '$plan_name'"
-    if ! plan_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -sN); then
-        echo "[✘] ERROR: Unable to fetch plan information from the database."
-        exit 1
-    fi
-    if [ -z "$plan_id" ]; then
-        echo "[✘] ERROR: Plan with name $plan_name not found."
-        exit 1
-    fi
-}
-
-download_images() {
-	if [ "$SKIP_IMAGE_PULL" = false ]; then
-	
-	    local sql_type=""
-	    local ws_type=""
-	    local php_version=""
-	    local env_file="/home/$username/.env"
-	
-	    [[ -f "$env_file" ]] || { echo "Warning: $env_file not found"; return 1; }
-		
-		get_env_value() {
-		    local key=$1
-		    local val
-		    val=$(grep -E "^$key=" "$env_file" | cut -d '=' -f2-)
-			# https://community.openpanel.org/d/239-no-such-container-openlitespeed
-			val=${val//$'\r'/}
-		    val="${val%\"}"   # Remove trailing double quote
-		    val="${val#\"}"   # Remove leading double quote
-		    val="${val%\'}"   # Remove trailing single quote
-		    val="${val#\'}"   # Remove leading single quote
-		    echo "$val"
-		}
-
-		sql_type=$(get_env_value "MYSQL_TYPE")
-		valid_sql_types=("mysql" "mariadb")
-		if [[ -n "$sql_type" ]]; then
-			if [[ ! " ${valid_sql_types[*]} " =~ $sql_type ]]; then
-		        echo "Warning: MYSQL_TYPE must be 'mysql' or 'mariadb', got '$sql_type'"
-		        sql_type=""
-		    fi
-		else
-		    echo "Warning: MYSQL_TYPE is not set"
-		    sql_type=""
-		fi
-		
-		ws_type=$(get_env_value "WEB_SERVER")
-		valid_ws_types=("nginx" "apache" "openresty" "openlitespeed" "litespeed")
-		if [[ -n "$ws_type" ]]; then
-		    if [[ ! " ${valid_ws_types[*]} " =~ " $ws_type " ]]; then
-		        echo "Warning: WEB_SERVER must be 'nginx', 'apache', 'openlitespeed', 'litespeed', or 'openresty', got '$ws_type'"
-		        ws_type=""
-		    fi
-		else
-		    echo "Warning: WEB_SERVER is not set"
-		    ws_type=""
-		fi
-		
-		images_to_pull=()
-		[[ -n "$ws_type" ]] && images_to_pull+=("$ws_type")
-		[[ -n "$sql_type" ]] && images_to_pull+=("$sql_type")
-	    [[ ! "$ws_type" =~ litespeed && -n "$php_image" ]] && images_to_pull+=("php-fpm-$php_version")
-		
-		if [[ ${#images_to_pull[@]} -eq 0 ]]; then
-		    echo "Warning: No valid images to pull."
-		    return 1
-		fi
-		
-		log "Starting pull for images: ${images_to_pull[*]} in background..."
-		nohup sh -c "cd /home/$username/ && docker --context=$username compose pull ${images_to_pull[*]}" </dev/null >nohup.out 2>nohup.err &
-	else
-	    log "Skipping image pull due to the '--skip-images' flag."
-	fi  
-}
-
-setup_ssh_key(){
-     if [ -n "$node_ip_address" ]; then
-	log "Setting ssh key.."
- 
- 	public_key=$(ssh-keygen -y -f "$key")
-ssh -q -o LogLevel=ERROR "$key_flag" "root@$node_ip_address" << EOF 2>/dev/null
-mkdir -p /home/$username/.ssh > /dev/null 2>&1
-touch /home/$username/.ssh/authorized_keys > /dev/null 2>&1
-chown $username -R /home/$username/.ssh > /dev/null 2>&1
-if ! grep -q "$public_key" /home/$username/.ssh/authorized_keys 2>/dev/null; then
-  echo "$public_key" >> /home/$username/.ssh/authorized_keys
-fi
-EOF
-
-mkdir ~/.ssh  > /dev/null 2>&1
-chmod 600 ~/.ssh/config  > /dev/null 2>&1
-   
-cp $key ~/.ssh/$node_ip_address && chmod 600 ~/.ssh/$node_ip_address
-
-mkdir -p ~/.ssh/cm_socket  > /dev/null 2>&1
-   
-echo "Host $username
-    HostName $node_ip_address
-    User $username
-    IdentityFile ~/.ssh/$node_ip_address
+Host ${USERNAME}
+    HostName ${NODE_IP}
+    User ${USERNAME}
+    IdentityFile ~/.ssh/${NODE_IP}
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     ControlPath /tmp/ssh_cm/%r@%h:%p
@@ -525,725 +411,533 @@ echo "Host $username
     TCPKeepAlive yes
     ServerAliveInterval 15
     ServerAliveCountMax 3
-" >> ~/.ssh/config
+EOF
+    fi
 
-	                ssh "$username" "exit" &> /dev/null
-	                if [ $? -eq 0 ]; then
-	                    log "SSH connection successfully established"
-		     	else
-			    echo "ERROR: Failed to establish SSH connection to the newly created user."
-	      		    exit 1
-	     		fi
-      fi
+    ssh "${USERNAME}" exit &>/dev/null || die "Failed to establish SSH connection for user '$USERNAME'."
+    log "SSH connection established for $USERNAME"
 }
 
 validate_ssh_login(){
-	if [ -n "$node_ip_address" ]; then
-		log "Validating SSH connection to the server $node_ip_address"
+	if [ -n "$NODE_IP" ]; then
+		log "Validating SSH connection to the server $NODE_IP"
 		if [ "$DEBUG" = true ]; then
-			if [ -f "$key" ]; then	
-				if [ "$(stat -c %a "$key")" -eq 600 ]; then	                
-					ssh -i "$key_flag" "$node_ip_address" "exit" &> /dev/null
-					if [ $? -eq 0 ]; then
-						log "SSH connection successfully established"
-						csf -a "$node_ip_address" > /dev/null 2>&1
-					else
-						echo "ERROR: SSH connection failed to $node_ip_address"
-						exit 1
-					fi
+			if [ -f "$SSH_KEY" ]; then	
+				if [ "$(stat -c %a "$SSH_KEY")" -eq 600 ]; then	                
+                    if ssh -i "$SSH_KEY" "$NODE_IP" "exit" &> /dev/null; then
+                        log "SSH connection successfully established"
+                        csf -a "$NODE_IP" > /dev/null 2>&1
+                    else
+                        die "SSH connection failed to $NODE_IP"
+                    fi
 				else
 					log "SSH key permissions are incorrect. Correcting permissions to 600."
-					chmod 600 "$key"
+					chmod 600 "$SSH_KEY"
 				fi
 			else
-				echo "ERROR: Provided ssh key path: "$key" does not exist."
-				exit 1
+                die "Provided ssh key path: ""$SSH_KEY"" does not exist."
 			fi
 		fi
     fi
 }
 
-
-
-print_debug_info_before_starting_creation() {
-    [[ "$DEBUG" == true ]] || return
-
-    sep() { echo "--------------------------------------------------------------"; }
-
-    if [[ -n "$reseller" ]]; then
-		sep
-        echo "Reseller user information:"
-        echo "- Reseller:             $reseller"
-        echo "- Existing accounts:    $current_accounts/$max_accounts"
-    fi
-
-    if [[ -n "$node_ip_address" ]]; then
-		sep
-        echo "Data for connecting to the Node server:"
-        echo "- IP address:           $node_ip_address"
-        echo "- Hostname:             $hostname"
-        echo "- SSH user:             root"
-        echo "- SSH key path:         $key"
-    fi
+create_linux_user_local() {
+    log "Creating local Linux user '$USERNAME'"
+    useradd -m -d "/home/${USERNAME}" "$USERNAME" || die "Failed to create Linux user '$USERNAME' on master."
+    USER_ID="$(id -u "$USERNAME")"
 }
 
-create_local_user() {
-	log "Creating user $username"
-	useradd -m -d /home/$username $username
- 	user_id=$(id -u "$username")	
-	if [ $? -ne 0 ]; then
-		echo "Error: Failed creating linux user $username on master server."
-  		exit 1
-	fi
+create_linux_user_remote() {
+    [[ -n "$NODE_IP" ]] || return 0
+    log "Creating Linux user '$USERNAME' on node $NODE_IP"
+    local id_flag=""
+    [[ -n "${USER_ID:-}" ]] && id_flag="-u $USER_ID"
+
+    # shellcheck disable=SC2086
+    node_ssh "useradd -m -s /bin/bash -d /home/${USERNAME} ${id_flag} ${USERNAME}" || { hard_cleanup; die "Failed to create Linux user '$USERNAME' on node $NODE_IP"; }
+    USER_ID="$(node_ssh "id -u ${USERNAME}")"
 }
 
-create_remote_user() {
-	local provided_id=$1
-        if [ -n "$provided_id" ]; then
-		id_flag="-u $provided_id"
- 	else
-		id_flag=""
- 	fi
-  	
-   	if [ -n "$node_ip_address" ]; then
-        log "Creating user $username on server $node_ip_address"
-		ssh -o LogLevel=ERROR $key_flag "root@$node_ip_address" "useradd -m -s /bin/bash -d /home/$username $id_flag $username" >/dev/null 2>&1
-		
-		user_id=$(ssh -o LogLevel=ERROR $key_flag "root@$node_ip_address" "id -u $username" 2>/dev/null)
-		
-		if [ $? -ne 0 ]; then
-		    echo "Error: Failed creating linux user $username on node: $node_ip_address"
-		    exit 1
-      	fi
-	fi
-}
+ensure_docker_on_node() {
+    [[ -n "$NODE_IP" ]] || return 0
 
-install_docker_and_add_user() {
-if [ -n "$node_ip_address" ]; then
-    log "Checking if Docker is installed on $node_ip_address..."
-    ssh $key_flag root@"$node_ip_address" "command -v docker >/dev/null 2>&1"
-    if [ $? -ne 0 ]; then
-        log "Docker is not installed. Installing Docker on $node_ip_address..."
-        ssh $key_flag root@"$node_ip_address" bash -c "'
-          set -e
-          apt update
-          apt install -y docker.io
-          systemctl enable --now docker
-        '"
-        log "Docker installed on destination server."
-    else
-        log "Docker is already installed on destination server."
+    if ! node_ssh "command -v docker >/dev/null 2>&1"; then
+        log "Installing Docker on $NODE_IP"
+        node_ssh "bash -s" << 'REMOTE'
+set -e
+apt-get update -qq
+apt-get install -y docker.io
+systemctl enable --now docker
+REMOTE
     fi
-    log "Adding user '$username' to docker group on $node_ip_address..."
-	ssh $key_flag root@"$node_ip_address" bash -c "'
-	  if [[ ! \" \$(id -nG \"$username\") \" =~ ' docker ' ]]; then
-	    usermod -aG docker \"$username\" && echo \"User $username added to docker group.\"
-	  fi
-	'"
+
+    log "Adding '$USERNAME' to docker group on $NODE_IP"
+    node_ssh "bash -s" << EOF
+if ! id -nG "${USERNAME}" 2>/dev/null | grep -qw docker; then
+    usermod -aG docker "${USERNAME}"
 fi
-}
-
-docker_compose() {
-	local arm_link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-aarch64"
- 	local x86_link="https://github.com/docker/compose/releases/download/v2.36.0/docker-compose-linux-x86_64"
-   	if [ -n "$node_ip_address" ]; then
-    	# TODO: check for armcpu on node
-	    log "Configuring Docker Compose for user $username on node $node_ip_address"
-		ssh $key_flag root@$node_ip_address "su - $username -c '
-			DOCKER_CONFIG=\${DOCKER_CONFIG:-/home/$username/.docker}
-			mkdir -p /home/$username/.docker/cli-plugins
-			curl -sSL $x86_link -o /home/$username/.docker/cli-plugins/docker-compose
-			chmod +x /home/$username/.docker/cli-plugins/docker-compose
-		'"
-	else	
-		architecture=$(lscpu | awk '/Architecture/ {print $2}')
-		log "Configuring Docker Compose for user $username"
-		case "$architecture" in
-		    aarch64)
-		        log "Setting compose for ARM CPU (/etc/openpanel/docker/docker-compose-linux-aarch64)"
-		        system_wide_compose_file="/etc/openpanel/docker/docker-compose-linux-aarch64"
-		        download_link="$arm_link"
-		        ;;
-		    x86_64|*)
-		        log "Setting compose for x86_64 CPU (/etc/openpanel/docker/docker-compose-linux-x86_64)"
-		        system_wide_compose_file="/etc/openpanel/docker/docker-compose-linux-x86_64"
-		        download_link="$x86_link"
-		        ;;
-		esac
-
-		# TODO: remove after 2.0
-		[ -f "$system_wide_compose_file" ] || curl -sSL "$download_link" -o "$system_wide_compose_file"
-
-     	chmod +x $system_wide_compose_file
-      	mkdir -p /home/$username/.docker/cli-plugins
-	    ln -sf $system_wide_compose_file /home/$username/.docker/cli-plugins/docker-compose
-	fi
-}
-
-docker_rootless() {
-log "Configuring Docker in Rootless mode"
-
-mkdir -p /home/$username/docker-data /home/$username/.config/docker > /dev/null 2>&1
-cp /etc/openpanel/docker/daemon/rootless.json /home/$username/.config/docker/daemon.json
-sed -i "s/USERNAME/$username/g" /home/$username/.config/docker/daemon.json
-		
-mkdir -p /home/$username/bin > /dev/null 2>&1
-chmod 755 -R /home/$username/ >/dev/null 2>&1
-if [ -f "/home/$username/.bashrc" ]; then
-	sed -i '1i export PATH=/home/'"$username"'/bin:$PATH' /home/"$username"/.bashrc
-fi
-
-   	if [ -n "$node_ip_address" ]; then
-log "Setting AppArmor profile.."
-ssh -q -o LogLevel=ERROR $key_flag root@$node_ip_address <<'EOF1' 2>/dev/null
-
-cat > "/etc/apparmor.d/home.$username.bin.rootlesskit" <<'EOT1'
-abi <abi/4.0>,
-include <tunables/global>
-
-  /home/$username/bin/rootlesskit flags=(unconfined) {
-    userns,
-    include if exists <local/home.$username.bin.rootlesskit>
-  }
-EOT1
-
-filename=$(echo "/home/$username/bin/rootlesskit" | sed -e 's@^/@@' -e 's@/@.@g')
-
-cat > "/home/$username/${filename}" <<'EOT2'
-abi <abi/4.0>,
-include <tunables/global>
-
-  "/home/$username/bin/rootlesskit" flags=(unconfined) {
-    userns,
-    include if exists <local/${filename}>
-  }
-EOT2
-
-mv "/home/$username/${filename}" "/etc/apparmor.d/${filename}"
-
-EOF1
-
-log "Restarting services.."
-
-		ssh $key_flag root@$node_ip_address "
-		   systemctl restart apparmor.service >/dev/null 2>&1
-	
-		   loginctl enable-linger $username >/dev/null 2>&1
-		
-	    	mkdir -p /home/$username/.docker/run >/dev/null 2>&1
-		chmod 700 /home/$username/.docker/run >/dev/null 2>&1
-	
-		chmod 755 -R /home/$username/ >/dev/null 2>&1
-		chown -R $username:$username /home/$username/ >/dev/null 2>&1
-  		"
-
-  log "Downloading https://get.docker.com/rootless"
-
-ssh $key_flag root@$node_ip_address "
-    su - $username -c 'bash -l -c \"
-        cd /home/$username/bin
-        wget --timeout=5 --tries=3 -O /home/$username/bin/dockerd-rootless-setuptool.sh https://get.docker.com/rootless > /dev/null 2>&1
-        chmod +x /home/$username/bin/dockerd-rootless-setuptool.sh
-        /home/$username/bin/dockerd-rootless-setuptool.sh install > /dev/null 2>&1
-
-	echo \\\"export XDG_RUNTIME_DIR=/home/$username/.docker/run\\\" >> ~/.bashrc
-        echo \\\"export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u)/bus\\\" >> ~/.bashrc
-        
-    \"'
-"
-
-#         echo \\\"export DOCKER_HOST=unix:///home/$username/.docker/run/docker.sock\\\" >> ~/.bashrc
-        
-  log "Configuring Docker service.."
-
-ssh $username "
-    mkdir -p ~/.config/systemd/user/
-    cat > ~/.config/systemd/user/docker.service <<EOF
-[Unit]
-Description=Docker Application Container Engine (Rootless)
-After=network.target
-
-[Service]
-Environment=PATH=/home/$username/bin:$PATH
-Environment=DOCKER_HOST=unix:///home/$username/.docker/run/docker.sock
-ExecStart=/home/$username/bin/dockerd-rootless.sh -H unix:///home/$username/.docker/run/docker.sock
-
-Restart=on-failure
-StartLimitBurst=3
-StartLimitInterval=60s
-
-[Install]
-WantedBy=default.target
 EOF
-"
-
-  log "Starting user services.."
-
-ssh $key_flag root@$node_ip_address "
-    machinectl shell $username@ /bin/bash -c '
-
-        echo \"XDG_RUNTIME_DIR=\$XDG_RUNTIME_DIR\"
-        echo \"DBUS_SESSION_BUS_ADDRESS=\$DBUS_SESSION_BUS_ADDRESS\"
-        echo \"PATH=\$PATH\"
-        echo \"DOCKER_HOST=\$DOCKER_HOST\"
-	
-	systemctl --user daemon-reload > /dev/null 2>&1
-        systemctl --user enable docker > /dev/null 2>&1
-        systemctl --user start docker > /dev/null 2>&1
-    ' 2>/dev/null
-"
-
-#fork/exec /proc/self/exe: operation not permitted
-
-# we should check with: systemctl --user status
-	else
-		
-cat <<EOT | tee "/etc/apparmor.d/home.$username.bin.rootlesskit" > /dev/null 2>&1
-# ref: https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces
-abi <abi/4.0>,
-include <tunables/global>
-
-/home/$username/bin/rootlesskit flags=(unconfined) {
-userns,
-
-# Site-specific additions and overrides. See local/README for details.
-include if exists <local/home.$username.bin.rootlesskit>
 }
-EOT
 
-filename=$(echo $HOME/bin/rootlesskit | sed -e s@^/@@ -e s@/@.@g)
+setup_docker_compose() {
+    log "Setting up Docker Compose for '$USERNAME'"
+    local arch link system_file
+    arch="$(uname -m)"
+    case "$arch" in
+        aarch64) link="$DOCKER_COMPOSE_ARM" ;;
+        *)       link="$DOCKER_COMPOSE_X86" ;;
+    esac
+    system_file="/etc/openpanel/docker/docker-compose-linux-${arch}"
+    [[ -f "$system_file" ]] || curl -fsSL "$link" -o "$system_file"
+    chmod +x "$system_file"
+    mkdir -p "/home/${USERNAME}/.docker/cli-plugins"
+    ln -sf "$system_file" "/home/${USERNAME}/.docker/cli-plugins/docker-compose"
+}
 
-cat <<EOF > ~/${filename} 2>/dev/null
+setup_docker_rootless() {
+    log "Configuring rootless Docker for '$USERNAME'"
+
+    local home_dir="/home/${USERNAME}"
+    local apparmor_file="/etc/apparmor.d/home.${USERNAME}.bin.rootlesskit"
+
+    _build_apparmor_profile() {
+        sed "s/USERNAME/${USERNAME}/g" << 'EOF'
 abi <abi/4.0>,
 include <tunables/global>
 
-"$HOME/bin/rootlesskit" flags=(unconfined) {
-userns,
-
-include if exists <local/${filename}>
+"/home/USERNAME/bin/rootlesskit" flags=(unconfined) {
+  userns,
+  include if exists <local/home.USERNAME.bin.rootlesskit>
 }
 EOF
-
-  		mv ~/${filename} /etc/apparmor.d/${filename} > /dev/null 2>&1
-
-		systemctl restart apparmor.service >/dev/null 2>&1
-		loginctl enable-linger $username >/dev/null 2>&1
-		mkdir -p /home/$username/.docker/run /home/$username/bin/ /home/$username/bin/.config/systemd/user/ >/dev/null 2>&1
-		chmod 700 /home/$username/.docker/run >/dev/null 2>&1
-		chmod 755 -R /home/$username/ >/dev/null 2>&1
-		chown -R $username:$username /home/$username/ >/dev/null 2>&1
-
-      		system_wide_rootless_script="/etc/openpanel/docker/dockerd-rootless-setuptool.sh"
-      		if [ ! -f "$system_wide_rootless_script" ]; then
-			curl -sSL https://get.docker.com/rootless -o $system_wide_rootless_script
-   			chmod +x $system_wide_rootless_script
-		fi
-  
-  		ln -sf $system_wide_rootless_script /home/$username/bin/dockerd-rootless-setuptool.sh
-
-machinectl shell $username@ /bin/bash -c "
-    # Setup environment for rootless Docker
-    source ~/.bashrc
-
-    /home/$username/bin/dockerd-rootless-setuptool.sh install >/dev/null 2>&1
-
-    echo 'export XDG_RUNTIME_DIR=/home/$username/.docker/run' >> ~/.bashrc
-    echo 'export PATH=/home/$username/bin:\$PATH' >> ~/.bashrc
-    echo 'export DOCKER_HOST=unix:///home/$username/.docker/run/docker.sock' >> ~/.bashrc
-
-    source ~/.bashrc
-    mkdir -p ~/.config/systemd/user/
-
-    cat <<EOF > ~/.config/systemd/user/docker.service
-[Unit]
-Description=Docker Application Container Engine (Rootless)
-After=network.target
-
-[Service]
-Environment=PATH=/home/$username/bin:\$PATH
-Environment=DOCKER_HOST=unix://%t/docker.sock
-ExecStart=/home/$username/bin/dockerd-rootless.sh
-Restart=on-failure
-StartLimitBurst=3
-StartLimitInterval=60s
-
-[Install]
-WantedBy=default.target
-EOF
-
-    systemctl --user daemon-reload > /dev/null 2>&1
-    systemctl --user restart docker > /dev/null 2>&1
-" 2>/dev/null
-	fi
-}
-
-run_docker() {
-    find_available_ports() {
-		last_user=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -se "SELECT server FROM users ORDER BY id DESC LIMIT 1;")
-		if [[ -n "$last_user" ]]; then
-			env_file="/home/$last_user/.env"
-		
-			if [[ ! -f "$env_file" ]]; then
-	      		min_port="32768"
-			fi
-			
-			highest_port=$(grep -E '^[A-Z_]+_PORT=' "$env_file" | grep -oE '[0-9]+' | sort -nr | head -n 1)
-			if [[ -z "$highest_port" ]]; then
-	   			min_port="32768"
-	      		else
-				min_port=${highest_port}
-			fi
-		else
-	      	min_port="32768"
-		fi      
-      
-      
-    local found_ports=()
-                  
-	declare -a found_ports=()
-	for ((i=1; i<=7; i++)); do
-	    port=$((min_port + i))
-	    found_ports+=("$port")
-	done
-    echo "${found_ports[@]}"
     }
 
-	validate_port() {
-	    local port="$1"
-	    port="$(echo "$1" | tr -d '[:space:]')"  # Trim spaces
-	
-	    if [[ "$port" =~ ^[0-9]+$ ]]; then
-	        return 0  # Port is valid
-	    else
-	        echo "DEBUG: Invalid port detected: $port"
-	        echo "DEBUG: Available ports: $AVAILABLE_PORTS"
-	        return 1  # Port is invalid
-	    fi
-	}
+    mkdir -p "${home_dir}/docker-data" "${home_dir}/.config/docker" "${home_dir}/.docker/run" "${home_dir}/bin"
+    cp /etc/openpanel/docker/daemon/rootless.json "${home_dir}/.config/docker/daemon.json"
+    sed -i "s/USERNAME/${USERNAME}/g" "${home_dir}/.config/docker/daemon.json"
+    chmod 755 -R "${home_dir}"
+    [[ -f "${home_dir}/.bashrc" ]] && sed -i "1i export PATH=/home/${USERNAME}/bin:\$PATH" "${home_dir}/.bashrc"
 
-    log "Checking available ports to use for the user"
-    AVAILABLE_PORTS=$(find_available_ports)
+    if [[ -n "$NODE_IP" ]]; then
+        node_ssh "bash -s" << REMOTE
+set -e
+$(_build_apparmor_profile | cat > "/etc/apparmor.d/home.${USERNAME}.bin.rootlesskit")
+systemctl restart apparmor.service >/dev/null 2>&1 || true
+loginctl enable-linger "${USERNAME}" >/dev/null 2>&1
+mkdir -p /home/${USERNAME}/.docker/run
+chmod 700 /home/${USERNAME}/.docker/run
+chmod 755 -R /home/${USERNAME}/
+chown -R ${USERNAME}:${USERNAME} /home/${USERNAME}/
+REMOTE
 
-	FIRST_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $1}')
-	SECOND_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $2}')
-	THIRD_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $3}')
-	FOURTH_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $4}')
-	FIFTH_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $5}')
-    SIXTH_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $6}')
-	SEVENTH_NEXT_AVAILABLE=$(echo $AVAILABLE_PORTS | awk '{print $7}')
+        node_ssh "bash -s" << REMOTE
+su - "${USERNAME}" -c 'bash -l -c "
+    mkdir -p ~/bin
+    curl -fsSL https://get.docker.com/rootless -o ~/bin/dockerd-rootless-setuptool.sh
+    chmod +x ~/bin/dockerd-rootless-setuptool.sh
+    ~/bin/dockerd-rootless-setuptool.sh install >/dev/null 2>&1
 
-    if validate_port "$FIRST_NEXT_AVAILABLE" && validate_port "$SECOND_NEXT_AVAILABLE" && validate_port "$THIRD_NEXT_AVAILABLE" && validate_port "$FOURTH_NEXT_AVAILABLE" && validate_port "$FIFTH_NEXT_AVAILABLE" && validate_port "$SIXTH_NEXT_AVAILABLE" && validate_port "$SEVENTH_NEXT_AVAILABLE"; then
+    grep -qF XDG_RUNTIME_DIR ~/.bashrc || echo \"export XDG_RUNTIME_DIR=/home/${USERNAME}/.docker/run\" >> ~/.bashrc
+    grep -qF DBUS_SESSION_BUS_ADDRESS ~/.bashrc || echo \"export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u)/bus\" >> ~/.bashrc
 
-	if [ -n "$node_ip_address" ]; then
-		port_1="$node_ip_address:$FIRST_NEXT_AVAILABLE:80" 
-		port_2="$node_ip_address:$SECOND_NEXT_AVAILABLE:3306"
-		port_3="$node_ip_address:$THIRD_NEXT_AVAILABLE:5432"
-		port_4="$node_ip_address:$FOURTH_NEXT_AVAILABLE:80"
-		port_5="$node_ip_address:$FIFTH_NEXT_AVAILABLE:80"
-	    port_6="$node_ip_address:$SIXTH_NEXT_AVAILABLE:443"
-		port_7="$node_ip_address:$SEVENTH_NEXT_AVAILABLE:80"
-	  else
-		port_1="$FIRST_NEXT_AVAILABLE:80"
-		port_2="$SECOND_NEXT_AVAILABLE:3306"
-		port_3="$THIRD_NEXT_AVAILABLE:5432"
-		port_4="$FOURTH_NEXT_AVAILABLE:80"
-		port_5="127.0.0.1:$FIFTH_NEXT_AVAILABLE:80"
-	    port_6="127.0.0.1:$SIXTH_NEXT_AVAILABLE:443"
-		port_7="127.0.0.1:$SEVENTH_NEXT_AVAILABLE:80"
-	fi
- 
+    mkdir -p ~/.config/systemd/user/
+    cat > ~/.config/systemd/user/docker.service << EOF
+[Unit]
+Description=Docker Application Container Engine (Rootless)
+After=network.target
+[Service]
+Environment=PATH=/home/${USERNAME}/bin:\$PATH
+Environment=DOCKER_HOST=unix:///home/${USERNAME}/.docker/run/docker.sock
+ExecStart=/home/${USERNAME}/bin/dockerd-rootless.sh -H unix:///home/${USERNAME}/.docker/run/docker.sock
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+[Install]
+WantedBy=default.target
+EOF
+"'
+REMOTE
+
+        node_ssh "machinectl shell ${USERNAME}@ /bin/bash -c '
+            systemctl --user daemon-reload >/dev/null 2>&1
+            systemctl --user enable docker >/dev/null 2>&1
+            systemctl --user start docker >/dev/null 2>&1
+        ' 2>/dev/null" || true
+
     else
-	port_1=""
-	port_2=""
-	port_3=""
-	port_4=""
-	port_5=""
-	port_6=""
- 	port_7=""
+        _build_apparmor_profile > "$apparmor_file"
+
+        systemctl restart apparmor.service >/dev/null 2>&1 || true
+
+        loginctl enable-linger "$USERNAME" >/dev/null 2>&1
+
+        mkdir -p "${home_dir}/.docker/run" "${home_dir}/bin"
+        chmod 700 "${home_dir}/.docker/run"
+        chown -R "${USERNAME}:${USERNAME}" "${home_dir}"
+        ln -sf "$ROOTLESS_SETUP_SCRIPT" "${home_dir}/bin/dockerd-rootless-setuptool.sh"
+
+        machinectl shell "${USERNAME}@" /bin/bash -c "
+            source ~/.bashrc 2>/dev/null || true
+            /home/${USERNAME}/bin/dockerd-rootless-setuptool.sh install >/dev/null 2>&1
+
+            grep -qF XDG_RUNTIME_DIR ~/.bashrc || echo 'export XDG_RUNTIME_DIR=/home/${USERNAME}/.docker/run' >> ~/.bashrc
+            grep -qF 'export PATH=/home/${USERNAME}/bin' ~/.bashrc || echo 'export PATH=/home/${USERNAME}/bin:\$PATH' >> ~/.bashrc
+            grep -qF DOCKER_HOST ~/.bashrc || echo 'export DOCKER_HOST=unix:///home/${USERNAME}/.docker/run/docker.sock' >> ~/.bashrc
+
+            source ~/.bashrc 2>/dev/null || true
+            mkdir -p ~/.config/systemd/user/
+            cat > ~/.config/systemd/user/docker.service << 'SVCEOF'
+[Unit]
+Description=Docker Application Container Engine (Rootless)
+After=network.target
+[Service]
+Environment=PATH=/home/${USERNAME}/bin:$PATH
+Environment=DOCKER_HOST=unix://%t/docker.sock
+ExecStart=/home/${USERNAME}/bin/dockerd-rootless.sh
+Restart=on-failure
+StartLimitBurst=3
+StartLimitInterval=60s
+[Install]
+WantedBy=default.target
+SVCEOF
+            systemctl --user daemon-reload >/dev/null 2>&1
+            systemctl --user restart docker >/dev/null 2>&1
+        " 2>/dev/null || true
+    fi
+}
+
+
+check_socket_created() {
+    local hostfs_sock="/hostfs/run/user/${USER_ID}/docker.sock"
+    local elapsed=0
+
+    while [[ $elapsed -lt 15 ]]; do
+        if [[ -S "$hostfs_sock" ]]; then
+            log "Docker service is running for user."
+            return 0
+        fi
+        sleep 1
+        (( elapsed++ ))
+    done
+
+    hard_cleanup; die "Rootless Docker socket never appeared for '$USERNAME' at $hostfs_sock"
+    # Check: machinectl shell ${USERNAME}@ /bin/bash -c 'systemctl --user status docker'
+}
+
+find_available_ports_bg() { find_available_ports > /tmp/ports_$$; }
+
+find_available_ports() {
+    local last_user min_port
+    last_user="$(db_query "SELECT server FROM users ORDER BY id DESC LIMIT 1" 2>/dev/null || true)"
+    min_port=32768
+
+    if [[ -n "$last_user" ]]; then
+        local env_file="/home/${last_user}/.env"
+        if [[ -f "$env_file" ]]; then
+            local highest_port
+            highest_port="$(grep -E '^[A-Z_]+_PORT=' "$env_file" | grep -oE '[0-9]+' | sort -rn | head -1)"
+            [[ -n "$highest_port" ]] && min_port="$highest_port"
+        fi
     fi
 
+    local ports=()
+    for (( i = 1; i <= 7; i++ )); do
+        ports+=("$(( min_port + i ))")
+    done
+    echo "${ports[@]}"
+}
 
-cp /etc/openpanel/docker/compose/1.0/docker-compose.yml /home/$username/docker-compose.yml
+configure_environment() {
+    log "Configuring environment for '$USERNAME'"
 
-if [ ! -f /home/$username/docker-compose.yml ]; then
-  echo "ERROR: /home/$username/docker-compose.yml file not created. Make sure that the /etc/openpanel/ is updated and contains valid templates."
-  exit 1
-fi
-
-postgres_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
-mysql_root_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
-pg_admin_password=$(openssl rand -base64 12 | tr -dc 'a-zA-Z0-9')
-
-if [ -z "$username" ] || [ -z "$user_id" ] || [ -z "$port_5" ] || [ -z "$port_6" ] || [ -z "$port_7" ] || [ -z "$port_1" ] || [ -z "$port_3" ] || [ -z "$port_4" ] || [ -z "$port_2" ] || [ -z "$default_php_version" ] || [ -z "$postgres_password" ] || [ -z "$mysql_root_password" ]; then
-   echo "ERROR: One or more required variables are not set."
-   exit 1
-fi
-
-sed -i 's/\r$//' /etc/openpanel/docker/compose/1.0/.env
-cp /etc/openpanel/docker/compose/1.0/.env /home/$username/.env
-
-sed -i -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"$username\"|g" \
-    -e "s|USER_ID=\"[^\"]*\"|USER_ID=\"$user_id\"|g" \
-    -e "s|CONTEXT=\"[^\"]*\"|CONTEXT=\"$username\"|g" \
-    -e "s|^HTTP_PORT=\"[^\"]*\"|HTTP_PORT=\"$port_5\"|g" \
-    -e "s|HTTPS_PORT=\"[^\"]*\"|HTTPS_PORT=\"$port_6\"|g" \
-    -e "s|PGADMIN_PORT=\"[^\"]*\"|PGADMIN_PORT=\"$port_1\"|g" \
-    -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:$port_3\"|g" \
-    -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"$port_4\"|g" \
-	-e "s|{PMA_PORT}|$FOURTH_NEXT_AVAILABLE|g" \
-    -e "s|POSTGRES_PASSWORD=\"[^\"]*\"|POSTGRES_PASSWORD=\"$postgres_password\"|g" \
-    -e "s|PGADMIN_PW=[^\"]*|PGADMIN_PW=$pg_admin_password|g" \
-    -e "s|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"[^\"]*\"|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"$pg_admin_password\"|g" \
-    -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:$port_2\"|g" \
-    -e "s|DEFAULT_PHP_VERSION=\"[^\"]*\"|DEFAULT_PHP_VERSION=\"$default_php_version\"|g" \
-    -e "s|MYSQL_ROOT_PASSWORD=\"[^\"]*\"|MYSQL_ROOT_PASSWORD=\"$mysql_root_password\"|g" \
-    -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|PROXY_HTTP_PORT=\"$port_7\"|g" \
-    "/home/$username/.env"
-
-if [[ $email =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
-	sed -i -e "s|PGADMIN_MAIL=[^\"]*|PGADMIN_MAIL=$email|g" "/home/$username/.env"
-fi
-
-if [[ -n "$webserver" ]]; then
-    # Check for varnish+nginx or varnish+apache, and extract the web server part
-    if [[ "$webserver" =~ ^varnish\+([a-zA-Z]+)$ ]]; then
-        webserver="${BASH_REMATCH[1]}"  # Extract the part after varnish+
-        log "Setting varnish caching and $webserver as webserver for the user.."
-        sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" \
-               -e "s|^#\(PROXY_HTTP_PORT=.*\)|\1|" "/home/$username/.env"
-    elif [[ "$webserver" =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]]; then
-        log "Setting $webserver as webserver for the user.."
-        sed -i -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"$webserver\"|g" "/home/$username/.env"
-        VARNISH=false
+    local port_1 port_2 port_3 port_4 port_5 port_6 port_7
+    if [[ -n "$NODE_IP" ]]; then
+        port_1="${NODE_IP}:${P1}:80"
+        port_2="${NODE_IP}:${P2}:3306"
+        port_3="${NODE_IP}:${P3}:5432"
+        port_4="${NODE_IP}:${P4}:80"
+        port_5="${NODE_IP}:${P5}:80"
+        port_6="${NODE_IP}:${P6}:443"
+        port_7="${NODE_IP}:${P7}:80"
     else
-        log "Warning: invalid webserver type selected: $webserver. Must be 'nginx', 'apache', 'openresty', 'openlitespeed', 'litespeed' 'varnish+nginx', 'varnish+apache', 'varnish+openresty', or 'varnish+openlitespeed'. Using the default instead.."
+        port_1="${P1}:80"
+        port_2="${P2}:3306"
+        port_3="${P3}:5432"
+        port_4="${P4}:80"
+        port_5="127.0.0.1:${P5}:80"
+        port_6="127.0.0.1:${P6}:443"
+        port_7="127.0.0.1:${P7}:80"
     fi
-fi
 
+    local postgres_pw mysql_root_pw pg_admin_pw
+    postgres_pw="$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9' | head -c 24)"
+    mysql_root_pw="$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9' | head -c 24)"
+    pg_admin_pw="$(openssl rand -base64 16 | tr -dc 'a-zA-Z0-9' | head -c 24)"
 
-if [[ -n "$sql_type" ]]; then
-    if [[ "$sql_type" =~ ^(mysql|mariadb)$ ]]; then
-        log "Setting $sql_type as MySQL server type for the user.."
-        sed -i -e "s|MYSQL_TYPE=\"[^\"]*\"|MYSQL_TYPE=\"$sql_type\"|g" \
-            "/home/$username/.env"
-    else
-        log "Warning: Invalid SQL server type selected: $sql_type. Must be 'mysql' or 'mariadb'. Using the default instead.."
+    local home_dir="/home/${USERNAME}"
+    cp /etc/openpanel/docker/compose/1.0/docker-compose.yml "${home_dir}/docker-compose.yml" || die "docker-compose.yml template missing from /etc/openpanel/"
+
+    sed -i 's/\r$//' /etc/openpanel/docker/compose/1.0/.env
+    cp /etc/openpanel/docker/compose/1.0/.env "${home_dir}/.env" || die ".env template missing from /etc/openpanel/"
+
+    sed -i \
+        -e "s|USERNAME=\"[^\"]*\"|USERNAME=\"${USERNAME}\"|g" \
+        -e "s|USER_ID=\"[^\"]*\"|USER_ID=\"${USER_ID}\"|g" \
+        -e "s|CONTEXT=\"[^\"]*\"|CONTEXT=\"${USERNAME}\"|g" \
+        -e "s|^HTTP_PORT=\"[^\"]*\"|HTTP_PORT=\"${port_5}\"|g" \
+        -e "s|HTTPS_PORT=\"[^\"]*\"|HTTPS_PORT=\"${port_6}\"|g" \
+        -e "s|PGADMIN_PORT=\"[^\"]*\"|PGADMIN_PORT=\"${port_1}\"|g" \
+        -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:${port_3}\"|g" \
+        -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"${port_4}\"|g" \
+        -e "s|{PMA_PORT}|${P4}|g" \
+        -e "s|POSTGRES_PASSWORD=\"[^\"]*\"|POSTGRES_PASSWORD=\"${postgres_pw}\"|g" \
+        -e "s|PGADMIN_PW=[^\"]*|PGADMIN_PW=${pg_admin_pw}|g" \
+        -e "s|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"[^\"]*\"|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"${pg_admin_pw}\"|g" \
+        -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:${port_2}\"|g" \
+        -e "s|MYSQL_ROOT_PASSWORD=\"[^\"]*\"|MYSQL_ROOT_PASSWORD=\"${mysql_root_pw}\"|g" \
+        -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|PROXY_HTTP_PORT=\"${port_7}\"|g" \
+        "${home_dir}/.env"
+
+    if [[ "$EMAIL" =~ ^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$ ]]; then
+        sed -i "s|PGADMIN_MAIL=[^\"]*|PGADMIN_MAIL=${EMAIL}|g" "${home_dir}/.env"
     fi
-fi
 
+    # Webserver
+    if [[ -n "$WEBSERVER" ]]; then
+        if [[ "$WEBSERVER" =~ ^varnish\+([a-zA-Z]+)$ ]]; then
+            local ws="${BASH_REMATCH[1]}"
+            log "Enabling Varnish + $ws"
+            sed -i \
+                -e "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"${ws}\"|g" \
+                -e "s|^#\(PROXY_HTTP_PORT=.*\)|\1|" \
+                "${home_dir}/.env"
+        elif [[ "$WEBSERVER" =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]]; then
+            log "Setting webserver: $WEBSERVER"
+            sed -i "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"${WEBSERVER}\"|g" "${home_dir}/.env"
+        else
+            warn "Invalid webserver '$WEBSERVER'. Using template default."
+        fi
+    fi
 
-mkdir -p /home/$username/sockets/{mysqld,postgres,redis,valkey,memcached}
-cp /etc/openpanel/mysql/user.cnf /home/${username}/custom.cnf
-cp /etc/openpanel/postgres/postgresql.conf /home/${username}/postgre_custom.conf
-cp /etc/openpanel/nginx/user-nginx.conf /home/$username/nginx.conf  # added in 1.2.2
-cp /etc/openpanel/openresty/nginx.conf /home/$username/openresty.conf
-cp /etc/openpanel/openlitespeed/httpd_config.conf /home/$username/openlitespeed.conf # added in 1.5.6
-cp /etc/openpanel/apache/httpd.conf /home/$username/httpd.conf
-cp /etc/openpanel/varnish/default.vcl /home/$username/default.vcl
-cp /etc/openpanel/ofelia/users.ini /home/$username/crons.ini  > /dev/null 2>&1 # added in 1.2.1
-cp /etc/openpanel/backups/backup.env /home/$username/backup.env  > /dev/null 2>&1 # added in 1.1.7
-cp /etc/openpanel/mysql/phpmyadmin/pma.php /home/$username/pma.php  > /dev/null 2>&1 # added in 1.4.4 for autologin to pma
+    # SQL
+    if [[ -n "$SQL_TYPE" ]]; then
+        if [[ "$SQL_TYPE" =~ ^(mysql|mariadb)$ ]]; then
+            log "Setting SQL type: $SQL_TYPE"
+            sed -i "s|MYSQL_TYPE=\"[^\"]*\"|MYSQL_TYPE=\"${SQL_TYPE}\"|g" "${home_dir}/.env"
+        else
+            warn "Invalid SQL type '$SQL_TYPE'. Using template default."
+        fi
+    fi
 
-cp -r /etc/openpanel/php/ini /home/${username}/php.ini
-chown -R $username:$username /home/$username/sockets
-chmod 777 /home/$username/sockets/
+    [[ -f "${home_dir}/.env" ]] || { hard_cleanup; die "Failed to create .env file."; }
 
-if [ ! -f "/home/$username/.env" ]; then
-   echo "ERROR: Failed to create .env file! Make sure that the /etc/openpanel/ is updated and contains valid templates."
-   exit 1
-fi
+    # Socket dirs and config files
+    mkdir -p "${home_dir}/sockets/"{mysqld,postgres,redis,valkey,memcached}
+    cp /etc/openpanel/mysql/user.cnf             "${home_dir}/custom.cnf"
+    cp /etc/openpanel/postgres/postgresql.conf   "${home_dir}/postgre_custom.conf"
+    cp /etc/openpanel/nginx/user-nginx.conf      "${home_dir}/nginx.conf"
+    cp /etc/openpanel/openresty/nginx.conf       "${home_dir}/openresty.conf"
+    cp /etc/openpanel/openlitespeed/httpd_config.conf "${home_dir}/openlitespeed.conf"
+    cp /etc/openpanel/apache/httpd.conf          "${home_dir}/httpd.conf"
+    cp /etc/openpanel/varnish/default.vcl        "${home_dir}/default.vcl"
+    cp /etc/openpanel/ofelia/users.ini           "${home_dir}/crons.ini"   2>/dev/null || true
+    cp /etc/openpanel/backups/backup.env         "${home_dir}/backup.env"  2>/dev/null || true
+    cp /etc/openpanel/mysql/phpmyadmin/pma.php   "${home_dir}/pma.php"     2>/dev/null || true
+    cp -r /etc/openpanel/php/ini                 "${home_dir}/php.ini"
 
-echo "[client]
-user=root
-password="$mysql_root_password"
-" > /home/$username/my.cnf
+    chown -R "${USERNAME}:${USERNAME}" "${home_dir}/sockets"
+    chmod 777 "${home_dir}/sockets/"
 
-if [ ! -f "/home/$username/my.cnf" ]; then
-   echo "WARNING: Failed to create my.cnf file! Make sure that the /etc/openpanel/ is updated and contains valid templates."
-fi
+    printf '[client]\nuser=root\npassword=%s\n' "$mysql_root_pw" > "${home_dir}/my.cnf"
+    [[ -f "${home_dir}/my.cnf" ]] || warn "Failed to create my.cnf."
+
+    # shellcheck disable=SC2034
+    MYSQL_ROOT_PASSWORD="$mysql_root_pw"   # exported for pull_images
 }
 
 copy_skeleton_files() {
     log "Creating configuration files for the newly created user"
-    cp -r /etc/openpanel/skeleton/ /etc/openpanel/openpanel/core/users/$username/  > /dev/null 2>&1
+    cp -r /etc/openpanel/skeleton/ "/etc/openpanel/openpanel/core/users/${USERNAME}/" 2>/dev/null || true
 
-	if [ -n "$node_ip_address" ]; then
-		local json_file="/etc/openpanel/openpanel/core/users/$username/ip.json"
-		echo "{ \"ip\": \"$node_ip_address\" }" > "$json_file"
-	fi
-}
-
-get_php_version() {
-	default_php_version=$(grep -oP '^DEFAULT_PHP_VERSION="?\\K[0-9]+\.[0-9]+' /etc/openpanel/docker/compose/1.0/.env | tr -d '\r\n')
-
-    if [ -z "$default_php_version" ]; then
-      if [ "$DEBUG" = true ]; then
-        echo "Default PHP version is not set, using the fallback default version.."
-      fi
-      default_php_version="8.4"
+    if [[ -n "$NODE_IP" ]]; then
+        echo "{ \"ip\": \"${NODE_IP}\" }" > "/etc/openpanel/openpanel/core/users/${USERNAME}/ip.json"
     fi
 }
 
-start_panel_service() {
-    log "Ensuring OpenPanel is running..."
-    nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >nohup.out 2>nohup.err &
-}
-
-create_context() {
-  local host
-  if [ -n "$node_ip_address" ]; then
-    host="ssh://$username"
-  else
-    host="unix:///hostfs/run/user/${user_id}/docker.sock"
-  fi
-  docker context create "$username" --docker "host=$host" --description "$username"
-}
-
-test_compose_command_for_user() {
-    if ! docker --context=$username compose version >/dev/null 2>&1; then
-        echo "[✘] Error: Docker Compose is not working in this context. User creation failed."
-	    hard_cleanup # remove data!
-        exit 1
-    fi
-}
-
-save_user_to_db() {
-    log "Saving new user to database"
-	if [ -n "$reseller" ]; then
-   	    mysql_query="INSERT INTO users (username, password, owner, email, plan_id, server) VALUES ('$username', '$hashed_password', '$reseller', '$email', '$plan_id', '$username');"
-	else
-	    mysql_query="INSERT INTO users (username, password, email, plan_id, server) VALUES ('$username', '$hashed_password', '$email', '$plan_id', '$username');"
-	fi    
-    mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
-    
-    if [ $? -eq 0 ]; then
-        echo "[✔] Successfully added user $username with password: $password"
+create_docker_context() {
+    local host
+    if [[ -n "$NODE_IP" ]]; then
+        host="ssh://${USERNAME}"
     else
-        echo "[✘] Error: Data insertion failed."
-	    hard_cleanup # remove data!
-        exit 1
+        host="unix:///hostfs/run/user/${USER_ID}/docker.sock"
+    fi
+    docker context create "$USERNAME" --docker "host=${host}" --description "$USERNAME" 2>/dev/null
+}
+
+verify_docker_context_and_compose() {
+    docker --context="$USERNAME" compose version >/dev/null 2>&1 || { hard_cleanup; die "[✘] Docker Compose is not working in context '$USERNAME'." >&2; }
+}
+
+save_user_to_database() {
+    log "Saving user '$USERNAME' to database"
+
+    local escaped_hash
+    escaped_hash="${HASHED_PASSWORD//\'/\'\'}"
+
+    local query
+    if [[ -n "$RESELLER" ]]; then
+        query="INSERT INTO users (username, password, owner, email, plan_id, server) VALUES ('${USERNAME}', '${escaped_hash}', '${RESELLER//\'/\'\'}', '${EMAIL//\'/\'\'}', '${PLAN_ID}', '${USERNAME}');"
+    else
+        query="INSERT INTO users (username, password, email, plan_id, server) VALUES ('${USERNAME}', '${escaped_hash}', '${EMAIL//\'/\'\'}', '${PLAN_ID}', '${USERNAME}');"
     fi
 
+    db_query "$query" || { hard_cleanup; die "Database insert failed."; }
+    echo "[✔] Successfully added user $USERNAME with password: $PASSWORD"
 }
 
-send_email_to_new_user() {
-    if $SEND_EMAIL; then
-        echo "Sending email to $email with login information"
-            # Check if the provided email is valid
-            if [[ $email =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+send_welcome_email() {
+    [[ "$SEND_EMAIL" == true ]] || return 0
 
-                generate_random_token_one_time_only() {
-                    local config_file="${CONFIG_FILE}"
-                    TOKEN_ONE_TIME="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
-                    local new_value="mail_security_token=$TOKEN_ONE_TIME"
-                    sed -i "s|^mail_security_token=.*$|$new_value|" "${CONFIG_FILE}"
-                }
+    [[ "$EMAIL" =~ ^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$ ]] || { warn "$EMAIL is not a valid address; skipping email."; return 0; }
 
-                email_notification() {
-                  local title="$1"
-                  local message="$2"
-                  generate_random_token_one_time_only
-                  TRANSIENT=$(awk -F'=' '/^mail_security_token/ {print $2}' "${CONFIG_FILE}")	
-				  admin_port=$(awk '/# START HOSTNAME DOMAIN #/{flag=1; next} /# END HOSTNAME DOMAIN #/{flag=0} flag' "/etc/openpanel/caddy/Caddyfile" | grep -oP 'localhost:\K[0-9]+' | head -n 1)
-                  curl -4 -k -X POST "$PROTOCOL://$DOMAIN:$admin_port/send_email" -F "transient=$TRANSIENT" -F "recipient=$email" -F "subject=$title" -F "body=$message" --max-time 15
-                }
+    local domain protocol admin_port port login_url email_pw
 
-				  DOMAIN=$(opencli domain)
-				  if [[ "$DOMAIN" =~ ^[a-zA-Z0-9.-]+$ ]]; then
-					if [ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$DOMAIN/$DOMAIN.key" ] || [ -f "/etc/openpanel/caddy/ssl/custom/$DOMAIN/$DOMAIN.key" ]; then
-						PROTOCOL="https"
-					else
-						PROTOCOL="http"
-					fi
-				  fi
+    domain="$(opencli domain)"
+    port="$(opencli port)"
 
-				port="$(opencli port)"
-				login_url="$PROTOCOL://$DOMAIN:$port/login"
-
-				email_password="$password"
-				email_plaintext_passwords=$(grep -E "^email_plaintext_passwords=" "$PANEL_CONFIG_FILE" | awk -F= '{print $2}')
-			    if [ "$email_plaintext_passwords" = "no" ]; then
-			        email_password="********"
-			    fi
-
-                email_notification "New OpenPanel account information" "OpenPanel URL: $login_url | username: $username  | password: $email_password"
-            else
-                echo "$email is not a valid email address. Login infomration can not be sent to the user."
-            fi       
+    if [[ -f "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${domain}/${domain}.key" || -f "/etc/openpanel/caddy/ssl/custom/${domain}/${domain}.key" ]]; then
+        protocol="https"
+    else
+        protocol="http"
     fi
+
+    admin_port="$(awk '/# START HOSTNAME DOMAIN #/{flag=1;next}/# END HOSTNAME DOMAIN #/{flag=0}flag' /etc/openpanel/caddy/Caddyfile | grep -oP 'localhost:\K[0-9]+' | head -1)"
+    login_url="${protocol:-http}://${domain}:${port}/login"
+
+    local token
+    token="$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)"
+    sed -i "s|^mail_security_token=.*|mail_security_token=${token}|" "${PANEL_CONFIG_FILE}"
+
+    email_pw="$PASSWORD"
+    [[ "$email_plaintext_passwords" == "no" ]] && email_pw="********"
+
+    curl -4 -fsSk -X POST "${protocol:-http}://${domain}:${admin_port}/send_email" -F "transient=${token}" -F "recipient=${EMAIL}" -F "subject=New OpenPanel account information" -F "body=OpenPanel URL: ${login_url} | username: ${USERNAME} | password: ${email_pw}" --max-time 15 || warn "Failed to send welcome email."
 }
 
+generate_password_hash() {
+    if [[ "$PASSWORD" == "generate" ]]; then
+        PASSWORD="$(openssl rand -base64 12)"
+        log "Generated password: $PASSWORD"
+    fi
 
+    local python3
+    if [[ -x /usr/local/admin/venv/bin/python3 ]]; then
+        python3=/usr/local/admin/venv/bin/python3
+    elif command -v python3 &>/dev/null; then
+        python3=python3
+    else
+        hard_cleanup; die "No Python 3 interpreter found. Install Python 3 or check the venv."
+    fi
 
+    # stdin to avoid it appearing in the process list!
+    HASHED_PASSWORD="$(echo "$PASSWORD" \
+        | "$python3" -c "
+import sys
+from werkzeug.security import generate_password_hash
+pw = sys.stdin.readline().rstrip('\n')
+print(generate_password_hash(pw))
+")"
 
-generate_user_password_hash() {
-	if [ "$password" = "generate" ]; then
-		password=$(openssl rand -base64 12)
-		log "Generated password: $password" 
-	fi
- 	if [ -x /usr/local/admin/venv/bin/python3 ]; then
-	  hashed_password=$(/usr/local/admin/venv/bin/python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
-	elif command -v python3 &>/dev/null; then
-	  hashed_password=$(python3 -c "from werkzeug.security import generate_password_hash; print(generate_password_hash('$password'))")
-	else
-	  echo "Warning: No Python 3 interpreter found. Please install Python 3 or check the virtual environment."
-	  exit 1
-	fi
 }
 
-permisisons_do() {
-	chown -R $username:$username /home/$username/ >/dev/null 2>&1
+create_user_volume() {
+    local vol_path="/home/${USERNAME}/docker-data/volumes/${USERNAME}_html_data/_data/"
+    mkdir -p "$vol_path"
+    chmod -R g+w "$vol_path"
+    ln -sfn "$vol_path" "/home/${USERNAME}/files" 2>/dev/null || true
 }
 
-create_volume() {
-	local vol_path="/home/$username/docker-data/volumes/${username}_html_data/_data/"
-	mkdir -p "$vol_path" && chown $username:$username "$vol_path" && chmod -R g+w "$vol_path"
-	ln -sfn "$vol_path" "/home/$username/files" >/dev/null 2>&1
+notify_sentinel() {
+    [[ "$SENTINEL" == true ]] || return 0
+    nohup opencli sentinel --action=user_create --title="User account '${USERNAME}' created" --message="Account '${USERNAME}' created; email: ${EMAIL}; plan: ${PLAN_NAME}" >/dev/null 2>&1 &
+    disown
 }
 
-send_sentinel_notification() {
-	if [ "$SENTINEL" = true ]; then
-		nohup opencli sentinel --action=user_create --title="User account '$username' created" --message="User account '$username' has been successfully created with email: $email and hosting plan: $plan_name" >/dev/null 2>&1 &
-		disown
-	fi
-}
-
-set_plan_limits_for_user() {
-    (opencli plan-apply "$plan_id" "$username" > /dev/null 2>&1 &)
-	(opencli user-quota > /dev/null 2>&1 &)
-}
 
 # MAIN
 (
 flock -n 200 || { echo "[✘] Error: A user creation process is already running."; echo "Please wait for it to complete before starting a new one. Exiting."; exit 1; }
-check_username_is_valid                      # validate username first
-validate_password_in_lists $password         # compare with weakpass dictionaries
-get_slave_if_set                             # check if slave should be used and test connection
-get_plan_info                                # get plan ID
-check_if_reseller                            # if reseller, check limits
-print_debug_info_before_starting_creation    # print debug info
-validate_ssh_login                           # test ssh logins for cluster member
-create_local_user                            # create user on master
-create_remote_user $user_id                  # create user on slave
-sshfs_mounts                                 # mount /home/user
-setup_ssh_key                                # set key for the user
-install_docker_and_add_user
-create_volume				                 # initializing user home dir
-docker_rootless                              # install 
-docker_compose                               # magic happens here
-create_context                               # on master
-test_compose_command_for_user
-get_php_version                              # must be before run_docker !
-run_docker
-generate_user_password_hash
-copy_skeleton_files                          # get webserver, php version and mysql type for user
-download_images
-start_panel_service                          # start user panel if not running
-save_user_to_db                              # save user to mysql db
-send_sentinel_notification                   # write notification to openadmin
-update_accounts_for_reseller                 # update current_accounts for reseller in their json file
-send_email_to_new_user                       # added in 0.3.2 to optionally send login info to new user
-permisisons_do
-set_plan_limits_for_user "$username"
+
+########################################################################
+# 1. validate data and fetch plan info
+validate_user_creation
+validate_username
+validate_password_in_lists
+resolve_node
+load_plan
+check_reseller_limits
+validate_ssh_login
+
+########################################################################
+# 2. create system user
+create_linux_user_local
+# if slave server: create remote user, mount homedir, install docker
+create_linux_user_remote
+bootstrap_node
+setup_sshfs_mount
+ensure_docker_on_node
+setup_ssh_key_for_user
+
+########################################################################
+# 3. setup docker rootless for user
+setup_docker_rootless &
+PID_ROOTLESS_INSTALL=$!
+
+########################################################################
+# 4. do background stuff while docker install is running
+
+find_available_ports_bg() { find_available_ports > /tmp/ports_$$; }
+find_available_ports_bg &
+PID_PORTS=$!
+
+copy_skeleton_files &
+
+nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >/dev/null 2>&1 &
+disown
+
+generate_password_hash &
+create_user_volume &
+
+nohup opencli plan-apply "$PLAN_ID" "$USERNAME" >/dev/null 2>&1 &
+disown
+
+nohup opencli user-quota >/dev/null 2>&1 &
+disown
+
+wait $PID_PORTS
+read -r P1 P2 P3 P4 P5 P6 P7 < /tmp/ports_$$
+rm -f /tmp/ports_$$
+configure_environment
+
+setup_docker_compose
+create_docker_context
+
+########################################################################
+# 6. validate docker service is started for user (socket exists), compose command and context are working
+wait $PID_ROOTLESS_INSTALL
+check_socket_created
+verify_docker_context_and_compose
+pull_images &
+
+########################################################################
+# 8. save and notify
+save_user_to_database
+send_welcome_email &
+notify_sentinel
+update_reseller_account_count # must run after saving user to db
+
+nohup chown -R "${USERNAME}:${USERNAME}" "/home/${USERNAME}/" 2>/dev/null &
+disown
+
 exit 0
-)200>/var/lock/openpanel_user_add.lock
+) 200>"$LOCK_FILE"

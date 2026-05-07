@@ -83,7 +83,10 @@ command_exists() {
 install_dependencies() {
     log "Checking and installing dependencies..."
     install_needed=false
-    commands=(tar unzip jq pigz wget curl)
+    commands=(jq)
+
+    [[ "$backup_file" == *.zip ]] && commands+=(unzip)
+    [[ "$backup_file" == *.tar || "$backup_file" == *.tar.gz || "$backup_file" == *.tgz || "$backup_file" == *.gz ]] && commands+=(tar pigz)
 
     for cmd in "${commands[@]}"; do
         command_exists "$cmd" || { install_needed=true; break; }
@@ -120,13 +123,6 @@ install_dependencies() {
     fi
 }
 
-get_server_ipv4(){
-    new_ip=$(curl --silent --max-time 2 -4 https://ip.openpanel.com || curl --silent --max-time 2 -4 https://ifconfig.me)
-    if [ -z "$new_ip" ]; then
-        new_ip=$(ip addr|grep 'inet '|grep global|head -n1|awk '{print $2}'|cut -f1 -d/)
-    fi
-}
-
 validate_plan_exists(){
 	opencli plan-list --json | grep -qw "$plan_name" || { log "FATAL ERROR: Plan name '$plan_name' does not exist."; exit 1; }
 }
@@ -140,7 +136,6 @@ validate_plan_exists(){
 # CHECK BACKUP FILE EXTENSION AND DETERMINE SIZE NEEDED FOR RESTORE
 check_if_valid_cp_backup() {
     local backup_location="$1"
-    local backup_filename
     backup_filename=$(basename "$backup_location")
 
     ARCHIVE_SIZE=$(stat -c%s "$backup_location")
@@ -198,11 +193,7 @@ extract_cyberpanel_backup() {
     elif [ "$extraction_command" = "tar -xzf" ]; then
         backup_size=$(stat -c %s "${backup_location}")
         zero_one_percent=$((backup_size / 1000000))
-        tar --use-compress-program=pigz \
-            --checkpoint="$zero_one_percent" \
-            --checkpoint-action=dot \
-            -xf "$backup_location" \
-            -C "$backup_dir" 
+        tar --use-compress-program=pigz --checkpoint="$zero_one_percent" --checkpoint-action=dot -xf "$backup_location" -C "$backup_dir" 
     else
         $extraction_command "$backup_location" -C "$backup_dir"
     fi
@@ -560,18 +551,8 @@ restore_files() {
 fix_perms(){
     local verbose="" #-v
     log "Changing permissions for all files and folders in user home directory /home/$cyberpanel_username/"
-
     dry_run "Would change permissions with command: find /home/$cyberpanel_username -print0 | xargs -0 chown $verbose $cyberpanel_username:$cyberpanel_username" && return
-
-    if ! timeout 600 find /home/$cyberpanel_username -print0 | xargs -0 chown $verbose $cyberpanel_username:$cyberpanel_username > /dev/null 2>&1; then
-        if [ $? -eq 124 ]; then
-            log "ERROR: Timeout reached while changing permissions (10 minutes)."
-        else
-            log "ERROR: Failed to change permissions."
-        fi
-            log "       Make sure to change permissions manually from terminal with: find /home/$cyberpanel_username -print0 | xargs -0 chown -v $cyberpanel_username:$cyberpanel_username"
-    fi
-    
+	chown -R $cyberpanel_username:$cyberpanel_username /home/$cyberpanel_username    
 }
 
 # ======================================================================
@@ -793,7 +774,6 @@ main() {
     check_if_disk_available                                                    # calculate du needed for extraction
     validate_plan_exists                                                       # check if provided plan exists
     install_dependencies                                                       # install commands we will use for this script
-    get_server_ipv4                                                            # used in mysql grants
     
     # STEP 2. EXTRACT
     create_tmp_dir_and_path                                                    # create /tmp/.. dir and set the path
@@ -807,8 +787,9 @@ main() {
     setquota -u $cyberpanel_username 0 0 0 0 /                                     # set unlimited quota while we do import!
     #create_home_mountpoint                                                     # mount /var/www/html/ to /home/USERNAME 
     get_mysql_type_cnf_and_socket                                              # mysql or mariadb, path to socket and my.cnf logins
-    fix_perms                                                                  # fix permissions for all files
-    restore_php_version "$php_version"                                         # php v needs to run before domains 
+    fix_perms &                                                                 # fix permissions for all files
+    restore_php_version "$php_version" &                                        # php v needs to run before domains 
+	wait
     restore_domains                                                            # add domains
     #restore_dns_zones
     restore_mysql                                                              # mysql databases, users and grants
