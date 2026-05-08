@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.05.2026
+# Last Modified: 07.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -571,6 +571,11 @@ REMOTE
 
         loginctl enable-linger "$USERNAME" >/dev/null 2>&1
 
+      	if [ ! -f "$ROOTLESS_SETUP_SCRIPT" ]; then
+			curl -sSL https://get.docker.com/rootless -o "$ROOTLESS_SETUP_SCRIPT"
+   			chmod +x "$ROOTLESS_SETUP_SCRIPT"
+		fi
+
         mkdir -p "${home_dir}/.docker/run" "${home_dir}/bin"
         chmod 700 "${home_dir}/.docker/run"
         chown -R "${USERNAME}:${USERNAME}" "${home_dir}"
@@ -608,10 +613,13 @@ SVCEOF
 
 
 check_socket_created() {
+	[ -e "/home/${USERNAME}/bin/dockerd-rootless.sh" ] || { hard_cleanup; die "Installer script '${ROOTLESS_SETUP_SCRIPT}' failed."; }
+	[ -f "/home/${USERNAME}/bin/dockerd-rootless-setuptool.sh" ] || { hard_cleanup; die "Installer script '${ROOTLESS_SETUP_SCRIPT}' exists but installation appears incomplete."; }
+
     local hostfs_sock="/hostfs/run/user/${USER_ID}/docker.sock"
     local elapsed=0
 
-    while [[ $elapsed -lt 15 ]]; do
+    while [[ $elapsed -lt 30 ]]; do
         if [[ -S "$hostfs_sock" ]]; then
             log "Docker service is running for user."
             return 0
