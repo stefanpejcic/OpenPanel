@@ -77,7 +77,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 
 | Operating System       | Versions                             | Notes                                |
 |------------------------|--------------------------------------|--------------------------------------|
-| Ubuntu                 | 22.04, 24.04                         | **24.04 is recommended for AMD CPU**  |
+| Ubuntu                 | 22, 24, 26                           | **24.04 is recommended for AMD CPU**  |
 | Debian                 | 10, 11, 12, 13                       |                     |
 | AlmaLinux              | 9.5, 10                              | **9.5 is recommended for ARM CPU** |
 | RockyLinux             | 9.6, 10                              | *On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)* |
