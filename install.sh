@@ -256,7 +256,7 @@ pkg_install_with_retry() {
         quota|quotatool) warn "Could not install $pkg — you may need to install it manually."; return ;;
     esac
 
-    local attempt=1 max=10 delay=30
+    local attempt=1 max=10 delay=5
     until $PACKAGE_MANAGER install -y "$pkg" >/dev/null 2>&1; do
         (( attempt++ ))
         (( attempt > max )) && die 1 "Failed to install $pkg after $max attempts."
@@ -297,6 +297,19 @@ MSG
     fi
 }
 
+wait_for_pkg_lock() {
+    local max_wait=300 waited=0
+    while (( waited < max_wait )); do
+        if ! fuser /var/lib/dpkg/lock-frontend &>/dev/null 2>&1 && ! pgrep -x 'dnf|yum|rpm' &>/dev/null; then
+            return 0
+        fi
+        echo "Package manager busy. Waiting..."
+        sleep 5
+        (( waited += 5 ))
+    done
+    die 1 "Timeout waiting for package manager lock."
+}
+
 install_packages() {
     echo "Installing required packages..."
     local packages=()
@@ -329,6 +342,7 @@ install_packages() {
             ;;
     esac
 
+	wait_for_pkg_lock
     for pkg in "${packages[@]}"; do
         pkg_install_with_retry "$pkg"
     done
