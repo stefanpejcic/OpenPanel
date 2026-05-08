@@ -16,7 +16,7 @@ Minimum Requirements:
 - IPv4 address
 
 Supported operating systems:
-- **Ubuntu 24.04** (recommended)
+- **Ubuntu 22, 24, 26** (24.04 is recommended)
 - **Debian 10, 11, 12, 13**
 - **AlmaLinux 9.5 and 10** (9.5 is recommended for ARM CPU, 10 has a known issue [#744](https://github.com/stefanpejcic/OpenPanel/issues/744))
 - **RockyLinux 9.6, 10**
