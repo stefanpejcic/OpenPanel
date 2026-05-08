@@ -469,7 +469,7 @@ setup_docker_compose() {
     local dc_url="https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-linux-${arch_label}"
 
     curl -4 -SL "$dc_url" -o "$dc_dir/docker-compose" >/dev/null 2>&1
-    chmod +x "$dc_dir/docker-compose"
+    chmod +x "${ETC_DIR}docker/dockerd-rootless-setuptool.sh" "$dc_dir/docker-compose"
     run curl -4 -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
     chmod +x /usr/bin/docker-compose
     ln -sf /usr/bin/docker-compose /usr/local/bin/docker-compose
