@@ -9,6 +9,6 @@ wget -O /etc/openpanel/docker/dockerd-rootless-setuptool.sh https://raw.githubus
 # add cron for updating du info
 QUOTA_LINE='*/5 * * * * root /usr/local/bin/opencli user-quota && echo "$(date) Collected disk and inodes usage for all users" >> /var/log/openpanel/admin/cron.log'
 
-if !grep -q "user-quota" "/etc/cron.d/openpanel"; then
+if ! grep -q "user-quota" "/etc/cron.d/openpanel"; then
     sed -i "/^# STATISTICS/a ${QUOTA_LINE}" "/etc/cron.d/openpanel"
 fi
