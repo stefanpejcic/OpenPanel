@@ -459,6 +459,15 @@ install_openadmin() {
     ss -tuln | grep -q ":$ADMIN_PORT" && ok "OpenAdmin is running on port $ADMIN_PORT." || die 1 "OpenAdmin is not listening on port $ADMIN_PORT."
 }
 
+setup_modprobe() {
+    echo "Editing loadable kernel modules (drivers) from the Linux kernel..."
+	ln -sf "${ETC_DIR}docker/modprobe.txt" /etc/modules-load.d/docker.conf
+	modprobe ip_tables
+	modprobe iptable_filter
+	modprobe iptable_nat
+	modprobe br_netfilter
+}
+
 setup_docker_compose() {
     echo "Setting up Docker Compose..."
     local dc_dir="${DOCKER_CONFIG:-/root/.docker}/cli-plugins"
@@ -926,6 +935,7 @@ STEPS=(
     setup_opencli
     setup_redis
     setup_docker_compose
+	setup_modprobe
     set_docker_cpu_limits
     configure_waf
     configure_caddy_extras
