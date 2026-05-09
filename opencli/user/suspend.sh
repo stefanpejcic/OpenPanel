@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -152,16 +152,26 @@ stop_user_containers() {
 rename_user_in_db() {
     local new_username="SUSPENDED_$(date +'%Y%m%d%H%M%S')_${USERNAME}"
     local query="UPDATE users SET username='${new_username}' WHERE username='${USERNAME}';"
-
-    [ -n "$user_id" ] && query+="DELETE FROM active_sessions WHERE user_id='$user_id'; "
+    local session_count=0
 
     if mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query"; then
         echo "User '$USERNAME' suspended successfully."
+        # delete active sessions
+        if [ -n "$user_id" ]; then
+            session_keys=$(docker --context=default exec openpanel_redis redis-cli --scan --pattern "session:$user_id:*")
+            if [ -n "$session_keys" ]; then
+                session_count=$(echo "$session_keys" | wc -l | tr -d ' ')
+                while IFS= read -r key; do
+                    docker --context=default exec openpanel_redis redis-cli unlink "$key" > /dev/null
+                done <<< "$session_keys"
+            fi
+        fi       
     else
         echo "ERROR: Failed to suspend user '$USERNAME'."
         exit 1
     fi
-    nohup opencli sentinel --action=user_status --title="User account suspended" --message="User account '$USERNAME' has been suspended." >/dev/null 2>&1 &
+    
+    nohup opencli sentinel --action=user_status --title="User account suspended" --message="User account '$USERNAME' has been suspended. $session_count session(s) terminated." >/dev/null 2>&1 &
     disown
 }
 

@@ -5,7 +5,7 @@
 # Usage: opencli user-quota <username|--all>
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -320,8 +320,12 @@ main() {
             ;;
     esac
 
-    # 5. Update repquota file
+    # 5. Update /etc/openpanel/openpanel/quota_report.json
     generate_report &>/dev/null
+
+    # 6. flush cache on OpenPanel UI
+    docker exec openpanel_redis redis-cli DEL openpanel_cache_modules.dashboard._load_quota_report_memver &>/dev/null
+
     exit $exit_code
 }
 

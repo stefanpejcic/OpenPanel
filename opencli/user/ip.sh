@@ -5,7 +5,7 @@
 # Usage: opencli user-ip <USERNAME> <IP | DELETE> [-y] [--debug]
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -179,7 +179,8 @@ edit_domain_files() {
 }
 
 drop_redis_cache() {
-    docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
+    # TODO: drop by key for the user only!
+    docker --context=default exec openpanel_redis sh -c "redis-cli --raw KEYS 'openpanel_cache_*' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
 }
 
 create_ip_file() {

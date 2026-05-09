@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -611,25 +611,60 @@ SVCEOF
     fi
 }
 
+get_docker_service_errors() {
+    docker_service_errors=$(timeout 5 machinectl shell "${USERNAME}@" /bin/bash -c 'systemctl --user status docker --no-pager 2>&1' 2>&1) #systemctl --user status docker --no-pager 2>&1 | grep -i "error\|failed\|fatal"
+}
 
-check_socket_created() {
-	[ -e "/home/${USERNAME}/bin/dockerd-rootless.sh" ] || { hard_cleanup; die "Installer script '${ROOTLESS_SETUP_SCRIPT}' failed."; }
-	[ -f "/home/${USERNAME}/bin/dockerd-rootless-setuptool.sh" ] || { hard_cleanup; die "Installer script '${ROOTLESS_SETUP_SCRIPT}' exists but installation appears incomplete."; }
+test_docker_service() {
+    # dockerd-rootless-setuptool.sh executed?
+	if [ !-f "/home/${USERNAME}/bin/dockerd-rootless-setuptool.sh" ]; then
+	    hard_cleanup
+	    die "Installer script '${ROOTLESS_SETUP_SCRIPT}' exists but installation appears incomplete."
+	fi
 
-    local hostfs_sock="/hostfs/run/user/${USER_ID}/docker.sock"
-    local elapsed=0
+    # dockerd-rootless-setuptool.sh finished and created dockerd-rootless.sh?
+	if [ ! -e "/home/${USERNAME}/bin/dockerd-rootless.sh" ]; then
+	    hard_cleanup
+	    die "Installer script '${ROOTLESS_SETUP_SCRIPT}' failed."
+	fi
 
-    while [[ $elapsed -lt 30 ]]; do
-        if [[ -S "$hostfs_sock" ]]; then
-            log "Docker service is running for user."
-            return 0
+    # wait for the docker socket to be available (docker started and initialized)
+	local elapsed=0 max_time=30
+    while [[ $elapsed -lt $max_time ]]; do
+        if [[ -S "/hostfs/run/user/${USER_ID}/docker.sock" ]]; then
+            log "Docker service started (socket: /run/user/${USER_ID}/docker.sock)"
+            break
         fi
         sleep 1
-        (( elapsed++ ))
+        (( elapsed++ )) || true
     done
 
-    hard_cleanup; die "Rootless Docker socket never appeared for '$USERNAME' at $hostfs_sock"
-    # Check: machinectl shell ${USERNAME}@ /bin/bash -c 'systemctl --user status docker'
+	# is docker socket available?
+	if [ ! -S "/hostfs/run/user/${USER_ID}/docker.sock" ]; then
+	    get_docker_service_errors
+	    hard_cleanup
+	    die "Docker service did not start after $max_time seconds!"
+	fi
+
+    # context created and compose plugin loaded?
+	docker_compose_output=$(timeout 3 docker --context="$USERNAME" compose version 2>&1)
+	if echo "$docker_compose_output" | grep -q "Docker Compose version"; then
+	    log "Docker context is working and compose plugin is loaded."
+	else
+		hard_cleanup
+		die "Docker Compose is not working in context '$USERNAME'."
+	fi
+
+	# is docker service ready?
+	docker_info_output=$(timeout 5 docker --context="$USERNAME" info 2>&1)
+	if echo "$docker_info_output" | grep -q "Server Version"; then
+	    log "Docker service is responding and working correctly."
+	else
+	    log "docker info output: $docker_info_output"
+		get_docker_service_errors
+	    hard_cleanup
+	    die "Docker service started (socket created) but is not running: $docker_service_errors"
+	fi
 }
 
 find_available_ports_bg() { find_available_ports > /tmp/ports_$$; }
@@ -779,11 +814,7 @@ create_docker_context() {
     else
         host="unix:///hostfs/run/user/${USER_ID}/docker.sock"
     fi
-    docker context create "$USERNAME" --docker "host=${host}" --description "$USERNAME" 2>/dev/null
-}
-
-verify_docker_context_and_compose() {
-    docker --context="$USERNAME" compose version >/dev/null 2>&1 || { hard_cleanup; die "[✘] Docker Compose is not working in context '$USERNAME'." >&2; }
+	docker context create "$USERNAME" --docker "host=${host}" --description "$USERNAME" >/dev/null 2>&1 || true
 }
 
 save_user_to_database() {
@@ -863,6 +894,7 @@ create_user_volume() {
     mkdir -p "$vol_path"
     chmod -R g+w "$vol_path"
     ln -sfn "$vol_path" "/home/${USERNAME}/files" 2>/dev/null || true
+	chown -R "$USERNAME":"$USERNAME" "/home/${USERNAME}/docker-data/volumes"
 }
 
 notify_sentinel() {
@@ -913,14 +945,8 @@ copy_skeleton_files &
 nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >/dev/null 2>&1 &
 disown
 
-generate_password_hash &
+generate_password_hash
 create_user_volume &
-
-nohup opencli plan-apply "$PLAN_ID" "$USERNAME" >/dev/null 2>&1 &
-disown
-
-nohup opencli user-quota >/dev/null 2>&1 &
-disown
 
 wait $PID_PORTS
 read -r P1 P2 P3 P4 P5 P6 P7 < /tmp/ports_$$
@@ -933,13 +959,21 @@ create_docker_context
 ########################################################################
 # 6. validate docker service is started for user (socket exists), compose command and context are working
 wait $PID_ROOTLESS_INSTALL
-check_socket_created
-verify_docker_context_and_compose
+test_docker_service
 pull_images &
 
 ########################################################################
 # 8. save and notify
 save_user_to_database
+
+# needs to run AFTER saving user to database
+nohup opencli plan-apply "$PLAN_ID" "$USERNAME" >/dev/null 2>&1 &
+disown
+
+# this needs to run AFTER plan-apply to show updated du info
+nohup opencli user-quota >/dev/null 2>&1 &
+disown
+
 send_welcome_email &
 notify_sentinel
 update_reseller_account_count # must run after saving user to db

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.57\n"
+"Project-Id-Version: OpenPanel 1.7.58\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-05-08 00:27+0200\n"
+"POT-Creation-Date: 2026-05-09 00:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -1148,43 +1148,43 @@ msgstr ""
 msgid "Error reading token from user files."
 msgstr ""
 
-#: modules/account/login.py:172
-msgid "Autologin failed: User does not exist."
-msgstr ""
-
-#: modules/account/login.py:175
+#: modules/account/login.py:152
 msgid "Autologin failed: Error occurred fetching data from database."
 msgstr ""
 
-#: modules/account/login.py:179
+#: modules/account/login.py:178
+msgid "Autologin failed: User does not exist."
+msgstr ""
+
+#: modules/account/login.py:181
 msgid "Autologin failed: Invalid or expired token."
 msgstr ""
 
-#: modules/account/login.py:196
+#: modules/account/login.py:198
 msgid "Username and password are required."
 msgstr ""
 
-#: modules/account/login.py:204
+#: modules/account/login.py:206
 msgid "Unable to connect to database."
 msgstr ""
 
-#: modules/account/login.py:212
+#: modules/account/login.py:214
 msgid "Your account is suspended. Please contact support."
 msgstr ""
 
-#: modules/account/login.py:213
+#: modules/account/login.py:215
 msgid "Unrecognized account. Please check username."
 msgstr ""
 
-#: modules/account/login.py:248
+#: modules/account/login.py:250
 msgid "Invalid password. Please try again."
 msgstr ""
 
-#: modules/account/login.py:268
+#: modules/account/login.py:270
 msgid "CAPTCHA validation failed. Please try again."
 msgstr ""
 
-#: modules/account/login.py:336
+#: modules/account/login.py:338
 msgid "Invalid 2FA code. Please try again."
 msgstr ""
 
@@ -1512,180 +1512,180 @@ msgstr ""
 msgid "Error uploading files: {0}"
 msgstr ""
 
-#: modules/files/filemanager.py:306
+#: modules/files/filemanager.py:304
 msgid "Failed to set ownership."
 msgstr ""
 
-#: modules/files/filemanager.py:391
+#: modules/files/filemanager.py:387
 msgid "File extracted successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:490
+#: modules/files/filemanager.py:486
 msgid "No URL provided"
 msgstr ""
 
-#: modules/files/filemanager.py:502
+#: modules/files/filemanager.py:498
 msgid "Invalid path"
 msgstr ""
 
-#: modules/files/filemanager.py:511
+#: modules/files/filemanager.py:507
 msgid "Download queued..."
 msgstr ""
 
-#: modules/files/filemanager.py:554
+#: modules/files/filemanager.py:550
 msgid "Starting download..."
 msgstr ""
 
-#: modules/files/filemanager.py:565
+#: modules/files/filemanager.py:561
 msgid "Download in progress..."
 msgstr ""
 
-#: modules/files/filemanager.py:583
+#: modules/files/filemanager.py:579
 msgid "(Failed to set ownership for the downloaded file.)"
 msgstr ""
 
-#: modules/files/filemanager.py:588
+#: modules/files/filemanager.py:584
 msgid "Failed to download the file"
 msgstr ""
 
-#: modules/files/filemanager.py:592
+#: modules/files/filemanager.py:588
 msgid "Internal server error during download."
 msgstr ""
 
-#: modules/files/filemanager.py:636
+#: modules/files/filemanager.py:632
 msgid "Missing required form data for compression: "
 msgstr ""
 
-#: modules/files/filemanager.py:676
+#: modules/files/filemanager.py:672
 msgid "Unsupported archive format."
 msgstr ""
 
-#: modules/files/filemanager.py:683
+#: modules/files/filemanager.py:679
 msgid "Archive creation failed: "
 msgstr ""
 
-#: modules/files/filemanager.py:689
+#: modules/files/filemanager.py:685
 msgid "FILEMANAGER - Archive created successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:696
+#: modules/files/filemanager.py:692
 msgid "Failed to set archive ownership"
 msgstr ""
 
-#: modules/files/filemanager.py:732
+#: modules/files/filemanager.py:728
 msgid "File renamed successfully."
 msgstr ""
 
-#: modules/files/filemanager.py:736
+#: modules/files/filemanager.py:732
 msgid "Error renaming item! Check permissions or if the new name already exists."
 msgstr ""
 
-#: modules/files/filemanager.py:738
+#: modules/files/filemanager.py:734
 msgid "Unexpected error occurred."
 msgstr ""
 
-#: modules/files/filemanager.py:833
+#: modules/files/filemanager.py:829
 msgid "Invalid permissions format."
 msgstr ""
 
-#: modules/files/filemanager.py:854
+#: modules/files/filemanager.py:850
 msgid "Permissions changed."
 msgstr ""
 
-#: modules/files/filemanager.py:858
+#: modules/files/filemanager.py:854
 msgid "Error changing permissions! Check ownership."
 msgstr ""
 
-#: modules/files/filemanager.py:861 templates/domains/dns.html:311
+#: modules/files/filemanager.py:857 templates/domains/dns.html:311
 msgid "An unexpected error occurred."
 msgstr ""
 
-#: modules/files/filemanager.py:993
+#: modules/files/filemanager.py:989
 msgid "Editing this file type is not allowed."
 msgstr ""
 
-#: modules/files/filemanager.py:1033
+#: modules/files/filemanager.py:1029
 msgid "File saved successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1036
+#: modules/files/filemanager.py:1032
 msgid "Error saving file: "
 msgstr ""
 
-#: modules/files/filemanager.py:1048
+#: modules/files/filemanager.py:1044
 #, python-brace-format
 msgid "File is too large to open in the editor (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:1051 modules/files/filemanager.py:1180
+#: modules/files/filemanager.py:1047 modules/files/filemanager.py:1176
 msgid "Error accessing file size: "
 msgstr ""
 
-#: modules/files/filemanager.py:1063
+#: modules/files/filemanager.py:1059
 msgid "Error reading file"
 msgstr ""
 
-#: modules/files/filemanager.py:1105
+#: modules/files/filemanager.py:1101
 msgid "Error retrieving file size."
 msgstr ""
 
-#: modules/files/filemanager.py:1109
+#: modules/files/filemanager.py:1105
 msgid "Invalid file size retrieved. Possible issue with file."
 msgstr ""
 
-#: modules/files/filemanager.py:1157
+#: modules/files/filemanager.py:1153
 msgid "Viewing of this file type is not allowed."
 msgstr ""
 
-#: modules/files/filemanager.py:1177
+#: modules/files/filemanager.py:1173
 #, python-brace-format
 msgid "File is too large to view in the browser (limit is {} MB)"
 msgstr ""
 
-#: modules/files/filemanager.py:1229
+#: modules/files/filemanager.py:1225
 msgid "The specified directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1397 templates/dashboard/dashboard.html:125
+#: modules/files/filemanager.py:1393 templates/dashboard/dashboard.html:125
 #: templates/files/disk_usage.html:77 templates/files/filemanager.html:32
 #: templates/files/inodes.html:76
 msgid "File Manager"
 msgstr ""
 
-#: modules/files/filemanager.py:1400
+#: modules/files/filemanager.py:1396
 msgid "Directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1423
+#: modules/files/filemanager.py:1419
 msgid "Error accessing the specified directory."
 msgstr ""
 
-#: modules/files/filemanager.py:1482 templates/dashboard/dashboard.html:135
+#: modules/files/filemanager.py:1478 templates/dashboard/dashboard.html:135
 #: templates/files/trash.html:11
 msgid "Trash"
 msgstr ""
 
-#: modules/files/filemanager.py:1658
+#: modules/files/filemanager.py:1654
 msgid "Trash emptied successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1661
+#: modules/files/filemanager.py:1657
 msgid "Unexpected error"
 msgstr ""
 
-#: modules/files/filemanager.py:1682
+#: modules/files/filemanager.py:1678
 msgid "Nothing to restore"
 msgstr ""
 
-#: modules/files/filemanager.py:1727
+#: modules/files/filemanager.py:1723
 msgid "Some items could not be restored."
 msgstr ""
 
-#: modules/files/filemanager.py:1730
+#: modules/files/filemanager.py:1726
 msgid "All items restored successfully"
 msgstr ""
 
-#: modules/files/filemanager.py:1734
+#: modules/files/filemanager.py:1730
 msgid "Unexpected error occurred"
 msgstr ""
 

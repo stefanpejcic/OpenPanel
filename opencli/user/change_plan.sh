@@ -5,7 +5,7 @@
 # Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -155,7 +155,8 @@ change_plan_name_in_db() {
 }
 
 drop_redis_cache() {
-    nohup docker --context=default exec openpanel_redis bash -c "redis-cli --raw KEYS 'flask_cache_*' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
+    # TODO: drop by key for the user only!
+    nohup docker --context=default exec openpanel_redis sh -c "redis-cli --raw KEYS 'openpanel_cache_*' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
     disown
 }
 

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -101,10 +101,20 @@ delete_user_from_database() {
     sql=""
 	[ -n "$domain_ids" ] && sql+="DELETE FROM sites WHERE domain_id IN ($domain_ids); "
     sql+="DELETE FROM domains WHERE user_id='$user_id'; "
-    sql+="DELETE FROM active_sessions WHERE user_id='$user_id'; "
 	sql+="DELETE FROM users WHERE username='$openpanel_username' OR username LIKE 'SUSPENDED_%_$openpanel_username';"
 	[ -n "$sql" ] && mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$sql"
-	# 3. delete domain files, emails and reload Caddy
+
+	# 3. terminate redis sessions
+	# TODO: drop all cache by username!
+	session_keys=$(docker --context=default exec openpanel_redis redis-cli --scan --pattern "session:$user_id:*")
+	if [ -n "$session_keys" ]; then
+		session_count=$(echo "$session_keys" | wc -l | tr -d ' ')
+		while IFS= read -r key; do
+			docker --context=default exec openpanel_redis redis-cli unlink "$key" > /dev/null
+		done <<< "$session_keys"
+	fi
+
+	# 4. delete domain files, emails and reload Caddy
 	ionice -c3 rm -rf "/var/log/caddy/stats/$openpanel_username"            # goaccess reports
     if [ -n "$domain_urls" ]; then
 		local email_storage_path=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini | cut -d'=' -f2- | xargs)

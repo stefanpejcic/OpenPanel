@@ -63,6 +63,6 @@ done
 
 echo "Compiling .mo files for all available locales in $babel_translations directory.."
 docker --context=default exec openpanel sh -c "pybabel compile -f -d $babel_translations  &>/dev/null"
-echo "Restarting OpenPanel to apply translations.."
-docker --context=default restart openpanel  &>/dev/null
+echo "Flushing cache to show new translations in OpenPanel UI.."
+docker exec openpanel_redis redis-cli DEL openpanel_cache_app.get_available_locales_memver &>/dev/null
 echo "DONE"

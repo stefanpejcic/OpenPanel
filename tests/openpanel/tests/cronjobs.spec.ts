@@ -17,7 +17,7 @@ test('create job', async ({ page }) => {
   await expect(page).toHaveURL(/\/cronjobs\/new/);
 
   await page.selectOption('#container', 'php-fpm-8.5');
-  await page.fill('#schedule', '@every 15s');
+  await page.fill('#schedule', '@every 5s');
   const testCommand = 'curl https://google.com > /var/www/html/cron-test.txt';
   await page.fill('#command', testCommand);
   await page.fill('#comment', 'curl job');
@@ -38,6 +38,7 @@ test('create job', async ({ page }) => {
 
 
 test('view logs', async ({ page }) => {
+  await page.waitForTimeout(15000); // wait for contianer to start and created job to run
   await page.goto('/cronjobs');
 
   const tableRow = page.locator('tr', { hasText: 'curl job' });
@@ -66,7 +67,7 @@ test('edit as file', async ({ page }) => {
   await expect(page).toHaveURL(/\/cronjobs\?view=code/);
 
   const expectedCron = `[job-exec "curl job"]
-schedule = @every 15s
+schedule = @every 5s
 container = php-fpm-8.5
 command = curl https://google.com > /var/www/html/cron-test.txt`;
 
@@ -76,7 +77,7 @@ command = curl https://google.com > /var/www/html/cron-test.txt`;
 
   expect(actualContent.trim()).toBe(expectedCron);
 
-  const updatedContent = expectedCron.replace('@every 15s', '* * * * * *');
+  const updatedContent = expectedCron.replace('@every 5s', '* * * * * *');
   
   await page.evaluate((val) => {
     const cm = document.querySelector('.CodeMirror').CodeMirror;

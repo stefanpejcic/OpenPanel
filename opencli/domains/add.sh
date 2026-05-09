@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 07.05.2026
+# Last Modified: 08.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -742,6 +742,7 @@ reload_bind_after_slaves(){
 notify_slave(){
 
 if ! $USE_PARENT_DNS_ZONE; then
+	# setfacl -d -m u:named:rwx /etc/bind/zones
     log "Notifying slave DNS server ($SLAVE_IP) to create a new zone for domain $domain_name"
 
     ssh -q -o LogLevel=ERROR -o ConnectTimeout=5 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@$SLAVE_IP "nohup bash -c '

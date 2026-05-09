@@ -18,6 +18,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 # STATISTICS
 0 * * * * root /usr/local/bin/opencli docker-collect_stats --all && echo "$(date) Resource usage data updated" >> /var/log/openpanel/admin/cron.log
+*/5 * * * * root /usr/local/bin/opencli user-quota && echo "$(date) Collected disk and inodes usage for all users" >> /var/log/openpanel/admin/cron.log
 30 2 * * * root /usr/local/bin/opencli domains-stats && echo "$(date) Domain statistics collected" >> /var/log/openpanel/admin/cron.log
 0 4 * * * root /usr/local/bin/opencli websites-pagespeed --all && echo "$(date) Google PageSpeed data collected for all domains" >> /var/log/openpanel/admin/cron.log
 0 5 */2 * * root /usr/local/bin/opencli websites-vulnerability --all && echo "$(date) WordPress websites scanned for known vulnerabilities" >> /var/log/openpanel/admin/cron.log
