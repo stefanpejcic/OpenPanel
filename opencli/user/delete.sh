@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 08.05.2026
+# Last Modified: 09.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -152,8 +152,10 @@ postfwd_setup(){
 	opencli email-ratelimit --delete-user="$1" >/dev/null 2>&1		
 }
 
-delete_email_users() {
+delete_emails() {
     openpanel_username="$1"
+
+	# email accounts
     local email_file="/etc/openpanel/openpanel/core/users/$openpanel_username/emails.yml"
     if [ -f "$email_file" ]; then
         emails=()
@@ -166,6 +168,21 @@ delete_email_users() {
 			disown
         fi
     fi
+
+	# aliases
+	aliases_file="/etc/openpanel/openpanel/core/users/$openpanel_username/aliases.yml"
+	
+	if [ -f "$aliases_file" ]; then
+	    aliases=()
+	    while read -r _ email target; do
+            [ -n "$email" ] && aliases+=("$email")
+	    done < "$aliases_file"
+
+	    if [ "${#aliases[@]}" -gt 0 ]; then
+	        nohup opencli email-setup alias del "${aliases[@]}" >/dev/null 2>&1 &
+	        disown
+	    fi
+	fi
 }
 
 delete_ftp_users() {
@@ -257,7 +274,7 @@ confirm_action "$USERNAME"
 get_user_info
 
 # 3. in parallel: delete emails, delete ftp accounts, user/sites/domains from database, homedir, postfwd limits, docker context
-delete_email_users "$USERNAME"
+delete_emails "$USERNAME"
 delete_ftp_users "$USERNAME" &
 delete_user_from_database "$USERNAME" &
 delete_all_user_files &

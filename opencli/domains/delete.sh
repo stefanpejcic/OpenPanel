@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 08.05.2026
+# Last Modified: 09.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -360,10 +360,13 @@ delete_websites() {
 delete_emails() {
 	local username="$1"
 	local domain="$2"
+
+	# email accounts
 	local email_file="/etc/openpanel/openpanel/core/users/$username/emails.yml"
 
     if [ -f "$email_file" ]; then
         emails=()
+    	log "Removing email accounts for this domain"
         while read -r _ email; do
             [ -n "$email" ] && emails+=("$email")
         done < "$email_file"
@@ -373,6 +376,26 @@ delete_emails() {
 			disown
         fi
     fi
+
+	# aliases
+	aliases_file="/etc/openpanel/openpanel/core/users/$username/aliases.yml"
+	
+	if [ -f "$aliases_file" ]; then
+	    aliases=()
+    	log "Removing email aliases for this domain"
+	
+	    while read -r _ email target; do
+	        [ -z "$email" ] && continue
+	        if [[ "$email" == *"@$domain" ]]; then
+	            aliases+=("$email")
+	        fi
+	    done < "$aliases_file"
+	
+	    if [ "${#aliases[@]}" -gt 0 ]; then
+	        nohup opencli email-setup alias del "${aliases[@]}" >/dev/null 2>&1 &
+	        disown
+	    fi
+	fi
 }
 
 
@@ -380,7 +403,7 @@ delete_emails() {
 
 delete_domain_from_mysql(){
     local domain_name="$1"
-    log "Removing $domain_name from the domains database"
+    log "Removing $domain_name from the database"
     local delete_query="DELETE from domains where domain_url = '$domain_name';"
     mysql -e "$delete_query"
 }
