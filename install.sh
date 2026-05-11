@@ -375,8 +375,6 @@ install_python() {
                 run $PACKAGE_MANAGER install -y software-properties-common
                 run add-apt-repository -y ppa:deadsnakes/ppa
                 run $PACKAGE_MANAGER update -y
-                run $PACKAGE_MANAGER install -y python3.12 || true
-				run $PACKAGE_MANAGER install -y python3.12-venv || true
                 ;;
             debian)
                 run install -d -m 0755 /etc/apt/keyrings
@@ -387,7 +385,6 @@ Suites: ${OS_CODENAME}-backports
 Components: main
 Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/pascalroeleven.sources" || true
                 run $PACKAGE_MANAGER update -y
-                run $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
                 ;;
             almalinux|alma|rocky|centos)
                 run $PACKAGE_MANAGER update -y
@@ -395,13 +392,15 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/p
                     run dnf install -y epel-release || true
                     run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
                 }
-                run $PACKAGE_MANAGER install -y python3.12 || true
                 ;;
         esac
+
+		run $PACKAGE_MANAGER install -y python3.12 || true
         command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || PYTHON_BIN="python3"
     fi
 
-	[[ "$PACKAGE_MANAGER" == "apt-get" ]] && run "$PACKAGE_MANAGER" install -y python3-venv python3.12-venv || :
+	run $PACKAGE_MANAGER install -y python3-venv || true	
+	run $PACKAGE_MANAGER install -y python3.12-venv || true
 
     $PYTHON_BIN --version &>/dev/null && ok "Python is available." || die 1 "Python installation failed."
     export PYTHON_BIN
