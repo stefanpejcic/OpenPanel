@@ -375,7 +375,8 @@ install_python() {
                 run $PACKAGE_MANAGER install -y software-properties-common
                 run add-apt-repository -y ppa:deadsnakes/ppa
                 run $PACKAGE_MANAGER update -y
-                run $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                run $PACKAGE_MANAGER install -y python3.12 || true
+				run $PACKAGE_MANAGER install -y python3.12-venv || true
                 ;;
             debian)
                 run install -d -m 0755 /etc/apt/keyrings
