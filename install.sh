@@ -504,7 +504,7 @@ EOF
 
     local test_output
     test_output=$(timeout 10 docker run --rm alpine echo "Hello from Alpine!" 2>/dev/null || true)
-    [[ "$test_output" == "Hello from Alpine!" ]] && ok "Docker alpine container ran successfully." || die 1 "Docker test failed. Check Docker Hub connectivity and Docker installation."
+    [[ "$test_output" == "Hello from Alpine!" ]] && ok "Docker alpine container ran successfully." || die 1 "Running alpine container failed, error: $test_output"
 
     local mysql_cnf="/etc/my.cnf"
     local root_pw; root_pw=$(openssl rand -base64 -hex 9)
