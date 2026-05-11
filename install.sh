@@ -441,7 +441,8 @@ install_openadmin() {
     fi
 
     cd "$dir" || die 1 "Failed to open $dir"
-    ${PYTHON_BIN:-python3} -m venv "${dir}venv"
+	${PYTHON_BIN:-python3} -m venv "${dir}venv" || die 1 "Failed to create virtualenv"
+	
 	# shellcheck disable=SC1090
     source "${dir}venv/bin/activate"
     pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt >/dev/null 2>&1 || pip install --default-timeout=300 --force-reinstall --ignore-installed -r requirements.txt --break-system-packages >/dev/null 2>&1
