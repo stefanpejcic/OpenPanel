@@ -321,12 +321,12 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-            packages=(curl cron git gnupg dbus-user-session systemd dbus systemd-container quota quotatool uidmap docker.io "$kernel_pkg" default-mysql-client jc jq sqlite3)
+            packages=(curl openssl cron git gnupg dbus-user-session systemd dbus systemd-container quota quotatool uidmap docker.io "$kernel_pkg" default-mysql-client jc jq sqlite3)
             ;;
         yum)
             check_kernel_compat
             build_quotatool_from_source
-            packages=(curl cron git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io linux-generic default-mysql-client jc jq sqlite3)
+            packages=(curl openssl cron git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io linux-generic default-mysql-client jc jq sqlite3)
             ;;
         dnf)
             check_kernel_compat
@@ -335,9 +335,9 @@ install_packages() {
             run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
             run dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
             if [[ -f /etc/fedora-release ]]; then
-                packages=(git wget gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker docker-compose mysql docker-compose-plugin sqlite sqlite-devel perl-Math-BigInt)
+                packages=(git openssl wget gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker docker-compose mysql docker-compose-plugin sqlite sqlite-devel perl-Math-BigInt)
             else
-                packages=(git ncurses wget gnupg systemd dbus systemd-container quota shadow-utils docker-ce docker-ce-cli mariadb containerd.io docker-compose-plugin sqlite sqlite-devel perl-Math-BigInt)
+                packages=(git openssl ncurses wget gnupg systemd dbus systemd-container quota shadow-utils docker-ce docker-ce-cli mariadb containerd.io docker-compose-plugin sqlite sqlite-devel perl-Math-BigInt)
             fi
             ;;
     esac
