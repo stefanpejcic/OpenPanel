@@ -835,6 +835,7 @@ services:
     restart: unless-stopped
     networks:
       - socket-proxy
+      - www
 
 networks:
   default:
