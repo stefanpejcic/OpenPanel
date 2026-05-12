@@ -159,6 +159,8 @@ services:
       CONTAINERS: 1
       POST: 1
       EXEC: 1
+      INFO: 1
+      VERSION: 1
     volumes:
       - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
     deploy:

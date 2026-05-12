@@ -107,7 +107,7 @@
     "name": "mysql_processlist",
     "title": "MySQL Process List",
     "description": "If enabled, users can view MySQL processlist from the user panel.",
-    "link": "/mysql/rprocesslist",
+    "link": "/mysql/processlist",
     "type": "community",
     "help_link": ""
   },
