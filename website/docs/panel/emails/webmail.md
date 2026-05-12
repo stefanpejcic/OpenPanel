@@ -1,9 +1,11 @@
 ---
-sidebar_position: 3
+sidebar_position: 5
 ---
 
-# Webmail
+# Aliases
 
-Clicking the **Webmail** link in the menu opens the [RoundCube](https://roundcube.net/) webmail client in a new browser tab.
+OpenPanel (specifically Postfix) allows creation of aliases.
 
-OpenPanel does not support auto-login, so you will need to enter your email account password to log in.
+An alias is a forwarder from non-existing email address to one or more other addresses. Recepients can exist either locally or remote.
+
+To create aliases, navigate to **OpenPanel > Emails > Aliases** page.
