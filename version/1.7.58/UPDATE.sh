@@ -131,3 +131,75 @@ if changed:
 else:
     print("OK: compose.yml already up to date. No changes needed.")
 PYEOF
+# ── 4. Check and patch backup service networks in compose.yml ───────────────
+
+python3 - "$COMPOSE_FILE" <<'PYEOF2'
+import sys
+
+compose_path = sys.argv[1]
+
+with open(compose_path, "r") as f:
+    lines = f.readlines()
+
+def find_service_range(lines, service_name):
+    start = None
+    end = None
+    for i, line in enumerate(lines):
+        if line.rstrip() == f"  {service_name}:":
+            start = i
+        elif start is not None:
+            if len(line) > 2 and line[:2] == '  ' and line[2] != ' ' and line.rstrip().endswith(':'):
+                end = i
+                break
+            elif line[0] != ' ' and line.strip():
+                end = i
+                break
+    if start is not None and end is None:
+        end = len(lines)
+    return start, end
+
+backup_start, backup_end = find_service_range(lines, "backup")
+
+if backup_start is None:
+    print("ERROR: 'backup' service not found in compose.yml")
+    sys.exit(1)
+
+backup_block = lines[backup_start:backup_end]
+
+has_networks_section = any(line.rstrip() == "    networks:" for line in backup_block)
+has_www = any(line.strip() == "- www" for line in backup_block)
+
+if has_www:
+    print("OK: 'www' network already present in backup service. No changes needed.")
+    sys.exit(0)
+
+if has_networks_section:
+    # Find the last network entry and append after it
+    last_net_idx = None
+    in_networks = False
+    for i, line in enumerate(backup_block):
+        if line.rstrip() == "    networks:":
+            in_networks = True
+            continue
+        if in_networks:
+            if line.startswith("      - "):
+                last_net_idx = backup_start + i
+            else:
+                break
+
+    insert_at = (last_net_idx + 1) if last_net_idx is not None else backup_end
+    lines = lines[:insert_at] + ["      - www\n"] + lines[insert_at:]
+else:
+    # No networks section at all — add before restart or at end of block
+    anchor_keywords = ["    restart:", "    deploy:"]
+    insert_at = backup_end
+    for i, line in enumerate(backup_block):
+        if any(line.startswith(kw) for kw in anchor_keywords):
+            insert_at = backup_start + i
+            break
+    lines = lines[:insert_at] + ["    networks:\n", "      - www\n"] + lines[insert_at:]
+
+with open(compose_path, "w") as f:
+    f.writelines(lines)
+print("OK: 'www' network added to backup service.")
+PYEOF2
