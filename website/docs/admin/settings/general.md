@@ -37,7 +37,7 @@ To access OpenPanel and OpenAdmin via server public IP address, set IP address i
 Port configurations for OpenAdmin and OpenPanel interfaces can be modified from their default settings (`2087` for OpenAdmin and `2083` for OpenPanel). 
 
 - To change the port for the OpenPanel from the default `2083` to another value, set the desired port in the "OpenPanel Port" field.
-- To change the port for the OpenAdmin from the default `2083` to another value, set the desired port in the "OpenAdmin Port" field.
+- To change the port for the OpenAdmin from the default `2087` to another value, set the desired port in the "OpenAdmin Port" field.
 
 ## Redirect
 
