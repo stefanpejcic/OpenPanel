@@ -343,7 +343,7 @@ services:
     container_name: redis
     restart: unless-stopped
     user: "${USER_ID:-0}"
-    command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379"]
+    command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379", "--save", ""]
     volumes:
       - ./sockets/redis:/var/run/redis
     deploy:

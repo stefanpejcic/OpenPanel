@@ -406,4 +406,48 @@ test('reset dns zone', async ({ page }) => {
 });
 
 
-// TODO: domain suspend/unsuspend
+
+test('suspend domain', async ({ page }) => {
+  const domain = 'wp.tests.openpanel.org';
+
+  await page.goto(`/domains/suspend?domain=${domain}`);
+  await page.locator('#confirm-suspend').click();
+
+  await expect(page.getByText('Domain suspended successfully.')).toBeVisible();
+  console.log('Suspend action confirmed ✓');
+
+  await page.waitForTimeout(2000);
+
+  const response = await page.request.get(`https://${domain}`, { failOnStatusCode: false });
+  console.log(`Suspended domain status: ${response.status()}`);
+
+  const body = await response.text();
+  console.log(`Suspended domain body snippet: ${body.slice(0, 200)}`);
+  expect(body).toContain('This website has been suspended');
+
+  console.log('Domain suspension verified successfully!');
+});
+
+
+test('unsuspend domain', async ({ page }) => {
+  const domain = 'wp.tests.openpanel.org';
+
+  await page.goto(`/domains/unsuspend?domain=${domain}`);
+  await page.locator('#confirm-unsuspend').click();
+
+  await expect(page.getByText('Domain unsuspended successfully.')).toBeVisible();
+  console.log('Unsuspend action confirmed ✓');
+
+  await page.waitForTimeout(2000);
+
+  const response = await page.request.get(`https://${domain}`, { failOnStatusCode: false });
+  console.log(`Unsuspended domain status: ${response.status()}`);
+  expect(response.status()).toBe(200);
+
+  const body = await response.text();
+  console.log(`Unsuspended domain body snippet: ${body.slice(0, 200)}`);
+  expect(body).toContain('Hello world');
+
+  console.log('Domain unsuspension verified successfully!');
+});
+

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 09.05.2026
+# Last Modified: 12.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -182,6 +182,24 @@ delete_emails() {
 	        nohup opencli email-setup alias del "${aliases[@]}" >/dev/null 2>&1 &
 	        disown
 	    fi
+	fi
+
+	# regex aliases (default email address)
+	regex_aliases_file="/usr/local/mail/openmail/docker-data/dms/config/postfix-regex.cf"
+	
+	if [ -f "$regex_aliases_file" ]; then
+		tmp_file="$(mktemp)"
+		changed=0
+
+	    while read -r pattern target; do
+	        [ -z "$pattern" ] && continue
+			if [[ "$pattern" =~ @${domain//./\\.}\$ ]]; then
+				changed=1; continue
+	        fi
+	        echo "$pattern $target" >> "$tmp_file"
+	    done < "$regex_aliases_file"
+
+		[ "$changed" -eq 1 ] && mv "$tmp_file" "$regex_aliases_file"
 	fi
 }
 
