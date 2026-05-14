@@ -81,7 +81,7 @@ opencli docker-collect_stats
 `collect_stats` script will also rotate data according to [`resource_usage_retention` setting](/cli/config.html#resource-usage-retention)
 
 
-### Limits
+### Limits DEPRECATED
 
 Set global docker limits (storage, ram and cpu) for all system containers.
 ```bash
