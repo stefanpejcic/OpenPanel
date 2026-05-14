@@ -2,6 +2,26 @@
 
 Manage Docker settings: update docker images, set global resource limits for docker, etc.
 
+### docker
+
+Command opens interactive shell into user containers.
+
+To view list of all users:
+```bash
+opencli docker
+```
+
+To view list of active containers for a user:
+```bash
+opencli docker <USERNAME>
+```
+
+To open terminal directly in a container for a user:
+```bash
+opencli docker <USERNAME> <container>
+```
+
+
 ### Images
 
 Uses [Cup 🥤](https://github.com/sergi0g/cup) to check for image updates and displays them on **OpenPanel > Containers > Image Updates**
@@ -50,17 +70,6 @@ Examples:
 
 ```
 
-### lazydocker (DEPRECATED)
-
-To manage system containers *(run as root user):
-```bash
-opencli docker
-```
-
-To manage user containers:
-```bash
-opencli docker <USERNAME>
-```
 
 ### Collect Stats
 
