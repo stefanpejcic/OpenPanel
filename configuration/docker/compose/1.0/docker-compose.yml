@@ -393,8 +393,6 @@ services:
       discovery.type: single-node
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-    volumes:
-      - ./sockets/elasticsearch:/var/run/elasticsearch
     deploy:
       resources:
         limits:
@@ -421,8 +419,6 @@ services:
       DISABLE_SECURITY_PLUGIN: "true"
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: "${OPENSEARCH_INITIAL_ADMIN_PASSWORD:-iIybFJOgznCYmpOO}"
       DISABLE_INSTALL_DEMO_CONFIG: "true"
-    volumes:
-      - ./sockets/opensearch:/var/run/opensearch
     deploy:
       resources:
         limits:

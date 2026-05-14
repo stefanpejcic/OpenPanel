@@ -284,13 +284,26 @@ test('delete user', async ({ page }) => {
   await expect(page).toHaveURL(/\/users\/testinguser#delete$/);
 
   await expect(page.getByText('delete user account', { exact: false })).toBeVisible();
-  await page.locator('[x-model="confirmationText"]:visible').fill('testinguser');
-  const deleteButton = page.getByRole('button', {name: /delete account permanently/i,});
-  await expect(deleteButton).toBeVisible();
-  await deleteButton.click();
 
+  const confirmationInput = page.locator('[x-model="confirmationText"]:visible');
+
+  const deleteButton = page.getByRole('button', {name: /delete account permanently/i,});
+
+  await expect(deleteButton).toBeDisabled();
+
+  // https://github.com/stefanpejcic/OpenPanel/issues/948
+  await confirmationInput.click();
+  await confirmationInput.press('Enter');
+  await expect(page).toHaveURL(/\/users\/testinguser#delete$/);
+  await expect(page.getByText("User 'testinguser' deleted successfully", {exact: false,})).not.toBeVisible();
+  console.log('submit is not working without confirmation (issue #948)');
+
+  // valid deletion
+  await confirmationInput.fill('testinguser');
+  await expect(deleteButton).toBeEnabled();
+  await deleteButton.click();
   await expect(page).toHaveURL(/\/users\/?$/);
-  await expect(page.getByText("User 'testinguser' deleted successfully", { exact: false })).toBeVisible();
+  await expect(page.getByText("User 'testinguser' deleted successfully", {exact: false,})).toBeVisible();
 
   const userRows = page.locator('table tbody tr');
   await expect(userRows.filter({ hasText: 'testinguser' })).toHaveCount(0);

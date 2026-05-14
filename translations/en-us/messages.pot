@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.58\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-05-13 00:27+0200\n"
+"POT-Creation-Date: 2026-05-13 18:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -26,7 +26,7 @@ msgid "Failed to retrieve disk usage information."
 msgstr ""
 
 #: modules/api.py:68 modules/api.py:86 modules/api.py:98
-#: modules/dashboard.py:30 modules/docker.py:1063 modules/docker.py:1077
+#: modules/dashboard.py:30 modules/docker.py:1067 modules/docker.py:1081
 #: modules/webserver_conf.py:48
 msgid "User not authenticated"
 msgstr ""
@@ -133,7 +133,7 @@ msgstr ""
 #: modules/website_builder.py:290 modules/websites.py:35
 #: modules/websites.py:232 modules/websites.py:293 modules/websites.py:455
 #: modules/websites.py:539 modules/websites.py:991 modules/wordpress.py:593
-#: modules/wordpress.py:952 modules/wordpress.py:1063 modules/wordpress.py:1693
+#: modules/wordpress.py:952 modules/wordpress.py:1065 modules/wordpress.py:1695
 msgid "You do not own this domain."
 msgstr ""
 
@@ -192,64 +192,64 @@ msgstr ""
 msgid "DNS zone saved and DNS service restarted."
 msgstr ""
 
-#: modules/docker.py:238 templates/dashboard/dashboard.html:206
+#: modules/docker.py:242 templates/dashboard/dashboard.html:206
 #: templates/docker/containers.html:9 templates/docker/volumes_TODO.html:10
 msgid "Containers"
 msgstr ""
 
-#: modules/docker.py:381
+#: modules/docker.py:385
 msgid "Add service"
 msgstr ""
 
-#: modules/docker.py:394 modules/docker.py:581
+#: modules/docker.py:398 modules/docker.py:585
 msgid ""
 "Invalid service name. Must start with a letter, contain only lowercase "
 "letters and digits, and be at least 3 characters long."
 msgstr ""
 
-#: modules/docker.py:423 modules/docker.py:598
+#: modules/docker.py:427 modules/docker.py:602
 msgid "CPU limit must be a positive number."
 msgstr ""
 
-#: modules/docker.py:437 modules/docker.py:611
+#: modules/docker.py:441 modules/docker.py:615
 msgid ""
 "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
 " or 1.5G)."
 msgstr ""
 
-#: modules/docker.py:568
+#: modules/docker.py:572
 msgid "Service name cannot be changed."
 msgstr ""
 
-#: modules/docker.py:680
+#: modules/docker.py:684
 msgid "Container updated successfully."
 msgstr ""
 
-#: modules/docker.py:753
+#: modules/docker.py:757
 msgid "Delete service"
 msgstr ""
 
-#: modules/docker.py:941 templates/dashboard/dashboard.html:209
+#: modules/docker.py:945 templates/dashboard/dashboard.html:209
 #: templates/docker/images.html:10
 msgid "Image Updates"
 msgstr ""
 
-#: modules/docker.py:988
+#: modules/docker.py:992
 msgid "Change docker image"
 msgstr ""
 
-#: modules/docker.py:1004
+#: modules/docker.py:1008
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1054 templates/dashboard/dashboard.html:208
+#: modules/docker.py:1058 templates/dashboard/dashboard.html:208
 #: templates/manager/python_node_apps.html:130
 #: templates/manager/python_node_apps.html:160
 #: templates/partials/_service_log.html:11 templates/system/cronjobs.html:332
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1080 modules/websites.py:528
+#: modules/docker.py:1084 modules/websites.py:528
 msgid "Invalid action"
 msgstr ""
 
@@ -451,7 +451,7 @@ msgstr ""
 
 #: modules/mautic.py:423 modules/mautic.py:589 modules/website_builder.py:71
 #: modules/website_builder.py:116 modules/wordpress.py:930
-#: modules/wordpress.py:1056
+#: modules/wordpress.py:1058
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -488,45 +488,45 @@ msgstr ""
 msgid "Install Mautic"
 msgstr ""
 
-#: modules/mysql.py:124 modules/mysql.py:259 modules/mysql.py:373
-#: modules/mysql.py:547 modules/mysql.py:740 modules/mysql.py:917
+#: modules/mysql.py:122 modules/mysql.py:253 modules/mysql.py:368
+#: modules/mysql.py:542 modules/mysql.py:735 modules/mysql.py:912
 #: modules/postgresql.py:66 modules/postgresql.py:564
 msgid "Database name is required."
 msgstr ""
 
-#: modules/mysql.py:161 modules/postgresql.py:135 templates/mysql/new.html:58
+#: modules/mysql.py:159 modules/postgresql.py:135 templates/mysql/new.html:58
 #: templates/psql/new.html:56
 msgid "Create Database"
 msgstr ""
 
-#: modules/mysql.py:189 modules/mysql.py:268 modules/mysql.py:363
-#: modules/mysql.py:775 modules/mysql.py:817 modules/mysql.py:909
+#: modules/mysql.py:187 modules/mysql.py:262 modules/mysql.py:358
+#: modules/mysql.py:770 modules/mysql.py:812 modules/mysql.py:904
 #: modules/postgresql.py:150 modules/postgresql.py:613
 #: modules/postgresql.py:699
 msgid "User name is required."
 msgstr ""
 
-#: modules/mysql.py:199 modules/postgresql.py:172
+#: modules/mysql.py:197 modules/postgresql.py:172
 msgid "This username is not allowed."
 msgstr ""
 
-#: modules/mysql.py:204 modules/mysql.py:274 modules/mysql.py:393
-#: modules/mysql.py:788 modules/mysql.py:830 modules/mysql.py:934
+#: modules/mysql.py:202 modules/mysql.py:268 modules/mysql.py:388
+#: modules/mysql.py:783 modules/mysql.py:825 modules/mysql.py:929
 msgid "Invalid host format."
 msgstr ""
 
-#: modules/mysql.py:218 modules/postgresql.py:193
+#: modules/mysql.py:216 modules/postgresql.py:193
 #: templates/mysql/mysql_user.html:163 templates/mysql/users.html:67
 #: templates/psql/psql_user.html:164 templates/psql/users.html:64
 msgid "Create User"
 msgstr ""
 
-#: modules/mysql.py:225 modules/mysql.py:825 modules/mysql.py:929
+#: modules/mysql.py:223 modules/mysql.py:820 modules/mysql.py:924
 #: modules/postgresql.py:215 modules/postgresql.py:721
 msgid "This is a system username that can not be edited."
 msgstr ""
 
-#: modules/mysql.py:228 modules/postgresql.py:218 templates/files/ftp.html:109
+#: modules/mysql.py:226 modules/postgresql.py:218 templates/files/ftp.html:109
 #: templates/mysql/password.html:168 templates/mysql/root_password.html:154
 #: templates/mysql/users.html:105 templates/psql/password.html:163
 #: templates/psql/users.html:115
@@ -534,62 +534,62 @@ msgstr ""
 msgid "Change Password"
 msgstr ""
 
-#: modules/mysql.py:253 modules/mysql.py:310 modules/mysql.py:316
+#: modules/mysql.py:247 modules/mysql.py:305 modules/mysql.py:311
 #: modules/postgresql.py:232
 msgid "Wizard"
 msgstr ""
 
-#: modules/mysql.py:265 modules/mysql.py:388
+#: modules/mysql.py:259 modules/mysql.py:383
 msgid "This is a system database that can not be used."
 msgstr ""
 
-#: modules/mysql.py:277 modules/mysql.py:383
+#: modules/mysql.py:271 modules/mysql.py:378
 msgid "At least one privilege must be selected."
 msgstr ""
 
-#: modules/mysql.py:413 modules/postgresql.py:275 templates/psql/assign.html:8
+#: modules/mysql.py:408 modules/postgresql.py:275 templates/psql/assign.html:8
 #: templates/psql/assign.html:68
 msgid "Assign User to Database"
 msgstr ""
 
-#: modules/mysql.py:418 modules/postgresql.py:283
+#: modules/mysql.py:413 modules/postgresql.py:283
 #: templates/mysql/remove.html:62 templates/psql/remove.html:62
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:485 templates/dashboard/dashboard.html:152
+#: modules/mysql.py:480 templates/dashboard/dashboard.html:152
 #: templates/dashboard/dashboard.html:165 templates/dashboard/usage.html:62
 #: templates/files/backup_restore.html:36 templates/mysql/databases.html:9
 msgid "Databases"
 msgstr ""
 
-#: modules/mysql.py:531 modules/postgresql.py:491
+#: modules/mysql.py:526 modules/postgresql.py:491
 #: templates/dashboard/dashboard.html:153
 #: templates/dashboard/dashboard.html:166 templates/mysql/users.html:11
 msgid "Users"
 msgstr ""
 
-#: modules/mysql.py:559
+#: modules/mysql.py:554
 msgid "Invalid export format provided, select SQL or GZIP."
 msgstr ""
 
-#: modules/mysql.py:593
+#: modules/mysql.py:588
 msgid "Destination path is required for folder export."
 msgstr ""
 
-#: modules/mysql.py:599
+#: modules/mysql.py:594
 msgid "Invalid export path. Must be inside /var/www/html/"
 msgstr ""
 
-#: modules/mysql.py:643
+#: modules/mysql.py:638
 msgid "Invalid export destination."
 msgstr ""
 
-#: modules/mysql.py:783
+#: modules/mysql.py:778
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
-#: modules/mysql.py:925
+#: modules/mysql.py:920
 msgid "This is a system database that can not be edited."
 msgstr ""
 
@@ -714,7 +714,7 @@ msgstr ""
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:467 modules/website_builder.py:238 modules/wordpress.py:1525
+#: modules/pm2.py:467 modules/website_builder.py:238 modules/wordpress.py:1527
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
@@ -1039,49 +1039,49 @@ msgstr ""
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:988
+#: modules/wordpress.py:990
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:1017
+#: modules/wordpress.py:1019
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:1024
+#: modules/wordpress.py:1026
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:1036
+#: modules/wordpress.py:1038
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1079
+#: modules/wordpress.py:1081
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1084
+#: modules/wordpress.py:1086
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1087
+#: modules/wordpress.py:1089
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1284 modules/wordpress.py:1502
+#: modules/wordpress.py:1286 modules/wordpress.py:1504
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1313 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1315 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1467
+#: modules/wordpress.py:1469
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1537 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1539 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1800,11 +1800,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:797
+#: modules/json/helpers.py:805
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:803
+#: modules/json/helpers.py:811
 msgid "Database configuration not found"
 msgstr ""
 
