@@ -40,11 +40,23 @@ if [ -d "$OPENMAIL_DIR" ]; then
         MISSING_IMPERSONATE=true
         MISSING_AUTOLOGIN=true
 
-        # FIX: koristimo grep -F -- da spriječimo tumačenje - kao opcije
         grep -qF -- './openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro' "$COMPOSE" && MISSING_ACCOUNTS=false
         grep -qF -- './openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro' "$COMPOSE" && MISSING_UTILS=false
         grep -qF -- './roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro' "$COMPOSE" && MISSING_IMPERSONATE=false
         grep -qF -- './roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro' "$COMPOSE" && MISSING_AUTOLOGIN=false
+
+        # Helper funkcija: ubaci linije nakon zadanog broja linije koristeći tmp fajl
+        insert_after_line() {
+            local FILE="$1"
+            local LINE_NUM="$2"
+            local INSERT_TEXT="$3"
+            local TMP
+            TMP=$(mktemp)
+            head -n "$LINE_NUM" "$FILE" > "$TMP"
+            printf '%s\n' "$INSERT_TEXT" >> "$TMP"
+            tail -n "+$((LINE_NUM + 1))" "$FILE" >> "$TMP"
+            mv "$TMP" "$FILE"
+        }
 
         # --- mailserver volumes ---
         if $MISSING_ACCOUNTS || $MISSING_UTILS; then
@@ -59,9 +71,7 @@ if [ -d "$OPENMAIL_DIR" ]; then
             fi
 
             VOLUMES_END_LINE=$(awk "NR > $VOLUMES_LINE && /^\s{4}[a-z_]/ { print NR; exit }" "$COMPOSE")
-            if [ -z "$VOLUMES_END_LINE" ]; then
-                VOLUMES_END_LINE="${NEXT_SERVICE_LINE:-9999}"
-            fi
+            [ -z "$VOLUMES_END_LINE" ] && VOLUMES_END_LINE="${NEXT_SERVICE_LINE:-9999}"
 
             LAST_VOLUME_LINE=$(awk "NR > $VOLUMES_LINE && NR < $VOLUMES_END_LINE && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
 
@@ -70,20 +80,13 @@ if [ -d "$OPENMAIL_DIR" ]; then
                 exit 1
             fi
 
-            # FIX: koristimo privremeni fajl umjesto sed inline append da izbjegnemo problem sa - u stringu
             INSERT=""
             $MISSING_ACCOUNTS && INSERT="${INSERT}      - ./openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro\n"
-            $MISSING_UTILS    && INSERT="${INSERT}      - ./openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro\n"
-            INSERT="${INSERT%\\n}"
+            $MISSING_UTILS    && INSERT="${INSERT}      - ./openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro"
+            INSERT="$(printf '%b' "$INSERT")"
 
-            python3 -c "
-import sys
-lines = open('$COMPOSE').readlines()
-insert = '''$(printf '%b' "$INSERT")'''
-insert_lines = [l + '\n' for l in insert.split('\n') if l]
-lines = lines[:$LAST_VOLUME_LINE] + insert_lines + lines[$LAST_VOLUME_LINE:]
-open('$COMPOSE', 'w').writelines(lines)
-"
+            insert_after_line "$COMPOSE" "$LAST_VOLUME_LINE" "$INSERT"
+
             echo "Added volume mounts to mailserver in $COMPOSE"
             echo "Restarting mailserver to use the overwrites for storage.."
             cd $OPENMAIL_DIR && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
@@ -103,9 +106,7 @@ open('$COMPOSE', 'w').writelines(lines)
             fi
 
             RC_VOLUMES_END_LINE=$(awk "NR > $RC_VOLUMES_LINE && /^\s{4}[a-z_]/ { print NR; exit }" "$COMPOSE")
-            if [ -z "$RC_VOLUMES_END_LINE" ]; then
-                RC_VOLUMES_END_LINE="${RC_NEXT_SERVICE_LINE:-9999}"
-            fi
+            [ -z "$RC_VOLUMES_END_LINE" ] && RC_VOLUMES_END_LINE="${RC_NEXT_SERVICE_LINE:-9999}"
 
             RC_LAST_VOLUME_LINE=$(awk "NR > $RC_VOLUMES_LINE && NR < $RC_VOLUMES_END_LINE && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
 
@@ -116,17 +117,11 @@ open('$COMPOSE', 'w').writelines(lines)
 
             RC_INSERT=""
             $MISSING_IMPERSONATE && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro\n"
-            $MISSING_AUTOLOGIN   && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro\n"
-            RC_INSERT="${RC_INSERT%\\n}"
+            $MISSING_AUTOLOGIN   && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro"
+            RC_INSERT="$(printf '%b' "$RC_INSERT")"
 
-            python3 -c "
-import sys
-lines = open('$COMPOSE').readlines()
-insert = '''$(printf '%b' "$RC_INSERT")'''
-insert_lines = [l + '\n' for l in insert.split('\n') if l]
-lines = lines[:$RC_LAST_VOLUME_LINE] + insert_lines + lines[$RC_LAST_VOLUME_LINE:]
-open('$COMPOSE', 'w').writelines(lines)
-"
+            insert_after_line "$COMPOSE" "$RC_LAST_VOLUME_LINE" "$RC_INSERT"
+
             echo "Added volume mounts to roundcube in $COMPOSE"
         fi
 
