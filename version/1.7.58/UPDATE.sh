@@ -14,22 +14,105 @@ for env_file in /home/*/.env; do
     fi
 done
 
+
+# if mailserver!
 if [ -d "/usr/local/mail/openmail" ]; then
 
+    # SET UID AND CHOWN FOR EXISTING USERS
+    FILE="/usr/local/mail/openmail/docker-data/dms/config/postfix-accounts.cf"
+    declare -A DOMAIN_UID_CACHE
+    
+    get_openpanel_username_and_uid_for_domain() {
+        local domain="${1#*@}"
+        if [[ -n "${DOMAIN_UID_CACHE[$domain]}" ]]; then
+            OP_UID="${DOMAIN_UID_CACHE[$domain]}"
+            return
+        fi
+    
+        local whoowns_output owner uid
+        whoowns_output=$(opencli domains-whoowns "$domain")
+        owner=$(grep -oP "Owner of '$domain': \K.*" <<< "$whoowns_output")
+    
+        if [[ -n "$owner" && -d "/home/$owner" ]]; then
+            uid=$(stat -c '%u' "/home/$owner")
+        else
+            uid=5000
+        fi
+    
+        DOMAIN_UID_CACHE["$domain"]="$uid"
+        OP_UID="$uid"
+    }
+    
+    is_valid_email() {
+        local email="$1"
+        local email_regex='^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        [[ $email =~ $email_regex ]]
+    }
+    
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && continue
+    
+        last_field="${line##*|}"
+    
+        if [[ "$last_field" =~ ^[0-9]+$ ]]; then
+            continue
+        fi
+    
+        email="${line%%|*}"
+    
+        if ! is_valid_email "$email"; then
+            continue
+        fi
+    
+        domain="${email#*@}"
+
+        get_openpanel_username_and_uid_for_domain "$email"
+
+        if [[ -n "$OP_UID" && "$OP_UID" =~ ^[0-9]+$ ]]; then
+            new_line="${line}|${OP_UID}"
+            escaped_old="${line//|/\\|}"
+            escaped_new="${new_line//|/\\|}"
+            sed -i "s|^${escaped_old}$|${escaped_new}|" "$FILE"
+
+            mail_path="/var/mail/${domain}/${user}"
+            nohup timeout 300 docker --context=default exec openadmin_mailserver chown -R "${OP_UID}:${OP_UID}" "${mail_path}" >/dev/null 2>&1 &            
+        fi
+    
+    done < "$FILE"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # ALLOW UID TO BE SET FROM OPENPANEL AND DEFUALT EMAIL ADDRESS (ALIAS)
     sed -i 's|/usr/local/mail/openmail/:/usr/local/mail/openmail/:ro|/usr/local/mail/openmail/:/usr/local/mail/openmail/|g' "/root/docker-compose.yml"
 
+    # ADD OVERWRITES NEEDED FOR UID TO WORK
     if [ ! -d "/usr/local/mail/openmail/openpanel" ]; then
         mkdir -p /usr/local/mail/openmail/openpanel
         wget -O /usr/local/mail/openmail/openpanel/utils.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/utils.sh
         wget -O /usr/local/mail/openmail/openpanel/accounts.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/accounts.sh
     fi
 
+    # ADD CUSTOM PLUGINS TO ALLOW AUTOLOGIN TO WEBMAIL AND IMPERSONATION
     if [ ! -d "/usr/local/mail/openmail/roundcube-plugins" ]; then
         mkdir -p /usr/local/mail/openmail/roundcube-plugins
     fi
     wget -q -O "/usr/local/mail/openmail/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
     wget -q -O "/usr/local/mail/openmail/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
 
+    # ADD VOLUMES FOR ROUNDCUBE AND MAILSERVER
     if [ -f "/usr/local/mail/openmail/compose.yml" ]; then
         COMPOSE="/usr/local/mail/openmail/compose.yml"
 
@@ -43,7 +126,6 @@ if [ -d "/usr/local/mail/openmail" ]; then
         grep -qF -- './roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro' "$COMPOSE" && MISSING_IMPERSONATE=false
         grep -qF -- './roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro' "$COMPOSE" && MISSING_AUTOLOGIN=false
 
-        # Helper funkcija: ubaci linije nakon zadanog broja linije koristeći tmp fajl
         insert_after_line() {
             local FILE="$1"
             local LINE_NUM="$2"
