@@ -18,120 +18,139 @@ done
 
 if [ -d "$OPENMAIL_DIR" ]; then
 
-	# 1. edit openpanel contianer to NOT use :ro on the files
     sed -i 's|$OPENMAIL_DIR/:$OPENMAIL_DIR/:ro|$OPENMAIL_DIR/:$OPENMAIL_DIR/|g' "/root/docker-compose.yml"
 
-    # 2. download files for mail quotas
     if [ ! -d "$OPENMAIL_DIR/openpanel" ]; then
-    	mkdir -p $OPENMAIL_DIR/openpanel
-    	wget -O $OPENMAIL_DIR/openpanel/utils.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/utils.sh
-    	wget -O $OPENMAIL_DIR/openpanel/accounts.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/accounts.sh
+        mkdir -p $OPENMAIL_DIR/openpanel
+        wget -O $OPENMAIL_DIR/openpanel/utils.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/utils.sh
+        wget -O $OPENMAIL_DIR/openpanel/accounts.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/accounts.sh
     fi
-	
-	# 3. download roundcube plugins for webmail autologon
+
     if [ ! -d "$OPENMAIL_DIR/roundcube-plugins" ]; then
-    	mkdir -p $OPENMAIL_DIR/roundcube-plugins
-    	wget -q -O "$OPENMAIL_DIR/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
+        mkdir -p $OPENMAIL_DIR/roundcube-plugins
+        wget -q -O "$OPENMAIL_DIR/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
         wget -q -O "$OPENMAIL_DIR/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
     fi
 
-    # 4.edit mailserver to overwrite our files!
-	if [ -f "$OPENMAIL_DIR/compose.yml" ]; then
-	    COMPOSE="$OPENMAIL_DIR/compose.yml"
-	    
-	    MISSING_ACCOUNTS=true
-	    MISSING_UTILS=true
-	    MISSING_IMPERSONATE=true
-	    MISSING_AUTOLOGIN=true
-	    
-	    grep -qF './openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro' "$COMPOSE" && MISSING_ACCOUNTS=false
-	    grep -qF './openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro' "$COMPOSE" && MISSING_UTILS=false
-	    grep -qF './roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro' "$COMPOSE" && MISSING_IMPERSONATE=false
-	    grep -qF './roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro' "$COMPOSE" && MISSING_AUTOLOGIN=false
-	
-	    # --- mailserver volumes ---
-	    if $MISSING_ACCOUNTS || $MISSING_UTILS; then
-	        MAILSERVER_LINE=$(grep -n '^\s\{2\}mailserver:' "$COMPOSE" | cut -d: -f1)
-	        NEXT_SERVICE_LINE=$(awk "NR > $MAILSERVER_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
-	        
-	        VOLUMES_LINE=$(awk "NR > $MAILSERVER_LINE && NR < ${NEXT_SERVICE_LINE:-9999} && /^\s*volumes:/ { print NR; exit }" "$COMPOSE")
-	        
-	        if [ -z "$VOLUMES_LINE" ]; then
-	            echo "ERROR: Could not find volumes: section under mailserver service" >&2
-	            exit 1
-	        fi
-	        
-	        LAST_VOLUME_LINE=$(awk "NR > $VOLUMES_LINE && NR < ${NEXT_SERVICE_LINE:-9999} && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
-	        
-	        if [ "$LAST_VOLUME_LINE" -eq 0 ]; then
-	            echo "ERROR: Could not find any volume entries under mailserver" >&2
-	            exit 1
-	        fi
-	        
-	        INSERT=""
-			$MISSING_ACCOUNTS && INSERT="${INSERT}      - ./openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro\n"
-	        $MISSING_UTILS    && INSERT="${INSERT}      - ./openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro\n"
+    if [ -f "$OPENMAIL_DIR/compose.yml" ]; then
+        COMPOSE="$OPENMAIL_DIR/compose.yml"
 
-			INSERT="${INSERT%\\n}"
-			sed -i "${LAST_VOLUME_LINE}a\\${INSERT}" "$COMPOSE"	        
-	        echo "Added volume mounts to mailserver in $COMPOSE"
-	        echo "Restarting mailserver to use the overwrites for storage.."
-	        cd $OPENMAIL_DIR && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
-	        echo "done"
-	    fi
-	
-	    # --- roundcube volumes ---
-	    if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
-	        RC_LINE=$(grep -n '^\s\{2\}roundcube:' "$COMPOSE" | cut -d: -f1)
-	        RC_NEXT_SERVICE_LINE=$(awk "NR > $RC_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
-	
-	        RC_VOLUMES_LINE=$(awk "NR > $RC_LINE && NR < ${RC_NEXT_SERVICE_LINE:-9999} && /^\s*volumes:/ { print NR; exit }" "$COMPOSE")
-	
-	        if [ -z "$RC_VOLUMES_LINE" ]; then
-	            echo "ERROR: Could not find volumes: section under roundcube service" >&2
-	            exit 1
-	        fi
-	
-	        RC_LAST_VOLUME_LINE=$(awk "NR > $RC_VOLUMES_LINE && NR < ${RC_NEXT_SERVICE_LINE:-9999} && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
-	
-	        if [ "$RC_LAST_VOLUME_LINE" -eq 0 ]; then
-	            echo "ERROR: Could not find any volume entries under roundcube" >&2
-	            exit 1
-	        fi
-	
-	        RC_INSERT=""
-	        $MISSING_IMPERSONATE && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro\n"
-	        $MISSING_AUTOLOGIN   && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro\n"
-	
-	        sed -i "${RC_LAST_VOLUME_LINE}a\\$(printf '%b' "$RC_INSERT" | head -c -1)" "$COMPOSE"
-	
-	        echo "Added volume mounts to roundcube in $COMPOSE"
-	    fi
-	
-	    # --- roundcube ROUNDCUBEMAIL_PLUGINS env var ---
-	    if $MISSING_IMPERSONATE; then
-	        PLUGINS_LINE=$(grep -n 'ROUNDCUBEMAIL_PLUGINS=' "$COMPOSE" | cut -d: -f1)
-	        if [ -n "$PLUGINS_LINE" ]; then
-	            CURRENT=$(sed -n "${PLUGINS_LINE}p" "$COMPOSE")
-	            sed -i "${PLUGINS_LINE}s/\(ROUNDCUBEMAIL_PLUGINS=.*\)/\1,dovecot_impersonate/" "$COMPOSE"
-	            echo "Added dovecot_impersonate to ROUNDCUBEMAIL_PLUGINS in $COMPOSE"
-	        else
-	            echo "WARNING: ROUNDCUBEMAIL_PLUGINS= line not found in $COMPOSE" >&2
-	        fi
-	    fi
-	
-	    # restart roundcube if any roundcube changes were made
-	    if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
-	        echo "Restarting roundcube to apply changes.."
-	        cd $OPENMAIL_DIR && docker --context=default compose down roundcube && docker --context=default compose up -d roundcube
-	        echo "done"
-	    fi
-	fi
+        MISSING_ACCOUNTS=true
+        MISSING_UTILS=true
+        MISSING_IMPERSONATE=true
+        MISSING_AUTOLOGIN=true
+
+        # FIX: koristimo grep -F -- da spriječimo tumačenje - kao opcije
+        grep -qF -- './openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro' "$COMPOSE" && MISSING_ACCOUNTS=false
+        grep -qF -- './openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro' "$COMPOSE" && MISSING_UTILS=false
+        grep -qF -- './roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro' "$COMPOSE" && MISSING_IMPERSONATE=false
+        grep -qF -- './roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro' "$COMPOSE" && MISSING_AUTOLOGIN=false
+
+        # --- mailserver volumes ---
+        if $MISSING_ACCOUNTS || $MISSING_UTILS; then
+            MAILSERVER_LINE=$(grep -n '^\s\{2\}mailserver:' "$COMPOSE" | cut -d: -f1)
+            NEXT_SERVICE_LINE=$(awk "NR > $MAILSERVER_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
+
+            VOLUMES_LINE=$(awk "NR > $MAILSERVER_LINE && NR < ${NEXT_SERVICE_LINE:-9999} && /^\s*volumes:/ { print NR; exit }" "$COMPOSE")
+
+            if [ -z "$VOLUMES_LINE" ]; then
+                echo "ERROR: Could not find volumes: section under mailserver service" >&2
+                exit 1
+            fi
+
+            VOLUMES_END_LINE=$(awk "NR > $VOLUMES_LINE && /^\s{4}[a-z_]/ { print NR; exit }" "$COMPOSE")
+            if [ -z "$VOLUMES_END_LINE" ]; then
+                VOLUMES_END_LINE="${NEXT_SERVICE_LINE:-9999}"
+            fi
+
+            LAST_VOLUME_LINE=$(awk "NR > $VOLUMES_LINE && NR < $VOLUMES_END_LINE && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
+
+            if [ "$LAST_VOLUME_LINE" -eq 0 ]; then
+                echo "ERROR: Could not find any volume entries under mailserver volumes:" >&2
+                exit 1
+            fi
+
+            # FIX: koristimo privremeni fajl umjesto sed inline append da izbjegnemo problem sa - u stringu
+            INSERT=""
+            $MISSING_ACCOUNTS && INSERT="${INSERT}      - ./openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro\n"
+            $MISSING_UTILS    && INSERT="${INSERT}      - ./openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro\n"
+            INSERT="${INSERT%\\n}"
+
+            python3 -c "
+import sys
+lines = open('$COMPOSE').readlines()
+insert = '''$(printf '%b' "$INSERT")'''
+insert_lines = [l + '\n' for l in insert.split('\n') if l]
+lines = lines[:$LAST_VOLUME_LINE] + insert_lines + lines[$LAST_VOLUME_LINE:]
+open('$COMPOSE', 'w').writelines(lines)
+"
+            echo "Added volume mounts to mailserver in $COMPOSE"
+            echo "Restarting mailserver to use the overwrites for storage.."
+            cd $OPENMAIL_DIR && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
+            echo "done"
+        fi
+
+        # --- roundcube volumes ---
+        if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
+            RC_LINE=$(grep -n '^\s\{2\}roundcube:' "$COMPOSE" | cut -d: -f1)
+            RC_NEXT_SERVICE_LINE=$(awk "NR > $RC_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
+
+            RC_VOLUMES_LINE=$(awk "NR > $RC_LINE && NR < ${RC_NEXT_SERVICE_LINE:-9999} && /^\s*volumes:/ { print NR; exit }" "$COMPOSE")
+
+            if [ -z "$RC_VOLUMES_LINE" ]; then
+                echo "ERROR: Could not find volumes: section under roundcube service" >&2
+                exit 1
+            fi
+
+            RC_VOLUMES_END_LINE=$(awk "NR > $RC_VOLUMES_LINE && /^\s{4}[a-z_]/ { print NR; exit }" "$COMPOSE")
+            if [ -z "$RC_VOLUMES_END_LINE" ]; then
+                RC_VOLUMES_END_LINE="${RC_NEXT_SERVICE_LINE:-9999}"
+            fi
+
+            RC_LAST_VOLUME_LINE=$(awk "NR > $RC_VOLUMES_LINE && NR < $RC_VOLUMES_END_LINE && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
+
+            if [ "$RC_LAST_VOLUME_LINE" -eq 0 ]; then
+                echo "ERROR: Could not find any volume entries under roundcube volumes:" >&2
+                exit 1
+            fi
+
+            RC_INSERT=""
+            $MISSING_IMPERSONATE && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro\n"
+            $MISSING_AUTOLOGIN   && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro\n"
+            RC_INSERT="${RC_INSERT%\\n}"
+
+            python3 -c "
+import sys
+lines = open('$COMPOSE').readlines()
+insert = '''$(printf '%b' "$RC_INSERT")'''
+insert_lines = [l + '\n' for l in insert.split('\n') if l]
+lines = lines[:$RC_LAST_VOLUME_LINE] + insert_lines + lines[$RC_LAST_VOLUME_LINE:]
+open('$COMPOSE', 'w').writelines(lines)
+"
+            echo "Added volume mounts to roundcube in $COMPOSE"
+        fi
+
+        # --- roundcube ROUNDCUBEMAIL_PLUGINS env var ---
+        if $MISSING_IMPERSONATE; then
+            PLUGINS_LINE=$(grep -n 'ROUNDCUBEMAIL_PLUGINS=' "$COMPOSE" | cut -d: -f1)
+            if [ -n "$PLUGINS_LINE" ]; then
+                sed -i "${PLUGINS_LINE}s/ROUNDCUBEMAIL_PLUGINS=\(.*\)/ROUNDCUBEMAIL_PLUGINS=\1,dovecot_impersonate/" "$COMPOSE"
+                echo "Added dovecot_impersonate to ROUNDCUBEMAIL_PLUGINS in $COMPOSE"
+            else
+                echo "WARNING: ROUNDCUBEMAIL_PLUGINS= line not found in $COMPOSE" >&2
+            fi
+        fi
+
+        if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
+            echo "Restarting roundcube to apply changes.."
+            cd $OPENMAIL_DIR && docker --context=default compose down roundcube && docker --context=default compose up -d roundcube
+            echo "done"
+        fi
+    fi
 fi
 
 
-
-# ADD WWW NETOWRK FOR BACKUP SERVICE
+# ADD WWW NETWORK FOR BACKUP SERVICE
 COMPOSE="/etc/openpanel/docker/compose/1.0/docker-compose.yml"
 
 if [ -f "$COMPOSE" ]; then
@@ -161,6 +180,3 @@ if [ -f "$COMPOSE" ]; then
         echo "backup service already has 'www' network, no changes needed."
     fi
 fi
-
-
-
