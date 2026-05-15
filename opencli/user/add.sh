@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 12.05.2026
+# Last Modified: 14.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -354,26 +354,45 @@ load_plan() {
     [[ -n "$PLAN_ID" ]] || die "Plan '$PLAN_NAME' not found."
 }
 
-pull_images() {
+autostart_services() {
+	local AUTOSTART_FILE="/etc/openpanel/docker/compose/1.0/autostart.services"
+
     [[ "$SKIP_IMAGE_PULL" == true ]] && { log "Skipping image pull (--skip-images)."; return 0; }
-    
+
     local env_file="/home/${USERNAME}/.env"
     [[ -f "$env_file" ]] || { warn "$env_file not found; skipping image pull."; return 1; }
 
-    # https://community.openpanel.org/d/239-no-such-container-openlitespeed
+	# https://community.openpanel.org/d/239-no-such-container-openlitespeed
     get_env() { grep -E "^$1=" "$env_file" | cut -d= -f2- | tr -d '\r"'\'; }
-
-    local sql_type ws_type
+    local sql_type ws_type php_version php_svc
     sql_type="$(get_env MYSQL_TYPE)"
     ws_type="$(get_env WEB_SERVER)"
+	php_version="$(get_env DEFAULT_PHP_VERSION)"
+    varnish="$(get_env PROXY_HTTP_PORT)"
+    php_svc="php-fpm-${php_version}"
+
+    [[ -f "$AUTOSTART_FILE" ]] || { warn "$AUTOSTART_FILE not found; skipping image pull."; return 1; }
+
+    local autostart
+    mapfile -t autostart < <(grep -v '^\s*#' "$AUTOSTART_FILE" | grep -v '^\s*$')
 
     local images=()
-    [[ "$sql_type" =~ ^(mysql|mariadb)$ ]] && images+=("$sql_type")
-    [[ "$ws_type"  =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]] && images+=("$ws_type")
-    [[ ${#images[@]} -eq 0 ]] && { warn "No valid images to pull."; return 1; }
 
-    #log "Pulling images in background: ${images[*]}"
-    nohup sh -c "cd /home/${USERNAME}/ && docker --context=${USERNAME} compose pull ${images[*]}" </dev/null >/dev/null 2>&1 &
+    [[ "$php_version" =~ ^[0-9]+\.[0-9]+$ ]] && [[ " ${autostart[*]} " == *" $php_svc "* ]] && images+=("$php_svc")
+    [[ "$sql_type" =~ ^(mysql|mariadb)$ ]] && [[ " ${autostart[*]} " == *" $sql_type "* ]] && images+=("$sql_type")
+	[[ -n "$varnish" ]] && [[ " ${autostart[*]} " == *" varnish "* ]] && images+=("varnish")
+    [[ "$ws_type" =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]] && [[ " ${autostart[*]} " == *" $ws_type "* ]] && images+=("$ws_type")
+
+    local sql_ws_types="mysql mariadb nginx apache openresty openlitespeed litespeed"
+    for svc in "${autostart[@]}"; do
+        [[ " $sql_ws_types " == *" $svc "* ]] && continue           # only webserver and sql type for user, ignore others
+        [[ "$svc" == php-fpm-* || "$svc" == varnish ]] && continue  # nly current default php version and varnish if enabled
+        images+=("$svc")
+    done
+
+    [[ ${#images[@]} -eq 0 ]] && { warn "No autostart services match user config."; return 1; }
+	#log "Starting services in background: ${images[*]}"
+	nohup sh -c "cd /home/${USERNAME}/ && for svc in ${images[*]}; do docker --context=${USERNAME} compose up -d \$svc || true; done" </dev/null >/dev/null 2>&1 &
     disown
 }
 
@@ -960,7 +979,7 @@ create_docker_context
 # 6. validate docker service is started for user (socket exists), compose command and context are working
 wait $PID_ROOTLESS_INSTALL
 test_docker_service
-pull_images &
+autostart_services &
 
 ########################################################################
 # 8. save and notify

@@ -2,6 +2,7 @@ opencli admin
 opencli api
 opencli config
 opencli docker
+opencli docker-autostart
 opencli docker-backup
 opencli docker-collect_stats
 opencli docker-images
