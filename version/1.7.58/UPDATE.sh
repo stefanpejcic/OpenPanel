@@ -41,10 +41,15 @@ if [ -d "$OPENMAIL_DIR" ]; then
 	    
 	    MISSING_ACCOUNTS=true
 	    MISSING_UTILS=true
+	    MISSING_IMPERSONATE=true
+	    MISSING_AUTOLOGIN=true
 	    
 	    grep -qF './openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro' "$COMPOSE" && MISSING_ACCOUNTS=false
 	    grep -qF './openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro' "$COMPOSE" && MISSING_UTILS=false
-	    
+	    grep -qF './roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro' "$COMPOSE" && MISSING_IMPERSONATE=false
+	    grep -qF './roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro' "$COMPOSE" && MISSING_AUTOLOGIN=false
+	
+	    # --- mailserver volumes ---
 	    if $MISSING_ACCOUNTS || $MISSING_UTILS; then
 	        MAILSERVER_LINE=$(grep -n '^\s\{2\}mailserver:' "$COMPOSE" | cut -d: -f1)
 	        NEXT_SERVICE_LINE=$(awk "NR > $MAILSERVER_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
@@ -70,16 +75,92 @@ if [ -d "$OPENMAIL_DIR" ]; then
 	        sed -i "${LAST_VOLUME_LINE}a\\$(printf '%b' "$INSERT" | head -c -1)" "$COMPOSE"
 	        
 	        echo "Added volume mounts to mailserver in $COMPOSE"
-
 	        echo "Restarting mailserver to use the overwrites for storage.."
-	 		cd $OPENMAIL_DIR && docker --context=default compsoe down mailserver && docker --context=default compsoe up -d mailserver
-	 		echo "done"
+	        cd $OPENMAIL_DIR && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
+	        echo "done"
+	    fi
+	
+	    # --- roundcube volumes ---
+	    if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
+	        RC_LINE=$(grep -n '^\s\{2\}roundcube:' "$COMPOSE" | cut -d: -f1)
+	        RC_NEXT_SERVICE_LINE=$(awk "NR > $RC_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
+	
+	        RC_VOLUMES_LINE=$(awk "NR > $RC_LINE && NR < ${RC_NEXT_SERVICE_LINE:-9999} && /^\s*volumes:/ { print NR; exit }" "$COMPOSE")
+	
+	        if [ -z "$RC_VOLUMES_LINE" ]; then
+	            echo "ERROR: Could not find volumes: section under roundcube service" >&2
+	            exit 1
+	        fi
+	
+	        RC_LAST_VOLUME_LINE=$(awk "NR > $RC_VOLUMES_LINE && NR < ${RC_NEXT_SERVICE_LINE:-9999} && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
+	
+	        if [ "$RC_LAST_VOLUME_LINE" -eq 0 ]; then
+	            echo "ERROR: Could not find any volume entries under roundcube" >&2
+	            exit 1
+	        fi
+	
+	        RC_INSERT=""
+	        $MISSING_IMPERSONATE && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/dovecot_impersonate:/var/www/html/plugins/dovecot_impersonate:ro\n"
+	        $MISSING_AUTOLOGIN   && RC_INSERT="${RC_INSERT}      - ./roundcube-plugins/autologin.php:/var/www/html/public_html/autologin.php:ro\n"
+	
+	        sed -i "${RC_LAST_VOLUME_LINE}a\\$(printf '%b' "$RC_INSERT" | head -c -1)" "$COMPOSE"
+	
+	        echo "Added volume mounts to roundcube in $COMPOSE"
+	    fi
+	
+	    # --- roundcube ROUNDCUBEMAIL_PLUGINS env var ---
+	    if $MISSING_IMPERSONATE; then
+	        PLUGINS_LINE=$(grep -n 'ROUNDCUBEMAIL_PLUGINS=' "$COMPOSE" | cut -d: -f1)
+	        if [ -n "$PLUGINS_LINE" ]; then
+	            CURRENT=$(sed -n "${PLUGINS_LINE}p" "$COMPOSE")
+	            sed -i "${PLUGINS_LINE}s/\(ROUNDCUBEMAIL_PLUGINS=.*\)/\1,dovecot_impersonate/" "$COMPOSE"
+	            echo "Added dovecot_impersonate to ROUNDCUBEMAIL_PLUGINS in $COMPOSE"
+	        else
+	            echo "WARNING: ROUNDCUBEMAIL_PLUGINS= line not found in $COMPOSE" >&2
+	        fi
+	    fi
+	
+	    # restart roundcube if any roundcube changes were made
+	    if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
+	        echo "Restarting roundcube to apply changes.."
+	        cd $OPENMAIL_DIR && docker --context=default compose down roundcube && docker --context=default compose up -d roundcube
+	        echo "done"
 	    fi
 	fi
 fi
 
 
 
+# ADD WWW NETOWRK FOR BACKUP SERVICE
+COMPOSE="/etc/openpanel/docker/compose/1.0/docker-compose.yml"
+
+if [ -f "$COMPOSE" ]; then
+    BACKUP_LINE=$(grep -n '^\s\{2\}backup:' "$COMPOSE" | cut -d: -f1)
+    NEXT_SERVICE_LINE=$(awk "NR > $BACKUP_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
+
+    HAS_WWW=$(awk "NR > $BACKUP_LINE && NR < ${NEXT_SERVICE_LINE:-9999} && /^\s*- www$/ { found=1 } END { print found+0 }" "$COMPOSE")
+
+    if [ "$HAS_WWW" -eq 0 ]; then
+        BACKUP_NETWORKS_LINE=$(awk "NR > $BACKUP_LINE && NR < ${NEXT_SERVICE_LINE:-9999} && /^\s*networks:/ { print NR; exit }" "$COMPOSE")
+
+        if [ -z "$BACKUP_NETWORKS_LINE" ]; then
+            echo "ERROR: Could not find networks: section under backup service" >&2
+            exit 1
+        fi
+
+        LAST_NETWORK_LINE=$(awk "NR > $BACKUP_NETWORKS_LINE && NR < ${NEXT_SERVICE_LINE:-9999} && /^\s*- / { last=NR } END { print last+0 }" "$COMPOSE")
+
+        if [ "$LAST_NETWORK_LINE" -eq 0 ]; then
+            echo "ERROR: Could not find any network entries under backup" >&2
+            exit 1
+        fi
+
+        sed -i "${LAST_NETWORK_LINE}a\\      - www" "$COMPOSE"
+        echo "Added 'www' network to backup service in $COMPOSE"
+    else
+        echo "backup service already has 'www' network, no changes needed."
+    fi
+fi
 
 
 
