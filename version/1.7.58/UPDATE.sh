@@ -26,9 +26,9 @@ if [ -d "/usr/local/mail/openmail" ]; then
 
     if [ ! -d "/usr/local/mail/openmail/roundcube-plugins" ]; then
         mkdir -p /usr/local/mail/openmail/roundcube-plugins
-        wget -q -O "/usr/local/mail/openmail/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
-        wget -q -O "/usr/local/mail/openmail/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
     fi
+    wget -q -O "/usr/local/mail/openmail/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
+    wget -q -O "/usr/local/mail/openmail/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
 
     if [ -f "/usr/local/mail/openmail/compose.yml" ]; then
         COMPOSE="/usr/local/mail/openmail/compose.yml"
