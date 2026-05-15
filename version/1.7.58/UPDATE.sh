@@ -229,6 +229,7 @@ fi
 COMPOSE="/etc/openpanel/docker/compose/1.0/docker-compose.yml"
 
 if [ -f "$COMPOSE" ]; then
+    cp -r $COMPOSE /etc/openpanel/docker/compose/1.0/docker-compose_backup_before_1.7.58_update.yml
     BACKUP_LINE=$(grep -n '^\s\{2\}backup:' "$COMPOSE" | cut -d: -f1)
     NEXT_SERVICE_LINE=$(awk "NR > $BACKUP_LINE && /^  [a-z]/ { print NR; exit }" "$COMPOSE")
 
