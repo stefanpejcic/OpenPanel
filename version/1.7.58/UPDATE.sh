@@ -1,7 +1,5 @@
 #!/bin/bash
 
-OPENMAIL_DIR="/usr/local/mail/openmail"
-
 wget -q -O "/etc/openpanel/caddy/check.conf" https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/caddy/check.conf
 
 # create symlinks for user files
@@ -16,24 +14,24 @@ for env_file in /home/*/.env; do
     fi
 done
 
-if [ -d "$OPENMAIL_DIR" ]; then
+if [ -d "/usr/local/mail/openmail" ]; then
 
-    sed -i 's|$OPENMAIL_DIR/:$OPENMAIL_DIR/:ro|$OPENMAIL_DIR/:$OPENMAIL_DIR/|g' "/root/docker-compose.yml"
+    sed -i 's|/usr/local/mail/openmail/:/usr/local/mail/openmail/:ro|/usr/local/mail/openmail/:/usr/local/mail/openmail/|g' "/root/docker-compose.yml"
 
-    if [ ! -d "$OPENMAIL_DIR/openpanel" ]; then
-        mkdir -p $OPENMAIL_DIR/openpanel
-        wget -O $OPENMAIL_DIR/openpanel/utils.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/utils.sh
-        wget -O $OPENMAIL_DIR/openpanel/accounts.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/accounts.sh
+    if [ ! -d "/usr/local/mail/openmail/openpanel" ]; then
+        mkdir -p /usr/local/mail/openmail/openpanel
+        wget -O /usr/local/mail/openmail/openpanel/utils.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/utils.sh
+        wget -O /usr/local/mail/openmail/openpanel/accounts.sh https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/openpanel/accounts.sh
     fi
 
-    if [ ! -d "$OPENMAIL_DIR/roundcube-plugins" ]; then
-        mkdir -p $OPENMAIL_DIR/roundcube-plugins
-        wget -q -O "$OPENMAIL_DIR/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
-        wget -q -O "$OPENMAIL_DIR/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
+    if [ ! -d "/usr/local/mail/openmail/roundcube-plugins" ]; then
+        mkdir -p /usr/local/mail/openmail/roundcube-plugins
+        wget -q -O "/usr/local/mail/openmail/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
+        wget -q -O "/usr/local/mail/openmail/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
     fi
 
-    if [ -f "$OPENMAIL_DIR/compose.yml" ]; then
-        COMPOSE="$OPENMAIL_DIR/compose.yml"
+    if [ -f "/usr/local/mail/openmail/compose.yml" ]; then
+        COMPOSE="/usr/local/mail/openmail/compose.yml"
 
         MISSING_ACCOUNTS=true
         MISSING_UTILS=true
@@ -89,7 +87,7 @@ if [ -d "$OPENMAIL_DIR" ]; then
 
             echo "Added volume mounts to mailserver in $COMPOSE"
             echo "Restarting mailserver to use the overwrites for storage.."
-            cd $OPENMAIL_DIR && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
+            cd /usr/local/mail/openmail && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
             echo "done"
         fi
 
@@ -138,7 +136,7 @@ if [ -d "$OPENMAIL_DIR" ]; then
 
         if $MISSING_IMPERSONATE || $MISSING_AUTOLOGIN; then
             echo "Restarting roundcube to apply changes.."
-            cd $OPENMAIL_DIR && docker --context=default compose down roundcube && docker --context=default compose up -d roundcube
+            cd /usr/local/mail/openmail && docker --context=default compose down roundcube && docker --context=default compose up -d roundcube
             echo "done"
         fi
     fi
