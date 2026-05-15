@@ -26,6 +26,9 @@ wget -q -O "$OPENMAIL_DIR/roundcube-plugins/dovecot_impersonate/dovecot_imperson
 wget -q -O "$OPENMAIL_DIR/roundcube-plugins/autologin.py" \
     https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
 
+wget -q -O "/etc/openpanel/caddy/check.conf"    \
+    https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/caddy/check.conf
+
 # ── 3. Check and patch compose.yml ──────────────────────────────────────────
 
 if [ ! -f "$COMPOSE_FILE" ]; then
