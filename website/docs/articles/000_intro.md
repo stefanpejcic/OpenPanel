@@ -91,6 +91,7 @@ sidebar_position: 1
 - [How to enable and access RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/)
 - [Setup DKIM for Mailserver](/docs/articles/email/how-to-setup-dkim-for-mailserver/)
 - [Setup Fail2ban for Mailserver](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/)
+- [Offload Email Storage to a Remote NFS Server](/docs/articles/email/how-to-use-remote-server-for-emails-in-openpanel/)
 - [Troubleshooting Email Errors](/docs/articles/email/troubleshooting-email-errors/)
 
 # Updates
