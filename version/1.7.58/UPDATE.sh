@@ -69,11 +69,11 @@ if [ -d "$OPENMAIL_DIR" ]; then
 	        fi
 	        
 	        INSERT=""
-	        $MISSING_ACCOUNTS && INSERT="${INSERT}      - ./openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro\n"
+			$MISSING_ACCOUNTS && INSERT="${INSERT}      - ./openpanel/accounts.sh:/usr/local/bin/helpers/accounts.sh:ro\n"
 	        $MISSING_UTILS    && INSERT="${INSERT}      - ./openpanel/utils.sh:/usr/local/bin/helpers/utils.sh:ro\n"
-	        
-	        sed -i "${LAST_VOLUME_LINE}a\\$(printf '%b' "$INSERT" | head -c -1)" "$COMPOSE"
-	        
+
+			INSERT="${INSERT%\\n}"
+			sed -i "${LAST_VOLUME_LINE}a\\${INSERT}" "$COMPOSE"	        
 	        echo "Added volume mounts to mailserver in $COMPOSE"
 	        echo "Restarting mailserver to use the overwrites for storage.."
 	        cd $OPENMAIL_DIR && docker --context=default compose down mailserver && docker --context=default compose up -d mailserver
