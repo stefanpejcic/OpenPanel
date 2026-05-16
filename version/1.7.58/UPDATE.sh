@@ -1,6 +1,6 @@
 #!/bin/bash
 
-timeout 3s mysql panel -e "ALTER TABLE users ADD UNIQUE KEY 'uniq_username' ('username');"
+timeout 3s mysql panel -e "ALTER TABLE users ADD UNIQUE KEY uniq_username (username);"
 
 wget -q -O "/etc/openpanel/caddy/check.conf" https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/caddy/check.conf
 
