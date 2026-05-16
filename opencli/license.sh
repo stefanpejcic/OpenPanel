@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 14.05.2026
+# Last Modified: 15.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -148,7 +148,7 @@ manage_compose_volumes() {
 
     VOLUMES=(
     "/root/.ssh/:/root/.ssh/:ro"
-    "/usr/local/mail/openmail/:/usr/local/mail/openmail/:ro"
+    "/usr/local/mail/openmail/:/usr/local/mail/openmail/"
     "/etc/openpanel/openpanel/custom_code/:/templates/custom_code/:ro"
     "/etc/openpanel/openpanel/custom_code/custom.css:/static/css/custom.css:ro"
     "/etc/openpanel/openpanel/custom_code/custom.js:/static/js/custom.js:ro"

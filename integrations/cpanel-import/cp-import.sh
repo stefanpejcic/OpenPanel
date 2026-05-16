@@ -1197,27 +1197,28 @@ import_email_accounts_and_data() {
 
 	local temp_email_password=$(tr -dc 'A-Za-z0-9' </dev/urandom | head -c 16)
 
-	# Loop through each folder in the base dir
+	OPENPANEL_UID=$(id -u $cpanel_username)
+
     for dir_path in "$base_dir"/*/; do
 	    shadow_file="$dir_path/shadow"
 	    if [[ -f "$shadow_file" && -s "$shadow_file" ]]; then
 	        domain=$(basename "$dir_path")
 	        owner=$(opencli domains-whoowns "$domain" | awk -F': ' '{print $2}')
 	        if [[ "$owner" == "$cpanel_username" ]]; then
-				# cpanel format: emailtest:$6$7XrOu5w5Iou8b1wj$dHcNUF0017EMLtue2X/nM2AlEoU8OS5TkyCR9QDEG8FcUOePTASdbDRhsU6ImxbGGiL7OdpJkNksWYqlvNSam/:20536::::::
+				# cpanel format: <user>:<sha_hash>/:<uid>::::::
 				while IFS=: read -r username password_hash rest; do
 				    [[ -z "$username" || -z "$password_hash" ]] && continue
 				    email="${username}@${domain}"
 				    log "Importing mailbox: $email"
 				    opencli email-setup email add "$email" "$temp_email_password" >/dev/null 2>&1
-					# openpanel format: emailtest@openpanel.org|{SHA512-CRYPT}$6$yspsXbUo.nkxXIs6$4x.rqdVe8dGaLWKZhlbmO5xFEgverG/ESS8.Cz3w9qH1GP6coXu7qs1CBFSE1co6cYHuVIqFS9bJR0PUcH3EZ0
-					sed -i.bak "/^${email}|/c\\${email}|{SHA512-CRYPT}${password_hash}" "$postfix_file"
+					# openpanel format: <user>@<domain>|{SHA512-CRYPT}<sha_hash>|<uid>
+					sed -i.bak "/^${email}|/c\\${email}|{SHA512-CRYPT}${password_hash}|${OPENPANEL_UID}" "$postfix_file"
 				done < "$shadow_file"
 
 				# 2. move mails
-				# openpanel storage: $STORE_EMAILS_IN/stefantestira.rs/emailtest2 OR /home/stefan/mail/stefantestira.rs/emailtest2
+				# openpanel stores emails in: $STORE_EMAILS_IN/<domain>/<user>
 				if [ "$mailbox_format" = "maildir" ] || [ "$mailbox_format" = "ma" ]; then
-					# cpanel storage: extract/backup-3.24.2026_14-03-06_stefantestira/homedir/mail/stefantestira.rs/emailtest2
+					# cpanel stores email in: extract/<backup_filename>/homedir/mail/<domain>/<user>
 					if [ -d "/home/$cpanel_username/docker-data/volumes/${cpanel_username}_html_data/_data/mail/$domain/$username" ]; then
 						log "Restoring mailboxes to $STORE_EMAILS_IN/$domain/"
 						rsync -av --remove-source-files "/home/$cpanel_username/docker-data/volumes/${cpanel_username}_html_data/_data/mail/$domain/." "$STORE_EMAILS_IN/$domain/"
