@@ -4,19 +4,18 @@
 
 | Version| Release date | 
 |---|---|
-|__[1.7.58](/docs/changelog/1.7.58)__| May 21, 2026 |
 |__[1.8.0](/docs/changelog/1.8.0)__| September 10, 2026 |
 
 ### Latest
 
 | Version| Release date | 
 |---|---|
-|__[1.7.57](/docs/changelog/1.7.57)__| May 08, 2026 |
+|__[1.7.58](/docs/changelog/1.7.58)__| May 17, 2026 |
 
 ### Previous versions
-
 | Version| Release date | 
 |---|---|
+|__[1.7.57](/docs/changelog/1.7.57)__| May 08, 2026 |
 |__[1.7.56](/docs/changelog/1.7.56)__| May 01, 2026 |
 |__[1.7.55](/docs/changelog/1.7.55)__| April 18, 2026 |
 |__[1.7.54](/docs/changelog/1.7.54)__| April 17, 2026 |
