@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.58\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-05-13 18:31+0200\n"
+"POT-Creation-Date: 2026-05-16 14:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -120,9 +120,9 @@ msgstr ""
 #: modules/domain/redirects.py:58 modules/domain/redirects.py:132
 #: modules/domain/redirects.py:193 modules/domain/ssl.py:33
 #: modules/domains.py:422 modules/domains.py:456 modules/domains.py:481
-#: modules/domains.py:514 modules/domains.py:583 modules/emails.py:247
-#: modules/emails.py:355 modules/emails.py:560 modules/emails.py:638
-#: modules/emails.py:1007 modules/emails.py:1115 modules/emails.py:1210
+#: modules/domains.py:514 modules/domains.py:583 modules/emails.py:234
+#: modules/emails.py:425 modules/emails.py:630 modules/emails.py:708
+#: modules/emails.py:1077 modules/emails.py:1185 modules/emails.py:1280
 #: modules/goaccess.py:23 modules/json/favicons.py:33
 #: modules/json/screenshots.py:74 modules/mautic.py:93 modules/mautic.py:190
 #: modules/mautic.py:431 modules/mautic.py:595 modules/mautic.py:788
@@ -192,7 +192,7 @@ msgstr ""
 msgid "DNS zone saved and DNS service restarted."
 msgstr ""
 
-#: modules/docker.py:242 templates/dashboard/dashboard.html:206
+#: modules/docker.py:242 templates/dashboard/dashboard.html:207
 #: templates/docker/containers.html:9 templates/docker/volumes_TODO.html:10
 msgid "Containers"
 msgstr ""
@@ -229,7 +229,7 @@ msgstr ""
 msgid "Delete service"
 msgstr ""
 
-#: modules/docker.py:945 templates/dashboard/dashboard.html:209
+#: modules/docker.py:945 templates/dashboard/dashboard.html:210
 #: templates/docker/images.html:10
 msgid "Image Updates"
 msgstr ""
@@ -242,7 +242,7 @@ msgstr ""
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1058 templates/dashboard/dashboard.html:208
+#: modules/docker.py:1058 templates/dashboard/dashboard.html:209
 #: templates/manager/python_node_apps.html:130
 #: templates/manager/python_node_apps.html:160
 #: templates/partials/_service_log.html:11 templates/system/cronjobs.html:332
@@ -284,25 +284,30 @@ msgstr ""
 msgid "Unsuspend"
 msgstr ""
 
-#: modules/emails.py:278
-msgid "Filter edited successfully."
-msgstr ""
-
-#: modules/emails.py:280
-msgid "Error editing filter."
-msgstr ""
-
-#: modules/emails.py:286 templates/dashboard/dashboard.html:194
+#: modules/emails.py:260 modules/emails.py:298 modules/emails.py:335
+#: templates/dashboard/dashboard.html:194
 msgid "Filters"
 msgstr ""
 
-#: modules/emails.py:341
+#: modules/emails.py:286 modules/emails.py:319
+msgid "No content provided."
+msgstr ""
+
+#: modules/emails.py:291 modules/emails.py:324
+msgid "Filter saved successfully."
+msgstr ""
+
+#: modules/emails.py:293 modules/emails.py:326
+msgid "Error saving filter."
+msgstr ""
+
+#: modules/emails.py:411
 msgid ""
 "Webmail service is not yet started, please contact Administrator to "
 "enable it."
 msgstr ""
 
-#: modules/emails.py:374 modules/mysqld/mysql_import.py:81
+#: modules/emails.py:444 modules/mysqld/mysql_import.py:81
 #: modules/mysqld/mysql_import.py:92 modules/mysqld/mysql_import.py:105
 #: modules/psql/postgresql_import.py:62 modules/psql/postgresql_import.py:67
 #: modules/psql/postgresql_import.py:70 modules/psql/postgresql_import.py:81
@@ -310,79 +315,79 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: modules/emails.py:378
+#: modules/emails.py:448
 msgid "Error: No file uploaded."
 msgstr ""
 
-#: modules/emails.py:388
+#: modules/emails.py:458
 msgid "Error: Unsupported file format, please upload a .csv or .xls file."
 msgstr ""
 
-#: modules/emails.py:395
+#: modules/emails.py:465
 msgid "Error: File must have at least 2 columns: email, password"
 msgstr ""
 
-#: modules/emails.py:404
+#: modules/emails.py:474
 msgid ""
 "Error: File is invalid - the first column must contain valid email "
 "addresses."
 msgstr ""
 
-#: modules/emails.py:431
+#: modules/emails.py:501
 msgid "Confirm Import"
 msgstr ""
 
-#: modules/emails.py:441
+#: modules/emails.py:511
 msgid "Error: No import data found, please try again."
 msgstr ""
 
-#: modules/emails.py:569
+#: modules/emails.py:639
 msgid "Error: reached max number of email accounts on the hosting plan."
 msgstr ""
 
-#: modules/emails.py:610 templates/files/ftp_new.html:200
+#: modules/emails.py:680 templates/files/ftp_new.html:200
 msgid "Create Account"
 msgstr ""
 
-#: modules/emails.py:627
+#: modules/emails.py:697
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:777
+#: modules/emails.py:847
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:794 templates/emails/accounts.html:113
+#: modules/emails.py:864 templates/emails/accounts.html:113
 #: templates/emails/info.html:9
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:808
+#: modules/emails.py:878
 msgid "Error: Invalid configuration type."
 msgstr ""
 
-#: modules/emails.py:991 templates/dashboard/dashboard.html:193
+#: modules/emails.py:1061 templates/dashboard/dashboard.html:193
 #: templates/emails/aliases.html:9
 msgid "Aliases"
 msgstr ""
 
-#: modules/emails.py:1033
+#: modules/emails.py:1103
 msgid "Error: a valid target email address is required."
 msgstr ""
 
-#: modules/emails.py:1111
+#: modules/emails.py:1181
 msgid "Error: target must be a valid email address."
 msgstr ""
 
-#: modules/emails.py:1132 templates/emails/aliases.html:35
+#: modules/emails.py:1202 templates/emails/aliases.html:35
 msgid "New Alias"
 msgstr ""
 
-#: modules/emails.py:1154 templates/emails/alias_detail.html:108
+#: modules/emails.py:1224 templates/emails/alias_detail.html:108
 msgid "Delete Alias"
 msgstr ""
 
-#: modules/emails.py:1207 modules/emails.py:1218
+#: modules/emails.py:1277 modules/emails.py:1288
 msgid "Default Email"
 msgstr ""
 
@@ -391,7 +396,7 @@ msgstr ""
 msgid "GoAccess"
 msgstr ""
 
-#: modules/info.py:22 templates/dashboard/dashboard.html:226
+#: modules/info.py:22 templates/dashboard/dashboard.html:227
 #: templates/system/server_info.html:8
 msgid "Server Information"
 msgstr ""
@@ -416,7 +421,7 @@ msgstr ""
 msgid "Error ocured blocking IP addresses - contact Administrator"
 msgstr ""
 
-#: modules/ip_blocker.py:90 templates/dashboard/dashboard.html:218
+#: modules/ip_blocker.py:90 templates/dashboard/dashboard.html:219
 #: templates/system/ip_blocker.html:15
 msgid "IP Blocker"
 msgstr ""
@@ -857,7 +862,7 @@ msgid ""
 "{database_name}"
 msgstr ""
 
-#: modules/process_manager.py:96 templates/dashboard/dashboard.html:221
+#: modules/process_manager.py:96 templates/dashboard/dashboard.html:222
 #: templates/system/process_manager.html:8
 msgid "Process Manager"
 msgstr ""
@@ -878,12 +883,12 @@ msgstr ""
 msgid "An error occurred while fetching resource usage."
 msgstr ""
 
-#: modules/usage.py:31 templates/dashboard/dashboard.html:219
+#: modules/usage.py:31 templates/dashboard/dashboard.html:220
 #: templates/user/stats.html:18
 msgid "Resource Usage"
 msgstr ""
 
-#: modules/usage.py:84 templates/dashboard/dashboard.html:220
+#: modules/usage.py:84 templates/dashboard/dashboard.html:221
 msgid "Resource Usage History"
 msgstr ""
 
@@ -920,7 +925,7 @@ msgstr ""
 msgid "Domain not found or unauthorized"
 msgstr ""
 
-#: modules/waf.py:420 templates/dashboard/dashboard.html:225
+#: modules/waf.py:420 templates/dashboard/dashboard.html:226
 #: templates/system/waf_logs.html:260
 msgid "WAF Logs"
 msgstr ""
@@ -1161,7 +1166,7 @@ msgstr ""
 msgid "Reset Password"
 msgstr ""
 
-#: modules/account/locale.py:71 templates/dashboard/dashboard.html:231
+#: modules/account/locale.py:71 templates/dashboard/dashboard.html:232
 #: templates/user/_login.html:96 templates/user/locale.html:10
 msgid "Change Language"
 msgstr ""
@@ -1214,7 +1219,7 @@ msgstr ""
 msgid "Invalid 2FA code. Please try again."
 msgstr ""
 
-#: modules/account/login_history.py:21 templates/dashboard/dashboard.html:237
+#: modules/account/login_history.py:21 templates/dashboard/dashboard.html:238
 #: templates/user/loginlog.html:10
 msgid "Login History"
 msgstr ""
@@ -1223,7 +1228,7 @@ msgstr ""
 msgid "Notification Preferences"
 msgstr ""
 
-#: modules/account/sessions.py:46 templates/dashboard/dashboard.html:234
+#: modules/account/sessions.py:46 templates/dashboard/dashboard.html:235
 #: templates/user/active_sessions.html:10
 msgid "Active Sessions"
 msgstr ""
@@ -1252,7 +1257,7 @@ msgstr ""
 msgid "Two-Factor Authentication is now disabled."
 msgstr ""
 
-#: modules/account/twofa.py:74 templates/dashboard/dashboard.html:233
+#: modules/account/twofa.py:74 templates/dashboard/dashboard.html:234
 #: templates/dashboard/twofa.html:6 templates/user/twofa_settings.html:10
 msgid "Two-Factor Authentication"
 msgstr ""
@@ -1800,11 +1805,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:805
+#: modules/json/helpers.py:806
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:811
+#: modules/json/helpers.py:812
 msgid "Database configuration not found"
 msgstr ""
 
@@ -1864,7 +1869,7 @@ msgstr ""
 msgid "Remote MySQL"
 msgstr ""
 
-#: modules/phpd/php_ini.py:15 templates/dashboard/dashboard.html:202
+#: modules/phpd/php_ini.py:15 templates/dashboard/dashboard.html:203
 msgid "PHP.INI Editor"
 msgstr ""
 
@@ -2214,75 +2219,79 @@ msgid "Email Accounts"
 msgstr ""
 
 #: templates/dashboard/dashboard.html:195
+msgid "Default Address"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:196
 msgid "Address Importer"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:199
+#: templates/dashboard/dashboard.html:200
 msgid "Select PHP version"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:200
+#: templates/dashboard/dashboard.html:201
 msgid "Default Version"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:201
+#: templates/dashboard/dashboard.html:202
 msgid "PHP Options"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:207
+#: templates/dashboard/dashboard.html:208
 msgid "Terminal"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:210
+#: templates/dashboard/dashboard.html:211
 msgid "Change Image tag"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:211
+#: templates/dashboard/dashboard.html:212
 msgid "Change webserver"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:212
+#: templates/dashboard/dashboard.html:213
 msgid "Change MySQL Type"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:216 templates/partials/_header.html:47
+#: templates/dashboard/dashboard.html:217 templates/partials/_header.html:47
 msgid "Services"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:217
+#: templates/dashboard/dashboard.html:218
 #: templates/files/backup_settings.html:97 templates/system/cronjobs.html:24
 msgid "Cron Jobs"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:222
+#: templates/dashboard/dashboard.html:223
 msgid "Change TimeZone"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:223
+#: templates/dashboard/dashboard.html:224
 msgid "Webserver Configuration"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:224
+#: templates/dashboard/dashboard.html:225
 msgid "WAF Settings"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:230 templates/user/account.html:10
+#: templates/dashboard/dashboard.html:231 templates/user/account.html:10
 msgid "Email & Password"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:232 templates/user/notifications.html:10
+#: templates/dashboard/dashboard.html:233 templates/user/notifications.html:10
 msgid "Email Notifications"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:235
+#: templates/dashboard/dashboard.html:236
 msgid "Favorite Pages"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:236
+#: templates/dashboard/dashboard.html:237
 msgid "Account Activity"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:238
+#: templates/dashboard/dashboard.html:239
 msgid "Log out"
 msgstr ""
 
@@ -2542,7 +2551,7 @@ msgstr ""
 #: templates/docker/containers.html:264 templates/docker/containers.html:318
 #: templates/domains/capitalize.html:114 templates/domains/dns.html:138
 #: templates/domains/dns.html:367 templates/domains/domains.html:273
-#: templates/domains/domains.html:303 templates/emails/default_address.html:131
+#: templates/domains/domains.html:303 templates/emails/default_address.html:132
 #: templates/files/edit_file.html:166 templates/mysql/phpmyadmin.html:130
 #: templates/mysql/phpmyadmin.html:158 templates/mysql/phpmyadmin.html:187
 #: templates/mysql/phpmyadmin.html:215 templates/psql/pgadmin.html:128
@@ -3760,7 +3769,7 @@ msgid "Add Destination"
 msgstr ""
 
 #: templates/emails/alias_detail.html:99
-#: templates/emails/default_address.html:142
+#: templates/emails/default_address.html:143
 msgid "Danger zone"
 msgstr ""
 
@@ -3773,7 +3782,7 @@ msgid "Removes the alias address and all its destinations permanently."
 msgstr ""
 
 #: templates/emails/alias_detail.html:148
-#: templates/emails/default_address.html:213
+#: templates/emails/default_address.html:214
 msgid "Removing..."
 msgstr ""
 
@@ -3924,9 +3933,9 @@ msgid "Catch any email that is sent to an invalid email address for your domain.
 msgstr ""
 
 #: templates/emails/default_address.html:15
-#: templates/emails/default_address.html:63 templates/emails/filter.html:42
-#: templates/emails/import.html:45 templates/emails/info.html:56
-#: templates/emails/new.html:350 templates/emails/single_account.html:334
+#: templates/emails/default_address.html:63 templates/emails/import.html:45
+#: templates/emails/info.html:56 templates/emails/new.html:350
+#: templates/emails/single_account.html:334
 msgid "Back to Emails"
 msgstr ""
 
@@ -3950,42 +3959,46 @@ msgstr ""
 msgid "catchall@example.com"
 msgstr ""
 
-#: templates/emails/default_address.html:121
+#: templates/emails/default_address.html:118
+msgid "No spaces allowed, use commas to separate addresses."
+msgstr ""
+
+#: templates/emails/default_address.html:122
 msgid ""
 "All emails sent to any address at this domain will be forwarded here. "
 "Leave empty to reject unmatched emails."
 msgstr ""
 
-#: templates/emails/default_address.html:148
+#: templates/emails/default_address.html:149
 msgid "Remove catch-all"
 msgstr ""
 
-#: templates/emails/default_address.html:149
+#: templates/emails/default_address.html:150
 msgid ""
 "Deletes the catch-all rule. Emails to unknown addresses at this domain "
 "will be rejected."
 msgstr ""
 
-#: templates/emails/default_address.html:155
+#: templates/emails/default_address.html:156
 msgid "Remove Catch-all"
 msgstr ""
 
-#: templates/emails/default_address.html:186
+#: templates/emails/default_address.html:187
 msgid "Saving..."
 msgstr ""
 
-#: templates/emails/default_address.html:194
+#: templates/emails/default_address.html:195
 #: templates/manager/grapejs_editor.html:128
 msgid "Failed to save."
 msgstr ""
 
-#: templates/emails/default_address.html:209
+#: templates/emails/default_address.html:210
 msgid ""
 "Remove the catch-all for this domain? Emails to unknown addresses will be"
 " rejected."
 msgstr ""
 
-#: templates/emails/default_address.html:221
+#: templates/emails/default_address.html:222
 msgid "Failed to remove catch-all."
 msgstr ""
 
@@ -3999,7 +4012,7 @@ msgid ""
 "emails."
 msgstr ""
 
-#: templates/emails/delete.html:78 templates/emails/filter.html:60
+#: templates/emails/delete.html:78
 msgid "Select Email"
 msgstr ""
 
@@ -4007,33 +4020,222 @@ msgstr ""
 msgid "Select email address to delete."
 msgstr ""
 
-#: templates/emails/delete.html:95 templates/emails/filter.html:78
+#: templates/emails/delete.html:95 templates/emails/filter.html:28
 msgid "Select address"
 msgstr ""
 
-#: templates/emails/filter.html:13
+#: templates/emails/filter.html:9 templates/emails/filter.html:45
 msgid "Email Filters"
 msgstr ""
 
-#: templates/emails/filter.html:14
-msgid "Sieve filters for email"
+#: templates/emails/filter.html:11
+msgid "Select an email address to manage its Sieve filters."
 msgstr ""
 
-#: templates/emails/filter.html:29
-msgid "Current Filters"
-msgstr ""
-
-#: templates/emails/filter.html:46
-msgid "Save Filter"
-msgstr ""
-
-#: templates/emails/filter.html:61
-msgid "Select email address to edit filters."
-msgstr ""
-
-#: templates/emails/filter.html:62 templates/emails/import.html:10
+#: templates/emails/filter.html:14 templates/emails/import.html:10
 #: templates/files/edit_file.html:118 templates/php/options.html:154
 msgid "Documentation"
+msgstr ""
+
+#: templates/emails/filter.html:25 templates/emails/single_account.html:50
+#: templates/user/account.html:59
+msgid "Email address"
+msgstr ""
+
+#: templates/emails/filter.html:47
+msgid "Sieve filters for"
+msgstr ""
+
+#: templates/emails/filter.html:54
+msgid "Visual editor"
+msgstr ""
+
+#: templates/emails/filter.html:59
+msgid "File editor"
+msgstr ""
+
+#: templates/emails/filter.html:69
+msgid "Rules are applied in order, top to bottom."
+msgstr ""
+
+#: templates/emails/filter.html:74
+msgid "Add filter"
+msgstr ""
+
+#: templates/emails/filter.html:81
+msgid "No filters yet."
+msgstr ""
+
+#: templates/emails/filter.html:84
+msgid "Create first filter"
+msgstr ""
+
+#: templates/emails/filter.html:94
+msgid "Filter name…"
+msgstr ""
+
+#: templates/emails/filter.html:98
+msgid "Move up"
+msgstr ""
+
+#: templates/emails/filter.html:102
+msgid "Move down"
+msgstr ""
+
+#: templates/emails/filter.html:106
+msgid "Remove filter"
+msgstr ""
+
+#: templates/emails/filter.html:116
+msgid "If"
+msgstr ""
+
+#: templates/emails/filter.html:119
+msgid "any"
+msgstr ""
+
+#: templates/emails/filter.html:120
+msgid "all"
+msgstr ""
+
+#: templates/emails/filter.html:122
+msgid "of these match:"
+msgstr ""
+
+#: templates/emails/filter.html:129
+msgid "From"
+msgstr ""
+
+#: templates/emails/filter.html:130
+msgid "Subject"
+msgstr ""
+
+#: templates/emails/filter.html:131
+msgid "To"
+msgstr ""
+
+#: templates/emails/filter.html:132
+msgid "Any recipient"
+msgstr ""
+
+#: templates/emails/filter.html:133
+msgid "Body"
+msgstr ""
+
+#: templates/emails/filter.html:134
+msgid "Any header"
+msgstr ""
+
+#: templates/emails/filter.html:135
+msgid "Spam status"
+msgstr ""
+
+#: templates/emails/filter.html:136
+msgid "Spam score"
+msgstr ""
+
+#: templates/emails/filter.html:137
+msgid "List ID"
+msgstr ""
+
+#: templates/emails/filter.html:141
+msgid "contains"
+msgstr ""
+
+#: templates/emails/filter.html:142
+msgid "does not contain"
+msgstr ""
+
+#: templates/emails/filter.html:143
+msgid "equals"
+msgstr ""
+
+#: templates/emails/filter.html:144
+msgid "begins with"
+msgstr ""
+
+#: templates/emails/filter.html:145
+msgid "ends with"
+msgstr ""
+
+#: templates/emails/filter.html:146
+msgid "matches regex"
+msgstr ""
+
+#: templates/emails/filter.html:147
+msgid "does not match regex"
+msgstr ""
+
+#: templates/emails/filter.html:149
+msgid "Value…"
+msgstr ""
+
+#: templates/emails/filter.html:152
+msgid "Remove condition"
+msgstr ""
+
+#: templates/emails/filter.html:156
+msgid "Add condition"
+msgstr ""
+
+#: templates/emails/filter.html:166
+msgid "Then:"
+msgstr ""
+
+#: templates/emails/filter.html:172
+msgid "Deliver to folder"
+msgstr ""
+
+#: templates/emails/filter.html:173
+msgid "Redirect to email"
+msgstr ""
+
+#: templates/emails/filter.html:174
+msgid "Discard message"
+msgstr ""
+
+#: templates/emails/filter.html:175
+msgid "Reject with message"
+msgstr ""
+
+#: templates/emails/filter.html:176
+msgid "Mark as read"
+msgstr ""
+
+#: templates/emails/filter.html:177
+msgid "Flag / star"
+msgstr ""
+
+#: templates/emails/filter.html:178
+msgid "Stop processing"
+msgstr ""
+
+#: templates/emails/filter.html:186
+msgid "Remove action"
+msgstr ""
+
+#: templates/emails/filter.html:190
+msgid "Add action"
+msgstr ""
+
+#: templates/emails/filter.html:207
+msgid "Save filters"
+msgstr ""
+
+#: templates/emails/filter.html:225
+msgid "Save file"
+msgstr ""
+
+#: templates/emails/filter.html:276
+msgid "Folder name, e.g. Junk"
+msgstr ""
+
+#: templates/emails/filter.html:278
+msgid "Rejection message…"
+msgstr ""
+
+#: templates/emails/filter.html:279
+msgid "Flag, e.g. \\\\Flagged"
 msgstr ""
 
 #: templates/emails/import.html:24
@@ -4158,10 +4360,6 @@ msgstr ""
 
 #: templates/emails/single_account.html:31
 msgid "Edit Email account"
-msgstr ""
-
-#: templates/emails/single_account.html:50 templates/user/account.html:59
-msgid "Email address"
 msgstr ""
 
 #: templates/emails/single_account.html:58
@@ -4744,8 +4942,8 @@ msgstr ""
 #: templates/files/filemanager/actions_buttons.html:6
 #: templates/files/filemanager/inline_js_todo.html:87
 #: templates/files/filemanager/inline_js_todo.html:145
-#: templates/files/filemanager/inline_js_todo.html:233
-#: templates/files/filemanager/inline_js_todo.html:351
+#: templates/files/filemanager/inline_js_todo.html:251
+#: templates/files/filemanager/inline_js_todo.html:369
 #: templates/files/filemanager/inline_js_trash.html:250
 #: templates/files/filemanager/inline_js_trash.html:303
 #: templates/files/filemanager/inline_js_trash.html:383
@@ -4983,11 +5181,21 @@ msgstr ""
 msgid "Deselect"
 msgstr ""
 
-#: templates/files/filemanager/inline_js_todo.html:328
+#: templates/files/filemanager/inline_js_todo.html:192
+msgid "Calculating..."
+msgstr ""
+
+#: templates/files/filemanager/inline_js_todo.html:234
+#: templates/files/filemanager/table.html:97
+#: templates/files/filemanager/table_trash.html:88
+msgid "Calculate"
+msgstr ""
+
+#: templates/files/filemanager/inline_js_todo.html:346
 msgid "selected"
 msgstr ""
 
-#: templates/files/filemanager/inline_js_todo.html:786
+#: templates/files/filemanager/inline_js_todo.html:804
 msgid "Change permissions for"
 msgstr ""
 
@@ -5061,11 +5269,6 @@ msgstr ""
 #: templates/files/filemanager/table.html:24
 #: templates/files/filemanager/table_trash.html:34
 msgid "Link target"
-msgstr ""
-
-#: templates/files/filemanager/table.html:97
-#: templates/files/filemanager/table_trash.html:88
-msgid "Calculate"
 msgstr ""
 
 #: templates/files/filemanager/table_trash.html:15

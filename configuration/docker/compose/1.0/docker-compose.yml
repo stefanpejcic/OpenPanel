@@ -393,6 +393,8 @@ services:
       discovery.type: single-node
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+  volumes:
+    - es_data:/usr/share/elasticsearch/data
     deploy:
       resources:
         limits:
@@ -419,6 +421,8 @@ services:
       DISABLE_SECURITY_PLUGIN: "true"
       OPENSEARCH_INITIAL_ADMIN_PASSWORD: "${OPENSEARCH_INITIAL_ADMIN_PASSWORD:-iIybFJOgznCYmpOO}"
       DISABLE_INSTALL_DEMO_CONFIG: "true"
+  volumes:
+    - es_data:/usr/share/opensearch/data      
     deploy:
       resources:
         limits:
@@ -882,6 +886,11 @@ volumes:
     labels:
       description: "This volume holds the Nginx/Apache vhost files."
       purpose: "configuration"
+  es_data:
+    driver: local
+    labels:
+      description: "This volume holds the ElasticSearch/OpenSearch data."
+      purpose: "storage"
   pg_data:
     driver: local
     labels:

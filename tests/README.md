@@ -10,3 +10,11 @@ Re-download tests from git:
 cd ~/playwright-test && git pull
 ```
 
+
+---
+
+Server install:
+
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-tests/refs/heads/main/INSTALL.sh)
+```

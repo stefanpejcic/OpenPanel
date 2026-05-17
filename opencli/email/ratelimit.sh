@@ -5,7 +5,7 @@
 # Usage: opencli email-ratelimit
 # Author: Stefan Pejcic
 # Created: 03.12.2025
-# Last Modified: 15.05.2026
+# Last Modified: 16.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -178,20 +178,19 @@ EOF
     ID=$(rule_id "$USERNAME" "$DOMAIN")
 
     if grep -q "^id=${ID} " "$OUTPUT" 2>/dev/null; then
-        echo "Rule exists — updating: $ID"
+        echo "Updating: $ID"
         tmp=$(mktemp)
         remove_rule_by_id "$ID" "$OUTPUT" > "$tmp"
         build_rule "$USERNAME" "$LIMIT" "$DOMAIN" >> "$tmp"
         mv "$tmp" "$OUTPUT"
     else
-        echo "Rule missing — adding: $ID"
+        echo "Adding: $ID"
         build_rule "$USERNAME" "$LIMIT" "$DOMAIN" >> "$OUTPUT"
     fi
 
     chmod 644 "$OUTPUT"
     echo "OK: $USERNAME limit=${LIMIT}/hr domain=${DOMAIN}"
     echo "---"
-    echo "Done. $(wc -l < "$OUTPUT") lines in $OUTPUT"
 }
 
 mode_delete_user() {
@@ -246,6 +245,13 @@ mode_delete_domain() {
     echo "Done. $(wc -l < "$OUTPUT") lines in $OUTPUT"
 }
 
+enterprise=$(grep "^key=" "/etc/openpanel/openpanel/conf/openpanel.config" | cut -d'=' -f2-)
+if [ -z "$enterprise" ]; then
+    echo "Error: OpenPanel Community edition does not support emails. Please consider purchasing the Enterprise version that allows email management."
+    source "/usr/local/opencli/enterprise.sh"
+    echo "$ENTERPRISE_LINK"
+    exit 0 #purposely
+fi
 
 # MAIN
 OPTMODE="show"
@@ -258,7 +264,7 @@ for arg in "$@"; do
         --domain=*)         OPTMODE="domain";        OPTVAL="${arg#--domain=}" ;;
         --delete-user=*)    OPTMODE="delete-user";   OPTVAL="${arg#--delete-user=}" ;;
         --delete-domain=*)  OPTMODE="delete-domain"; OPTVAL="${arg#--delete-domain=}" ;;
-        --skip-reload)      SKIP_RELOAD=true" ;;
+        --skip-reload)      SKIP_RELOAD=true ;;
         --help|-h)          usage ;;
         *) echo "Unknown argument: $arg"; usage ;;
     esac
@@ -287,5 +293,6 @@ esac
 
 if [ "$SKIP_RELOAD" = false ]; then
     # reload conf, keep counters!
-    nohup docker --context=default kill --signal=HUP postfwd & disown
+	nohup docker --context=default kill --signal=HUP postfwd >/dev/null 2>&1 &
+	disown
 fi

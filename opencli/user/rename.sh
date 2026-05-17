@@ -5,7 +5,7 @@
 # Usage: opencli user-rename <old_username> <new_username>
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 15.05.2026
+# Last Modified: 16.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -211,15 +211,18 @@ mv_user_data() {
 rename_user_in_db() {
     OLD_USERNAME=$1
     NEW_USERNAME=$2
-    
-    # Update the username in the database with the suspended prefix
+
     mysql_query="UPDATE users SET username='$NEW_USERNAME' WHERE username='$OLD_USERNAME';"
-    
     mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
 
     if [ $? -eq 0 ]; then
+		# postfwd ratelimit rules use usernames
+		nohup bash -c "opencli email-ratelimit --delete-user=$OLD_USERNAME && opencli email-ratelimit --username=$NEW_USERNAME" >/dev/null 2>&1 &
+		disown
+
 	    nohup opencli sentinel --action=user_rename --title="User accountu username changed" --message="Username for user account '$OLD_USERNAME' has been changed to: '$NEW_USERNAME'." >/dev/null 2>&1 &
 		disown
+
         echo "User '$OLD_USERNAME' successfully renamed to '$NEW_USERNAME'."
     else
         echo "Error: Changing username in database failed!"
@@ -227,7 +230,7 @@ rename_user_in_db() {
 }
 
 rename_env(){
-		sed -i -E "s/^USERNAME=.*/USERNAME=\"${NEW_USERNAME}\"/" "$file"
+	sed -i -E "s/^USERNAME=.*/USERNAME=\"${NEW_USERNAME}\"/" "$file"
 }
 
 
