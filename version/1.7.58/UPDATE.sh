@@ -77,7 +77,8 @@ if [ -d "/usr/local/mail/openmail" ]; then
             escaped_new="${new_line//|/\\|}"
             sed -i "s|^${escaped_old}$|${escaped_new}|" "$FILE"
 
-            mail_path="/var/mail/${domain}/${user}"
+            local_part="${email%%@*}"
+            mail_path="/var/mail/${domain}/${local_part}"            
             nohup timeout 300 docker --context=default exec openadmin_mailserver chown -R "${OP_UID}:${OP_UID}" "${mail_path}" >/dev/null 2>&1 &            
         fi
     
@@ -229,6 +230,7 @@ fi
 
 
 # ADD WWW NETWORK FOR BACKUP SERVICE
+# this fails on older versions that had NO network at all for backup service - thats false positive
 COMPOSE="/etc/openpanel/docker/compose/1.0/docker-compose.yml"
 
 if [ -f "$COMPOSE" ]; then
