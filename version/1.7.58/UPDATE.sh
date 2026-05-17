@@ -22,6 +22,7 @@ if [ -d "/usr/local/mail/openmail" ]; then
 
     # SET UID AND CHOWN FOR EXISTING USERS
     FILE="/usr/local/mail/openmail/docker-data/dms/config/postfix-accounts.cf"
+    cp -r $FILE /usr/local/mail/openmail/docker-data/dms/config/postfix-accounts_backup_before_1.7.58_update.cf
     declare -A DOMAIN_UID_CACHE
     
     get_openpanel_username_and_uid_for_domain() {
