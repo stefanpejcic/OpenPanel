@@ -114,7 +114,6 @@ if [ -d "/usr/local/mail/openmail" ]; then
         mkdir -p /usr/local/mail/openmail/roundcube-plugins
     fi
     wget -q -O "/usr/local/mail/openmail/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/dovecot_impersonate/dovecot_impersonate.php
-    wget -q -O "/usr/local/mail/openmail/roundcube-plugins/autologin.py" https://raw.githubusercontent.com/stefanpejcic/OpenMail/refs/heads/main/roundcube-plugins/autologin.py
 
     # ADD VOLUMES FOR ROUNDCUBE AND MAILSERVER
     if [ -f "/usr/local/mail/openmail/compose.yml" ]; then
