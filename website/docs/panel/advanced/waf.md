@@ -8,6 +8,8 @@ The Web Application Firewall (WAF) interface allows OpenPanel users to toggle Co
 
 ![waf.png](/img/panel/v2/waf.png)
 
+## Manage domain
+
 Clicking a domain name opens the rule management page where you can disable individual rules for that domain.
 
 ![waf.png](/img/panel/v2/waf_rules.png)
@@ -27,7 +29,9 @@ The OWASP Core Rule Set is enabled by default for all newly added domains.
 
 ## WAF Logs
 
-WAF logs can be viewed by clicking the **View Logs** button in the top right corner.
+WAF logs can be viewed by clicking the **View Logs** button for domain.
+
+![waf.png](/img/panel/v2/waf_logs.png)
 
 ### Reading the Logs
 
