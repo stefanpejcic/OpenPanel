@@ -48,10 +48,8 @@ Coraza logs all checked requests, not just blocked ones. The key columns are:
   application-multi, language-shell, platform-windows, attack-rce, paranoia-level/1, OWASP_CRS, OWASP_CRS/ATTACK-RCE, capec/1000/152/248/88
   ```
   When disabling by tag, use the attack category tags such as `attack-rce` or `attack-xss`. Avoid broad tags like `OWASP_CRS` or `paranoia-level/1` as they would disable large portions of the ruleset.
-
-  :::warning
   Disabling rules by tag removes them globally for the entire domain. For false positives on specific pages (e.g. `/wp-admin`), disabling by ID is the safer approach as it can be scoped more precisely.
-  :::
+
 **`messages.msg`** — the human-readable reason the rule fired, for example:
   ```
   Remote Command Execution: Windows Command Injection
