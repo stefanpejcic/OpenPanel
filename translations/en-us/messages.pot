@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.58\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-05-16 14:02+0200\n"
+"POT-Creation-Date: 2026-05-17 22:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -31,7 +31,7 @@ msgstr ""
 msgid "User not authenticated"
 msgstr ""
 
-#: modules/autoinstaller.py:71 templates/dashboard/dashboard.html:177
+#: modules/autoinstaller.py:62 templates/dashboard/dashboard.html:177
 #: templates/manager/autoinstaller.html:7
 msgid "Auto Installer"
 msgstr ""
@@ -122,7 +122,7 @@ msgstr ""
 #: modules/domains.py:422 modules/domains.py:456 modules/domains.py:481
 #: modules/domains.py:514 modules/domains.py:583 modules/emails.py:234
 #: modules/emails.py:425 modules/emails.py:630 modules/emails.py:708
-#: modules/emails.py:1077 modules/emails.py:1185 modules/emails.py:1280
+#: modules/emails.py:1067 modules/emails.py:1175 modules/emails.py:1270
 #: modules/goaccess.py:23 modules/json/favicons.py:33
 #: modules/json/screenshots.py:74 modules/mautic.py:93 modules/mautic.py:190
 #: modules/mautic.py:431 modules/mautic.py:595 modules/mautic.py:788
@@ -133,7 +133,7 @@ msgstr ""
 #: modules/website_builder.py:290 modules/websites.py:35
 #: modules/websites.py:232 modules/websites.py:293 modules/websites.py:455
 #: modules/websites.py:539 modules/websites.py:991 modules/wordpress.py:593
-#: modules/wordpress.py:952 modules/wordpress.py:1065 modules/wordpress.py:1695
+#: modules/wordpress.py:953 modules/wordpress.py:1066 modules/wordpress.py:1699
 msgid "You do not own this domain."
 msgstr ""
 
@@ -353,41 +353,41 @@ msgstr ""
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:847
+#: modules/emails.py:840
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:864 templates/emails/accounts.html:113
+#: modules/emails.py:854 templates/emails/accounts.html:113
 #: templates/emails/info.html:9
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:878
+#: modules/emails.py:868
 msgid "Error: Invalid configuration type."
 msgstr ""
 
-#: modules/emails.py:1061 templates/dashboard/dashboard.html:193
+#: modules/emails.py:1051 templates/dashboard/dashboard.html:193
 #: templates/emails/aliases.html:9
 msgid "Aliases"
 msgstr ""
 
-#: modules/emails.py:1103
+#: modules/emails.py:1093
 msgid "Error: a valid target email address is required."
 msgstr ""
 
-#: modules/emails.py:1181
+#: modules/emails.py:1171
 msgid "Error: target must be a valid email address."
 msgstr ""
 
-#: modules/emails.py:1202 templates/emails/aliases.html:35
+#: modules/emails.py:1192 templates/emails/aliases.html:35
 msgid "New Alias"
 msgstr ""
 
-#: modules/emails.py:1224 templates/emails/alias_detail.html:108
+#: modules/emails.py:1214 templates/emails/alias_detail.html:108
 msgid "Delete Alias"
 msgstr ""
 
-#: modules/emails.py:1277 modules/emails.py:1288
+#: modules/emails.py:1267 modules/emails.py:1278
 msgid "Default Email"
 msgstr ""
 
@@ -455,8 +455,8 @@ msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:423 modules/mautic.py:589 modules/website_builder.py:71
-#: modules/website_builder.py:116 modules/wordpress.py:930
-#: modules/wordpress.py:1058
+#: modules/website_builder.py:116 modules/wordpress.py:931
+#: modules/wordpress.py:1059
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -719,7 +719,7 @@ msgstr ""
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:467 modules/website_builder.py:238 modules/wordpress.py:1527
+#: modules/pm2.py:467 modules/website_builder.py:238 modules/wordpress.py:1531
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
@@ -1040,53 +1040,53 @@ msgstr ""
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:941
+#: modules/wordpress.py:942
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:990
+#: modules/wordpress.py:991
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:1019
+#: modules/wordpress.py:1020
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:1026
+#: modules/wordpress.py:1027
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:1038
+#: modules/wordpress.py:1039
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:1081
+#: modules/wordpress.py:1082
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:1086
+#: modules/wordpress.py:1088
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:1089
+#: modules/wordpress.py:1091
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1286 modules/wordpress.py:1504
+#: modules/wordpress.py:1289 modules/wordpress.py:1508
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1315 templates/manager/wp/list.html:473
+#: modules/wordpress.py:1318 templates/manager/wp/list.html:473
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1469
+#: modules/wordpress.py:1472
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1539 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1543 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:8
 msgid "Install WordPress"
 msgstr ""
@@ -1734,7 +1734,7 @@ msgstr ""
 msgid "Fix Permissions"
 msgstr ""
 
-#: modules/files/ftp.py:69 modules/files/ftp.py:73
+#: modules/files/ftp.py:70 modules/files/ftp.py:74
 #: templates/cache/service.html:26 templates/domains/ssl.html:61
 #: templates/files/ftp.html:13 templates/manager/python_node_apps.html:70
 #: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:76
@@ -1743,24 +1743,24 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/files/ftp.py:122 modules/files/ftp.py:143 modules/files/ftp.py:221
-#: modules/files/ftp.py:297
+#: modules/files/ftp.py:123 modules/files/ftp.py:144 modules/files/ftp.py:223
+#: modules/files/ftp.py:300
 msgid "FTP service is not yet started, please contact Administrator to enable it."
 msgstr ""
 
-#: modules/files/ftp.py:131
+#: modules/files/ftp.py:132
 msgid "No currently active FTP connections"
 msgstr ""
 
-#: modules/files/ftp.py:350
+#: modules/files/ftp.py:353
 msgid "Invalid configuration type, please use cyberduck or filezilla only!"
 msgstr ""
 
-#: modules/files/ftp.py:360
+#: modules/files/ftp.py:363
 msgid "User has no FTP accounts."
 msgstr ""
 
-#: modules/files/ftp.py:378
+#: modules/files/ftp.py:381
 msgid "FTP account not found."
 msgstr ""
 
@@ -2720,7 +2720,7 @@ msgstr ""
 
 #: templates/docker/delete_confirm.html:48 templates/domains/dns.html:140
 #: templates/domains/dns.html:369 templates/domains/domains.html:275
-#: templates/domains/domains.html:305 templates/emails/alias_delete.html:30
+#: templates/domains/domains.html:305 templates/emails/alias_delete.html:26
 #: templates/emails/delete.html:32 templates/manager/mautic.html:458
 #: templates/manager/mautic.html:508
 #: templates/manager/python_node_apps.html:893
@@ -3010,7 +3010,7 @@ msgid "Address"
 msgstr ""
 
 #: templates/domains/dns.html:165 templates/domains/dns.html:176
-#: templates/domains/new.html:45 templates/emails/alias_new.html:22
+#: templates/domains/new.html:45 templates/emails/alias_new.html:21
 #: templates/emails/new.html:23 templates/manager/wp/list.html:118
 #: templates/mysql/phpmyadmin.html:238 templates/php/settings.html:153
 msgid "Domain"
@@ -3666,7 +3666,7 @@ msgstr ""
 msgid "Webmail"
 msgstr ""
 
-#: templates/emails/accounts.html:112 templates/emails/aliases.html:85
+#: templates/emails/accounts.html:112 templates/emails/aliases.html:82
 #: templates/manager/sites.html:9 templates/manager/sites.html:238
 #: templates/manager/wp/list.html:141 templates/partials/_service.html:54
 msgid "Manage"
@@ -3690,24 +3690,24 @@ msgid ""
 " address will no longer be forwarded."
 msgstr ""
 
-#: templates/emails/alias_delete.html:40 templates/emails/delete.html:39
+#: templates/emails/alias_delete.html:35 templates/emails/delete.html:39
 #: templates/manager/websitebuilder.html:251
 msgid "Confirm Delete"
 msgstr ""
 
-#: templates/emails/alias_delete.html:68
+#: templates/emails/alias_delete.html:63
 msgid "Failed to delete alias."
 msgstr ""
 
-#: templates/emails/alias_delete.html:83
+#: templates/emails/alias_delete.html:78
 msgid "Select Alias"
 msgstr ""
 
-#: templates/emails/alias_delete.html:84
+#: templates/emails/alias_delete.html:79
 msgid "Select an alias to delete."
 msgstr ""
 
-#: templates/emails/alias_delete.html:95
+#: templates/emails/alias_delete.html:90
 msgid "Select alias"
 msgstr ""
 
@@ -3715,7 +3715,7 @@ msgstr ""
 msgid "Manage Alias"
 msgstr ""
 
-#: templates/emails/alias_detail.html:13 templates/emails/alias_new.html:88
+#: templates/emails/alias_detail.html:13 templates/emails/alias_new.html:55
 msgid "Back to Aliases"
 msgstr ""
 
@@ -3756,7 +3756,7 @@ msgstr ""
 msgid "New destination address"
 msgstr ""
 
-#: templates/emails/alias_detail.html:75 templates/emails/alias_new.html:73
+#: templates/emails/alias_detail.html:75 templates/emails/alias_new.html:43
 msgid "destination@example.com"
 msgstr ""
 
@@ -3806,27 +3806,27 @@ msgstr ""
 msgid "Forward mail from an alias address to any destination."
 msgstr ""
 
-#: templates/emails/alias_new.html:40
+#: templates/emails/alias_new.html:32
 msgid "Alias address"
 msgstr ""
 
-#: templates/emails/alias_new.html:48
+#: templates/emails/alias_new.html:34
 msgid "alias"
 msgstr ""
 
-#: templates/emails/alias_new.html:60
+#: templates/emails/alias_new.html:37
 msgid "Emails sent to this address will be forwarded to the destination below."
 msgstr ""
 
-#: templates/emails/alias_new.html:66 templates/emails/default_address.html:110
+#: templates/emails/alias_new.html:42 templates/emails/default_address.html:110
 msgid "Destination address"
 msgstr ""
 
-#: templates/emails/alias_new.html:77
+#: templates/emails/alias_new.html:44
 msgid "Can be any email address (on this server or external)."
 msgstr ""
 
-#: templates/emails/alias_new.html:94
+#: templates/emails/alias_new.html:58
 msgid "Create Alias"
 msgstr ""
 

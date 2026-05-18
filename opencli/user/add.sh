@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 16.05.2026
+# Last Modified: 18.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -636,7 +636,7 @@ get_docker_service_errors() {
 
 test_docker_service() {
     # dockerd-rootless-setuptool.sh executed?
-	if [ !-f "/home/${USERNAME}/bin/dockerd-rootless-setuptool.sh" ]; then
+	if [ ! -f "/home/${USERNAME}/bin/dockerd-rootless-setuptool.sh" ]; then
 	    hard_cleanup
 	    die "Installer script '${ROOTLESS_SETUP_SCRIPT}' exists but installation appears incomplete."
 	fi
@@ -979,7 +979,7 @@ create_docker_context
 # 6. validate docker service is started for user (socket exists), compose command and context are working
 wait $PID_ROOTLESS_INSTALL
 test_docker_service
-autostart_services &
+autostart_services
 
 ########################################################################
 # 8. save and notify

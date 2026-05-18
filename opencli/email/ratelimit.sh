@@ -5,7 +5,7 @@
 # Usage: opencli email-ratelimit
 # Author: Stefan Pejcic
 # Created: 03.12.2025
-# Last Modified: 16.05.2026
+# Last Modified: 18.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
