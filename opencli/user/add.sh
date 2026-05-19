@@ -198,7 +198,7 @@ check_reseller_limits() {
 
     local limits_file="/etc/openpanel/openadmin/resellers/${RESELLER}.json"
     if [[ ! -f "$limits_file" ]]; then
-        warn "Reseller $RESELLER has no limits file; unlimited accounts allowed."
+        echo "[!] Warning: Reseller $RESELLER has no limits file; unlimited accounts allowed."
         return 0
     fi
 
@@ -248,10 +248,10 @@ validate_password_in_lists() {
 
     if [[ ! -f "$dict" ]]; then
         log "Downloading weak-password dictionary (first time only)"
-        wget -qO "$dict" "$url" || { warn "Could not fetch dictionary; skipping check."; return 0; }
+        wget -qO "$dict" "$url" || { echo "[!] Warning: Could not fetch dictionary; skipping check."; return 0; }
     elif [[ $(find "$dict" -mtime +7 -print -quit 2>/dev/null) ]]; then
         log "Refreshing weak-password dictionary (older than 7 days)"
-        wget -qO "$dict" "$url" || warn "Update failed; using cached dictionary."
+        wget -qO "$dict" "$url" || echo "[!] Warning: Update failed; using cached dictionary."
     fi
 
     local lower="${PASSWORD,,}"
@@ -360,7 +360,7 @@ autostart_services() {
     [[ "$SKIP_IMAGE_PULL" == true ]] && { log "Skipping image pull (--skip-images)."; return 0; }
 
     local env_file="/home/${USERNAME}/.env"
-    [[ -f "$env_file" ]] || { warn "$env_file not found; skipping image pull."; return 1; }
+    [[ -f "$env_file" ]] || { echo "[!] Warning: $env_file not found; skipping image pull."; return 1; }
 
 	# https://community.openpanel.org/d/239-no-such-container-openlitespeed
     get_env() { grep -E "^$1=" "$env_file" | cut -d= -f2- | tr -d '\r"'\'; }
@@ -371,26 +371,26 @@ autostart_services() {
     varnish="$(get_env PROXY_HTTP_PORT)"
     php_svc="php-fpm-${php_version}"
 
-    [[ -f "$AUTOSTART_FILE" ]] || { warn "$AUTOSTART_FILE not found; skipping image pull."; return 1; }
+    [[ -f "$AUTOSTART_FILE" ]] || { echo "[!] Warning: $AUTOSTART_FILE not found; skipping image pull."; return 1; }
 
     local autostart
     mapfile -t autostart < <(grep -v '^\s*#' "$AUTOSTART_FILE" | grep -v '^\s*$')
 
     local images=()
-
-    [[ "$php_version" =~ ^[0-9]+\.[0-9]+$ ]] && [[ " ${autostart[*]} " == *" $php_svc "* ]] && images+=("$php_svc")
+    local ols_ws=false
+    [[ "$ws_type" =~ ^(openlitespeed|litespeed)$ ]] && ols_ws=true
+    [[ "$ols_ws" == false ]] && [[ "$php_version" =~ ^[0-9]+\.[0-9]+$ ]] && [[ " ${autostart[*]} " == *" $php_svc "* ]] && images+=("$php_svc")
     [[ "$sql_type" =~ ^(mysql|mariadb)$ ]] && [[ " ${autostart[*]} " == *" $sql_type "* ]] && images+=("$sql_type")
 	[[ -n "$varnish" ]] && [[ " ${autostart[*]} " == *" varnish "* ]] && images+=("varnish")
     [[ "$ws_type" =~ ^(nginx|apache|openresty|openlitespeed|litespeed)$ ]] && [[ " ${autostart[*]} " == *" $ws_type "* ]] && images+=("$ws_type")
-
     local sql_ws_types="mysql mariadb nginx apache openresty openlitespeed litespeed"
     for svc in "${autostart[@]}"; do
-        [[ " $sql_ws_types " == *" $svc "* ]] && continue           # only webserver and sql type for user, ignore others
-        [[ "$svc" == php-fpm-* || "$svc" == varnish ]] && continue  # nly current default php version and varnish if enabled
+        [[ " $sql_ws_types " == *" $svc "* ]] && continue                 # only webserver and sql type for user, ignore others
+        [[ "$ols_ws" == true ]] && [[ "$svc" == php-fpm-* ]] && continue  # OLS/LS manages PHP internally, no need to start php-fpm services
+        [[ "$svc" == php-fpm-* || "$svc" == varnish ]] && continue        # only current default php version and varnish if enabled
         images+=("$svc")
     done
-
-    [[ ${#images[@]} -eq 0 ]] && { warn "No autostart services match user config."; return 1; }
+    [[ ${#images[@]} -eq 0 ]] && { echo "[!] Warning: No autostart services match user config."; return 1; }
 	#log "Starting services in background: ${images[*]}"
 	nohup sh -c "cd /home/${USERNAME}/ && for svc in ${images[*]}; do docker --context=${USERNAME} compose up -d \$svc || true; done" </dev/null >/dev/null 2>&1 &
     disown
@@ -777,7 +777,7 @@ configure_environment() {
             log "Setting webserver: $WEBSERVER"
             sed -i "s|WEB_SERVER=\"[^\"]*\"|WEB_SERVER=\"${WEBSERVER}\"|g" "${home_dir}/.env"
         else
-            warn "Invalid webserver '$WEBSERVER'. Using template default."
+            echo "[!] Warning: Invalid webserver '$WEBSERVER'. Using template default."
         fi
     fi
 
@@ -787,7 +787,7 @@ configure_environment() {
             log "Setting SQL type: $SQL_TYPE"
             sed -i "s|MYSQL_TYPE=\"[^\"]*\"|MYSQL_TYPE=\"${SQL_TYPE}\"|g" "${home_dir}/.env"
         else
-            warn "Invalid SQL type '$SQL_TYPE'. Using template default."
+            echo "[!] Warning: Invalid SQL type '$SQL_TYPE'. Using template default."
         fi
     fi
 
@@ -811,7 +811,7 @@ configure_environment() {
     chmod 777 "${home_dir}/sockets/"
 
     printf '[client]\nuser=root\npassword=%s\n' "$mysql_root_pw" > "${home_dir}/my.cnf"
-    [[ -f "${home_dir}/my.cnf" ]] || warn "Failed to create my.cnf."
+    [[ -f "${home_dir}/my.cnf" ]] || echo "[!] Warning: Failed to create my.cnf."
 
     # shellcheck disable=SC2034
     MYSQL_ROOT_PASSWORD="$mysql_root_pw"   # exported for pull_images
@@ -856,7 +856,7 @@ save_user_to_database() {
 send_welcome_email() {
     [[ "$SEND_EMAIL" == true ]] || return 0
 
-    [[ "$EMAIL" =~ ^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$ ]] || { warn "$EMAIL is not a valid address; skipping email."; return 0; }
+    [[ "$EMAIL" =~ ^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$ ]] || { echo "[!] Warning: $EMAIL is not a valid address; skipping email."; return 0; }
 
     local domain protocol admin_port port login_url email_pw
 
@@ -879,7 +879,7 @@ send_welcome_email() {
     email_pw="$PASSWORD"
     [[ "$email_plaintext_passwords" == "no" ]] && email_pw="********"
 
-    curl -4 -fsSk -X POST "${protocol:-http}://${domain}:${admin_port}/send_email" -F "transient=${token}" -F "recipient=${EMAIL}" -F "subject=New OpenPanel account information" -F "body=OpenPanel URL: ${login_url} | username: ${USERNAME} | password: ${email_pw}" --max-time 15 || warn "Failed to send welcome email."
+    curl -4 -fsSk -X POST "${protocol:-http}://${domain}:${admin_port}/send_email" -F "transient=${token}" -F "recipient=${EMAIL}" -F "subject=New OpenPanel account information" -F "body=OpenPanel URL: ${login_url} | username: ${USERNAME} | password: ${email_pw}" --max-time 15 || echo "[!] Warning: Failed to send welcome email."
 }
 
 generate_password_hash() {

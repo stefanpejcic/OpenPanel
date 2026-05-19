@@ -472,6 +472,14 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#activity"
   },
   {
+    "name": "dynamic_dns",
+    "title": "Dynamic DNS",
+    "description": "If enabled, users can create subdomains that will be updated via webhooks.",
+    "link": "/domains/dynamic-dns",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
     "name": "ip_blocker",
     "title": "IP Blocker",
     "description": "If enabled, users can block IP addresses from accessing their websites.",

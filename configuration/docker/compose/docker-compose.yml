@@ -27,7 +27,7 @@ services:
           memory: "${MYSQL_RAM:-0.5G}"
           pids: 200
 
-  # DEPRECATED Malware Scanner used from user panel
+  # DEPRECATED Malware Scanner used from user panel 
   clamav:
     image: clamav/clamav:${CLAMAV_VERSION}
     container_name: clamav

@@ -34,6 +34,8 @@
 readonly APP="opencli email-server"                             # this script
 readonly GITHUB_REPO="https://github.com/stefanpejcic/openmail" # download files
 readonly DIR="/usr/local/mail/openmail"                         # compose.yaml directory
+readonly MAILSERVER_ENV="/usr/local/mail/openmail/mailserver.env"
+readonly DEFAULT_DOMAIN="example.net"
 readonly CONTAINER=openadmin_mailserver                         # DMS container name
 DEBUG=false
 
@@ -180,41 +182,65 @@ pflogsumm_get_data() {
 }
 
 
+is_valid_ipv4() {
+    local ip="$1"
+    [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || return 1
+    [[ $ip =~ ^10\. ]] && return 1
+    [[ $ip =~ ^172\.(1[6-9]|2[0-9]|3[0-1])\. ]] && return 1
+    [[ $ip =~ ^192\.168\. ]] && return 1
+    return 0
+}
 
 set_ssl_for_mailserver() {
-	readonly MAILSERVER_ENV="/usr/local/mail/openmail/mailserver.env"	
 	current_hostname=$(opencli domain)
 
-	# letsencrypt
-	local cert_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.crt"
-	local key_path="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.key"
+    if [[ "$current_hostname" == "$DEFAULT_DOMAIN" ]] || is_valid_ipv4 "$current_hostname"; then
+        echo "Configuring mailserver for plain-text authentication with IP"
 
-	# custom
-	local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.crt"
-	local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.key"
-	
-	if [[ ( -f "$cert_path" && -f "$key_path" ) || ( -f "$fallback_cert_path" && -f "$fallback_key_path" ) ]]; then
-		if [[ -f "$cert_path" && -f "$key_path" ]]; then
-			echo "Using Let's Encrypt certs for $current_hostname"
-		elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
-			echo "Using custom certs for $current_hostname"
-			cert_path="$fallback_cert_path"
-			key_path="$fallback_key_path"
-		fi
-		echo "Configuring mailserver and webmail to use domain $current_hostname for IMAP/SMTP ..."
-		sed -i "/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=$current_hostname" "$MAILSERVER_ENV"
-		sed -i '/^SSL_TYPE=/c\SSL_TYPE=manual' "$MAILSERVER_ENV"
-		grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV" && sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path|" "$MAILSERVER_ENV" || echo "SSL_CERT_PATH=$cert_path" >> "$MAILSERVER_ENV"
-		grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV" && sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path|" "$MAILSERVER_ENV" || echo "SSL_KEY_PATH=$key_path" >> "$MAILSERVER_ENV"
-	else
-		echo "Warning: $current_hostname is configured for panel access but has no SSL, IP address will be used for IMAP/SMTP ..."
-		# non-ssl
-		echo "Configuring mailserver to use IP address for IMAP/SMTP ..."
+		# used by roundcube to detect if SSL should be used
 		sed -i '/^OVERRIDE_HOSTNAME=/c\OVERRIDE_HOSTNAME=' "$MAILSERVER_ENV"
-		sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
-		sed -i 's/^SSL_CERT_PATH=.*/SSL_CERT_PATH=/' "$MAILSERVER_ENV"
-		sed -i 's/^SSL_KEY_PATH=.*/SSL_KEY_PATH=/' "$MAILSERVER_ENV"
-	fi
+
+        sed -i '/^SSL_TYPE=/c\SSL_TYPE=' "$MAILSERVER_ENV"
+        sed -i '/^SSL_CERT_PATH=/d' "$MAILSERVER_ENV"
+        sed -i '/^SSL_KEY_PATH=/d' "$MAILSERVER_ENV"
+    else
+        echo "Configuring mailserver for TLS/SSL authentication with domain"
+
+        local cert_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.crt"
+        local key_path_on_hosts="/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/${current_hostname}/${current_hostname}.key"
+
+        # custom paths!
+        local fallback_cert_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.crt"
+        local fallback_key_path="/etc/openpanel/caddy/ssl/custom/${current_hostname}/${current_hostname}.key"
+        
+        if [[ -f "$cert_path_on_hosts" && -f "$key_path_on_hosts" ]]; then
+            echo "Using Let's Encrypt certs for $current_hostname"
+        elif [[ -f "$fallback_cert_path" && -f "$fallback_key_path" ]]; then
+            echo "Using custom certs for $current_hostname"
+            cert_path_on_hosts="$fallback_cert_path"
+            key_path_on_hosts="$fallback_key_path"
+        else
+            echo "WARNING: SSL files don’t exist for domain $current_hostname, will not be configured for mailserver!"
+            return 0
+        fi
+
+		# used by roundcube to detect if SSL should be used
+		sed -i "s|OVERRIDE_HOSTNAME=.*|OVERRIDE_HOSTNAME=$current_hostname|" "$MAILSERVER_ENV"
+
+        sed -i "/^SSL_TYPE=/c\SSL_TYPE=manual" "$MAILSERVER_ENV"
+        if grep -q '^SSL_CERT_PATH=' "$MAILSERVER_ENV"; then
+            sed -i "s|^SSL_CERT_PATH=.*|SSL_CERT_PATH=$cert_path_on_hosts|" "$MAILSERVER_ENV"
+        else
+            echo "SSL_CERT_PATH=$cert_path_on_hosts" >> "$MAILSERVER_ENV"
+        fi
+        
+        if grep -q '^SSL_KEY_PATH=' "$MAILSERVER_ENV"; then
+            sed -i "s|^SSL_KEY_PATH=.*|SSL_KEY_PATH=$key_path_on_hosts|" "$MAILSERVER_ENV"
+        else
+            echo "SSL_KEY_PATH=$key_path_on_hosts" >> "$MAILSERVER_ENV"
+        fi
+
+    fi
 
     #echo "Restarting mailserver and webmail to apply new configuration"
     #nohup sh -c "cd /usr/local/mail/openmail/ && docker --context default compose down ; cd /usr/local/mail/openmail/ && docker --context default compose up -d mailserver roundcube" </dev/null >nohup.out 2>nohup.err &

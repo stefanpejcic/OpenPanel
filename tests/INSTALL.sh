@@ -1,15 +1,14 @@
 #!/bin/bash
-
 export DEBIAN_FRONTEND=noninteractive
 export NEEDRESTART_MODE=a
 export CI=true
 export npm_config_yes=true
 
-sudo apt update -y && sudo apt upgrade -y
+APT_OPTS='-y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef'
 
-sudo apt install -y ubuntu-desktop
-
-sudo apt install -y xrdp
+sudo apt update -y && sudo apt upgrade $APT_OPTS
+sudo apt install $APT_OPTS ubuntu-desktop
+sudo apt install $APT_OPTS xrdp
 sudo systemctl enable xrdp
 sudo systemctl restart xrdp
 sudo adduser xrdp ssl-cert
@@ -48,9 +47,7 @@ ResultActive=yes
 EOF
 
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-
-sudo apt install -y nodejs git
-
+sudo apt install $APT_OPTS nodejs git
 mkdir -p ~/playwright-test
 git clone https://github.com/stefanpejcic/openpanel-tests/ ~/playwright-test
 

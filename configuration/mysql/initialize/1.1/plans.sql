@@ -166,7 +166,7 @@ ALTER TABLE `sites`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_plan_id` (`plan_id`);
+  ADD KEY `fk_plan_id` (`plan_id`),
   ADD UNIQUE KEY `uniq_username` (`username`);
 
 --
