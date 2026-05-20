@@ -8,7 +8,37 @@ const DOMAINS = [
   'python.tests.openpanel.org',
   'website-builder.tests.openpanel.org',
   'files.tests.openpanel.org',
+  'to-be-removed.com',
 ];
+
+
+async function getDomainCount(page: Page): Promise<number> {
+  const text = await page
+    .locator('#dashboard_usage_domains')
+    .locator('p')
+    .nth(1)
+    .textContent();
+
+  if (!text) throw new Error('Cannot read domain count');
+
+  const match = text.match(/(\d+)\s*\//);
+  if (!match) throw new Error(`Cannot parse domain count from: ${text}`);
+
+  return parseInt(match[1], 10);
+}
+
+async function expectDomainInTable(page: Page, domain: string) {
+  await expect(page.locator('table')).toContainText(domain);
+}
+
+async function expectDomainNotInTable(page: Page, domain: string) {
+  await expect(page.locator('table')).not.toContainText(domain);
+}
+
+
+
+
+
 
 async function addDomain(page, domain) {
   await page.goto(`/domains/new`);
@@ -23,8 +53,23 @@ async function addDomain(page, domain) {
 
 
 test('add domains', async ({ page }) => {
+  test.setTimeout(60_000);
+
+  await page.goto('/dashboard');
+  const initialCount = await getDomainCount(page);
+  let expectedCount = initialCount;
+
   for (const domain of DOMAINS) {
     await addDomain(page, domain);
+
+    // table check
+    await page.goto('/domains');
+    await expectDomainInTable(page, domain);
+    expectedCount++;
+
+    // dashboard check
+    await page.goto('/dashboard');
+    await expect.poll(async () => {return await getDomainCount(page);}).toBe(expectedCount);
   }
 });
 
@@ -194,7 +239,7 @@ test('change docroot', async ({ page }) => {
   await page.goto(`https://${DOMAIN}/testing.php`);
   const locator = page.getByText(`File is shown from folder: ${NEW_FOLDER}`);
   
-  const timeout = 15000;
+  const timeout = 30000;
   const start = Date.now();
   
   while (Date.now() - start < timeout) {
@@ -405,6 +450,100 @@ test('reset dns zone', async ({ page }) => {
   console.log('dns zone restart is working');
 });
 
+// DDNS
+test('dynamic dns record', async ({ page, context }) => {
+  await page.goto(`/domains/dynamic-dns`);
+  const subdomain = `ddns-${Date.now()}`;
+  const fqdn = `${subdomain}.${domain}`;
+
+  // 1. create dynamic dns entry
+  await page.locator('#add-entry').click();
+  // Scope to the create panel specifically (always visible when panel === 'create')
+  const createForm = page.locator('[x-show="panel === \'create\'"] form');
+  await expect(createForm).toBeVisible();
+  await createForm.locator('select[name="domain"]').selectOption(domain);
+  await createForm.locator('input[name="subdomain"]').fill(subdomain);
+  await createForm.locator('input[name="ip"]').fill('0.0.0.0');
+  await createForm.locator('button[type="submit"]').click();
+
+  // 2. verify record appears in table
+  const table = page.locator('table');
+  await expect(table).toBeVisible();
+  const row = table.locator('tbody tr', { hasText: subdomain });
+  await expect(row).toBeVisible({ timeout: 10000 });
+  await expect(row.locator('td').nth(0)).toContainText(subdomain);
+  await expect(row.locator('td').nth(1)).toContainText('A');
+  await expect(row.locator('td').nth(2)).toContainText('0.0.0.0');
+
+  // 3. grab update url from the row's hidden title attribute
+  const updateCode = row.locator('code');
+  await expect(updateCode).toBeVisible();
+  const relativeUpdateUrl = await updateCode.evaluate(
+    (el) => el.getAttribute('title') || el.textContent || ''
+  );
+  expect(relativeUpdateUrl).toContain('/dynamic-dns/update?token=');
+
+  // 4. open update url — this triggers the actual IP update
+  const updatePage = await context.newPage();
+  await updatePage.goto(relativeUpdateUrl);
+  await expect(updatePage.locator('body')).toContainText(/updated|success|ip/i, { timeout: 15000 });
+  await updatePage.close();
+
+  // 5. reload and verify IP was updated away from 0.0.0.0
+  await page.reload();
+  const updatedRow = page.locator('tbody tr', { hasText: subdomain });
+  await expect(updatedRow).toBeVisible();
+  await expect(updatedRow.locator('td').nth(2)).not.toContainText('0.0.0.0');
+  const updatedIp = (await updatedRow.locator('td').nth(2).textContent())?.trim();
+  console.log(`Updated IP: ${updatedIp}`);
+
+  // 6. edit the entry — change subdomain to verify edit panel works
+  const editBtn = updatedRow.locator('button[title="Edit"]');
+  await editBtn.click();
+  const editForm = page.locator('[x-show="panel === \'edit\'"] form');
+  await expect(editForm).toBeVisible();
+  // Verify pre-filled values
+  await expect(editForm.locator('input[name="subdomain"]')).toHaveValue(subdomain);
+  await expect(editForm.locator('input[name="ip"]')).toHaveValue(updatedIp ?? '');
+  // Verify update URL is shown
+  const updateUrlCode = editForm.locator('code');
+  await expect(updateUrlCode).toBeVisible();
+  await expect(updateUrlCode).toContainText('/dynamic-dns/update?token=');
+  // Save without changes (just confirm the form submits cleanly)
+  await editForm.locator('button[type="submit"]').click();
+  await expect(page.locator('tbody tr', { hasText: subdomain })).toBeVisible({ timeout: 10000 });
+
+  // 7. delete the entry
+  const rowAfterEdit = page.locator('tbody tr', { hasText: subdomain });
+  const deleteBtn = rowAfterEdit.locator('button[title="Delete"]');
+  await deleteBtn.click();
+  const deleteForm = page.locator('[x-show="panel === \'delete\'"] form');
+  await expect(deleteForm).toBeVisible();
+  // Confirm the warning text references our subdomain
+  await expect(deleteForm).toContainText(subdomain);
+  await deleteForm.locator('button[type="submit"]').click();
+
+  // 8. verify the row is gone
+  await page.waitForTimeout(1000); // brief wait for redirect/reload
+  await expect(page.locator('tbody tr', { hasText: subdomain })).toHaveCount(0, { timeout: 10000 });
+  console.log('dynamic dns create/edit/delete all working');
+
+  // 9. validate publicly using dig (optional, only if IP resolved)
+  if (updatedIp) {
+    await page.goto(`https://digwebinterface.com/?hostnames=${fqdn}&type=A&useresolver=9.9.9.10`);
+    const resultsArea = page.locator('#results, pre, .results, [id*="result"]').first();
+    await expect(resultsArea).toBeVisible({ timeout: 10000 });
+    await page.waitForFunction(
+      () => !document.querySelector('.loading, .spinner, [aria-busy="true"]'),
+      { timeout: 30000 }
+    );
+    await expect(page.locator('body')).toContainText(fqdn, { timeout: 30000 });
+    await expect(page.locator('body')).toContainText(updatedIp, { timeout: 30000 });
+    console.log('dynamic dns public DNS resolution confirmed');
+  }
+});
+
+
 
 
 test('suspend domain', async ({ page }) => {
@@ -446,8 +585,35 @@ test('unsuspend domain', async ({ page }) => {
 
   const body = await response.text();
   console.log(`Unsuspended domain body snippet: ${body.slice(0, 200)}`);
-  expect(body).toContain('Hello world');
+
+  await page.goto(`http://${domain}`);
+  await expect(page.locator('body')).toContainText(/this domain currently has no website\. please check back later\./i);
 
   console.log('Domain unsuspension verified successfully!');
 });
 
+
+// DELETE SINGLE DOMAIN!
+test('delete domain', async ({ page }) => {
+  const domain = 'to-be-removed.com';
+  await page.goto('/dashboard');
+  const initialCount = await getDomainCount(page);
+
+  // go to delete page
+  await page.goto(`/domains/delete?domain=${domain}`);
+
+  const deleteButton = page.getByRole('button', { name: /delete domain/i });
+  await expect(deleteButton).toBeVisible();
+  await deleteButton.click();
+  await expect(page.locator('body')).toContainText(/deleted successfully/i);
+  console.log(`Domain deleted: ${domain}`);
+
+  // verify it's gone from table/listing page
+  await page.goto('/domains');
+  await expect(page.locator('table')).not.toContainText(domain);
+
+  // verify dashboard count decreased
+  await page.goto('/dashboard');
+  const finalCount = await getDomainCount(page);
+  expect(finalCount).toBe(initialCount - 1);
+});

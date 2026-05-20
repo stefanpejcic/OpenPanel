@@ -486,5 +486,13 @@
     "link": "/security/ip-blocker",
     "type": "beta",
     "help_link": ""
+  },
+  {
+    "name": "api",
+    "title": "API",
+    "description": "If enabled, users can use JWT tokens to perform panel actions.",
+    "link": "/api/login",
+    "type": "beta",
+    "help_link": ""
   }
 ]

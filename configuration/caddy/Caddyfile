@@ -27,6 +27,9 @@ webmail.example.net {
 # import /check route
 import /etc/openpanel/caddy/check.conf
 
+# import domain_log
+import /etc/openpanel/caddy/templates/domain_log
+
 # import wp-manager rules
 import /etc/openpanel/caddy/templates/wp.rules
 

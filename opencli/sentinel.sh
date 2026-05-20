@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 18.05.2026
+# Last Modified: 19.05.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -236,10 +236,12 @@ docker_containers_status() {
         ((PASS++)); echo -e "\e[32m[✔]\e[0m caddy is active and responding."
       else
         ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m caddy running but unresponsive — restarting."
+        docker --context=default restart caddy &>/dev/null
         cd /root && docker --context=default compose up -d caddy &>/dev/null
         sleep 2
         if _caddy_http_ok; then
           ((PASS++)); ((WARN--)); echo -e "\e[32m[✔]\e[0m caddy recovered."
+          write_notification "Caddy restarted and websites are up!" "$(_docker_log caddy)"
         else
           ((WARN--)); ((FAIL++)); STATUS=2
           echo -e "\e[31m[✘]\e[0m caddy still unresponsive after restart."

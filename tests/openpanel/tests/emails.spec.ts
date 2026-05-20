@@ -16,12 +16,47 @@ async function createEmail(page, email) {
 }
 
 
+async function getEmailCount(page: Page): Promise<number> {
+  const text = await page.locator('#dashboard_usage_emails').locator('p').nth(1).textContent();
+  if (!text) throw new Error('Cannot read email count');
+
+  const match = text.match(/(\d+)\s*\//);
+  if (!match) throw new Error(`Cannot parse email count from: ${text}`);
+
+  return parseInt(match[1], 10);
+}
+
+async function expectEmailInTable(page: Page, email: string) {
+  const fullEmail = `${email}@wp.tests.openpanel.org`;
+
+  const row = page.locator('#email-accounts').getByText(fullEmail);
+  await expect(row).toBeVisible();
+}
+
+
+
+
 // CREATE EMAIL
 // todo: test with quotas: 10K 100M 420G 1T 0
 test('create emails', async ({ page }) => {
+  await page.goto('/dashboard');
+
+  const initialCount = await getEmailCount(page);
+  let expectedCount = initialCount;
+
   for (const email of EMAILS) {
     await createEmail(page, email);
-    // todo: check if email exists in the table, and check on /dashboard emails count matches new count
+
+    // 1. verify table update
+    await expectEmailInTable(page, email);
+    expectedCount++;
+
+    // 2. go dashboard and verify count
+    await page.goto('/dashboard');
+
+    await expect.poll(async () => {
+      return await getEmailCount(page);
+    }).toBe(expectedCount);
   }
 });
 
@@ -32,7 +67,8 @@ async function autoLogintest (page) {
   await page.locator('[data-email^="test1@"]').click();
   const popup = await popupPromise;
   await popup.waitForLoadState();
-  await popup.goto(`http://185.119.89.17:8080/?_task=mail&_action=compose`)
+  await popup.goto(`http://185.119.89.17:8080/?_task=mail&_action=compose`) //todo
+  
   //await popup.locator('#rcmbtn103').click();
   //await expect(popup.locator('#composebody')).toBeVisible();
   //await popup.goto(`/?_task=mail&_action=compose`)
@@ -41,7 +77,8 @@ async function autoLogintest (page) {
   await popup.getByLabel('Subject').fill('Ovo je neki naslov');
   await popup.locator('#composebody').fill('Ovo je samo jos jedan test bla bla');
   await popup.getByRole('button', { name: 'Send' }).click();
-  await expect(popup.getByText().toBeVisible();
+  //await expect(popup.getByText().toBeVisible();
+
   //await popup.close();
 }
 
@@ -127,20 +164,40 @@ test('change passwords', async ({ page }) => {
 });
 
 
-async function deleteEmails(page, email) {
+
+async function expectEmailNotInTable(page: Page, email: string) {
+  const fullEmail = `${email}@wp.tests.openpanel.org`;
+  await expect(page.locator('#email-accounts').getByText(fullEmail)).toHaveCount(0);
+}
+
+async function deleteEmails(page: Page, email: string) {
   await page.goto(`/emails/delete/${email}@wp.tests.openpanel.org`);
   await expect(page).toHaveURL(/emails\/delete/);
   await page.getByRole('button', { name: 'Confirm Delete' }).click();
-  await expect(page).toHaveURL('https://185.119.89.17:2083/emails');
-  console.log(`Email account ${email}@wp.tests.openpanel.org has been deleted.`);
-
+  await expect(page).toHaveURL(/\/emails$/);
+  console.log(`Deleted: ${email}@wp.tests.openpanel.org`);
 }
 
 // DELETE EMAIL
 test('delete created emails', async ({ page }) => {
+  await page.goto('/dashboard');
+
+  const initialCount = await getEmailCount(page);
+  let expectedCount = initialCount;
+
   for (const email of EMAILS) {
     await deleteEmails(page, email);
-    // todo: check if email no longer exists in the table, and check on /dashboard emails count matches new count
+
+    // 1. verify it is gone from table
+    await expectEmailNotInTable(page, email);
+    expectedCount--;
+
+    // 2. verify dashboard count decreases
+    await page.goto('/dashboard');
+
+    await expect.poll(async () => {
+      return await getEmailCount(page);
+    }).toBe(expectedCount);
   }
 });
 
