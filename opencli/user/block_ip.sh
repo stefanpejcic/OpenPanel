@@ -5,7 +5,7 @@
 # Usage: opencli user-block_ip <username> [--list='ip_here another_ip' | --delete-all]
 # Author: Stefan Pejcic
 # Created: 13.03.2026
-# Last Modified: 19.05.2026
+# Last Modified: 20.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -108,7 +108,7 @@ if [ "$delete_all" = true ]; then
 fi
 
 # LIST
-if [ "$delete_all" = true ]; then
+if [ "$show_ips" = true ]; then
   if [ -f "$DENY_IPS_FILE" ]; then
     grep -oP 'remote_ip\s+\K[\d./]+' "$DENY_IPS_FILE"
   fi
@@ -119,7 +119,7 @@ fi
 if [ -n "$list" ]; then
 
   # 1. validate IP
-  IFS=' ' read -r -a ip_array <<< "$list"
+  IFS=$' \n' read -r -a ip_array <<< "$(echo "$list" | tr '\n' ' ')"
   valid_ips=()
   
   for ip in "${ip_array[@]}"; do

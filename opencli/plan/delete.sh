@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Radovan Jecmenica
 # Created: 01.12.2023
-# Last Modified: 19.05.2026
+# Last Modified: 20.05.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 

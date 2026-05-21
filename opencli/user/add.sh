@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 19.05.2026
+# Last Modified: 20.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -155,7 +155,7 @@ for arg in "$@"; do
         --server=*)       NODE_IP="${arg#*=}" ;;
         --key=*)          SSH_KEY="${arg#*=}" ;;
         --sql=*)          SQL_TYPE="${arg#*=}" ;;
-        --webserver=*)    WEBSERVER="${arg#*=//\"/}" ; WEBSERVER="$(echo "$WEBSERVER" | xargs)" ;;
+        --webserver=*)    WEBSERVER="${arg#*=}" ;;
         *)                echo "[!] Warning: unknown flag '$arg'" >&2 ;;
     esac
 done

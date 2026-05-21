@@ -15,6 +15,7 @@ test('IP Blocker', async ({ page, context }) => {
     await expect(page.getByText('IP addresses have been successfully added to blocklist and can no longer access websites')).toBeVisible();
 
     // 3. test
+    await page.waitForTimeout(2000);
     await test.step('Verify website is blocked', async () => {
         await expect.poll(async () => {
             try {
@@ -37,6 +38,7 @@ test('IP Blocker', async ({ page, context }) => {
     await expect(page.getByText('All IP addresses have been successfully removed from blocklist and can now access websites')).toBeVisible();
 
     // 5. test again
+    await page.waitForTimeout(2000);
     await test.step('Verify website is accessible', async () => {
         await expect.poll(async () => {
             const response = await page.goto('https://wp.tests.openpanel.org');
