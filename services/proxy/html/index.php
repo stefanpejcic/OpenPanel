@@ -75,6 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rootDir = '/var/www/html/virt';
 
     $ip = $_POST['ip'] ?? '';
+    if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+        exit("Error: Invalid IP.");
+    }
     $fake_domain = $_POST['domain'] ?? '';
 
     logMessage("Received POST data: " . print_r($_POST, true));
@@ -114,7 +117,12 @@ if (!mkdir($destinationDir, 0755, true)) {
 
     // config to use for proxy
     $configFilePath = "$destinationDir/config.php";
-    $configContent = "<?php\n\$domen = '$fake_domain';\n\$ip = '$ip';\n";
+    // https://github.com/stefanpejcic/OpenPanel/security/advisories/GHSA-c47r-33rm-gg85
+    $configContent = sprintf(
+        "<?php\n\$domen = %s;\n\$ip = %s;\n",
+        var_export($fake_domain, true),
+        var_export($ip, true)
+    );
     if (file_put_contents($configFilePath, $configContent) === false) {
         logMessage("Failed to create config file: $configFilePath");
         exit("Error: Failed to create config file.");
