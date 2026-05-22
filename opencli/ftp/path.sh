@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com/
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 20.05.2026
+# Last Modified: 21.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -43,14 +43,31 @@ DEBUG=false  # Default value for DEBUG
 # Parse optional flags to enable debug mode when needed
 for arg in "$@"; do
     case $arg in
-        --debug)
-            DEBUG=true
-            ;;
-        *)
-            ;;
+        --debug) DEBUG=true ;;
+        *) ;;
     esac
 done
 
+
+get_docker_context_for_user(){
+    context=$(mysql -e "SELECT server FROM users WHERE username='$openpanel_username';" -N)   
+	context=$(mysql -N -e "
+	SELECT u.server
+	FROM users u
+	WHERE u.username='$openpanel_username'
+	AND EXISTS (
+	    SELECT 1
+	    FROM domains d
+	    WHERE d.domain_url = SUBSTRING_INDEX('$username','@',-1)
+	      AND d.user_id = u.id
+	);
+	")
+
+    if [ -z "$context" ]; then
+        echo "ERROR: No context found for user '$openpanel_username' - or does not own the domain name. Aborting!"
+        exit 1
+    fi    
+}
 
 # Validate the path
 validate_path() {
@@ -80,7 +97,7 @@ validate_path() {
 
 # Function to add or update the FTP path
 change_path() {
-    real_path="/home/${openpanel_username}/docker-data/volumes/${openpanel_username}_html_data/_data/"
+    real_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/"
     relative_path="${path##/var/www/html/}"
     container_path="${real_path}${relative_path}"
 
@@ -88,7 +105,6 @@ change_path() {
     
     if [ $? -eq 0 ]; then
         sed -i "/^${username}|/s|/var/www/html/[^|]*|${path}|" /etc/openpanel/ftp/users/$openpanel_username/users.list
-
         echo "Success: FTP path for user '$username' changed successfully."
     else
         if [ "$DEBUG" = true ]; then
@@ -101,8 +117,8 @@ change_path() {
     fi
 }
 
-# Ensure the paths.list file exists
-mkdir -p /etc/openpanel/ftp/users/${openpanel_username}
 
+mkdir -p /etc/openpanel/ftp/users/${openpanel_username} # Ensure the paths.list file exists
+get_docker_context_for_user                             # validate our op user owns the domain and get context
 validate_path
 change_path

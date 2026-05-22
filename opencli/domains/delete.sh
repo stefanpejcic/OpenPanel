@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 20.05.2026
+# Last Modified: 21.05.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -420,6 +420,26 @@ delete_emails() {
 }
 
 
+delete_ftp_accounts() {
+	local username="$1"
+	local domain="$2"
+
+	# ftp accounts
+	local ftp_accounts_file="/etc/openpanel/ftp/users/${username}/users.list"
+
+	if [ -f "$ftp_accounts_file" ]; then
+	    log "Removing FTP accounts for domain: $domain"
+	
+	    while IFS='|' read -r ftp_account _; do
+	        if [[ "$ftp_account" == *@"$domain" ]]; then
+	            sed -i "\|^${ftp_account}|d" "$ftp_accounts_file"
+			    nohup docker --context=default exec openadmin_ftp sh -c "deluser $ftp_account" >/dev/null 2>&1 &
+			    disown
+	        fi
+	    done < "$ftp_accounts_file"
+	
+	fi
+}
 
 
 delete_domain_from_mysql(){
@@ -471,7 +491,8 @@ delete_domain() {
 		check_if_enterprise
         delete_mail_mountpoint                       # delete mountpoint to mailserver
 		postfwd_setup                                # delete domain hourly ratelimit
-        delete_emails $user $domain_name             # delete mails for the domain
+        delete_emails "$user" "$domain_name"         # delete mails for the domain
+		delete_ftp_accounts "$user" "$domain_name"   # delete FTP accounts for the domain
         rm_domain_to_clamav_list                     # added in 0.3.4    
         echo "Domain $domain_name deleted successfully"
     else

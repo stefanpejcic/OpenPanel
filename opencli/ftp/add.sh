@@ -6,9 +6,9 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 20.05.2026
-# Company: openpanel.comm
-# Copyright (c) openpanel.comm
+# Last Modified: 21.05.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -53,10 +53,7 @@ done
 
 
 check_and_start_ftp_server(){
-	if [ -n "$(docker ps -q -f name=openadmin_ftp)" ]; then
-	    :
-	else
-	    cd /root && docker --context default compose up -d ftp_env_generator >/dev/null 2>&1
+	if [ -z "$(docker ps -q -f name=openadmin_ftp)" ]; then
 	    cd /root && docker --context default compose up -d openadmin_ftp >/dev/null 2>&1
 	fi
 }
@@ -65,15 +62,26 @@ check_and_start_ftp_server(){
 
 get_docker_context_for_user(){
     context=$(mysql -e "SELECT server FROM users WHERE username='$openpanel_username';" -N)   
+	context=$(mysql -N -e "
+	SELECT u.server
+	FROM users u
+	WHERE u.username='$openpanel_username'
+	AND EXISTS (
+	    SELECT 1
+	    FROM domains d
+	    WHERE d.domain_url = SUBSTRING_INDEX('$username','@',-1)
+	      AND d.user_id = u.id
+	);
+	")
+
     if [ -z "$context" ]; then
-        echo "ERROR: No context found for user '$openpanel_username'. Aborting!"
+        echo "ERROR: No context found for user '$openpanel_username' - or does not own the domain name. Aborting!"
         exit 1
     fi    
 }
 
 # Function to read users from users.list files and create them
 create_user() {
-    get_docker_context_for_user
 
     real_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/"
     relative_path="${directory##/var/www/html/}"
@@ -102,7 +110,7 @@ create_user() {
     HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
 
     # Create user inside container with shared group (GID), auto-assigned UID
-    docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$openpanel_username" "$username"
+    docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$openpanel_username" -M "$username" --badname
 
     # Set password inside container
     if docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"; then
@@ -149,33 +157,33 @@ create_user() {
 
 validate_data() {
 	# user.openpanel_username
-	if [[ ! $username == *".${openpanel_username}" ]]; then
-	    echo "ERROR: FTP username must end with openpanel username, example: '$username.$openpanel_username'"
-	    echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#ftp"
+	if [[ $username != *@* ]]; then
+	    echo "ERROR: FTP username must be in format: username@domain"
 	    exit 1
 	fi
-	
+
+	# validate our op user owns the domain and get context
+	get_docker_context_for_user
 
 	if [[ "$directory" != /var/www/html/* ]]; then
-	echo "ERROR: Invalid path. It must start with /var/www/html/"
-	exit 1
+		echo "ERROR: Invalid path. It must start with /var/www/html/"
+		exit 1
 	fi
 	
 	if [[ "$directory" == *".."* ]]; then
-	echo "ERROR: Path traversal detected (.. is not allowed)."
-	exit 1
+		echo "ERROR: Path traversal detected (.. is not allowed)."
+		exit 1
 	fi
 	
 	if [[ "$directory" == *"//"* ]]; then
-	echo "ERROR: Double slashes are not allowed in the path."
-	exit 1
+		echo "ERROR: Double slashes are not allowed in the path."
+		exit 1
 	fi
 	
 	if [[ "$directory" == *"|"* ]]; then
-	echo "ERROR: The path cannot contain the '|' character."
-	exit 1
+		echo "ERROR: The path cannot contain the '|' character."
+		exit 1
 	fi
-
 
 	# Check if password length is at least 8 characters
 	if [ ${#password} -lt 8 ]; then
@@ -230,7 +238,7 @@ make_dirs() {
 
 # main
 validate_data                 # check username, path and password
-make_dirs		      # create dir for user and users file
+make_dirs		              # create dir for user and users file
 check_user_exists             # check user exists
 check_and_start_ftp_server    # start ftpserver if not running
 create_user                   # create new user

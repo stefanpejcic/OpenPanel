@@ -1120,6 +1120,8 @@ Currently supported features:
 │    └─ Remote access to MySQL
 ├─ PHP:
 │    └─ Installed version from Cloudlinux PHP Selector
+├─ FTP:
+│    └─ FTP accounts with their paths
 ├─ FILES
 ├─ CRONS
 └─ ACCOUNT
@@ -1128,7 +1130,7 @@ Currently supported features:
     ├─ Creation date
     └─ Locale (Language)
 
-***ftp accounts and nodejs/python apps are not yet supported***
+***nodejs/python apps are not yet supported***
 
 --------------------------------------------------------------------
   if you experience any errors with this script, please report to
@@ -1141,18 +1143,51 @@ Currently supported features:
 # ======================================================================
 # FTP
 ftp_accounts_import() {
+	cpanel_username="$1"
+    [ ! -f "$ftp_conf" ] && { log "No FTP config file not found: $ftp_conf"; return 1; }
 
-    if [ -f "$ftp_conf" ]; then
-        log "WARNING: Importing PureFTPD accounts is not yet supported"
-        # this is cpanel's format:
-        : '
-        #cat proftpdpasswd
-        pejcic:$6$cv9wnxSLeD1VEk.U$dm84PcqygxOWqT/uyMjrICKUPFeAQwOimJ8frihDCxjRfa1BKf6bnHIhWrbfmLrLn2YBSMnNatW09ZZMAS7GT/:1030:1034:pejcic:/home/pejcic:/bin/bash
-        neko@pcx3.com:$6$7GZJXVYlO53hV.M7$750UVg6zKmX.Uj8cmWUxkRnNXxjuZfcm6BxnJceiFD5Zl80sB7jZL0UeHIpw2a3aQRWh.BMH9WuCPdqwj8zxG.:1030:1034:pejcic:/home/pejcic/folder:/bin/ftpsh
-        whmcsmybekap@openpanel.co:$6$rDNAW7GZEAJ6zHJm$wYqg.H6USldSPCNz4jbgEi55tJ8hgeDzQCAmhSHfAPyzkJeP1u9E.LaLflQ.7kUbuRtBED7I70.QoCNRlxzEy0:1030:1034:pejcic:/home/pejcic/WHMC_MY_OPENPANEL_DB_BEKAP:/bin/ftpsh
-        pejcic_logs:$6$cv9wnxSLeD1VEk.U$dm84PcqygxOWqT/uyMjrICKUPFeAQwOimJ8frihDCxjRfa1BKf6bnHIhWrbfmLrLn2YBSMnNatW09ZZMAS7GT/:1030:1034:pejcic:/etc/apache2/logs/domlogs/pejcic:/bin/ftpsh
-        '
-    fi
+	awk '!/^#/ && !/^$/ {total++; if ($0 ~ /@/) created++} END {print "total_accounts=" (total+0); print "created_accounts=" (created+0)}' "$ftp_conf"
+
+	dry_run "Would restore $created_accounts / $total_accounts FTP accounts from $ftp_conf file (system accounts are excluded)" && return
+    log "INFO: Importing $created_accounts / $total_accounts FTP accounts (system accounts are excluded)"
+
+	: '
+	cpanel format:	  <USERNAME>:<HASHED_PASS>:<UID>:<GID>:<CP_USERNAME>:<PATH>:<SHELL>
+	openpanel format: <USERNAME>:<HASHED_PASS>|<PATH>|<UID>|<GID>
+	'
+
+	users_list="/etc/openpanel/ftp/users/${cpanel_username}/users.list"
+    mkdir -p "$(dirname "$users_list")"
+    touch "$users_list"
+	dummy_pass=$(openssl rand -base64 12 | tr -d '=+/')
+
+	while IFS=: read -r username pass uid gid owner home shell; do
+
+        [ -z "$username" ] && continue
+        [[ "$username" == \#* ]] && continue
+
+        # skip system user
+        [[ "$username" != *@* ]] && { log "SKIP: system FTP account $username"; continue; }
+
+        folder="$home"
+        folder="${folder/\/home\/$cpanel_username/\/var\/www\/html}"
+
+		log "Importing: $username -> $folder"
+        sed -i "\|^${username}|d" "$users_list"
+        echo "${username}|${hashed_pass}|${folder}|${uid}|${gid}" >> "$users_list"
+
+    done < "$ftp_conf"
+
+	actually_imported=$(wc -l $users_list)
+	log "Finished importing FTP accounts: $actually_imported"
+
+	if [ -z "$(docker ps -q -f name=openadmin_ftp)" ]; then
+		log "FTP service is not running, starting.."
+	    cd /root && docker --context default compose up -d openadmin_ftp >/dev/null 2>&1
+	else
+		log "FTP service is running, reloading.."
+		docker --context default restart openadmin_ftp >/dev/null 2>&1
+	fi
 }
 
 
@@ -1321,7 +1356,7 @@ main() {
 
     # STEP 4. IMPORT ENTERPRISE FEATURES
     import_email_accounts_and_data "$cpanel_username"                          # import emails, filters, forwarders..
-    ftp_accounts_import                                                        # import ftp accounts
+    ftp_accounts_import "$cpanel_username"                                     # import ftp accounts
 
 	restore_locale                                                             # language
     reload_user_quotas                                                         # refresh du and inodes

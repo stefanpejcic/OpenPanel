@@ -21,6 +21,8 @@ Currently suported for import:
 │    └─ Remote access to MySQL
 ├─ PHP:
 │    └─ Installed version from Cloudlinux PHP Selector
+├─ FTP:
+│    └─ FTP accounts with their paths
 ├─ FILES
 ├─ CRONS
 └─ ACCOUNT
@@ -29,7 +31,7 @@ Currently suported for import:
     ├─ Creation date
     └─ Locale (Language)
 
-***ftp accounts and nodejs/python apps are not yet supported***
+***nodejs/python apps are not yet supported***
 ```
 
 

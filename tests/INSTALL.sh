@@ -59,6 +59,7 @@ npm install -y @playwright/test
 npx --yes playwright install --with-deps
 
 npm install dotenv
+npm install basic-ftp
 
 if [ -d "node_modules/@playwright/test" ]; then
   echo "--- Setup Complete ---"

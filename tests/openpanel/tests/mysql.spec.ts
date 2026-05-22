@@ -403,7 +403,7 @@ test('export', async ({ page }) => {
     const row = page.locator('#databases-table tr', { hasText: 'stefan_baza' });
 
     async function openExportDropdown() {
-        await row.locator('button:has-text("Export")').first().click();
+        await page.getByTitle('Export').first().click();
         await page.waitForSelector('.export-section', { state: 'visible' });
     }
 

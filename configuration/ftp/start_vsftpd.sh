@@ -35,7 +35,8 @@ echo "USERS=\"$USERS\"" > /etc/openpanel/ftp/all.users
 
 # 4. remove all existing users
 echo "[*] Removing all existing FTP users..."
-grep '/ftp/' /etc/passwd | cut -d':' -f1 | xargs -r -n1 deluser
+#grep '/ftp/' /etc/passwd | cut -d':' -f1 | xargs -r -n1 deluser
+grep -E ':/sbin/nologin$' /etc/passwd | cut -d':' -f1 | xargs -r -n1 userdel
 
 # 5. read from individual users.list files and create users
 echo "[*] Checking for existing users..."
@@ -61,7 +62,7 @@ if [ "$TOTAL_USER_COUNT" -gt 0 ]; then
     while IFS='|' read -r NAME HASHED_PASS FOLDER UID GID; do
       USER_COUNT=$((USER_COUNT + 1))
       [ -z "$NAME" ] && continue  # Skip empty lines
-      GROUP="${NAME#*.}"
+      GROUP="$OPENPANEL_USER"
       echo "[+] Creating user ${NAME} [${USER_COUNT}/${TOTAL_USER_COUNT}]"
       FAKE_FOLDER="$FOLDER" # used for display only!
       if [ -z "$FOLDER" ]; then
@@ -101,8 +102,11 @@ if [ "$TOTAL_USER_COUNT" -gt 0 ]; then
       fi
   
       echo "    - Adding user with home directory: $FAKE_FOLDER"
-      adduser -h "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT --disabled-password --gecos "" "$NAME"
-  
+
+      # for user@domain format
+      useradd -d "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT -M "$NAME" --badname
+      #adduser -h "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT --disabled-password --gecos "" "$NAME"
+
       echo "    - Setting encrypted password '$HASHED_PASS'"
       if usermod -p "$HASHED_PASS" "$NAME"; then
           echo "    - Password set successfully"

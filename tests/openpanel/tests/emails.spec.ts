@@ -66,8 +66,9 @@ async function autoLogintest (page) {
   const popupPromise = page.waitForEvent('popup'); 
   await page.locator('[data-email^="test1@"]').click();
   const popup = await popupPromise;
-  await popup.waitForLoadState();
-  await popup.goto(`http://185.119.89.17:8080/?_task=mail&_action=compose`) //todo
+  //await popup.waitForLoadState();
+  await popup.waitForLoadState('load');
+  await popup.locator('a.compose').click();
   
   //await popup.locator('#rcmbtn103').click();
   //await expect(popup.locator('#composebody')).toBeVisible();
