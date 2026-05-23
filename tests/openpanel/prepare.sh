@@ -10,7 +10,7 @@ PANEL_EMAIL="test@test.com"
 
 # INCREASE LIMITS SO TESTS DONT GET BLOCKED
 opencli config update login_ratelimit 100
-
+opencli plan-edit id=2 name="Developer plus" description="A professional plan" emails=500 max_email_quota=2G ftp=100 domains=10 websites=10 disk=50 inodes=1000000 databases=20 cpu=4 ram=6 bandwidth=500 max_hourly_email=6000
 # ENABLE ALL FEATURES
 for f in basic.txt default.txt; do
   wget -qO- https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"

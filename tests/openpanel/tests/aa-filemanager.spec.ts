@@ -284,8 +284,6 @@ test('change file permissions', async ({ page }) => {
 
   await selectItem(page, TXT_FILE_BAK);
   await page.getByRole('button', { name: ' Permissions' }).click();
-  await page.getByPlaceholder('775').click();
-  await page.getByPlaceholder('775').press('ControlOrMeta+a');
   await page.getByPlaceholder('775').fill('755');
   await page.getByRole('button', { name: 'Confirm' }).click();
 
