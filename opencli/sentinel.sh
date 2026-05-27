@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 21.05.2026
+# Last Modified: 26.05.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -692,11 +692,9 @@ check_swap_usage() {
   local title="High SWAP usage!"
   local _ stotal sused _rest
   read -r _ stotal sused _rest < <(free | awk '/^Swap:/')
-
   if (( stotal == 0 )); then
     ((PASS++)); echo -e "\e[32m[✔]\e[0m No SWAP configured."; return
   fi
-
   local pct=$(( sused * 100 / stotal ))
 
   if (( pct <= SWAP_THRESHOLD )); then
@@ -712,38 +710,16 @@ check_swap_usage() {
     rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"
   fi
 
-  echo -e "\e[31m[✘]\e[0m SWAP ${pct}% > threshold ${SWAP_THRESHOLD}%."
-
-  local mem_available_kb
-  local safety_margin_kb=$((1024 * 1024))
-
-  mem_available_kb=$(awk '/^MemAvailable:/ {print $2}' /proc/meminfo)
-
-  if (( mem_available_kb <= sused + safety_margin_kb )); then
-    ((WARN++))
-    STATUS=1
-
-    echo -e "\e[38;5;214m[!]\e[0m Skipping SWAP cleanup: insufficient available RAM."
-    echo -e "\e[38;5;214m[!]\e[0m SWAP used: $((sused / 1024))MB, RAM available: $((mem_available_kb / 1024))MB, safety margin: $((safety_margin_kb / 1024))MB"
-
-    write_notification "$title" \
-      "SWAP: ${pct}%. Cleanup skipped on $HOSTNAME because available RAM is not enough. Swap used: $((sused / 1024))MB, RAM available: $((mem_available_kb / 1024))MB, safety margin: $((safety_margin_kb / 1024))MB."
-
-    return
-  fi
-
   echo -e "\e[31m[✘]\e[0m SWAP ${pct}% > threshold ${SWAP_THRESHOLD}%. Clearing..."
   write_notification "$title" "SWAP: ${pct}%. Cleanup starting."
   touch "$LOCK_FILE_FOR_SWAP_CLEANUP"
 
-  sync
-  echo 3 > /proc/sys/vm/drop_caches
+  sync ; echo 3 > /proc/sys/vm/drop_caches
   swapoff -a && swapon -a
 
   local stotal2 sused2
   read -r _ stotal2 sused2 _rest < <(free | awk '/^Swap:/')
-  local pct2=$(( stotal2 > 0 ? sused2 * 100 / stotal2 : 0 ))
-
+  local pct2=$(( stotal2 > 0 ? sused2*100/stotal2 : 0 ))
   if (( pct2 < SWAP_THRESHOLD )); then
     rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"
     write_notification "SWAP cleared — now ${pct2}%" "Sentinel cleared SWAP on $HOSTNAME."

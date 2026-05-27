@@ -1,14 +1,16 @@
 <?php
 $fileToken = "IZs2cM1dmE2RluSrnUYH84kKBVjuhw";
 
+if (strlen($fileToken) < 32) {
+    // https://github.com/stefanpejcic/OpenPanel/security/advisories/GHSA-m8fv-5cx3-qxm2
+    header("Location: ./index.php?invalid");
+    exit;
+}
+
 require_once '/etc/phpmyadmin/config.secret.inc.php';
 require_once '/etc/phpmyadmin/helpers.php';
 
-/* Ensure we got the environment */
-$vars = [
-    'PMA_HOST',
-    'MYSQL_ROOT_PASSWORD'
-];
+$vars = ['PMA_HOST', 'MYSQL_ROOT_PASSWORD'];
 
 foreach ($vars as $var) {
     $env = getenv($var);
@@ -44,9 +46,6 @@ if ($providedToken === $fileToken) {
     // Append query parameters to the Location header
     header("Location: ./index.php?$query_params_str");
 } else {
-    // for dev
-    #echo "Invalid token: $providedToken VS $fileToken";
-    // for prod
     header("Location: ./index.php?loginform=true");
 }
 ?>
