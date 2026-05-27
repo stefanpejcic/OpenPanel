@@ -410,7 +410,7 @@ download_config() {
     [[ "$REPAIR" == true ]] && rm -rf "$ETC_DIR"
     echo "Cloning OpenPanel configuration to ${ETC_DIR}..."
     run timeout 300s git clone https://github.com/stefanpejcic/openpanel-configuration "$ETC_DIR" || die 1 "Failed to clone openpanel-configuration from GitHub."
-    [[ -f "$CONFIG_FILE" ]] && ok "configuration files downloaded." || die 1 "Config file ${CONFIG_FILE} is missing after clone."	
+    [[ -f "$CONFIG_FILE" ]] && ok "configuration files downloaded." || die 1 "Config file ${CONFIG_FILE} is missing after clone."
 }
 
 setup_opencli() {
