@@ -453,6 +453,10 @@ install_openadmin() {
         [[ -f "$f" ]] || { openssl rand -hex 32 > "$f"; chmod 600 "$f"; }
     done
 
+	local pma_file="${ETC_DIR}openpanel/mysql/phpmyadmin/pma.php"	
+	local secret_key=$(cat "${ETC_DIR}openpanel/secret.key")
+	sed -i "s/\(\$fileToken = \"\)[^\"]*\"/\1${secret_key}\"/" "$pma_file"
+
     cp "${ETC_DIR}openadmin/service/openadmin.service" "${SERVICES_DIR}admin.service"
     run systemctl daemon-reload
     run systemctl enable --now admin
