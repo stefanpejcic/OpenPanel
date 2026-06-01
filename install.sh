@@ -59,7 +59,7 @@ warn() { echo -e "[${YELLOW}  ! ${RESET}] $*"; }
 fail() { echo -e "[${RED}  X ${RESET}] $*"; }
 
 die() {
-    echo -e "${RED}INSTALLATION FAILED${RESET} - Please retry with '--repair' flag\nError: $2" >&2
+    echo -e "${RED}INSTALLATION FAILED${RESET} - Please retry with '--repair' flag to retry. You can also add '-x' right after bash command to see the actual progress of this script and the exact errors. \nError message from the script: $2" >&2
     exit 1
 }
 
