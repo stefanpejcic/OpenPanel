@@ -11,7 +11,7 @@ DEBUG=true
 # START HELPER FUNCTIONS
 
 usage() {
-    echo "Usage: $0 --backup-location='<path>' --plan-name='<plan_name>' [--dry-run]"
+    echo "Usage: $0 --backup-location='<path>' --plan-name='<plan_name>' [--dry-run] [--reseller=<reseller>]"
     echo
     echo "Example: $0 --backup-location='/home/backup-7.29.2024_13-22-32_pejcic.tar.gz' --plan-name='Standard plan' --dry-run"
     exit 1
@@ -72,6 +72,7 @@ define_data_and_log(){
 	        --backup-location=*) backup_location=$(strip_quotes "${arg#*=}") ;;
 	        --plan-name=*)       plan_name=$(strip_quotes "${arg#*=}") ;;
 	        --post-hook=*)       post_hook=$(strip_quotes "${arg#*=}") ;;
+			--reseller=*)        reseller=$(strip_quotes "${arg#*=}") ;;
 	        --dry-run)           DRY_RUN=true ;;
 	        *)                   usage ;;
 	    esac
@@ -379,11 +380,19 @@ create_new_user() {
     local username="$1"
     local email="$3"
     local plan_name="$4"
+	local reseller_arg=""
 
-    dry_run "Would create user $username with email $email and plan $plan_name" && return
+	dry_run "Would create user $username${reseller:+ for reseller $reseller} with email $email and plan $plan_name" && return
 
-    log "Creating openpanel user and configuring services.."
-    create_user_command=$(opencli user-add "$cpanel_username" generate "$email" "$plan_name" --no-sentinel >/dev/null 2>&1)
+	if [ -n "$reseller" ]; then
+	    log "Creating openpanel user for reseller $reseller and configuring services.."
+	    reseller_arg="--reseller=$reseller"
+	else
+	    log "Creating openpanel user and configuring services.."
+	fi
+
+	create_user_command=$(opencli user-add "$cpanel_username" generate "$email" "$plan_name" $reseller_arg --no-sentinel 2>&1)
+
     while IFS= read -r line; do
         log "$line"
     done <<< "$create_user_command"
@@ -1203,7 +1212,8 @@ import_email_accounts_and_data() {
 	dry_run "Would restore email accounts from $base_dir" && return
 
 	postfix_file="/usr/local/mail/openmail/docker-data/dms/config/postfix-accounts.cf"
-	if [ ! -f "$postfix_file" ]; then
+	mailserver_dir="/usr/local/mail/openmail/docker-data/dms/config/"
+	if [ ! -d "$mailserver_dir" ]; then
 		log "WARNING: Skipping email imports due to mailserver not configured."
 		return 0
 	fi
