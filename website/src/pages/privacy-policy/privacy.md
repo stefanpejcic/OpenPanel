@@ -1,6 +1,6 @@
 # Privacy Policy
 
-Last updated: March 01, 2024
+Last updated: June 02, 2026
 
 OpenPanel is committed to protecting your privacy and any personal information you share with us. Accordingly, we have developed this privacy policy in order for you to understand how we collect, use, communicate, disclose and otherwise make use of personal information.
 
@@ -10,10 +10,9 @@ We have outlined our privacy policy below. It is recommended that you read this 
 
 OpenPanel is the controller for the processing of your personal data, as described in this privacy policy. Our company particulars are:
 
-- OpenPanel
-- IJsbaanpad 2
-- 1076 CV Amsterdam
-- The Netherlands
+- OpenPanel, LLC.
+- Milutina Milankovica 1c
+- 11070 Belgrade, Serbia
 
 - Privacy Protection Team: [info@openpanel.com](mailto:info@openpanel.com)
 
