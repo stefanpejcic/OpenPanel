@@ -11,7 +11,7 @@ DEBUG=true
 # START HELPER FUNCTIONS
 
 usage() {
-    echo "Usage: $0 --backup-location='<path>' --plan-name='<plan_name>' [--dry-run]"
+    echo "Usage: $0 --backup-location='<path>' --plan-name='<plan_name>' [--dry-run] [--reseller=<reseller>]"
     echo
     echo "Example: $0 --backup-location='/home/backup-7.29.2024_13-22-32_pejcic.tar.gz' --plan-name='Standard plan' --dry-run"
     exit 1
@@ -61,6 +61,7 @@ define_data_and_log(){
             --plan-name=*)       plan_name="${arg#*=}" ;;
             --dry-run)           DRY_RUN=true ;;
             --post-hook=*)       post_hook="${arg#*=}" ;;
+			--reseller=*)        reseller=$(strip_quotes "${arg#*=}") ;;
             *)                   usage ;;
         esac
     done
@@ -301,10 +302,18 @@ create_new_user() {
     local username="$1"
     local email="$3"
     local plan_name="$4"
+	local reseller_arg=""
 
-    dry_run "Would create user $username with email $email and plan $plan_name" && return
-        
-    create_user_command=$(opencli user-add "$cyberpanel_username" generate "$email" "$plan_name" --no-sentinel 2>&1)
+	dry_run "Would create user $username${reseller:+ for reseller $reseller} with email $email and plan $plan_name" && return
+
+	if [ -n "$reseller" ]; then
+	    log "Creating openpanel user for reseller $reseller and configuring services.."
+	    reseller_arg="--reseller=$reseller"
+	else
+	    log "Creating openpanel user and configuring services.."
+	fi
+
+	create_user_command=$(opencli user-add "$cyberpanel_username" generate "$email" "$plan_name" $reseller_arg --no-sentinel 2>&1)
     while IFS= read -r line; do
         log "$line"
     done <<< "$create_user_command"

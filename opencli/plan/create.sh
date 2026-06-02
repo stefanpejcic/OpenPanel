@@ -6,7 +6,7 @@
 # Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
 # Author: Radovan Jecmenica
 # Created: 06.11.2023
-# Last Modified: 26.05.2026
+# Last Modified: 01.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -66,12 +66,10 @@ if [ "$#" -lt 13 ]; then
 fi
 
 check_plan_exists() {
-    local name="$1"
-    local sql="SELECT id FROM plans WHERE name='${name}';"
-    local existing_plan=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -N -B -e "$sql")
+    local existing_plan=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT id FROM plans WHERE name='${1}' LIMIT 1;")
     if [ -n "$existing_plan" ]; then
-      echo "Plan name '${name}' already exists. Please choose another name."
-      exit 1
+        echo "Error: Plan name '$1' already exists. Please choose another name."
+        exit 1
     fi
 }
 
@@ -170,13 +168,10 @@ insert_plan() {
   if [ $? -eq 0 ]; then
         # if reseller, grant them access to the new plan id
         if [[ "$CHECK_PLAN_ID" == true ]]; then
-            plan_id=$(check_plan_exists "$name")
+            plan_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT id FROM plans WHERE name='${name}' LIMIT 1;" 2>/dev/null | grep -E '^[0-9]+$' | head -n1)
             if [ -n "$plan_id" ]; then
                 tmpfile=$(mktemp)
-
-                jq --arg plan "$plan_id" \
-                   '.allowed_plans |= (if index($plan) then . else . + [$plan] end)' \
-                   "$reseller_file" > "$tmpfile" && mv "$tmpfile" "$reseller_file"
+                jq --arg plan "$plan_id" '.allowed_plans |= (if index($plan) then . else . + [$plan] end)' "$reseller_file" > "$tmpfile" && mv "$tmpfile" "$reseller_file"
             else
                 echo "Warning: failed to retrieve plan ID from the database and assign it to the reseller user."
             fi
@@ -191,9 +186,7 @@ insert_plan() {
 check_reseller_user() {
     reseller_file="/etc/openpanel/openadmin/resellers/${reseller_user}.json"
 
-    if [[ -z "$reseller_user" ]]; then
-        return 1
-    fi
+    [[ -z "$reseller_user" ]] && return 1
 
     if [[ ! -f "$reseller_file" ]]; then
         echo "Error: Configuration file does not exist: $reseller_file"
