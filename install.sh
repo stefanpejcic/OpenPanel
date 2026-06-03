@@ -929,8 +929,8 @@ setup_progress_bar() {
 }
 
 STEPS=(
-    install_python
     update_package_manager
+    install_python
     install_packages
     hetzner_fix
     download_config
