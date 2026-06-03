@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 01.06.2026
+# Last Modified: 02.06.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -61,9 +61,9 @@ validate_first() {
 
 get_openpanel_username_and_uid_for_domain() {
     local domain="${1#*@}"
-    local whoowns_output
-    whoowns_output=$(opencli domains-whoowns "$domain")
-    owner=$(grep -oP "Owner of '$domain': \K.*" <<< "$whoowns_output")
+    local whoowns_output owner
+    whoowns_output=$(opencli domains-whoowns "$domain" --context)
+    read -r _ owner <<< "$whoowns_output"
     [[ -n "$owner" ]] && OP_UID=$(stat -c '%u' "/home/$owner")
 }
 

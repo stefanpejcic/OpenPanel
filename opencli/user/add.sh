@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 01.06.2026
+# Last Modified: 02.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -193,7 +193,7 @@ check_reseller_limits() {
 
     RESELLER_ESC=$(escape "$RESELLER")
     local user_exists
-    user_exists="$(sqlite3 "$db_file" "SELECT COUNT(*) FROM user WHERE username='${RESELLER//\'/\'\'}' AND role='RESELLER';")"
+    user_exists="$(sqlite3 "$db_file" "SELECT COUNT(*) FROM user WHERE username='${RESELLER//\'/\'\'}' AND role='reseller';")"
     (( user_exists >= 1 )) || die "User '$RESELLER' is not a reseller or is not allowed to create users."
 
     local limits_file="/etc/openpanel/openadmin/resellers/${RESELLER}.json"
@@ -210,7 +210,7 @@ check_reseller_limits() {
 
     local max_accounts
     max_accounts="$(jq -r '.max_accounts // "unlimited"' "$limits_file")"
-    if [[ "$max_accounts" != "unlimited" && "$current_accounts" -ge "$max_accounts" ]]; then
+    if [[ "$max_accounts" != "unlimited" && "$max_accounts" != "0" && "$current_accounts" -ge "$max_accounts" ]]; then
         die "Reseller '$RESELLER' has reached the maximum account limit ($max_accounts)."
     fi
 

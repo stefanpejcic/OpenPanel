@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.5\n"
+"Project-Id-Version: OpenPanel 1.7.59\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-05-19 12:17+0200\n"
+"POT-Creation-Date: 2026-06-02 18:10+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -118,15 +118,16 @@ msgstr ""
 #: modules/domain/docroot.py:33 modules/domain/domain_logs.py:42
 #: modules/domain/edit_vhost.py:39 modules/domain/edit_vhost.py:61
 #: modules/domain/redirects.py:58 modules/domain/redirects.py:132
-#: modules/domain/redirects.py:193 modules/domain/ssl.py:33
-#: modules/domains.py:357 modules/domains.py:391 modules/domains.py:416
-#: modules/domains.py:449 modules/domains.py:513 modules/dynamic_dns.py:120
-#: modules/emails.py:234 modules/emails.py:425 modules/emails.py:630
-#: modules/emails.py:708 modules/emails.py:1067 modules/emails.py:1175
-#: modules/emails.py:1270 modules/goaccess.py:23 modules/json/favicons.py:32
-#: modules/json/screenshots.py:74 modules/mautic.py:93 modules/mautic.py:190
-#: modules/mautic.py:431 modules/mautic.py:595 modules/mautic.py:788
-#: modules/php.py:390 modules/pm2.py:572 modules/pm2.py:1268
+#: modules/domain/redirects.py:187 modules/domain/ssl.py:33
+#: modules/domains.py:356 modules/domains.py:390 modules/domains.py:415
+#: modules/domains.py:448 modules/domains.py:512 modules/dynamic_dns.py:120
+#: modules/emails.py:237 modules/emails.py:433 modules/emails.py:663
+#: modules/emails.py:741 modules/emails.py:1180 modules/emails.py:1288
+#: modules/emails.py:1383 modules/files/ftp.py:176 modules/goaccess.py:23
+#: modules/json/favicons.py:32 modules/json/screenshots.py:74
+#: modules/mautic.py:93 modules/mautic.py:190 modules/mautic.py:431
+#: modules/mautic.py:595 modules/mautic.py:788 modules/php.py:390
+#: modules/pm2.py:572 modules/pm2.py:1268
 #: modules/sitemanager/temporary_links.py:54 modules/waf.py:115
 #: modules/waf.py:255 modules/waf.py:309 modules/waf.py:363
 #: modules/website_builder.py:44 modules/website_builder.py:149
@@ -253,34 +254,34 @@ msgstr ""
 msgid "Invalid action"
 msgstr ""
 
-#: modules/domains.py:210 templates/cache/service.html:167
+#: modules/domains.py:209 templates/cache/service.html:167
 #: templates/dashboard/dashboard.html:85 templates/dashboard/dashboard.html:113
 #: templates/dashboard/usage.html:39 templates/domains/domains.html:12
 #: templates/partials/_header.html:62
 msgid "Domains"
 msgstr ""
 
-#: modules/domains.py:296
+#: modules/domains.py:295
 msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
 msgstr ""
 
-#: modules/domains.py:337 templates/domains/new.html:129
+#: modules/domains.py:336 templates/domains/new.html:129
 #: templates/domains/new.html:343
 msgid "Add Domain"
 msgstr ""
 
-#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:349
-#: modules/domains.py:410
+#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:348
+#: modules/domains.py:409
 msgid "Invalid request. Domain name must be provided."
 msgstr ""
 
-#: modules/domains.py:388 templates/domains/domains.html:419
+#: modules/domains.py:387 templates/domains/domains.html:419
 #: templates/emails/single_account.html:167
 #: templates/emails/single_account.html:189
 msgid "Suspend"
 msgstr ""
 
-#: modules/domains.py:446 templates/domains/domains.html:415
+#: modules/domains.py:445 templates/domains/domains.html:415
 msgid "Unsuspend"
 msgstr ""
 
@@ -309,30 +310,30 @@ msgstr ""
 msgid "Dynamic DNS"
 msgstr ""
 
-#: modules/emails.py:260 modules/emails.py:298 modules/emails.py:335
+#: modules/emails.py:263 modules/emails.py:301 modules/emails.py:338
 #: templates/dashboard/dashboard.html:169
 msgid "Filters"
 msgstr ""
 
-#: modules/emails.py:286 modules/emails.py:319
+#: modules/emails.py:289 modules/emails.py:322
 msgid "No content provided."
 msgstr ""
 
-#: modules/emails.py:291 modules/emails.py:324
+#: modules/emails.py:294 modules/emails.py:327
 msgid "Filter saved successfully."
 msgstr ""
 
-#: modules/emails.py:293 modules/emails.py:326
+#: modules/emails.py:296 modules/emails.py:329
 msgid "Error saving filter."
 msgstr ""
 
-#: modules/emails.py:411
+#: modules/emails.py:419
 msgid ""
 "Webmail service is not yet started, please contact Administrator to "
 "enable it."
 msgstr ""
 
-#: modules/emails.py:444 modules/mysqld/mysql_import.py:81
+#: modules/emails.py:480 modules/mysqld/mysql_import.py:81
 #: modules/mysqld/mysql_import.py:92 modules/mysqld/mysql_import.py:105
 #: modules/psql/postgresql_import.py:62 modules/psql/postgresql_import.py:67
 #: modules/psql/postgresql_import.py:70 modules/psql/postgresql_import.py:81
@@ -340,79 +341,79 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: modules/emails.py:448
+#: modules/emails.py:484
 msgid "Error: No file uploaded."
 msgstr ""
 
-#: modules/emails.py:458
+#: modules/emails.py:494
 msgid "Error: Unsupported file format, please upload a .csv or .xls file."
 msgstr ""
 
-#: modules/emails.py:465
+#: modules/emails.py:501
 msgid "Error: File must have at least 2 columns: email, password"
 msgstr ""
 
-#: modules/emails.py:474
+#: modules/emails.py:510
 msgid ""
 "Error: File is invalid - the first column must contain valid email "
 "addresses."
 msgstr ""
 
-#: modules/emails.py:501
+#: modules/emails.py:537
 msgid "Confirm Import"
 msgstr ""
 
-#: modules/emails.py:511
+#: modules/emails.py:547
 msgid "Error: No import data found, please try again."
 msgstr ""
 
-#: modules/emails.py:639
+#: modules/emails.py:672
 msgid "Error: reached max number of email accounts on the hosting plan."
 msgstr ""
 
-#: modules/emails.py:680 templates/files/ftp_new.html:200
+#: modules/emails.py:713 templates/files/ftp_new.html:214
 msgid "Create Account"
 msgstr ""
 
-#: modules/emails.py:697
+#: modules/emails.py:730
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:840
+#: modules/emails.py:873
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:854 templates/emails/accounts.html:113
-#: templates/emails/info.html:9
+#: modules/emails.py:887 templates/emails/accounts.html:103
+#: templates/emails/info.html:7
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:868
+#: modules/emails.py:899
 msgid "Error: Invalid configuration type."
 msgstr ""
 
-#: modules/emails.py:1051 templates/dashboard/dashboard.html:168
+#: modules/emails.py:1164 templates/dashboard/dashboard.html:168
 #: templates/emails/aliases.html:9
 msgid "Aliases"
 msgstr ""
 
-#: modules/emails.py:1093
+#: modules/emails.py:1206
 msgid "Error: a valid target email address is required."
 msgstr ""
 
-#: modules/emails.py:1171
+#: modules/emails.py:1284
 msgid "Error: target must be a valid email address."
 msgstr ""
 
-#: modules/emails.py:1192 templates/emails/aliases.html:35
+#: modules/emails.py:1305 templates/emails/aliases.html:35
 msgid "New Alias"
 msgstr ""
 
-#: modules/emails.py:1214 templates/emails/alias_detail.html:108
+#: modules/emails.py:1327 templates/emails/alias_detail.html:108
 msgid "Delete Alias"
 msgstr ""
 
-#: modules/emails.py:1267 modules/emails.py:1278
+#: modules/emails.py:1380 modules/emails.py:1391
 msgid "Default Email"
 msgstr ""
 
@@ -426,27 +427,27 @@ msgstr ""
 msgid "Server Information"
 msgstr ""
 
-#: modules/ip_blocker.py:65
+#: modules/ip_blocker.py:46
 msgid ""
 "IP addresses have been successfully added to blocklist and can no longer "
 "access websites"
 msgstr ""
 
-#: modules/ip_blocker.py:70
+#: modules/ip_blocker.py:52
 msgid ""
 "All IP addresses have been successfully removed from blocklist and can "
 "now access websites"
 msgstr ""
 
-#: modules/ip_blocker.py:82
+#: modules/ip_blocker.py:64
 msgid "Failed to block IP addresses - please try again"
 msgstr ""
 
-#: modules/ip_blocker.py:85
+#: modules/ip_blocker.py:67
 msgid "Error ocured blocking IP addresses - contact Administrator"
 msgstr ""
 
-#: modules/ip_blocker.py:88 templates/dashboard/dashboard.html:194
+#: modules/ip_blocker.py:83 templates/dashboard/dashboard.html:194
 #: templates/system/ip_blocker.html:15
 msgid "IP Blocker"
 msgstr ""
@@ -631,7 +632,7 @@ msgstr ""
 
 #: modules/cache/varnish.py:193 modules/cache/varnish.py:223
 #: modules/pgadmin.py:47 modules/php.py:395 modules/php.py:404
-#: modules/php.py:418 modules/phpmyadmin.py:103
+#: modules/php.py:418 modules/php.py:498 modules/phpmyadmin.py:103
 #: templates/files/backup_settings.html:31
 #: templates/files/backup_settings.html:107
 msgid "error"
@@ -702,6 +703,10 @@ msgstr ""
 #: modules/account/account.py:156 modules/php.py:470
 #: templates/psql/pgadmin.html:105
 msgid "Settings"
+msgstr ""
+
+#: modules/php.py:480
+msgid "PHP INFO"
 msgstr ""
 
 #: modules/phpmyadmin.py:107
@@ -1481,7 +1486,7 @@ msgstr ""
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
 msgstr ""
 
-#: modules/domain/redirects.py:189
+#: modules/domain/redirects.py:183
 msgid "Create a Redirect"
 msgstr ""
 
@@ -1759,7 +1764,7 @@ msgstr ""
 msgid "Fix Permissions"
 msgstr ""
 
-#: modules/files/ftp.py:70 modules/files/ftp.py:74
+#: modules/files/ftp.py:79 modules/files/ftp.py:83
 #: templates/cache/service.html:26 templates/domains/ssl.html:61
 #: templates/files/ftp.html:13 templates/manager/python_node_apps.html:70
 #: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:76
@@ -1768,24 +1773,24 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/files/ftp.py:123 modules/files/ftp.py:144 modules/files/ftp.py:223
-#: modules/files/ftp.py:300
+#: modules/files/ftp.py:132 modules/files/ftp.py:153 modules/files/ftp.py:240
+#: modules/files/ftp.py:311
 msgid "FTP service is not yet started, please contact Administrator to enable it."
 msgstr ""
 
-#: modules/files/ftp.py:132
+#: modules/files/ftp.py:141
 msgid "No currently active FTP connections"
 msgstr ""
 
-#: modules/files/ftp.py:353
+#: modules/files/ftp.py:361
 msgid "Invalid configuration type, please use cyberduck or filezilla only!"
 msgstr ""
 
-#: modules/files/ftp.py:363
+#: modules/files/ftp.py:371
 msgid "User has no FTP accounts."
 msgstr ""
 
-#: modules/files/ftp.py:381
+#: modules/files/ftp.py:389
 msgid "FTP account not found."
 msgstr ""
 
@@ -1894,7 +1899,7 @@ msgstr ""
 msgid "PHP.INI Editor"
 msgstr ""
 
-#: modules/phpd/php_options.py:144 templates/emails/accounts.html:55
+#: modules/phpd/php_options.py:144 templates/emails/accounts.html:45
 #: templates/emails/aliases.html:47 templates/manager/wp/single.html:146
 msgid "Options"
 msgstr ""
@@ -2044,7 +2049,7 @@ msgstr ""
 msgid "Server:"
 msgstr ""
 
-#: templates/cache/service.html:81 templates/manager/pm2_install.html:120
+#: templates/cache/service.html:81 templates/manager/pm2_install.html:108
 #: templates/mysql/phpmyadmin.html:276 templates/mysql/remote_mysql.html:103
 #: templates/mysql/remote_mysql.html:126 templates/psql/pgadmin.html:212
 #: templates/psql/remote_psql.html:123 templates/psql/remote_psql.html:145
@@ -2324,9 +2329,9 @@ msgstr ""
 msgid "Information"
 msgstr ""
 
-#: templates/dashboard/information.html:33 templates/emails/info.html:29
+#: templates/dashboard/information.html:33 templates/emails/info.html:21
 #: templates/emails/new.html:42 templates/files/ftp.html:51
-#: templates/files/ftp_new.html:28 templates/mysql/mysql_user.html:24
+#: templates/files/ftp_new.html:29 templates/mysql/mysql_user.html:24
 #: templates/mysql/mysql_user.html:26 templates/mysql/password.html:21
 #: templates/mysql/users.html:83 templates/psql/password.html:21
 #: templates/psql/psql_user.html:24 templates/psql/psql_user.html:26
@@ -2516,7 +2521,7 @@ msgstr ""
 #: templates/docker/container_form.html:68
 #: templates/files/filemanager/modals/rename.html:31
 #: templates/files/filemanager/rename.html:27
-#: templates/manager/pm2_install.html:95 templates/system/services.html:93
+#: templates/manager/pm2_install.html:86 templates/system/services.html:93
 msgid "Name:"
 msgstr ""
 
@@ -2854,7 +2859,7 @@ msgid "Total volumes:"
 msgstr ""
 
 #: templates/domains/capitalize.html:125 templates/domains/delete.html:84
-#: templates/domains/docroot.html:61 templates/domains/redirect.html:68
+#: templates/domains/docroot.html:61 templates/domains/redirect.html:48
 #: templates/domains/ssl.html:17 templates/domains/suspend.html:46
 #: templates/domains/unsuspend.html:45
 msgid "Back to Domains"
@@ -3039,8 +3044,9 @@ msgstr ""
 #: templates/domains/dns.html:165 templates/domains/dns.html:176
 #: templates/domains/dynamic_dns.html:42 templates/domains/dynamic_dns.html:88
 #: templates/domains/new.html:45 templates/emails/alias_new.html:21
-#: templates/emails/new.html:23 templates/manager/wp/list.html:118
-#: templates/mysql/phpmyadmin.html:238 templates/php/settings.html:153
+#: templates/emails/new.html:23 templates/files/ftp_new.html:34
+#: templates/manager/wp/list.html:118 templates/mysql/phpmyadmin.html:238
+#: templates/php/settings.html:153
 msgid "Domain"
 msgstr ""
 
@@ -3534,39 +3540,39 @@ msgstr ""
 msgid "(for compatibility with internationalized domain names)"
 msgstr ""
 
-#: templates/domains/redirect.html:13
+#: templates/domains/redirect.html:11
 msgid "Edit Redirect for"
 msgstr ""
 
-#: templates/domains/redirect.html:13
+#: templates/domains/redirect.html:11
 msgid "Create Redirect for"
 msgstr ""
 
-#: templates/domains/redirect.html:14
+#: templates/domains/redirect.html:12
 msgid "Edit or delete URL redirect for domain"
 msgstr ""
 
-#: templates/domains/redirect.html:14
+#: templates/domains/redirect.html:12
 msgid "Redirect domain to URL."
 msgstr ""
 
-#: templates/domains/redirect.html:30
+#: templates/domains/redirect.html:27
 msgid "https://"
 msgstr ""
 
-#: templates/domains/redirect.html:44
+#: templates/domains/redirect.html:35
 msgid "Save Redirect"
 msgstr ""
 
-#: templates/domains/redirect.html:57
+#: templates/domains/redirect.html:44
 msgid "Delete Redirect"
 msgstr ""
 
-#: templates/domains/redirect.html:89
+#: templates/domains/redirect.html:66
 msgid "Redirect Domain to URL"
 msgstr ""
 
-#: templates/domains/redirect.html:90
+#: templates/domains/redirect.html:67
 msgid ""
 "Redirecting a domain will immediately redirect all traffic to the new "
 "URL, while Email and other services remain operational."
@@ -3753,41 +3759,46 @@ msgstr ""
 msgid "Total emails:"
 msgstr ""
 
-#: templates/emails/accounts.html:36
+#: templates/emails/accounts.html:26
 msgid "New Email"
 msgstr ""
 
-#: templates/emails/accounts.html:53
+#: templates/emails/accounts.html:27 templates/mysql/databases.html:369
+#: templates/mysql/databases.html:375 templates/mysql/databases.html:433
+msgid "Export"
+msgstr ""
+
+#: templates/emails/accounts.html:43
 msgid "Account @ Domain"
 msgstr ""
 
-#: templates/emails/accounts.html:54
+#: templates/emails/accounts.html:44
 msgid "Storage Used"
 msgstr ""
 
-#: templates/emails/accounts.html:62
+#: templates/emails/accounts.html:52
 msgid "No emails yet."
 msgstr ""
 
-#: templates/emails/accounts.html:62
+#: templates/emails/accounts.html:52
 msgid "Add your first email"
 msgstr ""
 
-#: templates/emails/accounts.html:111
+#: templates/emails/accounts.html:101
 msgid "Webmail"
 msgstr ""
 
-#: templates/emails/accounts.html:112 templates/emails/aliases.html:82
+#: templates/emails/accounts.html:102 templates/emails/aliases.html:82
 #: templates/manager/sites.html:9 templates/manager/sites.html:238
 #: templates/manager/wp/list.html:141 templates/partials/_service.html:54
 msgid "Manage"
 msgstr ""
 
-#: templates/emails/accounts.html:139
+#: templates/emails/accounts.html:129
 msgid "Webmail for "
 msgstr ""
 
-#: templates/emails/accounts.html:139
+#: templates/emails/accounts.html:129
 msgid " opened in new window."
 msgstr ""
 
@@ -3986,9 +3997,9 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: templates/emails/confirm_import.html:46 templates/emails/info.html:30
+#: templates/emails/confirm_import.html:46 templates/emails/info.html:22
 #: templates/emails/new.html:126 templates/emails/single_account.html:210
-#: templates/files/ftp_new.html:53 templates/mysql/mysql_user.html:43
+#: templates/files/ftp_new.html:58 templates/mysql/mysql_user.html:43
 #: templates/mysql/mysql_user.html:52 templates/mysql/password.html:41
 #: templates/mysql/root_password.html:43 templates/mysql/wizard.html:244
 #: templates/psql/password.html:41 templates/psql/password.html:51
@@ -4045,7 +4056,7 @@ msgstr ""
 
 #: templates/emails/default_address.html:15
 #: templates/emails/default_address.html:63 templates/emails/import.html:45
-#: templates/emails/info.html:56 templates/emails/new.html:350
+#: templates/emails/info.html:48 templates/emails/new.html:350
 #: templates/emails/single_account.html:334
 msgid "Back to Emails"
 msgstr ""
@@ -4362,45 +4373,43 @@ msgstr ""
 msgid "Upload"
 msgstr ""
 
-#: templates/emails/info.html:10
+#: templates/emails/info.html:8
 msgid "View email server information for account"
 msgstr ""
 
-#: templates/emails/info.html:14
-msgid ""
-"How to setup your email client\n"
-"        "
+#: templates/emails/info.html:11
+msgid "How to setup your email client"
 msgstr ""
 
-#: templates/emails/info.html:30
+#: templates/emails/info.html:22
 msgid "Use the email account's password."
 msgstr ""
 
-#: templates/emails/info.html:31
+#: templates/emails/info.html:23
 msgid "Incoming Server"
 msgstr ""
 
-#: templates/emails/info.html:32
+#: templates/emails/info.html:24
 msgid "IMAP Port"
 msgstr ""
 
-#: templates/emails/info.html:33
+#: templates/emails/info.html:25
 msgid "Outgoing Server"
 msgstr ""
 
-#: templates/emails/info.html:34
+#: templates/emails/info.html:26
 msgid "SMTP Port"
 msgstr ""
 
-#: templates/emails/info.html:38
+#: templates/emails/info.html:30
 msgid "Secure SSL/TLS Settings"
 msgstr ""
 
-#: templates/emails/info.html:38
+#: templates/emails/info.html:30
 msgid "Non-SSL Settings"
 msgstr ""
 
-#: templates/emails/info.html:48
+#: templates/emails/info.html:40
 msgid "IMAP, POP3, and SMTP require authentication."
 msgstr ""
 
@@ -4417,7 +4426,7 @@ msgid "info"
 msgstr ""
 
 #: templates/emails/new.html:116 templates/emails/single_account.html:200
-#: templates/files/ftp_new.html:43 templates/files/ftp_password.html:33
+#: templates/files/ftp_new.html:48 templates/files/ftp_password.html:33
 #: templates/manager/mautic_install.html:148
 #: templates/manager/wp/install.html:214 templates/mysql/mysql_user.html:33
 #: templates/mysql/password.html:31 templates/mysql/root_password.html:24
@@ -4427,7 +4436,7 @@ msgid "Weak password"
 msgstr ""
 
 #: templates/emails/new.html:117 templates/emails/single_account.html:201
-#: templates/files/ftp_new.html:44 templates/files/ftp_password.html:34
+#: templates/files/ftp_new.html:49 templates/files/ftp_password.html:34
 #: templates/manager/mautic_install.html:149
 #: templates/manager/wp/install.html:215 templates/mysql/mysql_user.html:34
 #: templates/mysql/password.html:32 templates/mysql/root_password.html:25
@@ -4437,7 +4446,7 @@ msgid "Medium strength password"
 msgstr ""
 
 #: templates/emails/new.html:118 templates/emails/single_account.html:202
-#: templates/files/ftp_new.html:45 templates/files/ftp_password.html:35
+#: templates/files/ftp_new.html:50 templates/files/ftp_password.html:35
 #: templates/manager/mautic_install.html:150
 #: templates/manager/wp/install.html:216 templates/mysql/mysql_user.html:35
 #: templates/mysql/password.html:33 templates/mysql/root_password.html:26
@@ -4447,7 +4456,7 @@ msgid "Strong password"
 msgstr ""
 
 #: templates/emails/new.html:135 templates/emails/single_account.html:219
-#: templates/files/ftp_new.html:64 templates/files/ftp_password.html:43
+#: templates/files/ftp_new.html:69 templates/files/ftp_password.html:43
 #: templates/mysql/password.html:50 templates/mysql/root_password.html:34
 #: templates/user/reset_password/set_new_password.html:22
 msgid "New Password"
@@ -4977,17 +4986,17 @@ msgstr ""
 msgid "Create a new FTP account."
 msgstr ""
 
-#: templates/files/ftp_new.html:62
+#: templates/files/ftp_new.html:67
 msgid ""
 "Password must be at least 8 characters, and include a lowercase letter, "
 "an uppercase letter, a number, and a special character."
 msgstr ""
 
-#: templates/files/ftp_new.html:177
+#: templates/files/ftp_new.html:191
 msgid "Path (folder)"
 msgstr ""
 
-#: templates/files/ftp_new.html:196
+#: templates/files/ftp_new.html:210
 msgid "Back to FTP Accounts"
 msgstr ""
 
@@ -5738,14 +5747,14 @@ msgid "My Site"
 msgstr ""
 
 #: templates/manager/mautic_install.html:35
-#: templates/manager/pm2_install.html:144
+#: templates/manager/pm2_install.html:129
 #: templates/manager/websitebuilder_install.html:24
 #: templates/manager/wp/install.html:77
 msgid "Domain:"
 msgstr ""
 
 #: templates/manager/mautic_install.html:40
-#: templates/manager/pm2_install.html:163
+#: templates/manager/pm2_install.html:145
 #: templates/manager/websitebuilder_install.html:29
 #: templates/manager/wp/install.html:95 templates/manager/wp/single.html:1813
 msgid "Select a domain"
@@ -5788,19 +5797,19 @@ msgid "Database Username:"
 msgstr ""
 
 #: templates/manager/mautic_install.html:444
-#: templates/manager/pm2_install.html:631
+#: templates/manager/pm2_install.html:613
 #: templates/manager/websitebuilder_install.html:99
 #: templates/manager/wp/install.html:602
 msgid "Back to AutoInstaller"
 msgstr ""
 
 #: templates/manager/mautic_install.html:449
-#: templates/manager/pm2_install.html:636 templates/manager/wp/install.html:607
+#: templates/manager/pm2_install.html:618 templates/manager/wp/install.html:607
 msgid "Start Installation"
 msgstr ""
 
 #: templates/manager/mautic_install.html:474
-#: templates/manager/pm2_install.html:661
+#: templates/manager/pm2_install.html:643
 #: templates/manager/websitebuilder_install.html:129
 #: templates/manager/wp/install.html:630
 msgid "Please select a domain name."
@@ -5811,14 +5820,14 @@ msgid "Mautic install started. Please wait for the process to finish."
 msgstr ""
 
 #: templates/manager/mautic_install.html:530
-#: templates/manager/pm2_install.html:718
+#: templates/manager/pm2_install.html:700
 #: templates/manager/websitebuilder_install.html:193
 #: templates/manager/wp/install.html:686
 msgid "Error, please check the install log below the form."
 msgstr ""
 
 #: templates/manager/mautic_install.html:547
-#: templates/manager/pm2_install.html:735
+#: templates/manager/pm2_install.html:717
 #: templates/manager/websitebuilder_install.html:210
 #: templates/manager/wp/install.html:703
 msgid "Fetch error. Please try again."
@@ -5837,102 +5846,102 @@ msgstr ""
 msgid "Create a new application."
 msgstr ""
 
-#: templates/manager/pm2_install.html:39 templates/manager/pm2_install.html:47
+#: templates/manager/pm2_install.html:32 templates/manager/pm2_install.html:40
 msgid "Incorrect file extension - Please use"
 msgstr ""
 
-#: templates/manager/pm2_install.html:39 templates/manager/pm2_install.html:47
+#: templates/manager/pm2_install.html:32 templates/manager/pm2_install.html:40
 msgid "for"
 msgstr ""
 
-#: templates/manager/pm2_install.html:65
+#: templates/manager/pm2_install.html:57
 msgid "file exists"
 msgstr ""
 
-#: templates/manager/pm2_install.html:67
+#: templates/manager/pm2_install.html:59
 msgid "file does not exist!"
 msgstr ""
 
-#: templates/manager/pm2_install.html:104
+#: templates/manager/pm2_install.html:92
 msgid "Container name is only visible on backend."
 msgstr ""
 
-#: templates/manager/pm2_install.html:129
+#: templates/manager/pm2_install.html:114
 msgid "Port is optional, if left blank port '80' will be used."
 msgstr ""
 
-#: templates/manager/pm2_install.html:153
+#: templates/manager/pm2_install.html:135
 msgid "Choose a domain name and optional subdirectory to create reverse-proxy."
 msgstr ""
 
-#: templates/manager/pm2_install.html:180
+#: templates/manager/pm2_install.html:162
 #: templates/manager/python_node_apps.html:216
 msgid "Startup file:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:203
+#: templates/manager/pm2_install.html:185
 msgid "Custom startup command"
 msgstr ""
 
-#: templates/manager/pm2_install.html:215
+#: templates/manager/pm2_install.html:197
 msgid ""
 "Startup file is the main entry point of the application, usually app.py "
 "or app.js file."
 msgstr ""
 
-#: templates/manager/pm2_install.html:236
+#: templates/manager/pm2_install.html:218
 msgid "Startup command"
 msgstr ""
 
-#: templates/manager/pm2_install.html:245
+#: templates/manager/pm2_install.html:227
 msgid ""
 "If custom startup command is provided, it will be executed instead of the"
 " default"
 msgstr ""
 
-#: templates/manager/pm2_install.html:265
+#: templates/manager/pm2_install.html:247
 msgid "Type:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:313
+#: templates/manager/pm2_install.html:295
 msgid "Create a new NodeJS application"
 msgstr ""
 
-#: templates/manager/pm2_install.html:314
+#: templates/manager/pm2_install.html:296
 msgid "Run NPM install before starting the application"
 msgstr ""
 
-#: templates/manager/pm2_install.html:315
+#: templates/manager/pm2_install.html:297
 msgid ""
 "When enabled, this option will first run npm install using the "
 "package.json file, then launch the application. If the application is "
 "already built, you can skip this option."
 msgstr ""
 
-#: templates/manager/pm2_install.html:319
+#: templates/manager/pm2_install.html:301
 msgid "Create a new Python application"
 msgstr ""
 
-#: templates/manager/pm2_install.html:320
+#: templates/manager/pm2_install.html:302
 msgid "Run PIP install before starting the application"
 msgstr ""
 
-#: templates/manager/pm2_install.html:321
+#: templates/manager/pm2_install.html:303
 msgid ""
 "When enabled, this option will first run pip install using the "
 "requirements.txt file, then launch the application. If the application is"
 " already built, you can skip this option."
 msgstr ""
 
-#: templates/manager/pm2_install.html:324
+#: templates/manager/pm2_install.html:306
 msgid "Create a new application"
 msgstr ""
 
-#: templates/manager/pm2_install.html:326
+#: templates/manager/pm2_install.html:308
 msgid "If the application is already built, you can skip this option."
 msgstr ""
 
-#: templates/manager/pm2_install.html:370
+#: templates/manager/pm2_install.html:352
 #: templates/manager/python_node_apps.html:85
 #: templates/manager/python_node_apps.html:436
 #: templates/manager/python_node_apps.html:446
@@ -5940,49 +5949,49 @@ msgstr ""
 msgid "Version:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:379
+#: templates/manager/pm2_install.html:361
 msgid "Select version of Python/NodeJS to use for this application."
 msgstr ""
 
-#: templates/manager/pm2_install.html:458
+#: templates/manager/pm2_install.html:440
 msgid "Run NPM install before starting the app"
 msgstr ""
 
-#: templates/manager/pm2_install.html:468
+#: templates/manager/pm2_install.html:450
 msgid ""
 "When enabled, this option will first run npm install using the "
 "package.json file, then launch the application. "
 msgstr ""
 
-#: templates/manager/pm2_install.html:481
+#: templates/manager/pm2_install.html:463
 msgid "Application files will be stored in folder:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:514
+#: templates/manager/pm2_install.html:496
 msgid "Service name to use in reverse-proxy:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:566 templates/manager/wp/install.html:466
+#: templates/manager/pm2_install.html:548 templates/manager/wp/install.html:466
 msgid "Advanced Options"
 msgstr ""
 
-#: templates/manager/pm2_install.html:578
+#: templates/manager/pm2_install.html:560
 msgid "CPU cores:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:587
+#: templates/manager/pm2_install.html:569
 msgid "Restrict CPU cores that the container can use."
 msgstr ""
 
-#: templates/manager/pm2_install.html:598
+#: templates/manager/pm2_install.html:580
 msgid "Memory:"
 msgstr ""
 
-#: templates/manager/pm2_install.html:607
+#: templates/manager/pm2_install.html:589
 msgid "Physical Memory (in GB) that the container can use."
 msgstr ""
 
-#: templates/manager/pm2_install.html:667
+#: templates/manager/pm2_install.html:649
 msgid "Application setup started. Please wait for the process to finish."
 msgstr ""
 
@@ -7362,11 +7371,6 @@ msgstr ""
 
 #: templates/mysql/databases.html:349 templates/psql/databases.html:162
 msgid "System Database"
-msgstr ""
-
-#: templates/mysql/databases.html:369 templates/mysql/databases.html:375
-#: templates/mysql/databases.html:433
-msgid "Export"
 msgstr ""
 
 #: templates/mysql/databases.html:387

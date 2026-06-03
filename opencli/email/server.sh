@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 18.08.2024
-# Last Modified: 01.06.2026
+# Last Modified: 02.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -156,11 +156,9 @@ enable_emails_if_not_yet() {
 
 pflogsumm_get_data() {
 
-	cd /tmp || { 
-	    echo "Error: Failed to enter /tmp in order to generate a summary report." >&2
-	    exit 1
-	}
-	
+	cd /tmp || { echo "Error: Failed to enter /tmp in order to generate a summary report." >&2; exit 1 }
+
+	# 1. clone from git
 	rm -rf PFLogSumm-HTML-GUI
 	git clone https://github.com/stefanpejcic/PFLogSumm-HTML-GUI.git  > /dev/null 2>&1
 	ln -s /usr/local/mail/openmail/mailserver.env /usr/local/mail/openmail/.env > /dev/null 2>&1
@@ -169,14 +167,13 @@ pflogsumm_get_data() {
 	docker exec openadmin_mailserver sh -c "mkdir -p /usr/local/admin/static/reports" > /dev/null 2>&1	
 	docker cp /usr/local/admin/templates/emails/data openadmin_mailserver:/usr/local/admin/static/reports/data > /dev/null 2>&1	
 	docker --context=default exec openadmin_mailserver sh -c "bash /opt/pflogsummUIReport.sh"
-	docker exec openadmin_mailserver sh -c "rm -rf /usr/local/admin/static/reports" > /dev/null 2>&1	
 	echo "Done, adding reports to OpenAdmin interface"
 	mkdir -p /usr/local/admin/static/reports /usr/local/admin/templates/emails > /dev/null 2>&1
 	docker cp openadmin_mailserver:/usr/local/admin/static/reports/reports.html /usr/local/admin/templates/emails/reports.html > /dev/null 2>&1
 	docker cp openadmin_mailserver:/usr/local/admin/static/reports/data /usr/local/admin/templates/emails/ > /dev/null 2>&1
- 
-	#echo "Reloading admin panel.."
-	#service admin restart   > /dev/null 2>&1
+ 	docker exec openadmin_mailserver sh -c "rm -rf /usr/local/admin/static/reports" > /dev/null 2>&1	
+
+	systemctl reload admin > /dev/null 2>&1
 	echo "Completed"
  	rm -rf PFLogSumm-HTML-GUI
 }
