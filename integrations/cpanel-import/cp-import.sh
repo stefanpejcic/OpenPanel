@@ -67,6 +67,8 @@ define_data_and_log(){
 	    echo "$str"
 	}
 	
+    # 2026/06/04
+    # --pma-start flag added to optionally start phpMyAdmin service after MySQL import is finished.
 	for arg in "$@"; do
 	    case $arg in
 	        --backup-location=*) backup_location=$(strip_quotes "${arg#*=}") ;;
@@ -74,6 +76,7 @@ define_data_and_log(){
 	        --post-hook=*)       post_hook=$(strip_quotes "${arg#*=}") ;;
 			--reseller=*)        reseller=$(strip_quotes "${arg#*=}") ;;
 	        --dry-run)           DRY_RUN=true ;;
+            --pma-start)         PMA_START=true ;;
 	        *)                   usage ;;
 	    esac
 	done
@@ -446,7 +449,11 @@ restore_psql() {
     log "Restoring PostgreSQL databases"
     dry_run "Would restore PostgreSQL databases for user $cpanel_username" && return
 
-	if [ -d "$psql_dir" ]; then
+    # 2026/06/04
+    #Replaced directory evaluation with string evaluation. 
+    #This will ensure that PSQL service is not started for a user if the backup does not contain any PostgreSQL databases, even if the psql directory is present but empty.
+    #This will prevent unnecessary resource usage and potential errors.
+    if [ -n "$(ls -A $psql_dir 2>/dev/null)" ]; then
         # STEP 1: Start psql container
         log "Initializing postgres service for user"
         cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d postgres >/dev/null 2>&1
@@ -548,8 +555,11 @@ restore_mysql() {
 			sed -i '/^MYSQL_PORT=/ s/127\.0\.0\.1://g' /home/$cpanel_username/.env
 		fi
 	fi
-
-	if [ ! -d "$mysql_dir" ]; then
+    # 2026/06/04
+    # Replaced directory evaluation with string evaluation. 
+    # This will ensure that MySQL/MariaDB service is not started for a user if the backup does not contain any MySQL/MariaDB databases, even if the psql directory is present but empty.
+    # This will prevent unnecessary resource usage and potential errors.
+	if [ ! -n "$(ls -A $mysql_dir 2>/dev/null)" ]; then
 		log "No MySQL databases found to restore"
 		return
 	fi
@@ -596,7 +606,10 @@ restore_mysql() {
 
 			log "Creating database: $db_name (${current_db}/${total_databases})"
 			[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.create"
-			mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" "$db_name" < "${real_backup_files_path}/mysql/$db_name.create" && echo "Database: $db_name - Create OK" || echo "Database: $db_name - Create FAILED"
+            # 2026/06/04
+            # Removing "$db_name" from the mysql command.
+            # Import will fail with with unknown database error if present.
+			mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" < "${real_backup_files_path}/mysql/$db_name.create" && echo "Database: $db_name - Create OK" || echo "Database: $db_name - Create FAILED"
 
 			log "Importing tables for database: $db_name"
 			[ "$mysql_type" = "mysql" ] && apply_sandbox_workaround "$db_name.sql"
@@ -609,15 +622,25 @@ restore_mysql() {
 		log "WARNING: No MySQL databases found"
 	fi
 
+
 	# STEP 6: Import grants
 	log "Importing database grants"
 	python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
-	mysql < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED"; }
+	# 2026/06/04
+    # --defaults-file="$mysql_cnf" --socket="$mysql_socket" was missing from commands - added to ensure that grants are correctly executed for the user
+    mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED"; }
 
+    # 2026/06/04
+    # Check if --pma-start flag present to determine whether to start phpMyAdmin after MySQL import.
 	# STEP 7: Start phpMyAdmin
-	log "Starting phpMyAdmin service"
-	nohup cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d phpmyadmin >/dev/null 2>&1 &
-	disown
+    if [ "$PMA_START" = true ]; then
+        log "Starting phpMyAdmin service"
+	    nohup cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d phpmyadmin >/dev/null 2>&1 &
+	    disown
+    else
+        log "Starting phpMyAdmin service"
+    fi
+	
 
 }
 
@@ -1374,7 +1397,7 @@ main() {
     write_import_activity
 
     # STEP 5. DELETE TMP FILES
-    cleanup                                                                    # delete extracter files after import
+    # cleanup                                                                    # delete extracter files after import
 
     # STEP 6. NOTIFY USER
     success_message                                                            # have a 🍺
