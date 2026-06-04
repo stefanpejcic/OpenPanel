@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           03.06.2026
+# Last Modified:           04.06.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -326,13 +326,14 @@ install_packages() {
         yum)
             check_kernel_compat
             build_quotatool_from_source
-            packages=(curl openssl cron git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io linux-generic default-mysql-client jc jq sqlite3)
+			run yum install -y dnf-plugins-core
+            run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
+            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io linux-generic default-mysql-client jc jq sqlite3)
             ;;
         dnf)
             check_kernel_compat
             build_quotatool_from_source
             run dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
-            run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
             run dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
             if [[ -f /etc/fedora-release ]]; then
                 packages=(git openssl wget gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker docker-compose mysql docker-compose-plugin sqlite sqlite-devel perl-Math-BigInt)
