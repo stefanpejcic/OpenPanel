@@ -1,5 +1,27 @@
 #!/bin/bash
 
+    # SHARED PHPMYADMIN
+    open_csf_port() {
+        local type=$1 port=$2
+        local conf="/etc/csf/csf.conf"
+        for dir in "$type" "${type/4/6}"; do
+            grep -q "${dir} = .*${port}" "$conf" || sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$conf"
+        done
+    }
+
+    open_csf_port TCP_IN 2053
+
+
+
+
+
+
+
+
+
+
+
+
 # created in 1.7.58 update
 if [ -f "/etc/openpanel/docker/compose/1.0/docker-compose_backup_before_1.7.58_update.yml" ]; then  
   mv /etc/openpanel/docker/compose/1.0/docker-compose_backup_before_1.7.58_update.yml /tmp/docker-compose_backup_before_1.7.58_update.yml
