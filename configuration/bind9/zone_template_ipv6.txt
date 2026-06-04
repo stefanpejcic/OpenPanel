@@ -20,3 +20,4 @@ mail    14400     IN      CNAME   {domain}.
 webmail    14400     IN      CNAME   {domain}.
 
 {domain}.    14400     IN      TXT     "v=spf1 ip6:{server_ip} +a +mx ~all"
+_dmarc    14400     IN      TXT     "v=DMARC1; p=none;"

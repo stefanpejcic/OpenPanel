@@ -5,7 +5,7 @@
 # Source: https://github.com/stefanpejcic/openpanel-whmcs-module
 # Author: Stefan Pejcic
 # Created: 01.05.2024
-# Last Modified: 02.02.2026
+# Last Modified: 03.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic
 #
@@ -131,23 +131,53 @@ function openpanelApiRequest($params, $uri, $token, $method = 'POST', $data = nu
     }
 }
 
+function openpanelValidateServerType($params) {
+    $server = mysql_fetch_array(
+        select_query('tblservers', 'type', [
+            'hostname' => $params['serverhostname'],
+            'disabled' => 0,
+        ])
+    );
+    return $server && $server['type'] === 'openpanel';
+}
+
+
 /*
     run user actions
 */
-function openpanelUserAction($params, $method, $payload = null) {
+function openpanelValidateServerType($params) {
+    $server = mysql_fetch_array(
+        select_query('tblservers', 'type', [
+            'hostname' => $params['serverhostname'],
+            'disabled' => 0,
+        ])
+    );
+    return $server && $server['type'] === 'openpanel';
+}
 
+
+function openpanelUserAction($params, $method, $payload = null) {
     if (empty($params['serverhostname']) || empty($params['serverusername']) || empty($params['serverpassword'])) {
         try {
             $serverParams = openpanelGetServerParams($params);
-            $params = array_merge($params, $serverParams);
         } catch (Exception $e) {
             return 'Error fetching server credentials: ' . $e->getMessage();
         }
+
+        $params['serverhostname'] = $serverParams['serverhostname'];
+        $params['serverport']     = $serverParams['serverport'];
+        $params['serverusername'] = $serverParams['serverusername'];
+        $params['serverpassword'] = $serverParams['serverpassword'];
+    }
+
+    if (!openpanelValidateServerType($params)) {
+        return 'Server is not configured as an OpenPanel server';
     }
 
     if (!$token = openpanelGetAuthToken($params)) return 'Authentication failed';
 
     $response = openpanelApiRequest($params,'/api/users/' . $params['username'],$token,$method,$payload);
+
     return ($response['success'] ?? false)
         ? 'success'
         : ($response['error'] ?? 'Unknown error');
@@ -341,22 +371,21 @@ function openpanel_ConfigOptions() {
         select_query('tblproducts', 'servergroup', ['id' => $productId])
     );
 
-    if (!$product['servergroup']) {
+    if (empty($product['servergroup'])) {
         return ['Note' => ['Description' => 'Assign a server group first.']];
     }
 
-    $server = mysql_fetch_array(
-        select_query('tblservers', '*', ['disabled' => 0])
-    );
+    $server = openpanelGetServerForGroup((int)$product['servergroup']);
 
     if (!$server) {
-        return ['Note' => ['Description' => 'No servers available.']];
+        return ['Note' => ['Description' => 'No active OpenPanel server found in the assigned server group.']];
     }
 
     $plans = getAvailablePlans([
-        'hostname' => $server['hostname'],
-        'username' => $server['username'],
-        'password' => decrypt($server['password']),
+        'serverhostname' => $server['hostname'],
+        'serverport'     => $server['port'],
+        'serverusername' => $server['username'],
+        'serverpassword' => $server['password'],
     ]);
 
     if (!is_array($plans)) {
@@ -375,6 +404,30 @@ function openpanel_ConfigOptions() {
             'Description' => 'Select a plan from OpenPanel',
         ],
     ];
+}
+
+function openpanelGetServerForGroup(int $serverGroupId): ?array {
+    $rel = mysql_fetch_array(
+        select_query(
+            'tblservergroupsrel',
+            'serverid',
+            ['groupid' => $serverGroupId]
+        )
+    );
+
+    if (!$rel) {
+        return null;
+    }
+
+    $server = mysql_fetch_array(
+        select_query('tblservers', '*', [
+            'id'       => (int)$rel['serverid'],
+            'type'     => 'openpanel',
+            'disabled' => 0,
+        ])
+    );
+
+    return $server ?: null;
 }
 
 // USAGE UPDATE

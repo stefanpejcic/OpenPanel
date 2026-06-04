@@ -2,12 +2,11 @@
 
 ##  Prepare OpenPanel server:
 
-1. Add testing server IP on: https://my.openpanel.com/adminad/clientsservices.php?userid=2&id=694
-2. Install/update OpenPanel on the server: `bash <(curl -sSL https://openpanel.org)` | `opencli update --beta`
-3. On OpenPanel server run:
+1. Install/update OpenPanel on the server: `bash <(curl -sSL https://openpanel.org)` | `opencli update --beta`
+2. On OpenPanel server run:
    
    ```bash
-   bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-tests/refs/heads/main/openpanel/prepare.sh) enterprise-2a5da40ecd2f60
+   bash <(curl -sSL https://raw.githubusercontent.com/stefanpejcic/openpanel-tests/refs/heads/main/openpanel/prepare.sh)
    ```
 
 ## Prepare Playwright tests:

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.59\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-06-02 18:10+0200\n"
+"POT-Creation-Date: 2026-06-03 21:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -121,9 +121,9 @@ msgstr ""
 #: modules/domain/redirects.py:187 modules/domain/ssl.py:33
 #: modules/domains.py:356 modules/domains.py:390 modules/domains.py:415
 #: modules/domains.py:448 modules/domains.py:512 modules/dynamic_dns.py:120
-#: modules/emails.py:237 modules/emails.py:433 modules/emails.py:663
-#: modules/emails.py:741 modules/emails.py:1180 modules/emails.py:1288
-#: modules/emails.py:1383 modules/files/ftp.py:176 modules/goaccess.py:23
+#: modules/emails.py:238 modules/emails.py:434 modules/emails.py:664
+#: modules/emails.py:742 modules/emails.py:1181 modules/emails.py:1289
+#: modules/emails.py:1384 modules/files/ftp.py:162 modules/goaccess.py:23
 #: modules/json/favicons.py:32 modules/json/screenshots.py:74
 #: modules/mautic.py:93 modules/mautic.py:190 modules/mautic.py:431
 #: modules/mautic.py:595 modules/mautic.py:788 modules/php.py:390
@@ -310,30 +310,30 @@ msgstr ""
 msgid "Dynamic DNS"
 msgstr ""
 
-#: modules/emails.py:263 modules/emails.py:301 modules/emails.py:338
+#: modules/emails.py:264 modules/emails.py:302 modules/emails.py:339
 #: templates/dashboard/dashboard.html:169
 msgid "Filters"
 msgstr ""
 
-#: modules/emails.py:289 modules/emails.py:322
+#: modules/emails.py:290 modules/emails.py:323
 msgid "No content provided."
 msgstr ""
 
-#: modules/emails.py:294 modules/emails.py:327
+#: modules/emails.py:295 modules/emails.py:328
 msgid "Filter saved successfully."
 msgstr ""
 
-#: modules/emails.py:296 modules/emails.py:329
+#: modules/emails.py:297 modules/emails.py:330
 msgid "Error saving filter."
 msgstr ""
 
-#: modules/emails.py:419
+#: modules/emails.py:420
 msgid ""
 "Webmail service is not yet started, please contact Administrator to "
 "enable it."
 msgstr ""
 
-#: modules/emails.py:480 modules/mysqld/mysql_import.py:81
+#: modules/emails.py:481 modules/mysqld/mysql_import.py:81
 #: modules/mysqld/mysql_import.py:92 modules/mysqld/mysql_import.py:105
 #: modules/psql/postgresql_import.py:62 modules/psql/postgresql_import.py:67
 #: modules/psql/postgresql_import.py:70 modules/psql/postgresql_import.py:81
@@ -341,79 +341,79 @@ msgstr ""
 msgid "Import"
 msgstr ""
 
-#: modules/emails.py:484
+#: modules/emails.py:485
 msgid "Error: No file uploaded."
 msgstr ""
 
-#: modules/emails.py:494
+#: modules/emails.py:495
 msgid "Error: Unsupported file format, please upload a .csv or .xls file."
 msgstr ""
 
-#: modules/emails.py:501
+#: modules/emails.py:502
 msgid "Error: File must have at least 2 columns: email, password"
 msgstr ""
 
-#: modules/emails.py:510
+#: modules/emails.py:511
 msgid ""
 "Error: File is invalid - the first column must contain valid email "
 "addresses."
 msgstr ""
 
-#: modules/emails.py:537
+#: modules/emails.py:538
 msgid "Confirm Import"
 msgstr ""
 
-#: modules/emails.py:547
+#: modules/emails.py:548
 msgid "Error: No import data found, please try again."
 msgstr ""
 
-#: modules/emails.py:672
+#: modules/emails.py:673
 msgid "Error: reached max number of email accounts on the hosting plan."
 msgstr ""
 
-#: modules/emails.py:713 templates/files/ftp_new.html:214
+#: modules/emails.py:714 templates/files/ftp_new.html:214
 msgid "Create Account"
 msgstr ""
 
-#: modules/emails.py:730
+#: modules/emails.py:731
 msgid "Accounts"
 msgstr ""
 
-#: modules/emails.py:873
+#: modules/emails.py:874
 msgid "Delete address"
 msgstr ""
 
-#: modules/emails.py:887 templates/emails/accounts.html:103
+#: modules/emails.py:888 templates/emails/accounts.html:103
 #: templates/emails/info.html:7
 msgid "Connect Devices"
 msgstr ""
 
-#: modules/emails.py:899
+#: modules/emails.py:900
 msgid "Error: Invalid configuration type."
 msgstr ""
 
-#: modules/emails.py:1164 templates/dashboard/dashboard.html:168
+#: modules/emails.py:1165 templates/dashboard/dashboard.html:168
 #: templates/emails/aliases.html:9
 msgid "Aliases"
 msgstr ""
 
-#: modules/emails.py:1206
+#: modules/emails.py:1207
 msgid "Error: a valid target email address is required."
 msgstr ""
 
-#: modules/emails.py:1284
+#: modules/emails.py:1285
 msgid "Error: target must be a valid email address."
 msgstr ""
 
-#: modules/emails.py:1305 templates/emails/aliases.html:35
+#: modules/emails.py:1306 templates/emails/aliases.html:35
 msgid "New Alias"
 msgstr ""
 
-#: modules/emails.py:1327 templates/emails/alias_detail.html:108
+#: modules/emails.py:1328 templates/emails/alias_detail.html:108
 msgid "Delete Alias"
 msgstr ""
 
-#: modules/emails.py:1380 modules/emails.py:1391
+#: modules/emails.py:1381 modules/emails.py:1392
 msgid "Default Email"
 msgstr ""
 
@@ -1764,7 +1764,7 @@ msgstr ""
 msgid "Fix Permissions"
 msgstr ""
 
-#: modules/files/ftp.py:79 modules/files/ftp.py:83
+#: modules/files/ftp.py:71 modules/files/ftp.py:75
 #: templates/cache/service.html:26 templates/domains/ssl.html:61
 #: templates/files/ftp.html:13 templates/manager/python_node_apps.html:70
 #: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:76
@@ -1773,24 +1773,24 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/files/ftp.py:132 modules/files/ftp.py:153 modules/files/ftp.py:240
-#: modules/files/ftp.py:311
+#: modules/files/ftp.py:118 modules/files/ftp.py:139 modules/files/ftp.py:226
+#: modules/files/ftp.py:297
 msgid "FTP service is not yet started, please contact Administrator to enable it."
 msgstr ""
 
-#: modules/files/ftp.py:141
+#: modules/files/ftp.py:127
 msgid "No currently active FTP connections"
 msgstr ""
 
-#: modules/files/ftp.py:361
+#: modules/files/ftp.py:347
 msgid "Invalid configuration type, please use cyberduck or filezilla only!"
 msgstr ""
 
-#: modules/files/ftp.py:371
+#: modules/files/ftp.py:357
 msgid "User has no FTP accounts."
 msgstr ""
 
-#: modules/files/ftp.py:389
+#: modules/files/ftp.py:375
 msgid "FTP account not found."
 msgstr ""
 
