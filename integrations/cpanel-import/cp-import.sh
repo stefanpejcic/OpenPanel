@@ -5,8 +5,6 @@ timestamp="$(date +'%Y-%m-%d_%H-%M-%S')"
 start_time=$(date +%s)
 DEBUG=true
 
-
-
 # ======================================================================
 # START HELPER FUNCTIONS
 
@@ -625,8 +623,15 @@ restore_mysql() {
 
 	# STEP 6: Import grants
 	log "Importing database grants"
-	python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
+	#python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
 	# 2026/06/04
+    # Replace json_2_sql with sed command which offers the same functionality
+    sed -E '
+    /localhost/d
+    s/\\_/_/g
+    s/^GRANT USAGE ON \*\.\* TO '\''([^'\'']+)'\''@'\''([^'\'']+)'\'' IDENTIFIED BY PASSWORD '\''([^'\'']+)'\'';$/CREATE USER '\''\1'\''@'\''\2'\'' IDENTIFIED WITH '\''mysql_native_password'\'' AS '\''\3'\'';/
+    ' "${real_backup_files_path}/mysql.sql" > "${real_backup_files_path}/mysql.TEMPORARY.sql"
+    # 2026/06/04
     # --defaults-file="$mysql_cnf" --socket="$mysql_socket" was missing from commands - added to ensure that grants are correctly executed for the user
     mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED"; }
 
@@ -1397,7 +1402,7 @@ main() {
     write_import_activity
 
     # STEP 5. DELETE TMP FILES
-    # cleanup                                                                    # delete extracter files after import
+    cleanup                                                                    # delete extracter files after import
 
     # STEP 6. NOTIFY USER
     success_message                                                            # have a 🍺
