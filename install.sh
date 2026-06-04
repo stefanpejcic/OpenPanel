@@ -321,14 +321,14 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-            packages=(curl openssl cron git gnupg dbus-user-session systemd dbus systemd-container quota quotatool uidmap docker.io "$kernel_pkg" default-mysql-client jc jq sqlite3)
+            packages=(curl openssl cron git gnupg dbus-user-session systemd dbus systemd-container quota quotatool uidmap docker.io "$kernel_pkg" default-mysql-client jq sqlite3)
             ;;
         yum)
             check_kernel_compat
             build_quotatool_from_source
 			run yum install -y dnf-plugins-core
             run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
-            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io default-mysql-client jc jq sqlite3)
+            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io mariadb jq sqlite3)
             ;;
         dnf)
             check_kernel_compat
