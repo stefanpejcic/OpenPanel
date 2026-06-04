@@ -36,7 +36,7 @@ export const LandingFooter = () => {
                     "text-gray-600 dark:text-gray-400",
                 )}
             >
-             Milutina Milankovica 1c
+             131 Continental Dr
             </div>
             <div
                 className={clsx(
@@ -46,7 +46,7 @@ export const LandingFooter = () => {
                     "text-gray-600 dark:text-gray-400",
                 )}
             >
-             Belgrade, Serbia
+             Newark, Delaware
             </div>
             <a
                 href="mailto:info@openpanel.com"
