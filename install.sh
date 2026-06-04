@@ -625,7 +625,7 @@ setup_firewall() {
 
     local ssh_port; ssh_port=$(grep -Po "(?<=Port[ =])\d+" /etc/ssh/sshd_config 2>/dev/null || echo 22)
     for p in 3306 465 "$USER_PORT" "$ADMIN_PORT"; do open_csf_port TCP_OUT "$p"; done
-    for p in 22 53 80 443 "$USER_PORT" "$ADMIN_PORT" "32768:60999" 21 "21000:21010" "$ssh_port"; do
+    for p in 22 53 80 443 2053 "$USER_PORT" "$ADMIN_PORT" "32768:60999" 21 "21000:21010" "$ssh_port"; do
         open_csf_port TCP_IN "$p"
     done
 
