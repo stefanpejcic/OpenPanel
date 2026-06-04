@@ -328,7 +328,7 @@ install_packages() {
             build_quotatool_from_source
 			run yum install -y dnf-plugins-core
             run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
-            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io linux-generic default-mysql-client jc jq sqlite3)
+            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io default-mysql-client jc jq sqlite3)
             ;;
         dnf)
             check_kernel_compat
