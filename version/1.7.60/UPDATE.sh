@@ -17,13 +17,7 @@
 
 : '
 #TODO:
-
-https://github.com/stefanpejcic/openpanel-configuration/commit/cae9e63f4615993752e2755edac0fcb7b370a3ee
-
-https://github.com/stefanpejcic/openpanel-configuration/commit/dd0378f1f72b11f499214b5ad6ceb787073b47e5
-
-
-
+https://gist.github.com/stefanpejcic/fa168523b6e1af0f9e9ff60f306196ed
 '
 
 
