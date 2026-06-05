@@ -28,15 +28,10 @@ fi
 curl -L https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/pma.php -o /etc/openpanel/mysql/phpmyadmin/pma.php
 curl -L https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/config.inc.php -o /etc/openpanel/mysql/phpmyadmin/config.inc.php
 
-
-
-
-
-
-
-
-
-
+for env_file in /home/*/docker-compose.yml; do
+    user_dir="$(dirname "$env_file")"
+    timeout 5 docker --context="$user_dir" compose down phpmyadmin > /dev/null 2>&1
+done
 
 
 
