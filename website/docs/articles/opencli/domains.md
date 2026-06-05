@@ -75,6 +75,51 @@ Switch to autoSSL for a domain (default):
 opencli domains-ssl <DOMAIN_NAME> auto
 ```
 
+## Docroot
+
+View and change docroot for a domain.
+
+```bash
+opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
+```
+
+### View
+
+To view the current docroot for a domain:
+```bash
+opencli domains-docroot <DOMAIN_NAME>
+```
+
+### Update
+
+To update a docroot for a domain:
+```bash
+opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
+```
+
+## DNSSEC
+
+Enable [DNSSEC](https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions) for a domain and re-sign after changes the zone.
+
+```bash
+opencli domains-dnssec <DOMAIN_NAME> [--update | --check]
+```
+
+### Check
+
+Check if domain has DNSSEC enabled:
+```bash
+opencli domains-dnssec <DOMAIN_NAME> --check
+```
+
+### Update
+
+Configure/update DNSSEC for a domain:
+```bash
+opencli domains-dnssec <DOMAIN_NAME> --update
+```
+
+
 ## HSTS
 
 Manage [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) for a domain.
@@ -101,27 +146,6 @@ Disable HSTS for a domain:
 opencli domains-hsts <DOMAIN_NAME> off
 ```
 
-## Docroot
-
-View and change docroot for a domain.
-
-```bash
-opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
-```
-
-### View
-
-To view the current docroot for a domain:
-```bash
-opencli domains-docroot <DOMAIN_NAME>
-```
-
-### Update
-
-To update a docroot for a domain:
-```bash
-opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
-```
 
 ## Edit
 
