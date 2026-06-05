@@ -7,20 +7,20 @@ import { CommonLayout } from '@site/src/refine-theme/common-layout';
 import clsx from 'clsx';
 
 // Import the Markdown file as a React component
-import PrivacyContent from '@site/src/pages/refund-policy/refund.md';
+import RefundContent from '@site/src/pages/refund-policy/refund.md';
 
-const PrivacyPolicy: React.FC = () => {
+const RefundPolicy: React.FC = () => {
     return (
         <CommonLayout>
             <Head title="Refund Policy | OpenPanel">
-                <html data-page="privacy_policy" data-customized="true" />
+                <html data-page="refund_policy" data-customized="true" />
             </Head>
             <div className="refine-prose">
                 <CommonHeader hasSticky={true} />
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     {/* Render the imported Markdown content as a component */}
-                    <PrivacyContent />
+                    <RefundContent />
                 </div>
                 <BlogFooter />
             </div>
@@ -28,4 +28,4 @@ const PrivacyPolicy: React.FC = () => {
     );
 };
 
-export default PrivacyPolicy;
+export default RefundPolicy;
