@@ -1,5 +1,14 @@
 # Domains
 
+
+## User
+
+Lists all domain names currently owned by a specific user.
+
+```bash
+opencli domains-user <USERNAME> [--docroot|--php_version]
+```
+
 ## Varnish
 
 Check Varnish status for domain, enable/disable Varnish caching.
