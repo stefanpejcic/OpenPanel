@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           04.06.2026
+# Last Modified:           05.06.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -825,8 +825,8 @@ verify_license() {
     curl -4 -s -X POST -H "Content-Type: application/json" -d "{\"hostname\":\"$(hostname)\",\"public_ip\":\"${SERVER_IPV4_ADDRESS}\"}" https://api.openpanel.com/license/index.php >/dev/null 2>&1 || true
 }
 
-start_user_panel() {
-    nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >nohup.out 2>nohup.err &
+start_system_containers() {
+    nohup sh -c "cd /root && docker compose up -d openpanel phpmyadmin" </dev/null >nohup.out 2>nohup.err &
 }
 
 create_admin_account() {
@@ -957,7 +957,7 @@ STEPS=(
     setup_swap
     clean_cache
     verify_license
-    start_user_panel
+    start_system_containers
 )
 
 run_installation() {
