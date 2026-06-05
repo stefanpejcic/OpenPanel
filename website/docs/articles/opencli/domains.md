@@ -97,6 +97,124 @@ To update a docroot for a domain:
 opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
 ```
 
+## DNS
+
+Manage DNS service and domain zones.
+
+
+### Reconfig
+
+To load new DNS zones into the Bind server:
+
+```bash
+opencli domains-dns reconfig
+````
+
+### Check
+
+To check and validate a DNS zone for a domain:
+
+```bash
+opencli domains-dns check <DOMAIN_NAME>
+```
+
+### Reload
+
+To reload a DNS zone for a single domain:
+
+```bash
+opencli domains-dns reload <DOMAIN_NAME>
+```
+
+### Show
+
+To display the DNS zone for a single domain:
+
+```bash
+opencli domains-dns show <DOMAIN_NAME>
+```
+
+### List
+
+To list all domains with DNS zones on the server:
+
+```bash
+opencli domains-dns list
+```
+
+### Create
+
+To create a DNS zone for a domain:
+
+```bash
+opencli domains-dns create <DOMAIN_NAME>
+```
+
+### Delete
+
+To delete a DNS zone for a domain:
+
+```bash
+opencli domains-dns delete <DOMAIN_NAME>
+```
+
+### Default
+
+To restore the default DNS zone for a domain:
+
+```bash
+opencli domains-dns default <DOMAIN_NAME>
+```
+
+### Count
+
+To display the total number of DNS zones present on the server:
+
+```bash
+opencli domains-dns count
+```
+
+### Config
+
+To check the main Bind configuration file for syntax errors:
+
+```bash
+opencli domains-dns config
+```
+
+### Start
+
+To start the DNS server:
+
+```bash
+opencli domains-dns start
+```
+
+### Restart
+
+To perform a soft restart of the Bind9 Docker container:
+
+```bash
+opencli domains-dns restart
+```
+
+### Hard Restart
+
+To perform a hard restart by terminating the container and starting it again:
+
+```bash
+opencli domains-dns hard-restart
+```
+
+### Stop
+
+To stop the DNS server:
+
+```bash
+opencli domains-dns stop
+```
+
+
 ## DNSSEC
 
 Enable [DNSSEC](https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions) for a domain and re-sign after changes the zone.
