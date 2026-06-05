@@ -243,19 +243,17 @@ Customize options:
 The **`phpmyadmin`** module allows users to manage phpMyAdmin service.
 
 When enabled:
-* phpMyAdmin can be managed by the user.
-* phpMyAdmin is available on a custom per-user port.
+* phpMyAdmin can be accessed by the user.
+* phpMyAdmin is available on a `https://DOMAIN:2053` when domain is set, or `http://IP:8888` when IP is set for panel access.
 
 When disabled:
-* Users do not have access to the *phpMyAdmin* section.
+* Users do not have access to the *phpMyAdmin* service.
 
 Customize options:
-* To **change php_max_execution_time, php_memory_limit, php_upload_limit** use [*OpenAdmin > MySQL > phpMyAdmin](/docs/panel/mysql/phpmyadmin).
-* To **change default CPU/RAM for phpMyAdmin** use the 'manage' button in top-rgiht corner.
+* To **change CPU/RAM for phpMyAdmin service** or values: **php_max_execution_time, php_memory_limit, php_upload_limit** use [*OpenAdmin > Services > Service Limits](/docs/admin/services/limits/).
 
 How-to guides:
 * To **import tables into a database** refer to [**the Documentation**](/docs/panel/mysql/phpmyadmin/#import-sql-files).
-* To **set a custom domain for phpMyAdmin** refer to:  [**HOw-to GUides > Custom Domain for phpMyAdmin**](/docs/articles/databases/phpmyadmin-domain/).
 
 ## MySQL Import
 
