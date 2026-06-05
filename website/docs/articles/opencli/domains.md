@@ -37,45 +37,69 @@ opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullch
 
 Display command examples for a specific domain:
 ```bash
-opencli domains-ssl <DOMAIN>
+opencli domains-ssl <DOMAIN_NAME>
 ```
 
 ### Status
 
 Display current SSL status for a domain:
 ```bash
-opencli domains-ssl <DOMAIN> status
+opencli domains-ssl <DOMAIN_NAME> status
 ```
 
 ### Info
 
 View ceritificate files a domain:
 ```bash
-opencli domains-ssl <DOMAIN> info
+opencli domains-ssl <DOMAIN_NAME> info
 ```
 
 ### Logs
 
 View caddy SSL-related logs for a domain:
 ```bash
-opencli domains-ssl <DOMAIN> logs
+opencli domains-ssl <DOMAIN_NAME> logs
 ```
 
 ### Custom
 
 Setup a custom SSL for a domain:
 ```bash
-opencli domains-ssl <DOMAIN> custom <CERT_PATH> <KEY_PATH>
+opencli domains-ssl <DOMAIN_NAME> custom <CERT_PATH> <KEY_PATH>
 ```
 
 ### Auto
 
 Switch to autoSSL for a domain (default):
 ```bash
-opencli domains-ssl <DOMAIN> auto
+opencli domains-ssl <DOMAIN_NAME> auto
 ```
 
+## HSTS
 
+Manage [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) for a domain.
+
+```bash
+opencli hsts <DOMAIN_NAME> [on|off]
+```
+
+### Status
+Check HSTS status for a domain:
+```bash
+opencli hsts <DOMAIN_NAME> [on|off]
+```
+
+### Enable
+Enable HSTS for a domain:
+```bash
+opencli hsts <DOMAIN_NAME> on
+```
+
+### Disable
+Disable HSTS for a domain:
+```bash
+opencli hsts <DOMAIN_NAME> off
+```
 
 ## Stats
 
