@@ -25,6 +25,24 @@ Unsuspend a domain name:
 opencli domains-unsuspend <DOMAIN_NAME>
 ```
 
+## Stats
+
+Parse caddy access logs for users domains and generate static html.
+
+```bash
+opencli domains-stats <USERNAME> --debug
+```
+
+Generate stats for all domains:
+```bash
+opencli domains-stats [--debug]
+```
+
+Generate stats for domains owned by a specific user:
+```bash
+opencli domains-stats <USERNAME> [--debug]
+```
+
 ## Update NS
 
 Change nameservers for a single or all dns zones.
