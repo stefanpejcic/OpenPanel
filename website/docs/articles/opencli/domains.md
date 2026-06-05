@@ -25,6 +25,58 @@ Unsuspend a domain name:
 opencli domains-unsuspend <DOMAIN_NAME>
 ```
 
+## SSL
+
+Check SSL for domain, add custom certificate, view files.
+
+```bash
+opencli domains-ssl <DOMAIN_NAME> [status|info|logs|auto|custom] [path/to/fullchain.pem path/to/key.pem]
+```
+
+### Examples
+
+Display command examples for a specific domain:
+```bash
+opencli domains-ssl <DOMAIN>
+```
+
+### Status
+
+Display current SSL status for a domain:
+```bash
+opencli domains-ssl <DOMAIN> status
+```
+
+### Info
+
+View ceritificate files a domain:
+```bash
+opencli domains-ssl <DOMAIN> info
+```
+
+### Logs
+
+View caddy SSL-related logs for a domain:
+```bash
+opencli domains-ssl <DOMAIN> logs
+```
+
+### Custom
+
+Setup a custom SSL for a domain:
+```bash
+opencli domains-ssl <DOMAIN> custom <CERT_PATH> <KEY_PATH>
+```
+
+### Auto
+
+Switch to autoSSL for a domain (default):
+```bash
+opencli domains-ssl <DOMAIN> auto
+```
+
+
+
 ## Stats
 
 Parse caddy access logs for users domains and generate static html.
