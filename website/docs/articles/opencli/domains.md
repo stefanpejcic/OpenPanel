@@ -1,6 +1,15 @@
 # Domains
 
 
+## All
+
+Lists all domain names currently hosted on the server:
+
+```bash
+opencli domains-all
+```
+
+
 ## User
 
 Lists all domain names currently owned by a specific user.
@@ -23,6 +32,14 @@ Unsuspend a domain name:
 
 ```bash
 opencli domains-unsuspend <DOMAIN_NAME>
+```
+
+## Delete
+
+Delete a domain name:
+
+```bash
+opencli domains-delete <DOMAIN_NAME> [--debug]
 ```
 
 ## SSL
