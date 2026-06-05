@@ -7,7 +7,7 @@ import { CommonLayout } from '@site/src/refine-theme/common-layout';
 import clsx from 'clsx';
 
 // Import the Markdown file as a React component
-import PrivacyContent from '@site/src/pages/privacy-policy/privacy.md';
+import PrivacyContent from '@site/src/pages/refund-policy/refund.md';
 
 const PrivacyPolicy: React.FC = () => {
     return (
