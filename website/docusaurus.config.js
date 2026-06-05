@@ -123,6 +123,16 @@ const siteConfig = {
                 include: ["**/*.{js}"],
             },
         ],
+        [
+            "docusaurus-plugin-llms",
+            {
+                generateLLMsTxt: true,
+                generateLlmsFullTxt: true,
+                generateMarkdownFiles: true,
+                excludeImports: true,
+                removeDuplicateHeadings: true,
+            },
+        ],
         async function tailwindcss() {
             return {
                 name: "docusaurus-tailwindcss",
