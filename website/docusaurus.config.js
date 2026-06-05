@@ -124,13 +124,9 @@ const siteConfig = {
             },
         ],
         [
-            "docusaurus-plugin-llms",
+            "docusaurus-plugin-generate-llms-txt",
             {
-                generateLLMsTxt: true,
-                generateLlmsFullTxt: true,
-                generateMarkdownFiles: true,
-                excludeImports: true,
-                removeDuplicateHeadings: true,
+                outputFile: "llms.txt",
             },
         ],
         async function tailwindcss() {
