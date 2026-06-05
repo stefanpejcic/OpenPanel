@@ -15,11 +15,11 @@ const License: React.FC = () => {
 
                 <div className="flex-1 flex flex-col pt-8 lg:pt-16 pb-32 max-w-[800px] w-full mx-auto px-2">
                     <h1>End User License Agreement (EULA)</h1>
-                    <p><strong>Last updated: 05.05.2025</strong></p>
+                    <p><strong>Last updated: 05.06.2026</strong></p>
 
                     <p>
                         This End User License Agreement ("Agreement") is a legal agreement between you ("Licensee") 
-                        and OpenPanel ("Licensor") for the use of the software applications known as OpenAdmin 
+                        and OpenPanel, LLC. ("Licensor") for the use of the software applications known as OpenAdmin 
                         and OpenPanel (User Interface) (collectively, the "Software").
                     </p>
 
@@ -72,11 +72,23 @@ const License: React.FC = () => {
 
                     <h2>7. Governing Law</h2>
                     <p>
-                        This Agreement shall be governed by and construed in accordance with the laws of your jurisdiction, without regard 
-                        to its conflict of law principles.
+                        This Agreement shall be governed by the laws of the State of Delaware and the United States of America.
                     </p>
 
-                    <h2>8. Entire Agreement</h2>
+                    <h2>8. Purchases & Refunds</h2>
+                    <p>
+                        Purchases of OpenPanel Enterprise licenses are subject to our Refund Policy available at [https://openpanel.com/refund-policy](https://openpanel.com/refund-policy)
+                    </p>
+
+                    <p>
+                        Refunds are only available within <strong>7 days</strong> of purchase and solely <strong>for licenses that have not been activated</strong>. 
+                        Once a license key is activated on any server or environment, all sales are final.
+                    </p>
+                    <p>
+                        We offer a free Community Edition and a 30-day Enterprise trial to evaluate the software before purchase.
+                    </p>
+
+                    <h2>9. Entire Agreement</h2>
                     <p>
                         This Agreement constitutes the entire agreement between the parties concerning the Software and supersedes all prior agreements.
                     </p>
@@ -86,6 +98,9 @@ const License: React.FC = () => {
                         Website: <a href="https://openpanel.com">https://openpanel.com</a><br />
                         Contact: <a href="mailto:info@openpanel.com">info@openpanel.com</a>
                     </p>
+
+
+                    
                 </div>
 
                 <BlogFooter />
