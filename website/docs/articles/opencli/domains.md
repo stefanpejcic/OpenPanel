@@ -9,12 +9,32 @@ Lists all domain names currently owned by a specific user.
 opencli domains-user <USERNAME> [--docroot|--php_version]
 ```
 
+## Update NS
+
+Change nameservers for a single or all dns zones.
+
+```bash
+opencli domains-update_ns <DOMAIN_NAME>|--all
+```
+
+Update the zone file for a specific domain:
+```bash
+opencli domains-update_ns <DOMAIN_NAME>
+```
+
+Update all zone files:
+```bash
+opencli domains-update_ns --all [-y]
+```
+
+
+
 ## Varnish
 
 Check Varnish status for domain, enable/disable Varnish caching.
 
 ```bash
-opencli domains-varnish <domain> <on|off> <--short>
+opencli domains-varnish <DOMAIN_NAME> <on|off> <--short>
 ```
 
 ### Status
@@ -22,7 +42,7 @@ opencli domains-varnish <domain> <on|off> <--short>
 Display Varnish Cache status for domain:
  
 ```bash
-opencli domains-varnish <domain>
+opencli domains-varnish <DOMAIN_NAME>
 ```
 
 ### Enable
@@ -30,7 +50,7 @@ opencli domains-varnish <domain>
 Enable Varnish Cache for a domain :
  
 ```bash
-opencli domains-varnish <domain> on [--short]
+opencli domains-varnish <DOMAIN_NAME> on [--short]
 ```
 
 ### Disable
@@ -38,7 +58,7 @@ opencli domains-varnish <domain> on [--short]
 Disable Varnish Cache for a domain:
  
 ```bash
-opencli domains-varnish <domain> off [--short]
+opencli domains-varnish <DOMAIN_NAME> off [--short]
 ```
 
 ## Whoowns
@@ -48,18 +68,18 @@ Check which username owns a certain domain name.
 To check owner for a domain:
 
 ```bash
-opencli domains-whoowns <DOMAIN-NAME>
+opencli domains-whoowns <DOMAIN_NAME>
 ```
 
 To check owner and docker context for a domain:
 
 ```bash
-opencli domains-whoowns <DOMAIN-NAME> --context
+opencli domains-whoowns <DOMAIN_NAME> --context
 ```
 
 To check owner and docroot for a domain:
 
 ```bash
-opencli domains-whoowns <DOMAIN-NAME> --docroot
+opencli domains-whoowns <DOMAIN_NAME> --docroot
 ```
 
