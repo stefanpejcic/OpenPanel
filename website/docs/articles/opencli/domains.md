@@ -101,6 +101,28 @@ Disable HSTS for a domain:
 opencli domains-hsts <DOMAIN_NAME> off
 ```
 
+## Docroot
+
+View and change docroot for a domain.
+
+```bash
+opencli domains-docroot <DOMAIN_NAME> [update </var/www/html/>] --debug
+```
+
+### View
+
+To view the current docroot for a domain:
+```bash
+opencli domains-docroot <DOMAIN_NAME>
+```
+
+### Update
+
+To update a docroot for a domain:
+```bash
+opencli domains-docroot <DOMAIN_NAME> update <docroot> [--debug]
+```
+
 ## Edit
 
 Edit VirtualHosts file for a domain or enter its docroot.
