@@ -101,6 +101,28 @@ Disable HSTS for a domain:
 opencli domains-hsts <DOMAIN_NAME> off
 ```
 
+## Edit
+
+Edit VirtualHosts file for a domain or enter its docroot.
+
+```
+opencli domains-edit <DOMAIN_NAME> [--ws]
+```
+
+### Docroot
+
+`cd` into the domain docroot:
+```
+opencli domains-edit <DOMAIN_NAME>
+```
+
+### VHost
+
+Open the VirtualHost file for a domain using `nano` edit, and upon saving restart user webserver:
+```
+opencli domains-edit <DOMAIN_NAME> --ws
+```
+
 ## Stats
 
 Parse caddy access logs for users domains and generate static html.
@@ -119,6 +141,8 @@ Generate stats for domains owned by a specific user:
 opencli domains-stats <USERNAME> [--debug]
 ```
 
+
+
 ## Update NS
 
 Change nameservers for a single or all dns zones.
@@ -136,6 +160,8 @@ Update all zone files:
 ```bash
 opencli domains-update_ns --all [-y]
 ```
+
+
 
 
 
