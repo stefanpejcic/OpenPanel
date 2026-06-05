@@ -50,10 +50,12 @@ sidebar_position: 1
 - [Troubleshooting OpenAdmin UI Errors](/docs/articles/support/how-to-troubleshoot-openadmin-error)
 
 # Enterprise
-- [OpenPanel Pricing](/docs/articles/license/pricing/)
-- [Upgrading to OpenPanel Enterprise and activating License](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
-- [Downgrading from OpenPanel Enterprise to Community edition](/docs/articles/license/how_to_downgrade_openpanel_license/)
-- [How Enterprise license expiration affects OpenPanel](/docs/articles/license/what_happens_when_openpanel_enterprise_license_expires/)
+- [Pricing](/docs/articles/license/pricing/)
+- [Upgrading license](/docs/articles/license/upgrade_to_openpanel_enterprise_and-activate_license/)
+- [Downgrading license](/docs/articles/license/how_to_downgrade_openpanel_license/)
+- [How license expiration affects OpenPanel](/docs/articles/license/what_happens_when_openpanel_enterprise_license_expires/)
+- [How to cancel a license](/docs/articles/license/hot_to_cancel_openpanel_license/)
+- [Refund Policy](/docs/articles/license/openpanel-refund-policy/)
 - [Licenses for educational or non-profit organizations](/docs/articles/license/openpanel_enterprise_for_nonprofits/)
 
 # Domains
