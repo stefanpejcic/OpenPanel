@@ -80,25 +80,25 @@ opencli domains-ssl <DOMAIN_NAME> auto
 Manage [HSTS](https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security) for a domain.
 
 ```bash
-opencli hsts <DOMAIN_NAME> [on|off]
+opencli domains-hsts <DOMAIN_NAME> [on|off]
 ```
 
 ### Status
 Check HSTS status for a domain:
 ```bash
-opencli hsts <DOMAIN_NAME> [on|off]
+opencli domains-hsts <DOMAIN_NAME> [on|off]
 ```
 
 ### Enable
 Enable HSTS for a domain:
 ```bash
-opencli hsts <DOMAIN_NAME> on
+opencli domains-hsts <DOMAIN_NAME> on
 ```
 
 ### Disable
 Disable HSTS for a domain:
 ```bash
-opencli hsts <DOMAIN_NAME> off
+opencli domains-hsts <DOMAIN_NAME> off
 ```
 
 ## Stats
