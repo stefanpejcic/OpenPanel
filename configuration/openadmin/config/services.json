@@ -68,5 +68,10 @@
         "name": "Login Failure Daemon (LFD)",
         "type": "system",
         "real_name": "lfd"
+    },
+    {
+        "name": "phpMyAdmin",
+        "type": "phpmyadmin",
+        "real_name": "phpmyadmin"
     }
 ]
