@@ -9,7 +9,6 @@ Lists all domain names currently hosted on the server:
 opencli domains-all
 ```
 
-
 ## User
 
 Lists all domain names currently owned by a specific user.
@@ -17,6 +16,62 @@ Lists all domain names currently owned by a specific user.
 ```bash
 opencli domains-user <USERNAME> [--docroot|--php_version]
 ```
+
+## Add
+
+Add a domain name for a user:
+
+```bash
+opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
+```
+
+### Custom Docroot
+
+To add a domain name with custom docroot:
+
+```bash
+opencli domains-add <DOMAIN_NAME> <USERNAME> --docroot DOCUMENT_ROOT
+```
+
+### Custom PHP version
+
+To add a domain name with custom PHP version:
+
+```bash
+opencli domains-add <DOMAIN_NAME> <USERNAME> --php_version N.N
+```
+
+
+### Skip Flags
+
+> **Warning:** These flags are intended primarily for automation and debugging purposes and should generally **not be used manually in the terminal**.
+> Most skip flags are used by automation scripts when adding multiple domains at once, allowing services to be started only after all domains have been provisioned. The `--skip_dns`, `--skip_vhost`, and `--skip_caddy` options are also useful for troubleshooting and retry operations.
+
+* **Skip DNS** – Add a domain without creating a DNS zone:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_dns
+  ```
+
+* **Skip Vhosts** – Add a domain without creating virtual host configurations or starting the user's PHP and web server containers:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_vhost
+  ```
+
+* **Skip Containers** – Add a domain without starting the user's PHP and web server containers:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_containers
+  ```
+
+* **Skip Caddy** – Add a domain without creating a Caddy virtual host configuration:
+
+  ```bash
+  opencli domains-add <DOMAIN_NAME> <USERNAME> --skip_caddy
+  ```
+
+**Note:** These options are primarily intended for bulk provisioning workflows (like [cpanel account importer](/docs/articles/transfers/import-cpanel-backup-to-openpanel/) or [user transfer](/docs/articles/transfers/transfer-openpanel-account-to-another-server/)) and advanced troubleshooting scenarios.
 
 ## Suspend
 
