@@ -9,6 +9,22 @@ Lists all domain names currently owned by a specific user.
 opencli domains-user <USERNAME> [--docroot|--php_version]
 ```
 
+## Suspend
+
+Suspend a domain name:
+
+```bash
+opencli domains-suspend <DOMAIN_NAME>
+```
+
+## Unsuspend
+
+Unsuspend a domain name:
+
+```bash
+opencli domains-unsuspend <DOMAIN_NAME>
+```
+
 ## Update NS
 
 Change nameservers for a single or all dns zones.
