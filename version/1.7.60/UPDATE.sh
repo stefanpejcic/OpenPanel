@@ -1,24 +1,44 @@
 #!/bin/bash
 
-    # SHARED PHPMYADMIN
-    open_csf_port() {
-        local type=$1 port=$2
-        local conf="/etc/csf/csf.conf"
-        for dir in "$type" "${type/4/6}"; do
-            grep -q "${dir} = .*${port}" "$conf" || sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$conf"
-        done
-    }
+# SHARED PHPMYADMIN
+open_csf_port() {
+    local type=$1 port=$2
+    local conf="/etc/csf/csf.conf"
+    for dir in "$type" "${type/4/6}"; do
+        grep -q "${dir} = .*${port}" "$conf" || sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$conf"
+    done
+}
 
-    open_csf_port TCP_IN 2053
+open_csf_port TCP_IN 2053
+open_csf_port TCP_IN 8888
+
+CADDYFILE="/etc/openpanel/caddy/Caddyfile"
+MARKER="# START PHPMYADMIN DOMAIN #"
+INSERT_AFTER="# END WEBMAIL DOMAIN #"
+BLOCK="\n# START PHPMYADMIN DOMAIN #\nexample.net:2053 {\n    reverse_proxy localhost:8888\n}\n# END PHPMYADMIN DOMAIN #"
+
+if ! grep -qF "$MARKER" "$CADDYFILE"; then
+    docker cp $CADDYFILE /tmp/Caddyfile_1.7.60
+    sed -i "/$INSERT_AFTER/a $BLOCK" "$CADDYFILE"
+    echo "phpMyAdmin domain block added, bekap is stored at /tmp/Caddyfile_1.7.60"
+    docker --context=default restart caddy
+fi
+
+# TODO, update them!
+curl -L https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/pma.php -o /etc/openpanel/mysql/phpmyadmin/pma.php
+curl -L https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/config.inc.php -o /etc/openpanel/mysql/phpmyadmin/config.inc.php
 
 
 
 
 
-: '
-#TODO:
-https://gist.github.com/stefanpejcic/fa168523b6e1af0f9e9ff60f306196ed
-'
+
+
+
+
+
+
+
 
 
 
