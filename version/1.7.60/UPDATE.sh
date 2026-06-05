@@ -1,5 +1,15 @@
 #!/bin/bash
 
+
+todo: remove
+
+```
+	local pma_file="${ETC_DIR}mysql/phpmyadmin/pma.php"	
+	local secret_key=$(cat "${ETC_DIR}openpanel/secret.key")
+	sed -i "s/\(\$fileToken = \"\)[^\"]*\"/\1${secret_key}\"/" "$pma_file"
+```
+from install.sh
+
 # SHARED PHPMYADMIN
 open_csf_port() {
     local type=$1 port=$2
