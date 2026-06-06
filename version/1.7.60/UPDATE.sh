@@ -74,4 +74,4 @@ for env_file in /home/*/docker-compose.yml; do
     timeout 5 docker --context="$user_dir" compose down phpmyadmin > /dev/null 2>&1
 done
 
-cd /root && timeout 30 docker compose up -d phpmyadmin
+cd /root && timeout 60 docker compose up -d phpmyadmin
