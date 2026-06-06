@@ -3,8 +3,45 @@
 # SHARED PHPMYADMIN
 
 
+grep -q "phpmyadmin" /root/docker-compose.yml || sed -i '/^volumes:/i\
+\
+  # PHPMYADMIN\
+  phpmyadmin:\
+    container_name: phpmyadmin\
+    restart: unless-stopped\
+    image: phpmyadmin:${PHPMYADMIN_VERSION:-latest}\
+    volumes:\
+      - /etc/openpanel/mysql/phpmyadmin/pma.php:/var/www/html/pma.php\
+      - /etc/openpanel/mysql/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro\
+      - /home:/home:ro\
+    ports:\
+      - "8888:80"\
+    networks:\
+      openpanel_network:\
+        ipv4_address: 172.20.0.7\
+    deploy:\
+      resources:\
+        limits:\
+          cpus: "${PHPMYADMIN_CPU:-1.0}"\
+          memory: "${PHPMYADMIN_RAM:-1.0G}"\
+          pids: 5000\
+    environment:\
+      MAX_EXECUTION_TIME: ${PHPMYADMIN_MAX_EXECUTION_TIME:-600}\
+      MEMORY_LIMIT: ${PHPMYADMIN_MEMORY_LIMIT:-512M}\
+      UPLOAD_LIMIT: ${PHPMYADMIN_UPLOAD_LIMIT:-256M}\
+' /root/docker-compose.yml
 
 
+grep -q "PHPMYADMIN" /root/.env || cat >> /root/.env << 'EOF'
+
+# phpmyadmin
+PHPMYADMIN_VERSION="latest"
+PHPMYADMIN_CPU="1.0"
+PHPMYADMIN_RAM="1.0G"
+PHPMYADMIN_MAX_EXECUTION_TIME="900"
+PHPMYADMIN_MEMORY_LIMIT="2048M"
+PHPMYADMIN_UPLOAD_LIMIT="1024"
+EOF
 
 open_csf_port() {
     local type=$1 port=$2
