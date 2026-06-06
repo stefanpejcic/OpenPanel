@@ -1,16 +1,11 @@
 #!/bin/bash
 
-
-todo: remove
-
-```
-	local pma_file="${ETC_DIR}mysql/phpmyadmin/pma.php"	
-	local secret_key=$(cat "${ETC_DIR}openpanel/secret.key")
-	sed -i "s/\(\$fileToken = \"\)[^\"]*\"/\1${secret_key}\"/" "$pma_file"
-```
-from install.sh
-
 # SHARED PHPMYADMIN
+
+
+
+
+
 open_csf_port() {
     local type=$1 port=$2
     local conf="/etc/csf/csf.conf"
@@ -34,7 +29,6 @@ if ! grep -qF "$MARKER" "$CADDYFILE"; then
     docker --context=default restart caddy
 fi
 
-# TODO, update them!
 curl -L https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/pma.php -o /etc/openpanel/mysql/phpmyadmin/pma.php
 curl -L https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/mysql/phpmyadmin/config.inc.php -o /etc/openpanel/mysql/phpmyadmin/config.inc.php
 
@@ -42,4 +36,3 @@ for env_file in /home/*/docker-compose.yml; do
     user_dir="$(dirname "$env_file")"
     timeout 5 docker --context="$user_dir" compose down phpmyadmin > /dev/null 2>&1
 done
-
