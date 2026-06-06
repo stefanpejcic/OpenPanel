@@ -17,8 +17,7 @@ grep -q "phpmyadmin" /root/docker-compose.yml || sed -i '/^volumes:/i\
     ports:\
       - "8888:80"\
     networks:\
-      openpanel_network:\
-        ipv4_address: 172.20.0.7\
+      - openpanel_network\
     deploy:\
       resources:\
         limits:\
