@@ -799,12 +799,26 @@ setup_swap() {
         ok "Created ${SWAP_FILE}G swap file."
     }
 
-    if [[ "$SETUP_SWAP_ANYWAY" == true ]]; then
-        [[ "$SWAP_FILE" =~ ^[0-9]+$ && "$SWAP_FILE" -ge 1 && "$SWAP_FILE" -le 10 ]] || { warn "Invalid swap size '$SWAP_FILE'. Using 1 GB default."; SWAP_FILE=1; }
+    local ram_gb
+    ram_gb=$(awk '/MemTotal/{printf "%.0f", $2/1024/1024}' /proc/meminfo)
+
+    auto_size() {
+        if   (( ram_gb <= 2  )); then SWAP_FILE=$(( ram_gb * 2 ))
+        elif (( ram_gb <= 4  )); then SWAP_FILE=$ram_gb
+        elif (( ram_gb <= 8  )); then SWAP_FILE=4
+        elif (( ram_gb <= 32 )); then SWAP_FILE=8
+        else echo "RAM is ${ram_gb}GB — skipping swap creation."; return 1
+        fi
+    }
+
+    if [[ "$SETUP_SWAP_ANYWAY" == true ]] || (( ram_gb <= 32 )); then
+        if ! [[ "$SWAP_FILE" =~ ^[0-9]+$ && "$SWAP_FILE" -ge 1 && "$SWAP_FILE" -le 10 ]]; then
+            warn "Invalid swap size '$SWAP_FILE'. Auto-sizing based on RAM."
+            auto_size || return
+        fi
         create_swap
     else
-        local ram_gb; ram_gb=$(awk '/MemTotal/{printf "%.1f", $2/1024/1024}' /proc/meminfo)
-        (( $(awk "BEGIN {print ($ram_gb < 8)}") )) && create_swap || echo "RAM is ${ram_gb}GB — skipping swap creation."
+        echo "RAM is ${ram_gb}GB — skipping swap creation."
     fi
 }
 
