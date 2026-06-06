@@ -4,7 +4,7 @@ OpenAdmin API can be used to manage options available from the OpenAdmin interfa
 
 :::info
 OpenAdmin API is available only on [OpenPanel Enterprise edition](/enterprise/).
-To use the API, enable it first from the [OpenAdmin > Settings > API Access](/docs/admin/settings/api/) page.
+To use the API, enable it first from the [OpenAdmin > Settings > API Access](/docs/admin/settings/api/) page or from terminal with [`opencli api on` command](/docs/articles/opencli/api/#enable).
 :::
 
 To generate a token for use with the endpoints, send a **POST request** to `/api/` using your OpenAdmin username and password:
