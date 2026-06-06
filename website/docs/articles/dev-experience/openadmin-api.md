@@ -28,6 +28,8 @@ This token must be sent in header for all other API endpoints:
 -H "Authorization: Bearer YOUR_JWT_TOKEN" -H "Content-Type: application/json"
 ```
 
+💡 Hint: Use `opencli api list` command to view usage examples for all the endpoints available on your OpenPanel version.
+
 ---
 
 ## Users
