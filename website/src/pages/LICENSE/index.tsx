@@ -77,7 +77,7 @@ const License: React.FC = () => {
 
                     <h2>8. Purchases & Refunds</h2>
                     <p>
-                        Purchases of OpenPanel Enterprise licenses are subject to our Refund Policy available at [https://openpanel.com/refund-policy](https://openpanel.com/refund-policy)
+                        Purchases of OpenPanel Enterprise licenses are subject to our Refund Policy available at https://openpanel.com/refund-policy
                     </p>
 
                     <p>
