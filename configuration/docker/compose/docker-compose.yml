@@ -72,6 +72,7 @@ services:
       - openpanel_mysql
       - openpanel_redis
       #- clamav
+      #- phpmyadmin
     ports:
       - "${PORT}:2083/tcp"
     volumes:
@@ -187,7 +188,7 @@ services:
       - /etc/openpanel/mysql/phpmyadmin/config.inc.php:/etc/phpmyadmin/config.inc.php:ro
       - /home:/home:ro
     ports:
-      - "127.0.0.1:${PHPMYADMIN_PORT:-9090}:80"
+      - "8888:80"
     networks:
       openpanel_network:
         ipv4_address: 172.20.0.7

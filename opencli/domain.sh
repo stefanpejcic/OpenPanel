@@ -5,7 +5,7 @@
 # Usage: opencli domain [set <domain_name> | ip] [--debug]
 # Author: Stefan Pejcic
 # Created: 09.02.2025
-# Last Modified: 03.06.2026
+# Last Modified: 05.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -168,17 +168,21 @@ update_caddyfile() {
         return 1
     fi
 
-    if [[ "$new_hostname" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
-        #IPv4
+    #IPv4
+	if [[ "$new_hostname" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
+        # was using IPv4
         if grep -q "# START HOSTNAME IP #" "$CADDY_FILE"; then
             sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "$CADDY_FILE"
         else
+		# was not using IPv4
 			local admin_port=$(opencli admin port)
             local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
             sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "$CADDY_FILE"
         fi
+		# example.net
 		sed -i "s/$current_domain/"$DEFAULT_DOMAIN"/g" "$CADDY_FILE"
     else
+        # was using a domain
         sed -i "s/$current_domain/$new_hostname/g" "$CADDY_FILE"
     fi
 }

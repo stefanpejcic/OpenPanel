@@ -5,9 +5,9 @@
 # Usage: opencli domains-dnssec <DOMAIN> [--update | --check]
 # Author: Stefan Pejcic
 # Created: 09.07.2024
-# Last Modified: 03.06.2026
-# Company: openpanel.comm
-# Copyright (c) openpanel.comm
+# Last Modified: 05.06.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -89,7 +89,7 @@ setup_zone() {
 
 # Check for required arguments
 if [ -z "$ZONE" ]; then
-  error_exit "Usage: $0 <DOMAIN> [--update | --check]"
+  error_exit "Usage: opencli domains-dnssec <DOMAIN> [--update | --check]"
 fi
 
 # Parse optional flag

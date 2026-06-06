@@ -71,7 +71,7 @@
     },
     {
         "name": "phpMyAdmin",
-        "type": "phpmyadmin",
+        "type": "docker",
         "real_name": "phpmyadmin"
     }
 ]

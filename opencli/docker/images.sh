@@ -5,7 +5,7 @@
 # Usage: opencli docker-images [--all|<USERNAME>]
 # Author: Stefan Pejcic
 # Created: 05.05.2025
-# Last Modified: 03.06.2026
+# Last Modified: 05.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -129,17 +129,12 @@ run_for_all_users() {
     echo "Done processing all contexts."
 }
 
-run_for_single_user() {
-    local user="$1"
-    run_for_context "$user" "user"
-}
 
-# Main logic
+# Main
 if [ "$1" == "--all" ]; then
     run_for_all_users
 elif [ -n "$1" ]; then
-    run_for_single_user "$1"
+    run_for_context "$1" "user"
 else
     usage
 fi
-

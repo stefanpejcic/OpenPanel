@@ -5,7 +5,7 @@
 # Usage: opencli docker-autostart
 # Author: Stefan Pejcic
 # Created: 14.05.2026
-# Last Modified: 03.06.2026
+# Last Modified: 05.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

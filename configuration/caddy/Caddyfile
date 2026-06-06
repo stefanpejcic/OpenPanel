@@ -24,6 +24,13 @@ webmail.example.net {
 }
 # END WEBMAIL DOMAIN #
 
+# START PHPMYADMIN DOMAIN #
+example.net:2053 {
+    reverse_proxy localhost:8888
+}
+# END PHPMYADMIN DOMAIN #
+
+
 # import /check route
 import /etc/openpanel/caddy/check.conf
 
