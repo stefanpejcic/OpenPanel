@@ -1,27 +1,32 @@
 # OpenAdmin API Documentation
 
-A comprehensive REST API for managing **OpenPanel** hosting accounts, plans, domains, services, and server resources. All endpoints require **Bearer JWT authentication**.
+OpenAdmin API can be used to manage options available from the OpenAdmin interface: hosting plans, accounts, domains, services, etc. All API endpoints require **Bearer JWT authentication**.
 
-**Base URL:** `http://PANEL:2087`
+:::info
+OpenAdmin API is available only on [OpenPanel Enterprise edition](/enterprise/).
+To use the API, enable it first from the [OpenAdmin > Settings > API Access](/docs/admin/settings/api/) page.
+:::
 
-**Authentication:**
-All requests require a bearer token:
+To generate a token for use with the endpoints, send a **POST request** to `/api/` using your OpenAdmin username and password:
+
+```bash
+curl -X POST "https://OPENADMIN_DOMAIN_OR_IP:2087/api/" && \
+  -H "Content-Type: application/json" -d '{"username":"OPENADMIN_USERNAME","password":"OPENADMIN_PASSWORD"}'
+```
+
+We recommend creating a separate admin user dedicated solely to API usage. This way, you can quickly suspend or delete that account if its credentials are ever compromised.
+
+Example response with the token is:
+
+```json
+{"access_token":"eyJhbGciOiJIUzI1NiIsInRs4CI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc4MDc0OTkwOCwianRpIjoiZDcwZmY2NmEtNDNiOC00OGZkLThiMWEtZDIwYWUwMDNhNjEyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6Im9wc3VwcG9ydCIsIm5iZiI6MTc4MDc0OTkwOCwiY3NyZiI6IjZlOGRmNGVmLTA0MjktNGNkYy1hNTg5LTJkYzUwMDk2ZDI2NSIsI3V4cCI6MTc4M33c1MDgwOH0.WLQ8rsVOF6pQg07i1fI1lXfd8_cCmryiOjGqg8zgOmw"}
+```
+
+This token must be sent in header for all other API endpoints:
 
 ```
-Authorization: Bearer YOUR_JWT_TOKEN
+-H "Authorization: Bearer YOUR_JWT_TOKEN" -H "Content-Type: application/json"
 ```
-
----
-
-## Table of Contents
-
-1. [Users](#users)
-2. [Plans](#plans)
-3. [Domains](#domains)
-4. [Usage](#usage)
-5. [System](#system)
-6. [Services](#services)
-7. [Notifications](#notifications)
 
 ---
 
