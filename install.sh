@@ -326,9 +326,10 @@ install_packages() {
         yum)
             check_kernel_compat
             build_quotatool_from_source
-			run yum install -y dnf-plugins-core
-            run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo -y
-            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker.io mariadb jq sqlite3)
+            run yum install -y dnf-plugins-core yum-utils
+            run rpm --import https://download.docker.com/linux/centos/gpg
+            run yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap docker-ce docker-ce-cli containerd.io docker-compose-plugin mariadb jq sqlite3)
             ;;
         dnf)
             check_kernel_compat
