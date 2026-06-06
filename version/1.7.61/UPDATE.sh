@@ -5,10 +5,6 @@ for env_file in /home/*/docker-compose.yml; do
     timeout 5 docker --context="$user_dir" image rm phpmyadmin:latest > /dev/null 2>&1
 done
 
-
-
-
-
 # created in 1.7.58 update
 if [ -f "/etc/openpanel/docker/compose/1.0/docker-compose_backup_before_1.7.58_update.yml" ]; then  
   mv /etc/openpanel/docker/compose/1.0/docker-compose_backup_before_1.7.58_update.yml /tmp/docker-compose_backup_before_1.7.58_update.yml
