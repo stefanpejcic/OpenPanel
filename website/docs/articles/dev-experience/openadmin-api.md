@@ -37,7 +37,9 @@ This token must be sent in header for all other API endpoints:
 ### List All Accounts
 
 `GET /api/users`
-**Response:** `200 OK`
+
+<details>
+  <summary>Example response</summary>
 
 ```json
 [
@@ -48,6 +50,7 @@ This token must be sent in header for all other API endpoints:
   }
 ]
 ```
+</details>
 
 ### Create Account
 
