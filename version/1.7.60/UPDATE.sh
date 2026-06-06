@@ -56,12 +56,18 @@ open_csf_port TCP_IN 8888
 CADDYFILE="/etc/openpanel/caddy/Caddyfile"
 MARKER="# START PHPMYADMIN DOMAIN #"
 INSERT_AFTER="# END WEBMAIL DOMAIN #"
-BLOCK="\n# START PHPMYADMIN DOMAIN #\nexample.net:2053 {\n    reverse_proxy localhost:8888\n}\n# END PHPMYADMIN DOMAIN #"
 
 if ! grep -qF "$MARKER" "$CADDYFILE"; then
     docker cp $CADDYFILE /tmp/Caddyfile_1.7.60
-    sed -i "/$INSERT_AFTER/a $BLOCK" "$CADDYFILE"
-    echo "phpMyAdmin domain block added, bekap is stored at /tmp/Caddyfile_1.7.60"
+    sed -i "/$INSERT_AFTER/a \\
+\\
+# START PHPMYADMIN DOMAIN #\\
+example.net:2053 {\\
+    reverse_proxy localhost:8888\\
+}\\
+# END PHPMYADMIN DOMAIN #" "$CADDYFILE"
+
+    echo "phpMyAdmin domain block added, backup is stored at /tmp/Caddyfile_1.7.60"
     docker --context=default restart caddy
 fi
 
