@@ -44,7 +44,7 @@ custom_password=""
 EMAIL=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="1.7.58"
+readonly DEFAULT_PANEL_VERSION="1.7.60"
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"
 readonly ETC_DIR="/etc/openpanel/"
 readonly LOG_FILE="openpanel_install.log"
