@@ -4,46 +4,63 @@ sidebar_position: 2
 
 # FTP
 
-OpenPanel accounts can create FTP users, which share the FTP service with all other FTP users on the server. You can connect to FTP using the server IP address and the default port, `21`.
+OpenPanel accounts can create FTP sub-users that share the FTP service with all other FTP users on the server. Connect using the server IP address and port `21`.
 
 :::info
-FTP is available in the [OpenPanel Enterprise](/enterprise/) edition, guide for Administrators on [How to setup FTP in OpenPanel](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
+FTP is available in the [OpenPanel Enterprise](/enterprise/) edition. Administrator setup guide: [How to setup FTP in OpenPanel](/docs/articles/user-experience/how-to-setup-ftp-in-openpanel/)
 :::
 
-## View users
+---
 
-To view FTP connection information and manage existing users—such as changing passwords, modifying their FTP path (the directory they are limited to), or deleting accounts-navigate to `OpenPanel > Files > FTP`.
+## View Users
 
-## Create user
+Go to **OpenPanel > Files > FTP** to see all FTP accounts, the directory each account is restricted to, and connection details including the server IP.
 
-To create a new FTP sub-user, go to `OpenPanel > Files > FTP` from the menu and click the **Add Account** button. A new section will appear, where you can set the FTP username, password, and path.
+## Create User
 
-Click the **Add Account** button to save your changes.
+1. Go to **OpenPanel > Files > FTP** and click **Add Account**.
+2. Fill in the form:
+
+   | Field | Description |
+   |---|---|
+   | **Domain** | Select one of your domains |
+   | **Username** | The local part of the FTP username: the full username will be `username@domain.com` |
+   | **Password** | Password for the FTP account |
+   | **Path** | Directory the account is restricted to: must start with `/var/www/html/` |
+
+3. Click **Add Account** to create the user.
 
 :::info
-FTP sub-users **must end** with dot (`.`) followed by the OpenPanel username - example: `ftpuser.openpaneluser`. [FTP username requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
+FTP usernames may only contain letters, numbers, and the characters `-`, `_`, `@`, `.`. [FTP username requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
 :::
 
-## Change password
+## Change Password
 
-To change password for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Password** button located next to the user. On the next page set the new password for the user.
-
-Click the **Change Password** button to save.
+1. Go to **OpenPanel > Files > FTP** and click **Change Password** next to the account.
+2. Enter the new password and click **Change Password**.
 
 :::info
-FTP User's Passwords must contain **at least one** uppercase letters (`A-Z`), lowercase letters (`a–z`), digits (`0–9`) and special symbols. [FTP passwords requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
+FTP passwords must contain at least one uppercase letter (`A-Z`), lowercase letter (`a-z`), digit (`0-9`), and special character. [FTP password requirements](/docs/articles/accounts/forbidden-usernames/#ftp)
 :::
 
-## Change path
+## Change Path
 
-To change path (directory user is restricted to) for an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Change Path** button located next to the user. On the next page set new path for the user.
+1. Go to **OpenPanel > Files > FTP** and click **Change Path** next to the account.
+2. Enter the new directory path and click **Change Path**. The path must start with `/var/www/html/`.
 
-Click the **Change Path** button to save.
+## Delete User
 
-## Delete user
+Go to **OpenPanel > Files > FTP** and click **Delete** next to the account, then confirm the deletion.
 
-To delete an FTP sub-account, go to `OpenPanel > Files > FTP` from the menu and click the **Delete** button located next to the user. The button will switch to text 'Confirm', click it again to confirm the deletion.
+## Download Client Configuration
 
-## View Connections
+On the FTP accounts page you can download a ready-to-import configuration file for:
 
-To view active connections (sessions), go to `OpenPanel > Files > FTP` from the menu, then click on 'View Connections' link on top right of the page.
+- **FileZilla**: downloads an `.xml` connection file
+- **Cyberduck**: downloads an `.ftpbookmark` file
+
+Both files are pre-filled with the correct server IP, port, username, and remote directory.
+
+## View Active Connections
+
+Go to **OpenPanel > Files > FTP** and click **View Connections** to see all currently active FTP sessions for your account.
