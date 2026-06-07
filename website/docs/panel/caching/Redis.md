@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# REDIS
+# Redis
 
 ![redis_disabled.png](/img/panel/v2/redismain.png)
 
