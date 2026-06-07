@@ -614,11 +614,6 @@ restore_mysql() {
 	python3 "$script_dir/mysql/json_2_sql.py" "${real_backup_files_path}/mysql.sql" "${real_backup_files_path}/mysql.TEMPORARY.sql" >/dev/null 2>&1
 	mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" < "${real_backup_files_path}/mysql.TEMPORARY.sql" && mysql --defaults-file="$mysql_cnf" --socket="$mysql_socket" -e "FLUSH PRIVILEGES;" && echo "Import grants OK" || { echo "Import grants FAILED"; }
 
-	# STEP 7: Start phpMyAdmin
-	log "Starting phpMyAdmin service"
-	nohup cd "/home/$cpanel_username/" && docker --context="$cpanel_username" compose up -d phpmyadmin >/dev/null 2>&1 &
-	disown
-
 }
 
 # ======================================================================

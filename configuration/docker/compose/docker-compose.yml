@@ -27,24 +27,6 @@ services:
           memory: "${MYSQL_RAM:-0.5G}"
           pids: 200
 
-  # DEPRECATED Malware Scanner used from user panel 
-  clamav:
-    image: clamav/clamav:${CLAMAV_VERSION}
-    container_name: clamav
-    volumes:
-      - /home/:/home/
-      - ./clamav-db:/var/lib/clamav
-    restart: unless-stopped
-    network_mode: ${CLAMAV_DB_AUTOUPDATE} # needed to update db daily
-    environment:
-      - CLAMD_STARTUP_DELAY=${CLAMD_STARTUP_DELAY}
-    deploy:
-      resources:
-        limits:
-          cpus: "${CLAMAV_CPUS:-1.0}"
-          memory: "${CLAMAV_RAM:-1.0G}"
-          pids: 200
-
   # to store user sessions and counters
   openpanel_redis:
     image: redis:8.6.2-alpine
@@ -71,7 +53,6 @@ services:
     depends_on:
       - openpanel_mysql
       - openpanel_redis
-      #- clamav
       #- phpmyadmin
     ports:
       - "${PORT}:2083/tcp"

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.59\n"
+"Project-Id-Version: OpenPanel 1.7.60\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-06-03 21:44+0200\n"
+"POT-Creation-Date: 2026-06-06 13:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -632,7 +632,7 @@ msgstr ""
 
 #: modules/cache/varnish.py:193 modules/cache/varnish.py:223
 #: modules/pgadmin.py:47 modules/php.py:395 modules/php.py:404
-#: modules/php.py:418 modules/php.py:498 modules/phpmyadmin.py:103
+#: modules/php.py:418 modules/php.py:498
 #: templates/files/backup_settings.html:31
 #: templates/files/backup_settings.html:107
 msgid "error"
@@ -655,7 +655,7 @@ msgstr ""
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
 msgstr ""
 
-#: modules/pgadmin.py:87 modules/phpmyadmin.py:151
+#: modules/pgadmin.py:87
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
@@ -664,7 +664,7 @@ msgstr ""
 msgid "pgAdmin"
 msgstr ""
 
-#: modules/pgadmin.py:156 modules/phpmyadmin.py:273
+#: modules/pgadmin.py:156
 msgid "Container port not found for the user."
 msgstr ""
 
@@ -709,36 +709,12 @@ msgstr ""
 msgid "PHP INFO"
 msgstr ""
 
-#: modules/phpmyadmin.py:107
-msgid "phpMyAdmin service is now enabled."
+#: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57
+msgid "phpMyAdmin is currently unavailable. Please contact support."
 msgstr ""
 
-#: modules/phpmyadmin.py:113
-msgid "phpMyAdmin service is now disabled."
-msgstr ""
-
-#: modules/phpmyadmin.py:115
-msgid "Failed to stop the phpMyAdmin service. Try restart."
-msgstr ""
-
-#: modules/phpmyadmin.py:149
-#, python-brace-format
-msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
-msgstr ""
-
-#: modules/phpmyadmin.py:163
-msgid "Changed autologon setting for phpMyAdmin service."
-msgstr ""
-
-#: modules/phpmyadmin.py:165
-msgid ""
-"Changed autologon setting for phpMyAdmin service, but failed to start it."
-" Pelase try manually."
-msgstr ""
-
-#: modules/phpmyadmin.py:208 templates/mysql/databases.html:474
-#: templates/mysql/phpmyadmin.html:11
-msgid "phpMyAdmin"
+#: modules/phpmyadmin.py:64
+msgid "Failed to generate autologin token."
 msgstr ""
 
 #: modules/pm2.py:174
@@ -1767,9 +1743,9 @@ msgstr ""
 #: modules/files/ftp.py:71 modules/files/ftp.py:75
 #: templates/cache/service.html:26 templates/domains/ssl.html:61
 #: templates/files/ftp.html:13 templates/manager/python_node_apps.html:70
-#: templates/mysql/phpmyadmin.html:79 templates/mysql/remote_mysql.html:76
-#: templates/partials/_service_js.html:35 templates/psql/pgadmin.html:85
-#: templates/psql/remote_psql.html:96 templates/system/services.html:26
+#: templates/mysql/remote_mysql.html:76 templates/partials/_service_js.html:35
+#: templates/psql/pgadmin.html:85 templates/psql/remote_psql.html:96
+#: templates/system/services.html:26
 msgid "Unknown"
 msgstr ""
 
@@ -1972,9 +1948,8 @@ msgid "Starting"
 msgstr ""
 
 #: templates/cache/service.html:11 templates/docker/containers.html:333
-#: templates/mysql/phpmyadmin.html:66 templates/mysql/remote_mysql.html:63
-#: templates/psql/pgadmin.html:72 templates/psql/remote_psql.html:83
-#: templates/system/services.html:11
+#: templates/mysql/remote_mysql.html:63 templates/psql/pgadmin.html:72
+#: templates/psql/remote_psql.html:83 templates/system/services.html:11
 msgid "Disabled"
 msgstr ""
 
@@ -2005,15 +1980,14 @@ msgid "Dead"
 msgstr ""
 
 #: templates/cache/service.html:39 templates/dashboard/twofa.html:11
-#: templates/mysql/phpmyadmin.html:71 templates/mysql/remote_mysql.html:68
-#: templates/psql/pgadmin.html:77 templates/psql/remote_psql.html:88
-#: templates/system/services.html:44
+#: templates/mysql/remote_mysql.html:68 templates/psql/pgadmin.html:77
+#: templates/psql/remote_psql.html:88 templates/system/services.html:44
 msgid "Click to Enable"
 msgstr ""
 
-#: templates/cache/service.html:39 templates/mysql/phpmyadmin.html:56
-#: templates/mysql/remote_mysql.html:53 templates/psql/pgadmin.html:62
-#: templates/psql/remote_psql.html:73 templates/system/services.html:44
+#: templates/cache/service.html:39 templates/mysql/remote_mysql.html:53
+#: templates/psql/pgadmin.html:62 templates/psql/remote_psql.html:73
+#: templates/system/services.html:44
 msgid "Click to Disable"
 msgstr ""
 
@@ -2022,11 +1996,10 @@ msgstr ""
 #: templates/domains/domains.html:90 templates/domains/domains.html:193
 #: templates/domains/logs.html:176 templates/domains/logs.html:218
 #: templates/domains/ssl.html:28 templates/manager/wp/single.html:1112
-#: templates/mysql/databases.html:655 templates/mysql/phpmyadmin.html:40
-#: templates/mysql/remote_mysql.html:37 templates/psql/pgadmin.html:46
-#: templates/psql/remote_psql.html:57 templates/system/services.html:71
-#: templates/system/waf.html:51 templates/system/waf_domain.html:30
-#: templates/user/active_sessions.html:54
+#: templates/mysql/databases.html:655 templates/mysql/remote_mysql.html:37
+#: templates/psql/pgadmin.html:46 templates/psql/remote_psql.html:57
+#: templates/system/services.html:71 templates/system/waf.html:51
+#: templates/system/waf_domain.html:30 templates/user/active_sessions.html:54
 msgid "Status"
 msgstr ""
 
@@ -2042,17 +2015,16 @@ msgstr ""
 msgid "IP and Port for accessing the service."
 msgstr ""
 
-#: templates/cache/service.html:77 templates/mysql/phpmyadmin.html:263
-#: templates/mysql/remote_mysql.html:99 templates/mysql/remote_mysql.html:122
-#: templates/psql/pgadmin.html:208 templates/psql/remote_psql.html:119
-#: templates/psql/remote_psql.html:141
+#: templates/cache/service.html:77 templates/mysql/remote_mysql.html:99
+#: templates/mysql/remote_mysql.html:122 templates/psql/pgadmin.html:208
+#: templates/psql/remote_psql.html:119 templates/psql/remote_psql.html:141
 msgid "Server:"
 msgstr ""
 
 #: templates/cache/service.html:81 templates/manager/pm2_install.html:108
-#: templates/mysql/phpmyadmin.html:276 templates/mysql/remote_mysql.html:103
-#: templates/mysql/remote_mysql.html:126 templates/psql/pgadmin.html:212
-#: templates/psql/remote_psql.html:123 templates/psql/remote_psql.html:145
+#: templates/mysql/remote_mysql.html:103 templates/mysql/remote_mysql.html:126
+#: templates/psql/pgadmin.html:212 templates/psql/remote_psql.html:123
+#: templates/psql/remote_psql.html:145
 msgid "Port:"
 msgstr ""
 
@@ -2199,7 +2171,7 @@ msgstr ""
 msgid "Import Database"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:131 templates/mysql/phpmyadmin.html:18
+#: templates/dashboard/dashboard.html:131
 msgid "Open phpMyAdmin"
 msgstr ""
 
@@ -2579,8 +2551,6 @@ msgstr ""
 #: templates/domains/dns.html:367 templates/domains/domains.html:273
 #: templates/domains/domains.html:303 templates/domains/dynamic_dns.html:103
 #: templates/emails/default_address.html:132 templates/files/edit_file.html:166
-#: templates/mysql/phpmyadmin.html:130 templates/mysql/phpmyadmin.html:158
-#: templates/mysql/phpmyadmin.html:187 templates/mysql/phpmyadmin.html:215
 #: templates/psql/pgadmin.html:128 templates/psql/pgadmin.html:152
 #: templates/psql/pgadmin.html:181 templates/system/cronjobs.html:312
 #: templates/system/waf_domain.html:16
@@ -2758,9 +2728,7 @@ msgstr ""
 #: templates/manager/websitebuilder.html:208
 #: templates/manager/websitebuilder.html:258
 #: templates/manager/wp/single.html:599 templates/manager/wp/single.html:2046
-#: templates/manager/wp/single.html:2096 templates/mysql/phpmyadmin.html:132
-#: templates/mysql/phpmyadmin.html:160 templates/mysql/phpmyadmin.html:189
-#: templates/mysql/phpmyadmin.html:217 templates/psql/pgadmin.html:130
+#: templates/manager/wp/single.html:2096 templates/psql/pgadmin.html:130
 #: templates/psql/pgadmin.html:154 templates/psql/pgadmin.html:183
 msgid "Cancel"
 msgstr ""
@@ -3045,8 +3013,7 @@ msgstr ""
 #: templates/domains/dynamic_dns.html:42 templates/domains/dynamic_dns.html:88
 #: templates/domains/new.html:45 templates/emails/alias_new.html:21
 #: templates/emails/new.html:23 templates/files/ftp_new.html:34
-#: templates/manager/wp/list.html:118 templates/mysql/phpmyadmin.html:238
-#: templates/php/settings.html:153
+#: templates/manager/wp/list.html:118 templates/php/settings.html:153
 msgid "Domain"
 msgstr ""
 
@@ -5944,8 +5911,7 @@ msgstr ""
 #: templates/manager/pm2_install.html:352
 #: templates/manager/python_node_apps.html:85
 #: templates/manager/python_node_apps.html:436
-#: templates/manager/python_node_apps.html:446
-#: templates/mysql/phpmyadmin.html:200 templates/psql/pgadmin.html:166
+#: templates/manager/python_node_apps.html:446 templates/psql/pgadmin.html:166
 msgid "Version:"
 msgstr ""
 
@@ -6013,7 +5979,6 @@ msgid "CPU limit:"
 msgstr ""
 
 #: templates/manager/python_node_apps.html:107
-#: templates/mysql/phpmyadmin.html:143
 msgid "Memory limit:"
 msgstr ""
 
@@ -7393,6 +7358,10 @@ msgstr ""
 msgid "Repair"
 msgstr ""
 
+#: templates/mysql/databases.html:474
+msgid "phpMyAdmin"
+msgstr ""
+
 #: templates/mysql/databases.html:567
 msgid "No databases yet."
 msgstr ""
@@ -7556,88 +7525,6 @@ msgstr ""
 msgid "Change password for a MySQL database user."
 msgstr ""
 
-#: templates/mysql/phpmyadmin.html:12 templates/mysql/phpmyadmin.html:41
-msgid "Enable/disable phpMyAdmin service."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:28 templates/psql/pgadmin.html:34
-msgid "Not currently enabled by Administrator."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:29 templates/psql/pgadmin.html:35
-msgid "Contact your hosting provider"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:51 templates/mysql/remote_mysql.html:48
-#: templates/psql/pgadmin.html:57 templates/psql/remote_psql.html:68
-msgid "Enabled"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:84 templates/mysql/remote_mysql.html:81
-#: templates/psql/pgadmin.html:90 templates/psql/remote_psql.html:101
-msgid "Click to Restart"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:103
-msgid "Limits"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:104
-msgid "Version and PHP limits for the phpMyAdmin service."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:115
-msgid "Max execution time:"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:156 templates/mysql/phpmyadmin.html:185
-msgid "Please enter size in format: number followed by M (e.g., 256M)"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:172
-msgid "Upload limit:"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:220 templates/psql/pgadmin.html:186
-msgid "View tags on Docker Hub"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:238 templates/psql/pgadmin.html:202
-msgid "Port"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:241
-msgid "Custom link for accessing the phpMyAdmin service."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:241
-msgid "IP and Port for accessing the phpMyAdmin service."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:252
-msgid "Link:"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:295
-msgid "Autologin"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:298
-msgid "Enable autoloion to phpMyAdmin or require username and password."
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:306
-msgid "Current autologon status"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:316
-msgid "Disable autologin"
-msgstr ""
-
-#: templates/mysql/phpmyadmin.html:318
-msgid "Enable autologin"
-msgstr ""
-
 #: templates/mysql/processlist.html:8
 msgid "MySQL Processes"
 msgstr ""
@@ -7694,6 +7581,16 @@ msgstr ""
 
 #: templates/mysql/remote_mysql.html:38
 msgid "Remote access to databases is currently:"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:48 templates/psql/pgadmin.html:57
+#: templates/psql/remote_psql.html:68
+msgid "Enabled"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:81 templates/psql/pgadmin.html:90
+#: templates/psql/remote_psql.html:101
+msgid "Click to Restart"
 msgstr ""
 
 #: templates/mysql/remote_mysql.html:93 templates/psql/remote_psql.html:113
@@ -8301,12 +8198,28 @@ msgstr ""
 msgid "Open pgAdmin Login"
 msgstr ""
 
+#: templates/psql/pgadmin.html:34
+msgid "Not currently enabled by Administrator."
+msgstr ""
+
+#: templates/psql/pgadmin.html:35
+msgid "Contact your hosting provider"
+msgstr ""
+
 #: templates/psql/pgadmin.html:106
 msgid "Login information for the pgAdmin container."
 msgstr ""
 
 #: templates/psql/pgadmin.html:115
 msgid "Email:"
+msgstr ""
+
+#: templates/psql/pgadmin.html:186
+msgid "View tags on Docker Hub"
+msgstr ""
+
+#: templates/psql/pgadmin.html:202
+msgid "Port"
 msgstr ""
 
 #: templates/psql/pgadmin.html:203

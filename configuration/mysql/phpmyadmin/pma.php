@@ -1,51 +1,65 @@
 <?php
-$fileToken = "IZs2cM1dmE2RluSrnUYH84kKBVjuhw";
 
-if (strlen($fileToken) < 32) {
-    // https://github.com/stefanpejcic/OpenPanel/security/advisories/GHSA-m8fv-5cx3-qxm2
+require_once '/etc/phpmyadmin/config.secret.inc.php';
+
+$providedToken = $_GET['token'] ?? '';
+$username      = $_GET['user']  ?? '';
+
+if (empty($username) || empty($providedToken)) {
+    header("Location: ./index.php");
+    exit;
+}
+
+if (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
     header("Location: ./index.php?invalid");
     exit;
 }
 
-require_once '/etc/phpmyadmin/config.secret.inc.php';
-require_once '/etc/phpmyadmin/helpers.php';
+$tokenFile = '/home/' . $username . '/pma.token';
+if (!file_exists($tokenFile)) {
+    header("Location: ./index.php?invalid");
+    exit;
+}
 
-$vars = ['PMA_HOST', 'MYSQL_ROOT_PASSWORD'];
+$fileToken = trim(file_get_contents($tokenFile));
+if (strlen($fileToken) < 32 || !hash_equals($fileToken, $providedToken)) {
+    header("Location: ./index.php?invalid");
+    exit;
+}
 
-foreach ($vars as $var) {
-    $env = getenv($var);
-    if (!isset($_ENV[$var]) && $env !== false) {
-        $_ENV[$var] = $env;
+$socketPath = '/home/' . $username . '/sockets/mysqld/mysqld.sock';
+if (!file_exists($socketPath)) {
+    header("Location: ./index.php?invalid");
+    exit;
+}
+
+$envFile = '/home/' . $username . '/.env';
+$envVars = parse_ini_file($envFile);
+$mysqlPassword = $envVars['MYSQL_ROOT_PASSWORD'] ?? '';
+if (empty($mysqlPassword)) {
+    header("Location: ./index.php?invalid");
+    exit;
+}
+
+$serverIndex = 1;
+foreach (glob('/home/*/sockets/mysqld/mysqld.sock') as $i => $sock) {
+    $sockUser = explode('/', $sock)[2];
+    if ($sockUser === $username) {
+        $serverIndex = $i + 1;
+        break;
     }
 }
 
-// Retrieve the token from the URL
-$providedToken = isset($_GET['token']) ? $_GET['token'] : '';
+$sessionName = 'OPENPANEL_PMA_' . strtoupper($username);
+session_set_cookie_params(0, '/', '', false, true);
+session_name($sessionName);
+session_start();
 
-if ($providedToken === $fileToken) {
-    // Provided token and file token match, create a session
-    session_set_cookie_params(0, '/', '', 0);
-    session_name('OPENPANEL_PHPMYADMIN');
-    session_start();
+$_SESSION['PMA_single_signon_user']     = 'root';
+$_SESSION['PMA_single_signon_password'] = $mysqlPassword;
+$_SESSION['PMA_single_signon_host']     = 'localhost';
 
-    if (isset($_ENV['MYSQL_ROOT_PASSWORD'])) {
-        $_SESSION['PMA_single_signon_user'] = 'root';
-        $_SESSION['PMA_single_signon_password'] = isset($_ENV['MYSQL_ROOT_PASSWORD']) ? $_ENV['MYSQL_ROOT_PASSWORD'] : '';
-        $_SESSION['PMA_single_signon_host'] = isset($_ENV['PMA_HOST']) ? $_ENV['PMA_HOST'] : 'mysql';
-    } else {
-        #echo "No root password.";
-        header("Location: ./index.php?invalid");
-    }
+session_write_close();
 
-    session_write_close();
-
-    // Remove the 'token' parameter from the query parameters
-    unset($_GET['token']);
-    $query_params_str = http_build_query($_GET);
-
-    // Append query parameters to the Location header
-    header("Location: ./index.php?$query_params_str");
-} else {
-    header("Location: ./index.php?loginform=true");
-}
-?>
+header("Location: ./index.php?server=" . $serverIndex);
+exit;

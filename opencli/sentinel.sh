@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 05.06.2026
+# Last Modified: 06.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -279,6 +279,21 @@ docker_containers_status() {
           ((WARN--))
           echo "  - DNS module not enabled; bind9 not starting."
       fi ;;
+    phpmyadmin)
+      enabled_modules_line=$(grep '^enabled_modules=' "$CONF_FILE")
+      if [[ "$enabled_modules_line" == *"phpmyadmin"* ]]; then
+          if ls /home/*/sockets/mysqld/mysqld.sock &>/dev/null; then
+              cd /root
+              docker --context=default compose up -d phpmyadmin &>/dev/null
+              _docker_check_after_restart "$svc" "$title"
+          else
+              ((WARN--))
+              echo "  - No mysql/mariadb services yet; phpmyadmin not needed."
+          fi
+      else
+          ((WARN--))
+          echo "  - phpmyadmin module not enabled; phpmyadmin not starting."
+      fi ;;
     caddy)
       if ls /etc/openpanel/caddy/domains &>/dev/null; then
         cd /root && docker --context=default compose up -d caddy &>/dev/null
@@ -321,10 +336,11 @@ mysql_docker_containers_status() {
 
 check_services() {
   local svc
-  for svc in caddy csf admin docker panel mysql named; do
+  for svc in caddy csf admin docker panel mysql phpmyadmin named; do
     [[ ",$SERVICES," != *",$svc,"* ]] && continue
     case "$svc" in
       caddy)  docker_containers_status  'caddy'         'Caddy not active — websites down!'             ;;
+      phpmyadmin)  docker_containers_status  'phpmyadmin'         'phpmyadmin not active — users can access databases!'             ;;
       csf)    check_service_status      'csf'           'CSF Firewall not active — server unprotected!' ;;
       admin)  check_service_status      'admin'         'OpenAdmin service not accessible!'             ;;
       docker) check_service_status      'docker'        'Docker not active — user websites down!'       ;;

@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 05.06.2026
+# Last Modified: 06.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -195,14 +195,19 @@ get_local_version() {
 
 # ---------------------- GET AVAILABLE ---------------------- #
 get_remote_version() {
+    local beta="${1:-false}"
     local tags
     tags=$(curl -s "https://hub.docker.com/v2/repositories/${IMAGE_NAME}/tags" | jq -r '.results[].name' 2>/dev/null)
-    
+
     if [[ -z "$tags" ]]; then
         return 1
     fi
-    
-    echo "$tags" | grep -v '^latest$' | grep -v -- '-beta$' | sort -V | tail -n 1
+
+    if [[ "$beta" == "true" ]]; then
+        echo "$tags" | grep -- '-beta$' | sed 's/-beta$//' | sort -V | tail -n 1
+    else
+        echo "$tags" | grep -v '^latest$' | grep -v -- '-beta$' | sort -V | tail -n 1
+    fi
 }
 
 # ---------------------- COMPARE, DUH! ---------------------- #
@@ -617,14 +622,22 @@ run_update_immediately() {
 }
 
 
+
 update_openpanel() {
     cd /root || return
-    if [[ "$BETA" == "true" ]]; then 
+    if [[ "$BETA" == "true" ]]; then
+        ensure_jq_installed
+        local base_version
+        base_version=$(get_remote_version true)
+
+        if [[ -z "$base_version" ]]; then
+            log_error "Could not find a beta image on Docker Hub for ${IMAGE_NAME}"
+            return 1
+        fi
+
+        log_info "Latest beta version found: ${base_version}-beta"
         if [[ -f /root/.env ]]; then
-            local current_version=$(grep '^VERSION=' /root/.env | cut -d'"' -f2)
-            if [[ "$current_version" != *-beta ]]; then
-                sed -i "s/^VERSION=.*/VERSION=\"${current_version}-beta\"/" /root/.env
-            fi
+            sed -i "s/^VERSION=.*/VERSION=\"${base_version}-beta\"/" /root/.env
         fi
     fi
     docker --context=default compose up -d openpanel --force-recreate --pull always
