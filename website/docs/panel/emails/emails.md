@@ -25,7 +25,7 @@ To create a new email account, click the **New Email** button.
 
 ## Webmail
 
-Clicking the **Webmail** link opens the RoundCube Webmail client in a new tab. Note that there is no auto-login, so you will need to enter your email password.
+Clicking the **Webmail** link autologins you into an email address and opens the RoundCube Webmail client in a new tab.
 
 ---
 
