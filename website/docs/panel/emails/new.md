@@ -17,8 +17,7 @@ Fill in the form:
 
 Click **Create Email** when done.
 
-## Notes
-
+Notes:
 - Username cannot contain spaces.
 - Password must be at least 8 characters.
 - If a maximum quota is set by your hosting plan, you cannot exceed it.
