@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 11.09.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,10 +34,14 @@ if [ "$#" -gt 1 ]; then
     exit 1
 fi
 
-
 # ======================================================================
 # Main
 if [ -n "$1" ]; then
+	context=$(mysql -N -e "SELECT u.server FROM users u WHERE u.username='${1}';")
+    if [ -z "$context" ]; then
+        echo "ERROR: No context found for user '$1'. Aborting!"
+        exit 1
+    fi
     docker exec openadmin_ftp sh -c "ps | grep 'vsftpd:' | grep '$1' | grep -w -v grep"
 else
     docker exec openadmin_ftp sh -c 'ps | grep "vsftpd:" | grep -w -v grep'

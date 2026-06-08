@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -421,11 +421,11 @@ delete_emails() {
 
 
 delete_ftp_accounts() {
-	local username="$1"
+	local context="$1"
 	local domain="$2"
 
 	# ftp accounts
-	local ftp_accounts_file="/etc/openpanel/ftp/users/${username}/users.list"
+	local ftp_accounts_file="/etc/openpanel/ftp/users/${context}/users.list"
 
 	if [ -f "$ftp_accounts_file" ]; then
 	    log "Removing FTP accounts for domain: $domain"
@@ -473,27 +473,27 @@ delete_domain() {
     local result=$(mysql -N -e "$verify_query")
 
     if [ "$result" -eq 0 ]; then
-        get_webserver_for_user                       #
-        vhost_files_delete                           # delete file in container
+        get_webserver_for_user                          #
+        vhost_files_delete                              # delete file in container
 
 		nohup opencli sentinel --action=domains_delete --title="Domain deleted" --message="Domain name: '$domain_name' has been removed from OpenPanel user: '$user'." >/dev/null 2>&1 &
 		disown
 
-		remove_dns_entries_from_apex_zone	         # subdomain-specific DNS cleanup
+		remove_dns_entries_from_apex_zone	            # subdomain-specific DNS cleanup
 		if $onion_domain; then
-			remove_onion_files		                 # delete conf files
-			restart_tor_for_user		             # restart if running
-	 	else
-		    delete_domain_file                       # remove caddy files
-		 	dns_stuff			                     # remove dns files
+			remove_onion_files		                    # delete conf files
+			restart_tor_for_user		                # restart if running
+	 	else 
+		    delete_domain_file                          # remove caddy files
+		 	dns_stuff			                        # remove dns files
 	 	fi
 
 		check_if_enterprise
-        delete_mail_mountpoint                       # delete mountpoint to mailserver
-		postfwd_setup                                # delete domain hourly ratelimit
-        delete_emails "$user" "$domain_name"         # delete mails for the domain
-		delete_ftp_accounts "$user" "$domain_name"   # delete FTP accounts for the domain
-        rm_domain_to_clamav_list                     # added in 0.3.4    
+        delete_mail_mountpoint                          # delete mountpoint to mailserver
+		postfwd_setup                                   # delete domain hourly ratelimit
+        delete_emails "$user" "$domain_name"            # delete mails for the domain
+		delete_ftp_accounts "$context" "$domain_name"   # delete FTP accounts for the domain
+        rm_domain_to_clamav_list                        # added in 0.3.4    
         echo "Domain $domain_name deleted successfully"
     else
         log "Deleting domain $domain_name failed! Contact administrator to check if the mysql database is running."

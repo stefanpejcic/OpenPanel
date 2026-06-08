@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -42,11 +42,6 @@ fi
 username="${1,,}"
 openpanel_username="$2"
 
-
-
-mkdir -p /etc/openpanel/ftp/users/${openpanel_username}
-touch /etc/openpanel/ftp/users/${openpanel_username}/users.list
-
 get_docker_context_for_user(){
     context=$(mysql -e "SELECT server FROM users WHERE username='$openpanel_username';" -N)   
 	context=$(mysql -N -e "
@@ -70,11 +65,12 @@ get_docker_context_for_user(){
 # validate our op user owns the domain and get context
 get_docker_context_for_user
 
-# ======================================================================
-# Main
+mkdir -p /etc/openpanel/ftp/users/${context}
+touch /etc/openpanel/ftp/users/${context}/users.list
+
 docker --context=default exec openadmin_ftp sh -c "deluser $username"
 if [ $? -eq 0 ]; then
-    sed -i "/^$username|/d" /etc/openpanel/ftp/users/${openpanel_username}/users.list
+    sed -i "/^$username|/d" /etc/openpanel/ftp/users/${context}/users.list
     nohup opencli sentinel --action=ftp_delete --title="FTP account deleted" --message="FTP account '$username' has been deleted." >/dev/null 2>&1 &
     disown
     echo "Success: FTP user '$username' deleted successfully."

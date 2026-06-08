@@ -5,7 +5,7 @@
 # Usage: opencli docker-images [--all|<USERNAME>] [--dry-run] [--force-update]
 # Author: Stefan Pejcic
 # Created: 05.05.2025
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 #
@@ -28,8 +28,6 @@
 # THE SOFTWARE.
 ################################################################################
 
-# ─── Constants ────────────────────────────────────────────────────────────────
-
 GLOBAL_LOCK="/tmp/cup_global.lock"
 DIGEST_CACHE="/tmp/cup_digest_cache.tmp"
 DIGEST_CACHE_LOCK="/tmp/cup_digest_cache.lock"
@@ -42,8 +40,6 @@ CUP_IMAGE="ghcr.io/sergi0g/cup"
 DRY_RUN=false
 FORCE_UPDATE=false
 MANIFEST_AVAILABLE=false
-
-# ─── Usage ────────────────────────────────────────────────────────────────────
 
 usage() {
     echo "Usage: opencli docker-images [options]"
@@ -63,8 +59,6 @@ usage() {
     exit 1
 }
 
-# ─── Capability detection ─────────────────────────────────────────────────────
-
 detect_manifest_support() {
     if docker manifest --help > /dev/null 2>&1; then
         MANIFEST_AVAILABLE=true
@@ -72,8 +66,6 @@ detect_manifest_support() {
         MANIFEST_AVAILABLE=false
     fi
 }
-
-# ─── Logging helpers ──────────────────────────────────────────────────────────
 
 init_log() {
     local username="$1"
@@ -137,8 +129,6 @@ write_summary() {
     } | tee -a "$LOG_FILE"
 }
 
-# ─── Lock helpers ─────────────────────────────────────────────────────────────
-
 acquire_lock() {
     local lockfile="$1"
     local label="$2"
@@ -160,25 +150,16 @@ user_lock_path() {
     echo "/tmp/cup_user_${1}.lock"
 }
 
-# ─── Digest cache (shared across parallel user subshells) ─────────────────────
-# Format of DIGEST_CACHE file: one entry per line → "image:tag|sha256:digest"
-# flock used for safe concurrent reads/writes from parallel subshells.
-
-# Returns cached remote digest for an image, or empty string on cache miss.
 cache_get() {
     local image="$1"
-    flock -s "$DIGEST_CACHE_LOCK" grep -m1 "^${image}|" "$DIGEST_CACHE" 2>/dev/null \
-        | cut -d'|' -f2 || true
+    flock -s "$DIGEST_CACHE_LOCK" grep -m1 "^${image}|" "$DIGEST_CACHE" 2>/dev/null | cut -d'|' -f2 || true
 }
 
-# Stores a remote digest in the cache.
 cache_set() {
     local image="$1"
     local digest="$2"
-    # Exclusive lock — remove any existing entry then append new one
     (
         flock -x 200
-        # Strip old entry if present
         local tmp
         tmp=$(grep -v "^${image}|" "$DIGEST_CACHE" 2>/dev/null || true)
         echo "$tmp" > "$DIGEST_CACHE"
@@ -186,11 +167,6 @@ cache_set() {
     ) 200>"$DIGEST_CACHE_LOCK"
 }
 
-# ─── Remote digest lookup (with cache) ────────────────────────────────────────
-
-# Fetches the remote digest for image:tag via `docker manifest inspect`.
-# Writes result to cache. Returns digest or empty on failure.
-# Only called if MANIFEST_AVAILABLE=true.
 get_remote_digest() {
     local image="$1"
 
@@ -204,8 +180,7 @@ get_remote_digest() {
 
     # Fetch from registry
     local digest
-    digest=$(docker manifest inspect --verbose "$image" 2>/dev/null \
-        | python3 -c "
+    digest=$(docker manifest inspect --verbose "$image" 2>/dev/null | python3 -c "
 import json, sys
 data = json.load(sys.stdin)
 # manifest inspect --verbose returns either a single object or a list (multi-arch)
@@ -221,23 +196,17 @@ print(d.get('digest', ''))
     fi
 }
 
-# Returns the local digest for a given image (first RepoDigest).
 get_local_digest() {
     local ctx="$1"
     local image="$2"
-    docker --context="$ctx" image inspect "$image" \
-        --format='{{index .RepoDigests 0}}' 2>/dev/null \
-        | awk -F'@' '{print $2}' || true
+    docker --context="$ctx" image inspect "$image" --format='{{index .RepoDigests 0}}' 2>/dev/null | awk -F'@' '{print $2}' || true
 }
 
-# Returns true (0) if the image has a remote update vs what's local.
-# If manifest is unavailable, always returns 0 (assume update needed — cup already told us).
 image_has_remote_update() {
     local ctx="$1"
     local image="$2"
 
     if [ "$MANIFEST_AVAILABLE" = false ]; then
-        # Can't check — skip image entirely (do not pull blindly)
         log_warn "docker manifest not available — cannot verify digest for $image. Skipping."
         return 1
     fi
@@ -253,13 +222,11 @@ image_has_remote_update() {
     local_digest=$(get_local_digest "$ctx" "$image")
 
     if [ "$remote_digest" = "$local_digest" ]; then
-        return 1   # No update
+        return 1    # No update
     fi
 
-    return 0   # Update available
+    return 0        # Update available
 }
-
-# ─── Pre-flight checks ────────────────────────────────────────────────────────
 
 check_registry_reachable() {
     if ! timeout 10 bash -c 'echo > /dev/tcp/registry-1.docker.io/443' 2>/dev/null; then
@@ -284,8 +251,6 @@ validate_compose_file() {
     return 0
 }
 
-# ─── Quota helpers ────────────────────────────────────────────────────────────
-
 check_user_quota() {
     local username="$1"
 
@@ -299,8 +264,7 @@ check_user_quota() {
         return 0
     fi
 
-    # repquota columns: 1=user 2=flags 3=blk_used 4=blk_soft 5=blk_hard
-    #                   6=blk_grace 7=ino_used 8=ino_soft 9=ino_hard
+    # repquota columns: 1=user 2=flags 3=blk_used 4=blk_soft 5=blk_hard 6=blk_grace 7=ino_used 8=ino_soft 9=ino_hard
     local block_used block_soft block_hard inode_used inode_soft inode_hard
     block_used=$(echo "$quota_line" | awk '{print $3}')
     block_soft=$(echo "$quota_line" | awk '{print $4}')
@@ -309,7 +273,6 @@ check_user_quota() {
     inode_soft=$(echo "$quota_line" | awk '{print $8}')
     inode_hard=$(echo "$quota_line" | awk '{print $9}')
 
-    # Prefer hard limit, fall back to soft, fall back to unlimited
     local block_limit inode_limit
     if [ "${block_hard:-0}" -gt 0 ] 2>/dev/null; then
         block_limit=$block_hard
@@ -346,8 +309,6 @@ get_image_size_kb() {
         --format='{{.Size}}' 2>/dev/null | awk '{printf "%d", $1/1024}'
 }
 
-# ─── Health check ─────────────────────────────────────────────────────────────
-
 wait_for_healthy() {
     local ctx="$1"
     local container_id="$2"
@@ -365,7 +326,7 @@ wait_for_healthy() {
         if   [ "$health" = "healthy" ]; then
             return 0
         elif [ "$health" = "none" ] && [ "$status" = "running" ]; then
-            return 0   # No healthcheck defined; running is sufficient
+            return 0
         elif [ "$health" = "unhealthy" ]; then
             return 1
         fi
@@ -374,10 +335,8 @@ wait_for_healthy() {
         waited=$(( waited + HEALTH_RETRY_INTERVAL ))
     done
 
-    return 1   # Timed out
+    return 1
 }
-
-# ─── Per-image update ─────────────────────────────────────────────────────────
 
 update_image() {
     local ctx="$1"
@@ -388,7 +347,6 @@ update_image() {
 
     log_info "[$service] Checking $image ..."
 
-    # ── Digest pre-check — no pull needed ─────────────────────────────────────
     if ! image_has_remote_update "$ctx" "$image"; then
         log_info "[$service] Digest unchanged on registry — no update needed."
         SUMMARY_DIGEST_SKIP=$(( ${SUMMARY_DIGEST_SKIP:-0} + 1 ))
@@ -398,7 +356,6 @@ update_image() {
     log_info "[$service] Remote digest differs — update available."
     SUMMARY_AVAILABLE=$(( ${SUMMARY_AVAILABLE:-0} + 1 ))
 
-    # ── Quota check per image ─────────────────────────────────────────────────
     local image_size_kb
     image_size_kb=$(get_image_size_kb "$ctx" "$image")
     log_info "[$service] Current image size: ${image_size_kb}KB — quota available: ${QUOTA_BLOCK_AVAIL}KB"
@@ -409,18 +366,15 @@ update_image() {
         return
     fi
 
-    # ── Dry-run short-circuit ─────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
         log_dry "[$service] Would pull $image → compose down/up '$service' → health check."
         SUMMARY_UPDATED=$(( ${SUMMARY_UPDATED:-0} + 1 ))
         return
     fi
 
-    # ── Record current local digest for cleanup after successful update ────────
     local old_digest
     old_digest=$(get_local_digest "$ctx" "$image")
 
-    # ── Pull new image ────────────────────────────────────────────────────────
     log_info "[$service] Pulling $image ..."
     if ! timeout "$PULL_TIMEOUT" docker --context="$ctx" pull "$image" >> "$LOG_FILE" 2>&1; then
         log_error "[$service] Pull failed or timed out for $image."
@@ -429,7 +383,6 @@ update_image() {
         return
     fi
 
-    # ── Stop and remove the specific service container ────────────────────────
     log_info "[$service] Stopping service ..."
     if ! docker --context="$ctx" compose -f "$compose_file" stop "$service" >> "$LOG_FILE" 2>&1; then
         log_error "[$service] Failed to stop service."
@@ -439,7 +392,6 @@ update_image() {
     fi
     docker --context="$ctx" compose -f "$compose_file" rm -f "$service" >> "$LOG_FILE" 2>&1 || true
 
-    # ── Start the service with new image ──────────────────────────────────────
     log_info "[$service] Starting service with new image ..."
     if ! docker --context="$ctx" compose -f "$compose_file" up -d "$service" >> "$LOG_FILE" 2>&1; then
         log_error "[$service] Failed to start service after update."
@@ -448,7 +400,6 @@ update_image() {
         return
     fi
 
-    # ── Health / status check ─────────────────────────────────────────────────
     local container_id
     container_id=$(docker --context="$ctx" compose -f "$compose_file" ps -q "$service" 2>/dev/null | head -1)
 
@@ -456,10 +407,8 @@ update_image() {
         log_info "[$service] Healthy after update. ✓"
         SUMMARY_UPDATED=$(( ${SUMMARY_UPDATED:-0} + 1 ))
 
-        # Reduce available quota by image size for subsequent per-image checks
         QUOTA_BLOCK_AVAIL=$(( QUOTA_BLOCK_AVAIL - image_size_kb ))
 
-        # Remove old image digest
         if [ -n "$old_digest" ]; then
             log_info "[$service] Removing old digest: $old_digest"
             docker --context="$ctx" rmi "$old_digest" >> "$LOG_FILE" 2>&1 \
@@ -471,12 +420,10 @@ update_image() {
     fi
 }
 
-# ─── Core per-user logic ──────────────────────────────────────────────────────
-
 run_for_user() {
     local username="$1"
 
-    # ── Per-user lock ──────────────────────────────────────────────────────────
+    # 1. lock first
     local user_lock
     user_lock=$(user_lock_path "$username")
     if ! mkdir "$user_lock" 2>/dev/null; then
@@ -489,13 +436,12 @@ run_for_user() {
     # shellcheck disable=SC2064
     trap "release_lock '$user_lock'" RETURN INT TERM
 
-    # ── skip_cup.flag — bail before touching anything ─────────────────────────
+    # 2. check if skip_cup.flag
     if [ -f "/home/$username/skip_cup.flag" ]; then
         echo "SKIP: $username has skip_cup.flag — skipping entirely."
         return
     fi
 
-    # ── Init log ───────────────────────────────────────────────────────────────
     init_log "$username"
 
     SUMMARY_CHECKED=0
@@ -511,7 +457,7 @@ run_for_user() {
     [ "$FORCE_UPDATE" = true ] && flags+=" [FORCE-UPDATE]"
     log_info "Starting for user: $username$flags"
 
-    # ── Docker context check ───────────────────────────────────────────────────
+    # 3. check if context exists
     if ! docker context inspect "$username" > /dev/null 2>&1; then
         log_error "Docker context '$username' does not exist."
         SUMMARY_ERRORS=$(( SUMMARY_ERRORS + 1 ))
@@ -519,7 +465,7 @@ run_for_user() {
         return 1
     fi
 
-    # ── Running containers check ───────────────────────────────────────────────
+    # 4. check if all services are stopped = suspended user
     local running_containers
     running_containers=$(docker --context="$username" ps -q 2>/dev/null)
     if [ -z "$running_containers" ]; then
@@ -528,7 +474,7 @@ run_for_user() {
         return
     fi
 
-    # ── Compose file validation ────────────────────────────────────────────────
+    # 5. validate compose file so we dont get errors on compose up later
     if ! validate_compose_file "$username" "$username"; then
         SUMMARY_ERRORS=$(( SUMMARY_ERRORS + 1 ))
         write_summary "$username"
@@ -537,7 +483,7 @@ run_for_user() {
 
     local compose_file="/home/$username/docker-compose.yml"
 
-    # ── Active compose services only ───────────────────────────────────────────
+    # 6. list active services for user
     local active_services
     active_services=$(docker --context="$username" compose -f "$compose_file" ps \
         --filter "status=running" --format "{{.Service}}" 2>/dev/null)
@@ -550,14 +496,14 @@ run_for_user() {
 
     log_info "Active services: $(echo "$active_services" | tr '\n' ' ')"
 
-    # ── Registry reachability ──────────────────────────────────────────────────
+    # 7. check if docker hub is reachable
     if ! check_registry_reachable; then
         SUMMARY_ERRORS=$(( SUMMARY_ERRORS + 1 ))
         write_summary "$username"
         return 1
     fi
 
-    # ── Docker socket detection ────────────────────────────────────────────────
+    # 8. get socket for step 10
     local user_id mount_flag
     user_id=$(stat -c %u "/home/$username" 2>/dev/null)
     if [ -n "$user_id" ] && [ -S "/hostfs/run/user/$user_id/docker.sock" ]; then
@@ -571,7 +517,7 @@ run_for_user() {
         return 1
     fi
 
-    # ── Build image→service map for active services only ──────────────────────
+    # 9. build image→service map for active services
     local compose_json
     compose_json=$(docker --context="$username" compose -f "$compose_file" \
         config --format json 2>/dev/null)
@@ -593,14 +539,13 @@ print(svc.get('image', ''))
     SUMMARY_CHECKED=${#image_to_service[@]}
     log_info "Active images to check: $SUMMARY_CHECKED"
 
-    # ── Run cup to get list of images with potential updates ───────────────────
+    # 10. run cup
     local cup_output_dir="/home/$username/docker-data/cup"
     mkdir -p "$cup_output_dir"
     local cup_json="$cup_output_dir/cup.json"
 
     log_info "Running cup check ..."
-    if ! docker --context="$username" run --rm $mount_flag "$CUP_IMAGE" check -r \
-            > "$cup_json" 2>>"$LOG_FILE"; then
+    if ! docker --context="$username" run --rm $mount_flag "$CUP_IMAGE" check -r > "$cup_json" 2>>"$LOG_FILE"; then
         log_error "cup check failed."
         SUMMARY_ERRORS=$(( SUMMARY_ERRORS + 1 ))
         write_summary "$username"
@@ -609,7 +554,7 @@ print(svc.get('image', ''))
     docker --context="$username" rmi -f "$CUP_IMAGE" >> "$LOG_FILE" 2>&1 || true
     log_info "cup output saved to $cup_json"
 
-    # Extract images cup flagged as having updates
+    # 11. extract images cup flagged as having updates
     local cup_flagged
     cup_flagged=$(python3 -c "
 import json, sys
@@ -619,7 +564,7 @@ for img, info in data.get('images', {}).items():
         print(img)
 " 2>/dev/null)
 
-    # ── Determine whether we should perform updates ────────────────────────────
+    # 12. autoupdate?
     local do_update=false
     if [ "$FORCE_UPDATE" = true ]; then
         do_update=true
@@ -631,7 +576,7 @@ for img, info in data.get('images', {}).items():
         log_info "Auto-update not enabled — check only (pass --force-update to override)."
     fi
 
-    # ── If not updating, just log what cup found and exit ─────────────────────
+    # 13. if no autoupdate, just log cup and exit
     if [ "$do_update" = false ]; then
         local count=0
         for img in $cup_flagged; do
@@ -643,14 +588,14 @@ for img, info in data.get('images', {}).items():
         return
     fi
 
-    # ── Quota check (once per user, before any pulls) ─────────────────────────
+    # 14. check quota for user to avoid reaching limits on pull
     if ! check_user_quota "$username"; then
         SUMMARY_ERRORS=$(( SUMMARY_ERRORS + 1 ))
         write_summary "$username"
         return 1
     fi
 
-    # ── Process each image cup flagged, limited to active services ─────────────
+    # 15. process each image cup flagged, limited to active services
     for img in $cup_flagged; do
         local svc="${image_to_service[$img]:-}"
         if [ -z "$svc" ]; then
@@ -660,17 +605,17 @@ for img, info in data.get('images', {}).items():
         update_image "$username" "$username" "$img" "$svc"
     done
 
-    # ── Prune remaining dangling images ───────────────────────────────────────
+    # 16. prune remaining dangling images
     if [ "$DRY_RUN" = false ]; then
         log_info "Pruning dangling images ..."
         docker --context="$username" image prune -f >> "$LOG_FILE" 2>&1 || true
     fi
 
+    # 17. create summary to be later used on notifications
     write_summary "$username"
 }
 
-# ─── All-users mode ───────────────────────────────────────────────────────────
-
+# ALL USERS
 run_for_all_users() {
     local contexts
     contexts=$(docker context ls --format '{{.Name}}' | grep -v '^default$')
@@ -678,7 +623,6 @@ run_for_all_users() {
     local pids=()
 
     for ctx in $contexts; do
-        # Throttle to MAX_PARALLEL concurrent jobs
         while [ "${#pids[@]}" -ge "$MAX_PARALLEL" ]; do
             local new_pids=()
             for pid in "${pids[@]}"; do
@@ -699,8 +643,6 @@ run_for_all_users() {
     echo "Done processing all users."
 }
 
-# ─── Argument parsing ─────────────────────────────────────────────────────────
-
 TARGET=""
 for arg in "$@"; do
     case "$arg" in
@@ -715,8 +657,6 @@ done
 
 [ -z "$TARGET" ] && usage
 
-# ─── Initialise shared state ──────────────────────────────────────────────────
-
 detect_manifest_support
 log_info_global() { echo "[$(date '+%Y-%m-%d %H:%M:%S')] [INFO ] $*"; }
 
@@ -726,11 +666,8 @@ else
     log_info_global "docker manifest not available — images without digest verification will be skipped."
 fi
 
-# Initialise the shared digest cache file (owned by this run)
 : > "$DIGEST_CACHE"
 : > "$DIGEST_CACHE_LOCK"
-
-# ─── Global lock + dispatch ───────────────────────────────────────────────────
 
 if [ "$TARGET" = "--all" ]; then
     acquire_lock "$GLOBAL_LOCK" "global"

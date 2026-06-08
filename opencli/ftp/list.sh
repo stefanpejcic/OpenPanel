@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -34,10 +34,10 @@
 # Main
 if [ -z "$1" ]; then
     # ALL USERS
-    for openpanel_username in /etc/openpanel/ftp/users/*; do
-        if [ -d "$openpanel_username" ]; then
-            user_dir_name=$(basename "$openpanel_username")
-            users_file="${openpanel_username}/users.list"
+    for context in /etc/openpanel/ftp/users/*; do
+        if [ -d "$context" ]; then
+            user_dir_name=$(basename "$context")
+            users_file="${context}/users.list"
             if [ ! -f "$users_file" ]; then
                 continue
             fi
@@ -50,13 +50,13 @@ if [ -z "$1" ]; then
     done
 else
     # SINGLE USER
-    openpanel_username="$1"
-    users_file="/etc/openpanel/ftp/users/${openpanel_username}/users.list"
+    context="$1"
+    users_file="/etc/openpanel/ftp/users/${context}/users.list"
     if [ ! -f "$users_file" ]; then
         echo "No FTP sub-users for OpenPanel user: '$user_dir_name'."
         exit 1
     fi
-    echo "FTP sub-users for '$openpanel_username':"
+    echo "FTP sub-users for '$context':"
     while IFS='|' read -r username password directory; do
         echo "$username | $directory"
     done < "$users_file"

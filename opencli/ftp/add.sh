@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -59,27 +59,6 @@ check_and_start_ftp_server(){
 }
 
 
-
-get_docker_context_for_user(){
-    context=$(mysql -e "SELECT server FROM users WHERE username='$openpanel_username';" -N)   
-	context=$(mysql -N -e "
-	SELECT u.server
-	FROM users u
-	WHERE u.username='$openpanel_username'
-	AND EXISTS (
-	    SELECT 1
-	    FROM domains d
-	    WHERE d.domain_url = SUBSTRING_INDEX('$username','@',-1)
-	      AND d.user_id = u.id
-	);
-	")
-
-    if [ -z "$context" ]; then
-        echo "ERROR: No context found for user '$openpanel_username' - or does not own the domain name. Aborting!"
-        exit 1
-    fi    
-}
-
 # Function to read users from users.list files and create them
 create_user() {
 
@@ -87,30 +66,41 @@ create_user() {
     relative_path="${directory##/var/www/html/}"
     new_directory="${real_path}${relative_path}"
 	
-	GID=$(stat -c '%u' "/home/$openpanel_username") 	
+	GID=$(stat -c '%u' "/home/$context")
+	if [[ ! "$GID" =~ ^[0-9]+$ ]]; then
+	    echo "ERROR: Could not determine GID for '$context'."
+	    exit 1
+	fi
+
  	EXISTING_GROUP=$(docker exec openadmin_ftp sh -c "getent group '$GID' | cut -d: -f1")
 	
 	# If GID is NOT a number, run fallback command
 	if [[ -z "$EXISTING_GROUP" ]]; then
-	    docker exec openadmin_ftp addgroup -g "$GID" "$openpanel_username"
+	    docker exec openadmin_ftp addgroup -g "$GID" "$context"
 	fi
 
     mkdir -p "$new_directory"
     # Fix permissions for shared group access on host
-    chmod +rx "/home/$openpanel_username"
-    chmod +rx "/home/$openpanel_username/docker-data"
-    chmod +rx "/home/$openpanel_username/docker-data/volumes"
-    chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
-    chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
+    chmod +rx "/home/$context"
+    chmod +rx "/home/$context/docker-data"
+    chmod +rx "/home/$context/docker-data/volumes"
+    chmod +rx "/home/$context/docker-data/volumes/${context}_html_data"
+    chmod +rx "/home/$context/docker-data/volumes/${context}_html_data/_data"
 
     # Find Python path
     PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
 
     # Generate hashed password (SHA512)
-    HASHED_PASS=$($PYTHON_PATH -W ignore -c "import crypt, random, string; salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16)); print(crypt.crypt('$password', '\$6\$' + salt))")
+	HASHED_PASS=$($PYTHON_PATH - "$password" <<'PYEOF'
+	import crypt, random, string, sys
+	pw = sys.argv[1]
+	salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
+	print(crypt.crypt(pw, '$6$' + salt))
+	PYEOF
+	)
 
     # Create user inside container with shared group (GID), auto-assigned UID
-    docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$openpanel_username" -M "$username" --badname
+    docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$context" -M "$username" --badname
 
     # Set password inside container
     if docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"; then
@@ -123,18 +113,18 @@ create_user() {
         chmod -R 2775 "$new_directory"
 
         # Fix execute permissions for traversing up the tree
-        chmod +rx "/home/$openpanel_username"
-        chmod +rx "/home/$openpanel_username/docker-data"
-        chmod +rx "/home/$openpanel_username/docker-data/volumes"
-        chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data"
-        chmod +rx "/home/$openpanel_username/docker-data/volumes/${openpanel_username}_html_data/_data"
+        chmod +rx "/home/$context"
+        chmod +rx "/home/$context/docker-data"
+        chmod +rx "/home/$context/docker-data/volumes"
+        chmod +rx "/home/$context/docker-data/volumes/${context}_html_data"
+        chmod +rx "/home/$context/docker-data/volumes/${context}_html_data/_data"
 
         # Get UID and GID from container
         USER_UID=$(docker exec openadmin_ftp id -u "$username")
         USER_GID=$(docker exec openadmin_ftp id -g "$username")
 
         # Record in users.list
-        echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${openpanel_username}/users.list"
+        echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${context}/users.list"
 
         nohup opencli sentinel --action=ftp_create --title="FTP account created" --message="New FTP account has been created for OpenPanel user: '$openpanel_username'. Directory: $directory | UID: $USER_UID | GID: $USER_GID" >/dev/null 2>&1 &
 		disown
@@ -142,9 +132,9 @@ create_user() {
     else
         if [ "$DEBUG" = true ]; then
             echo "ERROR: Failed to create FTP user with command:"
-            echo "docker exec openadmin_ftp useradd -d $new_directory -s /sbin/nologin -g $openpanel_username $username"
+            echo "docker exec openadmin_ftp useradd -d $new_directory -s /sbin/nologin -g $context $username"
         else
-            echo "ERROR: Failed to create FTP user. To debug, run: opencli ftp-add $username $password '$new_directory' $openpanel_username --debug"
+            echo "ERROR: Failed to create FTP user. To debug, run: opencli ftp-add $username $password '$new_directory' $context --debug"
         fi
         exit 1
     fi
@@ -162,14 +152,40 @@ validate_data() {
 	    exit 1
 	fi
 
-	# validate our op user owns the domain and get context
-	get_docker_context_for_user
+    local_part="${username%%@*}"
+    domain_part="${username##*@}"
+
+    if [[ ! "$local_part" =~ ^[a-z0-9_-]+$ ]]; then
+        echo "ERROR: FTP username before the domain part may only contain a-z, 0-9, _ and -"
+        exit 1
+    fi
+
+    if [[ ! "$domain_part" =~ ^[a-z0-9._-]+$ ]]; then
+        echo "ERROR: Invalid domain provided in FTP username."
+        exit 1
+    fi
+
+	if [[ ! "$openpanel_username" =~ ^[a-z0-9_-]+$ ]]; then
+	    echo "ERROR: Invalid OpenPanel username."
+	    exit 1
+	fi
+
+	context=$(mysql -N -e "SELECT u.server FROM users u WHERE u.username='${openpanel_username}' AND EXISTS (SELECT 1 FROM domains d WHERE d.domain_url = '${domain_part}' AND d.user_id = u.id);")
+    if [ -z "$context" ]; then
+        echo "ERROR: No context found for user '$openpanel_username' - or does not own the domain name. Aborting!"
+        exit 1
+    fi
 
 	if [[ "$directory" != /var/www/html/* ]]; then
 		echo "ERROR: Invalid path. It must start with /var/www/html/"
 		exit 1
 	fi
-	
+
+	if [[ "$directory" =~ [*?\[\]] ]]; then
+	    echo "ERROR: Path cannot contain glob characters."
+	    exit 1
+	fi
+
 	if [[ "$directory" == *".."* ]]; then
 		echo "ERROR: Path traversal detected (.. is not allowed)."
 		exit 1
@@ -223,15 +239,15 @@ validate_data() {
 
 # check if ftp user exists
 check_user_exists() {
-	if grep -Fq "$username|" "/etc/openpanel/ftp/users/${openpanel_username}/users.list"; then
+	if grep -Fq "$username|" "/etc/openpanel/ftp/users/${context}/users.list"; then
 	    echo "ERROR: FTP User '$username' already exists."
 	    exit 1
 	fi
 }
 
 make_dirs() {
-	mkdir -p "/etc/openpanel/ftp/users/${openpanel_username}"
-	touch "/etc/openpanel/ftp/users/${openpanel_username}/users.list"
+	mkdir -p "/etc/openpanel/ftp/users/${context}"
+	touch "/etc/openpanel/ftp/users/${context}/users.list"
 }
 
 

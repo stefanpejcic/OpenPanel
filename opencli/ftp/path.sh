@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com/
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -104,7 +104,7 @@ change_path() {
     docker exec openadmin_ftp sh -c "usermod -d '${container_path}' '${username}'"
     
     if [ $? -eq 0 ]; then
-        sed -i "/^${username}|/s|/var/www/html/[^|]*|${path}|" /etc/openpanel/ftp/users/$openpanel_username/users.list
+        sed -i "/^${username}|/s|/var/www/html/[^|]*|${path}|" /etc/openpanel/ftp/users/$context/users.list
         echo "Success: FTP path for user '$username' changed successfully."
     else
         if [ "$DEBUG" = true ]; then
@@ -118,7 +118,7 @@ change_path() {
 }
 
 
-mkdir -p /etc/openpanel/ftp/users/${openpanel_username} # Ensure the paths.list file exists
 get_docker_context_for_user                             # validate our op user owns the domain and get context
+mkdir -p /etc/openpanel/ftp/users/${context}            # Ensure the paths.list file exists
 validate_path
 change_path

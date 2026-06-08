@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -50,7 +50,6 @@ done
 
 
 get_docker_context_for_user(){
-    context=$(mysql -e "SELECT server FROM users WHERE username='$openpanel_username';" -N)   
 	context=$(mysql -N -e "
 	SELECT u.server
 	FROM users u
@@ -72,11 +71,8 @@ get_docker_context_for_user(){
 
 # Function to update the user's password
 update_password() {
-    # Generate hashed password using Python crypt SHA-512 inside Docker
 
     PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
-
-    # Generate hashed password (SHA512) using environment variable to avoid special character issues
     HASHED_PASS=$(
         PASSWORD="$new_password" $PYTHON_PATH -W ignore -c '
 import crypt, random, string, os
@@ -92,8 +88,8 @@ print(crypt.crypt(os.environ["PASSWORD"], "$6$" + salt))
 awk -F'|' -v user="$username" -v newpass="$HASHED_PASS" '
     $1 == user { $2 = newpass }
     { print $1 "|" $2 "|" $3 "|" $4 "|" $5 }
-' /etc/openpanel/ftp/users/$openpanel_username/users.list > /tmp/$openpanel_username.ftp_users.list.tmp && \
-mv /tmp/$openpanel_username.ftp_users.list.tmp /etc/openpanel/ftp/users/$openpanel_username/users.list
+' /etc/openpanel/ftp/users/$context/users.list > /tmp/$context.ftp_users.list.tmp && \
+mv /tmp/$context.ftp_users.list.tmp /etc/openpanel/ftp/users/$context/users.list
 
         nohup opencli sentinel --action=ftp_password --title="FTP account password changed" --message="FTP account '$username' has password changed." >/dev/null 2>&1 &
         disown
@@ -117,11 +113,8 @@ mv /tmp/$openpanel_username.ftp_users.list.tmp /etc/openpanel/ftp/users/$openpan
 # Check if the FTP user exists
 user_exists() {
     local user="$1"
-    grep -Fq "$user|" /etc/openpanel/ftp/users/${openpanel_username}/users.list
+    grep -Fq "$user|" /etc/openpanel/ftp/users/${context}/users.list
 }
-
-mkdir -p /etc/openpanel/ftp/users/${openpanel_username}
-touch /etc/openpanel/ftp/users/${openpanel_username}/users.list
 
 # Check if user exists
 if ! user_exists "$username"; then
@@ -131,6 +124,9 @@ fi
 
 # validate our op user owns the domain and get context
 get_docker_context_for_user
+
+mkdir -p /etc/openpanel/ftp/users/${context}
+touch /etc/openpanel/ftp/users/${context}/users.list
 
 # Check if password length is at least 8 characters
 if [ ${#new_password} -lt 8 ]; then

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.06.2026
+# Last Modified: 07.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -205,11 +205,11 @@ delete_emails() {
 }
 
 delete_ftp_users() {
-    openpanel_username="$1"
+    context="$1"
     users_dir="/etc/openpanel/ftp/users"
-    users_file="${users_dir}/${openpanel_username}/users.list"
+    users_file="${users_dir}/${context}/users.list"
 
-    if [[ -d "${users_dir}/${openpanel_username}" ]]; then
+    if [[ -d "${users_dir}/${context}" ]]; then
         if [[ -f "$users_file" ]]; then
             local max_jobs=5
             local job_count=0
@@ -218,7 +218,7 @@ delete_ftp_users() {
             done < "$users_file"
             wait
         fi
-        ionice -c3 rm -rf "${users_dir:?}/${openpanel_username:?}"
+        ionice -c3 rm -rf "${users_dir:?}/${context:?}"
     fi
 }
 
@@ -289,7 +289,7 @@ get_user_info
 
 # 3. in parallel: delete emails, delete ftp accounts, user/sites/domains from database, homedir, postfwd limits, docker context
 delete_emails "$USERNAME"
-delete_ftp_users "$USERNAME" &
+delete_ftp_users "$context" &
 delete_user_from_database "$USERNAME" &
 delete_all_user_files &
 postfwd_setup "$USERNAME" &
