@@ -787,7 +787,6 @@ generate_ssl() {
 }
 
 configure_waf() {
-    touch "${ETC_DIR}caddy/coraza_rules.conf"
     opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
 }
 
