@@ -131,17 +131,6 @@ function openpanelApiRequest($params, $uri, $token, $method = 'POST', $data = nu
     }
 }
 
-function openpanelValidateServerType($params) {
-    $server = mysql_fetch_array(
-        select_query('tblservers', 'type', [
-            'hostname' => $params['serverhostname'],
-            'disabled' => 0,
-        ])
-    );
-    return $server && $server['type'] === 'openpanel';
-}
-
-
 /*
     run user actions
 */
@@ -499,7 +488,7 @@ function openpanel_AdminServicesTabFields($params) {
         $planFields = [
             'name'=>'Name','description'=>'Description','domains_limit'=>'Domains Limit','websites_limit'=>'Websites Limit',
             'cpu'=>'CPU','ram'=>'RAM','bandwidth'=>'Bandwidth','db_limit'=>'Database Limit',
-            'email_limit'=>'Email Limit','ftp_limit'=>'FTP Limit','feature_set'=>'Feature Set'
+            'email_limit'=>'Email Limit','max_email_quota'=>'Max Email Quota','max_hourly_email'=>'Max Hourly Emails','ftp_limit'=>'FTP Limit','feature_set'=>'Feature Set'
         ];
 
         $smarty = new \Smarty();

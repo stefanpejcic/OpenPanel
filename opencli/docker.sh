@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 07.06.2026
+# Last Modified: 08.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -90,8 +90,11 @@ pick_user() {
 
 exec_shell() {
   local context="$1" container="$2"
-  docker --context="$context" exec -it "$container" bash 2>/dev/null || docker --context="$context" exec -it "$container" sh
+  local shell
+  shell=$(docker --context="$context" exec "$container" sh -c 'command -v bash || command -v sh' 2>/dev/null)
+  docker --context="$context" exec -it "$container" "$shell"
 }
+
 
 # Main
 case $# in

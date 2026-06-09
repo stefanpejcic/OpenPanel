@@ -6,12 +6,12 @@
   "category": "provisioning",
   "description": {
     "name": "OpenPanel",
-    "tagline": "A Linux hosting control panel based on Docker.",
+    "tagline": "Next Generation Hosting Panel.",
     "long": ""
   },
   "support": {
     "homepage": "https://openpanel.com/",
-    "docs_url": "https://dev.openpanel.com/api"
+    "docs_url": "https://openpanel.com/docs/articles/dev-experience/openadmin-api/"
   },
   "authors": [
     {

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 07.06.2026
+# Last Modified: 08.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -77,9 +77,10 @@ get_user_info() {
     [ -n "$user_id" ] || { echo "ERROR: User '$USERNAME' not found in the database."; exit 1; }
 
     # 2. check if remote
-    if [[ "$context" == ssh://* ]]; then
-        ssh_host=${context#ssh://}
-        node_ip_address=${ssh_host#*@}
+	context_endpoint=$(docker context inspect "$context" --format '{{.Endpoints.docker.Host}}' 2>/dev/null)
+    if [[ "$context_endpoint" == ssh://* ]]; then
+	    ssh_host=${context_endpoint#ssh://}
+	    node_ip_address=${ssh_host#*@}
     else
         node_ip_address=""
     fi
