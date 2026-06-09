@@ -445,7 +445,7 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/p
 }
 
 clone_repos() {
-    echo "Cloning OpenPanel repositories in parallel..."
+    echo "Cloning OpenPanel repositories from Github..."
 
     [[ "$REPAIR" == true ]] && rm -rf "$ETC_DIR" /usr/local/opencli /usr/local/opencli /usr/local/admin/
 
@@ -904,7 +904,7 @@ start_system_containers() {
 }
 
 run_housekeeping_parallel() {
-    echo "Running housekeeping steps in parallel..."
+    echo "Running housekeeping steps.."
 
     declare -A _jobs=()
 
