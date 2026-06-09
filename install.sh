@@ -1085,13 +1085,8 @@ detect_installed_panels
 echo -e "Starting OpenPanel installation process..."
 start=$(date +%s)
 
-setup_progress_bar &
-_PROGRESSBAR_PID=$!
-
+setup_progress_bar
 _build_pkg_cache
-
-wait "$_PROGRESSBAR_PID"
-
 run_installation
 duration=$(($(date +%s) - start))
 minutes=$((duration / 60))
