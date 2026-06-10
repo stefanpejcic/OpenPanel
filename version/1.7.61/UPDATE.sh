@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+# TODO: TEST https://github.com/stefanpejcic/OpenPanel/issues/895
+
 for env_file in /home/*/docker-compose.yml; do
     user_dir="$(dirname "$env_file")"
     rm -rf /home/$user_dir/pma.php
