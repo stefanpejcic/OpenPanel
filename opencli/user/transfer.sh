@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 08.06.2026
+# Last Modified: 09.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -76,14 +76,13 @@ while [[ $# -gt 0 ]]; do
             ;;
         *)
             echo "[ERROR] Unknown option: $1"
-            echo "Use --help to see available options"
             exit 1
             ;;
     esac
 done
 
 
-if [[ -z "$REMOTE_HOST" || -z "$USER" ]]; then
+if [[ -z "$REMOTE_HOST" || -z "$USERNAME" ]]; then
     echo "Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <OPENPANEL_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]"
     exit 1
 fi
@@ -570,7 +569,6 @@ fi
 
 eval $RSYNC_CMD $TMP_DIR/plan_${USERNAME}_autoinc.sql ${REMOTE_USER}@${REMOTE_HOST}:/tmp/user_import/
 eval $RSYNC_CMD $TMP_DIR/user_${USERNAME}_autoinc.sql ${REMOTE_USER}@${REMOTE_HOST}:/tmp/user_import/
-eval $RSYNC_CMD $TMP_DIR/plan_${USERNAME}_autoinc.sql ${REMOTE_USER}@${REMOTE_HOST}:/tmp/user_import/
 [[ -f "sites_${USERNAME}_autoinc.sql" ]] && eval $RSYNC_CMD $TMP_DIR/sites_${USERNAME}_autoinc.sql ${REMOTE_USER}@${REMOTE_HOST}:/tmp/user_import/
 
 }

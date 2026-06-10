@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 08.06.2026
+# Last Modified: 09.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -37,7 +37,8 @@ readonly DISPLAY_TIME=$(date +"%Y-%m-%d %H:%M:%S")
 HOSTNAME=$(hostname)
 
 # lock files
-readonly LOCK_FILE_FOR_SWAP_CLEANUP="/tmp/sentinel.swap"
+readonly SNAPSHOT_FILE="/var/log/openpanel/admin/sentinel_snapshots.jsonl"
+readonly SNAPSHOT_MAX_LINES=8640  # 30d
 readonly LOCK_FILE_FOR_DNS_CHECK="/tmp/sentinel.dns"
 readonly LOCK_FILE_FOR_OOM_CHECK="/tmp/sentinel.oom"
 readonly LOCK_FILE_FOR_DOCKER_PRUNE="/tmp/sentinel.docker"
@@ -79,6 +80,26 @@ DISK_THRESHOLD=$(validate_number "$(ini_get du)"   85)
 SWAP_THRESHOLD=$(validate_number "$(ini_get swap)" 40)
 
 is_unread_message_present() { grep -qF "UNREAD $1" "$LOG_FILE"; }
+
+readonly IP_CACHE_FILE="/tmp/public.ipv4"
+
+get_public_ip() {
+  if [[ -f "$IP_CACHE_FILE" ]]; then
+    local age=$(( $(date +%s) - $(stat -c %Y "$IP_CACHE_FILE") ))
+    if (( age < 21600 )); then #6h
+      cat "$IP_CACHE_FILE"; return
+    fi
+  fi
+  local ip
+  ip=$(curl --silent --max-time 3 -4 "https://ip.openpanel.com" 2>/dev/null \
+    || curl --silent --max-time 3 -4 "https://ifconfig.me/ip" 2>/dev/null)
+  if [[ -z "$ip" ]]; then
+    ip=$(ip -4 addr show scope global | awk '/inet /{split($2,a,"/"); print a[1]; exit}')
+  fi
+  [[ -n "$ip" ]] && echo "$ip" > "$IP_CACHE_FILE"
+  echo "$ip"
+}
+
 
 webhook_notification() {
   local title=$1 message=$2
@@ -206,7 +227,10 @@ check_service_status() {
   fi
 }
 
-_docker_ps()  { docker --context=default ps --format "{{.Names}}"; }
+# Cache docker ps once per run — called 6+ times otherwise
+DOCKER_PS_CACHE=""
+_docker_ps_refresh() { DOCKER_PS_CACHE=$(docker --context=default ps --format "{{.Names}}" 2>/dev/null); }
+_docker_ps() { echo "$DOCKER_PS_CACHE"; }
 _docker_log() { docker --context=default logs --tail 10 "$1" 2>&1 | awk '{gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); printf "%s\\n",$0}'; }
 
 _caddy_http_ok() {
@@ -217,6 +241,7 @@ _caddy_http_ok() {
 
 _docker_check_after_restart() {
   local svc=$1 title=$2
+  _docker_ps_refresh
   if _docker_ps | grep -wq "$svc"; then
     ((WARN--)); echo -e "\e[32m[✔]\e[0m $svc restarted successfully."
   else
@@ -239,6 +264,7 @@ docker_containers_status() {
         docker --context=default restart caddy &>/dev/null
         cd /root && docker --context=default compose up -d caddy &>/dev/null
         sleep 2
+        _docker_ps_refresh
         if _caddy_http_ok; then
           ((PASS++)); ((WARN--)); echo -e "\e[32m[✔]\e[0m caddy recovered."
           write_notification "Caddy restarted and websites are up!" "$(_docker_log caddy)"
@@ -432,31 +458,48 @@ check_new_logins() {
   fi
 
   local login_log="/var/log/openpanel/admin/login.log"
+  local watermark_file="/tmp/sentinel.login_watermark"
   [[ ! -f "$login_log" ]] && > "$login_log"
 
-  local last_login; last_login=$(tail -n 1 "$login_log" 2>/dev/null)
-  if [[ -z "$last_login" ]]; then
-    ((PASS++)); echo -e "\e[32m[✔]\e[0m No logins to OpenAdmin detected."; return
+  local last_count=0
+  [[ -f "$watermark_file" ]] && last_count=$(cat "$watermark_file" 2>/dev/null)
+  local current_count; current_count=$(wc -l < "$login_log")
+  echo "$current_count" > "$watermark_file"
+
+  if (( current_count <= last_count )); then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No new logins to OpenAdmin."; return
   fi
 
-  local username ip_address
-  read -r _ _ username ip_address _ <<< "$last_login"
+  local new_lines; new_lines=$(tail -n +"$((last_count + 1))" "$login_log")
 
-  if [[ ! "$ip_address" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ || "$ip_address" == "127.0.0.1" ]]; then
-    echo "Invalid/loopback IP: $ip_address"; return 1
+  if [[ -z "$new_lines" ]]; then
+    ((PASS++)); echo -e "\e[32m[✔]\e[0m No new logins to OpenAdmin."; return
   fi
 
-  local count; count=$(grep -c "$username" "$login_log")
-  if (( count == 1 )); then
-    ((PASS++)); echo -e "\e[32m[✔]\e[0m First login: $username from $ip_address."
-  elif ! head -n -1 "$login_log" | grep -qF "$username $ip_address"; then
-    ((FAIL++)); STATUS=2
-    echo -e "\e[31m[✘]\e[0m $username logged in from new IP: $ip_address"
-    write_notification "Admin $username accessed from new IP" \
-      "Admin account $username was accessed from new IP: $ip_address"
-  else
-    ((PASS++)); echo -e "\e[32m[✔]\e[0m $username from known IP: $ip_address"
+  local seen_pairs=""
+  if (( last_count > 0 )); then
+    seen_pairs=$(head -n "$last_count" "$login_log" | awk '{print $(NF-1), $NF}')
   fi
+
+  local found_new=0
+  while IFS= read -r line; do
+    local username ip_address
+    read -r _ _ username ip_address _ <<< "$line"
+
+    [[ ! "$ip_address" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]] && continue
+    [[ "$ip_address" == "127.0.0.1" ]] && continue
+
+    if ! grep -qF "$username $ip_address" <<< "$seen_pairs"; then
+      ((FAIL++)); STATUS=2; found_new=1
+      echo -e "\e[31m[✘]\e[0m $username logged in from new IP: $ip_address"
+      write_notification "Admin $username accessed from new IP" \
+        "Admin account $username was accessed from new IP: $ip_address"
+    else
+      echo -e "\e[32m[✔]\e[0m $username from known IP: $ip_address"
+    fi
+  done <<< "$new_lines"
+
+  (( found_new == 0 )) && ((PASS++))
 }
 
 check_ssh_logins() {
@@ -567,7 +610,7 @@ check_system_load() {
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m Load ${load} > threshold ${LOAD_THRESHOLD}. Generating crash report."
     generate_crashlog_report
-    write_notification "$title" "Load: $load"
+    write_notification "$title" "Load: $load | Crashlog: $REPORT"
   else
     ((PASS++)); echo -e "\e[32m[✔]\e[0m Load ${load} < threshold ${LOAD_THRESHOLD}."
   fi
@@ -751,7 +794,7 @@ check_swap_usage() {
 generate_crashlog_report() {
   local dir="/var/log/openpanel/admin/crashlog"
   mkdir -p "$dir"
-  local report="$dir/$(date +%s).txt"
+  REPORT="$dir/$(date +%s).txt"
   {
     echo "=== GENERAL === Hostname: $HOSTNAME | Date: $DISPLAY_TIME"
     echo "=== LOAD ===";     cat /proc/loadavg
@@ -759,7 +802,7 @@ generate_crashlog_report() {
     echo "=== TOP (CPU) ==="; ps -eo pid:7,%cpu:5,comm:20 --sort=-%cpu | head -11
     echo "=== SWAP TOP ===";  grep VmSwap /proc/*/status 2>/dev/null | sort -k2 -hr | head -10
     echo "=== DISKSTATS ==="; head -10 /proc/diskstats
-  } > "$report"
+  } > "$REPORT"
 }
 
 check_if_panel_domain_and_ns_resolve_to_server() {
@@ -792,10 +835,7 @@ check_if_panel_domain_and_ns_resolve_to_server() {
   fi
 
   local GNS="8.8.8.8"
-  local SERVER_IP; SERVER_IP=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" || curl --silent --max-time 1 -4 "https://ifconfig.me/ip")
-  
-  [[ -z "$SERVER_IP" ]] && \
-    SERVER_IP=$(ip -4 addr show scope global | awk '/inet /{split($2,a,"/"); print a[1]; exit}')
+  local SERVER_IP; SERVER_IP=$(get_public_ip)
 
   if [[ "$CHECK_DOMAIN" == "yes" ]]; then
     ensure_installed dig bind-utils
@@ -844,6 +884,60 @@ check_if_panel_domain_and_ns_resolve_to_server() {
   fi
 }
 
+write_snapshot() {
+  mkdir -p "$(dirname "$SNAPSHOT_FILE")"
+
+  local load_1m load_5m load_15m
+  read -r load_1m load_5m load_15m _ < /proc/loadavg
+
+  local mem_total mem_used mem_free mem_pct=0
+  read -r _ mem_total mem_used mem_free _ < <(free -m | awk '/^Mem:/')
+  (( mem_total > 0 )) && mem_pct=$(( mem_used * 100 / mem_total ))
+
+  local swap_total=0 swap_used=0 swap_pct=0
+  read -r _ swap_total swap_used _ < <(free -m | awk '/^Swap:/')
+  (( swap_total > 0 )) && swap_pct=$(( swap_used * 100 / swap_total ))
+
+  local disk_pct; disk_pct=$(df --output=pcent / | awk 'NR==2{gsub(/%/,"",$1); print $1+0}')
+
+  local cpu_pct=0
+  local -a c1 c2
+  read -ra c1 < <(grep '^cpu ' /proc/stat)
+  sleep 0.1
+  read -ra c2 < <(grep '^cpu ' /proc/stat)
+  local t1=0 t2=0 v
+  for v in "${c1[@]:1}"; do (( t1 += v )); done
+  for v in "${c2[@]:1}"; do (( t2 += v )); done
+  local dt=$(( t2 - t1 ))
+  (( dt > 0 )) && cpu_pct=$(( 100 * (dt - (c2[4]-c1[4])) / dt ))
+
+  local total_conn=0
+  total_conn=$(ss -tn '( sport = :80 or sport = :443 )' 2>/dev/null | grep -c ESTAB || true)
+
+  local json
+  printf -v json \
+    '{"ts":"%s","load":{"1m":"%s","5m":"%s","15m":"%s"},"cpu_pct":%d,"mem":{"total_mb":%d,"used_mb":%d,"pct":%d},"swap":{"total_mb":%d,"used_mb":%d,"pct":%d},"disk_pct":%d,"web_conn":%d,"status":%d,"pass":%d,"warn":%d,"fail":%d}' \
+    "$DISPLAY_TIME" "$load_1m" "$load_5m" "$load_15m" \
+    "$cpu_pct" \
+    "$mem_total" "$mem_used" "$mem_pct" \
+    "$swap_total" "$swap_used" "$swap_pct" \
+    "$disk_pct" \
+    "$total_conn" \
+    "$STATUS" "$PASS" "$WARN" "$FAIL"
+
+  local utc_json
+  utc_json=$(echo "$json" | sed 's/"ts":"[^"]*"/"ts":"'"$(date -u +"%Y-%m-%d %H:%M:%S")"'"/')
+  echo "$utc_json" >> "$SNAPSHOT_FILE"
+
+
+  local line_count; line_count=$(wc -l < "$SNAPSHOT_FILE")
+  if (( line_count > SNAPSHOT_MAX_LINES )); then
+    local tmp; tmp=$(mktemp)
+    tail -n "$SNAPSHOT_MAX_LINES" "$SNAPSHOT_FILE" > "$tmp" && mv "$tmp" "$SNAPSHOT_FILE"
+  fi
+}
+
+
 hr() { printf '%*s\n' "${COLUMNS:-80}" '' | tr ' ' '-'; }
 
 summary() {
@@ -880,24 +974,54 @@ flock -n 200 || { echo "Error: Another instance is already running."; exit 1; }
 hr
 echo "  Sentinel - OpenPanel server health monitor"
 hr
+
 echo "Checking services:"
+_docker_ps_refresh
 check_services
 check_oom_logs
+
 hr
 echo "Checking traffic:"
 check_https_traffic
+
 hr
-echo "Checking logins:"
-check_new_logins
-check_ssh_logins
-hr
-echo "Checking resources:"
-check_disk_usage
-check_system_load
-check_ram_usage
-check_cpu_usage
-check_swap_usage
-hr
-echo "Checking DNS:"
-check_if_panel_domain_and_ns_resolve_to_server
+echo "Checking logins, resources, and DNS..."
+
+declare -A _pids _outfiles
+_parallel_tasks=(
+  check_new_logins
+  check_ssh_logins
+  check_disk_usage
+  check_system_load
+  check_ram_usage
+  check_cpu_usage
+  check_swap_usage
+  check_if_panel_domain_and_ns_resolve_to_server
+)
+
+for _task in "${_parallel_tasks[@]}"; do
+  _out=$(mktemp /tmp/sentinel.par.XXXXXX)
+  _outfiles[$_task]="$_out"
+  (
+    STATUS=0 PASS=0 WARN=0 FAIL=0
+    $_task
+    echo "__COUNTERS__ $STATUS $PASS $WARN $FAIL"
+  ) > "$_out" 2>&1 &
+  _pids[$_task]=$!
+done
+
+for _task in "${_parallel_tasks[@]}"; do
+  wait "${_pids[$_task]}" 2>/dev/null
+  _out="${_outfiles[$_task]}"
+  [[ -f "$_out" ]] || continue
+  grep -v '^__COUNTERS__' "$_out"
+  read -r _ _s _p _w _f < <(grep '^__COUNTERS__' "$_out")
+  (( STATUS  = STATUS  > _s ? STATUS  : _s ))
+  (( PASS   += _p ))
+  (( WARN   += _w ))
+  (( FAIL   += _f ))
+  rm -f "$_out"
+done
+
+write_snapshot
 summary

@@ -365,12 +365,19 @@ services:
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - es_data:/usr/share/elasticsearch/data
+    ulimits:
+      nproc:
+        soft: 4096
+        hard: 4096
+      nofile:
+        soft: 65535
+        hard: 65535
     deploy:
       resources:
         limits:
           cpus: "${ELASTICSEARCH_CPU:-0.5}"
           memory: "${ELASTICSEARCH_RAM:-1G}" 
-          pids: 100
+          pids: 5000
     healthcheck:
       test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -439,6 +446,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/5.6.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/5.6.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_5.6.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -467,6 +475,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.0.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/7.0.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.0.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -495,6 +504,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.1.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/7.1.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
@@ -524,6 +534,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.2.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/7.2.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -554,6 +565,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/7.3.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/7.3.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -611,6 +623,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.0.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.0.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro   
     environment:
       - PHP_ENABLE_OPCACHE=true
@@ -639,6 +652,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.1.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.1.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -669,6 +683,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.2.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.2.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -698,6 +713,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.3.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.3.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
@@ -726,6 +742,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.4.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.4.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
@@ -756,6 +773,7 @@ services:
     volumes:
       - html_data:/var/www/html/
       - ./php.ini/8.5.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.5.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
     environment:
       - PHP_ENABLE_OPCACHE=true
