@@ -65,6 +65,7 @@ opencli server-migrate
 opencli update
 opencli user-2fa
 opencli user-add
+opencli user-backup
 opencli user-block_ip
 opencli user-change_plan
 opencli user-check
@@ -77,6 +78,7 @@ opencli user-loginlog
 opencli user-password
 opencli user-quota
 opencli user-rename
+opencli user-restore
 opencli user-suspend
 opencli user-transfer
 opencli user-unsuspend

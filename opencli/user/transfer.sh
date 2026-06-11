@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 09.06.2026
+# Last Modified: 10.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -221,6 +221,18 @@ get_users_count_on_destination() {
 }
 
 
+# Resolve the "context" (system user / home dir / docker context / ftp context).
+# This is the users.server column and is NOT necessarily the same as $USERNAME.
+resolve_context() {
+    CONTEXT=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -s \
+        -e "SELECT server FROM users WHERE username = '$USERNAME';")
+    if [[ -z "$CONTEXT" ]]; then
+        log "[✘] ERROR: Could not resolve context (server) for user '$USERNAME'. Aborting."
+        exit 1
+    fi
+    log "Resolved context for $USERNAME: $CONTEXT"
+}
+
 # Function to check if username already exists in the database
 check_username_exists() {
     username_exists_query="SELECT COUNT(*) FROM users WHERE username = '$USERNAME'"
@@ -238,30 +250,30 @@ check_username_exists() {
 
 
 copy_user_account() {
-    USERNAME="$1"
+    local CONTEXT="$1"
     TMPDIR=$(mktemp -d)
-    log "Creating system user on remote server ..."
+    log "Creating system user ($CONTEXT) on remote server ..."
 
-    # Pripremi passwd, group i shadow za korisnika
-    awk -F: -v user="$USERNAME" '$1 == user {print}' /etc/passwd > "$TMPDIR/passwd.user"
-    awk -F: -v user="$USERNAME" 'BEGIN{gid=""}
+    # Prepare passwd, group and shadow for the system user (context)
+    awk -F: -v user="$CONTEXT" '$1 == user {print}' /etc/passwd > "$TMPDIR/passwd.user"
+    awk -F: -v user="$CONTEXT" 'BEGIN{gid=""}
         $1 == user {gid=$4}
         $3 == gid {print}
         $1 == user {print}' /etc/group > "$TMPDIR/group.user"
-    grep -F -w "^$USERNAME:" /etc/shadow > "$TMPDIR/shadow.user"
+    grep -F -w "^$CONTEXT:" /etc/shadow > "$TMPDIR/shadow.user"
 
-    # Pošalji fajlove na remote
+    # Send files to remote
     eval $RSYNC_CMD "$TMPDIR/passwd.user" "$TMPDIR/group.user" "$TMPDIR/shadow.user" "${REMOTE_USER}@${REMOTE_HOST}:/root/"
     rm -rf "$TMPDIR" >/dev/null
 
-    # Udaljena komanda (heredoc BEZ navodnika da bismo interpolirali USERNAME)
+    # Remote command (heredoc WITHOUT quotes so we interpolate CONTEXT)
     $SSH_CMD <<EOF
-export USERNAME="$USERNAME"
+export CONTEXT="$CONTEXT"
 
 USER_PASSWD="/root/passwd.user"
 USER_GROUP="/root/group.user"
 USER_SHADOW="/root/shadow.user"
-UID_MAP_FILE="/root/\${USERNAME}_uid_map.txt"
+UID_MAP_FILE="/root/\${CONTEXT}_uid_map.txt"
 
 user_exists() {
     id "\$1" &>/dev/null
@@ -325,9 +337,9 @@ done
 rm -f "\$USER_PASSWD" "\$USER_GROUP" "\$USER_SHADOW"
 EOF
 
-    # Preuzmi UID map fajl lokalno i obriši ga sa remote strane
-    $SSH_CMD "cat /root/${USERNAME}_uid_map.txt" > "/tmp/${USERNAME}_uid_map.txt"
-    $SSH_CMD "rm -f /root/${USERNAME}_uid_map.txt"
+    # Fetch the UID map file locally and remove it from the remote side
+    $SSH_CMD "cat /root/${CONTEXT}_uid_map.txt" > "/tmp/${CONTEXT}_uid_map.txt"
+    $SSH_CMD "rm -f /root/${CONTEXT}_uid_map.txt"
 }
 
 
@@ -336,15 +348,15 @@ store_running_containers_for_user() {
 output_file="/tmp/docker_containers_names.txt"
 > "$output_file"  # clear the file
 
-compose_file="/home/$USERNAME/docker-compose.yml"
+compose_file="/home/$CONTEXT/docker-compose.yml"
 if [ -f "$compose_file" ]; then
     log "Checking docker context ...."
-    containers=$(docker --context="$USERNAME" ps -a --format "{{.Names}}" 2>/dev/null)
+    containers=$(docker --context="$CONTEXT" ps -a --format "{{.Names}}" 2>/dev/null)
     if [ -n "$containers" ]; then
         containers_single_line=$(echo "$containers" | tr '\n' ' ' | sed 's/ $//')
-        echo "$USERNAME: $containers_single_line" >> "$output_file"
+        echo "$CONTEXT: $containers_single_line" >> "$output_file"
     else
-        echo "$USERNAME: no containers" >> "$output_file"
+        echo "$CONTEXT: no containers" >> "$output_file"
     fi
 fi
 
@@ -377,16 +389,16 @@ output_file="/tmp/docker_containers_names.txt"
 # Open the file on FD 3 to avoid stdin conflicts
 exec 3<"$output_file"
 
-while IFS=: read -r username containers <&3; do
-    username=$(echo "$username" | xargs)
+while IFS=: read -r ctx containers <&3; do
+    ctx=$(echo "$ctx" | xargs)
 
-    if [[ -z "$username" ]] || [[ "$containers" =~ no\ containers ]]; then
+    if [[ -z "$ctx" ]] || [[ "$containers" =~ no\ containers ]]; then
         log "No containers running for user"
         continue
     fi
 
     log "Starting containers inside docker context on remote server ..."
-    $SSH_CMD "docker --context=$username compose -f /home/$username/docker-compose.yml down >/dev/null 2>&1 && docker --context=$username compose -f /home/$username/docker-compose.yml up -d $containers >/dev/null 2>&1"
+    $SSH_CMD "docker --context=$ctx compose -f /home/$ctx/docker-compose.yml down >/dev/null 2>&1 && docker --context=$ctx compose -f /home/$ctx/docker-compose.yml up -d $containers >/dev/null 2>&1"
 done
 
 # Close FD 3
@@ -642,25 +654,25 @@ update_zone_file() {
 
 
 rsync_files_for_user() {
-    log "Syncing files for user $USERNAME ..."
-    RSYNC_OUTPUT=$(eval $RSYNC_CMD /home/$USERNAME "${REMOTE_USER}@${REMOTE_HOST}:/home/" 2>&1)
+    log "Syncing files for user $USERNAME (context: $CONTEXT) ..."
+    RSYNC_OUTPUT=$(eval $RSYNC_CMD /home/$CONTEXT "${REMOTE_USER}@${REMOTE_HOST}:/home/" 2>&1)
     RSYNC_EXIT=$?
     log "$RSYNC_OUTPUT"
     if [[ $RSYNC_EXIT -eq 0 ]]; then
-        MAPPING_FILE="/tmp/${USERNAME}_uid_map.txt"
+        MAPPING_FILE="/tmp/${CONTEXT}_uid_map.txt"
 
         if [[ -f "$MAPPING_FILE" ]]; then
-            MAPPING_LINE=$(grep "^$USERNAME:" "$MAPPING_FILE")
+            MAPPING_LINE=$(grep "^$CONTEXT:" "$MAPPING_FILE")
             if [[ -n "$MAPPING_LINE" ]]; then
                 IFS=':' read -r name old_uid new_uid gid home <<< "$MAPPING_LINE"
                 if [[ "$old_uid" != "$new_uid" ]]; then
-                    log "UID changed for $USERNAME (from $old_uid to $new_uid), performing chown on remote host ..."
-                    $SSH_CMD "chown -R $new_uid:$gid /home/$USERNAME"
+                    log "UID changed for $CONTEXT (from $old_uid to $new_uid), performing chown on remote host ..."
+                    $SSH_CMD "chown -R $new_uid:$gid /home/$CONTEXT"
 		fi
             fi
             rm -f "$MAPPING_FILE"
         else
-            log "[WARNING] UID mapping file not found for $USERNAME"
+            log "[WARNING] UID mapping file not found for $CONTEXT"
         fi
     else
         log "[ERROR] Rsync failed! Output:"
@@ -754,8 +766,8 @@ fi
 
 copy_docker_context() {
 
-    eval $RSYNC_CMD /run/user/$USERNAME ${REMOTE_USER}@${REMOTE_HOST}:/run/user/$USERNAME >/dev/null 2>&1
-    eval $RSYNC_CMD /etc/apparmor.d/home.$USERNAME.bin.rootlesskit ${REMOTE_USER}@${REMOTE_HOST}:/etc/apparmor.d/ >/dev/null 2>&1
+    eval $RSYNC_CMD /run/user/$CONTEXT ${REMOTE_USER}@${REMOTE_HOST}:/run/user/$CONTEXT >/dev/null 2>&1
+    eval $RSYNC_CMD /etc/apparmor.d/home.$CONTEXT.bin.rootlesskit ${REMOTE_USER}@${REMOTE_HOST}:/etc/apparmor.d/ >/dev/null 2>&1
     # TODO!
 
     $SSH_CMD "systemctl restart apparmor.service" >/dev/null 2>&1
@@ -765,31 +777,31 @@ copy_docker_context() {
 	# Open the file on FD 3
 	exec 3</tmp/userlist.txt
 	
-    SRC="/home/$USERNAME/.docker"
+    SRC="/home/$CONTEXT/.docker"
     if [[ -d "$SRC" ]]; then
-        REMOTE_UID=$($SSH_CMD "id -u $USERNAME" 2>/dev/null)
+        REMOTE_UID=$($SSH_CMD "id -u $CONTEXT" 2>/dev/null)
 
         if [[ -z "$REMOTE_UID" ]]; then
-            log "FATAL ERROR: Failed to get UID for user $USERNAME on remote server"
+            log "FATAL ERROR: Failed to get UID for user $CONTEXT on remote server"
             exit 1
         else
-            log "Creating Docker context: $USERNAME on destination ..."
-            $SSH_CMD "docker context create $USERNAME --docker 'host=unix:///hostfs/run/user/${REMOTE_UID}/docker.sock' --description '$USERNAME'" >/dev/null 2>&1 || \
-                log "Failed context for $USERNAME"
+            log "Creating Docker context: $CONTEXT on destination ..."
+            $SSH_CMD "docker context create $CONTEXT --docker 'host=unix:///hostfs/run/user/${REMOTE_UID}/docker.sock' --description '$CONTEXT'" >/dev/null 2>&1 || \
+                log "Failed context for $CONTEXT"
         fi
 
         log "Configuring docker service ..."
 
-        $SSH_CMD "loginctl enable-linger $USERNAME" \
-            >/dev/null 2>&1 || log "Failed to enable linger for $USERNAME"
+        $SSH_CMD "loginctl enable-linger $CONTEXT" \
+            >/dev/null 2>&1 || log "Failed to enable linger for $CONTEXT"
 
-        $SSH_CMD "machinectl shell ${USERNAME}@ /bin/bash -c 'systemctl --user daemon-reload'" \
-            >/dev/null 2>&1 || log "Failed to reload daemon for $USERNAME"
+        $SSH_CMD "machinectl shell ${CONTEXT}@ /bin/bash -c 'systemctl --user daemon-reload'" \
+            >/dev/null 2>&1 || log "Failed to reload daemon for $CONTEXT"
 
-        $SSH_CMD "machinectl shell ${USERNAME}@ /bin/bash -c 'systemctl --user --quiet restart docker'" \
-            >/dev/null 2>&1 || log "Failed to restart docker for $USERNAME"
+        $SSH_CMD "machinectl shell ${CONTEXT}@ /bin/bash -c 'systemctl --user --quiet restart docker'" \
+            >/dev/null 2>&1 || log "Failed to restart docker for $CONTEXT"
     else
-        log "No .docker directory for $USERNAME on source!"
+        log "No .docker directory for $CONTEXT on source!"
         exit 1
     fi
 	# Close FD 3
@@ -805,7 +817,7 @@ restart_services_on_target() {
             $SSH_CMD "cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1"  
 	fi
 
-	#todo: ftp, clamav 
+	#todo: clamav 
 }
 
 refresh_quotas() {
@@ -813,6 +825,92 @@ refresh_quotas() {
             $SSH_CMD "opencli user-quota >/dev/null 2>&1"
 }
 
+
+
+restore_ftp_for_user() {
+    # FTP accounts live under the context (users.server), already resolved as $CONTEXT.
+    local LOCAL_FTP_DIR="/etc/openpanel/ftp/users/${CONTEXT}"
+    local USERS_LIST="${LOCAL_FTP_DIR}/users.list"
+
+    if [[ ! -f "$USERS_LIST" ]]; then
+        log "No FTP accounts found for context $CONTEXT, skipping FTP restore."
+        return 0
+    fi
+
+    log "Restoring FTP accounts for $USERNAME (context: $CONTEXT) ..."
+
+    # 1. Sync the users.list (and any per-context config) to the remote
+    $SSH_CMD "mkdir -p '$LOCAL_FTP_DIR'"
+    eval $RSYNC_CMD "$LOCAL_FTP_DIR/" "${REMOTE_USER}@${REMOTE_HOST}:${LOCAL_FTP_DIR}/"
+
+    # 2. Replay each entry into the remote openadmin_ftp container.
+    #    Passwords are already SHA-512 hashed in users.list, so no re-hashing.
+    #    GID is re-derived from /home/$CONTEXT on the remote in case the UID was
+    #    remapped during copy_user_account / rsync_files_for_user.
+    $SSH_CMD bash -s <<EOF
+set -e
+context="$CONTEXT"
+
+# Start the FTP server if it isn't running
+if [ -z "\$(docker ps -q -f name=openadmin_ftp)" ]; then
+    cd /root && docker --context default compose up -d openadmin_ftp >/dev/null 2>&1
+    sleep 2
+fi
+
+# GID from the home directory owner on the remote (post-UID-remap)
+GID=\$(stat -c '%u' "/home/\$context")
+if [[ ! "\$GID" =~ ^[0-9]+\$ ]]; then
+    echo "[FTP] ERROR: could not determine GID for \$context on remote"
+    exit 1
+fi
+
+# Ensure the shared group exists inside the container
+EXISTING_GROUP=\$(docker exec openadmin_ftp sh -c "getent group '\$GID' | cut -d: -f1")
+if [[ -z "\$EXISTING_GROUP" ]]; then
+    docker exec openadmin_ftp addgroup -g "\$GID" "\$context" 2>/dev/null || true
+fi
+
+USERS_LIST="/etc/openpanel/ftp/users/\${context}/users.list"
+[[ -f "\$USERS_LIST" ]] || { echo "[FTP] no users.list on remote"; exit 0; }
+
+while IFS='|' read -r username hashed_pass directory uid gid; do
+    [[ -z "\$username" ]] && continue
+
+    real_path="/home/\${context}/docker-data/volumes/\${context}_html_data/_data/"
+    relative_path="\${directory##/var/www/html/}"
+    new_directory="\${real_path}\${relative_path}"
+
+    # Skip if the user already exists in the container
+    if docker exec openadmin_ftp id "\$username" >/dev/null 2>&1; then
+        echo "[FTP] \$username already exists in container, skipping."
+        continue
+    fi
+
+    # Recreate the host directory and permissions
+    mkdir -p "\$new_directory"
+    chmod +rx "/home/\$context" \\
+              "/home/\$context/docker-data" \\
+              "/home/\$context/docker-data/volumes" \\
+              "/home/\$context/docker-data/volumes/\${context}_html_data" \\
+              "/home/\$context/docker-data/volumes/\${context}_html_data/_data" 2>/dev/null || true
+    chown -R "\$GID:\$GID" "\$new_directory"
+    chmod -R 2775 "\$new_directory"
+
+    # Recreate the container user with the SAME hashed password (no re-hashing)
+    docker exec openadmin_ftp useradd -d "\$new_directory" -s /sbin/nologin \\
+        -g "\$context" -M "\$username" --badname 2>/dev/null || true
+    docker exec openadmin_ftp sh -c "usermod -p '\$hashed_pass' '\$username'"
+
+    echo "[FTP] restored \$username -> \$directory"
+done < "\$USERS_LIST"
+EOF
+
+    if [[ $? -ne 0 ]]; then
+        log "[!] Warning: FTP restore reported an error for context $CONTEXT"
+    else
+        log "FTP accounts restored for context $CONTEXT."
+    fi
+}
 
 
 # MAIN
@@ -838,13 +936,16 @@ if [ "$username_exists_count" -gt 0 ]; then\
 fi
 
 
+resolve_context   # sets $CONTEXT from users.server
+
 export_mysql
 import_mysql
 copy_feature_set
-copy_user_account $USERNAME
+copy_user_account "$CONTEXT"
 get_remote_nameservers
 rsync_files_for_user
 copy_docker_context # create context on dest, start service
+restore_ftp_for_user # recreate ftp sub-accounts in remote container
 $SSH_CMD "systemctl daemon-reload" 
 $SSH_CMD "opencli user-quota --update $USERNAME >/dev/null 2>&1" # set quotas
 $SSH_CMD "mkdir -p /var/log/caddy/stats/ /var/log/caddy/domlogs/ /var/log/caddy/coraza_waf/ /etc/openpanel/caddy/domains/ /etc/bind/zones/ /etc/openpanel/caddy/ssl/certs/ /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/ /etc/openpanel/caddy/ssl/custom/ /etc/openpanel/openpanel/core/users/"
@@ -858,7 +959,7 @@ if [ -n "$key_value" ]; then
     if [[ "$STORE_EMAILS_IN" == /* ]]; then
         LOCAL_MAIL_PATH="$STORE_EMAILS_IN"
     else
-        LOCAL_MAIL_PATH="/home/$USERNAME/mail/"
+        LOCAL_MAIL_PATH="/home/$CONTEXT/mail/"
     fi
 
     # 2. Check remote email storage location
@@ -866,7 +967,7 @@ if [ -n "$key_value" ]; then
     if [[ "$REMOTE_STORE_EMAILS_IN" == /* ]]; then
         REMOTE_MAIL_PATH="$REMOTE_STORE_EMAILS_IN"
     else
-        REMOTE_MAIL_PATH="/home/$USERNAME/mail/"
+        REMOTE_MAIL_PATH="/home/$CONTEXT/mail/"
     fi
 
     if [[ -d "$LOCAL_MAIL_PATH" ]]; then
