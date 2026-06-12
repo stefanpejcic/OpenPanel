@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           09.06.2026
+# Last Modified:           12.06.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -386,21 +386,38 @@ _pip_needs_break_system_packages() {
     python3 -m pip install --dry-run pip 2>&1 | grep -q "externally-managed-environment"
 }
 
+_build_python312_from_source() {
+    echo "Building Python 3.12 from source (this takes a few minutes)..."
+    $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
+
+    local latest
+    latest=$(curl -fsSL https://www.python.org/ftp/python/ | grep -Po 'href="3\.12\.\d+/' | grep -Po '3\.12\.\d+' | sort -V | tail -1 || echo "3.12.7")
+    local prefix="/opt/python/${latest}"
+
+    mkdir -p /usr/local/src
+    cd /usr/local/src
+    curl -fsSL -o "Python-${latest}.tgz" "https://www.python.org/ftp/python/${latest}/Python-${latest}.tgz"
+    tar -xzf "Python-${latest}.tgz"
+    cd "Python-${latest}"
+    ./configure --prefix="$prefix" --enable-optimizations --with-ensurepip=install
+    make -j"$(nproc)"
+    make altinstall
+
+    ln -sf "${prefix}/bin/python3.12" /usr/local/bin/python3.12
+    ln -sf "${prefix}/bin/pip3.12"    /usr/local/bin/pip3.12
+
+    [[ -x /usr/local/bin/python3.12 ]] || die 1 "Python 3.12 source build failed."
+    python3.12 -m ensurepip -U || true
+    python3.12 -m pip install --upgrade pip setuptools wheel || true
+    PYTHON_BIN="python3.12"
+    export PYTHON_BIN
+    ok "Python $(python3.12 --version) built from source."
+}
+
 install_python() {
     if [[ "$OS_ID" == "debian" && "$OS_CODENAME" == "trixie" ]]; then
         echo "Building Python 3.12 from source for Debian 13..."
-        run $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
-
-        local latest
-        latest=$(curl -fsSL https://www.python.org/ftp/python/ | grep -Po 'href="3\.12\.\d+/' | grep -Po '3\.12\.\d+' | sort -V | tail -1 || echo "3.12.7")
-        local prefix="/opt/python/${latest}"
-
-        run bash -lc "cd /usr/local/src && curl -fsSL -o Python-${latest}.tgz https://www.python.org/ftp/python/${latest}/Python-${latest}.tgz && tar -xzf Python-${latest}.tgz && cd Python-${latest} && ./configure --prefix='${prefix}' --enable-optimizations --with-ensurepip=install && make -j$(nproc) && make altinstall"
-
-        PYTHON_BIN="${prefix}/bin/python3.12"
-        [[ -x "$PYTHON_BIN" ]] || die 1 "Python build failed."
-        $PYTHON_BIN -m ensurepip -U || true
-        $PYTHON_BIN -m pip install --upgrade pip setuptools wheel || true
+        _build_python312_from_source
         return
     fi
 
@@ -413,16 +430,34 @@ install_python() {
                 run $PACKAGE_MANAGER install -y software-properties-common
                 run add-apt-repository -y ppa:deadsnakes/ppa
                 run $PACKAGE_MANAGER update -y
+                $PACKAGE_MANAGER install -y python3.12 python3.12-venv python3.12-dev || true
+                command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
                 ;;
             debian)
-                run install -d -m 0755 /etc/apt/keyrings
-                run bash -lc 'curl -fsSL --ipv4 https://pascalroeleven.nl/deb-pascalroeleven.gpg | tee /etc/apt/keyrings/deb-pascalroeleven.gpg >/dev/null' || true
-                run bash -lc "echo 'Types: deb
+                $PACKAGE_MANAGER install -y curl gnupg ca-certificates
+                update-ca-certificates
+                install -d -m 0755 /etc/apt/keyrings
+
+                if curl -fsSL --ipv4 --max-time 15 https://pascalroeleven.nl/deb-pascalroeleven.gpg -o /etc/apt/keyrings/deb-pascalroeleven.gpg 2>/dev/null; then
+
+                    cat > /etc/apt/sources.list.d/pascalroeleven.sources <<EOF
+Types: deb
 URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: ${OS_CODENAME}-backports
+Suites: ${OS_CODENAME}
 Components: main
-Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/pascalroeleven.sources" || true
-                run $PACKAGE_MANAGER update -y
+Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
+EOF
+                    $PACKAGE_MANAGER update -y 2>&1 | grep -v "^Hit\|^Get\|^Reading\|^Building" || true
+                fi
+
+                $PACKAGE_MANAGER install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null || true
+
+                if ! command -v python3.12 &>/dev/null; then
+                    warn "Repo install failed — building Python 3.12 from source..."
+                    _build_python312_from_source
+                else
+                    PYTHON_BIN="python3.12"
+                fi
                 ;;
             almalinux|alma|rocky|centos)
                 run $PACKAGE_MANAGER update -y
@@ -430,17 +465,16 @@ Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg' > /etc/apt/sources.list.d/p
                     run dnf install -y epel-release || true
                     run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
                 }
+                $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
                 ;;
         esac
-
-        run $PACKAGE_MANAGER install -y python3.12 || true
-        command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || PYTHON_BIN="python3"
     fi
 
     run $PACKAGE_MANAGER install -y python3-venv || true
     run $PACKAGE_MANAGER install -y python3.12-venv || true
 
-    $PYTHON_BIN --version &>/dev/null && ok "Python is available." || die 1 "Python installation failed."
+    $PYTHON_BIN --version &>/dev/null && ok "Python is available: $($PYTHON_BIN --version)." || die 1 "Python installation failed."
     export PYTHON_BIN
 }
 
