@@ -82,7 +82,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | Ubuntu | 24 | 2026-06-13 00:48 UTC | ❌ Fail | **recommended for AMD CPU** |
 | Ubuntu | 26 | 2026-06-13 00:41 UTC | ❌ Fail |  |
 | Debian | 10 | | | |
-| Debian | 11 | 2026-06-12 16:31 UTC | ✅ Pass |  |
+| Debian | 11 | 2026-06-13 00:55 UTC | ❌ Fail |  |
 | Debian | 12 | 2026-06-12 16:45 UTC | ❌ Fail |  |
 | Debian | 13 | 2026-06-12 16:57 UTC | ✅ Pass |  |
 | AlmaLinux | 9.5 | | | **recommended for ARM CPU** |
