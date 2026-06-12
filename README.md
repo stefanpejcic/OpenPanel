@@ -75,14 +75,22 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 
 OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Supported OS:
 
-| Operating System       | Versions                             | Notes                                |
-|------------------------|--------------------------------------|--------------------------------------|
-| Ubuntu                 | 22, 24, 26                           | **24.04 is recommended for AMD CPU**  |
-| Debian                 | 10, 11, 12, 13                       |                     |
-| AlmaLinux              | 9.5, 10                              | **9.5 is recommended for ARM CPU** |
-| RockyLinux             | 9.6, 10                              | *On Rocky 10, you must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)* |
-| CentOS                 | 9.5                                  |                                      |
-
+<!-- OS_TEST_RESULTS_START -->
+| Operating System | Version | Last Tested | Status | Notes |
+|---|---|---|---|---|
+| Ubuntu | 22 | | | |
+| Ubuntu | 24 | | | **24.04 is recommended for AMD CPU** |
+| Ubuntu | 26 | | | |
+| Debian | 10 | | | |
+| Debian | 11 | | | |
+| Debian | 12 | | | |
+| Debian | 13 | | | |
+| AlmaLinux | 9.5 | | | **9.5 is recommended for ARM CPU** |
+| AlmaLinux | 10 | | | |
+| RockyLinux | 9.6 | | | |
+| RockyLinux | 10 | | | *Must manually switch from `nftables` to `iptables` first — see [#1472](https://github.com/docker/for-linux/issues/1472)* |
+| CentOS | 9.5 | | | |
+<!-- OS_TEST_RESULTS_END -->
 
 
 ## Installation
