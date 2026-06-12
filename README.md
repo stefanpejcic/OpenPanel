@@ -133,6 +133,13 @@ For full installation options and configuration flags: [https://openpanel.com/in
 </a>
 <h4 align='center'>Petar Ćurić</h4>
 </td>
+</td>
+<td id='lazar'>
+<a href='https://github.com/lazarunl'>
+<img src='https://github.com/lazarunl.png' width='140px;'>
+</a>
+<h4 align='center'>Lazar K.</h4>
+</td>
 </tr>
 </table>
 
