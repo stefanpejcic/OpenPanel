@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 10.06.2026
+# Last Modified: 11.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -157,7 +157,7 @@ manage_compose_volumes() {
 
     volume_exists() {
         local vol="$1"
-        grep -q "^\s*-\s*${vol//\//\\/}\s*$" "$COMPOSE_FILE"
+        grep -qF "- $vol" "$COMPOSE_FILE"
     }
 
     add_volumes() {
