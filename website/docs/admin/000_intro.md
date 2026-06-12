@@ -25,7 +25,13 @@ Supported operating systems:
 On AlmaLinux 10 and RockyLinux 10, you must switch from `nftables` to `iptables`. See [#1472](https://github.com/docker/for-linux/issues/1472) and [#745](https://github.com/stefanpejcic/OpenPanel/issues/745#issuecomment-3451272947).
 
 :::info
-If you are using external firewall, the following ports should be opened:  `25` `53` `80` `443` `465` `993` `2083` `2087` `32768:60999`
+If you are using external firewall, the following ports should be opened: 
+- for dns: `53`
+- for email: `25` `465` `993`
+- for websites: `80` `443`
+- for panels: `2083` `2087` 
+- for phpmyadmin: `2053` `8888`
+- for user services:  `32768:60999`
 :::
 
 ## Installation
