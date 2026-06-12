@@ -88,7 +88,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | AlmaLinux | 9.5 | | | **recommended for ARM CPU** |
 | AlmaLinux | 10 | 2026-06-13 00:00 UTC | ❌ Fail |  |
 | RockyLinux | 9.6 | | | |
-| RockyLinux | 10 | 2026-06-12 17:10 UTC | ❌ Fail | *Must manually switch from `nftables` to `iptables` first ([#1472](https://github.com/docker/for-linux/issues/1472))* |
+| RockyLinux | 10 | 2026-06-13 01:34 UTC | ❌ Fail | *Must manually switch from `nftables` to `iptables` first ([#1472](https://github.com/docker/for-linux/issues/1472))* |
 | CentOS | 9.5 | | | |
 | CentOS | 10 | 2026-06-13 00:17 UTC | ❌ Fail |  |
 <!-- OS_TEST_RESULTS_END -->
