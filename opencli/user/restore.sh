@@ -63,8 +63,7 @@ edition_key=$(grep "^key=" /etc/openpanel/openpanel/conf/openpanel.config 2>/dev
 
 get_server_ip() {
     local ip
-    ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null \
-         || curl --silent --max-time 1 -4 "https://ifconfig.me" 2>/dev/null)
+    ip=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null || curl --silent --max-time 1 -4 "https://ifconfig.me" 2>/dev/null)
     [[ -z "$ip" ]] && ip=$(ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
     echo "$ip"
 }
@@ -77,8 +76,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
     ARCHIVE_SIZE=$(du -sh "$ARCHIVE" 2>/dev/null | cut -f1)
     NEW_IP=$(get_server_ip)
 
-    tar -C "$WORK" -xzf "$ARCHIVE" manifest.env 2>/dev/null \
-        || { echo "[ERROR] Cannot read manifest from archive."; exit 1; }
+    tar -C "$WORK" -xzf "$ARCHIVE" manifest.env 2>/dev/null || { echo "[ERROR] Cannot read manifest from archive."; exit 1; }
     # shellcheck disable=SC1090
     . "$WORK/manifest.env"
     [[ -n "$USERNAME" && -n "$CONTEXT" ]] || { echo "[ERROR] Invalid manifest."; exit 1; }
@@ -90,15 +88,13 @@ if [[ $DRY_RUN -eq 1 ]]; then
     fi
 
     tar -C "$WORK" -xzf "$ARCHIVE" db ftp 2>/dev/null || true
-    tar -xzf "$ARCHIVE" --to-stdout --wildcards 'homedir/*/postfix-accounts.cf' \
-        2>/dev/null > "$WORK/backup-postfix-accounts.cf" || true
+    tar -xzf "$ARCHIVE" --to-stdout --wildcards 'homedir/*/postfix-accounts.cf' 2>/dev/null > "$WORK/backup-postfix-accounts.cf" || true
 
     username_exists=$(mysql_q "SELECT COUNT(*) FROM users WHERE username='$USERNAME';" 2>/dev/null || echo 0)
     plan_exists=$(mysql_q "SELECT COUNT(*) FROM plans WHERE name='$PLAN_NAME';" 2>/dev/null || echo 0)
 
     if [[ "${username_exists:-0}" -gt 0 ]]; then
-        [[ $FORCE -eq 1 ]] && U_STATUS="ALREADY EXISTS — will be overwritten (--force)" \
-                           || U_STATUS="ALREADY EXISTS — will ABORT without --force"
+        [[ $FORCE -eq 1 ]] && U_STATUS="ALREADY EXISTS — will be overwritten (--force)" || U_STATUS="ALREADY EXISTS — will ABORT without --force"
     else
         U_STATUS="available ✓"
     fi
@@ -112,8 +108,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
     echo ""
     printf "  %-24s %s\n" "Archive:" "$ARCHIVE  ($ARCHIVE_SIZE)"
     printf "  %-24s %s\n" "Created:" "${CREATED_AT:-unknown}  (format v${BACKUP_FORMAT_VERSION:-?})"
-    [[ -n "$SOURCE_IP" ]] && \
-        printf "  %-24s %s  →  %s  (DNS IPs will be rewritten)\n" "IP:" "$SOURCE_IP" "$NEW_IP"
+    [[ -n "$SOURCE_IP" ]] && printf "  %-24s %s  →  %s  (DNS IPs will be rewritten)\n" "IP:" "$SOURCE_IP" "$NEW_IP"
     echo ""
 
     if [[ -n "$NEW_USERNAME" ]]; then
@@ -129,9 +124,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
 
     echo "  Home directory:"
     printf "    %-22s %s\n" "Archive path:" "homedir/"
-    [[ -d "/home/$CONTEXT" ]] \
-        && printf "    %-22s %s\n" "Target:" "/home/$CONTEXT/   [EXISTS — will be overwritten]" \
-        || printf "    %-22s %s\n" "Target:" "/home/$CONTEXT/   [will be created ✓]"
+    [[ -d "/home/$CONTEXT" ]] && printf "    %-22s %s\n" "Target:" "/home/$CONTEXT/   [EXISTS — will be overwritten]" || printf "    %-22s %s\n" "Target:" "/home/$CONTEXT/   [will be created ✓]"
     echo ""
 
     echo "  Domains:"
@@ -168,8 +161,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
     if [[ -s "$BACCT" ]]; then
         LIVE_ACCTS=""
         if [[ -n "$(docker ps -q -f name=${MAIL_CONTAINER} 2>/dev/null)" ]]; then
-            MNT=$(docker inspect "$MAIL_CONTAINER" \
-                --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
+            MNT=$(docker inspect "$MAIL_CONTAINER" --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
             [[ -n "$MNT" ]] && LIVE_ACCTS="$MNT/postfix-accounts.cf"
         fi
         [[ -z "$LIVE_ACCTS" ]] && echo "    Note: $MAIL_CONTAINER not running — cannot check existing mailboxes."
@@ -190,9 +182,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
 
     echo "  Feature set:"
     if [[ -n "$PLAN_FEATURE_SET" ]]; then
-        [[ -f "/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt" ]] \
-            && printf "    %s  [present ✓]\n" "$PLAN_FEATURE_SET" \
-            || printf "    %s  [will be imported]\n" "$PLAN_FEATURE_SET"
+        [[ -f "/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt" ]] && printf "    %s  [present ✓]\n" "$PLAN_FEATURE_SET" || printf "    %s  [will be imported]\n" "$PLAN_FEATURE_SET"
     else
         echo "    (none)"
     fi
@@ -230,8 +220,7 @@ log "Archive: $ARCHIVE"
 
 # Extract
 log "Extracting archive ..."
-tar -C "$WORK" --acls --xattrs -xzf "$ARCHIVE" 2>>"$log_file" \
-    || die "Failed to extract archive."
+tar -C "$WORK" --acls --xattrs -xzf "$ARCHIVE" 2>>"$log_file" || die "Failed to extract archive."
 
 [[ -f "$WORK/manifest.env" ]] || die "manifest.env missing from archive."
 # shellcheck disable=SC1090
@@ -258,8 +247,7 @@ if [[ "${username_exists:-0}" -gt 0 ]]; then
 fi
 if [[ -z "$edition_key" ]]; then
     user_count=$(mysql_q "SELECT COUNT(*) FROM users;")
-    [[ "${user_count:-0}" -ge 3 && "${username_exists:-0}" -eq 0 ]] && \
-        die "Community edition limit: 3 accounts. Upgrade to Enterprise for more."
+    [[ "${user_count:-0}" -ge 3 && "${username_exists:-0}" -eq 0 ]] && die "Community edition limit: 3 accounts. Upgrade to Enterprise for more."
 fi
 
 # ── 1) System user ───────────────────────────────────────────────────────────
@@ -292,8 +280,7 @@ restore_system_user() {
             SYSTEM_USER_STATUS="already existed"
         else
             local free_uid; free_uid=$(find_free_uid "$uid")
-            useradd -u "$free_uid" -g "$gid" -c "$comment" -d "$target_home" -s "$shell" "$target_user" 2>/dev/null \
-                || useradd -u "$free_uid" -c "$comment" -d "$target_home" -s "$shell" "$target_user"
+            useradd -u "$free_uid" -g "$gid" -c "$comment" -d "$target_home" -s "$shell" "$target_user" 2>/dev/null || useradd -u "$free_uid" -c "$comment" -d "$target_home" -s "$shell" "$target_user"
             REMAPPED_UID="$free_uid"
             [[ "$free_uid" != "$uid" ]] && warn "UID remapped for $target_user: $uid → $free_uid"
             SYSTEM_USER_STATUS="created (UID $REMAPPED_UID)"
@@ -301,8 +288,7 @@ restore_system_user() {
     done < <(cut -d: -f1,3,4,5,6,7 "$PW")
 
     [[ -f "$SH" ]] && while IFS=: read -r user hash _; do
-        [[ "$user" == "$ORIG_CONTEXT" && -n "$hash" ]] && \
-            usermod -p "$hash" "$CONTEXT" 2>/dev/null || true
+        [[ "$user" == "$ORIG_CONTEXT" && -n "$hash" ]] && usermod -p "$hash" "$CONTEXT" 2>/dev/null || true
     done < "$SH"
 }
 restore_system_user
@@ -313,11 +299,7 @@ restore_home() {
     log "Restoring /home/$CONTEXT ..."
     mkdir -p /home
     # Pipe through rename transform: homedir → CONTEXT
-    tar -C "$WORK" --numeric-owner --acls --xattrs \
-        --transform "s,^homedir,${CONTEXT}," \
-        -cf - homedir \
-        | tar -C /home --numeric-owner --acls --xattrs -xf - 2>>"$log_file" \
-        || die "Failed to restore home directory."
+    tar -C "$WORK" --numeric-owner --acls --xattrs --transform "s,^homedir,${CONTEXT}," -cf - homedir | tar -C /home --numeric-owner --acls --xattrs -xf - 2>>"$log_file" || die "Failed to restore home directory."
 
     if [[ -n "$REMAPPED_UID" && -n "$SOURCE_UID" && "$REMAPPED_UID" != "$SOURCE_UID" ]]; then
         local gid; gid=$(id -g "$CONTEXT" 2>/dev/null)
@@ -329,8 +311,7 @@ restore_home() {
         local mp; mp=$(cat "$WORK/mail_external/path.txt")
         log "Restoring external mail → $mp ..."
         mkdir -p "$(dirname "$mp")"
-        tar -C "$(dirname "$mp")" --numeric-owner --acls --xattrs \
-            -xf "$WORK/mail_external/mail.tar" 2>>"$log_file" || warn "External mail restore failed."
+        tar -C "$(dirname "$mp")" --numeric-owner --acls --xattrs -xf "$WORK/mail_external/mail.tar" 2>>"$log_file" || warn "External mail restore failed."
     fi
 }
 restore_home
@@ -343,8 +324,7 @@ restore_database() {
     if [[ -n "$NEW_USERNAME" && -f "$WORK/db/user.sql" ]]; then
         log "Patching user.sql: $ORIG_USERNAME → $USERNAME"
         sed -i "s|'${ORIG_USERNAME}'|'${USERNAME}'|g" "$WORK/db/user.sql"
-        [[ "$ORIG_CONTEXT" != "$ORIG_USERNAME" ]] && \
-            sed -i "s|'${ORIG_CONTEXT}'|'${CONTEXT}'|g" "$WORK/db/user.sql"
+        [[ "$ORIG_CONTEXT" != "$ORIG_USERNAME" ]] && sed -i "s|'${ORIG_CONTEXT}'|'${CONTEXT}'|g" "$WORK/db/user.sql"
     fi
 
     # Plan
@@ -366,8 +346,7 @@ restore_database() {
     if [[ -f "$WORK/db/user.sql" ]]; then
         sed -i -E ':a;N;$!ba;s/,\s*;\s*/;/g' "$WORK/db/user.sql"
         local tmp="$WORK/db/_user_local.sql"
-        sed -E "s/,[[:space:]]*[0-9]+\);$/,${plan_id:-NULL});/" "$WORK/db/user.sql" \
-            | sed "s/'NULL'/NULL/g" > "$tmp"
+        sed -E "s/,[[:space:]]*[0-9]+\);$/,${plan_id:-NULL});/" "$WORK/db/user.sql" | sed "s/'NULL'/NULL/g" > "$tmp"
 
         if [[ "${username_exists:-0}" -gt 0 && $FORCE -eq 1 ]]; then
             local old_id; old_id=$(mysql_q "SELECT id FROM users WHERE username='$USERNAME';")
@@ -393,8 +372,7 @@ restore_static_config() {
         mkdir -p "$FDIR"
         for f in "$WORK/features/"*.txt; do
             local bn; bn=$(basename "$f")
-            [[ -f "$FDIR/$bn" ]] && log "Feature set $bn present — keeping." \
-                                 || { cp -a "$f" "$FDIR/"; log "Feature set $bn installed."; }
+            [[ -f "$FDIR/$bn" ]] && log "Feature set $bn present — keeping." || { cp -a "$f" "$FDIR/"; log "Feature set $bn installed."; }
         done
     fi
     if [[ -d "$WORK/core" && -n "$(ls -A "$WORK/core" 2>/dev/null)" ]]; then
@@ -409,9 +387,7 @@ restore_static_config
 restore_domains() {
     [[ -f "$WORK/db/domains.list" ]] || { log "No domains in archive."; return; }
     log "Restoring domains ..."
-    mkdir -p /etc/openpanel/caddy/domains/ /var/log/caddy/domlogs/ /var/log/caddy/coraza_waf/ \
-             /etc/bind/zones/ /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/ \
-             /etc/openpanel/caddy/ssl/custom/ /var/log/caddy/stats/
+    mkdir -p /etc/openpanel/caddy/domains/ /var/log/caddy/domlogs/ /var/log/caddy/coraza_waf/ /etc/bind/zones/ /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/ /etc/openpanel/caddy/ssl/custom/ /var/log/caddy/stats/
 
     while IFS=$'\t ' read -r domain docroot php_version; do
         [[ -z "$domain" ]] && continue
@@ -424,10 +400,7 @@ restore_domains() {
             continue
         fi
 
-        if ! opencli domains-add "$domain" "$USERNAME" \
-                --docroot "$docroot" --php_version "$php_version" \
-                --skip_caddy --skip_vhost --skip_containers --skip_dns \
-                >>"$log_file" 2>&1; then
+        if ! opencli domains-add "$domain" "$USERNAME" --docroot "$docroot" --php_version "$php_version" --skip_caddy --skip_vhost --skip_containers --skip_dns >>"$log_file" 2>&1; then
             warn "opencli domains-add failed for '$domain' — skipping assets."
             DOMAINS_SKIPPED=$((DOMAINS_SKIPPED+1))
             continue
@@ -442,11 +415,8 @@ restore_domains() {
 
         if [[ -f "$WORK/bind/zones/$domain.zone" ]]; then
             cp -a "$WORK/bind/zones/$domain.zone" /etc/bind/zones/
-            [[ -n "$SOURCE_IP" && -n "$NEW_IP" && "$SOURCE_IP" != "$NEW_IP" ]] && \
-                sed -i "s/$SOURCE_IP/$NEW_IP/g" "/etc/bind/zones/$domain.zone"
-            grep -q "\"$domain\"" /etc/bind/named.conf.local 2>/dev/null || \
-                echo "zone \"$domain\" IN { type master; file \"/etc/bind/zones/$domain.zone\"; };" \
-                     >> /etc/bind/named.conf.local
+            [[ -n "$SOURCE_IP" && -n "$NEW_IP" && "$SOURCE_IP" != "$NEW_IP" ]] && sed -i "s/$SOURCE_IP/$NEW_IP/g" "/etc/bind/zones/$domain.zone"
+            grep -q "\"$domain\"" /etc/bind/named.conf.local 2>/dev/null || echo "zone \"$domain\" IN { type master; file \"/etc/bind/zones/$domain.zone\"; };" >> /etc/bind/named.conf.local
         fi
         log "Domain restored: $domain"
     done < "$WORK/db/domains.list"
@@ -467,8 +437,7 @@ restore_domains() {
             local ports; ports=$(echo "$clean" | cut -d',' -f7)
             local path;  path=$(echo "$clean"  | cut -d',' -f8)
             local valid; valid=$(mysql_q "SELECT COUNT(*) FROM domains WHERE domain_id=$did AND user_id=$USER_ID;" 2>/dev/null)
-            [[ "${valid:-0}" -ge 1 ]] && \
-                mysql_q "INSERT INTO sites (site_name,domain_id,admin_email,version,type,ports,path) VALUES ('$sname',$did,'$email','$ver','$typ',$ports,'$path');" || true
+            [[ "${valid:-0}" -ge 1 ]] && mysql_q "INSERT INTO sites (site_name,domain_id,admin_email,version,type,ports,path) VALUES ('$sname',$did,'$email','$ver','$typ',$ports,'$path');" || true
         done
     fi
 }
@@ -482,13 +451,11 @@ restore_ftp() {
     mkdir -p "$LDIR"; cp -a "$WORK/ftp/." "$LDIR/"
     [[ -f "$LDIR/users.list" ]] || { log "No users.list — skipping container step."; return; }
 
-    [[ -z "$(docker ps -q -f name=openadmin_ftp 2>/dev/null)" ]] && \
-        { (cd /root && docker --context default compose up -d openadmin_ftp >/dev/null 2>&1) || true; sleep 2; }
+    [[ -z "$(docker ps -q -f name=openadmin_ftp 2>/dev/null)" ]] && { (cd /root && docker --context default compose up -d openadmin_ftp >/dev/null 2>&1) || true; sleep 2; }
 
     local GID; GID=$(stat -c '%u' "/home/$CONTEXT" 2>/dev/null)
     [[ "$GID" =~ ^[0-9]+$ ]] || { warn "Cannot get GID for $CONTEXT — FTP container step skipped."; return; }
-    docker exec openadmin_ftp sh -c "getent group '$GID' >/dev/null 2>&1" || \
-        docker exec openadmin_ftp addgroup -g "$GID" "$CONTEXT" 2>/dev/null || true
+    docker exec openadmin_ftp sh -c "getent group '$GID' >/dev/null 2>&1" || docker exec openadmin_ftp addgroup -g "$GID" "$CONTEXT" 2>/dev/null || true
 
     while IFS='|' read -r fu hp dir uid gid; do
         [[ -z "$fu" ]] && continue
@@ -511,14 +478,12 @@ restore_email() {
     [[ -z "$asrc" ]] && { log "No postfix-accounts.cf found — skipping email merge."; return; }
 
     [[ -z "$(docker ps -q -f name=${MAIL_CONTAINER} 2>/dev/null)" ]] && {
-        [[ -d /usr/local/mail/openmail ]] && \
-            (cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1) || true
+        [[ -d /usr/local/mail/openmail ]] && (cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1) || true
         sleep 2
     }
 
     local adst
-    adst=$(docker inspect "$MAIL_CONTAINER" \
-        --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
+    adst=$(docker inspect "$MAIL_CONTAINER" --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
     [[ -n "$adst" ]] && adst="$adst/postfix-accounts.cf" || adst="$asrc"
     touch "$adst" 2>/dev/null || true
 
@@ -533,8 +498,7 @@ restore_email() {
         echo "${addr}|${hash}" >> "$adst"
         EMAILS_ADDED=$((EMAILS_ADDED+1)); log "Mailbox restored: $addr"
     done < "$asrc"
-    [[ $EMAILS_ADDED -gt 0 ]] && \
-        { docker exec "$MAIL_CONTAINER" postfix reload >/dev/null 2>&1 || docker restart "$MAIL_CONTAINER" >/dev/null 2>&1 || true; }
+    [[ $EMAILS_ADDED -gt 0 ]] && { docker exec "$MAIL_CONTAINER" postfix reload >/dev/null 2>&1 || docker restart "$MAIL_CONTAINER" >/dev/null 2>&1 || true; }
 }
 restore_email
 
@@ -547,9 +511,7 @@ restore_docker() {
     if [[ -d "/home/$CONTEXT/.docker" ]]; then
         local uid_now; uid_now=$(id -u "$CONTEXT" 2>/dev/null)
         if [[ -n "$uid_now" ]]; then
-            docker context create "$CONTEXT" \
-                --docker "host=unix:///hostfs/run/user/${uid_now}/docker.sock" \
-                --description "$CONTEXT" >/dev/null 2>&1 || true
+            docker context create "$CONTEXT" --docker "host=unix:///hostfs/run/user/${uid_now}/docker.sock" --description "$CONTEXT" >/dev/null 2>&1 || true
             loginctl enable-linger "$CONTEXT" >/dev/null 2>&1 || true
             machinectl shell "${CONTEXT}@" /bin/bash -c 'systemctl --user daemon-reload' >/dev/null 2>&1 || true
             machinectl shell "${CONTEXT}@" /bin/bash -c 'systemctl --user --quiet restart docker' >/dev/null 2>&1 || true
@@ -569,8 +531,7 @@ restore_docker() {
 restore_docker
 
 # ── 9) Reload services + quotas ──────────────────────────────────────────────
-[[ -d "$WORK/caddy/stats/$ORIG_USERNAME" ]] && \
-    { mkdir -p /var/log/caddy/stats/; cp -a "$WORK/caddy/stats/$ORIG_USERNAME" /var/log/caddy/stats/; }
+[[ -d "$WORK/caddy/stats/$ORIG_USERNAME" ]] && { mkdir -p /var/log/caddy/stats/; cp -a "$WORK/caddy/stats/$ORIG_USERNAME" /var/log/caddy/stats/; }
 
 log "Reloading services ..."
 (cd /root && docker compose up -d openpanel bind9 caddy >/dev/null 2>&1; systemctl restart admin >/dev/null 2>&1) || true

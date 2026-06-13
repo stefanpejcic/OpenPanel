@@ -25,9 +25,31 @@ async function navigateToFiles(page: any) {
 }
 
 async function navigateToSubdir(page: any) {
-
   	await page.goto(`/files/${TEST_SUBDIR}`);
 }
+
+async function enableOwnerColumn(page: any) {
+    await page.getByRole('button', { name: 'Columns' }).click();
+    const ownerToggle = page.locator('label', { hasText: 'Owner' });
+    const isChecked = await ownerToggle.locator('input').isChecked();
+    if (!isChecked) await ownerToggle.click();
+    await page.keyboard.press('Escape');
+}
+
+// https://github.com/stefanpejcic/OpenPanel/issues/976
+async function verifyOwnerUids(page: any) {
+    await enableOwnerColumn(page);
+    const ownerCells = page.locator('#filemanager_table .owner-cell');
+    const count = await ownerCells.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+        const text = (await ownerCells.nth(i).textContent())?.trim();
+        if (!text) continue;
+        const uid = parseInt(text, 10);
+        expect(uid).toBeGreaterThanOrEqual(1000);
+    }
+}
+
 
 async function createFileInRoot(page: any, fileName: string, openAfterCreate = false) {
   await navigateToFiles(page);
@@ -110,7 +132,7 @@ test('create file', async ({ page }) => {
   await createFileInRoot(page, FILE_NAME);
   await expect(page.locator('body')).toContainText(/File created successfully/i);
   await expect(page.locator('body')).toContainText(new RegExp(FILE_NAME, 'i'));
-
+	await verifyOwnerUids(page);
   console.log('File created successfully');
 });
 
@@ -120,7 +142,7 @@ test('create folder', async ({ page }) => {
   await createFolderInRoot(page, FOLDER_NAME);
   await expect(page.locator('body')).toContainText(/Folder created successfully/i);
   await expect(page.locator('body')).toContainText(new RegExp(FOLDER_NAME, 'i'));
-
+  await verifyOwnerUids(page);
   console.log('Folder created successfully');
 });
 
@@ -289,7 +311,7 @@ test('change file permissions', async ({ page }) => {
 
   await expect(page.locator('body')).toContainText(/Permissions changed/i);
   await expect(page.locator('body')).toContainText(/-rwxr-xr-x/i);
-
+  await verifyOwnerUids(page);
   console.log('File permissions changed successfully');
 });
 
@@ -312,7 +334,7 @@ test('upload file from URL', async ({ page }) => {
 
   await navigateToFiles(page);
   await expect(page.locator('body')).toContainText(/20MB.zip/i);
-
+  await verifyOwnerUids(page);
   console.log('File uploaded from URL successfully');
 });
 
@@ -329,7 +351,6 @@ async function compressFiles(page: any) {
   await page.getByRole('textbox', { name: 'Archive path*' }).fill(ZIP_ARCHIVE);
   await page.getByRole('button', { name: 'Compress', exact: true }).click();
   await expect(page.locator('body')).toContainText(new RegExp(ZIP_ARCHIVE_NAME, 'i'));
-
   console.log('Files compressed successfully');
 }
 
@@ -348,16 +369,17 @@ async function extractFiles(page: any) {
   await expect(page.locator('body')).toContainText(/File extracted successfully/i);
   await expect(page.locator('body')).toContainText(new RegExp(ZIP_FILE, 'i'));
   await expect(page.locator('body')).toContainText(new RegExp(ZIP_FOLDER, 'i'));
-
   console.log('Files extracted successfully');
 }
 
 test('compress files', async ({ page }) => {
   await compressFiles(page);
+  await verifyOwnerUids(page);
 });
 
 test('extract files', async ({ page }) => {
   await extractFiles(page);
+  await verifyOwnerUids(page);
   // TODO: cover all 3 supported archive extensions
   // Cleanup scoped to test subdir to avoid deleting docroots
 });

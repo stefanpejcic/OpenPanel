@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 11.06.2026
+# Last Modified: 12.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -431,6 +431,7 @@ update_username() {
     local old_username="$1"
     local new_username="$2"
     local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$old_username';")
+    local user_role=$(sqlite3 "$db_file_path" "SELECT role FROM user WHERE username='$old_username';")
     local new_user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$new_username';")
 
     if [ "$user_exists" -gt 0 ]; then
@@ -439,18 +440,27 @@ update_username() {
         else
             sqlite3 $db_file_path "UPDATE user SET username='$new_username' WHERE username='$old_username';"
             echo "User '$old_username' renamed to '$new_username'."
-	    	sed -i "s/\b$old_username\b/$new_username/g" /var/log/openpanel/admin/login.log   > /dev/null 2>&1
-			#TODO: CHECK IF RESELLER
-			nohup opencli sentinel --action=admin_rename --title="Administrator renamed" --message="Administrator account '$old_username' has been renamed to '$new_username' ." >/dev/null 2>&1 &
-			disown
-			# for resellers
-			mv /etc/openpanel/features/$old_username /etc/openpanel/features/$username  > /dev/null 2>&1
-	    	mv /etc/openpanel/openadmin/resellers/$old_username.json /etc/openpanel/openadmin/resellers/$new_username.json  > /dev/null 2>&1   
+            sed -i "s/\b$old_username\b/$new_username/g" /var/log/openpanel/admin/login.log > /dev/null 2>&1
+
+            if [ "$user_role" = "reseller" ]; then
+                mv /etc/openpanel/features/$old_username /etc/openpanel/features/$new_username > /dev/null 2>&1
+                mv /etc/openpanel/openadmin/resellers/$old_username.json /etc/openpanel/openadmin/resellers/$new_username.json > /dev/null 2>&1
+                source /usr/local/opencli/db.sh
+                mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "UPDATE users SET owner='$new_username' WHERE owner='$old_username';" > /dev/null 2>&1
+
+	            nohup opencli sentinel --action=reseller_rename --title="Reseller renamed" --message="Reseller account '$old_username' has been renamed to '$new_username'." >/dev/null 2>&1 &
+	            disown
+			else
+	            nohup opencli sentinel --action=admin_rename --title="Administrator renamed" --message="Administrator account '$old_username' has been renamed to '$new_username'." >/dev/null 2>&1 &
+	            disown
+            fi
+
+
         fi
     else
         echo -e "${RED}Error${RESET}: User '$old_username' not found."
     fi
-}   
+}
 
 # ---------------------- opencli admin password ---------------------- #
 update_password() {

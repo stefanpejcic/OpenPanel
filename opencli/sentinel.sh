@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 11.06.2026
+# Last Modified: 12.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -218,9 +218,12 @@ check_service_status() {
     if [[ "$svc" == "admin" && -f /root/openadmin_is_disabled ]]; then
       ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc disabled by Administrator."; return
     fi
+    local log; log=$(journalctl -n 5 -u "$svc" 2>/dev/null | sed ':a;N;$!ba;s/\n/\\n/g')
+    if echo "$log" | grep -q "Deactivated successfully"; then
+      ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m $svc is inactive (disabled by Administrator), skipping restart."; return
+    fi
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m $svc is not active."
-    local log; log=$(journalctl -n 5 -u "$svc" 2>/dev/null | sed ':a;N;$!ba;s/\n/\\n/g')
     [[ -n "$log" ]] && write_notification "$title" "$log"
     systemctl restart "$svc"
     systemctl is-active --quiet "$svc" && echo -e "\e[32m[✔]\e[0m $svc restarted." || echo -e "\e[31m[✘]\e[0m Failed to restart $svc."

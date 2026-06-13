@@ -105,8 +105,7 @@ fi
 # External mail — fires only when admin set email_storage_location to a path
 # outside /home.  Default: mail lives in /home/CONTEXT/mail/ and is captured
 # automatically with the home directory.
-STORE_EMAILS_IN=$(grep -E '^email_storage_location=' \
-    /etc/openpanel/openadmin/config/admin.ini 2>/dev/null | cut -d'=' -f2- | xargs)
+STORE_EMAILS_IN=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini 2>/dev/null | cut -d'=' -f2- | xargs)
 MAIL_EXTERNAL_PATH=""
 MAIL_EXTERNAL_SIZE="n/a"
 if [[ "$STORE_EMAILS_IN" == /* && -d "$STORE_EMAILS_IN" ]]; then
@@ -173,9 +172,7 @@ check_disk_space() {
 
     if [[ "$used_kb" -eq 0 ]]; then
         if [[ -d "/home/$CONTEXT" ]]; then
-            used_kb=$(du -sk \
-                --exclude="docker-data/volumes/${CONTEXT}_html_data/_data/_backups" \
-                "/home/$CONTEXT" 2>/dev/null | cut -f1)
+            used_kb=$(du -sk --exclude="docker-data/volumes/${CONTEXT}_html_data/_data/_backups" "/home/$CONTEXT" 2>/dev/null | cut -f1)
             DISK_CHECK_SOURCE="du"
         fi
     fi
@@ -228,9 +225,7 @@ if [[ $DRY_RUN -eq 1 ]]; then
         fi
     fi
     if [[ "$DRY_USED_KB" -eq 0 && -d "/home/$CONTEXT" ]]; then
-        DRY_USED_KB=$(du -sk \
-            --exclude="docker-data/volumes/${CONTEXT}_html_data/_data/_backups" \
-            "/home/$CONTEXT" 2>/dev/null | cut -f1)
+        DRY_USED_KB=$(du -sk --exclude="docker-data/volumes/${CONTEXT}_html_data/_data/_backups" "/home/$CONTEXT" 2>/dev/null | cut -f1)
         DRY_USED_SOURCE="du"
     fi
     DRY_USED_MB=$(( ${DRY_USED_KB:-0} / 1024 ))
@@ -266,10 +261,8 @@ if [[ $DRY_RUN -eq 1 ]]; then
             cm="-"; zm="-"; sm="-"
             [[ -f "/etc/openpanel/caddy/domains/$domain.conf" ]] && cm="✓"
             [[ -f "/etc/bind/zones/$domain.zone" ]]              && zm="✓"
-            { [[ -d "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" ]] || \
-              [[ -d "/etc/openpanel/caddy/ssl/custom/$domain" ]]; } && sm="✓"
-            printf "    %-42s [caddy %s] [zone %s] [ssl %s]\n" \
-                "$domain" "$cm" "$zm" "$sm"
+            { [[ -d "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" ]] || [[ -d "/etc/openpanel/caddy/ssl/custom/$domain" ]]; } && sm="✓"
+            printf "    %-42s [caddy %s] [zone %s] [ssl %s]\n" "$domain" "$cm" "$zm" "$sm"
         done <<< "$ALL_DOMAINS_DRY"
     fi
     echo ""
@@ -354,9 +347,7 @@ bind/zones,docker}
 
 # --- manifest ---
 log "Writing manifest ..."
-SOURCE_IP=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null \
-            || curl --silent --max-time 1 -4 "https://ifconfig.me" 2>/dev/null \
-            || ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
+SOURCE_IP=$(curl --silent --max-time 1 -4 "https://ip.openpanel.com" 2>/dev/null || curl --silent --max-time 1 -4 "https://ifconfig.me" 2>/dev/null || ip addr | grep 'inet ' | grep global | head -n1 | awk '{print $2}' | cut -f1 -d/)
 cat > "$STAGE/manifest.env" <<EOF
 BACKUP_FORMAT_VERSION="$BACKUP_FORMAT_VERSION"
 USERNAME="$USERNAME"
@@ -431,8 +422,7 @@ grep "^${CONTEXT}:" /etc/shadow 2>/dev/null > "$STAGE/system/shadow.user" || tru
 
 # --- feature set ---
 FEATURES_DIR="/etc/openpanel/openpanel/features"
-[[ -n "$PLAN_FEATURE_SET" && -f "$FEATURES_DIR/${PLAN_FEATURE_SET}.txt" ]] && \
-    cp -a "$FEATURES_DIR/${PLAN_FEATURE_SET}.txt" "$STAGE/features/"
+[[ -n "$PLAN_FEATURE_SET" && -f "$FEATURES_DIR/${PLAN_FEATURE_SET}.txt" ]] && cp -a "$FEATURES_DIR/${PLAN_FEATURE_SET}.txt" "$STAGE/features/"
 
 # --- per-user core config ---
 CORE_DIR="/etc/openpanel/openpanel/core/users/$USERNAME"
@@ -450,41 +440,29 @@ if [[ -f "$STAGE/db/domains.list" ]]; then
     log "Collecting per-domain caddy + bind assets ..."
     while IFS=$'\t ' read -r domain docroot php_version; do
         [[ -z "$domain" ]] && continue
-        [[ -f "/etc/openpanel/caddy/domains/$domain.conf" ]] && \
-            cp -a "/etc/openpanel/caddy/domains/$domain.conf" "$STAGE/caddy/domains/"
-        [[ -f "/var/log/caddy/domlogs/$domain" ]] && \
-            cp -a "/var/log/caddy/domlogs/$domain" "$STAGE/caddy/domlogs/"
-        [[ -f "/var/log/caddy/coraza_waf/$domain.log" ]] && \
-            cp -a "/var/log/caddy/coraza_waf/$domain.log" "$STAGE/caddy/waf/"
-        [[ -f "/etc/bind/zones/$domain.zone" ]] && \
-            cp -a "/etc/bind/zones/$domain.zone" "$STAGE/bind/zones/"
-        [[ -d "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" ]] && \
-            cp -a "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" \
-                  "$STAGE/caddy/ssl/acme/"
-        [[ -d "/etc/openpanel/caddy/ssl/custom/$domain" ]] && \
-            cp -a "/etc/openpanel/caddy/ssl/custom/$domain" "$STAGE/caddy/ssl/custom/"
+        [[ -f "/etc/openpanel/caddy/domains/$domain.conf" ]] && cp -a "/etc/openpanel/caddy/domains/$domain.conf" "$STAGE/caddy/domains/"
+        [[ -f "/var/log/caddy/domlogs/$domain" ]] && cp -a "/var/log/caddy/domlogs/$domain" "$STAGE/caddy/domlogs/"
+        [[ -f "/var/log/caddy/coraza_waf/$domain.log" ]] && cp -a "/var/log/caddy/coraza_waf/$domain.log" "$STAGE/caddy/waf/"
+        [[ -f "/etc/bind/zones/$domain.zone" ]] && cp -a "/etc/bind/zones/$domain.zone" "$STAGE/bind/zones/"
+        [[ -d "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" ]] && cp -a "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" "$STAGE/caddy/ssl/acme/"
+        [[ -d "/etc/openpanel/caddy/ssl/custom/$domain" ]] && cp -a "/etc/openpanel/caddy/ssl/custom/$domain" "$STAGE/caddy/ssl/custom/"
     done < "$STAGE/db/domains.list"
 fi
-[[ -d "/var/log/caddy/stats/$USERNAME" ]] && \
-    cp -a "/var/log/caddy/stats/$USERNAME" "$STAGE/caddy/stats/"
+[[ -d "/var/log/caddy/stats/$USERNAME" ]] && cp -a "/var/log/caddy/stats/$USERNAME" "$STAGE/caddy/stats/"
 
 # --- docker metadata ---
 if [[ -f "/home/$CONTEXT/docker-compose.yml" ]]; then
-    containers=$(docker --context="$CONTEXT" ps -a --format "{{.Names}}" 2>/dev/null \
-                 | tr '\n' ' ' | sed 's/ $//')
+    containers=$(docker --context="$CONTEXT" ps -a --format "{{.Names}}" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
     echo "$CONTEXT: ${containers:-no containers}" > "$STAGE/docker/containers.txt"
 fi
-[[ -f "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" ]] && \
-    cp -a "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" "$STAGE/docker/apparmor.profile"
+[[ -f "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" ]] && cp -a "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" "$STAGE/docker/apparmor.profile"
 echo "${SYS_UID}" > "$STAGE/docker/uid.txt"
 
 # --- external mail store ---
 if [[ -n "$MAIL_EXTERNAL_PATH" ]]; then
     log "Archiving external mail store: $MAIL_EXTERNAL_PATH ..."
     mkdir -p "$STAGE/mail_external"
-    tar -C "$(dirname "$MAIL_EXTERNAL_PATH")" --numeric-owner --acls --xattrs \
-        -cf "$STAGE/mail_external/mail.tar" "$(basename "$MAIL_EXTERNAL_PATH")" 2>>"$log_file" || \
-        warn "Failed to archive external mail store (non-fatal)."
+    tar -C "$(dirname "$MAIL_EXTERNAL_PATH")" --numeric-owner --acls --xattrs -cf "$STAGE/mail_external/mail.tar" "$(basename "$MAIL_EXTERNAL_PATH")" 2>>"$log_file" || warn "Failed to archive external mail store (non-fatal)."
     echo "$MAIL_EXTERNAL_PATH" > "$STAGE/mail_external/path.txt"
 fi
 
@@ -529,9 +507,7 @@ chmod 640 "$ARCHIVE"
 BACKUP_UID=$(id -u "$CONTEXT" 2>/dev/null)
 BACKUP_GID=$(id -g "$CONTEXT" 2>/dev/null)
 if [[ -n "$BACKUP_UID" && -n "$BACKUP_GID" ]]; then
-    chown "${BACKUP_UID}:${BACKUP_GID}" "$ARCHIVE" 2>/dev/null && \
-        log "Ownership: $CONTEXT (${BACKUP_UID}:${BACKUP_GID})" || \
-        warn "Could not chown archive to $CONTEXT (non-fatal)."
+    chown "${BACKUP_UID}:${BACKUP_GID}" "$ARCHIVE" 2>/dev/null && log "Ownership: $CONTEXT (${BACKUP_UID}:${BACKUP_GID})" || warn "Could not chown archive to $CONTEXT (non-fatal)."
 fi
 
 # ---------------------------------------------------------------------------
@@ -570,8 +546,7 @@ slog "$(printf "    %-22s %s\n" "Feature set:"   "${PLAN_FEATURE_SET:-none}")"
 slog "$(printf "    %-22s %s\n" "FTP accounts:"  "$BACKUP_FTP_COUNT")"
 slog "$(printf "    %-22s %s\n" "Home dir:"      "homedir/  (source ~${DISK_ESTIMATE_MB} MB)")"
 slog "$(printf "    %-22s %s\n" "Docker:"        "${CONTAINERS_STR}")"
-[[ -n "$MAIL_EXTERNAL_PATH" ]] && \
-    slog "$(printf "    %-22s %s\n" "External mail:" "$MAIL_EXTERNAL_PATH  ($MAIL_EXTERNAL_SIZE)")"
+[[ -n "$MAIL_EXTERNAL_PATH" ]] && slog "$(printf "    %-22s %s\n" "External mail:" "$MAIL_EXTERNAL_PATH  ($MAIL_EXTERNAL_SIZE)")"
 slog ""
 slog "  Disk check:  source ~${DISK_ESTIMATE_MB} MB (via $DISK_CHECK_SOURCE)  |  free ~${DISK_FREE_MB} MB"
 slog ""

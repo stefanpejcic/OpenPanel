@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 11.06.2026
+# Last Modified: 12.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -101,6 +101,7 @@ install_tool() {
         if command_exists apt; then
             apt install -y "$package" > /dev/null 2>&1
         elif command_exists dnf; then
+            dnf install -y epel-release > /dev/null 2>&1
             dnf install -y "$package" > /dev/null 2>&1
         elif command_exists yum; then
             yum install -y "$package" > /dev/null 2>&1
