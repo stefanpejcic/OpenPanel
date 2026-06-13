@@ -750,7 +750,11 @@ configure_environment() {
         -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:${port_3}\"|g" \
         -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"${port_4}\"|g" \
         -e "s|{PMA_PORT}|${P4}|g" \
-		-e "s|rootpassword=[^\" ]*|rootpassword=${root_password_for_services}|g" \
+        -e "s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=\"${root_password_for_services}\"|" \
+        -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=\"${root_password_for_services}\"|" \
+        -e "s|^PGADMIN_PW=.*|PGADMIN_PW=\"${root_password_for_services}\"|" \
+        -e "s|^OPENSEARCH_INITIAL_ADMIN_PASSWORD=.*|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"${root_password_for_services}\"|" \
+        -e "s|^MONGODB_ROOT_PASSWORD=.*|MONGODB_ROOT_PASSWORD=\"${root_password_for_services}\"|" \
         -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:${port_2}\"|g" \
         -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|PROXY_HTTP_PORT=\"${port_7}\"|g" \
         "${home_dir}/.env"
@@ -804,11 +808,11 @@ configure_environment() {
     chown -R "${USERNAME}:${USERNAME}" "${home_dir}/sockets"
     chmod 777 "${home_dir}/sockets/"
 
-    printf '[client]\nuser=root\npassword=%s\n' "$mysql_root_pw" > "${home_dir}/my.cnf"
+    printf '[client]\nuser=root\npassword=%s\n' "$root_password_for_services" > "${home_dir}/my.cnf"
     [[ -f "${home_dir}/my.cnf" ]] || echo "[!] Warning: Failed to create my.cnf."
 
     # shellcheck disable=SC2034
-    MYSQL_ROOT_PASSWORD="$mysql_root_pw"   # exported for pull_images
+    MYSQL_ROOT_PASSWORD="$root_password_for_services"   # exported for pull_images
 }
 
 copy_skeleton_files() {
