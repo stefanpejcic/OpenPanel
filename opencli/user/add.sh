@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 12.06.2026
+# Last Modified: 13.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -750,11 +750,7 @@ configure_environment() {
         -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:${port_3}\"|g" \
         -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"${port_4}\"|g" \
         -e "s|{PMA_PORT}|${P4}|g" \
-        -e "s|^MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=\"${root_password_for_services}\"|" \
-        -e "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=\"${root_password_for_services}\"|" \
-        -e "s|^PGADMIN_PW=.*|PGADMIN_PW=\"${root_password_for_services}\"|" \
-        -e "s|^OPENSEARCH_INITIAL_ADMIN_PASSWORD=.*|OPENSEARCH_INITIAL_ADMIN_PASSWORD=\"${root_password_for_services}\"|" \
-        -e "s|^MONGODB_ROOT_PASSWORD=.*|MONGODB_ROOT_PASSWORD=\"${root_password_for_services}\"|" \
+		-e "s|rootpassword=[^\" ]*|rootpassword=${root_password_for_services}|g" \
         -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:${port_2}\"|g" \
         -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|PROXY_HTTP_PORT=\"${port_7}\"|g" \
         "${home_dir}/.env"
