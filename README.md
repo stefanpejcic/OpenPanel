@@ -18,6 +18,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 ║  • ⚙️ OpenAdmin - administration panel                         ║
 ║  • 🌐 Caddy – Reverse Proxy & SSL                              ║
 ║  • 🔍 BIND9 – DNS Server                                       ║
+║  • 🔍 phpMyAdmin – shared by all users                         ║
 ║  • 🗄️ MySQL – User Management & Metadata                       ║
 ║  • 🐳 Docker Engine – Container Orchestration                  ║
 ╚════════════════════════════════════════════════════════════════╝
@@ -39,7 +40,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 │                                 │ │                                 │ │                                 │
 │  🗄️  Databases:                 │ │  🗄️  Databases:                 │ │  🗄️  Databases:                 │
 │  • MySQL 8.0                    │ │  • MariaDB 10.11                │ │  • Percona MySQL                │
-│  • phpMyAdmin                   │ │  • phpMyAdmin                   │ │  • PostgreSQL                   │
+│                                 │ │                                 │ │  • PostgreSQL                   │
 ├─────────────────────────────────┤ ├─────────────────────────────────┤ ├─────────────────────────────────┤
 │  📊 Resource Limits:            │ │  📊 Resource Limits:            │ │  📊 Resource Limits:            │
 │  • CPU: 2 cores                 │ │  • CPU: 4 cores                 │ │  • CPU: 1 core                  │
