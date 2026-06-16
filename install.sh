@@ -313,7 +313,7 @@ check_kernel_compat() {
         update-alternatives --install /usr/sbin/ip6tables ip6tables /usr/sbin/ip6tables-legacy 10
         update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
 
-		if [[ "$changed" -eq 1 ]] && command -v iptables &>/dev/null; then
+		if [[ "$changed" -eq 1 ]]; then
 		    echo "A reboot is required to setup kernel modules needed by iptables for Docker to work."
 		    echo "After the reboot you can run the install command again."
 		    read -rp "Do you want to perform a reboot now? [y/N] (auto-cancel in 15s): " -t 15 answer
