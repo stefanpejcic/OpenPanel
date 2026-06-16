@@ -309,17 +309,8 @@ check_kernel_compat() {
 		$PACKAGE_MANAGER install -y kernel-modules && changed=1
 		$PACKAGE_MANAGER install -y kernel-modules-extra && changed=1
 
-		if [ -x /usr/sbin/iptables-nft ]; then
-		    update-alternatives --set iptables /usr/sbin/iptables-nft
-		elif [ -x /usr/sbin/iptables-legacy ]; then
-		    update-alternatives --set iptables /usr/sbin/iptables-legacy
-		fi
-		
-		if [ -x /usr/sbin/ip6tables-nft ]; then
-		    update-alternatives --set ip6tables /usr/sbin/ip6tables-nft
-		elif [ -x /usr/sbin/ip6tables-legacy ]; then
-		    update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
-		fi
+		update-alternatives --set iptables $( [ -x /usr/sbin/iptables-nft ] && echo /usr/sbin/iptables-nft || echo /usr/sbin/iptables-legacy )
+		update-alternatives --set ip6tables $( [ -x /usr/sbin/ip6tables-nft ] && echo /usr/sbin/ip6tables-nft || echo /usr/sbin/ip6tables-legacy )
 
 		if [[ "$changed" -eq 1 ]]; then
 		    echo "A reboot is required to setup kernel modules needed by iptables for Docker to work."
