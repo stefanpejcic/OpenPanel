@@ -3,6 +3,17 @@
 
 # TODO: TEST https://github.com/stefanpejcic/OpenPanel/issues/895
 
+
+
+CONFIG="/etc/openpanel/openpanel/conf/openpanel.config"
+if ! grep -q '^twofa_enforce=' "$CONFIG"; then
+    sed -i '/^\[USERS\]/a twofa_enforce=no' "$CONFIG"
+fi
+
+
+
+
+
 for env_file in /home/*/docker-compose.yml; do
     user_dir="$(dirname "$env_file")"
     rm -rf /home/$user_dir/pma.php
