@@ -304,10 +304,10 @@ check_kernel_compat() {
 		echo "Installing iptables and required kernel modules for Docker on $OS_ID $major. You will be prompted to reboot so the newly installed kernel modules can be loaded."
 		sleep 3
         $PACKAGE_MANAGER install -y iptables-legacy && changed=1
-        $PACKAGE_MANAGER reinstall -y iptables-nft nftables libnftnl && changed=1
-        $PACKAGE_MANAGER reinstall -y kernel && changed=1
-		$PACKAGE_MANAGER reinstall -y kernel-modules && changed=1
-		$PACKAGE_MANAGER reinstall -y kernel-modules-extra && changed=1
+        $PACKAGE_MANAGER install -y iptables-nft nftables libnftnl && changed=1
+        $PACKAGE_MANAGER install -y kernel && changed=1
+		$PACKAGE_MANAGER install -y kernel-modules && changed=1
+		$PACKAGE_MANAGER install -y kernel-modules-extra && changed=1
 
         update-alternatives --install /usr/sbin/iptables iptables /usr/sbin/iptables-legacy 10
         update-alternatives --set iptables /usr/sbin/iptables-legacy
