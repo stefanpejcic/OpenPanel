@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 13.06.2026
+# Last Modified: 15.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -80,7 +80,14 @@ cleanup() {
 
 hard_cleanup() {
     killall -u "$USERNAME" -9 > /dev/null 2>&1
-    deluser --remove-home "$USERNAME" > /dev/null 2>&1   # command is missing on alma!
+    if command -v deluser >/dev/null 2>&1; then
+        deluser --remove-home "$USERNAME" # Debian
+    elif command -v userdel >/dev/null 2>&1; then
+        userdel -r "$USERNAME"            # RHEL
+    else
+        echo "ERROR: Neither deluser nor userdel found"
+    fi
+
     rm -rf /etc/openpanel/openpanel/core/users/"$USERNAME" > /dev/null 2>&1
     docker context rm "$USERNAME"  > /dev/null 2>&1
 }
@@ -531,7 +538,7 @@ include <tunables/global>
 EOF
     }
 
-    mkdir -p "${home_dir}/docker-data" "${home_dir}/.config/docker" "${home_dir}/.docker/run" "${home_dir}/bin"
+    mkdir -p "${home_dir}/docker-data" "${home_dir}/.config/docker" "${home_dir}/.docker/run" "${home_dir}/bin" "/etc/apparmor.d/"
     cp /etc/openpanel/docker/daemon/rootless.json "${home_dir}/.config/docker/daemon.json"
     sed -i "s/USERNAME/${USERNAME}/g" "${home_dir}/.config/docker/daemon.json"
     chmod 755 -R "${home_dir}"
@@ -585,9 +592,7 @@ REMOTE
 
     else
         _build_apparmor_profile > "$apparmor_file"
-
         systemctl restart apparmor.service >/dev/null 2>&1 || true
-
         loginctl enable-linger "$USERNAME" >/dev/null 2>&1
 
       	if [ ! -f "$ROOTLESS_SETUP_SCRIPT" ]; then

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 13.06.2026
+# Last Modified: 15.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -208,10 +208,10 @@ delete_emails() {
 delete_ftp_users() {
     context="$1"
     users_dir="/etc/openpanel/ftp/users"
-    users_file="${users_dir}/${context}/users.list"
+    ftp_accounts_file="${users_dir}/${context}/users.list"
 
     if [[ -d "${users_dir}/${context}" ]]; then
-        if [[ -f "$users_file" ]]; then
+        if [[ -f "$ftp_accounts_file" ]]; then
             local max_jobs=5
             local job_count=0
             while IFS='|' read -r username _; do
@@ -226,24 +226,44 @@ delete_ftp_users() {
 delete_all_user_files() {
     if [ -n "$node_ip_address" ]; then
 		# 1. delete from node
-        ssh "root@$node_ip_address" bash -c "'
-            pkill -u $context -9 2>/dev/null || true
-            deluser --remove-home "$context" >/dev/null 2>&1 || true
-            [ -d /home/"$context" ] && ionice -c3 rm -rf /home/$context 
-        '"
+		ssh "root@$node_ip_address" bash -s -- "$context" <<'EOF'
+		user="$1"
+		
+		pkill -u "$user" -9 2>/dev/null || true
+		
+		if command -v deluser >/dev/null 2>&1; then
+			deluser --remove-home "$user" >/dev/null 2>&1 || true
+		elif command -v userdel >/dev/null 2>&1; then
+			userdel -r "$user" >/dev/null 2>&1 || true
+		fi
+		
+		[ -d "/home/$user" ] && ionice -c3 rm -rf "/home/$user"
+EOF
 		# 2. unmount from master
 		umount "/home/$context" >/dev/null 2>&1
     fi
 	# 3. delete on master 
 	pkill -u "$context" -9 2>/dev/null || true
-    deluser --remove-home "$context" >/dev/null 2>&1 || true
+	delete_system_user "$context"
     [ -d /home/"$context" ] && rm -rf "/home/${context:?}"
     [ -d /etc/openpanel/openpanel/core/users/"$context" ] && rm -rf "/etc/openpanel/openpanel/core/users/$context"
-
 }
 
 delete_context() {
     docker context rm "$context"  > /dev/null 2>&1
+}
+
+delete_system_user() {
+    local user="$1"
+
+    if command -v deluser >/dev/null 2>&1; then
+        deluser --remove-home "$user" # Debian
+    elif command -v userdel >/dev/null 2>&1; then
+        userdel -r "$user"            # RHEL
+    else
+        echo "ERROR: Neither deluser nor userdel found"
+        return 1
+    fi
 }
 
 refresh_resellers_data() {

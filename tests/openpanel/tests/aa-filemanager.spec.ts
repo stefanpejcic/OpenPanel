@@ -29,7 +29,7 @@ async function navigateToSubdir(page: any) {
 }
 
 async function enableOwnerColumn(page: any) {
-    await page.getByRole('button', { name: 'Columns' }).click();
+    await page.locator('#dropdownToggleButton').click();
     const ownerToggle = page.locator('label', { hasText: 'Owner' });
     const isChecked = await ownerToggle.locator('input').isChecked();
     if (!isChecked) await ownerToggle.click();

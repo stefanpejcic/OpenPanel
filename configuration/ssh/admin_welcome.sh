@@ -2,6 +2,9 @@
 #  nano /etc/profile.d/welcome.sh && chmod +x /etc/profile.d/welcome.sh
 [ "$(id -u)" -ne 0 ] && return
 
+# skip banner when launched from the OpenAdmin > Advanced > Web Terminal
+[ -n "$OPENPANEL_HIDE_WELCOME" ] && return 0 2>/dev/null || true
+
 VERSION=$(opencli version)
 OPENADMIN_STATUS=$(opencli admin)
 
