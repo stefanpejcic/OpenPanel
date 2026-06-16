@@ -296,37 +296,53 @@ build_quotatool_from_source() {
 
 check_kernel_compat() {
     local major="${OS_VERSION_ID%%.*}"
+
     [[ ("$OS_ID" == "almalinux" || "$OS_ID" == "alma" || "$OS_ID" == "rocky") && "$major" -ge 10 ]] || return 0
 
-    if command -v iptables &>/dev/null; then
-        local ipt_variant
-        ipt_variant=$(iptables -V 2>/dev/null)
-        if [[ "$ipt_variant" != *"nf_tables"* ]]; then
-            ok "Legacy iptables detected on ${OS_NAME} ${OS_VERSION_ID} — proceeding."
-            return 0
-        fi
-    fi
+    if ! command -v iptables &>/dev/null; then
+        local changed=0
+		echo "Installing iptables and required kernel modules for Docker on $OS_ID $major. You will be prompted to reboot so the newly installed kernel modules can be loaded."
+		sleep 3
+        $PACKAGE_MANAGER install -y iptables-legacy && changed=1
+        $PACKAGE_MANAGER reinstall -y iptables-nft nftables libnftnl && changed=1
+        $PACKAGE_MANAGER reinstall -y kernel kernel-modules kernel-modules-extra && changed=1
 
-    echo ""
-    fail "${OS_NAME} ${OS_VERSION_ID} detected with nf_tables iptables backend."
-    echo ""
-    echo -e "  Docker requires legacy iptables, which is not the default on EL10+ kernels."
-    echo -e "  Run the following commands ${YELLOW}before${RESET} re-running the installer:"
-    echo ""
-    echo -e "  ${YELLOW}Step 1${RESET} — Switch to legacy iptables:"
-    echo -e "    sudo update-alternatives --set iptables /usr/sbin/iptables-legacy"
-    echo -e "    sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy"
-    echo ""
-    echo -e "  ${YELLOW}Step 2${RESET} — Install and set the legacy kernel:"
-    echo -e "    sudo dnf install -y kernel kernel-core kernel-modules"
-    echo -e "    sudo grubby --set-default /boot/vmlinuz-\$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel | tail -1)"
-    echo ""
-    echo -e "  ${YELLOW}Step 3${RESET} — Reboot and re-run the installer:"
-    echo -e "    sudo reboot"
-    echo ""
-    echo -e "  See: https://github.com/stefanpejcic/OpenPanel/issues/745"
-    echo ""
-    exit 1
+        update-alternatives --install /usr/sbin/iptables iptables /usr/sbin/iptables-legacy 10
+        update-alternatives --set iptables /usr/sbin/iptables-legacy
+
+        update-alternatives --install /usr/sbin/ip6tables ip6tables /usr/sbin/ip6tables-legacy 10
+        update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy
+
+		if [[ "$changed" -eq 1 ]] && command -v iptables &>/dev/null; then
+		    echo "A reboot is required to setup kernel modules needed by iptables for Docker to work."
+		    echo "After the reboot you can run the install command again."
+		    read -rp "Do you want to perform a reboot now? [y/N] (auto-cancel in 15s): " -t 15 answer
+		    case "$answer" in
+		        [yY]|[yY][eE][sS]) echo "Rebooting..."; reboot ;;
+		        *) echo "Reboot skipped - See: https://github.com/stefanpejcic/OpenPanel/issues/745 on why reboot is needed or choose another distribution."; exit 1 ;;
+		    esac
+		else
+		    echo ""
+		    fail "${OS_NAME} ${OS_VERSION_ID}"
+		    echo ""
+		    echo -e "  Docker requires legacy iptables, which is not the default on EL10+ kernels."
+		    echo -e "  Run the following commands ${YELLOW}before${RESET} re-running the installer:"
+		    echo ""
+		    echo -e "  ${YELLOW}Step 1${RESET} — Switch to legacy iptables:"
+		    echo -e "    sudo update-alternatives --set iptables /usr/sbin/iptables-legacy"
+		    echo -e "    sudo update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy"
+		    echo ""
+		    echo -e "  ${YELLOW}Step 2${RESET} — Install and set the legacy kernel:"
+		    echo -e "    sudo dnf install -y kernel kernel-core kernel-modules"
+		    echo -e "    sudo grubby --set-default /boot/vmlinuz-\$(rpm -q --qf '%{VERSION}-%{RELEASE}.%{ARCH}\n' kernel | tail -1)"
+		    echo ""
+		    echo -e "  ${YELLOW}Step 3${RESET} — Reboot and re-run the installer:"
+		    echo -e "    sudo reboot"
+		    echo ""
+		    echo -e "  See: https://github.com/stefanpejcic/OpenPanel/issues/745"
+		    echo ""
+		fi
+	fi
 }
 
 wait_for_pkg_lock() {
