@@ -849,9 +849,7 @@ set_docker_cpu_limits() {
 configure_premium() {
     [[ "$SET_PREMIUM" != true ]] && return
     LICENSE="Enterprise"
-    opencli config update key "$license_key"
-    run systemctl restart admin
-    timeout 60 opencli email-server install
+    timeout 300 opencli license "$license_key"
 }
 
 configure_imunifyav() {
