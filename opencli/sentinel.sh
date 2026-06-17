@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 15.06.2026
+# Last Modified: 16.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -219,6 +219,14 @@ check_service_status() {
       ((PASS++)); echo -e "\e[32m[✔]\e[0m $svc disabled by Administrator."; return
     fi
     local log; log=$(journalctl -n 5 -u "$svc" 2>/dev/null | sed ':a;N;$!ba;s/\n/\\n/g')
+    if echo "$log" | grep -q "start-limit-hit"; then
+      ((FAIL++)); STATUS=2
+      echo -e "\e[31m[✘]\e[0m $svc hit start rate limit — resetting and restarting."
+      systemctl reset-failed "$svc"
+      systemctl restart "$svc"
+      systemctl is-active --quiet "$svc" && { ((FAIL--)); echo -e "\e[32m[✔]\e[0m $svc restarted successfully."; } || { write_notification "$title" "$log"; echo -e "\e[31m[✘]\e[0m Failed to restart $svc."; }
+      return
+    fi
     if echo "$log" | grep -q "Deactivated successfully"; then
       ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m $svc is inactive (disabled by Administrator), skipping restart."; return
     fi

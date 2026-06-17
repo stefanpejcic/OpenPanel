@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 15.06.2026
+# Last Modified: 16.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -398,9 +398,9 @@ autostart_services() {
         images+=("$svc")
     done
     [[ ${#images[@]} -eq 0 ]] && { echo "[!] Warning: No autostart services match user config."; return 1; }
-	#log "Starting services in background: ${images[*]}"
-	nohup sh -c "cd /home/${USERNAME}/ && for svc in ${images[*]}; do docker --context=${USERNAME} compose up -d \$svc || true; done" </dev/null >/dev/null 2>&1 &
-    disown
+	log "Starting services in background: ${images[*]}"
+	nohup bash -c "e=0; ok=0; while [[ \$e -lt 60 ]]; do if docker --context=${USERNAME} info >/dev/null 2>&1; then ((ok++)); [[ \$ok -ge 3 ]] && break; else ok=0; fi; sleep 3; ((e+=3)); done; cd /home/${USERNAME}/; for svc in ${images[*]}; do docker --context=${USERNAME} compose up -d \$svc || true; done" </dev/null >"/tmp/autostart_${USERNAME}.log" 2>&1 &
+	disown
 }
 
 setup_ssh_key_for_user() {
@@ -755,7 +755,7 @@ configure_environment() {
         -e "s|POSTGRES_PORT=\"[^\"]*\"|POSTGRES_PORT=\"127.0.0.1:${port_3}\"|g" \
         -e "s|PMA_PORT=\"[^\"]*\"|PMA_PORT=\"${port_4}\"|g" \
         -e "s|{PMA_PORT}|${P4}|g" \
-		-e "s|rootpassword=[^\" ]*|rootpassword=${root_password_for_services}|g" \
+		-e "s|rootpassword|${root_password_for_services}|g" \
         -e "s|MYSQL_PORT=\"[^\"]*\"|MYSQL_PORT=\"127.0.0.1:${port_2}\"|g" \
         -e "s|PROXY_HTTP_PORT=\"[^\"]*\"|PROXY_HTTP_PORT=\"${port_7}\"|g" \
         "${home_dir}/.env"
