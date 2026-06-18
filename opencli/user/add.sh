@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 16.06.2026
+# Last Modified: 17.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -69,7 +69,6 @@ SENTINEL=true
 RESELLER=""
 NODE_IP=""
 SSH_KEY=""
-SSH_KEY_FLAG=""
 WEBSERVER=""
 SQL_TYPE=""
 HOSTNAME_LABEL=""
@@ -79,7 +78,12 @@ cleanup() {
 }
 
 hard_cleanup() {
-    killall -u "$USERNAME" -9 > /dev/null 2>&1
+	[[ -n "$USERNAME" ]] || { echo "ERROR: USERNAME is empty"; return 1}
+
+	# kill processes
+    killall -u "${USERNAME}" -9 >/dev/null 2>&1 || true
+
+	# delete user on master
     if command -v deluser >/dev/null 2>&1; then
         deluser --remove-home "$USERNAME" # Debian
     elif command -v userdel >/dev/null 2>&1; then
@@ -88,7 +92,19 @@ hard_cleanup() {
         echo "ERROR: Neither deluser nor userdel found"
     fi
 
+	# delete user on slave
+     [[ -n "$NODE_IP" ]] && node_ssh "bash -s" << EOF
+killall -u "${USERNAME}" -9 >/dev/null 2>&1 || true
+if command -v deluser >/dev/null 2>&1; then
+    deluser --remove-home "${USERNAME}"
+elif command -v userdel >/dev/null 2>&1; then
+    userdel -r "${USERNAME}"
+fi
+EOF
+
+	# delete user files
     rm -rf /etc/openpanel/openpanel/core/users/"$USERNAME" > /dev/null 2>&1
+	# delete docker context
     docker context rm "$USERNAME"  > /dev/null 2>&1
 }
 
@@ -110,7 +126,7 @@ die()  { echo "[✘] ERROR: $*" >&2; exit 1; }
 
 node_ssh() {
     # shellcheck disable=SC2086
-    ssh -q -o LogLevel=ERROR $SSH_KEY_FLAG "root@${NODE_IP}" "$@"
+    ssh -q -o LogLevel=ERROR -i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes "root@${NODE_IP}" "$@"
 }
 
 is_valid_ipv4() {
@@ -234,10 +250,8 @@ resolve_node() {
     [[ -f "$SSH_KEY" ]] || die "SSH key path '$SSH_KEY' does not exist."
     [[ "$(stat -c %a "$SSH_KEY")" == "600" ]] || { chmod 600 "$SSH_KEY"; log "Fixed SSH key permissions."; }
 
-    SSH_KEY_FLAG="-i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes"
-
     HOSTNAME_LABEL="$(node_ssh hostname 2>/dev/null)"
-    [[ -n "$HOSTNAME_LABEL" ]] || die "Cannot reach node $NODE_IP. Verify SSH access with: ssh $SSH_KEY_FLAG root@$NODE_IP"
+    [[ -n "$HOSTNAME_LABEL" ]] || die "Cannot reach node $NODE_IP. Verify SSH access with: ssh -i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes root@$NODE_IP"
 
     log "Containers will be created on node: $NODE_IP ($HOSTNAME_LABEL)"
 }
@@ -334,8 +348,8 @@ EOF
     systemctl daemon-reload
 fi
 REMOTE
-
-    scp "$SSH_KEY_FLAG" -r /etc/openpanel "root@${NODE_IP}:/etc/openpanel"
+	# TODO: dont scp if already exists!
+    scp -i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -r /etc/openpanel "root@${NODE_IP}:/etc/openpanel"
 }
 
 setup_sshfs_mount() {
@@ -423,6 +437,10 @@ EOF
     cp "$SSH_KEY" "$key_copy" && chmod 600 "$key_copy"
 
     if ! grep -qF "Host ${USERNAME}" ~/.ssh/config 2>/dev/null; then
+
+		mkdir -p /tmp/ssh_cm
+		chmod 700 /tmp/ssh_cm
+		# TODO: recreate on reboot!
         cat >> ~/.ssh/config << EOF
 
 Host ${USERNAME}
@@ -442,29 +460,6 @@ EOF
 
     ssh "${USERNAME}" exit &>/dev/null || die "Failed to establish SSH connection for user '$USERNAME'."
     log "SSH connection established for $USERNAME"
-}
-
-validate_ssh_login(){
-	if [ -n "$NODE_IP" ]; then
-		log "Validating SSH connection to the server $NODE_IP"
-		if [ "$DEBUG" = true ]; then
-			if [ -f "$SSH_KEY" ]; then	
-				if [ "$(stat -c %a "$SSH_KEY")" -eq 600 ]; then	                
-                    if ssh -i "$SSH_KEY" "$NODE_IP" "exit" &> /dev/null; then
-                        log "SSH connection successfully established"
-                        csf -a "$NODE_IP" > /dev/null 2>&1
-                    else
-                        die "SSH connection failed to $NODE_IP"
-                    fi
-				else
-					log "SSH key permissions are incorrect. Correcting permissions to 600."
-					chmod 600 "$SSH_KEY"
-				fi
-			else
-                die "Provided ssh key path: ""$SSH_KEY"" does not exist."
-			fi
-		fi
-    fi
 }
 
 create_linux_user_local() {
@@ -934,7 +929,6 @@ validate_password_in_lists
 resolve_node
 load_plan
 check_reseller_limits
-validate_ssh_login
 
 ########################################################################
 # 2. create system user

@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 16.06.2026
+# Last Modified: 17.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -193,9 +193,11 @@ ip_in_cidr() {
   (( (ipbin & maskbin) == (netbin & maskbin) ))
 }
 
-perform_startup_action() {
+perform_startup_actions() {
+  mkdir -p /tmp/redis ; chmod 777 /tmp/redis    # for redis
+  mkdir -p /tmp/ssh_cm ; chmod 700 /tmp/ssh_cm  # for ssh connections to slave servers
   if [[ "$REBOOT" == "no" ]]; then
-    ((WARN++)); echo "[!] Reboot check disabled."; return
+    ((WARN++)); echo "[!] Reboot notifications are disabled."; return
   fi
   local title="SYSTEM REBOOT!"
   local message="System was rebooted. $(uptime)"
@@ -966,7 +968,7 @@ summary() {
 
 for arg in "$@"; do
   case "$arg" in
-    --startup) perform_startup_action; exit 0 ;;
+    --startup) perform_startup_actions; exit 0 ;;
     --report) email_daily_report; exit 0 ;;
     --action=*) action="${arg#*=}" ;;
     --message=*) message="${arg#*=}" ;;
