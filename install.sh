@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           18.06.2026
+# Last Modified:           19.06.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -998,8 +998,8 @@ create_admin_account() {
         new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
     fi
 
-    sqlite3 "${ETC_DIR}openadmin/users.db" "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);" 2>/dev/null || true
-    opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
+    sqlite3 "${ETC_DIR}openadmin/users.db" "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);" 2>/dev/null || true
+	opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
 
     local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
 
