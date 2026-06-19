@@ -529,7 +529,6 @@ setup_opencli() {
     ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
     export PATH="/usr/bin:$PATH"
     [[ -x /usr/local/bin/opencli ]] && ok "opencli commands are executable." || die 1 "opencli setup failed."
-	echo 'export PATH=$PATH:/usr/local/bin' >> ~/.bashrc # missing on AlmaLinux10
 }
 
 install_openadmin() {
