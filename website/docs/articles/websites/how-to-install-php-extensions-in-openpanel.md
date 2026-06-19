@@ -68,6 +68,24 @@ zlib
 and OpenPanel adds the `Zend OPcache` extension.
 
 ----
+## Enabling installed PHP Extensions
+
+1. **Connect to the server** via SSH as `root`
+2. **Enter the PHP container** for the desired user and version:
+```
+   docker --context=USERNAME_HERE exec -it php-fpm-8.5 bash
+```
+ 
+3. **Enable the extension** using `docker-php-ext-enable`:
+```
+   docker-php-ext-enable mysqli pdo_mysql
+```
+ 
+4. **Exit and restart** the PHP container:
+```
+   exit
+   docker --context=USERNAME_HERE restart php-fpm-8.5
+```
 
 ## Adding Custom PHP Extensions
 
