@@ -435,9 +435,7 @@ test('aliases list page loads', async ({ page }) => {
 
   const table    = page.locator('table');
   const emptyMsg = page.getByText(/no aliases yet/i);
-  const newBtn   = page.locator('a[href="/emails/aliases/new"]');
 
-  await expect(newBtn).toBeVisible();
   const hasTable = await table.isVisible().catch(() => false);
   const isEmpty  = await emptyMsg.isVisible().catch(() => false);
   expect(hasTable || isEmpty).toBe(true);

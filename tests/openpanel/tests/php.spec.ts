@@ -77,9 +77,9 @@ test.describe('search filter', () => {
     const firstDomainText = (await rows.first().locator('td').first().textContent()) ?? '';
     const searchTerm = firstDomainText.trim().split('.')[0];
 
-    await page.getByPlaceholder(/search/i).fill(searchTerm);
+    await page.locator('input[x-model="searchQuery"]').fill(searchTerm);
 
-    await page.waitForTimeout(300); // 4 alpinejs
+    await page.waitForTimeout(300);
 
     const visibleRows = rows.filter({ hasNot: page.locator('[style*="display: none"]') });
     const visibleCount = await visibleRows.count();
@@ -94,13 +94,11 @@ test.describe('search filter', () => {
     const count = await counterLink.count();
     if (count === 0) return;
 
-    const versionText = (await counterLink.textContent()) ?? '';
     await counterLink.click();
 
     await page.waitForTimeout(300);
 
-    const searchInput = page.getByPlaceholder(/search/i);
-    const searchValue = await searchInput.inputValue();
+    const searchValue = await page.locator('input[x-model="searchQuery"]').inputValue();
     expect(searchValue).toMatch(/\d+\.\d+/);
   });
 
@@ -111,7 +109,7 @@ test.describe('search filter', () => {
     const totalRows = await rows.count();
     if (totalRows < 1) return;
 
-    const searchInput = page.getByPlaceholder(/search/i);
+    const searchInput = page.locator('input[x-model="searchQuery"]');
     await searchInput.fill('xyznonexistent999');
     await page.waitForTimeout(300);
 
@@ -275,10 +273,11 @@ test('edit php options', async ({ page }) => {
 test('edit php.ini files', async ({ page }) => {
   await page.goto('/php/php_ini_editor');  
   const dropdown = page.locator('#php_version');
-  const options = await dropdown.locator('option').allAttributes();
-  const values = options
-    .map(attr => attr.value)
-    .filter(val => val !== oldVersion && val !== "");
+  const values = await dropdown.locator('option').evaluateAll(options =>
+    options
+      .map(opt => opt.value)
+      .filter(val => val !== '')
+  );
 
   if (values.length === 0) {
     throw new Error('No PHP versions available to select.');
@@ -287,9 +286,10 @@ test('edit php.ini files', async ({ page }) => {
   const randomVersion = values[Math.floor(Math.random() * values.length)];
   await dropdown.selectOption(randomVersion);
   await page.click('#submit_version');
+  await page.waitForURL(new RegExp(`/php/php${randomVersion}\\.ini/editor`));
 
-  const successRegex = new RegExp(`Edit PHP.INI file for version ${randomVersion}`, 'i');
-  await expect(page.getByText(successRegex)).toBeVisible(); 
+  const successRegex = new RegExp(`Edit PHP\\.INI file for version ${randomVersion}`, 'i');
+  await expect(page.getByRole('heading', { name: successRegex })).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`/php/php${randomVersion}.ini/editor\\?php_version=${randomVersion}`));
 
   const editorLocator = page.locator('.CodeMirror'); 
@@ -301,15 +301,16 @@ test('edit php.ini files', async ({ page }) => {
   };
   
   await page.evaluate((settings) => {
-    const cm = document.querySelector('.CodeMirror').CodeMirror;
+    const cm = (document.querySelector('.CodeMirror') as any).CodeMirror;
     let content = cm.getValue();
   
     for (const [key, value] of Object.entries(settings)) {
-      const regex = new RegExp(`^(${key}\\s*=\\s*).*`, 'm');
+      const escapedKey = key.replace('.', '\\.');
+      const regex = new RegExp(`^;?(${escapedKey}\\s*=\\s*).*`, 'm');
       if (regex.test(content)) {
-        content = content.replace(regex, `$1${value}`);
+        content = content.replace(regex, `${key} = ${value}`);
       } else {
-        // show error!
+        throw new Error(`Directive "${key}" not found in php.ini`);
       }
     }
     cm.setValue(content);

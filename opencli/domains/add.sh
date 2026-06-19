@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 17.06.2026
+# Last Modified: 18.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -446,6 +446,7 @@ create_vhost_file() {
 	    local container_word=$([ "$service_count" -eq 1 ] && echo "container" || echo "containers")
 	    log "Starting $service_count $container_word ($services)"	
         nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d $services" </dev/null >nohup.out 2>nohup.err &
+		disown
     fi
 
     local vhost_file="/home/$context/docker-data/volumes/${context}_webserver_data/_data/${domain_name}.conf"
@@ -460,6 +461,7 @@ create_vhost_file() {
 
     if ! $SKIP_STARTING_CONTAINERS; then
         nohup sh -c "cd /home/$context/ && docker --context $context restart $WEB_SERVER" </dev/null >nohup.out 2>nohup.err &
+		disown
     fi
 }
 
@@ -533,6 +535,7 @@ create_caddy_domain_file() {
     else
         log "Caddy not running, starting in background"
         nohup sh -c "cd /root && docker --context default compose up -d caddy" </dev/null >nohup.out 2>nohup.err &
+		disown
     fi
 }
 
@@ -619,6 +622,7 @@ reload_bind() {
     else
         log "BIND not running, starting in background"
         nohup sh -c "cd /root && docker --context default compose up -d bind9" </dev/null >nohup.out 2>nohup.err &
+		disown
     fi
 }
 
@@ -752,9 +756,11 @@ start_tor_for_user() {
     if docker --context "$context" ps -q -f name=tor | grep -q .; then
         log "Tor running — restarting to apply new config"
         nohup sh -c "cd /home/$context/ && docker --context $context restart tor" </dev/null >nohup.out 2>nohup.err &
+		disown
     else
         log "Starting Tor"
         nohup sh -c "cd /home/$context/ && docker --context $context compose up -d tor" </dev/null >nohup.out 2>nohup.err &
+		disown
     fi
 }
 
@@ -767,6 +773,7 @@ start_php_fpm() {
     is_module_enabled "php" || { log "PHP module disabled — skipping"; return; }
     log "Starting PHP-FPM $php_version"
     nohup sh -c "docker --context $context compose -f /home/$context/docker-compose.yml up -d php-fpm-${php_version}" </dev/null >nohup.out 2>nohup.err &
+	disown
 }
 
 postfwd_setup() {
@@ -807,6 +814,7 @@ $volume_to_add
 
     log "Reconfiguring mailserver in background"
     nohup sh -c "cd /usr/local/mail/openmail/ && docker-compose up -d --force-recreate mailserver" </dev/null >nohup.out 2>nohup.err &
+	disown
 }
 
 # ======================================================================

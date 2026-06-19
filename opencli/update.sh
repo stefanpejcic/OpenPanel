@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 17.06.2026
+# Last Modified: 18.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -508,6 +508,40 @@ run_custom_postupdate_script() {
 }
 
 # ---------------------- CHECKS IF CUSTOM FILE EXISTS AND RUNS IT ---------------------- #
+
+# https://github.com/stefanpejcic/OpenPanel/issues/984
+run_version_specific_scripts_in_range() {
+    local from_version="$1"
+    local to_version="$2"
+
+    local from_major from_minor from_patch
+    local to_major to_minor to_patch
+
+    IFS='.' read -r from_major from_minor from_patch <<< "$from_version"
+    IFS='.' read -r to_major to_minor to_patch <<< "$to_version"
+
+    log_info "Running version-specific scripts from $from_version to $to_version"
+
+    local maj min pat
+    for (( maj=from_major; maj<=to_major; maj++ )); do
+        local min_start=0
+        local min_end=999
+        [[ $maj -eq from_major ]] && min_start=$from_minor
+        [[ $maj -eq to_major ]]   && min_end=$to_minor
+
+        for (( min=min_start; min<=min_end; min++ )); do
+            local pat_start=0
+            local pat_end=999
+            [[ $maj -eq from_major && $min -eq from_minor ]] && pat_start=$(( from_patch + 1 ))
+            [[ $maj -eq to_major   && $min -eq to_minor   ]] && pat_end=$to_patch
+
+            for (( pat=pat_start; pat<=pat_end; pat++ )); do
+                run_version_specific_script "${maj}.${min}.${pat}"
+            done
+        done
+    done
+}
+
 run_version_specific_script() {
     local version="$1"
     local url="https://raw.githubusercontent.com/stefanpejcic/OpenPanel/refs/heads/main/version/$version/UPDATE.sh"
@@ -528,7 +562,6 @@ run_version_specific_script() {
         log_info "[✔] No version-specific script"
     fi
 }
-
 
 # ---------------------- MAIN UPDATE FUNCTION - THIS IS WHERE MAGIC HAPPENS ---------------------- #
 run_update_immediately() {
@@ -588,8 +621,8 @@ run_update_immediately() {
     # ---------------------- 5. DOWNLOAD OPENADMIN FILES FROM GITHUB
     update_openadmin
 
-    # ---------------------- 6. RUN VERSION-SPECIFIC FILE IF EXISTS
-    run_version_specific_script "$version"
+    # ---------------------- 6. RUN VERSION-SPECIFIC FILES IF EXIST
+    run_version_specific_scripts_in_range "$local_version" "$version"
 
     # ---------------------- 7. IF MAJOR VERSION, ALSO UPDATE SYSTEM, DOCKER AND KERNEL     
     current_major=$(echo "$local_version" | cut -d. -f1)

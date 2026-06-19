@@ -4,7 +4,7 @@ const domain = 'wp.tests.openpanel.org';
 
 
 test('capitalize domains page loads', async ({ page }) => {
-  await page.goto(`/domains/capitalize?domain=${domain}`);
+  await page.goto(`/domains/capitalize/${domain}`);
   await expect(page).toHaveURL(/domains\/capitalize/);
   await expect(page.locator('body')).toContainText(/capitalize|letter|domain/i);
   console.log('capitalize domains page accessible');
@@ -12,7 +12,7 @@ test('capitalize domains page loads', async ({ page }) => {
 
 
 test('letter buttons are rendered for domain', async ({ page }) => {
-  await page.goto(`/domains/capitalize?domain=${domain}`);
+  await page.goto(`/domains/capitalize/${domain}`);
 
   // the template renders one button per letter of the domain
   const letterButtons = page.locator('#lettersContainer button, button.cursor-pointer');
@@ -24,7 +24,7 @@ test('letter buttons are rendered for domain', async ({ page }) => {
 
 
 test('toggle a letter to uppercase and save', async ({ page }) => {
-  await page.goto(`/domains/capitalize?domain=${domain}`);
+  await page.goto(`/domains/capitalize/${domain}`);
 
   const letterButtons = page.locator('#lettersContainer button');
   await expect(letterButtons.first()).toBeVisible({ timeout: 5000 });
@@ -47,7 +47,7 @@ test('toggle a letter to uppercase and save', async ({ page }) => {
 
 
 test('revert domain capitalization to original', async ({ page }) => {
-  await page.goto(`/domains/capitalize?domain=${domain}`);
+  await page.goto(`/domains/capitalize/${domain}`);
 
   const letterButtons = page.locator('#lettersContainer button');
   await expect(letterButtons.first()).toBeVisible({ timeout: 5000 });

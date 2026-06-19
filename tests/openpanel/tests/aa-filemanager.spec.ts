@@ -33,7 +33,7 @@ async function enableOwnerColumn(page: any) {
     const ownerToggle = page.locator('label', { hasText: 'Owner' });
     const isChecked = await ownerToggle.locator('input').isChecked();
     if (!isChecked) await ownerToggle.click();
-    await page.keyboard.press('Escape');
+    await page.locator('#dropdownToggleButton').click();
 }
 
 // https://github.com/stefanpejcic/OpenPanel/issues/976

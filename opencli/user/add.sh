@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 17.06.2026
+# Last Modified: 18.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -78,7 +78,7 @@ cleanup() {
 }
 
 hard_cleanup() {
-	[[ -n "$USERNAME" ]] || { echo "ERROR: USERNAME is empty"; return 1}
+	[[ -n "$USERNAME" ]] || { echo "ERROR: USERNAME is empty"; return 1; }
 
 	# kill processes
     killall -u "${USERNAME}" -9 >/dev/null 2>&1 || true
@@ -186,7 +186,7 @@ done
 log() { [[ "$DEBUG" == true ]] && echo "$*"; }
 
 
-# shellcheck source=../db.sh
+# shellcheck disable=SC1091
 . "$DB_CONFIG_FILE"
 
 escape() {
@@ -305,8 +305,8 @@ validate_user_creation() {
         [[ -z "$RESELLER" ]] && log "Enterprise edition: unlimited users"
     fi
 
-    local USERNAME_ESC=$(escape "$USERNAME")
-    local result
+    local USERNAME_ESC result
+	USERNAME_ESC=$(escape "$USERNAME")
     result="$(db_query "SELECT COUNT(*), SUM(username='${USERNAME_ESC}' OR username LIKE 'SUSPENDED\_%\_${USERNAME_ESC}') FROM users")"
 
     local user_count username_taken
@@ -349,7 +349,7 @@ EOF
 fi
 REMOTE
 	# TODO: dont scp if already exists!
-    scp -i ${SSH_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -r /etc/openpanel "root@${NODE_IP}:/etc/openpanel"
+	scp -i "${SSH_KEY}" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o BatchMode=yes -r /etc/openpanel "root@${NODE_IP}:/etc/openpanel"
 }
 
 setup_sshfs_mount() {
@@ -370,7 +370,8 @@ setup_sshfs_mount() {
 
 load_plan() {
     log "Looking up plan '$PLAN_NAME'"
-    local PLAN_NAME_ESC=$(escape "$PLAN_NAME")
+	local PLAN_NAME_ESC
+    PLAN_NAME_ESC=$(escape "$PLAN_NAME")
     PLAN_ID="$(db_query "SELECT id FROM plans WHERE name = '${PLAN_NAME_ESC//\'/\\\'}'")"
     [[ -n "$PLAN_ID" ]] || die "Plan '$PLAN_NAME' not found."
 }

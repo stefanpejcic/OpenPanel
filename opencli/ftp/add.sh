@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 17.06.2026
+# Last Modified: 18.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -61,73 +61,64 @@ check_and_start_ftp_server(){
 
 # Function to read users from users.list files and create them
 create_user() {
-
     real_path="/home/${context}/docker-data/volumes/${context}_html_data/_data/"
     relative_path="${directory##/var/www/html/}"
     new_directory="${real_path}${relative_path}"
-	
-	GID=$(stat -c '%u' "/home/$context")
-	if [[ ! "$GID" =~ ^[0-9]+$ ]]; then
-	    echo "ERROR: Could not determine GID for '$context'."
-	    exit 1
-	fi
 
- 	EXISTING_GROUP=$(docker exec openadmin_ftp sh -c "getent group '$GID' | cut -d: -f1")
-	
-	# If GID is NOT a number, run fallback command
-	if [[ -z "$EXISTING_GROUP" ]]; then
-	    docker exec openadmin_ftp addgroup -g "$GID" "$context"
-	fi
+    GID=$(stat -c '%u' "/home/$context")
+    if [[ ! "$GID" =~ ^[0-9]+$ ]]; then
+        echo "ERROR: Could not determine GID for '$context'."
+        exit 1
+    fi
+
+    EXISTING_GROUP=$(docker exec openadmin_ftp sh -c "getent group '$GID' | cut -d: -f1")
+    if [[ -z "$EXISTING_GROUP" ]]; then
+        docker exec openadmin_ftp addgroup -g "$GID" "$context"
+    fi
 
     mkdir -p "$new_directory"
-    # Fix permissions for shared group access on host
     chmod +rx "/home/$context"
     chmod +rx "/home/$context/docker-data"
     chmod +rx "/home/$context/docker-data/volumes"
     chmod +rx "/home/$context/docker-data/volumes/${context}_html_data"
     chmod +rx "/home/$context/docker-data/volumes/${context}_html_data/_data"
 
-    # Find Python path
-    PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python")
+    PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python3")
 
-    # Generate hashed password (SHA512)
-	HASHED_PASS=$($PYTHON_PATH - "$password" <<'PYEOF'
-	import crypt, random, string, sys
-	pw = sys.argv[1]
-	salt = ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-	print(crypt.crypt(pw, '$6$' + salt))
-	PYEOF
-	)
+    HASHED_PASS=$($PYTHON_PATH -c "
+import sys, hashlib, os, base64
+pw = sys.argv[1]
+salt = base64.b64encode(os.urandom(12)).decode()[:16]
+import crypt
+print(crypt.crypt(pw, '\$6\$' + salt))
+" "$password" 2>/dev/null || $PYTHON_PATH -c "
+import sys, os, hashlib
+pw = sys.argv[1].encode()
+salt = os.urandom(8)
+import hashlib
+h = hashlib.sha512(pw + salt).hexdigest()
+print('\$6\$' + salt.hex() + '\$' + h)
+" "$password")
 
-    # Create user inside container with shared group (GID), auto-assigned UID
     docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$context" -M "$username" --badname
 
-    # Set password inside container
     if docker exec openadmin_ftp sh -c "usermod -p '$HASHED_PASS' '$username'"; then
-        # Create directory on host side if it doesn't exist
         mkdir -p "$new_directory"
-
-        # Set owner and group on directory (important!)
-	    chown -R "$GID:$GID" "$new_directory"
-        # Set proper permissions: read/write for group, +setgid for inheritance
+        chown -R "$GID:$GID" "$new_directory"
         chmod -R 2775 "$new_directory"
-
-        # Fix execute permissions for traversing up the tree
         chmod +rx "/home/$context"
         chmod +rx "/home/$context/docker-data"
         chmod +rx "/home/$context/docker-data/volumes"
         chmod +rx "/home/$context/docker-data/volumes/${context}_html_data"
         chmod +rx "/home/$context/docker-data/volumes/${context}_html_data/_data"
 
-        # Get UID and GID from container
         USER_UID=$(docker exec openadmin_ftp id -u "$username")
         USER_GID=$(docker exec openadmin_ftp id -g "$username")
 
-        # Record in users.list
         echo "$username|$HASHED_PASS|$directory|$USER_UID|$USER_GID" >> "/etc/openpanel/ftp/users/${context}/users.list"
 
         nohup opencli sentinel --action=ftp_create --title="FTP account created" --message="New FTP account has been created for OpenPanel user: '$openpanel_username'. Directory: $directory | UID: $USER_UID | GID: $USER_GID" >/dev/null 2>&1 &
-		disown
+        disown
 
         echo "Success: FTP user '$username' created successfully (UID: $USER_UID, GID: $USER_GID)."
     else

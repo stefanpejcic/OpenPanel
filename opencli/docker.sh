@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 17.06.2026
+# Last Modified: 18.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -35,7 +35,6 @@ die() { echo "ERROR: $*" >&2; exit 1; }
 
 ensure_fzf() {
   command -v fzf &>/dev/null && return
-  echo "Installing fzf - please wait.."
   if command -v apt-get &>/dev/null; then
     apt-get install -y -qq fzf &>/dev/null
   elif command -v dnf &>/dev/null; then
@@ -47,8 +46,6 @@ ensure_fzf() {
   fi
   command -v fzf &>/dev/null || die "fzf installation failed"
 }
-
-ensure_fzf
 
 get_context() {
   local input="$1"
@@ -100,6 +97,7 @@ exec_shell() {
 case $# in
   # no args = pick user > pick container > shell
   0)
+    ensure_fzf
     USERNAME=$(pick_user) || die "No user selected"
     CONTEXT=$(get_context "$USERNAME")
     CONTAINER=$(pick_container "$CONTEXT" "$USERNAME") || die "No container selected"
@@ -107,6 +105,7 @@ case $# in
     ;;
   # <user> = pick container > shell
   1)
+    ensure_fzf
     USERNAME="$1"
     CONTEXT=$(get_context "$USERNAME")
     CONTAINER=$(pick_container "$CONTEXT" "$USERNAME") || die "No container selected"

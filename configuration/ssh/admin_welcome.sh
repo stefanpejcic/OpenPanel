@@ -5,8 +5,8 @@
 # skip banner when launched from the OpenAdmin > Advanced > Web Terminal
 [ -n "$OPENPANEL_HIDE_WELCOME" ] && return 0 2>/dev/null || true
 
-VERSION=$(opencli version)
-OPENADMIN_STATUS=$(opencli admin)
+VERSION=$(/usr/local/bin/opencli version)
+OPENADMIN_STATUS=$(/usr/local/bin/opencli admin)
 
 echo -e  "================================================================"
 echo -e  ""

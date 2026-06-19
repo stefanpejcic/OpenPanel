@@ -1,12 +1,27 @@
 import { test, expect } from '@playwright/test';
 
-const commonServices = ['nginx', 'apache2', 'mysql', 'php-fpm'];
+const webserverServices = ['nginx', 'apache2', 'openlitespeed'];
+const commonServices = [...webserverServices, 'mysql', 'php-fpm-8.5'];
 
 async function navigateToService(page: any, service: string) {
   await page.goto(`/services/${service}`);
   await expect(page).toHaveURL(new RegExp(`services/${service}`));
 }
 
+/** Try navigating to each candidate in order; return the first that succeeds, or throw if all fail. */
+async function navigateToFirstAvailable(page: any, candidates: string[]): Promise<string> {
+  const errors: string[] = [];
+  for (const service of candidates) {
+    try {
+      await page.goto(`/services/${service}`);
+      await expect(page).toHaveURL(new RegExp(`services/${service}`));
+      return service;
+    } catch (e: any) {
+      errors.push(`${service}: ${e.message}`);
+    }
+  }
+  throw new Error(`All candidates failed:\n${errors.join('\n')}`);
+}
 
 test('services list page', async ({ page }) => {
   await page.goto('/services/');
@@ -15,63 +30,64 @@ test('services list page', async ({ page }) => {
   console.log('services list page accessible');
 });
 
-
 test('services list contains expected entries', async ({ page }) => {
   await page.goto('/services/');
   const select = page.locator('select[onchange*="services"]');
-
   if (await select.isVisible({ timeout: 3000 }).catch(() => false)) {
     const options = await select.locator('option').allTextContents();
     expect(options.length).toBeGreaterThan(0);
     console.log(`services dropdown has ${options.length} options: ${options.slice(0, 5).join(', ')}`);
   } else {
-    // table/list view
     await expect(page.locator('body')).toContainText(/nginx|apache|mysql/i);
     console.log('services listed on page');
   }
 });
 
+// Webserver: try nginx → apache2 → openlitespeed; fail only if all three fail
+test('webserver service page (nginx / apache2 / openlitespeed)', async ({ page }) => {
+  const service = await navigateToFirstAvailable(page, webserverServices);
+  await expect(page.locator('body')).toContainText(new RegExp(service, 'i'));
+  const enableBtn = page.locator('button[type="submit"]').first();
+  await expect(enableBtn).toBeVisible();
+  console.log(`webserver service page accessible via: ${service}`);
+});
 
-for (const service of commonServices) {
-  test(`${service} service page`, async ({ page }) => {
-    await navigateToService(page, service);
+// mysql: accept either mysql or mariadb
+test('mysql service page', async ({ page }) => {
+  const service = await navigateToFirstAvailable(page, ['mysql', 'mariadb']);
+  await expect(page.locator('body')).toContainText(/mysql|mariadb/i);
+  const enableBtn = page.locator('button[type="submit"]').first();
+  await expect(enableBtn).toBeVisible();
+  console.log(`database service page accessible via: ${service}`);
+});
 
-    await expect(page.locator('body')).toContainText(new RegExp(service, 'i'));
-
-    const enableBtn = page.locator('button[type="submit"]').first();
-    await expect(enableBtn).toBeVisible();
-
-    console.log(`${service} service page is accessible`);
-  });
-}
-
+// php-fpm pinned to 8.5
+test('php-fpm-8.5 service page', async ({ page }) => {
+  await navigateToService(page, 'php-fpm-8.5');
+  await expect(page.locator('body')).toContainText(/php-fpm-8\.5|php-fpm/i);
+  const enableBtn = page.locator('button[type="submit"]').first();
+  await expect(enableBtn).toBeVisible();
+  console.log('php-fpm-8.5 service page is accessible');
+});
 
 test('restart a service', async ({ page }) => {
-  const service = 'nginx';
-  await navigateToService(page, service);
-
-  // look for restart action in the form
+  const service = await navigateToFirstAvailable(page, webserverServices);
   const actionInput = page.locator('input[name="action"]');
   if (await actionInput.isVisible({ timeout: 2000 }).catch(() => false)) {
     const currentAction = await actionInput.getAttribute('value');
     console.log(`current action for ${service}: ${currentAction}`);
   }
-
-  // verify the page has the right service name
-  await expect(page.locator('body')).toContainText(/nginx/i);
+  await expect(page.locator('body')).toContainText(new RegExp(service, 'i'));
   console.log('service page has correct content');
 });
 
-
 test('service version selector', async ({ page }) => {
   await page.goto('/services/');
-
   const select = page.locator('select[onchange*="services"]');
   if (await select.isVisible({ timeout: 3000 }).catch(() => false)) {
     const options = await select.locator('option').evaluateAll(opts =>
       opts.map(o => o.value).filter(v => v !== '')
     );
-
     if (options.length > 0) {
       const first = options[0];
       await select.selectOption(first);

@@ -80,51 +80,86 @@ test.describe.serial('wp-admin tests', () => {
     }
   });
 
-  test('wp-admin - install scrollchart plugin', async ({ page }) => {
-    test.setTimeout(3 * 60 * 1000);
+test('wp-admin - install scrollchart plugin', async ({ page }) => {
+  test.setTimeout(3 * 60 * 1000);
 
-    await page.goto(`${WP_ADMIN.url}/plugin-install.php`, { waitUntil: 'domcontentloaded' });
-    await page.fill('#search-plugins', 'Scrollchart');
-    await page.keyboard.press('Enter');
-    await page.waitForSelector('.plugin-card', { timeout: 30000 });
+  await page.goto(`${WP_ADMIN.url}/plugin-install.php`, { waitUntil: 'domcontentloaded' });
 
-    const installButton = page.locator('.plugin-card .install-now').first();
-    if (await installButton.count()) {
-      console.log('Installing Scrollchart plugin...');
-      await installButton.click();
-      await page.waitForTimeout(10000);
-    } else {
-      console.log('Plugin may already be installed.');
-    }
+  await page.fill('#search-plugins', 'Scrollchart');
+  await page.keyboard.press('Enter');
 
-    await page.goto(`${WP_ADMIN.url}/plugins.php`, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(3000);
-    await expect(page.locator('body')).toContainText('Scrollchart', { timeout: 30000 });
-    console.log('SUCCESS: Scrollchart found on Installed Plugins page');
+  const scrollchartCard = page
+    .locator('.plugin-card')
+    .filter({ hasText: 'Scrollchart' })
+    .first();
+
+  await expect(scrollchartCard).toBeVisible({ timeout: 60000 });
+
+  const installButton = scrollchartCard.locator('.install-now');
+
+  if (await installButton.count()) {
+    console.log('Installing Scrollchart plugin...');
+    await installButton.click();
+
+    await expect(scrollchartCard).toContainText(/Installed|Activate/i, {
+      timeout: 60000,
+    });
+  } else {
+    console.log('Plugin may already be installed.');
+  }
+
+  await page.goto(`${WP_ADMIN.url}/plugins.php`, { waitUntil: 'domcontentloaded' });
+
+  await expect(page.locator('body')).toContainText('Scrollchart', {
+    timeout: 30000,
   });
 
-  test('wp-admin - install nexusslash theme', async ({ page }) => {
-    test.setTimeout(3 * 60 * 1000);
-
-    await page.goto(`${WP_ADMIN.url}/theme-install.php`, { waitUntil: 'domcontentloaded' });
-    await page.fill('.wp-filter-search', 'nexusslash');
-    await page.waitForTimeout(3000);
-
-    const installButton = page.locator('.theme .theme-install').first();
-    if (await installButton.count()) {
-      console.log('Installing Nexusslash theme...');
-      await installButton.click();
-      await page.waitForTimeout(10000);
-    } else {
-      console.log('Theme may already be installed.');
-    }
-
-    await page.goto(`${WP_ADMIN.url}/themes.php`, { waitUntil: 'domcontentloaded' });
-    await page.waitForTimeout(3000);
-    await expect(page.locator('body')).toContainText(/Nexusslash/i, { timeout: 30000 });
-    console.log('SUCCESS: Nexusslash found on Installed Themes page');
-  });
+  console.log('SUCCESS: Scrollchart found on Installed Plugins page');
 });
+
+test('wp-admin - install nexusslash theme', async ({ page }) => {
+  test.setTimeout(3 * 60 * 1000);
+
+  await page.goto(`${WP_ADMIN.url}/theme-install.php?search=nexusslash`, {
+    waitUntil: 'networkidle',
+  });
+
+  const nexusslashTheme = page.locator('.theme[data-slug="nexusslash"]').first();
+
+  await expect(nexusslashTheme).toBeVisible({ timeout: 60000 });
+  await expect(nexusslashTheme.locator('.theme-name')).toHaveText(/NexusSlash/i);
+
+  const installButton = nexusslashTheme.locator('a.theme-install[data-slug="nexusslash"]');
+
+  if (await installButton.count()) {
+    console.log('Installing NexusSlash theme...');
+
+    await Promise.all([
+      page.waitForURL(/update\.php\?action=install-theme|theme-install\.php|themes\.php/, {
+        timeout: 60000,
+      }).catch(() => null),
+      installButton.click(),
+    ]);
+
+    await expect(page.locator('body')).toContainText(/installed successfully|activate|live preview|NexusSlash/i, {
+      timeout: 60000,
+    });
+  } else {
+    console.log('NexusSlash theme may already be installed.');
+  }
+
+  await page.goto(`${WP_ADMIN.url}/themes.php`, {
+    waitUntil: 'domcontentloaded',
+  });
+
+  await expect(page.locator('body')).toContainText(/NexusSlash/i, {
+    timeout: 30000,
+  });
+
+  console.log('SUCCESS: NexusSlash found on Installed Themes page');
+});
+});
+
 
 
 test('wordpress security hardening page', async ({ page }) => {
