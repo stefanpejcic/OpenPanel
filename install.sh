@@ -480,7 +480,8 @@ EOF
                     run dnf install -y epel-release || true
                     run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
                 }
-                $PACKAGE_MANAGER install -y python3.12 python3.12-venv || true
+                $PACKAGE_MANAGER install -y python3.12 || true
+                $PACKAGE_MANAGER install -y python3.12-venv || true
                 command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
                 ;;
         esac
