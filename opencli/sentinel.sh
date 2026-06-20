@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 18.06.2026
+# Last Modified: 19.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -379,7 +379,7 @@ check_services() {
     [[ ",$SERVICES," != *",$svc,"* ]] && continue
     case "$svc" in
       caddy)  docker_containers_status  'caddy'         'Caddy not active — websites down!'             ;;
-      phpmyadmin)  docker_containers_status  'phpmyadmin'         'phpmyadmin not active — users can access databases!'             ;;
+      phpmyadmin)  docker_containers_status  'phpmyadmin'         'phpmyadmin not active — users can not access databases!'             ;;
       csf)    check_service_status      'csf'           'CSF Firewall not active — server unprotected!' ;;
       admin)  check_service_status      'admin'         'OpenAdmin service not accessible!'             ;;
       docker) check_service_status      'docker'        'Docker not active — user websites down!'       ;;

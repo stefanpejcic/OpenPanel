@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 18.06.2026
+# Last Modified: 19.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -279,6 +279,21 @@ validate_password_and_username() {
 }
 
 
+ensure_totp_columns() {
+    if [ ! -f "$db_file_path" ]; then
+        return
+    fi
+    local has_secret=$(sqlite3 "$db_file_path" "PRAGMA table_info(user);" 2>/dev/null | awk -F'|' '{print $2}' | grep -x "totp_secret")
+    local has_enabled=$(sqlite3 "$db_file_path" "PRAGMA table_info(user);" 2>/dev/null | awk -F'|' '{print $2}' | grep -x "totp_enabled")
+
+    if [ -z "$has_secret" ]; then
+        sqlite3 "$db_file_path" "ALTER TABLE user ADD COLUMN totp_secret TEXT;" 2>/dev/null
+    fi
+    if [ -z "$has_enabled" ]; then
+        sqlite3 "$db_file_path" "ALTER TABLE user ADD COLUMN totp_enabled BOOLEAN DEFAULT 0 NOT NULL;" 2>/dev/null
+    fi
+}
+
 
 check_edition() {
 	key_value=$(grep "^key=" $CONFIG_FILE_PATH | cut -d'=' -f2-)
@@ -352,7 +367,7 @@ add_new_user() {
 
 	# ---------------------- create user	
 	insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$username', '$password_hash', '$role');"
-	create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL);"
+	create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);"
 	output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
 	if [ $? -ne 0 ]; then
 		echo "User not created: $output"
@@ -590,7 +605,9 @@ multitail_admin_logs(){
 }
 
 
-
+# https://github.com/stefanpejcic/OpenPanel/issues/993
+# TODO: remove after 1.8+
+ensure_totp_columns
 
 
 # ---------------------- MAIN ---------------------- #
