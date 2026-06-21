@@ -10,6 +10,7 @@ readonly EMAIL_SUBMODULES=(
     "email_import"
     "email_export"
     "email_default"
+    "webmail"
 )
 
 main() {
