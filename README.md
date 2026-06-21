@@ -79,7 +79,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 <!-- OS_TEST_RESULTS_START -->
 | Operating System | Version | Last Tested | Status | Notes |
 |---|---|---|---|---|
-| Ubuntu | 22 | 2026-06-21 05:07 UTC | ❌ Fail |  |
+| Ubuntu | 22 | 2026-06-21 21:39 UTC | ✅ Pass |  |
 | Ubuntu | 24 | 2026-06-21 05:22 UTC | ❌ Fail | **recommended for AMD CPU** |
 | Ubuntu | 26 | 2026-06-21 05:14 UTC | ❌ Fail |  |
 | Debian | 10 | | | |
