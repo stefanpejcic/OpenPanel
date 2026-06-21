@@ -5,7 +5,7 @@
 # Usage: opencli user-quota <username|--all>
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 19.06.2026
+# Last Modified: 20.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -243,7 +243,7 @@ generate_report() {
         printf "{\n  \"timestamp\": \"%s\",\n  \"users\": [\n", ts
         first = 1
     }
-    /^[^#]/ && $2 == "--" {
+    /^[^#]/ && $2 ~ /^[-+][-+]$/ {
         user = $1
         if (!(user in uid_map)) next
         uid = uid_map[user]
