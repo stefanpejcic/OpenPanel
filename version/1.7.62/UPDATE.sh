@@ -1,5 +1,7 @@
 #!/bin/bash
 
+curl -fL "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json" -o /etc/openpanel/openadmin/config/features.json
+
 # we split emails.py to 7 separate modules, so if emails was enabled lets enable other 6 on update:
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 
