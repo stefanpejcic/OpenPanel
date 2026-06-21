@@ -120,6 +120,19 @@ The OpenPanel interface records the following account activities:
 * Terminated process using Process Manager
 * Enabled or disabled a service
 * Refreshed resource usage for the account
+* Changed backup config
+* Switched backup destination
+* Restored from a backup
+* Generated SSL
+* Created/edited/deleted dynamic DNS record
+* Changed domain docroot
+* Capitalized a domain
+* Created a default (catch-all) email address
+* Imported into a MySQL database
+* Imported into a PostgreSQL database
+* Edited PHP.INI file
+* Edited webserver configuration
+* Changed locale (language)
 
 
 You can search for these actions by IP, username, date, or specific action.
