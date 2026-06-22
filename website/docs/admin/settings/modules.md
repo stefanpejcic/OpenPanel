@@ -180,11 +180,24 @@ Customize options:
 * To **configure email server** refer to [*How-to Guides > Configure Email Server*](/docs/articles/user-experience/how-to-setup-email-in-openpanel/).
 * To **configure email client** refer to [*How-to Guides > How to setup your email client*](/docs/articles/email/how-to-setup-your-email-client/).
 * To **view all email accounts on a server** use the [*OpenAdmin > Emails > Email Accounts* page](/docs/admin/emails/).
-* To **set webmail domain or relay hosts** use the [*OpenAdmin > Emails > Email Settings* page](/docs/admin/emails/settings/).
 * To **set up fail2ban** refer to [*How-to Guides > Setup Fail2ban](/docs/articles/email/how-to-setup-fail2ban-mailserver-openpanel/).
 * To **set up Rspamd** refer to [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/).
 * To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
 * To **limit number of email accounts per user** edit the email accounts limit when creating/editing hosting packages.
+
+
+## Webmail
+
+The **`webmail`** module allows users to auto-login to Roundcube webmail for their Email accounts.
+
+When enabled:
+* Users can access the [**Webmail**](/docs/panel/emails/webmail/) button.
+
+When disabled:
+* Users can not auto-login to webmail.
+
+Customize options:
+* To **set webmail domain or relay hosts** use the [*OpenAdmin > Emails > Email Settings* page](/docs/admin/emails/settings/).
 
 
 ## Email Filters
