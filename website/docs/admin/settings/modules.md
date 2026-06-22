@@ -1089,3 +1089,12 @@ Customize options:
 * To **rotate the** edit [`resource_usage_retention` value](https://dev.openpanel.com/cli/config.html#resource-usage-retention).
 
 
+## API
+
+The **`api`** module allows users to access the OpenPanel API using JWT tokens.
+
+When enabled:
+* Users can use the [OpenPanel API](/docs/articles/dev-experience/openpanel-api/).
+
+When disabled:
+* Users can not use the OpenPanel API.
