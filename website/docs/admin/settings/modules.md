@@ -187,6 +187,51 @@ Customize options:
 * To **limit number of email accounts per user** edit the email accounts limit when creating/editing hosting packages.
 
 
+## Email Filters
+
+The **`email_filters`** module allows users to configure filters and forwarders for their emails.
+
+When enabled:
+* Users can access the [**Email Filters** page](/docs/panel/emails/filters/)
+
+When disabled:
+* Users can not access the Email Filters page.
+
+
+
+## Email Aliases
+
+The **`email_import`** module allows users to forwards mail from a non-existing address to one or more destinations.
+
+When enabled:
+* Users can access the [**Email Aliases** page](/docs/panel/emails/aliases/)
+
+When disabled:
+* Users can not access the Email Aliases page.
+
+
+## Address Importer
+
+The **`email_import`** module allows users to import email addresses from a CSV file.
+
+When enabled:
+* Users can access the [**Address Importer** page](/docs/panel/emails/import/)
+
+When disabled:
+* Users can not access the Address Importer page.
+
+
+## Address Exporter
+
+The **`email_export`** module allows users to export to CSV file all their email addresses.
+
+When enabled:
+* Users can export email addresses by visiting: `/emails/export`
+
+When disabled:
+* Users can not access the Address Exporter page.
+
+
 
 ## Default Address
 
@@ -713,6 +758,20 @@ Customize options:
 * To **enable HSTS for a domain** refer to:  [*How-to Guides > How to Enable HSTS on a Domain in OpenPanel*](/docs/articles/domains/how-to-enable-hsts-on-a-domain-in-openpanel/)
 * To **customize default pages** refer to: [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/)
 
+
+## Suspend Domains
+
+The **`domain_suspend`** module allows users to suspend/unsuspend website access.
+
+When enabled:
+* Users can access the [**Suspend a Domain** page](/docs/panel/domains/suspend/).
+* Users can access the [**Unsuspend a Domain** page](/docs/panel/domains/unsuspend/).
+
+When disabled:
+* Users can not suspend/unsuspend domains.
+
+Customize options:
+* To **customize the suspended domain template** use:  [*OpenAdmin > Domains > Edit Domain Templates*](/docs/admin/domains/file_templates/#suspended-website)
 
 ## Raw Access Logs
 
