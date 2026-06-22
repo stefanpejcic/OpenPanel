@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 20.06.2026
+# Last Modified: 22.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -364,8 +364,7 @@ mysql_docker_containers_status() {
     if mysql -Ne "SELECT 'PONG' AS PING;" 2>/dev/null | grep -q "PONG"; then
       ((FAIL--)); STATUS=1
       echo "    MySQL is back online."
-      write_notification "MySQL restarted successfully!" \
-        "Sentinel restarted MySQL and it is responding now."
+      write_notification "MySQL restarted successfully!" "Sentinel restarted MySQL and it is responding now."
     else
       echo "    Error: MySQL still not responding!"
       write_notification "$title" "MySQL did not respond after restart. Please check ASAP."
@@ -505,8 +504,7 @@ check_new_logins() {
     if ! grep -qF "$username $ip_address" <<< "$seen_pairs"; then
       ((FAIL++)); STATUS=2; found_new=1
       echo -e "\e[31m[✘]\e[0m $username logged in from new IP: $ip_address"
-      write_notification "Admin $username accessed from new IP" \
-        "Admin account $username was accessed from new IP: $ip_address"
+      write_notification "Admin $username accessed from new IP" "Admin account $username was accessed from new IP: $ip_address"
     else
       echo -e "\e[32m[✔]\e[0m $username from known IP: $ip_address"
     fi
@@ -764,11 +762,42 @@ check_swap_usage() {
   local title="High SWAP usage!"
   local _ stotal sused _rest
   read -r _ stotal sused _rest < <(free | awk '/^Swap:/')
-  if (( stotal == 0 )); then
-    ((PASS++)); echo -e "\e[32m[✔]\e[0m No SWAP configured."; return
-  fi
-  local pct=$(( sused * 100 / stotal ))
 
+  if (( stotal == 0 )); then
+    local swap_devices
+    swap_devices=$(swapon --show=NAME --noheadings 2>/dev/null)
+    if [[ -z "$swap_devices" ]]; then
+      local fstab_swap
+      fstab_swap=$(awk '$3=="swap"{print $1}' /etc/fstab)
+      if [[ -n "$fstab_swap" ]]; then
+        echo -e "\e[38;5;214m[!]\e[0m SWAP is off but fstab entries exist. Attempting to re-enable..."
+        if swapon -a 2>/dev/null; then
+          read -r _ stotal sused _rest < <(free | awk '/^Swap:/')
+          if (( stotal > 0 )); then
+            ((WARN++))
+            write_notification "SWAP re-enabled on $HOSTNAME" "Sentinel detected swap was off and re-enabled it. Now: ${stotal}kB total."
+            echo -e "\e[32m[✔]\e[0m SWAP successfully re-enabled (${stotal}kB total)."
+          else
+            ((WARN++))
+            echo -e "\e[38;5;214m[!]\e[0m swapon -a ran but swap still reports 0. Check swap device health."
+            write_notification "SWAP re-enable failed on $HOSTNAME" "swapon -a returned success but swap is still 0."
+            return
+          fi
+        else
+          ((WARN++))
+          echo -e "\e[31m[✘]\e[0m Failed to re-enable SWAP. Check swap device/file."
+          write_notification "SWAP re-enable failed on $HOSTNAME" "swapon -a failed on $HOSTNAME at $DISPLAY_TIME."
+          return
+        fi
+      else
+        ((PASS++)); echo -e "\e[32m[✔]\e[0m No SWAP configured."; return
+      fi
+    else
+      ((PASS++)); echo -e "\e[32m[✔]\e[0m No SWAP configured."; return
+    fi
+  fi
+
+  local pct=$(( sused * 100 / stotal ))
   if (( pct <= SWAP_THRESHOLD )); then
     ((PASS++)); echo -e "\e[32m[✔]\e[0m SWAP ${pct}% < threshold ${SWAP_THRESHOLD}%"
     rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"; return
@@ -776,18 +805,25 @@ check_swap_usage() {
 
   if [[ -f "$LOCK_FILE_FOR_SWAP_CLEANUP" ]]; then
     local age=$(( $(date +%s) - $(date -r "$LOCK_FILE_FOR_SWAP_CLEANUP" +%s) ))
-    if (( age <= 21600 )); then
+    if (( age <= 86400 )); then
       ((WARN++)); echo -e "\e[38;5;214m[!]\e[0m SWAP cleanup already in progress. Skipping."; return
     fi
     rm -f "$LOCK_FILE_FOR_SWAP_CLEANUP"
   fi
 
+  local available_mb
+  available_mb=$(awk '/^MemAvailable:/{print int($2/1024)}' /proc/meminfo)
+  if (( available_mb < sused )); then
+    echo "Not enough free RAM to safely clear swap (${available_mb}MB available, ${sused}MB in swap). Skipping."
+    write_notification "SWAP high but cannot safely clear" "SWAP: ${pct}%, only ${available_mb}MB RAM available vs ${sused}MB in swap."
+    ((WARN++)); return
+  fi
+
   echo -e "\e[31m[✘]\e[0m SWAP ${pct}% > threshold ${SWAP_THRESHOLD}%. Clearing..."
   write_notification "$title" "SWAP: ${pct}%. Cleanup starting."
   touch "$LOCK_FILE_FOR_SWAP_CLEANUP"
-
   sync ; echo 3 > /proc/sys/vm/drop_caches
-  swapoff -a && swapon -a
+  swapoff -a ; swapon -a
 
   local stotal2 sused2
   read -r _ stotal2 sused2 _rest < <(free | awk '/^Swap:/')
@@ -799,8 +835,7 @@ check_swap_usage() {
   else
     ((FAIL++)); STATUS=2
     echo -e "\e[31m[✘]\e[0m SWAP still high after cleanup: ${pct2}%"
-    write_notification "URGENT: SWAP not cleared on $HOSTNAME" \
-      "SWAP cleanup attempted at $DISPLAY_TIME but usage still ${pct2}%."
+    write_notification "URGENT: SWAP not cleared on $HOSTNAME" "SWAP cleanup attempted at $DISPLAY_TIME but usage still ${pct2}%."
   fi
 }
 
@@ -862,8 +897,7 @@ check_if_panel_domain_and_ns_resolve_to_server() {
       else
         ((FAIL++)); STATUS=2
         echo -e "\e[31m[✘]\e[0m $FORCED_DOMAIN resolves to $domain_ip, expected $SERVER_IP"
-        write_notification "$FORCED_DOMAIN does not resolve to $SERVER_IP" \
-          "$FORCED_DOMAIN should point to $SERVER_IP."
+        write_notification "$FORCED_DOMAIN does not resolve to $SERVER_IP" "$FORCED_DOMAIN should point to $SERVER_IP."
       fi
     fi
   else

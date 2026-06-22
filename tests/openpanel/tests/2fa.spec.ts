@@ -35,7 +35,7 @@ test('enable 2FA', async ({ page }) => {
   await page.goto(`/login`);
   await page.getByRole('textbox', { name: 'Username' }).fill(USERNAME!);
   await page.getByRole('textbox', { name: 'Password' }).fill(PASSWORD!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await expect(page.locator('#twofa_code')).toBeVisible();
   await page.fill('#twofa_code', '000000');
   await page.click('button[type="submit"]');
@@ -45,7 +45,7 @@ test('enable 2FA', async ({ page }) => {
   await page.goto(`/login`);
   await page.getByRole('textbox', { name: 'Username' }).fill(USERNAME!);
   await page.getByRole('textbox', { name: 'Password' }).fill(PASSWORD!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await expect(page.locator('#twofa_code')).toBeVisible();
   const totpToken = await generate({ secret: totpSecret });
   await page.fill('#twofa_code', totpToken);
@@ -64,6 +64,6 @@ test('disable 2FA', async ({ page }) => {
   await page.goto(`/login`);
   await page.getByRole('textbox', { name: 'Username' }).fill(USERNAME!);
   await page.getByRole('textbox', { name: 'Password' }).fill(PASSWORD!);
-  await page.getByRole('button', { name: 'Sign in' }).click();
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
   await expect(page).toHaveURL(/.*dashboard/);
 });

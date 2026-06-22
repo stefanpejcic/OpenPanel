@@ -5,7 +5,7 @@
 # Usage: opencli websites-scan $username
 # Author: Stefan Pejcic
 # Created: 23.10.2024
-# Last Modified: 20.06.2026
+# Last Modified: 22.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -146,11 +146,12 @@ while IFS= read -r -d '' config_file_path; do
     # Get WordPress version
     version=$(run_wp_cli "$current_username" "$(dirname "$inside_container_path")" "core version 2>/dev/null")
     
-     echo "Adding website $site_name to Site Manager"
-     echo "INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES ('$site_name', '$domain_id', '$admin_email', '$version', 'wordpress');" | mysql
+    echo "Adding website $site_name to Site Manager"
+    echo "INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES ('$site_name', '$domain_id', '$admin_email', '$version', 'wordpress');" | mysql
 
-     #echo "Enabling auto-login to wp-admin from Site Manager interface"
-     #run_wp_cli "$current_username" "$(dirname "$inside_container_path")" "package install aaemnnosttv/wp-cli-login-command"
+    echo "Fixing permissions and ownership for the directory $inside_container_path"
+    nohup timeout 600 opencli files-fix_permissions $current_username $inside_container_path >/dev/null 2>&1 &
+    disown
 
     found_installations+=("- $site_name, domain: $domain_name, email: $admin_email, version: $version")
     ((found_count++))

@@ -64,6 +64,14 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#ftp"
   },
   {
+    "name": "webmail",
+    "title": "Webmail (Roundcube)",
+    "description": "If enabled, users can auto-login to webmmail (Reoundcube) for email accounts. The Roundcube service must be configured separately.",
+    "link": "/webmail",
+    "type": "enterprise",
+    "help_link": ""
+  },  
+  {
     "name": "emails",
     "title": "Email accounts",
     "description": "If enabled, users can create and manage email accounts. The Mail server must be configured separately.",
@@ -71,6 +79,54 @@
     "type": "enterprise",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#emails"
   },
+  {
+    "name": "email_deliverability",
+    "title": "Email Deliverability",
+    "description": "If enabled, users can check SPF, DKIM and DMARC for their domains.",
+    "link": "/emails/deliverability",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "email_filters",
+    "title": "Email Filters",
+    "description": "If enabled, users can configure filters and forwarders for their emails.",
+    "link": "/emails/filter",
+    "type": "enterprise",
+    "help_link": ""
+  },  
+  {
+    "name": "email_aliases",
+    "title": "Email Aliases",
+    "description": "If enabled, users can manage aliases (forward from non-existing address).",
+    "link": "/emails/aliases",
+    "type": "enterprise",
+    "help_link": ""
+  },
+  {
+    "name": "email_import",
+    "title": "Address Importer",
+    "description": "If enabled, users can import email addresses from a CSV file.",
+    "link": "/emails/import",
+    "type": "enterprise",
+    "help_link": ""
+  },  
+  {
+    "name": "email_export",
+    "title": "Address Exporter",
+    "description": "If enabled, users can export email addresses inot a CSV file.",
+    "link": "/emails/export",
+    "type": "enterprise",
+    "help_link": ""
+  },    
+  {
+    "name": "email_default",
+    "title": "Default Address",
+    "description": "If enabled, users can create default (catch-all) email addresses.",
+    "link": "/emails/default",
+    "type": "enterprise",
+    "help_link": ""
+  },     
   {
     "name": "mysql",
     "title": "MySQL",
@@ -296,6 +352,14 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#files"
   },
   {
+    "name": "trash",
+    "title": "Trash",
+    "description": "If enabled, users can view and manage Trash folder.",
+    "link": "/files.trash",
+    "type": "enterprise",
+    "help_link": ""
+  },  
+  {
     "name": "fix_permissions",
     "title": "Fix Permissions",
     "description": "If enabled, users have access to the Fix Permisisons tool to change owner and permissions for website files.",
@@ -332,9 +396,17 @@
     "title": "Domains",
     "description": "If enabled, users can add and manage domains. Disable this feature for  'Email-only' or 'DB-only' plans.",
     "link": "/domains",
-    "type": "community",
+    "type": "community",    
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#domains"
   },
+  {
+    "name": "domain_suspend",
+    "title": "Suspend domains",
+    "description": "If enabled, users can suspend a domain to temporary disable website access.",
+    "link": "/domains/suspend",    
+    "type": "enterprise",
+    "help_link": ""
+  },  
   {
     "name": "ssl",
     "title": "SSL",
@@ -455,6 +527,14 @@
     "type": "community",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#2fa"
   },
+  {
+    "name": "passkeys",
+    "title": "Passkeys",
+    "description": "If enabled, users can configure Passkeys for their account.",
+    "link": "/account/passkeys",
+    "type": "enterprise",
+    "help_link": ""
+  },  
   {
     "name": "activity",
     "title": "Activity Log",

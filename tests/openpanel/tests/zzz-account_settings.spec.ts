@@ -41,7 +41,7 @@ test('password', async ({ page }) => {
   // TEST LOGIN
   await page.getByRole('textbox', { name: 'Username' }).fill('testinguser');
   await page.locator('#password').fill(newPassword);
-  await page.getByRole('button', { name: 'Sign In' }).click();
+  await page.getByRole('button', { name: 'Sign In', exact: true }).click();
 
   await expect(page).toHaveURL(/.*dashboard/);
 

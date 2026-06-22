@@ -5,7 +5,7 @@
 # Usage: opencli files-fix_permissions <USERNAME> [PATH]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 20.06.2026
+# Last Modified: 22.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -53,14 +53,10 @@ ensure_jq_installed() {
 
 check_and_fix_FTP_permissions() {
     local user="$1"
+    local uid="$2"
     local base_path="/home/${user}/docker-data/volumes/${user}_html_data/_data"
     local found=0
-    opencli ftp-list "$user" \
-        | tail -n +2 \
-        | cut -d'|' -f2 \
-        | sed 's/^ *//;s/ *$//' \
-        | grep -v "^/var/www/html$" \
-        | while read -r directory; do
+    opencli ftp-list "$user" | tail -n +2 | cut -d'|' -f2 | sed 's/^ *//;s/ *$//' | grep -v "^/var/www/html$" | while read -r directory; do
 
             [ -z "$directory" ] && continue
             found=1
@@ -79,19 +75,13 @@ check_and_fix_FTP_permissions() {
         done
 
     if [ "$found" -eq 1 ]; then
-        chmod +rx "/home/$user" \
-                  "/home/$user/docker-data" \
-                  "/home/$user/docker-data/volumes" \
-                  "/home/$user/docker-data/volumes/${user}_html_data" \
-                  "/home/$user/docker-data/volumes/${user}_html_data/_data"
+        chmod +rx "/home/$user" "/home/$user/docker-data" "/home/$user/docker-data/volumes" "/home/$user/docker-data/volumes/${user}_html_data" "/home/$user/docker-data/volumes/${user}_html_data/_data"
     fi
 }
 
-
-
 # Function to apply permissions and ownership changes within a Docker container
 apply_permissions_in_container() {
-  local container_name="$1"
+  local username="$1"
   local path="$2"
 
         get_user_info() {
@@ -104,48 +94,55 @@ apply_permissions_in_container() {
             
             echo "$user_id,$context"
         }
-
         
-        result=$(get_user_info "$container_name")
+        apply_workaround_for_litespeed() {
+            local raw_ws webserver
+            raw_ws=$(grep "^WEB_SERVER=" "/home/$context/.env" | head -n1 | awk -F '=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/')
+            webserver=$(echo "$raw_ws" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
+            [[ "$webserver" == "openlitespeed" || "$webserver" == "litespeed" ]] && gid="nogroup"
+        }
+
+        result=$(get_user_info "$username")
         context=$(echo "$result" | cut -d',' -f2)
 
-
         if [ -z "$context" ]; then
-            echo "FATAL ERROR: user $container_name does not have a valid docker context."
+            echo "FATAL ERROR: user $username does not have a valid docker context."
             exit 1
         fi
-
 
         if [ -n "$path" ]; then       
             if [[ $path == /var/www/html/* ]]; then
                 path="${path#/var/www/html/}"
             fi
-    
+
             directory="/home/${context}/docker-data/volumes/${context}_html_data/_data/$path"
             fake_directory="/var/www/html/$path"
         else   
             directory="/home/${context}/docker-data/volumes/${context}_html_data/_data/"     
             fake_directory="/var/www/html/"
         fi
-    
 
         # get uid first!
         uid=$(stat -c '%u' "/home/$context" 2>/dev/null)
+        gid="$uid"
+
+        # https://github.com/litespeedtech/ols-dockerfiles/issues/13#issuecomment-4275956701
+        apply_workaround_for_litespeed
 
         # USERNAME OWNER
         #chown -R $verbose $uid:$uid $directory
-        find $directory -print0 | xargs -0 chown $verbose $uid:$uid > /dev/null 2>&1
+        find $directory -print0 | xargs -0 chown $verbose $uid:$gid > /dev/null 2>&1
         owner_result=$?
-        
+
         # FILES
         find $directory -type f -print0 | xargs -0 chmod $verbose 644 > /dev/null 2>&1
         files_result=$?
-        
+
         # FOLDERS
         find $directory -type d -print0 | xargs -0 chmod $verbose 775
         folders_result=$?
 
-        check_and_fix_FTP_permissions "$container_name"
+        check_and_fix_FTP_permissions "$username" "$uid"
         ftp_result=$?
 
         # CHECK ALL 4
@@ -158,19 +155,19 @@ apply_permissions_in_container() {
 
 
 
-parse_flags() {
-  local args=()
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --debug) verbose="-v" ;;
-      *) args+=("$1") ;;
-    esac
-    shift
-  done
-  echo "${args[@]}"
-}
-
-args=($(parse_flags "$@"))
+args=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --debug)
+      verbose="-v"
+      shift
+      ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
+  esac
+done
 
 if [ "${args[0]}" == "--all" ]; then
   ensure_jq_installed
@@ -181,5 +178,5 @@ else
   username="${args[0]}"
   path="${args[1]:-}"
   [ -z "$username" ] && { echo "Username required"; exit 1; }
-  apply_permissions_in_container "$username"
+  apply_permissions_in_container "$username" "$path"
 fi

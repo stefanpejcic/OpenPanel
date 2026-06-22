@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 20.06.2026
+# Last Modified: 22.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -33,6 +33,17 @@ readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 readonly WHMCS_URL="https://api.openpanel.com/enterprise/index.php"
 readonly COMPOSE_FILE="/root/docker-compose.yml"
 readonly SERVICE="openpanel"
+
+readonly EMAIL_MODULES=(
+    "emails"
+    "webmail"
+    "email_deliverability"
+    "email_filters"
+    "email_aliases"
+    "email_import"
+    "email_export"
+    "email_default"
+)
 
 # Colors
 readonly GREEN='\033[0;32m'
@@ -192,19 +203,27 @@ restart_services() {
     echo "OpenPanel and OpenAdmin are restarted to apply Enterprise features."
 }
 
-toggle_emails_module() {
+toggle_email_modules() {
     local action="${1:-enable}"
-    local enabled_modules new_modules
+    local enabled_modules new_modules module
+
     enabled_modules=$(grep '^enabled_modules=' "$CONFIG_FILE_PATH" | cut -d'=' -f2 | tr -d '"')
+    new_modules="$enabled_modules"
 
     if [ "$action" = "disable" ]; then
-        new_modules=$(echo "$enabled_modules" | sed 's/\bemails\b//g; s/,,/,/g; s/^,//; s/,$//')
+        for module in "${EMAIL_MODULES[@]}"; do
+            new_modules=$(echo "$new_modules" | sed "s/\b${module}\b//g; s/,,/,/g; s/^,//; s/,$//")
+        done
     else
-        if ! echo "$enabled_modules" | grep -q '\bemails\b'; then
-            new_modules="${enabled_modules},emails"
-        else
-            new_modules="$enabled_modules"
-        fi
+        for module in "${EMAIL_MODULES[@]}"; do
+            if ! echo "$new_modules" | grep -q "\b${module}\b"; then
+                if [ -z "$new_modules" ]; then
+                    new_modules="$module"
+                else
+                    new_modules="${new_modules},${module}"
+                fi
+            fi
+        done
     fi
 
     sed -i "s|^enabled_modules=.*|enabled_modules=\"${new_modules}\"|" "$CONFIG_FILE_PATH"
@@ -227,7 +246,7 @@ save_license_to_file() {
 
     if opencli config update key "$new_key" > /dev/null; then
         output_message "License key ${new_key} added." "$GREEN"
-        toggle_emails_module > /dev/null
+        toggle_email_modules "enable" > /dev/null
         opencli config update how_to_guides no > /dev/null
         pagespeed_api_key_control > /dev/null
         manage_compose_volumes "enable"
@@ -333,7 +352,7 @@ EOF
 
 delete_license() {
     opencli config update key "" > /dev/null
-    toggle_emails_module "disable" > /dev/null
+    toggle_email_modules "disable" > /dev/null
     pagespeed_api_key_control "remove" > /dev/null
     manage_compose_volumes
     service admin restart
