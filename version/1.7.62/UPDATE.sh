@@ -6,7 +6,7 @@
 # - enable for all feature sets that had emails on OpenAdmin > Hosting Plans > Features Manager
 
 readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
-readonly FEATURES_DIR='/etc/openpanel/openadmin/features'
+readonly FEATURES_DIR='/etc/openpanel/openpanel/features'
 readonly EMAIL_SUBMODULES=("email_deliverability" "email_filters" "email_aliases" "email_import" "email_export" "email_default" "webmail")
 
 sync_config_file() {
