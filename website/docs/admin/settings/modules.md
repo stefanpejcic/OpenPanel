@@ -967,7 +967,26 @@ Customize options:
 * To **configure a DNS cluster** refer to:  [*How-to Guides > DNS Clustering*](/docs/articles/domains/how-to-setup-dns-cluster-in-openpanel/)
 
 
+## Dynamic DNS
 
+The **`dynamic_dns`** module allows users to create subdomains that will be updated via webhooks.
+
+When enabled:
+* Users can access the [**Domains > Dynamic DNS** page](/docs/panel/domains/dynamic-dns/).
+
+When disabled:
+* Users can not access the *Domains > Dynamic DNS* page.
+
+
+## IP Blocker
+
+The **`ip_blocker`** module allows users to block IP addresses from accessing their websites.
+
+When enabled:
+* Users can access the [**Advanced > IP Blocker** page](/docs/panel/advanced/ip-blocker/).
+
+When disabled:
+* Users can not access the *Advanced > IP Blocker* page.
 
 ## WAF
 
