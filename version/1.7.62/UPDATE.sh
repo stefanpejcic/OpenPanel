@@ -9,6 +9,10 @@ readonly CONFIG_FILE_PATH='/etc/openpanel/openpanel/conf/openpanel.config'
 readonly FEATURES_DIR='/etc/openpanel/openpanel/features'
 readonly EMAIL_SUBMODULES=("email_deliverability" "email_filters" "email_aliases" "email_import" "email_export" "email_default" "webmail")
 
+
+curl -fL "https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json" -o /etc/openpanel/openadmin/config/features.json
+
+
 sync_config_file() {
     local enabled_modules new_modules module
     if [ ! -f "$CONFIG_FILE_PATH" ]; then
