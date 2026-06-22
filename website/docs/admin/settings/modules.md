@@ -535,13 +535,28 @@ The **`twofa`** module allows users to enable 2 factor authentication for their 
 
 When enabled:
 * Users can access the [**Account > Two-Factor Authentication** page](/docs/panel/account/2fa).
+* 2FA is required on login page if account has enabled it.
 
 When disabled:
 * Users can not access the *Advanced > Two-Factor Authentication* page nor manage 2FA.
 
 Customize options:
 * To **enable 2FA widget** use [*OpenAdmin > Settings > OpenPanel* page and *Display 2FA widget* option](/docs/admin/settings/openpanel/).
+* To **enforce 2FA for all users** use [*OpenAdmin > Settings > OpenPanel* page and *Enforce 2FA* option](/docs/admin/settings/openpanel/).
 * To **check 2FA status for a user** refer to [How to check if 2FA is active for OpenPanel user account?](https://community.openpanel.org/d/220-how-to-check-if-2fa-is-active-for-openpanel-user-account).
+
+## Passkeys
+
+The **`passkeys`** module allows users to seup [Passkeys](https://safety.google/intl/en_in/safety/authentication/passkey/) for their account.
+
+NOTE: Passkeys require that a domain name is used for panel access.
+
+When enabled:
+* Users can access the [**Account > Passkeys** page](/docs/panel/account/passkeys).
+* 'Sign up with Passkey' is shown on login page.
+
+When disabled:
+* Users can not login using Passkeys.
 
 ## Activity
 
