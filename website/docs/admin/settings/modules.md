@@ -279,7 +279,6 @@ When enabled:
 * Users can access the [**MySQL > New Database** page](/docs/panel/mysql/new_db/) to create databases.
 * Users can access the [**MySQL > Database Wizard** page](/docs/panel/mysql/wizard/) to create database, user and assign privileges.
 * Users can access the [**MySQL > Root Password** page](#) to change root user password.
-* Users can access the [**MySQL > Process List** page](/docs/panel/mysql/processlist/) to view all active processes.
 * Users can access the [**MySQL > Users** page](/docs/panel/mysql/users/) to manage users.
 * Users can access the [**MySQL > New User** page](/docs/panel/mysql/new_user/) to create users.
 * Users can access the [**MySQL > Change Password** page](#) to change password for a user.
@@ -301,6 +300,18 @@ Customize options:
 How-to guides:
 * To **connect to a database** refer to [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 * To **troubleshoot errors** refer to [*How-to Guides > How to troubleshoot: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/).
+
+
+## MySQL Show Processes
+
+The **`mysql`** module allows users to create and manage mysql databases.
+
+When enabled:
+* Users can access the [**MySQL > Process List** page](/docs/panel/mysql/processlist/) to view all active processes.
+
+When disabled:
+* Users do not have access to the *MySQL Process List* page.
+
 
 ## Remote MySQL
 
