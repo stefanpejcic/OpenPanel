@@ -172,7 +172,6 @@ The **`emails`** module allows users to create and manage Email accounts.
 
 When enabled:
 * Users can access the [**Emails** pages](/docs/panel/emails/) to manage Email accounts.
-* Users can access the [**Webmail** page](/docs/panel/emails/webmail/).
 
 When disabled:
 * Users can not create and manage Email accounts.
@@ -186,6 +185,21 @@ Customize options:
 * To **set up Rspamd** refer to [*How-to Guides > RSPAMD GUI](/docs/articles/email/rspamd-gui-port-11334/).
 * To **set up DKIM for a domain** refer to [*How-to Guides > Setup DKIM](/docs/articles/email/how-to-setup-dkim-for-mailserver/).
 * To **limit number of email accounts per user** edit the email accounts limit when creating/editing hosting packages.
+
+
+
+
+
+
+## Email Deliverability
+
+The **`email_deliverability`** module allows users to check and validate SPF, DKIM and DMARC records for their domains.
+
+When enabled:
+* Users can access the [**Email Deliverability** page](/docs/panel/emails/email_deliverability/) to view DNS records.
+
+When disabled:
+* Users can not access the Email Deliverability page.
 
 
 ## MySQL
