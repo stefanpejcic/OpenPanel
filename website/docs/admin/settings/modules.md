@@ -278,7 +278,6 @@ When enabled:
 * Users can access the [**MySQL > Databases** page](/docs/panel/mysql/databases/) to manage databases.
 * Users can access the [**MySQL > New Database** page](/docs/panel/mysql/new_db/) to create databases.
 * Users can access the [**MySQL > Database Wizard** page](/docs/panel/mysql/wizard/) to create database, user and assign privileges.
-* Users can access the [**MySQL > Root Password** page](#) to change root user password.
 * Users can access the [**MySQL > Users** page](/docs/panel/mysql/users/) to manage users.
 * Users can access the [**MySQL > New User** page](/docs/panel/mysql/new_user/) to create users.
 * Users can access the [**MySQL > Change Password** page](#) to change password for a user.
@@ -300,6 +299,18 @@ Customize options:
 How-to guides:
 * To **connect to a database** refer to [*How-to Guides > Connecting to MySQL Server from Applications in OpenPanel](/docs/articles/databases/how-to-connect-to-mysql-from-php-applications-in-openpanel/).
 * To **troubleshoot errors** refer to [*How-to Guides > How to troubleshoot: Error establishing a database connection](/docs/articles/databases/how-to-troubleshoot-error-establishing-a-database-connection/).
+
+
+## MySQL Root Password
+
+The **`mysql_root_password`** module allows users to change password for their MySQL root user from the user panel.
+
+When enabled:
+* Users can access the [**MySQL > Root Password** page](#) to change root user password.
+
+When disabled:
+* Users do not have access to the *MySQL Root Password* page.
+
 
 
 ## MySQL Show Processes
@@ -596,12 +607,25 @@ The **`redis`** module allows users to enable/disable Redis service.
 
 When enabled:
 * Users can access the [**Caching > Redis** page](/docs/panel/caching/redis/).
-* Users can enable/disable Memcached service.
+* Users can enable/disable Redis service.
 * User can connect to the instance from other containers using: `redis:6379`
 * Users can view logs for the Redis service.
 
 When disabled:
 * Users do not have access to the *Caching > Redis* page.
+
+## Valkey
+
+The **`valkey`** module allows users to enable/disable Valkey service.
+
+When enabled:
+* Users can access the [**Caching > Valkey** page](/docs/panel/caching/valkey/).
+* Users can enable/disable Valkey service.
+* User can connect to the instance from other containers using: `valkey:6379`
+* Users can view logs for the Valkey service.
+
+When disabled:
+* Users do not have access to the *Caching > Valkey* page.
 
 
 ## ElasticSearch
@@ -752,7 +776,7 @@ Customize options:
 
 ## Files
 
-The **`files`** module allows users to manage files and folders using the File Manager.
+The **`filemanager`** module allows users to manage files and folders using the File Manager.
 
 When enabled:
 * Users can access the [**Files > File Manager** page](/docs/panel/files/).
@@ -763,6 +787,16 @@ When disabled:
 * No links to manage files are shown on other pages.
 
 
+## Trash
+
+The **`trash`** module allows users to manage their Trash folder.
+
+When enabled:
+* Users can access the [**Files > Trash** page](/docs/panel/files/).
+* User can delete to trash instead of permanently deleting files.
+
+When disabled:
+* Users can not access the *Files > Trash* page.
 
 
 ## Domains
