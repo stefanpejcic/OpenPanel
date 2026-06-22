@@ -1013,6 +1013,11 @@ create_admin_account() {
     send_email_if_configured
 }
 
+extra_step_for_docker() {
+	systemctl reset-failed docker
+	systemctl restart docker
+}
+
 display_logins() {
     exec > /dev/tty 2>&1
     echo ""
@@ -1140,6 +1145,7 @@ minutes=$((duration / 60))
 seconds=$((duration % 60))
 support_message
 create_admin_account
+extra_step_for_docker
 run_post_install
 ) 200>/root/openpanel_install.lock
 
