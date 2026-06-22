@@ -188,6 +188,15 @@ Customize options:
 
 
 
+## Default Address
+
+The **`email_default`** module allows users to create default (catch-all) email addresses.
+
+When enabled:
+* Users can access the [**Default Email Address** page](/docs/panel/emails/default_address/)
+
+When disabled:
+* Users can not access the Default Email Address page.
 
 
 
