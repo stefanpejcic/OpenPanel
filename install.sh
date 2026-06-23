@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           22.06.2026
+# Last Modified:           23.06.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -44,7 +44,7 @@ custom_password=""
 EMAIL=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="1.7.62"
+readonly DEFAULT_PANEL_VERSION="1.7.63"
 readonly DOCKER_COMPOSE_VERSION="v2.40.2"
 readonly ETC_DIR="/etc/openpanel/"
 readonly LOG_FILE="openpanel_install.log"
