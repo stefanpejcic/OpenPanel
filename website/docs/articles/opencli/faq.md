@@ -16,12 +16,12 @@ Frequently Asked Questions
 
 1. What is the login link for admin panel?
 
-LINK: https://demo.openpanel.org:2087/
+LINK: https://demo.openpanel.com:2087/
 ------------------------------------------------------------
 
 2. What is the login link for user panel?
 
-LINK: https://demo.openpanel.org:2083/
+LINK: https://demo.openpanel.com:2083/
 ------------------------------------------------------------
 
 3. How to restart OpenAdmin or OpenPanel services?
