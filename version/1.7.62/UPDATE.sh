@@ -75,3 +75,8 @@ main() {
 }
 
 main "$@"
+
+# add Passkeys module for OpenAdmin
+source /usr/local/admin/venv/bin/activate
+pip install -r /usr/local/admin/requirements.txt
+deactivate
