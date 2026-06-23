@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.62\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-06-22 07:38+0200\n"
+"POT-Creation-Date: 2026-06-22 13:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -186,7 +186,7 @@ msgstr ""
 #: modules/domain/redirects.py:160 modules/domain/ssl.py:52
 #: modules/domain_suspend.py:29 modules/domain_suspend.py:62
 #: modules/domain_suspend.py:85 modules/domain_suspend.py:118
-#: modules/domains.py:371 modules/dynamic_dns.py:121
+#: modules/domains.py:369 modules/dynamic_dns.py:121
 #: modules/email_aliases.py:142 modules/email_aliases.py:249
 #: modules/email_default.py:63 modules/email_deliverability.py:123
 #: modules/email_filters.py:18 modules/emails.py:197 modules/emails.py:275
@@ -294,7 +294,7 @@ msgid "docker_data does not contain 'services'."
 msgstr ""
 
 #: modules/docker.py:236 templates/dashboard/dashboard.html:186
-#: templates/docker/containers.html:13 templates/docker/containers.html:564
+#: templates/docker/containers.html:13 templates/docker/containers.html:565
 #: templates/docker/volumes_TODO.html:10
 msgid "Containers"
 msgstr ""
@@ -405,12 +405,12 @@ msgstr ""
 msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
 msgstr ""
 
-#: modules/domains.py:313 templates/domains/new.html:129
+#: modules/domains.py:311 templates/domains/new.html:129
 #: templates/domains/new.html:343
 msgid "Add Domain"
 msgstr ""
 
-#: modules/domain/redirects.py:98 modules/domains.py:354
+#: modules/domain/redirects.py:98 modules/domains.py:352
 #: modules/sitemanager/temporary_links.py:45
 msgid "Domain name not provided."
 msgstr ""
@@ -1431,23 +1431,23 @@ msgstr ""
 msgid "No administrator users found"
 msgstr ""
 
-#: modules/wordpress.py:2253
+#: modules/wordpress.py:2254
 msgid "Unsupported action"
 msgstr ""
 
-#: modules/wordpress.py:2275
+#: modules/wordpress.py:2276
 msgid "Use 'enable' or 'disable'"
 msgstr ""
 
-#: modules/wordpress.py:2295
+#: modules/wordpress.py:2296
 msgid "Cache flushed successfully."
 msgstr ""
 
-#: modules/wordpress.py:2302
+#: modules/wordpress.py:2303
 msgid "Invalid type"
 msgstr ""
 
-#: modules/wordpress.py:2310 templates/manager/grapejs_editor.html:123
+#: modules/wordpress.py:2311 templates/manager/grapejs_editor.html:123
 msgid "Success"
 msgstr ""
 
@@ -2772,7 +2772,7 @@ msgstr ""
 msgid "Domain Name"
 msgstr ""
 
-#: templates/cache/service.html:230 templates/docker/containers.html:562
+#: templates/cache/service.html:230 templates/docker/containers.html:563
 #: templates/manager/python_node_apps.html:408
 #: templates/system/cronjobs.html:71 templates/system/cronjobs.html:279
 #: templates/system/process_manager.html:58 templates/system/services.html:104
@@ -3467,19 +3467,19 @@ msgstr ""
 msgid "No container are currently running."
 msgstr ""
 
-#: templates/docker/containers.html:562
+#: templates/docker/containers.html:563
 msgid "is reaching its CPU/RAM limit."
 msgstr ""
 
-#: templates/docker/containers.html:564
+#: templates/docker/containers.html:565
 msgid "are reaching their CPU/RAM limit."
 msgstr ""
 
-#: templates/docker/containers.html:566
+#: templates/docker/containers.html:567
 msgid "containers are reaching their CPU/RAM limit."
 msgstr ""
 
-#: templates/docker/containers.html:575
+#: templates/docker/containers.html:576
 msgid "Error fetching docker stats for containers."
 msgstr ""
 

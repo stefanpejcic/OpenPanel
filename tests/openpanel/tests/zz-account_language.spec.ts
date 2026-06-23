@@ -6,6 +6,7 @@ const localeMapping = {
     'pt': 'pt-br',
     'uk': 'uk-ua',
     'zh': 'zh-cn',
+    'sr': 'sr-rs',
 };
 
 async function getTranslation(locale) {
@@ -26,7 +27,7 @@ async function getTranslation(locale) {
     }
 }
 
-const localesToTest = [ 'bg', 'de', 'es', 'fr', 'hu', 'ne', 'pt', 'ro', 'ru', 'tr', 'uk', 'zh', 'en'];
+const localesToTest = [ 'sr', 'bg', 'de', 'es', 'fr', 'hu', 'ne', 'pt', 'ro', 'ru', 'tr', 'uk', 'zh', 'en'];
 
 test.describe('Change and use locale', () => {
     

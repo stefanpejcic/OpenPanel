@@ -47,7 +47,7 @@ async function addDomain(page, domain) {
   await page.getByRole('textbox', { name: 'Domain*' }).fill(domain);
   await page.getByRole('button', { name: 'Add Domain' }).click();
 
-  await expect(page.getByText(new RegExp(`Domain name ${domain} added successfully`, 'i'))).toBeVisible();
+  await expect(page.getByText(`Domain name ${domain} added successfully`)).toBeVisible();
   console.log(`Domain added: ${domain}`);
 }
 

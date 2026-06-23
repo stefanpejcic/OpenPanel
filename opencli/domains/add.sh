@@ -69,7 +69,7 @@ SKIP_STARTING_CONTAINERS=false
 # ======================================================================
 # Logging / error helpers
 
-log()  { [[ "$debug_mode" == true ]] && echo "[debug] $*" >&2 || true; }
+log()  { [[ "$debug_mode" == true ]] && echo "$*" >&2 || true; }
 die()  { echo "FATAL ERROR: $*" >&2; exit 1; } #TODO: hard_cleanup like on user/add.sh
 err()  { echo "ERROR: $*" >&2; exit 1; }
 warn() { echo "WARNING: $*" >&2; }
@@ -787,7 +787,7 @@ generate_dkim() {
     local compose_file="/usr/local/mail/openmail/compose.yml"
     [[ -f "$compose_file" ]] || return
     log "Generating DKIM for the domain"
-    opencli email-setup config dkim domain "$domain_name"
+    opencli email-setup config dkim domain "$domain_name" >/dev/null 2>&1
 
     if $USE_PARENT_DNS_ZONE; then
         zone_file="$ZONE_FILE_DIR${apex_domain}.zone"
@@ -883,7 +883,7 @@ run_parallel_async() {
 
     if [[ "$onion_domain" == false ]]; then
         _bg "mail"     create_mail_mountpoint
-		_bg "dkiim"     generate_dkim
+		_bg "dkim"     generate_dkim
         _bg "postfwd"  postfwd_setup
     fi
 

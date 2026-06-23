@@ -37,8 +37,7 @@ opencli user-add "$PANEL_USERNAME" "$PANEL_PASSWORD" "$PANEL_EMAIL" 'Developer p
 BASE_URL=$(opencli user-login testinguser | sed -E 's#(https?://[^/]+).*#\1#')
 
 # CHANGE A RECORD ON CLOUDFLARE TO THIS SERVER (its ip restricted!)
-IP=$(curl -s -4 https://ip.openpanel.com) && \
-curl -s -o /dev/null -w "" -X PUT "https://api.cloudflare.com/client/v4/zones/576d997a15f8e381f18b8b39363b4023/dns_records/1a13b4f40e8751e8d848b4a49ba460ed" -H "Authorization: Bearer cfat_NmJr954LPMZYkJ9TTTQS2loWh9tIA2z1NvgpjyRPd4aa4c06" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"*.tests.openpanel.org\",\"content\":\"$IP\",\"ttl\":120,\"proxied\":true}" >/dev/null 2>&1
+IP=$(curl -s -4 https://ip.openpanel.com) && curl -s -o /dev/null -w "" -X PUT "https://api.cloudflare.com/client/v4/zones/576d997a15f8e381f18b8b39363b4023/dns_records/1a13b4f40e8751e8d848b4a49ba460ed" -H "Authorization: Bearer cfat_NmJr954LPMZYkJ9TTTQS2loWh9tIA2z1NvgpjyRPd4aa4c06" -H "Content-Type: application/json" --data "{\"type\":\"A\",\"name\":\"*.tests.openpanel.org\",\"content\":\"$IP\",\"ttl\":120,\"proxied\":true}" >/dev/null 2>&1
 
 # PRINT INFO for /root/playwright-test/openpanel/.env
 echo "BASE_URL=$BASE_URL"
