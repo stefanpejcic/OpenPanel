@@ -157,7 +157,7 @@ test('switch back to Lets Encrypt', async ({ page }) => {
 
   // 1. set autossl in UI
   await page.goto(`/domains/ssl?domain_name=${DOMAIN}`);
-  await page.getByRole('button', { name: 'Switch back to AutoSSL' }).click();
+  await page.getByRole('button', { name: "Switch to Let's Encrypt and generate" }).click();
 
   await expect(page.getByText(/to use AutoSSL/i).first()).toBeVisible();
 

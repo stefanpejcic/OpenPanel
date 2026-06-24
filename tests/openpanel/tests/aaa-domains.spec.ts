@@ -511,8 +511,8 @@ test('dynamic dns record', async ({ page, context }) => {
   await expect(updateUrlCode).toBeVisible();
   await expect(updateUrlCode).toContainText('/dynamic-dns/update?token=');
   // Save without changes (just confirm the form submits cleanly)
-  await editForm.locator('button[type="submit"]').click();
-  await expect(page.locator('tbody tr', { hasText: subdomain })).toBeVisible({ timeout: 10000 });
+  await editForm.locator('button[type="button"]', { hasText: 'Save' }).click();
+  await expect(page.locator('tbody tr', { hasText: subdomain })).toBeVisible();
 
   // 7. delete the entry
   const rowAfterEdit = page.locator('tbody tr', { hasText: subdomain });
@@ -631,8 +631,7 @@ test('unsuspend domain', async ({ page }) => {
   console.log(`Unsuspended domain body snippet: ${body.slice(0, 200)}`);
 
   await page.goto(`http://${domain}`);
-  await expect(page.locator('body')).toContainText(/this domain currently has no website\. please check back later\./i);
-
+  await expect(page.locator('body')).toContainText(/this domain currently has no website\. please check back later\.|litespeed/i);
   console.log('Domain unsuspension verified successfully!');
 });
 

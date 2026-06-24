@@ -240,6 +240,14 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#phpini-editor"
   },
   {
+    "name": "php_extensions",
+    "title": "PHP Extensions",
+    "description": "If enabled, users can manage extensions for their PHP versions.",
+    "link": "/php/extensions",
+    "type": "beta",
+    "help_link": ""
+  },
+  {
     "name": "phpmyadmin",
     "title": "phpMyAdmin",
     "description": "If enabled, users can manage phpMyAdmin and use it to connect to their MySQL databases.",

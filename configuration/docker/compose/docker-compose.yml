@@ -157,7 +157,7 @@ services:
         limits:
           cpus: "${FTP_CPUS:-0.5}"
           memory: "${FTP_RAM:-0.5G}"
-          pids: 100
+          pids: 5000
 
   # PHPMYADMIN
   phpmyadmin:

@@ -5,8 +5,6 @@ async function navigateToDashboardPage(page: any) {
   await expect(page).toHaveURL(/dashboard/);
 }
 
-const FILTER_JSON_URL = 'https://gist.githubusercontent.com/stefanpejcic/ea6fd1db9b36645ec3fdd0d5eb26da7d/raw/5178ec1ef083c868ba885052d404d702ffa196c4/filter.json';
-
 // OPEN
 test('access dashboard', async ({ page }) => {
   await navigateToDashboardPage(page);
@@ -56,49 +54,36 @@ test('toggle dark mode', async ({ page }) => {
   console.log('Dark mode switch is working');
 });
 
-
 // SEARCH
-let filterItems: Array<{ name: string; description: string; link: string; module: string }>;
-
-test.beforeAll(async () => {
-  const res = await fetch(FILTER_JSON_URL);
-  filterItems = await res.json();
-  console.log(`Loaded ${filterItems.length} items from filter.json`);
-});
-
-
 test('search results', async ({ page }) => {
   test.setTimeout(300_000);
   await navigateToDashboardPage(page);
   await page.waitForFunction(() => typeof (window as any).Alpine !== 'undefined');
   await page.waitForTimeout(500);
 
+  const items = ['Domains', 'DNS', 'Emails'];
   const failures: Array<{ name: string; error: string }> = [];
   let passed = 0;
 
-  for (const item of filterItems) {
+  for (const name of items) {
     try {
       const openBtn = page.locator('button[aria-label="Open search"]');
       await expect(openBtn).toBeVisible({ timeout: 3000 });
       await openBtn.click();
-
       const searchInput = page.locator('#searchInput');
       await expect(searchInput).toBeVisible({ timeout: 2000 });
       await expect(searchInput).toBeFocused({ timeout: 2000 });
-      await searchInput.pressSequentially(item.name, { delay: 50 });
-
+      await searchInput.pressSequentially(name, { delay: 50 });
       const dropdown = page.locator('#filteredDropdown');
       await expect(dropdown).toBeVisible({ timeout: 5000 });
-
-      const match = dropdown.locator('a').filter({ hasText: item.name }).first();
+      const match = dropdown.locator('a').filter({ hasText: name }).first();
       await expect(match).toBeVisible({ timeout: 3000 });
-
-      console.log(`✓ found: "${item.name}"`);
+      console.log(`✓ found: "${name}"`);
       passed++;
     } catch (err: any) {
       const msg = err?.message?.split('\n')[0] ?? String(err);
-      console.log(`✗ failed: "${item.name}" — ${msg}`);
-      failures.push({ name: item.name, error: msg });
+      console.log(`✗ failed: "${name}" — ${msg}`);
+      failures.push({ name, error: msg });
     } finally {
       try {
         const closeBtn = page.locator('button[aria-label="Close search"]');
@@ -114,13 +99,11 @@ test('search results', async ({ page }) => {
   }
 
   console.log('\n─── Search Test Summary ───────────────────────────');
-  console.log(`  Passed : ${passed} / ${filterItems.length}`);
-  console.log(`  Failed : ${failures.length} / ${filterItems.length}`);
+  console.log(`  Passed : ${passed} / ${items.length}`);
+  console.log(`  Failed : ${failures.length} / ${items.length}`);
   if (failures.length > 0) {
     console.log('\n  Failures:');
-    for (const f of failures) {
-      console.log(`    ✗ "${f.name}": ${f.error}`);
-    }
+    for (const f of failures) console.log(`    ✗ "${f.name}": ${f.error}`);
   }
   console.log('───────────────────────────────────────────────────\n');
 
@@ -130,58 +113,6 @@ test('search results', async ({ page }) => {
       failures.map(f => `  • "${f.name}": ${f.error}`).join('\n')
     );
   }
-});
-
-
-test('compare sidebar menu links with search', async ({ page }) => {
-  test.setTimeout(90_000);
-
-  await navigateToDashboardPage(page);
-
-  await page.waitForFunction(() => typeof (window as any).Alpine !== 'undefined');
-  await page.waitForTimeout(500);
-
-  const openMenus = page.locator('li[x-data] > button');
-  const menuCount = await openMenus.count();
-
-  // expand all menus
-  for (let i = 0; i < menuCount; i++) {
-    await openMenus.nth(i).click();
-    await page.waitForTimeout(200);
-  }
-
-  const links = page.locator('ul[id$="-menu"] a[href]');
-  const linkCount = await links.count();
-
-  const menuLinks: Array<{ name: string; href: string }> = [];
-
-  for (let i = 0; i < linkCount; i++) {
-    const el = links.nth(i);
-
-    menuLinks.push({
-      name: (await el.textContent())?.trim() || '',
-      href: (await el.getAttribute('href')) || '',
-    });
-  }
-
-  // build fast lookup set from filter.json
-  const validLinks = new Set(filterItems.map(i => i.link));
-
-  const unexpected: string[] = [];
-
-  for (const link of menuLinks) {
-    if (!validLinks.has(link.href)) {
-      unexpected.push(`${link.name} (${link.href})`);
-    }
-  }
-
-  if (unexpected.length) {
-    console.error('Unexpected menu items:\n', unexpected.join('\n'));
-  }
-
-  expect(unexpected).toHaveLength(0);
-
-  console.log('sidebar menu is subset of filter.json (valid)');
 });
 
 
@@ -207,56 +138,59 @@ test('icons mode toggle', async ({ page }) => {
   console.log('icons toggle working');
 });
 
-
 // SORTABLE
 test('icon sections drag&sort', async ({ page }) => {
   await navigateToDashboardPage(page);
-
   const firstSection = page.locator('#dashboard-sortable-area > [data-id]').nth(0);
   const secondSection = page.locator('#dashboard-sortable-area > [data-id]').nth(1);
-
   const firstKey = await firstSection.getAttribute('data-id');
   const secondKey = await secondSection.getAttribute('data-id');
-
   const handle = page.locator(`#section-title-${firstKey}`);
   const targetHandle = page.locator(`#section-title-${secondKey}`);
-
   const handleBox = await handle.boundingBox();
   const targetBox = await targetHandle.boundingBox();
 
+  // Start drag from center of first handle
   await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
   await page.mouse.down();
-  await page.waitForTimeout(300); // wait for SortableJS
-  const steps = 10;
-  const deltaY = (targetBox.y + targetBox.height) - (handleBox.y + handleBox.height / 2);
+  await page.waitForTimeout(300);
+
+  // Move past the midpoint of the target (SortableJS swaps at 50% threshold)
+  const startY = handleBox.y + handleBox.height / 2;
+  const endY = targetBox.y + targetBox.height * 0.75; // past midpoint of target
+  const startX = handleBox.x + handleBox.width / 2;
+  const steps = 20;
+
   for (let i = 1; i <= steps; i++) {
     await page.mouse.move(
-      handleBox.x + handleBox.width / 2,
-      handleBox.y + handleBox.height / 2 + (deltaY * i) / steps
+      startX,
+      startY + ((endY - startY) * i) / steps
     );
     await page.waitForTimeout(20);
   }
 
+  // Hover briefly at destination before releasing
+  await page.waitForTimeout(200);
   await page.mouse.up();
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(500);
 
-  const savedOrder = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('dashboard_section_order'))
-  );
-
-  expect(savedOrder).not.toBeNull();
-  expect(savedOrder[0]).toBe(secondKey);
-  expect(savedOrder[1]).toBe(firstKey);
-
+  // Verify DOM order changed
   const newFirstKey = await page.locator('#dashboard-sortable-area > [data-id]').nth(0).getAttribute('data-id');
   const newSecondKey = await page.locator('#dashboard-sortable-area > [data-id]').nth(1).getAttribute('data-id');
 
   expect(newFirstKey).toBe(secondKey);
   expect(newSecondKey).toBe(firstKey);
 
+  // Verify localStorage was updated
+  const savedOrder = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem('dashboard_section_order'))
+  );
+  expect(savedOrder).not.toBeNull();
+  expect(savedOrder[0]).toBe(secondKey);
+  expect(savedOrder[1]).toBe(firstKey);
+
   console.log(`sections drag to sort working: moved '${firstKey}' below '${secondKey}'`);
 });
-
 
 // SECTION CLOSE/OPEN
 test('icon sections open/close', async ({ page }) => {

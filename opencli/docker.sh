@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 07.03.2025
-# Last Modified: 22.06.2026
+# Last Modified: 24.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -38,6 +38,7 @@ ensure_fzf() {
   if command -v apt-get &>/dev/null; then
     apt-get install -y -qq fzf &>/dev/null
   elif command -v dnf &>/dev/null; then
+    dnf install -y epel-release &>/dev/null
     dnf install -y -q fzf &>/dev/null
   elif command -v yum &>/dev/null; then
     yum install -y -q fzf &>/dev/null

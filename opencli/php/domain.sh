@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 22.06.2026
+# Last Modified: 24.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -89,8 +89,9 @@ if [ -z "$owner" ]; then
     exit 1
 fi
 
-get_webserver_for_user
+
 get_context_for_user
+get_webserver_for_user
 domain_path_in_volume="/home/$context/docker-data/volumes/${context}_webserver_data/_data/$domain.conf"
 php_version=$(grep -o "php-fpm-[0-9.]\+" "$domain_path_in_volume" | grep -o "[0-9.]\+" | head -n 1)
 

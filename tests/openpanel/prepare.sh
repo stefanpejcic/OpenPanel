@@ -23,8 +23,14 @@ opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-tr
 # ADD LICENSE LICENSE
 opencli license $LICENSE_KEY
 
+# ALLOW PASSWORD RESET
+opencli config update password_reset yes
+
 # ENABLE EMAILS
 opencli email-server install
+
+# DNS
+cd /root && docker compose up -d bind9
 
 # ENABLE FTP
 cd /root && docker --context=default compose up -d openadmin_ftp

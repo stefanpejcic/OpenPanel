@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 22.06.2026
+# Last Modified: 24.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -74,7 +74,8 @@ get_user_info() {
         LIMIT 1;
     ")
 
-    [ -n "$user_id" ] || { echo "ERROR: User '$USERNAME' not found in the database."; exit 1; }
+	[ -n "$user_id" ] || { echo "ERROR: User '$USERNAME' not found in the database."; exit 1; }
+	[ -n "$context" ]  || { echo "ERROR: Could not determine Docker context for '$USERNAME'."; exit 1; }
 
     # 2. check if remote
 	context_endpoint=$(docker context inspect "$context" --format '{{.Endpoints.docker.Host}}' 2>/dev/null)
@@ -156,74 +157,91 @@ postfwd_setup(){
 
 delete_emails() {
     openpanel_username="$1"
+    local user_domains=()
 
-	# email accounts
+    # email accounts
     local email_file="/etc/openpanel/openpanel/core/users/$openpanel_username/emails.yml"
     if [ -f "$email_file" ]; then
         emails=()
         while read -r _ email; do
-            [ -n "$email" ] && emails+=("$email")
+            if [ -n "$email" ]; then
+                emails+=("$email")
+                domain="${email#*@}"
+                [[ -n "$domain" ]] && user_domains+=("$domain")
+            fi
         done < "$email_file"
 
         if [ "${#emails[@]}" -gt 0 ]; then
-			nohup opencli email-setup email del -y "${emails[@]}" >/dev/null 2>&1 &
-			disown
+            nohup opencli email-setup email del -y "${emails[@]}" >/dev/null 2>&1 &
+            disown
         fi
     fi
 
-	# aliases
-	aliases_file="/etc/openpanel/openpanel/core/users/$openpanel_username/aliases.yml"
-	
-	if [ -f "$aliases_file" ]; then
-	    aliases=()
-	    while read -r _ email target; do
-            [ -n "$email" ] && aliases+=("$email")
-	    done < "$aliases_file"
+    mapfile -t user_domains < <(printf '%s\n' "${user_domains[@]}" | sort -u)
 
-	    if [ "${#aliases[@]}" -gt 0 ]; then
-	        nohup opencli email-setup alias del "${aliases[@]}" >/dev/null 2>&1 &
-	        disown
-	    fi
-	fi
+    # aliases
+    aliases_file="/etc/openpanel/openpanel/core/users/$openpanel_username/aliases.yml"
+    if [ -f "$aliases_file" ]; then
+        aliases=()
+        while read -r _ email target; do
+            if [ -n "$email" ]; then
+                aliases+=("$email")
+                domain="${email#*@}"
+                [[ -n "$domain" ]] && user_domains+=("$domain")
+            fi
+        done < "$aliases_file"
 
-	# regex aliases (default email address)
-	regex_aliases_file="/usr/local/mail/openmail/docker-data/dms/config/postfix-regex.cf"
-	
-	if [ -f "$regex_aliases_file" ]; then
-		tmp_file="$(mktemp)"
-		changed=0
+        if [ "${#aliases[@]}" -gt 0 ]; then
+            nohup opencli email-setup alias del "${aliases[@]}" >/dev/null 2>&1 &
+            disown
+        fi
+    fi
 
-	    while read -r pattern target; do
-	        [ -z "$pattern" ] && continue
-			if [[ "$pattern" =~ @${domain//./\\.}\$ ]]; then
-				changed=1; continue
-	        fi
-	        echo "$pattern $target" >> "$tmp_file"
-	    done < "$regex_aliases_file"
+    mapfile -t user_domains < <(printf '%s\n' "${user_domains[@]}" | sort -u)
 
-		[ "$changed" -eq 1 ] && mv "$tmp_file" "$regex_aliases_file"
-	fi
+    # regex aliases (default email address / catch-all)
+    regex_aliases_file="/usr/local/mail/openmail/docker-data/dms/config/postfix-regex.cf"
+    if [ -f "$regex_aliases_file" ] && [ "${#user_domains[@]}" -gt 0 ]; then
+        tmp_file="$(mktemp)"
+        changed=0
+
+        while read -r pattern target; do
+            [ -z "$pattern" ] && continue
+            matched=0
+            for domain in "${user_domains[@]}"; do
+                if [[ "$pattern" =~ @${domain//./\\.}\$ ]]; then
+                    matched=1
+                    break
+                fi
+            done
+            if [ "$matched" -eq 1 ]; then
+                changed=1
+            else
+                echo "$pattern $target" >> "$tmp_file"
+            fi
+        done < "$regex_aliases_file"
+
+        [ "$changed" -eq 1 ] && mv "$tmp_file" "$regex_aliases_file" || rm -f "$tmp_file"
+    fi
 }
 
 delete_ftp_users() {
-    context="$1"
-    users_dir="/etc/openpanel/ftp/users"
-    ftp_accounts_file="${users_dir}/${context}/users.list"
+    local context="$1"
+    local users_dir="/etc/openpanel/ftp/users"
+    local ftp_accounts_file="${users_dir}/${context}/users.list"
 
     if [[ -d "${users_dir}/${context}" ]]; then
         if [[ -f "$ftp_accounts_file" ]]; then
-            local max_jobs=5
-            local job_count=0
-            while IFS='|' read -r username _; do
-                cut -d'|' -f1 "$ftp_accounts_file" | xargs -I{} docker --context=default exec openadmin_ftp deluser {}
-            done < "$users_file"
-            wait
+            cut -d'|' -f1 "$ftp_accounts_file" | xargs -I{} docker --context=default exec openadmin_ftp deluser {}
         fi
         ionice -c3 rm -rf "${users_dir:?}/${context:?}"
     fi
 }
 
 delete_all_user_files() {
+	local context="$1"
+	local node_ip_address="$2" 
+
     if [ -n "$node_ip_address" ]; then
 		# 1. delete from node
 		ssh "root@$node_ip_address" bash -s -- "$context" <<'EOF'
@@ -250,6 +268,7 @@ EOF
 }
 
 delete_context() {
+	local context="$1"
     docker context rm "$context"  > /dev/null 2>&1
 }
 
@@ -312,9 +331,9 @@ get_user_info
 delete_emails "$USERNAME"
 delete_ftp_users "$context" &
 delete_user_from_database "$USERNAME" &
-delete_all_user_files &
+delete_all_user_files "$context" "$node_ip_address" &
 postfwd_setup "$USERNAME" &
-delete_context &
+delete_context "$context" &
 
 # 4. wait for all of the above functions to finish
 wait

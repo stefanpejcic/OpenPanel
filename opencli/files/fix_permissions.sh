@@ -5,7 +5,7 @@
 # Usage: opencli files-fix_permissions <USERNAME> [PATH]
 # Author: Stefan Pejcic
 # Created: 15.11.2023
-# Last Modified: 22.06.2026
+# Last Modified: 24.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -99,7 +99,7 @@ apply_permissions_in_container() {
             local raw_ws webserver
             raw_ws=$(grep "^WEB_SERVER=" "/home/$context/.env" | head -n1 | awk -F '=' '{print $2}' | tr -d '[:space:]' | sed 's/^"\(.*\)"$/\1/')
             webserver=$(echo "$raw_ws" | grep -Eo 'nginx|openresty|apache|openlitespeed|litespeed' | head -n1)
-            [[ "$webserver" == "openlitespeed" || "$webserver" == "litespeed" ]] && gid="nogroup"
+            [[ "$webserver" == "openlitespeed" || "$webserver" == "litespeed" ]] && gid="65534" # nogroup
         }
 
         result=$(get_user_info "$username")

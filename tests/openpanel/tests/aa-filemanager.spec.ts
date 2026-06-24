@@ -312,6 +312,11 @@ test('change file permissions', async ({ page }) => {
   await expect(page.locator('body')).toContainText(/Permissions changed/i);
   await expect(page.locator('body')).toContainText(/-rwxr-xr-x/i);
   await verifyOwnerUids(page);
+
+  await selectItem(page, TXT_FILE_BAK);
+  await page.getByRole('button', { name: ' Permissions' }).click();
+  await expect(page.getByPlaceholder('775')).toHaveValue('755');
+
   console.log('File permissions changed successfully');
 });
 

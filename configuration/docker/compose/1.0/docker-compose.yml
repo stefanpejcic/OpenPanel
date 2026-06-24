@@ -451,7 +451,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_5.6.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -480,7 +479,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.0.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -509,7 +507,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -539,7 +536,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -570,7 +566,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -599,7 +594,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -626,7 +620,6 @@ services:
       - ./php.ini/8.0.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro   
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -657,7 +650,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.1.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -688,7 +680,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.2.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -718,7 +709,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.3.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro      
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -747,7 +737,6 @@ services:
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_8.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}
@@ -776,7 +765,6 @@ services:
       - ./php.ini/8.5.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
     environment:
-      - PHP_ENABLE_OPCACHE=true
       - APP_USER=root
       - APP_GROUP=root
       - APP_UID=${USER_ID:-0}

@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: user/add.sh
 # Description: Create a new user with the provided plan_name.
-# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--RESELLER=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>] [--no-sentinel]
+# Usage: opencli user-add <USERNAME> <PASSWORD|generate> <EMAIL> "<PLAN_NAME>" [--send-email] [--debug]  [--webserver="<nginx|apache|openresty|openlitespeed|litespeed|varnish+nginx|varnish+apache|varnish+openresty|varnish+openlitespeed>"] [--sql=<mysql|mariadb>] [--RESELLER=<RESELLER_USERNAME>][--server=<IP_ADDRESS>]  [--key=<SSH_KEY_PATH>] [--private-note="this user.."] [--no-sentinel]
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 22.06.2026
+# Last Modified: 24.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -39,7 +39,7 @@ readonly DOCKER_COMPOSE_X86="https://github.com/docker/compose/releases/download
 readonly ROOTLESS_SETUP_SCRIPT="/etc/openpanel/docker/dockerd-rootless-setuptool.sh"
 
 if [[ "$#" -lt 4 || "$#" -gt 11 ]]; then
-    echo "Usage: opencli user-add <username> <password|generate> <email> '<plan_name>' [--send-email] [--debug] [--reseller=<RESELLER_USER>] [--server=<IP_ADDRESS>] [--key=<KEY_PATH>]"
+    echo "Usage: opencli user-add <username> <password|generate> <email> '<plan_name>' [--send-email] [--debug] [--reseller=<RESELLER_USER>] [--server=<IP_ADDRESS>] [--key=<KEY_PATH>] [--private-note=<NOTE>]"
     echo
     echo "Required arguments:"
     echo "  <username>                 The username of the new user."
@@ -50,7 +50,8 @@ if [[ "$#" -lt 4 || "$#" -gt 11 ]]; then
     echo "Optional flags:"
     printf "%-25s %-45s\n" "  --send-email" "Send a welcome email to the user."
     printf "%-25s %-45s\n" "  --debug" "Enable debug mode for additional output."
-    echo
+    printf "%-25s %-45s\n" "  --private-note=" "Write a private note for this user (visible only on OpenAdmin)."
+	echo
     exit 1
 fi
 
@@ -179,6 +180,7 @@ for arg in "$@"; do
         --key=*)          SSH_KEY="${arg#*=}" ;;
         --sql=*)          SQL_TYPE="${arg#*=}" ;;
         --webserver=*)    WEBSERVER="${arg#*=}" ;;
+        --private-note=*) PRIVATE_NOTE="${arg#*=}" ;;
         *)                echo "[!] Warning: unknown flag '$arg'" >&2 ;;
     esac
 done
@@ -415,7 +417,6 @@ autostart_services() {
     [[ ${#images[@]} -eq 0 ]] && { echo "[!] Warning: No autostart services match user config."; return 1; }
 	log "Starting services in background: ${images[*]}"
 	nohup bash -c "e=0; ok=0; while [[ \$e -lt 60 ]]; do if docker --context=${USERNAME} info >/dev/null 2>&1; then ((ok++)); [[ \$ok -ge 3 ]] && break; else ok=0; fi; sleep 3; ((e+=3)); done; cd /home/${USERNAME}/; for svc in ${images[*]}; do docker --context=${USERNAME} compose up -d \$svc || true; done" </dev/null >"/tmp/autostart_${USERNAME}.log" 2>&1 &
-	disown
 }
 
 setup_ssh_key_for_user() {
@@ -760,6 +761,11 @@ configure_environment() {
         sed -i "s|PGADMIN_MAIL=[^\"]*|PGADMIN_MAIL=${EMAIL}|g" "${home_dir}/.env"
     fi
 
+    # private note shown on OpenAdmin
+    if [[ -n "$PRIVATE_NOTE" ]]; then
+		echo "$PRIVATE_NOTE" > "${home_dir}/notes.txt"
+	fi
+
     # Webserver
     if [[ -n "$WEBSERVER" ]]; then
         if [[ "$WEBSERVER" =~ ^varnish\+([a-zA-Z]+)$ ]]; then
@@ -914,7 +920,6 @@ create_user_volume() {
 notify_sentinel() {
     [[ "$SENTINEL" == true ]] || return 0
     nohup opencli sentinel --action=user_create --title="User account '${USERNAME}' created" --message="Account '${USERNAME}' created; email: ${EMAIL}; plan: ${PLAN_NAME}" >/dev/null 2>&1 &
-    disown
 }
 
 
@@ -956,7 +961,6 @@ PID_PORTS=$!
 copy_skeleton_files &
 
 nohup sh -c "cd /root && docker compose up -d openpanel" </dev/null >/dev/null 2>&1 &
-disown
 
 generate_password_hash
 create_user_volume &
@@ -981,18 +985,15 @@ save_user_to_database
 
 # needs to run AFTER saving user to database
 nohup opencli plan-apply "$PLAN_ID" "$USERNAME" >/dev/null 2>&1 &
-disown
 
 # this needs to run AFTER plan-apply to show updated du info
 nohup opencli user-quota >/dev/null 2>&1 &
-disown
 
 send_welcome_email &
 notify_sentinel
 update_reseller_account_count # must run after saving user to db
 
-nohup chown -R "${USERNAME}:${USERNAME}" "/home/${USERNAME}/" 2>/dev/null &
-disown
+nohup chown -R "${USERNAME}:${USERNAME}" "/home/${USERNAME}/" >/dev/null 2>&1 &
 
 exit 0
 ) 200>"$LOCK_FILE"

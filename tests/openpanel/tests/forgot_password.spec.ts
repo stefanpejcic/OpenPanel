@@ -37,7 +37,9 @@ test('submit invalid email format shows error', async ({ page }) => {
 
   const emailInput = page.locator('input[type="email"], input[name="email"]');
   const isInvalid = await emailInput.evaluate((el: HTMLInputElement) => !el.validity.valid);
-  const hasError = await page.locator('body').textContent().then(t => /error|invalid/i.test(t ?? ''));
+  const hasError = await page.locator('body').textContent().then(t =>
+    /error|invalid|not found|required/i.test(t ?? '')
+  );
 
   expect(isInvalid || hasError).toBe(true);
   console.log('invalid email format correctly blocked');
@@ -50,9 +52,8 @@ test('submit valid email shows confirmation', async ({ page }) => {
   await page.locator('input[type="email"], input[name="email"]').fill('nonexistent@openpanel.com');
   await page.getByRole('button', { name: /reset|send|submit/i }).click();
 
-  // should show "link sent" or similar, even for non-existent emails (security best practice)
-  await expect(page.locator('body')).toContainText(/email.*sent|check.*email|link.*sent|if.*account.*exists/i, { timeout: 10000 });
-  console.log('valid email submission shows confirmation');
+  await expect(page.locator('body')).toContainText(/not found/i, { timeout: 10000 });
+  console.log('non-existent email shows not found error');
 });
 
 

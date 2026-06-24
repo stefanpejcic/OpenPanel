@@ -5,7 +5,7 @@
 # Usage: opencli license verify 
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 22.06.2026
+# Last Modified: 24.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -371,7 +371,7 @@ main() {
         "info")                       show_license_info ;;
         "verify")                     verify_existing_license ;;
         "delete")                     delete_license ;;
-        enterprise-*|noc-*|lifetime-) verify_and_save_license "$command" ;;
+        enterprise*|noc-*|lifetime-) verify_and_save_license "$command" ;;
         *)                            output_message "Invalid command." "$RED"; usage ;;
     esac
 }
