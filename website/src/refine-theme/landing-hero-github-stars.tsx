@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { OrangeStarIcon } from './icons/orange-star';
 
 export const LandingHeroGithubStars = () => {
-    const [version, setVersion] = useState('1.7.62');
+    const [version, setVersion] = useState('1.7.63');
 
     useEffect(() => {
         const fetchVersion = async () => {
