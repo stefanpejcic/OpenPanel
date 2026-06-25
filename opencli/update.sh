@@ -507,6 +507,55 @@ run_custom_postupdate_script() {
     fi
 }
 
+# ---------------------- RUNS AFTER UPDATE ---------------------- #
+update_locales() {
+    local no_log="${1:-}"
+    local msg="Updating installed locales"
+    [[ "$no_log" == "--no-log" ]] && echo "$msg" || log "$msg"
+
+    local babel_translations="/etc/openpanel/openpanel/translations"
+    local github_repo="stefanpejcic/openpanel-translations"
+
+    if [[ ! -d "$babel_translations" ]]; then
+        [[ "$no_log" == "--no-log" ]] && echo "[!] No translations directory found, skipping" || log "[!] No translations directory found, skipping"
+        return 0
+    fi
+
+    local updated=0
+    local failed=0
+
+    for po_file in "$babel_translations"/*/LC_MESSAGES/messages.po; do
+        [[ -f "$po_file" ]] || continue
+
+        local two_letter
+        two_letter=$(echo "$po_file" | awk -F'/' '{for(i=1;i<=NF;i++) if($i=="translations") print $(i+1)}')
+
+        local formatted_locale="${two_letter}-${two_letter}"
+        local url="https://raw.githubusercontent.com/${github_repo}/main/${formatted_locale}/messages.po"
+
+        if wget --spider -q "$url" 2>/dev/null; then
+            if wget -q -O "$po_file" "$url"; then
+                (( updated++ ))
+            else
+                log_warn "Failed to download locale: $formatted_locale"
+                (( failed++ ))
+            fi
+        else
+            log_warn "No remote locale found for: $formatted_locale (skipping)"
+        fi
+    done
+
+    if [[ $updated -gt 0 ]]; then
+        local compile_msg="Compiling updated .mo files"
+        [[ "$no_log" == "--no-log" ]] && echo "$compile_msg" || log "$compile_msg"
+        docker --context=default exec openpanel sh -c "pybabel compile -f -d $babel_translations &>/dev/null"
+        docker exec openpanel_redis redis-cli DEL openpanel_cache_app.get_available_locales_memver &>/dev/null
+    fi
+
+    local summary="Locales updated: $updated, failed: $failed"
+    [[ "$no_log" == "--no-log" ]] && echo "[✔] $summary" || log "[✔] $summary"
+}
+
 # ---------------------- CHECKS IF CUSTOM FILE EXISTS AND RUNS IT ---------------------- #
 
 # https://github.com/stefanpejcic/OpenPanel/issues/984
@@ -621,10 +670,13 @@ run_update_immediately() {
     # ---------------------- 5. DOWNLOAD OPENADMIN FILES FROM GITHUB
     update_openadmin
 
-    # ---------------------- 6. RUN VERSION-SPECIFIC FILES IF EXIST
+    # ---------------------- 6. UPDATE INSTALLED LOCALES
+    update_locales  
+
+    # ---------------------- 7. RUN VERSION-SPECIFIC FILES IF EXIST
     run_version_specific_scripts_in_range "$local_version" "$version"
 
-    # ---------------------- 7. IF MAJOR VERSION, ALSO UPDATE SYSTEM, DOCKER AND KERNEL     
+    # ---------------------- 8. IF MAJOR VERSION, ALSO UPDATE SYSTEM, DOCKER AND KERNEL     
     current_major=$(echo "$local_version" | cut -d. -f1)
     new_major=$(echo "$version" | cut -d. -f1)
     if [[ "$current_major" -lt "$new_major" ]]; then
@@ -640,17 +692,17 @@ run_update_immediately() {
         log "[✔] Minor update - skipping system and Docker Compose updates"
     fi
 
-    # ---------------------- 8. RUN POST-UPDATE HOOK IF EXISTS        
+    # ---------------------- 9. RUN POST-UPDATE HOOK IF EXISTS        
     log "Checking for custom post-update scripts"
     run_custom_postupdate_script
     
-    # ---------------------- 9. CLEANUP     
+    # ---------------------- 10. CLEANUP     
     remove_notifications_by_pattern "OpenPanel update started MESSAGE"
     remove_notifications_by_pattern "New OpenPanel update is available"
     write_notification "OpenPanel updated successfully!" "OpenPanel updated to version $version - Log file: $log_file"
     log "Update completed successfully!"
 
-    # ---------------------- 10. RESTART ADMIN PANEL
+    # ---------------------- 11. RESTART ADMIN PANEL
     restart_admin "$1"
 }
 

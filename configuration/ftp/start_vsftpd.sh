@@ -35,8 +35,10 @@ echo "USERS=\"$USERS\"" > /etc/openpanel/ftp/all.users
 
 # 4. remove all existing users
 echo "[*] Removing all existing FTP users..."
-#grep '/ftp/' /etc/passwd | cut -d':' -f1 | xargs -r -n1 deluser
 grep -E ':/sbin/nologin$' /etc/passwd | cut -d':' -f1 | xargs -r -n1 userdel
+
+# add nobody user for privilege droppping
+grep -q '^nobody:' /etc/passwd || echo "nobody:x:65534:65534:nobody:/:/sbin/nologin" >> /etc/passwd
 
 # 5. read from individual users.list files and create users
 echo "[*] Checking for existing users..."
@@ -104,8 +106,9 @@ if [ "$TOTAL_USER_COUNT" -gt 0 ]; then
       echo "    - Adding user with home directory: $FAKE_FOLDER"
 
       # for user@domain format
-      useradd -d "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT -M "$NAME" --badname
+      #useradd -d "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT -M "$NAME" --badname
       #adduser -h "$FOLDER" -s /sbin/nologin $UID_OPT $GROUP_OPT --disabled-password --gecos "" "$NAME"
+      echo "$NAME:x:${UID}:${GID}::${FOLDER}:/sbin/nologin" >> /etc/passwd
 
       echo "    - Setting encrypted password '$HASHED_PASS'"
       if usermod -p "$HASHED_PASS" "$NAME"; then
@@ -148,7 +151,7 @@ if [ -n "$1" ]; then
 else
   # start vsftpd server
   echo "[*] Starting vsftpd and accepting user logins..."
-  vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT /etc/vsftpd/vsftpd.conf
+  exec vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT /etc/vsftpd/vsftpd.conf
   [ -d /var/run/vsftpd ] || mkdir /var/run/vsftpd
   pgrep vsftpd | tail -n 1 > /var/run/vsftpd/vsftpd.pid
   echo "-------------------------------------------"

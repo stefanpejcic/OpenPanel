@@ -262,7 +262,13 @@ EOF
     fi
 	# 3. delete on master 
 	pkill -u "$context" -9 2>/dev/null || true
-	delete_system_user "$context"
+
+    if command -v deluser >/dev/null 2>&1; then
+        deluser --remove-home "$context" # Debian
+    elif command -v userdel >/dev/null 2>&1; then
+        userdel -r "$context"            # RHEL
+    fi
+
     [ -d /home/"$context" ] && rm -rf "/home/${context:?}"
     [ -d /etc/openpanel/openpanel/core/users/"$context" ] && rm -rf "/etc/openpanel/openpanel/core/users/$context"
 }
@@ -270,19 +276,6 @@ EOF
 delete_context() {
 	local context="$1"
     docker context rm "$context"  > /dev/null 2>&1
-}
-
-delete_system_user() {
-    local user="$1"
-
-    if command -v deluser >/dev/null 2>&1; then
-        deluser --remove-home "$user" # Debian
-    elif command -v userdel >/dev/null 2>&1; then
-        userdel -r "$user"            # RHEL
-    else
-        echo "ERROR: Neither deluser nor userdel found"
-        return 1
-    fi
 }
 
 refresh_resellers_data() {
