@@ -435,7 +435,8 @@ msgstr "Imposibil de detectat docroot pentru domeniu."
 msgid ""
 "Error connecting to database, please try again. If the issue persists "
 "contact support."
-msgstr "Eroare la conectarea la baza de date, vă rugăm să încercați din nou. Dacă "
+msgstr ""
+"Eroare la conectarea la baza de date, vă rugăm să încercați din nou. Dacă "
 "problema persistă suportul de contact."
 
 #: modules/mautic.py:220
@@ -465,8 +466,8 @@ msgstr "Instalația Mautic nu a fost găsită în baza de date"
 
 #: modules/mautic.py:475
 msgid "Database name or user not found in app/config/local.php"
-msgstr "Numele bazei de date sau utilizatorul nu este găsit în "
-"app/config/local.php"
+msgstr ""
+"Numele bazei de date sau utilizatorul nu este găsit în app/config/local.php"
 
 #: modules/mautic.py:549
 msgid "Mautic uninstalled successfully!"
@@ -482,7 +483,8 @@ msgstr "Instalație Mautic detașată de Manager."
 
 #: modules/mautic.py:616
 msgid "An error occurred during Mautic detachment. Please try again."
-msgstr "O eroare a avut loc în timpul detașării lui Mautic. Vă rugăm să încercați "
+msgstr ""
+"O eroare a avut loc în timpul detașării lui Mautic. Vă rugăm să încercați "
 "din nou."
 
 #: modules/mautic.py:619
@@ -599,8 +601,9 @@ msgstr "Aceasta este o bază de date de sistem care nu poate fi editată."
 msgid ""
 "pgAdmin email is invalid. Please set a valid email address before enabling "
 "the service."
-msgstr "email-ul pgAdmin este invalid. Vă rugăm să setați o adresă de email valabilă "
-"înainte de a permite serviciul."
+msgstr ""
+"email-ul pgAdmin este invalid. Vă rugăm să setați o adresă de email valabilă"
+" înainte de a permite serviciul."
 
 #: modules/pgadmin.py:45
 msgid "pgAdmin service is now enabled."
@@ -621,7 +624,9 @@ msgstr "A eșuat oprirea serviciului pgAdmin. Încearcă să repornești."
 #: modules/pgadmin.py:81
 #, python-brace-format
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
-msgstr "Limite salvate ({}) - Repornește serviciul pgAdmin pentru a aplica modificările!"
+msgstr ""
+"Limite salvate ({}) - Repornește serviciul pgAdmin pentru a aplica "
+"modificările!"
 
 #: modules/pgadmin.py:83 modules/phpmyadmin.py:101
 msgid "No changes or invalid data provided. Try again."
@@ -656,7 +661,8 @@ msgstr "Setează versiunea implicită"
 msgid ""
 "PHP Limits can not be edited for Litespeed, please use the 'PHP.INI Editor' "
 "or 'PHP Options' instead."
-msgstr "Limitele PHP nu pot fi editate pentru Litespeed, vă rugăm să utilizați "
+msgstr ""
+"Limitele PHP nu pot fi editate pentru Litespeed, vă rugăm să utilizați "
 "'PHP.INI Editor' sau 'PHP Options' în schimb."
 
 #: modules/php.py:314 templates/dashboard/dashboard.html:165
@@ -672,7 +678,8 @@ msgstr "Extensii"
 msgid ""
 "Only one PHP version can be used on Litespeed, to change version for all "
 "domains use this page."
-msgstr "Doar o singură versiune PHP poate fi utilizată pe Litespeed, pentru a "
+msgstr ""
+"Doar o singură versiune PHP poate fi utilizată pe Litespeed, pentru a "
 "modifica versiunea pentru toate domeniile utiliza această pagină."
 
 #: modules/php.py:575
@@ -714,7 +721,8 @@ msgstr "A eșuat oprirea serviciului phpMyAdmin. Încearcă să repornești."
 #, python-brace-format
 msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
 msgstr ""
-"Limite salvate ({}) - Repornește serviciul phpMyAdmin pentru a aplica modificările!"
+"Limite salvate ({}) - Repornește serviciul phpMyAdmin pentru a aplica "
+"modificările!"
 
 #: modules/phpmyadmin.py:142 templates/mysql/phpmyadmin.html:11
 msgid "phpMyAdmin"
@@ -760,38 +768,44 @@ msgid ""
 "Error saving: Startup file invalid (must start with /var/www/html/, no path "
 "traversal, ends with .js or .py)"
 msgstr ""
-"Eroare la salvare: fișierul de pornire este invalid (trebuie să înceapă cu /var/www/html/, "
-"fără traversare de cale și să se termine cu .js sau .py)"
+"Eroare la salvare: fișierul de pornire este invalid (trebuie să înceapă cu "
+"/var/www/html/, fără traversare de cale și să se termine cu .js sau .py)"
 
 #: modules/pm2.py:1176
 msgid ""
 "Error saving: Provided custom startup command is invalid (no path traversal "
 "'..' allowed!)"
 msgstr ""
-"Eroare la salvare: comanda personalizată de pornire furnizată este invalidă (nu este permis '..' "
-"pentru traversare de cale!)"
+"Eroare la salvare: comanda personalizată de pornire furnizată este invalidă "
+"(nu este permis '..' pentru traversare de cale!)"
 
 #: modules/pm2.py:1180
 msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
-"Eroare la salvare: Workdir este invalid (trebuie să înceapă cu /var/www/html/, fără traversare de cale)"
+"Eroare la salvare: Workdir este invalid (trebuie să înceapă cu "
+"/var/www/html/, fără traversare de cale)"
 
 #: modules/pm2.py:1184
 msgid "Error saving: CPU core limit provided is not a positive integer."
-msgstr "Eroare la salvare: limita de nuclee CPU furnizată nu este un număr întreg pozitiv."
+msgstr ""
+"Eroare la salvare: limita de nuclee CPU furnizată nu este un număr întreg "
+"pozitiv."
 
 #: modules/pm2.py:1188
 msgid "Error saving: Memory limit provided is not a positive integer."
-msgstr "Eroare la salvare: limita de memorie furnizată nu este un număr întreg pozitiv."
+msgstr ""
+"Eroare la salvare: limita de memorie furnizată nu este un număr întreg "
+"pozitiv."
 
 #: modules/pm2.py:1245
 msgid ""
 "Changes saved, make sure to restart the application for changes to take "
 "effect."
 msgstr ""
-"Modificările au fost salvate; asigură-te că repornești aplicația pentru ca modificările să aibă efect."
+"Modificările au fost salvate; asigură-te că repornești aplicația pentru ca "
+"modificările să aibă efect."
 
 #: modules/pm2.py:1249
 msgid "Environment file not found."
@@ -803,7 +817,8 @@ msgstr "Nu s-a putut detecta numele serviciului pentru aplicație."
 
 #: modules/pm2.py:1324
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
-msgstr "Nu este un tip valid; pot fi eliminate doar aplicațiile NodeJS sau Python."
+msgstr ""
+"Nu este un tip valid; pot fi eliminate doar aplicațiile NodeJS sau Python."
 
 #: modules/postgresql.py:129
 msgid "You have reached the maximum number of databases allowed."
@@ -828,7 +843,8 @@ msgstr "Aceasta este o bază de date de sistem care nu poate fi folosită."
 #: modules/postgresql.py:280
 #, python-brace-format
 msgid "Successfully added a user {db_user} to PostgreSQL database"
-msgstr "Utilizatorul {db_user} a fost adăugat cu succes la baza de date PostgreSQL"
+msgstr ""
+"Utilizatorul {db_user} a fost adăugat cu succes la baza de date PostgreSQL"
 
 #: modules/postgresql.py:284
 msgid "Failed to assign user to database."
@@ -839,7 +855,8 @@ msgid ""
 "Postgres container is not running. Please allow a few moments for the "
 "initialization.."
 msgstr ""
-"Containerul Postgres nu rulează. Te rog așteaptă câteva momente pentru inițializare.."
+"Containerul Postgres nu rulează. Te rog așteaptă câteva momente pentru "
+"inițializare.."
 
 #: modules/postgresql.py:420
 msgid "PostgreSQL databases"
@@ -863,8 +880,8 @@ msgid ""
 "Successfully revoked all privileges for user {db_user} from PostgreSQL "
 "database {database_name}"
 msgstr ""
-"Toate privilegiile pentru utilizatorul {db_user} au fost revocate cu succes din baza de date PostgreSQL "
-"{database_name}"
+"Toate privilegiile pentru utilizatorul {db_user} au fost revocate cu succes "
+"din baza de date PostgreSQL {database_name}"
 
 #: modules/postgresql.py:897
 #, python-brace-format
@@ -872,8 +889,8 @@ msgid ""
 "Failed to revoke privileges for user {db_user} from PostgreSQL database "
 "{database_name}"
 msgstr ""
-"Nu s-au putut revoca privilegiile pentru utilizatorul {db_user} din baza de date PostgreSQL "
-"{database_name}"
+"Nu s-au putut revoca privilegiile pentru utilizatorul {db_user} din baza de "
+"date PostgreSQL {database_name}"
 
 #: modules/process_manager.py:87 templates/dashboard/dashboard.html:188
 #: templates/system/process_manager.html:8
@@ -899,7 +916,8 @@ msgstr "Eroare: ID-urile trebuie să conțină doar numere separate prin spații
 
 #: modules/waf.py:134
 msgid "Error: Tags should only contain words, numbers, or symbols."
-msgstr "Eroare: Tag-urile trebuie să conțină doar cuvinte, numere sau simboluri."
+msgstr ""
+"Eroare: Tag-urile trebuie să conțină doar cuvinte, numere sau simboluri."
 
 #: modules/waf.py:188
 msgid "WAF configuration updated."
@@ -989,7 +1007,9 @@ msgstr "Parametru website invalid."
 
 #: modules/websites.py:275
 msgid "Data gathering started. Please allow a few minutes for completion."
-msgstr "Colectarea datelor a început. Te rog așteaptă câteva minute pentru finalizare."
+msgstr ""
+"Colectarea datelor a început. Te rog așteaptă câteva minute pentru "
+"finalizare."
 
 #: modules/websites.py:561
 msgid "Missing required parameters"
@@ -1043,7 +1063,8 @@ msgstr "Instalarea WordPress nu a fost găsită în baza de date"
 
 #: modules/wordpress.py:906
 msgid "Database name or user not found in wp-config.php"
-msgstr "Numele bazei de date sau utilizatorul nu a fost găsit în wp-config.php"
+msgstr ""
+"Numele bazei de date sau utilizatorul nu a fost găsit în wp-config.php"
 
 #: modules/wordpress.py:961
 msgid "WordPress uninstalled successfully!"
@@ -1107,7 +1128,8 @@ msgstr "a schimbat adresa de email în %(email)s"
 #: modules/account/account.py:114
 #, python-format
 msgid "Username has been changed successfully from %(old)s to %(new)s."
-msgstr "Numele de utilizator a fost schimbat cu succes din %(old)s în %(new)s."
+msgstr ""
+"Numele de utilizator a fost schimbat cu succes din %(old)s în %(new)s."
 
 #: modules/account/account.py:120
 #, python-format
@@ -1188,7 +1210,9 @@ msgstr "Autentificarea automată a eșuat: utilizatorul nu există."
 
 #: modules/account/login.py:171
 msgid "Autologin failed: Error occurred fetching data from database."
-msgstr "Autentificarea automată a eșuat: a apărut o eroare la preluarea datelor din baza de date."
+msgstr ""
+"Autentificarea automată a eșuat: a apărut o eroare la preluarea datelor din "
+"baza de date."
 
 #: modules/account/login.py:175
 msgid "Autologin failed: Invalid or expired token."
@@ -1237,13 +1261,17 @@ msgstr "Sesiuni active"
 msgid ""
 "OTP code removed and Two-Factor Authentication is now required on new "
 "logins."
-msgstr "Codul OTP a fost eliminat, iar Autentificarea cu doi factori este acum obligatorie la autentificările noi."
+msgstr ""
+"Codul OTP a fost eliminat, iar Autentificarea cu doi factori este acum "
+"obligatorie la autentificările noi."
 
 #: modules/account/twofa.py:36
 msgid ""
 "Setup started: Set up the app or save the OTP code, then confirm to remove "
 "it and activate 2FA."
-msgstr "Configurarea a început: configurează aplicația sau salvează codul OTP, apoi confirmă pentru a-l elimina și a activa 2FA."
+msgstr ""
+"Configurarea a început: configurează aplicația sau salvează codul OTP, apoi "
+"confirmă pentru a-l elimina și a activa 2FA."
 
 #: modules/account/twofa.py:40
 msgid "Two-Factor Authentication is now disabled."
@@ -1262,7 +1290,9 @@ msgstr "ElasticSearch"
 msgid ""
 "The leading distributed, RESTful, open source search and analytics engine "
 "designed for speed and reliability."
-msgstr "Cel mai popular motor de căutare și analiză distribuit, RESTful, open-source, proiectat pentru viteză și fiabilitate."
+msgstr ""
+"Cel mai popular motor de căutare și analiză distribuit, RESTful, open-"
+"source, proiectat pentru viteză și fiabilitate."
 
 #: modules/cache/memcached.py:28 templates/dashboard/dashboard.html:149
 msgid "Memcached"
@@ -1276,7 +1306,9 @@ msgstr "OpenSearch"
 msgid ""
 "OpenSearch is an open-source, distributed search and analytics suite for "
 "large volumes of data. "
-msgstr "OpenSearch este o suită open-source, distribuită, de căutare și analiză pentru volume mari de date."
+msgstr ""
+"OpenSearch este o suită open-source, distribuită, de căutare și analiză "
+"pentru volume mari de date."
 
 #: modules/cache/redis.py:23 templates/dashboard/dashboard.html:148
 msgid "Redis"
@@ -1286,7 +1318,10 @@ msgstr "Redis"
 msgid ""
 "Redis (Remote Dictionary Server) is an in-memory, key/value store that is "
 "used primarily as an application cache or quick-response database."
-msgstr "Redis (Remote Dictionary Server) este un magazin in-memory de tip cheie/valoare, folosit în principal ca cache de aplicație sau bază de date cu răspuns rapid."
+msgstr ""
+"Redis (Remote Dictionary Server) este un magazin in-memory de tip "
+"cheie/valoare, folosit în principal ca cache de aplicație sau bază de date "
+"cu răspuns rapid."
 
 #: modules/cache/varnish.py:71 templates/dashboard/dashboard.html:150
 msgid "Varnish"
@@ -1296,7 +1331,9 @@ msgstr "Varnish"
 msgid ""
 "Varnish is a reverse caching proxy used as HTTP accelerator for content-"
 "heavy dynamic web sites as well as APIs."
-msgstr "Varnish este un proxy invers de cache folosit ca accelerator HTTP pentru site-uri web dinamice cu conținut bogat, precum și pentru API-uri."
+msgstr ""
+"Varnish este un proxy invers de cache folosit ca accelerator HTTP pentru "
+"site-uri web dinamice cu conținut bogat, precum și pentru API-uri."
 
 #: modules/cache/varnish.py:86
 msgid "Varnish caching is now enabled."
@@ -1320,7 +1357,8 @@ msgstr "Context invalid"
 
 #: modules/core/paths.py:53
 msgid "Volume is not yet created. Please add a domain name first."
-msgstr "Volumul nu este încă creat. Te rog adaugă mai întâi un nume de domeniu."
+msgstr ""
+"Volumul nu este încă creat. Te rog adaugă mai întâi un nume de domeniu."
 
 #: modules/core/paths.py:56
 msgid "Invalid base directory"
@@ -1413,7 +1451,8 @@ msgstr "Jurnale de acces"
 
 #: modules/domain/edit_vhost.py:33
 msgid "Invalid request. Domain name and Vhost content must be provided."
-msgstr "Cerere invalidă. Numele domeniului și conținutul Vhost trebuie furnizate."
+msgstr ""
+"Cerere invalidă. Numele domeniului și conținutul Vhost trebuie furnizate."
 
 #: modules/domain/edit_vhost.py:57
 msgid "Edit VHosts"
@@ -1425,7 +1464,9 @@ msgstr "Eroare: fișierul VirtualHost nu a putut fi salvat."
 
 #: modules/domain/edit_vhost.py:134
 msgid "Error saving virtual host configuration. Configuration test failed."
-msgstr "Eroare la salvarea configurației virtual host. Testul de configurare a eșuat."
+msgstr ""
+"Eroare la salvarea configurației virtual host. Testul de configurare a "
+"eșuat."
 
 #: modules/domain/redirects.py:79
 msgid "Unauthorized"
@@ -1437,7 +1478,8 @@ msgstr "Numele domeniului nu a fost furnizat."
 
 #: modules/domain/redirects.py:139
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
-msgstr "URL invalid. Te rog furnizează un URL cu prefixul 'http://' sau 'https://'."
+msgstr ""
+"URL invalid. Te rog furnizează un URL cu prefixul 'http://' sau 'https://'."
 
 #: modules/domain/redirects.py:191
 msgid "Create a Redirect"
@@ -1454,11 +1496,15 @@ msgstr "Trebuie furnizate căile către chei."
 
 #: modules/domain/ssl.py:55
 msgid "Public key path must be inside '/var/www/html/' directory."
-msgstr "Calea către cheia publică trebuie să fie în interiorul directorului '/var/www/html/'."
+msgstr ""
+"Calea către cheia publică trebuie să fie în interiorul directorului "
+"'/var/www/html/'."
 
 #: modules/domain/ssl.py:61
 msgid "Private key path must be inside '/var/www/html/' directory."
-msgstr "Calea către cheia privată trebuie să fie în interiorul directorului '/var/www/html/'."
+msgstr ""
+"Calea către cheia privată trebuie să fie în interiorul directorului "
+"'/var/www/html/'."
 
 #: modules/files/disk_usage.py:59 templates/dashboard/dashboard.html:95
 #: templates/files/disk_usage.html:16
@@ -1605,7 +1651,8 @@ msgstr "Eroare la salvarea fișierului: "
 #: modules/files/filemanager.py:1034
 #, python-brace-format
 msgid "File is too large to open in the editor (limit is {} MB)"
-msgstr "Fișierul este prea mare pentru a fi deschis în editor (limita este {} MB)"
+msgstr ""
+"Fișierul este prea mare pentru a fi deschis în editor (limita este {} MB)"
 
 #: modules/files/filemanager.py:1037 modules/files/filemanager.py:1170
 msgid "Error accessing file size: "
@@ -1621,12 +1668,16 @@ msgstr "Eroare la obținerea dimensiunii fișierului."
 
 #: modules/files/filemanager.py:1099
 msgid "Invalid file size retrieved. Possible issue with file."
-msgstr "Dimensiunea fișierului obținută este invalidă. Posibilă problemă cu fișierul."
+msgstr ""
+"Dimensiunea fișierului obținută este invalidă. Posibilă problemă cu "
+"fișierul."
 
 #: modules/files/filemanager.py:1167
 #, python-brace-format
 msgid "File is too large to view in the browser (limit is {} MB)"
-msgstr "Fișierul este prea mare pentru a fi vizualizat în browser (limita este {} MB)"
+msgstr ""
+"Fișierul este prea mare pentru a fi vizualizat în browser (limita este {} "
+"MB)"
 
 #: modules/files/filemanager.py:1222
 msgid "The specified directory does not exist."
@@ -1689,7 +1740,9 @@ msgstr "Repară permisiunile"
 #: modules/files/ftp.py:321
 msgid ""
 "FTP service is not yet started, please contact Administrator to enable it."
-msgstr "Serviciul FTP nu este încă pornit, te rog contactează Administratorul pentru a-l activa."
+msgstr ""
+"Serviciul FTP nu este încă pornit, te rog contactează Administratorul pentru"
+" a-l activa."
 
 #: modules/files/ftp.py:153
 msgid "No currently active FTP connections"
@@ -1697,7 +1750,8 @@ msgstr "Nu există conexiuni FTP active în acest moment"
 
 #: modules/files/ftp.py:374
 msgid "Invalid configuration type, please use cyberduck or filezilla only!"
-msgstr "Tip de configurare invalid, te rog folosește doar cyberduck sau filezilla!"
+msgstr ""
+"Tip de configurare invalid, te rog folosește doar cyberduck sau filezilla!"
 
 #: modules/files/ftp.py:384
 msgid "User has no FTP accounts."
@@ -2264,11 +2318,14 @@ msgstr "Utilizare CPU"
 
 #: templates/dashboard/usage.html:199
 msgid "Displays the current CPU consumption of all running Docker containers."
-msgstr "Afișează consumul curent de CPU al tuturor containerelor Docker care rulează."
+msgstr ""
+"Afișează consumul curent de CPU al tuturor containerelor Docker care "
+"rulează."
 
 #: templates/dashboard/usage.html:202
 msgid "Shows the combined CPU usage from all running services."
-msgstr "Arată utilizarea combinată a CPU-ului pentru toate serviciile care rulează."
+msgstr ""
+"Arată utilizarea combinată a CPU-ului pentru toate serviciile care rulează."
 
 #: templates/dashboard/usage.html:204 templates/dashboard/usage.html:248
 msgid "Total allocated is:"
@@ -2285,11 +2342,14 @@ msgstr "Utilizare memorie"
 #: templates/dashboard/usage.html:243
 msgid ""
 "Displays the current Memory consumption of all running Docker containers."
-msgstr "Afișează consumul curent de memorie al tuturor containerelor Docker care rulează."
+msgstr ""
+"Afișează consumul curent de memorie al tuturor containerelor Docker care "
+"rulează."
 
 #: templates/dashboard/usage.html:246
 msgid "Shows the combined Memory usage from all running services."
-msgstr "Arată utilizarea combinată a memoriei pentru toate serviciile care rulează."
+msgstr ""
+"Arată utilizarea combinată a memoriei pentru toate serviciile care rulează."
 
 #: templates/dashboard/usage.html:248
 msgid "GB"
@@ -2310,11 +2370,15 @@ msgstr "Block I/O"
 
 #: templates/dashboard/usage.html:314
 msgid "Displays total read/write on disk by all running Docker containers."
-msgstr "Afișează totalul de citire/scriere pe disc pentru toate containerele Docker care rulează."
+msgstr ""
+"Afișează totalul de citire/scriere pe disc pentru toate containerele Docker "
+"care rulează."
 
 #: templates/dashboard/usage.html:317
 msgid "Shows the total disk read/write usage from all running services."
-msgstr "Arată utilizarea totală de citire/scriere pe disc pentru toate serviciile care rulează."
+msgstr ""
+"Arată utilizarea totală de citire/scriere pe disc pentru toate serviciile "
+"care rulează."
 
 #: templates/dashboard/usage.html:335 templates/partials/_service_js.html:34
 #: templates/user/stats.html:94
@@ -2331,7 +2395,8 @@ msgstr ""
 
 #: templates/dashboard/usage.html:344
 msgid "Shows the total network sent/received bandwidth by running services."
-msgstr "Arată lățimea de bandă totală trimisă/primită de serviciile care rulează."
+msgstr ""
+"Arată lățimea de bandă totală trimisă/primită de serviciile care rulează."
 
 #: templates/dashboard/usage.html:362 templates/user/stats.html:99
 msgid "PIDs"
@@ -2388,7 +2453,9 @@ msgstr "Schimbă tag-ul imaginii docker"
 
 #: templates/docker/change_images.html:99
 msgid "Change docker images tag in order to use specific service versions."
-msgstr "Schimbă tag-urile imaginilor docker pentru a folosi versiuni specifice ale serviciilor."
+msgstr ""
+"Schimbă tag-urile imaginilor docker pentru a folosi versiuni specifice ale "
+"serviciilor."
 
 #: templates/docker/change_images.html:121 templates/docker/terminal.html:174
 #: templates/system/services.html:226
@@ -2407,7 +2474,8 @@ msgstr "Curent:"
 #: templates/docker/change_mysql.html:31
 msgid ""
 "The following conditions must be met in order to switch the mysql server:"
-msgstr "Următoarele condiții trebuie îndeplinite pentru a schimba serverul MySQL:"
+msgstr ""
+"Următoarele condiții trebuie îndeplinite pentru a schimba serverul MySQL:"
 
 #: templates/docker/change_mysql.html:33
 msgid "All existing databases and users must be removed."
@@ -2433,7 +2501,8 @@ msgstr "Schimbă webserver-ul pentru domeniile noi la: "
 #: templates/docker/change_webserver.html:36
 msgid ""
 "The following conditions must be met in order to switch the web server:"
-msgstr "Următoarele condiții trebuie îndeplinite pentru a schimba serverul web:"
+msgstr ""
+"Următoarele condiții trebuie îndeplinite pentru a schimba serverul web:"
 
 #: templates/docker/change_webserver.html:38
 msgid "All existing domains must be removed."
@@ -2472,8 +2541,8 @@ msgid ""
 "Adding containers is an experimental feature and should not be used in "
 "production."
 msgstr ""
-"Adăugarea de containere este o funcționalitate experimentală și nu ar trebui "
-"folosită în producție."
+"Adăugarea de containere este o funcționalitate experimentală și nu ar trebui"
+" folosită în producție."
 
 #: templates/docker/container_form.html:19
 msgid "Please share feedback"
@@ -2692,7 +2761,9 @@ msgstr "Verificarea este în curs.."
 #: templates/docker/images.html:222
 msgid ""
 "This may take a few minutes to complete. Refresh the page to display data."
-msgstr "Acest lucru poate dura câteva minute. Reîmprospătează pagina pentru a afișa datele."
+msgstr ""
+"Acest lucru poate dura câteva minute. Reîmprospătează pagina pentru a afișa "
+"datele."
 
 #: templates/docker/terminal.html:15 templates/docker/terminal.html:161
 msgid "Docker Terminal"
@@ -2743,8 +2814,8 @@ msgid ""
 "from working, however all existing data such as emails and files will remain"
 " on disk."
 msgstr ""
-"Ștergerea numelui de domeniu va opri funcționarea oricăror servicii asociate "
-"acestui domeniu, însă toate datele existente, cum ar fi emailurile și "
+"Ștergerea numelui de domeniu va opri funcționarea oricăror servicii asociate"
+" acestui domeniu, însă toate datele existente, cum ar fi emailurile și "
 "fișierele, vor rămâne pe disc."
 
 #: templates/domains/delete.html:33
@@ -2761,7 +2832,9 @@ msgstr "asociate cu acest domeniu."
 
 #: templates/domains/delete.html:33
 msgid "Please remove the subdomains first in order to delete the domain name."
-msgstr "Te rog șterge mai întâi subdomeniile pentru a putea șterge numele de domeniu."
+msgstr ""
+"Te rog șterge mai întâi subdomeniile pentru a putea șterge numele de "
+"domeniu."
 
 #: templates/domains/delete.html:40
 msgid "websites"
@@ -2773,7 +2846,8 @@ msgstr "site"
 
 #: templates/domains/delete.html:40
 msgid "Please remove the websites first in order to delete the domain name."
-msgstr "Te rog șterge mai întâi site-urile pentru a putea șterge numele de domeniu."
+msgstr ""
+"Te rog șterge mai întâi site-urile pentru a putea șterge numele de domeniu."
 
 #: templates/domains/delete.html:41
 msgid "Websites that use this domain:"
@@ -2790,11 +2864,15 @@ msgstr "și toate datele asociate vor fi păstrate."
 #: templates/domains/delete.html:60
 msgid ""
 "FTP accounts that have a path under this domain document root will remain."
-msgstr "Conturile FTP care au o cale sub document root-ul acestui domeniu vor rămâne."
+msgstr ""
+"Conturile FTP care au o cale sub document root-ul acestui domeniu vor "
+"rămâne."
 
 #: templates/domains/delete.html:62
 msgid "Websites that use this domain name will immediately stop working."
-msgstr "Site-urile care folosesc acest nume de domeniu vor înceta imediat să funcționeze."
+msgstr ""
+"Site-urile care folosesc acest nume de domeniu vor înceta imediat să "
+"funcționeze."
 
 #: templates/domains/delete.html:64
 msgid "All"
@@ -2956,8 +3034,8 @@ msgid ""
 "If the issue persists, try editing the zone file directly."
 msgstr ""
 "A apărut o eroare la ștergerea înregistrării. Te rog reîncarcă pagina și "
-"încearcă din nou. Dacă problema persistă, încearcă să editezi direct fișierul "
-"zonei."
+"încearcă din nou. Dacă problema persistă, încearcă să editezi direct "
+"fișierul zonei."
 
 #: templates/domains/dns.html:365
 msgid "An unexpected error occurred."
@@ -2989,14 +3067,15 @@ msgid ""
 "potentially lead to server misconfiguration or downtime if not done "
 "correctly."
 msgstr ""
-"Editarea fișierului DNS este destinată doar utilizatorilor avansați. Această "
-"acțiune poate duce la o configurare greșită a serverului sau la indisponibilitate "
-"dacă nu este făcută corect."
+"Editarea fișierului DNS este destinată doar utilizatorilor avansați. Această"
+" acțiune poate duce la o configurare greșită a serverului sau la "
+"indisponibilitate dacă nu este făcută corect."
 
 #: templates/domains/dns.html:616
 msgid ""
 "Please be cautious and make sure you understand the changes you are making."
-msgstr "Te rog fii prudent și asigură-te că înțelegi modificările pe care le faci."
+msgstr ""
+"Te rog fii prudent și asigură-te că înțelegi modificările pe care le faci."
 
 #: templates/domains/dns.html:620 templates/domains/vhost.html:29
 #: templates/mysql/configuration.html:36 templates/php/ini_editor.html:29
@@ -3038,8 +3117,8 @@ msgid ""
 msgstr ""
 "Gestionează și editează fișierele de zonă Domain Name System (DNS), care "
 "conțin informații critice pentru maparea numelor de domeniu la adrese IP și "
-"pentru administrarea diferitelor înregistrări DNS, cum ar fi A, CNAME, MX și "
-"TXT."
+"pentru administrarea diferitelor înregistrări DNS, cum ar fi A, CNAME, MX și"
+" TXT."
 
 #: templates/domains/dns.html:745 templates/domains/docroot.html:101
 #: templates/domains/goaccess.html:30 templates/domains/logs.html:374
@@ -3060,10 +3139,10 @@ msgid ""
 "manually update paths in files and applications if you change the document "
 "root for existing websites."
 msgstr ""
-"Schimbarea document root-ului (folder) pentru un domeniu nu transferă automat "
-"fișierele existente și nu actualizează fișierele de configurare. Va trebui să "
-"actualizezi manual căile din fișiere și aplicații dacă schimbi document root-ul "
-"pentru site-uri existente."
+"Schimbarea document root-ului (folder) pentru un domeniu nu transferă "
+"automat fișierele existente și nu actualizează fișierele de configurare. Va "
+"trebui să actualizezi manual căile din fișiere și aplicații dacă schimbi "
+"document root-ul pentru site-uri existente."
 
 #: templates/domains/docroot.html:37 templates/domains/new.html:63
 msgid "Document Root (folder):"
@@ -3208,7 +3287,8 @@ msgstr "Următor"
 
 #: templates/domains/goaccess.html:10
 msgid "View html reports generated from domain access logs."
-msgstr "Vizualizează rapoartele HTML generate din logurile de acces ale domeniului."
+msgstr ""
+"Vizualizează rapoartele HTML generate din logurile de acces ale domeniului."
 
 #: templates/domains/logs.html:10
 msgid "Domain Logs for"
@@ -3279,11 +3359,13 @@ msgstr "Loguri domeniu"
 
 #: templates/domains/logs.html:353
 msgid "View webserver raw access logs for domains."
-msgstr "Vizualizează logurile brute de acces ale webserver-ului pentru domenii."
+msgstr ""
+"Vizualizează logurile brute de acces ale webserver-ului pentru domenii."
 
 #: templates/domains/new.html:13
 msgid "Add a new domain name to be used for websites, emails, etc."
-msgstr "Adaugă un nume de domeniu nou pentru a fi folosit la site-uri, emailuri etc."
+msgstr ""
+"Adaugă un nume de domeniu nou pentru a fi folosit la site-uri, emailuri etc."
 
 #: templates/domains/new.html:21
 msgid "Hide Details"
@@ -3303,7 +3385,8 @@ msgstr ""
 
 #: templates/domains/new.html:218
 msgid "Invalid domain name. Please enter a valid domain name like"
-msgstr "Nume de domeniu invalid. Te rog introdu un nume de domeniu valid, de exemplu"
+msgstr ""
+"Nume de domeniu invalid. Te rog introdu un nume de domeniu valid, de exemplu"
 
 #: templates/domains/new.html:218 templates/manager/mautic.html:388
 #: templates/manager/mautic.html:473 templates/manager/websitebuilder.html:138
@@ -3317,12 +3400,14 @@ msgid ""
 "Paths for both public and secret files must be set for importing .onion "
 "domain."
 msgstr ""
-"Căile pentru fișierele publice și secrete trebuie setate pentru a importa un "
-"domeniu .onion."
+"Căile pentru fișierele publice și secrete trebuie setate pentru a importa un"
+" domeniu .onion."
 
 #: templates/domains/new.html:245
 msgid "Paths for both public and secret files must start with /var/www/html/."
-msgstr "Căile pentru fișierele publice și secrete trebuie să înceapă cu /var/www/html/."
+msgstr ""
+"Căile pentru fișierele publice și secrete trebuie să înceapă cu "
+"/var/www/html/."
 
 #: templates/domains/new.html:278
 msgid "Adding domain"
@@ -3334,7 +3419,8 @@ msgstr "Eroare la adăugarea numelui de domeniu"
 
 #: templates/domains/new.html:289 templates/emails/confirm_import.html:166
 msgid "Network response from backend was not ok. Please contact support."
-msgstr "Răspunsul de rețea de la backend nu a fost ok. Te rog contactează suportul."
+msgstr ""
+"Răspunsul de rețea de la backend nu a fost ok. Te rog contactează suportul."
 
 #: templates/domains/new.html:336
 msgid "Domain name"
@@ -3397,8 +3483,8 @@ msgid ""
 "Redirecting a domain will immediately redirect all traffic to the new URL, "
 "while Email and other services remain operational."
 msgstr ""
-"Redirecționarea unui domeniu va redirecționa imediat tot traficul către noul "
-"URL, în timp ce emailul și alte servicii rămân operaționale."
+"Redirecționarea unui domeniu va redirecționa imediat tot traficul către noul"
+" URL, în timp ce emailul și alte servicii rămân operaționale."
 
 #: templates/domains/ssl.html:12
 msgid "Configure SSL for"
@@ -3406,7 +3492,9 @@ msgstr "Configurează SSL pentru"
 
 #: templates/domains/ssl.html:14
 msgid "Configure AutoSSL or upload a custom certificate for a domain."
-msgstr "Configurează AutoSSL sau încarcă un certificat personalizat pentru un domeniu."
+msgstr ""
+"Configurează AutoSSL sau încarcă un certificat personalizat pentru un "
+"domeniu."
 
 #: templates/domains/ssl.html:29
 msgid "Current SSL setting for domain."
@@ -3470,7 +3558,9 @@ msgstr "Configurează SSL personalizat"
 
 #: templates/domains/ssl.html:227
 msgid "Insert paths to certificate files to be used for this domain."
-msgstr "Introdu căile către fișierele certificatului care vor fi folosite pentru acest domeniu."
+msgstr ""
+"Introdu căile către fișierele certificatului care vor fi folosite pentru "
+"acest domeniu."
 
 #: templates/domains/ssl.html:249
 msgid "Path to Certificate:"
@@ -3522,7 +3612,8 @@ msgstr "Anulează suspendarea domeniului"
 
 #: templates/domains/unsuspend.html:11 templates/domains/unsuspend.html:67
 msgid "Unsuspending a domain will immediately restore access to the website."
-msgstr "Anularea suspendării unui domeniu va restaura imediat accesul la site."
+msgstr ""
+"Anularea suspendării unui domeniu va restaura imediat accesul la site."
 
 #: templates/domains/unsuspend.html:24
 msgid "Confirm unsuspend of domain:"
@@ -4048,8 +4139,9 @@ msgid ""
 "Notifications (email, Slack, etc.) can be sent out when a backup run "
 "finishes. Configuration is provided as a comma-separated list of URLs."
 msgstr ""
-"Notificările (email, Slack etc.) pot fi trimise când se finalizează o rulare "
-"de backup. Configurația este furnizată ca o listă de URL-uri separate prin virgulă."
+"Notificările (email, Slack etc.) pot fi trimise când se finalizează o rulare"
+" de backup. Configurația este furnizată ca o listă de URL-uri separate prin "
+"virgulă."
 
 #: templates/files/backup_settings.html:116
 msgid ""
@@ -4057,9 +4149,9 @@ msgid ""
 "data are concurrently processed. Higher values result in faster compression."
 " Default = 1. Setting this to 0 will use all available threads."
 msgstr ""
-"Nivelul de paralelism pentru compresia \"gz\" (Gzip) definește câte blocuri de "
-"date sunt procesate simultan. Valori mai mari duc la o compresie mai rapidă. "
-"Implicit = 1. Setarea la 0 va folosi toate thread-urile disponibile."
+"Nivelul de paralelism pentru compresia \"gz\" (Gzip) definește câte blocuri "
+"de date sunt procesate simultan. Valori mai mari duc la o compresie mai "
+"rapidă. Implicit = 1. Setarea la 0 va folosi toate thread-urile disponibile."
 
 #: templates/files/backup_settings.html:119
 msgid "Full path to exclude, or regular expressions."
@@ -4070,8 +4162,9 @@ msgid ""
 "IThe number of days for which a backup is kept. Pass zero or a positive "
 "integer value to enable automatic rotation of old backups."
 msgstr ""
-"Numărul de zile pentru care se păstrează un backup. Transmite 0 sau o valoare "
-"întreagă pozitivă pentru a activa rotația automată a backup-urilor vechi."
+"Numărul de zile pentru care se păstrează un backup. Transmite 0 sau o "
+"valoare întreagă pozitivă pentru a activa rotația automată a backup-urilor "
+"vechi."
 
 #: templates/files/backups.html:12
 msgid "Manage backups."
@@ -4104,7 +4197,8 @@ msgstr "Configurează setările"
 
 #: templates/files/backups.html:79
 msgid "Credentials for the remote destination are added."
-msgstr "Datele de autentificare pentru destinația la distanță au fost adăugate."
+msgstr ""
+"Datele de autentificare pentru destinația la distanță au fost adăugate."
 
 #: templates/files/backups.html:93 templates/files/backups.html:162
 #: templates/files/backups.html:203
@@ -4114,7 +4208,9 @@ msgstr "Setează limitele și activează serviciul"
 #: templates/files/backups.html:94 templates/files/backups.html:164
 #: templates/files/backups.html:205
 msgid "Set CPU and Memory limits for the backup task and enable service."
-msgstr "Setează limitele CPU și memorie pentru sarcina de backup și activează serviciul."
+msgstr ""
+"Setează limitele CPU și memorie pentru sarcina de backup și activează "
+"serviciul."
 
 #: templates/files/backups.html:104
 msgid "Edit Backup Limits"
@@ -4137,8 +4233,8 @@ msgid ""
 "Configure credentials to use for the remote destination and set what to "
 "backup."
 msgstr ""
-"Configurează credențialele pentru destinația la distanță și setează ce anume "
-"se face backup."
+"Configurează credențialele pentru destinația la distanță și setează ce anume"
+" se face backup."
 
 #: templates/files/backups.html:148
 msgid "Edit Configuration"
@@ -4149,8 +4245,9 @@ msgid ""
 "Disk usage is the amount of space that is used by the content of your sites,"
 " this includes databases, files, videos, images, emails and pages."
 msgstr ""
-"Utilizarea discului este cantitatea de spațiu folosită de conținutul site-urilor "
-"tale; include baze de date, fișiere, videoclipuri, imagini, emailuri și pagini."
+"Utilizarea discului este cantitatea de spațiu folosită de conținutul site-"
+"urilor tale; include baze de date, fișiere, videoclipuri, imagini, emailuri "
+"și pagini."
 
 #: templates/files/disk_usage.html:38 templates/files/inodes.html:37
 msgid "Directory"
@@ -4199,7 +4296,8 @@ msgid ""
 "Plugins listed here will be automatically installed to new WordPress "
 "websites."
 msgstr ""
-"Pluginurile listate aici vor fi instalate automat pe noile site-uri WordPress."
+"Pluginurile listate aici vor fi instalate automat pe noile site-uri "
+"WordPress."
 
 #: templates/files/edit_file.html:87
 msgid "Edit Google PageSpeed API key"
@@ -4207,7 +4305,9 @@ msgstr "Editează cheia API Google PageSpeed"
 
 #: templates/files/edit_file.html:89
 msgid "Set API key to be used on Site Manager for your websites."
-msgstr "Setează cheia API care va fi folosită în Site Manager pentru site-urile tale."
+msgstr ""
+"Setează cheia API care va fi folosită în Site Manager pentru site-urile "
+"tale."
 
 #: templates/files/filemanager.html:71
 msgid "Search Files & Folders"
@@ -4300,8 +4400,8 @@ msgid ""
 "The process has started. This may take a few minutes depending on the number"
 " of files and folders in the specified path. Please wait."
 msgstr ""
-"Procesul a început. Acest lucru poate dura câteva minute, în funcție de numărul "
-"de fișiere și foldere din calea specificată. Te rog așteaptă."
+"Procesul a început. Acest lucru poate dura câteva minute, în funcție de "
+"numărul de fișiere și foldere din calea specificată. Te rog așteaptă."
 
 #: templates/files/clamav/scanner.html:137
 #: templates/files/fix_permissions.html:97
@@ -4317,7 +4417,8 @@ msgid ""
 "Permissions successfully fixed for all files and subdirectories inside the "
 "directory"
 msgstr ""
-"Permisiunile au fost reparate cu succes pentru toate fișierele și subdirectoarele din interiorul directorului"
+"Permisiunile au fost reparate cu succes pentru toate fișierele și "
+"subdirectoarele din interiorul directorului"
 
 #: templates/files/ftp.html:10
 msgid "Total accounts:"
@@ -4430,17 +4531,17 @@ msgid ""
 " hosting account. The number of inodes indicates the number of files and "
 "folders you have."
 msgstr ""
-"Un inode este o structură de date care păstrează informațiile despre un fișier "
-"din contul tău de hosting. Numărul de inodes indică numărul de fișiere și "
-"foldere pe care le ai."
+"Un inode este o structură de date care păstrează informațiile despre un "
+"fișier din contul tău de hosting. Numărul de inodes indică numărul de "
+"fișiere și foldere pe care le ai."
 
 #: templates/files/inodes.html:16
 msgid ""
 "This includes everything on your account, emails, files, folders, and "
 "anything you store on the server."
 msgstr ""
-"Acest lucru include tot ce se află în contul tău: emailuri, fișiere, foldere "
-"și orice stochezi pe server."
+"Acest lucru include tot ce se află în contul tău: emailuri, fișiere, foldere"
+" și orice stochezi pe server."
 
 #: templates/files/inodes.html:135
 msgid "Inodes Usage"
@@ -4559,7 +4660,8 @@ msgid ""
 "No malicious files have been detected or the scan has not been initiated "
 "yet."
 msgstr ""
-"Nu au fost detectate fișiere malițioase sau scanarea nu a fost inițiată încă."
+"Nu au fost detectate fișiere malițioase sau scanarea nu a fost inițiată "
+"încă."
 
 #: templates/files/clamav/quarantine.html:71
 msgid "File"
@@ -4829,7 +4931,7 @@ msgstr "instalare existentă"
 #: templates/manager/autoinstaller.html:170
 #: templates/manager/autoinstaller.html:205
 msgid "s"
-msgstr ""
+msgstr "s"
 
 #: templates/manager/autoinstaller.html:79
 #: templates/manager/websitebuilder_install.html:8
@@ -4846,7 +4948,9 @@ msgstr "Mautic"
 
 #: templates/manager/autoinstaller.html:124
 msgid "Install Mautic - free and open source marketing automation software."
-msgstr "Instalează Mautic - software gratuit și open source pentru automatizarea marketingului."
+msgstr ""
+"Instalează Mautic - software gratuit și open source pentru automatizarea "
+"marketingului."
 
 #: templates/manager/autoinstaller.html:159
 msgid "Node.js"
@@ -4899,7 +5003,9 @@ msgstr "Nu s-a putut salva."
 
 #: templates/manager/grapejs_editor.html:128
 msgid "Copy code from HTML and CSS tabs, then reload the page to try again."
-msgstr "Copiază codul din tab-urile HTML și CSS, apoi reîncarcă pagina pentru a încerca din nou."
+msgstr ""
+"Copiază codul din tab-urile HTML și CSS, apoi reîncarcă pagina pentru a "
+"încerca din nou."
 
 #: templates/manager/mautic.html:56 templates/manager/mautic_install.html:317
 msgid "Mautic version:"
@@ -4981,7 +5087,9 @@ msgstr "localhost"
 
 #: templates/manager/mautic.html:262
 msgid "Remote MySQL host detected in config file. Database size unavailable."
-msgstr "A fost detectată o gazdă MySQL la distanță în fișierul de configurare. Dimensiunea bazei de date nu este disponibilă."
+msgstr ""
+"A fost detectată o gazdă MySQL la distanță în fișierul de configurare. "
+"Dimensiunea bazei de date nu este disponibilă."
 
 #: templates/manager/mautic.html:268 templates/manager/mautic_install.html:376
 #: templates/manager/wp/install.html:478 templates/manager/wp/single.html:394
@@ -5018,7 +5126,8 @@ msgstr "Creează un backup"
 #: templates/manager/mautic.html:365 templates/manager/websitebuilder.html:120
 #: templates/manager/wp/single.html:1938
 msgid "Create a new backup of website files and/or database."
-msgstr "Creează un backup nou al fișierelor site-ului și/sau al bazei de date."
+msgstr ""
+"Creează un backup nou al fișierelor site-ului și/sau al bazei de date."
 
 #: templates/manager/mautic.html:370 templates/manager/wp/single.html:1943
 msgid "Backup Database"
@@ -5042,7 +5151,9 @@ msgstr "Restaurează din backup-uri"
 #: templates/manager/mautic.html:394 templates/manager/websitebuilder.html:144
 #: templates/manager/wp/single.html:1967
 msgid "Restore website files and/or database from a previous backup."
-msgstr "Restaurează fișierele site-ului și/sau baza de date dintr-un backup anterior."
+msgstr ""
+"Restaurează fișierele site-ului și/sau baza de date dintr-un backup "
+"anterior."
 
 #: templates/manager/mautic.html:404 templates/manager/websitebuilder.html:154
 #: templates/manager/wp/single.html:1977
@@ -5096,15 +5207,16 @@ msgstr "Dezinstalează"
 
 #: templates/manager/mautic.html:480
 msgid "Uninstall Mautic and delete all website files and the database."
-msgstr "Dezinstalează Mautic și șterge toate fișierele site-ului și baza de date."
+msgstr ""
+"Dezinstalează Mautic și șterge toate fișierele site-ului și baza de date."
 
 #: templates/manager/mautic.html:482
 msgid ""
 "All Mautic data will be permanently deleted. There is no coming back after "
 "you press delete."
 msgstr ""
-"Toate datele Mautic vor fi șterse permanent. Nu mai există cale de întoarcere "
-"după ce apeși șterge."
+"Toate datele Mautic vor fi șterse permanent. Nu mai există cale de "
+"întoarcere după ce apeși șterge."
 
 #: templates/manager/mautic.html:491
 msgid "Uninstall Mautic"
@@ -5251,7 +5363,9 @@ msgstr "Eroare la preluare. Te rog încearcă din nou."
 
 #: templates/manager/mautic_install.html:593
 msgid "Error fetching Mautic versions from Github. Please refresh page."
-msgstr "Eroare la preluarea versiunilor Mautic de pe GitHub. Te rog reîncarcă pagina."
+msgstr ""
+"Eroare la preluarea versiunilor Mautic de pe GitHub. Te rog reîncarcă "
+"pagina."
 
 #: templates/manager/mautic_install.html:600
 #: templates/manager/wp/install.html:757
@@ -5290,7 +5404,8 @@ msgstr "Portul este opțional; dacă este lăsat gol, va fi folosit portul '80'.
 msgid ""
 "Choose a domain name and optional subdirectory to create reverse-proxy."
 msgstr ""
-"Alege un nume de domeniu și un subdirector opțional pentru a crea reverse-proxy."
+"Alege un nume de domeniu și un subdirector opțional pentru a crea reverse-"
+"proxy."
 
 #: templates/manager/pm2_install.html:180
 #: templates/manager/python_node_apps.html:218
@@ -5306,8 +5421,8 @@ msgid ""
 "Startup file is the main entry point of the application, usually app.py or "
 "app.js file."
 msgstr ""
-"Fișierul de pornire este punctul principal de intrare al aplicației, de obicei "
-"fișierul app.py sau app.js."
+"Fișierul de pornire este punctul principal de intrare al aplicației, de "
+"obicei fișierul app.py sau app.js."
 
 #: templates/manager/pm2_install.html:236
 msgid "Startup command"
@@ -5318,8 +5433,8 @@ msgid ""
 "If custom startup command is provided, it will be executed instead of the "
 "default"
 msgstr ""
-"Dacă este furnizată o comandă personalizată de pornire, aceasta va fi executată "
-"în locul celei implicite"
+"Dacă este furnizată o comandă personalizată de pornire, aceasta va fi "
+"executată în locul celei implicite"
 
 #: templates/manager/pm2_install.html:265
 msgid "Type:"
@@ -5340,8 +5455,8 @@ msgid ""
 "can skip this option."
 msgstr ""
 "Când este activată, această opțiune va rula mai întâi npm install folosind "
-"fișierul package.json, apoi va lansa aplicația. Dacă aplicația este deja construită, "
-"poți sări peste această opțiune."
+"fișierul package.json, apoi va lansa aplicația. Dacă aplicația este deja "
+"construită, poți sări peste această opțiune."
 
 #: templates/manager/pm2_install.html:319
 msgid "Create a new Python application"
@@ -5358,8 +5473,8 @@ msgid ""
 "already built, you can skip this option."
 msgstr ""
 "Când este activată, această opțiune va rula mai întâi pip install folosind "
-"fișierul requirements.txt, apoi va lansa aplicația. Dacă aplicația este deja "
-"construită, poți sări peste această opțiune."
+"fișierul requirements.txt, apoi va lansa aplicația. Dacă aplicația este deja"
+" construită, poți sări peste această opțiune."
 
 #: templates/manager/pm2_install.html:324
 msgid "Create a new application"
@@ -5379,7 +5494,8 @@ msgstr "Versiune:"
 
 #: templates/manager/pm2_install.html:379
 msgid "Select version of Python/NodeJS to use for this application."
-msgstr "Selectează versiunea de Python/NodeJS de folosit pentru această aplicație."
+msgstr ""
+"Selectează versiunea de Python/NodeJS de folosit pentru această aplicație."
 
 #: templates/manager/pm2_install.html:458
 msgid "Run NPM install before starting the app"
@@ -5424,7 +5540,8 @@ msgstr "Memorie fizică (în GB) pe care containerul o poate folosi."
 
 #: templates/manager/pm2_install.html:667
 msgid "Application setup started. Please wait for the process to finish."
-msgstr "Configurarea aplicației a început. Te rog așteaptă finalizarea procesului."
+msgstr ""
+"Configurarea aplicației a început. Te rog așteaptă finalizarea procesului."
 
 #: templates/manager/python_node_apps.html:48
 msgid "Status:"
@@ -5469,16 +5586,16 @@ msgid ""
 "Configure startup file and if install should be run before starting the "
 "application."
 msgstr ""
-"Configurează fișierul de pornire și dacă instalarea trebuie rulată înainte de "
-"pornirea aplicației."
+"Configurează fișierul de pornire și dacă instalarea trebuie rulată înainte "
+"de pornirea aplicației."
 
 #: templates/manager/python_node_apps.html:227
 msgid ""
 "If no custom startup command is provided, this file is executed with "
 "command:"
 msgstr ""
-"Dacă nu este furnizată o comandă personalizată de pornire, acest fișier este "
-"executat cu comanda:"
+"Dacă nu este furnizată o comandă personalizată de pornire, acest fișier este"
+" executat cu comanda:"
 
 #: templates/manager/python_node_apps.html:284
 msgid "Custom startup command:"
@@ -5489,8 +5606,8 @@ msgid ""
 "You can provide a custom startup command with flags to be used instead of "
 "the default:"
 msgstr ""
-"Poți furniza o comandă personalizată de pornire cu flag-uri care să fie folosită "
-"în locul celei implicite:"
+"Poți furniza o comandă personalizată de pornire cu flag-uri care să fie "
+"folosită în locul celei implicite:"
 
 #: templates/manager/python_node_apps.html:340
 msgid "Work dir:"
@@ -5524,8 +5641,8 @@ msgid ""
 "Change version, make sure to restart the application afterward by stopping "
 "and starting it."
 msgstr ""
-"Schimbă versiunea; asigură-te că repornești aplicația după aceea oprind-o și "
-"pornind-o."
+"Schimbă versiunea; asigură-te că repornești aplicația după aceea oprind-o și"
+" pornind-o."
 
 #: templates/manager/python_node_apps.html:457
 msgid "version to use for the application."
@@ -5553,7 +5670,8 @@ msgstr "Memorie (GB):"
 
 #: templates/manager/python_node_apps.html:571
 msgid "Set max size in GB for Memory to allocate for this service."
-msgstr "Setează dimensiunea maximă în GB pentru memoria alocată acestui serviciu."
+msgstr ""
+"Setează dimensiunea maximă în GB pentru memoria alocată acestui serviciu."
 
 #: templates/manager/python_node_apps.html:587
 msgid "PIDs:"
@@ -5643,8 +5761,8 @@ msgid ""
 "Stops the application, deletes docker container and removes it from Site "
 "Manager interface."
 msgstr ""
-"Oprește aplicația, șterge containerul Docker și o elimină din interfața Site "
-"Manager."
+"Oprește aplicația, șterge containerul Docker și o elimină din interfața Site"
+" Manager."
 
 #: templates/manager/python_node_apps.html:876
 msgid "Delete Application"
@@ -5818,8 +5936,8 @@ msgid ""
 "All website data will be permanently deleted. There is no coming back after "
 "you press delete."
 msgstr ""
-"Toate datele site-ului vor fi șterse permanent. Nu mai există cale de întoarcere "
-"după ce apeși șterge."
+"Toate datele site-ului vor fi șterse permanent. Nu mai există cale de "
+"întoarcere după ce apeși șterge."
 
 #: templates/manager/websitebuilder.html:241
 msgid "Delete website"
@@ -5960,8 +6078,8 @@ msgid ""
 "This is your WordPress site description (tagline) — it is optional and you "
 "can change it anytime from the wp-admin dashboard."
 msgstr ""
-"Aceasta este descrierea (tagline) a site-ului tău WordPress — este opțională "
-"și o poți schimba oricând din dashboard-ul wp-admin."
+"Aceasta este descrierea (tagline) a site-ului tău WordPress — este opțională"
+" și o poți schimba oricând din dashboard-ul wp-admin."
 
 #: templates/manager/wp/install.html:65
 msgid "My WordPress Blog"
@@ -5973,8 +6091,8 @@ msgid ""
 "provided, it will be available at example.com/subfolder instead of "
 "example.com"
 msgstr ""
-"Utilizatorii vor accesa site-ul tău prin acest domeniu. Dacă este furnizat un "
-"subfolder, acesta va fi disponibil la example.com/subfolder în loc de "
+"Utilizatorii vor accesa site-ul tău prin acest domeniu. Dacă este furnizat "
+"un subfolder, acesta va fi disponibil la example.com/subfolder în loc de "
 "example.com"
 
 #: templates/manager/wp/install.html:124
@@ -5982,16 +6100,17 @@ msgid ""
 "The WordPress admin email address for notifications and site management. It "
 "can be updated later in the wp-admin dashboard."
 msgstr ""
-"Adresa de email a administratorului WordPress pentru notificări și gestionarea "
-"site-ului. Poate fi actualizată ulterior în dashboard-ul wp-admin."
+"Adresa de email a administratorului WordPress pentru notificări și "
+"gestionarea site-ului. Poate fi actualizată ulterior în dashboard-ul wp-"
+"admin."
 
 #: templates/manager/wp/install.html:196
 msgid ""
 "This is your WordPress admin username — used to log in to the wp-admin "
 "dashboard."
 msgstr ""
-"Acesta este numele de utilizator al administratorului WordPress — folosit pentru "
-"a te autentifica în dashboard-ul wp-admin."
+"Acesta este numele de utilizator al administratorului WordPress — folosit "
+"pentru a te autentifica în dashboard-ul wp-admin."
 
 #: templates/manager/wp/install.html:229
 msgid ""
@@ -6010,8 +6129,8 @@ msgid ""
 "Select the WordPress version to install — you can choose the latest stable "
 "release or a specific version."
 msgstr ""
-"Selectează versiunea WordPress de instalat — poți alege ultima versiune stabilă "
-"sau o versiune specifică."
+"Selectează versiunea WordPress de instalat — poți alege ultima versiune "
+"stabilă sau o versiune specifică."
 
 #: templates/manager/wp/install.html:487
 msgid "The name of the MySQL database where WordPress will store its data."
@@ -6022,34 +6141,36 @@ msgid ""
 "The prefix for WordPress database tables. Use the default \"wp_\" or choose "
 "a custom prefix for added security."
 msgstr ""
-"Prefixul pentru tabelele bazei de date WordPress. Folosește implicitul \"wp_\" "
-"sau alege un prefix personalizat pentru un plus de securitate."
+"Prefixul pentru tabelele bazei de date WordPress. Folosește implicitul "
+"\"wp_\" sau alege un prefix personalizat pentru un plus de securitate."
 
 #: templates/manager/wp/install.html:531
 msgid ""
 "The MySQL username with access to the database. WordPress will use this "
 "account to read and write data."
 msgstr ""
-"Numele de utilizator MySQL cu acces la baza de date. WordPress va folosi acest "
-"cont pentru a citi și a scrie date."
+"Numele de utilizator MySQL cu acces la baza de date. WordPress va folosi "
+"acest cont pentru a citi și a scrie date."
 
 #: templates/manager/wp/install.html:555
 msgid ""
 "The password for the MySQL user. Keep it secure, as it is required for "
 "WordPress to connect to the database."
 msgstr ""
-"Parola pentru utilizatorul MySQL. Păstreaz-o în siguranță, deoarece este necesară "
-"pentru ca WordPress să se conecteze la baza de date."
+"Parola pentru utilizatorul MySQL. Păstreaz-o în siguranță, deoarece este "
+"necesară pentru ca WordPress să se conecteze la baza de date."
 
 #: templates/manager/wp/install.html:637
 msgid "WordPress install started. Please wait for the process to finish."
-msgstr "Instalarea WordPress a început. Te rog așteaptă finalizarea procesului."
+msgstr ""
+"Instalarea WordPress a început. Te rog așteaptă finalizarea procesului."
 
 #: templates/manager/wp/install.html:750
 msgid ""
 "Error fetching WordPress versions from WP.ORG API. Please refresh page."
 msgstr ""
-"Eroare la preluarea versiunilor WordPress din WP.ORG API. Te rog reîncarcă pagina."
+"Eroare la preluarea versiunilor WordPress din WP.ORG API. Te rog reîncarcă "
+"pagina."
 
 #: templates/manager/wp/list.html:10
 msgid "Manage WordPress websites"
@@ -6083,15 +6204,16 @@ msgstr "Pluginuri"
 msgid ""
 "Create a Themes Set to have themes auto-installed on new WordPress websites."
 msgstr ""
-"Creează un set de teme pentru ca temele să fie instalate automat pe noile site-uri WordPress."
+"Creează un set de teme pentru ca temele să fie instalate automat pe noile "
+"site-uri WordPress."
 
 #: templates/manager/wp/list.html:64
 msgid ""
 "Create a Plugins Set to have plugins auto-installed on new WordPress "
 "websites."
 msgstr ""
-"Creează un set de pluginuri pentru ca pluginurile să fie instalate automat pe noile "
-"site-uri WordPress."
+"Creează un set de pluginuri pentru ca pluginurile să fie instalate automat "
+"pe noile site-uri WordPress."
 
 #: templates/manager/wp/list.html:77 templates/user/stats.html:30
 msgid "Refresh Data"
@@ -6147,8 +6269,8 @@ msgid ""
 "No WordPress sites managed via OpenPanel. Install a new WordPress site or "
 "scan to find existing installations."
 msgstr ""
-"Nu există site-uri WordPress gestionate prin OpenPanel. Instalează un site WordPress nou "
-"sau scanează pentru a găsi instalări existente."
+"Nu există site-uri WordPress gestionate prin OpenPanel. Instalează un site "
+"WordPress nou sau scanează pentru a găsi instalări existente."
 
 #: templates/manager/wp/list.html:419 templates/system/cronjobs.html:285
 #: templates/user/favorites.html:103
@@ -6207,7 +6329,8 @@ msgstr "Clonează"
 msgid ""
 "Remote MySQL host detected in wp-config.php file. Database size unavailable."
 msgstr ""
-"A fost detectată o gazdă MySQL la distanță în fișierul wp-config.php. Dimensiunea bazei de date nu este disponibilă."
+"A fost detectată o gazdă MySQL la distanță în fișierul wp-config.php. "
+"Dimensiunea bazei de date nu este disponibilă."
 
 #: templates/manager/wp/single.html:480
 msgid "URL"
@@ -6284,8 +6407,8 @@ msgid ""
 "I would like my blog to be visible to everyone, including search engines "
 "(default)"
 msgstr ""
-"Doresc ca blogul meu să fie vizibil pentru toată lumea, inclusiv pentru motoarele "
-"de căutare (implicit)"
+"Doresc ca blogul meu să fie vizibil pentru toată lumea, inclusiv pentru "
+"motoarele de căutare (implicit)"
 
 #: templates/manager/wp/single.html:610
 msgid "Pingbacks"
@@ -6314,17 +6437,18 @@ msgid ""
 "and salts, you make it even harder for hackers to get their hands on your "
 "salts."
 msgstr ""
-"WordPress salts sunt șiruri aleatorii stocate în fișierul wp-config.php care sunt "
-"folosite pentru procesul de hash al parolei. Prin schimbarea periodică a cheilor "
-"și a salts, faci și mai dificil pentru hackeri să pună mâna pe salts."
+"WordPress salts sunt șiruri aleatorii stocate în fișierul wp-config.php care"
+" sunt folosite pentru procesul de hash al parolei. Prin schimbarea periodică"
+" a cheilor și a salts, faci și mai dificil pentru hackeri să pună mâna pe "
+"salts."
 
 #: templates/manager/wp/single.html:764
 msgid ""
 "Note: changing salts will automatically log out all logged-in users and "
 "force them to log in again."
 msgstr ""
-"Notă: schimbarea salts va deloga automat toți utilizatorii autentificați și îi va "
-"forța să se autentifice din nou."
+"Notă: schimbarea salts va deloga automat toți utilizatorii autentificați și "
+"îi va forța să se autentifice din nou."
 
 #: templates/manager/wp/single.html:825
 msgid "Check Integrity"
@@ -6336,9 +6460,9 @@ msgid ""
 " WordPress core files or Plugins by verifying them against their reference "
 "checksums from wordpress.org."
 msgstr ""
-"Dacă suspectezi că acest site este infectat cu malware, verifică integritatea "
-"fișierelor WordPress core sau a pluginurilor prin verificarea acestora față de "
-"checksum-urile de referință de pe wordpress.org."
+"Dacă suspectezi că acest site este infectat cu malware, verifică "
+"integritatea fișierelor WordPress core sau a pluginurilor prin verificarea "
+"acestora față de checksum-urile de referință de pe wordpress.org."
 
 #: templates/manager/wp/single.html:835
 msgid "Check WP Core"
@@ -6354,7 +6478,9 @@ msgstr "Se verifică integritatea fișierelor WP Core... Te rog așteaptă."
 
 #: templates/manager/wp/single.html:912
 msgid "Checking integrity for all WordPress plugins... Please wait."
-msgstr "Se verifică integritatea pentru toate pluginurile WordPress... Te rog așteaptă."
+msgstr ""
+"Se verifică integritatea pentru toate pluginurile WordPress... Te rog "
+"așteaptă."
 
 #: templates/manager/wp/single.html:993
 msgid "Reinstall"
@@ -6365,8 +6491,8 @@ msgid ""
 "If checksums fail to match, you can quickly reinstall WordPress core files "
 "or all plugins without affecting your site content."
 msgstr ""
-"Dacă checksum-urile nu se potrivesc, poți reinstala rapid fișierele WordPress core "
-"sau toate pluginurile fără a afecta conținutul site-ului."
+"Dacă checksum-urile nu se potrivesc, poți reinstala rapid fișierele "
+"WordPress core sau toate pluginurile fără a afecta conținutul site-ului."
 
 #: templates/manager/wp/single.html:1003
 msgid "Reinstall WP Core files"
@@ -6517,10 +6643,11 @@ msgid ""
 "recommended to use these options on production websites since they are meant"
 " for development and test installations. Refer to"
 msgstr ""
-"Opțiunile de mai jos îți permit să gestionezi instrumentele native de depanare WordPress, "
-"activând și dezactivând aceste instrumente în fișierul wp-config.php. Nu este "
-"recomandat să folosești aceste opțiuni pe site-uri de producție, deoarece sunt destinate"
-" instalărilor de dezvoltare și test. Consultă"
+"Opțiunile de mai jos îți permit să gestionezi instrumentele native de "
+"depanare WordPress, activând și dezactivând aceste instrumente în fișierul "
+"wp-config.php. Nu este recomandat să folosești aceste opțiuni pe site-uri de"
+" producție, deoarece sunt destinate instalărilor de dezvoltare și test. "
+"Consultă"
 
 #: templates/manager/wp/single.html:1611
 msgid "Debugging in WordPress"
@@ -6548,7 +6675,8 @@ msgstr "WP_DEBUG_LOG"
 
 #: templates/manager/wp/single.html:1651
 msgid "Save all errors to the debug.log file inside the wp-content directory."
-msgstr "Salvează toate erorile în fișierul debug.log din directorul wp-content."
+msgstr ""
+"Salvează toate erorile în fișierul debug.log din directorul wp-content."
 
 #: templates/manager/wp/single.html:1660
 msgid "Enable WP_DEBUG_LOG"
@@ -6576,8 +6704,9 @@ msgid ""
 "files. This is useful when you are testing changes made to .js and .css "
 "files."
 msgstr ""
-"Forțează WordPress să folosească versiunile ne-minificate ale fișierelor core CSS și "
-"JavaScript. Este util atunci când testezi modificări făcute fișierelor .js și .css."
+"Forțează WordPress să folosească versiunile ne-minificate ale fișierelor "
+"core CSS și JavaScript. Este util atunci când testezi modificări făcute "
+"fișierelor .js și .css."
 
 #: templates/manager/wp/single.html:1708
 msgid "Enable SCRIPT_DEBUG"
@@ -6592,8 +6721,8 @@ msgid ""
 "Save database queries to an array that can be displayed to help analyze "
 "them."
 msgstr ""
-"Salvează interogările bazei de date într-un array care poate fi afișat pentru a ajuta "
-"la analizarea lor."
+"Salvează interogările bazei de date într-un array care poate fi afișat "
+"pentru a ajuta la analizarea lor."
 
 #: templates/manager/wp/single.html:1732
 msgid "Enable SAVEQUERIES"
@@ -6633,9 +6762,9 @@ msgid ""
 " used by an existing website. During cloning, website data that exists on "
 "the destination may be overwritten and irrevocably lost."
 msgstr ""
-"Asigură-te că domeniul sau subdomeniul selectat ca țintă nu este folosit de un site "
-"existent. În timpul clonării, datele site-ului existente la destinație pot fi suprascrise "
-"și pierdute irevocabil."
+"Asigură-te că domeniul sau subdomeniul selectat ca țintă nu este folosit de "
+"un site existent. În timpul clonării, datele site-ului existente la "
+"destinație pot fi suprascrise și pierdute irevocabil."
 
 #: templates/manager/wp/single.html:1867
 msgid "Database name to use for new website (optional)"
@@ -6662,15 +6791,16 @@ msgstr "Detașează WordPress"
 
 #: templates/manager/wp/single.html:2053
 msgid "Uninstall WordPress and delete all website files and the database."
-msgstr "Dezinstalează WordPress și șterge toate fișierele site-ului și baza de date."
+msgstr ""
+"Dezinstalează WordPress și șterge toate fișierele site-ului și baza de date."
 
 #: templates/manager/wp/single.html:2055
 msgid ""
 "All WordPress data will be permanently deleted. There is no coming back "
 "after you press delete."
 msgstr ""
-"Toate datele WordPress vor fi șterse permanent. Nu mai există cale de întoarcere "
-"după ce apeși șterge."
+"Toate datele WordPress vor fi șterse permanent. Nu mai există cale de "
+"întoarcere după ce apeși șterge."
 
 #: templates/manager/wp/single.html:2064
 msgid "Uninstall WordPress"
@@ -6713,8 +6843,8 @@ msgid ""
 "No options selected to backup. Please ensure that at least one of the "
 "Database or Files is selected."
 msgstr ""
-"Nu a fost selectată nicio opțiune pentru backup. Te rog asigură-te că este selectat "
-"cel puțin unul dintre Database sau Files."
+"Nu a fost selectată nicio opțiune pentru backup. Te rog asigură-te că este "
+"selectat cel puțin unul dintre Database sau Files."
 
 #: templates/manager/wp/single.html:2548
 msgid "Generating Backup..."
@@ -6726,9 +6856,10 @@ msgid ""
 "and enable access for executing queries, modifying tables, or managing data "
 "within the specified database."
 msgstr ""
-"Atribuie un utilizator unei baze de date MySQL existente pentru a gestiona permisiunile bazei de date "
-"și a permite accesul pentru executarea interogărilor, modificarea tabelelor sau gestionarea datelor "
-"în baza de date specificată."
+"Atribuie un utilizator unei baze de date MySQL existente pentru a gestiona "
+"permisiunile bazei de date și a permite accesul pentru executarea "
+"interogărilor, modificarea tabelelor sau gestionarea datelor în baza de date"
+" specificată."
 
 #: templates/mysql/assign.html:24 templates/mysql/remove.html:23
 #: templates/psql/assign.html:24 templates/psql/remove.html:23
@@ -6760,8 +6891,8 @@ msgid ""
 "View and modify the MySQL service configuration. Any changes will restart "
 "the service."
 msgstr ""
-"Vizualizează și modifică configurația serviciului MySQL. Orice modificări vor reporni "
-"serviciul."
+"Vizualizează și modifică configurația serviciului MySQL. Orice modificări "
+"vor reporni serviciul."
 
 #: templates/mysql/configuration.html:14
 msgid "For more information"
@@ -6787,7 +6918,8 @@ msgstr "Valoare"
 msgid ""
 "To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"
 msgstr ""
-"Pentru a te conecta la baza de date, nu folosi localhost sau 127.0.0.1. În schimb, folosește:"
+"Pentru a te conecta la baza de date, nu folosi localhost sau 127.0.0.1. În "
+"schimb, folosește:"
 
 #: templates/mysql/databases.html:16
 msgid "server:"
@@ -6823,11 +6955,15 @@ msgstr "Importă în baza de date"
 
 #: templates/mysql/import.html:10
 msgid "Select a local file to upload and import into a MySQL database."
-msgstr "Selectează un fișier local pentru încărcare și import într-o bază de date MySQL."
+msgstr ""
+"Selectează un fișier local pentru încărcare și import într-o bază de date "
+"MySQL."
 
 #: templates/mysql/import.html:11
 msgid "Select a local file to upload and import into a MariaDB database."
-msgstr "Selectează un fișier local pentru încărcare și import într-o bază de date MariaDB."
+msgstr ""
+"Selectează un fișier local pentru încărcare și import într-o bază de date "
+"MariaDB."
 
 #: templates/mysql/import.html:41 templates/psql/import.html:38
 msgid "Select File"
@@ -6847,8 +6983,9 @@ msgid ""
 "manage access and permissions for interacting with databases or the MySQL "
 "server."
 msgstr ""
-"Creează un utilizator MySQL nou, cu un nume de utilizator și o parolă unice, pentru a gestiona în siguranță "
-"accesul și permisiunile de interacțiune cu bazele de date sau cu serverul MySQL."
+"Creează un utilizator MySQL nou, cu un nume de utilizator și o parolă unice,"
+" pentru a gestiona în siguranță accesul și permisiunile de interacțiune cu "
+"bazele de date sau cu serverul MySQL."
 
 #: templates/mysql/mysql_user.html:160 templates/mysql/password.html:165
 #: templates/psql/password.html:159 templates/psql/psql_user.html:160
@@ -6865,9 +7002,9 @@ msgid ""
 "foundational structure for applications to manage and retrieve information "
 "efficiently."
 msgstr ""
-"Creează o bază de date MySQL nouă pentru a stoca și organiza date, oferind o "
-"structură de bază pentru ca aplicațiile să gestioneze și să recupereze informații "
-"eficient."
+"Creează o bază de date MySQL nouă pentru a stoca și organiza date, oferind o"
+" structură de bază pentru ca aplicațiile să gestioneze și să recupereze "
+"informații eficient."
 
 #: templates/mysql/new.html:28 templates/psql/new.html:26
 msgid "Random Database Name"
@@ -6940,8 +7077,8 @@ msgid ""
 "Set a custom domain to use with phpMyAdmin (e.g., https://your-domain.com/ "
 "), or leave this field empty to use the default URL:"
 msgstr ""
-"Setează un domeniu personalizat de folosit cu phpMyAdmin (ex.: https://your-domain.com/ "
-"), sau lasă acest câmp gol pentru a folosi URL-ul implicit:"
+"Setează un domeniu personalizat de folosit cu phpMyAdmin (ex.: https://your-"
+"domain.com/ ), sau lasă acest câmp gol pentru a folosi URL-ul implicit:"
 
 #: templates/mysql/phpmyadmin.html:323
 msgid "How to Configure domain"
@@ -6958,8 +7095,8 @@ msgid ""
 "better performance monitoring."
 msgstr ""
 "Lista tuturor proceselor curente care rulează pe serverul MySQL, oferind "
-"informații despre interogările și operațiunile în curs și detaliile asociate, pentru "
-"o monitorizare mai bună a performanței."
+"informații despre interogările și operațiunile în curs și detaliile "
+"asociate, pentru o monitorizare mai bună a performanței."
 
 #: templates/mysql/processlist.html:39
 #: templates/system/process_manager.html:36
@@ -7000,8 +7137,9 @@ msgid ""
 "Enable remote access to connect to a MySQL database on this server from a "
 "another (remote) device or location over the internet."
 msgstr ""
-"Activează accesul la distanță pentru a te conecta la o bază de date MySQL de pe acest server dintr-un "
-"alt dispozitiv sau locație (la distanță) prin internet."
+"Activează accesul la distanță pentru a te conecta la o bază de date MySQL de"
+" pe acest server dintr-un alt dispozitiv sau locație (la distanță) prin "
+"internet."
 
 #: templates/mysql/remote_mysql.html:21 templates/mysql/remote_mysql.html:35
 msgid "Disable Remote MySQL Access"
@@ -7046,9 +7184,9 @@ msgid ""
 "and prevent access to executing queries, modifying tables, or managing data "
 "within the specified database."
 msgstr ""
-"Elimină un utilizator dintr-o bază de date MySQL existentă pentru a-i revoca permisiunile "
-"și a preveni accesul la executarea interogărilor, modificarea tabelelor sau gestionarea datelor "
-"în baza de date specificată."
+"Elimină un utilizator dintr-o bază de date MySQL existentă pentru a-i revoca"
+" permisiunile și a preveni accesul la executarea interogărilor, modificarea "
+"tabelelor sau gestionarea datelor în baza de date specificată."
 
 #: templates/mysql/root_password.html:8
 msgid "Change MySQL root password"
@@ -7056,7 +7194,8 @@ msgstr "Schimbă parola root MySQL"
 
 #: templates/mysql/root_password.html:9
 msgid "Change MySQL root user password and restart mysql service."
-msgstr "Schimbă parola utilizatorului root MySQL și repornește serviciul mysql."
+msgstr ""
+"Schimbă parola utilizatorului root MySQL și repornește serviciul mysql."
 
 #: templates/mysql/users.html:11
 msgid "MySQL Users"
@@ -7087,8 +7226,8 @@ msgid ""
 "Create a new MySQL database, set up a user with a secure password, and "
 "assign it to the database with all necessary privileges."
 msgstr ""
-"Creează o bază de date MySQL nouă, configurează un utilizator cu o parolă sigură și "
-"atribuie-l bazei de date cu toate privilegiile necesare."
+"Creează o bază de date MySQL nouă, configurează un utilizator cu o parolă "
+"sigură și atribuie-l bazei de date cu toate privilegiile necesare."
 
 #: templates/mysql/wizard.html:25 templates/psql/wizard.html:25
 msgid "Create a database"
@@ -7148,7 +7287,8 @@ msgstr "Click stânga pentru a adăuga la Favorite"
 
 #: templates/partials/_header.html:158
 msgid "This page is not in your favorites! Left-click to add it."
-msgstr "Această pagină nu este în favoritele tale! Click stânga pentru a o adăuga."
+msgstr ""
+"Această pagină nu este în favoritele tale! Click stânga pentru a o adăuga."
 
 #: templates/partials/_header.html:180
 msgid "Successfully removed from favorites!"
@@ -7160,7 +7300,9 @@ msgstr "Nu s-a putut elimina din favorite."
 
 #: templates/partials/_header.html:198
 msgid "This page is already in your favorites! Right-click to remove it."
-msgstr "Această pagină este deja în favoritele tale! Click dreapta pentru a o elimina."
+msgstr ""
+"Această pagină este deja în favoritele tale! Click dreapta pentru a o "
+"elimina."
 
 #: templates/partials/_header.html:230
 msgid "Successfully added to favorites!"
@@ -7240,15 +7382,17 @@ msgid ""
 "Search and in web browsers. Here you can see whether this website is "
 "currently marked by Google as dangerous to visit."
 msgstr ""
-"Tehnologia Safe Browsing de la Google examinează zilnic miliarde de URL-uri în căutarea "
-"site-urilor nesigure, multe dintre ele fiind site-uri legitime care au fost "
-"compromise. Când este detectat un site nesigur, este afișat un avertisment în Google "
-"Search și în browserele web. Aici poți vedea dacă acest site este "
-"marcat în prezent de Google ca fiind periculos de vizitat."
+"Tehnologia Safe Browsing de la Google examinează zilnic miliarde de URL-uri "
+"în căutarea site-urilor nesigure, multe dintre ele fiind site-uri legitime "
+"care au fost compromise. Când este detectat un site nesigur, este afișat un "
+"avertisment în Google Search și în browserele web. Aici poți vedea dacă "
+"acest site este marcat în prezent de Google ca fiind periculos de vizitat."
 
 #: templates/partials/googlesafebrowsing.html:148
 msgid "Error fetching WordPress vulnerability data. Please refresh the page."
-msgstr "Eroare la preluarea datelor despre vulnerabilitățile WordPress. Te rog reîncarcă pagina."
+msgstr ""
+"Eroare la preluarea datelor despre vulnerabilitățile WordPress. Te rog "
+"reîncarcă pagina."
 
 #: templates/partials/googlesafebrowsing.html:170
 msgid "No unsafe content found"
@@ -7328,8 +7472,9 @@ msgid ""
 "Error fetching Google PageSpeed data for the domain. Please refresh the "
 "page. If the issue continues, contact support for assistance."
 msgstr ""
-"Eroare la preluarea datelor Google PageSpeed pentru domeniu. Te rog reîncarcă "
-"pagina. Dacă problema persistă, contactează suportul pentru asistență."
+"Eroare la preluarea datelor Google PageSpeed pentru domeniu. Te rog "
+"reîncarcă pagina. Dacă problema persistă, contactează suportul pentru "
+"asistență."
 
 #: templates/partials/screenshot.html:8
 msgid "Loading screenshot..."
@@ -7494,8 +7639,8 @@ msgid ""
 "Modify PHP settings stored in the php.ini configuration file, such as memory"
 " limits, error reporting, and extension settings."
 msgstr ""
-"Modifică setările PHP stocate în fișierul de configurare php.ini, precum limitele de memorie"
-" raportarea erorilor și setările extensiilor."
+"Modifică setările PHP stocate în fișierul de configurare php.ini, precum "
+"limitele de memorie raportarea erorilor și setările extensiilor."
 
 #: templates/php/ini_editor.html:59
 msgid "Edit PHP.INI file\n"
@@ -7514,13 +7659,15 @@ msgid ""
 "Set custom limits for each PHP version. These settings will override those "
 "defined in the PHP Selector and PHP.INI Editor."
 msgstr ""
-"Setează limite personalizate pentru fiecare versiune PHP. Aceste setări le vor suprascrie pe cele "
-"definite în PHP Selector și PHP.INI Editor."
+"Setează limite personalizate pentru fiecare versiune PHP. Aceste setări le "
+"vor suprascrie pe cele definite în PHP Selector și PHP.INI Editor."
 
 #: templates/php/options.html:13
 msgid ""
 "Edit options for this PHP version. Any changes will restart the service."
-msgstr "Editează opțiunile pentru această versiune PHP. Orice modificări vor reporni serviciul."
+msgstr ""
+"Editează opțiunile pentru această versiune PHP. Orice modificări vor reporni"
+" serviciul."
 
 #: templates/php/options.html:47
 msgid "Option"
@@ -7539,8 +7686,8 @@ msgid ""
 "Modify PHP options such as memory limits, error reporting, and extension "
 "settings."
 msgstr ""
-"Modifică opțiunile PHP, precum limitele de memorie, raportarea erorilor și setările "
-"extensiilor."
+"Modifică opțiunile PHP, precum limitele de memorie, raportarea erorilor și "
+"setările extensiilor."
 
 #: templates/php/options.html:209
 msgid "Edit Options"
@@ -7563,8 +7710,8 @@ msgid ""
 "Be sure to check your script and plugin requirements to know which PHP "
 "version works best for your website."
 msgstr ""
-"Asigură-te că verifici cerințele scripturilor și pluginurilor pentru a ști ce versiune PHP "
-"funcționează cel mai bine pentru site-ul tău."
+"Asigură-te că verifici cerințele scripturilor și pluginurilor pentru a ști "
+"ce versiune PHP funcționează cel mai bine pentru site-ul tău."
 
 #: templates/php/settings.html:154
 msgid "Current PHP Version"
@@ -7580,9 +7727,10 @@ msgid ""
 "permissions and enable access for executing queries, modifying tables, or "
 "managing data within the specified database."
 msgstr ""
-"Atribuie un utilizator unei baze de date PostgreSQL existente pentru a gestiona permisiunile bazei de date "
-"și a permite accesul pentru executarea interogărilor, modificarea tabelelor sau "
-"gestionarea datelor în baza de date specificată."
+"Atribuie un utilizator unei baze de date PostgreSQL existente pentru a "
+"gestiona permisiunile bazei de date și a permite accesul pentru executarea "
+"interogărilor, modificarea tabelelor sau gestionarea datelor în baza de date"
+" specificată."
 
 #: templates/psql/assign.html:42
 msgid "Select a database"
@@ -7593,8 +7741,8 @@ msgid ""
 "View and modify the PostgreSQL service configuration. Any changes will "
 "restart the service."
 msgstr ""
-"Vizualizează și modifică configurația serviciului PostgreSQL. Orice modificări vor "
-"reporni serviciul."
+"Vizualizează și modifică configurația serviciului PostgreSQL. Orice "
+"modificări vor reporni serviciul."
 
 #: templates/psql/databases.html:162
 msgid "System Database"
@@ -7606,7 +7754,9 @@ msgstr "Nu există baze de date"
 
 #: templates/psql/import.html:9
 msgid "Selet a local file to upload and import into a PostgreSQL database."
-msgstr "Selectează un fișier local pentru încărcare și import într-o bază de date PostgreSQL."
+msgstr ""
+"Selectează un fișier local pentru încărcare și import într-o bază de date "
+"PostgreSQL."
 
 #: templates/psql/new.html:9
 msgid ""
@@ -7614,9 +7764,9 @@ msgid ""
 "foundational structure for applications to manage and retrieve information "
 "efficiently."
 msgstr ""
-"Creează o bază de date PostgreSQL nouă pentru a stoca și organiza date, oferind o "
-"structură de bază pentru ca aplicațiile să gestioneze și să recupereze informații "
-"eficient."
+"Creează o bază de date PostgreSQL nouă pentru a stoca și organiza date, "
+"oferind o structură de bază pentru ca aplicațiile să gestioneze și să "
+"recupereze informații eficient."
 
 #: templates/psql/password.html:9
 msgid "Change password for a PostgreSQL database user."
@@ -7652,9 +7802,9 @@ msgid ""
 "insights into ongoing queries, operations, and their associated details for "
 "better performance monitoring."
 msgstr ""
-"Lista tuturor proceselor curente care rulează pe serverul PostgreSQL, oferind "
-"informații despre interogările și operațiunile în curs și detaliile asociate, pentru "
-"o monitorizare mai bună a performanței."
+"Lista tuturor proceselor curente care rulează pe serverul PostgreSQL, "
+"oferind informații despre interogările și operațiunile în curs și detaliile "
+"asociate, pentru o monitorizare mai bună a performanței."
 
 #: templates/psql/processlist.html:85
 msgid "datid"
@@ -7838,9 +7988,9 @@ msgid ""
 "manage access and permissions for interacting with databases or the "
 "PostgreSQL server."
 msgstr ""
-"Creează un utilizator Postgres nou, cu un nume de utilizator și o parolă unice, pentru a gestiona în siguranță "
-"accesul și permisiunile de interacțiune cu bazele de date sau cu serverul "
-"PostgreSQL."
+"Creează un utilizator Postgres nou, cu un nume de utilizator și o parolă "
+"unice, pentru a gestiona în siguranță accesul și permisiunile de "
+"interacțiune cu bazele de date sau cu serverul PostgreSQL."
 
 #: templates/psql/remote_psql.html:11
 msgid "Remote PostgreSQL Access"
@@ -7851,8 +8001,8 @@ msgid ""
 "Connect to a PostgreSQL database on this server from a another (remote) "
 "device or location over the internet."
 msgstr ""
-"Conectează-te la o bază de date PostgreSQL de pe acest server dintr-un alt dispozitiv sau locație (la distanță) "
-"prin internet."
+"Conectează-te la o bază de date PostgreSQL de pe acest server dintr-un alt "
+"dispozitiv sau locație (la distanță) prin internet."
 
 #: templates/psql/remote_psql.html:21 templates/psql/remote_psql.html:35
 msgid "Disable Remote PostgreSQL Access"
@@ -7872,9 +8022,9 @@ msgid ""
 "permissions and prevent access to executing queries, modifying tables, or "
 "managing data within the specified database."
 msgstr ""
-"Elimină un utilizator dintr-o bază de date PostgreSQL existentă pentru a-i revoca "
-"permisiunile și a preveni accesul la executarea interogărilor, modificarea tabelelor sau "
-"gestionarea datelor în baza de date specificată."
+"Elimină un utilizator dintr-o bază de date PostgreSQL existentă pentru a-i "
+"revoca permisiunile și a preveni accesul la executarea interogărilor, "
+"modificarea tabelelor sau gestionarea datelor în baza de date specificată."
 
 #: templates/psql/users.html:11
 msgid "PostgreSQL Users"
@@ -7885,8 +8035,8 @@ msgid ""
 "Create a new PostgreSQL database, set up a user with a secure password, and "
 "assign it to the database with all necessary privileges."
 msgstr ""
-"Creează o bază de date PostgreSQL nouă, configurează un utilizator cu o parolă sigură și "
-"atribuie-l bazei de date cu toate privilegiile necesare."
+"Creează o bază de date PostgreSQL nouă, configurează un utilizator cu o "
+"parolă sigură și atribuie-l bazei de date cu toate privilegiile necesare."
 
 #: templates/system/apache_nginx_conf_editor.html:22
 msgid "Edit main webserver configuration file:"
@@ -7895,15 +8045,17 @@ msgstr "Editează fișierul principal de configurare al serverului web:"
 #: templates/system/cronjobs.html:25
 msgid ""
 "A cron job is a Linux command used to schedule tasks for future execution."
-msgstr "Un cron job este o comandă Linux folosită pentru a programa sarcini pentru execuție viitoare."
+msgstr ""
+"Un cron job este o comandă Linux folosită pentru a programa sarcini pentru "
+"execuție viitoare."
 
 #: templates/system/cronjobs.html:26
 msgid ""
 "It allows you to automate repetitive tasks, such as sending notifications or"
 " running scripts at specific intervals."
 msgstr ""
-"Îți permite să automatizezi sarcini repetitive, precum trimiterea de notificări sau"
-" rularea de scripturi la intervale specifice."
+"Îți permite să automatizezi sarcini repetitive, precum trimiterea de "
+"notificări sau rularea de scripturi la intervale specifice."
 
 #: templates/system/cronjobs.html:29
 msgid "Crontab File Editor"
@@ -7915,9 +8067,9 @@ msgid ""
 "the cron entry in the file, you will not be warned as opposed to when saving"
 " cronjobs in table mode."
 msgstr ""
-"Editarea fișierului crontab este destinată doar utilizatorilor avansați. Dacă ai introdus greșit "
-"intrarea cron în fișier, nu vei fi avertizat, spre deosebire de cazul în care salvezi"
-" cronjoburi în modul tabel."
+"Editarea fișierului crontab este destinată doar utilizatorilor avansați. "
+"Dacă ai introdus greșit intrarea cron în fișier, nu vei fi avertizat, spre "
+"deosebire de cazul în care salvezi cronjoburi în modul tabel."
 
 #: templates/system/cronjobs.html:37
 msgid "Need Help?"
@@ -7938,8 +8090,8 @@ msgid ""
 "When the job should be executed. E.g. every 10 seconds or every night at 1 "
 "AM."
 msgstr ""
-"Când ar trebui executată sarcina. Ex.: la fiecare 10 secunde sau în fiecare noapte la 1 "
-"AM."
+"Când ar trebui executată sarcina. Ex.: la fiecare 10 secunde sau în fiecare "
+"noapte la 1 AM."
 
 #: templates/system/cronjobs.html:62
 msgid ""
@@ -7947,9 +8099,9 @@ msgid ""
 "10s or 0 0 1 * * * (every night at 1 AM). Note: the format starts with "
 "seconds, instead of minutes."
 msgstr ""
-"Șir de caractere, vezi formatul de programare al implementării Go a cron. Ex.: @every "
-"10s sau 0 0 1 * * * (în fiecare noapte la 1 AM). Notă: formatul începe cu "
-"secunde, în loc de minute."
+"Șir de caractere, vezi formatul de programare al implementării Go a cron. "
+"Ex.: @every 10s sau 0 0 1 * * * (în fiecare noapte la 1 AM). Notă: formatul "
+"începe cu secunde, în loc de minute."
 
 #: templates/system/cronjobs.html:63 templates/system/cronjobs.html:67
 #: templates/system/cronjobs.html:72 templates/system/cronjobs.html:77
@@ -8019,7 +8171,8 @@ msgstr "Nu există cronjoburi."
 
 #: templates/system/cronjobs.html:284
 msgid "No cronjobs yet, to create a cron click on the button above."
-msgstr "Nu există încă cronjoburi; pentru a crea unul, apasă butonul de mai sus."
+msgstr ""
+"Nu există încă cronjoburi; pentru a crea unul, apasă butonul de mai sus."
 
 #: templates/system/cronjobs_new.html:11
 msgid "Create Cron Job"
@@ -8030,8 +8183,9 @@ msgid ""
 "Select a container in which the script will be executed and set schedule. To"
 " add multiple jobs at once, use the File Editor instead."
 msgstr ""
-"Selectează un container în care va fi executat scriptul și setează programarea. Pentru"
-" a adăuga mai multe joburi odată, folosește Editorul de fișiere."
+"Selectează un container în care va fi executat scriptul și setează "
+"programarea. Pentru a adăuga mai multe joburi odată, folosește Editorul de "
+"fișiere."
 
 #: templates/system/cronjobs_new.html:36
 msgid "Select Container:"
@@ -8303,8 +8457,8 @@ msgid ""
 "Enable or disable OWASP Coraza Web Application Firewall protection for "
 "domains."
 msgstr ""
-"Activează sau dezactivează protecția OWASP Coraza Web Application Firewall pentru "
-"domenii."
+"Activează sau dezactivează protecția OWASP Coraza Web Application Firewall "
+"pentru domenii."
 
 #: templates/system/waf.html:105
 msgid "Manage Rules"
@@ -8355,8 +8509,9 @@ msgid ""
 "Username must be between 3 and 20 characters, and only contain letters and "
 "numbers (no spaces, hyphens, or underscores)."
 msgstr ""
-"Numele de utilizator trebuie să aibă între 3 și 20 de caractere și să conțină "
-"doar litere și cifre (fără spații, cratime sau liniuțe de subliniere)."
+"Numele de utilizator trebuie să aibă între 3 și 20 de caractere și să "
+"conțină doar litere și cifre (fără spații, cratime sau liniuțe de "
+"subliniere)."
 
 #: templates/user/active_sessions.html:11
 msgid "View all currently active sessions for your account."
@@ -8408,7 +8563,8 @@ msgstr "Click aici pentru a te autentifica în cont"
 
 #: templates/user/email_template.html:144
 msgid "Click here to manage notification preferences for your account"
-msgstr "Click aici pentru a gestiona preferințele de notificări pentru contul tău"
+msgstr ""
+"Click aici pentru a gestiona preferințele de notificări pentru contul tău"
 
 #: templates/user/favorites.html:11
 msgid ""
@@ -8433,8 +8589,8 @@ msgid ""
 "The Favorites feature is currently disabled by the administrator; please "
 "contact your administrator to enable it."
 msgstr ""
-"Funcționalitatea Favorite este în prezent dezactivată de administrator; te rog "
-"contactează administratorul pentru a o activa."
+"Funcționalitatea Favorite este în prezent dezactivată de administrator; te "
+"rog contactează administratorul pentru a o activa."
 
 #: templates/user/history_usage.html:13 templates/user/history_usage.html:49
 msgid "Historical CPU and Memory Usage"
@@ -8518,7 +8674,8 @@ msgstr "Click pentru a copia IP-ul"
 
 #: templates/user/notifications.html:11
 msgid "Select events for which to receive email notifications."
-msgstr "Selectează evenimentele pentru care să primești notificări prin email."
+msgstr ""
+"Selectează evenimentele pentru care să primești notificări prin email."
 
 #: templates/user/notifications.html:28
 msgid "Receive email notifications for"
@@ -8530,7 +8687,8 @@ msgstr "Salvează preferințele"
 
 #: templates/user/stats.html:23
 msgid "View current resource usage for all websites and services."
-msgstr "Vezi utilizarea curentă a resurselor pentru toate site-urile și serviciile."
+msgstr ""
+"Vezi utilizarea curentă a resurselor pentru toate site-urile și serviciile."
 
 #: templates/user/stats.html:33
 msgid "View Usage History"
@@ -8593,8 +8751,8 @@ msgid ""
 "Scan the QR code with your 2FA device or click on the button below to "
 "display OTP code instead."
 msgstr ""
-"Scanează codul QR cu dispozitivul tău 2FA sau apasă butonul de mai jos pentru a "
-"afișa în schimb codul OTP."
+"Scanează codul QR cu dispozitivul tău 2FA sau apasă butonul de mai jos "
+"pentru a afișa în schimb codul OTP."
 
 #: templates/user/twofa_settings.html:93
 msgid "Click here to display OTP code"
@@ -8625,8 +8783,8 @@ msgid ""
 "Please check your email and click the link within the next 15 minutes to "
 "reset your password."
 msgstr ""
-"Te rog verifică-ți emailul și apasă pe link în următoarele 15 minute pentru a-ți "
-"reseta parola."
+"Te rog verifică-ți emailul și apasă pe link în următoarele 15 minute pentru "
+"a-ți reseta parola."
 
 #: templates/user/reset_password/link_is_sent.html:15
 #: templates/user/reset_password/request_email.html:21
@@ -8640,7 +8798,9 @@ msgstr "Ți-ai uitat parola?"
 #: templates/user/reset_password/request_email.html:12
 msgid ""
 "Enter your email address and we'll send you a link to reset your password."
-msgstr "Introdu adresa ta de email și îți vom trimite un link pentru a-ți reseta parola."
+msgstr ""
+"Introdu adresa ta de email și îți vom trimite un link pentru a-ți reseta "
+"parola."
 
 #: templates/user/reset_password/request_email.html:22
 msgid "Enter your email address"

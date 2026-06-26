@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 24.06.2026
+# Last Modified: 25.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

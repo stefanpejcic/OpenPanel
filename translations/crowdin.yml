@@ -1,0 +1,22 @@
+base_path: .
+preserve_hierarchy: true
+
+files:
+  - source: /en-us/messages.pot
+    translation: /%locale%/messages.po
+
+    languages_mapping:
+      locale:
+        bg: bg-bg
+        de: de-de
+        es-ES: es-es
+        fr: fr-fr
+        hu: hu-hu
+        ne: ne-np
+        pt-BR: pt-br
+        ro: ro-ro
+        ru: ru-ru
+        sr: sr-rs
+        tr: tr-tr
+        uk: uk-ua
+        zh-CN: zh-cn

@@ -20,6 +20,8 @@
 #                homedir/               — /home/CONTEXT streamed directly;
 #                                         always named homedir/ so the archive
 #                                         is independent of the username
+#                emails/               —  email accounts, aliases, quotas, defaults,
+#                                         send/receive suspensions, hourly limits
 #
 #              Default output:
 #                /home/CONTEXT/docker-data/volumes/CONTEXT_html_data/_data/_backups/
@@ -47,6 +49,7 @@ DRY_RUN=0
 # Runtime tracking — populated during the backup, printed in summary
 WARNINGS=()
 BACKUP_DOMAINS=()
+DOMAIN_LIST_STR="(none)"
 BACKUP_FTP_COUNT=0
 DISK_ESTIMATE_MB=0
 DISK_FREE_MB=0
@@ -281,12 +284,15 @@ if [[ $DRY_RUN -eq 1 ]]; then
     echo ""
 
     echo "  Feature set:"
-    if [[ -n "$PLAN_FEATURE_SET" ]]; then
-        FEAT_FILE="/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt"
-        FEAT_S="[not found — will be skipped]"
-        [[ -f "$FEAT_FILE" ]] && FEAT_S="[found ✓]"
+    PER_USER_FEAT_FILE="/home/$CONTEXT/features.txt"
+    if [[ -n "$PER_USER_FEAT_FILE" ]]; then
+        FEAT_S="[custom feature set for user ✓]"
+        printf "    %-30s %s\n" "$PER_USER_FEAT_FILE" "$FEAT_S"
+    elif [[ -n "$PLAN_FEATURE_SET" ]]; then
+        [[ -f "/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt" ]] && FEAT_S="[default feature set on the hosting plan ✓]"
         printf "    %-30s %s\n" "$PLAN_FEATURE_SET" "$FEAT_S"
     else
+        FEAT_S="[not found — will be skipped]"
         echo "    (none)"
     fi
     echo ""
@@ -341,9 +347,7 @@ check_disk_space
 # ---------------------------------------------------------------------------
 STAGE=$(mktemp -d "/tmp/opbackup_${base_name}.XXXXXX")
 trap 'rm -rf "$STAGE"' EXIT
-mkdir -p "$STAGE"/{db,system,features,core,ftp,\
-caddy/domains,caddy/ssl/acme,caddy/ssl/custom,caddy/domlogs,caddy/waf,caddy/stats,\
-bind/zones,docker}
+mkdir -p "$STAGE"/{db,system,features,core,ftp,caddy/domains,caddy/ssl/acme,caddy/ssl/custom,caddy/domlogs,caddy/waf,caddy/stats,caddy/suspended,bind/zones,docker,emails/dkim}
 
 # --- manifest ---
 log "Writing manifest ..."
@@ -411,6 +415,8 @@ if [[ "$ALL_DOMAINS" != *"No domains found for user"* && -n "$ALL_DOMAINS" ]]; t
     done <<< "$ALL_DOMAINS"
 fi
 
+[[ ${#BACKUP_DOMAINS[@]} -gt 0 ]] && DOMAIN_LIST_STR="${BACKUP_DOMAINS[*]}"
+
 # --- system user ---
 log "Capturing system user ($CONTEXT) ..."
 awk -F: -v u="$CONTEXT" '$1==u{print}' /etc/passwd > "$STAGE/system/passwd.user"
@@ -421,44 +427,53 @@ awk -F: -v u="$CONTEXT" 'BEGIN{gid=""}
 grep "^${CONTEXT}:" /etc/shadow 2>/dev/null > "$STAGE/system/shadow.user" || true
 
 # --- feature set ---
-FEATURES_DIR="/etc/openpanel/openpanel/features"
-[[ -n "$PLAN_FEATURE_SET" && -f "$FEATURES_DIR/${PLAN_FEATURE_SET}.txt" ]] && cp -a "$FEATURES_DIR/${PLAN_FEATURE_SET}.txt" "$STAGE/features/"
+if [[ ! -f "$FTPER_USER_FEAT_FILEP_DIR" ]]; then
+    [[ -n "$PLAN_FEATURE_SET" && -f "/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt" ]] && cp -a "/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt" "$STAGE/features/" && log "Collected feature set for the plan"
+fi
 
 # --- per-user core config ---
 CORE_DIR="/etc/openpanel/openpanel/core/users/$USERNAME"
-[[ -d "$CORE_DIR" ]] && cp -a "$CORE_DIR/." "$STAGE/core/"
+[[ -d "$CORE_DIR" ]] && cp -a "$CORE_DIR/." "$STAGE/core/" && log "Collected system files for user"
 
 # --- FTP ---
 FTP_DIR="/etc/openpanel/ftp/users/$CONTEXT"
 if [[ -d "$FTP_DIR" ]]; then
-    cp -a "$FTP_DIR/." "$STAGE/ftp/"
+    cp -a "$FTP_DIR/." "$STAGE/ftp/" && log "Collected FTP accounts for user"
     BACKUP_FTP_COUNT=$(grep -c '.' "$FTP_DIR/users.list" 2>/dev/null || echo 0)
 fi
 
 # --- per-domain caddy + bind assets ---
 if [[ -f "$STAGE/db/domains.list" ]]; then
-    log "Collecting per-domain caddy + bind assets ..."
+    log "Collecting per-domain assets ..."
     while IFS=$'\t ' read -r domain docroot php_version; do
         [[ -z "$domain" ]] && continue
-        [[ -f "/etc/openpanel/caddy/domains/$domain.conf" ]] && cp -a "/etc/openpanel/caddy/domains/$domain.conf" "$STAGE/caddy/domains/"
-        [[ -f "/var/log/caddy/domlogs/$domain" ]] && cp -a "/var/log/caddy/domlogs/$domain" "$STAGE/caddy/domlogs/"
-        [[ -f "/var/log/caddy/coraza_waf/$domain.log" ]] && cp -a "/var/log/caddy/coraza_waf/$domain.log" "$STAGE/caddy/waf/"
-        [[ -f "/etc/bind/zones/$domain.zone" ]] && cp -a "/etc/bind/zones/$domain.zone" "$STAGE/bind/zones/"
-        [[ -d "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" ]] && cp -a "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" "$STAGE/caddy/ssl/acme/"
-        [[ -d "/etc/openpanel/caddy/ssl/custom/$domain" ]] && cp -a "/etc/openpanel/caddy/ssl/custom/$domain" "$STAGE/caddy/ssl/custom/"
+        log "- domain: $domain"
+        [[ -f "/etc/openpanel/caddy/domains/$domain.conf" ]] && cp -a "/etc/openpanel/caddy/domains/$domain.conf" "$STAGE/caddy/domains/" && log "-- Caddyfile"
+        [[ -f "/var/log/caddy/domlogs/$domain/access.log" ]] && cp -a "/var/log/caddy/domlogs/$domain/access.log" "$STAGE/caddy/domlogs/$domain.log" && log "-- Domlog"
+        [[ -f "/var/log/caddy/coraza_waf/$domain.log" ]] && cp -a "/var/log/caddy/coraza_waf/$domain.log" "$STAGE/caddy/waf/" && log "-- WAF log"
+        [[ -f "/etc/bind/zones/$domain.zone" ]] && cp -a "/etc/bind/zones/$domain.zone" "$STAGE/bind/zones/" && log "-- DNS zone"
+        [[ -f "/etc/openpanel/caddy/suspended_domains/$domain.conf" ]] && cp -a "/etc/openpanel/caddy/suspended_domains/$domain.conf" "$STAGE/caddy/suspended/" && log "-- Suspended"
+        [[ -d "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" ]] && cp -a "/etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/$domain" "$STAGE/caddy/ssl/acme/" && log "-- Let's Encrypt SSL"
+        [[ -d "/etc/openpanel/caddy/ssl/custom/$domain" ]] && cp -a "/etc/openpanel/caddy/ssl/custom/$domain" "$STAGE/caddy/ssl/custom/" && log "-- Custom SSL"
+        [[ -d "/usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/$domain" ]] && cp -ra "/usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/$domain" "$STAGE/emails/dkim/" && log "-- DKIM"
     done < "$STAGE/db/domains.list"
 fi
-[[ -d "/var/log/caddy/stats/$USERNAME" ]] && cp -a "/var/log/caddy/stats/$USERNAME" "$STAGE/caddy/stats/"
+
+# --- Domlogs ---
+[[ -d "/var/log/caddy/stats/$USERNAME" ]] && cp -a "/var/log/caddy/stats/$USERNAME" "$STAGE/caddy/stats/" && log "Collected domlogs for domains"
+
+# --- Blocked IPs ---
+[[ -f "/etc/openpanel/caddy/deny/$CONTEXT.ips" ]] && cp -a "/etc/openpanel/caddy/deny/$CONTEXT.ips" "$STAGE/caddy/blocked.ips" && log "Collected IP Blocker settings for domains"
 
 # --- docker metadata ---
 if [[ -f "/home/$CONTEXT/docker-compose.yml" ]]; then
     containers=$(docker --context="$CONTEXT" ps -a --format "{{.Names}}" 2>/dev/null | tr '\n' ' ' | sed 's/ $//')
-    echo "$CONTEXT: ${containers:-no containers}" > "$STAGE/docker/containers.txt"
+    echo "$CONTEXT: ${containers:-no containers}" > "$STAGE/docker/containers.txt" && log "Collected list of currently active containers for user"
 fi
-[[ -f "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" ]] && cp -a "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" "$STAGE/docker/apparmor.profile"
+[[ -f "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" ]] && cp -a "/etc/apparmor.d/home.$CONTEXT.bin.rootlesskit" "$STAGE/docker/apparmor.profile" && log "Collected AppArmor profile for user"
 echo "${SYS_UID}" > "$STAGE/docker/uid.txt"
 
-# --- external mail store ---
+# --- Emails ---
 if [[ -n "$MAIL_EXTERNAL_PATH" ]]; then
     log "Archiving external mail store: $MAIL_EXTERNAL_PATH ..."
     mkdir -p "$STAGE/mail_external"
@@ -466,6 +481,65 @@ if [[ -n "$MAIL_EXTERNAL_PATH" ]]; then
     echo "$MAIL_EXTERNAL_PATH" > "$STAGE/mail_external/path.txt"
 fi
 
+
+if [[ -s "$CORE_DIR/emails.yml" ]]; then
+    log "Collecting email accounts information.."
+
+    readonly DMS_CONFIG="/usr/local/mail/openmail/docker-data/dms/config"
+    readonly POSTFWD_SRC="/usr/local/mail/openmail/postfwd/postfwd.cf"
+
+    mkdir -p "$STAGE/emails"
+
+    DOMAIN_PATTERN=$(printf '@%s\|' $DOMAIN_LIST_STR | sed 's/\\|$//')
+    REGEX_PATTERN=$(printf '/\\*@%s/|' $DOMAIN_LIST_STR | sed 's/|$//')
+
+    : > "$STAGE/emails/postfix-accounts.cf"
+    [[ -f "$DMS_CONFIG/postfix-accounts.cf" ]] && grep "$DOMAIN_PATTERN" "$DMS_CONFIG/postfix-accounts.cf" > "$STAGE/emails/postfix-accounts.cf" || true
+    accounts_count=$(wc -l < "$STAGE/emails/postfix-accounts.cf") && log "Collected ${accounts_count} email accounts"
+
+    : > "$STAGE/emails/postfix-regex.cf"
+    [[ -f "$DMS_CONFIG/postfix-regex.cf" ]] && grep -E "$REGEX_PATTERN" "$DMS_CONFIG/postfix-regex.cf" > "$STAGE/emails/postfix-regex.cf" || true
+    alias_count=$(wc -l < "$STAGE/emails/postfix-regex.cf") && log "Collected ${alias_count} aliases"
+
+    : > "$STAGE/emails/dovecot-quotas.cf"
+    [[ -f "$DMS_CONFIG/dovecot-quotas.cf" ]] && grep "$DOMAIN_PATTERN" "$DMS_CONFIG/dovecot-quotas.cf" > "$STAGE/emails/dovecot-quotas.cf" || true
+    quotas_count=$(wc -l < "$STAGE/emails/dovecot-quotas.cf") && log "Collected dovecot quota restrictions for ${quotas_count} addresses"
+
+    : > "$STAGE/emails/postfix-receive-access.cf"
+    [[ -f "$DMS_CONFIG/postfix-receive-access.cf" ]] && grep "$DOMAIN_PATTERN" "$DMS_CONFIG/postfix-receive-access.cf" > "$STAGE/emails/postfix-receive-access.cf" || true
+    suspended_receive_count=$(wc -l < "$STAGE/emails/postfix-receive-access.cf") && log "Collected suspended incoming status for ${suspended_receive_count} addresses"
+
+    : > "$STAGE/emails/postfix-send-access.cf"
+    [[ -f "$DMS_CONFIG/postfix-send-access.cf" ]] && grep "$DOMAIN_PATTERN" "$DMS_CONFIG/postfix-send-access.cf" > "$STAGE/emails/postfix-send-access.cf" || true
+    suspended_send_count=$(wc -l < "$STAGE/emails/postfix-send-access.cf") && log "Collected suspended outgoing status for ${suspended_send_count} addresses"
+
+    : > "$STAGE/emails/postfix-virtual.cf"
+    [[ -f "$DMS_CONFIG/postfix-virtual.cf" ]] && grep "$DOMAIN_PATTERN" "$DMS_CONFIG/postfix-virtual.cf" > "$STAGE/emails/postfix-virtual.cf" || true
+    default_addresses_count=$(wc -l < "$STAGE/emails/postfix-virtual.cf") && log "Collected ${default_addresses_count} default (catch-all) addresses"
+
+    : > "$STAGE/emails/postfwd.cf"
+    if [[ -f "$POSTFWD_SRC" ]]; then
+        while IFS= read -r line; do
+            matched=0
+
+            if [[ "$line" == id=* ]]; then
+                for domain in $DOMAIN_LIST_STR; do
+                    if [[ "$line" == *"@${domain}"* ]]; then
+                        matched=1
+                        break
+                    fi
+                done
+            fi
+
+            if [[ $matched -eq 1 ]]; then
+                echo "$line"
+                IFS= read -r next_line && echo "$next_line"
+            fi
+        done < "$POSTFWD_SRC" > "$STAGE/emails/postfwd.cf"
+    fi
+
+    postfwd_domain_limits_count=$(wc -l < "$STAGE/emails/postfwd.cf") && log "Collected ${postfwd_domain_limits_count} postfwd rules"
+fi
 # ---------------------------------------------------------------------------
 # Single streaming tar pass
 #   -C /home CONTEXT          streams home directly
@@ -474,7 +548,7 @@ fi
 #   -C STAGE items...         appends all staged metadata
 # ---------------------------------------------------------------------------
 STAGE_ITEMS=()
-for item in manifest.env db system features core ftp caddy bind docker; do
+for item in manifest.env db system features core ftp caddy bind docker emails; do
     [[ -e "$STAGE/$item" ]] && STAGE_ITEMS+=("$item")
 done
 [[ -d "$STAGE/mail_external" ]] && STAGE_ITEMS+=("mail_external")
@@ -520,9 +594,6 @@ elapsed_m=$(( (elapsed % 3600) / 60 ))
 elapsed_s=$(( elapsed % 60 ))
 
 ARCHIVE_SIZE=$(du -h "$ARCHIVE" 2>/dev/null | cut -f1)
-
-DOMAIN_LIST_STR="(none)"
-[[ ${#BACKUP_DOMAINS[@]} -gt 0 ]] && DOMAIN_LIST_STR="${BACKUP_DOMAINS[*]}"
 
 CONTAINERS_STR="none"
 if [[ -f "$STAGE/docker/containers.txt" ]]; then

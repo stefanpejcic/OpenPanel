@@ -69,7 +69,9 @@ msgstr "Erreur lors de la récupération du code pays :"
 
 #: modules/dashboard.py:234 modules/dashboard.py:333
 msgid "Error retrieving database count for the user."
-msgstr "Erreur lors de la récupération du nombre de bases de données pour l'utilisateur."
+msgstr ""
+"Erreur lors de la récupération du nombre de bases de données pour "
+"l'utilisateur."
 
 #: modules/dashboard.py:364 modules/dashboard.py:366 modules/dashboard.py:372
 #: modules/dashboard.py:375 templates/edit_mysql_config.html:179
@@ -81,15 +83,18 @@ msgstr "Inconnu"
 msgid ""
 "MySQL configuration was saved successfully but MySQL service failed to "
 "start! Please revert the changes to restart MySQL."
-msgstr "La configuration de MySQL a été enregistrée avec succès mais le service MySQL n'a pas pu "
-"démarrer ! Veuillez revenir en arrière sur les modifications pour redémarrer MySQL."
+msgstr ""
+"La configuration de MySQL a été enregistrée avec succès mais le service "
+"MySQL n'a pas pu démarrer ! Veuillez revenir en arrière sur les "
+"modifications pour redémarrer MySQL."
 
 #: modules/databases.py:191
 msgid ""
-"MySQL Configuration was edited successfully and service restarted to "
-"apply new settings."
-msgstr "La configuration de MySQL a été modifiée avec succès et le service a été redémarré pour "
-"appliquer les nouveaux paramètres."
+"MySQL Configuration was edited successfully and service restarted to apply "
+"new settings."
+msgstr ""
+"La configuration de MySQL a été modifiée avec succès et le service a été "
+"redémarré pour appliquer les nouveaux paramètres."
 
 #: modules/databases.py:221
 msgid "Edit MySQL Config"
@@ -160,7 +165,8 @@ msgstr "Le domaine n'appartient pas à l'utilisateur."
 
 #: modules/domains.py:190
 msgid "Invalid file_name. Allowed values: browser, ip, type, link."
-msgstr "Nom de fichier invalide. Valeurs autorisées : navigateur, ip, type, lien."
+msgstr ""
+"Nom de fichier invalide. Valeurs autorisées : navigateur, ip, type, lien."
 
 #: modules/domains.py:228 modules/domains.py:244
 msgid "Access Log"
@@ -210,7 +216,9 @@ msgstr "Modifier le fichier VHosts"
 
 #: modules/domains.py:630
 msgid "Invalid request. Domain name and Vhost content must be provided."
-msgstr "Demande invalide. Le nom de domaine et le contenu Vhost doivent être fournis."
+msgstr ""
+"Demande invalide. Le nom de domaine et le contenu Vhost doivent être "
+"fournis."
 
 #: modules/domains.py:636 modules/domains.py:638
 msgid "Edit Vhosts"
@@ -222,15 +230,22 @@ msgstr "Configuration de l'hôte virtuel enregistrée avec succès."
 
 #: modules/domains.py:716
 msgid "Error saving virtual host configuration. Configuration test failed."
-msgstr "Erreur lors de l'enregistrement de la configuration de l'hôte virtuel. Le test de configuration a échoué."
+msgstr ""
+"Erreur lors de l'enregistrement de la configuration de l'hôte virtuel. Le "
+"test de configuration a échoué."
 
 #: modules/domains.py:722
 msgid "Error saving virtual host configuration. An unexpected error occurred."
-msgstr "Erreur lors de l'enregistrement de la configuration de l'hôte virtuel. Une erreur inattendue est survenue."
+msgstr ""
+"Erreur lors de l'enregistrement de la configuration de l'hôte virtuel. Une "
+"erreur inattendue est survenue."
 
 #: modules/domains.py:905
-msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
-msgstr "Erreur : Nombre maximum de domaines autorisés sur ce plan d'hébergement atteint."
+msgid ""
+"Error: Reached the maximum allowed number of domains on this hosting plan."
+msgstr ""
+"Erreur : Nombre maximum de domaines autorisés sur ce plan d'hébergement "
+"atteint."
 
 #: modules/domains.py:1105 modules/ssl.py:256
 msgid ""
@@ -246,7 +261,9 @@ msgstr "Configuration Nginx modifiée avec succès, redémarrage de nginx.."
 
 #: modules/domains.py:1191
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
-msgstr "URL invalide. Veuillez fournir une URL avec le préfixe 'http://' ou 'https://'."
+msgstr ""
+"URL invalide. Veuillez fournir une URL avec le préfixe 'http://' ou "
+"'https://'."
 
 #: modules/domains.py:1239 modules/ssl.py:163
 msgid "Unauthorized"
@@ -508,7 +525,8 @@ msgstr "Une erreur est survenue lors de la suppression du SSL"
 
 #: modules/terminal.py:58
 msgid "The ttyd screen session is dead. Cleaning up and starting a new one..."
-msgstr "La session d'écran ttyd est morte. Nettoyage et démarrage d'une nouvelle..."
+msgstr ""
+"La session d'écran ttyd est morte. Nettoyage et démarrage d'une nouvelle..."
 
 #: modules/terminal.py:64
 msgid "No ttyd screen session found. Starting a new one..."
@@ -557,7 +575,9 @@ msgstr "Mon site simple"
 
 #: modules/website_builder.py:93
 msgid "Error: .htaccess file already exists. Website creation cannot proceed."
-msgstr "Erreur : le fichier .htaccess existe déjà. La création du site web ne peut pas continuer."
+msgstr ""
+"Erreur : le fichier .htaccess existe déjà. La création du site web ne peut "
+"pas continuer."
 
 #: modules/website_builder.py:128
 msgid "New HTML website was successfully created!"
@@ -641,7 +661,8 @@ msgstr "Une erreur est survenue lors du détachement de WordPress."
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
-msgstr "Analyse terminée. Installations trouvées :\n"
+msgstr ""
+"Analyse terminée. Installations trouvées :\n"
 "\n"
 
 #: modules/wordpress.py:640 templates/wordpress.html:104
@@ -650,11 +671,10 @@ msgstr "Scan ignoré. L'installation de WordPress est en cours."
 
 #: modules/wordpress.py:854
 msgid ""
-"Error: .htaccess file already exists. WordPress installation cannot "
-"proceed!"
+"Error: .htaccess file already exists. WordPress installation cannot proceed!"
 msgstr ""
-"Erreur : le fichier .htaccess existe déjà. L'installation de WordPress ne peut "
-"pas continuer !"
+"Erreur : le fichier .htaccess existe déjà. L'installation de WordPress ne "
+"peut pas continuer !"
 
 #: modules/wordpress.py:1027
 msgid "Hooray, WordPress was successfully installed!"
@@ -672,7 +692,8 @@ msgstr "L'utilisateur n'existe pas."
 
 #: modules/account/login.py:93
 msgid "Error occurred while trying to auto-login."
-msgstr "Une erreur est survenue lors de la tentative de connexion automatique."
+msgstr ""
+"Une erreur est survenue lors de la tentative de connexion automatique."
 
 #: modules/account/login.py:97
 msgid "Invalid admin token."
@@ -747,8 +768,8 @@ msgid ""
 "Memory limit for Memcached service successfully changed and service "
 "restarted to apply new limits."
 msgstr ""
-"La limite de mémoire pour le service Memcached a été modifiée avec succès et "
-"le service redémarré pour appliquer les nouvelles limites."
+"La limite de mémoire pour le service Memcached a été modifiée avec succès et"
+" le service redémarré pour appliquer les nouvelles limites."
 
 #: modules/cache/memcached.py:100 modules/cache/redis.py:106
 msgid "Memory limit is invalid!"
@@ -778,11 +799,11 @@ msgstr "Le service REDIS est maintenant désactivé."
 
 #: modules/cache/redis.py:103
 msgid ""
-"Memory limit for REDIS service successfully changed and service restarted"
-" to apply new limits."
+"Memory limit for REDIS service successfully changed and service restarted to"
+" apply new limits."
 msgstr ""
-"La limite de mémoire pour le service REDIS a été modifiée avec succès et "
-"le service a été redémarré pour appliquer les nouvelles limites."
+"La limite de mémoire pour le service REDIS a été modifiée avec succès et le "
+"service a été redémarré pour appliquer les nouvelles limites."
 
 #: modules/cache/redis.py:132 templates/dashboard/dashboard.html:297
 #: templates/partials/sidebar.html:200
@@ -800,7 +821,7 @@ msgstr "Erreur lors du chargement des données JSON"
 
 #: modules/json/databases_size_info.py:37
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
-msgstr ""
+msgstr "Paramètre d'unité invalide. Utilisez \"bytes\", \"kb\", \"mb\" ou \"gb\"."
 
 #: modules/json/helpers.py:111
 msgid "URL parameter is missing"
@@ -816,7 +837,8 @@ msgstr "Impossible de récupérer la taille"
 
 #: modules/json/helpers.py:666
 msgid "Error: Invalid log file path. It must end with '.log'."
-msgstr "Erreur : Chemin du fichier journal invalide. Il doit se terminer par '.log'."
+msgstr ""
+"Erreur : Chemin du fichier journal invalide. Il doit se terminer par '.log'."
 
 #: templates/_shortcuts.html:6
 msgid "Available Keyboard Shortcuts"
@@ -1046,7 +1068,9 @@ msgstr "Succès"
 
 #: templates/apache_nginx_conf_editor.html:85
 msgid "Here you can edit the main configuration file for your webserver."
-msgstr "Ici, vous pouvez modifier le fichier de configuration principal de votre serveur web."
+msgstr ""
+"Ici, vous pouvez modifier le fichier de configuration principal de votre "
+"serveur web."
 
 #: templates/apache_nginx_conf_editor.html:104
 #: templates/domains/domains.html:478 templates/pm2.html:199
@@ -1066,9 +1090,9 @@ msgstr "Actions"
 msgid "Save Changes"
 msgstr "Enregistrer les modifications"
 
-#: templates/backup.html:11 templates/backup.html:154 templates/backup.html:192
-#: templates/websites.html:1411 templates/websites.html:1613
-#: templates/websites.html:2231
+#: templates/backup.html:11 templates/backup.html:154
+#: templates/backup.html:192 templates/websites.html:1411
+#: templates/websites.html:1613 templates/websites.html:2231
 msgid "Restore"
 msgstr "Restaurer"
 
@@ -1106,7 +1130,8 @@ msgstr "Destination"
 
 #: templates/backup.html:75
 msgid "Backup limit for current hosting plan is 100GB"
-msgstr "La limite de sauvegarde pour le plan d'hébergement actuel est de 100 Go"
+msgstr ""
+"La limite de sauvegarde pour le plan d'hébergement actuel est de 100 Go"
 
 #: templates/backup.html:87
 msgid "Backup Logs"
@@ -1203,13 +1228,14 @@ msgstr "Télécharger"
 
 #: templates/cronjobs.html:29
 msgid ""
-"A cron job is a Linux command used to schedule tasks for future "
-"execution. It allows you to automate repetitive tasks, such as sending "
-"notifications or running scripts at specific intervals."
+"A cron job is a Linux command used to schedule tasks for future execution. "
+"It allows you to automate repetitive tasks, such as sending notifications or"
+" running scripts at specific intervals."
 msgstr ""
 "Une tâche cron est une commande Linux utilisée pour planifier des tâches "
-"pour une exécution. Elle vous permet d'automatiser des tâches répétitives,"
-"telles que l'envoi de notifications ou l'exécution de scripts à des intervalles spécifiques."
+"pour une exécution. Elle vous permet d'automatiser des tâches "
+"répétitives,telles que l'envoi de notifications ou l'exécution de scripts à "
+"des intervalles spécifiques."
 
 #: templates/cronjobs.html:39
 msgid "Add New Cron Job"
@@ -1650,7 +1676,8 @@ msgstr "Mot de passe aléatoire"
 
 #: templates/databases.html:69
 msgid "Create Database, User, and Grant All Privileges"
-msgstr "Créer une base de données, un utilisateur et accorder tous les privilèges"
+msgstr ""
+"Créer une base de données, un utilisateur et accorder tous les privilèges"
 
 #: templates/databases.html:81
 msgid "Success!"
@@ -1721,7 +1748,8 @@ msgstr "Changer le mot de passe"
 
 #: templates/databases.html:306
 msgid "Change password for MySQL database user"
-msgstr "Changer le mot de passe pour l'utilisateur de la base de données MySQL"
+msgstr ""
+"Changer le mot de passe pour l'utilisateur de la base de données MySQL"
 
 #: templates/databases.html:307 templates/databases.html:308
 msgid "Database User"
@@ -1749,15 +1777,15 @@ msgstr "Assistant"
 
 #: templates/databases.html:384
 msgid ""
-"MySQL databases are used to store and manage your website's data, such as"
-" content, user information, and product details, making it accessible and"
-" organized for your web applications. On this page, you can easily create"
-" new databases and efficiently manage existing ones to organize and store"
-" your website's data effectively."
+"MySQL databases are used to store and manage your website's data, such as "
+"content, user information, and product details, making it accessible and "
+"organized for your web applications. On this page, you can easily create new"
+" databases and efficiently manage existing ones to organize and store your "
+"website's data effectively."
 msgstr ""
-"Les bases de données MySQL stockent et gèrent les données de votre site web, "
-"comme le contenu, les informations utilisateur et les détails des produits, "
-"les rendant accessibles et organisées pour vos applications web. Sur cette "
+"Les bases de données MySQL stockent et gèrent les données de votre site web,"
+" comme le contenu, les informations utilisateur et les détails des produits,"
+" les rendant accessibles et organisées pour vos applications web. Sur cette "
 "page, vous pouvez facilement créer de nouvelles bases de données et gérer "
 "efficacement celles existantes pour organiser et stocker efficacement les "
 "données de votre site web."
@@ -1799,22 +1827,21 @@ msgstr "de la base de données"
 
 #: templates/databases.html:426
 msgid ""
-"MySQL users are essential for controlling who can access and interact "
-"with your databases, ensuring data security and controlled access to your"
-" website's information. Here you can create and manage MySQL user "
-"accounts with specific permissions, ensuring secure access to your "
-"databases."
+"MySQL users are essential for controlling who can access and interact with "
+"your databases, ensuring data security and controlled access to your "
+"website's information. Here you can create and manage MySQL user accounts "
+"with specific permissions, ensuring secure access to your databases."
 msgstr ""
 "Les utilisateurs MySQL sont essentiels pour contrôler qui peut accéder et "
-"interagir avec vos bases de données, garantissant la sécurité des données "
-"et un accès contrôlé aux informations de votre site web. Ici, vous pouvez "
+"interagir avec vos bases de données, garantissant la sécurité des données et"
+" un accès contrôlé aux informations de votre site web. Ici, vous pouvez "
 "créer et gérer des comptes utilisateur MySQL avec des autorisations "
 "spécifiques, garantissant un accès sécurisé à vos bases de données."
 
 #: templates/disk_usage.html:8
 msgid ""
-"Disk usage is the amount of space that is used by the content of your "
-"sites, this includes databases, files, videos, images, emails and pages."
+"Disk usage is the amount of space that is used by the content of your sites,"
+" this includes databases, files, videos, images, emails and pages."
 msgstr ""
 "L'utilisation du disque correspond à la quantité d'espace utilisée par le "
 "contenu de vos sites, cela inclut les bases de données, les fichiers, les "
@@ -1851,23 +1878,24 @@ msgstr "Afficher dans le dossier"
 
 #: templates/edit_file.html:125
 msgid ""
-"Are you sure you want to close the file editor without saving your "
-"changes?"
+"Are you sure you want to close the file editor without saving your changes?"
 msgstr ""
 "Êtes-vous sûr de vouloir fermer l'éditeur de fichiers sans enregistrer vos "
 "modifications ?"
 
 #: templates/edit_mysql_config.html:21
 msgid "Saving and restarting MySQL to apply changes..."
-msgstr "Enregistrement et redémarrage de MySQL pour appliquer les modifications..."
+msgstr ""
+"Enregistrement et redémarrage de MySQL pour appliquer les modifications..."
 
 #: templates/edit_mysql_config.html:82
 msgid ""
 "This tool allows you to make changes to your MySQL configuration. "
 "Modifications made here will prompt a MySQL service restart."
 msgstr ""
-"Cet outil vous permet de faire des modifications à la configuration de MySQL. "
-"Les modifications effectuées ici entraîneront un redémarrage du service MySQL."
+"Cet outil vous permet de faire des modifications à la configuration de "
+"MySQL. Les modifications effectuées ici entraîneront un redémarrage du "
+"service MySQL."
 
 #: templates/edit_mysql_config.html:88
 msgid "MySQL Configuration Settings"
@@ -1975,16 +2003,16 @@ msgstr "Le statut du service Elasticsearch est inconnu."
 
 #: templates/elasticsearch.html:216
 msgid ""
-"Unable to determinate current elasticsearch servise status, try "
-"Start&Stop actions."
+"Unable to determinate current elasticsearch servise status, try Start&Stop "
+"actions."
 msgstr ""
-"Impossible de déterminer l'état actuel du service Elasticsearch, essayez "
-"les actions de démarrage et d'arrêt."
+"Impossible de déterminer l'état actuel du service Elasticsearch, essayez les"
+" actions de démarrage et d'arrêt."
 
 #: templates/elasticsearch.html:216 templates/memcached.html:253
 #: templates/redis.html:254
 msgid "If the issue persists please contact support."
-msgstr ""
+msgstr "Si le problème persiste, veuillez contacter le support."
 
 #: templates/elasticsearch.html:219 templates/memcached.html:256
 #: templates/redis.html:257
@@ -2014,7 +2042,8 @@ msgstr "Aucun élément trouvé."
 
 #: templates/filemanager.html:286
 msgid "Start creating new folders or uploading a new file!"
-msgstr "Commencez à créer de nouveaux dossiers ou à télécharger un nouveau fichier !"
+msgstr ""
+"Commencez à créer de nouveaux dossiers ou à télécharger un nouveau fichier !"
 
 #: templates/filemanager.html:297
 msgid "Select all"
@@ -2078,12 +2107,12 @@ msgstr "Changer les permissions pour"
 
 #: templates/filemanager.html:1203
 msgid "Please enter a 3-digit numeric value for permissions."
-msgstr "Veuillez saisir une valeur numérique à 3 chiffres pour les permissions."
+msgstr ""
+"Veuillez saisir une valeur numérique à 3 chiffres pour les permissions."
 
 #: templates/filemanager.html:1532
 msgid ""
-"Warning: Deleting a directory will remove all its subdirectories and "
-"files."
+"Warning: Deleting a directory will remove all its subdirectories and files."
 msgstr ""
 "Avertissement : Supprimer un répertoire entraînera la suppression de tous "
 "ses sous-répertoires et fichiers."
@@ -2238,7 +2267,8 @@ msgstr "Téléchargement..."
 
 #: templates/fix_permissions.html:4
 msgid "Fix and reset permissions for files and folders."
-msgstr "Corriger et réinitialiser les permissions pour les fichiers et les dossiers."
+msgstr ""
+"Corriger et réinitialiser les permissions pour les fichiers et les dossiers."
 
 #: templates/fix_permissions.html:8 templates/malware_scanner.html:12
 msgid "Choose a directory"
@@ -2319,16 +2349,16 @@ msgstr "Changer le chemin FTP"
 
 #: templates/inodes.html:8
 msgid ""
-"An inode is a data structure that keeps the information about a file on "
-"your hosting account. The number of inodes indicates the number of files "
-"and folders you have. This includes everything on your account, emails, "
-"files, folders, and anything you store on the server."
+"An inode is a data structure that keeps the information about a file on your"
+" hosting account. The number of inodes indicates the number of files and "
+"folders you have. This includes everything on your account, emails, files, "
+"folders, and anything you store on the server."
 msgstr ""
 "Un inode est une structure de données qui contient les informations sur un "
-"fichier sur votre compte d'hébergement. Le nombre d'inodes indique le "
-"nombre de fichiers et de dossiers que vous possédez. Cela inclut tout sur "
-"votre compte, les e-mails, les fichiers, les dossiers et tout ce que vous "
-"stockez sur le serveur."
+"fichier sur votre compte d'hébergement. Le nombre d'inodes indique le nombre"
+" de fichiers et de dossiers que vous possédez. Cela inclut tout sur votre "
+"compte, les e-mails, les fichiers, les dossiers et tout ce que vous stockez "
+"sur le serveur."
 
 #: templates/inodes.html:14
 msgid "Inodes usage per directory"
@@ -2388,8 +2418,8 @@ msgstr "Ajouter un nom de domaine"
 
 #: templates/logs.html:8
 msgid ""
-"Several actions are carried out by OpenPanel when the server is started; "
-"you may check their status and look for any potentional issues here."
+"Several actions are carried out by OpenPanel when the server is started; you"
+" may check their status and look for any potentional issues here."
 msgstr ""
 "Plusieurs actions sont effectuées par OpenPanel lorsque le serveur est "
 "démarré ; vous pouvez vérifier leur statut et rechercher d'éventuels "
@@ -2397,13 +2427,12 @@ msgstr ""
 
 #: templates/malware_scanner.html:6
 msgid ""
-"The Clam AntiVirus Scanner (ClamAV) antivirus software searches your "
-"files for malicious programs. If the scanner identifies a potential "
-"security threat, it flags the file to allow you to take the appropriate "
-"action."
+"The Clam AntiVirus Scanner (ClamAV) antivirus software searches your files "
+"for malicious programs. If the scanner identifies a potential security "
+"threat, it flags the file to allow you to take the appropriate action."
 msgstr ""
-"Le scanner antivirus Clam AntiVirus (ClamAV) recherche dans vos fichiers "
-"des programmes malveillants. Si le scanner identifie une menace potentielle "
+"Le scanner antivirus Clam AntiVirus (ClamAV) recherche dans vos fichiers des"
+" programmes malveillants. Si le scanner identifie une menace potentielle "
 "pour la sécurité, il signale le fichier pour vous permettre de prendre "
 "l'action appropriée."
 
@@ -2455,7 +2484,8 @@ msgstr "INSTALLER MEMCACHED"
 msgid "Memcached server:"
 msgstr "Serveur Memcached :"
 
-#: templates/memcached.html:166 templates/pm2.html:130 templates/redis.html:166
+#: templates/memcached.html:166 templates/pm2.html:130
+#: templates/redis.html:166
 msgid "Port:"
 msgstr "Port :"
 
@@ -2553,8 +2583,8 @@ msgstr "options"
 
 #: templates/php.html:59
 msgid ""
-"Changing the PHP version will stop all the processes on your site. It "
-"takes 1-2 seconds to complete. Be sure to check your script and plugin "
+"Changing the PHP version will stop all the processes on your site. It takes "
+"1-2 seconds to complete. Be sure to check your script and plugin "
 "requirements to know which PHP version works best for your website."
 msgstr ""
 "Changer la version de PHP arrêtera tous les processus sur votre site. Cela "
@@ -2585,11 +2615,11 @@ msgstr "Version PHP par défaut :"
 
 #: templates/php.html:134
 msgid ""
-"The PHP version that is used by default for newly added domains is the "
-"one that you choose here."
+"The PHP version that is used by default for newly added domains is the one "
+"that you choose here."
 msgstr ""
-"La version de PHP utilisée par défaut pour les nouveaux domaines ajoutés est "
-"celle que vous choisissez ici."
+"La version de PHP utilisée par défaut pour les nouveaux domaines ajoutés est"
+" celle que vous choisissez ici."
 
 #: templates/php.html:136
 msgid "Current default PHP version:"
@@ -2609,8 +2639,8 @@ msgstr "Installer une nouvelle version"
 
 #: templates/php.html:177
 msgid ""
-"For best performance we recommend to only install PHP versions that you "
-"will be activelly using."
+"For best performance we recommend to only install PHP versions that you will"
+" be activelly using."
 msgstr ""
 "Pour de meilleures performances, nous recommandons d'installer uniquement "
 "les versions de PHP que vous utiliserez activement."
@@ -2650,11 +2680,11 @@ msgstr "Réglage"
 #: templates/php_ini_editor.html:101
 msgid ""
 "PHP.INI Editor allows you to modify PHP settings stored in the php.ini "
-"configuration file, such as memory limits, error reporting, and extension"
-" settings."
+"configuration file, such as memory limits, error reporting, and extension "
+"settings."
 msgstr ""
-"L'Éditeur PHP.INI vous permet de modifier les paramètres PHP stockés dans "
-"le fichier de configuration php.ini, tels que les limites de mémoire, le "
+"L'Éditeur PHP.INI vous permet de modifier les paramètres PHP stockés dans le"
+" fichier de configuration php.ini, tels que les limites de mémoire, le "
 "signalement des erreurs et les paramètres d'extension."
 
 #: templates/php_ini_editor.html:105
@@ -2719,7 +2749,8 @@ msgstr "Surveiller :"
 
 #: templates/pm2.html:143
 msgid "Automatically restart app on file changes"
-msgstr "Redémarrer automatiquement l'application en cas de modification des fichiers"
+msgstr ""
+"Redémarrer automatiquement l'application en cas de modification des fichiers"
 
 #: templates/pm2.html:147
 msgid "Enable logs:"
@@ -2759,8 +2790,8 @@ msgstr "Mémoire"
 
 #: templates/pm2.html:202
 msgid ""
-"If watching is enabled, the application will automatically restart when "
-"its files are edited."
+"If watching is enabled, the application will automatically restart when its "
+"files are edited."
 msgstr ""
 "Si la surveillance est activée, l'application redémarrera automatiquement "
 "lorsque ses fichiers seront modifiés."
@@ -2811,8 +2842,8 @@ msgstr "Aucune application existante"
 
 #: templates/pm2.html:284
 msgid ""
-"There are no existing applications. You can start a new NodeJS or Python "
-"app below."
+"There are no existing applications. You can start a new NodeJS or Python app"
+" below."
 msgstr ""
 "Il n'y a pas d'applications existantes. Vous pouvez démarrer une nouvelle "
 "application NodeJS ou Python ci-dessous."
@@ -2847,36 +2878,38 @@ msgstr "terminé"
 
 #: templates/processlist.html:6
 msgid ""
-"This interface lists all of the processes that currently run on any "
-"database on your server."
+"This interface lists all of the processes that currently run on any database"
+" on your server."
 msgstr ""
 "Cette interface répertorie tous les processus actuellement en cours "
 "d'exécution sur n'importe quelle base de données de votre serveur."
 
 #: templates/processlist.html:13
 msgid ""
-"Process ID: a unique identification number assigned by Linux systems to "
-"each process and application."
+"Process ID: a unique identification number assigned by Linux systems to each"
+" process and application."
 msgstr ""
 "Identifiant de processus : un numéro d'identification unique attribué par "
 "les systèmes Linux à chaque processus et application."
 
 #: templates/processlist.html:14
 msgid "Indicates the MySQL user who executed the process on the database."
-msgstr "Indique l'utilisateur MySQL qui a exécuté le processus sur la base de données."
+msgstr ""
+"Indique l'utilisateur MySQL qui a exécuté le processus sur la base de "
+"données."
 
 #: templates/processlist.html:15
 msgid ""
-"Displays the client's hostname and the port from which the process "
-"was executed (e.g., Host:0000)."
+"Displays the client's hostname and the port from which the process was "
+"executed (e.g., Host:0000)."
 msgstr ""
-"Affiche le nom d'hôte du client et le port à partir duquel le processus "
-"a été exécuté (par exemple, Host:0000)."
+"Affiche le nom d'hôte du client et le port à partir duquel le processus a "
+"été exécuté (par exemple, Host:0000)."
 
 #: templates/processlist.html:16
 msgid ""
-"The database on which the process is running. This column will display "
-"NULL if the process is not associated with any database."
+"The database on which the process is running. This column will display NULL "
+"if the process is not associated with any database."
 msgstr ""
 "La base de données sur laquelle s'exécute le processus. Cette colonne "
 "affichera NULL si le processus n'est associé à aucune base de données."
@@ -2890,8 +2923,8 @@ msgid ""
 "The duration, in seconds, that the process has remained in its current "
 "state."
 msgstr ""
-"La durée, en secondes, pendant laquelle le processus est resté dans son "
-"état actuel."
+"La durée, en secondes, pendant laquelle le processus est resté dans son état"
+" actuel."
 
 #: templates/processlist.html:18
 msgid "Time"
@@ -2899,11 +2932,11 @@ msgstr "Temps"
 
 #: templates/processlist.html:19
 msgid ""
-"The action, state, or event of the process. This column will display NULL"
-" for processes in the SHOW PROCESSLIST state."
+"The action, state, or event of the process. This column will display NULL "
+"for processes in the SHOW PROCESSLIST state."
 msgstr ""
-"L'action, l'état ou l'événement du processus. Cette colonne affichera NULL"
-" pour les processus dans l'état SHOW PROCESSLIST."
+"L'action, l'état ou l'événement du processus. Cette colonne affichera NULL "
+"pour les processus dans l'état SHOW PROCESSLIST."
 
 #: templates/processlist.html:19
 msgid "State"
@@ -2912,14 +2945,14 @@ msgstr "État"
 #: templates/processlist.html:20
 msgid ""
 "Text of the statement that the process is currently executing. If the "
-"process is not executing a statement, this column displays NULL. It may "
-"also show a statement sent to the server or an inner statement used to "
-"execute other statements."
+"process is not executing a statement, this column displays NULL. It may also"
+" show a statement sent to the server or an inner statement used to execute "
+"other statements."
 msgstr ""
-"Texte de l'instruction que le processus exécute actuellement. Si le processus "
-"n'exécute pas d'instruction, cette colonne affiche NULL. Il peut également "
-"afficher une instruction envoyée au serveur ou une instruction interne "
-"utilisée pour exécuter d'autres instructions."
+"Texte de l'instruction que le processus exécute actuellement. Si le "
+"processus n'exécute pas d'instruction, cette colonne affiche NULL. Il peut "
+"également afficher une instruction envoyée au serveur ou une instruction "
+"interne utilisée pour exécuter d'autres instructions."
 
 #: templates/processlist.html:20
 msgid "Info"
@@ -2991,11 +3024,10 @@ msgstr "Le statut du service REDIS est inconnu."
 
 #: templates/redis.html:254
 msgid ""
-"Unable to determinate current REDIS servise status, try Start&Stop "
-"actions."
+"Unable to determinate current REDIS servise status, try Start&Stop actions."
 msgstr ""
-"Impossible de déterminer l'état actuel du service REDIS, essayez les "
-"actions de démarrage et d'arrêt."
+"Impossible de déterminer l'état actuel du service REDIS, essayez les actions"
+" de démarrage et d'arrêt."
 
 #: templates/redis.html:308 templates/redis.html:323
 msgid "Disable REDIS service"
@@ -3027,12 +3059,11 @@ msgstr "L'accès MySQL distant est désactivé."
 
 #: templates/remote_mysql.html:97
 msgid ""
-"Remote MySQL access gives you the ability to connect to a MySQL database "
-"on this server from a another (remote) device or location over the "
-"internet."
+"Remote MySQL access gives you the ability to connect to a MySQL database on "
+"this server from a another (remote) device or location over the internet."
 msgstr ""
-"L'accès MySQL à distance vous permet de vous connecter à une base de données "
-"MySQL sur ce serveur depuis un autre appareil ou emplacement distant via "
+"L'accès MySQL à distance vous permet de vous connecter à une base de données"
+" MySQL sur ce serveur depuis un autre appareil ou emplacement distant via "
 "Internet."
 
 #: templates/remote_mysql.html:106
@@ -3065,9 +3096,9 @@ msgid ""
 "entire internet, which may pose a security risk. Please consider the "
 "following:"
 msgstr ""
-"Autoriser l'accès MySQL à distance ouvre votre base de données aux connexions "
-"de l'ensemble d'Internet, ce qui peut présenter un risque de sécurité. "
-"Veuillez prendre en compte les éléments suivants :"
+"Autoriser l'accès MySQL à distance ouvre votre base de données aux "
+"connexions de l'ensemble d'Internet, ce qui peut présenter un risque de "
+"sécurité. Veuillez prendre en compte les éléments suivants :"
 
 #: templates/remote_mysql.html:153
 msgid "Security Vulnerabilities"
@@ -3075,13 +3106,13 @@ msgstr "Vulnérabilités de sécurité"
 
 #: templates/remote_mysql.html:153
 msgid ""
-"Allowing access from the web can expose your database to potential "
-"security vulnerabilities, increasing the risk of unauthorized access, "
-"data breaches, and data loss."
+"Allowing access from the web can expose your database to potential security "
+"vulnerabilities, increasing the risk of unauthorized access, data breaches, "
+"and data loss."
 msgstr ""
 "Autoriser l'accès depuis le web peut exposer votre base de données à des "
-"vulnérabilités de sécurité potentielles, augmentant ainsi le risque "
-"d'accès non autorisé, de violation de données et de perte de données."
+"vulnérabilités de sécurité potentielles, augmentant ainsi le risque d'accès "
+"non autorisé, de violation de données et de perte de données."
 
 #: templates/remote_mysql.html:154
 msgid "Data Privacy"
@@ -3089,12 +3120,12 @@ msgstr "Confidentialité des données"
 
 #: templates/remote_mysql.html:154
 msgid ""
-"Your sensitive data may be at risk if not properly secured. Make sure to "
-"use strong passwords and encryption to protect your information."
+"Your sensitive data may be at risk if not properly secured. Make sure to use"
+" strong passwords and encryption to protect your information."
 msgstr ""
 "Vos données sensibles peuvent être en danger si elles ne sont pas "
-"correctement sécurisées. Assurez-vous d'utiliser des mots de passe forts "
-"et un chiffrement pour protéger vos informations."
+"correctement sécurisées. Assurez-vous d'utiliser des mots de passe forts et "
+"un chiffrement pour protéger vos informations."
 
 #: templates/remote_mysql.html:155
 msgid "Firewall and Access Control"
@@ -3102,12 +3133,12 @@ msgstr "Pare-feu et contrôle d'accès"
 
 #: templates/remote_mysql.html:155
 msgid ""
-"It is crucial to set up robust firewall rules and access control to "
-"restrict connections only to trusted IP addresses."
+"It is crucial to set up robust firewall rules and access control to restrict"
+" connections only to trusted IP addresses."
 msgstr ""
 "Il est crucial de mettre en place des règles de pare-feu robustes et un "
-"contrôle d'accès pour limiter les connexions uniquement aux adresses IP "
-"de confiance."
+"contrôle d'accès pour limiter les connexions uniquement aux adresses IP de "
+"confiance."
 
 #: templates/remote_mysql.html:156
 msgid "Regular Backups"
@@ -3115,18 +3146,18 @@ msgstr "Sauvegardes régulières"
 
 #: templates/remote_mysql.html:156
 msgid ""
-"Ensure that you have regular database backups in place to recover data in"
-" case of any security incidents."
+"Ensure that you have regular database backups in place to recover data in "
+"case of any security incidents."
 msgstr ""
 "Assurez-vous d'avoir des sauvegardes régulières de la base de données en "
 "place pour récupérer les données en cas d'incidents de sécurité."
 
 #: templates/remote_mysql.html:158
 msgid ""
-"Before enabling remote MySQL access, please review your security "
-"settings, and consider the potential risks carefully. If you're unsure "
-"about the security implications or need assistance, consult with your "
-"system administrator or a security expert."
+"Before enabling remote MySQL access, please review your security settings, "
+"and consider the potential risks carefully. If you're unsure about the "
+"security implications or need assistance, consult with your system "
+"administrator or a security expert."
 msgstr ""
 "Avant d'activer l'accès MySQL à distance, veuillez passer en revue vos "
 "paramètres de sécurité et considérer attentivement les risques potentiels. "
@@ -3136,8 +3167,8 @@ msgstr ""
 
 #: templates/remote_mysql.html:160
 msgid ""
-"Your data security is important to us, and we recommend taking the "
-"necessary precautions to protect it."
+"Your data security is important to us, and we recommend taking the necessary"
+" precautions to protect it."
 msgstr ""
 "La sécurité de vos données nous tient à cœur, et nous vous recommandons de "
 "prendre les précautions nécessaires pour la protéger."
@@ -3216,7 +3247,9 @@ msgstr "Nouveau mot de passe :"
 
 #: templates/ssh.html:179
 msgid "Password can not be viewed after changing, please make sure to"
-msgstr "Le mot de passe ne peut pas être vu après changement, veuillez vous assurer de"
+msgstr ""
+"Le mot de passe ne peut pas être vu après changement, veuillez vous assurer "
+"de"
 
 #: templates/ssh.html:179
 msgid "copy the new password"
@@ -3268,7 +3301,8 @@ msgstr "Clé privée"
 
 #: templates/ssl.html:152
 msgid "SSL check is in progress.. please click here to refresh."
-msgstr "La vérification SSL est en cours.. veuillez cliquer ici pour rafraîchir."
+msgstr ""
+"La vérification SSL est en cours.. veuillez cliquer ici pour rafraîchir."
 
 #: templates/ssl.html:185
 msgid "Renew"
@@ -3321,8 +3355,8 @@ msgstr "pour tous les domaines"
 
 #: templates/ssl.html:351
 msgid ""
-"When you create a domain, the system will attempt to secure that domain "
-"with a free Let's Encrypt certificate."
+"When you create a domain, the system will attempt to secure that domain with"
+" a free Let's Encrypt certificate."
 msgstr ""
 "Lorsque vous créez un domaine, le système tentera de sécuriser ce domaine "
 "avec un certificat Let's Encrypt gratuit."
@@ -3365,7 +3399,8 @@ msgstr "Email de l'administrateur"
 
 #: templates/websites.html:204
 msgid "Allow pingbacks and trackbacks from other blogs (default)"
-msgstr "Autoriser les pingbacks et trackbacks provenant d'autres blogs (par défaut)"
+msgstr ""
+"Autoriser les pingbacks et trackbacks provenant d'autres blogs (par défaut)"
 
 #: templates/websites.html:212
 msgid ""
@@ -3454,16 +3489,16 @@ msgstr "Enregistrement des paramètres généraux... Veuillez patienter."
 
 #: templates/websites.html:619
 msgid ""
-"The options below allow you to manage the native WordPress debugging "
-"tools, enabling and disabling these tools in the wp-config.php file. It "
-"is not recommended to use these options on production websites since they"
-" are meant for development and test installations. Refer to"
+"The options below allow you to manage the native WordPress debugging tools, "
+"enabling and disabling these tools in the wp-config.php file. It is not "
+"recommended to use these options on production websites since they are meant"
+" for development and test installations. Refer to"
 msgstr ""
 "Les options ci-dessous vous permettent de gérer les outils de débogage "
 "natifs de WordPress, en activant et désactivant ces outils dans le fichier "
 "wp-config.php. Il n'est pas recommandé d'utiliser ces options sur des sites "
-"en production car elles sont destinées aux installations de développement "
-"et de test. Reportez-vous à"
+"en production car elles sont destinées aux installations de développement et"
+" de test. Reportez-vous à"
 
 #: templates/websites.html:619
 msgid "Debugging in WordPress"
@@ -3487,7 +3522,9 @@ msgstr "WP_DEBUG_LOG"
 
 #: templates/websites.html:643
 msgid "Save all errors to the debug.log file inside the wp-content directory."
-msgstr "Enregistrer toutes les erreurs dans le fichier debug.log situé dans le répertoire wp-content."
+msgstr ""
+"Enregistrer toutes les erreurs dans le fichier debug.log situé dans le "
+"répertoire wp-content."
 
 #: templates/websites.html:649
 msgid "WP_DEBUG_DISPLAY"
@@ -3503,9 +3540,9 @@ msgstr "SCRIPT_DEBUG"
 
 #: templates/websites.html:663
 msgid ""
-"Force WordPress to use the non-minified versions of core CSS and "
-"JavaScript files. This is useful when you are testing changes made to .js"
-" and .css files."
+"Force WordPress to use the non-minified versions of core CSS and JavaScript "
+"files. This is useful when you are testing changes made to .js and .css "
+"files."
 msgstr ""
 "Forcer WordPress à utiliser les versions non minifiées des fichiers CSS et "
 "JavaScript principaux. Cela est utile lorsque vous testez des modifications "
@@ -3579,7 +3616,8 @@ msgstr "Interdire l'exécution des scripts PHP dans le répertoire wp-includes"
 
 #: templates/websites.html:865
 msgid "Forbid execution of PHP scripts in the wp-content/uploads directory"
-msgstr "Interdire l'exécution des scripts PHP dans le répertoire wp-content/uploads"
+msgstr ""
+"Interdire l'exécution des scripts PHP dans le répertoire wp-content/uploads"
 
 #: templates/websites.html:885
 msgid "Block access to wp-config.php"
@@ -3587,7 +3625,9 @@ msgstr "Bloquer l'accès au wp-config.php"
 
 #: templates/websites.html:905
 msgid "Disable scripts concatenation for WordPress admin panel"
-msgstr "Désactiver la concaténation des scripts pour le panneau d'administration de WordPress"
+msgstr ""
+"Désactiver la concaténation des scripts pour le panneau d'administration de "
+"WordPress"
 
 #: templates/websites.html:925
 msgid "Turn off pingbacks"
@@ -3735,21 +3775,24 @@ msgstr ""
 "WordPress pour la protection des données."
 
 #: templates/websites.html:1624
-msgid "Restore the website to a previous state using a previously created backup."
-msgstr "Restaurer le site web à un état antérieur en utilisant une sauvegarde précédemment créée."
+msgid ""
+"Restore the website to a previous state using a previously created backup."
+msgstr ""
+"Restaurer le site web à un état antérieur en utilisant une sauvegarde "
+"précédemment créée."
 
 #: templates/websites.html:1625
 msgid ""
-"Remove the WordPress website from this manager without actually deleting "
-"any files or database."
+"Remove the WordPress website from this manager without actually deleting any"
+" files or database."
 msgstr ""
 "Retirez le site Web WordPress de ce gestionnaire sans supprimer réellement "
 "aucun fichier ou base de données."
 
 #: templates/websites.html:1626
 msgid ""
-"Completely remove the WordPress website, including its files, database, "
-"and records from this manager."
+"Completely remove the WordPress website, including its files, database, and "
+"records from this manager."
 msgstr ""
 "Supprimez complètement le site Web WordPress, y compris ses fichiers, sa "
 "base de données et ses enregistrements de ce gestionnaire."
@@ -3803,12 +3846,17 @@ msgid "Confirm WordPress Uninstall"
 msgstr "Confirmer la désinstallation de WordPress"
 
 #: templates/websites.html:2157
-msgid "Are you sure you want to permanently remove the WordPress installation for"
-msgstr "Êtes-vous sûr de vouloir supprimer définitivement l'installation de WordPress pour"
+msgid ""
+"Are you sure you want to permanently remove the WordPress installation for"
+msgstr ""
+"Êtes-vous sûr de vouloir supprimer définitivement l'installation de "
+"WordPress pour"
 
 #: templates/websites.html:2159
 msgid "This will permanently delete all website files and the database."
-msgstr "Cela supprimera définitivement tous les fichiers du site et la base de données."
+msgstr ""
+"Cela supprimera définitivement tous les fichiers du site et la base de "
+"données."
 
 #: templates/websites.html:2163
 msgid "Confirm Uninstall"
@@ -3828,11 +3876,11 @@ msgstr "du gestionnaire ?"
 
 #: templates/websites.html:2179
 msgid ""
-"This will only remove the website from the WP Manager without affecting "
-"the files or database"
+"This will only remove the website from the WP Manager without affecting the "
+"files or database"
 msgstr ""
-"Cela supprimera uniquement le site Web du gestionnaire WP sans affecter "
-"les fichiers ou la base de données"
+"Cela supprimera uniquement le site Web du gestionnaire WP sans affecter les "
+"fichiers ou la base de données"
 
 #: templates/websites.html:2198
 msgid "Backup Database"
@@ -3928,8 +3976,8 @@ msgstr "Supprimer le site WordPress"
 
 #: templates/wordpress.html:472 templates/wordpress.html:599
 msgid ""
-"This will irreversibly delete the website, permanently deleting all files"
-" and database."
+"This will irreversibly delete the website, permanently deleting all files "
+"and database."
 msgstr ""
 "Cela supprimera définitivement le site Web de manière irréversible, "
 "supprimant définitivement tous les fichiers et la base de données."
@@ -3940,11 +3988,11 @@ msgstr "Retirer du gestionnaire WP"
 
 #: templates/wordpress.html:478 templates/wordpress.html:605
 msgid ""
-"This will just remove the installation from WP Manager but keep the files"
-" and database."
+"This will just remove the installation from WP Manager but keep the files "
+"and database."
 msgstr ""
-"Cela supprimera simplement l'installation du gestionnaire WP mais "
-"conservera les fichiers et la base de données."
+"Cela supprimera simplement l'installation du gestionnaire WP mais conservera"
+" les fichiers et la base de données."
 
 #: templates/wordpress.html:500 templates/wordpress.html:632
 msgid "Manage"
@@ -3988,7 +4036,8 @@ msgstr "Scanner"
 
 #: templates/wordpress.html:836
 msgid "Switch to List View - perfect for those with many Websites."
-msgstr "Passer à la vue en liste - parfait pour ceux qui ont de nombreux sites web."
+msgstr ""
+"Passer à la vue en liste - parfait pour ceux qui ont de nombreux sites web."
 
 #: templates/wordpress.html:839
 msgid ""
@@ -4000,12 +4049,14 @@ msgstr ""
 
 #: templates/dashboard/dashboard.html:62
 msgid "👋 Welcome to your new hosting account. OpenPanel is here to help!"
-msgstr "👋 Bienvenue sur votre nouveau compte d'hébergement. OpenPanel est là pour vous aider !"
+msgstr ""
+"👋 Bienvenue sur votre nouveau compte d'hébergement. OpenPanel est là pour "
+"vous aider !"
 
 #: templates/dashboard/dashboard.html:63
 msgid ""
-"To get started, add a domain name to create a new site and unlock a world"
-" of possibilities for your online presence."
+"To get started, add a domain name to create a new site and unlock a world of"
+" possibilities for your online presence."
 msgstr ""
 "Pour commencer, ajoutez un nom de domaine pour créer un nouveau site et "
 "débloquer un monde de possibilités pour votre présence en ligne."
@@ -4128,7 +4179,8 @@ msgid "Password & Security"
 msgstr "Mot de passe et sécurité"
 
 #: templates/dashboard/dashboard.html:512
-#: templates/dashboard/dashboard.html:548 templates/user/twofa_settings.html:25
+#: templates/dashboard/dashboard.html:548
+#: templates/user/twofa_settings.html:25
 msgid "Two-Factor Authentication"
 msgstr "Authentification à deux facteurs"
 
@@ -4139,18 +4191,20 @@ msgstr "Activité du compte"
 #: templates/dashboard/dashboard.html:556
 msgid ""
 "2FA is an added layer of security that significantly reduces the risk of "
-"unauthorized access to your account by requiring an additional "
-"verification step beyond just a password"
+"unauthorized access to your account by requiring an additional verification "
+"step beyond just a password"
 msgstr ""
 "La double authentification (2FA) est une couche de sécurité supplémentaire "
-"qui réduit considérablement le risque d'accès non autorisé à votre compte en "
-"demandant une étape de vérification supplémentaire en plus d'un mot de passe."
+"qui réduit considérablement le risque d'accès non autorisé à votre compte en"
+" demandant une étape de vérification supplémentaire en plus d'un mot de "
+"passe."
 
 #: templates/dashboard/dashboard.html:560
 msgid "2FA is <b>enabled</b> for your account."
 msgstr "La 2FA est <b>activée</b> pour votre compte."
 
-#: templates/dashboard/dashboard.html:562 templates/user/twofa_settings.html:39
+#: templates/dashboard/dashboard.html:562
+#: templates/user/twofa_settings.html:39
 msgid "Click to disable 2FA"
 msgstr "Cliquez pour désactiver la 2FA"
 
@@ -4158,8 +4212,8 @@ msgstr "Cliquez pour désactiver la 2FA"
 msgid "2FA is <b>disabled</b> for your account."
 msgstr "La 2FA est <b>désactivée</b> pour votre compte."
 
-#: templates/dashboard/dashboard.html:569 templates/user/twofa_settings.html:48
-#: templates/user/twofa_settings.html:50
+#: templates/dashboard/dashboard.html:569
+#: templates/user/twofa_settings.html:48 templates/user/twofa_settings.html:50
 msgid "Enable 2FA"
 msgstr "Activer la 2FA"
 
@@ -4196,7 +4250,7 @@ msgstr "Sites web :"
 #: templates/dashboard/dashboard.html:690
 #: templates/dashboard/dashboard.html:711
 msgid "∞"
-msgstr ""
+msgstr "∞"
 
 #: templates/dashboard/dashboard.html:690
 #: templates/dashboard/dashboard.html:693
@@ -4241,8 +4295,8 @@ msgid ""
 "anything you store on the server."
 msgstr ""
 "Le nombre d'inodes indique le nombre de fichiers et de dossiers que vous "
-"possédez. Cela inclut tout sur votre compte, e-mails, fichiers, dossiers "
-"et tout ce que vous stockez sur le serveur."
+"possédez. Cela inclut tout sur votre compte, e-mails, fichiers, dossiers et "
+"tout ce que vous stockez sur le serveur."
 
 #: templates/dashboard/dashboard.html:764
 msgid "Inodes:"
@@ -4353,9 +4407,9 @@ msgstr "Nom de domaine"
 
 #: templates/domains/domains.html:203
 msgid ""
-"The document root refers to the directory where the content of a domain "
-"name is displayed from. It serves as the designated folder where website "
-"files should be stored."
+"The document root refers to the directory where the content of a domain name"
+" is displayed from. It serves as the designated folder where website files "
+"should be stored."
 msgstr ""
 "Le répertoire racine du document fait référence au répertoire où le contenu "
 "d'un nom de domaine est affiché. Il sert de dossier désigné où les fichiers "
@@ -4367,12 +4421,12 @@ msgstr "Racine du document"
 
 #: templates/domains/domains.html:205
 msgid ""
-"Within the DNS zone, you have the capability to create or oversee various"
-" records, including but not limited to A, AAAA, MX, TXT, and more."
+"Within the DNS zone, you have the capability to create or oversee various "
+"records, including but not limited to A, AAAA, MX, TXT, and more."
 msgstr ""
 "Au sein de la zone DNS, vous avez la possibilité de créer ou de superviser "
-"divers enregistrements, y compris mais sans s'y limiter A, AAAA, MX, TXT, "
-"et plus encore."
+"divers enregistrements, y compris mais sans s'y limiter A, AAAA, MX, TXT, et"
+" plus encore."
 
 #: templates/domains/domains.html:205
 msgid "DNS"
@@ -4387,15 +4441,15 @@ msgid ""
 "Here, you have the option to redirect traffic to a different URL. Once "
 "activated, all query parameters will be transmitted to the specified url."
 msgstr ""
-"Ici, vous avez la possibilité de rediriger le trafic vers une URL "
-"different. Une fois activée, tous les paramètres de requête seront "
-"transmis à l'URL spécifiée."
+"Ici, vous avez la possibilité de rediriger le trafic vers une URL different."
+" Une fois activée, tous les paramètres de requête seront transmis à l'URL "
+"spécifiée."
 
 #: templates/domains/domains.html:207
 msgid ""
 "When a domain possesses SSL, Force HTTPS is activated automatically, "
-"redirecting all traffic to utilize the secure https protocol. However, if"
-" a domain lacks an SSL, Force HTTPS cannot be enabled."
+"redirecting all traffic to utilize the secure https protocol. However, if a "
+"domain lacks an SSL, Force HTTPS cannot be enabled."
 msgstr ""
 "Lorsqu'un domaine possède SSL, Force HTTPS est activé automatiquement, "
 "redirigeant tout le trafic pour utiliser le protocole HTTPS sécurisé. "
@@ -4444,7 +4498,8 @@ msgstr "Êtes-vous sûr de vouloir supprimer le domaine ?"
 
 #: templates/domains/domains.html:552
 msgid "Invalid domain name. Please enter a valid domain name like"
-msgstr "Nom de domaine invalide. Veuillez entrer un nom de domaine valide comme"
+msgstr ""
+"Nom de domaine invalide. Veuillez entrer un nom de domaine valide comme"
 
 #: templates/domains/domains.html:561
 msgid " Adding domain..."
@@ -4476,8 +4531,8 @@ msgstr "(pour la compatibilité avec les noms de domaine internationalisés)"
 
 #: templates/domains/edit_dns_zone.html:25
 msgid ""
-"The DNS Zone Editor feature allows you to create, edit, and delete Domain"
-" Name System (DNS) zone records."
+"The DNS Zone Editor feature allows you to create, edit, and delete Domain "
+"Name System (DNS) zone records."
 msgstr ""
 "La fonctionnalité d'édition de zone DNS vous permet de créer, modifier et "
 "supprimer des enregistrements de zone du système de noms de domaine (DNS)."
@@ -4581,10 +4636,10 @@ msgstr "Ajouter"
 
 #: templates/domains/edit_dns_zone.html:362
 msgid ""
-"DNS Zone Editor allows you to manage and edit Domain Name System (DNS) "
-"zone files, which contain critical information for mapping domain names "
-"to IP addresses and managing various DNS records, such as A, CNAME, MX, "
-"and TXT records."
+"DNS Zone Editor allows you to manage and edit Domain Name System (DNS) zone "
+"files, which contain critical information for mapping domain names to IP "
+"addresses and managing various DNS records, such as A, CNAME, MX, and TXT "
+"records."
 msgstr ""
 "L'éditeur de zone DNS vous permet de gérer et de modifier les fichiers de "
 "zone du système de noms de domaine (DNS), qui contiennent des informations "
@@ -4618,7 +4673,7 @@ msgstr "Page non trouvée."
 
 #: templates/error_pages/404.html:15
 msgid "The page you’re looking for doesn’t exist."
-msgstr ""
+msgstr "La page que vous recherchez n’existe pas."
 
 #: templates/error_pages/404.html:16
 msgid "Go Home"
@@ -4638,8 +4693,8 @@ msgstr "Erreur"
 
 #: templates/error_pages/500.html:15
 msgid ""
-"Click on the button bellow to reload. If the issue persists please "
-"contact support."
+"Click on the button bellow to reload. If the issue persists please contact "
+"support."
 msgstr ""
 "Cliquez sur le bouton ci-dessous pour recharger. Si le problème persiste, "
 "veuillez contacter le support."
@@ -4713,8 +4768,8 @@ msgid ""
 "Set your server’s time zone and synchronize its time with your network’s "
 "time server."
 msgstr ""
-"Définissez le fuseau horaire de votre serveur et synchronisez son heure "
-"avec le serveur de temps de votre réseau."
+"Définissez le fuseau horaire de votre serveur et synchronisez son heure avec"
+" le serveur de temps de votre réseau."
 
 #: templates/system/general.html:34
 msgid "Service Status"
@@ -4722,8 +4777,8 @@ msgstr "État du service"
 
 #: templates/system/general.html:35
 msgid ""
-"Display a list of OpenPanel’s monitored services, their current version "
-"and statuses."
+"Display a list of OpenPanel’s monitored services, their current version and "
+"statuses."
 msgstr ""
 "Affichez une liste des services surveillés par OpenPanel, leur version "
 "actuelle et leurs statuts."
@@ -4794,7 +4849,8 @@ msgstr "Charge moyenne"
 
 #: templates/system/server_info.html:24
 msgid "The system&apos;s average load over the last 1, 5, and 15 minutes"
-msgstr "La charge moyenne du système au cours des 1, 5 et 15 dernières minutes"
+msgstr ""
+"La charge moyenne du système au cours des 1, 5 et 15 dernières minutes"
 
 #: templates/system/server_info.html:32
 msgid "Time the system has been up and running continuously for."
@@ -4859,8 +4915,7 @@ msgstr "Redémarrer le service MySQL"
 
 #: templates/system/services_status.html:68
 msgid ""
-"Even when \"Off\" phpMyAdmin starts automatically when you visit "
-"/phpmyadmin"
+"Even when \"Off\" phpMyAdmin starts automatically when you visit /phpmyadmin"
 msgstr ""
 "Même lorsque \"Off\", phpMyAdmin démarre automatiquement lorsque vous "
 "visitez /phpmyadmin."
@@ -4945,13 +5000,13 @@ msgstr "Copié dans le presse-papier"
 
 #: templates/user/activity.html:121
 msgid ""
-"Activity Log records all important actions performed by user on the "
-"panel, such as editing or modifying files, deleting websites, enabling "
-"SSH access, etc."
+"Activity Log records all important actions performed by user on the panel, "
+"such as editing or modifying files, deleting websites, enabling SSH access, "
+"etc."
 msgstr ""
 "Le journal d'activité enregistre toutes les actions importantes effectuées "
-"par l'utilisateur sur le panneau, telles que l'édition ou la modification "
-"de fichiers, la suppression de sites web, l'activation de l'accès SSH, etc."
+"par l'utilisateur sur le panneau, telles que l'édition ou la modification de"
+" fichiers, la suppression de sites web, l'activation de l'accès SSH, etc."
 
 #: templates/user/activity.html:147
 msgid "Show all activity"
@@ -5079,23 +5134,23 @@ msgstr "authentification en 2 phases"
 
 #: templates/user/twofa_settings.html:28
 msgid ""
-"is a way of adding additional security to your account. 2FA requires you "
-"to enter an extra code when you log in or perform some account-sensitive "
-"action. The code is generated from an application on your computer or "
-"mobile phone."
+"is a way of adding additional security to your account. 2FA requires you to "
+"enter an extra code when you log in or perform some account-sensitive "
+"action. The code is generated from an application on your computer or mobile"
+" phone."
 msgstr ""
 "est une manière d'ajouter une sécurité supplémentaire à votre compte. 2FA "
-"vous demande de saisir un code supplémentaire lorsque vous vous connectez "
-"ou effectuez une action sensible à votre compte. Le code est généré à "
-"partir d'une application sur votre ordinateur ou votre téléphone portable."
+"vous demande de saisir un code supplémentaire lorsque vous vous connectez ou"
+" effectuez une action sensible à votre compte. Le code est généré à partir "
+"d'une application sur votre ordinateur ou votre téléphone portable."
 
 #: templates/user/twofa_settings.html:30
 msgid ""
-"To enable 2FA for your account you will need an application that manages "
-"2FA codes, such as"
+"To enable 2FA for your account you will need an application that manages 2FA"
+" codes, such as"
 msgstr ""
-"Pour activer la double authentification pour votre compte, vous aurez "
-"besoin d'une application qui gère les codes 2FA, telle que"
+"Pour activer la double authentification pour votre compte, vous aurez besoin"
+" d'une application qui gère les codes 2FA, telle que"
 
 #: templates/user/twofa_settings.html:30
 msgid "Google Authenticator"
@@ -5134,6 +5189,6 @@ msgid ""
 "After configuring the OTP code in the 2FA application, kindly confirm by "
 "clicking the button below to permanently delete the OTP secret."
 msgstr ""
-"Après avoir configuré le code OTP dans l'application 2FA, veuillez "
-"confirmer en cliquant sur le bouton ci-dessous pour supprimer "
-"définitivement le secret OTP."
+"Après avoir configuré le code OTP dans l'application 2FA, veuillez confirmer"
+" en cliquant sur le bouton ci-dessous pour supprimer définitivement le "
+"secret OTP."

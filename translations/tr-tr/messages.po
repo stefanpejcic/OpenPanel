@@ -5,16 +5,16 @@
 #
 msgid ""
 msgstr ""
+"Project-Id-Version: openpanel\n"
+"PO-Revision-Date: 2025-01-27 12:00+0300\n"
+"Last-Translator: Slaweally  <slaweally@hotmail.com - sys@rootali.net>\n"
+"Language-Team: Turkish <sys@rootali.net>\n"
+"Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 23.08.5\n"
-"Project-Id-Version: openpanel\n"
-"Language: tr\n"
-"Last-Translator: Slaweally  <slaweally@hotmail.com - sys@rootali.net>\n"
-"PO-Revision-Date: 2025-01-27 12:00+0300\n"
-"Language-Team: Turkish <sys@rootali.net>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 23.08.5\n"
 
 #: modules/autoinstaller.py:71 templates/dashboard/dashboard.html:146
 #: templates/manager/autoinstaller.html:9
@@ -39,8 +39,8 @@ msgstr "Bir veya daha fazla gerekli alan eksik (zamanlama, komut, konteyner)."
 
 #: modules/crons.py:239
 msgid ""
-"image= or network= are not allowed in the command, crons can only be run "
-"on existing containers."
+"image= or network= are not allowed in the command, crons can only be run on "
+"existing containers."
 msgstr ""
 "Komutta image= veya network= kullanılamaz, cronlar yalnızca mevcut "
 "konteynerlerde çalıştırılabilir."
@@ -71,8 +71,8 @@ msgstr ""
 
 #: modules/crons.py:276
 msgid ""
-"job-service-run, job-local and job-run are not allowed in crontab, crons "
-"can only be run on existing containers with job-exec."
+"job-service-run, job-local and job-run are not allowed in crontab, crons can"
+" only be run on existing containers with job-exec."
 msgstr ""
 "crontab'ta job-service-run, job-local ve job-run kullanılamaz, cronlar "
 "yalnızca job-exec ile mevcut konteynerlerde çalıştırılabilir."
@@ -91,11 +91,11 @@ msgstr "Cron işi veya cronfile içeriği sağlanmadı."
 
 #: modules/crons.py:321
 msgid ""
-"Missing the original container fields! (original_schedule, "
-"original_command, original_container, original_comment)."
+"Missing the original container fields! (original_schedule, original_command,"
+" original_container, original_comment)."
 msgstr ""
-"Orijinal konteyner alanları eksik! (original_schedule, "
-"original_command, original_container, original_comment)."
+"Orijinal konteyner alanları eksik! (original_schedule, original_command, "
+"original_container, original_comment)."
 
 #: modules/crons.py:397
 msgid "Cron job was successfully edited."
@@ -103,7 +103,9 @@ msgstr "Cron işi başarıyla düzenlendi."
 
 #: modules/crons.py:400
 msgid "Error saving cronjob, please try again or use the File Editor instead."
-msgstr "Cronjob kaydedilirken hata oluştu, lütfen tekrar deneyin veya bunun yerine Dosya Düzenleyici'yi kullanın."
+msgstr ""
+"Cronjob kaydedilirken hata oluştu, lütfen tekrar deneyin veya bunun yerine "
+"Dosya Düzenleyici'yi kullanın."
 
 #: modules/crons.py:481
 msgid "Cron job was successfully deleted."
@@ -179,7 +181,8 @@ msgstr "Cron işi silinirken hata oluştu"
 #: modules/dashboard.py:265 modules/dashboard.py:431 modules/dashboard.py:488
 #: modules/docker.py:1069 modules/docker.py:1085 modules/ip_blocker.py:25
 #: modules/php.py:228 modules/webserver.py:27 modules/webserver.py:109
-#: modules/webserver.py:145 modules/webserver.py:223 modules/webserver_conf.py:51
+#: modules/webserver.py:145 modules/webserver.py:223
+#: modules/webserver_conf.py:51
 msgid "User not authenticated"
 msgstr "Kullanıcı kimliği doğrulanmadı"
 
@@ -382,7 +385,8 @@ msgstr "Veritabanında Mautic kurulumu bulunamadı"
 
 #: modules/mautic.py:386
 msgid "Database name or user not found in app/config/local.php"
-msgstr "app/config/local.php dosyasında veritabanı adı veya kullanıcı bulunamadı"
+msgstr ""
+"app/config/local.php dosyasında veritabanı adı veya kullanıcı bulunamadı"
 
 #: modules/mautic.py:460
 msgid "Mautic uninstalled successfully!"
@@ -526,7 +530,9 @@ msgstr "pgAdmin hizmeti durdurulamadı. Yeniden başlatmayı deneyin."
 
 #: modules/pgadmin.py:76
 msgid "Limits saved ({}) - Restart pgAdmin service to apply changes!"
-msgstr "Limitler kaydedildi ({}) - Değişiklikleri uygulamak için pgAdmin hizmetini yeniden başlatın!"
+msgstr ""
+"Limitler kaydedildi ({}) - Değişiklikleri uygulamak için pgAdmin hizmetini "
+"yeniden başlatın!"
 
 #: modules/pgadmin.py:78 modules/phpmyadmin.py:111
 msgid "No changes or invalid data provided. Try again."
@@ -559,8 +565,8 @@ msgstr "Varsayılan sürümü ayarla"
 
 #: modules/php.py:229 modules/php.py:232
 msgid ""
-"PHP Limits can not be edited for Litespeed, please use the 'PHP.INI "
-"Editor' or 'PHP Options' instead."
+"PHP Limits can not be edited for Litespeed, please use the 'PHP.INI Editor' "
+"or 'PHP Options' instead."
 msgstr ""
 "Litespeed için PHP Limitleri düzenlenemez, lütfen bunun yerine 'PHP.INI "
 "Düzenleyici' veya 'PHP Seçenekleri'ni kullanın."
@@ -584,8 +590,8 @@ msgstr ""
 
 #: modules/php.py:532
 msgid ""
-"For Litespeed PHP version can not be set per-domain. To change version "
-"for all domains, use the 'Default PHP Version' page."
+"For Litespeed PHP version can not be set per-domain. To change version for "
+"all domains, use the 'Default PHP Version' page."
 msgstr ""
 "Litespeed için PHP sürümü alan adı başına ayarlanamaz. Tüm alan adları için "
 "sürümü değiştirmek için 'Varsayılan PHP Sürümü' sayfasını kullanın."
@@ -619,7 +625,9 @@ msgstr "phpMyAdmin hizmeti durdurulamadı. Yeniden başlatmayı deneyin."
 
 #: modules/phpmyadmin.py:109
 msgid "Limits saved ({}) - Restart phpMyAdmin service to apply changes!"
-msgstr "Limitler kaydedildi ({}) - Değişiklikleri uygulamak için phpMyAdmin hizmetini yeniden başlatın!"
+msgstr ""
+"Limitler kaydedildi ({}) - Değişiklikleri uygulamak için phpMyAdmin "
+"hizmetini yeniden başlatın!"
 
 #: modules/phpmyadmin.py:152 templates/mysql/phpmyadmin.html:11
 msgid "phpMyAdmin"
@@ -631,7 +639,8 @@ msgstr "Dosya yolu eksik"
 
 #: modules/pm2.py:220
 msgid "Invalid file extension. Only .py, or .js are allowed."
-msgstr "Geçersiz dosya uzantısı. Yalnızca .py veya .js dosyalarına izin verilir."
+msgstr ""
+"Geçersiz dosya uzantısı. Yalnızca .py veya .js dosyalarına izin verilir."
 
 #: modules/pm2.py:499 templates/manager/pm2_install.html:8
 msgid "Install Application"
@@ -643,7 +652,8 @@ msgstr "Uygulama için konteyner türü tespit edilemedi."
 
 #: modules/pm2.py:1112
 msgid "Not a valid type, only NodeJS or Python applications can be edited."
-msgstr "Geçersiz tür, yalnızca NodeJS veya Python uygulamaları düzenlenebilir."
+msgstr ""
+"Geçersiz tür, yalnızca NodeJS veya Python uygulamaları düzenlenebilir."
 
 #: modules/pm2.py:1116 modules/pm2.py:1323
 msgid "Error connecting to database."
@@ -651,7 +661,9 @@ msgstr "Veritabanına bağlanırken hata oluştu."
 
 #: modules/pm2.py:1158
 msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
-msgstr "Kaydetme hatası: Geçersiz sürüm formatı (hub.docker.com'dan etiketleri kontrol edin)"
+msgstr ""
+"Kaydetme hatası: Geçersiz sürüm formatı (hub.docker.com'dan etiketleri "
+"kontrol edin)"
 
 #: modules/pm2.py:1162
 msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
@@ -659,16 +671,16 @@ msgstr "Kaydetme hatası: Gereksinimler boş (Hayır) veya 1 (Evet) olmalıdır"
 
 #: modules/pm2.py:1166
 msgid ""
-"Error saving: Startup file invalid (must start with /var/www/html/, no "
-"path traversal, ends with .js or .py)"
+"Error saving: Startup file invalid (must start with /var/www/html/, no path "
+"traversal, ends with .js or .py)"
 msgstr ""
 "Kaydetme hatası: Başlangıç dosyası geçersiz (/var/www/html/ ile başlamalı, "
 "yol geçişi olmamalı, .js veya .py ile bitmeli)"
 
 #: modules/pm2.py:1170
 msgid ""
-"Error saving: Provided custom startup command is invalid (no path "
-"traversal '..' allowed!)"
+"Error saving: Provided custom startup command is invalid (no path traversal "
+"'..' allowed!)"
 msgstr ""
 "Kaydetme hatası: Sağlanan özel başlangıç komutu geçersiz (yol geçişi '..' "
 "kullanılamaz!)"
@@ -678,12 +690,13 @@ msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
-"Kaydetme hatası: Çalışma dizini geçersiz (/var/www/html/ ile başlamalı, "
-"yol geçişi olmamalı)"
+"Kaydetme hatası: Çalışma dizini geçersiz (/var/www/html/ ile başlamalı, yol "
+"geçişi olmamalı)"
 
 #: modules/pm2.py:1178
 msgid "Error saving: CPU core limit provided is not a positive intiger."
-msgstr "Kaydetme hatası: Sağlanan CPU çekirdek limiti pozitif bir tam sayı değil."
+msgstr ""
+"Kaydetme hatası: Sağlanan CPU çekirdek limiti pozitif bir tam sayı değil."
 
 #: modules/pm2.py:1182
 msgid "Error saving: Memory limit provided is not a positive intiger."
@@ -707,7 +720,8 @@ msgstr "Uygulama için hizmet adı tespit edilemedi."
 
 #: modules/pm2.py:1318
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
-msgstr "Geçersiz tür, yalnızca NodeJS veya Python uygulamaları kaldırılabilir."
+msgstr ""
+"Geçersiz tür, yalnızca NodeJS veya Python uygulamaları kaldırılabilir."
 
 #: modules/postgresql.py:129
 msgid "You have reached the maximum number of databases allowed."
@@ -742,7 +756,8 @@ msgid ""
 "Postgres container is not running. Please allow a few moments for the "
 "initialization.."
 msgstr ""
-"Postgres konteyneri çalışmıyor. Lütfen başlatma için birkaç dakika bekleyin.."
+"Postgres konteyneri çalışmıyor. Lütfen başlatma için birkaç dakika "
+"bekleyin.."
 
 #: modules/postgresql.py:419
 msgid "PostgreSQL databases"
@@ -766,9 +781,8 @@ msgid ""
 "database {database_name}"
 msgstr ""
 "{db_user} kullanıcısının PostgreSQL veritabanı {database_name} için tüm "
-"ayrıcalıkları başarıyla iptal edildi"
-"PostgreSQL veritabanı {database_name} için {db_user} kullanıcısının tüm "
-"ayrıcalıkları başarıyla iptal edildi"
+"ayrıcalıkları başarıyla iptal edildiPostgreSQL veritabanı {database_name} "
+"için {db_user} kullanıcısının tüm ayrıcalıkları başarıyla iptal edildi"
 
 #: modules/postgresql.py:889
 msgid ""
@@ -776,9 +790,8 @@ msgid ""
 "{database_name}"
 msgstr ""
 "{db_user} kullanıcısının PostgreSQL veritabanı {database_name} için "
-"ayrıcalıkları iptal edilemedi"
-"PostgreSQL veritabanı {database_name} için {db_user} kullanıcısının "
-"ayrıcalıkları iptal edilemedi"
+"ayrıcalıkları iptal edilemediPostgreSQL veritabanı {database_name} için "
+"{db_user} kullanıcısının ayrıcalıkları iptal edilemedi"
 
 #: modules/process_manager.py:99 templates/dashboard/dashboard.html:191
 #: templates/system/process_manager.html:9
@@ -804,7 +817,8 @@ msgstr "Hata: ID'ler yalnızca boşluklarla ayrılmış sayılar içermelidir."
 
 #: modules/waf.py:85
 msgid "Error: Tags should only contain words, numbers, or symbols."
-msgstr "Hata: Etiketler yalnızca kelimeler, sayılar veya semboller içermelidir."
+msgstr ""
+"Hata: Etiketler yalnızca kelimeler, sayılar veya semboller içermelidir."
 
 #: modules/waf.py:139
 msgid "WAF configuration updated."
@@ -896,9 +910,8 @@ msgid ""
 "contact support."
 msgstr ""
 "Veritabanına bağlanırken hata oluştu, lütfen tekrar deneyin. Sorun devam "
-"ederse destek ile iletişime geçin."
-"Veritabanına bağlanırken hata oluştu, lütfen tekrar deneyin. Sorun devam "
-"ederse destek ile iletişime geçin."
+"ederse destek ile iletişime geçin.Veritabanına bağlanırken hata oluştu, "
+"lütfen tekrar deneyin. Sorun devam ederse destek ile iletişime geçin."
 
 #: modules/website_builder.py:245
 msgid "Create Website"
@@ -906,7 +919,8 @@ msgstr "Web Sitesi Oluştur"
 
 #: modules/websites.py:214
 msgid "Data gathering started. Please allow a few minutes for completion."
-msgstr "Veri toplama başlatıldı. Tamamlanması için lütfen birkaç dakika bekleyin."
+msgstr ""
+"Veri toplama başlatıldı. Tamamlanması için lütfen birkaç dakika bekleyin."
 
 #: modules/websites.py:416
 msgid "Missing required parameters"
@@ -944,7 +958,8 @@ msgstr "WEB SİTELERİ - WordPress web sitesi için blog adı okunuyor: {path}"
 
 #: modules/websites.py:702
 msgid "WEBSITES - Reading WP admin_email for website: {selected_domain}"
-msgstr "WEB SİTELERİ - Web sitesi için WP admin_email okunuyor: {selected_domain}"
+msgstr ""
+"WEB SİTELERİ - Web sitesi için WP admin_email okunuyor: {selected_domain}"
 
 #: modules/websites.py:781
 msgid "Invalid domain name format."
@@ -954,7 +969,8 @@ msgstr "Geçersiz alan adı formatı."
 msgid "WordPress Manager"
 msgstr "WordPress Yöneticisi"
 
-#: modules/wordpress.py:184 modules/wordpress.py:1527 modules/wordpress.py:1667
+#: modules/wordpress.py:184 modules/wordpress.py:1527
+#: modules/wordpress.py:1667
 msgid "Domain not found."
 msgstr "Alan adı bulunamadı."
 
@@ -1044,15 +1060,11 @@ msgstr "Geçersiz tür. 'core' veya 'plugins' kullanın."
 #, python-format
 msgid ""
 "Email address changed for account %(username)s\n"
-"Email address for account <b>%(username)s</b> has been changed to: "
-"<b>%(new_email)s</b>."
+"Email address for account <b>%(username)s</b> has been changed to: <b>%(new_email)s</b>."
 msgstr ""
 "%(username)s hesabı için e-posta adresi değiştirildi\n"
-"<b>%(username)s</b> hesabı için e-posta adresi şu şekilde değiştirildi: "
-"<b>%(new_email)s</b>."
-"%(username)s hesabı için e-posta adresi değiştirildi\n"
-"<b>%(username)s</b> hesabı için e-posta adresi şu şekilde değiştirildi: "
-"<b>%(new_email)s</b>."
+"<b>%(username)s</b> hesabı için e-posta adresi şu şekilde değiştirildi: <b>%(new_email)s</b>.%(username)s hesabı için e-posta adresi değiştirildi\n"
+"<b>%(username)s</b> hesabı için e-posta adresi şu şekilde değiştirildi: <b>%(new_email)s</b>."
 
 #: modules/account/account.py:100
 #, python-format
@@ -1071,16 +1083,15 @@ msgid ""
 "OpenPanel username changed from <b>%(old)s</b> to <b>%(new)s</b>."
 msgstr ""
 "Kullanıcı adı %(old)s değiştirildi\n"
-"OpenPanel kullanıcı adı <b>%(old)s</b> adresinden <b>%(new)s</b> adresine "
-"değiştirildi."
-"Kullanıcı adı %(old)s değiştirildi\n"
+"OpenPanel kullanıcı adı <b>%(old)s</b> adresinden <b>%(new)s</b> adresine değiştirildi.Kullanıcı adı %(old)s değiştirildi\n"
 "OpenPanel kullanıcı adı <b>%(old)s</b>'den <b>%(new)s</b>'ye değiştirildi."
 
 #: modules/account/account.py:136
 msgid "Failed to change username."
 msgstr "Kullanıcı adı değiştirilemedi."
 
-#: modules/account/forgot_password.py:97 modules/account/forgot_password.py:142
+#: modules/account/forgot_password.py:97
+#: modules/account/forgot_password.py:142
 msgid "Forgot Password"
 msgstr "Şifremi Unuttum"
 
@@ -1117,7 +1128,8 @@ msgstr "Şifreler eşleşmiyor"
 msgid "Your password has been reset. Please log in."
 msgstr "Şifreniz sıfırlandı. Lütfen giriş yapın."
 
-#: modules/account/forgot_password.py:192 templates/user/email_template.html:59
+#: modules/account/forgot_password.py:192
+#: templates/user/email_template.html:59
 msgid "Reset Password"
 msgstr "Şifreyi Sıfırla"
 
@@ -1187,19 +1199,18 @@ msgid ""
 "logins."
 msgstr ""
 "OTP kodu kaldırıldı ve yeni girişlerde İki Faktörlü Kimlik Doğrulama artık "
-"gereklidir."
-"OTP kodu kaldırıldı ve yeni girişlerde İki Faktörlü Kimlik Doğrulama artık "
-"gereklidir."
+"gereklidir.OTP kodu kaldırıldı ve yeni girişlerde İki Faktörlü Kimlik "
+"Doğrulama artık gereklidir."
 
 #: modules/account/twofa.py:34
 msgid ""
-"Setup started: Set up the app or save the OTP code, then confirm to "
-"remove it and activate 2FA."
+"Setup started: Set up the app or save the OTP code, then confirm to remove "
+"it and activate 2FA."
 msgstr ""
 "Kurulum başlatıldı: Uygulamayı ayarlayın veya OTP kodunu kaydedin, ardından "
-"kaldırmak ve 2FA'yı etkinleştirmek için onaylayın."
-"Kurulum başlatıldı: Uygulamayı kurun veya OTP kodunu kaydedin, ardından "
-"kaldırmak ve 2FA'yı etkinleştirmek için onaylayın."
+"kaldırmak ve 2FA'yı etkinleştirmek için onaylayın.Kurulum başlatıldı: "
+"Uygulamayı kurun veya OTP kodunu kaydedin, ardından kaldırmak ve 2FA'yı "
+"etkinleştirmek için onaylayın."
 
 #: modules/account/twofa.py:38
 msgid "Two-Factor Authentication is now disabled."
@@ -1220,13 +1231,12 @@ msgstr "ElasticSearch"
 
 #: modules/cache/elasticsearch.py:21 modules/cache/memcached.py:29
 msgid ""
-"The leading distributed, RESTful, open source search and analytics engine"
-" designed for speed and reliability."
+"The leading distributed, RESTful, open source search and analytics engine "
+"designed for speed and reliability."
 msgstr ""
 "Hız ve güvenilirlik için tasarlanmış önde gelen dağıtılmış, RESTful, açık "
-"kaynak arama ve analitik motoru."
-"Hız ve güvenilirlik için tasarlanmış önde gelen dağıtılmış, RESTful, açık "
-"kaynak arama ve analitik motoru."
+"kaynak arama ve analitik motoru.Hız ve güvenilirlik için tasarlanmış önde "
+"gelen dağıtılmış, RESTful, açık kaynak arama ve analitik motoru."
 
 #: modules/cache/memcached.py:28 templates/dashboard/dashboard.html:152
 msgid "Memcached"
@@ -1242,9 +1252,8 @@ msgid ""
 "large volumes of data. "
 msgstr ""
 "OpenSearch, büyük hacimli veriler için açık kaynaklı, dağıtılmış arama ve "
-"analitik paketidir. "
-"OpenSearch, büyük hacimli veriler için açık kaynaklı, dağıtılmış arama ve "
-"analitik paketidir. "
+"analitik paketidir. OpenSearch, büyük hacimli veriler için açık kaynaklı, "
+"dağıtılmış arama ve analitik paketidir. "
 
 #: modules/cache/redis.py:22 templates/dashboard/dashboard.html:151
 msgid "Redis"
@@ -1252,13 +1261,13 @@ msgstr "Redis"
 
 #: modules/cache/redis.py:23
 msgid ""
-"Redis (Remote Dictionary Server) is an in-memory, key/value store that is"
-" used primarily as an application cache or quick-response database."
+"Redis (Remote Dictionary Server) is an in-memory, key/value store that is "
+"used primarily as an application cache or quick-response database."
 msgstr ""
 "Redis (Remote Dictionary Server), öncelikle uygulama önbelleği veya hızlı "
-"yanıt veritabanı olarak kullanılan bellek içi, anahtar/değer deposudur."
-"Redis (Remote Dictionary Server), öncelikle uygulama önbelleği veya hızlı "
-"yanıt veritabanı olarak kullanılan bellek içi, anahtar/değer deposudur."
+"yanıt veritabanı olarak kullanılan bellek içi, anahtar/değer deposudur.Redis"
+" (Remote Dictionary Server), öncelikle uygulama önbelleği veya hızlı yanıt "
+"veritabanı olarak kullanılan bellek içi, anahtar/değer deposudur."
 
 #: modules/cache/varnish.py:84
 msgid "Varnish caching is now enabled."
@@ -1392,7 +1401,9 @@ msgstr "Hata: VirtualHost dosyası kaydedilemedi."
 
 #: modules/domain/edit_vhost.py:130
 msgid "Error saving virtual host configuration. Configuration test failed."
-msgstr "Sanal ana bilgisayar yapılandırması kaydedilirken hata oluştu. Yapılandırma testi başarısız oldu."
+msgstr ""
+"Sanal ana bilgisayar yapılandırması kaydedilirken hata oluştu. Yapılandırma "
+"testi başarısız oldu."
 
 #: modules/domain/redirects.py:79
 msgid "Unauthorized"
@@ -1404,7 +1415,8 @@ msgstr "Alan adı sağlanmadı."
 
 #: modules/domain/redirects.py:139
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
-msgstr "Geçersiz URL. Lütfen 'http://' veya 'https://' öneki ile bir URL sağlayın."
+msgstr ""
+"Geçersiz URL. Lütfen 'http://' veya 'https://' öneki ile bir URL sağlayın."
 
 #: modules/domain/redirects.py:191
 msgid "Create a Redirect"
@@ -1651,8 +1663,11 @@ msgstr "İzinleri Düzelt"
 
 #: modules/files/ftp.py:141 modules/files/ftp.py:164 modules/files/ftp.py:244
 #: modules/files/ftp.py:322
-msgid "FTP service is not yet started, please contact Administrator to enable it."
-msgstr "FTP hizmeti henüz başlatılmadı, lütfen etkinleştirmek için Yönetici ile iletişime geçin."
+msgid ""
+"FTP service is not yet started, please contact Administrator to enable it."
+msgstr ""
+"FTP hizmeti henüz başlatılmadı, lütfen etkinleştirmek için Yönetici ile "
+"iletişime geçin."
 
 #: modules/files/ftp.py:152
 msgid "No currenty active FTP connections"
@@ -1660,7 +1675,9 @@ msgstr "Şu anda aktif FTP bağlantısı yok"
 
 #: modules/files/ftp.py:375
 msgid "Invalid configuration type, please use cyberduck or filezilla only!"
-msgstr "Geçersiz yapılandırma türü, lütfen yalnızca cyberduck veya filezilla kullanın!"
+msgstr ""
+"Geçersiz yapılandırma türü, lütfen yalnızca cyberduck veya filezilla "
+"kullanın!"
 
 #: modules/files/ftp.py:385
 msgid "User has no FTP accounts."
@@ -1766,31 +1783,32 @@ msgstr "Seçenekler"
 
 #: modules/psql/postgresql_conf.py:128
 msgid ""
-"PostgreSQL configuration was saved successfully but postgres service "
-"failed to start! Please revert the changes to restart postgres."
+"PostgreSQL configuration was saved successfully but postgres service failed "
+"to start! Please revert the changes to restart postgres."
 msgstr ""
 "PostgreSQL yapılandırması başarıyla kaydedildi ancak postgres hizmeti "
-"başlatılamadı! Postgres'i yeniden başlatmak için lütfen değişiklikleri geri alın."
-"PostgreSQL yapılandırması başarıyla kaydedildi ancak postgres hizmeti "
-"başlatılamadı! Postgres'i yeniden başlatmak için lütfen değişiklikleri geri alın."
+"başlatılamadı! Postgres'i yeniden başlatmak için lütfen değişiklikleri geri "
+"alın.PostgreSQL yapılandırması başarıyla kaydedildi ancak postgres hizmeti "
+"başlatılamadı! Postgres'i yeniden başlatmak için lütfen değişiklikleri geri "
+"alın."
 
 #: modules/psql/postgresql_conf.py:131
 msgid ""
-"PostgreSQL Configuration was edited successfully and service restarted to"
-" apply new settings."
+"PostgreSQL Configuration was edited successfully and service restarted to "
+"apply new settings."
 msgstr ""
-"PostgreSQL Yapılandırması başarıyla düzenlendi ve yeni ayarları uygulamak için "
-"hizmet yeniden başlatıldı."
-"PostgreSQL Yapılandırması başarıyla düzenlendi ve yeni ayarları uygulamak için "
-"hizmet yeniden başlatıldı."
+"PostgreSQL Yapılandırması başarıyla düzenlendi ve yeni ayarları uygulamak "
+"için hizmet yeniden başlatıldı.PostgreSQL Yapılandırması başarıyla "
+"düzenlendi ve yeni ayarları uygulamak için hizmet yeniden başlatıldı."
 
 #: modules/psql/postgresql_conf.py:134 modules/psql/postgresql_import.py:22
 msgid ""
 "postgres container is not running. Please allow a few moments for "
 "initialization.."
 msgstr ""
-"postgres konteyneri çalışmıyor. Lütfen başlatma için birkaç dakika bekleyin.."
-"postgres konteyneri çalışmıyor. Lütfen başlatma için birkaç dakika bekleyin.."
+"postgres konteyneri çalışmıyor. Lütfen başlatma için birkaç dakika "
+"bekleyin..postgres konteyneri çalışmıyor. Lütfen başlatma için birkaç dakika"
+" bekleyin.."
 
 #: modules/psql/postgresql_conf.py:153
 msgid "Edit PostgreSQL configuration"
@@ -1909,15 +1927,16 @@ msgstr "Oluşturulma Tarihi"
 
 #: templates/docker/containers.html:76 templates/domains/dns.html:139
 #: templates/domains/domains.html:160 templates/domains/domains.html:214
-#: templates/files/clamav/quarantine.html:72 templates/files/disk_usage.html:43
-#: templates/files/ftp.html:77 templates/files/inodes.html:45
-#: templates/flarum.html:341 templates/manager/python_node_apps.html:856
-#: templates/manager/ruby.html:433 templates/manager/sites.html:83
-#: templates/mautic.html:94 templates/mysql/databases.html:158
-#: templates/mysql/users.html:88 templates/psql/databases.html:147
-#: templates/psql/users.html:88 templates/system/cronjobs.html:143
-#: templates/system/waf.html:62 templates/user/active_sessions.html:62
-#: templates/user/favorites.html:55 templates/wordpress.html:122
+#: templates/files/clamav/quarantine.html:72
+#: templates/files/disk_usage.html:43 templates/files/ftp.html:77
+#: templates/files/inodes.html:45 templates/flarum.html:341
+#: templates/manager/python_node_apps.html:856 templates/manager/ruby.html:433
+#: templates/manager/sites.html:83 templates/mautic.html:94
+#: templates/mysql/databases.html:158 templates/mysql/users.html:88
+#: templates/psql/databases.html:147 templates/psql/users.html:88
+#: templates/system/cronjobs.html:143 templates/system/waf.html:62
+#: templates/user/active_sessions.html:62 templates/user/favorites.html:55
+#: templates/wordpress.html:122
 msgid "Actions"
 msgstr "İşlemler"
 
@@ -1927,13 +1946,12 @@ msgstr "Flarum web sitesini sil"
 
 #: templates/flarum.html:356 templates/flarum.html:483
 msgid ""
-"This will irreversibly delete the website, permanently deleting all files"
-" and database."
+"This will irreversibly delete the website, permanently deleting all files "
+"and database."
 msgstr ""
 "Bu, web sitesini geri alınamaz bir şekilde silecek, tüm dosyaları ve "
-"veritabanını kalıcı olarak silecektir."
-"Bu, web sitesini geri alınamaz bir şekilde silecek, tüm dosyaları ve "
-"veritabanını kalıcı olarak silecektir."
+"veritabanını kalıcı olarak silecektir.Bu, web sitesini geri alınamaz bir "
+"şekilde silecek, tüm dosyaları ve veritabanını kalıcı olarak silecektir."
 
 #: templates/flarum.html:357 templates/flarum.html:484
 #: templates/manager/mautic.html:480 templates/manager/wordpress.html:1971
@@ -1948,11 +1966,11 @@ msgstr "Yöneticiden Kaldır"
 
 #: templates/flarum.html:362 templates/flarum.html:489
 msgid ""
-"This will just remove the installation from the Manager but keep the "
-"files and database."
+"This will just remove the installation from the Manager but keep the files "
+"and database."
 msgstr ""
-"Bu, kurulumu yalnızca Yöneticiden kaldıracak ancak dosyaları ve "
-"veritabanını koruyacaktır."
+"Bu, kurulumu yalnızca Yöneticiden kaldıracak ancak dosyaları ve veritabanını"
+" koruyacaktır."
 
 #: templates/flarum.html:363 templates/flarum.html:490
 #: templates/manager/mautic.html:430 templates/manager/websitebuilder.html:181
@@ -1996,10 +2014,9 @@ msgstr "Flarum Kurulumu Yok"
 
 #: templates/flarum.html:642
 msgid ""
-"There are no existing Flarum installations. You can install a new "
-"instance below."
-msgstr ""
-"Mevcut Flarum kurulumu yok. Aşağıdan yeni bir örnek kurabilirsiniz."
+"There are no existing Flarum installations. You can install a new instance "
+"below."
+msgstr "Mevcut Flarum kurulumu yok. Aşağıdan yeni bir örnek kurabilirsiniz."
 
 #: templates/flarum.html:659
 msgid "No Domains"
@@ -2034,8 +2051,7 @@ msgid ""
 "Switch to Grid View - a visual representation of your Websites and their "
 "content."
 msgstr ""
-"Izgara Görünümüne Geç - Web Sitelerinizin ve içeriklerinin görsel "
-"temsili."
+"Izgara Görünümüne Geç - Web Sitelerinizin ve içeriklerinin görsel temsili."
 
 #: templates/macros.html:17
 msgid "Reload Data"
@@ -2101,7 +2117,9 @@ msgstr "Mautic Kurulumu Yok"
 
 #: templates/mautic.html:303
 msgid "No Mautic sites managed via OpenPanel. Install a new Mautic site."
-msgstr "OpenPanel üzerinden yönetilen Mautic sitesi yok. Yeni bir Mautic sitesi kurun."
+msgstr ""
+"OpenPanel üzerinden yönetilen Mautic sitesi yok. Yeni bir Mautic sitesi "
+"kurun."
 
 #: templates/mautic.html:305 templates/wordpress.html:419
 msgid "View Documentation"
@@ -2244,8 +2262,7 @@ msgstr "Eklentiler"
 
 #: templates/wordpress.html:59
 msgid ""
-"Create a Themes Set to have themes auto-installed on new WordPress "
-"websites."
+"Create a Themes Set to have themes auto-installed on new WordPress websites."
 msgstr ""
 "Yeni WordPress web sitelerinde temaların otomatik olarak kurulması için bir "
 "Tema Seti oluşturun."
@@ -2296,8 +2313,8 @@ msgstr "WordPress Kurulumu Yok"
 
 #: templates/wordpress.html:417
 msgid ""
-"No WordPress sites managed via OpenPanel. Install a new WordPress site or"
-" scan to find existing installations."
+"No WordPress sites managed via OpenPanel. Install a new WordPress site or "
+"scan to find existing installations."
 msgstr ""
 "OpenPanel üzerinden yönetilen WordPress sitesi yok. Yeni bir WordPress "
 "sitesi kurun veya mevcut kurulumları bulmak için tarama yapın."
@@ -2372,8 +2389,8 @@ msgstr "Alan Adı"
 
 #: templates/dashboard/dashboard.html:77 templates/domains/ssl.html:184
 #: templates/files/filemanager.html:204 templates/manager/mautic.html:182
-#: templates/manager/python_node_apps.html:1033 templates/manager/ruby.html:589
-#: templates/manager/websitebuilder.html:358
+#: templates/manager/python_node_apps.html:1033
+#: templates/manager/ruby.html:589 templates/manager/websitebuilder.html:358
 #: templates/manager/wordpress.html:237 templates/partials/_header.html:33
 msgid "Files"
 msgstr "Dosyalar"
@@ -2485,7 +2502,8 @@ msgstr "phpMyAdmin'i Yönet"
 msgid "Remote Access"
 msgstr "Uzaktan Erişim"
 
-#: templates/dashboard/dashboard.html:128 templates/mysql/configuration.html:13
+#: templates/dashboard/dashboard.html:128
+#: templates/mysql/configuration.html:13
 msgid "MySQL Configuration"
 msgstr "MySQL Yapılandırması"
 
@@ -2618,8 +2636,9 @@ msgstr "Kullanıcı Adı"
 msgid "Plan"
 msgstr "Plan"
 
-#: templates/dashboard/information.html:56 templates/system/server_info.html:60
-#: templates/user/active_sessions.html:53 templates/user/activity.html:46
+#: templates/dashboard/information.html:56
+#: templates/system/server_info.html:60 templates/user/active_sessions.html:53
+#: templates/user/activity.html:46
 msgid "IP Address"
 msgstr "IP Adresi"
 
@@ -2689,8 +2708,10 @@ msgid "Memory Usage"
 msgstr "Bellek Kullanımı"
 
 #: templates/dashboard/usage.html:249
-msgid "Displays the current Memory consumption of all running Docker containers."
-msgstr "Çalışan tüm Docker konteynerlerinin mevcut Bellek tüketimini gösterir."
+msgid ""
+"Displays the current Memory consumption of all running Docker containers."
+msgstr ""
+"Çalışan tüm Docker konteynerlerinin mevcut Bellek tüketimini gösterir."
 
 #: templates/dashboard/usage.html:252
 msgid "Shows the combined Memory usage from all running services."
@@ -2715,11 +2736,14 @@ msgstr "Blok G/Ç"
 
 #: templates/dashboard/usage.html:323
 msgid "Displays total read/write on disk by all running Docker containers."
-msgstr "Çalışan tüm Docker konteynerlerinin disk üzerindeki toplam okuma/yazma işlemini gösterir."
+msgstr ""
+"Çalışan tüm Docker konteynerlerinin disk üzerindeki toplam okuma/yazma "
+"işlemini gösterir."
 
 #: templates/dashboard/usage.html:326
 msgid "Shows the total disk read/write usage from all running services."
-msgstr "Çalışan tüm hizmetlerden toplam disk okuma/yazma kullanımını gösterir."
+msgstr ""
+"Çalışan tüm hizmetlerden toplam disk okuma/yazma kullanımını gösterir."
 
 #: templates/dashboard/usage.html:345 templates/user/stats.html:93
 msgid "Network I/O"
@@ -2727,15 +2751,16 @@ msgstr "Ağ G/Ç"
 
 #: templates/dashboard/usage.html:351
 msgid ""
-"Displays total sent/received data on network interface by all running "
-"Docker containers."
+"Displays total sent/received data on network interface by all running Docker"
+" containers."
 msgstr ""
 "Çalışan tüm Docker konteynerlerinin ağ arayüzü üzerinden gönderilen/alınan "
 "toplam veriyi gösterir."
 
 #: templates/dashboard/usage.html:354
 msgid "Shows the total network sent/received bandwidth by running services."
-msgstr "Çalışan hizmetlerden toplam ağ gönderilen/alınan bant genişliğini gösterir."
+msgstr ""
+"Çalışan hizmetlerden toplam ağ gönderilen/alınan bant genişliğini gösterir."
 
 #: templates/dashboard/usage.html:372 templates/user/stats.html:98
 msgid "PIDs"
@@ -2743,11 +2768,11 @@ msgstr "PID'ler"
 
 #: templates/dashboard/usage.html:378
 msgid ""
-"Displays the number of processes or threads created by all running Docker"
-" containers."
+"Displays the number of processes or threads created by all running Docker "
+"containers."
 msgstr ""
-"Çalışan tüm Docker konteynerleri tarafından oluşturulan işlem veya iş parçacığı "
-"sayısını gösterir."
+"Çalışan tüm Docker konteynerleri tarafından oluşturulan işlem veya iş "
+"parçacığı sayısını gösterir."
 
 #: templates/dashboard/usage.html:381
 msgid "Shows the number of processes created by all running services."
@@ -2760,8 +2785,8 @@ msgstr "Ölçülen:"
 #: templates/dashboard/usage.html:422 templates/dashboard/usage.html:423
 #: templates/dashboard/usage.html:424 templates/dashboard/usage.html:425
 #: templates/manager/mautic.html:214 templates/manager/mautic.html:257
-#: templates/manager/python_node_apps.html:1071 templates/manager/ruby.html:628
-#: templates/manager/websitebuilder.html:414
+#: templates/manager/python_node_apps.html:1071
+#: templates/manager/ruby.html:628 templates/manager/websitebuilder.html:414
 #: templates/manager/wordpress.html:332 templates/manager/wordpress.html:375
 msgid "Calculating.."
 msgstr "Hesaplanıyor.."
@@ -2792,7 +2817,9 @@ msgstr "Docker görüntü etiketini değiştir"
 
 #: templates/docker/change_images.html:98
 msgid "Change docker images tag in order to use specific service versions."
-msgstr "Belirli hizmet sürümlerini kullanmak için docker görüntü etiketlerini değiştirin."
+msgstr ""
+"Belirli hizmet sürümlerini kullanmak için docker görüntü etiketlerini "
+"değiştirin."
 
 #: templates/docker/change_mysql.html:9
 msgid "Change mysql server for new databases."
@@ -2804,8 +2831,10 @@ msgid "Current:"
 msgstr "Mevcut:"
 
 #: templates/docker/change_mysql.html:30
-msgid "The following conditions must be met in order to switch the mysql server:"
-msgstr "MySQL sunucusunu değiştirmek için aşağıdaki koşulların karşılanması gerekir:"
+msgid ""
+"The following conditions must be met in order to switch the mysql server:"
+msgstr ""
+"MySQL sunucusunu değiştirmek için aşağıdaki koşulların karşılanması gerekir:"
 
 #: templates/docker/change_mysql.html:32
 msgid "All existing databases and users must be removed."
@@ -2829,8 +2858,10 @@ msgid "Change webserver for new domains to: "
 msgstr "Yeni alan adları için web sunucusunu şuna değiştir: "
 
 #: templates/docker/change_webserver.html:35
-msgid "The following conditions must be met in order to switch the web server:"
-msgstr "Web sunucusunu değiştirmek için aşağıdaki koşulların karşılanması gerekir:"
+msgid ""
+"The following conditions must be met in order to switch the web server:"
+msgstr ""
+"Web sunucusunu değiştirmek için aşağıdaki koşulların karşılanması gerekir:"
 
 #: templates/docker/change_webserver.html:37
 msgid "All existing domains must be removed."
@@ -2869,7 +2900,8 @@ msgid ""
 "Adding containers is an experimental feature and should not be used in "
 "production."
 msgstr ""
-"Konteyner eklemek deneysel bir özelliktir ve üretim ortamında kullanılmamalıdır."
+"Konteyner eklemek deneysel bir özelliktir ve üretim ortamında "
+"kullanılmamalıdır."
 
 #: templates/docker/container_form.html:18
 msgid "Please share feedback"
@@ -2951,8 +2983,8 @@ msgstr "Yeni Hizmet"
 #: templates/docker/containers.html:61 templates/domains/dns.html:127
 #: templates/domains/dns.html:150 templates/files/filemanager.html:101
 #: templates/files/filemanager/table.html:6
-#: templates/files/filemanager/table_trash.html:6 templates/files/trash.html:53
-#: templates/manager/python_node_apps.html:183
+#: templates/files/filemanager/table_trash.html:6
+#: templates/files/trash.html:53 templates/manager/python_node_apps.html:183
 msgid "Name"
 msgstr "Ad"
 
@@ -3046,8 +3078,11 @@ msgid "Check is in progress.."
 msgstr "Kontrol devam ediyor.."
 
 #: templates/docker/images.html:224
-msgid "This may take a few minutes to complete. Refresh the page to display data."
-msgstr "Bu işlem birkaç dakika sürebilir. Verileri görüntülemek için sayfayı yenileyin."
+msgid ""
+"This may take a few minutes to complete. Refresh the page to display data."
+msgstr ""
+"Bu işlem birkaç dakika sürebilir. Verileri görüntülemek için sayfayı "
+"yenileyin."
 
 #: templates/docker/terminal.html:15 templates/docker/terminal.html:151
 msgid "Docker Terminal"
@@ -3078,13 +3113,12 @@ msgstr "Alan adını sil"
 
 #: templates/domains/delete.html:13
 msgid ""
-"Deleting the domain name will stop any services associated with this "
-"domain from working, however all existing data such as emails and files "
-"will remain on disk."
+"Deleting the domain name will stop any services associated with this domain "
+"from working, however all existing data such as emails and files will remain"
+" on disk."
 msgstr ""
 "Alan adını silmek bu alan adıyla ilişkili tüm hizmetlerin çalışmasını "
-"durdurur, ancak e-postalar ve dosyalar gibi mevcut tüm veriler diskte "
-"kalır."
+"durdurur, ancak e-postalar ve dosyalar gibi mevcut tüm veriler diskte kalır."
 
 #: templates/domains/delete.html:34
 msgid "subdomains"
@@ -3127,8 +3161,10 @@ msgid "and all associated data will be kept."
 msgstr "ve tüm ilişkili veriler korunacaktır."
 
 #: templates/domains/delete.html:61
-msgid "FTP accounts that have a path under this domain document root will remain."
-msgstr "Bu alan adı belge kökü altında bir yola sahip FTP hesapları kalacaktır."
+msgid ""
+"FTP accounts that have a path under this domain document root will remain."
+msgstr ""
+"Bu alan adı belge kökü altında bir yola sahip FTP hesapları kalacaktır."
 
 #: templates/domains/delete.html:63
 msgid "Websites that use this domain name will immediately stop working."
@@ -3164,8 +3200,8 @@ msgstr "Bu alan adı için DNS bölgesini sıfırlamak istediğinize emin misini
 
 #: templates/domains/dns.html:27
 msgid ""
-"This acton is irreversible and will delete all existing DNS records, then"
-" restore the default zone records."
+"This acton is irreversible and will delete all existing DNS records, then "
+"restore the default zone records."
 msgstr ""
 "Bu işlem geri alınamaz ve tüm mevcut DNS kayıtlarını silecek, ardından "
 "varsayılan bölge kayıtlarını geri yükleyecektir."
@@ -3283,8 +3319,8 @@ msgstr "Kayıt başarıyla silindi."
 
 #: templates/domains/dns.html:359
 msgid ""
-"Error occured deleting the record. Please refresh the page and try again."
-" If the issue persists, try editing the zone file directly."
+"Error occured deleting the record. Please refresh the page and try again. If"
+" the issue persists, try editing the zone file directly."
 msgstr ""
 "Kayıt silinirken hata oluştu. Lütfen sayfayı yenileyin ve tekrar deneyin. "
 "Sorun devam ederse, bölge dosyasını doğrudan düzenlemeyi deneyin."
@@ -3320,13 +3356,11 @@ msgid ""
 "correctly."
 msgstr ""
 "DNS dosyasını düzenlemek yalnızca gelişmiş kullanıcılar içindir. Bu işlem "
-"doğru yapılmazsa sunucu yapılandırma hatasına veya kesintisine yol "
-"açabilir."
+"doğru yapılmazsa sunucu yapılandırma hatasına veya kesintisine yol açabilir."
 
 #: templates/domains/dns.html:615
 msgid ""
-"Please be cautious and make sure you understand the changes you are "
-"making."
+"Please be cautious and make sure you understand the changes you are making."
 msgstr ""
 "Lütfen dikkatli olun ve yaptığınız değişiklikleri anladığınızdan emin olun."
 
@@ -3364,13 +3398,13 @@ msgstr "Bölge dosyası başarıyla kaydedildi"
 
 #: templates/domains/dns.html:723
 msgid ""
-"Manage and edit Domain Name System (DNS) zone files, which contain "
-"critical information for mapping domain names to IP addresses and "
-"managing various DNS records, such as A, CNAME, MX, and TXT records."
+"Manage and edit Domain Name System (DNS) zone files, which contain critical "
+"information for mapping domain names to IP addresses and managing various "
+"DNS records, such as A, CNAME, MX, and TXT records."
 msgstr ""
 "Alan adlarını IP adreslerine eşleme ve A, CNAME, MX ve TXT kayıtları gibi "
-"çeşitli DNS kayıtlarını yönetme için kritik bilgiler içeren Alan Adı "
-"Sistemi (DNS) bölge dosyalarını yönetin ve düzenleyin."
+"çeşitli DNS kayıtlarını yönetme için kritik bilgiler içeren Alan Adı Sistemi"
+" (DNS) bölge dosyalarını yönetin ve düzenleyin."
 
 #: templates/domains/dns.html:744 templates/domains/docroot.html:100
 #: templates/domains/goaccess.html:33 templates/domains/logs.html:378
@@ -3487,11 +3521,11 @@ msgstr "Büyük Harfe Çevir"
 #: templates/emails/single_account.html:34
 #: templates/files/filemanager/actions_buttons.html:18
 #: templates/files/filemanager/delete.html:41
-#: templates/files/filemanager/deleteTrash.html:26 templates/files/ftp.html:117
-#: templates/files/trash.html:36 templates/manager/python_node_apps.html:750
-#: templates/manager/ruby.html:328 templates/manager/websitebuilder.html:231
-#: templates/mysql/users.html:108 templates/psql/databases.html:173
-#: templates/psql/users.html:125
+#: templates/files/filemanager/deleteTrash.html:26
+#: templates/files/ftp.html:117 templates/files/trash.html:36
+#: templates/manager/python_node_apps.html:750 templates/manager/ruby.html:328
+#: templates/manager/websitebuilder.html:231 templates/mysql/users.html:108
+#: templates/psql/databases.html:173 templates/psql/users.html:125
 msgid "Delete"
 msgstr "Sil"
 
@@ -3524,7 +3558,8 @@ msgstr "Sonraki"
 
 #: templates/domains/goaccess.html:13
 msgid "View html reports generated from domain access logs."
-msgstr "Alan adı erişim günlüklerinden oluşturulan HTML raporları görüntüleyin."
+msgstr ""
+"Alan adı erişim günlüklerinden oluşturulan HTML raporları görüntüleyin."
 
 #: templates/domains/logs.html:12
 msgid "Domain Logs for"
@@ -3599,7 +3634,8 @@ msgstr "Alan adları için web sunucusu ham erişim günlüklerini görüntüley
 
 #: templates/domains/new.html:16
 msgid "Add a new domain name to be used for websites, emails, etc."
-msgstr "Web siteleri, e-postalar vb. için kullanılacak yeni bir alan adı ekleyin."
+msgstr ""
+"Web siteleri, e-postalar vb. için kullanılacak yeni bir alan adı ekleyin."
 
 #: templates/domains/new.html:24
 msgid "Hide Details"
@@ -3611,8 +3647,8 @@ msgstr "Detayları Göster"
 
 #: templates/domains/new.html:80
 msgid ""
-"docroot module or feature are not enabled. Contact Administrator to "
-"change docroot."
+"docroot module or feature are not enabled. Contact Administrator to change "
+"docroot."
 msgstr ""
 "docroot modülü veya özelliği etkinleştirilmemiş. Belge kökünü değiştirmek "
 "için Yönetici ile iletişime geçin."
@@ -3638,7 +3674,8 @@ msgstr ""
 
 #: templates/domains/new.html:248
 msgid "Paths for both public and secret files must start with /var/www/html/."
-msgstr "Hem genel hem de gizli dosyalar için yollar /var/www/html/ ile başlamalıdır."
+msgstr ""
+"Hem genel hem de gizli dosyalar için yollar /var/www/html/ ile başlamalıdır."
 
 #: templates/domains/new.html:281
 msgid "Adding domain"
@@ -3650,7 +3687,8 @@ msgstr "Alan adı eklenirken hata oluştu"
 
 #: templates/domains/new.html:292 templates/emails/confirm_import.html:165
 msgid "Network response from backend was not ok. Please contact support."
-msgstr "Arka uçtan ağ yanıtı başarısız oldu. Lütfen destek ile iletişime geçin."
+msgstr ""
+"Arka uçtan ağ yanıtı başarısız oldu. Lütfen destek ile iletişime geçin."
 
 #: templates/domains/new.html:339
 msgid "Domain name"
@@ -3710,8 +3748,8 @@ msgstr "Alan Adını URL'ye Yönlendir"
 
 #: templates/domains/redirect.html:90
 msgid ""
-"Redirecting a domain will immediately redirect all traffic to the new "
-"URL, while Email and other services remain operational."
+"Redirecting a domain will immediately redirect all traffic to the new URL, "
+"while Email and other services remain operational."
 msgstr ""
 "Bir alan adını yönlendirmek, E-posta ve diğer hizmetler çalışır durumda "
 "kalırken tüm trafiği hemen yeni URL'ye yönlendirecektir."
@@ -3722,7 +3760,8 @@ msgstr "İçin SSL Yapılandır"
 
 #: templates/domains/ssl.html:13
 msgid "Configure AutoSSL or upload a custom certificate for a domain."
-msgstr "Bir alan adı için AutoSSL'i yapılandırın veya özel bir sertifika yükleyin."
+msgstr ""
+"Bir alan adı için AutoSSL'i yapılandırın veya özel bir sertifika yükleyin."
 
 #: templates/domains/ssl.html:28
 msgid "Current SSL setting for domain."
@@ -3814,8 +3853,8 @@ msgstr "Alan adını askıya al"
 
 #: templates/domains/suspend.html:9 templates/domains/suspend.html:67
 msgid ""
-"Suspending the domain will immediately disable website access, while "
-"Email and other services remain operational."
+"Suspending the domain will immediately disable website access, while Email "
+"and other services remain operational."
 msgstr ""
 "Alan adını askıya almak web sitesi erişimini hemen devre dışı bırakacaktır, "
 "ancak E-posta ve diğer hizmetler çalışır durumda kalacaktır."
@@ -3838,7 +3877,9 @@ msgstr "Alan adını askıdan kaldır"
 
 #: templates/domains/unsuspend.html:10 templates/domains/unsuspend.html:66
 msgid "Unsuspending a domain will immediately restore access to the website."
-msgstr "Bir alan adını askıdan kaldırmak web sitesi erişimini hemen geri yükleyecektir."
+msgstr ""
+"Bir alan adını askıdan kaldırmak web sitesi erişimini hemen geri "
+"yükleyecektir."
 
 #: templates/domains/unsuspend.html:23
 msgid "Confirm unsuspend of domain:"
@@ -3877,8 +3918,8 @@ msgstr "İçin Sanal Sunucular dosyası."
 
 #: templates/domains/vhost.html:71
 msgid ""
-"Editing the domain file is intended for advanced users only. This action "
-"can potentially lead to server misconfiguration or downtime if not done "
+"Editing the domain file is intended for advanced users only. This action can"
+" potentially lead to server misconfiguration or downtime if not done "
 "correctly."
 msgstr ""
 "Alan adı dosyasını düzenlemek yalnızca gelişmiş kullanıcılar içindir. Bu "
@@ -3887,15 +3928,15 @@ msgstr ""
 
 #: templates/domains/vhost.html:73
 msgid ""
-"Please be cautious and make sure you understand the changes you are "
-"making. We use a rollback mechanism to check for errors, and if any "
-"issues are detected, we will revert the changes. However, it's important "
-"to have a backup of your configurations before proceeding."
+"Please be cautious and make sure you understand the changes you are making. "
+"We use a rollback mechanism to check for errors, and if any issues are "
+"detected, we will revert the changes. However, it's important to have a "
+"backup of your configurations before proceeding."
 msgstr ""
 "Lütfen dikkatli olun ve yaptığınız değişiklikleri anladığınızdan emin olun. "
-"Hataları kontrol etmek için bir geri alma mekanizması kullanıyoruz ve herhangi "
-"bir sorun tespit edilirse değişiklikleri geri alacağız. Ancak devam etmeden "
-"önce yapılandırmalarınızın yedeğini almak önemlidir."
+"Hataları kontrol etmek için bir geri alma mekanizması kullanıyoruz ve "
+"herhangi bir sorun tespit edilirse değişiklikleri geri alacağız. Ancak devam"
+" etmeden önce yapılandırmalarınızın yedeğini almak önemlidir."
 
 #: templates/emails/accounts.html:13
 msgid "Total emails:"
@@ -3950,14 +3991,13 @@ msgstr "Aşağıdaki kullanıcılar içe aktarılacak:"
 msgid "Email"
 msgstr "E-posta"
 
-#: templates/emails/confirm_import.html:46
-#: templates/mysql/mysql_user.html:52 templates/mysql/mysql_user.html:62
-#: templates/mysql/password.html:46 templates/mysql/root_password.html:50
-#: templates/mysql/wizard.html:73 templates/psql/mysql_user.html:40
-#: templates/psql/password.html:46 templates/psql/password.html:56
-#: templates/psql/psql_user.html:46 templates/psql/psql_user.html:56
-#: templates/psql/wizard.html:73 templates/user/account.html:79
-#: templates/user/login.html:23
+#: templates/emails/confirm_import.html:46 templates/mysql/mysql_user.html:52
+#: templates/mysql/mysql_user.html:62 templates/mysql/password.html:46
+#: templates/mysql/root_password.html:50 templates/mysql/wizard.html:73
+#: templates/psql/mysql_user.html:40 templates/psql/password.html:46
+#: templates/psql/password.html:56 templates/psql/psql_user.html:46
+#: templates/psql/psql_user.html:56 templates/psql/wizard.html:73
+#: templates/user/account.html:79 templates/user/login.html:23
 msgid "Password"
 msgstr "Şifre"
 
@@ -4342,12 +4382,12 @@ msgstr "HATA"
 
 #: templates/files/backup_settings.html:105
 msgid ""
-"By default, notifications would only be sent out when a backup run fails."
-" To receive notifications for every run, set NOTIFICATION_LEVEL to"
+"By default, notifications would only be sent out when a backup run fails. To"
+" receive notifications for every run, set NOTIFICATION_LEVEL to"
 msgstr ""
-"Varsayılan olarak, bildirimler yalnızca bir yedekleme çalışması "
-"başarısız olduğunda gönderilir. Her çalıştırma için bildirim almak "
-"için NOTIFICATION_LEVEL'i şuna ayarlayın"
+"Varsayılan olarak, bildirimler yalnızca bir yedekleme çalışması başarısız "
+"olduğunda gönderilir. Her çalıştırma için bildirim almak için "
+"NOTIFICATION_LEVEL'i şuna ayarlayın"
 
 #: templates/files/backup_settings.html:105
 msgid "instead of the default"
@@ -4358,21 +4398,20 @@ msgid ""
 "Notifications (email, Slack, etc.) can be sent out when a backup run "
 "finishes. Configuration is provided as a comma-separated list of URLs."
 msgstr ""
-"Bir yedekleme çalıştırması tamamlandığında bildirimler (e-posta, Slack "
-"vb.) gönderilebilir. Yapılandırma virgülle ayrılmış bir URL listesi "
-"olarak sağlanır."
+"Bir yedekleme çalıştırması tamamlandığında bildirimler (e-posta, Slack vb.) "
+"gönderilebilir. Yapılandırma virgülle ayrılmış bir URL listesi olarak "
+"sağlanır."
 
 #: templates/files/backup_settings.html:115
 msgid ""
-"Parallelism level for \"gz\" (Gzip) compression defines how many blocks "
-"of data are concurrently processed. Higher values result in faster "
-"compression. Default = 1. Setting this to 0 will use all available "
-"threads."
+"Parallelism level for \"gz\" (Gzip) compression defines how many blocks of "
+"data are concurrently processed. Higher values result in faster compression."
+" Default = 1. Setting this to 0 will use all available threads."
 msgstr ""
 "\"gz\" (Gzip) sıkıştırması için paralellik seviyesi, kaç veri bloğunun "
 "eşzamanlı olarak işlendiğini tanımlar. Daha yüksek değerler daha hızlı "
-"sıkıştırma sağlar. Varsayılan = 1. Bunu 0'a ayarlamak tüm mevcut "
-"iş parçacıklarını kullanacaktır."
+"sıkıştırma sağlar. Varsayılan = 1. Bunu 0'a ayarlamak tüm mevcut iş "
+"parçacıklarını kullanacaktır."
 
 #: templates/files/backup_settings.html:118
 msgid "Full path to exclude, or regular expressions."
@@ -4400,8 +4439,8 @@ msgstr "Mevcut hedef"
 
 #: templates/files/backups.html:48
 msgid ""
-"To get started, choose a destination type for backups: S3, WebDAV, Azure,"
-" Dropbox or SSH."
+"To get started, choose a destination type for backups: S3, WebDAV, Azure, "
+"Dropbox or SSH."
 msgstr ""
 "Başlamak için yedeklemeler için bir hedef türü seçin: S3, WebDAV, Azure, "
 "Dropbox veya SSH."
@@ -4427,7 +4466,9 @@ msgstr "Limitleri ayarla ve hizmeti etkinleştir"
 #: templates/files/backups.html:93 templates/files/backups.html:163
 #: templates/files/backups.html:204
 msgid "Set CPU and Memory limits for the backup task and enable service."
-msgstr "Yedekleme görevi için CPU ve Bellek limitlerini ayarlayın ve hizmeti etkinleştirin."
+msgstr ""
+"Yedekleme görevi için CPU ve Bellek limitlerini ayarlayın ve hizmeti "
+"etkinleştirin."
 
 #: templates/files/backups.html:103
 msgid "Edit Backup Limits"
@@ -4442,8 +4483,8 @@ msgid ""
 "CPU and Memory limits for the backup task are set and backup service is "
 "active."
 msgstr ""
-"Yedekleme görevi için CPU ve Bellek limitleri ayarlandı ve yedekleme "
-"hizmeti etkin."
+"Yedekleme görevi için CPU ve Bellek limitleri ayarlandı ve yedekleme hizmeti"
+" etkin."
 
 #: templates/files/backups.html:137 templates/files/backups.html:188
 msgid ""
@@ -4459,12 +4500,12 @@ msgstr "Yapılandırmayı Düzenle"
 
 #: templates/files/disk_usage.html:17
 msgid ""
-"Disk usage is the amount of space that is used by the content of your "
-"sites, this includes databases, files, videos, images, emails and pages."
+"Disk usage is the amount of space that is used by the content of your sites,"
+" this includes databases, files, videos, images, emails and pages."
 msgstr ""
-"Disk kullanımı, sitelerinizin içeriği tarafından kullanılan alan "
-"miktarıdır, bu veritabanları, dosyalar, videolar, resimler, e-postalar ve "
-"sayfaları içerir."
+"Disk kullanımı, sitelerinizin içeriği tarafından kullanılan alan miktarıdır,"
+" bu veritabanları, dosyalar, videolar, resimler, e-postalar ve sayfaları "
+"içerir."
 
 #: templates/files/disk_usage.html:37 templates/files/inodes.html:39
 msgid "Directory"
@@ -4495,8 +4536,7 @@ msgstr "WordPress Temalar Setini Düzenle"
 
 #: templates/files/edit_file.html:78
 msgid ""
-"Themes listed here will be automaticaly installed to new WordPress "
-"websites."
+"Themes listed here will be automaticaly installed to new WordPress websites."
 msgstr ""
 "Burada listelenen temalar yeni WordPress web sitelerine otomatik olarak "
 "kurulacaktır."
@@ -4523,7 +4563,8 @@ msgstr "Google PageSpeed API anahtarını düzenle"
 
 #: templates/files/edit_file.html:88
 msgid "Set API key to be used on Site Manager for your websites."
-msgstr "Web siteleriniz için Site Manager'da kullanılacak API anahtarını ayarlayın."
+msgstr ""
+"Web siteleriniz için Site Manager'da kullanılacak API anahtarını ayarlayın."
 
 #: templates/files/filemanager.html:73
 msgid "Search Files & Folders"
@@ -4612,11 +4653,11 @@ msgstr "İzinler düzeltildi!"
 
 #: templates/files/fix_permissions.html:86
 msgid ""
-"The process has started. This may take a few minutes depending on the "
-"number of files and folders in the specified path. Please wait."
+"The process has started. This may take a few minutes depending on the number"
+" of files and folders in the specified path. Please wait."
 msgstr ""
-"İşlem başladı. Bu, belirtilen yoldaki dosya ve klasör sayısına bağlı "
-"olarak birkaç dakika sürebilir. Lütfen bekleyin."
+"İşlem başladı. Bu, belirtilen yoldaki dosya ve klasör sayısına bağlı olarak "
+"birkaç dakika sürebilir. Lütfen bekleyin."
 
 #: templates/files/clamav/scanner.html:137
 #: templates/files/fix_permissions.html:102
@@ -4629,8 +4670,8 @@ msgstr "İzinleri düzeltme başarısız oldu"
 
 #: templates/files/fix_permissions.html:119
 msgid ""
-"Permissions successfully fixed for all files and subdirectories inside "
-"the directory"
+"Permissions successfully fixed for all files and subdirectories inside the "
+"directory"
 msgstr ""
 "Dizin içindeki tüm dosyalar ve alt dizinler için izinler başarıyla "
 "düzeltildi"
@@ -4693,11 +4734,11 @@ msgstr "Yeni bir FTP hesabı oluşturun."
 
 #: templates/files/ftp_new.html:65
 msgid ""
-"Password must be at least 8 characters, and include a lowercase letter, "
-"an uppercase letter, a number, and a special character."
+"Password must be at least 8 characters, and include a lowercase letter, an "
+"uppercase letter, a number, and a special character."
 msgstr ""
-"Şifre en az 8 karakter olmalı ve bir küçük harf, bir büyük harf, bir "
-"sayı ve bir özel karakter içermelidir."
+"Şifre en az 8 karakter olmalı ve bir küçük harf, bir büyük harf, bir sayı ve"
+" bir özel karakter içermelidir."
 
 #: templates/files/ftp_new.html:180
 msgid "Path (folder)"
@@ -4742,12 +4783,12 @@ msgstr "Yol altında olmalıdır"
 
 #: templates/files/inodes.html:17
 msgid ""
-"An inode is a data structure that keeps the information about a file on "
-"your hosting account. The number of inodes indicates the number of files "
-"and folders you have."
+"An inode is a data structure that keeps the information about a file on your"
+" hosting account. The number of inodes indicates the number of files and "
+"folders you have."
 msgstr ""
-"Bir inode, barındırma hesabınızdaki bir dosya hakkındaki bilgileri tutan "
-"bir veri yapısıdır. İnode sayısı, sahip olduğunuz dosya ve klasör sayısını "
+"Bir inode, barındırma hesabınızdaki bir dosya hakkındaki bilgileri tutan bir"
+" veri yapısıdır. İnode sayısı, sahip olduğunuz dosya ve klasör sayısını "
 "gösterir."
 
 #: templates/files/inodes.html:18
@@ -4755,8 +4796,8 @@ msgid ""
 "This includes everything on your account, emails, files, folders, and "
 "anything you store on the server."
 msgstr ""
-"Bu, hesabınızdaki her şeyi, e-postaları, dosyaları, klasörleri ve "
-"sunucuda sakladığınız her şeyi içerir."
+"Bu, hesabınızdaki her şeyi, e-postaları, dosyaları, klasörleri ve sunucuda "
+"sakladığınız her şeyi içerir."
 
 #: templates/files/inodes.html:137
 msgid "Inodes Usage"
@@ -4784,7 +4825,8 @@ msgstr "Getirme başarısız"
 msgid "Select all"
 msgstr "Tümünü seç"
 
-#: templates/files/filemanager/restoreAll.html:28 templates/files/trash.html:27
+#: templates/files/filemanager/restoreAll.html:28
+#: templates/files/trash.html:27
 msgid "Restore All"
 msgstr "Tümünü Geri Yükle"
 
@@ -4833,8 +4875,11 @@ msgid "Quarantined files:"
 msgstr "Karantinaya alınan dosyalar:"
 
 #: templates/files/clamav/quarantine.html:21
-msgid "Files that were detected by ClamAV as malicious and placed in quarantine."
-msgstr "ClamAV tarafından kötü amaçlı olarak tespit edilen ve karantinaya alınan dosyalar."
+msgid ""
+"Files that were detected by ClamAV as malicious and placed in quarantine."
+msgstr ""
+"ClamAV tarafından kötü amaçlı olarak tespit edilen ve karantinaya alınan "
+"dosyalar."
 
 #: templates/files/clamav/quarantine.html:45
 msgid "Run Scan"
@@ -4848,8 +4893,7 @@ msgstr "Karantinaya alınmış dosya yok"
 msgid ""
 "No malicious files have been detected or the scan has not been initiated "
 "yet."
-msgstr ""
-"Kötü amaçlı dosya tespit edilmedi veya tarama henüz başlatılmadı."
+msgstr "Kötü amaçlı dosya tespit edilmedi veya tarama henüz başlatılmadı."
 
 #: templates/files/clamav/quarantine.html:71
 msgid "File"
@@ -4857,11 +4901,11 @@ msgstr "Dosya"
 
 #: templates/files/clamav/scanner.html:15
 msgid ""
-"Scan files for malicious programs with the Clam AntiVirus Scanner "
-"(ClamAV) antivirus software."
+"Scan files for malicious programs with the Clam AntiVirus Scanner (ClamAV) "
+"antivirus software."
 msgstr ""
-"Clam AntiVirus Scanner (ClamAV) antivirüs yazılımıyla dosyaları kötü "
-"amaçlı programlar için tarayın."
+"Clam AntiVirus Scanner (ClamAV) antivirüs yazılımıyla dosyaları kötü amaçlı "
+"programlar için tarayın."
 
 #: templates/files/clamav/scanner.html:20
 msgid "View Quarantine"
@@ -5076,7 +5120,9 @@ msgstr "Kaydetme başarısız."
 
 #: templates/manager/grapejs_editor.html:124
 msgid "Copy code from HTML and CSS tabs, then reload the page to try again."
-msgstr "HTML ve CSS sekmelerinden kodu kopyalayın, ardından tekrar denemek için sayfayı yeniden yükleyin."
+msgstr ""
+"HTML ve CSS sekmelerinden kodu kopyalayın, ardından tekrar denemek için "
+"sayfayı yeniden yükleyin."
 
 #: templates/manager/mautic.html:57 templates/manager/mautic_install.html:318
 msgid "Mautic version:"
@@ -5107,22 +5153,22 @@ msgid "Overview"
 msgstr "Genel Bakış"
 
 #: templates/manager/mautic.html:199
-#: templates/manager/python_node_apps.html:1044 templates/manager/ruby.html:604
-#: templates/manager/websitebuilder.html:375
+#: templates/manager/python_node_apps.html:1044
+#: templates/manager/ruby.html:604 templates/manager/websitebuilder.html:375
 #: templates/manager/wordpress.html:254
 msgid "Open folder in File Manager"
 msgstr "Klasörü Dosya Yöneticisi'nde aç"
 
 #: templates/manager/mautic.html:209
-#: templates/manager/python_node_apps.html:1056 templates/manager/ruby.html:616
-#: templates/manager/websitebuilder.html:402
+#: templates/manager/python_node_apps.html:1056
+#: templates/manager/ruby.html:616 templates/manager/websitebuilder.html:402
 #: templates/manager/wordpress.html:327
 msgid "Folder:"
 msgstr "Klasör:"
 
 #: templates/manager/mautic.html:213
-#: templates/manager/python_node_apps.html:1069 templates/manager/ruby.html:626
-#: templates/manager/websitebuilder.html:412
+#: templates/manager/python_node_apps.html:1069
+#: templates/manager/ruby.html:626 templates/manager/websitebuilder.html:412
 #: templates/manager/wordpress.html:331
 msgid "Folder Size:"
 msgstr "Klasör Boyutu:"
@@ -5151,8 +5197,7 @@ msgstr "localhost"
 
 #: templates/manager/mautic.html:263 templates/manager/wordpress.html:381
 msgid ""
-"Remote MySQL host detected in wp-config.php file. Database size "
-"unavailable."
+"Remote MySQL host detected in wp-config.php file. Database size unavailable."
 msgstr ""
 "wp-config.php dosyasında uzak MySQL sunucusu tespit edildi. Veritabanı "
 "boyutu mevcut değil."
@@ -5173,8 +5218,8 @@ msgstr "Veritabanı Kullanıcısı:"
 
 #: templates/manager/mautic.html:297 templates/manager/mautic_install.html:398
 #: templates/manager/wordpress.html:415
-#: templates/manager/wordpress_install.html:558 templates/psql/pgadmin.html:141
-#: templates/system/ssh.html:98
+#: templates/manager/wordpress_install.html:558
+#: templates/psql/pgadmin.html:141 templates/system/ssh.html:98
 msgid "Password:"
 msgstr "Şifre:"
 
@@ -5193,7 +5238,8 @@ msgstr "Yedek Oluştur"
 
 #: templates/manager/mautic.html:366 templates/manager/wordpress.html:1857
 msgid "Create a new backup of WordPress files and/or database."
-msgstr "WordPress dosyalarının ve/veya veritabanının yeni bir yedeğini oluşturun."
+msgstr ""
+"WordPress dosyalarının ve/veya veritabanının yeni bir yedeğini oluşturun."
 
 #: templates/manager/mautic.html:371 templates/manager/wordpress.html:1862
 msgid "Backup Database"
@@ -5217,7 +5263,9 @@ msgstr "Yedeklerden Geri Yükle"
 #: templates/manager/mautic.html:395 templates/manager/websitebuilder.html:146
 #: templates/manager/wordpress.html:1886
 msgid "Restore website files and/or database from a previous backup."
-msgstr "Web sitesi dosyalarını ve/veya veritabanını önceki bir yedekten geri yükleyin."
+msgstr ""
+"Web sitesi dosyalarını ve/veya veritabanını önceki bir yedekten geri "
+"yükleyin."
 
 #: templates/manager/mautic.html:405 templates/manager/websitebuilder.html:156
 #: templates/manager/wordpress.html:1896
@@ -5260,7 +5308,8 @@ msgstr "Ayırmayı Onayla"
 
 #: templates/manager/mautic.html:481 templates/manager/wordpress.html:1972
 msgid "Uninstall WordPress and delete all website files and the database."
-msgstr "WordPress'i kaldırın ve tüm web sitesi dosyalarını ve veritabanını silin."
+msgstr ""
+"WordPress'i kaldırın ve tüm web sitesi dosyalarını ve veritabanını silin."
 
 #: templates/manager/mautic.html:483 templates/manager/wordpress.html:1974
 msgid ""
@@ -5364,7 +5413,9 @@ msgstr "Getirme hatası. Lütfen tekrar deneyin."
 
 #: templates/manager/mautic_install.html:594
 msgid "Error fetching Mautic versions from Github. Please refresh page."
-msgstr "Github'dan Mautic sürümleri getirilirken hata oluştu. Lütfen sayfayı yenileyin."
+msgstr ""
+"Github'dan Mautic sürümleri getirilirken hata oluştu. Lütfen sayfayı "
+"yenileyin."
 
 #: templates/manager/mautic_install.html:601
 #: templates/manager/wordpress_install.html:769
@@ -5428,8 +5479,10 @@ msgid "Port is optional, if left blank port '80' will be used."
 msgstr "Port isteğe bağlıdır, boş bırakılırsa '80' portu kullanılır."
 
 #: templates/manager/pm2_install.html:153
-msgid "Choose a domain name and optional subdirectory to create reverse-proxy."
-msgstr "Ters proxy oluşturmak için bir alan adı ve isteğe bağlı alt dizin seçin."
+msgid ""
+"Choose a domain name and optional subdirectory to create reverse-proxy."
+msgstr ""
+"Ters proxy oluşturmak için bir alan adı ve isteğe bağlı alt dizin seçin."
 
 #: templates/manager/pm2_install.html:180
 #: templates/manager/python_node_apps.html:213 templates/manager/ruby.html:636
@@ -5442,11 +5495,11 @@ msgstr "Özel başlangıç komutu"
 
 #: templates/manager/pm2_install.html:215
 msgid ""
-"Startup file is the main entry point of the application, usually app.py "
-"or app.js file."
+"Startup file is the main entry point of the application, usually app.py or "
+"app.js file."
 msgstr ""
-"Başlangıç dosyası uygulamanın ana giriş noktasıdır, genellikle app.py "
-"veya app.js dosyasıdır."
+"Başlangıç dosyası uygulamanın ana giriş noktasıdır, genellikle app.py veya "
+"app.js dosyasıdır."
 
 #: templates/manager/pm2_install.html:236
 msgid "Startup command"
@@ -5454,8 +5507,8 @@ msgstr "Başlangıç komutu"
 
 #: templates/manager/pm2_install.html:245
 msgid ""
-"If custom startup command is provided, it will be executed instead of the"
-" default"
+"If custom startup command is provided, it will be executed instead of the "
+"default"
 msgstr ""
 "Özel başlangıç komutu sağlanırsa, varsayılan yerine bu komut çalıştırılır"
 
@@ -5473,13 +5526,13 @@ msgstr "Uygulamayı başlatmadan önce NPM install çalıştırın"
 
 #: templates/manager/pm2_install.html:315
 msgid ""
-"When enabled, this option will first run npm install using the "
-"package.json file, then launch the application. If the application is "
-"already built, you can skip this option."
+"When enabled, this option will first run npm install using the package.json "
+"file, then launch the application. If the application is already built, you "
+"can skip this option."
 msgstr ""
-"Etkinleştirildiğinde, bu seçenek önce package.json dosyasını kullanarak "
-"npm install çalıştıracak, ardından uygulamayı başlatacaktır. Uygulama "
-"zaten oluşturulduysa, bu seçeneği atlayabilirsiniz."
+"Etkinleştirildiğinde, bu seçenek önce package.json dosyasını kullanarak npm "
+"install çalıştıracak, ardından uygulamayı başlatacaktır. Uygulama zaten "
+"oluşturulduysa, bu seçeneği atlayabilirsiniz."
 
 #: templates/manager/pm2_install.html:319
 msgid "Create a new Python application"
@@ -5492,12 +5545,12 @@ msgstr "Uygulamayı başlatmadan önce PIP install çalıştırın"
 #: templates/manager/pm2_install.html:321
 msgid ""
 "When enabled, this option will first run pip install using the "
-"requirements.txt file, then launch the application. If the application is"
-" already built, you can skip this option."
+"requirements.txt file, then launch the application. If the application is "
+"already built, you can skip this option."
 msgstr ""
 "Etkinleştirildiğinde, bu seçenek önce requirements.txt dosyasını kullanarak "
-"pip install çalıştıracak, ardından uygulamayı başlatacaktır. Uygulama "
-"zaten oluşturulduysa, bu seçeneği atlayabilirsiniz."
+"pip install çalıştıracak, ardından uygulamayı başlatacaktır. Uygulama zaten "
+"oluşturulduysa, bu seçeneği atlayabilirsiniz."
 
 #: templates/manager/pm2_install.html:324
 msgid "Create a new application"
@@ -5525,11 +5578,11 @@ msgstr "Uygulamayı başlatmadan önce NPM install çalıştırın"
 
 #: templates/manager/pm2_install.html:468
 msgid ""
-"When enabled, this option will first run npm install using the "
-"package.json file, then launch the application. "
+"When enabled, this option will first run npm install using the package.json "
+"file, then launch the application. "
 msgstr ""
-"Etkinleştirildiğinde, bu seçenek önce package.json dosyasını kullanarak "
-"npm install çalıştıracak, ardından uygulamayı başlatacaktır. "
+"Etkinleştirildiğinde, bu seçenek önce package.json dosyasını kullanarak npm "
+"install çalıştıracak, ardından uygulamayı başlatacaktır. "
 
 #: templates/manager/pm2_install.html:481
 msgid "Application files will be stored in folder:"
@@ -5618,8 +5671,7 @@ msgstr ""
 msgid ""
 "If no custom startup command is provided, this file is executed with "
 "command:"
-msgstr ""
-"Özel başlangıç komutu sağlanmazsa, bu dosya şu komutla çalıştırılır:"
+msgstr "Özel başlangıç komutu sağlanmazsa, bu dosya şu komutla çalıştırılır:"
 
 #: templates/manager/python_node_apps.html:275
 msgid "Custom startup command:"
@@ -5627,8 +5679,8 @@ msgstr "Özel başlangıç komutu:"
 
 #: templates/manager/python_node_apps.html:284
 msgid ""
-"You can provide a custom startup command with flags to be used instead of"
-" the default:"
+"You can provide a custom startup command with flags to be used instead of "
+"the default:"
 msgstr ""
 "Varsayılan yerine kullanılmak üzere bayraklarla özel bir başlangıç komutu "
 "sağlayabilirsiniz:"
@@ -5639,10 +5691,8 @@ msgstr "Çalışma dizini:"
 
 #: templates/manager/python_node_apps.html:341
 msgid ""
-"Set the working directory inside which packages are installed with "
-"command:"
-msgstr ""
-"Paketlerin şu komutla yükleneceği çalışma dizinini ayarlayın:"
+"Set the working directory inside which packages are installed with command:"
+msgstr "Paketlerin şu komutla yükleneceği çalışma dizinini ayarlayın:"
 
 #: templates/manager/python_node_apps.html:343
 #: templates/manager/python_node_apps.html:397
@@ -5655,16 +5705,16 @@ msgstr "Başlangıçtan önce paketleri yükle:"
 
 #: templates/manager/python_node_apps.html:395
 msgid ""
-"If enabled, this command is executed before the custom startup command or"
-" startup file:"
+"If enabled, this command is executed before the custom startup command or "
+"startup file:"
 msgstr ""
 "Etkinleştirilirse, bu komut özel başlangıç komutundan veya başlangıç "
 "dosyasından önce çalıştırılır:"
 
 #: templates/manager/python_node_apps.html:431
 msgid ""
-"Change version, make sure to restart the application afterward by "
-"stopping and starting it."
+"Change version, make sure to restart the application afterward by stopping "
+"and starting it."
 msgstr ""
 "Sürümü değiştirin, daha sonra uygulamayı durdurup başlatarak yeniden "
 "başlattığınızdan emin olun."
@@ -5687,7 +5737,8 @@ msgstr "CPU (çekirdek):"
 
 #: templates/manager/python_node_apps.html:540
 msgid "Set max number of CPU cores to allocate for this service."
-msgstr "Bu hizmet için tahsis edilecek maksimum CPU çekirdeği sayısını ayarlayın."
+msgstr ""
+"Bu hizmet için tahsis edilecek maksimum CPU çekirdeği sayısını ayarlayın."
 
 #: templates/manager/python_node_apps.html:554
 msgid "Memory (GB):"
@@ -5695,7 +5746,9 @@ msgstr "Bellek (GB):"
 
 #: templates/manager/python_node_apps.html:563
 msgid "Set max size in GB for Memory to allocate for this service."
-msgstr "Bu hizmet için tahsis edilecek Belleğin GB cinsinden maksimum boyutunu ayarlayın."
+msgstr ""
+"Bu hizmet için tahsis edilecek Belleğin GB cinsinden maksimum boyutunu "
+"ayarlayın."
 
 #: templates/manager/python_node_apps.html:579
 msgid "PIDs:"
@@ -5757,8 +5810,8 @@ msgid ""
 "Stops the application, deletes docker container and removes it from Site "
 "Manager interface."
 msgstr ""
-"Uygulamayı durdurur, docker kapsayıcısını siler ve Site Manager "
-"arayüzünden kaldırır."
+"Uygulamayı durdurur, docker kapsayıcısını siler ve Site Manager arayüzünden "
+"kaldırır."
 
 #: templates/manager/python_node_apps.html:762
 msgid "Delete Application"
@@ -5824,17 +5877,19 @@ msgid "Application restarted successfully."
 msgstr "Uygulama başarıyla yeniden başlatıldı."
 
 #: templates/manager/python_node_apps.html:1002
-#: templates/manager/python_node_apps.html:1009 templates/manager/ruby.html:561
+#: templates/manager/python_node_apps.html:1009
+#: templates/manager/ruby.html:561
 msgid "Error restarting application."
 msgstr "Uygulama yeniden başlatılırken hata oluştu."
 
-#: templates/manager/python_node_apps.html:1092 templates/manager/ruby.html:676
-#: templates/manager/sites.html:71 templates/manager/websitebuilder.html:451
+#: templates/manager/python_node_apps.html:1092
+#: templates/manager/ruby.html:676 templates/manager/sites.html:71
+#: templates/manager/websitebuilder.html:451
 msgid "Created"
 msgstr "Oluşturuldu"
 
-#: templates/manager/python_node_apps.html:1118 templates/manager/ruby.html:705
-#: templates/manager/websitebuilder.html:480
+#: templates/manager/python_node_apps.html:1118
+#: templates/manager/ruby.html:705 templates/manager/websitebuilder.html:480
 #: templates/manager/wordpress.html:2461
 msgid "An error occurred fetching folder size from the container."
 msgstr "Kapsayıcıdan klasör boyutu getirilirken bir hata oluştu."
@@ -5893,11 +5948,13 @@ msgstr "Uygulamayı '--watch' bayrağıyla yeniden başlat"
 
 #: templates/manager/ruby.html:226
 msgid "Application restarted successfully and Watching is now enabled."
-msgstr "Uygulama başarıyla yeniden başlatıldı ve İzleme şimdi etkinleştirildi."
+msgstr ""
+"Uygulama başarıyla yeniden başlatıldı ve İzleme şimdi etkinleştirildi."
 
 #: templates/manager/ruby.html:229
 msgid "Error restarting application, Watching is not disabled."
-msgstr "Uygulama yeniden başlatılırken hata oluştu, İzleme devre dışı bırakılmadı."
+msgstr ""
+"Uygulama yeniden başlatılırken hata oluştu, İzleme devre dışı bırakılmadı."
 
 #: templates/manager/ruby.html:239
 msgid "Disable"
@@ -5977,7 +6034,8 @@ msgid "Create a new backup of website files."
 msgstr "Web sitesi dosyalarının yeni bir yedeğini oluşturun."
 
 #: templates/manager/websitebuilder.html:182
-msgid "Remove the website from this manager without actually deleting any files."
+msgid ""
+"Remove the website from this manager without actually deleting any files."
 msgstr "Aslında hiçbir dosyayı silmeden web sitesini bu yöneticiden kaldırın."
 
 #: templates/manager/websitebuilder.html:183
@@ -5994,8 +6052,8 @@ msgstr "Website Builder'ı silin ve tüm web sitesi dosyalarını silin."
 
 #: templates/manager/websitebuilder.html:234
 msgid ""
-"All website data will be permanently deleted. There is no coming back "
-"after you press delete."
+"All website data will be permanently deleted. There is no coming back after "
+"you press delete."
 msgstr ""
 "Tüm web sitesi verileri kalıcı olarak silinecek. Sil'e bastıktan sonra geri "
 "dönüş yok."
@@ -6056,7 +6114,8 @@ msgstr "Yedekleme isteği başarısız oldu."
 
 #: templates/manager/websitebuilder_install.html:10
 msgid "Build a new HTML website using a drag-and-drop builder."
-msgstr "Sürükle ve bırak oluşturucuyu kullanarak yeni bir HTML web sitesi oluşturun."
+msgstr ""
+"Sürükle ve bırak oluşturucuyu kullanarak yeni bir HTML web sitesi oluşturun."
 
 #: templates/manager/websitebuilder_install.html:105
 msgid "Open Website Builder"
@@ -6123,7 +6182,8 @@ msgid "Administrator Email"
 msgstr "Yönetici E-postası"
 
 #: templates/manager/wordpress.html:572
-msgid "You will receive confirmation email on this address, and need to confirm."
+msgid ""
+"You will receive confirmation email on this address, and need to confirm."
 msgstr "Bu adrese onay e-postası alacaksınız ve onaylamanız gerekecek."
 
 #: templates/manager/wordpress.html:581
@@ -6168,7 +6228,8 @@ msgstr "Pingback'ler"
 
 #: templates/manager/wordpress.html:617
 msgid "Enable or disable pingbacks from other websites"
-msgstr "Diğer web sitelerinden pingback'leri etkinleştir veya devre dışı bırak"
+msgstr ""
+"Diğer web sitelerinden pingback'leri etkinleştir veya devre dışı bırak"
 
 #: templates/manager/wordpress.html:624
 msgid "Allow pingbacks and trackbacks from other blogs (default)"
@@ -6185,9 +6246,9 @@ msgstr "Salt'ları Karıştır"
 #: templates/manager/wordpress.html:764
 msgid ""
 "WordPress salts are random strings stored in wp-config.php file that are "
-"used for the password hashing process. By periodically changing your keys"
-" and salts, you make it even harder for hackers to get their hands on "
-"your salts."
+"used for the password hashing process. By periodically changing your keys "
+"and salts, you make it even harder for hackers to get their hands on your "
+"salts."
 msgstr ""
 "WordPress salt'ları, şifre karma işlemi için kullanılan wp-config.php "
 "dosyasında saklanan rastgele dizelerdir. Anahtarlarınızı ve salt'larınızı "
@@ -6208,13 +6269,14 @@ msgstr "Bütünlüğü Kontrol Et"
 
 #: templates/manager/wordpress.html:836
 msgid ""
-"If you suspect that this site is infected by malware, check the integrity"
-" of WordPress core files or Plugins by verifying them against their "
-"reference checksums from wordpress.org."
+"If you suspect that this site is infected by malware, check the integrity of"
+" WordPress core files or Plugins by verifying them against their reference "
+"checksums from wordpress.org."
 msgstr ""
 "Bu sitenin kötü amaçlı yazılımlardan etkilendiğinden şüpheleniyorsanız, "
-"WordPress çekirdek dosyalarının veya Eklentilerin bütünlüğünü wordpress.org'dan "
-"referans sağlama toplamlarına karşı doğrulayarak kontrol edin."
+"WordPress çekirdek dosyalarının veya Eklentilerin bütünlüğünü "
+"wordpress.org'dan referans sağlama toplamlarına karşı doğrulayarak kontrol "
+"edin."
 
 #: templates/manager/wordpress.html:840
 msgid "Check WP Core"
@@ -6226,11 +6288,13 @@ msgstr "Tüm Eklentileri Kontrol Et"
 
 #: templates/manager/wordpress.html:862
 msgid "Checking integrity of WP Core files... Please wait."
-msgstr "WP Çekirdek dosyalarının bütünlüğü kontrol ediliyor... Lütfen bekleyin."
+msgstr ""
+"WP Çekirdek dosyalarının bütünlüğü kontrol ediliyor... Lütfen bekleyin."
 
 #: templates/manager/wordpress.html:917
 msgid "Checking integrity for all WordPress plugins... Please wait."
-msgstr "Tüm WordPress eklentilerinin bütünlüğü kontrol ediliyor... Lütfen bekleyin."
+msgstr ""
+"Tüm WordPress eklentilerinin bütünlüğü kontrol ediliyor... Lütfen bekleyin."
 
 #: templates/manager/wordpress.html:1000
 msgid "Reinstall"
@@ -6238,8 +6302,8 @@ msgstr "Yeniden Yükle"
 
 #: templates/manager/wordpress.html:1006
 msgid ""
-"If checksums fail to match, you can quickly reinstall WordPress core "
-"files or all plugins without affecting your site content."
+"If checksums fail to match, you can quickly reinstall WordPress core files "
+"or all plugins without affecting your site content."
 msgstr ""
 "Sağlama toplamları eşleşmezse, site içeriğinizi etkilemeden WordPress "
 "çekirdek dosyalarını veya tüm eklentileri hızlıca yeniden yükleyebilirsiniz."
@@ -6388,15 +6452,16 @@ msgstr "Hata ayıklama bilgisi alınırken hata oluştu. Sayfayı yenileyin."
 
 #: templates/manager/wordpress.html:1650
 msgid ""
-"The options below allow you to manage the native WordPress debugging "
-"tools, enabling and disabling these tools in the wp-config.php file. It "
-"is not recommended to use these options on production websites since they"
-" are meant for development and test installations. Refer to"
+"The options below allow you to manage the native WordPress debugging tools, "
+"enabling and disabling these tools in the wp-config.php file. It is not "
+"recommended to use these options on production websites since they are meant"
+" for development and test installations. Refer to"
 msgstr ""
 "Aşağıdaki seçenekler, yerel WordPress hata ayıklama araçlarını yönetmenize, "
 "bu araçları wp-config.php dosyasında etkinleştirmenize ve devre dışı "
-"bırakmanıza olanak tanır. Geliştirme ve test kurulumları için tasarlandığından "
-"bu seçenekleri üretim web sitelerinde kullanmanız önerilmez. Şuraya bakın"
+"bırakmanıza olanak tanır. Geliştirme ve test kurulumları için "
+"tasarlandığından bu seçenekleri üretim web sitelerinde kullanmanız "
+"önerilmez. Şuraya bakın"
 
 #: templates/manager/wordpress.html:1650
 msgid "Debugging in WordPress"
@@ -6424,7 +6489,8 @@ msgstr "WP_DEBUG_LOG"
 
 #: templates/manager/wordpress.html:1696
 msgid "Save all errors to the debug.log file inside the wp-content directory."
-msgstr "Tüm hataları wp-content dizininin içindeki debug.log dosyasına kaydedin."
+msgstr ""
+"Tüm hataları wp-content dizininin içindeki debug.log dosyasına kaydedin."
 
 #: templates/manager/wordpress.html:1705
 msgid "Enable WP_DEBUG_LOG"
@@ -6448,9 +6514,9 @@ msgstr "SCRIPT_DEBUG"
 
 #: templates/manager/wordpress.html:1748
 msgid ""
-"Force WordPress to use the non-minified versions of core CSS and "
-"JavaScript files. This is useful when you are testing changes made to .js"
-" and .css files."
+"Force WordPress to use the non-minified versions of core CSS and JavaScript "
+"files. This is useful when you are testing changes made to .js and .css "
+"files."
 msgstr ""
 "WordPress'i çekirdek CSS ve JavaScript dosyalarının küçültülmemiş "
 "sürümlerini kullanmaya zorlayın. Bu, .js ve .css dosyalarında yapılan "
@@ -6469,8 +6535,8 @@ msgid ""
 "Save database queries to an array that can be displayed to help analyze "
 "them."
 msgstr ""
-"Veritabanı sorgularını analiz etmeye yardımcı olmak üzere görüntülenebilecek "
-"bir diziye kaydedin."
+"Veritabanı sorgularını analiz etmeye yardımcı olmak üzere görüntülenebilecek"
+" bir diziye kaydedin."
 
 #: templates/manager/wordpress.html:1783
 msgid "Enable SAVEQUERIES"
@@ -6566,8 +6632,8 @@ msgstr "Açıklama:"
 
 #: templates/manager/wordpress_install.html:62
 msgid ""
-"This is your WordPress site description (tagline) — it is optional and "
-"you can change it anytime from the wp-admin dashboard."
+"This is your WordPress site description (tagline) — it is optional and you "
+"can change it anytime from the wp-admin dashboard."
 msgstr ""
 "Bu WordPress sitenizin açıklamasıdır (slogan) — isteğe bağlıdır ve wp-admin "
 "kontrol panelinden istediğiniz zaman değiştirebilirsiniz."
@@ -6583,13 +6649,13 @@ msgid ""
 "example.com"
 msgstr ""
 "Kullanıcılar web sitenize bu alan adı üzerinden erişecek. Bir alt klasör "
-"belirtilirse, example.com yerine example.com/altklasör adresinde erişilebilir "
-"olacaktır"
+"belirtilirse, example.com yerine example.com/altklasör adresinde "
+"erişilebilir olacaktır"
 
 #: templates/manager/wordpress_install.html:128
 msgid ""
-"The WordPress admin email address for notifications and site management. "
-"It can be updated later in the wp-admin dashboard."
+"The WordPress admin email address for notifications and site management. It "
+"can be updated later in the wp-admin dashboard."
 msgstr ""
 "Bildirimler ve site yönetimi için WordPress yönetici e-posta adresi. Daha "
 "sonra wp-admin kontrol panelinden güncellenebilir."
@@ -6617,11 +6683,11 @@ msgstr "WordPress sürümü:"
 
 #: templates/manager/wordpress_install.html:410
 msgid ""
-"Select the WordPress version to install — you can choose the latest "
-"stable release or a specific version."
+"Select the WordPress version to install — you can choose the latest stable "
+"release or a specific version."
 msgstr ""
-"Yüklenecek WordPress sürümünü seçin — en son kararlı sürümü veya belirli bir "
-"sürümü seçebilirsiniz."
+"Yüklenecek WordPress sürümünü seçin — en son kararlı sürümü veya belirli bir"
+" sürümü seçebilirsiniz."
 
 #: templates/manager/wordpress_install.html:499
 msgid "The name of the MySQL database where WordPress will store its data."
@@ -6629,19 +6695,19 @@ msgstr "WordPress'in verilerini saklayacağı MySQL veritabanının adı."
 
 #: templates/manager/wordpress_install.html:521
 msgid ""
-"The prefix for WordPress database tables. Use the default \"wp_\" or "
-"choose a custom prefix for added security."
+"The prefix for WordPress database tables. Use the default \"wp_\" or choose "
+"a custom prefix for added security."
 msgstr ""
-"WordPress veritabanı tabloları için önek. Varsayılan \"wp_\" önekini kullanın "
-"veya ek güvenlik için özel bir önek seçin."
+"WordPress veritabanı tabloları için önek. Varsayılan \"wp_\" önekini "
+"kullanın veya ek güvenlik için özel bir önek seçin."
 
 #: templates/manager/wordpress_install.html:543
 msgid ""
 "The MySQL username with access to the database. WordPress will use this "
 "account to read and write data."
 msgstr ""
-"Veritabanına erişimi olan MySQL kullanıcı adı. WordPress bu hesabı veri okumak "
-"ve yazmak için kullanacaktır."
+"Veritabanına erişimi olan MySQL kullanıcı adı. WordPress bu hesabı veri "
+"okumak ve yazmak için kullanacaktır."
 
 #: templates/manager/wordpress_install.html:567
 msgid ""
@@ -6656,18 +6722,21 @@ msgid "WordPress install started. Please wait for the process to finish."
 msgstr "WordPress yüklemesi başladı. Lütfen işlemin bitmesini bekleyin."
 
 #: templates/manager/wordpress_install.html:762
-msgid "Error fetching WordPress versions from WP.ORG API. Please refresh page."
-msgstr "WP.ORG API'sinden WordPress sürümleri getirilirken hata oluştu. Lütfen sayfayı yenileyin."
+msgid ""
+"Error fetching WordPress versions from WP.ORG API. Please refresh page."
+msgstr ""
+"WP.ORG API'sinden WordPress sürümleri getirilirken hata oluştu. Lütfen "
+"sayfayı yenileyin."
 
 #: templates/mysql/assign.html:11
 msgid ""
-"Assign a user to an existing MySQL database to manage database "
-"permissions and enable access for executing queries, modifying tables, or"
-" managing data within the specified database."
+"Assign a user to an existing MySQL database to manage database permissions "
+"and enable access for executing queries, modifying tables, or managing data "
+"within the specified database."
 msgstr ""
-"Veritabanı izinlerini yönetmek ve sorguları çalıştırma, tabloları değiştirme "
-"veya belirtilen veritabanı içindeki verileri yönetme erişimini etkinleştirmek "
-"için mevcut bir MySQL veritabanına bir kullanıcı atayın."
+"Veritabanı izinlerini yönetmek ve sorguları çalıştırma, tabloları değiştirme"
+" veya belirtilen veritabanı içindeki verileri yönetme erişimini "
+"etkinleştirmek için mevcut bir MySQL veritabanına bir kullanıcı atayın."
 
 #: templates/mysql/assign.html:26 templates/mysql/remove.html:25
 #: templates/psql/assign.html:26 templates/psql/remove.html:25
@@ -6696,8 +6765,8 @@ msgstr "Veritabanlarına Dön"
 
 #: templates/mysql/configuration.html:14
 msgid ""
-"View and modify the MySQL service configuration. Any changes will restart"
-" the service."
+"View and modify the MySQL service configuration. Any changes will restart "
+"the service."
 msgstr ""
 "MySQL hizmet yapılandırmasını görüntüleyin ve değiştirin. Herhangi bir "
 "değişiklik hizmeti yeniden başlatacaktır."
@@ -6722,8 +6791,7 @@ msgstr "Değer"
 
 #: templates/mysql/databases.html:13
 msgid ""
-"To connect to the database, do not use localhost or 127.0.0.1. Instead, "
-"use:"
+"To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"
 msgstr ""
 "Veritabanına bağlanmak için localhost veya 127.0.0.1 kullanmayın. Bunun "
 "yerine kullanın:"
@@ -6768,11 +6836,14 @@ msgstr "Veritabanına İçe Aktar"
 
 #: templates/mysql/import.html:9
 msgid "Select a local file to upload and import into a MySQL database."
-msgstr "Yüklemek ve bir MySQL veritabanına içe aktarmak için yerel bir dosya seçin."
+msgstr ""
+"Yüklemek ve bir MySQL veritabanına içe aktarmak için yerel bir dosya seçin."
 
 #: templates/mysql/import.html:10
 msgid "Select a local file to upload and import into a MariaDB database."
-msgstr "Yüklemek ve bir MariaDB veritabanına içe aktarmak için yerel bir dosya seçin."
+msgstr ""
+"Yüklemek ve bir MariaDB veritabanına içe aktarmak için yerel bir dosya "
+"seçin."
 
 #: templates/mysql/import.html:40 templates/psql/import.html:37
 msgid "Select File"
@@ -6789,12 +6860,12 @@ msgstr "MySQL Kullanıcısı Oluştur"
 #: templates/mysql/mysql_user.html:12
 msgid ""
 "Create a new MySQL user with a unique username and password to securely "
-"manage access and permissions for interacting with databases or the MySQL"
-" server."
+"manage access and permissions for interacting with databases or the MySQL "
+"server."
 msgstr ""
-"Veritabanları veya MySQL sunucusuyla etkileşim için erişimi ve izinleri güvenli "
-"bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifreyle yeni bir "
-"MySQL kullanıcısı oluşturun."
+"Veritabanları veya MySQL sunucusuyla etkileşim için erişimi ve izinleri "
+"güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifreyle "
+"yeni bir MySQL kullanıcısı oluşturun."
 
 #: templates/mysql/mysql_user.html:29 templates/psql/mysql_user.html:29
 #: templates/psql/psql_user.html:23
@@ -6814,12 +6885,12 @@ msgstr "Veritabanı Oluştur"
 #: templates/mysql/new.html:8
 msgid ""
 "Create a new MySQL database to store and organize data, providing a "
-"foundational structure for applications to manage and retrieve "
-"information efficiently."
+"foundational structure for applications to manage and retrieve information "
+"efficiently."
 msgstr ""
 "Verileri depolamak ve düzenlemek için yeni bir MySQL veritabanı oluşturun, "
-"uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması için temel bir "
-"yapı sağlayın."
+"uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması için temel "
+"bir yapı sağlayın."
 
 #: templates/mysql/new.html:25 templates/psql/new.html:25
 msgid "Random Database Name"
@@ -6880,11 +6951,12 @@ msgstr "Bağlantı:"
 
 #: templates/mysql/phpmyadmin.html:323
 msgid ""
-"Set a custom domain to use with phpMyAdmin (e.g., https://your-"
-"domain.com/ ), or leave this field empty to use the default URL:"
+"Set a custom domain to use with phpMyAdmin (e.g., https://your-domain.com/ "
+"), or leave this field empty to use the default URL:"
 msgstr ""
-"phpMyAdmin ile kullanmak için özel bir alan adı ayarlayın (örn. https://your-"
-"domain.com/ ) veya varsayılan URL'yi kullanmak için bu alanı boş bırakın:"
+"phpMyAdmin ile kullanmak için özel bir alan adı ayarlayın (örn. "
+"https://your-domain.com/ ) veya varsayılan URL'yi kullanmak için bu alanı "
+"boş bırakın:"
 
 #: templates/mysql/phpmyadmin.html:323
 msgid "How to Configure domain"
@@ -6897,14 +6969,15 @@ msgstr "MySQL İşlemleri"
 #: templates/mysql/processlist.html:10
 msgid ""
 "List of all current processes running on the MySQL server, providing "
-"insights into ongoing queries, operations, and their associated details "
-"for better performance monitoring."
+"insights into ongoing queries, operations, and their associated details for "
+"better performance monitoring."
 msgstr ""
-"MySQL sunucusunda çalışan tüm mevcut işlemlerin listesi, devam eden sorgular, "
-"işlemler ve bunlarla ilişkili detaylar hakkında bilgi sağlayarak daha iyi "
-"performans izleme imkanı sunar."
+"MySQL sunucusunda çalışan tüm mevcut işlemlerin listesi, devam eden "
+"sorgular, işlemler ve bunlarla ilişkili detaylar hakkında bilgi sağlayarak "
+"daha iyi performans izleme imkanı sunar."
 
-#: templates/mysql/processlist.html:40 templates/system/process_manager.html:40
+#: templates/mysql/processlist.html:40
+#: templates/system/process_manager.html:40
 msgid "Refresh Processes"
 msgstr "İşlemleri Yenile"
 
@@ -6938,11 +7011,11 @@ msgstr "Uzak MySQL Erişimi"
 
 #: templates/mysql/remote_mysql.html:15
 msgid ""
-"Enable remote access to connect to a MySQL database on this server from a"
-" another (remote) device or location over the internet."
+"Enable remote access to connect to a MySQL database on this server from a "
+"another (remote) device or location over the internet."
 msgstr ""
-"İnternet üzerinden başka bir (uzak) cihazdan veya konumdan bu sunucudaki "
-"bir MySQL veritabanına bağlanmak için uzak erişimi etkinleştirin."
+"İnternet üzerinden başka bir (uzak) cihazdan veya konumdan bu sunucudaki bir"
+" MySQL veritabanına bağlanmak için uzak erişimi etkinleştirin."
 
 #: templates/mysql/remote_mysql.html:24 templates/mysql/remote_mysql.html:38
 msgid "Disable Remote MySQL Access"
@@ -6983,9 +7056,9 @@ msgstr "Kullanıcı erişimini Veritabanından Kaldır"
 
 #: templates/mysql/remove.html:11
 msgid ""
-"Remove a user from an existing MySQL database to revoke their permissions"
-" and prevent access to executing queries, modifying tables, or managing "
-"data within the specified database."
+"Remove a user from an existing MySQL database to revoke their permissions "
+"and prevent access to executing queries, modifying tables, or managing data "
+"within the specified database."
 msgstr ""
 "İzinlerini geri almak ve belirtilen veritabanı içinde sorgu çalıştırma, "
 "tablo değiştirme veya veri yönetme erişimini engellemek için mevcut bir "
@@ -6997,7 +7070,9 @@ msgstr "MySQL root şifresini değiştir"
 
 #: templates/mysql/root_password.html:12
 msgid "Change MySQL root user password and restart mysql service."
-msgstr "MySQL root kullanıcı şifresini değiştirin ve mysql hizmetini yeniden başlatın."
+msgstr ""
+"MySQL root kullanıcı şifresini değiştirin ve mysql hizmetini yeniden "
+"başlatın."
 
 #: templates/mysql/users.html:9
 msgid "MySQL Users"
@@ -7119,18 +7194,18 @@ msgstr "Hizmet için günlükleri görüntüleyin."
 msgid "View container log"
 msgstr "Kapsayıcı günlüğünü görüntüle"
 
-#: templates/partials/_service_log.html:51 templates/system/server_info.html:34
-#: templates/system/server_info.html:43 templates/system/server_info.html:54
-#: templates/system/server_info.html:63 templates/system/server_info.html:115
-#: templates/system/server_info.html:125 templates/system/server_info.html:137
-#: templates/system/server_info.html:149 templates/system/server_info.html:162
-#: templates/system/server_info.html:202 templates/system/server_info.html:212
-#: templates/system/server_info.html:221 templates/system/server_info.html:230
-#: templates/system/server_info.html:239 templates/system/server_info.html:249
-#: templates/system/server_info.html:259 templates/system/server_info.html:268
-#: templates/system/server_info.html:279 templates/system/server_info.html:288
-#: templates/system/server_info.html:297 templates/system/server_info.html:306
-#: templates/system/server_info.html:315
+#: templates/partials/_service_log.html:51
+#: templates/system/server_info.html:34 templates/system/server_info.html:43
+#: templates/system/server_info.html:54 templates/system/server_info.html:63
+#: templates/system/server_info.html:115 templates/system/server_info.html:125
+#: templates/system/server_info.html:137 templates/system/server_info.html:149
+#: templates/system/server_info.html:162 templates/system/server_info.html:202
+#: templates/system/server_info.html:212 templates/system/server_info.html:221
+#: templates/system/server_info.html:230 templates/system/server_info.html:239
+#: templates/system/server_info.html:249 templates/system/server_info.html:259
+#: templates/system/server_info.html:268 templates/system/server_info.html:279
+#: templates/system/server_info.html:288 templates/system/server_info.html:297
+#: templates/system/server_info.html:306 templates/system/server_info.html:315
 msgid "Loading..."
 msgstr "Yükleniyor..."
 
@@ -7212,7 +7287,8 @@ msgid ""
 "page. If the issue continues, contact support for assistance."
 msgstr ""
 "Alan adı için Google PageSpeed verileri getirilirken hata oluştu. Lütfen "
-"sayfayı yenileyin. Sorun devam ederse, yardım için destek ile iletişime geçin."
+"sayfayı yenileyin. Sorun devam ederse, yardım için destek ile iletişime "
+"geçin."
 
 #: templates/partials/screenshot.html:28
 msgid "Loading screenshot..."
@@ -7319,8 +7395,8 @@ msgstr ""
 
 #: templates/php/ini_editor.html:30 templates/php/ini_editor.html:68
 msgid ""
-"Modify PHP settings stored in the php.ini configuration file, such as "
-"memory limits, error reporting, and extension settings."
+"Modify PHP settings stored in the php.ini configuration file, such as memory"
+" limits, error reporting, and extension settings."
 msgstr ""
 "Bellek limitleri, hata raporlama ve eklenti ayarları gibi php.ini "
 "yapılandırma dosyasında saklanan PHP ayarlarını değiştirin."
@@ -7339,15 +7415,18 @@ msgstr "PHP Limitleri"
 
 #: templates/php/limits.html:15
 msgid ""
-"Set custom limits for each PHP version. These settings will override "
-"those defined in the PHP Selector and PHP.INI Editor."
+"Set custom limits for each PHP version. These settings will override those "
+"defined in the PHP Selector and PHP.INI Editor."
 msgstr ""
 "Her PHP sürümü için özel limitler ayarlayın. Bu ayarlar PHP Seçici ve "
 "PHP.INI Düzenleyici'de tanımlananları geçersiz kılacaktır."
 
 #: templates/php/options.html:15
-msgid "Edit options for this PHP version. Any changes will restart the service."
-msgstr "Bu PHP sürümü için seçenekleri düzenleyin. Herhangi bir değişiklik hizmeti yeniden başlatacaktır."
+msgid ""
+"Edit options for this PHP version. Any changes will restart the service."
+msgstr ""
+"Bu PHP sürümü için seçenekleri düzenleyin. Herhangi bir değişiklik hizmeti "
+"yeniden başlatacaktır."
 
 #: templates/php/options.html:49
 msgid "Option"
@@ -7379,11 +7458,11 @@ msgstr "Alan adları için PHP sürümü"
 
 #: templates/php/settings.html:13
 msgid ""
-"Changing the PHP version will stop all the processes on your site. It "
-"takes about 10 seconds to complete."
+"Changing the PHP version will stop all the processes on your site. It takes "
+"about 10 seconds to complete."
 msgstr ""
-"PHP sürümünü değiştirmek sitenizdeki tüm işlemleri durduracaktır. Tamamlanması "
-"yaklaşık 10 saniye sürer."
+"PHP sürümünü değiştirmek sitenizdeki tüm işlemleri durduracaktır. "
+"Tamamlanması yaklaşık 10 saniye sürer."
 
 #: templates/php/settings.html:14
 msgid ""
@@ -7405,12 +7484,12 @@ msgstr "Sürümü değiştir"
 #: templates/psql/assign.html:11
 msgid ""
 "Assign a user to an existing PostgreSQL database to manage database "
-"permissions and enable access for executing queries, modifying tables, or"
-" managing data within the specified database."
+"permissions and enable access for executing queries, modifying tables, or "
+"managing data within the specified database."
 msgstr ""
-"Veritabanı izinlerini yönetmek ve sorguları çalıştırma, tabloları değiştirme "
-"veya belirtilen veritabanı içindeki verileri yönetme erişimini etkinleştirmek "
-"için mevcut bir PostgreSQL veritabanına bir kullanıcı atayın."
+"Veritabanı izinlerini yönetmek ve sorguları çalıştırma, tabloları değiştirme"
+" veya belirtilen veritabanı içindeki verileri yönetme erişimini "
+"etkinleştirmek için mevcut bir PostgreSQL veritabanına bir kullanıcı atayın."
 
 #: templates/psql/assign.html:44
 msgid "Select a database"
@@ -7434,7 +7513,9 @@ msgstr "Veritabanı yok"
 
 #: templates/psql/import.html:8
 msgid "Selet a local file to upload and import into a PostgreSQL database."
-msgstr "Yüklemek ve bir PostgreSQL veritabanına içe aktarmak için yerel bir dosya seçin."
+msgstr ""
+"Yüklemek ve bir PostgreSQL veritabanına içe aktarmak için yerel bir dosya "
+"seçin."
 
 #: templates/psql/mysql_user.html:11 templates/psql/psql_user.html:7
 msgid "Create PostgreSQL User"
@@ -7442,12 +7523,12 @@ msgstr "PostgreSQL Kullanıcısı Oluştur"
 
 #: templates/psql/mysql_user.html:12
 msgid ""
-"Create a new PostgreSQL user with a unique username and password to "
-"securely manage access and permissions for interacting with databases or "
-"the PostgreSQL server."
+"Create a new PostgreSQL user with a unique username and password to securely"
+" manage access and permissions for interacting with databases or the "
+"PostgreSQL server."
 msgstr ""
-"Veritabanları veya PostgreSQL sunucusuyla etkileşim için erişimi ve izinleri "
-"güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifreyle "
+"Veritabanları veya PostgreSQL sunucusuyla etkileşim için erişimi ve izinleri"
+" güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifreyle "
 "yeni bir PostgreSQL kullanıcısı oluşturun."
 
 #: templates/psql/mysql_user.html:42
@@ -7457,12 +7538,12 @@ msgstr "Rastgele Şifre"
 #: templates/psql/new.html:8
 msgid ""
 "Create a new PostgreSQL database to store and organize data, providing a "
-"foundational structure for applications to manage and retrieve "
-"information efficiently."
+"foundational structure for applications to manage and retrieve information "
+"efficiently."
 msgstr ""
-"Verileri depolamak ve düzenlemek için yeni bir PostgreSQL veritabanı oluşturun, "
-"uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması için temel bir "
-"yapı sağlayın."
+"Verileri depolamak ve düzenlemek için yeni bir PostgreSQL veritabanı "
+"oluşturun, uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması "
+"için temel bir yapı sağlayın."
 
 #: templates/psql/password.html:11
 msgid "Change password for a PostgreSQL database user."
@@ -7494,9 +7575,9 @@ msgstr "PostgreSQL İşlemleri"
 
 #: templates/psql/processlist.html:9
 msgid ""
-"List of all current processes running on the PostgreSQL server, providing"
-" insights into ongoing queries, operations, and their associated details "
-"for better performance monitoring."
+"List of all current processes running on the PostgreSQL server, providing "
+"insights into ongoing queries, operations, and their associated details for "
+"better performance monitoring."
 msgstr ""
 "PostgreSQL sunucusunda çalışan tüm mevcut işlemlerin listesi, devam eden "
 "sorgular, işlemler ve bunlarla ilişkili detaylar hakkında bilgi sağlayarak "
@@ -7676,12 +7757,12 @@ msgstr "Backend_type"
 
 #: templates/psql/psql_user.html:8
 msgid ""
-"Create a new Postgres user with a unique username and password to "
-"securely manage access and permissions for interacting with databases or "
-"the PostgreSQL server."
+"Create a new Postgres user with a unique username and password to securely "
+"manage access and permissions for interacting with databases or the "
+"PostgreSQL server."
 msgstr ""
-"Veritabanları veya PostgreSQL sunucusuyla etkileşim için erişimi ve izinleri "
-"güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifreyle "
+"Veritabanları veya PostgreSQL sunucusuyla etkileşim için erişimi ve izinleri"
+" güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifreyle "
 "yeni bir Postgres kullanıcısı oluşturun."
 
 #: templates/psql/remote_psql.html:14
@@ -7693,8 +7774,8 @@ msgid ""
 "Connect to a PostgreSQL database on this server from a another (remote) "
 "device or location over the internet."
 msgstr ""
-"İnternet üzerinden başka bir (uzak) cihazdan veya konumdan bu sunucudaki bir "
-"PostgreSQL veritabanına bağlanın."
+"İnternet üzerinden başka bir (uzak) cihazdan veya konumdan bu sunucudaki bir"
+" PostgreSQL veritabanına bağlanın."
 
 #: templates/psql/remote_psql.html:24 templates/psql/remote_psql.html:38
 msgid "Disable Remote PostgreSQL Access"
@@ -7711,8 +7792,8 @@ msgstr "PostgreSQL'e uzak erişim şu anda:"
 #: templates/psql/remove.html:11
 msgid ""
 "Remove a user from an existing PostgreSQL database to revoke their "
-"permissions and prevent access to executing queries, modifying tables, or"
-" managing data within the specified database."
+"permissions and prevent access to executing queries, modifying tables, or "
+"managing data within the specified database."
 msgstr ""
 "İzinlerini geri almak ve belirtilen veritabanı içinde sorgu çalıştırma, "
 "tablo değiştirme veya veri yönetme erişimini engellemek için mevcut bir "
@@ -7724,27 +7805,30 @@ msgstr "PostgreSQL Kullanıcıları"
 
 #: templates/psql/wizard.html:9
 msgid ""
-"Create a new PostgreSQL database, set up a user with a secure password, "
-"and assign it to the database with all necessary privileges."
+"Create a new PostgreSQL database, set up a user with a secure password, and "
+"assign it to the database with all necessary privileges."
 msgstr ""
-"Yeni bir PostgreSQL veritabanı oluşturun, güvenli bir şifreyle bir kullanıcı "
-"ayarlayın ve tüm gerekli ayrıcalıklarla veritabanına atayın."
+"Yeni bir PostgreSQL veritabanı oluşturun, güvenli bir şifreyle bir kullanıcı"
+" ayarlayın ve tüm gerekli ayrıcalıklarla veritabanına atayın."
 
 #: templates/system/apache_nginx_conf_editor.html:23
 msgid "Edit main webserver configuration file:"
 msgstr "Ana web sunucusu yapılandırma dosyasını düzenle:"
 
 #: templates/system/cronjobs.html:24
-msgid "A cron job is a Linux command used to schedule tasks for future execution."
-msgstr "Bir cron işi, görevleri gelecekte çalıştırmak için zamanlamak üzere kullanılan bir Linux komutudur."
+msgid ""
+"A cron job is a Linux command used to schedule tasks for future execution."
+msgstr ""
+"Bir cron işi, görevleri gelecekte çalıştırmak için zamanlamak üzere "
+"kullanılan bir Linux komutudur."
 
 #: templates/system/cronjobs.html:25
 msgid ""
-"It allows you to automate repetitive tasks, such as sending notifications"
-" or running scripts at specific intervals."
+"It allows you to automate repetitive tasks, such as sending notifications or"
+" running scripts at specific intervals."
 msgstr ""
-"Bildirim gönderme veya belirli aralıklarla betik çalıştırma gibi tekrarlayan "
-"görevleri otomatikleştirmenize olanak tanır."
+"Bildirim gönderme veya belirli aralıklarla betik çalıştırma gibi tekrarlayan"
+" görevleri otomatikleştirmenize olanak tanır."
 
 #: templates/system/cronjobs.html:28
 msgid "Crontab File Editor"
@@ -7752,13 +7836,13 @@ msgstr "Crontab Dosya Düzenleyici"
 
 #: templates/system/cronjobs.html:29
 msgid ""
-"Editing crontab file is intended for advanced users only. If you mistyped"
-" the cron entry in the file, you will not be warned as opposed to when "
-"saving cronjobs in table mode."
+"Editing crontab file is intended for advanced users only. If you mistyped "
+"the cron entry in the file, you will not be warned as opposed to when saving"
+" cronjobs in table mode."
 msgstr ""
-"Crontab dosyasını düzenlemek yalnızca gelişmiş kullanıcılar içindir. Dosyadaki "
-"cron girişini yanlış yazarsanız, tablo modunda cron işlerini kaydederken "
-"olduğu gibi uyarılmazsınız."
+"Crontab dosyasını düzenlemek yalnızca gelişmiş kullanıcılar içindir. "
+"Dosyadaki cron girişini yanlış yazarsanız, tablo modunda cron işlerini "
+"kaydederken olduğu gibi uyarılmazsınız."
 
 #: templates/system/cronjobs.html:116
 msgid "Create New"
@@ -7794,11 +7878,12 @@ msgstr "Cron İşi Oluştur"
 
 #: templates/system/cronjobs_new.html:13
 msgid ""
-"Select a container in which the script will be executed and set schedule."
-" To add multiple jobs at once, use the File Editor instead."
+"Select a container in which the script will be executed and set schedule. To"
+" add multiple jobs at once, use the File Editor instead."
 msgstr ""
-"Betiğin çalıştırılacağı bir kapsayıcı seçin ve zamanlamayı ayarlayın. Birden "
-"fazla işi aynı anda eklemek için bunun yerine Dosya Düzenleyici'yi kullanın."
+"Betiğin çalıştırılacağı bir kapsayıcı seçin ve zamanlamayı ayarlayın. Birden"
+" fazla işi aynı anda eklemek için bunun yerine Dosya Düzenleyici'yi "
+"kullanın."
 
 #: templates/system/cronjobs_new.html:35
 msgid "Select Container:"
@@ -8138,8 +8223,8 @@ msgstr ""
 
 #: templates/user/account.html:73
 msgid ""
-"Username must be between 3 and 20 characters, and only contain letters "
-"and numbers (no spaces, hyphens, or underscores)."
+"Username must be between 3 and 20 characters, and only contain letters and "
+"numbers (no spaces, hyphens, or underscores)."
 msgstr ""
 "Kullanıcı adı 3 ile 20 karakter arasında olmalı ve yalnızca harf ve sayı "
 "içermelidir (boşluk, tire veya alt çizgi yok)."
@@ -8198,12 +8283,13 @@ msgstr "Hesabınız için bildirim tercihlerini yönetmek için buraya tıklayı
 
 #: templates/user/favorites.html:14
 msgid ""
-"Add a page to favorites by left-clicking the star in the top-right corner"
-" of any page and remove it either from this page or by right-clicking the"
-" same star."
+"Add a page to favorites by left-clicking the star in the top-right corner of"
+" any page and remove it either from this page or by right-clicking the same "
+"star."
 msgstr ""
-"Herhangi bir sayfanın sağ üst köşesindeki yıldıza sol tıklayarak bir sayfayı "
-"favorilere ekleyin ve bu sayfadan veya aynı yıldıza sağ tıklayarak kaldırın."
+"Herhangi bir sayfanın sağ üst köşesindeki yıldıza sol tıklayarak bir sayfayı"
+" favorilere ekleyin ve bu sayfadan veya aynı yıldıza sağ tıklayarak "
+"kaldırın."
 
 #: templates/user/favorites.html:53
 msgid "Title"
@@ -8218,8 +8304,8 @@ msgid ""
 "The Favorites feature is currently disabled by the administrator; please "
 "contact your administrator to enable it."
 msgstr ""
-"Favoriler özelliği şu anda yönetici tarafından devre dışı bırakılmış; lütfen "
-"etkinleştirmek için yöneticinizle iletişime geçin."
+"Favoriler özelliği şu anda yönetici tarafından devre dışı bırakılmış; lütfen"
+" etkinleştirmek için yöneticinizle iletişime geçin."
 
 #: templates/user/history_usage.html:20 templates/user/history_usage.html:56
 msgid "Historical CPU and Memory Usage"
@@ -8323,7 +8409,8 @@ msgstr "Tercihleri Kaydet"
 
 #: templates/user/stats.html:22
 msgid "View current resource usage for all websites and services."
-msgstr "Tüm web siteleri ve hizmetler için mevcut kaynak kullanımını görüntüleyin."
+msgstr ""
+"Tüm web siteleri ve hizmetler için mevcut kaynak kullanımını görüntüleyin."
 
 #: templates/user/stats.html:32
 msgid "View Usage History"
@@ -8395,16 +8482,16 @@ msgstr "OTP kodunu görüntülemek için buraya tıklayın"
 
 #: templates/user/twofa_settings.html:134
 msgid ""
-"I confirm that the OTP code is configured in my application and confirm "
-"to permanently delete the OTP secret."
+"I confirm that the OTP code is configured in my application and confirm to "
+"permanently delete the OTP secret."
 msgstr ""
 "OTP kodunun uygulamama yapılandırıldığını ve OTP gizli anahtarını kalıcı "
 "olarak silmeyi onaylıyorum."
 
 #: templates/user/twofa_settings.html:157
 msgid ""
-"To enable 2FA for your account you will need an application that manages "
-"2FA codes, such as"
+"To enable 2FA for your account you will need an application that manages 2FA"
+" codes, such as"
 msgstr ""
 "Hesabınız için 2FA'yı etkinleştirmek için şu gibi 2FA kodlarını yöneten bir "
 "uygulamaya ihtiyacınız olacak"
@@ -8431,8 +8518,11 @@ msgid "Forgot Your Password?"
 msgstr "Şifrenizi mi Unuttunuz?"
 
 #: templates/user/reset_password/request_email.html:11
-msgid "Enter your email address and we'll send you a link to reset your password."
-msgstr "E-posta adresinizi girin, size şifrenizi sıfırlamak için bir bağlantı göndereceğiz."
+msgid ""
+"Enter your email address and we'll send you a link to reset your password."
+msgstr ""
+"E-posta adresinizi girin, size şifrenizi sıfırlamak için bir bağlantı "
+"göndereceğiz."
 
 #: templates/user/reset_password/request_email.html:21
 msgid "Enter your email address"
@@ -8452,11 +8542,11 @@ msgstr "Şifreler eşleşmiyor."
 
 #: modules/databases.py:187
 msgid ""
-"MySQL configuration was saved successfully but MySQL service failed to start!"
-" Please revert the changes to restart MySQL."
+"MySQL configuration was saved successfully but MySQL service failed to "
+"start! Please revert the changes to restart MySQL."
 msgstr ""
-"MySQL yapılandırması başarıyla kaydedildi ancak MySQL hizmeti başlatılamadı! "
-"Mysql'i yeniden başlatmak için lütfen değişiklikleri geri alın."
+"MySQL yapılandırması başarıyla kaydedildi ancak MySQL hizmeti başlatılamadı!"
+" Mysql'i yeniden başlatmak için lütfen değişiklikleri geri alın."
 
 #: modules/databases.py:191
 msgid ""
@@ -8630,8 +8720,8 @@ msgstr "CPU limiti pozitif bir sayı olmalıdır."
 
 #: modules/docker.py:390 modules/docker.py:575
 msgid ""
-"Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
-" or 1.5G)."
+"Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M or"
+" 1.5G)."
 msgstr ""
 "Bellek limiti 'M' veya 'G' ile biten pozitif bir sayı olmalıdır (örneğin, "
 "512M veya 1.5G)."
@@ -8677,23 +8767,26 @@ msgid "Select Docker service"
 msgstr "Docker hizmeti seç"
 
 #: modules/domains.py:258 templates/cache/varnish.html:122
-#: templates/dashboard/dashboard.html:78 templates/dashboard/dashboard.html:107
-#: templates/dashboard/usage.html:44 templates/domains/domains.html:14
-#: templates/partials/_header.html:64
+#: templates/dashboard/dashboard.html:78
+#: templates/dashboard/dashboard.html:107 templates/dashboard/usage.html:44
+#: templates/domains/domains.html:14 templates/partials/_header.html:64
 msgid "Domains"
 msgstr "Alan Adları"
 
 #: modules/domains.py:356
-msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
-msgstr "Hata: Bu barındırma planında izin verilen maksimum alan adı sayısına ulaşıldı."
+msgid ""
+"Error: Reached the maximum allowed number of domains on this hosting plan."
+msgstr ""
+"Hata: Bu barındırma planında izin verilen maksimum alan adı sayısına "
+"ulaşıldı."
 
 #: modules/domains.py:390 templates/domains/new.html:132
 #: templates/domains/new.html:346
 msgid "Add Domain"
 msgstr "Alan Adı Ekle"
 
-#: modules/domain/docroot.py:21 modules/domain/ssl.py:22 modules/domains.py:402
-#: modules/domains.py:462
+#: modules/domain/docroot.py:21 modules/domain/ssl.py:22
+#: modules/domains.py:402 modules/domains.py:462
 msgid "Invalid request. Domain name must be provided."
 msgstr "Geçersiz istek. Alan adı sağlanmalıdır."
 
@@ -8726,8 +8819,8 @@ msgstr "Filtreler"
 
 #: modules/emails.py:261
 msgid ""
-"Webmail service is not yet started, please contact Administrator to "
-"enable it."
+"Webmail service is not yet started, please contact Administrator to enable "
+"it."
 msgstr ""
 "Webmail hizmeti henüz başlatılmadı, lütfen etkinleştirmek için Yönetici ile "
 "iletişime geçin."
@@ -8746,7 +8839,8 @@ msgstr "Hata: Dosya yüklenmedi."
 
 #: modules/emails.py:324
 msgid "Error: Unsupported file format, please upload a .csv or .xls file."
-msgstr "Hata: Desteklenmeyen dosya formatı, lütfen .csv veya .xls dosyası yükleyin."
+msgstr ""
+"Hata: Desteklenmeyen dosya formatı, lütfen .csv veya .xls dosyası yükleyin."
 
 #: modules/emails.py:331
 msgid "Error: File must have at least 2 columns: email, password"
@@ -8853,6 +8947,7 @@ msgstr ""
 #: modules/domains.py:1191
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
 msgstr ""
+"Geçersiz URL. Lütfen 'http://' veya 'https://' önekiyle bir URL girin."
 
 #: modules/domains.py:1239 modules/ssl.py:163
 msgid "Unauthorized"
@@ -9062,7 +9157,7 @@ msgstr "SSH Erişimi"
 
 #: modules/ssl.py:103
 msgid "Domain: {} - SSL Expiry Date: {}"
-msgstr ""
+msgstr "Alan adı: {} - SSL Son Kullanma Tarihi: {}"
 
 #: modules/ssl.py:127
 msgid "Domains List:"
@@ -9250,6 +9345,8 @@ msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
+"Tarama tamamlandı. Bulunan kurulumlar:\n"
+"\n"
 
 #: modules/wordpress.py:640 templates/wordpress.html:104
 msgid "Scan skipped. WordPress installation is currently running."
@@ -9351,8 +9448,8 @@ msgid ""
 "Memory limit for Memcached service successfully changed and service "
 "restarted to apply new limits."
 msgstr ""
-"Memcached hizmeti için bellek sınırı başarıyla değiştirildi ve yeni sınırlar "
-"uygulamak üzere hizmet yeniden başlatıldı."
+"Memcached hizmeti için bellek sınırı başarıyla değiştirildi ve yeni sınırlar"
+" uygulamak üzere hizmet yeniden başlatıldı."
 
 #: modules/cache/memcached.py:100 modules/cache/redis.py:106
 msgid "Memory limit is invalid!"
@@ -9382,8 +9479,8 @@ msgstr "REDİS hizmeti artık devre dışı."
 
 #: modules/cache/redis.py:103
 msgid ""
-"Memory limit for REDIS service successfully changed and service restarted to "
-"apply new limits."
+"Memory limit for REDIS service successfully changed and service restarted to"
+" apply new limits."
 msgstr ""
 "REDİS hizmetinin bellek sınırı başarıyla değiştirildi ve yeni sınırlar "
 "uygulamak için hizmet yeniden başlatıldı."
@@ -9404,8 +9501,7 @@ msgstr "JSON verileri yüklenirken hata oluştu"
 
 #: modules/json/databases_size_info.py:37
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
-msgstr ""
-"Geçersiz birim parametresi. \"Bayt\", \"kb\", \"mb\" veya \"gb\"kullanın."
+msgstr "Geçersiz birim parametresi. \"Bayt\", \"kb\", \"mb\" veya \"gb\"kullanın."
 
 #: modules/json/helpers.py:111
 msgid "URL parameter is missing"
@@ -9651,7 +9747,8 @@ msgstr "Başarı"
 
 #: templates/apache_nginx_conf_editor.html:85
 msgid "Here you can edit the main configuration file for your webserver."
-msgstr "Burada web sunucunuzun ana yapılandırma dosyasını düzenleyebilirsiniz."
+msgstr ""
+"Burada web sunucunuzun ana yapılandırma dosyasını düzenleyebilirsiniz."
 
 #: templates/apache_nginx_conf_editor.html:104
 #: templates/domains/domains.html:478 templates/pm2.html:199
@@ -9671,9 +9768,9 @@ msgstr "Hareketler"
 msgid "Save Changes"
 msgstr "Değişiklikleri Kaydet"
 
-#: templates/backup.html:11 templates/backup.html:154 templates/backup.html:192
-#: templates/websites.html:1411 templates/websites.html:1613
-#: templates/websites.html:2231
+#: templates/backup.html:11 templates/backup.html:154
+#: templates/backup.html:192 templates/websites.html:1411
+#: templates/websites.html:1613 templates/websites.html:2231
 msgid "Restore"
 msgstr "Onarmak"
 
@@ -9809,8 +9906,8 @@ msgstr "Yükle"
 #: templates/cronjobs.html:29
 msgid ""
 "A cron job is a Linux command used to schedule tasks for future execution. "
-"It allows you to automate repetitive tasks, such as sending notifications or "
-"running scripts at specific intervals."
+"It allows you to automate repetitive tasks, such as sending notifications or"
+" running scripts at specific intervals."
 msgstr ""
 "Cron işi, gelecekteki yürütme için görevleri zamanlamak için kullanılan bir "
 "Linux komutudur. Bildirim gönderme veya belirli aralıklarla komut dosyaları "
@@ -10107,7 +10204,7 @@ msgstr "Çarşamba"
 
 #: templates/cronjobs.html:562
 msgid "Thursday "
-msgstr ""
+msgstr "Perşembe "
 
 #: templates/cronjobs.html:563
 msgid "Friday"
@@ -10238,7 +10335,8 @@ msgstr "phpMyAdmin'i Yönet"
 msgid "Remote Access"
 msgstr "Uzaktan Erişim"
 
-#: templates/dashboard/dashboard.html:128 templates/mysql/configuration.html:13
+#: templates/dashboard/dashboard.html:128
+#: templates/mysql/configuration.html:13
 msgid "MySQL Configuration"
 msgstr "MySQL Yapılandırması"
 
@@ -10463,8 +10561,8 @@ msgstr "Sihirbaz"
 msgid ""
 "MySQL databases are used to store and manage your website's data, such as "
 "content, user information, and product details, making it accessible and "
-"organized for your web applications. On this page, you can easily create new "
-"databases and efficiently manage existing ones to organize and store your "
+"organized for your web applications. On this page, you can easily create new"
+" databases and efficiently manage existing ones to organize and store your "
 "website's data effectively."
 msgstr ""
 "MySQL veritabanları, web sitenizin içerik, kullanıcı bilgileri ve ürün "
@@ -10524,11 +10622,11 @@ msgstr ""
 
 #: templates/disk_usage.html:8
 msgid ""
-"Disk usage is the amount of space that is used by the content of your sites, "
-"this includes databases, files, videos, images, emails and pages."
+"Disk usage is the amount of space that is used by the content of your sites,"
+" this includes databases, files, videos, images, emails and pages."
 msgstr ""
-"Disk kullanımı, sitelerinizin içeriği tarafından kullanılan alan miktarıdır, "
-"buna veritabanları, dosyalar, videolar, resimler, e-postalar ve sayfalar "
+"Disk kullanımı, sitelerinizin içeriği tarafından kullanılan alan miktarıdır,"
+" buna veritabanları, dosyalar, videolar, resimler, e-postalar ve sayfalar "
 "dahildir."
 
 #: templates/disk_usage.html:13
@@ -10546,7 +10644,7 @@ msgstr "Bir Seviye Yukarı"
 
 #: templates/disk_usage.html:73
 msgid "Calculating disk usage for "
-msgstr ""
+msgstr "Disk kullanımı hesaplanıyor: "
 
 #: templates/disk_usage.html:200
 msgid "Calculating disk usage for parent directory.."
@@ -10576,8 +10674,8 @@ msgid ""
 "This tool allows you to make changes to your MySQL configuration. "
 "Modifications made here will prompt a MySQL service restart."
 msgstr ""
-"Bu araç, MySQL yapılandırmanızda değişiklik yapmanızı sağlar. Burada yapılan "
-"değişiklikler MySQL hizmetinin yeniden başlatılmasını isteyecektir."
+"Bu araç, MySQL yapılandırmanızda değişiklik yapmanızı sağlar. Burada yapılan"
+" değişiklikler MySQL hizmetinin yeniden başlatılmasını isteyecektir."
 
 #: templates/edit_mysql_config.html:88
 msgid "MySQL Configuration Settings"
@@ -10975,7 +11073,7 @@ msgstr "Tamamlandı"
 
 #: templates/ftp.html:28
 msgid "Use your FTP account with an FTP client such as "
-msgstr ""
+msgstr "FTP hesabınızı şu gibi bir FTP istemcisiyle kullanın: "
 
 #: templates/ftp.html:28
 msgid "to transfer files to and from your website."
@@ -11027,8 +11125,8 @@ msgstr "FTP yolunu değiştir"
 
 #: templates/inodes.html:8
 msgid ""
-"An inode is a data structure that keeps the information about a file on your "
-"hosting account. The number of inodes indicates the number of files and "
+"An inode is a data structure that keeps the information about a file on your"
+" hosting account. The number of inodes indicates the number of files and "
 "folders you have. This includes everything on your account, emails, files, "
 "folders, and anything you store on the server."
 msgstr ""
@@ -11095,8 +11193,8 @@ msgstr "Alan Adı Ekleme"
 
 #: templates/logs.html:8
 msgid ""
-"Several actions are carried out by OpenPanel when the server is started; you "
-"may check their status and look for any potentional issues here."
+"Several actions are carried out by OpenPanel when the server is started; you"
+" may check their status and look for any potentional issues here."
 msgstr ""
 "Sunucu başlatıldığında OpenPanel tarafından çeşitli eylemler "
 "gerçekleştirilir; Durumlarını kontrol edebilir ve burada olası sorunları "
@@ -11108,8 +11206,8 @@ msgid ""
 "for malicious programs. If the scanner identifies a potential security "
 "threat, it flags the file to allow you to take the appropriate action."
 msgstr ""
-"Clam AntiVirus Scanner (ClamAV) virüsten koruma yazılımı, dosyalarınızı kötü "
-"amaçlı programlar için arar. Tarayıcı olası bir güvenlik tehdidi tespit "
+"Clam AntiVirus Scanner (ClamAV) virüsten koruma yazılımı, dosyalarınızı kötü"
+" amaçlı programlar için arar. Tarayıcı olası bir güvenlik tehdidi tespit "
 "ederse, dosyayı uygun eylemi gerçekleştirmenize izin verecek şekilde "
 "işaretler."
 
@@ -11161,7 +11259,8 @@ msgstr "MEMCACHED'İ YÜKLE"
 msgid "Memcached server:"
 msgstr "Memcached sunucu:"
 
-#: templates/memcached.html:166 templates/pm2.html:130 templates/redis.html:166
+#: templates/memcached.html:166 templates/pm2.html:130
+#: templates/redis.html:166
 msgid "Port:"
 msgstr "Liman:"
 
@@ -11264,8 +11363,8 @@ msgid ""
 "requirements to know which PHP version works best for your website."
 msgstr ""
 "PHP sürümünü değiştirmek sitenizdeki tüm işlemleri durduracaktır. "
-"Tamamlanması 1-2 saniye sürer. Hangi PHP sürümünün web siteniz için en uygun "
-"olduğunu bilmek için komut dosyanızı ve eklenti gereksinimlerinizi kontrol "
+"Tamamlanması 1-2 saniye sürer. Hangi PHP sürümünün web siteniz için en uygun"
+" olduğunu bilmek için komut dosyanızı ve eklenti gereksinimlerinizi kontrol "
 "ettiğinizden emin olun."
 
 #: templates/php.html:65
@@ -11283,7 +11382,7 @@ msgstr "Değişim"
 
 #: templates/php.html:66
 msgid ">PHP version for domain"
-msgstr ""
+msgstr ">Alan adı için PHP sürümü"
 
 #: templates/php.html:130
 msgid "Default PHP version:"
@@ -11315,8 +11414,8 @@ msgstr "Yeni bir sürüm yükleyin"
 
 #: templates/php.html:177
 msgid ""
-"For best performance we recommend to only install PHP versions that you will "
-"be activelly using."
+"For best performance we recommend to only install PHP versions that you will"
+" be activelly using."
 msgstr ""
 "En iyi performans için yalnızca aktif olarak kullanacağınız PHP sürümlerini "
 "yüklemenizi öneririz."
@@ -11359,9 +11458,9 @@ msgid ""
 "configuration file, such as memory limits, error reporting, and extension "
 "settings."
 msgstr ""
-"PHP.INI Editörü, php'de depolanan PHP ayarlarını değiştirmenize izin verir."
-"bellek sınırları, hata bildirimi ve uzantı ayarları gibi ını yapılandırma "
-"dosyası."
+"PHP.INI Editörü, php'de depolanan PHP ayarlarını değiştirmenize izin "
+"verir.bellek sınırları, hata bildirimi ve uzantı ayarları gibi ını "
+"yapılandırma dosyası."
 
 #: templates/php_ini_editor.html:105
 msgid "Select PHP Version:"
@@ -11468,8 +11567,8 @@ msgid ""
 "If watching is enabled, the application will automatically restart when its "
 "files are edited."
 msgstr ""
-"İzleme etkinleştirilirse, dosyaları düzenlendiğinde uygulama otomatik olarak "
-"yeniden başlatılır."
+"İzleme etkinleştirilirse, dosyaları düzenlendiğinde uygulama otomatik olarak"
+" yeniden başlatılır."
 
 #: templates/pm2.html:202
 msgid "Watching"
@@ -11517,8 +11616,8 @@ msgstr "Mevcut Uygulama Yok"
 
 #: templates/pm2.html:284
 msgid ""
-"There are no existing applications. You can start a new NodeJS or Python app "
-"below."
+"There are no existing applications. You can start a new NodeJS or Python app"
+" below."
 msgstr ""
 "Mevcut uygulama yok. Aşağıda yeni bir NodeJS veya Python uygulaması "
 "başlatabilirsiniz."
@@ -11553,16 +11652,16 @@ msgstr "sonlandırıldı"
 
 #: templates/processlist.html:6
 msgid ""
-"This interface lists all of the processes that currently run on any database "
-"on your server."
+"This interface lists all of the processes that currently run on any database"
+" on your server."
 msgstr ""
 "Bu arabirim, sunucunuzdaki herhangi bir veritabanında çalışmakta olan tüm "
 "işlemleri listeler."
 
 #: templates/processlist.html:13
 msgid ""
-"Process ID: a unique identification number assigned by Linux systems to each "
-"process and application."
+"Process ID: a unique identification number assigned by Linux systems to each"
+" process and application."
 msgstr ""
 "İşlem Kimliği: Linux sistemleri tarafından her işleme ve uygulamaya atanan "
 "benzersiz bir kimlik numarası."
@@ -11593,7 +11692,8 @@ msgstr "Sistem tarafından veritabanına verilen komut türü."
 
 #: templates/processlist.html:18
 msgid ""
-"The duration, in seconds, that the process has remained in its current state."
+"The duration, in seconds, that the process has remained in its current "
+"state."
 msgstr "İşlemin saniye cinsinden geçerli durumunda kaldığı süre."
 
 #: templates/processlist.html:18
@@ -11615,12 +11715,12 @@ msgstr "Devlet"
 #: templates/processlist.html:20
 msgid ""
 "Text of the statement that the process is currently executing. If the "
-"process is not executing a statement, this column displays NULL. It may also "
-"show a statement sent to the server or an inner statement used to execute "
+"process is not executing a statement, this column displays NULL. It may also"
+" show a statement sent to the server or an inner statement used to execute "
 "other statements."
 msgstr ""
-"İşlemin yürütülmekte olduğu ifadenin metni. İşlem bir deyim yürütmüyorsa, bu "
-"sütun NULL görüntüler. Sunucuya gönderilen bir deyimi veya diğer deyimleri "
+"İşlemin yürütülmekte olduğu ifadenin metni. İşlem bir deyim yürütmüyorsa, bu"
+" sütun NULL görüntüler. Sunucuya gönderilen bir deyimi veya diğer deyimleri "
 "yürütmek için kullanılan bir iç deyimi de gösterebilir."
 
 #: templates/processlist.html:20
@@ -11787,8 +11887,8 @@ msgstr "Veri Gizliliği"
 
 #: templates/remote_mysql.html:154
 msgid ""
-"Your sensitive data may be at risk if not properly secured. Make sure to use "
-"strong passwords and encryption to protect your information."
+"Your sensitive data may be at risk if not properly secured. Make sure to use"
+" strong passwords and encryption to protect your information."
 msgstr ""
 "Hassas verileriniz uygun şekilde güvence altına alınmazsa risk altında "
 "olabilir. Bilgilerinizi korumak için güçlü şifreler ve şifreleme "
@@ -11800,8 +11900,8 @@ msgstr "Güvenlik Duvarı ve Erişim Kontrolü"
 
 #: templates/remote_mysql.html:155
 msgid ""
-"It is crucial to set up robust firewall rules and access control to restrict "
-"connections only to trusted IP addresses."
+"It is crucial to set up robust firewall rules and access control to restrict"
+" connections only to trusted IP addresses."
 msgstr ""
 "Bağlantıları yalnızca güvenilen IP adresleriyle kısıtlamak için sağlam "
 "güvenlik duvarı kuralları ve erişim denetimi oluşturmak çok önemlidir."
@@ -11832,11 +11932,11 @@ msgstr ""
 
 #: templates/remote_mysql.html:160
 msgid ""
-"Your data security is important to us, and we recommend taking the necessary "
-"precautions to protect it."
+"Your data security is important to us, and we recommend taking the necessary"
+" precautions to protect it."
 msgstr ""
-"Veri güvenliğiniz bizim için önemlidir ve onu korumak için gerekli önlemleri "
-"almanızı öneririz."
+"Veri güvenliğiniz bizim için önemlidir ve onu korumak için gerekli önlemleri"
+" almanızı öneririz."
 
 #: templates/remote_mysql.html:181 templates/remote_mysql.html:191
 msgid "Disable Remote MySQL Access"
@@ -12017,8 +12117,8 @@ msgstr "tüm Alanlar için"
 
 #: templates/ssl.html:351
 msgid ""
-"When you create a domain, the system will attempt to secure that domain with "
-"a free Let's Encrypt certificate."
+"When you create a domain, the system will attempt to secure that domain with"
+" a free Let's Encrypt certificate."
 msgstr ""
 "Bir etki alanı oluşturduğunuzda, sistem bu etki alanını ücretsiz bir Let's "
 "Encrypt sertifikasıyla güvence altına almaya çalışacaktır."
@@ -12062,7 +12162,8 @@ msgstr "Yönetici E-postası"
 #: templates/websites.html:204
 msgid "Allow pingbacks and trackbacks from other blogs (default)"
 msgstr ""
-"Diğer bloglardan gelen geri dönüşlere ve geri dönüşlere izin ver (varsayılan)"
+"Diğer bloglardan gelen geri dönüşlere ve geri dönüşlere izin ver "
+"(varsayılan)"
 
 #: templates/websites.html:212
 msgid ""
@@ -12153,8 +12254,8 @@ msgstr "Genel ayarları kaydetme... Lütfen bekleyin."
 msgid ""
 "The options below allow you to manage the native WordPress debugging tools, "
 "enabling and disabling these tools in the wp-config.php file. It is not "
-"recommended to use these options on production websites since they are meant "
-"for development and test installations. Refer to"
+"recommended to use these options on production websites since they are meant"
+" for development and test installations. Refer to"
 msgstr ""
 "Aşağıdaki seçenekler, yerel WordPress hata ayıklama araçlarını yönetmenize, "
 "bu araçları wp-config'de etkinleştirmenize ve devre dışı bırakmanıza olanak "
@@ -12215,7 +12316,8 @@ msgstr "TASARRUF DİZİLERİ"
 
 #: templates/websites.html:673
 msgid ""
-"Save database queries to an array that can be displayed to help analyze them."
+"Save database queries to an array that can be displayed to help analyze "
+"them."
 msgstr ""
 "Veritabanı sorgularını çözümlemeye yardımcı olmak için görüntülenebilecek "
 "bir diziye kaydedin."
@@ -12276,7 +12378,8 @@ msgstr "PHP betiklerinin wp-includes dizininde yürütülmesini yasaklayın"
 
 #: templates/websites.html:865
 msgid "Forbid execution of PHP scripts in the wp-content/uploads directory"
-msgstr "Wp-content/uploads dizininde PHP betiklerinin yürütülmesini yasaklayın"
+msgstr ""
+"Wp-content/uploads dizininde PHP betiklerinin yürütülmesini yasaklayın"
 
 #: templates/websites.html:885
 msgid "Block access to wp-config.php"
@@ -12441,11 +12544,11 @@ msgstr ""
 
 #: templates/websites.html:1625
 msgid ""
-"Remove the WordPress website from this manager without actually deleting any "
-"files or database."
+"Remove the WordPress website from this manager without actually deleting any"
+" files or database."
 msgstr ""
-"Aslında herhangi bir dosya veya veritabanını silmeden WordPress web sitesini "
-"bu yöneticiden kaldırın."
+"Aslında herhangi bir dosya veya veritabanını silmeden WordPress web sitesini"
+" bu yöneticiden kaldırın."
 
 #: templates/websites.html:1626
 msgid ""
@@ -12706,11 +12809,13 @@ msgstr ""
 #: templates/dashboard/dashboard.html:62
 msgid "👋 Welcome to your new hosting account. OpenPanel is here to help!"
 msgstr ""
+"👋 Yeni hosting hesabınıza hoş geldiniz. OpenPanel size yardımcı olmak için "
+"burada!"
 
 #: templates/dashboard/dashboard.html:63
 msgid ""
-"To get started, add a domain name to create a new site and unlock a world of "
-"possibilities for your online presence."
+"To get started, add a domain name to create a new site and unlock a world of"
+" possibilities for your online presence."
 msgstr ""
 "Başlamak için, yeni bir site oluşturmak üzere bir alan adı ekleyin ve "
 "çevrimiçi varlığınız için bir olasılıklar dünyasının kilidini açın."
@@ -12831,7 +12936,8 @@ msgid "Password & Security"
 msgstr "Şifre ve Güvenlik"
 
 #: templates/dashboard/dashboard.html:512
-#: templates/dashboard/dashboard.html:548 templates/user/twofa_settings.html:25
+#: templates/dashboard/dashboard.html:548
+#: templates/user/twofa_settings.html:25
 msgid "Two-Factor Authentication"
 msgstr "İki faktörlü Kimlik Doğrulama"
 
@@ -12851,18 +12957,19 @@ msgstr ""
 
 #: templates/dashboard/dashboard.html:560
 msgid "2FA is <b>enabled</b> for your account."
-msgstr ""
+msgstr "2FA hesabınız için <b>etkin</b>."
 
-#: templates/dashboard/dashboard.html:562 templates/user/twofa_settings.html:39
+#: templates/dashboard/dashboard.html:562
+#: templates/user/twofa_settings.html:39
 msgid "Click to disable 2FA"
 msgstr "2FA'YI devre dışı bırakmak için tıklayın"
 
 #: templates/dashboard/dashboard.html:565
 msgid "2FA is <b>disabled</b> for your account."
-msgstr ""
+msgstr "2FA hesabınız için <b>devre dışı</b>."
 
-#: templates/dashboard/dashboard.html:569 templates/user/twofa_settings.html:48
-#: templates/user/twofa_settings.html:50
+#: templates/dashboard/dashboard.html:569
+#: templates/user/twofa_settings.html:48 templates/user/twofa_settings.html:50
 msgid "Enable 2FA"
 msgstr "2fa'yı Etkinleştir"
 
@@ -13063,8 +13170,8 @@ msgstr "Alan Adı"
 
 #: templates/domains/domains.html:203
 msgid ""
-"The document root refers to the directory where the content of a domain name "
-"is displayed from. It serves as the designated folder where website files "
+"The document root refers to the directory where the content of a domain name"
+" is displayed from. It serves as the designated folder where website files "
 "should be stored."
 msgstr ""
 "Belge kökü, bir etki alanı adının içeriğinin görüntülendiği dizini ifade "
@@ -13114,7 +13221,7 @@ msgstr ""
 
 #: templates/domains/domains.html:207
 msgid "Force "
-msgstr ""
+msgstr "Zorla "
 
 #: templates/domains/domains.html:207
 msgid "HTTPS"
@@ -13189,8 +13296,8 @@ msgid ""
 "The DNS Zone Editor feature allows you to create, edit, and delete Domain "
 "Name System (DNS) zone records."
 msgstr ""
-"DNS Bölge Düzenleyici özelliği, Etki Alanı Adı Sistemi (DNS) bölge kayıtları "
-"oluşturmanıza, düzenlemenize ve silmenize olanak tanır."
+"DNS Bölge Düzenleyici özelliği, Etki Alanı Adı Sistemi (DNS) bölge kayıtları"
+" oluşturmanıza, düzenlemenize ve silmenize olanak tanır."
 
 #: templates/domains/edit_dns_zone.html:109
 msgid "Search records"
@@ -13297,8 +13404,8 @@ msgid ""
 "records."
 msgstr ""
 "DNS Bölge Düzenleyicisi, etki alanı adlarını IP adresleriyle eşlemek ve A, "
-"CNAME, MX ve TXT kayıtları gibi çeşitli DNS kayıtlarını yönetmek için kritik "
-"bilgiler içeren Etki Alanı Adı Sistemi (DNS) bölge dosyalarını yönetmenize "
+"CNAME, MX ve TXT kayıtları gibi çeşitli DNS kayıtlarını yönetmek için kritik"
+" bilgiler içeren Etki Alanı Adı Sistemi (DNS) bölge dosyalarını yönetmenize "
 "ve düzenlemenize olanak tanır."
 
 #: templates/domains/edit_dns_zone.html:367
@@ -13459,7 +13566,7 @@ msgstr "MySQL Ayarları"
 
 #: templates/system/general.html:71
 msgid "Make changes to your MySQL® or MariaDB® configuration."
-msgstr ""
+msgstr "MySQL® veya MariaDB® yapılandırmanızda değişiklik yapın."
 
 #: templates/system/general.html:89
 msgid "Make changes to your PHP configuration."
@@ -13471,7 +13578,7 @@ msgstr "PHP Yapılandırması"
 
 #: templates/system/general.html:106
 msgid "ModSecurity® Settings"
-msgstr ""
+msgstr "ModSecurity® Ayarları"
 
 #: templates/system/general.html:107
 msgid "Enable or disable ModSecurity for your domains."
@@ -13658,8 +13765,8 @@ msgid ""
 "such as editing or modifying files, deleting websites, enabling SSH access, "
 "etc."
 msgstr ""
-"Etkinlik Günlüğü, dosyaları düzenleme veya değiştirme, web sitelerini silme, "
-"SSH erişimini etkinleştirme vb.Gibi kullanıcı tarafından panelde "
+"Etkinlik Günlüğü, dosyaları düzenleme veya değiştirme, web sitelerini silme,"
+" SSH erişimini etkinleştirme vb.Gibi kullanıcı tarafından panelde "
 "gerçekleştirilen tüm önemli eylemleri kaydeder."
 
 #: templates/user/activity.html:147
@@ -13731,8 +13838,7 @@ msgstr "Şifremi unuttum?"
 msgid "Enter your password"
 msgstr "Şifrenizi girin"
 
-#: templates/user/login.html:32
-#: templates/user/login.html:50
+#: templates/user/login.html:32 templates/user/login.html:50
 msgid "Two-Factor Authentication Code"
 msgstr "İki Faktörlü Kimlik Doğrulama Kodu"
 
@@ -13752,8 +13858,7 @@ msgstr "Ülke ve IP adresi"
 msgid "Login Time"
 msgstr "Giriş Zamanı"
 
-#: templates/user/loginlog.html:66
-#: templates/user/loginlog.html:32
+#: templates/user/loginlog.html:66 templates/user/loginlog.html:32
 msgid "Click to copy IP"
 msgstr "IP'yi kopyalamak için tıklayın"
 
@@ -13775,14 +13880,14 @@ msgstr "Tercihleri Kaydet"
 
 #: templates/user/stats.html:22
 msgid "View current resource usage for all websites and services."
-msgstr "Tüm web siteleri ve hizmetler için mevcut kaynak kullanımını görüntüleyin."
+msgstr ""
+"Tüm web siteleri ve hizmetler için mevcut kaynak kullanımını görüntüleyin."
 
 #: templates/user/stats.html:32
 msgid "View Usage History"
 msgstr "Kullanım Geçmişini Görüntüle"
 
-#: templates/user/stats.html:56
-#: templates/user/stats.html:11
+#: templates/user/stats.html:56 templates/user/stats.html:11
 msgid "Current CPU usage:"
 msgstr "Mevcut CPU kullanımı:"
 
@@ -13798,8 +13903,7 @@ msgstr "Geçmiş kullanımı görüntüle"
 msgid "RAM"
 msgstr "RAM"
 
-#: templates/user/stats.html:70
-#: templates/user/stats.html:27
+#: templates/user/stats.html:70 templates/user/stats.html:27
 msgid "Current Memory usage:"
 msgstr "Mevcut Bellek kullanımı:"
 
@@ -13857,16 +13961,16 @@ msgstr "OTP kodunu görüntülemek için buraya tıklayın"
 
 #: templates/user/twofa_settings.html:134
 msgid ""
-"I confirm that the OTP code is configured in my application and confirm "
-"to permanently delete the OTP secret."
+"I confirm that the OTP code is configured in my application and confirm to "
+"permanently delete the OTP secret."
 msgstr ""
 "OTP kodunun uygulamada yapılandırıldığını ve OTP gizli anahtarını kalıcı "
 "olarak silmeyi onaylıyorum."
 
 #: templates/user/twofa_settings.html:157
 msgid ""
-"To enable 2FA for your account you will need an application that manages "
-"2FA codes, such as"
+"To enable 2FA for your account you will need an application that manages 2FA"
+" codes, such as"
 msgstr ""
 "Hesabınız için 2FA'yı etkinleştirmek için 2FA kodlarını yöneten bir "
 "uygulamaya ihtiyacınız olacaktır, örneğin"
@@ -13880,8 +13984,8 @@ msgid ""
 "Please check your email and click the link within the next 15 minutes to "
 "reset your password."
 msgstr ""
-"Lütfen e-postanızı kontrol edin ve şifrenizi sıfırlamak için 15 dakika içinde "
-"bağlantıya tıklayın."
+"Lütfen e-postanızı kontrol edin ve şifrenizi sıfırlamak için 15 dakika "
+"içinde bağlantıya tıklayın."
 
 #: templates/user/reset_password/link_is_sent.html:16
 #: templates/user/reset_password/request_email.html:20
@@ -13893,8 +13997,11 @@ msgid "Forgot Your Password?"
 msgstr "Şifrenizi mi Unuttunuz?"
 
 #: templates/user/reset_password/request_email.html:11
-msgid "Enter your email address and we'll send you a link to reset your password."
-msgstr "E-posta adresinizi girin, size şifrenizi sıfırlamak için bir bağlantı göndereceğiz."
+msgid ""
+"Enter your email address and we'll send you a link to reset your password."
+msgstr ""
+"E-posta adresinizi girin, size şifrenizi sıfırlamak için bir bağlantı "
+"göndereceğiz."
 
 #: templates/user/reset_password/request_email.html:21
 msgid "Enter your email address"
@@ -13913,8 +14020,8 @@ msgid "Passwords do not match."
 msgstr "Şifreler eşleşmiyor."
 
 #: templates/manager/mautic.html:213
-#: templates/manager/python_node_apps.html:1069 templates/manager/ruby.html:626
-#: templates/manager/websitebuilder.html:412
+#: templates/manager/python_node_apps.html:1069
+#: templates/manager/ruby.html:626 templates/manager/websitebuilder.html:412
 #: templates/manager/wordpress.html:331
 msgid "Folder Size:"
 msgstr "Klasör Boyutu:"
@@ -13943,8 +14050,7 @@ msgstr "localhost"
 
 #: templates/manager/mautic.html:263 templates/manager/wordpress.html:381
 msgid ""
-"Remote MySQL host detected in wp-config.php file. Database size "
-"unavailable."
+"Remote MySQL host detected in wp-config.php file. Database size unavailable."
 msgstr ""
 "wp-config.php dosyasında uzak MySQL sunucusu tespit edildi. Veritabanı "
 "boyutu kullanılamıyor."
@@ -13965,8 +14071,8 @@ msgstr "Veritabanı Kullanıcısı:"
 
 #: templates/manager/mautic.html:297 templates/manager/mautic_install.html:398
 #: templates/manager/wordpress.html:415
-#: templates/manager/wordpress_install.html:558 templates/psql/pgadmin.html:141
-#: templates/system/ssh.html:98
+#: templates/manager/wordpress_install.html:558
+#: templates/psql/pgadmin.html:141 templates/system/ssh.html:98
 msgid "Password:"
 msgstr "Şifre:"
 
@@ -13985,7 +14091,8 @@ msgstr "Yedek Oluştur"
 
 #: templates/manager/mautic.html:366 templates/manager/wordpress.html:1857
 msgid "Create a new backup of WordPress files and/or database."
-msgstr "WordPress dosyalarının ve/veya veritabanının yeni bir yedeğini oluştur."
+msgstr ""
+"WordPress dosyalarının ve/veya veritabanının yeni bir yedeğini oluştur."
 
 #: templates/manager/mautic.html:371 templates/manager/wordpress.html:1862
 msgid "Backup Database"
@@ -14009,7 +14116,8 @@ msgstr "Yedeklerden Geri Yükle"
 #: templates/manager/mautic.html:395 templates/manager/websitebuilder.html:146
 #: templates/manager/wordpress.html:1886
 msgid "Restore website files and/or database from a previous backup."
-msgstr "Web sitesi dosyalarını ve/veya veritabanını önceki bir yedekten geri yükle."
+msgstr ""
+"Web sitesi dosyalarını ve/veya veritabanını önceki bir yedekten geri yükle."
 
 #: templates/manager/mautic.html:405 templates/manager/websitebuilder.html:156
 #: templates/manager/wordpress.html:1896
@@ -14156,7 +14264,8 @@ msgstr "Alma hatası. Lütfen tekrar deneyin."
 
 #: templates/manager/mautic_install.html:594
 msgid "Error fetching Mautic versions from Github. Please refresh page."
-msgstr "Github'tan Mautic sürümleri alınırken hata oluştu. Lütfen sayfayı yenileyin."
+msgstr ""
+"Github'tan Mautic sürümleri alınırken hata oluştu. Lütfen sayfayı yenileyin."
 
 #: templates/manager/mautic_install.html:601
 #: templates/manager/wordpress_install.html:769
@@ -14233,11 +14342,13 @@ msgstr "Pingbacks"
 
 #: templates/manager/wordpress.html:617
 msgid "Enable or disable pingbacks from other websites"
-msgstr "Diğer web sitelerinden gelen pingback'leri etkinleştir veya devre dışı bırak"
+msgstr ""
+"Diğer web sitelerinden gelen pingback'leri etkinleştir veya devre dışı bırak"
 
 #: templates/manager/wordpress.html:624
 msgid "Allow pingbacks and trackbacks from other blogs (default)"
-msgstr "Diğer bloglardan gelen pingback'lere ve trackback'lere izin ver (varsayılan)"
+msgstr ""
+"Diğer bloglardan gelen pingback'lere ve trackback'lere izin ver (varsayılan)"
 
 #: templates/manager/wordpress.html:635
 msgid "Update Settings"
@@ -14250,12 +14361,12 @@ msgstr "Salt'ları Karıştır"
 #: templates/manager/wordpress.html:764
 msgid ""
 "WordPress salts are random strings stored in wp-config.php file that are "
-"used for the password hashing process. By periodically changing your keys"
-" and salts, you make it even harder for hackers to get their hands on "
-"your salts."
+"used for the password hashing process. By periodically changing your keys "
+"and salts, you make it even harder for hackers to get their hands on your "
+"salts."
 msgstr ""
-"WordPress salt'ları wp-config.php dosyasında saklanan ve şifre hash "
-"işlemi için kullanılan rastgele dizelerdir. Anahtarlarınızı ve salt'larınızı "
+"WordPress salt'ları wp-config.php dosyasında saklanan ve şifre hash işlemi "
+"için kullanılan rastgele dizelerdir. Anahtarlarınızı ve salt'larınızı "
 "periyodik olarak değiştirerek, bilgisayar korsanlarının salt'larınıza "
 "ulaşmasını daha da zorlaştırırsınız."
 
@@ -14273,9 +14384,9 @@ msgstr "Bütünlüğü Kontrol Et"
 
 #: templates/manager/wordpress.html:836
 msgid ""
-"If you suspect that this site is infected by malware, check the integrity"
-" of WordPress core files or Plugins by verifying them against their "
-"reference checksums from wordpress.org."
+"If you suspect that this site is infected by malware, check the integrity of"
+" WordPress core files or Plugins by verifying them against their reference "
+"checksums from wordpress.org."
 msgstr ""
 "Bu sitenin kötü amaçlı yazılım bulaştığından şüpheleniyorsanız, WordPress "
 "çekirdek dosyalarının veya Eklentilerin bütünlüğünü wordpress.org'dan "
@@ -14291,11 +14402,13 @@ msgstr "Tüm Eklentileri Kontrol Et"
 
 #: templates/manager/wordpress.html:862
 msgid "Checking integrity of WP Core files... Please wait."
-msgstr "WP Çekirdek dosyalarının bütünlüğü kontrol ediliyor... Lütfen bekleyin."
+msgstr ""
+"WP Çekirdek dosyalarının bütünlüğü kontrol ediliyor... Lütfen bekleyin."
 
 #: templates/manager/wordpress.html:917
 msgid "Checking integrity for all WordPress plugins... Please wait."
-msgstr "Tüm WordPress eklentilerinin bütünlüğü kontrol ediliyor... Lütfen bekleyin."
+msgstr ""
+"Tüm WordPress eklentilerinin bütünlüğü kontrol ediliyor... Lütfen bekleyin."
 
 #: templates/manager/wordpress.html:1000
 msgid "Reinstall"
@@ -14303,11 +14416,11 @@ msgstr "Yeniden Kur"
 
 #: templates/manager/wordpress.html:1006
 msgid ""
-"If checksums fail to match, you can quickly reinstall WordPress core "
-"files or all plugins without affecting your site content."
+"If checksums fail to match, you can quickly reinstall WordPress core files "
+"or all plugins without affecting your site content."
 msgstr ""
-"Sağlama toplamları eşleşmezse, site içeriğinizi etkilemeden WordPress çekirdek "
-"dosyalarını veya tüm eklentileri hızlıca yeniden kurabilirsiniz."
+"Sağlama toplamları eşleşmezse, site içeriğinizi etkilemeden WordPress "
+"çekirdek dosyalarını veya tüm eklentileri hızlıca yeniden kurabilirsiniz."
 
 #: templates/manager/wordpress.html:1010
 msgid "Reinstall WP Core files"
@@ -14453,16 +14566,16 @@ msgstr "Hata ayıklama bilgisi alınırken hata oluştu. Sayfayı yenileyin."
 
 #: templates/manager/wordpress.html:1650
 msgid ""
-"The options below allow you to manage the native WordPress debugging "
-"tools, enabling and disabling these tools in the wp-config.php file. It "
-"is not recommended to use these options on production websites since they"
-" are meant for development and test installations. Refer to"
+"The options below allow you to manage the native WordPress debugging tools, "
+"enabling and disabling these tools in the wp-config.php file. It is not "
+"recommended to use these options on production websites since they are meant"
+" for development and test installations. Refer to"
 msgstr ""
 "Aşağıdaki seçenekler, yerel WordPress hata ayıklama araçlarını yönetmenizi "
 "sağlar, wp-config.php dosyasında bu araçları etkinleştirir ve devre dışı "
-"bırakır. Bu seçeneklerin üretim web sitelerinde kullanılması önerilmez çünkü "
-"bunlar geliştirme ve test kurulumları için tasarlanmıştır. Daha fazla bilgi "
-"için bakın"
+"bırakır. Bu seçeneklerin üretim web sitelerinde kullanılması önerilmez çünkü"
+" bunlar geliştirme ve test kurulumları için tasarlanmıştır. Daha fazla bilgi"
+" için bakın"
 
 #: templates/manager/wordpress.html:1650
 msgid "Debugging in WordPress"
@@ -14514,9 +14627,9 @@ msgstr "SCRIPT_DEBUG"
 
 #: templates/manager/wordpress.html:1748
 msgid ""
-"Force WordPress to use the non-minified versions of core CSS and "
-"JavaScript files. This is useful when you are testing changes made to .js"
-" and .css files."
+"Force WordPress to use the non-minified versions of core CSS and JavaScript "
+"files. This is useful when you are testing changes made to .js and .css "
+"files."
 msgstr ""
 "WordPress'in çekirdek CSS ve JavaScript dosyalarının küçültülmemiş "
 "sürümlerini kullanmasını zorla. Bu, .js ve .css dosyalarında yaptığınız "
@@ -14603,8 +14716,8 @@ msgid ""
 "No options selected to backup. Please ensure that at least one of the "
 "Database or Files is selected."
 msgstr ""
-"Yedeklemek için seçenek seçilmedi. Lütfen Veritabanı veya Dosyalardan "
-"en az birinin seçildiğinden emin olun."
+"Yedeklemek için seçenek seçilmedi. Lütfen Veritabanı veya Dosyalardan en az "
+"birinin seçildiğinden emin olun."
 
 #: templates/manager/wordpress_install.html:10
 msgid "Install WordPress CMS in a few clicks."
@@ -14632,8 +14745,8 @@ msgstr "Açıklama:"
 
 #: templates/manager/wordpress_install.html:62
 msgid ""
-"This is your WordPress site description (tagline) — it is optional and "
-"you can change it anytime from the wp-admin dashboard."
+"This is your WordPress site description (tagline) — it is optional and you "
+"can change it anytime from the wp-admin dashboard."
 msgstr ""
 "Bu WordPress site açıklamanızdır (slogan) — isteğe bağlıdır ve wp-admin "
 "kontrol panelinden istediğiniz zaman değiştirebilirsiniz."
@@ -14649,12 +14762,13 @@ msgid ""
 "example.com"
 msgstr ""
 "Kullanıcılar web sitenize bu alan adı üzerinden erişecektir. Bir alt klasör "
-"sağlanırsa, example.com yerine example.com/altklasör adresinde mevcut olacaktır"
+"sağlanırsa, example.com yerine example.com/altklasör adresinde mevcut "
+"olacaktır"
 
 #: templates/manager/wordpress_install.html:128
 msgid ""
-"The WordPress admin email address for notifications and site management. "
-"It can be updated later in the wp-admin dashboard."
+"The WordPress admin email address for notifications and site management. It "
+"can be updated later in the wp-admin dashboard."
 msgstr ""
 "Bildirimler ve site yönetimi için WordPress yönetici e-posta adresi. Daha "
 "sonra wp-admin kontrol panelinden güncellenebilir."
@@ -14664,8 +14778,8 @@ msgid ""
 "This is your WordPress admin username — used to log in to the wp-admin "
 "dashboard."
 msgstr ""
-"Bu WordPress yönetici kullanıcı adınızdır — wp-admin kontrol paneline "
-"giriş yapmak için kullanılır."
+"Bu WordPress yönetici kullanıcı adınızdır — wp-admin kontrol paneline giriş "
+"yapmak için kullanılır."
 
 #: templates/manager/wordpress_install.html:233
 msgid ""
@@ -14682,8 +14796,8 @@ msgstr "WordPress sürümü:"
 
 #: templates/manager/wordpress_install.html:410
 msgid ""
-"Select the WordPress version to install — you can choose the latest "
-"stable release or a specific version."
+"Select the WordPress version to install — you can choose the latest stable "
+"release or a specific version."
 msgstr ""
 "Kurulacak WordPress sürümünü seçin — en son kararlı sürümü veya belirli bir "
 "sürümü seçebilirsiniz."
@@ -14694,8 +14808,8 @@ msgstr "WordPress'in verilerini saklayacağı MySQL veritabanının adı."
 
 #: templates/manager/wordpress_install.html:521
 msgid ""
-"The prefix for WordPress database tables. Use the default \"wp_\" or "
-"choose a custom prefix for added security."
+"The prefix for WordPress database tables. Use the default \"wp_\" or choose "
+"a custom prefix for added security."
 msgstr ""
 "WordPress veritabanı tabloları için önek. Varsayılan \"wp_\" kullanın veya "
 "ek güvenlik için özel bir önek seçin."
@@ -14705,8 +14819,8 @@ msgid ""
 "The MySQL username with access to the database. WordPress will use this "
 "account to read and write data."
 msgstr ""
-"Veritabanına erişimi olan MySQL kullanıcı adı. WordPress verileri okumak "
-"ve yazmak için bu hesabı kullanacaktır."
+"Veritabanına erişimi olan MySQL kullanıcı adı. WordPress verileri okumak ve "
+"yazmak için bu hesabı kullanacaktır."
 
 #: templates/manager/wordpress_install.html:567
 msgid ""
@@ -14718,21 +14832,25 @@ msgstr ""
 
 #: templates/manager/wordpress_install.html:649
 msgid "WordPress install started. Please wait for the process to finish."
-msgstr "WordPress kurulumu başlatıldı. Lütfen işlemin tamamlanmasını bekleyin."
+msgstr ""
+"WordPress kurulumu başlatıldı. Lütfen işlemin tamamlanmasını bekleyin."
 
 #: templates/manager/wordpress_install.html:762
-msgid "Error fetching WordPress versions from WP.ORG API. Please refresh page."
-msgstr "WP.ORG API'den WordPress sürümleri alınırken hata oluştu. Lütfen sayfayı yenileyin."
+msgid ""
+"Error fetching WordPress versions from WP.ORG API. Please refresh page."
+msgstr ""
+"WP.ORG API'den WordPress sürümleri alınırken hata oluştu. Lütfen sayfayı "
+"yenileyin."
 
 #: templates/mysql/assign.html:11
 msgid ""
-"Assign a user to an existing MySQL database to manage database "
-"permissions and enable access for executing queries, modifying tables, or"
-" managing data within the specified database."
+"Assign a user to an existing MySQL database to manage database permissions "
+"and enable access for executing queries, modifying tables, or managing data "
+"within the specified database."
 msgstr ""
-"Veritabanı izinlerini yönetmek ve belirtilen veritabanında sorgu "
-"yürütme, tablo değiştirme veya veri yönetme erişimini etkinleştirmek için "
-"bir kullanıcıyı mevcut bir MySQL veritabanına atayın."
+"Veritabanı izinlerini yönetmek ve belirtilen veritabanında sorgu yürütme, "
+"tablo değiştirme veya veri yönetme erişimini etkinleştirmek için bir "
+"kullanıcıyı mevcut bir MySQL veritabanına atayın."
 
 #: templates/mysql/assign.html:26 templates/mysql/remove.html:25
 #: templates/psql/assign.html:26 templates/psql/remove.html:25
@@ -14761,11 +14879,11 @@ msgstr "Veritabanlarına Dön"
 
 #: templates/mysql/configuration.html:14
 msgid ""
-"View and modify the MySQL service configuration. Any changes will restart"
-" the service."
+"View and modify the MySQL service configuration. Any changes will restart "
+"the service."
 msgstr ""
-"MySQL hizmet yapılandırmasını görüntüleyin ve değiştirin. Yapılan değişiklikler "
-"hizmeti yeniden başlatacaktır."
+"MySQL hizmet yapılandırmasını görüntüleyin ve değiştirin. Yapılan "
+"değişiklikler hizmeti yeniden başlatacaktır."
 
 #: templates/mysql/configuration.html:14
 msgid "For more information"
@@ -14787,11 +14905,10 @@ msgstr "Değer"
 
 #: templates/mysql/databases.html:13
 msgid ""
-"To connect to the database, do not use localhost or 127.0.0.1. Instead, "
-"use:"
+"To connect to the database, do not use localhost or 127.0.0.1. Instead, use:"
 msgstr ""
-"Veritabanına bağlanmak için localhost veya 127.0.0.1 kullanmayın. Bunun yerine "
-"kullanın:"
+"Veritabanına bağlanmak için localhost veya 127.0.0.1 kullanmayın. Bunun "
+"yerine kullanın:"
 
 #: templates/mysql/databases.html:15
 msgid "server:"
@@ -14833,11 +14950,13 @@ msgstr "Veritabanına İçe Aktar"
 
 #: templates/mysql/import.html:9
 msgid "Select a local file to upload and import into a MySQL database."
-msgstr "MySQL veritabanına yüklemek ve içe aktarmak için yerel bir dosya seçin."
+msgstr ""
+"MySQL veritabanına yüklemek ve içe aktarmak için yerel bir dosya seçin."
 
 #: templates/mysql/import.html:10
 msgid "Select a local file to upload and import into a MariaDB database."
-msgstr "MariaDB veritabanına yüklemek ve içe aktarmak için yerel bir dosya seçin."
+msgstr ""
+"MariaDB veritabanına yüklemek ve içe aktarmak için yerel bir dosya seçin."
 
 #: templates/mysql/import.html:40 templates/psql/import.html:37
 msgid "Select File"
@@ -14854,8 +14973,8 @@ msgstr "MySQL Kullanıcısı Oluştur"
 #: templates/mysql/mysql_user.html:12
 msgid ""
 "Create a new MySQL user with a unique username and password to securely "
-"manage access and permissions for interacting with databases or the MySQL"
-" server."
+"manage access and permissions for interacting with databases or the MySQL "
+"server."
 msgstr ""
 "Veritabanları veya MySQL sunucusu ile etkileşim için erişim ve izinleri "
 "güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifre ile "
@@ -14879,8 +14998,8 @@ msgstr "Veritabanı Oluştur"
 #: templates/mysql/new.html:8
 msgid ""
 "Create a new MySQL database to store and organize data, providing a "
-"foundational structure for applications to manage and retrieve "
-"information efficiently."
+"foundational structure for applications to manage and retrieve information "
+"efficiently."
 msgstr ""
 "Verileri depolamak ve düzenlemek için yeni bir MySQL veritabanı oluşturun, "
 "uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması için temel "
@@ -14945,8 +15064,8 @@ msgstr "Bağlantı:"
 
 #: templates/mysql/phpmyadmin.html:323
 msgid ""
-"Set a custom domain to use with phpMyAdmin (e.g., https://your-"
-"domain.com/ ), or leave this field empty to use the default URL:"
+"Set a custom domain to use with phpMyAdmin (e.g., https://your-domain.com/ "
+"), or leave this field empty to use the default URL:"
 msgstr ""
 "phpMyAdmin ile kullanmak için özel bir alan adı ayarlayın (örneğin, "
 "https://your-domain.com/ ) veya varsayılan URL'yi kullanmak için bu alanı "
@@ -14963,14 +15082,15 @@ msgstr "MySQL İşlemleri"
 #: templates/mysql/processlist.html:10
 msgid ""
 "List of all current processes running on the MySQL server, providing "
-"insights into ongoing queries, operations, and their associated details "
-"for better performance monitoring."
+"insights into ongoing queries, operations, and their associated details for "
+"better performance monitoring."
 msgstr ""
-"MySQL sunucusunda çalışan tüm mevcut işlemlerin listesi, devam eden sorgular, "
-"işlemler ve bunlarla ilişkili detaylar hakkında bilgi sağlayarak daha iyi "
-"performans izleme sağlar."
+"MySQL sunucusunda çalışan tüm mevcut işlemlerin listesi, devam eden "
+"sorgular, işlemler ve bunlarla ilişkili detaylar hakkında bilgi sağlayarak "
+"daha iyi performans izleme sağlar."
 
-#: templates/mysql/processlist.html:40 templates/system/process_manager.html:40
+#: templates/mysql/processlist.html:40
+#: templates/system/process_manager.html:40
 msgid "Refresh Processes"
 msgstr "İşlemleri Yenile"
 
@@ -15004,8 +15124,8 @@ msgstr "Uzak MySQL Erişimi"
 
 #: templates/mysql/remote_mysql.html:15
 msgid ""
-"Enable remote access to connect to a MySQL database on this server from a"
-" another (remote) device or location over the internet."
+"Enable remote access to connect to a MySQL database on this server from a "
+"another (remote) device or location over the internet."
 msgstr ""
 "Bu sunucudaki bir MySQL veritabanına internet üzerinden başka (uzak) bir "
 "cihaz veya konumdan bağlanmak için uzaktan erişimi etkinleştirin."
@@ -15049,9 +15169,9 @@ msgstr "Kullanıcı erişimini Veritabanından Kaldır"
 
 #: templates/mysql/remove.html:11
 msgid ""
-"Remove a user from an existing MySQL database to revoke their permissions"
-" and prevent access to executing queries, modifying tables, or managing "
-"data within the specified database."
+"Remove a user from an existing MySQL database to revoke their permissions "
+"and prevent access to executing queries, modifying tables, or managing data "
+"within the specified database."
 msgstr ""
 "İzinlerini iptal etmek ve belirtilen veritabanında sorgu yürütme, tablo "
 "değiştirme veya veri yönetme erişimini engellemek için bir kullanıcıyı "
@@ -15063,7 +15183,9 @@ msgstr "MySQL root şifresini değiştir"
 
 #: templates/mysql/root_password.html:12
 msgid "Change MySQL root user password and restart mysql service."
-msgstr "MySQL root kullanıcı şifresini değiştirin ve mysql hizmetini yeniden başlatın."
+msgstr ""
+"MySQL root kullanıcı şifresini değiştirin ve mysql hizmetini yeniden "
+"başlatın."
 
 #: templates/mysql/users.html:9
 msgid "MySQL Users"
@@ -15185,18 +15307,18 @@ msgstr "Hizmet için günlükleri görüntüleyin."
 msgid "View container log"
 msgstr "Konteyner günlüğünü görüntüle"
 
-#: templates/partials/_service_log.html:51 templates/system/server_info.html:34
-#: templates/system/server_info.html:43 templates/system/server_info.html:54
-#: templates/system/server_info.html:63 templates/system/server_info.html:115
-#: templates/system/server_info.html:125 templates/system/server_info.html:137
-#: templates/system/server_info.html:149 templates/system/server_info.html:162
-#: templates/system/server_info.html:202 templates/system/server_info.html:212
-#: templates/system/server_info.html:221 templates/system/server_info.html:230
-#: templates/system/server_info.html:239 templates/system/server_info.html:249
-#: templates/system/server_info.html:259 templates/system/server_info.html:268
-#: templates/system/server_info.html:279 templates/system/server_info.html:288
-#: templates/system/server_info.html:297 templates/system/server_info.html:306
-#: templates/system/server_info.html:315
+#: templates/partials/_service_log.html:51
+#: templates/system/server_info.html:34 templates/system/server_info.html:43
+#: templates/system/server_info.html:54 templates/system/server_info.html:63
+#: templates/system/server_info.html:115 templates/system/server_info.html:125
+#: templates/system/server_info.html:137 templates/system/server_info.html:149
+#: templates/system/server_info.html:162 templates/system/server_info.html:202
+#: templates/system/server_info.html:212 templates/system/server_info.html:221
+#: templates/system/server_info.html:230 templates/system/server_info.html:239
+#: templates/system/server_info.html:249 templates/system/server_info.html:259
+#: templates/system/server_info.html:268 templates/system/server_info.html:279
+#: templates/system/server_info.html:288 templates/system/server_info.html:297
+#: templates/system/server_info.html:306 templates/system/server_info.html:315
 msgid "Loading..."
 msgstr "Yükleniyor..."
 
@@ -15277,8 +15399,9 @@ msgid ""
 "Error fetching Google PageSpeed data for the domain. Please refresh the "
 "page. If the issue continues, contact support for assistance."
 msgstr ""
-"Alan adı için Google PageSpeed verileri alınırken hata oluştu. Lütfen sayfayı "
-"yenileyin. Sorun devam ederse, yardım için destek ile iletişime geçin."
+"Alan adı için Google PageSpeed verileri alınırken hata oluştu. Lütfen "
+"sayfayı yenileyin. Sorun devam ederse, yardım için destek ile iletişime "
+"geçin."
 
 #: templates/partials/screenshot.html:28
 msgid "Loading screenshot..."
@@ -15385,8 +15508,8 @@ msgstr ""
 
 #: templates/php/ini_editor.html:30 templates/php/ini_editor.html:68
 msgid ""
-"Modify PHP settings stored in the php.ini configuration file, such as "
-"memory limits, error reporting, and extension settings."
+"Modify PHP settings stored in the php.ini configuration file, such as memory"
+" limits, error reporting, and extension settings."
 msgstr ""
 "Bellek limitleri, hata raporlama ve uzantı ayarları gibi php.ini "
 "yapılandırma dosyasında saklanan PHP ayarlarını değiştirin."
@@ -15405,15 +15528,18 @@ msgstr "PHP Limitleri"
 
 #: templates/php/limits.html:15
 msgid ""
-"Set custom limits for each PHP version. These settings will override "
-"those defined in the PHP Selector and PHP.INI Editor."
+"Set custom limits for each PHP version. These settings will override those "
+"defined in the PHP Selector and PHP.INI Editor."
 msgstr ""
 "Her PHP sürümü için özel limitler ayarlayın. Bu ayarlar PHP Seçici ve "
 "PHP.INI Düzenleyici'de tanımlananları geçersiz kılar."
 
 #: templates/php/options.html:15
-msgid "Edit options for this PHP version. Any changes will restart the service."
-msgstr "Bu PHP sürümü için seçenekleri düzenleyin. Yapılan değişiklikler hizmeti yeniden başlatacaktır."
+msgid ""
+"Edit options for this PHP version. Any changes will restart the service."
+msgstr ""
+"Bu PHP sürümü için seçenekleri düzenleyin. Yapılan değişiklikler hizmeti "
+"yeniden başlatacaktır."
 
 #: templates/php/options.html:49
 msgid "Option"
@@ -15445,11 +15571,11 @@ msgstr "Alan adları için PHP sürümü"
 
 #: templates/php/settings.html:13
 msgid ""
-"Changing the PHP version will stop all the processes on your site. It "
-"takes about 10 seconds to complete."
+"Changing the PHP version will stop all the processes on your site. It takes "
+"about 10 seconds to complete."
 msgstr ""
-"PHP sürümünü değiştirmek sitenizdeki tüm işlemleri durduracaktır. Tamamlanması "
-"yaklaşık 10 saniye sürer."
+"PHP sürümünü değiştirmek sitenizdeki tüm işlemleri durduracaktır. "
+"Tamamlanması yaklaşık 10 saniye sürer."
 
 #: templates/php/settings.html:14
 msgid ""
@@ -15470,8 +15596,8 @@ msgstr "Sürümü değiştir"
 #: templates/psql/assign.html:11
 msgid ""
 "Assign a user to an existing PostgreSQL database to manage database "
-"permissions and enable access for executing queries, modifying tables, or"
-" managing data within the specified database."
+"permissions and enable access for executing queries, modifying tables, or "
+"managing data within the specified database."
 msgstr ""
 "Veritabanı izinlerini yönetmek ve belirtilen veritabanında sorgu yürütme, "
 "tablo değiştirme veya veri yönetme erişimini etkinleştirmek için bir "
@@ -15499,7 +15625,8 @@ msgstr "Veritabanı yok"
 
 #: templates/psql/import.html:8
 msgid "Selet a local file to upload and import into a PostgreSQL database."
-msgstr "PostgreSQL veritabanına yüklemek ve içe aktarmak için yerel bir dosya seçin."
+msgstr ""
+"PostgreSQL veritabanına yüklemek ve içe aktarmak için yerel bir dosya seçin."
 
 #: templates/psql/mysql_user.html:11 templates/psql/psql_user.html:7
 msgid "Create PostgreSQL User"
@@ -15507,13 +15634,13 @@ msgstr "PostgreSQL Kullanıcısı Oluştur"
 
 #: templates/psql/mysql_user.html:12
 msgid ""
-"Create a new PostgreSQL user with a unique username and password to "
-"securely manage access and permissions for interacting with databases or "
-"the PostgreSQL server."
+"Create a new PostgreSQL user with a unique username and password to securely"
+" manage access and permissions for interacting with databases or the "
+"PostgreSQL server."
 msgstr ""
-"Veritabanları veya PostgreSQL sunucusu ile etkileşim için erişim ve izinleri "
-"güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifre ile "
-"yeni bir PostgreSQL kullanıcısı oluşturun."
+"Veritabanları veya PostgreSQL sunucusu ile etkileşim için erişim ve izinleri"
+" güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifre ile"
+" yeni bir PostgreSQL kullanıcısı oluşturun."
 
 #: templates/psql/mysql_user.html:42
 msgid "Random Password"
@@ -15522,12 +15649,12 @@ msgstr "Rastgele Şifre"
 #: templates/psql/new.html:8
 msgid ""
 "Create a new PostgreSQL database to store and organize data, providing a "
-"foundational structure for applications to manage and retrieve "
-"information efficiently."
+"foundational structure for applications to manage and retrieve information "
+"efficiently."
 msgstr ""
-"Verileri depolamak ve düzenlemek için yeni bir PostgreSQL veritabanı oluşturun, "
-"uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması için temel "
-"bir yapı sağlar."
+"Verileri depolamak ve düzenlemek için yeni bir PostgreSQL veritabanı "
+"oluşturun, uygulamaların bilgileri verimli bir şekilde yönetmesi ve alması "
+"için temel bir yapı sağlar."
 
 #: templates/psql/password.html:11
 msgid "Change password for a PostgreSQL database user."
@@ -15559,9 +15686,9 @@ msgstr "PostgreSQL İşlemleri"
 
 #: templates/psql/processlist.html:9
 msgid ""
-"List of all current processes running on the PostgreSQL server, providing"
-" insights into ongoing queries, operations, and their associated details "
-"for better performance monitoring."
+"List of all current processes running on the PostgreSQL server, providing "
+"insights into ongoing queries, operations, and their associated details for "
+"better performance monitoring."
 msgstr ""
 "PostgreSQL sunucusunda çalışan tüm mevcut işlemlerin listesi, devam eden "
 "sorgular, işlemler ve bunlarla ilişkili detaylar hakkında bilgi sağlayarak "
@@ -15741,13 +15868,13 @@ msgstr "Backend_type"
 
 #: templates/psql/psql_user.html:8
 msgid ""
-"Create a new Postgres user with a unique username and password to "
-"securely manage access and permissions for interacting with databases or "
-"the PostgreSQL server."
+"Create a new Postgres user with a unique username and password to securely "
+"manage access and permissions for interacting with databases or the "
+"PostgreSQL server."
 msgstr ""
-"Veritabanları veya PostgreSQL sunucusu ile etkileşim için erişim ve izinleri "
-"güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifre ile "
-"yeni bir Postgres kullanıcısı oluşturun."
+"Veritabanları veya PostgreSQL sunucusu ile etkileşim için erişim ve izinleri"
+" güvenli bir şekilde yönetmek üzere benzersiz bir kullanıcı adı ve şifre ile"
+" yeni bir Postgres kullanıcısı oluşturun."
 
 #: templates/psql/remote_psql.html:14
 msgid "Remote PostgreSQL Access"
@@ -15758,8 +15885,8 @@ msgid ""
 "Connect to a PostgreSQL database on this server from a another (remote) "
 "device or location over the internet."
 msgstr ""
-"Bu sunucudaki bir PostgreSQL veritabanına internet üzerinden başka (uzak) bir "
-"cihaz veya konumdan bağlanın."
+"Bu sunucudaki bir PostgreSQL veritabanına internet üzerinden başka (uzak) "
+"bir cihaz veya konumdan bağlanın."
 
 #: templates/psql/remote_psql.html:24 templates/psql/remote_psql.html:38
 msgid "Disable Remote PostgreSQL Access"
@@ -15776,12 +15903,12 @@ msgstr "PostgreSQL'e uzaktan erişim şu anda:"
 #: templates/psql/remove.html:11
 msgid ""
 "Remove a user from an existing PostgreSQL database to revoke their "
-"permissions and prevent access to executing queries, modifying tables, or"
-" managing data within the specified database."
+"permissions and prevent access to executing queries, modifying tables, or "
+"managing data within the specified database."
 msgstr ""
 "İzinlerini iptal etmek ve belirtilen veritabanında sorgu yürütme, tablo "
-"değiştirme veya veri yönetme erişimini engellemek için bir kullanıcıyı mevcut "
-"bir PostgreSQL veritabanından kaldırın."
+"değiştirme veya veri yönetme erişimini engellemek için bir kullanıcıyı "
+"mevcut bir PostgreSQL veritabanından kaldırın."
 
 #: templates/psql/users.html:9
 msgid "PostgreSQL Users"
@@ -15789,27 +15916,30 @@ msgstr "PostgreSQL Kullanıcıları"
 
 #: templates/psql/wizard.html:9
 msgid ""
-"Create a new PostgreSQL database, set up a user with a secure password, "
-"and assign it to the database with all necessary privileges."
+"Create a new PostgreSQL database, set up a user with a secure password, and "
+"assign it to the database with all necessary privileges."
 msgstr ""
-"Yeni bir PostgreSQL veritabanı oluşturun, güvenli bir şifre ile bir kullanıcı "
-"ayarlayın ve gerekli tüm ayrıcalıklarla veritabanına atayın."
+"Yeni bir PostgreSQL veritabanı oluşturun, güvenli bir şifre ile bir "
+"kullanıcı ayarlayın ve gerekli tüm ayrıcalıklarla veritabanına atayın."
 
 #: templates/system/apache_nginx_conf_editor.html:23
 msgid "Edit main webserver configuration file:"
 msgstr "Ana web sunucusu yapılandırma dosyasını düzenle:"
 
 #: templates/system/cronjobs.html:24
-msgid "A cron job is a Linux command used to schedule tasks for future execution."
-msgstr "Cron job, gelecekteki yürütme için görevleri zamanlamak için kullanılan bir Linux komutudur."
+msgid ""
+"A cron job is a Linux command used to schedule tasks for future execution."
+msgstr ""
+"Cron job, gelecekteki yürütme için görevleri zamanlamak için kullanılan bir "
+"Linux komutudur."
 
 #: templates/system/cronjobs.html:25
 msgid ""
-"It allows you to automate repetitive tasks, such as sending notifications"
-" or running scripts at specific intervals."
+"It allows you to automate repetitive tasks, such as sending notifications or"
+" running scripts at specific intervals."
 msgstr ""
-"Belirli aralıklarla bildirim gönderme veya betik çalıştırma gibi tekrarlayan "
-"görevleri otomatikleştirmenizi sağlar."
+"Belirli aralıklarla bildirim gönderme veya betik çalıştırma gibi tekrarlayan"
+" görevleri otomatikleştirmenizi sağlar."
 
 #: templates/system/cronjobs.html:28
 msgid "Crontab File Editor"
@@ -15842,18 +15972,19 @@ msgstr "2 aşamalı kimlik doğrulama"
 #: templates/user/twofa_settings.html:28
 msgid ""
 "is a way of adding additional security to your account. 2FA requires you to "
-"enter an extra code when you log in or perform some account-sensitive action."
-" The code is generated from an application on your computer or mobile phone."
+"enter an extra code when you log in or perform some account-sensitive "
+"action. The code is generated from an application on your computer or mobile"
+" phone."
 msgstr ""
 "hesabınıza ek güvenlik eklemenin bir yoludur. 2FA, oturum açtığınızda veya "
 "hesaba duyarlı bir işlem gerçekleştirdiğinizde fazladan bir kod girmenizi "
-"gerektirir. Kod, bilgisayarınızdaki veya cep telefonunuzdaki bir uygulamadan "
-"oluşturulur."
+"gerektirir. Kod, bilgisayarınızdaki veya cep telefonunuzdaki bir uygulamadan"
+" oluşturulur."
 
 #: templates/user/twofa_settings.html:30
 msgid ""
-"To enable 2FA for your account you will need an application that manages 2FA "
-"codes, such as"
+"To enable 2FA for your account you will need an application that manages 2FA"
+" codes, such as"
 msgstr ""
 "Hesabınız için 2fa'yı etkinleştirmek için 2FA kodlarını yöneten bir "
 "uygulamaya ihtiyacınız olacaktır, örneğin"
