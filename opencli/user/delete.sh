@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 25.06.2026
+# Last Modified: 26.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -263,10 +263,10 @@ EOF
 	# 3. delete on master 
 	pkill -u "$context" -9 2>/dev/null || true
 
-    if command -v deluser >/dev/null 2>&1; then
-        deluser --remove-home "$context" # Debian
-    elif command -v userdel >/dev/null 2>&1; then
+    if command -v userdel >/dev/null 2>&1; then
         userdel -r "$context"            # RHEL
+    elif command -v deluser >/dev/null 2>&1; then
+        deluser --remove-home "$context" # Debian
     fi
 
     [ -d /home/"$context" ] && rm -rf "/home/${context:?}"

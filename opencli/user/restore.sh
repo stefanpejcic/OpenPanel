@@ -1,15 +1,32 @@
 #!/bin/bash
 ################################################################################
 # Script Name: user/restore.sh
-# Description: Restores a full OpenPanel user account from a .tar.gz produced
-#              by user/backup.sh.  Works on the same or a fresh server.
-#
-#              --force        overwrite existing username
-#              --new-username set a different username+context on the target
-#              --dry-run      report what would happen, make zero changes
-#
-# Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME]
-#                              [--dry-run] [--quiet]
+# Description: Restores a single OpenPanel user account from a full account .tar.gz backup.
+# Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet]
+# Docs: https://docs.openpanel.com
+# Author: Stefan Pejcic
+# Created: 01.10.2023
+# Last Modified: 26.06.2026
+# Company: openpanel.com
+# Copyright (c) openpanel.com
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 ################################################################################
 
 set -o pipefail
@@ -20,7 +37,6 @@ MAIL_CONTAINER="openadmin_mailserver"
 ARCHIVE=""
 FORCE=0
 QUIET=0
-DRY_RUN=0
 NEW_USERNAME=""
 
 WARNINGS=()
@@ -36,7 +52,6 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         --file)             ARCHIVE="$2"; shift 2 ;;
         --force)            FORCE=1; shift ;;
-        --dry-run)          DRY_RUN=1; shift ;;
         --quiet)            QUIET=1; shift ;;
         --new-username=*)   NEW_USERNAME="${1#*=}"; shift ;;
         --new-username)     NEW_USERNAME="$2"; shift 2 ;;
@@ -45,7 +60,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -z "$ARCHIVE" ]] && {
-    echo "Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--dry-run] [--quiet]"
+    echo "Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet]"
     exit 1
 }
 [[ -f "$ARCHIVE" ]] || { echo "[ERROR] Archive not found: $ARCHIVE"; exit 1; }
@@ -70,134 +85,6 @@ get_server_ip() {
 
 WORK=$(mktemp -d /tmp/oprestore.XXXXXX)
 trap 'rm -rf "$WORK"' EXIT
-
-# ── DRY RUN ─────────────────────────────────────────────────────────────────
-if [[ $DRY_RUN -eq 1 ]]; then
-    ARCHIVE_SIZE=$(du -sh "$ARCHIVE" 2>/dev/null | cut -f1)
-    NEW_IP=$(get_server_ip)
-
-    tar -C "$WORK" -xzf "$ARCHIVE" manifest.env 2>/dev/null || { echo "[ERROR] Cannot read manifest from archive."; exit 1; }
-    # shellcheck disable=SC1090
-    . "$WORK/manifest.env"
-    [[ -n "$USERNAME" && -n "$CONTEXT" ]] || { echo "[ERROR] Invalid manifest."; exit 1; }
-
-    # Apply --new-username override for the report
-    ORIG_USERNAME="$USERNAME"; ORIG_CONTEXT="$CONTEXT"
-    if [[ -n "$NEW_USERNAME" ]]; then
-        USERNAME="$NEW_USERNAME"; CONTEXT="$NEW_USERNAME"
-    fi
-
-    tar -C "$WORK" -xzf "$ARCHIVE" db ftp 2>/dev/null || true
-    tar -xzf "$ARCHIVE" --to-stdout --wildcards 'homedir/*/postfix-accounts.cf' 2>/dev/null > "$WORK/backup-postfix-accounts.cf" || true
-
-    username_exists=$(mysql_q "SELECT COUNT(*) FROM users WHERE username='$USERNAME';" 2>/dev/null || echo 0)
-    plan_exists=$(mysql_q "SELECT COUNT(*) FROM plans WHERE name='$PLAN_NAME';" 2>/dev/null || echo 0)
-
-    if [[ "${username_exists:-0}" -gt 0 ]]; then
-        [[ $FORCE -eq 1 ]] && U_STATUS="ALREADY EXISTS — will be overwritten (--force)" || U_STATUS="ALREADY EXISTS — will ABORT without --force"
-    else
-        U_STATUS="available ✓"
-    fi
-    [[ "${plan_exists:-0}" -gt 0 ]] && P_STATUS="exists ✓" || P_STATUS="will be imported"
-
-    echo ""
-    echo "╔══════════════════════════════════════════════════════════╗"
-    echo "║  DRY RUN — Restore from '$(basename "$ARCHIVE")'"
-    echo "║  No changes will be made."
-    echo "╚══════════════════════════════════════════════════════════╝"
-    echo ""
-    printf "  %-24s %s\n" "Archive:" "$ARCHIVE  ($ARCHIVE_SIZE)"
-    printf "  %-24s %s\n" "Created:" "${CREATED_AT:-unknown}  (format v${BACKUP_FORMAT_VERSION:-?})"
-    [[ -n "$SOURCE_IP" ]] && printf "  %-24s %s  →  %s  (DNS IPs will be rewritten)\n" "IP:" "$SOURCE_IP" "$NEW_IP"
-    echo ""
-
-    if [[ -n "$NEW_USERNAME" ]]; then
-        printf "  %-24s %s  →  %s\n" "Username (remapped):" "$ORIG_USERNAME" "$USERNAME"
-        printf "  %-24s %s  →  %s\n" "Context (remapped):"  "$ORIG_CONTEXT"  "$CONTEXT"
-    else
-        printf "  %-24s %s\n" "Username:" "$USERNAME"
-        printf "  %-24s %s\n" "Context:"  "$CONTEXT"
-    fi
-    printf "  %-24s [%s]\n" "Username status:" "$U_STATUS"
-    printf "  %-24s \"%s\"  [%s]\n" "Plan:" "$PLAN_NAME" "$P_STATUS"
-    echo ""
-
-    echo "  Home directory:"
-    printf "    %-22s %s\n" "Archive path:" "homedir/"
-    [[ -d "/home/$CONTEXT" ]] && printf "    %-22s %s\n" "Target:" "/home/$CONTEXT/   [EXISTS — will be overwritten]" || printf "    %-22s %s\n" "Target:" "/home/$CONTEXT/   [will be created ✓]"
-    echo ""
-
-    echo "  Domains:"
-    if [[ -f "$WORK/db/domains.list" ]]; then
-        dn=0; ds=0
-        while IFS=$'\t ' read -r domain _; do
-            [[ -z "$domain" ]] && continue
-            owner=$(opencli domains-whoowns "$domain" 2>/dev/null | awk -F "Owner of '$domain': " '{print $2}')
-            if [[ -n "$owner" ]]; then
-                printf "    %-40s → [EXISTS owner:%s — SKIP]\n" "$domain" "$owner"; ds=$((ds+1))
-            else
-                printf "    %-40s → [NEW — will be added]\n" "$domain"; dn=$((dn+1))
-            fi
-        done < "$WORK/db/domains.list"
-        echo "    Summary: $dn to add, $ds to skip."
-    else
-        echo "    (none)"
-    fi
-    echo ""
-
-    echo "  FTP accounts:"
-    FTP_L="$WORK/ftp/users.list"
-    if [[ -f "$FTP_L" ]] && grep -q '.' "$FTP_L" 2>/dev/null; then
-        while IFS='|' read -r fu _; do
-            [[ -n "$fu" ]] && printf "    %-30s → [will be created]\n" "$fu"
-        done < "$FTP_L"
-    else
-        echo "    (none)"
-    fi
-    echo ""
-
-    echo "  Email accounts:"
-    BACCT="$WORK/backup-postfix-accounts.cf"
-    if [[ -s "$BACCT" ]]; then
-        LIVE_ACCTS=""
-        if [[ -n "$(docker ps -q -f name=${MAIL_CONTAINER} 2>/dev/null)" ]]; then
-            MNT=$(docker inspect "$MAIL_CONTAINER" --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
-            [[ -n "$MNT" ]] && LIVE_ACCTS="$MNT/postfix-accounts.cf"
-        fi
-        [[ -z "$LIVE_ACCTS" ]] && echo "    Note: $MAIL_CONTAINER not running — cannot check existing mailboxes."
-        ea=0; es=0
-        while IFS='|' read -r addr _; do
-            [[ -z "$addr" ]] && continue
-            if [[ -n "$LIVE_ACCTS" ]] && grep -q "^${addr}|" "$LIVE_ACCTS" 2>/dev/null; then
-                printf "    %-40s → [EXISTS — SKIP]\n" "$addr"; es=$((es+1))
-            else
-                printf "    %-40s → [NEW — will be added]\n" "$addr"; ea=$((ea+1))
-            fi
-        done < "$BACCT"
-        echo "    Summary: $ea to add, $es to skip."
-    else
-        echo "    (none found in archive)"
-    fi
-    echo ""
-
-    echo "  Feature set:"
-    if [[ -n "$PLAN_FEATURE_SET" ]]; then
-        [[ -f "/etc/openpanel/openpanel/features/${PLAN_FEATURE_SET}.txt" ]] && printf "    %s  [present ✓]\n" "$PLAN_FEATURE_SET" || printf "    %s  [will be imported]\n" "$PLAN_FEATURE_SET"
-    else
-        echo "    (none)"
-    fi
-    echo ""
-
-    if [[ "${username_exists:-0}" -gt 0 && $FORCE -eq 0 ]]; then
-        echo "  [✘] WOULD ABORT — username '$USERNAME' exists. Add --force to overwrite."
-    else
-        echo "  [✓] No fatal conflicts — restore would proceed."
-    fi
-    echo ""
-    echo "  No changes have been made. Re-run without --dry-run to restore."
-    echo ""
-    exit 0
-fi
 
 # ── REAL RESTORE ─────────────────────────────────────────────────────────────
 timestamp="$(date +'%Y-%m-%d_%H-%M-%S')"
@@ -389,6 +276,12 @@ restore_domains() {
     log "Restoring domains ..."
     mkdir -p /etc/openpanel/caddy/domains/ /var/log/caddy/domlogs/ /var/log/caddy/coraza_waf/ /etc/bind/zones/ /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/ /etc/openpanel/caddy/ssl/custom/ /var/log/caddy/stats/
 
+    if [[ -f "$WORK/caddy/blocked.ips" ]]; then
+        mkdir -p /etc/openpanel/caddy/deny/
+        cp -a "$WORK/caddy/blocked.ips" "/etc/openpanel/caddy/deny/${CONTEXT}.ips"
+        log "Blocked IPs restored."
+    fi
+
     while IFS=$'\t ' read -r domain docroot php_version; do
         [[ -z "$domain" ]] && continue
         local owner
@@ -412,6 +305,7 @@ restore_domains() {
         [[ -f "$WORK/caddy/waf/$domain.log" ]]      && cp -a "$WORK/caddy/waf/$domain.log" /var/log/caddy/coraza_waf/
         [[ -d "$WORK/caddy/ssl/acme/$domain" ]]     && cp -a "$WORK/caddy/ssl/acme/$domain" /etc/openpanel/caddy/ssl/acme-v02.api.letsencrypt.org-directory/
         [[ -d "$WORK/caddy/ssl/custom/$domain" ]]   && cp -a "$WORK/caddy/ssl/custom/$domain" /etc/openpanel/caddy/ssl/custom/
+        [[ -f "$WORK/caddy/suspended/$domain.conf" ]] && { mkdir -p /etc/openpanel/caddy/suspended_domains/; cp -a "$WORK/caddy/suspended/$domain.conf" /etc/openpanel/caddy/suspended_domains/; }
 
         if [[ -f "$WORK/bind/zones/$domain.zone" ]]; then
             cp -a "$WORK/bind/zones/$domain.zone" /etc/bind/zones/
@@ -441,7 +335,9 @@ restore_domains() {
         done
     fi
 }
+
 restore_domains
+
 
 # ── 6) FTP ───────────────────────────────────────────────────────────────────
 restore_ftp() {
@@ -474,18 +370,52 @@ restore_ftp
 
 # ── 7) Email — skip existing mailboxes ───────────────────────────────────────
 restore_email() {
-    local asrc; asrc=$(find "/home/$CONTEXT/mail" -maxdepth 4 -name 'postfix-accounts.cf' 2>/dev/null | head -n1)
-    [[ -z "$asrc" ]] && { log "No postfix-accounts.cf found — skipping email merge."; return; }
+    local EMAILS_DIR="$WORK/emails"
+    local DMS_CONFIG="/usr/local/mail/openmail/docker-data/dms/config"
+    local POSTFWD_DST="/usr/local/mail/openmail/postfwd/postfwd.cf"
+
+    # DKIM keys
+    if [[ -d "$EMAILS_DIR/dkim" && -n "$(ls -A "$EMAILS_DIR/dkim" 2>/dev/null)" ]]; then
+        local DKIM_DIR="/usr/local/mail/openmail/docker-data/dms/config/opendkim/keys"
+        mkdir -p "$DKIM_DIR"
+        cp -a "$EMAILS_DIR/dkim/." "$DKIM_DIR/"
+        log "DKIM keys restored."
+    fi
+
+    # postfix-accounts.cf — read from staged emails/ dir (not homedir)
+    local asrc="$EMAILS_DIR/postfix-accounts.cf"
+    [[ -s "$asrc" ]] || { log "No postfix-accounts.cf in archive — skipping email merge."; return; }
 
     [[ -z "$(docker ps -q -f name=${MAIL_CONTAINER} 2>/dev/null)" ]] && {
         [[ -d /usr/local/mail/openmail ]] && (cd /usr/local/mail/openmail && docker --context default compose up -d mailserver roundcube >/dev/null 2>&1) || true
         sleep 2
     }
 
-    local adst
-    adst=$(docker inspect "$MAIL_CONTAINER" --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
-    [[ -n "$adst" ]] && adst="$adst/postfix-accounts.cf" || adst="$asrc"
-    touch "$adst" 2>/dev/null || true
+    local MNT
+    MNT=$(docker inspect "$MAIL_CONTAINER" --format '{{ range .Mounts }}{{ if eq .Destination "/tmp/docker-mailserver" }}{{ .Source }}{{ end }}{{ end }}' 2>/dev/null)
+
+    # Helper: merge a simple line-based config file, skipping lines whose key (up to first |/space) already exists
+    merge_cf() {
+        local src="$1" dst="$2" label="$3"
+        [[ -s "$src" ]] || return
+        [[ -z "$dst" ]] && { warn "Cannot resolve path for $label — skipped."; return; }
+        touch "$dst" 2>/dev/null || true
+        local added=0 skipped=0
+        while IFS= read -r line; do
+            [[ -z "$line" ]] && continue
+            local key="${line%%|*}"
+            if grep -qF "${key}|" "$dst" 2>/dev/null; then
+                skipped=$((skipped+1))
+            else
+                echo "$line" >> "$dst"
+                added=$((added+1))
+            fi
+        done < "$src"
+        log "$label: $added added, $skipped skipped."
+    }
+
+    local cfg_dst="${MNT:-$DMS_CONFIG}"
+    local adst="$cfg_dst/postfix-accounts.cf"
 
     log "Merging email accounts ..."
     while IFS='|' read -r addr hash; do
@@ -498,6 +428,28 @@ restore_email() {
         echo "${addr}|${hash}" >> "$adst"
         EMAILS_ADDED=$((EMAILS_ADDED+1)); log "Mailbox restored: $addr"
     done < "$asrc"
+
+    # Merge the remaining DMS config files
+    merge_cf "$EMAILS_DIR/postfix-regex.cf"          "$cfg_dst/postfix-regex.cf"          "aliases (postfix-regex.cf)"
+    merge_cf "$EMAILS_DIR/dovecot-quotas.cf"         "$cfg_dst/dovecot-quotas.cf"         "quotas (dovecot-quotas.cf)"
+    merge_cf "$EMAILS_DIR/postfix-receive-access.cf" "$cfg_dst/postfix-receive-access.cf" "receive-access (postfix-receive-access.cf)"
+    merge_cf "$EMAILS_DIR/postfix-send-access.cf"    "$cfg_dst/postfix-send-access.cf"    "send-access (postfix-send-access.cf)"
+    merge_cf "$EMAILS_DIR/postfix-virtual.cf"        "$cfg_dst/postfix-virtual.cf"        "catch-all (postfix-virtual.cf)"
+
+    # postfwd.cf — append non-duplicate rule blocks (two-line id=…/action=… pairs)
+    if [[ -s "$EMAILS_DIR/postfwd.cf" && -f "$POSTFWD_DST" ]]; then
+        local pf_added=0
+        while IFS= read -r id_line; do
+            IFS= read -r action_line
+            [[ -z "$id_line" ]] && continue
+            if ! grep -qF "$id_line" "$POSTFWD_DST" 2>/dev/null; then
+                printf '%s\n%s\n' "$id_line" "$action_line" >> "$POSTFWD_DST"
+                pf_added=$((pf_added+1))
+            fi
+        done < "$EMAILS_DIR/postfwd.cf"
+        log "postfwd.cf: $pf_added rule(s) added."
+    fi
+
     [[ $EMAILS_ADDED -gt 0 ]] && { docker exec "$MAIL_CONTAINER" postfix reload >/dev/null 2>&1 || docker restart "$MAIL_CONTAINER" >/dev/null 2>&1 || true; }
 }
 restore_email

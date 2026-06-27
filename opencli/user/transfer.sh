@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 25.06.2026
+# Last Modified: 26.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -680,11 +680,16 @@ rsync_files_for_user() {
         exit 1
     fi
 
-
     CADDY_STATS="/var/log/caddy/stats/$USERNAME"
     if [ -d "$CADDY_STATS" ]; then
 		eval $RSYNC_CMD $CADDY_STATS ${REMOTE_USER}@${REMOTE_HOST}:/var/log/caddy/stats/
     fi
+
+	BLOCKED_IPS="/etc/openpanel/caddy/deny/${CONTEXT}.ips"
+	if [[ -f "$BLOCKED_IPS" ]]; then
+	    $SSH_CMD "mkdir -p /etc/openpanel/caddy/deny/"
+	    eval $RSYNC_CMD "$BLOCKED_IPS" "${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/deny/"
+	fi
 
     ALL_DOMAINS=$(opencli domains-user "$USERNAME" --docroot --php_version)
         
@@ -722,6 +727,12 @@ else
 			eval $RSYNC_CMD $DOMAIN_CADDY_WAF ${REMOTE_USER}@${REMOTE_HOST}:/var/log/caddy/coraza_waf/
 		fi
 
+		DOMAIN_CADDY_SUSPENDED="/etc/openpanel/caddy/suspended_domains/$domain.conf"
+		if [[ -f "$DOMAIN_CADDY_SUSPENDED" ]]; then
+		    $SSH_CMD "mkdir -p /etc/openpanel/caddy/suspended_domains/"
+		    eval $RSYNC_CMD "$DOMAIN_CADDY_SUSPENDED" "${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/suspended_domains/"
+		fi
+
 		DOMAIN_ZONE_FILE="/etc/bind/zones/$domain.zone"
 		if [ -f "$DOMAIN_ZONE_FILE" ]; then
 		    eval $RSYNC_CMD "$DOMAIN_ZONE_FILE" ${REMOTE_USER}@${REMOTE_HOST}:/etc/bind/zones/
@@ -748,8 +759,14 @@ EOF
 		if [ -d "$DOMAIN_CADDY_CUSTOM_SSL" ]; then
 			eval $RSYNC_CMD $DOMAIN_CADDY_CUSTOM_SSL ${REMOTE_USER}@${REMOTE_HOST}:/etc/openpanel/caddy/ssl/custom/
 		fi
-
  	fi
+
+	DKIM_DIR="/usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/$domain"
+	if [[ -d "$DKIM_DIR" ]]; then
+	    $SSH_CMD "mkdir -p /usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/"
+	    eval $RSYNC_CMD "$DKIM_DIR" "${REMOTE_USER}@${REMOTE_HOST}:/usr/local/mail/openmail/docker-data/dms/config/opendkim/keys/"
+	fi
+
  done <<< "$ALL_DOMAINS"
 
  docker --context default exec openpanel_dns rndc reconfig >/dev/null 2>&1
@@ -954,16 +971,73 @@ $SSH_CMD "mkdir -p /var/log/caddy/stats/ /var/log/caddy/domlogs/ /var/log/caddy/
 if [ -n "$key_value" ]; then
     log "Syncing mail data ..."
 
-    # 1. Check local email storage location
-    STORE_EMAILS_IN=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini | cut -d'=' -f2- | xargs)
-    if [[ "$STORE_EMAILS_IN" == /* ]]; then
+    DMS_CONFIG="/usr/local/mail/openmail/docker-data/dms/config"
+    POSTFWD_SRC="/usr/local/mail/openmail/postfwd/postfwd.cf"
+
+    # Resolve domain list for grep patterns
+    ALL_DOMAINS_FOR_MAIL=$(opencli domains-user "$USERNAME" --docroot --php_version 2>/dev/null)
+    DOMAIN_LIST_STR=""
+    if [[ "$ALL_DOMAINS_FOR_MAIL" != *"No domains found"* && -n "$ALL_DOMAINS_FOR_MAIL" ]]; then
+        while IFS=$'\t ' read -r domain _; do
+            [[ -n "$domain" ]] && DOMAIN_LIST_STR+="$domain "
+        done <<< "$ALL_DOMAINS_FOR_MAIL"
+        DOMAIN_LIST_STR="${DOMAIN_LIST_STR% }"
+    fi
+
+    if [[ -n "$DOMAIN_LIST_STR" ]]; then
+        DOMAIN_PATTERN=$(printf '@%s\|' $DOMAIN_LIST_STR | sed 's/\\|$//')
+        REGEX_PATTERN=$(printf '/\\*@%s/|' $DOMAIN_LIST_STR | sed 's/|$//')
+
+        TMP_MAIL_DIR=$(mktemp -d)
+
+        for cf in postfix-accounts.cf postfix-virtual.cf dovecot-quotas.cf postfix-receive-access.cf postfix-send-access.cf; do
+            : > "$TMP_MAIL_DIR/$cf"
+            [[ -f "$DMS_CONFIG/$cf" ]] && grep "$DOMAIN_PATTERN" "$DMS_CONFIG/$cf" > "$TMP_MAIL_DIR/$cf" || true
+        done
+
+        : > "$TMP_MAIL_DIR/postfix-regex.cf"
+        [[ -f "$DMS_CONFIG/postfix-regex.cf" ]] && grep -E "$REGEX_PATTERN" "$DMS_CONFIG/postfix-regex.cf" > "$TMP_MAIL_DIR/postfix-regex.cf" || true
+
+        : > "$TMP_MAIL_DIR/postfwd.cf"
+        if [[ -f "$POSTFWD_SRC" ]]; then
+            while IFS= read -r line; do
+                matched=0
+                if [[ "$line" == id=* ]]; then
+                    for domain in $DOMAIN_LIST_STR; do
+                        if [[ "$line" == *"@${domain}"* ]]; then
+                            matched=1; break
+                        fi
+                    done
+                fi
+                if [[ $matched -eq 1 ]]; then
+                    echo "$line"
+                    IFS= read -r next_line && echo "$next_line"
+                fi
+            done < "$POSTFWD_SRC" > "$TMP_MAIL_DIR/postfwd.cf"
+        fi
+
+        $SSH_CMD "mkdir -p $DMS_CONFIG /usr/local/mail/openmail/postfwd/"
+        for cf in postfix-accounts.cf postfix-virtual.cf dovecot-quotas.cf postfix-receive-access.cf postfix-send-access.cf postfix-regex.cf; do
+            [[ -s "$TMP_MAIL_DIR/$cf" ]] && \
+                eval $RSYNC_CMD "$TMP_MAIL_DIR/$cf" "${REMOTE_USER}@${REMOTE_HOST}:${DMS_CONFIG}/$cf" && \
+                log "Synced $cf"
+        done
+        [[ -s "$TMP_MAIL_DIR/postfwd.cf" ]] && \
+            eval $RSYNC_CMD "$TMP_MAIL_DIR/postfwd.cf" "${REMOTE_USER}@${REMOTE_HOST}:/usr/local/mail/openmail/postfwd/postfwd.cf" && \
+            log "Synced postfwd.cf"
+
+        rm -rf "$TMP_MAIL_DIR"
+    fi
+
+    # Physical maildir sync
+    STORE_EMAILS_IN=$(grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini 2>/dev/null | cut -d'=' -f2- | xargs)
+    if [[ "$STORE_EMAILS_IN" == /* && -d "$STORE_EMAILS_IN" ]]; then
         LOCAL_MAIL_PATH="$STORE_EMAILS_IN"
     else
         LOCAL_MAIL_PATH="/home/$CONTEXT/mail/"
     fi
 
-    # 2. Check remote email storage location
-    REMOTE_STORE_EMAILS_IN=$($SSH_CMD "grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini | cut -d'=' -f2- | xargs" 2>/dev/null)
+    REMOTE_STORE_EMAILS_IN=$($SSH_CMD "grep -E '^email_storage_location=' /etc/openpanel/openadmin/config/admin.ini 2>/dev/null | cut -d'=' -f2- | xargs" 2>/dev/null)
     if [[ "$REMOTE_STORE_EMAILS_IN" == /* ]]; then
         REMOTE_MAIL_PATH="$REMOTE_STORE_EMAILS_IN"
     else
@@ -971,12 +1045,12 @@ if [ -n "$key_value" ]; then
     fi
 
     if [[ -d "$LOCAL_MAIL_PATH" ]]; then
-        log "Syncing mail from $LOCAL_MAIL_PATH (source) to $REMOTE_MAIL_PATH (destination) ..."
+        log "Syncing maildir from $LOCAL_MAIL_PATH → $REMOTE_MAIL_PATH ..."
         $SSH_CMD "mkdir -p $REMOTE_MAIL_PATH"
         eval $RSYNC_CMD "$LOCAL_MAIL_PATH" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_MAIL_PATH}"
         COMPOSE_START_MAIL=1
     else
-        log "[!] Warning: No mail data found at $LOCAL_MAIL_PATH, skipping."
+        log "[!] No maildir found at $LOCAL_MAIL_PATH, skipping."
     fi
 fi
 

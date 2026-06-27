@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 25.06.2026
+# Last Modified: 26.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -508,6 +508,26 @@ run_custom_postupdate_script() {
 }
 
 # ---------------------- RUNS AFTER UPDATE ---------------------- #
+update_modules() {
+    local no_log="${1:-}"
+    local msg="Updating OpenAdmin modules"
+    [[ "$no_log" == "--no-log" ]] && echo "$msg" || log "$msg"
+    local url="https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json"
+
+    if wget --spider -q "$url" 2>/dev/null; then
+        if wget -q -O "/etc/openpanel/openadmin/config/features.json" "$url"; then
+            (( updated++ ))
+        else
+            log_warn "Failed to download features from github"
+            (( failed++ ))
+        fi
+    else
+        log_warn "No features file found: $url (skipping)"
+    fi
+    
+}
+
+
 update_locales() {
     local no_log="${1:-}"
     local msg="Updating installed locales"
@@ -672,6 +692,9 @@ run_update_immediately() {
 
     # ---------------------- 6. UPDATE INSTALLED LOCALES
     update_locales  
+
+    # ---------------------- 6. UPDATE MODULES/FEATURES
+    update_modules 
 
     # ---------------------- 7. RUN VERSION-SPECIFIC FILES IF EXIST
     run_version_specific_scripts_in_range "$local_version" "$version"
