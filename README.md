@@ -91,7 +91,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | RockyLinux | 9.6 | | | |
 | RockyLinux | 10 | 2026-06-28 16:31 UTC | ❌ Fail | *Must manually switch from `nftables` to `iptables` first ([#1472](https://github.com/docker/for-linux/issues/1472))* |
 | CentOS | 9.5 | | | |
-| CentOS | 10 | 2026-06-28 15:07 UTC | ❌ Fail |  |
+| CentOS | 10 | 2026-06-29 15:07 UTC | ❌ Fail |  |
 <!-- OS_TEST_RESULTS_END -->
 
 
