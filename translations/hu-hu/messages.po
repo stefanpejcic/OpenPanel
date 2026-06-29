@@ -8789,3 +8789,3751 @@ msgstr "A jelszó újraindítása"
 #: templates/user/reset_password/set_new_password.html:49
 msgid "Passwords do not match."
 msgstr "A jelszavak nem egyeznek."
+
+#: app.py:524
+msgid "IP address mismatch. Please login again."
+msgstr "IP-cím eltérés. Kérjük, lépjen be újra."
+
+#: app.py:556
+msgid ""
+"Two-Factor Authentication is required on this panel. Please enable it to "
+"continue."
+msgstr ""
+"Ezen a panelen kétlépéses hitelesítés szükséges. A folytatáshoz kérjük, "
+"engedélyezze azt."
+
+#: app.py:564
+msgid "Disabled in demo mode."
+msgstr "Demó módban letiltva."
+
+#: modules/crons.py:37
+msgid "Schedule is empty."
+msgstr "Az ütemezés üres."
+
+#: modules/crons.py:44
+#, python-format
+msgid ""
+"Schedule \"%(schedule)s\" has only 5 fields, but this cron implementation "
+"requires 6 (seconds minutes hours day month weekday). Add one more field for"
+" seconds at the start."
+msgstr ""
+"A \"%(schedule)s\" ütemezésnek csak 5 mezője van, de ez a cron implementáció"
+" 6-ot igényel (másodpercek percek órák nap hónap hétköznap). Adjon hozzá még"
+" egy mezőt a másodperceknek az elejére."
+
+#: modules/crons.py:45
+#, python-format
+msgid ""
+"Schedule \"%(schedule)s\" is invalid - expected 6 fields (seconds minutes "
+"hours day month weekday) or an @every/@daily-style descriptor."
+msgstr ""
+"A \"%(schedule)s\" ütemezés érvénytelen – 6 mezőt (másodpercek percek órák "
+"nap hónap hétköznap) vagy @every/@daily stílusú leírót vár."
+
+#: modules/crons.py:60
+msgid "No cron container found"
+msgstr "Nem található cron tároló"
+
+#: modules/crons.py:67
+msgid "Invalid log path"
+msgstr "Érvénytelen napló elérési út"
+
+#: modules/crons.py:71
+msgid "Log file not found"
+msgstr "A naplófájl nem található"
+
+#: modules/crons.py:74
+msgid "Job name too long"
+msgstr "A feladat neve túl hosszú"
+
+#: modules/crons.py:99
+msgid "Docker command timed out after 10 seconds"
+msgstr "A Docker-parancs 10 másodperc után túllépte az időkorlátot"
+
+#: modules/crons.py:102
+msgid "Failed to fetch container log"
+msgstr "Nem sikerült lekérni a tároló naplóját"
+
+#: modules/crons.py:175
+msgid "Failed to fetch containers"
+msgstr "Nem sikerült lekérni a tárolókat"
+
+#: modules/dns.py:140
+msgid "Serial number not provided. Please try again."
+msgstr "A sorozatszám nincs megadva. Kérjük, próbálja újra."
+
+#: modules/dns.py:151
+msgid ""
+"Serial number mismatch. Zone was edited by another user/program. Please try "
+"again."
+msgstr ""
+"Sorozatszám eltérés. A zónát egy másik felhasználó/program szerkesztette. "
+"Kérjük, próbálja újra."
+
+#: modules/dns.py:340
+#, python-format
+msgid "Syntax error in the DNS zone file for %(domain)s: %(error)s"
+msgstr "Szintaktikai hiba a %(domain)s DNS-zónafájljában: %(error)s"
+
+#: modules/dns.py:578
+msgid "Failed - zone validation error"
+msgstr "Sikertelen – zónaérvényesítési hiba"
+
+#: modules/docker.py:175
+msgid ""
+"Missing environment variables. Please check the configuration or restore "
+"from backup."
+msgstr ""
+"Hiányzó környezeti változók. Kérjük, ellenőrizze a konfigurációt, vagy "
+"állítsa vissza biztonsági mentésből."
+
+#: modules/docker.py:186
+msgid "Failed to fetch container data"
+msgstr "Nem sikerült lekérni a tároló adatait"
+
+#: modules/docker.py:228
+msgid "Invalid data format"
+msgstr "Érvénytelen adatformátum"
+
+#: modules/docker.py:228
+msgid "docker_data does not contain 'services'."
+msgstr "A docker_data nem tartalmaz 'services' bejegyzést."
+
+#: modules/docker.py:837
+msgid "Failed to stop the current mysql server."
+msgstr "Nem sikerült leállítani a jelenlegi MySQL-kiszolgálót."
+
+#: modules/docker.py:839
+msgid "Invalid mysql server selected"
+msgstr "Érvénytelen MySQL-kiszolgáló van kiválasztva"
+
+#: modules/docker.py:884
+msgid "Failed to stop the current web server."
+msgstr "Nem sikerült leállítani a jelenlegi webkiszolgálót."
+
+#: modules/docker.py:886
+msgid "Invalid web server selected"
+msgstr "Érvénytelen webkiszolgáló van kiválasztva"
+
+#: modules/docker.py:955
+msgid "Failed to stop the service in order to delete old image."
+msgstr "Nem sikerült leállítani a szolgáltatást a régi képfájl törléséhez."
+
+#: modules/docker.py:1116
+msgid "Error occurred!"
+msgstr "Hiba történt!"
+
+#: modules/domains.py:195
+msgid "Domain name is required"
+msgstr "A domén neve kötelező"
+
+#: modules/domains.py:237
+msgid "Path for public file must start with /var/www/html/"
+msgstr "A nyilvános fájl elérési útjának /var/www/html/-lel kell kezdődnie"
+
+#: modules/domains.py:250
+msgid "Path for secret file must start with /var/www/html/"
+msgstr "A titkos fájl elérési útjának /var/www/html/-lel kell kezdődnie"
+
+#: modules/dynamic_dns.py:132
+msgid "Dynamic DNS entry created."
+msgstr "A dinamikus DNS-bejegyzés létrehozva."
+
+#: modules/dynamic_dns.py:144
+msgid "Dynamic DNS entry updated."
+msgstr "A dinamikus DNS-bejegyzés frissítve."
+
+#: modules/dynamic_dns.py:147
+msgid "Failed to update Dynamic DNS entry."
+msgstr "Nem sikerült frissíteni a dinamikus DNS-bejegyzést."
+
+#: modules/dynamic_dns.py:153
+msgid "Dynamic DNS entry deleted."
+msgstr "A dinamikus DNS-bejegyzés törölve."
+
+#: modules/dynamic_dns.py:156
+msgid "Failed to delete Dynamic DNS entry."
+msgstr "Nem sikerült törölni a dinamikus DNS-bejegyzést."
+
+#: modules/dynamic_dns.py:168 templates/dashboard/dashboard.html:130
+#: templates/domains/dynamic_dns.html:12
+msgid "Dynamic DNS"
+msgstr "Dinamikus DNS"
+
+#: modules/email_aliases.py:126 templates/dashboard/dashboard.html:181
+#: templates/emails/aliases.html:9
+msgid "Aliases"
+msgstr "Aliasok"
+
+#: modules/email_aliases.py:168
+msgid "Error: a valid target email address is required."
+msgstr "Hiba: érvényes cél e-mail-cím szükséges."
+
+#: modules/email_aliases.py:245
+msgid "Error: target must be a valid email address."
+msgstr "Hiba: a célnak érvényes e-mail-címnek kell lennie."
+
+#: modules/email_aliases.py:266 templates/emails/aliases.html:35
+msgid "New Alias"
+msgstr "Új alias"
+
+#: modules/email_aliases.py:288 templates/emails/alias_detail.html:108
+msgid "Delete Alias"
+msgstr "Alias törlése"
+
+#: modules/email_default.py:60 modules/email_default.py:76
+msgid "Default Email"
+msgstr "Alapértelmezett e-mail"
+
+#: modules/email_deliverability.py:114 templates/dashboard/dashboard.html:183
+#: templates/emails/deliverability.html:9
+#: templates/emails/deliverability_domain.html:8
+msgid "Email Deliverability"
+msgstr "E-mail kézbesíthetőség"
+
+#: modules/email_filters.py:74 modules/email_filters.py:108
+msgid "No content provided."
+msgstr "Nincs tartalom megadva."
+
+#: modules/email_filters.py:79 modules/email_filters.py:113
+msgid "Filter saved successfully."
+msgstr "A szűrő sikeresen mentve."
+
+#: modules/email_filters.py:81 modules/email_filters.py:115
+msgid "Error saving filter."
+msgstr "Hiba a szűrő mentésekor."
+
+#: modules/ip_blocker.py:44
+msgid ""
+"IP addresses have been successfully added to blocklist and can no longer "
+"access websites"
+msgstr ""
+"Az IP-címek sikeresen hozzáadva a tiltólistához, és a továbbiakban nem "
+"férhetnek hozzá a weboldalakhoz"
+
+#: modules/ip_blocker.py:50
+msgid ""
+"All IP addresses have been successfully removed from blocklist and can now "
+"access websites"
+msgstr ""
+"Minden IP-cím sikeresen eltávolítva a tiltólistáról, és ismét hozzáférhetnek"
+" a weboldalakhoz"
+
+#: modules/ip_blocker.py:62
+msgid "Failed to block IP addresses - please try again"
+msgstr "Nem sikerült blokkolni az IP-címeket – kérjük, próbálja újra"
+
+#: modules/ip_blocker.py:65
+msgid "Error ocured blocking IP addresses - contact Administrator"
+msgstr "Hiba történt az IP-címek blokkolásakor – forduljon a rendszergazdához"
+
+#: modules/ip_blocker.py:81 templates/dashboard/dashboard.html:210
+#: templates/system/ip_blocker.html:15
+msgid "IP Blocker"
+msgstr "IP-blokkoló"
+
+#: modules/mautic.py:759 modules/pm2.py:552 modules/website_builder.py:282
+#: modules/wordpress.py:1517 modules/wordpress.py:2003
+msgid "Domain not found"
+msgstr "A domain nem található"
+
+#: modules/mautic.py:763 modules/wordpress.py:1521
+msgid "An error occurred fetching docroot for domain from database."
+msgstr ""
+"Hiba történt a domain dokumentumgyökerének lekérésekor az adatbázisból."
+
+#: modules/mautic.py:815
+msgid ""
+"Error: .htaccess file already exists. Mautic installation cannot proceed!"
+msgstr ""
+"Hiba: a .htaccess fájl már létezik. A Mautic telepítése nem folytatható!"
+
+#: modules/mautic.py:957
+msgid "Error creating MySQL database and user."
+msgstr "Hiba a MySQL-adatbázis és a felhasználó létrehozásakor."
+
+#: modules/mautic.py:983
+msgid "Error running:  'mautic:install' command."
+msgstr "Hiba a 'mautic:install' parancs futtatásakor."
+
+#: modules/mysql.py:188 modules/mysql.py:254 modules/mysql.py:373
+#: modules/mysql.py:772 modules/mysql.py:814 modules/mysql.py:918
+#: modules/mysqld/remote_mysql.py:129 modules/mysqld/remote_mysql.py:181
+#: modules/mysqld/remote_mysql.py:219
+msgid "Invalid host format."
+msgstr "Érvénytelen host formátum."
+
+#: modules/mysql.py:257 modules/mysql.py:363
+msgid "At least one privilege must be selected."
+msgstr "Legalább egy jogosultságot ki kell választani."
+
+#: modules/mysql.py:543
+msgid "Invalid export format provided, select SQL or GZIP."
+msgstr "Érvénytelen exportálási formátum, válasszon SQL-t vagy GZIP-et."
+
+#: modules/mysql.py:577
+msgid "Destination path is required for folder export."
+msgstr "A célmappa elérési útja kötelező a mappa exportálásához."
+
+#: modules/mysql.py:583
+msgid "Invalid export path. Must be inside /var/www/html/"
+msgstr ""
+"Érvénytelen exportálási útvonal. A /var/www/html/ mappán belül kell lennie."
+
+#: modules/mysql.py:627
+msgid "Invalid export destination."
+msgstr "Érvénytelen exportálási cél."
+
+#: modules/php.py:180
+msgid "Invalid PHP version format"
+msgstr "Érvénytelen PHP-verzió formátum"
+
+#: modules/php.py:511
+msgid "PHP INFO"
+msgstr "PHP INFO"
+
+#: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57
+msgid "phpMyAdmin is currently unavailable. Please contact support."
+msgstr ""
+"A phpMyAdmin jelenleg nem elérhető. Kérjük, forduljon az ügyfélszolgálathoz."
+
+#: modules/phpmyadmin.py:64
+msgid "Failed to generate autologin token."
+msgstr "Nem sikerült automatikus bejelentkezési tokent létrehozni."
+
+#: modules/pm2.py:457 modules/website_builder.py:238 modules/wordpress.py:1334
+msgid "You have reached the maximum number of sites allowed."
+msgstr "Elérte a maximálisan engedélyezett webhelyek számát."
+
+#: modules/pm2.py:487
+msgid "Missing required fields domain or service_name"
+msgstr "Hiányzó kötelező mezők: domain vagy service_name"
+
+#: modules/pm2.py:597
+msgid "Only Python and NodeJS are currently supported!"
+msgstr "Jelenleg csak a Python és a NodeJS támogatott!"
+
+#: modules/pm2.py:637
+msgid "docker-compose.yml file does not exist, contact support!"
+msgstr ""
+"A docker-compose.yml fájl nem létezik, forduljon az ügyfélszolgálathoz!"
+
+#: modules/pm2.py:650
+msgid "'networks:' section not found in docker-compose.yml."
+msgstr "A 'networks:' szakasz nem található a docker-compose.yml fájlban."
+
+#: modules/pm2.py:728
+msgid "Container failed to start. Please check allocated resources."
+msgstr ""
+"A tároló nem indult el. Kérjük, ellenőrizze a hozzárendelt erőforrásokat."
+
+#: modules/pm2.py:1006
+msgid ", "
+msgstr ", "
+
+#: modules/postgresql.py:155
+msgid "Failed to create user: "
+msgstr "Nem sikerült létrehozni a felhasználót: "
+
+#: modules/process_manager.py:74
+msgid "No PID provided"
+msgstr "Nincs PID megadva"
+
+#: modules/process_manager.py:77
+msgid "PID not found or not allowed"
+msgstr "PID nem található vagy nem engedélyezett"
+
+#: modules/process_manager.py:84
+msgid "Invalid PID"
+msgstr "Érvénytelen PID"
+
+#: modules/process_manager.py:91
+msgid "Process killed successfully"
+msgstr "A folyamat sikeresen megszakítva"
+
+#: modules/services.py:21
+msgid "Docker compose file not found."
+msgstr "A Docker Compose fájl nem található."
+
+#: modules/services.py:28
+msgid "Error reading services."
+msgstr "Hiba a szolgáltatások olvasásakor."
+
+#: modules/services.py:83
+msgid "Try restart."
+msgstr "Próbálja meg újraindítani."
+
+#: modules/usage.py:24
+msgid "No resource usage data available yet. Please try again later"
+msgstr ""
+"Még nincsenek erőforrás-felhasználási adatok. Kérjük, próbálja újra később."
+
+#: modules/usage.py:27
+msgid "An error occurred while fetching resource usage."
+msgstr "Hiba történt az erőforrás-felhasználás lekérésekor."
+
+#: modules/waf.py:73
+msgid "Invalid type. Must be 'tags' or 'ids'."
+msgstr "Érvénytelen típus. 'tags' vagy 'ids' értéknek kell lennie."
+
+#: modules/waf.py:356
+#, python-format
+msgid "WAF is disabled for %(domain)s."
+msgstr "A WAF le van tiltva a %(domain)s domén esetén."
+
+#: modules/waf.py:362
+#, python-format
+msgid "WAF is disabled for %(count)d domains."
+msgstr "A WAF le van tiltva %(count)d domain esetén."
+
+#: modules/website_builder.py:122
+msgid "Website detached successfully!"
+msgstr "A weboldal sikeresen leválasztva!"
+
+#: modules/website_builder.py:127
+msgid "An error occurred during website detachment."
+msgstr "Hiba történt a weboldal leválasztása során."
+
+#: modules/website_builder.py:307
+msgid "Error: .htaccess file already exists. Website creation cannot proceed!"
+msgstr ""
+"Hiba: a .htaccess fájl már létezik. A weboldal létrehozása nem folytatható!"
+
+#: modules/website_builder.py:308
+#, python-brace-format
+msgid ""
+"Error: index.html file already exists in {install_path} - Website creation "
+"cannot proceed!"
+msgstr ""
+"Hiba: az index.html fájl már létezik a(z) {install_path} helyen – A weboldal"
+" létrehozása nem folytatható!"
+
+#: modules/website_builder.py:309
+#, python-brace-format
+msgid ""
+"Error: index.php file already exists in {install_path} - Website creation "
+"cannot proceed!"
+msgstr ""
+"Hiba: az index.php fájl már létezik a(z) {install_path} helyen – A weboldal "
+"létrehozása nem folytatható!"
+
+#: modules/websites.py:66
+msgid "Failed to contact Google Safe Browsing API"
+msgstr "Nem sikerült kapcsolódni a Google Safe Browsing API-hoz"
+
+#: modules/websites.py:277
+msgid "Invalid website parameter"
+msgstr "Érvénytelen weboldal-paraméter"
+
+#: modules/websites.py:388
+msgid "Invalid container name"
+msgstr "Érvénytelen tárolónév"
+
+#: modules/websites.py:407
+msgid "Unsupported install type"
+msgstr "Nem támogatott telepítési típus"
+
+#: modules/websites.py:424
+msgid ""
+"Invalid install type. Use 'pip' for Python apps and 'npm' or 'pnpm' for "
+"NodeJS."
+msgstr ""
+"Érvénytelen telepítési típus. Python alkalmazásokhoz használjon 'pip'-et, "
+"NodeJS-hez 'npm'-et vagy 'pnpm'-et."
+
+#: modules/websites.py:428
+msgid "Requirements installed successfully."
+msgstr "A szükséges csomagok sikeresen telepítve."
+
+#: modules/websites.py:428
+msgid "NPM packages installed successfully."
+msgstr "Az NPM-csomagok sikeresen telepítve."
+
+#: modules/websites.py:435
+msgid "An error occurred while installing requirements."
+msgstr "Hiba történt a szükséges csomagok telepítésekor."
+
+#: modules/websites.py:435
+msgid "An error occurred while installing NPM packages."
+msgstr "Hiba történt az NPM-csomagok telepítésekor."
+
+#: modules/websites.py:563
+msgid "Invalid docroot"
+msgstr "Érvénytelen dokumentumgyökér"
+
+#: modules/wordpress.py:308
+msgid "Document root is not provided or invalid."
+msgstr "A dokumentumgyökér nincs megadva vagy érvénytelen."
+
+#: modules/wordpress.py:401
+msgid "No matching tables found"
+msgstr "Nem találhatók egyező táblák"
+
+#: modules/wordpress.py:504
+msgid "Config file not found"
+msgstr "A konfigurációs fájl nem található"
+
+#: modules/wordpress.py:542
+msgid "Hardening rules have been successfully applied to the website"
+msgstr "A biztonsági megerősítési szabályok sikeresen alkalmazva a weboldalon"
+
+#: modules/wordpress.py:544
+msgid "Failed to apply hardening rules to the website - please try again"
+msgstr ""
+"Nem sikerült alkalmazni a biztonsági megerősítési szabályokat a weboldalon –"
+" kérjük, próbálja újra"
+
+#: modules/wordpress.py:574
+msgid "You have reached the maximum number of sites allowed"
+msgstr "Elérte a maximálisan engedélyezett webhelyek számát"
+
+#: modules/wordpress.py:591
+msgid "Missing required form fields"
+msgstr "Hiányzó kötelező űrlapmezők"
+
+#: modules/wordpress.py:610
+msgid "Destination domain not found in database"
+msgstr "A céldomain nem található az adatbázisban"
+
+#: modules/wordpress.py:613
+msgid ""
+"An error occurred fetching docroot for destination domain from database."
+msgstr ""
+"Hiba történt a céldomain dokumentumgyökerének lekérésekor az adatbázisból."
+
+#: modules/wordpress.py:624
+msgid "Invalid input or unsafe docroot"
+msgstr "Érvénytelen bemenet vagy nem biztonságos dokumentumgyökér"
+
+#: modules/wordpress.py:1663
+msgid "Please ensure your plan has sufficient resources to start the service."
+msgstr ""
+"Kérjük, győződjön meg arról, hogy a csomagjának elegendő erőforrása van a "
+"szolgáltatás elindításához."
+
+#: modules/wordpress.py:1977
+msgid "Domain is not provided."
+msgstr "A domain nincs megadva."
+
+#: modules/wordpress.py:2033
+msgid "php_version could not be determined"
+msgstr "A php_version nem határozható meg"
+
+#: modules/wordpress.py:2057
+msgid "Admin username could not be obtained"
+msgstr "A rendszergazdai felhasználónév nem szerezhető be"
+
+#: modules/wordpress.py:2057
+msgid "Please try login manually to wp-admin."
+msgstr "Kérjük, próbáljon meg manuálisan bejelentkezni a wp-admin oldalra."
+
+#: modules/wordpress.py:2060
+msgid "No administrator users found"
+msgstr "Nem találhatók rendszergazdai felhasználók"
+
+#: modules/wordpress.py:2149
+msgid "Unsupported action"
+msgstr "Nem támogatott művelet"
+
+#: modules/wordpress.py:2171
+msgid "Use 'enable' or 'disable'"
+msgstr "Használja az 'enable' vagy 'disable' parancsot"
+
+#: modules/wordpress.py:2191
+msgid "Cache flushed successfully."
+msgstr "A gyorsítótár sikeresen törölve."
+
+#: modules/wordpress.py:2198
+msgid "Invalid type"
+msgstr "Érvénytelen típus"
+
+#: modules/account/activity.py:72
+msgid "Activity"
+msgstr "Tevékenység"
+
+#: modules/account/favorites.py:35
+msgid "Link and title must be provided"
+msgstr "A hivatkozás és a cím megadása kötelező"
+
+#: modules/account/favorites.py:41
+msgid "Favorite list is full"
+msgstr "A kedvencek listája tele van"
+
+#: modules/account/favorites.py:55
+msgid "No link provided"
+msgstr "Nincs hivatkozás megadva"
+
+#: modules/account/locale.py:44
+msgid "locale"
+msgstr "területi beállítás"
+
+#: modules/account/login.py:110
+msgid "Too many failed login attempts. Please try again later."
+msgstr ""
+"Túl sok sikertelen bejelentkezési kísérlet. Kérjük, próbálja újra később."
+
+#: modules/account/login.py:130
+msgid "Autologin failed: Invalid username."
+msgstr "Az automatikus bejelentkezés sikertelen: érvénytelen felhasználónév."
+
+#: modules/account/login.py:268
+msgid "CAPTCHA validation failed. Please try again."
+msgstr "A CAPTCHA-ellenőrzés sikertelen. Kérjük, próbálja újra."
+
+#: modules/account/notifications.py:204
+msgid "Notification preferences updated successfully!"
+msgstr "Az értesítési beállítások sikeresen frissítve!"
+
+#: modules/account/passkeys.py:73 templates/user/passkeys.html:10
+msgid "Passkeys"
+msgstr ""
+
+#: modules/account/passkeys.py:116
+msgid "Registration session expired. Please try again."
+msgstr ""
+
+#: modules/account/passkeys.py:147
+#, python-format
+msgid "A new passkey \"%(name)s\" was added to your account."
+msgstr ""
+
+#: modules/account/passkeys.py:167
+msgid "Passkey removed."
+msgstr ""
+
+#: modules/account/passkeys.py:169
+msgid "Passkey not found."
+msgstr ""
+
+#: modules/account/passkeys.py:197
+msgid "Login session expired. Please try again."
+msgstr ""
+
+#: modules/account/passkeys.py:205 modules/account/passkeys.py:210
+msgid "Invalid passkey response."
+msgstr ""
+
+#: modules/account/passkeys.py:222
+msgid "Passkey not recognized."
+msgstr ""
+
+#: modules/account/passkeys.py:228
+msgid "Account no longer exists."
+msgstr ""
+
+#: modules/account/sessions.py:66
+msgid "Session terminated successfully."
+msgstr ""
+
+#: modules/account/sessions.py:75
+msgid "Failed to terminate session or session already expired."
+msgstr ""
+
+#: modules/cache/memcached.py:19
+msgid ""
+"A high-performance, distributed in-memory key-value caching system designed "
+"to accelerate dynamic web applications."
+msgstr ""
+
+#: modules/cache/valkey.py:16 templates/dashboard/dashboard.html:172
+msgid "Valkey"
+msgstr ""
+
+#: modules/cache/valkey.py:17
+msgid ""
+"Valkey is an in-memory key/value store (a community-driven fork of Redis) "
+"used primarily as an application cache or fast, low-latency database."
+msgstr ""
+
+#: modules/cache/varnish.py:48
+msgid "Varnish is not running"
+msgstr ""
+
+#: modules/cache/varnish.py:238
+#, python-format
+msgid "Varnish cache is now %(status)s for domain %(domain)s"
+msgstr ""
+
+#: modules/core/errors.py:26
+msgid "Page not found"
+msgstr ""
+
+#: modules/core/errors.py:37
+msgid "Access is forbidden to this page"
+msgstr ""
+
+#: modules/core/errors.py:47
+msgid "File Too Large"
+msgstr ""
+
+#: modules/core/errors.py:58
+msgid "CSRF error"
+msgstr ""
+
+#: modules/core/search.py:33
+msgid "Unknown search type"
+msgstr ""
+
+#: modules/core/search.py:40 modules/core/search.py:43
+msgid "Feature not available"
+msgstr ""
+
+#: modules/domain/ssl.py:22
+#, python-format
+msgid "Failed to reload Caddy: %(error)s"
+msgstr ""
+
+#: modules/domain/ssl.py:29
+#, python-format
+msgid "SSL certificate generated successfully for %(domain)s."
+msgstr ""
+
+#: modules/domain/ssl.py:30
+msgid ""
+"Certificate was not generated yet. It may take a moment, please try again "
+"shortly."
+msgstr ""
+
+#: modules/domain/ssl.py:134
+msgid "Invalid action! Only AutoSSL or Custom are available."
+msgstr ""
+
+#: modules/domain/ssl.py:176
+msgid "No SSL certificate found for this domain."
+msgstr ""
+
+#: modules/files/backups.py:46
+msgid ""
+"A backup is currently in progress. Please wait until it finishes before "
+"saving settings. Or if you want to interrupt the backup process: stop and "
+"start the backup service."
+msgstr ""
+
+#: modules/files/backups.py:98
+msgid "Settings updated successfully."
+msgstr ""
+
+#: modules/files/backups.py:109
+msgid "Error updating settings."
+msgstr ""
+
+#: modules/files/backups.py:161 modules/files/backups.py:321
+msgid "no backup target configured"
+msgstr ""
+
+#: modules/files/backups.py:171 modules/files/backups.py:327
+msgid "multiple backup targets configured"
+msgstr ""
+
+#: modules/files/backups.py:233 modules/files/backups.py:261
+msgid "Destination"
+msgstr ""
+
+#: modules/files/backups.py:498
+msgid "Reindex already in progress."
+msgstr ""
+
+#: modules/files/backups.py:508
+msgid "Reindex started."
+msgstr ""
+
+#: modules/files/backups.py:641 modules/files/backups.py:727
+msgid "No backup file specified."
+msgstr ""
+
+#: modules/files/backups.py:646 modules/files/backups.py:731
+msgid "Invalid backup filename."
+msgstr ""
+
+#: modules/files/backups.py:676
+msgid "Full restore completed."
+msgstr ""
+
+#: modules/files/backups.py:681
+msgid "No database specified."
+msgstr ""
+
+#: modules/files/filemanager.py:82
+msgid "Error creating file: already exists."
+msgstr ""
+
+#: modules/files/filemanager.py:395
+msgid "Unsupported file format!"
+msgstr ""
+
+#: modules/files/filemanager.py:405
+#, python-format
+msgid "Extraction timed out after %(max_time)s minutes!"
+msgstr ""
+
+#: modules/files/filemanager.py:408
+msgid "Extraction failed."
+msgstr ""
+
+#: modules/files/filemanager.py:411
+#, python-format
+msgid "Error occurred during archive extraction: %(error)s"
+msgstr ""
+
+#: modules/files/filemanager.py:417
+#, python-format
+msgid "Error occurred before starting archive extraction: %(error)s"
+msgstr ""
+
+#: modules/files/filemanager.py:496
+msgid "File already exists: "
+msgstr ""
+
+#: modules/files/filemanager.py:680
+#, python-format
+msgid "Unexpected error: %(error)s"
+msgstr ""
+
+#: modules/files/filemanager.py:712
+msgid "File renamed successfully."
+msgstr ""
+
+#: modules/files/filemanager.py:716
+msgid ""
+"Error renaming item! Check permissions or if the new name already exists."
+msgstr ""
+
+#: modules/files/filemanager.py:718
+msgid "Unexpected error occurred."
+msgstr ""
+
+#: modules/files/filemanager.py:748
+msgid "Moved to Trash"
+msgstr ""
+
+#: modules/files/filemanager.py:761 modules/files/trash.py:327
+msgid "Deleted permanently"
+msgstr ""
+
+#: modules/files/filemanager.py:764
+#, python-format
+msgid "Delete failed: %(error)s"
+msgstr ""
+
+#: modules/files/filemanager.py:782
+msgid "Invalid permissions format."
+msgstr ""
+
+#: modules/files/filemanager.py:819
+#, python-format
+msgid "Permissions changed for %(count)d items."
+msgstr ""
+
+#: modules/files/filemanager.py:822
+#, python-format
+msgid "Error changing permissions for: %(files)s. Check ownership."
+msgstr ""
+
+#: modules/files/filemanager.py:835 modules/files/filemanager.py:893
+msgid "File name is empty"
+msgstr ""
+
+#: modules/files/filemanager.py:876
+msgid "Destination already exists"
+msgstr ""
+
+#: modules/files/filemanager.py:878
+msgid "Permission denied"
+msgstr ""
+
+#: modules/files/filemanager.py:925
+#, python-format
+msgid "Move failed: %(error)s"
+msgstr ""
+
+#: modules/files/filemanager.py:968 modules/files/filemanager.py:1128
+msgid "Editing this file type is not allowed."
+msgstr ""
+
+#: modules/files/filemanager.py:1003
+msgid "Error saving file."
+msgstr ""
+
+#: modules/files/filemanager.py:1020 modules/files/filemanager.py:1149
+msgid "Error accessing file size."
+msgstr ""
+
+#: modules/files/filemanager.py:1170
+msgid "Error opening file."
+msgstr ""
+
+#: modules/files/filemanager.py:1270 modules/files/trash.py:185
+msgid "Directory does not exist."
+msgstr ""
+
+#: modules/files/ftp.py:146
+msgid "FTP username not provided."
+msgstr ""
+
+#: modules/files/ftp.py:151
+msgid "FTP domain not provided."
+msgstr ""
+
+#: modules/files/ftp.py:160
+msgid "FTP path not provided."
+msgstr ""
+
+#: modules/files/ftp.py:165
+msgid "FTP password not provided."
+msgstr ""
+
+#: modules/files/ftp.py:257
+msgid "Missing new password"
+msgstr ""
+
+#: modules/files/trash.py:172
+msgid "Invalid directory."
+msgstr ""
+
+#: modules/files/trash.py:207
+msgid "Missing filename."
+msgstr ""
+
+#: modules/files/trash.py:220 modules/files/trash.py:293
+msgid "Invalid filename."
+msgstr ""
+
+#: modules/files/trash.py:231 modules/files/trash.py:305
+msgid "File or directory does not exist in Trash."
+msgstr ""
+
+#: modules/files/trash.py:235
+msgid ".trash_restore file is missing."
+msgstr ""
+
+#: modules/files/trash.py:254
+msgid "Original path not found in .trash_restore."
+msgstr ""
+
+#: modules/files/trash.py:263
+msgid "Restore path is outside your permitted data directory."
+msgstr ""
+
+#: modules/files/trash.py:276
+msgid "Restored from Trash"
+msgstr ""
+
+#: modules/files/trash.py:289
+msgid "Deletion of system file .trash_restore is not allowed."
+msgstr ""
+
+#: modules/files/trash.py:314
+msgid "Unsupported item type."
+msgstr ""
+
+#: modules/json/helpers.py:299
+msgid "Invalid action. Use start, stop, status, or restart."
+msgstr ""
+
+#: modules/json/helpers.py:554 modules/json/helpers.py:671
+msgid "Invalid folder path."
+msgstr ""
+
+#: modules/json/helpers.py:702
+msgid "Unexpected output format"
+msgstr ""
+
+#: modules/json/helpers.py:737
+msgid "Invalid request. Please specify a domain or database name."
+msgstr ""
+
+#: modules/mysqld/mysql_root_password.py:51
+msgid "Password changed but failed to restart MySQL."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:121
+msgid "A valid username is required - alphanumeric characters and '_' only."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:133
+msgid "Password is required."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:173 modules/mysqld/remote_mysql.py:211
+msgid "A valid username is required."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:185
+msgid "No changes made."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:173
+msgid "Extension is not installed, or is already enabled."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:178
+msgid "Extension is not installed, or is already disabled."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:259
+#, python-format
+msgid "Installing %(ext)s..."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:268
+msgid "Extensions installed, restarting PHP-FPM to apply changes..."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:270
+#, python-format
+msgid "Extensions installed: %(ext)s"
+msgstr ""
+
+#: modules/phpd/php_extensions.py:273
+msgid "Installation failed."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:275
+msgid "Installation timed out."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:287
+msgid ""
+"PHP extension management is only available for PHP-FPM, not for Litespeed."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:317 modules/phpd/php_extensions.py:399
+#, python-format
+msgid "Failed to start PHP %(version)s: %(error)s"
+msgstr ""
+
+#: modules/phpd/php_extensions.py:325
+msgid "Invalid extension name."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:333
+#, python-format
+msgid ""
+"Extension %(ext)s %(action)s, PHP %(version)s restarted to apply changes."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:336
+#, python-format
+msgid "Could not change extension %(ext)s: %(error)s"
+msgstr ""
+
+#: modules/phpd/php_extensions.py:357
+#, python-format
+msgid "PHP %(version)s Extensions"
+msgstr ""
+
+#: modules/phpd/php_extensions.py:367 modules/phpd/php_extensions.py:389
+msgid "Not available for Litespeed."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:394
+msgid "No valid extensions selected."
+msgstr ""
+
+#: modules/phpd/php_extensions.py:404
+msgid "Install queued..."
+msgstr ""
+
+#: modules/phpd/php_ini.py:80 modules/phpd/php_options.py:191
+#, python-format
+msgid "Syntax error in the PHP %(version)s ini file: %(error)s"
+msgstr ""
+
+#: modules/psql/postgresql_import.py:80
+msgid "Import feature is enabled for PostgreSQL."
+msgstr ""
+
+#: modules/sitemanager/temporary_links.py:71
+msgid "No redirect link found"
+msgstr ""
+
+#: templates/base.html:35
+msgid "Uploading"
+msgstr ""
+
+#: templates/base.html:36
+msgid "Loading"
+msgstr ""
+
+#: templates/base.html:37 templates/user/history_usage.html:148
+msgid "Warning"
+msgstr ""
+
+#: templates/base.html:38 templates/base.html:696
+#: templates/files/backup_restore.html:498
+#: templates/files/filemanager/modals/rename.html:17
+#: templates/mysql/databases.html:676
+msgid "Close"
+msgstr ""
+
+#: templates/base.html:42
+msgid "today"
+msgstr ""
+
+#: templates/base.html:43
+msgid "yesterday"
+msgstr ""
+
+#: templates/base.html:44
+msgid "1 second ago"
+msgstr ""
+
+#: templates/base.html:45
+#, python-format
+msgid "%%(n)s seconds ago"
+msgstr ""
+
+#: templates/base.html:46
+msgid "1 minute ago"
+msgstr ""
+
+#: templates/base.html:47
+#, python-format
+msgid "%%(n)s minutes ago"
+msgstr ""
+
+#: templates/base.html:48
+msgid "1 hour ago"
+msgstr ""
+
+#: templates/base.html:49
+#, python-format
+msgid "%%(n)s hours ago"
+msgstr ""
+
+#: templates/base.html:50
+msgid "1 day ago"
+msgstr ""
+
+#: templates/base.html:51
+#, python-format
+msgid "%%(n)s days ago"
+msgstr ""
+
+#: templates/base.html:52
+msgid "1 week ago"
+msgstr ""
+
+#: templates/base.html:53
+#, python-format
+msgid "%%(n)s weeks ago"
+msgstr ""
+
+#: templates/base.html:54
+msgid "last month"
+msgstr ""
+
+#: templates/base.html:55
+msgid "1 month ago"
+msgstr ""
+
+#: templates/base.html:56
+#, python-format
+msgid "%%(n)s months ago"
+msgstr ""
+
+#: templates/base.html:57
+msgid "last year"
+msgstr ""
+
+#: templates/base.html:58
+msgid "1 year ago"
+msgstr ""
+
+#: templates/base.html:59
+#, python-format
+msgid "%%(n)s years ago"
+msgstr ""
+
+#: templates/base.html:693
+msgid "Notification"
+msgstr ""
+
+#: templates/base.html:697
+msgid "Dismiss"
+msgstr ""
+
+#: templates/base.html:719
+msgid "Found a bug? Let us know"
+msgstr ""
+
+#: templates/cache/service.html:7 templates/cache/service.html:8
+#: templates/system/services.html:7 templates/system/services.html:8
+msgid "Running"
+msgstr ""
+
+#: templates/cache/service.html:9 templates/system/services.html:9
+msgid "Unhealthy"
+msgstr ""
+
+#: templates/cache/service.html:10 templates/system/services.html:10
+msgid "Starting"
+msgstr ""
+
+#: templates/cache/service.html:13 templates/system/services.html:13
+msgid "Restarting"
+msgstr ""
+
+#: templates/cache/service.html:14 templates/system/services.html:14
+msgid "Paused"
+msgstr ""
+
+#: templates/cache/service.html:15 templates/system/services.html:15
+msgid "Stopped"
+msgstr ""
+
+#: templates/cache/service.html:16 templates/system/services.html:16
+msgid "Removing"
+msgstr ""
+
+#: templates/cache/service.html:17 templates/system/services.html:17
+msgid "Dead"
+msgstr ""
+
+#: templates/cache/service.html:53 templates/system/services.html:72
+msgid "Current service status."
+msgstr ""
+
+#: templates/cache/service.html:98
+msgid "Varnish Cache"
+msgstr ""
+
+#: templates/cache/service.html:99
+msgid "Real-time cache performance and efficiency metrics."
+msgstr ""
+
+#: templates/dashboard/custom_section.html:22
+#: templates/dashboard/dashboard.html:70
+msgid "Hide icons"
+msgstr ""
+
+#: templates/dashboard/custom_section.html:22
+#: templates/dashboard/dashboard.html:70
+msgid "Show icons"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:27
+msgid "Want a quick guided tour of OpenPanel?"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:28 templates/partials/_footer.html:64
+msgid "Take the tour"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:30
+msgid "Skip"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:34
+msgid "Icons position"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:35
+msgid "Top"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:149
+msgid "Change root password"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:184
+msgid "Default Address"
+msgstr ""
+
+#: templates/dashboard/dashboard.html:186
+msgid "Address Exporter"
+msgstr ""
+
+#: templates/dashboard/usage.html:335
+msgid "Disk usage is at"
+msgstr ""
+
+#: templates/dashboard/usage.html:335 templates/dashboard/usage.html:342
+#: templates/dashboard/usage.html:381 templates/dashboard/usage.html:388
+msgid "of your limit."
+msgstr ""
+
+#: templates/dashboard/usage.html:342
+msgid "Inodes usage is at"
+msgstr ""
+
+#: templates/dashboard/usage.html:381
+msgid "CPU usage is at"
+msgstr ""
+
+#: templates/dashboard/usage.html:388
+msgid "RAM usage is at"
+msgstr ""
+
+#: templates/docker/container_form.html:81
+msgid ""
+"Name is used to identify the container, and is used by other services to "
+"connect."
+msgstr ""
+
+#: templates/docker/container_form.html:104
+msgid "Numeric value"
+msgstr ""
+
+#: templates/docker/container_form.html:112
+msgid "Example: 1G"
+msgstr ""
+
+#: templates/docker/container_form.html:137
+#: templates/docker/container_form.html:167
+msgid "Read-only"
+msgstr ""
+
+#: templates/docker/container_form.html:165
+msgid "Path inside container"
+msgstr ""
+
+#: templates/docker/containers.html:18 templates/docker/containers.html:263
+msgid "cores"
+msgstr ""
+
+#: templates/docker/containers.html:257 templates/docker/containers.html:309
+msgid "Usage:"
+msgstr ""
+
+#: templates/docker/containers.html:262 templates/docker/containers.html:313
+msgid "Allocated:"
+msgstr ""
+
+#: templates/docker/containers.html:267
+msgid "Max CPUs that this service can use. 0 = unlimited"
+msgstr ""
+
+#: templates/docker/containers.html:320
+msgid "Max Memory that this service can use. 0 = unlimited"
+msgstr ""
+
+#: templates/docker/containers.html:347
+msgid "Pull & Start"
+msgstr ""
+
+#: templates/docker/containers.html:563
+msgid "is reaching its CPU/RAM limit."
+msgstr ""
+
+#: templates/docker/containers.html:565
+msgid "are reaching their CPU/RAM limit."
+msgstr ""
+
+#: templates/docker/containers.html:567
+msgid "containers are reaching their CPU/RAM limit."
+msgstr ""
+
+#: templates/docker/images.html:35
+msgid "Monitored Images"
+msgstr ""
+
+#: templates/docker/images.html:51
+msgid "Updates Available"
+msgstr ""
+
+#: templates/docker/images.html:65
+msgid "Minor Updates"
+msgstr ""
+
+#: templates/docker/images.html:78
+msgid "Major Updates"
+msgstr ""
+
+#: templates/docker/images.html:91
+msgid "Up to Date"
+msgstr ""
+
+#: templates/docker/images.html:159
+msgid "Update available"
+msgstr ""
+
+#: templates/docker/images.html:170
+msgid "Up to date"
+msgstr ""
+
+#: templates/docker/images.html:190
+msgid "New:"
+msgstr ""
+
+#: templates/docker/images.html:191
+msgid "From:"
+msgstr ""
+
+#: templates/docker/images.html:192
+msgid "To:"
+msgstr ""
+
+#: templates/docker/images.html:195
+msgid "Digest updated"
+msgstr ""
+
+#: templates/docker/images.html:198
+msgid "Error:"
+msgstr ""
+
+#: templates/docker/logs.html:11
+msgid "View Docker container logs."
+msgstr ""
+
+#: templates/docker/logs.html:21
+msgid "-- Select container --"
+msgstr ""
+
+#: templates/docker/logs.html:29
+msgid "-- Lines --"
+msgstr ""
+
+#: templates/docker/logs.html:52
+msgid "Select a container to view its logs here."
+msgstr ""
+
+#: templates/docker/logs.html:59
+msgid "The log file is empty."
+msgstr ""
+
+#: templates/docker/logs.html:60
+msgid "Error fetching log data."
+msgstr ""
+
+#: templates/docker/terminal.html:33
+msgid ""
+"The terminal is interactive and executes commands as 'root' user inside the "
+"container."
+msgstr ""
+
+#: templates/docker/terminal.html:34
+msgid "Inactivity timeout:"
+msgstr ""
+
+#: templates/docker/terminal.html:56
+msgid "Shell type"
+msgstr ""
+
+#: templates/docker/terminal.html:67
+msgid "Reconnect"
+msgstr ""
+
+#: templates/docker/terminal.html:77 templates/docker/terminal.html:146
+msgid "Connecting…"
+msgstr ""
+
+#: templates/docker/terminal.html:146
+msgid "Connected"
+msgstr ""
+
+#: templates/docker/terminal.html:146
+msgid "Disconnected"
+msgstr ""
+
+#: templates/domains/capitalize.html:10
+msgid ""
+"You can customize your domain type case by clicking on the letter you want "
+"to change.(e.g. SuperDomainName.com)."
+msgstr ""
+
+#: templates/domains/dns.html:133
+msgid "TLSA"
+msgstr ""
+
+#: templates/domains/dns.html:147 templates/domains/dns.html:318
+msgid "Generate from existing SSL cert"
+msgstr ""
+
+#: templates/domains/dns.html:156
+msgid "Public key hash (SHA-256)"
+msgstr ""
+
+#: templates/domains/dns.html:163
+msgid "Full certificate hash (SHA-256)"
+msgstr ""
+
+#: templates/domains/dns.html:173
+msgid "Protocol"
+msgstr ""
+
+#: templates/domains/dns.html:202 templates/domains/dns.html:699
+msgid "An unexpected error occurred. Please try again."
+msgstr ""
+
+#: templates/domains/dns.html:232
+msgid "or use Generate button below"
+msgstr ""
+
+#: templates/domains/dns.html:308
+msgid "Fetching..."
+msgstr ""
+
+#: templates/domains/dns.html:329
+msgid "Custom certificate"
+msgstr ""
+
+#: templates/domains/dns.html:330
+msgid "Lets Encrypt certificate"
+msgstr ""
+
+#: templates/domains/dns.html:335
+msgid ""
+"Caddy autorenews Lets Encrypt certificates with a new keypair. This record "
+"will go stale after the next renewal — regenerate it then."
+msgstr ""
+
+#: templates/domains/dns.html:338
+msgid ""
+"Using a custom certificate. Regenerate this record whenever you replace the "
+"certificate."
+msgstr ""
+
+#: templates/domains/dns.html:356 templates/manager/wp/install.html:137
+msgid "Regenerate"
+msgstr ""
+
+#: templates/domains/dns.html:359
+msgid "Failed to fetch SSL certificate info."
+msgstr ""
+
+#: templates/domains/dns.html:652
+msgid "A CNAME record with this name already exists."
+msgstr ""
+
+#: templates/domains/dns.html:852
+msgid "An error occurred while saving the zone file."
+msgstr ""
+
+#: templates/domains/domains.html:222 templates/emails/deliverability.html:46
+#: templates/php/settings.html:176 templates/system/waf.html:67
+msgid "No domains yet."
+msgstr ""
+
+#: templates/domains/domains.html:222
+msgid "Add your first domain"
+msgstr ""
+
+#: templates/domains/domains.html:446
+msgid "0 of"
+msgstr ""
+
+#: templates/domains/domains.html:446
+msgid "row(s) selected."
+msgstr ""
+
+#: templates/domains/domains.html:457
+msgid "First page"
+msgstr ""
+
+#: templates/domains/domains.html:468
+msgid "Previous page"
+msgstr ""
+
+#: templates/domains/domains.html:476
+msgid "Next page"
+msgstr ""
+
+#: templates/domains/domains.html:484
+msgid "Last page"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:14
+msgid "Keep DNS records in sync with changing IP addresses via a token URL."
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:24
+msgid "Add Entry"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:38
+msgid "New entry"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:51 templates/domains/dynamic_dns.html:93
+#: templates/domains/dynamic_dns.html:168
+msgid "Subdomain"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:53
+msgid "Letters, numbers, hyphens only."
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:57
+msgid "Initial IP"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:59
+msgid "Will be updated automatically on first webcall."
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:84
+msgid "Edit entry"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:98
+#: templates/domains/dynamic_dns.html:170
+msgid "IP"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:109
+#: templates/domains/dynamic_dns.html:173
+msgid "Update URL"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:133
+msgid ""
+"This will remove the DNS record and invalidate the update token. This action"
+" cannot be undone."
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:151
+msgid "No Dynamic DNS entries yet"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:152
+msgid "Add an entry to get started."
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:161
+msgid "record"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:172
+msgid "Last Updated"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:190
+msgid "never"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:196 templates/mysql/wizard.html:139
+msgid "Copied!"
+msgstr ""
+
+#: templates/domains/dynamic_dns.html:196
+msgid "Copy URL"
+msgstr ""
+
+#: templates/domains/ssl.html:46
+msgid "Generate now"
+msgstr ""
+
+#: templates/domains/ssl.html:61
+msgid "Switch to Let's Encrypt and generate"
+msgstr ""
+
+#: templates/domains/ssl.html:105
+msgid "Valid From:"
+msgstr ""
+
+#: templates/domains/ssl.html:106
+msgid "Valid To:"
+msgstr ""
+
+#: templates/domains/ssl.html:107
+msgid "Issuer:"
+msgstr ""
+
+#: templates/domains/ssl.html:108
+msgid "Subject:"
+msgstr ""
+
+#: templates/domains/ssl.html:109
+msgid "Serial Number:"
+msgstr ""
+
+#: templates/domains/ssl.html:110
+msgid "Signature Algorithm:"
+msgstr ""
+
+#: templates/domains/ssl.html:182 templates/domains/ssl.html:188
+msgid "SSL certificate for"
+msgstr ""
+
+#: templates/domains/ssl.html:182
+msgid "has expired."
+msgstr ""
+
+#: templates/domains/ssl.html:188
+msgid "expires in"
+msgstr ""
+
+#: templates/domains/ssl.html:188
+msgid "days."
+msgstr ""
+
+#: templates/domains/ssl.html:209
+#, python-format
+msgid "No SSL certificate is configured for %(domain)s."
+msgstr ""
+
+#: templates/domains/vhost.html:164
+msgid "Potential syntax issues were found:"
+msgstr ""
+
+#: templates/domains/vhost.html:165
+msgid "Do you want to save anyway?"
+msgstr ""
+
+#: templates/domains/partials/_no_domain.html:3
+msgid "No domains yet"
+msgstr ""
+
+#: templates/domains/partials/_no_domain.html:4
+msgid "Add your first domain to get started"
+msgstr ""
+
+#: templates/domains/partials/_no_domain.html:5
+msgid "New domain"
+msgstr ""
+
+#: templates/emails/accounts.html:29 templates/mysql/databases.html:373
+#: templates/mysql/databases.html:379 templates/mysql/databases.html:437
+msgid "Export"
+msgstr ""
+
+#: templates/emails/accounts.html:54
+msgid "No emails yet."
+msgstr ""
+
+#: templates/emails/accounts.html:54
+msgid "Add your first email"
+msgstr ""
+
+#: templates/emails/accounts.html:131
+#, python-format
+msgid "Email %(addr)s is reaching its quota (%(percent)s%%)."
+msgstr ""
+
+#: templates/emails/accounts.html:137
+#, python-format
+msgid "Emails %(addrs)s are reaching their quota."
+msgstr ""
+
+#: templates/emails/accounts.html:143
+#, python-format
+msgid "%(n)s emails are reaching their quota."
+msgstr ""
+
+#: templates/emails/alias_delete.html:10
+msgid "Permanently delete this alias and all its destinations."
+msgstr ""
+
+#: templates/emails/alias_delete.html:17
+msgid ""
+"Click the button below to permanently delete the alias. Mail sent to this "
+"address will no longer be forwarded."
+msgstr ""
+
+#: templates/emails/alias_delete.html:63
+msgid "Failed to delete alias."
+msgstr ""
+
+#: templates/emails/alias_delete.html:78
+msgid "Select Alias"
+msgstr ""
+
+#: templates/emails/alias_delete.html:79
+msgid "Select an alias to delete."
+msgstr ""
+
+#: templates/emails/alias_delete.html:90
+msgid "Select alias"
+msgstr ""
+
+#: templates/emails/alias_detail.html:8
+msgid "Manage Alias"
+msgstr ""
+
+#: templates/emails/alias_detail.html:13 templates/emails/alias_new.html:55
+msgid "Back to Aliases"
+msgstr ""
+
+#: templates/emails/alias_detail.html:24
+msgid "Current destinations"
+msgstr ""
+
+#: templates/emails/alias_detail.html:32
+#: templates/emails/alias_detail.html:209 templates/emails/aliases.html:46
+#: templates/emails/default_address.html:82
+msgid "Delivers to"
+msgstr ""
+
+#: templates/emails/alias_detail.html:52
+#: templates/emails/alias_detail.html:164
+msgid "No destinations configured for this alias yet."
+msgstr ""
+
+#: templates/emails/alias_detail.html:60
+msgid "Add destination"
+msgstr ""
+
+#: templates/emails/alias_detail.html:69
+msgid "New destination address"
+msgstr ""
+
+#: templates/emails/alias_detail.html:75 templates/emails/alias_new.html:43
+msgid "destination@example.com"
+msgstr ""
+
+#: templates/emails/alias_detail.html:79
+msgid "Add another address that this alias should forward to."
+msgstr ""
+
+#: templates/emails/alias_detail.html:89
+msgid "Add Destination"
+msgstr ""
+
+#: templates/emails/alias_detail.html:99
+#: templates/emails/default_address.html:143
+msgid "Danger zone"
+msgstr ""
+
+#: templates/emails/alias_detail.html:105
+msgid "Delete this alias"
+msgstr ""
+
+#: templates/emails/alias_detail.html:106
+msgid "Removes the alias address and all its destinations permanently."
+msgstr ""
+
+#: templates/emails/alias_detail.html:148
+#: templates/emails/default_address.html:214
+msgid "Removing..."
+msgstr ""
+
+#: templates/emails/alias_detail.html:168
+msgid "Failed to remove destination."
+msgstr ""
+
+#: templates/emails/alias_detail.html:190
+msgid "Adding..."
+msgstr ""
+
+#: templates/emails/alias_detail.html:221
+msgid "Failed to add destination."
+msgstr ""
+
+#: templates/emails/alias_new.html:7
+msgid "Create an Alias"
+msgstr ""
+
+#: templates/emails/alias_new.html:8
+msgid "Forward mail from an alias address to any destination."
+msgstr ""
+
+#: templates/emails/alias_new.html:32
+msgid "Alias address"
+msgstr ""
+
+#: templates/emails/alias_new.html:34
+msgid "alias"
+msgstr ""
+
+#: templates/emails/alias_new.html:37
+msgid ""
+"Emails sent to this address will be forwarded to the destination below."
+msgstr ""
+
+#: templates/emails/alias_new.html:42
+#: templates/emails/default_address.html:110
+msgid "Destination address"
+msgstr ""
+
+#: templates/emails/alias_new.html:44
+msgid "Can be any email address (on this server or external)."
+msgstr ""
+
+#: templates/emails/alias_new.html:58
+msgid "Create Alias"
+msgstr ""
+
+#: templates/emails/aliases.html:12
+msgid "Total aliases:"
+msgstr ""
+
+#: templates/emails/aliases.html:45
+msgid "From (alias)"
+msgstr ""
+
+#: templates/emails/aliases.html:55
+msgid "No aliases yet."
+msgstr ""
+
+#: templates/emails/aliases.html:57
+msgid "Add your first alias"
+msgstr ""
+
+#: templates/emails/confirm_import.html:143 templates/psql/import.html:52
+msgid "Importing..."
+msgstr ""
+
+#: templates/emails/confirm_import.html:215
+#: templates/emails/confirm_import.html:236
+msgid "Retry Import"
+msgstr ""
+
+#: templates/emails/default_address.html:10
+#: templates/emails/default_address.html:58
+msgid "Default Email Address"
+msgstr ""
+
+#: templates/emails/default_address.html:11
+msgid ""
+"Catch any email that is sent to an invalid email address for your domain."
+msgstr ""
+
+#: templates/emails/default_address.html:74
+msgid "Current configuration"
+msgstr ""
+
+#: templates/emails/default_address.html:81
+msgid "Catch-all rule"
+msgstr ""
+
+#: templates/emails/default_address.html:95
+msgid ""
+"No catch-all configured — unmatched emails for this domain are rejected."
+msgstr ""
+
+#: templates/emails/default_address.html:102
+msgid "Set catch-all destination"
+msgstr ""
+
+#: templates/emails/default_address.html:117
+msgid "catchall@example.com"
+msgstr ""
+
+#: templates/emails/default_address.html:118
+msgid "No spaces allowed, use commas to separate addresses."
+msgstr ""
+
+#: templates/emails/default_address.html:122
+msgid ""
+"All emails sent to any address at this domain will be forwarded here. Leave "
+"empty to reject unmatched emails."
+msgstr ""
+
+#: templates/emails/default_address.html:149
+msgid "Remove catch-all"
+msgstr ""
+
+#: templates/emails/default_address.html:150
+msgid ""
+"Deletes the catch-all rule. Emails to unknown addresses at this domain will "
+"be rejected."
+msgstr ""
+
+#: templates/emails/default_address.html:156
+msgid "Remove Catch-all"
+msgstr ""
+
+#: templates/emails/default_address.html:187
+msgid "Saving..."
+msgstr ""
+
+#: templates/emails/default_address.html:210
+msgid ""
+"Remove the catch-all for this domain? Emails to unknown addresses will be "
+"rejected."
+msgstr ""
+
+#: templates/emails/default_address.html:222
+msgid "Failed to remove catch-all."
+msgstr ""
+
+#: templates/emails/deliverability.html:11
+msgid "Check SPF, DKIM and DMARC DNS records for your domains."
+msgstr ""
+
+#: templates/emails/deliverability.html:62
+msgid "Details"
+msgstr ""
+
+#: templates/emails/deliverability.html:107
+msgid "has SPF/DKIM/DMARC problems."
+msgstr ""
+
+#: templates/emails/deliverability.html:109
+msgid "have SPF/DKIM/DMARC problems."
+msgstr ""
+
+#: templates/emails/deliverability.html:111
+msgid "domains have SPF/DKIM/DMARC problems."
+msgstr ""
+
+#: templates/emails/deliverability_domain.html:13
+msgid "Back to Deliverability"
+msgstr ""
+
+#: templates/emails/deliverability_domain.html:21
+msgid "Checking DNS records..."
+msgstr ""
+
+#: templates/emails/deliverability_domain.html:57
+msgid "Expected"
+msgstr ""
+
+#: templates/emails/deliverability_domain.html:80
+msgid "Failed to check DNS records."
+msgstr ""
+
+#: templates/emails/filter.html:11
+msgid "Select an email address to manage its Sieve filters."
+msgstr ""
+
+#: templates/emails/filter.html:47
+msgid "Sieve filters for"
+msgstr ""
+
+#: templates/emails/filter.html:54
+msgid "Visual editor"
+msgstr ""
+
+#: templates/emails/filter.html:59
+msgid "File editor"
+msgstr ""
+
+#: templates/emails/filter.html:69
+msgid "Rules are applied in order, top to bottom."
+msgstr ""
+
+#: templates/emails/filter.html:74
+msgid "Add filter"
+msgstr ""
+
+#: templates/emails/filter.html:81
+msgid "No filters yet."
+msgstr ""
+
+#: templates/emails/filter.html:84
+msgid "Create first filter"
+msgstr ""
+
+#: templates/emails/filter.html:94
+msgid "Filter name…"
+msgstr ""
+
+#: templates/emails/filter.html:98
+msgid "Move up"
+msgstr ""
+
+#: templates/emails/filter.html:102
+msgid "Move down"
+msgstr ""
+
+#: templates/emails/filter.html:106
+msgid "Remove filter"
+msgstr ""
+
+#: templates/emails/filter.html:116
+msgid "If"
+msgstr ""
+
+#: templates/emails/filter.html:119
+msgid "any"
+msgstr ""
+
+#: templates/emails/filter.html:120
+msgid "all"
+msgstr ""
+
+#: templates/emails/filter.html:122
+msgid "of these match:"
+msgstr ""
+
+#: templates/emails/filter.html:129
+msgid "From"
+msgstr ""
+
+#: templates/emails/filter.html:130
+msgid "Subject"
+msgstr ""
+
+#: templates/emails/filter.html:131
+msgid "To"
+msgstr ""
+
+#: templates/emails/filter.html:132
+msgid "Any recipient"
+msgstr ""
+
+#: templates/emails/filter.html:133
+msgid "Body"
+msgstr ""
+
+#: templates/emails/filter.html:134
+msgid "Any header"
+msgstr ""
+
+#: templates/emails/filter.html:135
+msgid "Spam status"
+msgstr ""
+
+#: templates/emails/filter.html:136
+msgid "Spam score"
+msgstr ""
+
+#: templates/emails/filter.html:137
+msgid "List ID"
+msgstr ""
+
+#: templates/emails/filter.html:141
+msgid "contains"
+msgstr ""
+
+#: templates/emails/filter.html:142
+msgid "does not contain"
+msgstr ""
+
+#: templates/emails/filter.html:143
+msgid "equals"
+msgstr ""
+
+#: templates/emails/filter.html:144
+msgid "begins with"
+msgstr ""
+
+#: templates/emails/filter.html:145
+msgid "ends with"
+msgstr ""
+
+#: templates/emails/filter.html:146
+msgid "matches regex"
+msgstr ""
+
+#: templates/emails/filter.html:147
+msgid "does not match regex"
+msgstr ""
+
+#: templates/emails/filter.html:149
+msgid "Value…"
+msgstr ""
+
+#: templates/emails/filter.html:152
+msgid "Remove condition"
+msgstr ""
+
+#: templates/emails/filter.html:156
+msgid "Add condition"
+msgstr ""
+
+#: templates/emails/filter.html:166
+msgid "Then:"
+msgstr ""
+
+#: templates/emails/filter.html:172
+msgid "Deliver to folder"
+msgstr ""
+
+#: templates/emails/filter.html:173
+msgid "Redirect to email"
+msgstr ""
+
+#: templates/emails/filter.html:174
+msgid "Forward to email (keep copy)"
+msgstr ""
+
+#: templates/emails/filter.html:175
+msgid "Discard message"
+msgstr ""
+
+#: templates/emails/filter.html:176
+msgid "Reject with message"
+msgstr ""
+
+#: templates/emails/filter.html:177
+msgid "Mark as read"
+msgstr ""
+
+#: templates/emails/filter.html:178
+msgid "Flag / star"
+msgstr ""
+
+#: templates/emails/filter.html:179
+msgid "Auto-responder (vacation)"
+msgstr ""
+
+#: templates/emails/filter.html:180
+msgid "Stop processing"
+msgstr ""
+
+#: templates/emails/filter.html:189
+#, python-brace-format
+msgid "Subject, e.g. Re: ${subjectwas}"
+msgstr ""
+
+#: templates/emails/filter.html:191
+msgid "Auto-reply message…"
+msgstr ""
+
+#: templates/emails/filter.html:194
+msgid "Reply at most once every"
+msgstr ""
+
+#: templates/emails/filter.html:197
+msgid "day(s) per sender"
+msgstr ""
+
+#: templates/emails/filter.html:202
+msgid "Remove action"
+msgstr ""
+
+#: templates/emails/filter.html:206
+msgid "Add action"
+msgstr ""
+
+#: templates/emails/filter.html:223
+msgid "Save filters"
+msgstr ""
+
+#: templates/emails/filter.html:241
+msgid "Save file"
+msgstr ""
+
+#: templates/emails/filter.html:304
+msgid "Folder name, e.g. Junk"
+msgstr ""
+
+#: templates/emails/filter.html:307
+msgid "Rejection message…"
+msgstr ""
+
+#: templates/emails/filter.html:308
+msgid "Flag, e.g. \\\\Flagged"
+msgstr ""
+
+#: templates/emails/info.html:11
+msgid "How to setup your email client"
+msgstr ""
+
+#: templates/emails/info.html:22
+msgid "Use the email account's password."
+msgstr ""
+
+#: templates/emails/new.html:195
+msgid "Storage quota"
+msgstr ""
+
+#: templates/emails/new.html:215
+msgid "Set to 0 for unlimited."
+msgstr ""
+
+#: templates/error_pages/error.html:21
+msgid "Click to view a"
+msgstr ""
+
+#: templates/files/backup_restore.html:103
+msgid "Restore & Download"
+msgstr ""
+
+#: templates/files/backup_restore.html:110
+msgid "Indexing..."
+msgstr ""
+
+#: templates/files/backup_restore.html:114
+msgid "Restore or download backups from destination."
+msgstr ""
+
+#: templates/files/backup_restore.html:126
+msgid "Reindex Destination"
+msgstr ""
+
+#: templates/files/backup_restore.html:152
+msgid "Search backups..."
+msgstr ""
+
+#: templates/files/backup_restore.html:166
+msgid "Backup File"
+msgstr ""
+
+#: templates/files/backup_restore.html:169
+msgid "Contents"
+msgstr ""
+
+#: templates/files/backup_restore.html:271
+msgid "Indexing destination, please wait..."
+msgstr ""
+
+#: templates/files/backup_restore.html:274
+msgid "No backups indexed yet"
+msgstr ""
+
+#: templates/files/backup_restore.html:279
+msgid "Click \"Reindex Destination\" to fetch available backups."
+msgstr ""
+
+#: templates/files/backup_restore.html:313
+msgid "Restore Backup"
+msgstr ""
+
+#: templates/files/backup_restore.html:332
+msgid "Restoring will overwrite existing data. This action cannot be undone."
+msgstr ""
+
+#: templates/files/backup_restore.html:338
+msgid "What to restore"
+msgstr ""
+
+#: templates/files/backup_restore.html:346
+msgid "Specific database only"
+msgstr ""
+
+#: templates/files/backup_restore.html:350
+msgid "Files only (no databases)"
+msgstr ""
+
+#: templates/files/backup_restore.html:357
+msgid "Select database"
+msgstr ""
+
+#: templates/files/backup_restore.html:377
+msgid "Restore completed successfully."
+msgstr ""
+
+#: templates/files/backup_restore.html:388
+msgid "Restore failed."
+msgstr ""
+
+#: templates/files/backup_restore.html:415
+msgid "Restoring..."
+msgstr ""
+
+#: templates/files/backup_restore.html:448
+msgid "Download Backup"
+msgstr ""
+
+#: templates/files/backup_restore.html:461
+msgid ""
+"The backup archive will be fetched from the destination and downloaded to "
+"your browser."
+msgstr ""
+
+#: templates/files/backup_restore.html:464
+msgid "Large files may take a moment to transfer."
+msgstr ""
+
+#: templates/files/backup_restore.html:475
+msgid "Download started."
+msgstr ""
+
+#: templates/files/backup_restore.html:484
+msgid "Download failed."
+msgstr ""
+
+#: templates/files/backup_restore.html:514
+msgid "Downloading..."
+msgstr ""
+
+#: templates/files/edit_file.html:127
+msgid "Open in File Manager"
+msgstr ""
+
+#: templates/files/edit_file.html:194
+msgid "You have unsaved changes. Leave anyway?"
+msgstr ""
+
+#: templates/files/filemanager.html:429
+msgid "has no permissions (0000) and cannot be accessed."
+msgstr ""
+
+#: templates/files/filemanager.html:431
+msgid "have no permissions (0000) and cannot be accessed."
+msgstr ""
+
+#: templates/files/filemanager.html:433
+msgid "files have no permissions (0000) and cannot be accessed."
+msgstr ""
+
+#: templates/files/ftp.html:77
+msgid "No accounts yet."
+msgstr ""
+
+#: templates/files/ftp.html:77
+msgid "Add your first account"
+msgstr ""
+
+#: templates/files/ftp_connections.html:27
+msgid "No active connections"
+msgstr ""
+
+#: templates/files/ftp_connections.html:28
+msgid "There are no active FTP sessions at this time."
+msgstr ""
+
+#: templates/files/ftp_password.html:165 templates/user/account.html:97
+msgid "Confirm New Password"
+msgstr ""
+
+#: templates/files/ftp_path.html:35
+msgid "Path must start with /var/www/html/"
+msgstr ""
+
+#: templates/files/ftp_path.html:36
+msgid "Path traversal (../) is not allowed"
+msgstr ""
+
+#: templates/files/upload_file.html:379
+msgid "Please enter a valid URL."
+msgstr ""
+
+#: templates/files/upload_file.html:405
+msgid "Unexpected server response from download endpoint."
+msgstr ""
+
+#: templates/files/upload_file.html:412
+msgid "Server did not return a download ID."
+msgstr ""
+
+#: templates/files/upload_file.html:425
+msgid "Error starting download:"
+msgstr ""
+
+#: templates/files/upload_file.html:432
+msgid "Network error during file download. Please try again."
+msgstr ""
+
+#: templates/files/upload_file.html:470
+msgid "Please select files to upload."
+msgstr ""
+
+#: templates/files/upload_file.html:549
+msgid "Files uploaded successfully!"
+msgstr ""
+
+#: templates/files/upload_file.html:559
+msgid "Error uploading file:"
+msgstr ""
+
+#: templates/files/upload_file.html:569
+msgid "Network error during file upload. Please try again."
+msgstr ""
+
+#: templates/files/clamav/quarantine.html:59
+msgid "Click here to start a new scan"
+msgstr ""
+
+#: templates/files/clamav/scanner.html:98
+msgid "Scan failed: "
+msgstr ""
+
+#: templates/files/filemanager/compress.html:5
+msgid "Compress items"
+msgstr ""
+
+#: templates/files/filemanager/drag_and_drop.html:153
+#, python-format
+msgid "Uploading %%(count)s files"
+msgstr ""
+
+#: templates/files/filemanager/drag_and_drop.html:169
+msgid "Upload successful!"
+msgstr ""
+
+#: templates/files/filemanager/drag_and_drop.html:175
+msgid "Upload failed:"
+msgstr ""
+
+#: templates/files/filemanager/drag_and_drop.html:180
+msgid "Upload error. Please try again."
+msgstr ""
+
+#: templates/files/filemanager/inline_js.html:15
+msgid "Calculating..."
+msgstr ""
+
+#: templates/files/filemanager/table.html:47
+msgid "Go Up"
+msgstr ""
+
+#: templates/manager/pm2_install.html:96
+msgid "Application details"
+msgstr ""
+
+#: templates/manager/pm2_install.html:300
+#: templates/manager/websitebuilder_install.html:32
+#: templates/manager/wp/install.html:66
+msgid "Domain & location"
+msgstr ""
+
+#: templates/manager/pm2_install.html:319
+#: templates/manager/websitebuilder_install.html:47
+#: templates/manager/wp/install.html:81
+msgid "subfolder"
+msgstr ""
+
+#: templates/manager/pm2_install.html:322
+#: templates/manager/websitebuilder_install.html:50
+#: templates/manager/wp/install.html:84
+msgid "Leave subfolder blank to install at the domain root"
+msgstr ""
+
+#: templates/manager/pm2_install.html:360
+msgid "Service name in reverse-proxy:"
+msgstr ""
+
+#: templates/manager/pm2_install.html:399
+msgid "Startup file"
+msgstr ""
+
+#: templates/manager/pm2_install.html:460
+msgid ""
+"When enabled, this option will first run npm install using the package.json "
+"file, then launch the application."
+msgstr ""
+
+#: templates/manager/pm2_install.html:470
+msgid "Advanced options"
+msgstr ""
+
+#: templates/manager/pm2_install.html:481
+msgid "CPU & memory limits"
+msgstr ""
+
+#: templates/manager/pm2_install.html:483
+msgid "optional · click to review"
+msgstr ""
+
+#: templates/manager/pm2_install.html:490
+msgid "CPU cores"
+msgstr ""
+
+#: templates/manager/pm2_install.html:504
+msgid "Memory (GB)"
+msgstr ""
+
+#: templates/manager/pm2_install.html:523
+#: templates/manager/websitebuilder_install.html:62
+#: templates/manager/wp/install.html:216
+msgid "← Back"
+msgstr ""
+
+#: templates/manager/pm2_install.html:540
+msgid ""
+"Checks for already running install processes and validates the submitted "
+"form data."
+msgstr ""
+
+#: templates/manager/pm2_install.html:542
+#: templates/manager/wp/install.html:235
+msgid "Running pre-flight checks"
+msgstr ""
+
+#: templates/manager/pm2_install.html:546
+msgid ""
+"Generates the docker-compose service entry for the application and writes "
+"its environment variables to the .env file."
+msgstr ""
+
+#: templates/manager/pm2_install.html:548
+msgid "Adding service to docker-compose.yml"
+msgstr ""
+
+#: templates/manager/pm2_install.html:552
+msgid ""
+"Starts the application container and verifies it is running before "
+"continuing."
+msgstr ""
+
+#: templates/manager/pm2_install.html:554
+msgid "Starting application container"
+msgstr ""
+
+#: templates/manager/pm2_install.html:558
+msgid ""
+"Detects the installed webserver (Apache, Nginx, LiteSpeed or OpenResty) and "
+"creates the reverse-proxy configuration for the domain."
+msgstr ""
+
+#: templates/manager/pm2_install.html:560
+msgid "Configuring reverse proxy"
+msgstr ""
+
+#: templates/manager/pm2_install.html:564
+msgid ""
+"Restarts the webserver container so the new reverse-proxy configuration is "
+"applied."
+msgstr ""
+
+#: templates/manager/pm2_install.html:566
+msgid "Restarting webserver"
+msgstr ""
+
+#: templates/manager/pm2_install.html:570
+msgid ""
+"Records the new application in the database so it appears in Site Manager."
+msgstr ""
+
+#: templates/manager/pm2_install.html:572
+#: templates/manager/websitebuilder_install.html:99
+#: templates/manager/wp/install.html:307
+msgid "Saving to Site Manager"
+msgstr ""
+
+#: templates/manager/pm2_install.html:594
+msgid "Setting up application"
+msgstr ""
+
+#: templates/manager/pm2_install.html:599
+#: templates/manager/wp/install.html:334
+msgid "Install process hanged for"
+msgstr ""
+
+#: templates/manager/pm2_install.html:609
+#: templates/manager/wp/install.html:344
+msgid "Install process failed for"
+msgstr ""
+
+#: templates/manager/pm2_install.html:829
+#: templates/manager/websitebuilder_install.html:365
+#: templates/manager/wp/install.html:589
+msgid "Connection lost during installation."
+msgstr ""
+
+#: templates/manager/websitebuilder.html:195
+msgid "Generate a backup of website files."
+msgstr ""
+
+#: templates/manager/websitebuilder.html:219
+msgid "Restore website files from a previous backup."
+msgstr ""
+
+#: templates/manager/websitebuilder.html:256
+msgid "Remove the website from WP Manager."
+msgstr ""
+
+#: templates/manager/websitebuilder.html:288
+msgid "Permanently delete the website and all its files."
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:79
+msgid ""
+"Creates the destination folder and writes the initial index.html and "
+"style.css files."
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:81
+msgid "Creating files"
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:85
+msgid ""
+"Sets file permissions to 755 so the web server and PHP can read and serve "
+"them."
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:87
+msgid "Setting file permissions"
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:91
+msgid "Sets ownership of all files to the correct system user."
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:93
+msgid "Setting file ownership"
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:97
+msgid "Records the new website in the database so it appears in Site Manager."
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:122
+msgid "Building website for"
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:127
+msgid "Build process hanged for"
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:137
+msgid "Build process failed for"
+msgstr ""
+
+#: templates/manager/websitebuilder_install.html:321
+msgid "Creating website. Please wait for the process to finish."
+msgstr ""
+
+#: templates/manager/wp/_secure.html:4
+msgid "Security Measures"
+msgstr ""
+
+#: templates/manager/wp/_secure.html:5
+msgid ""
+"Server-level restrictions to harden your WordPress instance. Rules are "
+"applied at the webserver level before PHP processing."
+msgstr ""
+
+#: templates/manager/wp/_secure.html:47
+msgid "How it works"
+msgstr ""
+
+#: templates/manager/wp/_secure.html:87
+msgid "Apply Changes"
+msgstr ""
+
+#: templates/manager/wp/_vulnerabilities.html:41
+msgid "No vulnerabilities found"
+msgstr ""
+
+#: templates/manager/wp/install.html:32
+msgid "Site details"
+msgstr ""
+
+#: templates/manager/wp/install.html:38
+msgid "Website name"
+msgstr ""
+
+#: templates/manager/wp/install.html:46
+msgid "Tagline"
+msgstr ""
+
+#: templates/manager/wp/install.html:49
+msgid "Just another WordPress site"
+msgstr ""
+
+#: templates/manager/wp/install.html:56
+msgid "WordPress version"
+msgstr ""
+
+#: templates/manager/wp/install.html:96
+msgid "Admin credentials"
+msgstr ""
+
+#: templates/manager/wp/install.html:97
+msgid "auto-generated"
+msgstr ""
+
+#: templates/manager/wp/install.html:173
+msgid "Database settings"
+msgstr ""
+
+#: templates/manager/wp/install.html:175
+msgid "auto-generated · click to review"
+msgstr ""
+
+#: templates/manager/wp/install.html:182
+msgid "Database name"
+msgstr ""
+
+#: templates/manager/wp/install.html:189
+msgid "Table prefix"
+msgstr ""
+
+#: templates/manager/wp/install.html:196
+msgid "DB username"
+msgstr ""
+
+#: templates/manager/wp/install.html:203
+msgid "DB password"
+msgstr ""
+
+#: templates/manager/wp/install.html:233
+msgid ""
+"Validates provided data, checks if install already exists, fetches PHP "
+"version and folder for the domain. Checks the assigned PHP version and "
+"webservers, confirms the containers are available, and starts them if "
+"needed."
+msgstr ""
+
+#: templates/manager/wp/install.html:239
+msgid ""
+"Downloads the WordPress .tar.gz archive from wordpress.org, or reuses a "
+"local copy if already present."
+msgstr ""
+
+#: templates/manager/wp/install.html:241
+msgid "Downloading WordPress archive"
+msgstr ""
+
+#: templates/manager/wp/install.html:245
+msgid "Extracts all WordPress core files into the domain folder."
+msgstr ""
+
+#: templates/manager/wp/install.html:247
+msgid "Extracting files to document root"
+msgstr ""
+
+#: templates/manager/wp/install.html:251
+msgid ""
+"Creates the .htaccess file with rewrite rules, adds database credentials to "
+"wp-config.php, and adds the mu-plugin for HTTPS behind Varnish."
+msgstr ""
+
+#: templates/manager/wp/install.html:253
+msgid "Creating .htaccess & writing wp-config.php"
+msgstr ""
+
+#: templates/manager/wp/install.html:257
+msgid ""
+"Generates 8 unique cryptographic secret keys and salts and writes them into "
+"wp-config.php to secure cookies and sessions."
+msgstr ""
+
+#: templates/manager/wp/install.html:259
+msgid "Generating security keys & salts"
+msgstr ""
+
+#: templates/manager/wp/install.html:263
+msgid ""
+"Sets ownership of all files to the correct system user so the web server and"
+" PHP can read and write them."
+msgstr ""
+
+#: templates/manager/wp/install.html:265
+msgid "Setting file permissions & ownership"
+msgstr ""
+
+#: templates/manager/wp/install.html:269
+msgid ""
+"Runs wp --info inside the PHP container to confirm WP-CLI is functional "
+"before attempting any database operations."
+msgstr ""
+
+#: templates/manager/wp/install.html:271
+msgid "Testing WP-CLI commands"
+msgstr ""
+
+#: templates/manager/wp/install.html:275
+msgid ""
+"Verifies the MySQL/MariaDB container is running, then creates the database, "
+"user, and grants all privileges."
+msgstr ""
+
+#: templates/manager/wp/install.html:277
+msgid "Creating database & MySQL user"
+msgstr ""
+
+#: templates/manager/wp/install.html:281
+msgid ""
+"Runs wp core install via WP-CLI to create all WordPress tables, set the site"
+" URL, title, and admin account."
+msgstr ""
+
+#: templates/manager/wp/install.html:283
+msgid "Importing tables into database"
+msgstr ""
+
+#: templates/manager/wp/install.html:287
+msgid "Sets pretty permalink structure and the site tagline."
+msgstr ""
+
+#: templates/manager/wp/install.html:289
+msgid "Configuring permalinks & site settings"
+msgstr ""
+
+#: templates/manager/wp/install.html:293
+msgid ""
+"Installs the WP-CLI Login Command package so you can jump directly into wp-"
+"admin from WP Manager without entering credentials."
+msgstr ""
+
+#: templates/manager/wp/install.html:295
+msgid "Installing auto-login plugin"
+msgstr ""
+
+#: templates/manager/wp/install.html:299
+msgid ""
+"Checks for server-wide or user-specific plugins and themes sets and installs"
+" them via WP-CLI."
+msgstr ""
+
+#: templates/manager/wp/install.html:301
+msgid "Checking and installing plugins & themes sets"
+msgstr ""
+
+#: templates/manager/wp/install.html:305
+msgid ""
+"Records the installation in the database so the site appears in WP Manager."
+msgstr ""
+
+#: templates/manager/wp/install.html:329
+msgid "Install in progress for"
+msgstr ""
+
+#: templates/manager/wp/single.html:40
+msgid "Failed to load users"
+msgstr ""
+
+#: templates/manager/wp/single.html:52
+msgid "Choose admin user"
+msgstr ""
+
+#: templates/manager/wp/single.html:62
+msgid "Loading admin users..."
+msgstr ""
+
+#: templates/manager/wp/single.html:68
+msgid "No administrator users found."
+msgstr ""
+
+#: templates/manager/wp/single.html:212
+msgid "WordPress:"
+msgstr ""
+
+#: templates/manager/wp/single.html:224
+msgid "PHP:"
+msgstr ""
+
+#: templates/manager/wp/single.html:230
+msgid "Click to change"
+msgstr ""
+
+#: templates/manager/wp/single.html:239
+#, python-format
+msgid "Inherits PHP version from %(domain)s"
+msgstr ""
+
+#: templates/manager/wp/single.html:266
+msgid "MySQL:"
+msgstr ""
+
+#: templates/manager/wp/single.html:364
+msgid "Auto-login link:"
+msgstr ""
+
+#: templates/manager/wp/single.html:369
+msgid "Unexpected response from WP-CLI."
+msgstr ""
+
+#: templates/manager/wp/single.html:372
+msgid "Error parsing backend response."
+msgstr ""
+
+#: templates/manager/wp/single.html:375
+msgid "Failed to get login link. Server returned status"
+msgstr ""
+
+#: templates/manager/wp/single.html:681
+msgid "Pingbacks and Trackbacks"
+msgstr ""
+
+#: templates/manager/wp/single.html:778
+msgid "Failed to get options. Server returned status"
+msgstr ""
+
+#: templates/manager/wp/single.html:938
+msgid "An error occurred while verifying checksums."
+msgstr ""
+
+#: templates/manager/wp/single.html:987
+msgid "An error occurred while verifying plugins checksums."
+msgstr ""
+
+#: templates/manager/wp/single.html:1247
+msgid "Error checking maintenance mode"
+msgstr ""
+
+#: templates/manager/wp/single.html:1261
+msgid "Maintenance mode is now enabled."
+msgstr ""
+
+#: templates/manager/wp/single.html:1263
+msgid "Maintenance mode is now disabled."
+msgstr ""
+
+#: templates/manager/wp/single.html:1316
+msgid "Update now"
+msgstr ""
+
+#: templates/manager/wp/single.html:1869
+msgid "Database name and user to use for the clone (optional)"
+msgstr ""
+
+#: templates/manager/wp/single.html:1888
+msgid "Database user"
+msgstr ""
+
+#: templates/manager/wp/single.html:1902
+msgid "User password"
+msgstr ""
+
+#: templates/manager/wp/single.html:1936
+msgid "Cloning..."
+msgstr ""
+
+#: templates/manager/wp/single.html:1960
+msgid "Clone Complete"
+msgstr ""
+
+#: templates/manager/wp/single.html:1964
+msgid "Try Again"
+msgstr ""
+
+#: templates/manager/wp/single.html:1970
+msgid "Retry Clone"
+msgstr ""
+
+#: templates/manager/wp/single.html:1986
+msgid "Generate a backup of files and/or database."
+msgstr ""
+
+#: templates/manager/wp/single.html:2018
+msgid "Restore files and/or database from a backup."
+msgstr ""
+
+#: templates/manager/wp/single.html:2056
+msgid "website from WP Manager."
+msgstr ""
+
+#: templates/manager/wp/single.html:2067
+msgid "All website data such as files, crons and database remains."
+msgstr ""
+
+#: templates/manager/wp/single.html:2090
+msgid "Permanently delete WordPress files & database."
+msgstr ""
+
+#: templates/manager/wp/single.html:2100
+msgid "Delete the"
+msgstr ""
+
+#: templates/manager/wp/single.html:2100
+msgid "website and all its files and database."
+msgstr ""
+
+#: templates/manager/wp/single.html:2293
+msgid "MariaDB:"
+msgstr ""
+
+#: templates/manager/wp/single.html:2377
+msgid "Update failed."
+msgstr ""
+
+#: templates/mysql/_error.html:4
+msgid "Is database service running?"
+msgstr ""
+
+#: templates/mysql/_error.html:5
+msgid "Error Establishing a Database Connection"
+msgstr ""
+
+#: templates/mysql/_error.html:10
+msgid "Manage Container"
+msgstr ""
+
+#: templates/mysql/_error.html:12
+msgid "Contact Administrator"
+msgstr ""
+
+#: templates/mysql/assign.html:8
+msgid "Manage User Privileges"
+msgstr ""
+
+#: templates/mysql/assign.html:63
+msgid "Select privileges:"
+msgstr ""
+
+#: templates/mysql/assign.html:97
+msgid "Make Changes"
+msgstr ""
+
+#: templates/mysql/databases.html:37
+msgid "Show database sizes"
+msgstr ""
+
+#: templates/mysql/databases.html:224
+msgid "Manage privileges"
+msgstr ""
+
+#: templates/mysql/databases.html:391
+msgid "Format:"
+msgstr ""
+
+#: templates/mysql/databases.html:411
+msgid "Destination:"
+msgstr ""
+
+#: templates/mysql/databases.html:417
+msgid "Browser"
+msgstr ""
+
+#: templates/mysql/databases.html:451
+msgid "Optimize"
+msgstr ""
+
+#: templates/mysql/databases.html:464
+msgid "Repair"
+msgstr ""
+
+#: templates/mysql/databases.html:576
+msgid "No databases yet."
+msgstr ""
+
+#: templates/mysql/databases.html:576
+msgid "Create your first database"
+msgstr ""
+
+#: templates/mysql/databases.html:582 templates/mysql/users.html:164
+msgid ""
+"Service is unhealthy. Try restarting it from Services, or contact your "
+"administrator."
+msgstr ""
+
+#: templates/mysql/databases.html:589 templates/mysql/users.html:172
+msgid "Service is active, but the databases are still initializing."
+msgstr ""
+
+#: templates/mysql/databases.html:603 templates/mysql/users.html:187
+msgid "Service installation is underway and may take up to one minute."
+msgstr ""
+
+#: templates/mysql/databases.html:611 templates/mysql/users.html:196
+msgid ""
+"Service has been created but not yet started. Start it from the Services "
+"page."
+msgstr ""
+
+#: templates/mysql/databases.html:613 templates/mysql/users.html:198
+msgid ""
+"Service is restarting. This may indicate a configuration error or a crash — "
+"check the logs on the Services page."
+msgstr ""
+
+#: templates/mysql/databases.html:615 templates/mysql/users.html:200
+msgid "Service is paused. Resume it from the Services page."
+msgstr ""
+
+#: templates/mysql/databases.html:617 templates/mysql/users.html:202
+msgid ""
+"Service has stopped. This is usually caused by resource exhaustion — "
+"increase resource limits for this service and then restart it from the "
+"Services page."
+msgstr ""
+
+#: templates/mysql/databases.html:619 templates/mysql/users.html:204
+msgid "Service is being deleted. Please wait for the process to complete."
+msgstr ""
+
+#: templates/mysql/databases.html:621 templates/mysql/users.html:206
+msgid ""
+"Service has crashed and cannot recover. This is usually caused by resource "
+"exhaustion — check the logs on the Services page."
+msgstr ""
+
+#: templates/mysql/databases.html:623 templates/mysql/users.html:208
+msgid "Unable to retrieve service status. Please contact your administrator."
+msgstr ""
+
+#: templates/mysql/databases.html:636 templates/mysql/users.html:221
+msgid "The page will refresh in"
+msgstr ""
+
+#: templates/mysql/databases.html:656 templates/psql/databases.html:202
+#, python-format
+msgid "Database %(db)s has no users assigned."
+msgstr ""
+
+#: templates/mysql/databases.html:662 templates/psql/databases.html:208
+#, python-format
+msgid "Databases %(dbs)s have no users assigned."
+msgstr ""
+
+#: templates/mysql/databases.html:668 templates/psql/databases.html:214
+#, python-format
+msgid "%(n)s databases have no users assigned."
+msgstr ""
+
+#: templates/mysql/databases.html:677
+msgid "Running.."
+msgstr ""
+
+#: templates/mysql/databases.html:678
+msgid "Run again"
+msgstr ""
+
+#: templates/mysql/databases.html:679
+msgid "Run"
+msgstr ""
+
+#: templates/mysql/databases.html:680
+msgid "Done"
+msgstr ""
+
+#: templates/mysql/databases.html:681
+msgid "error(s)"
+msgstr ""
+
+#: templates/mysql/databases.html:682
+msgid "No tables in this database."
+msgstr ""
+
+#: templates/mysql/databases.html:683
+msgid "Loading tables.."
+msgstr ""
+
+#: templates/mysql/databases.html:684
+msgid "Pending"
+msgstr ""
+
+#: templates/mysql/databases.html:686
+msgid "database"
+msgstr ""
+
+#: templates/mysql/databases.html:687
+msgid "Table"
+msgstr ""
+
+#: templates/mysql/mysql_user.html:9
+msgid ""
+"Create a new user with a unique username and password to securely manage "
+"access and permissions for interacting with databases or the database "
+"server."
+msgstr ""
+
+#: templates/mysql/new.html:9
+msgid ""
+"Create a new database to store and organize data, providing a foundational "
+"structure for applications to manage and retrieve information efficiently."
+msgstr ""
+
+#: templates/mysql/processlist.html:97
+msgid "No active processes."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:12
+msgid ""
+"Enable remote access to connect to a database on this server from a another "
+"(remote) device or location over the internet."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:17
+msgid "Disable Remote Database Access"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:17
+msgid "Enable Remote Database Access"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:38
+msgid "Remote access to databases is currently:"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:142
+msgid "Per-User Access"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:143
+msgid "Control which hosts each MySQL user is allowed to connect from."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:149
+msgid "Add Access"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:159
+msgid "Existing or new username"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:162
+msgid "Allowed Host"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:170
+msgid ""
+"If the username already exists, the new host inherits its existing database "
+"privileges."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:171
+msgid "Grant Access"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:181
+msgid "Allowed From"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:220
+msgid "No MySQL users found."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:236 templates/mysql/remote_mysql.html:241
+msgid "Confirm?"
+msgstr ""
+
+#: templates/mysql/users.html:3 templates/psql/users.html:3
+msgid "Database Users"
+msgstr ""
+
+#: templates/mysql/users.html:158
+msgid "No users yet."
+msgstr ""
+
+#: templates/mysql/users.html:158
+msgid "Create your first user"
+msgstr ""
+
+#: templates/mysql/wizard.html:42
+msgid "Setup complete"
+msgstr ""
+
+#: templates/mysql/wizard.html:44
+msgid "Save these credentials, the password cannot be retrieved later."
+msgstr ""
+
+#: templates/mysql/wizard.html:49
+msgid "Credentials"
+msgstr ""
+
+#: templates/mysql/wizard.html:74
+msgid "Server"
+msgstr ""
+
+#: templates/mysql/wizard.html:128
+msgid "Configuration Code"
+msgstr ""
+
+#: templates/mysql/wizard.html:145
+msgid "Download snippet"
+msgstr ""
+
+#: templates/mysql/wizard.html:161
+msgid "View Databases"
+msgstr ""
+
+#: templates/mysql/wizard.html:164
+msgid "Create Another"
+msgstr ""
+
+#: templates/mysql/wizard.html:363 templates/psql/wizard.html:259
+msgid "Creating..."
+msgstr ""
+
+#: templates/partials/_footer.html:5 templates/partials/_footer.html:9
+msgid "Collapse all"
+msgstr ""
+
+#: templates/partials/_footer.html:5 templates/partials/_footer.html:9
+msgid "Expand all"
+msgstr ""
+
+#: templates/partials/_footer.html:35
+msgid "Changelog"
+msgstr ""
+
+#: templates/partials/_footer.html:57
+msgid "Community Forums"
+msgstr ""
+
+#: templates/partials/_footer.html:69
+msgid "Sign out"
+msgstr ""
+
+#: templates/partials/_header.html:170 templates/partials/_header.html:247
+msgid "Right-click to remove from Favorites"
+msgstr ""
+
+#: templates/partials/_service.html:24
+msgid "Loading service data..."
+msgstr ""
+
+#: templates/partials/_service.html:28
+msgid "Service is not enabled."
+msgstr ""
+
+#: templates/partials/_service_log.html:62
+msgid "log contains"
+msgstr ""
+
+#: templates/partials/_service_log.html:62
+msgid "error line(s). Check the log."
+msgstr ""
+
+#: templates/partials/googlesafebrowsing.html:175
+msgid "Checking website status..."
+msgstr ""
+
+#: templates/partials/pagespeed.html:321
+msgid "Quota limit exceeded for Google PageSpeed API. Please add an API Key."
+msgstr ""
+
+#: templates/partials/screenshot.html:24
+msgid "Open site"
+msgstr ""
+
+#: templates/partials/screenshot.html:33
+msgid "Click to refresh screenshot"
+msgstr ""
+
+#: templates/partials/waf.html:81
+msgid "Firewall is active"
+msgstr ""
+
+#: templates/partials/waf.html:82
+msgid "Firewall is inactive"
+msgstr ""
+
+#: templates/partials/waf.html:83
+msgid "Error fetching firewall state"
+msgstr ""
+
+#: templates/partials/waf.html:84
+msgid "Error fetching WAF data (blocked/challenged) for the domain."
+msgstr ""
+
+#: templates/partials/waf.html:85
+msgid ""
+"An error occurred while updating the firewall status, please check console "
+"log."
+msgstr ""
+
+#: templates/partials/waf.html:86
+#, python-format
+msgid "Firewall for %%(domain)s is now %%(status)s"
+msgstr ""
+
+#: templates/php/extensions.html:14
+msgid ""
+"Enable or disable PHP extensions for this version, or install new ones. "
+"Toggling restarts the PHP-FPM service."
+msgstr ""
+
+#: templates/php/extensions.html:20
+msgid "Install extension"
+msgstr ""
+
+#: templates/php/extensions.html:57
+msgid "Disable"
+msgstr ""
+
+#: templates/php/extensions.html:57
+msgid "Enable"
+msgstr ""
+
+#: templates/php/extensions.html:64
+msgid "No extensions installed yet for this PHP version."
+msgstr ""
+
+#: templates/php/extensions.html:76
+msgid "Install PHP extensions"
+msgstr ""
+
+#: templates/php/extensions.html:77
+#, python-format
+msgid "Select extensions to install for PHP %(version)s."
+msgstr ""
+
+#: templates/php/extensions.html:83
+msgid "Install selected"
+msgstr ""
+
+#: templates/php/extensions.html:115
+msgid "All supported extensions are already installed."
+msgstr ""
+
+#: templates/php/extensions.html:127
+msgid "Failed to load available extensions."
+msgstr ""
+
+#: templates/php/extensions.html:150
+msgid "Installing extensions..."
+msgstr ""
+
+#: templates/php/extensions.html:162
+msgid "Failed to start installation."
+msgstr ""
+
+#: templates/php/extensions.html:191
+msgid "An extension install is in progress for this PHP version..."
+msgstr ""
+
+#: templates/php/extensions.html:205
+msgid "Enable, disable, or install PHP extensions per PHP version."
+msgstr ""
+
+#: templates/php/extensions.html:230
+msgid "Manage Extensions"
+msgstr ""
+
+#: templates/php/settings.html:76 templates/php/settings.html:97
+#: templates/php/settings.html:117 templates/php/settings.html:138
+msgid "domains"
+msgstr ""
+
+#: templates/php/settings.html:106 templates/php/settings.html:127
+msgid "Unsupported"
+msgstr ""
+
+#: templates/php/settings.html:152
+#, python-format
+msgid "%(n)s domains are running an outdated/unsupported PHP version."
+msgstr ""
+
+#: templates/psql/import.html:52
+msgid "Upload & Import"
+msgstr ""
+
+#: templates/psql/pgadmin.html:145
+msgid "Click to show/hide password"
+msgstr ""
+
+#: templates/psql/remove.html:28
+msgid "Select a Username"
+msgstr ""
+
+#: templates/psql/remove.html:39
+msgid "Select a Database"
+msgstr ""
+
+#: templates/psql/wizard.html:215
+msgid "Process completed!"
+msgstr ""
+
+#: templates/psql/wizard.html:226
+msgid "All fields are required"
+msgstr ""
+
+#: templates/psql/wizard.html:231
+msgid "Password can only contain letters, numbers, and underscores"
+msgstr ""
+
+#: templates/psql/wizard.html:235
+msgid "Password must be at least 8 characters long"
+msgstr ""
+
+#: templates/psql/wizard.html:283
+msgid "Retry creating Database and User"
+msgstr ""
+
+#: templates/psql/wizard.html:285
+msgid "An error occurred while creating the database."
+msgstr ""
+
+#: templates/system/cronjobs.html:150
+msgid "cron log entries contain errors. Check the logs."
+msgstr ""
+
+#: templates/system/cronjobs.html:205
+msgid "Job"
+msgstr ""
+
+#: templates/system/cronjobs.html:207
+msgid "All jobs"
+msgstr ""
+
+#: templates/system/cronjobs.html:216
+msgid "Lines"
+msgstr ""
+
+#: templates/system/cronjobs.html:227
+msgid "Refresh"
+msgstr ""
+
+#: templates/system/cronjobs.html:237
+msgid "Fetching logs.."
+msgstr ""
+
+#: templates/system/cronjobs.html:244
+msgid "No log entries found."
+msgstr ""
+
+#: templates/system/cronjobs.html:263
+msgid "entries shown"
+msgstr ""
+
+#: templates/system/cronjobs.html:411
+msgid "view mode is unknown, only code and table are allowed"
+msgstr ""
+
+#: templates/system/cronjobs_new.html:50
+msgid "Expression Format"
+msgstr ""
+
+#: templates/system/ip_blocker.html:18
+msgid ""
+"This feature allows you to block a range of IP addresses to prevent them "
+"from accessing your websites."
+msgstr ""
+
+#: templates/system/ip_blocker.html:32
+msgid "Enter IP addresses or CIDRs (one per line)"
+msgstr ""
+
+#: templates/system/license_error.html:17
+msgid "OpenPanel Enterprise license key is invalid!"
+msgstr ""
+
+#: templates/system/license_error.html:21
+msgid "Verify License"
+msgstr ""
+
+#: templates/system/process_manager.html:54
+msgid "Service (Container name) in which the process is running."
+msgstr ""
+
+#: templates/system/process_manager.html:61
+msgid "The user ID running the process inside the container."
+msgstr ""
+
+#: templates/system/process_manager.html:68
+msgid "The Process ID (PID) of the process."
+msgstr ""
+
+#: templates/system/process_manager.html:75
+msgid ""
+"The Parent Process ID (PPID), which refers to the process ID of the parent "
+"process."
+msgstr ""
+
+#: templates/system/process_manager.html:82
+msgid "The CPU usage percentage for the process."
+msgstr ""
+
+#: templates/system/process_manager.html:89
+msgid "The start time of the process."
+msgstr ""
+
+#: templates/system/process_manager.html:96
+msgid ""
+"The terminal associated with the process. ? means that the process is "
+"running in the background."
+msgstr ""
+
+#: templates/system/process_manager.html:111
+msgid "The command that is running in the container."
+msgstr ""
+
+#: templates/system/process_manager.html:129
+msgid "No processes"
+msgstr ""
+
+#: templates/system/process_manager.html:176
+msgid "Terminating PID:"
+msgstr ""
+
+#: templates/system/process_manager.html:177
+msgid "PID:"
+msgstr ""
+
+#: templates/system/process_manager.html:178
+msgid "terminated"
+msgstr ""
+
+#: templates/system/process_manager.html:179
+msgid "Killing PID:"
+msgstr ""
+
+#: templates/system/process_manager.html:180
+msgid "failed"
+msgstr ""
+
+#: templates/system/server_info.html:78
+msgid "pgAdmin port"
+msgstr ""
+
+#: templates/system/waf_domain.html:76
+msgid "Enter rule IDs, space-separated"
+msgstr ""
+
+#: templates/system/waf_domain.html:161
+msgid "Enter tags, space-separated"
+msgstr ""
+
+#: templates/user/activity.html:57
+msgid "No logs yet."
+msgstr ""
+
+#: templates/user/activity.html:172
+msgid "Suspicious activity detected from IP"
+msgstr ""
+
+#: templates/user/activity.html:172
+msgid "(100+ actions in one minute)."
+msgstr ""
+
+#: templates/user/activity.html:174
+msgid "IPs show bot-like activity (100+ actions in one minute)."
+msgstr ""
+
+#: templates/user/favorites.html:58
+msgid "No favorites yet."
+msgstr ""
+
+#: templates/user/history_usage.html:95
+msgid "charts_mode must be set to either two or one!"
+msgstr ""
+
+#: templates/user/history_usage.html:105
+msgid "of"
+msgstr ""
+
+#: templates/user/history_usage.html:105 templates/user/history_usage.html:113
+msgid "items"
+msgstr ""
+
+#: templates/user/history_usage.html:138
+#, python-format
+msgid "CPU %%"
+msgstr ""
+
+#: templates/user/history_usage.html:140
+msgid "CPU Total"
+msgstr ""
+
+#: templates/user/history_usage.html:144
+msgid "Memory Used/Total"
+msgstr ""
+
+#: templates/user/history_usage.html:146
+msgid "Bandwidth Usage"
+msgstr ""
+
+#: templates/user/login.html:19
+msgid "username"
+msgstr ""
+
+#: templates/user/login.html:43
+msgid "Sign in with a passkey"
+msgstr ""
+
+#: templates/user/loginlog.html:77
+msgid "View activity log"
+msgstr ""
+
+#: templates/user/passkeys.html:11
+msgid ""
+"Sign in without a password using a fingerprint, face scan, screen lock, or a"
+" hardware security key."
+msgstr ""
+
+#: templates/user/passkeys.html:14
+msgid "Add a passkey"
+msgstr ""
+
+#: templates/user/passkeys.html:30
+msgid "Added"
+msgstr ""
+
+#: templates/user/passkeys.html:31
+msgid "Last used"
+msgstr ""
+
+#: templates/user/passkeys.html:42
+msgid "Remove this passkey?"
+msgstr ""
+
+#: templates/user/passkeys.html:52
+msgid "No passkeys registered yet."
+msgstr ""
+
+#: templates/user/passkeys.html:64
+msgid "Name this passkey (e.g. MacBook Touch ID) "
+msgstr ""
+
+#: templates/user/stats.html:39
+msgid "Total CPU allocation:"
+msgstr ""
+
+#: templates/user/stats.html:50
+msgid "Used Memory:"
+msgstr ""
+
+#: templates/user/stats.html:52
+msgid "Available Memory:"
+msgstr ""
+
+#: templates/user/stats.html:84
+msgid "No resource usage data available yet."
+msgstr ""
+
+#: templates/user/twofa_settings.html:81
+msgid ""
+"Scan the QR code with your 2FA device or click on the link below to display "
+"OTP code instead."
+msgstr ""

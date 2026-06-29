@@ -8817,3 +8817,3908 @@ msgstr "Resetează-ți parola"
 #: templates/user/reset_password/set_new_password.html:49
 msgid "Passwords do not match."
 msgstr "Parolele nu se potrivesc."
+
+#: app.py:524
+msgid "IP address mismatch. Please login again."
+msgstr "Adresa IP nu corespunde. Te rog autentifică-te din nou."
+
+#: app.py:556
+msgid ""
+"Two-Factor Authentication is required on this panel. Please enable it to "
+"continue."
+msgstr ""
+"Autentificarea în doi pași este obligatorie pe acest panou. Te rog "
+"activează-o pentru a continua."
+
+#: app.py:564
+msgid "Disabled in demo mode."
+msgstr "Dezactivat în modul demo."
+
+#: modules/crons.py:37
+msgid "Schedule is empty."
+msgstr "Programul este gol."
+
+#: modules/crons.py:44
+#, python-format
+msgid ""
+"Schedule \"%(schedule)s\" has only 5 fields, but this cron implementation "
+"requires 6 (seconds minutes hours day month weekday). Add one more field for"
+" seconds at the start."
+msgstr ""
+"Programul \"%(schedule)s\" are doar 5 câmpuri, dar această implementare cron"
+" necesită 6 (secunde minute ore zi lună ziuaSăptămânii). Adaugă un câmp "
+"suplimentar pentru secunde la început."
+
+#: modules/crons.py:45
+#, python-format
+msgid ""
+"Schedule \"%(schedule)s\" is invalid - expected 6 fields (seconds minutes "
+"hours day month weekday) or an @every/@daily-style descriptor."
+msgstr ""
+"Programul \"%(schedule)s\" este invalid – se așteptau 6 câmpuri (secunde "
+"minute ore zi lună ziuaSăptămânii) sau un descriptor de tip @every/@daily."
+
+#: modules/crons.py:60
+msgid "No cron container found"
+msgstr "Nu a fost găsit niciun container cron"
+
+#: modules/crons.py:67
+msgid "Invalid log path"
+msgstr "Cale invalidă pentru jurnal"
+
+#: modules/crons.py:71
+msgid "Log file not found"
+msgstr "Fișierul jurnal nu a fost găsit"
+
+#: modules/crons.py:74
+msgid "Job name too long"
+msgstr "Numele job-ului este prea lung"
+
+#: modules/crons.py:99
+msgid "Docker command timed out after 10 seconds"
+msgstr "Comanda Docker a expirat după 10 secunde"
+
+#: modules/crons.py:102
+msgid "Failed to fetch container log"
+msgstr "Nu s-a putut prelua jurnalul containerului"
+
+#: modules/crons.py:175
+msgid "Failed to fetch containers"
+msgstr "Nu s-au putut prelua containerele"
+
+#: modules/dns.py:140
+msgid "Serial number not provided. Please try again."
+msgstr "Numărul de serie nu a fost furnizat. Te rog încearcă din nou."
+
+#: modules/dns.py:151
+msgid ""
+"Serial number mismatch. Zone was edited by another user/program. Please try "
+"again."
+msgstr ""
+"Numărul de serie nu corespunde. Zona a fost editată de alt "
+"utilizator/program. Te rog încearcă din nou."
+
+#: modules/dns.py:340
+#, python-format
+msgid "Syntax error in the DNS zone file for %(domain)s: %(error)s"
+msgstr ""
+"Eroare de sintaxă în fișierul de zonă DNS pentru %(domain)s: %(error)s"
+
+#: modules/dns.py:578
+msgid "Failed - zone validation error"
+msgstr "Eșec – eroare de validare a zonei"
+
+#: modules/docker.py:175
+msgid ""
+"Missing environment variables. Please check the configuration or restore "
+"from backup."
+msgstr ""
+"Variabile de mediu lipsă. Te rog verifică configurația sau restaurează din "
+"backup."
+
+#: modules/docker.py:186
+msgid "Failed to fetch container data"
+msgstr "Nu s-au putut prelua datele containerului"
+
+#: modules/docker.py:228
+msgid "Invalid data format"
+msgstr "Format de date invalid"
+
+#: modules/docker.py:228
+msgid "docker_data does not contain 'services'."
+msgstr "docker_data nu conține 'services'."
+
+#: modules/docker.py:837
+msgid "Failed to stop the current mysql server."
+msgstr "Nu s-a putut opri serverul MySQL curent."
+
+#: modules/docker.py:839
+msgid "Invalid mysql server selected"
+msgstr "Server MySQL invalid selectat"
+
+#: modules/docker.py:884
+msgid "Failed to stop the current web server."
+msgstr "Nu s-a putut opri serverul web curent."
+
+#: modules/docker.py:886
+msgid "Invalid web server selected"
+msgstr "Server web invalid selectat"
+
+#: modules/docker.py:955
+msgid "Failed to stop the service in order to delete old image."
+msgstr "Nu s-a putut opri serviciul pentru a șterge imaginea veche."
+
+#: modules/docker.py:1116
+msgid "Error occurred!"
+msgstr "A apărut o eroare!"
+
+#: modules/domains.py:195
+msgid "Domain name is required"
+msgstr "Numele domeniului este obligatoriu"
+
+#: modules/domains.py:237
+msgid "Path for public file must start with /var/www/html/"
+msgstr "Calea pentru fișierul public trebuie să înceapă cu /var/www/html/"
+
+#: modules/domains.py:250
+msgid "Path for secret file must start with /var/www/html/"
+msgstr "Calea pentru fișierul secret trebuie să înceapă cu /var/www/html/"
+
+#: modules/dynamic_dns.py:132
+msgid "Dynamic DNS entry created."
+msgstr "Intrarea Dynamic DNS a fost creată."
+
+#: modules/dynamic_dns.py:144
+msgid "Dynamic DNS entry updated."
+msgstr "Intrarea Dynamic DNS a fost actualizată."
+
+#: modules/dynamic_dns.py:147
+msgid "Failed to update Dynamic DNS entry."
+msgstr "Nu s-a putut actualiza intrarea Dynamic DNS."
+
+#: modules/dynamic_dns.py:153
+msgid "Dynamic DNS entry deleted."
+msgstr "Intrarea Dynamic DNS a fost ștearsă."
+
+#: modules/dynamic_dns.py:156
+msgid "Failed to delete Dynamic DNS entry."
+msgstr "Nu s-a putut șterge intrarea Dynamic DNS."
+
+#: modules/dynamic_dns.py:168 templates/dashboard/dashboard.html:130
+#: templates/domains/dynamic_dns.html:12
+msgid "Dynamic DNS"
+msgstr "DNS Dinamic"
+
+#: modules/email_aliases.py:126 templates/dashboard/dashboard.html:181
+#: templates/emails/aliases.html:9
+msgid "Aliases"
+msgstr "Alias-uri"
+
+#: modules/email_aliases.py:168
+msgid "Error: a valid target email address is required."
+msgstr "Eroare: este necesară o adresă de email țintă validă."
+
+#: modules/email_aliases.py:245
+msgid "Error: target must be a valid email address."
+msgstr "Eroare: ținta trebuie să fie o adresă de email validă."
+
+#: modules/email_aliases.py:266 templates/emails/aliases.html:35
+msgid "New Alias"
+msgstr "Alias Nou"
+
+#: modules/email_aliases.py:288 templates/emails/alias_detail.html:108
+msgid "Delete Alias"
+msgstr "Șterge Alias"
+
+#: modules/email_default.py:60 modules/email_default.py:76
+msgid "Default Email"
+msgstr "Email Implicit"
+
+#: modules/email_deliverability.py:114 templates/dashboard/dashboard.html:183
+#: templates/emails/deliverability.html:9
+#: templates/emails/deliverability_domain.html:8
+msgid "Email Deliverability"
+msgstr "Livrabilitate Email"
+
+#: modules/email_filters.py:74 modules/email_filters.py:108
+msgid "No content provided."
+msgstr "Nu a fost furnizat niciun conținut."
+
+#: modules/email_filters.py:79 modules/email_filters.py:113
+msgid "Filter saved successfully."
+msgstr "Filtrul a fost salvat cu succes."
+
+#: modules/email_filters.py:81 modules/email_filters.py:115
+msgid "Error saving filter."
+msgstr "Eroare la salvarea filtrului."
+
+#: modules/ip_blocker.py:44
+msgid ""
+"IP addresses have been successfully added to blocklist and can no longer "
+"access websites"
+msgstr ""
+"Adresele IP au fost adăugate cu succes în lista de blocare și nu mai pot "
+"accesa site-urile"
+
+#: modules/ip_blocker.py:50
+msgid ""
+"All IP addresses have been successfully removed from blocklist and can now "
+"access websites"
+msgstr ""
+"Toate adresele IP au fost eliminate cu succes din lista de blocare și pot "
+"accesa acum site-urile"
+
+#: modules/ip_blocker.py:62
+msgid "Failed to block IP addresses - please try again"
+msgstr "Nu s-au putut bloca adresele IP – te rog încearcă din nou"
+
+#: modules/ip_blocker.py:65
+msgid "Error ocured blocking IP addresses - contact Administrator"
+msgstr ""
+"A apărut o eroare la blocarea adreselor IP – contactează Administratorul"
+
+#: modules/ip_blocker.py:81 templates/dashboard/dashboard.html:210
+#: templates/system/ip_blocker.html:15
+msgid "IP Blocker"
+msgstr "Blocator IP"
+
+#: modules/mautic.py:759 modules/pm2.py:552 modules/website_builder.py:282
+#: modules/wordpress.py:1517 modules/wordpress.py:2003
+msgid "Domain not found"
+msgstr "Domeniul nu a fost găsit"
+
+#: modules/mautic.py:763 modules/wordpress.py:1521
+msgid "An error occurred fetching docroot for domain from database."
+msgstr ""
+"A apărut o eroare la preluarea directorului rădăcină al domeniului din baza "
+"de date."
+
+#: modules/mautic.py:815
+msgid ""
+"Error: .htaccess file already exists. Mautic installation cannot proceed!"
+msgstr ""
+"Eroare: fișierul .htaccess există deja. Instalarea Mautic nu poate continua!"
+
+#: modules/mautic.py:957
+msgid "Error creating MySQL database and user."
+msgstr "Eroare la crearea bazei de date MySQL și a utilizatorului."
+
+#: modules/mautic.py:983
+msgid "Error running:  'mautic:install' command."
+msgstr "Eroare la rularea comenzii 'mautic:install'."
+
+#: modules/mysql.py:188 modules/mysql.py:254 modules/mysql.py:373
+#: modules/mysql.py:772 modules/mysql.py:814 modules/mysql.py:918
+#: modules/mysqld/remote_mysql.py:129 modules/mysqld/remote_mysql.py:181
+#: modules/mysqld/remote_mysql.py:219
+msgid "Invalid host format."
+msgstr "Format invalid pentru gazdă."
+
+#: modules/mysql.py:257 modules/mysql.py:363
+msgid "At least one privilege must be selected."
+msgstr "Cel puțin un privilegiu trebuie selectat."
+
+#: modules/mysql.py:543
+msgid "Invalid export format provided, select SQL or GZIP."
+msgstr "Format de export invalid, selectează SQL sau GZIP."
+
+#: modules/mysql.py:577
+msgid "Destination path is required for folder export."
+msgstr "Calea de destinație este obligatorie pentru exportul dosarului."
+
+#: modules/mysql.py:583
+msgid "Invalid export path. Must be inside /var/www/html/"
+msgstr "Cale de export invalidă. Trebuie să fie în interiorul /var/www/html/"
+
+#: modules/mysql.py:627
+msgid "Invalid export destination."
+msgstr "Destinație de export invalidă."
+
+#: modules/php.py:180
+msgid "Invalid PHP version format"
+msgstr "Format invalid pentru versiunea PHP"
+
+#: modules/php.py:511
+msgid "PHP INFO"
+msgstr "Informații PHP"
+
+#: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57
+msgid "phpMyAdmin is currently unavailable. Please contact support."
+msgstr "phpMyAdmin este momentan indisponibil. Te rog contactează suportul."
+
+#: modules/phpmyadmin.py:64
+msgid "Failed to generate autologin token."
+msgstr "Nu s-a putut genera token-ul de autentificare automată."
+
+#: modules/pm2.py:457 modules/website_builder.py:238 modules/wordpress.py:1334
+msgid "You have reached the maximum number of sites allowed."
+msgstr "Ai atins numărul maxim de site-uri permise."
+
+#: modules/pm2.py:487
+msgid "Missing required fields domain or service_name"
+msgstr "Câmpurile obligatorii domain sau service_name lipsesc"
+
+#: modules/pm2.py:597
+msgid "Only Python and NodeJS are currently supported!"
+msgstr "Momentan sunt suportate doar Python și NodeJS!"
+
+#: modules/pm2.py:637
+msgid "docker-compose.yml file does not exist, contact support!"
+msgstr "Fișierul docker-compose.yml nu există, contactează suportul!"
+
+#: modules/pm2.py:650
+msgid "'networks:' section not found in docker-compose.yml."
+msgstr "Secțiunea 'networks:' nu a fost găsită în docker-compose.yml."
+
+#: modules/pm2.py:728
+msgid "Container failed to start. Please check allocated resources."
+msgstr "Containerul nu a putut porni. Te rog verifică resursele alocate."
+
+#: modules/pm2.py:1006
+msgid ", "
+msgstr ", "
+
+#: modules/postgresql.py:155
+msgid "Failed to create user: "
+msgstr "Nu s-a putut crea utilizatorul: "
+
+#: modules/process_manager.py:74
+msgid "No PID provided"
+msgstr "Nu a fost furnizat niciun PID"
+
+#: modules/process_manager.py:77
+msgid "PID not found or not allowed"
+msgstr "PID-ul nu a fost găsit sau nu este permis"
+
+#: modules/process_manager.py:84
+msgid "Invalid PID"
+msgstr "PID invalid"
+
+#: modules/process_manager.py:91
+msgid "Process killed successfully"
+msgstr "Procesul a fost terminat cu succes"
+
+#: modules/services.py:21
+msgid "Docker compose file not found."
+msgstr "Fișierul Docker compose nu a fost găsit."
+
+#: modules/services.py:28
+msgid "Error reading services."
+msgstr "Eroare la citirea serviciilor."
+
+#: modules/services.py:83
+msgid "Try restart."
+msgstr "Încearcă repornirea."
+
+#: modules/usage.py:24
+msgid "No resource usage data available yet. Please try again later"
+msgstr ""
+"Nu există încă date despre utilizarea resurselor. Te rog încearcă din nou "
+"mai târziu"
+
+#: modules/usage.py:27
+msgid "An error occurred while fetching resource usage."
+msgstr "A apărut o eroare la preluarea utilizării resurselor."
+
+#: modules/waf.py:73
+msgid "Invalid type. Must be 'tags' or 'ids'."
+msgstr "Tip invalid. Trebuie să fie 'tags' sau 'ids'."
+
+#: modules/waf.py:356
+#, python-format
+msgid "WAF is disabled for %(domain)s."
+msgstr "WAF este dezactivat pentru %(domain)s."
+
+#: modules/waf.py:362
+#, python-format
+msgid "WAF is disabled for %(count)d domains."
+msgstr "WAF este dezactivat pentru %(count)d domenii."
+
+#: modules/website_builder.py:122
+msgid "Website detached successfully!"
+msgstr "Site-ul a fost detașat cu succes!"
+
+#: modules/website_builder.py:127
+msgid "An error occurred during website detachment."
+msgstr "A apărut o eroare în timpul detașării site-ului."
+
+#: modules/website_builder.py:307
+msgid "Error: .htaccess file already exists. Website creation cannot proceed!"
+msgstr ""
+"Eroare: fișierul .htaccess există deja. Crearea site-ului nu poate continua!"
+
+#: modules/website_builder.py:308
+#, python-brace-format
+msgid ""
+"Error: index.html file already exists in {install_path} - Website creation "
+"cannot proceed!"
+msgstr ""
+"Eroare: fișierul index.html există deja în {install_path} – Crearea site-"
+"ului nu poate continua!"
+
+#: modules/website_builder.py:309
+#, python-brace-format
+msgid ""
+"Error: index.php file already exists in {install_path} - Website creation "
+"cannot proceed!"
+msgstr ""
+"Eroare: fișierul index.php există deja în {install_path} – Crearea site-ului"
+" nu poate continua!"
+
+#: modules/websites.py:66
+msgid "Failed to contact Google Safe Browsing API"
+msgstr "Nu s-a putut contacta API-ul Google Safe Browsing"
+
+#: modules/websites.py:277
+msgid "Invalid website parameter"
+msgstr "Parametru invalid pentru site"
+
+#: modules/websites.py:388
+msgid "Invalid container name"
+msgstr "Nume invalid pentru container"
+
+#: modules/websites.py:407
+msgid "Unsupported install type"
+msgstr "Tip de instalare nesuportat"
+
+#: modules/websites.py:424
+msgid ""
+"Invalid install type. Use 'pip' for Python apps and 'npm' or 'pnpm' for "
+"NodeJS."
+msgstr ""
+"Tip de instalare invalid. Folosește 'pip' pentru aplicații Python și 'npm' "
+"sau 'pnpm' pentru NodeJS."
+
+#: modules/websites.py:428
+msgid "Requirements installed successfully."
+msgstr "Cerințele au fost instalate cu succes."
+
+#: modules/websites.py:428
+msgid "NPM packages installed successfully."
+msgstr "Pachetele NPM au fost instalate cu succes."
+
+#: modules/websites.py:435
+msgid "An error occurred while installing requirements."
+msgstr "A apărut o eroare la instalarea cerințelor."
+
+#: modules/websites.py:435
+msgid "An error occurred while installing NPM packages."
+msgstr "A apărut o eroare la instalarea pachetelor NPM."
+
+#: modules/websites.py:563
+msgid "Invalid docroot"
+msgstr "Director rădăcină invalid"
+
+#: modules/wordpress.py:308
+msgid "Document root is not provided or invalid."
+msgstr "Directorul rădăcină nu a fost furnizat sau este invalid."
+
+#: modules/wordpress.py:401
+msgid "No matching tables found"
+msgstr "Nu au fost găsite tabele corespunzătoare"
+
+#: modules/wordpress.py:504
+msgid "Config file not found"
+msgstr "Fișierul de configurare nu a fost găsit"
+
+#: modules/wordpress.py:542
+msgid "Hardening rules have been successfully applied to the website"
+msgstr "Regulile de securizare au fost aplicate cu succes pe site"
+
+#: modules/wordpress.py:544
+msgid "Failed to apply hardening rules to the website - please try again"
+msgstr ""
+"Nu s-au putut aplica regulile de securizare pe site – te rog încearcă din "
+"nou"
+
+#: modules/wordpress.py:574
+msgid "You have reached the maximum number of sites allowed"
+msgstr "Ai atins numărul maxim de site-uri permise"
+
+#: modules/wordpress.py:591
+msgid "Missing required form fields"
+msgstr "Câmpuri obligatorii din formular lipsesc"
+
+#: modules/wordpress.py:610
+msgid "Destination domain not found in database"
+msgstr "Domeniul destinație nu a fost găsit în baza de date"
+
+#: modules/wordpress.py:613
+msgid ""
+"An error occurred fetching docroot for destination domain from database."
+msgstr ""
+"A apărut o eroare la preluarea directorului rădăcină al domeniului "
+"destinație din baza de date."
+
+#: modules/wordpress.py:624
+msgid "Invalid input or unsafe docroot"
+msgstr "Date de intrare invalide sau director rădăcină nesigur"
+
+#: modules/wordpress.py:1663
+msgid "Please ensure your plan has sufficient resources to start the service."
+msgstr ""
+"Te rog asigură-te că planul tău are resurse suficiente pentru a porni "
+"serviciul."
+
+#: modules/wordpress.py:1977
+msgid "Domain is not provided."
+msgstr "Domeniul nu a fost furnizat."
+
+#: modules/wordpress.py:2033
+msgid "php_version could not be determined"
+msgstr "Versiunea PHP nu a putut fi determinată"
+
+#: modules/wordpress.py:2057
+msgid "Admin username could not be obtained"
+msgstr "Numele de utilizator admin nu a putut fi obținut"
+
+#: modules/wordpress.py:2057
+msgid "Please try login manually to wp-admin."
+msgstr "Te rog încearcă să te autentifici manual în wp-admin."
+
+#: modules/wordpress.py:2060
+msgid "No administrator users found"
+msgstr "Nu au fost găsiți utilizatori administrator"
+
+#: modules/wordpress.py:2149
+msgid "Unsupported action"
+msgstr "Acțiune nesuportată"
+
+#: modules/wordpress.py:2171
+msgid "Use 'enable' or 'disable'"
+msgstr "Folosește 'enable' sau 'disable'"
+
+#: modules/wordpress.py:2191
+msgid "Cache flushed successfully."
+msgstr "Cache-ul a fost golit cu succes."
+
+#: modules/wordpress.py:2198
+msgid "Invalid type"
+msgstr "Tip invalid"
+
+#: modules/account/activity.py:72
+msgid "Activity"
+msgstr "Activitate"
+
+#: modules/account/favorites.py:35
+msgid "Link and title must be provided"
+msgstr "Linkul și titlul trebuie furnizate"
+
+#: modules/account/favorites.py:41
+msgid "Favorite list is full"
+msgstr "Lista de favorite este plină"
+
+#: modules/account/favorites.py:55
+msgid "No link provided"
+msgstr "Nu a fost furnizat niciun link"
+
+#: modules/account/locale.py:44
+msgid "locale"
+msgstr "ro_RO"
+
+#: modules/account/login.py:110
+msgid "Too many failed login attempts. Please try again later."
+msgstr ""
+"Prea multe încercări de autentificare eșuate. Te rog încearcă din nou mai "
+"târziu."
+
+#: modules/account/login.py:130
+msgid "Autologin failed: Invalid username."
+msgstr "Autentificarea automată a eșuat: Nume de utilizator invalid."
+
+#: modules/account/login.py:268
+msgid "CAPTCHA validation failed. Please try again."
+msgstr "Validarea CAPTCHA a eșuat. Te rog încearcă din nou."
+
+#: modules/account/notifications.py:204
+msgid "Notification preferences updated successfully!"
+msgstr "Preferințele de notificare au fost actualizate cu succes!"
+
+#: modules/account/passkeys.py:73 templates/user/passkeys.html:10
+msgid "Passkeys"
+msgstr "Chei de acces"
+
+#: modules/account/passkeys.py:116
+msgid "Registration session expired. Please try again."
+msgstr "Sesiunea de înregistrare a expirat. Te rog încearcă din nou."
+
+#: modules/account/passkeys.py:147
+#, python-format
+msgid "A new passkey \"%(name)s\" was added to your account."
+msgstr "O nouă cheie de acces \"%(name)s\" a fost adăugată în contul tău."
+
+#: modules/account/passkeys.py:167
+msgid "Passkey removed."
+msgstr "Cheia de acces a fost eliminată."
+
+#: modules/account/passkeys.py:169
+msgid "Passkey not found."
+msgstr "Cheia de acces nu a fost găsită."
+
+#: modules/account/passkeys.py:197
+msgid "Login session expired. Please try again."
+msgstr "Sesiunea de autentificare a expirat. Te rog încearcă din nou."
+
+#: modules/account/passkeys.py:205 modules/account/passkeys.py:210
+msgid "Invalid passkey response."
+msgstr "Răspuns invalid pentru cheia de acces."
+
+#: modules/account/passkeys.py:222
+msgid "Passkey not recognized."
+msgstr "Cheia de acces nu a fost recunoscută."
+
+#: modules/account/passkeys.py:228
+msgid "Account no longer exists."
+msgstr "Contul nu mai există."
+
+#: modules/account/sessions.py:66
+msgid "Session terminated successfully."
+msgstr "Sesiunea a fost încheiată cu succes."
+
+#: modules/account/sessions.py:75
+msgid "Failed to terminate session or session already expired."
+msgstr "Nu s-a putut încheia sesiunea sau sesiunea a expirat deja."
+
+#: modules/cache/memcached.py:19
+msgid ""
+"A high-performance, distributed in-memory key-value caching system designed "
+"to accelerate dynamic web applications."
+msgstr ""
+"Un sistem de caching distribuit, de înaltă performanță, în memorie, tip "
+"cheie-valoare, conceput pentru a accelera aplicațiile web dinamice."
+
+#: modules/cache/valkey.py:16 templates/dashboard/dashboard.html:172
+msgid "Valkey"
+msgstr "Valkey"
+
+#: modules/cache/valkey.py:17
+msgid ""
+"Valkey is an in-memory key/value store (a community-driven fork of Redis) "
+"used primarily as an application cache or fast, low-latency database."
+msgstr ""
+"Valkey este un magazin de tip cheie/valoare în memorie (un fork al Redis "
+"condus de comunitate) utilizat în principal ca un cache de aplicație sau "
+"bază de date rapidă cu latență redusă."
+
+#: modules/cache/varnish.py:48
+msgid "Varnish is not running"
+msgstr "Varnish nu rulează"
+
+#: modules/cache/varnish.py:238
+#, python-format
+msgid "Varnish cache is now %(status)s for domain %(domain)s"
+msgstr "Cache-ul Varnish este acum %(status)s pentru domeniul %(domain)s"
+
+#: modules/core/errors.py:26
+msgid "Page not found"
+msgstr "Pagina nu a fost găsită"
+
+#: modules/core/errors.py:37
+msgid "Access is forbidden to this page"
+msgstr "Accesul la această pagină este interzis"
+
+#: modules/core/errors.py:47
+msgid "File Too Large"
+msgstr "Fișier prea mare"
+
+#: modules/core/errors.py:58
+msgid "CSRF error"
+msgstr "Eroare CSRF"
+
+#: modules/core/search.py:33
+msgid "Unknown search type"
+msgstr "Tip de căutare necunoscut"
+
+#: modules/core/search.py:40 modules/core/search.py:43
+msgid "Feature not available"
+msgstr "Funcție indisponibilă"
+
+#: modules/domain/ssl.py:22
+#, python-format
+msgid "Failed to reload Caddy: %(error)s"
+msgstr "Nu s-a putut reîncărca Caddy: %(error)s"
+
+#: modules/domain/ssl.py:29
+#, python-format
+msgid "SSL certificate generated successfully for %(domain)s."
+msgstr "Certificatul SSL a fost generat cu succes pentru %(domain)s."
+
+#: modules/domain/ssl.py:30
+msgid ""
+"Certificate was not generated yet. It may take a moment, please try again "
+"shortly."
+msgstr ""
+"Certificatul nu a fost generat încă. Poate dura câteva momente, te rog "
+"încearcă din nou în scurt timp."
+
+#: modules/domain/ssl.py:134
+msgid "Invalid action! Only AutoSSL or Custom are available."
+msgstr "Acțiune invalidă! Sunt disponibile doar AutoSSL sau Custom."
+
+#: modules/domain/ssl.py:176
+msgid "No SSL certificate found for this domain."
+msgstr "Nu a fost găsit niciun certificat SSL pentru acest domeniu."
+
+#: modules/files/backups.py:46
+msgid ""
+"A backup is currently in progress. Please wait until it finishes before "
+"saving settings. Or if you want to interrupt the backup process: stop and "
+"start the backup service."
+msgstr ""
+"Un backup este în curs de desfășurare. Te rog așteaptă finalizarea înainte "
+"de a salva setările. Sau dacă dorești să întrerupi procesul de backup: "
+"oprește și pornește serviciul de backup."
+
+#: modules/files/backups.py:98
+msgid "Settings updated successfully."
+msgstr "Setările au fost actualizate cu succes."
+
+#: modules/files/backups.py:109
+msgid "Error updating settings."
+msgstr "Eroare la actualizarea setărilor."
+
+#: modules/files/backups.py:161 modules/files/backups.py:321
+msgid "no backup target configured"
+msgstr "nicio destinație de backup configurată"
+
+#: modules/files/backups.py:171 modules/files/backups.py:327
+msgid "multiple backup targets configured"
+msgstr "multiple destinații de backup configurate"
+
+#: modules/files/backups.py:233 modules/files/backups.py:261
+msgid "Destination"
+msgstr "Destinație"
+
+#: modules/files/backups.py:498
+msgid "Reindex already in progress."
+msgstr "Reindexarea este deja în curs."
+
+#: modules/files/backups.py:508
+msgid "Reindex started."
+msgstr "Reindexarea a început."
+
+#: modules/files/backups.py:641 modules/files/backups.py:727
+msgid "No backup file specified."
+msgstr "Nu a fost specificat niciun fișier de backup."
+
+#: modules/files/backups.py:646 modules/files/backups.py:731
+msgid "Invalid backup filename."
+msgstr "Nume de fișier de backup invalid."
+
+#: modules/files/backups.py:676
+msgid "Full restore completed."
+msgstr "Restaurarea completă a fost finalizată."
+
+#: modules/files/backups.py:681
+msgid "No database specified."
+msgstr "Nu a fost specificată nicio bază de date."
+
+#: modules/files/filemanager.py:82
+msgid "Error creating file: already exists."
+msgstr "Eroare la crearea fișierului: există deja."
+
+#: modules/files/filemanager.py:395
+msgid "Unsupported file format!"
+msgstr "Format de fișier nesuportat!"
+
+#: modules/files/filemanager.py:405
+#, python-format
+msgid "Extraction timed out after %(max_time)s minutes!"
+msgstr "Extragerea a expirat după %(max_time)s minute!"
+
+#: modules/files/filemanager.py:408
+msgid "Extraction failed."
+msgstr "Extragerea a eșuat."
+
+#: modules/files/filemanager.py:411
+#, python-format
+msgid "Error occurred during archive extraction: %(error)s"
+msgstr "A apărut o eroare în timpul extragerii arhivei: %(error)s"
+
+#: modules/files/filemanager.py:417
+#, python-format
+msgid "Error occurred before starting archive extraction: %(error)s"
+msgstr "A apărut o eroare înainte de a începe extragerea arhivei: %(error)s"
+
+#: modules/files/filemanager.py:496
+msgid "File already exists: "
+msgstr "Fișierul există deja: "
+
+#: modules/files/filemanager.py:680
+#, python-format
+msgid "Unexpected error: %(error)s"
+msgstr "Eroare neașteptată: %(error)s"
+
+#: modules/files/filemanager.py:712
+msgid "File renamed successfully."
+msgstr "Fișierul a fost redenumit cu succes."
+
+#: modules/files/filemanager.py:716
+msgid ""
+"Error renaming item! Check permissions or if the new name already exists."
+msgstr ""
+"Eroare la redenumirea elementului! Verifică permisiunile sau dacă noul nume "
+"există deja."
+
+#: modules/files/filemanager.py:718
+msgid "Unexpected error occurred."
+msgstr "A apărut o eroare neașteptată."
+
+#: modules/files/filemanager.py:748
+msgid "Moved to Trash"
+msgstr "Mutat în Coș"
+
+#: modules/files/filemanager.py:761 modules/files/trash.py:327
+msgid "Deleted permanently"
+msgstr "Șters definitiv"
+
+#: modules/files/filemanager.py:764
+#, python-format
+msgid "Delete failed: %(error)s"
+msgstr "Ștergerea a eșuat: %(error)s"
+
+#: modules/files/filemanager.py:782
+msgid "Invalid permissions format."
+msgstr "Format invalid pentru permisiuni."
+
+#: modules/files/filemanager.py:819
+#, python-format
+msgid "Permissions changed for %(count)d items."
+msgstr "Permisiunile au fost modificate pentru %(count)d elemente."
+
+#: modules/files/filemanager.py:822
+#, python-format
+msgid "Error changing permissions for: %(files)s. Check ownership."
+msgstr ""
+"Eroare la modificarea permisiunilor pentru: %(files)s. Verifică "
+"proprietarul."
+
+#: modules/files/filemanager.py:835 modules/files/filemanager.py:893
+msgid "File name is empty"
+msgstr "Numele fișierului este gol"
+
+#: modules/files/filemanager.py:876
+msgid "Destination already exists"
+msgstr "Destinația există deja"
+
+#: modules/files/filemanager.py:878
+msgid "Permission denied"
+msgstr "Permisiune refuzată"
+
+#: modules/files/filemanager.py:925
+#, python-format
+msgid "Move failed: %(error)s"
+msgstr "Mutarea a eșuat: %(error)s"
+
+#: modules/files/filemanager.py:968 modules/files/filemanager.py:1128
+msgid "Editing this file type is not allowed."
+msgstr "Editarea acestui tip de fișier nu este permisă."
+
+#: modules/files/filemanager.py:1003
+msgid "Error saving file."
+msgstr "Eroare la salvarea fișierului."
+
+#: modules/files/filemanager.py:1020 modules/files/filemanager.py:1149
+msgid "Error accessing file size."
+msgstr "Eroare la accesarea dimensiunii fișierului."
+
+#: modules/files/filemanager.py:1170
+msgid "Error opening file."
+msgstr "Eroare la deschiderea fișierului."
+
+#: modules/files/filemanager.py:1270 modules/files/trash.py:185
+msgid "Directory does not exist."
+msgstr "Directorul nu există."
+
+#: modules/files/ftp.py:146
+msgid "FTP username not provided."
+msgstr "Numele de utilizator FTP nu a fost furnizat."
+
+#: modules/files/ftp.py:151
+msgid "FTP domain not provided."
+msgstr "Domeniul FTP nu a fost furnizat."
+
+#: modules/files/ftp.py:160
+msgid "FTP path not provided."
+msgstr "Calea FTP nu a fost furnizată."
+
+#: modules/files/ftp.py:165
+msgid "FTP password not provided."
+msgstr "Parola FTP nu a fost furnizată."
+
+#: modules/files/ftp.py:257
+msgid "Missing new password"
+msgstr "Parola nouă lipsește"
+
+#: modules/files/trash.py:172
+msgid "Invalid directory."
+msgstr "Director invalid."
+
+#: modules/files/trash.py:207
+msgid "Missing filename."
+msgstr "Numele fișierului lipsește."
+
+#: modules/files/trash.py:220 modules/files/trash.py:293
+msgid "Invalid filename."
+msgstr "Nume de fișier invalid."
+
+#: modules/files/trash.py:231 modules/files/trash.py:305
+msgid "File or directory does not exist in Trash."
+msgstr "Fișierul sau directorul nu există în Coș."
+
+#: modules/files/trash.py:235
+msgid ".trash_restore file is missing."
+msgstr "Fișierul .trash_restore lipsește."
+
+#: modules/files/trash.py:254
+msgid "Original path not found in .trash_restore."
+msgstr "Calea originală nu a fost găsită în .trash_restore."
+
+#: modules/files/trash.py:263
+msgid "Restore path is outside your permitted data directory."
+msgstr "Calea de restaurare este în afara directorului de date permis."
+
+#: modules/files/trash.py:276
+msgid "Restored from Trash"
+msgstr "Restaurat din Coș"
+
+#: modules/files/trash.py:289
+msgid "Deletion of system file .trash_restore is not allowed."
+msgstr "Ștergerea fișierului de sistem .trash_restore nu este permisă."
+
+#: modules/files/trash.py:314
+msgid "Unsupported item type."
+msgstr "Tip de element nesuportat."
+
+#: modules/json/helpers.py:299
+msgid "Invalid action. Use start, stop, status, or restart."
+msgstr "Acțiune invalidă. Folosește start, stop, status sau restart."
+
+#: modules/json/helpers.py:554 modules/json/helpers.py:671
+msgid "Invalid folder path."
+msgstr "Cale invalidă pentru dosar."
+
+#: modules/json/helpers.py:702
+msgid "Unexpected output format"
+msgstr "Format neașteptat pentru output"
+
+#: modules/json/helpers.py:737
+msgid "Invalid request. Please specify a domain or database name."
+msgstr ""
+"Solicitare invalidă. Te rog specifică un domeniu sau un nume de bază de "
+"date."
+
+#: modules/mysqld/mysql_root_password.py:51
+msgid "Password changed but failed to restart MySQL."
+msgstr "Parola a fost schimbată, dar MySQL nu a putut fi repornit."
+
+#: modules/mysqld/remote_mysql.py:121
+msgid "A valid username is required - alphanumeric characters and '_' only."
+msgstr ""
+"Este necesar un nume de utilizator valid – doar caractere alfanumerice și "
+"'_'."
+
+#: modules/mysqld/remote_mysql.py:133
+msgid "Password is required."
+msgstr "Parola este obligatorie."
+
+#: modules/mysqld/remote_mysql.py:173 modules/mysqld/remote_mysql.py:211
+msgid "A valid username is required."
+msgstr "Este necesar un nume de utilizator valid."
+
+#: modules/mysqld/remote_mysql.py:185
+msgid "No changes made."
+msgstr "Nu au fost efectuate modificări."
+
+#: modules/phpd/php_extensions.py:173
+msgid "Extension is not installed, or is already enabled."
+msgstr "Extensia nu este instalată sau este deja activată."
+
+#: modules/phpd/php_extensions.py:178
+msgid "Extension is not installed, or is already disabled."
+msgstr "Extensia nu este instalată sau este deja dezactivată."
+
+#: modules/phpd/php_extensions.py:259
+#, python-format
+msgid "Installing %(ext)s..."
+msgstr "Se instalează %(ext)s..."
+
+#: modules/phpd/php_extensions.py:268
+msgid "Extensions installed, restarting PHP-FPM to apply changes..."
+msgstr ""
+"Extensiile au fost instalate, PHP-FPM este repornit pentru a aplica "
+"modificările..."
+
+#: modules/phpd/php_extensions.py:270
+#, python-format
+msgid "Extensions installed: %(ext)s"
+msgstr "Extensii instalate: %(ext)s"
+
+#: modules/phpd/php_extensions.py:273
+msgid "Installation failed."
+msgstr "Instalarea a eșuat."
+
+#: modules/phpd/php_extensions.py:275
+msgid "Installation timed out."
+msgstr "Instalarea a expirat."
+
+#: modules/phpd/php_extensions.py:287
+msgid ""
+"PHP extension management is only available for PHP-FPM, not for Litespeed."
+msgstr ""
+"Gestionarea extensiilor PHP este disponibilă doar pentru PHP-FPM, nu pentru "
+"Litespeed."
+
+#: modules/phpd/php_extensions.py:317 modules/phpd/php_extensions.py:399
+#, python-format
+msgid "Failed to start PHP %(version)s: %(error)s"
+msgstr "Nu s-a putut porni PHP %(version)s: %(error)s"
+
+#: modules/phpd/php_extensions.py:325
+msgid "Invalid extension name."
+msgstr "Nume invalid pentru extensie."
+
+#: modules/phpd/php_extensions.py:333
+#, python-format
+msgid ""
+"Extension %(ext)s %(action)s, PHP %(version)s restarted to apply changes."
+msgstr ""
+"Extensia %(ext)s %(action)s, PHP %(version)s a fost repornit pentru a aplica"
+" modificările."
+
+#: modules/phpd/php_extensions.py:336
+#, python-format
+msgid "Could not change extension %(ext)s: %(error)s"
+msgstr "Nu s-a putut modifica extensia %(ext)s: %(error)s"
+
+#: modules/phpd/php_extensions.py:357
+#, python-format
+msgid "PHP %(version)s Extensions"
+msgstr "Extensii PHP %(version)s"
+
+#: modules/phpd/php_extensions.py:367 modules/phpd/php_extensions.py:389
+msgid "Not available for Litespeed."
+msgstr "Indisponibil pentru Litespeed."
+
+#: modules/phpd/php_extensions.py:394
+msgid "No valid extensions selected."
+msgstr "Nu au fost selectate extensii valide."
+
+#: modules/phpd/php_extensions.py:404
+msgid "Install queued..."
+msgstr "Instalarea a fost pusă în coadă..."
+
+#: modules/phpd/php_ini.py:80 modules/phpd/php_options.py:191
+#, python-format
+msgid "Syntax error in the PHP %(version)s ini file: %(error)s"
+msgstr "Eroare de sintaxă în fișierul ini PHP %(version)s: %(error)s"
+
+#: modules/psql/postgresql_import.py:80
+msgid "Import feature is enabled for PostgreSQL."
+msgstr "Funcția de import este activată pentru PostgreSQL."
+
+#: modules/sitemanager/temporary_links.py:71
+msgid "No redirect link found"
+msgstr "Nu a fost găsit niciun link de redirecționare"
+
+#: templates/base.html:35
+msgid "Uploading"
+msgstr "Se încarcă"
+
+#: templates/base.html:36
+msgid "Loading"
+msgstr "Se încarcă"
+
+#: templates/base.html:37 templates/user/history_usage.html:148
+msgid "Warning"
+msgstr "Avertisment"
+
+#: templates/base.html:38 templates/base.html:696
+#: templates/files/backup_restore.html:498
+#: templates/files/filemanager/modals/rename.html:17
+#: templates/mysql/databases.html:676
+msgid "Close"
+msgstr "Închide"
+
+#: templates/base.html:42
+msgid "today"
+msgstr "astăzi"
+
+#: templates/base.html:43
+msgid "yesterday"
+msgstr "ieri"
+
+#: templates/base.html:44
+msgid "1 second ago"
+msgstr "acum 1 secundă"
+
+#: templates/base.html:45
+#, python-format
+msgid "%%(n)s seconds ago"
+msgstr "acum %%(n)s secunde"
+
+#: templates/base.html:46
+msgid "1 minute ago"
+msgstr "acum 1 minut"
+
+#: templates/base.html:47
+#, python-format
+msgid "%%(n)s minutes ago"
+msgstr "acum %%(n)s minute"
+
+#: templates/base.html:48
+msgid "1 hour ago"
+msgstr "acum 1 oră"
+
+#: templates/base.html:49
+#, python-format
+msgid "%%(n)s hours ago"
+msgstr "acum %%(n)s ore"
+
+#: templates/base.html:50
+msgid "1 day ago"
+msgstr "acum 1 zi"
+
+#: templates/base.html:51
+#, python-format
+msgid "%%(n)s days ago"
+msgstr "acum %%(n)s zile"
+
+#: templates/base.html:52
+msgid "1 week ago"
+msgstr "acum 1 săptămână"
+
+#: templates/base.html:53
+#, python-format
+msgid "%%(n)s weeks ago"
+msgstr "acum %%(n)s săptămâni"
+
+#: templates/base.html:54
+msgid "last month"
+msgstr "luna trecută"
+
+#: templates/base.html:55
+msgid "1 month ago"
+msgstr "acum 1 lună"
+
+#: templates/base.html:56
+#, python-format
+msgid "%%(n)s months ago"
+msgstr "acum %%(n)s luni"
+
+#: templates/base.html:57
+msgid "last year"
+msgstr "anul trecut"
+
+#: templates/base.html:58
+msgid "1 year ago"
+msgstr "acum 1 an"
+
+#: templates/base.html:59
+#, python-format
+msgid "%%(n)s years ago"
+msgstr "acum %%(n)s ani"
+
+#: templates/base.html:693
+msgid "Notification"
+msgstr "Notificare"
+
+#: templates/base.html:697
+msgid "Dismiss"
+msgstr "Respinge"
+
+#: templates/base.html:719
+msgid "Found a bug? Let us know"
+msgstr "Ai găsit un bug? Spune-ne"
+
+#: templates/cache/service.html:7 templates/cache/service.html:8
+#: templates/system/services.html:7 templates/system/services.html:8
+msgid "Running"
+msgstr "Rulează"
+
+#: templates/cache/service.html:9 templates/system/services.html:9
+msgid "Unhealthy"
+msgstr "Nesănătos"
+
+#: templates/cache/service.html:10 templates/system/services.html:10
+msgid "Starting"
+msgstr "Se pornește"
+
+#: templates/cache/service.html:13 templates/system/services.html:13
+msgid "Restarting"
+msgstr "Se repornește"
+
+#: templates/cache/service.html:14 templates/system/services.html:14
+msgid "Paused"
+msgstr "Pauzat"
+
+#: templates/cache/service.html:15 templates/system/services.html:15
+msgid "Stopped"
+msgstr "Oprit"
+
+#: templates/cache/service.html:16 templates/system/services.html:16
+msgid "Removing"
+msgstr "Se elimină"
+
+#: templates/cache/service.html:17 templates/system/services.html:17
+msgid "Dead"
+msgstr "Mort"
+
+#: templates/cache/service.html:53 templates/system/services.html:72
+msgid "Current service status."
+msgstr "Starea curentă a serviciului."
+
+#: templates/cache/service.html:98
+msgid "Varnish Cache"
+msgstr "Cache Varnish"
+
+#: templates/cache/service.html:99
+msgid "Real-time cache performance and efficiency metrics."
+msgstr "Metrici în timp real pentru performanța și eficiența cache-ului."
+
+#: templates/dashboard/custom_section.html:22
+#: templates/dashboard/dashboard.html:70
+msgid "Hide icons"
+msgstr "Ascunde iconițele"
+
+#: templates/dashboard/custom_section.html:22
+#: templates/dashboard/dashboard.html:70
+msgid "Show icons"
+msgstr "Afișează iconițele"
+
+#: templates/dashboard/dashboard.html:27
+msgid "Want a quick guided tour of OpenPanel?"
+msgstr "Vrei un tur rapid ghidat al OpenPanel?"
+
+#: templates/dashboard/dashboard.html:28 templates/partials/_footer.html:64
+msgid "Take the tour"
+msgstr "Fă turul"
+
+#: templates/dashboard/dashboard.html:30
+msgid "Skip"
+msgstr "Sari"
+
+#: templates/dashboard/dashboard.html:34
+msgid "Icons position"
+msgstr "Poziția iconițelor"
+
+#: templates/dashboard/dashboard.html:35
+msgid "Top"
+msgstr "Sus"
+
+#: templates/dashboard/dashboard.html:149
+msgid "Change root password"
+msgstr "Schimbă parola root"
+
+#: templates/dashboard/dashboard.html:184
+msgid "Default Address"
+msgstr "Adresă Implicită"
+
+#: templates/dashboard/dashboard.html:186
+msgid "Address Exporter"
+msgstr "Exportator de Adrese"
+
+#: templates/dashboard/usage.html:335
+msgid "Disk usage is at"
+msgstr "Utilizarea discului este la"
+
+#: templates/dashboard/usage.html:335 templates/dashboard/usage.html:342
+#: templates/dashboard/usage.html:381 templates/dashboard/usage.html:388
+msgid "of your limit."
+msgstr "din limita ta."
+
+#: templates/dashboard/usage.html:342
+msgid "Inodes usage is at"
+msgstr "Utilizarea inodelor este la"
+
+#: templates/dashboard/usage.html:381
+msgid "CPU usage is at"
+msgstr "Utilizarea CPU este la"
+
+#: templates/dashboard/usage.html:388
+msgid "RAM usage is at"
+msgstr "Utilizarea RAM este la"
+
+#: templates/docker/container_form.html:81
+msgid ""
+"Name is used to identify the container, and is used by other services to "
+"connect."
+msgstr ""
+"Numele este utilizat pentru identificarea containerului și este folosit de "
+"alte servicii pentru conectare."
+
+#: templates/docker/container_form.html:104
+msgid "Numeric value"
+msgstr "Valoare numerică"
+
+#: templates/docker/container_form.html:112
+msgid "Example: 1G"
+msgstr "Exemplu: 1G"
+
+#: templates/docker/container_form.html:137
+#: templates/docker/container_form.html:167
+msgid "Read-only"
+msgstr "Doar citire"
+
+#: templates/docker/container_form.html:165
+msgid "Path inside container"
+msgstr "Cale în interiorul containerului"
+
+#: templates/docker/containers.html:18 templates/docker/containers.html:263
+msgid "cores"
+msgstr "nuclee"
+
+#: templates/docker/containers.html:257 templates/docker/containers.html:309
+msgid "Usage:"
+msgstr "Utilizare:"
+
+#: templates/docker/containers.html:262 templates/docker/containers.html:313
+msgid "Allocated:"
+msgstr "Alocat:"
+
+#: templates/docker/containers.html:267
+msgid "Max CPUs that this service can use. 0 = unlimited"
+msgstr "CPU maxim pe care îl poate folosi acest serviciu. 0 = nelimitat"
+
+#: templates/docker/containers.html:320
+msgid "Max Memory that this service can use. 0 = unlimited"
+msgstr "Memoria maximă pe care o poate folosi acest serviciu. 0 = nelimitat"
+
+#: templates/docker/containers.html:347
+msgid "Pull & Start"
+msgstr "Descarcă și Pornește"
+
+#: templates/docker/containers.html:563
+msgid "is reaching its CPU/RAM limit."
+msgstr "se apropie de limita sa CPU/RAM."
+
+#: templates/docker/containers.html:565
+msgid "are reaching their CPU/RAM limit."
+msgstr "se apropie de limita lor CPU/RAM."
+
+#: templates/docker/containers.html:567
+msgid "containers are reaching their CPU/RAM limit."
+msgstr "containere se apropie de limita lor CPU/RAM."
+
+#: templates/docker/images.html:35
+msgid "Monitored Images"
+msgstr "Imagini Monitorizate"
+
+#: templates/docker/images.html:51
+msgid "Updates Available"
+msgstr "Actualizări Disponibile"
+
+#: templates/docker/images.html:65
+msgid "Minor Updates"
+msgstr "Actualizări Minore"
+
+#: templates/docker/images.html:78
+msgid "Major Updates"
+msgstr "Actualizări Majore"
+
+#: templates/docker/images.html:91
+msgid "Up to Date"
+msgstr "La Zi"
+
+#: templates/docker/images.html:159
+msgid "Update available"
+msgstr "Actualizare disponibilă"
+
+#: templates/docker/images.html:170
+msgid "Up to date"
+msgstr "La zi"
+
+#: templates/docker/images.html:190
+msgid "New:"
+msgstr "Nou:"
+
+#: templates/docker/images.html:191
+msgid "From:"
+msgstr "De la:"
+
+#: templates/docker/images.html:192
+msgid "To:"
+msgstr "Către:"
+
+#: templates/docker/images.html:195
+msgid "Digest updated"
+msgstr "Digest actualizat"
+
+#: templates/docker/images.html:198
+msgid "Error:"
+msgstr "Eroare:"
+
+#: templates/docker/logs.html:11
+msgid "View Docker container logs."
+msgstr "Vizualizează jurnalele containerului Docker."
+
+#: templates/docker/logs.html:21
+msgid "-- Select container --"
+msgstr "-- Selectează containerul --"
+
+#: templates/docker/logs.html:29
+msgid "-- Lines --"
+msgstr "-- Linii --"
+
+#: templates/docker/logs.html:52
+msgid "Select a container to view its logs here."
+msgstr "Selectează un container pentru a-i vizualiza jurnalele aici."
+
+#: templates/docker/logs.html:59
+msgid "The log file is empty."
+msgstr "Fișierul jurnal este gol."
+
+#: templates/docker/logs.html:60
+msgid "Error fetching log data."
+msgstr "Eroare la preluarea datelor din jurnal."
+
+#: templates/docker/terminal.html:33
+msgid ""
+"The terminal is interactive and executes commands as 'root' user inside the "
+"container."
+msgstr ""
+"Terminalul este interactiv și execută comenzi ca utilizator 'root' în "
+"interiorul containerului."
+
+#: templates/docker/terminal.html:34
+msgid "Inactivity timeout:"
+msgstr "Timeout de inactivitate:"
+
+#: templates/docker/terminal.html:56
+msgid "Shell type"
+msgstr "Tip de shell"
+
+#: templates/docker/terminal.html:67
+msgid "Reconnect"
+msgstr "Reconectare"
+
+#: templates/docker/terminal.html:77 templates/docker/terminal.html:146
+msgid "Connecting…"
+msgstr "Se conectează…"
+
+#: templates/docker/terminal.html:146
+msgid "Connected"
+msgstr "Conectat"
+
+#: templates/docker/terminal.html:146
+msgid "Disconnected"
+msgstr "Deconectat"
+
+#: templates/domains/capitalize.html:10
+msgid ""
+"You can customize your domain type case by clicking on the letter you want "
+"to change.(e.g. SuperDomainName.com)."
+msgstr ""
+"Poți personaliza majusculele domeniului tău dând clic pe litera pe care vrei"
+" să o schimbi (ex. SuperDomainName.com)."
+
+#: templates/domains/dns.html:133
+msgid "TLSA"
+msgstr "TLSA"
+
+#: templates/domains/dns.html:147 templates/domains/dns.html:318
+msgid "Generate from existing SSL cert"
+msgstr "Generează din certificatul SSL existent"
+
+#: templates/domains/dns.html:156
+msgid "Public key hash (SHA-256)"
+msgstr "Hash cheie publică (SHA-256)"
+
+#: templates/domains/dns.html:163
+msgid "Full certificate hash (SHA-256)"
+msgstr "Hash complet al certificatului (SHA-256)"
+
+#: templates/domains/dns.html:173
+msgid "Protocol"
+msgstr "Protocol"
+
+#: templates/domains/dns.html:202 templates/domains/dns.html:699
+msgid "An unexpected error occurred. Please try again."
+msgstr "A apărut o eroare neașteptată. Te rog încearcă din nou."
+
+#: templates/domains/dns.html:232
+msgid "or use Generate button below"
+msgstr "sau folosește butonul Generează de mai jos"
+
+#: templates/domains/dns.html:308
+msgid "Fetching..."
+msgstr "Se preiau datele..."
+
+#: templates/domains/dns.html:329
+msgid "Custom certificate"
+msgstr "Certificat personalizat"
+
+#: templates/domains/dns.html:330
+msgid "Lets Encrypt certificate"
+msgstr "Certificat Let's Encrypt"
+
+#: templates/domains/dns.html:335
+msgid ""
+"Caddy autorenews Lets Encrypt certificates with a new keypair. This record "
+"will go stale after the next renewal — regenerate it then."
+msgstr ""
+"Caddy reînnoiește automat certificatele Let's Encrypt cu o nouă pereche de "
+"chei. Această înregistrare va deveni depășită după următoarea reînnoire — "
+"regenereaz-o atunci."
+
+#: templates/domains/dns.html:338
+msgid ""
+"Using a custom certificate. Regenerate this record whenever you replace the "
+"certificate."
+msgstr ""
+"Se folosește un certificat personalizat. Regenerează această înregistrare "
+"ori de câte ori înlocuiești certificatul."
+
+#: templates/domains/dns.html:356 templates/manager/wp/install.html:137
+msgid "Regenerate"
+msgstr "Regenerează"
+
+#: templates/domains/dns.html:359
+msgid "Failed to fetch SSL certificate info."
+msgstr "Nu s-au putut prelua informațiile despre certificatul SSL."
+
+#: templates/domains/dns.html:652
+msgid "A CNAME record with this name already exists."
+msgstr "O înregistrare CNAME cu acest nume există deja."
+
+#: templates/domains/dns.html:852
+msgid "An error occurred while saving the zone file."
+msgstr "A apărut o eroare la salvarea fișierului de zonă."
+
+#: templates/domains/domains.html:222 templates/emails/deliverability.html:46
+#: templates/php/settings.html:176 templates/system/waf.html:67
+msgid "No domains yet."
+msgstr "Nu există încă domenii."
+
+#: templates/domains/domains.html:222
+msgid "Add your first domain"
+msgstr "Adaugă primul tău domeniu"
+
+#: templates/domains/domains.html:446
+msgid "0 of"
+msgstr "0 din"
+
+#: templates/domains/domains.html:446
+msgid "row(s) selected."
+msgstr "rând(uri) selectat(e)."
+
+#: templates/domains/domains.html:457
+msgid "First page"
+msgstr "Prima pagină"
+
+#: templates/domains/domains.html:468
+msgid "Previous page"
+msgstr "Pagina anterioară"
+
+#: templates/domains/domains.html:476
+msgid "Next page"
+msgstr "Pagina următoare"
+
+#: templates/domains/domains.html:484
+msgid "Last page"
+msgstr "Ultima pagină"
+
+#: templates/domains/dynamic_dns.html:14
+msgid "Keep DNS records in sync with changing IP addresses via a token URL."
+msgstr ""
+"Păstrează înregistrările DNS sincronizate cu adresele IP în schimbare "
+"printr-un URL cu token."
+
+#: templates/domains/dynamic_dns.html:24
+msgid "Add Entry"
+msgstr "Adaugă Intrare"
+
+#: templates/domains/dynamic_dns.html:38
+msgid "New entry"
+msgstr "Intrare nouă"
+
+#: templates/domains/dynamic_dns.html:51 templates/domains/dynamic_dns.html:93
+#: templates/domains/dynamic_dns.html:168
+msgid "Subdomain"
+msgstr "Subdomeniu"
+
+#: templates/domains/dynamic_dns.html:53
+msgid "Letters, numbers, hyphens only."
+msgstr "Doar litere, cifre și cratime."
+
+#: templates/domains/dynamic_dns.html:57
+msgid "Initial IP"
+msgstr "IP Inițial"
+
+#: templates/domains/dynamic_dns.html:59
+msgid "Will be updated automatically on first webcall."
+msgstr "Va fi actualizat automat la primul apel web."
+
+#: templates/domains/dynamic_dns.html:84
+msgid "Edit entry"
+msgstr "Editează intrarea"
+
+#: templates/domains/dynamic_dns.html:98
+#: templates/domains/dynamic_dns.html:170
+msgid "IP"
+msgstr "IP"
+
+#: templates/domains/dynamic_dns.html:109
+#: templates/domains/dynamic_dns.html:173
+msgid "Update URL"
+msgstr "URL de actualizare"
+
+#: templates/domains/dynamic_dns.html:133
+msgid ""
+"This will remove the DNS record and invalidate the update token. This action"
+" cannot be undone."
+msgstr ""
+"Aceasta va elimina înregistrarea DNS și va invalida token-ul de actualizare."
+" Această acțiune nu poate fi anulată."
+
+#: templates/domains/dynamic_dns.html:151
+msgid "No Dynamic DNS entries yet"
+msgstr "Nu există încă intrări DNS Dinamice"
+
+#: templates/domains/dynamic_dns.html:152
+msgid "Add an entry to get started."
+msgstr "Adaugă o intrare pentru a începe."
+
+#: templates/domains/dynamic_dns.html:161
+msgid "record"
+msgstr "înregistrare"
+
+#: templates/domains/dynamic_dns.html:172
+msgid "Last Updated"
+msgstr "Ultima Actualizare"
+
+#: templates/domains/dynamic_dns.html:190
+msgid "never"
+msgstr "niciodată"
+
+#: templates/domains/dynamic_dns.html:196 templates/mysql/wizard.html:139
+msgid "Copied!"
+msgstr "Copiat!"
+
+#: templates/domains/dynamic_dns.html:196
+msgid "Copy URL"
+msgstr "Copiază URL"
+
+#: templates/domains/ssl.html:46
+msgid "Generate now"
+msgstr "Generează acum"
+
+#: templates/domains/ssl.html:61
+msgid "Switch to Let's Encrypt and generate"
+msgstr "Comută la Let's Encrypt și generează"
+
+#: templates/domains/ssl.html:105
+msgid "Valid From:"
+msgstr "Valabil Din:"
+
+#: templates/domains/ssl.html:106
+msgid "Valid To:"
+msgstr "Valabil Până La:"
+
+#: templates/domains/ssl.html:107
+msgid "Issuer:"
+msgstr "Emitent:"
+
+#: templates/domains/ssl.html:108
+msgid "Subject:"
+msgstr "Subiect:"
+
+#: templates/domains/ssl.html:109
+msgid "Serial Number:"
+msgstr "Număr de Serie:"
+
+#: templates/domains/ssl.html:110
+msgid "Signature Algorithm:"
+msgstr "Algoritm de Semnătură:"
+
+#: templates/domains/ssl.html:182 templates/domains/ssl.html:188
+msgid "SSL certificate for"
+msgstr "Certificat SSL pentru"
+
+#: templates/domains/ssl.html:182
+msgid "has expired."
+msgstr "a expirat."
+
+#: templates/domains/ssl.html:188
+msgid "expires in"
+msgstr "expiră în"
+
+#: templates/domains/ssl.html:188
+msgid "days."
+msgstr "zile."
+
+#: templates/domains/ssl.html:209
+#, python-format
+msgid "No SSL certificate is configured for %(domain)s."
+msgstr "Niciun certificat SSL nu este configurat pentru %(domain)s."
+
+#: templates/domains/vhost.html:164
+msgid "Potential syntax issues were found:"
+msgstr "Au fost găsite potențiale probleme de sintaxă:"
+
+#: templates/domains/vhost.html:165
+msgid "Do you want to save anyway?"
+msgstr "Vrei să salvezi totuși?"
+
+#: templates/domains/partials/_no_domain.html:3
+msgid "No domains yet"
+msgstr "Nu există încă domenii"
+
+#: templates/domains/partials/_no_domain.html:4
+msgid "Add your first domain to get started"
+msgstr "Adaugă primul tău domeniu pentru a începe"
+
+#: templates/domains/partials/_no_domain.html:5
+msgid "New domain"
+msgstr "Domeniu nou"
+
+#: templates/emails/accounts.html:29 templates/mysql/databases.html:373
+#: templates/mysql/databases.html:379 templates/mysql/databases.html:437
+msgid "Export"
+msgstr "Exportă"
+
+#: templates/emails/accounts.html:54
+msgid "No emails yet."
+msgstr "Nu există încă adrese de email."
+
+#: templates/emails/accounts.html:54
+msgid "Add your first email"
+msgstr "Adaugă primul tău email"
+
+#: templates/emails/accounts.html:131
+#, python-format
+msgid "Email %(addr)s is reaching its quota (%(percent)s%%)."
+msgstr "Emailul %(addr)s se apropie de cota sa (%(percent)s%%)."
+
+#: templates/emails/accounts.html:137
+#, python-format
+msgid "Emails %(addrs)s are reaching their quota."
+msgstr "Emailurile %(addrs)s se apropie de cotele lor."
+
+#: templates/emails/accounts.html:143
+#, python-format
+msgid "%(n)s emails are reaching their quota."
+msgstr "%(n)s emailuri se apropie de cotele lor."
+
+#: templates/emails/alias_delete.html:10
+msgid "Permanently delete this alias and all its destinations."
+msgstr "Șterge definitiv acest alias și toate destinațiile sale."
+
+#: templates/emails/alias_delete.html:17
+msgid ""
+"Click the button below to permanently delete the alias. Mail sent to this "
+"address will no longer be forwarded."
+msgstr ""
+"Apasă butonul de mai jos pentru a șterge definitiv alias-ul. Emailurile "
+"trimise la această adresă nu vor mai fi redirecționate."
+
+#: templates/emails/alias_delete.html:63
+msgid "Failed to delete alias."
+msgstr "Nu s-a putut șterge alias-ul."
+
+#: templates/emails/alias_delete.html:78
+msgid "Select Alias"
+msgstr "Selectează Alias"
+
+#: templates/emails/alias_delete.html:79
+msgid "Select an alias to delete."
+msgstr "Selectează un alias de șters."
+
+#: templates/emails/alias_delete.html:90
+msgid "Select alias"
+msgstr "Selectează alias"
+
+#: templates/emails/alias_detail.html:8
+msgid "Manage Alias"
+msgstr "Gestionează Alias"
+
+#: templates/emails/alias_detail.html:13 templates/emails/alias_new.html:55
+msgid "Back to Aliases"
+msgstr "Înapoi la Alias-uri"
+
+#: templates/emails/alias_detail.html:24
+msgid "Current destinations"
+msgstr "Destinații curente"
+
+#: templates/emails/alias_detail.html:32
+#: templates/emails/alias_detail.html:209 templates/emails/aliases.html:46
+#: templates/emails/default_address.html:82
+msgid "Delivers to"
+msgstr "Livrează la"
+
+#: templates/emails/alias_detail.html:52
+#: templates/emails/alias_detail.html:164
+msgid "No destinations configured for this alias yet."
+msgstr "Nu sunt configurate destinații pentru acest alias încă."
+
+#: templates/emails/alias_detail.html:60
+msgid "Add destination"
+msgstr "Adaugă destinație"
+
+#: templates/emails/alias_detail.html:69
+msgid "New destination address"
+msgstr "Adresă de destinație nouă"
+
+#: templates/emails/alias_detail.html:75 templates/emails/alias_new.html:43
+msgid "destination@example.com"
+msgstr "destinatie@exemplu.com"
+
+#: templates/emails/alias_detail.html:79
+msgid "Add another address that this alias should forward to."
+msgstr "Adaugă o altă adresă la care acest alias să redirecționeze."
+
+#: templates/emails/alias_detail.html:89
+msgid "Add Destination"
+msgstr "Adaugă Destinație"
+
+#: templates/emails/alias_detail.html:99
+#: templates/emails/default_address.html:143
+msgid "Danger zone"
+msgstr "Zonă periculoasă"
+
+#: templates/emails/alias_detail.html:105
+msgid "Delete this alias"
+msgstr "Șterge acest alias"
+
+#: templates/emails/alias_detail.html:106
+msgid "Removes the alias address and all its destinations permanently."
+msgstr "Elimină definitiv adresa alias și toate destinațiile sale."
+
+#: templates/emails/alias_detail.html:148
+#: templates/emails/default_address.html:214
+msgid "Removing..."
+msgstr "Se elimină..."
+
+#: templates/emails/alias_detail.html:168
+msgid "Failed to remove destination."
+msgstr "Nu s-a putut elimina destinația."
+
+#: templates/emails/alias_detail.html:190
+msgid "Adding..."
+msgstr "Se adaugă..."
+
+#: templates/emails/alias_detail.html:221
+msgid "Failed to add destination."
+msgstr "Nu s-a putut adăuga destinația."
+
+#: templates/emails/alias_new.html:7
+msgid "Create an Alias"
+msgstr "Creează un Alias"
+
+#: templates/emails/alias_new.html:8
+msgid "Forward mail from an alias address to any destination."
+msgstr "Redirecționează emailurile de la o adresă alias la orice destinație."
+
+#: templates/emails/alias_new.html:32
+msgid "Alias address"
+msgstr "Adresa alias"
+
+#: templates/emails/alias_new.html:34
+msgid "alias"
+msgstr "alias"
+
+#: templates/emails/alias_new.html:37
+msgid ""
+"Emails sent to this address will be forwarded to the destination below."
+msgstr ""
+"Emailurile trimise la această adresă vor fi redirecționate la destinația de "
+"mai jos."
+
+#: templates/emails/alias_new.html:42
+#: templates/emails/default_address.html:110
+msgid "Destination address"
+msgstr "Adresă de destinație"
+
+#: templates/emails/alias_new.html:44
+msgid "Can be any email address (on this server or external)."
+msgstr "Poate fi orice adresă de email (pe acest server sau externă)."
+
+#: templates/emails/alias_new.html:58
+msgid "Create Alias"
+msgstr "Creează Alias"
+
+#: templates/emails/aliases.html:12
+msgid "Total aliases:"
+msgstr "Total alias-uri:"
+
+#: templates/emails/aliases.html:45
+msgid "From (alias)"
+msgstr "De la (alias)"
+
+#: templates/emails/aliases.html:55
+msgid "No aliases yet."
+msgstr "Nu există încă alias-uri."
+
+#: templates/emails/aliases.html:57
+msgid "Add your first alias"
+msgstr "Adaugă primul tău alias"
+
+#: templates/emails/confirm_import.html:143 templates/psql/import.html:52
+msgid "Importing..."
+msgstr "Se importă..."
+
+#: templates/emails/confirm_import.html:215
+#: templates/emails/confirm_import.html:236
+msgid "Retry Import"
+msgstr "Reîncearcă Importul"
+
+#: templates/emails/default_address.html:10
+#: templates/emails/default_address.html:58
+msgid "Default Email Address"
+msgstr "Adresă de Email Implicită"
+
+#: templates/emails/default_address.html:11
+msgid ""
+"Catch any email that is sent to an invalid email address for your domain."
+msgstr ""
+"Captează orice email trimis la o adresă de email invalidă pentru domeniul "
+"tău."
+
+#: templates/emails/default_address.html:74
+msgid "Current configuration"
+msgstr "Configurație curentă"
+
+#: templates/emails/default_address.html:81
+msgid "Catch-all rule"
+msgstr "Regulă catch-all"
+
+#: templates/emails/default_address.html:95
+msgid ""
+"No catch-all configured — unmatched emails for this domain are rejected."
+msgstr ""
+"Niciun catch-all configurat — emailurile necorespunzătoare pentru acest "
+"domeniu sunt respinse."
+
+#: templates/emails/default_address.html:102
+msgid "Set catch-all destination"
+msgstr "Setează destinația catch-all"
+
+#: templates/emails/default_address.html:117
+msgid "catchall@example.com"
+msgstr "catchall@exemplu.com"
+
+#: templates/emails/default_address.html:118
+msgid "No spaces allowed, use commas to separate addresses."
+msgstr "Spațiile nu sunt permise, folosește virgule pentru a separa adresele."
+
+#: templates/emails/default_address.html:122
+msgid ""
+"All emails sent to any address at this domain will be forwarded here. Leave "
+"empty to reject unmatched emails."
+msgstr ""
+"Toate emailurile trimise la orice adresă de pe acest domeniu vor fi "
+"redirecționate aici. Lasă gol pentru a respinge emailurile "
+"necorespunzătoare."
+
+#: templates/emails/default_address.html:149
+msgid "Remove catch-all"
+msgstr "Elimină catch-all"
+
+#: templates/emails/default_address.html:150
+msgid ""
+"Deletes the catch-all rule. Emails to unknown addresses at this domain will "
+"be rejected."
+msgstr ""
+"Șterge regula catch-all. Emailurile la adrese necunoscute de pe acest "
+"domeniu vor fi respinse."
+
+#: templates/emails/default_address.html:156
+msgid "Remove Catch-all"
+msgstr "Elimină Catch-all"
+
+#: templates/emails/default_address.html:187
+msgid "Saving..."
+msgstr "Se salvează..."
+
+#: templates/emails/default_address.html:210
+msgid ""
+"Remove the catch-all for this domain? Emails to unknown addresses will be "
+"rejected."
+msgstr ""
+"Elimini catch-all-ul pentru acest domeniu? Emailurile la adrese necunoscute "
+"vor fi respinse."
+
+#: templates/emails/default_address.html:222
+msgid "Failed to remove catch-all."
+msgstr "Nu s-a putut elimina catch-all-ul."
+
+#: templates/emails/deliverability.html:11
+msgid "Check SPF, DKIM and DMARC DNS records for your domains."
+msgstr "Verifică înregistrările DNS SPF, DKIM și DMARC pentru domeniile tale."
+
+#: templates/emails/deliverability.html:62
+msgid "Details"
+msgstr "Detalii"
+
+#: templates/emails/deliverability.html:107
+msgid "has SPF/DKIM/DMARC problems."
+msgstr "are probleme cu SPF/DKIM/DMARC."
+
+#: templates/emails/deliverability.html:109
+msgid "have SPF/DKIM/DMARC problems."
+msgstr "au probleme cu SPF/DKIM/DMARC."
+
+#: templates/emails/deliverability.html:111
+msgid "domains have SPF/DKIM/DMARC problems."
+msgstr "domenii au probleme cu SPF/DKIM/DMARC."
+
+#: templates/emails/deliverability_domain.html:13
+msgid "Back to Deliverability"
+msgstr "Înapoi la Livrabilitate"
+
+#: templates/emails/deliverability_domain.html:21
+msgid "Checking DNS records..."
+msgstr "Se verifică înregistrările DNS..."
+
+#: templates/emails/deliverability_domain.html:57
+msgid "Expected"
+msgstr "Așteptat"
+
+#: templates/emails/deliverability_domain.html:80
+msgid "Failed to check DNS records."
+msgstr "Nu s-au putut verifica înregistrările DNS."
+
+#: templates/emails/filter.html:11
+msgid "Select an email address to manage its Sieve filters."
+msgstr "Selectează o adresă de email pentru a gestiona filtrele Sieve."
+
+#: templates/emails/filter.html:47
+msgid "Sieve filters for"
+msgstr "Filtre Sieve pentru"
+
+#: templates/emails/filter.html:54
+msgid "Visual editor"
+msgstr "Editor vizual"
+
+#: templates/emails/filter.html:59
+msgid "File editor"
+msgstr "Editor de fișiere"
+
+#: templates/emails/filter.html:69
+msgid "Rules are applied in order, top to bottom."
+msgstr "Regulile sunt aplicate în ordine, de sus în jos."
+
+#: templates/emails/filter.html:74
+msgid "Add filter"
+msgstr "Adaugă filtru"
+
+#: templates/emails/filter.html:81
+msgid "No filters yet."
+msgstr "Nu există încă filtre."
+
+#: templates/emails/filter.html:84
+msgid "Create first filter"
+msgstr "Creează primul filtru"
+
+#: templates/emails/filter.html:94
+msgid "Filter name…"
+msgstr "Numele filtrului…"
+
+#: templates/emails/filter.html:98
+msgid "Move up"
+msgstr "Mută în sus"
+
+#: templates/emails/filter.html:102
+msgid "Move down"
+msgstr "Mută în jos"
+
+#: templates/emails/filter.html:106
+msgid "Remove filter"
+msgstr "Elimină filtru"
+
+#: templates/emails/filter.html:116
+msgid "If"
+msgstr "Dacă"
+
+#: templates/emails/filter.html:119
+msgid "any"
+msgstr "oricare"
+
+#: templates/emails/filter.html:120
+msgid "all"
+msgstr "toate"
+
+#: templates/emails/filter.html:122
+msgid "of these match:"
+msgstr "din acestea se potrivesc:"
+
+#: templates/emails/filter.html:129
+msgid "From"
+msgstr "De la"
+
+#: templates/emails/filter.html:130
+msgid "Subject"
+msgstr "Subiect"
+
+#: templates/emails/filter.html:131
+msgid "To"
+msgstr "Către"
+
+#: templates/emails/filter.html:132
+msgid "Any recipient"
+msgstr "Orice destinatar"
+
+#: templates/emails/filter.html:133
+msgid "Body"
+msgstr "Corp"
+
+#: templates/emails/filter.html:134
+msgid "Any header"
+msgstr "Orice antet"
+
+#: templates/emails/filter.html:135
+msgid "Spam status"
+msgstr "Status spam"
+
+#: templates/emails/filter.html:136
+msgid "Spam score"
+msgstr "Scor spam"
+
+#: templates/emails/filter.html:137
+msgid "List ID"
+msgstr "ID listă"
+
+#: templates/emails/filter.html:141
+msgid "contains"
+msgstr "conține"
+
+#: templates/emails/filter.html:142
+msgid "does not contain"
+msgstr "nu conține"
+
+#: templates/emails/filter.html:143
+msgid "equals"
+msgstr "este egal cu"
+
+#: templates/emails/filter.html:144
+msgid "begins with"
+msgstr "începe cu"
+
+#: templates/emails/filter.html:145
+msgid "ends with"
+msgstr "se termină cu"
+
+#: templates/emails/filter.html:146
+msgid "matches regex"
+msgstr "se potrivește cu regex"
+
+#: templates/emails/filter.html:147
+msgid "does not match regex"
+msgstr "nu se potrivește cu regex"
+
+#: templates/emails/filter.html:149
+msgid "Value…"
+msgstr "Valoare…"
+
+#: templates/emails/filter.html:152
+msgid "Remove condition"
+msgstr "Elimină condiție"
+
+#: templates/emails/filter.html:156
+msgid "Add condition"
+msgstr "Adaugă condiție"
+
+#: templates/emails/filter.html:166
+msgid "Then:"
+msgstr "Atunci:"
+
+#: templates/emails/filter.html:172
+msgid "Deliver to folder"
+msgstr "Livrează în dosar"
+
+#: templates/emails/filter.html:173
+msgid "Redirect to email"
+msgstr "Redirecționează la email"
+
+#: templates/emails/filter.html:174
+msgid "Forward to email (keep copy)"
+msgstr "Redirecționează la email (păstrează copie)"
+
+#: templates/emails/filter.html:175
+msgid "Discard message"
+msgstr "Renunță la mesaj"
+
+#: templates/emails/filter.html:176
+msgid "Reject with message"
+msgstr "Respinge cu mesaj"
+
+#: templates/emails/filter.html:177
+msgid "Mark as read"
+msgstr "Marchează ca citit"
+
+#: templates/emails/filter.html:178
+msgid "Flag / star"
+msgstr "Marchează / stea"
+
+#: templates/emails/filter.html:179
+msgid "Auto-responder (vacation)"
+msgstr "Răspuns automat (vacanță)"
+
+#: templates/emails/filter.html:180
+msgid "Stop processing"
+msgstr "Oprește procesarea"
+
+#: templates/emails/filter.html:189
+#, python-brace-format
+msgid "Subject, e.g. Re: ${subjectwas}"
+msgstr "Subiect, ex. Re: ${subjectwas}"
+
+#: templates/emails/filter.html:191
+msgid "Auto-reply message…"
+msgstr "Mesaj de răspuns automat…"
+
+#: templates/emails/filter.html:194
+msgid "Reply at most once every"
+msgstr "Răspunde cel mult o dată la fiecare"
+
+#: templates/emails/filter.html:197
+msgid "day(s) per sender"
+msgstr "zi(le) pe expeditor"
+
+#: templates/emails/filter.html:202
+msgid "Remove action"
+msgstr "Elimină acțiune"
+
+#: templates/emails/filter.html:206
+msgid "Add action"
+msgstr "Adaugă acțiune"
+
+#: templates/emails/filter.html:223
+msgid "Save filters"
+msgstr "Salvează filtrele"
+
+#: templates/emails/filter.html:241
+msgid "Save file"
+msgstr "Salvează fișierul"
+
+#: templates/emails/filter.html:304
+msgid "Folder name, e.g. Junk"
+msgstr "Numele dosarului, ex. Junk"
+
+#: templates/emails/filter.html:307
+msgid "Rejection message…"
+msgstr "Mesaj de respingere…"
+
+#: templates/emails/filter.html:308
+msgid "Flag, e.g. \\\\Flagged"
+msgstr "Marcaj, ex. \\\\Flagged"
+
+#: templates/emails/info.html:11
+msgid "How to setup your email client"
+msgstr "Cum să configurezi clientul de email"
+
+#: templates/emails/info.html:22
+msgid "Use the email account's password."
+msgstr "Folosește parola contului de email."
+
+#: templates/emails/new.html:195
+msgid "Storage quota"
+msgstr "Cotă de stocare"
+
+#: templates/emails/new.html:215
+msgid "Set to 0 for unlimited."
+msgstr "Setează la 0 pentru nelimitat."
+
+#: templates/error_pages/error.html:21
+msgid "Click to view a"
+msgstr "Apasă pentru a vedea un"
+
+#: templates/files/backup_restore.html:103
+msgid "Restore & Download"
+msgstr "Restaurează și Descarcă"
+
+#: templates/files/backup_restore.html:110
+msgid "Indexing..."
+msgstr "Se indexează..."
+
+#: templates/files/backup_restore.html:114
+msgid "Restore or download backups from destination."
+msgstr "Restaurează sau descarcă backup-uri din destinație."
+
+#: templates/files/backup_restore.html:126
+msgid "Reindex Destination"
+msgstr "Reindexează Destinația"
+
+#: templates/files/backup_restore.html:152
+msgid "Search backups..."
+msgstr "Caută backup-uri..."
+
+#: templates/files/backup_restore.html:166
+msgid "Backup File"
+msgstr "Fișier de Backup"
+
+#: templates/files/backup_restore.html:169
+msgid "Contents"
+msgstr "Conținut"
+
+#: templates/files/backup_restore.html:271
+msgid "Indexing destination, please wait..."
+msgstr "Se indexează destinația, te rog așteaptă..."
+
+#: templates/files/backup_restore.html:274
+msgid "No backups indexed yet"
+msgstr "Nu există încă backup-uri indexate"
+
+#: templates/files/backup_restore.html:279
+msgid "Click \"Reindex Destination\" to fetch available backups."
+msgstr ""
+"Apasă \"Reindexează Destinația\" pentru a prelua backup-urile disponibile."
+
+#: templates/files/backup_restore.html:313
+msgid "Restore Backup"
+msgstr "Restaurează Backup"
+
+#: templates/files/backup_restore.html:332
+msgid "Restoring will overwrite existing data. This action cannot be undone."
+msgstr ""
+"Restaurarea va suprascrie datele existente. Această acțiune nu poate fi "
+"anulată."
+
+#: templates/files/backup_restore.html:338
+msgid "What to restore"
+msgstr "Ce se restaurează"
+
+#: templates/files/backup_restore.html:346
+msgid "Specific database only"
+msgstr "Doar baza de date specificată"
+
+#: templates/files/backup_restore.html:350
+msgid "Files only (no databases)"
+msgstr "Doar fișiere (fără baze de date)"
+
+#: templates/files/backup_restore.html:357
+msgid "Select database"
+msgstr "Selectează baza de date"
+
+#: templates/files/backup_restore.html:377
+msgid "Restore completed successfully."
+msgstr "Restaurarea a fost finalizată cu succes."
+
+#: templates/files/backup_restore.html:388
+msgid "Restore failed."
+msgstr "Restaurarea a eșuat."
+
+#: templates/files/backup_restore.html:415
+msgid "Restoring..."
+msgstr "Se restaurează..."
+
+#: templates/files/backup_restore.html:448
+msgid "Download Backup"
+msgstr "Descarcă Backup"
+
+#: templates/files/backup_restore.html:461
+msgid ""
+"The backup archive will be fetched from the destination and downloaded to "
+"your browser."
+msgstr ""
+"Arhiva de backup va fi preluată din destinație și descărcată în browserul "
+"tău."
+
+#: templates/files/backup_restore.html:464
+msgid "Large files may take a moment to transfer."
+msgstr "Fișierele mari pot dura câteva momente pentru a fi transferate."
+
+#: templates/files/backup_restore.html:475
+msgid "Download started."
+msgstr "Descărcarea a început."
+
+#: templates/files/backup_restore.html:484
+msgid "Download failed."
+msgstr "Descărcarea a eșuat."
+
+#: templates/files/backup_restore.html:514
+msgid "Downloading..."
+msgstr "Se descarcă..."
+
+#: templates/files/edit_file.html:127
+msgid "Open in File Manager"
+msgstr "Deschide în Managerul de Fișiere"
+
+#: templates/files/edit_file.html:194
+msgid "You have unsaved changes. Leave anyway?"
+msgstr "Ai modificări nesalvate. Pleci totuși?"
+
+#: templates/files/filemanager.html:429
+msgid "has no permissions (0000) and cannot be accessed."
+msgstr "nu are permisiuni (0000) și nu poate fi accesat."
+
+#: templates/files/filemanager.html:431
+msgid "have no permissions (0000) and cannot be accessed."
+msgstr "nu au permisiuni (0000) și nu pot fi accesate."
+
+#: templates/files/filemanager.html:433
+msgid "files have no permissions (0000) and cannot be accessed."
+msgstr "fișiere nu au permisiuni (0000) și nu pot fi accesate."
+
+#: templates/files/ftp.html:77
+msgid "No accounts yet."
+msgstr "Nu există încă conturi."
+
+#: templates/files/ftp.html:77
+msgid "Add your first account"
+msgstr "Adaugă primul tău cont"
+
+#: templates/files/ftp_connections.html:27
+msgid "No active connections"
+msgstr "Nicio conexiune activă"
+
+#: templates/files/ftp_connections.html:28
+msgid "There are no active FTP sessions at this time."
+msgstr "Nu există sesiuni FTP active în acest moment."
+
+#: templates/files/ftp_password.html:165 templates/user/account.html:97
+msgid "Confirm New Password"
+msgstr "Confirmă Parola Nouă"
+
+#: templates/files/ftp_path.html:35
+msgid "Path must start with /var/www/html/"
+msgstr "Calea trebuie să înceapă cu /var/www/html/"
+
+#: templates/files/ftp_path.html:36
+msgid "Path traversal (../) is not allowed"
+msgstr "Traversarea căilor (../) nu este permisă"
+
+#: templates/files/upload_file.html:379
+msgid "Please enter a valid URL."
+msgstr "Te rog introdu un URL valid."
+
+#: templates/files/upload_file.html:405
+msgid "Unexpected server response from download endpoint."
+msgstr "Răspuns neașteptat al serverului de la endpoint-ul de descărcare."
+
+#: templates/files/upload_file.html:412
+msgid "Server did not return a download ID."
+msgstr "Serverul nu a returnat un ID de descărcare."
+
+#: templates/files/upload_file.html:425
+msgid "Error starting download:"
+msgstr "Eroare la pornirea descărcării:"
+
+#: templates/files/upload_file.html:432
+msgid "Network error during file download. Please try again."
+msgstr ""
+"Eroare de rețea în timpul descărcării fișierului. Te rog încearcă din nou."
+
+#: templates/files/upload_file.html:470
+msgid "Please select files to upload."
+msgstr "Te rog selectează fișierele de încărcat."
+
+#: templates/files/upload_file.html:549
+msgid "Files uploaded successfully!"
+msgstr "Fișierele au fost încărcate cu succes!"
+
+#: templates/files/upload_file.html:559
+msgid "Error uploading file:"
+msgstr "Eroare la încărcarea fișierului:"
+
+#: templates/files/upload_file.html:569
+msgid "Network error during file upload. Please try again."
+msgstr ""
+"Eroare de rețea în timpul încărcării fișierului. Te rog încearcă din nou."
+
+#: templates/files/clamav/quarantine.html:59
+msgid "Click here to start a new scan"
+msgstr "Apasă aici pentru a porni o nouă scanare"
+
+#: templates/files/clamav/scanner.html:98
+msgid "Scan failed: "
+msgstr "Scanarea a eșuat: "
+
+#: templates/files/filemanager/compress.html:5
+msgid "Compress items"
+msgstr "Comprimă elementele"
+
+#: templates/files/filemanager/drag_and_drop.html:153
+#, python-format
+msgid "Uploading %%(count)s files"
+msgstr "Se încarcă %%(count)s fișiere"
+
+#: templates/files/filemanager/drag_and_drop.html:169
+msgid "Upload successful!"
+msgstr "Încărcarea a reușit!"
+
+#: templates/files/filemanager/drag_and_drop.html:175
+msgid "Upload failed:"
+msgstr "Încărcarea a eșuat:"
+
+#: templates/files/filemanager/drag_and_drop.html:180
+msgid "Upload error. Please try again."
+msgstr "Eroare la încărcare. Te rog încearcă din nou."
+
+#: templates/files/filemanager/inline_js.html:15
+msgid "Calculating..."
+msgstr "Se calculează..."
+
+#: templates/files/filemanager/table.html:47
+msgid "Go Up"
+msgstr "Mergi Sus"
+
+#: templates/manager/pm2_install.html:96
+msgid "Application details"
+msgstr "Detalii aplicație"
+
+#: templates/manager/pm2_install.html:300
+#: templates/manager/websitebuilder_install.html:32
+#: templates/manager/wp/install.html:66
+msgid "Domain & location"
+msgstr "Domeniu și locație"
+
+#: templates/manager/pm2_install.html:319
+#: templates/manager/websitebuilder_install.html:47
+#: templates/manager/wp/install.html:81
+msgid "subfolder"
+msgstr "subdosar"
+
+#: templates/manager/pm2_install.html:322
+#: templates/manager/websitebuilder_install.html:50
+#: templates/manager/wp/install.html:84
+msgid "Leave subfolder blank to install at the domain root"
+msgstr "Lasă subdosarul gol pentru instalare la rădăcina domeniului"
+
+#: templates/manager/pm2_install.html:360
+msgid "Service name in reverse-proxy:"
+msgstr "Numele serviciului în reverse-proxy:"
+
+#: templates/manager/pm2_install.html:399
+msgid "Startup file"
+msgstr "Fișier de pornire"
+
+#: templates/manager/pm2_install.html:460
+msgid ""
+"When enabled, this option will first run npm install using the package.json "
+"file, then launch the application."
+msgstr ""
+"Când este activată, această opțiune va rula mai întâi npm install folosind "
+"fișierul package.json, apoi va lansa aplicația."
+
+#: templates/manager/pm2_install.html:470
+msgid "Advanced options"
+msgstr "Opțiuni avansate"
+
+#: templates/manager/pm2_install.html:481
+msgid "CPU & memory limits"
+msgstr "Limite CPU și memorie"
+
+#: templates/manager/pm2_install.html:483
+msgid "optional · click to review"
+msgstr "opțional · apasă pentru a revizui"
+
+#: templates/manager/pm2_install.html:490
+msgid "CPU cores"
+msgstr "Nuclee CPU"
+
+#: templates/manager/pm2_install.html:504
+msgid "Memory (GB)"
+msgstr "Memorie (GB)"
+
+#: templates/manager/pm2_install.html:523
+#: templates/manager/websitebuilder_install.html:62
+#: templates/manager/wp/install.html:216
+msgid "← Back"
+msgstr "← Înapoi"
+
+#: templates/manager/pm2_install.html:540
+msgid ""
+"Checks for already running install processes and validates the submitted "
+"form data."
+msgstr ""
+"Verifică procesele de instalare deja în curs și validează datele din "
+"formular trimise."
+
+#: templates/manager/pm2_install.html:542
+#: templates/manager/wp/install.html:235
+msgid "Running pre-flight checks"
+msgstr "Se efectuează verificările preliminare"
+
+#: templates/manager/pm2_install.html:546
+msgid ""
+"Generates the docker-compose service entry for the application and writes "
+"its environment variables to the .env file."
+msgstr ""
+"Generează intrarea de serviciu docker-compose pentru aplicație și scrie "
+"variabilele de mediu în fișierul .env."
+
+#: templates/manager/pm2_install.html:548
+msgid "Adding service to docker-compose.yml"
+msgstr "Se adaugă serviciul în docker-compose.yml"
+
+#: templates/manager/pm2_install.html:552
+msgid ""
+"Starts the application container and verifies it is running before "
+"continuing."
+msgstr ""
+"Pornește containerul aplicației și verifică că rulează înainte de a "
+"continua."
+
+#: templates/manager/pm2_install.html:554
+msgid "Starting application container"
+msgstr "Se pornește containerul aplicației"
+
+#: templates/manager/pm2_install.html:558
+msgid ""
+"Detects the installed webserver (Apache, Nginx, LiteSpeed or OpenResty) and "
+"creates the reverse-proxy configuration for the domain."
+msgstr ""
+"Detectează serverul web instalat (Apache, Nginx, LiteSpeed sau OpenResty) și"
+" creează configurația reverse-proxy pentru domeniu."
+
+#: templates/manager/pm2_install.html:560
+msgid "Configuring reverse proxy"
+msgstr "Se configurează reverse proxy"
+
+#: templates/manager/pm2_install.html:564
+msgid ""
+"Restarts the webserver container so the new reverse-proxy configuration is "
+"applied."
+msgstr ""
+"Repornește containerul serverului web pentru a aplica noua configurație "
+"reverse-proxy."
+
+#: templates/manager/pm2_install.html:566
+msgid "Restarting webserver"
+msgstr "Se repornește serverul web"
+
+#: templates/manager/pm2_install.html:570
+msgid ""
+"Records the new application in the database so it appears in Site Manager."
+msgstr ""
+"Înregistrează noua aplicație în baza de date pentru a apărea în Site "
+"Manager."
+
+#: templates/manager/pm2_install.html:572
+#: templates/manager/websitebuilder_install.html:99
+#: templates/manager/wp/install.html:307
+msgid "Saving to Site Manager"
+msgstr "Se salvează în Site Manager"
+
+#: templates/manager/pm2_install.html:594
+msgid "Setting up application"
+msgstr "Se configurează aplicația"
+
+#: templates/manager/pm2_install.html:599
+#: templates/manager/wp/install.html:334
+msgid "Install process hanged for"
+msgstr "Procesul de instalare s-a blocat pentru"
+
+#: templates/manager/pm2_install.html:609
+#: templates/manager/wp/install.html:344
+msgid "Install process failed for"
+msgstr "Procesul de instalare a eșuat pentru"
+
+#: templates/manager/pm2_install.html:829
+#: templates/manager/websitebuilder_install.html:365
+#: templates/manager/wp/install.html:589
+msgid "Connection lost during installation."
+msgstr "Conexiunea a fost pierdută în timpul instalării."
+
+#: templates/manager/websitebuilder.html:195
+msgid "Generate a backup of website files."
+msgstr "Generează un backup al fișierelor site-ului."
+
+#: templates/manager/websitebuilder.html:219
+msgid "Restore website files from a previous backup."
+msgstr "Restaurează fișierele site-ului dintr-un backup anterior."
+
+#: templates/manager/websitebuilder.html:256
+msgid "Remove the website from WP Manager."
+msgstr "Elimină site-ul din WP Manager."
+
+#: templates/manager/websitebuilder.html:288
+msgid "Permanently delete the website and all its files."
+msgstr "Șterge definitiv site-ul și toate fișierele sale."
+
+#: templates/manager/websitebuilder_install.html:79
+msgid ""
+"Creates the destination folder and writes the initial index.html and "
+"style.css files."
+msgstr ""
+"Creează dosarul destinație și scrie fișierele inițiale index.html și "
+"style.css."
+
+#: templates/manager/websitebuilder_install.html:81
+msgid "Creating files"
+msgstr "Se creează fișierele"
+
+#: templates/manager/websitebuilder_install.html:85
+msgid ""
+"Sets file permissions to 755 so the web server and PHP can read and serve "
+"them."
+msgstr ""
+"Setează permisiunile fișierelor la 755 astfel încât serverul web și PHP să "
+"le poată citi și servi."
+
+#: templates/manager/websitebuilder_install.html:87
+msgid "Setting file permissions"
+msgstr "Se setează permisiunile fișierelor"
+
+#: templates/manager/websitebuilder_install.html:91
+msgid "Sets ownership of all files to the correct system user."
+msgstr ""
+"Setează proprietarul tuturor fișierelor la utilizatorul de sistem corect."
+
+#: templates/manager/websitebuilder_install.html:93
+msgid "Setting file ownership"
+msgstr "Se setează proprietarul fișierelor"
+
+#: templates/manager/websitebuilder_install.html:97
+msgid "Records the new website in the database so it appears in Site Manager."
+msgstr ""
+"Înregistrează noul site în baza de date pentru a apărea în Site Manager."
+
+#: templates/manager/websitebuilder_install.html:122
+msgid "Building website for"
+msgstr "Se construiește site-ul pentru"
+
+#: templates/manager/websitebuilder_install.html:127
+msgid "Build process hanged for"
+msgstr "Procesul de construire s-a blocat pentru"
+
+#: templates/manager/websitebuilder_install.html:137
+msgid "Build process failed for"
+msgstr "Procesul de construire a eșuat pentru"
+
+#: templates/manager/websitebuilder_install.html:321
+msgid "Creating website. Please wait for the process to finish."
+msgstr "Se creează site-ul. Te rog așteaptă finalizarea procesului."
+
+#: templates/manager/wp/_secure.html:4
+msgid "Security Measures"
+msgstr "Măsuri de Securitate"
+
+#: templates/manager/wp/_secure.html:5
+msgid ""
+"Server-level restrictions to harden your WordPress instance. Rules are "
+"applied at the webserver level before PHP processing."
+msgstr ""
+"Restricții la nivel de server pentru a întări instalarea WordPress. Regulile"
+" sunt aplicate la nivelul serverului web înainte de procesarea PHP."
+
+#: templates/manager/wp/_secure.html:47
+msgid "How it works"
+msgstr "Cum funcționează"
+
+#: templates/manager/wp/_secure.html:87
+msgid "Apply Changes"
+msgstr "Aplică Modificările"
+
+#: templates/manager/wp/_vulnerabilities.html:41
+msgid "No vulnerabilities found"
+msgstr "Nu au fost găsite vulnerabilități"
+
+#: templates/manager/wp/install.html:32
+msgid "Site details"
+msgstr "Detalii site"
+
+#: templates/manager/wp/install.html:38
+msgid "Website name"
+msgstr "Numele site-ului"
+
+#: templates/manager/wp/install.html:46
+msgid "Tagline"
+msgstr "Slogan"
+
+#: templates/manager/wp/install.html:49
+msgid "Just another WordPress site"
+msgstr "Încă un site WordPress"
+
+#: templates/manager/wp/install.html:56
+msgid "WordPress version"
+msgstr "Versiune WordPress"
+
+#: templates/manager/wp/install.html:96
+msgid "Admin credentials"
+msgstr "Credențiale admin"
+
+#: templates/manager/wp/install.html:97
+msgid "auto-generated"
+msgstr "generat automat"
+
+#: templates/manager/wp/install.html:173
+msgid "Database settings"
+msgstr "Setări bază de date"
+
+#: templates/manager/wp/install.html:175
+msgid "auto-generated · click to review"
+msgstr "generat automat · apasă pentru a revizui"
+
+#: templates/manager/wp/install.html:182
+msgid "Database name"
+msgstr "Numele bazei de date"
+
+#: templates/manager/wp/install.html:189
+msgid "Table prefix"
+msgstr "Prefix tabel"
+
+#: templates/manager/wp/install.html:196
+msgid "DB username"
+msgstr "Utilizator BD"
+
+#: templates/manager/wp/install.html:203
+msgid "DB password"
+msgstr "Parolă BD"
+
+#: templates/manager/wp/install.html:233
+msgid ""
+"Validates provided data, checks if install already exists, fetches PHP "
+"version and folder for the domain. Checks the assigned PHP version and "
+"webservers, confirms the containers are available, and starts them if "
+"needed."
+msgstr ""
+"Validează datele furnizate, verifică dacă instalarea există deja, preia "
+"versiunea PHP și dosarul pentru domeniu. Verifică versiunea PHP atribuită și"
+" serverele web, confirmă că containerele sunt disponibile și le pornește "
+"dacă este necesar."
+
+#: templates/manager/wp/install.html:239
+msgid ""
+"Downloads the WordPress .tar.gz archive from wordpress.org, or reuses a "
+"local copy if already present."
+msgstr ""
+"Descarcă arhiva WordPress .tar.gz de pe wordpress.org sau refolosește o "
+"copie locală dacă există deja."
+
+#: templates/manager/wp/install.html:241
+msgid "Downloading WordPress archive"
+msgstr "Se descarcă arhiva WordPress"
+
+#: templates/manager/wp/install.html:245
+msgid "Extracts all WordPress core files into the domain folder."
+msgstr "Extrage toate fișierele de bază WordPress în dosarul domeniului."
+
+#: templates/manager/wp/install.html:247
+msgid "Extracting files to document root"
+msgstr "Se extrag fișierele în directorul rădăcină"
+
+#: templates/manager/wp/install.html:251
+msgid ""
+"Creates the .htaccess file with rewrite rules, adds database credentials to "
+"wp-config.php, and adds the mu-plugin for HTTPS behind Varnish."
+msgstr ""
+"Creează fișierul .htaccess cu reguli de rescrie, adaugă credențialele bazei "
+"de date în wp-config.php și adaugă mu-plugin-ul pentru HTTPS în spatele "
+"Varnish."
+
+#: templates/manager/wp/install.html:253
+msgid "Creating .htaccess & writing wp-config.php"
+msgstr "Se creează .htaccess și se scrie wp-config.php"
+
+#: templates/manager/wp/install.html:257
+msgid ""
+"Generates 8 unique cryptographic secret keys and salts and writes them into "
+"wp-config.php to secure cookies and sessions."
+msgstr ""
+"Generează 8 chei secrete criptografice unice și salturi și le scrie în wp-"
+"config.php pentru a securiza cookie-urile și sesiunile."
+
+#: templates/manager/wp/install.html:259
+msgid "Generating security keys & salts"
+msgstr "Se generează cheile de securitate și salturile"
+
+#: templates/manager/wp/install.html:263
+msgid ""
+"Sets ownership of all files to the correct system user so the web server and"
+" PHP can read and write them."
+msgstr ""
+"Setează proprietarul tuturor fișierelor la utilizatorul de sistem corect "
+"astfel încât serverul web și PHP să le poată citi și scrie."
+
+#: templates/manager/wp/install.html:265
+msgid "Setting file permissions & ownership"
+msgstr "Se setează permisiunile și proprietarul fișierelor"
+
+#: templates/manager/wp/install.html:269
+msgid ""
+"Runs wp --info inside the PHP container to confirm WP-CLI is functional "
+"before attempting any database operations."
+msgstr ""
+"Rulează wp --info în interiorul containerului PHP pentru a confirma că WP-"
+"CLI funcționează înainte de a încerca orice operații cu baza de date."
+
+#: templates/manager/wp/install.html:271
+msgid "Testing WP-CLI commands"
+msgstr "Se testează comenzile WP-CLI"
+
+#: templates/manager/wp/install.html:275
+msgid ""
+"Verifies the MySQL/MariaDB container is running, then creates the database, "
+"user, and grants all privileges."
+msgstr ""
+"Verifică că containerul MySQL/MariaDB rulează, apoi creează baza de date, "
+"utilizatorul și acordă toate privilegiile."
+
+#: templates/manager/wp/install.html:277
+msgid "Creating database & MySQL user"
+msgstr "Se creează baza de date și utilizatorul MySQL"
+
+#: templates/manager/wp/install.html:281
+msgid ""
+"Runs wp core install via WP-CLI to create all WordPress tables, set the site"
+" URL, title, and admin account."
+msgstr ""
+"Rulează wp core install prin WP-CLI pentru a crea toate tabelele WordPress, "
+"a seta URL-ul site-ului, titlul și contul admin."
+
+#: templates/manager/wp/install.html:283
+msgid "Importing tables into database"
+msgstr "Se importă tabelele în baza de date"
+
+#: templates/manager/wp/install.html:287
+msgid "Sets pretty permalink structure and the site tagline."
+msgstr "Setează structura permalink și sloganul site-ului."
+
+#: templates/manager/wp/install.html:289
+msgid "Configuring permalinks & site settings"
+msgstr "Se configurează permalink-urile și setările site-ului"
+
+#: templates/manager/wp/install.html:293
+msgid ""
+"Installs the WP-CLI Login Command package so you can jump directly into wp-"
+"admin from WP Manager without entering credentials."
+msgstr ""
+"Instalează pachetul WP-CLI Login Command pentru a putea accesa direct wp-"
+"admin din WP Manager fără a introduce credențiale."
+
+#: templates/manager/wp/install.html:295
+msgid "Installing auto-login plugin"
+msgstr "Se instalează plugin-ul de autentificare automată"
+
+#: templates/manager/wp/install.html:299
+msgid ""
+"Checks for server-wide or user-specific plugins and themes sets and installs"
+" them via WP-CLI."
+msgstr ""
+"Verifică seturile de plugin-uri și teme la nivel de server sau specifice "
+"utilizatorului și le instalează prin WP-CLI."
+
+#: templates/manager/wp/install.html:301
+msgid "Checking and installing plugins & themes sets"
+msgstr "Se verifică și instalează seturile de plugin-uri și teme"
+
+#: templates/manager/wp/install.html:305
+msgid ""
+"Records the installation in the database so the site appears in WP Manager."
+msgstr ""
+"Înregistrează instalarea în baza de date pentru ca site-ul să apară în WP "
+"Manager."
+
+#: templates/manager/wp/install.html:329
+msgid "Install in progress for"
+msgstr "Instalare în curs pentru"
+
+#: templates/manager/wp/single.html:40
+msgid "Failed to load users"
+msgstr "Nu s-au putut încărca utilizatorii"
+
+#: templates/manager/wp/single.html:52
+msgid "Choose admin user"
+msgstr "Alege utilizatorul admin"
+
+#: templates/manager/wp/single.html:62
+msgid "Loading admin users..."
+msgstr "Se încarcă utilizatorii admin..."
+
+#: templates/manager/wp/single.html:68
+msgid "No administrator users found."
+msgstr "Nu au fost găsiți utilizatori administrator."
+
+#: templates/manager/wp/single.html:212
+msgid "WordPress:"
+msgstr "WordPress:"
+
+#: templates/manager/wp/single.html:224
+msgid "PHP:"
+msgstr "PHP:"
+
+#: templates/manager/wp/single.html:230
+msgid "Click to change"
+msgstr "Apasă pentru a modifica"
+
+#: templates/manager/wp/single.html:239
+#, python-format
+msgid "Inherits PHP version from %(domain)s"
+msgstr "Moștenește versiunea PHP de la %(domain)s"
+
+#: templates/manager/wp/single.html:266
+msgid "MySQL:"
+msgstr "MySQL:"
+
+#: templates/manager/wp/single.html:364
+msgid "Auto-login link:"
+msgstr "Link de autentificare automată:"
+
+#: templates/manager/wp/single.html:369
+msgid "Unexpected response from WP-CLI."
+msgstr "Răspuns neașteptat de la WP-CLI."
+
+#: templates/manager/wp/single.html:372
+msgid "Error parsing backend response."
+msgstr "Eroare la parsarea răspunsului backend."
+
+#: templates/manager/wp/single.html:375
+msgid "Failed to get login link. Server returned status"
+msgstr ""
+"Nu s-a putut obține linkul de autentificare. Serverul a returnat statusul"
+
+#: templates/manager/wp/single.html:681
+msgid "Pingbacks and Trackbacks"
+msgstr "Pingback-uri și Trackback-uri"
+
+#: templates/manager/wp/single.html:778
+msgid "Failed to get options. Server returned status"
+msgstr "Nu s-au putut obține opțiunile. Serverul a returnat statusul"
+
+#: templates/manager/wp/single.html:938
+msgid "An error occurred while verifying checksums."
+msgstr "A apărut o eroare la verificarea sumelor de control."
+
+#: templates/manager/wp/single.html:987
+msgid "An error occurred while verifying plugins checksums."
+msgstr ""
+"A apărut o eroare la verificarea sumelor de control ale plugin-urilor."
+
+#: templates/manager/wp/single.html:1247
+msgid "Error checking maintenance mode"
+msgstr "Eroare la verificarea modului de întreținere"
+
+#: templates/manager/wp/single.html:1261
+msgid "Maintenance mode is now enabled."
+msgstr "Modul de întreținere este acum activat."
+
+#: templates/manager/wp/single.html:1263
+msgid "Maintenance mode is now disabled."
+msgstr "Modul de întreținere este acum dezactivat."
+
+#: templates/manager/wp/single.html:1316
+msgid "Update now"
+msgstr "Actualizează acum"
+
+#: templates/manager/wp/single.html:1869
+msgid "Database name and user to use for the clone (optional)"
+msgstr ""
+"Numele bazei de date și utilizatorul de folosit pentru clonă (opțional)"
+
+#: templates/manager/wp/single.html:1888
+msgid "Database user"
+msgstr "Utilizator bază de date"
+
+#: templates/manager/wp/single.html:1902
+msgid "User password"
+msgstr "Parola utilizatorului"
+
+#: templates/manager/wp/single.html:1936
+msgid "Cloning..."
+msgstr "Se clonează..."
+
+#: templates/manager/wp/single.html:1960
+msgid "Clone Complete"
+msgstr "Clonare Completă"
+
+#: templates/manager/wp/single.html:1964
+msgid "Try Again"
+msgstr "Încearcă Din Nou"
+
+#: templates/manager/wp/single.html:1970
+msgid "Retry Clone"
+msgstr "Reîncearcă Clonarea"
+
+#: templates/manager/wp/single.html:1986
+msgid "Generate a backup of files and/or database."
+msgstr "Generează un backup al fișierelor și/sau bazei de date."
+
+#: templates/manager/wp/single.html:2018
+msgid "Restore files and/or database from a backup."
+msgstr "Restaurează fișierele și/sau baza de date dintr-un backup."
+
+#: templates/manager/wp/single.html:2056
+msgid "website from WP Manager."
+msgstr "site-ul din WP Manager."
+
+#: templates/manager/wp/single.html:2067
+msgid "All website data such as files, crons and database remains."
+msgstr ""
+"Toate datele site-ului, cum ar fi fișierele, cron-urile și baza de date, "
+"rămân."
+
+#: templates/manager/wp/single.html:2090
+msgid "Permanently delete WordPress files & database."
+msgstr "Șterge definitiv fișierele WordPress și baza de date."
+
+#: templates/manager/wp/single.html:2100
+msgid "Delete the"
+msgstr "Șterge"
+
+#: templates/manager/wp/single.html:2100
+msgid "website and all its files and database."
+msgstr "site-ul și toate fișierele și baza de date ale acestuia."
+
+#: templates/manager/wp/single.html:2293
+msgid "MariaDB:"
+msgstr "MariaDB:"
+
+#: templates/manager/wp/single.html:2377
+msgid "Update failed."
+msgstr "Actualizarea a eșuat."
+
+#: templates/mysql/_error.html:4
+msgid "Is database service running?"
+msgstr "Serviciul de baze de date rulează?"
+
+#: templates/mysql/_error.html:5
+msgid "Error Establishing a Database Connection"
+msgstr "Eroare la Stabilirea Conexiunii cu Baza de Date"
+
+#: templates/mysql/_error.html:10
+msgid "Manage Container"
+msgstr "Gestionează Containerul"
+
+#: templates/mysql/_error.html:12
+msgid "Contact Administrator"
+msgstr "Contactează Administratorul"
+
+#: templates/mysql/assign.html:8
+msgid "Manage User Privileges"
+msgstr "Gestionează Privilegiile Utilizatorului"
+
+#: templates/mysql/assign.html:63
+msgid "Select privileges:"
+msgstr "Selectează privilegiile:"
+
+#: templates/mysql/assign.html:97
+msgid "Make Changes"
+msgstr "Efectuează Modificările"
+
+#: templates/mysql/databases.html:37
+msgid "Show database sizes"
+msgstr "Afișează dimensiunile bazelor de date"
+
+#: templates/mysql/databases.html:224
+msgid "Manage privileges"
+msgstr "Gestionează privilegiile"
+
+#: templates/mysql/databases.html:391
+msgid "Format:"
+msgstr "Format:"
+
+#: templates/mysql/databases.html:411
+msgid "Destination:"
+msgstr "Destinație:"
+
+#: templates/mysql/databases.html:417
+msgid "Browser"
+msgstr "Browser"
+
+#: templates/mysql/databases.html:451
+msgid "Optimize"
+msgstr "Optimizează"
+
+#: templates/mysql/databases.html:464
+msgid "Repair"
+msgstr "Repară"
+
+#: templates/mysql/databases.html:576
+msgid "No databases yet."
+msgstr "Nu există încă baze de date."
+
+#: templates/mysql/databases.html:576
+msgid "Create your first database"
+msgstr "Creează prima ta bază de date"
+
+#: templates/mysql/databases.html:582 templates/mysql/users.html:164
+msgid ""
+"Service is unhealthy. Try restarting it from Services, or contact your "
+"administrator."
+msgstr ""
+"Serviciul este nesănătos. Încearcă să îl repornești din Servicii sau "
+"contactează administratorul tău."
+
+#: templates/mysql/databases.html:589 templates/mysql/users.html:172
+msgid "Service is active, but the databases are still initializing."
+msgstr "Serviciul este activ, dar bazele de date se inițializează încă."
+
+#: templates/mysql/databases.html:603 templates/mysql/users.html:187
+msgid "Service installation is underway and may take up to one minute."
+msgstr "Instalarea serviciului este în curs și poate dura până la un minut."
+
+#: templates/mysql/databases.html:611 templates/mysql/users.html:196
+msgid ""
+"Service has been created but not yet started. Start it from the Services "
+"page."
+msgstr ""
+"Serviciul a fost creat dar nu a fost pornit încă. Pornește-l din pagina "
+"Servicii."
+
+#: templates/mysql/databases.html:613 templates/mysql/users.html:198
+msgid ""
+"Service is restarting. This may indicate a configuration error or a crash — "
+"check the logs on the Services page."
+msgstr ""
+"Serviciul se repornește. Aceasta poate indica o eroare de configurare sau o "
+"cădere — verifică jurnalele pe pagina Servicii."
+
+#: templates/mysql/databases.html:615 templates/mysql/users.html:200
+msgid "Service is paused. Resume it from the Services page."
+msgstr "Serviciul este pauzat. Reia-l din pagina Servicii."
+
+#: templates/mysql/databases.html:617 templates/mysql/users.html:202
+msgid ""
+"Service has stopped. This is usually caused by resource exhaustion — "
+"increase resource limits for this service and then restart it from the "
+"Services page."
+msgstr ""
+"Serviciul s-a oprit. Aceasta este de obicei cauzată de epuizarea resurselor "
+"— mărește limitele de resurse pentru acest serviciu și repornește-l din "
+"pagina Servicii."
+
+#: templates/mysql/databases.html:619 templates/mysql/users.html:204
+msgid "Service is being deleted. Please wait for the process to complete."
+msgstr ""
+"Serviciul este în curs de ștergere. Te rog așteaptă finalizarea procesului."
+
+#: templates/mysql/databases.html:621 templates/mysql/users.html:206
+msgid ""
+"Service has crashed and cannot recover. This is usually caused by resource "
+"exhaustion — check the logs on the Services page."
+msgstr ""
+"Serviciul s-a prăbușit și nu se poate recupera. Aceasta este de obicei "
+"cauzată de epuizarea resurselor — verifică jurnalele pe pagina Servicii."
+
+#: templates/mysql/databases.html:623 templates/mysql/users.html:208
+msgid "Unable to retrieve service status. Please contact your administrator."
+msgstr ""
+"Nu se poate prelua starea serviciului. Te rog contactează administratorul "
+"tău."
+
+#: templates/mysql/databases.html:636 templates/mysql/users.html:221
+msgid "The page will refresh in"
+msgstr "Pagina se va reîncărca în"
+
+#: templates/mysql/databases.html:656 templates/psql/databases.html:202
+#, python-format
+msgid "Database %(db)s has no users assigned."
+msgstr "Baza de date %(db)s nu are utilizatori atribuiți."
+
+#: templates/mysql/databases.html:662 templates/psql/databases.html:208
+#, python-format
+msgid "Databases %(dbs)s have no users assigned."
+msgstr "Bazele de date %(dbs)s nu au utilizatori atribuiți."
+
+#: templates/mysql/databases.html:668 templates/psql/databases.html:214
+#, python-format
+msgid "%(n)s databases have no users assigned."
+msgstr "%(n)s baze de date nu au utilizatori atribuiți."
+
+#: templates/mysql/databases.html:677
+msgid "Running.."
+msgstr "Se rulează.."
+
+#: templates/mysql/databases.html:678
+msgid "Run again"
+msgstr "Rulează din nou"
+
+#: templates/mysql/databases.html:679
+msgid "Run"
+msgstr "Rulează"
+
+#: templates/mysql/databases.html:680
+msgid "Done"
+msgstr "Finalizat"
+
+#: templates/mysql/databases.html:681
+msgid "error(s)"
+msgstr "eroare(i)"
+
+#: templates/mysql/databases.html:682
+msgid "No tables in this database."
+msgstr "Nu există tabele în această bază de date."
+
+#: templates/mysql/databases.html:683
+msgid "Loading tables.."
+msgstr "Se încarcă tabelele.."
+
+#: templates/mysql/databases.html:684
+msgid "Pending"
+msgstr "În așteptare"
+
+#: templates/mysql/databases.html:686
+msgid "database"
+msgstr "bază de date"
+
+#: templates/mysql/databases.html:687
+msgid "Table"
+msgstr "Tabel"
+
+#: templates/mysql/mysql_user.html:9
+msgid ""
+"Create a new user with a unique username and password to securely manage "
+"access and permissions for interacting with databases or the database "
+"server."
+msgstr ""
+"Creează un nou utilizator cu un nume de utilizator și o parolă unice pentru "
+"a gestiona în siguranță accesul și permisiunile de interacțiune cu bazele de"
+" date sau serverul de baze de date."
+
+#: templates/mysql/new.html:9
+msgid ""
+"Create a new database to store and organize data, providing a foundational "
+"structure for applications to manage and retrieve information efficiently."
+msgstr ""
+"Creează o nouă bază de date pentru a stoca și organiza date, oferind o "
+"structură de bază pentru aplicații în gestionarea și recuperarea eficientă a"
+" informațiilor."
+
+#: templates/mysql/processlist.html:97
+msgid "No active processes."
+msgstr "Niciun proces activ."
+
+#: templates/mysql/remote_mysql.html:12
+msgid ""
+"Enable remote access to connect to a database on this server from a another "
+"(remote) device or location over the internet."
+msgstr ""
+"Activează accesul de la distanță pentru a te conecta la o bază de date de pe"
+" acest server de pe un alt dispozitiv sau locație prin internet."
+
+#: templates/mysql/remote_mysql.html:17
+msgid "Disable Remote Database Access"
+msgstr "Dezactivează Accesul de la Distanță la Baza de Date"
+
+#: templates/mysql/remote_mysql.html:17
+msgid "Enable Remote Database Access"
+msgstr "Activează Accesul de la Distanță la Baza de Date"
+
+#: templates/mysql/remote_mysql.html:38
+msgid "Remote access to databases is currently:"
+msgstr "Accesul de la distanță la bazele de date este momentan:"
+
+#: templates/mysql/remote_mysql.html:142
+msgid "Per-User Access"
+msgstr "Acces per Utilizator"
+
+#: templates/mysql/remote_mysql.html:143
+msgid "Control which hosts each MySQL user is allowed to connect from."
+msgstr ""
+"Controlează de pe ce gazde fiecare utilizator MySQL este permis să se "
+"conecteze."
+
+#: templates/mysql/remote_mysql.html:149
+msgid "Add Access"
+msgstr "Adaugă Acces"
+
+#: templates/mysql/remote_mysql.html:159
+msgid "Existing or new username"
+msgstr "Nume de utilizator existent sau nou"
+
+#: templates/mysql/remote_mysql.html:162
+msgid "Allowed Host"
+msgstr "Gazdă Permisă"
+
+#: templates/mysql/remote_mysql.html:170
+msgid ""
+"If the username already exists, the new host inherits its existing database "
+"privileges."
+msgstr ""
+"Dacă numele de utilizator există deja, noua gazdă moștenește privilegiile de"
+" baze de date existente."
+
+#: templates/mysql/remote_mysql.html:171
+msgid "Grant Access"
+msgstr "Acordă Acces"
+
+#: templates/mysql/remote_mysql.html:181
+msgid "Allowed From"
+msgstr "Permis Din"
+
+#: templates/mysql/remote_mysql.html:220
+msgid "No MySQL users found."
+msgstr "Nu au fost găsiți utilizatori MySQL."
+
+#: templates/mysql/remote_mysql.html:236 templates/mysql/remote_mysql.html:241
+msgid "Confirm?"
+msgstr "Confirmați?"
+
+#: templates/mysql/users.html:3 templates/psql/users.html:3
+msgid "Database Users"
+msgstr "Utilizatori Baze de Date"
+
+#: templates/mysql/users.html:158
+msgid "No users yet."
+msgstr "Nu există încă utilizatori."
+
+#: templates/mysql/users.html:158
+msgid "Create your first user"
+msgstr "Creează primul tău utilizator"
+
+#: templates/mysql/wizard.html:42
+msgid "Setup complete"
+msgstr "Configurare completă"
+
+#: templates/mysql/wizard.html:44
+msgid "Save these credentials, the password cannot be retrieved later."
+msgstr "Salvează aceste credențiale, parola nu poate fi recuperată ulterior."
+
+#: templates/mysql/wizard.html:49
+msgid "Credentials"
+msgstr "Credențiale"
+
+#: templates/mysql/wizard.html:74
+msgid "Server"
+msgstr "Server"
+
+#: templates/mysql/wizard.html:128
+msgid "Configuration Code"
+msgstr "Cod de Configurare"
+
+#: templates/mysql/wizard.html:145
+msgid "Download snippet"
+msgstr "Descarcă fragmentul"
+
+#: templates/mysql/wizard.html:161
+msgid "View Databases"
+msgstr "Vizualizează Bazele de Date"
+
+#: templates/mysql/wizard.html:164
+msgid "Create Another"
+msgstr "Creează Altul"
+
+#: templates/mysql/wizard.html:363 templates/psql/wizard.html:259
+msgid "Creating..."
+msgstr "Se creează..."
+
+#: templates/partials/_footer.html:5 templates/partials/_footer.html:9
+msgid "Collapse all"
+msgstr "Restrânge tot"
+
+#: templates/partials/_footer.html:5 templates/partials/_footer.html:9
+msgid "Expand all"
+msgstr "Extinde tot"
+
+#: templates/partials/_footer.html:35
+msgid "Changelog"
+msgstr "Jurnal de Modificări"
+
+#: templates/partials/_footer.html:57
+msgid "Community Forums"
+msgstr "Forumuri Comunitare"
+
+#: templates/partials/_footer.html:69
+msgid "Sign out"
+msgstr "Deconectare"
+
+#: templates/partials/_header.html:170 templates/partials/_header.html:247
+msgid "Right-click to remove from Favorites"
+msgstr "Clic dreapta pentru a elimina din Favorite"
+
+#: templates/partials/_service.html:24
+msgid "Loading service data..."
+msgstr "Se încarcă datele serviciului..."
+
+#: templates/partials/_service.html:28
+msgid "Service is not enabled."
+msgstr "Serviciul nu este activat."
+
+#: templates/partials/_service_log.html:62
+msgid "log contains"
+msgstr "jurnalul conține"
+
+#: templates/partials/_service_log.html:62
+msgid "error line(s). Check the log."
+msgstr "linie(i) de eroare. Verifică jurnalul."
+
+#: templates/partials/googlesafebrowsing.html:175
+msgid "Checking website status..."
+msgstr "Se verifică starea site-ului..."
+
+#: templates/partials/pagespeed.html:321
+msgid "Quota limit exceeded for Google PageSpeed API. Please add an API Key."
+msgstr ""
+"Limita de cotă pentru API-ul Google PageSpeed a fost depășită. Te rog adaugă"
+" o Cheie API."
+
+#: templates/partials/screenshot.html:24
+msgid "Open site"
+msgstr "Deschide site-ul"
+
+#: templates/partials/screenshot.html:33
+msgid "Click to refresh screenshot"
+msgstr "Apasă pentru a actualiza captura de ecran"
+
+#: templates/partials/waf.html:81
+msgid "Firewall is active"
+msgstr "Firewall-ul este activ"
+
+#: templates/partials/waf.html:82
+msgid "Firewall is inactive"
+msgstr "Firewall-ul este inactiv"
+
+#: templates/partials/waf.html:83
+msgid "Error fetching firewall state"
+msgstr "Eroare la preluarea stării firewall-ului"
+
+#: templates/partials/waf.html:84
+msgid "Error fetching WAF data (blocked/challenged) for the domain."
+msgstr "Eroare la preluarea datelor WAF (blocat/provocat) pentru domeniu."
+
+#: templates/partials/waf.html:85
+msgid ""
+"An error occurred while updating the firewall status, please check console "
+"log."
+msgstr ""
+"A apărut o eroare la actualizarea stării firewall-ului, te rog verifică "
+"jurnalul consolei."
+
+#: templates/partials/waf.html:86
+#, python-format
+msgid "Firewall for %%(domain)s is now %%(status)s"
+msgstr "Firewall-ul pentru %%(domain)s este acum %%(status)s"
+
+#: templates/php/extensions.html:14
+msgid ""
+"Enable or disable PHP extensions for this version, or install new ones. "
+"Toggling restarts the PHP-FPM service."
+msgstr ""
+"Activează sau dezactivează extensiile PHP pentru această versiune, sau "
+"instalează unele noi. Comutarea repornește serviciul PHP-FPM."
+
+#: templates/php/extensions.html:20
+msgid "Install extension"
+msgstr "Instalează extensia"
+
+#: templates/php/extensions.html:57
+msgid "Disable"
+msgstr "Dezactivează"
+
+#: templates/php/extensions.html:57
+msgid "Enable"
+msgstr "Activează"
+
+#: templates/php/extensions.html:64
+msgid "No extensions installed yet for this PHP version."
+msgstr "Nu sunt instalate extensii pentru această versiune PHP."
+
+#: templates/php/extensions.html:76
+msgid "Install PHP extensions"
+msgstr "Instalează extensii PHP"
+
+#: templates/php/extensions.html:77
+#, python-format
+msgid "Select extensions to install for PHP %(version)s."
+msgstr "Selectează extensiile de instalat pentru PHP %(version)s."
+
+#: templates/php/extensions.html:83
+msgid "Install selected"
+msgstr "Instalează selectate"
+
+#: templates/php/extensions.html:115
+msgid "All supported extensions are already installed."
+msgstr "Toate extensiile suportate sunt deja instalate."
+
+#: templates/php/extensions.html:127
+msgid "Failed to load available extensions."
+msgstr "Nu s-au putut încărca extensiile disponibile."
+
+#: templates/php/extensions.html:150
+msgid "Installing extensions..."
+msgstr "Se instalează extensiile..."
+
+#: templates/php/extensions.html:162
+msgid "Failed to start installation."
+msgstr "Nu s-a putut porni instalarea."
+
+#: templates/php/extensions.html:191
+msgid "An extension install is in progress for this PHP version..."
+msgstr "O instalare de extensie este în curs pentru această versiune PHP..."
+
+#: templates/php/extensions.html:205
+msgid "Enable, disable, or install PHP extensions per PHP version."
+msgstr "Activează, dezactivează sau instalează extensii PHP per versiune PHP."
+
+#: templates/php/extensions.html:230
+msgid "Manage Extensions"
+msgstr "Gestionează Extensiile"
+
+#: templates/php/settings.html:76 templates/php/settings.html:97
+#: templates/php/settings.html:117 templates/php/settings.html:138
+msgid "domains"
+msgstr "domenii"
+
+#: templates/php/settings.html:106 templates/php/settings.html:127
+msgid "Unsupported"
+msgstr "Nesuportat"
+
+#: templates/php/settings.html:152
+#, python-format
+msgid "%(n)s domains are running an outdated/unsupported PHP version."
+msgstr "%(n)s domenii rulează o versiune PHP depășită/nesuportată."
+
+#: templates/psql/import.html:52
+msgid "Upload & Import"
+msgstr "Încarcă și Importă"
+
+#: templates/psql/pgadmin.html:145
+msgid "Click to show/hide password"
+msgstr "Apasă pentru a afișa/ascunde parola"
+
+#: templates/psql/remove.html:28
+msgid "Select a Username"
+msgstr "Selectează un Nume de Utilizator"
+
+#: templates/psql/remove.html:39
+msgid "Select a Database"
+msgstr "Selectează o Bază de Date"
+
+#: templates/psql/wizard.html:215
+msgid "Process completed!"
+msgstr "Procesul a fost finalizat!"
+
+#: templates/psql/wizard.html:226
+msgid "All fields are required"
+msgstr "Toate câmpurile sunt obligatorii"
+
+#: templates/psql/wizard.html:231
+msgid "Password can only contain letters, numbers, and underscores"
+msgstr "Parola poate conține doar litere, cifre și liniuțe de subliniere"
+
+#: templates/psql/wizard.html:235
+msgid "Password must be at least 8 characters long"
+msgstr "Parola trebuie să aibă cel puțin 8 caractere"
+
+#: templates/psql/wizard.html:283
+msgid "Retry creating Database and User"
+msgstr "Reîncearcă crearea Bazei de Date și Utilizatorului"
+
+#: templates/psql/wizard.html:285
+msgid "An error occurred while creating the database."
+msgstr "A apărut o eroare la crearea bazei de date."
+
+#: templates/system/cronjobs.html:150
+msgid "cron log entries contain errors. Check the logs."
+msgstr "intrări din jurnalul cron conțin erori. Verifică jurnalele."
+
+#: templates/system/cronjobs.html:205
+msgid "Job"
+msgstr "Job"
+
+#: templates/system/cronjobs.html:207
+msgid "All jobs"
+msgstr "Toate job-urile"
+
+#: templates/system/cronjobs.html:216
+msgid "Lines"
+msgstr "Linii"
+
+#: templates/system/cronjobs.html:227
+msgid "Refresh"
+msgstr "Reîmprospătează"
+
+#: templates/system/cronjobs.html:237
+msgid "Fetching logs.."
+msgstr "Se preiau jurnalele.."
+
+#: templates/system/cronjobs.html:244
+msgid "No log entries found."
+msgstr "Nu au fost găsite intrări în jurnal."
+
+#: templates/system/cronjobs.html:263
+msgid "entries shown"
+msgstr "intrări afișate"
+
+#: templates/system/cronjobs.html:411
+msgid "view mode is unknown, only code and table are allowed"
+msgstr "modul de vizualizare este necunoscut, sunt permise doar code și table"
+
+#: templates/system/cronjobs_new.html:50
+msgid "Expression Format"
+msgstr "Format Expresie"
+
+#: templates/system/ip_blocker.html:18
+msgid ""
+"This feature allows you to block a range of IP addresses to prevent them "
+"from accessing your websites."
+msgstr ""
+"Această funcție îți permite să blochezi un interval de adrese IP pentru a le"
+" împiedica să acceseze site-urile tale."
+
+#: templates/system/ip_blocker.html:32
+msgid "Enter IP addresses or CIDRs (one per line)"
+msgstr "Introduceți adrese IP sau CIDR-uri (unul per linie)"
+
+#: templates/system/license_error.html:17
+msgid "OpenPanel Enterprise license key is invalid!"
+msgstr "Cheia de licență OpenPanel Enterprise este invalidă!"
+
+#: templates/system/license_error.html:21
+msgid "Verify License"
+msgstr "Verifică Licența"
+
+#: templates/system/process_manager.html:54
+msgid "Service (Container name) in which the process is running."
+msgstr "Serviciul (numele containerului) în care rulează procesul."
+
+#: templates/system/process_manager.html:61
+msgid "The user ID running the process inside the container."
+msgstr ""
+"ID-ul utilizatorului care rulează procesul în interiorul containerului."
+
+#: templates/system/process_manager.html:68
+msgid "The Process ID (PID) of the process."
+msgstr "ID-ul procesului (PID) al procesului."
+
+#: templates/system/process_manager.html:75
+msgid ""
+"The Parent Process ID (PPID), which refers to the process ID of the parent "
+"process."
+msgstr ""
+"ID-ul procesului părinte (PPID), care se referă la ID-ul procesului "
+"părintelui."
+
+#: templates/system/process_manager.html:82
+msgid "The CPU usage percentage for the process."
+msgstr "Procentajul de utilizare CPU pentru proces."
+
+#: templates/system/process_manager.html:89
+msgid "The start time of the process."
+msgstr "Ora de pornire a procesului."
+
+#: templates/system/process_manager.html:96
+msgid ""
+"The terminal associated with the process. ? means that the process is "
+"running in the background."
+msgstr ""
+"Terminalul asociat procesului. ? înseamnă că procesul rulează în fundal."
+
+#: templates/system/process_manager.html:111
+msgid "The command that is running in the container."
+msgstr "Comanda care rulează în container."
+
+#: templates/system/process_manager.html:129
+msgid "No processes"
+msgstr "Niciun proces"
+
+#: templates/system/process_manager.html:176
+msgid "Terminating PID:"
+msgstr "Se termină PID-ul:"
+
+#: templates/system/process_manager.html:177
+msgid "PID:"
+msgstr "PID:"
+
+#: templates/system/process_manager.html:178
+msgid "terminated"
+msgstr "terminat"
+
+#: templates/system/process_manager.html:179
+msgid "Killing PID:"
+msgstr "Se omoară PID-ul:"
+
+#: templates/system/process_manager.html:180
+msgid "failed"
+msgstr "eșuat"
+
+#: templates/system/server_info.html:78
+msgid "pgAdmin port"
+msgstr "Port pgAdmin"
+
+#: templates/system/waf_domain.html:76
+msgid "Enter rule IDs, space-separated"
+msgstr "Introduceți ID-uri de reguli, separate prin spații"
+
+#: templates/system/waf_domain.html:161
+msgid "Enter tags, space-separated"
+msgstr "Introduceți tag-uri, separate prin spații"
+
+#: templates/user/activity.html:57
+msgid "No logs yet."
+msgstr "Nu există încă jurnale."
+
+#: templates/user/activity.html:172
+msgid "Suspicious activity detected from IP"
+msgstr "Activitate suspectă detectată de la IP-ul"
+
+#: templates/user/activity.html:172
+msgid "(100+ actions in one minute)."
+msgstr "(100+ acțiuni într-un minut)."
+
+#: templates/user/activity.html:174
+msgid "IPs show bot-like activity (100+ actions in one minute)."
+msgstr "IP-urile arată activitate de tip bot (100+ acțiuni într-un minut)."
+
+#: templates/user/favorites.html:58
+msgid "No favorites yet."
+msgstr "Nu există încă favorite."
+
+#: templates/user/history_usage.html:95
+msgid "charts_mode must be set to either two or one!"
+msgstr "charts_mode trebuie să fie setat la two sau one!"
+
+#: templates/user/history_usage.html:105
+msgid "of"
+msgstr "din"
+
+#: templates/user/history_usage.html:105 templates/user/history_usage.html:113
+msgid "items"
+msgstr "elemente"
+
+#: templates/user/history_usage.html:138
+#, python-format
+msgid "CPU %%"
+msgstr "CPU %%"
+
+#: templates/user/history_usage.html:140
+msgid "CPU Total"
+msgstr "CPU Total"
+
+#: templates/user/history_usage.html:144
+msgid "Memory Used/Total"
+msgstr "Memorie Utilizată/Total"
+
+#: templates/user/history_usage.html:146
+msgid "Bandwidth Usage"
+msgstr "Utilizare Bandă"
+
+#: templates/user/login.html:19
+msgid "username"
+msgstr "nume de utilizator"
+
+#: templates/user/login.html:43
+msgid "Sign in with a passkey"
+msgstr "Autentifică-te cu o cheie de acces"
+
+#: templates/user/loginlog.html:77
+msgid "View activity log"
+msgstr "Vizualizează jurnalul de activitate"
+
+#: templates/user/passkeys.html:11
+msgid ""
+"Sign in without a password using a fingerprint, face scan, screen lock, or a"
+" hardware security key."
+msgstr ""
+"Autentifică-te fără parolă folosind o amprentă digitală, o scanare facială, "
+"blocarea ecranului sau o cheie de securitate hardware."
+
+#: templates/user/passkeys.html:14
+msgid "Add a passkey"
+msgstr "Adaugă o cheie de acces"
+
+#: templates/user/passkeys.html:30
+msgid "Added"
+msgstr "Adăugat"
+
+#: templates/user/passkeys.html:31
+msgid "Last used"
+msgstr "Ultima utilizare"
+
+#: templates/user/passkeys.html:42
+msgid "Remove this passkey?"
+msgstr "Elimini această cheie de acces?"
+
+#: templates/user/passkeys.html:52
+msgid "No passkeys registered yet."
+msgstr "Nu sunt înregistrate chei de acces încă."
+
+#: templates/user/passkeys.html:64
+msgid "Name this passkey (e.g. MacBook Touch ID) "
+msgstr "Denumește această cheie de acces (ex. MacBook Touch ID) "
+
+#: templates/user/stats.html:39
+msgid "Total CPU allocation:"
+msgstr "Alocare totală CPU:"
+
+#: templates/user/stats.html:50
+msgid "Used Memory:"
+msgstr "Memorie Utilizată:"
+
+#: templates/user/stats.html:52
+msgid "Available Memory:"
+msgstr "Memorie Disponibilă:"
+
+#: templates/user/stats.html:84
+msgid "No resource usage data available yet."
+msgstr "Nu există încă date despre utilizarea resurselor."
+
+#: templates/user/twofa_settings.html:81
+msgid ""
+"Scan the QR code with your 2FA device or click on the link below to display "
+"OTP code instead."
+msgstr ""
+"Scanează codul QR cu dispozitivul tău 2FA sau apasă pe linkul de mai jos "
+"pentru a afișa în schimb codul OTP."

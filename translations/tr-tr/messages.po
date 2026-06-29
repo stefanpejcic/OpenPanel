@@ -16028,3 +16028,4452 @@ msgid ""
 msgstr ""
 "2FA uygulamasında OTP kodunu yapılandırdıktan sonra, OTP sırrını kalıcı "
 "olarak silmek için lütfen aşağıdaki düğmeye tıklayarak onaylayın."
+
+#: app.py:524
+msgid "IP address mismatch. Please login again."
+msgstr "IP adresi uyuşmazlığı. Lütfen tekrar giriş yapın."
+
+#: app.py:556
+msgid ""
+"Two-Factor Authentication is required on this panel. Please enable it to "
+"continue."
+msgstr ""
+"Bu panelde İki Faktörlü Kimlik Doğrulama zorunludur. Devam etmek için lütfen"
+" etkinleştirin."
+
+#: app.py:564
+msgid "Disabled in demo mode."
+msgstr "Demo modunda devre dışı."
+
+#: modules/crons.py:37
+msgid "Schedule is empty."
+msgstr "Zamanlama boş."
+
+#: modules/crons.py:44
+#, python-format
+msgid ""
+"Schedule \"%(schedule)s\" has only 5 fields, but this cron implementation "
+"requires 6 (seconds minutes hours day month weekday). Add one more field for"
+" seconds at the start."
+msgstr ""
+"\"%(schedule)s\" zamanlaması yalnızca 5 alana sahip, ancak bu cron "
+"uygulaması 6 alan gerektiriyor (saniye dakika saat gün ay haftanın_günü). "
+"Başa saniye için bir alan daha ekleyin."
+
+#: modules/crons.py:45
+#, python-format
+msgid ""
+"Schedule \"%(schedule)s\" is invalid - expected 6 fields (seconds minutes "
+"hours day month weekday) or an @every/@daily-style descriptor."
+msgstr ""
+"\"%(schedule)s\" zamanlaması geçersiz - 6 alan (saniye dakika saat gün ay "
+"haftanın_günü) veya @every/@daily tarzı bir tanımlayıcı bekleniyor."
+
+#: modules/crons.py:60
+msgid "No cron container found"
+msgstr "Cron konteyneri bulunamadı"
+
+#: modules/crons.py:67
+msgid "Invalid log path"
+msgstr "Geçersiz günlük yolu"
+
+#: modules/crons.py:71
+msgid "Log file not found"
+msgstr "Günlük dosyası bulunamadı"
+
+#: modules/crons.py:74
+msgid "Job name too long"
+msgstr "İş adı çok uzun"
+
+#: modules/crons.py:99
+msgid "Docker command timed out after 10 seconds"
+msgstr "Docker komutu 10 saniye sonra zaman aşımına uğradı"
+
+#: modules/crons.py:102
+msgid "Failed to fetch container log"
+msgstr "Konteyner günlüğü alınamadı"
+
+#: modules/crons.py:175
+msgid "Failed to fetch containers"
+msgstr "Konteynerler alınamadı"
+
+#: modules/crons.py:222
+msgid "Invalid cron file path"
+msgstr "Geçersiz cron dosyası yolu"
+
+#: modules/crons.py:249
+msgid "image= or network= are not allowed in the command."
+msgstr "Komutta image= veya network= kullanılamaz."
+
+#: modules/crons.py:269
+msgid "image= or network= are not allowed in crontab."
+msgstr "Crontab'ta image= veya network= kullanılamaz."
+
+#: modules/crons.py:273
+msgid "job-run, job-local, and job-service-run are not allowed in crontab."
+msgstr "Crontab'ta job-run, job-local ve job-service-run kullanılamaz."
+
+#: modules/crons.py:311
+msgid "Missing one or more required fields."
+msgstr "Bir veya daha fazla zorunlu alan eksik."
+
+#: modules/crons.py:315
+msgid "Missing original cron job fields."
+msgstr "Orijinal cron işi alanları eksik."
+
+#: modules/crons.py:320
+msgid "Invalid characters in input."
+msgstr "Girişte geçersiz karakterler var."
+
+#: modules/crons.py:327
+msgid "Invalid cron file path."
+msgstr "Geçersiz cron dosyası yolu."
+
+#: modules/crons.py:356
+msgid "Cron job not found."
+msgstr "Cron işi bulunamadı."
+
+#: modules/crons.py:373
+msgid "Error saving cron job. Please try again."
+msgstr "Cron işi kaydedilirken hata oluştu. Lütfen tekrar deneyin."
+
+#: modules/dns.py:140
+msgid "Serial number not provided. Please try again."
+msgstr "Seri numarası sağlanmadı. Lütfen tekrar deneyin."
+
+#: modules/dns.py:151
+msgid ""
+"Serial number mismatch. Zone was edited by another user/program. Please try "
+"again."
+msgstr ""
+"Seri numarası uyuşmazlığı. Bölge başka bir kullanıcı/program tarafından "
+"düzenlendi. Lütfen tekrar deneyin."
+
+#: modules/dns.py:340
+#, python-format
+msgid "Syntax error in the DNS zone file for %(domain)s: %(error)s"
+msgstr "%(domain)s için DNS bölge dosyasında sözdizimi hatası: %(error)s"
+
+#: modules/dns.py:578
+msgid "Failed - zone validation error"
+msgstr "Başarısız - bölge doğrulama hatası"
+
+#: modules/docker.py:175
+msgid ""
+"Missing environment variables. Please check the configuration or restore "
+"from backup."
+msgstr ""
+"Ortam değişkenleri eksik. Lütfen yapılandırmayı kontrol edin veya yedekten "
+"geri yükleyin."
+
+#: modules/docker.py:186
+msgid "Failed to fetch container data"
+msgstr "Konteyner verisi alınamadı"
+
+#: modules/docker.py:228
+msgid "Invalid data format"
+msgstr "Geçersiz veri formatı"
+
+#: modules/docker.py:228
+msgid "docker_data does not contain 'services'."
+msgstr "docker_data 'services' içermiyor."
+
+#: modules/docker.py:837
+msgid "Failed to stop the current mysql server."
+msgstr "Mevcut MySQL sunucusu durdurulamadı."
+
+#: modules/docker.py:839
+msgid "Invalid mysql server selected"
+msgstr "Geçersiz MySQL sunucusu seçildi"
+
+#: modules/docker.py:884
+msgid "Failed to stop the current web server."
+msgstr "Mevcut web sunucusu durdurulamadı."
+
+#: modules/docker.py:886
+msgid "Invalid web server selected"
+msgstr "Geçersiz web sunucusu seçildi"
+
+#: modules/docker.py:955
+msgid "Failed to stop the service in order to delete old image."
+msgstr "Eski imajı silmek için hizmet durdurulamadı."
+
+#: modules/docker.py:1116
+msgid "Error occurred!"
+msgstr "Hata oluştu!"
+
+#: modules/domains.py:195
+msgid "Domain name is required"
+msgstr "Alan adı zorunludur"
+
+#: modules/domains.py:237
+msgid "Path for public file must start with /var/www/html/"
+msgstr "Genel dosya yolu /var/www/html/ ile başlamalıdır"
+
+#: modules/domains.py:250
+msgid "Path for secret file must start with /var/www/html/"
+msgstr "Gizli dosya yolu /var/www/html/ ile başlamalıdır"
+
+#: modules/dynamic_dns.py:132
+msgid "Dynamic DNS entry created."
+msgstr "Dinamik DNS girişi oluşturuldu."
+
+#: modules/dynamic_dns.py:144
+msgid "Dynamic DNS entry updated."
+msgstr "Dinamik DNS girişi güncellendi."
+
+#: modules/dynamic_dns.py:147
+msgid "Failed to update Dynamic DNS entry."
+msgstr "Dinamik DNS girişi güncellenemedi."
+
+#: modules/dynamic_dns.py:153
+msgid "Dynamic DNS entry deleted."
+msgstr "Dinamik DNS girişi silindi."
+
+#: modules/dynamic_dns.py:156
+msgid "Failed to delete Dynamic DNS entry."
+msgstr "Dinamik DNS girişi silinemedi."
+
+#: modules/dynamic_dns.py:168 templates/dashboard/dashboard.html:130
+#: templates/domains/dynamic_dns.html:12
+msgid "Dynamic DNS"
+msgstr "Dinamik DNS"
+
+#: modules/email_aliases.py:126 templates/dashboard/dashboard.html:181
+#: templates/emails/aliases.html:9
+msgid "Aliases"
+msgstr "Takma Adlar"
+
+#: modules/email_aliases.py:168
+msgid "Error: a valid target email address is required."
+msgstr "Hata: Geçerli bir hedef e-posta adresi gereklidir."
+
+#: modules/email_aliases.py:245
+msgid "Error: target must be a valid email address."
+msgstr "Hata: Hedef geçerli bir e-posta adresi olmalıdır."
+
+#: modules/email_aliases.py:266 templates/emails/aliases.html:35
+msgid "New Alias"
+msgstr "Yeni Takma Ad"
+
+#: modules/email_aliases.py:288 templates/emails/alias_detail.html:108
+msgid "Delete Alias"
+msgstr "Takma Adı Sil"
+
+#: modules/email_default.py:60 modules/email_default.py:76
+msgid "Default Email"
+msgstr "Varsayılan E-posta"
+
+#: modules/email_deliverability.py:114 templates/dashboard/dashboard.html:183
+#: templates/emails/deliverability.html:9
+#: templates/emails/deliverability_domain.html:8
+msgid "Email Deliverability"
+msgstr "E-posta Teslim Edilebilirliği"
+
+#: modules/email_filters.py:74 modules/email_filters.py:108
+msgid "No content provided."
+msgstr "İçerik sağlanmadı."
+
+#: modules/email_filters.py:79 modules/email_filters.py:113
+msgid "Filter saved successfully."
+msgstr "Filtre başarıyla kaydedildi."
+
+#: modules/email_filters.py:81 modules/email_filters.py:115
+msgid "Error saving filter."
+msgstr "Filtre kaydedilirken hata oluştu."
+
+#: modules/emails.py:205
+msgid "Error: reached max number of email accounts on the hosting plan."
+msgstr "Hata: Hosting planındaki maksimum e-posta hesabı sayısına ulaşıldı."
+
+#: modules/ip_blocker.py:44
+msgid ""
+"IP addresses have been successfully added to blocklist and can no longer "
+"access websites"
+msgstr ""
+"IP adresleri başarıyla engel listesine eklendi ve artık web sitelerine "
+"erişemez"
+
+#: modules/ip_blocker.py:50
+msgid ""
+"All IP addresses have been successfully removed from blocklist and can now "
+"access websites"
+msgstr ""
+"Tüm IP adresleri engel listesinden başarıyla kaldırıldı ve artık web "
+"sitelerine erişebilir"
+
+#: modules/ip_blocker.py:62
+msgid "Failed to block IP addresses - please try again"
+msgstr "IP adresleri engellenemedi - lütfen tekrar deneyin"
+
+#: modules/ip_blocker.py:65
+msgid "Error ocured blocking IP addresses - contact Administrator"
+msgstr "IP adresleri engellenirken hata oluştu - Yönetici ile iletişime geçin"
+
+#: modules/ip_blocker.py:81 templates/dashboard/dashboard.html:210
+#: templates/system/ip_blocker.html:15
+msgid "IP Blocker"
+msgstr "IP Engelleyici"
+
+#: modules/mautic.py:763 modules/wordpress.py:1521
+msgid "An error occurred fetching docroot for domain from database."
+msgstr "Veritabanından alan adı için belge kökü alınırken hata oluştu."
+
+#: modules/mautic.py:815
+msgid ""
+"Error: .htaccess file already exists. Mautic installation cannot proceed!"
+msgstr "Hata: .htaccess dosyası zaten mevcut. Mautic kurulumu devam edemiyor!"
+
+#: modules/mautic.py:957
+msgid "Error creating MySQL database and user."
+msgstr "MySQL veritabanı ve kullanıcısı oluşturulurken hata oluştu."
+
+#: modules/mautic.py:983
+msgid "Error running:  'mautic:install' command."
+msgstr "'mautic:install' komutu çalıştırılırken hata oluştu."
+
+#: modules/mysql.py:188 modules/mysql.py:254 modules/mysql.py:373
+#: modules/mysql.py:772 modules/mysql.py:814 modules/mysql.py:918
+#: modules/mysqld/remote_mysql.py:129 modules/mysqld/remote_mysql.py:181
+#: modules/mysqld/remote_mysql.py:219
+msgid "Invalid host format."
+msgstr "Geçersiz ana bilgisayar formatı."
+
+#: modules/mysql.py:257 modules/mysql.py:363
+msgid "At least one privilege must be selected."
+msgstr "En az bir ayrıcalık seçilmelidir."
+
+#: modules/mysql.py:543
+msgid "Invalid export format provided, select SQL or GZIP."
+msgstr "Geçersiz dışa aktarma formatı, SQL veya GZIP seçin."
+
+#: modules/mysql.py:577
+msgid "Destination path is required for folder export."
+msgstr "Klasör dışa aktarımı için hedef yol zorunludur."
+
+#: modules/mysql.py:583
+msgid "Invalid export path. Must be inside /var/www/html/"
+msgstr "Geçersiz dışa aktarma yolu. /var/www/html/ içinde olmalıdır"
+
+#: modules/mysql.py:627
+msgid "Invalid export destination."
+msgstr "Geçersiz dışa aktarma hedefi."
+
+#: modules/pgadmin.py:38
+msgid ""
+"pgAdmin email is invalid. Please set a valid email address before enabling "
+"the service."
+msgstr ""
+"pgAdmin e-posta adresi geçersiz. Hizmeti etkinleştirmeden önce lütfen "
+"geçerli bir e-posta adresi ayarlayın."
+
+#: modules/php.py:180
+msgid "Invalid PHP version format"
+msgstr "Geçersiz PHP sürüm formatı"
+
+#: modules/php.py:511
+msgid "PHP INFO"
+msgstr "PHP BİLGİSİ"
+
+#: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57
+msgid "phpMyAdmin is currently unavailable. Please contact support."
+msgstr "phpMyAdmin şu anda kullanılamıyor. Lütfen destek ile iletişime geçin."
+
+#: modules/phpmyadmin.py:64
+msgid "Failed to generate autologin token."
+msgstr "Otomatik giriş token'ı oluşturulamadı."
+
+#: modules/pm2.py:457 modules/website_builder.py:238 modules/wordpress.py:1334
+msgid "You have reached the maximum number of sites allowed."
+msgstr "İzin verilen maksimum site sayısına ulaştınız."
+
+#: modules/pm2.py:487
+msgid "Missing required fields domain or service_name"
+msgstr "Zorunlu alanlar domain veya service_name eksik"
+
+#: modules/pm2.py:597
+msgid "Only Python and NodeJS are currently supported!"
+msgstr "Şu anda yalnızca Python ve NodeJS desteklenmektedir!"
+
+#: modules/pm2.py:637
+msgid "docker-compose.yml file does not exist, contact support!"
+msgstr "docker-compose.yml dosyası mevcut değil, destek ile iletişime geçin!"
+
+#: modules/pm2.py:650
+msgid "'networks:' section not found in docker-compose.yml."
+msgstr "docker-compose.yml dosyasında 'networks:' bölümü bulunamadı."
+
+#: modules/pm2.py:728
+msgid "Container failed to start. Please check allocated resources."
+msgstr ""
+"Konteyner başlatılamadı. Lütfen tahsis edilen kaynakları kontrol edin."
+
+#: modules/pm2.py:1006
+msgid ", "
+msgstr ", "
+
+#: modules/pm2.py:1107
+msgid "Error saving: CPU core limit provided is not a positive integer."
+msgstr ""
+"Kaydetme hatası: Sağlanan CPU çekirdeği sınırı pozitif bir tam sayı değil."
+
+#: modules/pm2.py:1111
+msgid "Error saving: Memory limit provided is not a positive integer."
+msgstr "Kaydetme hatası: Sağlanan bellek sınırı pozitif bir tam sayı değil."
+
+#: modules/postgresql.py:155
+msgid "Failed to create user: "
+msgstr "Kullanıcı oluşturulamadı: "
+
+#: modules/process_manager.py:74
+msgid "No PID provided"
+msgstr "PID sağlanmadı"
+
+#: modules/process_manager.py:77
+msgid "PID not found or not allowed"
+msgstr "PID bulunamadı veya izin verilmiyor"
+
+#: modules/process_manager.py:84
+msgid "Invalid PID"
+msgstr "Geçersiz PID"
+
+#: modules/services.py:21
+msgid "Docker compose file not found."
+msgstr "Docker compose dosyası bulunamadı."
+
+#: modules/services.py:28
+msgid "Error reading services."
+msgstr "Hizmetler okunurken hata oluştu."
+
+#: modules/services.py:83
+msgid "Try restart."
+msgstr "Yeniden başlatmayı deneyin."
+
+#: modules/usage.py:24
+msgid "No resource usage data available yet. Please try again later"
+msgstr "Henüz kaynak kullanım verisi yok. Lütfen daha sonra tekrar deneyin"
+
+#: modules/usage.py:27
+msgid "An error occurred while fetching resource usage."
+msgstr "Kaynak kullanımı alınırken hata oluştu."
+
+#: modules/waf.py:73
+msgid "Invalid type. Must be 'tags' or 'ids'."
+msgstr "Geçersiz tür. 'tags' veya 'ids' olmalıdır."
+
+#: modules/waf.py:356
+#, python-format
+msgid "WAF is disabled for %(domain)s."
+msgstr "%(domain)s için WAF devre dışı."
+
+#: modules/waf.py:362
+#, python-format
+msgid "WAF is disabled for %(count)d domains."
+msgstr "%(count)d alan adı için WAF devre dışı."
+
+#: modules/website_builder.py:122
+msgid "Website detached successfully!"
+msgstr "Web sitesi başarıyla ayrıldı!"
+
+#: modules/website_builder.py:127
+msgid "An error occurred during website detachment."
+msgstr "Web sitesi ayrılırken hata oluştu."
+
+#: modules/website_builder.py:307
+msgid "Error: .htaccess file already exists. Website creation cannot proceed!"
+msgstr ""
+"Hata: .htaccess dosyası zaten mevcut. Web sitesi oluşturma devam edemiyor!"
+
+#: modules/website_builder.py:308
+#, python-brace-format
+msgid ""
+"Error: index.html file already exists in {install_path} - Website creation "
+"cannot proceed!"
+msgstr ""
+"Hata: {install_path} konumunda index.html dosyası zaten mevcut - Web sitesi "
+"oluşturma devam edemiyor!"
+
+#: modules/website_builder.py:309
+#, python-brace-format
+msgid ""
+"Error: index.php file already exists in {install_path} - Website creation "
+"cannot proceed!"
+msgstr ""
+"Hata: {install_path} konumunda index.php dosyası zaten mevcut - Web sitesi "
+"oluşturma devam edemiyor!"
+
+#: modules/websites.py:66
+msgid "Failed to contact Google Safe Browsing API"
+msgstr "Google Safe Browsing API ile iletişim kurulamadı"
+
+#: modules/websites.py:243
+msgid "Invalid website parameter."
+msgstr "Geçersiz web sitesi parametresi."
+
+#: modules/websites.py:277
+msgid "Invalid website parameter"
+msgstr "Geçersiz web sitesi parametresi"
+
+#: modules/websites.py:388
+msgid "Invalid container name"
+msgstr "Geçersiz konteyner adı"
+
+#: modules/websites.py:407
+msgid "Unsupported install type"
+msgstr "Desteklenmeyen kurulum türü"
+
+#: modules/websites.py:424
+msgid ""
+"Invalid install type. Use 'pip' for Python apps and 'npm' or 'pnpm' for "
+"NodeJS."
+msgstr ""
+"Geçersiz kurulum türü. Python uygulamaları için 'pip', NodeJS için 'npm' "
+"veya 'pnpm' kullanın."
+
+#: modules/websites.py:428
+msgid "Requirements installed successfully."
+msgstr "Gereksinimler başarıyla yüklendi."
+
+#: modules/websites.py:428
+msgid "NPM packages installed successfully."
+msgstr "NPM paketleri başarıyla yüklendi."
+
+#: modules/websites.py:435
+msgid "An error occurred while installing requirements."
+msgstr "Gereksinimler yüklenirken hata oluştu."
+
+#: modules/websites.py:435
+msgid "An error occurred while installing NPM packages."
+msgstr "NPM paketleri yüklenirken hata oluştu."
+
+#: modules/websites.py:563
+msgid "Invalid docroot"
+msgstr "Geçersiz belge kökü"
+
+#: modules/wordpress.py:308
+msgid "Document root is not provided or invalid."
+msgstr "Belge kökü sağlanmadı veya geçersiz."
+
+#: modules/wordpress.py:401
+msgid "No matching tables found"
+msgstr "Eşleşen tablo bulunamadı"
+
+#: modules/wordpress.py:504
+msgid "Config file not found"
+msgstr "Yapılandırma dosyası bulunamadı"
+
+#: modules/wordpress.py:542
+msgid "Hardening rules have been successfully applied to the website"
+msgstr "Sertleştirme kuralları web sitesine başarıyla uygulandı"
+
+#: modules/wordpress.py:544
+msgid "Failed to apply hardening rules to the website - please try again"
+msgstr ""
+"Web sitesine sertleştirme kuralları uygulanamadı - lütfen tekrar deneyin"
+
+#: modules/wordpress.py:565
+msgid "Abort, another WordPress clone process is currently running."
+msgstr "İptal edildi, şu anda başka bir WordPress klonlama işlemi çalışıyor."
+
+#: modules/wordpress.py:574
+msgid "You have reached the maximum number of sites allowed"
+msgstr "İzin verilen maksimum site sayısına ulaştınız"
+
+#: modules/wordpress.py:591
+msgid "Missing required form fields"
+msgstr "Zorunlu form alanları eksik"
+
+#: modules/wordpress.py:610
+msgid "Destination domain not found in database"
+msgstr "Hedef alan adı veritabanında bulunamadı"
+
+#: modules/wordpress.py:613
+msgid ""
+"An error occurred fetching docroot for destination domain from database."
+msgstr "Veritabanından hedef alan adı için belge kökü alınırken hata oluştu."
+
+#: modules/wordpress.py:624
+msgid "Invalid input or unsafe docroot"
+msgstr "Geçersiz giriş veya güvenli olmayan belge kökü"
+
+#: modules/wordpress.py:925
+msgid "Missing site ID."
+msgstr "Site ID eksik."
+
+#: modules/wordpress.py:1295
+msgid "Scan failed due to a server error."
+msgstr "Sunucu hatası nedeniyle tarama başarısız oldu."
+
+#: modules/wordpress.py:1663
+msgid "Please ensure your plan has sufficient resources to start the service."
+msgstr ""
+"Lütfen planınızın hizmeti başlatmak için yeterli kaynağa sahip olduğundan "
+"emin olun."
+
+#: modules/wordpress.py:1977
+msgid "Domain is not provided."
+msgstr "Alan adı sağlanmadı."
+
+#: modules/wordpress.py:2033
+msgid "php_version could not be determined"
+msgstr "php_version belirlenemedi"
+
+#: modules/wordpress.py:2057
+msgid "Admin username could not be obtained"
+msgstr "Yönetici kullanıcı adı alınamadı"
+
+#: modules/wordpress.py:2057
+msgid "Please try login manually to wp-admin."
+msgstr "Lütfen wp-admin'e manuel olarak giriş yapmayı deneyin."
+
+#: modules/wordpress.py:2060
+msgid "No administrator users found"
+msgstr "Yönetici kullanıcı bulunamadı"
+
+#: modules/wordpress.py:2149
+msgid "Unsupported action"
+msgstr "Desteklenmeyen işlem"
+
+#: modules/wordpress.py:2171
+msgid "Use 'enable' or 'disable'"
+msgstr "'enable' veya 'disable' kullanın"
+
+#: modules/wordpress.py:2191
+msgid "Cache flushed successfully."
+msgstr "Önbellek başarıyla temizlendi."
+
+#: modules/wordpress.py:2198
+msgid "Invalid type"
+msgstr "Geçersiz tür"
+
+#: modules/account/favorites.py:35
+msgid "Link and title must be provided"
+msgstr "Bağlantı ve başlık sağlanmalıdır"
+
+#: modules/account/favorites.py:41
+msgid "Favorite list is full"
+msgstr "Favoriler listesi dolu"
+
+#: modules/account/favorites.py:55
+msgid "No link provided"
+msgstr "Bağlantı sağlanmadı"
+
+#: modules/account/forgot_password.py:196
+msgid "password changed using email confirmation"
+msgstr "Şifre e-posta onayı kullanılarak değiştirildi"
+
+#: modules/account/locale.py:44
+msgid "locale"
+msgstr "yerel ayar"
+
+#: modules/account/login.py:110
+msgid "Too many failed login attempts. Please try again later."
+msgstr "Çok fazla başarısız giriş denemesi. Lütfen daha sonra tekrar deneyin."
+
+#: modules/account/login.py:130
+msgid "Autologin failed: Invalid username."
+msgstr "Otomatik giriş başarısız: Geçersiz kullanıcı adı."
+
+#: modules/account/login.py:140
+msgid "Error reading token from user files."
+msgstr "Kullanıcı dosyalarından token okunurken hata oluştu."
+
+#: modules/account/login.py:150
+msgid "Autologin failed: Error occurred fetching data from database."
+msgstr "Otomatik giriş başarısız: Veritabanından veri alınırken hata oluştu."
+
+#: modules/account/login.py:176
+msgid "Autologin failed: User does not exist."
+msgstr "Otomatik giriş başarısız: Kullanıcı mevcut değil."
+
+#: modules/account/login.py:179
+msgid "Autologin failed: Invalid or expired token."
+msgstr "Otomatik giriş başarısız: Geçersiz veya süresi dolmuş token."
+
+#: modules/account/login.py:268
+msgid "CAPTCHA validation failed. Please try again."
+msgstr "CAPTCHA doğrulaması başarısız. Lütfen tekrar deneyin."
+
+#: modules/account/notifications.py:204
+msgid "Notification preferences updated successfully!"
+msgstr "Bildirim tercihleri başarıyla güncellendi!"
+
+#: modules/account/passkeys.py:73 templates/user/passkeys.html:10
+msgid "Passkeys"
+msgstr "Geçiş Anahtarları"
+
+#: modules/account/passkeys.py:116
+msgid "Registration session expired. Please try again."
+msgstr "Kayıt oturumu sona erdi. Lütfen tekrar deneyin."
+
+#: modules/account/passkeys.py:147
+#, python-format
+msgid "A new passkey \"%(name)s\" was added to your account."
+msgstr "\"%(name)s\" adlı yeni bir geçiş anahtarı hesabınıza eklendi."
+
+#: modules/account/passkeys.py:167
+msgid "Passkey removed."
+msgstr "Geçiş anahtarı kaldırıldı."
+
+#: modules/account/passkeys.py:169
+msgid "Passkey not found."
+msgstr "Geçiş anahtarı bulunamadı."
+
+#: modules/account/passkeys.py:197
+msgid "Login session expired. Please try again."
+msgstr "Giriş oturumu sona erdi. Lütfen tekrar deneyin."
+
+#: modules/account/passkeys.py:205 modules/account/passkeys.py:210
+msgid "Invalid passkey response."
+msgstr "Geçersiz geçiş anahtarı yanıtı."
+
+#: modules/account/passkeys.py:222
+msgid "Passkey not recognized."
+msgstr "Geçiş anahtarı tanınmadı."
+
+#: modules/account/passkeys.py:228
+msgid "Account no longer exists."
+msgstr "Hesap artık mevcut değil."
+
+#: modules/account/sessions.py:66
+msgid "Session terminated successfully."
+msgstr "Oturum başarıyla sonlandırıldı."
+
+#: modules/account/sessions.py:75
+msgid "Failed to terminate session or session already expired."
+msgstr "Oturum sonlandırılamadı veya oturum zaten sona erdi."
+
+#: modules/cache/memcached.py:19
+msgid ""
+"A high-performance, distributed in-memory key-value caching system designed "
+"to accelerate dynamic web applications."
+msgstr ""
+"Dinamik web uygulamalarını hızlandırmak için tasarlanmış yüksek "
+"performanslı, dağıtılmış bellek içi anahtar-değer önbellekleme sistemi."
+
+#: modules/cache/valkey.py:16 templates/dashboard/dashboard.html:172
+msgid "Valkey"
+msgstr "Valkey"
+
+#: modules/cache/valkey.py:17
+msgid ""
+"Valkey is an in-memory key/value store (a community-driven fork of Redis) "
+"used primarily as an application cache or fast, low-latency database."
+msgstr ""
+"Valkey, birincil olarak uygulama önbelleği veya hızlı, düşük gecikmeli "
+"veritabanı olarak kullanılan bellek içi anahtar/değer deposudur (Redis'in "
+"topluluk tarafından yönetilen bir çatalı)."
+
+#: modules/cache/varnish.py:48
+msgid "Varnish is not running"
+msgstr "Varnish çalışmıyor"
+
+#: modules/cache/varnish.py:238
+#, python-format
+msgid "Varnish cache is now %(status)s for domain %(domain)s"
+msgstr "%(domain)s alan adı için Varnish önbelleği artık %(status)s"
+
+#: modules/core/errors.py:26
+msgid "Page not found"
+msgstr "Sayfa bulunamadı"
+
+#: modules/core/errors.py:37
+msgid "Access is forbidden to this page"
+msgstr "Bu sayfaya erişim yasak"
+
+#: modules/core/errors.py:47
+msgid "File Too Large"
+msgstr "Dosya çok büyük"
+
+#: modules/core/errors.py:58
+msgid "CSRF error"
+msgstr "CSRF hatası"
+
+#: modules/core/paths.py:53
+msgid "Volume is not yet created. Please add a domain name first."
+msgstr "Birim henüz oluşturulmadı. Lütfen önce bir alan adı ekleyin."
+
+#: modules/core/search.py:33
+msgid "Unknown search type"
+msgstr "Bilinmeyen arama türü"
+
+#: modules/core/search.py:40 modules/core/search.py:43
+msgid "Feature not available"
+msgstr "Özellik mevcut değil"
+
+#: modules/domain/ssl.py:22
+#, python-format
+msgid "Failed to reload Caddy: %(error)s"
+msgstr "Caddy yeniden yüklenemedi: %(error)s"
+
+#: modules/domain/ssl.py:29
+#, python-format
+msgid "SSL certificate generated successfully for %(domain)s."
+msgstr "%(domain)s için SSL sertifikası başarıyla oluşturuldu."
+
+#: modules/domain/ssl.py:30
+msgid ""
+"Certificate was not generated yet. It may take a moment, please try again "
+"shortly."
+msgstr ""
+"Sertifika henüz oluşturulmadı. Biraz zaman alabilir, lütfen kısa süre sonra "
+"tekrar deneyin."
+
+#: modules/domain/ssl.py:134
+msgid "Invalid action! Only AutoSSL or Custom are available."
+msgstr "Geçersiz işlem! Yalnızca AutoSSL veya Özel seçenekleri mevcuttur."
+
+#: modules/domain/ssl.py:176
+msgid "No SSL certificate found for this domain."
+msgstr "Bu alan adı için SSL sertifikası bulunamadı."
+
+#: modules/files/backups.py:46
+msgid ""
+"A backup is currently in progress. Please wait until it finishes before "
+"saving settings. Or if you want to interrupt the backup process: stop and "
+"start the backup service."
+msgstr ""
+"Şu anda bir yedekleme işlemi devam ediyor. Ayarları kaydetmeden önce lütfen "
+"tamamlanmasını bekleyin. Veya yedekleme işlemini kesmek istiyorsanız: "
+"yedekleme hizmetini durdurun ve başlatın."
+
+#: modules/files/backups.py:98
+msgid "Settings updated successfully."
+msgstr "Ayarlar başarıyla güncellendi."
+
+#: modules/files/backups.py:109
+msgid "Error updating settings."
+msgstr "Ayarlar güncellenirken hata oluştu."
+
+#: modules/files/backups.py:161 modules/files/backups.py:321
+msgid "no backup target configured"
+msgstr "yedekleme hedefi yapılandırılmadı"
+
+#: modules/files/backups.py:171 modules/files/backups.py:327
+msgid "multiple backup targets configured"
+msgstr "birden fazla yedekleme hedefi yapılandırıldı"
+
+#: modules/files/backups.py:498
+msgid "Reindex already in progress."
+msgstr "Yeniden indeksleme zaten devam ediyor."
+
+#: modules/files/backups.py:508
+msgid "Reindex started."
+msgstr "Yeniden indeksleme başlatıldı."
+
+#: modules/files/backups.py:641 modules/files/backups.py:727
+msgid "No backup file specified."
+msgstr "Yedekleme dosyası belirtilmedi."
+
+#: modules/files/backups.py:646 modules/files/backups.py:731
+msgid "Invalid backup filename."
+msgstr "Geçersiz yedekleme dosyası adı."
+
+#: modules/files/backups.py:676
+msgid "Full restore completed."
+msgstr "Tam geri yükleme tamamlandı."
+
+#: modules/files/backups.py:681
+msgid "No database specified."
+msgstr "Veritabanı belirtilmedi."
+
+#: modules/files/filemanager.py:82
+msgid "Error creating file: already exists."
+msgstr "Dosya oluşturma hatası: zaten mevcut."
+
+#: modules/files/filemanager.py:395
+msgid "Unsupported file format!"
+msgstr "Desteklenmeyen dosya formatı!"
+
+#: modules/files/filemanager.py:405
+#, python-format
+msgid "Extraction timed out after %(max_time)s minutes!"
+msgstr "Çıkarma işlemi %(max_time)s dakika sonra zaman aşımına uğradı!"
+
+#: modules/files/filemanager.py:408
+msgid "Extraction failed."
+msgstr "Çıkarma işlemi başarısız oldu."
+
+#: modules/files/filemanager.py:411
+#, python-format
+msgid "Error occurred during archive extraction: %(error)s"
+msgstr "Arşiv çıkarma sırasında hata oluştu: %(error)s"
+
+#: modules/files/filemanager.py:417
+#, python-format
+msgid "Error occurred before starting archive extraction: %(error)s"
+msgstr "Arşiv çıkarma başlamadan önce hata oluştu: %(error)s"
+
+#: modules/files/filemanager.py:496
+msgid "File already exists: "
+msgstr "Dosya zaten mevcut: "
+
+#: modules/files/filemanager.py:498
+msgid "Download queued..."
+msgstr "İndirme kuyruğa alındı..."
+
+#: modules/files/filemanager.py:533
+msgid "Starting download..."
+msgstr "İndirme başlatılıyor..."
+
+#: modules/files/filemanager.py:544
+msgid "Download in progress..."
+msgstr "İndirme devam ediyor..."
+
+#: modules/files/filemanager.py:562
+msgid "(Failed to set ownership for the downloaded file.)"
+msgstr "(İndirilen dosyanın sahipliği ayarlanamadı.)"
+
+#: modules/files/filemanager.py:571
+msgid "Internal server error during download."
+msgstr "İndirme sırasında dahili sunucu hatası."
+
+#: modules/files/filemanager.py:680
+#, python-format
+msgid "Unexpected error: %(error)s"
+msgstr "Beklenmeyen hata: %(error)s"
+
+#: modules/files/filemanager.py:712
+msgid "File renamed successfully."
+msgstr "Dosya başarıyla yeniden adlandırıldı."
+
+#: modules/files/filemanager.py:716
+msgid ""
+"Error renaming item! Check permissions or if the new name already exists."
+msgstr ""
+"Öğe yeniden adlandırılırken hata! İzinleri veya yeni adın zaten mevcut olup "
+"olmadığını kontrol edin."
+
+#: modules/files/filemanager.py:718
+msgid "Unexpected error occurred."
+msgstr "Beklenmeyen hata oluştu."
+
+#: modules/files/filemanager.py:748
+msgid "Moved to Trash"
+msgstr "Çöp kutusuna taşındı"
+
+#: modules/files/filemanager.py:761 modules/files/trash.py:327
+msgid "Deleted permanently"
+msgstr "Kalıcı olarak silindi"
+
+#: modules/files/filemanager.py:764
+#, python-format
+msgid "Delete failed: %(error)s"
+msgstr "Silme başarısız: %(error)s"
+
+#: modules/files/filemanager.py:782
+msgid "Invalid permissions format."
+msgstr "Geçersiz izin formatı."
+
+#: modules/files/filemanager.py:819
+#, python-format
+msgid "Permissions changed for %(count)d items."
+msgstr "%(count)d öğe için izinler değiştirildi."
+
+#: modules/files/filemanager.py:822
+#, python-format
+msgid "Error changing permissions for: %(files)s. Check ownership."
+msgstr "%(files)s için izinler değiştirilirken hata. Sahipliği kontrol edin."
+
+#: modules/files/filemanager.py:835 modules/files/filemanager.py:893
+msgid "File name is empty"
+msgstr "Dosya adı boş"
+
+#: modules/files/filemanager.py:876
+msgid "Destination already exists"
+msgstr "Hedef zaten mevcut"
+
+#: modules/files/filemanager.py:878
+msgid "Permission denied"
+msgstr "İzin reddedildi"
+
+#: modules/files/filemanager.py:925
+#, python-format
+msgid "Move failed: %(error)s"
+msgstr "Taşıma başarısız: %(error)s"
+
+#: modules/files/filemanager.py:968 modules/files/filemanager.py:1128
+msgid "Editing this file type is not allowed."
+msgstr "Bu dosya türünü düzenlemek izin verilmiyor."
+
+#: modules/files/filemanager.py:1003
+msgid "Error saving file."
+msgstr "Dosya kaydedilirken hata oluştu."
+
+#: modules/files/filemanager.py:1020 modules/files/filemanager.py:1149
+msgid "Error accessing file size."
+msgstr "Dosya boyutuna erişilirken hata oluştu."
+
+#: modules/files/filemanager.py:1170
+msgid "Error opening file."
+msgstr "Dosya açılırken hata oluştu."
+
+#: modules/files/filemanager.py:1270 modules/files/trash.py:185
+msgid "Directory does not exist."
+msgstr "Dizin mevcut değil."
+
+#: modules/files/ftp.py:121
+msgid "No currently active FTP connections"
+msgstr "Şu anda aktif FTP bağlantısı yok"
+
+#: modules/files/ftp.py:146
+msgid "FTP username not provided."
+msgstr "FTP kullanıcı adı sağlanmadı."
+
+#: modules/files/ftp.py:151
+msgid "FTP domain not provided."
+msgstr "FTP alan adı sağlanmadı."
+
+#: modules/files/ftp.py:160
+msgid "FTP path not provided."
+msgstr "FTP yolu sağlanmadı."
+
+#: modules/files/ftp.py:165
+msgid "FTP password not provided."
+msgstr "FTP şifresi sağlanmadı."
+
+#: modules/files/ftp.py:257
+msgid "Missing new password"
+msgstr "Yeni şifre eksik"
+
+#: modules/files/trash.py:172
+msgid "Invalid directory."
+msgstr "Geçersiz dizin."
+
+#: modules/files/trash.py:207
+msgid "Missing filename."
+msgstr "Dosya adı eksik."
+
+#: modules/files/trash.py:220 modules/files/trash.py:293
+msgid "Invalid filename."
+msgstr "Geçersiz dosya adı."
+
+#: modules/files/trash.py:231 modules/files/trash.py:305
+msgid "File or directory does not exist in Trash."
+msgstr "Dosya veya dizin çöp kutusunda mevcut değil."
+
+#: modules/files/trash.py:235
+msgid ".trash_restore file is missing."
+msgstr ".trash_restore dosyası eksik."
+
+#: modules/files/trash.py:254
+msgid "Original path not found in .trash_restore."
+msgstr ".trash_restore içinde orijinal yol bulunamadı."
+
+#: modules/files/trash.py:263
+msgid "Restore path is outside your permitted data directory."
+msgstr "Geri yükleme yolu izin verilen veri dizininizin dışında."
+
+#: modules/files/trash.py:276
+msgid "Restored from Trash"
+msgstr "Çöp kutusundan geri yüklendi"
+
+#: modules/files/trash.py:289
+msgid "Deletion of system file .trash_restore is not allowed."
+msgstr ".trash_restore sistem dosyasının silinmesine izin verilmiyor."
+
+#: modules/files/trash.py:314
+msgid "Unsupported item type."
+msgstr "Desteklenmeyen öğe türü."
+
+#: modules/json/helpers.py:299
+msgid "Invalid action. Use start, stop, status, or restart."
+msgstr "Geçersiz işlem. start, stop, status veya restart kullanın."
+
+#: modules/json/helpers.py:554 modules/json/helpers.py:671
+msgid "Invalid folder path."
+msgstr "Geçersiz klasör yolu."
+
+#: modules/json/helpers.py:702
+msgid "Unexpected output format"
+msgstr "Beklenmeyen çıktı formatı"
+
+#: modules/json/helpers.py:737
+msgid "Invalid request. Please specify a domain or database name."
+msgstr "Geçersiz istek. Lütfen bir alan adı veya veritabanı adı belirtin."
+
+#: modules/mysqld/mysql_conf.py:155
+msgid "Unknown database service, cannot restart"
+msgstr "Bilinmeyen veritabanı hizmeti, yeniden başlatılamıyor"
+
+#: modules/mysqld/mysql_root_password.py:51
+msgid "Password changed but failed to restart MySQL."
+msgstr "Şifre değiştirildi ancak MySQL yeniden başlatılamadı."
+
+#: modules/mysqld/remote_mysql.py:121
+msgid "A valid username is required - alphanumeric characters and '_' only."
+msgstr ""
+"Geçerli bir kullanıcı adı zorunludur - yalnızca alfasayısal karakterler ve "
+"'_'."
+
+#: modules/mysqld/remote_mysql.py:133
+msgid "Password is required."
+msgstr "Şifre zorunludur."
+
+#: modules/mysqld/remote_mysql.py:173 modules/mysqld/remote_mysql.py:211
+msgid "A valid username is required."
+msgstr "Geçerli bir kullanıcı adı zorunludur."
+
+#: modules/mysqld/remote_mysql.py:185
+msgid "No changes made."
+msgstr "Değişiklik yapılmadı."
+
+#: modules/phpd/php_extensions.py:173
+msgid "Extension is not installed, or is already enabled."
+msgstr "Uzantı yüklü değil veya zaten etkin."
+
+#: modules/phpd/php_extensions.py:178
+msgid "Extension is not installed, or is already disabled."
+msgstr "Uzantı yüklü değil veya zaten devre dışı."
+
+#: modules/phpd/php_extensions.py:259
+#, python-format
+msgid "Installing %(ext)s..."
+msgstr "%(ext)s yükleniyor..."
+
+#: modules/phpd/php_extensions.py:268
+msgid "Extensions installed, restarting PHP-FPM to apply changes..."
+msgstr ""
+"Uzantılar yüklendi, değişiklikleri uygulamak için PHP-FPM yeniden "
+"başlatılıyor..."
+
+#: modules/phpd/php_extensions.py:270
+#, python-format
+msgid "Extensions installed: %(ext)s"
+msgstr "Uzantılar yüklendi: %(ext)s"
+
+#: modules/phpd/php_extensions.py:273
+msgid "Installation failed."
+msgstr "Kurulum başarısız."
+
+#: modules/phpd/php_extensions.py:275
+msgid "Installation timed out."
+msgstr "Kurulum zaman aşımına uğradı."
+
+#: modules/phpd/php_extensions.py:287
+msgid ""
+"PHP extension management is only available for PHP-FPM, not for Litespeed."
+msgstr ""
+"PHP uzantı yönetimi yalnızca PHP-FPM için mevcuttur, Litespeed için değil."
+
+#: modules/phpd/php_extensions.py:317 modules/phpd/php_extensions.py:399
+#, python-format
+msgid "Failed to start PHP %(version)s: %(error)s"
+msgstr "PHP %(version)s başlatılamadı: %(error)s"
+
+#: modules/phpd/php_extensions.py:325
+msgid "Invalid extension name."
+msgstr "Geçersiz uzantı adı."
+
+#: modules/phpd/php_extensions.py:333
+#, python-format
+msgid ""
+"Extension %(ext)s %(action)s, PHP %(version)s restarted to apply changes."
+msgstr ""
+"%(ext)s uzantısı %(action)s, değişiklikleri uygulamak için PHP %(version)s "
+"yeniden başlatıldı."
+
+#: modules/phpd/php_extensions.py:336
+#, python-format
+msgid "Could not change extension %(ext)s: %(error)s"
+msgstr "%(ext)s uzantısı değiştirilemedi: %(error)s"
+
+#: modules/phpd/php_extensions.py:357
+#, python-format
+msgid "PHP %(version)s Extensions"
+msgstr "PHP %(version)s Uzantıları"
+
+#: modules/phpd/php_extensions.py:367 modules/phpd/php_extensions.py:389
+msgid "Not available for Litespeed."
+msgstr "Litespeed için mevcut değil."
+
+#: modules/phpd/php_extensions.py:394
+msgid "No valid extensions selected."
+msgstr "Geçerli uzantı seçilmedi."
+
+#: modules/phpd/php_extensions.py:404
+msgid "Install queued..."
+msgstr "Kurulum kuyruğa alındı..."
+
+#: modules/phpd/php_ini.py:80 modules/phpd/php_options.py:191
+#, python-format
+msgid "Syntax error in the PHP %(version)s ini file: %(error)s"
+msgstr "PHP %(version)s ini dosyasında sözdizimi hatası: %(error)s"
+
+#: modules/psql/postgresql_import.py:80
+msgid "Import feature is enabled for PostgreSQL."
+msgstr "PostgreSQL için içe aktarma özelliği etkin."
+
+#: modules/sitemanager/temporary_links.py:71
+msgid "No redirect link found"
+msgstr "Yönlendirme bağlantısı bulunamadı"
+
+#: templates/base.html:35
+msgid "Uploading"
+msgstr "Yükleniyor"
+
+#: templates/base.html:36
+msgid "Loading"
+msgstr "Yükleniyor"
+
+#: templates/base.html:37 templates/user/history_usage.html:148
+msgid "Warning"
+msgstr "Uyarı"
+
+#: templates/base.html:42
+msgid "today"
+msgstr "bugün"
+
+#: templates/base.html:43
+msgid "yesterday"
+msgstr "dün"
+
+#: templates/base.html:44
+msgid "1 second ago"
+msgstr "1 saniye önce"
+
+#: templates/base.html:45
+#, python-format
+msgid "%%(n)s seconds ago"
+msgstr "%%(n)s saniye önce"
+
+#: templates/base.html:46
+msgid "1 minute ago"
+msgstr "1 dakika önce"
+
+#: templates/base.html:47
+#, python-format
+msgid "%%(n)s minutes ago"
+msgstr "%%(n)s dakika önce"
+
+#: templates/base.html:48
+msgid "1 hour ago"
+msgstr "1 saat önce"
+
+#: templates/base.html:49
+#, python-format
+msgid "%%(n)s hours ago"
+msgstr "%%(n)s saat önce"
+
+#: templates/base.html:50
+msgid "1 day ago"
+msgstr "1 gün önce"
+
+#: templates/base.html:51
+#, python-format
+msgid "%%(n)s days ago"
+msgstr "%%(n)s gün önce"
+
+#: templates/base.html:52
+msgid "1 week ago"
+msgstr "1 hafta önce"
+
+#: templates/base.html:53
+#, python-format
+msgid "%%(n)s weeks ago"
+msgstr "%%(n)s hafta önce"
+
+#: templates/base.html:54
+msgid "last month"
+msgstr "geçen ay"
+
+#: templates/base.html:55
+msgid "1 month ago"
+msgstr "1 ay önce"
+
+#: templates/base.html:56
+#, python-format
+msgid "%%(n)s months ago"
+msgstr "%%(n)s ay önce"
+
+#: templates/base.html:57
+msgid "last year"
+msgstr "geçen yıl"
+
+#: templates/base.html:58
+msgid "1 year ago"
+msgstr "1 yıl önce"
+
+#: templates/base.html:59
+#, python-format
+msgid "%%(n)s years ago"
+msgstr "%%(n)s yıl önce"
+
+#: templates/base.html:693
+msgid "Notification"
+msgstr "Bildirim"
+
+#: templates/base.html:697
+msgid "Dismiss"
+msgstr "Kapat"
+
+#: templates/base.html:719
+msgid "Found a bug? Let us know"
+msgstr "Hata buldunuz mu? Bize bildirin"
+
+#: templates/cache/service.html:7 templates/cache/service.html:8
+#: templates/system/services.html:7 templates/system/services.html:8
+msgid "Running"
+msgstr "Çalışıyor"
+
+#: templates/cache/service.html:9 templates/system/services.html:9
+msgid "Unhealthy"
+msgstr "Sağlıksız"
+
+#: templates/cache/service.html:10 templates/system/services.html:10
+msgid "Starting"
+msgstr "Başlatılıyor"
+
+#: templates/cache/service.html:13 templates/system/services.html:13
+msgid "Restarting"
+msgstr "Yeniden Başlatılıyor"
+
+#: templates/cache/service.html:14 templates/system/services.html:14
+msgid "Paused"
+msgstr "Duraklatıldı"
+
+#: templates/cache/service.html:15 templates/system/services.html:15
+msgid "Stopped"
+msgstr "Durduruldu"
+
+#: templates/cache/service.html:16 templates/system/services.html:16
+msgid "Removing"
+msgstr "Kaldırılıyor"
+
+#: templates/cache/service.html:17 templates/system/services.html:17
+msgid "Dead"
+msgstr "Çökmüş"
+
+#: templates/cache/service.html:53 templates/system/services.html:72
+msgid "Current service status."
+msgstr "Mevcut hizmet durumu."
+
+#: templates/cache/service.html:98
+msgid "Varnish Cache"
+msgstr "Varnish Önbelleği"
+
+#: templates/cache/service.html:99
+msgid "Real-time cache performance and efficiency metrics."
+msgstr "Gerçek zamanlı önbellek performansı ve verimlilik metrikleri."
+
+#: templates/cache/service.html:238 templates/system/services.html:112
+msgid "Edit limits"
+msgstr "Sınırları düzenle"
+
+#: templates/dashboard/custom_section.html:22
+#: templates/dashboard/dashboard.html:70
+msgid "Hide icons"
+msgstr "Simgeleri gizle"
+
+#: templates/dashboard/custom_section.html:22
+#: templates/dashboard/dashboard.html:70
+msgid "Show icons"
+msgstr "Simgeleri göster"
+
+#: templates/dashboard/dashboard.html:27
+msgid "Want a quick guided tour of OpenPanel?"
+msgstr "OpenPanel'in hızlı bir rehberli turunu ister misiniz?"
+
+#: templates/dashboard/dashboard.html:28 templates/partials/_footer.html:64
+msgid "Take the tour"
+msgstr "Turu başlat"
+
+#: templates/dashboard/dashboard.html:30
+msgid "Skip"
+msgstr "Atla"
+
+#: templates/dashboard/dashboard.html:34
+msgid "Icons position"
+msgstr "Simge konumu"
+
+#: templates/dashboard/dashboard.html:35
+msgid "Top"
+msgstr "Üst"
+
+#: templates/dashboard/dashboard.html:149
+msgid "Change root password"
+msgstr "Root şifresini değiştir"
+
+#: templates/dashboard/dashboard.html:184
+msgid "Default Address"
+msgstr "Varsayılan Adres"
+
+#: templates/dashboard/dashboard.html:186
+msgid "Address Exporter"
+msgstr "Adres Dışa Aktarıcı"
+
+#: templates/dashboard/usage.html:335
+msgid "Disk usage is at"
+msgstr "Disk kullanımı"
+
+#: templates/dashboard/usage.html:335 templates/dashboard/usage.html:342
+#: templates/dashboard/usage.html:381 templates/dashboard/usage.html:388
+msgid "of your limit."
+msgstr "sınırınızda."
+
+#: templates/dashboard/usage.html:342
+msgid "Inodes usage is at"
+msgstr "İnode kullanımı"
+
+#: templates/dashboard/usage.html:381
+msgid "CPU usage is at"
+msgstr "CPU kullanımı"
+
+#: templates/dashboard/usage.html:388
+msgid "RAM usage is at"
+msgstr "RAM kullanımı"
+
+#: templates/docker/container_form.html:81
+msgid ""
+"Name is used to identify the container, and is used by other services to "
+"connect."
+msgstr ""
+"Ad, konteyneri tanımlamak ve diğer hizmetlerin bağlanması için kullanılır."
+
+#: templates/docker/container_form.html:104
+msgid "Numeric value"
+msgstr "Sayısal değer"
+
+#: templates/docker/container_form.html:112
+msgid "Example: 1G"
+msgstr "Örnek: 1G"
+
+#: templates/docker/container_form.html:137
+#: templates/docker/container_form.html:167
+msgid "Read-only"
+msgstr "Salt okunur"
+
+#: templates/docker/container_form.html:165
+msgid "Path inside container"
+msgstr "Konteyner içindeki yol"
+
+#: templates/docker/containers.html:18 templates/docker/containers.html:263
+msgid "cores"
+msgstr "çekirdek"
+
+#: templates/docker/containers.html:257 templates/docker/containers.html:309
+msgid "Usage:"
+msgstr "Kullanım:"
+
+#: templates/docker/containers.html:262 templates/docker/containers.html:313
+msgid "Allocated:"
+msgstr "Tahsis edilen:"
+
+#: templates/docker/containers.html:267
+msgid "Max CPUs that this service can use. 0 = unlimited"
+msgstr "Bu hizmetin kullanabileceği maksimum CPU. 0 = sınırsız"
+
+#: templates/docker/containers.html:320
+msgid "Max Memory that this service can use. 0 = unlimited"
+msgstr "Bu hizmetin kullanabileceği maksimum bellek. 0 = sınırsız"
+
+#: templates/docker/containers.html:347
+msgid "Pull & Start"
+msgstr "Çek ve Başlat"
+
+#: templates/docker/containers.html:563
+msgid "is reaching its CPU/RAM limit."
+msgstr "CPU/RAM sınırına ulaşıyor."
+
+#: templates/docker/containers.html:565
+msgid "are reaching their CPU/RAM limit."
+msgstr "CPU/RAM sınırına ulaşıyor."
+
+#: templates/docker/containers.html:567
+msgid "containers are reaching their CPU/RAM limit."
+msgstr "konteyner CPU/RAM sınırına ulaşıyor."
+
+#: templates/docker/images.html:35
+msgid "Monitored Images"
+msgstr "İzlenen İmajlar"
+
+#: templates/docker/images.html:51
+msgid "Updates Available"
+msgstr "Güncellemeler Mevcut"
+
+#: templates/docker/images.html:65
+msgid "Minor Updates"
+msgstr "Küçük Güncellemeler"
+
+#: templates/docker/images.html:78
+msgid "Major Updates"
+msgstr "Büyük Güncellemeler"
+
+#: templates/docker/images.html:91
+msgid "Up to Date"
+msgstr "Güncel"
+
+#: templates/docker/images.html:159
+msgid "Update available"
+msgstr "Güncelleme mevcut"
+
+#: templates/docker/images.html:190
+msgid "New:"
+msgstr "Yeni:"
+
+#: templates/docker/images.html:191
+msgid "From:"
+msgstr "Kimden:"
+
+#: templates/docker/images.html:192
+msgid "To:"
+msgstr "Kime:"
+
+#: templates/docker/images.html:195
+msgid "Digest updated"
+msgstr "Özet güncellendi"
+
+#: templates/docker/images.html:198
+msgid "Error:"
+msgstr "Hata:"
+
+#: templates/docker/logs.html:11
+msgid "View Docker container logs."
+msgstr "Docker konteyner günlüklerini görüntüle."
+
+#: templates/docker/logs.html:21
+msgid "-- Select container --"
+msgstr "-- Konteyner seçin --"
+
+#: templates/docker/logs.html:29
+msgid "-- Lines --"
+msgstr "-- Satırlar --"
+
+#: templates/docker/logs.html:52
+msgid "Select a container to view its logs here."
+msgstr "Günlüklerini burada görüntülemek için bir konteyner seçin."
+
+#: templates/docker/logs.html:59
+msgid "The log file is empty."
+msgstr "Günlük dosyası boş."
+
+#: templates/docker/logs.html:60
+msgid "Error fetching log data."
+msgstr "Günlük verisi alınırken hata oluştu."
+
+#: templates/docker/terminal.html:33
+msgid ""
+"The terminal is interactive and executes commands as 'root' user inside the "
+"container."
+msgstr ""
+"Terminal etkileşimlidir ve komutları konteyner içinde 'root' kullanıcısı "
+"olarak çalıştırır."
+
+#: templates/docker/terminal.html:34
+msgid "Inactivity timeout:"
+msgstr "Hareketsizlik zaman aşımı:"
+
+#: templates/docker/terminal.html:34 templates/mysql/databases.html:636
+#: templates/mysql/users.html:221
+msgid "seconds"
+msgstr "saniye"
+
+#: templates/docker/terminal.html:56
+msgid "Shell type"
+msgstr "Shell türü"
+
+#: templates/docker/terminal.html:67
+msgid "Reconnect"
+msgstr "Yeniden Bağlan"
+
+#: templates/docker/terminal.html:77 templates/docker/terminal.html:146
+msgid "Connecting…"
+msgstr "Bağlanıyor…"
+
+#: templates/docker/terminal.html:146
+msgid "Connected"
+msgstr "Bağlandı"
+
+#: templates/docker/terminal.html:146
+msgid "Disconnected"
+msgstr "Bağlantı kesildi"
+
+#: templates/domains/capitalize.html:10
+msgid ""
+"You can customize your domain type case by clicking on the letter you want "
+"to change.(e.g. SuperDomainName.com)."
+msgstr ""
+"Değiştirmek istediğiniz harfe tıklayarak alan adınızın büyük/küçük harf "
+"yapısını özelleştirebilirsiniz (ör. SuperAlanAdi.com)."
+
+#: templates/domains/dns.html:133
+msgid "TLSA"
+msgstr "TLSA"
+
+#: templates/domains/dns.html:147 templates/domains/dns.html:318
+msgid "Generate from existing SSL cert"
+msgstr "Mevcut SSL sertifikasından oluştur"
+
+#: templates/domains/dns.html:156
+msgid "Public key hash (SHA-256)"
+msgstr "Açık anahtar karması (SHA-256)"
+
+#: templates/domains/dns.html:163
+msgid "Full certificate hash (SHA-256)"
+msgstr "Tam sertifika karması (SHA-256)"
+
+#: templates/domains/dns.html:173
+msgid "Protocol"
+msgstr "Protokol"
+
+#: templates/domains/dns.html:202 templates/domains/dns.html:699
+msgid "An unexpected error occurred. Please try again."
+msgstr "Beklenmeyen bir hata oluştu. Lütfen tekrar deneyin."
+
+#: templates/domains/dns.html:232
+msgid "or use Generate button below"
+msgstr "veya aşağıdaki Oluştur düğmesini kullanın"
+
+#: templates/domains/dns.html:308
+msgid "Fetching..."
+msgstr "Alınıyor..."
+
+#: templates/domains/dns.html:329
+msgid "Custom certificate"
+msgstr "Özel sertifika"
+
+#: templates/domains/dns.html:330
+msgid "Lets Encrypt certificate"
+msgstr "Lets Encrypt sertifikası"
+
+#: templates/domains/dns.html:335
+msgid ""
+"Caddy autorenews Lets Encrypt certificates with a new keypair. This record "
+"will go stale after the next renewal — regenerate it then."
+msgstr ""
+"Caddy, Lets Encrypt sertifikalarını yeni bir anahtar çiftiyle otomatik "
+"olarak yeniler. Bu kayıt bir sonraki yenilemeden sonra geçersiz olacaktır — "
+"o zaman yeniden oluşturun."
+
+#: templates/domains/dns.html:338
+msgid ""
+"Using a custom certificate. Regenerate this record whenever you replace the "
+"certificate."
+msgstr ""
+"Özel sertifika kullanılıyor. Sertifikayı değiştirdiğinizde bu kaydı yeniden "
+"oluşturun."
+
+#: templates/domains/dns.html:356 templates/manager/wp/install.html:137
+msgid "Regenerate"
+msgstr "Yeniden Oluştur"
+
+#: templates/domains/dns.html:359
+msgid "Failed to fetch SSL certificate info."
+msgstr "SSL sertifika bilgisi alınamadı."
+
+#: templates/domains/dns.html:488
+msgid ""
+"Error occurred deleting the record. Please refresh the page and try again. "
+"If the issue persists, try editing the zone file directly."
+msgstr ""
+"Kayıt silinirken hata oluştu. Lütfen sayfayı yenileyin ve tekrar deneyin. "
+"Sorun devam ederse bölge dosyasını doğrudan düzenlemeyi deneyin."
+
+#: templates/domains/dns.html:598
+msgid "Edit Cancelled. Reloading the page."
+msgstr "Düzenleme İptal Edildi. Sayfa yeniden yükleniyor."
+
+#: templates/domains/dns.html:652
+msgid "A CNAME record with this name already exists."
+msgstr "Bu adda bir CNAME kaydı zaten mevcut."
+
+#: templates/domains/dns.html:852
+msgid "An error occurred while saving the zone file."
+msgstr "Bölge dosyası kaydedilirken hata oluştu."
+
+#: templates/domains/docroot.html:12
+msgid ""
+"Changing the document root (folder) for a domain does not automatically "
+"transfer existing files or update configuration files. You will need to "
+"manually update paths in files and applications if you change the document "
+"root for existing websites."
+msgstr ""
+"Bir alan adı için belge kökünü (klasörü) değiştirmek, mevcut dosyaları "
+"otomatik olarak aktarmaz veya yapılandırma dosyalarını güncellemez. Mevcut "
+"web siteleri için belge kökünü değiştirirseniz dosya ve uygulamalardaki "
+"yolları manuel olarak güncellemeniz gerekecektir."
+
+#: templates/domains/domains.html:222 templates/emails/deliverability.html:46
+#: templates/php/settings.html:176 templates/system/waf.html:67
+msgid "No domains yet."
+msgstr "Henüz alan adı yok."
+
+#: templates/domains/domains.html:222
+msgid "Add your first domain"
+msgstr "İlk alan adınızı ekleyin"
+
+#: templates/domains/domains.html:446
+msgid "0 of"
+msgstr "0 /"
+
+#: templates/domains/domains.html:446
+msgid "row(s) selected."
+msgstr "satır seçildi."
+
+#: templates/domains/domains.html:457
+msgid "First page"
+msgstr "İlk sayfa"
+
+#: templates/domains/domains.html:468
+msgid "Previous page"
+msgstr "Önceki sayfa"
+
+#: templates/domains/domains.html:476
+msgid "Next page"
+msgstr "Sonraki sayfa"
+
+#: templates/domains/domains.html:484
+msgid "Last page"
+msgstr "Son sayfa"
+
+#: templates/domains/dynamic_dns.html:14
+msgid "Keep DNS records in sync with changing IP addresses via a token URL."
+msgstr ""
+"Bir token URL'si aracılığıyla DNS kayıtlarını değişen IP adresleriyle "
+"senkronize tutun."
+
+#: templates/domains/dynamic_dns.html:24
+msgid "Add Entry"
+msgstr "Giriş Ekle"
+
+#: templates/domains/dynamic_dns.html:38
+msgid "New entry"
+msgstr "Yeni giriş"
+
+#: templates/domains/dynamic_dns.html:51 templates/domains/dynamic_dns.html:93
+#: templates/domains/dynamic_dns.html:168
+msgid "Subdomain"
+msgstr "Alt Alan Adı"
+
+#: templates/domains/dynamic_dns.html:53
+msgid "Letters, numbers, hyphens only."
+msgstr "Yalnızca harf, rakam ve kısa çizgi."
+
+#: templates/domains/dynamic_dns.html:57
+msgid "Initial IP"
+msgstr "Başlangıç IP"
+
+#: templates/domains/dynamic_dns.html:59
+msgid "Will be updated automatically on first webcall."
+msgstr "İlk web çağrısında otomatik olarak güncellenecek."
+
+#: templates/domains/dynamic_dns.html:84
+msgid "Edit entry"
+msgstr "Girişi düzenle"
+
+#: templates/domains/dynamic_dns.html:98
+#: templates/domains/dynamic_dns.html:170
+msgid "IP"
+msgstr "IP"
+
+#: templates/domains/dynamic_dns.html:109
+#: templates/domains/dynamic_dns.html:173
+msgid "Update URL"
+msgstr "Güncelleme URL'si"
+
+#: templates/domains/dynamic_dns.html:133
+msgid ""
+"This will remove the DNS record and invalidate the update token. This action"
+" cannot be undone."
+msgstr ""
+"Bu işlem DNS kaydını kaldıracak ve güncelleme token'ını geçersiz kılacak. Bu"
+" işlem geri alınamaz."
+
+#: templates/domains/dynamic_dns.html:151
+msgid "No Dynamic DNS entries yet"
+msgstr "Henüz dinamik DNS girişi yok"
+
+#: templates/domains/dynamic_dns.html:152
+msgid "Add an entry to get started."
+msgstr "Başlamak için bir giriş ekleyin."
+
+#: templates/domains/dynamic_dns.html:161
+msgid "record"
+msgstr "kayıt"
+
+#: templates/domains/dynamic_dns.html:172
+msgid "Last Updated"
+msgstr "Son Güncelleme"
+
+#: templates/domains/dynamic_dns.html:190
+msgid "never"
+msgstr "hiçbir zaman"
+
+#: templates/domains/dynamic_dns.html:196
+msgid "Copy URL"
+msgstr "URL'yi Kopyala"
+
+#: templates/domains/ssl.html:46
+msgid "Generate now"
+msgstr "Şimdi oluştur"
+
+#: templates/domains/ssl.html:61
+msgid "Switch to Let's Encrypt and generate"
+msgstr "Let's Encrypt'e geç ve oluştur"
+
+#: templates/domains/ssl.html:105
+msgid "Valid From:"
+msgstr "Geçerlilik Başlangıcı:"
+
+#: templates/domains/ssl.html:106
+msgid "Valid To:"
+msgstr "Geçerlilik Sonu:"
+
+#: templates/domains/ssl.html:107
+msgid "Issuer:"
+msgstr "Veren:"
+
+#: templates/domains/ssl.html:108
+msgid "Subject:"
+msgstr "Konu:"
+
+#: templates/domains/ssl.html:109
+msgid "Serial Number:"
+msgstr "Seri Numarası:"
+
+#: templates/domains/ssl.html:110
+msgid "Signature Algorithm:"
+msgstr "İmza Algoritması:"
+
+#: templates/domains/ssl.html:182 templates/domains/ssl.html:188
+msgid "SSL certificate for"
+msgstr "İçin SSL sertifikası"
+
+#: templates/domains/ssl.html:182
+msgid "has expired."
+msgstr "süresi doldu."
+
+#: templates/domains/ssl.html:188
+msgid "expires in"
+msgstr "tarihinde sona eriyor"
+
+#: templates/domains/ssl.html:188
+msgid "days."
+msgstr "gün."
+
+#: templates/domains/ssl.html:209
+#, python-format
+msgid "No SSL certificate is configured for %(domain)s."
+msgstr "%(domain)s için SSL sertifikası yapılandırılmamış."
+
+#: templates/domains/vhost.html:164
+msgid "Potential syntax issues were found:"
+msgstr "Potansiyel sözdizimi sorunları bulundu:"
+
+#: templates/domains/vhost.html:165
+msgid "Do you want to save anyway?"
+msgstr "Yine de kaydetmek istiyor musunuz?"
+
+#: templates/domains/partials/_no_domain.html:3
+msgid "No domains yet"
+msgstr "Henüz alan adı yok"
+
+#: templates/domains/partials/_no_domain.html:4
+msgid "Add your first domain to get started"
+msgstr "Başlamak için ilk alan adınızı ekleyin"
+
+#: templates/domains/partials/_no_domain.html:5
+msgid "New domain"
+msgstr "Yeni alan adı"
+
+#: templates/emails/accounts.html:29 templates/mysql/databases.html:373
+#: templates/mysql/databases.html:379 templates/mysql/databases.html:437
+msgid "Export"
+msgstr "Dışa Aktar"
+
+#: templates/emails/accounts.html:54
+msgid "No emails yet."
+msgstr "Henüz e-posta yok."
+
+#: templates/emails/accounts.html:54
+msgid "Add your first email"
+msgstr "İlk e-postanızı ekleyin"
+
+#: templates/emails/accounts.html:131
+#, python-format
+msgid "Email %(addr)s is reaching its quota (%(percent)s%%)."
+msgstr "%(addr)s e-postası kotasına ulaşıyor (%(percent)s%%)."
+
+#: templates/emails/accounts.html:137
+#, python-format
+msgid "Emails %(addrs)s are reaching their quota."
+msgstr "%(addrs)s e-postaları kotalarına ulaşıyor."
+
+#: templates/emails/accounts.html:143
+#, python-format
+msgid "%(n)s emails are reaching their quota."
+msgstr "%(n)s e-posta kotasına ulaşıyor."
+
+#: templates/emails/alias_delete.html:10
+msgid "Permanently delete this alias and all its destinations."
+msgstr "Bu takma adı ve tüm hedeflerini kalıcı olarak silin."
+
+#: templates/emails/alias_delete.html:17
+msgid ""
+"Click the button below to permanently delete the alias. Mail sent to this "
+"address will no longer be forwarded."
+msgstr ""
+"Takma adı kalıcı olarak silmek için aşağıdaki düğmeye tıklayın. Bu adrese "
+"gönderilen e-postalar artık iletilmeyecek."
+
+#: templates/emails/alias_delete.html:63
+msgid "Failed to delete alias."
+msgstr "Takma ad silinemedi."
+
+#: templates/emails/alias_delete.html:78
+msgid "Select Alias"
+msgstr "Takma Ad Seçin"
+
+#: templates/emails/alias_delete.html:79
+msgid "Select an alias to delete."
+msgstr "Silmek için bir takma ad seçin."
+
+#: templates/emails/alias_delete.html:90
+msgid "Select alias"
+msgstr "Takma ad seçin"
+
+#: templates/emails/alias_detail.html:8
+msgid "Manage Alias"
+msgstr "Takma Adı Yönet"
+
+#: templates/emails/alias_detail.html:13 templates/emails/alias_new.html:55
+msgid "Back to Aliases"
+msgstr "Takma Adlara Geri Dön"
+
+#: templates/emails/alias_detail.html:24
+msgid "Current destinations"
+msgstr "Mevcut hedefler"
+
+#: templates/emails/alias_detail.html:32
+#: templates/emails/alias_detail.html:209 templates/emails/aliases.html:46
+#: templates/emails/default_address.html:82
+msgid "Delivers to"
+msgstr "Teslim ediliyor"
+
+#: templates/emails/alias_detail.html:52
+#: templates/emails/alias_detail.html:164
+msgid "No destinations configured for this alias yet."
+msgstr "Bu takma ad için henüz hedef yapılandırılmamış."
+
+#: templates/emails/alias_detail.html:60
+msgid "Add destination"
+msgstr "Hedef ekle"
+
+#: templates/emails/alias_detail.html:69
+msgid "New destination address"
+msgstr "Yeni hedef adres"
+
+#: templates/emails/alias_detail.html:75 templates/emails/alias_new.html:43
+msgid "destination@example.com"
+msgstr "hedef@ornek.com"
+
+#: templates/emails/alias_detail.html:79
+msgid "Add another address that this alias should forward to."
+msgstr "Bu takma adın iletmesi gereken başka bir adres ekleyin."
+
+#: templates/emails/alias_detail.html:89
+msgid "Add Destination"
+msgstr "Hedef Ekle"
+
+#: templates/emails/alias_detail.html:99
+#: templates/emails/default_address.html:143
+msgid "Danger zone"
+msgstr "Tehlike bölgesi"
+
+#: templates/emails/alias_detail.html:105
+msgid "Delete this alias"
+msgstr "Bu takma adı sil"
+
+#: templates/emails/alias_detail.html:106
+msgid "Removes the alias address and all its destinations permanently."
+msgstr "Takma ad adresini ve tüm hedeflerini kalıcı olarak kaldırır."
+
+#: templates/emails/alias_detail.html:148
+#: templates/emails/default_address.html:214
+msgid "Removing..."
+msgstr "Kaldırılıyor..."
+
+#: templates/emails/alias_detail.html:168
+msgid "Failed to remove destination."
+msgstr "Hedef kaldırılamadı."
+
+#: templates/emails/alias_detail.html:190
+msgid "Adding..."
+msgstr "Ekleniyor..."
+
+#: templates/emails/alias_detail.html:221
+msgid "Failed to add destination."
+msgstr "Hedef eklenemedi."
+
+#: templates/emails/alias_new.html:7
+msgid "Create an Alias"
+msgstr "Takma Ad Oluştur"
+
+#: templates/emails/alias_new.html:8
+msgid "Forward mail from an alias address to any destination."
+msgstr "Bir takma ad adresinden herhangi bir hedefe e-posta iletin."
+
+#: templates/emails/alias_new.html:32
+msgid "Alias address"
+msgstr "Takma ad adresi"
+
+#: templates/emails/alias_new.html:34
+msgid "alias"
+msgstr "takma ad"
+
+#: templates/emails/alias_new.html:37
+msgid ""
+"Emails sent to this address will be forwarded to the destination below."
+msgstr "Bu adrese gönderilen e-postalar aşağıdaki hedefe iletilecektir."
+
+#: templates/emails/alias_new.html:42
+#: templates/emails/default_address.html:110
+msgid "Destination address"
+msgstr "Hedef adres"
+
+#: templates/emails/alias_new.html:44
+msgid "Can be any email address (on this server or external)."
+msgstr "Herhangi bir e-posta adresi olabilir (bu sunucuda veya harici)."
+
+#: templates/emails/alias_new.html:58
+msgid "Create Alias"
+msgstr "Takma Ad Oluştur"
+
+#: templates/emails/aliases.html:12
+msgid "Total aliases:"
+msgstr "Toplam takma ad:"
+
+#: templates/emails/aliases.html:45
+msgid "From (alias)"
+msgstr "Kimden (takma ad)"
+
+#: templates/emails/aliases.html:55
+msgid "No aliases yet."
+msgstr "Henüz takma ad yok."
+
+#: templates/emails/aliases.html:57
+msgid "Add your first alias"
+msgstr "İlk takma adınızı ekleyin"
+
+#: templates/emails/confirm_import.html:143 templates/psql/import.html:52
+msgid "Importing..."
+msgstr "İçe aktarılıyor..."
+
+#: templates/emails/confirm_import.html:208
+msgid "Error occurred during import."
+msgstr "İçe aktarma sırasında hata oluştu."
+
+#: templates/emails/confirm_import.html:215
+#: templates/emails/confirm_import.html:236
+msgid "Retry Import"
+msgstr "İçe Aktarmayı Yeniden Dene"
+
+#: templates/emails/default_address.html:10
+#: templates/emails/default_address.html:58
+msgid "Default Email Address"
+msgstr "Varsayılan E-posta Adresi"
+
+#: templates/emails/default_address.html:11
+msgid ""
+"Catch any email that is sent to an invalid email address for your domain."
+msgstr ""
+"Alan adınız için geçersiz bir e-posta adresine gönderilen tüm e-postaları "
+"yakalayın."
+
+#: templates/emails/default_address.html:74
+msgid "Current configuration"
+msgstr "Mevcut yapılandırma"
+
+#: templates/emails/default_address.html:81
+msgid "Catch-all rule"
+msgstr "Hepsini-yakala kuralı"
+
+#: templates/emails/default_address.html:95
+msgid ""
+"No catch-all configured — unmatched emails for this domain are rejected."
+msgstr ""
+"Hepsini-yakala yapılandırılmadı — bu alan adına eşleşmeyen e-postalar "
+"reddedilir."
+
+#: templates/emails/default_address.html:102
+msgid "Set catch-all destination"
+msgstr "Hepsini-yakala hedefini ayarla"
+
+#: templates/emails/default_address.html:117
+msgid "catchall@example.com"
+msgstr "herseyi-yakala@ornek.com"
+
+#: templates/emails/default_address.html:118
+msgid "No spaces allowed, use commas to separate addresses."
+msgstr "Boşluğa izin verilmez, adresleri ayırmak için virgül kullanın."
+
+#: templates/emails/default_address.html:122
+msgid ""
+"All emails sent to any address at this domain will be forwarded here. Leave "
+"empty to reject unmatched emails."
+msgstr ""
+"Bu alan adındaki herhangi bir adrese gönderilen tüm e-postalar buraya "
+"iletilecektir. Eşleşmeyen e-postaları reddetmek için boş bırakın."
+
+#: templates/emails/default_address.html:149
+msgid "Remove catch-all"
+msgstr "Hepsini-yakalamayı kaldır"
+
+#: templates/emails/default_address.html:150
+msgid ""
+"Deletes the catch-all rule. Emails to unknown addresses at this domain will "
+"be rejected."
+msgstr ""
+"Hepsini-yakala kuralını siler. Bu alan adındaki bilinmeyen adreslere "
+"gönderilen e-postalar reddedilecektir."
+
+#: templates/emails/default_address.html:156
+msgid "Remove Catch-all"
+msgstr "Hepsini-Yakalamayı Kaldır"
+
+#: templates/emails/default_address.html:187
+msgid "Saving..."
+msgstr "Kaydediliyor..."
+
+#: templates/emails/default_address.html:210
+msgid ""
+"Remove the catch-all for this domain? Emails to unknown addresses will be "
+"rejected."
+msgstr ""
+"Bu alan adının hepsini-yakalama özelliği kaldırılsın mı? Bilinmeyen "
+"adreslere gönderilen e-postalar reddedilecektir."
+
+#: templates/emails/default_address.html:222
+msgid "Failed to remove catch-all."
+msgstr "Hepsini-yakala kaldırılamadı."
+
+#: templates/emails/deliverability.html:11
+msgid "Check SPF, DKIM and DMARC DNS records for your domains."
+msgstr "Alan adlarınız için SPF, DKIM ve DMARC DNS kayıtlarını kontrol edin."
+
+#: templates/emails/deliverability.html:62
+msgid "Details"
+msgstr "Ayrıntılar"
+
+#: templates/emails/deliverability.html:107
+msgid "has SPF/DKIM/DMARC problems."
+msgstr "SPF/DKIM/DMARC sorunları var."
+
+#: templates/emails/deliverability.html:109
+msgid "have SPF/DKIM/DMARC problems."
+msgstr "SPF/DKIM/DMARC sorunları var."
+
+#: templates/emails/deliverability.html:111
+msgid "domains have SPF/DKIM/DMARC problems."
+msgstr "alan adında SPF/DKIM/DMARC sorunları var."
+
+#: templates/emails/deliverability_domain.html:13
+msgid "Back to Deliverability"
+msgstr "Teslim Edilebilirliğe Geri Dön"
+
+#: templates/emails/deliverability_domain.html:21
+msgid "Checking DNS records..."
+msgstr "DNS kayıtları kontrol ediliyor..."
+
+#: templates/emails/deliverability_domain.html:57
+msgid "Expected"
+msgstr "Beklenen"
+
+#: templates/emails/deliverability_domain.html:80
+msgid "Failed to check DNS records."
+msgstr "DNS kayıtları kontrol edilemedi."
+
+#: templates/emails/filter.html:11
+msgid "Select an email address to manage its Sieve filters."
+msgstr "Sieve filtrelerini yönetmek için bir e-posta adresi seçin."
+
+#: templates/emails/filter.html:47
+msgid "Sieve filters for"
+msgstr "İçin Sieve filtreleri"
+
+#: templates/emails/filter.html:54
+msgid "Visual editor"
+msgstr "Görsel düzenleyici"
+
+#: templates/emails/filter.html:59
+msgid "File editor"
+msgstr "Dosya düzenleyici"
+
+#: templates/emails/filter.html:69
+msgid "Rules are applied in order, top to bottom."
+msgstr "Kurallar sıraya göre, yukarıdan aşağıya uygulanır."
+
+#: templates/emails/filter.html:74
+msgid "Add filter"
+msgstr "Filtre ekle"
+
+#: templates/emails/filter.html:81
+msgid "No filters yet."
+msgstr "Henüz filtre yok."
+
+#: templates/emails/filter.html:84
+msgid "Create first filter"
+msgstr "İlk filtreyi oluştur"
+
+#: templates/emails/filter.html:94
+msgid "Filter name…"
+msgstr "Filtre adı…"
+
+#: templates/emails/filter.html:98
+msgid "Move up"
+msgstr "Yukarı taşı"
+
+#: templates/emails/filter.html:102
+msgid "Move down"
+msgstr "Aşağı taşı"
+
+#: templates/emails/filter.html:106
+msgid "Remove filter"
+msgstr "Filtreyi kaldır"
+
+#: templates/emails/filter.html:116
+msgid "If"
+msgstr "Eğer"
+
+#: templates/emails/filter.html:119
+msgid "any"
+msgstr "herhangi"
+
+#: templates/emails/filter.html:120
+msgid "all"
+msgstr "hepsi"
+
+#: templates/emails/filter.html:122
+msgid "of these match:"
+msgstr "bunlardan eşleşirse:"
+
+#: templates/emails/filter.html:129
+msgid "From"
+msgstr "Kimden"
+
+#: templates/emails/filter.html:130
+msgid "Subject"
+msgstr "Konu"
+
+#: templates/emails/filter.html:131
+msgid "To"
+msgstr "Kime"
+
+#: templates/emails/filter.html:132
+msgid "Any recipient"
+msgstr "Herhangi bir alıcı"
+
+#: templates/emails/filter.html:133
+msgid "Body"
+msgstr "İçerik"
+
+#: templates/emails/filter.html:134
+msgid "Any header"
+msgstr "Herhangi bir başlık"
+
+#: templates/emails/filter.html:135
+msgid "Spam status"
+msgstr "Spam durumu"
+
+#: templates/emails/filter.html:136
+msgid "Spam score"
+msgstr "Spam skoru"
+
+#: templates/emails/filter.html:137
+msgid "List ID"
+msgstr "Liste ID"
+
+#: templates/emails/filter.html:141
+msgid "contains"
+msgstr "içerir"
+
+#: templates/emails/filter.html:142
+msgid "does not contain"
+msgstr "içermez"
+
+#: templates/emails/filter.html:143
+msgid "equals"
+msgstr "eşittir"
+
+#: templates/emails/filter.html:144
+msgid "begins with"
+msgstr "ile başlar"
+
+#: templates/emails/filter.html:145
+msgid "ends with"
+msgstr "ile biter"
+
+#: templates/emails/filter.html:146
+msgid "matches regex"
+msgstr "regex eşleşmesi"
+
+#: templates/emails/filter.html:147
+msgid "does not match regex"
+msgstr "regex eşleşmez"
+
+#: templates/emails/filter.html:149
+msgid "Value…"
+msgstr "Değer…"
+
+#: templates/emails/filter.html:152
+msgid "Remove condition"
+msgstr "Koşulu kaldır"
+
+#: templates/emails/filter.html:156
+msgid "Add condition"
+msgstr "Koşul ekle"
+
+#: templates/emails/filter.html:166
+msgid "Then:"
+msgstr "Sonra:"
+
+#: templates/emails/filter.html:172
+msgid "Deliver to folder"
+msgstr "Klasöre teslim et"
+
+#: templates/emails/filter.html:173
+msgid "Redirect to email"
+msgstr "E-postaya yönlendir"
+
+#: templates/emails/filter.html:174
+msgid "Forward to email (keep copy)"
+msgstr "E-postaya ilet (kopyayı sakla)"
+
+#: templates/emails/filter.html:175
+msgid "Discard message"
+msgstr "Mesajı at"
+
+#: templates/emails/filter.html:176
+msgid "Reject with message"
+msgstr "Mesajla reddet"
+
+#: templates/emails/filter.html:177
+msgid "Mark as read"
+msgstr "Okundu olarak işaretle"
+
+#: templates/emails/filter.html:178
+msgid "Flag / star"
+msgstr "Bayrakla işaretle / yıldız"
+
+#: templates/emails/filter.html:179
+msgid "Auto-responder (vacation)"
+msgstr "Otomatik yanıtlayıcı (tatil)"
+
+#: templates/emails/filter.html:180
+msgid "Stop processing"
+msgstr "İşlemeyi durdur"
+
+#: templates/emails/filter.html:189
+#, python-brace-format
+msgid "Subject, e.g. Re: ${subjectwas}"
+msgstr "Konu, ör. Re: ${subjectwas}"
+
+#: templates/emails/filter.html:191
+msgid "Auto-reply message…"
+msgstr "Otomatik yanıt mesajı…"
+
+#: templates/emails/filter.html:194
+msgid "Reply at most once every"
+msgstr "En fazla şu sıklıkta yanıtla"
+
+#: templates/emails/filter.html:197
+msgid "day(s) per sender"
+msgstr "gün(ler) gönderen başına"
+
+#: templates/emails/filter.html:202
+msgid "Remove action"
+msgstr "İşlemi kaldır"
+
+#: templates/emails/filter.html:206
+msgid "Add action"
+msgstr "İşlem ekle"
+
+#: templates/emails/filter.html:223
+msgid "Save filters"
+msgstr "Filtreleri kaydet"
+
+#: templates/emails/filter.html:241
+msgid "Save file"
+msgstr "Dosyayı kaydet"
+
+#: templates/emails/filter.html:304
+msgid "Folder name, e.g. Junk"
+msgstr "Klasör adı, ör. Önemsiz"
+
+#: templates/emails/filter.html:307
+msgid "Rejection message…"
+msgstr "Ret mesajı…"
+
+#: templates/emails/filter.html:308
+msgid "Flag, e.g. \\\\Flagged"
+msgstr "Bayrak, ör. \\\\Flagged"
+
+#: templates/emails/info.html:11
+msgid "How to setup your email client"
+msgstr "E-posta istemcinizi nasıl ayarlarsınız"
+
+#: templates/emails/new.html:195
+msgid "Storage quota"
+msgstr "Depolama kotası"
+
+#: templates/emails/new.html:215
+msgid "Set to 0 for unlimited."
+msgstr "Sınırsız için 0 olarak ayarlayın."
+
+#: templates/emails/new.html:217 templates/emails/single_account.html:100
+msgid "Maximum allowed: "
+msgstr "İzin verilen maksimum: "
+
+#: templates/emails/single_account.html:71
+msgid "Change allocated storage space"
+msgstr "Tahsis edilen depolama alanını değiştir"
+
+#: templates/error_pages/error.html:21
+msgid "Click to view a"
+msgstr "Görüntülemek için tıklayın"
+
+#: templates/files/backup_restore.html:103
+msgid "Restore & Download"
+msgstr "Geri Yükle ve İndir"
+
+#: templates/files/backup_restore.html:110
+msgid "Indexing..."
+msgstr "İndeksleniyor..."
+
+#: templates/files/backup_restore.html:114
+msgid "Restore or download backups from destination."
+msgstr "Yedeklemeleri hedeften geri yükleyin veya indirin."
+
+#: templates/files/backup_restore.html:126
+msgid "Reindex Destination"
+msgstr "Hedefi Yeniden İndeksle"
+
+#: templates/files/backup_restore.html:152
+msgid "Search backups..."
+msgstr "Yedeklemeleri ara..."
+
+#: templates/files/backup_restore.html:166
+msgid "Backup File"
+msgstr "Yedekleme Dosyası"
+
+#: templates/files/backup_restore.html:169
+msgid "Contents"
+msgstr "İçerik"
+
+#: templates/files/backup_restore.html:271
+msgid "Indexing destination, please wait..."
+msgstr "Hedef indeksleniyor, lütfen bekleyin..."
+
+#: templates/files/backup_restore.html:274
+msgid "No backups indexed yet"
+msgstr "Henüz yedekleme indekslenmedi"
+
+#: templates/files/backup_restore.html:279
+msgid "Click \"Reindex Destination\" to fetch available backups."
+msgstr ""
+"Mevcut yedeklemeleri getirmek için \"Hedefi Yeniden İndeksle\" ye tıklayın."
+
+#: templates/files/backup_restore.html:332
+msgid "Restoring will overwrite existing data. This action cannot be undone."
+msgstr ""
+"Geri yükleme mevcut verilerin üzerine yazacaktır. Bu işlem geri alınamaz."
+
+#: templates/files/backup_restore.html:338
+msgid "What to restore"
+msgstr "Ne geri yüklenecek"
+
+#: templates/files/backup_restore.html:346
+msgid "Specific database only"
+msgstr "Yalnızca belirli veritabanı"
+
+#: templates/files/backup_restore.html:350
+msgid "Files only (no databases)"
+msgstr "Yalnızca dosyalar (veritabanı yok)"
+
+#: templates/files/backup_restore.html:357
+msgid "Select database"
+msgstr "Veritabanı seçin"
+
+#: templates/files/backup_restore.html:377
+msgid "Restore completed successfully."
+msgstr "Geri yükleme başarıyla tamamlandı."
+
+#: templates/files/backup_restore.html:388
+msgid "Restore failed."
+msgstr "Geri yükleme başarısız."
+
+#: templates/files/backup_restore.html:415
+msgid "Restoring..."
+msgstr "Geri yükleniyor..."
+
+#: templates/files/backup_restore.html:448
+msgid "Download Backup"
+msgstr "Yedeği İndir"
+
+#: templates/files/backup_restore.html:461
+msgid ""
+"The backup archive will be fetched from the destination and downloaded to "
+"your browser."
+msgstr "Yedekleme arşivi hedeften alınacak ve tarayıcınıza indirilecektir."
+
+#: templates/files/backup_restore.html:464
+msgid "Large files may take a moment to transfer."
+msgstr "Büyük dosyaların aktarılması biraz zaman alabilir."
+
+#: templates/files/backup_restore.html:475
+msgid "Download started."
+msgstr "İndirme başladı."
+
+#: templates/files/backup_restore.html:514
+msgid "Downloading..."
+msgstr "İndiriliyor..."
+
+#: templates/files/backups.html:86
+msgid "Credentials for the remote destination are added."
+msgstr "Uzak hedef için kimlik bilgileri eklendi."
+
+#: templates/files/backups.html:134 templates/files/backups.html:167
+msgid ""
+"Configure credentials to use for the remote destination and set what to "
+"backup."
+msgstr ""
+"Uzak hedef için kullanılacak kimlik bilgilerini yapılandırın ve neyin "
+"yedekleneceğini ayarlayın."
+
+#: templates/files/edit_file.html:108
+msgid ""
+"Themes listed here will be automatically installed to new WordPress "
+"websites."
+msgstr ""
+"Burada listelenen temalar, yeni WordPress web sitelerine otomatik olarak "
+"yüklenecektir."
+
+#: templates/files/edit_file.html:113
+msgid ""
+"Plugins listed here will be automatically installed to new WordPress "
+"websites."
+msgstr ""
+"Burada listelenen eklentiler, yeni WordPress web sitelerine otomatik olarak "
+"yüklenecektir."
+
+#: templates/files/edit_file.html:127
+msgid "Open in File Manager"
+msgstr "Dosya Yöneticisinde Aç"
+
+#: templates/files/edit_file.html:194
+msgid "You have unsaved changes. Leave anyway?"
+msgstr "Kaydedilmemiş değişiklikleriniz var. Yine de çıkmak istiyor musunuz?"
+
+#: templates/files/filemanager.html:429
+msgid "has no permissions (0000) and cannot be accessed."
+msgstr "(0000) iznine sahip değil ve erişilemiyor."
+
+#: templates/files/filemanager.html:431
+msgid "have no permissions (0000) and cannot be accessed."
+msgstr "(0000) iznine sahip değil ve erişilemiyor."
+
+#: templates/files/filemanager.html:433
+msgid "files have no permissions (0000) and cannot be accessed."
+msgstr "dosya (0000) iznine sahip değil ve erişilemiyor."
+
+#: templates/files/ftp.html:77
+msgid "No accounts yet."
+msgstr "Henüz hesap yok."
+
+#: templates/files/ftp.html:77
+msgid "Add your first account"
+msgstr "İlk hesabınızı ekleyin"
+
+#: templates/files/ftp_connections.html:27
+msgid "No active connections"
+msgstr "Aktif bağlantı yok"
+
+#: templates/files/ftp_connections.html:28
+msgid "There are no active FTP sessions at this time."
+msgstr "Şu anda aktif FTP oturumu yok."
+
+#: templates/files/ftp_path.html:35
+msgid "Path must start with /var/www/html/"
+msgstr "Yol /var/www/html/ ile başlamalıdır"
+
+#: templates/files/ftp_path.html:36
+msgid "Path traversal (../) is not allowed"
+msgstr "Yol geçişine (../) izin verilmez"
+
+#: templates/files/filemanager/drag_and_drop.html:20
+#: templates/files/upload_file.html:38
+msgid "Click to upload"
+msgstr "Yüklemek için tıklayın"
+
+#: templates/files/filemanager/drag_and_drop.html:20
+#: templates/files/upload_file.html:38
+msgid "or drag and drop"
+msgstr "veya sürükleyip bırakın"
+
+#: templates/files/filemanager/drag_and_drop.html:22
+#: templates/files/upload_file.html:40
+msgid "Any file type (Multiple files allowed)"
+msgstr "Herhangi bir dosya türü (Birden fazla dosyaya izin verilir)"
+
+#: templates/files/filemanager/drag_and_drop.html:24
+#: templates/files/upload_file.html:42
+msgid "Max size:"
+msgstr "Maksimum boyut:"
+
+#: templates/files/upload_file.html:379
+msgid "Please enter a valid URL."
+msgstr "Lütfen geçerli bir URL girin."
+
+#: templates/files/upload_file.html:405
+msgid "Unexpected server response from download endpoint."
+msgstr "İndirme uç noktasından beklenmeyen sunucu yanıtı."
+
+#: templates/files/upload_file.html:412
+msgid "Server did not return a download ID."
+msgstr "Sunucu bir indirme ID'si döndürmedi."
+
+#: templates/files/upload_file.html:425
+msgid "Error starting download:"
+msgstr "İndirme başlatılırken hata:"
+
+#: templates/files/upload_file.html:432
+msgid "Network error during file download. Please try again."
+msgstr "Dosya indirme sırasında ağ hatası. Lütfen tekrar deneyin."
+
+#: templates/files/upload_file.html:470
+msgid "Please select files to upload."
+msgstr "Lütfen yüklenecek dosyaları seçin."
+
+#: templates/files/upload_file.html:549
+msgid "Files uploaded successfully!"
+msgstr "Dosyalar başarıyla yüklendi!"
+
+#: templates/files/upload_file.html:559
+msgid "Error uploading file:"
+msgstr "Dosya yüklenirken hata:"
+
+#: templates/files/upload_file.html:569
+msgid "Network error during file upload. Please try again."
+msgstr "Dosya yükleme sırasında ağ hatası. Lütfen tekrar deneyin."
+
+#: templates/files/clamav/quarantine.html:59
+msgid "Click here to start a new scan"
+msgstr "Yeni tarama başlatmak için buraya tıklayın"
+
+#: templates/files/clamav/scanner.html:98
+msgid "Scan failed: "
+msgstr "Tarama başarısız: "
+
+#: templates/files/filemanager/compress.html:5
+msgid "Compress items"
+msgstr "Öğeleri sıkıştır"
+
+#: templates/files/filemanager/delete.html:5
+#: templates/files/filemanager/deleteTrash.html:5
+msgid "Delete items"
+msgstr "Öğeleri sil"
+
+#: templates/files/filemanager/delete.html:38
+msgid "Skip the trash and permanently delete the files"
+msgstr "Çöp kutusunu atlayarak dosyaları kalıcı olarak silin"
+
+#: templates/files/filemanager/drag_and_drop.html:153
+#, python-format
+msgid "Uploading %%(count)s files"
+msgstr "%%(count)s dosya yükleniyor"
+
+#: templates/files/filemanager/drag_and_drop.html:169
+msgid "Upload successful!"
+msgstr "Yükleme başarılı!"
+
+#: templates/files/filemanager/drag_and_drop.html:175
+msgid "Upload failed:"
+msgstr "Yükleme başarısız:"
+
+#: templates/files/filemanager/drag_and_drop.html:180
+msgid "Upload error. Please try again."
+msgstr "Yükleme hatası. Lütfen tekrar deneyin."
+
+#: templates/files/filemanager/extract.html:9
+msgid "Extract items"
+msgstr "Öğeleri çıkar"
+
+#: templates/files/filemanager/extract.html:29
+msgid "Extract destination:"
+msgstr "Çıkarma hedefi:"
+
+#: templates/files/filemanager/inline_js.html:14
+msgid "selected"
+msgstr "seçildi"
+
+#: templates/files/filemanager/inline_js.html:15
+msgid "Calculating..."
+msgstr "Hesaplanıyor..."
+
+#: templates/files/filemanager/permissions.html:9
+msgid "Change file permissions"
+msgstr "Dosya izinlerini değiştir"
+
+#: templates/files/filemanager/modals/rename.html:11
+#: templates/files/filemanager/rename.html:9
+msgid "Rename item"
+msgstr "Öğeyi yeniden adlandır"
+
+#: templates/files/filemanager/restore.html:5
+msgid "Restore items"
+msgstr "Öğeleri geri yükle"
+
+#: templates/files/filemanager/table.html:47
+msgid "Go Up"
+msgstr "Yukarı Git"
+
+#: templates/manager/autoinstaller.html:48
+#: templates/manager/autoinstaller.html:90
+#: templates/manager/autoinstaller.html:131
+#: templates/manager/autoinstaller.html:170
+#: templates/manager/autoinstaller.html:205
+msgid "No"
+msgstr "Hayır"
+
+#: templates/manager/autoinstaller.html:48
+#: templates/manager/autoinstaller.html:90
+#: templates/manager/autoinstaller.html:131
+#: templates/manager/autoinstaller.html:170
+#: templates/manager/autoinstaller.html:205
+msgid "existing installation"
+msgstr "mevcut kurulum"
+
+#: templates/manager/autoinstaller.html:48
+#: templates/manager/autoinstaller.html:90
+#: templates/manager/autoinstaller.html:131
+#: templates/manager/autoinstaller.html:170
+#: templates/manager/autoinstaller.html:205
+msgid "s"
+msgstr "s"
+
+#: templates/manager/autoinstaller.html:83
+msgid "Create HTML websites with a drag-drop editor."
+msgstr "Sürükle-bırak düzenleyici ile HTML web siteleri oluşturun."
+
+#: templates/manager/autoinstaller.html:124
+msgid "Install Mautic - free and open source marketing automation software."
+msgstr ""
+"Mautic yükleyin - ücretsiz ve açık kaynaklı pazarlama otomasyonu yazılımı."
+
+#: templates/manager/autoinstaller.html:159
+msgid "Node.js"
+msgstr "Node.js"
+
+#: templates/manager/autoinstaller.html:163
+msgid "Setup containerized Node.js application."
+msgstr "Konteynerize Node.js uygulaması kurulumu."
+
+#: templates/manager/autoinstaller.html:177
+msgid "Setup Node.js Application"
+msgstr "Node.js Uygulaması Kur"
+
+#: templates/manager/autoinstaller.html:198
+msgid "Setup containerized Python application."
+msgstr "Konteynerize Python uygulaması kurulumu."
+
+#: templates/manager/autoinstaller.html:213
+msgid "Setup Python Application"
+msgstr "Python Uygulaması Kur"
+
+#: templates/manager/mautic.html:263
+msgid "Remote MySQL host detected in config file. Database size unavailable."
+msgstr ""
+"Yapılandırma dosyasında uzak MySQL ana bilgisayarı tespit edildi. Veritabanı"
+" boyutu kullanılamıyor."
+
+#: templates/manager/mautic.html:366
+msgid "Create a new backup of website files and/or database."
+msgstr ""
+"Web sitesi dosyalarının ve/veya veritabanının yeni bir yedeğini oluşturun."
+
+#: templates/manager/mautic.html:442
+msgid "Detach Mauitc"
+msgstr "Mautic'i Ayır"
+
+#: templates/manager/mautic.html:481
+msgid "Uninstall Mautic and delete all website files and the database."
+msgstr ""
+"Mautic'i kaldırın ve tüm web sitesi dosyalarını ve veritabanını silin."
+
+#: templates/manager/mautic.html:483
+msgid ""
+"All Mautic data will be permanently deleted. There is no coming back after "
+"you press delete."
+msgstr ""
+"Tüm Mautic verileri kalıcı olarak silinecektir. Sil tuşuna bastıktan sonra "
+"geri dönüş yoktur."
+
+#: templates/manager/mautic.html:492
+msgid "Uninstall Mautic"
+msgstr "Mautic'i Kaldır"
+
+#: templates/manager/mautic.html:521
+msgid "Mautic uninstall process started. Please wait."
+msgstr "Mautic kaldırma işlemi başladı. Lütfen bekleyin."
+
+#: templates/manager/mautic.html:528
+msgid "Mautic uninstalled successfully."
+msgstr "Mautic başarıyla kaldırıldı."
+
+#: templates/manager/mautic_install.html:534
+msgid "Error, please check the install log below the form."
+msgstr "Hata, lütfen formun altındaki kurulum günlüğünü kontrol edin."
+
+#: templates/manager/pm2_install.html:96
+msgid "Application details"
+msgstr "Uygulama ayrıntıları"
+
+#: templates/manager/pm2_install.html:300
+#: templates/manager/websitebuilder_install.html:32
+#: templates/manager/wp/install.html:66
+msgid "Domain & location"
+msgstr "Alan adı ve konum"
+
+#: templates/manager/pm2_install.html:319
+#: templates/manager/websitebuilder_install.html:47
+#: templates/manager/wp/install.html:81
+msgid "subfolder"
+msgstr "alt klasör"
+
+#: templates/manager/pm2_install.html:322
+#: templates/manager/websitebuilder_install.html:50
+#: templates/manager/wp/install.html:84
+msgid "Leave subfolder blank to install at the domain root"
+msgstr "Alan adı köküne yüklemek için alt klasörü boş bırakın"
+
+#: templates/manager/pm2_install.html:360
+msgid "Service name in reverse-proxy:"
+msgstr "Ters proxy'deki hizmet adı:"
+
+#: templates/manager/pm2_install.html:460
+msgid ""
+"When enabled, this option will first run npm install using the package.json "
+"file, then launch the application."
+msgstr ""
+"Etkinleştirildiğinde, bu seçenek önce package.json dosyasını kullanarak npm "
+"install çalıştırır, ardından uygulamayı başlatır."
+
+#: templates/manager/pm2_install.html:470
+msgid "Advanced options"
+msgstr "Gelişmiş seçenekler"
+
+#: templates/manager/pm2_install.html:481
+msgid "CPU & memory limits"
+msgstr "CPU ve bellek sınırları"
+
+#: templates/manager/pm2_install.html:483
+msgid "optional · click to review"
+msgstr "isteğe bağlı · incelemek için tıklayın"
+
+#: templates/manager/pm2_install.html:490
+msgid "CPU cores"
+msgstr "CPU çekirdeği"
+
+#: templates/manager/pm2_install.html:504
+msgid "Memory (GB)"
+msgstr "Bellek (GB)"
+
+#: templates/manager/pm2_install.html:523
+#: templates/manager/websitebuilder_install.html:62
+#: templates/manager/wp/install.html:216
+msgid "← Back"
+msgstr "← Geri"
+
+#: templates/manager/pm2_install.html:540
+msgid ""
+"Checks for already running install processes and validates the submitted "
+"form data."
+msgstr ""
+"Zaten çalışan kurulum işlemlerini kontrol eder ve gönderilen form verilerini"
+" doğrular."
+
+#: templates/manager/pm2_install.html:542
+#: templates/manager/wp/install.html:235
+msgid "Running pre-flight checks"
+msgstr "Ön uçuş kontrolleri yapılıyor"
+
+#: templates/manager/pm2_install.html:546
+msgid ""
+"Generates the docker-compose service entry for the application and writes "
+"its environment variables to the .env file."
+msgstr ""
+"Uygulama için docker-compose hizmet girişini oluşturur ve ortam "
+"değişkenlerini .env dosyasına yazar."
+
+#: templates/manager/pm2_install.html:548
+msgid "Adding service to docker-compose.yml"
+msgstr "docker-compose.yml'ye hizmet ekleniyor"
+
+#: templates/manager/pm2_install.html:552
+msgid ""
+"Starts the application container and verifies it is running before "
+"continuing."
+msgstr ""
+"Uygulama konteynerini başlatır ve devam etmeden önce çalıştığını doğrular."
+
+#: templates/manager/pm2_install.html:554
+msgid "Starting application container"
+msgstr "Uygulama konteyneri başlatılıyor"
+
+#: templates/manager/pm2_install.html:558
+msgid ""
+"Detects the installed webserver (Apache, Nginx, LiteSpeed or OpenResty) and "
+"creates the reverse-proxy configuration for the domain."
+msgstr ""
+"Yüklü web sunucusunu (Apache, Nginx, LiteSpeed veya OpenResty) algılar ve "
+"alan adı için ters proxy yapılandırmasını oluşturur."
+
+#: templates/manager/pm2_install.html:560
+msgid "Configuring reverse proxy"
+msgstr "Ters proxy yapılandırılıyor"
+
+#: templates/manager/pm2_install.html:564
+msgid ""
+"Restarts the webserver container so the new reverse-proxy configuration is "
+"applied."
+msgstr ""
+"Yeni ters proxy yapılandırmasının uygulanması için web sunucusu konteynerini"
+" yeniden başlatır."
+
+#: templates/manager/pm2_install.html:566
+msgid "Restarting webserver"
+msgstr "Web sunucusu yeniden başlatılıyor"
+
+#: templates/manager/pm2_install.html:570
+msgid ""
+"Records the new application in the database so it appears in Site Manager."
+msgstr ""
+"Yeni uygulamayı Site Yöneticisinde görünmesi için veritabanına kaydeder."
+
+#: templates/manager/pm2_install.html:572
+#: templates/manager/websitebuilder_install.html:99
+#: templates/manager/wp/install.html:307
+msgid "Saving to Site Manager"
+msgstr "Site Yöneticisine kaydediliyor"
+
+#: templates/manager/pm2_install.html:594
+msgid "Setting up application"
+msgstr "Uygulama ayarlanıyor"
+
+#: templates/manager/pm2_install.html:599
+#: templates/manager/wp/install.html:334
+msgid "Install process hanged for"
+msgstr "Kurulum işlemi askıda kaldı:"
+
+#: templates/manager/pm2_install.html:609
+#: templates/manager/wp/install.html:344
+msgid "Install process failed for"
+msgstr "Kurulum işlemi başarısız:"
+
+#: templates/manager/pm2_install.html:829
+#: templates/manager/websitebuilder_install.html:365
+#: templates/manager/wp/install.html:589
+msgid "Connection lost during installation."
+msgstr "Kurulum sırasında bağlantı kesildi."
+
+#: templates/manager/python_node_apps.html:948
+msgid "Loading application logs.."
+msgstr "Uygulama günlükleri yükleniyor.."
+
+#: templates/manager/python_node_apps.html:951
+msgid "Change view"
+msgstr "Görünümü değiştir"
+
+#: templates/manager/python_node_apps.html:957
+msgid "Formatted view"
+msgstr "Biçimlendirilmiş görünüm"
+
+#: templates/manager/python_node_apps.html:957
+msgid "Raw view"
+msgstr "Ham görünüm"
+
+#: templates/manager/python_node_apps.html:960
+msgid "Copy to clipboard"
+msgstr "Panoya kopyala"
+
+#: templates/manager/python_node_apps.html:965
+msgid "Open log in new tab"
+msgstr "Günlüğü yeni sekmede aç"
+
+#: templates/manager/python_node_apps.html:1006
+msgid "Error fetching container logs for application:"
+msgstr "Uygulama için konteyner günlükleri alınırken hata:"
+
+#: templates/manager/python_node_apps.html:1064
+msgid "Logs copied to clipboard."
+msgstr "Günlükler panoya kopyalandı."
+
+#: templates/manager/python_node_apps.html:1068
+msgid "Failed to copy logs."
+msgstr "Günlükler kopyalanamadı."
+
+#: templates/manager/sites.html:132 templates/manager/sites.html:143
+#: templates/manager/sites.html:163 templates/manager/sites.html:170
+msgid "Open Site Manager"
+msgstr "Site Yöneticisini Aç"
+
+#: templates/manager/websitebuilder.html:195
+msgid "Generate a backup of website files."
+msgstr "Web sitesi dosyalarının yedeğini oluşturun."
+
+#: templates/manager/websitebuilder.html:219
+msgid "Restore website files from a previous backup."
+msgstr "Web sitesi dosyalarını önceki bir yedekten geri yükleyin."
+
+#: templates/manager/websitebuilder.html:256
+msgid "Remove the website from WP Manager."
+msgstr "Web sitesini WP Yöneticisinden kaldırın."
+
+#: templates/manager/websitebuilder.html:288
+msgid "Permanently delete the website and all its files."
+msgstr "Web sitesini ve tüm dosyalarını kalıcı olarak silin."
+
+#: templates/manager/websitebuilder_install.html:79
+msgid ""
+"Creates the destination folder and writes the initial index.html and "
+"style.css files."
+msgstr ""
+"Hedef klasörü oluşturur ve başlangıç index.html ve style.css dosyalarını "
+"yazar."
+
+#: templates/manager/websitebuilder_install.html:81
+msgid "Creating files"
+msgstr "Dosyalar oluşturuluyor"
+
+#: templates/manager/websitebuilder_install.html:85
+msgid ""
+"Sets file permissions to 755 so the web server and PHP can read and serve "
+"them."
+msgstr ""
+"Web sunucusunun ve PHP'nin okuyup sunabilmesi için dosya izinlerini 755 "
+"olarak ayarlar."
+
+#: templates/manager/websitebuilder_install.html:87
+msgid "Setting file permissions"
+msgstr "Dosya izinleri ayarlanıyor"
+
+#: templates/manager/websitebuilder_install.html:91
+msgid "Sets ownership of all files to the correct system user."
+msgstr "Tüm dosyaların sahipliğini doğru sistem kullanıcısına ayarlar."
+
+#: templates/manager/websitebuilder_install.html:93
+msgid "Setting file ownership"
+msgstr "Dosya sahipliği ayarlanıyor"
+
+#: templates/manager/websitebuilder_install.html:97
+msgid "Records the new website in the database so it appears in Site Manager."
+msgstr ""
+"Yeni web sitesini Site Yöneticisinde görünmesi için veritabanına kaydeder."
+
+#: templates/manager/websitebuilder_install.html:122
+msgid "Building website for"
+msgstr "Web sitesi oluşturuluyor:"
+
+#: templates/manager/websitebuilder_install.html:127
+msgid "Build process hanged for"
+msgstr "Derleme işlemi askıda kaldı:"
+
+#: templates/manager/websitebuilder_install.html:137
+msgid "Build process failed for"
+msgstr "Derleme işlemi başarısız:"
+
+#: templates/manager/websitebuilder_install.html:321
+msgid "Creating website. Please wait for the process to finish."
+msgstr "Web sitesi oluşturuluyor. Lütfen işlemin tamamlanmasını bekleyin."
+
+#: templates/manager/wp/_secure.html:5
+msgid ""
+"Server-level restrictions to harden your WordPress instance. Rules are "
+"applied at the webserver level before PHP processing."
+msgstr ""
+"WordPress kurulumunuzu sertleştirmek için sunucu düzeyinde kısıtlamalar. "
+"Kurallar, PHP işlenmesinden önce web sunucusu düzeyinde uygulanır."
+
+#: templates/manager/wp/_secure.html:47
+msgid "How it works"
+msgstr "Nasıl çalışır"
+
+#: templates/manager/wp/_secure.html:87
+msgid "Apply Changes"
+msgstr "Değişiklikleri Uygula"
+
+#: templates/manager/wp/_vulnerabilities.html:5
+msgid "WP Vulnerabilities"
+msgstr "WP Güvenlik Açıkları"
+
+#: templates/manager/wp/_vulnerabilities.html:6
+msgid ""
+"WP Manager automatically scans your WP core version, plugins and themes for "
+"known vulnerabilities."
+msgstr ""
+"WP Yöneticisi, WP çekirdek sürümünüzü, eklentilerinizi ve temalarınızı "
+"bilinen güvenlik açıkları için otomatik olarak tarar."
+
+#: templates/manager/wp/_vulnerabilities.html:16
+msgid "Vulnerabilities detected"
+msgstr "Güvenlik açıkları tespit edildi"
+
+#: templates/manager/wp/_vulnerabilities.html:22
+msgid "Scan for vulnerabilities"
+msgstr "Güvenlik açıklarını tara"
+
+#: templates/manager/wp/_vulnerabilities.html:30
+msgid "Loading WordPress vulnerability data.."
+msgstr "WordPress güvenlik açığı verileri yükleniyor.."
+
+#: templates/manager/wp/_vulnerabilities.html:41
+msgid "No vulnerabilities found"
+msgstr "Güvenlik açığı bulunamadı"
+
+#: templates/manager/wp/cache.html:15
+msgid "Purge WordPress cache:"
+msgstr "WordPress önbelleğini temizle:"
+
+#: templates/manager/wp/cache.html:29
+msgid "Clear Cache"
+msgstr "Önbelleği Temizle"
+
+#: templates/manager/wp/install.html:32
+msgid "Site details"
+msgstr "Site ayrıntıları"
+
+#: templates/manager/wp/install.html:38
+msgid "Website name"
+msgstr "Web sitesi adı"
+
+#: templates/manager/wp/install.html:46
+msgid "Tagline"
+msgstr "Slogan"
+
+#: templates/manager/wp/install.html:49
+msgid "Just another WordPress site"
+msgstr "Sadece başka bir WordPress sitesi"
+
+#: templates/manager/wp/install.html:56
+msgid "WordPress version"
+msgstr "WordPress sürümü"
+
+#: templates/manager/wp/install.html:96
+msgid "Admin credentials"
+msgstr "Yönetici kimlik bilgileri"
+
+#: templates/manager/wp/install.html:97
+msgid "auto-generated"
+msgstr "otomatik oluşturuldu"
+
+#: templates/manager/wp/install.html:173
+msgid "Database settings"
+msgstr "Veritabanı ayarları"
+
+#: templates/manager/wp/install.html:175
+msgid "auto-generated · click to review"
+msgstr "otomatik oluşturuldu · incelemek için tıklayın"
+
+#: templates/manager/wp/install.html:182
+msgid "Database name"
+msgstr "Veritabanı adı"
+
+#: templates/manager/wp/install.html:189
+msgid "Table prefix"
+msgstr "Tablo öneki"
+
+#: templates/manager/wp/install.html:196
+msgid "DB username"
+msgstr "Veritabanı kullanıcı adı"
+
+#: templates/manager/wp/install.html:203
+msgid "DB password"
+msgstr "Veritabanı şifresi"
+
+#: templates/manager/wp/install.html:233
+msgid ""
+"Validates provided data, checks if install already exists, fetches PHP "
+"version and folder for the domain. Checks the assigned PHP version and "
+"webservers, confirms the containers are available, and starts them if "
+"needed."
+msgstr ""
+"Sağlanan verileri doğrular, kurulumun zaten mevcut olup olmadığını kontrol "
+"eder, alan adı için PHP sürümünü ve klasörü getirir. Atanan PHP sürümünü ve "
+"web sunucularını kontrol eder, konteynerlerin kullanılabilir olduğunu "
+"doğrular ve gerekirse başlatır."
+
+#: templates/manager/wp/install.html:239
+msgid ""
+"Downloads the WordPress .tar.gz archive from wordpress.org, or reuses a "
+"local copy if already present."
+msgstr ""
+"WordPress .tar.gz arşivini wordpress.org'dan indirir veya zaten mevcutsa "
+"yerel kopyayı yeniden kullanır."
+
+#: templates/manager/wp/install.html:241
+msgid "Downloading WordPress archive"
+msgstr "WordPress arşivi indiriliyor"
+
+#: templates/manager/wp/install.html:245
+msgid "Extracts all WordPress core files into the domain folder."
+msgstr "Tüm WordPress çekirdek dosyalarını alan adı klasörüne çıkarır."
+
+#: templates/manager/wp/install.html:247
+msgid "Extracting files to document root"
+msgstr "Dosyalar belge köküne çıkarılıyor"
+
+#: templates/manager/wp/install.html:251
+msgid ""
+"Creates the .htaccess file with rewrite rules, adds database credentials to "
+"wp-config.php, and adds the mu-plugin for HTTPS behind Varnish."
+msgstr ""
+".htaccess dosyasını yeniden yazma kurallarıyla oluşturur, wp-config.php'ye "
+"veritabanı kimlik bilgilerini ekler ve Varnish arkasında HTTPS için mu-"
+"plugin'i ekler."
+
+#: templates/manager/wp/install.html:253
+msgid "Creating .htaccess & writing wp-config.php"
+msgstr ".htaccess oluşturuluyor ve wp-config.php yazılıyor"
+
+#: templates/manager/wp/install.html:257
+msgid ""
+"Generates 8 unique cryptographic secret keys and salts and writes them into "
+"wp-config.php to secure cookies and sessions."
+msgstr ""
+"8 benzersiz şifreleme gizli anahtarı ve tuz oluşturur ve çerezleri ve "
+"oturumları güvenli hale getirmek için wp-config.php'ye yazar."
+
+#: templates/manager/wp/install.html:259
+msgid "Generating security keys & salts"
+msgstr "Güvenlik anahtarları ve tuzlar oluşturuluyor"
+
+#: templates/manager/wp/install.html:263
+msgid ""
+"Sets ownership of all files to the correct system user so the web server and"
+" PHP can read and write them."
+msgstr ""
+"Web sunucusunun ve PHP'nin okuyup yazabilmesi için tüm dosyaların "
+"sahipliğini doğru sistem kullanıcısına ayarlar."
+
+#: templates/manager/wp/install.html:265
+msgid "Setting file permissions & ownership"
+msgstr "Dosya izinleri ve sahipliği ayarlanıyor"
+
+#: templates/manager/wp/install.html:269
+msgid ""
+"Runs wp --info inside the PHP container to confirm WP-CLI is functional "
+"before attempting any database operations."
+msgstr ""
+"Herhangi bir veritabanı işlemi denemeden önce WP-CLI'ın işlevsel olduğunu "
+"doğrulamak için PHP konteyneri içinde wp --info çalıştırır."
+
+#: templates/manager/wp/install.html:271
+msgid "Testing WP-CLI commands"
+msgstr "WP-CLI komutları test ediliyor"
+
+#: templates/manager/wp/install.html:275
+msgid ""
+"Verifies the MySQL/MariaDB container is running, then creates the database, "
+"user, and grants all privileges."
+msgstr ""
+"MySQL/MariaDB konteynerinin çalıştığını doğrular, ardından veritabanını ve "
+"kullanıcıyı oluşturur ve tüm ayrıcalıkları verir."
+
+#: templates/manager/wp/install.html:277
+msgid "Creating database & MySQL user"
+msgstr "Veritabanı ve MySQL kullanıcısı oluşturuluyor"
+
+#: templates/manager/wp/install.html:281
+msgid ""
+"Runs wp core install via WP-CLI to create all WordPress tables, set the site"
+" URL, title, and admin account."
+msgstr ""
+"Tüm WordPress tablolarını oluşturmak, site URL'sini, başlığını ve yönetici "
+"hesabını ayarlamak için WP-CLI aracılığıyla wp core install çalıştırır."
+
+#: templates/manager/wp/install.html:283
+msgid "Importing tables into database"
+msgstr "Tablolar veritabanına aktarılıyor"
+
+#: templates/manager/wp/install.html:287
+msgid "Sets pretty permalink structure and the site tagline."
+msgstr "Güzel kalıcı bağlantı yapısını ve site sloganını ayarlar."
+
+#: templates/manager/wp/install.html:289
+msgid "Configuring permalinks & site settings"
+msgstr "Kalıcı bağlantılar ve site ayarları yapılandırılıyor"
+
+#: templates/manager/wp/install.html:293
+msgid ""
+"Installs the WP-CLI Login Command package so you can jump directly into wp-"
+"admin from WP Manager without entering credentials."
+msgstr ""
+"Kimlik bilgisi girmeden WP Yöneticisinden doğrudan wp-admin'e atlayabilmeniz"
+" için WP-CLI Giriş Komutu paketini yükler."
+
+#: templates/manager/wp/install.html:295
+msgid "Installing auto-login plugin"
+msgstr "Otomatik giriş eklentisi yükleniyor"
+
+#: templates/manager/wp/install.html:299
+msgid ""
+"Checks for server-wide or user-specific plugins and themes sets and installs"
+" them via WP-CLI."
+msgstr ""
+"Sunucu genelinde veya kullanıcıya özel eklenti ve tema setlerini kontrol "
+"eder ve WP-CLI aracılığıyla yükler."
+
+#: templates/manager/wp/install.html:301
+msgid "Checking and installing plugins & themes sets"
+msgstr "Eklenti ve tema setleri kontrol ediliyor ve yükleniyor"
+
+#: templates/manager/wp/install.html:305
+msgid ""
+"Records the installation in the database so the site appears in WP Manager."
+msgstr ""
+"Sitenin WP Yöneticisinde görünmesi için kurulumu veritabanına kaydeder."
+
+#: templates/manager/wp/install.html:329
+msgid "Install in progress for"
+msgstr "Kurulum devam ediyor:"
+
+#: templates/manager/wp/single.html:40
+msgid "Failed to load users"
+msgstr "Kullanıcılar yüklenemedi"
+
+#: templates/manager/wp/single.html:52
+msgid "Choose admin user"
+msgstr "Yönetici kullanıcı seçin"
+
+#: templates/manager/wp/single.html:62
+msgid "Loading admin users..."
+msgstr "Yönetici kullanıcılar yükleniyor..."
+
+#: templates/manager/wp/single.html:68
+msgid "No administrator users found."
+msgstr "Yönetici kullanıcı bulunamadı."
+
+#: templates/manager/wp/single.html:176
+msgid "Clone"
+msgstr "Klonla"
+
+#: templates/manager/wp/single.html:212
+msgid "WordPress:"
+msgstr "WordPress:"
+
+#: templates/manager/wp/single.html:224
+msgid "PHP:"
+msgstr "PHP:"
+
+#: templates/manager/wp/single.html:239
+#, python-format
+msgid "Inherits PHP version from %(domain)s"
+msgstr "PHP sürümünü %(domain)s'dan devralır"
+
+#: templates/manager/wp/single.html:266
+msgid "MySQL:"
+msgstr "MySQL:"
+
+#: templates/manager/wp/single.html:364
+msgid "Auto-login link:"
+msgstr "Otomatik giriş bağlantısı:"
+
+#: templates/manager/wp/single.html:369
+msgid "Unexpected response from WP-CLI."
+msgstr "WP-CLI'dan beklenmeyen yanıt."
+
+#: templates/manager/wp/single.html:372
+msgid "Error parsing backend response."
+msgstr "Arka uç yanıtı ayrıştırılırken hata oluştu."
+
+#: templates/manager/wp/single.html:375
+msgid "Failed to get login link. Server returned status"
+msgstr "Giriş bağlantısı alınamadı. Sunucu durumu döndürdü"
+
+#: templates/manager/wp/single.html:681
+msgid "Pingbacks and Trackbacks"
+msgstr "Geri Bildirimler ve Geri İzlemeler"
+
+#: templates/manager/wp/single.html:778
+msgid "Failed to get options. Server returned status"
+msgstr "Seçenekler alınamadı. Sunucu durumu döndürdü"
+
+#: templates/manager/wp/single.html:938
+msgid "An error occurred while verifying checksums."
+msgstr "Sağlama toplamları doğrulanırken hata oluştu."
+
+#: templates/manager/wp/single.html:987
+msgid "An error occurred while verifying plugins checksums."
+msgstr "Eklenti sağlama toplamları doğrulanırken hata oluştu."
+
+#: templates/manager/wp/single.html:1247
+msgid "Error checking maintenance mode"
+msgstr "Bakım modu kontrol edilirken hata"
+
+#: templates/manager/wp/single.html:1261
+msgid "Maintenance mode is now enabled."
+msgstr "Bakım modu artık etkin."
+
+#: templates/manager/wp/single.html:1263
+msgid "Maintenance mode is now disabled."
+msgstr "Bakım modu artık devre dışı."
+
+#: templates/manager/wp/single.html:1316
+msgid "Update now"
+msgstr "Şimdi güncelle"
+
+#: templates/manager/wp/single.html:1797
+msgid "Clone a WordPress instance with configured themes and plugins."
+msgstr ""
+"Yapılandırılmış temalar ve eklentilerle bir WordPress örneğini klonlayın."
+
+#: templates/manager/wp/single.html:1815
+msgid "Location"
+msgstr "Konum"
+
+#: templates/manager/wp/single.html:1816
+msgid "Please choose the URL to install the software\n"
+msgstr "Lütfen yazılımı yüklemek için URL seçin\n"
+
+#: templates/manager/wp/single.html:1822
+msgid "Source"
+msgstr "Kaynak"
+
+#: templates/manager/wp/single.html:1835
+msgid "Target"
+msgstr "Hedef"
+
+#: templates/manager/wp/single.html:1853
+msgid ""
+"Make sure that the domain or the subdomain selected as a target is not being"
+" used by an existing website. During cloning, website data that exists on "
+"the destination may be overwritten and irrevocably lost."
+msgstr ""
+"Hedef olarak seçilen alan adı veya alt alan adının mevcut bir web sitesi "
+"tarafından kullanılmadığından emin olun. Klonlama sırasında hedefte mevcut "
+"olan web sitesi verileri üzerine yazılabilir ve geri alınamaz biçimde "
+"kaybolabilir."
+
+#: templates/manager/wp/single.html:1869
+msgid "Database name and user to use for the clone (optional)"
+msgstr "Klon için kullanılacak veritabanı adı ve kullanıcı (isteğe bağlı)"
+
+#: templates/manager/wp/single.html:1888
+msgid "Database user"
+msgstr "Veritabanı kullanıcısı"
+
+#: templates/manager/wp/single.html:1902
+msgid "User password"
+msgstr "Kullanıcı şifresi"
+
+#: templates/manager/wp/single.html:1925
+msgid "Clone website"
+msgstr "Web sitesini klonla"
+
+#: templates/manager/wp/single.html:1936
+msgid "Cloning..."
+msgstr "Klonlanıyor..."
+
+#: templates/manager/wp/single.html:1942
+msgid "Cloning process started... Please wait."
+msgstr "Klonlama işlemi başladı... Lütfen bekleyin."
+
+#: templates/manager/wp/single.html:1960
+msgid "Clone Complete"
+msgstr "Klonlama Tamamlandı"
+
+#: templates/manager/wp/single.html:1964
+msgid "Try Again"
+msgstr "Tekrar Dene"
+
+#: templates/manager/wp/single.html:1970
+msgid "Retry Clone"
+msgstr "Klonlamayı Yeniden Dene"
+
+#: templates/manager/wp/single.html:1986
+msgid "Generate a backup of files and/or database."
+msgstr "Dosyaların ve/veya veritabanının yedeğini oluşturun."
+
+#: templates/manager/wp/single.html:2018
+msgid "Restore files and/or database from a backup."
+msgstr "Dosyaları ve/veya veritabanını bir yedekten geri yükleyin."
+
+#: templates/manager/wp/single.html:2056
+msgid "website from WP Manager."
+msgstr "WP Yöneticisinden web sitesi."
+
+#: templates/manager/wp/single.html:2067
+msgid "All website data such as files, crons and database remains."
+msgstr "Dosyalar, cronlar ve veritabanı gibi tüm web sitesi verileri kalır."
+
+#: templates/manager/wp/single.html:2090
+msgid "Permanently delete WordPress files & database."
+msgstr "WordPress dosyalarını ve veritabanını kalıcı olarak silin."
+
+#: templates/manager/wp/single.html:2100
+msgid "Delete the"
+msgstr "Sil"
+
+#: templates/manager/wp/single.html:2100
+msgid "website and all its files and database."
+msgstr "web sitesi ve tüm dosyaları ile veritabanı."
+
+#: templates/manager/wp/single.html:2293
+msgid "MariaDB:"
+msgstr "MariaDB:"
+
+#: templates/manager/wp/single.html:2377
+msgid "Update failed."
+msgstr "Güncelleme başarısız."
+
+#: templates/manager/wp/single.html:2575
+msgid "Generating Backup..."
+msgstr "Yedekleme Oluşturuluyor..."
+
+#: templates/mysql/_error.html:4
+msgid "Is database service running?"
+msgstr "Veritabanı hizmeti çalışıyor mu?"
+
+#: templates/mysql/_error.html:5
+msgid "Error Establishing a Database Connection"
+msgstr "Veritabanı Bağlantısı Kurulurken Hata"
+
+#: templates/mysql/_error.html:10
+msgid "Manage Container"
+msgstr "Konteyneri Yönet"
+
+#: templates/mysql/_error.html:12
+msgid "Contact Administrator"
+msgstr "Yönetici ile İletişime Geçin"
+
+#: templates/mysql/assign.html:8
+msgid "Manage User Privileges"
+msgstr "Kullanıcı Ayrıcalıklarını Yönet"
+
+#: templates/mysql/assign.html:63
+msgid "Select privileges:"
+msgstr "Ayrıcalıkları seçin:"
+
+#: templates/mysql/assign.html:97
+msgid "Make Changes"
+msgstr "Değişiklik Yap"
+
+#: templates/mysql/databases.html:37
+msgid "Show database sizes"
+msgstr "Veritabanı boyutlarını göster"
+
+#: templates/mysql/databases.html:224
+msgid "Manage privileges"
+msgstr "Ayrıcalıkları yönet"
+
+#: templates/mysql/databases.html:391
+msgid "Format:"
+msgstr "Format:"
+
+#: templates/mysql/databases.html:411
+msgid "Destination:"
+msgstr "Hedef:"
+
+#: templates/mysql/databases.html:417
+msgid "Browser"
+msgstr "Tarayıcı"
+
+#: templates/mysql/databases.html:451
+msgid "Optimize"
+msgstr "Optimize Et"
+
+#: templates/mysql/databases.html:464
+msgid "Repair"
+msgstr "Onar"
+
+#: templates/mysql/databases.html:576
+msgid "No databases yet."
+msgstr "Henüz veritabanı yok."
+
+#: templates/mysql/databases.html:576
+msgid "Create your first database"
+msgstr "İlk veritabanınızı oluşturun"
+
+#: templates/mysql/databases.html:582 templates/mysql/users.html:164
+msgid ""
+"Service is unhealthy. Try restarting it from Services, or contact your "
+"administrator."
+msgstr ""
+"Hizmet sağlıksız. Hizmetler'den yeniden başlatmayı deneyin veya "
+"yöneticinizle iletişime geçin."
+
+#: templates/mysql/databases.html:589 templates/mysql/users.html:172
+msgid "Service is active, but the databases are still initializing."
+msgstr "Hizmet aktif, ancak veritabanları hâlâ başlatılıyor."
+
+#: templates/mysql/databases.html:603 templates/mysql/users.html:187
+msgid "Service installation is underway and may take up to one minute."
+msgstr "Hizmet kurulumu devam ediyor ve bir dakikaya kadar sürebilir."
+
+#: templates/mysql/databases.html:611 templates/mysql/users.html:196
+msgid ""
+"Service has been created but not yet started. Start it from the Services "
+"page."
+msgstr ""
+"Hizmet oluşturuldu ancak henüz başlatılmadı. Hizmetler sayfasından başlatın."
+
+#: templates/mysql/databases.html:613 templates/mysql/users.html:198
+msgid ""
+"Service is restarting. This may indicate a configuration error or a crash — "
+"check the logs on the Services page."
+msgstr ""
+"Hizmet yeniden başlatılıyor. Bu bir yapılandırma hatası veya çökme belirtisi"
+" olabilir — Hizmetler sayfasındaki günlükleri kontrol edin."
+
+#: templates/mysql/databases.html:615 templates/mysql/users.html:200
+msgid "Service is paused. Resume it from the Services page."
+msgstr "Hizmet duraklatıldı. Hizmetler sayfasından devam ettirin."
+
+#: templates/mysql/databases.html:617 templates/mysql/users.html:202
+msgid ""
+"Service has stopped. This is usually caused by resource exhaustion — "
+"increase resource limits for this service and then restart it from the "
+"Services page."
+msgstr ""
+"Hizmet durdu. Bu genellikle kaynak tükenmesinden kaynaklanır — bu hizmet "
+"için kaynak sınırlarını artırın ve ardından Hizmetler sayfasından yeniden "
+"başlatın."
+
+#: templates/mysql/databases.html:619 templates/mysql/users.html:204
+msgid "Service is being deleted. Please wait for the process to complete."
+msgstr "Hizmet siliniyor. Lütfen işlemin tamamlanmasını bekleyin."
+
+#: templates/mysql/databases.html:621 templates/mysql/users.html:206
+msgid ""
+"Service has crashed and cannot recover. This is usually caused by resource "
+"exhaustion — check the logs on the Services page."
+msgstr ""
+"Hizmet çöktü ve kurtarılamıyor. Bu genellikle kaynak tükenmesinden "
+"kaynaklanır — Hizmetler sayfasındaki günlükleri kontrol edin."
+
+#: templates/mysql/databases.html:623 templates/mysql/users.html:208
+msgid "Unable to retrieve service status. Please contact your administrator."
+msgstr "Hizmet durumu alınamıyor. Lütfen yöneticinizle iletişime geçin."
+
+#: templates/mysql/databases.html:636 templates/mysql/users.html:221
+msgid "The page will refresh in"
+msgstr "Sayfa şu süre sonra yenilenecek:"
+
+#: templates/mysql/databases.html:656 templates/psql/databases.html:202
+#, python-format
+msgid "Database %(db)s has no users assigned."
+msgstr "%(db)s veritabanına atanmış kullanıcı yok."
+
+#: templates/mysql/databases.html:662 templates/psql/databases.html:208
+#, python-format
+msgid "Databases %(dbs)s have no users assigned."
+msgstr "%(dbs)s veritabanlarına atanmış kullanıcı yok."
+
+#: templates/mysql/databases.html:668 templates/psql/databases.html:214
+#, python-format
+msgid "%(n)s databases have no users assigned."
+msgstr "%(n)s veritabanına atanmış kullanıcı yok."
+
+#: templates/mysql/databases.html:677
+msgid "Running.."
+msgstr "Çalışıyor.."
+
+#: templates/mysql/databases.html:678
+msgid "Run again"
+msgstr "Tekrar çalıştır"
+
+#: templates/mysql/databases.html:679
+msgid "Run"
+msgstr "Çalıştır"
+
+#: templates/mysql/databases.html:680
+msgid "Done"
+msgstr "Tamamlandı"
+
+#: templates/mysql/databases.html:681
+msgid "error(s)"
+msgstr "hata(lar)"
+
+#: templates/mysql/databases.html:682
+msgid "No tables in this database."
+msgstr "Bu veritabanında tablo yok."
+
+#: templates/mysql/databases.html:683
+msgid "Loading tables.."
+msgstr "Tablolar yükleniyor.."
+
+#: templates/mysql/databases.html:684
+msgid "Pending"
+msgstr "Beklemede"
+
+#: templates/mysql/databases.html:686
+msgid "database"
+msgstr "veritabanı"
+
+#: templates/mysql/databases.html:687
+msgid "Table"
+msgstr "Tablo"
+
+#: templates/mysql/mysql_user.html:9
+msgid ""
+"Create a new user with a unique username and password to securely manage "
+"access and permissions for interacting with databases or the database "
+"server."
+msgstr ""
+"Veritabanları veya veritabanı sunucusuyla etkileşim için erişimi ve izinleri"
+" güvenli biçimde yönetmek amacıyla benzersiz kullanıcı adı ve şifreye sahip "
+"yeni bir kullanıcı oluşturun."
+
+#: templates/mysql/new.html:9
+msgid ""
+"Create a new database to store and organize data, providing a foundational "
+"structure for applications to manage and retrieve information efficiently."
+msgstr ""
+"Uygulamaların bilgileri verimli biçimde yönetip alması için temel bir yapı "
+"sağlayarak verileri depolamak ve düzenlemek amacıyla yeni bir veritabanı "
+"oluşturun."
+
+#: templates/mysql/processlist.html:97
+msgid "No active processes."
+msgstr "Aktif işlem yok."
+
+#: templates/mysql/remote_mysql.html:12
+msgid ""
+"Enable remote access to connect to a database on this server from a another "
+"(remote) device or location over the internet."
+msgstr ""
+"İnternet üzerinden başka bir (uzak) cihazdan veya konumdan bu sunucudaki bir"
+" veritabanına bağlanmak için uzaktan erişimi etkinleştirin."
+
+#: templates/mysql/remote_mysql.html:17
+msgid "Disable Remote Database Access"
+msgstr "Uzak Veritabanı Erişimini Devre Dışı Bırak"
+
+#: templates/mysql/remote_mysql.html:17
+msgid "Enable Remote Database Access"
+msgstr "Uzak Veritabanı Erişimini Etkinleştir"
+
+#: templates/mysql/remote_mysql.html:38
+msgid "Remote access to databases is currently:"
+msgstr "Veritabanlarına uzaktan erişim şu anda:"
+
+#: templates/mysql/remote_mysql.html:142
+msgid "Per-User Access"
+msgstr "Kullanıcı Başına Erişim"
+
+#: templates/mysql/remote_mysql.html:143
+msgid "Control which hosts each MySQL user is allowed to connect from."
+msgstr ""
+"Her MySQL kullanıcısının hangi ana bilgisayarlardan bağlanmasına izin "
+"verileceğini kontrol edin."
+
+#: templates/mysql/remote_mysql.html:149
+msgid "Add Access"
+msgstr "Erişim Ekle"
+
+#: templates/mysql/remote_mysql.html:159
+msgid "Existing or new username"
+msgstr "Mevcut veya yeni kullanıcı adı"
+
+#: templates/mysql/remote_mysql.html:162
+msgid "Allowed Host"
+msgstr "İzin Verilen Ana Bilgisayar"
+
+#: templates/mysql/remote_mysql.html:170
+msgid ""
+"If the username already exists, the new host inherits its existing database "
+"privileges."
+msgstr ""
+"Kullanıcı adı zaten mevcutsa, yeni ana bilgisayar mevcut veritabanı "
+"ayrıcalıklarını devralır."
+
+#: templates/mysql/remote_mysql.html:171
+msgid "Grant Access"
+msgstr "Erişim Ver"
+
+#: templates/mysql/remote_mysql.html:181
+msgid "Allowed From"
+msgstr "İzin Verilen Kaynak"
+
+#: templates/mysql/remote_mysql.html:220
+msgid "No MySQL users found."
+msgstr "MySQL kullanıcısı bulunamadı."
+
+#: templates/mysql/remote_mysql.html:236 templates/mysql/remote_mysql.html:241
+msgid "Confirm?"
+msgstr "Onaylıyor musunuz?"
+
+#: templates/mysql/users.html:3 templates/psql/users.html:3
+msgid "Database Users"
+msgstr "Veritabanı Kullanıcıları"
+
+#: templates/mysql/users.html:158
+msgid "No users yet."
+msgstr "Henüz kullanıcı yok."
+
+#: templates/mysql/users.html:158
+msgid "Create your first user"
+msgstr "İlk kullanıcınızı oluşturun"
+
+#: templates/mysql/wizard.html:42
+msgid "Setup complete"
+msgstr "Kurulum tamamlandı"
+
+#: templates/mysql/wizard.html:44
+msgid "Save these credentials, the password cannot be retrieved later."
+msgstr "Bu kimlik bilgilerini kaydedin, şifre daha sonra alınamaz."
+
+#: templates/mysql/wizard.html:128
+msgid "Configuration Code"
+msgstr "Yapılandırma Kodu"
+
+#: templates/mysql/wizard.html:145
+msgid "Download snippet"
+msgstr "Kod parçacığını indir"
+
+#: templates/mysql/wizard.html:161
+msgid "View Databases"
+msgstr "Veritabanlarını Görüntüle"
+
+#: templates/mysql/wizard.html:164
+msgid "Create Another"
+msgstr "Başka Oluştur"
+
+#: templates/mysql/wizard.html:363 templates/psql/wizard.html:259
+msgid "Creating..."
+msgstr "Oluşturuluyor..."
+
+#: templates/partials/_footer.html:5 templates/partials/_footer.html:9
+msgid "Collapse all"
+msgstr "Tümünü daralt"
+
+#: templates/partials/_footer.html:5 templates/partials/_footer.html:9
+msgid "Expand all"
+msgstr "Tümünü genişlet"
+
+#: templates/partials/_footer.html:35
+msgid "Changelog"
+msgstr "Değişiklik Günlüğü"
+
+#: templates/partials/_footer.html:57
+msgid "Community Forums"
+msgstr "Topluluk Forumları"
+
+#: templates/partials/_footer.html:69
+msgid "Sign out"
+msgstr "Çıkış Yap"
+
+#: templates/partials/_header.html:170 templates/partials/_header.html:247
+msgid "Right-click to remove from Favorites"
+msgstr "Favorilerden kaldırmak için sağ tıklayın"
+
+#: templates/partials/_service.html:24
+msgid "Loading service data..."
+msgstr "Hizmet verileri yükleniyor..."
+
+#: templates/partials/_service.html:28
+msgid "Service is not enabled."
+msgstr "Hizmet etkin değil."
+
+#: templates/partials/_service_js.html:8
+msgid "Checking"
+msgstr "Kontrol ediliyor"
+
+#: templates/partials/_service_js.html:23
+msgid "RAM Usage"
+msgstr "RAM Kullanımı"
+
+#: templates/partials/_service_js.html:24
+#: templates/user/history_usage.html:142
+#, python-format
+msgid "Memory %%"
+msgstr "Bellek %%"
+
+#: templates/partials/_service_log.html:62
+msgid "log contains"
+msgstr "günlük içeriyor"
+
+#: templates/partials/_service_log.html:62
+msgid "error line(s). Check the log."
+msgstr "hata satırı(ları). Günlüğü kontrol edin."
+
+#: templates/partials/googlesafebrowsing.html:4
+#: templates/partials/googlesafebrowsing.html:5
+msgid "Google Safe Browsing"
+msgstr "Google Güvenli Tarama"
+
+#: templates/partials/googlesafebrowsing.html:5
+msgid "Check website status on"
+msgstr "Web sitesi durumunu kontrol et:"
+
+#: templates/partials/googlesafebrowsing.html:11
+msgid ""
+"Google’s Safe Browsing technology examines billions of URLs per day looking "
+"for unsafe websites, many of which are legitimate websites that have been "
+"compromised. When an unsafe site is detected, warning is shown on Google "
+"Search and in web browsers. Here you can see whether this website is "
+"currently marked by Google as dangerous to visit."
+msgstr ""
+"Google'ın Güvenli Tarama teknolojisi, güvenli olmayan web sitelerini aramak "
+"için günde milyarlarca URL'yi inceler; bunların çoğu ele geçirilmiş meşru "
+"web sitesidir. Güvenli olmayan bir site tespit edildiğinde, Google Arama'da "
+"ve web tarayıcılarında uyarı gösterilir. Burada bu web sitesinin şu anda "
+"Google tarafından ziyaret için tehlikeli olarak işaretlenip "
+"işaretlenmediğini görebilirsiniz."
+
+#: templates/partials/googlesafebrowsing.html:165
+msgid "Error fetching WordPress vulnerability data. Please refresh the page."
+msgstr ""
+"WordPress güvenlik açığı verileri alınırken hata oluştu. Lütfen sayfayı "
+"yenileyin."
+
+#: templates/partials/googlesafebrowsing.html:175
+msgid "Checking website status..."
+msgstr "Web sitesi durumu kontrol ediliyor..."
+
+#: templates/partials/googlesafebrowsing.html:187
+msgid "No unsafe content found"
+msgstr "Güvenli olmayan içerik bulunamadı"
+
+#: templates/partials/googlesafebrowsing.html:189
+msgid "The website is flagged for threats:"
+msgstr "Web sitesi tehditler için işaretlendi:"
+
+#: templates/partials/googlesafebrowsing.html:200
+msgid "Failed to check the website"
+msgstr "Web sitesi kontrol edilemedi"
+
+#: templates/partials/pagespeed.html:321
+msgid "Quota limit exceeded for Google PageSpeed API. Please add an API Key."
+msgstr ""
+"Google PageSpeed API için kota sınırı aşıldı. Lütfen bir API Anahtarı "
+"ekleyin."
+
+#: templates/partials/screenshot.html:24
+msgid "Open site"
+msgstr "Siteyi aç"
+
+#: templates/partials/screenshot.html:33
+msgid "Click to refresh screenshot"
+msgstr "Ekran görüntüsünü yenilemek için tıklayın"
+
+#: templates/partials/visitors.html:6 templates/partials/visitors.html:47
+msgid "Live Visitors"
+msgstr "Anlık Ziyaretçiler"
+
+#: templates/partials/visitors.html:12
+msgid "1 minute"
+msgstr "1 dakika"
+
+#: templates/partials/visitors.html:13
+msgid "5 minutes"
+msgstr "5 dakika"
+
+#: templates/partials/visitors.html:14
+msgid "30 minutes"
+msgstr "30 dakika"
+
+#: templates/partials/visitors.html:15
+msgid "1 hour"
+msgstr "1 saat"
+
+#: templates/partials/visitors.html:16
+msgid "6 hours"
+msgstr "6 saat"
+
+#: templates/partials/visitors.html:17
+msgid "12 hours"
+msgstr "12 saat"
+
+#: templates/partials/visitors.html:18
+msgid "24 hours"
+msgstr "24 saat"
+
+#: templates/partials/visitors.html:30
+msgid "Open domain access logs in new tab"
+msgstr "Alan adı erişim günlüklerini yeni sekmede aç"
+
+#: templates/partials/visitors.html:48
+msgid "Visitors"
+msgstr "Ziyaretçiler"
+
+#: templates/partials/waf.html:52
+msgid "Requests denied"
+msgstr "Reddedilen istekler"
+
+#: templates/partials/waf.html:55 templates/partials/waf.html:65
+msgid "Open domain WAF logs in new tab"
+msgstr "Alan adı WAF günlüklerini yeni sekmede aç"
+
+#: templates/partials/waf.html:62
+msgid "Requests challenged"
+msgstr "Sorgulanan istekler"
+
+#: templates/partials/waf.html:81
+msgid "Firewall is active"
+msgstr "Güvenlik duvarı aktif"
+
+#: templates/partials/waf.html:82
+msgid "Firewall is inactive"
+msgstr "Güvenlik duvarı devre dışı"
+
+#: templates/partials/waf.html:83
+msgid "Error fetching firewall state"
+msgstr "Güvenlik duvarı durumu alınırken hata"
+
+#: templates/partials/waf.html:84
+msgid "Error fetching WAF data (blocked/challenged) for the domain."
+msgstr "Alan adı için WAF verileri (engellenen/sorgulanan) alınırken hata."
+
+#: templates/partials/waf.html:85
+msgid ""
+"An error occurred while updating the firewall status, please check console "
+"log."
+msgstr ""
+"Güvenlik duvarı durumu güncellenirken hata oluştu, lütfen konsol günlüğünü "
+"kontrol edin."
+
+#: templates/partials/waf.html:86
+#, python-format
+msgid "Firewall for %%(domain)s is now %%(status)s"
+msgstr "%%(domain)s için güvenlik duvarı artık %%(status)s"
+
+#: templates/php/extensions.html:14
+msgid ""
+"Enable or disable PHP extensions for this version, or install new ones. "
+"Toggling restarts the PHP-FPM service."
+msgstr ""
+"Bu sürüm için PHP uzantılarını etkinleştirin veya devre dışı bırakın ya da "
+"yenilerini yükleyin. Geçiş yapmak PHP-FPM hizmetini yeniden başlatır."
+
+#: templates/php/extensions.html:20
+msgid "Install extension"
+msgstr "Uzantı yükle"
+
+#: templates/php/extensions.html:64
+msgid "No extensions installed yet for this PHP version."
+msgstr "Bu PHP sürümü için henüz uzantı yüklenmedi."
+
+#: templates/php/extensions.html:76
+msgid "Install PHP extensions"
+msgstr "PHP uzantıları yükle"
+
+#: templates/php/extensions.html:77
+#, python-format
+msgid "Select extensions to install for PHP %(version)s."
+msgstr "PHP %(version)s için yüklenecek uzantıları seçin."
+
+#: templates/php/extensions.html:83
+msgid "Install selected"
+msgstr "Seçilenleri yükle"
+
+#: templates/php/extensions.html:115
+msgid "All supported extensions are already installed."
+msgstr "Desteklenen tüm uzantılar zaten yüklü."
+
+#: templates/php/extensions.html:127
+msgid "Failed to load available extensions."
+msgstr "Kullanılabilir uzantılar yüklenemedi."
+
+#: templates/php/extensions.html:150
+msgid "Installing extensions..."
+msgstr "Uzantılar yükleniyor..."
+
+#: templates/php/extensions.html:162
+msgid "Failed to start installation."
+msgstr "Kurulum başlatılamadı."
+
+#: templates/php/extensions.html:191
+msgid "An extension install is in progress for this PHP version..."
+msgstr "Bu PHP sürümü için bir uzantı kurulumu devam ediyor..."
+
+#: templates/php/extensions.html:205
+msgid "Enable, disable, or install PHP extensions per PHP version."
+msgstr ""
+"PHP sürümü başına PHP uzantılarını etkinleştirin, devre dışı bırakın veya "
+"yükleyin."
+
+#: templates/php/extensions.html:230
+msgid "Manage Extensions"
+msgstr "Uzantıları Yönet"
+
+#: templates/php/settings.html:76 templates/php/settings.html:97
+#: templates/php/settings.html:117 templates/php/settings.html:138
+msgid "domains"
+msgstr "alan adları"
+
+#: templates/php/settings.html:106 templates/php/settings.html:127
+msgid "Unsupported"
+msgstr "Desteklenmiyor"
+
+#: templates/php/settings.html:152
+#, python-format
+msgid "%(n)s domains are running an outdated/unsupported PHP version."
+msgstr "%(n)s alan adı eski/desteklenmeyen bir PHP sürümü çalıştırıyor."
+
+#: templates/psql/import.html:52
+msgid "Upload & Import"
+msgstr "Yükle ve İçe Aktar"
+
+#: templates/psql/pgadmin.html:145
+msgid "Click to show/hide password"
+msgstr "Şifreyi göstermek/gizlemek için tıklayın"
+
+#: templates/psql/remove.html:28
+msgid "Select a Username"
+msgstr "Kullanıcı Adı Seçin"
+
+#: templates/psql/remove.html:39
+msgid "Select a Database"
+msgstr "Veritabanı Seçin"
+
+#: templates/psql/wizard.html:215
+msgid "Process completed!"
+msgstr "İşlem tamamlandı!"
+
+#: templates/psql/wizard.html:226
+msgid "All fields are required"
+msgstr "Tüm alanlar zorunludur"
+
+#: templates/psql/wizard.html:231
+msgid "Password can only contain letters, numbers, and underscores"
+msgstr "Şifre yalnızca harf, rakam ve alt çizgi içerebilir"
+
+#: templates/psql/wizard.html:235
+msgid "Password must be at least 8 characters long"
+msgstr "Şifre en az 8 karakter uzunluğunda olmalıdır"
+
+#: templates/psql/wizard.html:283
+msgid "Retry creating Database and User"
+msgstr "Veritabanı ve Kullanıcı Oluşturmayı Yeniden Dene"
+
+#: templates/psql/wizard.html:285
+msgid "An error occurred while creating the database."
+msgstr "Veritabanı oluşturulurken hata oluştu."
+
+#: templates/system/cronjobs.html:38
+msgid "Need Help?"
+msgstr "Yardıma mı İhtiyacınız Var?"
+
+#: templates/system/cronjobs.html:63
+msgid ""
+"When the job should be executed. E.g. every 10 seconds or every night at 1 "
+"AM."
+msgstr ""
+"İşin ne zaman çalıştırılacağı. Ör. her 10 saniyede bir veya her gece saat "
+"01:00'da."
+
+#: templates/system/cronjobs.html:64
+msgid ""
+"String, see scheduling format of the Go implementation of cron. E.g. @every "
+"10s or 0 0 1 * * * (every night at 1 AM). Note: the format starts with "
+"seconds, instead of minutes."
+msgstr ""
+"Dize, cron'un Go uygulamasının zamanlama formatına bakın. Ör. @every 10s "
+"veya 0 0 1 * * * (her gece saat 01:00'da). Not: format dakika yerine saniye "
+"ile başlar."
+
+#: templates/system/cronjobs.html:65 templates/system/cronjobs.html:69
+#: templates/system/cronjobs.html:74 templates/system/cronjobs.html:79
+msgid "Default"
+msgstr "Varsayılan"
+
+#: templates/system/cronjobs.html:65 templates/system/cronjobs.html:69
+#: templates/system/cronjobs.html:74
+msgid "Required field, no default."
+msgstr "Zorunlu alan, varsayılan yok."
+
+#: templates/system/cronjobs.html:67
+msgid "Command you want to run inside the container."
+msgstr "Konteyner içinde çalıştırmak istediğiniz komut."
+
+#: templates/system/cronjobs.html:68
+msgid "String, e.g. touch /tmp/example"
+msgstr "Dize, ör. touch /tmp/example"
+
+#: templates/system/cronjobs.html:72
+msgid "Name of the container you want to execute the command in."
+msgstr "Komutu çalıştırmak istediğiniz konteynerin adı."
+
+#: templates/system/cronjobs.html:73
+msgid "String, e.g. nginx-proxy"
+msgstr "Dize, ör. nginx-proxy"
+
+#: templates/system/cronjobs.html:76
+msgid "Comment"
+msgstr "Yorum"
+
+#: templates/system/cronjobs.html:77
+msgid "Name/comment for the cron job"
+msgstr "Cron işi için ad/yorum"
+
+#: templates/system/cronjobs.html:78
+msgid "String, e.g. job for mysql db dump"
+msgstr "Dize, ör. mysql db dump için iş"
+
+#: templates/system/cronjobs.html:79
+msgid "Optional."
+msgstr "İsteğe bağlı."
+
+#: templates/system/cronjobs.html:150
+msgid "cron log entries contain errors. Check the logs."
+msgstr "cron günlük girişleri hata içeriyor. Günlükleri kontrol edin."
+
+#: templates/system/cronjobs.html:205
+msgid "Job"
+msgstr "İş"
+
+#: templates/system/cronjobs.html:207
+msgid "All jobs"
+msgstr "Tüm işler"
+
+#: templates/system/cronjobs.html:216
+msgid "Lines"
+msgstr "Satırlar"
+
+#: templates/system/cronjobs.html:237
+msgid "Fetching logs.."
+msgstr "Günlükler alınıyor.."
+
+#: templates/system/cronjobs.html:244
+msgid "No log entries found."
+msgstr "Günlük girişi bulunamadı."
+
+#: templates/system/cronjobs.html:263
+msgid "entries shown"
+msgstr "giriş gösteriliyor"
+
+#: templates/system/cronjobs.html:411
+msgid "view mode is unknown, only code and table are allowed"
+msgstr "görünüm modu bilinmiyor, yalnızca kod ve tablo kullanılabilir"
+
+#: templates/system/cronjobs_new.html:50
+msgid "Expression Format"
+msgstr "İfade Formatı"
+
+#: templates/system/ip_blocker.html:18
+msgid ""
+"This feature allows you to block a range of IP addresses to prevent them "
+"from accessing your websites."
+msgstr ""
+"Bu özellik, web sitelerinize erişmelerini önlemek için bir IP adresi "
+"aralığını engellemenize olanak tanır."
+
+#: templates/system/ip_blocker.html:32
+msgid "Enter IP addresses or CIDRs (one per line)"
+msgstr "IP adresleri veya CIDR'ler girin (satır başına bir tane)"
+
+#: templates/system/license_error.html:17
+msgid "OpenPanel Enterprise license key is invalid!"
+msgstr "OpenPanel Enterprise lisans anahtarı geçersiz!"
+
+#: templates/system/license_error.html:21
+msgid "Verify License"
+msgstr "Lisansı Doğrula"
+
+#: templates/system/process_manager.html:54
+msgid "Service (Container name) in which the process is running."
+msgstr "İşlemin çalıştığı hizmet (Konteyner adı)."
+
+#: templates/system/process_manager.html:61
+msgid "The user ID running the process inside the container."
+msgstr "Konteyner içinde işlemi çalıştıran kullanıcı ID'si."
+
+#: templates/system/process_manager.html:68
+msgid "The Process ID (PID) of the process."
+msgstr "İşlemin İşlem ID'si (PID)."
+
+#: templates/system/process_manager.html:75
+msgid ""
+"The Parent Process ID (PPID), which refers to the process ID of the parent "
+"process."
+msgstr "Üst sürecin işlem ID'sine atıfta bulunan Üst Süreç ID'si (PPID)."
+
+#: templates/system/process_manager.html:82
+msgid "The CPU usage percentage for the process."
+msgstr "İşlem için CPU kullanım yüzdesi."
+
+#: templates/system/process_manager.html:89
+msgid "The start time of the process."
+msgstr "İşlemin başlangıç zamanı."
+
+#: templates/system/process_manager.html:96
+msgid ""
+"The terminal associated with the process. ? means that the process is "
+"running in the background."
+msgstr ""
+"İşlemle ilişkili terminal. ? işlemin arka planda çalıştığı anlamına gelir."
+
+#: templates/system/process_manager.html:111
+msgid "The command that is running in the container."
+msgstr "Konteynerde çalışan komut."
+
+#: templates/system/process_manager.html:129
+msgid "No processes"
+msgstr "İşlem yok"
+
+#: templates/system/process_manager.html:176
+msgid "Terminating PID:"
+msgstr "PID sonlandırılıyor:"
+
+#: templates/system/process_manager.html:177
+msgid "PID:"
+msgstr "PID:"
+
+#: templates/system/server_info.html:78
+msgid "pgAdmin port"
+msgstr "pgAdmin portu"
+
+#: templates/system/server_info.html:187
+msgid "Memory Limit"
+msgstr "Bellek Sınırı"
+
+#: templates/system/server_info.html:291
+msgid "Enabled Features"
+msgstr "Etkin Özellikler"
+
+#: templates/system/waf_domain.html:66
+msgid " Disabled IDs"
+msgstr " Devre Dışı ID'ler"
+
+#: templates/system/waf_domain.html:67
+msgid " Disable rules by ID"
+msgstr " ID'ye göre kuralları devre dışı bırak"
+
+#: templates/system/waf_domain.html:76
+msgid "Enter rule IDs, space-separated"
+msgstr "Kural ID'lerini boşlukla ayırarak girin"
+
+#: templates/system/waf_domain.html:150
+msgid "Disabled Tags"
+msgstr "Devre Dışı Etiketler"
+
+#: templates/system/waf_domain.html:151
+msgid "Disable rules by tag name"
+msgstr "Etiket adına göre kuralları devre dışı bırak"
+
+#: templates/system/waf_domain.html:161
+msgid "Enter tags, space-separated"
+msgstr "Etiketleri boşlukla ayırarak girin"
+
+#: templates/user/activity.html:15
+msgid "Search results for:"
+msgstr "Arama sonuçları:"
+
+#: templates/user/activity.html:57
+msgid "No logs yet."
+msgstr "Henüz günlük yok."
+
+#: templates/user/activity.html:172
+msgid "Suspicious activity detected from IP"
+msgstr "IP'den şüpheli aktivite tespit edildi"
+
+#: templates/user/activity.html:172
+msgid "(100+ actions in one minute)."
+msgstr "(bir dakikada 100'den fazla işlem)."
+
+#: templates/user/activity.html:174
+msgid "IPs show bot-like activity (100+ actions in one minute)."
+msgstr ""
+"IP'ler bot benzeri aktivite gösteriyor (bir dakikada 100'den fazla işlem)."
+
+#: templates/user/favorites.html:58
+msgid "No favorites yet."
+msgstr "Henüz favori yok."
+
+#: templates/user/history_usage.html:95
+msgid "charts_mode must be set to either two or one!"
+msgstr "charts_mode iki veya bir olarak ayarlanmalıdır!"
+
+#: templates/user/history_usage.html:105
+msgid "of"
+msgstr "/"
+
+#: templates/user/history_usage.html:105 templates/user/history_usage.html:113
+msgid "items"
+msgstr "öğe"
+
+#: templates/user/history_usage.html:138
+#, python-format
+msgid "CPU %%"
+msgstr "CPU %%"
+
+#: templates/user/history_usage.html:140
+msgid "CPU Total"
+msgstr "Toplam CPU"
+
+#: templates/user/history_usage.html:144
+msgid "Memory Used/Total"
+msgstr "Kullanılan/Toplam Bellek"
+
+#: templates/user/history_usage.html:146
+msgid "Bandwidth Usage"
+msgstr "Bant Genişliği Kullanımı"
+
+#: templates/user/login.html:19
+msgid "username"
+msgstr "kullanıcı adı"
+
+#: templates/user/login.html:43
+msgid "Sign in with a passkey"
+msgstr "Geçiş anahtarıyla giriş yap"
+
+#: templates/user/loginlog.html:77
+msgid "View activity log"
+msgstr "Aktivite günlüğünü görüntüle"
+
+#: templates/user/passkeys.html:11
+msgid ""
+"Sign in without a password using a fingerprint, face scan, screen lock, or a"
+" hardware security key."
+msgstr ""
+"Parmak izi, yüz tarama, ekran kilidi veya donanım güvenlik anahtarı "
+"kullanarak şifresiz giriş yapın."
+
+#: templates/user/passkeys.html:14
+msgid "Add a passkey"
+msgstr "Geçiş anahtarı ekle"
+
+#: templates/user/passkeys.html:30
+msgid "Added"
+msgstr "Eklendi"
+
+#: templates/user/passkeys.html:31
+msgid "Last used"
+msgstr "Son kullanım"
+
+#: templates/user/passkeys.html:42
+msgid "Remove this passkey?"
+msgstr "Bu geçiş anahtarını kaldırmak istiyor musunuz?"
+
+#: templates/user/passkeys.html:52
+msgid "No passkeys registered yet."
+msgstr "Henüz kayıtlı geçiş anahtarı yok."
+
+#: templates/user/passkeys.html:64
+msgid "Name this passkey (e.g. MacBook Touch ID) "
+msgstr "Bu geçiş anahtarını adlandırın (ör. MacBook Touch ID) "
+
+#: templates/user/stats.html:39
+msgid "Total CPU allocation:"
+msgstr "Toplam CPU tahsisi:"
+
+#: templates/user/stats.html:50
+msgid "Used Memory:"
+msgstr "Kullanılan Bellek:"
+
+#: templates/user/stats.html:52
+msgid "Available Memory:"
+msgstr "Kullanılabilir Bellek:"
+
+#: templates/user/stats.html:84
+msgid "No resource usage data available yet."
+msgstr "Henüz kaynak kullanım verisi mevcut değil."
+
+#: templates/user/twofa_settings.html:81
+msgid ""
+"Scan the QR code with your 2FA device or click on the link below to display "
+"OTP code instead."
+msgstr ""
+"QR kodunu 2FA cihazınızla tarayın veya bunun yerine OTP kodunu görüntülemek "
+"için aşağıdaki bağlantıya tıklayın."
