@@ -1348,6 +1348,15 @@ const tableData = [
                 },
             },
             {
+                description: "Enforce 2FA for users",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Passkeys",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
@@ -1356,6 +1365,7 @@ const tableData = [
                     openpanel: "icon",
                 },
             },
+            
             {
                 description: "IP Blocker",
                 cpanel: <CheckIcon />,
