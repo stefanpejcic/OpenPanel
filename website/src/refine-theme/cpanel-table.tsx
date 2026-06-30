@@ -623,7 +623,7 @@ const tableData = [
                 },
             },
             {
-                description: "Redis",
+                description: "Valkey / Redis",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -641,16 +641,7 @@ const tableData = [
                 },
             },         
             {
-                description: "OpenSearch",
-                cpanel: <CrossIcon />,
-                openpanel: <CheckIcon />,
-                valueType: {
-                    cpanel: "icon",
-                    openpanel: "icon",
-                },
-            },
-            {
-                description: "ElasticSearch",
+                description: "OpenSearch / ElasticSearch",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -697,6 +688,15 @@ const tableData = [
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "PHP version per domain",
+                cpanel: <TableText>Only with Cloudlinux</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "text",
                     openpanel: "icon",
                 },
             },
@@ -758,7 +758,7 @@ const tableData = [
             },
             {
                 description: "View Resource Usage",
-                cpanel: <TableText>Only with CLoudlinux</TableText>,
+                cpanel: <TableText>Only with Cloudlinux</TableText>,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "text",
@@ -839,7 +839,7 @@ const tableData = [
                 },
             },
             {
-                description: "Drag&Drop Uploads",
+                description: "Drag & Drop Upload",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -850,7 +850,7 @@ const tableData = [
             {
                 description: "File Editor",
                 cpanel: <TableText>Basic</TableText>,
-                openpanel: <TableText><a href="https://microsoft.github.io/monaco-editor/">Monaco (VS Code) Editor</a></TableText>,
+                openpanel: <TableText>Monaco (VS Code), Ace, CodeMirror</TableText>,
                 valueType: {
                     cpanel: "text",
                     openpanel: "text",
@@ -858,7 +858,7 @@ const tableData = [
             },
             {
                 description: "FTP",
-                cpanel: <CrossIcon />,
+                cpanel: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -885,7 +885,7 @@ const tableData = [
             },
             {
                 description: "Disk Usage Explorer",
-                cpanel: <CrossIcon />,
+                cpanel: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -954,10 +954,10 @@ const tableData = [
             {
                 description: "PostgreSQL",
                 cpanel: <CheckIcon />,
-                openpanel: <TableText>BETA</TableText>,
+                openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
-                    openpanel: "text",
+                    openpanel: "icon",
                 },
             },
             {
@@ -971,6 +971,15 @@ const tableData = [
             },
             {
                 description: "Import Databases",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Optimize Tables",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1020,7 +1029,7 @@ const tableData = [
         title: "Accounts",
         items: [
             {
-                description: "Administrator Accounts",
+                description: "Multiple Administrator Accounts",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1091,6 +1100,15 @@ const tableData = [
                     openpanel: "icon",
                 },
             },
+            {
+                description: "Private notes for Administrators",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
              {
                 description: "Customize email templates",
                 cpanel: <CrossIcon />,
@@ -1106,7 +1124,16 @@ const tableData = [
         title: "Domains",
         items: [
             {
-                description: "Edit WAF rules per domain",
+                description: "Automatic SSL ",
+                cpanel: <TableText>Requires manual action</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit VirtualHosts file",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1115,16 +1142,16 @@ const tableData = [
                 },
             },
             {
-                description: "View WAF logs per domain",
-                cpanel: <CrossIcon />,
+                description: "Change docroot",
+                cpanel: <TableText>Not for primary domain</TableText>,
                 openpanel: <CheckIcon />,
                 valueType: {
-                    cpanel: "icon",
+                    cpanel: "text",
                     openpanel: "icon",
                 },
-            },  
+            },
             {
-                description: ".onion Domains",
+                description: "GoAccess",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1132,6 +1159,61 @@ const tableData = [
                     openpanel: "icon",
                 },
             },
+            {
+                description: "DNS Zone Editor",
+                cpanel: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+
+            {
+                description: "Edit zone file",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "TLSA records",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Export/Import zone",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "User can reset zone",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Comments for DNS records",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            }, 
             {
                 description: "Suspend Domains",
                 cpanel: <CrossIcon />,
@@ -1174,6 +1256,24 @@ const tableData = [
                 },
             },
             {
+                description: "Google PageSpeed monitoring",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Google Safe Browsing monitoring",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Node / Python Enviroment",
                 cpanel: <TableText>venv</TableText>,
                 openpanel: <TableText>Containerized</TableText>,
@@ -1191,6 +1291,15 @@ const tableData = [
             {
                 description: "Postfix",
                 cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Autologin to Webmail",
+                cpanel: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     cpanel: "icon",
@@ -1221,7 +1330,52 @@ const tableData = [
         title: "Security",
         items: [
             {
+                description: "2FA",
+                cpanel: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Passkeys",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "IP Blocker",
+                cpanel: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Coraza WAF",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit WAF rules per domain",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "View WAF logs per domain",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
