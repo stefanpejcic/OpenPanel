@@ -1274,7 +1274,7 @@ const tableData = [
                 },
             },
             {
-                description: "Node / Python Enviroment",
+                description: "Node / Python Environment",
                 cpanel: <TableText>venv</TableText>,
                 openpanel: <TableText>Containerized</TableText>,
                 valueType: {
@@ -1329,6 +1329,15 @@ const tableData = [
   {
         title: "Security",
         items: [
+            {
+                description: "CVE Vulnerabilities",
+                cpanel: <TableText><a href="https://www.cve.org/CVERecord/SearchResults?query=cpanel" target="_blank">500+</a></TableText>,
+                openpanel: <TableText><a href="https://www.cve.org/CVERecord/SearchResults?query=openpanel">3 before 1.0 release</a></TableText>,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "text",
+                },
+            },
             {
                 description: "2FA",
                 cpanel: <CheckIcon />,
@@ -1443,7 +1452,16 @@ const tableData = [
         title: "Pricing",
         items: [
             {
-                description: "Yearly Pricing",
+                description: "Price Increase (3yr)",
+                cpanel: <TableText>+87.6%</TableText>,
+                openpanel: <CrossIcon />,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Annual Pricing",
                 cpanel: (
                     <div className={clsx("h-full")}>
                         <TableText>312 - 720€ / year</TableText>
