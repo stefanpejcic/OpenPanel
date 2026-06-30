@@ -49,7 +49,7 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.{" "}
+                    Built on Docker for true per-user isolation, with a fixed price that never changes: no surprises, no per-account billing.{" "}
                 </p>
                 <EnterpriseGetInTouchButton
                     className={clsx(
