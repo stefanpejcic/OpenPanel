@@ -28,7 +28,7 @@ test('toggle a letter to uppercase and save', async ({ page }) => {
   expect(letterAfter?.toLowerCase()).toBe(letterBefore?.toLowerCase());
   expect(letterAfter).not.toBe(letterBefore);
   await page.getByRole('button', { name: /save/i }).click();
-  await expect(page.locator('body')).toContainText(/saved|updated|success/i, { timeout: 10000 });
+  await expect(page.locator('body')).toContainText(/saved|updated|success|capitalized/i, { timeout: 10000 });
   console.log('capitalize domain letter toggle and save working');
 });
 
@@ -45,6 +45,6 @@ test('revert domain capitalization to original', async ({ page }) => {
     }
   }
   await page.getByRole('button', { name: /save/i }).click();
-  await expect(page.locator('body')).toContainText(/saved|updated|success/i, { timeout: 10000 });
+  await expect(page.locator('body')).toContainText(/saved|updated|success|capitalized/i, { timeout: 10000 });
   console.log('domain capitalization reverted to original');
 });

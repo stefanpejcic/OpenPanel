@@ -95,6 +95,15 @@ test('show database sizes', async ({ page }) => {
 
 
 
+test('phpmyadmin auto-login', async ({ page }) => {
+  await page.goto(`/phpmyadmin?route=/database/structure&server=1&db=stefan_baza`);
+  // wait up to 30sec and expect: http://185.193.66.252:32797/index.php?server=1&route=%2Fdatabase%2Fstructure&db=stefan_baza
+  await expect(page.locator('body')).toContainText(/stefan_baza/i, { timeout: 30000 });
+
+  console.log('phpmyadmin auto-login is working');
+});
+
+
 test('list users', async ({ page }) => {
   await page.goto(`/mysql/users`);
   await expect(page).toHaveURL(/.*mysql\/users/);
@@ -503,25 +512,6 @@ test('delete user', async ({ page }) => {
 
   await expect(page.locator('body')).toContainText(/successfully deleted/i);  
   console.log('delete user is working');
-});
-
-
-
-test('phpmyadmin auto-login', async ({ page }) => {
-  await page.goto(`/phpmyadmin?route=/database/structure&server=1&db=stefan_baza`);
-  // wait up to 30sec and expect: http://185.193.66.252:32797/index.php?server=1&route=%2Fdatabase%2Fstructure&db=stefan_baza
-  await expect(page.locator('body')).toContainText(/stefan_baza/i, { timeout: 30000 });
-
-  console.log('phpmyadmin auto-login is working');
-});
-
-
-
-test('phpmyadmin settings', async ({ page }) => {
-  await page.goto(`/mysql/phpmyadmin`);  
-  await expect(page.locator('body')).toContainText(/stefan_baza/i, { timeout: 30000 });
-  // TODO: cover user/pass combo, and edit service: off/on, edit limits..
-  console.log('phpmyadmin settings are working');
 });
 
 

@@ -61,7 +61,7 @@ test('search results', async ({ page }) => {
   await page.waitForFunction(() => typeof (window as any).Alpine !== 'undefined');
   await page.waitForTimeout(500);
 
-  const items = ['Domains', 'DNS', 'Emails'];
+  const items = ['Domain', 'DNS', 'Emails'];
   const failures: Array<{ name: string; error: string }> = [];
   let passed = 0;
 

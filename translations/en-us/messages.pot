@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.64\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-06-26 12:06+0200\n"
+"POT-Creation-Date: 2026-06-30 11:58+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -200,8 +200,8 @@ msgstr ""
 #: modules/website_builder.py:149 modules/website_builder.py:291
 #: modules/websites.py:38 modules/websites.py:235 modules/websites.py:296
 #: modules/websites.py:458 modules/websites.py:542 modules/websites.py:981
-#: modules/wordpress.py:500 modules/wordpress.py:839 modules/wordpress.py:952
-#: modules/wordpress.py:1525 modules/wordpress.py:1989
+#: modules/wordpress.py:513 modules/wordpress.py:852 modules/wordpress.py:965
+#: modules/wordpress.py:1538 modules/wordpress.py:2002
 msgid "You do not own this domain."
 msgstr ""
 
@@ -627,17 +627,17 @@ msgstr ""
 msgid "Backup restored successfully!"
 msgstr ""
 
-#: modules/mautic.py:373 modules/wordpress.py:434
+#: modules/mautic.py:373 modules/wordpress.py:447
 msgid "Backup completed successfully!"
 msgstr ""
 
-#: modules/mautic.py:376 modules/wordpress.py:438
+#: modules/mautic.py:376 modules/wordpress.py:451
 msgid "No backup options selected."
 msgstr ""
 
 #: modules/mautic.py:401 modules/mautic.py:567 modules/website_builder.py:71
-#: modules/website_builder.py:116 modules/wordpress.py:817
-#: modules/wordpress.py:945
+#: modules/website_builder.py:116 modules/wordpress.py:830
+#: modules/wordpress.py:958
 msgid "No data found for the provided site ID"
 msgstr ""
 
@@ -675,11 +675,11 @@ msgid "Install Mautic"
 msgstr ""
 
 #: modules/mautic.py:759 modules/pm2.py:552 modules/website_builder.py:282
-#: modules/wordpress.py:1517 modules/wordpress.py:2003
+#: modules/wordpress.py:1530 modules/wordpress.py:2016
 msgid "Domain not found"
 msgstr ""
 
-#: modules/mautic.py:763 modules/wordpress.py:1521
+#: modules/mautic.py:763 modules/wordpress.py:1534
 msgid "An error occurred fetching docroot for domain from database."
 msgstr ""
 
@@ -713,15 +713,15 @@ msgstr ""
 msgid "User name is required."
 msgstr ""
 
-#: modules/mysql.py:183 modules/mysqld/remote_mysql.py:125
+#: modules/mysql.py:183 modules/mysqld/remote_mysql.py:127
 #: modules/postgresql.py:143
 msgid "This username is not allowed."
 msgstr ""
 
 #: modules/mysql.py:188 modules/mysql.py:254 modules/mysql.py:373
 #: modules/mysql.py:772 modules/mysql.py:814 modules/mysql.py:918
-#: modules/mysqld/remote_mysql.py:129 modules/mysqld/remote_mysql.py:181
-#: modules/mysqld/remote_mysql.py:219
+#: modules/mysqld/remote_mysql.py:131 modules/mysqld/remote_mysql.py:183
+#: modules/mysqld/remote_mysql.py:221
 msgid "Invalid host format."
 msgstr ""
 
@@ -732,7 +732,7 @@ msgid "Create User"
 msgstr ""
 
 #: modules/mysql.py:209 modules/mysql.py:809 modules/mysql.py:913
-#: modules/mysqld/remote_mysql.py:177 modules/postgresql.py:168
+#: modules/mysqld/remote_mysql.py:179 modules/postgresql.py:168
 #: modules/postgresql.py:552
 msgid "This is a system username that can not be edited."
 msgstr ""
@@ -797,7 +797,7 @@ msgstr ""
 msgid "Invalid export destination."
 msgstr ""
 
-#: modules/mysql.py:767 modules/mysqld/remote_mysql.py:215
+#: modules/mysql.py:767 modules/mysqld/remote_mysql.py:217
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
@@ -906,7 +906,7 @@ msgstr ""
 msgid "Invalid file extension. Only .py, or .js are allowed."
 msgstr ""
 
-#: modules/pm2.py:457 modules/website_builder.py:238 modules/wordpress.py:1334
+#: modules/pm2.py:457 modules/website_builder.py:238 modules/wordpress.py:1347
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
@@ -1348,142 +1348,142 @@ msgstr ""
 msgid "Domain not found."
 msgstr ""
 
-#: modules/wordpress.py:308
+#: modules/wordpress.py:321
 msgid "Document root is not provided or invalid."
 msgstr ""
 
-#: modules/wordpress.py:401
+#: modules/wordpress.py:414
 msgid "No matching tables found"
 msgstr ""
 
-#: modules/wordpress.py:504
+#: modules/wordpress.py:517
 msgid "Config file not found"
 msgstr ""
 
-#: modules/wordpress.py:542
+#: modules/wordpress.py:555
 msgid "Hardening rules have been successfully applied to the website"
 msgstr ""
 
-#: modules/wordpress.py:544
+#: modules/wordpress.py:557
 msgid "Failed to apply hardening rules to the website - please try again"
 msgstr ""
 
-#: modules/wordpress.py:565
+#: modules/wordpress.py:578
 msgid "Abort, another WordPress clone process is currently running."
 msgstr ""
 
-#: modules/wordpress.py:574
+#: modules/wordpress.py:587
 msgid "You have reached the maximum number of sites allowed"
 msgstr ""
 
-#: modules/wordpress.py:591
+#: modules/wordpress.py:604
 msgid "Missing required form fields"
 msgstr ""
 
-#: modules/wordpress.py:610
+#: modules/wordpress.py:623
 msgid "Destination domain not found in database"
 msgstr ""
 
-#: modules/wordpress.py:613
+#: modules/wordpress.py:626
 msgid "An error occurred fetching docroot for destination domain from database."
 msgstr ""
 
-#: modules/wordpress.py:624
+#: modules/wordpress.py:637
 msgid "Invalid input or unsafe docroot"
 msgstr ""
 
-#: modules/wordpress.py:828
+#: modules/wordpress.py:841
 msgid "WordPress installation not found in the database"
 msgstr ""
 
-#: modules/wordpress.py:877
+#: modules/wordpress.py:890
 msgid "Database name or user not found in wp-config.php"
 msgstr ""
 
-#: modules/wordpress.py:906
+#: modules/wordpress.py:919
 msgid "WordPress uninstalled successfully!"
 msgstr ""
 
-#: modules/wordpress.py:913
+#: modules/wordpress.py:926
 msgid "An error occurred during WordPress uninstall."
 msgstr ""
 
-#: modules/wordpress.py:925
+#: modules/wordpress.py:938
 msgid "Missing site ID."
 msgstr ""
 
-#: modules/wordpress.py:968
+#: modules/wordpress.py:981
 msgid "WordPress installation detached from Manager."
 msgstr ""
 
-#: modules/wordpress.py:974
+#: modules/wordpress.py:987
 msgid "An error occurred during WordPress detachment. Please try again."
 msgstr ""
 
-#: modules/wordpress.py:977
+#: modules/wordpress.py:990
 msgid "An error occurred during WordPress detachment."
 msgstr ""
 
-#: modules/wordpress.py:1143 modules/wordpress.py:1311
+#: modules/wordpress.py:1156 modules/wordpress.py:1324
 msgid ""
 "Scan completed. Found installations:\n"
 "\n"
 msgstr ""
 
-#: modules/wordpress.py:1174 templates/manager/wp/list.html:477
+#: modules/wordpress.py:1187 templates/manager/wp/list.html:477
 msgid "Scan skipped. WordPress installation is currently running."
 msgstr ""
 
-#: modules/wordpress.py:1295
+#: modules/wordpress.py:1308
 msgid "Scan failed due to a server error."
 msgstr ""
 
-#: modules/wordpress.py:1346 templates/manager/autoinstaller.html:56
+#: modules/wordpress.py:1359 templates/manager/autoinstaller.html:56
 #: templates/manager/wp/install.html:9
 msgid "Install WordPress"
 msgstr ""
 
-#: modules/wordpress.py:1663
+#: modules/wordpress.py:1676
 msgid "Please ensure your plan has sufficient resources to start the service."
 msgstr ""
 
-#: modules/wordpress.py:1977
+#: modules/wordpress.py:1990
 msgid "Domain is not provided."
 msgstr ""
 
-#: modules/wordpress.py:2033
+#: modules/wordpress.py:2046
 msgid "php_version could not be determined"
 msgstr ""
 
-#: modules/wordpress.py:2057
+#: modules/wordpress.py:2070
 msgid "Admin username could not be obtained"
 msgstr ""
 
-#: modules/wordpress.py:2057
+#: modules/wordpress.py:2070
 msgid "Please try login manually to wp-admin."
 msgstr ""
 
-#: modules/wordpress.py:2060
+#: modules/wordpress.py:2073
 msgid "No administrator users found"
 msgstr ""
 
-#: modules/wordpress.py:2149
+#: modules/wordpress.py:2162
 msgid "Unsupported action"
 msgstr ""
 
-#: modules/wordpress.py:2171
+#: modules/wordpress.py:2184
 msgid "Use 'enable' or 'disable'"
 msgstr ""
 
-#: modules/wordpress.py:2191
+#: modules/wordpress.py:2204
 msgid "Cache flushed successfully."
 msgstr ""
 
-#: modules/wordpress.py:2198
+#: modules/wordpress.py:2211
 msgid "Invalid type"
 msgstr ""
 
-#: modules/wordpress.py:2206 templates/base.html:32
+#: modules/wordpress.py:2219 templates/base.html:32
 #: templates/manager/grapejs_editor.html:123
 msgid "Success"
 msgstr ""
@@ -1878,23 +1878,23 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: modules/core/search.py:33
+#: modules/core/search.py:26
 msgid "Unknown search type"
 msgstr ""
 
-#: modules/core/search.py:40 modules/core/search.py:43
+#: modules/core/search.py:33 modules/core/search.py:36
 msgid "Feature not available"
 msgstr ""
 
-#: modules/core/search.py:61 modules/core/search.py:103
+#: modules/core/search.py:54 modules/core/search.py:96
 msgid "Invalid search query"
 msgstr ""
 
-#: modules/core/search.py:69
+#: modules/core/search.py:62
 msgid "Invalid file path"
 msgstr ""
 
-#: modules/core/search.py:111
+#: modules/core/search.py:104
 msgid "Invalid folder path"
 msgstr ""
 
@@ -2631,23 +2631,29 @@ msgstr ""
 msgid "ON"
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:107
+#: modules/mysqld/remote_mysql.py:102
+msgid ""
+"Could not load MySQL users yet - the database may still be starting. "
+"Please refresh in a moment."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:109
 msgid "Remote MySQL"
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:121
+#: modules/mysqld/remote_mysql.py:123
 msgid "A valid username is required - alphanumeric characters and '_' only."
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:133
+#: modules/mysqld/remote_mysql.py:135
 msgid "Password is required."
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:173 modules/mysqld/remote_mysql.py:211
+#: modules/mysqld/remote_mysql.py:175 modules/mysqld/remote_mysql.py:213
 msgid "A valid username is required."
 msgstr ""
 
-#: modules/mysqld/remote_mysql.py:185
+#: modules/mysqld/remote_mysql.py:187
 msgid "No changes made."
 msgstr ""
 

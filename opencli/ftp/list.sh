@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: ftp/add.sh
 # Description: List FTP sub-users for openpanel user.
-# Usage: opencli ftp-list <OPENPANEL_USERNAME>
+# Usage: opencli ftp-list <OPENPANEL_USERNAME> [--json]
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 10.09.2024
-# Last Modified: 26.06.2026
+# Last Modified: 30.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -29,35 +29,99 @@
 # THE SOFTWARE.
 ################################################################################
 
+# Parse args
+JSON_OUTPUT=0
+ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --json)
+            JSON_OUTPUT=1
+            ;;
+        *)
+            ARGS+=("$arg")
+            ;;
+    esac
+done
+set -- "${ARGS[@]}"
 
-# ======================================================================
-# Main
+json_escape() {
+    local s="$1"
+    s="${s//\\/\\\\}"
+    s="${s//\"/\\\"}"
+    printf '%s' "$s"
+}
+
 if [ -z "$1" ]; then
     # ALL USERS
-    for context in /etc/openpanel/ftp/users/*; do
-        if [ -d "$context" ]; then
-            user_dir_name=$(basename "$context")
-            users_file="${context}/users.list"
-            if [ ! -f "$users_file" ]; then
-                continue
+    if [ "$JSON_OUTPUT" -eq 1 ]; then
+        json_out="["
+        first=1
+        for context in /etc/openpanel/ftp/users/*; do
+            if [ -d "$context" ]; then
+                user_dir_name=$(basename "$context")
+                users_file="${context}/users.list"
+                if [ ! -f "$users_file" ]; then
+                    continue
+                fi
+                while IFS='|' read -r username password directory uid gid; do
+                    [ -z "$username" ] && continue
+                    if [ "$first" -eq 0 ]; then
+                        json_out+=","
+                    fi
+                    first=0
+                    json_out+="{\"openpanel_user\":\"$(json_escape "$user_dir_name")\",\"username\":\"$(json_escape "$username")\",\"password\":\"$(json_escape "$password")\",\"directory\":\"$(json_escape "$directory")\",\"uid\":\"$(json_escape "$uid")\",\"gid\":\"$(json_escape "$gid")\"}"
+                done < "$users_file"
             fi
-            echo "FTP sub-users for '$user_dir_name':"
-            while IFS='|' read -r username password directory; do
-                echo "$username | $directory"
-            done < "$users_file"
-            echo
-        fi
-    done
+        done
+        json_out+="]"
+        echo "$json_out"
+    else
+        for context in /etc/openpanel/ftp/users/*; do
+            if [ -d "$context" ]; then
+                user_dir_name=$(basename "$context")
+                users_file="${context}/users.list"
+                if [ ! -f "$users_file" ]; then
+                    continue
+                fi
+                echo "FTP sub-users for '$user_dir_name':"
+                while IFS='|' read -r username password directory uid gid; do
+                    echo "$username | $directory"
+                done < "$users_file"
+                echo
+            fi
+        done
+    fi
 else
     # SINGLE USER
     context="$1"
+    user_dir_name="$context"
     users_file="/etc/openpanel/ftp/users/${context}/users.list"
     if [ ! -f "$users_file" ]; then
-        echo "No FTP sub-users for OpenPanel user: '$user_dir_name'."
+        if [ "$JSON_OUTPUT" -eq 1 ]; then
+            echo "[]"
+        else
+            echo "No FTP sub-users for OpenPanel user: '$user_dir_name'."
+        fi
         exit 1
     fi
-    echo "FTP sub-users for '$context':"
-    while IFS='|' read -r username password directory; do
-        echo "$username | $directory"
-    done < "$users_file"
+
+    if [ "$JSON_OUTPUT" -eq 1 ]; then
+        json_out="["
+        first=1
+        while IFS='|' read -r username password directory uid gid; do
+            [ -z "$username" ] && continue
+            if [ "$first" -eq 0 ]; then
+                json_out+=","
+            fi
+            first=0
+            json_out+="{\"openpanel_user\":\"$(json_escape "$user_dir_name")\",\"username\":\"$(json_escape "$username")\",\"password\":\"$(json_escape "$password")\",\"directory\":\"$(json_escape "$directory")\",\"uid\":\"$(json_escape "$uid")\",\"gid\":\"$(json_escape "$gid")\"}"
+        done < "$users_file"
+        json_out+="]"
+        echo "$json_out"
+    else
+        echo "FTP sub-users for '$context':"
+        while IFS='|' read -r username password directory uid gid; do
+            echo "$username | $directory"
+        done < "$users_file"
+    fi
 fi

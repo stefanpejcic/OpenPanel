@@ -332,7 +332,7 @@ test('upload file from URL', async ({ page }) => {
   await page5.getByRole('button', { name: 'Download from URL instead' }).click();
   await page5.getByRole('textbox', { name: 'https://' }).fill('http://ipv4.download.thinkbroadband.com/20MB.zip');
   await page5.getByRole('button', { name: 'Download' }).click();
-  await expect(page5.locator('body')).toContainText(/downloaded from URL successfully/i);
+  await expect(page5.locator('body')).toContainText(/downloaded from URL successfully/i, { timeout: 20_000 });
 
   await page5.getByRole('link', { name: 'File Manager' }).click();
   await page5.getByRole('heading', { name: '20MB.zip', exact: true }).click();

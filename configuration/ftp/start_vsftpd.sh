@@ -145,15 +145,10 @@ echo "[*] Passive mode port range: $MIN_PORT-$MAX_PORT"
 
 # 7. start service
 if [ -n "$1" ]; then
-  # execute custom commands
   echo "[*] Executing custom command: $*"
   exec "$@"
 else
-  # start vsftpd server
   echo "[*] Starting vsftpd and accepting user logins..."
-  exec vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT /etc/vsftpd/vsftpd.conf
-  [ -d /var/run/vsftpd ] || mkdir /var/run/vsftpd
-  pgrep vsftpd | tail -n 1 > /var/run/vsftpd/vsftpd.pid
   echo "-------------------------------------------"
-  exec pidproxy /var/run/vsftpd/vsftpd.pid true
+  vsftpd -opasv_min_port=$MIN_PORT -opasv_max_port=$MAX_PORT /etc/vsftpd/vsftpd.conf
 fi

@@ -268,7 +268,7 @@
     "title": "Backups",
     "description": "If enabled, users can configure backups.",
     "link": "/backups",
-    "type": "enterprise",
+    "type": "beta",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#backups"
   },
   {

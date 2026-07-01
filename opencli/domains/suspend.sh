@@ -5,7 +5,7 @@
 # Usage: opencli domains-suspend <DOMAIN-NAME>
 # Author: Stefan Pejcic
 # Created: 04.11.2024
-# Last Modified: 26.06.2026
+# Last Modified: 30.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

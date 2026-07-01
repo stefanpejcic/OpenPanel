@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 26.06.2026
+# Last Modified: 30.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -517,6 +517,48 @@ setup_docker_compose() {
     ln -sf "$system_file" "/home/${USERNAME}/.docker/cli-plugins/docker-compose"
 }
 
+readonly PASTA_SELINUX_MODULE="/etc/openpanel/docker/selinux/pasta_local.pp"
+
+# https://community.openpanel.org/d/302-user-add-pasta-failed-with-exit-code-1-netns-dir-open-permission-denied
+fix_pasta_selinux() {
+    command -v selinuxenabled >/dev/null 2>&1 || return 0
+    selinuxenabled 2>/dev/null || return 0        # SELinux not installed/enforcing
+    command -v pasta >/dev/null 2>&1 || return 0  # pasta not in use on this box
+    semodule -l 2>/dev/null | grep -qx 'pasta_local' && return 0  # already applied
+
+    log "Applying SELinux policy fix for rootless docker (pasta netns access)"
+    if [[ -f "$PASTA_SELINUX_MODULE" ]]; then
+        semodule -i "$PASTA_SELINUX_MODULE" 2>/dev/null || echo "[!] Warning: Failed to load pasta SELinux module."
+        return 0
+    fi
+
+    command -v checkmodule >/dev/null 2>&1 && command -v semodule_package >/dev/null 2>&1 || {
+        echo "[!] Warning: policycoreutils-devel/selinux-policy-devel missing; cannot build pasta SELinux module."
+        return 0
+    }
+
+    local tmpdir
+    tmpdir="$(mktemp -d)"
+    cat > "${tmpdir}/pasta_local.te" << 'EOF'
+module pasta_local 1.0;
+
+require {
+    type pasta_t;
+    type unconfined_t;
+    class dir open;
+}
+
+allow pasta_t unconfined_t:dir open;
+EOF
+
+    (
+        cd "$tmpdir" || exit 1
+        checkmodule -M -m -o pasta_local.mod pasta_local.te >/dev/null 2>&1 && semodule_package -o pasta_local.pp -m pasta_local.mod >/dev/null 2>&1 && mkdir -p "$(dirname "$PASTA_SELINUX_MODULE")" && cp pasta_local.pp "$PASTA_SELINUX_MODULE" && semodule -i pasta_local.pp >/dev/null 2>&1
+    ) || echo "[!] Warning: Failed to build/load pasta SELinux module."
+
+    rm -rf "$tmpdir"
+}
+
 setup_docker_rootless() {
     log "Configuring rootless Docker for '$USERNAME'"
 
@@ -588,6 +630,7 @@ REMOTE
         ' 2>/dev/null" || true
 
     else
+		fix_pasta_selinux
         _build_apparmor_profile > "$apparmor_file"
         systemctl restart apparmor.service >/dev/null 2>&1 || true
         loginctl enable-linger "$USERNAME" >/dev/null 2>&1
@@ -627,6 +670,7 @@ StartLimitInterval=60s
 WantedBy=default.target
 SVCEOF
             systemctl --user daemon-reload >/dev/null 2>&1
+			systemctl --user enable docker >/dev/null 2>&1
             systemctl --user restart docker >/dev/null 2>&1
         " 2>/dev/null || true
     fi

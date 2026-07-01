@@ -6,7 +6,7 @@
 #        opencli websites-secure --list-available-rules
 # Author: Stefan Pejcic
 # Created: 13.03.2026
-# Last Modified: 26.06.2026
+# Last Modified: 30.06.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 

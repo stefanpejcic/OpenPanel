@@ -159,7 +159,7 @@ test('switch back to Lets Encrypt', async ({ page }) => {
   await page.goto(`/domains/ssl?domain_name=${DOMAIN}`);
   await page.getByRole('button', { name: "Switch to Let's Encrypt and generate" }).click();
 
-  await expect(page.getByText(/to use AutoSSL/i).first()).toBeVisible();
+  await expect(page.getByText(/SSL certificate generated successfully/i).first()).toBeVisible();
 
   await page.waitForLoadState('networkidle');
   await expect(page.getByText(/US, Let's Encrypt/i).first()).toBeVisible();

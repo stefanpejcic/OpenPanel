@@ -5,7 +5,7 @@
 # Usage: opencli sentinel
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 26.06.2026
+# Last Modified: 30.06.2026
 # Company: openpanel.com
 # Copyright (c) Stefan Pejcic <stefan@pejcic.rs>
 # 
@@ -191,6 +191,22 @@ ip_in_cidr() {
   local netbin=$(( (n1<<24)|(n2<<16)|(n3<<8)|n4 ))
   local maskbin=$(( (0xFFFFFFFF << (32-mask)) & 0xFFFFFFFF ))
   (( (ipbin & maskbin) == (netbin & maskbin) ))
+}
+
+is_ip_whitelisted() {
+  local ip=$1
+  local wl_file="/etc/openpanel/openadmin/ssh_whitelist.conf"
+  [[ -f "$wl_file" ]] || return 1
+  local e
+  while IFS= read -r e; do
+    [[ -z "$e" ]] && continue
+    if [[ "$e" == */* ]]; then
+      ip_in_cidr "$ip" "$e" && return 0
+    else
+      [[ "$e" == "$ip" ]] && return 0
+    fi
+  done < "$wl_file"
+  return 1
 }
 
 perform_startup_actions() {
@@ -502,9 +518,13 @@ check_new_logins() {
     [[ "$ip_address" == "127.0.0.1" ]] && continue
 
     if ! grep -qF "$username $ip_address" <<< "$seen_pairs"; then
-      ((FAIL++)); STATUS=2; found_new=1
-      echo -e "\e[31m[✘]\e[0m $username logged in from new IP: $ip_address"
-      write_notification "Admin $username accessed from new IP" "Admin account $username was accessed from new IP: $ip_address"
+      if is_ip_whitelisted "$ip_address"; then
+        echo -e "\e[32m[✔]\e[0m $username from new but whitelisted IP: $ip_address"
+      else
+        ((FAIL++)); STATUS=2; found_new=1
+        echo -e "\e[31m[✘]\e[0m $username logged in from new IP: $ip_address"
+        write_notification "Admin $username accessed from new IP" "Admin account $username was accessed from new IP: $ip_address"
+      fi
     else
       echo -e "\e[32m[✔]\e[0m $username from known IP: $ip_address"
     fi
@@ -533,25 +553,11 @@ check_ssh_logins() {
     return
   fi
 
-  local wl_file="/etc/openpanel/openadmin/ssh_whitelist.conf"
-  local -a wl_ips wl_cidrs
-  if [[ -f "$wl_file" ]]; then
-    while IFS= read -r e; do
-      [[ -z "$e" ]] && continue
-      [[ "$e" == */* ]] && wl_cidrs+=("$e") || wl_ips+=("$e")
-    done < "$wl_file"
-  fi
-
   local -a suspicious safe
-  local ip ok cidr
+  local ip
   for ip in $ssh_ips; do
     [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || continue
-    ok=0
-    [[ " ${wl_ips[*]} " == *" $ip "* ]] && ok=1
-    if (( !ok )); then
-      for cidr in "${wl_cidrs[@]}"; do ip_in_cidr "$ip" "$cidr" && { ok=1; break; }; done
-    fi
-    if (( !ok )) && ! grep -qF "$ip" <<< "$login_ips"; then
+    if ! is_ip_whitelisted "$ip" && ! grep -qF "$ip" <<< "$login_ips"; then
       suspicious+=("$ip")
     else
       safe+=("$ip")
