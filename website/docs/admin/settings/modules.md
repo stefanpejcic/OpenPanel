@@ -1094,7 +1094,8 @@ Customize options:
 The **`api`** module allows users to access the OpenPanel API using JWT tokens.
 
 When enabled:
-* Users can use the [OpenPanel API](/docs/articles/dev-experience/openpanel-api/).
+* Users can access the [*Account > API Reference* page](/docs/panel/account/api/).
+* Users can use the [OpenPanel API](/docs/panel/api/).
 
 When disabled:
 * Users can not use the OpenPanel API.
