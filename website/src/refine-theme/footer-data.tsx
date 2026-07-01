@@ -11,11 +11,11 @@ export const menuItems = [
         label: "Resources",
         items: [
             {
-                label: "End-user Docs",
+                label: "OpenPanel Docs",
                 href: "/docs/panel/intro/",
             },
             {
-                label: "Admin Docs",
+                label: "OpenAdmin Docs",
                 href: "/docs/admin/intro/",
             },
             {
@@ -23,11 +23,15 @@ export const menuItems = [
                 href: "/docs/articles/intro/",
             },
             {
-                label: "OpenCLI",
+                label: "Terminal commands",
                 href: "/docs/articles/opencli/",
-            },            
+            },    
             {
-                label: "API Docs",
+                label: "OpenPanel API",
+                href: "/docs/panel/api/",
+            },
+            {
+                label: "OpenAdmin API",
                 href: "/docs/articles/dev-experience/openadmin-api",
             },
             {
