@@ -580,7 +580,7 @@
     "title": "API",
     "description": "If enabled, users can use JWT tokens to perform panel actions.",
     "link": "/api/login",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#api"
   }
 ]

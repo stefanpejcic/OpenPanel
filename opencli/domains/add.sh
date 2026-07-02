@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 30.06.2026
+# Last Modified: 01.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -65,6 +65,7 @@ SKIP_VHOST_CREATE=false
 SKIP_CADDY_CREATE=false
 SKIP_DNS_ZONE=false
 SKIP_STARTING_CONTAINERS=false
+SKIP_NOTIFY=false
 
 # ======================================================================
 # Logging / error helpers
@@ -89,6 +90,7 @@ parse_args() {
             --skip_caddy)          SKIP_CADDY_CREATE=true; shift ;;
             --skip_vhost)          SKIP_VHOST_CREATE=true; shift ;;
             --skip_dns)            SKIP_DNS_ZONE=true; shift ;;
+            --skip-sentinel)         SKIP_NOTIFY=true; shift ;;
             --skip_containers)     SKIP_STARTING_CONTAINERS=true; shift ;;
             --docroot)
                 [[ -z "${2:-}" ]] && die "Missing value for --docroot"
@@ -896,8 +898,10 @@ run_parallel_async() {
 }
 
 notify_sentinel() {
-    nohup opencli sentinel --action=domains_create --title="Domain added" --message="Domain name: '$domain_name' has been added to OpenPanel user: '$user'." >/dev/null 2>&1 &
-    disown
+	if ! $SKIP_NOTIFY; then
+	    nohup opencli sentinel --action=domains_create --title="Domain added" --message="Domain name: '$domain_name' has been added to OpenPanel user: '$user'." >/dev/null 2>&1 &
+	    disown
+	fi
 }
 
 # Main

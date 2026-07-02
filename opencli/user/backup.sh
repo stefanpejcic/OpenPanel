@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 30.06.2026
+# Last Modified: 01.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -33,7 +33,7 @@ set -o pipefail
 
 pid=$$
 start_time=$(date +%s)
-BACKUP_FORMAT_VERSION="1"
+BACKUP_FORMAT_VERSION="2"
 
 USERNAME=""
 CUSTOM_OUTPUT=""
@@ -253,14 +253,17 @@ rm -f "$STAGE/db/user.tsv"
 
 if [[ -n "$DOMAIN_IDS" ]]; then
     DOMAIN_ID_LIST=$(echo "$DOMAIN_IDS" | paste -sd "," -)
+    # domain_url is included so restore can re-resolve the site's domain_id by name —
+    # domains-add assigns a fresh auto-increment ID on restore, which rarely matches this server's.
     mysql_q "
-      SELECT site_name, domain_id, admin_email, version, created_date, type, ports, path
-      FROM sites WHERE domain_id IN ($DOMAIN_ID_LIST);" > "$STAGE/db/sites.tsv"
+      SELECT s.site_name, s.domain_id, s.admin_email, s.version, s.created_date, s.type, s.ports, s.path, d.domain_url
+      FROM sites s JOIN domains d ON s.domain_id = d.domain_id
+      WHERE s.domain_id IN ($DOMAIN_ID_LIST);" > "$STAGE/db/sites.tsv"
     if [[ -s "$STAGE/db/sites.tsv" ]]; then
         awk 'BEGIN{FS="\t";
-          print "INSERT INTO sites (site_name, domain_id, admin_email, version, created_date, type, ports, path) VALUES"}
-          {printf "('\''%s'\'', %s, '\''%s'\'', '\''%s'\'', '\''%s'\'', '\''%s'\'', %s, '\''%s'\''),\n",
-            $1,$2,$3,$4,$5,$6,$7,$8}
+          print "-- sites export (site_name, domain_id, admin_email, version, created_date, type, ports, path, domain_url)"}
+          {printf "('\''%s'\'', %s, '\''%s'\'', '\''%s'\'', '\''%s'\'', '\''%s'\'', %s, '\''%s'\'', '\''%s'\''),\n",
+            $1,$2,$3,$4,$5,$6,$7,$8,$9}
           END{print ";"}' "$STAGE/db/sites.tsv" > "$STAGE/db/sites.sql"
     fi
     rm -f "$STAGE/db/sites.tsv"
@@ -426,6 +429,8 @@ if command -v pigz &>/dev/null; then
         -cf -
         --numeric-owner --acls --xattrs
         "--exclude=${CONTEXT}/docker-data/volumes/${CONTEXT}_html_data/_data/_backups"
+        "--exclude=${CONTEXT}/sockets/*/*/*.sock"
+        "--exclude=${CONTEXT}/docker-data/volumes/${CONTEXT}_mysql_data/_data/tc.log"
         "--transform=s|^${ESCAPED_CTX}/|homedir/|;s|^${ESCAPED_CTX}$|homedir|"
     )
 
@@ -445,6 +450,8 @@ else
         -czf "$ARCHIVE"
         --numeric-owner --acls --xattrs
         "--exclude=${CONTEXT}/docker-data/volumes/${CONTEXT}_html_data/_data/_backups"
+        "--exclude=${CONTEXT}/sockets/*/*/*.sock"
+        "--exclude=${CONTEXT}/docker-data/volumes/${CONTEXT}_mysql_data/_data/tc.log"
         "--transform=s|^${ESCAPED_CTX}/|homedir/|;s|^${ESCAPED_CTX}$|homedir|"
     )
 

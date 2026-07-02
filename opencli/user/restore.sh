@@ -2,11 +2,11 @@
 ################################################################################
 # Script Name: user/restore.sh
 # Description: Restores a single OpenPanel user account from a full account .tar.gz backup.
-# Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet]
+# Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet] [--temp-dir=<PATH> ]
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 30.06.2026
+# Last Modified: 01.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -53,18 +53,19 @@ while [[ $# -gt 0 ]]; do
         --file)             ARCHIVE="$2"; shift 2 ;;
         --force)            FORCE=1; shift ;;
         --quiet)            QUIET=1; shift ;;
+        --temp-dir=*)       WORK="${1#*=}"; shift ;;
         --new-username=*)   NEW_USERNAME="${1#*=}"; shift ;;
         --new-username)     NEW_USERNAME="$2"; shift 2 ;;
         *) echo "[ERROR] Unknown option: $1"; exit 1 ;;
     esac
 done
 
-[[ -z "$ARCHIVE" ]] && {
-    echo "Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--quiet]"
-    exit 1
-}
+[[ -n "$(ls -A "$WORK" 2>/dev/null)" ]] && { echo "[ERROR] WORK dir not empty: $WORK - remove the --temp-dir= flag to use /tmp/ instead OR create a new subdirectory (e.g. --temp-dir=/home/restore_process)"; exit 1; }
+
+[[ -z "$ARCHIVE" ]] && { echo "Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--temp-dir=/home/] [--quiet]"; exit 1; }
 [[ -f "$ARCHIVE" ]] || { echo "[ERROR] Archive not found: $ARCHIVE"; exit 1; }
 ARCHIVE=$(realpath "$ARCHIVE")
+mkdir -p "$WORK"
 
 # DB
 DB_CONFIG_FILE="/usr/local/opencli/db.sh"
@@ -83,7 +84,6 @@ get_server_ip() {
     echo "$ip"
 }
 
-WORK=$(mktemp -d /tmp/oprestore.XXXXXX)
 trap 'rm -rf "$WORK"' EXIT
 
 # ── REAL RESTORE ─────────────────────────────────────────────────────────────
@@ -104,6 +104,40 @@ slog() { echo "$1" | tee -a "$log_file"; }
 
 log "Restore started  log: $log_file  (PID: $pid)"
 log "Archive: $ARCHIVE"
+
+# Disk space check — extraction target must fit the fully uncompressed archive
+check_disk_space_extract() {
+    log "Checking disk space for extraction ..."
+
+    local compressed_kb
+    compressed_kb=$(( $(stat -c%s "$ARCHIVE" 2>/dev/null || echo 0) / 1024 ))
+
+    local estimated_kb gzip_size
+    gzip_size=$(gzip -l "$ARCHIVE" 2>/dev/null | awk 'NR==2{print $2}')
+    if [[ "$gzip_size" =~ ^[0-9]+$ && "$gzip_size" -gt 0 ]]; then
+        estimated_kb=$(( gzip_size / 1024 ))
+        # gzip stores the uncompressed size mod 2^32 — if it looks smaller than
+        # the compressed archive itself, the field wrapped and can't be trusted.
+        [[ "$estimated_kb" -lt "$compressed_kb" ]] && estimated_kb=$(( compressed_kb * 3 ))
+    else
+        estimated_kb=$(( compressed_kb * 3 ))
+    fi
+
+    local free_kb
+    free_kb=$(df -k "$WORK" 2>/dev/null | awk 'NR==2 {print $4}')
+    if [[ ! "$free_kb" =~ ^[0-9]+$ ]]; then
+        warn "Cannot read free space at $WORK — disk space check skipped."
+        return
+    fi
+
+    log "  Estimated extracted size (~$(( estimated_kb / 1024 )) MB)"
+    log "  Free at $WORK  (~$(( free_kb / 1024 )) MB)"
+
+    if [[ "$free_kb" -lt "$estimated_kb" ]]; then
+        die "Not enough disk space to extract archive. Estimated ~$(( estimated_kb / 1024 )) MB needed, ~$(( free_kb / 1024 )) MB free at $WORK. Aborting."
+    fi
+}
+check_disk_space_extract
 
 # Extract
 log "Extracting archive ..."
@@ -142,7 +176,20 @@ restore_system_user() {
     local PW="$WORK/system/passwd.user"
     local GR="$WORK/system/group.user"
     local SH="$WORK/system/shadow.user"
-    [[ -f "$PW" ]] || { warn "system/passwd.user missing — skipping system user."; return; }
+    if [[ ! -s "$PW" ]]; then
+        warn "No system user data in backup — creating '$CONTEXT' fresh (no password hash available, account will be locked)."
+        if id "$CONTEXT" &>/dev/null; then
+            REMAPPED_UID=$(id -u "$CONTEXT")
+            SYSTEM_USER_STATUS="already existed"
+        else
+            useradd -m -d "/home/$CONTEXT" -s /bin/bash "$CONTEXT"
+            usermod -L "$CONTEXT"
+            REMAPPED_UID=$(id -u "$CONTEXT")
+            SYSTEM_USER_STATUS="created fresh (UID $REMAPPED_UID, locked — no password restored)"
+        fi
+        return
+    fi
+
     log "Restoring system user ($CONTEXT) ..."
 
     [[ -f "$GR" ]] && while IFS=: read -r group _ gid _; do
@@ -183,15 +230,46 @@ restore_system_user
 # ── 2) Home directory ────────────────────────────────────────────────────────
 restore_home() {
     [[ -d "$WORK/homedir" ]] || { warn "No homedir/ in archive — skipping file restore."; return; }
-    log "Restoring /home/$CONTEXT ..."
+
+    log "Checking disk space for home directory restore ..."
+    local home_used_kb
+    home_used_kb=$(du -sk "$WORK/homedir" 2>/dev/null | cut -f1)
     mkdir -p /home
+    if [[ "$home_used_kb" =~ ^[0-9]+$ && "$home_used_kb" -gt 0 ]]; then
+        local home_free_kb
+        home_free_kb=$(df -k /home 2>/dev/null | awk 'NR==2 {print $4}')
+        if [[ "$home_free_kb" =~ ^[0-9]+$ ]]; then
+            log "  Home directory size (~$(( home_used_kb / 1024 )) MB)"
+            log "  Free at /home  (~$(( home_free_kb / 1024 )) MB)"
+            if [[ "$home_free_kb" -lt "$home_used_kb" ]]; then
+                die "Not enough disk space at /home. Needed ~$(( home_used_kb / 1024 )) MB, free ~$(( home_free_kb / 1024 )) MB. Aborting to avoid a partial restore."
+            fi
+        else
+            warn "Cannot read free space at /home — disk space check skipped."
+        fi
+    else
+        warn "Cannot determine home directory size — disk space check skipped."
+    fi
+
+    log "Restoring /home/$CONTEXT ..."
     # Pipe through rename transform: homedir → CONTEXT
     tar -C "$WORK" --numeric-owner --acls --xattrs --transform "s,^homedir,${CONTEXT}," -cf - homedir | tar -C /home --numeric-owner --acls --xattrs -xf - 2>>"$log_file" || die "Failed to restore home directory."
 
+    # so containers can later start without permission issues
+    rm -f /home/"$CONTEXT"/sockets/*/*.sock
+    
+    # MARIADB ERROR: Bad magic header in tc log
+    rm -f /home/"$CONTEXT"/volumes/"${CONTEXT}_mysql_data"/_data/tc.log
+
+
+    local gid; gid=$(id -g "$CONTEXT" 2>/dev/null)
     if [[ -n "$REMAPPED_UID" && -n "$SOURCE_UID" && "$REMAPPED_UID" != "$SOURCE_UID" ]]; then
-        local gid; gid=$(id -g "$CONTEXT" 2>/dev/null)
         log "UID changed ($SOURCE_UID → $REMAPPED_UID); chowning /home/$CONTEXT ..."
         chown -R "${REMAPPED_UID}:${gid:-$REMAPPED_UID}" "/home/$CONTEXT"
+    else
+        log "UID not changed ($gid); chowning /home/$CONTEXT/docker-data/volumes/ ..."
+        chown -R "${gid}:${gid}" "/home/$CONTEXT/docker-data/volumes/" &
+        chown -R "${gid}:${gid}" "/home/$CONTEXT/sockets" &
     fi
 
     if [[ -f "$WORK/mail_external/path.txt" && -f "$WORK/mail_external/mail.tar" ]]; then
@@ -293,7 +371,7 @@ restore_domains() {
             continue
         fi
 
-        if ! opencli domains-add "$domain" "$USERNAME" --docroot "$docroot" --php_version "$php_version" --skip_caddy --skip_vhost --skip_containers --skip_dns >>"$log_file" 2>&1; then
+        if ! opencli domains-add "$domain" "$USERNAME" --docroot "$docroot" --php_version "$php_version" --skip_caddy --skip_vhost --skip_containers --skip_dns --skip-sentinel >>"$log_file" 2>&1; then
             warn "opencli domains-add failed for '$domain' — skipping assets."
             DOMAINS_SKIPPED=$((DOMAINS_SKIPPED+1))
             continue
@@ -322,16 +400,23 @@ restore_domains() {
     if [[ -f "$WORK/db/sites.sql" ]]; then
         tail -n +2 "$WORK/db/sites.sql" | sed 's/),/)\n/g' | while read -r line; do
             local clean; clean=$(echo "$line" | sed "s/[()']//g" | sed 's/,$//')
-            [[ -z "$clean" ]] && continue
+            [[ -z "$clean" || "$clean" == ";" ]] && continue
             local sname; sname=$(echo "$clean" | cut -d',' -f1)
-            local did;   did=$(echo "$clean"   | cut -d',' -f2 | xargs)
             local email; email=$(echo "$clean" | cut -d',' -f3)
             local ver;   ver=$(echo "$clean"   | cut -d',' -f4)
             local typ;   typ=$(echo "$clean"   | cut -d',' -f6)
             local ports; ports=$(echo "$clean" | cut -d',' -f7)
             local path;  path=$(echo "$clean"  | cut -d',' -f8)
-            local valid; valid=$(mysql_q "SELECT COUNT(*) FROM domains WHERE domain_id=$did AND user_id=$USER_ID;" 2>/dev/null)
-            [[ "${valid:-0}" -ge 1 ]] && mysql_q "INSERT INTO sites (site_name,domain_id,admin_email,version,type,ports,path) VALUES ('$sname',$did,'$email','$ver','$typ',$ports,'$path');" || true
+            local domain_url; domain_url=$(echo "$clean" | cut -d',' -f9 | xargs)
+
+            # domains-add assigns a fresh domain_id on restore, so resolve the current
+            # one by name rather than trusting the source server's ID.
+            local did; did=$(mysql_q "SELECT domain_id FROM domains WHERE domain_url='$domain_url' AND user_id=$USER_ID;" 2>/dev/null)
+            if [[ -z "$did" ]]; then
+                warn "Site '$sname' — could not resolve destination domain_id, skipped."
+                continue
+            fi
+            mysql_q "INSERT INTO sites (site_name,domain_id,admin_email,version,type,ports,path) VALUES ('$sname',$did,'$email','$ver','$typ',$ports,'$path');" || true
         done
     fi
 }
@@ -353,6 +438,7 @@ restore_ftp() {
     [[ "$GID" =~ ^[0-9]+$ ]] || { warn "Cannot get GID for $CONTEXT — FTP container step skipped."; return; }
     docker exec openadmin_ftp sh -c "getent group '$GID' >/dev/null 2>&1" || docker exec openadmin_ftp addgroup -g "$GID" "$CONTEXT" 2>/dev/null || true
 
+    # TODO: check if UID already taken and not our username, in which case assign new UID and update in $LDIR/users.list 
     while IFS='|' read -r fu hp dir uid gid; do
         [[ -z "$fu" ]] && continue
         if docker exec openadmin_ftp id "$fu" >/dev/null 2>&1; then

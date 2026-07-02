@@ -5,7 +5,7 @@
 # Usage: opencli docker-images [--all|<USERNAME>] [--dry-run] [--force-update]
 # Author: Stefan Pejcic
 # Created: 05.05.2025
-# Last Modified: 30.06.2026
+# Last Modified: 01.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 #

@@ -5,7 +5,7 @@
 # Usage: opencli update [--check | --force | --admin | --panel | --cli]
 # Author: Stefan Pejcic
 # Created: 10.10.2023
-# Last Modified: 30.06.2026
+# Last Modified: 01.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -845,6 +845,7 @@ check_update() {
     
     local local_version remote_version
     local_version=$(get_local_version)
+    local_version="${local_version%-beta}" # strip '-beta'
     remote_version=$(opencli update --check 2>/dev/null | jq -r '.latest_version' 2>/dev/null)
     
     if [[ -z "$remote_version" || "$remote_version" == "null" ]]; then
