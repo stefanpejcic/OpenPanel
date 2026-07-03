@@ -21,7 +21,7 @@ Other services are installed and started only when required.
 | Sentinel Firewall   | ✔       | On installation            |
 | OpenPanel              | ✘        | After adding first user account |
 | BIND9                  | ✘        | After adding first domain name  |
-| Certbot                  | ✘        | After adding first domain name  |
+| Caddy                  | ✘        | After adding first domain name  |
 | ClamAV       | ✘        | When enabled by Administrator  |
 | Dovecot & Postfix       | ✘        | When enabled by Administrator  |
 | FTP                    | ✘        | When enabled by Administrator, after first FTP account is created |
