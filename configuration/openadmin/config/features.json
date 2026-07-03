@@ -582,5 +582,13 @@
     "link": "/api/login",
     "type": "enterprise",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#api"
+  },
+  {
+    "name": "mcp",
+    "title": "MCP",
+    "description": "If enabled, users can use the MCP to perform panel actions.",
+    "link": "/account/mcp",
+    "type": "beta",
+    "help_link": ""
   }
 ]

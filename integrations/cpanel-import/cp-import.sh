@@ -177,6 +177,65 @@ check_if_valid_cp_backup() {
 }
 
 # ======================================================================
+# DECOMPRESS GZIPPED ARCHIVES ONCE, REUSED FOR BOTH VALIDATION AND EXTRACTION
+# (avoids paying the gzip decompression cost twice on large backups)
+prepare_extraction_source() {
+    local backup_location="$1"
+
+    if [ "$extraction_command" = "tar -xzf" ]; then
+        raw_tar_file="${backup_dir}/.raw_extract.tar"
+        log "Decompressing archive once to reuse for validation and extraction"
+        if ! pigz -dc -- "$backup_location" > "$raw_tar_file" 2>>"$LOG_FILE"; then
+            log "FATAL ERROR: Failed to decompress backup archive."
+            cleanup
+            exit 1
+        fi
+        extraction_source="$raw_tar_file"
+    else
+        raw_tar_file=""
+        extraction_source="$backup_location"
+    fi
+}
+
+# ======================================================================
+# VALIDATE ARCHIVE ENTRIES DO NOT ESCAPE THE EXTRACTION DIRECTORY (ZIP SLIP)
+validate_archive_paths() {
+    local entries
+    local entry
+
+    if [ "$extraction_command" = "unzip" ]; then
+        entries=$(unzip -Z1 -- "$extraction_source" 2>>"$LOG_FILE")
+    else
+        entries=$(tar -tf -- "$extraction_source" 2>>"$LOG_FILE")
+    fi
+
+    if [ -z "$entries" ]; then
+        log "FATAL ERROR: Unable to list archive contents for validation."
+        cleanup
+        exit 1
+    fi
+
+    while IFS= read -r entry; do
+        [ -z "$entry" ] && continue
+        if [[ "$entry" == /* ]]; then
+            log "FATAL ERROR: Unsafe absolute path in archive entry: $entry"
+            log "Aborting import - this backup may be malicious (Zip Slip)."
+            cleanup
+            exit 1
+        fi
+        IFS='/' read -ra path_parts <<< "$entry"
+        for part in "${path_parts[@]}"; do
+            if [ "$part" = ".." ]; then
+                log "FATAL ERROR: Unsafe path traversal detected in archive entry: $entry"
+                log "Aborting import - this backup may be malicious (Zip Slip)."
+                cleanup
+                exit 1
+            fi
+        done
+    done <<< "$entries"
+}
+
+# ======================================================================
 # CHECK AVAILABLE DISK SPACE ON THE OPENPANEL SERVER
 check_if_disk_available(){
     TMP_DIR="/tmp"
@@ -210,19 +269,18 @@ extract_cpanel_backup() {
     mkdir -p "$backup_dir"
 
     if [ "$extraction_command" = "unzip" ]; then
-        $extraction_command "$backup_location" -d "$backup_dir"
-    elif [ "$extraction_command" = "tar -xzf" ]; then
-        backup_size=$(stat -c %s "${backup_location}")
+        unzip "$extraction_source" -d "$backup_dir"
+    else
+        backup_size=$(stat -c %s "${extraction_source}")
 		zero_one_percent=$((backup_size / 1000000))
 		[ "$zero_one_percent" -le 0 ] && zero_one_percent=1
-		tar --use-compress-program=pigz --checkpoint="$zero_one_percent" --checkpoint-action=dot -xf "$backup_location" -C "$backup_dir" 2>>"$LOG_FILE"
-    else
-        $extraction_command "$backup_location" -C "$backup_dir"
+		tar --no-absolute-names --checkpoint="$zero_one_percent" --checkpoint-action=dot -xf "$extraction_source" -C "$backup_dir" 2>>"$LOG_FILE"
     fi
-    
+
     if [ $? -eq 0 ]; then
         log "Backup extracted successfully."
         log "Extracted backup folder: $real_backup_files_path"
+        [ -n "$raw_tar_file" ] && rm -f "$raw_tar_file"
     else
         log "FATAL ERROR: Backup extraction failed."
         cleanup
@@ -1334,9 +1392,11 @@ main() {
     validate_plan_exists                                                       # check if provided plan exists
     install_dependencies                                                       # install commands we will use for this script
     get_server_ipv4                                                            # used in mysql grants
-    
+
     # STEP 2. EXTRACT
     create_tmp_dir_and_path                                                    # create /tmp/.. dir and set the path
+    prepare_extraction_source "$backup_location"                               # decompress gzipped archives once, reused below
+    validate_archive_paths                                                     # reject archives with path traversal entries (Zip Slip)
     extract_cpanel_backup "$backup_location" "${backup_dir}"                   # extract the archive
 
     # STEP 3. IMPORT
