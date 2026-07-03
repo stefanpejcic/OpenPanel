@@ -22,7 +22,7 @@ Other services are installed and started only when required.
 | OpenPanel              | ✘        | After adding first user account |
 | BIND9                  | ✘        | After adding first domain name  |
 | Caddy                  | ✘        | After adding first domain name  |
-| ClamAV       | ✘        | When enabled by Administrator  |
+| ImunifyAV       | ✘        | When enabled by Administrator  |
 | Dovecot & Postfix       | ✘        | When enabled by Administrator  |
 | FTP                    | ✘        | When enabled by Administrator, after first FTP account is created |
 | phpMyAdmin                    | ✘        | When enabled by Administrator, after first MySQL database is created by a user |
