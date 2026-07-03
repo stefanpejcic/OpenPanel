@@ -25,6 +25,7 @@ Other services are installed and started only when required.
 | ClamAV       | ✘        | When enabled by Administrator  |
 | Dovecot & Postfix       | ✘        | When enabled by Administrator  |
 | FTP                    | ✘        | When enabled by Administrator, after first FTP account is created |
+| phpMyAdmin                    | ✘        | When enabled by Administrator, after first MySQL database is created by a user |
 
 ## Auto-start Services in OpenPanel
 
