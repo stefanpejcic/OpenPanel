@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -60,12 +60,16 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-[[ -n "$(ls -A "$WORK" 2>/dev/null)" ]] && { echo "[ERROR] WORK dir not empty: $WORK - remove the --temp-dir= flag to use /tmp/ instead OR create a new subdirectory (e.g. --temp-dir=/home/restore_process)"; exit 1; }
-
 [[ -z "$ARCHIVE" ]] && { echo "Usage: opencli user-restore --file <ARCHIVE> [--force] [--new-username=NAME] [--temp-dir=/home/] [--quiet]"; exit 1; }
 [[ -f "$ARCHIVE" ]] || { echo "[ERROR] Archive not found: $ARCHIVE"; exit 1; }
 ARCHIVE=$(realpath "$ARCHIVE")
-mkdir -p "$WORK"
+
+if [[ -z "$WORK" ]]; then
+    WORK=$(mktemp -d /tmp/oprestore.XXXXXX) || { echo "[ERROR] Failed to create temporary directory"; exit 1; }
+else
+    mkdir -p "$WORK" || { echo "[ERROR] Cannot create WORK dir: $WORK"; exit 1; }
+    [[ -n "$(ls -A "$WORK" 2>/dev/null)" ]] && { echo "[ERROR] WORK dir not empty: $WORK - remove the --temp-dir= flag to use /tmp/ instead OR create a new subdirectory (e.g. --temp-dir=/home/restore_process)"; exit 1; }
+fi
 
 # DB
 DB_CONFIG_FILE="/usr/local/opencli/db.sh"
@@ -256,7 +260,7 @@ restore_home() {
     tar -C "$WORK" --numeric-owner --acls --xattrs --transform "s,^homedir,${CONTEXT}," -cf - homedir | tar -C /home --numeric-owner --acls --xattrs -xf - 2>>"$log_file" || die "Failed to restore home directory."
 
     # so containers can later start without permission issues
-    rm -f /home/"$CONTEXT"/sockets/*/*.sock
+    rm -f /home/"$CONTEXT"/sockets/*/*.sock /home/"$CONTEXT"/sockets/*/*.pid
     
     # MARIADB ERROR: Bad magic header in tc log
     rm -f /home/"$CONTEXT"/volumes/"${CONTEXT}_mysql_data"/_data/tc.log

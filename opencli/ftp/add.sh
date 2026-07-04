@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -39,6 +39,8 @@ password="$2"
 directory="$3"
 openpanel_username="$4"
 DEBUG=false  # Default value for DEBUG
+
+source /usr/local/opencli/lib/password_strength.sh
 
 
 # Parse optional flags to enable debug mode when needed!
@@ -227,6 +229,9 @@ validate_data() {
 	    echo "       docs: https://openpanel.com/docs/articles/accounts/forbidden-usernames/#ftp"
 	    exit 1
 	fi
+
+	# Check against the admin-configured strength threshold
+	require_password_strength "$password"
 }
 
 # check if ftp user exists

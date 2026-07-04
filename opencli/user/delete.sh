@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -65,12 +65,14 @@ source /usr/local/opencli/db.sh
 
 get_user_info() {
 	# 1. get context and ID
+    local escaped_username
+    escaped_username=$(mysql_escape "$USERNAME")
     read -r user_id context <<< $(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "
-        SELECT id, server FROM users 
-        WHERE username='$USERNAME'
+        SELECT id, server FROM users
+        WHERE username='$escaped_username'
         UNION ALL
-        SELECT id, server FROM users 
-        WHERE username LIKE 'SUSPENDED_%_$USERNAME'
+        SELECT id, server FROM users
+        WHERE username LIKE 'SUSPENDED_%_$escaped_username'
         LIMIT 1;
     ")
 
@@ -89,7 +91,9 @@ get_user_info() {
 
 delete_user_from_database() {
     openpanel_username="$1"
-	
+    local escaped_openpanel_username
+    escaped_openpanel_username=$(mysql_escape "$openpanel_username")
+
     # 1. Get all domain IDs and URLs
 	read -r domain_ids domain_urls < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "
 	SELECT 
@@ -104,7 +108,7 @@ delete_user_from_database() {
 	[ -n "$domain_ids" ] && sql+="DELETE FROM sites WHERE domain_id IN ($domain_ids); "
 	# legacy, handle: active_sessions
     sql+="DELETE FROM domains WHERE user_id='$user_id'; "
-	sql+="DELETE FROM users WHERE username='$openpanel_username' OR username LIKE 'SUSPENDED_%_$openpanel_username';"
+	sql+="DELETE FROM users WHERE username='$escaped_openpanel_username' OR username LIKE 'SUSPENDED_%_$escaped_openpanel_username';"
 	[ -n "$sql" ] && mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$sql"
 
 	# 3. terminate redis sessions
@@ -285,7 +289,7 @@ refresh_resellers_data() {
 		for json_file in "$reseller_files"/*.json; do
 			if [ -f "$json_file" ]; then
 				reseller=$(basename "$json_file" .json)
-				query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$reseller';"
+				query_for_owner="SELECT COUNT(*) FROM users WHERE owner='$(mysql_escape "$reseller")';"
 				current_accounts=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "$query_for_owner")
 				mysql_exit=$?
 				if [ $mysql_exit -eq 0 ]; then				

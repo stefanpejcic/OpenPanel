@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Radovan Jecmenica
 # Created: 01.12.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -70,13 +70,15 @@ done
 # Source database configuration
 source /usr/local/opencli/db.sh
 
+escaped_plan_name=$(mysql_escape "$plan_name")
+
 # Check if there are users on the plan
-users_count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "SELECT COUNT(*) FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$plan_name';" | tail -n +2)
+users_count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "SELECT COUNT(*) FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$escaped_plan_name';" | tail -n +2)
 
 if [ "$users_count" -gt 0 ]; then
     if [ "$output_json" -eq 1 ]; then
         # JSON output
-        users_data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "SELECT SUBSTRING_INDEX(username, '_', -1) as username FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$plan_name' AND username NOT LIKE 'SUSPENDED\_%';" -B -s)
+        users_data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "SELECT SUBSTRING_INDEX(username, '_', -1) as username FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$escaped_plan_name' AND username NOT LIKE 'SUSPENDED\_%';" -B -s)
         if [ -n "$users_data" ]; then
             echo "{\"error\": \"Cannot delete plan '$plan_name' as there are users assigned to it.\", \"users\": [$users_data]}"
         else
@@ -85,7 +87,7 @@ if [ "$users_count" -gt 0 ]; then
     else
         # Regular output
         echo "Cannot delete plan '$plan_name' as there are users assigned to it. List of users:"
-        users_data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" --table -e "SELECT SUBSTRING_INDEX(username, '_', -1) as username FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$plan_name' AND username NOT LIKE 'SUSPENDED\_%';")
+        users_data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" --table -e "SELECT SUBSTRING_INDEX(username, '_', -1) as username FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$escaped_plan_name' AND username NOT LIKE 'SUSPENDED\_%';")
         if [ -n "$users_data" ]; then
             echo "$users_data"
         else
@@ -97,13 +99,13 @@ if [ "$users_count" -gt 0 ]; then
 else
     if [ "$output_json" -eq 1 ]; then
         # Delete the plan data
-        mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "DELETE FROM plans WHERE name = '$plan_name';"
+        mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "DELETE FROM plans WHERE name = '$escaped_plan_name';"
         # Delete the Docker network
         docker network rm "$plan_name" > /dev/null 2>&1
         echo "{\"message\": \"Plan '$plan_name' and Docker network '$plan_name' deleted successfully.\"}"
     else
         # Delete the plan data
-        mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "DELETE FROM plans WHERE name = '$plan_name';"
+        mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "DELETE FROM plans WHERE name = '$escaped_plan_name';"
         # Delete the Docker network
         docker network rm "$plan_name" > /dev/null 2>&1
         echo "Docker network '$plan_name' deleted successfully."

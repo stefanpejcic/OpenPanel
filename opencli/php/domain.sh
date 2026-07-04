@@ -6,7 +6,7 @@
 #        opencli php-domain <domain_name> --update <new_php_version>
 # Author: Stefan Pejcic
 # Created: 07.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -63,7 +63,7 @@ fi
 get_context_for_user() {
 	# shellcheck source=/usr/local/opencli/db.sh
     source /usr/local/opencli/db.sh
-	username_query="SELECT server FROM users WHERE username = '$owner'"
+	username_query="SELECT server FROM users WHERE username = '$(mysql_escape "$owner")'"
 	context=$(mysql -D "$mysql_database" -e "$username_query" -sN)
 	if [ -z "$context" ]; then
 		context=$owner
@@ -103,6 +103,7 @@ fi
 # SHOW
 if [ "$update_flag" == false ]; then
 	echo "Domain '$domain' (owned by user: $owner) uses PHP version: $php_version"
+	exit 0
 fi
 
 # UPDATE
@@ -116,7 +117,7 @@ nohup sh -c "cd /home/$owner && docker --context=$owner compose up -d php-fpm-${
 nohup sh -c "docker --context $context restart $WEB_SERVER" </dev/null >nohup.out 2>nohup.err &
 
 # 4. save in database
-update_query="UPDATE domains SET php_version='$new_php_version' WHERE domain_url='$domain';"
+update_query="UPDATE domains SET php_version='$(mysql_escape "$new_php_version")' WHERE domain_url='$(mysql_escape "$domain")';"
 mysql -e "$update_query"
 
 # 5. notify

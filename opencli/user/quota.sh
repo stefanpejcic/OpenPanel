@@ -5,7 +5,7 @@
 # Usage: opencli user-quota <username|--all>
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -87,10 +87,10 @@ get_plan_limits() {
     fi
     
     # 2. fetch plan limits
-    query="SELECT p.inodes_limit, p.disk_limit 
+    query="SELECT p.inodes_limit, p.disk_limit
            FROM users u
            JOIN plans p ON u.plan_id = p.id
-           WHERE u.username = '$username'"
+           WHERE u.username = '$(mysql_escape "$username")'"
     
     local result
     result=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "$query" 2>/dev/null)

@@ -5,7 +5,7 @@
 # Usage: opencli user-unsuspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -60,10 +60,12 @@ source "/usr/local/opencli/db.sh"
 # ======================================================================
 # Functions
 get_docker_context() {
-    local query="SELECT server FROM users WHERE username LIKE 'SUSPENDED\_%${USERNAME}';"
+    local query="SELECT server FROM users WHERE username LIKE 'SUSPENDED\_%$(mysql_escape "$USERNAME")';"
     local server_name
     server_name=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query" -N)
     CONTEXT_FLAG="--context $server_name"
+
+    [[ -z "$server_name" ]] && { echo "Error: No username '$USERNAME'" >&2; exit 1; }
 }
 
 unsuspend_user_domains() {
@@ -121,7 +123,9 @@ start_user_containers() {
 
 
 rename_user_in_db() {
-    local query="UPDATE users SET username='${USERNAME}' WHERE username LIKE 'SUSPENDED\\_%_${USERNAME}';"
+    local escaped_username
+    escaped_username=$(mysql_escape "$USERNAME")
+    local query="UPDATE users SET username='${escaped_username}' WHERE username LIKE 'SUSPENDED\\_%_${escaped_username}';"
 
     if mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$query"; then
         echo "User '$USERNAME' unsuspended successfully."

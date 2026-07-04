@@ -5,7 +5,7 @@
 # Usage: opencli domains-add <DOMAIN_NAME> <USERNAME> [--docroot DOCUMENT_ROOT] [--php_version N.N] [--skip_caddy --skip_vhost --skip_containers --skip_dns] --debug
 # Author: Stefan Pejcic
 # Created: 20.08.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -145,7 +145,7 @@ is_module_enabled() {
 }
 
 validate_domain_format() {
-    [[ "$domain_name" =~ ^(xn--[a-z0-9-]+\.[a-z0-9-]+|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$ ]] || die "Invalid domain name: $domain_name"
+    [[ "$domain_name" =~ ^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+(xn--[a-z0-9-]+|[a-zA-Z]{2,})$ ]] || die "Invalid domain name: $domain_name"
 }
 
 validate_docroot() {
@@ -162,6 +162,21 @@ sql_escape() {
     val="${val//\\/\\\\}"
     val="${val//\'/\\\'}"
     printf '%s' "$val"
+}
+
+idn_decode() { # punycode -> unicode
+    local d="$1"
+    python3 -c 'import sys; print(sys.argv[1].encode("ascii").decode("idna"))' "$d" 2>/dev/null || printf '%s' "$d"
+}
+
+idn_encode() { # any form -> punycode
+    local d="$1"
+    case "$d" in
+        *[!a-zA-Z0-9.-]*)
+            python3 -c 'import sys; print(sys.argv[1].encode("idna").decode("ascii"))' "$d" 2>/dev/null || printf '%s' "$d"
+            ;;
+        *) printf '%s' "$d" ;;
+    esac
 }
 
 check_forbidden_domains() {
@@ -206,6 +221,12 @@ detect_apex_or_onion() {
     local domain_lower
     domain_lower=$(echo "$domain_name" | tr '[:upper:]' '[:lower:]')
 
+	local domain_match="$domain_lower"
+    if [[ "$domain_lower" == *xn--* ]]; then
+        domain_match=$(idn_decode "$domain_lower")
+        log "IDN domain: matching PSL as '$domain_match'"
+    fi
+
     # Refresh TLD list if missing or older than 7 days
     if [[ ! -f "$TLD_FILE" ]] || [[ -n "$(find "$TLD_FILE" -mtime +6 2>/dev/null)" ]]; then
         refresh_tld_list
@@ -214,7 +235,7 @@ detect_apex_or_onion() {
     local matched_suffix="" max_match_len=0 suffix
     while IFS= read -r suffix; do
         local suffix_pattern=".$suffix"
-        if [[ ".$domain_lower" == *"$suffix_pattern" ]]; then
+        if [[ ".$domain_match" == *"$suffix_pattern" ]]; then
             local suffix_len=${#suffix}
             if (( suffix_len > max_match_len )); then
                 matched_suffix="$suffix"
@@ -223,15 +244,20 @@ detect_apex_or_onion() {
         fi
     done < <(grep -v '^//' "$TLD_FILE" | grep -v '^$')
 
-    [[ "$domain_lower" == "$matched_suffix" ]] && err "'$domain_lower' is a public suffix and cannot be used as a domain."
+    [[ "$domain_match" == "$matched_suffix" ]] && err "'$domain_lower' is a public suffix and cannot be used as a domain."
 
     [[ -z "$matched_suffix" ]] && err "Invalid domain or unrecognized TLD for '$domain_name'"
 
     log "Detected public suffix: .$matched_suffix"
 
-    local registrable="${domain_lower%.$matched_suffix}"
+    local registrable="${domain_match%.$matched_suffix}"
     local sld="${registrable##*.}"
     apex_domain="${sld}.${matched_suffix}"
+
+    # convert apex back to punycode so zone files / Caddy / DB stay ASCII
+    if [[ "$domain_match" != "$domain_lower" ]]; then
+        apex_domain=$(idn_encode "$apex_domain")
+    fi
 
     if [[ "$domain_lower" != "$apex_domain" ]]; then
         is_subdomain=true
@@ -606,7 +632,7 @@ create_zone_file() {
 update_named_conf() {
     if $USE_PARENT_DNS_ZONE; then
         grep -q "zone \"$apex_domain\"" "$NAMED_CONF_LOCAL" && return
-        echo "zone \"$apex_domain\" IN { type master; file \"${ZONE_FILE_DIR}${domain_name}.zone\"; };" >> "$NAMED_CONF_LOCAL"
+        echo "zone \"$apex_domain\" IN { type master; file \"${ZONE_FILE_DIR}${apex_domain}.zone\"; };" >> "$NAMED_CONF_LOCAL"
     else
         log "Adding zone to named.conf.local"
         if grep -q "zone \"$domain_name\"" "$NAMED_CONF_LOCAL"; then
@@ -907,7 +933,7 @@ notify_sentinel() {
 # Main
 main() {
     parse_args "$@"
-
+    domain_name=$(idn_encode "$domain_name")   # unicode -> punycode, ASCII passes through
     validate_domain_format
     detect_apex_or_onion
 	read_config_file

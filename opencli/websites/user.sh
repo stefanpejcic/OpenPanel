@@ -5,7 +5,7 @@
 # Usage: opencli websites-user <USERNAME> [--type=] [--domains=] [--json]
 # Author: Stefan Pejcic
 # Created: 08.07.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -61,7 +61,7 @@ get_user_id() {
     local username="$1"
     local user_id
     
-    user_id=$(execute_query "SELECT id FROM users WHERE username = '$username'")
+    user_id=$(execute_query "SELECT id FROM users WHERE username = '$(mysql_escape "$username")'")
     
     if [ -z "$user_id" ]; then
         echo "Error: User '$username' not found" >&2
@@ -83,9 +83,9 @@ get_domains() {
         type_filter="${type_filter,,}"
         query="$query
                INNER JOIN sites s ON s.domain_id = d.domain_id
-               WHERE d.user_id = '$user_id' AND s.type = '$type_filter'"
+               WHERE d.user_id = '$(mysql_escape "$user_id")' AND s.type = '$(mysql_escape "$type_filter")'"
     else
-        query="$query WHERE d.user_id = '$user_id'"
+        query="$query WHERE d.user_id = '$(mysql_escape "$user_id")'"
     fi
 
     # Add domain filter
@@ -95,7 +95,7 @@ get_domains() {
         local domain_conditions=""
         for domain in "${DOMAIN_ARRAY[@]}"; do
             [ -n "$domain_conditions" ] && domain_conditions="$domain_conditions OR "
-            domain_conditions="$domain_conditions d.domain_url = '$domain'"
+            domain_conditions="$domain_conditions d.domain_url = '$(mysql_escape "$domain")'"
         done
         query="$query AND ( $domain_conditions )"
     fi
@@ -120,11 +120,11 @@ get_sites() {
     local query="SELECT site_name, type, version, ports, path, d.docroot
                  FROM sites s
                  INNER JOIN domains d ON s.domain_id = d.domain_id
-                 WHERE s.domain_id = '$domain_id'"
-    
+                 WHERE s.domain_id = '$(mysql_escape "$domain_id")'"
+
     if [ -n "$type_filter" ]; then
         type_filter="${type_filter,,}"
-        query="$query AND s.type = '$type_filter'"
+        query="$query AND s.type = '$(mysql_escape "$type_filter")'"
     fi
     
     execute_query "$query"

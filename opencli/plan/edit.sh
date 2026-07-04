@@ -6,7 +6,7 @@
 # Example: opencli plan-edit --debug id=1 name="Some Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set="default" max_email_quota="2G" max_hourly_email=100
 # Author: Radovan Jecmenica
 # Created: 10.04.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -31,6 +31,7 @@
 
 # DB
 source /usr/local/opencli/db.sh
+source /usr/local/opencli/lib/redis.sh
 
 flags=()
 
@@ -75,8 +76,18 @@ edit_docker_network() {
 }
 
 
-flush_redis_cache() {
-        docker --context=default exec openpanel_redis bash -c "redis-cli FLUSHALL" > /dev/null 2>&1
+drop_plan_cache() {
+        # Only invalidate what a plan edit can actually change - name, feature
+        # set, email/mailbox limits and the per-user feature lists derived
+        # from them. Do NOT flush the whole cache: that also drops unrelated
+        # data (dashboard stats, sessions info, etc.) for every user on the
+        # panel, not just the ones on this plan.
+        redis_drop_memver \
+            "app.get_user_details_with_plan" \
+            "app.get_feature_set_on_plan" \
+            "app._load_user_features_cached" \
+            "modules.json.helpers.query_plan_details_by_id" \
+            "modules.json.helpers.query_plan_email_mailbox_limits"
 }
 
 
@@ -221,7 +232,12 @@ fi
 
 
 
-local sql="UPDATE plans SET name='$new_plan_name', description='$description', ftp_limit=$ftp_limit, email_limit=$emails_limit, domains_limit=$domains_limit, websites_limit=$websites_limit, disk_limit='$disk_limit', inodes_limit=$inodes_limit, db_limit=$db_limit, cpu=$cpu, ram='$ram', bandwidth=$bandwidth, feature_set='$feature_set', max_email_quota='$max_email_quota', max_hourly_email='$max_hourly_email' WHERE id='$plan_id';"
+local escaped_new_plan_name escaped_description escaped_feature_set
+escaped_new_plan_name=$(mysql_escape "$new_plan_name")
+escaped_description=$(mysql_escape "$description")
+escaped_feature_set=$(mysql_escape "$feature_set")
+
+local sql="UPDATE plans SET name='$escaped_new_plan_name', description='$escaped_description', ftp_limit=$ftp_limit, email_limit=$emails_limit, domains_limit=$domains_limit, websites_limit=$websites_limit, disk_limit='$disk_limit', inodes_limit=$inodes_limit, db_limit=$db_limit, cpu=$cpu, ram='$ram', bandwidth=$bandwidth, feature_set='$escaped_feature_set', max_email_quota='$max_email_quota', max_hourly_email='$max_hourly_email' WHERE id='$plan_id';"
 mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
     local sql="SELECT name FROM plans WHERE id='$plan_id'"
@@ -327,6 +343,21 @@ validate_fields_first() {
     done
 }
 
+validate_name_and_feature_set() {
+    local name="$1"
+    local feature_set="$2"
+
+    if [[ ! "$name" =~ ^[a-zA-Z0-9_.\ -]+$ ]]; then
+        echo "Error: name may only contain letters, numbers, spaces, '.', '_' and '-'"
+        exit 1
+    fi
+
+    if [[ ! "$feature_set" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "Error: feature_set may only contain letters, numbers, '_' and '-'"
+        exit 1
+    fi
+}
+
 
 
 
@@ -417,5 +448,6 @@ if [ -z "$existing_plan" ]; then
 fi
 
 validate_fields_first "$plan_id" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota" "$max_hourly_email"
+validate_name_and_feature_set "$new_plan_name" "$feature_set"
 update_plan "$plan_id" "$new_plan_name" "$description" "$ftp_limit" "$emails_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$feature_set" "$max_email_quota" "$max_hourly_email"
-flush_redis_cache
+drop_plan_cache

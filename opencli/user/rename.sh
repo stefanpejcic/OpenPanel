@@ -5,7 +5,7 @@
 # Usage: opencli user-rename <old_username> <new_username>
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -136,7 +136,7 @@ check_if_exists_in_db() {
     source /usr/local/opencli/db.sh
     
     # Check if the username already exists in the users table
-    username_exists_query="SELECT COUNT(*) FROM users WHERE username = '$new_username'"
+    username_exists_query="SELECT COUNT(*) FROM users WHERE username = '$(mysql_escape "$new_username")'"
     username_exists_count=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$username_exists_query" -sN)
     
     # Check if successful
@@ -152,7 +152,7 @@ check_if_exists_in_db() {
     fi
 
     
-    context_exists_query="SELECT COUNT(*) FROM users WHERE server = '$new_username'"
+    context_exists_query="SELECT COUNT(*) FROM users WHERE server = '$(mysql_escape "$new_username")'"
     context_exists_count=$(mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$context_exists_query" -sN)
     
     # count > 0) show error and exit
@@ -172,7 +172,7 @@ get_context() {
 # get user ID from the database
 get_user_info() {
     local user="$1"
-    local query="SELECT id, server FROM users WHERE username = '${user}';"
+    local query="SELECT id, server FROM users WHERE username = '$(mysql_escape "$user")';"
     
     # Retrieve both id and context
     user_info=$(mysql -se "$query")
@@ -212,7 +212,7 @@ rename_user_in_db() {
     OLD_USERNAME=$1
     NEW_USERNAME=$2
 
-    mysql_query="UPDATE users SET username='$NEW_USERNAME' WHERE username='$OLD_USERNAME';"
+    mysql_query="UPDATE users SET username='$(mysql_escape "$NEW_USERNAME")' WHERE username='$(mysql_escape "$OLD_USERNAME")';"
     mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$mysql_query"
 
     if [ $? -eq 0 ]; then

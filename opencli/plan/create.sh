@@ -6,7 +6,7 @@
 # Example: opencli plan-create name="New Plan" description="This is a new plan" emails=100 ftp=50 domains=20 websites=30 disk=100 inodes=100000 databases=10 cpu=4 ram=8 bandwidth=100 feature_set=default max_email_quota=2G max_hourly_email=1000
 # Author: Radovan Jecmenica
 # Created: 06.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -66,7 +66,9 @@ if [ "$#" -lt 13 ]; then
 fi
 
 check_plan_exists() {
-    local existing_plan=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT id FROM plans WHERE name='${1}' LIMIT 1;")
+    local escaped_name
+    escaped_name=$(mysql_escape "$1")
+    local existing_plan=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT id FROM plans WHERE name='${escaped_name}' LIMIT 1;")
     if [ -n "$existing_plan" ]; then
         echo "Error: Plan name '$1' already exists. Please choose another name."
         exit 1
@@ -130,6 +132,21 @@ validate_fields_first() {
     done
 }
 
+validate_name_and_feature_set() {
+    local name="$1"
+    local feature_set="$2"
+
+    if [[ ! "$name" =~ ^[a-zA-Z0-9_.\ -]+$ ]]; then
+        echo "Error: name may only contain letters, numbers, spaces, '.', '_' and '-'"
+        exit 1
+    fi
+
+    if [[ ! "$feature_set" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+        echo "Error: feature_set may only contain letters, numbers, '_' and '-'"
+        exit 1
+    fi
+}
+
 
 # ======================================================================
 # Functions
@@ -161,14 +178,19 @@ insert_plan() {
 
   ram="${ram}g"
 
+  local escaped_name escaped_description escaped_feature_set
+  escaped_name=$(mysql_escape "$name")
+  escaped_description=$(mysql_escape "$description")
+  escaped_feature_set=$(mysql_escape "$feature_set")
+
   # Insert the plan into the 'plans' table
-  local sql="INSERT INTO plans (name, description, email_limit, ftp_limit, domains_limit, websites_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set, max_email_quota, max_hourly_email) VALUES ('$name', '$description', $email_limit, $ftp_limit, $domains_limit, $websites_limit, '$disk_limit', $inodes_limit, $db_limit, $cpu, '$ram', $bandwidth, '$feature_set', '$max_email_quota', '$max_hourly_email');"
+  local sql="INSERT INTO plans (name, description, email_limit, ftp_limit, domains_limit, websites_limit, disk_limit, inodes_limit, db_limit, cpu, ram, bandwidth, feature_set, max_email_quota, max_hourly_email) VALUES ('$escaped_name', '$escaped_description', $email_limit, $ftp_limit, $domains_limit, $websites_limit, '$disk_limit', $inodes_limit, $db_limit, $cpu, '$ram', $bandwidth, '$escaped_feature_set', '$max_email_quota', '$max_hourly_email');"
 
   mysql --defaults-extra-file=$config_file -D "$mysql_database" -e "$sql"
   if [ $? -eq 0 ]; then
         # if reseller, grant them access to the new plan id
         if [[ "$CHECK_PLAN_ID" == true ]]; then
-            plan_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT id FROM plans WHERE name='${name}' LIMIT 1;" 2>/dev/null | grep -E '^[0-9]+$' | head -n1)
+            plan_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT id FROM plans WHERE name='${escaped_name}' LIMIT 1;" 2>/dev/null | grep -E '^[0-9]+$' | head -n1)
             if [ -n "$plan_id" ]; then
                 tmpfile=$(mktemp)
                 jq --arg plan "$plan_id" '.allowed_plans |= (if index($plan) then . else . + [$plan] end)' "$reseller_file" > "$tmpfile" && mv "$tmpfile" "$reseller_file"
@@ -284,6 +306,7 @@ done
 
 # ======================================================================
 # Main
+validate_name_and_feature_set "$name" "$feature_set"
 check_plan_exists "${name}"
 validate_fields_first "$ftp_limit" "$email_limit" "$domains_limit" "$websites_limit" "$disk_limit" "$inodes_limit" "$db_limit" "$cpu" "$ram" "$bandwidth" "$max_email_quota" "$max_hourly_email"
 check_reseller_user # if no file or invalid json, abort

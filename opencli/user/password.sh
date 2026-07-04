@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 30.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -46,8 +46,22 @@ fi
 
 # ======================================================================
 # Helpers
+
+source /usr/local/opencli/lib/password_strength.sh
+
+# Guarantees at least one upper, one lower, one digit and one punctuation
+# character (in addition to 8 fully random characters) so this always
+# scores at the top of the password_strength rubric, regardless of the
+# admin-configured threshold.
 generate_random_password() {
-    tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 12
+    local pool='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+'
+    local pw
+    pw="$(tr -dc "$pool" < /dev/urandom | head -c 8)"
+    pw="${pw}$(tr -dc 'A-Z' < /dev/urandom | head -c 1)"
+    pw="${pw}$(tr -dc 'a-z' < /dev/urandom | head -c 1)"
+    pw="${pw}$(tr -dc '0-9' < /dev/urandom | head -c 1)"
+    pw="${pw}$(tr -dc '!@#$%^&*()-_=+' < /dev/urandom | head -c 1)"
+    echo "$pw" | fold -w1 | shuf | tr -d '\n'
 }
 
 determine_python_path() {
@@ -68,6 +82,8 @@ generate_and_hash_password() {
         random_flag=true
     fi
 
+    require_password_strength "$new_password"
+
 hashed_password=$(
 "$PYTHON_EXEC" - "$new_password" << 'EOF'
 import sys
@@ -76,18 +92,18 @@ print(generate_password_hash(sys.argv[1]))
 EOF
 )
 
-# added in 1.6.8 to handle ' and " in passwords
-escaped_hash=$(printf "%s" "$hashed_password" | sed "s/'/''/g") 
 }
 
 save_to_database() {
     # 1. update pass
-    mysql_query="UPDATE users SET password='$escaped_hash' WHERE username='$username';"
+    local escaped_hash
+    escaped_hash=$(mysql_escape "$hashed_password")
+    mysql_query="UPDATE users SET password='$escaped_hash' WHERE username='$(mysql_escape "$username")';"
     mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$mysql_query"
 
     if [ $? -eq 0 ]; then
         # 2. get user ID and terminate all active sessions
-        user_id_query="SELECT id FROM users WHERE username='$username' LIMIT 1;"
+        user_id_query="SELECT id FROM users WHERE username='$(mysql_escape "$username")' LIMIT 1;"
         user_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -s -e "$user_id_query")
     
         if [[ "$user_id" =~ ^[0-9]+$ ]]; then

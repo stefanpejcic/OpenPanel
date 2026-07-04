@@ -5,7 +5,7 @@
 # Usage: opencli domains-whoowns <DOMAIN-NAME> [--context] [--docroot]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -44,7 +44,7 @@ get_domain_owner() {
         exit 1
     fi
     
-    user_id_query="SELECT user_id, docroot FROM domains WHERE domain_url = '$domain'"
+    user_id_query="SELECT user_id, docroot FROM domains WHERE domain_url = '$(mysql_escape "$domain")'"
     read -r user_id docroot <<< "$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$user_id_query" -sN)"
 
     if [ -z "$user_id" ]; then

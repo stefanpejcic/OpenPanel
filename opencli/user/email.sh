@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Radovan Jecmenica
 # Created: 06.12.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -52,7 +52,7 @@ user_exists() {
     local count
     
     count=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
-        -sN -e "SELECT COUNT(*) FROM users WHERE username = '$username';")
+        -sN -e "SELECT COUNT(*) FROM users WHERE username = '$(mysql_escape "$username")';")
     
     [[ "$count" -eq 1 ]]
 }
@@ -74,7 +74,7 @@ update_user_email() {
 
     #3. Save
     mysql --defaults-extra-file="$config_file" -D "$mysql_database" \
-        -e "UPDATE users SET email = '$new_email' WHERE username = '$username';"
+        -e "UPDATE users SET email = '$(mysql_escape "$new_email")' WHERE username = '$(mysql_escape "$username")';"
 }
 
 show_usage() {

@@ -15,7 +15,7 @@ setup('authenticate', async ({ page }) => {
   await page.goto(`${BASE_URL}/login`);
   await page.getByRole('textbox', { name: 'Username' }).fill(USERNAME);
   await page.getByRole('textbox', { name: 'Password' }).fill(PASSWORD);
-  await page.locator('button[type="submit"]', { hasText: 'Sign in' }).click();
+  await page.locator('button[type="submit"]', { hasText: 'Sign in' }).first().click();
   await expect(page).toHaveURL(/.*dashboard/);
   await page.context().storageState({ path: AUTH_FILE });
 });

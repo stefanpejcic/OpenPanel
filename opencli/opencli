@@ -28,7 +28,7 @@
 # THE SOFTWARE.
 ################################################################################
 
-readonly OPENCLI_VERSION="202.607.001"
+readonly OPENCLI_VERSION="202.607.003"
 readonly LOG_FILE="/var/log/openpanel/admin/opencli.log"
 readonly SCRIPTS_DIR="/usr/local/opencli"
 readonly HOOKS_DIR="/etc/openpanel/openpanel/hooks"
@@ -70,6 +70,7 @@ EOF
 }
 
 log_command() {
+    [[ -n "$LOG_FILE" ]] || return 0
     echo "$(date +"%Y-%m-%d %H:%M:%S") | opencli $1" >> "$LOG_FILE" 2>/dev/null
 }
 
@@ -121,7 +122,7 @@ generate_commands() {
     readonly RESET='\033[0m'
     
     readonly SEARCH_QUERY="${1:-}"
-    readonly EXCLUDE_PATTERNS=( ".git/*" ".github/*" "ftp/users.sh" "db.sh" "dev.sh" "enterprise.sh" "progress_bar.sh" )
+    readonly EXCLUDE_PATTERNS=( ".git/*" ".github/*" "ftp/users.sh" "db.sh" "dev.sh" "enterprise.sh" "progress_bar.sh" "lib/*" )
     
     declare -a exclude_args=()
 

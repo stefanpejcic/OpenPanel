@@ -5,7 +5,7 @@
 # Usage: opencli websites-pagespeed <DOMAIN> [-all]
 # Author: Stefan Pejcic
 # Created: 27.06.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -49,7 +49,7 @@ get_api_key() {
   
 if [ -n "$owner" ]; then
   source /usr/local/opencli/db.sh
-  query="SELECT server FROM users WHERE username = '$owner'"
+  query="SELECT server FROM users WHERE username = '$(mysql_escape "$owner")'"
   context=$(mysql -D "$mysql_database" -e "$query" -sN)
   if [ -z "$context" ]; then
     api_key=""

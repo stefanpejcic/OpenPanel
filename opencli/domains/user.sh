@@ -5,7 +5,7 @@
 # Usage: opencli domains-user <USERNAME> [--docroot|--php_version]
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -60,7 +60,7 @@ get_domains() {
         exit 1
     fi
 
-    username_query="SELECT id FROM users WHERE username = '$username'"
+    username_query="SELECT id FROM users WHERE username = '$(mysql_escape "$username")'"
     user_id=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "$username_query" -sN)
 
     if [ -z "$user_id" ]; then

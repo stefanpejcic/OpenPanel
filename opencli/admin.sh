@@ -5,7 +5,7 @@
 # Usage: opencli admin <command> [options]
 # Author: Stefan Pejcic
 # Created: 01.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -45,6 +45,12 @@ notifications_file="/etc/openpanel/openadmin/config/notifications.ini"
 admin_crons_log="/var/log/openpanel/admin/cron.log"
 db_file_path="/etc/openpanel/openadmin/users.db"
 ENTERPRISE="/usr/local/opencli/enterprise.sh"
+
+# Escape a single quote for safe use inside a SQLite single-quoted string literal
+sqlite_escape() {
+    local s="$1"
+    printf '%s' "${s//\'/\'\'}"
+}
 
 
 
@@ -342,7 +348,7 @@ add_new_user() {
     fi
 
 	# ---------------------- check if username already exists
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$(sqlite_escape "$username")';")
     if [ "$user_exists" -gt 0 ]; then
         echo -e "${RED}Error${RESET}: Username '$username' already exists."
 		exit 1
@@ -366,7 +372,7 @@ add_new_user() {
 	fi
 
 	# ---------------------- create user	
-	insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$username', '$password_hash', '$role');"
+	insert_user_sql="INSERT INTO user (username, password_hash, role) VALUES ('$(sqlite_escape "$username")', '$(sqlite_escape "$password_hash")', '$role');"
 	create_table_sql="CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);"
 	output=$(sqlite3 "$db_file_path" "$create_table_sql" "$insert_user_sql" 2>&1)
 	if [ $? -ne 0 ]; then
@@ -445,15 +451,18 @@ update_reseller_account() {
 update_username() {
     local old_username="$1"
     local new_username="$2"
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$old_username';")
-    local user_role=$(sqlite3 "$db_file_path" "SELECT role FROM user WHERE username='$old_username';")
-    local new_user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$new_username';")
+    local escaped_old_username escaped_new_username
+    escaped_old_username=$(sqlite_escape "$old_username")
+    escaped_new_username=$(sqlite_escape "$new_username")
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$escaped_old_username';")
+    local user_role=$(sqlite3 "$db_file_path" "SELECT role FROM user WHERE username='$escaped_old_username';")
+    local new_user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$escaped_new_username';")
 
     if [ "$user_exists" -gt 0 ]; then
         if [ "$new_user_exists" -gt 0 ]; then
             echo -e "${RED}Error${RESET}: Username '$new_username' already taken."
         else
-            sqlite3 $db_file_path "UPDATE user SET username='$new_username' WHERE username='$old_username';"
+            sqlite3 $db_file_path "UPDATE user SET username='$escaped_new_username' WHERE username='$escaped_old_username';"
             echo "User '$old_username' renamed to '$new_username'."
             sed -i "s/\b$old_username\b/$new_username/g" /var/log/openpanel/admin/login.log > /dev/null 2>&1
 
@@ -461,7 +470,10 @@ update_username() {
                 mv /etc/openpanel/features/$old_username /etc/openpanel/features/$new_username > /dev/null 2>&1
                 mv /etc/openpanel/openadmin/resellers/$old_username.json /etc/openpanel/openadmin/resellers/$new_username.json > /dev/null 2>&1
                 source /usr/local/opencli/db.sh
-                mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "UPDATE users SET owner='$new_username' WHERE owner='$old_username';" > /dev/null 2>&1
+                local mysql_escaped_old_username mysql_escaped_new_username
+                mysql_escaped_old_username=$(mysql_escape "$old_username")
+                mysql_escaped_new_username=$(mysql_escape "$new_username")
+                mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "UPDATE users SET owner='$mysql_escaped_new_username' WHERE owner='$mysql_escaped_old_username';" > /dev/null 2>&1
 
 	            nohup opencli sentinel --action=reseller_rename --title="Reseller renamed" --message="Reseller account '$old_username' has been renamed to '$new_username'." >/dev/null 2>&1 &
 	            disown
@@ -480,11 +492,13 @@ update_username() {
 # ---------------------- opencli admin password ---------------------- #
 update_password() {
     local username="$1"
-    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$username';")    
+    local escaped_username
+    escaped_username=$(sqlite_escape "$username")
+    local user_exists=$(sqlite3 "$db_file_path" "SELECT COUNT(*) FROM user WHERE username='$escaped_username';")
     local password_hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$new_password")
 
     if [ "$user_exists" -gt 0 ]; then
-        sqlite3 $db_file_path "UPDATE user SET password_hash='$password_hash' WHERE username='$username';"
+        sqlite3 $db_file_path "UPDATE user SET password_hash='$(sqlite_escape "$password_hash")' WHERE username='$escaped_username';"
 		nohup opencli sentinel --action=admin_password --title="Administrator password changed" --message="Administrator account '$username' has password changed." >/dev/null 2>&1 &
 		disown
         echo "Password for user '$username' changed."
@@ -515,14 +529,16 @@ list_current_users() {
 manage_user() {
     local action="$1"  # suspend | unsuspend
     local username="$2"
+    local escaped_username
+    escaped_username=$(sqlite_escape "$username")
 
-    if ! sqlite3 "$db_file_path" "SELECT 1 FROM user WHERE username='$username';" | grep -q 1; then
+    if ! sqlite3 "$db_file_path" "SELECT 1 FROM user WHERE username='$escaped_username';" | grep -q 1; then
         echo -e "${RED}Error${RESET}: User '$username' does not exist."
         return 1
     fi
 
     if [ "$action" = "suspend" ]; then
-        if sqlite3 "$db_file_path" "SELECT 1 FROM user WHERE username='$username' AND role='admin';" | grep -q 1; then
+        if sqlite3 "$db_file_path" "SELECT 1 FROM user WHERE username='$escaped_username' AND role='admin';" | grep -q 1; then
             echo -e "${RED}Error${RESET}: Cannot suspend user '$username' with 'admin' role."
             return 1
         fi
@@ -533,14 +549,16 @@ manage_user() {
         local cli_action="user-unsuspend"       sentinel_title="Administrator unsuspended"
     fi
 
-    sqlite3 "$db_file_path" "UPDATE user SET is_active='$is_active' WHERE username='$username';"
+    sqlite3 "$db_file_path" "UPDATE user SET is_active='$is_active' WHERE username='$escaped_username';"
     echo "User '$username' $label successfully."
 
     nohup opencli sentinel --action="$sentinel_action" --title="$sentinel_title" --message="Administrator account '$username' has been $label." >/dev/null 2>&1 &
     disown
 
 	source /usr/local/opencli/db.sh
-    local query="SELECT username FROM users WHERE owner='$username';"
+    local mysql_escaped_username
+    mysql_escaped_username=$(mysql_escape "$username")
+    local query="SELECT username FROM users WHERE owner='$mysql_escaped_username';"
     if usernames=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -se "$query"); then
         while IFS= read -r user; do
             [[ -n "$user" ]] && opencli "$cli_action" "$user"

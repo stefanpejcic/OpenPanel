@@ -5,7 +5,7 @@
 # Usage: opencli websites-scan $username
 # Author: Stefan Pejcic
 # Created: 23.10.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -32,13 +32,13 @@
 # Function to get domain ID from the database
 get_domain_id() {
     local domain_name="$1"
-    result=$(mysql -sse "SELECT domain_id FROM domains WHERE domain_url = '$domain_name';")
+    result=$(mysql -sse "SELECT domain_id FROM domains WHERE domain_url = '$(mysql_escape "$domain_name")';")
     echo  $result
 }
 
 get_context_for_user() {
      source /usr/local/opencli/db.sh
-        username_query="SELECT server FROM users WHERE username = '$current_username'"
+        username_query="SELECT server FROM users WHERE username = '$(mysql_escape "$current_username")'"
         context=$(mysql -D "$mysql_database" -e "$username_query" -sN)
         if [ -z "$context" ]; then
             context=$current_username
@@ -60,7 +60,7 @@ run_wp_cli() {
 check_site_already_exists_in_db() {
     local site_name="$1"
 
-    local result=$(mysql -sse "SELECT EXISTS(SELECT 1 FROM sites WHERE site_name = '$site_name');")
+    local result=$(mysql -sse "SELECT EXISTS(SELECT 1 FROM sites WHERE site_name = '$(mysql_escape "$site_name")');")
     
     if [[ "$result" -eq 1 ]]; then
         return 0  # exists
@@ -147,7 +147,7 @@ while IFS= read -r -d '' config_file_path; do
     version=$(run_wp_cli "$current_username" "$(dirname "$inside_container_path")" "core version 2>/dev/null")
     
     echo "Adding website $site_name to Site Manager"
-    echo "INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES ('$site_name', '$domain_id', '$admin_email', '$version', 'wordpress');" | mysql
+    echo "INSERT INTO sites (site_name, domain_id, admin_email, version, type) VALUES ('$(mysql_escape "$site_name")', '$(mysql_escape "$domain_id")', '$(mysql_escape "$admin_email")', '$(mysql_escape "$version")', 'wordpress');" | mysql
 
     echo "Fixing permissions and ownership for the directory $inside_container_path"
     nohup timeout 600 opencli files-fix_permissions $current_username $inside_container_path >/dev/null 2>&1 &

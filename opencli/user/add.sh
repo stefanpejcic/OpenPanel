@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -190,6 +190,8 @@ log() { [[ "$DEBUG" == true ]] && echo "$*"; }
 
 # shellcheck disable=SC1091
 . "$DB_CONFIG_FILE"
+# shellcheck disable=SC1091
+. /usr/local/opencli/lib/password_strength.sh
 
 escape() {
     printf "%s" "$1" | sed "s/'/''/g"
@@ -932,6 +934,8 @@ generate_password_hash() {
         PASSWORD="$(openssl rand -base64 12)"
         log "Generated password: $PASSWORD"
     fi
+
+    require_password_strength "$PASSWORD"
 
     local python3
     if [[ -x /usr/local/admin/venv/bin/python3 ]]; then

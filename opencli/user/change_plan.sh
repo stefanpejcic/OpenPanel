@@ -5,7 +5,7 @@
 # Usage: opencli user-change_plan <USERNAME> <NEW_PLAN_NAME>
 # Author: Petar Ćurić
 # Created: 17.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -45,6 +45,7 @@ for arg in "$@"; do
 done
 
 source /usr/local/opencli/db.sh
+source /usr/local/opencli/lib/redis.sh
 
 # For old plan: id, name, context
 IFS=$'\t' read -r current_plan_id current_plan_name CONTEXT < <(
@@ -52,12 +53,12 @@ IFS=$'\t' read -r current_plan_id current_plan_name CONTEXT < <(
         SELECT u.plan_id, p.name, u.server
         FROM users u
         JOIN plans p ON p.id = u.plan_id
-        WHERE u.username = '$USERNAME'
+        WHERE u.username = '$(mysql_escape "$USERNAME")'
         LIMIT 1"
 )
 
 # if suspended, remove prefix
-USERNAME="${USERNAME##*_}" 
+USERNAME="${USERNAME##*_}"
 
 if [ -z "$current_plan_id" ]; then
     echo "Error: User '$USERNAME' not found in the database."
@@ -65,7 +66,7 @@ if [ -z "$current_plan_id" ]; then
 fi
 
 # For new plan: id, cpu, ram, disk, inodes, port
-safe_plan_name=$(printf "%s" "$new_plan_name" | sed "s/'/''/g")
+safe_plan_name=$(mysql_escape "$new_plan_name")
 IFS=$'\t' read -r new_plan_id Ncpu Nram Ndisk_limit Ninodes_limit Nbandwidth < <(
     mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "
         SELECT id, cpu, ram, disk_limit, inodes_limit, bandwidth
@@ -143,7 +144,7 @@ update_total_tc() {
 change_plan_name_in_db() {
     $debug && echo "Changing plan for user from '$current_plan_name' to '$new_plan_name'"
     if mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e \
-        "UPDATE users SET plan_id = $new_plan_id WHERE username = '$USERNAME';"; then
+        "UPDATE users SET plan_id = $new_plan_id WHERE username = '$(mysql_escape "$USERNAME")';"; then
         if (( failure_count > 0 )); then
             echo "Plan changed successfully for user $USERNAME from $current_plan_name to $new_plan_name — ($failure_count warnings)"
         else
@@ -155,9 +156,12 @@ change_plan_name_in_db() {
 }
 
 drop_redis_cache() {
-    # TODO: drop by key for the user only!
-    nohup docker --context=default exec openpanel_redis sh -c "redis-cli --raw KEYS 'openpanel_cache_*' | xargs -r redis-cli DEL" >/dev/null 2>&1 &
-    disown
+    # A plan change only affects the user's plan/feature-set lookups, not
+    # unrelated cached data for other users - so only drop those.
+    redis_drop_memver \
+        "app.get_user_details_with_plan" \
+        "app.get_feature_set_on_plan" \
+        "app._load_user_features_cached"
 }
 
 

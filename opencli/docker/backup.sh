@@ -5,7 +5,7 @@
 # Usage: opencli docker-backup
 # Author: Stefan Pejcic
 # Created: 22.07.2025
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -38,7 +38,7 @@ log() {
 run_for_user() {
     local username="$1"
     source /usr/local/opencli/db.sh
-    username_query="SELECT server FROM users WHERE username = '$username'"
+    username_query="SELECT server FROM users WHERE username = '$(mysql_escape "$username")'"
     context=$(mysql -D "$mysql_database" -e "$username_query" -sN)
     if [ -z "$context" ]; then
         context=$username

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.65\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-02 23:16+0200\n"
+"POT-Creation-Date: 2026-07-03 16:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -17,21 +17,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app.py:535
+#: app.py:531
 msgid "IP address mismatch. Please login again."
 msgstr ""
 
-#: app.py:567
+#: app.py:563
 msgid ""
 "Two-Factor Authentication is required on this panel. Please enable it to "
 "continue."
 msgstr ""
 
-#: app.py:575
+#: app.py:571
 msgid "Disabled in demo mode."
 msgstr ""
 
-#: modules/autoinstaller.py:53 templates/dashboard/dashboard.html:166
+#: modules/autoinstaller.py:53 templates/dashboard/dashboard.html:168
 #: templates/manager/autoinstaller.html:7
 msgid "Auto Installer"
 msgstr ""
@@ -77,6 +77,13 @@ msgstr ""
 
 #: modules/crons.py:102
 msgid "Failed to fetch container log"
+msgstr ""
+
+#: modules/crons.py:117
+#, python-format
+msgid ""
+"Cron file exceeds the %(limit)s KB limit. Please contact the "
+"administrator."
 msgstr ""
 
 #: modules/crons.py:131
@@ -172,7 +179,7 @@ msgstr ""
 msgid "Failed to retrieve disk usage information."
 msgstr ""
 
-#: modules/dashboard.py:261
+#: modules/dashboard.py:265
 msgid "Dashboard"
 msgstr ""
 
@@ -201,8 +208,13 @@ msgstr ""
 #: modules/websites.py:38 modules/websites.py:235 modules/websites.py:296
 #: modules/websites.py:458 modules/websites.py:542 modules/websites.py:981
 #: modules/wordpress.py:513 modules/wordpress.py:852 modules/wordpress.py:965
-#: modules/wordpress.py:1538 modules/wordpress.py:2002
+#: modules/wordpress.py:1538 modules/wordpress.py:2003
 msgid "You do not own this domain."
+msgstr ""
+
+#: modules/dns.py:130
+#, python-format
+msgid "Error:Zone file not found for domain: %(domain)s"
 msgstr ""
 
 #: modules/dns.py:140
@@ -215,8 +227,28 @@ msgid ""
 "try again."
 msgstr ""
 
+#: modules/dns.py:171
+#, python-format
+msgid "Row with ID %(row_id)s updated successfully"
+msgstr ""
+
+#: modules/dns.py:173 modules/dns.py:219
+#, python-format
+msgid "Invalid row ID: %(row_id)s"
+msgstr ""
+
+#: modules/dns.py:177
+#, python-format
+msgid "Error updating DNS record: %(error)s"
+msgstr ""
+
 #: modules/dns.py:217
 msgid "Row deleted successfully"
+msgstr ""
+
+#: modules/dns.py:223
+#, python-format
+msgid "Error deleting DNS record: %(error)s"
 msgstr ""
 
 #: modules/dns.py:340
@@ -255,12 +287,22 @@ msgstr ""
 msgid "Please provide a domain name."
 msgstr ""
 
+#: modules/dns.py:474
+#, python-format
+msgid "Error creating temporary file: %(error)s"
+msgstr ""
+
 #: modules/dns.py:530
 msgid "CNAME record with this name already exists."
 msgstr ""
 
 #: modules/dns.py:541
 msgid "DNS record added successfully."
+msgstr ""
+
+#: modules/dns.py:545
+#, python-format
+msgid "Error adding DNS record: %(error)s"
 msgstr ""
 
 #: modules/dns.py:561
@@ -273,6 +315,16 @@ msgstr ""
 
 #: modules/dns.py:594
 msgid "DNS zone saved and DNS service restarted."
+msgstr ""
+
+#: modules/docker.py:87
+#, python-format
+msgid "Error: Modifying %(variable_name)s is not allowed."
+msgstr ""
+
+#: modules/docker.py:122
+#, python-format
+msgid "%(variable_name)s updated successfully."
 msgstr ""
 
 #: modules/docker.py:175
@@ -293,7 +345,7 @@ msgstr ""
 msgid "docker_data does not contain 'services'."
 msgstr ""
 
-#: modules/docker.py:237 templates/dashboard/dashboard.html:200
+#: modules/docker.py:237 templates/dashboard/dashboard.html:202
 #: templates/docker/containers.html:13 templates/docker/containers.html:565
 #: templates/docker/volumes_TODO.html:10
 msgid "Containers"
@@ -309,6 +361,11 @@ msgid ""
 "letters and digits, and be at least 3 characters long."
 msgstr ""
 
+#: modules/docker.py:404
+#, python-format
+msgid "Service '%(service_name)s' already exists in docker-compose.yml."
+msgstr ""
+
 #: modules/docker.py:422 modules/docker.py:597
 msgid "CPU limit must be a positive number."
 msgstr ""
@@ -317,6 +374,21 @@ msgstr ""
 msgid ""
 "Memory limit must be a positive number followed by 'M' or 'G' (e.g., 512M"
 " or 1.5G)."
+msgstr ""
+
+#: modules/docker.py:487 modules/docker.py:662
+#, python-format
+msgid "Invalid healthcheck YAML: %(error)s"
+msgstr ""
+
+#: modules/docker.py:502
+#, python-format
+msgid "Container %(service_name)s created successfully!"
+msgstr ""
+
+#: modules/docker.py:549
+#, python-format
+msgid "Edit service %(service)s"
 msgstr ""
 
 #: modules/docker.py:567
@@ -331,12 +403,51 @@ msgstr ""
 msgid "Delete service"
 msgstr ""
 
+#: modules/docker.py:808
+#, python-format
+msgid ""
+"Existing databases must first be deleted and %(mysql_type)s container "
+"stopped in order to change mysql type."
+msgstr ""
+
+#: modules/docker.py:825
+#, python-format
+msgid "Failed to start %(new_sql)s."
+msgstr ""
+
+#: modules/docker.py:830
+#, python-format
+msgid "Successfully switched to %(new_sql)s!"
+msgstr ""
+
 #: modules/docker.py:837
 msgid "Failed to stop the current mysql server."
 msgstr ""
 
 #: modules/docker.py:839
 msgid "Invalid mysql server selected"
+msgstr ""
+
+#: modules/docker.py:844
+#, python-format
+msgid "Switch from %(mysql_type)s to %(available)s"
+msgstr ""
+
+#: modules/docker.py:859
+#, python-format
+msgid ""
+"Existing domains (%(count)s) must first be removed in order to change "
+"webserver."
+msgstr ""
+
+#: modules/docker.py:874
+#, python-format
+msgid "Failed to start %(new_webserver)s."
+msgstr ""
+
+#: modules/docker.py:881
+#, python-format
+msgid "Successfully switched to %(new_webserver)s!"
 msgstr ""
 
 #: modules/docker.py:884
@@ -347,9 +458,19 @@ msgstr ""
 msgid "Invalid web server selected"
 msgstr ""
 
-#: modules/docker.py:929 templates/dashboard/dashboard.html:203
+#: modules/docker.py:891
+#, python-format
+msgid "Switch from %(webserver)s"
+msgstr ""
+
+#: modules/docker.py:929 templates/dashboard/dashboard.html:205
 #: templates/docker/images.html:10
 msgid "Image Updates"
+msgstr ""
+
+#: modules/docker.py:952
+#, python-format
+msgid "Successfully changed image tag for %(service)s to %(value)s!"
 msgstr ""
 
 #: modules/docker.py:955
@@ -364,7 +485,7 @@ msgstr ""
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1035 templates/dashboard/dashboard.html:202
+#: modules/docker.py:1035 templates/dashboard/dashboard.html:204
 #: templates/docker/containers.html:424 templates/docker/logs.html:10
 #: templates/manager/python_node_apps.html:71
 #: templates/partials/_service_log.html:11 templates/system/cronjobs.html:354
@@ -376,8 +497,55 @@ msgstr ""
 msgid "Invalid action"
 msgstr ""
 
+#: modules/docker.py:1110
+#, python-format
+msgid ""
+"Image pulled and container %(container_name)s %(action_type)sd "
+"successfully."
+msgstr ""
+
+#: modules/docker.py:1114
+#, python-format
+msgid "Container %(container_name)s %(action_type)sd successfully."
+msgstr ""
+
 #: modules/docker.py:1116
 msgid "Error occurred!"
+msgstr ""
+
+#: modules/docker.py:1153
+#, python-format
+msgid "Unsupported action: %(action)s. Use 'ram' or 'cpu'."
+msgstr ""
+
+#: modules/docker.py:1184
+#, python-format
+msgid ".env file not found at %(env_path)s"
+msgstr ""
+
+#: modules/docker.py:1186
+#, python-format
+msgid "Failed to update .env: %(error)s"
+msgstr ""
+
+#: modules/docker.py:1198
+msgid "Docker command failed. Try again."
+msgstr ""
+
+#: modules/docker.py:1200
+msgid "Unexpected error. Contact Administrator."
+msgstr ""
+
+#: modules/docker.py:1203
+#, python-format
+msgid ""
+"%(action)s limits for container %(name)s removed and set to max available"
+" on the plan."
+msgstr ""
+
+#: modules/docker.py:1205
+#, python-format
+msgid "Max %(action)s for container %(name)s set to %(value)s"
 msgstr ""
 
 #: modules/docker.py:1359 templates/docker/terminal.html:19
@@ -385,9 +553,22 @@ msgstr ""
 msgid "Docker Terminal"
 msgstr ""
 
+#: modules/docker.py:1371
+msgid "Select Docker service"
+msgstr ""
+
 #: modules/domain/docroot.py:22 modules/domain/ssl.py:41
 #: modules/domain_suspend.py:21 modules/domain_suspend.py:79
 msgid "Invalid request. Domain name must be provided."
+msgstr ""
+
+#: modules/domain/docroot.py:83 modules/domain/ssl.py:154
+#: modules/domain_suspend.py:53 modules/domain_suspend.py:109
+#: modules/drupal.py:324 modules/drupal.py:382 modules/drupal.py:505
+#: modules/mautic.py:404 modules/pm2.py:801 modules/wordpress.py:122
+#: modules/wordpress.py:209 modules/wordpress.py:454
+#, python-format
+msgid "An error occurred: %(error)s"
 msgstr ""
 
 #: modules/domain_suspend.py:59 templates/domains/domains.html:423
@@ -396,14 +577,24 @@ msgstr ""
 msgid "Suspend"
 msgstr ""
 
+#: modules/domain_suspend.py:66
+#, python-format
+msgid "Suspend %(domain)s"
+msgstr ""
+
 #: modules/domain_suspend.py:115 templates/domains/domains.html:419
 msgid "Unsuspend"
 msgstr ""
 
+#: modules/domain_suspend.py:122
+#, python-format
+msgid "Unsuspend %(domain)s"
+msgstr ""
+
 #: modules/domains.py:184 templates/cache/service.html:172
-#: templates/dashboard/dashboard.html:99 templates/dashboard/dashboard.html:128
-#: templates/dashboard/usage.html:39 templates/domains/domains.html:16
-#: templates/emails/deliverability.html:109
+#: templates/dashboard/dashboard.html:101
+#: templates/dashboard/dashboard.html:130 templates/dashboard/usage.html:39
+#: templates/domains/domains.html:16 templates/emails/deliverability.html:109
 #: templates/files/backup_wizard.html:64 templates/partials/_header.html:63
 msgid "Domains"
 msgstr ""
@@ -412,14 +603,24 @@ msgstr ""
 msgid "Domain name is required"
 msgstr ""
 
-#: modules/domains.py:224 templates/domains/new.html:218
+#: modules/domains.py:224 templates/domains/new.html:220
 msgid ""
 "Paths for both public and secret files must be set for importing .onion "
 "domain."
 msgstr ""
 
+#: modules/domains.py:233
+#, python-format
+msgid "Public key file: %(path)s does not exist!"
+msgstr ""
+
 #: modules/domains.py:237
 msgid "Path for public file must start with /var/www/html/"
+msgstr ""
+
+#: modules/domains.py:246
+#, python-format
+msgid "Secret key file: %(path)s does not exist!"
 msgstr ""
 
 #: modules/domains.py:250
@@ -430,8 +631,13 @@ msgstr ""
 msgid "Error: Reached the maximum allowed number of domains on this hosting plan."
 msgstr ""
 
-#: modules/domains.py:311 templates/domains/new.html:129
-#: templates/domains/new.html:323
+#: modules/domains.py:300
+#, python-format
+msgid "Error adding domain %(domain)s"
+msgstr ""
+
+#: modules/domains.py:311 templates/domains/new.html:131
+#: templates/domains/new.html:325
 msgid "Add Domain"
 msgstr ""
 
@@ -440,12 +646,32 @@ msgstr ""
 msgid "Domain name not provided."
 msgstr ""
 
+#: modules/domains.py:385
+#, python-format
+msgid "Domain %(domain)s deleted successfully."
+msgstr ""
+
+#: modules/domains.py:388
+#, python-format
+msgid "Failed to delete domain %(domain)s. Output: %(output)s"
+msgstr ""
+
+#: modules/domains.py:393
+#, python-format
+msgid "Error deleting domain %(domain)s: %(error)s"
+msgstr ""
+
+#: modules/domains.py:444
+#, python-format
+msgid "Delete %(domain)s"
+msgstr ""
+
 #: modules/drupal.py:255 modules/mautic.py:131 modules/website_builder.py:177
 #: modules/websites.py:488 modules/websites.py:1018
 msgid "Unable to detect docroot for the domain."
 msgstr ""
 
-#: modules/drupal.py:322 templates/dashboard/dashboard.html:168
+#: modules/drupal.py:322 templates/dashboard/dashboard.html:170
 msgid "Drupal Manager"
 msgstr ""
 
@@ -454,7 +680,13 @@ msgid "Domain not found."
 msgstr ""
 
 #: modules/drupal.py:425
-msgid " and "
+#, python-format
+msgid "Backup restored successfully: %(items)s."
+msgstr ""
+
+#: modules/drupal.py:426
+#, python-format
+msgid "No files to restore, expected: %(targz_path)s or %(sql_path)s."
 msgstr ""
 
 #: modules/drupal.py:436 modules/mautic.py:323 modules/wordpress.py:321
@@ -500,7 +732,7 @@ msgstr ""
 
 #: modules/drupal.py:707 modules/mautic.py:788 modules/pm2.py:552
 #: modules/website_builder.py:282 modules/wordpress.py:1530
-#: modules/wordpress.py:2016
+#: modules/wordpress.py:2017
 msgid "Domain not found"
 msgstr ""
 
@@ -508,8 +740,38 @@ msgstr ""
 msgid "An error occurred fetching domain from database."
 msgstr ""
 
+#: modules/drupal.py:750
+#, python-format
+msgid "File %(marker)s already exists in document root: %(install_path)s"
+msgstr ""
+
+#: modules/drupal.py:803
+#, python-format
+msgid "Error: The %(mysql_version)s container is not ready."
+msgstr ""
+
+#: modules/drupal.py:821 modules/mysql.py:143
+#, python-format
+msgid "Error creating database: %(error)s"
+msgstr ""
+
+#: modules/drupal.py:848
+#, python-format
+msgid "Drush site:install failed: %(error)s"
+msgstr ""
+
 #: modules/drupal.py:853
 msgid "Drush site:install timed out after 5 minutes."
+msgstr ""
+
+#: modules/drupal.py:876
+#, python-format
+msgid "Drupal installed, but error saving to manager: %(error)s"
+msgstr ""
+
+#: modules/drupal.py:883
+#, python-format
+msgid "Drupal installed successfully on %(domain)s"
 msgstr ""
 
 #: modules/drupal.py:899 modules/wordpress.py:938
@@ -571,12 +833,12 @@ msgstr ""
 msgid "Failed to delete Dynamic DNS entry."
 msgstr ""
 
-#: modules/dynamic_dns.py:168 templates/dashboard/dashboard.html:131
+#: modules/dynamic_dns.py:168 templates/dashboard/dashboard.html:133
 #: templates/domains/dynamic_dns.html:12
 msgid "Dynamic DNS"
 msgstr ""
 
-#: modules/email_aliases.py:126 templates/dashboard/dashboard.html:183
+#: modules/email_aliases.py:126 templates/dashboard/dashboard.html:185
 #: templates/emails/aliases.html:9
 msgid "Aliases"
 msgstr ""
@@ -585,8 +847,38 @@ msgstr ""
 msgid "Error: a valid target email address is required."
 msgstr ""
 
+#: modules/email_aliases.py:176
+#, python-format
+msgid "Error adding alias: %(error)s"
+msgstr ""
+
+#: modules/email_aliases.py:181
+#, python-format
+msgid "Alias %(email)s → %(target)s added successfully."
+msgstr ""
+
+#: modules/email_aliases.py:204
+#, python-format
+msgid "Alias %(email)s deleted successfully."
+msgstr ""
+
+#: modules/email_aliases.py:240 modules/emails.py:191
+#, python-format
+msgid "Error: %(field)s not provided."
+msgstr ""
+
 #: modules/email_aliases.py:245
 msgid "Error: target must be a valid email address."
+msgstr ""
+
+#: modules/email_aliases.py:258
+#, python-format
+msgid "Error creating alias: %(error)s"
+msgstr ""
+
+#: modules/email_aliases.py:263
+#, python-format
+msgid "Alias %(source)s → %(target)s created successfully."
 msgstr ""
 
 #: modules/email_aliases.py:266 templates/emails/aliases.html:35
@@ -601,14 +893,14 @@ msgstr ""
 msgid "Default Email"
 msgstr ""
 
-#: modules/email_deliverability.py:114 templates/dashboard/dashboard.html:185
+#: modules/email_deliverability.py:114 templates/dashboard/dashboard.html:187
 #: templates/emails/deliverability.html:9
 #: templates/emails/deliverability_domain.html:8
 msgid "Email Deliverability"
 msgstr ""
 
 #: modules/email_filters.py:46 modules/email_filters.py:86
-#: modules/email_filters.py:124 templates/dashboard/dashboard.html:184
+#: modules/email_filters.py:124 templates/dashboard/dashboard.html:186
 msgid "Filters"
 msgstr ""
 
@@ -640,6 +932,11 @@ msgstr ""
 msgid "Error: Unsupported file format, please upload a .csv or .xls file."
 msgstr ""
 
+#: modules/email_import.py:34
+#, python-format
+msgid "Error reading file: %(error)s"
+msgstr ""
+
 #: modules/email_import.py:38
 msgid "Error: File must have at least 2 columns: email, password"
 msgstr ""
@@ -662,12 +959,37 @@ msgstr ""
 msgid "Error: reached max number of email accounts on the hosting plan."
 msgstr ""
 
+#: modules/emails.py:227
+#, python-format
+msgid "Failed to add email %(email)s: "
+msgstr ""
+
+#: modules/emails.py:242
+#, python-format
+msgid "Email %(email)s added successfully."
+msgstr ""
+
 #: modules/emails.py:246 templates/files/ftp_new.html:214
 msgid "Create Account"
 msgstr ""
 
 #: modules/emails.py:263
 msgid "Accounts"
+msgstr ""
+
+#: modules/emails.py:367
+#, python-format
+msgid "Settings saved for email %(email)s"
+msgstr ""
+
+#: modules/emails.py:380
+#, python-format
+msgid "Email %(email)s deleted successfully."
+msgstr ""
+
+#: modules/emails.py:383
+#, python-format
+msgid "ERROR: Failed to delete email %(email)s: "
 msgstr ""
 
 #: modules/emails.py:406
@@ -683,12 +1005,22 @@ msgstr ""
 msgid "Error: Invalid configuration type."
 msgstr ""
 
-#: modules/goaccess.py:51 templates/dashboard/dashboard.html:137
+#: modules/goaccess.py:36
+#, python-format
+msgid "%(domain)s GoAccess"
+msgstr ""
+
+#: modules/goaccess.py:40 modules/goaccess.py:44
+#, python-format
+msgid "Stats file for domain %(domain)s not found. Data is generated every 24h."
+msgstr ""
+
+#: modules/goaccess.py:51 templates/dashboard/dashboard.html:139
 #: templates/domains/goaccess.html:9
 msgid "GoAccess"
 msgstr ""
 
-#: modules/info.py:15 templates/dashboard/dashboard.html:220
+#: modules/info.py:15 templates/dashboard/dashboard.html:222
 #: templates/system/server_info.html:8 templates/system/server_info.html:17
 msgid "Server Information"
 msgstr ""
@@ -713,7 +1045,12 @@ msgstr ""
 msgid "Error ocured blocking IP addresses - contact Administrator"
 msgstr ""
 
-#: modules/ip_blocker.py:81 templates/dashboard/dashboard.html:212
+#: modules/ip_blocker.py:74
+#, python-format
+msgid "Failed to retrieve IPs: %(error)s"
+msgstr ""
+
+#: modules/ip_blocker.py:81 templates/dashboard/dashboard.html:214
 #: templates/system/ip_blocker.html:15
 msgid "IP Blocker"
 msgstr ""
@@ -729,8 +1066,28 @@ msgstr ""
 msgid "Unable to determine the database name from app/config/local.php"
 msgstr ""
 
+#: modules/mautic.py:298
+#, python-format
+msgid "Database import failed: %(error)s"
+msgstr ""
+
+#: modules/mautic.py:307
+#, python-format
+msgid "Backup restored successfully: %(summary)s."
+msgstr ""
+
 #: modules/mautic.py:310
 msgid "No files to restore for the selected backup date."
+msgstr ""
+
+#: modules/mautic.py:373
+#, python-format
+msgid "Unsupported MYSQL_TYPE: %(mysql_version)s"
+msgstr ""
+
+#: modules/mautic.py:379
+#, python-format
+msgid "%(cmd)s failed: %(output)s"
 msgstr ""
 
 #: modules/mautic.py:438
@@ -775,6 +1132,25 @@ msgstr ""
 msgid "Error: .htaccess file already exists. Mautic installation cannot proceed!"
 msgstr ""
 
+#: modules/mautic.py:843
+#, python-format
+msgid ""
+"WordPress files detected in %(install_path)s - Mautic can not be "
+"installed."
+msgstr ""
+
+#: modules/mautic.py:844
+#, python-format
+msgid ""
+"Error: index.php file already exists in %(install_path)s - Mautic "
+"installation cannot proceed!"
+msgstr ""
+
+#: modules/mautic.py:850 modules/wordpress.py:1577
+#, python-format
+msgid "File %(file_name)s already exists in document root: %(install_path)s"
+msgstr ""
+
 #: modules/mautic.py:986
 msgid "Error creating MySQL database and user."
 msgstr ""
@@ -783,20 +1159,25 @@ msgstr ""
 msgid "Error running:  'mautic:install' command."
 msgstr ""
 
-#: modules/mcp.py:239 templates/user/mcp.html:9
+#: modules/mautic.py:1073
+#, python-format
+msgid "Mautic installed successfully on %(domain)s"
+msgstr ""
+
+#: modules/mcp.py:266 templates/user/mcp.html:9
 msgid "MCP"
 msgstr ""
 
-#: modules/mcp.py:254
+#: modules/mcp.py:286
 #, python-format
 msgid "Token \"%(name)s\" created. Copy it below - it will not be shown again."
 msgstr ""
 
-#: modules/mcp.py:266
+#: modules/mcp.py:298
 msgid "Token revoked."
 msgstr ""
 
-#: modules/mcp.py:268
+#: modules/mcp.py:300
 msgid "Token not found."
 msgstr ""
 
@@ -804,6 +1185,29 @@ msgstr ""
 #: modules/mysql.py:531 modules/mysql.py:724 modules/mysql.py:901
 #: modules/postgresql.py:72 modules/postgresql.py:446
 msgid "Database name is required."
+msgstr ""
+
+#: modules/mysql.py:118 modules/mysql.py:178 modules/mysql.py:348
+#: modules/mysql.py:358 modules/mysql.py:727 modules/mysql.py:763
+#: modules/mysql.py:805 modules/mysql.py:897 modules/mysql.py:905
+#: modules/postgresql.py:75 modules/postgresql.py:137 modules/postgresql.py:450
+#: modules/postgresql.py:547
+#, python-format
+msgid ""
+"Name %(name)s is not allowed. Please use alphanumeric characters and '_' "
+"- [a-zA-Z0-9_]+ "
+msgstr ""
+
+#: modules/mysql.py:134 modules/mysql.py:266
+#, python-format
+msgid ""
+"Error creating database: '%(name)s' - You have reached the maximum number"
+" of databases allowed."
+msgstr ""
+
+#: modules/mysql.py:148
+#, python-format
+msgid "Successfully created a database %(name)s"
 msgstr ""
 
 #: modules/mysql.py:151 modules/postgresql.py:121 templates/mysql/new.html:58
@@ -830,9 +1234,14 @@ msgstr ""
 msgid "Invalid host format."
 msgstr ""
 
+#: modules/mysql.py:198
+#, python-format
+msgid "Successfully created a database user %(name)s"
+msgstr ""
+
 #: modules/mysql.py:202 modules/postgresql.py:159
-#: templates/mysql/mysql_user.html:163 templates/mysql/users.html:67
-#: templates/psql/psql_user.html:164 templates/psql/users.html:64
+#: templates/mysql/mysql_user.html:164 templates/mysql/users.html:67
+#: templates/psql/psql_user.html:165 templates/psql/users.html:64
 msgid "Create User"
 msgstr ""
 
@@ -843,8 +1252,8 @@ msgid "This is a system username that can not be edited."
 msgstr ""
 
 #: modules/mysql.py:212 modules/postgresql.py:171 templates/files/ftp.html:109
-#: templates/mysql/password.html:168 templates/mysql/root_password.html:154
-#: templates/mysql/users.html:105 templates/psql/password.html:163
+#: templates/mysql/password.html:169 templates/mysql/root_password.html:155
+#: templates/mysql/users.html:105 templates/psql/password.html:164
 #: templates/psql/users.html:115
 #: templates/user/reset_password/set_new_password.html:56
 msgid "Change Password"
@@ -855,12 +1264,27 @@ msgstr ""
 msgid "Wizard"
 msgstr ""
 
+#: modules/mysql.py:242 modules/mysql.py:251 modules/mysql.py:535
+#: modules/postgresql.py:489
+#, python-format
+msgid ""
+"Name %(name)s is not allowed. Please use alphanumeric characters and '_' "
+"- [a-zA-Z0-9_]+"
+msgstr ""
+
 #: modules/mysql.py:245 modules/mysql.py:368
 msgid "This is a system database that can not be used."
 msgstr ""
 
 #: modules/mysql.py:257 modules/mysql.py:363
 msgid "At least one privilege must be selected."
+msgstr ""
+
+#: modules/mysql.py:393
+#, python-format
+msgid ""
+"Privileges granted successfully for user '%(user)s' on database "
+"'%(database)s'"
 msgstr ""
 
 #: modules/mysql.py:397 modules/postgresql.py:225 templates/psql/assign.html:8
@@ -873,21 +1297,72 @@ msgstr ""
 msgid "Remove User from Database"
 msgstr ""
 
-#: modules/mysql.py:469 templates/dashboard/dashboard.html:142
-#: templates/dashboard/dashboard.html:154 templates/dashboard/usage.html:62
+#: modules/mysql.py:420 modules/mysql.py:485
+#, python-format
+msgid "%(service)s service is not yet installed. Starting it in the background.."
+msgstr ""
+
+#: modules/mysql.py:423 modules/mysql.py:487
+#, python-format
+msgid "%(service)s service is not accessible. Current status: %(status)s."
+msgstr ""
+
+#: modules/mysql.py:426 modules/mysql.py:492
+#, python-format
+msgid ""
+"%(service)s is running but still initializing. If it stays in this state "
+"for more than 60s, check the logs."
+msgstr ""
+
+#: modules/mysql.py:429 modules/mysql.py:494
+#, python-format
+msgid "%(service)s is starting. It is not ready to handle queries yet."
+msgstr ""
+
+#: modules/mysql.py:432 modules/mysql.py:496
+#, python-format
+msgid ""
+"%(service)s is running, but health status is unknown. It may or may not "
+"be ready to handle queries."
+msgstr ""
+
+#: modules/mysql.py:461 modules/postgresql.py:303
+#, python-format
+msgid "Error fetching databases: %(error)s"
+msgstr ""
+
+#: modules/mysql.py:469 templates/dashboard/dashboard.html:144
+#: templates/dashboard/dashboard.html:156 templates/dashboard/usage.html:62
 #: templates/files/backup_restore.html:172
 #: templates/files/backup_wizard.html:64 templates/mysql/databases.html:11
 msgid "Databases"
 msgstr ""
 
+#: modules/mysql.py:507 modules/postgresql.py:364
+#, python-format
+msgid "Error fetching users: %(error)s"
+msgstr ""
+
 #: modules/mysql.py:515 modules/postgresql.py:377
-#: templates/dashboard/dashboard.html:143
-#: templates/dashboard/dashboard.html:155 templates/mysql/users.html:11
+#: templates/dashboard/dashboard.html:145
+#: templates/dashboard/dashboard.html:157 templates/mysql/users.html:11
 msgid "Users"
+msgstr ""
+
+#: modules/mysql.py:539
+#, python-format
+msgid ""
+"Database '%(name)s' is restricted and cannot be exported. Contact "
+"Administrator"
 msgstr ""
 
 #: modules/mysql.py:543
 msgid "Invalid export format provided, select SQL or GZIP."
+msgstr ""
+
+#: modules/mysql.py:557
+#, python-format
+msgid "Failed to export database %(name)s."
 msgstr ""
 
 #: modules/mysql.py:577
@@ -898,22 +1373,84 @@ msgstr ""
 msgid "Invalid export path. Must be inside /var/www/html/"
 msgstr ""
 
+#: modules/mysql.py:591
+#, python-format
+msgid "Export path %(path)s does not exist or is not a directory."
+msgstr ""
+
+#: modules/mysql.py:618
+#, python-format
+msgid "Failed to write export to %(path)s - try export to browser instead."
+msgstr ""
+
+#: modules/mysql.py:623
+#, python-format
+msgid "Database '%(name)s' exported to %(path)s"
+msgstr ""
+
 #: modules/mysql.py:627
 msgid "Invalid export destination."
+msgstr ""
+
+#: modules/mysql.py:735
+#, python-format
+msgid "Error deleting database: %(error)s"
+msgstr ""
+
+#: modules/mysql.py:740
+#, python-format
+msgid "Successfully deleted a database %(name)s"
 msgstr ""
 
 #: modules/mysql.py:767 modules/mysqld/remote_mysql.py:217
 msgid "This is a system username that can not be deleted."
 msgstr ""
 
+#: modules/mysql.py:781
+#, python-format
+msgid "Error deleting user: %(error)s"
+msgstr ""
+
+#: modules/mysql.py:786
+#, python-format
+msgid "Successfully deleted user %(name)s"
+msgstr ""
+
+#: modules/mysql.py:823
+#, python-format
+msgid "Error changing password: %(error)s"
+msgstr ""
+
+#: modules/mysql.py:829
+#, python-format
+msgid "Successfully changed password for user %(name)s"
+msgstr ""
+
 #: modules/mysql.py:909
 msgid "This is a system database that can not be edited."
+msgstr ""
+
+#: modules/mysql.py:925
+#, python-format
+msgid "Failed to revoke privileges: %(error)s"
+msgstr ""
+
+#: modules/mysql.py:929
+#, python-format
+msgid ""
+"Successfully revoked all privileges for user %(user)s from database "
+"%(database)s"
 msgstr ""
 
 #: modules/pgadmin.py:38
 msgid ""
 "pgAdmin email is invalid. Please set a valid email address before "
 "enabling the service."
+msgstr ""
+
+#: modules/pgadmin.py:45
+#, python-format
+msgid "Failed to start %(service)s: %(detail)s"
 msgstr ""
 
 #: modules/cache/varnish.py:191 modules/cache/varnish.py:221
@@ -945,7 +1482,7 @@ msgstr ""
 msgid "No changes or invalid data provided. Try again."
 msgstr ""
 
-#: modules/pgadmin.py:121 templates/dashboard/dashboard.html:158
+#: modules/pgadmin.py:121 templates/dashboard/dashboard.html:160
 #: templates/psql/pgadmin.html:11
 msgid "pgAdmin"
 msgstr ""
@@ -962,8 +1499,39 @@ msgstr ""
 msgid "Invalid PHP version format"
 msgstr ""
 
+#: modules/php.py:184
+#, python-format
+msgid ""
+"Default PHP version for OpenLitespeed can not be set to %(version)s - "
+"only available tags are: 8.5 8.4 8.3 8.2"
+msgstr ""
+
+#: modules/php.py:191
+#, python-format
+msgid "PHP version %(version)s set as default for new domains"
+msgstr ""
+
+#: modules/php.py:195
+#, python-format
+msgid ""
+"PHP version %(version)s saved, and Litespeed restarted to apply the "
+"version."
+msgstr ""
+
+#: modules/php.py:199
+#, python-format
+msgid ""
+"PHP version %(version)s saved and will be used by Litespeed for new "
+"domains."
+msgstr ""
+
 #: modules/php.py:210 modules/php.py:474
 msgid "success"
+msgstr ""
+
+#: modules/php.py:212
+#, python-format
+msgid "Default PHP version could not be changed to %(version)s"
 msgstr ""
 
 #: modules/php.py:214
@@ -986,13 +1554,41 @@ msgid ""
 "for all domains, use the 'Default PHP Version' page."
 msgstr ""
 
-#: modules/account/account.py:153 modules/files/backups.py:181
+#: modules/php.py:431 modules/phpd/php_extensions.py:355
+#: modules/phpd/php_extensions.py:463
+#, python-format
+msgid "Failed to start PHP %(version)s: %(error)s"
+msgstr ""
+
+#: modules/php.py:445
+#, python-format
+msgid "Error occurred while updating PHP version for domain %(domain)s"
+msgstr ""
+
+#: modules/php.py:473
+#, python-format
+msgid ""
+"PHP version for domain %(domain)s updated from %(old_version)s to "
+"%(new_version)s"
+msgstr ""
+
+#: modules/account/account.py:154 modules/files/backups.py:181
 #: modules/php.py:501 templates/psql/pgadmin.html:105
 msgid "Settings"
 msgstr ""
 
 #: modules/php.py:511
 msgid "PHP INFO"
+msgstr ""
+
+#: modules/php.py:523
+#, python-format
+msgid "PHP %(version)s Info"
+msgstr ""
+
+#: modules/php.py:528
+#, python-format
+msgid "Failed to start PHP %(service)s: %(error)s"
 msgstr ""
 
 #: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57
@@ -1009,6 +1605,21 @@ msgstr ""
 
 #: modules/pm2.py:177
 msgid "Invalid file extension. Only .py, or .js are allowed."
+msgstr ""
+
+#: modules/pm2.py:185
+#, python-format
+msgid "%(file)s exists."
+msgstr ""
+
+#: modules/pm2.py:188
+#, python-format
+msgid "%(file)s does not exist."
+msgstr ""
+
+#: modules/files/filemanager.py:680 modules/pm2.py:191
+#, python-format
+msgid "Unexpected error: %(error)s"
 msgstr ""
 
 #: modules/pm2.py:464 templates/manager/pm2_install.html:9
@@ -1031,12 +1642,23 @@ msgstr ""
 msgid "'networks:' section not found in docker-compose.yml."
 msgstr ""
 
+#: modules/pm2.py:661
+#, python-format
+msgid "Service '%(service)s' already exists, please use a different name."
+msgstr ""
+
 #: modules/pm2.py:728
 msgid "Container failed to start. Please check allocated resources."
 msgstr ""
 
 #: modules/pm2.py:1006
-msgid ", "
+#, python-format
+msgid "Invalid action '%(action)s'. Allowed actions: %(allowed)s."
+msgstr ""
+
+#: modules/pm2.py:1011
+#, python-format
+msgid "Hacker! Service '%(site)s' cannot be deleted."
 msgstr ""
 
 #: modules/pm2.py:1033
@@ -1049,6 +1671,16 @@ msgstr ""
 
 #: modules/pm2.py:1045 modules/pm2.py:1252
 msgid "Error connecting to database."
+msgstr ""
+
+#: modules/pm2.py:1055
+#, python-format
+msgid "Stopped container for application: '%(site)s'."
+msgstr ""
+
+#: modules/pm2.py:1062
+#, python-format
+msgid "Started container for application '%(site)s'."
 msgstr ""
 
 #: modules/pm2.py:1087
@@ -1095,6 +1727,16 @@ msgstr ""
 msgid "Environment file not found."
 msgstr ""
 
+#: modules/pm2.py:1193
+#, python-format
+msgid "Re-downloaded image and started container for application '%(site)s'."
+msgstr ""
+
+#: modules/pm2.py:1196
+#, python-format
+msgid "Failed to %(action)s container '%(site)s': %(error)s"
+msgstr ""
+
 #: modules/pm2.py:1238
 msgid "Unable to detect service name for the application."
 msgstr ""
@@ -1103,12 +1745,57 @@ msgstr ""
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
 msgstr ""
 
+#: modules/pm2.py:1306
+#, python-format
+msgid "Application '%(site)s' removed successfully"
+msgstr ""
+
+#: modules/pm2.py:1309
+#, python-format
+msgid "Service '%(service)s' not found in compose file"
+msgstr ""
+
+#: modules/pm2.py:1313
+#, python-format
+msgid "Failed to remove the service for application '%(site)s': %(error)s"
+msgstr ""
+
+#: modules/pm2.py:1338
+#, python-format
+msgid "Environment variables for '%(service)s' removed from .env"
+msgstr ""
+
+#: modules/pm2.py:1341
+#, python-format
+msgid ".env file not found at %(path)s"
+msgstr ""
+
+#: modules/pm2.py:1360
+#, python-format
+msgid "Application '%(site)s' deleted from the database"
+msgstr ""
+
+#: modules/pm2.py:1363
+#, python-format
+msgid "Failed to delete application '%(site)s' from the database: %(error)s"
+msgstr ""
+
 #: modules/postgresql.py:105
 msgid "You have reached the maximum number of databases allowed."
 msgstr ""
 
 #: modules/postgresql.py:113
 msgid "Failed to create database: "
+msgstr ""
+
+#: modules/postgresql.py:118
+#, python-format
+msgid "Successfully created a PostgreSQL database %(database_name)s"
+msgstr ""
+
+#: modules/postgresql.py:152
+#, python-format
+msgid "Successfully created a PostgreSQL user %(db_user)s"
 msgstr ""
 
 #: modules/postgresql.py:155
@@ -1147,13 +1834,48 @@ msgid "PostgreSQL databases"
 msgstr ""
 
 #: modules/mysqld/mysql_processlist.py:39 modules/postgresql.py:415
-#: templates/dashboard/dashboard.html:147
-#: templates/dashboard/dashboard.html:159
+#: templates/dashboard/dashboard.html:149
+#: templates/dashboard/dashboard.html:161
 msgid "Process List"
+msgstr ""
+
+#: modules/postgresql.py:463
+#, python-format
+msgid "Error deleting database %(database_name)s: %(error)s"
+msgstr ""
+
+#: modules/postgresql.py:468
+#, python-format
+msgid "Successfully deleted a PostgreSQL database %(database_name)s"
 msgstr ""
 
 #: modules/postgresql.py:494
 msgid "This is a system username that cannot be deleted."
+msgstr ""
+
+#: modules/postgresql.py:521
+#, python-format
+msgid "Successfully deleted user %(db_user)s"
+msgstr ""
+
+#: modules/postgresql.py:524
+#, python-format
+msgid "Error deleting user %(db_user)s: %(error)s"
+msgstr ""
+
+#: modules/postgresql.py:561
+#, python-format
+msgid "Successfully changed password for user %(db_user)s"
+msgstr ""
+
+#: modules/postgresql.py:564
+#, python-format
+msgid "Error changing password for user %(db_user)s: %(error)s"
+msgstr ""
+
+#: modules/postgresql.py:619
+#, python-format
+msgid "Error executing PostgreSQL query: %(error)s"
 msgstr ""
 
 #: modules/postgresql.py:645
@@ -1194,7 +1916,7 @@ msgstr ""
 msgid "Process killed successfully"
 msgstr ""
 
-#: modules/process_manager.py:96 templates/dashboard/dashboard.html:215
+#: modules/process_manager.py:96 templates/dashboard/dashboard.html:217
 #: templates/system/process_manager.html:12
 msgid "Process Manager"
 msgstr ""
@@ -1211,6 +1933,11 @@ msgstr ""
 msgid "Choose Service"
 msgstr ""
 
+#: modules/services.py:37
+#, python-format
+msgid "Service '%(service)s' does not exist."
+msgstr ""
+
 #: modules/services.py:83
 msgid "Try restart."
 msgstr ""
@@ -1223,17 +1950,22 @@ msgstr ""
 msgid "An error occurred while fetching resource usage."
 msgstr ""
 
-#: modules/usage.py:29 templates/dashboard/dashboard.html:213
+#: modules/usage.py:29 templates/dashboard/dashboard.html:215
 #: templates/user/stats.html:16
 msgid "Resource Usage"
 msgstr ""
 
-#: modules/usage.py:82 templates/dashboard/dashboard.html:214
+#: modules/usage.py:82 templates/dashboard/dashboard.html:216
 msgid "Resource Usage History"
 msgstr ""
 
 #: modules/waf.py:73
 msgid "Invalid type. Must be 'tags' or 'ids'."
+msgstr ""
+
+#: modules/waf.py:108
+#, python-format
+msgid "WAF for %(domain)s"
 msgstr ""
 
 #: modules/waf.py:126
@@ -1261,8 +1993,18 @@ msgstr ""
 msgid "WAF"
 msgstr ""
 
+#: modules/waf.py:286
+#, python-format
+msgid "WAF for domain: %(domain)s is now %(status)s"
+msgstr ""
+
 #: modules/waf.py:291
 msgid "Error changing WAF status."
+msgstr ""
+
+#: modules/waf.py:295
+#, python-format
+msgid "Config file for %(domain)s not found"
 msgstr ""
 
 #: modules/waf.py:331
@@ -1279,7 +2021,27 @@ msgstr ""
 msgid "WAF is disabled for %(count)d domains."
 msgstr ""
 
-#: modules/waf.py:433 templates/dashboard/dashboard.html:219
+#: modules/domain/domain_logs.py:35 modules/waf.py:387
+#, python-format
+msgid "Log file for domain %(domain)s is empty."
+msgstr ""
+
+#: modules/waf.py:421
+#, python-format
+msgid "%(domain)s WAF Log"
+msgstr ""
+
+#: modules/domain/domain_logs.py:80 modules/waf.py:424
+#, python-format
+msgid "Error reading log file: %(error)s"
+msgstr ""
+
+#: modules/domain/domain_logs.py:84 modules/waf.py:428
+#, python-format
+msgid "Log file not found for domain %(domain)s."
+msgstr ""
+
+#: modules/waf.py:433 templates/dashboard/dashboard.html:221
 #: templates/system/waf_logs.html:285
 msgid "WAF Logs"
 msgstr ""
@@ -1312,6 +2074,33 @@ msgstr ""
 
 #: modules/webserver_conf.py:60
 msgid "Web Server Configuration Editor"
+msgstr ""
+
+#: modules/webserver_conf.py:74
+#, python-format
+msgid "Error writing to %(path)s: %(error)s"
+msgstr ""
+
+#: modules/webserver_conf.py:83
+#, python-format
+msgid "Error restarting %(service)s container."
+msgstr ""
+
+#: modules/webserver_conf.py:86
+#, python-format
+msgid ""
+"Changes saved to %(path)s and %(service)s container restarted "
+"successfully."
+msgstr ""
+
+#: modules/webserver_conf.py:89
+#, python-format
+msgid "Changes saved to %(path)s - the %(service)s container is not running."
+msgstr ""
+
+#: modules/webserver_conf.py:103
+#, python-format
+msgid "Error reading %(path)s: %(error)s"
 msgstr ""
 
 #: modules/website_builder.py:76
@@ -1356,6 +2145,16 @@ msgid ""
 " cannot proceed!"
 msgstr ""
 
+#: modules/website_builder.py:372
+#, python-format
+msgid "An error occurred while saving data: %(error)s"
+msgstr ""
+
+#: modules/website_builder.py:380
+#, python-format
+msgid "Website created successfully on %(domain)s"
+msgstr ""
+
 #: modules/websites.py:66
 msgid "Failed to contact Google Safe Browsing API"
 msgstr ""
@@ -1370,6 +2169,11 @@ msgstr ""
 
 #: modules/websites.py:277
 msgid "Invalid website parameter"
+msgstr ""
+
+#: modules/websites.py:309
+#, python-format
+msgid "Scanning WordPress site %(website)s for vulnerabilities completed."
 msgstr ""
 
 #: modules/websites.py:388
@@ -1418,7 +2222,7 @@ msgstr ""
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:694 templates/manager/wp/single.html:2363
+#: modules/websites.py:694 templates/manager/wp/single.html:2366
 msgid "WordPress updated successfully"
 msgstr ""
 
@@ -1426,8 +2230,18 @@ msgstr ""
 msgid "Update preferences saved successfully"
 msgstr ""
 
+#: modules/websites.py:806
+#, python-format
+msgid "Error occurred: %(error)s"
+msgstr ""
+
+#: modules/websites.py:835
+#, python-format
+msgid "An error occurred while fetching domain_url: %(error)s"
+msgstr ""
+
 #: modules/websites.py:862 modules/websites.py:869
-#: templates/dashboard/dashboard.html:102 templates/dashboard/usage.html:16
+#: templates/dashboard/dashboard.html:104 templates/dashboard/usage.html:16
 #: templates/domains/domains.html:127 templates/domains/domains.html:205
 #: templates/files/backup_wizard.html:64
 msgid "Websites"
@@ -1441,12 +2255,66 @@ msgstr ""
 msgid "Invalid domain name format."
 msgstr ""
 
+#: modules/wordpress.py:96
+#, python-format
+msgid "WORDPRESS - An error occurred while fetching domain_url: %(error)s"
+msgstr ""
+
 #: modules/wordpress.py:120
 msgid "WordPress Manager"
 msgstr ""
 
+#: modules/wordpress.py:274
+#, python-format
+msgid "Failed to retrieve db_name from wp-config.php file: %(error)s"
+msgstr ""
+
+#: modules/wordpress.py:276
+#, python-format
+msgid ""
+"%(wp_config_file)s does not exist - failed to retrieve db_name and table "
+"prefix."
+msgstr ""
+
+#: modules/wordpress.py:300
+#, python-format
+msgid "Database import failed: %(error_detail)s"
+msgstr ""
+
+#: modules/wordpress.py:307
+#, python-format
+msgid "Backup restored successfully: %(restored_summary)s."
+msgstr ""
+
+#: modules/wordpress.py:310
+#, python-format
+msgid ""
+"No files to restore, expected files: %(targz_file_path)s "
+"%(database_sql_path)s."
+msgstr ""
+
+#: modules/wordpress.py:381
+#, python-format
+msgid "Failed to retrieve table prefix: %(error)s"
+msgstr ""
+
+#: modules/wordpress.py:398
+#, python-format
+msgid "Failed to retrieve db_name from wp-cli: %(error)s"
+msgstr ""
+
 #: modules/wordpress.py:414
 msgid "No matching tables found"
+msgstr ""
+
+#: modules/wordpress.py:420
+#, python-format
+msgid "%(dump_cmd)s failed: %(output)s"
+msgstr ""
+
+#: modules/wordpress.py:503
+#, python-format
+msgid "Failed to list available rules: %(error)s"
 msgstr ""
 
 #: modules/wordpress.py:517
@@ -1459,6 +2327,11 @@ msgstr ""
 
 #: modules/wordpress.py:557
 msgid "Failed to apply hardening rules to the website - please try again"
+msgstr ""
+
+#: modules/wordpress.py:559
+#, python-format
+msgid "Error running command: %(error)s"
 msgstr ""
 
 #: modules/wordpress.py:578
@@ -1483,6 +2356,21 @@ msgstr ""
 
 #: modules/wordpress.py:637
 msgid "Invalid input or unsafe docroot"
+msgstr ""
+
+#: modules/wordpress.py:661
+#, python-format
+msgid "Source folder not found: %(path)s"
+msgstr ""
+
+#: modules/wordpress.py:678
+#, python-format
+msgid "Failed to copy WordPress files: %(error)s"
+msgstr ""
+
+#: modules/wordpress.py:712
+#, python-format
+msgid "Failed to set DB_NAME constant in %(path)s"
 msgstr ""
 
 #: modules/wordpress.py:841
@@ -1523,51 +2411,99 @@ msgid "Install WordPress"
 msgstr ""
 
 #: modules/wordpress.py:1676
-msgid "Please ensure your plan has sufficient resources to start the service."
+#, python-format
+msgid ""
+"Error: The %(mysql_version)s container is either not running or still "
+"initializing. Please ensure your plan has sufficient resources to start "
+"the service."
 msgstr ""
 
-#: modules/wordpress.py:1990
+#: modules/wordpress.py:1694
+#, python-format
+msgid "Error creating MySQL database and user: %(error)s"
+msgstr ""
+
+#: modules/wordpress.py:1712
+#, python-format
+msgid "Error running wp core install: %(error)s"
+msgstr ""
+
+#: modules/wordpress.py:1774
+#, python-format
+msgid ""
+"WordPress installed, but error occurred while saving data to WP Manager: "
+"%(error)s"
+msgstr ""
+
+#: modules/wordpress.py:1786
+#, python-format
+msgid "WordPress installed successfully on %(domain)s"
+msgstr ""
+
+#: modules/wordpress.py:1991
 msgid "Domain is not provided."
 msgstr ""
 
-#: modules/wordpress.py:2046
+#: modules/wordpress.py:2022
+#, python-format
+msgid "Database error: %(error)s"
+msgstr ""
+
+#: modules/wordpress.py:2047
 msgid "php_version could not be determined"
 msgstr ""
 
-#: modules/wordpress.py:2070
+#: modules/wordpress.py:2071
 msgid "Admin username could not be obtained"
 msgstr ""
 
-#: modules/wordpress.py:2070
+#: modules/wordpress.py:2071
 msgid "Please try login manually to wp-admin."
 msgstr ""
 
-#: modules/wordpress.py:2073
+#: modules/wordpress.py:2074
 msgid "No administrator users found"
 msgstr ""
 
-#: modules/wordpress.py:2162
+#: modules/wordpress.py:2163
 msgid "Unsupported action"
 msgstr ""
 
-#: modules/wordpress.py:2184
+#: modules/wordpress.py:2185
 msgid "Use 'enable' or 'disable'"
 msgstr ""
 
-#: modules/wordpress.py:2204
+#: modules/wordpress.py:2198
+#, python-format
+msgid "Maintenance mode %(action)sd successfully."
+msgstr ""
+
+#: modules/wordpress.py:2205
 msgid "Cache flushed successfully."
 msgstr ""
 
-#: modules/wordpress.py:2211
+#: modules/wordpress.py:2212
 msgid "Invalid type"
 msgstr ""
 
-#: modules/wordpress.py:2219 templates/base.html:44
+#: modules/wordpress.py:2220 templates/base.html:63
 #: templates/manager/grapejs_editor.html:123
 msgid "Success"
 msgstr ""
 
-#: modules/account/account.py:103
+#: modules/account/account.py:85
+#, python-format
+msgid ""
+"Password changed for account %(user)s\n"
+"Password for account <b>%(user)s</b> has been changed."
+msgstr ""
+
+#: modules/account/account.py:90
+#, python-format
+msgid "Password for account %(user)s has been changed successfully."
+msgstr ""
+
+#: modules/account/account.py:104
 #, python-format
 msgid ""
 "Email address changed for account %(username)s\n"
@@ -1575,29 +2511,40 @@ msgid ""
 "<b>%(new_email)s</b>."
 msgstr ""
 
-#: modules/account/account.py:114
+#: modules/account/account.py:112
+#, python-format
+msgid ""
+"Email address for account %(user)s has been changed successfully from "
+"%(old_email)s to %(new_email)s."
+msgstr ""
+
+#: modules/account/account.py:115
 #, python-format
 msgid "changed email address to %(email)s"
 msgstr ""
 
-#: modules/account/account.py:130
+#: modules/account/account.py:131
 #, python-format
 msgid "Username has been changed successfully from %(old)s to %(new)s."
 msgstr ""
 
-#: modules/account/account.py:136
+#: modules/account/account.py:137
 #, python-format
 msgid ""
 "Username %(old)s changed\n"
 "OpenPanel username changed from <b>%(old)s</b> to <b>%(new)s</b>."
 msgstr ""
 
-#: modules/account/account.py:151
+#: modules/account/account.py:152
 msgid "Failed to change username."
 msgstr ""
 
 #: modules/account/activity.py:72
 msgid "Activity"
+msgstr ""
+
+#: modules/account/api.py:13 templates/user/api_docs.html:55
+msgid "API Reference"
 msgstr ""
 
 #: modules/account/favorites.py:35
@@ -1612,9 +2559,14 @@ msgstr ""
 msgid "No link provided"
 msgstr ""
 
-#: modules/account/favorites.py:110 templates/base.html:220
+#: modules/account/favorites.py:110 templates/base.html:259
 #: templates/user/favorites.html:10
 msgid "Favorites"
+msgstr ""
+
+#: modules/account/forgot_password.py:104
+#, python-format
+msgid "Email %(email)s not found"
 msgstr ""
 
 #: modules/account/forgot_password.py:111
@@ -1624,6 +2576,11 @@ msgstr ""
 
 #: modules/account/forgot_password.py:120
 msgid "Password Reset Requested"
+msgstr ""
+
+#: modules/account/forgot_password.py:121
+#, python-format
+msgid "OpenPanel [%(domain)s] - Password Reset Requested"
 msgstr ""
 
 #: modules/account/forgot_password.py:138
@@ -1664,10 +2621,16 @@ msgid "Reset Password"
 msgstr ""
 
 #: modules/account/locale.py:44
-msgid "locale"
+#, python-format
+msgid "Language changed from %(old_locale)s to %(new_locale)s"
 msgstr ""
 
-#: modules/account/locale.py:63 templates/dashboard/dashboard.html:225
+#: modules/account/locale.py:47
+#, python-format
+msgid "Language changed to %(new_locale)s"
+msgstr ""
+
+#: modules/account/locale.py:63 templates/dashboard/dashboard.html:227
 #: templates/user/_login.html:96 templates/user/locale.html:10
 msgid "Change Language"
 msgstr ""
@@ -1728,9 +2691,18 @@ msgstr ""
 msgid "Invalid 2FA code. Please try again."
 msgstr ""
 
-#: modules/account/login_history.py:15 templates/dashboard/dashboard.html:231
+#: modules/account/login_history.py:15 templates/dashboard/dashboard.html:233
 #: templates/user/loginlog.html:10
 msgid "Login History"
+msgstr ""
+
+#: modules/account/notifications.py:200
+#, python-format
+msgid ""
+"Notification preferences changed for account %(user)s\n"
+" Notification preferences have been changed for your account "
+"<b>%(user)s</b>.<br><br> Review the new notification settings from "
+"<b>Account > Notifications</b> page."
 msgstr ""
 
 #: modules/account/notifications.py:204
@@ -1778,7 +2750,7 @@ msgstr ""
 msgid "Account no longer exists."
 msgstr ""
 
-#: modules/account/sessions.py:34 templates/dashboard/dashboard.html:228
+#: modules/account/sessions.py:34 templates/dashboard/dashboard.html:230
 #: templates/user/active_sessions.html:10
 msgid "Active Sessions"
 msgstr ""
@@ -1807,12 +2779,12 @@ msgstr ""
 msgid "Two-Factor Authentication is now disabled."
 msgstr ""
 
-#: modules/account/twofa.py:66 templates/dashboard/dashboard.html:227
+#: modules/account/twofa.py:66 templates/dashboard/dashboard.html:229
 #: templates/dashboard/twofa.html:6 templates/user/twofa_settings.html:14
 msgid "Two-Factor Authentication"
 msgstr ""
 
-#: modules/cache/elasticsearch.py:16 templates/dashboard/dashboard.html:178
+#: modules/cache/elasticsearch.py:16 templates/dashboard/dashboard.html:180
 msgid "ElasticSearch"
 msgstr ""
 
@@ -1822,7 +2794,7 @@ msgid ""
 " designed for speed and reliability."
 msgstr ""
 
-#: modules/cache/memcached.py:18 templates/dashboard/dashboard.html:175
+#: modules/cache/memcached.py:18 templates/dashboard/dashboard.html:177
 msgid "Memcached"
 msgstr ""
 
@@ -1832,7 +2804,7 @@ msgid ""
 "designed to accelerate dynamic web applications."
 msgstr ""
 
-#: modules/cache/opensearch.py:16 templates/dashboard/dashboard.html:177
+#: modules/cache/opensearch.py:16 templates/dashboard/dashboard.html:179
 msgid "OpenSearch"
 msgstr ""
 
@@ -1842,7 +2814,7 @@ msgid ""
 "large volumes of data. "
 msgstr ""
 
-#: modules/cache/redis.py:16 templates/dashboard/dashboard.html:173
+#: modules/cache/redis.py:16 templates/dashboard/dashboard.html:175
 msgid "Redis"
 msgstr ""
 
@@ -1852,7 +2824,7 @@ msgid ""
 " used primarily as an application cache or quick-response database."
 msgstr ""
 
-#: modules/cache/valkey.py:16 templates/dashboard/dashboard.html:174
+#: modules/cache/valkey.py:16 templates/dashboard/dashboard.html:176
 msgid "Valkey"
 msgstr ""
 
@@ -1866,7 +2838,7 @@ msgstr ""
 msgid "Varnish is not running"
 msgstr ""
 
-#: modules/cache/varnish.py:168 templates/dashboard/dashboard.html:176
+#: modules/cache/varnish.py:168 templates/dashboard/dashboard.html:178
 msgid "Varnish"
 msgstr ""
 
@@ -1876,8 +2848,18 @@ msgid ""
 "heavy dynamic web sites as well as APIs."
 msgstr ""
 
+#: modules/cache/varnish.py:190
+#, python-format
+msgid "Failed to start %(service)s: %(error)s"
+msgstr ""
+
 #: modules/cache/varnish.py:198
 msgid "Varnish caching is now enabled."
+msgstr ""
+
+#: modules/cache/varnish.py:220
+#, python-format
+msgid "Failed to start %(webserver)s after disabling %(varnish)s: %(error)s"
 msgstr ""
 
 #: modules/cache/varnish.py:224
@@ -1978,6 +2960,16 @@ msgstr ""
 msgid "Invalid folder path"
 msgstr ""
 
+#: modules/domain/capitalize_domains.py:29
+#, python-format
+msgid "Domain has been capitalized to %(capitalized_domain)s"
+msgstr ""
+
+#: modules/domain/capitalize_domains.py:35
+#, python-format
+msgid "Capitalize %(domain)s"
+msgstr ""
+
 #: modules/domain/capitalize_domains.py:94
 msgid "Error reading file."
 msgstr ""
@@ -1999,6 +2991,16 @@ msgstr ""
 msgid "Docroot must be inside '/var/www/html/' directory."
 msgstr ""
 
+#: modules/domain/docroot.py:85
+#, python-format
+msgid "Change docroot for %(domain)s"
+msgstr ""
+
+#: modules/domain/domain_logs.py:70
+#, python-format
+msgid "%(domain)s Access Log"
+msgstr ""
+
 #: modules/domain/domain_logs.py:88
 msgid "Access Logs"
 msgstr ""
@@ -2011,24 +3013,73 @@ msgstr ""
 msgid "Edit VHosts"
 msgstr ""
 
+#: modules/domain/edit_vhost.py:63
+#, python-format
+msgid "Edit VHosts for %(domain)s"
+msgstr ""
+
 #: modules/domain/edit_vhost.py:85
 msgid "Error: VirtualHost file could not be saved."
+msgstr ""
+
+#: modules/domain/edit_vhost.py:110 modules/domain/edit_vhost.py:128
+#, python-format
+msgid ""
+"Successfully saved file and restarted %(service)s service to apply "
+"changes."
+msgstr ""
+
+#: modules/domain/edit_vhost.py:114
+#, python-format
+msgid "Unsupported web server: %(service)s"
 msgstr ""
 
 #: modules/domain/edit_vhost.py:131
 msgid "Error saving virtual host configuration. Configuration test failed."
 msgstr ""
 
+#: modules/domain/edit_vhost.py:135
+#, python-format
+msgid "Virtual Host file saved, but reloading %(service)s failed."
+msgstr ""
+
+#: modules/domain/redirects.py:35
+#, python-format
+msgid "Domain %(domain)s does not have a redirect URL configured."
+msgstr ""
+
 #: modules/domain/redirects.py:50
 msgid "Unauthorized"
+msgstr ""
+
+#: modules/domain/redirects.py:76
+#, python-format
+msgid ""
+"Successfully deleted the redirect link %(redirect_url)s for domain "
+"%(domain)s"
+msgstr ""
+
+#: modules/domain/redirects.py:81
+#, python-format
+msgid "Error deleting redirect for the domain %(domain)s: %(error)s"
 msgstr ""
 
 #: modules/domain/redirects.py:110
 msgid "Invalid URL. Please provide a URL with 'http://' or 'https://' prefix."
 msgstr ""
 
+#: modules/domain/redirects.py:145
+#, python-format
+msgid "Successfully created redirect from domain %(domain)s to %(redirect_url)s"
+msgstr ""
+
 #: modules/domain/redirects.py:156
 msgid "Create a Redirect"
+msgstr ""
+
+#: modules/domain/redirects.py:166
+#, python-format
+msgid "Redirect %(domain)s"
 msgstr ""
 
 #: modules/domain/ssl.py:22
@@ -2047,7 +3098,7 @@ msgid ""
 " shortly."
 msgstr ""
 
-#: modules/domain/ssl.py:48 templates/dashboard/dashboard.html:132
+#: modules/domain/ssl.py:48 templates/dashboard/dashboard.html:134
 #: templates/domains/domains.html:213
 msgid "SSL"
 msgstr ""
@@ -2068,11 +3119,16 @@ msgstr ""
 msgid "Invalid action! Only AutoSSL or Custom are available."
 msgstr ""
 
+#: modules/domain/ssl.py:157
+#, python-format
+msgid "SSL for %(domain)s"
+msgstr ""
+
 #: modules/domain/ssl.py:176
 msgid "No SSL certificate found for this domain."
 msgstr ""
 
-#: modules/files/backup_wizard.py:92 templates/dashboard/dashboard.html:120
+#: modules/files/backup_wizard.py:92 templates/dashboard/dashboard.html:122
 #: templates/files/backup_wizard.html:10
 msgid "Backup Wizard"
 msgstr ""
@@ -2131,11 +3187,21 @@ msgstr ""
 msgid "multiple backup targets configured"
 msgstr ""
 
+#: modules/files/backups.py:195
+#, python-format
+msgid "Invalid backup target: %(target)s"
+msgstr ""
+
+#: modules/files/backups.py:228
+#, python-format
+msgid "Backup target switched to '%(target)s' successfully."
+msgstr ""
+
 #: modules/files/backups.py:233 modules/files/backups.py:261
 msgid "Destination"
 msgstr ""
 
-#: modules/files/backups.py:337 templates/dashboard/dashboard.html:119
+#: modules/files/backups.py:337 templates/dashboard/dashboard.html:121
 #: templates/files/backups.html:26 templates/manager/drupal/single.html:131
 #: templates/manager/drupal/single.html:154 templates/manager/mautic.html:131
 #: templates/manager/mautic.html:154 templates/manager/websitebuilder.html:76
@@ -2174,7 +3240,32 @@ msgstr ""
 msgid "No database specified."
 msgstr ""
 
-#: modules/files/disk_usage.py:43 templates/dashboard/dashboard.html:118
+#: modules/files/backups.py:690
+#, python-format
+msgid "Database '%(database)s' not found in this backup."
+msgstr ""
+
+#: modules/files/backups.py:697
+#, python-format
+msgid "Database '%(database)s' restored successfully."
+msgstr ""
+
+#: modules/files/backups.py:703
+#, python-format
+msgid "Files restored (%(count)s items)."
+msgstr ""
+
+#: modules/files/backups.py:706
+#, python-format
+msgid "Unknown restore target: %(target)s"
+msgstr ""
+
+#: modules/files/disk_usage.py:34
+#, python-format
+msgid "Error: %(error)s"
+msgstr ""
+
+#: modules/files/disk_usage.py:43 templates/dashboard/dashboard.html:120
 #: templates/files/disk_usage.html:16
 msgid "Disk Usage"
 msgstr ""
@@ -2227,6 +3318,26 @@ msgstr ""
 msgid "No files were uploaded"
 msgstr ""
 
+#: modules/files/filemanager.py:219
+#, python-format
+msgid "%(filename)s exceeds the upload limit of %(limit)s MB."
+msgstr ""
+
+#: modules/files/filemanager.py:233
+#, python-format
+msgid "Invalid filename: %(filename)s"
+msgstr ""
+
+#: modules/files/filemanager.py:245
+#, python-format
+msgid "Failed to save %(filename)s"
+msgstr ""
+
+#: modules/files/filemanager.py:255
+#, python-format
+msgid "Failed to set ownership on %(filename)s"
+msgstr ""
+
 #: modules/files/filemanager.py:265
 msgid "Files uploaded successfully."
 msgstr ""
@@ -2238,6 +3349,10 @@ msgstr ""
 #: modules/files/filemanager.py:272
 #, python-brace-format
 msgid "Error uploading files: {0}"
+msgstr ""
+
+#: modules/files/filemanager.py:274
+msgid "Upload Files"
 msgstr ""
 
 #: modules/files/filemanager.py:311
@@ -2291,6 +3406,11 @@ msgstr ""
 msgid "Download in progress..."
 msgstr ""
 
+#: modules/files/filemanager.py:549
+#, python-format
+msgid "File downloaded from URL successfully to %(path)s"
+msgstr ""
+
 #: modules/files/filemanager.py:562
 msgid "(Failed to set ownership for the downloaded file.)"
 msgstr ""
@@ -2321,11 +3441,6 @@ msgstr ""
 
 #: modules/files/filemanager.py:676
 msgid "Failed to set archive ownership"
-msgstr ""
-
-#: modules/files/filemanager.py:680
-#, python-format
-msgid "Unexpected error: %(error)s"
 msgstr ""
 
 #: modules/files/filemanager.py:712
@@ -2413,6 +3528,11 @@ msgstr ""
 msgid "Error reading file"
 msgstr ""
 
+#: modules/files/filemanager.py:1065
+#, python-format
+msgid "File size exceeds %(limit)sMB limit. Download aborted."
+msgstr ""
+
 #: modules/files/filemanager.py:1069
 msgid "Error retrieving file size."
 msgstr ""
@@ -2438,7 +3558,7 @@ msgstr ""
 msgid "Directory does not exist."
 msgstr ""
 
-#: modules/files/filemanager.py:1273 templates/dashboard/dashboard.html:113
+#: modules/files/filemanager.py:1273 templates/dashboard/dashboard.html:115
 #: templates/files/disk_usage.html:77 templates/files/filemanager.html:46
 #: templates/files/inodes.html:76
 msgid "File Manager"
@@ -2456,7 +3576,7 @@ msgstr ""
 msgid "Success."
 msgstr ""
 
-#: modules/files/fix_permissions.py:50 templates/dashboard/dashboard.html:123
+#: modules/files/fix_permissions.py:50 templates/dashboard/dashboard.html:125
 #: templates/files/fix_permissions.html:10
 #: templates/files/fix_permissions.html:46
 msgid "Fix Permissions"
@@ -2473,7 +3593,7 @@ msgstr ""
 msgid "Unknown"
 msgstr ""
 
-#: modules/files/ftp.py:101 templates/dashboard/dashboard.html:116
+#: modules/files/ftp.py:101 templates/dashboard/dashboard.html:118
 #: templates/dashboard/usage.html:108 templates/files/ftp.html:9
 msgid "FTP Accounts"
 msgstr ""
@@ -2483,7 +3603,7 @@ msgstr ""
 msgid "FTP service is not yet started, please contact Administrator to enable it."
 msgstr ""
 
-#: modules/files/ftp.py:119 templates/dashboard/dashboard.html:117
+#: modules/files/ftp.py:119 templates/dashboard/dashboard.html:119
 #: templates/files/ftp_connections.html:9
 msgid "FTP Connections"
 msgstr ""
@@ -2508,27 +3628,109 @@ msgstr ""
 msgid "FTP password not provided."
 msgstr ""
 
+#: modules/files/ftp.py:171
+#, python-format
+msgid "The FTP path must start with %(path)s"
+msgstr ""
+
+#: modules/files/ftp.py:176
+#, python-format
+msgid ""
+"Username %(username)s contains invalid characters, only allowed: "
+"BCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_@."
+msgstr ""
+
+#: modules/files/ftp.py:186
+#, python-format
+msgid "FTP account %(username)s created successfully."
+msgstr ""
+
+#: modules/files/ftp.py:191
+#, python-format
+msgid "Failed to create FTP account %(username)s: %(output)s"
+msgstr ""
+
+#: modules/files/ftp.py:196 modules/files/ftp.py:201
+#, python-format
+msgid "Error creating FTP user %(username)s: %(error)s"
+msgstr ""
+
 #: modules/files/ftp.py:206 templates/files/ftp_new.html:9
 msgid "New FTP Account"
+msgstr ""
+
+#: modules/files/ftp.py:231
+#, python-format
+msgid "FTP account %(username)s deleted successfully!"
+msgstr ""
+
+#: modules/files/ftp.py:234
+#, python-format
+msgid "Failed to delete FTP account %(username)s. Output: %(output)s"
+msgstr ""
+
+#: modules/files/ftp.py:237
+#, python-format
+msgid ""
+"An error occurred while trying to delete FTP account %(username)s: "
+"%(error)s"
 msgstr ""
 
 #: modules/files/ftp.py:257
 msgid "Missing new password"
 msgstr ""
 
-#: modules/files/ftp.py:341
+#: modules/files/ftp.py:269
+#, python-format
+msgid "FTP password changed successfully for user %(username)s"
+msgstr ""
+
+#: modules/files/ftp.py:272
+#, python-format
+msgid "Failed to change FTP password: %(output)s"
+msgstr ""
+
+#: modules/files/ftp.py:276
+#, python-format
+msgid "Error changing FTP password: %(error)s"
+msgstr ""
+
+#: modules/files/ftp.py:280
+msgid "Change FTP Password"
+msgstr ""
+
+#: modules/files/ftp.py:313
+#, python-format
+msgid "FTP path changed successfully for user %(username)s"
+msgstr ""
+
+#: modules/files/ftp.py:316
+#, python-format
+msgid "Failed to change FTP path for user %(username)s: %(output)s"
+msgstr ""
+
+#: modules/files/ftp.py:320 modules/files/ftp.py:324
+#, python-format
+msgid "Error changing FTP path for user %(username)s: %(error)s"
+msgstr ""
+
+#: modules/files/ftp.py:328
+msgid "Change FTP Path"
+msgstr ""
+
+#: modules/files/ftp.py:339
 msgid "Invalid configuration type, please use cyberduck or filezilla only!"
 msgstr ""
 
-#: modules/files/ftp.py:351
+#: modules/files/ftp.py:349
 msgid "User has no FTP accounts."
 msgstr ""
 
-#: modules/files/ftp.py:369
+#: modules/files/ftp.py:367
 msgid "FTP account not found."
 msgstr ""
 
-#: modules/files/inodes.py:54 templates/dashboard/dashboard.html:121
+#: modules/files/inodes.py:54 templates/dashboard/dashboard.html:123
 #: templates/files/inodes.html:13
 msgid "Inodes Explorer"
 msgstr ""
@@ -2565,7 +3767,17 @@ msgstr ""
 msgid "Invalid directory specified for scanning."
 msgstr ""
 
-#: modules/files/trash.py:165 templates/dashboard/dashboard.html:124
+#: modules/files/malware_scan.py:82
+#, python-format
+msgid "Specified directory %(path)s does not exist."
+msgstr ""
+
+#: modules/files/malware_scan.py:94
+#, python-format
+msgid "Scanning: %(path)s\n"
+msgstr ""
+
+#: modules/files/trash.py:165 templates/dashboard/dashboard.html:126
 #: templates/files/trash.html:14
 msgid "Trash"
 msgstr ""
@@ -2635,6 +3847,11 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
+#: modules/json/helpers.py:245
+#, python-format
+msgid "Unknown action '%(action)s'."
+msgstr ""
+
 #: modules/json/helpers.py:299
 msgid "Invalid action. Use start, stop, status, or restart."
 msgstr ""
@@ -2664,8 +3881,60 @@ msgstr ""
 msgid "Unknown database service, cannot restart"
 msgstr ""
 
+#: modules/mysqld/mysql_conf.py:159
+#, python-format
+msgid "%(service)s configuration updated and service restarted."
+msgstr ""
+
+#: modules/mysqld/mysql_conf.py:161
+#, python-format
+msgid "%(service)s configuration saved but service failed to restart."
+msgstr ""
+
+#: modules/mysqld/mysql_conf.py:164
+#, python-format
+msgid "%(service)s container is not running. Please wait for initialization."
+msgstr ""
+
+#: modules/mysqld/mysql_conf.py:174
+#, python-format
+msgid "Edit %(service)s configuration"
+msgstr ""
+
+#: modules/mysqld/mysql_import.py:19
+#, python-format
+msgid "Uploaded file is too large! Maximum allowed size is %(max_size)s GB."
+msgstr ""
+
+#: modules/mysqld/mysql_import.py:30
+#, python-format
+msgid ""
+"%(service)s container is not running. Please allow a few moments for the "
+"initialization.."
+msgstr ""
+
+#: modules/mysqld/mysql_import.py:53
+#, python-format
+msgid "Uploaded file exceeds %(max_size)s GB limit."
+msgstr ""
+
+#: modules/mysqld/mysql_import.py:79
+#, python-format
+msgid "Successfully imported from %(filename)s file to database: %(database)s"
+msgstr ""
+
+#: modules/mysqld/mysql_import.py:85
+#, python-format
+msgid "Import into '%(database)s' failed: %(error)s"
+msgstr ""
+
 #: modules/mysqld/mysql_import.py:91 modules/psql/postgresql_import.py:70
 msgid "No database file uploaded!"
+msgstr ""
+
+#: modules/mysqld/mysql_processlist.py:33
+#, python-format
+msgid "Error fetching process list: %(error)s"
 msgstr ""
 
 #: modules/mysqld/mysql_root_password.py:45
@@ -2674,6 +3943,11 @@ msgstr ""
 
 #: modules/mysqld/mysql_root_password.py:47
 msgid "Successfully changed root password."
+msgstr ""
+
+#: modules/mysqld/mysql_root_password.py:49
+#, python-format
+msgid "Error changing MySQL root password: %(error)s"
 msgstr ""
 
 #: modules/mysqld/mysql_root_password.py:51
@@ -2730,12 +4004,47 @@ msgstr ""
 msgid "Password is required."
 msgstr ""
 
+#: modules/mysqld/remote_mysql.py:145
+#, python-format
+msgid "User %(user)s already has access from host %(host)s."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:155
+#, python-format
+msgid "Error adding access: %(error)s"
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:160
+#, python-format
+msgid "Successfully granted access for %(user)s from %(host)s"
+msgstr ""
+
 #: modules/mysqld/remote_mysql.py:175 modules/mysqld/remote_mysql.py:213
 msgid "A valid username is required."
 msgstr ""
 
 #: modules/mysqld/remote_mysql.py:187
 msgid "No changes made."
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:194
+#, python-format
+msgid "Error updating access: %(error)s"
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:199
+#, python-format
+msgid "Successfully updated access for %(user)s"
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:228
+#, python-format
+msgid "Error removing access: %(error)s"
+msgstr ""
+
+#: modules/mysqld/remote_mysql.py:233
+#, python-format
+msgid "Successfully removed access for %(user)s from %(host)s"
 msgstr ""
 
 #: modules/phpd/php_extensions.py:173
@@ -2772,14 +4081,9 @@ msgstr ""
 msgid "PHP extension management is only available for PHP-FPM, not for Litespeed."
 msgstr ""
 
-#: modules/phpd/php_extensions.py:339 templates/dashboard/dashboard.html:195
+#: modules/phpd/php_extensions.py:339 templates/dashboard/dashboard.html:197
 #: templates/php/extensions.html:228
 msgid "PHP Extensions"
-msgstr ""
-
-#: modules/phpd/php_extensions.py:355 modules/phpd/php_extensions.py:463
-#, python-format
-msgid "Failed to start PHP %(version)s: %(error)s"
 msgstr ""
 
 #: modules/phpd/php_extensions.py:363
@@ -2825,8 +4129,30 @@ msgstr ""
 msgid "Install queued..."
 msgstr ""
 
-#: modules/phpd/php_ini.py:16 templates/dashboard/dashboard.html:196
+#: modules/phpd/php_ini.py:16 templates/dashboard/dashboard.html:198
 msgid "PHP.INI Editor"
+msgstr ""
+
+#: modules/phpd/php_ini.py:35
+#, python-format
+msgid "PHP %(version)s INI Editor"
+msgstr ""
+
+#: modules/phpd/php_ini.py:54
+#, python-format
+msgid "Error saving %(text)s php.ini file!"
+msgstr ""
+
+#: modules/phpd/php_ini.py:59
+#, python-format
+msgid ""
+"PHP.INI file for %(text)s version %(version)s edited successfully, and "
+"%(container)s service restarted to apply."
+msgstr ""
+
+#: modules/phpd/php_ini.py:63
+#, python-format
+msgid "PHP.INI file for %(text)s version %(version)s edited successfully."
 msgstr ""
 
 #: modules/phpd/php_ini.py:80 modules/phpd/php_options.py:191
@@ -2838,6 +4164,18 @@ msgstr ""
 #: templates/emails/aliases.html:47 templates/emails/deliverability.html:39
 #: templates/manager/wp/single.html:116
 msgid "Options"
+msgstr ""
+
+#: modules/phpd/php_options.py:150
+#, python-format
+msgid "%(version)s Options"
+msgstr ""
+
+#: modules/phpd/php_options.py:171
+#, python-format
+msgid ""
+"Configuration edited successfully and %(text)s service restarted to apply"
+" new settings."
 msgstr ""
 
 #: modules/psql/postgresql_conf.py:157
@@ -2860,6 +4198,16 @@ msgstr ""
 
 #: modules/psql/postgresql_conf.py:182
 msgid "Edit PostgreSQL configuration"
+msgstr ""
+
+#: modules/psql/postgresql_import.py:60
+#, python-format
+msgid "Successfully imported %(filename)s into database: %(db_name)s"
+msgstr ""
+
+#: modules/psql/postgresql_import.py:66
+#, python-format
+msgid "Error importing %(filename)s into database %(db_name)s"
 msgstr ""
 
 #: modules/psql/postgresql_import.py:80
@@ -2894,37 +4242,37 @@ msgstr ""
 msgid "No redirect link found"
 msgstr ""
 
-#: templates/base.html:45 templates/manager/grapejs_editor.html:127
+#: templates/base.html:64 templates/manager/grapejs_editor.html:127
 #: templates/manager/python_node_apps.html:695
 #: templates/mysql/databases.html:685
 msgid "Error"
 msgstr ""
 
-#: templates/base.html:46 templates/docker/images.html:134
+#: templates/base.html:65 templates/docker/images.html:134
 #: templates/mysql/processlist.html:73
 msgid "Info"
 msgstr ""
 
-#: templates/base.html:47
+#: templates/base.html:66
 msgid "Uploading"
 msgstr ""
 
-#: templates/base.html:48
+#: templates/base.html:67
 msgid "Loading"
 msgstr ""
 
-#: templates/base.html:49 templates/user/history_usage.html:148
+#: templates/base.html:68 templates/user/history_usage.html:148
 msgid "Warning"
 msgstr ""
 
-#: templates/base.html:50 templates/base.html:736 templates/base.html:770
+#: templates/base.html:69 templates/base.html:772 templates/base.html:806
 #: templates/files/backup_restore.html:498
 #: templates/files/filemanager/modals/rename.html:17
 #: templates/mysql/databases.html:676
 msgid "Close"
 msgstr ""
 
-#: templates/base.html:51 templates/docker/delete_confirm.html:48
+#: templates/base.html:70 templates/docker/delete_confirm.html:48
 #: templates/domains/dns.html:192 templates/domains/dns.html:555
 #: templates/domains/domains.html:279 templates/domains/domains.html:309
 #: templates/domains/dynamic_dns.html:24 templates/domains/dynamic_dns.html:65
@@ -2936,114 +4284,189 @@ msgstr ""
 #: templates/manager/python_node_apps.html:1112
 #: templates/manager/websitebuilder.html:273
 #: templates/manager/websitebuilder.html:305
-#: templates/manager/wp/single.html:693 templates/manager/wp/single.html:2073
-#: templates/manager/wp/single.html:2107 templates/mysql/remote_mysql.html:150
+#: templates/manager/wp/single.html:693 templates/manager/wp/single.html:2076
+#: templates/manager/wp/single.html:2110 templates/mysql/remote_mysql.html:150
 #: templates/mysql/remote_mysql.html:201 templates/php/extensions.html:95
 #: templates/psql/pgadmin.html:130 templates/psql/pgadmin.html:154
 #: templates/psql/pgadmin.html:183
 msgid "Cancel"
 msgstr ""
 
-#: templates/base.html:54
+#: templates/base.html:73
 msgid "today"
 msgstr ""
 
-#: templates/base.html:55
+#: templates/base.html:74
 msgid "yesterday"
 msgstr ""
 
-#: templates/base.html:56
+#: templates/base.html:75
 msgid "1 second ago"
 msgstr ""
 
-#: templates/base.html:57
+#: templates/base.html:76
 #, python-format
 msgid "%%(n)s seconds ago"
 msgstr ""
 
-#: templates/base.html:58
+#: templates/base.html:77
 msgid "1 minute ago"
 msgstr ""
 
-#: templates/base.html:59
+#: templates/base.html:78
 #, python-format
 msgid "%%(n)s minutes ago"
 msgstr ""
 
-#: templates/base.html:60
+#: templates/base.html:79
 msgid "1 hour ago"
 msgstr ""
 
-#: templates/base.html:61
+#: templates/base.html:80
 #, python-format
 msgid "%%(n)s hours ago"
 msgstr ""
 
-#: templates/base.html:62
+#: templates/base.html:81
 msgid "1 day ago"
 msgstr ""
 
-#: templates/base.html:63
+#: templates/base.html:82
 #, python-format
 msgid "%%(n)s days ago"
 msgstr ""
 
-#: templates/base.html:64
+#: templates/base.html:83
 msgid "1 week ago"
 msgstr ""
 
-#: templates/base.html:65
+#: templates/base.html:84
 #, python-format
 msgid "%%(n)s weeks ago"
 msgstr ""
 
-#: templates/base.html:66
+#: templates/base.html:85
 msgid "last month"
 msgstr ""
 
-#: templates/base.html:67
+#: templates/base.html:86
 msgid "1 month ago"
 msgstr ""
 
-#: templates/base.html:68
+#: templates/base.html:87
 #, python-format
 msgid "%%(n)s months ago"
 msgstr ""
 
-#: templates/base.html:69
+#: templates/base.html:88
 msgid "last year"
 msgstr ""
 
-#: templates/base.html:70
+#: templates/base.html:89
 msgid "1 year ago"
 msgstr ""
 
-#: templates/base.html:71
+#: templates/base.html:90
 #, python-format
 msgid "%%(n)s years ago"
 msgstr ""
 
-#: templates/base.html:733
-msgid "Notification"
+#: templates/base.html:93
+msgid "This field is required."
 msgstr ""
 
-#: templates/base.html:737
-msgid "Dismiss"
+#: templates/base.html:94
+msgid "Enter a valid email address."
+msgstr ""
+
+#: templates/base.html:95
+msgid "Enter a valid URL."
+msgstr ""
+
+#: templates/base.html:96
+msgid "Invalid format."
+msgstr ""
+
+#: templates/base.html:97
+#, python-brace-format
+msgid "At least {min} characters required ({count} so far)."
+msgstr ""
+
+#: templates/base.html:98
+#, python-brace-format
+msgid "Maximum {max} characters."
+msgstr ""
+
+#: templates/base.html:99
+#, python-brace-format
+msgid "Value must be at least {min}."
+msgstr ""
+
+#: templates/base.html:100
+#, python-brace-format
+msgid "Value must be at most {max}."
+msgstr ""
+
+#: templates/base.html:101
+msgid "Looks good."
+msgstr ""
+
+#: templates/base.html:102
+msgid "Passwords match."
+msgstr ""
+
+#: templates/base.html:103
+#: templates/user/reset_password/set_new_password.html:49
+msgid "Passwords do not match."
+msgstr ""
+
+#: templates/base.html:104
+#, python-brace-format
+msgid "must be {min}-{max} characters"
+msgstr ""
+
+#: templates/base.html:105
+#, python-brace-format
+msgid "at least {min} characters"
+msgstr ""
+
+#: templates/base.html:106
+msgid "a lowercase letter"
+msgstr ""
+
+#: templates/base.html:107
+msgid "an uppercase letter"
+msgstr ""
+
+#: templates/base.html:108
+msgid "a number"
+msgstr ""
+
+#: templates/base.html:109
+msgid "a special character"
 msgstr ""
 
 #: templates/base.html:769
+msgid "Notification"
+msgstr ""
+
+#: templates/base.html:773
+msgid "Dismiss"
+msgstr ""
+
+#: templates/base.html:805
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: templates/base.html:782
+#: templates/base.html:818
 msgid "Toggle sidebar"
 msgstr ""
 
-#: templates/base.html:783
+#: templates/base.html:819
 msgid "Show this dialog"
 msgstr ""
 
-#: templates/base.html:846
+#: templates/base.html:882
 msgid "Found a bug? Let us know"
 msgstr ""
 
@@ -3074,7 +4497,7 @@ msgstr ""
 #: templates/cache/service.html:12 templates/files/backup_wizard.html:127
 #: templates/manager/python_node_apps.html:1179 templates/manager/sites.html:73
 #: templates/manager/websitebuilder.html:398 templates/system/services.html:12
-#: templates/user/mcp.html:34
+#: templates/user/mcp.html:35
 msgid "Created"
 msgstr ""
 
@@ -3182,12 +4605,12 @@ msgid "Edit limits"
 msgstr ""
 
 #: templates/dashboard/custom_section.html:22
-#: templates/dashboard/dashboard.html:70
+#: templates/dashboard/dashboard.html:72
 msgid "Hide icons"
 msgstr ""
 
 #: templates/dashboard/custom_section.html:22
-#: templates/dashboard/dashboard.html:70
+#: templates/dashboard/dashboard.html:72
 msgid "Show icons"
 msgstr ""
 
@@ -3203,20 +4626,20 @@ msgstr ""
 msgid "Skip"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:34
+#: templates/dashboard/dashboard.html:36
 msgid "Icons position"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:35
+#: templates/dashboard/dashboard.html:37
 msgid "Top"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:36 templates/docker/containers.html:346
+#: templates/dashboard/dashboard.html:38 templates/docker/containers.html:346
 #: templates/manager/python_node_apps.html:198
 msgid "Start"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:98 templates/domains/ssl.html:227
+#: templates/dashboard/dashboard.html:100 templates/domains/ssl.html:227
 #: templates/files/filemanager.html:216 templates/files/filemanager.html:442
 #: templates/manager/drupal/single.html:182 templates/manager/mautic.html:182
 #: templates/manager/python_node_apps.html:349
@@ -3226,195 +4649,195 @@ msgstr ""
 msgid "Files"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:103 templates/manager/wp/cache.html:5
+#: templates/dashboard/dashboard.html:105 templates/manager/wp/cache.html:5
 msgid "Cache"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:104 templates/emails/accounts.html:11
+#: templates/dashboard/dashboard.html:106 templates/emails/accounts.html:11
 #: templates/files/backup_settings.html:92 templates/partials/_header.html:58
 msgid "Emails"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:106 templates/partials/_header.html:83
+#: templates/dashboard/dashboard.html:108 templates/partials/_header.html:83
 msgid "Docker"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:107 templates/partials/_header.html:88
+#: templates/dashboard/dashboard.html:109 templates/partials/_header.html:88
 msgid "Advanced"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:108 templates/partials/_header.html:93
+#: templates/dashboard/dashboard.html:110 templates/partials/_header.html:93
 msgid "Account"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:114 templates/files/upload_file.html:9
+#: templates/dashboard/dashboard.html:116 templates/files/upload_file.html:9
 msgid "File Upload"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:115
+#: templates/dashboard/dashboard.html:117
 msgid "Download Files"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:122
+#: templates/dashboard/dashboard.html:124
 #: templates/files/clamav/scanner.html:14
 msgid "ClamAV Scanner"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:129
+#: templates/dashboard/dashboard.html:131
 msgid "Redirects"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:130 templates/domains/dns.html:870
+#: templates/dashboard/dashboard.html:132 templates/domains/dns.html:870
 msgid "DNS Zone Editor"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:133
+#: templates/dashboard/dashboard.html:135
 msgid "Suspend Domain"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:134
+#: templates/dashboard/dashboard.html:136
 msgid "Unsuspend Domain"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:135
+#: templates/dashboard/dashboard.html:137
 msgid "Change Docroot"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:136
+#: templates/dashboard/dashboard.html:138
 msgid "Edit Virtual Hosts"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:138
+#: templates/dashboard/dashboard.html:140
 msgid "Raw Access Logs"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:144
-#: templates/dashboard/dashboard.html:156 templates/mysql/databases.html:195
+#: templates/dashboard/dashboard.html:146
+#: templates/dashboard/dashboard.html:158 templates/mysql/databases.html:195
 #: templates/mysql/wizard.html:8 templates/psql/databases.html:129
 #: templates/psql/wizard.html:8
 msgid "Database Wizard"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:145
-#: templates/dashboard/dashboard.html:157
+#: templates/dashboard/dashboard.html:147
+#: templates/dashboard/dashboard.html:159
 msgid "Import Database"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:146
+#: templates/dashboard/dashboard.html:148
 msgid "Open phpMyAdmin"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:148
-#: templates/dashboard/dashboard.html:160 templates/mysql/remote_mysql.html:11
+#: templates/dashboard/dashboard.html:150
+#: templates/dashboard/dashboard.html:162 templates/mysql/remote_mysql.html:11
 msgid "Remote Access"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:149 templates/mysql/configuration.html:13
+#: templates/dashboard/dashboard.html:151 templates/mysql/configuration.html:13
 msgid "MySQL Configuration"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:150
+#: templates/dashboard/dashboard.html:152
 msgid "Change root password"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:161 templates/psql/configuration.html:10
+#: templates/dashboard/dashboard.html:163 templates/psql/configuration.html:10
 msgid "PostgreSQL Configuration"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:165 templates/manager/sites.html:8
+#: templates/dashboard/dashboard.html:167 templates/manager/sites.html:8
 msgid "Site Manager"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:167
+#: templates/dashboard/dashboard.html:169
 msgid "WP Manager"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:169
+#: templates/dashboard/dashboard.html:171
 msgid "Flarum"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:182
+#: templates/dashboard/dashboard.html:184
 msgid "Email Accounts"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:186
+#: templates/dashboard/dashboard.html:188
 msgid "Default Address"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:187
+#: templates/dashboard/dashboard.html:189
 msgid "Address Importer"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:188
+#: templates/dashboard/dashboard.html:190
 msgid "Address Exporter"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:192
+#: templates/dashboard/dashboard.html:194
 msgid "Select PHP version"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:193
+#: templates/dashboard/dashboard.html:195
 msgid "Default Version"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:194
+#: templates/dashboard/dashboard.html:196
 msgid "PHP Options"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:201 templates/docker/containers.html:423
+#: templates/dashboard/dashboard.html:203 templates/docker/containers.html:423
 msgid "Terminal"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:204
+#: templates/dashboard/dashboard.html:206
 msgid "Change Image tag"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:205
+#: templates/dashboard/dashboard.html:207
 msgid "Change webserver"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:206
+#: templates/dashboard/dashboard.html:208
 msgid "Change MySQL Type"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:210 templates/partials/_header.html:48
+#: templates/dashboard/dashboard.html:212 templates/partials/_header.html:48
 msgid "Services"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:211
+#: templates/dashboard/dashboard.html:213
 #: templates/files/backup_settings.html:97 templates/system/cronjobs.html:25
 msgid "Cron Jobs"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:216
+#: templates/dashboard/dashboard.html:218
 msgid "Change TimeZone"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:217
+#: templates/dashboard/dashboard.html:219
 msgid "Webserver Configuration"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:218
+#: templates/dashboard/dashboard.html:220
 msgid "WAF Settings"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:224 templates/user/account.html:10
+#: templates/dashboard/dashboard.html:226 templates/user/account.html:10
 msgid "Email & Password"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:226 templates/user/notifications.html:10
+#: templates/dashboard/dashboard.html:228 templates/user/notifications.html:10
 msgid "Email Notifications"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:229
+#: templates/dashboard/dashboard.html:231
 msgid "Favorite Pages"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:230
+#: templates/dashboard/dashboard.html:232
 msgid "Account Activity"
 msgstr ""
 
-#: templates/dashboard/dashboard.html:232
+#: templates/dashboard/dashboard.html:234
 msgid "Log out"
 msgstr ""
 
@@ -3647,78 +5070,82 @@ msgstr ""
 msgid "Name:"
 msgstr ""
 
-#: templates/docker/container_form.html:81
+#: templates/docker/container_form.html:76
+msgid "Only lowercase letters and numbers are allowed."
+msgstr ""
+
+#: templates/docker/container_form.html:82
 msgid ""
 "Name is used to identify the container, and is used by other services to "
 "connect."
 msgstr ""
 
-#: templates/docker/container_form.html:87
+#: templates/docker/container_form.html:88
 msgid "Docker Image and Tag:"
 msgstr ""
 
-#: templates/docker/container_form.html:94
+#: templates/docker/container_form.html:95
 msgid "Environment Variables (key:value, one per line, optional):"
 msgstr ""
 
-#: templates/docker/container_form.html:102
+#: templates/docker/container_form.html:103
 msgid "CPU Limit (e.g., 0.5):"
 msgstr ""
 
-#: templates/docker/container_form.html:104
+#: templates/docker/container_form.html:105
 msgid "Numeric value"
 msgstr ""
 
-#: templates/docker/container_form.html:110
+#: templates/docker/container_form.html:111
 msgid "Memory Limit (e.g., 0.5G):"
 msgstr ""
 
-#: templates/docker/container_form.html:112
+#: templates/docker/container_form.html:113
 msgid "Example: 1G"
 msgstr ""
 
-#: templates/docker/container_form.html:125
+#: templates/docker/container_form.html:126
 msgid "Volumes:"
 msgstr ""
 
-#: templates/docker/container_form.html:128
+#: templates/docker/container_form.html:129
 msgid "Mount Docker socket"
 msgstr ""
 
-#: templates/docker/container_form.html:134
+#: templates/docker/container_form.html:135
 msgid "Volume name"
 msgstr ""
 
-#: templates/docker/container_form.html:135
+#: templates/docker/container_form.html:136
 msgid "Mount path inside container"
 msgstr ""
 
-#: templates/docker/container_form.html:137
-#: templates/docker/container_form.html:167
+#: templates/docker/container_form.html:138
+#: templates/docker/container_form.html:168 templates/user/mcp.html:48
 msgid "Read-only"
 msgstr ""
 
-#: templates/docker/container_form.html:149
+#: templates/docker/container_form.html:150
 msgid "Add"
 msgstr ""
 
-#: templates/docker/container_form.html:165
+#: templates/docker/container_form.html:166
 msgid "Path inside container"
 msgstr ""
 
-#: templates/docker/container_form.html:187
+#: templates/docker/container_form.html:188
 msgid "Networks:"
 msgstr ""
 
-#: templates/docker/container_form.html:201
+#: templates/docker/container_form.html:202
 msgid "Healthcheck (YAML format, optional):"
 msgstr ""
 
-#: templates/docker/container_form.html:221
+#: templates/docker/container_form.html:222
 msgid "Back to Containers"
 msgstr ""
 
-#: templates/docker/container_form.html:226
+#: templates/docker/container_form.html:227
 #: templates/docker/containers.html:268 templates/docker/containers.html:322
 #: templates/domains/capitalize.html:114 templates/domains/dns.html:190
 #: templates/domains/dns.html:553 templates/domains/domains.html:277
@@ -3937,8 +5364,8 @@ msgstr ""
 msgid "Last checked"
 msgstr ""
 
-#: templates/docker/images.html:15 templates/user/mcp.html:45
-#: templates/user/passkeys.html:40
+#: templates/docker/images.html:15 templates/user/mcp.html:54
+#: templates/user/mcp.html:55 templates/user/passkeys.html:40
 msgid "Never"
 msgstr ""
 
@@ -3970,7 +5397,7 @@ msgstr ""
 msgid "Tag"
 msgstr ""
 
-#: templates/docker/images.html:133 templates/files/ftp_password.html:179
+#: templates/docker/images.html:133 templates/files/ftp_password.html:180
 #: templates/files/ftp_path.html:69 templates/manager/sites.html:269
 #: templates/user/account.html:117
 msgid "Update"
@@ -4246,6 +5673,10 @@ msgstr ""
 msgid "Record"
 msgstr ""
 
+#: templates/domains/dns.html:120
+msgid "Only letters, numbers, and the characters . @ _ - are allowed."
+msgstr ""
+
 #: templates/domains/dns.html:127
 msgid "A"
 msgstr ""
@@ -4470,7 +5901,7 @@ msgstr ""
 msgid "Saving zone file for domain"
 msgstr ""
 
-#: templates/domains/dns.html:830 templates/domains/new.html:258
+#: templates/domains/dns.html:830 templates/domains/new.html:260
 msgid "Please wait for the process to finish."
 msgstr ""
 
@@ -4506,7 +5937,7 @@ msgid ""
 "document root for existing websites."
 msgstr ""
 
-#: templates/domains/docroot.html:37 templates/domains/new.html:63
+#: templates/domains/docroot.html:37 templates/domains/new.html:65
 msgid "Document Root (folder):"
 msgstr ""
 
@@ -4563,6 +5994,14 @@ msgstr ""
 #: templates/manager/python_node_apps.html:124
 #: templates/partials/_service_js.html:18
 msgid "Active"
+msgstr ""
+
+#: templates/domains/domains.html:274
+msgid "Must be a valid URL starting with https://."
+msgstr ""
+
+#: templates/domains/domains.html:303 templates/domains/redirect.html:27
+msgid "Must be a valid URL starting with http:// or https://."
 msgstr ""
 
 #: templates/domains/domains.html:303
@@ -4682,6 +6121,10 @@ msgstr ""
 msgid "Subdomain"
 msgstr ""
 
+#: templates/domains/dynamic_dns.html:52 templates/domains/dynamic_dns.html:94
+msgid "Only letters, numbers, and hyphens are allowed."
+msgstr ""
+
 #: templates/domains/dynamic_dns.html:53
 msgid "Letters, numbers, hyphens only."
 msgstr ""
@@ -4697,7 +6140,7 @@ msgstr ""
 #: templates/domains/dynamic_dns.html:66
 #: templates/files/filemanager/new_file.html:38
 #: templates/files/filemanager/new_folder.html:32
-#: templates/mysql/mysql_user.html:8 templates/mysql/wizard.html:304
+#: templates/mysql/mysql_user.html:8 templates/mysql/wizard.html:307
 msgid "Create"
 msgstr ""
 
@@ -4741,7 +6184,7 @@ msgid "never"
 msgstr ""
 
 #: templates/domains/dynamic_dns.html:196 templates/mysql/wizard.html:139
-#: templates/user/api_docs.html:149 templates/user/mcp.html:103
+#: templates/user/api_docs.html:149 templates/user/mcp.html:125
 msgid "Copied!"
 msgstr ""
 
@@ -4834,61 +6277,62 @@ msgstr ""
 msgid "Show Details"
 msgstr ""
 
-#: templates/domains/new.html:77
+#: templates/domains/new.html:54 templates/domains/new.html:200
+msgid "Invalid domain name. Please enter a valid domain name like"
+msgstr ""
+
+#: templates/domains/new.html:54 templates/domains/new.html:200
+#: templates/manager/drupal/single.html:389
+#: templates/manager/drupal/single.html:474 templates/manager/mautic.html:389
+#: templates/manager/mautic.html:474 templates/manager/websitebuilder.html:214
+#: templates/manager/websitebuilder.html:283
+#: templates/manager/wp/single.html:2015 templates/manager/wp/single.html:2086
+msgid "or"
+msgstr ""
+
+#: templates/domains/new.html:79
 msgid ""
 "docroot module or feature are not enabled. Contact Administrator to "
 "change docroot."
 msgstr ""
 
-#: templates/domains/new.html:198
-msgid "Invalid domain name. Please enter a valid domain name like"
-msgstr ""
-
-#: templates/domains/new.html:198 templates/manager/drupal/single.html:389
-#: templates/manager/drupal/single.html:474 templates/manager/mautic.html:389
-#: templates/manager/mautic.html:474 templates/manager/websitebuilder.html:214
-#: templates/manager/websitebuilder.html:283
-#: templates/manager/wp/single.html:2012 templates/manager/wp/single.html:2083
-msgid "or"
-msgstr ""
-
-#: templates/domains/new.html:225
+#: templates/domains/new.html:227
 msgid "Paths for both public and secret files must start with /var/www/html/."
 msgstr ""
 
-#: templates/domains/new.html:258
+#: templates/domains/new.html:260
 msgid "Adding domain"
 msgstr ""
 
-#: templates/domains/new.html:269 templates/domains/new.html:335
+#: templates/domains/new.html:271 templates/domains/new.html:337
 msgid "Error adding domain name"
 msgstr ""
 
-#: templates/domains/new.html:269 templates/emails/confirm_import.html:144
+#: templates/domains/new.html:271 templates/emails/confirm_import.html:144
 msgid "Network response from backend was not ok. Please contact support."
 msgstr ""
 
-#: templates/domains/new.html:316
+#: templates/domains/new.html:318
 msgid "Domain name"
 msgstr ""
 
-#: templates/domains/new.html:316
+#: templates/domains/new.html:318
 msgid "added successfully."
 msgstr ""
 
-#: templates/domains/new.html:335
+#: templates/domains/new.html:337
 msgid "Click on Show Details above to view the log."
 msgstr ""
 
-#: templates/domains/new.html:348
+#: templates/domains/new.html:350
 msgid "Retry"
 msgstr ""
 
-#: templates/domains/new.html:420
+#: templates/domains/new.html:422
 msgid "Converted to Punycode:"
 msgstr ""
 
-#: templates/domains/new.html:420
+#: templates/domains/new.html:422
 msgid "(for compatibility with internationalized domain names)"
 msgstr ""
 
@@ -5370,6 +6814,10 @@ msgstr ""
 msgid "alias"
 msgstr ""
 
+#: templates/emails/alias_new.html:34
+msgid "No spaces allowed."
+msgstr ""
+
 #: templates/emails/alias_new.html:37
 msgid "Emails sent to this address will be forwarded to the destination below."
 msgstr ""
@@ -5439,12 +6887,12 @@ msgstr ""
 #: templates/files/ftp_new.html:58 templates/manager/drupal/install.html:137
 #: templates/manager/mautic_install.html:117
 #: templates/manager/wp/install.html:128 templates/mysql/mysql_user.html:43
-#: templates/mysql/mysql_user.html:52 templates/mysql/password.html:41
+#: templates/mysql/mysql_user.html:53 templates/mysql/password.html:41
 #: templates/mysql/remote_mysql.html:166 templates/mysql/remote_mysql.html:167
-#: templates/mysql/root_password.html:43 templates/mysql/wizard.html:73
-#: templates/mysql/wizard.html:244 templates/psql/password.html:41
-#: templates/psql/password.html:51 templates/psql/psql_user.html:43
-#: templates/psql/psql_user.html:53 templates/psql/wizard.html:75
+#: templates/mysql/root_password.html:44 templates/mysql/wizard.html:73
+#: templates/mysql/wizard.html:247 templates/psql/password.html:41
+#: templates/psql/password.html:52 templates/psql/psql_user.html:43
+#: templates/psql/psql_user.html:54 templates/psql/wizard.html:76
 #: templates/user/account.html:76 templates/user/login.html:22
 msgid "Password"
 msgstr ""
@@ -5506,8 +6954,8 @@ msgstr ""
 
 #: templates/emails/default_address.html:15
 #: templates/emails/default_address.html:63 templates/emails/import.html:45
-#: templates/emails/info.html:48 templates/emails/new.html:310
-#: templates/emails/single_account.html:335
+#: templates/emails/info.html:48 templates/emails/new.html:311
+#: templates/emails/single_account.html:336
 msgid "Back to Emails"
 msgstr ""
 
@@ -5948,13 +7396,17 @@ msgstr ""
 msgid "info"
 msgstr ""
 
+#: templates/emails/new.html:44
+msgid "Only letters, numbers, and the characters . _ % + - are allowed."
+msgstr ""
+
 #: templates/emails/new.html:76 templates/emails/single_account.html:201
 #: templates/files/ftp_new.html:48 templates/files/ftp_password.html:33
 #: templates/manager/drupal/install.html:130
 #: templates/manager/mautic_install.html:110
 #: templates/manager/wp/install.html:121 templates/mysql/mysql_user.html:33
 #: templates/mysql/password.html:31 templates/mysql/root_password.html:24
-#: templates/mysql/wizard.html:235 templates/psql/password.html:31
+#: templates/mysql/wizard.html:237 templates/psql/password.html:31
 #: templates/psql/psql_user.html:33 templates/psql/wizard.html:61
 msgid "Weak password"
 msgstr ""
@@ -5965,7 +7417,7 @@ msgstr ""
 #: templates/manager/mautic_install.html:111
 #: templates/manager/wp/install.html:122 templates/mysql/mysql_user.html:34
 #: templates/mysql/password.html:32 templates/mysql/root_password.html:25
-#: templates/mysql/wizard.html:236 templates/psql/password.html:32
+#: templates/mysql/wizard.html:238 templates/psql/password.html:32
 #: templates/psql/psql_user.html:34 templates/psql/wizard.html:62
 msgid "Medium strength password"
 msgstr ""
@@ -5976,32 +7428,38 @@ msgstr ""
 #: templates/manager/mautic_install.html:112
 #: templates/manager/wp/install.html:123 templates/mysql/mysql_user.html:35
 #: templates/mysql/password.html:33 templates/mysql/root_password.html:26
-#: templates/mysql/wizard.html:237 templates/psql/password.html:33
+#: templates/mysql/wizard.html:239 templates/psql/password.html:33
 #: templates/psql/psql_user.html:35 templates/psql/wizard.html:63
 msgid "Strong password"
 msgstr ""
 
 #: templates/emails/new.html:95 templates/emails/single_account.html:220
+#: templates/manager/wp/single.html:1913 templates/mysql/mysql_user.html:52
+#: templates/mysql/password.html:50 templates/mysql/root_password.html:43
+msgid "Password must be between 8 and 30 characters."
+msgstr ""
+
+#: templates/emails/new.html:96 templates/emails/single_account.html:221
 #: templates/files/ftp_new.html:69 templates/files/ftp_password.html:43
-#: templates/mysql/password.html:50 templates/mysql/root_password.html:34
+#: templates/mysql/password.html:51 templates/mysql/root_password.html:34
 #: templates/user/account.html:78
 #: templates/user/reset_password/set_new_password.html:22
 msgid "New Password"
 msgstr ""
 
-#: templates/emails/new.html:195
+#: templates/emails/new.html:196
 msgid "Storage quota"
 msgstr ""
 
-#: templates/emails/new.html:215
+#: templates/emails/new.html:216
 msgid "Set to 0 for unlimited."
 msgstr ""
 
-#: templates/emails/new.html:217 templates/emails/single_account.html:100
+#: templates/emails/new.html:218 templates/emails/single_account.html:100
 msgid "Maximum allowed: "
 msgstr ""
 
-#: templates/emails/new.html:311
+#: templates/emails/new.html:312
 msgid "Create Email"
 msgstr ""
 
@@ -6030,7 +7488,7 @@ msgstr ""
 msgid "Sending Outgoing Mail"
 msgstr ""
 
-#: templates/emails/single_account.html:339
+#: templates/emails/single_account.html:340
 msgid "Update Email Settings"
 msgstr ""
 
@@ -6208,7 +7666,7 @@ msgstr ""
 #: templates/manager/drupal/single.html:737 templates/manager/mautic.html:421
 #: templates/manager/mautic.html:759 templates/manager/websitebuilder.html:237
 #: templates/manager/websitebuilder.html:520
-#: templates/manager/wp/single.html:2036 templates/manager/wp/single.html:2511
+#: templates/manager/wp/single.html:2039 templates/manager/wp/single.html:2514
 msgid "Start Restore"
 msgstr ""
 
@@ -6385,7 +7843,7 @@ msgstr ""
 #: templates/files/backup_wizard.html:87
 #: templates/manager/drupal/single.html:384 templates/manager/mautic.html:384
 #: templates/manager/websitebuilder.html:207
-#: templates/manager/wp/single.html:2003
+#: templates/manager/wp/single.html:2006
 msgid "Generate Backup"
 msgstr ""
 
@@ -6749,6 +8207,10 @@ msgstr ""
 msgid "Create a new FTP account."
 msgstr ""
 
+#: templates/files/ftp_new.html:30
+msgid "Only letters and numbers are allowed."
+msgstr ""
+
 #: templates/files/ftp_new.html:67
 msgid ""
 "Password must be at least 8 characters, and include a lowercase letter, "
@@ -6772,15 +8234,21 @@ msgid "Change FTP password for user"
 msgstr ""
 
 #: templates/files/ftp_password.html:53
+msgid ""
+"Password must be 8-30 characters and include a lowercase letter, an "
+"uppercase letter, a number, and a special character."
+msgstr ""
+
+#: templates/files/ftp_password.html:54
 msgid "New password"
 msgstr ""
 
-#: templates/files/ftp_password.html:163 templates/user/account.html:95
+#: templates/files/ftp_password.html:164 templates/user/account.html:95
 #: templates/user/reset_password/set_new_password.html:35
 msgid "Confirm Password"
 msgstr ""
 
-#: templates/files/ftp_password.html:165 templates/user/account.html:97
+#: templates/files/ftp_password.html:166 templates/user/account.html:97
 msgid "Confirm New Password"
 msgstr ""
 
@@ -6995,8 +8463,8 @@ msgstr ""
 #: templates/files/filemanager/new_actions_buttons.html:13
 #: templates/mysql/wizard.html:80 templates/mysql/wizard.html:139
 #: templates/user/api_docs.html:149 templates/user/api_docs.html:151
-#: templates/user/mcp.html:23 templates/user/mcp.html:83
-#: templates/user/mcp.html:92
+#: templates/user/mcp.html:23 templates/user/mcp.html:105
+#: templates/user/mcp.html:114
 msgid "Copy"
 msgstr ""
 
@@ -7188,6 +8656,10 @@ msgstr ""
 
 #: templates/files/filemanager/permissions.html:10
 msgid "Set permissions"
+msgstr ""
+
+#: templates/files/filemanager/permissions.html:29
+msgid "Enter exactly 3 digits (e.g. 755) for the octal permission value."
 msgstr ""
 
 #: templates/files/filemanager/modals/rename.html:11
@@ -7444,7 +8916,7 @@ msgstr ""
 
 #: templates/manager/drupal/single.html:365 templates/manager/mautic.html:365
 #: templates/manager/websitebuilder.html:194
-#: templates/manager/wp/single.html:1985
+#: templates/manager/wp/single.html:1988
 msgid "Create a Backup"
 msgstr ""
 
@@ -7453,19 +8925,19 @@ msgid "Create a new backup of website files and/or database."
 msgstr ""
 
 #: templates/manager/drupal/single.html:371 templates/manager/mautic.html:371
-#: templates/manager/wp/single.html:1995
+#: templates/manager/wp/single.html:1998
 msgid "Backup Database"
 msgstr ""
 
 #: templates/manager/drupal/single.html:376 templates/manager/mautic.html:376
 #: templates/manager/websitebuilder.html:204
-#: templates/manager/wp/single.html:2000
+#: templates/manager/wp/single.html:2003
 msgid "Backup Files"
 msgstr ""
 
 #: templates/manager/drupal/single.html:394 templates/manager/mautic.html:394
 #: templates/manager/websitebuilder.html:218
-#: templates/manager/wp/single.html:2017
+#: templates/manager/wp/single.html:2020
 msgid "Restore from Backups"
 msgstr ""
 
@@ -7475,30 +8947,30 @@ msgstr ""
 
 #: templates/manager/drupal/single.html:405 templates/manager/mautic.html:405
 #: templates/manager/websitebuilder.html:227
-#: templates/manager/wp/single.html:2026
+#: templates/manager/wp/single.html:2029
 msgid "Display Backups"
 msgstr ""
 
 #: templates/manager/drupal/single.html:409 templates/manager/mautic.html:409
 #: templates/manager/websitebuilder.html:231
-#: templates/manager/wp/single.html:2030
+#: templates/manager/wp/single.html:2033
 msgid "Select a backup date:"
 msgstr ""
 
 #: templates/manager/drupal/list.html:97 templates/manager/drupal/list.html:136
 #: templates/manager/drupal/single.html:430 templates/manager/mautic.html:430
 #: templates/manager/websitebuilder.html:255 templates/manager/wp/list.html:154
-#: templates/manager/wp/list.html:217 templates/manager/wp/single.html:2055
+#: templates/manager/wp/list.html:217 templates/manager/wp/single.html:2058
 msgid "Detach"
 msgstr ""
 
 #: templates/manager/drupal/single.html:431 templates/manager/mautic.html:431
-#: templates/manager/wp/single.html:2056 templates/manager/wp/single.html:2066
+#: templates/manager/wp/single.html:2059 templates/manager/wp/single.html:2069
 msgid "Remove the"
 msgstr ""
 
 #: templates/manager/drupal/single.html:431 templates/manager/mautic.html:431
-#: templates/manager/wp/single.html:2066
+#: templates/manager/wp/single.html:2069
 msgid "website from this manager without actually deleting any files."
 msgstr ""
 
@@ -7513,7 +8985,7 @@ msgstr ""
 
 #: templates/manager/drupal/single.html:454 templates/manager/mautic.html:454
 #: templates/manager/websitebuilder.html:270
-#: templates/manager/wp/single.html:2070
+#: templates/manager/wp/single.html:2073
 msgid "Confirm Detach"
 msgstr ""
 
@@ -7521,7 +8993,7 @@ msgstr ""
 #: templates/manager/drupal/list.html:139
 #: templates/manager/drupal/single.html:480 templates/manager/mautic.html:480
 #: templates/manager/wp/list.html:157 templates/manager/wp/list.html:220
-#: templates/manager/wp/single.html:2089
+#: templates/manager/wp/single.html:2092
 msgid "Uninstall"
 msgstr ""
 
@@ -7540,7 +9012,7 @@ msgid "Uninstall Mautic"
 msgstr ""
 
 #: templates/manager/drupal/single.html:504 templates/manager/mautic.html:504
-#: templates/manager/wp/single.html:2104
+#: templates/manager/wp/single.html:2107
 msgid "Confirm Uninstall"
 msgstr ""
 
@@ -7571,75 +9043,75 @@ msgstr ""
 #: templates/manager/drupal/single.html:630 templates/manager/mautic.html:652
 #: templates/manager/python_node_apps.html:1205
 #: templates/manager/websitebuilder.html:427
-#: templates/manager/wp/single.html:2418
+#: templates/manager/wp/single.html:2421
 msgid "An error occurred fetching folder size from the container."
 msgstr ""
 
 #: templates/manager/drupal/single.html:648 templates/manager/mautic.html:670
-#: templates/manager/wp/single.html:2234
+#: templates/manager/wp/single.html:2237
 msgid "An error occurred fetching DB size."
 msgstr ""
 
 #: templates/manager/drupal/single.html:664 templates/manager/mautic.html:686
-#: templates/manager/wp/single.html:2548
+#: templates/manager/wp/single.html:2551
 msgid "Database and Files Backup"
 msgstr ""
 
 #: templates/manager/drupal/single.html:666 templates/manager/mautic.html:688
-#: templates/manager/wp/single.html:2550
+#: templates/manager/wp/single.html:2553
 msgid "Database Backup"
 msgstr ""
 
 #: templates/manager/drupal/single.html:668 templates/manager/mautic.html:690
 #: templates/manager/websitebuilder.html:457
-#: templates/manager/wp/single.html:2552
+#: templates/manager/wp/single.html:2555
 msgid "Files Backup"
 msgstr ""
 
 #: templates/manager/drupal/single.html:670 templates/manager/mautic.html:692
-#: templates/manager/wp/single.html:2554
+#: templates/manager/wp/single.html:2557
 msgid "Unknown Backup Type"
 msgstr ""
 
 #: templates/manager/drupal/single.html:706 templates/manager/mautic.html:728
 #: templates/manager/websitebuilder.html:477
-#: templates/manager/wp/single.html:2468
+#: templates/manager/wp/single.html:2471
 msgid "Click again to confirm"
 msgstr ""
 
 #: templates/manager/drupal/single.html:722 templates/manager/mautic.html:744
 #: templates/manager/websitebuilder.html:505
-#: templates/manager/wp/single.html:2496
+#: templates/manager/wp/single.html:2499
 msgid "Restoring backup... Please wait."
 msgstr ""
 
 #: templates/manager/drupal/single.html:730 templates/manager/mautic.html:752
 #: templates/manager/websitebuilder.html:513
-#: templates/manager/wp/single.html:2504
+#: templates/manager/wp/single.html:2507
 msgid "Restore request failed."
 msgstr ""
 
 #: templates/manager/drupal/single.html:769 templates/manager/mautic.html:791
-#: templates/manager/wp/single.html:2567
+#: templates/manager/wp/single.html:2570
 msgid ""
 "No options selected to backup. Please ensure that at least one of the "
 "Database or Files is selected."
 msgstr ""
 
 #: templates/manager/drupal/single.html:776 templates/manager/mautic.html:798
-#: templates/manager/wp/single.html:2575
+#: templates/manager/wp/single.html:2578
 msgid "Generating Backup..."
 msgstr ""
 
 #: templates/manager/drupal/single.html:778 templates/manager/mautic.html:800
 #: templates/manager/websitebuilder.html:571
-#: templates/manager/wp/single.html:2577
+#: templates/manager/wp/single.html:2580
 msgid "Generating website backup.. Please wait."
 msgstr ""
 
 #: templates/manager/drupal/single.html:786 templates/manager/mautic.html:808
 #: templates/manager/websitebuilder.html:579
-#: templates/manager/wp/single.html:2585
+#: templates/manager/wp/single.html:2588
 msgid "Backup request failed."
 msgstr ""
 
@@ -7971,6 +9443,12 @@ msgstr ""
 
 #: templates/manager/pm2_install.html:105
 msgid "Container name is only visible on backend."
+msgstr ""
+
+#: templates/manager/pm2_install.html:108
+msgid ""
+"Must start with a lowercase letter, followed by lowercase letters or "
+"numbers only."
 msgstr ""
 
 #: templates/manager/pm2_install.html:118
@@ -9035,15 +10513,15 @@ msgstr ""
 msgid "An error occurred while removing WordPress. Please try again."
 msgstr ""
 
-#: templates/manager/wp/list.html:307 templates/manager/wp/single.html:2139
+#: templates/manager/wp/list.html:307 templates/manager/wp/single.html:2142
 msgid "WordPress detach process started. Please wait."
 msgstr ""
 
-#: templates/manager/wp/list.html:316 templates/manager/wp/single.html:2148
+#: templates/manager/wp/list.html:316 templates/manager/wp/single.html:2151
 msgid "WordPress installation detached successfully."
 msgstr ""
 
-#: templates/manager/wp/list.html:319 templates/manager/wp/single.html:2151
+#: templates/manager/wp/list.html:319 templates/manager/wp/single.html:2154
 msgid "An error occurred while detaching WordPress. Please try again."
 msgstr ""
 
@@ -9561,107 +11039,115 @@ msgstr ""
 
 #: templates/manager/wp/single.html:1874 templates/mysql/databases.html:204
 #: templates/mysql/new.html:26 templates/mysql/new.html:28
-#: templates/mysql/wizard.html:195 templates/psql/databases.html:141
+#: templates/mysql/wizard.html:196 templates/psql/databases.html:141
 #: templates/psql/new.html:24 templates/psql/new.html:26
 #: templates/psql/wizard.html:30
 msgid "Database Name"
 msgstr ""
 
-#: templates/manager/wp/single.html:1888
+#: templates/manager/wp/single.html:1883
+msgid "Database name must be between 6 and 30 characters."
+msgstr ""
+
+#: templates/manager/wp/single.html:1889
 msgid "Database user"
 msgstr ""
 
-#: templates/manager/wp/single.html:1902
+#: templates/manager/wp/single.html:1898
+msgid "Username must be between 6 and 30 characters."
+msgstr ""
+
+#: templates/manager/wp/single.html:1904
 msgid "User password"
 msgstr ""
 
-#: templates/manager/wp/single.html:1925
+#: templates/manager/wp/single.html:1928
 msgid "Clone website"
 msgstr ""
 
-#: templates/manager/wp/single.html:1936
+#: templates/manager/wp/single.html:1939
 msgid "Cloning..."
 msgstr ""
 
-#: templates/manager/wp/single.html:1942
+#: templates/manager/wp/single.html:1945
 msgid "Cloning process started... Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:1960
+#: templates/manager/wp/single.html:1963
 msgid "Clone Complete"
 msgstr ""
 
-#: templates/manager/wp/single.html:1964
+#: templates/manager/wp/single.html:1967
 msgid "Try Again"
 msgstr ""
 
-#: templates/manager/wp/single.html:1970
+#: templates/manager/wp/single.html:1973
 msgid "Retry Clone"
 msgstr ""
 
-#: templates/manager/wp/single.html:1986
+#: templates/manager/wp/single.html:1989
 msgid "Generate a backup of files and/or database."
 msgstr ""
 
-#: templates/manager/wp/single.html:2018
+#: templates/manager/wp/single.html:2021
 msgid "Restore files and/or database from a backup."
 msgstr ""
 
-#: templates/manager/wp/single.html:2056
+#: templates/manager/wp/single.html:2059
 msgid "website from WP Manager."
 msgstr ""
 
-#: templates/manager/wp/single.html:2063
+#: templates/manager/wp/single.html:2066
 msgid "Detach WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:2067
+#: templates/manager/wp/single.html:2070
 msgid "All website data such as files, crons and database remains."
 msgstr ""
 
-#: templates/manager/wp/single.html:2090
+#: templates/manager/wp/single.html:2093
 msgid "Permanently delete WordPress files & database."
 msgstr ""
 
-#: templates/manager/wp/single.html:2097
+#: templates/manager/wp/single.html:2100
 msgid "Uninstall WordPress"
 msgstr ""
 
-#: templates/manager/wp/single.html:2100
+#: templates/manager/wp/single.html:2103
 msgid "Delete the"
 msgstr ""
 
-#: templates/manager/wp/single.html:2100
+#: templates/manager/wp/single.html:2103
 msgid "website and all its files and database."
 msgstr ""
 
-#: templates/manager/wp/single.html:2101
+#: templates/manager/wp/single.html:2104
 msgid ""
 "All WordPress data will be permanently deleted. There is no coming back "
 "after you press delete."
 msgstr ""
 
-#: templates/manager/wp/single.html:2123
+#: templates/manager/wp/single.html:2126
 msgid "WordPress uninstall process started. Please wait."
 msgstr ""
 
-#: templates/manager/wp/single.html:2130
+#: templates/manager/wp/single.html:2133
 msgid "WordPress uninstalled successfully."
 msgstr ""
 
-#: templates/manager/wp/single.html:2293
+#: templates/manager/wp/single.html:2296
 msgid "MariaDB:"
 msgstr ""
 
-#: templates/manager/wp/single.html:2357
+#: templates/manager/wp/single.html:2360
 msgid "Update in progress..."
 msgstr ""
 
-#: templates/manager/wp/single.html:2364
+#: templates/manager/wp/single.html:2367
 msgid "WordPress updated successfully."
 msgstr ""
 
-#: templates/manager/wp/single.html:2377
+#: templates/manager/wp/single.html:2380
 msgid "Update failed."
 msgstr ""
 
@@ -9718,10 +11204,10 @@ msgid "Select privileges:"
 msgstr ""
 
 #: templates/mysql/assign.html:93 templates/mysql/new.html:53
-#: templates/mysql/remove.html:58 templates/mysql/root_password.html:150
-#: templates/mysql/wizard.html:300 templates/psql/assign.html:64
+#: templates/mysql/remove.html:58 templates/mysql/root_password.html:151
+#: templates/mysql/wizard.html:303 templates/psql/assign.html:64
 #: templates/psql/new.html:51 templates/psql/remove.html:58
-#: templates/psql/wizard.html:196
+#: templates/psql/wizard.html:197
 msgid "Back to Databases"
 msgstr ""
 
@@ -9974,8 +11460,13 @@ msgid ""
 "server."
 msgstr ""
 
-#: templates/mysql/mysql_user.html:159 templates/mysql/password.html:164
-#: templates/psql/password.html:159 templates/psql/psql_user.html:160
+#: templates/mysql/mysql_user.html:26 templates/mysql/wizard.html:221
+#: templates/psql/psql_user.html:26 templates/psql/wizard.html:47
+msgid "Only letters, numbers, and underscores are allowed (1-31 characters)."
+msgstr ""
+
+#: templates/mysql/mysql_user.html:160 templates/mysql/password.html:165
+#: templates/psql/password.html:160 templates/psql/psql_user.html:161
 msgid "Back to Users"
 msgstr ""
 
@@ -9988,6 +11479,11 @@ msgid ""
 "Create a new database to store and organize data, providing a "
 "foundational structure for applications to manage and retrieve "
 "information efficiently."
+msgstr ""
+
+#: templates/mysql/new.html:28 templates/mysql/wizard.html:193
+#: templates/psql/new.html:26 templates/psql/wizard.html:30
+msgid "Only letters, numbers, and underscores are allowed (1-63 characters)."
 msgstr ""
 
 #: templates/mysql/password.html:8 templates/psql/password.html:8
@@ -10095,11 +11591,19 @@ msgid "Add Access"
 msgstr ""
 
 #: templates/mysql/remote_mysql.html:159
+msgid "Only letters, numbers, and underscores are allowed."
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:159
 msgid "Existing or new username"
 msgstr ""
 
 #: templates/mysql/remote_mysql.html:162
 msgid "Allowed Host"
+msgstr ""
+
+#: templates/mysql/remote_mysql.html:167
+msgid "At least 8 characters."
 msgstr ""
 
 #: templates/mysql/remote_mysql.html:170
@@ -10217,19 +11721,24 @@ msgstr ""
 msgid "Create a database"
 msgstr ""
 
-#: templates/mysql/wizard.html:214 templates/psql/wizard.html:44
+#: templates/mysql/wizard.html:215 templates/psql/wizard.html:44
 msgid "Create a user"
 msgstr ""
 
-#: templates/mysql/wizard.html:222 templates/psql/wizard.html:47
+#: templates/mysql/wizard.html:224 templates/psql/wizard.html:47
 msgid "Database User"
 msgstr ""
 
-#: templates/mysql/wizard.html:284 templates/psql/wizard.html:174
+#: templates/mysql/wizard.html:246 templates/psql/password.html:51
+#: templates/psql/psql_user.html:53 templates/psql/wizard.html:75
+msgid "Only letters, numbers, and underscores are allowed (8-30 characters)."
+msgstr ""
+
+#: templates/mysql/wizard.html:287 templates/psql/wizard.html:175
 msgid "Assign user to database"
 msgstr ""
 
-#: templates/mysql/wizard.html:363 templates/psql/wizard.html:259
+#: templates/mysql/wizard.html:366 templates/psql/wizard.html:260
 msgid "Creating..."
 msgstr ""
 
@@ -11145,31 +12654,31 @@ msgid ""
 "and assign it to the database with all necessary privileges."
 msgstr ""
 
-#: templates/psql/wizard.html:201 templates/psql/wizard.html:278
+#: templates/psql/wizard.html:202 templates/psql/wizard.html:279
 msgid "Create DB, User, and Grant Privileges"
 msgstr ""
 
-#: templates/psql/wizard.html:215
+#: templates/psql/wizard.html:216
 msgid "Process completed!"
 msgstr ""
 
-#: templates/psql/wizard.html:226
+#: templates/psql/wizard.html:227
 msgid "All fields are required"
 msgstr ""
 
-#: templates/psql/wizard.html:231
+#: templates/psql/wizard.html:232
 msgid "Password can only contain letters, numbers, and underscores"
 msgstr ""
 
-#: templates/psql/wizard.html:235
+#: templates/psql/wizard.html:236
 msgid "Password must be at least 8 characters long"
 msgstr ""
 
-#: templates/psql/wizard.html:283
+#: templates/psql/wizard.html:284
 msgid "Retry creating Database and User"
 msgstr ""
 
-#: templates/psql/wizard.html:285
+#: templates/psql/wizard.html:286
 msgid "An error occurred while creating the database."
 msgstr ""
 
@@ -11778,10 +13287,6 @@ msgstr ""
 msgid "IPs show bot-like activity (100+ actions in one minute)."
 msgstr ""
 
-#: templates/user/api_docs.html:55
-msgid "API Reference"
-msgstr ""
-
 #: templates/user/api_docs.html:58
 msgid ""
 "Programmatic access to all panel features. Authenticate with a Bearer "
@@ -11998,51 +13503,85 @@ msgstr ""
 msgid "Token"
 msgstr ""
 
-#: templates/user/mcp.html:35 templates/user/passkeys.html:31
+#: templates/user/mcp.html:34
+msgid "Scope"
+msgstr ""
+
+#: templates/user/mcp.html:36
+msgid "Expires"
+msgstr ""
+
+#: templates/user/mcp.html:37 templates/user/passkeys.html:31
 msgid "Last used"
 msgstr ""
 
-#: templates/user/mcp.html:47
-msgid "Revoke this token? Any MCP client using it will stop working immediately."
-msgstr ""
-
-#: templates/user/mcp.html:49
-msgid "Revoke"
+#: templates/user/mcp.html:50
+msgid "Full access"
 msgstr ""
 
 #: templates/user/mcp.html:57
+msgid "Revoke this token? Any MCP client using it will stop working immediately."
+msgstr ""
+
+#: templates/user/mcp.html:59
+msgid "Revoke"
+msgstr ""
+
+#: templates/user/mcp.html:67
 msgid "No MCP tokens yet."
 msgstr ""
 
-#: templates/user/mcp.html:62
+#: templates/user/mcp.html:73
 msgid "e.g. Laptop - Claude Desktop"
 msgstr ""
 
-#: templates/user/mcp.html:65
-msgid "Generate new token"
-msgstr ""
-
-#: templates/user/mcp.html:68
-msgid "The full token is only ever shown once, right after you generate it."
-msgstr ""
-
-#: templates/user/mcp.html:72
-msgid "Connecting an MCP client"
-msgstr ""
-
-#: templates/user/mcp.html:74
-msgid "Generate a token above, then point your MCP client at this server's"
-msgstr ""
-
 #: templates/user/mcp.html:76
-msgid "endpoint with the token as a Bearer credential."
+msgid "Never expires"
+msgstr ""
+
+#: templates/user/mcp.html:77
+msgid "Expires in 30 days"
+msgstr ""
+
+#: templates/user/mcp.html:78
+msgid "Expires in 90 days"
 msgstr ""
 
 #: templates/user/mcp.html:79
+msgid "Expires in 1 year"
+msgstr ""
+
+#: templates/user/mcp.html:84
+msgid ""
+"Read-only (blocks anything other than GET requests, e.g. Claude can look "
+"things up but not change them)"
+msgstr ""
+
+#: templates/user/mcp.html:87
+msgid "Generate new token"
+msgstr ""
+
+#: templates/user/mcp.html:90
+msgid "The full token is only ever shown once, right after you generate it."
+msgstr ""
+
+#: templates/user/mcp.html:94
+msgid "Connecting an MCP client"
+msgstr ""
+
+#: templates/user/mcp.html:96
+msgid "Generate a token above, then point your MCP client at this server's"
+msgstr ""
+
+#: templates/user/mcp.html:98
+msgid "endpoint with the token as a Bearer credential."
+msgstr ""
+
+#: templates/user/mcp.html:101
 msgid "Claude Code CLI"
 msgstr ""
 
-#: templates/user/mcp.html:86
+#: templates/user/mcp.html:108
 msgid "Claude Desktop (claude_desktop_config.json)"
 msgstr ""
 
@@ -12199,9 +13738,5 @@ msgstr ""
 
 #: templates/user/reset_password/set_new_password.html:9
 msgid "Reset Your Password"
-msgstr ""
-
-#: templates/user/reset_password/set_new_password.html:49
-msgid "Passwords do not match."
 msgstr ""
 

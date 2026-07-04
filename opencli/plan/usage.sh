@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 30.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -87,7 +87,7 @@ ensure_jq_installed() {
 fetch_users_json() {
     ensure_jq_installed
     local data
-    data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "SELECT users.id, users.username, users.email, plans.name AS plan_name, users.registered_date FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$plan_name';" | tail -n +2)
+    data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -e "SELECT users.id, users.username, users.email, plans.name AS plan_name, users.registered_date FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$(mysql_escape "$plan_name")';" | tail -n +2)
     if [ -n "$data" ]; then
         local json
         json=$(echo "$data" | jq -R 'split("\n") | map(select(length > 0) | split("\t") | {
@@ -102,7 +102,7 @@ fetch_users_json() {
 
 fetch_users_table() {
     local data
-    data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" --table -e "SELECT users.id, users.username, users.email, plans.name AS plan_name, users.registered_date FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$plan_name';")
+    data=$(mysql --defaults-extra-file="$config_file" -D "$mysql_database" --table -e "SELECT users.id, users.username, users.email, plans.name AS plan_name, users.registered_date FROM users INNER JOIN plans ON users.plan_id = plans.id WHERE plans.name = '$(mysql_escape "$plan_name")';")
     if [ -n "$data" ]; then
         echo "$data"
     else

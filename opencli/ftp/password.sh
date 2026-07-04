@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -39,6 +39,8 @@ username="${1,,}"
 new_password="$2"
 openpanel_username="$3"
 DEBUG=false  # Default value for DEBUG
+
+source /usr/local/opencli/lib/password_strength.sh
 
 # Parse optional flags to enable debug mode when needed!
 for arg in "$@"; do
@@ -156,6 +158,9 @@ if ! [[ $new_password =~ [[:punct:]] ]]; then
     echo "ERROR: New password must contain at least one special character."
     exit 1
 fi
+
+# Check against the admin-configured strength threshold
+require_password_strength "$new_password"
 
 # Call the function to update the password
 update_password

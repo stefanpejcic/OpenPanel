@@ -5,7 +5,7 @@
 # Usage: opencli websites-all
 # Author: Stefan Pejcic
 # Created: 26.10.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -43,7 +43,7 @@ get_all_sites() {
     local query="SELECT site_name FROM sites"
 
     if [ -n "$site_type" ]; then
-        query+=" WHERE type = '$site_type'"
+        query+=" WHERE type = '$(mysql_escape "$site_type")'"
     fi
 
     local sites

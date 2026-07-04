@@ -5,7 +5,7 @@
 # Usage: opencli plan-apply <NEW_PLAN_ID> <USERNAME> 
 # Author: Petar Ćurić, Stefan Pejčić
 # Created: 17.11.2023
-# Last Modified: 01.07.2026
+# Last Modified: 03.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -70,7 +70,7 @@ done
 source /usr/local/opencli/db.sh
 
 IFS=$'\t' read -r cpu ram disk_limit inodes_limit max_hourly_email bandwidth < <(
-    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT cpu, ram, disk_limit, inodes_limit, max_hourly_email, bandwidth FROM plans WHERE id = '$new_plan_id' LIMIT 1;"
+    mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT cpu, ram, disk_limit, inodes_limit, max_hourly_email, bandwidth FROM plans WHERE id = '$(mysql_escape "$new_plan_id")' LIMIT 1;"
 )
 
 numNdisk=$(echo "$disk_limit" | awk '{print $1}')
@@ -98,7 +98,7 @@ bandwidth_text=$(limit_text "$bandwidth" " mbits bandwidth" "total")
 
 # 2. fetch all users if --all
 if $bulk; then
-    mapfile -t usernames < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "SELECT username FROM users WHERE plan_id = '$new_plan_id';")
+    mapfile -t usernames < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -e "SELECT username FROM users WHERE plan_id = '$(mysql_escape "$new_plan_id")';")
     $debug && echo "Applying plan changes to users: ${usernames[*]}"
 fi
 
@@ -113,7 +113,7 @@ for username in "${usernames[@]}"; do
     echo ""
 
     # 4. get docker context and UID
-    read -r current_plan_id context < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT plan_id, server FROM users WHERE username = '$username'")
+    read -r current_plan_id context < <(mysql --defaults-extra-file="$config_file" -D "$mysql_database" -N -B -e "SELECT plan_id, server FROM users WHERE username = '$(mysql_escape "$username")'")
     user_id=$(id -u "$context")
     # user_id=$(ssh -o LogLevel=ERROR $key_flag "root@$node_ip_address" "id -u $username" 2>/dev/null)
 
