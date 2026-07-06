@@ -2,10 +2,10 @@
 ################################################################################
 # Script Name: domains/suspend.sh
 # Description: Suspend a domain name
-# Usage: opencli domains-suspend <DOMAIN-NAME>
+# Usage: opencli domains-suspend <DOMAIN-NAME> [--comment="<COMMENT>"]
 # Author: Stefan Pejcic
 # Created: 04.11.2024
-# Last Modified: 03.07.2026
+# Last Modified: 05.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -28,12 +28,21 @@
 # THE SOFTWARE.
 ################################################################################
 
-if [ $# -ne 1 ]; then
-    echo "Usage: opencli domains-suspend <domain_name>"
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+    echo "Usage: opencli domains-suspend <domain_name> [--comment='reason']"
     exit 1
 fi
 
 domain_name="$1"
+comment=""
+
+if [ -n "$2" ]; then
+    case "$2" in
+        --comment=*) comment="${2#--comment=}" ;;
+        *) echo "Unknown option: $2"; exit 1 ;;
+    esac
+fi
+
 domain_vhost="/etc/openpanel/caddy/domains/$domain_name.conf"
 suspended_dir="/etc/openpanel/caddy/suspended_domains/"
 conf_template="/etc/openpanel/caddy/templates/suspended.conf"
@@ -45,16 +54,19 @@ conf_template="/etc/openpanel/caddy/templates/suspended.conf"
 mkdir -p $suspended_dir
 cp $domain_vhost $suspended_dir  > /dev/null 2>&1
 
-# 2. create file base don suspended domain template
-domain_conf=$(cat "$conf_template" | sed -e "s|<DOMAIN_NAME>|$domain_name|g")
-echo "$domain_conf" > "$domain_vhost"
+# 2. create file based on suspended domain template
+{
+    [ -n "$comment" ] && printf '# comment: %s\n' "$comment"
+    sed -e "s|<DOMAIN_NAME>|$domain_name|g" "$conf_template"
+} > "$domain_vhost"
 
 # 3. reload caddy
 nohup docker --context=default exec caddy sh -c "caddy validate && caddy reload" > /dev/null 2>&1 &
 disown
 
 # 4. notify
-nohup opencli sentinel --action=domains_status --title="Domain name $domain_name suspended" --message="Domain name $domain_name has been suspended." >/dev/null 2>&1 &
+message="Domain name $domain_name has been suspended.${comment:+ Reason: $comment}"
+nohup opencli sentinel --action=domains_status --title="Domain name $domain_name suspended" --message="$message" >/dev/null 2>&1 &
 disown
 
 echo "Domain suspended successfully."

@@ -376,6 +376,14 @@
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#trash"
   },  
   {
+    "name": "malware_scan",
+    "title": "ClamAV (Malware Scanner)",
+    "description": "If enabled, ClamAV service is started and users can scan run scans.",
+    "link": "/malware-scanner",
+    "type": "beta",
+    "help_link": ""
+  },  
+  {
     "name": "fix_permissions",
     "title": "Fix Permissions",
     "description": "If enabled, users have access to the Fix Permisisons tool to change owner and permissions for website files.",

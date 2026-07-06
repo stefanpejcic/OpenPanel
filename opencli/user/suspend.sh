@@ -5,7 +5,7 @@
 # Usage: opencli user-suspend <USERNAME>
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 03.07.2026
+# Last Modified: 05.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -57,18 +57,21 @@ confirm() {
 
 # ======================================================================
 # Validations
-if [[ "$#" -lt 1 || "$#" -gt 3 ]]; then
+if [[ "$#" -lt 1 || "$#" -gt 4 ]]; then
     echo "Usage: opencli user-suspend <username> [-y] [--debug]"
     exit 1
 fi
 
-for arg in "$@"; do
-    [[ "$arg" == "--debug" ]] && DEBUG=true
+SKIP_CONFIRM=false
+for arg in "${@:2}"; do
+    case "$arg" in
+        --debug)     DEBUG=true ;;
+        -y)          SKIP_CONFIRM=true ;;
+        *)           echo "Unknown option: $arg"; exit 1 ;;
+    esac
 done
 
-if [ "$2" != "-y" ]; then
-    confirm
-fi
+$SKIP_CONFIRM || confirm
 
 
 source "/usr/local/opencli/db.sh"
@@ -118,7 +121,9 @@ suspend_user_domains() {
         fi
 
         # /etc/openpanel/caddy/templates/suspended_user.html
-        sed "s|<DOMAIN_NAME>|$domain_name|g" "$TEMPLATE_CONF" > "${CADDY_VHOST_DIR}/${domain_name}.conf"
+        {
+            sed "s|<DOMAIN_NAME>|$domain_name|g" "$TEMPLATE_CONF"
+        } > "${CADDY_VHOST_DIR}/${domain_name}.conf"
     done
 
     # 3. reload caddy
