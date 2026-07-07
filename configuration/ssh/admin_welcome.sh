@@ -10,7 +10,7 @@ OPENADMIN_STATUS=$(/usr/local/bin/opencli admin)
 
 echo -e  "================================================================"
 echo -e  ""
-echo -e "  🚀 OpenPanel ${VERSION} is installed and ready!"
+echo -e "  🚀 OpenPanel ${VERSION}"
 echo -e  ""
 echo -e  "$OPENADMIN_STATUS"
 echo -e  ""

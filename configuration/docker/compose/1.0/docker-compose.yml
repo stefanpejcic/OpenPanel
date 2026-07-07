@@ -459,8 +459,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_5_6_CPU:-0.125}"
-          memory: "${PHP_FPM_5_6_RAM:-0.25G}"
+          cpus: "${PHP_FPM_5_6_CPU:-0.25}"
+          memory: "${PHP_FPM_5_6_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -487,8 +487,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_7_0_CPU:-0.125}"
-          memory: "${PHP_FPM_7_0_RAM:-0.25G}"
+          cpus: "${PHP_FPM_7_0_CPU:-0.25}"
+          memory: "${PHP_FPM_7_0_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -515,8 +515,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_7_1_CPU:-0.125}"
-          memory: "${PHP_FPM_7_1_RAM:-0.25G}"
+          cpus: "${PHP_FPM_7_1_CPU:-0.25}"
+          memory: "${PHP_FPM_7_1_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -544,8 +544,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_7_2_CPU:-0.125}"
-          memory: "${PHP_FPM_7_2_RAM:-0.25G}"
+          cpus: "${PHP_FPM_7_2_CPU:-0.25}"
+          memory: "${PHP_FPM_7_2_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -574,8 +574,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_7_3_CPU:-0.125}"
-          memory: "${PHP_FPM_7_3_RAM:-0.25G}"
+          cpus: "${PHP_FPM_7_3_CPU:-0.25}"
+          memory: "${PHP_FPM_7_3_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -602,8 +602,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_7_4_CPU:-0.125}"
-          memory: "${PHP_FPM_7_4_RAM:-0.25G}"
+          cpus: "${PHP_FPM_7_4_CPU:-0.25}"
+          memory: "${PHP_FPM_7_4_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -628,8 +628,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_0_CPU:-0.125}"
-          memory: "${PHP_FPM_8_0_RAM:-0.25G}"
+          cpus: "${PHP_FPM_8_0_CPU:-0.25}"
+          memory: "${PHP_FPM_8_0_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -658,8 +658,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_1_CPU:-0.125}"
-          memory: "${PHP_FPM_8_1_RAM:-0.25G}"
+          cpus: "${PHP_FPM_8_1_CPU:-0.25}"
+          memory: "${PHP_FPM_8_1_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -688,8 +688,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_2_CPU:-0.125}"
-          memory: "${PHP_FPM_8_2_RAM:-0.25G}"
+          cpus: "${PHP_FPM_8_2_CPU:-0.25}"
+          memory: "${PHP_FPM_8_2_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -717,8 +717,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_3_CPU:-0.125}"
-          memory: "${PHP_FPM_8_3_RAM:-0.25G}"
+          cpus: "${PHP_FPM_8_3_CPU:-0.25}"
+          memory: "${PHP_FPM_8_3_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -745,8 +745,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_4_CPU:-0.125}"
-          memory: "${PHP_FPM_8_4_RAM:-0.25G}"
+          cpus: "${PHP_FPM_8_4_CPU:-0.25}"
+          memory: "${PHP_FPM_8_4_RAM:-0.5G}"
           pids: 100
     networks:
       - www
@@ -773,8 +773,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "${PHP_FPM_8_5_CPU:-0.125}"
-          memory: "${PHP_FPM_8_5_RAM:-0.25G}"
+          cpus: "${PHP_FPM_8_5_CPU:-0.25}"
+          memory: "${PHP_FPM_8_5_RAM:-0.5G}"
           pids: 100
     networks:
       - www

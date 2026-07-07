@@ -17,19 +17,35 @@ const PLAN_DATA = {
   ftp_limit: '22',
 };
 
+const PLAN_DISPLAY = {
+  name: 'probni',
+  ram: '25 GB',
+  cpu: '15 Core',
+  disk_limit: '400 GB',
+  inodes_limit: '699.999',   // UI adds thousands separator
+  bandwidth: '28 mbits',
+  domains_limit: '44',
+  websites_limit: '55',
+  db_limit: '88',
+  email_limit: '99',
+  max_email_quota: '77G',
+  ftp_limit: '22',
+};
+
 async function fillPlanForm(page: any) {
   for (const [field, value] of Object.entries(PLAN_DATA)) {
     await page.locator(`input[name="${field}"]`).fill(value);
   }
 }
 
-async function verifyPlanRow(page: any, rowText: string) {
-  const row = page.locator('tr', { hasText: rowText });
-  for (const value of Object.values(PLAN_DATA)) {
-    await expect(page.locator('body')).toContainText(value);
-    //await expect(row.getByText(value)).toBeVisible();
+async function verifyPlanRow(page: Page, planName: string) {
+  const row = page.getByRole('row').filter({ hasText: planName });
+  await expect(row).toHaveCount(1);
+
+  for (const value of Object.values(PLAN_DISPLAY)) {
+    await expect(row).toContainText(value);   // scoped to the row, not body
   }
-  await expect(page.locator('body')).toContainText('mysql_only');
+  await expect(row).toContainText('mysql_only');
 }
 
 async function navigateToUserPackages(page: any) {
@@ -63,13 +79,12 @@ test('delete hosting plan', async ({ page }) => {
 
   await navigateToUserPackages(page);
 
-  await page.getByRole('cell').filter({ hasText: 'Edit Delete' }).click();
+  const row = page.getByRole('row').filter({ hasText: 'probni' }).first();
+  await row.getByRole('button').click();                      // opens the Edit/Delete menu in the last cell
   await page.getByRole('button', { name: 'Delete' }).click();
 
-  await expect(page.getByText('plan deleted successfully')).toBeVisible();
-  await expect(page.getByText('probni')).not.toBeVisible();
-
-  console.log('Plan "probni" deleted successfully');
+  await expect(page.getByText(/plan deleted successfully/i)).toBeVisible();
+  await expect(page.getByRole('row').filter({ hasText: 'probni' })).toHaveCount(0);
 });
 
 test('edit hosting plan and verify all fields', async ({ page }) => {
@@ -78,19 +93,18 @@ test('edit hosting plan and verify all fields', async ({ page }) => {
 
   await navigateToUserPackages(page);
 
-  await page.locator('[id="1"]').click();
+  const row = page.getByRole('row').filter({ hasText: 'Developer Plus' });
+  await row.getByRole('button').click();                       // open row actions menu
   await page.getByRole('link', { name: 'Edit' }).click();
 
   await fillPlanForm(page);
   await page.getByRole('combobox').selectOption('mysql_only');
   await page.getByRole('button', { name: 'Save changes' }).click();
 
-  await expect(page.getByText('successfully updated plan id')).toBeVisible();
+  await expect(page.getByText(/successfully updated plan id/i)).toBeVisible();
 
   await navigateToUserPackages(page);
-  await verifyPlanRow(page, 'probni');
-
-  console.log('Plan "Standard plan" edited successfully with all fields verified in table');
+  await verifyPlanRow(page, 'probni');   // form renamed it to 'probni'
 });
 
 

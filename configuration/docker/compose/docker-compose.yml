@@ -78,6 +78,7 @@ services:
     volumes:
       - /usr/local/opencli:/usr/local/opencli:ro                                         # opencli    
       - /var/log/openpanel/user/:/var/log/openpanel/user/                                # access and login logs 
+      - /var/mail/:/var/mail/                                                            # mailboxes and sieve filters
       - /etc/bind:/etc/bind                                                              # dns
       - /home:/home                                                                      # files      
       - /usr/bin/docker:/usr/bin/docker:ro                                               # docker   

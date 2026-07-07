@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 05.07.2026
+# Last Modified: 06.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -405,12 +405,12 @@ restore_domains() {
         tail -n +2 "$WORK/db/sites.sql" | sed 's/),/)\n/g' | while read -r line; do
             local clean; clean=$(echo "$line" | sed "s/[()']//g" | sed 's/,$//')
             [[ -z "$clean" || "$clean" == ";" ]] && continue
-            local sname; sname=$(echo "$clean" | cut -d',' -f1)
-            local email; email=$(echo "$clean" | cut -d',' -f3)
-            local ver;   ver=$(echo "$clean"   | cut -d',' -f4)
-            local typ;   typ=$(echo "$clean"   | cut -d',' -f6)
-            local ports; ports=$(echo "$clean" | cut -d',' -f7)
-            local path;  path=$(echo "$clean"  | cut -d',' -f8)
+            local sname; sname=$(echo "$clean" | cut -d',' -f1 | xargs)
+            local email; email=$(echo "$clean" | cut -d',' -f3 | xargs)
+            local ver;   ver=$(echo "$clean"   | cut -d',' -f4 | xargs)
+            local typ;   typ=$(echo "$clean"   | cut -d',' -f6 | xargs)
+            local ports; ports=$(echo "$clean" | cut -d',' -f7 | xargs)
+            local path;  path=$(echo "$clean"  | cut -d',' -f8 | xargs)
             local domain_url; domain_url=$(echo "$clean" | cut -d',' -f9 | xargs)
 
             # domains-add assigns a fresh domain_id on restore, so resolve the current

@@ -180,6 +180,14 @@ sub vcl_backend_response {
         set beresp.ttl = 1d;
     }
 
+    set beresp.grace = 6h;
+    set beresp.keep = 24h;
+
+    # Compress cacheable dynamic responses the backend didn't already gzip
+    if (beresp.http.content-type ~ "text|application/javascript|application/json|application/xml|image/svg") {
+        set beresp.do_gzip = true;
+    }
+
     # Remove the Set-Cookie header when a specific Wordfence cookie is set
     if (beresp.http.Set-Cookie ~ "wfvt_|wordfence_verifiedHuman") {
 	    unset beresp.http.Set-Cookie;
