@@ -3,7 +3,7 @@
 # OpenPanel Installer ✌️
 # https://openpanel.com/install
 #
-# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
+# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS, openEuler
 # Supported Architecture:  x86_64(AMD64), AArch64(ARM64)
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org)
@@ -205,7 +205,7 @@ detect_os_and_package_manager() {
 
     case "$OS_ID" in
         ubuntu|debian)               PACKAGE_MANAGER="apt-get" ;;
-        fedora|rocky|almalinux|alma) PACKAGE_MANAGER="dnf" ;;
+        fedora|rocky|almalinux|alma|openeuler) PACKAGE_MANAGER="dnf" ;;
         centos)                      PACKAGE_MANAGER="yum" ;;
         *) die 1 "Unsupported OS: $OS_ID" ;;
     esac
@@ -266,7 +266,8 @@ pkg_install_with_retry() {
         linux-image-amd64) $PACKAGE_MANAGER install -y linux-image >/dev/null 2>&1 && return ;;
         dbus-user-session) $PACKAGE_MANAGER install -y dbus >/dev/null 2>&1 && return ;;
         uidmap)       $PACKAGE_MANAGER install -y shadow-utils >/dev/null 2>&1 && return ;;
-        quota|quotatool) warn "Could not install $pkg — you may need to install it manually."; return ;;
+        gnupg2)       $PACKAGE_MANAGER install -y gnupg >/dev/null 2>&1 && return ;;
+        quota|quotatool|systemd-container|slirp4netns|fuse-overlayfs) warn "Could not install $pkg — you may need to install it manually."; return ;;
     esac
 
     local attempt=1 max=10 delay=5
@@ -381,6 +382,19 @@ install_packages() {
         dnf)
             check_kernel_compat
             build_quotatool_from_source
+            if [[ "$OS_ID" == "openeuler" ]]; then
+                run dnf install -y dnf-plugins-core yum-utils perl python3-pip python3-devel gcc tar
+                run dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
+                local el_ver=9
+                [[ "${OS_VERSION_ID%%.*}" -le 20 ]] && el_ver=8
+                sed -i "s/\\\$releasever/${el_ver}/g" /etc/yum.repos.d/docker-ce.repo
+                packages=(git curl openssl ncurses wget gnupg2 cronie jq systemd dbus systemd-container quota shadow-utils docker-ce docker-ce-cli docker-ce-rootless-extras slirp4netns fuse-overlayfs mariadb containerd.io docker-compose-plugin sqlite sqlite-devel perl-Math-BigInt)
+                wait_for_pkg_lock
+                for pkg in "${packages[@]}"; do
+                    pkg_install_with_retry "$pkg"
+                done
+                return
+            fi
             run dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
             run dnf config-manager --add-repo=https://download.docker.com/linux/centos/docker-ce.repo
             if [[ -f /etc/fedora-release ]]; then
@@ -403,7 +417,12 @@ _pip_needs_break_system_packages() {
 
 _build_python312_from_source() {
     echo "Building Python 3.12 from source (this takes a few minutes)..."
-    $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
+    if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
+        $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
+    else
+        $PACKAGE_MANAGER groupinstall -y "Development Tools" >/dev/null 2>&1 || true
+        $PACKAGE_MANAGER install -y gcc make curl ca-certificates xz openssl-devel zlib-devel bzip2-devel readline-devel sqlite-devel libffi-devel ncurses-devel gdbm-devel xz-devel libuuid-devel
+    fi
 
     local latest
     latest=$(curl -fsSL https://www.python.org/ftp/python/ | grep -Po 'href="3\.12\.\d+/' | grep -Po '3\.12\.\d+' | sort -V | tail -1 || echo "3.12.7")
@@ -474,15 +493,26 @@ EOF
                     PYTHON_BIN="python3.12"
                 fi
                 ;;
-            almalinux|alma|rocky|centos)
+            almalinux|alma|rocky|centos|openeuler)
                 run $PACKAGE_MANAGER update -y
-                command -v dnf &>/dev/null && {
-                    run dnf install -y epel-release || true
-                    run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
-                }
+                if [[ "$OS_ID" == "openeuler" ]]; then
+                    run dnf config-manager --set-enabled EPOL 2>/dev/null || true
+                else
+                    command -v dnf &>/dev/null && {
+                        run dnf install -y epel-release || true
+                        run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
+                    }
+                fi
                 $PACKAGE_MANAGER install -y python3.12 || true
                 $PACKAGE_MANAGER install -y python3.12-venv || true
-                command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
+                if command -v python3.12 &>/dev/null; then
+                    PYTHON_BIN="python3.12"
+                elif [[ "$OS_ID" == "openeuler" ]]; then
+                    warn "python3.12 not available in openEuler repos — building from source..."
+                    _build_python312_from_source
+                else
+                    die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
+                fi
                 ;;
         esac
     fi
@@ -711,7 +741,8 @@ setup_firewall() {
     rm -rf csf
 
     if [[ "$PACKAGE_MANAGER" == "dnf" ]]; then
-        run dnf install -y wget curl yum-utils policycoreutils-python-utils libwww-perl
+        run dnf install -y wget curl yum-utils policycoreutils-python-utils
+        run dnf install -y libwww-perl || run dnf install -y perl-libwww-perl
         [[ -f /etc/fedora-release ]] && run yum --allowerasing install perl -y
     else
         run apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
