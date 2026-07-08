@@ -56,7 +56,7 @@ Don't forget to restart the Docker daemon for that user from step 4.
 
 ### 3. Verify the per-user network driver
 
-Confirm that the internal network in the user's `docker-compose.yml` (/home/<USER>/docker-compose.yml) uses the `bridge` driver:
+Confirm that the internal network in the user's `docker-compose.yml` (`/home/<USER>/docker-compose.yml)` uses the bridge driver:
 
 ```yaml
 networks:
