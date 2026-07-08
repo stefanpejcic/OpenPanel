@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { CommonGithubStarButton } from "./common-github-star-button";
 import { CommonHamburgerIcon } from "./common-hamburger-icon";
 import { CommonThemeToggle } from "./common-theme-toggle";
-import { DocSearchButton } from "./doc-search-button";
 import { DocSidebarModal } from "./doc-sidebar-modal";
 import { DocVersionDropdown } from "./doc-version-dropdown";
 import { TopAnnouncement } from "./top-announcement";
@@ -36,20 +35,7 @@ const Desktop = () => {
                 </div>
 
                 <div className={clsx("lg:hidden flex")}>
-                    <SearchBar
-                        CustomButton={React.forwardRef<
-                            HTMLButtonElement,
-                            React.PropsWithChildren<{}>
-                        >(function CustomButton(props, ref) {
-                            return (
-                                <DocSearchButton
-                                    ref={ref}
-                                    {...props}
-                                    iconOnly
-                                />
-                            );
-                        })}
-                    />
+                    <SearchBar />
                 </div>
 
                 <DocVersionDropdown />
@@ -76,16 +62,7 @@ export const Mobile = () => {
         >
             <DocRefineLogo />
             <div className={clsx("flex items-center gap-4")}>
-                <SearchBar
-                    CustomButton={React.forwardRef<
-                        HTMLButtonElement,
-                        React.PropsWithChildren<{}>
-                    >(function CustomButton(props, ref) {
-                        return (
-                            <DocSearchButton ref={ref} {...props} iconOnly />
-                        );
-                    })}
-                />
+                <SearchBar />
                 <CommonHamburgerIcon
                     onClick={() => setIsSidebarOpen(true)}
                     active={isSidebarOpen}

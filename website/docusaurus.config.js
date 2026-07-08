@@ -129,6 +129,14 @@ const siteConfig = {
                 outputFile: "llms.txt",
             },
         ],
+        [
+            "@easyops-cn/docusaurus-search-local",
+            {
+                hashed: true,
+                indexBlog: true,
+                indexPages: false,
+            },
+        ],
         async function tailwindcss() {
             return {
                 name: "docusaurus-tailwindcss",
@@ -195,15 +203,6 @@ const siteConfig = {
             ],
         },
         image: "img/openpanel_social.png",
-        algolia: {
-            appId: "RK5PNCUHQ1",
-            apiKey: '19c5792de80bcc152367636748edfbc5',
-            indexName: 'OpenPanel Docs',
-            contextualSearch: true,
-            //replaceSearchResultPathname: {from: '/docs/',to: '/',},
-            searchParameters: {},
-            searchPagePath: 'search',
-        },
         metadata: [
             {
                 name: "keywords",
