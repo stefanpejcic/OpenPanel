@@ -13,7 +13,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://hostkey.com/apps/hosting-control-panels/openpanel/",
-    logo: "https://cdn.hostadvice.com/2016/04/hostkey_logo-250x75.png",
+    logo: "/img/hosting-providers/hostkey_logo.png",
   },
   {
     company: "UNLIMITED.RS",
@@ -22,7 +22,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://unlimited.rs/vps-hosting/",
-    logo: "https://unlimited.rs/wp-content/themes/unlimited-RS/themeFunctions/media/unlimited.rs_logo.svg",
+    logo: "/img/hosting-providers/unlimited-rs-logo.svg",
   },
   {
     company: "AltusHost",
@@ -31,7 +31,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://altushost.com",
-    logo: "https://altushost.com/wp-content/themes/AltusHost2024/images/logo-altushost.svg",
+    logo: "/img/hosting-providers/logo-altushost.svg",
   }, 
   {
     company: "Clouding.io",
@@ -49,7 +49,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://www.astralinternet.com",
-    logo: "https://www.astralinternet.com/wp-content/uploads/2024/06/astral-logocompact-dark.svg",
+    logo: "/img/hosting-providers/astral-logocompact-dark.svg",
   },  
   {
     company: "Astral Internet",
@@ -58,7 +58,7 @@ const providers = [
     managedSupport: "No",
     freeEnterprise: "No",
     link: "https://cloudzy.com/marketplace/openpanel/",
-    logo: "https://cloudzy.com/wp-content/uploads/2025/12/Logo.svg",
+    logo: "/img/hosting-providers/cloudzy-logo.svg",
   },  
 ];
 

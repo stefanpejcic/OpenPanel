@@ -6,7 +6,7 @@ Import cPanel accounts from backup.
 
 Create a cPanel account backup using backup wizard or download a backup from Jetbackup5 interface:
 
-![cpanel backup wizard](https://i.postimg.cc/q7MbhszY/1.png)
+![cpanel backup wizard](/img/docs-content/q7MbhszY-1.png)
 
 ## Download backup
 Transfer the generated backup to your server

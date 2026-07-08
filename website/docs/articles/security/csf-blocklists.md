@@ -8,15 +8,15 @@ OpenPanel does **not** enable any IP blocklists by default upon installation.
 
 To enable a blocklist from OpenAdmin interface, navigate to **Security > Firewall** then scroll down and click on the 'LFD Blocklists':
 
-[![2025-07-22-17-06.png](https://i.postimg.cc/LsdV3g1b/2025-07-22-17-06.png)](https://postimg.cc/CRNDF1JG)
+[![2025-07-22-17-06.png](/img/docs-content/LsdV3g1b-2025-07-22-17-06.png)](/img/docs-content/LsdV3g1b-2025-07-22-17-06.png)
 
 **Uncomment** the line that starts with the desired blocklist, by removing the `#` before it, then click on 'Change':
 
-[![2025-07-22-17-06-1.png](https://i.postimg.cc/jjz4gq6d/2025-07-22-17-06-1.png)](https://postimg.cc/sBgW1r0t)
+[![2025-07-22-17-06-1.png](/img/docs-content/jjz4gq6d-2025-07-22-17-06-1.png)](/img/docs-content/jjz4gq6d-2025-07-22-17-06-1.png)
 
 Finally click on 'Restart csf+lfd':
 
-[![2025-07-22-17-07.png](https://i.postimg.cc/KYrt7qF1/2025-07-22-17-07.png)](https://postimg.cc/nsrsp1Xx)
+[![2025-07-22-17-07.png](/img/docs-content/KYrt7qF1-2025-07-22-17-07.png)](/img/docs-content/KYrt7qF1-2025-07-22-17-07.png)
 
 
 ## from Terminal

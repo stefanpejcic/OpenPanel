@@ -8,46 +8,46 @@ Using the command you can check current system health and get suggestions on imp
 opencli sentinel
 ```
 
-![sentinel openpanel cli](https://i.postimg.cc/kg56D2x2/sentinel-openpaenl.png)
+![sentinel openpanel cli](/img/docs-content/kg56D2x2-sentinel-openpaenl.png)
 
 
 <details>
   <summary>Example email notifications</summary>
 
 ### Login to OpenAdmin from an unknown ip address
-![sentinel_adminlogin.png](https://i.postimg.cc/jjdk02DP/sentinel-adminlogin.png)
+![sentinel_adminlogin.png](/img/docs-content/jjdk02DP-sentinel-adminlogin.png)
 
 ### Server reboot alert
-![sentinel_reboot.png](https://i.postimg.cc/1XpKN1gy/sentinel-reboot.png)
+![sentinel_reboot.png](/img/docs-content/1XpKN1gy-sentinel-reboot.png)
 
 ### Daily usage report
-![sentinel_dailyusage.png](https://i.postimg.cc/kgjvSc5R/sentinel-dailyusage.png)
+![sentinel_dailyusage.png](/img/docs-content/kgjvSc5R-sentinel-dailyusage.png)
 
 ### Disk usage alert
-![sentinel_diskspace.png](https://i.postimg.cc/zvSnGwMB/sentinel-diskspace.png)
+![sentinel_diskspace.png](/img/docs-content/zvSnGwMB-sentinel-diskspace.png)
 
 ### High LOAD alert
-![sentinel_highload.png](https://i.postimg.cc/PrTWFcp8/sentinel-highload.png)
+![sentinel_highload.png](/img/docs-content/PrTWFcp8-sentinel-highload.png)
 
 ### CPU usage alert
-![sentinel_highcpu.png](https://i.postimg.cc/s2kSP0Cx/sentinel-highcpu.png)
+![sentinel_highcpu.png](/img/docs-content/s2kSP0Cx-sentinel-highcpu.png)
 
 ### MEM usage alert
-![sentinel_highmem.png](https://i.postimg.cc/PJ4wjXpv/sentinel-highmem.png)
+![sentinel_highmem.png](/img/docs-content/PJ4wjXpv-sentinel-highmem.png)
 
 ### SWAP usage alert
-![sentinel_highswap.png](https://i.postimg.cc/JzgBmdnx/sentinel-highswap.png)
+![sentinel_highswap.png](/img/docs-content/JzgBmdnx-sentinel-highswap.png)
 
 ### MySQL service inactive alert
-![sentinel_mysql.png](https://i.postimg.cc/761C3HNt/sentinel-mysql.png)
+![sentinel_mysql.png](/img/docs-content/761C3HNt-sentinel-mysql.png)
 
 ### Nameservers resolution alert
-![sentinel_nameservers.png](https://i.postimg.cc/GtqHfXVk/sentinel-nameservers.png)
+![sentinel_nameservers.png](/img/docs-content/GtqHfXVk-sentinel-nameservers.png)
 
 ### OpenPanel container inactive alert
-![sentinel_opanelcontainer.png](https://i.postimg.cc/xTpXyFKQ/sentinel-opanelcontainer.png)
+![sentinel_opanelcontainer.png](/img/docs-content/xTpXyFKQ-sentinel-opanelcontainer.png)
 
 ### Hostname resolution alert
-![sentinel_resolve.png](https://i.postimg.cc/158mPRqx/sentinel-resolve.png)
+![sentinel_resolve.png](/img/docs-content/158mPRqx-sentinel-resolve.png)
 
 </details>

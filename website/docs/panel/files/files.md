@@ -74,7 +74,7 @@ To edit the content of a file that can be edited in a text editor, click on the 
 
 Using the button in top-right corner you can switch between one of the 4 available editors: Monaco (defualt), Ace, CodeMirror, Plain Text.
 
-![code editor](https://i.postimg.cc/Xv0sPDG6/2026-04-02-19-57.png)
+![code editor](/img/docs-content/Xv0sPDG6-2026-04-02-19-57.png)
 
 ## Rename File
 

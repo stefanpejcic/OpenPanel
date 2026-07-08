@@ -395,15 +395,15 @@ Props can be either supplied using the `params` argument, or through the URL usi
 Creating a Webhook in Discord:
 
 1. Open your channel settings by clicking the gear icon next to the channel name.
-   ![screenshot 1](https://i.postimg.cc/FmYrJfhZ/sc-1.png)
+   ![screenshot 1](/img/docs-content/FmYrJfhZ-sc-1.png)
 2. In the left menu, click **Integrations**.  
-   ![screenshot 2](https://i.postimg.cc/NtJGM8vF/sc-2.png)
+   ![screenshot 2](/img/docs-content/NtJGM8vF-sc-2.png)
 3. On the right, click **Create Webhook**.  
-   ![screenshot 3](https://i.postimg.cc/7Djx1x6y/sc-3.png)
+   ![screenshot 3](/img/docs-content/7Djx1x6y-sc-3.png)
 4. Set the name, channel, and icon to your preference, then click **Copy Webhook URL**.  
-   ![screenshot 4](https://i.postimg.cc/2rvC2PbL/sc-4.png)
+   ![screenshot 4](/img/docs-content/2rvC2PbL-sc-4.png)
 5. Press **Save Changes**.
-   ![screenshot 5](https://i.postimg.cc/wqG9GzQL/sc-5.png)
+   ![screenshot 5](/img/docs-content/wqG9GzQL-sc-5.png)
 6 Format the service URL:
    ```
    https://discord.com/api/webhooks/693853386302554172/W3dE2OZz4C13_4z_uHfDOoC7BqTW288s-z1ykqI0iJnY_HjRqMGO8Sc7YDqvf_KVKjhJ

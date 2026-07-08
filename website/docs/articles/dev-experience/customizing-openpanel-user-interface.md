@@ -25,7 +25,7 @@ To customize OpenPanel, you have the following options:
 
 Administrators can set a custom message to be displayed for any OpenPanel uer from their **OpenAdmin > Users** page.
 
-![custom img](https://i.postimg.cc/9CCgHGG2/2025-06-11-12-26.png)
+![custom img](/img/docs-content/9CCgHGG2-2025-06-11-12-26.png)
 
 ## Enable/disable features
 
@@ -82,7 +82,7 @@ cd /root && docker compose up -d openpanel
 
 Example:
 
-![custom_css_code](https://i.postimg.cc/YprhHZhg/2024-06-18-15-04.png)
+![custom_css_code](/img/docs-content/YprhHZhg-2024-06-18-15-04.png)
 
 
 

@@ -17,7 +17,7 @@ To migrate all users and files at once, please refer to the, please refer to the
    * **Username**: SSH username for the remote server (usually `root`)
    * **Password**: SSH password for the specified user
 
-   [![2025-07-17-18-32.png](https://i.postimg.cc/BvbcRp2k/2025-07-17-18-32.png)](https://postimg.cc/Y4cWW1nz)
+   [![2025-07-17-18-32.png](/img/docs-content/BvbcRp2k-2025-07-17-18-32.png)](/img/docs-content/BvbcRp2k-2025-07-17-18-32.png)
 
 5. (Optional) Enable the **Live Transfer** option.
    If checked, the account will be suspended on the current server after migration, and DNS will be forwarded to the new server.

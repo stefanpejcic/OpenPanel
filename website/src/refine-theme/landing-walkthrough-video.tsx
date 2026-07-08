@@ -502,11 +502,11 @@ export const LandingWalkthroughVideo = () => {
                 )}
             >
                 <source
-                    src="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/refine-walkthrough.mov"
+                    src="/assets/refine-walkthrough.mov"
                     type='video/mp4; codecs="hvc1"'
                 />
                 <source
-                    src="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/refine-walkthrough.webm"
+                    src="/assets/refine-walkthrough.webm"
                     type="video/webm;"
                 />
             </video>

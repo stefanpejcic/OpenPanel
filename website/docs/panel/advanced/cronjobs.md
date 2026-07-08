@@ -114,4 +114,4 @@ You can also set `no-overlap` for a cronjob, to avoid running the job multiple t
 Cronjobs can be bulk-edited through a file, making it easy to edit multiple jobs at once or transfer them between servers.
 Simply click the *“Switch to File Editor”* button to open the editor.
 
-![file editor](https://i.postimg.cc/zXx0LDMm/slika.png)
+![file editor](/img/docs-content/zXx0LDMm-slika.png)

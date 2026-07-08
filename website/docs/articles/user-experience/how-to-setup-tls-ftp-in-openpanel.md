@@ -40,7 +40,7 @@ Replace `DOMAIN_NAME` with your actual domain name.
 ## Step 3: Enable TLS in VSFTPD
 
 1. Go to **OpenAdmin → Services → FTP → Configuration**
-   ![image](https://i.postimg.cc/DZyrjCXF/1.png)
+   ![image](/img/docs-content/DZyrjCXF-1.png)
 3. Paste the following configuration options to enable TLS:
   
    ⚠️ **Important:** Replace `DOMAIN_NAME` with your domain name in both file paths.
@@ -62,7 +62,7 @@ Replace `DOMAIN_NAME` with your actual domain name.
    ```
 
 3. Click **Save** to apply the changes.
-   ![image2](https://i.postimg.cc/52KQ9xYt/2.png)
+   ![image2](/img/docs-content/52KQ9xYt-2.png)
 
 ---
 
@@ -72,4 +72,4 @@ Replace `DOMAIN_NAME` with your actual domain name.
 2. Locate the **FTP** service.
 3. Click **Stop**, then **Start** to restart the service.
 
-![image2](https://i.postimg.cc/0vTJnjCB/3.png)
+![image2](/img/docs-content/0vTJnjCB-3.png)

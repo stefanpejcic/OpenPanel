@@ -52,8 +52,8 @@ export const EnterpriseFlexibility = ({
                 >
                     <CommonThemedImage
                         className={clsx("rounded-2xl landing-sm:rounded-3xl")}
-                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/lego-pieces-dark.png"
-                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/lego-pieces-light.png"
+                        srcDark="/enterprise/lego-pieces-dark.png"
+                        srcLight="/enterprise/lego-pieces-light.png"
                     />
                     <div
                         className={clsx(

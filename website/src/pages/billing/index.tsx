@@ -14,7 +14,6 @@ import {
 
 export type CardProps = {
     title: string;
-    imgURL: string;
     description: string;
     logo: React.FC<React.SVGProps<SVGSVGElement>>;
     bgLinearGradient: string;
@@ -23,7 +22,6 @@ export type CardProps = {
 
 const Card = ({
     title,
-    imgURL,
     description,
     logo,
     bgLinearGradient,
@@ -41,9 +39,6 @@ const Card = ({
                     )}
                 >
                     {title}
-                </div>
-                <div className="px-4">
-                    <img src={imgURL} alt={title} />
                 </div>
                 <div className={clsx("flex flex-col gap-4", "p-6")}>
                     <p className="text-gray-700 dark:text-gray-300">

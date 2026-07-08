@@ -36,4 +36,4 @@ opencli api status
 opencli api list
 ```
 
-![available endpoints](https://i.postimg.cc/KjkSXLsT/2024-09-04-18-22.png)
+![available endpoints](/img/docs-content/KjkSXLsT-2024-09-04-18-22.png)

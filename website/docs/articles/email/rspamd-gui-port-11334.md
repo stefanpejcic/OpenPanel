@@ -2,7 +2,7 @@
 
 [Rspamd](https://rspamd.com/) is an advanced spam filtering system that offers many different ways to filter messages, including regular expressions and statistical analysis. Each message is analyzed by rspamd and given a spam score.
 
-![rspamd gui](https://i.postimg.cc/wHkc2j15/2025-08-11-17-56-1.png)
+![rspamd gui](/img/docs-content/wHkc2j15-2025-08-11-17-56-1.png)
 
 [OpenPanel Enterprise edition](https://openpanel.com/enterprise/#compare) includes RSPAMD by default.
 
@@ -12,9 +12,9 @@ To enable RSPAMD:
 
 1. Go to **OpenAdmin > Emails > Settings**.
 2. Enable the 'RSPAMD' option.
-  ![rspamd enable openadmin](https://i.postimg.cc/M6gTbRyZ/2025-08-11-18-04.png)
+  ![rspamd enable openadmin](/img/docs-content/M6gTbRyZ-2025-08-11-18-04.png)
 3. Save changes and restart the email server.
-  ![rspamd restart openadmin](https://i.postimg.cc/6KPyXsDs/2025-08-11-18-05.png)
+  ![rspamd restart openadmin](/img/docs-content/6KPyXsDs-2025-08-11-18-05.png)
 
 > **NOTE**: If Rspamd is enabled, you should disable the following services (as they provide overlapping functionality): *Amavis, SpamAssassin, OpenDKIM, OpenDMARC*.
 
@@ -60,7 +60,7 @@ Rspamd includes a web-based GUI that displays statistics and filtering data.
 
 The interface is accessible via port `11334`.
 
-![rspamd login](https://i.postimg.cc/HWSMgjMf/2025-08-11-17-56.png)
+![rspamd login](/img/docs-content/HWSMgjMf-2025-08-11-17-56.png)
 
 1. Open your browser and visit:
 

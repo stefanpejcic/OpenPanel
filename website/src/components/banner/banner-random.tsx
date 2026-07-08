@@ -23,7 +23,7 @@ const data = [
         description:
             "An open-source, industry-standard codebase designed for building enterprise-grade internal tools, admin panels, and CRUD apps.",
         image: {
-            src: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/banners/banner-save-hours.png",
+            src: "/banners/banner-save-hours.png",
             alt: "Illustration about time is gold",
             href: "https://github.com/refinedev/refine?ref=banner-save-hours",
         },
@@ -37,7 +37,7 @@ const data = [
         description:
             "refine is ranked among the top 3 rapidly growing React frameworks in the ecosystem.",
         image: {
-            src: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/banners/banner-oss-insight.png",
+            src: "/banners/banner-oss-insight.png",
             alt: "Photo about refine ranking on OSS Insight website",
             href: "https://github.com/refinedev/refine?ref=banner-oss-insight",
         },

@@ -16,7 +16,7 @@ If you request `example.com/index.html`, confirm that `index.html` exists in the
 
 * Go to **Domains > [Your Domain] > *click on* Document Root**.
 * Open the File Manager and verify that the file is present in the correct location.
-![screenshot](https://i.postimg.cc/TRPPtj2P/image.png)
+![screenshot](/img/docs-content/TRPPtj2P-image.png)
 ---
 
 ## 2. Rewrite Rules
@@ -26,9 +26,9 @@ If the request is for a dynamic route (e.g., WordPress pretty permalinks such as
 **For Apache or LiteSpeed:**
 
 * Open the File Manager and check for a `.htaccess` file in the domain’s document root.
-  ![screenshot](https://i.postimg.cc/b8nwVwP1/image.png)
+  ![screenshot](/img/docs-content/b8nwVwP1-image.png)
 * If it exists, review its contents.
-  ![screenshot](https://i.postimg.cc/338rwjvZ/image.png)
+  ![screenshot](/img/docs-content/338rwjvZ-image.png)
 * For WordPress, you can simply go to [**WP Admin > Settings > Permalinks**](https://www.google.com/search?q=wordpress+recreate+htaccess) and click **Save** (even without changes). This refreshes the rewrite rules in `.htaccess`.
 * Restart the webserver afterward to apply the changes from .htaccess file.
 
@@ -36,9 +36,9 @@ If the request is for a dynamic route (e.g., WordPress pretty permalinks such as
 
 * `.htaccess` files are not used. Rewrite rules are set directly in the VirtualHosts configuration.
 * Go to **Domains > [Your Domain] > Edit VHosts**.
-  ![screenshot](https://i.postimg.cc/mbSrwXWJ/image.png)
+  ![screenshot](/img/docs-content/mbSrwXWJ-image.png)
 * Review and correct the rewrite rules, then save the file. This automatically reloads the webserver to apply changes.
-  ![screenshot](https://i.postimg.cc/RCSpt0Q2/image.png)
+  ![screenshot](/img/docs-content/RCSpt0Q2-image.png)
 
 After adjustments, test your website again.
 
@@ -56,7 +56,7 @@ This means the file might appear in File Manager but not be accessible to PHP.
 
   1. Go to **Docker > Terminal**.
   2. Select the PHP service.
-     ![screenshot](https://i.postimg.cc/qphbySyB/image.png)
+     ![screenshot](/img/docs-content/qphbySyB-image.png)
   3. Run:
 
      ```bash
@@ -69,7 +69,7 @@ This means the file might appear in File Manager but not be accessible to PHP.
 
   * Go to **Docker > Containers**.
   * Disable the PHP service, wait for the page to reload, then enable it again.
-    ![screenshot](https://i.postimg.cc/wx8Dm4XP/image.png)
+    ![screenshot](/img/docs-content/wx8Dm4XP-image.png)
 
 * If you do not have Docker access:
 

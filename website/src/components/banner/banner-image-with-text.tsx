@@ -29,7 +29,7 @@ export const BannerImageWithText: FC<Props> = ({
     variant = "purple",
     button = {
         text: "Learn more",
-        href: "https://refine.dev/",
+        href: "https://openpanel.com",
         onClick: undefined,
     },
     bannerName,

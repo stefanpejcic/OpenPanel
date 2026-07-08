@@ -73,11 +73,11 @@ export const LandingHeroVideo = () => {
                     className="w-full h-full mt-auto opacity-[0.99]"
                 >
                     <source
-                        src="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/hero-video.mov"
+                        src="/assets/hero-video.mov"
                         type='video/mp4; codecs="hvc1"'
                     />
                     <source
-                        src="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/hero-video.webm"
+                        src="/assets/hero-video.webm"
                         type="video/webm;"
                     />
                 </video>

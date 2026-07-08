@@ -23,7 +23,7 @@ Hovering over each metric provides detailed information:
 * **CPU** – Usage per CPU core
 * **Disk** – Usage per disk partition
 
-![SSE Widget](https://i.postimg.cc/9Q9DMPH0/openadmin-sse.gif)
+![SSE Widget](/img/docs-content/9Q9DMPH0-openadmin-sse.gif)
 
 ## User Activity
 

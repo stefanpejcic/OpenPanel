@@ -10,7 +10,7 @@ To configure ImunifyAV via the control panel:
 2. Click the **cog icon** to access settings.
 3. Adjust the resource limits for scans and set the scan schedule — by default, scans run monthly.
 
-[![imunifyav.png](https://i.postimg.cc/PqmmF0JV/imunifyav.png)](https://postimg.cc/f3RtV2xY)
+[![imunifyav.png](/img/docs-content/PqmmF0JV-imunifyav.png)](/img/docs-content/PqmmF0JV-imunifyav.png)
 
 
 Alternatively, you can perform these configurations directly from the terminal:

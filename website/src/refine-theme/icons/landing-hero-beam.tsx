@@ -11,7 +11,7 @@ export const LandingHeroBeamSvg = (props: React.SVGProps<SVGSVGElement>) => (
     >
         <image
             className="invisible dark:visible"
-            href="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/landing-hero-connection-ray.png"
+            href="/assets/landing-hero-connection-ray.png"
             width={128}
             height={256}
             x={0}
@@ -19,7 +19,7 @@ export const LandingHeroBeamSvg = (props: React.SVGProps<SVGSVGElement>) => (
         />
         <image
             className="visible dark:invisible"
-            href="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/landing-hero-connection-ray-light.png"
+            href="/assets/landing-hero-connection-ray-light.png"
             width={128}
             height={256}
             x={0}
@@ -41,7 +41,7 @@ export const LandingHeroBeamGlowSvg = (
     >
         <image
             className="invisible dark:visible"
-            href="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/landing-hero-connection-glow.png"
+            href="/assets/landing-hero-connection-glow.png"
             width={128}
             height={256}
             x={0}
@@ -49,7 +49,7 @@ export const LandingHeroBeamGlowSvg = (
         />
         <image
             className="visible dark:invisible"
-            href="https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/landing-hero-connection-glow-light.png"
+            href="/assets/landing-hero-connection-glow-light.png"
             width={128}
             height={256}
             x={0}

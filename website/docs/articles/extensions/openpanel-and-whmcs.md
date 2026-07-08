@@ -11,7 +11,7 @@ To setup WHMCS to use your OpenPanel server follow these steps:
 ## Enable API
 
 First make sure that API access is enabled by going to `OpenAdmin > API` or by running `opencli config get api` from the terminal:
-![enable_api](https://i.postimg.cc/L6vwMQ4t/image.png)
+![enable_api](/img/docs-content/L6vwMQ4t-image.png)
 If API is not enabled, click on the "Enable API access" button or from terminal run 
 ```bash
 opencli config update api on
@@ -57,13 +57,13 @@ On WHMCS server also make sure that the 2087 port is opened or whitelist the IP 
 ## WHMCS Module Setup
 
 From WHMCS navigate to: *System Settings > Products & Services > Servers*
-![screenshot](https://i.postimg.cc/MHWpL3tc/image.png)
+![screenshot](/img/docs-content/MHWpL3tc-image.png)
 Click on *Create New Server* and under module select **OpenPanel** then add OpenPanel server IP, username and password for the OpenAdmin panel:
-![create_whmcs_group](https://i.postimg.cc/3Jh3nqWY/image.png)
+![create_whmcs_group](/img/docs-content/3Jh3nqWY-image.png)
 
 ## Create hosting package
 On the WHMCS server create first a new group and then create new plans under this group. When creating products, make sure to select OpenPanel for Module and the newly created group
-![screenshot2](https://i.postimg.cc/NLvF4GSc/image.png)
+![screenshot2](/img/docs-content/NLvF4GSc-image.png)
 
 ## Test
 Create an order and create a new order to test OpenPanel API.

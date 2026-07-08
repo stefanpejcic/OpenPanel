@@ -229,7 +229,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -237,7 +237,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -245,7 +245,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -253,7 +253,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -261,7 +261,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -269,7 +269,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -277,7 +277,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -285,7 +285,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -293,7 +293,7 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
     {
         title: "CEO - Ja doo",
@@ -301,6 +301,6 @@ const testimonials = [
         link: "https://google.com",
         description:
             "nestoooo",
-        img: "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/assets/testimonials/zeno-rocha.png",
+        img: "/assets/testimonials/zeno-rocha.png",
     },
 ];

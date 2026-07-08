@@ -15,7 +15,7 @@ If you’re starting fresh with a new site, follow: [How to Install WordPress® 
 3. Enter your domain name (e.g., `example.com`).
 4. Save.
 
-![add domain](https://i.postimg.cc/mkDT1Mhh/add-domain.png)
+![add domain](/img/docs-content/mkDT1Mhh-add-domain.png)
 
 Make sure to point your domain’s DNS records (A record) to your OpenPanel server IP.
 
@@ -29,7 +29,7 @@ Make sure to point your domain’s DNS records (A record) to your OpenPanel serv
 2. Set **Database Name**, **Database User** and set a strong password.
 3. Click on the **Create DB, User and Grant Privileges** button.
 
-![mysql db wizard](https://i.postimg.cc/rm4Pnwbg/db-wizard.png)
+![mysql db wizard](/img/docs-content/rm4Pnwbg-db-wizard.png)
 
 ### 2.2 Import SQL File to Database
 
@@ -44,7 +44,7 @@ There are two ways to upload a database:
 2. Select **Database** and choose file from your device.
 3. Click on **Upload & Import**.
 
-![import sql file](https://i.postimg.cc/Vfwnd6sR/db-import.png)
+![import sql file](/img/docs-content/Vfwnd6sR-db-import.png)
 
 
 **2.3 Import SQL file using phpMyAdmin**:
@@ -71,7 +71,7 @@ Before uploading, ensure your backup is archived (`.zip`, `.tar` or `.tar.gz`). 
 ### 3.2 Change wp-config.php File
 
 1. In File Manager, locate the **`wp-config.php`** file.
-   ![edit wp config file](https://i.postimg.cc/mkLgNk21/edit-wp-config.png)
+   ![edit wp config file](/img/docs-content/mkLgNk21-edit-wp-config.png)
 2. Edit the database settings:
 
    ```php
@@ -80,7 +80,7 @@ Before uploading, ensure your backup is archived (`.zip`, `.tar` or `.tar.gz`). 
    define('DB_PASSWORD', 'your_database_password');
    define('DB_HOST', 'mysql'); // mariadb or mysql - depending on your current setting
    ```
-   ![example wp config ph](https://i.postimg.cc/3NtJLhdS/edit-wp-config-file.png)
+   ![example wp config ph](/img/docs-content/3NtJLhdS-edit-wp-config-file.png)
 3. Save changes.
 
 ---
@@ -99,4 +99,4 @@ Before uploading, ensure your backup is archived (`.zip`, `.tar` or `.tar.gz`). 
 3. Refresh the page and click on your website.
 4. Click on the **Live Preview** button to check your website.
 
-![wp scan](https://i.postimg.cc/npmRW3S9/scan-wp.png)
+![wp scan](/img/docs-content/npmRW3S9-scan-wp.png)

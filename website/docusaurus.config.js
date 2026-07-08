@@ -148,7 +148,6 @@ const siteConfig = {
             };
         },
         "./plugins/docgen.js",
-        "./plugins/examples.js",
         "./plugins/checklist.js",
         ...(process.env.DISABLE_BLOG
             ? []
@@ -171,7 +170,6 @@ const siteConfig = {
                   ],
               ]),
         "./plugins/clarity.js",
-        "./plugins/templates.js",
         "./plugins/example-redirects.js",
     ],
     themeConfig: {

@@ -157,9 +157,9 @@ export const LandingHeroAnimationItem = React.memo(
                     style={{
                         maskType: "alpha",
                         WebkitMaskImage:
-                            "url(https://refine.ams3.cdn.digitaloceanspaces.com/website/static/landing-hero-animation/hero-beam-mask.svg)",
+                            "url(/landing-hero-animation/hero-beam-mask.svg)",
                         maskImage:
-                            "url(https://refine.ams3.cdn.digitaloceanspaces.com/website/static/landing-hero-animation/hero-beam-mask.svg)",
+                            "url(/landing-hero-animation/hero-beam-mask.svg)",
                     }}
                 >
                     <div

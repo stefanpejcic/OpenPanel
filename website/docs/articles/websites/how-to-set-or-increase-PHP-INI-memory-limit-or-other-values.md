@@ -54,7 +54,7 @@ Set the default PHP version for new users via:
 1. Choose the default PHP version.
 2. Click 'Save' to confirm.
 
-![default.png](https://i.postimg.cc/cJNjVQPM/default.png)
+![default.png](/img/docs-content/cJNjVQPM-default.png)
 
 ---
 
@@ -67,7 +67,7 @@ Administrators can manage these options in two ways:
 From the panel:
 [**OpenAdmin > Settings > PHP Settings**](/docs/admin/settings/php/) page.
 
-![options.png](https://i.postimg.cc/1zcTP8Qx/options.png)
+![options.png](/img/docs-content/1zcTP8Qx-options.png)
 
 Or via terminal:
 - **Global default (all users)**: `/etc/openpanel/php/options.txt`
@@ -82,7 +82,7 @@ Administrators can configure the default php.ini files for all PHP versions.
 From the panel:
 [**OpenAdmin > Settings > PHP Settings**](/docs/admin/settings/php/) page.
 
-![phpini.png](https://i.postimg.cc/dVCpHWNV/phpini.png)
+![phpini.png](/img/docs-content/dVCpHWNV-phpini.png)
 
 Or via terminal:
 - **Global default (all users)**: `/etc/openpanel/php/ini/`

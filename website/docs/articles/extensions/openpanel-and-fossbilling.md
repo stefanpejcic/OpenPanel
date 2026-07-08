@@ -16,13 +16,13 @@ curl ip.openpanel.com
 
 Login to OpenAdmin and under **Settings > Firewall** add the FOSSBilling server's IP under **Allow IP address**:
 
-![whitelist ip](https://i.postimg.cc/433M6LBr/2024-08-04-16-10.png)
+![whitelist ip](/img/docs-content/433M6LBr-2024-08-04-16-10.png)
 
 ### Enable API access
 
 To enable API access on OpenPanel, navigate to **Settings > API Access** from the OpenAdmin interface and click on 'Enable API access' button:
 
-![enable api](https://i.postimg.cc/VsthWbWL/2024-08-04-16-14.png)
+![enable api](/img/docs-content/VsthWbWL-2024-08-04-16-14.png)
 
 ## FOSSBilling
 
@@ -38,11 +38,11 @@ wget -O library/Server/Manager/OpenPanel.php https://raw.githubusercontent.com/s
 
 Login to your FOSSBilling admin panel and go to **System -> Hosting plans and servers** from within the navigation bar, then click on 'New server':
 
-![new server](https://i.postimg.cc/bYV8DngC/2024-08-04-15-19.png)
+![new server](/img/docs-content/bYV8DngC-2024-08-04-15-19.png)
 
 in the new form we need to set:
 
-![add openpanel server](https://i.postimg.cc/jKcjYwHJ/2024-08-04-15-21.png)
+![add openpanel server](/img/docs-content/jKcjYwHJ-2024-08-04-15-21.png)
 
 
 4. Name: anything that you want to identify the server
@@ -65,7 +65,7 @@ From your FOSSBilling admin panel go to **System -> Hosting plans and servers** 
 
 Set the name for the plan **same as on OpenPanel hosting plan** and click on 'Create hosting plan'.
 
-![add plan](https://i.postimg.cc/02LsZqL7/2024-08-04-15-23.png)
+![add plan](/img/docs-content/02LsZqL7-2024-08-04-15-23.png)
 
 
 You can also set mysql type and webserver as additional parameters:
@@ -75,18 +75,18 @@ You can also set mysql type and webserver as additional parameters:
 | `mysql_type`  | `apache` `nginx` `openresty` `varnish+apache`  `varnish+nginx` `varnish+openresty`  |
 | `webserver` | `mysql` `mariadb`     |
 
-![additional parameters](https://i.postimg.cc/S4DGnS4S/2025-05-01-10-33.png)
+![additional parameters](/img/docs-content/S4DGnS4S-2025-05-01-10-33.png)
 
 
 ### Assign OpenPanel Server to product
 
 From your FOSSBilling admin panel go to **Products -> Products & Services** from within the navigation bar, then click on the edit icon for the plan:
 
-![edit plan](https://i.postimg.cc/N0twqkGM/2024-08-04-15-24.png)
+![edit plan](/img/docs-content/N0twqkGM-2024-08-04-15-24.png)
 
 Click on 'Configuration' and for Server select the OpenPanel server and for hosting plan set it to match the plan name on OpenPanel server:
 
-![important](https://i.postimg.cc/GmG155CV/2024-08-04-15-26.png)
+![important](/img/docs-content/GmG155CV-2024-08-04-15-26.png)
 
 ### Test connection
 
@@ -94,8 +94,8 @@ Create a new client and order the product that is configured to create OpenPanel
 
 User should be able to login to their OpenPanel account:
 
-![login](https://i.postimg.cc/x882pjf3/2024-08-04-15-17.png)
+![login](/img/docs-content/x882pjf3-2024-08-04-15-17.png)
 
 and to reset the password:
 
-![reset password](https://i.postimg.cc/PJ7kgGNs/2024-08-04-15-17-1.png)
+![reset password](/img/docs-content/PJ7kgGNs-2024-08-04-15-17-1.png)

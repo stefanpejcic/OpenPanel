@@ -26,8 +26,8 @@ export const EnterpriseSSOMultifactorAuth = ({
                 >
                     <CommonThemedImage
                         className={clsx("rounded-2xl landing-sm:rounded-3xl")}
-                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/sign-in-dark.png"
-                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/sign-in-light.png"
+                        srcDark="/enterprise/sign-in-dark.png"
+                        srcLight="/enterprise/sign-in-light.png"
                     />
                     <div
                         className={clsx(
@@ -67,8 +67,8 @@ export const EnterpriseSSOMultifactorAuth = ({
                 >
                     <CommonThemedImage
                         className={clsx("rounded-2xl landing-sm:rounded-3xl")}
-                        srcDark="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/multifactor-dark.png"
-                        srcLight="https://refine.ams3.cdn.digitaloceanspaces.com/enterprise/multifactor-light.png"
+                        srcDark="/enterprise/multifactor-dark.png"
+                        srcLight="/enterprise/multifactor-light.png"
                     />
                     <div
                         className={clsx(

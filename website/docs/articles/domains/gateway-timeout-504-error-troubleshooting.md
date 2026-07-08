@@ -13,7 +13,7 @@ A 502 Bad Gateway error is common when using Nginx. It means the web server (Ngi
 1. Verify that the PHP service is running.
    If Docker feature is enabled, go to **Docker > Containers** and check the status of the PHP container.
    If inactive, start it.
-   ![screenshot](https://i.postimg.cc/wx8Dm4XP/image.png)
+   ![screenshot](/img/docs-content/wx8Dm4XP-image.png)
    If active, stop and start it again. This will terminate any background processes that might be stuck.
 
 ---

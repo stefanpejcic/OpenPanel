@@ -9,7 +9,7 @@ This guide walks you through hosting a static website on OpenPanel.
 1. Go to **OpenPanel → Domains → Add New Domain**.
 2. Enter your new domain name and click **Add Domain**.
 
-![add domain](https://i.postimg.cc/qMTzYC1t/slika.png)
+![add domain](/img/docs-content/qMTzYC1t-slika.png)
 
 ---
 
@@ -19,7 +19,7 @@ This guide walks you through hosting a static website on OpenPanel.
 2. Navigate to your domain’s directory.
 3. Click **Upload** to select files from your device, or choose **Download from URL** to fetch files from an external source (e.g., GitHub).
 
-![upload files](https://i.postimg.cc/c4xdw7Dc/slika.png)
+![upload files](/img/docs-content/c4xdw7Dc-slika.png)
 
 ---
 

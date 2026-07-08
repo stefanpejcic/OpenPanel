@@ -18,17 +18,17 @@ export const team = [
     },
     {
         name: "Petar Curic",
-        avatar: "https://media.licdn.com/dms/image/v2/D5603AQEy4Mls-Fqo3Q/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1629923454941?e=2147483647&v=beta&t=XB0GOUvF4-KfajPrDyLdmLH6abUP-DjooeRBmQUuATE",
+        avatar: "/img/team/petar-curic.jpg",
         role1: "Frontend Developer",
     },
 //    {
   //      name: "Dragana Panic",
-    //    avatar: "https://i.imgur.com/Rspdz2w.png",
+    //    avatar: "/img/team/dragana-panic.png",
    //     role1: "Marketing Manager",
   //  },
   //  {
   //      name: "Nikola Markovic",
-   //     avatar: "https://i.imgur.com/LrNZOaS.png",
+   //     avatar: "/img/team/nikola-markovic.png",
     //    role1: "QA Analyst",
   //  },
 ];

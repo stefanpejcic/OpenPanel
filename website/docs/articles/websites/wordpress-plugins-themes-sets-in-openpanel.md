@@ -18,7 +18,7 @@ To create a Theme Set:
 
 * Add **one theme per line**.
 * To install free themes from WordPress.org, simply use the theme slug:
-  ![theme slug](https://i.postimg.cc/JnRzksmy/theme-slug.png)
+  ![theme slug](/img/docs-content/JnRzksmy-theme-slug.png)
 
   ```
   startup-business-elementor
@@ -56,7 +56,7 @@ To create a Plugin Set:
 
 * Add **one plugin per line**.
 * To install free plugins from WordPress.org, use the plugin slug:
-  ![plugin slug](https://i.postimg.cc/9fdf0d3G/plugin-slug.png)
+  ![plugin slug](/img/docs-content/9fdf0d3G-plugin-slug.png)
 
   ```
   enable-wp-debug-toggle

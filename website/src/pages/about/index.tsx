@@ -13,7 +13,6 @@ import { DiscordIcon, TwitterIcon } from "@site/src/refine-theme/icons/popover";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
-import { backedBy } from "../../assets/backed-by";
 import { team } from "../../assets/team";
 import { useColorMode } from "@docusaurus/theme-common";
 import { YCombinatorCircleIcon } from "@site/src/refine-theme/icons/ycombinator-circle";

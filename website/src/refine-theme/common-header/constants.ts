@@ -5,7 +5,6 @@ import {
     ExamplesIcon,
     AwesomeIcon,
     ContributeIcon,
-    RefineWeekIcon,
     HackathonsIcon,
     AboutUsIcon,
     StoreIcon,

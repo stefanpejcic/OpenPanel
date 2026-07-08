@@ -14,7 +14,7 @@ On the server where your license is currently activated, remove the license usin
 
 * **From OpenAdmin:**
   Go to **OpenAdmin > License** and click the **Downgrade** button.
-  ![Downgrade license](https://i.postimg.cc/RSsLWmLQ/downgrade.png)
+  ![Downgrade license](/img/docs-content/RSsLWmLQ-downgrade.png)
 
 * **From the Terminal:**
 
@@ -33,11 +33,11 @@ To transfer it to a new server, you need to **reissue** the license:
 
 1. Log in to your [my.openpanel.com account](https://my.openpanel.com/index.php?rp=/login).
 2. Go to the [Licenses](https://my.openpanel.com/clientarea.php?action=services) section.
-   ![Licenses list](https://i.postimg.cc/KjG6p24j/lienses.png)
+   ![Licenses list](/img/docs-content/KjG6p24j-lienses.png)
 3. Find the license you want to move and click on it.
-   ![License list](https://i.postimg.cc/xC0pnPQZ/rows.png)
+   ![License list](/img/docs-content/xC0pnPQZ-rows.png)
 4. Click the **Reissue** button.
-   ![Reissue license](https://i.postimg.cc/xC0pnPQZ/rows.png)
+   ![Reissue license](/img/docs-content/xC0pnPQZ-rows.png)
 
 After reissuing, the license is no longer tied to any IP address.
 It will automatically bind to the next server where you activate it.

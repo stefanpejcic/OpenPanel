@@ -12,7 +12,7 @@ Containerized [Node.js](https://nodejs.org) and [Python](https://python.org/) ap
 
 To create a new Python or Node.js application, navigate to **OpenPanel > AutoInstaller** and select **Python** or **NodeJS**.
 
-![screenshot](https://i.postimg.cc/HmZh5ZMJ/new-tab.png)
+![screenshot](/img/docs-content/HmZh5ZMJ-new-tab.png)
 
 On the next page, you can configure the following settings:
 
@@ -27,7 +27,7 @@ On the next page, you can configure the following settings:
 * **CPU Cores** – Number of CPU cores allocated to the application.
 * **Memory** – Amount of memory (in GB) allocated to the application.
 
-![screenshot](https://i.postimg.cc/x0PBW9qB/new-app.png)
+![screenshot](/img/docs-content/x0PBW9qB-new-app.png)
 
 After completing the form, click **Start Installation**.
 The installation process will be displayed below the form. Once complete, you’ll be redirected to the management page where you can view all your applications.
@@ -37,7 +37,7 @@ The installation process will be displayed below the form. Once complete, you’
 An example NodeJS (express) application that is running on http://nodejs.openpanel.org/
 
 Example settings:
-![example](https://i.postimg.cc/cdC3Jxdp/example-nodejs-settings.png)
+![example](/img/docs-content/cdC3Jxdp-example-nodejs-settings.png)
 
 Example `app.js` file:
 
@@ -79,7 +79,7 @@ Example `package.json` file:
 An example Python (Flask) application that is running on http://python.openpanel.org/
 
 Example settings:
-![example](https://i.postimg.cc/D2Z3DNdW/example-python-settings.png)
+![example](/img/docs-content/D2Z3DNdW-example-python-settings.png)
 
 Example `app.py` file:
 
@@ -108,11 +108,11 @@ Flask==2.3.3
 
 Once your application is created, you can manage it from **OpenPanel > Site Manager**.
 
-![screenshot](https://i.postimg.cc/vYbbVP6T/manage-apps.png)
+![screenshot](/img/docs-content/vYbbVP6T-manage-apps.png)
 
 Click **Manage** next to the application name to open its management page.
 
-![screenshot](https://i.postimg.cc/bzMFXdpg/single-app.png)
+![screenshot](/img/docs-content/bzMFXdpg-single-app.png)
 
 On this page, you can view important details such as:
 

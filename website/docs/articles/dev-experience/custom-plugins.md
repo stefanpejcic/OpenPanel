@@ -14,7 +14,7 @@ Currently, plugins have a few requirements and limitations:
 
 [Traceroute](https://github.com/stefanpejcic/traceroute) is a sample OpenPanel plugin that serves as a starter template for integrating third-party products and services into OpenPanel as plugins.
 
-[![2025-07-21-14-34.png](https://i.postimg.cc/X7cTZdzx/2025-07-21-14-34.png)](https://postimg.cc/w7MWZyHs)
+[![2025-07-21-14-34.png](/img/docs-content/X7cTZdzx-2025-07-21-14-34.png)](/img/docs-content/X7cTZdzx-2025-07-21-14-34.png)
 
 ### readme.txt
 
@@ -266,6 +266,6 @@ cd /etc/openpanel/modules/ && git clone https://github.com/stefanpejcic/tracerou
 
 After installation, use the OpenAdmin UI to add the plugin’s features to the desired Feature Sets.
 
-[![2025-07-21-14-59.png](https://i.postimg.cc/g2r5JQFq/2025-07-21-14-59.png)](https://postimg.cc/yD4npfNk)
+[![2025-07-21-14-59.png](/img/docs-content/g2r5JQFq-2025-07-21-14-59.png)](/img/docs-content/g2r5JQFq-2025-07-21-14-59.png)
 
 And finally, restart the OpenPanel UI to load the new plugin. 

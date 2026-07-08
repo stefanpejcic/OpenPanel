@@ -2,19 +2,10 @@ import React from "react";
 import clsx from "clsx";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
 import { LandingCopyCommandButton } from "./landing-copy-command-button";
-import { LandingPlaygroundModal } from "./landing-playground-modal";
 import { useLocation } from "@docusaurus/router";
-import { useColorMode } from "@docusaurus/theme-common";
-import { useInView } from "framer-motion";
 import Link from "@docusaurus/Link";
 
 export const LandingTryItSection = ({ className }: { className?: string }) => {
-    const [wizardOpen, setWizardOpen] = React.useState(false);
-
-    const onClick = React.useCallback(() => {
-        setWizardOpen(true);
-    }, []);
-
     const { search, hash } = useLocation();
 
     const [params, setParams] = React.useState<Record<string, string>>({});
@@ -47,12 +38,6 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
             scrollToItem();
         }
     }, [params.playground, hash]);
-
-    React.useEffect(() => {
-        if (wizardOpen) {
-            scrollToItem();
-        }
-    }, [wizardOpen]);
 
     return (
         <div
@@ -109,29 +94,10 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                     "rounded-2xl landing-md:rounded-3xl",
                     "relative",
                     "overflow-hidden",
-                    "transition-[min-height,height]",
-                    "duration-300",
-                    "ease-out",
-                    wizardOpen && "min-h-[515px]",
                 )}
             >
-                <LandingTryItWizardSection visible={wizardOpen} />
                 <LandingTryItOptionsSection
-                    onClick={onClick}
-                    className={clsx(
-                        "w-full",
-                        "transition-[transform,opacity,margin-bottom]",
-                        "duration-300",
-                        "ease-in-out",
-                        wizardOpen && [
-                            "pointer-events-none",
-                            "select-none",
-                            "landing-md:-translate-y-[300px]",
-                            "landing-md:opacity-0",
-                            "landing-md:origin-top",
-                            "landing-md:-mb-[272px]",
-                        ],
-                    )}
+                    className={clsx("w-full")}
                 />
             </div>
         </div>
@@ -139,10 +105,8 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
 };
 
 const LandingTryItOptionsSection = ({
-    onClick,
     className,
 }: {
-    onClick: () => void;
     className?: string;
 }) => {
     return (
@@ -292,131 +256,6 @@ const LandingTryItOptionsSection = ({
                     <LandingCopyCommandButton />
                 </div>
             </div>
-        </div>
-    );
-};
-
-const LandingTryItWizardSection = ({
-    className,
-    visible,
-}: {
-    className?: string;
-    visible: boolean;
-}) => {
-    const ref = React.useRef<HTMLDivElement>(null);
-    const inView = useInView(ref, {
-        margin: "100px",
-    });
-
-    const iframeRef = React.useRef<HTMLIFrameElement>(null);
-    const { colorMode } = useColorMode();
-
-    React.useEffect(() => {
-        // when color mode changes, post a message to the iframe
-        // to update its color mode
-        if (iframeRef.current) {
-            iframeRef.current.contentWindow?.postMessage(
-                {
-                    type: "colorMode",
-                    colorMode,
-                },
-                "*",
-            );
-        }
-    }, [colorMode, visible]);
-
-    return (
-        <div
-            className={clsx(
-                "hidden",
-                "w-full",
-                "items-stretch",
-                "h-auto",
-                "landing-md:flex",
-            )}
-        >
-            <div
-                className={clsx(
-                    "flex-1",
-                    "bg-gray-0 dark:bg-gray-900",
-                    "opacity-0",
-                    visible && "opacity-100",
-                    "transition-[background-color,background,opacity]",
-                    "duration-150",
-                    "ease-in-out",
-                    "bg-landing-wizard-side-bg-light dark:bg-landing-wizard-side-bg",
-                    "bg-landing-wizard-side-left-position",
-                    "bg-landing-wizard-side-size",
-                    "bg-no-repeat",
-                )}
-            />
-            <div
-                ref={ref}
-                className={clsx(
-                    "box-content",
-                    "flex-shrink-0",
-                    "rounded-2xl landing-md:rounded-3xl",
-                    "bg-gray-50 dark:bg-gray-800",
-                    "border border-solid",
-                    "transition-[border-color,width,height,opacity,background-color]",
-                    "mx-auto",
-                    "duration-300",
-                    "ease-in-out",
-                    "overflow-hidden",
-                    "scrollbar-hidden",
-                    !visible && ["pointer-events-none", "select-none"],
-                    !visible && ["landing-md:border-transparent"],
-                    visible && [
-                        "landing-md:border-gray-200 dark:border-gray-700",
-                        "landing-md:bg-gray-50 dark:bg-gray-800",
-                    ],
-                    !visible && [
-                        "landing-md:opacity-0",
-                        "landing-md:h-0",
-                        "landing-md:w-full",
-                    ],
-                    visible && [
-                        "landing-md:opacity-100",
-                        "landing-md:h-[512px]",
-                        "landing-md:w-[894px]",
-                        "landing-lg:w-[944px]",
-                    ],
-                )}
-            >
-                {inView ? (
-                    <iframe
-                        ref={iframeRef}
-                        src="https://refine.new/embed-form"
-                        className={clsx(
-                            "scrollbar-hidden",
-                            "transition-opacity",
-                            "duration-300",
-                            "delay-300",
-                            visible && "opacity-100",
-                            !visible && "opacity-0",
-                            "w-full",
-                            "h-full",
-                            "border-none",
-                            "rounded-2xl landing-md:rounded-3xl",
-                        )}
-                    />
-                ) : null}
-            </div>
-            <div
-                className={clsx(
-                    "flex-1",
-                    "bg-gray-0 dark:bg-gray-900",
-                    "opacity-0",
-                    visible && "opacity-100",
-                    "transition-[background-color,background,opacity]",
-                    "duration-150",
-                    "ease-in-out",
-                    "bg-landing-wizard-side-bg-light dark:bg-landing-wizard-side-bg",
-                    "bg-landing-wizard-side-right-position",
-                    "bg-landing-wizard-side-size",
-                    "bg-no-repeat",
-                )}
-            />
         </div>
     );
 };

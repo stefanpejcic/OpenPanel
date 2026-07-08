@@ -58,11 +58,11 @@ function BlogListPageContent(props) {
                 )}
             >
                 <a
-                    href="https://s.refine.dev/hackathon2"
+                    href="https://openpanel.com"
                     target="_blank"
                     rel="noreferrer"
                 >
-                    <img src="https://refine.ams3.cdn.digitaloceanspaces.com/hackathon-2/hackathon_cover.png" />
+                    <img src="/hackathon-2/hackathon_cover.png" />
                 </a>
             </div> */}
             {isFirstPage && <FeaturedBlogPostItems items={featuredPosts} />}

@@ -17,7 +17,7 @@ To change IP address for a user from OpenAdmin:
 
 2. Update the **IP Address** field with the desired dedicated IP.
 
-   ![image](https://i.postimg.cc/65f9Jcsf/slika.png)
+   ![image](/img/docs-content/65f9Jcsf-slika.png)
 
 3. Click **Save** to apply the changes.
 

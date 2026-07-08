@@ -7,7 +7,7 @@ When you add a domain to **OpenPanel**, it will initially display the following 
 
 This default page will appear until an `index.php` or `index.html` file is present in the domain’s document root.
 
-![Default page](https://i.postimg.cc/Zn8gbHm6/2025-08-13-12-20.png)
+![Default page](/img/docs-content/Zn8gbHm6-2025-08-13-12-20.png)
 
 **Solution:**
 Upload your website files (including an `index.php` or `index.html`) to the document root. Once uploaded, your website will replace the default page.
@@ -29,7 +29,7 @@ This means that even after you upload your site, the cached default page could s
 1. Go to **OpenPanel > Cache > Varnish**
 2. Disable Varnish for that domain
 
-![Disable Varnish cache for domain](https://i.postimg.cc/dwSGj2qk/2025-08-13-12-25.png)
+![Disable Varnish cache for domain](/img/docs-content/dwSGj2qk-2025-08-13-12-25.png)
 
 **Purge all Varnish cache:**
 Simply click **Disable**, then **Enable** on the same page.
@@ -45,5 +45,5 @@ To customize:
 1. In **OpenAdmin**, go to **Domains > Edit Domain Templates**
 2. Modify the HTML code for the default page
 
-![Edit default page in OpenAdmin](https://i.postimg.cc/JRx0Qm3T/2025-08-13-12-28.png)
+![Edit default page in OpenAdmin](/img/docs-content/JRx0Qm3T-2025-08-13-12-28.png)
 

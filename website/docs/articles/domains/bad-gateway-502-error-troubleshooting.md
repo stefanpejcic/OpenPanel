@@ -13,7 +13,7 @@ A 502 Bad Gateway error is common when using Nginx. It means the web server (Ngi
 1. Verify that the PHP service is running.
    If Docker feature is enabled, go to **Docker > Containers** and check the status of the PHP container.
    If inactive, start it.
-   ![screenshot](https://i.postimg.cc/wx8Dm4XP/image.png)
+   ![screenshot](/img/docs-content/wx8Dm4XP-image.png)
 
 ---
 
@@ -25,11 +25,11 @@ Even if PHP-FPM is running, Nginx may have started before it and failed to conne
 
 * If using Docker feature:
   Go to **Docker > Containers**, disable Nginx, then enable it again.
-  ![screenshot](https://i.postimg.cc/jRdPP7fs/image.png)
+  ![screenshot](/img/docs-content/jRdPP7fs-image.png)
 
 * If you do not have access to Docker feature, simply add another domain in order to restart Nginx:
   Go to **Domains > Add New**, insert domain name and click on 'Add'.
-  ![screenshot](https://i.postimg.cc/Bs9FNyF7/image.png)
+  ![screenshot](/img/docs-content/Bs9FNyF7-image.png)
 
 ---
 
@@ -40,7 +40,7 @@ Sometimes a 502 error is cached by Varnish, even if the backend issue is resolve
 **Steps:**
 
 1. Go to **Caching > Varnish** and disable it for the affected domain.
-   ![screenshot](https://i.postimg.cc/0krVf4Jy/image.png)
+   ![screenshot](/img/docs-content/0krVf4Jy-image.png)
 2. Reload the website in your browser.
 
 You can also bypass cache by adding parameters to the URL:
@@ -58,9 +58,9 @@ A misconfigured VirtualHost may cause Nginx to proxy requests to a backend that 
 **Steps:**
 
 1. Go to **Domains > [Select Domain] > Edit VHosts**.
-   ![screenshot](https://i.postimg.cc/mbSrwXWJ/image.png)
+   ![screenshot](/img/docs-content/mbSrwXWJ-image.png)
 2. Check the proxy target (e.g., PHP service name or container).
-   ![screenshot](https://i.postimg.cc/rVPMn7nn/image.png)
+   ![screenshot](/img/docs-content/rVPMn7nn-image.png)
 3. Ensure the service name is spelled correctly and still exists.
 
 ---

@@ -2,7 +2,7 @@
 
 When the Enterprise license expires, all OpenAdmin UI pages are redirected to a **“License Expired”** page, example:
 
-![license expired openadmin](https://i.postimg.cc/Xj7ncdPm/Snimak-ekrana-napravlen-dana-2026-03-05-19-40-35.png)
+![license expired openadmin](/img/docs-content/Xj7ncdPm-Snimak-ekrana-napravlen-dana-2026-03-05-19-40-35.png)
 
 This continues until the license key is removed. Once the key is removed, the admin panel automatically downgrades to the **Community Edition**, meaning premium features are no longer available.
 

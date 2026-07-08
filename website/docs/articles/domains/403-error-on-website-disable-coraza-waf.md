@@ -9,7 +9,7 @@ This guide covers the most common causes of **403 Forbidden** errors on a websit
 One of the most common causes is the **Coraza WAF** blocking access according to **ModSecurity CoreRuleSet** rules.
 
 1. Navigate to **Advanced > WAF** in your hosting control panel.
-   ![WAF disable](https://i.postimg.cc/fZw2Skqv/waf-status.png)
+   ![WAF disable](/img/docs-content/fZw2Skqv-waf-status.png)
 
 2. Check if WAF is enabled for the domain. Temporarily disable it, then test the website to confirm if WAF is the cause.
 
@@ -29,7 +29,7 @@ One of the most common causes is the **Coraza WAF** blocking access according to
    * Disable by Rule ID: [SecRuleRemoveByID](https://coraza.io/docs/seclang/directives/#secruleremovebyid)
    * Disable by Tag: [SecRuleRemoveByTag](https://coraza.io/docs/seclang/directives/#secruleremovebytag)
 
-   ![WAF edit rules](https://i.postimg.cc/GcSm9Xzm/2025-08-13-11-58.png)
+   ![WAF edit rules](/img/docs-content/GcSm9Xzm-2025-08-13-11-58.png)
 
 6. Re-enable WAF and retest the website.
 
@@ -57,7 +57,7 @@ Incorrect file ownership or permissions can also trigger 403 errors.
 1. Open **File Manager** and navigate to the domain’s directory.
 
 2. Click **Options** and enable **Owner** and **Group** columns.
-   ![File manager owner](https://i.postimg.cc/cZ4FdrY4/2025-08-13-11-52.png)
+   ![File manager owner](/img/docs-content/cZ4FdrY4-2025-08-13-11-52.png)
 
 3. Ensure all files have the same owner and group.
 

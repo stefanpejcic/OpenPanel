@@ -23,7 +23,7 @@ To enable the FTP module:
 * Go to **OpenAdmin > Settings > Modules**
 * Find the **FTP** module and click **Activate**
 
-![FTP Module Activation](https://i.postimg.cc/zGBwhJVz/2025-07-09-11-34.png)
+![FTP Module Activation](/img/docs-content/zGBwhJVz-2025-07-09-11-34.png)
 
 ---
 
@@ -36,7 +36,7 @@ To start it:
 * Navigate to **OpenAdmin > Services > FTP Accounts**
 * Click **Start FTP Server**
 
-![Start FTP Server](https://i.postimg.cc/pdMTHCNw/2025-07-09-11-35.png)
+![Start FTP Server](/img/docs-content/pdMTHCNw-2025-07-09-11-35.png)
 
 ---
 
@@ -50,7 +50,7 @@ To do this:
 * Select the feature set you want to modify
 * Enable the **ftp** feature
 
-![Enable FTP Feature](https://i.postimg.cc/mrSbGGy9/2025-07-09-11-38.png)
+![Enable FTP Feature](/img/docs-content/mrSbGGy9-2025-07-09-11-38.png)
 
 ---
 
@@ -63,7 +63,7 @@ To restart:
 * Go to **OpenAdmin > Services > Status**
 * Click **Restart** next to **OpenPanel**
 
-![Restart OpenPanel](https://i.postimg.cc/pd1PdJ3V/2025-07-09-11-40.png)
+![Restart OpenPanel](/img/docs-content/pd1PdJ3V-2025-07-09-11-40.png)
 
 ---
 
@@ -71,7 +71,7 @@ To restart:
 
 FTP is now enabled for all hosting plans that include the **ftp** feature. Affected users can access it under **OpenPanel > Files > FTP Accounts**.
 
-[![2025-07-09-11-42.png](https://i.postimg.cc/rsjn8QYQ/2025-07-09-11-42.png)](https://postimg.cc/y3JXjXKZ)
+[![2025-07-09-11-42.png](/img/docs-content/rsjn8QYQ-2025-07-09-11-42.png)](/img/docs-content/rsjn8QYQ-2025-07-09-11-42.png)
 
 ---
 

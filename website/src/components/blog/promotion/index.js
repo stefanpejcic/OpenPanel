@@ -8,7 +8,7 @@ const PromotionBanner = ({ image, title, description, isDark }) => {
         renderDescription = (
             <div>
                 {" "}
-                <a href="https://s.refine.dev/new-blog" target="_blank">
+                <a href="https://openpanel.com" target="_blank">
                     refine.new
                 </a>{" "}
                 enables you to create React-based, headless UI enterprise
@@ -48,13 +48,13 @@ const PromotionBanner = ({ image, title, description, isDark }) => {
 
     const imgBase =
         image ??
-        "https://refine.ams3.cdn.digitaloceanspaces.com/website/static/img/generic_banner.png";
+        "/img/generic_banner.png";
 
     const imgUrl = imgBase.startsWith("http")
         ? imgBase
-        : `https://refine.ams3.cdn.digitaloceanspaces.com/website/static${
-              imgBase.startsWith("/") ? imgBase : `/${imgBase}`
-          }`;
+        : imgBase.startsWith("/")
+          ? imgBase
+          : `/${imgBase}`;
 
     return (
         /*  <div className={`banner-container ${isDark && "dark"}`}>
@@ -67,7 +67,7 @@ const PromotionBanner = ({ image, title, description, isDark }) => {
                 <a
                     href={
                         description === "refineNew"
-                            ? "https://s.refine.dev/new-blog"
+                            ? "https://openpanel.com"
                             : "https://github.com/refinedev/refine"
                     }
                     target="_blank"
@@ -78,11 +78,11 @@ const PromotionBanner = ({ image, title, description, isDark }) => {
             <br />
         </div> */
         <a
-            href="https://s.refine.dev/hackathon2"
+            href="https://openpanel.com"
             target="_blank"
             rel="noreferrer"
         >
-            <img src="https://refine.ams3.cdn.digitaloceanspaces.com/hackathon-2/hackathon_cover.png" />
+            <img src="/hackathon-2/hackathon_cover.png" />
         </a>
     );
 };

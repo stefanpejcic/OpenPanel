@@ -54,7 +54,7 @@ now, I suggest just whitelisting your IP on the firewall instead of opening the 
 
 Then open the IP:19999 in your browser:
 
-![screenshot](https://i.postimg.cc/CFRC5zG9/netdata.png)
+![screenshot](/img/docs-content/CFRC5zG9-netdata.png)
 
 
 ## Monitor service
@@ -75,7 +75,7 @@ For this, we need to add the netdata service in `/etc/openpanel/openadmin/config
 
 Save the file and refresh the page in OpenAdmin - service is immediately visible and we can start/stop it from the panel.
 
-![services](https://i.postimg.cc/qpTMgY8r/2025-04-30-16-33.png)
+![services](/img/docs-content/qpTMgY8r-2025-04-30-16-33.png)
 
 We can also receive notifications when the service is not running. For this edit the file: `/etc/openpanel/openadmin/config/notifications.ini` and add service name (`netdata`) under services:
 

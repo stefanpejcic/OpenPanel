@@ -23,7 +23,7 @@ To enable the Email module:
 * Go to **OpenAdmin > Settings > Modules**
 * Find the **Emails** module and click **Activate**
 
-![Email Module Activation](https://i.postimg.cc/9FvhmLSX/2025-07-09-17-12.png)
+![Email Module Activation](/img/docs-content/9FvhmLSX-2025-07-09-17-12.png)
 
 ---
 
@@ -37,7 +37,7 @@ To start it:
 * Copy the command displayed on the page `opencli email-server install`
 * Paste it on Terminal and wait for the process to finish.
 
-[![2025-07-09-17-14.png](https://i.postimg.cc/YCzMd1np/2025-07-09-17-14.png)](https://postimg.cc/G4tW2snN)
+[![2025-07-09-17-14.png](/img/docs-content/YCzMd1np-2025-07-09-17-14.png)](/img/docs-content/YCzMd1np-2025-07-09-17-14.png)
 
 ---
 
@@ -51,7 +51,7 @@ To do this:
 * Select the feature set you want to modify
 * Enable the **emails** feature
 
-[![2025-07-09-17-17.png](https://i.postimg.cc/NjfzwmGG/2025-07-09-17-17.png)](https://postimg.cc/zV6jCLR4)
+[![2025-07-09-17-17.png](/img/docs-content/NjfzwmGG-2025-07-09-17-17.png)](/img/docs-content/NjfzwmGG-2025-07-09-17-17.png)
 
 ---
 
@@ -64,7 +64,7 @@ To restart:
 * Go to **OpenAdmin > Services > Status**
 * Click **Restart** next to **OpenPanel**
 
-![Restart OpenPanel](https://i.postimg.cc/pd1PdJ3V/2025-07-09-11-40.png)
+![Restart OpenPanel](/img/docs-content/pd1PdJ3V-2025-07-09-11-40.png)
 
 ---
 
@@ -72,7 +72,7 @@ To restart:
 
 Email is now enabled for all hosting plans that include the **emails** feature. Affected users can access Webmail an Email accounts form access it under **OpenPanel > Emails**.
 
-[![2025-07-09-17-19.png](https://i.postimg.cc/44QPNySY/2025-07-09-17-19.png)](https://postimg.cc/144wvmPS)
+[![2025-07-09-17-19.png](/img/docs-content/44QPNySY-2025-07-09-17-19.png)](/img/docs-content/44QPNySY-2025-07-09-17-19.png)
 
 ---
 

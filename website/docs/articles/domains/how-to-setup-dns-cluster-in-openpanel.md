@@ -58,7 +58,7 @@ On **master** server, open the OpenAdmin panel:
 * Navigate to **Settings > OpenPanel > Nameservers**
 * Add both `dns1.yourdomain.com` and `dns2.yourdomain.com`
 
-[![2025-07-09-17-30.png](https://i.postimg.cc/kXnvzCwW/2025-07-09-17-30.png)](https://postimg.cc/jCFfnGpj)
+[![2025-07-09-17-30.png](/img/docs-content/kXnvzCwW-2025-07-09-17-30.png)](/img/docs-content/kXnvzCwW-2025-07-09-17-30.png)
 
 ### Step 5: Enable DNS Clustering
 
@@ -67,11 +67,11 @@ On **master** server:
 * Go to **OpenAdmin > Domains > DNS Cluster**
 * Click **Enable DNS Clustering**
 
-[![2025-07-09-17-32.png](https://i.postimg.cc/FzG3NfG3/2025-07-09-17-32.png)](https://postimg.cc/2LbVxSsS)
+[![2025-07-09-17-32.png](/img/docs-content/FzG3NfG3-2025-07-09-17-32.png)](/img/docs-content/FzG3NfG3-2025-07-09-17-32.png)
 
 * Click **Add Server** and enter the IP of the slave server, then **Add**
 
-[![2025-07-09-17-33.png](https://i.postimg.cc/7PX2C2MT/2025-07-09-17-33.png)](https://postimg.cc/3W4RVWqK)
+[![2025-07-09-17-33.png](/img/docs-content/7PX2C2MT-2025-07-09-17-33.png)](/img/docs-content/7PX2C2MT-2025-07-09-17-33.png)
 
 ### Test Your Cluster
 

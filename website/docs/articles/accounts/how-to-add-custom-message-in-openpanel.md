@@ -2,7 +2,7 @@
 
 OpenPanel supports both **per-user** and **global** custom messages that can be displayed in your users’ OpenPanel interfaces.
 
-![example message](https://i.postimg.cc/QN0XSW0t/2025-08-14-14-49.png)
+![example message](/img/docs-content/QN0XSW0t-2025-08-14-14-49.png)
 
 ## Custom Message for a Specific User
 
@@ -10,7 +10,7 @@ To display a custom message in **OpenPanel > Dashboard** for a specific user:
 
 1. Navigate to **OpenAdmin > Users > *username* > Overview**.
 
-   ![add message](https://i.postimg.cc/KZBxwWJC/2025-08-14-14-50.png)
+   ![add message](/img/docs-content/KZBxwWJC-2025-08-14-14-50.png)
 
 2. Enter the message — either plain text or HTML — in the **'Custom message for user'** area.
 
