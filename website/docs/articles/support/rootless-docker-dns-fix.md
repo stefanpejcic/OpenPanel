@@ -49,20 +49,9 @@ Locate the rootless daemon config for the affected user:
 
 Compare it against the platform's official reference configuration for rootless Docker daemons.
 
-If fields are missing or incomplete, replace `daemon.json` with the full expected format, for example:
+If fields are missing or incomplete, replace `daemon.json` with the full expected format, [view example](https://github.com/stefanpejcic/openpanel-configuration/blob/main/docker/daemon/rootless.json)
 
-```json
-{
-    "data-root": "/home/<user>/docker-data",
-    "dns": ["1.1.1.1", "1.0.0.1"],
-    "no-new-privileges": true,
-    "log-driver": "json-file",
-    "log-opts": {
-        "max-size": "20m",
-        "max-file": "1"
-    }
-}
-```
+
 Don't forget to restart the Docker daemon for that user from step 4.
 
 ### 3. Verify the per-user network driver
