@@ -14,39 +14,39 @@ import { LandingSectionCtaButtonAlt } from "./landing-section-cta-button";
 const list = [
     {
         icon: <SelfHostedIcon />,
-        title: "Limit resource usage",
+        title: "True isolation with containers",
         description:
-            "Restrict the number of websites, domains, or databases, while enforcing hard limits on CPU, memory, port speed, disk usage, and inodes.",
+            "Complete isolation per user with rootless Docker: every service is a separate container, limited in CPU, memory, and port speed.",
     },
     {
         icon: <IdentityIcon />,
-        title: "Manage users and websites",
+        title: "Granular roles and permissions",
         description:
-            "Assign administrative or user roles, manage permissions, restrict access to features, and more.",
+            "Create Admins and resellers, set limits on websites, domains and databases, and control exactly which features each user or plan can access.",
     },
     {
         icon: <AccessControlIcon />,
         title: "Secure by default",
         description:
-            "Enable Two Factor authentification, block IP addresses per domain, control remote MySQL access and SSH access.",
+            "Passkeys, enforced two-factor authentication, per-user IP blocking, and full control over remote MySQL access - out of the box.",
     },
     {
         icon: <BlackBoxIcon />,
-        title: "Match your brand",
+        title: "White-label everything",
         description:
-            "Incorporate your brand colors, limit features, configure nameservers, and more.",
+            "Apply your brand colors and logo, rename the panel, set custom nameservers, and hide any feature you don't want users to see.",
     },
     {
         icon: <MonitorIcon />,
-        title: "Monitor your server and users",
+        title: "Full visibility, built in",
         description:
-            "Built-in features include logging user activity, visualizing website visitors, and analyzing resource usage.",
+            "Track user activity, view historical resource usage, receive server alerts to email or webhooks - no third-party monitoring tools required.",
     },
     {
         icon: <SupportIcon />,
-        title: "Get supported by the experts",
+        title: "Built for automation",
         description:
-            "Enroll in plans that provide priority support, trainings and consulting.",
+            "Full REST API, MCP server for AI assistants, FOSSBilling/WHMCS integrations and terminal commands for scripting.",
     },
 ];
 
