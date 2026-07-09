@@ -3,6 +3,7 @@ import clsx from "clsx";
 import React from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
+import { SoftwareApplicationSchema } from "@site/src/refine-theme/software-application-schema";
 import { EnterpriseHeroSection } from "@site/src/refine-theme/enterprise-hero-section";
 import { EnterpriseGetSupport } from "@site/src/refine-theme/enterprise-get-support";
 import { EnterpriseSecurity } from "@site/src/refine-theme/enterprise-secuity";
@@ -25,6 +26,16 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
+            <SoftwareApplicationSchema
+                name="OpenPanel Enterprise"
+                description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price."
+                url="https://openpanel.com/enterprise/"
+                offers={{
+                    price: "14.95",
+                    priceCurrency: "EUR",
+                    priceUnit: "per server per month",
+                }}
+            />
             <CommonLayout description="OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.">
                 <div className={clsx()}>
                     <CommonHeader />

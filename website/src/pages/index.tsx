@@ -3,6 +3,8 @@ import clsx from "clsx";
 import React from "react";
 
 import { CommonLayout } from "../refine-theme/common-layout";
+import { OrganizationSchema } from "../refine-theme/organization-schema";
+import { SoftwareApplicationSchema } from "../refine-theme/software-application-schema";
 import { LandingFooter } from "../refine-theme/landing-footer";
 import { LandingEnterpriseDevelopers } from "../refine-theme/landing-enterprise-developers";
 import { LandingTrustedByDevelopers } from "../refine-theme/landing-trusted-by-developers";
@@ -23,6 +25,12 @@ function Home() {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
+            <OrganizationSchema />
+            <SoftwareApplicationSchema
+                name="OpenPanel"
+                description="A highly customizable web hosting control panel built around containers."
+                url="https://openpanel.com"
+            />
             <CommonLayout description="A highly customizable web hosting control panel built around containers.">
                 <div className={clsx()}>
                     <CommonHeader />

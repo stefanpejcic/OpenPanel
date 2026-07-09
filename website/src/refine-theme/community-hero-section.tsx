@@ -74,7 +74,7 @@ export const EnterpriseHeroSection = ({
                     )}
                     srcDark="/img/hero.png"
                     srcLight="/img/hero.png"
-                    alt="openpanel community image"
+                    alt="OpenPanel Community edition dashboard preview"
                 />
             </div>
         </div>

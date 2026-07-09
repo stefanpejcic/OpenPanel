@@ -3,6 +3,7 @@ import clsx from "clsx";
 import React from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
+import { SoftwareApplicationSchema } from "@site/src/refine-theme/software-application-schema";
 import { EnterpriseHeroSection } from "@site/src/refine-theme/community-hero-section";
 import { EnterpriseGetSupport } from "@site/src/refine-theme/community-get-support";
 import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-in-touch-cta";
@@ -24,6 +25,16 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
+            <SoftwareApplicationSchema
+                name="OpenPanel Community"
+                description="OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use."
+                url="https://openpanel.com/community/"
+                offers={{
+                    price: "0",
+                    priceCurrency: "EUR",
+                    priceUnit: "free",
+                }}
+            />
             <CommonLayout description="OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use.">
                 <div className={clsx()}>
                     <CommonHeader />

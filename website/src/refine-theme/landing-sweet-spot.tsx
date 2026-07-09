@@ -246,7 +246,7 @@ export const LandingSweetSpot: FC<Props> = ({ className }) => {
                                                         ? item.image1Dark
                                                         : item.image1Light
                                                 }
-                                                alt="UI of refine"
+                                                alt={`${item.iconText} in OpenPanel`}
                                                 className={clsx(
                                                     "block",
                                                     "object-cover",
@@ -303,7 +303,7 @@ export const LandingSweetSpot: FC<Props> = ({ className }) => {
                                                         ? item.image2Dark
                                                         : item.image2Light
                                                 }
-                                                alt="Code of OpenPanel"
+                                                alt={`${item.iconText} configuration in OpenPanel`}
                                             />
                                         </div>
                                     );
