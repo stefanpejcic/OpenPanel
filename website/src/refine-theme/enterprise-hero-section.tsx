@@ -82,7 +82,7 @@ export const EnterpriseHeroSection = ({
                         )}
                     >
                         <EnterpriseGetInTouchButton
-                            label="Start free 14-day trial"
+                            label="Start free 30-day trial"
                             href={ENTERPRISE_TRIAL_URL}
                             eventName="trial_click_hero"
                         />

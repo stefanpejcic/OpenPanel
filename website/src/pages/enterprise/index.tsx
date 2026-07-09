@@ -80,7 +80,7 @@ const Enterprise: React.FC = () => {
                                 sectionWidth,
                                 "w-full landing-lg:max-w-[792px] mx-auto",
                             )}
-                            question="Try Enterprise free for 14 days?"
+                            question="Try Enterprise free for 30 days?"
                             subtext="No credit card required."
                             buttonLabel="Start free trial"
                             buttonHref={ENTERPRISE_TRIAL_URL}
@@ -98,7 +98,7 @@ const Enterprise: React.FC = () => {
                                 sectionWidth,
                                 "w-full landing-lg:max-w-[792px] mx-auto",
                             )}
-                            question="Try Enterprise free for 14 days?"
+                            question="Try Enterprise free for 30 days?"
                             subtext="No credit card required."
                             buttonLabel="Start free trial"
                             buttonHref={ENTERPRISE_TRIAL_URL}

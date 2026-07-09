@@ -118,23 +118,34 @@ const faq = [
     {
         question:
             "Do you offer trial license for the Enterprise edition?",
-        answer: "Yes — click \"Start free trial\" above to get instant access to a 14-day Enterprise trial, no credit card required.",
+        answer: "Yes — click \"Start free trial\" above to get instant access to a 30-day Enterprise trial, no credit card required.",
     },
     {
         question: "How often does Enterprise edition receive updates?",
         answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as daily updates. On the other hand, the community edition receives updates on a monthly basis.",
     },
     {
-        question:
-            "Do you provide custom development services for turnkey projects?",
-        answer: "No, we do not offer any type of turnkey development services.",
+        question: "What operating systems does OpenPanel Enterprise support?",
+        answer: "OpenPanel Enterprise supports Ubuntu, Debian, AlmaLinux, Rocky Linux, and CentOS.",
     },
     {
-        question: "What is the scope of the professional services you provide?",
-        answer: "Our professional services cover collaborative tasks with internal teams such as onboarding assistance, trainings and customizing your OpenPanel instance to match your brand.",
+        question: "Does OpenPanel run on ARM (AArch64) servers?",
+        answer: "Yes, OpenPanel Enterprise runs on both standard x86_64 servers and ARM (AArch64) CPUs.",
     },
     {
-        question: "Can I request specific features or customizations?",
-        answer: "We prioritize feature requests on the product roadmap and also support teams in developing custom integrations and components.",
+        question: "Can I migrate from cPanel to OpenPanel?",
+        answer: "Yes, OpenPanel Enterprise can import accounts directly from a cPanel backup.",
+    },
+    {
+        question: "Does OpenPanel Enterprise integrate with billing software?",
+        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, and Paymenter.org for automated provisioning.",
+    },
+    {
+        question: "Is there a refund if I'm not satisfied?",
+        answer: "Refunds are available within 7 days of purchase, but only for licenses that haven't been activated yet. Once a license is activated on a server, the sale is final.",
+    },
+    {
+        question: "What professional services do you provide?",
+        answer: "We offer onboarding assistance, training, and customization of your OpenPanel instance to match your brand, and we prioritize feature requests from Enterprise customers on our product roadmap.",
     },
 ];

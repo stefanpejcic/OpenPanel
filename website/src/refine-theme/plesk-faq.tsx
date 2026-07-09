@@ -119,7 +119,7 @@ const faq = [
     },
     {
         question: "Do you offer trial license for the Enterprise edition?",
-        answer: "Yes, we offer a 14 days trial on request.",
+        answer: "Yes, we offer a 30 days trial on request.",
     },
     {
         question: "How often does Enterprise edition receive updates?",

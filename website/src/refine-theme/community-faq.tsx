@@ -121,7 +121,23 @@ const faq = [
         answer: "The community edition receives updates on a monthly basis.",
     },
     {
-        question: "Can I use Community edition for business?",
-        answer: "No, community edition should only be for private use. For business use we recommend the Enterprise edition.",
+        question: "Can I use OpenPanel Community for commercial hosting?",
+        answer: "No, Community edition should only be used for private or personal use. For business or commercial hosting, we recommend the Enterprise edition.",
+    },
+    {
+        question: "Is OpenPanel Community edition free forever?",
+        answer: "Yes, the Community edition is free forever, with no time limit, trial period, or credit card required.",
+    },
+    {
+        question: "Is OpenPanel open source?",
+        answer: "No, OpenPanel is proprietary software, not open source. The Community edition is free to use, but the source code is not licensed for redistribution or modification.",
+    },
+    {
+        question: "What operating systems does OpenPanel Community support?",
+        answer: "OpenPanel Community currently supports Ubuntu 24.04. The Enterprise edition adds support for Debian, AlmaLinux, Rocky Linux, and CentOS.",
+    },
+    {
+        question: "Can I migrate from cPanel or Plesk to OpenPanel?",
+        answer: "Direct cPanel backup import is available in the Enterprise edition. Community users can move their sites over manually, or upgrade to Enterprise for automated migration.",
     },
 ];
