@@ -1339,6 +1339,15 @@ const tableData = [
                 },
             },
             {
+                description: "Granular per-user premissions",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "2FA",
                 cpanel: <CheckIcon />,
                 openpanel: <CheckIcon />,
