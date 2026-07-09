@@ -11,6 +11,7 @@ import { LandingTrustedByDevelopers } from "@site/src/refine-theme/landing-trust
 import { EnterpriseFaq } from "@site/src/refine-theme/community-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/enterprise-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
+import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 import { HeaderDiscordIcon } from "@site/src/refine-theme/icons/header-discord";
 import { FooterGithubIcon } from "@site/src/refine-theme/icons/footer-github";
 import { MailIcon } from "@site/src/refine-theme/icons/mail";
@@ -61,6 +62,10 @@ const Enterprise: React.FC = () => {
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
                         </div>
+                        <PlanFeaturesList
+                            type="community"
+                            className={clsx(sectionPadding, sectionWidth)}
+                        />
                         <EnterpriseFaq
                             className={clsx(
                                 sectionPadding,

@@ -11,12 +11,12 @@ import { EnterpriseSecurity } from "@site/src/refine-theme/enterprise-secuity";
 import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-in-touch-cta";
 import { EnterpriseFlexibility } from "@site/src/refine-theme/enterprise-flexibility";
 import { EnterpriseDataSource } from "@site/src/refine-theme/enterprise-data-source";
-import { EnterpriseFrequentUpdates } from "@site/src/refine-theme/enterprise-frequent-updates";
 import { LandingTrustedByDevelopers } from "@site/src/refine-theme/landing-trusted-by-developers";
 import { EnterpriseFaq } from "@site/src/refine-theme/enterprise-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/enterprise-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 import { ENTERPRISE_TRIAL_URL } from "@site/src/refine-theme/enterprise-get-in-touch-button";
+import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 
 const Enterprise: React.FC = () => {
     const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
@@ -104,14 +104,15 @@ const Enterprise: React.FC = () => {
                             buttonHref={ENTERPRISE_TRIAL_URL}
                             eventName="trial_click_cta2"
                         />
-                        <EnterpriseFrequentUpdates
-                            className={clsx(sectionPadding, sectionWidth)}
-                        />
                         <div className={clsx("w-full", "overflow-hidden")}>
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
                         </div>
+                        <PlanFeaturesList
+                            type="enterprise"
+                            className={clsx(sectionPadding, sectionWidth)}
+                        />
                         <div className={clsx(sectionPadding, sectionWidth)}>
                             <div
                                 className={clsx(

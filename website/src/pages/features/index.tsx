@@ -42,6 +42,7 @@ const List = ({ data }: { data: Integration[] }) => {
                     linkUrl={item.url}
                     icon={item.icon}
                     contributors={item.contributors}
+                    status={item.status}
                 />
             ))}
         </div>
@@ -117,7 +118,7 @@ const Integrations: React.FC = () => {
             <Title className="mt-20">All the classic features</Title>
             <List data={dataProviderPackages} />
 
-            <Title className="mt-20">Smarter srver management</Title>
+            <Title className="mt-20">Smarter server management</Title>
             <List data={communityDataProviderPackages} />
 
             <Title className="mt-20">No BS user interface</Title>

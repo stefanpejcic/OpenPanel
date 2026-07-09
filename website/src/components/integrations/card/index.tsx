@@ -8,6 +8,7 @@ type LargeCardProps = {
     linkUrl: string;
     icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
     contributors?: contributor[];
+    status?: string;
 };
 
 const Card: React.FC<LargeCardProps> = ({
@@ -16,6 +17,7 @@ const Card: React.FC<LargeCardProps> = ({
     icon: Icon,
     linkUrl,
     contributors,
+    status,
 }) => {
     return (
         <a
@@ -35,13 +37,31 @@ const Card: React.FC<LargeCardProps> = ({
             </div>
 
             <div className={clsx("flex flex-col gap-2")}>
-                <div
-                    className={clsx(
-                        "text-gray-700 dark:text-gray-200",
-                        "font-semibold",
+                <div className={clsx("flex items-center gap-2")}>
+                    <div
+                        className={clsx(
+                            "text-gray-700 dark:text-gray-200",
+                            "font-semibold",
+                        )}
+                    >
+                        {title}
+                    </div>
+                    {status === "enterprise" && (
+                        <div
+                            className={clsx(
+                                "text-xs",
+                                "font-semibold",
+                                "uppercase",
+                                "tracking-wide",
+                                "px-2.5 py-1",
+                                "rounded-full",
+                                "dark:bg-refine-cyan-alt/10 bg-refine-blue/10",
+                                "dark:text-refine-cyan-alt text-refine-blue",
+                            )}
+                        >
+                            Enterprise
+                        </div>
                     )}
-                >
-                    {title}
                 </div>
                 <div
                     className={clsx(

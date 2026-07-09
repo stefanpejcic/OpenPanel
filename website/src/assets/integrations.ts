@@ -81,7 +81,7 @@ export const integrations: IntegrationsType = {
             description:
                 "OpenLiteSpeed is a high-performance, lightweight web server with built-in caching and .htaccess support. OpenPanel allows per-user configuration for security, caching, and rewrite rules.",
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/#openlitespeed",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Varnish",
@@ -89,7 +89,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Varnish is a powerful HTTP accelerator designed for content-heavy websites. OpenPanel enables WordPress caching rules, purge logic, and backend configuration for optimal performance.",
             url: "/docs/articles/docker/how-to-set-nginx-apache-varnish-per-user-in-openpanel/",
-            status: "stable",
+            status: "enterprise",
          },
     ],
     "data-provider-packages": [
@@ -110,6 +110,14 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "FTP",
+            icon: Folder,
+            description:
+                "Create FTP sub-users that share the FTP service with other users on the server, and connect using the server IP address and port 21.",
+            url: "/docs/panel/files/ftp/",
+            status: "enterprise",
+        },
+        {
             name: "PHP versions",
             icon: PHP,
             description:
@@ -123,7 +131,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Effortlessly create and manage containerized NodeJS and Python applications. Proxy websites to display content from these applications seamlessly.",
             url: "/docs/panel/applications/pm2/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "WP Manager",
@@ -146,7 +154,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Create and manage PostgreSQL databases and users easily. Automatically log in to pgAdmin, enable remote access, and adjust configuration settings with desired limits.",
             url: "",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "SSL certificates",
@@ -170,7 +178,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Run commands inside Docker containers easily with WebTerminal — a simple interface to access and manage containers directly from your browser.",
             url: "/docs/panel/containers/terminal/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Server settings",
@@ -251,7 +259,7 @@ export const integrations: IntegrationsType = {
             description:
                 "With the Docker module, users have an option to switch to their preferred webserver: Nginx, Apache, OpenLitespeed, OpenResty.",
             url: "/docs/panel/containers/webserver/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Edit configuration",
@@ -259,7 +267,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators have the capability to designate domains for panel access, modify ports, and edit settings for both the OpenPanel and OpenAdmin interfaces, providing flexibility in configuring the system to suit specific requirements.",
             url: "/docs/category/settings/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Resource usage statistics",
@@ -283,7 +291,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
             url: "/docs/admin/notifications/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Webhooks",
@@ -308,7 +316,7 @@ export const integrations: IntegrationsType = {
             icon: Branding,
             description: "Fully customise the OpenPanel with colours, logos, fonts and more that mirror the look and feel of your hosting company.",
             url: "/docs/admin/settings/openpanel/#branding",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Fully responsive",
@@ -340,7 +348,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Quickly and easily find what you are looking for with a powerful search functionality.",
             url: "/docs/panel/dashboard",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Multi-language support",
@@ -382,7 +390,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Allocate an IPv4 address to users, providing them with a dedicated IP for their websites and services.",
             url: "/docs/admin/accounts/users/#edit",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Impersonation",
@@ -439,7 +447,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators can activate CorazaWAF with a single click and configure the OWASP ruleset. Additionally, individual users have the flexibility to enable or disable WAF per domain or disable certain rules.",
             url: "/docs/admin/security/waf/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Firewall",
@@ -455,7 +463,7 @@ export const integrations: IntegrationsType = {
             description:
                 "OpenAdmin fully supports ImunifyAV.",
             url: "/docs/admin/security/imunify/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Two-Factor Authentication",
@@ -503,7 +511,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators have the flexibility to customize the default port (e.g., change from 2083) and alter the directory path (e.g., from /openpanel) to cater to specific preferences.",
             url: "/docs/admin/settings/openpanel/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Custom domains",
@@ -511,7 +519,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Administrators can set different domains for the OpenPanel and OpenAdmin services.",
             url: "/docs/admin/settings/openpanel/",
-            status: "stable",
+            status: "enterprise",
         },
     ],
     "community-packages": [
@@ -520,21 +528,21 @@ export const integrations: IntegrationsType = {
             icon: WHMCS,
             description: "Integrate with the leading web hosting management and billing software.",
             url: "/docs/articles/extensions/openpanel-and-whmcs/",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "Blesta",
             icon: WHMCS,
             description: "Provision OpenPanel accounts from blesta.",
             url: "https://blesta.club/extensions/openpanel",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "FOSSBilling",
             icon: WHMCS,
             description: "Provision OpenPanel accounts from FOSSBilling software.",
             url: "https://openpanel.com/docs/articles/extensions/openpanel-and-fossbilling/",
-            status: "stable",
+            status: "enterprise",
         },        
         {
             name: "API",
@@ -542,7 +550,7 @@ export const integrations: IntegrationsType = {
             description:
                 "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
             url: "/docs/articles/dev-experience/openadmin-api",
-            status: "stable",
+            status: "enterprise",
         },
         {
             name: "MCP",
@@ -550,7 +558,7 @@ export const integrations: IntegrationsType = {
             description:
                 "Built-in MCP server lets AI agents and assistants interact with OpenPanel directly.",
             url: "/docs/panel/account/mcp/",
-            status: "stable",
+            status: "enterprise",
         },
     ],
 };
