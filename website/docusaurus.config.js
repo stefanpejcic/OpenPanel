@@ -133,8 +133,9 @@ const siteConfig = {
             "@easyops-cn/docusaurus-search-local",
             {
                 hashed: true,
-                indexBlog: true,
+                indexBlog: false,
                 indexPages: false,
+                ignoreFiles: [/\/changelog\//],
             },
         ],
         async function tailwindcss() {
