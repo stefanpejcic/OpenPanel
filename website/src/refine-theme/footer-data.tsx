@@ -85,6 +85,10 @@ export const menuItems = [
                 label: "DirectAdmin VS OpenPanel",
                 href: "/directadmin-alternative",
             },
+            {
+                label: "CyberPanel VS OpenPanel",
+                href: "/cyberpanel-alternative",
+            },
         ],
     },
     {
