@@ -37,6 +37,7 @@ import {
     Python,
     WP,
     MySQL,
+    PostgreSql,
     ServerCog,
     CronJobs,
     Cache,
@@ -140,10 +141,18 @@ export const integrations: IntegrationsType = {
             status: "stable",
         },
         {
+            name: "PostgreSQL and pgAdmin",
+            icon: PostgreSql,
+            description:
+                "Create and manage PostgreSQL databases and users easily. Automatically log in to pgAdmin, enable remote access, and adjust configuration settings with desired limits.",
+            url: "",
+            status: "stable",
+        },
+        {
             name: "SSL certificates",
             icon: SSL,
             description:
-                "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates.",
+                "Automatic SSL generation and renewal ensures that your website's security is effortlessly managed, providing continuous protection with up-to-date SSL certificates. Custom certificates can also be uploaded and installed for users who need them.",
             url: "/docs/panel/domains/SSL/",
             status: "stable",
         },
@@ -273,6 +282,14 @@ export const integrations: IntegrationsType = {
             icon: Notifications,
             description:
                 "Receive notifications for events such as reboots, high resource usage, website attacks, failed services, and other critical occurrences to stay informed about the status of your server.",
+            url: "/docs/admin/notifications/",
+            status: "stable",
+        },
+        {
+            name: "Webhooks",
+            icon: Notifications,
+            description:
+                "Administrators can set up webhooks for Discord, Slack and other services, or receive email alerts instead.",
             url: "/docs/admin/notifications/",
             status: "stable",
         },
@@ -412,7 +429,7 @@ export const integrations: IntegrationsType = {
             name: "SSL / TLS",
             icon: SSL,
             description:
-                "Automatically provision and renewal of Let's Encrypt certificates.",
+                "Automatically provision and renewal of Let's Encrypt certificates. Custom SSL certificates are also supported for domains that need them.",
             url: "/docs/panel/domains/ssl/",
             status: "stable",
         },
@@ -488,6 +505,14 @@ export const integrations: IntegrationsType = {
             url: "/docs/admin/settings/openpanel/",
             status: "stable",
         },
+        {
+            name: "Custom domains",
+            icon: Domain,
+            description:
+                "Administrators can set different domains for the OpenPanel and OpenAdmin services.",
+            url: "/docs/admin/settings/openpanel/",
+            status: "stable",
+        },
     ],
     "community-packages": [
         {
@@ -517,6 +542,14 @@ export const integrations: IntegrationsType = {
             description:
                 "OpenAdmin API allows you to integrate with 3rd party systems you already use.",
             url: "/docs/articles/dev-experience/openadmin-api",
+            status: "stable",
+        },
+        {
+            name: "MCP",
+            icon: API,
+            description:
+                "Built-in MCP server lets AI agents and assistants interact with OpenPanel directly.",
+            url: "/docs/panel/account/mcp/",
             status: "stable",
         },
     ],
