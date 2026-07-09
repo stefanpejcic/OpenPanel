@@ -10,7 +10,7 @@ import { EnterpriseTable } from "@site/src/refine-theme/cyberpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 
 const Enterprise: React.FC = () => {
-    const title = "OpenPanel Enterprise | CyberPanel Alternative Web Hosting Panel";
+    const title = "OpenPanel vs CyberPanel: Alternative Hosting Panel Compared";
 
     return (
         <>
@@ -19,7 +19,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="OpenPanel Enterprise is a CyberPanel alternative.">
+            <CommonLayout description="Compare OpenPanel vs CyberPanel: real per-user isolation without CloudLinux, granular permissions, and enterprise support from €14.95/month per server.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

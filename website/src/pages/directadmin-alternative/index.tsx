@@ -10,7 +10,7 @@ import { EnterpriseTable } from "@site/src/refine-theme/directadmin-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 
 const Enterprise: React.FC = () => {
-    const title = "OpenPanel Enterprise | DirectAdmin Alternative Web Hosting Panel";
+    const title = "OpenPanel vs DirectAdmin: Alternative Hosting Panel Compared";
 
     return (
         <>
@@ -19,7 +19,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="OpenPanel Enterprise is a DirectAdmin alternative.">
+            <CommonLayout description="Compare OpenPanel vs DirectAdmin: Docker-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

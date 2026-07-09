@@ -10,7 +10,7 @@ import { EnterpriseTable } from "@site/src/refine-theme/plesk-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
 
 const Enterprise: React.FC = () => {
-    const title = "OpenPanel Enterprise | Plesk Alternative Web Hosting Panel";
+    const title = "OpenPanel vs Plesk: Alternative Hosting Panel Compared";
 
     return (
         <>
@@ -19,7 +19,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="OpenPanel Enterprise is a Plesk alternative.">
+            <CommonLayout description="Compare OpenPanel vs Plesk: true per-user Docker isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

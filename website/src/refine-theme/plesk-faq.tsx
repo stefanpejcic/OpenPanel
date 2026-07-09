@@ -2,10 +2,12 @@ import React from "react";
 import clsx from "clsx";
 import { Disclosure, Transition } from "@headlessui/react";
 import { CommonCircleChevronDown } from "./common-circle-chevron-down";
+import { FaqSchema } from "./faq-schema";
 
 export const EnterpriseFaq = ({ className }: { className?: string }) => {
     return (
         <div className={clsx("flex flex-col", "not-prose", className)}>
+            <FaqSchema faq={faq} />
             <div
                 className={clsx(
                     "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
