@@ -71,10 +71,10 @@ export const menuItems = [
     },
     {
         label: "Compare",
+        icon: <NewBadgeIcon />,
         items: [
             {
                 label: "cPanel VS OpenPanel",
-                icon: <NewBadgeIcon />,
                 href: "/cpanel-alternative",
             },
             {

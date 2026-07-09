@@ -191,6 +191,9 @@ export const LandingFooter = () => {
                             >
                                 <div
                                     className={clsx(
+                                        "flex",
+                                        "items-center",
+                                        "gap-2",
                                         "text-sm",
                                         "leading-6",
                                         "font-semibold",
@@ -198,6 +201,7 @@ export const LandingFooter = () => {
                                     )}
                                 >
                                     {menu.label}
+                                    {menu.icon}
                                 </div>
                                 <div
                                     className={clsx(
@@ -232,7 +236,6 @@ export const LandingFooter = () => {
                                                 )}
                                             >
                                                 {item.label}
-                                                {item.icon}
                                             </div>
                                         </a>
                                     ))}
