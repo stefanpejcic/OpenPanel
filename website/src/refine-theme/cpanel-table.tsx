@@ -730,6 +730,15 @@ const tableData = [
         title: "Advanced",
         items: [
             {
+                description: "API for every UI action",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Process Manager",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
@@ -1486,6 +1495,15 @@ const tableData = [
                 valueType: {
                     cpanel: "text",
                     openpanel: "icon",
+                },
+            },
+            {
+                description: "Forever free tier",
+                cpanel: <CrossIcon />,
+                openpanel: <TableText><a href="/community">Community Edition</a></TableText>,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "text",
                 },
             },
             {
