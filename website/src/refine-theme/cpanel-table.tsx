@@ -1038,6 +1038,15 @@ const tableData = [
         title: "Accounts",
         items: [
             {
+                description: "Account limit",
+                cpanel: <TableText>Tied to tier (1/5/30/100)</TableText>,
+                openpanel: <CrossIcon />,
+                valueType: {
+                    cpanel: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Multiple Administrator Accounts",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
