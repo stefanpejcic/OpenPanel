@@ -8,7 +8,6 @@ import {
     HackathonsIcon,
     AboutUsIcon,
     StoreIcon,
-    MeetIcon,
     BlogIcon,
     NewBadgeIcon,
 } from "../icons/popover";
@@ -89,25 +88,19 @@ export const MENU_ITEMS: MenuItemType[] = [
   },
   {
     isPopover: true,
-    label: "Enterprise",
+    label: "Pricing",
     items: [
+      {
+        label: "OpenPanel Community",
+        description: "Forever free, self-hosted.",
+        link: "/community/",
+        icon: ExamplesIcon,
+      },
       {
         label: "OpenPanel Enterprise",
         description: "Fixed pricing at 14.95€ monthly.",
         link: "/enterprise/",
         icon: StoreIcon,
-      },
-      {
-        label: "Hosting Providers",
-        description: "Hosting providers ❤️ OpenPanel.",
-        link: "/hosting-providers",
-        icon: ExamplesIcon,
-      },
-      {
-        label: "Contact us",
-        description: "Call us for any questions",
-        link: "mailto:info@openpanel.com",
-        icon: MeetIcon,
       },
     ],
   },

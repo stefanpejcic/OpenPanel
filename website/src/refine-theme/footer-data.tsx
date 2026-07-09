@@ -48,7 +48,7 @@ export const menuItems = [
                 href: "/enterprise/#compare",
             },
             {
-                label: "NOC Pricing",
+                label: "Partner / NOC Pricing",
                 href: "/licenses-for-partners",
             },
             {
@@ -118,6 +118,14 @@ export const secondaryMenuItems = [
     {
         label: "Privacy Policy",
         href: "/privacy-policy",
+    },
+    {
+        label: "Refund Policy",
+        href: "/refund-policy",
+    },
+    {
+        label: "License",
+        href: "/LICENSE",
     },
 ];
 

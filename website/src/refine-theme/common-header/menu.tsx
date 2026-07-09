@@ -66,7 +66,7 @@ export const Menu: React.FC = () => {
                                 </>
                             )}
 
-                            {item.label === "Enterprise" && (
+                            {item.label === "Pricing" && (
                                 <>
                                     <div
                                         className={clsx(
