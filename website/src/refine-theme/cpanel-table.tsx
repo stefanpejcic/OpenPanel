@@ -739,6 +739,15 @@ const tableData = [
                 },
             },
             {
+                description: "Native MCP server for AI agents",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Process Manager",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
