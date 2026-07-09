@@ -4,6 +4,11 @@ import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
 
 type Props = {
     className?: string;
+    question?: string;
+    subtext?: string;
+    buttonLabel?: string;
+    buttonHref?: string;
+    eventName?: string;
 };
 
 export const EnterpriseGetInTouchCta: FC<Props> = (props) => {
@@ -23,15 +28,31 @@ export const EnterpriseGetInTouchCta: FC<Props> = (props) => {
                     "bg-enterprise-cta-light landing-md:bg-enterprise-cta-light-md",
                 )}
             >
-                <h2
-                    className={clsx(
-                        "text-sm landing-sm:text-2xl",
-                        "dark:text-gray-400 text-gray-600",
+                <div className={clsx("flex flex-col", "gap-1")}>
+                    <h2
+                        className={clsx(
+                            "text-sm landing-sm:text-2xl",
+                            "dark:text-gray-400 text-gray-600",
+                        )}
+                    >
+                        {props.question ?? "Ready to try OpenPanel Enterprise?"}
+                    </h2>
+                    {props.subtext && (
+                        <p
+                            className={clsx(
+                                "text-xs landing-sm:text-sm",
+                                "dark:text-gray-500 text-gray-500",
+                            )}
+                        >
+                            {props.subtext}
+                        </p>
                     )}
-                >
-                    Ready to try OpenPanel Enterprise?
-                </h2>
-                <EnterpriseGetInTouchButton />
+                </div>
+                <EnterpriseGetInTouchButton
+                    label={props.buttonLabel}
+                    href={props.buttonHref}
+                    eventName={props.eventName}
+                />
             </div>
         </div>
     );

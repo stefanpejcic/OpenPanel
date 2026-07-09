@@ -1,6 +1,11 @@
+import Link from "@docusaurus/Link";
 import React from "react";
 import clsx from "clsx";
-import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
+import {
+    EnterpriseGetInTouchButton,
+    ENTERPRISE_PURCHASE_URL,
+    ENTERPRISE_TRIAL_URL,
+} from "./enterprise-get-in-touch-button";
 import { CommonThemedImage } from "./common-themed-image";
 
 export const EnterpriseHeroSection = ({
@@ -49,14 +54,71 @@ export const EnterpriseHeroSection = ({
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
-                    OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.{" "}
+                    Robust user isolation and management for web hosting
+                    providers, at a fixed{" "}
+                    <span
+                        className={clsx(
+                            "font-semibold",
+                            "dark:text-gray-0 text-gray-900",
+                        )}
+                    >
+                        €14.95/server/month
+                    </span>{" "}
+                    — unlimited accounts, no per-user fees.
                 </p>
-                <EnterpriseGetInTouchButton
+                <div
                     className={clsx(
+                        "flex flex-col",
+                        "gap-3",
                         "pl-4 landing-sm:pl-6 landing-md:pl-10",
                         "mt-6 landing-lg:mt-16",
                     )}
-                />
+                >
+                    <div
+                        className={clsx(
+                            "flex flex-col landing-sm:flex-row",
+                            "items-start landing-sm:items-center",
+                            "gap-3 landing-sm:gap-6",
+                        )}
+                    >
+                        <EnterpriseGetInTouchButton
+                            label="Start free 14-day trial"
+                            href={ENTERPRISE_TRIAL_URL}
+                            eventName="trial_click_hero"
+                        />
+                        <Link
+                            href={ENTERPRISE_PURCHASE_URL}
+                            target="_self"
+                            rel="noopener noreferrer"
+                            onClick={() => {
+                                if (
+                                    typeof window !== "undefined" &&
+                                    typeof window.gtag !== "undefined"
+                                ) {
+                                    window.gtag(
+                                        "event",
+                                        "purchase_click_hero",
+                                    );
+                                }
+                            }}
+                            className={clsx(
+                                "text-sm font-semibold",
+                                "dark:text-gray-0 text-gray-900",
+                                "underline underline-offset-4",
+                            )}
+                        >
+                            or purchase a license directly →
+                        </Link>
+                    </div>
+                    <p
+                        className={clsx(
+                            "text-xs",
+                            "dark:text-gray-500 text-gray-500",
+                        )}
+                    >
+                        No credit card required · Cancel anytime
+                    </p>
+                </div>
             </div>
             <div
                 className={clsx(

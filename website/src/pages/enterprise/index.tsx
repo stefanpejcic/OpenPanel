@@ -1,4 +1,5 @@
 import Head from "@docusaurus/Head";
+import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React from "react";
 import { CommonHeader } from "@site/src/refine-theme/common-header";
@@ -15,6 +16,7 @@ import { LandingTrustedByDevelopers } from "@site/src/refine-theme/landing-trust
 import { EnterpriseFaq } from "@site/src/refine-theme/enterprise-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/enterprise-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
+import { ENTERPRISE_TRIAL_URL } from "@site/src/refine-theme/enterprise-get-in-touch-button";
 
 const Enterprise: React.FC = () => {
     const title = "OpenPanel Enterprise | Next Generation Hosting Panel";
@@ -47,22 +49,27 @@ const Enterprise: React.FC = () => {
                             "mx-auto",
                         )}
                     >
-                        <EnterpriseHeroSection
-                            className={clsx(
-                                sectionWidth,
-                                sectionPadding,
-                                "h-auto landing-md:h-[432px]",
-                                "mt-4 landing-sm:mt-8 landing-lg:mt-8",
-                                "px-4 landing-sm:px-0",
-                                "landing-lg:pr-12",
-                            )}
-                        />
+                        <div>
+                            <EnterpriseHeroSection
+                                className={clsx(
+                                    sectionWidth,
+                                    sectionPadding,
+                                    "h-auto landing-md:h-[432px]",
+                                    "mt-4 landing-sm:mt-8 landing-lg:mt-8",
+                                    "px-4 landing-sm:px-0",
+                                    "landing-lg:pr-12",
+                                )}
+                            />
+                            <LandingTrustedByDevelopers
+                                className={clsx(
+                                    sectionPadding,
+                                    sectionWidth,
+                                    "mt-12 landing-sm:mt-20 landing-md:mt-28 landing-lg:mt-10",
+                                )}
+                            />
+                        </div>
                         <EnterpriseGetSupport
-                            className={clsx(
-                                sectionPadding,
-                                sectionWidth,
-                                "landing-lg:-mt-40",
-                            )}
+                            className={clsx(sectionPadding, sectionWidth)}
                         />
                         <EnterpriseSecurity
                             className={clsx(sectionPadding, sectionWidth)}
@@ -73,6 +80,11 @@ const Enterprise: React.FC = () => {
                                 sectionWidth,
                                 "w-full landing-lg:max-w-[792px] mx-auto",
                             )}
+                            question="Try Enterprise free for 14 days?"
+                            subtext="No credit card required."
+                            buttonLabel="Start free trial"
+                            buttonHref={ENTERPRISE_TRIAL_URL}
+                            eventName="trial_click_cta1"
                         />
                         <EnterpriseFlexibility
                             className={clsx(sectionPadding, sectionWidth)}
@@ -86,6 +98,11 @@ const Enterprise: React.FC = () => {
                                 sectionWidth,
                                 "w-full landing-lg:max-w-[792px] mx-auto",
                             )}
+                            question="Try Enterprise free for 14 days?"
+                            subtext="No credit card required."
+                            buttonLabel="Start free trial"
+                            buttonHref={ENTERPRISE_TRIAL_URL}
+                            eventName="trial_click_cta2"
                         />
                         <EnterpriseFrequentUpdates
                             className={clsx(sectionPadding, sectionWidth)}
@@ -94,6 +111,78 @@ const Enterprise: React.FC = () => {
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
+                        </div>
+                        <div className={clsx(sectionPadding, sectionWidth)}>
+                            <div
+                                className={clsx(
+                                    "pl-4 landing-sm:pl-6 landing-md:pl-10",
+                                    "text-2xl landing-sm:text-[32px] landing-sm:leading-[40px]",
+                                )}
+                            >
+                                <h2 className={clsx("dark:text-gray-0 text-gray-900")}>
+                                    See how we{" "}
+                                    <span
+                                        className={clsx(
+                                            "font-semibold",
+                                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
+                                            "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
+                                        )}
+                                    >
+                                        compare
+                                    </span>
+                                    .
+                                </h2>
+                            </div>
+                            <div
+                                className={clsx(
+                                    "grid",
+                                    "grid-cols-2 landing-sm:grid-cols-4",
+                                    "gap-4",
+                                    "mt-8 landing-md:mt-20",
+                                )}
+                            >
+                                {[
+                                    {
+                                        label: "vs cPanel",
+                                        to: "/cpanel-alternative/",
+                                    },
+                                    {
+                                        label: "vs Plesk",
+                                        to: "/plesk-alternative/",
+                                    },
+                                    {
+                                        label: "vs DirectAdmin",
+                                        to: "/directadmin-alternative/",
+                                    },
+                                    {
+                                        label: "vs CyberPanel",
+                                        to: "/cyberpanel-alternative/",
+                                    },
+                                ].map((item) => (
+                                    <Link
+                                        key={item.to}
+                                        to={item.to}
+                                        className={clsx(
+                                            "not-prose",
+                                            "flex items-center justify-center text-center",
+                                            "p-4 landing-sm:p-6",
+                                            "dark:bg-landing-noise",
+                                            "dark:bg-gray-800 bg-gray-50",
+                                            "rounded-2xl",
+                                            "text-sm landing-sm:text-base",
+                                            "font-semibold",
+                                            "text-gray-900 dark:text-gray-0",
+                                            "transition-[filter]",
+                                            "duration-150",
+                                            "ease-in-out",
+                                            "hover:brightness-110",
+                                            "hover:!no-underline",
+                                        )}
+                                    >
+                                        {item.label}
+                                    </Link>
+                                ))}
+                            </div>
                         </div>
                         <EnterpriseFaq
                             className={clsx(
@@ -108,6 +197,11 @@ const Enterprise: React.FC = () => {
                                 sectionWidth,
                                 "landing-lg:max-w-[792px]",
                             )}
+                            question="Still deciding? Start your free trial today."
+                            subtext="No credit card required."
+                            buttonLabel="Start free trial"
+                            buttonHref={ENTERPRISE_TRIAL_URL}
+                            eventName="trial_click_cta3"
                         />
                     </div>
                     <LandingFooter />

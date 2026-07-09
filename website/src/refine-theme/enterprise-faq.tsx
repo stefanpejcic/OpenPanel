@@ -118,7 +118,7 @@ const faq = [
     {
         question:
             "Do you offer trial license for the Enterprise edition?",
-        answer: "Yes, we offer a 14 days trial on request.",
+        answer: "Yes — click \"Start free trial\" above to get instant access to a 14-day Enterprise trial, no credit card required.",
     },
     {
         question: "How often does Enterprise edition receive updates?",

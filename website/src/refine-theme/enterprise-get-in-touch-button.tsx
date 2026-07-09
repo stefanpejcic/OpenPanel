@@ -2,12 +2,23 @@ import Link from "@docusaurus/Link";
 import clsx from "clsx";
 import React, { FC, SVGProps } from "react";
 
+export const ENTERPRISE_PURCHASE_URL =
+    "https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license";
+export const ENTERPRISE_TRIAL_URL =
+    "https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1";
+
 type Props = {
     className?: string;
     linkClassName?: string;
+    label?: string;
+    href?: string;
+    eventName?: string;
 };
 
 export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
+    const label = props.label ?? "Purchase license";
+    const href = props.href ?? ENTERPRISE_PURCHASE_URL;
+
     return (
         <div
             className={clsx(
@@ -20,9 +31,18 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             )}
         >
             <Link
-                href="https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license"
+                href={href}
                 target="_self"
                 rel="noopener noreferrer"
+                onClick={() => {
+                    if (
+                        props.eventName &&
+                        typeof window !== "undefined" &&
+                        typeof window.gtag !== "undefined"
+                    ) {
+                        window.gtag("event", props.eventName);
+                    }
+                }}
                 className={clsx(
                     "self-start",
                     "rounded-full",
@@ -46,7 +66,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
             >
                 <GetInTouchIcon />
                 <span className={clsx("text-base", "font-semibold")}>
-                    Purchase license
+                    {label}
                 </span>
             </Link>
         </div>
