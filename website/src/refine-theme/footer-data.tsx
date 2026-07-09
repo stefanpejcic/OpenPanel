@@ -81,8 +81,12 @@ export const menuItems = [
                 label: "Plesk VS OpenPanel",
                 href: "/plesk-alternative",
             },
+            {
+                label: "DirectAdmin VS OpenPanel",
+                href: "/directadmin-alternative",
+            },
         ],
-    },    
+    },
     {
         label: "Company",
         items: [
