@@ -979,7 +979,16 @@ const tableData = [
         title: "Integrations",
         items: [
             {
-                description: "API Access",
+                description: "REST API",
+                community: <CrossIcon />,
+                enterprise: <CheckIcon />,
+                valueType: {
+                    community: "icon",
+                    enterprise: "icon",
+                },
+            },
+            {
+                description: "MCP (Model Context Protocol)",
                 community: <CrossIcon />,
                 enterprise: <CheckIcon />,
                 valueType: {

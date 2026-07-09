@@ -1,6 +1,7 @@
+import Link from "@docusaurus/Link";
 import React from "react";
 import clsx from "clsx";
-import { EnterpriseGetInTouchButton } from "./community-download-button";
+import { LandingCopyCommandButton } from "./landing-copy-command-button";
 import { CommonThemedImage } from "./common-themed-image";
 
 export const EnterpriseHeroSection = ({
@@ -51,12 +52,61 @@ export const EnterpriseHeroSection = ({
                 >
                     OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use.{" "}
                 </p>
-                <EnterpriseGetInTouchButton
+                <p
                     className={clsx(
+                        "text-sm",
                         "pl-4 landing-sm:pl-6 landing-md:pl-10",
                         "mt-6 landing-lg:mt-16",
+                        "dark:text-gray-400 text-gray-600",
+                    )}
+                >
+                    Install it with one command:
+                </p>
+                <LandingCopyCommandButton
+                    className={clsx(
+                        "ml-4 landing-sm:ml-6 landing-md:ml-10",
+                        "mt-3",
                     )}
                 />
+                <div
+                    className={clsx(
+                        "flex flex-wrap items-center",
+                        "gap-x-4 gap-y-1",
+                        "pl-4 landing-sm:pl-6 landing-md:pl-10",
+                        "mt-4",
+                        "text-xs",
+                        "dark:text-gray-500 text-gray-500",
+                    )}
+                >
+                    <span>Ubuntu 24.04 · 1GB RAM minimum</span>
+                    <Link
+                        href="/docs/admin/intro/#requirements"
+                        className={clsx(
+                            "dark:text-refine-cyan-alt text-refine-blue",
+                            "font-semibold",
+                        )}
+                    >
+                        Full requirements
+                    </Link>
+                    <Link
+                        href="/docs/"
+                        className={clsx(
+                            "dark:text-refine-cyan-alt text-refine-blue",
+                            "font-semibold",
+                        )}
+                    >
+                        Read the docs →
+                    </Link>
+                    <Link
+                        href="/install/"
+                        className={clsx(
+                            "dark:text-refine-cyan-alt text-refine-blue",
+                            "font-semibold",
+                        )}
+                    >
+                        Customize install command →
+                    </Link>
+                </div>
             </div>
             <div
                 className={clsx(
