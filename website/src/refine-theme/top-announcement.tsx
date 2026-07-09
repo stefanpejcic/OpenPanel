@@ -112,33 +112,32 @@ const messages = [
     {
         text: (
             <>
-                🎉 Get <span className="font-semibold">2 FREE months</span> when you upgrade to an{" "}
-                <span className="font-semibold">OpenPanel Enterprise Annual License</span>. 
+                🎉 Get <span className="font-semibold">2 months FREE</span> with the{" "}
+                <span className="font-semibold">Enterprise Annual License</span> — pay for 10, get 12.
             </>
         ),
-        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "Claim Your Free Months",
+        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1&utm_content=free-months",
+        cta: "Claim Free Months",
     },
     {
         text: (
             <>
-                🚀 Unlock <span className="font-semibold">Premium Features</span> with the{" "}
-                <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
+                🚀 Unlock <span className="font-semibold">all Premium Features</span> — white-label,{" "}
+                priority support & more with{" "}<span className="font-semibold">Enterprise Annual</span>
             </>
         ),
-        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "Secure Your Discount",
+        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1&utm_content=unlock-features",
+        cta: "Upgrade to Enterprise",
     },    
     {
         text: (
             <>
-                Get <span className="font-semibold">17% off</span> the{" "}
-                <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
-                with a lifetime fixed price guarantee.
+                💰 Save <span className="font-semibold">17%</span> on the{" "}
+                <span className="font-semibold">Enterprise Annual License</span>{" "} — price locked for life.
             </>
         ),
-        href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
-        cta: "Get Started Now",
+        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1&utm_content=price-lock",
+        cta: "Lock In My Price",
     },
 ];
 
