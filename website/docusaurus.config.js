@@ -88,7 +88,7 @@ const siteConfig = {
                     ],
                 },
                 gtag: {
-                    trackingID: "G-5YBHWWDTL4",
+                    trackingID: ["G-5YBHWWDTL4", "AW-18287005046"],
                 },
                 sitemap: {
                     ignorePatterns: ["**/_*.md"],

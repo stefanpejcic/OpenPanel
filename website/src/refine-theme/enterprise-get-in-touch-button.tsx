@@ -7,6 +7,19 @@ export const ENTERPRISE_PURCHASE_URL =
 export const ENTERPRISE_TRIAL_URL =
     "https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1";
 
+// Checkout happens off-site (my.openpanel.com), so there's no on-site
+// "thank you" page to drop the Ads event snippet on - fire the conversion
+// when someone clicks through to start a trial or purchase instead.
+const GOOGLE_ADS_CONVERSION_LABEL = "AW-18287005046/755wCL2tiMkcEPaa9o9E";
+
+export const fireGoogleAdsConversion = () => {
+    if (typeof window !== "undefined" && typeof window.gtag !== "undefined") {
+        window.gtag("event", "conversion", {
+            send_to: GOOGLE_ADS_CONVERSION_LABEL,
+        });
+    }
+};
+
 type Props = {
     className?: string;
     linkClassName?: string;
@@ -42,6 +55,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
                     ) {
                         window.gtag("event", props.eventName);
                     }
+                    fireGoogleAdsConversion();
                 }}
                 className={clsx(
                     "self-start",

@@ -5,6 +5,7 @@ import {
     EnterpriseGetInTouchButton,
     ENTERPRISE_PURCHASE_URL,
     ENTERPRISE_TRIAL_URL,
+    fireGoogleAdsConversion,
 } from "./enterprise-get-in-touch-button";
 
 export const EnterpriseHeroSection = ({
@@ -95,6 +96,7 @@ export const EnterpriseHeroSection = ({
                                     "purchase_click_hero_cpanel",
                                 );
                             }
+                            fireGoogleAdsConversion();
                         }}
                         className={clsx(
                             "text-sm font-semibold",

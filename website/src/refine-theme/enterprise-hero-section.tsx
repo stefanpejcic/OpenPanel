@@ -5,6 +5,7 @@ import {
     EnterpriseGetInTouchButton,
     ENTERPRISE_PURCHASE_URL,
     ENTERPRISE_TRIAL_URL,
+    fireGoogleAdsConversion,
 } from "./enterprise-get-in-touch-button";
 import { CommonThemedImage } from "./common-themed-image";
 
@@ -100,6 +101,7 @@ export const EnterpriseHeroSection = ({
                                         "purchase_click_hero",
                                     );
                                 }
+                                fireGoogleAdsConversion();
                             }}
                             className={clsx(
                                 "text-sm font-semibold",
