@@ -81,6 +81,7 @@
     "typescript": "^4.4.2"
   },
   "resolutions": {
-    "webpack": "5.74.0"
+    "webpack": "5.74.0",
+    "cheerio": "1.0.0-rc.12"
   }  
 }
