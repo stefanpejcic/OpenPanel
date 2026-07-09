@@ -19,7 +19,7 @@
     "@docusaurus/core": "2.4.0",
     "@docusaurus/plugin-client-redirects": "2.4.0",
     "@docusaurus/preset-classic": "2.4.0",
-    "@easyops-cn/docusaurus-search-local": "^0.36.0",
+    "@easyops-cn/docusaurus-search-local": "^0.55.0",
     "docusaurus-plugin-generate-llms-txt": "0.0.1",
     "@headlessui/react": "^1.7.15",
     "@mdx-js/react": "^1.6.22",
