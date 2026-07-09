@@ -1375,7 +1375,7 @@ const tableData = [
                 },
             },
             {
-                description: "Granular per-user premissions",
+                description: "Granular per-user permissions",
                 cpanel: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {

@@ -493,7 +493,7 @@ const tableData = [
             {
                 description: "Monthly Pricing",
                 plesk: (
-                    <TableText>14 - 57€/ month</TableText>
+                    <TableText>13 - 55€/ month</TableText>
                 ),
                 openpanel: (
                     <TableText>14.95€ / month</TableText>
@@ -523,7 +523,7 @@ const tableData = [
         items: [
             {
                 description: "Supported OS",
-                plesk: <TableText><a href="https://docs.plesk.net/installation-guide/system-requirements/" target="_blank">AlmaLinux 8,9,10 Ubuntu 22 Cloudlinux 7,8,9 RockyLinux 8,9</a></TableText>,
+                plesk: <TableText><a href="https://docs.plesk.com/release-notes/obsidian/system-requirements/" target="_blank">AlmaLinux, Ubuntu, CloudLinux, RHEL, Debian, Windows Server</a></TableText>,
                 openpanel: <TableText><a href="/docs/admin/intro/#requirements">OS-agnostic: Ubuntu, Debian, AlmaLinux, Rocky, CentOS</a></TableText>,
                 valueType: {
                     plesk: "text",
@@ -532,10 +532,10 @@ const tableData = [
             },
             {
                 description: "Support for ARM CPUs (Aarch64)",
-                plesk: <CrossIcon />,
+                plesk: <TableText>Partial (Ubuntu 22.04 only)</TableText>,
                 openpanel: <CheckIcon />,
                 valueType: {
-                    plesk: "icon",
+                    plesk: "text",
                     openpanel: "icon",
                 },
             },
@@ -623,7 +623,7 @@ const tableData = [
                 },
             },
             {
-                description: "Redis",
+                description: "Valkey / Redis",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -639,18 +639,9 @@ const tableData = [
                     plesk: "icon",
                     openpanel: "icon",
                 },
-            },         
-            {
-                description: "OpenSearch",
-                plesk: <CrossIcon />,
-                openpanel: <CheckIcon />,
-                valueType: {
-                    plesk: "icon",
-                    openpanel: "icon",
-                },
             },
             {
-                description: "ElasticSearch",
+                description: "OpenSearch / ElasticSearch",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -690,10 +681,19 @@ const tableData = [
                     plesk: "text",
                     openpanel: "icon",
                 },
-            },         
+            },
             {
                 description: "PHP service per user",
                 plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "PHP version per domain",
+                plesk: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "icon",
@@ -730,6 +730,24 @@ const tableData = [
         title: "Advanced",
         items: [
             {
+                description: "API for every UI action",
+                plesk: <TableText>Limited (legacy XML API required)</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Native MCP server for AI agents",
+                plesk: <TableText>Beta extension (Linux only)</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Process Manager",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
@@ -746,7 +764,7 @@ const tableData = [
                     plesk: "text",
                     openpanel: "text",
                 },
-            },         
+            },
             {
                 description: "Edit webserver settings",
                 plesk: <CrossIcon />,
@@ -758,13 +776,13 @@ const tableData = [
             },
             {
                 description: "View Resource Usage",
-                plesk: <TableText>Only with CLoudlinux</TableText>,
+                plesk: <TableText>Only with Cloudlinux</TableText>,
                 openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "text",
                     openpanel: "icon",
                 },
-            },   
+            },
         ],
     },
     {
@@ -839,7 +857,7 @@ const tableData = [
                 },
             },
             {
-                description: "Drag&Drop Uploads",
+                description: "Drag & Drop Upload",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -850,7 +868,7 @@ const tableData = [
             {
                 description: "File Editor",
                 plesk: <TableText>Basic</TableText>,
-                openpanel: <TableText><a href="https://microsoft.github.io/monaco-editor/">Monaco (VS Code) Editor</a></TableText>,
+                openpanel: <TableText>Monaco (VS Code), Ace, CodeMirror</TableText>,
                 valueType: {
                     plesk: "text",
                     openpanel: "text",
@@ -858,7 +876,7 @@ const tableData = [
             },
             {
                 description: "FTP",
-                plesk: <CrossIcon />,
+                plesk: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "icon",
@@ -954,10 +972,10 @@ const tableData = [
             {
                 description: "PostgreSQL",
                 plesk: <CheckIcon />,
-                openpanel: <TableText>BETA</TableText>,
+                openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "icon",
-                    openpanel: "text",
+                    openpanel: "icon",
                 },
             },
             {
@@ -972,6 +990,15 @@ const tableData = [
             {
                 description: "Import Databases",
                 plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Optimize Tables",
+                plesk: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "icon",
@@ -1020,8 +1047,17 @@ const tableData = [
         title: "Accounts",
         items: [
             {
-                description: "Administrator Accounts",
-                plesk: <CrossIcon />,
+                description: "Account limit",
+                plesk: <TableText>Tied to tier (10/30/Unlimited)</TableText>,
+                openpanel: <CrossIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Multiple Administrator Accounts",
+                plesk: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "icon",
@@ -1092,6 +1128,15 @@ const tableData = [
                 },
             },
              {
+                description: "Private notes for Administrators",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Customize email templates",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
@@ -1099,14 +1144,59 @@ const tableData = [
                     plesk: "icon",
                     openpanel: "icon",
                 },
-            },    
+            },
         ],
     },
     {
         title: "Domains",
         items: [
             {
-                description: "Edit WAF rules per domain",
+                description: "Automatic SSL ",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit VirtualHosts file",
+                plesk: <TableText>Admin only</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Change docroot",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "GoAccess",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "DNS Zone Editor",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit zone file",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1115,16 +1205,34 @@ const tableData = [
                 },
             },
             {
-                description: "View WAF logs per domain",
-                plesk: <CrossIcon />,
+                description: "TLSA records",
+                plesk: <CheckIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
                     plesk: "icon",
                     openpanel: "icon",
                 },
-            },  
+            },
             {
-                description: ".onion Domains",
+                description: "Export/Import zone",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "User can reset zone",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Comments for DNS records",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1140,7 +1248,7 @@ const tableData = [
                     plesk: "icon",
                     openpanel: "icon",
                 },
-            },    
+            },
         ],
     },
    {
@@ -1174,7 +1282,25 @@ const tableData = [
                 },
             },
             {
-                description: "Node / Python Enviroment",
+                description: "Google PageSpeed monitoring",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Google Safe Browsing monitoring",
+                plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Node / Python Environment",
                 plesk: <TableText>venv</TableText>,
                 openpanel: <TableText>Containerized</TableText>,
                 valueType: {
@@ -1182,7 +1308,6 @@ const tableData = [
                     openpanel: "text",
                 },
             },
-          
         ],
     },
     {
@@ -1190,6 +1315,15 @@ const tableData = [
         items: [
             {
                 description: "Postfix",
+                plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Autologin to Webmail",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1214,14 +1348,95 @@ const tableData = [
                     plesk: "icon",
                     openpanel: "icon",
                 },
-            },  
+            },
+            {
+                description: "Export Addresses",
+                plesk: <TableText>Via extension/CLI</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
         ],
-    },   
+    },
   {
         title: "Security",
         items: [
             {
+                description: "CVE Vulnerabilities",
+                plesk: <TableText><a href="https://www.cve.org/CVERecord/SearchResults?query=plesk" target="_blank">150+</a></TableText>,
+                openpanel: <TableText><a href="https://www.cve.org/CVERecord/SearchResults?query=openpanel">3 before 1.0 release</a></TableText>,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Granular per-user permissions",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "2FA",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Enforce 2FA for users",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Passkeys",
+                plesk: <TableText>Via extension</TableText>,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "IP Blocker",
+                plesk: <CheckIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
                 description: "Coraza WAF",
+                plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Edit WAF rules per domain",
+                plesk: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "View WAF logs per domain",
                 plesk: <CrossIcon />,
                 openpanel: <CheckIcon />,
                 valueType: {
@@ -1289,10 +1504,28 @@ const tableData = [
         title: "Pricing",
         items: [
             {
-                description: "Yearly Pricing",
+                description: "Price Increase (3yr)",
+                plesk: <TableText>+26% in 2026 alone</TableText>,
+                openpanel: <CrossIcon />,
+                valueType: {
+                    plesk: "text",
+                    openpanel: "icon",
+                },
+            },
+            {
+                description: "Forever free tier",
+                plesk: <CrossIcon />,
+                openpanel: <TableText><a href="/community">Community Edition</a></TableText>,
+                valueType: {
+                    plesk: "icon",
+                    openpanel: "text",
+                },
+            },
+            {
+                description: "Annual Pricing",
                 plesk: (
                     <div className={clsx("h-full")}>
-                        <TableText>168 - 684€ / year</TableText>
+                        <TableText>Annual billing discontinued (monthly only)</TableText>
                     </div>
                 ),
                 openpanel: (
