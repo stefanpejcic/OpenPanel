@@ -4,6 +4,7 @@ wget -O /usr/local/bin/opencli https://raw.githubusercontent.com/stefanpejcic/op
 
 
 CONFIG_FILE="/etc/openpanel/openpanel/conf/openpanel.config"
+cp "$CONFIG_FILE" /etc/openpanel/openpanel/conf/openpanel.config_1765BACKUP
 if grep -q '^\[USERS\]' "$CONFIG_FILE" && ! grep -q '^password_strength=' "$CONFIG_FILE"; then
   awk '
   BEGIN {done=0}
