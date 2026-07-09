@@ -73,7 +73,7 @@ const Integrations: React.FC = () => {
     return (
         <IntegrationsLayout>
             <div className={clsx("max-w-[624px]")}>
-                <div
+                <h1
                     className={clsx(
                         "font-semibold",
                         "text-gray-700 dark:text-gray-200",
@@ -81,7 +81,7 @@ const Integrations: React.FC = () => {
                     )}
                 >
 		Not quite what you would expect from a Control Panel
-                </div>
+                </h1>
                 <div
                     className={clsx(
                         "font-semibold",

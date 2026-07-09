@@ -63,7 +63,7 @@ const Install: React.FC = () => {
     };
 
     return (
-        <CommonLayout>
+        <CommonLayout description="Generate a custom OpenPanel install command with your choice of domain, ports, firewall, DNS, and security options.">
             <Head title="Install command generator | OpenPanel">
                 <html data-page="install" data-customized="true" />
             </Head>

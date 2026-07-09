@@ -42,7 +42,7 @@ const Stats: React.FC = () => {
 
   if (loading) {
     return (
-      <CommonLayout>
+      <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
         <CommonHeader hasSticky={true} />
         <div className="text-center py-20 text-xl">Loading stats...</div>
         <BlogFooter />
@@ -52,7 +52,7 @@ const Stats: React.FC = () => {
 
   if (!data) {
     return (
-      <CommonLayout>
+      <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
         <CommonHeader hasSticky={true} />
         <div className="text-center py-20 text-xl text-red-500">
           Failed to load stats.
@@ -63,7 +63,7 @@ const Stats: React.FC = () => {
   }
 
   return (
-    <CommonLayout>
+    <CommonLayout description="Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.">
       <Head title="Usage Statistics | OpenPanel">
         <html data-page="docs" data-customized="true" />
       </Head>
@@ -72,6 +72,9 @@ const Stats: React.FC = () => {
         <CommonHeader hasSticky={true} />
 
         <div className="not-prose xl:max-w-[944px] xl:py-16 lg:max-w-[912px] lg:py-10 md:max-w-[624px] md:text-4xl md:pb-6 pt-6 sm:max-w-[480px] text-xl max-w-[328px] w-full mx-auto">
+          <h1 className="text-2xl md:text-4xl font-semibold mb-6">
+            Usage Statistics
+          </h1>
           <div
             id="playground"
             className="flex flex-col gap-8 landing-sm:gap-12 landing-md:gap-8"

@@ -57,7 +57,7 @@ const Patches: React.FC = () => {
     }, []);
 
     return (
-        <CommonLayout>
+        <CommonLayout description="Official OpenPanel patches for reported bugs - apply a fix immediately with one command instead of waiting for the next release.">
             <Head title="OpenPanel Patches | OpenPanel">
                 <html data-page="patches" data-customized="true" />
             </Head>

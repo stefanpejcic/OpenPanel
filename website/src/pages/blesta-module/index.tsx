@@ -7,7 +7,7 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 
 const RefineWeekBlesta = () => {
     return (
-        <CommonLayout>
+        <CommonLayout description="Automate hosting account provisioning between Blesta and OpenPanel - install, configure, and provision in about 5 minutes.">
             <div className="refine-prose">
                 <Head title="Blesta module for OpenPanel | OpenPanel">
                     <html data-page="week-of-refine" data-customized="true" />

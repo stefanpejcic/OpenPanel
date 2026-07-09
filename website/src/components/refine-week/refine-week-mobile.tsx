@@ -64,7 +64,7 @@ export const RefineWeekMobile = ({ variant, data, className }: Props) => {
                     "z-[1]",
                 )}
             >
-                <div
+                <h1
                     className={clsx(
                         "text-[32px] leading-[40px]",
                         "text-gray-800 dark:text-gray-100",

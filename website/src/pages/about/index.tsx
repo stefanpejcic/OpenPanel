@@ -46,7 +46,7 @@ const About: React.FC = () => {
                             "text-xl md:text-[40px] md:leading-[56px]",
                         )}
                     >
-                        We&apos;re helping web hosting provides to host busy websites, in{" "}
+                        We&apos;re helping web hosting providers to host busy websites, in{" "}
                         <span className="text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r from-[#0FBDBD] to-[#26D97F]">
                             less time
                         </span>
@@ -235,7 +235,7 @@ const About: React.FC = () => {
 
 export default function AboutPage() {
     return (
-        <CommonLayout>
+        <CommonLayout description="OpenPanel is built by hosting operators, for hosting operators - Docker-native isolation, built-in security, and no per-seat pricing.">
             <About />
         </CommonLayout>
     );

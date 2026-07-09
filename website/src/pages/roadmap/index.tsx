@@ -63,8 +63,8 @@ const plannedFeatures = [
 
 const Roadmap: React.FC = () => {
     return (
-        <CommonLayout>
-            <Head title="ROADMAP | OpenPanel">
+        <CommonLayout description="See what OpenPanel is building next - features in active development and what's planned, updated manually by our team.">
+            <Head title="Roadmap | OpenPanel">
                 <html data-page="roadmap" data-customized="true" />
             </Head>
             <div className="refine-prose">

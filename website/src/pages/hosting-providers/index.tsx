@@ -172,7 +172,7 @@ const HostingProvidersPage: React.FC = () => {
 
 export default function ProvidersTable() {
   return (
-    <CommonLayout>
+    <CommonLayout description="Hosting providers offering OpenPanel on VPS and dedicated servers - compare locations, services, and managed support options.">
       <HostingProvidersPage />
     </CommonLayout>
   );

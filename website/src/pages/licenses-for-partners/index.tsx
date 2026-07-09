@@ -104,7 +104,7 @@ const NetworkTablePage: React.FC = () => {
 
 export default function NetworkTable() {
   return (
-    <CommonLayout>
+    <CommonLayout description="OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length.">
       <NetworkTablePage />
     </CommonLayout>
   );

@@ -7,7 +7,7 @@ import clsx from "clsx";
 
 const PrivacyPolicy: React.FC = () => {
     return (
-        <CommonLayout>
+        <CommonLayout description="Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug.">
             <Head title="Support | OpenPanel">
                 <html data-page="support" data-customized="true" />
             </Head>

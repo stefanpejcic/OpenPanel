@@ -7,7 +7,7 @@ import { BlogFooter } from "@site/src/refine-theme/blog-footer";
 
 const IntegrationsLayout = ({ children }: React.PropsWithChildren<{}>) => {
     return (
-        <CommonLayout>
+        <CommonLayout description="See every feature built into OpenPanel: multiple PHP versions, per-user isolation, Nginx/OpenLiteSpeed, Docker, backups, and built-in security.">
             <Head title="Features | OpenPanel">
                 <html data-page="integrations" data-customized="true" />
             </Head>

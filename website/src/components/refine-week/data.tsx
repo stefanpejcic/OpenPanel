@@ -38,7 +38,7 @@ export const data = {
         logo: SupabaseWithText,
         cover: "/img/tutorial-cards/blesta.jpeg",
         cover2x: "/img/tutorial-cards/blesta.jpeg",
-        coverAlt: "refine week",
+        coverAlt: "Blesta and OpenPanel module integration",
         title: "blesta",
         description:
             "Setup <strong>Blesta & OpenPanel</strong> account provisioning in just 5 minutes.",
@@ -135,7 +135,7 @@ export const data = {
         logo: SupabaseWithText,
         cover: "/img/tutorial-cards/whmcs.jpeg",
         cover2x: "/img/tutorial-cards/whmcs.jpeg",
-        coverAlt: "refine week",
+        coverAlt: "WHMCS and OpenPanel module integration",
         title: "supabase",
         description:
             "Setup <strong>WHMCS & OpenPanel</strong> account provisioning in just 5 minutes.",
@@ -212,7 +212,7 @@ export const data = {
         logo: StrapiWithText,
         cover: "/img/tutorial-cards/FOSSBilling.png",
         cover2x: "/img/tutorial-cards/FOSSBilling.png",
-        coverAlt: "Refine week",
+        coverAlt: "FOSSBilling and OpenPanel module integration",
         title: "strapi",
         description:
             "Setup <strong>FOSSBilling & OpenPanel</strong> account provisioning in just 5 minutes.",

@@ -37,7 +37,7 @@ export const RefineWeekDesktop = ({ variant, data, className }: Props) => {
 
             <div className={clsx("flex gap-12")}>
                 <div>
-                    <div
+                    <h1
                         className={clsx(
                             "text-[32px] leading-[40px]",
                             "text-gray-800 dark:text-gray-100",
