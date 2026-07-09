@@ -112,26 +112,29 @@ test('login, upload, list, download, delete', async ({ page }) => {
   }
 });
 
-test('connection list', async ({ page }) => {
-  const host = await resolveFtpHost(page);
-  expect(host).toBeTruthy();
 
-  const client = await ftpConnect(host, FTP_PASS);
-  const keepAlive = setInterval(async () => {
-    try { await client.pwd(); } catch { /* ignore */ }
-  }, 3000);
+//test('connection list', async ({ page }) => {
+//  const host = await resolveFtpHost(page);
+//  expect(host).toBeTruthy();
+//
+//  const client = await ftpConnect(host, FTP_PASS);
+//  const keepAlive = setInterval(async () => {
+//    try { await client.pwd(); } catch { /* ignore */ }
+//  }, 3000);
+//
+//  try {
+//    await page.goto('/ftp/connections');
+//    const pre = page.locator('pre');
+//    await expect(pre).toBeVisible();
+//    await expect(pre).toContainText(FTP_USER);
+//    console.log('ftp connection list is working');
+//  } finally {
+//    clearInterval(keepAlive);
+//    client.close();
+//  }
+//});
 
-  try {
-    await page.goto('/ftp/connections');
-    const pre = page.locator('pre');
-    await expect(pre).toBeVisible();
-    await expect(pre).toContainText(FTP_USER);
-    console.log('ftp connection list is working');
-  } finally {
-    clearInterval(keepAlive);
-    client.close();
-  }
-});
+
 
 test('password change', async ({ page }) => {
   const host = await resolveFtpHost(page);

@@ -25,21 +25,25 @@ test('install wordpress', async ({ page }) => {
   await page.goto('/wordpress/install');
   await expect(page).toHaveURL(/wordpress\/install/);
 
-  await page.locator('select[name="domain_name"]').selectOption(domain);
-  await page.fill('input[name="website_name"]', 'My Site');
-  await page.fill('input[name="site_description"]', 'another site testing');
-  await page.fill('input[name="admin_username"]', WP_ADMIN.username);
-  await page.fill('input[name="admin_password"]', WP_ADMIN.password);
+  await page.locator('#domain_id').selectOption({ label: domain });
+
+  await page.locator('#website_name').fill('My Site');
+  await page.locator('#site_description').fill('another site testing');
+
+  await page.locator('#admin_email').fill(`admin@${domain}`);
+  await page.locator('#admin_username').fill(WP_ADMIN.username);
+  await page.locator('#admin_password').fill(WP_ADMIN.password);
+
   await page.locator('#installButton').click();
 
-  await expect(page.locator('text=WordPress installation complete!')).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText(/WordPress installation complete!/i)).toBeVisible({ timeout: 30000 });
   console.log('wordpress install completed');
 
   await page.goto('/wordpress');
   await expect(page.locator('body')).toContainText(domain, { timeout: 20000 });
   console.log('wordpress site appears in list');
 
-  await page.goto('http://wp.tests.openpanel.org');
+  await page.goto(`http://${domain}`);
   await expect(page.locator('body')).toContainText('Hello world!');
   console.log('wordpress install is working');
 });

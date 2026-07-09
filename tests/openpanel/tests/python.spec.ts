@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
 const DOMAIN = 'python.tests.openpanel.org';
 const APP_NAME = 'pythonaplikacija';
 const PORT = '5000';
-const PYTHON_VERSION = '3.13.13';
+const PYTHON_VERSION = '3.13.14';
 const STARTUP_FILE = `/var/www/html/${DOMAIN}/app.py`;
 
 const REQUIREMENTS_TXT = `Flask==2.3.3`;
@@ -37,12 +37,18 @@ test.describe('Python PM2 autoinstaller', () => {
 
   test('2. install PM2 app', async ({ page }) => {
     await page.goto('/pm2/install#python');
+
     await page.locator('#service_name').fill(APP_NAME);
-    await page.getByRole('spinbutton', { name: 'Port:' }).fill(PORT);
-    await page.getByLabel('Domain:').selectOption({ label: DOMAIN });
-    await page.getByRole('textbox', { name: /Startup file/i }).fill(STARTUP_FILE);
-    await page.getByLabel('Version:').selectOption(PYTHON_VERSION);
-    await page.getByRole('button', { name: 'Start Installation' }).click();
+    await page.locator('#port').fill(PORT);
+
+    await page.locator('#domain_id').selectOption({ label: DOMAIN });
+
+    await page.locator('#startup_file').fill(STARTUP_FILE);
+
+    await page.locator('#version').selectOption(PYTHON_VERSION);
+
+    await page.locator('#installButton').click();
+
     await expect(page.getByText(/setup completed/i)).toBeVisible({ timeout: 60000 });
   });
 

@@ -14,12 +14,12 @@ test('server info page', async ({ page }) => {
   await expect(page).toHaveURL(/server\/info/);
 
   const [planData, portsData, infoData] = await Promise.all([
-    page.waitForResponse((res) => res.url().includes('/api/system/hosting/plan') && res.status() === 200).then((res) => res.json()),
-    page.waitForResponse((res) => res.url().includes('/api/system/hosting/ports') && res.status() === 200).then((res) => res.json()),
-    page.waitForResponse((res) => res.url().includes('/api/system/hosting/info') && res.status() === 200).then((res) => res.json()),
+    page.waitForResponse((res) => res.url().includes('/json/system/hosting/plan') && res.status() === 200).then((res) => res.json()),
+    page.waitForResponse((res) => res.url().includes('/json/system/hosting/ports') && res.status() === 200).then((res) => res.json()),
+    page.waitForResponse((res) => res.url().includes('/json/system/hosting/info') && res.status() === 200).then((res) => res.json()),
   ]);
 
-  // 1. /api/system/hosting/plan
+  // 1. /json/system/hosting/plan
 
   for (const field of ['context', 'ns1', 'ns2', 'ns3', 'ns4', 'plan_description',
     'plan_disk_limit', 'plan_max_email_quota', 'plan_mysql', 'plan_ram_limit', 'plan_webserver']) {
@@ -39,7 +39,7 @@ test('server info page', async ({ page }) => {
   expect(['apache', 'nginx', 'litespeed', 'openlitespeed']).toContain(planData.plan_webserver);
   expect(['mariadb', 'mysql', 'percona']).toContain(planData.plan_mysql);
 
-  // 2. /api/system/hosting/ports
+  // 2. /json/system/hosting/ports
 
   for (const field of ['pgadmin_port', 'phpmyadmin_port', 'remote_mysql_port', 'remote_postgres_port']) {
     expect(typeof portsData[field], `ports.${field} should be a string`).toBe('string');
@@ -49,7 +49,7 @@ test('server info page', async ({ page }) => {
     expect(port, `ports.${field} should be a valid port (1–65535)`).toBeLessThanOrEqual(65535);
   }
 
-  // 3. /api/system/hosting/info
+  // 3. /json/system/hosting/info
 
   for (const field of ['ip', 'load_avg', 'machine', 'node', 'processor',
     'release', 'system', 'uptime', 'version']) {

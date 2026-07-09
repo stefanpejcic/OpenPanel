@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.65\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-06 14:26+0200\n"
+"POT-Creation-Date: 2026-07-08 15:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -171,7 +171,7 @@ msgid "Error deleting cron job."
 msgstr ""
 
 #: modules/dashboard.py:30 modules/docker.py:1076 modules/docker.py:1090
-#: modules/webserver_conf.py:46
+#: modules/webserver_conf.py:58
 msgid "User not authenticated"
 msgstr ""
 
@@ -209,8 +209,8 @@ msgstr ""
 #: modules/waf.py:117 modules/waf.py:257 modules/waf.py:311 modules/waf.py:381
 #: modules/webmail.py:160 modules/website_builder.py:44
 #: modules/website_builder.py:149 modules/website_builder.py:291
-#: modules/websites.py:39 modules/websites.py:240 modules/websites.py:301
-#: modules/websites.py:463 modules/websites.py:547 modules/websites.py:990
+#: modules/websites.py:39 modules/websites.py:237 modules/websites.py:298
+#: modules/websites.py:460 modules/websites.py:544 modules/websites.py:987
 #: modules/wordpress.py:516 modules/wordpress.py:861 modules/wordpress.py:974
 #: modules/wordpress.py:1547 modules/wordpress.py:2012
 msgid "You do not own this domain."
@@ -519,7 +519,7 @@ msgid "Logs"
 msgstr ""
 
 #: modules/docker.py:1093 modules/website_builder.py:228
-#: modules/websites.py:536 templates/manager/wp/single.html:1255
+#: modules/websites.py:533 templates/manager/wp/single.html:1255
 msgid "Invalid action"
 msgstr ""
 
@@ -702,7 +702,7 @@ msgid "Delete %(domain)s"
 msgstr ""
 
 #: modules/drupal.py:255 modules/mautic.py:131 modules/website_builder.py:177
-#: modules/websites.py:493 modules/websites.py:1027
+#: modules/websites.py:490 modules/websites.py:1024
 msgid "Unable to detect docroot for the domain."
 msgstr ""
 
@@ -1153,8 +1153,8 @@ msgstr ""
 msgid "IP Blocker"
 msgstr ""
 
-#: modules/mautic.py:137 modules/website_builder.py:182 modules/websites.py:499
-#: modules/websites.py:1036
+#: modules/mautic.py:137 modules/website_builder.py:182 modules/websites.py:496
+#: modules/websites.py:1033
 msgid ""
 "Error connecting to database, please try again. If the issue persists "
 "contact support."
@@ -2208,53 +2208,77 @@ msgid ""
 "enable it."
 msgstr ""
 
-#: modules/webserver_conf.py:51
+#: modules/webserver_conf.py:63
 msgid "Nginx Configuration Editor"
 msgstr ""
 
-#: modules/webserver_conf.py:52
+#: modules/webserver_conf.py:64
 msgid "Apache Configuration Editor"
 msgstr ""
 
-#: modules/webserver_conf.py:53
+#: modules/webserver_conf.py:65
 msgid "OpenResty Configuration Editor"
 msgstr ""
 
-#: modules/webserver_conf.py:54
+#: modules/webserver_conf.py:66
 msgid "OpenLitespeed Configuration Editor"
 msgstr ""
 
-#: modules/webserver_conf.py:55
+#: modules/webserver_conf.py:67
 msgid "Litespeed Configuration Editor"
 msgstr ""
 
-#: modules/webserver_conf.py:60
+#: modules/webserver_conf.py:72
 msgid "Web Server Configuration Editor"
 msgstr ""
 
-#: modules/webserver_conf.py:74
+#: modules/webserver_conf.py:84
+#, python-format
+msgid "No default configuration is available for %(service)s."
+msgstr ""
+
+#: modules/webserver_conf.py:92
+#, python-format
+msgid "Error restoring %(path)s: %(error)s"
+msgstr ""
+
+#: modules/webserver_conf.py:107
 #, python-format
 msgid "Error writing to %(path)s: %(error)s"
 msgstr ""
 
-#: modules/webserver_conf.py:83
+#: modules/webserver_conf.py:118
 #, python-format
 msgid "Error restarting %(service)s container."
 msgstr ""
 
-#: modules/webserver_conf.py:86
+#: modules/webserver_conf.py:122
+#, python-format
+msgid ""
+"Restored %(path)s to the default configuration and %(service)s container "
+"restarted successfully."
+msgstr ""
+
+#: modules/webserver_conf.py:124
 #, python-format
 msgid ""
 "Changes saved to %(path)s and %(service)s container restarted "
 "successfully."
 msgstr ""
 
-#: modules/webserver_conf.py:89
+#: modules/webserver_conf.py:128
+#, python-format
+msgid ""
+"Restored %(path)s to the default configuration - the %(service)s "
+"container is not running."
+msgstr ""
+
+#: modules/webserver_conf.py:130
 #, python-format
 msgid "Changes saved to %(path)s - the %(service)s container is not running."
 msgstr ""
 
-#: modules/webserver_conf.py:103
+#: modules/webserver_conf.py:144
 #, python-format
 msgid "Error reading %(path)s: %(error)s"
 msgstr ""
@@ -2311,107 +2335,103 @@ msgstr ""
 msgid "Website created successfully on %(domain)s"
 msgstr ""
 
-#: modules/websites.py:46
-msgid "Google Safe Browsing API key is not configured."
-msgstr ""
-
-#: modules/websites.py:71
+#: modules/websites.py:67
 msgid "Failed to contact Google Safe Browsing API"
 msgstr ""
 
-#: modules/websites.py:248
+#: modules/websites.py:245
 msgid "Invalid website parameter."
 msgstr ""
 
-#: modules/websites.py:256
+#: modules/websites.py:253
 msgid "Data gathering started. Please allow a few minutes for completion."
 msgstr ""
 
-#: modules/websites.py:282
+#: modules/websites.py:279
 msgid "Invalid website parameter"
 msgstr ""
 
-#: modules/websites.py:314
+#: modules/websites.py:311
 #, python-format
 msgid "Scanning WordPress site %(website)s for vulnerabilities completed."
 msgstr ""
 
-#: modules/websites.py:393
+#: modules/websites.py:390
 msgid "Invalid container name"
 msgstr ""
 
-#: modules/websites.py:412
+#: modules/websites.py:409
 msgid "Unsupported install type"
 msgstr ""
 
-#: modules/websites.py:429
+#: modules/websites.py:426
 msgid ""
 "Invalid install type. Use 'pip' for Python apps and 'npm' or 'pnpm' for "
 "NodeJS."
 msgstr ""
 
-#: modules/websites.py:433
+#: modules/websites.py:430
 msgid "Requirements installed successfully."
 msgstr ""
 
-#: modules/websites.py:433
+#: modules/websites.py:430
 msgid "NPM packages installed successfully."
 msgstr ""
 
-#: modules/websites.py:440
+#: modules/websites.py:437
 msgid "An error occurred while installing requirements."
 msgstr ""
 
-#: modules/websites.py:440
+#: modules/websites.py:437
 msgid "An error occurred while installing NPM packages."
 msgstr ""
 
-#: modules/websites.py:541
+#: modules/websites.py:538
 msgid "Missing required parameters"
 msgstr ""
 
-#: modules/websites.py:568
+#: modules/websites.py:565
 msgid "Invalid docroot"
 msgstr ""
 
-#: modules/websites.py:656
+#: modules/websites.py:653
 msgid "Debugging options updated successfully"
 msgstr ""
 
-#: modules/websites.py:685
+#: modules/websites.py:682
 msgid "General options edited successfully"
 msgstr ""
 
-#: modules/websites.py:699 templates/manager/wp/single.html:2366
+#: modules/websites.py:696 templates/manager/wp/single.html:2366
 msgid "WordPress updated successfully"
 msgstr ""
 
-#: modules/websites.py:742
+#: modules/websites.py:739
 msgid "Update preferences saved successfully"
 msgstr ""
 
-#: modules/websites.py:815
+#: modules/websites.py:812
 #, python-format
 msgid "Error occurred: %(error)s"
 msgstr ""
 
-#: modules/websites.py:844
+#: modules/websites.py:841
 #, python-format
 msgid "An error occurred while fetching domain_url: %(error)s"
 msgstr ""
 
-#: modules/websites.py:871 modules/websites.py:878
+#: modules/websites.py:868 modules/websites.py:875
 #: templates/dashboard/dashboard.html:104 templates/dashboard/usage.html:16
 #: templates/domains/domains.html:127 templates/domains/domains.html:205
 #: templates/files/backup_wizard.html:64
 msgid "Websites"
 msgstr ""
 
-#: modules/websites.py:930
+#: modules/websites.py:927
 msgid "WEBSITES - Error executing the query!"
 msgstr ""
 
-#: modules/websites.py:1001
+#: modules/websites.py:998
 msgid "Invalid domain name format."
 msgstr ""
 
@@ -6017,7 +6037,7 @@ msgstr ""
 #: templates/domains/dns.html:769 templates/domains/vhost.html:28
 #: templates/mysql/configuration.html:36 templates/php/ini_editor.html:27
 #: templates/php/options.html:27 templates/psql/configuration.html:33
-#: templates/system/apache_nginx_conf_editor.html:22
+#: templates/system/apache_nginx_conf_editor.html:25
 #: templates/system/cronjobs.html:50 templates/system/ip_blocker.html:24
 msgid "Save Changes"
 msgstr ""
@@ -12859,6 +12879,16 @@ msgstr ""
 
 #: templates/system/apache_nginx_conf_editor.html:19
 msgid "Edit main webserver configuration file:"
+msgstr ""
+
+#: templates/system/apache_nginx_conf_editor.html:23
+msgid ""
+"This will overwrite the current file with the default configuration and "
+"restart the service. Continue?"
+msgstr ""
+
+#: templates/system/apache_nginx_conf_editor.html:23
+msgid "Restore Default"
 msgstr ""
 
 #: templates/system/cronjobs.html:26

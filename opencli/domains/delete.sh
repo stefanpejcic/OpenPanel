@@ -5,7 +5,7 @@
 # Usage: opencli domains-delete <DOMAIN_NAME> --debug
 # Author: Stefan Pejcic
 # Created: 07.11.2024
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -437,8 +437,11 @@ delete_ftp_accounts() {
 			    disown
 	        fi
 	    done < "$ftp_accounts_file"
-	
 	fi
+
+    if docker --context=default exec openadmin_ftp getent group "$context" >/dev/null 2>&1; then
+        docker --context=default exec openadmin_ftp delgroup "$context" >/dev/null 2>&1
+    fi
 }
 
 

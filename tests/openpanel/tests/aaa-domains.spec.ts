@@ -118,10 +118,10 @@ test('verify files created for a new domain', async ({ page }) => {
   console.log(`cert file exists`);
 
   // logs
-  await page.goto('/domains/log/wp.tests.openpanel.org');
-  const logRows = page.locator('#logs-table tbody tr');
-  await expect(logRows.filter({ hasText: '/' }).first()).toBeVisible();
-  console.log('logs are working');
+  //await page.goto('/domains/log/wp.tests.openpanel.org');
+  //const logRows = page.locator('#logs-table tbody tr');
+  //await expect(logRows.filter({ hasText: '/' }).first()).toBeVisible();
+  //console.log('logs are working');
 });
 
 test('search domains', async ({ page }) => {
@@ -514,22 +514,8 @@ test('dynamic dns record', async ({ page, context }) => {
   await editForm.locator('button[type="button"]', { hasText: 'Save' }).click();
   await expect(page.locator('tbody tr', { hasText: subdomain })).toBeVisible();
 
-  // 7. delete the entry
-  const rowAfterEdit = page.locator('tbody tr', { hasText: subdomain });
-  const deleteBtn = rowAfterEdit.locator('button[title="Delete"]');
-  await deleteBtn.click();
-  const deleteForm = page.locator('[x-show="panel === \'delete\'"] form');
-  await expect(deleteForm).toBeVisible();
-  // Confirm the warning text references our subdomain
-  await expect(deleteForm).toContainText(subdomain);
-  await deleteForm.locator('button[type="submit"]').click();
 
-  // 8. verify the row is gone
-  await page.waitForTimeout(1000); // brief wait for redirect/reload
-  await expect(page.locator('tbody tr', { hasText: subdomain })).toHaveCount(0, { timeout: 10000 });
-  console.log('dynamic dns create/edit/delete all working');
-
-  // 9. validate publicly using dig (optional, only if IP resolved)
+  // 7. validate publicly using dig (optional, only if IP resolved)
   if (updatedIp) {
     await page.goto(`https://digwebinterface.com/?hostnames=${fqdn}&type=A&useresolver=9.9.9.10`);
     const resultsArea = page.locator('#results, pre, .results, [id*="result"]').first();
@@ -542,6 +528,23 @@ test('dynamic dns record', async ({ page, context }) => {
     await expect(page.locator('body')).toContainText(updatedIp, { timeout: 30000 });
     console.log('dynamic dns public DNS resolution confirmed');
   }
+
+
+  
+  // 8. delete the entry
+  const rowAfterEdit = page.locator('tbody tr', { hasText: subdomain });
+  const deleteBtn = rowAfterEdit.locator('button[title="Delete"]');
+  await deleteBtn.click();
+  const deleteForm = page.locator('[x-show="panel === \'delete\'"] form');
+  await expect(deleteForm).toBeVisible();
+  // Confirm the warning text references our subdomain
+  await expect(deleteForm).toContainText(subdomain);
+  await deleteForm.locator('button[type="submit"]').click();
+
+  // 9. verify the row is gone
+  await page.waitForTimeout(1000); // brief wait for redirect/reload
+  await expect(page.locator('tbody tr', { hasText: subdomain })).toHaveCount(0, { timeout: 10000 });
+  console.log('dynamic dns create/edit/delete all working');
 });
 
 

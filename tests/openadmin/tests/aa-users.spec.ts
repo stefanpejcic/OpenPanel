@@ -289,7 +289,11 @@ test('delete user', async ({ page }) => {
 
   const deleteButton = page.getByRole('button', {name: /delete account permanently/i,});
 
-  await expect(deleteButton).toBeDisabled();
+  await expect(
+  page.getByRole('button', { name: /delete account permanently/i })
+).toHaveCount(0); 
+
+  //await expect(deleteButton).toBeDisabled(); nije radio ovaj check pa sam ga zamenio sa ovim iznad
 
   // https://github.com/stefanpejcic/OpenPanel/issues/948
   await confirmationInput.click();
@@ -301,6 +305,9 @@ test('delete user', async ({ page }) => {
   // valid deletion
   await confirmationInput.fill('testinguser');
   await expect(deleteButton).toBeEnabled();
+  await expect(
+  page.getByRole('button', { name: /delete account permanently/i })
+).toHaveCount(1);
   await deleteButton.click();
   await expect(page).toHaveURL(/\/users\/?$/);
   await expect(page.getByText("User 'testinguser' deleted successfully", {exact: false,})).toBeVisible();

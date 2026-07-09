@@ -28,7 +28,7 @@ test('list databases', async ({ page }) => {
 
 test('create database', async ({ page }) => {
   await navigateToPostgreSQLPage(page);
-  await page.getByRole('link', { name: 'Create your first database' }).click();
+  await page.getByRole('link', { name: 'New Database' }).click();
   await page.getByRole('textbox', { name: 'Database Name' }).fill('stefan_psql');
   await page.getByRole('button', { name: 'Create Database' }).click();
   await expect(page.locator('body')).toContainText(/successfully created/i);
@@ -47,7 +47,7 @@ test('list users', async ({ page }) => {
 
 test('create user', async ({ page }) => {
   await page.goto('/postgresql/users');
-  await page.getByRole('link', { name: 'Create your first user' }).click();
+  await page.getByRole('link', { name: 'Create User' }).click();
   await expect(page).toHaveURL(/postgresql\/user/);
   await page.getByRole('textbox', { name: 'Username*' }).fill('stefan_psql_user');
   await page.getByRole('textbox', { name: 'Password*' }).fill('stefan94');

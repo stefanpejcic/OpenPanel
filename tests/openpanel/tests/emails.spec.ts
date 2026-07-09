@@ -509,7 +509,7 @@ test('aliases search filters rows', async ({ page }) => {
   const rows = page.locator('tbody tr[x-show]');
   if (await rows.count() === 0) { test.skip(); return; }
 
-  const search = page.locator('input[type="search"]');
+  const search = page.locator('input[type="search"]').first();
   await search.fill('zzz_nomatch_xyz');
   for (const row of await rows.all()) {
     await expect(row).toBeHidden();

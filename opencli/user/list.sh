@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 16.10.2023
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.comm
 # Copyright (c) openpanel.comm
 # 
@@ -78,12 +78,12 @@ fi
 ensure_jq_installed() {
     if ! command -v jq &> /dev/null; then
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update > /dev/null 2>&1
-            sudo apt-get install -y -qq jq > /dev/null 2>&1
+            apt-get update > /dev/null 2>&1
+            apt-get install -y -qq jq > /dev/null 2>&1
         elif command -v yum &> /dev/null; then
-            sudo yum install -y -q jq > /dev/null 2>&1
+            yum install -y -q jq > /dev/null 2>&1
         elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q jq > /dev/null 2>&1
+            dnf install -y -q jq > /dev/null 2>&1
         else
             echo "Error: No compatible package manager found. Please install jq manually and try again."
             exit 1

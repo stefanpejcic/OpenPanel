@@ -4,6 +4,14 @@ import { test, expect } from '@playwright/test';
 // /login/passkey/* WebAuthn endpoints. Uses Chromium's CDP virtual authenticator so the
 // browser can satisfy navigator.credentials calls without real hardware.
 
+const IP_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
+
+function isIpBased(baseURL: string | undefined): boolean {
+  if (!baseURL) return true;
+  const host = new URL(baseURL).hostname;
+  return IP_RE.test(host) || host === 'localhost';
+}
+
 async function addVirtualAuthenticator(page: any) {
   const client = await page.context().newCDPSession(page);
   await client.send('WebAuthn.enable');
@@ -29,8 +37,8 @@ test('passkeys settings page loads', async ({ page }) => {
 });
 
 test('register a new passkey', async ({ page }) => {
+  test.skip(isIpBased(baseURL), 'passkeys require a domain-based URL, not an IP');
   test.setTimeout(60_000);
-
   await addVirtualAuthenticator(page);
   await page.goto('/account/passkeys');
 
@@ -46,6 +54,8 @@ test('register a new passkey', async ({ page }) => {
 });
 
 test('remove a passkey', async ({ page }) => {
+  test.skip(({ baseURL }) => isIpBased(baseURL), 'passkeys require a domain-based URL');
+
   test.setTimeout(60_000);
 
   await addVirtualAuthenticator(page);

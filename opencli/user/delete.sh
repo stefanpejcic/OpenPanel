@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -239,6 +239,10 @@ delete_ftp_users() {
             cut -d'|' -f1 "$ftp_accounts_file" | xargs -I{} docker --context=default exec openadmin_ftp deluser {}
         fi
         ionice -c3 rm -rf "${users_dir:?}/${context:?}"
+    fi
+
+    if docker --context=default exec openadmin_ftp getent group "$context" >/dev/null 2>&1; then
+        docker --context=default exec openadmin_ftp delgroup "$context" >/dev/null 2>&1
     fi
 }
 

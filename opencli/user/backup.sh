@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -256,14 +256,14 @@ if [[ -n "$DOMAIN_IDS" ]]; then
     # domain_url is included so restore can re-resolve the site's domain_id by name —
     # domains-add assigns a fresh auto-increment ID on restore, which rarely matches this server's.
     mysql_q "
-      SELECT s.site_name, s.domain_id, s.admin_email, s.version, s.created_date, s.type, s.ports, s.path, d.domain_url
+      SELECT s.site_name, s.domain_id, s.admin_email, s.version, s.created_date, s.type, s.ports, s.path, s.container, d.domain_url
       FROM sites s JOIN domains d ON s.domain_id = d.domain_id
       WHERE s.domain_id IN ($DOMAIN_ID_LIST);" > "$STAGE/db/sites.tsv"
     if [[ -s "$STAGE/db/sites.tsv" ]]; then
         awk 'BEGIN{FS="\t";
-          print "-- sites export (site_name, domain_id, admin_email, version, created_date, type, ports, path, domain_url)"}
-          {printf "('\''%s'\'', %s, '\''%s'\'', '\''%s'\'', '\''%s'\'', '\''%s'\'', %s, '\''%s'\'', '\''%s'\''),\n",
-            $1,$2,$3,$4,$5,$6,$7,$8,$9}
+          print "-- sites export (site_name, domain_id, admin_email, version, created_date, type, ports, path, container, domain_url)"}
+          {printf "('\''%s'\'', %s, '\''%s'\'', '\''%s'\'', '\''%s'\'', '\''%s'\'', %s, '\''%s'\'', '\''%s'\'', '\''%s'\''),\n",
+            $1,$2,$3,$4,$5,$6,$7,$8,$9,$10}
           END{print ";"}' "$STAGE/db/sites.tsv" > "$STAGE/db/sites.sql"
     fi
     rm -f "$STAGE/db/sites.tsv"

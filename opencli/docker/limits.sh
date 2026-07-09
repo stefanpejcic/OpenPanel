@@ -5,7 +5,7 @@
 # Usage: opencli docker-limits [--apply | --apply SIZE | --read]
 # Author: Stefan Pejcic
 # Created: 09.05.2024
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -62,7 +62,7 @@ apply_config() {
     # https://docs.docker.com/reference/cli/dockerd/#default-cgroup-parent
 
     # Create the systemd slice file
-    cat <<EOF | sudo tee /etc/systemd/system/docker_limit.slice
+    cat <<EOF | tee /etc/systemd/system/docker_limit.slice
 [Unit]
 Description=Slice that limits docker resources
 Before=slices.target
@@ -88,7 +88,7 @@ if [ "$existing_driver" = "overlay2" ]; then
 
 
 if [ -f /etc/fedora-release ]; then
-    cat <<EOF | sudo tee /etc/docker/daemon.json
+    cat <<EOF | tee /etc/docker/daemon.json
 {
   "experimental": true,
   "data-root": "/var/lib/docker",
@@ -97,7 +97,7 @@ if [ -f /etc/fedora-release ]; then
 }
 EOF
 else
-    cat <<EOF | sudo tee /etc/docker/daemon.json
+    cat <<EOF | tee /etc/docker/daemon.json
 {
   "experimental": true,
   "data-root": "/var/lib/docker",
@@ -114,7 +114,7 @@ fi
 elif [ "$existing_driver" = "devicemapper" ]; then
 
     # Create or update the Docker daemon configuration file
-    cat <<EOF | sudo tee /etc/docker/daemon.json
+    cat <<EOF | tee /etc/docker/daemon.json
 {
   "experimental": true,
   "storage-driver": "devicemapper",
@@ -129,7 +129,7 @@ EOF
 else
 
 if [ -f /etc/fedora-release ]; then
-    cat <<EOF | sudo tee /etc/docker/daemon.json
+    cat <<EOF | tee /etc/docker/daemon.json
 {
   "experimental": true,
   "data-root": "/var/lib/docker",
@@ -138,7 +138,7 @@ if [ -f /etc/fedora-release ]; then
 }
 EOF
 else
-    cat <<EOF | sudo tee /etc/docker/daemon.json
+    cat <<EOF | tee /etc/docker/daemon.json
 {
   "experimental": true,
   "data-root": "/var/lib/docker",
@@ -154,8 +154,8 @@ fi
   
 fi
 
-    sudo systemctl daemon-reload
-    sudo systemctl start docker_limit.slice
+    systemctl daemon-reload
+    systemctl start docker_limit.slice
     systemctl restart docker
     echo "✔ Docker limits updated successfully"
 }

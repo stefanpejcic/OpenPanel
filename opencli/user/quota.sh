@@ -5,7 +5,7 @@
 # Usage: opencli user-quota <username|--all>
 # Author: Stefan Pejcic
 # Created: 16.11.2023
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -137,7 +137,7 @@ set_user_quota() {
     file_limit="$PLAN_FILE_LIMIT"
     
     # 2. setquota for user
-    if sudo setquota -u "$username" "$block_limit" "$block_limit" "$file_limit" "$file_limit" /; then
+    if setquota -u "$username" "$block_limit" "$block_limit" "$file_limit" "$file_limit" /; then
         log "Quota set for user $username: $block_limit blocks (${PLAN_DISK_LIMIT}) and $file_limit inodes"
         return 0
     else
@@ -324,7 +324,7 @@ main() {
     generate_report &>/dev/null
 
     # 6. flush cache on OpenPanel UI
-    docker exec openpanel_redis redis-cli DEL openpanel_cache_modules.dashboard._load_quota_report_memver &>/dev/null
+    docker exec openpanel_redis redis-cli DEL openpanel_cache_modules.dashboard.get_disk_and_inodes_for_user_memver openpanel_cache_modules.dashboard._load_quota_report_memver &>/dev/null
 
     exit $exit_code
 }

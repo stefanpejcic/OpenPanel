@@ -5,7 +5,7 @@
 # Usage: opencli user-rename <old_username> <new_username>
 # Author: Radovan Jecmenica
 # Created: 23.11.2023
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -59,12 +59,12 @@ ensure_jq_installed() {
     if ! command -v jq &> /dev/null; then
         # Detect the package manager and install jq
         if command -v apt-get &> /dev/null; then
-            sudo apt-get update > /dev/null 2>&1
-            sudo apt-get install -y -qq jq > /dev/null 2>&1
+            apt-get update > /dev/null 2>&1
+            apt-get install -y -qq jq > /dev/null 2>&1
         elif command -v yum &> /dev/null; then
-            sudo yum install -y -q jq > /dev/null 2>&1
+            yum install -y -q jq > /dev/null 2>&1
         elif command -v dnf &> /dev/null; then
-            sudo dnf install -y -q jq > /dev/null 2>&1
+            dnf install -y -q jq > /dev/null 2>&1
         else
             echo "Error: No compatible package manager found. Please install jq manually and try again."
             exit 1

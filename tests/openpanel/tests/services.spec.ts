@@ -8,16 +8,17 @@ async function navigateToService(page: any, service: string) {
   await expect(page).toHaveURL(new RegExp(`services/${service}`));
 }
 
-/** Try navigating to each candidate in order; return the first that succeeds, or throw if all fail. */
+/** Try each candidate; return the first whose page loads with a 2xx status. */
 async function navigateToFirstAvailable(page: any, candidates: string[]): Promise<string> {
   const errors: string[] = [];
   for (const service of candidates) {
-    try {
-      await page.goto(`/services/${service}`);
-      await expect(page).toHaveURL(new RegExp(`services/${service}`));
-      return service;
-    } catch (e: any) {
-      errors.push(`${service}: ${e.message}`);
+    const response = await page.goto(`/services/${service}`);
+    if (response && response.ok()) {
+      const hasError = await page.getByText(/does not exist/i).isVisible().catch(() => false);
+      if (!hasError) return service;
+      errors.push(`${service}: soft error page`);
+    } else {
+      errors.push(`${service}: HTTP ${response?.status()}`);
     }
   }
   throw new Error(`All candidates failed:\n${errors.join('\n')}`);

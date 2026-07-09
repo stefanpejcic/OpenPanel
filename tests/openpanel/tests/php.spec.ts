@@ -124,9 +124,30 @@ test.describe('search filter', () => {
 
 
 test.describe('version change', () => {
+  let originalVersion: string | null = null;
+
+  async function findDomainRow(page: Page) {
+    await page.goto('/php/domains');
+    await expect(page.locator('table')).toBeVisible();
+    const rows = page.locator('tbody tr');
+    const rowCount = await rows.count();
+    for (let i = 0; i < rowCount; i++) {
+      const row = rows.nth(i);
+      const domainCell = await row.locator('td').first().textContent();
+      if (domainCell?.trim() && domain.includes(domainCell.trim())) return row;
+    }
+    return null;
+  }
 
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
+
+    // remember current version so we can restore after the loop
+    const row = await findDomainRow(page);
+    if (row) {
+      originalVersion = (await row.locator('td').nth(1).textContent())?.match(/\d+\.\d+/)?.[0] ?? null;
+      console.log(`original php version: ${originalVersion}`);
+    }
 
     // Ensure info.php exists
     await page.goto(`/file-manager/edit-file/${domain}/info.php?editor=text&new=true`);
@@ -134,6 +155,29 @@ test.describe('version change', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText(/saved|success/i).first()).toBeVisible();
 
+    await page.close();
+  });
+
+  test.afterAll(async ({ browser }) => {
+    if (!originalVersion) return;
+    const page = await browser.newPage();
+
+    const row = await findDomainRow(page);
+    if (row) {
+      const current = (await row.locator('td').nth(1).textContent())?.match(/\d+\.\d+/)?.[0];
+      if (current !== originalVersion) {
+        await row.locator('select[name="new_php_version"]').selectOption(originalVersion);
+        await Promise.all([
+          page.waitForResponse(
+            res => res.request().method() === 'POST' && res.status() === 200,
+            { timeout: 90_000 }
+          ),
+          row.getByRole('button', { name: /change/i }).click(),
+        ]);
+        await expect(page.getByText(new RegExp(`updated from ${current} to ${originalVersion}`, 'i'))).toBeVisible();
+        console.log(`restored php ${originalVersion} for ${domain}`);
+      }
+    }
     await page.close();
   });
 
@@ -161,11 +205,14 @@ test.describe('version change', () => {
         return;
       }
 
-      const select = targetRow.locator('select[name="new_php_version"]');
-
       const currentVersion =
         (await targetRow.locator('td').nth(1).textContent())?.match(/\d+\.\d+/)?.[0] ?? 'unknown';
-
+      
+      if (currentVersion === version) {
+        test.skip(true, `domain already on php ${version}`);
+      }
+      
+      const select = targetRow.locator('select[name="new_php_version"]');
       await select.selectOption(version);
 
       await Promise.all([

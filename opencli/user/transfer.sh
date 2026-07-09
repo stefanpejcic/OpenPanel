@@ -5,7 +5,7 @@
 # Usage: opencli user-transfer --account <OPENPANEL_USER> --host <DESTINATION_IP> --username <DESTINATION_SSH_USERNAME> --password <DESTINATION_SSH_PASSWORD> [--live-transfer]
 # Author: Stefan Pejcic
 # Created: 28.06.2025
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -125,11 +125,11 @@ install_sshpass() {
 	    DEBIAN_FRONTEND=noninteractive apt-get update -qq
 	    DEBIAN_FRONTEND=noninteractive apt-get install -y -qq sshpass
 	elif [[ -x "$(command -v dnf)" ]]; then
-	    sudo dnf install -y sshpass
+	    dnf install -y sshpass
 	elif [[ -x "$(command -v yum)" ]]; then
-	    sudo yum install -y epel-release && sudo yum install -y sshpass
+	    yum install -y epel-release && yum install -y sshpass
 	elif [[ -x "$(command -v pacman)" ]]; then
-	    sudo pacman -Sy sshpass
+	    pacman -Sy sshpass
 	else
 	    log "Package manager not supported. Please install sshpass manually."
 	    exit 2

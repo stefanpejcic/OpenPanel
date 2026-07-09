@@ -13,7 +13,7 @@ test('website builder install page loads', async ({ page }) => {
 test('install form has domain selector', async ({ page }) => {
   await page.goto('/website-builder/install');
 
-  const domainSelect = page.locator('select[name="domain_name"], select[name="domain"]');
+  const domainSelect = page.locator('select[name="domain_id"]');
   const hasSelect = await domainSelect.isVisible({ timeout: 3000 }).catch(() => false);
 
   expect(hasSelect).toBe(true);

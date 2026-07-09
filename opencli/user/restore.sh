@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 06.07.2026
+# Last Modified: 08.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -93,20 +93,22 @@ trap 'rm -rf "$WORK"' EXIT
 # ── REAL RESTORE ─────────────────────────────────────────────────────────────
 timestamp="$(date +'%Y-%m-%d_%H-%M-%S')"
 base_name="$(basename "$ARCHIVE" .tar.gz)"
-log_dir="/var/log/openpanel/admin/restores"
+log_dir="/var/log/openpanel/admin/imports"
 mkdir -p "$log_dir"
-log_file="$log_dir/${base_name}_restore_${timestamp}.log"
+log_file="$log_dir/openpanel-import_${timestamp}.log"
 
 log() {
     local msg="$1"; local ts; ts=$(date +'%Y-%m-%d %H:%M:%S')
     if [[ $QUIET -eq 1 ]]; then echo "[$ts] $msg" >> "$log_file"
     else echo "[$ts] $msg" | tee -a "$log_file"; fi
 }
-warn() { WARNINGS+=("$1"); log "[!] $1"; }
-die()  { log "[✘] $1"; exit "${2:-1}"; }
+warn() { WARNINGS+=("$1"); log "WARNING: $1"; }
+die()  { log "FATAL ERROR: $1"; exit "${2:-1}"; }
 slog() { echo "$1" | tee -a "$log_file"; }
 
-log "Restore started  log: $log_file  (PID: $pid)"
+echo "Import started, log file: $log_file"
+log "Log file: $log_file"
+log "PID: $pid"
 log "Archive: $ARCHIVE"
 
 # Disk space check — extraction target must fit the fully uncompressed archive
@@ -181,7 +183,7 @@ restore_system_user() {
     local GR="$WORK/system/group.user"
     local SH="$WORK/system/shadow.user"
     if [[ ! -s "$PW" ]]; then
-        warn "No system user data in backup — creating '$CONTEXT' fresh (no password hash available, account will be locked)."
+        warn "No system user data in backup — creating '$CONTEXT' fresh (backup was generated via OpenPanel UI)."
         if id "$CONTEXT" &>/dev/null; then
             REMAPPED_UID=$(id -u "$CONTEXT")
             SYSTEM_USER_STATUS="already existed"
@@ -189,7 +191,7 @@ restore_system_user() {
             useradd -m -d "/home/$CONTEXT" -s /bin/bash "$CONTEXT"
             usermod -L "$CONTEXT"
             REMAPPED_UID=$(id -u "$CONTEXT")
-            SYSTEM_USER_STATUS="created fresh (UID $REMAPPED_UID, locked — no password restored)"
+            SYSTEM_USER_STATUS="created fresh (UID $REMAPPED_UID)"
         fi
         return
     fi
@@ -280,7 +282,14 @@ restore_home() {
         local mp; mp=$(cat "$WORK/mail_external/path.txt")
         log "Restoring external mail → $mp ..."
         mkdir -p "$(dirname "$mp")"
-        tar -C "$(dirname "$mp")" --numeric-owner --acls --xattrs -xf "$WORK/mail_external/mail.tar" 2>>"$log_file" || warn "External mail restore failed."
+        local mail_list="$WORK/mail_external/.extracted.list"
+        tar -C "$mp" --numeric-owner --acls --xattrs -xvf "$WORK/mail_external/mail.tar" >"$mail_list" 2>>"$log_file" || warn "External mail restore failed."
+        local mail_uid; mail_uid=$(id -u "$CONTEXT" 2>/dev/null)
+        if [[ -n "$mail_uid" && -s "$mail_list" ]]; then
+            awk -F/ '{print $1}' "$mail_list" | sort -u | while read -r d; do
+                [[ -n "$d" && -e "$mp/$d" ]] && { nohup chown -R "${mail_uid}:${gid:-$mail_uid}" "$mp/$d" >>"$log_file" 2>&1 & disown; }
+            done
+        fi
     fi
 }
 restore_home
@@ -322,6 +331,7 @@ restore_database() {
             if [[ -n "$old_id" ]]; then
                 mysql_q "DELETE FROM sites WHERE domain_id IN (SELECT domain_id FROM domains WHERE user_id=$old_id);"
                 mysql_q "DELETE FROM domains WHERE user_id=$old_id;"
+                mysql_q "DELETE FROM mcp_tokens WHERE user_id=$old_id;"
                 mysql_q "DELETE FROM users WHERE id=$old_id;"
             fi
         fi
@@ -331,6 +341,7 @@ restore_database() {
     USER_ID=$(mysql_q "SELECT id FROM users WHERE username='$USERNAME';")
     [[ -z "$USER_ID" ]] && die "Failed to import user row for '$USERNAME'."
     log "User row ready (ID: $USER_ID)."
+
 }
 restore_database
 
@@ -411,8 +422,8 @@ restore_domains() {
             local typ;   typ=$(echo "$clean"   | cut -d',' -f6 | xargs)
             local ports; ports=$(echo "$clean" | cut -d',' -f7 | xargs)
             local path;  path=$(echo "$clean"  | cut -d',' -f8 | xargs)
-            local domain_url; domain_url=$(echo "$clean" | cut -d',' -f9 | xargs)
-
+            local container; container=$(echo "$clean" | cut -d',' -f9 | xargs)
+            local domain_url; domain_url=$(echo "$clean" | cut -d',' -f10 | xargs)
             # domains-add assigns a fresh domain_id on restore, so resolve the current
             # one by name rather than trusting the source server's ID.
             local did; did=$(mysql_q "SELECT domain_id FROM domains WHERE domain_url='$domain_url' AND user_id=$USER_ID;" 2>/dev/null)
@@ -420,7 +431,7 @@ restore_domains() {
                 warn "Site '$sname' — could not resolve destination domain_id, skipped."
                 continue
             fi
-            mysql_q "INSERT INTO sites (site_name,domain_id,admin_email,version,type,ports,path) VALUES ('$sname',$did,'$email','$ver','$typ',$ports,'$path');" || true
+            mysql_q "INSERT INTO sites (site_name,domain_id,admin_email,version,type,ports,path,container) VALUES ('$sname',$did,'$email','$ver','$typ',$ports,'$path','$container');" || true
         done
     fi
 }
@@ -455,6 +466,13 @@ restore_ftp() {
         docker exec openadmin_ftp sh -c "usermod -p '$hp' '$fu'"
         log "FTP user restored: $fu"; FTP_CREATED=$((FTP_CREATED+1))
     done < "$LDIR/users.list"
+
+    log "Setting +rx permissions for FTP paths"
+    chmod +rx "/home/$CONTEXT"
+    chmod +rx "/home/$CONTEXT/docker-data"
+    chmod +rx "/home/$CONTEXT/docker-data/volumes"
+    chmod +rx "/home/$CONTEXT/docker-data/volumes/${CONTEXT}_html_data"
+    chmod +rx "/home/$CONTEXT/docker-data/volumes/${CONTEXT}_html_data/_data"
 }
 restore_ftp
 
@@ -576,9 +594,8 @@ restore_docker
 [[ -d "$WORK/caddy/stats/$ORIG_USERNAME" ]] && { mkdir -p /var/log/caddy/stats/; cp -a "$WORK/caddy/stats/$ORIG_USERNAME" /var/log/caddy/stats/; }
 
 log "Reloading services ..."
-(cd /root && docker compose up -d openpanel bind9 caddy >/dev/null 2>&1; systemctl restart admin >/dev/null 2>&1) || true
+(cd /root && docker compose up -d openpanel bind9 caddy >/dev/null 2>&1) || true
 docker --context default exec caddy caddy reload >/dev/null 2>&1 || true
-systemctl daemon-reload >/dev/null 2>&1 || true
 log "Recalculating quotas ..."
 opencli user-quota --update "$USERNAME" >/dev/null 2>&1 || true
 
@@ -628,4 +645,10 @@ else
 fi
 slog "══════════════════════════════════════════════════════════"
 slog ""
+log "Elapsed time: ${elapsed_h}h ${elapsed_m}m ${elapsed_s}s"
+log "SUCCESS: Import for user $USERNAME completed successfully."
+
+nohup opencli sentinel --action=user_create --title="User account '$USERNAME' restored from OpenPanel backup" --message="User account '$USERNAME' has been successfully restored from backup file '$(basename "$ARCHIVE")'" >/dev/null 2>&1 &
+disown
+
 exit 0
