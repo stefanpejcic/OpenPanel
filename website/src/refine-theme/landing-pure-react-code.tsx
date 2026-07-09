@@ -16,8 +16,8 @@ type Props = {
 
 export const LandingPureReactCode: FC<Props> = ({
     className,
-    title = "100% Control",
-    description = `Don’t settle for overpriced and outdated hosting panels. With OpenPanel, you maintain 100% control over your server and data at all times.`,
+    title = "Host any Docker image",
+    description = `Per-user Docker Compose files let you define available services, or hand users the permission to spin up anything they want.`,
     cta = true,
 }) => {
     return (
@@ -205,188 +205,109 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "UPTIMEKUMA_CPU"
-          memory: "UPTIMEKUMA_RAM"   
-          pids: 100
+          cpus: "0.5"
+          memory: "1.2G"   
+          pids: 1000
     networks:
       - www
 
-  openresty:
-    image: openresty/openresty:OPENRESTY_VERSION
-    container_name: openresty
-    restart: always
-    ports:
-      - "PROXY_HTTP_PORT"
-      - "HTTPS_PORT"
-    working_dir: /var/www/html
+  valkey:
+    image: valkey/valkey:8.0-alpine
+    container_name: valkey
+    restart: unless-stopped
+    user: 0
+    command: ["valkey-server", "--bind", "0.0.0.0", "--port", "6379"]
     volumes:
-      - ./openresty.conf:/etc/openresty/nginx.conf:ro
-      - webserver_data:/etc/nginx/conf.d
-      - html_data:/var/www/html/   
-      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/
-      - /etc/openpanel/nginx/default_page.html:/etc/nginx/default_page.html:ro
+      - ./sockets/valkey:/var/run/valkey
     deploy:
       resources:
         limits:
-          cpus: "OPENRESTY_CPU"
-          memory: "OPENRESTY_RAM"   
+          cpus: "0.1"
+          memory: "0.1G"
           pids: 100
-    depends_on:
-      - "php-fpm-DEFAULT_PHP_VERSION"
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 30s
+      retries: 3
+      start_period: 5s
+      timeout: 5s
     networks:
       - www
-
-  nginx:
-    image: nginx:NGINX_VERSION
-    container_name: nginx
-    restart: always
-    ports:
-      - "PROXY_HTTP_PORT"
-      - "HTTPS_PORT"
-    working_dir: /var/www/html
+     
+  php-fpm-8.5:
+    image: shinsenter/php:8.5-fpm
+    container_name: php-fpm-8.5
+    restart: unless-stopped
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - webserver_data:/etc/nginx/conf.d
-      - html_data:/var/www/html/ 
-      - /etc/openpanel/nginx/certs/:/etc/nginx/ssl/   
-      - /etc/openpanel/nginx/default_page.html:/etc/nginx/default_page.html:ro
-    deploy:
-      resources:
-        limits:
-          cpus: "NGINX_CPU"
-          memory: "NGINX_RAM"   
-          pids: 100
-    depends_on:
-      - "php-fpm-DEFAULT_PHP_VERSION"
-    networks:
-      - www
-
-
-  apache:
-    image: httpd:APACHE_VERSION
-    container_name: apache
-    restart: always
-    ports:
-      - "PROXY_HTTP_PORT"
-      - "HTTPS_PORT"
-    working_dir: /var/www/html
-    volumes:
-      - ./httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
-      - webserver_data:/etc/httpd/conf.d/
       - html_data:/var/www/html/
-      - /etc/openpanel/nginx/certs/:/etc/apache2/ssl/
-      - /etc/openpanel/nginx/default_page.html:/etc/apache2/default_page.html:ro
+      - ./php.ini/8.5.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/8.5.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
+      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
+    environment:
+      - APP_USER=root
+      - APP_GROUP=root
+      - APP_UID=0
+      - APP_GID=0
+      - ENABLE_TUNING_FPM=1
     deploy:
       resources:
         limits:
-          cpus: "APACHE_CPU"
-          memory: "APACHE_RAM"
-          pids: 100
-    depends_on:
-      - "php-fpm-DEFAULT_PHP_VERSION"
+          cpus: "0.50"
+          memory: "0.5G"
+          pids: 350
     networks:
       - www
+      - db
+    command: php-fpm --allow-to-run-as-root
 
-  varnish:
-    image: varnish:VARNISH_VERSION
-    container_name: varnish
-    environment:
-      WEB_SERVER: "WEB_SERVER"
-      VARNISH_SIZE: "VARNISH_SIZE"
-    command: [ "-n", "/var/lib/varnish" ]
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped
     volumes:
-      - ./default.vcl:/etc/varnish/default.vcl.template:ro  
-    ports:
-      - "HTTP_PORT"
-    tmpfs:
-      - /var/lib/varnish:exec
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
     deploy:
       resources:
         limits:
-          cpus: "VARNISH_CPU"
-          memory: "VARNISH_RAM"       
-    depends_on:
-      - "WEB_SERVER"
+          cpus: "0.5"
+          memory: "0.5G"
+          pids: 1000
+    networks:
+      - db
+
+  elasticsearch:
+    image: elasticsearch:9.3.2
+    container_name: elasticsearch
+    restart: unless-stopped
+    user: "0"
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ulimits:
+      nproc:
+        soft: 4096
+        hard: 4096
+      nofile:
+        soft: 65535
+        hard: 65535
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: "1G"
+          pids: 5000
+    healthcheck:
+      test: ["CMD-SHELL", "curl --silent --fail localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
     networks:
       - www
-
-  cron:
-    image: mcuadros/ofelia:latest
-    container_name: cron
-    command: daemon --config=/crons.ini
-    volumes:
-      - /hostfs/run/user/USER_ID/docker.sock:/var/run/docker.sock:ro
-      - /hostfs/home/CONTEXT/crons.ini:/crons.ini:ro
-    deploy:
-      resources:
-        limits:
-          cpus: "CRON_CPU"
-          memory: "CRON_RAM"
-          pids: 100
-          
-  mysql:
-    image: mysql:MYSQL_VERSION
-    container_name: mysql
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
-    ports:
-      - "MYSQL_PORT"     
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - mysql_dumps:/tmp/dumps/
-      - /etc/openpanel/mysql/scripts/dump.sh:/dump.sh:ro
-      - ./sockets/mysqld:/var/run/mysqld 
-      - ./my.cnf:/root/.my.cnf:ro 
-      - ./custom.cnf:/etc/mysql/conf.d/custom.cnf
-    labels:
-      - docker-volume-backup.archive-pre=/bin/sh -c '/dump.sh'
-      - docker-volume-backup.archive-post=/bin/sh -c 'rm -rf /tmp/dumps/*'
-    deploy:
-      resources:
-        limits:
-          cpus: "MYSQL_CPU"
-          memory: "MYSQL_RAM"
-          pids: 100
-    networks:
-      - db
-    healthcheck:
-      test: ['CMD-SHELL', 'mysqladmin ping -h localhost']
-      interval: 1s
-      timeout: 5s
-      retries: 10
-
-  mariadb:
-    image: mariadb:MYSQL_VERSION
-    container_name: mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
-    ports:
-      - "MYSQL_PORT"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - mysql_dumps:/tmp/dumps/
-      - /etc/openpanel/mysql/scripts/dump.sh:/dump.sh:ro
-      - ./sockets/mysqld:/var/run/mysqld
-      - ./my.cnf:/root/.my.cnf:ro
-      - ./custom.cnf:/etc/mysql/conf.d/custom.cnf
-    labels:
-      - docker-volume-backup.archive-pre=/bin/sh -c '/dump.sh'
-      - docker-volume-backup.archive-post=/bin/sh -c 'rm -rf /tmp/dumps/*'
-    deploy:
-      resources:
-        limits:
-          cpus: "MARIADB_CPU"
-          memory: "MARIADB_RAM"
-          pids: 100
-    networks:
-      - db
-    healthcheck:
-      test: ['CMD-SHELL', 'mariadb-admin ping -h localhost']
-      interval: 1s
-      timeout: 5s
-      retries: 10
 
   phpmyadmin:
     container_name: phpmyadmin 
@@ -411,106 +332,6 @@ services:
       MYSQL_ROOT_PASSWORD: MYSQL_ROOT_PASSWORD
     networks:
       - db
-
-
-  redis:
-    image: redis:REDIS_VERSION
-    container_name: redis
-    restart: unless-stopped
-    command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379"]
-    volumes:
-      - ./sockets/redis:/var/run/redis  # Redis socket
-    deploy:
-      resources:
-        limits:
-          cpus: "REDIS_CP"
-          memory: "REDIS_RAM" 
-          pids: 100
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      retries: 3
-      start_period: 10s
-      timeout: 5s
-    networks:
-      - www
-
-  php-fpm-5.6:
-    image: shinsenter/php:5.6-fpm
-    container_name: php-fpm-5.6
-    restart: always
-    volumes:
-      - html_data:/var/www/html/
-      - ./php.ini/5.6.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
-    environment:
-      - APP_USER=root
-      - APP_GROUP=root
-      - APP_UID=USER_ID
-      - APP_GID=USER_ID
-      - ENABLE_TUNING_FPM=1
-    deploy:
-      resources:
-        limits:
-          cpus: "PHP_FPM_5_6_CPU"
-          memory: "PHP_FPM_5_6_RAM"
-          pids: 100
-    networks:
-      - www
-      - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root"    
-
-  php-fpm-8.4:
-    image: shinsenter/php:8.4-fpm
-    container_name: php-fpm-8.4
-    restart: always
-    volumes:
-      - html_data:/var/www/html/
-      - ./php.ini/8.4.ini:/usr/local/etc/php/php.ini
-      - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp  
-    environment:
-      - APP_USER=root
-      - APP_GROUP=root
-      - APP_UID=USER_ID
-      - APP_GID=USER_ID
-      - ENABLE_TUNING_FPM=1
-    deploy:
-      resources:
-        limits:
-          cpus: "PHP_FPM_8_4_CPU"
-          memory: "PHP_FPM_8_4_RAM"
-          pids: 100
-    networks:
-      - www
-      - db
-    command: >
-      sh -c "php-fpm --allow-to-run-as-root" 
-
-
-  backup:
-    image: offen/docker-volume-backup:v2
-    container_name: backup
-    env_file:
-      - ./backup.env
-    volumes:
-      - html_data:/var/www/html/:ro
-      - html_data:/backup/html:ro
-      - mysql_dumps:/backup/mysql:ro
-      - mssql_data:/backup/mssql:ro
-      - mail_data:/backup/mail:ro
-      - webserver_data:/backup/vhosts:ro
-      - pg_data:/backup/postgres:ro
-      - mc_data:/backup/minecraft:ro
-      - /run/user/USER_ID/docker.sock:/var/run/docker.sock:ro
-    deploy:
-      resources:
-        limits:
-          cpus: "BACKUP_CPU"
-          memory: "BACKUP_RAM"
-          pids: 100
-    command: [ "backup" ]
-    restart: unless-stopped
       
   minecraft:
     image: itzg/minecraft-server:MINECRAFT_VERSION
@@ -539,62 +360,4 @@ services:
     networks:
       - www
 
-networks:
-  default:
-    driver: bridge
-    labels:
-      description: "This network is not used used and serves as a fallback."
-      purpose: "internal"
-  www:
-    driver: bridge
-    labels:
-      description: "This network is used for communication between website services (webserver to apps)."
-      purpose: "internal"
-  db:
-    driver: bridge
-    labels:
-      description: "This network is used for communication between websites and database services (apps to database)."
-      purpose: "internal"
-
-volumes:
-  mysql_data:
-    driver: local
-    labels:
-      description: "This volume holds the mysql/mariadb databases."
-      purpose: "database"
-  mysql_dumps:
-    driver: local
-    labels:
-      description: "This volume holds the .sql dumps of databases during backup."
-      purpose: "storage"
-  mssql_data:
-    driver: local
-    labels:
-      description: "This volume holds the MSSQL databases."
-      purpose: "database"      
-  html_data:
-    driver: local
-    labels:
-      description: "This volume holds the /var/www/html/ directory."
-      purpose: "storage"
-  mail_data:
-    driver: local
-    labels:
-      description: "This volume holds the /var/mail/ directory."
-      purpose: "storage"
-  webserver_data:
-    driver: local
-    labels:
-      description: "This volume holds the Nginx/Apache vhost files."
-      purpose: "configuration"
-  pg_data:
-    driver: local
-    labels:
-      description: "This volume holds the postgresql databases."
-      purpose: "database"
-  mc_data:
-    driver: local
-    labels:
-      description: "This volume holds the minecraft data directory."
-      purpose: "storage"
 `;
