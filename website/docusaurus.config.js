@@ -172,6 +172,7 @@ const siteConfig = {
               ]),
         "./plugins/clarity.js",
         "./plugins/example-redirects.js",
+        "./plugins/og-images.js",
     ],
     themeConfig: {
         prism: {

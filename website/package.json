@@ -66,6 +66,8 @@
   },
   "devDependencies": {
     "@docusaurus/module-type-aliases": "2.4.0",
+    "@fontsource/inter": "^5.2.8",
+    "@resvg/resvg-js": "^2.6.2",
     "@tailwindcss/typography": "^0.5.9",
     "@tsconfig/docusaurus": "^1.0.4",
     "@types/dedent": "^0.7.0",
@@ -77,6 +79,7 @@
     "fs-extra": "^10.1.0",
     "ora": "^5.4.1",
     "react-docgen-typescript": "^2.2.2",
+    "satori": "^0.26.0",
     "sucrase": "^3.27.0",
     "typescript": "^4.4.2"
   },
