@@ -545,6 +545,7 @@ module.exports = {
                     "enterprise-table-right-to-left 0.3s ease-in-out forwards",
                 "new-badge-border": "new-badge-border 4s linear infinite",
                 reveal: "reveal 0.3s ease-in-out forwards",
+                "opencli-scroll": "opencli-scroll 180s linear infinite",
             },
             keyframes: {
                 reveal: {
@@ -561,6 +562,14 @@ module.exports = {
                     },
                     "100%": {
                         transform: "translateY(-448px)",
+                    },
+                },
+                "opencli-scroll": {
+                    "0%": {
+                        transform: "translateY(0)",
+                    },
+                    "100%": {
+                        transform: "translateY(-50%)",
                     },
                 },
                 "walkthrough-bounce": {

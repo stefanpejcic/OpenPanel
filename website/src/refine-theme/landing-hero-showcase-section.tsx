@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import { LandingArrowRightIcon } from "./icons/landing-arrow-right";
 import { ShowcaseWrapper } from "../components/landing/showcase-wrapper";
+import { LandingHeroShowcaseOpenCliTerminal } from "./landing-hero-showcase-opencli-terminal";
 
 const ShowcaseCRM = ({ className }: { className?: string }) => {
     return (
@@ -24,14 +25,7 @@ const ShowcaseHR = ({ className }: { className?: string }) => {
 };
 
 const ShowcaseDevOps = ({ className }: { className?: string }) => {
-    return (
-        <ShowcaseWrapper
-            className={className}
-            dark
-            render="/img/opencli_preview.png"
-            highlights={[]}
-        />
-    );
+    return <LandingHeroShowcaseOpenCliTerminal className={className} />;
 };
 
 export const LandingHeroShowcaseSection = ({}) => {
