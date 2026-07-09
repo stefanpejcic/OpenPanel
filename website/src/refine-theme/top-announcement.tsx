@@ -116,7 +116,7 @@ const messages = [
                 <span className="font-semibold">OpenPanel Enterprise Annual License</span>. 
             </>
         ),
-        href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
+        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1",
         cta: "Claim Your Free Months",
     },
     {
@@ -126,7 +126,7 @@ const messages = [
                 <span className="font-semibold">OpenPanel Enterprise Annual License</span>{" "}
             </>
         ),
-        href: "https://my.openpanel.com/cart.php/?a=add&pid=1&billingcycle=annually&skipconfig=1",
+        href: "https://my.openpanel.com/cart.php?a=add&pid=1&billingcycle=annually&skipconfig=1",
         cta: "Secure Your Discount",
     },    
     {
