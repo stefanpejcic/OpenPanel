@@ -82,6 +82,11 @@
   },
   "resolutions": {
     "webpack": "5.74.0",
-    "cheerio": "1.0.0-rc.12"
-  }  
+    "@docusaurus/theme-common": "2.4.0",
+    "@docusaurus/theme-translations": "2.4.0",
+    "@docusaurus/utils": "2.4.0",
+    "@docusaurus/utils-common": "2.4.0",
+    "@docusaurus/utils-validation": "2.4.0",
+    "@docusaurus/plugin-content-docs": "2.4.0"
+  }
 }
