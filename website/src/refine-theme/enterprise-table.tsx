@@ -941,15 +941,6 @@ const tableData = [
                     enterprise: "icon",
                 },
             },
-            {
-                description: ".onion Domains",
-                community: <CrossIcon />,
-                enterprise: <CheckIcon />,
-                valueType: {
-                    community: "icon",
-                    enterprise: "icon",
-                },
-            },
         ],
     },
     {

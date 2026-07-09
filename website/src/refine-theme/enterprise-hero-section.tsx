@@ -38,8 +38,8 @@ export const EnterpriseHeroSection = ({
                     <span
                         className={clsx(
                             "font-semibold",
-                            "dark:text-refine-cyan-alt dark:drop-shadow-[0_0_30px_rgba(71,235,235,0.25)]",
-                            "text-refine-blue drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
+                            "text-transparent bg-clip-text bg-gradient-to-r text-gradient-to-r",
+                            "from-[#0FBDBD] to-[#26D97F]",
                         )}
                     >
                         Enterprise

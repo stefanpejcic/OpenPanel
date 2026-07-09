@@ -60,7 +60,6 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                         "dark:text-gray-0 text-gray-900",
                     )}
                 >
-                    Start{" "}
                     <span
                         className={clsx(
                             "font-semibold",
@@ -68,9 +67,9 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                             "text-refine-blue drop-shadow-[0_0_30px_rgba(0,128,255,0.3)]",
                         )}
                     >
-                        faster
-                    </span>
-                    , maintain{" "}
+                        Faster
+                    </span>{" "}
+                    setup,{" "}
                     <span
                         className={clsx(
                             "font-semibold",
@@ -78,9 +77,9 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                             "text-refine-indigo drop-shadow-[0_0_30px_rgba(51,51,255,0.3)]",
                         )}
                     >
-                        easier
-                    </span>
-                    , scale{" "}
+                        better
+                    </span>{" "}
+                    isolation,{" "}
                     <span
                         className={clsx(
                             "font-semibold",
@@ -88,9 +87,9 @@ export const LandingPackages: FC<Props> = ({ className }) => {
                             "text-refine-purple drop-shadow-[0_0_30px_rgba(128,0,255,0.3)]",
                         )}
                     >
-                        indefinitely
-                    </span>
-                    .
+                        fair
+                    </span>{" "}
+                    price.
                 </h2>
             </div>
 

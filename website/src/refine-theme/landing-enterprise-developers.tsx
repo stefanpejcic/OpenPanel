@@ -87,7 +87,6 @@ export const LandingEnterpriseDevelopers: FC<Props> = ({ className }) => {
                 <p
                     className={clsx(
                         "mt-4 landing-sm:mt-6",
-                        "max-w-md",
                         "text-base",
                         "dark:text-gray-400 text-gray-600",
                     )}
