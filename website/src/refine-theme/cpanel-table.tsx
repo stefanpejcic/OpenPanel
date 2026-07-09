@@ -1324,6 +1324,15 @@ const tableData = [
                     openpanel: "icon",
                 },
             },  
+            {
+                description: "Export Addresses",
+                cpanel: <CrossIcon />,
+                openpanel: <CheckIcon />,
+                valueType: {
+                    cpanel: "icon",
+                    openpanel: "icon",
+                },
+            },  
         ],
     },   
   {
