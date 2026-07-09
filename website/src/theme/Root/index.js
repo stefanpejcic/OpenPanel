@@ -1,6 +1,7 @@
 import React from 'react';
 import OriginalRoot from '@theme-original/Root';
 import { useEffect } from 'react';
+import { OrganizationSchema } from '../../refine-theme/organization-schema';
 
 export default function Root(props) {
   useEffect(() => {
@@ -22,5 +23,10 @@ export default function Root(props) {
     document.body.appendChild(noscript);
   }, []);
 
-  return <OriginalRoot {...props} />;
+  return (
+    <>
+      <OrganizationSchema />
+      <OriginalRoot {...props} />
+    </>
+  );
 }

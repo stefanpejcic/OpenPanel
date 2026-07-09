@@ -1,17 +1,29 @@
 import React from "react";
 
-// Renders Organization structured data (https://schema.org/Organization) so
-// search engines can associate the site with the OpenPanel brand/logo.
+// Sitewide Organization + WebSite structured data (https://schema.org/Organization),
+// rendered once via src/theme/Root so it applies to every page, including docs/blog.
 export const OrganizationSchema: React.FC = () => {
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "Organization",
-        name: "OpenPanel",
-        url: "https://openpanel.com",
-        logo: "https://openpanel.com/img/openpanel_social.png",
-        sameAs: [
-            "https://github.com/stefanpejcic/OpenPanel",
-            "https://www.linkedin.com/company/openpanel/",
+        "@graph": [
+            {
+                "@type": "Organization",
+                name: "OpenPanel",
+                url: "https://openpanel.com",
+                logo: "https://openpanel.com/img/svg/openpanel_logo.svg",
+                sameAs: [
+                    "https://github.com/stefanpejcic/openpanel",
+                    "https://discord.com/invite/7bNY8fANqF",
+                    "https://www.reddit.com/r/openpanelco/",
+                    "https://x.com/openpanel",
+                    "https://www.linkedin.com/company/openpanel/",
+                ],
+            },
+            {
+                "@type": "WebSite",
+                name: "OpenPanel",
+                url: "https://openpanel.com",
+            },
         ],
     };
 

@@ -3,7 +3,6 @@ import clsx from "clsx";
 import React from "react";
 
 import { CommonLayout } from "../refine-theme/common-layout";
-import { OrganizationSchema } from "../refine-theme/organization-schema";
 import { SoftwareApplicationSchema } from "../refine-theme/software-application-schema";
 import { LandingFooter } from "../refine-theme/landing-footer";
 import { LandingEnterpriseDevelopers } from "../refine-theme/landing-enterprise-developers";
@@ -25,7 +24,6 @@ function Home() {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <OrganizationSchema />
             <SoftwareApplicationSchema
                 name="OpenPanel"
                 description="A highly customizable web hosting control panel built around containers."
