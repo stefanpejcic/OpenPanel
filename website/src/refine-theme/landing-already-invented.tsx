@@ -16,11 +16,11 @@ const list = [
         icon: <ComponentsIcon />,
     },
     {
-        label: "Remote backups",
+        label: "S3 backups",
         icon: <RoutesIcon />,
     },
     {
-        label: "Service settings",
+        label: "Tweak settings",
         icon: <UtilitiesIcon />,
     },
     {
@@ -28,7 +28,7 @@ const list = [
         icon: <InterfacesIcon />,
     },
     {
-        label: "Multi-tenancy",
+        label: "DNS Cluster",
         icon: <ProvidersIcon />,
     },
 ];
@@ -162,7 +162,7 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                             "dark:text-gray-300 text-gray-900",
                         )}
                     >
-                        Wheel? Already invented.
+                        No addons. No surprise invoices.
                     </h6>
                     <div
                         className={clsx(
@@ -186,8 +186,8 @@ export const LandingAlreadyInvented: FC<Props> = ({ className }) => {
                         >
                             All the necessary features for running a web hosting server are integrated, eliminating the need to purchase additional software for tasks like backups, WordPress management or user isolation.
                         </p>
-                        <LandingSectionCtaButton to="/features">
-                            Features
+                        <LandingSectionCtaButton to="/enterprise">
+                            Explore Enterprise edition
                         </LandingSectionCtaButton>
                     </div>
                 </div>
