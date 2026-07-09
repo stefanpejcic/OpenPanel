@@ -7,18 +7,20 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { HeaderDiscordIcon } from "@site/src/refine-theme/icons/header-discord";
 import {
-    TimelineIcon,
+    FolderIcon,
     WizardsIcon,
     SecurityIcon,
     NoVendorLockinIcon,
-    UtilitiesIcon,
+    PhpIcon,
+    MonitorIcon,
     SelfHostedIcon,
+    PaymentIcon,
 } from "@site/src/components/landing/icons";
 
 // The two items currently being worked on. Update this once they ship.
 const inProgress = [
     {
-        icon: <TimelineIcon />,
+        icon: <FolderIcon />,
         title: "Backup restore GUI",
         description:
             "Browse existing backups and restore a website, database, or full account with a couple of clicks - no terminal required.",
@@ -27,7 +29,7 @@ const inProgress = [
         icon: <WizardsIcon />,
         title: "Autoinstallers",
         description:
-            "One-click installers for the most popular CMS and scripts, so users can launch WordPress and friends straight from OpenPanel.",
+            "One-click installers for popular apps - we're currently working on Drupal, Joomla, Moodle, and Nextcloud.",
     },
 ];
 
@@ -42,12 +44,20 @@ const plannedFeatures = [
         title: "Ubuntu 26 support",
     },
     {
-        icon: <UtilitiesIcon />,
+        icon: <PhpIcon />,
+        title: "PHP 8.6 version",
+    },
+    {
+        icon: <MonitorIcon />,
         title: "Export OpenAdmin settings",
     },
     {
         icon: <SelfHostedIcon />,
         title: "Ongoing improvements in container isolation",
+    },
+    {
+        icon: <PaymentIcon />,
+        title: "Paymenter.org module",
     },
 ];
 
