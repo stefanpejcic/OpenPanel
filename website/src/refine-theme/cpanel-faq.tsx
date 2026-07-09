@@ -126,15 +126,23 @@ const faq = [
         answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as weely updates.",
     },
     {
-        question: "Do you provide custom development services for turnkey projects?",
-        answer: "No, we do not offer any type of turnkey development services.",
+        question: "What happens after my trial ends?",
+        answer: "If you don't purchase before the trial ends, the OpenAdmin interface is blocked until you remove the license key - your websites and the OpenPanel user interface keep working normally the whole time. Once you remove the key, everything reverts to Community edition limits. No automatic charge, no surprise billing.",
     },
     {
-        question: "What is the scope of the professional services you provide?",
-        answer: "Our professional services cover collaborative tasks with internal teams such as onboarding assistance, trainings and customizing your OpenPanel instance to match your brand.",
+        question: "What operating systems does OpenPanel Enterprise support?",
+        answer: "OpenPanel Enterprise supports Ubuntu, Debian, AlmaLinux, Rocky Linux, and CentOS, unlike cPanel/WHM which only supports a narrower set of RHEL-based distributions.",
     },
     {
-        question: "Can I request specific features or customizations?",
-        answer: "We prioritize feature requests on the product roadmap and also support teams in developing custom integrations and components.",
+        question: "Does OpenPanel run on ARM (AArch64) servers?",
+        answer: "Yes, OpenPanel Enterprise runs on both standard x86_64 servers and ARM (AArch64) CPUs - cPanel/WHM does not support ARM.",
+    },
+    {
+        question: "Does OpenPanel Enterprise integrate with billing software?",
+        answer: "Yes, OpenPanel Enterprise integrates with WHMCS, Blesta, FOSSBilling, and Paymenter.org for automated provisioning.",
+    },
+    {
+        question: "Is there a refund if I'm not satisfied?",
+        answer: "Refunds are available within 7 days of purchase, but only for licenses that haven't been activated yet. Once a license is activated on a server, the sale is final.",
     },
 ];

@@ -121,6 +121,10 @@ const faq = [
         answer: "Yes — click \"Start free trial\" above to get instant access to a 30-day Enterprise trial, no credit card required.",
     },
     {
+        question: "What happens after my trial ends?",
+        answer: "If you don't purchase before the trial ends, the OpenAdmin interface is blocked until you remove the license key - your websites and the OpenPanel user interface keep working normally the whole time. Once you remove the key, everything reverts to Community edition limits. No automatic charge, no surprise billing.",
+    },
+    {
         question: "How often does Enterprise edition receive updates?",
         answer: "We aim to introduce new features and fixes in a continuous delivery manner, sometimes as frequently as daily updates. On the other hand, the community edition receives updates on a monthly basis.",
     },
