@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Get Started
+# Get Started with OpenAdmin
 
 The OpenAdmin offers an administrator-level interface where you can efficiently handle tasks such as creating and managing users, setting up hosting plans, enabling features, and editing OpenPanel settings.
 
