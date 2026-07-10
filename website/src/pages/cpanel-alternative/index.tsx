@@ -9,8 +9,6 @@ import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-i
 import { EnterpriseFaq } from "@site/src/refine-theme/cpanel-faq";
 import { EnterpriseTable } from "@site/src/refine-theme/cpanel-table";
 import { LandingFooter } from "@site/src/refine-theme/landing-footer";
-import { LandingTrustedByDevelopers } from "@site/src/refine-theme/landing-trusted-by-developers";
-import { PlanFeaturesList } from "@site/src/refine-theme/plan-features-list";
 import { ENTERPRISE_TRIAL_URL } from "@site/src/refine-theme/enterprise-get-in-touch-button";
 
 const Enterprise: React.FC = () => {
@@ -44,18 +42,11 @@ const Enterprise: React.FC = () => {
                                 "landing-lg:pr-12",
                             )}
                         />
-                        <LandingTrustedByDevelopers
-                            className={clsx(sectionPadding, sectionWidth)}
-                        />
                         <div className={clsx("w-full", "overflow-hidden")}>
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}
                             />
                         </div>
-                        <PlanFeaturesList
-                            type="enterprise"
-                            className={clsx(sectionPadding, sectionWidth)}
-                        />
                         <EnterpriseFaq
                             className={clsx(
                                 sectionPadding,

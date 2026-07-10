@@ -1,6 +1,12 @@
+import Link from "@docusaurus/Link";
 import React from "react";
 import clsx from "clsx";
-import { EnterpriseGetInTouchButton } from "./enterprise-get-in-touch-button";
+import {
+    EnterpriseGetInTouchButton,
+    ENTERPRISE_PURCHASE_URL,
+    ENTERPRISE_TRIAL_URL,
+    fireGoogleAdsConversion,
+} from "./enterprise-get-in-touch-button";
 
 export const EnterpriseHeroSection = ({
     className,
@@ -47,12 +53,60 @@ export const EnterpriseHeroSection = ({
             >
                 Built on Docker for true per-user isolation, with a security track record and a fixed price that never changes.{" "}
             </p>
-            <EnterpriseGetInTouchButton
+            <div
                 className={clsx(
+                    "flex flex-col",
+                    "gap-3",
                     "pl-4 landing-sm:pl-6 landing-md:pl-10",
                     "mt-6 landing-lg:mt-16",
                 )}
-            />
+            >
+                <div
+                    className={clsx(
+                        "flex flex-col landing-sm:flex-row",
+                        "items-start landing-sm:items-center",
+                        "gap-3 landing-sm:gap-6",
+                    )}
+                >
+                    <EnterpriseGetInTouchButton
+                        label="Start free 30-day trial"
+                        href={ENTERPRISE_TRIAL_URL}
+                        eventName="trial_click_hero_cyberpanel"
+                    />
+                    <Link
+                        href={ENTERPRISE_PURCHASE_URL}
+                        target="_self"
+                        rel="noopener noreferrer"
+                        onClick={() => {
+                            if (
+                                typeof window !== "undefined" &&
+                                typeof window.gtag !== "undefined"
+                            ) {
+                                window.gtag(
+                                    "event",
+                                    "purchase_click_hero_cyberpanel",
+                                );
+                            }
+                            fireGoogleAdsConversion();
+                        }}
+                        className={clsx(
+                            "text-sm font-semibold",
+                            "dark:text-gray-0 text-gray-900",
+                            "underline underline-offset-4",
+                        )}
+                    >
+                        or purchase a license directly →
+                    </Link>
+                </div>
+                <p
+                    className={clsx(
+                        "text-xs",
+                        "dark:text-gray-500 text-gray-500",
+                    )}
+                >
+                    No credit card required · Cancel anytime
+                </p>
+            </div>
         </div>
     );
 };
