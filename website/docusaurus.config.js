@@ -145,9 +145,10 @@ const siteConfig = {
         [
             "docusaurus-plugin-generate-llms-txt",
             {
-                outputFile: "llms.txt",
+                outputFile: "llms-full.txt",
             },
         ],
+        "./plugins/llms-pages-plugin.js",
         [
             "@easyops-cn/docusaurus-search-local",
             {

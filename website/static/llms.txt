@@ -1,0 +1,91 @@
+# OpenPanel
+
+> OpenPanel is a web hosting control panel built on Docker. Every hosting user gets a fully isolated environment - dedicated web server, database, PHP-FPM, private network, and storage - delivering VPS-grade isolation on shared hardware. It ships as a free Community edition and a paid Enterprise edition for hosting providers, priced per server rather than per account.
+
+This is the main OpenPanel website. For technical documentation, see openpanel.com/docs.
+
+## About OpenPanel
+
+OpenPanel started in 2023 as a LAMP-stack panel and moved to one Docker container per user service (web, database, mail), giving each hosting user real isolation without the overhead of a container per website.
+
+Key facts:
+- Free Community edition, plus Enterprise from a fixed €14.95/month per server - no per-account fees
+- One Docker container per user service: web server, database, PHP-FPM, mail
+- Supports Ubuntu, Debian, AlmaLinux, RockyLinux, and CentOS on AMD64 and ARM
+- REST API with 160+ endpoints, plus a native MCP server for AI agent management (since v1.7.65)
+- Billing automation for WHMCS, FOSSBilling, and Blesta
+- Not open source: OpenPanel UI and OpenAdmin are distributed under a EULA; opencli and configuration files are CC BY-NC (non-commercial)
+
+---
+
+## Product
+
+The core control panel: a Docker-isolated environment per hosting user, managed through OpenPanel (user-facing) and OpenAdmin (server administration).
+
+- [OpenPanel](https://openpanel.com/): A highly customizable web hosting control panel built around Docker containers.
+- [Integrations & Features](https://openpanel.com/features/): Browse OpenPanel's integrations and features - billing, DNS, mail, backups, and more.
+- [Install command generator](https://openpanel.com/install/): Generate a custom OpenPanel install command with your choice of domain, ports, firewall, DNS, and security options.
+- [Live Demo](https://openpanel.com/demo/): Try a live demo of OpenPanel and OpenAdmin online - explore the dashboard and admin panel before you install anything.
+
+---
+
+## Editions & Pricing
+
+OpenPanel ships as a free Community edition and a paid Enterprise edition, priced per server rather than per hosting account. Billing-software integrations automate account provisioning.
+
+- [OpenPanel Community Edition](https://openpanel.com/community/): OpenPanel Community edition is a free web hosting control panel, suitable for VPS and private use.
+- [OpenPanel Enterprise](https://openpanel.com/enterprise/): OpenPanel Enterprise Edition provides robust user isolation and management features, designed for web hosting providers, all at a fixed price.
+- [NOC Partners Pricing](https://openpanel.com/licenses-for-partners/): OpenPanel Enterprise pricing for NOC partners with their own IP ranges, priced by network prefix length.
+- [Billing Software Integrations for OpenPanel](https://openpanel.com/billing/): OpenPanel integrates with WHMCS, FOSSBilling, and Blesta for automated hosting account provisioning, suspension, and termination.
+- [Blesta module for OpenPanel](https://openpanel.com/blesta-module/): Automate hosting account provisioning between Blesta and OpenPanel - install, configure, and provision in about 5 minutes.
+- [FOSSBilling module for OpenPanel](https://openpanel.com/fossbilling-module/): Automate hosting account provisioning between FOSSBilling and OpenPanel - install, configure, and provision in about 5 minutes.
+- [WHMCS module for OpenPanel](https://openpanel.com/whmcs-module/): Automate hosting account provisioning between WHMCS and OpenPanel - install, configure, and provision in about 5 minutes.
+- [Refund Policy](https://openpanel.com/refund-policy/): OpenPanel Enterprise refund policy - licenses can be refunded within 7 days of purchase if not yet activated.
+
+---
+
+## Compare OpenPanel
+
+How OpenPanel's Docker-per-user model differs from CloudLinux-based and traditional shared-hosting control panels.
+
+- [OpenPanel vs cPanel/WHM: Alternative Hosting Panel Compared](https://openpanel.com/cpanel-alternative/): Compare OpenPanel vs cPanel/WHM: Docker-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.
+- [OpenPanel vs Plesk: Alternative Hosting Panel Compared](https://openpanel.com/plesk-alternative/): Compare OpenPanel vs Plesk: true per-user Docker isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.
+- [OpenPanel vs DirectAdmin: Alternative Hosting Panel Compared](https://openpanel.com/directadmin-alternative/): Compare OpenPanel vs DirectAdmin: Docker-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.
+- [OpenPanel vs CyberPanel: Alternative Hosting Panel Compared](https://openpanel.com/cyberpanel-alternative/): Compare OpenPanel vs CyberPanel: real per-user isolation without CloudLinux, granular permissions, and enterprise support from €14.95/month per server.
+
+---
+
+## Company
+
+Background on the project, its roadmap, live usage data, and hosting providers running OpenPanel for their customers.
+
+- [About](https://openpanel.com/about/): OpenPanel is built by hosting operators, for hosting operators - Docker-native isolation, built-in security, and no per-seat pricing.
+- [Roadmap](https://openpanel.com/roadmap/): See what OpenPanel is building next - features in active development and what's planned, updated manually by our team.
+- [Usage Statistics](https://openpanel.com/statistics/): Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.
+- [Brand Assets](https://openpanel.com/assets/): Download official OpenPanel brand assets and logo icons in SVG format, with customizable colors for press and partner use.
+- [Control Panel for Hosting Providers](https://openpanel.com/hosting-providers/): Hosting providers offering OpenPanel on VPS and dedicated servers - compare locations, services, and managed support options.
+
+---
+
+## Support & Legal
+
+Where to get help, report bugs, or apply a patch, plus the license terms OpenPanel is distributed under.
+
+- [Support](https://openpanel.com/support/): Get help with OpenPanel and OpenAdmin - search the docs, ask the community, open an Enterprise support ticket, or report a bug.
+- [Documentation](https://openpanel.com/docs/): OpenPanel and OpenAdmin documentation - installation, opencli commands, and server management.
+- [OpenPanel Patches](https://openpanel.com/patches/): Official OpenPanel patches for reported bugs - apply a fix immediately with one command instead of waiting for the next release.
+- [Privacy Policy](https://openpanel.com/privacy-policy/): Read the OpenPanel privacy policy to learn what data we collect, how it's used, and how we protect it.
+- [LICENSE](https://openpanel.com/LICENSE/): The OpenPanel End User License Agreement (EULA) covering license grant, restrictions, ownership, and purchase terms.
+
+---
+
+## External Resources
+
+- [Blog](https://openpanel.com/blog): Release notes, feature announcements, and hosting how-tos.
+- [GitHub](https://github.com/stefanpejcic/openpanel): Source repository, issue tracker, and CONTRIBUTING guide. OpenPanel UI/OpenAdmin are distributed under a EULA; opencli and configuration files are CC BY-NC.
+- [Discord](https://discord.com/invite/7bNY8fANqF): Community chat for support and discussion.
+- [Reddit](https://www.reddit.com/r/openpanelco/): Community discussion board.
+
+## Optional
+
+- [Full Context Version](https://openpanel.com/llms-full.txt): Complete OpenPanel and OpenAdmin documentation inline, for larger context windows
