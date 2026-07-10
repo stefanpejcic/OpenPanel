@@ -1,8 +1,10 @@
 ---
 title: "Use AI to Manage Your Server: OpenPanel Docs Now Available via llms.txt"
 description: "Feed the complete OpenPanel documentation into ChatGPT, Claude, or Cursor and get accurate answers about installation, opencli commands, and server management."
-authors: [stefan]
-tags: [ai, documentation, chatgpt, claude, cursor]
+slug: openpanel-llms-usage-guide
+authors: stefanpejcic
+image: https://openpanel.com/img/blog/openpanel_llms.png
+hide_table_of_contents: true
 ---
 
 OpenPanel documentation is now available in an AI-friendly format at [openpanel.com/llms.txt](https://openpanel.com/llms.txt). This means you can give ChatGPT, Claude, Cursor, or any other AI assistant instant access to our complete, up-to-date docs — and get accurate answers instead of guesses.
