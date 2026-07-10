@@ -556,17 +556,57 @@ setup_modprobe() {
 	modprobe br_netfilter
 }
 
+fix_selinux_storage_labels() {
+    # On SELinux-enforcing systems (AlmaLinux/RockyLinux/CentOS/openEuler),
+    # podman's graphroot/runroot/additional-store dirs must carry the
+    # container_var_lib_t context or crun/podman will silently fail to
+    # mmap/mprotect binaries inside pulled images, surfacing as:
+    #   "Error relocating ...: RELRO protection failed: No error information"
+    # $SHARED_STORE in particular lives outside /var/lib/containers, so it's
+    # not covered by the stock container-selinux fcontext rules and needs an
+    # explicit equivalence added.
+    command -v getenforce &>/dev/null || return 0
+    [[ "$(getenforce)" == "Disabled" ]] && return 0
+
+    if ! command -v semanage &>/dev/null; then
+        case "$PACKAGE_MANAGER" in
+            yum|dnf) run "$PACKAGE_MANAGER" install -y policycoreutils-python-utils ;;
+        esac
+    fi
+
+    if command -v semanage &>/dev/null; then
+        semanage fcontext -a -e /var/lib/containers "$SHARED_STORE" 2>/dev/null || \
+        semanage fcontext -a -t container_var_lib_t "${SHARED_STORE}(/.*)?" 2>/dev/null || true
+    fi
+
+    if command -v restorecon &>/dev/null; then
+        run restorecon -RF /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
+    else
+        # restorecon unavailable — fall back to a direct (non-persistent) relabel
+        run chcon -Rt container_var_lib_t /var/lib/containers/storage "$SHARED_STORE"
+    fi
+}
+
 podman_docker_alias() {
 	# https://feldspaten.org/2021/07/16/podman-graph-driver-overwritten/
+	# Some VPS providers clone "fresh" servers from a template/golden image
+	# that already contains podman storage state (sometimes with a blank
+	# graph driver recorded) from when the template was built. That state
+	# is inherited even on a first-ever run of this script, so reset
+	# unconditionally rather than only under --repair.
+	run podman system reset -f
+
 	rm -rf ~/.local/share/containers/libpod
 
     # deterministic short-name resolution for all podman/docker calls
     mkdir -p /etc/containers/registries.conf.d
     echo 'unqualified-search-registries = ["docker.io"]' > /etc/containers/registries.conf.d/99-openpanel.conf
 
-    [[ "$REPAIR" == true ]] && run podman system reset -f
-
     mkdir -p /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
+	chmod -R o+rX "$SHARED_STORE"
+	find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \;
+
+    find /var/lib/containers/storage /run/containers/storage -mindepth 1 -delete 2>/dev/null || true
     cat > /etc/containers/storage.conf <<EOF
 [storage]
 driver = "overlay"
@@ -579,8 +619,25 @@ additionalimagestores = [
 ]
 EOF
 
-    # initialize podman's state DB serially, before any concurrent podman usage
-    podman info >/dev/null 2>&1 || die 1 "podman failed to initialize: $(podman info 2>&1 | tail -3)"
+    fix_selinux_storage_labels
+
+    # initialize podman's state DB serially, before any concurrent podman usage.
+    # If a prior (failed/interrupted) run already initialized the storage DB
+    # with a different/blank graph driver, podman will refuse to start with
+    # a "database graph driver ... does not match" error. Self-heal once by
+    # resetting local storage state, then retry before giving up.
+    local podman_info_err
+    podman_info_err=$(podman info 2>&1 >/dev/null)
+    if [[ -n "$podman_info_err" ]]; then
+        if [[ "$podman_info_err" == *"graph driver"*"does not match"* || "$podman_info_err" == *"database configuration mismatch"* ]]; then
+            warn "Stale podman storage state detected — resetting and retrying..."
+            run podman system reset -f
+            rm -rf /var/lib/containers/storage/* /run/containers/storage/* 2>/dev/null || true
+            podman_info_err=$(podman info 2>&1 >/dev/null)
+        fi
+        [[ -n "$podman_info_err" ]] && die 1 "podman failed to initialize: $(tail -3 <<< "$podman_info_err")"
+    fi
+
 
     # docker CLI shim: maps `docker --context <user>` to that user's rootless podman socket
     cat > /usr/local/bin/docker <<'EOF'
