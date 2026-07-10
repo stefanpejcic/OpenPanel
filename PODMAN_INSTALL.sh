@@ -576,6 +576,9 @@ additionalimagestores = [
 ]
 EOF
 
+    # initialize podman's state DB serially, before any concurrent podman usage
+    podman info >/dev/null 2>&1 || die 1 "podman failed to initialize: $(podman info 2>&1 | tail -3)"
+
     # docker CLI shim: maps `docker --context <user>` to that user's rootless podman socket
     cat > /usr/local/bin/docker <<'EOF'
 #!/bin/bash
@@ -630,8 +633,9 @@ setup_compose() {
     _MYSQL_PULL_PID=$!
 
     local test_output
-    test_output=$(timeout 10 podman run --rm docker.io/library/alpine echo "Hello from Alpine!" 2>/dev/null || true)
-    [[ "$test_output" == "Hello from Alpine!" ]] && ok "Podman alpine container ran successfully." || die 1 "Running alpine container failed, error: $test_output"
+	test_output=$(timeout 30 podman run --rm docker.io/library/alpine echo "Hello from Alpine!" 2>&1 || true)
+	[[ "$test_output" == *"Hello from Alpine!"* ]] && ok "Podman alpine container ran successfully." || die 1 "Running alpine container failed, error: $test_output"
+
 
     local mysql_cnf="/etc/my.cnf"
     local root_pw; root_pw=$(openssl rand -base64 -hex 9)
