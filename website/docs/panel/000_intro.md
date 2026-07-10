@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# Get Started
+# Get Started with OpenPanel
 
 OpenPanel is the main control panel for managing your web services. From OpenPanel, you can create and manage domains, email accounts, website content, SQL databases, and other server-related services.
 
