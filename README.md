@@ -77,7 +77,7 @@ The result: VPS-level isolation on shared hosting infrastructure, without the VP
 OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/agnostic) control panel. Supported OS:
 
 <!-- OS_TEST_RESULTS_START -->
-| Operating System | Version | Last Tested | Status | Average install time | Notes |
+| Operating System | Version | Last Tested | Status | Average install time[^2] | Notes |
 |---|---|---|---|---|---|
 | Ubuntu | 22 | 2026-07-09 13:50 UTC | ❌ Fail |  |  |
 | Ubuntu | 24 | 2026-07-10 18:17 UTC | ✅ Pass |  | **recommended for AMD CPU** |
@@ -95,6 +95,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | openEuler | 24 | | Untested |  |  |
 <!-- OS_TEST_RESULTS_END -->
 
+[^2]: Average installation time for [the install script](https://openpanel.org/) on a VPS with the following specifications: 2 CPU cores and 2 GB of RAM.
 
 ## Installation
 
