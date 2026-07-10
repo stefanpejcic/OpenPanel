@@ -5,7 +5,7 @@ import {
     EnterpriseGetInTouchButton,
     ENTERPRISE_PURCHASE_URL,
     ENTERPRISE_TRIAL_URL,
-    fireGoogleAdsConversion,
+    gtagReportConversion,
 } from "./enterprise-get-in-touch-button";
 
 export const EnterpriseHeroSection = ({
@@ -86,7 +86,8 @@ export const EnterpriseHeroSection = ({
                         href={ENTERPRISE_PURCHASE_URL}
                         target="_self"
                         rel="noopener noreferrer"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.preventDefault();
                             if (
                                 typeof window !== "undefined" &&
                                 typeof window.gtag !== "undefined"
@@ -96,7 +97,7 @@ export const EnterpriseHeroSection = ({
                                     "purchase_click_hero_cpanel",
                                 );
                             }
-                            fireGoogleAdsConversion();
+                            gtagReportConversion(ENTERPRISE_PURCHASE_URL);
                         }}
                         className={clsx(
                             "text-sm font-semibold",

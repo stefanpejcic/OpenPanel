@@ -5,7 +5,7 @@ import {
     EnterpriseGetInTouchButton,
     ENTERPRISE_PURCHASE_URL,
     ENTERPRISE_TRIAL_URL,
-    fireGoogleAdsConversion,
+    gtagReportConversion,
 } from "./enterprise-get-in-touch-button";
 
 export const EnterpriseHeroSection = ({
@@ -87,7 +87,7 @@ export const EnterpriseHeroSection = ({
                                     "purchase_click_hero_plesk",
                                 );
                             }
-                            fireGoogleAdsConversion();
+                            gtagReportConversion();
                         }}
                         className={clsx(
                             "text-sm font-semibold",

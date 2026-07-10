@@ -9,15 +9,29 @@ export const ENTERPRISE_TRIAL_URL =
 
 // Checkout happens off-site (my.openpanel.com), so there's no on-site
 // "thank you" page to drop the Ads event snippet on - fire the conversion
-// when someone clicks through to start a trial or purchase instead.
+// when someone clicks through to start a trial or purchase instead. Navigation
+// is held until the conversion ping is sent (or gtag gives up), otherwise the
+// browser can unload the page before the beacon goes out.
 const GOOGLE_ADS_CONVERSION_LABEL = "AW-18287005046/755wCL2tiMkcEPaa9o9E";
 
-export const fireGoogleAdsConversion = () => {
-    if (typeof window !== "undefined" && typeof window.gtag !== "undefined") {
-        window.gtag("event", "conversion", {
-            send_to: GOOGLE_ADS_CONVERSION_LABEL,
-        });
+export const gtagReportConversion = (url?: string) => {
+    const navigate = () => {
+        if (typeof url !== "undefined" && typeof window !== "undefined") {
+            window.location.href = url;
+        }
+    };
+
+    if (typeof window === "undefined" || typeof window.gtag === "undefined") {
+        navigate();
+        return false;
     }
+
+    window.gtag("event", "conversion", {
+        send_to: GOOGLE_ADS_CONVERSION_LABEL,
+        event_callback: navigate,
+    });
+
+    return false;
 };
 
 type Props = {
@@ -47,7 +61,8 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
                 href={href}
                 target="_self"
                 rel="noopener noreferrer"
-                onClick={() => {
+                onClick={(e) => {
+                    e.preventDefault();
                     if (
                         props.eventName &&
                         typeof window !== "undefined" &&
@@ -55,7 +70,7 @@ export const EnterpriseGetInTouchButton: FC<Props> = (props) => {
                     ) {
                         window.gtag("event", props.eventName);
                     }
-                    fireGoogleAdsConversion();
+                    gtagReportConversion(href);
                 }}
                 className={clsx(
                     "self-start",
