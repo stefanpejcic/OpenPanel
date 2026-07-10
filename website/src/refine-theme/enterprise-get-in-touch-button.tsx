@@ -4,8 +4,7 @@ import React, { FC, SVGProps } from "react";
 
 export const ENTERPRISE_PURCHASE_URL =
     "https://my.openpanel.com/index.php?rp=/store/openpanel/enterprise-license";
-export const ENTERPRISE_TRIAL_URL =
-    "https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1";
+export const ENTERPRISE_TRIAL_URL = "/trial";
 
 // Checkout happens off-site (my.openpanel.com), so there's no on-site
 // "thank you" page to drop the Ads event snippet on - fire the conversion

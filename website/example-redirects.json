@@ -7,6 +7,10 @@
     {
       "from": "/docs/examples34534534",
       "to": "https://github.com/"
+    },
+    {
+      "from": "/trial",
+      "to": "https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1"
     }
   ]
 }

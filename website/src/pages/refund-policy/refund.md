@@ -11,7 +11,7 @@ OpenPanel LLC ("Company," "we," "us") offers commercial hosting panel licenses s
 Before purchasing a paid license, we strongly encourage all prospective customers to evaluate OpenPanel using the following no-cost options:
 
 - [Community Edition](/install) - Free forever, no license required.
-- [Enterprise 30-Day Trial](https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1) - Full-featured trial of the Enterprise license at no charge
+- [Enterprise 30-Day Trial](/trial) - Full-featured trial of the Enterprise license at no charge
 
 *Refund requests based on incompatibility, unsuitability, or feature misunderstanding will not be approved if adequate evaluation using the above options was reasonably available prior to purchase.*
 

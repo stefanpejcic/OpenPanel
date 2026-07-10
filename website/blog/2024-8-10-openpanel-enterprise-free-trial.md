@@ -21,7 +21,7 @@ Simply use the coupon code below and get instant access.
 💡 **What You Get:** 1 month FREE of OpenPanel Enterprise Edition  
 ⚡ **Instant Activation:** No credit card needed — just create an account and start using it  
 
-👉 [**Claim your free trial here**](https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1)  
+👉 [**Claim your free trial here**](/trial)  
 
 ---
 
@@ -43,7 +43,7 @@ With this free trial, you can explore everything OpenPanel Enterprise offers:
 
 Getting started is quick and easy:  
 
-1. Go to the [trial signup page](https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1).  
+1. Go to the [trial signup page](/trial).  
 2. Enter the coupon code `TRIAL`.  
 3. Create your account — no credit card required.  
 4. Start using **OpenPanel Enterprise** instantly.  
@@ -65,5 +65,5 @@ This trial gives you a **risk-free way** to test the platform and discover:
 
 This free trial offer won’t last forever. If you’ve been looking for a **modern cPanel alternative**, now is the perfect time to try OpenPanel Enterprise — free for 1 month, no strings attached.  
 
-👉 [Claim Your Free Trial Now](https://my.openpanel.com/cart.php?a=add&pid=1&carttpl=standard_cart&promocode=TRIAL&skipconfig=1)  
+👉 [Claim Your Free Trial Now](/trial)  
 

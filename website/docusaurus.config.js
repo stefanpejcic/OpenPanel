@@ -24,6 +24,24 @@ const siteConfig = {
     scripts: [
       'https://platform.twitter.com/widgets.js',
     ],
+    headTags: [
+        {
+            tagName: "script",
+            attributes: {
+                async: "true",
+                src: "https://www.googletagmanager.com/gtag/js?id=AW-18287005046",
+            },
+        },
+        {
+            tagName: "script",
+            innerHTML: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'AW-18287005046');
+            `,
+        },
+    ],
     presets: [
         [
             "@docusaurus/preset-classic",
