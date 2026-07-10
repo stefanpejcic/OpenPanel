@@ -8,15 +8,7 @@ export const getLinkRel = (URL?: string): string => {
 
     const isInternalURL = isInternalUrl(URL);
 
-    if (URL?.includes("github.com/refinedev/refine")) {
-        rel = "noopener";
-    }
-
-    if (isInternalURL || URL?.includes("refine.dev")) {
-        rel = "noopener dofollow";
-    }
-
-    if (isInternalURL || URL?.includes("reactadminpanel.com")) {
+    if (isInternalURL) {
         rel = "noopener dofollow";
     }
 

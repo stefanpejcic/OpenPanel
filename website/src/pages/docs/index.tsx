@@ -8,7 +8,7 @@ import { LandingTryItSection } from "@site/src/refine-theme/docs-section";
 
 const Demo: React.FC = () => {
     return (
-        <CommonLayout>
+        <CommonLayout description="Browse the OpenPanel and OpenAdmin documentation: installation, API reference, terminal commands, and how-to guides for running OpenPanel hosting infrastructure.">
             <Head title="Documentation | OpenPanel">
                 <html data-page="docs" data-customized="true" />
             </Head>

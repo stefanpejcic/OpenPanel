@@ -231,28 +231,28 @@ const siteConfig = {
         ],
         navbar: {
             logo: {
-                alt: "refine",
-                src: "img/refine_logo.png",
+                alt: "OpenPanel",
+                src: "img/svg/openpanel_logo.svg",
             },
             items: [
-                { to: "https://docusaurus.io/docs/api/docusaurus-config", label: "Blog", position: "left" },
+                { to: "/blog", label: "Blog", position: "left" },
                 {
                     type: "docsVersionDropdown",
                     position: "right",
                     dropdownActiveClassDisabled: true,
                 },
                 {
-                    href: "https://github.com/",
+                    href: "https://github.com/stefanpejcic/openpanel",
                     position: "right",
                     className: "header-icon-link header-github-link",
                 },
                 {
-                    href: "https://discord.gg/",
+                    href: "https://discord.com/invite/7bNY8fANqF",
                     position: "right",
                     className: "header-icon-link header-discord-link",
                 },
                 {
-                    href: "https://twitter.com/",
+                    href: "https://x.com/openpanel",
                     position: "right",
                     className: "header-icon-link header-twitter-link",
                 },
@@ -260,24 +260,24 @@ const siteConfig = {
         },
         footer: {
             logo: {
-                alt: "refine",
-                src: "/img/refine_logo.png",
+                alt: "OpenPanel",
+                src: "/img/svg/openpanel_logo.svg",
             },
             links: [
                 {
                     title: "Resources",
                     items: [
                         {
-                            label: "Getting Started",
-                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                            label: "OpenPanel Docs",
+                            to: "/docs/panel/intro/",
                         },
                         {
-                            label: "Tutorials",
-                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                            label: "OpenAdmin Docs",
+                            to: "/docs/admin/intro/",
                         },
                         {
                             label: "Blog",
-                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                            to: "/blog",
                         },
                     ],
                 },
@@ -285,16 +285,16 @@ const siteConfig = {
                     title: "Product",
                     items: [
                         {
-                            label: "Examples",
-                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                            label: "Features",
+                            to: "/features",
                         },
                         {
-                            label: "Integrations",
-                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                            label: "Live Preview",
+                            to: "/demo",
                         },
                         {
-                            label: "Become an Expert",
-                            to: "https://docusaurus.io/docs/api/docusaurus-config",
+                            label: "Roadmap",
+                            to: "/roadmap",
                         },
                     ],
                 },
@@ -303,11 +303,11 @@ const siteConfig = {
                     items: [
                         {
                             label: "About",
-                            to: "https://google.rs",
+                            to: "/about",
                         },
                         {
-                            label: "Store 🎁",
-                            to: "https://google.rs",
+                            label: "Support",
+                            to: "/support",
                         },
                     ],
                 },
@@ -318,37 +318,33 @@ const siteConfig = {
                             label: "License",
                             to: "/LICENSE",
                         },
-                        // {
-                        //     label: "Terms",
-                        //     to: "/enterprise",
-                        // },
-                        // {
-                        //     label: "Privacy",
-                        //     to: "/privacy-policy",
-                        // },
-                        // {
-                        //     label: "info@refine.dev",
-                        //     to: "mailto:info@refine.dev",
-                        // },
+                        {
+                            label: "Privacy",
+                            to: "/privacy-policy",
+                        },
+                        {
+                            label: "info@openpanel.com",
+                            to: "mailto:info@openpanel.com",
+                        },
                     ],
                 },
                 {
                     title: "__SOCIAL",
                     items: [
                         {
-                            href: "https://github.com/",
+                            href: "https://github.com/stefanpejcic/openpanel",
                             label: "github",
                         },
                         {
-                            href: "https://discord.gg/",
+                            href: "https://discord.com/invite/7bNY8fANqF",
                             label: "discord",
                         },
                         {
-                            href: "https://reddit.com/r/",
+                            href: "https://www.reddit.com/r/openpanelco/",
                             label: "reddit",
                         },
                         {
-                            href: "https://twitter.com/",
+                            href: "https://x.com/openpanel",
                             label: "twitter",
                         },
                         {
@@ -374,8 +370,8 @@ const siteConfig = {
             '<strong style="font-weight:700;">OpenPanel</strong> is a next generation hosting panel for more secure and provacy focused hosting.',
         contactTitle: "Contact",
         contactDescription: [
-            "OpenPanel Co.",
-            "256 Amsterdam, NL 19702",
+            "OpenPanel, LLC",
+            "131 Continental Dr, Newark, Delaware",
         ],
         contactEmail: "info@openpanel.com",
         /** ---- */
