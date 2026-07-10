@@ -141,56 +141,63 @@ test('icons mode toggle', async ({ page }) => {
 // SORTABLE
 test('icon sections drag&sort', async ({ page }) => {
   await navigateToDashboardPage(page);
-  const firstSection = page.locator('#dashboard-sortable-area > [data-id]').nth(0);
-  const secondSection = page.locator('#dashboard-sortable-area > [data-id]').nth(1);
+
+  const sortable = page.locator('#dashboard-sortable-area');
+
+  const firstSection = sortable.locator('> [data-id]').nth(0);
+  const secondSection = sortable.locator('> [data-id]').nth(1);
+
   const firstKey = await firstSection.getAttribute('data-id');
   const secondKey = await secondSection.getAttribute('data-id');
-  const handle = page.locator(`#section-title-${firstKey}`);
-  const targetHandle = page.locator(`#section-title-${secondKey}`);
-  const handleBox = await handle.boundingBox();
-  const targetBox = await targetHandle.boundingBox();
 
-  // Start drag from center of first handle
-  await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
+  expect(firstKey).toBeTruthy();
+  expect(secondKey).toBeTruthy();
+
+  const handle = page.locator(`#section-title-${firstKey}`);
+  const targetSection = page.locator(`#wrapper-${secondKey}`);
+
+  await expect(handle).toBeVisible();
+  await expect(targetSection).toBeVisible();
+
+  const handleBox = await handle.boundingBox();
+  const targetBox = await targetSection.boundingBox();
+
+  expect(handleBox).not.toBeNull();
+  expect(targetBox).not.toBeNull();
+
+  const startX = handleBox!.x + handleBox!.width / 2;
+  const startY = handleBox!.y + handleBox!.height / 2;
+
+  const endX = targetBox!.x + targetBox!.width / 2;
+  const endY = targetBox!.y + targetBox!.height + 40; // lower than second section
+
+  await page.mouse.move(startX, startY);
   await page.mouse.down();
   await page.waitForTimeout(300);
 
-  // Move past the midpoint of the target (SortableJS swaps at 50% threshold)
-  const startY = handleBox.y + handleBox.height / 2;
-  const endY = targetBox.y + targetBox.height * 0.75; // past midpoint of target
-  const startX = handleBox.x + handleBox.width / 2;
-  const steps = 20;
+  await page.mouse.move(endX, endY, { steps: 35 });
+  await page.waitForTimeout(300);
 
-  for (let i = 1; i <= steps; i++) {
-    await page.mouse.move(
-      startX,
-      startY + ((endY - startY) * i) / steps
-    );
-    await page.waitForTimeout(20);
-  }
-
-  // Hover briefly at destination before releasing
-  await page.waitForTimeout(200);
   await page.mouse.up();
-  await page.waitForTimeout(500);
+  await page.waitForTimeout(700);
 
-  // Verify DOM order changed
-  const newFirstKey = await page.locator('#dashboard-sortable-area > [data-id]').nth(0).getAttribute('data-id');
-  const newSecondKey = await page.locator('#dashboard-sortable-area > [data-id]').nth(1).getAttribute('data-id');
+  const newFirstKey = await sortable.locator('> [data-id]').nth(0).getAttribute('data-id');
+  const newSecondKey = await sortable.locator('> [data-id]').nth(1).getAttribute('data-id');
 
   expect(newFirstKey).toBe(secondKey);
   expect(newSecondKey).toBe(firstKey);
 
-  // Verify localStorage was updated
   const savedOrder = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('dashboard_section_order'))
+    JSON.parse(localStorage.getItem('dashboard_section_order') || 'null')
   );
+
   expect(savedOrder).not.toBeNull();
   expect(savedOrder[0]).toBe(secondKey);
   expect(savedOrder[1]).toBe(firstKey);
 
   console.log(`sections drag to sort working: moved '${firstKey}' below '${secondKey}'`);
 });
+
 
 // SECTION CLOSE/OPEN
 test('icon sections open/close', async ({ page }) => {

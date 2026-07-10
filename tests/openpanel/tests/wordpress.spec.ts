@@ -36,7 +36,7 @@ test('install wordpress', async ({ page }) => {
 
   await page.locator('#installButton').click();
 
-  await expect(page.getByText(/WordPress installation complete!/i)).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText(/WordPress installation completed!/i)).toBeVisible({ timeout: 30000 });
   console.log('wordpress install completed');
 
   await page.goto('/wordpress');

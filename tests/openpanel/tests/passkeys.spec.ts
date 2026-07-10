@@ -6,9 +6,9 @@ import { test, expect } from '@playwright/test';
 
 const IP_RE = /^(\d{1,3}\.){3}\d{1,3}$/;
 
-function isIpBased(baseURL: string | undefined): boolean {
-  if (!baseURL) return true;
-  const host = new URL(baseURL).hostname;
+function isIpBased(BASE_URL: string | undefined): boolean {
+  if (!BASE_URL) return true;
+  const host = new URL(BASE_URL).hostname;
   return IP_RE.test(host) || host === 'localhost';
 }
 
@@ -37,7 +37,7 @@ test('passkeys settings page loads', async ({ page }) => {
 });
 
 test('register a new passkey', async ({ page }) => {
-  test.skip(isIpBased(baseURL), 'passkeys require a domain-based URL, not an IP');
+  test.skip(isIpBased(BASE_URL), 'passkeys require a domain-based URL, not an IP');
   test.setTimeout(60_000);
   await addVirtualAuthenticator(page);
   await page.goto('/account/passkeys');
@@ -54,7 +54,7 @@ test('register a new passkey', async ({ page }) => {
 });
 
 test('remove a passkey', async ({ page }) => {
-  test.skip(({ baseURL }) => isIpBased(baseURL), 'passkeys require a domain-based URL');
+  test.skip(({ BASE_URL }) => isIpBased(BASE_URL), 'passkeys require a domain-based URL');
 
   test.setTimeout(60_000);
 

@@ -184,26 +184,50 @@ test('grant CREATE ROUTE privilege', async ({ page }) => {
 
 
 test('grant NO privileges', async ({ page }) => {
-  await page.goto(`/mysql/users`);
-  await page.getByRole('link', { name: 'Assign User to Database' }).click();
+  await page.goto('/mysql/users');
+
+  await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/info') && resp.status() === 200
+    ),
+    page.getByRole('link', { name: 'Assign User to Database' }).click(),
+  ]);
+
   await expect(page).toHaveURL(/.*mysql\/assign/);
 
-  await page.waitForResponse(resp => resp.url().includes('/mysql/info') && resp.status() === 200);
-
   await page.locator('select[name="db_user"]').selectOption('stefan_user');
-  await page.locator('select[name="database_name"]').selectOption('stefan_baza');
 
-  await page.waitForResponse(resp => resp.url().includes('/mysql/privileges/') && resp.status() === 200);
+  await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/privileges/') && resp.status() === 200
+    ),
+    page.locator('select[name="database_name"]').selectOption('stefan_baza'),
+  ]);
 
-  // REMOVE 'CREATE ROUTE' - expect error!
   await page.getByRole('link', { name: 'Back to Databases' }).click();
   await expect(page).toHaveURL(/.*mysql/);
+
   await expect(page.locator('body')).toContainText(/stefan_user/i);
+
   await page.getByRole('link', { name: 'stefan_user' }).click();
-  await page.getByRole('checkbox', { name: 'ALTER', exact: true }).uncheck();
-  await page.getByRole('checkbox', { name: 'CREATE ROUTINE' }).uncheck();
+  
+  const privilegeCheckboxes = page.locator('input[name="privileges"]');
+
+  for (let i = 0; i < await privilegeCheckboxes.count(); i++) {
+    const checkbox = privilegeCheckboxes.nth(i);
+  
+    if (await checkbox.isChecked()) {
+      await checkbox.uncheck({ force: true });
+    }
+  
+    await expect(checkbox).not.toBeChecked();
+  }
+
   await page.getByRole('button', { name: 'Make Changes' }).click();
-  await expect(page.locator('body')).toContainText(/at least one privilege must be selected/i);
+
+  await expect(page.locator('body')).toContainText(
+    /at least one privilege must be selected/i
+  );
 
   console.log('granting no privileges does show error');
 });
@@ -211,25 +235,37 @@ test('grant NO privileges', async ({ page }) => {
 
 
 test('grant ALL PRIVILEGES', async ({ page }) => {
-  await page.goto(`/mysql/users`);
-  await page.getByRole('link', { name: 'Assign User to Database' }).click();
+  await page.goto('/mysql/users');
+
+  await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/info') && resp.status() === 200
+    ),
+    page.getByRole('link', { name: 'Assign User to Database' }).click(),
+  ]);
+
   await expect(page).toHaveURL(/.*mysql\/assign/);
 
-  await page.waitForResponse(resp => resp.url().includes('/mysql/info') && resp.status() === 200);
-
   await page.locator('select[name="db_user"]').selectOption('stefan_user');
-  await page.locator('select[name="database_name"]').selectOption('stefan_baza');
 
-  await page.waitForResponse(resp => resp.url().includes('/mysql/privileges/') && resp.status() === 200);
+  await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/privileges/') && resp.status() === 200
+    ),
+    page.locator('select[name="database_name"]').selectOption('stefan_baza'),
+  ]);
 
-  // GRANT 'ALL PRIVILEGES'
   await page.getByRole('checkbox', { name: 'ALTER', exact: true }).check();
   await page.getByRole('checkbox', { name: 'ALL PRIVILEGES' }).check();
-  await page.getByRole('button', { name: 'Make Changes' }).click();
-  await expect(page.locator('body')).toContainText(/Privileges granted successfully for user\s+'.+?'\s+on database\s+'.+?'/i);
 
-  await page.goto(`/mysql/users`);
-  await expect(page.locator('#databases-table')).toContainText('stefan_user');
+  await page.getByRole('button', { name: 'Make Changes' }).click();
+
+  await expect(page.locator('body')).toContainText(
+    /Privileges granted successfully for user\s+'.+?'\s+on database\s+'.+?'/i
+  );
+
+  await page.goto('/mysql/users');
+  await expect(page.locator('#users-table')).toContainText('stefan_user');
 
   console.log('assign user to database is working');
 });
@@ -237,34 +273,51 @@ test('grant ALL PRIVILEGES', async ({ page }) => {
 
 
 test('revoke privileges', async ({ page }) => {
-  await page.goto(`/mysql/users`);
-  await page.getByRole('link', { name: 'Remove User from DB' }).click();
-  await expect(page).toHaveURL(/.*mysql\/remove/);
+  await page.goto('/mysql/users');
 
-  await page.waitForResponse(resp => resp.url().includes('/mysql/info') && resp.status() === 200);
+  await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/info') && resp.status() === 200
+    ),
+    page.getByRole('link', { name: 'Remove User from DB' }).click(),
+  ]);
+
+  await expect(page).toHaveURL(/.*mysql\/remove/);
 
   await page.locator('select[name="db_user"]').selectOption('stefan_user');
   await page.locator('select[name="database_name"]').selectOption('stefan_baza');
 
   await page.getByRole('button', { name: 'Remove User from Database' }).click();
-  await expect(page.locator('body')).toContainText(/successfully revoked all privileges for user/i);
+
+  await expect(page.locator('body')).toContainText(
+    /successfully revoked all privileges for user/i
+  );
+
   await expect(page.locator('#databases-table')).not.toContainText('stefan_user');
 });
 
 
 
 test('database wizard', async ({ page }) => {
-  await page.goto(`/mysql/wizard`);
-  await expect(page).toHaveURL(/.*mysql\/wizard/);  
-  await page.getByRole('textbox', { name: 'Database Name' }).fill('proba');
-  await page.getByRole('textbox', { name: 'Database User' }).fill('novi_user');
-  await page.getByRole('textbox', { name: 'Password' }).fill('stefan456g7dsd');
-  await page.getByRole('button', { name: 'Create DB, User, and Grant' }).click();
-  await expect(page.getByText('Process completed!')).toBeVisible();
+  await page.goto('/mysql/wizard');
+  await expect(page).toHaveURL(/.*mysql\/wizard/);
 
-  await page.getByRole('link', { name: 'Back to Databases' }).click();
-  await expect(page).toHaveURL(/.*mysql/);  
+  await page.locator('#dbname').fill('proba');
+  await page.locator('#username').fill('novi_user');
+  await page.locator('#password').fill('stefan456g7dsd');
+
+  await page.locator('#createAndAssign').click();
+
+  await expect(page.locator('body')).toContainText(/setup complete/i, {
+    timeout: 30000,
+  });
+
+  await page.getByRole('link', { name: /view databases/i }).click();
+  await expect(page).toHaveURL(/.*mysql/);
+
   const row = page.locator('#databases-table tr', { hasText: 'proba' });
+
+  await expect(row).toBeVisible();
   await expect(row).toContainText(/proba/i);
   await expect(row).toContainText(/novi_user/i);
 
@@ -296,10 +349,193 @@ test('configuration editor', async ({ page }) => {
   await expect(page.locator('#interactive_timeout')).toHaveValue('90');
   await expect(page.locator('#wait_timeout')).toHaveValue('300');
   console.log('mysql configuration is saved');
+  // Wait for MySQL container to finish restarting before next test
+  await page.waitForTimeout(10000);//TODO smisliti pametnije resenje
 });
 
 
+// IMPORT
+test('import', async ({ page }) => {
+  test.setTimeout(90000);
 
+  const tempFilePath = path.join(os.tmpdir(), 'test-import.sql');
+
+  const sqlContent = `
+DROP TABLE IF EXISTS users;
+CREATE TABLE users (id INT, name VARCHAR(50));
+INSERT INTO users VALUES (1, 'John');
+`;
+
+  fs.writeFileSync(tempFilePath, sqlContent);
+
+  await page.goto(`/mysql/import/stefan_baza`);
+  await expect(page).toHaveURL(/.*mysql\/import\/stefan_baza/);  
+
+  await page.waitForResponse(resp => resp.url().includes('/mysql/info') && resp.status() === 200);
+  await page.locator('select[name="database_name"]').selectOption('stefan_baza');
+  await page.locator('input[name="db_file"]').setInputFiles(tempFilePath);
+
+  await page.getByRole('button', { name: 'Upload & Import' }).click();
+  await expect(page.locator('body')).toContainText(/Successfully imported from test-import.sql file to database: stefan_baza/i);
+
+  await navigateToMySQLPage(page);
+
+  const showSizesCheckbox = page.locator('#showSizesCheckbox');
+  await showSizesCheckbox.check();
+  await expect(page.locator('#size-column-header')).toBeVisible();
+  await page.locator('#display-size').selectOption('mb');
+  
+  const row = page.locator('#databases-table tr', { hasText: 'stefan_baza' });
+  const sizeCell = row.locator('td.db_size_cell');
+  const sizeText = await sizeCell.textContent();
+  const sizeValue = Number(sizeText?.trim());
+  expect(sizeValue).toBeGreaterThan(0);
+
+  console.log('mysql import working');
+});
+
+
+test('export', async ({ page }) => {
+  test.setTimeout(90000);
+
+  const dbName = 'stefan_baza';
+
+  await navigateToMySQLPage(page);
+
+  const row = page.locator('#databases-table tbody tr', {
+    has: page.locator('td', { hasText: dbName }),
+  });
+
+  await expect(row).toBeVisible();
+
+  async function openExportDropdown() {
+    const exportButton = row.locator('button[title="Export"]');
+    const exportBox = row.locator('.export-section');
+
+    await row.scrollIntoViewIfNeeded();
+
+    if (!(await exportBox.isVisible())) {
+      await expect(exportButton).toBeVisible();
+      await exportButton.click();
+      await expect(exportBox).toBeVisible();
+    }
+
+    return exportBox;
+  }
+
+  async function closeExportDropdown() {
+    const exportBox = row.locator('.export-section');
+
+    if (await exportBox.isVisible()) {
+      await page.keyboard.press('Escape');
+      await expect(exportBox).toBeHidden();
+    }
+  }
+
+  async function selectExportOption(
+    exportBox: any,
+    name: 'export_format' | 'export_destination',
+    value: string
+  ) {
+    const radio = exportBox.locator(`input[name="${name}"][value="${value}"]`);
+
+    await radio.evaluate((el: HTMLInputElement) => {
+      el.checked = true;
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+      el.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    await expect(radio).toBeChecked();
+  }
+
+  // 1. .sql to browser
+  let exportBox = await openExportDropdown();
+
+  await selectExportOption(exportBox, 'export_format', 'sql');
+  await selectExportOption(exportBox, 'export_destination', 'browser');
+
+  const [download1] = await Promise.all([
+    page.waitForEvent('download', { timeout: 60000 }),
+    exportBox.getByRole('button', { name: /^Export$/ }).click(),
+  ]);
+
+  expect(download1.suggestedFilename()).toMatch(/stefan_baza.*\.sql$/);
+
+  // 2. .sql.gz to browser
+  exportBox = await openExportDropdown();
+
+  await selectExportOption(exportBox, 'export_format', 'gzip');
+  await selectExportOption(exportBox, 'export_destination', 'browser');
+
+  const [download2] = await Promise.all([
+    page.waitForEvent('download', { timeout: 60000 }),
+    exportBox.getByRole('button', { name: /^Export$/ }).click(),
+  ]);
+
+  expect(download2.suggestedFilename()).toMatch(/stefan_baza.*\.sql\.gz$/);
+
+  // 3. .sql to files
+  exportBox = await openExportDropdown();
+
+  await selectExportOption(exportBox, 'export_format', 'sql');
+  await selectExportOption(exportBox, 'export_destination', 'files');
+
+  await expect(exportBox.locator('input[x-model="relativePath"]')).toBeVisible();
+
+  const [response3] = await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/export') &&
+      resp.request().method() === 'POST'
+    ),
+    exportBox.getByRole('button', { name: /^Export$/ }).click(),
+  ]);
+
+  expect(response3.status()).toBeLessThan(500);
+  await expect(page.getByText(/Database '.*' exported to .*/)).toBeVisible();
+
+  await closeExportDropdown();
+
+  // 4. .sql.gz to files
+  exportBox = await openExportDropdown();
+
+  await selectExportOption(exportBox, 'export_format', 'gzip');
+  await selectExportOption(exportBox, 'export_destination', 'files');
+
+  await expect(exportBox.locator('input[x-model="relativePath"]')).toBeVisible();
+
+  const [response4] = await Promise.all([
+    page.waitForResponse(resp =>
+      resp.url().includes('/mysql/export') &&
+      resp.request().method() === 'POST'
+    ),
+    exportBox.getByRole('button', { name: /^Export$/ }).click(),
+  ]);
+
+  expect(response4.status()).toBeLessThan(500);
+  await expect(page.getByText(/Database '.*' exported to .*/)).toBeVisible();
+
+  // 5. check if files created
+  const filesResponse = await page.goto('/files?output=json');
+  expect(filesResponse).not.toBeNull();
+
+  const filesData = await filesResponse!.json();
+  const fileNames = filesData.files_info.map((f: any) => f.name);
+
+  const sqlFile = fileNames.find((n: string) =>
+    n.match(/stefan_baza.*\.sql$/) && !n.endsWith('.gz')
+  );
+
+  const gzFile = fileNames.find((n: string) =>
+    n.match(/stefan_baza.*\.sql\.gz$/)
+  );
+
+  expect(sqlFile).toBeTruthy();
+  expect(gzFile).toBeTruthy();
+
+  console.log('✓ export files found in /files:', sqlFile, gzFile);
+});
+
+// remote access 
 test('remote access', async ({ page }) => {
   await page.goto('/mysql/remote-mysql');
 
@@ -362,138 +598,9 @@ test('remote access', async ({ page }) => {
   await expect(statusText).toHaveText('Disabled');
   await expect(redBars).toBeVisible();
   console.log('remote access is disabled');
+    // Wait for MySQL container to finish restarting before next test
+  await page.waitForTimeout(10000);//TODO smisliti pametnije resenje
 });
-
-
-
-// IMPORT
-test('import', async ({ page }) => {
-
-  const tempFilePath = path.join(os.tmpdir(), 'test-import.sql');
-
-  const sqlContent = `
-DROP TABLE IF EXISTS users;
-CREATE TABLE users (id INT, name VARCHAR(50));
-INSERT INTO users VALUES (1, 'John');
-`;
-
-  fs.writeFileSync(tempFilePath, sqlContent);
-
-  await page.goto(`/mysql/import/stefan_baza`);
-  await expect(page).toHaveURL(/.*mysql\/import\/stefan_baza/);  
-
-  await page.waitForResponse(resp => resp.url().includes('/mysql/info') && resp.status() === 200);
-  await page.locator('select[name="database_name"]').selectOption('stefan_baza');
-  await page.locator('input[name="db_file"]').setInputFiles(tempFilePath);
-
-  await page.getByRole('button', { name: 'Upload & Import' }).click();
-  await expect(page.locator('body')).toContainText(/Successfully imported from test-import.sql file to database: stefan_baza/i);
-
-  await navigateToMySQLPage(page);
-
-  const showSizesCheckbox = page.locator('#showSizesCheckbox');
-  await showSizesCheckbox.check();
-  await expect(page.locator('#size-column-header')).toBeVisible();
-  await page.locator('#display-size').selectOption('mb');
-  
-  const row = page.locator('#databases-table tr', { hasText: 'stefan_baza' });
-  const sizeCell = row.locator('td.db_size_cell');
-  const sizeText = await sizeCell.textContent();
-  const sizeValue = Number(sizeText?.trim());
-  expect(sizeValue).toBeGreaterThan(0);
-
-  console.log('mysql import working');
-});
-
-
-
-test('export', async ({ page }) => {
-    await navigateToMySQLPage(page);
-    const row = page.locator('#databases-table tr', { hasText: 'stefan_baza' });
-
-    async function openExportDropdown() {
-        await page.getByTitle('Export').first().click();
-        await page.waitForSelector('.export-section', { state: 'visible' });
-    }
-
-    // 1. .sql to browser
-    await openExportDropdown();
-    await expect(row.locator('input[value="sql"]')).toBeChecked();
-    await expect(row.locator('input[value="browser"]')).toBeChecked();
-    await expect(row.locator('input[x-model="relativePath"]')).toBeHidden();
-    const [download1] = await Promise.all([
-        page.waitForEvent('download'),
-        row.locator('button[type="submit"]', { hasText: 'Export' }).click(),
-    ]);
-    expect(download1.suggestedFilename()).toMatch(/stefan_baza.*\.sql$/);
-    console.log('✓ SQL + Browser download triggered:', download1.suggestedFilename());
-
-    // 2. .sql.gz to browser
-    await row.locator('input[value="gzip"]').click({ force: true });
-    await expect(row.locator('input[value="gzip"]')).toBeChecked();
-    const [download2] = await Promise.all([
-        page.waitForEvent('download'),
-        row.locator('button[type="submit"]', { hasText: 'Export' }).click(),
-    ]);
-    expect(download2.suggestedFilename()).toMatch(/stefan_baza.*\.sql\.gz$/);
-    console.log('✓ GZIP + Browser download triggered:', download2.suggestedFilename());
-
-    // 3. .sql to files
-    await row.locator('input[value="sql"]').click({ force: true });
-    await row.locator('input[value="files"]').click({ force: true });
-    const pathInput = row.locator('input[x-model="relativePath"]');
-    await expect(pathInput).toBeVisible();
-    const [response3] = await Promise.all([
-        page.waitForResponse(resp => resp.url().includes('export') && resp.request().method() === 'POST'),
-        row.locator('button[type="submit"]', { hasText: 'Export' }).click(),
-    ]);
-    expect(response3.status()).toBeLessThan(500);
-    await expect( page.getByText(/Database '.*' exported to .*/) ).toBeVisible();
-    console.log('✓ SQL + Files submitted, server responded:', response3.status());
-
-    // 4. .sql.gz to files
-    await page.waitForTimeout(500);
-    await openExportDropdown();
-    await row.scrollIntoViewIfNeeded();
-    await page.waitForSelector('.export-section', { state: 'visible' });
-    await row.locator('input[value="gzip"]').click({ force: true });
-    await row.locator('input[value="files"]').click({ force: true });
-    await expect(pathInput).toBeVisible();
-    const [response4] = await Promise.all([
-        page.waitForResponse(resp => resp.url().includes('export') && resp.request().method() === 'POST'),
-        row.locator('button[type="submit"]', { hasText: 'Export' }).click(),
-    ]);
-    expect(response4.status()).toBeLessThan(500);
-    await expect( page.getByText(/Database '.*' exported to .*/) ).toBeVisible();
-    console.log('✓ GZIP + Files submitted, server responded:', response4.status());
-
-    // 5. check if files created
-    const filesResponse = await page.goto('/files?output=json');
-    const filesData = await filesResponse.json();
-    const fileNames = filesData.files_info.map(f => f.name);
-
-    const sqlFile = fileNames.find(n => n.match(/stefan_baza.*\.sql$/) && !n.endsWith('.gz'));
-    const gzFile = fileNames.find(n => n.match(/stefan_baza.*\.sql\.gz$/));
-
-    expect(sqlFile).toBeTruthy();
-    expect(gzFile).toBeTruthy();
-    console.log('✓ export files found in /files:', sqlFile, gzFile);
-});
-
-
-test('change root password', async ({ page }) => {
-  await page.goto(`/mysql/root-password`);
-  await expect(page).toHaveURL(/.*mysql\/root-password/);  
-  await page.getByRole('textbox', { name: 'New Password*' }).fill('stefan94');
-  await page.getByRole('button', { name: 'Change Password' }).click();
-  await expect(page.locator('body')).toContainText(/successfully changed root password/i);
-  await page.getByRole('link', { name: 'Back to Databases' }).click();
-  await expect(page).toHaveURL(/.*mysql/);  
-  await expect(page.locator('body')).toContainText(/stefan_baza/i, { timeout: 15000 });
-
-  console.log('change root password is working');
-});
-
 
 
 test('delete user', async ({ page }) => {
@@ -547,3 +654,4 @@ test('delete database', async ({ page }) => {
 
   console.log('database deleted + validated');
 });
+

@@ -5,7 +5,7 @@
 # Usage: opencli user-delete <username> [-y]
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 08.07.2026
+# Last Modified: 09.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -251,6 +251,20 @@ delete_all_user_files() {
 	local node_ip_address="$2" 
 
     if [ -n "$node_ip_address" ]; then
+		# 1. unmount from master
+		umount "/home/$context" >/dev/null 2>&1
+    fi
+	# 2. delete files
+    [ -d /home/"$context" ] && rm -rf "/home/${context:?}"
+    [ -d /etc/openpanel/openpanel/core/users/"$context" ] && rm -rf "/etc/openpanel/openpanel/core/users/$context"
+}
+
+
+delete_system_user() {
+	local context="$1"
+	local node_ip_address="$2" 
+
+    if [ -n "$node_ip_address" ]; then
 		# 1. delete from node
 		ssh "root@$node_ip_address" bash -s -- "$context" <<'EOF'
 		user="$1"
@@ -265,10 +279,8 @@ delete_all_user_files() {
 		
 		[ -d "/home/$user" ] && ionice -c3 rm -rf "/home/$user"
 EOF
-		# 2. unmount from master
-		umount "/home/$context" >/dev/null 2>&1
     fi
-	# 3. delete on master 
+	# 2. delete on master 
 	pkill -u "$context" -9 2>/dev/null || true
 
     if command -v userdel >/dev/null 2>&1; then
@@ -276,10 +288,9 @@ EOF
     elif command -v deluser >/dev/null 2>&1; then
         deluser --remove-home "$context" # Debian
     fi
-
-    [ -d /home/"$context" ] && rm -rf "/home/${context:?}"
-    [ -d /etc/openpanel/openpanel/core/users/"$context" ] && rm -rf "/etc/openpanel/openpanel/core/users/$context"
 }
+
+
 
 delete_context() {
 	local context="$1"
@@ -333,6 +344,7 @@ delete_emails "$USERNAME"
 delete_ftp_users "$context" &
 delete_user_from_database "$USERNAME" &
 delete_all_user_files "$context" "$node_ip_address" &
+delete_system_user "$context" "$node_ip_address" #& NOT DETACHED TO TEST FOR https://github.com/stefanpejcic/OpenPanel/issues/1023
 postfwd_setup "$USERNAME" &
 delete_context "$context" &
 

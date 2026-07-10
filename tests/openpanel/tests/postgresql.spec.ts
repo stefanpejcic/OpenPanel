@@ -46,8 +46,7 @@ test('list users', async ({ page }) => {
 
 
 test('create user', async ({ page }) => {
-  await page.goto('/postgresql/users');
-  await page.getByRole('link', { name: 'Create User' }).click();
+  await page.goto('/postgresql/user');
   await expect(page).toHaveURL(/postgresql\/user/);
   await page.getByRole('textbox', { name: 'Username*' }).fill('stefan_psql_user');
   await page.getByRole('textbox', { name: 'Password*' }).fill('stefan94');
@@ -101,10 +100,10 @@ test('revoke user from database', async ({ page }) => {
 test('database wizard', async ({ page }) => {
   await page.goto('/postgresql/wizard');
   await expect(page).toHaveURL(/postgresql\/wizard/);
-  await page.getByRole('textbox', { name: 'Database Name' }).fill('psql_proba');
-  await page.getByRole('textbox', { name: 'Database User' }).fill('psql_novi_user');
-  await page.getByRole('textbox', { name: 'Password' }).fill('stefan456g7dsd');
-  await page.getByRole('button', { name: 'Create DB, User, and Grant' }).click();
+  await page.getByRole('textbox', { name: 'database_name' }).fill('psql_proba');
+  await page.getByRole('textbox', { name: 'db_user' }).fill('psql_novi_user');
+  await page.getByRole('textbox', { name: 'password' }).fill('stefan456g7dsd');
+  await page.getByRole('button', { name: 'Create DB, User, and Grant Privileges' }).click();
   await expect(page.getByText('Process completed!')).toBeVisible();
   await page.getByRole('link', { name: 'Back to Databases' }).click();
   await expect(page).toHaveURL(/postgresql/);
@@ -128,7 +127,7 @@ test('configuration editor', async ({ page }) => {
   await expect(page.locator('body')).toContainText(/max_connections|shared_buffers/i);
   await page.locator('#max_connections').fill('110');
   await page.getByRole('button', { name: 'Save Changes' }).click();
-  await expect(page.locator('body')).toContainText(/configuration updated|saved/i);
+  await expect(page.locator('body')).toContainText(/configuration was edited|restarted/i);
   await page.waitForLoadState('networkidle');
   await expect(page.locator('#max_connections')).toHaveValue('110');
   console.log('postgresql configuration is saved');

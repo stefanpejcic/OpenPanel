@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 01.10.2023
-# Last Modified: 08.07.2026
+# Last Modified: 09.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -278,12 +278,12 @@ restore_home() {
         chown -R "${gid}:${gid}" "/home/$CONTEXT/sockets" &
     fi
 
-    if [[ -f "$WORK/mail_external/path.txt" && -f "$WORK/mail_external/mail.tar" ]]; then
+if [[ -f "$WORK/mail_external/path.txt" && -f "$WORK/mail_external/mail.tar" ]]; then
         local mp; mp=$(cat "$WORK/mail_external/path.txt")
         log "Restoring external mail → $mp ..."
-        mkdir -p "$(dirname "$mp")"
+        mkdir -p "$mp"
         local mail_list="$WORK/mail_external/.extracted.list"
-        tar -C "$mp" --numeric-owner --acls --xattrs -xvf "$WORK/mail_external/mail.tar" >"$mail_list" 2>>"$log_file" || warn "External mail restore failed."
+        tar -C "$mp" --numeric-owner --acls --xattrs --strip-components=1 -xvf "$WORK/mail_external/mail.tar" >"$mail_list" 2>>"$log_file" || warn "External mail restore failed."
         local mail_uid; mail_uid=$(id -u "$CONTEXT" 2>/dev/null)
         if [[ -n "$mail_uid" && -s "$mail_list" ]]; then
             awk -F/ '{print $1}' "$mail_list" | sort -u | while read -r d; do

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const webserverServices = ['nginx', 'apache2', 'openlitespeed'];
+const webserverServices = ['nginx', 'apache', 'openlitespeed'];
 const commonServices = [...webserverServices, 'mysql', 'php-fpm-8.5'];
 
 async function navigateToService(page: any, service: string) {
@@ -45,7 +45,7 @@ test('services list contains expected entries', async ({ page }) => {
 });
 
 // Webserver: try nginx → apache2 → openlitespeed; fail only if all three fail
-test('webserver service page (nginx / apache2 / openlitespeed)', async ({ page }) => {
+test('webserver service page (nginx / apache / openlitespeed)', async ({ page }) => {
   const service = await navigateToFirstAvailable(page, webserverServices);
   await expect(page.locator('body')).toContainText(new RegExp(service, 'i'));
   const enableBtn = page.locator('button[type="submit"]').first();

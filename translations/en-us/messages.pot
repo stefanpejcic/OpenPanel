@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 1.7.65\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-08 15:03+0200\n"
+"POT-Creation-Date: 2026-07-09 14:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -2934,16 +2934,16 @@ msgstr ""
 msgid "Account no longer exists."
 msgstr ""
 
-#: modules/account/sessions.py:34 templates/dashboard/dashboard.html:230
+#: modules/account/sessions.py:40 templates/dashboard/dashboard.html:230
 #: templates/user/active_sessions.html:10
 msgid "Active Sessions"
 msgstr ""
 
-#: modules/account/sessions.py:66
+#: modules/account/sessions.py:76
 msgid "Session terminated successfully."
 msgstr ""
 
-#: modules/account/sessions.py:75
+#: modules/account/sessions.py:86
 msgid "Failed to terminate session or session already expired."
 msgstr ""
 
@@ -3764,15 +3764,15 @@ msgstr ""
 msgid "Error accessing the specified directory."
 msgstr ""
 
-#: modules/files/fix_permissions.py:26
+#: modules/files/fix_permissions.py:30
 msgid "Invalid fix_directory"
 msgstr ""
 
-#: modules/files/fix_permissions.py:40
+#: modules/files/fix_permissions.py:38
 msgid "Success."
 msgstr ""
 
-#: modules/files/fix_permissions.py:50 templates/dashboard/dashboard.html:125
+#: modules/files/fix_permissions.py:48 templates/dashboard/dashboard.html:125
 #: templates/files/fix_permissions.html:10
 #: templates/files/fix_permissions.html:46
 msgid "Fix Permissions"

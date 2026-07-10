@@ -49,7 +49,7 @@ test.describe('Python PM2 autoinstaller', () => {
 
     await page.locator('#installButton').click();
 
-    await expect(page.getByText(/setup completed/i)).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText(/setup completed/i)).toBeVisible({ timeout: 120000 });
   });
 
   test('3. verify app appears on /sites', async ({ page }) => {

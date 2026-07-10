@@ -580,7 +580,7 @@
     "title": "IP Blocker",
     "description": "If enabled, users can block IP addresses from accessing their websites.",
     "link": "/security/ip-blocker",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": "https://openpanel.com/docs/admin/settings/modules/#ip-blocker"
   },
   {
@@ -596,7 +596,7 @@
     "title": "MCP",
     "description": "If enabled, users can use the MCP to perform panel actions.",
     "link": "/account/mcp",
-    "type": "beta",
+    "type": "enterprise",
     "help_link": ""
   }
 ]
