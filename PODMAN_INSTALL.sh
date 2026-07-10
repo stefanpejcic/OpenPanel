@@ -557,6 +557,9 @@ setup_modprobe() {
 }
 
 podman_docker_alias() {
+	# https://feldspaten.org/2021/07/16/podman-graph-driver-overwritten/
+	rm -rf ~/.local/share/containers/libpod
+
     # deterministic short-name resolution for all podman/docker calls
     mkdir -p /etc/containers/registries.conf.d
     echo 'unqualified-search-registries = ["docker.io"]' > /etc/containers/registries.conf.d/99-openpanel.conf
