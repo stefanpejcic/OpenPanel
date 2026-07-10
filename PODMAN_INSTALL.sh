@@ -1,0 +1,1167 @@
+#!/bin/bash
+################################################################################
+# OpenPanel Installer ✌️
+# https://openpanel.com/install
+#
+# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS, openEuler
+# Supported Architecture:  x86_64(AMD64), AArch64(ARM64)
+#
+# Usage:                   bash <(curl -sSL https://openpanel.org/podman)
+# Author:                  Stefan Pejcic <stefan@pejcic.rs>
+# Created:                 11.07.2023
+# Last Modified:           10.07.2026
+################################################################################
+# shellcheck disable=SC2015
+
+GREEN='\033[0;32m'; YELLOW='\033[0;33m'; RED='\033[0;31m'; RESET='\033[0m'
+export TERM=xterm-256color DEBIAN_FRONTEND=noninteractive
+
+# defaults
+PANEL_VERSION=""
+CUSTOM_VERSION=false
+ADMIN_PORT=2087
+USER_PORT=2083
+SKIP_APT_UPDATE=false
+SKIP_DNS_SERVER=false
+SKIP_FIREWALL=false
+REPAIR=false
+SET_HOSTNAME_NOW=false
+USE_SELFSIGNED=false
+SETUP_SWAP_ANYWAY=false
+CORAZA=true
+IMUNIFY_AV=false
+SWAP_FILE=1
+SEND_EMAIL_AFTER_INSTALL=false
+SET_PREMIUM=false
+SET_ADMIN_USERNAME=false
+SET_ADMIN_PASSWORD=false
+LICENSE="Community"
+post_install_path=""
+new_hostname=""
+separate_panel_domain=""
+custom_username=""
+custom_password=""
+EMAIL=""
+license_key=""
+
+readonly DEFAULT_PANEL_VERSION="1.7.65"
+readonly CONTAINER_ENGINE="podman"
+readonly SHARED_STORE="/var/lib/openpanel/shared-containers/storage"
+readonly ETC_DIR="/etc/openpanel/"
+readonly LOG_FILE="openpanel_install.log"
+readonly SERVICES_DIR="/etc/systemd/system/"
+readonly CONFIG_FILE="${ETC_DIR}openpanel/conf/openpanel.config"
+
+exec > >(tee -a "$LOG_FILE") 2>&1
+echo "" > /root/openpanel_restart_needed
+
+ok()   { echo -e "[${GREEN} OK ${RESET}] $*"; }
+warn() { echo -e "[${YELLOW}  ! ${RESET}] $*"; }
+fail() { echo -e "[${RED}  X ${RESET}] $*"; }
+
+die() {
+    echo -e "${RED}INSTALLATION FAILED${RESET} - Please retry with '--repair' flag to retry. You can also add '-x' right after bash command to see the actual progress of this script and the exact errors. \nError message from the script: $2" >&2
+    exit 1
+}
+
+run() {
+    local ts; ts=$(date +'%Y-%m-%d %H:%M:%S')
+    echo "[$ts] COMMAND: $*" >> "$LOG_FILE"
+    "$@" >/dev/null 2>&1
+}
+
+declare -A _PKG_CACHE=()
+_build_pkg_cache() {
+    case "$PACKAGE_MANAGER" in
+        apt-get)
+            while IFS= read -r line; do
+                [[ "$line" =~ ^ii[[:space:]]+([^[:space:]]+) ]] && _PKG_CACHE["${BASH_REMATCH[1]%%:*}"]=1
+            done < <(dpkg -l 2>/dev/null)
+            ;;
+        yum|dnf)
+            while IFS= read -r pkg; do
+                _PKG_CACHE["$pkg"]=1
+            done < <("$PACKAGE_MANAGER" list installed 2>/dev/null | awk 'NR>1{sub(/\.[^.]+$/,"",$1); print $1}')
+            ;;
+    esac
+}
+
+pkg_installed() {
+    [[ "${_PKG_CACHE[$1]+_}" ]] || [[ "${_PKG_CACHE[${1%%:*}]+_}" ]]
+}
+
+line() { printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' -; }
+
+show_help() {
+    cat <<EOF
+Available options:
+  --key=<key>                 License key for OpenPanel Enterprise edition.
+  --domain=<domain>           Domain for OpenAdmin and OpenPanel.
+  --panel-domain=<domain>     Separate domain just for OpenPanel UI.
+  --username=<username>       Admin username (random if not provided).
+  --password=<password>       Admin password (random if not provided).
+  --version=<version>         Custom OpenPanel version to install.
+  --email=<email>             Email to receive admin credentials.
+  --admin-port=<port>         Port for OpenAdmin (default: 2087).
+  --user-port=<port>          Port for OpenPanel (default: 2083).
+  --imunifyav                 Install and set up ImunifyAV.
+  --skip-requirements         Skip requirements check.
+  --skip-panel-check          Skip check for existing panels.
+  --skip-apt-update           Skip package manager update.
+  --skip-firewall             Skip Sentinel Firewall installation.
+  --skip-dns-server           Skip DNS (Bind9) setup.
+  --no-waf                    Disable CorazaWAF / OWASP ruleset.
+  --post_install=<path>       Post-install script path or URL.
+  --swap=<1-10>               Swap size in GB.
+  --selfsigned                Use a self-signed SSL certificate.
+  --repair | --retry          Retry and overwrite existing installation.
+  -h, --help                  Show this help message.
+EOF
+}
+
+validate_port() {
+    local name=$1 val=$2
+    if [[ "$val" =~ ^[0-9]+$ ]] && (( val >= 1000 && val <= 30000 )); then
+        echo "$val"
+    else
+        echo "Error: $name must be between 1000 and 30000" >&2; exit 1
+    fi
+}
+
+parse_args() {
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --key=*)           SET_PREMIUM=true;         license_key="${1#*=}" ;;
+            --domain=*)        SET_HOSTNAME_NOW=true;    new_hostname="${1#*=}" ;;
+            --panel-domain=*)  SET_HOSTNAME_NOW=true;    separate_panel_domain="${1#*=}" ;;
+            --username=*)      SET_ADMIN_USERNAME=true;  custom_username="${1#*=}" ;;
+            --password=*)      SET_ADMIN_PASSWORD=true;  custom_password="${1#*=}" ;;
+            --post_install=*)  post_install_path="${1#*=}" ;;
+            --version=*)       CUSTOM_VERSION=true;      PANEL_VERSION="${1#*=}" ;;
+            --swap=*)          SETUP_SWAP_ANYWAY=true;   SWAP_FILE="${1#*=}" ;;
+            --email=*)         SEND_EMAIL_AFTER_INSTALL=true; EMAIL="${1#*=}" ;;
+            --admin-port=*)    ADMIN_PORT=$(validate_port "admin-port" "${1#*=}") ;;
+            --user-port=*)     USER_PORT=$(validate_port "user-port"  "${1#*=}") ;;
+            --skip-requirements) SKIP_REQUIREMENTS=true ;;
+            --skip-panel-check)  SKIP_PANEL_CHECK=true ;;
+            --skip-apt-update)   SKIP_APT_UPDATE=true ;;
+            --skip-dns-server)   SKIP_DNS_SERVER=true ;;
+            --skip-firewall)     SKIP_FIREWALL=true ;;
+            --imunifyav)         IMUNIFY_AV=true ;;
+            --no-waf)            CORAZA=false ;;
+            --selfsigned)        USE_SELFSIGNED=true ;;
+            --repair|--retry)    REPAIR=true; SKIP_PANEL_CHECK=true; SKIP_APT_UPDATE=true ;;
+            -h|--help)           show_help; exit 0 ;;
+            *) echo "Unknown option: $1"; show_help; exit 1 ;;
+        esac
+        shift
+    done
+}
+
+check_requirements() {
+    [[ -n "${SKIP_REQUIREMENTS:-}" ]] && return
+
+    [[ "$(id -u)" == "0" ]] || die 1 "You must be root to run this script."
+    [[ "$(uname)" != "Darwin" ]] || die 1 "macOS is not supported."
+
+	if [[ -f /.dockerenv || -f /run/.containerenv ]] || { tr '\0' '\n' < /proc/1/environ | grep -qi '^container='; }; then
+        die 1 "Running inside a container is not supported."
+    fi
+
+    local ram_mb disk_mb
+    ram_mb=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1024 ))
+    disk_mb=$(( $(df / --output=avail | tail -1) / 1024 ))
+    (( ram_mb  >= 1024 )) || die 1 "At least 1 GB RAM required (detected: ${ram_mb} MB)."
+    (( disk_mb >= 5120 )) || die 1 "At least 5 GB free disk space required (detected: ${disk_mb} MB)."
+}
+
+detect_installed_panels() {
+    [[ -n "${SKIP_PANEL_CHECK:-}" ]] && return
+
+    declare -A panels=([/usr/local/admin/]="OpenPanel" [/usr/local/cpanel/whostmgr]="cPanel WHM" [/opt/psa/version]="Plesk" [/usr/local/psa/version]="Plesk" [/usr/local/CyberPanel]="CyberPanel" [/usr/local/directadmin]="DirectAdmin" [/usr/local/mgr5]="ispmanager" [/usr/local/cwpsrv]="CentOS Web Panel (CWP)" [/usr/local/vesta]="VestaCP" [/usr/local/hestia]="HestiaCP" [/usr/local/httpd]="Apache WebServer" [/usr/local/apache2]="Apache WebServer" [/usr/sbin/httpd]="Apache WebServer" [/sbin/httpd]="Apache WebServer" [/usr/lib/nginx]="Nginx WebServer")
+    for path in "${!panels[@]}"; do
+        [[ -e "$path" ]] || continue
+        local name="${panels[$path]}"
+        if [[ "$name" == "OpenPanel" ]]; then
+            die 1 "OpenPanel is already installed. To update, run: opencli update --force"
+        elif [[ "$name" == *WebServer* ]]; then
+            die 1 "$name is already installed. OpenPanel requires a clean server with no web servers."
+        else
+            die 1 "$name is installed. OpenPanel requires a clean server with no control panels."
+        fi
+    done
+
+    ok "No conflicting panels or web servers found."
+}
+
+detect_os_and_package_manager() {
+    [[ -f /etc/os-release ]] || die 1 "Cannot detect OS: /etc/os-release not found."
+	# shellcheck disable=SC1091
+    . /etc/os-release
+    OS_ID="${ID,,}"
+    OS_VERSION_ID="${VERSION_ID:-}"
+    OS_CODENAME="${VERSION_CODENAME:-}"
+    OS_NAME="${NAME:-}"
+    export OS_ID OS_VERSION_ID OS_CODENAME OS_NAME
+
+    case "$OS_ID" in
+        ubuntu|debian)               PACKAGE_MANAGER="apt-get" ;;
+        fedora|rocky|almalinux|alma|openeuler) PACKAGE_MANAGER="dnf" ;;
+        centos)                      PACKAGE_MANAGER="yum" ;;
+        *) die 1 "Unsupported OS: $OS_ID" ;;
+    esac
+    case "$(uname -m)" in
+        x86_64|amd64)  architecture="x86_64" ;;
+        aarch64|arm64) architecture="aarch64" ;;
+        *)             architecture="$(uname -m)" ;;
+    esac
+}
+
+get_server_ipv4() {
+    local ip
+	ip=$(curl --silent --max-time 2 -4 "https://ip.openpanel.com" || curl --silent --max-time 2 -4 "https://ifconfig.me/ip")
+    [[ -z "$ip" ]] && ip=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -n1)
+    [[ "$ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] || warn "Could not determine a valid public IPv4 address."
+    SERVER_IPV4_ADDRESS="$ip"
+}
+
+set_panel_version() {
+    if [[ "$CUSTOM_VERSION" == false ]]; then
+        local response
+        response=$(curl -4 -s "https://api.openpanel.com/statistics/" || true)
+        PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
+        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
+    fi
+}
+
+print_header() {
+    line
+    echo -e "   ____                         _____                      _  "
+    echo -e "  / __ \                       |  __ \                    | | "
+    echo -e " | |  | | _ __    ___  _ __    | |__) | __ _  _ __    ___ | | "
+    echo -e " | |  | || '_ \  / _ \| '_ \   |  ___/ / _\" || '_ \ / _  \| | "
+    echo -e " | |__| || |_) ||  __/| | | |  | |    | (_| || | | ||  __/| | "
+    echo -e "  \____/ | .__/  \___||_| |_|  |_|     \__,_||_| |_| \___||_| "
+    echo -e "         | |                                                  "
+    echo -e "         |_|                                   version: ${GREEN}$PANEL_VERSION${RESET} "
+    line
+    echo -e "  OS: ${GREEN}${OS_NAME^^} ${OS_VERSION_ID}${RESET}  |  Arch: ${GREEN}${architecture^^}${RESET}  |  IP: ${GREEN}${SERVER_IPV4_ADDRESS}${RESET}  |  Engine: ${GREEN}${CONTAINER_ENGINE^^}${RESET}  |  Pkg: ${GREEN}${PACKAGE_MANAGER^^}${RESET}"
+    line
+}
+
+update_package_manager() {
+    [[ "$SKIP_APT_UPDATE" == true ]] && return
+    echo "Updating $PACKAGE_MANAGER..."
+    run $PACKAGE_MANAGER update -y && ok "all packages updated." || warn "Could not update all packages."
+}
+
+pkg_install_with_retry() {
+    local pkg=$1
+    pkg_installed "$pkg" && { echo -e "${GREEN}$pkg already installed, skipping.${RESET}"; return; }
+
+    echo -e "Installing ${GREEN}${pkg}${RESET}..."
+    $PACKAGE_MANAGER install -y "$pkg" >/dev/null 2>&1 && return
+
+    case "$pkg" in
+        podman-compose) pip3 install podman-compose >/dev/null 2>&1 || pip3 install --break-system-packages podman-compose >/dev/null 2>&1; command -v podman-compose &>/dev/null && return ;;
+        linux-image-amd64) $PACKAGE_MANAGER install -y linux-image >/dev/null 2>&1 && return ;;
+        dbus-user-session) $PACKAGE_MANAGER install -y dbus >/dev/null 2>&1 && return ;;
+        uidmap)       $PACKAGE_MANAGER install -y shadow-utils >/dev/null 2>&1 && return ;;
+        gnupg2)       $PACKAGE_MANAGER install -y gnupg >/dev/null 2>&1 && return ;;
+        netavark|aardvark-dns|crun) warn "Could not install $pkg — podman may fall back to CNI/runc."; return ;;
+        quota|quotatool|systemd-container|slirp4netns|fuse-overlayfs) warn "Could not install $pkg — you may need to install it manually."; return ;;
+    esac
+
+    local attempt=1 max=10 delay=5
+    until $PACKAGE_MANAGER install -y "$pkg" >/dev/null 2>&1; do
+        (( attempt++ ))
+        (( attempt > max )) && die 1 "Failed to install $pkg after $max attempts."
+        echo "Retry $attempt/$max for $pkg in ${delay}s..."
+        sleep $delay
+    done
+}
+
+build_quotatool_from_source() {
+    quotatool -V >/dev/null 2>&1 && return
+    echo "Building quotatool from source..."
+    local pm=$PACKAGE_MANAGER
+    if [[ "$pm" == "dnf" ]]; then
+        run dnf groupinstall "Development Tools" -y
+        run dnf install -y git gcc make autoconf automake
+    else
+        run yum groupinstall "Development Tools" -y
+        run yum install -y git gcc make autoconf automake
+    fi
+    git clone https://github.com/ekenberg/quotatool.git /tmp/quotatool >/dev/null 2>&1
+    ( cd /tmp/quotatool && ./configure && make && make install ) >/dev/null 2>&1
+    rm -rf /tmp/quotatool
+}
+
+wait_for_pkg_lock() {
+    local max_wait=300 waited=0
+    while (( waited < max_wait )); do
+        if ! fuser /var/lib/dpkg/lock-frontend &>/dev/null 2>&1 && ! pgrep -x 'dnf|yum|rpm' &>/dev/null; then
+            return 0
+        fi
+        echo "Package manager busy. Waiting..."
+        sleep 5
+        (( waited += 5 ))
+    done
+    die 1 "Timeout waiting for package manager lock."
+}
+
+install_packages() {
+    echo "Installing required packages..."
+    local packages=()
+    # NOTE: no Docker repos needed — podman ships in distro repos on all supported OS.
+    # No iptables-legacy / EL10 reboot dance either: netavark works with nftables.
+    case "$PACKAGE_MANAGER" in
+        apt-get)
+            local kernel_pkg="linux-image-amd64"
+            [[ "$OS_ID" == "ubuntu" ]] && kernel_pkg="linux-generic"
+            [[ -f /etc/needrestart/needrestart.conf ]] && run sed -i "s/#\$nrconf{restart} = 'i';/\$nrconf{restart} = 'a';/g" /etc/needrestart/needrestart.conf
+            run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
+            echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
+            run update-ca-certificates
+            packages=(curl openssl cron git gnupg dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs "$kernel_pkg" default-mysql-client jq sqlite3)
+            ;;
+        yum)
+            build_quotatool_from_source
+            run yum install -y dnf-plugins-core yum-utils epel-release
+            packages=(curl openssl cronie git gnupg dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb jq sqlite3)
+            ;;
+        dnf)
+            build_quotatool_from_source
+            if [[ "$OS_ID" == "openeuler" ]]; then
+                run dnf install -y dnf-plugins-core yum-utils perl python3-pip python3-devel gcc tar
+                packages=(git curl openssl ncurses wget gnupg2 cronie jq systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
+                wait_for_pkg_lock
+                for pkg in "${packages[@]}"; do
+                    pkg_install_with_retry "$pkg"
+                done
+                return
+            fi
+            run dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
+            if [[ -f /etc/fedora-release ]]; then
+                packages=(git openssl wget gnupg dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mysql sqlite sqlite-devel perl-Math-BigInt)
+            else
+                packages=(git openssl ncurses wget gnupg systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
+            fi
+            ;;
+    esac
+	
+	wait_for_pkg_lock
+    for pkg in "${packages[@]}"; do
+        pkg_install_with_retry "$pkg"
+    done
+}
+
+_pip_needs_break_system_packages() {
+    python3 -m pip install --dry-run pip 2>&1 | grep -q "externally-managed-environment"
+}
+
+_build_python312_from_source() {
+    echo "Building Python 3.12 from source (this takes a few minutes)..."
+    if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
+        $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
+    else
+        $PACKAGE_MANAGER groupinstall -y "Development Tools" >/dev/null 2>&1 || true
+        $PACKAGE_MANAGER install -y gcc make curl ca-certificates xz openssl-devel zlib-devel bzip2-devel readline-devel sqlite-devel libffi-devel ncurses-devel gdbm-devel xz-devel libuuid-devel
+    fi
+
+    local latest
+    latest=$(curl -fsSL https://www.python.org/ftp/python/ | grep -Po 'href="3\.12\.\d+/' | grep -Po '3\.12\.\d+' | sort -V | tail -1 || echo "3.12.7")
+    local prefix="/opt/python/${latest}"
+
+    mkdir -p /usr/local/src
+    cd /usr/local/src || die 1 "Cannot access /usr/local/src"
+    curl -fsSL -o "Python-${latest}.tgz" "https://www.python.org/ftp/python/${latest}/Python-${latest}.tgz"
+    tar -xzf "Python-${latest}.tgz"
+    cd "Python-${latest}" || die 1 "Python source extraction failed."
+    ./configure --prefix="$prefix" --enable-optimizations --with-ensurepip=install
+    make -j"$(nproc)"
+    make altinstall
+
+    ln -sf "${prefix}/bin/python3.12" /usr/local/bin/python3.12
+    ln -sf "${prefix}/bin/pip3.12"    /usr/local/bin/pip3.12
+
+    [[ -x /usr/local/bin/python3.12 ]] || die 1 "Python 3.12 source build failed."
+    python3.12 -m ensurepip -U || true
+    python3.12 -m pip install --upgrade pip setuptools wheel || true
+    PYTHON_BIN="python3.12"
+    export PYTHON_BIN
+    ok "Python $(python3.12 --version) built from source."
+}
+
+install_python() {
+    if [[ "$OS_ID" == "debian" && "$OS_CODENAME" == "trixie" ]]; then
+        echo "Building Python 3.12 from source for Debian 13..."
+        _build_python312_from_source
+        return
+    fi
+
+    if command -v python3.12 &>/dev/null; then
+        PYTHON_BIN="python3.12"
+    else
+        echo "Installing Python 3.12..."
+        case "$OS_ID" in
+            ubuntu)
+                run $PACKAGE_MANAGER install -y software-properties-common
+                run add-apt-repository -y ppa:deadsnakes/ppa
+                run $PACKAGE_MANAGER update -y
+                $PACKAGE_MANAGER install -y python3.12 python3.12-venv python3.12-dev || true
+                command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
+                ;;
+            debian)
+                $PACKAGE_MANAGER install -y curl gnupg ca-certificates
+                update-ca-certificates
+                install -d -m 0755 /etc/apt/keyrings
+
+                if curl -fsSL --ipv4 --max-time 15 https://pascalroeleven.nl/deb-pascalroeleven.gpg -o /etc/apt/keyrings/deb-pascalroeleven.gpg 2>/dev/null; then
+
+                    cat > /etc/apt/sources.list.d/pascalroeleven.sources <<EOF
+Types: deb
+URIs: http://deb.pascalroeleven.nl/python3.12
+Suites: ${OS_CODENAME}
+Components: main
+Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
+EOF
+                    $PACKAGE_MANAGER update -y 2>&1 | grep -v "^Hit\|^Get\|^Reading\|^Building" || true
+                fi
+
+                $PACKAGE_MANAGER install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null || true
+
+                if ! command -v python3.12 &>/dev/null; then
+                    warn "Repo install failed — building Python 3.12 from source..."
+                    _build_python312_from_source
+                else
+                    PYTHON_BIN="python3.12"
+                fi
+                ;;
+            almalinux|alma|rocky|centos|openeuler)
+                run $PACKAGE_MANAGER update -y
+                if [[ "$OS_ID" == "openeuler" ]]; then
+                    run dnf config-manager --set-enabled EPOL 2>/dev/null || true
+                else
+                    command -v dnf &>/dev/null && {
+                        run dnf install -y epel-release || true
+                        run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
+                    }
+                fi
+                $PACKAGE_MANAGER install -y python3.12 || true
+                $PACKAGE_MANAGER install -y python3.12-venv || true
+                if command -v python3.12 &>/dev/null; then
+                    PYTHON_BIN="python3.12"
+                elif [[ "$OS_ID" == "openeuler" ]]; then
+                    warn "python3.12 not available in openEuler repos — building from source..."
+                    _build_python312_from_source
+                else
+                    die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
+                fi
+                ;;
+        esac
+    fi
+
+    run $PACKAGE_MANAGER install -y python3-venv || true
+    run $PACKAGE_MANAGER install -y python3.12-venv || true
+
+    $PYTHON_BIN --version &>/dev/null && ok "Python is available: $($PYTHON_BIN --version)." || die 1 "Python installation failed."
+    export PYTHON_BIN
+}
+
+clone_repos() {
+    echo "Cloning OpenPanel repositories from Github..."
+
+    [[ "$REPAIR" == true ]] && rm -rf "$ETC_DIR" /usr/local/opencli /usr/local/opencli /usr/local/admin/
+
+    local branch="110"
+    [[ "$architecture" == "aarch64" ]] && branch="armcpu"
+
+    git clone https://github.com/stefanpejcic/openpanel-configuration "$ETC_DIR"                         >/tmp/clone_config.log  2>&1 &
+    local pid_config=$!
+    git clone https://github.com/stefanpejcic/opencli.git /usr/local/opencli                             >/tmp/clone_opencli.log 2>&1 &
+    local pid_opencli=$!
+    git clone -b "$branch" --single-branch https://github.com/stefanpejcic/openadmin /usr/local/admin/   >/tmp/clone_admin.log  2>&1 &
+    local pid_admin=$!
+
+    local failed=0
+    wait "$pid_config"  || { cat /tmp/clone_config.log;  fail "Failed to clone openpanel-configuration"; failed=1; }
+    wait "$pid_opencli" || { cat /tmp/clone_opencli.log; fail "Failed to clone opencli";                 failed=1; }
+    wait "$pid_admin"   || { cat /tmp/clone_admin.log;   fail "Failed to clone openadmin";               failed=1; }
+    [[ "$failed" -eq 0 ]] || die 1 "One or more git clones failed."
+
+    [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after clone."
+    ok "All repositories cloned."
+}
+
+download_config() {
+    [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing."
+    ok "configuration files ready."
+}
+
+setup_opencli() {
+    echo "Setting up opencli..."
+    chmod +x -R /usr/local/opencli
+    ln -sf /usr/local/opencli/opencli /usr/local/bin/opencli
+    export PATH="/usr/bin:$PATH"
+    [[ -x /usr/local/bin/opencli ]] && ok "opencli commands are executable." || die 1 "opencli setup failed."
+}
+
+install_openadmin() {
+    echo "Setting up OpenAdmin..."
+    local dir="/usr/local/admin/"
+    mkdir -p "$dir"
+
+    if [[ "$ADMIN_PORT" != 2087 ]]; then
+        sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$ADMIN_PORT/" "${ETC_DIR}caddy/Caddyfile"
+        sed -i "/redir @openadmin/s/:[0-9]\+/:$ADMIN_PORT/g" "${ETC_DIR}caddy/redirects.conf"
+        sed -i "/# openadmin/,/# roundcube/ s/:[0-9]\+/:$ADMIN_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
+    fi
+
+    cd "$dir" || die 1 "Failed to open $dir"
+    ${PYTHON_BIN:-python3} -m venv "${dir}venv" || die 1 "Failed to create virtualenv"
+
+    local pip_flags="--default-timeout=300 --force-reinstall --ignore-installed"
+    if _pip_needs_break_system_packages; then
+        pip_flags="$pip_flags --break-system-packages"
+    fi
+    # shellcheck disable=SC1090
+    source "${dir}venv/bin/activate"
+    # shellcheck disable=SC2086
+    pip install $pip_flags -r requirements.txt >/dev/null 2>&1
+
+    [[ "$OS_ID" == "debian" ]] && run apt install -y python3-yaml || true
+
+    for f in "${ETC_DIR}openadmin/secret.key" "${ETC_DIR}openpanel/secret.key"; do
+        [[ -f "$f" ]] || { openssl rand -hex 32 > "$f"; chmod 600 "$f"; }
+    done
+
+    cp "${ETC_DIR}openadmin/service/openadmin.service" "${SERVICES_DIR}admin.service"
+    run systemctl daemon-reload
+    run systemctl enable --now admin
+
+    local waited=0
+    until ss -tuln | grep -q ":$ADMIN_PORT" || (( waited >= 30 )); do
+        sleep 1; (( waited++ ))
+    done
+    ss -tuln | grep -q ":$ADMIN_PORT" && ok "OpenAdmin is running on port $ADMIN_PORT." || die 1 "OpenAdmin is not listening on port $ADMIN_PORT."
+}
+
+setup_modprobe() {
+    echo "Editing loadable kernel modules (drivers) from the Linux kernel..."
+	ln -sf "${ETC_DIR}docker/modprobe.txt" /etc/modules-load.d/podman.conf
+	modprobe ip_tables
+	modprobe iptable_filter
+	modprobe iptable_nat
+	modprobe br_netfilter
+}
+
+podman_docker_alias() {
+    # deterministic short-name resolution for all podman/docker calls
+    mkdir -p /etc/containers/registries.conf.d
+    echo 'unqualified-search-registries = ["docker.io"]' > /etc/containers/registries.conf.d/99-openpanel.conf
+
+    [[ "$REPAIR" == true ]] && run podman system reset -f
+
+    mkdir -p /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
+    cat > /etc/containers/storage.conf <<EOF
+[storage]
+driver = "overlay"
+graphroot = "/var/lib/containers/storage"
+runroot = "/run/containers/storage"
+
+[storage.options]
+additionalimagestores = [
+  "$SHARED_STORE"
+]
+EOF
+
+    # docker CLI shim: maps `docker --context <user>` to that user's rootless podman socket
+    cat > /usr/local/bin/docker <<'EOF'
+#!/bin/bash
+CONTEXT=""
+ARGS=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --context=*) CONTEXT="${1#*=}"; shift ;;
+        --context)   CONTEXT="$2"; shift 2 ;;
+        *)           ARGS+=("$1"); shift ;;
+    esac
+done
+
+# `docker compose ...` -> podman-compose
+if [[ "${ARGS[0]:-}" == "compose" ]]; then
+    exec podman-compose "${ARGS[@]:1}"
+fi
+
+case "$CONTEXT" in
+    ""|default)
+        exec podman "${ARGS[@]}"
+        ;;
+    *)
+        home="/home/$CONTEXT"
+        [[ -d "$home" ]] || { echo "docker: no home directory for '$CONTEXT'" >&2; exit 1; }
+        uid=$(stat -c '%u' "$home") || { echo "docker: could not stat '$home'" >&2; exit 1; }
+        exec env CONTAINER_HOST="unix:///run/user/${uid}/podman/podman.sock" podman --remote "${ARGS[@]}"
+        ;;
+esac
+EOF
+    chmod +x /usr/local/bin/docker
+
+    ln -sf "$(command -v podman-compose)" /usr/local/bin/docker-compose 2>/dev/null || true
+
+    run systemctl enable --now podman.socket   # now safe: storage.conf already in place
+
+    command -v podman &>/dev/null && ok "Podman ... ready." || die 1 "Podman is not installed."
+}
+
+
+setup_shared_image_store() {
+    echo "Pulling shared images..."
+    run podman --root "$SHARED_STORE" pull docker.io/library/alpine:latest  || die 1 "Failed to pull alpine"
+    run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest    || die 1 "Failed to pull bind9"
+    ok "Shared image store populated at $SHARED_STORE."
+}
+
+setup_compose() {
+    echo "Setting up Podman Compose and system containers..."
+
+    podman pull docker.io/library/mysql:latest >/dev/null 2>&1 &
+    _MYSQL_PULL_PID=$!
+
+    local test_output
+    test_output=$(timeout 10 podman run --rm docker.io/library/alpine echo "Hello from Alpine!" 2>/dev/null || true)
+    [[ "$test_output" == "Hello from Alpine!" ]] && ok "Podman alpine container ran successfully." || die 1 "Running alpine container failed, error: $test_output"
+
+    local mysql_cnf="/etc/my.cnf"
+    local root_pw; root_pw=$(openssl rand -base64 -hex 9)
+
+    cd /root || die 1 "No read access to /root"
+    rm -f "$mysql_cnf" .env
+    cp "${ETC_DIR}docker/compose/docker-compose.yml" /root/docker-compose.yml
+    cp "${ETC_DIR}docker/compose/.env"               /root/.env
+    cp "${ETC_DIR}mysql/initialize/1.1/plans.sql"    /root/initialize.sql 2>/dev/null || true
+    chmod +x "${ETC_DIR}mysql/scripts/dump.sh" "${ETC_DIR}openlitespeed/start.sh"
+
+    sed -i "s/^VERSION=.*$/VERSION=\"$PANEL_VERSION\"/" /root/.env
+
+    [[ "$USER_PORT" != 2083 ]] && {
+        sed -i "s/^PORT=\"[^\"]*\"/PORT=\"$USER_PORT\"/" /root/.env
+        sed -i "/redir @openpanel/s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}caddy/redirects.conf"
+        sed -i "/# openpanel/,/# openadmin/ s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
+    }
+
+    sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=${root_pw}/" /root/.env
+    ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
+    sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/host_my.cnf"
+    sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/container_my.cnf"
+
+    [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
+    if [[ "$OS_ID" == "debian" ]]; then
+        run apt install -y apparmor apparmor-utils
+        [[ "$OS_VERSION_ID" == "13" ]] && grep -q "skip-ssl" "$mysql_cnf" || echo "skip-ssl = true" >> "$mysql_cnf"
+    fi
+
+    [[ "$REPAIR" == true ]] && {
+        run podman-compose -f /root/docker-compose.yml down
+        run podman volume rm root_openadmin_mysql
+    }
+
+    wait "$_MYSQL_PULL_PID" 2>/dev/null || true
+
+    run podman-compose -f /root/docker-compose.yml up -d openpanel_mysql
+
+    local cid; cid=$(podman ps -q --filter "name=openpanel_mysql")
+    [[ -n "$cid" ]] && ok "MySQL service started." || die 1 "MySQL container is not running."
+
+    ln -sf / /hostfs 2>/dev/null || true
+}
+
+setup_bind() {
+    [[ "$SKIP_DNS_SERVER" == true ]] && {
+        echo "Skipping BIND (--skip-dns-server)."
+        return
+    }
+    echo "Setting up BIND DNS..."
+    install -d -m 755 /etc/bind
+    cp -r "${ETC_DIR}bind9/"* /etc/bind/
+
+    if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
+        local resolved_conf="/etc/systemd/resolved.conf"
+        if [ -f "$resolved_conf" ]; then
+            grep -q "^DNSStubListener=no" "$resolved_conf" || echo "DNSStubListener=no" >> "$resolved_conf"
+            systemctl restart systemd-resolved
+        fi
+    fi
+
+    local rndc_key="/etc/bind/rndc.key"
+    if [[ ! -f "$rndc_key" ]]; then
+        run timeout 90 podman run --rm -v /etc/bind/:/etc/bind/:Z --entrypoint=/bin/sh docker.io/ubuntu/bind9:latest -c 'rndc-confgen -a -A hmac-sha256 -b 256 -c /etc/bind/rndc.key'
+        [[ -f "$rndc_key" ]] && ok "rndc.key generated." || warn "Could not generate rndc.key — DNS zone reloads may not work."
+    fi
+
+    find /etc/bind/ -type d -print0 | xargs -0 chmod 755
+    find /etc/bind/ -type f -print0 | xargs -0 chmod 644
+}
+
+setup_firewall() {
+    if [[ "$SKIP_FIREWALL" == true ]]; then
+        echo "Skipping firewall (--skip-firewall)."
+        sed -i 's/,csf//g' "${ETC_DIR}openadmin/config/notifications.ini"
+        if command -v jq &>/dev/null; then
+            jq 'map(select(.real_name != "csf" and .real_name != "lfd"))' /etc/openpanel/openadmin/config/services.json > /tmp/services.tmp.json && mv /tmp/services.tmp.json /etc/openpanel/openadmin/config/services.json
+        fi
+        return
+    fi
+
+    echo "Installing Sentinel Firewall..."
+
+    wget --timeout=3 --tries=3 --inet4-only https://raw.githubusercontent.com/sentinelfirewall/sentinel/main/csf.tgz >/dev/null 2>&1
+    tar -xzf csf.tgz; rm csf.tgz
+    ( cd csf && sh install.sh >/dev/null 2>&1 )
+    rm -rf csf
+
+    if [[ "$PACKAGE_MANAGER" == "dnf" ]]; then
+        run dnf install -y wget curl yum-utils policycoreutils-python-utils
+        run dnf install -y libwww-perl || run dnf install -y perl-libwww-perl
+        [[ -f /etc/fedora-release ]] && run yum --allowerasing install perl -y
+    else
+        run apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+    fi
+
+    timeout 300s git clone https://github.com/stefanpejcic/csfpost-docker.sh /tmp/csfpost >/dev/null 2>&1
+    mv /tmp/csfpost/csfpost.sh /usr/local/csf/bin/csfpost.sh
+    chmod +x /usr/local/csf/bin/csfpost.sh
+    rm -rf /tmp/csfpost
+
+    # netavark bridge is podman0; cni-podman0 kept for CNI fallback
+    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,cni-podman0"/' -e 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
+    cp "${ETC_DIR}csf/csf.blocklists" /etc/csf/csf.blocklists
+
+    local email; email=$(grep -E "^e-mail=" "$CONFIG_FILE" | cut -d= -f2 || true)
+    [[ -n "$email" ]] && sed -i "s/LF_ALERT_TO = \"\"/LF_ALERT_TO = \"$email\"/" /etc/csf/csf.conf
+
+    open_csf_port() {
+        local type=$1 port=$2
+        local conf="/etc/csf/csf.conf"
+        for dir in "$type" "${type/4/6}"; do
+            grep -q "${dir} = .*${port}" "$conf" || sed -i "s/${dir} = \"\(.*\)\"/${dir} = \"\1,${port}\"/" "$conf"
+        done
+    }
+
+    local ssh_port; ssh_port=$(grep -Po "(?<=Port[ =])\d+" /etc/ssh/sshd_config 2>/dev/null || echo 22)
+    for p in 3306 465 "$USER_PORT" "$ADMIN_PORT"; do open_csf_port TCP_OUT "$p"; done
+    for p in 22 53 80 443 2053 8888 "$USER_PORT" "$ADMIN_PORT" "32768:60999" 21 "21000:21010" "$ssh_port"; do
+        open_csf_port TCP_IN "$p"
+    done
+
+    run csf -r
+    run systemctl enable csf
+    run systemctl restart csf
+    run systemctl restart podman.socket
+
+    install -m 755 /dev/null /usr/sbin/sendmail
+    command -v csf &>/dev/null && ok "Sentinel Firewall installed." || fail "Sentinel Firewall not installed properly."
+}
+
+configure_caddy_extras() {
+    sed -i "s/example\.net/$SERVER_IPV4_ADDRESS/g" "${ETC_DIR}caddy/redirects.conf" 2>/dev/null || true
+    grep -qE '^127\.0\.0\.1\s+localhost' /etc/hosts || echo "127.0.0.1 localhost" >> /etc/hosts
+}
+
+set_hostname() {
+    if [ "$SET_HOSTNAME_NOW" == false ]; then
+        local local_ips
+        local_ips=$(ip -4 addr show scope global | grep -oP '(?<=inet\s)\d+(\.\d+){3}')
+        if echo "$local_ips" | grep -qw "$SERVER_IPV4_ADDRESS"; then
+            echo "Setting shortlived SSL for IP address $SERVER_IPV4_ADDRESS"
+            SET_HOSTNAME_NOW=true
+            new_hostname="$SERVER_IPV4_ADDRESS"
+        fi
+    fi
+
+    [[ "$SET_HOSTNAME_NOW" != true ]] && return
+
+    if [[ -n "$separate_panel_domain" && "$separate_panel_domain" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+        if [[ "$separate_panel_domain" != "$new_hostname" ]]; then
+            cat >> "${ETC_DIR}caddy/Caddyfile" <<EOF
+
+# START USERPANEL DOMAIN #
+$separate_panel_domain {
+    reverse_proxy localhost:2083
+}
+http://$separate_panel_domain {
+    reverse_proxy localhost:2083
+}
+# END USERPANEL DOMAIN #
+EOF
+            touch "${ETC_DIR}caddy/domains/${separate_panel_domain}.conf"
+        fi
+    fi
+
+    if [[ -n "$new_hostname" ]]; then
+        if [[ "$new_hostname" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+            sed -i "s/example\.net/$new_hostname/g" "${ETC_DIR}caddy/Caddyfile"
+        elif [[ "$new_hostname" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+            if grep -q "# START HOSTNAME IP #" "${ETC_DIR}caddy/Caddyfile"; then
+                sed -i "/# START HOSTNAME IP #/,/# END HOSTNAME IP #/ s/[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}/$new_hostname/" "${ETC_DIR}caddy/Caddyfile"
+            else
+                local admin_port
+                admin_port=$(opencli admin port)
+                local ip_block="# START HOSTNAME IP #\n${new_hostname} {\n  tls {\n    issuer acme {\n      profile shortlived\n    }\n  }\n  reverse_proxy localhost:${admin_port}\n}\n# END HOSTNAME IP #\n"
+                sed -i "s|# START HOSTNAME DOMAIN #|${ip_block}# START HOSTNAME DOMAIN #|" "${ETC_DIR}caddy/Caddyfile"
+            fi
+        else
+            echo "Hostname '$new_hostname' is not a valid FQDN nor an IPv4 address. OpenAdmin will use detected IP: $SERVER_IPV4_ADDRESS"
+        fi
+    fi
+}
+
+generate_ssl() {
+    [[ "$SET_HOSTNAME_NOW" != true ]] && return
+    local hostname
+    hostname=$(awk '/# START HOSTNAME DOMAIN #/{f=1;next}/# END HOSTNAME DOMAIN #/{f=0}f{print $1;exit}' "${ETC_DIR}caddy/Caddyfile")
+
+    if [[ -z "$hostname" || "$hostname" == "example.net" ]]; then
+        hostname=$(awk '/# START HOSTNAME IP #/{f=1;next}/# END HOSTNAME IP #/{f=0}f{print $1;exit}' "${ETC_DIR}caddy/Caddyfile")
+    fi
+    [[ -z "$hostname" || "$hostname" == "example.net" ]] && return
+
+    if [[ "$USE_SELFSIGNED" == true ]]; then
+        local ssl_dir="${ETC_DIR}caddy/ssl/custom/$hostname"
+        mkdir -p "$ssl_dir"
+        openssl genrsa -out "$ssl_dir/$hostname.key" 2048
+        openssl req -new -x509 -key "$ssl_dir/$hostname.key" -out "$ssl_dir/$hostname.crt" -days 365 -subj "/CN=$hostname"
+        run systemctl restart admin
+        echo "Self-signed certificate created. Remove $ssl_dir to allow Let's Encrypt later."
+        return
+    fi
+
+    cd /root && run podman-compose -f /root/docker-compose.yml up -d caddy
+    for attempt in {1..3}; do
+        echo "SSL attempt $attempt for $hostname..."
+        if curl -4 -sf -o /dev/null "https://$hostname"; then
+            ok "SSL ready. OpenAdmin is now using HTTPS."; run systemctl restart admin; return
+        fi
+        run podman restart caddy; sleep 5
+    done
+    warn "SSL generation failed. HTTP will be used for panel access."
+    echo "Error was: $(podman logs --tail 100 caddy 2>&1 | grep -Ei 'tls|acme|certificate|renew|obtain|challenge' | tail -1)"
+}
+
+configure_waf() {
+    opencli waf "$([[ "$CORAZA" == true ]] && printf '%s' enable || printf '%s' disable)" > /dev/null 2>&1
+}
+
+setup_redis() { install -d -m 777 /tmp/redis; }
+
+enable_disk_quotas() {
+    echo "Enabling disk quotas..."
+    local fstab="/etc/fstab"
+    if ! grep -E '^\S+\s+/\s+' "$fstab" | grep -q "usrquota"; then
+        sed -i -E '/\s+\/\s+/s/(\S+)(\s+\/\s+\S+\s+\S+)(\s+[0-9]+\s+[0-9]+)$/\1\2,usrquota,grpquota\3/' "$fstab"
+    fi
+    run systemctl daemon-reload
+    run quotaoff -a
+    run mount -o remount,usrquota,grpquota /
+    run quotacheck -cum / -f
+    run quotaon -a
+    repquota -u / > "/tmp/repquota" 2>/dev/null && ok "Disk quotas enabled." || fail "Quota check failed."
+}
+
+set_container_cpu_limits() {
+    mkdir -p /etc/systemd/system/user@.service.d
+    echo -e "[Service]\nDelegate=cpu cpuset io memory pids" > /etc/systemd/system/user@.service.d/delegate.conf
+    run systemctl daemon-reload
+}
+
+configure_premium() {
+    [[ "$SET_PREMIUM" != true ]] && return
+    LICENSE="Enterprise"
+    timeout 300 opencli license "$license_key"
+}
+
+configure_imunifyav() {
+    [[ "$IMUNIFY_AV" == true ]] && run opencli imunify install && run opencli imunify start
+}
+
+configure_ssh() {
+    ln -sf "${ETC_DIR}ssh/admin_welcome.sh" /etc/profile.d/welcome.sh
+    chmod +x /etc/profile.d/welcome.sh
+    [[ -f /etc/ssh/sshd_config ]] || return
+    sed -i "s/[#]LoginGraceTime [[:digit:]]m/LoginGraceTime 1m/" /etc/ssh/sshd_config
+    [[ -f /etc/pam.d/sshd ]] && sed -i '/pam_motd\.so/s/^/#/' /etc/pam.d/sshd
+
+    if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
+        grep -q "^DebianBanner no" /etc/ssh/sshd_config || echo "DebianBanner no" >> /etc/ssh/sshd_config
+    fi
+    run systemctl restart sshd 2>/dev/null || run systemctl restart ssh
+    ok "SSH configured."
+}
+
+setup_cron() {
+    install -m 600 -o root -g root "${ETC_DIR}cron" /etc/cron.d/openpanel
+    [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] && { run restorecon -R /etc/cron.d; run systemctl restart crond; }
+    ok "Cron configured."
+}
+
+setup_logrotate() { opencli server-logrotate; }
+
+setup_log_dirs() {
+    local log_dir="/var/log/openpanel"
+    install -d -m 755 "$log_dir" "$log_dir/user" "$log_dir/admin"
+}
+
+setup_swap() {
+    [[ -n "$(swapon -s)" ]] && { echo "Swap already exists, skipping."; return; }
+
+    create_swap() {
+        fallocate -l "${SWAP_FILE}G" /swapfile
+        chmod 600 /swapfile; mkswap /swapfile; swapon /swapfile
+        echo "/swapfile none swap sw 0 0" >> /etc/fstab
+        ok "Created ${SWAP_FILE}G swap file."
+    }
+
+    local ram_gb
+    ram_gb=$(awk '/MemTotal/{printf "%.0f", $2/1024/1024}' /proc/meminfo)
+
+    auto_size() {
+        if   (( ram_gb <= 2  )); then SWAP_FILE=$(( ram_gb * 2 ))
+        elif (( ram_gb <= 4  )); then SWAP_FILE=$ram_gb
+        elif (( ram_gb <= 8  )); then SWAP_FILE=4
+        elif (( ram_gb <= 32 )); then SWAP_FILE=8
+        else echo "RAM is ${ram_gb}GB — skipping swap creation."; return 1
+        fi
+    }
+
+    if [[ "$SETUP_SWAP_ANYWAY" == true ]] || (( ram_gb <= 32 )); then
+        if ! [[ "$SWAP_FILE" =~ ^[0-9]+$ && "$SWAP_FILE" -ge 1 && "$SWAP_FILE" -le 10 ]]; then
+            warn "Invalid swap size '$SWAP_FILE'. Auto-sizing based on RAM."
+            auto_size || return
+        fi
+        create_swap
+    else
+        echo "RAM is ${ram_gb}GB — skipping swap creation."
+    fi
+}
+
+hetzner_fix() {
+    [[ -f /etc/hetzner-build ]] || return
+    echo "Hetzner detected — adding Cloudflare DNS resolvers..."
+    mv /etc/resolv.conf /etc/resolv.conf.bak
+    printf "nameserver 1.1.1.1\nnameserver 1.0.0.1\n" > /etc/resolv.conf
+    command -v podman &>/dev/null || run $PACKAGE_MANAGER install -y podman
+}
+
+clean_cache() { run $PACKAGE_MANAGER clean all 2>/dev/null || true; }
+
+verify_license() {
+    curl -4 -s -X POST -H "Content-Type: application/json" -d "{\"hostname\":\"$(hostname)\",\"public_ip\":\"${SERVER_IPV4_ADDRESS}\"}" https://api.openpanel.com/license/index.php >/dev/null 2>&1 &
+}
+
+start_system_containers() {
+    nohup sh -c "cd /root && podman-compose -f /root/docker-compose.yml up -d openpanel phpmyadmin" </dev/null >nohup.out 2>nohup.err &
+}
+
+run_housekeeping_parallel() {
+    echo "Running housekeeping steps.."
+
+    declare -A _jobs=()
+
+    _run_bg() {
+        local name=$1 fn=$2
+        ( $fn ) >"/tmp/hk_${name}.log" 2>&1 &
+        _jobs["$name"]=$!
+    }
+
+    _run_bg "cron"       setup_cron
+    _run_bg "logrotate"  setup_logrotate
+    _run_bg "ssh"        configure_ssh
+    _run_bg "log_dirs"   setup_log_dirs
+    _run_bg "swap"       setup_swap
+    _run_bg "waf"        configure_waf
+    _run_bg "redis"      setup_redis
+    _run_bg "quotas"     enable_disk_quotas
+    _run_bg "cpu_limits" set_container_cpu_limits
+    _run_bg "modprobe"   setup_modprobe
+
+    local failed=0
+    for name in "${!_jobs[@]}"; do
+        if ! wait "${_jobs[$name]}"; then
+            fail "Housekeeping step '$name' failed:"
+            cat "/tmp/hk_${name}.log"
+            failed=1
+        fi
+    done
+    [[ "$failed" -eq 0 ]] && ok "All housekeeping steps completed." || warn "Some housekeeping steps failed — see log above."
+}
+
+create_admin_account() {
+    if [[ "$SET_ADMIN_USERNAME" == true ]]; then
+        new_username="$custom_username"
+    else
+        # shellcheck disable=SC1091,SC2154
+        wget --inet4-only --timeout=3 --tries=2 -q -O /tmp/generate.sh https://raw.githubusercontent.com/stefanpejcic/random-username-generator/refs/heads/main/generator.sh 2>/dev/null && source /tmp/generate.sh && new_username="$random_name" || new_username="admin"
+    fi
+
+    if [[ "$SET_ADMIN_PASSWORD" == true && "$custom_password" =~ ^[A-Za-z0-9]{5,30}$ ]]; then
+        new_password="$custom_password"
+    else
+        [[ "$SET_ADMIN_PASSWORD" == true ]] && warn "Provided password is invalid — generating a secure one."
+        new_password=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    fi
+
+    sqlite3 "${ETC_DIR}openadmin/users.db" "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT NOT NULL DEFAULT 'user', is_active BOOLEAN DEFAULT 1 NOT NULL, totp_secret TEXT, totp_enabled BOOLEAN DEFAULT 0 NOT NULL);" 2>/dev/null || true
+	opencli admin new "$new_username" "$new_password" --super >/dev/null 2>&1 || true
+
+    local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
+
+    if [[ "$count" -eq 0 ]]; then
+        warn "opencli failed — inserting user manually..."
+        local hash; hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$new_password")
+        sqlite3 "${ETC_DIR}openadmin/users.db" "INSERT INTO user (username, password_hash, role) VALUES ('$new_username', '$hash', 'admin');" || warn "Manual user creation also failed."
+    fi
+
+    display_logins
+    send_email_if_configured
+}
+
+extra_step_for_podman() {
+	systemctl reset-failed podman.socket 2>/dev/null || true
+	systemctl restart podman.socket 2>/dev/null || true
+}
+
+display_logins() {
+    exec > /dev/tty 2>&1
+    echo ""
+    printf "${GREEN}OpenPanel %s %s installed successfully ${RESET}in %dm %ds\n" "$LICENSE" "$PANEL_VERSION" "$minutes" "$seconds"
+    line
+    opencli admin
+    echo -e "  Username: ${GREEN}${new_username}${RESET}"
+    echo -e "  Password: ${GREEN}${new_password}${RESET}"
+    line
+    exec > >(tee -a "$LOG_FILE") 2>&1
+}
+
+send_email_if_configured() {
+    [[ "$SEND_EMAIL_AFTER_INSTALL" != true ]] && return
+    [[ "$EMAIL" =~ ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]] || { warn "Invalid email '$EMAIL'. Skipping notification."; return; }
+
+    opencli config update email "$EMAIL"
+    local token; token=$(tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64)
+    sed -i "s|^mail_security_token=.*|mail_security_token=$token|" "$CONFIG_FILE"
+
+    local protocol="http" domain="127.0.0.1"
+    if [[ "$SET_HOSTNAME_NOW" == true && "$new_hostname" =~ ^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$ ]]; then
+        local ssl_dir="${ETC_DIR}caddy/ssl"
+        if [[ -f "$ssl_dir/acme-v02.api.letsencrypt.org-directory/$new_hostname/$new_hostname.key" || -f "$ssl_dir/custom/$new_hostname/$new_hostname.key" ]]; then
+            protocol="https"; domain="$new_hostname"
+        fi
+    fi
+
+    curl -4 -k -X POST "$protocol://$domain:$ADMIN_PORT/send_email" -F "transient=$token" -F "recipient=$EMAIL" -F "subject=OpenPanel successfully installed" -F "body=OpenAdmin URL: http://$(hostname):$ADMIN_PORT/ | username: $new_username | password: $new_password" --max-time 15 >/dev/null 2>&1 || warn "Failed to send email notification."
+}
+
+run_post_install() {
+    [[ -z "$post_install_path" ]] && return
+    echo "Running post-install script: $post_install_path"
+    if [[ "$post_install_path" =~ ^https?:// ]]; then
+        local tmp; tmp=$(mktemp)
+        wget -q -O "$tmp" "$post_install_path" || { warn "Failed to download post-install script."; return; }
+        chmod +x "$tmp"; bash "$tmp"; rm -f "$tmp"
+    else
+        bash "$post_install_path"
+    fi
+}
+
+support_message() {
+    line
+    cat <<MSG
+🎉 Thank you for choosing OpenPanel!
+
+  Getting started:  https://openpanel.com/docs/admin/intro/#post-install-steps
+  Report issues:    https://github.com/stefanpejcic/OpenPanel/issues/new/choose
+  Discord:          https://discord.openpanel.com/
+  Community forums: https://community.openpanel.org/
+MSG
+    line
+}
+
+setup_progress_bar() {
+    local url="https://raw.githubusercontent.com/pollev/bash_progress_bar/master/progress_bar.sh"
+    if command -v curl &>/dev/null; then
+        curl -4 --max-time 5 -s "$url" -o progress_bar.sh >/dev/null 2>&1
+    elif command -v wget &>/dev/null; then
+        wget --timeout=5 --tries=3 --inet4-only "$url" -O progress_bar.sh >/dev/null 2>&1
+    else
+        echo "Neither wget nor curl found."; exit 1
+    fi
+    [[ -f progress_bar.sh ]] || { echo "Failed to download progress_bar.sh"; exit 1; }
+    # shellcheck disable=SC1091
+    source progress_bar.sh
+}
+
+STEPS=(
+    update_package_manager
+    install_python
+    install_packages
+    podman_docker_alias
+    setup_shared_image_store
+    hetzner_fix
+    clone_repos
+    download_config
+    setup_opencli
+    install_openadmin
+    setup_compose
+    setup_bind
+    setup_firewall
+    configure_premium
+    configure_caddy_extras
+    set_hostname
+    generate_ssl
+    configure_imunifyav
+    run_housekeeping_parallel
+    clean_cache
+    verify_license
+    start_system_containers
+)
+
+run_installation() {
+    enable_trapping
+    setup_scroll_area
+    local total=${#STEPS[@]} current=0
+    for step in "${STEPS[@]}"; do
+        $step
+        (( current++ ))
+        draw_progress_bar $(( current * 100 / total ))
+    done
+    destroy_scroll_area
+}
+
+# Main
+(
+flock -n 200 || { echo "Another install is already running."; exit 1; }
+detect_os_and_package_manager
+parse_args "$@"
+[[ -r /root && -w /root ]] || { echo "No read/write access to /root."; exit 1; }
+get_server_ipv4
+set_panel_version
+print_header
+check_requirements
+detect_installed_panels
+echo -e "Starting OpenPanel installation process..."
+start=$(date +%s)
+
+setup_progress_bar
+_build_pkg_cache
+run_installation
+duration=$(($(date +%s) - start))
+minutes=$((duration / 60))
+seconds=$((duration % 60))
+support_message
+create_admin_account
+extra_step_for_podman
+run_post_install
+) 200>/root/openpanel_install.lock
+
+rm -f /root/openpanel_install.lock
