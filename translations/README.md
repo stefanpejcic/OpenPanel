@@ -15,7 +15,7 @@
 - 🇷🇴 Romanian (RO)
 - 🇷🇸 Serbian (RS)
 - 🇱🇦 Lao (LO)
-
+- 🇵🇱 Polish (PO)
 
 ## OpenPanel Translations
 OpenPanel needs you! If you would like to support OpenPanel, help us with the translation. 💖 

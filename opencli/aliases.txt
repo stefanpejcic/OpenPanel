@@ -91,3 +91,4 @@ opencli websites-scan
 opencli websites-secure
 opencli websites-user
 opencli websites-vulnerability
+opencli websites-wp_autodownload

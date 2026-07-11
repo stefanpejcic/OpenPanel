@@ -35,12 +35,16 @@ test('create user', async ({ page }) => {
 
 
 test('test autologin', async ({ page, context }) => {
-  await navigateToUsersPage(page);
-  await expect(page.getByText(/create new/i)).toBeVisible();
+  const impersonateLink = page.locator('a[href="/login/token/testinguser"]');
+
+  await expect(async () => {
+    await navigateToUsersPage(page);
+    await expect(impersonateLink).toBeVisible({ timeout: 5_000 });
+  }).toPass({ timeout: 60_000 });
 
   const [newTab] = await Promise.all([
     context.waitForEvent('page'),
-    page.click('a[href="/login/token/testinguser"]'),
+    impersonateLink.click(),
   ]);
 
   await newTab.waitForLoadState();

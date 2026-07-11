@@ -243,14 +243,12 @@ bind = [f"0.0.0.0:{PORT}"]
 backlog = 2048
 
 cpu_count = multiprocessing.cpu_count()
-if cpu_count <= 2:
-    print(f"Using a single worker for OpenAdmin as server has <=2 cpu cores available.")
+if cpu_count <= 4:
     workers = 1
 else:
-    calculated_workers = cpu_count * 2 + 1
-    max_workers = 4
-    workers = min(calculated_workers, max_workers)
-    print(f"Using {workers} workers for OpenAdmin as server has >2 cpu cores available.")
+    workers = 4
+
+print(f"Using {workers} workers for OpenAdmin as server has {cpu_count} cpu cores available.")
 
 # Use gevent worker class
 worker_class = 'gevent'

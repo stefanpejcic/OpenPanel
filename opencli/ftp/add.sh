@@ -6,7 +6,7 @@
 # Docs: https://docs.openpanel.com
 # Author: Stefan Pejcic
 # Created: 22.05.2024
-# Last Modified: 09.07.2026
+# Last Modified: 10.07.2026
 # Company: openpanel.com
 # Copyright (c) openpanel.com
 # 
@@ -85,22 +85,12 @@ create_user() {
     chmod +rx "/home/$context/docker-data/volumes/${context}_html_data"
     chmod +rx "/home/$context/docker-data/volumes/${context}_html_data/_data"
 
-    PYTHON_PATH=$(which python3 || echo "/usr/local/bin/python3")
+	HASHED_PASS=$(printf '%s' "$password" | openssl passwd -6 -stdin)
 
-    HASHED_PASS=$($PYTHON_PATH -c "
-import sys, hashlib, os, base64
-pw = sys.argv[1]
-salt = base64.b64encode(os.urandom(12)).decode()[:16]
-import crypt
-print(crypt.crypt(pw, '\$6\$' + salt))
-" "$password" 2>/dev/null || $PYTHON_PATH -c "
-import sys, os, hashlib
-pw = sys.argv[1].encode()
-salt = os.urandom(8)
-import hashlib
-h = hashlib.sha512(pw + salt).hexdigest()
-print('\$6\$' + salt.hex() + '\$' + h)
-" "$password")
+    if [ -z "$HASHED_PASS" ]; then
+        echo "ERROR: Failed to hash password."
+        exit 1
+    fi
 
     docker exec openadmin_ftp useradd -d "${new_directory}" -s /sbin/nologin -g "$context" -M "$username" --badname
 

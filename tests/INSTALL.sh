@@ -62,12 +62,17 @@ npm install dotenv
 npm install basic-ftp
 npm install otplib
 
+CRON_JOB="0 3 * * * bash /root/playwright-test/opencli/os_install.sh"
+(crontab -l 2>/dev/null | grep -F "$CRON_JOB") || \
+(crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
+
 if [ -d "node_modules/@playwright/test" ]; then
   echo "--- Setup Complete ---"
   echo "1. Reboot your machine: sudo reboot"
   echo "2. RDP into the server using your Ubuntu username/password."
   echo "3. Open a terminal inside the RDP session."
-  echo "4. Run: cd ~/playwright-test && npx playwright test --ui"
+  echo "4. Create /root/playwright-test/openpanel/.env AND /root/playwright-test/openadmin/.env AND edit /root/playwright-test/opencli/os_install.sh"
+  echo "5. Run tests as described in README.md files"
 else
   echo "Install failed!"
 fi

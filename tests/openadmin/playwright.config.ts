@@ -15,6 +15,7 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    ignoreHTTPSErrors: true,
   },
 
   projects: [
@@ -28,7 +29,7 @@ export default defineConfig({
       testMatch: /.*\.spec\.ts/,
       dependencies: ['setup'],
       use: {
-        storageState: '.auth/session.json',
+        storageState: path.join(__dirname, '../.auth/session.json'),
       },
     },
   ],

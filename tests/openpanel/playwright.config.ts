@@ -15,6 +15,7 @@ export default defineConfig({
 
   use: {
     baseURL: BASE_URL,
+    ignoreHTTPSErrors: true,
     acceptDownloads: true,
   },
 
