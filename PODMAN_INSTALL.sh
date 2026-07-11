@@ -168,12 +168,13 @@ check_requirements() {
         die 1 "Running inside a container is not supported."
     fi
 
-    local ram_mb disk_mb
+    local ram_mb
     ram_mb=$(( $(grep MemTotal /proc/meminfo | awk '{print $2}') / 1024 ))
     disk_mb=$(( $(df / --output=avail | tail -1) / 1024 ))
     (( ram_mb  >= 1024 )) || die 1 "At least 1 GB RAM required (detected: ${ram_mb} MB)."
     (( disk_mb >= 5120 )) || die 1 "At least 5 GB free disk space required (detected: ${disk_mb} MB)."
 }
+
 
 detect_installed_panels() {
     [[ -n "${SKIP_PANEL_CHECK:-}" ]] && return
@@ -686,6 +687,78 @@ setup_shared_image_store() {
     ok "Shared image store populated at $SHARED_STORE."
 }
 
+
+prefetch_shared_images() {
+    local compose_file="${ETC_DIR}docker/compose/1.0/docker-compose.yml"
+    [[ -f "$compose_file" ]] || { warn "Prefetch skipped — compose file not found: $compose_file"; return; }
+	[[ -n "${SKIP_REQUIREMENTS:-}" ]] && return
+
+    # Only bulk-prefetch on large-disk servers.
+    if (( disk_mb <= 81920 )); then
+        echo "Root disk is ${disk_mb}MB (<=80GB) — skipping bulk shared-image prefetch."
+        return
+    fi
+
+    echo "Root disk is ${disk_mb}GB — prefetching all shared images in background (this will use GB of space)..."
+
+    (
+        # resolve ${VERSION} from the generated .env if present
+        [[ -f ${ETC_DIR}docker/compose/1.0/.env ]] && { set -a; . ${ETC_DIR}docker/compose/1.0/.env 2>/dev/null; set +a; }
+
+        mapfile -t images < <(
+            grep -oP '^\s*image:\s*\K\S+' "$compose_file" | tr -d '"'\''' | sort -u
+        )
+
+        for img in "${images[@]}"; do
+            img="${img//\$\{VERSION\}/${VERSION:-}}"   # expand the one var actually used
+            [[ -z "$img" || "$img" == *'${'* ]] && continue   # skip anything still unresolved
+            if podman --root "$SHARED_STORE" pull "$img" >/dev/null 2>&1; then
+                echo "[$(date +%T)] prefetch OK:   $img" >> "$LOG_FILE"
+            else
+                echo "[$(date +%T)] prefetch FAIL: $img" >> "$LOG_FILE"
+            fi
+        done
+    ) >/dev/null 2>&1 &
+    disown
+}
+
+
+prefetch_shared_images() {
+    local compose_dir="${ETC_DIR}docker/compose/1.0"
+    local compose_file="${compose_dir}/docker-compose.yml"
+    [[ -f "$compose_file" ]] || { warn "Prefetch skipped — compose file not found: $compose_file"; return; }
+	[[ -n "${SKIP_REQUIREMENTS:-}" ]] && return
+
+    if (( disk_mb <= 81920 )); then
+        echo "Root disk free is $(( disk_mb / 1024 ))GB (<=80GB) — skipping bulk shared-image prefetch."
+        return
+    fi
+    echo "Root disk free is $(( disk_mb / 1024 ))GB — prefetching all shared images in background..."
+
+    (
+        cd "$compose_dir" || exit 0
+
+        mapfile -t images < <(podman-compose -f "$compose_file" config 2>/dev/null | grep -oP '^\s*image:\s*\K\S+' | tr -d '"'\''' | sort -u)
+        (( ${#images[@]} )) || mapfile -t images < <(grep -oP '^\s*image:\s*\K\S+' "$compose_file" | sed -E 's/\$\{[A-Za-z0-9_]+:-([^}]*)\}/\1/g' | grep -v '\${' | tr -d '"'\''' | sort -u)
+
+        for img in "${images[@]}"; do
+            [[ -z "$img" || "$img" == *'${'* ]] && continue
+            if podman --root "$SHARED_STORE" pull "$img" >/dev/null 2>&1; then
+                echo "[$(date +%T)] prefetch OK:   $img" >> "$LOG_FILE"
+            else
+                echo "[$(date +%T)] prefetch FAIL: $img" >> "$LOG_FILE"
+            fi
+        done
+
+        # newly pulled layers are root-owned 0600/0700 — rootless user podmans
+        # read the additional store as the real UID, so make it world-traversable
+        chmod -R o+rX "$SHARED_STORE"
+        find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \; 2>/dev/null || true
+
+    ) >/dev/null 2>&1 &
+    disown
+}
+
 setup_compose() {
     echo "Setting up Podman Compose and system containers..."
 
@@ -1189,6 +1262,7 @@ STEPS=(
     hetzner_fix
     clone_repos
     download_config
+	prefetch_shared_images
     setup_opencli
     install_openadmin
     setup_compose
