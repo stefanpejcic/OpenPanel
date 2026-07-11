@@ -810,7 +810,7 @@ setup_compose() {
 
     wait "$_MYSQL_PULL_PID" 2>/dev/null || true
 
-    run podman-compose -f /root/docker-compose.yml up -d openpanel_mysql
+    run podman-compose -f /root/docker-compose.yml up -d openpanel # was just mysql
 
     local cid; cid=$(podman ps -q --filter "name=openpanel_mysql")
     [[ -n "$cid" ]] && ok "MySQL service started." || die 1 "MySQL container is not running."
