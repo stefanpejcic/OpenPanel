@@ -793,10 +793,25 @@ setup_firewall() {
         run apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
     fi
 
-    timeout 300s git clone https://github.com/stefanpejcic/csfpost-docker.sh /tmp/csfpost >/dev/null 2>&1
-    mv /tmp/csfpost/csfpost.sh /usr/local/csf/bin/csfpost.sh
-    chmod +x /usr/local/csf/bin/csfpost.sh
-    rm -rf /tmp/csfpost
+           cat >> "/usr/local/csf/bin/csfpre.sh" <<EOF
+#!/bin/bash
+# Allow podman inter-container traffic on the OpenPanel network.
+iptables -I FORWARD -s 172.20.0.0/24 -d 172.20.0.0/24 -j ACCEPT
+
+# published-port return traffic (e.g. 127.0.0.1:3306 host -> container) if needed:
+iptables -I FORWARD -d 172.20.0.0/24 -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+iptables -I FORWARD 1 -o podman1 -j ACCEPT
+iptables -I FORWARD 1 -i podman1 -j ACCEPT
+EOF
+
+           cat >> "/usr/local/csf/bin/csfpost.sh" <<EOF
+#!/bin/bash
+# CSF flushes iptables on reload; netavark's container rules get wiped.
+podman network reload --all
+EOF
+
+    chmod +x /usr/local/csf/bin/csfpre.sh /usr/local/csf/bin/csfpost.sh
 
     # netavark bridge is podman0; cni-podman0 kept for CNI fallback
     sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,cni-podman0"/' -e 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
