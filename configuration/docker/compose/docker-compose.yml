@@ -88,8 +88,9 @@ services:
       - /etc/openpanel/mysql/container_my.cnf:/etc/my.cnf:ro                             # mysql logins
       - /etc/openpanel/openpanel/translations/:/etc/openpanel/openpanel/translations     # locales
       - /root/openpanel_restart_needed:/root/openpanel_restart_needed                    # flag used on openadmin
-      - /run/user/:/hostfs/run/user/:shared,rslave                                       # docker contexts
-      - /var/run/docker.sock:/var/run/docker.sock:ro                                     # reload caddy on waf changes      
+      - /run/user/:/hostfs/run/user/ #NOT_WORKING_ON_PODMAN:shared,rslave                                # docker contexts
+      - /var/run/docker.sock:/var/run/docker.sock:ro                                     # reload caddy on waf changes     
+      - /run/podman/podman.sock:/run/podman/podman.sock:ro                               # used in 2.0 for podman 
       - ${REDIS_SOCKET}:/tmp/redis/                                                      # redis cache
       - /var/log/caddy:/var/log/caddy                                                    # waf and domlogs      
       - /etc/localtime:/etc/localtime:ro                                                 # server timezone
