@@ -687,45 +687,9 @@ EOF
 setup_shared_image_store() {
     echo "Pulling shared images..."
     run podman --root "$SHARED_STORE" pull docker.io/library/alpine:latest  || die 1 "Failed to pull alpine"
-    run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest    || die 1 "Failed to pull bind9"
+    run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest    || die 1 "Failed to pull bind9" #TODO: pull only when needed!
     ok "Shared image store populated at $SHARED_STORE."
 }
-
-
-prefetch_shared_images() {
-    local compose_file="${ETC_DIR}docker/compose/1.0/docker-compose.yml"
-    [[ -f "$compose_file" ]] || { warn "Prefetch skipped — compose file not found: $compose_file"; return; }
-	[[ -n "${SKIP_REQUIREMENTS:-}" ]] && return
-
-    # Only bulk-prefetch on large-disk servers.
-    if (( disk_mb <= 81920 )); then
-        echo "Root disk is ${disk_mb}MB (<=80GB) — skipping bulk shared-image prefetch."
-        return
-    fi
-
-    echo "Root disk is ${disk_mb}GB — prefetching all shared images in background (this will use GB of space)..."
-
-    (
-        # resolve ${VERSION} from the generated .env if present
-        [[ -f ${ETC_DIR}docker/compose/1.0/.env ]] && { set -a; . ${ETC_DIR}docker/compose/1.0/.env 2>/dev/null; set +a; }
-
-        mapfile -t images < <(
-            grep -oP '^\s*image:\s*\K\S+' "$compose_file" | tr -d '"'\''' | sort -u
-        )
-
-        for img in "${images[@]}"; do
-            img="${img//\$\{VERSION\}/${VERSION:-}}"   # expand the one var actually used
-            [[ -z "$img" || "$img" == *'${'* ]] && continue   # skip anything still unresolved
-            if podman --root "$SHARED_STORE" pull "$img" >/dev/null 2>&1; then
-                echo "[$(date +%T)] prefetch OK:   $img" >> "$LOG_FILE"
-            else
-                echo "[$(date +%T)] prefetch FAIL: $img" >> "$LOG_FILE"
-            fi
-        done
-    ) >/dev/null 2>&1 &
-    disown
-}
-
 
 prefetch_shared_images() {
     local compose_dir="${ETC_DIR}docker/compose/1.0"
@@ -733,8 +697,8 @@ prefetch_shared_images() {
     [[ -f "$compose_file" ]] || { warn "Prefetch skipped — compose file not found: $compose_file"; return; }
 	[[ -n "${SKIP_REQUIREMENTS:-}" ]] && return
 
-    if (( disk_mb <= 81920 )); then
-        echo "Root disk free is $(( disk_mb / 1024 ))GB (<=80GB) — skipping bulk shared-image prefetch."
+    if (( disk_mb <= 20480 )); then
+        echo "Root disk free is $(( disk_mb / 1024 ))GB (<=20GB) — skipping bulk shared-image prefetch."
         return
     fi
     echo "Root disk free is $(( disk_mb / 1024 ))GB — prefetching all shared images in background..."
