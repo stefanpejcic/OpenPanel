@@ -471,28 +471,29 @@ EOF
 }
 
 clone_repos() {
-    echo "Cloning OpenPanel repositories from Github..."
+    echo "Downloading OpenPanel project repositories from Github..."
 
     [[ "$REPAIR" == true ]] && rm -rf "$ETC_DIR" /usr/local/opencli /usr/local/opencli /usr/local/admin/
 
     local branch="110"
-    [[ "$architecture" == "aarch64" ]] && branch="armcpu"
+    [[ "$architecture" == "aarch64" ]] && branch="armcpu" 
 
-    git clone https://github.com/stefanpejcic/openpanel-configuration "$ETC_DIR"                         >/tmp/clone_config.log  2>&1 &
-    local pid_config=$!
-    git clone https://github.com/stefanpejcic/opencli.git /usr/local/opencli                             >/tmp/clone_opencli.log 2>&1 &
-    local pid_opencli=$!
-    git clone -b "$branch" --single-branch https://github.com/stefanpejcic/openadmin /usr/local/admin/   >/tmp/clone_admin.log  2>&1 &
-    local pid_admin=$!
+	# openpanel-configuration
+    echo "Downloading openpanel-configuration to $ETC_DIR"
+	curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip && unzip /tmp/main.zip -d "$ETC_DIR"
+    [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
-    local failed=0
-    wait "$pid_config"  || { cat /tmp/clone_config.log;  fail "Failed to clone openpanel-configuration"; failed=1; }
-    wait "$pid_opencli" || { cat /tmp/clone_opencli.log; fail "Failed to clone opencli";                 failed=1; }
-    wait "$pid_admin"   || { cat /tmp/clone_admin.log;   fail "Failed to clone openadmin";               failed=1; }
-    [[ "$failed" -eq 0 ]] || die 1 "One or more git clones failed."
+	# openadmin
+    local admin_binary="openadmin-amd"
+    [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm"	
+    echo "Downloading openadmin to /usr/local/admin/$admin_binary"	
+	curl -sSL "https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/$admin_binary" -o 
+    [[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
+    sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" 
 
-    [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after clone."
-    ok "All repositories cloned."
+	# opencli
+    echo "Downloading opencli commands to /usr/local/opencli"
+	git clone https://github.com/stefanpejcic/opencli.git /usr/local/opencli #TODO: silent
 }
 
 download_config() {
