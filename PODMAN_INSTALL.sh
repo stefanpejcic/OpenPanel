@@ -501,7 +501,7 @@ clone_repos() {
 	mkdir -p /usr/local/admin/
 	curl -sSL "https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/$admin_binary" -o "/usr/local/admin/$admin_binary"
 	[[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
-	#sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "${SERVICES_DIR}admin.service"
+	sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "${SERVICES_DIR}admin.service"
 
 	# opencli
     echo "Downloading opencli commands to /usr/local/opencli"
@@ -551,7 +551,6 @@ install_openadmin() {
     done
 
     cp "${ETC_DIR}openadmin/service/openadmin.service" "${SERVICES_DIR}admin.service"
-	sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "${SERVICES_DIR}admin.service"
     run systemctl daemon-reload
     run systemctl enable --now admin
 
