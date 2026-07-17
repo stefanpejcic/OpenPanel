@@ -480,16 +480,28 @@ clone_repos() {
 
 	# openpanel-configuration
     echo "Downloading openpanel-configuration to $ETC_DIR"
-	curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip && unzip /tmp/main.zip -d "$ETC_DIR"
+	#curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip && unzip /tmp/main.zip -d "$ETC_DIR"
+
+	local tmp_extract="/tmp/openpanel-configuration-extract"
+	rm -rf "$tmp_extract"
+	mkdir -p "$tmp_extract"
+	curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip \
+    && unzip -q /tmp/main.zip -d "$tmp_extract"
+	local src_dir
+	src_dir=$(find "$tmp_extract" -mindepth 1 -maxdepth 1 -type d | head -n1)
+	mkdir -p "$ETC_DIR"
+	cp -a "${src_dir}/." "$ETC_DIR"
+	rm -rf /tmp/main.zip "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
 	# openadmin
     local admin_binary="openadmin-amd"
     [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm"	
     echo "Downloading openadmin to /usr/local/admin/$admin_binary"	
-	curl -sSL "https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/$admin_binary" -o 
-    [[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
-    sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" 
+	mkdir -p /usr/local/admin/
+	curl -sSL "https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/$admin_binary" -o "/usr/local/admin/$admin_binary"
+	[[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
+	#sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "${SERVICES_DIR}admin.service"
 
 	# opencli
     echo "Downloading opencli commands to /usr/local/opencli"
@@ -539,6 +551,7 @@ install_openadmin() {
     done
 
     cp "${ETC_DIR}openadmin/service/openadmin.service" "${SERVICES_DIR}admin.service"
+	sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "${SERVICES_DIR}admin.service"
     run systemctl daemon-reload
     run systemctl enable --now admin
 
