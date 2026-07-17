@@ -264,7 +264,7 @@ pkg_install_with_retry() {
     $PACKAGE_MANAGER install -y "$pkg" >/dev/null 2>&1 && return
 
     case "$pkg" in
-        podman-compose) pip3 install podman-compose >/dev/null 2>&1 || pip3 install --break-system-packages podman-compose >/dev/null 2>&1; command -v podman-compose &>/dev/null && return ;;
+        podman-compose) $PACKAGE_MANAGER install -y install podman-compose >/dev/null 2>&1; command -v podman-compose &>/dev/null && return ;;
         linux-image-amd64) $PACKAGE_MANAGER install -y linux-image >/dev/null 2>&1 && return ;;
         dbus-user-session) $PACKAGE_MANAGER install -y dbus >/dev/null 2>&1 && return ;;
         uidmap)       $PACKAGE_MANAGER install -y shadow-utils >/dev/null 2>&1 && return ;;
@@ -334,7 +334,7 @@ install_packages() {
         dnf)
             build_quotatool_from_source
             if [[ "$OS_ID" == "openeuler" ]]; then
-                run dnf install -y dnf-plugins-core yum-utils perl python3-pip python3-devel gcc tar
+                run dnf install -y dnf-plugins-core yum-utils perl gcc tar
                 packages=(git curl openssl ncurses wget gnupg2 cronie jq systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
                 wait_for_pkg_lock
                 for pkg in "${packages[@]}"; do
@@ -342,7 +342,7 @@ install_packages() {
                 done
                 return
             fi
-            run dnf install -y yum-utils epel-release perl python3-pip python3-devel gcc
+            run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
                 packages=(git openssl wget gnupg dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mysql sqlite sqlite-devel perl-Math-BigInt)
             else
@@ -355,119 +355,6 @@ install_packages() {
     for pkg in "${packages[@]}"; do
         pkg_install_with_retry "$pkg"
     done
-}
-
-_pip_needs_break_system_packages() {
-    python3 -m pip install --dry-run pip 2>&1 | grep -q "externally-managed-environment"
-}
-
-_build_python312_from_source() {
-    echo "Building Python 3.12 from source (this takes a few minutes)..."
-    if [[ "$PACKAGE_MANAGER" == "apt-get" ]]; then
-        $PACKAGE_MANAGER install -y build-essential curl ca-certificates xz-utils libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev libffi-dev libncursesw5-dev libgdbm-dev liblzma-dev uuid-dev
-    else
-        $PACKAGE_MANAGER groupinstall -y "Development Tools" >/dev/null 2>&1 || true
-        $PACKAGE_MANAGER install -y gcc make curl ca-certificates xz openssl-devel zlib-devel bzip2-devel readline-devel sqlite-devel libffi-devel ncurses-devel gdbm-devel xz-devel libuuid-devel
-    fi
-
-    local latest
-    latest=$(curl -fsSL https://www.python.org/ftp/python/ | grep -Po 'href="3\.12\.\d+/' | grep -Po '3\.12\.\d+' | sort -V | tail -1 || echo "3.12.7")
-    local prefix="/opt/python/${latest}"
-
-    mkdir -p /usr/local/src
-    cd /usr/local/src || die 1 "Cannot access /usr/local/src"
-    curl -fsSL -o "Python-${latest}.tgz" "https://www.python.org/ftp/python/${latest}/Python-${latest}.tgz"
-    tar -xzf "Python-${latest}.tgz"
-    cd "Python-${latest}" || die 1 "Python source extraction failed."
-    ./configure --prefix="$prefix" --enable-optimizations --with-ensurepip=install
-    make -j"$(nproc)"
-    make altinstall
-
-    ln -sf "${prefix}/bin/python3.12" /usr/local/bin/python3.12
-    ln -sf "${prefix}/bin/pip3.12"    /usr/local/bin/pip3.12
-
-    [[ -x /usr/local/bin/python3.12 ]] || die 1 "Python 3.12 source build failed."
-    python3.12 -m ensurepip -U || true
-    python3.12 -m pip install --upgrade pip setuptools wheel || true
-    PYTHON_BIN="python3.12"
-    export PYTHON_BIN
-    ok "Python $(python3.12 --version) built from source."
-}
-
-install_python() {
-    if [[ "$OS_ID" == "debian" && "$OS_CODENAME" == "trixie" ]]; then
-        echo "Building Python 3.12 from source for Debian 13..."
-        _build_python312_from_source
-        return
-    fi
-
-    if command -v python3.12 &>/dev/null; then
-        PYTHON_BIN="python3.12"
-    else
-        echo "Installing Python 3.12..."
-        case "$OS_ID" in
-            ubuntu)
-                run $PACKAGE_MANAGER install -y software-properties-common
-                run add-apt-repository -y ppa:deadsnakes/ppa
-                run $PACKAGE_MANAGER update -y
-                $PACKAGE_MANAGER install -y python3.12 python3.12-venv python3.12-dev || true
-                command -v python3.12 &>/dev/null && PYTHON_BIN="python3.12" || die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
-                ;;
-            debian)
-                $PACKAGE_MANAGER install -y curl gnupg ca-certificates
-                update-ca-certificates
-                install -d -m 0755 /etc/apt/keyrings
-
-                if curl -fsSL --ipv4 --max-time 15 https://pascalroeleven.nl/deb-pascalroeleven.gpg -o /etc/apt/keyrings/deb-pascalroeleven.gpg 2>/dev/null; then
-
-                    cat > /etc/apt/sources.list.d/pascalroeleven.sources <<EOF
-Types: deb
-URIs: http://deb.pascalroeleven.nl/python3.12
-Suites: ${OS_CODENAME}
-Components: main
-Signed-By: /etc/apt/keyrings/deb-pascalroeleven.gpg
-EOF
-                    $PACKAGE_MANAGER update -y 2>&1 | grep -v "^Hit\|^Get\|^Reading\|^Building" || true
-                fi
-
-                $PACKAGE_MANAGER install -y python3.12 python3.12-venv python3.12-dev 2>/dev/null || true
-
-                if ! command -v python3.12 &>/dev/null; then
-                    warn "Repo install failed — building Python 3.12 from source..."
-                    _build_python312_from_source
-                else
-                    PYTHON_BIN="python3.12"
-                fi
-                ;;
-            almalinux|alma|rocky|centos|openeuler)
-                run $PACKAGE_MANAGER update -y
-                if [[ "$OS_ID" == "openeuler" ]]; then
-                    run dnf config-manager --set-enabled EPOL 2>/dev/null || true
-                else
-                    command -v dnf &>/dev/null && {
-                        run dnf install -y epel-release || true
-                        run dnf config-manager --set-enabled crb 2>/dev/null || run dnf config-manager --set-enabled powertools || true
-                    }
-                fi
-                $PACKAGE_MANAGER install -y python3.12 || true
-                $PACKAGE_MANAGER install -y python3.12-venv || true
-                if command -v python3.12 &>/dev/null; then
-                    PYTHON_BIN="python3.12"
-                elif [[ "$OS_ID" == "openeuler" ]]; then
-                    warn "python3.12 not available in openEuler repos — building from source..."
-                    _build_python312_from_source
-                else
-                    die 1 "Python 3.12 installation failed on ${OS_ID} ${OS_CODENAME}."
-                fi
-                ;;
-        esac
-    fi
-
-    run $PACKAGE_MANAGER install -y python3-venv || true
-    run $PACKAGE_MANAGER install -y python3.12-venv || true
-
-    $PYTHON_BIN --version &>/dev/null && ok "Python is available: $($PYTHON_BIN --version)." || die 1 "Python installation failed."
-    export PYTHON_BIN
 }
 
 clone_repos() {
@@ -533,19 +420,7 @@ install_openadmin() {
     fi
 
     cd "$dir" || die 1 "Failed to open $dir"
-    ${PYTHON_BIN:-python3} -m venv "${dir}venv" || die 1 "Failed to create virtualenv"
-
-    local pip_flags="--default-timeout=300 --force-reinstall --ignore-installed"
-    if _pip_needs_break_system_packages; then
-        pip_flags="$pip_flags --break-system-packages"
-    fi
-    # shellcheck disable=SC1090
-    source "${dir}venv/bin/activate"
-    # shellcheck disable=SC2086
-    pip install $pip_flags -r requirements.txt >/dev/null 2>&1
-
-    [[ "$OS_ID" == "debian" ]] && run apt install -y python3-yaml || true
-
+  
     for f in "${ETC_DIR}openadmin/secret.key" "${ETC_DIR}openpanel/secret.key"; do
         [[ -f "$f" ]] || { openssl rand -hex 32 > "$f"; chmod 600 "$f"; }
     done
@@ -1150,9 +1025,7 @@ create_admin_account() {
     local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
 
     if [[ "$count" -eq 0 ]]; then
-        warn "opencli failed — inserting user manually..."
-        local hash; hash=$(/usr/local/admin/venv/bin/python3 /usr/local/admin/core/users/hash "$new_password")
-        sqlite3 "${ETC_DIR}openadmin/users.db" "INSERT INTO user (username, password_hash, role) VALUES ('$new_username', '$hash', 'admin');" || warn "Manual user creation also failed."
+        die "Failed to create Admin acocunt - is sqlite3 installed?"
     fi
 
     display_logins
@@ -1236,7 +1109,6 @@ setup_progress_bar() {
 
 STEPS=(
     update_package_manager
-    install_python
     install_packages
     podman_docker_alias
     setup_shared_image_store
