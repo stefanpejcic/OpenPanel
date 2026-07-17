@@ -372,8 +372,7 @@ clone_repos() {
 	local tmp_extract="/tmp/openpanel-configuration-extract"
 	rm -rf "$tmp_extract"
 	mkdir -p "$tmp_extract"
-	curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip \
-    && unzip -q /tmp/main.zip -d "$tmp_extract"
+	curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip && unzip -q /tmp/main.zip -d "$tmp_extract"
 	local src_dir
 	src_dir=$(find "$tmp_extract" -mindepth 1 -maxdepth 1 -type d | head -n1)
 	mkdir -p "$ETC_DIR"
@@ -387,6 +386,7 @@ clone_repos() {
     echo "Downloading openadmin to /usr/local/admin/$admin_binary"
 	mkdir -p /usr/local/admin/
 	git clone --branch main --single-branch https://github.com/stefanpejcic/openadmin.git /usr/local/admin >/dev/null 2>&1
+	curl -sSL "https://github.com/stefanpejcic/openadmin/releases/download/$VERSION/$admin_binary" -o "/usr/local/admin/$admin_binary"
 	[[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
 	chmod +x "/usr/local/admin/$admin_binary"
 	sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
