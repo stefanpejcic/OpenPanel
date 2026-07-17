@@ -44,7 +44,7 @@ custom_password=""
 EMAIL=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="2.0.0"
+readonly DEFAULT_PANEL_VERSION="1.7.66-beta"
 readonly CONTAINER_ENGINE="podman"
 readonly SHARED_STORE="/var/lib/openpanel/shared-containers/storage"
 readonly ETC_DIR="/etc/openpanel/"
