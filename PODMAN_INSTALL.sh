@@ -626,7 +626,7 @@ setup_compose() {
 	test_output=$(timeout 30 podman run --rm docker.io/library/alpine echo "Hello from Alpine!" 2>&1 || true)
 	[[ "$test_output" == *"Hello from Alpine!"* ]] && ok "Podman alpine container ran successfully." || die 1 "Running alpine container failed, error: $test_output"
 
-
+    echo "Setting up MariaDB..."
     local mysql_cnf="/etc/my.cnf"
     local root_pw; root_pw=$(openssl rand -base64 -hex 9)
 
