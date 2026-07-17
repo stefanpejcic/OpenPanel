@@ -382,8 +382,8 @@ clone_repos() {
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
 	# openadmin
-    local admin_binary="openadmin-amd"
-    [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm"	
+    local admin_binary="openadmin-amd64"
+    [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm64"	
     echo "Downloading openadmin to /usr/local/admin/$admin_binary"	
 	mkdir -p /usr/local/admin/
 	curl -sSL "https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/$admin_binary" -o "/usr/local/admin/$admin_binary"
