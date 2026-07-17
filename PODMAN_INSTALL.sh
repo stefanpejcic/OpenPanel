@@ -393,7 +393,7 @@ clone_repos() {
 
 	# opencli
     echo "Downloading opencli commands to /usr/local/opencli"
-	git clone https://github.com/stefanpejcic/opencli.git /usr/local/opencli #TODO: silent
+	git clone --branch podman --single-branch https://github.com/stefanpejcic/opencli.git /usr/local/opencli >/dev/null 2>&1
 }
 
 download_config() {
