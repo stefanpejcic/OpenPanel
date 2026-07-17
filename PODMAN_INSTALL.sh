@@ -383,10 +383,10 @@ clone_repos() {
 
 	# openadmin
     local admin_binary="openadmin-amd64"
-    [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm64"	
-    echo "Downloading openadmin to /usr/local/admin/$admin_binary"	
+    [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm64"
+    echo "Downloading openadmin to /usr/local/admin/$admin_binary"
 	mkdir -p /usr/local/admin/
-	curl -sSL "https://raw.githubusercontent.com/stefanpejcic/openadmin/refs/heads/main/$admin_binary" -o "/usr/local/admin/$admin_binary"
+	git clone --branch main --single-branch https://github.com/stefanpejcic/openadmin.git /usr/local/admin >/dev/null 2>&1
 	[[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
 	chmod +x "/usr/local/admin/$admin_binary"
 	sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
