@@ -89,7 +89,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | AlmaLinux | 9.5 | | |  | **recommended for ARM CPU** |
 | AlmaLinux | 10 | 2026-07-18 03:00 UTC | ❌ Fail |  |  |
 | RockyLinux | 9.6 | | | |  |
-| RockyLinux | 10 | 2026-07-17 04:58 UTC | ❌ Fail |  |  |
+| RockyLinux | 10 | 2026-07-18 04:57 UTC | ❌ Fail |  |  |
 | CentOS | 9.5 | | | |  |
 | CentOS | 10 | 2026-07-18 03:36 UTC | ❌ Fail |  |  |
 | openEuler | 24 | | Untested |  |  |
