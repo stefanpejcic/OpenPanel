@@ -44,7 +44,7 @@ custom_password=""
 EMAIL=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="1.7.66-beta"
+readonly DEFAULT_PANEL_VERSION="2.0.0-beta"
 readonly CONTAINER_ENGINE="podman"
 readonly SHARED_STORE="/var/lib/openpanel/shared-containers/storage"
 readonly ETC_DIR="/etc/openpanel/"
@@ -228,10 +228,12 @@ get_server_ipv4() {
 
 set_panel_version() {
     if [[ "$CUSTOM_VERSION" == false ]]; then
-        local response
-        response=$(curl -4 -s "https://api.openpanel.com/statistics/" || true)
-        PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
-        [[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
+		# TODO TODO TODO TODO
+        #local response
+        #response=$(curl -4 -s "https://api.openpanel.com/statistics/" || true)
+        #PANEL_VERSION=$(echo "$response" | grep -oP '"latest_version":"\K[^"]+' || true)
+        #[[ "$PANEL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || PANEL_VERSION="$DEFAULT_PANEL_VERSION"
+		PANEL_VERSION="$DEFAULT_PANEL_VERSION"
     fi
 }
 
