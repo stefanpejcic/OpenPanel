@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: OpenPanel 1.7.65\n"
+"Project-Id-Version: OpenPanel 2.0.0\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-12 10:42+0200\n"
+"POT-Creation-Date: 2026-07-18 09:33+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -2046,23 +2046,23 @@ msgid ""
 "{database_name}"
 msgstr ""
 
-#: modules/process_manager.py:82
+#: modules/process_manager.py:81
 msgid "No PID provided"
 msgstr ""
 
-#: modules/process_manager.py:85
+#: modules/process_manager.py:84
 msgid "PID not found or not allowed"
 msgstr ""
 
-#: modules/process_manager.py:92
+#: modules/process_manager.py:91
 msgid "Invalid PID"
 msgstr ""
 
-#: modules/process_manager.py:99
+#: modules/process_manager.py:98
 msgid "Process killed successfully"
 msgstr ""
 
-#: modules/process_manager.py:104 templates/dashboard/dashboard.html:217
+#: modules/process_manager.py:103 templates/dashboard/dashboard.html:217
 #: templates/system/process_manager.html:13
 msgid "Process Manager"
 msgstr ""
@@ -4043,33 +4043,33 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:233
+#: modules/json/helpers.py:245
 #, python-format
 msgid "Unknown action '%(action)s'."
 msgstr ""
 
-#: modules/json/helpers.py:287
+#: modules/json/helpers.py:299
 msgid "Invalid action. Use start, stop, status, or restart."
 msgstr ""
 
-#: modules/json/helpers.py:535 modules/json/helpers.py:650
+#: modules/json/helpers.py:547 modules/json/helpers.py:662
 msgid "Invalid folder path."
 msgstr ""
 
-#: modules/json/helpers.py:681
+#: modules/json/helpers.py:693
 msgid "Unexpected output format"
 msgstr ""
 
-#: modules/json/helpers.py:684 modules/json/helpers.py:708
-#: modules/json/helpers.py:765
+#: modules/json/helpers.py:696 modules/json/helpers.py:720
+#: modules/json/helpers.py:777
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:716
+#: modules/json/helpers.py:728
 msgid "Invalid request. Please specify a domain or database name."
 msgstr ""
 
-#: modules/json/helpers.py:771
+#: modules/json/helpers.py:783
 msgid "Database configuration not found"
 msgstr ""
 

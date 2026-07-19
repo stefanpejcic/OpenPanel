@@ -76,8 +76,8 @@ test('/json/system', async ({ page }) => {
   expect(typeof data.kernel).toBe('string');
   expect(typeof data.openpanel_version).toBe('string');
   expect(typeof data.os).toBe('string');
-  expect(typeof data.package_updates).toBe('number');
-  expect(typeof data.running_processes).toBe('number');
+  expect(typeof data.package_updates).toBe('string');
+  expect(typeof data.running_processes).toBe('string');
   expect(typeof data.time).toBe('string');
   expect(typeof data.uptime).toBe('string'); // or number
 
