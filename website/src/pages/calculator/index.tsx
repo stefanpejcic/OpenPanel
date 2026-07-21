@@ -50,6 +50,19 @@ const COMMUNITY_ADDONS: Record<string, AddonCost> = {
         label: "OpenPanel UI",
         description: "Web-based user interface for managing hosting accounts.",
     },
+    openadminui: {
+        cpu: 0,
+        ramGb: 0.02,
+        label: "OpenAdmin UI",
+        description: "Interface for admin users and resellers.",
+    },
+    caddy: {
+        cpu: 0.5,
+        ramGb: 0.5,
+        label: "Caddy",
+        description:
+            "Web server and reverse proxy for hosted domains. Only disable for a DNS-only or Email-only server.",
+    },
     dns: {
         cpu: 0.25,
         ramGb: 0.125,
@@ -70,6 +83,12 @@ const ENTERPRISE_ADDONS: Record<string, AddonCost> = {
         ramGb: 1,
         label: "Email",
         description: "Roundcube webmail + full mailserver for all hosted domains.",
+    },
+    ftp: {
+        cpu: 0.1,
+        ramGb: 0.25,
+        label: "FTP",
+        description: "FTP/SFTP access for hosted accounts.",
     },
     clamav: {
         cpu: 4,
@@ -204,9 +223,12 @@ const Calculator: React.FC = () => {
 
     const [addons, setAddons] = useState<Record<string, boolean>>({
         openpanelui: true,
+        openadminui: true,
+        caddy: true,
         dns: false,
         phpmyadmin: false,
         email: false,
+        ftp: false,
         clamav: false,
         imunifyav: false,
     });
