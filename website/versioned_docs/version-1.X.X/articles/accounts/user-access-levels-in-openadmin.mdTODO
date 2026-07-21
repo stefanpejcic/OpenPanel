@@ -1,0 +1,27 @@
+# User access levels in OpenAdmin
+
+OpenAdmin has 3 user access levels:
+
+The admin panel has three user roles:
+
+| Role              | Description                                                               |
+| ------------------ | ------------------------------------------------------------------------- |
+| **Super Admin**    | Has unrestricted privileges, created on OpenPanel installation. |
+| **Admin**          | Has restricted privileges: can not access all pages in OpenAdmin and can not edit the SuperAdmin user. |
+| **Reseller**       | Has restricted privileges. |
+
+## Super Admin
+
+Super Admin is the very first admin account that is created for OpenAdmin, ususally on installation. It can not be edited by other admin users from the OpenAdmin interface and has unrestrecter privileges over all OpenAdmin features.
+
+## Admin
+
+Admin accounts are intended to be used by the cleint on VPS, or for support team members, ands hould be used for restricting the access. They have almost root level privileges as the Super Amdin has, but do not have permissons to acces these in OpenAdmin UI:
+
+- Web Terminal
+- Server Reboot
+- Disable OpenAdmin
+
+## Reseller
+
+For reselelr acc
