@@ -91,7 +91,7 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | RockyLinux | 9.6 | | | |  |
 | RockyLinux | 10 | 2026-07-20 05:20 UTC | ❌ Fail |  |  |
 | CentOS | 9.5 | | | |  |
-| CentOS | 10 | 2026-07-20 03:40 UTC | ❌ Fail |  |  |
+| CentOS | 10 | 2026-07-21 03:36 UTC | ❌ Fail |  |  |
 | openEuler | 24 | | Untested |  |  |
 <!-- OS_TEST_RESULTS_END -->
 
