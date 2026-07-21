@@ -514,11 +514,10 @@ runroot = "/run/containers/storage"
 additionalimagestores = [
   "$SHARED_STORE"
 ]
-
-[storage.options.overlay]
-mount_program = "/usr/bin/fuse-overlayfs"
-
 EOF
+
+#[storage.options.overlay]
+#mount_program = "/usr/bin/fuse-overlayfs"
 
     fix_selinux_storage_labels
 
