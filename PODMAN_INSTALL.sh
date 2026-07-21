@@ -392,6 +392,9 @@ clone_repos() {
 	chmod +x "/usr/local/admin/$admin_binary"
 	sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
 
+	# TODO: edit inline once 2.0 is out
+	sed -i 's|cmd = \["docker", "--context=default", "exec", "openpanel_redis", "redis-cli", "FLUSHDB"\]|cmd = \["podman", "exec", "openpanel_redis", "redis-cli", "FLUSHDB"\]|' "/etc/openpanel/openpanel/service/service.config.py"
+
 	# opencli
     echo "Downloading opencli commands to /usr/local/opencli"
 	git clone --branch podman --single-branch https://github.com/stefanpejcic/opencli.git /usr/local/opencli >/dev/null 2>&1
