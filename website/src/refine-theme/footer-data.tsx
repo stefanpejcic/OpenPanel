@@ -35,6 +35,11 @@ export const menuItems = [
                 href: "/docs/articles/dev-experience/openadmin-api",
             },
             {
+                label: "Resource Calculator",
+                href: "/calculator/",
+                icon: <NewBadgeIcon />,
+            },
+            {
                 label: "Install Command",
                 href: "/install",
             },
@@ -71,7 +76,6 @@ export const menuItems = [
     },
     {
         label: "Compare",
-        icon: <NewBadgeIcon />,
         items: [
             {
                 label: "cPanel VS OpenPanel",

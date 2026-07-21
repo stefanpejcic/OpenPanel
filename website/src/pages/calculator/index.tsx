@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect, useRef, ChangeEvent } from "react";
 import Head from "@docusaurus/Head";
 import Link from "@docusaurus/Link";
 import clsx from "clsx";
@@ -254,6 +254,112 @@ const Calculator: React.FC = () => {
         const { name, checked } = e.target;
         setAddons((prev) => ({ ...prev, [name]: checked }));
     };
+
+    const resultsRef = useRef<HTMLDivElement>(null);
+
+    // Prefill from URL params (e.g. ?users=50&cpu=4&ram=4&database=mysql&email=1)
+    // so a link can be shared with the calculator already set up for someone.
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if ([...params.keys()].length === 0) return;
+
+        const getInt = (key: string, fallback: number, min: number, max: number) =>
+            params.has(key)
+                ? Math.max(min, Math.min(max, Number(params.get(key))))
+                : fallback;
+
+        const getBool = (key: string, fallback: boolean) =>
+            params.has(key)
+                ? params.get(key) === "1" || params.get(key) === "true"
+                : fallback;
+
+        const getEnum = <T extends string>(
+            key: string,
+            fallback: T,
+            allowed: readonly T[],
+        ) => {
+            const value = params.get(key) as T | null;
+            return value && allowed.includes(value) ? value : fallback;
+        };
+
+        setUsers((prev) => getInt("users", prev, 1, 100000));
+        setCpuPerUser((prev) => getInt("cpu", prev, 0, 16));
+        setRamPerUser((prev) => getInt("ram", prev, 0, 16));
+        setDatabase((prev) =>
+            getEnum("database", prev, ["mariadb", "mysql"] as const),
+        );
+        setWebserver((prev) =>
+            getEnum(
+                "webserver",
+                prev,
+                ["nginx", "apache", "openlitespeed", "openresty"] as const,
+            ),
+        );
+        setPhpVersions((prev) => getInt("php", prev, 0, 15));
+        setCaching((prev) =>
+            getEnum(
+                "caching",
+                prev,
+                ["none", "memcached", "valkey", "redis"] as const,
+            ),
+        );
+        setCronEnabled((prev) => getBool("cron", prev));
+        setAddons((prev) => {
+            const next = { ...prev };
+            Object.keys(ALL_ADDONS).forEach((key) => {
+                next[key] = getBool(key, prev[key]);
+            });
+            return next;
+        });
+
+        resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    // OpenLiteSpeed only supports one PHP version.
+    useEffect(() => {
+        if (webserver === "openlitespeed") {
+            setPhpVersions(1);
+        }
+    }, [webserver]);
+
+    // Keep the URL in sync with the current inputs, so the address bar is
+    // always a shareable link to this exact configuration. Skipped on the
+    // very first run so it doesn't clobber params a shared link came in with.
+    const isFirstUrlSync = useRef(true);
+    useEffect(() => {
+        if (isFirstUrlSync.current) {
+            isFirstUrlSync.current = false;
+            return;
+        }
+        const params = new URLSearchParams();
+        params.set("users", String(users));
+        params.set("cpu", String(cpuPerUser));
+        params.set("ram", String(ramPerUser));
+        params.set("database", database);
+        params.set("webserver", webserver);
+        params.set("php", String(phpVersions));
+        params.set("caching", caching);
+        params.set("cron", cronEnabled ? "1" : "0");
+        Object.keys(ALL_ADDONS).forEach((key) => {
+            params.set(key, addons[key] ? "1" : "0");
+        });
+        window.history.replaceState(
+            null,
+            "",
+            `${window.location.pathname}?${params.toString()}`,
+        );
+    }, [
+        users,
+        cpuPerUser,
+        ramPerUser,
+        database,
+        webserver,
+        phpVersions,
+        caching,
+        cronEnabled,
+        addons,
+    ]);
 
     const selectedServiceImages: string[] = [
         database,
@@ -634,7 +740,13 @@ const Calculator: React.FC = () => {
                                             <option value="openresty">OpenResty</option>
                                         </select>
                                     </div>
-                                    <div>
+                                    <div
+                                        title={
+                                            webserver === "openlitespeed"
+                                                ? "OpenLiteSpeed only supports one PHP version, so this can't be changed."
+                                                : undefined
+                                        }
+                                    >
                                         <label htmlFor="php-versions" className={fieldLabel}>
                                             PHP versions
                                         </label>
@@ -644,6 +756,7 @@ const Calculator: React.FC = () => {
                                             min={0}
                                             max={15}
                                             value={phpVersions}
+                                            disabled={webserver === "openlitespeed"}
                                             onChange={(e) =>
                                                 setPhpVersions(
                                                     Math.max(
@@ -652,11 +765,16 @@ const Calculator: React.FC = () => {
                                                     ),
                                                 )
                                             }
-                                            className={fieldInput}
+                                            className={clsx(
+                                                fieldInput,
+                                                webserver === "openlitespeed" &&
+                                                    "opacity-50 cursor-not-allowed",
+                                            )}
                                         />
                                         <div className={fieldHint}>
-                                            How many distinct PHP versions your users
-                                            need, each its own shared image.
+                                            {webserver === "openlitespeed"
+                                                ? "OpenLiteSpeed only supports one PHP version."
+                                                : "How many distinct PHP versions your users need, each its own shared image."}
                                         </div>
                                     </div>
                                     <div>
@@ -768,7 +886,7 @@ const Calculator: React.FC = () => {
                     </div>
 
                     {/* Recommended VPS */}
-                    <div className={clsx("w-full")}>
+                    <div ref={resultsRef} className={clsx("w-full")}>
                         <div className={clsx("px-4 landing-md:px-10")}>
                             <h2 className={sectionHeading}>
                                 Your{" "}

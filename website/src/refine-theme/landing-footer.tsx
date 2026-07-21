@@ -236,6 +236,7 @@ export const LandingFooter = () => {
                                                 )}
                                             >
                                                 {item.label}
+                                                {item.icon}
                                             </div>
                                         </a>
                                     ))}
