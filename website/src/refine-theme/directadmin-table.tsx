@@ -693,7 +693,7 @@ const tableData = [
         ],
     },
     {
-        title: "Docker",
+        title: "Podman",
         items: [
             {
                 description: "Users can manage Containers",

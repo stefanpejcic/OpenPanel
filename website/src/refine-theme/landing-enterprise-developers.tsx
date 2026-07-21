@@ -16,7 +16,7 @@ const list = [
         icon: <SelfHostedIcon />,
         title: "True isolation with containers",
         description:
-            "Complete isolation per user with rootless Docker: every service is a separate container, limited in CPU, memory, and port speed.",
+            "Complete isolation per user with rootless Podman: every service is a separate container, limited in CPU, memory, and port speed.",
     },
     {
         icon: <IdentityIcon />,

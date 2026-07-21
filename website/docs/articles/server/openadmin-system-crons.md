@@ -6,7 +6,7 @@ If you need to customize or add system cron jobs, use the **root user's crontab*
 
 
 ## docker-collect_stats --all
-Command `opencli docker-collect_stats --all` collects the docker stats for all users. THis data is visible by end-users From 'Resurce Usage' pag, and for Amdinistrators form *Users > single user*  page.
+Command `opencli docker-collect_stats --all` collects the container stats for all users. THis data is visible by end-users From 'Resurce Usage' pag, and for Amdinistrators form *Users > single user*  page.
 
 Default schedule: hourly (`0 * * * *`)
 
@@ -64,7 +64,7 @@ Command `opencli email-server pflogsumm` generates an **HTML email summary repor
 
 
 ## docker-images --all
-Command `opencli docker-images --all` checks all active user's docker images for updates using [Cup 🥤](https://github.com/sergi0g/cup) and displays the data to end-users on *Containers > Image Updates* page.
+Command `opencli docker-images --all` checks all active user's container images for updates using [Cup 🥤](https://github.com/sergi0g/cup) and displays the data to end-users on *Containers > Image Updates* page.
 
 - **Default schedule:** daily at 03:45 (`45 3 * * *`)  
 - **Documentation:** [opencli docker-images](https://dev.openpanel.com/cli/docker.html#Images)
@@ -88,7 +88,7 @@ Command `opencli waf-update` updates the default **OWASP CRS WAF rules**. Logs c
 
 
 ## docker-backup
-Command `opencli docker-backup` executes a **backup for all users’ Docker containers** This is disabled by default, as each end-user can then [schedule and manage their own backups from OpenPanel UI](/docs/panel/files/backups/).
+Command `opencli docker-backup` executes a **backup for all users’ containers** This is disabled by default, as each end-user can then [schedule and manage their own backups from OpenPanel UI](/docs/panel/files/backups/).
 
 - **Default schedule:** `59 23 31 2 *`  
 - **Documentation:** [Configuring OpenPanel Backups: Admin-configured](/docs/articles/backups/comfiguring-backups/#1-admin-configured)

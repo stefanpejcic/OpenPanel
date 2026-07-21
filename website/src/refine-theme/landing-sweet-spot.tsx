@@ -345,8 +345,8 @@ const list = [
             "dark:bg-landing-sweet-spot-glow-red-dark bg-landing-sweet-spot-glow-red-light",
     },
     {
-        title: "Isolated services with Docker",
-        description: `Each service is an isolated Docker container that is fully configurable by the user.`,
+        title: "Isolated services with Podman",
+        description: `Each service is an isolated Podman container that is fully configurable by the user.`,
         icon: (props: { active: boolean }) => (
         <svg width="24" height="24" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="none">
             <path

@@ -1,6 +1,6 @@
-# Docker
+# Containers
 
-Manage Docker settings: update docker images, set global resource limits for docker, etc.
+Manage container settings: update container images, set global resource limits for containers, etc.
 
 ### docker
 
@@ -73,7 +73,7 @@ Examples:
 
 ### Collect Stats
 
-To collect docker resource usage information (cpu, ram, i/o) for all users:
+To collect container resource usage information (cpu, ram, i/o) for all users:
 ```bash
 opencli docker-collect_stats
 ```
@@ -83,7 +83,7 @@ opencli docker-collect_stats
 
 ### Limits DEPRECATED
 
-Set global docker limits (storage, ram and cpu) for all system containers.
+Set global container limits (storage, ram and cpu) for all system containers.
 ```bash
 opencli docker-limits [--apply | --read]
 ```
@@ -113,7 +113,7 @@ opencli docker-limits --apply
 
 #### Storage (disk) limit
 
-To increase storage (disk) allocated to Docker, pass the size in **GB**:
+To increase storage (disk) allocated to containers, pass the size in **GB**:
 
 ```bash
 opencli docker-limits --apply 100

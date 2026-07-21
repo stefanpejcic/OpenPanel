@@ -48,9 +48,9 @@ OpenPanel ships as a free Community edition and a paid Enterprise edition, price
 
 How OpenPanel's Docker-per-user model differs from CloudLinux-based and traditional shared-hosting control panels.
 
-- [OpenPanel vs cPanel/WHM: Alternative Hosting Panel Compared](https://openpanel.com/cpanel-alternative/): Compare OpenPanel vs cPanel/WHM: Docker-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.
-- [OpenPanel vs Plesk: Alternative Hosting Panel Compared](https://openpanel.com/plesk-alternative/): Compare OpenPanel vs Plesk: true per-user Docker isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.
-- [OpenPanel vs DirectAdmin: Alternative Hosting Panel Compared](https://openpanel.com/directadmin-alternative/): Compare OpenPanel vs DirectAdmin: Docker-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.
+- [OpenPanel vs cPanel/WHM: Alternative Hosting Panel Compared](https://openpanel.com/cpanel-alternative/): Compare OpenPanel vs cPanel/WHM: Podman-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.
+- [OpenPanel vs Plesk: Alternative Hosting Panel Compared](https://openpanel.com/plesk-alternative/): Compare OpenPanel vs Plesk: true per-user Podman isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.
+- [OpenPanel vs DirectAdmin: Alternative Hosting Panel Compared](https://openpanel.com/directadmin-alternative/): Compare OpenPanel vs DirectAdmin: Podman-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.
 - [OpenPanel vs CyberPanel: Alternative Hosting Panel Compared](https://openpanel.com/cyberpanel-alternative/): Compare OpenPanel vs CyberPanel: real per-user isolation without CloudLinux, granular permissions, and enterprise support from €14.95/month per server.
 
 ---
@@ -59,7 +59,7 @@ How OpenPanel's Docker-per-user model differs from CloudLinux-based and traditio
 
 Background on the project, its roadmap, live usage data, and hosting providers running OpenPanel for their customers.
 
-- [About](https://openpanel.com/about/): OpenPanel is built by hosting operators, for hosting operators - Docker-native isolation, built-in security, and no per-seat pricing.
+- [About](https://openpanel.com/about/): OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing.
 - [Roadmap](https://openpanel.com/roadmap/): See what OpenPanel is building next - features in active development and what's planned, updated manually by our team.
 - [Usage Statistics](https://openpanel.com/statistics/): Live usage statistics for OpenPanel: latest version, release date, active installations, and recent updates across the community.
 - [Brand Assets](https://openpanel.com/assets/): Download official OpenPanel brand assets and logo icons in SVG format, with customizable colors for press and partner use.

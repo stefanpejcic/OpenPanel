@@ -21,7 +21,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="Compare OpenPanel vs cPanel/WHM: Docker-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.">
+            <CommonLayout description="Compare OpenPanel vs cPanel/WHM: Podman-based per-user isolation, native ARM support, and a fixed €14.95/month price per server - no per-account fees or hikes.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

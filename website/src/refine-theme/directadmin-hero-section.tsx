@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Built on Docker for true per-user isolation, with no account limits tied to a license tier and a fixed price that never changes.{" "}
+                Built on Podman for true per-user isolation, with no account limits tied to a license tier and a fixed price that never changes.{" "}
             </p>
             <div
                 className={clsx(

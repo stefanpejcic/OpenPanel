@@ -19,7 +19,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="Compare OpenPanel vs DirectAdmin: Docker-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.">
+            <CommonLayout description="Compare OpenPanel vs DirectAdmin: Podman-based per-user isolation, a full REST API and MCP server for AI agents, priced per server, not per account.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

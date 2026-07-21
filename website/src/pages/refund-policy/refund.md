@@ -26,7 +26,7 @@ A refund may be requested only if ALL of the following conditions are met:
 > **Refunds will NOT be issued for:**
 > - Any activated license, regardless of usage duration.
 > - Requests submitted more than 7 days after purchase.
-> - Dissatisfaction with features that are publicly documented (including the Docker-per-user architecture).
+> - Dissatisfaction with features that are publicly documented (including the Services-per-user architecture).
 > - Partial billing periods on monthly or annual subscriptions.
 > - Subscription renewals (monthly or annual).
 

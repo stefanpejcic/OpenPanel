@@ -66,7 +66,7 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                                 "landing-xs:max-w-[384px]",
                             )}
                         >
-							OpenPanel is a multi-user web hosting panel designed around Docker containers. Each user gets their own isolated environment, including separate MySQL server, PHP versions, Redis, and more.
+							OpenPanel is a multi-user web hosting panel designed around Podman containers. Each user gets their own isolated environment, including separate MySQL server, PHP versions, Redis, and more.
 						</p>
                         <p
                             className={clsx(

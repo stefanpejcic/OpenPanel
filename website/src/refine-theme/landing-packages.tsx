@@ -375,7 +375,7 @@ const listOne = [
         tooltip: "opencli waf <setting>",
     },
     {
-        label: "Collect docker stats",
+        label: "Collect container stats",
         tooltip: "opencli docker-collect_stats",
     },
     {

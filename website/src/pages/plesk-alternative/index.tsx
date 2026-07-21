@@ -19,7 +19,7 @@ const Enterprise: React.FC = () => {
                 <title>{title}</title>
                 <meta property="og:title" content={title} />
             </Head>
-            <CommonLayout description="Compare OpenPanel vs Plesk: true per-user Docker isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.">
+            <CommonLayout description="Compare OpenPanel vs Plesk: true per-user Podman isolation, native ARM support, and one fixed €14.95/month price per server - no per-account licensing fees.">
                 <div className={clsx()}>
                     <CommonHeader />
                     <div

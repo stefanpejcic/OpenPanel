@@ -76,7 +76,7 @@ const timeline = [
         year: "2023",
         achievements: [
             {
-                title: "OpenPanel is born",
+                title: "Beta edition",
                 description:
                     "Started as a bootstrapped side project to fix the hosting panels we were stuck using ourselves.",
             },
@@ -86,9 +86,9 @@ const timeline = [
         year: "2024",
         achievements: [
             {
-                title: "Public beta",
+                title: "OpenPanel 0.3",
                 description:
-                    "First public beta release - Docker-native from day one, not bolted on later.",
+                    "First public beta release: Docker-native from day one, not bolted on later.",
             },
         ],
     },
@@ -97,10 +97,11 @@ const timeline = [
         achievements: [
             {
                 title: "openpanel.com",
-                description: "Acquired the openpanel.com domain.",
+                description:
+                    "Acquired openpanel.com and moved over from openpanel.co, giving the project a proper permanent home.",
             },
             {
-                title: "Enterprise Edition",
+                title: "OpenPanel 1.0",
                 description:
                     "Launched OpenPanel Enterprise, with premium features and priority support for hosting providers.",
             },
@@ -118,6 +119,11 @@ const timeline = [
                 title: "100,000+ installations",
                 description: "Crossed 100,000 active installations worldwide.",
             },
+            {
+                title: "OpenPanel 2.0",
+                description:
+                    "Rewrote the core to run on Podman, replacing Docker as the container engine, for rootless isolation by default.",
+            },
         ],
     },
 ];
@@ -134,6 +140,12 @@ const story = [
         title: "Early days",
         description:
             "Work started in 2023 on a basic LAMP-stack panel, built to comfortably run 10 to 500 users on a single server. The first instinct was to isolate every website in its own Docker container - until a single WordPress install alone needed three containers, one per service, and the overhead stopped making sense. We pivoted to one container per user instead, trading a bit of flexibility for a far more stable, predictable environment. Later, we pivoted again - to one container per user service - giving every user real isolation between their web, database, and mail without repeating the overhead that sank the per-website approach.",
+    },
+    {
+        icon: <ContainerIcon />,
+        title: "The 2.0 rewrite",
+        description:
+            "OpenPanel ran on Docker from that first pivot all the way through 1.x. For 2.0, we rewrote the container layer on Podman - dropping the Docker daemon in favor of rootless, daemonless containers, with no functionality lost along the way.",
     },
 ];
 
@@ -209,7 +221,7 @@ const cardShell = clsx(
 
 const About: React.FC = () => {
     return (
-        <CommonLayout description="OpenPanel is built by hosting operators, for hosting operators - Docker-native isolation, built-in security, and no per-seat pricing.">
+        <CommonLayout description="OpenPanel is built by hosting operators, for hosting operators - Podman-native isolation, built-in security, and no per-seat pricing.">
             <Head title="About | OpenPanel Project">
                 <html data-page="about" data-customized="true" />
             </Head>
@@ -257,7 +269,7 @@ const About: React.FC = () => {
                                 "dark:text-gray-400 text-gray-600",
                             )}
                         >
-                            OpenPanel is a Docker-native control panel built by hosting
+                            OpenPanel is a Podman-native control panel built by hosting
                             operators, for hosting operators - real user isolation,
                             security built in, and pricing that doesn&apos;t punish you
                             for growing.

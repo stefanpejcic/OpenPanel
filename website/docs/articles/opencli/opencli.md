@@ -127,7 +127,7 @@ Description: View cached or check the installed webserver inside user container.
 Usage: opencli webserver-get_webserver_for_user <USERNAME>
 ------------------------
 opencli version
-Description: Displays the current (installed) version of OpenPanel docker image.
+Description: Displays the current (installed) version of OpenPanel container image.
 Usage: opencli version 
 ------------------------
 opencli dev
@@ -139,7 +139,7 @@ Description: OpenAdmin Notifications
 Usage: opencli sentinel [-report|--startup]
 ------------------------
 opencli docker-collect_stats
-Description: Collect docker usage information for all users.
+Description: Collect container usage information for all users.
 Usage: opencli docker-collect_stats
 ------------------------
 opencli docker-usage_stats_cleanup
@@ -158,7 +158,7 @@ Description: Display log sizes for user and sytem containers
 Usage: opencli docker-logs [--all|system|<USERNAME>]
 ------------------------
 opencli docker-limits
-Description: Set global docker limits for all containers combined.
+Description: Set global container limits for all containers combined.
 Usage: opencli docker-limits [--apply | --apply SIZE | --read]
 ------------------------
 opencli user-2fa
@@ -344,7 +344,7 @@ Description: Auto-purge .Trash folders for users.
 Usage: opencli files-purge_trash --user [USERNAME]
 ------------------------
 opencli firewall-reset
-Description: Deletes all docker related ports from CSF and opens exposed ports.
+Description: Deletes all container related ports from CSF and opens exposed ports.
 ------------------------
 opencli domains-dnssec
 Description: Enable DNSSEC for a domain and re-sign after changes in the zone.

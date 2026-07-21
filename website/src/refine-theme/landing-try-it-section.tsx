@@ -85,7 +85,7 @@ export const LandingTryItSection = ({ className }: { className?: string }) => {
                         "text-gray-600 dark:text-gray-400",
                     )}
                 >
-                    Upgrade to Enterprise Edition anytime to increase limits and access advanced features like email, FTP, and Docker management.
+                    Upgrade to Enterprise Edition anytime to increase limits and access advanced features like email, FTP, and Podman management.
                 </p>
             </div>
             <div

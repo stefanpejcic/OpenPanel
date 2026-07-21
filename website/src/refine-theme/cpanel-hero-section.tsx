@@ -51,7 +51,7 @@ export const EnterpriseHeroSection = ({
                     "dark:text-gray-400 text-gray-600",
                 )}
             >
-                Built on Docker for true per-user isolation, with a fixed{" "}
+                Built on Podman for true per-user isolation, with a fixed{" "}
                 <span
                     className={clsx(
                         "font-semibold",

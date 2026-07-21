@@ -101,7 +101,7 @@ const Integrations: React.FC = () => {
                         "mt-2 sm:mt-4",
                     )}
                 >
-					Assign different mysql versions, web servers, and limits per user, let them run Docker containers, manage backups, schedule cron jobs in seconds, tweak configurations, and so much more.
+					Assign different mysql versions, web servers, and limits per user, let them run Podman containers, manage backups, schedule cron jobs in seconds, tweak configurations, and so much more.
                 </div>
             </div>
 

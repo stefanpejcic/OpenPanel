@@ -13673,9 +13673,9 @@ opencli config update mysql_restricted_databases "information_schema performance
 
 // File: articles/opencli/docker
 
-# Docker
+# Containers
 
-Manage Docker settings: update docker images, set global resource limits for docker, etc.
+Manage container settings: update container images, set global resource limits for containers, etc.
 
 ### docker
 
@@ -13748,7 +13748,7 @@ Examples:
 
 ### Collect Stats
 
-To collect docker resource usage information (cpu, ram, i/o) for all users:
+To collect container resource usage information (cpu, ram, i/o) for all users:
 ```bash
 opencli docker-collect_stats
 ```
@@ -13758,7 +13758,7 @@ opencli docker-collect_stats
 
 ### Limits DEPRECATED
 
-Set global docker limits (storage, ram and cpu) for all system containers.
+Set global container limits (storage, ram and cpu) for all system containers.
 ```bash
 opencli docker-limits [--apply | --read]
 ```
@@ -13788,7 +13788,7 @@ opencli docker-limits --apply
 
 #### Storage (disk) limit
 
-To increase storage (disk) allocated to Docker, pass the size in **GB**:
+To increase storage (disk) allocated to containers, pass the size in **GB**:
 
 ```bash
 opencli docker-limits --apply 100
@@ -15566,7 +15566,7 @@ Description: View cached or check the installed webserver inside user container.
 Usage: opencli webserver-get_webserver_for_user <USERNAME>
 ------------------------
 opencli version
-Description: Displays the current (installed) version of OpenPanel docker image.
+Description: Displays the current (installed) version of OpenPanel container image.
 Usage: opencli version 
 ------------------------
 opencli dev
@@ -15578,7 +15578,7 @@ Description: OpenAdmin Notifications
 Usage: opencli sentinel [-report|--startup]
 ------------------------
 opencli docker-collect_stats
-Description: Collect docker usage information for all users.
+Description: Collect container usage information for all users.
 Usage: opencli docker-collect_stats
 ------------------------
 opencli docker-usage_stats_cleanup
@@ -15597,7 +15597,7 @@ Description: Display log sizes for user and sytem containers
 Usage: opencli docker-logs [--all|system|<USERNAME>]
 ------------------------
 opencli docker-limits
-Description: Set global docker limits for all containers combined.
+Description: Set global container limits for all containers combined.
 Usage: opencli docker-limits [--apply | --apply SIZE | --read]
 ------------------------
 opencli user-2fa
@@ -15783,7 +15783,7 @@ Description: Auto-purge .Trash folders for users.
 Usage: opencli files-purge_trash --user [USERNAME]
 ------------------------
 opencli firewall-reset
-Description: Deletes all docker related ports from CSF and opens exposed ports.
+Description: Deletes all container related ports from CSF and opens exposed ports.
 ------------------------
 opencli domains-dnssec
 Description: Enable DNSSEC for a domain and re-sign after changes in the zone.
@@ -18066,7 +18066,7 @@ If you need to customize or add system cron jobs, use the **root user's crontab*
 
 
 ## docker-collect_stats --all
-Command `opencli docker-collect_stats --all` collects the docker stats for all users. THis data is visible by end-users From 'Resurce Usage' pag, and for Amdinistrators form *Users > single user*  page.
+Command `opencli docker-collect_stats --all` collects the container stats for all users. THis data is visible by end-users From 'Resurce Usage' pag, and for Amdinistrators form *Users > single user*  page.
 
 Default schedule: hourly (`0 * * * *`)
 
@@ -18124,7 +18124,7 @@ Command `opencli email-server pflogsumm` generates an **HTML email summary repor
 
 
 ## docker-images --all
-Command `opencli docker-images --all` checks all active user's docker images for updates using [Cup 🥤](https://github.com/sergi0g/cup) and displays the data to end-users on *Containers > Image Updates* page.
+Command `opencli docker-images --all` checks all active user's container images for updates using [Cup 🥤](https://github.com/sergi0g/cup) and displays the data to end-users on *Containers > Image Updates* page.
 
 - **Default schedule:** daily at 03:45 (`45 3 * * *`)  
 - **Documentation:** [opencli docker-images](https://dev.openpanel.com/cli/docker.html#Images)
@@ -18148,7 +18148,7 @@ Command `opencli waf-update` updates the default **OWASP CRS WAF rules**. Logs c
 
 
 ## docker-backup
-Command `opencli docker-backup` executes a **backup for all users’ Docker containers** This is disabled by default, as each end-user can then [schedule and manage their own backups from OpenPanel UI](/docs/panel/files/backups/).
+Command `opencli docker-backup` executes a **backup for all users’ containers** This is disabled by default, as each end-user can then [schedule and manage their own backups from OpenPanel UI](/docs/panel/files/backups/).
 
 - **Default schedule:** `59 23 31 2 *`  
 - **Documentation:** [Configuring OpenPanel Backups: Admin-configured](/docs/articles/backups/comfiguring-backups/#1-admin-configured)
