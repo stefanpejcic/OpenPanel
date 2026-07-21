@@ -93,6 +93,8 @@ OpenPanel is a truly [OS-agnostic](https://www.techtarget.com/whatis/definition/
 | CentOS | 9.5 | | | |  |
 | CentOS | 10 | 2026-07-21 03:36 UTC | ❌ Fail |  |  |
 | openEuler | 24 | | Untested |  |  |
+| ZorinOS | 18 | 2026-07-21 09:43 UTC | ✅ Pass |  |  |
+
 <!-- OS_TEST_RESULTS_END -->
 
 [^2]: Average installation time for [the install script](https://openpanel.org/) on a VPS with the following specifications: 2 CPU cores and 2 GB of RAM.
