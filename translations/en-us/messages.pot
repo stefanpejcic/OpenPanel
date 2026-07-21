@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 2.0.0\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-18 09:33+0200\n"
+"POT-Creation-Date: 2026-07-20 18:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -187,7 +187,7 @@ msgstr ""
 msgid "Dashboard"
 msgstr ""
 
-#: modules/cache/varnish.py:230 modules/dns.py:120 modules/dns.py:188
+#: modules/cache/varnish.py:268 modules/dns.py:120 modules/dns.py:188
 #: modules/dns.py:261 modules/dns.py:385 modules/dns.py:421 modules/dns.py:508
 #: modules/dns.py:564 modules/domain/capitalize_domains.py:24
 #: modules/domain/docroot.py:34 modules/domain/domain_logs.py:26
@@ -202,12 +202,12 @@ msgstr ""
 #: modules/email_default.py:67 modules/email_deliverability.py:123
 #: modules/email_filters.py:18 modules/emails.py:202 modules/emails.py:288
 #: modules/files/ftp.py:156 modules/goaccess.py:23 modules/json/favicons.py:32
-#: modules/json/screenshots.py:73 modules/mautic.py:102 modules/mautic.py:436
-#: modules/mautic.py:587 modules/mautic.py:790 modules/php.py:410
-#: modules/pm2.py:567 modules/pm2.py:1232
-#: modules/sitemanager/temporary_links.py:50 modules/waf.py:66
-#: modules/waf.py:117 modules/waf.py:255 modules/waf.py:309 modules/waf.py:379
-#: modules/webmail.py:160 modules/website_builder.py:43
+#: modules/json/helpers.py:1786 modules/json/screenshots.py:73
+#: modules/mautic.py:102 modules/mautic.py:436 modules/mautic.py:587
+#: modules/mautic.py:790 modules/nodejs.py:137 modules/php.py:410
+#: modules/python.py:137 modules/sitemanager/temporary_links.py:50
+#: modules/waf.py:66 modules/waf.py:117 modules/waf.py:255 modules/waf.py:309
+#: modules/waf.py:379 modules/webmail.py:160 modules/website_builder.py:43
 #: modules/website_builder.py:148 modules/website_builder.py:288
 #: modules/websites.py:39 modules/websites.py:236 modules/websites.py:296
 #: modules/websites.py:456 modules/websites.py:540 modules/websites.py:982
@@ -596,8 +596,8 @@ msgstr ""
 #: modules/domain/docroot.py:83 modules/domain/ssl.py:154
 #: modules/domain_suspend.py:56 modules/domain_suspend.py:111
 #: modules/drupal.py:317 modules/drupal.py:375 modules/drupal.py:507
-#: modules/mautic.py:406 modules/pm2.py:817 modules/wordpress.py:122
-#: modules/wordpress.py:208 modules/wordpress.py:455
+#: modules/mautic.py:406 modules/nodejs.py:365 modules/python.py:365
+#: modules/wordpress.py:122 modules/wordpress.py:208 modules/wordpress.py:455
 #, python-format
 msgid "An error occurred: %(error)s"
 msgstr ""
@@ -763,8 +763,9 @@ msgid ""
 "\n"
 msgstr ""
 
-#: modules/drupal.py:637 modules/mautic.py:626 modules/pm2.py:458
-#: modules/website_builder.py:236 modules/wordpress.py:1326
+#: modules/drupal.py:637 modules/mautic.py:626 modules/nodejs.py:38
+#: modules/python.py:38 modules/website_builder.py:236
+#: modules/wordpress.py:1326
 msgid "You have reached the maximum number of sites allowed."
 msgstr ""
 
@@ -773,9 +774,9 @@ msgstr ""
 msgid "Install Drupal"
 msgstr ""
 
-#: modules/drupal.py:708 modules/mautic.py:782 modules/pm2.py:556
-#: modules/website_builder.py:279 modules/wordpress.py:1507
-#: modules/wordpress.py:1994
+#: modules/drupal.py:708 modules/mautic.py:782 modules/nodejs.py:126
+#: modules/python.py:126 modules/website_builder.py:279
+#: modules/wordpress.py:1507 modules/wordpress.py:1994
 msgid "Domain not found"
 msgstr ""
 
@@ -1557,6 +1558,51 @@ msgid ""
 "%(database)s"
 msgstr ""
 
+#: modules/nodejs.py:45 templates/manager/nodejs_install.html:9
+msgid "Install NodeJS Application"
+msgstr ""
+
+#: modules/nodejs.py:58 modules/python.py:58
+msgid "Missing required fields domain or service_name"
+msgstr ""
+
+#: modules/nodejs.py:65 modules/python.py:65
+msgid "Invalid service name. Use only letters, numbers, '_' and '-'."
+msgstr ""
+
+#: modules/nodejs.py:149 modules/python.py:149 modules/website_builder.py:297
+msgid "Invalid subdirectory."
+msgstr ""
+
+#: modules/nodejs.py:153 modules/python.py:153
+msgid "Invalid version."
+msgstr ""
+
+#: modules/nodejs.py:157 modules/python.py:157
+msgid "Invalid startup file."
+msgstr ""
+
+#: modules/nodejs.py:161 modules/python.py:161
+msgid "Invalid custom command."
+msgstr ""
+
+#: modules/nodejs.py:209 modules/python.py:209
+msgid "docker-compose.yml file does not exist, contact support!"
+msgstr ""
+
+#: modules/nodejs.py:222 modules/python.py:222
+msgid "'networks:' section not found in docker-compose.yml."
+msgstr ""
+
+#: modules/nodejs.py:233 modules/python.py:233
+#, python-format
+msgid "Service '%(service)s' already exists, please use a different name."
+msgstr ""
+
+#: modules/nodejs.py:294 modules/python.py:294
+msgid "Container failed to start. Please check allocated resources."
+msgstr ""
+
 #: modules/pgadmin.py:38
 msgid ""
 "pgAdmin email is invalid. Please set a valid email address before "
@@ -1707,213 +1753,19 @@ msgstr ""
 msgid "Failed to start PHP %(service)s: %(error)s"
 msgstr ""
 
+#: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57 modules/phpmyadmin.py:64
+#: templates/mysql/databases.html:478
+#: templates/mysql/phpmyadmin_unavailable.html:8
+msgid "phpMyAdmin"
+msgstr ""
+
 #: modules/phpmyadmin.py:55 modules/phpmyadmin.py:57
-msgid "phpMyAdmin is currently unavailable. Please contact support."
+#: templates/mysql/phpmyadmin_unavailable.html:17
+msgid "Please contact support."
 msgstr ""
 
 #: modules/phpmyadmin.py:64
 msgid "Failed to generate autologin token."
-msgstr ""
-
-#: modules/pm2.py:175
-msgid "File path is missing"
-msgstr ""
-
-#: modules/pm2.py:192
-msgid "Invalid file extension. Only .py, or .js are allowed."
-msgstr ""
-
-#: modules/pm2.py:200
-#, python-format
-msgid "%(file)s exists."
-msgstr ""
-
-#: modules/pm2.py:203
-#, python-format
-msgid "%(file)s does not exist."
-msgstr ""
-
-#: modules/files/filemanager.py:659 modules/pm2.py:206
-#, python-format
-msgid "Unexpected error: %(error)s"
-msgstr ""
-
-#: modules/pm2.py:465 templates/manager/pm2_install.html:9
-msgid "Install Application"
-msgstr ""
-
-#: modules/pm2.py:487
-msgid "Missing required fields domain or service_name"
-msgstr ""
-
-#: modules/pm2.py:494
-msgid "Invalid service name. Use only letters, numbers, '_' and '-'."
-msgstr ""
-
-#: modules/pm2.py:581 modules/website_builder.py:297
-msgid "Invalid subdirectory."
-msgstr ""
-
-#: modules/pm2.py:585
-msgid "Invalid version."
-msgstr ""
-
-#: modules/pm2.py:589
-msgid "Invalid startup file."
-msgstr ""
-
-#: modules/pm2.py:593
-msgid "Invalid custom command."
-msgstr ""
-
-#: modules/pm2.py:617
-msgid "Only Python and NodeJS are currently supported!"
-msgstr ""
-
-#: modules/pm2.py:657
-msgid "docker-compose.yml file does not exist, contact support!"
-msgstr ""
-
-#: modules/pm2.py:670
-msgid "'networks:' section not found in docker-compose.yml."
-msgstr ""
-
-#: modules/pm2.py:681
-#, python-format
-msgid "Service '%(service)s' already exists, please use a different name."
-msgstr ""
-
-#: modules/pm2.py:744
-msgid "Container failed to start. Please check allocated resources."
-msgstr ""
-
-#: modules/pm2.py:1021
-#, python-format
-msgid "Invalid action '%(action)s'. Allowed actions: %(allowed)s."
-msgstr ""
-
-#: modules/pm2.py:1026
-#, python-format
-msgid "Hacker! Service '%(site)s' cannot be deleted."
-msgstr ""
-
-#: modules/pm2.py:1053
-msgid "Unable to detect container type for the application."
-msgstr ""
-
-#: modules/pm2.py:1061
-msgid "Not a valid type, only NodeJS or Python applications can be edited."
-msgstr ""
-
-#: modules/pm2.py:1065 modules/pm2.py:1266
-msgid "Error connecting to database."
-msgstr ""
-
-#: modules/pm2.py:1075
-#, python-format
-msgid "Stopped container for application: '%(site)s'."
-msgstr ""
-
-#: modules/pm2.py:1082
-#, python-format
-msgid "Started container for application '%(site)s'."
-msgstr ""
-
-#: modules/pm2.py:1106
-msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
-msgstr ""
-
-#: modules/pm2.py:1110
-msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
-msgstr ""
-
-#: modules/pm2.py:1114
-msgid ""
-"Error saving: Startup file invalid (must start with /var/www/html/, no "
-"path traversal, ends with .js or .py)"
-msgstr ""
-
-#: modules/pm2.py:1118
-msgid ""
-"Error saving: Provided custom startup command is invalid (no path "
-"traversal '..' allowed!)"
-msgstr ""
-
-#: modules/pm2.py:1122
-msgid ""
-"Error saving: Workdir invalid (must start with /var/www/html/, no path "
-"traversal)"
-msgstr ""
-
-#: modules/pm2.py:1126
-msgid "Error saving: CPU core limit provided is not a positive integer."
-msgstr ""
-
-#: modules/pm2.py:1130
-msgid "Error saving: Memory limit provided is not a positive integer."
-msgstr ""
-
-#: modules/pm2.py:1186
-msgid ""
-"Changes saved, make sure to restart the application for changes to take "
-"effect."
-msgstr ""
-
-#: modules/pm2.py:1190
-msgid "Environment file not found."
-msgstr ""
-
-#: modules/pm2.py:1208
-#, python-format
-msgid "Re-downloaded image and started container for application '%(site)s'."
-msgstr ""
-
-#: modules/pm2.py:1211
-#, python-format
-msgid "Failed to %(action)s container '%(site)s': %(error)s"
-msgstr ""
-
-#: modules/pm2.py:1252
-msgid "Unable to detect service name for the application."
-msgstr ""
-
-#: modules/pm2.py:1261
-msgid "Not a valid type, only NodeJS or Python applications can be removed."
-msgstr ""
-
-#: modules/pm2.py:1315
-#, python-format
-msgid "Application '%(site)s' removed successfully"
-msgstr ""
-
-#: modules/pm2.py:1318
-#, python-format
-msgid "Service '%(service)s' not found in compose file"
-msgstr ""
-
-#: modules/pm2.py:1322
-#, python-format
-msgid "Failed to remove the service for application '%(site)s': %(error)s"
-msgstr ""
-
-#: modules/pm2.py:1346
-#, python-format
-msgid "Environment variables for '%(service)s' removed from .env"
-msgstr ""
-
-#: modules/pm2.py:1349
-#, python-format
-msgid ".env file not found at %(path)s"
-msgstr ""
-
-#: modules/pm2.py:1367
-#, python-format
-msgid "Application '%(site)s' deleted from the database"
-msgstr ""
-
-#: modules/pm2.py:1370
-#, python-format
-msgid "Failed to delete application '%(site)s' from the database: %(error)s"
 msgstr ""
 
 #: modules/postgresql.py:68 modules/postgresql.py:193
@@ -2065,6 +1917,10 @@ msgstr ""
 #: modules/process_manager.py:103 templates/dashboard/dashboard.html:217
 #: templates/system/process_manager.html:13
 msgid "Process Manager"
+msgstr ""
+
+#: modules/python.py:45 templates/manager/python_install.html:9
+msgid "Install Python Application"
 msgstr ""
 
 #: modules/services.py:21
@@ -3026,35 +2882,35 @@ msgstr ""
 msgid "Varnish is not running"
 msgstr ""
 
-#: modules/cache/varnish.py:167 templates/dashboard/dashboard.html:178
+#: modules/cache/varnish.py:202 templates/dashboard/dashboard.html:178
 msgid "Varnish"
 msgstr ""
 
-#: modules/cache/varnish.py:168
+#: modules/cache/varnish.py:203
 msgid ""
 "Varnish is a reverse caching proxy used as HTTP accelerator for content-"
 "heavy dynamic web sites as well as APIs."
 msgstr ""
 
-#: modules/cache/varnish.py:189
+#: modules/cache/varnish.py:226
 #, python-format
 msgid "Failed to start %(service)s: %(error)s"
 msgstr ""
 
-#: modules/cache/varnish.py:197
+#: modules/cache/varnish.py:234
 msgid "Varnish caching is now enabled."
 msgstr ""
 
-#: modules/cache/varnish.py:219
+#: modules/cache/varnish.py:257
 #, python-format
 msgid "Failed to start %(webserver)s after disabling %(varnish)s: %(error)s"
 msgstr ""
 
-#: modules/cache/varnish.py:223
+#: modules/cache/varnish.py:261
 msgid "Varnish caching is now disabled."
 msgstr ""
 
-#: modules/cache/varnish.py:237
+#: modules/cache/varnish.py:275
 #, python-format
 msgid "Varnish cache is now %(status)s for domain %(domain)s"
 msgstr ""
@@ -3639,6 +3495,11 @@ msgstr ""
 msgid "Failed to set archive ownership"
 msgstr ""
 
+#: modules/files/filemanager.py:659 modules/json/helpers.py:1508
+#, python-format
+msgid "Unexpected error: %(error)s"
+msgstr ""
+
 #: modules/files/filemanager.py:688
 msgid "File renamed successfully."
 msgstr ""
@@ -4043,34 +3904,181 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:245
+#: modules/json/helpers.py:252
 #, python-format
 msgid "Unknown action '%(action)s'."
 msgstr ""
 
-#: modules/json/helpers.py:299
+#: modules/json/helpers.py:306
 msgid "Invalid action. Use start, stop, status, or restart."
 msgstr ""
 
-#: modules/json/helpers.py:547 modules/json/helpers.py:662
+#: modules/json/helpers.py:554 modules/json/helpers.py:669
 msgid "Invalid folder path."
 msgstr ""
 
-#: modules/json/helpers.py:693
+#: modules/json/helpers.py:700
 msgid "Unexpected output format"
 msgstr ""
 
-#: modules/json/helpers.py:696 modules/json/helpers.py:720
-#: modules/json/helpers.py:777
+#: modules/json/helpers.py:703 modules/json/helpers.py:727
+#: modules/json/helpers.py:784
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:728
+#: modules/json/helpers.py:735
 msgid "Invalid request. Please specify a domain or database name."
 msgstr ""
 
-#: modules/json/helpers.py:783
+#: modules/json/helpers.py:790
 msgid "Database configuration not found"
+msgstr ""
+
+#: modules/json/helpers.py:1480
+msgid "File path is missing"
+msgstr ""
+
+#: modules/json/helpers.py:1495
+msgid "Invalid file extension. Only .py, or .js are allowed."
+msgstr ""
+
+#: modules/json/helpers.py:1502
+#, python-format
+msgid "%(file)s exists."
+msgstr ""
+
+#: modules/json/helpers.py:1505
+#, python-format
+msgid "%(file)s does not exist."
+msgstr ""
+
+#: modules/json/helpers.py:1560
+#, python-format
+msgid "Invalid action '%(action)s'. Allowed actions: %(allowed)s."
+msgstr ""
+
+#: modules/json/helpers.py:1564
+#, python-format
+msgid "Hacker! Service '%(site)s' cannot be deleted."
+msgstr ""
+
+#: modules/json/helpers.py:1591
+msgid "Unable to detect container type for the application."
+msgstr ""
+
+#: modules/json/helpers.py:1599
+msgid "Not a valid type, only NodeJS or Python applications can be edited."
+msgstr ""
+
+#: modules/json/helpers.py:1603 modules/json/helpers.py:1819
+msgid "Error connecting to database."
+msgstr ""
+
+#: modules/json/helpers.py:1613
+#, python-format
+msgid "Stopped container for application: '%(site)s'."
+msgstr ""
+
+#: modules/json/helpers.py:1620
+#, python-format
+msgid "Started container for application '%(site)s'."
+msgstr ""
+
+#: modules/json/helpers.py:1643
+msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
+msgstr ""
+
+#: modules/json/helpers.py:1647
+msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
+msgstr ""
+
+#: modules/json/helpers.py:1651
+msgid ""
+"Error saving: Startup file invalid (must start with /var/www/html/, no "
+"path traversal, ends with .js or .py)"
+msgstr ""
+
+#: modules/json/helpers.py:1655
+msgid ""
+"Error saving: Provided custom startup command is invalid (no path "
+"traversal '..' allowed!)"
+msgstr ""
+
+#: modules/json/helpers.py:1659
+msgid ""
+"Error saving: Workdir invalid (must start with /var/www/html/, no path "
+"traversal)"
+msgstr ""
+
+#: modules/json/helpers.py:1663
+msgid "Error saving: CPU core limit provided is not a positive integer."
+msgstr ""
+
+#: modules/json/helpers.py:1667
+msgid "Error saving: Memory limit provided is not a positive integer."
+msgstr ""
+
+#: modules/json/helpers.py:1720
+msgid ""
+"Changes saved, make sure to restart the application for changes to take "
+"effect."
+msgstr ""
+
+#: modules/json/helpers.py:1724
+msgid "Environment file not found."
+msgstr ""
+
+#: modules/json/helpers.py:1742
+#, python-format
+msgid "Re-downloaded image and started container for application '%(site)s'."
+msgstr ""
+
+#: modules/json/helpers.py:1745
+#, python-format
+msgid "Failed to %(action)s container '%(site)s': %(error)s"
+msgstr ""
+
+#: modules/json/helpers.py:1805
+msgid "Unable to detect service name for the application."
+msgstr ""
+
+#: modules/json/helpers.py:1814
+msgid "Not a valid type, only NodeJS or Python applications can be removed."
+msgstr ""
+
+#: modules/json/helpers.py:1852
+#, python-format
+msgid "Application '%(site)s' removed successfully"
+msgstr ""
+
+#: modules/json/helpers.py:1855
+#, python-format
+msgid "Service '%(service)s' not found in compose file"
+msgstr ""
+
+#: modules/json/helpers.py:1859
+#, python-format
+msgid "Failed to remove the service for application '%(site)s': %(error)s"
+msgstr ""
+
+#: modules/json/helpers.py:1881
+#, python-format
+msgid "Environment variables for '%(service)s' removed from .env"
+msgstr ""
+
+#: modules/json/helpers.py:1884
+#, python-format
+msgid ".env file not found at %(path)s"
+msgstr ""
+
+#: modules/json/helpers.py:1900
+#, python-format
+msgid "Application '%(site)s' deleted from the database"
+msgstr ""
+
+#: modules/json/helpers.py:1903
+#, python-format
+msgid "Failed to delete application '%(site)s' from the database: %(error)s"
 msgstr ""
 
 #: modules/mysqld/mysql_conf.py:153
@@ -4453,7 +4461,7 @@ msgstr ""
 msgid "Warning"
 msgstr ""
 
-#: templates/base.html:64 templates/base.html:761 templates/base.html:803
+#: templates/base.html:64 templates/base.html:762 templates/base.html:804
 #: templates/files/backup_restore.html:498 templates/mysql/databases.html:676
 msgid "Close"
 msgstr ""
@@ -4597,27 +4605,27 @@ msgstr ""
 msgid "Looks good."
 msgstr ""
 
-#: templates/base.html:758
+#: templates/base.html:759
 msgid "Notification"
 msgstr ""
 
-#: templates/base.html:762
+#: templates/base.html:763
 msgid "Dismiss"
 msgstr ""
 
-#: templates/base.html:802
+#: templates/base.html:803
 msgid "Keyboard shortcuts"
 msgstr ""
 
-#: templates/base.html:815
+#: templates/base.html:816
 msgid "Toggle sidebar"
 msgstr ""
 
-#: templates/base.html:816
+#: templates/base.html:817
 msgid "Show this dialog"
 msgstr ""
 
-#: templates/base.html:879
+#: templates/base.html:880
 msgid "Found a bug? Let us know"
 msgstr ""
 
@@ -5342,7 +5350,8 @@ msgstr ""
 #: templates/files/filemanager.html:124
 #: templates/files/filemanager/table.html:6
 #: templates/files/filemanager/table_trash.html:6 templates/files/trash.html:68
-#: templates/manager/pm2_install.html:102
+#: templates/manager/nodejs_install.html:82
+#: templates/manager/python_install.html:82
 #: templates/manager/python_node_apps.html:410 templates/user/mcp.html:40
 #: templates/user/passkeys.html:30
 msgid "Name"
@@ -5808,8 +5817,8 @@ msgstr ""
 #: templates/files/filemanager.html:133
 #: templates/files/filemanager/table.html:28
 #: templates/files/filemanager/table_trash.html:38
-#: templates/files/trash.html:86 templates/manager/pm2_install.html:127
-#: templates/manager/sites.html:62
+#: templates/files/trash.html:86 templates/manager/nodejs_install.html:107
+#: templates/manager/python_install.html:107 templates/manager/sites.html:62
 msgid "Type"
 msgstr ""
 
@@ -5873,8 +5882,9 @@ msgstr ""
 msgid "Full certificate hash (SHA-256)"
 msgstr ""
 
-#: templates/domains/dns.html:167 templates/manager/pm2_install.html:115
-#: templates/mysql/wizard.html:75 templates/psql/pgadmin.html:199
+#: templates/domains/dns.html:167 templates/manager/nodejs_install.html:95
+#: templates/manager/python_install.html:95 templates/mysql/wizard.html:75
+#: templates/psql/pgadmin.html:199
 msgid "Port"
 msgstr ""
 
@@ -5909,7 +5919,8 @@ msgstr ""
 #: templates/files/ftp_new.html:35 templates/manager/drupal/install.html:80
 #: templates/manager/drupal/list.html:53
 #: templates/manager/mautic_install.html:60
-#: templates/manager/pm2_install.html:305
+#: templates/manager/nodejs_install.html:179
+#: templates/manager/python_install.html:179
 #: templates/manager/websitebuilder_install.html:37
 #: templates/manager/wp/install.html:71 templates/manager/wp/list.html:106
 #: templates/partials/_search.html:55 templates/php/settings.html:154
@@ -8883,7 +8894,7 @@ msgstr ""
 #: templates/manager/autoinstaller.html:128
 #: templates/manager/autoinstaller.html:169
 #: templates/manager/autoinstaller.html:208
-#: templates/manager/autoinstaller.html:243
+#: templates/manager/autoinstaller.html:247
 msgid "No"
 msgstr ""
 
@@ -8892,7 +8903,7 @@ msgstr ""
 #: templates/manager/autoinstaller.html:128
 #: templates/manager/autoinstaller.html:169
 #: templates/manager/autoinstaller.html:208
-#: templates/manager/autoinstaller.html:243
+#: templates/manager/autoinstaller.html:247
 msgid "existing installation"
 msgstr ""
 
@@ -8901,7 +8912,7 @@ msgstr ""
 #: templates/manager/autoinstaller.html:128
 #: templates/manager/autoinstaller.html:169
 #: templates/manager/autoinstaller.html:208
-#: templates/manager/autoinstaller.html:243
+#: templates/manager/autoinstaller.html:247
 msgid "s"
 msgstr ""
 
@@ -8945,16 +8956,16 @@ msgstr ""
 msgid "Setup Node.js Application"
 msgstr ""
 
-#: templates/manager/autoinstaller.html:232
+#: templates/manager/autoinstaller.html:236
 #: templates/manager/python_node_apps.html:136
 msgid "Python"
 msgstr ""
 
-#: templates/manager/autoinstaller.html:236
+#: templates/manager/autoinstaller.html:240
 msgid "Setup containerized Python application."
 msgstr ""
 
-#: templates/manager/autoinstaller.html:251
+#: templates/manager/autoinstaller.html:255
 msgid "Setup Python Application"
 msgstr ""
 
@@ -9315,7 +9326,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:75
 #: templates/manager/mautic_install.html:55
-#: templates/manager/pm2_install.html:300
+#: templates/manager/nodejs_install.html:174
+#: templates/manager/python_install.html:174
 #: templates/manager/websitebuilder_install.html:32
 #: templates/manager/wp/install.html:66
 msgid "Domain & location"
@@ -9323,7 +9335,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:85
 #: templates/manager/mautic_install.html:65
-#: templates/manager/pm2_install.html:314
+#: templates/manager/nodejs_install.html:188
+#: templates/manager/python_install.html:188
 #: templates/manager/websitebuilder_install.html:42
 #: templates/manager/wp/install.html:76 templates/manager/wp/single.html:1841
 msgid "Select a domain"
@@ -9331,7 +9344,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:90
 #: templates/manager/mautic_install.html:70
-#: templates/manager/pm2_install.html:319
+#: templates/manager/nodejs_install.html:193
+#: templates/manager/python_install.html:193
 #: templates/manager/websitebuilder_install.html:47
 #: templates/manager/wp/install.html:81
 msgid "subfolder"
@@ -9339,7 +9353,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:93
 #: templates/manager/mautic_install.html:73
-#: templates/manager/pm2_install.html:322
+#: templates/manager/nodejs_install.html:196
+#: templates/manager/python_install.html:196
 #: templates/manager/websitebuilder_install.html:50
 #: templates/manager/wp/install.html:84
 msgid "Leave subfolder blank to install at the domain root"
@@ -9394,7 +9409,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:220
 #: templates/manager/mautic_install.html:207
-#: templates/manager/pm2_install.html:523
+#: templates/manager/nodejs_install.html:397
+#: templates/manager/python_install.html:397
 #: templates/manager/websitebuilder_install.html:62
 #: templates/manager/wp/install.html:218
 msgid "← Back"
@@ -9404,9 +9420,11 @@ msgstr ""
 #: templates/manager/drupal/install.html:407
 #: templates/manager/mautic_install.html:211
 #: templates/manager/mautic_install.html:477
-#: templates/manager/pm2_install.html:527
-#: templates/manager/pm2_install.html:757 templates/manager/wp/install.html:222
-#: templates/manager/wp/install.html:513
+#: templates/manager/nodejs_install.html:401
+#: templates/manager/nodejs_install.html:631
+#: templates/manager/python_install.html:401
+#: templates/manager/python_install.html:631
+#: templates/manager/wp/install.html:222 templates/manager/wp/install.html:513
 msgid "Start Installation"
 msgstr ""
 
@@ -9419,7 +9437,9 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:238
 #: templates/manager/mautic_install.html:226
-#: templates/manager/pm2_install.html:542 templates/manager/wp/install.html:237
+#: templates/manager/nodejs_install.html:416
+#: templates/manager/python_install.html:416
+#: templates/manager/wp/install.html:237
 msgid "Running pre-flight checks"
 msgstr ""
 
@@ -9516,7 +9536,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:274
 #: templates/manager/mautic_install.html:280
-#: templates/manager/pm2_install.html:572
+#: templates/manager/nodejs_install.html:446
+#: templates/manager/python_install.html:446
 #: templates/manager/websitebuilder_install.html:99
 #: templates/manager/wp/install.html:309
 msgid "Saving to Site Manager"
@@ -9530,7 +9551,9 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:296
 #: templates/manager/mautic_install.html:307
-#: templates/manager/pm2_install.html:599 templates/manager/wp/install.html:336
+#: templates/manager/nodejs_install.html:473
+#: templates/manager/python_install.html:473
+#: templates/manager/wp/install.html:336
 msgid "Install process hanged for"
 msgstr ""
 
@@ -9538,8 +9561,10 @@ msgstr ""
 #: templates/manager/drupal/install.html:306
 #: templates/manager/mautic_install.html:307
 #: templates/manager/mautic_install.html:317
-#: templates/manager/pm2_install.html:599
-#: templates/manager/pm2_install.html:609
+#: templates/manager/nodejs_install.html:473
+#: templates/manager/nodejs_install.html:483
+#: templates/manager/python_install.html:473
+#: templates/manager/python_install.html:483
 #: templates/manager/websitebuilder_install.html:127
 #: templates/manager/websitebuilder_install.html:137
 #: templates/manager/wp/install.html:336 templates/manager/wp/install.html:346
@@ -9549,13 +9574,16 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:306
 #: templates/manager/mautic_install.html:317
-#: templates/manager/pm2_install.html:609 templates/manager/wp/install.html:346
+#: templates/manager/nodejs_install.html:483
+#: templates/manager/python_install.html:483
+#: templates/manager/wp/install.html:346
 msgid "Install process failed for"
 msgstr ""
 
 #: templates/manager/drupal/install.html:414
 #: templates/manager/mautic_install.html:484
-#: templates/manager/pm2_install.html:764
+#: templates/manager/nodejs_install.html:638
+#: templates/manager/python_install.html:638
 #: templates/manager/websitebuilder_install.html:292
 #: templates/manager/wp/install.html:520
 msgid "Please select a domain name."
@@ -9567,7 +9595,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:475
 #: templates/manager/mautic_install.html:552
-#: templates/manager/pm2_install.html:829
+#: templates/manager/nodejs_install.html:703
+#: templates/manager/python_install.html:703
 #: templates/manager/websitebuilder_install.html:365
 #: templates/manager/wp/install.html:591
 msgid "Connection lost during installation."
@@ -9575,7 +9604,8 @@ msgstr ""
 
 #: templates/manager/drupal/install.html:484
 #: templates/manager/mautic_install.html:562
-#: templates/manager/pm2_install.html:839
+#: templates/manager/nodejs_install.html:713
+#: templates/manager/python_install.html:713
 #: templates/manager/websitebuilder_install.html:375
 #: templates/manager/wp/install.html:602
 msgid "Fetch error. Please try again."
@@ -9590,223 +9620,239 @@ msgstr ""
 msgid "Error fetching versions"
 msgstr ""
 
-#: templates/manager/pm2_install.html:10 templates/manager/pm2_install.html:615
-msgid "Create a new application."
+#: templates/manager/nodejs_install.html:10
+msgid "Create a new NodeJS application."
 msgstr ""
 
-#: templates/manager/pm2_install.html:43 templates/manager/pm2_install.html:50
+#: templates/manager/nodejs_install.html:37
+#: templates/manager/python_install.html:37
 msgid "Incorrect file extension - Please use"
 msgstr ""
 
-#: templates/manager/pm2_install.html:43 templates/manager/pm2_install.html:50
-msgid "for"
-msgstr ""
-
-#: templates/manager/pm2_install.html:69
+#: templates/manager/nodejs_install.html:55
+#: templates/manager/python_install.html:55
 msgid "file exists"
 msgstr ""
 
-#: templates/manager/pm2_install.html:71
+#: templates/manager/nodejs_install.html:57
+#: templates/manager/python_install.html:57
 msgid "file does not exist!"
 msgstr ""
 
-#: templates/manager/pm2_install.html:96
+#: templates/manager/nodejs_install.html:76
+#: templates/manager/python_install.html:76
 msgid "Application details"
 msgstr ""
 
-#: templates/manager/pm2_install.html:105
+#: templates/manager/nodejs_install.html:85
+#: templates/manager/python_install.html:85
 msgid "Container name is only visible on backend."
 msgstr ""
 
-#: templates/manager/pm2_install.html:108
+#: templates/manager/nodejs_install.html:88
+#: templates/manager/python_install.html:88
 msgid ""
 "Must start with a lowercase letter, followed by lowercase letters or "
 "numbers only."
 msgstr ""
 
-#: templates/manager/pm2_install.html:118
+#: templates/manager/nodejs_install.html:98
+#: templates/manager/python_install.html:98
 msgid "Port is optional, if left blank port '80' will be used."
 msgstr ""
 
-#: templates/manager/pm2_install.html:169
-msgid "Create a new NodeJS application"
+#: templates/manager/drupal/list.html:54
+#: templates/manager/nodejs_install.html:117
+#: templates/manager/python_install.html:117 templates/manager/sites.html:77
+#: templates/manager/wp/list.html:107 templates/manager/wp/single.html:1302
+#: templates/system/server_info.html:110
+msgid "Version"
 msgstr ""
 
-#: templates/manager/pm2_install.html:170
-msgid "Run NPM install before starting the application"
+#: templates/manager/nodejs_install.html:123
+#: templates/manager/python_install.html:123
+msgid "Select version of Python/NodeJS to use for this application."
 msgstr ""
 
-#: templates/manager/pm2_install.html:171
+#: templates/manager/nodejs_install.html:182
+#: templates/manager/python_install.html:182
+msgid "Choose a domain name and optional subdirectory to create reverse-proxy."
+msgstr ""
+
+#: templates/manager/nodejs_install.html:234
+#: templates/manager/python_install.html:234
+msgid "Service name in reverse-proxy:"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:268
+#: templates/manager/python_install.html:268
+#: templates/manager/python_node_apps.html:432
+msgid "Startup"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:273
+#: templates/manager/python_install.html:273
+msgid "Startup file"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:279
+#: templates/manager/python_install.html:279
+msgid ""
+"Startup file is the main entry point of the application, usually app.py "
+"or app.js file."
+msgstr ""
+
+#: templates/manager/nodejs_install.html:303
+#: templates/manager/python_install.html:303
+msgid "Custom startup command"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:308
+#: templates/manager/python_install.html:308
+msgid "Startup command"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:315
+#: templates/manager/python_install.html:315
+msgid ""
+"If custom startup command is provided, it will be executed instead of the"
+" default"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:327
+msgid "Run NPM install before starting the app"
+msgstr ""
+
+#: templates/manager/nodejs_install.html:334
 msgid ""
 "When enabled, this option will first run npm install using the "
 "package.json file, then launch the application. If the application is "
 "already built, you can skip this option."
 msgstr ""
 
-#: templates/manager/pm2_install.html:175
-msgid "Create a new Python application"
-msgstr ""
-
-#: templates/manager/pm2_install.html:176
-msgid "Run PIP install before starting the application"
-msgstr ""
-
-#: templates/manager/pm2_install.html:177
-msgid ""
-"When enabled, this option will first run pip install using the "
-"requirements.txt file, then launch the application. If the application is"
-" already built, you can skip this option."
-msgstr ""
-
-#: templates/manager/pm2_install.html:180
-msgid "Create a new application"
-msgstr ""
-
-#: templates/manager/pm2_install.html:182
-msgid "If the application is already built, you can skip this option."
-msgstr ""
-
-#: templates/manager/drupal/list.html:54 templates/manager/pm2_install.html:225
-#: templates/manager/sites.html:77 templates/manager/wp/list.html:107
-#: templates/manager/wp/single.html:1302 templates/system/server_info.html:110
-msgid "Version"
-msgstr ""
-
-#: templates/manager/pm2_install.html:231
-msgid "Select version of Python/NodeJS to use for this application."
-msgstr ""
-
-#: templates/manager/pm2_install.html:308
-msgid "Choose a domain name and optional subdirectory to create reverse-proxy."
-msgstr ""
-
-#: templates/manager/pm2_install.html:360
-msgid "Service name in reverse-proxy:"
-msgstr ""
-
-#: templates/manager/pm2_install.html:394
-#: templates/manager/python_node_apps.html:432
-msgid "Startup"
-msgstr ""
-
-#: templates/manager/pm2_install.html:399
-msgid "Startup file"
-msgstr ""
-
-#: templates/manager/pm2_install.html:405
-msgid ""
-"Startup file is the main entry point of the application, usually app.py "
-"or app.js file."
-msgstr ""
-
-#: templates/manager/pm2_install.html:429
-msgid "Custom startup command"
-msgstr ""
-
-#: templates/manager/pm2_install.html:434
-msgid "Startup command"
-msgstr ""
-
-#: templates/manager/pm2_install.html:441
-msgid ""
-"If custom startup command is provided, it will be executed instead of the"
-" default"
-msgstr ""
-
-#: templates/manager/pm2_install.html:453
-msgid "Run NPM install before starting the app"
-msgstr ""
-
-#: templates/manager/pm2_install.html:460
-msgid ""
-"When enabled, this option will first run npm install using the "
-"package.json file, then launch the application."
-msgstr ""
-
-#: templates/manager/pm2_install.html:470
+#: templates/manager/nodejs_install.html:344
+#: templates/manager/python_install.html:344
 msgid "Advanced options"
 msgstr ""
 
-#: templates/manager/pm2_install.html:481
+#: templates/manager/nodejs_install.html:355
+#: templates/manager/python_install.html:355
 msgid "CPU & memory limits"
 msgstr ""
 
-#: templates/manager/pm2_install.html:483
+#: templates/manager/nodejs_install.html:357
+#: templates/manager/python_install.html:357
 msgid "optional · click to review"
 msgstr ""
 
-#: templates/manager/pm2_install.html:490
+#: templates/manager/nodejs_install.html:364
+#: templates/manager/python_install.html:364
 msgid "CPU cores"
 msgstr ""
 
-#: templates/manager/pm2_install.html:496
+#: templates/manager/nodejs_install.html:370
+#: templates/manager/python_install.html:370
 msgid "Restrict CPU cores that the container can use."
 msgstr ""
 
-#: templates/manager/pm2_install.html:504
+#: templates/manager/nodejs_install.html:378
+#: templates/manager/python_install.html:378
 msgid "Memory (GB)"
 msgstr ""
 
-#: templates/manager/pm2_install.html:510
+#: templates/manager/nodejs_install.html:384
+#: templates/manager/python_install.html:384
 msgid "Physical Memory (in GB) that the container can use."
 msgstr ""
 
-#: templates/manager/pm2_install.html:540
+#: templates/manager/nodejs_install.html:414
+#: templates/manager/python_install.html:414
 msgid ""
 "Checks for already running install processes and validates the submitted "
 "form data."
 msgstr ""
 
-#: templates/manager/pm2_install.html:546
+#: templates/manager/nodejs_install.html:420
+#: templates/manager/python_install.html:420
 msgid ""
 "Generates the docker-compose service entry for the application and writes"
 " its environment variables to the .env file."
 msgstr ""
 
-#: templates/manager/pm2_install.html:548
+#: templates/manager/nodejs_install.html:422
+#: templates/manager/python_install.html:422
 msgid "Adding service to docker-compose.yml"
 msgstr ""
 
-#: templates/manager/pm2_install.html:552
+#: templates/manager/nodejs_install.html:426
+#: templates/manager/python_install.html:426
 msgid ""
 "Starts the application container and verifies it is running before "
 "continuing."
 msgstr ""
 
-#: templates/manager/pm2_install.html:554
+#: templates/manager/nodejs_install.html:428
+#: templates/manager/python_install.html:428
 msgid "Starting application container"
 msgstr ""
 
-#: templates/manager/pm2_install.html:558
+#: templates/manager/nodejs_install.html:432
+#: templates/manager/python_install.html:432
 msgid ""
 "Detects the installed webserver (Apache, Nginx, LiteSpeed or OpenResty) "
 "and creates the reverse-proxy configuration for the domain."
 msgstr ""
 
-#: templates/manager/pm2_install.html:560
+#: templates/manager/nodejs_install.html:434
+#: templates/manager/python_install.html:434
 msgid "Configuring reverse proxy"
 msgstr ""
 
-#: templates/manager/pm2_install.html:564
+#: templates/manager/nodejs_install.html:438
+#: templates/manager/python_install.html:438
 msgid ""
 "Restarts the webserver container so the new reverse-proxy configuration "
 "is applied."
 msgstr ""
 
-#: templates/manager/pm2_install.html:566
+#: templates/manager/nodejs_install.html:440
+#: templates/manager/python_install.html:440
 msgid "Restarting webserver"
 msgstr ""
 
-#: templates/manager/pm2_install.html:570
+#: templates/manager/nodejs_install.html:444
+#: templates/manager/python_install.html:444
 msgid "Records the new application in the database so it appears in Site Manager."
 msgstr ""
 
-#: templates/manager/pm2_install.html:594
+#: templates/manager/nodejs_install.html:468
+#: templates/manager/python_install.html:468
 msgid "Setting up application"
 msgstr ""
 
-#: templates/manager/pm2_install.html:785
+#: templates/manager/nodejs_install.html:489
+#: templates/manager/python_install.html:489
+msgid "Create a new application."
+msgstr ""
+
+#: templates/manager/nodejs_install.html:659
+#: templates/manager/python_install.html:659
 msgid "Application setup started. Please wait for the process to finish."
+msgstr ""
+
+#: templates/manager/python_install.html:10
+msgid "Create a new Python application."
+msgstr ""
+
+#: templates/manager/python_install.html:327
+msgid "Run PIP install before starting the app"
+msgstr ""
+
+#: templates/manager/python_install.html:334
+msgid ""
+"When enabled, this option will first run pip install using the "
+"requirements.txt file, then launch the application. If the application is"
+" already built, you can skip this option."
 msgstr ""
 
 #: templates/manager/python_node_apps.html:62
@@ -11337,10 +11383,12 @@ msgid "Manage Service"
 msgstr ""
 
 #: templates/mysql/_error.html:10
+#: templates/mysql/phpmyadmin_unavailable.html:20
 msgid "Manage Container"
 msgstr ""
 
 #: templates/mysql/_error.html:12
+#: templates/mysql/phpmyadmin_unavailable.html:22
 msgid "Contact Administrator"
 msgstr ""
 
@@ -11482,10 +11530,6 @@ msgstr ""
 
 #: templates/mysql/databases.html:464
 msgid "Repair"
-msgstr ""
-
-#: templates/mysql/databases.html:478
-msgid "phpMyAdmin"
 msgstr ""
 
 #: templates/mysql/databases.html:576
@@ -11674,6 +11718,10 @@ msgstr ""
 
 #: templates/mysql/password.html:10
 msgid "Change password for a MySQL database user."
+msgstr ""
+
+#: templates/mysql/phpmyadmin_unavailable.html:16
+msgid "phpMyAdmin is currently unavailable"
 msgstr ""
 
 #: templates/mysql/processlist.html:9
@@ -11962,35 +12010,35 @@ msgstr ""
 msgid "Sites"
 msgstr ""
 
-#: templates/partials/_header.html:144 templates/partials/_header.html:204
+#: templates/partials/_header.html:146 templates/partials/_header.html:206
 msgid "Left-click to add to Favorites"
 msgstr ""
 
-#: templates/partials/_header.html:171 templates/partials/_header.html:248
+#: templates/partials/_header.html:173 templates/partials/_header.html:250
 msgid "Right-click to remove from Favorites"
 msgstr ""
 
-#: templates/partials/_header.html:180
+#: templates/partials/_header.html:182
 msgid "This page is not in your favorites! Left-click to add it."
 msgstr ""
 
-#: templates/partials/_header.html:196
+#: templates/partials/_header.html:198
 msgid "Successfully removed from favorites!"
 msgstr ""
 
-#: templates/partials/_header.html:209
+#: templates/partials/_header.html:211
 msgid "Failed to remove favorite."
 msgstr ""
 
-#: templates/partials/_header.html:216
+#: templates/partials/_header.html:218
 msgid "This page is already in your favorites! Right-click to remove it."
 msgstr ""
 
-#: templates/partials/_header.html:240
+#: templates/partials/_header.html:242
 msgid "Successfully added to favorites!"
 msgstr ""
 
-#: templates/partials/_header.html:254
+#: templates/partials/_header.html:256
 msgid "Failed to add favorite."
 msgstr ""
 
