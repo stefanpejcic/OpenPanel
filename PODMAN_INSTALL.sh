@@ -975,7 +975,7 @@ verify_license() {
 }
 
 start_system_containers() {
-    nohup sh -c "cd /root && podman-compose -f /root/docker-compose.yml up -d openpanel phpmyadmin" </dev/null >nohup.out 2>nohup.err &
+	podman pull docker.io/openpanel/openpanel-ui:2.0.0-beta >/dev/null 2>&1 & # HARDCODED FOR BETA
 }
 
 run_housekeeping_parallel() {
