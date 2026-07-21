@@ -1038,6 +1038,7 @@ create_admin_account() {
     fi
 
     display_logins
+	systemctl restart admin
     send_email_if_configured
 }
 
