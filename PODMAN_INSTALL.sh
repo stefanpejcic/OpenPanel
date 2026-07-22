@@ -584,8 +584,8 @@ EOF
 setup_shared_image_store() {
     echo "Pulling shared images..."
     run podman --root "$SHARED_STORE" pull docker.io/library/alpine:latest  || die 1 "Failed to pull alpine"
-    run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest    || die 1 "Failed to pull bind9" #TODO: pull only when needed!
-    ok "Shared image store populated at $SHARED_STORE."
+	[[ "$SKIP_DNS_SERVER" == true ]] || { run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest; }
+    #ok "Shared image store populated at $SHARED_STORE."
 }
 
 prefetch_shared_images() {
@@ -680,10 +680,7 @@ setup_compose() {
 }
 
 setup_bind() {
-    [[ "$SKIP_DNS_SERVER" == true ]] && {
-        echo "Skipping BIND (--skip-dns-server)."
-        return
-    }
+	[[ "$SKIP_DNS_SERVER" == true ]] && { echo "Skipping BIND (--skip-dns-server)."; return; }
     echo "Setting up BIND DNS..."
     install -d -m 755 /etc/bind
     cp -r "${ETC_DIR}bind9/"* /etc/bind/
