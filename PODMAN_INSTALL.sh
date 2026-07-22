@@ -270,6 +270,7 @@ pkg_install_with_retry() {
         linux-image-amd64) $PACKAGE_MANAGER install -y linux-image >/dev/null 2>&1 && return ;;
         dbus-user-session) $PACKAGE_MANAGER install -y dbus >/dev/null 2>&1 && return ;;
         uidmap)       $PACKAGE_MANAGER install -y shadow-utils >/dev/null 2>&1 && return ;;
+		iptables)     $PACKAGE_MANAGER install -y iptables-nft >/dev/null 2>&1 && return ;;
         netavark|aardvark-dns|crun) warn "Could not install $pkg — podman may fall back to CNI/runc."; return ;;
         quota|quotatool|systemd-container|slirp4netns|fuse-overlayfs) warn "Could not install $pkg — you may need to install it manually."; return ;;
     esac
@@ -325,7 +326,7 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-            packages=(curl openssl cron git dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs "$kernel_pkg" default-mysql-client jq sqlite3)
+			packages=(curl openssl cron git dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs "$kernel_pkg" default-mysql-client jq sqlite3)
             ;;
         yum)
             build_quotatool_from_source
@@ -726,6 +727,11 @@ setup_firewall() {
         [[ -f /etc/fedora-release ]] && run yum --allowerasing install perl -y
     else
         run apt-get install -y perl libwww-perl libgd-dev libgd-perl libgd-graph-perl
+    fi
+
+    if ! command -v iptables &>/dev/null; then
+        pkg_install_with_retry iptables
+        command -v iptables &>/dev/null || { warn "iptables not available — skipping Sentinel Firewall installation."; return; }
     fi
 
            cat >> "/usr/local/csf/bin/csfpre.sh" <<EOF
