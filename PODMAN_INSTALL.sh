@@ -753,6 +753,13 @@ EOF
 #!/bin/bash
 # CSF flushes iptables on reload; netavark's container rules get wiped.
 podman network reload --all
+
+for i in $(ls /sys/class/net | grep -E '^podman[0-9]+$'); do
+  iptables -I INPUT  -i "$i" -j ACCEPT
+  iptables -I OUTPUT -o "$i" -j ACCEPT
+  iptables -I FORWARD -i "$i" -j ACCEPT
+  iptables -I FORWARD -o "$i" -j ACCEPT
+done
 EOF
 
     chmod +x /usr/local/csf/bin/csfpre.sh /usr/local/csf/bin/csfpost.sh
