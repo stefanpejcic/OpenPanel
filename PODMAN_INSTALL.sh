@@ -758,7 +758,7 @@ EOF
     chmod +x /usr/local/csf/bin/csfpre.sh /usr/local/csf/bin/csfpost.sh
 
     # netavark bridge is podman0; cni-podman0 kept for CNI fallback
-    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,cni-podman0"/' -e 's/DOCKER = "0"/DOCKER = "1"/' /etc/csf/csf.conf
+    sed -i -e 's/TESTING = "1"/TESTING = "0"/' -e 's/RESTRICT_SYSLOG = "0"/RESTRICT_SYSLOG = "3"/' -e 's/ETH_DEVICE_SKIP = ""/ETH_DEVICE_SKIP = "podman0,podman1,podman2,podman3"/' /etc/csf/csf.conf
     cp "${ETC_DIR}csf/csf.blocklists" /etc/csf/csf.blocklists
 
     local email; email=$(grep -E "^e-mail=" "$CONFIG_FILE" | cut -d= -f2 || true)
