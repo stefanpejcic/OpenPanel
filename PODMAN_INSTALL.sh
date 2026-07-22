@@ -3,13 +3,13 @@
 # OpenPanel Installer ✌️
 # https://openpanel.com/install
 #
-# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS, openEuler
+# Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
 # Supported Architecture:  x86_64(AMD64), AArch64(ARM64)
 #
 # Usage:                   bash <(curl -sSL https://openpanel.org/podman)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           21.07.2026
+# Last Modified:           22.07.2026
 ################################################################################
 # shellcheck disable=SC2015
 
