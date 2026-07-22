@@ -381,6 +381,9 @@ clone_repos() {
 	cp -a "${src_dir}/." "$ETC_DIR"
 	rm -rf /tmp/main.zip "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
+	
+	# TODO: remove after 2.0 release nad edit compose file
+	sed -i -E -e 's|^(\s*)- (/run/user/\$\{USER_ID\}/docker\.sock:)|\1#- \2|' -e 's|^(\s*)#- (/run/user/\$\{USER_ID\}/podman/podman\.sock:)|\1- \2|' "/etc/openpanel/docker/compose/1.0/docker-compose.yml"
 
 	# openadmin
     local admin_binary="openadmin-amd64"
