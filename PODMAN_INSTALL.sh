@@ -505,6 +505,11 @@ podman_docker_alias() {
     mkdir -p /etc/containers/registries.conf.d
     echo 'unqualified-search-registries = ["docker.io"]' > /etc/containers/registries.conf.d/99-openpanel.conf
 
+    if command -v pasta &>/dev/null; then
+        mkdir -p /etc/containers/containers.conf.d
+        printf '[network]\ndefault_rootless_network_cmd = "pasta"\n' > /etc/containers/containers.conf.d/99-openpanel-net.conf
+    fi
+
     mkdir -p /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
 	chmod -R o+rX "$SHARED_STORE"
 	find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \;
