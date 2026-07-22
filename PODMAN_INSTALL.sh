@@ -326,18 +326,18 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-			packages=(curl openssl cron git dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs "$kernel_pkg" default-mysql-client jq sqlite3)
+			packages=(curl openssl cron git dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client jq sqlite3)
             ;;
         yum)
             build_quotatool_from_source
             run yum install -y dnf-plugins-core yum-utils epel-release
-            packages=(curl openssl cronie git dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb jq sqlite3)
+            packages=(curl openssl cronie git dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb jq sqlite3)
             ;;
         dnf)
             build_quotatool_from_source
             if [[ "$OS_ID" == "openeuler" ]]; then
                 run dnf install -y dnf-plugins-core yum-utils perl gcc tar
-                packages=(git curl openssl ncurses wget cronie jq systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
+                packages=(git curl openssl ncurses wget cronie jq systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
                 wait_for_pkg_lock
                 for pkg in "${packages[@]}"; do
                     pkg_install_with_retry "$pkg"
@@ -346,9 +346,9 @@ install_packages() {
             fi
             run dnf install -y yum-utils epel-release perl gcc
             if [[ -f /etc/fedora-release ]]; then
-                packages=(git openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mysql sqlite sqlite-devel perl-Math-BigInt)
+                packages=(git openssl wget dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mysql sqlite sqlite-devel perl-Math-BigInt)
             else
-                packages=(git openssl ncurses wget systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
+                packages=(git openssl ncurses wget systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
             fi
             ;;
     esac
@@ -520,10 +520,10 @@ runroot = "/run/containers/storage"
 additionalimagestores = [
   "$SHARED_STORE"
 ]
-EOF
 
-#[storage.options.overlay]
-#mount_program = "/usr/bin/fuse-overlayfs"
+[storage.options.overlay]
+ignore_chown_errors = "true"
+EOF
 
     fix_selinux_storage_labels
 
@@ -544,44 +544,9 @@ EOF
         [[ -n "$podman_info_err" ]] && die 1 "podman failed to initialize: $(tail -3 <<< "$podman_info_err")"
     fi
 
-
-    # docker CLI shim: maps `docker --context <user>` to that user's rootless podman socket
-    cat > /usr/local/bin/docker <<'EOF'
-#!/bin/bash
-CONTEXT=""
-ARGS=()
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --context=*) CONTEXT="${1#*=}"; shift ;;
-        --context)   CONTEXT="$2"; shift 2 ;;
-        *)           ARGS+=("$1"); shift ;;
-    esac
-done
-
-# `docker compose ...` -> podman-compose
-if [[ "${ARGS[0]:-}" == "compose" ]]; then
-    exec podman-compose "${ARGS[@]:1}"
-fi
-
-case "$CONTEXT" in
-    ""|default)
-        exec podman "${ARGS[@]}"
-        ;;
-    *)
-        home="/home/$CONTEXT"
-        [[ -d "$home" ]] || { echo "docker: no home directory for '$CONTEXT'" >&2; exit 1; }
-        uid=$(stat -c '%u' "$home") || { echo "docker: could not stat '$home'" >&2; exit 1; }
-        exec env CONTAINER_HOST="unix:///run/user/${uid}/podman/podman.sock" podman --remote "${ARGS[@]}"
-        ;;
-esac
-EOF
-    chmod +x /usr/local/bin/docker
-
-    ln -sf "$(command -v podman-compose)" /usr/local/bin/docker-compose 2>/dev/null || true
-
     run systemctl enable --now podman.socket   # now safe: storage.conf already in place
 
-    command -v podman &>/dev/null && ok "Podman ... ready." || die 1 "Podman is not installed."
+	command -v podman &>/dev/null && ok "Podman ... ready." || die 1 "Podman is not installed."
 }
 
 
