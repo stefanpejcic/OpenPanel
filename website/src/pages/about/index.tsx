@@ -90,16 +90,16 @@ const timeline = [
                 description:
                     "First public beta release: Docker-native from day one, not bolted on later.",
             },
-        ],
-    },
-    {
-        year: "2025",
-        achievements: [
             {
                 title: "openpanel.com",
                 description:
                     "Acquired openpanel.com and moved over from openpanel.co, giving the project a proper permanent home.",
             },
+        ],
+    },
+    {
+        year: "2025",
+        achievements: [
             {
                 title: "OpenPanel 1.0",
                 description:
