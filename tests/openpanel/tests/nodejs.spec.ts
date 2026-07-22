@@ -35,7 +35,7 @@ app.listen(port, () => {
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('Node.js PM2 autoinstaller', () => {
+test.describe('Node.js autoinstaller', () => {
 
   test('1. create app files', async ({ page }) => {
     // package.json
@@ -51,8 +51,8 @@ test.describe('Node.js PM2 autoinstaller', () => {
     await expect(page.getByText(/saved|success/i).first()).toBeVisible();
   });
 
-  test('2. install PM2 app', async ({ page }) => {
-    await page.goto('/pm2/install#nodejs');
+  test('2. install app', async ({ page }) => {
+    await page.goto('/nodejs/install');
 
     await page.locator('#service_name').fill(APP_NAME);
     await page.locator('#port').fill(PORT);
@@ -97,7 +97,7 @@ test.describe('Node.js PM2 autoinstaller', () => {
     }
 
     await expect(locator).toBeVisible();
-    console.log('Node.js PM2 autoinstaller is fully working');
+    console.log('Node.js autoinstaller is fully working');
   });
 
   // TODO: cover manager actions

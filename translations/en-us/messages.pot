@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 2.0.0\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-20 18:41+0200\n"
+"POT-Creation-Date: 2026-07-21 15:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -638,7 +638,7 @@ msgstr ""
 msgid "Domain name contains invalid characters."
 msgstr ""
 
-#: modules/domains.py:231 templates/domains/new.html:221
+#: modules/domains.py:231 templates/domains/new.html:224
 msgid ""
 "Paths for both public and secret files must be set for importing .onion "
 "domain."
@@ -671,8 +671,8 @@ msgstr ""
 msgid "Error adding domain %(domain)s"
 msgstr ""
 
-#: modules/domains.py:318 templates/domains/new.html:132
-#: templates/domains/new.html:326
+#: modules/domains.py:318 templates/domains/new.html:135
+#: templates/domains/new.html:329
 msgid "Add Domain"
 msgstr ""
 
@@ -5913,7 +5913,7 @@ msgstr ""
 
 #: templates/domains/dns.html:222 templates/domains/dns.html:242
 #: templates/domains/dynamic_dns.html:43 templates/domains/dynamic_dns.html:89
-#: templates/domains/new.html:46 templates/emails/alias_new.html:22
+#: templates/domains/new.html:45 templates/emails/alias_new.html:22
 #: templates/emails/deliverability.html:24
 #: templates/emails/deliverability.html:96 templates/emails/new.html:24
 #: templates/files/ftp_new.html:35 templates/manager/drupal/install.html:80
@@ -6056,7 +6056,7 @@ msgstr ""
 msgid "Saving zone file for domain"
 msgstr ""
 
-#: templates/domains/dns.html:827 templates/domains/new.html:261
+#: templates/domains/dns.html:827 templates/domains/new.html:264
 msgid "Please wait for the process to finish."
 msgstr ""
 
@@ -6092,11 +6092,11 @@ msgid ""
 "document root for existing websites."
 msgstr ""
 
-#: templates/domains/docroot.html:38 templates/domains/new.html:66
+#: templates/domains/docroot.html:38 templates/domains/new.html:65
 msgid "Document Root (folder):"
 msgstr ""
 
-#: templates/domains/docroot.html:47 templates/domains/new.html:75
+#: templates/domains/docroot.html:47 templates/domains/new.html:74
 msgid ""
 "Invalid document root. Please enter a valid path that start with "
 "/var/www/html/"
@@ -6130,7 +6130,7 @@ msgstr ""
 msgid "SSL Status"
 msgstr ""
 
-#: templates/domains/domains.html:97 templates/domains/new.html:12
+#: templates/domains/domains.html:97 templates/domains/new.html:11
 msgid "New Domain"
 msgstr ""
 
@@ -6426,24 +6426,25 @@ msgstr ""
 msgid "View webserver raw access logs for domains."
 msgstr ""
 
-#: templates/domains/new.html:14
+#: templates/domains/new.html:13
 msgid "Add a new domain name to be used for websites, emails, etc."
 msgstr ""
 
-#: templates/domains/new.html:22
+#: templates/domains/new.html:21
 msgid "Hide Details"
 msgstr ""
 
-#: templates/domains/new.html:22
+#: templates/domains/new.html:21
 msgid "Show Details"
 msgstr ""
 
-#: templates/domains/new.html:55 templates/domains/new.html:201
+#: templates/domains/new.html:54 templates/domains/new.html:204
+#: templates/domains/new.html:408
 msgid "Invalid domain name. Please enter a valid domain name like"
 msgstr ""
 
-#: templates/domains/new.html:55 templates/domains/new.html:201
-#: templates/manager/drupal/single.html:390
+#: templates/domains/new.html:54 templates/domains/new.html:204
+#: templates/domains/new.html:408 templates/manager/drupal/single.html:390
 #: templates/manager/drupal/single.html:475 templates/manager/mautic.html:390
 #: templates/manager/mautic.html:475 templates/manager/websitebuilder.html:212
 #: templates/manager/websitebuilder.html:281
@@ -6451,49 +6452,49 @@ msgstr ""
 msgid "or"
 msgstr ""
 
-#: templates/domains/new.html:82
+#: templates/domains/new.html:81
 msgid ""
 "docroot module or feature are not enabled. Contact Administrator to "
 "change docroot."
 msgstr ""
 
-#: templates/domains/new.html:228
+#: templates/domains/new.html:231
 msgid "Paths for both public and secret files must start with /var/www/html/."
 msgstr ""
 
-#: templates/domains/new.html:261
+#: templates/domains/new.html:264
 msgid "Adding domain"
 msgstr ""
 
-#: templates/domains/new.html:272 templates/domains/new.html:338
+#: templates/domains/new.html:275 templates/domains/new.html:341
 msgid "Error adding domain name"
 msgstr ""
 
-#: templates/domains/new.html:272 templates/emails/confirm_import.html:140
+#: templates/domains/new.html:275 templates/emails/confirm_import.html:140
 msgid "Network response from backend was not ok. Please contact support."
 msgstr ""
 
-#: templates/domains/new.html:319
+#: templates/domains/new.html:322
 msgid "Domain name"
 msgstr ""
 
-#: templates/domains/new.html:319
+#: templates/domains/new.html:322
 msgid "added successfully."
 msgstr ""
 
-#: templates/domains/new.html:338
+#: templates/domains/new.html:341
 msgid "Click on Show Details above to view the log."
 msgstr ""
 
-#: templates/domains/new.html:351
+#: templates/domains/new.html:354
 msgid "Retry"
 msgstr ""
 
-#: templates/domains/new.html:423
+#: templates/domains/new.html:444
 msgid "Converted to Punycode:"
 msgstr ""
 
-#: templates/domains/new.html:423
+#: templates/domains/new.html:444
 msgid "(for compatibility with internationalized domain names)"
 msgstr ""
 
@@ -12912,6 +12913,12 @@ msgstr ""
 
 #: templates/system/apache_nginx_conf_editor.html:20
 msgid "Edit main webserver configuration file:"
+msgstr ""
+
+#: templates/system/apache_nginx_conf_editor.html:24
+msgid ""
+"This will overwrite the current file with the default configuration and "
+"restart the service. Continue?"
 msgstr ""
 
 #: templates/system/apache_nginx_conf_editor.html:24

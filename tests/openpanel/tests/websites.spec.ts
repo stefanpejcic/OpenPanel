@@ -6,8 +6,8 @@ test('auto-installer page has install links', async ({ page }) => {
   const expectedHrefs = [
     '/wordpress/install',
     '/website-builder/install',
-    '/pm2/install#python',
-    '/pm2/install#node',
+    '/python/install',
+    '/nodejs/install',
   ];
 
   for (const href of expectedHrefs) {

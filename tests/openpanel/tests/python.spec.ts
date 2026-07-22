@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
 test.describe.configure({ mode: 'serial' });
 
-test.describe('Python PM2 autoinstaller', () => {
+test.describe('Python autoinstaller', () => {
   test('1. create app files', async ({ page }) => {
     // requirements.txt
     await page.goto(`/file-manager/edit-file/${DOMAIN}/requirements.txt?editor=text&new=true`);
@@ -35,8 +35,8 @@ test.describe('Python PM2 autoinstaller', () => {
     await expect(page.getByText(/saved|success/i).first()).toBeVisible();
   });
 
-  test('2. install PM2 app', async ({ page }) => {
-    await page.goto('/pm2/install#python');
+  test('2. install app', async ({ page }) => {
+    await page.goto('/python/install');
 
     await page.locator('#service_name').fill(APP_NAME);
     await page.locator('#port').fill(PORT);
@@ -73,7 +73,7 @@ test.describe('Python PM2 autoinstaller', () => {
       await page.reload();
     }
     await expect(locator).toBeVisible();
-    console.log('Python PM2 autoinstaller is fully working');
+    console.log('Python autoinstaller is fully working');
   });
 
   // TODO: cover manager actions

@@ -83,9 +83,9 @@ test('/json/system', async ({ page }) => {
 
   expect(data.cpu.length).toBeGreaterThan(0);
   expect(data.hostname.length).toBeGreaterThan(0);
-  expect(data.running_processes).toBeGreaterThan(0);
+  expect(Number(data.running_processes)).toBeGreaterThan(0);
   expect(Number(data.uptime)).toBeGreaterThanOrEqual(0);
-  expect(data.package_updates).toBeGreaterThanOrEqual(0);
+  expect(Number(data.package_updates)).toBeGreaterThanOrEqual(0);
   expect(data.openpanel_version).toMatch(/^\d+\.\d+\.\d+$/);
   expect(data.time).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
   expect(data.os.toLowerCase()).toMatch(/ubuntu|debian|almalinux|rockylinux|centos/);

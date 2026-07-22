@@ -11,32 +11,44 @@ opencli config update login_ratelimit 100
 opencli plan-edit id=2 name="Developer plus" description="A professional plan" emails=500 max_email_quota=2G ftp=100 domains=10 websites=10 disk=50 inodes=1000000 databases=20 cpu=4 ram=6 bandwidth=500 max_hourly_email=6000
 # ENABLE ALL FEATURES
 for f in basic.txt default.txt; do
-  wget -qO- https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"
+  # DOCKER:
+  # wget -qO- https://raw.githubusercontent.com/stefanpejcic/openpanel-configuration/refs/heads/main/openadmin/config/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"
+  #
+  # PODMAN:
+  wget -qO- https://gist.githubusercontent.com/stefanpejcic/acf42a0d36635fffbeb7f8ce81840abe/raw/2c6d78c37cf20cbe5e0467ea8e4beb52948f5d4f/features.json | jq -r '.[].name' > "/etc/openpanel/openpanel/features/$f"
 done
 
 # ENABLE ALL MODULES
 sed -i "s/^enabled_modules=.*/enabled_modules=$(paste -sd, /etc/openpanel/openpanel/features/default.txt)/" /etc/openpanel/openpanel/conf/openpanel.config
 
-# INSTALL ALL LOCALES
-opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-translations/contents" | jq -r '.[] | select(.type=="dir") | .name' | tr '\n' ' ')
+# ALLOW PASSWORD RESET
+opencli config update password_reset yes
+
+
+# ENABLE USER PANEL
+if podman container exists openpanel; then
+  podman start openpanel >/dev/null 2>&1 || cd /root && podman-compose up -d --force-recreate openpanel
+else
+  cd /root && podman-compose up -d openpanel
+fi
 
 # ADD LICENSE LICENSE
 opencli license $LICENSE_KEY
 
-# ALLOW PASSWORD RESET
-opencli config update password_reset yes
-
 # ENABLE EMAILS
 opencli email-server install
 
+# INSTALL ALL LOCALES
+opencli locale $(curl -s "https://api.github.com/repos/stefanpejcic/openpanel-translations/contents" | jq -r '.[] | select(.type=="dir") | .name' | tr '\n' ' ')
+
 # DNS
-cd /root && docker compose up -d bind9
+cd /root && podman-compose up -d bind9
 
 # ENABLE FTP
-cd /root && docker --context=default compose up -d openadmin_ftp
+cd /root && podman-compose up -d openadmin_ftp
 
 # RESTART USER-PANEL TO APPLY ALL CHANGES!
-docker --context=default restart openpanel
+podman restart openpanel
 
 # CREATE USER FOR TESTS
 opencli user-add "$PANEL_USERNAME" "$PANEL_PASSWORD" "$PANEL_EMAIL" 'Developer plus'

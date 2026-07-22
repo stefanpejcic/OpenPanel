@@ -441,11 +441,11 @@ for (const { route, columnHeader, valueRegex } of explorerTests) {
     await expect(page).toHaveURL(new RegExp(`${route}/docker-data/?`));
     
     const table2 = page.locator('#folders_to_navigate');
-    await expect(table2).toContainText('containerd');
+    await expect(table2).toContainText('volumes');
     await expect(table2.locator('th', { hasText: columnHeader })).toBeVisible();
     
-    const containerdRow = table2.locator('tr', { hasText: 'containerd' });
-    const valueCell = containerdRow.locator('td').nth(1);
+    const volumesRow = table2.locator('tr', { hasText: 'volumes' });
+    const valueCell = volumesRow.locator('td').nth(1);
     
     await expect(valueCell).toBeVisible();
     const cellText = (await valueCell.textContent())?.trim();
@@ -468,7 +468,7 @@ for (const { route, columnHeader, valueRegex } of explorerTests) {
     await expect(page).toHaveURL(new RegExp(`${route}/?$`));
     const table3 = page.locator('#folders_to_navigate');
     await expect(table3).toContainText('docker-data');
-    await expect(table3).not.toContainText('containerd');
+    await expect(table3).not.toContainText('volumes');
     
     console.log(`${route} is functional`);
   });
