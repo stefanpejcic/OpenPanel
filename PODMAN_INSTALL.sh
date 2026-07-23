@@ -722,14 +722,15 @@ iptables -I FORWARD 1 -o podman1 -j ACCEPT
 iptables -I FORWARD 1 -i podman1 -j ACCEPT
 EOF
 
-           cat >> "/usr/local/csf/bin/csfpost.sh" <<EOF
+           cat >> "/usr/local/csf/bin/csfpost.sh" <<'EOF'
 #!/bin/bash
 # CSF flushes iptables on reload; netavark's container rules get wiped.
 podman network reload --all
-
-for i in $(ls /sys/class/net | grep -E '^podman[0-9]+$'); do
-  iptables -I INPUT  -i "$i" -j ACCEPT
-  iptables -I OUTPUT -o "$i" -j ACCEPT
+for iface in /sys/class/net/podman[0-9]*; do
+  [ -e "$iface" ] || continue
+  i="${iface##*/}"
+  iptables -I INPUT   -i "$i" -j ACCEPT
+  iptables -I OUTPUT  -o "$i" -j ACCEPT
   iptables -I FORWARD -i "$i" -j ACCEPT
   iptables -I FORWARD -o "$i" -j ACCEPT
 done
