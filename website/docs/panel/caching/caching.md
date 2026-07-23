@@ -12,6 +12,14 @@ Redis serves as a persistent object cache backend cache server, primarily accele
 
 [REDIS settings and usage](/docs/panel/caching/Redis)
 
+
+## Valkey
+
+Valkey is an open-source, high-performance key/value datastore forked from Redis and maintained by the Linux Foundation. It is a drop-in replacement for Redis, supporting the same protocol and commands, so existing Redis clients and object cache plugins work without modification. Use it as an alternative to Redis for persistent object caching.
+
+[Valkey settings and usage](/docs/panel/caching/valkey)
+
+
 ## Memcached
 
 This in-memory (RAM) object cache is designed specifically to reduce the database load, making it ideal for dynamic websites. It caches only the queries related to the database.
