@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 2.0.0\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-21 15:04+0200\n"
+"POT-Creation-Date: 2026-07-22 18:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -202,7 +202,7 @@ msgstr ""
 #: modules/email_default.py:67 modules/email_deliverability.py:123
 #: modules/email_filters.py:18 modules/emails.py:202 modules/emails.py:288
 #: modules/files/ftp.py:156 modules/goaccess.py:23 modules/json/favicons.py:32
-#: modules/json/helpers.py:1786 modules/json/screenshots.py:73
+#: modules/json/helpers.py:1789 modules/json/screenshots.py:73
 #: modules/mautic.py:102 modules/mautic.py:436 modules/mautic.py:587
 #: modules/mautic.py:790 modules/nodejs.py:137 modules/php.py:410
 #: modules/python.py:137 modules/sitemanager/temporary_links.py:50
@@ -2098,43 +2098,50 @@ msgstr ""
 msgid "Error restoring %(path)s: %(error)s"
 msgstr ""
 
-#: modules/webserver_conf.py:106
+#: modules/webserver_conf.py:112
 #, python-format
 msgid "Error writing to %(path)s: %(error)s"
 msgstr ""
 
-#: modules/webserver_conf.py:117
+#: modules/webserver_conf.py:125
+#, python-format
+msgid ""
+"Configuration was not saved - it failed the %(service)s syntax check: "
+"%(error)s"
+msgstr ""
+
+#: modules/webserver_conf.py:136
 #, python-format
 msgid "Error restarting %(service)s container."
 msgstr ""
 
-#: modules/webserver_conf.py:121
+#: modules/webserver_conf.py:140
 #, python-format
 msgid ""
 "Restored %(path)s to the default configuration and %(service)s container "
 "restarted successfully."
 msgstr ""
 
-#: modules/webserver_conf.py:123
+#: modules/webserver_conf.py:142
 #, python-format
 msgid ""
 "Changes saved to %(path)s and %(service)s container restarted "
 "successfully."
 msgstr ""
 
-#: modules/webserver_conf.py:127
+#: modules/webserver_conf.py:146
 #, python-format
 msgid ""
 "Restored %(path)s to the default configuration - the %(service)s "
 "container is not running."
 msgstr ""
 
-#: modules/webserver_conf.py:129
+#: modules/webserver_conf.py:148
 #, python-format
 msgid "Changes saved to %(path)s - the %(service)s container is not running."
 msgstr ""
 
-#: modules/webserver_conf.py:143
+#: modules/webserver_conf.py:162
 #, python-format
 msgid "Error reading %(path)s: %(error)s"
 msgstr ""
@@ -3495,7 +3502,7 @@ msgstr ""
 msgid "Failed to set archive ownership"
 msgstr ""
 
-#: modules/files/filemanager.py:659 modules/json/helpers.py:1508
+#: modules/files/filemanager.py:659 modules/json/helpers.py:1511
 #, python-format
 msgid "Unexpected error: %(error)s"
 msgstr ""
@@ -3904,179 +3911,179 @@ msgstr ""
 msgid "Invalid unit parameter. Use \"bytes\", \"kb\", \"mb\", or \"gb\"."
 msgstr ""
 
-#: modules/json/helpers.py:252
+#: modules/json/helpers.py:253
 #, python-format
 msgid "Unknown action '%(action)s'."
 msgstr ""
 
-#: modules/json/helpers.py:306
+#: modules/json/helpers.py:309
 msgid "Invalid action. Use start, stop, status, or restart."
 msgstr ""
 
-#: modules/json/helpers.py:554 modules/json/helpers.py:669
+#: modules/json/helpers.py:557 modules/json/helpers.py:672
 msgid "Invalid folder path."
 msgstr ""
 
-#: modules/json/helpers.py:700
+#: modules/json/helpers.py:703
 msgid "Unexpected output format"
 msgstr ""
 
-#: modules/json/helpers.py:703 modules/json/helpers.py:727
-#: modules/json/helpers.py:784
+#: modules/json/helpers.py:706 modules/json/helpers.py:730
+#: modules/json/helpers.py:787
 msgid "Unable to retrieve size"
 msgstr ""
 
-#: modules/json/helpers.py:735
+#: modules/json/helpers.py:738
 msgid "Invalid request. Please specify a domain or database name."
 msgstr ""
 
-#: modules/json/helpers.py:790
+#: modules/json/helpers.py:793
 msgid "Database configuration not found"
 msgstr ""
 
-#: modules/json/helpers.py:1480
+#: modules/json/helpers.py:1483
 msgid "File path is missing"
 msgstr ""
 
-#: modules/json/helpers.py:1495
+#: modules/json/helpers.py:1498
 msgid "Invalid file extension. Only .py, or .js are allowed."
-msgstr ""
-
-#: modules/json/helpers.py:1502
-#, python-format
-msgid "%(file)s exists."
 msgstr ""
 
 #: modules/json/helpers.py:1505
 #, python-format
+msgid "%(file)s exists."
+msgstr ""
+
+#: modules/json/helpers.py:1508
+#, python-format
 msgid "%(file)s does not exist."
 msgstr ""
 
-#: modules/json/helpers.py:1560
+#: modules/json/helpers.py:1563
 #, python-format
 msgid "Invalid action '%(action)s'. Allowed actions: %(allowed)s."
 msgstr ""
 
-#: modules/json/helpers.py:1564
+#: modules/json/helpers.py:1567
 #, python-format
 msgid "Hacker! Service '%(site)s' cannot be deleted."
 msgstr ""
 
-#: modules/json/helpers.py:1591
+#: modules/json/helpers.py:1594
 msgid "Unable to detect container type for the application."
 msgstr ""
 
-#: modules/json/helpers.py:1599
+#: modules/json/helpers.py:1602
 msgid "Not a valid type, only NodeJS or Python applications can be edited."
 msgstr ""
 
-#: modules/json/helpers.py:1603 modules/json/helpers.py:1819
+#: modules/json/helpers.py:1606 modules/json/helpers.py:1822
 msgid "Error connecting to database."
 msgstr ""
 
-#: modules/json/helpers.py:1613
+#: modules/json/helpers.py:1616
 #, python-format
 msgid "Stopped container for application: '%(site)s'."
 msgstr ""
 
-#: modules/json/helpers.py:1620
+#: modules/json/helpers.py:1623
 #, python-format
 msgid "Started container for application '%(site)s'."
 msgstr ""
 
-#: modules/json/helpers.py:1643
+#: modules/json/helpers.py:1646
 msgid "Error saving: Invalid version format (check tags from hub.docker.com)"
 msgstr ""
 
-#: modules/json/helpers.py:1647
+#: modules/json/helpers.py:1650
 msgid "Error saving: Requirements must be empty (No) or 1 (Yes)"
 msgstr ""
 
-#: modules/json/helpers.py:1651
+#: modules/json/helpers.py:1654
 msgid ""
 "Error saving: Startup file invalid (must start with /var/www/html/, no "
 "path traversal, ends with .js or .py)"
 msgstr ""
 
-#: modules/json/helpers.py:1655
+#: modules/json/helpers.py:1658
 msgid ""
 "Error saving: Provided custom startup command is invalid (no path "
 "traversal '..' allowed!)"
 msgstr ""
 
-#: modules/json/helpers.py:1659
+#: modules/json/helpers.py:1662
 msgid ""
 "Error saving: Workdir invalid (must start with /var/www/html/, no path "
 "traversal)"
 msgstr ""
 
-#: modules/json/helpers.py:1663
+#: modules/json/helpers.py:1666
 msgid "Error saving: CPU core limit provided is not a positive integer."
 msgstr ""
 
-#: modules/json/helpers.py:1667
+#: modules/json/helpers.py:1670
 msgid "Error saving: Memory limit provided is not a positive integer."
 msgstr ""
 
-#: modules/json/helpers.py:1720
+#: modules/json/helpers.py:1723
 msgid ""
 "Changes saved, make sure to restart the application for changes to take "
 "effect."
 msgstr ""
 
-#: modules/json/helpers.py:1724
+#: modules/json/helpers.py:1727
 msgid "Environment file not found."
-msgstr ""
-
-#: modules/json/helpers.py:1742
-#, python-format
-msgid "Re-downloaded image and started container for application '%(site)s'."
 msgstr ""
 
 #: modules/json/helpers.py:1745
 #, python-format
+msgid "Re-downloaded image and started container for application '%(site)s'."
+msgstr ""
+
+#: modules/json/helpers.py:1748
+#, python-format
 msgid "Failed to %(action)s container '%(site)s': %(error)s"
 msgstr ""
 
-#: modules/json/helpers.py:1805
+#: modules/json/helpers.py:1808
 msgid "Unable to detect service name for the application."
 msgstr ""
 
-#: modules/json/helpers.py:1814
+#: modules/json/helpers.py:1817
 msgid "Not a valid type, only NodeJS or Python applications can be removed."
-msgstr ""
-
-#: modules/json/helpers.py:1852
-#, python-format
-msgid "Application '%(site)s' removed successfully"
 msgstr ""
 
 #: modules/json/helpers.py:1855
 #, python-format
+msgid "Application '%(site)s' removed successfully"
+msgstr ""
+
+#: modules/json/helpers.py:1858
+#, python-format
 msgid "Service '%(service)s' not found in compose file"
 msgstr ""
 
-#: modules/json/helpers.py:1859
+#: modules/json/helpers.py:1862
 #, python-format
 msgid "Failed to remove the service for application '%(site)s': %(error)s"
 msgstr ""
 
-#: modules/json/helpers.py:1881
+#: modules/json/helpers.py:1884
 #, python-format
 msgid "Environment variables for '%(service)s' removed from .env"
 msgstr ""
 
-#: modules/json/helpers.py:1884
+#: modules/json/helpers.py:1887
 #, python-format
 msgid ".env file not found at %(path)s"
 msgstr ""
 
-#: modules/json/helpers.py:1900
+#: modules/json/helpers.py:1903
 #, python-format
 msgid "Application '%(site)s' deleted from the database"
 msgstr ""
 
-#: modules/json/helpers.py:1903
+#: modules/json/helpers.py:1906
 #, python-format
 msgid "Failed to delete application '%(site)s' from the database: %(error)s"
 msgstr ""

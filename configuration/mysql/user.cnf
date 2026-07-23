@@ -1,6 +1,8 @@
 [mysqld]
 skip-name-resolve
 
+performance_schema      = 0
+
 # Connections (sized for a 1G container, update it as needed)
 max_connections         = 100
 thread_cache_size       = 16

@@ -36,8 +36,8 @@ test('passkeys settings page loads', async ({ page }) => {
   console.log('passkeys settings page accessible');
 });
 
-test('register a new passkey', async ({ page }) => {
-  test.skip(isIpBased(BASE_URL), 'passkeys require a domain-based URL, not an IP');
+test('register a new passkey', async ({ page, baseURL }) => {
+  test.skip(isIpBased(baseURL), 'passkeys require a domain-based URL, not an IP');
   test.setTimeout(60_000);
   await addVirtualAuthenticator(page);
   await page.goto('/account/passkeys');
@@ -53,8 +53,8 @@ test('register a new passkey', async ({ page }) => {
   console.log('passkey registered:', passkeyName);
 });
 
-test('remove a passkey', async ({ page }) => {
-  test.skip(({ BASE_URL }) => isIpBased(BASE_URL), 'passkeys require a domain-based URL');
+test('remove a passkey', async ({ page, baseURL }) => {
+  test.skip(isIpBased(baseURL), 'passkeys require a domain-based URL');
 
   test.setTimeout(60_000);
 

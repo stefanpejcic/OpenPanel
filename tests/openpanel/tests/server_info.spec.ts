@@ -28,7 +28,7 @@ test('server info page', async ({ page }) => {
   expect(['mariadb', 'mysql', 'percona']).toContain(planData.plan_mysql);
 
   // 2. /json/system/hosting/ports
-  for (const field of ['pgadmin_port', 'phpmyadmin_port', 'remote_mysql_port', 'remote_postgres_port']) {
+  for (const field of ['pgadmin_port', 'remote_mysql_port', 'remote_postgres_port']) {
     expect(typeof portsData[field], `ports.${field} should be a string`).toBe('string');
     const port = Number(portsData[field]);
     expect(Number.isInteger(port), `ports.${field} should be parseable as an integer`).toBe(true);

@@ -79,7 +79,7 @@ test('assign user to database', async ({ page }) => {
   await page.locator('select[name="db_user"]').selectOption('stefan_psql_user');
   await page.locator('select[name="database_name"]').selectOption('stefan_psql');
   await page.getByRole('button', { name: 'Assign' }).click();
-  await expect(page.locator('body')).toContainText(/successfully assigned|privileges granted/i);
+  await expect(page.locator('body')).toContainText(/Successfully added a user/i);
   console.log('postgresql user assigned to database');
 });
 
@@ -100,9 +100,9 @@ test('revoke user from database', async ({ page }) => {
 test('database wizard', async ({ page }) => {
   await page.goto('/postgresql/wizard');
   await expect(page).toHaveURL(/postgresql\/wizard/);
-  await page.getByRole('textbox', { name: 'database_name' }).fill('psql_proba');
-  await page.getByRole('textbox', { name: 'db_user' }).fill('psql_novi_user');
-  await page.getByRole('textbox', { name: 'password' }).fill('stefan456g7dsd');
+  await page.locator('input[name="database_name"]').fill('psql_proba');
+  await page.locator('input[name="db_user"]').fill('psql_novi_user');
+  await page.locator('#password').fill('stefan456g7dsd');
   await page.getByRole('button', { name: 'Create DB, User, and Grant Privileges' }).click();
   await expect(page.getByText('Process completed!')).toBeVisible();
   await page.getByRole('link', { name: 'Back to Databases' }).click();

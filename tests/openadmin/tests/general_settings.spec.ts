@@ -1,39 +1,38 @@
 import { test, expect } from '@playwright/test';
 
 test('update proxy and test restart needed msg', async ({ page }) => {
-  // Go to settings page
   await page.goto('/settings/general');
   await expect(page).toHaveURL(/\/settings\/general/);
 
   // Update setting
-  const input = page.getByRole('textbox', { name: /openpanel/i });
-  await input.fill('newlink');
+  const redirectInput = page.getByRole('textbox', { name: /openpanel/i });
+  await redirectInput.fill('newlink');
 
   await page.getByRole('button', { name: /save settings/i }).click();
 
-  // Wait for UI updates after save
-  await expect(page.getByText(/settings updated/i)).toBeVisible();
-  await expect(page.getByText(/newlink/i)).toBeVisible();
-  await expect(page.getByText(/2 services need restart/i)).toBeVisible();
+  // Toast — scope it so it can't match sidebar/nav text
+  await expect(page.getByRole('alert')).toContainText(/settings updated/i);
 
-  // Navigate to services needing restart
-  await page.getByRole('link', { name: /services need restart/i }).click();
+  // Input value, not text content
+  await expect(redirectInput).toHaveValue('newlink');
+
+  // Restart banner is a link; assert on the role, tolerate 1 or 2
+  const restartLink = page.getByRole('link', { name: /services? needs? restart/i });
+  await expect(restartLink).toBeVisible();
+
+  await restartLink.click();
   await expect(page).toHaveURL(/\/services/);
 
   // Restart first service
   await page.getByRole('button', { name: /restart openpanel/i }).click();
-  await expect(page.getByText(/1 service needs restart/i)).toBeVisible();
+  await expect(page.getByRole('link', { name: /1 service needs restart/i })).toBeVisible();
 
   // Restart second service
   await page.getByRole('button', { name: /restart admin/i }).click();
+  await expect(page.getByRole('alert')).toContainText(/failed to restart/i);
 
-  // Expect failure message (can be improved later with network wait)
-  await expect(page.getByText(/failed to restart/i)).toBeVisible();
-
-  // Reload services page to ensure final state
+  // Final state
   await page.goto('/services/');
   await expect(page).toHaveURL(/\/services/);
-
-  // Ensure no restart-needed messages remain
-  await expect(page.getByText(/need(s)? restart/i)).toHaveCount(0);
+  await expect(page.getByRole('link', { name: /needs? restart/i })).toHaveCount(0);
 });

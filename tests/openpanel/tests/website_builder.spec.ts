@@ -34,9 +34,14 @@ test('website builder', async ({ page }) => {
   // 2. test edit and save
   await page.locator('span.gjs-pn-btn.fa.fa-save').click();
   await expect(page.locator('text=Saved successfully!')).toBeVisible({ timeout: 30000 });
+  
   await page.goto('http://website-builder.tests.openpanel.org/');
-  await expect(page.locator('body')).toContainText('tailwindcss');
+  await expect(async () => {
+    await page.reload();
+    await expect(page.locator('body')).toContainText('tailwindcss');
+  }).toPass({ timeout: 30000, intervals: [1000] });
 
+  
   // 3. test view
   await page.goto('/sites');
   const table = page.locator('tbody.divide-y.divide-gray-200.dark\\:divide-gray-800');

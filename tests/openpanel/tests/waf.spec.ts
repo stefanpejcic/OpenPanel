@@ -1,214 +1,134 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
+
+// Toggle lives on the list page, one per domain row → must be scoped
+function wafToggle(page: Page, domain: string) {
+  return page.getByRole('row').filter({ hasText: domain })
+             .locator('button[aria-checked]');
+}
+
+async function setWaf(page: Page, domain: string, desiredOn: boolean) {
+  await page.goto('/server/waf');
+  const toggle = wafToggle(page, domain);
+  await expect(toggle).toBeVisible();
+  if (await toggle.getAttribute('aria-checked') !== String(desiredOn)) {
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-checked', String(desiredOn));
+  }
+}
+
+async function openDomainPage(page: Page, domain: string) {
+  await page.goto(`/server/waf/${domain}`);
+  await expect(page).toHaveURL(new RegExp(`/server/waf/${domain.replace(/\./g, '\\.')}$`));
+}
 
 test('waf status', async ({ page }) => {
   await page.goto('/server/waf');
-
-  console.log('wp manager firewall on/off is working as expected!');
+  await expect(page.getByRole('heading', { name: 'WAF', level: 1 })).toBeVisible();
 });
-
-
-
 
 test('waf on/off and disabled rules for domain', async ({ page }) => {
   const domain = 'wp.tests.openpanel.org';
-  await page.goto(`/server/waf/${domain}`);
 
-  const getToggleState = async () => {
-    const btn = page.locator('button[aria-checked]');
-    const checked = await btn.getAttribute('aria-checked');
-    return checked === 'true';
-  };
-
-  const setWaf = async (desiredOn) => {
-    const isOn = await getToggleState();
-    if (isOn !== desiredOn) {
-      await page.locator('button[aria-checked]').click();
-      await page.waitForTimeout(2000);
-      await page.reload();
-    }
-  };
-
-  // A request that should be blocked by WAF (simulates XSS attempt)
   const blockedUrl = `https://${domain}/?q=<script>alert(1)</script>`;
   const cleanUrl = `https://${domain}/`;
 
   // ── 1. WAF ON → blocked request should be blocked, clean should pass ───────
-  await setWaf(true);
-  expect(await getToggleState()).toBe(true);
+  await setWaf(page, domain, true);
 
   let blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
   let clean = await page.request.get(cleanUrl, { failOnStatusCode: false });
-  console.log(`WAF ON  → blocked req: ${blocked.status()}, clean req: ${clean.status()}`);
   expect([403, 406, 409, 422]).toContain(blocked.status());
   expect(clean.status()).toBe(200);
 
   // ── 2. WAF OFF → both requests should pass ─────────────────────────────────
-  await setWaf(false);
-  expect(await getToggleState()).toBe(false);
+  await setWaf(page, domain, false);
 
   blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
   clean = await page.request.get(cleanUrl, { failOnStatusCode: false });
-  console.log(`WAF OFF → blocked req: ${blocked.status()}, clean req: ${clean.status()}`);
   expect(blocked.status()).toBe(200);
   expect(clean.status()).toBe(200);
 
   // ── 3. WAF ON + disable rule by ID → previously blocked request now passes ─
-  await setWaf(true);
-  expect(await getToggleState()).toBe(true);
+  await setWaf(page, domain, true);
 
-  // Confirm it's blocked before we disable the rule
   blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
-  console.log(`WAF ON, rule enabled → blocked req: ${blocked.status()}`);
   expect([403, 406, 409, 422]).toContain(blocked.status());
 
-  // Disable the XSS rule by ID
+  await openDomainPage(page, domain);
+
   const ruleId = '941100';
-  await page.locator('#removed_rules').fill(ruleId);
-  await page.locator('button[type="submit"]:has-text("Save")').click();
-  await page.waitForTimeout(3000);
-  await page.reload();
+  const removedRules = page.locator('#removed_rules');
+  const saveButton = page.getByRole('button', { name: 'Save' });
 
-  const savedRules = await page.locator('#removed_rules').inputValue();
-  expect(savedRules).toContain(ruleId);
-  console.log(`Disabled rule ID ${ruleId} saved: ✓`);
+  await removedRules.fill(ruleId);
+  await saveButton.click();
+  await expect(removedRules).toHaveValue(ruleId);
 
-  // Now the same request should pass because the rule is disabled
   blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
   clean = await page.request.get(cleanUrl, { failOnStatusCode: false });
-  console.log(`WAF ON + rule ${ruleId} disabled → blocked req: ${blocked.status()}, clean req: ${clean.status()}`);
   expect(blocked.status()).toBe(200);
   expect(clean.status()).toBe(200);
 
   // Clear disabled rule IDs
-  await page.locator('#removed_rules').fill('');
-  await page.locator('button[type="submit"]:has-text("Save")').click();
-  await page.waitForTimeout(2000);
-  await page.reload();
+  await removedRules.fill('');
+  await saveButton.click();
+  await expect(removedRules).toHaveValue('');
 
-  // Confirm blocking is restored after clearing rule ID
   blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
-  console.log(`WAF ON, rule ID cleared → blocked req: ${blocked.status()}`);
   expect([403, 406, 409, 422]).toContain(blocked.status());
 
   // ── 4. WAF ON + disable rule by TAG → previously blocked request now passes ─
-  // Confirm it's still blocked before disabling by tag
-  blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
-  console.log(`WAF ON, tag enabled → blocked req: ${blocked.status()}`);
-  expect([403, 406, 409, 422]).toContain(blocked.status());
-
-  // Disable by tag (OWASP CRS tag that covers XSS rules)
   const ruleTag = 'attack-xss';
-  await page.locator('#removed_tags').fill(ruleTag);
-  await page.locator('button[type="submit"]:has-text("Save")').click();
-  await page.waitForTimeout(3000);
-  await page.reload();
+  const removedTags = page.locator('#removed_tags');
 
-  const savedTags = await page.locator('#removed_tags').inputValue();
-  expect(savedTags).toContain(ruleTag);
-  console.log(`Disabled rule tag "${ruleTag}" saved: ✓`);
+  await removedTags.fill(ruleTag);
+  await saveButton.click();
+  await expect(removedTags).toHaveValue(ruleTag);
 
-  // Now the same request should pass because the tag group is disabled
   blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
   clean = await page.request.get(cleanUrl, { failOnStatusCode: false });
-  console.log(`WAF ON + tag "${ruleTag}" disabled → blocked req: ${blocked.status()}, clean req: ${clean.status()}`);
   expect(blocked.status()).toBe(200);
   expect(clean.status()).toBe(200);
 
   // ── 5. Cleanup – clear disabled tags, confirm blocking restored ────────────
-  await page.locator('#removed_tags').fill('');
-  await page.locator('button[type="submit"]:has-text("Save")').click();
-  await page.waitForTimeout(2000);
-  await page.reload();
+  await removedTags.fill('');
+  await saveButton.click();
+  await expect(removedTags).toHaveValue('');
 
   blocked = await page.request.get(blockedUrl, { failOnStatusCode: false });
-  console.log(`WAF ON, tag cleared → blocked req: ${blocked.status()}`);
   expect([403, 406, 409, 422]).toContain(blocked.status());
-
-  console.log('WAF on/off + disabled rules by ID + disabled rules by tag test completed successfully!');
 });
-
-
-
-
-
-
 
 test('waf logs show blocked requests for domain', async ({ page }) => {
   const domain = 'wp.tests.openpanel.org';
   const blockedUrl = `https://${domain}/?q=<script>alert(1)</script>`;
 
-  await page.goto(`/server/waf/${domain}`);
+  await setWaf(page, domain, true);
 
-  const getToggleState = async () => {
-    const checked = await page.locator('button[aria-checked]').getAttribute('aria-checked');
-    return checked === 'true';
-  };
-
-  const setWaf = async (desiredOn) => {
-    const isOn = await getToggleState();
-    if (isOn !== desiredOn) {
-      await page.locator('button[aria-checked]').click();
-      await page.waitForTimeout(2000);
-      await page.reload();
-    }
-  };
-
-  await setWaf(true);
-  expect(await getToggleState()).toBe(true);
-
-  const requestCount = 3;
-  const blockedStatuses = [];
-
-  for (let i = 0; i < requestCount; i++) {
+  for (let i = 0; i < 3; i++) {
     const res = await page.request.get(blockedUrl, { failOnStatusCode: false });
-    blockedStatuses.push(res.status());
-    console.log(`Blocked request ${i + 1} → status: ${res.status()}`);
+    expect([403, 406, 409, 422]).toContain(res.status());
   }
-
-  for (const status of blockedStatuses) {
-    expect([403, 406, 409, 422]).toContain(status);
-  }
-
-  await page.waitForTimeout(3000);
 
   await page.goto(`/server/waf/log/${domain}`);
 
-  await expect(page.locator('#waf-logs-table')).toBeVisible();
-
+  const logsTable = page.locator('#waf-logs-table');
+  await expect(logsTable).toBeVisible();
   await expect(page.locator('h1')).toContainText(domain);
 
-  await page.waitForFunction(() => {
-    const rows = document.querySelectorAll('#waf-logs-table tbody tr');
-    return rows.length > 0;
-  }, { timeout: 10000 });
-
-  const rows = page.locator('#waf-logs-table tbody tr');
+  const rows = logsTable.locator('tbody tr');
+  await expect(rows).not.toHaveCount(0);
   const rowCount = await rows.count();
-  console.log(`WAF log table rows: ${rowCount}`);
-  expect(rowCount).toBeGreaterThan(0);
 
-  const searchInput = page.locator('input[type="search"]');
+  // Scoped so it can't collide with the sidebar search input
+  const searchInput = page.getByRole('region', { name: /logs/i })
+                          .locator('input[type="search"]');
   await searchInput.fill('alert(1)');
-  await page.waitForTimeout(500); // Alpine filters reactively
 
-  const filteredRows = page.locator('#waf-logs-table tbody tr');
-  const filteredCount = await filteredRows.count();
-  console.log(`Rows matching "alert(1)": ${filteredCount}`);
+  await expect(rows.first()).toContainText('alert(1)');
+  const filteredCount = await rows.count();
   expect(filteredCount).toBeGreaterThan(0);
 
-  const firstRow = filteredRows.first();
-
-  const rowText = await firstRow.innerText();
-  console.log(`First matched row text: ${rowText}`);
-  expect(rowText).toContain('alert(1)');
-
   await searchInput.fill('');
-  await page.waitForTimeout(500);
-
-  const allRowsAfterClear = page.locator('#waf-logs-table tbody tr');
-  const allCount = await allRowsAfterClear.count();
-  expect(allCount).toBeGreaterThanOrEqual(filteredCount);
-  console.log(`Rows after clearing search: ${allCount}`);
-
-  console.log('WAF log visibility test completed successfully!');
+  await expect(rows).toHaveCount(rowCount);
 });

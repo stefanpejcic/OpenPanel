@@ -29,11 +29,25 @@ async function navigateToSubdir(page: any) {
 }
 
 async function enableOwnerColumn(page: any) {
-    await page.locator('#dropdownToggleButton').click();
-    const ownerToggle = page.locator('label', { hasText: 'Owner' });
-    const isChecked = await ownerToggle.locator('input').isChecked();
-    if (!isChecked) await ownerToggle.click();
-    await page.locator('#dropdownToggleButton').click();
+  const toggleBtn = page.locator('#dropdownToggleButton');
+  const panel = page.locator('#dropdownToggle');
+
+  await toggleBtn.waitFor({ state: 'visible' });
+
+  await expect(async () => {
+    if (await panel.isVisible()) return;
+    await toggleBtn.click();
+    await expect(panel).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 15_000 });
+
+  const ownerToggle = panel.locator('label', { hasText: 'Owner' });
+  await ownerToggle.waitFor({ state: 'visible' });
+
+  const isChecked = await ownerToggle.locator('input').isChecked();
+  if (!isChecked) await ownerToggle.click();
+
+  await toggleBtn.click();
+  await expect(panel).toBeHidden({ timeout: 5000 }).catch(() => {});
 }
 
 // https://github.com/stefanpejcic/OpenPanel/issues/976

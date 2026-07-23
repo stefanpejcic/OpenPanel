@@ -77,11 +77,16 @@ test('emails accounts search filters rows', async ({ page }) => {
   const rows = page.locator('#email-accounts tbody tr[x-show]');
   if (await rows.count() === 0) { test.skip(); return; }
 
-  const search = page.locator('input[type="search"]').first();
+  const search = page
+    .getByRole('region', { name: 'Emails Header' })
+    .getByRole('searchbox', { name: 'Search' });
+
   await search.fill('zzz_nomatch_xyz');
+  await expect(rows).toHaveCount(await rows.count()); // rows stay in DOM, x-show hides them
   for (const row of await rows.all()) {
     await expect(row).toBeHidden();
   }
+
   await search.fill('');
   await expect(rows.first()).toBeVisible();
 });

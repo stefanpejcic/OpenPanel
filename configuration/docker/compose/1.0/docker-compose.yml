@@ -163,6 +163,7 @@ services:
       VERSION: 1
     volumes:
       - /run/user/${USER_ID}/docker.sock:/var/run/docker.sock:ro
+      #- /run/user/${USER_ID}/podman/podman.sock:/var/run/docker.sock:ro
     deploy:
       resources:
         limits:
@@ -221,10 +222,10 @@ services:
       - db
     healthcheck:
       test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 --silent']
-      interval: 3s
-      timeout: 1s
-      retries: 10
-      start_period: 5s
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   mariadb:
     image: mariadb:${MYSQL_VERSION:-latest}
@@ -254,10 +255,10 @@ services:
       - db
     healthcheck:
       test: ['CMD-SHELL', 'mariadb-admin ping -h 127.0.0.1 --silent']
-      interval: 3s
-      timeout: 1s
-      retries: 10
-      start_period: 5s
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   postgres:
     image: postgres:${POSTGRES_VERSION:-latest}
@@ -589,7 +590,8 @@ services:
     restart: unless-stopped
     volumes:
       - html_data:/var/www/html/
-      - ./php.ini/7.4/:/usr/local/etc/php
+      - ./php.ini/7.4.ini:/usr/local/etc/php/php.ini
+      - ./php.ini/7.4.ini:/usr/local/etc/php/conf.d/zz-docker-shinsenter-php.ini:ro
       - /etc/openpanel/wordpress/wp-cli.phar:/usr/local/bin/wp:ro
       - /etc/openpanel/php/ioncube/ioncube_loader_lin_7.4.so:/usr/local/lib/php/extensions/ioncube_loader.so:ro
       - /etc/openpanel/php/ioncube_extension.ini:/usr/local/etc/php/conf.d/docker-php-ext-ioncube.ini:ro
