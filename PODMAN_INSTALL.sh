@@ -287,6 +287,28 @@ pkg_install_with_retry() {
     done
 }
 
+install_pkgs_batch() {
+    local missing=() pkg
+    for pkg in "$@"; do
+        if pkg_installed "$pkg"; then
+            echo -e "${GREEN}$pkg already installed, skipping.${RESET}"
+        else
+            missing+=("$pkg")
+        fi
+    done
+    (( ${#missing[@]} )) || { ok "All required packages already present."; return; }
+
+    echo -e "Installing ${GREEN}${#missing[@]}${RESET} packages in one transaction..."
+    local opts=()
+    [[ "$PACKAGE_MANAGER" =~ ^(dnf|yum)$ ]] && opts=(--setopt=install_weak_deps=False)
+    $PACKAGE_MANAGER install -y "${opts[@]}" "${missing[@]}" >/dev/null 2>&1 || warn "Batch install incomplete — retrying the remainder individually."
+
+    _build_pkg_cache
+    for pkg in "${missing[@]}"; do
+        pkg_installed "$pkg" || pkg_install_with_retry "$pkg"
+    done
+}
+
 build_quotatool_from_source() {
     quotatool -V >/dev/null 2>&1 && return
     echo "Building quotatool from source..."
@@ -341,9 +363,7 @@ install_packages() {
                 run dnf install -y dnf-plugins-core yum-utils perl gcc tar
                 packages=(git curl openssl ncurses wget cronie systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
                 wait_for_pkg_lock
-                for pkg in "${packages[@]}"; do
-                    pkg_install_with_retry "$pkg"
-                done
+                install_pkgs_batch "${packages[@]}"
                 return
             fi
             run dnf install -y yum-utils epel-release perl gcc
@@ -356,9 +376,7 @@ install_packages() {
     esac
 	
 	wait_for_pkg_lock
-    for pkg in "${packages[@]}"; do
-        pkg_install_with_retry "$pkg"
-    done
+	install_pkgs_batch "${packages[@]}"
 }
 
 clone_repos() {
