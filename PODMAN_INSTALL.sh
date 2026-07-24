@@ -326,18 +326,18 @@ install_packages() {
             run $PACKAGE_MANAGER -qq install -y apt-transport-https ca-certificates
             echo 'APT::Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
             run update-ca-certificates
-			packages=(curl openssl cron git dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client jq sqlite3)
+			packages=(curl openssl cron git dbus-user-session systemd dbus systemd-container quota quotatool uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs "$kernel_pkg" default-mysql-client sqlite3)
             ;;
         yum)
             build_quotatool_from_source
             run yum install -y dnf-plugins-core yum-utils epel-release
-            packages=(curl openssl cronie git dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb jq sqlite3)
+            packages=(curl openssl cronie git dbus-user-session systemd dbus systemd-container quota uidmap podman podman-compose crun netavark aardvark-dns slirp4netns passt fuse-overlayfs mariadb sqlite3)
             ;;
         dnf)
             build_quotatool_from_source
             if [[ "$OS_ID" == "openeuler" ]]; then
                 run dnf install -y dnf-plugins-core yum-utils perl gcc tar
-                packages=(git curl openssl ncurses wget cronie jq systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
+                packages=(git curl openssl ncurses wget cronie systemd dbus systemd-container quota shadow-utils podman podman-compose crun netavark aardvark-dns passt slirp4netns fuse-overlayfs mariadb sqlite sqlite-devel perl-Math-BigInt)
                 wait_for_pkg_lock
                 for pkg in "${packages[@]}"; do
                     pkg_install_with_retry "$pkg"
