@@ -46,7 +46,7 @@ license_key=""
 
 readonly DEFAULT_PANEL_VERSION="2.0.0-beta"
 readonly CONTAINER_ENGINE="podman"
-readonly SHARED_STORE="/var/lib/openpanel/shared-containers/storage"
+readonly SHARED_STORE="/var/lib/containers/shared-storage"
 readonly ETC_DIR="/etc/openpanel/"
 readonly LOG_FILE="openpanel_install.log"
 readonly SERVICES_DIR="/etc/systemd/system/"
@@ -462,34 +462,11 @@ setup_modprobe() {
 }
 
 fix_selinux_storage_labels() {
-    # On SELinux-enforcing systems (AlmaLinux/RockyLinux/CentOS/openEuler),
-    # podman's graphroot/runroot/additional-store dirs must carry the
-    # container_var_lib_t context or crun/podman will silently fail to
-    # mmap/mprotect binaries inside pulled images, surfacing as:
-    #   "Error relocating ...: RELRO protection failed: No error information"
-    # $SHARED_STORE in particular lives outside /var/lib/containers, so it's
-    # not covered by the stock container-selinux fcontext rules and needs an
-    # explicit equivalence added.
+    # container-selinux's stock fcontext rules already cover /var/lib/containers
     command -v getenforce &>/dev/null || return 0
     [[ "$(getenforce)" == "Disabled" ]] && return 0
-
-    if ! command -v semanage &>/dev/null; then
-        case "$PACKAGE_MANAGER" in
-            yum|dnf) run "$PACKAGE_MANAGER" install -y policycoreutils-python-utils ;;
-        esac
-    fi
-
-    if command -v semanage &>/dev/null; then
-        semanage fcontext -a -e /var/lib/containers "$SHARED_STORE" 2>/dev/null || \
-        semanage fcontext -a -t container_var_lib_t "${SHARED_STORE}(/.*)?" 2>/dev/null || true
-    fi
-
-    if command -v restorecon &>/dev/null; then
-        run restorecon -RF /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
-    else
-        # restorecon unavailable — fall back to a direct (non-persistent) relabel
-        run chcon -Rt container_var_lib_t /var/lib/containers/storage "$SHARED_STORE"
-    fi
+    command -v restorecon &>/dev/null || return 0
+    run restorecon -RF /var/lib/containers/storage /run/containers/storage "$SHARED_STORE"
 }
 
 podman_docker_alias() {
