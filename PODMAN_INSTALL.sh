@@ -255,7 +255,10 @@ print_header() {
 update_package_manager() {
     [[ "$SKIP_APT_UPDATE" == true ]] && return
     echo "Updating $PACKAGE_MANAGER..."
-    run $PACKAGE_MANAGER update -y && ok "all packages updated." || warn "Could not update all packages."
+    case "$PACKAGE_MANAGER" in
+        apt-get) run apt-get update -y ;;
+        yum|dnf) run $PACKAGE_MANAGER makecache ;;   # metadata only
+    esac
 }
 
 pkg_install_with_retry() {
@@ -288,11 +291,10 @@ build_quotatool_from_source() {
     quotatool -V >/dev/null 2>&1 && return
     echo "Building quotatool from source..."
     local pm=$PACKAGE_MANAGER
+	#run $pm groupinstall "Development Tools" -y
     if [[ "$pm" == "dnf" ]]; then
-        run dnf groupinstall "Development Tools" -y
         run dnf install -y git gcc make autoconf automake
     else
-        run yum groupinstall "Development Tools" -y
         run yum install -y git gcc make autoconf automake
     fi
     git clone https://github.com/ekenberg/quotatool.git /tmp/quotatool >/dev/null 2>&1
