@@ -1115,18 +1115,11 @@ run_installation() {
     enable_trapping
     setup_scroll_area
     local total=${#STEPS[@]} current=0
-    for step in "${STEPS[@]}"; do
-        $step
-        (( current++ ))
-        draw_progress_bar $(( current * 100 / total ))
-    done
-
 	for step in "${STEPS[@]}"; do
 	    s=$(date +%s); $step; e=$(date +%s)
 	    echo "[TIMING] $step: $((e-s))s" >> "$LOG_FILE"
 	    (( current++ )); draw_progress_bar $(( current * 100 / total ))
 	done
-		
     destroy_scroll_area
 }
 
