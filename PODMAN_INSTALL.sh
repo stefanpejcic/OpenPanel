@@ -1003,7 +1003,7 @@ create_admin_account() {
     local count; count=$(sqlite3 "${ETC_DIR}openadmin/users.db" "SELECT COUNT(*) FROM user WHERE username = '$new_username';" 2>/dev/null || echo 0)
 
     if [[ "$count" -eq 0 ]]; then
-        die "Failed to create Admin acocunt - is sqlite3 installed?"
+        die 1 "Failed to create Admin account - is sqlite3 installed?"
     fi
 
     display_logins
