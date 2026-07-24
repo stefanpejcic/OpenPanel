@@ -477,6 +477,7 @@ podman_docker_alias() {
 	# is inherited even on a first-ever run of this script, so reset
 	# unconditionally rather than only under --repair.
 	run podman system reset -f
+	install -d -Z /var/lib/containers
 
 	rm -rf ~/.local/share/containers/libpod
 
@@ -534,11 +535,13 @@ EOF
 }
 
 
-setup_shared_image_store() {
+pull_sytem_images() {
     echo "Pulling shared images..."
-    run podman --root "$SHARED_STORE" pull docker.io/library/alpine:latest  || die 1 "Failed to pull alpine"
-	[[ "$SKIP_DNS_SERVER" == true ]] || { run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest; }
-    #ok "Shared image store populated at $SHARED_STORE."
+    run podman --root "$SHARED_STORE" pull docker.io/library/alpine:latest || die 1 "Failed to pull alpine"
+    [[ "$SKIP_DNS_SERVER" == true ]] || { run podman --root "$SHARED_STORE" pull docker.io/ubuntu/bind9:latest; }
+    chmod -R o+rX "$SHARED_STORE"
+    find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \; 2>/dev/null || true
+    command -v restorecon &>/dev/null && restorecon -R "$SHARED_STORE" >/dev/null 2>&1 || true
 }
 
 prefetch_shared_images() {
@@ -569,9 +572,9 @@ prefetch_shared_images() {
         done
 
         # newly pulled layers are root-owned 0600/0700 — rootless user podmans
-        # read the additional store as the real UID, so make it world-traversable
-        chmod -R o+rX "$SHARED_STORE"
-        find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \; 2>/dev/null || true
+		chmod -R o+rX "$SHARED_STORE"
+		find "$SHARED_STORE" -name '*.lock' -exec chmod o+rw {} \; 2>/dev/null || true
+		command -v restorecon &>/dev/null && restorecon -R "$SHARED_STORE" >/dev/null 2>&1 || true
 
     ) >/dev/null 2>&1 &
     disown
@@ -589,7 +592,7 @@ setup_compose() {
 
     echo "Setting up MariaDB..."
     local mysql_cnf="/etc/my.cnf"
-    local root_pw; root_pw=$(openssl rand -base64 -hex 9)
+	local root_pw; root_pw=$(openssl rand -hex 16)
 
     cd /root || die 1 "No read access to /root"
     rm -f "$mysql_cnf" .env
@@ -606,10 +609,10 @@ setup_compose() {
         sed -i "/# openpanel/,/# openadmin/ s/:[0-9]\+/:$USER_PORT/g" "${ETC_DIR}nginx/vhosts/openpanel_proxy.conf"
     }
 
-    sed -i "s/MYSQL_ROOT_PASSWORD=.*/MYSQL_ROOT_PASSWORD=${root_pw}/" /root/.env
+	sed -i "s|MYSQL_ROOT_PASSWORD=.*|MYSQL_ROOT_PASSWORD=${root_pw}|" /root/.env
     ln -s "${ETC_DIR}mysql/host_my.cnf" "$mysql_cnf"
-    sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/host_my.cnf"
-    sed -i "s/password = .*/password = ${root_pw}/" "${ETC_DIR}mysql/container_my.cnf"
+	sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/host_my.cnf"
+	sed -i "s|password = .*|password = ${root_pw}|" "${ETC_DIR}mysql/container_my.cnf"
 
     [[ "$OS_ID" == "almalinux" ]] && sed -i 's/mysql\/mysql-server/mysql/g' /root/docker-compose.yml
     if [[ "$OS_ID" == "debian" ]]; then
@@ -639,7 +642,7 @@ setup_bind() {
     cp -r "${ETC_DIR}bind9/"* /etc/bind/
 	
     echo "Pinning BIND9 to the server's real IP because Podman's aardvark-dns holds port 53 on each bridge gateway IP..."
-	BIND_IP=$(hostname -I | awk '{print $1}') && sed -E 's|^(\s*-\s*")([0-9.]+:)?53:53/(tcp\|udp)"|\1'"$BIND_IP"':53:53/\3"|' /root/docker-compose.yml | grep 53:53
+	BIND_IP=$(hostname -I | awk '{print $1}') && sed -i -E 's|^(\s*-\s*")([0-9.]+:)?53:53/(tcp\|udp)"|\1'"$BIND_IP"':53:53/\3"|' /root/docker-compose.yml
 
     if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
         local resolved_conf="/etc/systemd/resolved.conf"
@@ -677,7 +680,7 @@ setup_firewall() {
     rm -rf csf
 
     if [[ "$PACKAGE_MANAGER" == "dnf" ]]; then
-        run dnf install -y wget curl yum-utils policycoreutils-python-utils
+        run dnf install -y wget curl yum-utils #policycoreutils-python-utils
         run dnf install -y libwww-perl || run dnf install -y perl-libwww-perl
         [[ -f /etc/fedora-release ]] && run yum --allowerasing install perl -y
     else
@@ -1087,7 +1090,7 @@ STEPS=(
     update_package_manager
     install_packages
     podman_docker_alias
-    setup_shared_image_store
+    pull_sytem_images
     hetzner_fix
     clone_repos
     download_config
@@ -1117,6 +1120,13 @@ run_installation() {
         (( current++ ))
         draw_progress_bar $(( current * 100 / total ))
     done
+
+	for step in "${STEPS[@]}"; do
+	    s=$(date +%s); $step; e=$(date +%s)
+	    echo "[TIMING] $step: $((e-s))s" >> "$LOG_FILE"
+	    (( current++ )); draw_progress_bar $(( current * 100 / total ))
+	done
+		
     destroy_scroll_area
 }
 
