@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 2.0.0\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-22 18:18+0200\n"
+"POT-Creation-Date: 2026-07-23 18:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -55,122 +55,106 @@ msgid ""
 " hours day month weekday) or an @every/@daily-style descriptor."
 msgstr ""
 
-#: modules/crons.py:62
-msgid "No cron container found"
-msgstr ""
-
-#: modules/crons.py:69
-msgid "Invalid log path"
-msgstr ""
-
-#: modules/crons.py:73
-msgid "Log file not found"
-msgstr ""
-
-#: modules/crons.py:76
+#: modules/crons.py:57
 msgid "Job name too long"
 msgstr ""
 
-#: modules/crons.py:101
-msgid "Docker command timed out after 10 seconds"
-msgstr ""
-
-#: modules/crons.py:104
+#: modules/crons.py:62
 msgid "Failed to fetch container log"
 msgstr ""
 
-#: modules/crons.py:119
+#: modules/crons.py:83
 #, python-format
 msgid ""
 "Cron file exceeds the %(limit)s KB limit. Please contact the "
 "administrator."
 msgstr ""
 
-#: modules/crons.py:133
+#: modules/crons.py:97
 msgid "CronJobs File Editor"
 msgstr ""
 
-#: modules/crons.py:175
+#: modules/crons.py:139
 msgid "Failed to fetch containers"
 msgstr ""
 
-#: modules/crons.py:190
+#: modules/crons.py:154
 msgid "CronJobs"
 msgstr ""
 
-#: modules/crons.py:208
+#: modules/crons.py:172
 msgid "New CronJob"
 msgstr ""
 
-#: modules/crons.py:220
+#: modules/crons.py:184
 msgid "Invalid cron file path"
 msgstr ""
 
-#: modules/crons.py:242 modules/crons.py:391
+#: modules/crons.py:206 modules/crons.py:355
 msgid "Missing one or more required fields (schedule, command, container)."
 msgstr ""
 
-#: modules/crons.py:246 modules/crons.py:322
+#: modules/crons.py:210 modules/crons.py:286
 msgid "Invalid characters in input."
 msgstr ""
 
-#: modules/crons.py:250
+#: modules/crons.py:214
 msgid "image= or network= are not allowed in the command."
 msgstr ""
 
-#: modules/crons.py:254
+#: modules/crons.py:218
 msgid "job-run, job-local, and job-service-run are not allowed in the command."
 msgstr ""
 
-#: modules/crons.py:264
+#: modules/crons.py:228
 msgid "Cron job created and saved successfully!"
 msgstr ""
 
-#: modules/crons.py:274
+#: modules/crons.py:238
 msgid "image= or network= are not allowed in crontab."
 msgstr ""
 
-#: modules/crons.py:278
+#: modules/crons.py:242
 msgid "job-run, job-local, and job-service-run are not allowed in crontab."
 msgstr ""
 
-#: modules/crons.py:293
+#: modules/crons.py:257
 msgid "Crontab file saved successfully!"
 msgstr ""
 
-#: modules/crons.py:314
+#: modules/crons.py:278
 msgid "Missing one or more required fields."
 msgstr ""
 
-#: modules/crons.py:318
+#: modules/crons.py:282
 msgid "Missing original cron job fields."
 msgstr ""
 
-#: modules/crons.py:329
+#: modules/crons.py:293
 msgid "Invalid cron file path."
 msgstr ""
 
-#: modules/crons.py:358
+#: modules/crons.py:322
 msgid "Cron job not found."
 msgstr ""
 
-#: modules/crons.py:371
+#: modules/crons.py:335
 msgid "Cron job was successfully edited."
 msgstr ""
 
-#: modules/crons.py:375
+#: modules/crons.py:339
 msgid "Error saving cron job. Please try again."
 msgstr ""
 
-#: modules/crons.py:462
+#: modules/crons.py:426
 msgid "Cron job was successfully deleted."
 msgstr ""
 
-#: modules/crons.py:465
+#: modules/crons.py:429
 msgid "Error deleting cron job."
 msgstr ""
 
-#: modules/dashboard.py:30 modules/docker.py:1061 modules/docker.py:1075
+#: modules/dashboard.py:30 modules/docker.py:1041 modules/docker.py:1055
 #: modules/webserver_conf.py:59
 msgid "User not authenticated"
 msgstr ""
@@ -511,80 +495,80 @@ msgstr ""
 msgid "Select docker image"
 msgstr ""
 
-#: modules/docker.py:1052 templates/dashboard/dashboard.html:204
+#: modules/docker.py:1032 templates/dashboard/dashboard.html:204
 #: templates/docker/containers.html:319 templates/docker/logs.html:10
 #: templates/manager/python_node_apps.html:72
 #: templates/partials/_service_log.html:12 templates/system/cronjobs.html:342
 msgid "Logs"
 msgstr ""
 
-#: modules/docker.py:1078 modules/website_builder.py:226
+#: modules/docker.py:1058 modules/website_builder.py:226
 #: modules/websites.py:529 templates/manager/wp/single.html:1256
 msgid "Invalid action"
 msgstr ""
 
-#: modules/docker.py:1124
+#: modules/docker.py:1104
 #, python-format
 msgid ""
 "Image pulled and container %(container_name)s %(action_type)sd "
 "successfully."
 msgstr ""
 
-#: modules/docker.py:1128
+#: modules/docker.py:1108
 #, python-format
 msgid "Container %(container_name)s restarted successfully."
 msgstr ""
 
-#: modules/docker.py:1132
+#: modules/docker.py:1112
 #, python-format
 msgid "Container %(container_name)s %(action_type)sd successfully."
 msgstr ""
 
-#: modules/docker.py:1134 modules/docker.py:1136
+#: modules/docker.py:1114 modules/docker.py:1116
 msgid "Error occurred!"
 msgstr ""
 
-#: modules/docker.py:1174
+#: modules/docker.py:1154
 #, python-format
 msgid "Unsupported action: %(action)s. Use 'ram' or 'cpu'."
 msgstr ""
 
-#: modules/docker.py:1205
+#: modules/docker.py:1185
 #, python-format
 msgid ".env file not found at %(env_path)s"
 msgstr ""
 
-#: modules/docker.py:1207
+#: modules/docker.py:1187
 #, python-format
 msgid "Failed to update .env: %(error)s"
 msgstr ""
 
-#: modules/docker.py:1219
+#: modules/docker.py:1199
 msgid "Docker command failed. Try again."
 msgstr ""
 
-#: modules/docker.py:1221
+#: modules/docker.py:1201
 msgid "Unexpected error. Contact Administrator."
 msgstr ""
 
-#: modules/docker.py:1224
+#: modules/docker.py:1204
 #, python-format
 msgid ""
 "%(action)s limits for container %(name)s removed and set to max available"
 " on the plan."
 msgstr ""
 
-#: modules/docker.py:1226
+#: modules/docker.py:1206
 #, python-format
 msgid "Max %(action)s for container %(name)s set to %(value)s"
 msgstr ""
 
-#: modules/docker.py:1390 templates/docker/terminal.html:20
+#: modules/docker.py:1370 templates/docker/terminal.html:20
 #: templates/docker/terminal.html:224
 msgid "Docker Terminal"
 msgstr ""
 
-#: modules/docker.py:1401
+#: modules/docker.py:1381
 msgid "Select Docker service"
 msgstr ""
 
@@ -8727,20 +8711,20 @@ msgstr ""
 msgid "Skip the trash and permanently delete the files"
 msgstr ""
 
-#: templates/files/filemanager/drag_and_drop.html:153
+#: templates/files/filemanager/drag_and_drop.html:159
 #, python-format
 msgid "Uploading %%(count)s files"
 msgstr ""
 
-#: templates/files/filemanager/drag_and_drop.html:169
+#: templates/files/filemanager/drag_and_drop.html:176
 msgid "Upload successful!"
 msgstr ""
 
-#: templates/files/filemanager/drag_and_drop.html:175
+#: templates/files/filemanager/drag_and_drop.html:182
 msgid "Upload failed:"
 msgstr ""
 
-#: templates/files/filemanager/drag_and_drop.html:180
+#: templates/files/filemanager/drag_and_drop.html:187
 msgid "Upload error. Please try again."
 msgstr ""
 
@@ -10065,8 +10049,11 @@ msgid "NPM install"
 msgstr ""
 
 #: templates/manager/python_node_apps.html:920
-#: templates/manager/python_node_apps.html:922
 msgid "PNPM install"
+msgstr ""
+
+#: templates/manager/python_node_apps.html:922
+msgid "PIP install"
 msgstr ""
 
 #: templates/manager/python_node_apps.html:926

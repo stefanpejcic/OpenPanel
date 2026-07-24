@@ -1,13 +1,14 @@
 #!/bin/bash
-
 ###
-# This script will help you install any desired locale
+# Install desired locale for OpenPanel UI
 #
 # Usage:
 #
-# Installing single locale: opencli locale sr-sr
+# Installing single locale:
+# opencli locale sr-sr
 #
-# Installing multiple locales at once: opencli locale sr-sr tr-tr
+# Installing multiple locales at once:
+# opencli locale sr-sr tr-tr
 #
 ###
 
@@ -42,6 +43,14 @@ validate_locale() {
   fi
 }
 
+if command -v docker &>/dev/null; then
+  CONTAINER_CMD="docker"
+elif command -v podman &>/dev/null; then
+  CONTAINER_CMD="podman"
+else
+  echo "Error: neither docker nor podman found."; exit 1
+fi
+
 for locale in "$@"
 do
   formatted_locale=$(echo "$locale" | tr '[:upper:]' '[:lower:]')
@@ -54,7 +63,7 @@ do
     mkdir -p $babel_translations/"$two_letter"/LC_MESSAGES/  &>/dev/null
     echo "Downloading $formatted_locale locale from https://raw.githubusercontent.com/$github_repo/main/$formatted_locale/messages.pot"
     wget -O $babel_translations/"$two_letter"/LC_MESSAGES/messages.po "https://raw.githubusercontent.com/$github_repo/main/$formatted_locale/messages.po" &>/dev/null
-    docker --context=default exec openpanel sh -c "pybabel update -i $babel_translations/$two_letter/LC_MESSAGES/messages.po -d $babel_translations -l $two_letter &>/dev/null"
+    $CONTAINER_CMD exec openpanel sh -c "pybabel update -i $babel_translations/$two_letter/LC_MESSAGES/messages.po -d $babel_translations -l $two_letter &>/dev/null"
     echo ""
   else
     echo "Invalid locale format: $locale. Skipping."
@@ -62,7 +71,7 @@ do
 done
 
 echo "Compiling .mo files for all available locales in $babel_translations directory.."
-docker --context=default exec openpanel sh -c "pybabel compile -f -d $babel_translations  &>/dev/null"
+$CONTAINER_CMD exec openpanel sh -c "pybabel compile -f -d $babel_translations  &>/dev/null"
 echo "Flushing cache to show new translations in OpenPanel UI.."
-docker exec openpanel_redis redis-cli DEL openpanel_cache_app.get_available_locales_memver &>/dev/null
+$CONTAINER_CMD exec openpanel_redis redis-cli DEL openpanel_cache_app.get_available_locales_memver &>/dev/null
 echo "DONE"

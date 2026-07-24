@@ -71,26 +71,6 @@ test('emails accounts page loads and shows table', async ({ page }) => {
   expect(hasTable || isEmpty).toBe(true);
 });
 
-test('emails accounts search filters rows', async ({ page }) => {
-  await page.goto('/emails');
-
-  const rows = page.locator('#email-accounts tbody tr[x-show]');
-  if (await rows.count() === 0) { test.skip(); return; }
-
-  const search = page
-    .getByRole('region', { name: 'Emails Header' })
-    .getByRole('searchbox', { name: 'Search' });
-
-  await search.fill('zzz_nomatch_xyz');
-  await expect(rows).toHaveCount(await rows.count()); // rows stay in DOM, x-show hides them
-  for (const row of await rows.all()) {
-    await expect(row).toBeHidden();
-  }
-
-  await search.fill('');
-  await expect(rows.first()).toBeVisible();
-});
-
 test('emails accounts new-email button links to /emails/new', async ({ page }) => {
   await page.goto('/emails');
   const newBtn = page.locator('a[href="/emails/new"]').first();
@@ -153,6 +133,28 @@ test('create emails and verify dashboard count', async ({ page }) => {
     await expect.poll(() => getEmailCount(page), { timeout: 10000 }).toBe(expected);
   }
 });
+
+
+test('emails accounts search filters rows', async ({ page }) => {
+  await page.goto('/emails');
+
+  const rows = page.locator('#email-accounts tbody tr[x-show]');
+  if (await rows.count() === 0) { test.skip(); return; }
+
+  const search = page
+    .getByRole('region', { name: 'Emails Header' })
+    .getByRole('searchbox', { name: 'Search' });
+
+  await search.fill('zzz_nomatch_xyz');
+  await expect(rows).toHaveCount(await rows.count()); // rows stay in DOM, x-show hides them
+  for (const row of await rows.all()) {
+    await expect(row).toBeHidden();
+  }
+
+  await search.fill('');
+  await expect(rows.first()).toBeVisible();
+});
+
 
 // ─── Edit / single account ───────────────────────────────────────────────────
 
@@ -426,21 +428,34 @@ test('email filter GUI page loads for email', async ({ page }) => {
 
 test('email filter — add a filter rule in GUI mode', async ({ page }) => {
   await page.goto('/emails');
+
   const firstRow = page.locator('#email-accounts tbody tr').first();
-  if (!await firstRow.isVisible().catch(() => false)) { test.skip(); return; }
+
+  if (!(await firstRow.isVisible().catch(() => false))) {
+    test.skip();
+    return;
+  }
 
   const email = (await firstRow.locator('td').first().textContent())?.trim();
-  if (!email?.includes('@')) { test.skip(); return; }
 
-  await page.goto(`/emails/filter/${email}/gui`);
-  await page.getByRole('button', { name: /add filter/i }).click();
+  if (!email?.includes('@')) {
+    test.skip();
+    return;
+  }
 
-  // A filter card should appear
-  const filterCard = page.locator('.rounded-lg.border').last();
-  await expect(filterCard).toBeVisible();
+  await page.goto(`/emails/filter/${encodeURIComponent(email)}/gui`);
 
-  // Fill the filter name
-  const nameInput = filterCard.locator('input[type="text"]').first();
+  const filterNameInputs = page.getByPlaceholder('Filter name…');
+  const existingFilterCount = await filterNameInputs.count();
+
+  await page.getByRole('button', { name: /^add filter$/i }).click();
+
+  // Wait until Alpine adds one new rendered filter.
+  await expect(filterNameInputs).toHaveCount(existingFilterCount + 1);
+
+  const nameInput = filterNameInputs.nth(existingFilterCount);
+  await expect(nameInput).toBeVisible();
+
   await nameInput.fill('Test Filter');
   await expect(nameInput).toHaveValue('Test Filter');
 });
@@ -509,19 +524,6 @@ test('aliases list page loads', async ({ page }) => {
   expect(hasTable || isEmpty).toBe(true);
 });
 
-test('aliases search filters rows', async ({ page }) => {
-  await page.goto('/emails/aliases');
-  const rows = page.locator('tbody tr[x-show]');
-  if (await rows.count() === 0) { test.skip(); return; }
-
-  const search = page.locator('input[type="search"]').first();
-  await search.fill('zzz_nomatch_xyz');
-  for (const row of await rows.all()) {
-    await expect(row).toBeHidden();
-  }
-  await search.fill('');
-});
-
 test('new alias page loads', async ({ page }) => {
   await page.goto('/emails/aliases/new');
   await expect(page).toHaveURL(/emails\/aliases\/new/);
@@ -536,42 +538,109 @@ test('new alias page loads', async ({ page }) => {
 test('new alias — domain selector updates @domain preview', async ({ page }) => {
   await page.goto('/emails/aliases/new');
 
-  const domainSelect = page.locator('select[name="domain"]');
-  const options = await domainSelect.locator('option[value]').all();
-  if (options.length === 0) { test.skip(); return; }
+  const domainSelect = page.getByLabel('Domain');
+  await expect(domainSelect).toBeVisible();
 
-  const firstVal = await options[0].getAttribute('value');
-  if (!firstVal) { test.skip(); return; }
-  await domainSelect.selectOption(firstVal);
+  const validOptions = domainSelect.locator('option[value]:not([value=""])');
+  const optionCount = await validOptions.count();
+
+  if (optionCount === 0) {
+    test.skip();
+    return;
+  }
+
+  const firstValue = await validOptions.first().getAttribute('value');
+
+  if (!firstValue) {
+    test.skip();
+    return;
+  }
+
+  await domainSelect.selectOption(firstValue);
 
   const atPreview = page.locator('#at_address');
-  await expect(atPreview).toHaveValue(`@${firstVal}`);
+  await expect(atPreview).toHaveValue(`@${firstValue}`);
 });
 
-test('create alias, verify in list, then delete it', async ({ page }) => {
+const TEST_ALIAS = 'pw-test-alias';
+const TEST_TARGET = 'target@external-test.example.com';
+
+test('create alias and verify in list', async ({ page }) => {
   await page.goto('/emails/aliases/new');
 
-  const domainSelect = page.locator('select[name="domain"]');
-  const options = await domainSelect.locator('option[value]').all();
-  if (options.length === 0) { test.skip(); return; }
+  const domainSelect = page.getByLabel('Domain');
+  await expect(domainSelect).toBeVisible();
 
-  const domain = await options[0].getAttribute('value');
-  if (!domain) { test.skip(); return; }
+  const validOptions = domainSelect.locator(
+    'option[value]:not([value=""]):not([disabled])'
+  );
+
+  if ((await validOptions.count()) === 0) {
+    test.skip();
+    return;
+  }
+
+  const domain = await validOptions.first().getAttribute('value');
+
+  if (!domain) {
+    test.skip();
+    return;
+  }
+
+  const source = `${TEST_ALIAS}@${domain}`;
+
+  // Clean up if it already exists.
+  await page.goto('/emails/aliases');
+  if (await page.getByText(source, { exact: true }).count()) {
+    await page.goto(`/emails/aliases/delete/${encodeURIComponent(source)}`);
+    await page.getByRole('button', { name: /confirm delete/i }).click();
+    await expect(page).toHaveURL(/\/emails\/aliases\/?$/);
+  }
+
+  await page.goto('/emails/aliases/new');
 
   await domainSelect.selectOption(domain);
-  await page.locator('input[name="username"]').fill('pw-test-alias');
-  await page.locator('input[name="target"]').fill('target@external-test.example.com');
+  await page.getByLabel(/alias address/i).fill(TEST_ALIAS);
+  await page.getByLabel(/destination address/i).fill(TEST_TARGET);
+
   await page.getByRole('button', { name: /create alias/i }).click();
 
-  await expect(page).toHaveURL(/emails\/aliases/, { timeout: 10000 });
-  const source = `pw-test-alias@${domain}`;
-  await expect(page.getByText(source)).toBeVisible();
+  await expect(page).toHaveURL(/\/emails\/aliases\/?$/, {
+    timeout: 10_000,
+  });
 
-  // Delete it
-  await page.goto(`/emails/aliases/delete/${source}`);
-  await page.getByRole('button', { name: /confirm delete/i }).click();
-  await expect(page).toHaveURL(/emails\/aliases/, { timeout: 10000 });
-  await expect(page.getByText(source)).toHaveCount(0);
+  await expect(page.getByText(source, { exact: true })).toBeVisible();
+});
+
+test('aliases search filters rows', async ({ page }) => {
+  await page.goto('/emails/aliases');
+
+  const aliasesSection = page.getByRole('region', {
+    name: 'Aliases Header',
+  });
+
+  const rows = aliasesSection.locator('#aliases-table tbody tr[x-show]');
+  const rowCount = await rows.count();
+
+  if (rowCount === 0) {
+    test.skip();
+    return;
+  }
+
+  const search = aliasesSection.getByPlaceholder('Search');
+  await expect(search).toBeVisible();
+
+  await search.fill('zzz_nomatch_xyz');
+
+  for (let i = 0; i < rowCount; i++) {
+    await expect(rows.nth(i)).toBeHidden();
+  }
+
+  await search.fill('');
+
+  for (let i = 0; i < rowCount; i++) {
+    await expect(rows.nth(i)).toBeVisible();
+  }
 });
 
 test('alias detail page loads for existing alias', async ({ page }) => {
@@ -608,75 +677,183 @@ test('alias detail — add then remove a destination', async ({ page }) => {
   await expect(newRow).toBeHidden({ timeout: 8000 });
 });
 
+test('delete alias and verify removal', async ({ page }) => {
+  await page.goto('/emails/aliases');
+
+  const aliasLink = page.getByText(new RegExp(`^${TEST_ALIAS}@`));
+
+  if (!(await aliasLink.count())) {
+    test.skip();
+    return;
+  }
+
+  const source = (await aliasLink.first().textContent())!.trim();
+
+  await page.goto(`/emails/aliases/delete/${encodeURIComponent(source)}`);
+
+  await page.getByRole('button', { name: /confirm delete/i }).click();
+
+  await expect(page).toHaveURL(/\/emails\/aliases\/?$/, {
+    timeout: 10_000,
+  });
+
+  await expect(page.getByText(source, { exact: true })).toHaveCount(0);
+});
+
 // ─── Default address ─────────────────────────────────────────────────────────
+
+async function getFirstDefaultAddressDomain(page: Page): Promise<string | null> {
+  await page.goto('/emails/default/');
+
+  const domainSelect = page.locator('#domains');
+  await expect(domainSelect).toBeVisible();
+
+  const domainOptions = domainSelect.locator(
+    'option[value]:not([value=""]):not([disabled])'
+  );
+
+  if ((await domainOptions.count()) === 0) {
+    return null;
+  }
+
+  return domainOptions.first().getAttribute('value');
+}
 
 test('default address selector page loads', async ({ page }) => {
   await page.goto('/emails/default/');
-  await expect(page).toHaveURL(/emails\/default/);
-  await expect(page.getByRole('heading', { name: /default email address/i })).toBeVisible();
-  await expect(page.locator('select#domains')).toBeVisible();
+
+  await expect(page).toHaveURL(/\/emails\/default\/?$/);
+
+  await expect(
+    page.getByRole('heading', { name: /default email address/i })
+  ).toBeVisible();
+
+  const domainSelect = page.locator('#domains');
+
+  await expect(domainSelect).toBeVisible();
+  await expect(domainSelect).toHaveValue('');
 });
 
-test('default address domain selector navigates to domain page', async ({ page }) => {
-  await page.goto('/emails/default/');
-  const select = page.locator('select#domains');
-  const options = await select.locator('option[value]').all();
-  if (options.length === 0) { test.skip(); return; }
+test('default address domain selector navigates to domain page', async ({
+  page,
+}) => {
+  const domain = await getFirstDefaultAddressDomain(page);
 
-  const domain = await options[0].getAttribute('value');
-  if (!domain) { test.skip(); return; }
+  if (!domain) {
+    test.skip();
+    return;
+  }
 
-  await select.selectOption(domain);
-  await expect(page).toHaveURL(new RegExp(`emails/default/${domain}`));
+  const domainSelect = page.locator('#domains');
+
+  await Promise.all([
+    page.waitForURL(
+      url =>
+        url.pathname === `/emails/default/${domain}`,
+      { timeout: 10_000 }
+    ),
+    domainSelect.selectOption(domain),
+  ]);
+
+  await expect(page).toHaveURL(
+    new RegExp(`/emails/default/${domain.replace(/\./g, '\\.')}/?$`)
+  );
 });
 
-test('default address detail page shows current config or empty state', async ({ page }) => {
-  await page.goto('/emails/default/');
-  const select = page.locator('select#domains');
-  const options = await select.locator('option[value]').all();
-  if (options.length === 0) { test.skip(); return; }
+test('default address detail page shows current config or empty state', async ({
+  page,
+}) => {
+  const domain = await getFirstDefaultAddressDomain(page);
 
-  const domain = await options[0].getAttribute('value');
-  if (!domain) { test.skip(); return; }
+  if (!domain) {
+    test.skip();
+    return;
+  }
 
-  await page.goto(`/emails/default/${domain}`);
-  await expect(page.getByRole('heading', { name: /default email address/i })).toBeVisible();
+  await page.goto(`/emails/default/${encodeURIComponent(domain)}`);
 
-  const destInput = page.locator('input#destination');
-  await expect(destInput).toBeVisible();
-  await expect(page.locator('#save-btn')).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: /default email address/i })
+  ).toBeVisible();
+
+  await expect(
+    page.getByRole('heading', { name: /current configuration/i })
+  ).toBeVisible();
+
+  await expect(page.locator('#destination')).toBeVisible();
+
+  await expect(
+    page.getByRole('button', { name: /^save$/i })
+  ).toBeVisible();
+
+  const configuredDestination = page.locator('#current-destination');
+  const emptyState = page.getByText(/no catch-all configured/i);
+
+  await expect(
+    configuredDestination.or(emptyState)
+  ).toBeVisible();
 });
 
 test('default address — set and clear catch-all', async ({ page }) => {
-  await page.goto('/emails/default/');
-  const select = page.locator('select#domains');
-  const options = await select.locator('option[value]').all();
-  if (options.length === 0) { test.skip(); return; }
+  const domain = await getFirstDefaultAddressDomain(page);
 
-  const domain = await options[0].getAttribute('value');
-  if (!domain) { test.skip(); return; }
-
-  await page.goto(`/emails/default/${domain}`);
-
-  // Set a catch-all
-  const dest = `catchall-pw-test@${domain}`;
-  await page.locator('input#destination').fill(dest);
-  await page.locator('#save-btn').click();
-  await page.waitForLoadState('load');
-
-  const currentDest = page.locator('#current-destination');
-  if (await currentDest.isVisible().catch(() => false)) {
-    await expect(currentDest).toContainText(dest.split('@')[0]);
+  if (!domain) {
+    test.skip();
+    return;
   }
 
-  // Clear it (danger zone delete)
-  const deleteBtn = page.locator('#delete-btn');
-  if (await deleteBtn.isVisible().catch(() => false)) {
-    page.on('dialog', d => d.accept());
-    await deleteBtn.click();
-    await page.waitForLoadState('load');
-    await expect(page.getByText(/no catch-all configured/i)).toBeVisible({ timeout: 8000 });
+  await page.goto(`/emails/default/${encodeURIComponent(domain)}`);
+
+  const destinationInput = page.locator('#destination');
+  const saveButton = page.getByRole('button', { name: /^save$/i });
+
+  await expect(destinationInput).toBeVisible();
+  await expect(saveButton).toBeVisible();
+
+  const destination = `catchall-pw-test@${domain}`;
+
+  // Set catch-all.
+  await destinationInput.fill(destination);
+  await saveButton.click();
+
+  /*
+   * The save operation may update the page through JavaScript rather than
+   * perform a full navigation, so assert the resulting UI instead of waiting
+   * for the "load" event.
+   */
+  const currentDestination = page.locator('#current-destination');
+
+  if (await currentDestination.count()) {
+    await expect(currentDestination).toContainText(destination);
+  } else {
+    await expect(destinationInput).toHaveValue(destination);
   }
+
+  // Clear catch-all.
+  const deleteButton = page.locator('#delete-btn');
+
+  if (await deleteButton.isVisible().catch(() => false)) {
+    page.once('dialog', async dialog => {
+      await dialog.accept();
+    });
+
+    await deleteButton.click();
+  } else {
+    /*
+     * On the HTML shown, clearing is done by saving an empty destination.
+     */
+    await destinationInput.click();
+    await destinationInput.press('ControlOrMeta+A');
+    await destinationInput.press('Delete');
+    await expect(destinationInput).toHaveValue('');
+    await saveButton.click();
+  }
+
+  await expect(
+    page.getByText(/no catch-all configured/i)
+  ).toBeVisible({ timeout: 10_000 });
+
+  await expect(destinationInput).toHaveValue('');
 });
 
 // ─── Delete emails ────────────────────────────────────────────────────────────

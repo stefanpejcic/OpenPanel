@@ -6,6 +6,21 @@ PANEL_USERNAME="testinguser"
 PANEL_PASSWORD="testingpassword"
 PANEL_EMAIL="test@test.com"
 
+# AUTOSTART SERVICES ON USER-ADD
+FILE=/etc/openpanel/docker/compose/1.0/autostart.services
+ENV=/etc/openpanel/docker/compose/1.0/.env
+PHPV=$(grep -E '^DEFAULT_PHP_VERSION=' "$ENV" | cut -d= -f2- | tr -d '\r"'"'")
+PHP_SVC="php-fpm-${PHPV}"
+
+sed -i '/^varnish$/d' "$FILE"
+grep -qxF "$PHP_SVC"  "$FILE" || echo "$PHP_SVC"  >> "$FILE"
+grep -qxF 'cron'      "$FILE" || echo 'cron'      >> "$FILE"
+grep -qxF 'memcached' "$FILE" || echo 'memcached' >> "$FILE"
+
+echo "Services that will auto-start for user:"
+cat "$FILE"
+echo
+
 # INCREASE LIMITS SO TESTS DONT GET BLOCKED
 opencli config update login_ratelimit 100
 opencli plan-edit id=2 name="Developer plus" description="A professional plan" emails=500 max_email_quota=2G ftp=100 domains=10 websites=10 disk=50 inodes=1000000 databases=20 cpu=4 ram=6 bandwidth=500 max_hourly_email=6000
