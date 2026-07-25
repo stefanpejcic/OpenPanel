@@ -1,6 +1,7 @@
 <?php
 
 require_once '/etc/phpmyadmin/config.secret.inc.php';
+setcookie('pma_manual_user', '', time() - 3600, '/', '', false, true);
 
 $providedToken = $_GET['token'] ?? '';
 $username      = $_GET['user']  ?? '';
@@ -60,6 +61,8 @@ $_SESSION['PMA_single_signon_password'] = $mysqlPassword;
 $_SESSION['PMA_single_signon_host']     = 'localhost';
 
 session_write_close();
+
+setcookie('pma_manual_user', '', time() - 3600, '/', '', false, true);
 
 header("Location: ./index.php?server=" . $serverIndex);
 exit;

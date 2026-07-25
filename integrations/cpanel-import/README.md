@@ -19,6 +19,9 @@ Currently suported for import:
 │    ├─ MySQL databases, users and grants
 │    ├─ PostgreSQL databases, users and grants
 │    └─ Remote access to MySQL
+├─ EMAILS:
+│    ├─ Email accounts with same passwords
+│    └─ Mailboxes (all email messages)
 ├─ PHP:
 │    └─ Installed version from Cloudlinux PHP Selector
 ├─ FTP:
