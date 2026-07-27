@@ -425,10 +425,7 @@ install_openadmin() {
     local dir="/usr/local/admin/"
     mkdir -p "$dir"
 
-sed -i '/"name": "Docker",/,/"real_name": "docker"/{
-  s/"name": "Docker",/"name": "Podman",/
-  s/"real_name": "docker"/"real_name": "podman"/
-}' /etc/openpanel/openadmin/config/services.json
+    sed -i '/"name": "Docker",/,/"real_name": "docker"/{s/"name": "Docker",/"name": "Podman",/;s/"real_name": "docker"/"real_name": "podman"/}' /etc/openpanel/openadmin/config/services.json
 
     if [[ "$ADMIN_PORT" != 2087 ]]; then
         sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$ADMIN_PORT/" "${ETC_DIR}caddy/Caddyfile"
