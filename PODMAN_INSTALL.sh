@@ -934,7 +934,7 @@ verify_license() {
 }
 
 start_system_containers() {
-    podman pull docker.io/openpanel/openpanel-podman:$PANEL_VERSION >/dev/null 2>&1 &
+    podman pull docker.io/openpanel/openpanel:$PANEL_VERSION >/dev/null 2>&1 &
 }
 
 run_housekeeping_parallel() {
