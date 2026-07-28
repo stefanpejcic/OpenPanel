@@ -19,7 +19,7 @@ const Stats: React.FC = () => {
     const fetchData = async () => {
       try {
         const response = await fetch(
-          "https://api.openpanel.com/statistics/"
+          "https://api.openpanel.com/v2/statistics/"
         );
         const json = await response.json();
         setData(json);
