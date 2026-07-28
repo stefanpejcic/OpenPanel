@@ -6,7 +6,7 @@
 # Supported OS:            Ubuntu, Debian, AlmaLinux, RockyLinux, CentOS
 # Supported Architecture:  x86_64(AMD64), AArch64(ARM64)
 #
-# Usage:                   bash <(curl -sSL https://openpanel.org/podman)
+# Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
 # Last Modified:           24.07.2026
