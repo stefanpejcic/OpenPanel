@@ -630,7 +630,8 @@ setup_bind() {
     cp -r "${ETC_DIR}bind9/"* /etc/bind/
 
     echo "Pinning BIND9 to the server's real IP because Podman's aardvark-dns holds port 53 on each bridge gateway IP..."
-    BIND_IP=$(hostname -I | awk '{print $1}') && sed -i -E 's|^(\s*-\s*")([0-9.]+:)?53:53/(tcp\|udp)"|\1'"$BIND_IP"':53:53/\3"|' /root/docker-compose.yml
+    BIND_IP=$(hostname -I | awk '{print $1}')
+    sed -i -E 's#^( *- *")([0-9.]+:)?(53:53/(tcp|udp)")#\1'"$BIND_IP"':\3#' /root/docker-compose.yml | grep 53:53
 
     if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
         local resolved_conf="/etc/systemd/resolved.conf"
