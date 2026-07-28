@@ -387,6 +387,7 @@ clone_repos() {
 
     # TODO: remove after 2.0 release nad edit compose file
     sed -i -E -e 's|^(\s*)- (/run/user/\$\{USER_ID\}/docker\.sock:)|\1#- \2|' -e 's|^(\s*)#- (/run/user/\$\{USER_ID\}/podman/podman\.sock:)|\1- \2|' "/etc/openpanel/docker/compose/1.0/docker-compose.yml"
+    sed -i -E -e 's|^(\s*)- (/var/run/docker\.sock:/var/run/docker\.sock:ro)|\1#- \2|' -e 's|^(\s*)#- (/run/podman/podman\.sock:/run/podman/podman\.sock:ro)|\1- \2|' /root/docker-compose.yml
 
     # openadmin
     local admin_binary="openadmin-amd64"
