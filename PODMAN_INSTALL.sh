@@ -274,7 +274,7 @@ pkg_install_with_retry() {
         uidmap)       $PACKAGE_MANAGER install -y shadow-utils >/dev/null 2>&1 && return ;;
         iptables)     $PACKAGE_MANAGER install -y iptables-nft >/dev/null 2>&1 && return ;;
         netavark|aardvark-dns|crun) warn "Could not install $pkg — podman may fall back to CNI/runc."; return ;;
-        quota|systemd-container|slirp4netns|fuse-overlayfs) warn "Could not install $pkg — you may need to install it manually."; return ;;
+        quota|systemd-container|slirp4netns|fuse-overlayfs|passt) warn "Could not install $pkg — you may need to install it manually."; return ;;
     esac
 
     local attempt=1 max=10 delay=5
