@@ -44,7 +44,7 @@ custom_password=""
 EMAIL=""
 license_key=""
 
-readonly DEFAULT_PANEL_VERSION="2.0.0-beta"
+readonly DEFAULT_PANEL_VERSION="2.0.0"
 readonly CONTAINER_ENGINE="podman"
 readonly SHARED_STORE="/var/lib/containers/shared-storage"
 readonly ETC_DIR="/etc/openpanel/"
@@ -948,7 +948,7 @@ verify_license() {
 }
 
 start_system_containers() {
-    podman pull docker.io/openpanel/openpanel-ui:2.0.0-beta >/dev/null 2>&1 & # HARDCODED FOR BETA
+    podman pull docker.io/openpanel/openpanel-podman:$PANEL_VERSION >/dev/null 2>&1 &
 }
 
 run_housekeeping_parallel() {
