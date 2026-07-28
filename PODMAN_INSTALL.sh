@@ -384,10 +384,6 @@ clone_repos() {
     rm -rf /tmp/main.zip "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
-    # TODO: remove after 2.0 release nad edit compose file
-    sed -i -E -e 's|^(\s*)- (/run/user/\$\{USER_ID\}/docker\.sock:)|\1#- \2|' -e 's|^(\s*)#- (/run/user/\$\{USER_ID\}/podman/podman\.sock:)|\1- \2|' "/etc/openpanel/docker/compose/1.0/docker-compose.yml"
-    sed -i -E -e 's|^(\s*)- (/var/run/docker\.sock:/var/run/docker\.sock:ro)|\1#- \2|' -e 's|^(\s*)#- (/run/podman/podman\.sock:/run/podman/podman\.sock:ro)|\1- \2|' /root/docker-compose.yml
-
     # openadmin
     local admin_binary="openadmin-amd64"
     [[ "$architecture" == "aarch64" ]] && admin_binary="openadmin-arm64"
@@ -398,9 +394,6 @@ clone_repos() {
     [[ -f "/usr/local/admin/$admin_binary" ]] || die 1 "Failed to download OpenAdmin binary ${admin_binary} from Github."
     chmod +x "/usr/local/admin/$admin_binary"
     sed -i "s|^ExecStart=.*|ExecStart=/usr/local/admin/${admin_binary}|" "/etc/openpanel/openadmin/service/openadmin.service"
-
-    # TODO: edit inline once 2.0 is out
-    sed -i 's|cmd = \["docker", "--context=default", "exec", "openpanel_redis", "redis-cli", "FLUSHDB"\]|cmd = \["podman", "exec", "openpanel_redis", "redis-cli", "FLUSHDB"\]|' "/etc/openpanel/openpanel/service/service.config.py"
 
     # opencli
     echo "Downloading opencli commands to /usr/local/opencli"
@@ -424,12 +417,6 @@ install_openadmin() {
     echo "Setting up OpenAdmin..."
     local dir="/usr/local/admin/"
     mkdir -p "$dir"
-
-    # /services
-    sed -i '/"name": "Docker",/,/"real_name": "docker"/{s/"name": "Docker",/"name": "Podman",/;s/"real_name": "docker"/"real_name": "podman"/}' /etc/openpanel/openadmin/config/services.json
-
-    # /settings/notifications
-    sed -i 's/docker,/podman,/' /etc/openpanel/openadmin/config/notifications.ini
 
     if [[ "$ADMIN_PORT" != 2087 ]]; then
         sed -i "/# START HOSTNAME DOMAIN #/,/# END HOSTNAME DOMAIN #/ s/\(reverse_proxy localhost:\)[0-9]\+/\1$ADMIN_PORT/" "${ETC_DIR}caddy/Caddyfile"
