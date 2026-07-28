@@ -186,13 +186,13 @@ pidfile = 'openpanel'
 # Create Log files
 errorlog = "/var/log/openpanel/user/error.log"
 accesslog = "/var/log/openpanel/user/access.log"
-
+openclilog = "/var/log/openpanel/admin/opencli.log"
 def ensure_directory(file_path):
     Path(file_path).parent.mkdir(parents=True, exist_ok=True)
 
 ensure_directory(errorlog)
 ensure_directory(accesslog)
-
+ensure_directory(openclilog)
 
 # ======================================================================
 # SERVER

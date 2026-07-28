@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: OpenPanel 2.0.0\n"
 "Report-Msgid-Bugs-To: stefan@pejcic.rs\n"
-"POT-Creation-Date: 2026-07-24 19:44+0200\n"
+"POT-Creation-Date: 2026-07-27 17:01+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: English <info@openpanel.com>\n"
@@ -17,17 +17,17 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.17.0\n"
 
-#: app.py:529
+#: app.py:533
 msgid "IP address mismatch. Please login again."
 msgstr ""
 
-#: app.py:561
+#: app.py:565
 msgid ""
 "Two-Factor Authentication is required on this panel. Please enable it to "
 "continue."
 msgstr ""
 
-#: app.py:569
+#: app.py:573
 msgid "Disabled in demo mode."
 msgstr ""
 
@@ -2906,19 +2906,19 @@ msgstr ""
 msgid "Varnish cache is now %(status)s for domain %(domain)s"
 msgstr ""
 
-#: modules/core/errors.py:26
+#: modules/core/errors.py:33
 msgid "Page not found"
 msgstr ""
 
-#: modules/core/errors.py:37
+#: modules/core/errors.py:40
 msgid "Access is forbidden to this page"
 msgstr ""
 
-#: modules/core/errors.py:47
+#: modules/core/errors.py:46
 msgid "File Too Large"
 msgstr ""
 
-#: modules/core/errors.py:58
+#: modules/core/errors.py:54
 msgid "CSRF error"
 msgstr ""
 
