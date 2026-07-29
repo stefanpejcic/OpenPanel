@@ -2,7 +2,6 @@ import Link from "@docusaurus/Link";
 import React from "react";
 import clsx from "clsx";
 import { LandingCopyCommandButton } from "./landing-copy-command-button";
-import { CommonThemedImage } from "./common-themed-image";
 
 export const EnterpriseHeroSection = ({
     className,
@@ -13,15 +12,13 @@ export const EnterpriseHeroSection = ({
         <div
             className={clsx(
                 "flex flex-col",
-                "landing-md:grid landing-md:grid-cols-12",
                 "not-prose",
                 className,
             )}
         >
-            <div className={clsx("flex flex-col", "col-start-1 col-end-8")}>
+            <div className={clsx("flex flex-col")}>
                 <h1
                     className={clsx(
-                        "max-w-xl landing-md:max-w-[408px] landing-lg:max-w-non landing-lg:whitespace-nowrap",
                         "text-[32px] leading-[40px] landing-sm:text-[56px] landing-sm:leading-[72px]",
                         "tracking-tight",
                         "text-start",
@@ -44,7 +41,6 @@ export const EnterpriseHeroSection = ({
                 </h1>
                 <p
                     className={clsx(
-                        "max-w-[446px]",
                         "mt-6",
                         "pl-4 landing-sm:pl-6 landing-md:pl-10",
                         "dark:text-gray-400 text-gray-600",
@@ -56,7 +52,7 @@ export const EnterpriseHeroSection = ({
                     className={clsx(
                         "text-sm",
                         "pl-4 landing-sm:pl-6 landing-md:pl-10",
-                        "mt-6 landing-lg:mt-16",
+                        "mt-4 landing-lg:mt-6",
                         "dark:text-gray-400 text-gray-600",
                     )}
                 >
@@ -107,25 +103,6 @@ export const EnterpriseHeroSection = ({
                         Customize install command →
                     </Link>
                 </div>
-            </div>
-            <div
-                className={clsx(
-                    "flex",
-                    "justify-end",
-                    "col-start-8",
-                    "col-end-13",
-                    "mt-12 landing-sm:mt-16 landing-md:mt-0",
-                )}
-            >
-                <CommonThemedImage
-                    className={clsx(
-                        "landing-md:h-[360px] landing-md:w-[326px]",
-                        "landing-md:h-[360px] landing-md:w-[326px]",
-                    )}
-                    srcDark="/img/hero.png"
-                    srcLight="/img/hero.png"
-                    alt="OpenPanel Community edition dashboard preview"
-                />
             </div>
         </div>
     );

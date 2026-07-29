@@ -24,7 +24,6 @@ export const EnterpriseHeroSection = ({
             <div className={clsx("flex flex-col")}>
                 <h1
                     className={clsx(
-                        "max-w-xl landing-md:max-w-[408px] landing-lg:max-w-non landing-lg:whitespace-nowrap",
                         "text-[32px] leading-[40px] landing-sm:text-[56px] landing-sm:leading-[72px]",
                         "tracking-tight",
                         "text-start",
@@ -47,7 +46,6 @@ export const EnterpriseHeroSection = ({
                 </h1>
                 <p
                     className={clsx(
-                        "max-w-[446px]",
                         "mt-6",
                         "pl-4 landing-sm:pl-6 landing-md:pl-10",
                         "dark:text-gray-400 text-gray-600",
@@ -70,7 +68,7 @@ export const EnterpriseHeroSection = ({
                         "flex flex-col",
                         "gap-3",
                         "pl-4 landing-sm:pl-6 landing-md:pl-10",
-                        "mt-6 landing-lg:mt-16",
+                        "mt-4 landing-lg:mt-6",
                     )}
                 >
                     <div

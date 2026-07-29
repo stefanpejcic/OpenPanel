@@ -6,6 +6,7 @@ import { CommonHeader } from "@site/src/refine-theme/common-header";
 import { CommonLayout } from "@site/src/refine-theme/common-layout";
 import { SoftwareApplicationSchema } from "@site/src/refine-theme/software-application-schema";
 import { EnterpriseHeroSection } from "@site/src/refine-theme/community-hero-section";
+import { LandingHeroShowcaseOpenPanelCommunity } from "@site/src/refine-theme/landing-hero-showcase-section";
 import { EnterpriseGetInTouchCta } from "@site/src/refine-theme/enterprise-get-in-touch-cta";
 import { LandingTrustedByDevelopers } from "@site/src/refine-theme/landing-trusted-by-developers";
 import { EnterpriseFaq } from "@site/src/refine-theme/community-faq";
@@ -47,16 +48,25 @@ const Enterprise: React.FC = () => {
                             "mx-auto",
                         )}
                     >
-                        <EnterpriseHeroSection
-                            className={clsx(
-                                sectionWidth,
-                                sectionPadding,
-                                "h-auto landing-md:h-[432px]",
-                                "mt-4 landing-sm:mt-8 landing-lg:mt-8",
-                                "px-4 landing-sm:px-0",
-                                "landing-lg:pr-12",
-                            )}
-                        />
+                        <div>
+                            <EnterpriseHeroSection
+                                className={clsx(
+                                    sectionWidth,
+                                    sectionPadding,
+                                    "mt-4 landing-sm:mt-8 landing-lg:mt-8",
+                                    "px-4 landing-sm:px-0",
+                                )}
+                            />
+                            <div
+                                className={clsx(
+                                    sectionWidth,
+                                    sectionPadding,
+                                    "mt-12 landing-sm:mt-16 landing-md:mt-20",
+                                )}
+                            >
+                                <LandingHeroShowcaseOpenPanelCommunity />
+                            </div>
+                        </div>
                         <div className={clsx("w-full", "overflow-hidden")}>
                             <EnterpriseTable
                                 className={clsx(sectionWidth, sectionPadding)}

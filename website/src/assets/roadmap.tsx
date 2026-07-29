@@ -3,11 +3,9 @@ import {
     FolderIcon,
     WizardsIcon,
     SecurityIcon,
-    NoVendorLockinIcon,
     PhpIcon,
     MonitorIcon,
     SelfHostedIcon,
-    PaymentIcon,
 } from "@site/src/components/landing/icons";
 
 // The two items currently being worked on. Update this once they ship.
@@ -33,10 +31,6 @@ export const plannedFeatures = [
         title: "ImunifyAV page for end-users",
     },
     {
-        icon: <NoVendorLockinIcon />,
-        title: "Ubuntu 26 support",
-    },
-    {
         icon: <PhpIcon />,
         title: "PHP 8.6 version",
     },
@@ -47,9 +41,5 @@ export const plannedFeatures = [
     {
         icon: <SelfHostedIcon />,
         title: "Ongoing improvements in container isolation",
-    },
-    {
-        icon: <PaymentIcon />,
-        title: "Paymenter.org module",
     },
 ];

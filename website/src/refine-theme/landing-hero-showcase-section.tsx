@@ -40,6 +40,22 @@ const ShowcaseDevOps = ({ className }: { className?: string }) => {
     return <LandingHeroShowcaseOpenCliTerminal className={className} />;
 };
 
+const ShowcaseCommunity = ({ className }: { className?: string }) => {
+    const { colorMode } = useColorMode();
+    const src =
+        colorMode === "dark"
+            ? "/img/landing/openpanel-community-illustration-dark.svg"
+            : "/img/landing/openpanel-community-illustration-light.svg";
+
+    return (
+        <img
+            src={src}
+            alt="OpenPanel Community dashboard illustration"
+            className={clsx(className, "w-full")}
+        />
+    );
+};
+
 const LandingHeroShowcaseFrame = ({ app }: { app: (typeof apps)[number] }) => {
     const { colorMode } = useColorMode();
 
@@ -374,6 +390,32 @@ export const LandingHeroShowcaseOpenPanel = ({}) => {
             )}
         >
             <LandingHeroShowcaseFrame app={openPanelApp} />
+        </div>
+    );
+};
+
+export const LandingHeroShowcaseOpenPanelCommunity = ({}) => {
+    const communityApp = {
+        ...apps.find((app) => app.name === "OpenPanel")!,
+        showcase: ShowcaseCommunity,
+    };
+
+    return (
+        <div
+            className={clsx(
+                "bg-gray-50 dark:bg-gray-800",
+                "flex",
+                "flex-col",
+                "w-full",
+                "rounded-2xl landing-sm:rounded-[32px]",
+                "gap-2 landing-sm:gap-4",
+                "p-2 landing-sm:p-4",
+                "relative",
+                "group/showcase",
+                "landing-lg:overflow-hidden",
+            )}
+        >
+            <LandingHeroShowcaseFrame app={communityApp} />
         </div>
     );
 };

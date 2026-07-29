@@ -130,7 +130,7 @@ const faq = [
     },
     {
         question: "Is OpenPanel open source?",
-        answer: "No, OpenPanel is proprietary software, not open source. The Community edition is free to use, but the source code is not licensed for redistribution or modification.",
+        answer: "Yes, OpenAdmin, configuration, and terminal commands are all 100% open source. The only thing that's closed is the core for the OpenPanel UI and its enterprise-only modules, such as FTP, emails, Docker manager, and API.",
     },
     {
         question: "What operating systems does OpenPanel Community support?",
