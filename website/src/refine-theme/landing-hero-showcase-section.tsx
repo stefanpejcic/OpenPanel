@@ -1,5 +1,6 @@
 import React from "react";
 import clsx from "clsx";
+import { useColorMode } from "@docusaurus/theme-common";
 import { LandingArrowRightIcon } from "./icons/landing-arrow-right";
 import { ShowcaseWrapper } from "../components/landing/showcase-wrapper";
 import { LandingHeroShowcaseOpenCliTerminal } from "./landing-hero-showcase-opencli-terminal";
@@ -15,11 +16,17 @@ const ShowcaseCRM = ({ className }: { className?: string }) => {
 };
 
 const ShowcaseHR = ({ className }: { className?: string }) => {
+    const { colorMode } = useColorMode();
+    const src =
+        colorMode === "dark"
+            ? "/img/landing/openadmin-illustration-dark.svg"
+            : "/img/landing/openadmin-illustration-light.svg";
+
     return (
-        <ShowcaseWrapper
-            className={className}
-            render="/img/admin_light.png"
-            highlights={[]}
+        <img
+            src={src}
+            alt="OpenAdmin dashboard illustration"
+            className={clsx(className, "w-full")}
         />
     );
 };
@@ -30,10 +37,16 @@ const ShowcaseDevOps = ({ className }: { className?: string }) => {
 
 export const LandingHeroShowcaseSection = ({}) => {
     const [activeApp, setActiveApp] = React.useState(apps[0]);
+    const { colorMode } = useColorMode();
 
     const ShowcaseComponent = React.useMemo(() => {
         return activeApp.showcase;
     }, [activeApp.name]);
+
+    const isFrameDark =
+        activeApp.name === "OpenAdmin"
+            ? colorMode === "dark"
+            : !!activeApp.dark;
 
     return (
         <div
@@ -166,6 +179,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                     "shadow-sm shadow-gray-200 dark:shadow-none",
                     "relative",
                     "group/showcase-inner",
+                    isFrameDark ? "bg-gray-900" : "bg-gray-0",
                 )}
             >
                 <div
@@ -176,7 +190,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                         "transition-colors",
                         "duration-150",
                         "ease-in-out",
-                        activeApp.dark ? "bg-gray-900" : "bg-gray-0",
+                        isFrameDark ? "bg-gray-900" : "bg-gray-0",
                     )}
                 />
                 <ShowcaseComponent
@@ -210,9 +224,9 @@ export const LandingHeroShowcaseSection = ({}) => {
                         "w-full",
                         "h-24",
                         "opacity-0",
-                        activeApp.dark &&
+                        isFrameDark &&
                             "bg-[linear-gradient(0deg,_#14141F_30%,_transparent_90%,_transparent_100%)]",
-                        !activeApp.dark &&
+                        !isFrameDark &&
                             "bg-[linear-gradient(0deg,_#FFFFFF_30%,_transparent_90%,_transparent_100%)]",
                         "rounded-bl-lg rounded-br-lg",
                         "landing-md:rounded-bl-xl landing-md:rounded-br-xl",
@@ -260,7 +274,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                             "hover:text-refine-blue dark:hover:text-refine-cyan-alt",
                             "landing-lg:hover:text-gray-0 dark:landing-lg:hover:text-gray-900",
                             "landing-lg:border-8 landing-lg:border-solid",
-                            activeApp.dark
+                            isFrameDark
                                 ? "landing-lg:border-gray-900"
                                 : "landing-lg:border-gray-0",
                         )}
@@ -315,7 +329,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                         "hover:text-refine-blue dark:hover:text-refine-cyan-alt",
                         "landing-lg:hover:text-gray-0 dark:landing-lg:hover:text-gray-900",
                         "landing-lg:border-8 landing-lg:border-solid",
-                        activeApp.dark
+                        isFrameDark
                             ? "landing-lg:border-gray-900"
                             : "landing-lg:border-gray-0",
                     )}
@@ -341,6 +355,7 @@ const apps = [
         name: "OpenAdmin",
         link: "https://demo.openpanel.com:2087/login",
         showcase: ShowcaseHR,
+        dark: true,
         label: "Admin panel demo",
     },
     {

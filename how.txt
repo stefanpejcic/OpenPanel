@@ -1,0 +1,37 @@
+How to test the website locally (Docusaurus)
+=============================================
+
+1. Upgrade system Node.js to >= 20.18.1 (required by cheerio/docusaurus deps).
+   The default Ubuntu/Debian apt package is too old (18.x), so use NodeSource:
+
+     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+     sudo apt-get install -y nodejs
+
+   If apt complains about a conflicting existing nodejs/libnode package:
+
+     sudo apt-get remove -y nodejs npm
+     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+     sudo apt-get install -y nodejs
+
+   Verify:
+
+     node -v   # should print v20.x
+
+2. Install yarn (this repo's documented package manager - do NOT use
+   "sudo apt install cmdtest", that installs an unrelated package that
+   squats the "yarn" command name):
+
+     corepack enable && corepack prepare yarn@stable --activate
+
+   or, if corepack isn't available:
+
+     npm install -g yarn
+
+3. From the website directory, install dependencies and start the dev server:
+
+     cd website
+     yarn install
+     yarn start
+
+4. Open http://localhost:3000/roadmap in a browser to see the redesigned
+   roadmap page. Check both light and dark mode.
