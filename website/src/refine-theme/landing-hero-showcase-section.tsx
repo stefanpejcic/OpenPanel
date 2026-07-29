@@ -283,7 +283,7 @@ export const LandingHeroShowcaseSection = ({}) => {
                         className={clsx(
                             "rounded-3xl",
                             "flex",
-                            "w-auto",
+                            "w-full",
                             "landing-lg:w-full",
                             "items-center",
                             "justify-start",
