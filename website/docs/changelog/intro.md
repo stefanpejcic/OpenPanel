@@ -1,19 +1,22 @@
 # Changelog
 
 ### Upcoming version
+
 | Version| Release date | 
 |---|---|
-|__[2.0.1](/docs/changelog/2.0.1)__| August 15, 2026 |
+|__[2.0.1](/docs/changelog/2.0.1)__| August 06, 2026 |
+|__[2.0.0](/docs/changelog/2.0.0)__|  |
 
 ### Latest
-| Version| Release date | 
-|---|---|
-|__[2.0.0](/docs/changelog/2.0.0)__| July 28, 2026 |
 
-### Docker versions
 | Version| Release date | 
 |---|---|
-|__[1.7.66](/docs/changelog/1.7.66)__| July 25, 2026 |
+|__[1.7.66](/docs/changelog/1.7.66)__| July 28, 2026 |
+
+### Previous versions
+
+| Version| Release date | 
+|---|---|
 |__[1.7.65](/docs/changelog/1.7.65)__| July 09, 2026 |
 |__[1.7.64](/docs/changelog/1.7.64)__| June 30, 2026 |
 |__[1.7.63](/docs/changelog/1.7.63)__| June 23, 2026 |
