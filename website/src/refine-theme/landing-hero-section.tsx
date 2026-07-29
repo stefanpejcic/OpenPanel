@@ -1,6 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import { LandingHeroGithubStars } from "./landing-hero-github-stars";
+import { LandingHeroVersion } from "./landing-hero-version";
 import { LandingStartActionIcon } from "./icons/landing-start-action";
 
 import { LandingHeroAnimation } from "./landing-hero-animation";
@@ -19,18 +20,21 @@ const HERO_VARIANTS = [
         heading: "Next Generation",
         tagline:
             "OpenPanel is a multi-user web hosting panel designed around lightweight containers. Each user gets their own fully isolated environment, complete with a separate MySQL server, PHP version, Redis instance, and full root access.",
+        badge: "version" as const,
     },
     // open-source
     {
         heading: "Open Source",
         tagline:
             "OpenPanel is open source and community-driven, and you can self-host it anywhere you like, on your own hardware or any cloud provider. No per-account fees, no vendor lock-in — containers do the isolation work for you, at no cost at all, ever.",
+        badge: "stars" as const,
     },
     // competitive vs cPanel/Plesk
     {
         heading: "No Lock-In",
         tagline:
             "Tired of cPanel or Plesk license fees eating into your margins? OpenPanel gives you the same multi-user hosting workflow you already know, built on containers instead of legacy shared Linux accounts, and it costs you nothing, ever.",
+        badge: "version" as const,
     },
 ];
 
@@ -77,7 +81,11 @@ export const LandingHeroSection = ({ className }: { className?: string }) => {
                         "landing-lg:py-8",
                     )}
                 >
-                    <LandingHeroGithubStars />
+                    {variant.badge === "stars" ? (
+                        <LandingHeroGithubStars />
+                    ) : (
+                        <LandingHeroVersion />
+                    )}
                     <div className={clsx("flex", "flex-col", "gap-6")}>
                         <h1
                             className={clsx(
