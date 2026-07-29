@@ -1016,7 +1016,7 @@ const About: React.FC = () => {
                                     )}
                                 >
                                     <FooterGithubIcon width={20} height={20} />
-                                    GitHub
+                                    View on Github
                                 </Link>
                             </div>
                             <Link

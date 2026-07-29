@@ -28,26 +28,6 @@ export const LandingFooter = () => {
             >
                 OpenPanel, LLC
             </div>
-            <div
-                className={clsx(
-                    "font-normal",
-                    "text-sm",
-                    "leading-5",
-                    "text-gray-600 dark:text-gray-400",
-                )}
-            >
-             131 Continental Dr
-            </div>
-            <div
-                className={clsx(
-                    "font-normal",
-                    "text-sm",
-                    "leading-5",
-                    "text-gray-600 dark:text-gray-400",
-                )}
-            >
-             Newark, Delaware
-            </div>
             <a
                 href="mailto:info@openpanel.com"
                 className={clsx(
@@ -333,7 +313,7 @@ export const LandingFooter = () => {
                         )}
                     >
                         {
-                            `© ${currentYear}, OpenPanel - made with  `
+                            `© 2023 - ${currentYear}, OpenPanel™ - made with  `
                         }
                         <HeartOutlinedIcon
                             className={clsx(
@@ -342,7 +322,8 @@ export const LandingFooter = () => {
                                 "inline",
                                 "leading-5",
                             )}
-                        />                    
+                        />
+                        {" in Serbia"}
                     </div>
                 </div>
             </div>

@@ -1,0 +1,266 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="632" height="360" viewBox="0 0 632 360" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif">
+<style>
+.card0 { animation: card0Fade 27s linear infinite; }
+@keyframes card0Fade { 0% { opacity: 1; } 10.6111% { opacity: 1; } 11.1111% { opacity: 0; } 100% { opacity: 0; } }
+
+.card1 { animation: card1Fade 27s linear infinite; }
+@keyframes card1Fade { 0% { opacity: 0; } 11.1111% { opacity: 0; } 11.6111% { opacity: 1; } 21.7222% { opacity: 1; } 22.2222% { opacity: 0; } 100% { opacity: 0; } }
+
+.card2 { animation: card2Fade 27s linear infinite; }
+@keyframes card2Fade { 0% { opacity: 0; } 22.2222% { opacity: 0; } 22.7222% { opacity: 1; } 32.8333% { opacity: 1; } 33.3333% { opacity: 0; } 100% { opacity: 0; } }
+
+.card3 { animation: card3Fade 27s linear infinite; }
+@keyframes card3Fade { 0% { opacity: 0; } 33.3333% { opacity: 0; } 33.8333% { opacity: 1; } 43.9444% { opacity: 1; } 44.4444% { opacity: 0; } 100% { opacity: 0; } }
+
+.card4 { animation: card4Fade 27s linear infinite; }
+@keyframes card4Fade { 0% { opacity: 0; } 44.4444% { opacity: 0; } 44.9444% { opacity: 1; } 55.0556% { opacity: 1; } 55.5556% { opacity: 0; } 100% { opacity: 0; } }
+
+.card5 { animation: card5Fade 27s linear infinite; }
+@keyframes card5Fade { 0% { opacity: 0; } 55.5556% { opacity: 0; } 56.0556% { opacity: 1; } 66.1667% { opacity: 1; } 66.6667% { opacity: 0; } 100% { opacity: 0; } }
+
+.card6 { animation: card6Fade 27s linear infinite; }
+@keyframes card6Fade { 0% { opacity: 0; } 66.6667% { opacity: 0; } 67.1667% { opacity: 1; } 77.2778% { opacity: 1; } 77.7778% { opacity: 0; } 100% { opacity: 0; } }
+
+.card7 { animation: card7Fade 27s linear infinite; }
+@keyframes card7Fade { 0% { opacity: 0; } 77.7778% { opacity: 0; } 78.2778% { opacity: 1; } 88.3889% { opacity: 1; } 88.8889% { opacity: 0; } 100% { opacity: 0; } }
+
+.card8 { animation: card8Fade 27s linear infinite; }
+@keyframes card8Fade { 0% { opacity: 0; } 88.8889% { opacity: 0; } 89.3889% { opacity: 1; } 99.5% { opacity: 1; } 100% { opacity: 0; } }
+
+.ftp-off, .ftp-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.ftp-off { animation-name: ftpOff; }
+.ftp-on { animation-name: ftpOn; }
+@keyframes ftpOff { 0% { opacity: 1; } 2.963% { opacity: 1; } 3.263% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes ftpOn { 0% { opacity: 0; } 2.963% { opacity: 0; } 3.263% { opacity: 1; } 100% { opacity: 1; } }
+
+.email-off, .email-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.email-off { animation-name: emailOff; }
+.email-on { animation-name: emailOn; }
+@keyframes emailOff { 0% { opacity: 1; } 14.0741% { opacity: 1; } 14.3741% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes emailOn { 0% { opacity: 0; } 14.0741% { opacity: 0; } 14.3741% { opacity: 1; } 100% { opacity: 1; } }
+
+.api-off, .api-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.api-off { animation-name: apiOff; }
+.api-on { animation-name: apiOn; }
+@keyframes apiOff { 0% { opacity: 1; } 25.1852% { opacity: 1; } 25.4852% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes apiOn { 0% { opacity: 0; } 25.1852% { opacity: 0; } 25.4852% { opacity: 1; } 100% { opacity: 1; } }
+
+.pynode-off, .pynode-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.pynode-off { animation-name: pynodeOff; }
+.pynode-on { animation-name: pynodeOn; }
+@keyframes pynodeOff { 0% { opacity: 1; } 36.2963% { opacity: 1; } 36.5963% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes pynodeOn { 0% { opacity: 0; } 36.2963% { opacity: 0; } 36.5963% { opacity: 1; } 100% { opacity: 1; } }
+
+.docker-off, .docker-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.docker-off { animation-name: dockerOff; }
+.docker-on { animation-name: dockerOn; }
+@keyframes dockerOff { 0% { opacity: 1; } 47.4074% { opacity: 1; } 47.7074% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes dockerOn { 0% { opacity: 0; } 47.4074% { opacity: 0; } 47.7074% { opacity: 1; } 100% { opacity: 1; } }
+
+.passkeys-off, .passkeys-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.passkeys-off { animation-name: passkeysOff; }
+.passkeys-on { animation-name: passkeysOn; }
+@keyframes passkeysOff { 0% { opacity: 1; } 58.5185% { opacity: 1; } 58.8185% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes passkeysOn { 0% { opacity: 0; } 58.5185% { opacity: 0; } 58.8185% { opacity: 1; } 100% { opacity: 1; } }
+
+.varnish-off, .varnish-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.varnish-off { animation-name: varnishOff; }
+.varnish-on { animation-name: varnishOn; }
+@keyframes varnishOff { 0% { opacity: 1; } 69.6296% { opacity: 1; } 69.9296% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes varnishOn { 0% { opacity: 0; } 69.6296% { opacity: 0; } 69.9296% { opacity: 1; } 100% { opacity: 1; } }
+
+.waf-off, .waf-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.waf-off { animation-name: wafOff; }
+.waf-on { animation-name: wafOn; }
+@keyframes wafOff { 0% { opacity: 1; } 80.7407% { opacity: 1; } 81.0407% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes wafOn { 0% { opacity: 0; } 80.7407% { opacity: 0; } 81.0407% { opacity: 1; } 100% { opacity: 1; } }
+
+.mcp-off, .mcp-on { animation-duration: 27s; animation-iteration-count: infinite; animation-timing-function: linear; }
+.mcp-off { animation-name: mcpOff; }
+.mcp-on { animation-name: mcpOn; }
+@keyframes mcpOff { 0% { opacity: 1; } 91.8519% { opacity: 1; } 92.1519% { opacity: 0; } 100% { opacity: 0; } }
+@keyframes mcpOn { 0% { opacity: 0; } 91.8519% { opacity: 0; } 92.1519% { opacity: 1; } 100% { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) { [class^="card"], [class*="-off"], [class*="-on"] { animation: none; } }
+</style>
+<g class="card0">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/ftp</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">FTP accounts</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Create and manage FTP accounts</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">for your hosting clients.</text>
+<g class="ftp-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="ftp-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-18" y="-14" width="16" height="8" rx="2"/><rect x="-18" y="-6" width="36" height="22" rx="3"/></g>
+</g>
+<g class="card1">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/emails</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">Email accounts</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Create and manage email accounts</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">for your domains.</text>
+<g class="email-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="email-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-20" y="-14" width="40" height="28" rx="3"/><path d="M-20 -12 l20 16 l20 -16"/></g>
+</g>
+<g class="card2">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/api</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">API Access</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Generate API keys to manage your</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">account programmatically.</text>
+<g class="api-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="api-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-8 -14 l-10 14 l10 14 M8 -14 l10 14 l-10 14"/></g>
+</g>
+<g class="card3">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/pm2</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">Python &amp; NodeJS Apps</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Setup containerized Python and</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">NodeJS applications.</text>
+<g class="pynode-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="pynode-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -18 l15.6 9 v18 l-15.6 9 l-15.6 -9 v-18 z"/></g>
+</g>
+<g class="card4">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/containers</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">Docker (Containers)</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Allocate resources to containers</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">and start/stop them on demand.</text>
+<g class="docker-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="docker-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><rect x="-16" y="-4" width="22" height="16" rx="2"/><rect x="-2" y="-14" width="22" height="16" rx="2"/></g>
+</g>
+<g class="card5">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/passkeys</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">Passkeys</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Sign in without a password using</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">device-bound passkeys.</text>
+<g class="passkeys-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="passkeys-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-10" cy="-4" r="8"/><path d="M-2 -4 h18 M10 -4 v6 M16 -4 v6"/></g>
+</g>
+<g class="card6">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/cache/varnish</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">Varnish Caching</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Serve cached pages instantly with</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Varnish HTTP acceleration.</text>
+<g class="varnish-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="varnish-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M-4 -18 l-10 20 h8 l-4 16 l16 -22 h-9 z"/></g>
+</g>
+<g class="card7">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/waf</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">Coraza WAF</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Block malicious traffic with a</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">built-in web application firewall.</text>
+<g class="waf-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="waf-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M0 -18 l16 6 v12 c0 10 -16 18 -16 18 s-16 -8 -16 -18 v-12 z"/></g>
+</g>
+<g class="card8">
+<rect x="0" y="0" width="632" height="360" rx="0" fill="#10151f" stroke="#1b2330" stroke-width="1" />
+<text x="48" y="56" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="14" font-weight="400" fill="#6d7889" text-anchor="start">/mcp</text>
+<text x="48" y="106" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="28" font-weight="700" fill="#e7eaef" text-anchor="start">MCP Server</text>
+<rect x="48" y="120" width="100" height="28" rx="14" fill="none" stroke="#3b82f6" stroke-width="1.3" />
+<text x="98" y="138" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="600" fill="#3b82f6" text-anchor="middle">Enterprise</text>
+<text x="48" y="192" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Let AI agents manage your server</text>
+<text x="48" y="218" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">via the Model Context Protocol.</text>
+<g class="mcp-off">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#1c2532" stroke="none" />
+<circle cx="62" cy="270" r="10" fill="#e7eaef" />
+</g>
+<g class="mcp-on">
+<rect x="48" y="256" width="54" height="28" rx="14" fill="#3b82f6" stroke="none" />
+<circle cx="90" cy="270" r="10" fill="#e7eaef" />
+</g>
+<text x="116" y="276" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="400" fill="#6d7889" text-anchor="start">Activate</text>
+<circle cx="536" cy="110" r="72" fill="rgba(59,130,246,0.12)" />
+<g transform="translate(536,110) scale(2.1)" stroke="#3b82f6" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><circle cx="-14" cy="-10" r="4"/><circle cx="14" cy="-10" r="4"/><circle cx="0" cy="14" r="4"/><path d="M-14 -10 l14 24 l14 -24"/></g>
+</g>
+</svg>

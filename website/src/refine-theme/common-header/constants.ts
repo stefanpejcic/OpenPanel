@@ -9,7 +9,6 @@ import {
     AboutUsIcon,
     StoreIcon,
     BlogIcon,
-    NewBadgeIcon,
 } from "../icons/popover";
 
 export type NavbarPopoverItemType = {
@@ -84,7 +83,6 @@ export const MENU_ITEMS: MenuItemType[] = [
     isPopover: false,
     label: "Live Demo",
     href: "/demo",
-    icon: NewBadgeIcon,
   },
   {
     isPopover: true,

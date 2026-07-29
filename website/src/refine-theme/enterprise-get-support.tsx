@@ -136,14 +136,15 @@ export const EnterpriseGetSupport = ({ className }: { className?: string }) => {
                 >
                     <CommonThemedImage
                         style={{
-                            objectFit: "none",
+                            objectFit: "cover",
                         }}
                         className={clsx(
-                            "rounded-2xl landing-sm:rounded-3xl",
+                            "rounded-t-2xl landing-sm:rounded-t-3xl",
                             "landing-lg:h-[360px]",
+                            "w-full",
                         )}
-                        srcDark="/img/ilustrations/enterprise_modules.png"
-                        srcLight="/img/ilustrations/enterprise_modules_light.png"
+                        srcDark="/img/landing/enterprise-modules-illustration-dark.svg"
+                        srcLight="/img/landing/enterprise-modules-illustration-light.svg"
                     />
                     <div
                         className={clsx(

@@ -69,132 +69,129 @@
 <rect x="910.0" y="24" width="2.4" height="10" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
 <text x="932" y="33" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="middle">1.14</text>
 <rect x="958" y="16" width="58" height="26" rx="7" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
-<rect x="967.0" y="30" width="2.4" height="4" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
-<rect x="970.5" y="27" width="2.4" height="7" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
-<rect x="974.0" y="24" width="2.4" height="10" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
+<rect x="967" y="26.5" width="9.4" height="7" rx="1.3" fill="none" stroke="#6a7282" stroke-width="1.3" />
+<path d="M968.6 26.5 v-2 M971.7 26.5 v-2 M974.8 26.5 v-2" stroke="#6a7282" stroke-width="1.1" fill="none" stroke-linecap="round" />
 <text x="996" y="33" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="middle">68.8%</text>
 <rect x="1022" y="16" width="58" height="26" rx="7" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
-<rect x="1031.0" y="30" width="2.4" height="4" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
-<rect x="1034.5" y="27" width="2.4" height="7" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
-<rect x="1038.0" y="24" width="2.4" height="10" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
+<rect x="1032.7" y="25.7" width="6" height="6" rx="1" fill="none" stroke="#6a7282" stroke-width="1.2" />
+<path d="M1034.2 25.7 v-1.5 M1036.7 25.7 v-1.5 M1034.2 31.7 v1.5 M1036.7 31.7 v1.5 M1032.7 27.2 h-1.5 M1032.7 29.7 h-1.5 M1038.7 27.2 h1.5 M1038.7 29.7 h1.5" stroke="#6a7282" stroke-width="1.1" fill="none" stroke-linecap="round" />
 <text x="1060" y="33" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="middle">6.9%</text>
 <rect x="1086" y="16" width="58" height="26" rx="7" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
-<rect x="1095.0" y="30" width="2.4" height="4" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
-<rect x="1098.5" y="27" width="2.4" height="7" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
-<rect x="1102.0" y="24" width="2.4" height="10" rx="0.6" fill="#6a7282" stroke="none" stroke-width="1" />
+<ellipse cx="1099.7" cy="25.6" rx="4.7" ry="1.6" fill="none" stroke="#6a7282" stroke-width="1.2" />
+<path d="M1095 25.6 v6.8 a4.7 1.6 0 0 0 9.4 0 v-6.8" stroke="#6a7282" stroke-width="1.2" fill="none" />
 <text x="1124" y="33" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="middle">54.7%</text>
 <text x="232" y="108" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="21" font-weight="700" fill="#1e2939" text-anchor="start">Welcome administrator</text>
-<text x="232" y="128" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Want a quick guided tour of OpenPanel?</text>
+<text x="232" y="128" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">Want a quick guided tour of OpenAdmin?</text>
 <text x="464" y="128" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="600" fill="#4f39f6" text-anchor="start">Take the tour</text>
 <text x="536" y="128" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="11" font-weight="400" fill="#6a7282" text-anchor="start">·  Skip</text>
 <text x="672.2857142857143" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">NODES</text>
 <text x="668.2857142857143" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">1</text>
 <text x="671.2857142857143" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M674.2857142857143 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M674.286 113.3 C674.286 111.300 676.286 111.300 677.486 113.3 C678.686 115.300 680.686 115.300 680.686 113.3 C680.686 111.300 678.686 111.300 677.486 113.3 C676.286 115.300 674.286 115.300 674.286 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="744.8571428571429" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">CONTAINERS</text>
 <text x="740.8571428571429" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">22</text>
 <text x="743.8571428571429" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M746.8571428571429 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M746.857 113.3 C746.857 111.300 748.857 111.300 750.057 113.3 C751.257 115.300 753.257 115.300 753.257 113.3 C753.257 111.300 751.257 111.300 750.057 113.3 C748.857 115.300 746.857 115.300 746.857 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="817.4285714285714" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">USERS</text>
 <text x="813.4285714285714" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">3</text>
 <text x="816.4285714285714" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M819.4285714285714 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M819.429 113.3 C819.429 111.300 821.429 111.300 822.629 113.3 C823.829 115.300 825.829 115.300 825.829 113.3 C825.829 111.300 823.829 111.300 822.629 113.3 C821.429 115.300 819.429 115.300 819.429 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="890.0000000000001" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">DOMAINS</text>
 <text x="886.0000000000001" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">10</text>
 <text x="889.0000000000001" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M892.0000000000001 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M892.000 113.3 C892.000 111.300 894.000 111.300 895.200 113.3 C896.400 115.300 898.400 115.300 898.400 113.3 C898.400 111.300 896.400 111.300 895.200 113.3 C894.000 115.300 892.000 115.300 892.000 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="962.5714285714286" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">WEBSITES</text>
 <text x="958.5714285714286" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">5</text>
 <text x="961.5714285714286" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M964.5714285714286 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M964.571 113.3 C964.571 111.300 966.571 111.300 967.771 113.3 C968.971 115.300 970.971 115.300 970.971 113.3 C970.971 111.300 968.971 111.300 967.771 113.3 C966.571 115.300 964.571 115.300 964.571 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="1035.142857142857" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">PACKAGES</text>
 <text x="1031.142857142857" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">3</text>
 <text x="1034.142857142857" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M1037.142857142857 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M1037.143 113.3 C1037.143 111.300 1039.143 111.300 1040.343 113.3 C1041.543 115.300 1043.543 115.300 1043.543 113.3 C1043.543 111.300 1041.543 111.300 1040.343 113.3 C1039.143 115.300 1037.143 115.300 1037.143 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="1107.7142857142858" y="94" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="8.5" font-weight="600" fill="#6a7282" text-anchor="middle" letter-spacing="0.5">EMAILS</text>
 <text x="1103.7142857142858" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="600" fill="#1e2939" text-anchor="end">0</text>
 <text x="1106.7142857142858" y="118" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="12" font-weight="400" fill="#9aa3b2" text-anchor="middle">/</text>
-<path d="M1109.7142857142858 114 a3 2 0 1 0 4 -1.6 a3 2 0 1 0 -4 1.6" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
+<path d="M1109.714 113.3 C1109.714 111.300 1111.714 111.300 1112.914 113.3 C1114.114 115.300 1116.114 115.300 1116.114 113.3 C1116.114 111.300 1114.114 111.300 1112.914 113.3 C1111.714 115.300 1109.714 115.300 1109.714 113.3 Z" stroke="#9aa3b2" stroke-width="1.2" fill="none"/>
 <text x="232" y="178" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1e2939" text-anchor="start">User Activity</text>
 <text x="232" y="194" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="400" fill="#6a7282" text-anchor="start">Real-time user activity log.</text>
 <circle cx="243" cy="226" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="229.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="224" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">2001:db8:7f21:1cf7:c639…bc8d</text>
 <text x="262" y="237" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="237" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="237" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="237" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="237" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">added a domain pejcic.rs</text>
 <text x="528" y="224" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 0:54:05</text>
 <line x1="232" y1="249" x2="528" y2="249" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="268" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="271.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="266" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">192.0.2.113</text>
 <text x="262" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="279" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">disabled waf for domain pejcic.rs</text>
 <text x="528" y="266" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 1:02:02</text>
 <line x1="232" y1="291" x2="528" y2="291" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="310" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="313.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="308" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">2001:db8:9173:2a81:3cf0…b324</text>
 <text x="262" y="321" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="321" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="321" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="321" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="321" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">installed wordpress on pejcic.rs/blog</text>
 <text x="528" y="308" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 1:13:44</text>
 <line x1="232" y1="333" x2="528" y2="333" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="352" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="355.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="350" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">198.51.100.47</text>
 <text x="262" y="363" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="363" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="363" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="363" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="363" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">enabled 2fa for the account</text>
 <text x="528" y="350" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 4:43:27</text>
 <line x1="232" y1="375" x2="528" y2="375" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="394" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="397.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="392" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">203.0.113.155</text>
 <text x="262" y="405" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="405" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="405" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="405" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="405" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">uploaded a file backup.zip</text>
 <text x="528" y="392" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 4:50:30</text>
 <line x1="232" y1="417" x2="528" y2="417" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="436" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="439.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="434" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">192.0.2.6</text>
 <text x="262" y="447" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="447" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="447" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="447" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="447" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">extracted backup.zip to /var/www/html/..</text>
 <text x="528" y="434" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 4:56:45</text>
 <line x1="232" y1="459" x2="528" y2="459" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="478" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="481.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="476" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">2001:db8:4100:f4d0:580c…fb7c</text>
 <text x="262" y="489" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="489" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="489" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="489" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="489" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">deleted file backup.zip</text>
 <text x="528" y="476" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 5:34:07</text>
 <line x1="232" y1="501" x2="528" y2="501" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="520" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="523.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="518" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">198.51.100.102</text>
 <text x="262" y="531" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="531" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="531" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="531" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="531" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">edited file wp-config.php</text>
 <text x="528" y="518" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 8:27:45</text>
 <line x1="232" y1="543" x2="528" y2="543" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="562" r="11" fill="#f1f2f4" stroke="#e5e7eb" stroke-width="1"/>
 <text x="243" y="565.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#6a7282" text-anchor="middle">D</text>
 <text x="262" y="560" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">2001:db8:6300:054c:245a…2037</text>
 <text x="262" y="573" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="573" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="573" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="573" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="573" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">renewed SSL certificate for pejcic.rs</text>
 <text x="528" y="560" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 9:14:53</text>
 <line x1="232" y1="585" x2="528" y2="585" stroke="#eaecef" stroke-width="1"/>
 <circle cx="243" cy="604" r="11" fill="#155dfc" stroke="#155dfc" stroke-width="1"/>
 <text x="243" y="607.5" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10" font-weight="700" fill="#fff" text-anchor="middle">D</text>
 <text x="262" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="10.5" font-weight="500" fill="#1e2939" text-anchor="start">203.0.113.59</text>
 <text x="262" y="615" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">User </text>
-<text x="284" y="615" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
-<text x="310" y="615" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">logged in with a password</text>
+<text x="288" y="615" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="600" fill="#1e2939" text-anchor="start">demo</text>
+<text x="320" y="615" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="start">restarted PHP-FPM service</text>
 <text x="528" y="602" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="9.5" font-weight="400" fill="#6a7282" text-anchor="end">Today 12:41:24</text>
 <line x1="232" y1="627" x2="528" y2="627" stroke="#eaecef" stroke-width="1"/>
 <text x="560" y="178" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="15" font-weight="600" fill="#1e2939" text-anchor="start">Latest News</text>
