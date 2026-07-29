@@ -9,7 +9,7 @@
 # Usage:                   bash <(curl -sSL https://openpanel.org/)
 # Author:                  Stefan Pejcic <stefan@pejcic.rs>
 # Created:                 11.07.2023
-# Last Modified:           28.07.2026
+# Last Modified:           29.07.2026
 ################################################################################
 # shellcheck disable=SC2015
 
@@ -371,17 +371,16 @@ clone_repos() {
 
     # openpanel-configuration
     echo "Downloading openpanel-configuration to $ETC_DIR"
-    #curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip && unzip /tmp/main.zip -d "$ETC_DIR"
 
     local tmp_extract="/tmp/openpanel-configuration-extract"
     rm -rf "$tmp_extract"
     mkdir -p "$tmp_extract"
-    curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.zip -o /tmp/main.zip && unzip -q /tmp/main.zip -d "$tmp_extract"
+    curl -sSL https://github.com/stefanpejcic/openpanel-configuration/archive/refs/heads/main.tar.gz -o /tmp/main.tar.gz && tar -xzf /tmp/main.tar.gz -C "$tmp_extract" --strip-components=1
     local src_dir
     src_dir=$(find "$tmp_extract" -mindepth 1 -maxdepth 1 -type d | head -n1)
     mkdir -p "$ETC_DIR"
     cp -a "${src_dir}/." "$ETC_DIR"
-    rm -rf /tmp/main.zip "$tmp_extract"
+    rm -rf /tmp/main.tar.gz "$tmp_extract"
     [[ -f "$CONFIG_FILE" ]] || die 1 "Config file ${CONFIG_FILE} is missing after downloading configuration from Github."
 
     # openadmin
